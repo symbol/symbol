@@ -41,6 +41,8 @@ namespace catapult { namespace model {
 		// Assert:
 		assertSuccessfulParse("mijin", NetworkIdentifier::Mijin);
 		assertSuccessfulParse("mijin-test", NetworkIdentifier::Mijin_Test);
+		assertSuccessfulParse("private", NetworkIdentifier::Private);
+		assertSuccessfulParse("private-test", NetworkIdentifier::Private_Test);
 		assertSuccessfulParse("public", NetworkIdentifier::Public);
 		assertSuccessfulParse("public-test", NetworkIdentifier::Public_Test);
 
@@ -50,7 +52,7 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidNetworkIdentifierValue) {
-		test::AssertEnumParseFailure("mijin", NetworkIdentifier::Public, [](const auto& str, auto& parsedValue) {
+		test::AssertEnumParseFailure("private", NetworkIdentifier::Public, [](const auto& str, auto& parsedValue) {
 			return TryParseValue(str, parsedValue);
 		});
 		test::AssertFailedParse("256", NetworkIdentifier::Public, [](const auto& str, auto& parsedValue) {
@@ -100,11 +102,11 @@ namespace catapult { namespace model {
 
 		std::unordered_map<std::string, UniqueNetworkFingerprint> GenerateEqualityInstanceMap() {
 			return {
-				{ "default", { NetworkIdentifier::Mijin, GenerationHashSeed{ { 1, 2, 3 } } } },
-				{ "copy", { NetworkIdentifier::Mijin, GenerationHashSeed{ { 1, 2, 3 } } } },
+				{ "default", { NetworkIdentifier::Private, GenerationHashSeed{ { 1, 2, 3 } } } },
+				{ "copy", { NetworkIdentifier::Private, GenerationHashSeed{ { 1, 2, 3 } } } },
 
-				{ "diff-identifier", { NetworkIdentifier::Mijin_Test, GenerationHashSeed{ { 1, 2, 3 } } } },
-				{ "diff-hash", { NetworkIdentifier::Mijin, GenerationHashSeed{ { 1, 2, 4 } } } }
+				{ "diff-identifier", { NetworkIdentifier::Private_Test, GenerationHashSeed{ { 1, 2, 3 } } } },
+				{ "diff-hash", { NetworkIdentifier::Private, GenerationHashSeed{ { 1, 2, 4 } } } }
 			};
 		}
 	}
@@ -125,14 +127,14 @@ namespace catapult { namespace model {
 		// Arrange:
 		constexpr auto Generation_Hash_Seed_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
 		auto fingerprint = UniqueNetworkFingerprint(
-				NetworkIdentifier::Mijin_Test,
+				NetworkIdentifier::Private_Test,
 				utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String));
 
 		// Act:
 		auto str = test::ToString(fingerprint);
 
 		// Assert:
-		EXPECT_EQ("Mijin_Test::272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2", str);
+		EXPECT_EQ("Private_Test::272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2", str);
 	}
 
 	// endregion

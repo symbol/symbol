@@ -212,7 +212,7 @@ namespace catapult { namespace nodediscovery {
 		auto identity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
 		auto candidateNode = test::CreateNamedNode(identity, "candidate");
 
-		// - configure the ping response node to have a different network (processor is configured with Mijin_Test)
+		// - configure the ping response node to have a different network (processor is configured with Private_Test)
 		context.PingRequestInitiator.setResponseNode(identity, ionet::Node(identity, candidateNode.endpoint(), ionet::NodeMetadata()));
 
 		// Act: process candidate node

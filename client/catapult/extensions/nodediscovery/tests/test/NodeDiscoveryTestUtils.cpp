@@ -29,7 +29,7 @@ namespace catapult { namespace test {
 	model::UniqueNetworkFingerprint CreateNodeDiscoveryNetworkFingerprint() {
 		constexpr auto Generation_Hash_Seed_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
 		return model::UniqueNetworkFingerprint(
-				model::NetworkIdentifier::Mijin_Test,
+				model::NetworkIdentifier::Private_Test,
 				utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String));
 	}
 

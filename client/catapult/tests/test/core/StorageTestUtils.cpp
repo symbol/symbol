@@ -24,14 +24,14 @@
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/RawFile.h"
 #include "catapult/model/EntityHasher.h"
-#include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include <boost/filesystem.hpp>
 
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr auto Source_Directory = "../seed/mijin-test";
+		constexpr auto Source_Directory = "../seed/private-test";
 
 		void SetIndexHeight(const std::string& destination, uint64_t height) {
 			io::RawFile indexFile(destination + "/index.dat", io::OpenMode::Read_Write);
@@ -66,7 +66,7 @@ namespace catapult { namespace test {
 		auto& nemesisBlock = const_cast<model::Block&>(pNemesisBlockElement->Block);
 		modify(nemesisBlock, *pNemesisBlockElement);
 		extensions::BlockExtensions(GetNemesisGenerationHashSeed()).signFullBlock(
-				crypto::KeyPair::FromString(Mijin_Test_Nemesis_Private_Key),
+				crypto::KeyPair::FromString(Test_Network_Nemesis_Private_Key),
 				nemesisBlock);
 
 		// overwrite the nemesis file in destination

@@ -28,7 +28,7 @@
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/nemesis/NemesisTestUtils.h"
-#include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
@@ -255,15 +255,15 @@ namespace catapult { namespace local {
 		EXPECT_EQ(Height(1), stateChangeInfo.Height);
 
 		// - check account state changes
-		EXPECT_EQ(3u + CountOf(test::Mijin_Test_Private_Keys), addedAddresses.size());
+		EXPECT_EQ(3u + CountOf(test::Test_Network_Private_Keys), addedAddresses.size());
 
 		// - check nemesis and rental fee sinks
-		EXPECT_TRUE(ContainsModifiedPrivate(addedAddresses, test::Mijin_Test_Nemesis_Private_Key));
+		EXPECT_TRUE(ContainsModifiedPrivate(addedAddresses, test::Test_Network_Nemesis_Private_Key));
 		EXPECT_TRUE(ContainsAddress(addedAddresses, model::StringToAddress(test::Namespace_Rental_Fee_Sink_Address)));
 		EXPECT_TRUE(ContainsAddress(addedAddresses, model::StringToAddress(test::Mosaic_Rental_Fee_Sink_Address)));
 
 		// - check recipient accounts
-		for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys)
+		for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys)
 			EXPECT_TRUE(ContainsModifiedPrivate(addedAddresses, pRecipientPrivateKeyString)) << pRecipientPrivateKeyString;
 	}
 

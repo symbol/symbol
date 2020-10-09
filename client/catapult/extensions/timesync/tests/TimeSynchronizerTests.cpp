@@ -34,7 +34,7 @@ namespace catapult { namespace timesync {
 	namespace {
 		constexpr int64_t Warning_Threshold_Millis = 5'000;
 		constexpr auto Total_Chain_Importance = Importance(1'000'000'000);
-		constexpr model::NetworkIdentifier Default_Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr model::NetworkIdentifier Default_Network_Identifier = model::NetworkIdentifier::Private_Test;
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 
 		filters::SynchronizationFilter CreateSynchronizationFilter(size_t& numFilterCalls) {

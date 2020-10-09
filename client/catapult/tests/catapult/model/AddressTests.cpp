@@ -29,9 +29,9 @@ namespace catapult { namespace model {
 #define TEST_CLASS AddressTests
 
 	namespace {
-		constexpr auto Network_Identifier = NetworkIdentifier::Mijin_Test;
-		constexpr auto Encoded_Address = "SAAA244WMCB2JXGNQTQHQOS45TGBFF4V2MJBVOQ";
-		constexpr auto Decoded_Address = "90000D73966083A4DCCD84E0783A5CECCC129795D3121ABA";
+		constexpr auto Network_Identifier = NetworkIdentifier::Private_Test;
+		constexpr auto Encoded_Address = "QAAA244WMCB2JXGNQTQHQOS45TGBFF4V2ONA6DI";
+		constexpr auto Decoded_Address = "80000D73966083A4DCCD84E0783A5CECCC129795D39A0F0D";
 		constexpr auto Public_Key = "75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C";
 
 		void AssertCannotCreateAddress(const std::string& encoded) {
@@ -92,7 +92,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expected = Encoded_Address;
 		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
-		auto networkIdentifier = NetworkIdentifier::Mijin_Test;
+		auto networkIdentifier = NetworkIdentifier::Private_Test;
 
 		// Act:
 		auto encoded = PublicKeyToAddressString(publicKey, networkIdentifier);
@@ -108,15 +108,15 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForWellKnownNetwork) {
 		// Arrange:
-		auto expected = utils::ParseByteArray<Address>("60000D73966083A4DCCD84E0783A5CECCC129795D32534F0");
+		auto expected = utils::ParseByteArray<Address>("78000D73966083A4DCCD84E0783A5CECCC129795D3878B85");
 		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
-		auto networkIdentifier = NetworkIdentifier::Mijin;
+		auto networkIdentifier = NetworkIdentifier::Private;
 
 		// Act:
 		auto decoded = PublicKeyToAddress(publicKey, networkIdentifier);
 
 		// Assert:
-		EXPECT_TRUE(IsValidAddress(decoded, NetworkIdentifier::Mijin));
+		EXPECT_TRUE(IsValidAddress(decoded, NetworkIdentifier::Private));
 		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkIdentifier));
 		EXPECT_EQ(expected, decoded);
 	}

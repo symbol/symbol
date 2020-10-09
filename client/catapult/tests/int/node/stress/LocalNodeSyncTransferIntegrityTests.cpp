@@ -59,7 +59,7 @@ namespace catapult { namespace local {
 		// region utils
 
 		void ResignBlock(model::Block& block) {
-			for (const auto* pPrivateKeyString : test::Mijin_Test_Private_Keys) {
+			for (const auto* pPrivateKeyString : test::Test_Network_Private_Keys) {
 				auto keyPair = crypto::KeyPair::FromString(pPrivateKeyString);
 				if (keyPair.publicKey() == block.SignerPublicKey) {
 					extensions::BlockExtensions(test::GetNemesisGenerationHashSeed()).signFullBlock(keyPair, block);
@@ -67,7 +67,7 @@ namespace catapult { namespace local {
 				}
 			}
 
-			CATAPULT_THROW_RUNTIME_ERROR("unable to find block signer among mijin test private keys");
+			CATAPULT_THROW_RUNTIME_ERROR("unable to find block signer among test private keys");
 		}
 
 		// endregion

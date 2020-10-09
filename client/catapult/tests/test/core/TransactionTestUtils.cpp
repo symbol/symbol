@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		pTransaction->SignerPublicKey = signer;
 		pTransaction->Version = 1;
-		pTransaction->Network = model::NetworkIdentifier::Mijin_Test;
+		pTransaction->Network = model::NetworkIdentifier::Private_Test;
 		return PORTABLE_MOVE(pTransaction);
 	}
 

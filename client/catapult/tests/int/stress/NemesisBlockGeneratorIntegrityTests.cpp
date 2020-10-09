@@ -25,8 +25,8 @@
 #include "tests/int/stress/test/EntityDump.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
-#include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {
@@ -34,8 +34,8 @@ namespace catapult {
 #define TEST_CLASS NemesisBlockGeneratorIntegrityTests
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
-		constexpr Amount Nemesis_Amount(9000000000ull / CountOf(test::Mijin_Test_Private_Keys) * 1000000ull);
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
+		constexpr Amount Nemesis_Amount(9000000000ull / CountOf(test::Test_Network_Private_Keys) * 1000000ull);
 
 		bool VerifyNemesisNetworkTransactionSignature(const model::Transaction& transaction) {
 			return extensions::TransactionExtensions(test::GetNemesisGenerationHashSeed()).verify(transaction);
@@ -44,8 +44,8 @@ namespace catapult {
 
 	TEST(TEST_CLASS, CreateTransaction) {
 		// Arrange:
-		auto signer = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
-		auto recipient = crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[0]);
+		auto signer = crypto::KeyPair::FromString(test::Test_Network_Nemesis_Private_Key);
+		auto recipient = crypto::KeyPair::FromString(test::Test_Network_Private_Keys[0]);
 
 		// Act:
 		auto pTransaction = test::CreateTransferTransaction(signer, recipient.publicKey(), Amount(1234));
@@ -57,9 +57,9 @@ namespace catapult {
 
 	TEST(TEST_CLASS, CreateNemesisBlockTransactions) {
 		// Arrange:
-		auto signer = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
+		auto signer = crypto::KeyPair::FromString(test::Test_Network_Nemesis_Private_Key);
 
-		for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys) {
+		for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys) {
 			auto recipient = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
 
 			// Act:
@@ -75,11 +75,11 @@ namespace catapult {
 
 	namespace {
 		auto CreateNemesisBlock() {
-			auto signer = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
+			auto signer = crypto::KeyPair::FromString(test::Test_Network_Nemesis_Private_Key);
 			auto generationHashSeed = test::GetNemesisGenerationHashSeed();
 
 			model::Transactions transactions;
-			for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys) {
+			for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys) {
 				auto recipient = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
 				auto pTransfer = test::CreateTransferTransaction(signer, recipient.publicKey(), Nemesis_Amount);
 				pTransfer->MaxFee = Amount(0);

@@ -45,13 +45,13 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanCreateMetadataWithNetworkFingerprint) {
 		// Arrange
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
-		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
+		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Private_Test, generationHashSeed);
 
 		// Act:
 		NodeMetadata metadata(networkFingerprint);
 
 		// Assert:
-		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkFingerprint.Identifier);
+		EXPECT_EQ(model::NetworkIdentifier::Private_Test, metadata.NetworkFingerprint.Identifier);
 		EXPECT_EQ(generationHashSeed, metadata.NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("", metadata.Name);
 		EXPECT_EQ(NodeVersion(), metadata.Version);
@@ -61,13 +61,13 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanCreateMetadataWithNetworkFingerprintAndName) {
 		// Arrange
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
-		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
+		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Private_Test, generationHashSeed);
 
 		// Act:
 		NodeMetadata metadata(networkFingerprint, "alice");
 
 		// Assert:
-		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkFingerprint.Identifier);
+		EXPECT_EQ(model::NetworkIdentifier::Private_Test, metadata.NetworkFingerprint.Identifier);
 		EXPECT_EQ(generationHashSeed, metadata.NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("alice", metadata.Name);
 		EXPECT_EQ(NodeVersion(), metadata.Version);
@@ -77,13 +77,13 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanCreateCustomMetadata) {
 		// Arrange
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
-		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
+		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Private_Test, generationHashSeed);
 
 		// Act:
 		NodeMetadata metadata(networkFingerprint, "alice", NodeVersion(123), NodeRoles::Api);
 
 		// Assert:
-		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkFingerprint.Identifier);
+		EXPECT_EQ(model::NetworkIdentifier::Private_Test, metadata.NetworkFingerprint.Identifier);
 		EXPECT_EQ(generationHashSeed, metadata.NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("alice", metadata.Name);
 		EXPECT_EQ(NodeVersion(123), metadata.Version);
@@ -137,7 +137,7 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
-		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
+		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Private_Test, generationHashSeed);
 
 		// Act:
 		Node node({ identityKey, "11.22.33.44" }, { "bob.com", 1234 }, { networkFingerprint, "bob", NodeVersion(7), NodeRoles::Peer });
@@ -149,7 +149,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ("bob.com", node.endpoint().Host);
 		EXPECT_EQ(1234u, node.endpoint().Port);
 
-		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, node.metadata().NetworkFingerprint.Identifier);
+		EXPECT_EQ(model::NetworkIdentifier::Private_Test, node.metadata().NetworkFingerprint.Identifier);
 		EXPECT_EQ(generationHashSeed, node.metadata().NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("bob", node.metadata().Name);
 		EXPECT_EQ(NodeVersion(7), node.metadata().Version);
@@ -205,14 +205,14 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutName) {
 		// Arrange:
-		auto expectedMijinAddress = "MCX7YGZ5D524BZVRCPJL3M34MV23QJKFRND6NWI";
+		auto expectedPrivateAddress = "PCX7YGZ5D524BZVRCPJL3M34MV23QJKFROQU2QY";
 		auto expectedTwentyFiveAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UI";
 
 		// Assert: note that the public key -> address conversion is dependent on network
 		auto identityKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 		AssertOutputOperator(
-				{ { identityKey, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mijin) },
-				std::string(expectedMijinAddress) + " @ bob.com:1234");
+				{ { identityKey, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Private) },
+				std::string(expectedPrivateAddress) + " @ bob.com:1234");
 
 		AssertOutputOperator(
 				{ { identityKey, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(static_cast<model::NetworkIdentifier>(0x25)) },

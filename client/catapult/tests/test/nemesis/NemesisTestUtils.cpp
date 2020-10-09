@@ -25,14 +25,14 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
 	}
 
 	Key RawPrivateKeyToPublicKey(const char* privateKeyString) {
@@ -50,7 +50,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		void AssertNemesisAccount(const cache::AccountStateCacheView& view) {
-			auto nemesisKeyPair = crypto::KeyPair::FromString(Mijin_Test_Nemesis_Private_Key);
+			auto nemesisKeyPair = crypto::KeyPair::FromString(Test_Network_Nemesis_Private_Key);
 			auto address = model::PublicKeyToAddress(nemesisKeyPair.publicKey(), Network_Identifier);
 			auto accountStateIter = view.find(address);
 			const auto& accountState = accountStateIter.get();
@@ -96,11 +96,11 @@ namespace catapult { namespace test {
 			EXPECT_EQ(Height(1), accountState.AddressHeight) << message;
 			EXPECT_EQ(address, accountState.Address) << message;
 
-			if (index < CountOf(Mijin_Test_Vrf_Private_Keys)) {
+			if (index < CountOf(Test_Network_Vrf_Private_Keys)) {
 				EXPECT_EQ(Height(1), accountState.PublicKeyHeight) << message;
 				EXPECT_EQ(publicKey, accountState.PublicKey) << message;
 
-				auto expectedVrfPublicKey = crypto::KeyPair::FromString(Mijin_Test_Vrf_Private_Keys[index]).publicKey();
+				auto expectedVrfPublicKey = crypto::KeyPair::FromString(Test_Network_Vrf_Private_Keys[index]).publicKey();
 				EXPECT_EQ(state::AccountPublicKeys::KeyType::VRF, accountState.SupplementalPublicKeys.mask());
 				EXPECT_EQ(expectedVrfPublicKey, GetVrfPublicKey(accountState));
 			} else {
@@ -125,7 +125,7 @@ namespace catapult { namespace test {
 
 		void AssertNemesisState(const cache::AccountStateCacheView& view) {
 			// Assert:
-			EXPECT_EQ(3u + CountOf(Mijin_Test_Private_Keys), view.size());
+			EXPECT_EQ(3u + CountOf(Test_Network_Private_Keys), view.size());
 
 			// - check nemesis account
 			AssertNemesisAccount(view);
@@ -136,7 +136,7 @@ namespace catapult { namespace test {
 
 			// - check recipient accounts
 			auto index = 0u;
-			for (const auto* pRecipientPrivateKeyString : Mijin_Test_Private_Keys)
+			for (const auto* pRecipientPrivateKeyString : Test_Network_Private_Keys)
 				AssertRecipientAccount(view, RawPrivateKeyToPublicKey(pRecipientPrivateKeyString), index++);
 		}
 	}

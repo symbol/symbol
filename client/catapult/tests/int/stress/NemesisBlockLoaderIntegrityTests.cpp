@@ -26,7 +26,7 @@
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/nemesis/NemesisTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
-#include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {
@@ -42,8 +42,8 @@ namespace catapult { namespace extensions {
 		// 3) Num_Nemesis_Accounts transfer transactions
 		// 4) Num_Nemesis_Harvesting_Accounts vrf key link transactions
 
-		constexpr auto Num_Nemesis_Accounts = CountOf(test::Mijin_Test_Private_Keys);
-		constexpr auto Num_Nemesis_Harvesting_Accounts = CountOf(test::Mijin_Test_Vrf_Private_Keys);
+		constexpr auto Num_Nemesis_Accounts = CountOf(test::Test_Network_Private_Keys);
+		constexpr auto Num_Nemesis_Harvesting_Accounts = CountOf(test::Test_Network_Vrf_Private_Keys);
 		constexpr auto Num_Nemesis_Namespaces = 3;
 		constexpr auto Num_Nemesis_Mosaics = 2;
 		constexpr auto Num_Nemesis_Transactions = 0

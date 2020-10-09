@@ -25,7 +25,7 @@
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
-#include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/test/nodeps/Waits.h"
 
 namespace catapult { namespace test {

@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 	// region Block factory functions
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
 
 		void RandomizeBlock(model::Block& block) {
 			auto difficultyRange = (Difficulty::Max() - Difficulty::Min()).unwrap();

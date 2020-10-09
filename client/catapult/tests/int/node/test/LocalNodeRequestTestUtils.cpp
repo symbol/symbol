@@ -60,7 +60,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		crypto::KeyPair GetNemesisAccountKeyPair() {
-			return crypto::KeyPair::FromString(Mijin_Test_Private_Keys[4]); // use a nemesis account
+			return crypto::KeyPair::FromString(Test_Network_Private_Keys[4]); // use a nemesis account
 		}
 
 		model::PreviousBlockContext LoadNemesisPreviousBlockContext() {
@@ -70,7 +70,7 @@ namespace catapult { namespace test {
 		}
 
 		std::shared_ptr<model::Block> CreateBlock() {
-			constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+			constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
 			auto signer = GetNemesisAccountKeyPair();
 			auto context = LoadNemesisPreviousBlockContext();
 

@@ -29,7 +29,7 @@
 namespace catapult { namespace test {
 
 	/// Hash string of the deterministic block.
-	constexpr auto Deterministic_Block_Hash_String = "E407FC2AC20D9A38971D9C864D91691D8090F84A2780122EEC1C961434CF9B9A";
+	constexpr auto Deterministic_Block_Hash_String = "4E081D2CD7180E58BEEF2745895BCC18DF26F75F4DF2CDB7F057C5E169F2E61C";
 
 	// region TestBlockTransactions
 

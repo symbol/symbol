@@ -27,13 +27,13 @@
 #include "catapult/preprocessor.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
-#include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
 	}
 
 	BlockChainBuilder::BlockChainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator)
@@ -191,7 +191,7 @@ namespace catapult { namespace test {
 		});
 
 		auto i = 0u;
-		for (const auto* pPrivateKeyString : Mijin_Test_Private_Keys) {
+		for (const auto* pPrivateKeyString : Test_Network_Private_Keys) {
 			// skip first test account because it is used to fund other accounts
 			if (0u == i++)
 				continue;

@@ -149,25 +149,27 @@ namespace catapult { namespace tools { namespace testvectors {
 			return expectedPublicKey == keyPair.publicKey();
 		}
 
+		// TODO: ask about this
+
 		bool AddressConversionTester(const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto publicKey = ParsePublicKey(Get<>(testCase, "publicKey"), testCaseNumber);
 			auto expectedAddressPublic = ParseAddress(Get<>(testCase, "address_Public"), testCaseNumber);
 			auto expectedAddressPublicTest = ParseAddress(Get<>(testCase, "address_PublicTest"), testCaseNumber);
-			auto expectedAddressMijin = ParseAddress(Get<>(testCase, "address_Mijin"), testCaseNumber);
-			auto expectedAddressMijinTest = ParseAddress(Get<>(testCase, "address_MijinTest"), testCaseNumber);
+			auto expectedAddressPrivate = ParseAddress(Get<>(testCase, "address_Private"), testCaseNumber);
+			auto expectedAddressPrivateTest = ParseAddress(Get<>(testCase, "address_PrivateTest"), testCaseNumber);
 
 			// Act:
 			auto addressPublic = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Public);
 			auto addressPublicTest = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Public_Test);
-			auto addressMijin = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Mijin);
-			auto addressMijinTest = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Mijin_Test);
+			auto addressPrivate = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Private);
+			auto addressPrivateTest = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Private_Test);
 
 			// Assert:
 			return expectedAddressPublic == addressPublic &&
 					expectedAddressPublicTest == addressPublicTest &&
-					expectedAddressMijin == addressMijin &&
-					expectedAddressMijinTest == addressMijinTest;
+					expectedAddressPrivate == addressPrivate &&
+					expectedAddressPrivateTest == addressPrivateTest;
 		}
 
 		bool SigningTester(const pt::ptree& testCase, size_t testCaseNumber) {
@@ -247,25 +249,25 @@ namespace catapult { namespace tools { namespace testvectors {
 			auto nonce = MosaicNonce(Get<MosaicNonce::ValueType>(testCase, "mosaicNonce"));
 			auto addressPublic = ParseAddress(Get<>(testCase, "address_Public"), testCaseNumber);
 			auto addressPublicTest = ParseAddress(Get<>(testCase, "address_PublicTest"), testCaseNumber);
-			auto addressMijin = ParseAddress(Get<>(testCase, "address_Mijin"), testCaseNumber);
-			auto addressMijinTest = ParseAddress(Get<>(testCase, "address_MijinTest"), testCaseNumber);
+			auto addressPrivate = ParseAddress(Get<>(testCase, "address_Private"), testCaseNumber);
+			auto addressPrivateTest = ParseAddress(Get<>(testCase, "address_PrivateTest"), testCaseNumber);
 
 			auto expectedMosaicIdPublic = ParseMosaicId(Get<>(testCase, "mosaicId_Public"), testCaseNumber);
 			auto expectedMosaicIdPublicTest = ParseMosaicId(Get<>(testCase, "mosaicId_PublicTest"), testCaseNumber);
-			auto expectedMosaicIdMijin = ParseMosaicId(Get<>(testCase, "mosaicId_Mijin"), testCaseNumber);
-			auto expectedMosaicIdMijinTest = ParseMosaicId(Get<>(testCase, "mosaicId_MijinTest"), testCaseNumber);
+			auto expectedMosaicIdPrivate = ParseMosaicId(Get<>(testCase, "mosaicId_Private"), testCaseNumber);
+			auto expectedMosaicIdPrivateTest = ParseMosaicId(Get<>(testCase, "mosaicId_PrivateTest"), testCaseNumber);
 
 			// Act:
 			auto mosaicIdPublic = model::GenerateMosaicId(addressPublic, nonce);
 			auto mosaicIdPublicTest = model::GenerateMosaicId(addressPublicTest, nonce);
-			auto mosaicIdMijin = model::GenerateMosaicId(addressMijin, nonce);
-			auto mosaicIdMijinTest = model::GenerateMosaicId(addressMijinTest, nonce);
+			auto mosaicIdPrivate = model::GenerateMosaicId(addressPrivate, nonce);
+			auto mosaicIdPrivateTest = model::GenerateMosaicId(addressPrivateTest, nonce);
 
 			// Assert:
 			return expectedMosaicIdPublic == mosaicIdPublic &&
 					expectedMosaicIdPublicTest == mosaicIdPublicTest &&
-					expectedMosaicIdMijin == mosaicIdMijin &&
-					expectedMosaicIdMijinTest == mosaicIdMijinTest;
+					expectedMosaicIdPrivate == mosaicIdPrivate &&
+					expectedMosaicIdPrivateTest == mosaicIdPrivateTest;
 		}
 
 		class TestVectorsTool : public Tool {

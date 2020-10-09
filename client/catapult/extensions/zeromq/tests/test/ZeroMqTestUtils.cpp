@@ -33,7 +33,7 @@
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
 
 		template<typename TEntity>
 		void AssertMessagePart(const zmq::message_t& messagePart, const TEntity* pExpectedData, size_t expectedSize) {

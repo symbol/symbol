@@ -507,7 +507,7 @@ namespace catapult { namespace local {
 				// - wait for boot
 				test::WaitForBoot(m_context);
 
-				// - seed cache with mijin test private keys
+				// - seed cache with test private keys
 				//   this is needed since those keys are used to sign blocks and can lead to unexpected state changes when
 				//   they are added to the account state cache
 				auto builder = seedCache(allBlocks);
@@ -575,12 +575,12 @@ namespace catapult { namespace local {
 			struct CacheSeedingTransactionsBuilder : public test::TransactionsGenerator {
 			public:
 				size_t size() const {
-					return std::size(test::Mijin_Test_Private_Keys);
+					return std::size(test::Test_Network_Private_Keys);
 				}
 
 				std::unique_ptr<model::Transaction> generateAt(size_t index, Timestamp deadline) const {
-					auto keyPair = crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[index]);
-					auto recipient = model::PublicKeyToAddress(keyPair.publicKey(), model::NetworkIdentifier::Mijin_Test);
+					auto keyPair = crypto::KeyPair::FromString(test::Test_Network_Private_Keys[index]);
+					auto recipient = model::PublicKeyToAddress(keyPair.publicKey(), model::NetworkIdentifier::Private_Test);
 					auto unresolvedRecipient = extensions::CopyToUnresolvedAddress(recipient);
 					auto pTransaction = test::CreateTransferTransaction(keyPair, unresolvedRecipient, Amount(0));
 					pTransaction->Deadline = deadline;

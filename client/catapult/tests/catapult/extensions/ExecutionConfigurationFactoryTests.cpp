@@ -32,7 +32,7 @@ namespace catapult { namespace extensions {
 		auto config = CreateExecutionConfiguration(*pPluginManager);
 
 		// Assert:
-		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, config.Network.Identifier);
+		EXPECT_EQ(model::NetworkIdentifier::Private_Test, config.Network.Identifier);
 		EXPECT_TRUE(!!config.pObserver);
 		EXPECT_TRUE(!!config.pValidator);
 		EXPECT_TRUE(!!config.pNotificationPublisher);

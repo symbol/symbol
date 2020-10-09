@@ -23,7 +23,7 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
-#include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 
 namespace catapult { namespace test {
 
@@ -54,7 +54,7 @@ namespace catapult { namespace test {
 
 	std::vector<crypto::KeyPair> GetNemesisKeyPairs() {
 		std::vector<crypto::KeyPair> nemesisKeyPairs;
-		for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys)
+		for (const auto* pRecipientPrivateKeyString : test::Test_Network_Private_Keys)
 			nemesisKeyPairs.push_back(crypto::KeyPair::FromString(pRecipientPrivateKeyString));
 
 		return nemesisKeyPairs;

@@ -28,8 +28,8 @@
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/int/node/test/LocalNodeTestContext.h"
 #include "tests/test/nodeps/Logging.h"
-#include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/TestHarness.h"
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -56,11 +56,11 @@ namespace catapult { namespace local {
 		}
 
 		ionet::Node CreateNode(uint32_t id) {
-			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test);
+			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Private_Test);
 			auto metadata = ionet::NodeMetadata(networkFingerprint, "NODE " + std::to_string(id));
 			metadata.Roles = ionet::NodeRoles::Peer;
 			return ionet::Node(
-					{ crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[id]).publicKey(), std::to_string(id) },
+					{ crypto::KeyPair::FromString(test::Test_Network_Private_Keys[id]).publicKey(), std::to_string(id) },
 					test::CreateLocalHostNodeEndpoint(GetPortForNode(id)),
 					metadata);
 		}
@@ -327,7 +327,7 @@ namespace catapult { namespace local {
 				contexts.push_back(std::make_unique<NodeTestContext>(nodeFlag, peers, configTransform, postfix));
 
 				auto& context = *contexts.back();
-				context.regenerateCertificates(crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[i]));
+				context.regenerateCertificates(crypto::KeyPair::FromString(test::Test_Network_Private_Keys[i]));
 
 				// - (re)schedule a few tasks and boot the node
 				RescheduleTasks(context.resourcesDirectory());

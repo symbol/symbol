@@ -102,7 +102,7 @@ namespace catapult { namespace ionet {
 		Node CreateNodeForPackTests(const std::string& host, const std::string& name) {
 			auto key = test::GenerateRandomByteArray<Key>();
 			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
-			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
+			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Private_Test, generationHashSeed);
 			return Node({ key, "11.22.33.44" }, { host, 1234 }, { networkFingerprint, name, NodeVersion(7), NodeRoles::Peer });
 		}
 
@@ -120,7 +120,7 @@ namespace catapult { namespace ionet {
 
 			EXPECT_EQ(expectedKey, node.IdentityKey);
 			EXPECT_EQ(1234u, node.Port);
-			EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, node.NetworkIdentifier);
+			EXPECT_EQ(model::NetworkIdentifier::Private_Test, node.NetworkIdentifier);
 			EXPECT_EQ(expectedGenerationHashSeed, node.NetworkGenerationHashSeed);
 			EXPECT_EQ(NodeVersion(7), node.Version);
 			EXPECT_EQ(NodeRoles::Peer, node.Roles);
@@ -223,7 +223,7 @@ namespace catapult { namespace ionet {
 			EXPECT_EQ(expectedHost, node.endpoint().Host);
 			EXPECT_EQ(1234u, node.endpoint().Port);
 
-			EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, node.metadata().NetworkFingerprint.Identifier);
+			EXPECT_EQ(model::NetworkIdentifier::Private_Test, node.metadata().NetworkFingerprint.Identifier);
 			EXPECT_EQ(expectedGenerationHashSeed, node.metadata().NetworkFingerprint.GenerationHashSeed);
 
 			EXPECT_EQ(expectedName, node.metadata().Name);

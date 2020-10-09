@@ -28,10 +28,10 @@ namespace catapult { namespace test {
 	constexpr uint64_t Default_Namespace_Id(0xB149'7F5F'BA65'1B4F);
 
 	/// Default (well known) currency mosaic id used in tests (`currency`).
-	constexpr MosaicId Default_Currency_Mosaic_Id(0x24F4'26B8'D549'3D4B);
+	constexpr MosaicId Default_Currency_Mosaic_Id(0x07FF'C2D9'8157'C66D);
 
 	/// Default (well known) harvesting mosaic id used in tests (`harvest`).
-	constexpr MosaicId Default_Harvesting_Mosaic_Id(0x1D9C'DC7E'218C'A88D);
+	constexpr MosaicId Default_Harvesting_Mosaic_Id(0x1988'CA16'6A02'7F48);
 
 	/// Default total chain importance used for scaling block target calculation.
 	constexpr Importance Default_Total_Chain_Importance(8'999'999'998);

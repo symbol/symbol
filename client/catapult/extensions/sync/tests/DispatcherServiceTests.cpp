@@ -107,7 +107,7 @@ namespace catapult { namespace sync {
 		}
 
 		std::shared_ptr<model::Block> CreateValidBlockForDispatcherTests(const crypto::KeyPair& signer) {
-			constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+			constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
 
 			mocks::MockMemoryBlockStorage storage;
 			auto pNemesisBlockElement = storage.loadBlockElement(Height(1));

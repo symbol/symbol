@@ -48,14 +48,14 @@ namespace catapult { namespace mongo { namespace storages {
 
 			static cache::CatapultCache CreateCache() {
 				auto chainConfig = model::BlockChainConfiguration::Uninitialized();
-				chainConfig.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
+				chainConfig.Network.Identifier = model::NetworkIdentifier::Private_Test;
 				return test::CreateEmptyCatapultCache(chainConfig);
 			}
 
 			static ModelType GenerateRandomElement(uint32_t id) {
 				auto height = Height(id);
 				auto publicKey = test::GenerateRandomByteArray<Key>();
-				auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Mijin_Test);
+				auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Private_Test);
 				auto accountState = state::AccountState(address, Height(1234567) + height);
 				accountState.PublicKey = publicKey;
 				accountState.PublicKeyHeight = Height(1234567) + height;

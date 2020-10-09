@@ -26,8 +26,8 @@
 namespace catapult { namespace test {
 
 	// private keys
-	constexpr auto Mijin_Test_Nemesis_Private_Key = "B59D53B625CC746ECD478FA24F1ABC80B2031EB7DFCD009D5A74ADE615893175";
-	constexpr const char* Mijin_Test_Private_Keys[] = {
+	constexpr auto Test_Network_Nemesis_Private_Key = "B59D53B625CC746ECD478FA24F1ABC80B2031EB7DFCD009D5A74ADE615893175";
+	constexpr const char* Test_Network_Private_Keys[] = {
 		"934B1829665F7324362380E844CBEDA2C103AAEFD3A2C4645DC1715AC29E52E6",
 		"83133E126ED380826B41B395FE64E3C989E9EE801FF198EDE46BF2E64A37DA79",
 		"6ED36237A9ED61F6BB8A06C85A4C9A07AA15625A2876804073F680DB823CF83B",
@@ -52,7 +52,7 @@ namespace catapult { namespace test {
 		"3CA61068D040B9C88DF555C1DE8706486BB635845A66D3465A1A33C7FEE133D9"
 	};
 
-	constexpr const char* Mijin_Test_Vrf_Private_Keys[] = {
+	constexpr const char* Test_Network_Vrf_Private_Keys[] = {
 		"50C115DB56B10489ED8FD20E4B44E781EC0C86E67BF6BAABCDD2C0B5D85E5CAC",
 		"1A2D83C2DF85FCDE03811D56226F465B3D577F2E65EF8FCA429F2CC419B0CDBC",
 		"E007221200283911BE22BEB05269CD30F2220A16908661800729D637863BBB4D",
@@ -67,14 +67,14 @@ namespace catapult { namespace test {
 	};
 
 	// addresses
-	constexpr auto Namespace_Rental_Fee_Sink_Address = "SDTZ23JBJZP3GTKKM2P6FYCMXS6RQYPB6R477TQ";
-	constexpr auto Mosaic_Rental_Fee_Sink_Address = "SDKDPA36TE53BO24FD4KA6OPGOUSEVOU3O5SIFI";
+	constexpr auto Namespace_Rental_Fee_Sink_Address = "QDITYZZWHXDZMQAJJZVWNLCT23WDFWKTKQRHJNY";
+	constexpr auto Mosaic_Rental_Fee_Sink_Address = "QCRGGPTDZS5TAZSZ3PIQSNDH6GQSFA33X73WN6A";
 
 	/// Finds the vrf key pair associated with the specified signing public key (\a signingPublicKey).
 	inline crypto::KeyPair LookupVrfKeyPair(const Key& signingPublicKey) {
 		auto index = 0u;
-		for (const auto* pPrivateKeyString : Mijin_Test_Vrf_Private_Keys) {
-			if (crypto::KeyPair::FromString(Mijin_Test_Private_Keys[index]).publicKey() == signingPublicKey)
+		for (const auto* pPrivateKeyString : Test_Network_Vrf_Private_Keys) {
+			if (crypto::KeyPair::FromString(Test_Network_Private_Keys[index]).publicKey() == signingPublicKey)
 				return crypto::KeyPair::FromString(pPrivateKeyString);
 
 			++index;
@@ -86,7 +86,7 @@ namespace catapult { namespace test {
 	/// Gets the nemesis importance for the specified signing public key (\a signingPublicKey).
 	inline Importance GetNemesisImportance(const Key& signingPublicKey) {
 		auto index = 0u;
-		for (const auto* pPrivateKeyString : Mijin_Test_Private_Keys) {
+		for (const auto* pPrivateKeyString : Test_Network_Private_Keys) {
 			auto keyPair = crypto::KeyPair::FromString(pPrivateKeyString);
 			if (keyPair.publicKey() == signingPublicKey)
 				break;

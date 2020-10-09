@@ -184,7 +184,7 @@ namespace catapult { namespace harvesting {
 		private:
 			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
 				auto config = model::BlockChainConfiguration::Uninitialized();
-				config.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
+				config.Network.Identifier = model::NetworkIdentifier::Private_Test;
 				config.EnableVerifiableState = false;
 				config.EnableVerifiableReceipts = false;
 				config.HarvestingMosaicId = Harvesting_Mosaic_Id;

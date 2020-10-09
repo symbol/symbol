@@ -26,9 +26,9 @@
 #include "catapult/utils/NetworkTime.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/NodeTestUtils.h"
-#include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 
 namespace catapult { namespace test {
@@ -87,8 +87,8 @@ namespace catapult { namespace test {
 		}
 
 		void SetNetwork(model::NetworkInfo& network) {
-			network.Identifier = model::NetworkIdentifier::Mijin_Test;
-			network.NemesisSignerPublicKey = crypto::KeyPair::FromString(Mijin_Test_Nemesis_Private_Key).publicKey();
+			network.Identifier = model::NetworkIdentifier::Private_Test;
+			network.NemesisSignerPublicKey = crypto::KeyPair::FromString(Test_Network_Nemesis_Private_Key).publicKey();
 			network.GenerationHashSeed = GetNemesisGenerationHashSeed();
 			network.EpochAdjustment = Default_Network_Epoch_Adjustment;
 		}

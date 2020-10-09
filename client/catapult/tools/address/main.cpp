@@ -48,8 +48,8 @@ namespace catapult { namespace tools { namespace address {
 						OptionsValue<std::string>(m_secretKey),
 						"show address and public key associated with private key");
 				optionsBuilder("network,n",
-						OptionsValue<std::string>(m_networkName)->default_value("mijin"),
-						"network, possible values: mijin (default), mijin-test, public, public-test");
+						OptionsValue<std::string>(m_networkName)->default_value("private"),
+						"network, possible values: private (default), private-test, public, public-test");
 				optionsBuilder("useLowEntropySource,w",
 						OptionsSwitch(),
 						"true if a low entropy source should be used for randomness (unsafe)");
@@ -87,11 +87,12 @@ namespace catapult { namespace tools { namespace address {
 			}
 
 			void output(model::NetworkIdentifier networkIdentifier, const Key& publicKey) {
+				auto address = model::PublicKeyToAddress(publicKey, networkIdentifier);
 				std::cout
 						<< std::setw(Label_Width) << "public key: " << publicKey << std::endl
 						<< std::setw(Label_Width - static_cast<int>(m_networkName.size()) - 3)
-								<< "address (" << m_networkName << "): "
-								<< model::AddressToString(model::PublicKeyToAddress(publicKey, networkIdentifier)) << std::endl;
+								<< "address (" << m_networkName << "): " << model::AddressToString(address) << std::endl
+						<< std::setw(Label_Width) << "address decoded: " << address << std::endl;
 			}
 
 			template<typename TGenerator>

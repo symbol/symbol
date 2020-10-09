@@ -43,8 +43,8 @@
 #include "tests/test/local/MessageIngestionTestContext.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
-#include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/test/other/mocks/MockBlockHeightCapturingNotificationObserver.h"
 #include "tests/TestHarness.h"
@@ -519,7 +519,7 @@ namespace catapult { namespace local {
 					: m_startHeight(startHeight)
 					, m_endHeight(endHeight)
 					// m_transactionSignerKeyPair needs to have a balance in the nemesis block because it makes a transfer in block 2
-					, m_transactionSignerKeyPair(crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[0]))
+					, m_transactionSignerKeyPair(crypto::KeyPair::FromString(test::Test_Network_Private_Keys[0]))
 					// m_transactionRecipientAddress and m_beneficiarySinkAddress are fixed accounts for easier debugging
 					, m_transactionRecipientAddress(model::StringToAddress("SDJKL7LWR4EKR3PFRHZJJ5FKSQJNGNO5GQFGJWY"))
 					, m_beneficiarySinkAddress(model::StringToAddress("SDIMYHBW6FKLYUKFALFFDHNQIFXCBZL2VRDBSAQ"))

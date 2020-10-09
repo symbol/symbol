@@ -39,7 +39,7 @@ namespace catapult { namespace harvesting {
 		constexpr auto Default_Time = Timestamp(987);
 		constexpr auto Default_Last_Recalculation_Height = model::ImportanceHeight(1234);
 
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
 		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 

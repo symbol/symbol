@@ -43,7 +43,7 @@ namespace catapult { namespace harvesting {
 	namespace {
 		// region constants / factory functions
 
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
 
 		constexpr Timestamp Max_Time(std::numeric_limits<int64_t>::max());
 		constexpr Importance Default_Importance(1'000'000);

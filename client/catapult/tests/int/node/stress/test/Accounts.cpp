@@ -22,7 +22,7 @@
 #include "catapult/model/Address.h"
 #include "catapult/exceptions.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
-#include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 
 namespace catapult { namespace test {
 
@@ -30,13 +30,13 @@ namespace catapult { namespace test {
 		if (0 == numAccounts)
 			CATAPULT_THROW_INVALID_ARGUMENT("must create at least one account");
 
-		m_keyPairs.push_back(crypto::KeyPair::FromString(Mijin_Test_Private_Keys[0]));
+		m_keyPairs.push_back(crypto::KeyPair::FromString(Test_Network_Private_Keys[0]));
 		for (auto i = 0u; i < numAccounts - 1; ++i)
 			m_keyPairs.push_back(GenerateKeyPair());
 	}
 
 	Address Accounts::getAddress(size_t id) const {
-		return model::PublicKeyToAddress(getKeyPair(id).publicKey(), model::NetworkIdentifier::Mijin_Test);
+		return model::PublicKeyToAddress(getKeyPair(id).publicKey(), model::NetworkIdentifier::Private_Test);
 	}
 
 	const crypto::KeyPair& Accounts::getKeyPair(size_t id) const {

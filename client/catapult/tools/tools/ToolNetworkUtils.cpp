@@ -30,7 +30,7 @@ namespace catapult { namespace tools {
 
 	net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory) {
 		auto settings = net::ConnectionSettings();
-		settings.NetworkIdentifier = model::NetworkIdentifier::Mijin_Test;
+		settings.NetworkIdentifier = model::NetworkIdentifier::Private_Test;
 		settings.AllowOutgoingSelfConnections = true;
 
 		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(certificateDirectory);

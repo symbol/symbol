@@ -44,7 +44,7 @@ namespace catapult { namespace extensions {
 #define TEST_CLASS NemesisBlockLoaderTests
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
 
 		// currency and harvesting mosaic transfers need to be tested for correct behavior
 		constexpr auto Currency_Mosaic_Id = MosaicId(3456);
@@ -78,7 +78,7 @@ namespace catapult { namespace extensions {
 				auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), unresolvedTransfers);
 				pTransaction->SignerPublicKey = nemesisPublicKey;
 				pTransaction->Version = mocks::MockTransaction::Current_Version;
-				pTransaction->Network = model::NetworkIdentifier::Mijin_Test;
+				pTransaction->Network = model::NetworkIdentifier::Private_Test;
 				transactions.push_back(std::move(pTransaction));
 			}
 
@@ -582,7 +582,7 @@ namespace catapult { namespace extensions {
 					Amount()));
 
 			// - resolution receipts due to use of CreateResolverContextXor and interaction with MockTransaction
-			auto recipient = model::PublicKeyToAddress(GetTransactionRecipient(nemesisBlock, 0), model::NetworkIdentifier::Mijin_Test);
+			auto recipient = model::PublicKeyToAddress(GetTransactionRecipient(nemesisBlock, 0), model::NetworkIdentifier::Private_Test);
 			blockStatementBuilder.addResolution(test::UnresolveXor(recipient), recipient);
 			blockStatementBuilder.addResolution(test::UnresolveXor(receiptMosaicId), receiptMosaicId);
 

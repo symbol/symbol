@@ -225,7 +225,7 @@ namespace catapult { namespace chain {
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto notification1 = model::AccountAddressNotification(sender);
 		auto notification2 = test::CreateNotification(Notification_Type_All);
-		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Mijin_Test, 0, 0, 0);
+		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Private_Test, 0, 0, 0);
 		auto notification4 = model::TransactionNotification(sender, hash, static_cast<model::EntityType>(22), Timestamp(11));
 
 		// - process notifications
