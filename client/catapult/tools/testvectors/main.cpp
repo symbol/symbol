@@ -281,21 +281,29 @@ namespace catapult { namespace tools { namespace testvectors {
 						OptionsValue<std::string>(m_vectorsDirectory)->required(),
 						"path to test-vectors directory");
 
+				optionsBuilder("inclusion-filter,i",
+						OptionsValue<std::vector<uint16_t>>(m_inclusionFilter)->multitoken()->default_value({ 0, 1, 2, 3, 4, 5 }, "all"),
+						"identifiers of tests to include");
+
 				positional.add("vectors-dir", -1);
 			}
 
 			int run(const Options&) override {
-				RunTest(parseJsonFile("0.test-sha3-256"), "sha3", CreateHashTester(crypto::Sha3_256));
-				RunTest(parseJsonFile("1.test-keys"), "key conversion", KeyConversionTester);
-				RunTest(parseJsonFile("1.test-address"), "address conversion", AddressConversionTester);
-				RunTest(parseJsonFile("2.test-sign"), "signing", SigningTester);
-				RunTest(parseJsonFile("3.test-derive"), "shared key derive", DeriveTester);
-				RunTest(parseJsonFile("4.test-cipher"), "aes-gcm decryption", DecryptTester);
-				RunTest(parseJsonFile("5.test-mosaic-id"), "mosaic id derivation", MosaicIdDerivationTester);
+				runTest(0, "0.test-sha3-256", "sha3", CreateHashTester(crypto::Sha3_256));
+				runTest(1, "1.test-keys", "key conversion", KeyConversionTester);
+				runTest(1, "1.test-address", "address conversion", AddressConversionTester);
+				runTest(2, "2.test-sign", "signing", SigningTester);
+				runTest(3, "3.test-derive", "shared key derive", DeriveTester);
+				runTest(4, "4.test-cipher", "aes-gcm decryption", DecryptTester);
+				runTest(5, "5.test-mosaic-id", "mosaic id derivation", MosaicIdDerivationTester);
 				return 0;
 			}
 
 		private:
+			bool shouldExecute(uint16_t testId) const {
+				return m_inclusionFilter.cend() != std::find(m_inclusionFilter.cbegin(), m_inclusionFilter.cend(), testId);
+			}
+
 			pt::ptree parseJsonFile(const std::string& filename) {
 				auto path = boost::filesystem::path(m_vectorsDirectory) / (filename + ".json");
 				pt::ptree testData;
@@ -303,11 +311,19 @@ namespace catapult { namespace tools { namespace testvectors {
 				return testData;
 			}
 
-		private:
-			static void RunTest(pt::ptree&& testCases, const std::string& testName, const predicate<const pt::ptree&, size_t>& testFunc) {
+			void runTest(
+					uint16_t testId,
+					const std::string& testCaseFilename,
+					const std::string& testName,
+					const predicate<const pt::ptree&, size_t>& testFunc) {
+				if (!shouldExecute(testId)) {
+					CATAPULT_LOG(debug) << testName << " SKIPPED";
+					return;
+				}
+
 				size_t testCaseNumber = 0;
 				size_t numFailed = 0;
-
+				auto testCases = parseJsonFile(testCaseFilename);
 				for (const auto& testCasePair : testCases) {
 					if (!testFunc(testCasePair.second, testCaseNumber))
 						++numFailed;
@@ -323,6 +339,7 @@ namespace catapult { namespace tools { namespace testvectors {
 
 		private:
 			std::string m_vectorsDirectory;
+			std::vector<uint16_t> m_inclusionFilter;
 		};
 	}
 }}}
