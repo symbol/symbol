@@ -110,6 +110,7 @@ namespace catapult { namespace finalization {
 			FinalizationContextFactory finalizationContextFactory(config, state);
 			auto finalizationProofSynchronizer = chain::CreateFinalizationProofSynchronizer(
 					state.config().BlockChain.VotingSetGrouping,
+					config.UnfinalizedBlocksDuration.blocks(state.config().BlockChain.BlockGenerationTargetTime),
 					state.storage(),
 					GetProofStorageCache(locator),
 					[finalizationContextFactory](const auto& proof) {

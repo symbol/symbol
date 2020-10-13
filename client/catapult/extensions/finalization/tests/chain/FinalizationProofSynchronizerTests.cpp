@@ -36,13 +36,18 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		public:
-			TestContext(uint64_t votingSetGrouping, Height localChainHeight, Height localFinalizedHeight)
+			TestContext(
+					uint64_t votingSetGrouping,
+					Height localChainHeight,
+					Height localFinalizedHeight,
+					BlockDuration unfinalizedBlocksDuration = BlockDuration())
 					: m_pBlockStorageCache(mocks::CreateMemoryBlockStorageCache(static_cast<uint32_t>(localChainHeight.unwrap())))
 					, m_pProofStorage(std::make_unique<mocks::MockProofStorage>(FinalizationPoint(11), localFinalizedHeight))
 					, m_pProofStorageRaw(m_pProofStorage.get())
 					, m_proofStorageCache(std::move(m_pProofStorage))
 					, m_synchronizer(CreateFinalizationProofSynchronizer(
 							votingSetGrouping,
+							unfinalizedBlocksDuration,
 							*m_pBlockStorageCache,
 							m_proofStorageCache,
 							[this](const auto&) {
@@ -96,19 +101,24 @@ namespace catapult { namespace chain {
 	// region bypass - proof already pulled
 
 	namespace {
-		void AssertApiIsBypassed(Height localChainHeight) {
-			// Arrange:
-			TestContext context(20, localChainHeight, Height(81));
-
+		void AssertNeutral(TestContext& context) {
 			// Act:
 			auto result = context.synchronize();
 
 			// Assert:
 			EXPECT_EQ(ionet::NodeInteractionResultCode::Neutral, result);
 
-			EXPECT_TRUE(context.api().proofHeights().empty());
+			EXPECT_TRUE(context.api().proofEpochs().empty());
 			EXPECT_EQ(0u, context.numValidationCalls());
 			EXPECT_TRUE(context.storage().savedProofDescriptors().empty());
+		}
+
+		void AssertApiIsBypassed(Height localChainHeight) {
+			// Arrange:
+			TestContext context(20, localChainHeight, Height(81));
+
+			// Act + Assert:
+			AssertNeutral(context);
 		}
 	}
 
@@ -127,8 +137,8 @@ namespace catapult { namespace chain {
 	// region api errors + short circuit
 
 	namespace {
-		model::FinalizationStatistics CreateFinalizationStatistics(Height height) {
-			return { { FinalizationEpoch(3), FinalizationPoint(12) }, height, Hash256() };
+		model::FinalizationStatistics CreateFinalizationStatistics(FinalizationEpoch epoch) {
+			return { { epoch, FinalizationPoint(12) }, Height(100), Hash256() };
 		}
 	}
 
@@ -143,32 +153,25 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, result);
 
-		EXPECT_TRUE(context.api().proofHeights().empty());
+		EXPECT_TRUE(context.api().proofEpochs().empty());
 		EXPECT_EQ(0u, context.numValidationCalls());
 		EXPECT_TRUE(context.storage().savedProofDescriptors().empty());
 	}
 
-	TEST(TEST_CLASS, NeutralWhenFinalizationStatisticsReturnsHeightLessThanNextProofHeight) {
+	TEST(TEST_CLASS, NeutralWhenFinalizationStatisticsReturnsEpochLessThanRequestEpoch) {
 		// Arrange:
 		TestContext context(20, Height(101), Height(81));
-		context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(99)));
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(4)));
 
-		// Act:
-		auto result = context.synchronize();
-
-		// Assert:
-		EXPECT_EQ(ionet::NodeInteractionResultCode::Neutral, result);
-
-		EXPECT_TRUE(context.api().proofHeights().empty());
-		EXPECT_EQ(0u, context.numValidationCalls());
-		EXPECT_TRUE(context.storage().savedProofDescriptors().empty());
+		// Act + Assert:
+		AssertNeutral(context);
 	}
 
 	TEST(TEST_CLASS, FailureWhenProofAtFails) {
 		// Arrange:
 		TestContext context(20, Height(101), Height(81));
-		context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100)));
-		context.api().setError(mocks::MockProofApi::EntryPoint::Proof_At_Height);
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6)));
+		context.api().setError(mocks::MockProofApi::EntryPoint::Proof_At_Epoch);
 
 		// Act:
 		auto result = context.synchronize();
@@ -176,7 +179,7 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, result);
 
-		EXPECT_EQ(std::vector<Height>({ Height(100) }), context.api().proofHeights());
+		EXPECT_EQ(std::vector<FinalizationEpoch>({ FinalizationEpoch(6) }), context.api().proofEpochs());
 		EXPECT_EQ(0u, context.numValidationCalls());
 		EXPECT_TRUE(context.storage().savedProofDescriptors().empty());
 	}
@@ -185,16 +188,22 @@ namespace catapult { namespace chain {
 
 	// region proof validation failures
 
-	TEST(TEST_CLASS, FailureWhenRemoteProofHeightDoesNotMatchRequestedProofHeight) {
+	namespace {
+		void SetProofHeader(model::FinalizationProof& proof, const model::FinalizationStatistics& finalizationStatistics) {
+			proof.Round = finalizationStatistics.Round;
+			proof.Height = finalizationStatistics.Height;
+			proof.Hash = finalizationStatistics.Hash;
+		}
+	}
+
+	TEST(TEST_CLASS, FailureWhenRemoteProofEpochDoesNotMatchRequestedProofEpoch) {
 		// Arrange:
 		TestContext context(20, Height(101), Height(81));
-		context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100)));
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6)));
 
-		// - height is off by one
+		// - epoch is off by one
 		auto pProof = std::make_shared<model::FinalizationProof>();
-		pProof->Round = { FinalizationEpoch(22), FinalizationPoint(111) };
-		pProof->Height = Height(101);
-		pProof->Hash = Hash256{ { 33 } };
+		SetProofHeader(*pProof, CreateFinalizationStatistics(FinalizationEpoch(7)));
 		context.api().setProof(pProof);
 
 		// Act:
@@ -203,7 +212,7 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, result);
 
-		EXPECT_EQ(std::vector<Height>({ Height(100) }), context.api().proofHeights());
+		EXPECT_EQ(std::vector<FinalizationEpoch>({ FinalizationEpoch(6) }), context.api().proofEpochs());
 		EXPECT_EQ(0u, context.numValidationCalls());
 		EXPECT_TRUE(context.storage().savedProofDescriptors().empty());
 	}
@@ -211,13 +220,11 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, FailureWhenRemoteProofFailsValidation) {
 		// Arrange:
 		TestContext context(20, Height(101), Height(81));
-		context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100)));
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6)));
 		context.setValidationFailure();
 
 		auto pProof = std::make_shared<model::FinalizationProof>();
-		pProof->Round = { FinalizationEpoch(22), FinalizationPoint(111) };
-		pProof->Height = Height(100);
-		pProof->Hash = Hash256{ { 33 } };
+		SetProofHeader(*pProof, CreateFinalizationStatistics(FinalizationEpoch(6)));
 		context.api().setProof(pProof);
 
 		// Act:
@@ -226,7 +233,7 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, result);
 
-		EXPECT_EQ(std::vector<Height>({ Height(100) }), context.api().proofHeights());
+		EXPECT_EQ(std::vector<FinalizationEpoch>({ FinalizationEpoch(6) }), context.api().proofEpochs());
 		EXPECT_EQ(1u, context.numValidationCalls());
 		EXPECT_TRUE(context.storage().savedProofDescriptors().empty());
 	}
@@ -236,11 +243,11 @@ namespace catapult { namespace chain {
 	// region success
 
 	namespace {
-		void AssertSuccess(TestContext& context, Height proofHeight) {
+		void AssertSuccess(TestContext& context, FinalizationEpoch proofEpoch) {
 			// Arrange:
 			auto pProof = std::make_shared<model::FinalizationProof>();
-			pProof->Round = { FinalizationEpoch(22), FinalizationPoint(111) };
-			pProof->Height = proofHeight;
+			pProof->Round = { proofEpoch, FinalizationPoint(111) };
+			pProof->Height = Height(234);
 			pProof->Hash = Hash256{ { 33 } };
 			context.api().setProof(pProof);
 
@@ -250,56 +257,98 @@ namespace catapult { namespace chain {
 			// Assert:
 			EXPECT_EQ(ionet::NodeInteractionResultCode::Success, result);
 
-			EXPECT_EQ(std::vector<Height>({ proofHeight }), context.api().proofHeights());
+			EXPECT_EQ(std::vector<FinalizationEpoch>({ proofEpoch }), context.api().proofEpochs());
 			EXPECT_EQ(1u, context.numValidationCalls());
 
 			ASSERT_EQ(1u, context.storage().savedProofDescriptors().size());
 			const auto& savedProofDescriptor = context.storage().savedProofDescriptors()[0];
-			EXPECT_EQ(test::CreateFinalizationRound(22, 111), savedProofDescriptor.Round);
-			EXPECT_EQ(proofHeight, savedProofDescriptor.Height);
+			EXPECT_EQ(test::CreateFinalizationRound(proofEpoch.unwrap(), 111), savedProofDescriptor.Round);
+			EXPECT_EQ(Height(234), savedProofDescriptor.Height);
 			EXPECT_EQ(Hash256{ { 33 } }, savedProofDescriptor.Hash);
 		}
 
-		void AssertSuccess(Height localChainHeight, uint64_t remoteHeightDelta) {
+		void AssertSuccess(Height localChainHeight, FinalizationEpoch remoteEpoch) {
 			// Arrange:
 			TestContext context(20, localChainHeight, Height(81));
-			context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100 + remoteHeightDelta)));
+			context.api().setFinalizationStatistics(CreateFinalizationStatistics(remoteEpoch));
 
 			// Act + Assert:
-			AssertSuccess(context, Height(100));
+			AssertSuccess(context, FinalizationEpoch(6));
 		}
 	}
 
-	TEST(TEST_CLASS, SuccessWhenRemoteFinalizationStatisticsReturnsHeightEqualToExpectedProofHeight) {
-		AssertSuccess(Height(101), 0);
+	TEST(TEST_CLASS, SuccessWhenRemoteFinalizationStatisticsReturnsEpochEqualToExpectedProofEpoch) {
+		// Assert: returned proof is for epoch 6
+		AssertSuccess(Height(101), FinalizationEpoch(6));
 	}
 
-	TEST(TEST_CLASS, SuccessWhenRemoteFinalizationStatisticsReturnsHeightGreaterThanExpectedProofHeight) {
-		AssertSuccess(Height(101), 100);
+	TEST(TEST_CLASS, SuccessWhenRemoteFinalizationStatisticsReturnsEpochGreaterThanExpectedProofEpoch) {
+		// Assert: returned proof is for epoch 6 even though remote has up to epoch 11
+		AssertSuccess(Height(101), FinalizationEpoch(11));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenLocalChainHeightIsMultipleVotingSetsAheadOfLocalFinalizedHeight) {
-		// Assert: proofs aren't skipped
-		AssertSuccess(Height(201), 100);
+		// Assert: returned proof is for epoch 6 even though remote has up to epoch 11 and local has up to epoch 11 unfinalized blocks
+		AssertSuccess(Height(201), FinalizationEpoch(11));
 	}
 
 	namespace {
-		void AssertSuccessNext(Height localChainHeight, Height localFinalizedHeight, Height expectedProofHeight) {
+		void AssertSuccessNext(Height localChainHeight, Height localFinalizedHeight, FinalizationEpoch expectedProofEpoch) {
 			// Arrange:
 			TestContext context(20, localChainHeight, localFinalizedHeight);
-			context.api().setFinalizationStatistics(CreateFinalizationStatistics(expectedProofHeight));
+			context.api().setFinalizationStatistics(CreateFinalizationStatistics(expectedProofEpoch));
 
 			// Act + Assert:
-			AssertSuccess(context, expectedProofHeight);
+			AssertSuccess(context, expectedProofEpoch);
 		}
 	}
 
 	TEST(TEST_CLASS, SuccessWhenRequestingNextProof_FromNemesisEpoch) {
-		AssertSuccessNext(Height(21), Height(1), Height(20));
+		AssertSuccessNext(Height(21), Height(1), FinalizationEpoch(2));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenRequestingNextProof_FromOtherEpoch) {
-		AssertSuccessNext(Height(41), Height(20), Height(40));
+		AssertSuccessNext(Height(41), Height(20), FinalizationEpoch(3));
+	}
+
+	// endregion
+
+	// region unfinalizedBlocksDuration
+
+	TEST(TEST_CLASS, NeutralWhenLocalUnfinalizedBlocksDurationIsLessThanThreshold_NonzeroUnfinalizedBlocksDuration) {
+		// Arrange:
+		TestContext context(20, Height(85), Height(81), BlockDuration(5));
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6)));
+
+		// Act + Assert:
+		AssertNeutral(context);
+	}
+
+	TEST(TEST_CLASS, SuccessWhenLocalUnfinalizedBlocksDurationIsEqualToThreshold_NonzeroUnfinalizedBlocksDuration) {
+		// Arrange:
+		TestContext context(20, Height(86), Height(81), BlockDuration(5));
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6)));
+
+		// Act + Assert:
+		AssertSuccess(context, FinalizationEpoch(6));
+	}
+
+	TEST(TEST_CLASS, SuccessWhenLocalUnfinalizedBlocksDurationIsGreaterThanThreshold_NonzeroUnfinalizedBlocksDuration) {
+		// Arrange:
+		TestContext context(20, Height(99), Height(81), BlockDuration(5));
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6)));
+
+		// Act + Assert:
+		AssertSuccess(context, FinalizationEpoch(6));
+	}
+
+	TEST(TEST_CLASS, SuccessWhenRequestingNextProof_NonzeroUnfinalizedBlocksDuration) {
+		// Arrange:
+		TestContext context(20, Height(301), Height(81), BlockDuration(100));
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6)));
+
+		// Act + Assert: next end of epoch is pulled
+		AssertSuccess(context, FinalizationEpoch(6));
 	}
 
 	// endregion

@@ -49,7 +49,9 @@ namespace catapult { namespace finalization {
 		LOAD_PROPERTY(PrevoteBlocksMultiple);
 		LOAD_PROPERTY(VotingKeyDilution);
 
-		utils::VerifyBagSizeExact(bag, 10);
+		LOAD_PROPERTY(UnfinalizedBlocksDuration);
+
+		utils::VerifyBagSizeExact(bag, 11);
 		return config;
 	}
 

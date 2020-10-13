@@ -86,6 +86,38 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region CalculateFinalizationEpochForHeight
+
+	TEST(TEST_CLASS, CalculateFinalizationEpochForHeight_DoesNotSupportZeroGrouping) {
+		EXPECT_THROW(CalculateFinalizationEpochForHeight(Height(1), 0), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, CalculateFinalizationEpochForHeight_DoesNotSupportZeroHeight) {
+		EXPECT_THROW(CalculateFinalizationEpochForHeight(Height(), 20), catapult_invalid_argument);
+
+		EXPECT_THROW(CalculateFinalizationEpochForHeight(Height(), 50), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, CalculateFinalizationEpochForHeight_SupportsHeightOne) {
+		EXPECT_EQ(FinalizationEpoch(1), CalculateFinalizationEpochForHeight(Height(1), 20));
+
+		EXPECT_EQ(FinalizationEpoch(1), CalculateFinalizationEpochForHeight(Height(1), 50));
+	}
+
+	TEST(TEST_CLASS, CalculateFinalizationEpochForHeight_SupportsEpochsGreaterThanOne) {
+		EXPECT_EQ(FinalizationEpoch(2), CalculateFinalizationEpochForHeight(Height(2), 20));
+		EXPECT_EQ(FinalizationEpoch(2), CalculateFinalizationEpochForHeight(Height(17), 20));
+		EXPECT_EQ(FinalizationEpoch(2), CalculateFinalizationEpochForHeight(Height(20), 20));
+		EXPECT_EQ(FinalizationEpoch(3), CalculateFinalizationEpochForHeight(Height(21), 20));
+
+		EXPECT_EQ(FinalizationEpoch(2), CalculateFinalizationEpochForHeight(Height(2), 50));
+		EXPECT_EQ(FinalizationEpoch(2), CalculateFinalizationEpochForHeight(Height(17), 50));
+		EXPECT_EQ(FinalizationEpoch(2), CalculateFinalizationEpochForHeight(Height(50), 50));
+		EXPECT_EQ(FinalizationEpoch(3), CalculateFinalizationEpochForHeight(Height(51), 50));
+	}
+
+	// endregion
+
 	// region consistency
 
 	TEST(TEST_CLASS, VotingSetStartAndEndHeightsAreConsistent) {
@@ -112,6 +144,32 @@ namespace catapult { namespace model {
 
 			// Assert:
 			EXPECT_EQ(previousEndHeight, groupedStartHeight) << i;
+		}
+	}
+
+	TEST(TEST_CLASS, CanGetConsistentEpochFromVotingSetStartHeight) {
+		// Arrange:
+		constexpr auto Grouping = 50u;
+		for (auto i = 2u; i <= 100; ++i) {
+			// Act:
+			auto startHeight = CalculateVotingSetStartHeight(FinalizationEpoch(i), Grouping);
+			auto epoch = CalculateFinalizationEpochForHeight(startHeight, Grouping);
+
+			// Assert:
+			EXPECT_EQ(FinalizationEpoch(i), epoch) << i;
+		}
+	}
+
+	TEST(TEST_CLASS, CanGetConsistentEpochFromVotingSetEndHeight) {
+		// Arrange:
+		constexpr auto Grouping = 50u;
+		for (auto i = 2u; i <= 100; ++i) {
+			// Act:
+			auto endHeight = CalculateVotingSetEndHeight(FinalizationEpoch(i), Grouping);
+			auto epoch = CalculateFinalizationEpochForHeight(endHeight, Grouping);
+
+			// Assert:
+			EXPECT_EQ(FinalizationEpoch(i), epoch) << i;
 		}
 	}
 

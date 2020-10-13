@@ -31,4 +31,7 @@ namespace catapult { namespace model {
 	/// \note This is the last height that is included in the specified epoch.
 	/// \note This is the grouped height that should be used with the next epoch.
 	Height CalculateVotingSetEndHeight(FinalizationEpoch epoch, uint64_t grouping);
+
+	/// Calculates the finalization epoch for \a height given \a grouping.
+	FinalizationEpoch CalculateFinalizationEpochForHeight(Height height, uint64_t grouping);
 }}

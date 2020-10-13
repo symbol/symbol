@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/utils/BlockSpan.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
 #include <boost/filesystem/path.hpp>
@@ -60,6 +61,10 @@ namespace catapult { namespace finalization {
 
 		/// Voting key dilution.
 		uint16_t VotingKeyDilution;
+
+		/// Target duration of unfinalized blocks.
+		/// \note This should be zero when `EnableVoting` is \c true.
+		utils::BlockSpan UnfinalizedBlocksDuration;
 
 		/// Number of blocks that should be treated as a group for voting set purposes.
 		/// \note This is copied from BlockChainConfiguration for easy access.

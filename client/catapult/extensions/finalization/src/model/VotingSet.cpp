@@ -31,6 +31,14 @@ namespace catapult { namespace model {
 			if (FinalizationEpoch() == epoch)
 				CATAPULT_THROW_INVALID_ARGUMENT("epoch zero is not supported");
 		}
+
+		void CheckParameters(Height height, uint64_t grouping) {
+			if (0 == grouping)
+				CATAPULT_THROW_INVALID_ARGUMENT("grouping zero is not supported");
+
+			if (Height() == height)
+				CATAPULT_THROW_INVALID_ARGUMENT("height zero is not supported");
+		}
 	}
 
 	Height CalculateVotingSetStartHeight(FinalizationEpoch epoch, uint64_t grouping) {
@@ -45,5 +53,14 @@ namespace catapult { namespace model {
 		return FinalizationEpoch(1) == epoch
 				? Height(1)
 				: Height((epoch.unwrap() - 1) * grouping);
+	}
+
+	FinalizationEpoch CalculateFinalizationEpochForHeight(Height height, uint64_t grouping) {
+		CheckParameters(height, grouping);
+		if (height <= Height(1))
+			return FinalizationEpoch(1);
+
+		uint32_t adjustment = 0 == height.unwrap() % grouping ? 0 : 1;
+		return FinalizationEpoch(1 + adjustment + static_cast<FinalizationEpoch::ValueType>(height.unwrap() / grouping));
 	}
 }}

@@ -47,7 +47,9 @@ namespace catapult { namespace finalization {
 
 							{ "maxHashesPerPoint", "123" },
 							{ "prevoteBlocksMultiple", "7" },
-							{ "votingKeyDilution", "357" }
+							{ "votingKeyDilution", "357" },
+
+							{ "unfinalizedBlocksDuration", "7m" }
 						}
 					}
 				};
@@ -73,6 +75,8 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(0u, config.PrevoteBlocksMultiple);
 				EXPECT_EQ(0u, config.VotingKeyDilution);
 
+				EXPECT_EQ(utils::BlockSpan(), config.UnfinalizedBlocksDuration);
+
 				EXPECT_EQ(0u, config.VotingSetGrouping);
 			}
 
@@ -91,6 +95,8 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(123u, config.MaxHashesPerPoint);
 				EXPECT_EQ(7u, config.PrevoteBlocksMultiple);
 				EXPECT_EQ(357u, config.VotingKeyDilution);
+
+				EXPECT_EQ(utils::BlockSpan::FromMinutes(7), config.UnfinalizedBlocksDuration);
 
 				EXPECT_EQ(0u, config.VotingSetGrouping);
 			}
@@ -124,6 +130,8 @@ namespace catapult { namespace finalization {
 		EXPECT_EQ(256u, config.MaxHashesPerPoint);
 		EXPECT_EQ(4u, config.PrevoteBlocksMultiple);
 		EXPECT_EQ(32u, config.VotingKeyDilution);
+
+		EXPECT_EQ(utils::BlockSpan(), config.UnfinalizedBlocksDuration);
 
 		EXPECT_EQ(0u, config.VotingSetGrouping);
 	}

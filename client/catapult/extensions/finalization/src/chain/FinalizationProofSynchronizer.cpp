@@ -21,6 +21,7 @@
 #include "FinalizationProofSynchronizer.h"
 #include "finalization/src/api/RemoteProofApi.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "finalization/src/model/VotingSet.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/HeightGrouping.h"
 
@@ -34,10 +35,12 @@ namespace catapult { namespace chain {
 		public:
 			ProofSynchronizer(
 					uint64_t votingSetGrouping,
+					BlockDuration unfinalizedBlocksDuration,
 					const io::BlockStorageCache& blockStorage,
 					io::ProofStorageCache& proofStorage,
 					const predicate<const model::FinalizationProof&>& proofValidator)
 					: m_votingSetGrouping(votingSetGrouping)
+					, m_unfinalizedBlocksDuration(unfinalizedBlocksDuration)
 					, m_blockStorage(blockStorage)
 					, m_proofStorage(proofStorage)
 					, m_proofValidator(proofValidator)
@@ -45,36 +48,31 @@ namespace catapult { namespace chain {
 
 		public:
 			NodeInteractionFuture operator()(const api::RemoteProofApi& api) {
-				auto localChainHeight = m_blockStorage.view().chainHeight();
-				auto localFinalizedHeight = m_proofStorage.view().statistics().Height;
-				auto nextProofHeight = model::CalculateGroupedHeight<Height>(
-						Height(localFinalizedHeight.unwrap() + m_votingSetGrouping + 1),
-						m_votingSetGrouping);
-
-				if (nextProofHeight >= localChainHeight)
+				auto requestEpoch = getRequestEpoch();
+				if (FinalizationEpoch() == requestEpoch)
 					return thread::make_ready_future(ionet::NodeInteractionResultCode::Neutral);
 
 				auto startFuture = thread::compose(
 					api.finalizationStatistics(),
-					[&api, nextProofHeight](auto&& finalizationStatisticsFuture) {
-						auto remoteFinalizedHeight = finalizationStatisticsFuture.get().Height;
-						return nextProofHeight <= remoteFinalizedHeight
-								? api.proofAt(nextProofHeight)
+					[&api, requestEpoch](auto&& finalizationStatisticsFuture) {
+						auto remoteEpoch = finalizationStatisticsFuture.get().Round.Epoch;
+						return requestEpoch <= remoteEpoch
+								? api.proofAt(requestEpoch)
 								: thread::make_ready_future(std::shared_ptr<const model::FinalizationProof>());
 					});
 
 				auto& proofStorage = m_proofStorage;
 				auto proofValidator = m_proofValidator;
-				return startFuture.then([&proofStorage, proofValidator, nextProofHeight](auto&& proofFuture) {
+				return startFuture.then([&proofStorage, proofValidator, requestEpoch](auto&& proofFuture) {
 					try {
 						auto pProof = proofFuture.get();
 						if (!pProof)
 							return ionet::NodeInteractionResultCode::Neutral;
 
-						CATAPULT_LOG(debug) << "peer returned proof for height " << nextProofHeight;
+						CATAPULT_LOG(debug) << "peer returned proof for epoch " << requestEpoch << " at height " << pProof->Height;
 
-						if (nextProofHeight != pProof->Height) {
-							CATAPULT_LOG(warning) << "peer returned proof with wrong height " << pProof->Height;
+						if (requestEpoch != pProof->Round.Epoch) {
+							CATAPULT_LOG(warning) << "peer returned proof with wrong epoch " << pProof->Round.Epoch;
 							return ionet::NodeInteractionResultCode::Failure;
 						}
 
@@ -87,7 +85,7 @@ namespace catapult { namespace chain {
 						return ionet::NodeInteractionResultCode::Success;
 					} catch (const catapult_runtime_error& e) {
 						CATAPULT_LOG(warning)
-								<< "exception thrown while requesting proof for height " << nextProofHeight
+								<< "exception thrown while requesting proof for epoch " << requestEpoch
 								<< ": " << e.what();
 						return ionet::NodeInteractionResultCode::Failure;
 					}
@@ -95,7 +93,26 @@ namespace catapult { namespace chain {
 			}
 
 		private:
+			FinalizationEpoch getRequestEpoch() {
+				auto localChainHeight = m_blockStorage.view().chainHeight();
+				auto localFinalizedHeight = m_proofStorage.view().statistics().Height;
+				auto nextProofHeight = model::CalculateGroupedHeight<Height>(
+						Height(localFinalizedHeight.unwrap() + m_votingSetGrouping + 1),
+						m_votingSetGrouping);
+
+				if (nextProofHeight < localChainHeight)
+					return model::CalculateFinalizationEpochForHeight(nextProofHeight, m_votingSetGrouping);
+
+				auto unfinalizedBlocksDuration = BlockDuration((localChainHeight - localFinalizedHeight).unwrap());
+				if (BlockDuration() != m_unfinalizedBlocksDuration && unfinalizedBlocksDuration >= m_unfinalizedBlocksDuration)
+					return model::CalculateFinalizationEpochForHeight(localFinalizedHeight, m_votingSetGrouping);
+
+				return FinalizationEpoch();
+			}
+
+		private:
 			uint64_t m_votingSetGrouping;
+			BlockDuration m_unfinalizedBlocksDuration;
 			const io::BlockStorageCache& m_blockStorage;
 			io::ProofStorageCache& m_proofStorage;
 			predicate<const model::FinalizationProof&> m_proofValidator;
@@ -104,9 +121,10 @@ namespace catapult { namespace chain {
 
 	RemoteNodeSynchronizer<api::RemoteProofApi> CreateFinalizationProofSynchronizer(
 			uint64_t votingSetGrouping,
+			BlockDuration unfinalizedBlocksDuration,
 			const io::BlockStorageCache& blockStorage,
 			io::ProofStorageCache& proofStorage,
 			const predicate<const model::FinalizationProof&>& proofValidator) {
-		return ProofSynchronizer(votingSetGrouping, blockStorage, proofStorage, proofValidator);
+		return ProofSynchronizer(votingSetGrouping, unfinalizedBlocksDuration, blockStorage, proofStorage, proofValidator);
 	}
 }}
