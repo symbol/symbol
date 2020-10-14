@@ -13,11 +13,17 @@ enum NetworkType : uint8
 	# public test network
 	publicTest = 0x98
 
-	# private network
+	# mijin network
 	mijin = 0x60
 
-	# private test network
+	# mijin test network
 	mijinTest = 0x90
+
+	# private network
+	private = 0x78
+
+	# private test network
+	privateTest = 0x80
 
 # binary layout for a size-prefixed entity
 struct SizePrefixedEntity
