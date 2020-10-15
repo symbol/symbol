@@ -48,31 +48,36 @@ namespace catapult { namespace chain {
 
 		public:
 			NodeInteractionFuture operator()(const api::RemoteProofApi& api) {
-				auto requestEpoch = getRequestEpoch();
+				auto localFinalizedHeight = m_proofStorage.view().statistics().Height;
+				auto requestEpoch = calculateRequestEpoch(localFinalizedHeight);
 				if (FinalizationEpoch() == requestEpoch)
 					return thread::make_ready_future(ionet::NodeInteractionResultCode::Neutral);
 
 				auto startFuture = thread::compose(
 					api.finalizationStatistics(),
-					[&api, requestEpoch](auto&& finalizationStatisticsFuture) {
-						auto remoteEpoch = finalizationStatisticsFuture.get().Round.Epoch;
-						return requestEpoch <= remoteEpoch
+					[&api, localFinalizedHeight, requestEpoch](auto&& finalizationStatisticsFuture) {
+						auto remoteFinalizationStatistics = finalizationStatisticsFuture.get();
+						auto shouldPullProof = requestEpoch <= remoteFinalizationStatistics.Round.Epoch
+								&& localFinalizedHeight < remoteFinalizationStatistics.Height;
+						return shouldPullProof
 								? api.proofAt(requestEpoch)
 								: thread::make_ready_future(std::shared_ptr<const model::FinalizationProof>());
 					});
 
 				auto& proofStorage = m_proofStorage;
 				auto proofValidator = m_proofValidator;
-				return startFuture.then([&proofStorage, proofValidator, requestEpoch](auto&& proofFuture) {
+				return startFuture.then([&proofStorage, proofValidator, localFinalizedHeight, requestEpoch](auto&& proofFuture) {
 					try {
 						auto pProof = proofFuture.get();
 						if (!pProof)
 							return ionet::NodeInteractionResultCode::Neutral;
 
-						CATAPULT_LOG(debug) << "peer returned proof for epoch " << requestEpoch << " at height " << pProof->Height;
+						CATAPULT_LOG(debug) << "peer returned proof for round " << pProof->Round << " at height " << pProof->Height;
 
-						if (requestEpoch != pProof->Round.Epoch) {
-							CATAPULT_LOG(warning) << "peer returned proof with wrong epoch " << pProof->Round.Epoch;
+						if (requestEpoch != pProof->Round.Epoch || localFinalizedHeight >= pProof->Height) {
+							CATAPULT_LOG(warning)
+									<< "peer returned unexpected proof for round " << pProof->Round << " at height " << pProof->Height
+									<< " (requested epoch " << requestEpoch << " at height " << localFinalizedHeight << ")";
 							return ionet::NodeInteractionResultCode::Failure;
 						}
 
@@ -93,9 +98,8 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			FinalizationEpoch getRequestEpoch() {
+			FinalizationEpoch calculateRequestEpoch(Height localFinalizedHeight) {
 				auto localChainHeight = m_blockStorage.view().chainHeight();
-				auto localFinalizedHeight = m_proofStorage.view().statistics().Height;
 				auto nextProofHeight = model::CalculateGroupedHeight<Height>(
 						Height(localFinalizedHeight.unwrap() + m_votingSetGrouping + 1),
 						m_votingSetGrouping);

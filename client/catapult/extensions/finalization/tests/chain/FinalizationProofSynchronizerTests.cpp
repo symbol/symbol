@@ -137,8 +137,8 @@ namespace catapult { namespace chain {
 	// region api errors + short circuit
 
 	namespace {
-		model::FinalizationStatistics CreateFinalizationStatistics(FinalizationEpoch epoch) {
-			return { { epoch, FinalizationPoint(12) }, Height(100), Hash256() };
+		model::FinalizationStatistics CreateFinalizationStatistics(FinalizationEpoch epoch, Height height = Height(100)) {
+			return { { epoch, FinalizationPoint(12) }, height, Hash256() };
 		}
 	}
 
@@ -165,6 +165,25 @@ namespace catapult { namespace chain {
 
 		// Act + Assert:
 		AssertNeutral(context);
+	}
+
+	namespace {
+		void AssertNeutralWhenFinalizationStatisticsReturnsHeight(Height height) {
+			// Arrange:
+			TestContext context(20, Height(101), Height(81));
+			context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6), height));
+
+			// Act + Assert:
+			AssertNeutral(context);
+		}
+	}
+
+	TEST(TEST_CLASS, NeutralWhenFinalizationStatisticsReturnsHeightLessThanLocalFinalizedHeight) {
+		AssertNeutralWhenFinalizationStatisticsReturnsHeight(Height(60));
+	}
+
+	TEST(TEST_CLASS, NeutralWhenFinalizationStatisticsReturnsHeightEqualToLocalFinalizedHeight) {
+		AssertNeutralWhenFinalizationStatisticsReturnsHeight(Height(81));
 	}
 
 	TEST(TEST_CLASS, FailureWhenProofAtFails) {
@@ -196,25 +215,43 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, FailureWhenRemoteProofEpochDoesNotMatchRequestedProofEpoch) {
-		// Arrange:
-		TestContext context(20, Height(101), Height(81));
-		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6)));
+	namespace {
+		void AssertFailureWhenRemoteProofHasUnexpectedHeader(FinalizationEpoch epoch, Height height) {
+			// Arrange:
+			TestContext context(20, Height(101), Height(81));
+			context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(6), Height(100)));
 
-		// - epoch is off by one
-		auto pProof = std::make_shared<model::FinalizationProof>();
-		SetProofHeader(*pProof, CreateFinalizationStatistics(FinalizationEpoch(7)));
-		context.api().setProof(pProof);
+			// - set remote proof with different header
+			auto pProof = std::make_shared<model::FinalizationProof>();
+			SetProofHeader(*pProof, CreateFinalizationStatistics(epoch, height));
+			context.api().setProof(pProof);
 
-		// Act:
-		auto result = context.synchronize();
+			// Act:
+			auto result = context.synchronize();
 
-		// Assert:
-		EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, result);
+			// Assert:
+			EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, result);
 
-		EXPECT_EQ(std::vector<FinalizationEpoch>({ FinalizationEpoch(6) }), context.api().proofEpochs());
-		EXPECT_EQ(0u, context.numValidationCalls());
-		EXPECT_TRUE(context.storage().savedProofDescriptors().empty());
+			EXPECT_EQ(std::vector<FinalizationEpoch>({ FinalizationEpoch(6) }), context.api().proofEpochs());
+			EXPECT_EQ(0u, context.numValidationCalls());
+			EXPECT_TRUE(context.storage().savedProofDescriptors().empty());
+		}
+	}
+
+	TEST(TEST_CLASS, FailureWhenRemoteProofEpochIsLessThanRequestedProofEpoch) {
+		AssertFailureWhenRemoteProofHasUnexpectedHeader(FinalizationEpoch(5), Height(100));
+	}
+
+	TEST(TEST_CLASS, FailureWhenRemoteProofEpochIsGreaterThanRequestedProofEpoch) {
+		AssertFailureWhenRemoteProofHasUnexpectedHeader(FinalizationEpoch(7), Height(100));
+	}
+
+	TEST(TEST_CLASS, FailureWhenRemoteProofHeightIsLessThanLocalFinalizedHeight) {
+		AssertFailureWhenRemoteProofHasUnexpectedHeader(FinalizationEpoch(6), Height(60));
+	}
+
+	TEST(TEST_CLASS, FailureWhenRemoteProofHeightIsEqualToLocalFinalizedHeight) {
+		AssertFailureWhenRemoteProofHasUnexpectedHeader(FinalizationEpoch(6), Height(81));
 	}
 
 	TEST(TEST_CLASS, FailureWhenRemoteProofFailsValidation) {
