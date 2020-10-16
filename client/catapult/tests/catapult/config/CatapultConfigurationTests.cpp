@@ -143,8 +143,8 @@ namespace catapult { namespace config {
 			EXPECT_EQ(utils::FileSize::FromMegabytes(5), config.MaxCacheDatabaseWriteBatchSize);
 			EXPECT_EQ(5'000u, config.MaxTrackedNodes);
 
-			EXPECT_EQ(0u, config.MinPartnerNodeVersion);
-			EXPECT_EQ(0u, config.MaxPartnerNodeVersion);
+			EXPECT_EQ(ionet::GetCurrentServerVersion(), config.MinPartnerNodeVersion);
+			EXPECT_EQ(ionet::GetCurrentServerVersion(), config.MaxPartnerNodeVersion);
 
 			EXPECT_TRUE(config.TrustedHosts.empty());
 			EXPECT_EQ(std::unordered_set<std::string>({ "127.0.0.1" }), config.LocalNetworks);
@@ -152,7 +152,7 @@ namespace catapult { namespace config {
 
 			EXPECT_EQ("", config.Local.Host);
 			EXPECT_EQ("", config.Local.FriendlyName);
-			EXPECT_EQ(0u, config.Local.Version);
+			EXPECT_EQ(ionet::GetCurrentServerVersion(), config.Local.Version);
 			EXPECT_EQ(ionet::NodeRoles::Peer, config.Local.Roles);
 
 			EXPECT_EQ(10u, config.OutgoingConnections.MaxConnections);
@@ -331,7 +331,7 @@ namespace catapult { namespace config {
 			config.Node.Port = 9876;
 			config.Node.Local.Host = "alice.com";
 			config.Node.Local.FriendlyName = "a GREAT node";
-			config.Node.Local.Version = 123;
+			config.Node.Local.Version = ionet::NodeVersion(123);
 			config.Node.Local.Roles = ionet::NodeRoles::Api;
 
 			config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();

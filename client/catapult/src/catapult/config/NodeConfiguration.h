@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/ionet/NodeRoles.h"
+#include "catapult/ionet/NodeVersion.h"
 #include "catapult/model/TransactionSelectionStrategy.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
@@ -131,10 +132,10 @@ namespace catapult { namespace config {
 		uint32_t MaxTrackedNodes;
 
 		/// Minimum supported version of partner nodes.
-		uint32_t MinPartnerNodeVersion;
+		ionet::NodeVersion MinPartnerNodeVersion;
 
 		/// Maximum supported version of partner nodes.
-		uint32_t MaxPartnerNodeVersion;
+		ionet::NodeVersion MaxPartnerNodeVersion;
 
 		/// Trusted hosts that are allowed to execute protected API calls on this node.
 		std::unordered_set<std::string> TrustedHosts;
@@ -155,7 +156,7 @@ namespace catapult { namespace config {
 			std::string FriendlyName;
 
 			/// Node version.
-			uint32_t Version;
+			ionet::NodeVersion Version;
 
 			/// Node roles.
 			ionet::NodeRoles Roles;

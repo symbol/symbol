@@ -94,8 +94,8 @@ namespace catapult { namespace local {
 							GetBanSettings(m_config.Node.Banning),
 							m_pBootstrapper->extensionManager().networkTimeSupplier(m_config.BlockChain.Network.EpochAdjustment),
 							ionet::CreateRangeNodeVersionPredicate(
-									ionet::NodeVersion(m_config.Node.MinPartnerNodeVersion),
-									ionet::NodeVersion(m_config.Node.MaxPartnerNodeVersion)))
+									m_config.Node.MinPartnerNodeVersion,
+									m_config.Node.MaxPartnerNodeVersion))
 					, m_catapultCache({}) // note that sub caches are added in boot
 					, m_storage(
 							m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber),

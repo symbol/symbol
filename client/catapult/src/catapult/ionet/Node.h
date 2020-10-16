@@ -20,21 +20,13 @@
 
 #pragma once
 #include "NodeRoles.h"
+#include "NodeVersion.h"
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/model/NodeIdentity.h"
 #include "catapult/utils/Hashers.h"
 #include <unordered_set>
 
 namespace catapult { namespace ionet {
-
-	// region NodeVersion
-
-	struct NodeVersion_tag {};
-
-	/// 32-bit node version where first three bytes represent { major, minor, build } and last byte is user defined.
-	using NodeVersion = utils::BaseValue<uint32_t, NodeVersion_tag>;
-
-	// endregion
 
 	// region NodeEndpoint
 

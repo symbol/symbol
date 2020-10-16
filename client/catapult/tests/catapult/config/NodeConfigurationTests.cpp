@@ -78,8 +78,8 @@ namespace catapult { namespace config {
 							{ "maxCacheDatabaseWriteBatchSize", "17KB" },
 							{ "maxTrackedNodes", "222" },
 
-							{ "minPartnerNodeVersion", "333" },
-							{ "maxPartnerNodeVersion", "456" },
+							{ "minPartnerNodeVersion", "3.3.3.3" },
+							{ "maxPartnerNodeVersion", "4.5.6.7" },
 
 							{ "trustedHosts", "foo,BAR" },
 							{ "localNetworks", "1.2.3.4,9.8.7.6" },
@@ -91,7 +91,7 @@ namespace catapult { namespace config {
 						{
 							{ "host", "alice.com" },
 							{ "friendlyName", "a GREAT node" },
-							{ "version", "41" },
+							{ "version", "4.1.2.3" },
 							{ "roles", "Api,Peer" }
 						}
 					},
@@ -179,8 +179,8 @@ namespace catapult { namespace config {
 				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(0u, config.MaxTrackedNodes);
 
-				EXPECT_EQ(0u, config.MinPartnerNodeVersion);
-				EXPECT_EQ(0u, config.MaxPartnerNodeVersion);
+				EXPECT_EQ(ionet::NodeVersion(), config.MinPartnerNodeVersion);
+				EXPECT_EQ(ionet::NodeVersion(), config.MaxPartnerNodeVersion);
 
 				EXPECT_TRUE(config.TrustedHosts.empty());
 				EXPECT_TRUE(config.LocalNetworks.empty());
@@ -188,7 +188,7 @@ namespace catapult { namespace config {
 
 				EXPECT_EQ("", config.Local.Host);
 				EXPECT_EQ("", config.Local.FriendlyName);
-				EXPECT_EQ(0u, config.Local.Version);
+				EXPECT_EQ(ionet::NodeVersion(), config.Local.Version);
 				EXPECT_EQ(ionet::NodeRoles::None, config.Local.Roles);
 
 				EXPECT_EQ(0u, config.OutgoingConnections.MaxConnections);
@@ -257,8 +257,8 @@ namespace catapult { namespace config {
 				EXPECT_EQ(utils::FileSize::FromKilobytes(17), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(222u, config.MaxTrackedNodes);
 
-				EXPECT_EQ(333u, config.MinPartnerNodeVersion);
-				EXPECT_EQ(456u, config.MaxPartnerNodeVersion);
+				EXPECT_EQ(ionet::NodeVersion(0x03030303), config.MinPartnerNodeVersion);
+				EXPECT_EQ(ionet::NodeVersion(0x04050607), config.MaxPartnerNodeVersion);
 
 				EXPECT_EQ(std::unordered_set<std::string>({ "foo", "BAR" }), config.TrustedHosts);
 				EXPECT_EQ(std::unordered_set<std::string>({ "1.2.3.4", "9.8.7.6" }), config.LocalNetworks);
@@ -266,7 +266,7 @@ namespace catapult { namespace config {
 
 				EXPECT_EQ("alice.com", config.Local.Host);
 				EXPECT_EQ("a GREAT node", config.Local.FriendlyName);
-				EXPECT_EQ(41u, config.Local.Version);
+				EXPECT_EQ(ionet::NodeVersion(0x04010203), config.Local.Version);
 				EXPECT_EQ(static_cast<ionet::NodeRoles>(3), config.Local.Roles);
 
 				EXPECT_EQ(3u, config.OutgoingConnections.MaxConnections);
