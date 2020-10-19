@@ -58,7 +58,7 @@ namespace catapult { namespace local {
 		ionet::Node CreateNode(uint32_t id) {
 			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Private_Test);
 			auto metadata = ionet::NodeMetadata(networkFingerprint, "NODE " + std::to_string(id));
-			metadata.Roles = ionet::NodeRoles::Peer;
+			metadata.Roles = ionet::NodeRoles::IPv4 | ionet::NodeRoles::Peer;
 			return ionet::Node(
 					{ crypto::KeyPair::FromString(test::Test_Network_Private_Keys[id]).publicKey(), std::to_string(id) },
 					test::CreateLocalHostNodeEndpoint(GetPortForNode(id)),

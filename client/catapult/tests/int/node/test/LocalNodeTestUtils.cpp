@@ -74,7 +74,7 @@ namespace catapult { namespace test {
 	ionet::Node CreateLocalPartnerNode(const Key& publicKey) {
 		auto endpoint = CreateLocalHostNodeEndpoint(static_cast<unsigned short>(GetLocalHostPort() + 10));
 		auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), "PARTNER");
-		metadata.Roles = ionet::NodeRoles::Api | ionet::NodeRoles::Peer;
+		metadata.Roles = ionet::NodeRoles::IPv4 | ionet::NodeRoles::Api | ionet::NodeRoles::Peer;
 		return ionet::Node({ publicKey, "127.0.0.1" }, endpoint, metadata);
 	}
 

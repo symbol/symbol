@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "IpProtocol.h"
 #include "catapult/ionet/NodeInfo.h"
 #include "catapult/ionet/NodeSet.h"
 #include "catapult/utils/ArraySet.h"
@@ -27,6 +28,8 @@
 namespace catapult { namespace ionet { class NodeContainer; } }
 
 namespace catapult { namespace extensions {
+
+	// region ImportanceDescriptor / ImportanceRetriever
 
 	/// Describes an importance value.
 	struct ImportanceDescriptor {
@@ -39,6 +42,10 @@ namespace catapult { namespace extensions {
 
 	/// Retrieves an importance descriptor given a specified public key.
 	using ImportanceRetriever = std::function<ImportanceDescriptor (const Key&)>;
+
+	// endregion
+
+	// region WeightedCandidate(s)
 
 	/// Weighted candidate.
 	struct WeightedCandidate {
@@ -59,6 +66,10 @@ namespace catapult { namespace extensions {
 
 	using WeightedCandidates = std::vector<WeightedCandidate>;
 
+	// endregion
+
+	// region NodeSelectionResult
+
 	/// Result of a node selection.
 	struct NodeSelectionResult {
 	public:
@@ -73,6 +84,10 @@ namespace catapult { namespace extensions {
 		/// Identities of the nodes that should be deactivated.
 		model::NodeIdentitySet RemoveCandidates;
 	};
+
+	// endregion
+
+	// region NodeAgingConfiguration / NodeSelectionConfiguration
 
 	/// Node aging configuration.
 	struct NodeAgingConfiguration {
@@ -91,6 +106,9 @@ namespace catapult { namespace extensions {
 		/// Identity of the service for which nodes should be selected.
 		ionet::ServiceIdentifier ServiceId;
 
+		/// Supported protocols.
+		IpProtocol SupportedProtocols;
+
 		/// Required node role.
 		ionet::NodeRoles RequiredRole;
 
@@ -100,6 +118,10 @@ namespace catapult { namespace extensions {
 		/// Maximum connection age.
 		uint32_t MaxConnectionAge;
 	};
+
+	// endregion
+
+	// region WeightPolicy / WeightPolicyGenerator
 
 	/// Weight calculation policies.
 	enum class WeightPolicy {
@@ -127,6 +149,8 @@ namespace catapult { namespace extensions {
 		utils::LowEntropyRandomGenerator m_generator;
 		std::uniform_int_distribution<> m_distr;
 	};
+
+	// endregion
 
 	/// Calculates the weight from \a interactions or \a importanceSupplier depending on \a weightPolicy.
 	uint32_t CalculateWeight(

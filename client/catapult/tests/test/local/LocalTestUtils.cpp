@@ -74,7 +74,7 @@ namespace catapult { namespace test {
 
 			config.Local.Host = "127.0.0.1";
 			config.Local.FriendlyName = "LOCAL";
-			config.Local.Roles = ionet::NodeRoles::Peer;
+			config.Local.Roles = ionet::NodeRoles::IPv4 | ionet::NodeRoles::Peer;
 
 			SetConnectionsSubConfiguration(config.OutgoingConnections);
 

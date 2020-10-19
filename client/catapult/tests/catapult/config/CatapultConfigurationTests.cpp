@@ -153,7 +153,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ("", config.Local.Host);
 			EXPECT_EQ("", config.Local.FriendlyName);
 			EXPECT_EQ(ionet::GetCurrentServerVersion(), config.Local.Version);
-			EXPECT_EQ(ionet::NodeRoles::Peer, config.Local.Roles);
+			EXPECT_EQ(ionet::NodeRoles::IPv4 | ionet::NodeRoles::Peer, config.Local.Roles);
 
 			EXPECT_EQ(10u, config.OutgoingConnections.MaxConnections);
 			EXPECT_EQ(200u, config.OutgoingConnections.MaxConnectionAge);

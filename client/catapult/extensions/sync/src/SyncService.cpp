@@ -39,13 +39,7 @@ namespace catapult { namespace sync {
 		constexpr auto Service_Id = ionet::ServiceIdentifier(0x53594E43);
 
 		thread::Task CreateConnectPeersTask(extensions::ServiceState& state, net::PacketWriters& packetWriters) {
-			auto settings = extensions::SelectorSettings(
-					state.cache(),
-					state.config().BlockChain.TotalChainImportance,
-					state.nodes(),
-					Service_Id,
-					ionet::NodeRoles::Peer,
-					state.config().Node.OutgoingConnections);
+			auto settings = extensions::CreateOutgoingSelectorSettings(state, Service_Id, ionet::NodeRoles::Peer);
 			auto task = extensions::CreateConnectPeersTask(settings, packetWriters);
 			task.Name += " for service Sync";
 			return task;

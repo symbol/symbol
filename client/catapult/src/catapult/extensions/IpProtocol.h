@@ -18,22 +18,31 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "NodeRoles.h"
-#include "catapult/utils/ConfigurationValueParsers.h"
+#pragma once
+#include "catapult/ionet/NodeRoles.h"
 
-namespace catapult { namespace ionet {
+namespace catapult { namespace extensions {
 
-	namespace {
-		const std::array<std::pair<const char*, NodeRoles>, 5> String_To_Node_Role_Pairs{{
-			{ "Peer", NodeRoles::Peer },
-			{ "Api", NodeRoles::Api },
-			{ "Voting", NodeRoles::Voting },
-			{ "IPv4", NodeRoles::IPv4 },
-			{ "IPv6", NodeRoles::IPv6 }
-		}};
-	}
+	/// IP protocols.
+	enum class IpProtocol : uint8_t {
+		/// No protocols.
+		None = 0x00,
 
-	bool TryParseValue(const std::string& str, NodeRoles& roles) {
-		return utils::TryParseBitwiseEnumValue(String_To_Node_Role_Pairs, str, roles);
-	}
+		/// IPv4.
+		IPv4 = 0x01,
+
+		/// IPv6.
+		IPv6 = 0x02,
+
+		/// All protocols.
+		All = 0xFF
+	};
+
+	MAKE_BITWISE_ENUM(IpProtocol)
+
+	/// Map \a roles to IP protocols.
+	IpProtocol MapNodeRolesToIpProtocols(ionet::NodeRoles roles);
+
+	/// Returns \c true if \a roles supports any protocol in \a protocols.
+	bool HasAnyProtocol(IpProtocol protocols, ionet::NodeRoles roles);
 }}

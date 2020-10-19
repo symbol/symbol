@@ -53,12 +53,14 @@ namespace catapult { namespace extensions {
 	/// Settings used to initialize a selector task.
 	struct SelectorSettings {
 	public:
-		/// Creates settings around \a cache, \a totalChainImportance, \a nodes, \a serviceId, \a requiredRole and \a config.
+		/// Creates settings around \a cache, \a totalChainImportance, \a nodes, \a serviceId, \a supportedProtocols, \a requiredRole
+		/// and \a config.
 		SelectorSettings(
 				const cache::CatapultCache& cache,
 				Importance totalChainImportance,
 				ionet::NodeContainer& nodes,
 				ionet::ServiceIdentifier serviceId,
+				IpProtocol supportedProtocols,
 				ionet::NodeRoles requiredRole,
 				const config::NodeConfiguration::ConnectionsSubConfiguration& config);
 
@@ -76,6 +78,9 @@ namespace catapult { namespace extensions {
 
 		/// Service identifier for selection.
 		ionet::ServiceIdentifier ServiceId;
+
+		/// Supported protocols.
+		IpProtocol SupportedProtocols;
 
 		/// Required role for selection (if applicable).
 		ionet::NodeRoles RequiredRole;

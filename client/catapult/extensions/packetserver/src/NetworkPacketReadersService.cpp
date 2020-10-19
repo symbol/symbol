@@ -34,12 +34,7 @@ namespace catapult { namespace packetserver {
 		constexpr auto Service_Id = ionet::ServiceIdentifier(0x52454144);
 
 		thread::Task CreateAgePeersTask(extensions::ServiceState& state, net::ConnectionContainer& connectionContainer) {
-			auto settings = extensions::SelectorSettings(
-					state.cache(),
-					state.config().BlockChain.TotalChainImportance,
-					state.nodes(),
-					Service_Id,
-					state.config().Node.IncomingConnections);
+			auto settings = extensions::CreateIncomingSelectorSettings(state, Service_Id);
 			auto task = extensions::CreateAgePeersTask(settings, connectionContainer);
 			task.Name += " for service Readers";
 			return task;

@@ -29,16 +29,16 @@ namespace catapult { namespace test {
 	class NodeSelectorProbabilityTests {
 	public:
 		static void AssertSelectsCandidatesBasedOnWeight() {
-			test::RunNonDeterministicTest(TTraits::Description, []() {
+			RunNonDeterministicTest(TTraits::Description, []() {
 				// Arrange:
 				constexpr size_t Max_Percentage_Deviation = 10;
 				constexpr uint64_t Num_Iterations = 10'000;
 				constexpr uint64_t Cumulative_Weight = 1'500'000;
 				std::vector<uint64_t> rawWeights{ 100'000, 200'000, 400'000, 800'000 };
-				auto keys = test::GenerateRandomDataVector<Key>(rawWeights.size());
+				auto keys = GenerateRandomDataVector<Key>(rawWeights.size());
 				std::vector<ionet::Node> nodes;
 				for (auto i = 0u; i < keys.size(); ++i)
-					nodes.push_back(test::CreateNamedNode(keys[i], "Node" + std::to_string(i + 1)));
+					nodes.push_back(CreateNamedNode(keys[i], "Node" + std::to_string(i + 1), ionet::NodeRoles::IPv4));
 
 				// Act:
 				auto keyStatistics = TTraits::CreateStatistics(nodes, rawWeights, Num_Iterations);

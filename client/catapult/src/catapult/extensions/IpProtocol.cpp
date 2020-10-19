@@ -18,22 +18,26 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "NodeRoles.h"
-#include "catapult/utils/ConfigurationValueParsers.h"
+#include "IpProtocol.h"
 
-namespace catapult { namespace ionet {
+namespace catapult { namespace extensions {
 
-	namespace {
-		const std::array<std::pair<const char*, NodeRoles>, 5> String_To_Node_Role_Pairs{{
-			{ "Peer", NodeRoles::Peer },
-			{ "Api", NodeRoles::Api },
-			{ "Voting", NodeRoles::Voting },
-			{ "IPv4", NodeRoles::IPv4 },
-			{ "IPv6", NodeRoles::IPv6 }
-		}};
+	IpProtocol MapNodeRolesToIpProtocols(ionet::NodeRoles roles) {
+		auto protocols = IpProtocol::None;
+		if (HasFlag(ionet::NodeRoles::IPv4, roles))
+			protocols |= IpProtocol::IPv4;
+
+		if (HasFlag(ionet::NodeRoles::IPv6, roles))
+			protocols |= IpProtocol::IPv6;
+
+		// for backwards compatibility, assume IPv4 when neither IPv4 nor IPv6 roles are set
+		if (IpProtocol::None == protocols)
+			protocols |= IpProtocol::IPv4;
+
+		return protocols;
 	}
 
-	bool TryParseValue(const std::string& str, NodeRoles& roles) {
-		return utils::TryParseBitwiseEnumValue(String_To_Node_Role_Pairs, str, roles);
+	bool HasAnyProtocol(IpProtocol protocols, ionet::NodeRoles roles) {
+		return 0 != (utils::to_underlying_type(protocols) & utils::to_underlying_type(MapNodeRolesToIpProtocols(roles)));
 	}
 }}
