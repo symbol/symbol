@@ -37,7 +37,10 @@ namespace catapult { namespace test {
 			Abort,
 
 			/// Skip handshake after connect.
-			Skip_Handshake
+			Skip_Handshake,
+
+			/// Connect using an IPv6 address.
+			IPv6
 		};
 
 	public:

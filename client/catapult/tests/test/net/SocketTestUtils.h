@@ -91,8 +91,14 @@ namespace catapult { namespace test {
 	/// Creates a local host endpoint with a default port.
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint();
 
+	/// Creates a local host IPv6 endpoint with a default port.
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpointIPv6();
+
 	/// Creates a local host endpoint with the specified \a port.
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port);
+
+	/// Creates a local host IPv6 endpoint with the specified \a port.
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpointIPv6(unsigned short port);
 
 	/// Creates a default PacketSocketSslOptions.
 	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions();

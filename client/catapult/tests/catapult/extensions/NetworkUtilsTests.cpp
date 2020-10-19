@@ -40,7 +40,9 @@ namespace catapult { namespace extensions {
 	// region test utils (CreateCatapultConfiguration)
 
 	namespace {
-		auto CreateCatapultConfiguration(bool enableReadRateMonitoring = false, const std::string& listenInterface = std::string()) {
+		auto CreateCatapultConfiguration(
+				bool enableReadRateMonitoring = false,
+				const std::string& listenInterface = std::string("0.0.0.0")) {
 			test::MutableCatapultConfiguration config;
 			config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
 
@@ -360,7 +362,9 @@ namespace catapult { namespace extensions {
 	}
 
 	namespace {
-		void AssertBootServerConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess(const std::string& listenInterface) {
+		void AssertBootServerConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess(
+				const std::string& listenInterface,
+				test::ClientSocket::ConnectOptions connectOptions) {
 			// Arrange: boot the server
 			auto key = test::GenerateRandomByteArray<Key>();
 			BootServerContext context(net::PeerConnectCode::Accepted, key);
@@ -368,14 +372,17 @@ namespace catapult { namespace extensions {
 
 			// Act: connect to the server
 			auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-			auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
+			auto pClientSocket = test::CreateClientSocket(pClientThreadPool->ioContext());
+			pClientSocket->connect(connectOptions);
 			WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 			// Assert:
 			AssertAcceptedConnection(context, key, *pServer);
 		}
 
-		void AssertBootServerConnectionRejectedWhenAcceptSucceedsWithNotifyFailure(const std::string& listenInterface) {
+		void AssertBootServerConnectionRejectedWhenAcceptSucceedsWithNotifyFailure(
+				const std::string& listenInterface,
+				test::ClientSocket::ConnectOptions connectOptions) {
 			// Arrange: boot the server
 			auto key = test::GenerateRandomByteArray<Key>();
 			BootServerContext context(net::PeerConnectCode::Accepted, key);
@@ -384,7 +391,8 @@ namespace catapult { namespace extensions {
 
 			// Act: connect to the server
 			auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-			auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
+			auto pClientSocket = test::CreateClientSocket(pClientThreadPool->ioContext());
+			pClientSocket->connect(connectOptions);
 			WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 			// Assert:
@@ -392,20 +400,20 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	TEST(TEST_CLASS, BootServer_ConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess) {
-		AssertBootServerConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess("");
+	TEST(TEST_CLASS, BootServer_ConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess_Ipv4) {
+		AssertBootServerConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess("127.0.0.1", test::ClientSocket::ConnectOptions::Normal);
 	}
 
-	TEST(TEST_CLASS, BootServer_ConnectionRejectedWhenAcceptSucceedsWithNotifyFailure) {
-		AssertBootServerConnectionRejectedWhenAcceptSucceedsWithNotifyFailure("");
+	TEST(TEST_CLASS, BootServer_ConnectionRejectedWhenAcceptSucceedsWithNotifyFailure_Ipv4) {
+		AssertBootServerConnectionRejectedWhenAcceptSucceedsWithNotifyFailure("127.0.0.1", test::ClientSocket::ConnectOptions::Normal);
 	}
 
-	TEST(TEST_CLASS, BootServer_ConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess_WithCustomListenInterface) {
-		AssertBootServerConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess("127.0.0.1");
+	TEST(TEST_CLASS, BootServer_ConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess_Ipv6) {
+		AssertBootServerConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess("::1", test::ClientSocket::ConnectOptions::IPv6);
 	}
 
-	TEST(TEST_CLASS, BootServer_ConnectionRejectedWhenAcceptSucceedsWithNotifyFailure_WithCustomListenInterface) {
-		AssertBootServerConnectionRejectedWhenAcceptSucceedsWithNotifyFailure("127.0.0.1");
+	TEST(TEST_CLASS, BootServer_ConnectionRejectedWhenAcceptSucceedsWithNotifyFailure_Ipv6) {
+		AssertBootServerConnectionRejectedWhenAcceptSucceedsWithNotifyFailure("::1", test::ClientSocket::ConnectOptions::IPv6);
 	}
 
 	// endregion

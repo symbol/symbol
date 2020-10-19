@@ -138,7 +138,7 @@ namespace catapult { namespace test {
 				auto future = pPromise->get_future();
 
 				// connect to the local host
-				auto endpoint = CreateLocalHostEndpoint(port);
+				auto endpoint = ConnectOptions::IPv6 == options ? CreateLocalHostEndpointIPv6(port) : CreateLocalHostEndpoint(port);
 				CATAPULT_LOG(debug) << "attempting client socket connection to " << endpoint;
 				m_socket.lowest_layer().async_connect(endpoint, [pThis = shared_from_this(), options, pPromise](const auto& ec) {
 					CATAPULT_LOG(debug) << "client socket connected " << ToMessage(ec);

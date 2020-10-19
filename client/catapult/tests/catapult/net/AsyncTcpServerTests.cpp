@@ -45,6 +45,8 @@ namespace catapult { namespace net {
 
 		class PoolServerPair {
 		public:
+			PoolServerPair() = default;
+
 			PoolServerPair(
 					std::unique_ptr<thread::IoThreadPool>&& pPool,
 					const boost::asio::ip::tcp::endpoint& endpoint,
@@ -57,6 +59,9 @@ namespace catapult { namespace net {
 				if (m_pPool)
 					stopAll();
 			}
+
+		public:
+			PoolServerPair& operator=(PoolServerPair&& rhs) = default;
 
 		public:
 			void stopAll() {
@@ -80,7 +85,7 @@ namespace catapult { namespace net {
 			}
 
 		public:
-			AsyncTcpServer& operator*() {
+			const AsyncTcpServer& operator*() const {
 				return *m_pServer;
 			}
 
@@ -91,9 +96,6 @@ namespace catapult { namespace net {
 		private:
 			std::unique_ptr<thread::IoThreadPool> m_pPool;
 			std::shared_ptr<AsyncTcpServer> m_pServer;
-
-		public:
-			PoolServerPair(PoolServerPair&& rhs) = default;
 		};
 
 		AsyncTcpServerSettings CreateSettings(const AcceptHandler& acceptHandler, const Key& publicKey = Key()) {
@@ -330,13 +332,12 @@ namespace catapult { namespace net {
 			}
 
 			void init() {
-				auto pServer = CreateLocalHostAsyncTcpServer(*m_pSettings);
-				m_ppServer = std::make_unique<PoolServerPair>(std::move(pServer));
+				m_pServer = CreateLocalHostAsyncTcpServer(*m_pSettings);
 			}
 
 		public:
 			const AsyncTcpServer& asyncServer() const {
-				return **m_ppServer;
+				return *m_pServer;
 			}
 
 		private:
@@ -344,7 +345,7 @@ namespace catapult { namespace net {
 			std::unique_ptr<AsyncTcpServerSettings> m_pSettings;
 			std::atomic<uint32_t> m_shouldWait;
 			std::atomic<uint32_t> m_numAcceptCallbacks;
-			std::unique_ptr<PoolServerPair> m_ppServer;
+			PoolServerPair m_pServer;
 		};
 
 		class BlockingAcceptServer : public AcceptServer {
@@ -707,6 +708,99 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, ServerEnforcesMaximumOnNumberOfConnections) {
 		// Assert: non-deterministic because it is possible for some expected successful connections to fail / timeout
 		test::RunNonDeterministicTest("Max number of connections", RunServerEnforcesMaximumOnNumberOfConnectionsIteration);
+	}
+
+	// endregion
+
+	// region IPv4 / IPv6
+
+	namespace {
+		auto CreateEndpointForListenInterface(const std::string& listenInterface) {
+			return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(listenInterface), test::GetLocalHostPort());
+		}
+
+		auto CreateServerForConnectionTests(
+				const std::string& listenInterface,
+				std::atomic_bool& isAccepted,
+				std::shared_ptr<ionet::PacketSocket>& pAcceptedSocket) {
+			auto testSettings = CreateSettings([&isAccepted, &pAcceptedSocket](const auto& acceptedSocketInfo) {
+				pAcceptedSocket = acceptedSocketInfo.socket();
+				isAccepted = true;
+			});
+			testSettings.AllowAddressReuse = true;
+
+			auto pPool = test::CreateStartedIoThreadPool();
+			return PoolServerPair(std::move(pPool), CreateEndpointForListenInterface(listenInterface), testSettings);
+		}
+
+		void RunConnectionAcceptedTest(const std::string& listenInterface, test::ClientSocket::ConnectOptions connectOptions) {
+			// Arrange:
+			PoolServerPair pServer;
+			std::atomic_bool isAccepted(false);
+			std::shared_ptr<ionet::PacketSocket> pAcceptedSocket;
+			pServer = CreateServerForConnectionTests(listenInterface, isAccepted, pAcceptedSocket);
+
+			// Act:
+			auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
+			auto pClientSocket = test::CreateClientSocket(pClientThreadPool->ioContext());
+			pClientSocket->connect(connectOptions).get();
+			WAIT_FOR(isAccepted);
+
+			// Assert:
+			EXPECT_TRUE(isAccepted);
+			EXPECT_EQ(1u, pServer->numCurrentConnections());
+			EXPECT_EQ(1u, pServer->numLifetimeConnections());
+		}
+
+		void RunConnectionRejectedTest(const std::string& listenInterface, test::ClientSocket::ConnectOptions connectOptions) {
+			// Arrange:
+			PoolServerPair pServer;
+			std::atomic_bool isAccepted(false);
+			std::shared_ptr<ionet::PacketSocket> pAcceptedSocket;
+			pServer = CreateServerForConnectionTests(listenInterface, isAccepted, pAcceptedSocket);
+
+			// Act:
+			auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
+			auto pClientSocket = test::CreateClientSocket(pClientThreadPool->ioContext());
+			EXPECT_THROW(pClientSocket->connect(connectOptions).get(), boost::system::system_error);
+
+			// Assert:
+			EXPECT_FALSE(isAccepted);
+			EXPECT_EQ(0u, pServer->numCurrentConnections());
+			EXPECT_EQ(0u, pServer->numLifetimeConnections());
+		}
+	}
+
+	TEST(TEST_CLASS, AcceptorWithIpv4Any_CanAcceptIpv4) {
+		RunConnectionAcceptedTest("0.0.0.0", test::ClientSocket::ConnectOptions::Normal);
+	}
+
+	TEST(TEST_CLASS, AcceptorWithIpv4Any_CannotAcceptIpv6) {
+		RunConnectionRejectedTest("0.0.0.0", test::ClientSocket::ConnectOptions::IPv6);
+	}
+
+	TEST(TEST_CLASS, AcceptorWithIpv4Custom_CanAcceptIpv4) {
+		RunConnectionAcceptedTest("127.0.0.1", test::ClientSocket::ConnectOptions::Normal);
+	}
+
+	TEST(TEST_CLASS, AcceptorWithIpv4Custom_CannotAcceptIpv6) {
+		RunConnectionRejectedTest("127.0.0.1", test::ClientSocket::ConnectOptions::IPv6);
+	}
+
+	TEST(TEST_CLASS, AcceptorWithIpv6Any_CanAcceptIpv4) {
+		RunConnectionAcceptedTest("::", test::ClientSocket::ConnectOptions::Normal);
+	}
+
+	TEST(TEST_CLASS, AcceptorWithIpv6Any_CanAcceptIpv6) {
+		RunConnectionAcceptedTest("::", test::ClientSocket::ConnectOptions::IPv6);
+	}
+
+	TEST(TEST_CLASS, AcceptorWithIpv6Custom_CannotAcceptIpv4) {
+		RunConnectionRejectedTest("::1", test::ClientSocket::ConnectOptions::Normal);
+	}
+
+	TEST(TEST_CLASS, AcceptorWithIpv6Custom_CanAcceptIpv6) {
+		RunConnectionAcceptedTest("::1", test::ClientSocket::ConnectOptions::IPv6);
 	}
 
 	// endregion

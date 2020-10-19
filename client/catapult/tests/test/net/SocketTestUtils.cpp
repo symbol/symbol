@@ -191,8 +191,16 @@ namespace catapult { namespace test {
 		return CreateLocalHostEndpoint(GetLocalHostPort());
 	}
 
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpointIPv6() {
+		return CreateLocalHostEndpointIPv6(GetLocalHostPort());
+	}
+
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port) {
 		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), port);
+	}
+
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpointIPv6(unsigned short port) {
+		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("::1"), port);
 	}
 
 	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions() {
