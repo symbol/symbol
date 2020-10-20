@@ -606,6 +606,8 @@ class MultiConditionChecker(SimpleValidator):
 
         self.patternTrailingOperator = re.compile(r' (\+|-|\*|/|%|&|\||^|<<|>>)\s*$')
 
+        self.patternStructAssignment = re.compile(r'^\t*(static )?(const(expr)? )?([a-zA-Z][a-zA-Z0-9:_]+) [a-zA-Z_][a-zA-Z0-9_]+ = {')
+
         self.errors = {
             self.checkTestLine: 'TEST should use TEST_CLASS',
             self.checkExplicitOperatorBool: 'Missing explicit before operator bool',
@@ -624,7 +626,8 @@ class MultiConditionChecker(SimpleValidator):
             self.checkCppDoxygenComment: '/// unexpected in cpp file',
             self.checkAutoContextParam: 'use type name instead of auto',
             self.checkGetsSetsDocumentation: 'add an article to documentation',
-            self.checkTrailingOperator: 'operators should start lines, not finish them'
+            self.checkTrailingOperator: 'operators should start lines, not finish them',
+            self.checkStructAssignment: 'prefer struct initialization to struct assignment'
         }
 
     def reset(self, path, errorReporter):
@@ -758,6 +761,14 @@ class MultiConditionChecker(SimpleValidator):
     def checkTrailingOperator(self, line, _):
         # not part of SimpleValidator because comments and strings should be removed before applying rule
         return self.patternTrailingOperator.search(line)
+
+    def checkStructAssignment(self, line, _):
+        match = self.patternStructAssignment.match(line)
+        if match:
+            # treat auto assignments as valid ones (`auto foo = { ... }`)
+            return 'auto' != match.group(4)
+
+        return False
 
     def check(self, lineNumber, line):
         strippedLine = stripCommentsAndStrings(line)

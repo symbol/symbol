@@ -99,12 +99,12 @@ namespace catapult { namespace config {
 
 			static void AssertCustom(const LoggingConfiguration& config) {
 				// Arrange:
-				ComponentLevelsMap expectedConsoleComponentLevels = {
+				ComponentLevelsMap expectedConsoleComponentLevels{
 					{ "net", utils::LogLevel::trace },
 					{ "random", utils::LogLevel::fatal }
 				};
 
-				ComponentLevelsMap expectedFileComponentLevels = {
+				ComponentLevelsMap expectedFileComponentLevels{
 					{ "io", utils::LogLevel::info },
 					{ "net", utils::LogLevel::warning },
 					{ "?", utils::LogLevel::info }

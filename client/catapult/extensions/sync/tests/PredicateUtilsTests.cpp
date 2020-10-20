@@ -152,8 +152,8 @@ namespace catapult { namespace sync {
 					<< ", maxBlockSize = " << settings.MaxBlockSize;
 		}
 
-		constexpr ThrottleTestSettings No_Spam_Test_Settings = { false, 100, 50 };
-		constexpr ThrottleTestSettings Spam_Test_Settings = { true, 100, 50 };
+		constexpr ThrottleTestSettings No_Spam_Test_Settings{ false, 100, 50 };
+		constexpr ThrottleTestSettings Spam_Test_Settings{ true, 100, 50 };
 	}
 
 	// endregion
