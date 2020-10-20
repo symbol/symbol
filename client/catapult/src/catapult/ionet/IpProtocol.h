@@ -19,9 +19,9 @@
 **/
 
 #pragma once
-#include "catapult/ionet/NodeRoles.h"
+#include "NodeRoles.h"
 
-namespace catapult { namespace extensions {
+namespace catapult { namespace ionet {
 
 	/// IP protocols.
 	enum class IpProtocol : uint8_t {
@@ -41,8 +41,8 @@ namespace catapult { namespace extensions {
 	MAKE_BITWISE_ENUM(IpProtocol)
 
 	/// Map \a roles to IP protocols.
-	IpProtocol MapNodeRolesToIpProtocols(ionet::NodeRoles roles);
+	IpProtocol MapNodeRolesToIpProtocols(NodeRoles roles);
 
 	/// Returns \c true if \a roles supports any protocol in \a protocols.
-	bool HasAnyProtocol(IpProtocol protocols, ionet::NodeRoles roles);
+	bool HasAnyProtocol(IpProtocol protocols, NodeRoles roles);
 }}

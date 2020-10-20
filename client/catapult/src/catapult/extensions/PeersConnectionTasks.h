@@ -60,7 +60,7 @@ namespace catapult { namespace extensions {
 				Importance totalChainImportance,
 				ionet::NodeContainer& nodes,
 				ionet::ServiceIdentifier serviceId,
-				IpProtocol supportedProtocols,
+				ionet::IpProtocol supportedProtocols,
 				ionet::NodeRoles requiredRole,
 				const config::NodeConfiguration::ConnectionsSubConfiguration& config);
 
@@ -80,7 +80,7 @@ namespace catapult { namespace extensions {
 		ionet::ServiceIdentifier ServiceId;
 
 		/// Supported protocols.
-		IpProtocol SupportedProtocols;
+		ionet::IpProtocol SupportedProtocols;
 
 		/// Required role for selection (if applicable).
 		ionet::NodeRoles RequiredRole;

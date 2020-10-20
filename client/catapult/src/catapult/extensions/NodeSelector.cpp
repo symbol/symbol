@@ -47,7 +47,7 @@ namespace catapult { namespace extensions {
 
 		struct FindServiceNodesFilter {
 			ionet::ServiceIdentifier ServiceId;
-			IpProtocol SupportedProtocols;
+			ionet::IpProtocol SupportedProtocols;
 			ionet::NodeRoles RequiredRole;
 		};
 
@@ -210,7 +210,7 @@ namespace catapult { namespace extensions {
 		// 1. find compatible (service) nodes; always match all roles
 		//    need to use node container view because node candidates are held by reference
 		auto nodesView = nodes.view();
-		auto findFilter = FindServiceNodesFilter{ config.ServiceId, IpProtocol::All, ionet::NodeRoles::None };
+		auto findFilter = FindServiceNodesFilter{ config.ServiceId, ionet::IpProtocol::All, ionet::NodeRoles::None };
 		auto nodesInfo = FindServiceNodes(nodesView, findFilter, importanceRetriever);
 
 		// 2. find removal candidates

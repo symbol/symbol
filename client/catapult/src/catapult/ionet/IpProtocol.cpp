@@ -20,14 +20,14 @@
 
 #include "IpProtocol.h"
 
-namespace catapult { namespace extensions {
+namespace catapult { namespace ionet {
 
-	IpProtocol MapNodeRolesToIpProtocols(ionet::NodeRoles roles) {
+	IpProtocol MapNodeRolesToIpProtocols(NodeRoles roles) {
 		auto protocols = IpProtocol::None;
-		if (HasFlag(ionet::NodeRoles::IPv4, roles))
+		if (HasFlag(NodeRoles::IPv4, roles))
 			protocols |= IpProtocol::IPv4;
 
-		if (HasFlag(ionet::NodeRoles::IPv6, roles))
+		if (HasFlag(NodeRoles::IPv6, roles))
 			protocols |= IpProtocol::IPv6;
 
 		// for backwards compatibility, assume IPv4 when neither IPv4 nor IPv6 roles are set
@@ -37,7 +37,7 @@ namespace catapult { namespace extensions {
 		return protocols;
 	}
 
-	bool HasAnyProtocol(IpProtocol protocols, ionet::NodeRoles roles) {
+	bool HasAnyProtocol(IpProtocol protocols, NodeRoles roles) {
 		return 0 != (utils::to_underlying_type(protocols) & utils::to_underlying_type(MapNodeRolesToIpProtocols(roles)));
 	}
 }}

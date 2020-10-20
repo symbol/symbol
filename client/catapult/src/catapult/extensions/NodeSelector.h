@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "IpProtocol.h"
+#include "catapult/ionet/IpProtocol.h"
 #include "catapult/ionet/NodeInfo.h"
 #include "catapult/ionet/NodeSet.h"
 #include "catapult/utils/ArraySet.h"
@@ -107,7 +107,7 @@ namespace catapult { namespace extensions {
 		ionet::ServiceIdentifier ServiceId;
 
 		/// Supported protocols.
-		IpProtocol SupportedProtocols;
+		ionet::IpProtocol SupportedProtocols;
 
 		/// Required node role.
 		ionet::NodeRoles RequiredRole;

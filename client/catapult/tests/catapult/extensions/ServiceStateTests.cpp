@@ -173,7 +173,7 @@ namespace catapult { namespace extensions {
 		// Assert:
 		EXPECT_EQ(&testState.state().nodes(), &settings.Nodes);
 		EXPECT_EQ(ionet::ServiceIdentifier(123), settings.ServiceId);
-		EXPECT_EQ(IpProtocol::IPv4, settings.SupportedProtocols);
+		EXPECT_EQ(ionet::IpProtocol::IPv4, settings.SupportedProtocols);
 		EXPECT_EQ(ionet::NodeRoles::Api, settings.RequiredRole);
 		EXPECT_EQ(17u, settings.Config.MaxConnections);
 		EXPECT_TRUE(!!settings.ImportanceRetriever);
@@ -195,7 +195,7 @@ namespace catapult { namespace extensions {
 		// Assert:
 		EXPECT_EQ(&testState.state().nodes(), &settings.Nodes);
 		EXPECT_EQ(ionet::ServiceIdentifier(123), settings.ServiceId);
-		EXPECT_EQ(IpProtocol::All, settings.SupportedProtocols);
+		EXPECT_EQ(ionet::IpProtocol::All, settings.SupportedProtocols);
 		EXPECT_EQ(ionet::NodeRoles::None, settings.RequiredRole);
 		EXPECT_EQ(14u, settings.Config.MaxConnections);
 		EXPECT_TRUE(!!settings.ImportanceRetriever);

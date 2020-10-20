@@ -131,7 +131,7 @@ namespace catapult { namespace extensions {
 
 		template<typename TSettingsFactory>
 		void AssertCanCreateSelectorSettings(
-				IpProtocol expectedProtocols,
+				ionet::IpProtocol expectedProtocols,
 				ionet::NodeRoles expectedRole,
 				TSettingsFactory settingsFactory) {
 			// Arrange:
@@ -174,18 +174,18 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, CanCreateSelectorSettingsWithRole) {
-		AssertCanCreateSelectorSettings(IpProtocol::IPv6, ionet::NodeRoles::Api, [](
+		AssertCanCreateSelectorSettings(ionet::IpProtocol::IPv6, ionet::NodeRoles::Api, [](
 				const auto& cache,
 				auto totalChainImportance,
 				auto& nodes,
 				auto serviceId,
 				const auto& config) {
-			return SelectorSettings(cache, totalChainImportance, nodes, serviceId, IpProtocol::IPv6, ionet::NodeRoles::Api, config);
+			return SelectorSettings(cache, totalChainImportance, nodes, serviceId, ionet::IpProtocol::IPv6, ionet::NodeRoles::Api, config);
 		});
 	}
 
 	TEST(TEST_CLASS, CanCreateSelectorSettingsWithoutRole) {
-		AssertCanCreateSelectorSettings(IpProtocol::All, ionet::NodeRoles::None, [](
+		AssertCanCreateSelectorSettings(ionet::IpProtocol::All, ionet::NodeRoles::None, [](
 				const auto& cache,
 				auto totalChainImportance,
 				auto& nodes,
@@ -204,7 +204,7 @@ namespace catapult { namespace extensions {
 				const cache::CatapultCache& cache,
 				ionet::NodeContainer& container,
 				ionet::ServiceIdentifier serviceId,
-				IpProtocol supportedProtocols,
+				ionet::IpProtocol supportedProtocols,
 				ionet::NodeRoles requiredRole) {
 			return SelectorSettings(cache, Importance(100), container, serviceId, supportedProtocols, requiredRole, CreateConfiguration());
 		}
@@ -215,7 +215,7 @@ namespace catapult { namespace extensions {
 		auto cache = test::CreateEmptyCatapultCache();
 		ionet::NodeContainer container;
 		auto serviceId = ionet::ServiceIdentifier(1);
-		auto settings = CreateDefaultSelectorSettings(cache, container, serviceId, IpProtocol::IPv4, ionet::NodeRoles::Api);
+		auto settings = CreateDefaultSelectorSettings(cache, container, serviceId, ionet::IpProtocol::IPv4, ionet::NodeRoles::Api);
 		auto selector = CreateNodeSelector(settings);
 
 		// Act:
@@ -237,7 +237,7 @@ namespace catapult { namespace extensions {
 		Add(container, keys[3], "dave", ionet::NodeRoles::IPv6 | ionet::NodeRoles::Api);
 		Add(container, keys[4], "erin", ionet::NodeRoles::IPv4 | ionet::NodeRoles::Api);
 		auto serviceId = ionet::ServiceIdentifier(1);
-		auto settings = CreateDefaultSelectorSettings(cache, container, serviceId, IpProtocol::IPv4, ionet::NodeRoles::Api);
+		auto settings = CreateDefaultSelectorSettings(cache, container, serviceId, ionet::IpProtocol::IPv4, ionet::NodeRoles::Api);
 
 		// Act:
 		CreateNodeSelector(settings);
@@ -292,7 +292,7 @@ namespace catapult { namespace extensions {
 				const NodeSelector& selector = NodeSelector()) {
 			// Act:
 			auto cache = test::CreateEmptyCatapultCache();
-			auto settings = CreateDefaultSelectorSettings(cache, container, serviceId, IpProtocol::IPv4, ionet::NodeRoles::Api);
+			auto settings = CreateDefaultSelectorSettings(cache, container, serviceId, ionet::IpProtocol::IPv4, ionet::NodeRoles::Api);
 			auto task = selector
 					? CreateConnectPeersTask(settings, packetWriters, selector)
 					: CreateConnectPeersTask(settings, packetWriters);

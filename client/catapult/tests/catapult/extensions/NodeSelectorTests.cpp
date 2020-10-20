@@ -77,7 +77,7 @@ namespace catapult { namespace extensions {
 		}
 
 		NodeSelectionConfiguration CreateConfiguration(uint32_t maxConnections, uint32_t maxConnectionAge) {
-			return { Default_Service_Id, IpProtocol::IPv4, ionet::NodeRoles::Peer, maxConnections, maxConnectionAge };
+			return { Default_Service_Id, ionet::IpProtocol::IPv4, ionet::NodeRoles::Peer, maxConnections, maxConnectionAge };
 		}
 
 		void AssertSubset(const ionet::NodeSet& set, const ionet::NodeSet& subset) {
@@ -435,7 +435,7 @@ namespace catapult { namespace extensions {
 		SetAge(container, SeedNodes(container, 10), Age);
 
 		auto selectionConfig = CreateConfiguration(5, MaxAge);
-		selectionConfig.SupportedProtocols = IpProtocol::IPv6;
+		selectionConfig.SupportedProtocols = ionet::IpProtocol::IPv6;
 
 		// Act:
 		auto result = SelectNodes(container, selectionConfig, UniformImportanceRetriever);
