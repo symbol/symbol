@@ -56,6 +56,8 @@ namespace catapult { namespace extensions {
 			config.Node.MaxPacketDataSize = utils::FileSize::FromKilobytes(12);
 			config.Node.ListenInterface = listenInterface;
 
+			config.Node.Local.Roles = ionet::NodeRoles::IPv6;
+
 			config.Node.IncomingConnections.MaxConnections = 17;
 			config.Node.IncomingConnections.BacklogSize = 83;
 
@@ -130,6 +132,7 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(utils::FileSize::FromBytes(512), settings.SocketWorkingBufferSize);
 		EXPECT_EQ(987u, settings.SocketWorkingBufferSensitivity);
 		EXPECT_EQ(utils::FileSize::FromKilobytes(12), settings.MaxPacketDataSize);
+		EXPECT_EQ(ionet::IpProtocol::IPv6, settings.OutgoingProtocols);
 
 		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
 		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);

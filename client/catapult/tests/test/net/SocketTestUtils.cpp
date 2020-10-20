@@ -53,13 +53,13 @@ namespace catapult { namespace test {
 
 	class TcpAcceptor::Impl : public std::enable_shared_from_this<TcpAcceptor::Impl> {
 	public:
-		Impl(boost::asio::io_context& ioContext, unsigned short port)
+		Impl(boost::asio::io_context& ioContext, const boost::asio::ip::tcp::endpoint& endpoint)
 				: m_ioContext(ioContext)
-				, m_port(port)
+				, m_endpoint(endpoint)
 				, m_acceptorStrand(m_ioContext)
 				, m_timer(m_ioContext)
 				, m_isClosed(false)
-				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_port))
+				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_endpoint))
 		{}
 
 	public:
@@ -104,15 +104,15 @@ namespace catapult { namespace test {
 		void closeAcceptor() {
 			CATAPULT_LOG(debug) << "dispatching close of socket acceptor";
 			boost::asio::dispatch(m_acceptorStrand, [pThis = shared_from_this()]() {
-				Close(*pThis->m_pAcceptor, pThis->m_isClosed, pThis->m_port);
+				Close(*pThis->m_pAcceptor, pThis->m_isClosed, pThis->m_endpoint.port());
 			});
 		}
 
 	private:
 		static std::unique_ptr<boost::asio::ip::tcp::acceptor> CreateLocalHostAcceptor(
 				boost::asio::io_context& ioContext,
-				unsigned short port) {
-			if (GetLocalHostPort() == port) {
+				const boost::asio::ip::tcp::endpoint& endpoint) {
+			if (GetLocalHostPort() == endpoint.port()) {
 				if (Has_Outstanding_Acceptor)
 					CATAPULT_THROW_INVALID_ARGUMENT("detected creation of multiple localhost acceptors - probably a bug");
 
@@ -120,7 +120,7 @@ namespace catapult { namespace test {
 			}
 
 			auto pAcceptor = std::make_unique<boost::asio::ip::tcp::acceptor>(ioContext);
-			BindAcceptor(*pAcceptor, CreateLocalHostEndpoint(port));
+			BindAcceptor(*pAcceptor, endpoint);
 			pAcceptor->listen();
 			return pAcceptor;
 		}
@@ -142,7 +142,7 @@ namespace catapult { namespace test {
 		// on MacOS, there is a potential race condition when kevent (triggered by async_await) and close are called concurrently
 		// this is now *properly* mitigated by wrapping acceptor operations in a strand
 		boost::asio::io_context& m_ioContext;
-		unsigned short m_port;
+		boost::asio::ip::tcp::endpoint m_endpoint;
 		boost::asio::io_context::strand m_acceptorStrand;
 		boost::asio::steady_timer m_timer;
 		std::atomic_bool m_isClosed;
@@ -158,7 +158,12 @@ namespace catapult { namespace test {
 	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext) : TcpAcceptor(ioContext, GetLocalHostPort())
 	{}
 
-	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port) : m_pImpl(std::make_shared<Impl>(ioContext, port)) {
+	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port)
+			: TcpAcceptor(ioContext, CreateLocalHostEndpoint(port))
+	{}
+
+	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, const boost::asio::ip::tcp::endpoint& endpoint)
+			: m_pImpl(std::make_shared<Impl>(ioContext, endpoint)) {
 		m_pImpl->init();
 	}
 
