@@ -91,7 +91,7 @@ namespace catapult { namespace ionet {
 		bool add(const Node& node, NodeSource source);
 
 		/// Adds connection states for the service identified by \a serviceId to all nodes with \a role.
-		void addConnectionStates(ServiceIdentifier serviceId, ionet::NodeRoles role);
+		void addConnectionStates(ServiceIdentifier serviceId, NodeRoles role);
 
 		/// Gets the connection state for the service identified by \a serviceId and the node with \a identity.
 		ConnectionState& provisionConnectionState(ServiceIdentifier serviceId, const model::NodeIdentity& identity);

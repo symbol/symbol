@@ -66,8 +66,9 @@ namespace catapult { namespace ionet {
 				const model::NodeIdentity& identity,
 				const std::string& nodeName,
 				NodeSource nodeSource,
+				NodeVersion nodeVersion = NodeVersion(),
 				NodeRoles roles = NodeRoles::None) {
-			return container.modifier().add(test::CreateNamedNode(identity, nodeName, roles), nodeSource);
+			return container.modifier().add(test::CreateNamedNode(identity, nodeName, nodeVersion, roles), nodeSource);
 		}
 
 		void Add(
@@ -77,7 +78,7 @@ namespace catapult { namespace ionet {
 				NodeSource nodeSource,
 				NodeRoles roles = NodeRoles::None) {
 			// Act:
-			auto addResult = AddUnchecked(container, identity, nodeName, nodeSource, roles);
+			auto addResult = AddUnchecked(container, identity, nodeName, nodeSource, NodeVersion(), roles);
 
 			// Sanity:
 			EXPECT_TRUE(addResult) << "add failed for: " << nodeName;
@@ -692,7 +693,7 @@ namespace catapult { namespace ionet {
 	// region add - version check
 
 	namespace {
-		void RunAddVersionCheckTest(NodeVersion allowedVersion, bool shouldAddSucceed) {
+		void RunAddVersionCheckTest(NodeVersion nodeVersion, NodeVersion allowedVersion, bool shouldAddSucceed) {
 			// Arrange:
 			NodeContainer container(3, Default_Equality_Strategy, BanSettings(), ZeroTimeSupplier, [allowedVersion](auto version) {
 				return allowedVersion == version;
@@ -700,7 +701,7 @@ namespace catapult { namespace ionet {
 
 			// Act:
 			auto key = test::GenerateRandomByteArray<Key>();
-			auto addResult = AddUnchecked(container, { key, "99.88.77.66" }, "bob", NodeSource::Static);
+			auto addResult = AddUnchecked(container, { key, "99.88.77.66" }, "bob", NodeSource::Static, nodeVersion);
 
 			// Assert:
 			const auto& view = container.view();
@@ -716,12 +717,17 @@ namespace catapult { namespace ionet {
 		}
 	}
 
+	TEST(TEST_CLASS, CanAddNodeWhenVersionIsZero) {
+		RunAddVersionCheckTest(NodeVersion(0), NodeVersion(100), true);
+	}
+
 	TEST(TEST_CLASS, CanAddNodeWhenVersionCheckPasses) {
-		RunAddVersionCheckTest(NodeVersion(0), true); // AddUnchecked creates node with zero version
+		RunAddVersionCheckTest(NodeVersion(100), NodeVersion(100), true);
 	}
 
 	TEST(TEST_CLASS, CannotAddNodeWhenVersionCheckFails) {
-		RunAddVersionCheckTest(NodeVersion(7), false); // AddUnchecked creates node with zero version
+		for (auto version : { NodeVersion(1), NodeVersion(99), NodeVersion(101), NodeVersion(1000) })
+			RunAddVersionCheckTest(version, NodeVersion(100), false);
 	}
 
 	// endregion

@@ -43,9 +43,13 @@ namespace catapult { namespace test {
 	ionet::Node CreateNamedNode(const Key& identityKey, const std::string& name, ionet::NodeRoles roles = ionet::NodeRoles::None);
 
 	/// Creates a node with \a identity, \a name and \a roles.
+	ionet::Node CreateNamedNode(const model::NodeIdentity& identity, const std::string& name, ionet::NodeRoles roles);
+
+	/// Creates a node with \a identity, \a name, \a version and \a roles.
 	ionet::Node CreateNamedNode(
 			const model::NodeIdentity& identity,
 			const std::string& name,
+			ionet::NodeVersion version = ionet::NodeVersion(),
 			ionet::NodeRoles roles = ionet::NodeRoles::None);
 
 	// endregion

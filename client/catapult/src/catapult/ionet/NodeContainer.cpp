@@ -50,7 +50,7 @@ namespace catapult { namespace ionet {
 
 		size_t NextNodeId;
 		ionet::NodeDataContainer NodeDataContainer;
-		std::vector<std::pair<ServiceIdentifier, ionet::NodeRoles>> ServiceRolesMap;
+		std::vector<std::pair<ServiceIdentifier, NodeRoles>> ServiceRolesMap;
 	};
 
 	// endregion
@@ -119,12 +119,18 @@ namespace catapult { namespace ionet {
 	{}
 
 	bool NodeContainerModifier::add(const Node& node, NodeSource source) {
-		if (!m_nodeContainerData.VersionPredicate(node.metadata().Version))
+		// always allow zero version, which is used as a placeholder in Dynamic_Incoming nodes
+		auto nodeVersion = node.metadata().Version;
+		if (NodeVersion() != nodeVersion && !m_nodeContainerData.VersionPredicate(nodeVersion)) {
+			CATAPULT_LOG(warning) << "rejecting node " << node.identity() << " with version " << utils::HexFormat(nodeVersion);
 			return false;
+		}
 
 		auto& nodeDataContainer = m_nodeContainerData.NodeDataContainer;
-		if (m_bannedNodes.isBanned(node.identity()))
+		if (m_bannedNodes.isBanned(node.identity())) {
+			CATAPULT_LOG(warning) << "rejecting banned node " << node.identity();
 			return false;
+		}
 
 		auto prepareInsertResultPair = nodeDataContainer.prepareInsert(node.identity(), source);
 		auto* pNodeData = prepareInsertResultPair.first;
@@ -163,13 +169,13 @@ namespace catapult { namespace ionet {
 	}
 
 	namespace {
-		void ProvisionIfMatch(NodeData& nodeData, ServiceIdentifier serviceId, ionet::NodeRoles role) {
+		void ProvisionIfMatch(NodeData& nodeData, ServiceIdentifier serviceId, NodeRoles role) {
 			if (HasFlag(role, nodeData.Node.metadata().Roles))
 				nodeData.NodeInfo.provisionConnectionState(serviceId);
 		}
 	}
 
-	void NodeContainerModifier::addConnectionStates(ServiceIdentifier serviceId, ionet::NodeRoles role) {
+	void NodeContainerModifier::addConnectionStates(ServiceIdentifier serviceId, NodeRoles role) {
 		m_nodeContainerData.NodeDataContainer.forEach([serviceId, role](auto& nodeData) {
 			ProvisionIfMatch(nodeData, serviceId, role);
 		});
