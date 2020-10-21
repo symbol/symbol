@@ -54,7 +54,7 @@ namespace catapult { namespace model {
 			Height height,
 			const HashRange& hashes) {
 		// 1. check if message can be signed
-		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(stepIdentifier, bmPrivateKeyTree.options().Dilution);
+		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(stepIdentifier);
 		if (!bmPrivateKeyTree.canSign(keyIdentifier))
 			return nullptr;
 
@@ -90,7 +90,7 @@ namespace catapult { namespace model {
 		if (FinalizationMessage::Current_Version != message.Version)
 			return std::make_pair(ProcessMessageResult::Failure_Version, 0);
 
-		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(message.StepIdentifier, context.config().VotingKeyDilution);
+		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(message.StepIdentifier);
 		if (!crypto::Verify(message.Signature, keyIdentifier, ToBuffer(message)))
 			return std::make_pair(ProcessMessageResult::Failure_Signature, 0);
 

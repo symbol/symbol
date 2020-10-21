@@ -59,9 +59,6 @@ namespace catapult { namespace finalization {
 		/// Height multiple of the last block in a prevote hash chain.
 		uint16_t PrevoteBlocksMultiple;
 
-		/// Voting key dilution.
-		uint16_t VotingKeyDilution;
-
 		/// Target duration of unfinalized blocks.
 		/// \note This should be zero when `EnableVoting` is \c true.
 		utils::BlockSpan UnfinalizedBlocksDuration;

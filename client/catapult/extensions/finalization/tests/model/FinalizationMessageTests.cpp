@@ -58,7 +58,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationMessage));
-		EXPECT_EQ(4 + 4 + 456u, sizeof(FinalizationMessage));
+		EXPECT_EQ(4 + 4 + 312u, sizeof(FinalizationMessage));
 	}
 
 	TEST(TEST_CLASS, FinalizationMessageHasProperAlignment) {
@@ -164,8 +164,6 @@ namespace catapult { namespace model {
 		void RunFinalizationContextTest(TAction action) {
 			// Arrange:
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
-			config.VotingKeyDilution = 13u;
-
 			auto finalizationContextPair = test::CreateFinalizationContext(config, FinalizationEpoch(50), Height(123), {
 				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000)
 			});
@@ -194,11 +192,11 @@ namespace catapult { namespace model {
 
 				auto numFactoryCalls = 0u;
 				auto storage = mocks::MockSeekableMemoryStream();
-				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree([&context, &keyPairDescriptor, &numFactoryCalls, &storage]() {
+				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree([&keyPairDescriptor, &numFactoryCalls, &storage]() {
 					if (++numFactoryCalls > 1)
 						return std::unique_ptr<crypto::BmPrivateKeyTree>();
 
-					auto bmOptions = crypto::BmOptions{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } };
+					auto bmOptions = crypto::BmOptions{ { 0 }, { 15 } };
 					auto tree = crypto::BmPrivateKeyTree::Create(test::CopyKeyPair(keyPairDescriptor.VotingKeyPair), storage, bmOptions);
 					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
 				});
@@ -226,7 +224,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, PrepareMessage_CannotPrepareMessageWithUnsupportedStepIdentifier) {
 		// Arrange:
 		auto outOfBoundsStepIdentifier = DefaultStepIdentifier();
-		outOfBoundsStepIdentifier.Epoch = FinalizationEpoch(13 * 16);
+		outOfBoundsStepIdentifier.Epoch = FinalizationEpoch(20);
 		RunPrepareMessageTest(VoterType::Large, 0, outOfBoundsStepIdentifier, [](const auto& pMessage, const auto&, const auto&) {
 			// Assert:
 			EXPECT_FALSE(!!pMessage);

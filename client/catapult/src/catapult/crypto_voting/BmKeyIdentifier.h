@@ -23,16 +23,13 @@
 
 namespace catapult { namespace crypto {
 
-	/// Three-layer Bellare-Miner private key tree key identifier.
+	/// Two-layer Bellare-Miner private key tree key identifier.
 	struct BmKeyIdentifier {
 	public:
 		/// Invalid identifier.
 		static constexpr uint64_t Invalid_Id = 0xFFFF'FFFF'FFFF'FFFF;
 
 	public:
-		/// Batch id.
-		uint64_t BatchId;
-
 		/// Key id.
 		uint64_t KeyId;
 

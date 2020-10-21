@@ -107,14 +107,11 @@ namespace catapult { namespace finalization {
 		constexpr auto Num_Services = test::FinalizationBootstrapperServiceTestUtils::Num_Bootstrapper_Services;
 
 		struct FinalizationBootstrapperServiceTraits {
-			static constexpr auto Voting_Key_Dilution = 7u;
-
 			static auto CreateRegistrar(std::unique_ptr<io::ProofStorage>&& pProofStorage) {
 				auto config = FinalizationConfiguration::Uninitialized();
 				config.Size = 3000;
 				config.Threshold = 2000;
 				config.MaxHashesPerPoint = 64;
-				config.VotingKeyDilution = Voting_Key_Dilution;
 				config.VotingSetGrouping = 500;
 				return CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage));
 			}

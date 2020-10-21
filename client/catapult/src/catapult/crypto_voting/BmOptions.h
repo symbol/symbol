@@ -23,11 +23,8 @@
 
 namespace catapult { namespace crypto {
 
-	/// Three-layer Bellare-Miner private key tree key options.
+	/// Two-layer Bellare-Miner private key tree key options.
 	struct BmOptions {
-		/// Key dilution.
-		uint64_t Dilution;
-
 		/// Start key identifier.
 		BmKeyIdentifier StartKeyIdentifier;
 

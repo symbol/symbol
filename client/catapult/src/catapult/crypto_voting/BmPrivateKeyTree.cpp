@@ -199,7 +199,7 @@ namespace catapult { namespace crypto {
 	// region bm private key tree
 
 	namespace {
-		enum : size_t { Layer_Top, Layer_Low };
+		enum : size_t { Layer_Low };
 
 		constexpr auto Tree_Header_Size = sizeof(BmOptions) + 2 * sizeof(BmKeyIdentifier);
 		constexpr auto Layer_Header_Size = BmPublicKey::Size + 2 * sizeof(uint64_t);
@@ -210,26 +210,22 @@ namespace catapult { namespace crypto {
 
 		BmKeyIdentifier LoadKeyIdentifier(io::InputStream& input) {
 			BmKeyIdentifier keyIdentifier;
-			keyIdentifier.BatchId = io::Read64(input);
 			keyIdentifier.KeyId = io::Read64(input);
 			return keyIdentifier;
 		}
 
 		BmOptions LoadOptions(io::InputStream& input) {
 			BmOptions options;
-			options.Dilution = io::Read64(input);
 			options.StartKeyIdentifier = LoadKeyIdentifier(input);
 			options.EndKeyIdentifier = LoadKeyIdentifier(input);
 			return options;
 		}
 
 		void SaveKeyIdentifier(io::OutputStream& output, const BmKeyIdentifier& keyIdentifier) {
-			io::Write64(output, keyIdentifier.BatchId);
 			io::Write64(output, keyIdentifier.KeyId);
 		}
 
 		void SaveOptions(io::OutputStream& output, const BmOptions& options) {
-			io::Write64(output, options.Dilution);
 			SaveKeyIdentifier(output, options.StartKeyIdentifier);
 			SaveKeyIdentifier(output, options.EndKeyIdentifier);
 		}
@@ -238,8 +234,8 @@ namespace catapult { namespace crypto {
 	BmPrivateKeyTree::BmPrivateKeyTree(io::SeekableStream& storage, const BmOptions& options)
 			: m_storage(storage)
 			, m_options(options)
-			, m_lastKeyIdentifier({ BmKeyIdentifier::Invalid_Id, 0 })
-			, m_lastWipeKeyIdentifier({ BmKeyIdentifier::Invalid_Id, 0 })
+			, m_lastKeyIdentifier({ BmKeyIdentifier::Invalid_Id })
+			, m_lastWipeKeyIdentifier({ BmKeyIdentifier::Invalid_Id })
 	{}
 
 	BmPrivateKeyTree::BmPrivateKeyTree(BmPrivateKeyTree&&) = default;
@@ -252,11 +248,7 @@ namespace catapult { namespace crypto {
 		tree.m_lastKeyIdentifier = LoadKeyIdentifier(storage);
 		tree.m_lastWipeKeyIdentifier = LoadKeyIdentifier(storage);
 
-		tree.m_levels[Layer_Top] = std::make_unique<Level>(Level::FromStream(storage));
-
-		// if any sign() was issued prior to saving, load subsequent levels
-		if (BmKeyIdentifier::Invalid_Id != tree.m_lastKeyIdentifier.BatchId)
-			tree.m_levels[Layer_Low] = std::make_unique<Level>(Level::FromStream(storage));
+		tree.m_levels[Layer_Low] = std::make_unique<Level>(Level::FromStream(storage));
 
 		return tree;
 	}
@@ -266,14 +258,14 @@ namespace catapult { namespace crypto {
 		SaveOptions(tree.m_storage, tree.m_options);
 		SaveKeyIdentifier(tree.m_storage, tree.m_lastKeyIdentifier);
 		SaveKeyIdentifier(tree.m_storage, tree.m_lastWipeKeyIdentifier);
-		tree.createLevel(Layer_Top, std::move(keyPair), options.StartKeyIdentifier.BatchId, options.EndKeyIdentifier.BatchId);
+		tree.createLevel(Layer_Low, std::move(keyPair), options.StartKeyIdentifier.KeyId, options.EndKeyIdentifier.KeyId);
 		return tree;
 	}
 
 	BmPrivateKeyTree::~BmPrivateKeyTree() = default;
 
 	const BmPublicKey& BmPrivateKeyTree::rootPublicKey() const {
-		return m_levels[Layer_Top]->publicKey();
+		return m_levels[Layer_Low]->publicKey();
 	}
 
 	const BmOptions& BmPrivateKeyTree::options() const {
@@ -288,9 +280,6 @@ namespace catapult { namespace crypto {
 		if (!canSign(keyIdentifier))
 			CATAPULT_THROW_INVALID_ARGUMENT_1("sign called with invalid key identifier", keyIdentifier);
 
-		if (m_lastKeyIdentifier.BatchId != keyIdentifier.BatchId)
-			createLevel(Layer_Low, m_levels[Layer_Top]->detachKeyPairAt(keyIdentifier.BatchId), 0, m_options.Dilution - 1);
-
 		const auto& subKeyPair = m_levels[Layer_Low]->keyPairAt(keyIdentifier.KeyId);
 		BmSignature msgSignature;
 		Sign(subKeyPair, dataBuffer, msgSignature);
@@ -300,23 +289,23 @@ namespace catapult { namespace crypto {
 		SaveKeyIdentifier(m_storage, m_lastKeyIdentifier);
 
 		return {
-			m_levels[Layer_Top]->publicKeySignature(keyIdentifier.BatchId),
 			m_levels[Layer_Low]->publicKeySignature(keyIdentifier.KeyId),
 			{ subKeyPair.publicKey(), msgSignature }
 		};
 	}
 
 	void BmPrivateKeyTree::wipe(const BmKeyIdentifier& keyIdentifier) {
-		// allow KeyId to be invalid, indicating only batch keys should be wiped
-		auto normalizedKeyId = BmKeyIdentifier::Invalid_Id == keyIdentifier.KeyId ? 0 : keyIdentifier.KeyId;
-		if (!check({ keyIdentifier.BatchId, normalizedKeyId }, m_lastWipeKeyIdentifier))
+		if (!check(keyIdentifier, m_lastWipeKeyIdentifier))
 			CATAPULT_THROW_INVALID_ARGUMENT_1("wipe called with invalid key identifier", keyIdentifier);
 
-		if (m_lastWipeKeyIdentifier.BatchId != keyIdentifier.BatchId)
-			wipe(Layer_Top, keyIdentifier.BatchId);
+		auto startWipeKeyId = m_lastWipeKeyIdentifier.KeyId;
+		if (BmKeyIdentifier::Invalid_Id == startWipeKeyId)
+			startWipeKeyId = m_options.StartKeyIdentifier.KeyId;
+		else
+			++startWipeKeyId;
 
-		if (BmKeyIdentifier::Invalid_Id != keyIdentifier.KeyId)
-			wipe(Layer_Low, keyIdentifier.KeyId);
+		for (auto keyId = startWipeKeyId; keyId <= keyIdentifier.KeyId; ++keyId)
+			wipe(Layer_Low, keyId);
 
 		m_lastWipeKeyIdentifier = keyIdentifier;
 	}
@@ -326,9 +315,6 @@ namespace catapult { namespace crypto {
 			return false;
 
 		if (keyIdentifier < m_options.StartKeyIdentifier || keyIdentifier > m_options.EndKeyIdentifier)
-			return false;
-
-		if (keyIdentifier.KeyId >= m_options.Dilution)
 			return false;
 
 		return true;
@@ -385,10 +371,7 @@ namespace catapult { namespace crypto {
 	}
 
 	bool Verify(const BmTreeSignature& signature, const BmKeyIdentifier& keyIdentifier, const RawBuffer& buffer) {
-		if (!VerifyBoundSignature(signature.Root, signature.Top.ParentPublicKey, keyIdentifier.BatchId))
-			return false;
-
-		if (!VerifyBoundSignature(signature.Top, signature.Bottom.ParentPublicKey, keyIdentifier.KeyId))
+		if (!VerifyBoundSignature(signature.Root, signature.Bottom.ParentPublicKey, keyIdentifier.KeyId))
 			return false;
 
 		if (!crypto::Verify(signature.Bottom.ParentPublicKey, buffer, signature.Bottom.Signature))

@@ -56,9 +56,6 @@ namespace catapult { namespace finalization {
 
 		struct FinalizationOrchestratorServiceTraits {
 		public:
-			static constexpr uint64_t Voting_Key_Dilution = 13;
-
-		public:
 			static auto CreateRegistrar(uint64_t votingSetGrouping, bool enableRevoteOnBoot) {
 				// (Size, Threshold) are set in MockRoundMessageAggregator to (1000, 750)
 				auto config = FinalizationConfiguration::Uninitialized();
@@ -80,9 +77,6 @@ namespace catapult { namespace finalization {
 		};
 
 		class TestContext : public test::VoterSeededCacheDependentServiceLocatorTestContext<FinalizationOrchestratorServiceTraits> {
-		private:
-			static constexpr uint64_t Voting_Key_Dilution = FinalizationOrchestratorServiceTraits::Voting_Key_Dilution;
-
 		public:
 			TestContext() : TestContext(Default_Round)
 			{}
@@ -207,7 +201,7 @@ namespace catapult { namespace finalization {
 
 		private:
 			static auto CreateBmKeyIdentifier(FinalizationEpoch epoch, model::FinalizationStage stage) {
-				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage }, Voting_Key_Dilution);
+				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage });
 			}
 
 			static void SeedVotingPrivateKeyTree(const config::CatapultDirectory& directory, const crypto::VotingKeyPair& votingKeyPair) {
@@ -217,7 +211,7 @@ namespace catapult { namespace finalization {
 
 					auto startKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch((i - 1) * 4 + 1), Prevote_Stage);
 					auto endKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch(i * 4), Precommit_Stage);
-					auto bmOptions = crypto::BmOptions{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier };
+					auto bmOptions = crypto::BmOptions{ startKeyIdentifier, endKeyIdentifier };
 					crypto::BmPrivateKeyTree::Create(test::CopyKeyPair(votingKeyPair), treeStream, bmOptions);
 				}
 			}

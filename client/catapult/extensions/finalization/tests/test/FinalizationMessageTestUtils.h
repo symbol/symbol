@@ -102,9 +102,6 @@ namespace catapult { namespace test {
 
 	// region message utils
 
-	/// Signs \a message with \a votingKeyPair using \a dilution.
-	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair, uint64_t dilution);
-
 	/// Signs \a message with \a votingKeyPair.
 	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair);
 

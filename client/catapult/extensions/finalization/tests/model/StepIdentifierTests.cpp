@@ -143,11 +143,11 @@ namespace catapult { namespace model {
 	namespace {
 		std::vector<StepIdentifier> GenerateValidStepIdentifierValues() {
 			return {
-				{ FinalizationEpoch(10), FinalizationPoint(), FinalizationStage::Prevote },
-				{ FinalizationEpoch(20), FinalizationPoint(), FinalizationStage::Prevote },
-				{ FinalizationEpoch(21), FinalizationPoint(), FinalizationStage::Precommit },
-				{ FinalizationEpoch(22), FinalizationPoint(), FinalizationStage::Prevote },
-				{ FinalizationEpoch(23), FinalizationPoint(), FinalizationStage::Precommit }
+				{ FinalizationEpoch(10), FinalizationPoint(1), FinalizationStage::Prevote },
+				{ FinalizationEpoch(20), FinalizationPoint(2), FinalizationStage::Prevote },
+				{ FinalizationEpoch(21), FinalizationPoint(3), FinalizationStage::Precommit },
+				{ FinalizationEpoch(22), FinalizationPoint(4), FinalizationStage::Prevote },
+				{ FinalizationEpoch(23), FinalizationPoint(5), FinalizationStage::Precommit }
 			};
 		}
 	}
@@ -156,28 +156,12 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto identifiers = GenerateValidStepIdentifierValues();
 		auto expectedKeyIdentifiers = std::vector<crypto::BmKeyIdentifier>{
-			{ 1, 3 }, { 2, 6 }, { 3, 0 }, { 3, 1 }, { 3, 2 }
+			{ 10 }, { 20 }, { 21 }, { 22 }, { 23 }
 		};
 
 		// Act:
 		auto keyIdentifiers = test::Apply(true, identifiers, [](const auto& stepIdentifier) {
-			return StepIdentifierToBmKeyIdentifier(stepIdentifier, 7);
-		});
-
-		// Assert:
-		EXPECT_EQ(expectedKeyIdentifiers, keyIdentifiers);
-	}
-
-	TEST(TEST_CLASS, StepIdentifierToBmKeyIdentifierProducesCorrectValuesWhenDilutionIsOne) {
-		// Arrange:
-		auto identifiers = GenerateValidStepIdentifierValues();
-		auto expectedKeyIdentifiers = std::vector<crypto::BmKeyIdentifier>{
-			{ 10, 0 }, { 20, 0 }, { 21, 0 }, { 22, 0 }, { 23, 0 }
-		};
-
-		// Act:
-		auto keyIdentifiers = test::Apply(true, identifiers, [](const auto& stepIdentifier) {
-			return StepIdentifierToBmKeyIdentifier(stepIdentifier, 1);
+			return StepIdentifierToBmKeyIdentifier(stepIdentifier);
 		});
 
 		// Assert:

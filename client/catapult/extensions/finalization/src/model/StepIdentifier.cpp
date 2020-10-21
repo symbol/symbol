@@ -75,10 +75,9 @@ namespace catapult { namespace model {
 
 	// region StepIdentifierToBmKeyIdentifier
 
-	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution) {
-		// dilution < 1 is not allowed
+	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier) {
 		auto identifier = stepIdentifier.Epoch.unwrap();
-		return { identifier / dilution, identifier % dilution };
+		return { identifier };
 	}
 
 	// endregion

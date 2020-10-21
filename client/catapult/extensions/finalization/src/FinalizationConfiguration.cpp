@@ -47,11 +47,10 @@ namespace catapult { namespace finalization {
 
 		LOAD_PROPERTY(MaxHashesPerPoint);
 		LOAD_PROPERTY(PrevoteBlocksMultiple);
-		LOAD_PROPERTY(VotingKeyDilution);
 
 		LOAD_PROPERTY(UnfinalizedBlocksDuration);
 
-		utils::VerifyBagSizeExact(bag, 11);
+		utils::VerifyBagSizeExact(bag, 10);
 		return config;
 	}
 

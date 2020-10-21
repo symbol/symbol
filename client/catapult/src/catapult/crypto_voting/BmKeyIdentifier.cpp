@@ -32,7 +32,7 @@ namespace catapult { namespace crypto {
 	}
 
 	bool BmKeyIdentifier::operator==(const BmKeyIdentifier& rhs) const {
-		return BatchId == rhs.BatchId && KeyId == rhs.KeyId;
+		return KeyId == rhs.KeyId;
 	}
 
 	bool BmKeyIdentifier::operator!=(const BmKeyIdentifier& rhs) const {
@@ -40,7 +40,7 @@ namespace catapult { namespace crypto {
 	}
 
 	bool BmKeyIdentifier::operator<(const BmKeyIdentifier& rhs) const {
-		return IsIdLessThan(BatchId, rhs.BatchId) || (BatchId == rhs.BatchId && IsIdLessThan(KeyId, rhs.KeyId));
+		return IsIdLessThan(KeyId, rhs.KeyId);
 	}
 
 	bool BmKeyIdentifier::operator<=(const BmKeyIdentifier& rhs) const {
@@ -56,7 +56,7 @@ namespace catapult { namespace crypto {
 	}
 
 	std::ostream& operator<<(std::ostream& out, const BmKeyIdentifier& keyIdentifier) {
-		out << "(" << keyIdentifier.BatchId << ", " << keyIdentifier.KeyId << ")";
+		out << "(" << keyIdentifier.KeyId << ")";
 		return out;
 	}
 }}

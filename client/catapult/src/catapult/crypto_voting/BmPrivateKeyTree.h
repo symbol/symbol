@@ -27,7 +27,7 @@
 
 namespace catapult { namespace crypto {
 
-	/// Three-layer Bellare-Miner private key tree.
+	/// Two-layer Bellare-Miner private key tree.
 	class BmPrivateKeyTree {
 	private:
 		using BmKeyPair = VotingKeyPair;

@@ -26,7 +26,7 @@ namespace catapult { namespace crypto {
 
 #pragma pack(push, 1)
 
-	/// Three-layer Bellare-Miner signature.
+	/// Two-layer Bellare-Miner signature.
 	struct BmTreeSignature {
 	public:
 		/// Parent public key and signature pair.
@@ -41,9 +41,6 @@ namespace catapult { namespace crypto {
 	public:
 		/// Root pair.
 		ParentPublicKeySignaturePair Root;
-
-		/// Top pair.
-		ParentPublicKeySignaturePair Top;
 
 		/// Bottom pair.
 		ParentPublicKeySignaturePair Bottom;

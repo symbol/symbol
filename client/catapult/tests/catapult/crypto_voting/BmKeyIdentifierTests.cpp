@@ -29,7 +29,7 @@ namespace catapult { namespace crypto {
 
 	// region size + alignment
 
-#define KEY_IDENTIFIER_FIELDS FIELD(BatchId) FIELD(KeyId)
+#define KEY_IDENTIFIER_FIELDS FIELD(KeyId)
 
 	TEST(TEST_CLASS, KeyIdentifierHasExpectedSize) {
 		// Arrange:
@@ -41,7 +41,7 @@ namespace catapult { namespace crypto {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BmKeyIdentifier));
-		EXPECT_EQ(16u, sizeof(BmKeyIdentifier));
+		EXPECT_EQ(8u, sizeof(BmKeyIdentifier));
 	}
 
 	TEST(TEST_CLASS, KeyIdentifierHasProperAlignment) {
@@ -61,16 +61,11 @@ namespace catapult { namespace crypto {
 	namespace {
 		std::vector<BmKeyIdentifier> GenerateIncreasingKeyIdentifierValues() {
 			return {
-					{ BmKeyIdentifier::Invalid_Id, BmKeyIdentifier::Invalid_Id },
-					{ BmKeyIdentifier::Invalid_Id, 0 },
-					{ BmKeyIdentifier::Invalid_Id, 1 },
-					{ 0, BmKeyIdentifier::Invalid_Id },
-					{ 0, 0 },
-					{ 1, BmKeyIdentifier::Invalid_Id },
-					{ 5, 0 },
-					{ 10, 0 },
-					{ 10, 1 },
-					{ 10, 4 }
+					{ BmKeyIdentifier::Invalid_Id },
+					{ 0 },
+					{ 1 },
+					{ 5 },
+					{ 10 }
 			};
 		}
 	}
@@ -79,13 +74,13 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, KeyIdentifier_CanOutput) {
 		// Arrange:
-		BmKeyIdentifier keyIdentifier{ 11, 5 };
+		BmKeyIdentifier keyIdentifier{ 11 };
 
 		// Act:
 		auto str = test::ToString(keyIdentifier);
 
 		// Assert:
-		EXPECT_EQ("(11, 5)", str);
+		EXPECT_EQ("(11)", str);
 	}
 
 	// endregion

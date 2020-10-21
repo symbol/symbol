@@ -37,9 +37,6 @@ namespace catapult { namespace chain {
 	namespace {
 		class TestContext {
 		public:
-			static constexpr auto Voting_Key_Dilution = 13u;
-
-		public:
 			explicit TestContext(Height height) : TestContext(height, 10, finalization::FinalizationConfiguration::Uninitialized())
 			{}
 
@@ -71,16 +68,17 @@ namespace catapult { namespace chain {
 		private:
 			static crypto::AggregateBmPrivateKeyTree CreateAggregateBmPrivateKeyTree(io::SeekableStream& storage) {
 				return crypto::AggregateBmPrivateKeyTree([&storage]() {
-					auto startKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
-							{ FinalizationEpoch(), FinalizationPoint(), model::FinalizationStage::Prevote },
-							Voting_Key_Dilution);
-					auto endKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
-							{ FinalizationEpoch(20), FinalizationPoint(), model::FinalizationStage::Precommit },
-							Voting_Key_Dilution);
-					auto bmOptions = crypto::BmOptions{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier };
+					auto bmOptions = crypto::BmOptions{
+						GetKeyIdentifier(FinalizationEpoch(), model::FinalizationStage::Prevote),
+						GetKeyIdentifier(FinalizationEpoch(20), model::FinalizationStage::Precommit)
+					};
 					auto tree = crypto::BmPrivateKeyTree::Create(test::GenerateVotingKeyPair(), storage, bmOptions);
 					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
 				});
+			}
+
+			static crypto::BmKeyIdentifier GetKeyIdentifier(FinalizationEpoch epoch, model::FinalizationStage stage) {
+				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage, });
 			}
 
 		private:
@@ -93,8 +91,7 @@ namespace catapult { namespace chain {
 		};
 
 		bool IsSigned(const model::FinalizationMessage& message) {
-			auto dilution = TestContext::Voting_Key_Dilution;
-			auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier, dilution);
+			auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier);
 			return crypto::Verify(message.Signature, keyIdentifier, {
 				reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
 				message.Size - model::FinalizationMessage::Header_Size

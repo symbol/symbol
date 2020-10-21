@@ -25,7 +25,7 @@
 
 namespace catapult { namespace test {
 
-	/// Three-layer Bellare-Miner private key tree sizes.
+	/// Two-layer Bellare-Miner private key tree sizes.
 	struct BmTreeSizes {
 	private:
 		static constexpr auto Bm_Public_Key_Size = VotingKey::Size;
@@ -44,19 +44,9 @@ namespace catapult { namespace test {
 			return File_Header_Size + Level_Header_Size;
 		}
 
-		/// Calculates the start offset of level two keys given \a levelOneSize.
-		static constexpr auto CalculateLevelTwoPayloadStart(size_t levelOneSize) {
-			return CalculateLevelOnePayloadStart(0) + Level_Header_Size + levelOneSize * Level_Entry_Size;
-		}
-
 		/// Calculates the full level one size given \a levelOneSize.
 		static constexpr auto CalculateFullLevelOneSize(size_t levelOneSize) {
 			return File_Header_Size + Level_Header_Size + levelOneSize * Level_Entry_Size;
-		}
-
-		/// Calculates the full level two size given \a levelOneSize and \a levelTwoSize.
-		static constexpr auto CalculateFullLevelTwoSize(size_t levelOneSize, size_t levelTwoSize) {
-			return CalculateFullLevelOneSize(levelOneSize) + Level_Header_Size + levelTwoSize * Level_Entry_Size;
 		}
 	};
 

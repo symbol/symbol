@@ -26,7 +26,7 @@ namespace catapult { namespace crypto {
 
 #define TEST_CLASS BmOptionsTests
 
-#define OPTIONS_FIELDS FIELD(Dilution) FIELD(StartKeyIdentifier) FIELD(EndKeyIdentifier)
+#define OPTIONS_FIELDS FIELD(StartKeyIdentifier) FIELD(EndKeyIdentifier)
 
 	TEST(TEST_CLASS, OptionsHasExpectedSize) {
 		// Arrange:
@@ -38,7 +38,7 @@ namespace catapult { namespace crypto {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BmOptions));
-		EXPECT_EQ(40u, sizeof(BmOptions));
+		EXPECT_EQ(16u, sizeof(BmOptions));
 	}
 
 	TEST(TEST_CLASS, OptionsHasProperAlignment) {

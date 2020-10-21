@@ -158,20 +158,16 @@ namespace catapult { namespace test {
 
 	// region message utils
 
-	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair, uint64_t dilution) {
+	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair) {
 		auto storage = mocks::MockSeekableMemoryStream();
-		auto bmOptions = crypto::BmOptions{ dilution, { 0, 2 }, { 15, 1 } };
+		auto bmOptions = crypto::BmOptions{ { 0 }, { 15 } };
 		auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
 
-		auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier, bmPrivateKeyTree.options().Dilution);
+		auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier);
 		message.Signature = bmPrivateKeyTree.sign(keyIdentifier, {
 			reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
 			message.Size - model::FinalizationMessage::Header_Size
 		});
-	}
-
-	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair) {
-		SignMessage(message, votingKeyPair, 13);
 	}
 
 	void AssertEqualMessage(

@@ -59,7 +59,7 @@ namespace catapult { namespace crypto {
 
 	namespace {
 		BmKeyIdentifier Decrease(const BmKeyIdentifier& keyIdentifier) {
-			return { keyIdentifier.BatchId, 0 == keyIdentifier.KeyId ? BmKeyIdentifier::Invalid_Id: keyIdentifier.KeyId - 1 };
+			return { keyIdentifier.KeyId - 1 };
 		}
 	}
 

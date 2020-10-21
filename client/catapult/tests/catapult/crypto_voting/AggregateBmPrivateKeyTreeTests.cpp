@@ -30,14 +30,13 @@ namespace catapult { namespace crypto {
 #define TEST_CLASS AggregateBmPrivateKeyTreeTests
 
 	namespace {
-		constexpr auto Start_Key = BmKeyIdentifier{ 8, 4 };
-		constexpr auto End_Key = BmKeyIdentifier{ 13, 5 };
-		constexpr BmOptions Default_Options{ 7, Start_Key, End_Key };
+		constexpr auto Start_Key = BmKeyIdentifier{ 70 };
+		constexpr auto End_Key = BmKeyIdentifier{ 79 };
+		constexpr auto Num_Keys = End_Key.KeyId - Start_Key.KeyId + 1;
+		constexpr BmOptions Default_Options{ Start_Key, End_Key };
 
 		constexpr auto L1_Payload_Start = test::BmTreeSizes::CalculateLevelOnePayloadStart(0);
-		constexpr auto L2_Payload_Start = test::BmTreeSizes::CalculateLevelTwoPayloadStart(6);
-		constexpr auto Full_L1_Size = test::BmTreeSizes::CalculateFullLevelOneSize(6);
-		constexpr auto Full_L2_Size = test::BmTreeSizes::CalculateFullLevelTwoSize(6, 7);
+		constexpr auto Full_L1_Size = test::BmTreeSizes::CalculateFullLevelOneSize(Num_Keys);
 
 		auto GenerateKeyPair() {
 			return VotingKeyPair::FromPrivate(VotingPrivateKey::Generate(test::RandomByte));
@@ -115,22 +114,22 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, PropertiesAreUpdatedWhenTreeIsAdvanced) {
 		// Arrange:
-		TestContext context({ { 7, { 8, 4 }, { 13, 5 } }, { 7, { 13, 6 }, { 17, 5 } } });
+		TestContext context({ { { 8 }, { 14 } }, { { 15 }, { 27 } } });
 
 		// Sanity:
 		EXPECT_EQ(context.publicKey(0), context.tree().rootPublicKey());
-		test::AssertOptions({ 7, { 8, 4 }, { 13, 5 } }, context.tree().options());
+		test::AssertOptions({ { 8 }, { 14 } }, context.tree().options());
 
 		// Act: advance to next tree
-		context.tree().canSign({ 14, 2 });
+		context.tree().canSign({ 19 });
 
 		// Assert:
 		EXPECT_EQ(context.publicKey(1), context.tree().rootPublicKey());
-		test::AssertOptions({ 7, { 13, 6 }, { 17, 5 } }, context.tree().options());
+		test::AssertOptions({ { 15 }, { 27 } }, context.tree().options());
 
 		// - (storage) used tree is cleared
-		ASSERT_EQ(Full_L1_Size, context.storage(0).buffer().size());
-		test::AssertZeroedKeys(context.storage(0).buffer(), L1_Payload_Start, 6, { 0, 1, 2, 3, 4, 5 }, "L1");
+		ASSERT_EQ(test::BmTreeSizes::CalculateFullLevelOneSize(7), context.storage(0).buffer().size());
+		test::AssertZeroedKeys(context.storage(0).buffer(), L1_Payload_Start, 7, { 6, 5, 4, 3, 2, 1, 0 }, "L1");
 	}
 
 	// endregion
@@ -152,7 +151,7 @@ namespace catapult { namespace crypto {
 	}
 
 	TEST(TEST_CLASS, CanSignWithMiddleKey) {
-		AssertCanSign({ (Start_Key.BatchId + End_Key.BatchId) / 2, (Start_Key.KeyId + End_Key.KeyId) / 2 });
+		AssertCanSign({ (Start_Key.KeyId + End_Key.KeyId) / 2 });
 	}
 
 	TEST(TEST_CLASS, CanSignWithEndKey) {
@@ -165,18 +164,18 @@ namespace catapult { namespace crypto {
 
 		// Act + Assert:
 		for (auto i = 0u; i < 5u; ++i)
-			test::AssertCanSign(context.tree(), { 10, 3 });
+			test::AssertCanSign(context.tree(), { 75 });
 	}
 
 	TEST(TEST_CLASS, CanResignSameMessageWithSameKey) {
 		// Arrange:
 		TestContext context;
 		auto messageBuffer = test::GenerateRandomArray<10>();
-		auto referenceSignature = context.tree().sign({ 10, 3 }, messageBuffer);
+		auto referenceSignature = context.tree().sign({ 75 }, messageBuffer);
 
 		for (auto i = 0u; i < 5u; ++i) {
 			// Act:
-			auto signature = context.tree().sign({ 10, 3 }, messageBuffer);
+			auto signature = context.tree().sign({ 75 }, messageBuffer);
 
 			// Assert:
 			EXPECT_EQ(referenceSignature, signature) << i;
@@ -187,11 +186,10 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		TestContext context;
 		std::initializer_list<BmKeyIdentifier> keyIdentifiers{
-			{ 8, 4 },
-			{ 8, 5 }, // KeyId incremenent
-			{ 9, 0 }, // BatchId increment
-			{ 11, 0 }, // BatchId skip
-			{ 13, 3 } // BatchId and KeyId skip
+			{ 71 },
+			{ 73 },
+			{ 74 },
+			{ 78 }
 		};
 
 		// Act:
@@ -213,37 +211,29 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(TEST_CLASS, CannotSignWithKeyOutsideOfRange) {
-		AssertCanSign({ 10, Default_Options.Dilution - 1 });
-		AssertCannotSign({ 10, Default_Options.Dilution });
-	}
-
 	TEST(TEST_CLASS, CannotSignWithKeyBelowStart) {
-		AssertCannotSign({ Start_Key.BatchId - 1, Start_Key.KeyId });
-		AssertCannotSign({ Start_Key.BatchId, Start_Key.KeyId - 1 });
+		AssertCannotSign({ Start_Key.KeyId - 1 });
 	}
 
-	TEST(TEST_CLASS, CannotSignWithKeyAboveStart) {
-		AssertCannotSign({ End_Key.BatchId + 1, End_Key.KeyId });
-		AssertCannotSign({ End_Key.BatchId, End_Key.KeyId + 1});
+	TEST(TEST_CLASS, CannotSignWithKeyAboveEnd) {
+		AssertCannotSign({ End_Key.KeyId + 1 });
 	}
 
 	TEST(TEST_CLASS, CannotSignWithInvalidKey) {
-		AssertCannotSign({ 10, BmKeyIdentifier::Invalid_Id });
-		AssertCannotSign({ BmKeyIdentifier::Invalid_Id, 3 });
+		AssertCannotSign({ BmKeyIdentifier::Invalid_Id });
 	}
 
 	TEST(TEST_CLASS, CannotSignWithEarlierKey) {
 		// Arrange:
 		TestContext context;
-		test::AssertCanSign(context.tree(), { 10, 3 });
+		test::AssertCanSign(context.tree(), { 75 });
 
 		// Act + Assert:
-		test::AssertCannotSign(context.tree(), { 10, 2 });
-		test::AssertCannotSign(context.tree(), { 9, 3 });
+		test::AssertCannotSign(context.tree(), { 74 });
+		test::AssertCannotSign(context.tree(), { 72 });
 
 		// Sanity:
-		test::AssertCanSign(context.tree(), { 10, 3 });
+		test::AssertCanSign(context.tree(), { 75 });
 	}
 
 	// endregion
@@ -255,9 +245,9 @@ namespace catapult { namespace crypto {
 		void RunMultiTreeFactoryTest(TAction action) {
 			// Arrange:
 			TestContext context({
-				{ 7, { 8, 4 }, { 13, 5 } },
-				{ 7, { 13, 6 }, { 17, 5 } },
-				{ 7, { 20, 2 }, { 25, 3 } }
+				{ { 12 }, { 18 } },
+				{ { 19 }, { 30 } },
+				{ { 45 }, { 60 } }
 			});
 
 			// Act + Assert:
@@ -269,11 +259,11 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		RunMultiTreeFactoryTest([](auto& context) {
 			// Act + Assert:
-			test::AssertCanSign(context.tree(), { 10, 3 }); // tree 1
-			test::AssertCanSign(context.tree(), { 13, 6 }); // tree 2
-			test::AssertCanSign(context.tree(), { 15, 5 });
-			test::AssertCanSign(context.tree(), { 17, 5 });
-			test::AssertCanSign(context.tree(), { 21, 2 }); // tree 3
+			test::AssertCanSign(context.tree(), { 16 }); // tree 1
+			test::AssertCanSign(context.tree(), { 19 }); // tree 2
+			test::AssertCanSign(context.tree(), { 25 });
+			test::AssertCanSign(context.tree(), { 30 });
+			test::AssertCanSign(context.tree(), { 55 }); // tree 3
 		});
 	}
 
@@ -281,9 +271,9 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		RunMultiTreeFactoryTest([](auto& context) {
 			// Act + Assert:
-			test::AssertCannotSign(context.tree(), { 8, 3 }); // before first
-			test::AssertCannotSign(context.tree(), { 18, 2 }); // gap
-			test::AssertCannotSign(context.tree(), { 25, 4 }); // after last
+			test::AssertCannotSign(context.tree(), { 11 }); // before first
+			test::AssertCannotSign(context.tree(), { 35 }); // gap
+			test::AssertCannotSign(context.tree(), { 61 }); // after last
 		});
 	}
 
@@ -291,35 +281,35 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		RunMultiTreeFactoryTest([](auto& context) {
 			// Act + Assert:
-			test::AssertCanSign(context.tree(), { 10, 3 }); // before gap
-			test::AssertCannotSign(context.tree(), { 18, 2 }); // gap
-			test::AssertCanSign(context.tree(), { 21, 2 }); // after gap
+			test::AssertCanSign(context.tree(), { 30 }); // before gap
+			test::AssertCannotSign(context.tree(), { 35 }); // gap
+			test::AssertCanSign(context.tree(), { 45 }); // after gap
 		});
 	}
 
 	TEST(TEST_CLASS, CannotSignWhenTreesReturnedByFactoryOverlap_CanSign) {
 		// Arrange:
-		for (auto overlapBatchId : std::initializer_list<uint64_t>{ 12, 13 }) {
-			TestContext context({ { 7, { 8, 4 }, { 13, 5 } }, { 7, { overlapBatchId, 5 }, { 17, 5 } } });
+		for (auto overlapBatchId : std::initializer_list<uint64_t>{ 15, 18 }) {
+			TestContext context({ { { 12 }, { 18 } }, { { overlapBatchId }, { 30 } } });
 
 			// Sanity:
-			test::AssertCanSign(context.tree(), { 10, 3 });
+			test::AssertCanSign(context.tree(), { 16 });
 
 			// Act + Assert:
-			EXPECT_THROW(context.tree().canSign({ 14, 1 }), catapult_runtime_error);
+			EXPECT_THROW(context.tree().canSign({ 20 }), catapult_runtime_error);
 		}
 	}
 
 	TEST(TEST_CLASS, CannotSignWhenTreesReturnedByFactoryOverlap_Sign) {
 		// Arrange:
-		for (auto overlapBatchId : std::initializer_list<uint64_t>{ 12, 13 }) {
-			TestContext context({ { 7, { 8, 4 }, { 13, 5 } }, { 7, { overlapBatchId, 5 }, { 17, 5 } } });
+		for (auto overlapBatchId : std::initializer_list<uint64_t>{ 15, 18 }) {
+			TestContext context({ { { 12 }, { 18 } }, { { overlapBatchId }, { 30 } } });
 
 			// Sanity:
-			test::AssertCanSign(context.tree(), { 10, 3 });
+			test::AssertCanSign(context.tree(), { 16 });
 
 			// Act + Assert:
-			EXPECT_THROW(context.tree().sign({ 14, 1 }, test::GenerateRandomArray<10>()), catapult_runtime_error);
+			EXPECT_THROW(context.tree().sign({ 20 }, test::GenerateRandomArray<10>()), catapult_runtime_error);
 		}
 	}
 
@@ -327,49 +317,32 @@ namespace catapult { namespace crypto {
 
 	// region wipe - saving
 
-	TEST(TEST_CLASS, SignCreatesSubLevelsAndAutomaticallyWipesPreviousKeysInSameBatch) {
+	TEST(TEST_CLASS, SignAutomaticallyWipesPreviousKeys) {
 		// Arrange:
 		TestContext context;
 
 		// Act:
-		context.tree().sign({ 9, 3 }, test::GenerateRandomArray<10>());
+		context.tree().sign({ 75 }, test::GenerateRandomArray<10>());
 
-		// Assert: (8,) (9,) L1 and (9,0) (9,1) (9,2) L2 are cleared (keys are in reverse order)
-		ASSERT_EQ(Full_L2_Size, context.storage(0).buffer().size());
-		test::AssertZeroedKeys(context.storage(0).buffer(), L1_Payload_Start, 6, { 4, 5 }, "L1");
-		test::AssertZeroedKeys(context.storage(0).buffer(), L2_Payload_Start, 7, { 4, 5, 6 }, "L2");
-	}
-
-	TEST(TEST_CLASS, SignCreatesSubLevelsAndAutomaticallyWipesPreviousKeysInDifferentBatch) {
-		// Arrange:
-		TestContext context;
-
-		// Act:
-		context.tree().sign({ 9, 3 }, test::GenerateRandomArray<10>());
-		context.tree().sign({ 12, 0 }, test::GenerateRandomArray<10>());
-
-		// Assert: (8,) (9,) (10,) (11,) (12,) are cleared (keys are in reverse order)
-		ASSERT_EQ(Full_L2_Size, context.storage(0).buffer().size());
-		test::AssertZeroedKeys(context.storage(0).buffer(), L1_Payload_Start, 6, { 1, 2, 3, 4, 5 }, "L1");
-		test::AssertZeroedKeys(context.storage(0).buffer(), L2_Payload_Start, 7, {}, "L2");
+		// Assert:
+		ASSERT_EQ(Full_L1_Size, context.storage(0).buffer().size());
+		test::AssertZeroedKeys(context.storage(0).buffer(), L1_Payload_Start, Num_Keys, { 9, 8, 7, 6, 5 }, "L1");
 	}
 
 	TEST(TEST_CLASS, SignCreatesSubLevelsAndAutomaticallyWipesPreviousKeysInDifferentTree) {
 		// Arrange:
 		RunMultiTreeFactoryTest([](auto& context) {
 			// Act + Assert:
-			context.tree().sign({ 10, 3 }, test::GenerateRandomArray<10>());
-			context.tree().sign({ 14, 2 }, test::GenerateRandomArray<10>());
+			context.tree().sign({ 16 }, test::GenerateRandomArray<10>());
+			context.tree().sign({ 23 }, test::GenerateRandomArray<10>());
 
-			// Assert: everything is cleared except (13, 6), an unused key above end of first tree (keys are in reverse order)
-			ASSERT_EQ(Full_L2_Size, context.storage(0).buffer().size());
-			test::AssertZeroedKeys(context.storage(0).buffer(), L1_Payload_Start, 6, { 0, 1, 2, 3, 4, 5 }, "L1[0]");
-			test::AssertZeroedKeys(context.storage(0).buffer(), L2_Payload_Start, 7, { 1, 2, 3, 4, 5, 6 }, "L2[0]");
+			// Assert: everything is cleared in first tree
+			ASSERT_EQ(test::BmTreeSizes::CalculateFullLevelOneSize(7), context.storage(0).buffer().size());
+			test::AssertZeroedKeys(context.storage(0).buffer(), L1_Payload_Start, 7, { 6, 5, 4, 3, 2, 1, 0 }, "L1[0]");
 
-			// - (13,) (14,) L1 and (14,0) (14,1) L2 are cleared (keys are in reverse order)
-			ASSERT_EQ(test::BmTreeSizes::CalculateFullLevelTwoSize(5, 7), context.storage(1).buffer().size());
-			test::AssertZeroedKeys(context.storage(1).buffer(), L1_Payload_Start, 5, { 3, 4 }, "L1[1]");
-			test::AssertZeroedKeys(context.storage(1).buffer(), test::BmTreeSizes::CalculateLevelTwoPayloadStart(5), 7, { 5, 6 }, "L2[1]");
+			// - (19, 22) keys are cleared in second tree
+			ASSERT_EQ(test::BmTreeSizes::CalculateFullLevelOneSize(12), context.storage(1).buffer().size());
+			test::AssertZeroedKeys(context.storage(1).buffer(), L1_Payload_Start, 12, { 11, 10, 9, 8 }, "L1[1]");
 		});
 	}
 

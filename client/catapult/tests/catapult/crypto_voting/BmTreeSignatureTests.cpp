@@ -58,7 +58,7 @@ namespace catapult { namespace crypto {
 
 	// region size + alignment (BmTreeSignature)
 
-#define TREE_SIGNATURE_FIELDS FIELD(Root) FIELD(Top) FIELD(Bottom)
+#define TREE_SIGNATURE_FIELDS FIELD(Root) FIELD(Bottom)
 
 	TEST(TEST_CLASS, TreeSignatureHasExpectedSize) {
 		// Arrange:
@@ -70,7 +70,7 @@ namespace catapult { namespace crypto {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BmTreeSignature));
-		EXPECT_EQ(432u, sizeof(BmTreeSignature));
+		EXPECT_EQ(288u, sizeof(BmTreeSignature));
 	}
 
 	TEST(TEST_CLASS, TreeSignatureHasProperAlignment) {
@@ -99,14 +99,13 @@ namespace catapult { namespace crypto {
 		BmTreeSignature GenerateTreeSignature(uint8_t flags) {
 			auto signature = BmTreeSignature();
 			MutatePair(signature.Root, flags & 3);
-			MutatePair(signature.Top, (flags >> 2) & 3);
-			MutatePair(signature.Bottom, (flags >> 4) & 3);
+			MutatePair(signature.Bottom, (flags >> 2) & 3);
 			return signature;
 		}
 
 		std::vector<BmTreeSignature> GenerateIncreasingTreeSignatureValues() {
 			std::vector<BmTreeSignature> signatures;
-			for (auto flags = 0u; flags < 64; ++flags)
+			for (auto flags = 0u; flags < 16; ++flags)
 				signatures.push_back(GenerateTreeSignature(static_cast<uint8_t>(flags)));
 
 			return signatures;
@@ -121,7 +120,6 @@ namespace catapult { namespace crypto {
 			std::stringstream out;
 			out << "signature{ ";
 			Format(out, signature.Root) << ";";
-			Format(out, signature.Top) << ";";
 			Format(out, signature.Bottom) << " }";
 			return out.str();
 		}

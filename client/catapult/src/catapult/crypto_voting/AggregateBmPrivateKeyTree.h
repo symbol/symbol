@@ -23,7 +23,7 @@
 
 namespace catapult { namespace crypto {
 
-	/// Aggregate of multiple three-layer Bellare-Miner private key trees.
+	/// Aggregate of multiple two-layer Bellare-Miner private key trees.
 	class AggregateBmPrivateKeyTree {
 	private:
 		using BmPublicKey = decltype(BmTreeSignature::Root.ParentPublicKey);

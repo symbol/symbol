@@ -23,7 +23,6 @@
 namespace catapult { namespace test {
 
 	void AssertOptions(const crypto::BmOptions& expected, const crypto::BmOptions& actual) {
-		EXPECT_EQ(expected.Dilution, actual.Dilution);
 		EXPECT_EQ(expected.StartKeyIdentifier, actual.StartKeyIdentifier);
 		EXPECT_EQ(expected.EndKeyIdentifier, actual.EndKeyIdentifier);
 	}

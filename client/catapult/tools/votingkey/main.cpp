@@ -45,9 +45,6 @@ namespace catapult { namespace tools { namespace votingkey {
 				optionsBuilder("output,o",
 						OptionsValue<std::string>(m_filename)->default_value("voting_private_key_tree.dat"),
 						"voting private key tree file");
-				optionsBuilder("dilution,d",
-						OptionsValue<uint16_t>(m_dilution)->default_value(128),
-						"voting key dilution (network setting)");
 				optionsBuilder("startEpoch,b",
 						OptionsValue<uint32_t>(m_startEpoch)->default_value(1),
 						"voting key start epoch");
@@ -77,22 +74,18 @@ namespace catapult { namespace tools { namespace votingkey {
 			}
 
 		private:
-			crypto::BmKeyIdentifier toKeyIdentifier(FinalizationEpoch epoch, model::FinalizationStage stage) const {
-				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage }, m_dilution);
-			}
-
 			BmPublicKey generateTree(crypto::VotingKeyPair&& keyPair) {
 				if (boost::filesystem::exists(m_filename))
 					CATAPULT_THROW_RUNTIME_ERROR("voting private key tree file already exits");
 
 				io::FileStream stream(io::RawFile(m_filename, io::OpenMode::Read_Write));
-				crypto::BmOptions options;
-				options.Dilution = m_dilution;
-				options.StartKeyIdentifier = toKeyIdentifier(FinalizationEpoch(m_startEpoch), model::FinalizationStage::Prevote);
-				options.EndKeyIdentifier = toKeyIdentifier(FinalizationEpoch(m_endEpoch), model::FinalizationStage::Precommit);
+				crypto::BmOptions options{
+					ToKeyIdentifier(FinalizationEpoch(m_startEpoch), model::FinalizationStage::Prevote),
+					ToKeyIdentifier(FinalizationEpoch(m_endEpoch), model::FinalizationStage::Precommit)
+				};
 
-				auto numBatches = (options.EndKeyIdentifier.BatchId - options.StartKeyIdentifier.BatchId + 1);
-				std::cout << "generating " << numBatches << " batch keys, this might take a while" << std::endl;
+				auto numKeys = (options.EndKeyIdentifier.KeyId - options.StartKeyIdentifier.KeyId + 1);
+				std::cout << "generating " << numKeys << " keys, this might take a while" << std::endl;
 
 				auto tree = crypto::BmPrivateKeyTree::Create(std::move(keyPair), stream, options);
 				std::cout << m_filename << " generated" << std::endl;
@@ -107,8 +100,12 @@ namespace catapult { namespace tools { namespace votingkey {
 			}
 
 		private:
+			static crypto::BmKeyIdentifier ToKeyIdentifier(FinalizationEpoch epoch, model::FinalizationStage stage) {
+				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage });
+			}
+
+		private:
 			std::string m_filename;
-			uint16_t m_dilution;
 			uint32_t m_startEpoch;
 			uint32_t m_endEpoch;
 			std::string m_secretKey;

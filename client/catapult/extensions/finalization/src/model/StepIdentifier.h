@@ -95,6 +95,6 @@ namespace catapult { namespace model {
 
 #pragma pack(pop)
 
-	/// Converts \a stepIdentifier to bm key identifier using \a dilution.
-	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution);
+	/// Converts \a stepIdentifier to bm key identifier.
+	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier);
 }}
