@@ -548,6 +548,7 @@ class ReturnOnNewLineValidator(SimpleValidator):
         return '{}:{} `return` should be on newline >>{}<<'.format(name, err.lineno, err.line)
 
 
+# pylint: disable=too-many-public-methods
 class MultiConditionChecker(SimpleValidator):
     """Validator for more complicated cases, that require several conditions.
 
