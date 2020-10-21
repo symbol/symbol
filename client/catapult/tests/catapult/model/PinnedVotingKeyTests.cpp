@@ -62,7 +62,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanOutputPinnedVotingKey) {
 		// Arrange:
-		constexpr auto Pub_Key_String = "7F280CFB82753B5CB0EAF9253087FDBBBB06E298F8045D2874C3D83E33AE27C4EBB287AD23B0CB833E370D5F81CE5131";
+		constexpr auto Pub_Key_String = "7F280CFB82753B5CB0EAF9253087FDBBBB06E298F8045D2874C3D83E33AE27C4";
 		PinnedVotingKey pinnedVotingKey{
 			utils::ParseByteArray<VotingKey>(Pub_Key_String),
 			FinalizationEpoch(100),

@@ -23,12 +23,6 @@
 
 namespace catapult { namespace crypto {
 
-#define SIGNATURE_16_BYTE_PADDING "\xCA\xCA\xCA\xCA\xCA\xCA\xCA\xCA\xCA\xCA\xCA\xCA\xCA\xCA\xCA\xCA"
-
-	namespace {
-		constexpr const char* Signature_Padding = SIGNATURE_16_BYTE_PADDING SIGNATURE_16_BYTE_PADDING;
-	}
-
 	void Sign(const VotingKeyPair& keyPair, const RawBuffer& dataBuffer, VotingSignature& computedSignature) {
 		Sign(keyPair, { dataBuffer }, computedSignature);
 	}
@@ -39,7 +33,6 @@ namespace catapult { namespace crypto {
 		Sign(ed25519KeyPair, buffersList, ed25519Signature);
 
 		computedSignature = ed25519Signature.copyTo<VotingSignature>();
-		std::memcpy(computedSignature.data() + Signature::Size, Signature_Padding, VotingSignature::Size - Signature::Size);
 	}
 
 	bool Verify(const VotingKey& publicKey, const RawBuffer& dataBuffer, const VotingSignature& signature) {
@@ -49,10 +42,6 @@ namespace catapult { namespace crypto {
 	bool Verify(const VotingKey& publicKey, const std::vector<RawBuffer>& buffersList, const VotingSignature& signature) {
 		auto ed25519PublicKey = publicKey.copyTo<Key>();
 		auto ed25519Signature = signature.copyTo<Signature>();
-
-		if (!Verify(ed25519PublicKey, buffersList, ed25519Signature))
-			return false;
-
-		return 0 == std::memcmp(signature.data() + Signature::Size, Signature_Padding, VotingSignature::Size - Signature::Size);
+		return Verify(ed25519PublicKey, buffersList, ed25519Signature);
 	}
 }}

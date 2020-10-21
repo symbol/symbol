@@ -27,7 +27,7 @@ namespace catapult { namespace crypto {
 	struct VotingPrivateKey_tag { static constexpr size_t Size = 32; };
 	using VotingPrivateKey = SecureByteArray<VotingPrivateKey_tag>;
 
-	struct VotingSignature_tag { static constexpr size_t Size = 96; };
+	struct VotingSignature_tag { static constexpr size_t Size = 64; };
 	using VotingSignature = utils::ByteArray<VotingSignature_tag>;
 
 	/// BLS 381-12 key pair traits.
