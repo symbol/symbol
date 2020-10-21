@@ -351,7 +351,7 @@ namespace catapult { namespace config {
 		const auto& identity = node.identity();
 		EXPECT_EQ(expectedPublicKey, identity.PublicKey);
 		EXPECT_NE(Key(), identity.PublicKey);
-		EXPECT_EQ("127.0.0.1", identity.Host);
+		EXPECT_EQ("_local_", identity.Host);
 
 		const auto& endpoint = node.endpoint();
 		EXPECT_EQ("alice.com", endpoint.Host);

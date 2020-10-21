@@ -148,7 +148,7 @@ namespace catapult { namespace local {
 	}
 
 	TEST(TEST_CLASS, NotifyIncomingNodeAddsDynamicIncomingNodeWithLocalNetwork) {
-		AssertNotifyIncomingNodeAddsDynamicIncomingNode("9.8.7.1", "127.0.0.1");
+		AssertNotifyIncomingNodeAddsDynamicIncomingNode("9.8.7.1", "_local_");
 	}
 
 	// endregion

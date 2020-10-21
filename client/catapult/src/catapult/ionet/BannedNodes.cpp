@@ -55,7 +55,7 @@ namespace catapult { namespace ionet {
 	}
 
 	void BannedNodes::add(const model::NodeIdentity& nodeIdentity, uint32_t reason) {
-		if ("127.0.0.1" == nodeIdentity.Host)
+		if ("_local_" == nodeIdentity.Host)
 			return;
 
 		auto defaultBanDuration = m_banSettings.DefaultBanDuration;

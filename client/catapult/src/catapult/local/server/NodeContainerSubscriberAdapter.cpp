@@ -42,7 +42,7 @@ namespace catapult { namespace local {
 			}
 
 			bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) override {
-				auto adjustedHost = config::IsLocalHost(identity.Host, m_localNetworks) ? "127.0.0.1" : identity.Host;
+				auto adjustedHost = config::IsLocalHost(identity.Host, m_localNetworks) ? "_local_" : identity.Host;
 				ionet::Node node({ identity.PublicKey, adjustedHost }, { adjustedHost, 0 }, ionet::NodeMetadata());
 
 				auto modifier = m_nodes.modifier();

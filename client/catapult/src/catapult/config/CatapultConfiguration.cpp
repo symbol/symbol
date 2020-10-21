@@ -90,6 +90,6 @@ namespace catapult { namespace config {
 		metadata.Version = ionet::NodeVersion(localNodeConfig.Version);
 		metadata.Roles = localNodeConfig.Roles;
 
-		return ionet::Node({ identityKey, "127.0.0.1" }, endpoint, metadata);
+		return ionet::Node({ identityKey, "_local_" }, endpoint, metadata);
 	}
 }}
