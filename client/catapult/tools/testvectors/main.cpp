@@ -149,8 +149,6 @@ namespace catapult { namespace tools { namespace testvectors {
 			return expectedPublicKey == keyPair.publicKey();
 		}
 
-		// TODO: ask about this
-
 		bool AddressConversionTester(const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto publicKey = ParsePublicKey(Get<>(testCase, "publicKey"), testCaseNumber);
