@@ -35,6 +35,7 @@ namespace catapult { namespace state {
 	namespace {
 		constexpr uint8_t Regular_Format_Tag = 0;
 		constexpr uint8_t High_Value_Format_Tag = 1;
+		constexpr size_t Voting_Key_Padding_Size = 16;
 
 		size_t GetManyMosaicsCount() {
 			return test::GetStressIterationCount() ? 65535 : 1000;
@@ -219,8 +220,16 @@ namespace catapult { namespace state {
 		size_t AddPublicKeyFromData(
 				AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor,
 				const uint8_t* pData) {
-			publicKeysAccessor.add(reinterpret_cast<const model::PinnedVotingKey&>(*pData));
-			return model::PinnedVotingKey::Size;
+			model::PinnedVotingKey votingKey;
+			votingKey.VotingKey = reinterpret_cast<const VotingKey&>(*pData);
+			pData += sizeof(VotingKey);
+			pData += Voting_Key_Padding_Size;
+			votingKey.StartEpoch = reinterpret_cast<const FinalizationEpoch&>(*pData);
+			pData += sizeof(FinalizationEpoch);
+			votingKey.EndEpoch = reinterpret_cast<const FinalizationEpoch&>(*pData);
+
+			publicKeysAccessor.add(votingKey);
+			return model::PinnedVotingKey::Size + Voting_Key_Padding_Size;
 		}
 
 		AccountState DeserializeNonHistoricalFromBuffer(const uint8_t* pData, uint8_t format) {
@@ -271,11 +280,18 @@ namespace catapult { namespace state {
 				const AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor,
 				uint8_t* pData) {
 			for (auto i = 0u; i < publicKeysAccessor.size(); ++i) {
-				reinterpret_cast<model::PinnedVotingKey&>(*pData) = publicKeysAccessor.get(i);
-				pData += model::PinnedVotingKey::Size;
+				const auto& pinnedVotingKey = publicKeysAccessor.get(i);
+				reinterpret_cast<VotingKey&>(*pData) = pinnedVotingKey.VotingKey;
+				pData += sizeof(VotingKey);
+				memset(pData, 0, Voting_Key_Padding_Size);
+				pData += Voting_Key_Padding_Size;
+				reinterpret_cast<FinalizationEpoch&>(*pData) = pinnedVotingKey.StartEpoch;
+				pData += sizeof(FinalizationEpoch);
+				reinterpret_cast<FinalizationEpoch&>(*pData) = pinnedVotingKey.EndEpoch;
+				pData += sizeof(FinalizationEpoch);
 			}
 
-			return publicKeysAccessor.size() * model::PinnedVotingKey::Size;
+			return publicKeysAccessor.size() * (model::PinnedVotingKey::Size + Voting_Key_Padding_Size);
 		}
 
 		void SerializeNonHistoricalToBuffer(const AccountState& accountState, uint8_t format, std::vector<uint8_t>& buffer) {
@@ -363,7 +379,7 @@ namespace catapult { namespace state {
 						size += keySizePair.second;
 				}
 
-				size += accountState.SupplementalPublicKeys.voting().size() * sizeof(model::PinnedVotingKey);
+				size += accountState.SupplementalPublicKeys.voting().size() * (sizeof(model::PinnedVotingKey) + Voting_Key_Padding_Size);
 				return size;
 			}
 

@@ -33,6 +33,14 @@ namespace catapult { namespace cache {
 				output.write(address);
 		}
 
+		void WritePinnedVotingKey(io::OutputStream& output, const model::PinnedVotingKey& pinnedVotingKey) {
+			std::array<uint8_t, 16> padding{};
+			output.write(pinnedVotingKey.VotingKey);
+			output.write(padding);
+			io::Write(output, pinnedVotingKey.StartEpoch);
+			io::Write(output, pinnedVotingKey.EndEpoch);
+		}
+
 		void WriteHistoryMapValue(io::OutputStream& output, Amount amount) {
 			io::Write(output, amount);
 		}
@@ -45,7 +53,8 @@ namespace catapult { namespace cache {
 			auto count = static_cast<uint8_t>(keys.size());
 			io::Write8(output, count);
 
-			output.write({ reinterpret_cast<const uint8_t*>(keys.data()), count * model::PinnedVotingKey::Size });
+			for (const auto& key : keys)
+				WritePinnedVotingKey(output, key);
 		}
 
 		template<typename TValue>
@@ -92,6 +101,14 @@ namespace catapult { namespace cache {
 			return addresses;
 		}
 
+		void ReadPinnedVotingKey(io::InputStream& input, model::PinnedVotingKey& key) {
+			std::array<uint8_t, 16> padding;
+			input.read(key.VotingKey);
+			input.read(padding);
+			io::Read(input, key.StartEpoch);
+			io::Read(input, key.EndEpoch);
+		}
+
 		void ReadHistoryMapValue(io::InputStream& input, Amount& amount) {
 			amount = io::Read<Amount>(input);
 		}
@@ -104,7 +121,8 @@ namespace catapult { namespace cache {
 			auto count = io::Read8(input);
 
 			keys.resize(count);
-			input.read({ reinterpret_cast<uint8_t*>(keys.data()), count * model::PinnedVotingKey::Size });
+			for (auto& key : keys)
+				ReadPinnedVotingKey(input, key);
 		}
 
 		template<typename TValue>

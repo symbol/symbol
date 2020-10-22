@@ -121,6 +121,14 @@ namespace catapult { namespace state {
 			}
 		}
 
+		void WritePinnedVotingKey(io::OutputStream& output, const model::PinnedVotingKey& pinnedVotingKey) {
+			std::array<uint8_t, 16> padding{};
+			output.write(pinnedVotingKey.VotingKey);
+			output.write(padding);
+			io::Write(output, pinnedVotingKey.StartEpoch);
+			io::Write(output, pinnedVotingKey.EndEpoch);
+		}
+
 		void WriteSupplementalPublicKeys(io::OutputStream& output, const AccountPublicKeys& accountPublicKeys) {
 			io::Write8(output, utils::to_underlying_type(accountPublicKeys.mask()));
 			io::Write8(output, static_cast<uint8_t>(accountPublicKeys.voting().size()));
@@ -136,7 +144,7 @@ namespace catapult { namespace state {
 
 			for (auto i = 0u; i < accountPublicKeys.voting().size(); ++i) {
 				const auto& pinnedVotingKey = accountPublicKeys.voting().get(i);
-				output.write({ reinterpret_cast<const uint8_t*>(&pinnedVotingKey), model::PinnedVotingKey::Size });
+				WritePinnedVotingKey(output, pinnedVotingKey);
 			}
 		}
 
@@ -202,7 +210,11 @@ namespace catapult { namespace state {
 				io::InputStream& input,
 				AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor) {
 			model::PinnedVotingKey key;
-			input.read({ reinterpret_cast<uint8_t*>(&key), model::PinnedVotingKey::Size });
+			std::array<uint8_t, 16> padding;
+			input.read(key.VotingKey);
+			input.read(padding);
+			io::Read(input, key.StartEpoch);
+			io::Read(input, key.EndEpoch);
 			publicKeysAccessor.add(key);
 		}
 
