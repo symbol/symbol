@@ -44,12 +44,20 @@ namespace catapult { namespace model {
 					: nullptr;
 		}
 
+		template<typename T>
+		static auto* SignaturesV1PtrT(T& messageGroup) {
+			return SignaturesPtrT(messageGroup);
+		}
+
 	public:
 		/// Number of hashes.
 		uint32_t HashesCount;
 
 		/// Number of signatures.
-		uint32_t SignaturesCount;
+		uint16_t SignaturesCount;
+
+		/// Signature scheme.
+		uint16_t SignatureScheme;
 
 		/// Message stage.
 		FinalizationStage Stage;
@@ -60,15 +68,20 @@ namespace catapult { namespace model {
 		// followed by hashes data if HashesCount != 0
 		DEFINE_SIZE_PREFIXED_ENTITY_VARIABLE_DATA_ACCESSORS(Hashes, Hash256)
 
-		// followed by signature data if SignaturesCount != 0
+		// followed by signature data if SignaturesCount != 0 (1 == SignatureScheme)
 		DEFINE_SIZE_PREFIXED_ENTITY_VARIABLE_DATA_ACCESSORS(Signatures, crypto::BmTreeSignature)
+
+		// followed by signature data if SignaturesCount != 0 (0 == SignatureScheme)
+		DEFINE_SIZE_PREFIXED_ENTITY_VARIABLE_DATA_ACCESSORS(SignaturesV1, crypto::BmTreeSignatureV1)
 
 	public:
 		/// Calculates the real size of finalization message group (\a messageGroup).
 		static constexpr uint64_t CalculateRealSize(const FinalizationMessageGroup& messageGroup) noexcept {
 			return sizeof(FinalizationMessageGroup)
 					+ messageGroup.HashesCount * Hash256::Size
-					+ messageGroup.SignaturesCount * sizeof(crypto::BmTreeSignature);
+					+ messageGroup.SignaturesCount * (0 == messageGroup.SignatureScheme
+							? sizeof(crypto::BmTreeSignatureV1)
+							: sizeof(crypto::BmTreeSignature));
 		}
 	};
 

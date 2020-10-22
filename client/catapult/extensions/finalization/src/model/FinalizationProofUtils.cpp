@@ -28,26 +28,63 @@ namespace catapult { namespace model {
 		using ConstMessages = std::vector<std::shared_ptr<const FinalizationMessage>>;
 		using MutableMessageGroups = std::vector<std::unique_ptr<FinalizationMessageGroup>>;
 
+		uint32_t GetHeaderSize(const FinalizationMessage& message) {
+			uint32_t headerSize = FinalizationMessage::Header_Size;
+			if (0 == message.SignatureScheme)
+				headerSize += SizeOf32<crypto::BmTreeSignatureV1>() - SizeOf32<crypto::BmTreeSignature>();
+
+			return headerSize;
+		}
+
 		const uint8_t* GetVerifiableDataStart(const FinalizationMessage& message) {
-			return reinterpret_cast<const uint8_t*>(&message) + FinalizationMessage::Header_Size;
+			return reinterpret_cast<const uint8_t*>(&message) + GetHeaderSize(message);
 		}
 
 		struct GroupFinalizationMessageComparer {
 			bool operator()(
 					const std::shared_ptr<const FinalizationMessage>& pLhs,
 					const std::shared_ptr<const FinalizationMessage>& pRhs) const {
+				if (pLhs->SignatureScheme != pRhs->SignatureScheme)
+					return pLhs->SignatureScheme < pRhs->SignatureScheme;
+
 				if (pLhs->Size != pRhs->Size)
 					return pLhs->Size < pRhs->Size;
 
-				auto numBytesToCompare = pLhs->Size - FinalizationMessage::Header_Size;
+				auto numBytesToCompare = pLhs->Size - GetHeaderSize(*pLhs);
 				return std::memcmp(GetVerifiableDataStart(*pLhs), GetVerifiableDataStart(*pRhs), numBytesToCompare) < 0;
 			}
 		};
 
+		struct GroupedSignatures {
+			std::vector<crypto::BmTreeSignatureV1> SignaturesV1;
+			std::vector<crypto::BmTreeSignature> Signatures;
+		};
+
 		using MessageSignatureGroups = std::map<
 			std::shared_ptr<const FinalizationMessage>,
-			std::vector<crypto::BmTreeSignature>,
+			GroupedSignatures,
 			GroupFinalizationMessageComparer>;
+
+		template<typename TTreeSignature>
+		auto CreateMessageGroup(const model::FinalizationMessage& templateMessage, const std::vector<TTreeSignature>& signatures) {
+			auto numSignatures = static_cast<uint16_t>(signatures.size());
+
+			uint32_t hashesPayloadSize = static_cast<uint32_t>(templateMessage.Data().HashesCount * Hash256::Size);
+			uint32_t signaturesPayloadSize = numSignatures * SizeOf32<TTreeSignature>();
+			uint32_t size = SizeOf32<FinalizationMessageGroup>() + hashesPayloadSize + signaturesPayloadSize;
+			auto pMessageGroup = utils::MakeUniqueWithSize<FinalizationMessageGroup>(size);
+			pMessageGroup->Size = size;
+			pMessageGroup->HashesCount = templateMessage.Data().HashesCount;
+			pMessageGroup->SignaturesCount = numSignatures;
+			pMessageGroup->SignatureScheme = templateMessage.SignatureScheme;
+			pMessageGroup->Stage = templateMessage.Data().StepIdentifier.Stage();
+			pMessageGroup->Height = templateMessage.Data().Height;
+
+			std::memcpy(reinterpret_cast<void*>(pMessageGroup->HashesPtr()), templateMessage.HashesPtr(), hashesPayloadSize);
+			std::memcpy(reinterpret_cast<void*>(pMessageGroup->SignaturesPtr()), signatures.data(), signaturesPayloadSize);
+
+			return pMessageGroup;
+		}
 
 		MutableMessageGroups GroupMessages(const model::FinalizationRound& round, const ConstMessages& messages) {
 			MessageSignatureGroups messageSignatureGroups;
@@ -58,47 +95,37 @@ namespace catapult { namespace model {
 
 					CATAPULT_LOG(warning)
 							<< "skipping message with unexpected " << description << " " << actual
-							<< " from " << message.Signature.Root.ParentPublicKey
+							<< " from " << message.Signature().Root.ParentPublicKey
 							<< " when grouping messages at round " << round;
 					return false;
 				};
 
 				auto canGroup =
-						checkEqual(round, pMessage->StepIdentifier.Round(), "round")
+						checkEqual(round, pMessage->Data().StepIdentifier.Round(), "round")
 						&& checkEqual(0u, pMessage->FinalizationMessage_Reserved1, "padding")
-						&& checkEqual(FinalizationMessage::Current_Version, pMessage->Version, "version");
+						&& checkEqual(FinalizationMessage::Current_Version, pMessage->Data().Version, "version");
 				if (!canGroup)
 					continue;
 
 				auto iter = messageSignatureGroups.find(pMessage);
 				if (messageSignatureGroups.cend() == iter)
-					iter = messageSignatureGroups.emplace(pMessage, std::vector<crypto::BmTreeSignature>()).first;
+					iter = messageSignatureGroups.emplace(pMessage, GroupedSignatures()).first;
 
-				iter->second.push_back(pMessage->Signature);
+				if (1 == pMessage->SignatureScheme)
+					iter->second.Signatures.push_back(pMessage->Signature());
+				else
+					iter->second.SignaturesV1.push_back(pMessage->SignatureV1());
 			}
 
 			MutableMessageGroups messageGroups;
 			for (const auto& messageSignatureGroupPair : messageSignatureGroups) {
-				auto numSignatures = static_cast<uint32_t>(messageSignatureGroupPair.second.size());
 				const auto& pTemplateMessage = messageSignatureGroupPair.first;
 
-				uint32_t hashesPayloadSize = static_cast<uint32_t>(pTemplateMessage->HashesCount * Hash256::Size);
-				uint32_t signaturesPayloadSize = numSignatures * SizeOf32<crypto::BmTreeSignature>();
-				uint32_t size = SizeOf32<FinalizationMessageGroup>() + hashesPayloadSize + signaturesPayloadSize;
-				auto pMessageGroup = utils::MakeUniqueWithSize<FinalizationMessageGroup>(size);
-				pMessageGroup->Size = size;
-				pMessageGroup->HashesCount = pTemplateMessage->HashesCount;
-				pMessageGroup->SignaturesCount = numSignatures;
-				pMessageGroup->Stage = pTemplateMessage->StepIdentifier.Stage();
-				pMessageGroup->Height = pTemplateMessage->Height;
+				if (!messageSignatureGroupPair.second.Signatures.empty())
+					messageGroups.push_back(CreateMessageGroup(*pTemplateMessage, messageSignatureGroupPair.second.Signatures));
 
-				std::memcpy(reinterpret_cast<void*>(pMessageGroup->HashesPtr()), pTemplateMessage->HashesPtr(), hashesPayloadSize);
-				std::memcpy(
-						reinterpret_cast<void*>(pMessageGroup->SignaturesPtr()),
-						messageSignatureGroupPair.second.data(),
-						signaturesPayloadSize);
-
-				messageGroups.push_back(std::move(pMessageGroup));
+				if (!messageSignatureGroupPair.second.SignaturesV1.empty())
+					messageGroups.push_back(CreateMessageGroup(*pTemplateMessage, messageSignatureGroupPair.second.SignaturesV1));
 			}
 
 			return messageGroups;

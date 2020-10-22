@@ -107,7 +107,7 @@ namespace catapult { namespace chain {
 
 		auto CreateMessage(const model::FinalizationRound& round, Height height) {
 			auto pMessage = test::CreateMessage(round);
-			pMessage->Height = height;
+			pMessage->Data().Height = height;
 			return pMessage;
 		}
 
@@ -524,7 +524,7 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(expectedNumProofMessages, descriptor.Proof.size());
 
 			for (const auto& pMessage : descriptor.Proof)
-				EXPECT_EQ(Default_Min_Round + expectedPointDelta, pMessage->StepIdentifier.Round());
+				EXPECT_EQ(Default_Min_Round + expectedPointDelta, pMessage->Data().StepIdentifier.Round());
 		}
 	}
 

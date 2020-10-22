@@ -39,16 +39,19 @@ namespace catapult { namespace api {
 
 		std::shared_ptr<ionet::Packet> CreatePacketWithMessages(uint16_t numMessages) {
 			// Arrange: create messages with variable (incrementing) sizes
+			constexpr auto Message_Size = model::FinalizationMessage::MinSize();
+
 			uint32_t variableDataSize = numMessages * (numMessages + 1) / 2;
-			uint32_t payloadSize = numMessages * SizeOf32<model::FinalizationMessage>() + HashPayloadSize(variableDataSize);
+			uint32_t payloadSize = numMessages * Message_Size + HashPayloadSize(variableDataSize);
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
 			auto* pData = pPacket->Data();
 			for (uint16_t i = 0u; i < numMessages; ++i) {
 				auto& message = reinterpret_cast<model::FinalizationMessage&>(*pData);
-				message.Size = SizeOf32<model::FinalizationMessage>() + HashPayloadSize(i + 1);
-				message.HashesCount = i + 1;
+				message.Size = Message_Size + HashPayloadSize(i + 1);
+				message.SignatureScheme = 1;
+				message.Data().HashesCount = i + 1;
 
 				pData += message.Size;
 			}
@@ -108,7 +111,7 @@ namespace catapult { namespace api {
 					const auto& expectedMessage = reinterpret_cast<const model::FinalizationMessage&>(expectedMessageBuffer[0]);
 
 					ASSERT_EQ(expectedMessage.Size, actualMessage.Size) << description;
-					EXPECT_EQ(i + 1, actualMessage.HashesCount) << description;
+					EXPECT_EQ(i + 1, actualMessage.Data().HashesCount) << description;
 					EXPECT_EQ_MEMORY(&expectedMessage, &actualMessage, expectedMessage.Size) << description;
 
 					pExpectedData += expectedMessage.Size;

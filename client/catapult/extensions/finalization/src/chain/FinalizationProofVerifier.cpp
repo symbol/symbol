@@ -36,19 +36,24 @@ namespace catapult { namespace chain {
 #undef DEFINE_ENUM
 
 	namespace {
+		constexpr auto Message_Size = model::FinalizationMessage::MinSize();
+
 		std::shared_ptr<model::FinalizationMessage> CreateTemplateMessage(
 				const model::FinalizationRound& round,
 				const model::FinalizationMessageGroup& messageGroup) {
 			uint32_t hashesPayloadSize = static_cast<uint32_t>(messageGroup.HashesCount * Hash256::Size);
-			uint32_t size = SizeOf32<model::FinalizationMessage>() + hashesPayloadSize;
+			uint32_t size = Message_Size + hashesPayloadSize;
+			if (0 == messageGroup.SignatureScheme)
+				size += SizeOf32<crypto::BmTreeSignatureV1>() - SizeOf32<crypto::BmTreeSignature>();
 
 			auto pMessage = utils::MakeSharedWithSize<model::FinalizationMessage>(size);
 			pMessage->Size = size;
 			pMessage->FinalizationMessage_Reserved1 = 0;
-			pMessage->Version = model::FinalizationMessage::Current_Version;
-			pMessage->HashesCount = messageGroup.HashesCount;
-			pMessage->StepIdentifier = { round.Epoch, round.Point, messageGroup.Stage };
-			pMessage->Height = messageGroup.Height;
+			pMessage->SignatureScheme = messageGroup.SignatureScheme;
+			pMessage->Data().Version = model::FinalizationMessage::Current_Version;
+			pMessage->Data().HashesCount = messageGroup.HashesCount;
+			pMessage->Data().StepIdentifier = { round.Epoch, round.Point, messageGroup.Stage };
+			pMessage->Data().Height = messageGroup.Height;
 
 			std::memcpy(reinterpret_cast<void*>(pMessage->HashesPtr()), messageGroup.HashesPtr(), hashesPayloadSize);
 			return pMessage;
@@ -68,7 +73,11 @@ namespace catapult { namespace chain {
 		for (const auto& messageGroup : proof.MessageGroups()) {
 			auto pTemplateMessage = CreateTemplateMessage(proof.Round, messageGroup);
 			for (auto i = 0u; i < messageGroup.SignaturesCount; ++i) {
-				pTemplateMessage->Signature = messageGroup.SignaturesPtr()[i];
+				if (1 == messageGroup.SignatureScheme)
+					pTemplateMessage->Signature() = messageGroup.SignaturesPtr()[i];
+				else
+					pTemplateMessage->SignatureV1() = messageGroup.SignaturesV1Ptr()[i];
+
 				auto addResult = pMessageAggregator->add(pTemplateMessage);
 				if (addResult <= chain::RoundMessageAggregatorAddResult::Neutral_Redundant) {
 					CATAPULT_LOG(warning) << "finalization message for proof " << proof.Hash << " rejected due to " << addResult;

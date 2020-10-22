@@ -36,22 +36,8 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
-	/// Finalization message.
-	struct FinalizationMessage : public TrailingVariableDataLayout<FinalizationMessage, Hash256> {
-	public:
-		/// Size of the header that can be skipped when signing/verifying.
-		static constexpr size_t Header_Size = sizeof(uint32_t) * 2 + sizeof(crypto::BmTreeSignature);
-
-		/// Message format version.
-		static constexpr uint8_t Current_Version = 1;
-
-	public:
-		/// Reserved padding to align Signature on 8-byte boundary.
-		uint32_t FinalizationMessage_Reserved1;
-
-		/// Message signature.
-		crypto::BmTreeSignature Signature;
-
+	/// Finalization message payload.
+	struct FinalizationMessagePayload {
 		/// Message version.
 		uint32_t Version;
 
@@ -63,14 +49,89 @@ namespace catapult { namespace model {
 
 		/// Block height corresponding to the the first hash.
 		catapult::Height Height;
+	};
+
+#define DEFINE_FINALIZATION_MESSAGE_ACCESSOR(TYPE, NAME, OFFSET) \
+	/* Returns a const reference to the typed data contained in this message. */ \
+	const TYPE& NAME() const { \
+		return *reinterpret_cast<const TYPE*>(ToBytePointer(*this) + sizeof(FinalizationMessage) + OFFSET); \
+	} \
+	\
+	/* Returns a reference to the typed data contained in this message. */ \
+	TYPE& NAME() { \
+		return *reinterpret_cast<TYPE*>(ToBytePointer(*this) + sizeof(FinalizationMessage) + OFFSET); \
+	}
+
+#define DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS_CUSTOM_OFFSET(NAME, SIZE, OFFSET) \
+	/* Returns a const pointer to the typed data contained in this entity. */ \
+	const auto* NAME##Ptr() const { \
+		return SIZE && Size == CalculateRealSize(*this) \
+				? ToTypedPointer(ToBytePointer(*this) + sizeof(FinalizationMessage) + OFFSET) \
+				: nullptr; \
+	} \
+	\
+	/* Returns a pointer to the typed data contained in this entity. */ \
+	auto* NAME##Ptr() { \
+		return SIZE && Size == CalculateRealSize(*this) \
+				? ToTypedPointer(ToBytePointer(*this) + sizeof(FinalizationMessage) + OFFSET) \
+				: nullptr; \
+	}
+
+	/// Finalization message.
+	struct FinalizationMessage : public TrailingVariableDataLayout<FinalizationMessage, Hash256> {
+	public:
+		/// Size of the header that can be skipped when signing/verifying.
+		static constexpr size_t Header_Size = sizeof(uint32_t) * 2 + sizeof(crypto::BmTreeSignature);
+
+		/// Message format version.
+		static constexpr uint8_t Current_Version = 1;
+
+		/// Minimum message size (current version).
+		static constexpr uint32_t MinSize() {
+			return sizeof(FinalizationMessage) + sizeof(crypto::BmTreeSignature) + sizeof(FinalizationMessagePayload);
+		}
 
 	public:
-		DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(Hashes, Count)
+		/// Reserved padding to align Signature on 8-byte boundary.
+		uint16_t FinalizationMessage_Reserved1;
+
+		/// Signature scheme.
+		uint16_t SignatureScheme;
+
+		// Message signature when signature scheme is 1
+		DEFINE_FINALIZATION_MESSAGE_ACCESSOR(crypto::BmTreeSignature, Signature, 0)
+
+		// Message signature when signature scheme is 0
+		DEFINE_FINALIZATION_MESSAGE_ACCESSOR(crypto::BmTreeSignatureV1, SignatureV1, 0)
+
+		// Message payload
+		DEFINE_FINALIZATION_MESSAGE_ACCESSOR(FinalizationMessagePayload, Data, SignatureSize())
+
+		/// Hashes.
+		DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS_CUSTOM_OFFSET(
+				Hashes,
+				Data().HashesCount,
+				SignatureSize() + sizeof(FinalizationMessagePayload))
 
 	public:
 		/// Calculates the real size of \a message.
-		static constexpr uint64_t CalculateRealSize(const FinalizationMessage& message) noexcept {
-			return sizeof(FinalizationMessage) + message.HashesCount * Hash256::Size;
+		static uint64_t CalculateRealSize(const FinalizationMessage& message) noexcept {
+			return sizeof(FinalizationMessage) + message.SignatureSize() + sizeof(FinalizationMessagePayload)
+					+ message.Data().HashesCount * Hash256::Size;
+		}
+
+	private:
+		constexpr size_t SignatureSize() const {
+			return 1 == SignatureScheme ? sizeof(crypto::BmTreeSignature) : sizeof(crypto::BmTreeSignatureV1);
+		}
+
+	private:
+		static const uint8_t* ToBytePointer(const FinalizationMessage& derived) {
+			return reinterpret_cast<const uint8_t*>(&derived);
+		}
+
+		static uint8_t* ToBytePointer(FinalizationMessage& derived) {
+			return reinterpret_cast<uint8_t*>(&derived);
 		}
 	};
 

@@ -33,6 +33,8 @@ namespace catapult { namespace handlers {
 	// region PushMessagesHandler
 
 	namespace {
+		constexpr auto Message_Size = model::FinalizationMessage::MinSize();
+
 		void SetMessageAt(ionet::ByteBuffer& buffer, size_t offset, size_t size) {
 			auto messageSize = static_cast<uint32_t>(size);
 			auto remainingBufferSize = buffer.size() - offset;
@@ -42,12 +44,13 @@ namespace catapult { namespace handlers {
 
 			auto& message = reinterpret_cast<model::FinalizationMessage&>(buffer[offset]);
 			message.Size = messageSize;
-			message.HashesCount = static_cast<uint32_t>((size - sizeof(model::FinalizationMessage)) / Hash256::Size);
+			message.SignatureScheme = 1;
+			message.Data().HashesCount = static_cast<uint32_t>((size - Message_Size) / Hash256::Size);
 		}
 
 		struct PushMessagesTraits {
 			static constexpr auto Packet_Type = ionet::PacketType::Push_Finalization_Messages;
-			static constexpr auto Data_Size = sizeof(model::FinalizationMessage);
+			static constexpr auto Data_Size = Message_Size;
 
 			static constexpr size_t AdditionalPacketSize(size_t numMessages) {
 				return (numMessages * (numMessages + 1) / 2) * Hash256::Size;

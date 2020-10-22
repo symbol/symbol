@@ -29,10 +29,45 @@
 namespace catapult { namespace model {
 
 #define TEST_CLASS FinalizationMessageGroupTests
+#define TEST_CLASS_V1 FinalizationMessageGroupTests_V1
+
+	// region traits
+
+	namespace {
+		struct CurrentTraits {
+			using TreeSignature = crypto::BmTreeSignature;
+
+			static constexpr uint16_t Signature_Scheme = 1;
+
+			template<typename TMessageGroup>
+			static auto GetSignaturesPtr(TMessageGroup& messageGroup) {
+				return messageGroup.SignaturesPtr();
+			}
+		};
+
+		struct V1Traits {
+			using TreeSignature = crypto::BmTreeSignatureV1;
+
+			static constexpr uint16_t Signature_Scheme = 0;
+
+			template<typename TMessageGroup>
+			static auto GetSignaturesPtr(TMessageGroup& messageGroup) {
+				return messageGroup.SignaturesV1Ptr();
+			}
+		};
+	}
+
+#define VERSION_TRAITS(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CurrentTraits>(); } \
+	TEST(TEST_CLASS_V1, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<V1Traits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// endregion
 
 	// region size + alignment
 
-#define MESSAGE_GROUP_FIELDS FIELD(HashesCount) FIELD(SignaturesCount) FIELD(Stage) FIELD(Height)
+#define MESSAGE_GROUP_FIELDS FIELD(HashesCount) FIELD(SignaturesCount) FIELD(SignatureScheme) FIELD(Stage) FIELD(Height)
 
 	TEST(TEST_CLASS, FinalizationMessageGroupHasExpectedSize) {
 		// Arrange:
@@ -61,10 +96,11 @@ namespace catapult { namespace model {
 
 	// region CalculateRealSize
 
-	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
+	VERSION_TRAITS(CanCalculateRealSizeWithReasonableValues) {
 		// Arrange:
 		FinalizationMessageGroup messageGroup;
 		messageGroup.Size = 0;
+		messageGroup.SignatureScheme = TTraits::Signature_Scheme;
 		messageGroup.HashesCount = 67;
 		messageGroup.SignaturesCount = 12;
 
@@ -72,13 +108,14 @@ namespace catapult { namespace model {
 		auto realSize = FinalizationMessageGroup::CalculateRealSize(messageGroup);
 
 		// Assert:
-		EXPECT_EQ(sizeof(FinalizationMessageGroup) + 67 * Hash256::Size + 12 * sizeof(crypto::BmTreeSignature), realSize);
+		EXPECT_EQ(sizeof(FinalizationMessageGroup) + 67 * Hash256::Size + 12 * sizeof(typename TTraits::TreeSignature), realSize);
 	}
 
-	TEST(TEST_CLASS, CalculateRealSizeDoesNotOverflowWithMaxValues) {
+	VERSION_TRAITS(CalculateRealSizeDoesNotOverflowWithMaxValues) {
 		// Arrange:
 		FinalizationMessageGroup messageGroup;
 		messageGroup.Size = 0;
+		messageGroup.SignatureScheme = TTraits::Signature_Scheme;
 		test::SetMaxValue(messageGroup.HashesCount);
 		test::SetMaxValue(messageGroup.SignaturesCount);
 
@@ -89,7 +126,7 @@ namespace catapult { namespace model {
 		auto expectedSize =
 				sizeof(FinalizationMessageGroup)
 				+ messageGroup.HashesCount * Hash256::Size
-				+ messageGroup.SignaturesCount * sizeof(crypto::BmTreeSignature);
+				+ messageGroup.SignaturesCount * sizeof(typename TTraits::TreeSignature);
 		EXPECT_EQ(expectedSize, realSize);
 		EXPECT_GE(std::numeric_limits<uint64_t>::max(), realSize);
 	}
@@ -99,13 +136,15 @@ namespace catapult { namespace model {
 	// region data pointers
 
 	namespace {
+		template<typename TTraits>
 		struct FinalizationMessageGroupTraits {
 			static auto GenerateEntityWithAttachments(uint16_t numHashes, uint16_t numSignatures) {
 				uint32_t entitySize = SizeOf32<FinalizationMessageGroup>()
 						+ numHashes * static_cast<uint32_t>(Hash256::Size)
-						+ numSignatures * SizeOf32<crypto::BmTreeSignature>();
+						+ numSignatures * SizeOf32<typename TTraits::TreeSignature>();
 				auto pMessageGroup = utils::MakeUniqueWithSize<FinalizationMessageGroup>(entitySize);
 				pMessageGroup->Size = entitySize;
+				pMessageGroup->SignatureScheme = TTraits::Signature_Scheme;
 				pMessageGroup->HashesCount = numHashes;
 				pMessageGroup->SignaturesCount = numSignatures;
 				return pMessageGroup;
@@ -122,12 +161,13 @@ namespace catapult { namespace model {
 
 			template<typename TEntity>
 			static auto GetAttachmentPointer2(TEntity& entity) {
-				return entity.SignaturesPtr();
+				return TTraits::GetSignaturesPtr(entity);
 			}
 		};
 	}
 
-	DEFINE_DUAL_ATTACHMENT_POINTER_TESTS(TEST_CLASS, FinalizationMessageGroupTraits)
+	DEFINE_DUAL_ATTACHMENT_POINTER_TESTS(TEST_CLASS, FinalizationMessageGroupTraits<CurrentTraits>)
+	DEFINE_DUAL_ATTACHMENT_POINTER_TESTS(TEST_CLASS_V1, FinalizationMessageGroupTraits<V1Traits>)
 
 	// endregion
 }}

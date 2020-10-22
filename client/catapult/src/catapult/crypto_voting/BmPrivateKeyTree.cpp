@@ -379,6 +379,16 @@ namespace catapult { namespace crypto {
 				uint64_t boundary) {
 			return crypto::Verify(pair.ParentPublicKey, { signedPublicKey, ToBuffer(boundary) }, pair.Signature);
 		}
+
+		bool VerifyBoundSignature(
+				const BmTreeSignatureV1::ParentPublicKeySignaturePair& pair,
+				const decltype(BmTreeSignatureV1::ParentPublicKeySignaturePair::ParentPublicKey)& signedPublicKey,
+				uint64_t boundary) {
+			return crypto::Verify(
+					pair.ParentPublicKey.copyTo<VotingKey>(),
+					{ signedPublicKey, ToBuffer(boundary) },
+					pair.Signature.copyTo<VotingSignature>());
+		}
 	}
 
 	bool Verify(const BmTreeSignature& signature, const BmKeyIdentifier& keyIdentifier, const RawBuffer& buffer) {
@@ -386,6 +396,22 @@ namespace catapult { namespace crypto {
 			return false;
 
 		if (!crypto::Verify(signature.Bottom.ParentPublicKey, buffer, signature.Bottom.Signature))
+			return false;
+
+		return true;
+	}
+
+	bool Verify(const BmTreeSignatureV1& signature, const BmKeyIdentifier& keyIdentifier, const RawBuffer& buffer) {
+		static constexpr uint64_t Testnet_Dilution = 128;
+
+		if (!VerifyBoundSignature(signature.Root, signature.Top.ParentPublicKey, keyIdentifier.KeyId / Testnet_Dilution))
+			return false;
+
+		if (!VerifyBoundSignature(signature.Top, signature.Bottom.ParentPublicKey, keyIdentifier.KeyId % Testnet_Dilution))
+			return false;
+
+		auto bottomParentPublicKey = signature.Bottom.ParentPublicKey.copyTo<VotingKey>();
+		if (!crypto::Verify(bottomParentPublicKey, buffer, signature.Bottom.Signature.copyTo<VotingSignature>()))
 			return false;
 
 		return true;

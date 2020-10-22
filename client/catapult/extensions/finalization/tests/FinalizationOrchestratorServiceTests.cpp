@@ -340,8 +340,8 @@ namespace catapult { namespace finalization {
 
 			// - two messages were sent
 			ASSERT_EQ(2u, messages.size());
-			EXPECT_EQ(test::CreateStepIdentifier(epoch, point, Prevote_Stage), messages[0]->StepIdentifier);
-			EXPECT_EQ(test::CreateStepIdentifier(epoch, point, Precommit_Stage), messages[1]->StepIdentifier);
+			EXPECT_EQ(test::CreateStepIdentifier(epoch, point, Prevote_Stage), messages[0]->Data().StepIdentifier);
+			EXPECT_EQ(test::CreateStepIdentifier(epoch, point, Precommit_Stage), messages[1]->Data().StepIdentifier);
 		}
 	}
 

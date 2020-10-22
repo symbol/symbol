@@ -161,7 +161,7 @@ namespace catapult { namespace chain {
 	}
 
 	RoundMessageAggregatorAddResult MultiRoundMessageAggregatorModifier::add(const std::shared_ptr<model::FinalizationMessage>& pMessage) {
-		auto messageRound = pMessage->StepIdentifier.Round();
+		auto messageRound = pMessage->Data().StepIdentifier.Round();
 		if (m_state.MinFinalizationRound > messageRound || m_state.MaxFinalizationRound < messageRound) {
 			CATAPULT_LOG(warning)
 					<< "rejecting message with round " << messageRound

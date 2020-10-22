@@ -117,7 +117,7 @@ namespace catapult { namespace test {
 				Height height,
 				const Hash256& hash) const {
 			auto pMessage = CreateMessage(stepIdentifier, hash);
-			pMessage->Height = height;
+			pMessage->Data().Height = height;
 			SignMessage(*pMessage, keyPairDescriptor(voterType).VotingKeyPair);
 			return PORTABLE_MOVE(pMessage);
 		}

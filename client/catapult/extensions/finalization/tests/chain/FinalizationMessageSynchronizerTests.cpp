@@ -90,16 +90,19 @@ namespace catapult { namespace chain {
 			}
 
 			static auto CreateResponseContainer(uint32_t count) {
-				constexpr auto Message_Size = sizeof(model::FinalizationMessage);
+				constexpr auto Message_Size = model::FinalizationMessage::MinSize();
 
 				auto buffer = test::GenerateRandomVector(count * Message_Size);
 				for (auto i = 0u; i < count; ++i) {
 					auto& message = reinterpret_cast<model::FinalizationMessage&>(buffer[i * Message_Size]);
 					message.Size = Message_Size;
-					message.HashesCount = 0;
+					message.SignatureScheme = 1;
+					message.Data().HashesCount = 0;
 				}
 
-				return model::FinalizationMessageRange::CopyFixed(buffer.data(), count);
+				return model::FinalizationMessageRange::CopyVariable(buffer.data(), buffer.size(), {
+					0, Message_Size, 2 * Message_Size, 3 * Message_Size, 4 * Message_Size
+				});
 			}
 
 			static auto CreateRemoteApi(const model::FinalizationMessageRange& messageRange) {

@@ -54,5 +54,39 @@ namespace catapult { namespace crypto {
 		bool operator!=(const BmTreeSignature& rhs) const;
 	};
 
+	/// Three-layer Bellare-Miner signature.
+	struct BmTreeSignatureV1 {
+	private:
+		struct VotingKey_tag { static constexpr size_t Size = 48; };
+		struct VotingSignature_tag { static constexpr size_t Size = 96; };
+
+	public:
+		/// Parent public key and signature pair.
+		struct ParentPublicKeySignaturePair {
+			/// Public key.
+			utils::ByteArray<VotingKey_tag> ParentPublicKey;
+
+			/// Signature.
+			utils::ByteArray<VotingSignature_tag> Signature;
+		};
+
+	public:
+		/// Root pair.
+		ParentPublicKeySignaturePair Root;
+
+		/// Top pair.
+		ParentPublicKeySignaturePair Top;
+
+		/// Bottom pair.
+		ParentPublicKeySignaturePair Bottom;
+
+	public:
+		/// Returns \c true if this signature is equal to \a rhs.
+		bool operator==(const BmTreeSignatureV1& rhs) const;
+
+		/// Returns \c true if this signature is not equal to \a rhs.
+		bool operator!=(const BmTreeSignatureV1& rhs) const;
+	};
+
 #pragma pack(pop)
 }}

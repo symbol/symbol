@@ -66,7 +66,7 @@ namespace catapult { namespace chain {
 		}
 
 		bool IsPrevote(const model::FinalizationMessage& message) {
-			return model::FinalizationStage::Prevote == message.StepIdentifier.Stage();
+			return model::FinalizationStage::Prevote == message.Data().StepIdentifier.Stage();
 		}
 
 		// endregion
@@ -125,14 +125,14 @@ namespace catapult { namespace chain {
 			RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage) override {
 				auto maxHashesPerPoint = m_finalizationContext.config().MaxHashesPerPoint;
 				CATAPULT_LOG(trace)
-						<< "received message at " << pMessage->StepIdentifier
-						<< " with " << pMessage->HashesCount << " hashes (max " << maxHashesPerPoint << ")";
+						<< "received message at " << pMessage->Data().StepIdentifier
+						<< " with " << pMessage->Data().HashesCount << " hashes (max " << maxHashesPerPoint << ")";
 
-				if (0 == pMessage->HashesCount || pMessage->HashesCount > maxHashesPerPoint)
+				if (0 == pMessage->Data().HashesCount || pMessage->Data().HashesCount > maxHashesPerPoint)
 					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 
 				auto isPrevote = IsPrevote(*pMessage);
-				auto lastHashHeight = pMessage->Height + Height(pMessage->HashesCount - 1);
+				auto lastHashHeight = pMessage->Data().Height + Height(pMessage->Data().HashesCount - 1);
 
 				// only consider messages that have at least one hash at or after the epoch height
 				if (m_finalizationContext.height() > lastHashHeight)
@@ -140,18 +140,18 @@ namespace catapult { namespace chain {
 
 				if (isPrevote) {
 					auto votingSetGrouping = m_finalizationContext.config().VotingSetGrouping;
-					auto previousEpoch = pMessage->StepIdentifier.Epoch - FinalizationEpoch(1);
+					auto previousEpoch = pMessage->Data().StepIdentifier.Epoch - FinalizationEpoch(1);
 					auto epochMinHeight = model::CalculateVotingSetEndHeight(previousEpoch, votingSetGrouping);
-					auto epochMaxHeight = model::CalculateVotingSetEndHeight(pMessage->StepIdentifier.Epoch, votingSetGrouping);
+					auto epochMaxHeight = model::CalculateVotingSetEndHeight(pMessage->Data().StepIdentifier.Epoch, votingSetGrouping);
 
-					if (pMessage->Height < epochMinHeight || lastHashHeight > epochMaxHeight)
+					if (pMessage->Data().Height < epochMinHeight || lastHashHeight > epochMaxHeight)
 						return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 				} else {
-					if (1 != pMessage->HashesCount)
+					if (1 != pMessage->Data().HashesCount)
 						return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 				}
 
-				auto messageKey = std::make_pair(pMessage->Signature.Root.ParentPublicKey, isPrevote);
+				auto messageKey = std::make_pair(pMessage->Signature().Root.ParentPublicKey, isPrevote);
 				auto messageIter = m_messages.find(messageKey);
 				if (m_messages.cend() != messageIter) {
 					return messageIter->second.Hash == model::CalculateMessageHash(*pMessage)
@@ -172,10 +172,14 @@ namespace catapult { namespace chain {
 				m_messages.emplace(messageKey, CreateMessageDescriptor(pMessage));
 
 				if (isPrevote) {
-					m_roundContext.acceptPrevote(pMessage->Height, pMessage->HashesPtr(), pMessage->HashesCount, processResultPair.second);
+					m_roundContext.acceptPrevote(
+							pMessage->Data().Height,
+							pMessage->HashesPtr(),
+							pMessage->Data().HashesCount,
+							processResultPair.second);
 					return RoundMessageAggregatorAddResult::Success_Prevote;
 				} else {
-					m_roundContext.acceptPrecommit(pMessage->Height, *pMessage->HashesPtr(), processResultPair.second);
+					m_roundContext.acceptPrecommit(pMessage->Data().Height, *pMessage->HashesPtr(), processResultPair.second);
 					return RoundMessageAggregatorAddResult::Success_Precommit;
 				}
 			}

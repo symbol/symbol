@@ -101,8 +101,8 @@ namespace catapult { namespace chain {
 		};
 
 		bool IsSigned(const model::FinalizationMessage& message) {
-			auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier);
-			return crypto::Verify(message.Signature, keyIdentifier, {
+			auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.Data().StepIdentifier);
+			return crypto::Verify(message.Signature(), keyIdentifier, {
 				reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
 				message.Size - model::FinalizationMessage::Header_Size
 			});
@@ -114,6 +114,8 @@ namespace catapult { namespace chain {
 	// region createPrevote
 
 	namespace {
+		constexpr auto Message_Size = model::FinalizationMessage::MinSize();
+
 		void AssertPrevote(
 				const model::FinalizationMessage& message,
 				const TestContext& context,
@@ -122,11 +124,13 @@ namespace catapult { namespace chain {
 				Height expectedStartHeight,
 				uint32_t expectedHashesCount) {
 			// Assert: message
-			EXPECT_EQ(sizeof(model::FinalizationMessage) + expectedHashesCount * Hash256::Size, message.Size);
-			ASSERT_EQ(expectedHashesCount, message.HashesCount);
+			EXPECT_EQ(Message_Size + expectedHashesCount * Hash256::Size, message.Size);
+			ASSERT_EQ(expectedHashesCount, message.Data().HashesCount);
 
-			EXPECT_EQ(model::StepIdentifier({ expectedEpoch, expectedPoint, model::FinalizationStage::Prevote }), message.StepIdentifier);
-			EXPECT_EQ(expectedStartHeight, message.Height);
+			EXPECT_EQ(
+					model::StepIdentifier({ expectedEpoch, expectedPoint, model::FinalizationStage::Prevote }),
+					message.Data().StepIdentifier);
+			EXPECT_EQ(expectedStartHeight, message.Data().Height);
 			for (auto i = 0u; i < expectedHashesCount; ++i)
 				EXPECT_EQ(context.blockHashAt(expectedStartHeight + Height(i)), message.HashesPtr()[i]);
 
@@ -175,11 +179,11 @@ namespace catapult { namespace chain {
 		auto pMessage = context.factory().createPrevote({ FinalizationEpoch(3), FinalizationPoint(20) });
 
 		// Assert: message
-		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
-		ASSERT_EQ(1u, pMessage->HashesCount);
+		EXPECT_EQ(Message_Size + Hash256::Size, pMessage->Size);
+		ASSERT_EQ(1u, pMessage->Data().HashesCount);
 
-		EXPECT_EQ(test::CreateStepIdentifier(3, 20, model::FinalizationStage::Prevote), pMessage->StepIdentifier);
-		EXPECT_EQ(Height(8), pMessage->Height);
+		EXPECT_EQ(test::CreateStepIdentifier(3, 20, model::FinalizationStage::Prevote), pMessage->Data().StepIdentifier);
+		EXPECT_EQ(Height(8), pMessage->Data().Height);
 		EXPECT_EQ(context.lastFinalizedHash(), pMessage->HashesPtr()[0]);
 
 		EXPECT_TRUE(IsSigned(*pMessage));
@@ -324,11 +328,11 @@ namespace catapult { namespace chain {
 		auto pMessage = context.factory().createPrecommit({ FinalizationEpoch(3), FinalizationPoint(20) }, Height(35), hash);
 
 		// Assert:
-		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
-		ASSERT_EQ(1u, pMessage->HashesCount);
+		EXPECT_EQ(Message_Size + Hash256::Size, pMessage->Size);
+		ASSERT_EQ(1u, pMessage->Data().HashesCount);
 
-		EXPECT_EQ(test::CreateStepIdentifier(3, 20, model::FinalizationStage::Precommit), pMessage->StepIdentifier);
-		EXPECT_EQ(Height(35), pMessage->Height);
+		EXPECT_EQ(test::CreateStepIdentifier(3, 20, model::FinalizationStage::Precommit), pMessage->Data().StepIdentifier);
+		EXPECT_EQ(Height(35), pMessage->Data().Height);
 		EXPECT_EQ(hash, pMessage->HashesPtr()[0]);
 
 		EXPECT_TRUE(IsSigned(*pMessage));

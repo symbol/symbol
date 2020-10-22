@@ -88,4 +88,7 @@ namespace catapult { namespace crypto {
 
 	/// Verifies \a signature of \a buffer at \a keyIdentifier.
 	bool Verify(const BmTreeSignature& signature, const BmKeyIdentifier& keyIdentifier, const RawBuffer& buffer);
+
+	/// Verifies \a signature of \a buffer at \a keyIdentifier.
+	bool Verify(const BmTreeSignatureV1& signature, const BmKeyIdentifier& keyIdentifier, const RawBuffer& buffer);
 }}

@@ -63,8 +63,8 @@ namespace catapult { namespace finalization {
 								return chain::CreateFinalizationStageAdvancer(point, time, stepDuration, messageAggregator);
 							},
 							[factory = FinalizationContextFactory(config, state)](const auto& message) {
-								const auto& votingPublicKey = message.Signature.Root.ParentPublicKey;
-								return factory.create(message.StepIdentifier.Epoch).isEligibleVoter(votingPublicKey);
+								const auto& votingPublicKey = message.Signature().Root.ParentPublicKey;
+								return factory.create(message.Data().StepIdentifier.Epoch).isEligibleVoter(votingPublicKey);
 							},
 							[&hooks = m_hooks](auto&& pMessage) {
 								hooks.messageRangeConsumer()(model::FinalizationMessageRange::FromEntity(std::move(pMessage)));

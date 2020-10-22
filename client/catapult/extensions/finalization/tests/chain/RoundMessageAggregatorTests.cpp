@@ -162,7 +162,7 @@ namespace catapult { namespace chain {
 	PREVOTE_PRECOMIT_TEST(CannotAddMessageWithZeroHashes) {
 		// Arrange:
 		auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1), 0);
-		pMessage->StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
+		pMessage->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
 
 		// Act + Assert:
 		AssertCannotAddMessage(RoundMessageAggregatorAddResult::Failure_Invalid_Hashes, std::move(pMessage));
@@ -171,7 +171,7 @@ namespace catapult { namespace chain {
 	PREVOTE_PRECOMIT_TEST(CannotAddRedundantMessage) {
 		// Arrange:
 		auto pMessage = utils::UniqueToShared(test::CreateMessage(Last_Finalized_Height + Height(1), 1));
-		pMessage->StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
+		pMessage->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
 
 		TestContext context(1000, 700);
 		context.signMessage(*pMessage, 0);
@@ -189,10 +189,10 @@ namespace catapult { namespace chain {
 	PREVOTE_PRECOMIT_TEST(CannotAddMultipleMessagesFromSameSigner) {
 		// Arrange:
 		auto pMessage1 = test::CreateMessage(Last_Finalized_Height + Height(1), 1);
-		pMessage1->StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
+		pMessage1->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
 
 		auto pMessage2 = test::CreateMessage(Last_Finalized_Height + Height(1), 1);
-		pMessage2->StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
+		pMessage2->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
 
 		TestContext context(1000, 700);
 		context.signMessage(*pMessage1, 0);
@@ -211,7 +211,7 @@ namespace catapult { namespace chain {
 	PREVOTE_PRECOMIT_TEST(CannotAddMessageWithIneligibleSigner) {
 		// Arrange:
 		auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1), 1);
-		pMessage->StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
+		pMessage->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
 
 		TestContext context(1000, 700);
 		context.signMessage(*pMessage, 2);
@@ -227,7 +227,7 @@ namespace catapult { namespace chain {
 	PREVOTE_PRECOMIT_TEST(CannotAddMessageWithInvalidSignature) {
 		// Arrange:
 		auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1), 1);
-		pMessage->StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
+		pMessage->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
 
 		TestContext context(1000, 700);
 		context.signMessage(*pMessage, 0);
@@ -249,7 +249,7 @@ namespace catapult { namespace chain {
 			// Arrange:
 			for (auto height : CreateTypedValues(Last_Finalized_Height, heightDeltas)) {
 				auto pMessage = test::CreateMessage(height, numHashes);
-				pMessage->StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
+				pMessage->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
 
 				// Act + Assert:
 				AssertCannotAddMessage(RoundMessageAggregatorAddResult::Failure_Invalid_Height, std::move(pMessage));
@@ -268,7 +268,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CannotAddMessageWithMultipleHashes_Precommit) {
 		// Arrange:
 		auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1), 2);
-		pMessage->StepIdentifier = { Finalization_Epoch, Finalization_Point, PrecommitTraits::Stage };
+		pMessage->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, PrecommitTraits::Stage };
 
 		// Act + Assert:
 		AssertCannotAddMessage(RoundMessageAggregatorAddResult::Failure_Invalid_Hashes, std::move(pMessage));
@@ -277,7 +277,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CannotAddMessageWithGreaterThanMaxHashes_Prevote) {
 		// Arrange:
 		auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1), TestContextOptions().MaxHashesPerPoint + 1);
-		pMessage->StepIdentifier = { Finalization_Epoch, Finalization_Point, PrevoteTraits::Stage };
+		pMessage->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, PrevoteTraits::Stage };
 
 		// Act + Assert:
 		AssertCannotAddMessage(RoundMessageAggregatorAddResult::Failure_Invalid_Hashes, std::move(pMessage));
@@ -286,7 +286,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CannotAddMessageWithHashesSpanningVotingSetGroups_Prevote) {
 		// Arrange: hashes in [124, 131]
 		auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1), 8);
-		pMessage->StepIdentifier = { Finalization_Epoch, Finalization_Point, PrevoteTraits::Stage };
+		pMessage->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, PrevoteTraits::Stage };
 
 		// - next group starts at height 131
 		TestContextOptions options;
@@ -309,7 +309,7 @@ namespace catapult { namespace chain {
 				const TestContextOptions& options = TestContextOptions()) {
 			// Arrange:
 			auto pMessage = test::CreateMessage(height, numHashes);
-			pMessage->StepIdentifier = { epoch, Finalization_Point, TTraits::Stage };
+			pMessage->Data().StepIdentifier = { epoch, Finalization_Point, TTraits::Stage };
 
 			TestContext context(1000, 700, options);
 			context.signMessage(*pMessage, 0);
@@ -358,10 +358,10 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CanAcceptPrevoteThenPrecommitMessageFromSameSigner) {
 		// Arrange:
 		auto pMessage1 = test::CreateMessage(Last_Finalized_Height + Height(1), 3);
-		pMessage1->StepIdentifier = { Finalization_Epoch, Finalization_Point, PrevoteTraits::Stage };
+		pMessage1->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, PrevoteTraits::Stage };
 
 		auto pMessage2 = test::CreateMessage(Last_Finalized_Height + Height(2), 1);
-		pMessage2->StepIdentifier = { Finalization_Epoch, Finalization_Point, PrecommitTraits::Stage };
+		pMessage2->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, PrecommitTraits::Stage };
 
 		TestContext context(1000, 700);
 		context.signMessage(*pMessage1, 0);
@@ -380,10 +380,10 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CanAcceptPrecommitThenPrevoteMessageFromSameSigner) {
 		// Arrange:
 		auto pMessage1 = test::CreateMessage(Last_Finalized_Height + Height(2), 1);
-		pMessage1->StepIdentifier = { Finalization_Epoch, Finalization_Point, PrecommitTraits::Stage };
+		pMessage1->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, PrecommitTraits::Stage };
 
 		auto pMessage2 = test::CreateMessage(Last_Finalized_Height + Height(1), 3);
-		pMessage2->StepIdentifier = { Finalization_Epoch, Finalization_Point, PrevoteTraits::Stage };
+		pMessage2->Data().StepIdentifier = { Finalization_Epoch, Finalization_Point, PrevoteTraits::Stage };
 
 		TestContext context(1000, 700);
 		context.signMessage(*pMessage1, 0);
@@ -424,7 +424,7 @@ namespace catapult { namespace chain {
 		auto prevoteHashes = test::GenerateRandomDataVector<Hash256>(7);
 		auto prevoteMessages = CreatePrevoteMessages(4, prevoteHashes.data(), prevoteHashes.size());
 		prevoteMessages.back()->Size -= static_cast<uint32_t>(Hash256::Size);
-		--prevoteMessages.back()->HashesCount;
+		--prevoteMessages.back()->Data().HashesCount;
 
 		// - sign with weights { 4M, 2M, 3M, 4M } (13M) > 15M * 0.7 (10.5M)
 		TestContext context(1000, 700);
@@ -458,11 +458,11 @@ namespace catapult { namespace chain {
 		auto prevoteHashes = test::GenerateRandomDataVector<Hash256>(7);
 		auto prevoteMessages = CreatePrevoteMessages(4, prevoteHashes.data(), prevoteHashes.size());
 		prevoteMessages.back()->Size -= static_cast<uint32_t>(Hash256::Size);
-		--prevoteMessages.back()->HashesCount;
+		--prevoteMessages.back()->Data().HashesCount;
 
 		// - only setup a precommit on the first 3/7 hashes
 		auto precommitMessages = CreatePrecommitMessages(4, prevoteHashes.data(), 3);
-		precommitMessages.back()->Height = precommitMessages.back()->Height - Height(1);
+		precommitMessages.back()->Data().Height = precommitMessages.back()->Data().Height - Height(1);
 		*precommitMessages.back()->HashesPtr() = prevoteHashes[2];
 
 		// - sign prevotes with weights { 4M, 2M, 3M, 4M } (13M) > 15M * 0.7 (10.5M)
@@ -512,10 +512,10 @@ namespace catapult { namespace chain {
 			auto prevoteHashes = test::GenerateRandomDataVector<Hash256>(7);
 			auto prevoteMessages = CreatePrevoteMessages(4, prevoteHashes.data(), prevoteHashes.size());
 			prevoteMessages.back()->Size -= static_cast<uint32_t>(Hash256::Size);
-			--prevoteMessages.back()->HashesCount;
+			--prevoteMessages.back()->Data().HashesCount;
 
 			auto precommitMessages = CreatePrecommitMessages(3, prevoteHashes.data(), 3);
-			precommitMessages.back()->Height = precommitMessages.back()->Height - Height(1);
+			precommitMessages.back()->Data().Height = precommitMessages.back()->Data().Height - Height(1);
 			*precommitMessages.back()->HashesPtr() = prevoteHashes[2];
 
 			// - sign the messages

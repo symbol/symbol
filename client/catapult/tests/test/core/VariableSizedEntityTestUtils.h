@@ -73,12 +73,47 @@ namespace catapult { namespace test {
 		EXPECT_FALSE(!!TEntityTraits::GetAttachmentPointer(accessor));
 	}
 
+	struct OffsetAccessor {
+	public:
+		template<typename TTraits>
+		static uint32_t Get() {
+			return Get<TTraits>(Accessor<TTraits>());
+		}
+
+	private:
+		enum class FeatureType { Unsupported, Supported };
+		using UnsupportedFeatureFlag = std::integral_constant<FeatureType, FeatureType::Unsupported>;
+		using SupportedFeatureFlag = std::integral_constant<FeatureType, FeatureType::Supported>;
+
+		template<typename T, typename = void>
+		struct Accessor : public UnsupportedFeatureFlag {};
+
+		template<typename T>
+		struct Accessor<
+				T,
+				utils::traits::is_type_expression_t<decltype(T::Offset)>>
+				: public SupportedFeatureFlag
+		{};
+
+	private:
+		template<typename TTraits>
+		static uint32_t Get(UnsupportedFeatureFlag) {
+			return 0;
+		}
+
+		template<typename TTraits>
+		static uint32_t Get(SupportedFeatureFlag) {
+			return TTraits::Offset;
+		}
+	};
+
 	/// Asserts that attachment data pointer is accessible when attachments are present and size is correct.
 	template<typename TEntityTraits, typename TAccessor>
 	void AssertAttachmentPointerIsValidWhenAttachmentsArePresent() {
 		// Arrange:
 		auto pEntity = TEntityTraits::GenerateEntityWithAttachments(3);
-		auto pEntityEnd = test::AsVoidPointer(pEntity.get() + 1);
+		auto offset = OffsetAccessor::Get<TEntityTraits>();
+		auto pEntityEnd = test::AsVoidPointer(reinterpret_cast<const uint8_t*>(pEntity.get() + 1) + offset);
 		auto& accessor = TAccessor::Get(*pEntity);
 
 		// Act + Assert:

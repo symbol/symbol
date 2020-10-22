@@ -34,24 +34,53 @@
 namespace catapult { namespace model {
 
 #define TEST_CLASS FinalizationMessageTests
+#define TEST_CLASS_V1 FinalizationMessageTests_V1
+
+	// region traits
 
 	namespace {
-		// region test utils - message
+		struct CurrentTraits {
+			using TreeSignature = crypto::BmTreeSignature;
 
-		std::unique_ptr<FinalizationMessage> CreateMessage(uint32_t numHashes) {
-			return test::CreateMessage(test::GenerateRandomValue<Height>(), numHashes);
-		}
+			static constexpr uint16_t Signature_Scheme = 1;
+			static constexpr uint32_t Base_Size = SizeOf32<FinalizationMessage>()
+					+ SizeOf32<TreeSignature>()
+					+ SizeOf32<FinalizationMessagePayload>();
 
-		// endregion
+			static std::unique_ptr<FinalizationMessage> CreateMessage(uint32_t numHashes) {
+				return test::CreateMessage(test::GenerateRandomValue<Height>(), numHashes);
+			}
+		};
+
+		struct V1Traits {
+			using TreeSignature = crypto::BmTreeSignatureV1;
+
+			static constexpr uint16_t Signature_Scheme = 0;
+			static constexpr uint32_t Base_Size = SizeOf32<FinalizationMessage>()
+					+ SizeOf32<TreeSignature>()
+					+ SizeOf32<FinalizationMessagePayload>();
+
+			static std::unique_ptr<FinalizationMessage> CreateMessage(uint32_t numHashes) {
+				return test::CreateMessageV1(test::GenerateRandomValue<Height>(), numHashes);
+			}
+		};
 	}
+
+#define VERSION_TRAITS(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CurrentTraits>(); } \
+	TEST(TEST_CLASS_V1, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<V1Traits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// endregion
 
 	// region FinalizationMessage (size + alignment)
 
-#define MESSAGE_FIELDS FIELD(Signature) FIELD(Version) FIELD(HashesCount) FIELD(StepIdentifier) FIELD(Height)
+#define MESSAGE_FIELDS FIELD(SignatureScheme)
 
 	TEST(TEST_CLASS, FinalizationMessageHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(TrailingVariableDataLayout<FinalizationMessage, Hash256>) + 4;
+		auto expectedSize = sizeof(TrailingVariableDataLayout<FinalizationMessage, Hash256>) + 2;
 
 #define FIELD(X) expectedSize += sizeof(FinalizationMessage::X);
 		MESSAGE_FIELDS
@@ -59,7 +88,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationMessage));
-		EXPECT_EQ(4 + 4 + 216u, sizeof(FinalizationMessage));
+		EXPECT_EQ(4 + 2 + 2u, sizeof(FinalizationMessage));
 	}
 
 	TEST(TEST_CLASS, FinalizationMessageHasProperAlignment) {
@@ -74,32 +103,63 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region FinalizationMessage (CalculateRealSize)
+	// region FinalizationMessagePayload (size + alignment)
 
-	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
+#define MESSAGE_PAYLOAD_FIELDS FIELD(Version) FIELD(HashesCount) FIELD(StepIdentifier) FIELD(Height)
+
+	TEST(TEST_CLASS, FinalizationMessagePayloadHasExpectedSize) {
 		// Arrange:
-		FinalizationMessage message;
-		message.Size = 0;
-		message.HashesCount = 67;
+		auto expectedSize = 0u;
 
-		// Act:
-		auto realSize = FinalizationMessage::CalculateRealSize(message);
+#define FIELD(X) expectedSize += SizeOf32<decltype(FinalizationMessagePayload::X)>();
+		MESSAGE_PAYLOAD_FIELDS
+#undef FIELD
 
 		// Assert:
-		EXPECT_EQ(sizeof(FinalizationMessage) + 67 * Hash256::Size, realSize);
+		EXPECT_EQ(expectedSize, sizeof(FinalizationMessagePayload));
+		EXPECT_EQ(24u, sizeof(FinalizationMessagePayload));
 	}
 
-	TEST(TEST_CLASS, CalculateRealSizeDoesNotOverflowWithMaxValues) {
+	TEST(TEST_CLASS, FinalizationMessagePayloadHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(FinalizationMessagePayload, X);
+		MESSAGE_PAYLOAD_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(FinalizationMessagePayload) % 8);
+	}
+
+#undef MESSAGE_PAYLOAD_FIELDS
+
+	// endregion
+
+	// region FinalizationMessage (CalculateRealSize)
+
+	VERSION_TRAITS(CanCalculateRealSizeWithReasonableValues) {
 		// Arrange:
-		FinalizationMessage message;
-		message.Size = 0;
-		test::SetMaxValue(message.HashesCount);
+		auto pMessage = TTraits::CreateMessage(0);
+		pMessage->Size = 0;
+		pMessage->SignatureScheme = TTraits::Signature_Scheme;
+		pMessage->Data().HashesCount = 67;
 
 		// Act:
-		auto realSize = FinalizationMessage::CalculateRealSize(message);
+		auto realSize = FinalizationMessage::CalculateRealSize(*pMessage);
 
 		// Assert:
-		EXPECT_EQ(sizeof(FinalizationMessage) + message.HashesCount * Hash256::Size, realSize);
+		EXPECT_EQ(TTraits::Base_Size + 67 * Hash256::Size, realSize);
+	}
+
+	VERSION_TRAITS(CalculateRealSizeDoesNotOverflowWithMaxValues) {
+		// Arrange:
+		auto pMessage = TTraits::CreateMessage(0);
+		pMessage->Size = 0;
+		pMessage->SignatureScheme = TTraits::Signature_Scheme;
+		test::SetMaxValue(pMessage->Data().HashesCount);
+
+		// Act:
+		auto realSize = FinalizationMessage::CalculateRealSize(*pMessage);
+
+		// Assert:
+		EXPECT_EQ(TTraits::Base_Size + pMessage->Data().HashesCount * Hash256::Size, realSize);
 		EXPECT_GE(std::numeric_limits<uint64_t>::max(), realSize);
 	}
 
@@ -108,8 +168,11 @@ namespace catapult { namespace model {
 	// region FinalizationMessage (data pointers)
 
 	namespace {
+		template<typename TTraits>
 		struct FinalizationMessageTraits {
-			static constexpr auto GenerateEntityWithAttachments = CreateMessage;
+			static constexpr auto GenerateEntityWithAttachments = TTraits::CreateMessage;
+
+			static constexpr auto Offset = SizeOf32<typename TTraits::TreeSignature>() + SizeOf32<FinalizationMessagePayload>();
 
 			template<typename TEntity>
 			static auto GetAttachmentPointer(TEntity& entity) {
@@ -118,7 +181,8 @@ namespace catapult { namespace model {
 		};
 	}
 
-	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, FinalizationMessageTraits) // HashesPtr
+	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, FinalizationMessageTraits<CurrentTraits>) // HashesPtr
+	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS_V1, FinalizationMessageTraits<V1Traits>) // HashesPtr
 
 	// endregion
 
@@ -135,9 +199,9 @@ namespace catapult { namespace model {
 			};
 
 			auto pMessage = test::CreateMessage(Height(12), 3);
-			pMessage->StepIdentifier = { FinalizationEpoch(101), FinalizationPoint(17), stage };
-			pMessage->Signature.Root.ParentPublicKey = utils::ParseByteArray<VotingKey>(hashStrings[0]);
-			for (auto i = 0u; i < pMessage->HashesCount; ++i)
+			pMessage->Data().StepIdentifier = { FinalizationEpoch(101), FinalizationPoint(17), stage };
+			pMessage->Signature().Root.ParentPublicKey = utils::ParseByteArray<VotingKey>(hashStrings[0]);
+			for (auto i = 0u; i < pMessage->Data().HashesCount; ++i)
 				pMessage->HashesPtr()[i] = utils::ParseByteArray<Hash256>(hashStrings[i + 1]);
 
 			// Act:
@@ -164,11 +228,11 @@ namespace catapult { namespace model {
 
 	// region CalculateMessageHash
 
-	TEST(TEST_CLASS, CalculateMessageHash_ProducesDifferentHashesForMessagesWithDifferentBodyContents) {
+	VERSION_TRAITS(CalculateMessageHash_ProducesDifferentHashesForMessagesWithDifferentBodyContents) {
 		// Arrange:
-		auto pMessage1 = CreateMessage(3);
+		auto pMessage1 = TTraits::CreateMessage(3);
 		auto pMessage2 = test::CopyEntity(*pMessage1);
-		pMessage2->StepIdentifier.Epoch = pMessage2->StepIdentifier.Epoch + FinalizationEpoch(1);
+		pMessage2->Data().StepIdentifier.Epoch = pMessage2->Data().StepIdentifier.Epoch + FinalizationEpoch(1);
 
 		// Act:
 		auto messageHash1 = CalculateMessageHash(*pMessage1);
@@ -178,11 +242,11 @@ namespace catapult { namespace model {
 		EXPECT_NE(messageHash1, messageHash2);
 	}
 
-	TEST(TEST_CLASS, CalculateMessageHash_ProducesDifferentHashesForMessagesWithDifferentHeaderContents) {
+	VERSION_TRAITS(CalculateMessageHash_ProducesDifferentHashesForMessagesWithDifferentHeaderContents) {
 		// Arrange:
-		auto pMessage1 = CreateMessage(3);
+		auto pMessage1 = TTraits::CreateMessage(3);
 		auto pMessage2 = test::CopyEntity(*pMessage1);
-		test::FillWithRandomData(pMessage2->Signature);
+		test::FillWithRandomData(pMessage2->Signature());
 
 		// Act:
 		auto messageHash1 = CalculateMessageHash(*pMessage1);
@@ -258,7 +322,7 @@ namespace catapult { namespace model {
 		}
 
 		HashRange ExtractHashes(const FinalizationMessage& message) {
-			return HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(message.HashesPtr()), message.HashesCount);
+			return HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(message.HashesPtr()), message.Data().HashesCount);
 		}
 	}
 
@@ -279,14 +343,15 @@ namespace catapult { namespace model {
 			ASSERT_TRUE(!!pMessage);
 
 			// - check a few fields
-			EXPECT_EQ(sizeof(FinalizationMessage), pMessage->Size);
+			EXPECT_EQ(CurrentTraits::Base_Size, pMessage->Size);
 
 			EXPECT_EQ(0u, pMessage->FinalizationMessage_Reserved1);
-			EXPECT_EQ(FinalizationMessage::Current_Version, pMessage->Version);
-			EXPECT_EQ(0u, pMessage->HashesCount);
+			EXPECT_EQ(1u, pMessage->SignatureScheme);
+			EXPECT_EQ(FinalizationMessage::Current_Version, pMessage->Data().Version);
+			EXPECT_EQ(0u, pMessage->Data().HashesCount);
 
-			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
-			EXPECT_EQ(Height(987), pMessage->Height);
+			EXPECT_EQ(DefaultStepIdentifier(), pMessage->Data().StepIdentifier);
+			EXPECT_EQ(Height(987), pMessage->Data().Height);
 			EXPECT_EQ(0u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
 			// - check that the message is valid and can be processed
@@ -303,14 +368,14 @@ namespace catapult { namespace model {
 			ASSERT_TRUE(!!pMessage);
 
 			// - check a few fields
-			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
+			EXPECT_EQ(CurrentTraits::Base_Size + 3 * Hash256::Size, pMessage->Size);
 
 			EXPECT_EQ(0u, pMessage->FinalizationMessage_Reserved1);
-			EXPECT_EQ(FinalizationMessage::Current_Version, pMessage->Version);
-			EXPECT_EQ(3u, pMessage->HashesCount);
+			EXPECT_EQ(FinalizationMessage::Current_Version, pMessage->Data().Version);
+			EXPECT_EQ(3u, pMessage->Data().HashesCount);
 
-			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
-			EXPECT_EQ(Height(987), pMessage->Height);
+			EXPECT_EQ(DefaultStepIdentifier(), pMessage->Data().StepIdentifier);
+			EXPECT_EQ(Height(987), pMessage->Data().Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
 			// - check that the message is valid and can be processed
@@ -327,11 +392,11 @@ namespace catapult { namespace model {
 			ASSERT_TRUE(!!pMessage);
 
 			// - check a few fields
-			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
-			EXPECT_EQ(3u, pMessage->HashesCount);
+			EXPECT_EQ(CurrentTraits::Base_Size + 3 * Hash256::Size, pMessage->Size);
+			EXPECT_EQ(3u, pMessage->Data().HashesCount);
 
-			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
-			EXPECT_EQ(Height(987), pMessage->Height);
+			EXPECT_EQ(DefaultStepIdentifier(), pMessage->Data().StepIdentifier);
+			EXPECT_EQ(Height(987), pMessage->Data().Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
 			// - check that the message signer is not a valid voter
@@ -346,7 +411,7 @@ namespace catapult { namespace model {
 	// region ProcessMessage
 
 	namespace {
-		template<typename TAction>
+		template<typename TTraits, typename TAction>
 		void RunProcessMessageTest(
 				VoterType voterType,
 				uint32_t numHashes,
@@ -357,11 +422,11 @@ namespace catapult { namespace model {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				// - create message
-				auto pMessage = CreateMessage(numHashes);
+				auto pMessage = TTraits::CreateMessage(numHashes);
 				pMessage->FinalizationMessage_Reserved1 = 0;
-				pMessage->Version = FinalizationMessage::Current_Version;
-				pMessage->StepIdentifier = DefaultStepIdentifier();
-				pMessage->Height = Height(987);
+				pMessage->Data().Version = FinalizationMessage::Current_Version;
+				pMessage->Data().StepIdentifier = DefaultStepIdentifier();
+				pMessage->Data().Height = Height(987);
 				modifyMessage(*pMessage);
 				test::SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair);
 
@@ -370,15 +435,15 @@ namespace catapult { namespace model {
 			});
 		}
 
-		template<typename TAction>
+		template<typename TTraits, typename TAction>
 		void RunProcessMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
-			RunProcessMessageTest(voterType, numHashes, [](const auto&){}, action);
+			RunProcessMessageTest<TTraits>(voterType, numHashes, [](const auto&){}, action);
 		}
 	}
 
-	TEST(TEST_CLASS, ProcessMessage_FailsWhenSignatureIsInvalid) {
+	VERSION_TRAITS(ProcessMessage_FailsWhenSignatureIsInvalid) {
 		// Arrange:
-		RunProcessMessageTest(VoterType::Large, 3, [](const auto& context, const auto&, auto& message) {
+		RunProcessMessageTest<TTraits>(VoterType::Large, 3, [](const auto& context, const auto&, auto& message) {
 			// - corrupt a hash
 			test::FillWithRandomData(message.HashesPtr()[1]);
 
@@ -391,10 +456,10 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, ProcessMessage_FailsWhenReservedDataIsNotCleared) {
+	VERSION_TRAITS(ProcessMessage_FailsWhenReservedDataIsNotCleared) {
 		// Arrange:
 		auto modifyMessage = [](auto& message) { message.FinalizationMessage_Reserved1 = 1; };
-		RunProcessMessageTest(VoterType::Large, 3, modifyMessage, [](const auto& context, const auto&, const auto& message) {
+		RunProcessMessageTest<TTraits>(VoterType::Large, 3, modifyMessage, [](const auto& context, const auto&, const auto& message) {
 			// Act:
 			auto processResultPair = ProcessMessage(message, context);
 
@@ -404,10 +469,10 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, ProcessMessage_FailsWhenVersionIsIncorrect) {
+	VERSION_TRAITS(ProcessMessage_FailsWhenVersionIsIncorrect) {
 		// Arrange:
-		auto modifyMessage = [](auto& message) { ++message.Version; };
-		RunProcessMessageTest(VoterType::Large, 3, modifyMessage, [](const auto& context, const auto&, const auto& message) {
+		auto modifyMessage = [](auto& message) { ++message.Data().Version; };
+		RunProcessMessageTest<TTraits>(VoterType::Large, 3, modifyMessage, [](const auto& context, const auto&, const auto& message) {
 			// Act:
 			auto processResultPair = ProcessMessage(message, context);
 
@@ -417,9 +482,9 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, ProcessMessage_FailsWhenAccountIsNotVotingEligible) {
+	VERSION_TRAITS(ProcessMessage_FailsWhenAccountIsNotVotingEligible) {
 		// Arrange:
-		RunProcessMessageTest(VoterType::Ineligible, 3, [](const auto& context, const auto&, const auto& message) {
+		RunProcessMessageTest<TTraits>(VoterType::Ineligible, 3, [](const auto& context, const auto&, const auto& message) {
 			// Act:
 			auto processResultPair = ProcessMessage(message, context);
 
@@ -429,9 +494,9 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, ProcessMessage_CanProcessValidMessageWithoutHashes) {
+	VERSION_TRAITS(ProcessMessage_CanProcessValidMessageWithoutHashes) {
 		// Arrange:
-		RunProcessMessageTest(VoterType::Large, 0, [](const auto& context, const auto&, const auto& message) {
+		RunProcessMessageTest<TTraits>(VoterType::Large, 0, [](const auto& context, const auto&, const auto& message) {
 			// Act:
 			auto processResultPair = ProcessMessage(message, context);
 
@@ -440,13 +505,13 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
 
 			// Sanity:
-			EXPECT_EQ(0u, message.HashesCount);
+			EXPECT_EQ(0u, message.Data().HashesCount);
 		});
 	}
 
-	TEST(TEST_CLASS, ProcessMessage_CanProcessValidMessageWithHashes) {
+	VERSION_TRAITS(ProcessMessage_CanProcessValidMessageWithHashes) {
 		// Arrange:
-		RunProcessMessageTest(VoterType::Large, 3, [](const auto& context, const auto&, const auto& message) {
+		RunProcessMessageTest<TTraits>(VoterType::Large, 3, [](const auto& context, const auto&, const auto& message) {
 			// Act:
 			auto processResultPair = ProcessMessage(message, context);
 
@@ -455,7 +520,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
 
 			// Sanity:
-			EXPECT_EQ(3u, message.HashesCount);
+			EXPECT_EQ(3u, message.Data().HashesCount);
 		});
 	}
 

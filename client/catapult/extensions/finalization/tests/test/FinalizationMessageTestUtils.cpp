@@ -22,6 +22,7 @@
 #include "FinalizationMessageTestUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
+#include "catapult/crypto_voting/VotingSigner.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
@@ -64,13 +65,13 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(const model::FinalizationRound& round) {
 		auto pMessage = CreateMessage(round.Point);
-		pMessage->StepIdentifier.Epoch = round.Epoch;
+		pMessage->Data().StepIdentifier.Epoch = round.Epoch;
 		return pMessage;
 	}
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point, Height height) {
 		auto pMessage = CreateMessage(point);
-		pMessage->Height = height;
+		pMessage->Data().Height = height;
 		return pMessage;
 	}
 
@@ -85,32 +86,57 @@ namespace catapult { namespace test {
 			static_cast<model::FinalizationStage>(Random())
 		};
 		auto pMessage = CreateMessage(stepIdentifier, hash);
-		pMessage->Height = height;
+		pMessage->Data().Height = height;
 		return pMessage;
 	}
 
+	namespace {
+		uint32_t CalculateMessageSize(uint32_t numHashes) {
+			return model::FinalizationMessage::MinSize() + numHashes * static_cast<uint32_t>(Hash256::Size);
+		}
+
+		uint32_t CalculateMessageSizeV1(uint32_t numHashes) {
+			return CalculateMessageSize(numHashes) + SizeOf32<crypto::BmTreeSignatureV1>() - SizeOf32<crypto::BmTreeSignature>();
+		}
+	}
+
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(Height height, uint32_t numHashes) {
-		uint32_t messageSize = SizeOf32<model::FinalizationMessage>() + numHashes * static_cast<uint32_t>(Hash256::Size);
+		uint32_t messageSize = CalculateMessageSize(numHashes);
 		auto pMessage = utils::MakeUniqueWithSize<model::FinalizationMessage>(messageSize);
 		FillWithRandomData({ reinterpret_cast<uint8_t*>(pMessage.get()), messageSize });
 		pMessage->Size = messageSize;
 		pMessage->FinalizationMessage_Reserved1 = 0;
-		pMessage->Version = model::FinalizationMessage::Current_Version;
-		pMessage->HashesCount = numHashes;
-		pMessage->Height = height;
+		pMessage->SignatureScheme = 1;
+		pMessage->Data().Version = model::FinalizationMessage::Current_Version;
+		pMessage->Data().HashesCount = numHashes;
+		pMessage->Data().Height = height;
+		return pMessage;
+	}
+
+	std::unique_ptr<model::FinalizationMessage> CreateMessageV1(Height height, uint32_t numHashes) {
+		uint32_t messageSize = CalculateMessageSizeV1(numHashes);
+		auto pMessage = utils::MakeUniqueWithSize<model::FinalizationMessage>(messageSize);
+		FillWithRandomData({ reinterpret_cast<uint8_t*>(pMessage.get()), messageSize });
+		pMessage->Size = messageSize;
+		pMessage->FinalizationMessage_Reserved1 = 0;
+		pMessage->SignatureScheme = 0;
+		pMessage->Data().Version = model::FinalizationMessage::Current_Version;
+		pMessage->Data().HashesCount = numHashes;
+		pMessage->Data().Height = height;
 		return pMessage;
 	}
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(const model::StepIdentifier& stepIdentifier, const Hash256& hash) {
-		uint32_t messageSize = SizeOf32<model::FinalizationMessage>() + static_cast<uint32_t>(Hash256::Size);
+		uint32_t messageSize = CalculateMessageSize(1);
 		auto pMessage = utils::MakeUniqueWithSize<model::FinalizationMessage>(messageSize);
 		pMessage->Size = messageSize;
 		pMessage->FinalizationMessage_Reserved1 = 0;
-		pMessage->Version = model::FinalizationMessage::Current_Version;
-		pMessage->HashesCount = 1;
-		pMessage->StepIdentifier = stepIdentifier;
+		pMessage->SignatureScheme = 1;
+		pMessage->Data().Version = model::FinalizationMessage::Current_Version;
+		pMessage->Data().HashesCount = 1;
+		pMessage->Data().StepIdentifier = stepIdentifier;
 
-		FillWithRandomData(pMessage->Signature);
+		FillWithRandomData(pMessage->Signature());
 		*pMessage->HashesPtr() = hash;
 		return pMessage;
 	}
@@ -129,7 +155,7 @@ namespace catapult { namespace test {
 		std::vector<std::shared_ptr<model::FinalizationMessage>> messages;
 		for (auto i = 0u; i < numMessages; ++i) {
 			auto pMessage = CreateMessage(height, static_cast<uint32_t>(numHashes));
-			pMessage->StepIdentifier = { epoch, point, model::FinalizationStage::Prevote };
+			pMessage->Data().StepIdentifier = { epoch, point, model::FinalizationStage::Prevote };
 			std::copy(pHashes, pHashes + numHashes, pMessage->HashesPtr());
 			messages.push_back(std::move(pMessage));
 		}
@@ -147,7 +173,7 @@ namespace catapult { namespace test {
 		std::vector<std::shared_ptr<model::FinalizationMessage>> messages;
 		for (auto i = 0u; i < numMessages; ++i) {
 			auto pMessage = CreateMessage(height + Height(index), 1);
-			pMessage->StepIdentifier = { epoch, point, model::FinalizationStage::Precommit };
+			pMessage->Data().StepIdentifier = { epoch, point, model::FinalizationStage::Precommit };
 			*pMessage->HashesPtr() = pHashes[index];
 			messages.push_back(std::move(pMessage));
 		}
@@ -159,16 +185,53 @@ namespace catapult { namespace test {
 
 	// region message utils
 
-	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair) {
-		auto storage = mocks::MockSeekableMemoryStream();
-		auto bmOptions = crypto::BmOptions{ { 0 }, { 15 } };
-		auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
+	namespace {
+		RawBuffer ToBuffer(const uint64_t& value) {
+			return { reinterpret_cast<const uint8_t*>(&value), sizeof(uint64_t) };
+		}
+	}
 
-		auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier);
-		message.Signature = bmPrivateKeyTree.sign(keyIdentifier, {
-			reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
-			message.Size - model::FinalizationMessage::Header_Size
-		});
+	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair) {
+		if (1 == message.SignatureScheme) {
+			auto storage = mocks::MockSeekableMemoryStream();
+			auto bmOptions = crypto::BmOptions{ { 0 }, { 15 } };
+			auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
+
+			auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.Data().StepIdentifier);
+			message.Signature() = bmPrivateKeyTree.sign(keyIdentifier, {
+				reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
+				message.Size - model::FinalizationMessage::Header_Size
+			});
+		} else {
+			static constexpr uint64_t Testnet_Dilution = 128;
+
+			auto topKeyPair = GenerateVotingKeyPair();
+			auto lowKeyPair = GenerateVotingKeyPair();
+
+			auto& signature = message.SignatureV1();
+
+			using VotingKeyV1 = decltype(crypto::BmTreeSignatureV1::ParentPublicKeySignaturePair::ParentPublicKey);
+			using VotingSignatureV1 = decltype(crypto::BmTreeSignatureV1::ParentPublicKeySignaturePair::Signature);
+
+			signature.Root.ParentPublicKey = votingKeyPair.publicKey().copyTo<VotingKeyV1>();
+			signature.Top.ParentPublicKey = topKeyPair.publicKey().copyTo<VotingKeyV1>();
+			signature.Bottom.ParentPublicKey = lowKeyPair.publicKey().copyTo<VotingKeyV1>();
+
+			auto identifier = message.Data().StepIdentifier.Epoch.unwrap();
+
+			crypto::VotingSignature componentSignature;
+			crypto::Sign(votingKeyPair, { signature.Top.ParentPublicKey, ToBuffer(identifier / Testnet_Dilution) }, componentSignature);
+			signature.Root.Signature = componentSignature.copyTo<VotingSignatureV1>();
+
+			crypto::Sign(topKeyPair, { signature.Bottom.ParentPublicKey, ToBuffer(identifier % Testnet_Dilution) }, componentSignature);
+			signature.Top.Signature = componentSignature.copyTo<VotingSignatureV1>();
+
+			auto headerSize = model::FinalizationMessage::Header_Size
+					+ sizeof(crypto::BmTreeSignatureV1) - sizeof(crypto::BmTreeSignature);
+			auto messageBuffer = RawBuffer{ reinterpret_cast<const uint8_t*>(&message) + headerSize, message.Size - headerSize };
+			crypto::Sign(lowKeyPair, messageBuffer, componentSignature);
+			signature.Bottom.Signature = componentSignature.copyTo<VotingSignatureV1>();
+		}
 	}
 
 	void AssertEqualMessage(

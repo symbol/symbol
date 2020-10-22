@@ -59,7 +59,7 @@ namespace catapult { namespace chain {
 					return nullptr;
 
 				auto pMessage = test::CreateMessage(Height(0), test::GenerateRandomByteArray<Hash256>());
-				pMessage->StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Prevote };
+				pMessage->Data().StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Prevote };
 				return pMessage;
 			}
 
@@ -72,7 +72,7 @@ namespace catapult { namespace chain {
 					return nullptr;
 
 				auto pMessage = test::CreateMessage(height, hash);
-				pMessage->StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Precommit };
+				pMessage->Data().StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Precommit };
 				return pMessage;
 			}
 
@@ -82,8 +82,8 @@ namespace catapult { namespace chain {
 		};
 
 		void AssertPrevote(const model::FinalizationMessage& message, const model::FinalizationRound& round) {
-			EXPECT_EQ(round, message.StepIdentifier.Round());
-			EXPECT_EQ(Height(0), message.Height);
+			EXPECT_EQ(round, message.Data().StepIdentifier.Round());
+			EXPECT_EQ(Height(0), message.Data().Height);
 		}
 
 		void AssertPrecommit(
@@ -91,8 +91,8 @@ namespace catapult { namespace chain {
 				const model::FinalizationRound& round,
 				Height height,
 				const Hash256& hash) {
-			EXPECT_EQ(round, message.StepIdentifier.Round());
-			EXPECT_EQ(height, message.Height);
+			EXPECT_EQ(round, message.Data().StepIdentifier.Round());
+			EXPECT_EQ(height, message.Data().Height);
 			EXPECT_EQ(hash, *message.HashesPtr());
 		}
 
@@ -188,7 +188,7 @@ namespace catapult { namespace chain {
 								return pStageAdvancer;
 							},
 							[this](const auto& message) {
-								return m_ineligibleVoterStage != message.StepIdentifier.Stage();
+								return m_ineligibleVoterStage != message.Data().StepIdentifier.Stage();
 							},
 							[this](auto&& pMessage) {
 								m_messages.push_back(std::move(pMessage));
