@@ -102,7 +102,7 @@ namespace catapult { namespace model {
 				sub.notify(BlockTypeNotification(block.Type, block.Height));
 
 				// raise an entity notification
-				sub.notify(EntityNotification(block.Network, block.Version, Block::Current_Version, Block::Current_Version));
+				sub.notify(EntityNotification(block.Network, block.Type, block.Version, Block::Current_Version, Block::Current_Version));
 
 				// raise a block notification
 				auto blockTransactionsInfo = CalculateBlockTransactionsInfo(block, m_transactionRegistry);
@@ -135,7 +135,12 @@ namespace catapult { namespace model {
 				auto attributes = plugin.attributes();
 
 				// raise an entity notification
-				sub.notify(EntityNotification(transaction.Network, transaction.Version, attributes.MinVersion, attributes.MaxVersion));
+				sub.notify(EntityNotification(
+						transaction.Network,
+						transaction.Type,
+						transaction.Version,
+						attributes.MinVersion,
+						attributes.MaxVersion));
 
 				// raise transaction notifications
 				auto fee = pBlockHeader ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction) : transaction.MaxFee;

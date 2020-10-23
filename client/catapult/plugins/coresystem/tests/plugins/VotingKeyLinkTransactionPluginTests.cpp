@@ -35,10 +35,49 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(VotingKeyLink, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(VotingKeyLink, 1, 2,)
+
+		struct V1RegularTraits {
+			using TransactionType = model::VotingKeyLinkV1Transaction;
+
+			static constexpr auto Min_Supported_Version = 1;
+			static constexpr auto Max_Supported_Version = 2;
+
+			static void SetVersion(TransactionType& transaction) {
+				transaction.Version = 1;
+			}
+
+			static auto CreatePlugin() {
+				return CreateVotingKeyLinkTransactionPlugin();
+			}
+		};
+
+		struct V1EmbeddedTraits {
+			using TransactionType = model::EmbeddedVotingKeyLinkV1Transaction;
+
+			static constexpr auto Min_Supported_Version = 1;
+			static constexpr auto Max_Supported_Version = 2;
+
+			static void SetVersion(TransactionType& transaction) {
+				transaction.Version = 1;
+			}
+
+			static auto CreatePlugin() {
+				return test::ExtractEmbeddedPlugin(V1RegularTraits::CreatePlugin());
+			}
+		};
+
+#define MULTI_VERSION_PLUGIN_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular_V1) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<V1RegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded_V1) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<V1EmbeddedTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Regular_V2) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded_V2) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Voting_Key_Link)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, V1, V1, Entity_Type_Voting_Key_Link)
 
 	// endregion
 
@@ -62,10 +101,11 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenLinkActionIsLink) {
+	MULTI_VERSION_PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenLinkActionIsLink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
+		TTraits::SetVersion(transaction);
 		transaction.LinkAction = LinkAction::Link;
 
 		// Act + Assert:
@@ -75,10 +115,11 @@ namespace catapult { namespace plugins {
 		});
 	}
 
-	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsLink) {
+	MULTI_VERSION_PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsLink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
+		TTraits::SetVersion(transaction);
 		transaction.LinkAction = LinkAction::Link;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
@@ -92,10 +133,11 @@ namespace catapult { namespace plugins {
 
 	// region publish - action unlink
 
-	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenLinkActionIsUnlink) {
+	MULTI_VERSION_PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenLinkActionIsUnlink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
+		TTraits::SetVersion(transaction);
 		transaction.LinkAction = LinkAction::Unlink;
 
 		// Act + Assert:
@@ -105,10 +147,11 @@ namespace catapult { namespace plugins {
 		});
 	}
 
-	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsUnlink) {
+	MULTI_VERSION_PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsUnlink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
+		TTraits::SetVersion(transaction);
 		transaction.LinkAction = LinkAction::Unlink;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;

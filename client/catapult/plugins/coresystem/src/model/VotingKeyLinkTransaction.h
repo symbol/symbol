@@ -26,12 +26,9 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a voting key link transaction body.
+	/// Voting key format v1.
 	template<typename THeader>
-	struct VotingKeyLinkTransactionBody : public THeader {
-	private:
-		using TransactionType = VotingKeyLinkTransactionBody<THeader>;
-
+	struct VotingKeyV1 : public THeader {
 	public:
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Voting_Key_Link, 1)
 
@@ -39,6 +36,27 @@ namespace catapult { namespace model {
 		/// Linked public key.
 		VotingKey LinkedPublicKey;
 
+		std::array<uint8_t, 16> VotingKeyV1_Reserved1;
+	};
+
+	/// Voting key format v2.
+	template<typename THeader>
+	struct VotingKeyV2 : public THeader {
+	public:
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Voting_Key_Link, 2)
+
+	public:
+		/// Linked public key.
+		VotingKey LinkedPublicKey;
+	};
+
+	/// Binary layout for a voting key link transaction body.
+	template<typename THeader>
+	struct BasicVotingKeyLinkTransactionBody : public THeader {
+	private:
+		using TransactionType = BasicVotingKeyLinkTransactionBody<THeader>;
+
+	public:
 		/// Start epoch.
 		FinalizationEpoch StartEpoch;
 
@@ -55,6 +73,17 @@ namespace catapult { namespace model {
 		}
 	};
 
+	template<typename THeader>
+	struct VotingKeyLinkV1TransactionBody
+			: public BasicVotingKeyLinkTransactionBody<VotingKeyV1<THeader>>
+	{};
+
+	template<typename THeader>
+	struct VotingKeyLinkTransactionBody
+			: public BasicVotingKeyLinkTransactionBody<VotingKeyV2<THeader>>
+	{};
+
+	DEFINE_EMBEDDABLE_TRANSACTION(VotingKeyLinkV1)
 	DEFINE_EMBEDDABLE_TRANSACTION(VotingKeyLink)
 
 #pragma pack(pop)

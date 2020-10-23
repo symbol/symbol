@@ -173,10 +173,16 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Entity_Notification;
 
 	public:
-		/// Creates an entity notification around \a networkIdentifier, \a entityVersion, \a minVersion and \a maxVersion.
-		EntityNotification(model::NetworkIdentifier networkIdentifier, uint8_t entityVersion, uint8_t minVersion, uint8_t maxVersion)
+		/// Creates an entity notification around \a networkIdentifier, \a entityType, \a entityVersion, \a minVersion and \a maxVersion.
+		EntityNotification(
+				model::NetworkIdentifier networkIdentifier,
+				model::EntityType entityType,
+				uint8_t entityVersion,
+				uint8_t minVersion,
+				uint8_t maxVersion)
 				: Notification(Notification_Type, sizeof(EntityNotification))
 				, NetworkIdentifier(networkIdentifier)
+				, EntityType(entityType)
 				, EntityVersion(entityVersion)
 				, MinVersion(minVersion)
 				, MaxVersion(maxVersion)
@@ -185,6 +191,9 @@ namespace catapult { namespace model {
 	public:
 		/// Network identifier.
 		model::NetworkIdentifier NetworkIdentifier;
+
+		/// Entity type.
+		model::EntityType EntityType;
 
 		/// Entity version.
 		uint8_t EntityVersion;

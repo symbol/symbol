@@ -98,6 +98,8 @@ namespace catapult { namespace builders {
 		template<typename TExpectedTraits, typename TTransactionTraits>
 		struct KeyLinkTraits : public TExpectedTraits {
 		public:
+			static constexpr uint8_t Expected_Version = 1;
+
 			using Builder = typename TExpectedTraits::BuilderType;
 			using TransactionTraits = TTransactionTraits;
 
@@ -125,6 +127,8 @@ namespace catapult { namespace builders {
 		template<typename TTransactionTraits>
 		struct VotingKeyLinkTraits : public VotingKeyLinkTestTraits {
 		public:
+			static constexpr uint8_t Expected_Version = 2;
+
 			using Builder = typename VotingKeyLinkTestTraits::BuilderType;
 			using TransactionTraits = TTransactionTraits;
 			using AssertTraits = KeyLinkTraits<VotingKeyLinkTestTraits, TTransactionTraits>;
@@ -179,7 +183,7 @@ namespace catapult { namespace builders {
 			TTraits::TransactionTraits::CheckBuilderSize(0, builder);
 			TTraits::TransactionTraits::CheckFields(0, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
-			EXPECT_EQ(1u, pTransaction->Version);
+			EXPECT_EQ(TTraits::Expected_Version, pTransaction->Version);
 			EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), pTransaction->Network);
 			EXPECT_EQ(TTraits::Transaction_Type, pTransaction->Type);
 

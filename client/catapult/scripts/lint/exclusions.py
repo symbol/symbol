@@ -139,6 +139,7 @@ PLUGINS_FIRSTINCLUDES = {
 
     'plugins/coresystem/tests/importance/PosImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
     'plugins/coresystem/tests/importance/RestoreImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
+    'plugins/coresystem/tests/model/VotingKeyLinkV1TransactionTests.cpp': 'src/model/VotingKeyLinkTransaction.h',
     'plugins/coresystem/tests/validators/KeyLinkActionValidatorTests.cpp': 'src/validators/KeyLinkValidators.h',
     'plugins/coresystem/tests/validators/VotingKeyLinkRangeValidatorTests.cpp': 'src/validators/KeyLinkValidators.h',
 

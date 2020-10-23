@@ -26,7 +26,7 @@
 
 namespace catapult { namespace model {
 
-#define TEST_CLASS VotingKeyLinkTransactionTests
+#define TEST_CLASS VotingKeyLinkV1TransactionTests
 
 	// region size + alignment + properties
 
@@ -36,7 +36,7 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertTransactionHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize = baseSize;
+			auto expectedSize = baseSize + 16u;
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(T::X)>();
 			TRANSACTION_FIELDS
@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 41u, sizeof(T));
+			EXPECT_EQ(baseSize + 57u, sizeof(T));
 		}
 
 		template<typename T>
@@ -58,25 +58,25 @@ namespace catapult { namespace model {
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
 			EXPECT_EQ(Entity_Type_Voting_Key_Link, T::Entity_Type);
-			EXPECT_EQ(2u, T::Current_Version);
+			EXPECT_EQ(1u, T::Current_Version);
 		}
 	}
 
 #undef TRANSACTION_FIELDS
 
-	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(VotingKeyLink)
+	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(VotingKeyLinkV1)
 
 	// endregion
 
 	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
 		// Arrange:
-		VotingKeyLinkTransaction transaction;
+		VotingKeyLinkV1Transaction transaction;
 		transaction.Size = 0;
 
 		// Act:
-		auto realSize = VotingKeyLinkTransaction::CalculateRealSize(transaction);
+		auto realSize = VotingKeyLinkV1Transaction::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(sizeof(VotingKeyLinkTransaction), realSize);
+		EXPECT_EQ(sizeof(VotingKeyLinkV1Transaction), realSize);
 	}
 }}

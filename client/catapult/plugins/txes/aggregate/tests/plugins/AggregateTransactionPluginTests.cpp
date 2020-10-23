@@ -293,6 +293,7 @@ namespace catapult { namespace plugins {
 				builder.addExpectation<EntityNotification>(i, [i](const auto& notification) {
 					// min/max version comes from MockTransactionPlugin created in CreateDefaultTransactionRegistry
 					EXPECT_EQ(static_cast<NetworkIdentifier>(100 + i), notification.NetworkIdentifier);
+					EXPECT_EQ(mocks::EmbeddedMockTransaction::Entity_Type, notification.EntityType);
 					EXPECT_EQ((i + 1) * 2, notification.EntityVersion);
 					EXPECT_EQ(0x02u, notification.MinVersion);
 					EXPECT_EQ(0xFEu, notification.MaxVersion);

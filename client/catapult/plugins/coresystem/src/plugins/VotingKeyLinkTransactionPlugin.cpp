@@ -38,7 +38,132 @@ namespace catapult { namespace plugins {
 					{ transaction.LinkedPublicKey, transaction.StartEpoch, transaction.EndEpoch },
 					transaction.LinkAction));
 		}
+
+		class AggregateEmbededTransactionPlugin : public EmbeddedTransactionPlugin {
+		public:
+			AggregateEmbededTransactionPlugin(
+					const EmbeddedTransactionPlugin& transactionPluginV1,
+					const EmbeddedTransactionPlugin& transactionPluginV2)
+					: m_transactionPluginV1(transactionPluginV1)
+					, m_transactionPluginV2(transactionPluginV2)
+			{}
+
+		private:
+			const auto& transactionPlugin(const EmbeddedTransaction& transaction) const {
+				return 1 == transaction.Version ? m_transactionPluginV1 : m_transactionPluginV2;
+			}
+
+		public:
+			EntityType type() const override {
+				return m_transactionPluginV2.type();
+			}
+
+			TransactionAttributes attributes() const override {
+				return { 1, 2, m_transactionPluginV2.attributes().MaxLifetime };
+			}
+
+			bool isSizeValid(const EmbeddedTransaction& transaction) const override {
+				return sizeof(EmbeddedTransaction) <= transaction.Size && transactionPlugin(transaction).isSizeValid(transaction);
+			}
+
+		public:
+			void publish(
+					const EmbeddedTransaction& transaction,
+					const PublishContext& context,
+					NotificationSubscriber& sub) const override {
+				transactionPlugin(transaction).publish(transaction, context, sub);
+			}
+
+			UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const override {
+				return transactionPlugin(transaction).additionalRequiredCosignatories(transaction);
+			}
+
+		private:
+			const EmbeddedTransactionPlugin& m_transactionPluginV1;
+			const EmbeddedTransactionPlugin& m_transactionPluginV2;
+		};
+
+		class AggregateTransactionPlugin : public TransactionPlugin {
+		public:
+			AggregateTransactionPlugin(
+					std::unique_ptr<TransactionPlugin>&& pTransactionPluginV1,
+					std::unique_ptr<TransactionPlugin>&& pTransactionPluginV2)
+					: m_pTransactionPluginV1(std::move(pTransactionPluginV1))
+					, m_pTransactionPluginV2(std::move(pTransactionPluginV2))
+					, m_pEmbeddedTransactionPlugin(std::make_unique<AggregateEmbededTransactionPlugin>(
+							m_pTransactionPluginV1->embeddedPlugin(),
+							m_pTransactionPluginV2->embeddedPlugin()))
+			{}
+
+		private:
+			const auto& transactionPlugin(const Transaction& transaction) const {
+				return *(1 == transaction.Version ? m_pTransactionPluginV1 : m_pTransactionPluginV2);
+			}
+
+		public:
+			EntityType type() const override {
+				return m_pTransactionPluginV2->type();
+			}
+
+			TransactionAttributes attributes() const override {
+				return { 1, 2, m_pTransactionPluginV2->attributes().MaxLifetime };
+			}
+
+			bool isSizeValid(const Transaction& transaction) const override {
+				return sizeof(Transaction) <= transaction.Size && transactionPlugin(transaction).isSizeValid(transaction);
+			}
+
+		public:
+			void publish(
+					const WeakEntityInfoT<Transaction>& transactionInfo,
+					const PublishContext& context,
+					NotificationSubscriber& sub) const override {
+				transactionPlugin(transactionInfo.entity()).publish(transactionInfo, context, sub);
+			}
+
+			uint32_t embeddedCount(const Transaction& transaction) const override {
+				return transactionPlugin(transaction).embeddedCount(transaction);
+			}
+
+			RawBuffer dataBuffer(const Transaction& transaction) const override {
+				return transactionPlugin(transaction).dataBuffer(transaction);
+			}
+
+			std::vector<RawBuffer> merkleSupplementaryBuffers(const Transaction& transaction) const override {
+				return transactionPlugin(transaction).merkleSupplementaryBuffers(transaction);
+			}
+
+			bool supportsTopLevel() const override {
+				return true;
+			}
+
+			bool supportsEmbedding() const override {
+				return true;
+			}
+
+			const EmbeddedTransactionPlugin& embeddedPlugin() const override {
+				return *m_pEmbeddedTransactionPlugin;
+			}
+
+		private:
+			std::unique_ptr<TransactionPlugin> m_pTransactionPluginV1;
+			std::unique_ptr<TransactionPlugin> m_pTransactionPluginV2;
+			std::unique_ptr<EmbeddedTransactionPlugin> m_pEmbeddedTransactionPlugin;
+		};
+
+		DEFINE_TRANSACTION_PLUGIN_FACTORY(VotingKeyLinkV1, Default, Publish)
+
+		std::unique_ptr<TransactionPlugin> CreateVotingKeyLinkV2TransactionPlugin() {
+			using Factory = TransactionPluginFactory<TransactionPluginFactoryOptions::Default>;
+			return Factory::Create<VotingKeyLinkTransaction, EmbeddedVotingKeyLinkTransaction>(
+					Publish<VotingKeyLinkTransaction>,
+					Publish<EmbeddedVotingKeyLinkTransaction>);
+		}
 	}
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(VotingKeyLink, Default, Publish)
+	std::unique_ptr<TransactionPlugin> CreateVotingKeyLinkTransactionPlugin() {
+		return std::make_unique<AggregateTransactionPlugin>(
+				CreateVotingKeyLinkV1TransactionPlugin(),
+				CreateVotingKeyLinkV2TransactionPlugin());
+	}
 }}

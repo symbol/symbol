@@ -452,7 +452,7 @@ namespace catapult { namespace chain {
 		auto sourceChangeType = model::SourceChangeNotification::SourceChangeType::Absolute;
 		auto notification1 = model::SourceChangeNotification(sourceChangeType, 1, sourceChangeType, 1);
 		auto notification2 = test::CreateNotification(Notification_Type_All);
-		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Private_Test, 0, 0, 0);
+		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Private_Test, model::Entity_Type_Block_Normal, 0, 0, 0);
 		auto notification4 = model::TransactionNotification(sender, hash, static_cast<model::EntityType>(22), Timestamp(11));
 
 		// - process notifications

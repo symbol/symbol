@@ -98,6 +98,7 @@ namespace catapult { namespace plugins {
 
 					sub.notify(EntityNotification(
 							subTransaction.Network,
+							subTransaction.Type,
 							subTransaction.Version,
 							subTransactionAttributes.MinVersion,
 							subTransactionAttributes.MaxVersion));

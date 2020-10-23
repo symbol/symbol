@@ -45,6 +45,9 @@ namespace catapult { namespace model {
 			static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
 			static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
 
+			static void SetVersion(const TransactionType&)
+			{}
+
 			static auto CreatePlugin() {
 				return TransactionPluginFactory<Options>::template Create<mocks::MockTransaction, mocks::EmbeddedMockTransaction>(
 						Publish<mocks::MockTransaction>,
@@ -60,6 +63,9 @@ namespace catapult { namespace model {
 			using TransactionType = mocks::EmbeddedMockTransaction;
 			static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
 			static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
+
+			static void SetVersion(const TransactionType&)
+			{}
 
 			static auto CreatePlugin() {
 				return TransactionPluginFactory<Options>::template CreateEmbedded<mocks::EmbeddedMockTransaction>(

@@ -110,5 +110,10 @@ namespace catapult { namespace validators {
 	/// - internal padding is zero
 	DECLARE_STATELESS_VALIDATOR(ZeroInternalPadding, model::InternalPaddingNotification)();
 
+	// Validator that introduces first testnet fork and validates that:
+	// - before fork block only v1 VotingKeyLink transactions are allowed
+	// - after fork block only v2 VotingKeyLink transactions are allowed
+	DECLARE_STATEFUL_VALIDATOR(EntityForkVersion, model::EntityNotification)();
+
 	// endregion
 }}

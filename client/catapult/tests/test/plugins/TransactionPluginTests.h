@@ -34,6 +34,9 @@ namespace catapult { namespace test {
 		static constexpr auto Min_Supported_Version = MIN_VERSION; \
 		static constexpr auto Max_Supported_Version = MAX_VERSION; \
 		\
+		static void SetVersion(const TransactionType&) \
+		{} \
+		\
 		static auto CreatePlugin() { \
 			return Create##NAME##TransactionPlugin(); \
 		} \
@@ -43,6 +46,9 @@ namespace catapult { namespace test {
 		using TransactionType = model::Embedded##NAME##Transaction; \
 		static constexpr auto Min_Supported_Version = MIN_VERSION; \
 		static constexpr auto Max_Supported_Version = MAX_VERSION; \
+		\
+		static void SetVersion(const TransactionType&) \
+		{} \
 		\
 		static auto CreatePlugin() { \
 			return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin()); \
@@ -57,6 +63,9 @@ namespace catapult { namespace test {
 		static constexpr auto Min_Supported_Version = MIN_VERSION; \
 		static constexpr auto Max_Supported_Version = MAX_VERSION; \
 		\
+		static void SetVersion(const TransactionType&) \
+		{} \
+		\
 		static auto CreatePlugin(const CONFIG_TYPE& config) { \
 			return Create##NAME##TransactionPlugin(config); \
 		} \
@@ -66,6 +75,9 @@ namespace catapult { namespace test {
 		using TransactionType = model::Embedded##NAME##Transaction; \
 		static constexpr auto Min_Supported_Version = MIN_VERSION; \
 		static constexpr auto Max_Supported_Version = MAX_VERSION; \
+		\
+		static void SetVersion(const TransactionType&) \
+		{} \
 		\
 		static auto CreatePlugin(const CONFIG_TYPE& config) { \
 			return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin(config)); \
@@ -95,6 +107,7 @@ namespace catapult { namespace test {
 
 			typename TTraits::TransactionType transaction;
 			test::FillWithRandomData(transaction);
+			TTraits::SetVersion(transaction);
 			auto expectedRealSize = static_cast<uint32_t>(TTraits::TransactionType::CalculateRealSize(transaction));
 
 			// Act + Assert:
@@ -146,6 +159,7 @@ namespace catapult { namespace test {
 
 			typename TTraits::TransactionType transaction;
 			test::FillWithRandomData(transaction);
+			TTraits::SetVersion(transaction);
 
 			// Act:
 			auto count = pPlugin->embeddedCount(transaction);
@@ -162,6 +176,7 @@ namespace catapult { namespace test {
 
 			typename TTraits::TransactionType transaction;
 			test::FillWithRandomData(transaction);
+			TTraits::SetVersion(transaction);
 			transaction.Size = sizeof(typename TTraits::TransactionType) + 12;
 
 			// Act:
@@ -180,6 +195,7 @@ namespace catapult { namespace test {
 
 			typename TTraits::TransactionType transaction;
 			test::FillWithRandomData(transaction);
+			TTraits::SetVersion(transaction);
 
 			// Act:
 			auto buffers = pPlugin->merkleSupplementaryBuffers(transaction);
@@ -216,6 +232,7 @@ namespace catapult { namespace test {
 
 			typename TTraits::TransactionType transaction;
 			test::FillWithRandomData(transaction);
+			TTraits::SetVersion(transaction);
 
 			// Act:
 			auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
