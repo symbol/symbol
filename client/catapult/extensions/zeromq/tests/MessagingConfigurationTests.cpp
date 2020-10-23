@@ -35,6 +35,7 @@ namespace catapult { namespace zeromq {
 					{
 						"messaging",
 						{
+							{ "listenInterface", "2.4.8.16" },
 							{ "subscriberPort", "9753" }
 						}
 					}
@@ -47,11 +48,13 @@ namespace catapult { namespace zeromq {
 
 			static void AssertZero(const MessagingConfiguration& config) {
 				// Assert:
+				EXPECT_EQ("", config.ListenInterface);
 				EXPECT_EQ(0u, config.SubscriberPort);
 			}
 
 			static void AssertCustom(const MessagingConfiguration& config) {
 				// Assert:
+				EXPECT_EQ("2.4.8.16", config.ListenInterface);
 				EXPECT_EQ(9753u, config.SubscriberPort);
 			}
 		};
@@ -71,6 +74,7 @@ namespace catapult { namespace zeromq {
 		auto config = MessagingConfiguration::LoadFromPath("../resources");
 
 		// Assert:
+		EXPECT_EQ("0.0.0.0", config.ListenInterface);
 		EXPECT_EQ(7902u, config.SubscriberPort);
 	}
 

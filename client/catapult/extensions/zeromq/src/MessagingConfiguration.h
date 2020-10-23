@@ -28,6 +28,9 @@ namespace catapult { namespace zeromq {
 	/// Messaging configuration settings.
 	struct MessagingConfiguration {
 	public:
+		/// Network interface on which to listen.
+		std::string ListenInterface;
+
 		/// Subscriber port.
 		unsigned short SubscriberPort;
 

@@ -107,19 +107,31 @@ namespace catapult { namespace zeromq {
 		context.destroyPublisher();
 	}
 
-	TEST(TEST_CLASS, CanUseCustomListenInterface) {
-		// Arrange:
-		EntityPublisherContext context("127.0.0.1");
-		context.subscribe(BlockMarker::Drop_Blocks_Marker);
+	namespace {
+		void AssertCanUseCustomListenInterface(const std::string& listenInterface) {
+			// Arrange:
+			EntityPublisherContext context(listenInterface);
+			context.subscribe(BlockMarker::Drop_Blocks_Marker);
 
-		// Act:
-		context.publishDropBlocks(Height(123));
+			// Act:
+			context.publishDropBlocks(Height(123));
 
-		// Assert:
-		zmq::multipart_t message;
-		test::ZmqReceive(message, context.zmqSocket());
+			// Assert:
+			zmq::multipart_t message;
+			test::ZmqReceive(message, context.zmqSocket());
 
-		test::AssertDropBlocksMessage(message, Height(123));
+			test::AssertDropBlocksMessage(message, Height(123));
+		}
+	}
+
+	TEST(TEST_CLASS, CanUseCustomListenInterface_IPv4) {
+		AssertCanUseCustomListenInterface("0.0.0.0");
+		AssertCanUseCustomListenInterface("127.0.0.1");
+	}
+
+	TEST(TEST_CLASS, CanUseCustomListenInterface_IPv6) {
+		AssertCanUseCustomListenInterface("::");
+		AssertCanUseCustomListenInterface("::1");
 	}
 
 	// endregion

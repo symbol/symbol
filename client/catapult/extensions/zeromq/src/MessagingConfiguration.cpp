@@ -34,9 +34,10 @@ namespace catapult { namespace zeromq {
 	MessagingConfiguration MessagingConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
 		MessagingConfiguration config;
 
+		LOAD_PROPERTY(ListenInterface);
 		LOAD_PROPERTY(SubscriberPort);
 
-		utils::VerifyBagSizeExact(bag, 1);
+		utils::VerifyBagSizeExact(bag, 2);
 		return config;
 	}
 

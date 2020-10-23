@@ -125,7 +125,7 @@ namespace catapult { namespace test {
 	class MqContext {
 	public:
 		/// Creates a message queue context around \a listenInterface.
-		explicit MqContext(const std::string& listenInterface = std::string())
+		explicit MqContext(const std::string& listenInterface = std::string("127.0.0.1"))
 				: m_registry(mocks::CreateDefaultTransactionRegistry())
 				, m_pZeroMqEntityPublisher(std::make_shared<zeromq::ZeroMqEntityPublisher>(
 						listenInterface,
@@ -133,7 +133,12 @@ namespace catapult { namespace test {
 						model::CreateNotificationPublisher(m_registry, UnresolvedMosaicId())))
 				, m_zmqSocket(m_zmqContext, ZMQ_SUB) {
 			m_zmqSocket.setsockopt(ZMQ_RCVTIMEO, 10);
-			m_zmqSocket.connect("tcp://localhost:" + std::to_string(GetDefaultLocalHostZmqPort()));
+			if (std::string::npos != listenInterface.find(':'))
+				m_zmqSocket.setsockopt(ZMQ_IPV6, 1);
+
+			std::ostringstream out;
+			out << "tcp://[" << listenInterface<< "]:" << GetDefaultLocalHostZmqPort();
+			m_zmqSocket.connect(out.str());
 		}
 
 	public:
