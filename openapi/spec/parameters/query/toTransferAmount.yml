@@ -4,4 +4,4 @@ description: |
   Requires providing the `transferMosaicId` filter.
   Only transfer transactions with a transfer amount of the provided mosaic id, lesser or equal than this amount are returned.
 schema:
-  type: integer
+  $ref: "../../schemas/Amount.yml"
