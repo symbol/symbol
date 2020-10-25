@@ -1,0 +1,14 @@
+#nodeEqualityStrategy: public-key
+nodes:
+  - repeat: 0
+  - trustedHosts: '127.0.0.1, 172.20.0.25, 172.20.0.1'
+    localNetworks: '127.0.0.1, 172.20.0.25, 172.20.0.1'
+    brokerOpenPort: 7902
+gateways:
+  - excludeDockerService: true
+    name: rest
+    apiNodeConfigPath: target/gateways/rest/api-node-config
+    restLoggingFilename: target/rest.log
+    databaseHost: localhost
+    apiNodeHost: localhost
+    apiNodeBrokerHost: localhost

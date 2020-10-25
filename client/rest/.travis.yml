@@ -4,43 +4,39 @@ node_js:
   - "12"
 services:
   - docker
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - sourceline: 'deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.2 multiverse'
-      key_url: 'https://www.mongodb.org/static/pgp/server-4.2.asc'
-    packages:
-    - libzmq3-dev
-    - mongodb-org
-    - mongodb-org-mongos
-    - mongodb-org-server
-    - mongodb-org-shell
-    - mongodb-org-tools
-
 env:
+  global:
+    - DEV_BRANCH=dev
+    - RELEASE_BRANCH=main
+    - POST_RELEASE_BRANCH=main
+    - RELEASE_MESSAGE=release
   matrix:
     - SUBPROJECT=catapult-sdk
     - SUBPROJECT=rest
     - SUBPROJECT=spammer
-
 cache: yarn
 
 before_script:
-- sudo systemctl start mongod
+- . ./travis/travis-functions.sh && log_env_variables
+- echo '$SUBPROJECT'
 - sh yarn_setup.sh
 
 script: cd ${SUBPROJECT} && yarn run lint && yarn run test:travis && cd ..
 
 jobs:
   include:
-    - stage: docker alpha deploy
-      env:
-        - SUBPROJECT=rest
-      script: /bin/sh docker.sh
-      if: branch = main AND type != pull_request
-    - stage: docker release deploy
-      env:
-        - SUBPROJECT=rest
-      script: /bin/sh docker.sh --release
-      if: tag IS present
+    - stage: test
+      name: docker test build
+      script: /bin/bash travis/docker-functions.sh docker_build_version_file
+    - stage: publish
+      name: docker publish alpha
+      script: /bin/bash travis/docker-functions.sh docker_build_version_file publish
+      if: branch = env(DEV_BRANCH) AND type = push
+    - stage: release
+      name: docker publish release
+      script: /bin/bash travis/docker-functions.sh docker_build_version_file release
+      if: branch = env(RELEASE_BRANCH) AND type = api AND commit_message = env(RELEASE_MESSAGE)
+    - stage: post release
+      name: tag and version upgrade
+      script: /bin/bash travis/travis-functions.sh post_release_version_file
+      if: branch = env(RELEASE_BRANCH) AND type = api AND commit_message = env(RELEASE_MESSAGE)

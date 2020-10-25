@@ -9,57 +9,60 @@ Catapult REST gateway combines HTTP and WebSockets to perform read and write act
 
 - Node.js 12 LTS
 - [yarn][yarn] dependency manager
-- [catapult-server][catapult-server] configured as an [API or Dual node][api-node]
-- MongoDB 4.2
+- [docker][docker]
+- [symbol-bootstrap][symbol-bootstrap] 
 
 ## Installation
 
-1. Make sure the configuration file ``rest/resources/rest.json`` matches the API node connection details.
+1. Validate you are able to run Bootstrap by following the [requirements](https://github.com/nemtech/symbol-bootstrap#requirements).
 
-| Parameter | Description | Example  |
-|-|-|-|
-| db.url | MongoDB connection URL. | mongodb://localhost:27017/ |
-| apiNode.host | API node connection host. | 127.0.0.1 |
-| apiNode.port | API node connection port. | 7900 |
-| websocket.mq.host | ZeroMQ connection host. |  127.0.0.1 |
-| websocket.mq.port | ZeroMQ connection port. |  7902 |
-
-*Note:* catapult-rest has to reach the API node, ZeroMQ, and MongoDB ports. If you are running catapult-server on a VPS, you can bind the ports to your local development environment creating an **SSH tunnel**: ``ssh -L 27017:localhost:27017 -L 7900:localhost:7900 -L 7902:localhost:7902 -p 2357 <USER>@<VPS_IP>``
-
-2. Catapult uses **TLS 1.3** to provide secure connections and identity assurance between the nodes.
-To generate and self sign the certificates, you can download and run the script [cert-generate.sh](https://github.com/tech-bureau/catapult-service-bootstrap/blob/master/common/ruby/script/cert-generate.sh).
-
-```ssh
-mkdir certificate
-cd certificate
-curl https://raw.githubusercontent.com/tech-bureau/catapult-service-bootstrap/master/common/ruby/script/cert-generate.sh --output cert-generate.sh
-chmod 777 cert-generate.sh
-./cert-generate.sh
-```
-Alternatively, you could use a certificate issued by a certification authority (CA).
-Then, edit ``rest/resources/rest.json`` TLS configuration:
-
-| Parameter | Description | Example  |
-|-|-|-|
-| apiNode.tlsClientCertificatePath | TLS client certificate path. | /certificate/node.crt.pem |
-| apiNode.tlsClientKeyPath | TLS client key certificate path.  | /certificate/node.key.pem |
-| apiNode.tlsCaCertificatePath| TLS CA certificate path. | /certificate/ca.cert.pem |
-
-3. Install the project dependencies:
+2. Install the project dependencies:
 
 ```
 ./yarn_setup.sh
 ```
 
-4. Run catapult-rest:
+3. Run a Symbol private network using Bootstrap:
 
 ```
 cd rest
 yarn build
-yarn start resources/rest.json
+yarn bootstrap-start
 ```
 
-If everything goes well, you should see catapult-rest running by opening ``localhost:3000/node/info`` in a new browser tab.
+This Symbol network is a [light](https://github.com/nemtech/symbol-bootstrap#out-of-the-box-presets) preset network without rest. 
+Rest will be running from source code, so you can test your changes! 
+Mongo DB (27017), Server (7900) and Broker (7902) ports are open to localhost.
+
+4. Run catapult-rest:
+
+In another terminal:
+
+```
+yarn start
+```
+
+If everything goes well, you should see catapult-rest running by opening ``http://localhost:3000/node/info`` in a new browser tab.
+
+Alternatively, you can run bootstrap in `detached` mode to avoid opening a new terminal. 
+
+```
+cd rest
+yarn build
+yarn bootstrap-start-detached
+yarn start
+yarn bootstrap-stop
+```
+
+Useful for test automation: 
+
+```
+cd rest
+yarn build
+yarn bootstrap-start-detached
+yarn test
+yarn bootstrap-stop
+```
 
 ## Usage
 
@@ -95,4 +98,6 @@ Copyright (c) 2018 Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp Licensed u
 
 [yarn]: https://yarnpkg.com/lang/en/
 [catapult-server]: https://github.com/nemtech/catapult-server
+[symbol-bootstrap]: https://github.com/nemtech/symbol-bootstrap
+[docker]: https://www.docker.com
 [api-node]: https://nemtech.github.io/server.html#installation

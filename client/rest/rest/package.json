@@ -1,6 +1,6 @@
 {
   "name": "catapult-api-rest",
-  "version": "2.1.0",
+  "version": "0.0.0",
   "description": "",
   "main": "_build/index.js",
   "scripts": {
@@ -8,14 +8,23 @@
     "build": "ncp src/ _build",
     "rebuild": "npm run clean && npm run build",
     "version": "echo $npm_package_version",
-    "start": "node _build/index.js",
-    "start:debug": "node src/index.js",
+    "start": "node _build/index.js target/gateways/rest/rest.json",
+    "start:debug": "node src/index.js target/gateways/rest/rest.json",
     "test": "mocha --full-trace --recursive",
     "test:coverage": "nyc npm test && nyc report --reporter=text-lcov",
     "test:jenkins": "cross-env JUNIT_REPORT_PATH=test-results.xml mocha --reporter mocha-jenkins-reporter --mongoHost db --forbid-only --full-trace --recursive test || exit 0",
-    "test:travis": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
+    "test:travis": "npm run bootstrap-start-detached && nyc npm test && nyc report --reporter=text-lcov | coveralls && npm run bootstrap-stop ",
     "lint": "eslint src test",
-    "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0"
+    "lint:fix": "eslint src test --fix",
+    "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0",
+    "bootstrap-clean": "symbol-bootstrap clean",
+    "bootstrap-start": "symbol-bootstrap start -a light -c bootstrap-preset.yml --healthCheck",
+    "bootstrap-start-detached": "symbol-bootstrap start -a light -c bootstrap-preset.yml --detached --healthCheck",
+    "bootstrap-stop": "symbol-bootstrap stop",
+    "bootstrap-run": "symbol-bootstrap run",
+    "bootstrap-run-detached": "symbol-bootstrap run --detached --healthCheck",
+    "bootstrap-compose": "symbol-bootstrap compose",
+    "bootstrap-config": "symbol-bootstrap config -a light -c bootstrap-preset.yml"
   },
   "keywords": [],
   "author": "",
@@ -35,7 +44,8 @@
     "mocha-jenkins-reporter": "^0.4.3",
     "ncp": "^2.0.0",
     "rimraf": "^2.6.3",
-    "sinon": "^7.3.2"
+    "sinon": "^7.3.2",
+    "symbol-bootstrap": "^0.2.0"
   },
   "dependencies": {
     "catapult-sdk": "link:../catapult-sdk",

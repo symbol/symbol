@@ -1,6 +1,6 @@
 {
   "name": "catapult-api-spammer",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "",
   "main": "_build/index.js",
   "scripts": {

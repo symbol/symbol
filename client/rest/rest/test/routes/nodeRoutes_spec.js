@@ -20,11 +20,16 @@
  */
 
 const { MockServer, test } = require('./utils/routeTestUtils');
-const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
-const { version: restVersion } = require('../../package.json');
 const nodeRoutes = require('../../src/routes/nodeRoutes');
 const errors = require('../../src/server/errors');
 const { expect } = require('chai');
+const fs = require('fs');
+const path = require('path');
+
+// ATM, both rest and rest sdk share the same version. In the future,
+// we will have an open api and sdk dependencies with their given versions.
+const restVersion = fs.readFileSync(path.resolve(__dirname, '../../../version.txt'), 'UTF-8').trim();
+const sdkVersion = restVersion;
 
 describe('node routes', () => {
 	describe('get', () => {
