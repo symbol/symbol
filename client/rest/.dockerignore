@@ -14,3 +14,6 @@ docker.sh
 **/npm-*.log
 **/yarn-*.log
 **/catapult-*.log
+
+/rest/target/
+/rest/logs.log

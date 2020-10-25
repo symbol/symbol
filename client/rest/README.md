@@ -39,7 +39,7 @@ Mongo DB (27017), Server (7900) and Broker (7902) ports are open to localhost.
 In another terminal:
 
 ```
-yarn start
+yarn start:dev
 ```
 
 If everything goes well, you should see catapult-rest running by opening ``http://localhost:3000/node/info`` in a new browser tab.
@@ -50,7 +50,7 @@ Alternatively, you can run bootstrap in `detached` mode to avoid opening a new t
 cd rest
 yarn build
 yarn bootstrap-start-detached
-yarn start
+yarn start:dev
 yarn bootstrap-stop
 ```
 
