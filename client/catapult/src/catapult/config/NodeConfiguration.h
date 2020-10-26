@@ -143,7 +143,7 @@ namespace catapult { namespace config {
 		/// Networks that should be treated as local.
 		std::unordered_set<std::string> LocalNetworks;
 
-		/// Network interface on which to listen. Leave empty to use default interface.
+		/// Network interface on which to listen.
 		std::string ListenInterface;
 
 	public:

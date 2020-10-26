@@ -36,6 +36,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(utils::FileSize::FromKilobytes(4), settings.SocketWorkingBufferSize);
 		EXPECT_EQ(0u, settings.SocketWorkingBufferSensitivity);
 		EXPECT_EQ(utils::FileSize::FromMegabytes(100), settings.MaxPacketDataSize);
+		EXPECT_EQ(ionet::IpProtocol::IPv4, settings.OutgoingProtocols);
 
 		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
 		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);
@@ -48,6 +49,7 @@ namespace catapult { namespace net {
 		settings.SocketWorkingBufferSize = utils::FileSize::FromKilobytes(54);
 		settings.SocketWorkingBufferSensitivity = 123;
 		settings.MaxPacketDataSize = utils::FileSize::FromMegabytes(2);
+		settings.OutgoingProtocols = ionet::IpProtocol::IPv6;
 
 		// Act:
 		auto options = settings.toSocketOptions();
@@ -57,6 +59,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(54u * 1024, options.WorkingBufferSize);
 		EXPECT_EQ(123u, options.WorkingBufferSensitivity);
 		EXPECT_EQ(2u * 1024 * 1024, options.MaxPacketDataSize);
+		EXPECT_EQ(ionet::IpProtocol::IPv6, options.OutgoingProtocols);
 	}
 
 	TEST(TEST_CLASS, CanConvertToPacketSocketOptions_SslOptions) {

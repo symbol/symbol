@@ -39,13 +39,7 @@ namespace catapult { namespace partialtransaction {
 		constexpr auto Service_Id = ionet::ServiceIdentifier(0x50415254);
 
 		thread::Task CreateConnectPeersTask(extensions::ServiceState& state, net::PacketWriters& packetWriters) {
-			auto settings = extensions::SelectorSettings(
-					state.cache(),
-					state.config().BlockChain.TotalChainImportance,
-					state.nodes(),
-					Service_Id,
-					ionet::NodeRoles::Api,
-					state.config().Node.OutgoingConnections);
+			auto settings = extensions::CreateOutgoingSelectorSettings(state, Service_Id, ionet::NodeRoles::Api);
 			auto task = extensions::CreateConnectPeersTask(settings, packetWriters);
 			task.Name += " for service Pt";
 			return task;

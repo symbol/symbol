@@ -19,33 +19,30 @@
 **/
 
 #pragma once
-#include <boost/filesystem/path.hpp>
+#include "NodeRoles.h"
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace ionet {
 
-namespace catapult { namespace zeromq {
+	/// IP protocols.
+	enum class IpProtocol : uint8_t {
+		/// No protocols.
+		None = 0x00,
 
-	/// Messaging configuration settings.
-	struct MessagingConfiguration {
-	public:
-		/// Network interface on which to listen.
-		std::string ListenInterface;
+		/// IPv4.
+		IPv4 = 0x01,
 
-		/// Subscriber port.
-		unsigned short SubscriberPort;
+		/// IPv6.
+		IPv6 = 0x02,
 
-	private:
-		MessagingConfiguration() = default;
-
-	public:
-		/// Creates an uninitialized messaging configuration.
-		static MessagingConfiguration Uninitialized();
-
-	public:
-		/// Loads a messaging configuration from \a bag.
-		static MessagingConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-
-		/// Loads a messaging configuration from \a resourcesPath.
-		static MessagingConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
+		/// All protocols.
+		All = 0xFF
 	};
+
+	MAKE_BITWISE_ENUM(IpProtocol)
+
+	/// Map \a roles to IP protocols.
+	IpProtocol MapNodeRolesToIpProtocols(NodeRoles roles);
+
+	/// Returns \c true if \a roles supports any protocol in \a protocols.
+	bool HasAnyProtocol(IpProtocol protocols, NodeRoles roles);
 }}

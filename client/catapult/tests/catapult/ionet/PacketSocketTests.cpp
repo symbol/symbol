@@ -1027,8 +1027,11 @@ namespace catapult { namespace ionet {
 			bool IsSocketValid;
 		};
 
-		auto Connect(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint, const Key& publicKey, ConnectResultTuple& result) {
-			auto options = test::CreatePacketSocketOptions(publicKey);
+		auto Connect(
+				boost::asio::io_context& ioContext,
+				const PacketSocketOptions& options,
+				const NodeEndpoint& endpoint,
+				ConnectResultTuple& result) {
 			return ionet::Connect(ioContext, options, endpoint, [&result](auto connectResult, const auto& connectedSocketInfo) {
 				result.Result = connectResult;
 				result.Host = connectedSocketInfo.host();
@@ -1037,19 +1040,28 @@ namespace catapult { namespace ionet {
 			});
 		}
 
-		ConnectResultTuple ConnectAndWait(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint, const Key& publicKey) {
+		ConnectResultTuple ConnectAndWait(
+				boost::asio::io_context& ioContext,
+				const PacketSocketOptions& options,
+				const NodeEndpoint& endpoint) {
 			// Act:
 			ConnectResultTuple result;
-			Connect(ioContext, endpoint, publicKey, result);
+			Connect(ioContext, options, endpoint, result);
 
 			// - wait for all work to complete
 			ioContext.run();
 			return result;
 		}
 
+		ConnectResultTuple ConnectAndWait(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint, const Key& publicKey) {
+			auto options = test::CreatePacketSocketOptions(publicKey);
+			return ConnectAndWait(ioContext, options, endpoint);
+		}
+
 		ConnectResultTuple ConnectAndWait(const NodeEndpoint& endpoint) {
 			boost::asio::io_context ioContext;
-			return ConnectAndWait(ioContext, endpoint, test::GenerateRandomByteArray<Key>());
+			auto publicKey = test::GenerateRandomByteArray<Key>();
+			return ConnectAndWait(ioContext, endpoint, publicKey);
 		}
 	}
 
@@ -1128,7 +1140,7 @@ namespace catapult { namespace ionet {
 
 			// Act: attempt to connect to a running local server
 			ConnectResultTuple result;
-			auto cancel = Connect(ioContext, test::CreateLocalHostNodeEndpoint(), Key(), result);
+			auto cancel = Connect(ioContext, test::CreatePacketSocketOptions(), test::CreateLocalHostNodeEndpoint(), result);
 
 			// - immediately cancel the connect
 			cancel();
@@ -1211,6 +1223,81 @@ namespace catapult { namespace ionet {
 			EXPECT_EQ(1u, result.NumHandlerCalls);
 			EXPECT_FALSE(result.IsPacketValid);
 		});
+	}
+
+	// endregion
+
+	// region Connect - IPv4 / IPv6
+
+	namespace {
+		auto CreateEndpointForListenInterface(const std::string& listenInterface) {
+			return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(listenInterface), test::GetLocalHostPort());
+		}
+
+		void RunConnectionAcceptedTest(const std::string& listenInterface, const std::string& remoteHost, IpProtocol outgoingProtocols) {
+			// Arrange: set up a server acceptor thread (this is required to perform ssl handshake)
+			auto publicKey = test::GenerateRandomByteArray<Key>();
+
+			boost::asio::io_context ioContext;
+			auto pAcceptor = std::make_shared<test::TcpAcceptor>(ioContext, CreateEndpointForListenInterface(listenInterface));
+			test::SpawnPacketServerWork(*pAcceptor, [pAcceptor](const auto&) {});
+			pAcceptor.reset();
+
+			// Act: attempt to connect to a running server
+			auto options = test::CreatePacketSocketOptions(publicKey);
+			options.OutgoingProtocols = outgoingProtocols;
+
+			auto endpoint = NodeEndpoint{ remoteHost, test::GetLocalHostPort() };
+			auto result = ConnectAndWait(ioContext, options, endpoint);
+
+			// Assert:
+			EXPECT_EQ(ConnectResult::Connected, result.Result);
+			EXPECT_EQ(remoteHost, result.Host);
+			EXPECT_EQ(publicKey, result.PublicKey);
+			EXPECT_TRUE(result.IsSocketValid);
+		}
+
+		void RunConnectionRejectedTest(const std::string& remoteHost, IpProtocol outgoingProtocols) {
+			// Arrange: do not set up a server acceptor thread (failure is after resolve but before connect)
+			auto publicKey = test::GenerateRandomByteArray<Key>();
+
+			boost::asio::io_context ioContext;
+
+			// Act: attempt to connect to a stopped server
+			auto options = test::CreatePacketSocketOptions(publicKey);
+			options.OutgoingProtocols = outgoingProtocols;
+
+			auto endpoint = NodeEndpoint{ remoteHost, test::GetLocalHostPort() };
+			auto result = ConnectAndWait(ioContext, options, endpoint);
+
+			// Assert:
+			EXPECT_EQ(ConnectResult::Resolve_Error, result.Result);
+			EXPECT_FALSE(result.IsSocketValid);
+		}
+	}
+
+	TEST(TEST_CLASS, ConnectorWithIpv4Mask_CanConnectViaIpv4) {
+		RunConnectionAcceptedTest("0.0.0.0", "127.0.0.1", IpProtocol::IPv4);
+	}
+
+	TEST(TEST_CLASS, ConnectorWithIpv4Mask_CannotConnectViaIpv6) {
+		RunConnectionRejectedTest("::1", IpProtocol::IPv4);
+	}
+
+	TEST(TEST_CLASS, ConnectorWithIpv6Mask_CannotConnectViaIpv4) {
+		RunConnectionRejectedTest("127.0.0.1", IpProtocol::IPv6);
+	}
+
+	TEST(TEST_CLASS, ConnectorWithIpv6Mask_CanConnectViaIpv6) {
+		RunConnectionAcceptedTest("::", "::1", IpProtocol::IPv6);
+	}
+
+	TEST(TEST_CLASS, ConnectorWithIpv4Ipv6Mask_CanConnectViaIpv4) {
+		RunConnectionAcceptedTest("0.0.0.0", "127.0.0.1", IpProtocol::IPv4 | IpProtocol::IPv6);
+	}
+
+	TEST(TEST_CLASS, ConnectorWithIpv4Ipv6Mask_CanConnectViaIpv6) {
+		RunConnectionAcceptedTest("::", "::1", IpProtocol::IPv4 | IpProtocol::IPv6);
 	}
 
 	// endregion

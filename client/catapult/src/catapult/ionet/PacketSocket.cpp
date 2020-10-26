@@ -691,7 +691,7 @@ namespace catapult { namespace ionet {
 						m_options);
 				m_pSocket->setOptions();
 
-				auto pTimedCallback = thread::MakeTimedCallback(m_ioContext, m_accept, ionet::PacketSocketInfo());
+				auto pTimedCallback = thread::MakeTimedCallback(m_ioContext, m_accept, PacketSocketInfo());
 				pTimedCallback->setTimeout(m_options.AcceptHandshakeTimeout);
 				pTimedCallback->setTimeoutHandler([pSocket = m_pSocket]() {
 					pSocket->close();
@@ -767,13 +767,14 @@ namespace catapult { namespace ionet {
 					, m_resolver(ioContext)
 					, m_host(endpoint.Host)
 					, m_query(m_host, std::to_string(endpoint.Port))
+					, m_protocols(options.OutgoingProtocols)
 					, m_isCancelled(false)
 			{}
 
 		public:
 			void start() {
-				m_resolver.async_resolve(m_query, m_wrapper.wrap([this](const auto& ec, auto iterator) {
-					this->handleResolve(ec, iterator);
+				m_resolver.async_resolve(m_query, m_wrapper.wrap([this](const auto& ec, auto iter) {
+					this->handleResolve(ec, std::move(iter));
 				}));
 			}
 
@@ -789,11 +790,37 @@ namespace catapult { namespace ionet {
 			}
 
 		private:
-			void handleResolve(const boost::system::error_code& ec, const Resolver::iterator& iterator) {
+			void handleResolve(const boost::system::error_code& ec, Resolver::iterator&& iter) {
 				if (shouldAbort(ec, "resolving address"))
 					return invokeCallback(ConnectResult::Resolve_Error);
 
-				m_endpoint = iterator->endpoint();
+				auto foundMatchingProtocol = false;
+				while (Resolver::iterator() != iter) {
+					auto endpoint = iter->endpoint();
+					if (HasFlag(IpProtocol::IPv4, m_protocols) && boost::asio::ip::tcp::v4() == endpoint.protocol()) {
+						m_endpoint = endpoint;
+						foundMatchingProtocol = true;
+						break;
+					}
+
+					if (HasFlag(IpProtocol::IPv6, m_protocols) && boost::asio::ip::tcp::v6() == endpoint.protocol()) {
+						// select first IPv6 endpoint
+						if (!foundMatchingProtocol) {
+							m_endpoint = endpoint;
+							foundMatchingProtocol = true;
+						}
+
+						// prefer IPv4, so only break if it's not configured
+						if (!HasFlag(IpProtocol::IPv4, m_protocols))
+							break;
+					}
+
+					++iter;
+				}
+
+				if (!foundMatchingProtocol)
+					return invokeCallback(ConnectResult::Resolve_Error);
+
 				m_pSocket->impl().lowest_layer().async_connect(m_endpoint, m_wrapper.wrap([this](const auto& connectEc) {
 					this->handleConnect(connectEc);
 				}));
@@ -846,6 +873,7 @@ namespace catapult { namespace ionet {
 			Resolver m_resolver;
 			std::string m_host;
 			Resolver::query m_query;
+			IpProtocol m_protocols;
 			bool m_isCancelled;
 			boost::asio::ip::tcp::endpoint m_endpoint;
 		};

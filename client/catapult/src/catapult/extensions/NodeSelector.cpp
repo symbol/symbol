@@ -45,25 +45,32 @@ namespace catapult { namespace extensions {
 			uint64_t TotalCandidateWeight = 0;
 		};
 
+		struct FindServiceNodesFilter {
+			ionet::ServiceIdentifier ServiceId;
+			ionet::IpProtocol SupportedProtocols;
+			ionet::NodeRoles RequiredRole;
+		};
+
 		ServiceNodesInfo FindServiceNodes(
 				const ionet::NodeContainerView& nodes,
-				ionet::ServiceIdentifier serviceId,
-				ionet::NodeRoles requiredRole,
+				const FindServiceNodesFilter& filter,
 				const ImportanceRetriever& importanceRetriever) {
 			ServiceNodesInfo nodesInfo;
 			auto timestamp = nodes.time();
 			WeightPolicyGenerator generator;
-			nodes.forEach([serviceId, requiredRole, importanceRetriever, &generator, timestamp, &nodesInfo](
-					const auto& node,
-					const auto& nodeInfo) {
+			nodes.forEach([filter, importanceRetriever, &generator, timestamp, &nodesInfo](const auto& node, const auto& nodeInfo) {
 				auto weightMultiplier = GetWeightMultipler(nodeInfo.source());
-				const auto* pConnectionState = nodeInfo.getConnectionState(serviceId);
+				const auto* pConnectionState = nodeInfo.getConnectionState(filter.ServiceId);
 				if (!pConnectionState)
 					return;
 
 				// decrease weight of banned nodes (this blocks banned dynamic nodes while allowing reconnects to banned static nodes)
 				weightMultiplier -= 0 == pConnectionState->BanAge ? 0 : 1;
-				if (0 == weightMultiplier || !HasFlag(requiredRole, node.metadata().Roles))
+				if (0 == weightMultiplier)
+					return;
+
+				auto nodeRoles = node.metadata().Roles;
+				if (!HasFlag(filter.RequiredRole, nodeRoles) || !HasAnyProtocol(filter.SupportedProtocols, nodeRoles))
 					return;
 
 				// if the node is associated with the current service, mark it as either active or candidate
@@ -177,11 +184,12 @@ namespace catapult { namespace extensions {
 		// 1. find compatible (service and role) nodes
 		//    need to use node container view because node candidates are held by reference
 		auto nodesView = nodes.view();
-		NodeSelectionResult result;
-		auto nodesInfo = FindServiceNodes(nodesView, config.ServiceId, config.RequiredRole, importanceRetriever);
+		auto findFilter = FindServiceNodesFilter{ config.ServiceId, config.SupportedProtocols, config.RequiredRole };
+		auto nodesInfo = FindServiceNodes(nodesView, findFilter, importanceRetriever);
+		auto numActiveNodes = nodesInfo.Actives.size();
 
 		// 2. find removal candidates
-		auto numActiveNodes = nodesInfo.Actives.size();
+		NodeSelectionResult result;
 		result.RemoveCandidates = FindRemoveCandidates(nodesInfo.Actives, config.MaxConnections, config.MaxConnectionAge);
 		numActiveNodes -= result.RemoveCandidates.size();
 
@@ -202,8 +210,8 @@ namespace catapult { namespace extensions {
 		// 1. find compatible (service) nodes; always match all roles
 		//    need to use node container view because node candidates are held by reference
 		auto nodesView = nodes.view();
-		NodeSelectionResult result;
-		auto nodesInfo = FindServiceNodes(nodesView, config.ServiceId, ionet::NodeRoles::None, importanceRetriever);
+		auto findFilter = FindServiceNodesFilter{ config.ServiceId, ionet::IpProtocol::All, ionet::NodeRoles::None };
+		auto nodesInfo = FindServiceNodes(nodesView, findFilter, importanceRetriever);
 
 		// 2. find removal candidates
 		// a. allow at most 1/4 of active nodes to be disconnected

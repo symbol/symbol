@@ -21,6 +21,7 @@
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
+#include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/thread/MultiServicePool.h"
@@ -154,6 +155,50 @@ namespace catapult { namespace extensions {
 		AssertLocalFinalizedHeightSupplier(5, 6, Height(1));
 		AssertLocalFinalizedHeightSupplier(5, 7, Height(2));
 		AssertLocalFinalizedHeightSupplier(5, 20, Height(15));
+	}
+
+	// endregion
+
+	// region CreateOutgoingSelectorSettings
+
+	TEST(TEST_CLASS, CanCreateOutgoingSelectorSettings) {
+		// Arrange:
+		test::ServiceTestState testState;
+		const_cast<uint16_t&>(testState.state().config().Node.OutgoingConnections.MaxConnections) = 17;
+		const_cast<uint16_t&>(testState.state().config().Node.IncomingConnections.MaxConnections) = 14;
+
+		// Act:
+		auto settings = CreateOutgoingSelectorSettings(testState.state(), ionet::ServiceIdentifier(123), ionet::NodeRoles::Api);
+
+		// Assert:
+		EXPECT_EQ(&testState.state().nodes(), &settings.Nodes);
+		EXPECT_EQ(ionet::ServiceIdentifier(123), settings.ServiceId);
+		EXPECT_EQ(ionet::IpProtocol::IPv4, settings.SupportedProtocols);
+		EXPECT_EQ(ionet::NodeRoles::Api, settings.RequiredRole);
+		EXPECT_EQ(17u, settings.Config.MaxConnections);
+		EXPECT_TRUE(!!settings.ImportanceRetriever);
+	}
+
+	// endregion
+
+	// region CreateIncomingSelectorSettings
+
+	TEST(TEST_CLASS, CanCreateIncomingSelectorSettings) {
+		// Arrange:
+		test::ServiceTestState testState;
+		const_cast<uint16_t&>(testState.state().config().Node.OutgoingConnections.MaxConnections) = 17;
+		const_cast<uint16_t&>(testState.state().config().Node.IncomingConnections.MaxConnections) = 14;
+
+		// Act:
+		auto settings = CreateIncomingSelectorSettings(testState.state(), ionet::ServiceIdentifier(123));
+
+		// Assert:
+		EXPECT_EQ(&testState.state().nodes(), &settings.Nodes);
+		EXPECT_EQ(ionet::ServiceIdentifier(123), settings.ServiceId);
+		EXPECT_EQ(ionet::IpProtocol::All, settings.SupportedProtocols);
+		EXPECT_EQ(ionet::NodeRoles::None, settings.RequiredRole);
+		EXPECT_EQ(14u, settings.Config.MaxConnections);
+		EXPECT_TRUE(!!settings.ImportanceRetriever);
 	}
 
 	// endregion

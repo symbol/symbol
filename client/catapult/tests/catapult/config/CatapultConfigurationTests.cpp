@@ -148,12 +148,12 @@ namespace catapult { namespace config {
 
 			EXPECT_TRUE(config.TrustedHosts.empty());
 			EXPECT_EQ(std::unordered_set<std::string>({ "127.0.0.1" }), config.LocalNetworks);
-			EXPECT_EQ("", config.ListenInterface);
+			EXPECT_EQ("0.0.0.0", config.ListenInterface);
 
 			EXPECT_EQ("", config.Local.Host);
 			EXPECT_EQ("", config.Local.FriendlyName);
 			EXPECT_EQ(ionet::GetCurrentServerVersion(), config.Local.Version);
-			EXPECT_EQ(ionet::NodeRoles::Peer, config.Local.Roles);
+			EXPECT_EQ(ionet::NodeRoles::IPv4 | ionet::NodeRoles::Peer, config.Local.Roles);
 
 			EXPECT_EQ(10u, config.OutgoingConnections.MaxConnections);
 			EXPECT_EQ(200u, config.OutgoingConnections.MaxConnectionAge);
@@ -351,7 +351,7 @@ namespace catapult { namespace config {
 		const auto& identity = node.identity();
 		EXPECT_EQ(expectedPublicKey, identity.PublicKey);
 		EXPECT_NE(Key(), identity.PublicKey);
-		EXPECT_EQ("127.0.0.1", identity.Host);
+		EXPECT_EQ("_local_", identity.Host);
 
 		const auto& endpoint = node.endpoint();
 		EXPECT_EQ("alice.com", endpoint.Host);

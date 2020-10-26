@@ -9,7 +9,7 @@
       },
       "metadata": {
         "name": "apinode",
-        "roles": "Api"
+        "roles": "IPv4,Api"
       }
     }
   ]

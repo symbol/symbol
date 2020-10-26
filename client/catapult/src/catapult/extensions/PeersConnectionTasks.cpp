@@ -52,10 +52,12 @@ namespace catapult { namespace extensions {
 			Importance totalChainImportance,
 			ionet::NodeContainer& nodes,
 			ionet::ServiceIdentifier serviceId,
+			ionet::IpProtocol supportedProtocols,
 			ionet::NodeRoles requiredRole,
 			const config::NodeConfiguration::ConnectionsSubConfiguration& config)
 			: Nodes(nodes)
 			, ServiceId(serviceId)
+			, SupportedProtocols(supportedProtocols)
 			, RequiredRole(requiredRole)
 			, Config(config)
 			, ImportanceRetriever([totalChainImportance, &cache](const auto& publicKey) {
@@ -76,7 +78,7 @@ namespace catapult { namespace extensions {
 			ionet::NodeContainer& nodes,
 			ionet::ServiceIdentifier serviceId,
 			const config::NodeConfiguration::ConnectionsSubConfiguration& config)
-			: SelectorSettings(cache, totalChainImportance, nodes, serviceId, ionet::NodeRoles::None, config)
+			: SelectorSettings(cache, totalChainImportance, nodes, serviceId, ionet::IpProtocol::All, ionet::NodeRoles::None, config)
 	{}
 
 	// endregion
@@ -175,6 +177,7 @@ namespace catapult { namespace extensions {
 		// 2. create a selector around the nodes and configuration
 		extensions::NodeSelectionConfiguration selectionConfig{
 			settings.ServiceId,
+			settings.SupportedProtocols,
 			settings.RequiredRole,
 			settings.Config.MaxConnections,
 			settings.Config.MaxConnectionAge

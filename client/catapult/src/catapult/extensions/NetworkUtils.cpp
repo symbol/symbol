@@ -50,6 +50,7 @@ namespace catapult { namespace extensions {
 		settings.SocketWorkingBufferSize = config.Node.SocketWorkingBufferSize;
 		settings.SocketWorkingBufferSensitivity = config.Node.SocketWorkingBufferSensitivity;
 		settings.MaxPacketDataSize = config.Node.MaxPacketDataSize;
+		settings.OutgoingProtocols = ionet::MapNodeRolesToIpProtocols(config.Node.Local.Roles);
 
 		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(config.User.CertificateDirectory);
 		settings.SslOptions.VerifyCallbackSupplier = ionet::CreateSslVerifyCallbackSupplier();
@@ -99,9 +100,7 @@ namespace catapult { namespace extensions {
 			const supplier<Timestamp>& timeSupplier,
 			subscribers::NodeSubscriber& nodeSubscriber,
 			net::AcceptedConnectionContainer& acceptor) {
-		auto endpoint = config.Node.ListenInterface.empty()
-				? boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)
-				: boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(config.Node.ListenInterface), port);
+		auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(config.Node.ListenInterface), port);
 		BootServerState bootServerState(port, serviceId, nodeSubscriber, acceptor);
 		auto rateMonitorSettings = GetRateMonitorSettings(config.Node.Banning);
 

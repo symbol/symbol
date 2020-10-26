@@ -70,9 +70,11 @@ namespace catapult { namespace test {
 			config.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromMegabytes(5);
 			config.MaxTrackedNodes = 5'000;
 
+			config.ListenInterface = "0.0.0.0";
+
 			config.Local.Host = "127.0.0.1";
 			config.Local.FriendlyName = "LOCAL";
-			config.Local.Roles = ionet::NodeRoles::Peer;
+			config.Local.Roles = ionet::NodeRoles::IPv4 | ionet::NodeRoles::Peer;
 
 			SetConnectionsSubConfiguration(config.OutgoingConnections);
 

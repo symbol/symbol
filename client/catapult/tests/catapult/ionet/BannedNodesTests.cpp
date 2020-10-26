@@ -229,7 +229,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CannotBanNodeWithLocalNetworkHost) {
 		// Arrange:
 		auto identity = CreateRandomIdentity();
-		identity.Host = "127.0.0.1";
+		identity.Host = "_local_";
 		BannedNodes bannedNodes(CreateBanSettings(), CreateTimeSupplier({ 1, 1, 1, 4, 5, 6 }), Default_Strategy);
 
 		// Act:

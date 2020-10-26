@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "IpProtocol.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/functions.h"
 #include <boost/filesystem/path.hpp>
@@ -86,6 +87,9 @@ namespace catapult { namespace ionet {
 
 		/// Maximum packet data size.
 		size_t MaxPacketDataSize;
+
+		/// Outgoing connection protocols.
+		IpProtocol OutgoingProtocols;
 
 		/// Ssl options.
 		PacketSocketSslOptions SslOptions;

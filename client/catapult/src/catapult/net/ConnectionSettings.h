@@ -39,6 +39,7 @@ namespace catapult { namespace net {
 				, SocketWorkingBufferSize(utils::FileSize::FromKilobytes(4))
 				, SocketWorkingBufferSensitivity(0) // memory reclamation disabled
 				, MaxPacketDataSize(utils::FileSize::FromBytes(Default_Max_Packet_Data_Size))
+				, OutgoingProtocols(ionet::IpProtocol::IPv4)
 				, AllowIncomingSelfConnections(true)
 				, AllowOutgoingSelfConnections(false)
 		{}
@@ -62,6 +63,9 @@ namespace catapult { namespace net {
 		/// Maximum packet data size.
 		utils::FileSize MaxPacketDataSize;
 
+		/// Outgoing connection protocols.
+		ionet::IpProtocol OutgoingProtocols;
+
 		/// Allows incoming self connections when \c true.
 		bool AllowIncomingSelfConnections;
 
@@ -79,6 +83,7 @@ namespace catapult { namespace net {
 			options.WorkingBufferSize = SocketWorkingBufferSize.bytes();
 			options.WorkingBufferSensitivity = SocketWorkingBufferSensitivity;
 			options.MaxPacketDataSize = MaxPacketDataSize.bytes();
+			options.OutgoingProtocols = OutgoingProtocols;
 			options.SslOptions = SslOptions;
 			return options;
 		}

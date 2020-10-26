@@ -24,10 +24,12 @@
 namespace catapult { namespace ionet {
 
 	namespace {
-		const std::array<std::pair<const char*, NodeRoles>, 3> String_To_Node_Role_Pairs{{
+		const std::array<std::pair<const char*, NodeRoles>, 5> String_To_Node_Role_Pairs{{
 			{ "Peer", NodeRoles::Peer },
 			{ "Api", NodeRoles::Api },
-			{ "Voting", NodeRoles::Voting }
+			{ "Voting", NodeRoles::Voting },
+			{ "IPv4", NodeRoles::IPv4 },
+			{ "IPv6", NodeRoles::IPv6 }
 		}};
 	}
 

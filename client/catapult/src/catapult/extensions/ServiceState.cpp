@@ -19,6 +19,7 @@
 **/
 
 #include "ServiceState.h"
+#include "PeersConnectionTasks.h"
 #include "catapult/io/BlockStorageCache.h"
 
 namespace catapult { namespace extensions {
@@ -33,5 +34,28 @@ namespace catapult { namespace extensions {
 			auto chainHeight = storageView.chainHeight();
 			return chainHeight.unwrap() <= maxRollbackBlocks ? Height(1) : Height(chainHeight.unwrap() - maxRollbackBlocks);
 		};
+	}
+
+	SelectorSettings CreateOutgoingSelectorSettings(
+			const ServiceState& state,
+			ionet::ServiceIdentifier serviceId,
+			ionet::NodeRoles requiredRole) {
+		return SelectorSettings(
+				state.cache(),
+				state.config().BlockChain.TotalChainImportance,
+				state.nodes(),
+				serviceId,
+				MapNodeRolesToIpProtocols(state.config().Node.Local.Roles),
+				requiredRole,
+				state.config().Node.OutgoingConnections);
+	}
+
+	SelectorSettings CreateIncomingSelectorSettings(const ServiceState& state, ionet::ServiceIdentifier serviceId) {
+		return SelectorSettings(
+			state.cache(),
+			state.config().BlockChain.TotalChainImportance,
+			state.nodes(),
+			serviceId,
+			state.config().Node.IncomingConnections);
 	}
 }}

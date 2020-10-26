@@ -49,6 +49,9 @@ namespace catapult { namespace net {
 				EnableAddressReuse(acceptor);
 			}
 
+			if (boost::asio::ip::tcp::v6() == endpoint.protocol())
+				acceptor.set_option(boost::asio::ip::v6_only(false));
+
 			acceptor.bind(endpoint);
 		}
 

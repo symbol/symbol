@@ -56,6 +56,9 @@ namespace catapult { namespace test {
 		/// Creates an acceptor around \a ioContext and \a port.
 		TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port);
 
+		/// Creates an acceptor around \a ioContext and \a endpoint.
+		TcpAcceptor(boost::asio::io_context& ioContext, const boost::asio::ip::tcp::endpoint& endpoint);
+
 		/// Destroys the acceptor.
 		~TcpAcceptor();
 
@@ -91,8 +94,14 @@ namespace catapult { namespace test {
 	/// Creates a local host endpoint with a default port.
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint();
 
+	/// Creates a local host IPv6 endpoint with a default port.
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpointIPv6();
+
 	/// Creates a local host endpoint with the specified \a port.
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port);
+
+	/// Creates a local host IPv6 endpoint with the specified \a port.
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpointIPv6(unsigned short port);
 
 	/// Creates a default PacketSocketSslOptions.
 	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions();
@@ -112,7 +121,7 @@ namespace catapult { namespace test {
 	/// Creates a ConnectionSettings with specified \a publicKey.
 	net::ConnectionSettings CreateConnectionSettings(const Key& publicKey);
 
-	/// Creates an implicitly closed local host acceptor around \a service.
+	/// Creates an implicitly closed local host acceptor around \a ioContext.
 	/// \note This acceptor can only be used in tests where it is implicitly closed by stopping \a ioContext.
 	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_context& ioContext);
 

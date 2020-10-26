@@ -22,6 +22,7 @@
 #include "ServerHooks.h"
 #include "ServiceState.h"
 #include "catapult/config/CatapultConfiguration.h"
+#include "catapult/ionet/NodeInfo.h"
 #include "catapult/ionet/PacketHandlers.h"
 #include "catapult/net/PacketIoPickerContainer.h"
 #include "catapult/thread/Task.h"
@@ -32,7 +33,10 @@ namespace catapult {
 		class ReadWriteUtCache;
 		class UtCache;
 	}
-	namespace extensions { class LocalNodeChainScore; }
+	namespace extensions {
+		class LocalNodeChainScore;
+		struct SelectorSettings;
+	}
 	namespace io { class BlockStorageCache; }
 	namespace ionet { class NodeContainer; }
 	namespace plugins { class PluginManager; }
@@ -230,6 +234,15 @@ namespace catapult { namespace extensions {
 
 	/// Creates and returns a local finalized height supplier based on \a state.
 	supplier<Height> CreateLocalFinalizedHeightSupplier(const ServiceState& state);
+
+	/// Creates outgoing selector settings based on \a state for \a serviceId and \a requiredRole.
+	SelectorSettings CreateOutgoingSelectorSettings(
+			const ServiceState& state,
+			ionet::ServiceIdentifier serviceId,
+			ionet::NodeRoles requiredRole);
+
+	/// Creates incoming selector settings based on \a state for \a serviceId.
+	SelectorSettings CreateIncomingSelectorSettings(const ServiceState& state, ionet::ServiceIdentifier serviceId);
 
 	// endregion
 }}

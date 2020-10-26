@@ -9,7 +9,7 @@
       },
       "metadata": {
         "name": "peernode",
-        "roles": "Peer"
+        "roles": "IPv4,Peer"
       }
     }
   ]

@@ -55,7 +55,7 @@ namespace catapult { namespace extensions {
 			auto modifier = container.modifier();
 			for (auto i = 0u; i < numNodes; ++i) {
 				auto identityKey = test::GenerateRandomByteArray<Key>();
-				auto node = CreateNamedNode(identityKey, "node " + std::to_string(i), roles);
+				auto node = CreateNamedNode(identityKey, "node " + std::to_string(i), ionet::NodeRoles::IPv4 | roles);
 				modifier.add(node, source);
 				modifier.provisionConnectionState(Default_Service_Id, node.identity());
 				nodes.push_back(node);
@@ -77,7 +77,7 @@ namespace catapult { namespace extensions {
 		}
 
 		NodeSelectionConfiguration CreateConfiguration(uint32_t maxConnections, uint32_t maxConnectionAge) {
-			return { Default_Service_Id, ionet::NodeRoles::Peer, maxConnections, maxConnectionAge };
+			return { Default_Service_Id, ionet::IpProtocol::IPv4, ionet::NodeRoles::Peer, maxConnections, maxConnectionAge };
 		}
 
 		void AssertSubset(const ionet::NodeSet& set, const ionet::NodeSet& subset) {
@@ -319,9 +319,11 @@ namespace catapult { namespace extensions {
 				KeyStatistics keyStatistics;
 				ionet::NodeContainer container;
 				SeedNodeContainer(container, nodes, CreateInteractionSeeds(rawWeights));
-				NodeSelectionConfiguration config{ Default_Service_Id, ionet::NodeRoles::None, 1, 1234 };
+
+				auto selectionConfig = CreateConfiguration(1, 1234);
+				selectionConfig.RequiredRole = ionet::NodeRoles::None;
 				for (auto i = 0u; i < numIterations; ++i) {
-					auto nodeSelectionResult = SelectNodes(container, config, CreateImportanceRetriever(nodes, rawWeights));
+					auto nodeSelectionResult = SelectNodes(container, selectionConfig, CreateImportanceRetriever(nodes, rawWeights));
 					const auto& selectedNodes = nodeSelectionResult.AddCandidates;
 					if (1u != selectedNodes.size())
 						CATAPULT_THROW_RUNTIME_ERROR_1("unexpected number of nodes were selected", selectedNodes.size());
@@ -405,100 +407,86 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(result.RemoveCandidates.empty());
 	}
 
-	namespace {
-		void AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingServiceNodes(uint32_t age, uint32_t maxAge) {
-			// Arrange: seed the container with nodes that support a different service
-			ionet::NodeContainer container;
-			SetAge(container, SeedNodes(container, 10), age);
+#define FILTER_TEST(TEST_NAME) \
+	template<uint32_t Age, uint32_t MaxAge> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Add) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<0, 8>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Remove) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<10, 8>(); } \
+	template<uint32_t Age, uint32_t MaxAge> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-			// Act:
-			auto selectionConfig = NodeSelectionConfiguration{ ionet::ServiceIdentifier(2), ionet::NodeRoles::Peer, 5, maxAge };
-			auto result = SelectNodes(container, selectionConfig, UniformImportanceRetriever);
+	FILTER_TEST(NoCandidatesWhenContainerHasNoMatchingServiceNodes) {
+		// Arrange: seed the container with nodes that support a different service
+		ionet::NodeContainer container;
+		SetAge(container, SeedNodes(container, 10), Age);
 
-			// Assert:
-			EXPECT_TRUE(result.AddCandidates.empty());
-			EXPECT_TRUE(result.RemoveCandidates.empty());
-		}
+		auto selectionConfig = CreateConfiguration(5, MaxAge);
+		selectionConfig.ServiceId = ionet::ServiceIdentifier(2);
+
+		// Act:
+		auto result = SelectNodes(container, selectionConfig, UniformImportanceRetriever);
+
+		// Assert:
+		EXPECT_TRUE(result.AddCandidates.empty());
+		EXPECT_TRUE(result.RemoveCandidates.empty());
 	}
 
-	TEST(TEST_CLASS, NoAddCandidatesWhenContainerHasNoMatchingServiceNodes) {
-		AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingServiceNodes(0, 8);
+	FILTER_TEST(NoCandidatesWhenContainerHasNoMatchingProtocols) {
+		// Arrange: seed the container with nodes that have a different protocol
+		ionet::NodeContainer container;
+		SetAge(container, SeedNodes(container, 10), Age);
+
+		auto selectionConfig = CreateConfiguration(5, MaxAge);
+		selectionConfig.SupportedProtocols = ionet::IpProtocol::IPv6;
+
+		// Act:
+		auto result = SelectNodes(container, selectionConfig, UniformImportanceRetriever);
+
+		// Assert:
+		EXPECT_TRUE(result.AddCandidates.empty());
+		EXPECT_TRUE(result.RemoveCandidates.empty());
 	}
 
-	TEST(TEST_CLASS, NoRemoveCandidatesWhenContainerHasNoMatchingServiceNodes) {
-		AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingServiceNodes(10, 8);
+	FILTER_TEST(NoCandidatesWhenContainerHasNoMatchingRoleNodes) {
+		// Arrange: seed the container with nodes that have a different role
+		ionet::NodeContainer container;
+		SetAge(container, SeedNodes(container, 10), Age);
+
+		auto selectionConfig = CreateConfiguration(5, MaxAge);
+		selectionConfig.RequiredRole = ionet::NodeRoles::Api;
+
+		// Act:
+		auto result = SelectNodes(container, selectionConfig, UniformImportanceRetriever);
+
+		// Assert:
+		EXPECT_TRUE(result.AddCandidates.empty());
+		EXPECT_TRUE(result.RemoveCandidates.empty());
 	}
 
-	namespace {
-		void AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingRoleNodes(uint32_t age, uint32_t maxAge) {
-			// Arrange: seed the container with nodes that have a different role
-			ionet::NodeContainer container;
-			SetAge(container, SeedNodes(container, 10), age);
+	FILTER_TEST(NoCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes) {
+		// Arrange:
+		ionet::NodeContainer container;
+		SetAge(container, SeedNodes(container, 10, ionet::NodeSource::Local), Age);
 
-			// Act:
-			auto result = SelectNodes(container, { Default_Service_Id, ionet::NodeRoles::Api, 5, maxAge }, UniformImportanceRetriever);
+		// Act:
+		auto result = SelectNodes(container, CreateConfiguration(5, MaxAge), UniformImportanceRetriever);
 
-			// Assert:
-			EXPECT_TRUE(result.AddCandidates.empty());
-			EXPECT_TRUE(result.RemoveCandidates.empty());
-		}
+		// Assert:
+		EXPECT_TRUE(result.AddCandidates.empty());
+		EXPECT_TRUE(result.RemoveCandidates.empty());
 	}
 
-	TEST(TEST_CLASS, NoAddCandidatesWhenContainerHasNoMatchingRoleNodes) {
-		AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingRoleNodes(0, 8);
-	}
+	FILTER_TEST(NoCandidatesWhenContainerHasOnlyBannedDynamicNodes) {
+		// Arrange: seed the container with banned nodes
+		ionet::NodeContainer container;
+		auto nodes = SeedNodes(container, 10, ionet::NodeSource::Dynamic);
+		SetAge(container, nodes, Age);
+		SetBanAge(container, nodes, 1);
 
-	TEST(TEST_CLASS, NoRemoveCandidatesWhenContainerHasNoMatchingRoleNodes) {
-		AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingRoleNodes(10, 8);
-	}
+		// Act:
+		auto result = SelectNodes(container, CreateConfiguration(5, MaxAge), UniformImportanceRetriever);
 
-	namespace {
-		void AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes(uint32_t age, uint32_t maxAge) {
-			// Arrange:
-			ionet::NodeContainer container;
-			SetAge(container, SeedNodes(container, 10, ionet::NodeSource::Local), age);
-
-			// Act:
-			auto result = SelectNodes(container, CreateConfiguration(5, maxAge), UniformImportanceRetriever);
-
-			// Assert:
-			EXPECT_TRUE(result.AddCandidates.empty());
-			EXPECT_TRUE(result.RemoveCandidates.empty());
-		}
-	}
-
-	TEST(TEST_CLASS, NoAddCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes) {
-		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes(0, 8);
-	}
-
-	TEST(TEST_CLASS, NoRemoveCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes) {
-		// Assert: this is a contrived example because nodes with Local source should never be active
-		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes(10, 8);
-	}
-
-	namespace {
-		void AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes(uint32_t age, uint32_t maxAge) {
-			// Arrange: seed the container with banned nodes
-			ionet::NodeContainer container;
-			auto nodes = SeedNodes(container, 10, ionet::NodeSource::Dynamic);
-			SetAge(container, nodes, age);
-			SetBanAge(container, nodes, 1);
-
-			// Act:
-			auto result = SelectNodes(container, { Default_Service_Id, ionet::NodeRoles::Peer, 5, maxAge }, UniformImportanceRetriever);
-
-			// Assert:
-			EXPECT_TRUE(result.AddCandidates.empty());
-			EXPECT_TRUE(result.RemoveCandidates.empty());
-		}
-	}
-
-	TEST(TEST_CLASS, NoAddCandidatesWhenContainerHasOnlyBannedDynamicNodes) {
-		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes(0, 8);
-	}
-
-	TEST(TEST_CLASS, NoRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes) {
-		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes(10, 8);
+		// Assert:
+		EXPECT_TRUE(result.AddCandidates.empty());
+		EXPECT_TRUE(result.RemoveCandidates.empty());
 	}
 
 	// endregion

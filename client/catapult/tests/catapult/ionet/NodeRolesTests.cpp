@@ -30,6 +30,12 @@ namespace catapult { namespace ionet {
 		test::AssertParse("Peer", NodeRoles::Peer, TryParseValue);
 		test::AssertParse("Api", NodeRoles::Api, TryParseValue);
 		test::AssertParse("Voting", NodeRoles::Voting, TryParseValue);
+
+		test::AssertParse("IPv4", NodeRoles::IPv4, TryParseValue);
+		test::AssertParse("IPv6", NodeRoles::IPv6, TryParseValue);
+
 		test::AssertParse("Peer,Api", NodeRoles::Peer | NodeRoles::Api, TryParseValue);
+		test::AssertParse("IPv6,Api", NodeRoles::IPv6 | NodeRoles::Api, TryParseValue);
+		test::AssertParse("IPv4,IPv6,Api", NodeRoles::IPv4 | NodeRoles::IPv6 | NodeRoles::Api, TryParseValue);
 	}
 }}

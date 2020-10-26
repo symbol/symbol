@@ -36,7 +36,13 @@ namespace catapult { namespace ionet {
 		Api = 0x02,
 
 		/// Voting node.
-		Voting = 0x04
+		Voting = 0x04,
+
+		/// IPv4 compatible node.
+		IPv4 = 0x40,
+
+		/// IPv6 compatible node.
+		IPv6 = 0x80
 	};
 
 	MAKE_BITWISE_ENUM(NodeRoles)

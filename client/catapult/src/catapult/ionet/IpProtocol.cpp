@@ -18,34 +18,26 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include <boost/filesystem/path.hpp>
+#include "IpProtocol.h"
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace ionet {
 
-namespace catapult { namespace zeromq {
+	IpProtocol MapNodeRolesToIpProtocols(NodeRoles roles) {
+		auto protocols = IpProtocol::None;
+		if (HasFlag(NodeRoles::IPv4, roles))
+			protocols |= IpProtocol::IPv4;
 
-	/// Messaging configuration settings.
-	struct MessagingConfiguration {
-	public:
-		/// Network interface on which to listen.
-		std::string ListenInterface;
+		if (HasFlag(NodeRoles::IPv6, roles))
+			protocols |= IpProtocol::IPv6;
 
-		/// Subscriber port.
-		unsigned short SubscriberPort;
+		// for backwards compatibility, assume IPv4 when neither IPv4 nor IPv6 roles are set
+		if (IpProtocol::None == protocols)
+			protocols |= IpProtocol::IPv4;
 
-	private:
-		MessagingConfiguration() = default;
+		return protocols;
+	}
 
-	public:
-		/// Creates an uninitialized messaging configuration.
-		static MessagingConfiguration Uninitialized();
-
-	public:
-		/// Loads a messaging configuration from \a bag.
-		static MessagingConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
-
-		/// Loads a messaging configuration from \a resourcesPath.
-		static MessagingConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
-	};
+	bool HasAnyProtocol(IpProtocol protocols, NodeRoles roles) {
+		return 0 != (utils::to_underlying_type(protocols) & utils::to_underlying_type(MapNodeRolesToIpProtocols(roles)));
+	}
 }}
