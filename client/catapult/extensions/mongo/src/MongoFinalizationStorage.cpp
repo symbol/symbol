@@ -19,9 +19,9 @@
 **/
 
 #include "MongoFinalizationStorage.h"
+#include "BulkWriteResult.h"
 #include "mappers/BlockMapper.h"
 #include "mappers/MapperUtils.h"
-#include "catapult/exceptions.h"
 #include <mongocxx/client.hpp>
 
 using namespace bsoncxx::builder::stream;
@@ -31,11 +31,20 @@ namespace catapult { namespace mongo {
 	namespace {
 		constexpr auto Collection_Name = "finalizedBlocks";
 
+		auto CreateFilter(const model::FinalizationRound& round) {
+			auto filter = document()
+					<< "block.finalizationEpoch" << mongo::mappers::ToInt32(round.Epoch)
+					<< "block.finalizationPoint" << mongo::mappers::ToInt32(round.Point)
+					<< finalize;
+			return filter;
+		}
+
 		class MongoFinalizationStorage final : public subscribers::FinalizationSubscriber {
 		public:
 			MongoFinalizationStorage(MongoStorageContext& context)
 					: m_context(context)
 					, m_database(m_context.createDatabaseConnection())
+					, m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name))
 			{}
 
 		public:
@@ -43,15 +52,17 @@ namespace catapult { namespace mongo {
 				auto blocks = m_database[Collection_Name];
 				auto dbFinalizedBlock = mappers::ToDbModel(round, height, hash);
 
-				// since this storage is not updated during chain sync, it doesn't need to support recovery
-				auto result = blocks.insert_one(dbFinalizedBlock.view()).value().result();
-				if (0 == result.inserted_count())
-					CATAPULT_THROW_RUNTIME_ERROR("notifyFinalizedBlock failed: finalized block was not inserted");
+				mongocxx::options::replace replace_op;
+				replace_op.upsert(true);
+
+				auto result = blocks.replace_one(CreateFilter(round), dbFinalizedBlock.view(), replace_op).value().result();
+				m_errorPolicy.checkUpserted(1, BulkWriteResult(result), "finalized block");
 			}
 
 		private:
 			MongoStorageContext& m_context;
 			MongoDatabase m_database;
+			MongoErrorPolicy m_errorPolicy;
 		};
 	}
 

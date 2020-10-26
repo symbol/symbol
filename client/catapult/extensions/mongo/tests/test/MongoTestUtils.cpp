@@ -64,14 +64,19 @@ namespace catapult { namespace test {
 		connection[dbName].drop();
 		auto database = connection[dbName];
 
-		// indexes for the accounts collection
+		// indexes for the 'accounts' collection
 		auto accounts = database["accounts"];
 		auto accountsAddressIndex = document() << "account.address" << 1 << finalize;
 		auto publicKeyIndex = document() << "account.publicKey" << 1 << finalize;
 		accounts.create_index(accountsAddressIndex.view(), mongocxx::options::index().unique(true));
 		accounts.create_index(publicKeyIndex.view(), mongocxx::options::index());
 
-		// indexes for the transactions collection
+		// indexes for the 'finalizedBlocks' collection
+		auto finalizedBlocks = database["finalizedBlocks"];
+		auto finalizationRoundIndex = document() << "block.finalizationEpoch" << -1 << "block.finalizationPoint" << -1 << finalize;
+		finalizedBlocks.create_index(finalizationRoundIndex.view(), mongocxx::options::index().unique(true));
+
+		// indexes for the 'transactions' collection
 		auto transactions = database["transactions"];
 		auto deadlineIndex = document() << "transaction.deadline" << -1 << finalize;
 		auto signerIndex = document() << "transaction.signerPublicKey" << 1 << "_id" << -1 << finalize;
@@ -82,7 +87,7 @@ namespace catapult { namespace test {
 		transactions.create_index(recipientIndex.view(), mongocxx::options::index());
 		transactions.create_index(heightIndex.view(), mongocxx::options::index());
 
-		// indexes for the unconfirmed transactions collection
+		// indexes for the 'unconfirmedTransactions' collection
 		auto unconfirmedTransactions = database["unconfirmedTransactions"];
 		auto hashIndex = document() << "meta.hash" << 1 << finalize;
 		unconfirmedTransactions.create_index(hashIndex.view(), mongocxx::options::index().unique(true));

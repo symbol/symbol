@@ -51,9 +51,10 @@ namespace catapult { namespace mongo {
 		}
 
 		auto CreateFinalizedBlockDescriptors(size_t count) {
+			// generate descriptors so that neither epoch nor point is unique but (epoch, point) is unique
 			std::vector<FinalizedBlockDescriptor> descriptors;
 			for (auto i = 1u; i <= count; ++i) {
-				auto round = model::FinalizationRound{ FinalizationEpoch(i), FinalizationPoint(2 * i) };
+				auto round = model::FinalizationRound{ FinalizationEpoch((i / 2 + 1) * 10), FinalizationPoint(i % 3) };
 				descriptors.push_back({ round, Height(i * i), test::GenerateRandomByteArray<Hash256>() });
 			}
 
@@ -90,11 +91,11 @@ namespace catapult { namespace mongo {
 
 		class FinalizationSubscriberContext {
 		public:
-			explicit FinalizationSubscriberContext(size_t numFinalizationes)
+			explicit FinalizationSubscriberContext(size_t numFinalizations)
 					: m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads))
 					, m_pMongoContext(ResetDatabaseAndCreateMongoContext(*m_pPool))
 					, m_pSubscriber(CreateMongoFinalizationStorage(*m_pMongoContext))
-					, m_descriptors(CreateFinalizedBlockDescriptors(numFinalizationes))
+					, m_descriptors(CreateFinalizedBlockDescriptors(numFinalizations))
 			{}
 
 		public:
@@ -154,6 +155,28 @@ namespace catapult { namespace mongo {
 
 		// Assert:
 		AssertFinalizedBlocks(context.toMap());
+	}
+
+	TEST(TEST_CLASS, CanSaveMultipleFinalizedBlocks_SameRound) {
+		// Arrange:
+		FinalizationSubscriberContext context(0);
+		auto descriptors = CreateFinalizedBlockDescriptors(1);
+		auto& descriptor = descriptors.back();
+		context.saveFinalizedBlock(descriptor);
+
+		// Sanity:
+		test::AssertCollectionSize(Collection_Name, 1);
+
+		// Act:
+		for (auto i = 0u; i < 10; ++i) {
+			descriptor.Height = Height(i * 10);
+			context.saveFinalizedBlock(descriptor);
+		}
+
+		// Assert: last height that was saved should be in the db
+		FinalizedBlocksMap map;
+		map.emplace(descriptor.Height, descriptor);
+		AssertFinalizedBlocks(map);
 	}
 
 	// endregion
