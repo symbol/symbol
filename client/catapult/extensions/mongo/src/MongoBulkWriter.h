@@ -157,32 +157,41 @@ namespace catapult { namespace mongo {
 		}
 
 	private:
-		thread::future<BulkWriteResult> handleBulkOperation(std::shared_ptr<BulkWriteParams>&& pBulkWriteParams) {
+		thread::future<BulkWriteResult> handleBulkOperation(
+				const std::string& collectionName,
+				std::shared_ptr<BulkWriteParams>&& pBulkWriteParams) {
 			// note: pBulkWriteParams depends on pThis (pBulkWriteParams.pConnection depends on pThis.m_connectionPool)
 			// it's crucial to move pBulkWriteParams into lambda, otherwise it would be copied while pThis would be moved
 			auto pPromise = std::make_shared<thread::promise<BulkWriteResult>>();
-			boost::asio::post(m_pool.ioContext(), [pThis = shared_from_this(), pBulkWriteParams{std::move(pBulkWriteParams)}, pPromise]() {
-				pThis->bulkWrite(*pBulkWriteParams, *pPromise);
-			});
+			auto handler = [pThis = shared_from_this(), collectionName, pBulkWriteParams{std::move(pBulkWriteParams)}, pPromise]() {
+				pThis->bulkWrite(collectionName, *pBulkWriteParams, *pPromise);
+			};
 
+			boost::asio::post(m_pool.ioContext(), handler);
 			return pPromise->get_future();
 		}
 
-		void bulkWrite(BulkWriteParams& bulkWriteParams, thread::promise<BulkWriteResult>& promise) {
+		void bulkWrite(const std::string& collectionName, BulkWriteParams& bulkWriteParams, thread::promise<BulkWriteResult>& promise) {
 			try {
 				// if something goes wrong mongo will throw, else a result is always available
 				auto result = bulkWriteParams.Bulk.execute().value();
 				promise.set_value(BulkWriteResult(result));
-			} catch (const mongocxx::bulk_write_exception& e) {
-				std::ostringstream stream;
-				stream << "message: " << e.code().message();
-				if (e.raw_server_error()) {
-					auto description = bsoncxx::to_json(e.raw_server_error().value());
-					stream << ", description: " << description;
+			} catch (const mongocxx::bulk_write_exception& ex) {
+				std::ostringstream out;
+				out
+						<< "bulk '" << collectionName << "' operation failed"
+						<< std::endl << "code: " << ex.code().message()
+						<< std::endl << "what: " << ex.what();
+
+				if (ex.raw_server_error()) {
+					auto description = bsoncxx::to_json(ex.raw_server_error().value());
+					out << std::endl << description;
+				} else {
+					out << std::endl << "no server error";
 				}
 
-				CATAPULT_LOG(fatal) << "throwing exception: " << stream.str().c_str();
-				promise.set_exception(std::make_exception_ptr(catapult_runtime_error(stream.str().c_str())));
+				CATAPULT_LOG(fatal) << out.str().c_str();
+				promise.set_exception(std::make_exception_ptr(catapult_runtime_error(out.str().c_str())));
 			}
 		}
 
@@ -225,7 +234,7 @@ namespace catapult { namespace mongo {
 				for (auto iter = itBegin; itEnd != iter; ++iter, ++index)
 					appendOperation(pBulkWriteParams->Bulk, *iter, index);
 
-				pContext->setFutureAt(batchIndex, pThis->handleBulkOperation(std::move(pBulkWriteParams)));
+				pContext->setFutureAt(batchIndex, pThis->handleBulkOperation(collectionName, std::move(pBulkWriteParams)));
 			};
 
 			auto& ioContext = m_pool.ioContext();
