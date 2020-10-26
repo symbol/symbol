@@ -1,7 +1,10 @@
 tags:
   - Transaction routes
 summary: Search confirmed transactions
-description: Returns an array of confirmed transactions.
+description: |
+  Returns an array of confirmed transactions.
+  If a transaction was announced with an alias rather than an address, the address that will be considered when querying is the one that
+  was resolved from the alias at confirmation time.
 operationId: searchConfirmedTransactions
 parameters:
   - $ref: "../../../parameters/query/address.yml"
