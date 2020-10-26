@@ -70,8 +70,10 @@ namespace catapult { namespace local {
 
 		// broker process should be able to process these queues as-is on next reboot
 		// - block_change messages are produced after State_Written, so always safe to process
+		// - finalization messages are independent of state change
 		// - transaction_status messages are permanent and have no impact on state
 		repairer.retain("block_change");
+		repairer.retain("finalization");
 		repairer.retain("transaction_status");
 
 		// recovery assumes that both broker and server processes are stopped

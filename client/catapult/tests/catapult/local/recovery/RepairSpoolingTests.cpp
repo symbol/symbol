@@ -33,7 +33,7 @@ namespace catapult { namespace local {
 
 		std::vector<std::string> GetAllQueueNames() {
 			return {
-				"block_change", "transaction_status",
+				"block_change", "finalization", "transaction_status",
 				"partial_transactions_change", "unconfirmed_transactions_change",
 				"block_recover",
 				"block_sync", "state_change"
@@ -141,7 +141,7 @@ namespace catapult { namespace local {
 			}
 
 			static std::vector<std::string> GetRetainedQueueNames() {
-				return { "block_change", "transaction_status" };
+				return { "block_change", "finalization", "transaction_status" };
 			}
 
 			static uint64_t GetExpectedStateChangeIndexServerValue(uint64_t indexValue, uint64_t) {
@@ -162,7 +162,7 @@ namespace catapult { namespace local {
 			}
 
 			static std::vector<std::string> GetRetainedQueueNames() {
-				return { "block_change", "transaction_status", "block_sync" };
+				return { "block_change", "finalization", "transaction_status", "block_sync" };
 			}
 
 			static uint64_t GetExpectedStateChangeIndexServerValue(uint64_t, uint64_t indexServerValue) {
@@ -186,7 +186,7 @@ namespace catapult { namespace local {
 		template<typename TTraits>
 		void RepairAndCheckNonStateChangeDirectories(TestContext& context, uint64_t expectedIndexValue, size_t numRepairs = 1) {
 			// Sanity:
-			EXPECT_EQ(6u, TTraits::GetPurgedQueueNames().size() + TTraits::GetRetainedQueueNames().size());
+			EXPECT_EQ(7u, TTraits::GetPurgedQueueNames().size() + TTraits::GetRetainedQueueNames().size());
 			EXPECT_EQ(1u, context.countRootFiles());
 
 			// Act:
@@ -268,7 +268,7 @@ namespace catapult { namespace local {
 		TestContext context(SetupMode::None, 111);
 
 		// Sanity:
-		EXPECT_EQ(7u, GetAllQueueNames().size());
+		EXPECT_EQ(8u, GetAllQueueNames().size());
 
 		// Act:
 		context.repair(TTraits::Commit_Step);
