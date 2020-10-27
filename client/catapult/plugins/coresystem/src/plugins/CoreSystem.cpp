@@ -196,7 +196,8 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateEligibleHarvesterValidator())
 				.add(validators::CreateBalanceDebitValidator())
 				.add(validators::CreateBalanceTransferValidator())
-				.add(validators::CreateImportanceBlockValidator());
+				.add(validators::CreateImportanceBlockValidator())
+				.add(validators::CreateEntityForkVersionValidator(config.ForkHeights.VotingKeyLinkV2));
 		});
 
 		auto harvestFeeOptions = observers::HarvestFeeOptions{

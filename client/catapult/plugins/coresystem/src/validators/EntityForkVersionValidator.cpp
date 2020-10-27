@@ -26,16 +26,16 @@ namespace catapult { namespace validators {
 
 	using Notification = model::EntityNotification;
 
-	constexpr auto Testnet_Fork_1 = Height(12345);
+	DECLARE_STATEFUL_VALIDATOR(EntityForkVersion, Notification)(Height forkHeight) {
+		return MAKE_STATEFUL_VALIDATOR(EntityForkVersion, [forkHeight](const Notification& notification, const ValidatorContext& context) {
+			if (model::Entity_Type_Voting_Key_Link != notification.EntityType)
+				return ValidationResult::Success;
 
-	DEFINE_STATEFUL_VALIDATOR(EntityForkVersion, [](const Notification& notification, const ValidatorContext& context) {
-		if (model::Entity_Type_Voting_Key_Link != notification.EntityType)
-			return ValidationResult::Success;
+			if ((context.Height <= forkHeight && 1 == notification.EntityVersion) ||
+					(context.Height > forkHeight && 2 == notification.EntityVersion))
+				return ValidationResult::Success;
 
-		if ((context.Height <= Testnet_Fork_1 && 1 == notification.EntityVersion) ||
-				(context.Height > Testnet_Fork_1 && 2 == notification.EntityVersion))
-			return ValidationResult::Success;
-
-		return Failure_Core_Invalid_Version;
-	})
+			return Failure_Core_Invalid_Version;
+		});
+	}
 }}

@@ -95,9 +95,15 @@ namespace catapult { namespace model {
 
 #undef LOAD_CHAIN_PROPERTY
 
+#define LOAD_FORK_HEIGHT_PROPERTY(NAME) utils::LoadIniProperty(bag, "fork_heights", #NAME, config.ForkHeights.NAME)
+
+		LOAD_FORK_HEIGHT_PROPERTY(VotingKeyLinkV2);
+
+#undef LOAD_FORK_HEIGHT_PROPERTY
+
 		size_t numPluginProperties = 0;
 		for (const auto& section : bag.sections()) {
-			if ("network" == section || "chain" == section)
+			if ("network" == section || "chain" == section || "fork_heights" == section)
 				continue;
 
 			std::string prefix("plugin:");
@@ -110,7 +116,7 @@ namespace catapult { namespace model {
 			numPluginProperties += iter->second.size();
 		}
 
-		utils::VerifyBagSizeExact(bag, 5 + 27 + numPluginProperties);
+		utils::VerifyBagSizeExact(bag, 5 + 27 + 1 + numPluginProperties);
 		return config;
 	}
 

@@ -87,6 +87,7 @@ namespace catapult { namespace plugins {
 					"BalanceDebitValidator",
 					"BalanceTransferValidator",
 					"ImportanceBlockValidator",
+					"EntityForkVersionValidator",
 
 					// key link transactions
 					"VrfKeyLinkValidator",

@@ -30,6 +30,12 @@
 
 namespace catapult { namespace model {
 
+	/// Block chain fork heights.
+	struct BlockChainForkHeights {
+		/// Last height at which voting key link V1 transactions are allowed.
+		Height VotingKeyLinkV2;
+	};
+
 	/// Block chain configuration settings.
 	struct BlockChainConfiguration {
 	public:
@@ -121,6 +127,9 @@ namespace catapult { namespace model {
 
 		/// Maximum number of transactions per block.
 		uint32_t MaxTransactionsPerBlock;
+
+		/// Block chain fork heights.
+		BlockChainForkHeights ForkHeights;
 
 		/// Unparsed map of plugin configuration.
 		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;

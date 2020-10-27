@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS EntityForkVersionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(EntityForkVersion,)
+	DEFINE_COMMON_VALIDATOR_TESTS(EntityForkVersion, Height())
 
 	namespace {
 		constexpr auto Valid_Entity_Type = model::Entity_Type_Voting_Key_Link;
@@ -44,7 +44,7 @@ namespace catapult { namespace validators {
 			auto cacheView = cache.createView();
 			auto readOnlyCache = cacheView.toReadOnly();
 			auto validatorContext = test::CreateValidatorContext(contextHeight, readOnlyCache);
-			auto pValidator = CreateEntityForkVersionValidator();
+			auto pValidator = CreateEntityForkVersionValidator(Fork_Height);
 
 			model::EntityNotification notification(model::NetworkIdentifier::Zero, entityType, entityVersion, 1, 100);
 
