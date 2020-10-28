@@ -3,6 +3,10 @@
 block_inputs=(
 	"block")
 
+finalization_inputs=(
+	"finalization/finalization_round"
+	"finalization/finalized_block_header")
+
 receipt_inputs=(
 	"receipts"
 	"namespace/namespace_receipts"
