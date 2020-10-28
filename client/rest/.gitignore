@@ -17,3 +17,4 @@ rest-*.json
 rest/coverage
 /rest/target/
 /rest/logs.log
+/catapult-rest.iml
