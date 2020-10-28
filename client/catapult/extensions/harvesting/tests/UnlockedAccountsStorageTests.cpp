@@ -616,4 +616,61 @@ namespace catapult { namespace harvesting {
 	}
 
 	// endregion
+
+	// region integration
+
+	TEST(TEST_CLASS, CanRollbackSingleHarvestersFile) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+
+		// - execute (add and save)
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 1);
+		storage.save([](const auto&) { return true; });
+
+		// Sanity:
+		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
+
+		// Act: undo (remove and save)
+		auto requestIdentifier = test::GetRequestIdentifier(*encryptedPayloads.cbegin());
+		storage.remove(requestIdentifier);
+		storage.save([](const auto&) { return true; });
+
+		// Assert: file does not exist
+		EXPECT_FALSE(storage.contains(requestIdentifier));
+		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+	}
+
+	TEST(TEST_CLASS, CanRollbackMultipleHarvestersFiles) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+
+		// - execute (add and save, remove and save, add and save)
+		auto encryptedPayloads1 = SeedEncryptedPayloads(storage, guard.name(), 1);
+		storage.save([](const auto&) { return true; });
+
+		auto requestIdentifier1 = test::GetRequestIdentifier(*encryptedPayloads1.cbegin());
+		storage.remove(requestIdentifier1);
+		storage.save([](const auto&) { return true; });
+
+		auto encryptedPayloads2 = SeedEncryptedPayloads(storage, guard.name(), 1);
+		storage.save([](const auto&) { return true; });
+
+		// Sanity:
+		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads2);
+
+		// Act: undo (remove and remove and save)
+		auto requestIdentifier2 = test::GetRequestIdentifier(*encryptedPayloads2.cbegin());
+		storage.remove(requestIdentifier2);
+		storage.remove(requestIdentifier1);
+		storage.save([](const auto&) { return true; });
+
+		// Assert: file does not exist
+		EXPECT_FALSE(storage.contains(requestIdentifier1));
+		EXPECT_FALSE(storage.contains(requestIdentifier2));
+		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+	}
+
+	// endregion
 }}

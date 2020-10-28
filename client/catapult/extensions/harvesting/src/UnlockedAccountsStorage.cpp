@@ -67,6 +67,11 @@ namespace catapult { namespace harvesting {
 				return;
 			}
 
+			if (0 == boost::filesystem::file_size(filename)) {
+				CATAPULT_LOG(debug) << filename << " is empty";
+				return;
+			}
+
 			HarvestRequestIdentifier requestIdentifier;
 			auto encryptedPayloadStartPosition = ReadLastRequestIdentifier(filename, requestIdentifier);
 			if (expectedRequestIdentifier != requestIdentifier) {
