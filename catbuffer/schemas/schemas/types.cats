@@ -3,6 +3,7 @@ using BlockDuration = uint64
 using BlockFeeMultiplier = uint32
 using Difficulty = uint64
 using FinalizationEpoch = uint32
+using FinalizationPoint = uint32
 using Height = uint64
 using Importance = uint64
 using ImportanceHeight = uint64
