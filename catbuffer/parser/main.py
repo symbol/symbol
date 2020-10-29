@@ -43,9 +43,8 @@ class MultiFileParser:
         self.cats_parser.pop_scope()
 
 
-def _generate_output(generator_name, directory, schema, options):
+def _generate_output(generator_name, output_path, schema, options):
     generator_class = AVAILABLE_GENERATORS[generator_name]
-    output_path = os.path.join(directory, generator_name)
     os.makedirs(output_path, exist_ok=True)
     generator = generator_class(schema, options)
     for generated_descriptor in generator:
@@ -58,7 +57,7 @@ def _generate_output(generator_name, directory, schema, options):
 def generate():
     parser = argparse.ArgumentParser(description='CATS code generator')
     parser.add_argument('-s', '--schema', help='input CATS file', required=True)
-    parser.add_argument('-o', '--output', help='output directory', default='_generated')
+    parser.add_argument('-o', '--output', help='output directory, if not provided, _generated/{generator} is used')
     parser.add_argument('-i', '--include', help='schema root directory', default='./schemas')
 
     generators_list = list(AVAILABLE_GENERATORS.keys())
@@ -79,7 +78,11 @@ def generate():
 
     # generate and output code
     if args.generator:
-        _generate_output(args.generator, args.output, type_descriptors, {'copyright': args.copyright})
+        output_path = args.output
+        if output_path is None:
+            output_path = os.path.join('_generated', args.generator)
+
+        _generate_output(args.generator, output_path, type_descriptors, {'copyright': args.copyright})
 
 
 generate()

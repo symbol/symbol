@@ -17,7 +17,7 @@ function generate_batch {
 			--include "${folder}/schemas")
 		if [ "$#" -ge 3 ]; then
 			python_args+=(
-				--output "${folder}/_generated"
+				--output "${folder}/_generated/$3"
 				--generator "$3"
 				--copyright "${folder}/HEADER.inc")
 		fi
