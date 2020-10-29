@@ -38,29 +38,27 @@ namespace catapult { namespace model {
 	}
 
 	namespace {
-		bool TryCalculateRealSize(const EmbeddedTransaction& transaction, const TransactionRegistry& registry, uint64_t& realSize) {
+		bool IsSizeValidInternal(const EmbeddedTransaction& transaction, const TransactionRegistry& registry) {
 			const auto* pPlugin = registry.findPlugin(transaction.Type);
 			if (!pPlugin || !pPlugin->supportsEmbedding()) {
 				CATAPULT_LOG(warning) << "rejected embedded transaction with type: " << transaction.Type;
 				return false;
 			}
 
-			realSize = pPlugin->embeddedPlugin().calculateRealSize(transaction);
-			return true;
+			return pPlugin->embeddedPlugin().isSizeValid(transaction);
 		}
 	}
 
 	bool IsSizeValid(const EmbeddedTransaction& transaction, const TransactionRegistry& registry) {
-		uint64_t realSize;
-		if (!TryCalculateRealSize(transaction, registry, realSize))
+		if (transaction.Size < sizeof(EmbeddedTransaction)) {
+			CATAPULT_LOG(warning) << "transaction failed size validation with size " << transaction.Size;
 			return false;
+		}
 
-		if (transaction.Size == realSize)
+		if (IsSizeValidInternal(transaction, registry))
 			return true;
 
-		CATAPULT_LOG(warning)
-				<< transaction.Type << " transaction failed size validation with size " << transaction.Size
-				<< " (expected " << realSize << ")";
+		CATAPULT_LOG(warning) << transaction.Type << " transaction failed size validation with size " << transaction.Size;
 		return false;
 	}
 

@@ -146,8 +146,8 @@ namespace catapult { namespace mocks {
 				return { 0x02, 0xFE, utils::TimeSpan::FromMilliseconds(0xEEEE'EEEE'EEEE'1234) };
 			}
 
-			uint64_t calculateRealSize(const TTransaction& transaction) const override {
-				return TDerivedTransaction::CalculateRealSize(static_cast<const TDerivedTransaction&>(transaction));
+			bool isSizeValid(const TTransaction& transaction) const override {
+				return IsSizeValidT<TDerivedTransaction>(static_cast<const TDerivedTransaction&>(transaction));
 			}
 
 		private:

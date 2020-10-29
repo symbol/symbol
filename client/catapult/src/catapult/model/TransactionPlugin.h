@@ -68,8 +68,8 @@ namespace catapult { namespace model {
 		/// Gets the transaction dependent attributes.
 		virtual TransactionAttributes attributes() const = 0;
 
-		/// Calculates the real size of \a transaction.
-		virtual uint64_t calculateRealSize(const TTransaction& transaction) const = 0;
+		/// Checks the real size of \a transaction against its reported size and returns \c true if the sizes match.
+		virtual bool isSizeValid(const TTransaction& transaction) const = 0;
 	};
 
 	/// Embedded transaction plugin.

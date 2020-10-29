@@ -169,34 +169,50 @@ namespace catapult { namespace plugins {
 
 	// region size
 
-	TEST(TEST_CLASS, CanCalculateSizeWhenAllSubTransactionsAreSupported) {
+	namespace {
+		bool IsSizeValidDispatcher(const TransactionPlugin& plugin, AggregateTransaction& transaction, uint32_t size) {
+			transaction.Size = size;
+			return plugin.isSizeValid(transaction);
+		}
+	}
+
+	TEST(TEST_CLASS, IsSizeValidReturnsCorrectValuesWhenTransactionIsComplete) {
 		// Arrange:
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
 		auto wrapper = CreateAggregateTransaction(3, 4);
 
-		// Act:
-		auto realSize = pPlugin->calculateRealSize(*wrapper.pTransaction);
+		uint32_t embeddedTransactionSize = sizeof(mocks::EmbeddedMockTransaction);
+		uint32_t expectedRealSize = sizeof(AggregateTransaction);
+		expectedRealSize += 3 * (embeddedTransactionSize + utils::GetPaddingSize(embeddedTransactionSize, 8));
+		expectedRealSize += 4 * SizeOf32<Cosignature>();
 
 		// Assert:
-		uint32_t embeddedTransactionSize = sizeof(mocks::EmbeddedMockTransaction);
-		uint32_t expectedSize = sizeof(AggregateTransaction);
-		expectedSize += 3 * (embeddedTransactionSize + utils::GetPaddingSize(embeddedTransactionSize, 8));
-		expectedSize += 4 * SizeOf32<Cosignature>();
-		EXPECT_EQ(expectedSize, realSize);
+		EXPECT_FALSE(IsSizeValidDispatcher(*pPlugin, *wrapper.pTransaction, expectedRealSize - 1));
+		EXPECT_TRUE(IsSizeValidDispatcher(*pPlugin, *wrapper.pTransaction, expectedRealSize));
+		EXPECT_FALSE(IsSizeValidDispatcher(*pPlugin, *wrapper.pTransaction, expectedRealSize + 1));
 	}
 
-	TEST(TEST_CLASS, CannotCalculateSizeWhenAnySubTransactionIsNotSupported) {
+	TEST(TEST_CLASS, IsSizeValidReturnsCorrectValuesWhenTransactionIsIncomplete) {
+		// Arrange:
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
+
+		SizePrefixedEntity entity;
+		test::FillWithRandomData(entity);
+
+		// Assert:
+		EXPECT_FALSE(IsSizeValidDispatcher(*pPlugin, static_cast<AggregateTransaction&>(entity), sizeof(SizePrefixedEntity)));
+	}
+
+	TEST(TEST_CLASS, SizeIsInvalidWhenAnySubTransactionIsNotSupported) {
 		// Arrange:
 		TransactionRegistry registry;
 		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
 		auto wrapper = CreateAggregateTransaction(3, 4);
 
-		// Act:
-		auto realSize = pPlugin->calculateRealSize(*wrapper.pTransaction);
-
-		// Assert:
-		EXPECT_EQ(std::numeric_limits<uint64_t>::max(), realSize);
+		// Act + Assert:
+		EXPECT_FALSE(pPlugin->isSizeValid(*wrapper.pTransaction));
 	}
 
 	// endregion

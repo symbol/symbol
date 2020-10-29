@@ -78,24 +78,44 @@ namespace catapult { namespace test {
 	/// TransactionPlugin tests.
 	template<typename TTraits>
 	class TransactionPluginTests {
+	private:
+		template<typename TPlugin>
+		static bool IsSizeValidDispatcher(const TPlugin& plugin, typename TTraits::TransactionType& transaction, uint32_t size) {
+			transaction.Size = size;
+			return plugin.isSizeValid(transaction);
+		}
+
 	public:
-		/// Asserts that real size calculation delegates to static transaction function.
+		/// Asserts that is size valid calculation delegates to static transaction function.
 		template<typename... TArgs>
-		static void AssertCalculateRealSizeReturnsCorrectValue(model::EntityType, TArgs&& ...args) {
+		static void AssertIsSizeValidReturnsCorrectValuesWhenTransactionIsComplete(model::EntityType, TArgs&& ...args) {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
 			typename TTraits::TransactionType transaction;
 			test::FillWithRandomData(transaction);
-			const auto* pTransactionData = reinterpret_cast<uint8_t*>(&transaction);
+			auto expectedRealSize = static_cast<uint32_t>(TTraits::TransactionType::CalculateRealSize(transaction));
 
-			// Act:
-			auto realSize = pPlugin->calculateRealSize(transaction);
+			// Act + Assert:
+			EXPECT_FALSE(IsSizeValidDispatcher(*pPlugin, transaction, expectedRealSize - 1));
+			EXPECT_TRUE(IsSizeValidDispatcher(*pPlugin, transaction, expectedRealSize));
+			EXPECT_FALSE(IsSizeValidDispatcher(*pPlugin, transaction, expectedRealSize + 1));
+		}
 
-			// Assert:
-			auto expectedRealSize = TTraits::TransactionType::CalculateRealSize(transaction);
-			EXPECT_EQ(expectedRealSize, realSize)
-					<< utils::HexFormat(pTransactionData, pTransactionData + sizeof(typename TTraits::TransactionType));
+		/// Asserts that is size valid calculation delegates to static transaction function.
+		template<typename... TArgs>
+		static void AssertIsSizeValidReturnsCorrectValuesWhenTransactionIsIncomplete(model::EntityType, TArgs&& ...args) {
+			// Arrange:
+			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
+
+			model::SizePrefixedEntity entity;
+			test::FillWithRandomData(entity);
+
+			// Act + Assert:
+			EXPECT_FALSE(IsSizeValidDispatcher(
+					*pPlugin,
+					static_cast<typename TTraits::TransactionType&>(entity),
+					sizeof(model::SizePrefixedEntity)));
 		}
 
 		/// Asserts that transaction plugin returns correct attributes.
@@ -208,8 +228,11 @@ namespace catapult { namespace test {
 #define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ALL(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \
 	DEFINE_SHARED_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, __VA_ARGS__) \
 	\
-	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CalculateRealSizeReturnsCorrectValue, TRAITS_PREFIX, TEST_POSTFIX) { \
-		test::TransactionPluginTests<TTraits>::AssertCalculateRealSizeReturnsCorrectValue(__VA_ARGS__); \
+	PLUGIN_TEST_WITH_PREFIXED_TRAITS(IsSizeValidReturnsCorrectValuesWhenTransactionIsComplete, TRAITS_PREFIX, TEST_POSTFIX) { \
+		test::TransactionPluginTests<TTraits>::AssertIsSizeValidReturnsCorrectValuesWhenTransactionIsComplete(__VA_ARGS__); \
+	} \
+	PLUGIN_TEST_WITH_PREFIXED_TRAITS(IsSizeValidReturnsCorrectValuesWhenTransactionIsIncomplete, TRAITS_PREFIX, TEST_POSTFIX) { \
+		test::TransactionPluginTests<TTraits>::AssertIsSizeValidReturnsCorrectValuesWhenTransactionIsIncomplete(__VA_ARGS__); \
 	} \
 	PLUGIN_TEST_WITH_PREFIXED_TRAITS(AttributesReturnsCorrectValues, TRAITS_PREFIX, TEST_POSTFIX) { \
 		test::TransactionPluginTests<TTraits>::AssertAttributesReturnsCorrectValues(__VA_ARGS__); \
@@ -230,7 +253,7 @@ namespace catapult { namespace test {
 /// \note This is intended for TransactionPluginOptions::Default.
 ///
 /// Coverage:
-/// - regular and embedded: { type, calculateRealSize, attributes }
+/// - regular and embedded: { type, isSizeValid, attributes }
 /// - regular: { embeddedCount, dataBuffer, merkleSupplementaryBuffers, supportsTopLevel, supportsEmbedding, embeddedPlugin }
 /// - embedded: { additionalRequiredCosignatories }
 /// - uncovered (regular and embedded): { publish }
@@ -250,7 +273,7 @@ namespace catapult { namespace test {
 /// \note This is intended for TransactionPluginOptions::Only_Embeddable.
 ///
 /// Coverage:
-/// - regular and embedded: { type, calculateRealSize, attributes }
+/// - regular and embedded: { type, isSizeValid, attributes }
 /// - regular: { embeddedCount, dataBuffer, merkleSupplementaryBuffers, supportsTopLevel, supportsEmbedding, embeddedPlugin }
 /// - uncovered (regular and embedded): { publish }
 /// - uncovered (embedded): { additionalRequiredCosignatories }

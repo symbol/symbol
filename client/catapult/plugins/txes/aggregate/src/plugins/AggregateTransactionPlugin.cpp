@@ -58,12 +58,8 @@ namespace catapult { namespace plugins {
 				return { version, version, m_maxTransactionLifetime };
 			}
 
-			uint64_t calculateRealSize(const Transaction& transaction) const override {
-				// if size is valid, the real size is the transaction size
-				// if size is invalid, return a size that can never be correct (transaction size is uint32_t)
-				return IsSizeValid(CastToDerivedType(transaction), m_transactionRegistry)
-						? transaction.Size
-						: std::numeric_limits<uint64_t>::max();
+			bool isSizeValid(const Transaction& transaction) const override {
+				return IsSizeValid(CastToDerivedType(transaction), m_transactionRegistry);
 			}
 
 			void publish(

@@ -155,6 +155,26 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
 	}
 
+	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeLessThanHeaderSize) {
+		// Arrange:
+		std::vector<uint8_t> buffer(sizeof(SizePrefixedEntity));
+		auto* pTransaction = reinterpret_cast<EmbeddedTransaction*>(&buffer[0]);
+		pTransaction->Size = sizeof(SizePrefixedEntity);
+
+		// Act:
+		EXPECT_FALSE(IsSizeValid(*pTransaction));
+	}
+
+	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithReportedSizeLessThanDerivedHeaderSize) {
+		// Arrange:
+		auto pTransaction = std::make_unique<EmbeddedTransaction>();
+		pTransaction->Type = mocks::MockTransaction::Entity_Type;
+		pTransaction->Size = sizeof(EmbeddedTransaction);
+
+		// Act:
+		EXPECT_FALSE(IsSizeValid(*pTransaction));
+	}
+
 	// endregion
 
 	// region PublishNotifications

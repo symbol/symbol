@@ -28,7 +28,7 @@ namespace catapult { namespace handlers {
 			return [rangeHandler](const ionet::Packet& packet, const auto& context) {
 				auto range = ionet::ExtractEntitiesFromPacket<model::FinalizationMessage>(
 						packet,
-						ionet::IsSizeValid<model::FinalizationMessage>);
+						model::IsSizeValidT<model::FinalizationMessage>);
 				if (range.empty()) {
 					CATAPULT_LOG(warning) << "rejecting empty range: " << packet;
 					return;

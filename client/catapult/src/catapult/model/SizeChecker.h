@@ -18,33 +18,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "VerifiableEntity.h"
-#include "Address.h"
-#include "Block.h"
-#include "Transaction.h"
+#pragma once
 
 namespace catapult { namespace model {
 
-	std::ostream& operator<<(std::ostream& out, const VerifiableEntity& entity) {
-		out << entity.Type << " (v" << static_cast<uint16_t>(entity.Version) << ") with size " << entity.Size;
-		return out;
-	}
-
-	Address GetSignerAddress(const VerifiableEntity& entity) {
-		return PublicKeyToAddress(entity.SignerPublicKey, entity.Network);
-	}
-
-	bool IsSizeValid(const VerifiableEntity& entity, const TransactionRegistry& registry) {
-		if (entity.Size < sizeof(VerifiableEntity))
-			return false;
-
-		switch (ToBasicEntityType(entity.Type)) {
-		case BasicEntityType::Block:
-			return IsSizeValid(static_cast<const Block&>(entity), registry);
-		case BasicEntityType::Transaction:
-			return IsSizeValid(static_cast<const Transaction&>(entity), registry);
-		default:
-			return false;
-		}
+	/// Checks the real size of \a entity against its reported size and returns \c true if the sizes match.
+	template<typename TEntity>
+	bool IsSizeValidT(const TEntity& entity) {
+		return entity.Size >= sizeof(TEntity) && TEntity::CalculateRealSize(entity) == entity.Size;
 	}
 }}

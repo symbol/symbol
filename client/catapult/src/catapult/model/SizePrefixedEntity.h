@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "SizeChecker.h"
 #include "catapult/utils/NonCopyable.h"
 #include <stdint.h>
 
@@ -42,7 +43,7 @@ namespace catapult { namespace model {
 		/// Gets the start of the variable data part of \a entity.
 		template<typename T>
 		static auto PayloadStart(T& entity) {
-			return entity.Size != T::CalculateRealSize(entity) ? nullptr : entity.ToBytePointer() + sizeof(T);
+			return !model::IsSizeValidT(entity) ? nullptr : entity.ToBytePointer() + sizeof(T);
 		}
 
 	public:

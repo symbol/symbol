@@ -22,12 +22,13 @@
 #include "catapult/ionet/NetworkNode.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/PacketEntityUtils.h"
+#include "catapult/model/SizeChecker.h"
 
 namespace catapult { namespace nodediscovery {
 
 	bool TryParseNodePacket(const ionet::Packet& packet, ionet::Node& node) {
 		auto dataSize = ionet::CalculatePacketDataSize(packet);
-		if (!ionet::ContainsSingleEntity<ionet::NetworkNode>({ packet.Data(), dataSize }, ionet::IsSizeValid<ionet::NetworkNode>)) {
+		if (!ionet::ContainsSingleEntity<ionet::NetworkNode>({ packet.Data(), dataSize }, model::IsSizeValidT<ionet::NetworkNode>)) {
 			CATAPULT_LOG(warning) << "node packet is malformed with size " << dataSize;
 			return false;
 		}
@@ -37,7 +38,7 @@ namespace catapult { namespace nodediscovery {
 	}
 
 	bool TryParseNodesPacket(const ionet::Packet& packet, ionet::NodeSet& nodes) {
-		auto range = ionet::ExtractEntitiesFromPacket<ionet::NetworkNode>(packet, ionet::IsSizeValid<ionet::NetworkNode>);
+		auto range = ionet::ExtractEntitiesFromPacket<ionet::NetworkNode>(packet, model::IsSizeValidT<ionet::NetworkNode>);
 		if (range.empty() && sizeof(ionet::PacketHeader) != packet.Size) {
 			CATAPULT_LOG(warning) << "rejecting empty range: " << packet;
 			return false;

@@ -70,8 +70,8 @@ namespace catapult { namespace model {
 				return { version, version, utils::TimeSpan() };
 			}
 
-			uint64_t calculateRealSize(const TTransaction& transaction) const override {
-				return TDerivedTransaction::CalculateRealSize(static_cast<const TDerivedTransaction&>(transaction));
+			bool isSizeValid(const TTransaction& transaction) const override {
+				return IsSizeValidT<TDerivedTransaction>(static_cast<const TDerivedTransaction&>(transaction));
 			}
 
 		protected:

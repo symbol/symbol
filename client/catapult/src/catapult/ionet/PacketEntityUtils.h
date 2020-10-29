@@ -38,12 +38,6 @@ namespace catapult { namespace ionet {
 		return packet.Size - Min_Size;
 	}
 
-	/// Checks the real size of \a entity against its reported size and returns \c true if the sizes match.
-	template<typename TEntity>
-	bool IsSizeValid(const TEntity& entity) {
-		return TEntity::CalculateRealSize(entity) == entity.Size;
-	}
-
 	/// Extracts entities from \a packet with a validity check (\a isValid).
 	/// \note If the packet is invalid and/or contains partial entities, the returned range will be empty.
 	template<typename TEntity, typename TIsValidPredicate>

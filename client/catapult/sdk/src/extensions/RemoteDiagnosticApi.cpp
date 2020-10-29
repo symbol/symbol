@@ -76,7 +76,7 @@ namespace catapult { namespace extensions {
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractEntitiesFromPacket<ionet::PackedNodeInfo>(packet, ionet::IsSizeValid<ionet::PackedNodeInfo>);
+				result = ionet::ExtractEntitiesFromPacket<ionet::PackedNodeInfo>(packet, model::IsSizeValidT<ionet::PackedNodeInfo>);
 				return !result.empty();
 			}
 		};
@@ -112,7 +112,7 @@ namespace catapult { namespace extensions {
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
 				result = ionet::ExtractEntitiesFromPacket<model::CacheEntryInfo<TIdentifier>>(
 						packet,
-						ionet::IsSizeValid<model::CacheEntryInfo<TIdentifier>>);
+						model::IsSizeValidT<model::CacheEntryInfo<TIdentifier>>);
 				return !result.empty();
 			}
 		};

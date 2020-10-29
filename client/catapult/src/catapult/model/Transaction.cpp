@@ -25,7 +25,7 @@
 namespace catapult { namespace model {
 
 	namespace {
-		bool TryCalculateRealSize(const Transaction& transaction, const TransactionRegistry& registry, uint64_t& realSize) {
+		bool IsSizeValidInternal(const Transaction& transaction, const TransactionRegistry& registry) {
 			const auto* pPlugin = registry.findPlugin(transaction.Type);
 			if (!pPlugin || !pPlugin->supportsTopLevel()) {
 				CATAPULT_LOG(warning)
@@ -34,22 +34,20 @@ namespace catapult { namespace model {
 				return false;
 			}
 
-			realSize = pPlugin->calculateRealSize(transaction);
-			return true;
+			return pPlugin->isSizeValid(transaction);
 		}
 	}
 
 	bool IsSizeValid(const Transaction& transaction, const TransactionRegistry& registry) {
-		uint64_t realSize;
-		if (!TryCalculateRealSize(transaction, registry, realSize))
+		if (transaction.Size < sizeof(Transaction)) {
+			CATAPULT_LOG(warning) << "transaction failed size validation with size " << transaction.Size;
 			return false;
+		}
 
-		if (transaction.Size == realSize)
+		if (IsSizeValidInternal(transaction, registry))
 			return true;
 
-		CATAPULT_LOG(warning)
-				<< transaction.Type << " transaction failed size validation with size " << transaction.Size
-				<< " (expected " << realSize << ")";
+		CATAPULT_LOG(warning) << transaction.Type << " transaction failed size validation with size " << transaction.Size;
 		return false;
 	}
 }}

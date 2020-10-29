@@ -48,7 +48,7 @@ namespace catapult { namespace api {
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
 				result = ionet::ExtractEntitiesFromPacket<model::FinalizationMessage>(
 						packet,
-						ionet::IsSizeValid<model::FinalizationMessage>);
+						model::IsSizeValidT<model::FinalizationMessage>);
 				return !result.empty() || sizeof(ionet::PacketHeader) == packet.Size;
 			}
 		};

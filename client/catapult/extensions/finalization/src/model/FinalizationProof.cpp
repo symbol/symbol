@@ -34,10 +34,7 @@ namespace catapult { namespace model {
 		}
 
 		auto messageGroups = proof.MessageGroups(EntityContainerErrorPolicy::Suppress);
-		auto areAllMessageGroupsValid = std::all_of(messageGroups.cbegin(), messageGroups.cend(), [](const auto& messageGroup) {
-			return messageGroup.Size == FinalizationMessageGroup::CalculateRealSize(messageGroup);
-		});
-
+		auto areAllMessageGroupsValid = std::all_of(messageGroups.cbegin(), messageGroups.cend(), IsSizeValidT<FinalizationMessageGroup>);
 		if (areAllMessageGroupsValid && !messageGroups.hasError())
 			return true;
 

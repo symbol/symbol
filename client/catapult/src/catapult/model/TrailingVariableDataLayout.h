@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "SizeChecker.h"
 #include "catapult/utils/NonCopyable.h"
 #include <stdint.h>
 
@@ -37,7 +38,7 @@ namespace catapult { namespace model {
 		/// Gets the start of the variable data part of \a derived.
 		template<typename T>
 		static auto PayloadStart(T& derived) {
-			return derived.Size != TDerived::CalculateRealSize(derived) ? nullptr : ToBytePointer(derived) + sizeof(T);
+			return !model::IsSizeValidT(derived) ? nullptr : ToBytePointer(derived) + sizeof(T);
 		}
 
 		/// Gets a typed pointer to the variable data \a pData.

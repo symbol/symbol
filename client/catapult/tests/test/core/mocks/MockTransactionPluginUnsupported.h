@@ -35,8 +35,8 @@ namespace catapult { namespace mocks {
 			CATAPULT_THROW_RUNTIME_ERROR("attributes - not implemented in mock");
 		}
 
-		uint64_t calculateRealSize(const model::Transaction&) const override {
-			CATAPULT_THROW_RUNTIME_ERROR("calculateRealSize - not implemented in mock");
+		bool isSizeValid(const model::Transaction&) const override {
+			CATAPULT_THROW_RUNTIME_ERROR("isSizeValid - not implemented in mock");
 		}
 
 		void publish(

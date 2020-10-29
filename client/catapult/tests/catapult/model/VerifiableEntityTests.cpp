@@ -160,6 +160,16 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pEntity));
 	}
 
+	TEST(TEST_CLASS, SizeIsInvalidForEntityWithReportedSizeLessThanHeaderSize) {
+		// Arrange:
+		std::vector<uint8_t> buffer(sizeof(SizePrefixedEntity));
+		auto* pEntity = reinterpret_cast<VerifiableEntity*>(&buffer[0]);
+		pEntity->Size = sizeof(SizePrefixedEntity);
+
+		// Act:
+		EXPECT_FALSE(IsSizeValid(*pEntity));
+	}
+
 	// endregion
 
 	// region IsSizeValid - block
