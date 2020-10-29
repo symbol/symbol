@@ -71,8 +71,8 @@ namespace catapult { namespace extensions {
 	/// Retriever that returns the network chain heights for a number of peers.
 	using RemoteChainHeightsRetriever = std::function<thread::future<std::vector<Height>> (size_t)>;
 
-	/// Supplier for retrieving the local finalized height.
-	using LocalFinalizedHeightSupplier = supplier<Height>;
+	/// Supplier for retrieving the local finalized height hash pair.
+	using LocalFinalizedHeightHashPairSupplier = supplier<model::HeightHashPair>;
 
 	/// Predicate for determining if a chain is synced.
 	using ChainSyncedPredicate = predicate<>;
@@ -135,9 +135,9 @@ namespace catapult { namespace extensions {
 			SetOnce(m_remoteChainHeightsRetriever, retriever);
 		}
 
-		/// Sets the local finalized height \a supplier.
-		void setLocalFinalizedHeightSupplier(const LocalFinalizedHeightSupplier& supplier) {
-			SetOnce(m_localFinalizedHeightSupplier, supplier);
+		/// Sets the local finalized height hash pair \a supplier.
+		void setLocalFinalizedHeightHashPairSupplier(const LocalFinalizedHeightHashPairSupplier& supplier) {
+			SetOnce(m_localFinalizedHeightHashPairSupplier, supplier);
 		}
 
 		/// Sets the chain synced \a predicate.
@@ -201,9 +201,9 @@ namespace catapult { namespace extensions {
 			return Require(m_remoteChainHeightsRetriever);
 		}
 
-		/// Gets the local finalized height \a supplier.
-		auto localFinalizedHeightSupplier() const {
-			return m_localFinalizedHeightSupplier ? m_localFinalizedHeightSupplier : []() { return Height(1); };
+		/// Gets the local finalized height hash pair supplier.
+		auto localFinalizedHeightHashPairSupplier() const {
+			return Require(m_localFinalizedHeightHashPairSupplier);
 		}
 
 		/// Gets the chain synced predicate.
@@ -239,7 +239,7 @@ namespace catapult { namespace extensions {
 		TransactionRangeConsumerFactoryFunc m_transactionRangeConsumerFactory;
 
 		RemoteChainHeightsRetriever m_remoteChainHeightsRetriever;
-		LocalFinalizedHeightSupplier m_localFinalizedHeightSupplier;
+		LocalFinalizedHeightHashPairSupplier m_localFinalizedHeightHashPairSupplier;
 		ChainSyncedPredicate m_chainSyncedPredicate;
 		std::vector<KnownHashPredicate> m_knownHashPredicates;
 	};

@@ -71,7 +71,8 @@ namespace catapult { namespace test {
 		}
 
 		void AddCommonPluginExtensions(config::ExtensionsConfiguration& config) {
-			AddPluginExtensions(config, { "diagnostics", "networkheight", "packetserver", "sync", "transactionsink" });
+			// finalization is needed because int tests are run with 0 == MaxRollbackBlocks
+			AddPluginExtensions(config, { "diagnostics", "finalization", "packetserver", "sync", "transactionsink" });
 		}
 	}
 
@@ -85,7 +86,7 @@ namespace catapult { namespace test {
 	}
 
 	void AddSimplePartnerPluginExtensions(config::ExtensionsConfiguration& config) {
-		AddPluginExtensions(config, { "packetserver", "sync", "syncsource" });
+		AddPluginExtensions(config, { "finalization", "packetserver", "sync", "syncsource" });
 	}
 
 	void AddRecoveryPluginExtensions(config::ExtensionsConfiguration& config) {

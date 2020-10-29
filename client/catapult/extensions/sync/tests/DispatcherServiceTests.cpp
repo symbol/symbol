@@ -196,6 +196,9 @@ namespace catapult { namespace sync {
 				state.hooks().addNewBlockSink([&counter = m_numNewBlockSinkCalls](const auto&) { ++counter; });
 				state.hooks().addNewTransactionsSink([&counter = m_numNewTransactionsSinkCalls](const auto&) { ++counter; });
 
+				// set up suppliers
+				state.hooks().setLocalFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair{ Height(1), Hash256() }; });
+
 				// configure subscribers
 				testState().nodeSubscriber().enableBanSimulation();
 

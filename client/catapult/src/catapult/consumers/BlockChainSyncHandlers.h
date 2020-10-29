@@ -20,6 +20,7 @@
 
 #pragma once
 #include "BlockChainProcessor.h"
+#include "catapult/model/HeightHashPair.h"
 #include "catapult/subscribers/StateChangeInfo.h"
 #include "catapult/utils/ArraySet.h"
 
@@ -76,8 +77,8 @@ namespace catapult { namespace consumers {
 		/// Prototype for checking block difficulties.
 		using DifficultyCheckerFunc = predicate<const std::vector<const model::Block*>&, const cache::CatapultCache&>;
 
-		/// Prototype for retrieving the local finalized height.
-		using LocalFinalizedHeightSupplierFunc = supplier<Height>;
+		/// Prototype for retrieving the local finalized height hash pair.
+		using LocalFinalizedHeightHashPairSupplierFunc = supplier<model::HeightHashPair>;
 
 		/// Prototype for undoing a block.
 		/// \note This is called with all rolled back blocks and the (new) common block.
@@ -99,8 +100,8 @@ namespace catapult { namespace consumers {
 		/// Checks all difficulties in a block chain for correctness.
 		DifficultyCheckerFunc DifficultyChecker;
 
-		/// Supplies the local finalized height.
-		LocalFinalizedHeightSupplierFunc LocalFinalizedHeightSupplier;
+		/// Supplies the local finalized height hash pair.
+		LocalFinalizedHeightHashPairSupplierFunc LocalFinalizedHeightHashPairSupplier;
 
 		/// Processes (validates and executes) a block chain.
 		BlockChainProcessor Processor;

@@ -109,8 +109,9 @@ namespace catapult { namespace finalization {
 						state.finalizationSubscriber()));
 
 				// register hooks
-				state.hooks().setLocalFinalizedHeightSupplier([&proofStorage = *pProofStorageCache]() {
-					return proofStorage.view().statistics().Height;
+				state.hooks().setLocalFinalizedHeightHashPairSupplier([&proofStorage = *pProofStorageCache]() {
+					auto finalizationStatistics = proofStorage.view().statistics();
+					return model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash };
 				});
 
 				// register services

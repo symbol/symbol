@@ -24,15 +24,25 @@
 
 namespace catapult { namespace extensions {
 
-	supplier<Height> CreateLocalFinalizedHeightSupplier(const ServiceState& state) {
+	supplier<model::HeightHashPair> CreateLocalFinalizedHeightHashPairSupplier(const ServiceState& state) {
 		auto maxRollbackBlocks = state.config().BlockChain.MaxRollbackBlocks;
 		if (0 == maxRollbackBlocks)
-			return state.hooks().localFinalizedHeightSupplier();
+			return state.hooks().localFinalizedHeightHashPairSupplier();
 
 		return [&storage = state.storage(), maxRollbackBlocks]() {
 			auto storageView = storage.view();
 			auto chainHeight = storageView.chainHeight();
-			return chainHeight.unwrap() <= maxRollbackBlocks ? Height(1) : Height(chainHeight.unwrap() - maxRollbackBlocks);
+			auto finalizedHeight = chainHeight.unwrap() <= maxRollbackBlocks
+					? Height(1)
+					: Height(chainHeight.unwrap() - maxRollbackBlocks);
+			return model::HeightHashPair{ finalizedHeight, storageView.loadBlockElement(finalizedHeight)->EntityHash };
+		};
+	}
+
+	supplier<Height> CreateLocalFinalizedHeightSupplier(const ServiceState& state) {
+		auto heightHashPairSupplier = CreateLocalFinalizedHeightHashPairSupplier(state);
+		return [heightHashPairSupplier]() {
+			return heightHashPairSupplier().Height;
 		};
 	}
 

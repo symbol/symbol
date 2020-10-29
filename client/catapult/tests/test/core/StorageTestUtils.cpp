@@ -42,12 +42,11 @@ namespace catapult { namespace test {
 	void PrepareStorage(const std::string& destination) {
 		PrepareStorageWithoutNemesis(destination);
 
-		const std::string nemesisDirectory = "/00000";
-		const std::string nemesisFilename = nemesisDirectory + "/00001.dat";
-		boost::filesystem::copy_file(Source_Directory + nemesisFilename, destination + nemesisFilename);
+		for (auto filename : { "proof.index.dat" })
+			boost::filesystem::copy_file(std::string(Source_Directory) + "/" + filename, destination + "/" + filename);
 
-		const std::string nemesisHashFilename = nemesisDirectory + "/hashes.dat";
-		boost::filesystem::copy_file(Source_Directory + nemesisHashFilename, destination + nemesisHashFilename);
+		for (auto filename : { "00001.dat", "00001.proof", "hashes.dat", "proof.heights.dat" })
+			boost::filesystem::copy_file(std::string(Source_Directory) + "/00000/" + filename, destination + "/00000/" + filename);
 	}
 
 	void PrepareStorageWithoutNemesis(const std::string& destination) {

@@ -38,6 +38,13 @@ namespace catapult { namespace test {
 			return destinationFilePath.generic_string();
 		}
 
+		void DisableVoting(const std::string& configFilePath) {
+			pt::ptree properties;
+			pt::read_ini(configFilePath, properties);
+			properties.put("finalization.enableVoting", false);
+			pt::write_ini(configFilePath, properties);
+		}
+
 		void SetAutoHarvesting(const std::string& configFilePath) {
 			pt::ptree properties;
 			pt::read_ini(configFilePath, properties);
@@ -51,7 +58,10 @@ namespace catapult { namespace test {
 	void PrepareConfiguration(const std::string& destination, NodeFlag nodeFlag) {
 		auto destinationResourcesPath = boost::filesystem::path(destination) / "resources";
 		boost::filesystem::create_directories(destinationResourcesPath);
-		CopyFile(destinationResourcesPath, "config-networkheight.properties");
+
+		auto finalizationConfigFilePath = CopyFile(destinationResourcesPath, "config-finalization.properties");
+		DisableVoting(finalizationConfigFilePath);
+
 		CopyFile(destinationResourcesPath, "config-task.properties");
 
 		GenerateCertificateDirectory((boost::filesystem::path(destination) / "cert").generic_string());

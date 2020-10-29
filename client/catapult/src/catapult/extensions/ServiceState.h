@@ -232,6 +232,9 @@ namespace catapult { namespace extensions {
 
 	// region utils
 
+	/// Creates and returns a local finalized height hash pair supplier based on \a state.
+	supplier<model::HeightHashPair> CreateLocalFinalizedHeightHashPairSupplier(const ServiceState& state);
+
 	/// Creates and returns a local finalized height supplier based on \a state.
 	supplier<Height> CreateLocalFinalizedHeightSupplier(const ServiceState& state);
 

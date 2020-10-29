@@ -260,19 +260,18 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region localFinalizedHeightSupplier / chainSyncedPredicate
+	// region localFinalizedHeightHashPairSupplier / chainSyncedPredicate
 
 	namespace {
-		struct LocalFinalizedHeightSupplierTraits {
-			static constexpr auto Default_Value = Height(1);
-			static constexpr auto Custom_Value = Height(101);
+		struct LocalFinalizedHeightHashPairSupplierTraits {
+			static constexpr auto Custom_Value = model::HeightHashPair{ Height(101), Hash256() };
 
 			static auto Get(const ServerHooks& hooks) {
-				return hooks.localFinalizedHeightSupplier();
+				return hooks.localFinalizedHeightHashPairSupplier();
 			}
 
-			static void Set(ServerHooks& hooks, const LocalFinalizedHeightSupplier& supplier) {
-				hooks.setLocalFinalizedHeightSupplier(supplier);
+			static void Set(ServerHooks& hooks, const LocalFinalizedHeightHashPairSupplier& supplier) {
+				hooks.setLocalFinalizedHeightHashPairSupplier(supplier);
 			}
 		};
 
@@ -295,11 +294,29 @@ namespace catapult { namespace extensions {
 
 #define SUPPLIER_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
-	SUPPLIER_TEST_ENTRY(TEST_NAME, LocalFinalizedHeightSupplier) \
+	SUPPLIER_TEST_ENTRY(TEST_NAME, LocalFinalizedHeightHashPairSupplier) \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, ChainSyncedPredicate) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
 
-	SUPPLIER_TEST(UnsetReturnsDefaultValue) {
+#define SUPPLIER_TEST_WITHOUT_DEFAULT(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
+	SUPPLIER_TEST_ENTRY(TEST_NAME, LocalFinalizedHeightHashPairSupplier) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
+
+#define SUPPLIER_TEST_WITH_DEFAULT(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
+	SUPPLIER_TEST_ENTRY(TEST_NAME, ChainSyncedPredicate) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
+
+	SUPPLIER_TEST_WITHOUT_DEFAULT(CannotAccessWhenUnset) {
+		// Arrange:
+		ServerHooks hooks;
+
+		// Act + Assert:
+		EXPECT_THROW(TTraits::Get(hooks), catapult_invalid_argument);
+	}
+
+	SUPPLIER_TEST_WITH_DEFAULT(UnsetReturnsDefaultValue) {
 		// Arrange:
 		ServerHooks hooks;
 

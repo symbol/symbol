@@ -47,6 +47,7 @@ namespace catapult { namespace sync {
 					return [](auto&&, auto) { return disruptor::DisruptorElementId(); };
 				});
 				hooks.setTransactionRangeConsumerFactory([](auto) { return [](auto&&) {}; });
+				hooks.setLocalFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair{ Height(1), Hash256() }; });
 			}
 		};
 	}

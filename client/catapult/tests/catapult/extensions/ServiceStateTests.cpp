@@ -122,19 +122,62 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region CreateLocalFinalizedHeightSupplier
+	// region CreateLocalFinalizedHeightHashPairSupplier / CreateLocalFinalizedHeightSupplier
+
+	namespace {
+		void PrepareLocalFinalizedHeightHashPairSupplier(
+				test::ServiceTestState& testState,
+				uint32_t maxRollbackBlocks,
+				uint32_t numBlocks,
+				const model::HeightHashPair& localFinalizedHeightHashPair) {
+			const_cast<uint32_t&>(testState.state().config().BlockChain.MaxRollbackBlocks) = maxRollbackBlocks;
+
+			mocks::SeedStorageWithFixedSizeBlocks(testState.state().storage(), numBlocks);
+
+			testState.state().hooks().setLocalFinalizedHeightHashPairSupplier([localFinalizedHeightHashPair]() {
+				return localFinalizedHeightHashPair;
+			});
+		}
+
+		void AssertLocalFinalizedHeightHashPairSupplier(uint32_t maxRollbackBlocks, uint32_t numBlocks, Height expectedHeight) {
+			// Arrange:
+			test::ServiceTestState testState;
+
+			auto lastFinalizedHash = test::GenerateRandomByteArray<Hash256>();
+			PrepareLocalFinalizedHeightHashPairSupplier(testState, maxRollbackBlocks, numBlocks, { Height(7), lastFinalizedHash });
+
+			auto expectedHash = 0 == maxRollbackBlocks
+					? lastFinalizedHash
+					: testState.state().storage().view().loadBlockElement(expectedHeight)->EntityHash;
+
+			// Act:
+			auto supplier = CreateLocalFinalizedHeightHashPairSupplier(testState.state());
+
+			// Assert:
+			EXPECT_EQ(model::HeightHashPair({ expectedHeight, expectedHash }), supplier())
+					<< "maxRollbackBlocks = " << maxRollbackBlocks << ", numBlocks = " << numBlocks;
+		}
+	}
+
+	TEST(TEST_CLASS, CreateLocalFinalizedHeightHashPairSupplier_ReturnsRegisteredSupplierWhenMaxRollbackBlocksIsZero) {
+		AssertLocalFinalizedHeightHashPairSupplier(0, 4, Height(7));
+		AssertLocalFinalizedHeightHashPairSupplier(0, 20, Height(7));
+	}
+
+	TEST(TEST_CLASS, CreateLocalFinalizedHeightHashPairSupplier_ReturnsStorageBasedSupplierWhenMaxRollbackBlocksIsNonzero) {
+		AssertLocalFinalizedHeightHashPairSupplier(5, 4, Height(1));
+		AssertLocalFinalizedHeightHashPairSupplier(5, 5, Height(1));
+		AssertLocalFinalizedHeightHashPairSupplier(5, 6, Height(1));
+		AssertLocalFinalizedHeightHashPairSupplier(5, 7, Height(2));
+		AssertLocalFinalizedHeightHashPairSupplier(5, 20, Height(15));
+	}
 
 	namespace {
 		void AssertLocalFinalizedHeightSupplier(uint32_t maxRollbackBlocks, uint32_t numBlocks, Height expectedHeight) {
 			// Arrange:
 			test::ServiceTestState testState;
-			const_cast<uint32_t&>(testState.state().config().BlockChain.MaxRollbackBlocks) = maxRollbackBlocks;
 
-			mocks::SeedStorageWithFixedSizeBlocks(testState.state().storage(), numBlocks);
-
-			testState.state().hooks().setLocalFinalizedHeightSupplier([]() {
-				return Height(7);
-			});
+			PrepareLocalFinalizedHeightHashPairSupplier(testState, maxRollbackBlocks, numBlocks, { Height(7), Hash256() });
 
 			// Act:
 			auto supplier = CreateLocalFinalizedHeightSupplier(testState.state());

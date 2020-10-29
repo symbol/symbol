@@ -62,16 +62,20 @@ namespace catapult { namespace syncsource {
 			return config;
 		}
 
-		void RegisterAllHandlers(
-				ionet::ServerPacketHandlers& handlers,
-				const io::BlockStorageCache& storage,
-				const extensions::ServerHooks& hooks,
-				const model::TransactionRegistry& registry,
-				const HandlersConfiguration& config) {
+		void RegisterAllHandlers(extensions::ServiceState& state) {
+			auto& handlers = state.packetHandlers();
+			const auto& storage = state.storage();
+			const auto& registry = state.pluginManager().transactionRegistry();
+			auto config = CreateHandlersConfiguration(state);
+
 			handlers::RegisterPushBlockHandler(handlers, registry, config.PushBlockCallback);
 			handlers::RegisterPullBlockHandler(handlers, storage);
 
-			handlers::RegisterChainStatisticsHandler(handlers, storage, config.ChainScoreSupplier, hooks.localFinalizedHeightSupplier());
+			handlers::RegisterChainStatisticsHandler(
+					handlers,
+					storage,
+					config.ChainScoreSupplier,
+					extensions::CreateLocalFinalizedHeightSupplier(state));
 			handlers::RegisterBlockHashesHandler(handlers, storage, config.MaxHashes);
 			handlers::RegisterPullBlocksHandler(handlers, storage, config.BlocksHandlerConfig);
 
@@ -90,12 +94,7 @@ namespace catapult { namespace syncsource {
 
 			void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override {
 				// add handlers
-				RegisterAllHandlers(
-						state.packetHandlers(),
-						state.storage(),
-						state.hooks(),
-						state.pluginManager().transactionRegistry(),
-						CreateHandlersConfiguration(state));
+				RegisterAllHandlers(state);
 			}
 		};
 	}

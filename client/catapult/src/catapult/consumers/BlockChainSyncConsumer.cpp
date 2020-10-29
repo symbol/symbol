@@ -170,7 +170,7 @@ namespace catapult { namespace consumers {
 					return Abort(Failure_Consumer_Remote_Chain_Unlinked);
 
 				// 2. check that the remote chain is not too far behind the current chain
-				auto localFinalizedHeight = m_handlers.LocalFinalizedHeightSupplier();
+				auto localFinalizedHeight = m_handlers.LocalFinalizedHeightHashPairSupplier().Height;
 				if (peerStartHeight <= localFinalizedHeight)
 					return Abort(Failure_Consumer_Remote_Chain_Too_Far_Behind);
 

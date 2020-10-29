@@ -453,8 +453,8 @@ namespace catapult { namespace consumers {
 				handlers.DifficultyChecker = [this](const auto& blocks, const auto& cache) {
 					return DifficultyChecker(blocks, cache);
 				};
-				handlers.LocalFinalizedHeightSupplier = [this]() {
-					return LastFinalizedHeight;
+				handlers.LocalFinalizedHeightHashPairSupplier = [this]() {
+					return model::HeightHashPair{ LastFinalizedHeight, Hash256() };
 				};
 				handlers.UndoBlock = [this](const auto& block, auto& state, auto undoBlockType) {
 					return UndoBlock(block, state, undoBlockType);

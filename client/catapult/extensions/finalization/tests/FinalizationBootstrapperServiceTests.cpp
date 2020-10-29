@@ -221,16 +221,18 @@ namespace catapult { namespace finalization {
 
 	// region FinalizationBootstrapperService - hooks
 
-	TEST(TEST_CLASS, LocalFinalizedHeightSupplierHookIsRegistered) {
+	TEST(TEST_CLASS, LocalFinalizedHeightHashPairSupplierHookIsRegistered) {
 		// Arrange:
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+
 		TestContext context;
-		context.boot(FinalizationPoint(11), Height(123), Hash256());
+		context.boot(FinalizationPoint(11), Height(123), hash);
 
 		// Act:
-		auto height = context.testState().state().hooks().localFinalizedHeightSupplier()();
+		auto heightHashPair = context.testState().state().hooks().localFinalizedHeightHashPairSupplier()();
 
 		// Assert:
-		EXPECT_EQ(Height(123), height);
+		EXPECT_EQ(model::HeightHashPair({ Height(123), hash }), heightHashPair);
 	}
 
 	// endregion

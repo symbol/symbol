@@ -44,6 +44,8 @@ namespace catapult { namespace syncsource {
 					return [&counter, source](auto&&) { counter += disruptor::InputSource::Remote_Push == source ? 1 : 0; };
 				});
 
+				hooks.setLocalFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair{ Height(1), Hash256() }; });
+
 				// the service needs to be able to parse the mock transactions sent to it
 				testState().pluginManager().addTransactionSupport(mocks::CreateMockTransactionPlugin());
 			}

@@ -60,7 +60,7 @@ namespace catapult { namespace sync {
 					api::CreateLocalChainApi(
 							state.storage(),
 							[&score = state.score()]() { return score.get(); },
-							state.hooks().localFinalizedHeightSupplier()),
+							extensions::CreateLocalFinalizedHeightSupplier(state)),
 					CreateChainSynchronizerConfiguration(config),
 					extensions::CreateLocalFinalizedHeightSupplier(state),
 					state.hooks().completionAwareBlockRangeConsumerFactory()(Sync_Source));

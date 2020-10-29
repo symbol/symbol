@@ -170,7 +170,7 @@ namespace catapult { namespace sync {
 				return blocks.size() == result;
 			};
 
-			syncHandlers.LocalFinalizedHeightSupplier = extensions::CreateLocalFinalizedHeightSupplier(state);
+			syncHandlers.LocalFinalizedHeightHashPairSupplier = extensions::CreateLocalFinalizedHeightHashPairSupplier(state);
 
 			auto pUndoObserver = utils::UniqueToShared(extensions::CreateUndoEntityObserver(pluginManager));
 			syncHandlers.UndoBlock = [&rollbackInfo, &pluginManager, pUndoObserver](

@@ -48,7 +48,7 @@ namespace catapult { namespace local {
 		struct BasicTestContext {
 			using LocalNodeTestContext = TestContext;
 
-			static constexpr auto Num_Tasks = 8u;
+			static constexpr auto Num_Tasks = 9u;
 
 			static void AssertBoot(const test::BasicLocalNodeStats&)
 			{}
