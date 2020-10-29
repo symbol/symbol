@@ -201,11 +201,11 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasUnfinalizedBlocks_OnMultiple) {
-		AssertCanCreatePrevote(12, 10, 2, 5);
+		AssertCanCreatePrevote(16, 10, 2, 7); // 8, 9, 10, 11, 12, 13, 14
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasUnfinalizedBlocks_NotOnMultiple) {
-		AssertCanCreatePrevote(12, 10, 5, 3);
+		AssertCanCreatePrevote(16, 10, 5, 3); // 8, 9, 10
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasGreaterThanMaxUnfinalizedBlocks_OnMultiple) {
@@ -216,20 +216,50 @@ namespace catapult { namespace chain {
 		AssertCanCreatePrevote(22, 10, 5, 8);
 	}
 
-	TEST(TEST_CLASS, CanCreatePrevoteStartingEpoch) {
-		// Arrange:
-		auto config = finalization::FinalizationConfiguration::Uninitialized();
-		config.MaxHashesPerPoint = 200;
-		config.PrevoteBlocksMultiple = 5;
-		config.VotingSetGrouping = 25;
+	namespace {
+		void AssertPrevoteStartingEpoch(uint64_t finalizedHeight, uint32_t chainHeight, uint32_t expectedHashesCount) {
+			// Arrange:
+			auto config = finalization::FinalizationConfiguration::Uninitialized();
+			config.MaxHashesPerPoint = 200;
+			config.PrevoteBlocksMultiple = 5;
+			config.VotingSetGrouping = 25;
 
-		TestContext context(Height(100), 105, config);
+			TestContext context(Height(finalizedHeight), chainHeight, config);
 
-		// Act:
-		auto pMessage = context.factory().createPrevote({ FinalizationEpoch(6), FinalizationPoint(1) });
+			// Act:
+			auto pMessage = context.factory().createPrevote({ FinalizationEpoch(6), FinalizationPoint(1) });
 
-		// Assert:
-		AssertPrevote(*pMessage, context, FinalizationEpoch(6), FinalizationPoint(1), Height(100), 6);
+			// Assert:
+			AssertPrevote(*pMessage, context, FinalizationEpoch(6), FinalizationPoint(1), Height(finalizedHeight), expectedHashesCount);
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevote_BelowMultipleTimesTwo) {
+		AssertPrevoteStartingEpoch(1, 4, 1);
+		AssertPrevoteStartingEpoch(1, 5, 1);
+		AssertPrevoteStartingEpoch(1, 6, 1);
+		AssertPrevoteStartingEpoch(1, 9, 1);
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevote_AboveMultipleTimesTwo) {
+		AssertPrevoteStartingEpoch(1, 10, 5); // 1 - 5
+		AssertPrevoteStartingEpoch(1, 11, 5); // 1 - 5
+		AssertPrevoteStartingEpoch(1, 14, 5); // 1 - 5
+		AssertPrevoteStartingEpoch(1, 15, 10); // 1 - 10
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevoteStartingEpoch_BelowMultipleTimesTwo) {
+		AssertPrevoteStartingEpoch(100, 104, 1);
+		AssertPrevoteStartingEpoch(100, 105, 1);
+		AssertPrevoteStartingEpoch(100, 106, 1);
+		AssertPrevoteStartingEpoch(100, 109, 1);
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevoteStartingEpoch_AboveMultipleTimesTwo) {
+		AssertPrevoteStartingEpoch(100, 110, 6); // 100 - 105
+		AssertPrevoteStartingEpoch(100, 111, 6); // 100 - 105
+		AssertPrevoteStartingEpoch(100, 114, 6); // 100 - 105
+		AssertPrevoteStartingEpoch(100, 115, 11); // 100 - 110
 	}
 
 	// endregion

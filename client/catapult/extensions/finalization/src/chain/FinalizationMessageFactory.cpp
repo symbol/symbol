@@ -82,7 +82,9 @@ namespace catapult { namespace chain {
 		private:
 			model::HashRange loadPrevoteHashChain(const model::FinalizationRound& round, Height startHeight) const {
 				auto view = m_blockStorage.view();
-				auto maxPrevoteHashHeight = view.chainHeight();
+				auto chainHeight = view.chainHeight().unwrap();
+				auto multiple = m_config.PrevoteBlocksMultiple;
+				auto maxPrevoteHashHeight = chainHeight >= multiple ? Height(chainHeight - multiple) : Height(chainHeight);
 
 				auto maxVotingSetHeight = model::CalculateVotingSetEndHeight(round.Epoch, m_config.VotingSetGrouping);
 				if (maxPrevoteHashHeight > maxVotingSetHeight)
