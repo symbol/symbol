@@ -1,12 +1,8 @@
 type: object
 required:
-  - id
   - active
   - index
 properties:
-  id:
-    type: string
-    description: Identifier of the namespace entry.
   active:
     type: boolean
     description: If true, the namespace is active.
