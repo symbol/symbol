@@ -170,8 +170,14 @@ namespace catapult { namespace consumers {
 					return Abort(Failure_Consumer_Remote_Chain_Unlinked);
 
 				// 2. check that the remote chain is not too far behind the current chain
-				auto localFinalizedHeight = m_handlers.LocalFinalizedHeightHashPairSupplier().Height;
-				if (peerStartHeight <= localFinalizedHeight)
+				auto localFinalizedHeightHashPair = m_handlers.LocalFinalizedHeightHashPairSupplier();
+				auto localFinalizedHeight = std::min(storageView.chainHeight(), localFinalizedHeightHashPair.Height);
+
+				auto isFinalizedBlockLocal = Contains(storageView, localFinalizedHeightHashPair);
+				auto isFinalizedBlockRemote = Contains(elements, localFinalizedHeightHashPair);
+				auto isFinalizedBlockUpdate = !isFinalizedBlockLocal && isFinalizedBlockRemote;
+
+				if (peerStartHeight <= localFinalizedHeight && !isFinalizedBlockUpdate)
 					return Abort(Failure_Consumer_Remote_Chain_Too_Far_Behind);
 
 				// 3. check difficulties against difficulties in cache
@@ -192,7 +198,7 @@ namespace catapult { namespace consumers {
 
 				// 6. do not accept a chain with the same score because two different blocks with the same height
 				//    that are pushed to the network could result in indefinite switching and lots of i/o
-				if (peerScore <= localScore) {
+				if (peerScore <= localScore && !isFinalizedBlockUpdate) {
 					CATAPULT_LOG(warning) << "peer score (" << peerScore << ") is not better than local score (" << localScore << ")";
 					return Abort(Failure_Consumer_Remote_Chain_Score_Not_Better);
 				}
@@ -289,6 +295,24 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
+			static bool Contains(const io::BlockStorageView& storageView, const model::HeightHashPair& heightHashPair) {
+				if (storageView.chainHeight() < heightHashPair.Height)
+					return false;
+
+				auto pBlockElement = storageView.loadBlockElement(heightHashPair.Height);
+				return heightHashPair.Hash == pBlockElement->EntityHash;
+			}
+
+			static bool Contains(const BlockElements& elements, const model::HeightHashPair& heightHashPair) {
+				auto peerStartHeight = elements[0].Block.Height;
+				auto peerEndHeight = peerStartHeight + Height(elements.size() - 1);
+
+				if (peerStartHeight <= heightHashPair.Height && heightHashPair.Height <= peerEndHeight)
+					return heightHashPair.Hash == elements[(heightHashPair.Height - peerStartHeight).unwrap()].EntityHash;
+
+				return false;
+			}
+
 			static constexpr bool IsLinked(Height peerStartHeight, Height localChainHeight, InputSource source) {
 				// peer should never return nemesis block
 				return peerStartHeight >= Height(2)

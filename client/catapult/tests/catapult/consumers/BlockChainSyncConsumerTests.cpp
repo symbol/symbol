@@ -454,7 +454,7 @@ namespace catapult { namespace consumers {
 					return DifficultyChecker(blocks, cache);
 				};
 				handlers.LocalFinalizedHeightHashPairSupplier = [this]() {
-					return model::HeightHashPair{ LastFinalizedHeight, Hash256() };
+					return model::HeightHashPair{ LastFinalizedHeight, LastFinalizedHash };
 				};
 				handlers.UndoBlock = [this](const auto& block, auto& state, auto undoBlockType) {
 					return UndoBlock(block, state, undoBlockType);
@@ -483,6 +483,7 @@ namespace catapult { namespace consumers {
 			cache::CatapultCache Cache;
 			io::BlockStorageCache Storage;
 			Height LastFinalizedHeight;
+			Hash256 LastFinalizedHash;
 			std::vector<std::shared_ptr<model::Block>> OriginalBlocks; // original stored blocks (excluding nemesis)
 
 			MockDifficultyChecker DifficultyChecker;
@@ -983,6 +984,148 @@ namespace catapult { namespace consumers {
 
 	// endregion
 
+	// region finalization aware sync
+
+	namespace {
+		void SetFinalizedHeightInDependentState(cache::CatapultCache& cache, Height height) {
+			auto delta = cache.createDelta();
+			delta.dependentState().LastFinalizedHeight = height;
+			cache.commit(height);
+		}
+
+		template<typename TPrepare>
+		void AssertCanSyncIncompatibleChainsSameFinalizationStatus(TPrepare prepare) {
+			// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 5-8
+			//    note: this is derivative of CanSyncIncompatibleChains
+			ConsumerTestContext context;
+			context.seedStorage(Height(7));
+			auto input = CreateInput(Height(5), 4);
+
+			// - set finalized block information
+			prepare(context);
+
+			// - disable (statistics cache) pruning
+			SetFinalizedHeightInDependentState(context.Cache, Height(4));
+
+			// Act:
+			auto result = context.Consumer(input);
+
+			// Assert:
+			test::AssertContinued(result);
+			EXPECT_EQ(4u, context.UndoBlock.params().size());
+			context.assertDifficultyCheckerInvocation(input);
+			context.assertUnwind({ Height(7), Height(6), Height(5), Height(4) });
+			context.assertProcessorInvocation(input, 3);
+			context.assertStored(input, model::ChainScore::Delta(Base_Difficulty - 1));
+		}
+	}
+
+	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhenBothLocalAndRemoteHaveFinalizedBlock) {
+		AssertCanSyncIncompatibleChainsSameFinalizationStatus([](auto& context) {
+			// Arrange: indicate common block is finalized
+			context.LastFinalizedHeight = Height(4);
+			context.LastFinalizedHash = context.Storage.view().loadBlockElement(Height(4))->EntityHash;
+		});
+	}
+
+	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhenNeitherLocalNorRemoteHasFinalizedBlock) {
+		AssertCanSyncIncompatibleChainsSameFinalizationStatus([](auto& context) {
+			// Arrange: indicate unknown block is finalized
+			context.LastFinalizedHeight = Height(4);
+			context.LastFinalizedHash = test::GenerateRandomByteArray<Hash256>();
+		});
+	}
+
+	TEST(TEST_CLASS, CannotSyncIncompatibleChainsWhenLocalButNotRemoteHasFinalizedBlock) {
+		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 5-8 (remote has better score)
+		//    note: this is derivative of CanSyncIncompatibleChains
+		ConsumerTestContext context;
+		context.seedStorage(Height(7));
+		auto input = CreateInput(Height(5), 4);
+
+		// - indicate local has finalized block
+		context.LastFinalizedHeight = Height(5);
+		context.LastFinalizedHash = context.Storage.view().loadBlockElement(Height(5))->EntityHash;
+
+		// Act:
+		auto result = context.Consumer(input);
+
+		// Assert:
+		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Too_Far_Behind, disruptor::ConsumerResultSeverity::Failure);
+		EXPECT_EQ(0u, context.DifficultyChecker.params().size());
+		EXPECT_EQ(0u, context.UndoBlock.params().size());
+		EXPECT_EQ(0u, context.Processor.params().size());
+		context.assertNoStorageChanges();
+	}
+
+	namespace {
+		void AssertCanSyncIncompatibleChainsWhenRemoteButNotLocalHasFinalizedBlock(size_t index) {
+			// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 5-8 (remote has better score)
+			//    note: this is derivative of CanSyncIncompatibleChains
+			ConsumerTestContext context;
+			context.seedStorage(Height(7));
+			auto input = CreateInput(Height(5), 4);
+
+			// - indicate remote has finalized block
+			context.LastFinalizedHeight = Height(5 + index);
+			context.LastFinalizedHash = input.blocks()[index].EntityHash;
+
+			// - disable (statistics cache) pruning
+			SetFinalizedHeightInDependentState(context.Cache, Height(7));
+
+			// Act:
+			auto result = context.Consumer(input);
+
+			// Assert:
+			test::AssertContinued(result);
+			EXPECT_EQ(4u, context.UndoBlock.params().size());
+			context.assertDifficultyCheckerInvocation(input);
+			context.assertUnwind({ Height(7), Height(6), Height(5), Height(4) });
+			context.assertProcessorInvocation(input, 3);
+			context.assertStored(input, model::ChainScore::Delta(Base_Difficulty - 1));
+		}
+	}
+
+	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhenRemoteButNotLocalHasFinalizedBlock_First) {
+		AssertCanSyncIncompatibleChainsWhenRemoteButNotLocalHasFinalizedBlock(0);
+	}
+
+	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhenRemoteButNotLocalHasFinalizedBlock_Middle) {
+		AssertCanSyncIncompatibleChainsWhenRemoteButNotLocalHasFinalizedBlock(2);
+	}
+
+	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhenRemoteButNotLocalHasFinalizedBlock_Last) {
+		AssertCanSyncIncompatibleChainsWhenRemoteButNotLocalHasFinalizedBlock(3);
+	}
+
+	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhenRemoteButNotLocalHasFinalizedBlock_ScoreDecrease) {
+		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 5 (local has better score)
+		//    note: this is derivative of CanSyncIncompatibleChainsWhereShorterRemoteChainHasHigherScore
+		ConsumerTestContext context;
+		context.seedStorage(Height(7));
+		auto input = CreateInput(Height(5), 1);
+
+		// - indicate remote has finalized block
+		context.LastFinalizedHeight = Height(5);
+		context.LastFinalizedHash = input.blocks()[0].EntityHash;
+
+		// - disable (statistics cache) pruning
+		SetFinalizedHeightInDependentState(context.Cache, Height(5));
+
+		// Act:
+		auto result = context.Consumer(input);
+
+		// Assert:
+		test::AssertContinued(result);
+		EXPECT_EQ(4u, context.UndoBlock.params().size());
+		context.assertDifficultyCheckerInvocation(input);
+		context.assertUnwind({ Height(7), Height(6), Height(5), Height(4) });
+		context.assertProcessorInvocation(input, 3);
+		context.assertStored(input, model::ChainScore::Delta(2) - model::ChainScore::Delta(2 * Base_Difficulty));
+	}
+
+	// endregion
+
 	// region transaction notification
 
 	namespace {
@@ -1268,14 +1411,6 @@ namespace catapult { namespace consumers {
 	// endregion
 
 	// region pruning
-
-	namespace {
-		void SetFinalizedHeightInDependentState(cache::CatapultCache& cache, Height height) {
-			auto delta = cache.createDelta();
-			delta.dependentState().LastFinalizedHeight = height;
-			cache.commit(height);
-		}
-	}
 
 	TEST(TEST_CLASS, CommitAutomaticallyPrunesCache) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-11
