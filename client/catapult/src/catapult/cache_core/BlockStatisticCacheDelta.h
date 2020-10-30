@@ -73,8 +73,7 @@ namespace catapult { namespace cache {
 		void remove(Height height);
 
 	public:
-		/// Removes all block statistics that have a height less than the given height
-		/// minus a constant (constant = rewrite limit + 60).
+		/// Prunes the cache at \a height.
 		void prune(Height height);
 
 	private:

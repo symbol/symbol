@@ -95,18 +95,23 @@ namespace catapult { namespace consumers {
 				m_removedTransactionInfos = std::move(removedTransactionInfos);
 			}
 
-			void commit(Height height) {
+			void prune() {
 				m_pCacheDelta->prune(m_localFinalizedTime);
+				pruneRange(lastFinalizedHeight(), m_localFinalizedHeight);
+			}
 
-				auto& lastFinalizedHeight = m_pCacheDelta->dependentState().LastFinalizedHeight;
-				pruneRange(lastFinalizedHeight, m_localFinalizedHeight);
-				lastFinalizedHeight = m_localFinalizedHeight;
+			void commit(Height height) {
+				lastFinalizedHeight() = m_localFinalizedHeight;
 
 				m_pOriginalCache->commit(height);
 				m_pCacheDelta.reset(); // release the delta after commit so that the UT updater can acquire a lock
 			}
 
 		private:
+			Height& lastFinalizedHeight() {
+				return m_pCacheDelta->dependentState().LastFinalizedHeight;
+			}
+
 			void pruneRange(Height startHeight, Height endHeight) {
 				for (auto height = startHeight + Height(1); height <= endHeight; height = height + Height(1))
 					m_pCacheDelta->prune(height);
@@ -251,7 +256,11 @@ namespace catapult { namespace consumers {
 				storageModifier.saveBlocks(elements);
 				m_handlers.CommitStep(CommitOperationStep::Blocks_Written);
 
-				// 2. indicate a state change
+				// 2. prune the cache
+				logger.addSubOperation("prune delta cache");
+				syncState.prune();
+
+				// 3. indicate a state change
 				logger.addSubOperation("indicate a state change");
 				auto newHeight = elements.back().Block.Height;
 				m_handlers.StateChange({ cache::CacheChanges(syncState.cacheDelta()), syncState.scoreDelta(), newHeight });
@@ -262,7 +271,7 @@ namespace catapult { namespace consumers {
 				// - both blocks and state have been written out to disk and can be fully restored
 				// - broker process is not yet able to consume changes (all changes are consumable after step 3)
 
-				// 3. commit changes to the in-memory cache and primary block chain storage
+				// 4. commit changes to the in-memory cache and primary block chain storage
 				logger.addSubOperation("commit changes to the in-memory cache");
 				syncState.commit(newHeight);
 
@@ -270,7 +279,7 @@ namespace catapult { namespace consumers {
 				storageModifier.commit();
 				m_handlers.CommitStep(CommitOperationStep::All_Updated);
 
-				// 4. update the unconfirmed transactions
+				// 5. update the unconfirmed transactions
 				logger.addSubOperation("update the unconfirmed transactions");
 				auto peerTransactionHashes = ExtractTransactionHashes(elements);
 				auto revertedTransactionInfos = CollectRevertedTransactionInfos(

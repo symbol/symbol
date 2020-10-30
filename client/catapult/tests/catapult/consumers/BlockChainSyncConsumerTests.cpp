@@ -254,12 +254,14 @@ namespace catapult { namespace consumers {
 					// all processing should have occurred before the pre state written notification,
 					// so the sentinel account should have been added
 					: IsPassedProcessedCache(cacheDelta.sub<cache::AccountStateCache>().contains(Sentinel_Processor_Public_Key))
+					, BlockStatisticCachePruningBoundary(cacheDelta.sub<cache::BlockStatisticCache>().pruningBoundary())
 					, LastRecalculationHeight(cacheDelta.dependentState().LastRecalculationHeight)
 					, Height(height)
 			{}
 
 		public:
 			bool IsPassedProcessedCache;
+			deltaset::PruningBoundary<state::BlockStatistic> BlockStatisticCachePruningBoundary;
 			model::ImportanceHeight LastRecalculationHeight;
 			catapult::Height Height;
 		};
@@ -1312,6 +1314,10 @@ namespace catapult { namespace consumers {
 		// - prune was called with expected identifiers
 		EXPECT_EQ(std::vector<Height>({ Height(4), Height(5) }), context.CachePruneIdentifiers.Heights);
 		EXPECT_EQ(std::vector<Timestamp>({ Timestamp(5000) }), context.CachePruneIdentifiers.Times);
+
+		// - prune was called before state change notifications
+		ASSERT_EQ(1u, context.PreStateWritten.params().size());
+		EXPECT_EQ(Height(5), context.PreStateWritten.params()[0].BlockStatisticCachePruningBoundary.value().Height);
 	}
 
 	// endregion
