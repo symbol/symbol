@@ -63,7 +63,7 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region ToDbModel
 
 	namespace {
-		enum class NamespaceStatus { Active, Inactive };
+		enum class NamespaceStatus { Latest, Old };
 
 		NamespaceDescriptor CreateNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias) {
 			Path path;
@@ -72,7 +72,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			auto owner = test::CreateRandomOwner();
 			auto pRoot = std::make_shared<state::RootNamespace>(path[0], owner, state::NamespaceLifetime(Height(123), Height(234)));
-			return NamespaceDescriptor(path, alias, pRoot, test::GenerateRandomAddress(), 321, NamespaceStatus::Active == status);
+			return NamespaceDescriptor(path, alias, pRoot, test::GenerateRandomAddress(), 321, NamespaceStatus::Latest == status);
 		}
 
 		void AssertCanMapNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias) {
@@ -97,18 +97,18 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth1) {
-		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Inactive, TTraits::CreateAlias());
-		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Active, TTraits::CreateAlias());
+		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Old, TTraits::CreateAlias());
+		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Latest, TTraits::CreateAlias());
 	}
 
 	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth2) {
-		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Inactive, TTraits::CreateAlias());
-		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Active, TTraits::CreateAlias());
+		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Old, TTraits::CreateAlias());
+		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Latest, TTraits::CreateAlias());
 	}
 
 	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth3) {
-		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Inactive, TTraits::CreateAlias());
-		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Active, TTraits::CreateAlias());
+		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Old, TTraits::CreateAlias());
+		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Latest, TTraits::CreateAlias());
 	}
 
 	// endregion

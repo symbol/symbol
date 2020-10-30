@@ -35,7 +35,7 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualNamespaceMetadata(const mongo::plugins::NamespaceDescriptor& descriptor, const bsoncxx::document::view& dbMetadata) {
-		EXPECT_EQ(descriptor.IsActive, dbMetadata["active"].get_bool().value);
+		EXPECT_EQ(descriptor.IsLatest, dbMetadata["latest"].get_bool().value);
 		EXPECT_EQ(descriptor.Index, GetUint32(dbMetadata, "index"));
 	}
 

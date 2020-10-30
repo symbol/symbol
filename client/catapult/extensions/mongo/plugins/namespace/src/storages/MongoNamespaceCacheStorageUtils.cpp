@@ -30,13 +30,13 @@ namespace catapult { namespace mongo { namespace plugins {
 		state::Namespace::Path path;
 		path.push_back(history.id());
 		for (const auto& rootNamespace : history) {
-			auto isActive = index == history.historyDepth() - 1;
+			auto isLatest = index == history.historyDepth() - 1;
 			auto address = rootNamespace.ownerAddress();
 			auto pRoot = std::shared_ptr<const state::RootNamespace>(&rootNamespace, [](auto) {});
 			auto rootAlias = rootNamespace.alias(rootNamespace.id());
-			descriptors.emplace_back(path, rootAlias, pRoot, address, index, isActive);
+			descriptors.emplace_back(path, rootAlias, pRoot, address, index, isLatest);
 			for (const auto& pair : rootNamespace.children())
-				descriptors.emplace_back(pair.second.Path, pair.second.Alias, pRoot, address, index, isActive);
+				descriptors.emplace_back(pair.second.Path, pair.second.Alias, pRoot, address, index, isLatest);
 
 			++index;
 		}

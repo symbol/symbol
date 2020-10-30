@@ -89,14 +89,14 @@ namespace catapult { namespace mongo { namespace plugins {
 				return test::NamespaceCacheFactory::Create();
 			}
 
-			static NamespaceDescriptor GenerateRandomElement(uint32_t id, uint32_t index, bool isActive) {
-				return CreateElement(test::CreateRandomOwner(), id, index, isActive);
+			static NamespaceDescriptor GenerateRandomElement(uint32_t id, uint32_t index, bool isLatest) {
+				return CreateElement(test::CreateRandomOwner(), id, index, isLatest);
 			}
 
-			static NamespaceDescriptor CreateElement(const Address& owner, uint32_t id, uint32_t index, bool isActive) {
+			static NamespaceDescriptor CreateElement(const Address& owner, uint32_t id, uint32_t index, bool isLatest) {
 				auto alias = GetNamespaceAlias(NamespaceId(id));
 				auto pRoot = std::make_shared<state::RootNamespace>(NamespaceId(id), owner, test::CreateLifetime(123, 456));
-				return NamespaceDescriptor(CreateRootPath(NamespaceId(id)), alias, pRoot, owner, index, isActive);
+				return NamespaceDescriptor(CreateRootPath(NamespaceId(id)), alias, pRoot, owner, index, isLatest);
 			}
 
 			static void Add(cache::CatapultCacheDelta& delta, const ModelType& descriptor) {

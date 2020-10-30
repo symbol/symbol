@@ -37,7 +37,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		void StreamDescriptorMetadata(bson_stream::document& builder, const NamespaceDescriptor& descriptor) {
 			builder
 					<< "meta" << bson_stream::open_document
-						<< "active" << descriptor.IsActive
+						<< "latest" << descriptor.IsLatest
 						<< "index" << static_cast<int32_t>(descriptor.Index)
 					<< bson_stream::close_document;
 		}
