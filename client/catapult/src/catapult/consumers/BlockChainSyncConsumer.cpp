@@ -69,7 +69,7 @@ namespace catapult { namespace consumers {
 				return m_pCommonBlockElement->Block.Height;
 			}
 
-			const model::ChainScore& scoreDelta() const {
+			model::ChainScore::Delta scoreDelta() const {
 				return m_scoreDelta;
 			}
 
@@ -88,10 +88,10 @@ namespace catapult { namespace consumers {
 
 			void update(
 					std::shared_ptr<const model::BlockElement>&& pCommonBlockElement,
-					model::ChainScore&& scoreDelta,
+					model::ChainScore::Delta scoreDelta,
 					TransactionInfos&& removedTransactionInfos) {
 				m_pCommonBlockElement = std::move(pCommonBlockElement);
-				m_scoreDelta = std::move(scoreDelta);
+				m_scoreDelta = scoreDelta;
 				m_removedTransactionInfos = std::move(removedTransactionInfos);
 			}
 
@@ -124,7 +124,7 @@ namespace catapult { namespace consumers {
 			Timestamp m_localFinalizedTime;
 
 			std::shared_ptr<const model::BlockElement> m_pCommonBlockElement;
-			model::ChainScore m_scoreDelta;
+			model::ChainScore::Delta m_scoreDelta;
 			TransactionInfos m_removedTransactionInfos;
 		};
 
@@ -197,8 +197,8 @@ namespace catapult { namespace consumers {
 					return Abort(Failure_Consumer_Remote_Chain_Score_Not_Better);
 				}
 
-				peerScore -= localScore; // calculate the score delta
-				syncState.update(std::move(pCommonBlockElement), std::move(peerScore), std::move(unwindResult.TransactionInfos));
+				auto scoreDelta = peerScore - localScore; // calculate the score delta
+				syncState.update(std::move(pCommonBlockElement), scoreDelta, std::move(unwindResult.TransactionInfos));
 				return Continue();
 			}
 

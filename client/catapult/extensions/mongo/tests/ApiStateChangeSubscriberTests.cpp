@@ -119,8 +119,7 @@ namespace catapult { namespace mongo {
 	TEST(TEST_CLASS, NotifyStateChangeForwardsToExternalCacheStorage) {
 		// Arrange:
 		TestContext context;
-		auto chainScore = model::ChainScore(123, 435);
-		auto stateChangeInfo = subscribers::StateChangeInfo(cache::CacheChanges({}), chainScore, Height(123));
+		auto stateChangeInfo = subscribers::StateChangeInfo(cache::CacheChanges({}), model::ChainScore::Delta(435), Height(123));
 
 		// Act:
 		context.subscriber().notifyStateChange(stateChangeInfo);

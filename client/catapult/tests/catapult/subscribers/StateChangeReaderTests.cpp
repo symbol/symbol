@@ -111,7 +111,7 @@ namespace catapult { namespace subscribers {
 
 	TEST(TEST_CLASS, CanReadSingleStateChange) {
 		// Arrange:
-		auto values = test::GenerateRandomDataVector<uint64_t>(4);
+		auto values = test::GenerateRandomDataVector<uint64_t>(3);
 		auto buffer = CreateSerializedDataBuffer(StateChangeOperationType::State_Change, values);
 
 		// - simulate two cache changes storages
@@ -129,12 +129,12 @@ namespace catapult { namespace subscribers {
 		ASSERT_EQ(1u, subscriber.numStateChanges());
 
 		const auto& capturedStateChangeInfo = subscriber.lastStateChangeInfo();
-		EXPECT_EQ(model::ChainScore(values[0], values[1]), capturedStateChangeInfo.ScoreDelta);
-		EXPECT_EQ(Height(values[2]), capturedStateChangeInfo.Height);
+		EXPECT_EQ(model::ChainScore::Delta(static_cast<int64_t>(values[0])), capturedStateChangeInfo.ScoreDelta);
+		EXPECT_EQ(Height(values[1]), capturedStateChangeInfo.Height);
 
 		// - each cache changes storage extracted single uint32_t value
-		EXPECT_EQ(values[3] & 0xFFFF'FFFF, ReadValueAt<3>(capturedStateChangeInfo));
-		EXPECT_EQ(values[3] >> 32, ReadValueAt<7>(capturedStateChangeInfo));
+		EXPECT_EQ(values[2] & 0xFFFF'FFFF, ReadValueAt<3>(capturedStateChangeInfo));
+		EXPECT_EQ(values[2] >> 32, ReadValueAt<7>(capturedStateChangeInfo));
 	}
 
 	TEST(TEST_CLASS, CannotReadSingleUnknownOperationType) {

@@ -54,7 +54,7 @@ namespace catapult { namespace local {
 			void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override {
 				write(subscribers::StateChangeOperationType::State_Change);
 
-				WriteChainScore(*m_pOutputStream, stateChangeInfo.ScoreDelta);
+				io::Write(*m_pOutputStream, stateChangeInfo.ScoreDelta);
 				io::Write(*m_pOutputStream, stateChangeInfo.Height);
 
 				for (const auto& pStorage : m_cacheChangesStoragesSupplier())

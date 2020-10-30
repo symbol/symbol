@@ -80,5 +80,19 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
 	}
 
+	TEST(TEST_CLASS, CanAddToChainScore_Delta) {
+		// Arrange:
+		LocalNodeChainScore score(model::ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6));
+
+		// Act:
+		const auto& result = score += model::ChainScore::Delta(0x0200'0500'0030'0005);
+
+		// Assert:
+		auto scoreArray = score.get().toArray();
+		EXPECT_EQ(&score, &result);
+		EXPECT_EQ(0x8FDE'4267'9C23'D678u, scoreArray[0]);
+		EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
+	}
+
 	// endregion
 }}

@@ -576,7 +576,7 @@ namespace catapult { namespace local {
 						std::make_unique<io::FileQueueWriter>(context.spoolDir("state_change").generic_string(), "index_server.dat"),
 						[&catapultCache = state.ref().Cache]() { return catapultCache.changesStorages(); });
 				io::IndexFile((context.spoolDir("state_change") / "index.dat").generic_string()).set(0);
-				pStateChangeStorage->notifyStateChange({ cache::CacheChanges(cacheDelta), model::ChainScore(100), m_endHeight });
+				pStateChangeStorage->notifyStateChange({ cache::CacheChanges(cacheDelta), model::ChainScore::Delta(100), m_endHeight });
 			}
 
 			std::vector<Hash256> calculateAccountStateCacheHashes(const RecoveryOrchestratorTestContext& context) {

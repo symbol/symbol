@@ -102,7 +102,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region add / subtract
+	// region add
 
 	TEST(TEST_CLASS, CanAddToChainScore) {
 		// Arrange:
@@ -126,26 +126,90 @@ namespace catapult { namespace model {
 		EXPECT_THROW(score += ChainScore(0x8000'0002'F000'0010, 0x0200'0500'0030'0005), std::overflow_error);
 	}
 
-	TEST(TEST_CLASS, CanSubtractFromChainScore) {
+	TEST(TEST_CLASS, CanAddToChainScore_DeltaPositive) {
 		// Arrange:
 		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
 
 		// Act:
-		const auto& result = score -= ChainScore(0x1000'0002'F000'0010, 0x0200'0500'0030'0005);
+		const auto& result = score += ChainScore::Delta(0x0200'0500'0030'0005);
 		auto scoreArray = score.toArray();
 
 		// Assert:
 		EXPECT_EQ(&score, &result);
-		EXPECT_EQ(0x7FDE'4264'AC23'D668u, scoreArray[0]);
+		EXPECT_EQ(0x8FDE'4267'9C23'D678u, scoreArray[0]);
+		EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
+	}
+
+	TEST(TEST_CLASS, CannotAddToChainScoreResultingInOverflow_DeltaPositive) {
+		// Arrange:
+		ChainScore score(0xFFFF'FFFF'FFFF'FFFF, 0x9A6B'3481'0235'43B6);
+
+		// Act + Assert:
+		EXPECT_THROW(score += ChainScore::Delta(0x7200'0500'0030'0005), std::overflow_error);
+	}
+
+	TEST(TEST_CLASS, CanAddToChainScore_DeltaNegative) {
+		// Arrange:
+		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
+
+		// Act:
+		const auto& result = score += ChainScore::Delta(-0x0200'0500'0030'0005);
+		auto scoreArray = score.toArray();
+
+		// Assert:
+		EXPECT_EQ(&score, &result);
+		EXPECT_EQ(0x8FDE'4267'9C23'D678u, scoreArray[0]);
 		EXPECT_EQ(0x786B'2F81'0205'43B1u, scoreArray[1]);
 	}
 
-	TEST(TEST_CLASS, CannotSubtractFromChainScoreResultingInUnderflow) {
+	TEST(TEST_CLASS, CannotAddToChainScoreResultingInUnderflow_DeltaNegative) {
+		// Arrange:
+		ChainScore score(0x0000'0000'0000'0000, 0x6A6B'3481'0235'43B6);
+
+		// Act + Assert:
+		EXPECT_THROW(score += ChainScore::Delta(-0x7200'0500'0030'0005), std::range_error);
+	}
+
+	// endregion
+
+	// region subtract
+
+	TEST(TEST_CLASS, CanSubtractFromChainScore_PositiveResult) {
+		// Arrange:
+		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
+
+		// Act:
+		auto result = score - ChainScore(0x8FDE'4267'9C23'D678, 0x0200'0500'0030'0005);
+
+		// Assert:
+		EXPECT_EQ(ChainScore::Delta(0x786B'2F81'0205'43B1), result);
+	}
+
+	TEST(TEST_CLASS, CannotSubtractFromChainScoreResultingInUnderflow_PositiveResult) {
 		// Arrange:
 		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
 
 		// Act + Assert:
-		EXPECT_THROW(score -= ChainScore(0x9000'0002'F000'0010, 0x0200'0500'0030'0005), std::range_error);
+		EXPECT_THROW(score - ChainScore(0x8FDE'4267'9C23'D677, 0x7A6B'3481'0235'43B6), std::range_error);
+	}
+
+	TEST(TEST_CLASS, CanSubtractFromChainScore_NegativeResult) {
+		// Arrange:
+		ChainScore score(0x8FDE'4267'9C23'D678, 0x0200'0500'0030'0005);
+
+		// Act:
+		auto result = score - ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
+
+		// Assert:
+		EXPECT_EQ(ChainScore::Delta(-0x786B'2F81'0205'43B1), result);
+	}
+
+	TEST(TEST_CLASS, CannotSubtractFromChainScoreResultingInUnderflow_NegativeResult) {
+		// Arrange:
+		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
+
+		// Act + Assert:
+		EXPECT_THROW(score - ChainScore(0x8FDE'4267'9C23'D679, 0x7A6B'3481'0235'43B6), std::range_error);
 	}
 
 	// endregion

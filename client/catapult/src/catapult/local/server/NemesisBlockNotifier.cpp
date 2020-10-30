@@ -79,9 +79,12 @@ namespace catapult { namespace local {
 			loader.execute(config, nemesisBlockElement);
 
 			// notify nemesis cache state
-			auto nemesisChainScore = model::ChainScore(Nemesis_Chain_Score);
-			subscriber.notifyScoreChange(nemesisChainScore);
-			subscriber.notifyStateChange({ cache::CacheChanges(*pCacheDelta), nemesisChainScore, Nemesis_Height });
+			subscriber.notifyScoreChange(model::ChainScore(Nemesis_Chain_Score));
+			subscriber.notifyStateChange({
+				cache::CacheChanges(*pCacheDelta),
+				model::ChainScore::Delta(Nemesis_Chain_Score),
+				Nemesis_Height
+			});
 		});
 	}
 

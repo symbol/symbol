@@ -29,7 +29,7 @@ namespace catapult { namespace subscribers {
 	struct StateChangeInfo {
 	public:
 		/// Creates state change information around \a cacheChanges, \a scoreDelta and \a height.
-		StateChangeInfo(cache::CacheChanges&& cacheChanges, const model::ChainScore& scoreDelta, Height height)
+		StateChangeInfo(cache::CacheChanges&& cacheChanges, model::ChainScore::Delta scoreDelta, Height height)
 				: CacheChanges(std::move(cacheChanges))
 				, ScoreDelta(scoreDelta)
 				, Height(height)
@@ -40,7 +40,7 @@ namespace catapult { namespace subscribers {
 		const cache::CacheChanges CacheChanges;
 
 		/// Chain score delta.
-		const model::ChainScore ScoreDelta;
+		const model::ChainScore::Delta ScoreDelta;
 
 		/// New chain height.
 		const catapult::Height Height;

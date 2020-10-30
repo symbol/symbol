@@ -223,7 +223,7 @@ namespace catapult { namespace consumers {
 			{}
 
 		public:
-			model::ChainScore ScoreDelta;
+			model::ChainScore::Delta ScoreDelta;
 			bool IsPassedProcessedCache;
 			catapult::Height Height;
 
@@ -593,7 +593,7 @@ namespace catapult { namespace consumers {
 				EXPECT_EQ(0u, CommitStep.params().size());
 			}
 
-			void assertStored(const ConsumerInput& input, const model::ChainScore& expectedScoreDelta) {
+			void assertStored(const ConsumerInput& input, model::ChainScore::Delta expectedScoreDelta) {
 				// Assert: all input blocks should be saved in the storage
 				auto storageView = Storage.view();
 				auto inputHeight = input.blocks()[0].Block.Height;
@@ -923,7 +923,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(0u, context.UndoBlock.params().size());
 		context.assertDifficultyCheckerInvocation(input);
 		context.assertProcessorInvocation(input);
-		context.assertStored(input, model::ChainScore(4 * (Base_Difficulty - 1)));
+		context.assertStored(input, model::ChainScore::Delta(4 * (Base_Difficulty - 1)));
 	}
 
 	TEST(TEST_CLASS, CanSyncIncompatibleChains) {
@@ -941,7 +941,7 @@ namespace catapult { namespace consumers {
 		context.assertDifficultyCheckerInvocation(input);
 		context.assertUnwind({ Height(7), Height(6), Height(5), Height(4) });
 		context.assertProcessorInvocation(input, 3);
-		context.assertStored(input, model::ChainScore(Base_Difficulty - 1));
+		context.assertStored(input, model::ChainScore::Delta(Base_Difficulty - 1));
 	}
 
 	TEST(TEST_CLASS, CanSyncIncompatibleChainsWithOnlyLastBlockDifferent) {
@@ -959,7 +959,7 @@ namespace catapult { namespace consumers {
 		context.assertDifficultyCheckerInvocation(input);
 		context.assertUnwind({ Height(7), Height(6) });
 		context.assertProcessorInvocation(input, 1);
-		context.assertStored(input, model::ChainScore(3 * (Base_Difficulty - 1)));
+		context.assertStored(input, model::ChainScore::Delta(3 * (Base_Difficulty - 1)));
 	}
 
 	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhereShorterRemoteChainHasHigherScore) {
@@ -978,7 +978,7 @@ namespace catapult { namespace consumers {
 		context.assertDifficultyCheckerInvocation(input);
 		context.assertUnwind({ Height(7), Height(6), Height(5), Height(4) });
 		context.assertProcessorInvocation(input, 3);
-		context.assertStored(input, model::ChainScore(2));
+		context.assertStored(input, model::ChainScore::Delta(2));
 	}
 
 	// endregion
@@ -1076,7 +1076,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(0u, context.UndoBlock.params().size());
 		context.assertDifficultyCheckerInvocation(input);
 		context.assertProcessorInvocation(input);
-		context.assertStored(input, model::ChainScore(4 * (Base_Difficulty - 1)));
+		context.assertStored(input, model::ChainScore::Delta(4 * (Base_Difficulty - 1)));
 
 		// - the change notification had 6 added and 0 reverted
 		ASSERT_EQ(1u, context.TransactionsChange.params().size());
@@ -1112,7 +1112,7 @@ namespace catapult { namespace consumers {
 		context.assertDifficultyCheckerInvocation(input);
 		context.assertUnwind({ Height(7), Height(6), Height(5), Height(4) });
 		context.assertProcessorInvocation(input, 3);
-		context.assertStored(input, model::ChainScore(Base_Difficulty - 1));
+		context.assertStored(input, model::ChainScore::Delta(Base_Difficulty - 1));
 
 		// - the change notification had 6 added and 9 reverted
 		ASSERT_EQ(1u, context.TransactionsChange.params().size());
@@ -1153,7 +1153,7 @@ namespace catapult { namespace consumers {
 		context.assertDifficultyCheckerInvocation(input);
 		context.assertUnwind({ Height(7), Height(6), Height(5), Height(4) });
 		context.assertProcessorInvocation(input, 3);
-		context.assertStored(input, model::ChainScore(Base_Difficulty - 1));
+		context.assertStored(input, model::ChainScore::Delta(Base_Difficulty - 1));
 
 		// - the change notification had 8 added and 7 reverted
 		ASSERT_EQ(1u, context.TransactionsChange.params().size());

@@ -58,10 +58,10 @@ namespace catapult { namespace subscribers {
 				io::InputStream& inputStream,
 				const CacheChangesStorages& cacheChangesStorages,
 				StateChangeSubscriber& subscriber) {
-			auto chainScore = ReadChainScore(inputStream);
+			auto chainScoreDelta = model::ChainScore::Delta(static_cast<int64_t>(io::Read64(inputStream)));
 			auto height = io::Read<Height>(inputStream);
 			auto cacheChanges = ReadCacheChanges(inputStream, cacheChangesStorages);
-			subscriber.notifyStateChange({ std::move(cacheChanges), chainScore, height });
+			subscriber.notifyStateChange({ std::move(cacheChanges), chainScoreDelta, height });
 		}
 	}
 

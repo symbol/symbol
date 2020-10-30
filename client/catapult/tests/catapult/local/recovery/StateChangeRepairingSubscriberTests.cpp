@@ -102,7 +102,7 @@ namespace catapult { namespace local {
 		cacheChangesContainer.emplace_back(CreateMemoryCacheChanges({ 21, 34 }, { 13 }, { 3, 5, 8 }));
 		cacheChangesContainer.emplace_back(CreateMemoryCacheChanges({ 50, 60 }, { 40 }, { 10, 20, 30 }));
 		cache::CacheChanges cacheChanges(std::move(cacheChangesContainer));
-		subscribers::StateChangeInfo stateChangeInfo(std::move(cacheChanges), model::ChainScore(123, 435), Height(234));
+		subscribers::StateChangeInfo stateChangeInfo(std::move(cacheChanges), model::ChainScore::Delta(435), Height(234));
 
 		// Act:
 		pSubscriber->notifyStateChange(stateChangeInfo);

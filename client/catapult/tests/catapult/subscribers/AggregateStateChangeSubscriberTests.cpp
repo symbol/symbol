@@ -84,8 +84,7 @@ namespace catapult { namespace subscribers {
 
 		auto cache = test::CreateEmptyCatapultCache();
 		auto cacheDelta = cache.createDelta();
-		model::ChainScore scoreDelta;
-		StateChangeInfo stateChangeInfo{ cache::CacheChanges(cacheDelta), scoreDelta, Height(444) };
+		StateChangeInfo stateChangeInfo{ cache::CacheChanges(cacheDelta), model::ChainScore::Delta(), Height(444) };
 
 		// Sanity:
 		EXPECT_EQ(3u, context.subscribers().size());

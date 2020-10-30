@@ -251,7 +251,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(model::ChainScore(1), chainScore);
 
 		const auto& stateChangeInfo = subscriber.lastStateChangeInfo();
-		EXPECT_EQ(model::ChainScore(1), stateChangeInfo.ScoreDelta);
+		EXPECT_EQ(model::ChainScore::Delta(1), stateChangeInfo.ScoreDelta);
 		EXPECT_EQ(Height(1), stateChangeInfo.Height);
 
 		// - check account state changes
