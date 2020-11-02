@@ -71,6 +71,7 @@ namespace catapult { namespace finalization {
 									config,
 									state.storage(),
 									m_proofStorage,
+									[](const auto&, const auto&) {},
 									CreateVotingPrivateKeyTree(state.config().User)))
 					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage))
 			{}

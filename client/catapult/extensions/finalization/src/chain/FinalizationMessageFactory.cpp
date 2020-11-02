@@ -35,30 +35,6 @@ namespace catapult { namespace chain {
 			return 0 == value % multiple ? value : ((value / multiple + adjustment) * multiple);
 		}
 
-		model::HashRange LoadPrevoteHashChain(
-				const finalization::FinalizationConfiguration& config,
-				FinalizationEpoch epoch,
-				Height startHeight,
-				const io::BlockStorageCache& blockStorage) {
-			auto view = blockStorage.view();
-			auto maxPrevoteHashHeight = view.chainHeight();
-
-			auto maxVotingSetHeight = model::CalculateVotingSetEndHeight(epoch, config.VotingSetGrouping);
-			if (maxPrevoteHashHeight > maxVotingSetHeight)
-				maxPrevoteHashHeight = maxVotingSetHeight;
-
-			auto clampedChainHeight = Height(Clamp(maxPrevoteHashHeight.unwrap(), config.PrevoteBlocksMultiple, 0));
-
-			auto numHashes = clampedChainHeight > startHeight
-					? (clampedChainHeight - startHeight).unwrap() + 1
-					: 1;
-
-			if (numHashes > config.MaxHashesPerPoint)
-				numHashes -= Clamp(numHashes - config.MaxHashesPerPoint, config.PrevoteBlocksMultiple, 1);
-
-			return view.loadHashesFrom(startHeight, numHashes);
-		}
-
 		model::HashRange ToHashRange(const Hash256& hash) {
 			return model::HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(&hash), 1);
 		}
@@ -73,17 +49,19 @@ namespace catapult { namespace chain {
 					const finalization::FinalizationConfiguration& config,
 					const io::BlockStorageCache& blockStorage,
 					const io::ProofStorageCache& proofStorage,
+					const PrevoteDescriptorConsumer& prevoteDescriptorConsumer,
 					crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree)
 					: m_config(config)
 					, m_blockStorage(blockStorage)
 					, m_proofStorage(proofStorage)
+					, m_prevoteDescriptorConsumer(prevoteDescriptorConsumer)
 					, m_bmPrivateKeyTree(std::move(bmPrivateKeyTree))
 			{}
 
 		public:
 			std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) override {
 				auto finalizationStatistics = m_proofStorage.view().statistics();
-				auto hashRange = LoadPrevoteHashChain(m_config, round.Epoch, finalizationStatistics.Height, m_blockStorage);
+				auto hashRange = loadPrevoteHashChain(round, finalizationStatistics.Height);
 				if (hashRange.empty())
 					hashRange = ToHashRange(finalizationStatistics.Hash);
 
@@ -102,9 +80,32 @@ namespace catapult { namespace chain {
 			}
 
 		private:
+			model::HashRange loadPrevoteHashChain(const model::FinalizationRound& round, Height startHeight) const {
+				auto view = m_blockStorage.view();
+				auto maxPrevoteHashHeight = view.chainHeight();
+
+				auto maxVotingSetHeight = model::CalculateVotingSetEndHeight(round.Epoch, m_config.VotingSetGrouping);
+				if (maxPrevoteHashHeight > maxVotingSetHeight)
+					maxPrevoteHashHeight = maxVotingSetHeight;
+
+				auto clampedChainHeight = Height(Clamp(maxPrevoteHashHeight.unwrap(), m_config.PrevoteBlocksMultiple, 0));
+
+				auto numHashes = clampedChainHeight > startHeight
+						? (clampedChainHeight - startHeight).unwrap() + 1
+						: 1;
+
+				if (numHashes > m_config.MaxHashesPerPoint)
+					numHashes -= Clamp(numHashes - m_config.MaxHashesPerPoint, m_config.PrevoteBlocksMultiple, 1);
+
+				m_prevoteDescriptorConsumer(view, { round, startHeight, numHashes });
+				return view.loadHashesFrom(startHeight, numHashes);
+			}
+
+		private:
 			finalization::FinalizationConfiguration m_config;
 			const io::BlockStorageCache& m_blockStorage;
 			const io::ProofStorageCache& m_proofStorage;
+			PrevoteDescriptorConsumer m_prevoteDescriptorConsumer;
 			crypto::AggregateBmPrivateKeyTree m_bmPrivateKeyTree;
 		};
 
@@ -115,7 +116,13 @@ namespace catapult { namespace chain {
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
+			const PrevoteDescriptorConsumer& prevoteDescriptorConsumer,
 			crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree) {
-		return std::make_unique<DefaultFinalizationMessageFactory>(config, blockStorage, proofStorage, std::move(bmPrivateKeyTree));
+		return std::make_unique<DefaultFinalizationMessageFactory>(
+				config,
+				blockStorage,
+				proofStorage,
+				prevoteDescriptorConsumer,
+				std::move(bmPrivateKeyTree));
 	}
 }}
