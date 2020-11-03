@@ -53,7 +53,7 @@ namespace catapult { namespace finalization {
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
-				return { "FinalizationMessageProcessing", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
+				return { "FinalizationMessageProcessing", extensions::ServiceRegistrarPhase::Post_Range_Consumers_Phase_Two };
 			}
 
 			void registerServiceCounters(extensions::ServiceLocator&) override {

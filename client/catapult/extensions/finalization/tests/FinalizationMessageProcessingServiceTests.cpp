@@ -85,7 +85,7 @@ namespace catapult { namespace finalization {
 
 	// region basic
 
-	ADD_SERVICE_REGISTRAR_INFO_TEST(FinalizationMessageProcessing, Post_Range_Consumers)
+	ADD_SERVICE_REGISTRAR_INFO_TEST(FinalizationMessageProcessing, Post_Range_Consumers_Phase_Two)
 
 	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
 		// Arrange:

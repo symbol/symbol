@@ -66,7 +66,8 @@ namespace catapult { namespace io {
 					: m_pStorage(std::make_unique<TProofStorage>())
 					, m_pStorageRaw(m_pStorage.get())
 					, m_pSubscriber(std::make_unique<TFinalizationSubscriber>())
-					, m_pAggregate(CreateAggregateProofStorage(std::move(m_pStorage), *m_pSubscriber))
+					, m_pSubscriberRaw(m_pSubscriber.get())
+					, m_pAggregate(CreateAggregateProofStorage(std::move(m_pStorage), std::move(m_pSubscriber)))
 			{}
 
 		public:
@@ -75,7 +76,7 @@ namespace catapult { namespace io {
 			}
 
 			auto& subscriber() {
-				return *m_pSubscriber;
+				return *m_pSubscriberRaw;
 			}
 
 			auto& aggregate() {
@@ -85,7 +86,8 @@ namespace catapult { namespace io {
 		private:
 			std::unique_ptr<TProofStorage> m_pStorage; // notice that this is moved into m_pAggregate
 			TProofStorage* m_pStorageRaw;
-			std::unique_ptr<TFinalizationSubscriber> m_pSubscriber;
+			std::unique_ptr<TFinalizationSubscriber> m_pSubscriber; // notice that this is moved into m_pAggregate
+			TFinalizationSubscriber* m_pSubscriberRaw;
 			std::unique_ptr<ProofStorage> m_pAggregate;
 		};
 

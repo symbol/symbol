@@ -24,8 +24,8 @@
 
 namespace catapult { namespace io {
 
-	/// Creates an aggregate proof storage that delegates to \a pStorage and publishes proof changes to \a subscriber.
+	/// Creates an aggregate proof storage that delegates to \a pStorage and publishes proof changes to \a pSubscriber.
 	std::unique_ptr<ProofStorage> CreateAggregateProofStorage(
 			std::unique_ptr<ProofStorage>&& pStorage,
-			subscribers::FinalizationSubscriber& subscriber);
+			std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber);
 }}

@@ -56,6 +56,25 @@ namespace catapult { namespace finalization {
 
 		// endregion
 
+		// region FinalizationSubscriberAdapter
+
+		class FinalizationSubscriberAdapter : public subscribers::FinalizationSubscriber {
+		public:
+			explicit FinalizationSubscriberAdapter(subscribers::FinalizationSubscriber& subscriber) : m_subscriber(subscriber)
+			{}
+
+		public:
+			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
+				// TODO: call patching finalization subscriber here too!
+				m_subscriber.notifyFinalizedBlock(round, height, hash);
+			}
+
+		private:
+			subscribers::FinalizationSubscriber& m_subscriber;
+		};
+
+		// endregion
+
 		// region FinalizationBootstrapperServiceRegistrar
 
 		namespace {
@@ -76,7 +95,7 @@ namespace catapult { namespace finalization {
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
-				return { "FinalizationBootstrapper", extensions::ServiceRegistrarPhase::Initial };
+				return { "FinalizationBootstrapper", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
 			}
 
 			void registerServiceCounters(extensions::ServiceLocator& locator) override {
@@ -106,7 +125,7 @@ namespace catapult { namespace finalization {
 				// create proof storage cache
 				auto pProofStorageCache = std::make_shared<io::ProofStorageCache>(io::CreateAggregateProofStorage(
 						std::move(m_pProofStorage),
-						state.finalizationSubscriber()));
+						std::make_unique<FinalizationSubscriberAdapter>(state.finalizationSubscriber())));
 
 				// register hooks
 				state.hooks().setLocalFinalizedHeightHashPairSupplier([&proofStorage = *pProofStorageCache]() {

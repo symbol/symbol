@@ -166,7 +166,7 @@ namespace catapult { namespace finalization {
 
 	// region FinalizationBootstrapperService - basic
 
-	ADD_SERVICE_REGISTRAR_INFO_TEST(FinalizationBootstrapper, Initial)
+	ADD_SERVICE_REGISTRAR_INFO_TEST(FinalizationBootstrapper, Post_Range_Consumers)
 
 	TEST(TEST_CLASS, MultiRoundMessageAggregatorServiceIsRegistered) {
 		// Arrange:
