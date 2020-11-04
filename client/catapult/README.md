@@ -67,7 +67,7 @@ Before contributing please [read this](CONTRIBUTING.md).
 
 ## License
 
-Copyright (c) 2018 Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp Licensed under the [GNU Lesser General Public License v3](LICENSE)
+Copyright (c) 2018 Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp Licensed under the [GNU Lesser General Public License v3](LICENSE.txt)
 
 [developer documentation]: https://nemtech.github.io
 [Forum]: https://forum.nem.io/c/announcement
