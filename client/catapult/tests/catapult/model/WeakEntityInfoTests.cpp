@@ -264,7 +264,7 @@ namespace catapult { namespace model {
 		entity.Size = 121;
 		entity.Version = 2;
 		entity.Network = NetworkIdentifier::Zero;
-		entity.Type = Entity_Type_Nemesis_Block;
+		entity.Type = Entity_Type_Block_Nemesis;
 
 		Hash256 hash = utils::ParseByteArray<Hash256>("C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470");
 		WeakEntityInfo info(entity, hash);
@@ -273,7 +273,7 @@ namespace catapult { namespace model {
 		auto str = test::ToString(info);
 
 		// Assert:
-		EXPECT_EQ("Nemesis_Block (v2) with size 121 [C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470]", str);
+		EXPECT_EQ("Block_Nemesis (v2) with size 121 [C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470]", str);
 	}
 
 	// endregion

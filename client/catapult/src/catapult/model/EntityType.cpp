@@ -40,8 +40,10 @@ namespace catapult { namespace model {
 		const char* ToString(EntityType entityType) {
 			switch (utils::to_underlying_type(entityType)) {
 			// well known types defined in EntityType.h
-			CASE_WELL_KNOWN_ENTITY_TYPE(Nemesis_Block);
-			CASE_WELL_KNOWN_ENTITY_TYPE(Block);
+			CASE_WELL_KNOWN_ENTITY_TYPE(Block_Nemesis);
+			CASE_WELL_KNOWN_ENTITY_TYPE(Block_Normal);
+			CASE_WELL_KNOWN_ENTITY_TYPE(Block_Importance);
+
 			CASE_WELL_KNOWN_ENTITY_TYPE(Voting_Key_Link);
 			CASE_WELL_KNOWN_ENTITY_TYPE(Vrf_Key_Link);
 

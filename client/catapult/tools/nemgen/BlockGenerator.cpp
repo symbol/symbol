@@ -219,9 +219,10 @@ namespace catapult { namespace tools { namespace nemgen {
 		// - add additional transactions
 		transactions.addTransactions(std::move(additionalTransactions));
 
+		// TODO: change type to Entity_Type_Block_Nemesis and fill in
+		auto entityType = model::Entity_Type_Block_Normal;
 		model::PreviousBlockContext context;
-		auto pBlock = model::CreateBlock(context, config.NetworkIdentifier, signer.publicKey(), transactions.transactions());
-		pBlock->Type = model::Entity_Type_Nemesis_Block;
+		auto pBlock = model::CreateBlock(entityType, context, config.NetworkIdentifier, signer.publicKey(), transactions.transactions());
 
 		// - add generation hash proof using signer as vrf key pair
 		AddGenerationHashProof(*pBlock, config.NemesisGenerationHashSeed, signer);

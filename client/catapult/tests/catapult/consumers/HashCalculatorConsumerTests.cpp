@@ -93,7 +93,8 @@ namespace catapult { namespace consumers {
 				const model::TransactionRegistry& registry,
 				uint32_t numBlocks,
 				uint32_t numTransactionsPerBlock) {
-			uint32_t numBytesPerBlock = SizeOf32<model::BlockHeader>() + numTransactionsPerBlock * Transaction_Size;
+			constexpr auto Block_Header_Size = SizeOf32<model::BlockHeader>() + SizeOf32<model::PaddedBlockFooter>();
+			uint32_t numBytesPerBlock = Block_Header_Size + numTransactionsPerBlock * Transaction_Size;
 			auto txPaddingSize = utils::GetPaddingSize(Transaction_Size, 8);
 			if (0 < numTransactionsPerBlock)
 				numBytesPerBlock += (numTransactionsPerBlock - 1) * txPaddingSize;
@@ -104,10 +105,10 @@ namespace catapult { namespace consumers {
 				offsets.push_back(i * numBytesPerBlock);
 				auto& block = reinterpret_cast<model::Block&>(buffer[offsets.back()]);
 				block.Size = numBytesPerBlock;
-				block.Type = model::Entity_Type_Block;
+				block.Type = model::Entity_Type_Block_Normal;
 
 				for (auto j = 0u; j < numTransactionsPerBlock; ++j) {
-					auto txOffset = offsets.back() + sizeof(model::BlockHeader);
+					auto txOffset = offsets.back() + Block_Header_Size;
 					txOffset += j * (Transaction_Size + txPaddingSize);
 					WriteTransactionAt(buffer, txOffset);
 				}

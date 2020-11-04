@@ -57,7 +57,7 @@ namespace catapult { namespace harvesting {
 				model::NetworkIdentifier networkIdentifier,
 				const Key& signer,
 				const Address& beneficiary) {
-			auto pBlock = model::CreateBlock(context.ParentContext, networkIdentifier, signer, {});
+			auto pBlock = model::CreateBlock(model::Entity_Type_Block_Normal, context.ParentContext, networkIdentifier, signer, {});
 			pBlock->Difficulty = context.Difficulty;
 			pBlock->Timestamp = context.Timestamp;
 			if (Address() != beneficiary)

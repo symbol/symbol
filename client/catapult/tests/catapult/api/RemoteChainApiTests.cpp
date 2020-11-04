@@ -28,16 +28,18 @@
 namespace catapult { namespace api {
 
 	namespace {
+		constexpr auto Block_Header_Size = SizeOf32<model::BlockHeader>() + SizeOf32<model::PaddedBlockFooter>();
+
 		std::shared_ptr<ionet::Packet> CreatePacketWithBlocks(uint32_t numBlocks, Height startHeight) {
-			uint32_t payloadSize = numBlocks * SizeOf32<model::BlockHeader>();
+			uint32_t payloadSize = numBlocks * Block_Header_Size;
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
 			auto* pData = pPacket->Data();
-			for (auto i = 0u; i < numBlocks; ++i, pData += sizeof(model::BlockHeader)) {
+			for (auto i = 0u; i < numBlocks; ++i, pData += Block_Header_Size) {
 				auto& block = reinterpret_cast<model::Block&>(*pData);
-				block.Size = sizeof(model::BlockHeader);
-				block.Type = model::Entity_Type_Block;
+				block.Size = Block_Header_Size;
+				block.Type = model::Entity_Type_Block_Normal;
 				block.Height = startHeight + Height(i);
 			}
 
@@ -155,7 +157,7 @@ namespace catapult { namespace api {
 
 			static void ValidateResponse(const ionet::Packet& response, const std::shared_ptr<const model::Block>& pBlock) {
 				ASSERT_EQ(response.Size - sizeof(ionet::Packet), pBlock->Size);
-				ASSERT_EQ(sizeof(model::BlockHeader), pBlock->Size);
+				ASSERT_EQ(Block_Header_Size, pBlock->Size);
 				EXPECT_EQ(TInvoker::Request_Height, pBlock->Height);
 				EXPECT_EQ_MEMORY(response.Data(), pBlock.get(), pBlock->Size);
 			}

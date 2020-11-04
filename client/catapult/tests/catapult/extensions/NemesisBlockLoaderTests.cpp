@@ -82,7 +82,12 @@ namespace catapult { namespace extensions {
 				transactions.push_back(std::move(pTransaction));
 			}
 
-			blockSignerPair.pBlock = model::CreateBlock(model::PreviousBlockContext(), Network_Identifier, nemesisPublicKey, transactions);
+			blockSignerPair.pBlock = model::CreateBlock(
+					model::Entity_Type_Block_Nemesis,
+					model::PreviousBlockContext(),
+					Network_Identifier,
+					nemesisPublicKey,
+					transactions);
 			return blockSignerPair;
 		}
 

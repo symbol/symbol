@@ -34,11 +34,23 @@ namespace catapult { namespace model {
 #define TEST_CLASS EntityHasherTests
 
 	namespace {
-		struct BlockTraits {
-			static constexpr auto Footer_Size = Block::Footer_Size;
+		struct BlockNormalTraits {
+			static constexpr auto Footer_Size = PaddedBlockFooter::Footer_Size;
 
 			static std::unique_ptr<Block> Generate() {
-				return test::GenerateBlockWithTransactions(7, Height(7));
+				return test::GenerateBlockWithTransactions(7);
+			}
+
+			static Hash256 CalculateHash(const Block& block, const GenerationHashSeed&) {
+				return model::CalculateHash(block);
+			}
+		};
+
+		struct BlockImportanceTraits {
+			static constexpr auto Footer_Size = 0u;
+
+			static std::unique_ptr<Block> Generate() {
+				return test::GenerateImportanceBlockWithTransactions(7);
 			}
 
 			static Hash256 CalculateHash(const Block& block, const GenerationHashSeed&) {
@@ -74,7 +86,8 @@ namespace catapult { namespace model {
 
 #define BASIC_HASH_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Block) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_BlockNormal) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_BlockImportance) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Transaction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_TransactionCustomPayload) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionCustomPayloadTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
@@ -153,7 +166,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, BlockHashDoesNotChangeWhenBlockTransactionDataChanges) {
 		// Arrange:
-		auto pBlock = BlockTraits::Generate();
+		auto pBlock = BlockNormalTraits::Generate();
 		auto originalHash = CalculateHash(*pBlock);
 
 		// Act: change a transaction deadline
@@ -166,17 +179,30 @@ namespace catapult { namespace model {
 		EXPECT_EQ(originalHash, modifiedHash);
 	}
 
-	TEST(TEST_CLASS, BlockHashDoesNotChangeWhenBlockFooterChanges) {
+	TEST(TEST_CLASS, BlockHashDoesNotChangeWhenBlockFooterChanges_Normal) {
 		// Arrange:
-		auto pBlock = BlockTraits::Generate();
+		auto pBlock = BlockNormalTraits::Generate();
 		auto originalHash = CalculateHash(*pBlock);
 
 		// Act:
-		pBlock->BlockHeader_Reserved1 ^= 0xFFFFFFFF;
+		GetBlockFooter<PaddedBlockFooter>(*pBlock).BlockHeader_Reserved1 ^= 0xFFFFFFFF;
 		auto modifiedHash = CalculateHash(*pBlock);
 
 		// Assert:
 		EXPECT_EQ(originalHash, modifiedHash);
+	}
+
+	TEST(TEST_CLASS, BlockHashChangesWhenBlockFooterChanges_Importance) {
+		// Arrange:
+		auto pBlock = BlockImportanceTraits::Generate();
+		auto originalHash = CalculateHash(*pBlock);
+
+		// Act:
+		GetBlockFooter<ImportanceBlockFooter>(*pBlock).PreviousImportanceBlockHash[0] ^= 0xFF;
+		auto modifiedHash = CalculateHash(*pBlock);
+
+		// Assert:
+		EXPECT_NE(originalHash, modifiedHash);
 	}
 
 	// endregion

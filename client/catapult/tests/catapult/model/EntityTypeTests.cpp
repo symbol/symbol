@@ -79,8 +79,11 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanConvertKnownEntityTypeToBasicEntityType) {
 		// Assert: blocks
-		EXPECT_EQ(BasicEntityType::Block, ToBasicEntityType(Entity_Type_Nemesis_Block));
-		EXPECT_EQ(BasicEntityType::Block, ToBasicEntityType(Entity_Type_Block));
+		EXPECT_EQ(BasicEntityType::Block, ToBasicEntityType(Entity_Type_Block_Nemesis));
+		EXPECT_EQ(BasicEntityType::Block, ToBasicEntityType(Entity_Type_Block_Normal));
+		EXPECT_EQ(BasicEntityType::Block, ToBasicEntityType(Entity_Type_Block_Importance));
+
+		// - transactions
 		EXPECT_EQ(BasicEntityType::Transaction, ToBasicEntityType(Entity_Type_Vrf_Key_Link));
 		EXPECT_EQ(BasicEntityType::Transaction, ToBasicEntityType(Entity_Type_Voting_Key_Link));
 	}
@@ -120,8 +123,9 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanOutputBlockEnumValues) {
-		EXPECT_EQ("Nemesis_Block", test::ToString(Entity_Type_Nemesis_Block));
-		EXPECT_EQ("Block", test::ToString(Entity_Type_Block));
+		EXPECT_EQ("Block_Nemesis", test::ToString(Entity_Type_Block_Nemesis));
+		EXPECT_EQ("Block_Normal", test::ToString(Entity_Type_Block_Normal));
+		EXPECT_EQ("Block_Importance", test::ToString(Entity_Type_Block_Importance));
 	}
 
 	TEST(TEST_CLASS, CanOutputCoreTransactionEnumValues) {

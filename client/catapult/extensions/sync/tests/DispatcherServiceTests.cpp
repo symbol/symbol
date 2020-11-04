@@ -112,8 +112,9 @@ namespace catapult { namespace sync {
 			mocks::MockMemoryBlockStorage storage;
 			auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
 
+			auto entityType = model::Entity_Type_Block_Normal;
 			model::PreviousBlockContext context(*pNemesisBlockElement);
-			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
+			auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
 
 			auto vrfKeyPair = GetBlockSignerVrfKeyPair();

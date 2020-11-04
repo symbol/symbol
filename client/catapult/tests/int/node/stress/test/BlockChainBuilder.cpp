@@ -161,8 +161,9 @@ namespace catapult { namespace test {
 			const model::Transactions& transactions) {
 		auto difficulty = chain::CalculateDifficulty(cache::BlockStatisticRange(m_statistics.cbegin(), m_statistics.cend()), m_config);
 
+		auto entityType = model::Entity_Type_Block_Normal;
 		auto signerKeyPair = findBlockSigner(context, timestamp, difficulty);
-		auto pBlock = model::CreateBlock(context, Network_Identifier, signerKeyPair.publicKey(), transactions);
+		auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signerKeyPair.publicKey(), transactions);
 		pBlock->Timestamp = timestamp;
 		pBlock->Difficulty = difficulty;
 

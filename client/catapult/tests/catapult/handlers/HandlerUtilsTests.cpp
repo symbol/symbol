@@ -32,8 +32,9 @@ namespace catapult { namespace handlers {
 	// region CreatePushEntityHandler
 
 	namespace {
-		constexpr auto Block_Packet_Size = sizeof(ionet::PacketHeader) + sizeof(model::BlockHeader);
-		constexpr auto Two_Blocks_Packet_Size = sizeof(ionet::PacketHeader) + 2 * sizeof(model::BlockHeader);
+		constexpr auto Block_Header_Size = sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter);
+		constexpr auto Block_Packet_Size = sizeof(ionet::PacketHeader) + Block_Header_Size;
+		constexpr auto Two_Blocks_Packet_Size = sizeof(ionet::PacketHeader) + 2 * Block_Header_Size;
 
 		void AssertCreatePushEntityHandlerForwarding(const ionet::Packet& packet, size_t numExpectedForwards) {
 			// Arrange:
@@ -97,7 +98,7 @@ namespace catapult { namespace handlers {
 		ionet::ByteBuffer buffer(Two_Blocks_Packet_Size);
 		const auto& packet = test::SetPushBlockPacketInBuffer(buffer);
 		test::SetBlockAt(buffer, sizeof(ionet::Packet));
-		test::SetBlockAt(buffer, sizeof(ionet::Packet) + sizeof(model::BlockHeader));
+		test::SetBlockAt(buffer, sizeof(ionet::Packet) + Block_Header_Size);
 
 		// Assert:
 		AssertCreatePushEntityHandlerForwarding(packet, 1);

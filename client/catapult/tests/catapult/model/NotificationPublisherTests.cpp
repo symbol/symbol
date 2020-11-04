@@ -77,13 +77,11 @@ namespace catapult { namespace model {
 
 		template<typename TNotification, typename TEntity, typename TAssertNotification>
 		void PublishOne(const TEntity& entity, const Hash256& hash, TAssertNotification assertNotification) {
-			// Act:
 			PublishOne<TNotification>(WeakEntityInfo(entity, hash), assertNotification);
 		}
 
 		template<typename TNotification, typename TEntity, typename TAssertNotification>
 		void PublishOne(const TEntity& entity, TAssertNotification assertNotification) {
-			// Act:
 			PublishOne<TNotification>(entity, test::GenerateRandomByteArray<Hash256>(), assertNotification);
 		}
 	}
@@ -171,7 +169,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockSignatureNotifications) {
+	TEST(TEST_CLASS, CanRaiseBlockSignatureNotifications_BlockNormal) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		test::FillWithRandomData(pBlock->SignerPublicKey);
@@ -183,7 +181,24 @@ namespace catapult { namespace model {
 			EXPECT_EQ(block.SignerPublicKey, notification.SignerPublicKey);
 			EXPECT_EQ(block.Signature, notification.Signature);
 			EXPECT_EQ(test::AsVoidPointer(&block.Version), test::AsVoidPointer(notification.Data.pData));
-			EXPECT_EQ(sizeof(BlockHeader) - VerifiableEntity::Header_Size - Block::Footer_Size, notification.Data.Size);
+			EXPECT_EQ(sizeof(BlockHeader) - VerifiableEntity::Header_Size, notification.Data.Size);
+			EXPECT_EQ(SignatureNotification::ReplayProtectionMode::Disabled, notification.DataReplayProtectionMode);
+		});
+	}
+
+	TEST(TEST_CLASS, CanRaiseBlockSignatureNotifications_BlockImportance) {
+		// Arrange:
+		auto pBlock = test::GenerateImportanceBlockWithTransactions(0);
+		test::FillWithRandomData(pBlock->SignerPublicKey);
+		test::FillWithRandomData(pBlock->Signature);
+
+		// Act:
+		PublishOne<SignatureNotification>(*pBlock, [&block = *pBlock](const auto& notification) {
+			// Assert:
+			EXPECT_EQ(block.SignerPublicKey, notification.SignerPublicKey);
+			EXPECT_EQ(block.Signature, notification.Signature);
+			EXPECT_EQ(test::AsVoidPointer(&block.Version), test::AsVoidPointer(notification.Data.pData));
+			EXPECT_EQ(sizeof(BlockHeader) + sizeof(ImportanceBlockFooter) - VerifiableEntity::Header_Size, notification.Data.Size);
 			EXPECT_EQ(SignatureNotification::ReplayProtectionMode::Disabled, notification.DataReplayProtectionMode);
 		});
 	}
@@ -244,9 +259,28 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanPublishBlockNotificationsWithModeBasic) {
+	TEST(TEST_CLASS, CanRaiseImportanceBlockNotifications_BlockImportance) {
 		// Arrange:
-		auto pBlock = GenerateBlockWithTransactionSizes({});
+		auto pBlock = test::GenerateImportanceBlockWithTransactions(0);
+		auto& blockFooter = GetBlockFooter<ImportanceBlockFooter>(*pBlock);
+		blockFooter.VotingEligibleAccountsCount = 432;
+		blockFooter.HarvestingEligibleAccountsCount = 575;
+		blockFooter.TotalVotingBalance = Amount(3);
+		test::FillWithRandomData(blockFooter.PreviousImportanceBlockHash);
+
+		// Act:
+		PublishOne<ImportanceBlockNotification>(*pBlock, [&blockFooter](const auto& notification) {
+			// Assert:
+			EXPECT_EQ(432u, notification.VotingEligibleAccountsCount);
+			EXPECT_EQ(575u, notification.HarvestingEligibleAccountsCount);
+			EXPECT_EQ(Amount(3), notification.TotalVotingBalance);
+			EXPECT_EQ(blockFooter.PreviousImportanceBlockHash, notification.PreviousImportanceBlockHash);
+		});
+	}
+
+	TEST(TEST_CLASS, CanPublishBlockNotificationsWithModeBasic_BlockNormal) {
+		// Arrange:
+		auto pBlock = test::GenerateEmptyRandomBlock();
 
 		// Act:
 		PublishAll(*pBlock, PublicationMode::Basic, [](const auto& sub) {
@@ -261,9 +295,38 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanPublishBlockNotificationsWithModeCustom) {
+	TEST(TEST_CLASS, CanPublishBlockNotificationsWithModeCustom_BlockNormal) {
 		// Arrange:
-		auto pBlock = GenerateBlockWithTransactionSizes({});
+		auto pBlock = test::GenerateEmptyRandomBlock();
+
+		// Act:
+		PublishAll(*pBlock, PublicationMode::Custom, [](const auto& sub) {
+			// Assert: all notifications were suppressed (blocks do not have custom notifications)
+			ASSERT_EQ(0u, sub.numNotifications());
+		});
+	}
+
+	TEST(TEST_CLASS, CanPublishBlockNotificationsWithModeBasic_BlockImportance) {
+		// Arrange:
+		auto pBlock = test::GenerateImportanceBlockWithTransactions(0);
+
+		// Act:
+		PublishAll(*pBlock, PublicationMode::Basic, [](const auto& sub) {
+			// Assert: no notifications were suppressed (blocks do not have custom notifications)
+			ASSERT_EQ(7u, sub.numNotifications());
+			EXPECT_EQ(Core_Source_Change_Notification, sub.notificationTypes()[0]);
+			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, sub.notificationTypes()[1]);
+			EXPECT_EQ(Core_Register_Account_Address_Notification, sub.notificationTypes()[2]);
+			EXPECT_EQ(Core_Entity_Notification, sub.notificationTypes()[3]);
+			EXPECT_EQ(Core_Block_Notification, sub.notificationTypes()[4]);
+			EXPECT_EQ(Core_Block_Importance_Notification, sub.notificationTypes()[5]);
+			EXPECT_EQ(Core_Signature_Notification, sub.notificationTypes()[6]);
+		});
+	}
+
+	TEST(TEST_CLASS, CanPublishBlockNotificationsWithModeCustom_BlockImportance) {
+		// Arrange:
+		auto pBlock = test::GenerateImportanceBlockWithTransactions(0);
 
 		// Act:
 		PublishAll(*pBlock, PublicationMode::Custom, [](const auto& sub) {

@@ -37,9 +37,6 @@ namespace catapult { namespace model {
 		/// Block format version.
 		static constexpr uint8_t Current_Version = 1;
 
-		/// Size of the footer that can be skipped when signing/verifying.
-		static constexpr size_t Footer_Size = sizeof(uint32_t);
-
 	public:
 		/// Block height.
 		catapult::Height Height;
@@ -70,18 +67,74 @@ namespace catapult { namespace model {
 
 		/// Fee multiplier applied to block transactions.
 		BlockFeeMultiplier FeeMultiplier;
+	};
 
+	/// Binary layout for a padded block footer.
+	struct PaddedBlockFooter {
+	public:
+		/// Size of the footer that can be skipped when signing/verifying.
+		static constexpr size_t Footer_Size = sizeof(uint32_t);
+
+	public:
 		/// Reserved padding to align end of BlockHeader on 8-byte boundary.
 		uint32_t BlockHeader_Reserved1;
 	};
 
-	/// Binary layout for a block.
-	struct Block : public TransactionContainer<BlockHeader, Transaction> {};
+	/// Binary layout for an importance block footer.
+	struct ImportanceBlockFooter {
+		/// Number of voting eligible accounts.
+		uint32_t VotingEligibleAccountsCount;
+
+		/// Number of harvesting eligible accounts.
+		uint64_t HarvestingEligibleAccountsCount;
+
+		/// Total balance eligible for voting.
+		Amount TotalVotingBalance;
+
+		/// Previous importance block hash.
+		Hash256 PreviousImportanceBlockHash;
+	};
 
 #pragma pack(pop)
 
+	/// Returns \c true if \a type represents an importance block.
+	bool IsImportanceBlock(EntityType type);
+
+	/// Gets the expected block header size for the specified \a type.
+	uint32_t GetBlockHeaderSize(EntityType type);
+
+	/// Gets the (const) footer of \a header.
+	template<typename TFooter>
+	const TFooter& GetBlockFooter(const BlockHeader& header) {
+		return reinterpret_cast<const TFooter&>(*(reinterpret_cast<const uint8_t*>(&header) + sizeof(BlockHeader)));
+	}
+
+	/// Gets the footer of \a header.
+	template<typename TFooter>
+	TFooter& GetBlockFooter(BlockHeader& header) {
+		return reinterpret_cast<TFooter&>(*(reinterpret_cast<uint8_t*>(&header) + sizeof(BlockHeader)));
+	}
+
+	/// Gets the data buffer used for the signing/verifying of \a header.
+	RawBuffer GetBlockHeaderDataBuffer(const BlockHeader& header);
+
 	/// Gets the number of bytes containing transaction data according to \a header.
 	size_t GetTransactionPayloadSize(const BlockHeader& header);
+
+#pragma pack(push, 1)
+
+	/// Provides block header properties.
+	struct BlockHeaderProperties {
+		/// Gets the header size of \a header.
+		static size_t HeaderSize(const BlockHeader& header) {
+			return GetBlockHeaderSize(header.Type);
+		}
+	};
+
+	/// Binary layout for a block.
+	struct Block : public TransactionContainer<BlockHeader, Transaction, BlockHeaderProperties> {};
+
+#pragma pack(pop)
 
 	/// Checks the real size of \a block against its reported size and returns \c true if the sizes match.
 	/// \a registry contains all known transaction types.

@@ -417,7 +417,7 @@ namespace catapult { namespace harvesting {
 				EXPECT_EQ(bestHarvester.SigningPublicKey, pBlock->SignerPublicKey);
 				EXPECT_EQ(1u, pBlock->Version);
 				EXPECT_EQ(Network_Identifier, pBlock->Network);
-				EXPECT_EQ(model::Entity_Type_Block, pBlock->Type);
+				EXPECT_EQ(model::Entity_Type_Block_Normal, pBlock->Type);
 				EXPECT_EQ(Height(2), pBlock->Height);
 				EXPECT_EQ(timestamp, pBlock->Timestamp);
 				EXPECT_EQ(chain::CalculateDifficulty(statisticCache, pLastBlock->Height, config), pBlock->Difficulty);

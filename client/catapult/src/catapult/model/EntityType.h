@@ -58,10 +58,13 @@ namespace catapult { namespace model {
 			CODE)
 
 	/// Nemesis block.
-	DEFINE_ENTITY_TYPE(Block, Core, Nemesis_Block, 0);
+	DEFINE_ENTITY_TYPE(Block, Core, Block_Nemesis, 0);
 
-	/// Block.
-	DEFINE_ENTITY_TYPE(Block, Core, Block, 1);
+	/// Normal block.
+	DEFINE_ENTITY_TYPE(Block, Core, Block_Normal, 1);
+
+	/// Importance block.
+	DEFINE_ENTITY_TYPE(Block, Core, Block_Importance, 2);
 
 /// Defines transaction type given \a FACILITY, \a DESCRIPTION and \a CODE.
 #define DEFINE_TRANSACTION_TYPE(FACILITY, DESCRIPTION, CODE) DEFINE_ENTITY_TYPE(Transaction, FACILITY, DESCRIPTION, CODE)

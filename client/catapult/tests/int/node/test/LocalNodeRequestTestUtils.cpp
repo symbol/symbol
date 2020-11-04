@@ -74,7 +74,8 @@ namespace catapult { namespace test {
 			auto signer = GetNemesisAccountKeyPair();
 			auto context = LoadNemesisPreviousBlockContext();
 
-			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
+			auto entityType = model::Entity_Type_Block_Normal;
+			auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
 
 			auto vrfKeyPair = LookupVrfKeyPair(signer.publicKey());
