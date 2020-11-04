@@ -37,29 +37,16 @@ namespace catapult { namespace io {
 	// region helpers
 
 	namespace {
-		using Blocks = std::vector<std::unique_ptr<model::Block>>;
+		using Blocks = std::vector<std::shared_ptr<const model::Block>>;
 
 		constexpr model::FinalizationRound Default_Round{ FinalizationEpoch(123), FinalizationPoint(42) };
 
-		auto SeedFileStorage(const std::string& pathname, Height height, size_t numBlocks) {
-			test::FakeHeight(pathname, height.unwrap());
-
-			FileBlockStorage storage(pathname);
+		Blocks ExtractBlocks(const BlockStorageView& blockStorageView, Height startHeight, Height endHeight) {
 			Blocks blocks;
-			for (auto i = 0u; i < numBlocks; ++i) {
-				auto pBlock = test::GenerateEmptyRandomBlock();
-				pBlock->Height = height + Height(i);
-				storage.saveBlock(test::BlockToBlockElement(*pBlock));
-
-				blocks.push_back(std::move(pBlock));
-			}
+			for (auto height = startHeight; height <= endHeight; height = height + Height(1))
+				blocks.push_back(blockStorageView.loadBlock(height));
 
 			return blocks;
-		}
-
-		auto PrepareFileStorageWithRandomBlocks(const std::string& pathname, Height height, size_t numBlocks) {
-			test::PrepareStorage(pathname);
-			return SeedFileStorage(pathname, height, numBlocks);
 		}
 
 		std::vector<uint8_t> ReadFile(const fs::path& filename) {
@@ -121,8 +108,8 @@ namespace catapult { namespace io {
 		void RunContainsTest(const consumer<const FilePrevoteChainStorage&, const Blocks&>& assertStorage) {
 			// Arrange:
 			test::TempDirectoryGuard tempDir;
-			auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 3);
-			auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+			auto pStorageCache = mocks::CreateMemoryBlockStorageCache(12);
+			auto blocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(12));
 
 			FilePrevoteChainStorage storage(tempDir.name());
 			storage.save(pStorageCache->view(), { Default_Round, Height(10), 3 });
@@ -188,8 +175,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CannotLoadWhenIndexFileDoesNotExist) {
 		// Arrange: prepare proper storage, but remove index file
 		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(15);
+		auto blocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(15));
 
 		FilePrevoteChainStorage storage(tempDir.name());
 		storage.save(pStorageCache->view(), { Default_Round, Height(10), 0 });
@@ -203,8 +190,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CanRoundtripZeroBlocks) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(15);
+		auto blocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(15));
 
 		FilePrevoteChainStorage storage(tempDir.name());
 		storage.save(pStorageCache->view(), { Default_Round, Height(10), 0 });
@@ -217,8 +204,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CanRoundtripSingleBlock) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(15);
+		auto blocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(15));
 
 		FilePrevoteChainStorage storage(tempDir.name());
 		storage.save(pStorageCache->view(), { Default_Round, Height(10), 1 });
@@ -231,8 +218,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CanRoundtripBlocks) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(15);
+		auto blocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(15));
 
 		FilePrevoteChainStorage storage(tempDir.name());
 		storage.save(pStorageCache->view(), { Default_Round, Height(10), 6 });
@@ -245,8 +232,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, LoadRespectsHeightLimit) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(15);
+		auto blocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(15));
 
 		FilePrevoteChainStorage storage(tempDir.name());
 		storage.save(pStorageCache->view(), { Default_Round, Height(10), 6 });
@@ -263,8 +250,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, SaveCreatesCopyOfBlocks) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(15);
+		auto blocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(15));
 
 		// Act:
 		FilePrevoteChainStorage storage(tempDir.name());
@@ -283,8 +270,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, SaveIsRoundDependant) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto allBlocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 9);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(18);
+		auto allBlocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(18));
 
 		// Act:
 		FilePrevoteChainStorage storage1(tempDir.name());
@@ -308,8 +295,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, SavePurgesRoundDirectoryBeforeOverwriting) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(15);
+		auto blocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(15));
 
 		FilePrevoteChainStorage storage(tempDir.name());
 		storage.save(pStorageCache->view(), { Default_Round, Height(12), 3 });
@@ -338,21 +325,22 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, SaveCanOverwriteRound) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto blocks1 = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 3);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache1 = mocks::CreateMemoryBlockStorageCache(12);
+		auto blocks1 = ExtractBlocks(pStorageCache1->view(), Height(10), Height(12));
 
 		FilePrevoteChainStorage storage(tempDir.name());
-		storage.save(pStorageCache->view(), { Default_Round, Height(10), 3 });
+		storage.save(pStorageCache1->view(), { Default_Round, Height(10), 3 });
 
 		// Sanity:
 		auto roundPath = Join(tempDir.name(), "voting", "123_42");
 		AssertBlocks(blocks1, roundPath, Height(10));
 
 		// re-create 'new' blocks
-		auto blocks2 = SeedFileStorage(tempDir.name(), Height(10), 3);
+		auto pStorageCache2 = mocks::CreateMemoryBlockStorageCache(12);
+		auto blocks2 = ExtractBlocks(pStorageCache2->view(), Height(10), Height(12));
 
 		// Act:
-		storage.save(pStorageCache->view(), { Default_Round, Height(10), 3 });
+		storage.save(pStorageCache2->view(), { Default_Round, Height(10), 3 });
 
 		// Assert:
 		AssertBlocks(blocks2, roundPath, Height(10));
@@ -393,8 +381,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CanRemoveRoundDirectory) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(15);
+		auto blocks = ExtractBlocks(pStorageCache->view(), Height(10), Height(15));
 
 		FilePrevoteChainStorage storage(tempDir.name());
 		storage.save(pStorageCache->view(), { Default_Round, Height(10), 6 });

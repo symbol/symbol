@@ -20,25 +20,17 @@
 
 #include "FilePrevoteChainStorage.h"
 #include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/io/BlockElementSerializer.h"
+#include "catapult/io/BlockStorageCache.h"
+#include "catapult/io/FileStream.h"
 #include "catapult/io/FilesystemUtils.h"
 #include "catapult/io/IndexFile.h"
 #include "catapult/io/PodIoUtils.h"
-#include "catapult/model/Elements.h"
-#include "catapult/preprocessor.h"
 
 namespace catapult { namespace io {
 
 	namespace {
 		static constexpr auto Block_File_Extension = ".dat";
-
-		auto GetStorageDirectory(const std::string& dataDirectory, Height height) {
-			return config::CatapultStorageDirectoryPreparer::Prepare(dataDirectory, height);
-		}
-
-		std::string GetBlockPath(const std::string& dataDirectory, Height height) {
-			auto storageDirectory = GetStorageDirectory(dataDirectory, height);
-			return storageDirectory.storageFile(Block_File_Extension);
-		}
 
 		config::CatapultDirectory GetRoundDirectory(const std::string& dataDirectory, const model::FinalizationRound& round) {
 			auto votingDirectory = config::CatapultDataDirectory(dataDirectory).dir("voting");
@@ -53,29 +45,6 @@ namespace catapult { namespace io {
 			buffer << height << Block_File_Extension;
 
 			return roundDirectory.file(buffer.str());
-		}
-
-		void CopyBlockFile(const boost::filesystem::path& source, const boost::filesystem::path& destination) {
-			if (boost::filesystem::exists(destination))
-				boost::filesystem::remove(destination);
-
-			boost::filesystem::copy_file(source, destination);
-		}
-
-		void CopyChain(
-				const std::string& dataDirectory,
-				const config::CatapultDirectory& roundDirectory,
-				Height startHeight,
-				size_t numBlocks) {
-			for (auto i = 0u; i < numBlocks; ++i) {
-				auto sourcePath = GetBlockPath(dataDirectory, startHeight + Height(i));
-				auto destinationPath = GetVotingBlockPath(roundDirectory, startHeight + Height(i));
-				CopyBlockFile(sourcePath, destinationPath);
-			}
-
-			auto indexPath = roundDirectory.file("index.dat");
-			IndexFile index(indexPath);
-			index.set(startHeight.unwrap());
 		}
 
 		std::unique_ptr<model::Block> LoadBlock(const std::string& pathname) {
@@ -142,13 +111,25 @@ namespace catapult { namespace io {
 		return model::BlockRange::MergeRanges(std::move(chain));
 	}
 
-	void FilePrevoteChainStorage::save(const BlockStorageView&, const PrevoteChainDescriptor& descriptor) {
-		// BlockStorageView holds lock on block storage
+	void FilePrevoteChainStorage::save(const BlockStorageView& blockStorageView, const PrevoteChainDescriptor& descriptor) {
+		// blockStorageView holds lock on block storage
 		remove(descriptor.Round);
 
 		auto roundDirectory = GetRoundDirectory(m_dataDirectory, descriptor.Round);
 		roundDirectory.createAll();
-		CopyChain(m_dataDirectory, roundDirectory, descriptor.Height, descriptor.HashesCount);
+
+		for (auto i = 0u; i < descriptor.HashesCount; ++i) {
+			auto height = descriptor.Height + Height(i);
+			auto pBlockElement = blockStorageView.loadBlockElement(height);
+
+			auto destinationPath = GetVotingBlockPath(roundDirectory, height);
+			FileStream outputStream(RawFile(destinationPath, OpenMode::Read_Write));
+			WriteBlockElement(*pBlockElement, outputStream);
+		}
+
+		auto indexPath = roundDirectory.file("index.dat");
+		IndexFile index(indexPath);
+		index.set(descriptor.Height.unwrap());
 	}
 
 	void FilePrevoteChainStorage::remove(const model::FinalizationRound& round) {

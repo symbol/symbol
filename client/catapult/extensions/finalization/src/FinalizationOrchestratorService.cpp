@@ -24,6 +24,7 @@
 #include "FinalizationContextFactory.h"
 #include "VotingStatusFile.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "finalization/src/io/FilePrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/src/model/VotingSet.h"
 #include "catapult/config/CatapultDataDirectory.h"
@@ -71,7 +72,12 @@ namespace catapult { namespace finalization {
 									config,
 									state.storage(),
 									m_proofStorage,
-									[](const auto&, const auto&) {},
+									[dataDirectory = state.config().User.DataDirectory](
+											const auto& blockStorageView,
+											const auto& prevoteChainDescriptor) {
+										io::FilePrevoteChainStorage prevoteChainStorage(dataDirectory);
+										prevoteChainStorage.save(blockStorageView, prevoteChainDescriptor);
+									},
 									CreateVotingPrivateKeyTree(state.config().User)))
 					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage))
 			{}

@@ -20,8 +20,10 @@
 
 #include "FinalizationBootstrapperService.h"
 #include "FinalizationContextFactory.h"
+#include "finalization/src/chain/FinalizationPatchingSubscriber.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/AggregateProofStorage.h"
+#include "finalization/src/io/FilePrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -34,6 +36,7 @@ namespace catapult { namespace finalization {
 		constexpr auto Hooks_Service_Name = "fin.hooks";
 		constexpr auto Storage_Service_Name = "fin.proof.storage";
 		constexpr auto Aggregator_Service_Name = "fin.aggregator.multiround";
+		constexpr auto Subscriber_Adapter_Service_Name = "fin.subscriber.adapter";
 
 		// region CreateMultiRoundMessageAggregator
 
@@ -56,7 +59,7 @@ namespace catapult { namespace finalization {
 
 		// endregion
 
-		// region FinalizationSubscriberAdapter
+		// region FinalizationSubscriberAdapter / CreateProofStorageCache
 
 		class FinalizationSubscriberAdapter : public subscribers::FinalizationSubscriber {
 		public:
@@ -64,14 +67,44 @@ namespace catapult { namespace finalization {
 			{}
 
 		public:
+			void setPatchingSubscriber(extensions::ServiceState& state) {
+				// create patching subscriber (only Remote_Pull allows deep rollbacks)
+				m_pPrevoteChainStorage = std::make_unique<io::FilePrevoteChainStorage>(state.config().User.DataDirectory);
+				m_pPatchingSubscriber = std::make_unique<chain::FinalizationPatchingSubscriber>(
+						*m_pPrevoteChainStorage,
+						state.storage(),
+						state.hooks().blockRangeConsumerFactory()(disruptor::InputSource::Remote_Pull));
+			}
+
+		public:
 			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
-				// TODO: call patching finalization subscriber here too!
 				m_subscriber.notifyFinalizedBlock(round, height, hash);
+
+				if (m_pPatchingSubscriber)
+					m_pPatchingSubscriber->notifyFinalizedBlock(round, height, hash);
 			}
 
 		private:
 			subscribers::FinalizationSubscriber& m_subscriber;
+			std::unique_ptr<io::PrevoteChainStorage> m_pPrevoteChainStorage;
+			std::unique_ptr<chain::FinalizationPatchingSubscriber> m_pPatchingSubscriber;
 		};
+
+		std::shared_ptr<io::ProofStorageCache> CreateProofStorageCache(
+				std::unique_ptr<io::ProofStorage>&& pProofStorage,
+				extensions::ServiceLocator& locator,
+				extensions::ServiceState& state) {
+			// create subscriber adapter (registration is only for phase two access, not ownership)
+			auto pSubscriber = std::make_unique<FinalizationSubscriberAdapter>(state.finalizationSubscriber());
+			locator.registerRootedService(
+					Subscriber_Adapter_Service_Name,
+					std::shared_ptr<FinalizationSubscriberAdapter>(pSubscriber.get(), [](const auto*) {}));
+
+			// create proof storage cache
+			return std::make_shared<io::ProofStorageCache>(io::CreateAggregateProofStorage(
+					std::move(pProofStorage),
+					std::move(pSubscriber)));
+		}
 
 		// endregion
 
@@ -95,7 +128,7 @@ namespace catapult { namespace finalization {
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
-				return { "FinalizationBootstrapper", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
+				return { "FinalizationBootstrapper", extensions::ServiceRegistrarPhase::Initial };
 			}
 
 			void registerServiceCounters(extensions::ServiceLocator& locator) override {
@@ -123,9 +156,7 @@ namespace catapult { namespace finalization {
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
 				// create proof storage cache
-				auto pProofStorageCache = std::make_shared<io::ProofStorageCache>(io::CreateAggregateProofStorage(
-						std::move(m_pProofStorage),
-						std::make_unique<FinalizationSubscriberAdapter>(state.finalizationSubscriber())));
+				auto pProofStorageCache = CreateProofStorageCache(std::move(m_pProofStorage), locator, state);
 
 				// register hooks
 				state.hooks().setLocalFinalizedHeightHashPairSupplier([&proofStorage = *pProofStorageCache]() {
@@ -148,12 +179,37 @@ namespace catapult { namespace finalization {
 		};
 
 		// endregion
+
+		// region FinalizationBootstrapperPhaseTwoServiceRegistrar
+
+		class FinalizationBootstrapperPhaseTwoServiceRegistrar : public extensions::ServiceRegistrar {
+		public:
+			extensions::ServiceRegistrarInfo info() const override {
+				return { "FinalizationBootstrapperPhaseTwo", extensions::ServiceRegistrarPhase::Post_Range_Consumers };
+			}
+
+			void registerServiceCounters(extensions::ServiceLocator&) override {
+				// no counters
+			}
+
+			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
+				// set patching subscriber
+				auto& subscriber = *locator.service<FinalizationSubscriberAdapter>(Subscriber_Adapter_Service_Name);
+				subscriber.setPatchingSubscriber(state);
+			}
+		};
+
+		// endregion
 	}
 
 	DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapper)(
 			const FinalizationConfiguration& config,
 			std::unique_ptr<io::ProofStorage>&& pProofStorage) {
 		return std::make_unique<FinalizationBootstrapperServiceRegistrar>(config, std::move(pProofStorage));
+	}
+
+	DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapperPhaseTwo)() {
+		return std::make_unique<FinalizationBootstrapperPhaseTwoServiceRegistrar>();
 	}
 
 	chain::MultiRoundMessageAggregator& GetMultiRoundMessageAggregator(const extensions::ServiceLocator& locator) {

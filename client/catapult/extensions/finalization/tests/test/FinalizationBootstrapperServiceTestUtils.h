@@ -32,7 +32,7 @@ namespace catapult { namespace test {
 	class FinalizationBootstrapperServiceTestUtils {
 	public:
 		/// Number of expected bootstrapper services.
-		static constexpr auto Num_Bootstrapper_Services = 3u;
+		static constexpr auto Num_Bootstrapper_Services = 4u;
 
 		/// Types of accounts registered by CreateCache.
 		enum class VoterType : uint32_t { Small, Large1, Ineligible, Large2 };
