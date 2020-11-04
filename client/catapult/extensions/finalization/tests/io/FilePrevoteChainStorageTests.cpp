@@ -106,247 +106,6 @@ namespace catapult { namespace io {
 
 	// endregion
 
-	// region saveChain
-
-	TEST(TEST_CLASS, SaveChainCreatesCopyOfBlocks) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		// Act:
-		FilePrevoteChainStorage storage(tempDir.name());
-		storage.saveChain(*pStorageCache, Default_Round, Height(12), 3);
-
-		// Assert:
-		auto expectedPath = Join(tempDir.name(), "voting", "123_42");
-		EXPECT_TRUE(fs::exists(expectedPath));
-
-		Blocks expectedBlocks;
-		std::move(blocks.begin() + 2, blocks.begin() + 2 + 3, std::back_inserter(expectedBlocks));
-
-		AssertBlocks(expectedBlocks, expectedPath, Height(12));
-	}
-
-	TEST(TEST_CLASS, SaveChainIsRoundDependant) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto allBlocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 9);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		// Act:
-		FilePrevoteChainStorage storage1(tempDir.name());
-		FilePrevoteChainStorage storage2(tempDir.name());
-		FilePrevoteChainStorage storage3(tempDir.name());
-		storage1.saveChain(*pStorageCache, { FinalizationEpoch(119), FinalizationPoint(59) }, Height(13), 3);
-		storage2.saveChain(*pStorageCache, { FinalizationEpoch(119), FinalizationPoint(60) }, Height(10), 3);
-		storage3.saveChain(*pStorageCache, { FinalizationEpoch(120), FinalizationPoint(59) }, Height(16), 3);
-
-		Blocks blocks1, blocks2, blocks3;
-		std::move(allBlocks.begin() + 3, allBlocks.begin() + 6, std::back_inserter(blocks1));
-		std::move(allBlocks.begin() + 0, allBlocks.begin() + 3, std::back_inserter(blocks2));
-		std::move(allBlocks.begin() + 6, allBlocks.begin() + 9, std::back_inserter(blocks3));
-
-		// Assert:
-		AssertBlocks(blocks1, Join(tempDir.name(), "voting", "119_59"), Height(13));
-		AssertBlocks(blocks2, Join(tempDir.name(), "voting", "119_60"), Height(10));
-		AssertBlocks(blocks3, Join(tempDir.name(), "voting", "120_59"), Height(16));
-	}
-
-	TEST(TEST_CLASS, SaveChainPurgesRoundDirectoryBeforeOverwriting) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		FilePrevoteChainStorage storage(tempDir.name());
-		storage.saveChain(*pStorageCache, Default_Round, Height(12), 3);
-
-		// Sanity: 3 blocks + index
-		auto roundPath = Join(tempDir.name(), "voting", "123_42");
-		EXPECT_EQ(4u, test::CountFilesAndDirectories(roundPath));
-		EXPECT_TRUE(fs::exists(Join(roundPath, "14.dat")));
-		EXPECT_FALSE(fs::exists(Join(roundPath, "15.dat")));
-
-		// Act:
-		storage.saveChain(*pStorageCache, Default_Round, Height(10), 3);
-
-		// Assert: 3 blocks + index
-		EXPECT_EQ(4u, test::CountFilesAndDirectories(roundPath));
-		EXPECT_TRUE(fs::exists(Join(roundPath, "12.dat")));
-		EXPECT_FALSE(fs::exists(Join(roundPath, "13.dat")));
-		EXPECT_FALSE(fs::exists(Join(roundPath, "14.dat")));
-
-		Blocks expectedBlocks;
-		std::move(blocks.begin(), blocks.begin() + 3, std::back_inserter(expectedBlocks));
-
-		AssertBlocks(expectedBlocks, roundPath, Height(10));
-	}
-
-	TEST(TEST_CLASS, SaveChainCanOverwriteRound) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto blocks1 = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 3);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		FilePrevoteChainStorage storage(tempDir.name());
-		storage.saveChain(*pStorageCache, Default_Round, Height(10), 3);
-
-		// Sanity:
-		auto roundPath = Join(tempDir.name(), "voting", "123_42");
-		AssertBlocks(blocks1, roundPath, Height(10));
-
-		// re-create 'new' blocks
-		auto blocks2 = SeedFileStorage(tempDir.name(), Height(10), 3);
-
-		// Act:
-		storage.saveChain(*pStorageCache, Default_Round, Height(10), 3);
-
-		// Assert:
-		AssertBlocks(blocks2, roundPath, Height(10));
-	}
-
-	// endregion
-
-	// region removeChain
-
-	TEST(TEST_CLASS, RemoveIsNoOpWhenVotingDirectoryDoesNotExist) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto votingPath = Join(tempDir.name(), "voting");
-		FilePrevoteChainStorage storage(tempDir.name());
-
-		// Sanity:
-		EXPECT_FALSE(fs::exists(votingPath));
-
-		// Act + Assert:
-		EXPECT_NO_THROW(storage.removeChain(Default_Round));
-	}
-
-	TEST(TEST_CLASS, RemoveIsNoOpWhenRoundDirectoryDoesNotExist) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto votingPath = Join(tempDir.name(), "voting");
-		fs::create_directory(votingPath);
-		FilePrevoteChainStorage storage(tempDir.name());
-
-		// Sanity:
-		EXPECT_TRUE(fs::exists(votingPath));
-		EXPECT_FALSE(fs::exists(Join(votingPath, "123_42")));
-
-		// Act + Assert:
-		EXPECT_NO_THROW(storage.removeChain(Default_Round));
-	}
-
-	TEST(TEST_CLASS, CanRemoveRoundDirectory) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		FilePrevoteChainStorage storage(tempDir.name());
-		storage.saveChain(*pStorageCache, Default_Round, Height(10), 6);
-
-		auto roundPath = Join(tempDir.name(), "voting", "123_42");
-
-		// Sanity: 6 blocks + index
-		EXPECT_TRUE(fs::exists(roundPath));
-		EXPECT_EQ(7u, test::CountFilesAndDirectories(roundPath));
-
-		// Act:
-		storage.removeChain(Default_Round);
-
-		// Assert:
-		EXPECT_FALSE(fs::exists(roundPath));
-		EXPECT_TRUE(fs::exists(Join(tempDir.name(), "voting")));
-	}
-
-	// endregion
-
-	// region loadChain
-
-	TEST(TEST_CLASS, CannotLoadUnsavedRound) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		FilePrevoteChainStorage storage(tempDir.name());
-
-		// Act + Assert:
-		EXPECT_THROW(storage.loadChain(Default_Round, Height(100)), catapult_invalid_argument);
-	}
-
-	TEST(TEST_CLASS, CannotLoadWhenIndexFileDoesNotExist) {
-		// Arrange: prepare proper storage, but remove index file
-		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		FilePrevoteChainStorage storage(tempDir.name());
-		storage.saveChain(*pStorageCache, Default_Round, Height(10), 0);
-
-		boost::filesystem::remove(Join(tempDir.name(), "voting", "123_42", "index.dat"));
-
-		// Act + Assert:
-		EXPECT_THROW(storage.loadChain(Default_Round, Height(100)), catapult_invalid_argument);
-	}
-
-	TEST(TEST_CLASS, CanRoundtripZeroBlocks) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		FilePrevoteChainStorage storage(tempDir.name());
-		storage.saveChain(*pStorageCache, Default_Round, Height(10), 0);
-
-		// Act + Assert:
-		auto blockRange = storage.loadChain(Default_Round, Height(100));
-		AssertBlocks(blocks, 0, blockRange);
-	}
-
-	TEST(TEST_CLASS, CanRoundtripSingleBlock) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		FilePrevoteChainStorage storage(tempDir.name());
-		storage.saveChain(*pStorageCache, Default_Round, Height(10), 1);
-
-		// Act:
-		auto blockRange = storage.loadChain(Default_Round, Height(100));
-		AssertBlocks(blocks, 1, blockRange);
-	}
-
-	TEST(TEST_CLASS, CanRoundtripBlocks) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		FilePrevoteChainStorage storage(tempDir.name());
-		storage.saveChain(*pStorageCache, Default_Round, Height(10), 6);
-
-		// Act:
-		auto blockRange = storage.loadChain(Default_Round, Height(100));
-		AssertBlocks(blocks, 6, blockRange);
-	}
-
-	TEST(TEST_CLASS, LoadChainRespectsHeightLimit) {
-		// Arrange:
-		test::TempDirectoryGuard tempDir;
-		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
-		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
-
-		FilePrevoteChainStorage storage(tempDir.name());
-		storage.saveChain(*pStorageCache, Default_Round, Height(10), 6);
-
-		// Act:
-		auto blockRange = storage.loadChain(Default_Round, Height(13));
-		AssertBlocks(blocks, 4, blockRange);
-	}
-
-	// endregion
-
 	// region contains
 
 	TEST(TEST_CLASS, ContainsReturnFalseWhenNoBackupIsPresent) {
@@ -366,7 +125,7 @@ namespace catapult { namespace io {
 			auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
 
 			FilePrevoteChainStorage storage(tempDir.name());
-			storage.saveChain(*pStorageCache, Default_Round, Height(10), 3);
+			storage.save(pStorageCache->view(), { Default_Round, Height(10), 3 });
 
 			// Act + Assert:
 			assertStorage(storage, blocks);
@@ -411,6 +170,247 @@ namespace catapult { namespace io {
 			for (const auto& pBlock : blocks)
 				EXPECT_TRUE(storage.contains(Default_Round, BlockToHeightHashPair(*pBlock))) << pBlock->Height;
 		});
+	}
+
+	// endregion
+
+	// region load
+
+	TEST(TEST_CLASS, CannotLoadUnsavedRound) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		FilePrevoteChainStorage storage(tempDir.name());
+
+		// Act + Assert:
+		EXPECT_THROW(storage.load(Default_Round, Height(100)), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, CannotLoadWhenIndexFileDoesNotExist) {
+		// Arrange: prepare proper storage, but remove index file
+		test::TempDirectoryGuard tempDir;
+		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		FilePrevoteChainStorage storage(tempDir.name());
+		storage.save(pStorageCache->view(), { Default_Round, Height(10), 0 });
+
+		boost::filesystem::remove(Join(tempDir.name(), "voting", "123_42", "index.dat"));
+
+		// Act + Assert:
+		EXPECT_THROW(storage.load(Default_Round, Height(100)), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, CanRoundtripZeroBlocks) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		FilePrevoteChainStorage storage(tempDir.name());
+		storage.save(pStorageCache->view(), { Default_Round, Height(10), 0 });
+
+		// Act + Assert:
+		auto blockRange = storage.load(Default_Round, Height(100));
+		AssertBlocks(blocks, 0, blockRange);
+	}
+
+	TEST(TEST_CLASS, CanRoundtripSingleBlock) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		FilePrevoteChainStorage storage(tempDir.name());
+		storage.save(pStorageCache->view(), { Default_Round, Height(10), 1 });
+
+		// Act:
+		auto blockRange = storage.load(Default_Round, Height(100));
+		AssertBlocks(blocks, 1, blockRange);
+	}
+
+	TEST(TEST_CLASS, CanRoundtripBlocks) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		FilePrevoteChainStorage storage(tempDir.name());
+		storage.save(pStorageCache->view(), { Default_Round, Height(10), 6 });
+
+		// Act:
+		auto blockRange = storage.load(Default_Round, Height(100));
+		AssertBlocks(blocks, 6, blockRange);
+	}
+
+	TEST(TEST_CLASS, LoadRespectsHeightLimit) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		FilePrevoteChainStorage storage(tempDir.name());
+		storage.save(pStorageCache->view(), { Default_Round, Height(10), 6 });
+
+		// Act:
+		auto blockRange = storage.load(Default_Round, Height(13));
+		AssertBlocks(blocks, 4, blockRange);
+	}
+
+	// endregion
+
+	// region save
+
+	TEST(TEST_CLASS, SaveCreatesCopyOfBlocks) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		// Act:
+		FilePrevoteChainStorage storage(tempDir.name());
+		storage.save(pStorageCache->view(), { Default_Round, Height(12), 3 });
+
+		// Assert:
+		auto expectedPath = Join(tempDir.name(), "voting", "123_42");
+		EXPECT_TRUE(fs::exists(expectedPath));
+
+		Blocks expectedBlocks;
+		std::move(blocks.begin() + 2, blocks.begin() + 2 + 3, std::back_inserter(expectedBlocks));
+
+		AssertBlocks(expectedBlocks, expectedPath, Height(12));
+	}
+
+	TEST(TEST_CLASS, SaveIsRoundDependant) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto allBlocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 9);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		// Act:
+		FilePrevoteChainStorage storage1(tempDir.name());
+		FilePrevoteChainStorage storage2(tempDir.name());
+		FilePrevoteChainStorage storage3(tempDir.name());
+		storage1.save(pStorageCache->view(), { { FinalizationEpoch(119), FinalizationPoint(59) }, Height(13), 3 });
+		storage2.save(pStorageCache->view(), { { FinalizationEpoch(119), FinalizationPoint(60) }, Height(10), 3 });
+		storage3.save(pStorageCache->view(), { { FinalizationEpoch(120), FinalizationPoint(59) }, Height(16), 3 });
+
+		Blocks blocks1, blocks2, blocks3;
+		std::move(allBlocks.begin() + 3, allBlocks.begin() + 6, std::back_inserter(blocks1));
+		std::move(allBlocks.begin() + 0, allBlocks.begin() + 3, std::back_inserter(blocks2));
+		std::move(allBlocks.begin() + 6, allBlocks.begin() + 9, std::back_inserter(blocks3));
+
+		// Assert:
+		AssertBlocks(blocks1, Join(tempDir.name(), "voting", "119_59"), Height(13));
+		AssertBlocks(blocks2, Join(tempDir.name(), "voting", "119_60"), Height(10));
+		AssertBlocks(blocks3, Join(tempDir.name(), "voting", "120_59"), Height(16));
+	}
+
+	TEST(TEST_CLASS, SavePurgesRoundDirectoryBeforeOverwriting) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		FilePrevoteChainStorage storage(tempDir.name());
+		storage.save(pStorageCache->view(), { Default_Round, Height(12), 3 });
+
+		// Sanity: 3 blocks + index
+		auto roundPath = Join(tempDir.name(), "voting", "123_42");
+		EXPECT_EQ(4u, test::CountFilesAndDirectories(roundPath));
+		EXPECT_TRUE(fs::exists(Join(roundPath, "14.dat")));
+		EXPECT_FALSE(fs::exists(Join(roundPath, "15.dat")));
+
+		// Act:
+		storage.save(pStorageCache->view(), { Default_Round, Height(10), 3 });
+
+		// Assert: 3 blocks + index
+		EXPECT_EQ(4u, test::CountFilesAndDirectories(roundPath));
+		EXPECT_TRUE(fs::exists(Join(roundPath, "12.dat")));
+		EXPECT_FALSE(fs::exists(Join(roundPath, "13.dat")));
+		EXPECT_FALSE(fs::exists(Join(roundPath, "14.dat")));
+
+		Blocks expectedBlocks;
+		std::move(blocks.begin(), blocks.begin() + 3, std::back_inserter(expectedBlocks));
+
+		AssertBlocks(expectedBlocks, roundPath, Height(10));
+	}
+
+	TEST(TEST_CLASS, SaveCanOverwriteRound) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto blocks1 = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 3);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		FilePrevoteChainStorage storage(tempDir.name());
+		storage.save(pStorageCache->view(), { Default_Round, Height(10), 3 });
+
+		// Sanity:
+		auto roundPath = Join(tempDir.name(), "voting", "123_42");
+		AssertBlocks(blocks1, roundPath, Height(10));
+
+		// re-create 'new' blocks
+		auto blocks2 = SeedFileStorage(tempDir.name(), Height(10), 3);
+
+		// Act:
+		storage.save(pStorageCache->view(), { Default_Round, Height(10), 3 });
+
+		// Assert:
+		AssertBlocks(blocks2, roundPath, Height(10));
+	}
+
+	// endregion
+
+	// region remove
+
+	TEST(TEST_CLASS, RemoveIsNoOpWhenVotingDirectoryDoesNotExist) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto votingPath = Join(tempDir.name(), "voting");
+		FilePrevoteChainStorage storage(tempDir.name());
+
+		// Sanity:
+		EXPECT_FALSE(fs::exists(votingPath));
+
+		// Act + Assert:
+		EXPECT_NO_THROW(storage.remove(Default_Round));
+	}
+
+	TEST(TEST_CLASS, RemoveIsNoOpWhenRoundDirectoryDoesNotExist) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto votingPath = Join(tempDir.name(), "voting");
+		fs::create_directory(votingPath);
+		FilePrevoteChainStorage storage(tempDir.name());
+
+		// Sanity:
+		EXPECT_TRUE(fs::exists(votingPath));
+		EXPECT_FALSE(fs::exists(Join(votingPath, "123_42")));
+
+		// Act + Assert:
+		EXPECT_NO_THROW(storage.remove(Default_Round));
+	}
+
+	TEST(TEST_CLASS, CanRemoveRoundDirectory) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto blocks = PrepareFileStorageWithRandomBlocks(tempDir.name(), Height(10), 6);
+		auto pStorageCache = mocks::CreateMemoryBlockStorageCache(1);
+
+		FilePrevoteChainStorage storage(tempDir.name());
+		storage.save(pStorageCache->view(), { Default_Round, Height(10), 6 });
+
+		auto roundPath = Join(tempDir.name(), "voting", "123_42");
+
+		// Sanity: 6 blocks + index
+		EXPECT_TRUE(fs::exists(roundPath));
+		EXPECT_EQ(7u, test::CountFilesAndDirectories(roundPath));
+
+		// Act:
+		storage.remove(Default_Round);
+
+		// Assert:
+		EXPECT_FALSE(fs::exists(roundPath));
+		EXPECT_TRUE(fs::exists(Join(tempDir.name(), "voting")));
 	}
 
 	// endregion

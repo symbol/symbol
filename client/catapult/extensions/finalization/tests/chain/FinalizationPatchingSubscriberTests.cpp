@@ -19,6 +19,7 @@
 **/
 
 #include "finalization/src/chain/FinalizationPatchingSubscriber.h"
+#include "finalization/src/io/PrevoteChainStorage.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -29,9 +30,9 @@ namespace catapult { namespace chain {
 #define TEST_CLASS FinalizationPatchingSubscriberTests
 
 	namespace {
-		// region MockPrevoteChainBackups
+		// region MockPrevoteChainStorage
 
-		class MockPrevoteChainBackups : public PrevoteChainBackups {
+		class MockPrevoteChainStorage : public io::PrevoteChainStorage {
 		public:
 			bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const override {
 				m_containsRounds.push_back(round);
@@ -41,6 +42,10 @@ namespace catapult { namespace chain {
 			model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const override {
 				m_loadRounds.push_back(round);
 				return test::CreateBlockEntityRange(maxHeight.unwrap());
+			}
+
+			void save(const io::BlockStorageView&, const io::PrevoteChainDescriptor&) override {
+				CATAPULT_THROW_RUNTIME_ERROR("save - not supported in mock");
 			}
 
 			void remove(const model::FinalizationRound& round) override {
@@ -81,14 +86,14 @@ namespace catapult { namespace chain {
 		public:
 			explicit TestContext(uint32_t numBlocks)
 					: m_pBlockStorageCache(mocks::CreateMemoryBlockStorageCache(numBlocks))
-					, m_subscriber(m_prevoteChainBackups, *m_pBlockStorageCache, [this](auto&& blockRange) {
+					, m_subscriber(m_prevoteChainStorage, *m_pBlockStorageCache, [this](auto&& blockRange) {
 						m_blockRangeSizes.push_back(blockRange.size());
 					})
 			{}
 
 		public:
-			auto& prevoteChainBackups() {
-				return m_prevoteChainBackups;
+			auto& prevoteChainStorage() {
+				return m_prevoteChainStorage;
 			}
 
 			auto blockStorageHash(Height height) {
@@ -104,7 +109,7 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			MockPrevoteChainBackups m_prevoteChainBackups;
+			MockPrevoteChainStorage m_prevoteChainStorage;
 			std::unique_ptr<io::BlockStorageCache> m_pBlockStorageCache;
 			std::vector<size_t> m_blockRangeSizes;
 
@@ -118,20 +123,20 @@ namespace catapult { namespace chain {
 		void AssertChainIsNotLoadedFromBackups(TestContext& context, const model::FinalizationRound& round, bool isInBlockStorage) {
 			// if block storage already contains finalized block, contains check in backups is bypassed
 			if (isInBlockStorage)
-				EXPECT_EQ(std::vector<model::FinalizationRound>(), context.prevoteChainBackups().containsRounds());
+				EXPECT_EQ(std::vector<model::FinalizationRound>(), context.prevoteChainStorage().containsRounds());
 			else
-				EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainBackups().containsRounds());
+				EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().containsRounds());
 
-			EXPECT_EQ(std::vector<model::FinalizationRound>(), context.prevoteChainBackups().loadRounds());
-			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainBackups().removeRounds());
+			EXPECT_EQ(std::vector<model::FinalizationRound>(), context.prevoteChainStorage().loadRounds());
+			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().removeRounds());
 
 			EXPECT_EQ(std::vector<size_t>(), context.blockRangeSizes());
 		}
 
 		void AssertChainIsLoadedFromBackups(TestContext& context, const model::FinalizationRound& round, Height height) {
-			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainBackups().containsRounds());
-			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainBackups().loadRounds());
-			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainBackups().removeRounds());
+			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().containsRounds());
+			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().loadRounds());
+			EXPECT_EQ(std::vector<model::FinalizationRound>({ round }), context.prevoteChainStorage().removeRounds());
 
 			EXPECT_EQ(std::vector<size_t>({ height.unwrap() }), context.blockRangeSizes());
 		}
@@ -144,7 +149,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, PrevoteChainIsNotLoadedWhenFinalizedBlockIsInNeitherStorageNorPrevoteBackups) {
 		// Arrange:
 		TestContext context(10);
-		context.prevoteChainBackups().setContained({ Height(7), test::GenerateRandomByteArray<Hash256>() });
+		context.prevoteChainStorage().setContained({ Height(7), test::GenerateRandomByteArray<Hash256>() });
 
 		// Act:
 		auto round = test::CreateFinalizationRound(3, 11);
@@ -157,7 +162,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, PrevoteChainIsNotLoadedWhenFinalizedBlockIsInStorageButNotPrevoteBackups) {
 		// Arrange:
 		TestContext context(10);
-		context.prevoteChainBackups().setContained({ Height(7), test::GenerateRandomByteArray<Hash256>() });
+		context.prevoteChainStorage().setContained({ Height(7), test::GenerateRandomByteArray<Hash256>() });
 
 		// Act:
 		auto round = test::CreateFinalizationRound(3, 11);
@@ -171,7 +176,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		TestContext context(10);
-		context.prevoteChainBackups().setContained({ Height(7), hash });
+		context.prevoteChainStorage().setContained({ Height(7), hash });
 
 		// Act:
 		auto round = test::CreateFinalizationRound(3, 11);
@@ -185,7 +190,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		TestContext context(10);
-		context.prevoteChainBackups().setContained({ Height(12), hash });
+		context.prevoteChainStorage().setContained({ Height(12), hash });
 
 		// Act:
 		auto round = test::CreateFinalizationRound(3, 11);
@@ -198,7 +203,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, PrevoteChainIsNotLoadedWhenFinalizedBlockIsInBothStorageAndPrevoteBackups) {
 		// Arrange:
 		TestContext context(10);
-		context.prevoteChainBackups().setContained({ Height(7), context.blockStorageHash(Height(7)) });
+		context.prevoteChainStorage().setContained({ Height(7), context.blockStorageHash(Height(7)) });
 
 		// Act:
 		auto round = test::CreateFinalizationRound(3, 11);

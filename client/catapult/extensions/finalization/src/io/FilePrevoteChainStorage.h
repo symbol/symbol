@@ -19,31 +19,21 @@
 **/
 
 #pragma once
-#include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/model/FinalizationRound.h"
-#include "catapult/model/HeightHashPair.h"
+#include "PrevoteChainStorage.h"
 
 namespace catapult { namespace io {
 
 	/// File prevote chain storage.
-	class FilePrevoteChainStorage {
+	class FilePrevoteChainStorage : public PrevoteChainStorage {
 	public:
 		/// Creates prevote chain storage around \a dataDirectory.
 		explicit FilePrevoteChainStorage(const std::string& dataDirectory);
 
 	public:
-		/// Locks \a blockStorage and saves \a numBlocks blocks starting at \a startHeight voted at \a round.
-		void saveChain(const BlockStorageCache& blockStorage, const model::FinalizationRound& round, Height startHeight, size_t numBlocks);
-
-		/// Removes blocks voted at \a round.
-		void removeChain(const model::FinalizationRound& round);
-
-		/// Loads blocks up to \a maxHeight voted at \a round.
-		model::BlockRange loadChain(const model::FinalizationRound& round, Height maxHeight) const;
-
-		/// Returns \c true if \a heightHashPair block is in storage at \a round.
-		bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const;
+		bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const override;
+		model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const override;
+		void save(const BlockStorageView& blockStorageView, const PrevoteChainDescriptor& descriptor) override;
+		void remove(const model::FinalizationRound& round) override;
 
 	private:
 		std::string m_dataDirectory;

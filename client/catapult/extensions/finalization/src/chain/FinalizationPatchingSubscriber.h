@@ -23,33 +23,22 @@
 #include "catapult/model/RangeTypes.h"
 #include "catapult/subscribers/FinalizationSubscriber.h"
 
-namespace catapult { namespace io { class BlockStorageCache; } }
+namespace catapult {
+	namespace io {
+		class BlockStorageCache;
+		class PrevoteChainStorage;
+	}
+}
 
 namespace catapult { namespace chain {
-
-	/// Manager of backed up prevote chains.
-	class PrevoteChainBackups {
-	public:
-		virtual ~PrevoteChainBackups() = default;
-
-	public:
-		/// Returns \c true if backed up chain for \a round contains \a heightHashPair.
-		virtual bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const = 0;
-
-		/// Loads backed up chain for \a round up to \a maxHeight.
-		virtual model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const = 0;
-
-		/// Removes backed up chain for \a round.
-		virtual void remove(const model::FinalizationRound& round) = 0;
-	};
 
 	/// Finalization subscriber that patches the local chain with a prevoted chain when the prevoted chain but not the local chain
 	/// contains the finalized block.
 	class FinalizationPatchingSubscriber : public subscribers::FinalizationSubscriber {
 	public:
-		/// Creates a subscriber around \a prevoteChainBackups, \a blockStorage and \a blockRangeConsumer
+		/// Creates a subscriber around \a prevoteChainStorage, \a blockStorage and \a blockRangeConsumer.
 		FinalizationPatchingSubscriber(
-				PrevoteChainBackups& prevoteChainBackups,
+				io::PrevoteChainStorage& prevoteChainStorage,
 				const io::BlockStorageCache& blockStorage,
 				const consumer<model::BlockRange&&>& blockRangeConsumer);
 
@@ -57,7 +46,7 @@ namespace catapult { namespace chain {
 		void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override;
 
 	private:
-		PrevoteChainBackups& m_prevoteChainBackups;
+		io::PrevoteChainStorage& m_prevoteChainStorage;
 		const io::BlockStorageCache& m_blockStorage;
 		consumer<model::BlockRange&&> m_blockRangeConsumer;
 	};

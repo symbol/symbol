@@ -20,6 +20,7 @@
 
 #include "FinalizationMessageFactory.h"
 #include "finalization/src/FinalizationConfiguration.h"
+#include "finalization/src/io/PrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/src/model/VotingSet.h"
 #include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
@@ -49,12 +50,12 @@ namespace catapult { namespace chain {
 					const finalization::FinalizationConfiguration& config,
 					const io::BlockStorageCache& blockStorage,
 					const io::ProofStorageCache& proofStorage,
-					const PrevoteDescriptorConsumer& prevoteDescriptorConsumer,
+					const PrevoteChainDescriptorConsumer& prevoteChainDescriptorConsumer,
 					crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree)
 					: m_config(config)
 					, m_blockStorage(blockStorage)
 					, m_proofStorage(proofStorage)
-					, m_prevoteDescriptorConsumer(prevoteDescriptorConsumer)
+					, m_prevoteChainDescriptorConsumer(prevoteChainDescriptorConsumer)
 					, m_bmPrivateKeyTree(std::move(bmPrivateKeyTree))
 			{}
 
@@ -99,7 +100,7 @@ namespace catapult { namespace chain {
 				if (numHashes > m_config.MaxHashesPerPoint)
 					numHashes -= Clamp(numHashes - m_config.MaxHashesPerPoint, m_config.PrevoteBlocksMultiple, 1);
 
-				m_prevoteDescriptorConsumer(view, { round, startHeight, numHashes });
+				m_prevoteChainDescriptorConsumer(view, { round, startHeight, numHashes });
 				return view.loadHashesFrom(startHeight, numHashes);
 			}
 
@@ -107,7 +108,7 @@ namespace catapult { namespace chain {
 			finalization::FinalizationConfiguration m_config;
 			const io::BlockStorageCache& m_blockStorage;
 			const io::ProofStorageCache& m_proofStorage;
-			PrevoteDescriptorConsumer m_prevoteDescriptorConsumer;
+			PrevoteChainDescriptorConsumer m_prevoteChainDescriptorConsumer;
 			crypto::AggregateBmPrivateKeyTree m_bmPrivateKeyTree;
 		};
 
@@ -118,13 +119,13 @@ namespace catapult { namespace chain {
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
-			const PrevoteDescriptorConsumer& prevoteDescriptorConsumer,
+			const PrevoteChainDescriptorConsumer& prevoteChainDescriptorConsumer,
 			crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree) {
 		return std::make_unique<DefaultFinalizationMessageFactory>(
 				config,
 				blockStorage,
 				proofStorage,
-				prevoteDescriptorConsumer,
+				prevoteChainDescriptorConsumer,
 				std::move(bmPrivateKeyTree));
 	}
 }}

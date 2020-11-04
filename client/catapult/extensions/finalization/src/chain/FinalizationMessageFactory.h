@@ -29,26 +29,15 @@ namespace catapult {
 	namespace io {
 		class BlockStorageCache;
 		class BlockStorageView;
+		struct PrevoteChainDescriptor;
 		class ProofStorageCache;
 	}
 }
 
 namespace catapult { namespace chain {
 
-	/// Describes a prevote.
-	struct PrevoteDescriptor {
-		/// Prevote round.
-		model::FinalizationRound Round;
-
-		/// Block height corresponding to the the first prevote hash.
-		catapult::Height Height;
-
-		/// Number of prevote hashes.
-		size_t HashesCount;
-	};
-
-	/// Consumer that's passed a block storage and a prevote descriptor.
-	using PrevoteDescriptorConsumer = consumer<const io::BlockStorageView&, const PrevoteDescriptor&>;
+	/// Consumer that's passed a block storage and a prevote chain descriptor.
+	using PrevoteChainDescriptorConsumer = consumer<const io::BlockStorageView&, const io::PrevoteChainDescriptor&>;
 
 	/// Factory for creating finalization messages.
 	class FinalizationMessageFactory {
@@ -66,11 +55,11 @@ namespace catapult { namespace chain {
 				const Hash256& hash) = 0;
 	};
 
-	/// Creates a factory around \a config, \a blockStorage, \a proofStorage, \a prevoteDescriptorConsumer and \a bmPrivateKeyTree.
+	/// Creates a factory around \a config, \a blockStorage, \a proofStorage, \a prevoteChainDescriptorConsumer and \a bmPrivateKeyTree.
 	std::unique_ptr<FinalizationMessageFactory> CreateFinalizationMessageFactory(
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
-			const PrevoteDescriptorConsumer& prevoteDescriptorConsumer,
+			const PrevoteChainDescriptorConsumer& prevoteChainDescriptorConsumer,
 			crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree);
 }}

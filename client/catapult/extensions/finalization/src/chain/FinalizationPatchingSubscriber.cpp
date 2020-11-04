@@ -19,15 +19,16 @@
 **/
 
 #include "FinalizationPatchingSubscriber.h"
+#include "finalization/src/io/PrevoteChainStorage.h"
 #include "catapult/io/BlockStorageCache.h"
 
 namespace catapult { namespace chain {
 
 	FinalizationPatchingSubscriber::FinalizationPatchingSubscriber(
-			PrevoteChainBackups& prevoteChainBackups,
+			io::PrevoteChainStorage& prevoteChainStorage,
 			const io::BlockStorageCache& blockStorage,
 			const consumer<model::BlockRange&&>& blockRangeConsumer)
-			: m_prevoteChainBackups(prevoteChainBackups)
+			: m_prevoteChainStorage(prevoteChainStorage)
 			, m_blockStorage(blockStorage)
 			, m_blockRangeConsumer(blockRangeConsumer)
 	{}
@@ -40,12 +41,12 @@ namespace catapult { namespace chain {
 	}
 
 	void FinalizationPatchingSubscriber::notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) {
-		if (!Contains(m_blockStorage, height, hash) && m_prevoteChainBackups.contains(round, { height, hash })) {
+		if (!Contains(m_blockStorage, height, hash) && m_prevoteChainStorage.contains(round, { height, hash })) {
 			// load all blocks up to and including finalized height
-			auto blockRange = m_prevoteChainBackups.load(round, height);
+			auto blockRange = m_prevoteChainStorage.load(round, height);
 			m_blockRangeConsumer(std::move(blockRange));
 		}
 
-		m_prevoteChainBackups.remove(round);
+		m_prevoteChainStorage.remove(round);
 	}
 }}

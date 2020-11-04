@@ -19,6 +19,7 @@
 **/
 
 #include "finalization/src/chain/FinalizationMessageFactory.h"
+#include "finalization/src/io/PrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
@@ -93,7 +94,7 @@ namespace catapult { namespace chain {
 			std::unique_ptr<io::BlockStorageCache> m_pBlockStorage;
 			io::ProofStorageCache m_proofStorage;
 			mocks::MockSeekableMemoryStream m_bmPrivateKeyTreeStream;
-			std::vector<PrevoteDescriptor> m_capturedDescriptors;
+			std::vector<io::PrevoteChainDescriptor> m_capturedDescriptors;
 
 			std::unique_ptr<FinalizationMessageFactory> m_pFactory;
 		};

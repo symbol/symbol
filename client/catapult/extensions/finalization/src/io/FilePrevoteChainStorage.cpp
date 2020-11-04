@@ -23,6 +23,7 @@
 #include "catapult/io/FilesystemUtils.h"
 #include "catapult/io/IndexFile.h"
 #include "catapult/io/PodIoUtils.h"
+#include "catapult/model/Elements.h"
 #include "catapult/preprocessor.h"
 
 namespace catapult { namespace io {
@@ -103,30 +104,19 @@ namespace catapult { namespace io {
 	FilePrevoteChainStorage::FilePrevoteChainStorage(const std::string& dataDirectory) : m_dataDirectory(dataDirectory)
 	{}
 
-	void FilePrevoteChainStorage::saveChain(
-			const BlockStorageCache& blockStorage,
-			const model::FinalizationRound& round,
-			Height startHeight,
-			size_t numBlocks) {
-		// acquire storage lock
-		removeChain(round);
-		auto view = blockStorage.view();
-
-		auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
-		roundDirectory.createAll();
-		CopyChain(m_dataDirectory, roundDirectory, startHeight, numBlocks);
-	}
-
-	void FilePrevoteChainStorage::removeChain(const model::FinalizationRound& round) {
+	bool FilePrevoteChainStorage::contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const {
 		auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
 		if (!roundDirectory.exists())
-			return;
+			return false;
 
-		PurgeDirectory(roundDirectory.str());
-		boost::filesystem::remove(roundDirectory.path());
+		auto blockPath = GetVotingBlockPath(roundDirectory, heightHashPair.Height);
+		if (!boost::filesystem::exists(blockPath))
+			return false;
+
+		return GetBlockHash(blockPath) == heightHashPair.Hash;
 	}
 
-	model::BlockRange FilePrevoteChainStorage::loadChain(const model::FinalizationRound& round, Height maxHeight) const {
+	model::BlockRange FilePrevoteChainStorage::load(const model::FinalizationRound& round, Height maxHeight) const {
 		auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
 		auto indexPath = roundDirectory.file("index.dat");
 		IndexFile index(indexPath);
@@ -152,15 +142,21 @@ namespace catapult { namespace io {
 		return model::BlockRange::MergeRanges(std::move(chain));
 	}
 
-	bool FilePrevoteChainStorage::contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const {
+	void FilePrevoteChainStorage::save(const BlockStorageView&, const PrevoteChainDescriptor& descriptor) {
+		// BlockStorageView holds lock on block storage
+		remove(descriptor.Round);
+
+		auto roundDirectory = GetRoundDirectory(m_dataDirectory, descriptor.Round);
+		roundDirectory.createAll();
+		CopyChain(m_dataDirectory, roundDirectory, descriptor.Height, descriptor.HashesCount);
+	}
+
+	void FilePrevoteChainStorage::remove(const model::FinalizationRound& round) {
 		auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);
 		if (!roundDirectory.exists())
-			return false;
+			return;
 
-		auto blockPath = GetVotingBlockPath(roundDirectory, heightHashPair.Height);
-		if (!boost::filesystem::exists(blockPath))
-			return false;
-
-		return GetBlockHash(blockPath) == heightHashPair.Hash;
+		PurgeDirectory(roundDirectory.str());
+		boost::filesystem::remove(roundDirectory.path());
 	}
 }}
