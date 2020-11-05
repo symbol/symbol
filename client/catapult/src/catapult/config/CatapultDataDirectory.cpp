@@ -42,15 +42,19 @@ namespace catapult { namespace config {
 #endif
 	}
 
-	void CatapultDirectory::create() {
-		if (boost::filesystem::is_directory(m_directory))
+	bool CatapultDirectory::exists() const {
+		return boost::filesystem::is_directory(m_directory);
+	}
+
+	void CatapultDirectory::create() const {
+		if (exists())
 			return;
 
 		if (!CreateDirectory(m_directory))
 			CATAPULT_THROW_RUNTIME_ERROR_1("couldn't create directory", m_directory.generic_string());
 	}
 
-	void CatapultDirectory::createAll() {
+	void CatapultDirectory::createAll() const {
 		boost::filesystem::path currentDirectory;
 
 		for (const auto& part : m_directory) {

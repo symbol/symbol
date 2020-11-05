@@ -41,6 +41,9 @@ namespace catapult { namespace extensions {
 		/// Requires basic range consumers (and factories) to be registered.
 		Post_Range_Consumers,
 
+		/// Requires (phase two) basic range consumers (and factories) to be registered.
+		Post_Range_Consumers_Phase_Two,
+
 		/// Requires extended range consumers (and factories) to be registered.
 		/// \note These are typically configured by extensions.
 		Post_Extended_Range_Consumers,

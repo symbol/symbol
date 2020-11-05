@@ -76,19 +76,29 @@ namespace catapult { namespace finalization {
 			}
 		};
 
+		struct TestContextOptions {
+		public:
+			TestContextOptions() : TestContextOptions(Default_Round)
+			{}
+
+			explicit TestContextOptions(const model::FinalizationRound& orchestratorStartRound)
+					: OrchestratorStartRound(orchestratorStartRound)
+					, StorageStartRound({ Finalization_Epoch - FinalizationEpoch(1), FinalizationPoint(5) })
+					, LastFinalizedHeight(Height(244))
+			{}
+
+		public:
+			model::FinalizationRound OrchestratorStartRound;
+			model::FinalizationRound StorageStartRound;
+			Height LastFinalizedHeight;
+		};
+
 		class TestContext : public test::VoterSeededCacheDependentServiceLocatorTestContext<FinalizationOrchestratorServiceTraits> {
 		public:
-			TestContext() : TestContext(Default_Round)
+			TestContext() : TestContext(TestContextOptions())
 			{}
 
-			explicit TestContext(const model::FinalizationRound& orchestratorStartRound, VoterType voterType = VoterType::Large1)
-					: TestContext(orchestratorStartRound, { Finalization_Epoch - FinalizationEpoch(1), FinalizationPoint(5) }, voterType)
-			{}
-
-			TestContext(
-					const model::FinalizationRound& orchestratorStartRound,
-					const model::FinalizationRound& storageStartRound,
-					VoterType voterType = VoterType::Large1)
+			explicit TestContext(const TestContextOptions& options, VoterType voterType = VoterType::Large1)
 					: m_createCompletedRound(false)
 					, m_hashes(test::GenerateRandomDataVector<Hash256>(3)) {
 				// note: current voting round (8) is ahead of last round resulting in finalization (5)
@@ -99,12 +109,12 @@ namespace catapult { namespace finalization {
 
 				// - nest VotingKeysDirectory under DataDirectory for testing so that it automatically gets cleaned up
 				auto dataDirectory = config::CatapultDataDirectory(userConfig.DataDirectory);
-				auto votingKeysDirectory = dataDirectory.dir("voting");
+				auto votingKeysDirectory = dataDirectory.dir("voting_keys");
 				boost::filesystem::create_directories(votingKeysDirectory.path());
 				const_cast<std::string&>(userConfig.VotingKeysDirectory) = votingKeysDirectory.str();
 
 				SeedVotingPrivateKeyTree(votingKeysDirectory, keyPairDescriptor(voterType).VotingKeyPair);
-				SeedVotingStatus(dataDirectory.rootDir(), orchestratorStartRound);
+				SeedVotingStatus(dataDirectory.rootDir(), options.OrchestratorStartRound);
 
 				// register hooks
 				auto pHooks = std::make_shared<FinalizationServerHooks>();
@@ -115,10 +125,10 @@ namespace catapult { namespace finalization {
 				locator().registerRootedService("fin.hooks", pHooks);
 
 				// register storage
-				auto lastFinalizedHeightHashPair = model::HeightHashPair{ Height(244), m_hashes[0] };
+				auto lastFinalizedHeightHashPair = model::HeightHashPair{ options.LastFinalizedHeight, m_hashes[0] };
 				auto pProofStorage = std::make_unique<mocks::MockProofStorage>(
-						storageStartRound.Epoch,
-						storageStartRound.Point,
+						options.StorageStartRound.Epoch,
+						options.StorageStartRound.Point,
 						lastFinalizedHeightHashPair.Height,
 						lastFinalizedHeightHashPair.Hash);
 				m_pProofStorageRaw = pProofStorage.get();
@@ -197,6 +207,20 @@ namespace catapult { namespace finalization {
 					for (auto j = 0u; j < 3; ++j)
 						aggregatorModifier.add(test::CreateMessage({ epoch, FinalizationPoint(j + 1) }));
 				}
+			}
+
+			void assertNoPrevoteChainBackups() {
+				auto prevoteChainDirectory = boost::filesystem::path(testState().state().config().User.DataDirectory) / "voting";
+				EXPECT_FALSE(boost::filesystem::exists(prevoteChainDirectory));
+			}
+
+			void assertSinglePrevoteChainBackup(const model::FinalizationRound& round) {
+				auto prevoteChainDirectory = boost::filesystem::path(testState().state().config().User.DataDirectory) / "voting";
+				EXPECT_TRUE(boost::filesystem::exists(prevoteChainDirectory));
+				EXPECT_EQ(1u, test::CountFilesAndDirectories(prevoteChainDirectory));
+
+				auto filename = std::to_string(round.Epoch.unwrap()) + std::string("_") + std::to_string(round.Point.unwrap());
+				EXPECT_TRUE(boost::filesystem::exists(prevoteChainDirectory / filename));
 			}
 
 		private:
@@ -339,6 +363,7 @@ namespace catapult { namespace finalization {
 
 			// - no messages were sent
 			AssertNoMessages(storage, messages);
+			context.assertNoPrevoteChainBackups();
 
 			// - voting status wasn't changed
 			auto votingStatus = context.votingStatus();
@@ -373,6 +398,7 @@ namespace catapult { namespace finalization {
 
 				// - two messages were sent
 				AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
+				context.assertSinglePrevoteChainBackup(Default_Round);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -406,7 +432,7 @@ namespace catapult { namespace finalization {
 				const model::FinalizationRound& expectedAggregatorMaxRound,
 				const model::FinalizationRound& expectedVotingStatusMaxRound) {
 			// Arrange:
-			TestContext context(Default_Round, VoterType::Ineligible);
+			TestContext context(TestContextOptions(), VoterType::Ineligible);
 			context.createCompletedRound();
 
 			// - override the storage hash so that it matches
@@ -430,8 +456,9 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(Height(245), savedProofDescriptors[0].Height);
 				EXPECT_EQ(context.hashes()[1], savedProofDescriptors[0].Hash);
 
-				// - no messages were sent
+				// - no messages were sent but prevote chain was saved prior to message being rejected due to ineligibility
 				EXPECT_TRUE(messages.empty());
+				context.assertSinglePrevoteChainBackup(Default_Round);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -462,7 +489,10 @@ namespace catapult { namespace finalization {
 	namespace {
 		void AssertCanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch(uint32_t numBlocks) {
 			// Arrange:
-			TestContext context;
+			TestContextOptions options;
+			options.LastFinalizedHeight = Height(numBlocks - 1);
+
+			TestContext context(options);
 			context.createCompletedRound();
 			mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), numBlocks);
 
@@ -477,6 +507,7 @@ namespace catapult { namespace finalization {
 
 				// - two messages were sent
 				AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
+				context.assertSinglePrevoteChainBackup(Default_Round);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -517,6 +548,7 @@ namespace catapult { namespace finalization {
 
 			// - two messages were sent
 			AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
+			context.assertSinglePrevoteChainBackup(Default_Round);
 
 			// - voting status was changed
 			auto votingStatus = context.votingStatus();
@@ -533,7 +565,7 @@ namespace catapult { namespace finalization {
 	namespace {
 		void AssertCanRunFinalizationTaskWhenProofStorageIsAheadOfOrchestratorButInconsistent(uint32_t numBlocks) {
 			// Arrange:
-			TestContext context({ Finalization_Epoch - FinalizationEpoch(3), FinalizationPoint(8) });
+			TestContext context(TestContextOptions({ Finalization_Epoch - FinalizationEpoch(3), FinalizationPoint(8) }));
 			mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), numBlocks);
 
 			// - set the storage epoch ahead of the voting epoch (but with an inconsistent hash)
@@ -550,6 +582,7 @@ namespace catapult { namespace finalization {
 
 				// - no messages were sent
 				AssertNoMessages(storage, messages);
+				context.assertNoPrevoteChainBackups();
 
 				// - voting status was not changed
 				auto votingStatus = context.votingStatus();
@@ -571,7 +604,7 @@ namespace catapult { namespace finalization {
 
 	TEST(TEST_CLASS, CanRunFinalizationTaskWhenProofStorageIsAheadOfOrchestratorAndConsistent) {
 		// Arrange:
-		TestContext context({ Finalization_Epoch - FinalizationEpoch(3), FinalizationPoint(8) });
+		TestContext context(TestContextOptions({ Finalization_Epoch - FinalizationEpoch(3), FinalizationPoint(8) }));
 
 		// - override the storage hash so that it matches
 		auto& blockStorage = context.testState().state().storage();
@@ -592,6 +625,7 @@ namespace catapult { namespace finalization {
 
 			// - no messages were sent
 			AssertNoMessages(storage, messages);
+			context.assertNoPrevoteChainBackups();
 
 			// - voting status was changed
 			auto votingStatus = context.votingStatus();
@@ -603,7 +637,7 @@ namespace catapult { namespace finalization {
 
 	TEST(TEST_CLASS, CanRunFinalizationTaskWhenProofStorageIsBehindOrchestrator) {
 		// Arrange:
-		TestContext context({ Finalization_Epoch + FinalizationEpoch(2), FinalizationPoint(8) });
+		TestContext context(TestContextOptions({ Finalization_Epoch + FinalizationEpoch(2), FinalizationPoint(8) }));
 
 		// - override the storage hash so that it matches
 		auto& blockStorage = context.testState().state().storage();
@@ -624,6 +658,7 @@ namespace catapult { namespace finalization {
 
 			// - no messages were sent
 			AssertNoMessages(storage, messages);
+			context.assertNoPrevoteChainBackups();
 
 			// - voting status was not changed
 			auto votingStatus = context.votingStatus();
@@ -637,9 +672,11 @@ namespace catapult { namespace finalization {
 		// Arrange:
 		// - set the storage epoch behind the voting epoch
 		// - set EnableRevoteOnBoot to true
-		TestContext context(
-				{ Finalization_Epoch + FinalizationEpoch(2), FinalizationPoint(8) },
-				{ Finalization_Epoch, FinalizationPoint(14) });
+		TestContextOptions options;
+		options.OrchestratorStartRound = { Finalization_Epoch + FinalizationEpoch(2), FinalizationPoint(8) };
+		options.StorageStartRound = { Finalization_Epoch, FinalizationPoint(14) };
+
+		TestContext context(options);
 		context.createCompletedRound();
 		context.initialize({ Finalization_Epoch, FinalizationPoint(15) });
 		context.boot(Small_Voting_Set_Grouping, true);
@@ -658,6 +695,7 @@ namespace catapult { namespace finalization {
 
 			// - two messages were sent
 			AssertTwoMessages(epoch, 15, context.hashes()[1], storage, messages);
+			context.assertSinglePrevoteChainBackup({ Finalization_Epoch, FinalizationPoint(15) });
 
 			// - voting status was not changed
 			auto votingStatus = context.votingStatus();

@@ -19,6 +19,7 @@
 **/
 
 #include "finalization/src/chain/FinalizationMessageFactory.h"
+#include "finalization/src/io/PrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
@@ -48,6 +49,9 @@ namespace catapult { namespace chain {
 							config,
 							*m_pBlockStorage,
 							m_proofStorage,
+							[this](const auto&, const auto& descriptor) {
+								m_capturedDescriptors.push_back(descriptor);
+							},
 							CreateAggregateBmPrivateKeyTree(m_bmPrivateKeyTreeStream)))
 			{}
 
@@ -63,6 +67,10 @@ namespace catapult { namespace chain {
 
 			Hash256 blockHashAt(Height height) const {
 				return m_pBlockStorage->view().loadBlockElement(height)->EntityHash;
+			}
+
+			const auto& capturedDescriptors() const {
+				return m_capturedDescriptors;
 			}
 
 		private:
@@ -86,6 +94,7 @@ namespace catapult { namespace chain {
 			std::unique_ptr<io::BlockStorageCache> m_pBlockStorage;
 			io::ProofStorageCache m_proofStorage;
 			mocks::MockSeekableMemoryStream m_bmPrivateKeyTreeStream;
+			std::vector<io::PrevoteChainDescriptor> m_capturedDescriptors;
 
 			std::unique_ptr<FinalizationMessageFactory> m_pFactory;
 		};
@@ -111,6 +120,7 @@ namespace catapult { namespace chain {
 				FinalizationPoint expectedPoint,
 				Height expectedStartHeight,
 				uint32_t expectedHashesCount) {
+			// Assert: message
 			EXPECT_EQ(sizeof(model::FinalizationMessage) + expectedHashesCount * Hash256::Size, message.Size);
 			ASSERT_EQ(expectedHashesCount, message.HashesCount);
 
@@ -120,6 +130,14 @@ namespace catapult { namespace chain {
 				EXPECT_EQ(context.blockHashAt(expectedStartHeight + Height(i)), message.HashesPtr()[i]);
 
 			EXPECT_TRUE(IsSigned(message));
+
+			// - descriptor
+			ASSERT_EQ(1u, context.capturedDescriptors().size());
+			const auto& descriptor = context.capturedDescriptors()[0];
+
+			EXPECT_EQ(model::FinalizationRound({ expectedEpoch, expectedPoint }), descriptor.Round);
+			EXPECT_EQ(expectedStartHeight, descriptor.Height);
+			EXPECT_EQ(expectedHashesCount, descriptor.HashesCount);
 		}
 
 		void AssertCanCreatePrevote(
@@ -155,7 +173,7 @@ namespace catapult { namespace chain {
 		// Act:
 		auto pMessage = context.factory().createPrevote({ FinalizationEpoch(3), FinalizationPoint(20) });
 
-		// Assert:
+		// Assert: message
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
 		ASSERT_EQ(1u, pMessage->HashesCount);
 
@@ -164,6 +182,14 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(context.lastFinalizedHash(), pMessage->HashesPtr()[0]);
 
 		EXPECT_TRUE(IsSigned(*pMessage));
+
+		// - descriptor
+		ASSERT_EQ(1u, context.capturedDescriptors().size());
+		const auto& descriptor = context.capturedDescriptors()[0];
+
+		EXPECT_EQ(test::CreateFinalizationRound(3, 20), descriptor.Round);
+		EXPECT_EQ(Height(8), descriptor.Height);
+		EXPECT_EQ(0u, descriptor.HashesCount);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainIsFullyFinalized_OnMultiple) {
@@ -176,11 +202,11 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasUnfinalizedBlocks_OnMultiple) {
-		AssertCanCreatePrevote(12, 10, 2, 5);
+		AssertCanCreatePrevote(16, 10, 2, 7); // 8, 9, 10, 11, 12, 13, 14
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasUnfinalizedBlocks_NotOnMultiple) {
-		AssertCanCreatePrevote(12, 10, 5, 3);
+		AssertCanCreatePrevote(16, 10, 5, 3); // 8, 9, 10
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasGreaterThanMaxUnfinalizedBlocks_OnMultiple) {
@@ -191,20 +217,54 @@ namespace catapult { namespace chain {
 		AssertCanCreatePrevote(22, 10, 5, 8);
 	}
 
-	TEST(TEST_CLASS, CanCreatePrevoteStartingEpoch) {
-		// Arrange:
-		auto config = finalization::FinalizationConfiguration::Uninitialized();
-		config.MaxHashesPerPoint = 200;
-		config.PrevoteBlocksMultiple = 5;
-		config.VotingSetGrouping = 25;
+	// endregion
 
-		TestContext context(Height(100), 105, config);
+	// region createPrevote - StartingEpoch (start height alignment)
 
-		// Act:
-		auto pMessage = context.factory().createPrevote({ FinalizationEpoch(6), FinalizationPoint(1) });
+	namespace {
+		void AssertPrevoteStartingEpoch(uint64_t finalizedHeight, uint32_t chainHeight, uint32_t expectedHashesCount) {
+			// Arrange:
+			auto config = finalization::FinalizationConfiguration::Uninitialized();
+			config.MaxHashesPerPoint = 200;
+			config.PrevoteBlocksMultiple = 5;
+			config.VotingSetGrouping = 25;
 
-		// Assert:
-		AssertPrevote(*pMessage, context, FinalizationEpoch(6), FinalizationPoint(1), Height(100), 6);
+			TestContext context(Height(finalizedHeight), chainHeight, config);
+
+			// Act:
+			auto pMessage = context.factory().createPrevote({ FinalizationEpoch(6), FinalizationPoint(1) });
+
+			// Assert:
+			AssertPrevote(*pMessage, context, FinalizationEpoch(6), FinalizationPoint(1), Height(finalizedHeight), expectedHashesCount);
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevote_BelowMultipleTimesTwo) {
+		AssertPrevoteStartingEpoch(1, 4, 1);
+		AssertPrevoteStartingEpoch(1, 5, 1);
+		AssertPrevoteStartingEpoch(1, 6, 1);
+		AssertPrevoteStartingEpoch(1, 9, 1);
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevote_AboveMultipleTimesTwo) {
+		AssertPrevoteStartingEpoch(1, 10, 5); // 1 - 5
+		AssertPrevoteStartingEpoch(1, 11, 5); // 1 - 5
+		AssertPrevoteStartingEpoch(1, 14, 5); // 1 - 5
+		AssertPrevoteStartingEpoch(1, 15, 10); // 1 - 10
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevoteStartingEpoch_BelowMultipleTimesTwo) {
+		AssertPrevoteStartingEpoch(100, 104, 1);
+		AssertPrevoteStartingEpoch(100, 105, 1);
+		AssertPrevoteStartingEpoch(100, 106, 1);
+		AssertPrevoteStartingEpoch(100, 109, 1);
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevoteStartingEpoch_AboveMultipleTimesTwo) {
+		AssertPrevoteStartingEpoch(100, 110, 6); // 100 - 105
+		AssertPrevoteStartingEpoch(100, 111, 6); // 100 - 105
+		AssertPrevoteStartingEpoch(100, 114, 6); // 100 - 105
+		AssertPrevoteStartingEpoch(100, 115, 11); // 100 - 110
 	}
 
 	// endregion
@@ -271,6 +331,9 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(hash, pMessage->HashesPtr()[0]);
 
 		EXPECT_TRUE(IsSigned(*pMessage));
+
+		// - descriptor
+		EXPECT_EQ(0u, context.capturedDescriptors().size());
 	}
 
 	// endregion

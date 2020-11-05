@@ -19,13 +19,23 @@
 **/
 
 #pragma once
-#include "ProofStorage.h"
-#include "catapult/subscribers/FinalizationSubscriber.h"
+#include "PrevoteChainStorage.h"
 
 namespace catapult { namespace io {
 
-	/// Creates an aggregate proof storage that delegates to \a pStorage and publishes proof changes to \a pSubscriber.
-	std::unique_ptr<ProofStorage> CreateAggregateProofStorage(
-			std::unique_ptr<ProofStorage>&& pStorage,
-			std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber);
+	/// File prevote chain storage.
+	class FilePrevoteChainStorage : public PrevoteChainStorage {
+	public:
+		/// Creates prevote chain storage around \a dataDirectory.
+		explicit FilePrevoteChainStorage(const std::string& dataDirectory);
+
+	public:
+		bool contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const override;
+		model::BlockRange load(const model::FinalizationRound& round, Height maxHeight) const override;
+		void save(const BlockStorageView& blockStorageView, const PrevoteChainDescriptor& descriptor) override;
+		void remove(const model::FinalizationRound& round) override;
+
+	private:
+		std::string m_dataDirectory;
+	};
 }}

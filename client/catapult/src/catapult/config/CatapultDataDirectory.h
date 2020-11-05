@@ -53,11 +53,14 @@ namespace catapult { namespace config {
 		}
 
 	public:
+		/// Returns \c true if directory exits.
+		bool exists() const;
+
 		/// Creates this directory in a filesystem.
-		void create();
+		void create() const;
 
 		/// Creates all directories on the path to this directory in a filesystem.
-		void createAll();
+		void createAll() const;
 
 	private:
 		boost::filesystem::path m_directory;

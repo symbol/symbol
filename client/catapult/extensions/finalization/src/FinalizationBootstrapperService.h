@@ -61,6 +61,10 @@ namespace catapult { namespace finalization {
 			const FinalizationConfiguration& config,
 			std::unique_ptr<io::ProofStorage>&& pProofStorage);
 
+	/// Creates a registrar for a finalization bootstrapper (phase two) service.
+	/// \note This service is required to prevent a circular service dependency.
+	DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapperPhaseTwo)();
+
 	/// Gets the multi round message aggregator stored in \a locator.
 	chain::MultiRoundMessageAggregator& GetMultiRoundMessageAggregator(const extensions::ServiceLocator& locator);
 

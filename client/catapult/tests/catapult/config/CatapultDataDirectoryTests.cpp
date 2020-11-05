@@ -38,12 +38,12 @@ namespace catapult { namespace config {
 		}
 
 		void AssertPermissions(const fs::path& fullPath) {
-			auto status = boost::filesystem::status(fullPath);
-			EXPECT_NE(boost::filesystem::perms::perms_not_known, status.permissions());
+			auto status = fs::status(fullPath);
+			EXPECT_NE(fs::perms::perms_not_known, status.permissions());
 
 			// permissions are not set on windows
 #ifndef _WIN32
-			EXPECT_EQ(boost::filesystem::perms::owner_all, status.permissions() & boost::filesystem::perms::all_all);
+			EXPECT_EQ(fs::perms::owner_all, status.permissions() & fs::perms::all_all);
 #endif
 		}
 	}
@@ -58,6 +58,25 @@ namespace catapult { namespace config {
 		EXPECT_EQ("foo/bar", directory.str());
 		EXPECT_EQ(fs::path("foo/bar"), directory.path());
 		EXPECT_EQ("foo/bar/abc", directory.file("abc"));
+
+		EXPECT_FALSE(directory.exists());
+	}
+
+	TEST(TEST_CLASS, ExistsReturnsFalseWhenDirectoryDoesNotExists) {
+		// Arrange:
+		CatapultDirectory directory("foo");
+
+		// Act + Assert:
+		EXPECT_FALSE(directory.exists());
+	}
+
+	TEST(TEST_CLASS, ExistsReturnsTrueWhenDirectoryExists) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		CatapultDirectory directory(tempDir.name());
+
+		// Act + Assert:
+		EXPECT_TRUE(directory.exists());
 	}
 
 	// endregion
@@ -66,14 +85,14 @@ namespace catapult { namespace config {
 
 	namespace {
 		struct CreateTraits {
-			static void Create(const boost::filesystem::path& directory) {
-				CatapultDirectory(directory).create();
+			static void Create(const CatapultDirectory& directory) {
+				directory.create();
 			}
 		};
 
 		struct CreateAllTraits {
-			static void Create(const boost::filesystem::path& directory) {
-				CatapultDirectory(directory).createAll();
+			static void Create(const CatapultDirectory& directory) {
+				directory.createAll();
 			}
 		};
 	}
@@ -88,15 +107,16 @@ namespace catapult { namespace config {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
 		auto fullPath = Concat(tempDir.name(), "foobar");
+		CatapultDirectory dataDirectory(fullPath);
 
 		// Sanity:
-		EXPECT_FALSE(boost::filesystem::exists(fullPath));
+		EXPECT_FALSE(dataDirectory.exists());
 
 		// Act:
-		TTraits::Create(fullPath);
+		TTraits::Create(dataDirectory);
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		EXPECT_TRUE(dataDirectory.exists());
 		AssertPermissions(fullPath);
 	}
 
@@ -104,17 +124,18 @@ namespace catapult { namespace config {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
 		auto fullPath = Concat(tempDir.name(), "foobar");
+		CatapultDirectory dataDirectory(fullPath);
 
-		TTraits::Create(fullPath);
+		TTraits::Create(dataDirectory);
 
 		// Sanity:
-		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		EXPECT_TRUE(dataDirectory.exists());
 
 		// Act:
-		TTraits::Create(fullPath);
+		TTraits::Create(dataDirectory);
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		EXPECT_TRUE(dataDirectory.exists());
 		AssertPermissions(fullPath);
 	}
 
@@ -122,23 +143,26 @@ namespace catapult { namespace config {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
 		auto fullPath = Concat(tempDir.name(), "foo");
+		CatapultDirectory dataDirectory(fullPath);
 
 		io::RawFile file(fullPath.generic_string(), io::OpenMode::Read_Write);
 
 		// Sanity:
-		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		EXPECT_TRUE(fs::exists(fullPath));
+		EXPECT_FALSE(dataDirectory.exists());
 
 		// Act + Assert:
-		EXPECT_THROW(TTraits::Create(fullPath), catapult_runtime_error);
+		EXPECT_THROW(TTraits::Create(dataDirectory), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, CatapultDirectoryCreate_ThrowsWhenDirectoryCannotBeCreated_Filesystem) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
 		auto fullPath = Concat(tempDir.name(), "foo") / "bar";
+		CatapultDirectory dataDirectory(fullPath);
 
 		// Sanity:
-		EXPECT_FALSE(boost::filesystem::exists(fullPath));
+		EXPECT_FALSE(dataDirectory.exists());
 
 		// Act + Assert:
 		EXPECT_THROW(CatapultDirectory(fullPath).create(), catapult_runtime_error);
@@ -148,15 +172,16 @@ namespace catapult { namespace config {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
 		auto fullPath = Concat(tempDir.name(), "foo") / "baz" / "bar";
+		CatapultDirectory dataDirectory(fullPath);
 
 		// Sanity:
-		EXPECT_FALSE(boost::filesystem::exists(fullPath));
+		EXPECT_FALSE(dataDirectory.exists());
 
 		// Act:
 		CatapultDirectory(fullPath).createAll();
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		EXPECT_TRUE(dataDirectory.exists());
 		AssertPermissions(Concat(tempDir.name(), "foo"));
 		AssertPermissions(Concat(tempDir.name(), "foo") / "baz");
 		AssertPermissions(Concat(tempDir.name(), "foo") / "baz" / "bar");
@@ -166,18 +191,22 @@ namespace catapult { namespace config {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
 		auto partialPath = Concat(tempDir.name(), "foo") / "baz";
-		CatapultDirectory(partialPath).createAll();
-
+		CatapultDirectory partialDirectory(partialPath);
 		auto fullPath = partialPath / "bar" / "moon";
+		CatapultDirectory fullDirectory(fullPath);
+
+		partialDirectory.createAll();
 
 		// Sanity:
-		EXPECT_FALSE(boost::filesystem::exists(fullPath));
+		EXPECT_TRUE(partialDirectory.exists());
+		EXPECT_FALSE(fullDirectory.exists());
 
 		// Act:
-		CatapultDirectory(fullPath).createAll();
+		fullDirectory.createAll();
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		EXPECT_TRUE(partialDirectory.exists());
+		EXPECT_TRUE(fullDirectory.exists());
 		AssertPermissions(Concat(tempDir.name(), "foo"));
 		AssertPermissions(Concat(tempDir.name(), "foo") / "baz");
 		AssertPermissions(Concat(tempDir.name(), "foo") / "baz" / "bar");

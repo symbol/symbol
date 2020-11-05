@@ -26,9 +26,11 @@ namespace catapult { namespace io {
 	namespace {
 		class AggregateProofStorage : public ProofStorage {
 		public:
-			AggregateProofStorage(std::unique_ptr<ProofStorage>&& pStorage, subscribers::FinalizationSubscriber& subscriber)
+			AggregateProofStorage(
+					std::unique_ptr<ProofStorage>&& pStorage,
+					std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber)
 					: m_pStorage(std::move(pStorage))
-					, m_subscriber(subscriber)
+					, m_pSubscriber(std::move(pSubscriber))
 			{}
 
 		public:
@@ -54,19 +56,19 @@ namespace catapult { namespace io {
 				}
 
 				m_pStorage->saveProof(proof);
-				m_subscriber.notifyFinalizedBlock(proof.Round, proof.Height, proof.Hash);
+				m_pSubscriber->notifyFinalizedBlock(proof.Round, proof.Height, proof.Hash);
 			}
 
 		private:
 			std::unique_ptr<ProofStorage> m_pStorage;
-			subscribers::FinalizationSubscriber& m_subscriber;
+			std::unique_ptr<subscribers::FinalizationSubscriber> m_pSubscriber;
 		};
 	}
 
 	std::unique_ptr<ProofStorage> CreateAggregateProofStorage(
 			std::unique_ptr<ProofStorage>&& pStorage,
-			subscribers::FinalizationSubscriber& subscriber) {
-		return std::make_unique<AggregateProofStorage>(std::move(pStorage), subscriber);
+			std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber) {
+		return std::make_unique<AggregateProofStorage>(std::move(pStorage), std::move(pSubscriber));
 	}
 }}
 

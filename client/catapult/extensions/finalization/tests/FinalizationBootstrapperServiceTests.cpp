@@ -20,15 +20,20 @@
 
 #include "finalization/src/FinalizationBootstrapperService.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "finalization/src/io/FilePrevoteChainStorage.h"
+#include "finalization/src/io/ProofStorageCache.h"
+#include "finalization/src/model/FinalizationProofUtils.h"
 #include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace finalization {
 
 #define TEST_CLASS FinalizationBootstrapperServiceTests
+#define PHASE_TWO_TEST_CLASS FinalizationBootstrapperPhaseTwoServiceTests
 
 	// region FinalizationServerHooks
 
@@ -321,6 +326,156 @@ namespace catapult { namespace finalization {
 					{ Height(22), hash1 },
 					{ Height(24), hash2 });
 		});
+	}
+
+	// endregion
+
+	// region FinalizationBootstrapperService - proof storage
+
+	TEST(TEST_CLASS, ProofStorageServiceDoesNotSupportPatchingFinalizedBlocks) {
+		// Arrange:
+		test::TempDirectoryGuard directoryGuard;
+
+		TestContext context;
+		mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), 10);
+		context.boot();
+
+		const auto& userConfig = context.testState().state().config().User;
+		const_cast<std::string&>(userConfig.DataDirectory) = directoryGuard.name();
+
+		auto pPrevoteChainBlockStorage = mocks::CreateMemoryBlockStorageCache(7);
+		auto proofRound = test::CreateFinalizationRound(7, 3);
+		auto proofHash = pPrevoteChainBlockStorage->view().loadBlockElement(Height(7))->EntityHash;
+
+		io::FilePrevoteChainStorage prevoteChainStorage(context.testState().state().config().User.DataDirectory);
+		prevoteChainStorage.save(pPrevoteChainBlockStorage->view(), { proofRound, Height(5), 3 });
+
+		auto pProof = model::CreateFinalizationProof({ proofRound, Height(7), proofHash }, {});
+
+		// Act + Assert: does not throw even though block range consumer factory isn't registered
+		auto& storage = GetProofStorageCache(context.locator());
+		storage.modifier().saveProof(*pProof);
+	}
+
+	// endregion
+
+	// region FinalizationBootstrapperPhaseTwoService - test context
+
+	namespace {
+		struct FinalizationBootstrapperPhaseTwoServiceTraits {
+			static constexpr auto CreateRegistrar = CreateFinalizationBootstrapperPhaseTwoServiceRegistrar;
+		};
+
+		class PhaseTwoTestContext
+				: public test::VoterSeededCacheDependentServiceLocatorTestContext<FinalizationBootstrapperPhaseTwoServiceTraits> {
+		public:
+			PhaseTwoTestContext() {
+				// setup filesystem
+				const auto& userConfig = testState().state().config().User;
+				const_cast<std::string&>(userConfig.DataDirectory) = m_directoryGuard.name();
+
+				// register dependent services
+				auto hash = test::GenerateRandomByteArray<Hash256>();
+				test::FinalizationBootstrapperServiceTestUtils::Register(
+						locator(),
+						testState().state(),
+						std::make_unique<mocks::MockProofStorage>(Finalization_Epoch, FinalizationPoint(4), Height(1), hash));
+
+				// setup hooks
+				testState().state().hooks().setBlockRangeConsumerFactory([this](auto source) {
+					return [this, source](auto&& blockRange) {
+						m_capturedBlockRanges.emplace_back(source, std::move(blockRange));
+					};
+				});
+			}
+
+		public:
+			const auto& capturedBlockRanges() {
+				return m_capturedBlockRanges;
+			}
+
+		private:
+			test::TempDirectoryGuard m_directoryGuard;
+
+			std::vector<std::pair<disruptor::InputSource, model::AnnotatedEntityRange<model::Block>>> m_capturedBlockRanges;
+		};
+	}
+
+	// endregion
+
+	// region FinalizationBootstrapperPhaseTwoService - basic
+
+	ADD_SERVICE_REGISTRAR_INFO_TEST(FinalizationBootstrapperPhaseTwo, Post_Range_Consumers)
+
+	TEST(PHASE_TWO_TEST_CLASS, NoServicesOrCountersAreRegistered) {
+		// Arrange:
+		PhaseTwoTestContext context;
+
+		// Act:
+		context.boot();
+
+		// Assert: only phase one services are present
+		EXPECT_EQ(Num_Services, context.locator().numServices());
+		EXPECT_EQ(0u, context.locator().counters().size());
+	}
+
+	// endregion
+
+	// region FinalizationBootstrapperPhaseTwoService - proof storage
+
+	TEST(PHASE_TWO_TEST_CLASS, ProofStorageServiceSupportsPatchingFinalizedBlocks_MatchingBlock) {
+		// Arrange:
+		PhaseTwoTestContext context;
+		mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), 10);
+		context.boot();
+
+		auto proofRound = test::CreateFinalizationRound(7, 3);
+		auto proofHash = context.testState().state().storage().view().loadBlockElement(Height(7))->EntityHash;
+
+		io::FilePrevoteChainStorage prevoteChainStorage(context.testState().state().config().User.DataDirectory);
+		prevoteChainStorage.save(context.testState().state().storage().view(), { proofRound, Height(5), 3 });
+
+		auto pProof = model::CreateFinalizationProof({ proofRound, Height(7), proofHash }, {});
+
+		// Act:
+		auto& storage = GetProofStorageCache(context.locator());
+		storage.modifier().saveProof(*pProof);
+
+		// Assert:
+		EXPECT_EQ(0u, context.capturedBlockRanges().size());
+	}
+
+	TEST(PHASE_TWO_TEST_CLASS, ProofStorageServiceSupportsPatchingFinalizedBlocks_MismatchedBlock) {
+		// Arrange:
+		PhaseTwoTestContext context;
+		mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), 10);
+		context.boot();
+
+		auto pPrevoteChainBlockStorage = mocks::CreateMemoryBlockStorageCache(7);
+		auto proofRound = test::CreateFinalizationRound(7, 3);
+		auto proofHash = pPrevoteChainBlockStorage->view().loadBlockElement(Height(7))->EntityHash;
+
+		io::FilePrevoteChainStorage prevoteChainStorage(context.testState().state().config().User.DataDirectory);
+		prevoteChainStorage.save(pPrevoteChainBlockStorage->view(), { proofRound, Height(5), 3 });
+
+		auto pProof = model::CreateFinalizationProof({ proofRound, Height(7), proofHash }, {});
+
+		// Act:
+		auto& storage = GetProofStorageCache(context.locator());
+		storage.modifier().saveProof(*pProof);
+
+		// Assert:
+		ASSERT_EQ(1u, context.capturedBlockRanges().size());
+		EXPECT_EQ(disruptor::InputSource::Remote_Pull, context.capturedBlockRanges()[0].first);
+
+		const auto& patchBlocksRange = context.capturedBlockRanges()[0].second;
+		EXPECT_EQ(Key(), patchBlocksRange.SourceIdentity.PublicKey);
+		EXPECT_EQ("", patchBlocksRange.SourceIdentity.Host);
+		ASSERT_EQ(3u, patchBlocksRange.Range.size());
+
+		auto patchBlocksIter = patchBlocksRange.Range.cbegin();
+		for (auto i = 0u; i < 3; ++i, ++patchBlocksIter)
+			EXPECT_EQ(*pPrevoteChainBlockStorage->view().loadBlock(Height(5 + i)), *patchBlocksIter) << i;
 	}
 
 	// endregion

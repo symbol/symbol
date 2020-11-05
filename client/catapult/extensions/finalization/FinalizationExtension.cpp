@@ -41,6 +41,7 @@ namespace catapult { namespace finalization {
 			// register other services
 			auto& extensionManager = bootstrapper.extensionManager();
 			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage)));
+			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperPhaseTwoServiceRegistrar());
 			extensionManager.addServiceRegistrar(CreateFinalizationServiceRegistrar(config));
 			extensionManager.addServiceRegistrar(CreateFinalizationSyncSourceServiceRegistrar(config.EnableVoting));
 
