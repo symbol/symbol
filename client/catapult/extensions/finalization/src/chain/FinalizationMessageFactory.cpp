@@ -100,8 +100,9 @@ namespace catapult { namespace chain {
 				if (numHashes > m_config.MaxHashesPerPoint)
 					numHashes -= Clamp(numHashes - m_config.MaxHashesPerPoint, m_config.PrevoteBlocksMultiple, 1);
 
-				m_prevoteChainDescriptorConsumer(view, { round, startHeight, numHashes });
-				return view.loadHashesFrom(startHeight, numHashes);
+				auto hashRange = view.loadHashesFrom(startHeight, numHashes);
+				m_prevoteChainDescriptorConsumer(view, { round, startHeight, hashRange.size() });
+				return hashRange;
 			}
 
 		private:

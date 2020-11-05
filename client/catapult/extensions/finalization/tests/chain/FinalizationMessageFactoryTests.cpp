@@ -189,7 +189,7 @@ namespace catapult { namespace chain {
 
 		EXPECT_EQ(test::CreateFinalizationRound(3, 20), descriptor.Round);
 		EXPECT_EQ(Height(8), descriptor.Height);
-		EXPECT_EQ(1u, descriptor.HashesCount);
+		EXPECT_EQ(0u, descriptor.HashesCount);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainIsFullyFinalized_OnMultiple) {
@@ -216,6 +216,10 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasGreaterThanMaxUnfinalizedBlocks_NotOnMultiple) {
 		AssertCanCreatePrevote(22, 10, 5, 8);
 	}
+
+	// endregion
+
+	// region createPrevote - StartingEpoch (start height alignment)
 
 	namespace {
 		void AssertPrevoteStartingEpoch(uint64_t finalizedHeight, uint32_t chainHeight, uint32_t expectedHashesCount) {
