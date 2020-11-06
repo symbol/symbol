@@ -65,6 +65,7 @@ describe('all routes', () => {
 			'/node/server',
 			'/node/storage',
 			'/node/time',
+			'/node/unlockedaccount',
 
 			'/transactions/:group/:transactionId',
 			'/transactions/:group',
@@ -97,9 +98,7 @@ describe('all routes', () => {
 		registerAll(server);
 
 		// Assert:
-		test.assert.assertRoutes(routes, [
-			'/transactions'
-		]);
+		test.assert.assertRoutes(routes, ['/transactions']);
 	});
 
 	it('registers all ws routes', () => {
@@ -111,8 +110,6 @@ describe('all routes', () => {
 		registerAll(server);
 
 		// Assert:
-		test.assert.assertRoutes(routes, [
-			'/ws'
-		]);
+		test.assert.assertRoutes(routes, ['/ws']);
 	});
 });

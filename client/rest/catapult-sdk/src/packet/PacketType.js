@@ -59,6 +59,9 @@ const PacketType = {
 	finalizationProofAtEpoch: 0x133,
 	finalizationProofAtHeight: 0x134,
 
+	/** Unlocked account */
+	unlockedAccount: 0x304,
+
 	/** State path has been requested by a peer. */
 	accountStatePath: statePathBaseType + 0x43,
 	hashLockStatePath: statePathBaseType + 0x48,

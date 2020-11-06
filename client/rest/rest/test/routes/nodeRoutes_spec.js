@@ -410,5 +410,33 @@ describe('node routes', () => {
 					}));
 			});
 		});
+
+		describe('unlocked account', () => {
+			it('can retrieve unlocked account', () => {
+				// Arrange:
+				const packet = {
+					type: 772,
+					size: 40,
+					payload: Buffer.from([0x9b, 0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78, 0x9b,
+						0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78, 0x9b,
+						0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78])
+				};
+				const services = serviceCreator(packet);
+
+				// Act:
+				return test.route.prepareExecuteRoute(nodeRoutes.register, '/node/unlockedaccount', 'get', {}, {}, services, routeContext =>
+					routeContext.routeInvoker().then(() => {
+						// Assert:
+						expect(routeContext.numNextCalls).to.equal(1);
+						expect(routeContext.responses.length).to.equal(1);
+						expect(routeContext.redirects.length).to.equal(0);
+						expect(routeContext.responses[0]).to.deep.equal({
+							unlockedAccount: [
+								'9B4EF2789B4EF2789B4EF2789B4EF2789B4EF2789B4EF2789B4EF2789B4EF278'
+							]
+						});
+					}));
+			});
+		});
 	});
 });
