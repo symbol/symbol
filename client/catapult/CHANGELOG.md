@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0.4] - 06-Nov-2020
+### Added 
+ - ipv6 support (#63)
+
+### Fixed
+ - finalization fork resolution #102 
+ - add ListenInterface #55
+ - resolve confirmed transaction addresses #82
+ - recovery finalization support (EnableRevoteOnBoot), #90
+ - check node version when adding to node container #97
+ - allow non-voting nodes to pull finalization proofs more aggressively #99
+ - fix mongo indexes
+ - minor issues: #93, #96, #98, #100, #101, #104, #105
+
+### Changed
+ - change voting key tree into key list
+ - change voting key link transaction, to use shorter keys
+ - mongo namespace meta.active -> meta.latest
+
 ## [0.10.0.3] - 25-Sep-2020
 ### Fixed
  - bugfix: importance files should not be spooled to disk when delta is detached
