@@ -92,7 +92,7 @@ namespace catapult { namespace harvesting {
 					, m_unlockedAccounts(100, [](const auto&) { return 0; }) {
 				// create the harvester
 				auto executionConfig = extensions::CreateExecutionConfiguration(*m_pPluginManager);
-				HarvestingUtFacadeFactory utFacadeFactory(m_cache, CreateConfiguration(), executionConfig);
+				HarvestingUtFacadeFactory utFacadeFactory(m_cache, CreateConfiguration(), executionConfig, [](auto) { return Hash256(); });
 
 				auto strategy = model::TransactionSelectionStrategy::Oldest;
 				auto blockGenerator = CreateHarvesterBlockGenerator(

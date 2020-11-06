@@ -25,6 +25,7 @@
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/other/MockExecutionConfiguration.h"
 #include "tests/TestHarness.h"
 
@@ -63,6 +64,7 @@ namespace catapult { namespace harvesting {
 			config.ImportanceGrouping = 4;
 			config.MaxTransactionLifetime = utils::TimeSpan::FromHours(24);
 			config.MinHarvesterBalance = Amount(1000);
+			config.MinVoterBalance = Amount(2000);
 			return config;
 		}
 
@@ -76,6 +78,10 @@ namespace catapult { namespace harvesting {
 			catapultCache.commit(Default_Height);
 		}
 
+		auto EmptyHashSupplier(Height) {
+			return Hash256();
+		}
+
 		template<typename TAction>
 		void RunUtFacadeTest(TAction action) {
 			// Arrange: create factory and facade
@@ -83,7 +89,7 @@ namespace catapult { namespace harvesting {
 			SetDependentState(catapultCache);
 
 			test::MockExecutionConfiguration executionConfig;
-			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockChainConfiguration(), executionConfig.Config);
+			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockChainConfiguration(), executionConfig.Config, EmptyHashSupplier);
 
 			auto pFacade = factory.create(Default_Time);
 			ASSERT_TRUE(!!pFacade);
@@ -106,7 +112,7 @@ namespace catapult { namespace harvesting {
 			SetDependentState(catapultCache);
 
 			test::MockExecutionConfiguration executionConfig;
-			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockChainConfiguration(), executionConfig.Config);
+			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockChainConfiguration(), executionConfig.Config, EmptyHashSupplier);
 
 			auto pFacade = factory.create(Default_Time);
 			ASSERT_TRUE(!!pFacade);
@@ -383,6 +389,233 @@ namespace catapult { namespace harvesting {
 
 	// endregion
 
+	// region commit - importance fields set
+
+	namespace {
+		std::unique_ptr<model::Block> CreateImportanceBlockHeader(Height height) {
+			auto size = sizeof(model::BlockHeader) + sizeof(model::ImportanceBlockFooter);
+			auto pBlockHeader = utils::MakeUniqueWithSize<model::Block>(size);
+			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pBlockHeader.get()), size });
+			pBlockHeader->Size = static_cast<uint32_t>(size);
+			pBlockHeader->Type = model::Entity_Type_Block_Importance;
+			pBlockHeader->Height = height;
+			pBlockHeader->FeeMultiplier = BlockFeeMultiplier();
+			pBlockHeader->ReceiptsHash = Hash256();
+			pBlockHeader->StateHash = Hash256();
+			return pBlockHeader;
+		}
+
+		std::vector<crypto::KeyPair> CreateKeyPairs(size_t count) {
+			std::vector<crypto::KeyPair> keyPairs;
+			for (auto i = 0u; i < count; ++i)
+				keyPairs.push_back(crypto::KeyPair::FromPrivate(test::GenerateRandomPrivateKey()));
+
+			return keyPairs;
+		}
+
+		auto CreateBalances(Amount baseAmount, size_t numAccounts) {
+			std::vector<Amount> amounts;
+			for (auto i = 0u; i < numAccounts; ++i)
+				amounts.push_back(baseAmount + Amount(5 * i));
+
+			return amounts;
+		}
+
+		auto CreateAccounts(cache::AccountStateCacheDelta& cache, const std::vector<Amount>& balances) {
+			constexpr Importance Default_Importance(1'000'000);
+			auto signingKeyPairs = CreateKeyPairs(balances.size());
+			auto votingKeyPairs = CreateKeyPairs(balances.size());
+
+			for (auto i = 0u; i < balances.size(); ++i) {
+				cache.addAccount(signingKeyPairs[i].publicKey(), Height(1));
+				auto& accountState = cache.find(signingKeyPairs[i].publicKey()).get();
+				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
+				accountState.ImportanceSnapshots.set(Default_Importance, model::ImportanceHeight(1));
+
+				accountState.SupplementalPublicKeys.voting().add({
+					votingKeyPairs[i].publicKey().copyTo<VotingKey>(),
+					FinalizationEpoch(1),
+					FinalizationEpoch(100)
+				});
+			}
+
+			cache.updateHighValueAccounts(Default_Height);
+			return signingKeyPairs;
+		}
+
+		auto RunCommitSetsImportanceHeaderFields(const model::BlockChainConfiguration& config, const std::vector<Amount>& balances) {
+			// Arrange:
+			auto importanceMultipleHeight = model::CalculateGroupedHeight<Height>(Default_Height, config.ImportanceGrouping);
+			auto catapultCache = test::CreateEmptyCatapultCache(config);
+			{
+				auto delta = catapultCache.createDelta();
+				CreateAccounts(delta.sub<cache::AccountStateCache>(), balances);
+				catapultCache.commit(importanceMultipleHeight - Height(1));
+			}
+
+			test::MockExecutionConfiguration executionConfig;
+			HarvestingUtFacadeFactory factory(catapultCache, config, executionConfig.Config, [](auto height) {
+				return Hash256({ static_cast<uint8_t>(height.unwrap() * 2) });
+			});
+
+			auto pFacade = factory.create(Default_Time);
+			auto pOriginalBlock = CreateImportanceBlockHeader(importanceMultipleHeight);
+
+			// Act:
+			return pFacade->commit(*pOriginalBlock);
+		}
+	}
+
+	TEST(TEST_CLASS, CommitSetsImportanceHeaderFields_AllHarvesters) {
+		// Arrange: 10 accounts, only 5 of them are voting accounts
+		auto config = CreateBlockChainConfiguration();
+		config.MinHarvesterBalance = Amount(1000);
+		config.MinVoterBalance = Amount(2000);
+		auto harvestingBalances = CreateBalances(Amount(1985), 7);
+
+		// Act:
+		auto pBlock = RunCommitSetsImportanceHeaderFields(config, harvestingBalances);
+
+		// Assert: total amount = 2000 + 2005 + 2010 + 2015
+		const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+		EXPECT_EQ(Height(16), pBlock->Height);
+		EXPECT_EQ(4u, blockFooter.VotingEligibleAccountsCount);
+		EXPECT_EQ(Amount(8030), blockFooter.TotalVotingBalance);
+		EXPECT_EQ(7u, blockFooter.HarvestingEligibleAccountsCount);
+		EXPECT_EQ(Hash256({ 24 }), blockFooter.PreviousImportanceBlockHash);
+	}
+
+	TEST(TEST_CLASS, CommitSetsImportanceHeaderFields_SomeHarvesters) {
+		// Arrange:
+		auto config = CreateBlockChainConfiguration();
+		config.MinHarvesterBalance = Amount(2000);
+		config.MinVoterBalance = Amount(2005);
+		auto harvestingBalances = CreateBalances(Amount(1985), 7);
+
+		// Act:
+		auto pBlock = RunCommitSetsImportanceHeaderFields(config, harvestingBalances);
+
+		// Assert: total amount = 2005 + 2010 + 2015
+		const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+		EXPECT_EQ(Height(16), pBlock->Height);
+		EXPECT_EQ(3u, blockFooter.VotingEligibleAccountsCount);
+		EXPECT_EQ(Amount(6030), blockFooter.TotalVotingBalance);
+		EXPECT_EQ(4u, blockFooter.HarvestingEligibleAccountsCount);
+		EXPECT_EQ(Hash256({ 24 }), blockFooter.PreviousImportanceBlockHash);
+	}
+
+	namespace {
+		void Transfer(state::AccountState& debitState, state::AccountState& creditState, MosaicId mosaicId, Amount amount) {
+			debitState.Balances.debit(mosaicId, amount);
+			creditState.Balances.credit(mosaicId, amount);
+		}
+
+		class MockBalancesNotificationObserver : public test::MockAggregateNotificationObserver {
+		public:
+			void notify(const model::Notification& notification, observers::ObserverContext& context) const override {
+				if (model::Core_Balance_Transfer_Notification == notification.Type)
+					notify(test::CastToDerivedNotification<model::BalanceTransferNotification>(notification), context);
+				else
+					test::MockAggregateNotificationObserver::notify(notification, context);
+			}
+
+		private:
+			void notify(const model::BalanceTransferNotification& notification, observers::ObserverContext& context) const {
+				auto& accountStateCacheDelta = context.Cache.sub<cache::AccountStateCache>();
+				auto senderIter = accountStateCacheDelta.find(notification.Sender);
+				auto recipientIter = accountStateCacheDelta.find(context.Resolvers.resolve(notification.Recipient));
+
+				auto& senderState = senderIter.get();
+				auto& recipientState = recipientIter.get();
+				auto mosaicId = MosaicId(notification.MosaicId.unwrap());
+				if (observers::NotifyMode::Commit == context.Mode)
+					Transfer(senderState, recipientState, mosaicId, notification.Amount);
+				else
+					Transfer(recipientState, senderState, mosaicId, notification.Amount);
+			}
+		};
+
+		class MockBalanceNotificationPublisher : public test::MockNotificationPublisher {
+		public:
+			void publish(const model::WeakEntityInfo& entityInfo, model::NotificationSubscriber& subscriber) const override {
+				if (mocks::MockTransaction::Entity_Type != entityInfo.type())
+					return;
+
+				const auto& mockTransaction = static_cast<const mocks::MockTransaction&>(entityInfo.entity());
+				auto senderAddress = model::PublicKeyToAddress(mockTransaction.SignerPublicKey, Network_Identifier);
+				auto recipientAddress = model::PublicKeyToAddress(mockTransaction.RecipientPublicKey, Network_Identifier);
+
+				subscriber.notify(model::BalanceTransferNotification(
+						senderAddress,
+						recipientAddress.copyTo<UnresolvedAddress>(),
+						UnresolvedMosaicId(Harvesting_Mosaic_Id.unwrap()),
+						Amount(*mockTransaction.DataPtr())));
+			}
+		};
+
+		auto CreateMockBalanceTransactionInfo(const Key& signerPublicKey, const Key& recipientPublicKey, uint8_t amount) {
+			auto pTransaction = mocks::CreateMockTransaction(1);
+			pTransaction->SignerPublicKey = signerPublicKey;
+			pTransaction->MaxFee = Amount(0);
+			pTransaction->RecipientPublicKey = recipientPublicKey;
+			*pTransaction->DataPtr() = amount;
+
+			auto transactionInfo = model::TransactionInfo(std::move(pTransaction));
+			test::FillWithRandomData(transactionInfo.EntityHash);
+			test::FillWithRandomData(transactionInfo.MerkleComponentHash);
+			return transactionInfo;
+		}
+	}
+
+	TEST(TEST_CLASS, CommitUpdatesHighValueAccounts) {
+		// Arrange:
+		auto config = CreateBlockChainConfiguration();
+		auto importanceMultipleHeight = model::CalculateGroupedHeight<Height>(Default_Height, config.ImportanceGrouping);
+		auto harvestingBalances = CreateBalances(Amount(1990), 5);
+
+		std::vector<crypto::KeyPair> keyPairs;
+		auto catapultCache = test::CreateEmptyCatapultCache(config);
+		{
+			auto delta = catapultCache.createDelta();
+			keyPairs = CreateAccounts(delta.sub<cache::AccountStateCache>(), harvestingBalances);
+			catapultCache.commit(importanceMultipleHeight - Height(1));
+		}
+
+		test::MockExecutionConfiguration executionConfig;
+		executionConfig.pObserver = std::make_shared<MockBalancesNotificationObserver>();
+		executionConfig.Config.pObserver = executionConfig.pObserver;
+		executionConfig.pNotificationPublisher = std::make_shared<MockBalanceNotificationPublisher>();
+		executionConfig.Config.pNotificationPublisher = executionConfig.pNotificationPublisher;
+
+		HarvestingUtFacadeFactory factory(catapultCache, config, executionConfig.Config, [](auto height) {
+			return Hash256({ static_cast<uint8_t>(height.unwrap() * 2) });
+		});
+
+		auto pFacade = factory.create(Default_Time);
+		auto pOriginalBlock = CreateImportanceBlockHeader(importanceMultipleHeight);
+
+		// Sanity:
+		{
+			auto view = catapultCache.createView();
+			auto statistics = cache::ReadOnlyAccountStateCache(view.sub<cache::AccountStateCache>()).highValueAccountStatistics();
+			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
+		}
+
+		// Act: transfers from last account to first two accounts
+		// before: 1990, 1995, 2000, 2005, 2010
+		//  after: 1995, 2000, 2000, 2005, 2000
+		pFacade->apply(CreateMockBalanceTransactionInfo(keyPairs[4].publicKey(), keyPairs[0].publicKey(), 5));
+		pFacade->apply(CreateMockBalanceTransactionInfo(keyPairs[4].publicKey(), keyPairs[1].publicKey(), 5));
+
+		auto pBlock = pFacade->commit(*pOriginalBlock);
+
+		// Assert: new number of voting eligible accounts = 4
+		const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+		EXPECT_EQ(4u, blockFooter.VotingEligibleAccountsCount);
+	}
+
+	// endregion
+
 	// region commit - validation
 
 	namespace {
@@ -578,7 +811,7 @@ namespace catapult { namespace harvesting {
 
 		public:
 			std::unique_ptr<HarvestingUtFacade> createFacade() const {
-				HarvestingUtFacadeFactory factory(m_cache, m_config, m_executionConfig);
+				HarvestingUtFacadeFactory factory(m_cache, m_config, m_executionConfig, EmptyHashSupplier);
 				return factory.create(Default_Time);
 			}
 

@@ -54,10 +54,11 @@ namespace catapult { namespace harvesting {
 
 		std::unique_ptr<model::Block> CreateUnsignedBlockHeader(
 				const NextBlockContext& context,
+				model::EntityType blockType,
 				model::NetworkIdentifier networkIdentifier,
 				const Key& signer,
 				const Address& beneficiary) {
-			auto pBlock = model::CreateBlock(model::Entity_Type_Block_Normal, context.ParentContext, networkIdentifier, signer, {});
+			auto pBlock = model::CreateBlock(blockType, context.ParentContext, networkIdentifier, signer, {});
 			pBlock->Difficulty = context.Difficulty;
 			pBlock->Timestamp = context.Timestamp;
 			if (Address() != beneficiary)
@@ -68,6 +69,13 @@ namespace catapult { namespace harvesting {
 
 		void AddGenerationHashProof(model::Block& block, const crypto::VrfProof& vrfProof) {
 			block.GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+		}
+
+		model::EntityType HeightToBlockType(const model::BlockChainConfiguration& config, Height height) {
+			// note: voting set grouping is multiple of importance grouping
+			return (0 == height.unwrap() % config.ImportanceGrouping)
+					? model::Entity_Type_Block_Importance
+					: model::Entity_Type_Block_Normal;
 		}
 	}
 
@@ -125,8 +133,13 @@ namespace catapult { namespace harvesting {
 			return nullptr;
 
 		utils::StackLogger stackLogger("generating candidate block", utils::LogLevel::debug);
-		auto networkIdentifier = m_config.Network.Identifier;
-		auto pBlockHeader = CreateUnsignedBlockHeader(context, networkIdentifier, pHarvesterKeyPair->publicKey(), m_beneficiary);
+		auto pBlockHeader = CreateUnsignedBlockHeader(
+				context,
+				HeightToBlockType(m_config, context.Height),
+				m_config.Network.Identifier,
+				pHarvesterKeyPair->publicKey(),
+				m_beneficiary);
+
 		AddGenerationHashProof(*pBlockHeader, vrfProof);
 		auto pBlock = m_blockGenerator(*pBlockHeader, m_config.MaxTransactionsPerBlock);
 		if (pBlock)
