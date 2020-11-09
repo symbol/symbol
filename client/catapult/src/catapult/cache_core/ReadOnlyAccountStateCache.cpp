@@ -57,4 +57,24 @@ namespace catapult { namespace cache {
 	MosaicId ReadOnlyAccountStateCache::harvestingMosaicId() const {
 		return m_pCache ? m_pCache->harvestingMosaicId() : m_pCacheDelta->harvestingMosaicId();
 	}
+
+	namespace {
+		template<typename TSource>
+		HighValueAccountStatistics ComputeHighValueAccountStatistics(const TSource& source) {
+			HighValueAccountStatistics statistics;
+			statistics.VotingEligibleAccountsCount = static_cast<uint32_t>(source.accountHistories().size());
+			statistics.HarvestingEligibleAccountsCount = source.addresses().size();
+
+			for (const auto& accountHistoryPair : source.accountHistories())
+				statistics.TotalVotingBalance = statistics.TotalVotingBalance + accountHistoryPair.second.balance().get();
+
+			return statistics;
+		}
+	}
+
+	HighValueAccountStatistics ReadOnlyAccountStateCache::highValueAccountStatistics() const {
+		return m_pCache
+				? ComputeHighValueAccountStatistics(m_pCache->highValueAccounts())
+				: ComputeHighValueAccountStatistics(m_pCacheDelta->highValueAccounts());
+	}
 }}
