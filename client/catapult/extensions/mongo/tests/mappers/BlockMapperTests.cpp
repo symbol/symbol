@@ -92,6 +92,22 @@ namespace catapult { namespace mongo { namespace mappers {
 
 		// Assert:
 		AssertCanMapBlock(*pBlock, Amount(0), 0, 0, Num_Statements);
+
+		// Sanity:
+		EXPECT_FALSE(model::IsImportanceBlock(pBlock->Type));
+	}
+
+	TRAITS_BASED_RECEIPTS_TEST(CanMapImportanceBlockWithoutTransactions) {
+		// Arrange:
+		auto pBlock = test::GenerateImportanceBlockWithTransactions(0);
+		auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&blockFooter), sizeof(model::ImportanceBlockFooter) });
+
+		// Assert:
+		AssertCanMapBlock(*pBlock, Amount(0), 0, 0, Num_Statements);
+
+		// Sanity:
+		EXPECT_TRUE(model::IsImportanceBlock(pBlock->Type));
 	}
 
 	TRAITS_BASED_RECEIPTS_TEST(CanMapBlockWithTransactions) {
