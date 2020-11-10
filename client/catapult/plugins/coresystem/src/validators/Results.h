@@ -70,6 +70,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because an address collision is detected.
 	DEFINE_CORE_RESULT(Address_Collision, 14);
 
+	/// Validation failed because an importance block mismatch is detected.
+	DEFINE_CORE_RESULT(Importance_Block_Mismatch, 15);
+
 	// region key link results
 
 	/// Validation failed because link action is invalid.

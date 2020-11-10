@@ -54,6 +54,12 @@ namespace catapult { namespace test {
 	/// Generates an address account history map from balance \a seeds.
 	cache::AddressAccountHistoryMap GenerateAccountHistories(const AddressBalanceHistorySeeds& seeds);
 
+	/// Adds random accounts to \a delta with specified \a balances of \a mosaicId.
+	std::vector<Address> AddAccountsWithBalances(
+			cache::AccountStateCacheDelta& delta,
+			MosaicId mosaicId,
+			const std::vector<Amount>& balances);
+
 	/// Asserts that \a expected and \a actual are equal.
 	void AssertEqual(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
 

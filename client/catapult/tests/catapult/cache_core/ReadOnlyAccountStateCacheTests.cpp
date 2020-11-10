@@ -246,15 +246,7 @@ namespace catapult { namespace cache {
 
 	namespace {
 		std::vector<Address> AddAccountsWithBalances(AccountStateCacheDelta& delta, const std::vector<Amount>& balances) {
-			auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
-			for (auto i = 0u; i < balances.size(); ++i) {
-				delta.addAccount(addresses[i], Height(1));
-				auto& accountState = delta.find(addresses[i]).get();
-				accountState.SupplementalPublicKeys.voting().add(test::GenerateRandomPackedStruct<model::PinnedVotingKey>());
-				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
-			}
-
-			return addresses;
+			return test::AddAccountsWithBalances(delta, Harvesting_Mosaic_Id, balances);
 		}
 
 		template<typename TDeltaAction, typename TViewAction>

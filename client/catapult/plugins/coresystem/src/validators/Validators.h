@@ -61,7 +61,7 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region Block
+	// region Block / ImportanceBlock
 
 	/// Validator that applies to all block notifications and validates that:
 	/// - the block signer was eligible to create the block
@@ -70,6 +70,10 @@ namespace catapult { namespace validators {
 	/// Validator that applies to all block notifications and validates that:
 	/// - the block does not contain more than \a maxTransactions transactions
 	DECLARE_STATELESS_VALIDATOR(MaxTransactions, model::BlockNotification)(uint32_t maxTransactions);
+
+	/// Validator that applies to all importance block notifications and validates that:
+	/// - notification values match calculated values (excluding PreviousImportanceBlockHash, which is validated separately)
+	DECLARE_STATEFUL_VALIDATOR(ImportanceBlock, model::ImportanceBlockNotification)();
 
 	// endregion
 
