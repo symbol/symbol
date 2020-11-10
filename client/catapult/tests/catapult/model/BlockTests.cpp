@@ -156,7 +156,7 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, IsImportanceBlock_ReturnsTrueOnlyForImportanceBlocks) {
-		EXPECT_FALSE(IsImportanceBlock(Entity_Type_Block_Nemesis));
+		EXPECT_TRUE(IsImportanceBlock(Entity_Type_Block_Nemesis));
 		EXPECT_TRUE(IsImportanceBlock(Entity_Type_Block_Importance));
 		EXPECT_FALSE(IsImportanceBlock(static_cast<EntityType>(0)));
 		EXPECT_FALSE(IsImportanceBlock(Entity_Type_Block_Normal));
@@ -166,7 +166,7 @@ namespace catapult { namespace model {
 		constexpr uint32_t Importance_Block_Header_Size = sizeof(BlockHeader) + sizeof(ImportanceBlockFooter);
 		constexpr uint32_t Padded_Block_Header_Size = sizeof(BlockHeader) + sizeof(PaddedBlockFooter);
 
-		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Nemesis));
+		EXPECT_EQ(Importance_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Nemesis));
 		EXPECT_EQ(Importance_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Importance));
 		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(static_cast<EntityType>(0)));
 		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Normal));
@@ -178,7 +178,7 @@ namespace catapult { namespace model {
 				- VerifiableEntity::Header_Size;
 		constexpr uint32_t Padded_Block_Header_Size = sizeof(BlockHeader) - VerifiableEntity::Header_Size;
 
-		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, Entity_Type_Block_Nemesis);
+		AssertBlockHeaderDataBuffer(Importance_Block_Header_Size, Entity_Type_Block_Nemesis);
 		AssertBlockHeaderDataBuffer(Importance_Block_Header_Size, Entity_Type_Block_Importance);
 		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, static_cast<EntityType>(0));
 		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, Entity_Type_Block_Normal);

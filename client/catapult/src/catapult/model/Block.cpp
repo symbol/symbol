@@ -31,7 +31,7 @@ namespace catapult { namespace model {
 	}
 
 	bool IsImportanceBlock(EntityType type) {
-		return model::Entity_Type_Block_Importance == type; // TODO: change to return true for nemesis too
+		return Entity_Type_Block_Nemesis == type || Entity_Type_Block_Importance == type;
 	}
 
 	uint32_t GetBlockHeaderSize(EntityType type) {

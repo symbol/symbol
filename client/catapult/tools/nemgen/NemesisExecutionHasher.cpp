@@ -50,12 +50,20 @@ namespace catapult { namespace tools { namespace nemgen {
 		std::ostringstream out;
 		out
 				<< "           Height: " << blockElement.Block.Height << std::endl
+				<< " Harvesting Count: " << blockExecutionHashesInfo.HarvestingEligibleAccountsCount << std::endl
+				<< "     Voting Count: " << blockExecutionHashesInfo.VotingEligibleAccountsCount << std::endl
+				<< "   Voting Balance: " << blockExecutionHashesInfo.TotalVotingBalance << std::endl
+				<< "*" << std::endl
 				<< "  Generation Hash: " << blockElement.GenerationHash << std::endl
 				<< "Transactions Hash: " << blockElement.Block.TransactionsHash << std::endl
 				<< "    Receipts Hash: " << blockExecutionHashesInfo.ReceiptsHash << std::endl
 				<< Format(blockExecutionHashesInfo);
 
 		NemesisExecutionHashesDescriptor descriptor;
+		descriptor.VotingEligibleAccountsCount = blockExecutionHashesInfo.VotingEligibleAccountsCount;
+		descriptor.HarvestingEligibleAccountsCount = blockExecutionHashesInfo.HarvestingEligibleAccountsCount;
+		descriptor.TotalVotingBalance = blockExecutionHashesInfo.TotalVotingBalance;
+
 		descriptor.ReceiptsHash = blockExecutionHashesInfo.ReceiptsHash;
 		descriptor.StateHash = blockExecutionHashesInfo.StateHash;
 		descriptor.SubCacheMerkleRoots = blockExecutionHashesInfo.SubCacheMerkleRoots;

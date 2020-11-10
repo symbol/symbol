@@ -18,6 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
@@ -130,6 +131,20 @@ namespace catapult { namespace extensions {
 		RunNemesisBlockTest([](const auto& stateRef) {
 			// Assert:
 			EXPECT_EQ(Num_Nemesis_Transactions, stateRef.Cache.createView().dependentState().NumTotalTransactions);
+		});
+	}
+
+	TEST(TEST_CLASS, ProperHighValueAccountStatisticsAfterLoadingNemesisBlock) {
+		// Act:
+		RunNemesisBlockTest([](const auto& stateRef) {
+			auto cacheView = stateRef.Cache.createView();
+			auto readOnlyCache = cacheView.toReadOnly();
+			auto highValueAccountStatistics = readOnlyCache.template sub<cache::AccountStateCache>().highValueAccountStatistics();
+
+			// Assert:
+			EXPECT_EQ(0u, highValueAccountStatistics.VotingEligibleAccountsCount);
+			EXPECT_EQ(Num_Nemesis_Harvesting_Accounts, highValueAccountStatistics.HarvestingEligibleAccountsCount);
+			EXPECT_EQ(Amount(), highValueAccountStatistics.TotalVotingBalance);
 		});
 	}
 

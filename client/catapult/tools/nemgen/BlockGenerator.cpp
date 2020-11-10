@@ -219,10 +219,12 @@ namespace catapult { namespace tools { namespace nemgen {
 		// - add additional transactions
 		transactions.addTransactions(std::move(additionalTransactions));
 
-		// TODO: change type to Entity_Type_Block_Nemesis and fill in
-		auto entityType = model::Entity_Type_Block_Normal;
-		model::PreviousBlockContext context;
-		auto pBlock = model::CreateBlock(entityType, context, config.NetworkIdentifier, signer.publicKey(), transactions.transactions());
+		auto pBlock = model::CreateBlock(
+				model::Entity_Type_Block_Nemesis,
+				model::PreviousBlockContext(),
+				config.NetworkIdentifier,
+				signer.publicKey(),
+				transactions.transactions());
 
 		// - add generation hash proof using signer as vrf key pair
 		AddGenerationHashProof(*pBlock, config.NemesisGenerationHashSeed, signer);
@@ -234,6 +236,11 @@ namespace catapult { namespace tools { namespace nemgen {
 			const NemesisConfiguration& config,
 			model::Block& block,
 			NemesisExecutionHashesDescriptor& executionHashesDescriptor) {
+		auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(block);
+		blockFooter.VotingEligibleAccountsCount = executionHashesDescriptor.VotingEligibleAccountsCount;
+		blockFooter.HarvestingEligibleAccountsCount = executionHashesDescriptor.HarvestingEligibleAccountsCount;
+		blockFooter.TotalVotingBalance = executionHashesDescriptor.TotalVotingBalance;
+
 		block.ReceiptsHash = executionHashesDescriptor.ReceiptsHash;
 		block.StateHash = executionHashesDescriptor.StateHash;
 
