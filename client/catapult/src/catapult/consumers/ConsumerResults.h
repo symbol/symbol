@@ -67,6 +67,9 @@ namespace catapult { namespace consumers {
 	/// Validation failed because the verification of the signature failed during a batch operation.
 	DEFINE_CONSUMER_RESULT(Batch_Signature_Not_Verifiable, 12);
 
+	/// Validation failed because the chain has an improper importance link.
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Improper_Importance_Link, 13);
+
 #ifndef CUSTOM_RESULT_DEFINITION
 }}
 #endif

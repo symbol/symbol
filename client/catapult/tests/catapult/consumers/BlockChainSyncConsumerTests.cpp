@@ -346,14 +346,17 @@ namespace catapult { namespace consumers {
 			CATAPULT_LOG(debug) << "source " << source;
 		}
 
-		ConsumerInput CreateInput(Height startHeight, uint32_t numBlocks, InputSource source = InputSource::Remote_Pull) {
-			auto input = test::CreateConsumerInputWithBlocks(numBlocks, source);
+		void PrepareInput(Height startHeight, ConsumerInput& input) {
 			auto nextHeight = startHeight;
 			for (const auto& element : input.blocks()) {
 				SetBlockHeight(const_cast<model::Block&>(element.Block), nextHeight);
 				nextHeight = nextHeight + Height(1);
 			}
+		}
 
+		ConsumerInput CreateInput(Height startHeight, uint32_t numBlocks, InputSource source = InputSource::Remote_Pull) {
+			auto input = test::CreateConsumerInputWithBlocks(numBlocks, source);
+			PrepareInput(startHeight, input);
 			return input;
 		}
 
@@ -479,7 +482,7 @@ namespace catapult { namespace consumers {
 					return CommitStep(step);
 				};
 
-				Consumer = CreateBlockChainSyncConsumer(Cache, Storage, handlers);
+				Consumer = CreateBlockChainSyncConsumer(3, Cache, Storage, handlers);
 			}
 
 		public:
@@ -526,7 +529,7 @@ namespace catapult { namespace consumers {
 			}
 
 		public:
-			void assertDifficultyCheckerInvocation(const ConsumerInput& input) {
+			void assertDifficultyCheckerInvocation(const ConsumerInput& input) const {
 				// Assert:
 				ASSERT_EQ(1u, DifficultyChecker.params().size());
 				auto difficultyParams = DifficultyChecker.params()[0];
@@ -537,7 +540,7 @@ namespace catapult { namespace consumers {
 					EXPECT_EQ(&input.blocks()[i].Block, difficultyParams.Blocks[i]) << "block at " << i;
 			}
 
-			void assertUnwind(const std::vector<Height>& unwoundHeights) {
+			void assertUnwind(const std::vector<Height>& unwoundHeights) const {
 				// Assert:
 				ASSERT_EQ(unwoundHeights.size(), UndoBlock.params().size());
 				auto i = 0u;
@@ -556,7 +559,7 @@ namespace catapult { namespace consumers {
 				}
 			}
 
-			void assertProcessorInvocation(const ConsumerInput& input, size_t numUnwoundBlocks = 0) {
+			void assertProcessorInvocation(const ConsumerInput& input, size_t numUnwoundBlocks = 0) const {
 				// Assert:
 				ASSERT_EQ(1u, Processor.params().size());
 				const auto& processorParams = Processor.params()[0];
@@ -571,7 +574,7 @@ namespace catapult { namespace consumers {
 				EXPECT_EQ(numUnwoundBlocks, processorParams.NumStatistics);
 			}
 
-			void assertNoStorageChanges() {
+			void assertNoStorageChanges() const {
 				// Assert: all original blocks are present in the storage
 				auto storageView = Storage.view();
 				ASSERT_EQ(Height(OriginalBlocks.size()) + Height(1), storageView.chainHeight());
@@ -598,7 +601,7 @@ namespace catapult { namespace consumers {
 				EXPECT_EQ(0u, CommitStep.params().size());
 			}
 
-			void assertStored(const ConsumerInput& input, model::ChainScore::Delta expectedScoreDelta) {
+			void assertStored(const ConsumerInput& input, model::ChainScore::Delta expectedScoreDelta) const {
 				// Assert: all input blocks should be saved in the storage
 				auto storageView = Storage.view();
 				auto inputHeight = input.blocks()[0].Block.Height;
@@ -1458,6 +1461,65 @@ namespace catapult { namespace consumers {
 		// - prune was called before state change notifications
 		ASSERT_EQ(1u, context.PreStateWritten.params().size());
 		EXPECT_EQ(Height(5), context.PreStateWritten.params()[0].BlockStatisticCachePruningBoundary.value().Height);
+	}
+
+	// endregion
+
+	// region importance chain linking
+
+	namespace {
+		template<typename TAssertResult>
+		void RunImportanceBlockLinkTest(bool shouldCreateLink, TAssertResult assertResult) {
+			// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-12
+			ConsumerTestContext context;
+			context.seedStorage(Height(7));
+
+			auto pBlock1 = test::GenerateBlockWithTransactions(1);
+			auto pBlock2 = test::GenerateImportanceBlockWithTransactions(1);
+			auto pBlock3 = test::GenerateBlockWithTransactions(1);
+			auto pBlock4 = test::GenerateBlockWithTransactions(1);
+			auto pBlock5 = test::GenerateImportanceBlockWithTransactions(1);
+
+			// - notice that only *first* importance block needs to be linked
+			//   internal links are checked by different (BlockChainCheck) consumer
+			if (shouldCreateLink) {
+				// 3 == ImportanceGrouping
+				auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock2);
+				blockFooter.PreviousImportanceBlockHash = context.Storage.view().loadBlockElement(Height(6))->EntityHash;
+			}
+
+			auto input = test::CreateConsumerInputFromBlocks({
+				pBlock1.get(), pBlock2.get(), pBlock3.get(), pBlock4.get(), pBlock5.get()
+			});
+			PrepareInput(Height(8), input);
+
+			// Act:
+			auto result = context.Consumer(input);
+
+			// Assert:
+			assertResult(result, context, input);
+		}
+	}
+
+	TEST(TEST_CLASS, CanSyncCompatibleChainsWithImportanceBlocksProperlyLinked) {
+		// Act:
+		RunImportanceBlockLinkTest(true, [](const auto& result, const auto& context, const auto& input) {
+			// Assert:
+			test::AssertContinued(result);
+			EXPECT_EQ(0u, context.UndoBlock.params().size());
+			context.assertDifficultyCheckerInvocation(input);
+			context.assertProcessorInvocation(input);
+			context.assertStored(input, model::ChainScore::Delta(5 * (Base_Difficulty - 1)));
+		});
+	}
+
+	TEST(TEST_CLASS, CannotSyncCompatibleChainsWithImportanceBlocksNotProperlyLinked) {
+		// Act:
+		RunImportanceBlockLinkTest(false, [](const auto& result, const auto&, const auto&) {
+			// Assert:
+			constexpr auto Failure_Result = Failure_Consumer_Remote_Chain_Improper_Importance_Link;
+			test::AssertAborted(result, Failure_Result, disruptor::ConsumerResultSeverity::Failure);
+		});
 	}
 
 	// endregion

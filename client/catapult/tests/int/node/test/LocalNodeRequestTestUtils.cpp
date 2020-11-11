@@ -85,6 +85,7 @@ namespace catapult { namespace test {
 
 			auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
 			blockFooter.HarvestingEligibleAccountsCount = CountOf(Test_Network_Vrf_Private_Keys);
+			blockFooter.PreviousImportanceBlockHash = context.BlockHash;
 
 			extensions::BlockExtensions(GetDefaultGenerationHashSeed()).signFullBlock(signer, *pBlock);
 			return PORTABLE_MOVE(pBlock);

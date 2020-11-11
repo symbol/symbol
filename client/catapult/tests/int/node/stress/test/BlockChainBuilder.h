@@ -106,6 +106,7 @@ namespace catapult { namespace test {
 		std::shared_ptr<const model::BlockElement> m_pTailBlockElement;
 		std::shared_ptr<const model::Block> m_pNemesisBlock; // only used to extend block lifetime
 		std::set<state::BlockStatistic> m_statistics;
+		Hash256 m_previousImportanceBlockHash;
 
 		utils::TimeSpan m_blockTimeInterval;
 		BlockReceiptsHashCalculator m_blockReceiptsHashCalculator;
