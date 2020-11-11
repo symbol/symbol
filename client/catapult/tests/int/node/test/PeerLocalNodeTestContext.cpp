@@ -88,6 +88,10 @@ namespace catapult { namespace test {
 		return m_context.loadSavedStateChainHeight();
 	}
 
+	config::CatapultConfiguration PeerLocalNodeTestContext::createConfig() const {
+		return m_context.createConfig();
+	}
+
 	void PeerLocalNodeTestContext::waitForHeight(Height height) const {
 		ExternalSourceConnection connection(publicKey());
 		WaitForLocalNodeHeight(connection, height);

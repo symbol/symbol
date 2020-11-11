@@ -161,7 +161,8 @@ namespace catapult { namespace test {
 			const model::Transactions& transactions) {
 		auto difficulty = chain::CalculateDifficulty(cache::BlockStatisticRange(m_statistics.cbegin(), m_statistics.cend()), m_config);
 
-		auto entityType = model::Entity_Type_Block_Normal;
+		auto isImportanceBlock = 0 == (context.BlockHeight.unwrap() + 1) % m_config.ImportanceGrouping;
+		auto entityType = isImportanceBlock ? model::Entity_Type_Block_Importance : model::Entity_Type_Block_Normal;
 		auto signerKeyPair = findBlockSigner(context, timestamp, difficulty);
 		auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signerKeyPair.publicKey(), transactions);
 		pBlock->Timestamp = timestamp;
@@ -177,6 +178,11 @@ namespace catapult { namespace test {
 		auto vrfKeyPair = LookupVrfKeyPair(signerKeyPair.publicKey());
 		auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
 		pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+
+		if (isImportanceBlock) {
+			auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+			blockFooter.HarvestingEligibleAccountsCount = CountOf(Test_Network_Vrf_Private_Keys);
+		}
 
 		extensions::BlockExtensions(GetNemesisGenerationHashSeed()).signFullBlock(signerKeyPair, *pBlock);
 		return pBlock;

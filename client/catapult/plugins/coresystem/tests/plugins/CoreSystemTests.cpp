@@ -69,6 +69,9 @@ namespace catapult { namespace plugins {
 					"TransactionFeeValidator",
 					"KeyLinkActionValidator",
 					"ZeroInternalPaddingValidator",
+					"BlockTypeValidator",
+
+					// key link transactions
 					"VotingKeyLinkRangeValidator"
 				};
 			}
@@ -82,6 +85,7 @@ namespace catapult { namespace plugins {
 					"EligibleHarvesterValidator",
 					"BalanceDebitValidator",
 					"BalanceTransferValidator",
+					"ImportanceBlockValidator",
 
 					// key link transactions
 					"VrfKeyLinkValidator",

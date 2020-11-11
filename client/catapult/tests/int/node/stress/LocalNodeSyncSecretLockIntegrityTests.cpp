@@ -73,7 +73,7 @@ namespace catapult { namespace local {
 			transactionsBuilder.addTransfer(0, 3, Amount(1'000'000));
 			auto secretProof = transactionsBuilder.addSecretLock(2, 3, Amount(100'000), Lock_Duration);
 
-			BlockChainBuilder builder(accounts, stateHashCalculator);
+			BlockChainBuilder builder(accounts, stateHashCalculator, context.createConfig().BlockChain);
 			auto pSecretLockBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 
 			// Act:
@@ -593,7 +593,7 @@ namespace catapult { namespace local {
 			BlockChainBuilder seedCache(BlockChainBuilder::Blocks& allBlocks) {
 				CacheSeedingTransactionsBuilder transactionsBuilder;
 				auto stateHashCalculator = m_context.createStateHashCalculator();
-				BlockChainBuilder builder(m_accounts, stateHashCalculator);
+				BlockChainBuilder builder(m_accounts, stateHashCalculator, m_context.createConfig().BlockChain);
 				auto pBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 				allBlocks.push_back(pBlock);
 
@@ -714,7 +714,7 @@ namespace catapult { namespace local {
 			transactionsBuilder.addSecretProof(2, 3, secretProof);
 
 			// - send chain
-			BlockChainBuilder builder(accounts, stateHashCalculator);
+			BlockChainBuilder builder(accounts, stateHashCalculator, context.createConfig().BlockChain);
 			auto blocks = builder.asBlockChain(transactionsBuilder);
 
 			test::ExternalSourceConnection connection(context.publicKey());

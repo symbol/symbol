@@ -74,13 +74,17 @@ namespace catapult { namespace test {
 			auto signer = GetNemesisAccountKeyPair();
 			auto context = LoadNemesisPreviousBlockContext();
 
-			auto entityType = model::Entity_Type_Block_Normal;
+			// ImportanceGrouping is 1
+			auto entityType = model::Entity_Type_Block_Importance;
 			auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
 
 			auto vrfKeyPair = LookupVrfKeyPair(signer.publicKey());
 			auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
 			pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+
+			auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+			blockFooter.HarvestingEligibleAccountsCount = CountOf(Test_Network_Vrf_Private_Keys);
 
 			extensions::BlockExtensions(GetDefaultGenerationHashSeed()).signFullBlock(signer, *pBlock);
 			return PORTABLE_MOVE(pBlock);

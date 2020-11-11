@@ -182,7 +182,8 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateEntityVersionValidator())
 				.add(validators::CreateTransactionFeeValidator())
 				.add(validators::CreateKeyLinkActionValidator())
-				.add(validators::CreateZeroInternalPaddingValidator());
+				.add(validators::CreateZeroInternalPaddingValidator())
+				.add(validators::CreateBlockTypeValidator(config.ImportanceGrouping));
 		});
 
 		manager.addStatefulValidatorHook([&config](auto& builder) {
@@ -193,7 +194,8 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateNemesisSinkValidator())
 				.add(validators::CreateEligibleHarvesterValidator())
 				.add(validators::CreateBalanceDebitValidator())
-				.add(validators::CreateBalanceTransferValidator());
+				.add(validators::CreateBalanceTransferValidator())
+				.add(validators::CreateImportanceBlockValidator());
 		});
 
 		auto harvestFeeOptions = observers::HarvestFeeOptions{
