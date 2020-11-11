@@ -84,7 +84,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(Amount(4'000'000), config.MaxHarvesterBalance);
 			EXPECT_EQ(Amount(50'000), config.MinVoterBalance);
 
-			EXPECT_EQ(100u, config.VotingSetGrouping);
+			EXPECT_EQ(78u, config.VotingSetGrouping);
 			EXPECT_EQ(3u, config.MaxVotingKeysPerAccount);
 			EXPECT_EQ(72u, config.MinVotingKeyLifetime);
 			EXPECT_EQ(72u * 365, config.MaxVotingKeyLifetime);

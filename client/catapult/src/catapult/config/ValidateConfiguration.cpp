@@ -29,14 +29,35 @@ namespace catapult { namespace config {
 
 	namespace {
 		void ValidateConfiguration(const model::BlockChainConfiguration& config) {
-			if (2 * config.ImportanceGrouping <= config.MaxRollbackBlocks)
-				CATAPULT_THROW_VALIDATION_ERROR("ImportanceGrouping must be greater than MaxRollbackBlocks / 2");
+			if (2 * config.ImportanceGrouping <= config.MaxRollbackBlocks) {
+				std::ostringstream out;
+				out
+						<< "ImportanceGrouping (" << config.ImportanceGrouping << ") must be greater than MaxRollbackBlocks ("
+						<< config.MaxRollbackBlocks << ") / 2";
+				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
+			}
 
-			if (100u < config.HarvestBeneficiaryPercentage + config.HarvestNetworkPercentage)
-				CATAPULT_THROW_VALIDATION_ERROR("HarvestBeneficiaryPercentage plus HarvestNetworkPercentage must not be greater than 100");
+			if (100u < config.HarvestBeneficiaryPercentage + config.HarvestNetworkPercentage) {
+				std::ostringstream out;
+				out
+						<< "HarvestBeneficiaryPercentage (" << config.HarvestBeneficiaryPercentage << ") plus HarvestNetworkPercentage ("
+						<< config.HarvestNetworkPercentage << ") must not be greater than 100";
+				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
+			}
 
-			if (99u < config.ImportanceActivityPercentage)
-				CATAPULT_THROW_VALIDATION_ERROR("ImportanceActivityPercentage must not be greater than 99");
+			if (99u < config.ImportanceActivityPercentage) {
+				std::ostringstream out;
+				out << "ImportanceActivityPercentage (" << config.ImportanceActivityPercentage << ") must not be greater than 99";
+				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
+			}
+
+			if (0 != config.VotingSetGrouping % config.ImportanceGrouping) {
+				std::ostringstream out;
+				out
+						<< "VotingSetGrouping (" << config.VotingSetGrouping << ") must be multiple of ImportanceGrouping ("
+						<< config.ImportanceGrouping << ")";
+				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
+			}
 		}
 
 		void ValidateConfiguration(
@@ -47,8 +68,14 @@ namespace catapult { namespace config {
 				CATAPULT_THROW_VALIDATION_ERROR("total currency inflation could not be calculated");
 
 			auto totalCurrency = blockChainConfig.InitialCurrencyAtomicUnits + totalInflation.first;
-			if (blockChainConfig.InitialCurrencyAtomicUnits > totalCurrency || totalCurrency > blockChainConfig.MaxMosaicAtomicUnits)
-				CATAPULT_THROW_VALIDATION_ERROR("sum of InitialCurrencyAtomicUnits and inflation must not exceed MaxMosaicAtomicUnits");
+			if (blockChainConfig.InitialCurrencyAtomicUnits > totalCurrency || totalCurrency > blockChainConfig.MaxMosaicAtomicUnits) {
+				std::ostringstream out;
+				out
+						<< "sum of InitialCurrencyAtomicUnits (" << blockChainConfig.InitialCurrencyAtomicUnits << ") and inflation ("
+						<< totalInflation.first << ") must not exceed MaxMosaicAtomicUnits ("
+						<< blockChainConfig.MaxMosaicAtomicUnits << ")";
+				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
+			}
 		}
 	}
 
