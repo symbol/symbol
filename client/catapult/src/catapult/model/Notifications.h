@@ -245,6 +245,28 @@ namespace catapult { namespace model {
 		uint32_t NumTransactions;
 	};
 
+	/// Notifies the arrival of a block (type information only).
+	struct BlockTypeNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Core_Block_Type_Notification;
+
+	public:
+		/// Creates a block type notification around \a blockType and \a blockHeight.
+		BlockTypeNotification(EntityType blockType, Height blockHeight)
+				: Notification(Notification_Type, sizeof(BlockTypeNotification))
+				, BlockType(blockType)
+				, BlockHeight(blockHeight)
+		{}
+
+	public:
+		/// Block type.
+		EntityType BlockType;
+
+		/// Block height.
+		Height BlockHeight;
+	};
+
 	/// Notifies the arrival of an importance block.
 	struct ImportanceBlockNotification : public Notification {
 	public:

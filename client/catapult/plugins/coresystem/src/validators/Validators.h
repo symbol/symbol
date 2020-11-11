@@ -64,6 +64,10 @@ namespace catapult { namespace validators {
 	// region Block / ImportanceBlock
 
 	/// Validator that applies to all block notifications and validates that:
+	/// - block type matches expected block type given \a importanceGrouping
+	DECLARE_STATELESS_VALIDATOR(BlockType, model::BlockTypeNotification)(uint64_t importanceGrouping);
+
+	/// Validator that applies to all block notifications and validates that:
 	/// - the block signer was eligible to create the block
 	DECLARE_STATEFUL_VALIDATOR(EligibleHarvester, model::BlockNotification)();
 

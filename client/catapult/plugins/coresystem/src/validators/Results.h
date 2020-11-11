@@ -73,6 +73,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because an importance block mismatch is detected.
 	DEFINE_CORE_RESULT(Importance_Block_Mismatch, 15);
 
+	/// Validation failed because an unexpected block type is detected.
+	DEFINE_CORE_RESULT(Unexpected_Block_Type, 16);
+
 	// region key link results
 
 	/// Validation failed because link action is invalid.

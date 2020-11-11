@@ -97,6 +97,9 @@ namespace catapult { namespace model {
 				if (blockSignerAddress != block.BeneficiaryAddress)
 					sub.notify(AccountAddressNotification(block.BeneficiaryAddress));
 
+				// raise a block type notification
+				sub.notify(BlockTypeNotification(block.Type, block.Height));
+
 				// raise an entity notification
 				sub.notify(EntityNotification(block.Network, block.Version, Block::Current_Version, Block::Current_Version));
 
