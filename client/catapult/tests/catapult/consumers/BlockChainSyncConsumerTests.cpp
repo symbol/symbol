@@ -442,7 +442,8 @@ namespace catapult { namespace consumers {
 			ConsumerTestContext(std::unique_ptr<io::BlockStorage>&& pStorage, std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
 					: Cache(CatapultCacheFactory::Create(CachePruneIdentifiers))
 					, Storage(std::move(pStorage), std::move(pStagingStorage))
-					, LastFinalizedHeight(Height(1)) {
+					, LocalFinalizedHeightHashPair{ Height(1), Hash256() }
+					, NetworkFinalizedHeightHashPair{ Height(1), Hash256() } {
 				{
 					auto cacheDelta = Cache.createDelta();
 					cacheDelta.dependentState().LastRecalculationHeight = Initial_Last_Recalculation_Height;
@@ -454,7 +455,10 @@ namespace catapult { namespace consumers {
 					return DifficultyChecker(blocks, cache);
 				};
 				handlers.LocalFinalizedHeightHashPairSupplier = [this]() {
-					return model::HeightHashPair{ LastFinalizedHeight, LastFinalizedHash };
+					return LocalFinalizedHeightHashPair;
+				};
+				handlers.NetworkFinalizedHeightHashPairSupplier = [this]() {
+					return NetworkFinalizedHeightHashPair;
 				};
 				handlers.UndoBlock = [this](const auto& block, auto& state, auto undoBlockType) {
 					return UndoBlock(block, state, undoBlockType);
@@ -482,8 +486,8 @@ namespace catapult { namespace consumers {
 			CatapultCacheFactory::PruneIdentifiers CachePruneIdentifiers;
 			cache::CatapultCache Cache;
 			io::BlockStorageCache Storage;
-			Height LastFinalizedHeight;
-			Hash256 LastFinalizedHash;
+			model::HeightHashPair LocalFinalizedHeightHashPair;
+			model::HeightHashPair NetworkFinalizedHeightHashPair;
 			std::vector<std::shared_ptr<model::Block>> OriginalBlocks; // original stored blocks (excluding nemesis)
 
 			MockDifficultyChecker DifficultyChecker;
@@ -674,7 +678,7 @@ namespace catapult { namespace consumers {
 			// Arrange:
 			ConsumerTestContext context;
 			context.seedStorage(localHeight);
-			context.LastFinalizedHeight = lastFinalizedHeight;
+			context.LocalFinalizedHeightHashPair = { lastFinalizedHeight, Hash256() };
 			auto input = CreateInput(remoteHeight, numRemoteBlocks, source);
 
 			// Act:
@@ -697,7 +701,7 @@ namespace catapult { namespace consumers {
 			// Arrange:
 			ConsumerTestContext context;
 			context.seedStorage(localHeight);
-			context.LastFinalizedHeight = lastFinalizedHeight;
+			context.LocalFinalizedHeightHashPair = { lastFinalizedHeight, Hash256() };
 			auto input = CreateInput(remoteHeight, numRemoteBlocks, source);
 
 			// Act:
@@ -1023,16 +1027,17 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhenBothLocalAndRemoteHaveFinalizedBlock) {
 		AssertCanSyncIncompatibleChainsSameFinalizationStatus([](auto& context) {
 			// Arrange: indicate common block is finalized
-			context.LastFinalizedHeight = Height(4);
-			context.LastFinalizedHash = context.Storage.view().loadBlockElement(Height(4))->EntityHash;
+			auto localBlockHash = context.Storage.view().loadBlockElement(Height(4))->EntityHash;
+			context.LocalFinalizedHeightHashPair = { Height(4), localBlockHash };
+			context.NetworkFinalizedHeightHashPair = { Height(4), localBlockHash };
 		});
 	}
 
 	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhenNeitherLocalNorRemoteHasFinalizedBlock) {
 		AssertCanSyncIncompatibleChainsSameFinalizationStatus([](auto& context) {
 			// Arrange: indicate unknown block is finalized
-			context.LastFinalizedHeight = Height(4);
-			context.LastFinalizedHash = test::GenerateRandomByteArray<Hash256>();
+			context.LocalFinalizedHeightHashPair = { Height(4), test::GenerateRandomByteArray<Hash256>() };
+			context.NetworkFinalizedHeightHashPair = { Height(4), test::GenerateRandomByteArray<Hash256>() };
 		});
 	}
 
@@ -1043,9 +1048,9 @@ namespace catapult { namespace consumers {
 		context.seedStorage(Height(7));
 		auto input = CreateInput(Height(5), 4);
 
-		// - indicate local has finalized block
-		context.LastFinalizedHeight = Height(5);
-		context.LastFinalizedHash = context.Storage.view().loadBlockElement(Height(5))->EntityHash;
+		// - indicate local has finalized block that is ahead of network
+		context.LocalFinalizedHeightHashPair = { Height(5), context.Storage.view().loadBlockElement(Height(5))->EntityHash };
+		context.NetworkFinalizedHeightHashPair = { Height(4), context.Storage.view().loadBlockElement(Height(4))->EntityHash };
 
 		// Act:
 		auto result = context.Consumer(input);
@@ -1067,8 +1072,8 @@ namespace catapult { namespace consumers {
 			auto input = CreateInput(Height(5), 4);
 
 			// - indicate remote has finalized block
-			context.LastFinalizedHeight = Height(5 + index);
-			context.LastFinalizedHash = input.blocks()[index].EntityHash;
+			context.LocalFinalizedHeightHashPair = { Height(4), context.Storage.view().loadBlockElement(Height(4))->EntityHash };
+			context.NetworkFinalizedHeightHashPair = { Height(5 + index), input.blocks()[index].EntityHash };
 
 			// - disable (statistics cache) pruning
 			SetFinalizedHeightInDependentState(context.Cache, Height(7));
@@ -1106,8 +1111,8 @@ namespace catapult { namespace consumers {
 		auto input = CreateInput(Height(5), 1);
 
 		// - indicate remote has finalized block
-		context.LastFinalizedHeight = Height(5);
-		context.LastFinalizedHash = input.blocks()[0].EntityHash;
+		context.LocalFinalizedHeightHashPair = { Height(4), context.Storage.view().loadBlockElement(Height(4))->EntityHash };
+		context.NetworkFinalizedHeightHashPair = { Height(5), input.blocks()[0].EntityHash };
 
 		// - disable (statistics cache) pruning
 		SetFinalizedHeightInDependentState(context.Cache, Height(5));
@@ -1416,7 +1421,7 @@ namespace catapult { namespace consumers {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-11
 		ConsumerTestContext context;
 		context.seedStorage(Height(7));
-		context.LastFinalizedHeight = Height(5);
+		context.LocalFinalizedHeightHashPair = { Height(5), Hash256() };
 		auto input = CreateInput(Height(8), 4);
 
 		SetFinalizedHeightInDependentState(context.Cache, Height(3));

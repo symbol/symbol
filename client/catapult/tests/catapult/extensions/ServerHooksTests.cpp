@@ -260,7 +260,7 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region localFinalizedHeightHashPairSupplier / chainSyncedPredicate
+	// region localFinalizedHeightHashPairSupplier / networkFinalizedHeightHashPairSupplier / chainSyncedPredicate
 
 	namespace {
 		struct LocalFinalizedHeightHashPairSupplierTraits {
@@ -270,8 +270,20 @@ namespace catapult { namespace extensions {
 				return hooks.localFinalizedHeightHashPairSupplier();
 			}
 
-			static void Set(ServerHooks& hooks, const LocalFinalizedHeightHashPairSupplier& supplier) {
+			static void Set(ServerHooks& hooks, const FinalizedHeightHashPairSupplier& supplier) {
 				hooks.setLocalFinalizedHeightHashPairSupplier(supplier);
+			}
+		};
+
+		struct NetworkFinalizedHeightHashPairSupplierTraits {
+			static constexpr auto Custom_Value = model::HeightHashPair{ Height(101), Hash256() };
+
+			static auto Get(const ServerHooks& hooks) {
+				return hooks.networkFinalizedHeightHashPairSupplier();
+			}
+
+			static void Set(ServerHooks& hooks, const FinalizedHeightHashPairSupplier& supplier) {
+				hooks.setNetworkFinalizedHeightHashPairSupplier(supplier);
 			}
 		};
 
@@ -295,12 +307,14 @@ namespace catapult { namespace extensions {
 #define SUPPLIER_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, LocalFinalizedHeightHashPairSupplier) \
+	SUPPLIER_TEST_ENTRY(TEST_NAME, NetworkFinalizedHeightHashPairSupplier) \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, ChainSyncedPredicate) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
 
 #define SUPPLIER_TEST_WITHOUT_DEFAULT(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, LocalFinalizedHeightHashPairSupplier) \
+	SUPPLIER_TEST_ENTRY(TEST_NAME, NetworkFinalizedHeightHashPairSupplier) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
 
 #define SUPPLIER_TEST_WITH_DEFAULT(TEST_NAME) \

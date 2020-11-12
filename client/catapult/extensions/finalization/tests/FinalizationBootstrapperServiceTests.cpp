@@ -226,7 +226,66 @@ namespace catapult { namespace finalization {
 
 	// region FinalizationBootstrapperService - hooks
 
-	TEST(TEST_CLASS, LocalFinalizedHeightHashPairSupplierHookIsRegistered) {
+	namespace {
+		std::unique_ptr<model::FinalizationProof> CreateProof(uint32_t epoch, uint32_t point, Height height, const Hash256& hash) {
+			auto pProof = std::make_unique<model::FinalizationProof>();
+			pProof->Size = sizeof(model::FinalizationProof);
+			pProof->Round = { FinalizationEpoch(epoch), FinalizationPoint(point), };
+			pProof->Height = height;
+			pProof->Hash = hash;
+			return pProof;
+		}
+
+		void RunLocalFinalizedHeightHashPairSupplierHookTest(Height localProofHeight, uint32_t localChainHeight) {
+			// Arrange:
+			TestContext context;
+			mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), localChainHeight);
+
+			auto proofHashes = test::GenerateRandomDataVector<Hash256>(4);
+			auto loadHash = [&context, &proofHashes, localProofHeight](auto height, size_t index) {
+				return localProofHeight == height
+						? context.testState().state().storage().view().loadBlockElement(height)->EntityHash
+						: proofHashes[index];
+			};
+
+			auto pProofStorage = std::make_unique<mocks::MockProofStorage>();
+			pProofStorage->setLastFinalizationProof(CreateProof(1, 1, Height(1), loadHash(Height(1), 0)));
+			pProofStorage->setLastFinalizationProof(CreateProof(2, 4, Height(10), loadHash(Height(10), 1)));
+			pProofStorage->setLastFinalizationProof(CreateProof(3, 9, Height(20), loadHash(Height(20), 2)));
+
+			auto pLastProof = utils::UniqueToShared(CreateProof(4, 16, Height(23), loadHash(Height(23), 3)));
+			pProofStorage->setLastFinalizationProof(pLastProof);
+			pProofStorage->saveProof(*pLastProof);
+
+			context.boot(std::move(pProofStorage));
+
+			// Act:
+			auto heightHashPair = context.testState().state().hooks().localFinalizedHeightHashPairSupplier()();
+
+			// Assert:
+			auto expectedHash = context.testState().state().storage().view().loadBlockElement(localProofHeight)->EntityHash;
+			EXPECT_EQ(model::HeightHashPair({ localProofHeight, expectedHash }), heightHashPair)
+					<< "localProofHeight: " << localProofHeight
+					<< "localChainHeight: " << localChainHeight;
+		}
+	}
+
+	TEST(TEST_CLASS, LocalFinalizedHeightHashPairSupplierHookIsRegistered_NetworkFinalizedBlockMatches) {
+		RunLocalFinalizedHeightHashPairSupplierHookTest(Height(23), 25);
+		RunLocalFinalizedHeightHashPairSupplierHookTest(Height(23), 23); // remote proof height is equal to local chain height
+	}
+
+	TEST(TEST_CLASS, LocalFinalizedHeightHashPairSupplierHookIsRegistered_IntermediateFinalizedBlockMatches) {
+		RunLocalFinalizedHeightHashPairSupplierHookTest(Height(10), 25);
+		RunLocalFinalizedHeightHashPairSupplierHookTest(Height(10), 15); // remote proof height is greater than local chain height
+	}
+
+	TEST(TEST_CLASS, LocalFinalizedHeightHashPairSupplierHookIsRegistered_NemesisFinalizedBlockMatches) {
+		RunLocalFinalizedHeightHashPairSupplierHookTest(Height(1), 25);
+		RunLocalFinalizedHeightHashPairSupplierHookTest(Height(1), 9); // remote proof height is greater than local chain height
+	}
+
+	TEST(TEST_CLASS, NetworkFinalizedHeightHashPairSupplierHookIsRegistered) {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 
@@ -234,7 +293,7 @@ namespace catapult { namespace finalization {
 		context.boot(FinalizationPoint(11), Height(123), hash);
 
 		// Act:
-		auto heightHashPair = context.testState().state().hooks().localFinalizedHeightHashPairSupplier()();
+		auto heightHashPair = context.testState().state().hooks().networkFinalizedHeightHashPairSupplier()();
 
 		// Assert:
 		EXPECT_EQ(model::HeightHashPair({ Height(123), hash }), heightHashPair);

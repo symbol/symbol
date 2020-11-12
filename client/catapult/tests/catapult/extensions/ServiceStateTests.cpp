@@ -122,82 +122,90 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region CreateLocalFinalizedHeightHashPairSupplier / CreateLocalFinalizedHeightSupplier
+	// region finalized height / height hash pair suppliers
 
 	namespace {
-		void PrepareLocalFinalizedHeightHashPairSupplier(
-				test::ServiceTestState& testState,
-				uint32_t maxRollbackBlocks,
-				uint32_t numBlocks,
-				const model::HeightHashPair& localFinalizedHeightHashPair) {
-			const_cast<uint32_t&>(testState.state().config().BlockChain.MaxRollbackBlocks) = maxRollbackBlocks;
+		struct LocalFinalizedHeightHashPairSupplierTraits {
+			static constexpr auto CreateSupplier = CreateLocalFinalizedHeightHashPairSupplier;
 
-			mocks::SeedStorageWithFixedSizeBlocks(testState.state().storage(), numBlocks);
+			static void SetSupplier(ServerHooks& hooks, const model::HeightHashPair& finalizedHeightHashPair) {
+				hooks.setLocalFinalizedHeightHashPairSupplier([finalizedHeightHashPair]() { return finalizedHeightHashPair; });
+			}
 
-			testState.state().hooks().setLocalFinalizedHeightHashPairSupplier([localFinalizedHeightHashPair]() {
-				return localFinalizedHeightHashPair;
-			});
-		}
+			static model::HeightHashPair GetExpected(Height height, const Hash256& hash) {
+				return { height, hash };
+			}
+		};
 
+		struct LocalFinalizedHeightSupplierTraits {
+			static constexpr auto CreateSupplier = CreateLocalFinalizedHeightSupplier;
+			static constexpr auto SetSupplier = LocalFinalizedHeightHashPairSupplierTraits::SetSupplier;
+
+			static Height GetExpected(Height height, const Hash256&) {
+				return height;
+			}
+		};
+
+		struct NetworkFinalizedHeightHashPairSupplierTraits {
+			static constexpr auto CreateSupplier = CreateNetworkFinalizedHeightHashPairSupplier;
+
+			static void SetSupplier(ServerHooks& hooks, const model::HeightHashPair& finalizedHeightHashPair) {
+				hooks.setNetworkFinalizedHeightHashPairSupplier([finalizedHeightHashPair]() { return finalizedHeightHashPair; });
+			}
+
+			static constexpr auto GetExpected = LocalFinalizedHeightHashPairSupplierTraits::GetExpected;
+		};
+	}
+
+#define HEIGHT_HASH_PAIR_SUPPLIER_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, CreateLocalFinalizedHeightHashPairSupplier_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LocalFinalizedHeightHashPairSupplierTraits>(); \
+	} \
+	TEST(TEST_CLASS, CreateLocalFinalizedHeightSupplier_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LocalFinalizedHeightSupplierTraits>(); \
+	} \
+	TEST(TEST_CLASS, CreateNetworkFinalizedHeightHashPairSupplier_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NetworkFinalizedHeightHashPairSupplierTraits>(); \
+	} \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	namespace {
+		template<typename TTraits>
 		void AssertLocalFinalizedHeightHashPairSupplier(uint32_t maxRollbackBlocks, uint32_t numBlocks, Height expectedHeight) {
 			// Arrange:
 			test::ServiceTestState testState;
 
 			auto lastFinalizedHash = test::GenerateRandomByteArray<Hash256>();
-			PrepareLocalFinalizedHeightHashPairSupplier(testState, maxRollbackBlocks, numBlocks, { Height(7), lastFinalizedHash });
+			const_cast<uint32_t&>(testState.state().config().BlockChain.MaxRollbackBlocks) = maxRollbackBlocks;
+
+			mocks::SeedStorageWithFixedSizeBlocks(testState.state().storage(), numBlocks);
+			TTraits::SetSupplier(testState.state().hooks(), { Height(7), lastFinalizedHash });
 
 			auto expectedHash = 0 == maxRollbackBlocks
 					? lastFinalizedHash
 					: testState.state().storage().view().loadBlockElement(expectedHeight)->EntityHash;
 
 			// Act:
-			auto supplier = CreateLocalFinalizedHeightHashPairSupplier(testState.state());
+			auto supplier = TTraits::CreateSupplier(testState.state());
 
 			// Assert:
-			EXPECT_EQ(model::HeightHashPair({ expectedHeight, expectedHash }), supplier())
+			EXPECT_EQ(TTraits::GetExpected(expectedHeight, expectedHash), supplier())
 					<< "maxRollbackBlocks = " << maxRollbackBlocks << ", numBlocks = " << numBlocks;
 		}
 	}
 
-	TEST(TEST_CLASS, CreateLocalFinalizedHeightHashPairSupplier_ReturnsRegisteredSupplierWhenMaxRollbackBlocksIsZero) {
-		AssertLocalFinalizedHeightHashPairSupplier(0, 4, Height(7));
-		AssertLocalFinalizedHeightHashPairSupplier(0, 20, Height(7));
+	HEIGHT_HASH_PAIR_SUPPLIER_TEST(ReturnsRegisteredSupplierWhenMaxRollbackBlocksIsZero) {
+		AssertLocalFinalizedHeightHashPairSupplier<TTraits>(0, 4, Height(7));
+		AssertLocalFinalizedHeightHashPairSupplier<TTraits>(0, 20, Height(7));
 	}
 
-	TEST(TEST_CLASS, CreateLocalFinalizedHeightHashPairSupplier_ReturnsStorageBasedSupplierWhenMaxRollbackBlocksIsNonzero) {
-		AssertLocalFinalizedHeightHashPairSupplier(5, 4, Height(1));
-		AssertLocalFinalizedHeightHashPairSupplier(5, 5, Height(1));
-		AssertLocalFinalizedHeightHashPairSupplier(5, 6, Height(1));
-		AssertLocalFinalizedHeightHashPairSupplier(5, 7, Height(2));
-		AssertLocalFinalizedHeightHashPairSupplier(5, 20, Height(15));
-	}
-
-	namespace {
-		void AssertLocalFinalizedHeightSupplier(uint32_t maxRollbackBlocks, uint32_t numBlocks, Height expectedHeight) {
-			// Arrange:
-			test::ServiceTestState testState;
-
-			PrepareLocalFinalizedHeightHashPairSupplier(testState, maxRollbackBlocks, numBlocks, { Height(7), Hash256() });
-
-			// Act:
-			auto supplier = CreateLocalFinalizedHeightSupplier(testState.state());
-
-			// Assert:
-			EXPECT_EQ(expectedHeight, supplier()) << "maxRollbackBlocks = " << maxRollbackBlocks << ", numBlocks = " << numBlocks;
-		}
-	}
-
-	TEST(TEST_CLASS, CreateLocalFinalizedHeightSupplier_ReturnsRegisteredSupplierWhenMaxRollbackBlocksIsZero) {
-		AssertLocalFinalizedHeightSupplier(0, 4, Height(7));
-		AssertLocalFinalizedHeightSupplier(0, 20, Height(7));
-	}
-
-	TEST(TEST_CLASS, CreateLocalFinalizedHeightSupplier_ReturnsStorageBasedSupplierWhenMaxRollbackBlocksIsNonzero) {
-		AssertLocalFinalizedHeightSupplier(5, 4, Height(1));
-		AssertLocalFinalizedHeightSupplier(5, 5, Height(1));
-		AssertLocalFinalizedHeightSupplier(5, 6, Height(1));
-		AssertLocalFinalizedHeightSupplier(5, 7, Height(2));
-		AssertLocalFinalizedHeightSupplier(5, 20, Height(15));
+	HEIGHT_HASH_PAIR_SUPPLIER_TEST(ReturnsStorageBasedSupplierWhenMaxRollbackBlocksIsNonzero) {
+		AssertLocalFinalizedHeightHashPairSupplier<TTraits>(5, 4, Height(1));
+		AssertLocalFinalizedHeightHashPairSupplier<TTraits>(5, 5, Height(1));
+		AssertLocalFinalizedHeightHashPairSupplier<TTraits>(5, 6, Height(1));
+		AssertLocalFinalizedHeightHashPairSupplier<TTraits>(5, 7, Height(2));
+		AssertLocalFinalizedHeightHashPairSupplier<TTraits>(5, 20, Height(15));
 	}
 
 	// endregion

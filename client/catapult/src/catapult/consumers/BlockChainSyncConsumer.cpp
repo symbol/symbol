@@ -171,12 +171,13 @@ namespace catapult { namespace consumers {
 
 				// 2. check that the remote chain is not too far behind the current chain
 				auto localFinalizedHeightHashPair = m_handlers.LocalFinalizedHeightHashPairSupplier();
-				auto localFinalizedHeight = std::min(storageView.chainHeight(), localFinalizedHeightHashPair.Height);
+				auto networkFinalizedHeightHashPair = m_handlers.NetworkFinalizedHeightHashPairSupplier();
 
-				auto isFinalizedBlockLocal = Contains(storageView, localFinalizedHeightHashPair);
-				auto isFinalizedBlockRemote = Contains(elements, localFinalizedHeightHashPair);
+				auto isFinalizedBlockLocal = Contains(storageView, networkFinalizedHeightHashPair);
+				auto isFinalizedBlockRemote = Contains(elements, networkFinalizedHeightHashPair);
 				auto isFinalizedBlockUpdate = !isFinalizedBlockLocal && isFinalizedBlockRemote;
 
+				auto localFinalizedHeight = localFinalizedHeightHashPair.Height;
 				if (peerStartHeight <= localFinalizedHeight && !isFinalizedBlockUpdate)
 					return Abort(Failure_Consumer_Remote_Chain_Too_Far_Behind);
 
@@ -299,8 +300,8 @@ namespace catapult { namespace consumers {
 				if (storageView.chainHeight() < heightHashPair.Height)
 					return false;
 
-				auto pBlockElement = storageView.loadBlockElement(heightHashPair.Height);
-				return heightHashPair.Hash == pBlockElement->EntityHash;
+				auto storageHashRange = storageView.loadHashesFrom(heightHashPair.Height, 1);
+				return heightHashPair.Hash == *storageHashRange.cbegin();
 			}
 
 			static bool Contains(const BlockElements& elements, const model::HeightHashPair& heightHashPair) {

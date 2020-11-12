@@ -71,7 +71,7 @@ namespace catapult { namespace mocks {
 
 		/// Sets the last finalization proof to \a pProof.
 		void setLastFinalizationProof(const std::shared_ptr<const model::FinalizationProof>& pProof) {
-			m_pProof = pProof;
+			m_proofs.push_back(pProof);
 		}
 
 	public:
@@ -83,14 +83,20 @@ namespace catapult { namespace mocks {
 			if (FinalizationEpoch() == epoch || epoch > m_epoch)
 				CATAPULT_THROW_INVALID_ARGUMENT("epoch must be nonzero and no greater than finalizationPoint");
 
-			return m_epoch == epoch ? m_pProof : nullptr;
+			auto iter = std::find_if(m_proofs.crbegin(), m_proofs.crend(), [epoch](const auto& pProof) {
+				return epoch == pProof->Round.Epoch;
+			});
+			return m_proofs.crend() == iter ? nullptr : *iter;
 		}
 
 		std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override {
 			if (Height() == height || height > m_height)
 				CATAPULT_THROW_INVALID_ARGUMENT("height must be nonzero and no greater than finalizedHeight");
 
-			return m_height == height ? m_pProof : nullptr;
+			auto iter = std::find_if(m_proofs.crbegin(), m_proofs.crend(), [height](const auto& pProof) {
+				return height == pProof->Height;
+			});
+			return m_proofs.crend() == iter ? nullptr : *iter;
 		}
 
 		void saveProof(const model::FinalizationProof& proof) override {
@@ -108,7 +114,7 @@ namespace catapult { namespace mocks {
 		Height m_height;
 		Hash256 m_hash;
 
-		std::shared_ptr<const model::FinalizationProof> m_pProof;
+		std::vector<std::shared_ptr<const model::FinalizationProof>> m_proofs;
 		std::vector<model::FinalizationStatistics> m_savedProofDescriptors;
 	};
 }}

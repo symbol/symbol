@@ -28,6 +28,7 @@
 #include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
+#include "catapult/io/BlockStorageCache.h"
 #include "catapult/subscribers/FinalizationSubscriber.h"
 
 namespace catapult { namespace finalization {
@@ -115,6 +116,14 @@ namespace catapult { namespace finalization {
 				auto view = aggregator.view();
 				return view.findEstimate(view.maxFinalizationRound() - delta).Height;
 			}
+
+			Hash256 LoadHashAtHeight(const io::BlockStorageView& blockStorage, Height height) {
+				if (height > blockStorage.chainHeight())
+					return Hash256();
+
+				auto storageHashRange = blockStorage.loadHashesFrom(height, 1);
+				return *storageHashRange.cbegin();
+			}
 		}
 
 		class FinalizationBootstrapperServiceRegistrar : public extensions::ServiceRegistrar {
@@ -159,7 +168,24 @@ namespace catapult { namespace finalization {
 				auto pProofStorageCache = CreateProofStorageCache(std::move(m_pProofStorage), locator, state);
 
 				// register hooks
-				state.hooks().setLocalFinalizedHeightHashPairSupplier([&proofStorage = *pProofStorageCache]() {
+				const auto& blockStorage = state.storage();
+				state.hooks().setLocalFinalizedHeightHashPairSupplier([&proofStorage = *pProofStorageCache, &blockStorage]() {
+					// 1. check the most recent proof for a match in storage
+					auto finalizationStatistics = proofStorage.view().statistics();
+					if (finalizationStatistics.Hash == LoadHashAtHeight(blockStorage.view(), finalizationStatistics.Height))
+						return model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash };
+
+					// 2. reverse search through epochs
+					auto epoch = finalizationStatistics.Round.Epoch;
+					while (true) {
+						epoch = epoch - FinalizationEpoch(1);
+
+						auto pProof = proofStorage.view().loadProof(epoch);
+						if (pProof->Hash == LoadHashAtHeight(blockStorage.view(), pProof->Height))
+							return model::HeightHashPair{ pProof->Height, pProof->Hash };
+					}
+				});
+				state.hooks().setNetworkFinalizedHeightHashPairSupplier([&proofStorage = *pProofStorageCache]() {
 					auto finalizationStatistics = proofStorage.view().statistics();
 					return model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash };
 				});

@@ -233,10 +233,16 @@ namespace catapult { namespace extensions {
 	// region utils
 
 	/// Creates and returns a local finalized height hash pair supplier based on \a state.
+	/// \note Result is guaranteed to be in local block chain storage.
 	supplier<model::HeightHashPair> CreateLocalFinalizedHeightHashPairSupplier(const ServiceState& state);
 
 	/// Creates and returns a local finalized height supplier based on \a state.
+	/// \note Result is guaranteed to be in local block chain storage.
 	supplier<Height> CreateLocalFinalizedHeightSupplier(const ServiceState& state);
+
+	/// Creates and returns a network finalized height hash pair supplier based on \a state.
+	/// \note Result is *NOT* guaranteed to be in local block chain storage.
+	supplier<model::HeightHashPair> CreateNetworkFinalizedHeightHashPairSupplier(const ServiceState& state);
 
 	/// Creates outgoing selector settings based on \a state for \a serviceId and \a requiredRole.
 	SelectorSettings CreateOutgoingSelectorSettings(

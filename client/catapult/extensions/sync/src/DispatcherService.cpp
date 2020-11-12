@@ -171,6 +171,7 @@ namespace catapult { namespace sync {
 			};
 
 			syncHandlers.LocalFinalizedHeightHashPairSupplier = extensions::CreateLocalFinalizedHeightHashPairSupplier(state);
+			syncHandlers.NetworkFinalizedHeightHashPairSupplier = extensions::CreateNetworkFinalizedHeightHashPairSupplier(state);
 
 			auto pUndoObserver = utils::UniqueToShared(extensions::CreateUndoEntityObserver(pluginManager));
 			syncHandlers.UndoBlock = [&rollbackInfo, &pluginManager, pUndoObserver](

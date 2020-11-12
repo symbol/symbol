@@ -77,8 +77,8 @@ namespace catapult { namespace consumers {
 		/// Prototype for checking block difficulties.
 		using DifficultyCheckerFunc = predicate<const std::vector<const model::Block*>&, const cache::CatapultCache&>;
 
-		/// Prototype for retrieving the local finalized height hash pair.
-		using LocalFinalizedHeightHashPairSupplierFunc = supplier<model::HeightHashPair>;
+		/// Prototype for retrieving a finalized height hash pair.
+		using FinalizedHeightHashPairSupplierFunc = supplier<model::HeightHashPair>;
 
 		/// Prototype for undoing a block.
 		/// \note This is called with all rolled back blocks and the (new) common block.
@@ -101,7 +101,10 @@ namespace catapult { namespace consumers {
 		DifficultyCheckerFunc DifficultyChecker;
 
 		/// Supplies the local finalized height hash pair.
-		LocalFinalizedHeightHashPairSupplierFunc LocalFinalizedHeightHashPairSupplier;
+		FinalizedHeightHashPairSupplierFunc LocalFinalizedHeightHashPairSupplier;
+
+		/// Supplies the network finalized height hash pair.
+		FinalizedHeightHashPairSupplierFunc NetworkFinalizedHeightHashPairSupplier;
 
 		/// Processes (validates and executes) a block chain.
 		BlockChainProcessor Processor;

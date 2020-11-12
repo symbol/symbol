@@ -121,7 +121,7 @@ namespace catapult { namespace chain {
 				return;
 
 			auto statistics = ToFinalizationStatistics(bestPrecommitDescriptor);
-			CATAPULT_LOG(debug)
+			CATAPULT_LOG(info)
 					<< "finalization round " << statistics.Round
 					<< " reached consensus among "<< bestPrecommitDescriptor.Proof.size() << " messages"
 					<< " for block " << statistics.Hash << " at " << statistics.Height;

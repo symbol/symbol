@@ -71,8 +71,8 @@ namespace catapult { namespace extensions {
 	/// Retriever that returns the network chain heights for a number of peers.
 	using RemoteChainHeightsRetriever = std::function<thread::future<std::vector<Height>> (size_t)>;
 
-	/// Supplier for retrieving the local finalized height hash pair.
-	using LocalFinalizedHeightHashPairSupplier = supplier<model::HeightHashPair>;
+	/// Supplier for retrieving a finalized height hash pair.
+	using FinalizedHeightHashPairSupplier = supplier<model::HeightHashPair>;
 
 	/// Predicate for determining if a chain is synced.
 	using ChainSyncedPredicate = predicate<>;
@@ -136,8 +136,13 @@ namespace catapult { namespace extensions {
 		}
 
 		/// Sets the local finalized height hash pair \a supplier.
-		void setLocalFinalizedHeightHashPairSupplier(const LocalFinalizedHeightHashPairSupplier& supplier) {
+		void setLocalFinalizedHeightHashPairSupplier(const FinalizedHeightHashPairSupplier& supplier) {
 			SetOnce(m_localFinalizedHeightHashPairSupplier, supplier);
+		}
+
+		/// Sets the network finalized height hash pair \a supplier.
+		void setNetworkFinalizedHeightHashPairSupplier(const FinalizedHeightHashPairSupplier& supplier) {
+			SetOnce(m_networkFinalizedHeightHashPairSupplier, supplier);
 		}
 
 		/// Sets the chain synced \a predicate.
@@ -202,8 +207,15 @@ namespace catapult { namespace extensions {
 		}
 
 		/// Gets the local finalized height hash pair supplier.
+		/// \note This height hash pair must be in the local block chain.
 		auto localFinalizedHeightHashPairSupplier() const {
 			return Require(m_localFinalizedHeightHashPairSupplier);
+		}
+
+		/// Gets the network finalized height hash pair supplier.
+		/// \note This height hash pair might not be in the local block chain.
+		auto networkFinalizedHeightHashPairSupplier() const {
+			return Require(m_networkFinalizedHeightHashPairSupplier);
 		}
 
 		/// Gets the chain synced predicate.
@@ -239,7 +251,8 @@ namespace catapult { namespace extensions {
 		TransactionRangeConsumerFactoryFunc m_transactionRangeConsumerFactory;
 
 		RemoteChainHeightsRetriever m_remoteChainHeightsRetriever;
-		LocalFinalizedHeightHashPairSupplier m_localFinalizedHeightHashPairSupplier;
+		FinalizedHeightHashPairSupplier m_localFinalizedHeightHashPairSupplier;
+		FinalizedHeightHashPairSupplier m_networkFinalizedHeightHashPairSupplier;
 		ChainSyncedPredicate m_chainSyncedPredicate;
 		std::vector<KnownHashPredicate> m_knownHashPredicates;
 	};

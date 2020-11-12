@@ -198,6 +198,7 @@ namespace catapult { namespace sync {
 
 				// set up suppliers
 				state.hooks().setLocalFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair{ Height(1), Hash256() }; });
+				state.hooks().setNetworkFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair{ Height(1), Hash256() }; });
 
 				// configure subscribers
 				testState().nodeSubscriber().enableBanSimulation();

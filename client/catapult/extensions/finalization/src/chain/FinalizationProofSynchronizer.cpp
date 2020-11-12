@@ -86,6 +86,9 @@ namespace catapult { namespace chain {
 							return ionet::NodeInteractionResultCode::Failure;
 						}
 
+						CATAPULT_LOG(info)
+								<< "saving proof for round " << pProof->Round << " at height " << pProof->Height
+								<< " with hash " << pProof->Hash;
 						proofStorage.modifier().saveProof(*pProof);
 						return ionet::NodeInteractionResultCode::Success;
 					} catch (const catapult_runtime_error& e) {

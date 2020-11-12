@@ -96,6 +96,7 @@ namespace catapult { namespace handlers {
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pProof.get()), sizeof(model::FinalizationProof) });
 
 			pProof->Size = SizeOf32<model::FinalizationProof>();
+			pProof->Round = { FinalizationEpoch(3), FinalizationPoint(11) };
 			pProof->Height = Height(246);
 			return pProof;
 		}

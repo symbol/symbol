@@ -46,6 +46,13 @@ namespace catapult { namespace extensions {
 		};
 	}
 
+	supplier<model::HeightHashPair> CreateNetworkFinalizedHeightHashPairSupplier(const ServiceState& state) {
+		auto maxRollbackBlocks = state.config().BlockChain.MaxRollbackBlocks;
+		return 0 == maxRollbackBlocks
+				? state.hooks().networkFinalizedHeightHashPairSupplier()
+				: CreateLocalFinalizedHeightHashPairSupplier(state);
+	}
+
 	SelectorSettings CreateOutgoingSelectorSettings(
 			const ServiceState& state,
 			ionet::ServiceIdentifier serviceId,
