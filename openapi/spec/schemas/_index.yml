@@ -185,6 +185,8 @@ ServerInfoDTO:
   "$ref": "../core/node/schemas/ServerInfoDTO.yml"
 StorageInfoDTO:
   "$ref": "../core/node/schemas/StorageInfoDTO.yml"
+UnlockedAccountDTO:
+  "$ref": "../core/node/schemas/UnlockedAccountDTO.yml"
 
 # Core - Transaction
 TransactionGroupEnum:

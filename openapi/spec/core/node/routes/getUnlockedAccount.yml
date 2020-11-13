@@ -1,0 +1,12 @@
+tags:
+  - Node routes
+summary: Get the unlocked harvesting account public keys.
+description: Returns array of unlocked account public keys.
+operationId: getUnlockedAccount
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/UnlockedAccountDTO.yml"
