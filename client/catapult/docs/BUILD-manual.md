@@ -40,15 +40,15 @@ function download_all {
 	download_boost 73
 
 	download_git_dependency google googletest release-1.10.0
-	download_git_dependency google benchmark v1.5.1
+	download_git_dependency google benchmark v1.5.2
 
-	download_git_dependency mongodb mongo-c-driver 1.17.0
-	download_git_dependency mongodb mongo-cxx-driver r3.6.0
+	download_git_dependency mongodb mongo-c-driver 1.17.2
+	download_git_dependency mongodb mongo-cxx-driver r3.6.1
 
-	download_git_dependency zeromq libzmq v4.3.2
-	download_git_dependency zeromq cppzmq v4.6.0
+	download_git_dependency zeromq libzmq v4.3.3
+	download_git_dependency zeromq cppzmq v4.7.1
 
-	download_git_dependency facebook rocksdb v6.11.4
+	download_git_dependency facebook rocksdb v6.13.3
 }
 
 cd ${CAT_DEPS_DIR}

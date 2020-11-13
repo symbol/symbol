@@ -82,7 +82,8 @@ namespace catapult { namespace test {
 	void SubscribeForAddresses(zmq::socket_t& socket, zeromq::TransactionMarker marker, const model::UnresolvedAddressSet& addresses) {
 		for (const auto& address : addresses) {
 			auto topic = zeromq::CreateTopic(marker, address);
-			socket.setsockopt(ZMQ_SUBSCRIBE, topic.data(), topic.size());
+			auto topicBuffer = zmq::const_buffer(reinterpret_cast<const void*>(topic.data()), topic.size());
+			socket.set(zmq::sockopt::subscribe, topicBuffer);
 		}
 	}
 

@@ -21,7 +21,15 @@
 #pragma once
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/functions.h"
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4267) /* "conversion from 'size_t' to 'uint32_t', possible loss of data" */
+#endif
 #include <zmq_addon.hpp>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 namespace catapult {
 	namespace model {
