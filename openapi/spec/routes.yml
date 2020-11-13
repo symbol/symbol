@@ -69,6 +69,9 @@
 /node/server:
   get:
     $ref: "./core/node/routes/getServerInfo.yml"
+/node/unlockedaccount:
+  get:
+    $ref: "./core/node/routes/getUnlockedAccount.yml"
 
 # Core - Transaction
 /transactions:
