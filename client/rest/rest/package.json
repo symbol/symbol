@@ -9,7 +9,7 @@
     "rebuild": "npm run clean && npm run build",
     "version": "echo $npm_package_version",
     "start": "node _build/index.js",
-    "start:dev": "node src/index.js target/gateways/rest/rest.json",
+    "start:dev": "nodemon src/index.js target/gateways/rest/rest.json",
     "test": "mocha --full-trace --recursive",
     "test:coverage": "nyc npm test && nyc report --reporter=text-lcov",
     "test:jenkins": "cross-env JUNIT_REPORT_PATH=test-results.xml mocha --reporter mocha-jenkins-reporter --mongoHost db --forbid-only --full-trace --recursive test || exit 0",
@@ -43,9 +43,10 @@
     "mocha": "^6.1.4",
     "mocha-jenkins-reporter": "^0.4.3",
     "ncp": "^2.0.0",
+    "nodemon": "^2.0.6",
     "rimraf": "^2.6.3",
     "sinon": "^7.3.2",
-    "symbol-bootstrap": "^0.2.0"
+    "symbol-bootstrap": "0.2.1"
   },
   "dependencies": {
     "catapult-sdk": "link:../catapult-sdk",

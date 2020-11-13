@@ -54,14 +54,17 @@ describe('namespace db', () => {
 			sortDirection: -1
 		};
 
-		const createNamespace = (objectId, aliasType, level0, ownerAddress, registrationType, active = true) => ({
+		const createNamespace = (objectId, aliasType, level0, ownerAddress, registrationType,
+			active = true, expirationHeight = { start: 1, end: 1000 }) => ({
 			_id: createObjectId(objectId),
 			meta: { active },
 			namespace: {
 				alias: { type: aliasType },
 				level0: convertToLong(level0),
 				ownerAddress: ownerAddress ? Buffer.from(ownerAddress) : undefined,
-				registrationType
+				registrationType,
+				startHeight: convertToLong(expirationHeight.start),
+				endHeight: convertToLong(expirationHeight.end)
 			}
 		});
 
@@ -121,9 +124,13 @@ describe('namespace db', () => {
 			// Arrange:
 			const dbNamespaces = () => [
 				createNamespace(10, 2, level0Test1, ownerAddressTest1, 0),
+				createNamespace(11, 2, level0Test1, ownerAddressTest1, 0, false),
+				createNamespace(12, 2, level0Test1, ownerAddressTest1, 0, true, { start: 0, end: 9 }),
 				createNamespace(20, 1, level0Test2, ownerAddressTest1, 0),
 				createNamespace(30, 1, level0Test1, ownerAddressTest2, 0),
-				createNamespace(40, 1, level0Test1, ownerAddressTest1, 1)
+				createNamespace(40, 1, level0Test1, ownerAddressTest1, 1),
+				createNamespace(50, 1, level0Test1, ownerAddressTest1, 0, false),
+				createNamespace(60, 1, level0Test1, ownerAddressTest1, 0, true, { start: 0, end: 9 })
 			];
 
 			it('aliasType', () =>
@@ -148,6 +155,12 @@ describe('namespace db', () => {
 				runTestAndVerifyIds(
 					dbNamespaces(),
 					db => db.namespaces(undefined, undefined, undefined, 1, paginationOptions), [40]
+				));
+
+			it('all', () =>
+				runTestAndVerifyIds(
+					dbNamespaces(),
+					db => db.namespaces(undefined, undefined, undefined, undefined, paginationOptions), [10, 20, 30, 40]
 				));
 		});
 
@@ -371,6 +384,9 @@ describe('namespace db', () => {
 		};
 		const lifetime = { start: 0, end: 100 };
 		const createNamespace = (namespaceId, aliasTarget, aliasType, depth, expirationHeight) => ({
+			meta: {
+				active: true
+			},
 			namespace: {
 				depth,
 				level0: 1 >= depth ? convertToLong(namespaceId) : '',
@@ -399,6 +415,7 @@ describe('namespace db', () => {
 
 			// Act + Assert:
 			return db.connect(testDbOptions.url, 'test')
+				.then(() => populateCollection(db, 'chainStatistic', { current: { height: 1 } }))
 				.then(() => populateCollection(db, 'namespaces', [namespace1, namespace2, namespace3, namespace4]))
 				.then(() => sanitizeDbEntities([namespace1, namespace2, namespace3, namespace4]))
 				.then(() => dbFacade.activeNamespacesWithAlias(aliasTypeMosaic, [76756, 87823]))
@@ -414,11 +431,13 @@ describe('namespace db', () => {
 			const namespace2 = createNamespace(67891, testAddress.two, aliasTypeAddress, 2, lifetime);
 			const namespace3 = createNamespace(34567, testAddress.three, aliasTypeAddress, 3, lifetime);
 			const namespace4 = createNamespace(12345, 76756, aliasTypeMosaic, 1, lifetime);
+			const namespace5 = createNamespace(12345, 76756, aliasTypeMosaic, 1, { start: 0, end: 9 });
 
 			// Act + Assert:
 			return db.connect(testDbOptions.url, 'test')
-				.then(() => populateCollection(db, 'namespaces', [namespace1, namespace2, namespace3, namespace4]))
-				.then(() => sanitizeDbEntities([namespace1, namespace2, namespace3, namespace4]))
+				.then(() => populateCollection(db, 'chainStatistic', { current: { height: 10 } }))
+				.then(() => populateCollection(db, 'namespaces', [namespace1, namespace2, namespace3, namespace4, namespace5]))
+				.then(() => sanitizeDbEntities([namespace1, namespace2, namespace3, namespace4, namespace5]))
 				.then(() => dbFacade.activeNamespacesWithAlias(
 					aliasTypeAddress,
 					[
@@ -439,6 +458,7 @@ describe('namespace db', () => {
 
 			// Act + Assert:
 			return db.connect(testDbOptions.url, 'test')
+				.then(() => populateCollection(db, 'chainStatistic', { current: { height: 10000 } }))
 				.then(() => populateCollection(db, 'namespaces', [namespace1, namespace2]))
 				.then(() => sanitizeDbEntities([namespace1, namespace2]))
 				.then(() => dbFacade.activeNamespacesWithAlias(aliasTypeMosaic, [12121]))
@@ -455,6 +475,7 @@ describe('namespace db', () => {
 
 			// Act + Assert:
 			return db.connect(testDbOptions.url, 'test')
+				.then(() => populateCollection(db, 'chainStatistic', { current: { height: 10000 } }))
 				.then(() => populateCollection(db, 'namespaces', [namespace1, namespace2]))
 				.then(() => sanitizeDbEntities([namespace1, namespace2]))
 				.then(() => dbFacade.activeNamespacesWithAlias(
@@ -471,14 +492,13 @@ describe('namespace db', () => {
 			// Arrange:
 			const db = new CatapultDb({ networkId: testDbOptions.networkId });
 			const dbFacade = new NamespaceDb(db);
-			const chainHeight = 10;
 			const namespace1 = createNamespace(12345, 76756, aliasTypeMosaic, 1, { start: 0, end: 5 });
 			const namespace2 = createNamespace(67891, 87823, aliasTypeMosaic, 2, { start: 0, end: 10 });
 			const namespace3 = createNamespace(34567, 57231, aliasTypeMosaic, 3, { start: 0, end: 20 });
 
 			// Act + Assert:
 			return db.connect(testDbOptions.url, 'test')
-				.then(() => populateCollection(db, 'blocks', [...Array(chainHeight)].map(() => ({}))))
+				.then(() => populateCollection(db, 'chainStatistic', { current: { height: 10 } }))
 				.then(() => populateCollection(db, 'namespaces', [namespace1, namespace2, namespace3]))
 				.then(() => sanitizeDbEntities([namespace1, namespace2, namespace3]))
 				.then(() => dbFacade.activeNamespacesWithAlias(aliasTypeMosaic, [76756, 87823, 57231]))
@@ -490,14 +510,13 @@ describe('namespace db', () => {
 			// Arrange:
 			const db = new CatapultDb({ networkId: testDbOptions.networkId });
 			const dbFacade = new NamespaceDb(db);
-			const chainHeight = 10;
 			const namespace1 = createNamespace(12345, testAddress.one, aliasTypeAddress, 1, { start: 0, end: 5 });
 			const namespace2 = createNamespace(67891, testAddress.two, aliasTypeAddress, 2, { start: 0, end: 10 });
 			const namespace3 = createNamespace(34567, testAddress.three, aliasTypeAddress, 3, { start: 0, end: 20 });
 
 			// Act + Assert:
 			return db.connect(testDbOptions.url, 'test')
-				.then(() => populateCollection(db, 'blocks', [...Array(chainHeight)].map(() => ({}))))
+				.then(() => populateCollection(db, 'chainStatistic', { current: { height: 10 } }))
 				.then(() => populateCollection(db, 'namespaces', [namespace1, namespace2, namespace3]))
 				.then(() => sanitizeDbEntities([namespace1, namespace2, namespace3]))
 				.then(() => dbFacade.activeNamespacesWithAlias(

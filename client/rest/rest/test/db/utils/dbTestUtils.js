@@ -260,6 +260,7 @@ const runDbTest = (dbEntities, collectionName, createDbFacade, issueDbCommand, a
 
 	// Act + Assert:
 	return db.connect(testDbOptions.url, 'test')
+		.then(() => populateCollection(db, 'chainStatistic', { current: { height: 10 } }))
 		.then(() => populateCollection(db, collectionName, dbEntities))
 		.then(() => sanitizeDbEntities(collectionName, dbEntities))
 		.then(() => issueDbCommand(dbFacade))
