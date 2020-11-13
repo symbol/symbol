@@ -163,7 +163,9 @@ const toStringInternal = code => {
 	case 0x80FF0002: return 'Failure_Chain_Block_Not_Hit';
 	case 0x80FF0003: return 'Failure_Chain_Block_Inconsistent_State_Hash';
 	case 0x80FF0004: return 'Failure_Chain_Block_Inconsistent_Receipts_Hash';
-	case 0x80FF0005: return 'Failure_Chain_Unconfirmed_Cache_Too_Full';
+	case 0x80FF0005: return 'Failure_Chain_Block_Invalid_Vrf_Proof';
+	case 0x80FF0006: return 'Failure_Chain_Block_Unknown_Signer';
+	case 0x80FF0007: return 'Failure_Chain_Unconfirmed_Cache_Too_Full';
 	case 0x80FE0001: return 'Failure_Consumer_Empty_Input';
 	case 0x80FE0002: return 'Failure_Consumer_Block_Transactions_Hash_Mismatch';
 	case 0x41FE0003: return 'Neutral_Consumer_Hash_In_Recency_Cache';
