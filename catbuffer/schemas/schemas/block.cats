@@ -17,9 +17,6 @@ struct VrfProof
 
 # binary layout for a block header
 struct BlockHeader
-	const uint8 version = 1
-	const EntityType entityType = 0x8143
-
 	inline SizePrefixedEntity
 	inline VerifiableEntity
 	inline EntityBody
@@ -54,5 +51,42 @@ struct BlockHeader
 	# fee multiplier applied to block transactions
 	feeMultiplier = BlockFeeMultiplier
 
+# binary layout for an importance block footer
+struct ImportanceBlockFooter
+	# number of voting eligible accounts
+	votingEligibleAccountsCount = uint32
+
+	# number of harvesting eligible accounts
+	harvestingEligibleAccountsCount = uint64
+
+	# total balance eligible for voting
+	totalVotingBalance = Amount
+
+	# previous importance block hash
+	previousImportanceBlockHash = Hash256
+
+# binary layout for a nemesis block header
+struct NemesisBlockHeader
+	const uint8 version = 1
+	const EntityType entityType = 0x8043
+
+	inline BlockHeader
+	inline ImportanceBlockFooter
+
+# binary layout for a normal block header
+struct NormalBlockHeader
+	const uint8 version = 1
+	const EntityType entityType = 0x8143
+
+	inline BlockHeader
+
 	# reserved padding to align end of BlockHeader on 8-byte boundary
 	blockHeader_Reserved1 = uint32
+
+# binary layout for an importance block header
+struct ImportanceBlockHeader
+	const uint8 version = 1
+	const EntityType entityType = 0x8243
+
+	inline BlockHeader
+	inline ImportanceBlockFooter
