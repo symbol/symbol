@@ -250,6 +250,7 @@ describe('model schema builder', () => {
 
 				'nodeInfo.publicKey',
 				'nodeInfo.networkGenerationHashSeed',
+				'nodeInfo.nodePublicKey',
 				'stateTree.tree.schemaName'
 			]);
 		});

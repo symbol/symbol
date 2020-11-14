@@ -116,8 +116,10 @@ module.exports = {
 				.singleUse()
 				.then(connection => connection.pushPull(packetBuffer, timeout))
 				.then(packet => {
+					const response = buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo);
+					response.payload.nodePublicKey = services.config.apiNode.nodePublicKey;
 					res.send(
-						buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo)
+						response
 					);
 					next();
 				});
