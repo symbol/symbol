@@ -108,13 +108,15 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
-			model::SizePrefixedEntity entity;
-			test::FillWithRandomData(entity);
+			// - use vector as stand in for SizePrefixedEntity to avoid `downcast of address` ubsan error
+			//   (notice that this test provides a stricter safety guarantee than necessary because real usage checks size against
+			//   sizeof((Embedded)Transaction) before calling isSizeValid)
+			auto entity = GenerateRandomVector(sizeof(model::SizePrefixedEntity));
 
 			// Act + Assert:
 			EXPECT_FALSE(IsSizeValidDispatcher(
 					*pPlugin,
-					static_cast<typename TTraits::TransactionType&>(entity),
+					reinterpret_cast<typename TTraits::TransactionType&>(entity[0]),
 					sizeof(model::SizePrefixedEntity)));
 		}
 

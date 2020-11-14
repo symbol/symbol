@@ -198,11 +198,13 @@ namespace catapult { namespace plugins {
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
 
-		SizePrefixedEntity entity;
-		test::FillWithRandomData(entity);
+		// - use vector as stand in for SizePrefixedEntity to avoid `downcast of address` ubsan error
+		//   (notice that this test provides a stricter safety guarantee than necessary because real usage checks size against
+		//   sizeof(EmbeddedTransaction) before calling isSizeValid)
+		auto entity = test::GenerateRandomVector(sizeof(SizePrefixedEntity));
 
 		// Assert:
-		EXPECT_FALSE(IsSizeValidDispatcher(*pPlugin, static_cast<AggregateTransaction&>(entity), sizeof(SizePrefixedEntity)));
+		EXPECT_FALSE(IsSizeValidDispatcher(*pPlugin, reinterpret_cast<AggregateTransaction&>(entity[0]), sizeof(SizePrefixedEntity)));
 	}
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenAnySubTransactionIsNotSupported) {
