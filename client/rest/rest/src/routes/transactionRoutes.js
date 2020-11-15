@@ -79,7 +79,6 @@ module.exports = {
 					? routeUtils.parseArgument(params, 'fromTransferAmount', 'uint64') : undefined,
 				toTransferAmount: params.toTransferAmount ? routeUtils.parseArgument(params, 'toTransferAmount', 'uint64') : undefined
 			};
-
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
 
 			return db.transactions(params.group, filters, options)

@@ -326,14 +326,19 @@ class CatapultDb {
 			if (offsetCondition)
 				conditions = Object.assign(conditions, offsetCondition);
 
+			if (undefined !== filters.fromHeight || undefined !== filters.toHeight) {
+				const heightPath = 'meta.height';
+				conditions[heightPath] = {};
+
+				if (undefined !== filters.fromHeight)
+					conditions[heightPath].$gte = convertToLong(filters.fromHeight);
+
+				if (undefined !== filters.toHeight)
+					conditions[heightPath].$lte = convertToLong(filters.toHeight);
+			}
+
 			if (undefined !== filters.height)
 				conditions['meta.height'] = convertToLong(filters.height);
-
-			if (undefined !== filters.fromHeight)
-				conditions['meta.height'] = { $gte: convertToLong(filters.fromHeight) };
-
-			if (undefined !== filters.toHeight)
-				conditions['meta.height'] = { $lte: convertToLong(filters.toHeight) };
 
 			if (!filters.embedded)
 				conditions['meta.aggregateId'] = { $exists: false };

@@ -1595,6 +1595,22 @@ describe('catapult db', () => {
 				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [10, 20]);
 			});
 
+			it('fromHeight toHeight', () => {
+				// Arrange:
+				const dbTransactions = [
+					createTransaction(10, [], 5),
+					createTransaction(20, [], 10),
+					createTransaction(30, [], 15),
+					createTransaction(40, [], 20),
+					createTransaction(50, [], 25)
+				];
+
+				const filters = { fromHeight: 10, toHeight: 20 };
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [20, 30, 40]);
+			});
+
 			it('address', () => {
 				// Arrange:
 				const dbTransactions = [
