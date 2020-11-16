@@ -4,7 +4,7 @@ summary: Search hash lock entries
 description: Returns an array of hash locks.
 operationId: searchHashLock
 parameters:
-  - $ref: "../../../parameters/path/address.yml"
+  - $ref: "../../../parameters/query/address.yml"
   - $ref: "../../../parameters/query/pageSize.yml"
   - $ref: "../../../parameters/query/pageNumber.yml"
   - $ref: "../../../parameters/query/offset.yml"

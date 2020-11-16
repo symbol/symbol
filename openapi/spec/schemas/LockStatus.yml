@@ -1,0 +1,9 @@
+type: integer
+enum:
+  - 0
+  - 1
+description: |
+  Possible status of lock states:
+  * 0 - UNUSED.
+  * 1 - USED.
+

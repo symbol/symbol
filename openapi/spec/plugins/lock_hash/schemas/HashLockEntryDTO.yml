@@ -16,6 +16,6 @@ properties:
   endHeight:
     $ref: "../../../schemas/Height.yml"
   status:
-    $ref: "../../../schemas/Status.yml"
+    $ref: "../../../schemas/LockStatus.yml"
   hash:
     $ref: "../../../schemas/Hash256.yml"

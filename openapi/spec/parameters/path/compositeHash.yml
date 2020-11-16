@@ -1,0 +1,6 @@
+name: compositeHash
+in: path
+description: Filter by composite hash.
+required: true
+schema:
+  $ref: "../../schemas/Hash256.yml"

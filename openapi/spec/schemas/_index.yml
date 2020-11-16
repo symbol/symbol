@@ -37,6 +37,10 @@ MosaicId:
   "$ref": "./MosaicId.yml"
 Mosaic:
   "$ref": "./Mosaic.yml"
+MerkleStateInfoDTO:
+  "$ref": "./MerkleStateInfoDTO.yml"
+MerkleTreeRaw:
+  "$ref": "./MerkleTreeRaw.yml"
 RestrictionKey:
   "$ref": "./RestrictionKey.yml"
 NamespaceId:
@@ -55,8 +59,8 @@ ProofVerificationHash:
   "$ref": "./ProofVerificationHash.yml"
 Score:
   "$ref": "./Score.yml"
-Status:
-  "$ref": "./Status.yml"
+LockStatus:
+  "$ref": "./LockStatus.yml"
 Secret:
   "$ref": "./Secret.yml"
 Signature:
@@ -477,6 +481,8 @@ AccountOperationRestrictionTransactionDTO:
   "$ref": "../plugins/restriction_account/schemas/AccountOperationRestrictionTransactionDTO.yml"
 AccountRestrictionsInfoDTO:
   "$ref": "../plugins/restriction_account/schemas/AccountRestrictionsInfoDTO.yml"
+AccountRestrictionsPage:
+  "$ref": "../plugins/restriction_account/schemas/AccountRestrictionsPage.yml"
 AccountRestrictionsDTO:
   "$ref": "../plugins/restriction_account/schemas/AccountRestrictionsDTO.yml"
 AccountRestrictionDTO:
@@ -499,6 +505,8 @@ EmbeddedMosaicAddressRestrictionTransactionDTO:
   "$ref": "../plugins/restriction_mosaic/schemas/EmbeddedMosaicAddressRestrictionTransactionDTO.yml"
 EmbeddedMosaicGlobalRestrictionTransactionDTO:
   "$ref": "../plugins/restriction_mosaic/schemas/EmbeddedMosaicGlobalRestrictionTransactionDTO.yml"
+MosaicRestrictionDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicRestrictionDTO.yml"
 MosaicAddressRestrictionDTO:
   "$ref": "../plugins/restriction_mosaic/schemas/MosaicAddressRestrictionDTO.yml"
 MosaicAddressRestrictionEntryDTO:

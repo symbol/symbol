@@ -1,0 +1,16 @@
+tags:
+  - Metadata routes
+summary: Get metadata merkle information
+description: Gets the metadata merkle for a given composite hash.
+operationId: getMetadataMerkle
+parameters:
+  - $ref: "../../../parameters/path/compositeHash.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"
