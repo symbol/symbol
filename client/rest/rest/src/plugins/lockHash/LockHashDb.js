@@ -42,8 +42,9 @@ class LockHashDb {
 	hashLocks(addresses, options) {
 		const sortingOptions = { id: '_id' };
 		const buffers = addresses.map(address => Buffer.from(address));
-		let conditions = { 'lock.ownerAddress': { $in: buffers } };
-
+		let conditions = {};
+		if (addresses.length)
+			conditions['lock.ownerAddress'] = { $in: buffers };
 		const offsetCondition = buildOffsetCondition(options, sortingOptions);
 		if (offsetCondition)
 			conditions = Object.assign(conditions, offsetCondition);
@@ -54,12 +55,17 @@ class LockHashDb {
 
 	/**
 	 * Retrieves hash info for given hash.
-	 * @param {Uint8Array} hash Lock hash.
+	 * @param {Uint8Array[]} ids Lock hash.
 	 * @returns {Promise.<object>} Hash lock info for a hash.
 	 */
-	hashLockByHash(hash) {
-		return this.catapultDb.queryDocument('hashLocks', { 'lock.hash': Buffer.from(hash) })
-			.then(this.catapultDb.sanitizer.renameId);
+	hashLockByHash(ids) {
+		const hashes = ids.map(id => Buffer.from(id));
+		const conditions = { 'lock.hash': { $in: hashes } };
+		const collection = this.catapultDb.database.collection('hashLocks');
+		return collection.find(conditions)
+			.sort({ _id: -1 })
+			.toArray()
+			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
 	}
 
 	// endregion

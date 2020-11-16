@@ -43,6 +43,29 @@ class RestrictionsDb {
 
 	/**
 	 * Retrieves filtered and paginated mosaic restrictions.
+	 * @param {Uint8Array} address Mosaic restriction target address
+	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
+	 * @returns {Promise.<object>} Mosaic restrictions page.
+	 */
+	accountRestrictions(address, options) {
+		const sortingOptions = { id: '_id' };
+
+		let conditions = {};
+
+		const offsetCondition = buildOffsetCondition(options, sortingOptions);
+		if (offsetCondition)
+			conditions = Object.assign(conditions, offsetCondition);
+
+		if (undefined !== address)
+			conditions['accountRestrictions.address'] = Buffer.from(address);
+
+		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'accountRestrictions', options);
+	}
+
+	/**
+	 * Retrieves filtered and paginated mosaic restrictions.
 	 * @param {Uint64} mosaicId Mosaic id
 	 * @param {uint} entryType Mosaic restriction type
 	 * @param {Uint8Array} targetAddress Mosaic restriction target address
@@ -70,6 +93,16 @@ class RestrictionsDb {
 
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'mosaicRestrictions', options);
+	}
+
+	mosaicRestrictionByCompositeHash(ids) {
+		const compositeHashes = ids.map(id => Buffer.from(id));
+		const conditions = { 'mosaicRestrictionEntry.compositeHash': { $in: compositeHashes } };
+		const collection = this.catapultDb.database.collection('mosaicRestrictions');
+		return collection.find(conditions)
+			.sort({ _id: -1 })
+			.toArray()
+			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
 	}
 }
 

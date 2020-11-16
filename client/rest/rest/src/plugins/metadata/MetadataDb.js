@@ -68,6 +68,16 @@ class MetadataDb {
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'metadata', options);
 	}
+
+	metadatasByCompositeHash(ids) {
+		const compositeHashes = ids.map(id => Buffer.from(id));
+		const conditions = { 'metadataEntry.compositeHash': { $in: compositeHashes } };
+		const collection = this.catapultDb.database.collection('metadata');
+		return collection.find(conditions)
+			.sort({ _id: -1 })
+			.toArray()
+			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
+	}
 }
 
 module.exports = MetadataDb;

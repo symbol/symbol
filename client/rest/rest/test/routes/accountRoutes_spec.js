@@ -28,6 +28,8 @@ const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const sinon = require('sinon');
 
+const { PacketType } = catapult.packet;
+
 const { address } = catapult.model;
 const { convert } = catapult.utils;
 
@@ -387,5 +389,71 @@ describe('account routes', () => {
 				});
 			});
 		});
+	});
+
+	const serviceCreator = packet => ({
+		connections: {
+			singleUse: () => new Promise(resolve => {
+				resolve({
+					pushPull: () => new Promise(innerResolve => innerResolve(packet))
+				});
+			})
+		},
+		config: {
+			apiNode: { timeout: 1000 }
+		}
+	});
+
+	describe('account state tree', () => {
+		describe('returns the requested tree with valid params', () => {
+			// Arrange:
+			const stateTree = '00008080DA9B4AF63BE985715EA635AF98E3CF3B0A22F9A2'
+				+ 'BE1C7DD40B79948AA63E36586E5D2E9D0C089C1C64BC0D'
+				+ '42A11ADBD1CD6CDB4B7C294062F55113525A64AE3CFF3F'
+				+ '04A7F2A487B42EA89323C4408F82415223ACFEC7DFA7924'
+				+ 'EFC31A70778AB17A00C3EAFF635F01BB3B474F0AF1BE99F'
+				+ 'BDA85EEFB209CC7BD158D3540DE3A3F2D1';
+			const stateTreeBytes = convert.hexToUint8(stateTree);
+
+			const packetType = PacketType.accountStatePath;
+			const packet = {
+				type: PacketType.accountStatePath,
+				size: stateTreeBytes.length,
+				payload: stateTreeBytes
+			};
+			const services = serviceCreator(packet);
+
+			// Act:
+			it(`for ${packetType} state`, () =>
+				test.route.prepareExecuteRoute(
+					accountRoutes.register,
+					'/accounts/:accountId/merkle',
+					'get',
+					{ accountId: testAddress },
+					{}, services, routeContext => routeContext.routeInvoker().then(() => {
+						// Assert:
+						expect(routeContext.numNextCalls).to.equal(1);
+						expect(routeContext.responses.length).to.equal(1);
+						expect(routeContext.redirects.length).to.equal(0);
+						expect(routeContext.responses[0]).to.deep.equal({
+							raw: stateTree
+						});
+					})
+				));
+		});
+
+		it('returns error for invalid address', () =>
+			// Act:
+			test.route.prepareExecuteRoute(
+				accountRoutes.register,
+				'/accounts/:accountId/merkle',
+				'get',
+				{ accountId: 'ABC' },
+				{}, {}, routeContext =>
+					test.assert.invokerThrowsError(routeContext.routeInvoker, {
+						statusCode: 409,
+						message: 'accountId has an invalid format'
+					})
+			));
 	});
 });

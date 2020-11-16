@@ -41,7 +41,8 @@ describe('namespace plugin', () => {
 			// Assert:
 			test.assert.assertRoutes(routes, [
 				'/namespaces',
-				'/namespaces/:namespaceId'
+				'/namespaces/:namespaceId',
+				'/namespaces/:namespaceId/merkle'
 			]);
 		});
 

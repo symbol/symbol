@@ -44,11 +44,11 @@ describe('all routes', () => {
 		test.assert.assertRoutes(routes, [
 			'/accounts',
 			'/accounts/:accountId',
+			'/accounts/:accountId/merkle',
 
 			'/blocks',
 			'/blocks/:height',
 			'/blocks/:height/transactions/:hash/merkle',
-			'/state/:state/hash/:hash/merkle',
 
 			'/chain/info',
 

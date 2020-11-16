@@ -43,7 +43,10 @@ class LockSecretDb {
 	secretLocks(addresses, secret, options) {
 		const sortingOptions = { id: '_id' };
 		const buffers = addresses.map(address => Buffer.from(address));
-		let conditions = { 'lock.ownerAddress': { $in: buffers } };
+		let conditions = {};
+
+		if (addresses.length)
+			conditions['lock.ownerAddress'] = { $in: buffers };
 
 		if (undefined !== secret)
 			conditions['lock.secret'] = Buffer.from(secret);
@@ -54,6 +57,16 @@ class LockSecretDb {
 
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'secretLocks', options);
+	}
+
+	secretLocksByCompositeHash(ids) {
+		const compositeHashes = ids.map(id => Buffer.from(id));
+		const conditions = { 'lock.compositeHash': { $in: compositeHashes } };
+		const collection = this.catapultDb.database.collection('secretLocks');
+		return collection.find(conditions)
+			.sort({ _id: -1 })
+			.toArray()
+			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
 	}
 
 	// endregion

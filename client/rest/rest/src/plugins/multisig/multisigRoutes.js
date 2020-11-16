@@ -19,15 +19,29 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const merkleUtils = require('../../routes/merkleUtils');
 const routeUtils = require('../../routes/routeUtils');
+const catapult = require('catapult-sdk');
+
+const { PacketType } = catapult.packet;
 
 module.exports = {
-	register: (server, db) => {
+	register: (server, db, services) => {
 		server.get('/account/:address/multisig', (req, res, next) => {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 
 			return db.multisigsByAddresses([accountAddress])
 				.then(routeUtils.createSender('multisigEntry').sendOne(req.params.address, res, next));
+		});
+
+		server.get('/account/:address/multisig/merkle', (req, res, next) => {
+			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
+			const state = PacketType.accountStatePath;
+			return merkleUtils.requestTree(services, state,
+				accountAddress).then(response => {
+				res.send(response);
+				next();
+			});
 		});
 
 		const getMultisigEntries = (multisigEntries, fieldName) => {

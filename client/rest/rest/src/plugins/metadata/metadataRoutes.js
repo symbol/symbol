@@ -19,11 +19,17 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const merkleUtils = require('../../routes/merkleUtils');
 const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
+const catapult = require('catapult-sdk');
+
+const { PacketType } = catapult.packet;
 
 module.exports = {
 	register: (server, db, services) => {
+		const metadataSender = routeUtils.createSender(routeResultTypes.metadata);
+
 		server.get('/metadata', (req, res, next) => {
 			const { params } = req;
 			const sourceAddress = params.sourceAddress ? routeUtils.parseArgument(params, 'sourceAddress', 'address') : undefined;
@@ -36,7 +42,25 @@ module.exports = {
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
 
 			return db.metadata(sourceAddress, targetAddress, scopedMetadataKey, targetId, metadataType, options)
-				.then(result => routeUtils.createSender(routeResultTypes.metadata).sendPage(res, next)(result));
+				.then(result => metadataSender.sendPage(res, next)(result));
+		});
+
+		routeUtils.addGetPostDocumentRoutes(
+			server,
+			metadataSender,
+			{ base: '/metadata', singular: 'compositeHash', plural: 'compositeHashes' },
+			params => db.metadatasByCompositeHash(params),
+			routeUtils.namedParserMap.hash256
+		);
+
+		// this endpoint is here because it is expected to support requests by block other than <current block>
+		server.get('/metadata/:compositeHash/merkle', (req, res, next) => {
+			const compositeHash = routeUtils.parseArgument(req.params, 'compositeHash', 'hash256');
+			const state = PacketType.metadataStatePath;
+			return merkleUtils.requestTree(services, state, compositeHash).then(response => {
+				res.send(response);
+				next();
+			});
 		});
 	}
 };

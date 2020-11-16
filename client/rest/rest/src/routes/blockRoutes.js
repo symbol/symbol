@@ -22,15 +22,9 @@
 const dbFacade = require('./dbFacade');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
-const errors = require('../server/errors');
-const stateTreesCodec = require('../sockets/stateTreesCodec');
 const catapult = require('catapult-sdk');
 
-const { constants } = catapult;
 const { uint64 } = catapult.utils;
-const packetHeader = catapult.packet.header;
-const { StatePathPacketTypes } = catapult.packet;
-const { BinaryParser } = catapult.parser;
 
 module.exports = {
 	register: (server, db, services) => {
@@ -64,32 +58,5 @@ module.exports = {
 			'/blocks/:height/transactions/:hash/merkle',
 			routeUtils.blockRouteMerkleProcessor(db, 'transactionsCount', 'transactionMerkleTree')
 		);
-
-		const buildResponse = (packet, codec, resultType) => {
-			const binaryParser = new BinaryParser();
-			binaryParser.push(packet.payload);
-			return { payload: codec.deserialize(binaryParser), type: resultType, formatter: 'ws' };
-		};
-
-		// this endpoint is here because it is expected to support requests by block other than <current block>
-		server.get('/state/:state/hash/:hash/merkle', (req, res, next) => {
-			const { state } = req.params;
-			const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
-
-			if (!StatePathPacketTypes.includes(state))
-				throw errors.createInvalidArgumentError('invalid `state` provided');
-
-			const { connections } = services;
-			const { timeout } = services.config.apiNode;
-
-			const headerBuffer = packetHeader.createBuffer(state, packetHeader.size + constants.sizes.hash256);
-			const packetBuffer = Buffer.concat([headerBuffer, hash]);
-			return connections.singleUse()
-				.then(connection => connection.pushPull(packetBuffer, timeout))
-				.then(packet => {
-					res.send(buildResponse(packet, stateTreesCodec, routeResultTypes.stateTree));
-					next();
-				});
-		});
 	}
 };

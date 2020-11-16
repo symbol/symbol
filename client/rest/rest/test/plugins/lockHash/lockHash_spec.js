@@ -41,7 +41,23 @@ describe('lock hash plugin', () => {
 			// Assert:
 			test.assert.assertRoutes(routes, [
 				'/account/:address/lock/hash',
-				'/lock/hash/:hash'
+				'/lock/hash',
+				'/lock/hash/:hash',
+				'/lock/hash/:hash/merkle'
+			]);
+		});
+
+		it('registers POST routes', () => {
+			// Arrange:
+			const routes = [];
+			const server = test.setup.createCapturingMockServer('post', routes);
+
+			// Act:
+			lockHash.registerRoutes(server, {});
+
+			// Assert:
+			test.assert.assertRoutes(routes, [
+				'/lock/hash'
 			]);
 		});
 	});

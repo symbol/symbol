@@ -19,8 +19,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const merkleUtils = require('../../routes/merkleUtils');
 const routeUtils = require('../../routes/routeUtils');
 const catapult = require('catapult-sdk');
+
+const { PacketType } = catapult.packet;
 
 const { uint64 } = catapult.utils;
 
@@ -44,5 +47,18 @@ module.exports = {
 			params => db.mosaicsByIds(params),
 			uint64.fromHex
 		);
+
+		// this endpoint is here because it is expected to support requests by block other than <current block>
+		server.get('/mosaics/:mosaicId/merkle', (req, res, next) => {
+			const mosaicId = routeUtils.parseArgument(req.params, 'mosaicId',
+				'uint64hex');
+			const state = PacketType.mosaicStatePath;
+
+			return merkleUtils.requestTree(services, state,
+				uint64.toBytes(mosaicId)).then(response => {
+				res.send(response);
+				next();
+			});
+		});
 	}
 };

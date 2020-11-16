@@ -19,23 +19,49 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const merkleUtils = require('../../routes/merkleUtils');
 const routeUtils = require('../../routes/routeUtils');
+const catapult = require('catapult-sdk');
+
+const { PacketType } = catapult.packet;
 
 module.exports = {
 	register: (server, db, services) => {
+		const sender = routeUtils.createSender('hashLockInfo');
+
 		server.get('/account/:address/lock/hash', (req, res, next) => {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
-
 			return db.hashLocks([accountAddress], options)
-				.then(result => routeUtils.createSender('hashLockInfo').sendPage(res, next)(result));
+				.then(result => sender.sendPage(res, next)(result));
 		});
 
-		server.get('/lock/hash/:hash', (req, res, next) => {
-			const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
+		// Search
+		server.get('/lock/hash', (req, res, next) => {
+			const accountAddresses = req.params.address ? [routeUtils.parseArgument(req.params, 'address', 'address')] : [];
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
+			return db.hashLocks(accountAddresses, options)
+				.then(result => sender.sendPage(res, next)(result));
+		});
 
-			return db.hashLockByHash(hash)
-				.then(routeUtils.createSender('hashLockInfo').sendOne(req.params.hash, res, next));
+		// Get by ids
+		routeUtils.addGetPostDocumentRoutes(
+			server,
+			sender,
+			{ base: '/lock/hash', singular: 'hash', plural: 'hashes' },
+			params => db.hashLockByHash(params),
+			routeUtils.namedParserMap.hash256
+		);
+
+		// Merkle
+		server.get('/lock/hash/:hash/merkle', (req, res, next) => {
+			const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
+			const state = PacketType.hashLockStatePath;
+			return merkleUtils.requestTree(services, state,
+				hash).then(response => {
+				res.send(response);
+				next();
+			});
 		});
 	}
 };
