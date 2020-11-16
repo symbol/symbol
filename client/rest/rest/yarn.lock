@@ -796,12 +796,8 @@ caseless@~0.12.0:
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
 "catapult-sdk@link:../catapult-sdk":
-  version "2.1.0"
-  dependencies:
-    js-sha3 "^0.8.0"
-    long "^4.0.0"
-    ripemd160 "^2.0.2"
-    tweetnacl "^1.0.1"
+  version "0.0.0"
+  uid ""
 
 catbuffer-typescript@0.0.22:
   version "0.0.22"
@@ -2034,9 +2030,9 @@ find-cache-dir@^2.1.0:
     pkg-dir "^3.0.0"
 
 find-my-way@^2.0.1:
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/find-my-way/-/find-my-way-2.2.4.tgz#cbda5ade45fe221529ca064f76c3086fdf09e8c4"
-  integrity sha512-GYP5M6SS6Tblv4fNgADLmrWIgaWK62WiTn+rEWhEGZtU1ZhVfClaFFQwdkXgZ/tmZY4+BpkKIXrqh0Iv9iP4dg==
+  version "2.2.5"
+  resolved "https://registry.yarnpkg.com/find-my-way/-/find-my-way-2.2.5.tgz#86ce825266fa28cd962e538a45ec2aaa84c3d514"
+  integrity sha512-GjRZZlGcGmTh9t+6Xrj5K0YprpoAFCAiCPgmAH9Kb09O4oX6hYuckDfnDipYj+Q7B1GtYWSzDI5HEecNYscLQg==
   dependencies:
     fast-decode-uri-component "^1.0.0"
     safe-regex2 "^2.0.0"
@@ -5687,7 +5683,7 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-sshpk@^1.14.1, sshpk@^1.7.0:
+sshpk@1.16.1, sshpk@^1.14.1, sshpk@^1.7.0:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/sshpk/-/sshpk-1.16.1.tgz#fb661c0bef29b39db40769ee39fa70093d6f6877"
   integrity sha512-HXXqVUq7+pcKeLqqZj6mHFUMvXtOJt1uoUx09pFW6011inTMxqI8BA8PM95myrIyyKwdnzjdFjLiE6KBPVtJIg==
@@ -5925,10 +5921,10 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-symbol-bootstrap@0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-0.2.1.tgz#6c57da6397a22f332305a9330fb79e7f38fb5d71"
-  integrity sha512-rMe0BbuPcm+AfeiaS76T/0razR0hU7eBKmYkOutZeQt2INpn0xqV53aLzAk2AklQdi/tLiwX/etJn04O/wH6BQ==
+symbol-bootstrap@^0.2.2-alpha-202011112255:
+  version "0.2.2-alpha-202011112255"
+  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-0.2.2-alpha-202011112255.tgz#adfe0f395cad006c5c28c9949c4d0ff6e157663a"
+  integrity sha512-HtdPb++P59vzpnbVIwflydWJ4YQs3nEPZ7f2eTEbvTt9cc4HBmXgtk37jpJqQ+BK7IdUTws7D0scxRmqnJKihQ==
   dependencies:
     "@oclif/command" "^1.7.0"
     "@oclif/config" "^1.16.0"
