@@ -796,8 +796,12 @@ caseless@~0.12.0:
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
 "catapult-sdk@link:../catapult-sdk":
-  version "0.0.0"
-  uid ""
+  version "2.1.0"
+  dependencies:
+    js-sha3 "^0.8.0"
+    long "^4.0.0"
+    ripemd160 "^2.0.2"
+    tweetnacl "^1.0.1"
 
 catbuffer-typescript@0.0.22:
   version "0.0.22"
@@ -4144,9 +4148,9 @@ npm-run-path@^2.0.0:
     path-key "^2.0.0"
 
 npm-user-validate@~1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/npm-user-validate/-/npm-user-validate-1.0.0.tgz#8ceca0f5cea04d4e93519ef72d0557a75122e951"
-  integrity sha1-jOyg9c6gTU6TUZ73LQVXp1Ei6VE=
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/npm-user-validate/-/npm-user-validate-1.0.1.tgz#31428fc5475fe8416023f178c0ab47935ad8c561"
+  integrity sha512-uQwcd/tY+h1jnEaze6cdX/LrhWhoBxfSknxentoqmIuStxUExxjWd3ULMLFPiFUrZKbOVMowH6Jq2FRWfmhcEw==
 
 npm@^6.14.7:
   version "6.14.8"
