@@ -1,0 +1,18 @@
+tags:
+  - Mosaic routes
+summary: Get mosaic merkle information
+description: Gets the mosaic definition merkle for a given mosaic identifier.
+operationId: getMosaicMerkle
+parameters:
+  - $ref: "../../../parameters/path/mosaicId.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

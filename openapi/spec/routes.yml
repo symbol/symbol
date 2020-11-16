@@ -7,6 +7,9 @@
 "/accounts/{accountId}":
   get:
     $ref: "./core/account/routes/getAccountInfo.yml"
+"/accounts/{accountId}/merkle":
+  get:
+    $ref: "./core/account/routes/getAccountInfoMerkle.yml"
 
 # Core - Block
 "/blocks":
@@ -119,7 +122,7 @@
     $ref: "./plugins/aggregate/routes/announceCosignatureTransaction.yml"
 
 # Plugin - LockHash
-"/account/{address}/lock/hash":
+"/lock/hash":
   get:
     $ref: "./plugins/lock_hash/routes/searchHashLock.yml"
 
@@ -127,20 +130,45 @@
   get:
     $ref: "./plugins/lock_hash/routes/getHashLock.yml"
 
+"/lock/hash/{hash}/merkle":
+  get:
+    $ref: "./plugins/lock_hash/routes/getHashLockMerkle.yml"
+
 # Plugin - LockSecret
-"/account/{address}/lock/secret":
+"/lock/secret":
   get:
     $ref: "./plugins/lock_secret/routes/searchSecretLock.yml"
+
+"/lock/secret/{compositeHash}":
+  get:
+    $ref: "./plugins/lock_secret/routes/getSecretLock.yml"
+
+"/lock/secret/{compositeHash}/merkle":
+  get:
+    $ref: "./plugins/lock_secret/routes/getSecretLockMerkle.yml"
 
 # Plugin - Metadata
 "/metadata":
   get:
     $ref: "./plugins/metadata/routes/searchMetadataEntries.yml"
 
+"/metadata/{compositeHash}":
+  get:
+    $ref: "./plugins/metadata/routes/getMetadata.yml"
+
+"/metadata/{compositeHash}/merkle":
+  get:
+    $ref: "./plugins/metadata/routes/getMetadataMerkle.yml"
+
 # Plugin - Mosaic
 "/mosaics/{mosaicId}":
   get:
     $ref: "./plugins/mosaic/routes/getMosaic.yml"
+
+"/mosaics/{mosaicId}/merkle":
+  get:
+    $ref: "./plugins/mosaic/routes/getMosaicMerkle.yml"
+
 /mosaics:
   get:
     $ref: "./plugins/mosaic/routes/searchMosaics.yml"
@@ -151,6 +179,11 @@
 "/account/{address}/multisig":
   get:
     $ref: "./plugins/multisig/routes/getAccountMultisig.yml"
+
+"/account/{address}/multisig/merkle":
+  get:
+    $ref: "./plugins/multisig/routes/getAccountMultisigMerkle.yml"
+
 "/account/{address}/multisig/graph":
   get:
     $ref: "./plugins/multisig/routes/getAccountMultisigGraph.yml"
@@ -162,6 +195,9 @@
 "/namespaces/{namespaceId}":
   get:
     $ref: "./plugins/namespace/routes/getNamespace.yml"
+"/namespaces/{namespaceId}/merkle":
+  get:
+    $ref: "./plugins/namespace/routes/getNamespaceMerkle.yml"
 /namespaces/names:
   post:
     $ref: "./plugins/namespace/routes/getNamespacesNames.yml"
@@ -184,11 +220,23 @@
     $ref: "./plugins/receipt/routes/searchMosaicResolutionStatements.yml"
 
 # Plugin - RestrictionAccount
+"/restrictions/account":
+  get:
+    $ref: "./plugins/restriction_account/routes/searchAccountRestrictions.yml"
 "/restrictions/account/{address}":
   get:
     $ref: "./plugins/restriction_account/routes/getAccountRestrictions.yml"
+"/restrictions/account/{address}/merkle":
+  get:
+    $ref: "./plugins/restriction_account/routes/getAccountRestrictionsMerkle.yml"
 
 # Plugin - RestrictionMosaic
 "/restrictions/mosaic":
   get:
     $ref: "./plugins/restriction_mosaic/routes/searchMosaicRestrictions.yml"
+"/restrictions/mosaic/{compositeHash}":
+  get:
+    $ref: "./plugins/restriction_mosaic/routes/getMosaicRestrictions.yml"
+"/restrictions/mosaic/{compositeHash}/merkle":
+  get:
+    $ref: "./plugins/restriction_mosaic/routes/getMosaicRestrictionsMerkle.yml"

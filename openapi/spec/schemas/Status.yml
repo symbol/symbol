@@ -1,4 +1,0 @@
-type: integer
-format: integer
-description: A number that indicates the status.
-example: 1

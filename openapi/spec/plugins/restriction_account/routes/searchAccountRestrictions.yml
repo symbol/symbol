@@ -1,12 +1,10 @@
 tags:
-  - Restriction Mosaic routes
-summary: Search mosaic restrictions
-description: Returns an array of mosaic restrictions.
-operationId: searchMosaicRestrictions
+  - Restriction Account routes
+summary: Search account restrictions
+description: Returns an array of account restrictions.
+operationId: searchAccountRestrictions
 parameters:
-  - $ref: "../../../parameters/query/mosaicId.yml"
-  - $ref: "../../../parameters/query/entryType.yml"
-  - $ref: "../../../parameters/query/targetAddress.yml"
+  - $ref: "../../../parameters/query/address.yml"
   - $ref: "../../../parameters/query/pageSize.yml"
   - $ref: "../../../parameters/query/pageNumber.yml"
   - $ref: "../../../parameters/query/offset.yml"
@@ -17,7 +15,7 @@ responses:
     content:
       application/json:
         schema:
-          $ref: "../schemas/MosaicRestrictionsPage.yml"
+          $ref: "../schemas/AccountRestrictionsPage.yml"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":

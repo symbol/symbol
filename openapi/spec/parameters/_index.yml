@@ -5,6 +5,8 @@ accountIdPath:
   $ref: './path/accountId.yml'
 hashPath:
   $ref: './path/hash.yml'
+compositeHashPath:
+  $ref: './path/compositeHash.yml'
 heightPath:
   $ref: './path/height.yml'
 limitPath:
