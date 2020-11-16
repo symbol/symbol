@@ -1,0 +1,18 @@
+tags:
+  - Multisig routes
+summary: Get multisig account merkle information
+description: Returns the multisig account merkle information.
+operationId: getAccountMultisigMerkle
+parameters:
+  - $ref: "../../../parameters/path/address.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

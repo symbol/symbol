@@ -1,0 +1,18 @@
+tags:
+  - Namespace routes
+summary: Get namespace merkle information
+description: Gets the namespace merkle for a given namespace identifier.
+operationId: getNamespaceMerkle
+parameters:
+  - $ref: "../../../parameters/path/namespaceId.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

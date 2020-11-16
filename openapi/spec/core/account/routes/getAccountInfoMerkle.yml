@@ -1,0 +1,18 @@
+tags:
+  - Account routes
+summary: Get account merkle information
+description: Returns the account merkle information.
+operationId: getAccountInfoMerkle
+parameters:
+  - $ref: "../../../parameters/path/accountId.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+  "404":
+    $ref : "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

@@ -1,0 +1,5 @@
+type: object
+description: Generic Mosaic Restriction
+anyOf:
+  - $ref: "./MosaicAddressRestrictionDTO.yml"
+  - $ref: "./MosaicGlobalRestrictionDTO.yml"

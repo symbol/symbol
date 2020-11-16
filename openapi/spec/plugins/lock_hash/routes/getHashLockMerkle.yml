@@ -1,0 +1,16 @@
+tags:
+  - Hash Lock routes
+summary: Get hash lock merkle information
+description: Gets the hash lock merkle for a given hash.
+operationId: getHashLockMerkle
+parameters:
+  - $ref: "../../../parameters/path/hash.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

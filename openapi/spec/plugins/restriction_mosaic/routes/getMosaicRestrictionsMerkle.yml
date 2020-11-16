@@ -1,0 +1,18 @@
+tags:
+  - Restriction Mosaic routes
+summary: Get the mosaic restrictions merkle
+description: Returns the mosaic restrictions merkle for a given composite hash.
+operationId: getMosaicRestrictionsMerkle
+parameters:
+  - $ref: "../../../parameters/path/compositeHash.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../../../schemas/MerkleStateInfoDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"
