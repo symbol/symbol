@@ -60,6 +60,9 @@ namespace catapult { namespace test {
 	/// Generates an empty block with random signer and no transactions.
 	std::unique_ptr<model::Block> GenerateEmptyRandomBlock();
 
+	/// Generates an importance block with random signer and \a transactions.
+	std::unique_ptr<model::Block> GenerateImportanceBlockWithTransactions(const TestBlockTransactions& transactions);
+
 	/// Generates a block with random signer and \a transactions.
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const TestBlockTransactions& transactions);
 

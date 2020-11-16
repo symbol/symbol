@@ -50,9 +50,7 @@ namespace catapult { namespace model {
 	}
 
 	Hash256 CalculateHash(const Block& block) {
-		auto blockRawBuffer = EntityDataBuffer(block, sizeof(BlockHeader));
-		blockRawBuffer.Size -= Block::Footer_Size;
-		return CalculateHash(block, blockRawBuffer, nullptr);
+		return CalculateHash(block, GetBlockHeaderDataBuffer(block), nullptr);
 	}
 
 	Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed) {

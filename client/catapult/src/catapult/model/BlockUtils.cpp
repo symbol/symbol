@@ -30,15 +30,6 @@
 
 namespace catapult { namespace model {
 
-	namespace {
-		RawBuffer BlockDataBuffer(const Block& block) {
-			return {
-				reinterpret_cast<const uint8_t*>(&block) + VerifiableEntity::Header_Size,
-				sizeof(BlockHeader) - VerifiableEntity::Header_Size - Block::Footer_Size
-			};
-		}
-	}
-
 	// region hashes
 
 	void CalculateBlockTransactionsHash(const std::vector<const TransactionInfo*>& transactionInfos, Hash256& blockTransactionsHash) {
@@ -52,18 +43,6 @@ namespace catapult { namespace model {
 	GenerationHash CalculateGenerationHash(const crypto::ProofGamma& gamma) {
 		auto proofHash = GenerateVrfProofHash(gamma);
 		return proofHash.copyTo<GenerationHash>();
-	}
-
-	// endregion
-
-	// region sign / verify
-
-	void SignBlockHeader(const crypto::KeyPair& signer, Block& block) {
-		crypto::Sign(signer, BlockDataBuffer(block), block.Signature);
-	}
-
-	bool VerifyBlockHeaderSignature(const Block& block) {
-		return crypto::Verify(block.SignerPublicKey, BlockDataBuffer(block), block.Signature);
 	}
 
 	// endregion
@@ -102,6 +81,18 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region sign / verify
+
+	void SignBlockHeader(const crypto::KeyPair& signer, Block& block) {
+		crypto::Sign(signer, GetBlockHeaderDataBuffer(block), block.Signature);
+	}
+
+	bool VerifyBlockHeaderSignature(const Block& block) {
+		return crypto::Verify(block.SignerPublicKey, GetBlockHeaderDataBuffer(block), block.Signature);
+	}
+
+	// endregion
+
 	// region create block
 
 	namespace {
@@ -134,20 +125,22 @@ namespace catapult { namespace model {
 
 		template<typename TContainer>
 		std::unique_ptr<Block> CreateBlockT(
+				EntityType blockType,
 				const PreviousBlockContext& context,
 				NetworkIdentifier networkIdentifier,
 				const Key& signerPublicKey,
 				const TContainer& transactions) {
-			uint32_t size = SizeOf32<BlockHeader>() + CalculateTotalSize(transactions);
+			auto headerSize = GetBlockHeaderSize(blockType);
+			auto size = headerSize + CalculateTotalSize(transactions);
 			auto pBlock = utils::MakeUniqueWithSize<Block>(size);
-			std::memset(static_cast<void*>(pBlock.get()), 0, sizeof(BlockHeader));
+			std::memset(static_cast<void*>(pBlock.get()), 0, headerSize);
 			pBlock->Size = size;
 
 			pBlock->SignerPublicKey = signerPublicKey;
 
 			pBlock->Version = Block::Current_Version;
 			pBlock->Network = networkIdentifier;
-			pBlock->Type = Entity_Type_Block;
+			pBlock->Type = blockType;
 
 			pBlock->Height = context.BlockHeight + Height(1);
 			pBlock->Difficulty = Difficulty();
@@ -163,17 +156,19 @@ namespace catapult { namespace model {
 	}
 
 	std::unique_ptr<Block> CreateBlock(
+			EntityType blockType,
 			const PreviousBlockContext& context,
 			NetworkIdentifier networkIdentifier,
 			const Key& signerPublicKey,
 			const Transactions& transactions) {
-		return CreateBlockT(context, networkIdentifier, signerPublicKey, transactions);
+		return CreateBlockT(blockType, context, networkIdentifier, signerPublicKey, transactions);
 	}
 
 	std::unique_ptr<Block> StitchBlock(const BlockHeader& blockHeader, const Transactions& transactions) {
-		auto size = sizeof(BlockHeader) + CalculateTotalSize(transactions);
+		auto headerSize = GetBlockHeaderSize(blockHeader.Type);
+		auto size = headerSize + CalculateTotalSize(transactions);
 		auto pBlock = utils::MakeUniqueWithSize<Block>(size);
-		std::memcpy(static_cast<void*>(pBlock.get()), &blockHeader, sizeof(BlockHeader));
+		std::memcpy(static_cast<void*>(pBlock.get()), &blockHeader, headerSize);
 		pBlock->Size = static_cast<uint32_t>(size);
 
 		// append all the transactions

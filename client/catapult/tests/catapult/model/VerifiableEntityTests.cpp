@@ -66,13 +66,13 @@ namespace catapult { namespace model {
 		VerifiableEntity entity;
 		entity.Size = 121;
 		entity.Version = 2;
-		entity.Type = Entity_Type_Nemesis_Block;
+		entity.Type = Entity_Type_Block_Nemesis;
 
 		// Act:
 		auto str = test::ToString(entity);
 
 		// Assert:
-		EXPECT_EQ("Nemesis_Block (v2) with size 121", str);
+		EXPECT_EQ("Block_Nemesis (v2) with size 121", str);
 	}
 
 	// endregion
@@ -191,7 +191,7 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingIncompatibleEntityType) {
-		AssertFailureForBlockWithEntityType(Entity_Type_Nemesis_Block);
+		AssertFailureForBlockWithEntityType(Entity_Type_Block_Nemesis);
 	}
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingTransactionWithWrongSize) {

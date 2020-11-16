@@ -35,6 +35,15 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	/// Information about block execution dependent hashes.
 	struct BlockExecutionHashesInfo {
+		/// Number of voting eligible accounts.
+		uint32_t VotingEligibleAccountsCount;
+
+		/// Number of harvesting eligible accounts.
+		uint64_t HarvestingEligibleAccountsCount;
+
+		/// Total balance eligible for voting.
+		Amount TotalVotingBalance;
+
 		/// Block receipts hash.
 		Hash256 ReceiptsHash;
 

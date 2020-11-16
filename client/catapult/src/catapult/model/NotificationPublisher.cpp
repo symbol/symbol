@@ -97,6 +97,9 @@ namespace catapult { namespace model {
 				if (blockSignerAddress != block.BeneficiaryAddress)
 					sub.notify(AccountAddressNotification(block.BeneficiaryAddress));
 
+				// raise a block type notification
+				sub.notify(BlockTypeNotification(block.Type, block.Height));
+
 				// raise an entity notification
 				sub.notify(EntityNotification(block.Network, block.Version, Block::Current_Version, Block::Current_Version));
 
@@ -108,13 +111,18 @@ namespace catapult { namespace model {
 
 				sub.notify(blockNotification);
 
+				if (IsImportanceBlock(block.Type)) {
+					// raise an importance block notification only for importance blocks
+					const auto& blockFooter = GetBlockFooter<ImportanceBlockFooter>(block);
+					sub.notify(ImportanceBlockNotification(
+							blockFooter.VotingEligibleAccountsCount,
+							blockFooter.HarvestingEligibleAccountsCount,
+							blockFooter.TotalVotingBalance,
+							blockFooter.PreviousImportanceBlockHash));
+				}
+
 				// raise a signature notification
-				auto headerSize = VerifiableEntity::Header_Size;
-				auto blockData = RawBuffer{
-					reinterpret_cast<const uint8_t*>(&block) + headerSize,
-					sizeof(BlockHeader) - headerSize - Block::Footer_Size
-				};
-				sub.notify(SignatureNotification(block.SignerPublicKey, block.Signature, blockData));
+				sub.notify(SignatureNotification(block.SignerPublicKey, block.Signature, GetBlockHeaderDataBuffer(block)));
 			}
 
 			void publish(

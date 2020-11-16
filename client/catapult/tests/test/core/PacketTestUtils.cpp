@@ -93,6 +93,8 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
+		struct AlignedBlockHeader : public model::BlockHeader, public model::PaddedBlockFooter {};
+
 		template<typename TEntity>
 		void SetVerifiableEntityAt(ionet::ByteBuffer& buffer, size_t offset, size_t size, model::EntityType entityType) {
 			auto entitySize = static_cast<uint32_t>(size);
@@ -119,11 +121,11 @@ namespace catapult { namespace test {
 	}
 
 	void SetBlockAt(ionet::ByteBuffer& buffer, size_t offset) {
-		SetBlockAt(buffer, offset, sizeof(model::BlockHeader));
+		SetBlockAt(buffer, offset, sizeof(AlignedBlockHeader));
 	}
 
 	void SetBlockAt(ionet::ByteBuffer& buffer, size_t offset, size_t size) {
-		SetVerifiableEntityAt<model::Block>(buffer, offset, size, model::Entity_Type_Block);
+		SetVerifiableEntityAt<AlignedBlockHeader>(buffer, offset, size, model::Entity_Type_Block_Normal);
 	}
 
 	ionet::Packet& SetPushBlockPacketInBuffer(ionet::ByteBuffer& buffer) {

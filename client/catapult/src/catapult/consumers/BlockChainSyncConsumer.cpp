@@ -130,8 +130,13 @@ namespace catapult { namespace consumers {
 
 		class BlockChainSyncConsumer {
 		public:
-			BlockChainSyncConsumer(cache::CatapultCache& cache, io::BlockStorageCache& storage, const BlockChainSyncHandlers& handlers)
-					: m_cache(cache)
+			BlockChainSyncConsumer(
+					uint64_t importanceGrouping,
+					cache::CatapultCache& cache,
+					io::BlockStorageCache& storage,
+					const BlockChainSyncHandlers& handlers)
+					: m_importanceGrouping(importanceGrouping)
+					, m_cache(cache)
 					, m_storage(storage)
 					, m_handlers(handlers)
 			{}
@@ -250,6 +255,26 @@ namespace catapult { namespace consumers {
 					return Abort(processResult);
 				}
 
+				// check that the *first* importance block is properly linked
+				for (const auto& element : elements) {
+					if (!model::IsImportanceBlock(element.Block.Type))
+						continue;
+
+					model::HeightGroupingFacade<Height> groupingFacade(element.Block.Height, m_importanceGrouping);
+					auto previousImportanceBlockHash = m_storage.view().loadBlockElement(groupingFacade.previous(1))->EntityHash;
+
+					const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(element.Block);
+					if (previousImportanceBlockHash != blockFooter.PreviousImportanceBlockHash) {
+						CATAPULT_LOG(warning)
+								<< "block at height " << element.Block.Height << " has PreviousImportanceBlockHash "
+								<< blockFooter.PreviousImportanceBlockHash << " but " << previousImportanceBlockHash
+								<< " is expected";
+						return Abort(Failure_Consumer_Remote_Chain_Improper_Importance_Link);
+					}
+
+					break;
+				}
+
 				return Continue();
 			}
 
@@ -325,6 +350,7 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
+			uint64_t m_importanceGrouping;
 			cache::CatapultCache& m_cache;
 			io::BlockStorageCache& m_storage;
 			BlockChainSyncHandlers m_handlers;
@@ -332,9 +358,10 @@ namespace catapult { namespace consumers {
 	}
 
 	disruptor::DisruptorConsumer CreateBlockChainSyncConsumer(
+			uint64_t importanceGrouping,
 			cache::CatapultCache& cache,
 			io::BlockStorageCache& storage,
 			const BlockChainSyncHandlers& handlers) {
-		return BlockChainSyncConsumer(cache, storage, handlers);
+		return BlockChainSyncConsumer(importanceGrouping, cache, storage, handlers);
 	}
 }}

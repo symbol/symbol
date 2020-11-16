@@ -19,6 +19,7 @@
 **/
 
 #include "AccountStateCacheTestUtils.h"
+#include "catapult/cache_core/AccountStateCacheDelta.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
@@ -40,6 +41,21 @@ namespace catapult { namespace test {
 			map.emplace(Address{ { seed.first } }, CreateAccountHistory(seed.second));
 
 		return map;
+	}
+
+	std::vector<Address> AddAccountsWithBalances(
+			cache::AccountStateCacheDelta& delta,
+			MosaicId mosaicId,
+			const std::vector<Amount>& balances) {
+		auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
+		for (auto i = 0u; i < balances.size(); ++i) {
+			delta.addAccount(addresses[i], Height(1));
+			auto& accountState = delta.find(addresses[i]).get();
+			accountState.SupplementalPublicKeys.voting().add(test::GenerateRandomPackedStruct<model::PinnedVotingKey>());
+			accountState.Balances.credit(mosaicId, balances[i]);
+		}
+
+		return addresses;
 	}
 
 	namespace {

@@ -78,7 +78,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 		// block data
 		builder << "block" << bson_stream::open_document;
-		StreamVerifiableEntity(builder, block)
+		auto blockDocument = StreamVerifiableEntity(builder, block)
 				<< "height" << ToInt64(block.Height)
 				<< "timestamp" << ToInt64(block.Timestamp)
 				<< "difficulty" << ToInt64(block.Difficulty)
@@ -91,6 +91,16 @@ namespace catapult { namespace mongo { namespace mappers {
 				<< "stateHash" << ToBinary(block.StateHash)
 				<< "beneficiaryAddress" << ToBinary(block.BeneficiaryAddress)
 				<< "feeMultiplier" << ToInt32(block.FeeMultiplier);
+
+		if (model::IsImportanceBlock(block.Type)) {
+			const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(block);
+			blockDocument
+					<< "votingEligibleAccountsCount" << static_cast<int32_t>(blockFooter.VotingEligibleAccountsCount)
+					<< "harvestingEligibleAccountsCount" << static_cast<int64_t>(blockFooter.HarvestingEligibleAccountsCount)
+					<< "totalVotingBalance" << ToInt64(blockFooter.TotalVotingBalance)
+					<< "previousImportanceBlockHash" << ToBinary(blockFooter.PreviousImportanceBlockHash);
+		}
+
 		builder << bson_stream::close_document;
 		return builder << bson_stream::finalize;
 	}

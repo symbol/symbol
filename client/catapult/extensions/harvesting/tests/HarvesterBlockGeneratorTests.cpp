@@ -54,7 +54,7 @@ namespace catapult { namespace harvesting {
 					: m_config(CreateBlockChainConfiguration())
 					, m_catapultCache(test::CreateEmptyCatapultCache(m_config, CreateCacheConfiguration(m_dbDirGuard.name())))
 					, m_transactionRegistry(mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Contains_Embeddings))
-					, m_utFacadeFactory(m_catapultCache, m_config, m_executionConfig.Config)
+					, m_utFacadeFactory(m_catapultCache, m_config, m_executionConfig.Config, [](auto) { return Hash256(); })
 					, m_pUtCache(test::CreateSeededMemoryUtCache(0))
 					, m_generator(CreateHarvesterBlockGenerator(strategy, m_transactionRegistry, m_utFacadeFactory, *m_pUtCache)) {
 				// add 5 transaction infos to UT cache with multipliers alternating between 10 and 20

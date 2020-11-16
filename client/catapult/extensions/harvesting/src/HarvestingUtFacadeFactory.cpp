@@ -31,9 +31,9 @@
 
 namespace catapult { namespace harvesting {
 
-	// region NotificationObserverProxy
-
 	namespace {
+		// region NotificationObserverProxy
+
 		class NotificationObserverProxy : public observers::NotificationObserver {
 		public:
 			explicit NotificationObserverProxy(const std::shared_ptr<const observers::NotificationObserver>& pObserver)
@@ -52,9 +52,31 @@ namespace catapult { namespace harvesting {
 		private:
 			std::shared_ptr<const observers::NotificationObserver> m_pObserver;
 		};
-	}
 
-	// endregion
+		// endregion
+
+		// region ImportanceFilteringNotificationSubscriber
+
+		class ImportanceFilteringNotificationSubscriber : public model::NotificationSubscriber {
+		public:
+			explicit ImportanceFilteringNotificationSubscriber(model::NotificationSubscriber& subscriber) : m_subscriber(subscriber)
+			{}
+
+		public:
+			void notify(const model::Notification& notification) override {
+				// harvester fills in block importance *after* execution, so skip these notifications (only used for validation)
+				if (model::Core_Block_Importance_Notification == notification.Type)
+					return;
+
+				m_subscriber.notify(notification);
+			}
+
+		private:
+			model::NotificationSubscriber& m_subscriber;
+		};
+
+		// endregion
+	}
 
 	// region HarvestingUtFacade::Impl
 
@@ -64,10 +86,12 @@ namespace catapult { namespace harvesting {
 				Timestamp blockTime,
 				const cache::CatapultCache& cache,
 				const model::BlockChainConfiguration& blockChainConfig,
-				const chain::ExecutionConfiguration& executionConfig)
+				const chain::ExecutionConfiguration& executionConfig,
+				const ImportanceBlockHashSupplier& importanceBlockHashSupplier)
 				: m_blockTime(blockTime)
 				, m_blockChainConfig(blockChainConfig)
 				, m_executionConfig(executionConfig)
+				, m_importanceBlockHashSupplier(importanceBlockHashSupplier)
 				, m_cacheDetachableDelta(cache.createDetachableDelta())
 				, m_cacheDetachedDelta(m_cacheDetachableDelta.detach())
 				, m_pCacheDelta(m_cacheDetachedDelta.tryLock()) {
@@ -125,7 +149,22 @@ namespace catapult { namespace harvesting {
 			// 4. update account states
 			updateAccountStates(accountStateCacheDelta);
 
-			// 5. update block fields
+			// 5. update importance block fields
+			if (model::IsImportanceBlock(pBlock->Type)) {
+				accountStateCacheDelta.updateHighValueAccounts(pBlock->Height);
+
+				auto statistics = cache::ReadOnlyAccountStateCache(accountStateCacheDelta).highValueAccountStatistics();
+				auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+				blockFooter.VotingEligibleAccountsCount = statistics.VotingEligibleAccountsCount;
+				blockFooter.HarvestingEligibleAccountsCount = statistics.HarvestingEligibleAccountsCount;
+				blockFooter.TotalVotingBalance = statistics.TotalVotingBalance;
+
+				// assume block has height that is multiple of importance grouping
+				model::HeightGroupingFacade<Height> groupingFacade(pBlock->Height, m_blockChainConfig.ImportanceGrouping);
+				blockFooter.PreviousImportanceBlockHash = m_importanceBlockHashSupplier(groupingFacade.previous(1));
+			}
+
+			// 6. update block fields
 			pBlock->StateHash = m_blockChainConfig.EnableVerifiableState
 					? m_pCacheDelta->calculateStateHash(height()).StateHash
 					: Hash256();
@@ -170,7 +209,13 @@ namespace catapult { namespace harvesting {
 				sub.enableUndo();
 
 				// execute entity
-				publisher.publish(weakEntityInfo, sub);
+				if (model::IsImportanceBlock(weakEntityInfo.type())) {
+					ImportanceFilteringNotificationSubscriber filteringSub(sub);
+					publisher.publish(weakEntityInfo, filteringSub);
+				} else {
+					publisher.publish(weakEntityInfo, sub);
+				}
+
 				if (validators::IsValidationResultSuccess(sub.result()))
 					return true;
 
@@ -200,6 +245,8 @@ namespace catapult { namespace harvesting {
 		Timestamp m_blockTime;
 		model::BlockChainConfiguration m_blockChainConfig;
 		chain::ExecutionConfiguration m_executionConfig;
+		ImportanceBlockHashSupplier m_importanceBlockHashSupplier;
+
 		cache::CatapultCacheDetachableDelta m_cacheDetachableDelta;
 		cache::CatapultCacheDetachedDelta m_cacheDetachedDelta;
 		std::unique_ptr<cache::CatapultCacheDelta> m_pCacheDelta;
@@ -216,8 +263,9 @@ namespace catapult { namespace harvesting {
 			Timestamp blockTime,
 			const cache::CatapultCache& cache,
 			const model::BlockChainConfiguration& blockChainConfig,
-			const chain::ExecutionConfiguration& executionConfig)
-			: m_pImpl(std::make_unique<Impl>(blockTime, cache, blockChainConfig, executionConfig))
+			const chain::ExecutionConfiguration& executionConfig,
+			const ImportanceBlockHashSupplier& importanceBlockHashSupplier)
+			: m_pImpl(std::make_unique<Impl>(blockTime, cache, blockChainConfig, executionConfig, importanceBlockHashSupplier))
 	{}
 
 	HarvestingUtFacade::~HarvestingUtFacade() = default;
@@ -270,14 +318,21 @@ namespace catapult { namespace harvesting {
 	HarvestingUtFacadeFactory::HarvestingUtFacadeFactory(
 			const cache::CatapultCache& cache,
 			const model::BlockChainConfiguration& blockChainConfig,
-			const chain::ExecutionConfiguration& executionConfig)
+			const chain::ExecutionConfiguration& executionConfig,
+			const ImportanceBlockHashSupplier& importanceBlockHashSupplier)
 			: m_cache(cache)
 			, m_blockChainConfig(blockChainConfig)
 			, m_executionConfig(executionConfig)
+			, m_importanceBlockHashSupplier(importanceBlockHashSupplier)
 	{}
 
 	std::unique_ptr<HarvestingUtFacade> HarvestingUtFacadeFactory::create(Timestamp blockTime) const {
-		return std::make_unique<HarvestingUtFacade>(blockTime, m_cache, m_blockChainConfig, m_executionConfig);
+		return std::make_unique<HarvestingUtFacade>(
+				blockTime,
+				m_cache,
+				m_blockChainConfig,
+				m_executionConfig,
+				m_importanceBlockHashSupplier);
 	}
 
 	// endregion

@@ -32,6 +32,18 @@ namespace catapult {
 
 namespace catapult { namespace cache {
 
+	/// High value account statistics.
+	struct HighValueAccountStatistics {
+		/// Number of voting eligible accounts.
+		uint32_t VotingEligibleAccountsCount;
+
+		/// Number of harvesting eligible accounts.
+		uint64_t HarvestingEligibleAccountsCount;
+
+		/// Total balance eligible for voting.
+		Amount TotalVotingBalance;
+	};
+
 	/// Read-only overlay on top of an account cache.
 	class ReadOnlyAccountStateCache
 			: public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Address, state::AccountState>
@@ -65,6 +77,9 @@ namespace catapult { namespace cache {
 
 		/// Gets the harvesting mosaic id.
 		MosaicId harvestingMosaicId() const;
+
+		/// Gets the high value account statistics.
+		HighValueAccountStatistics highValueAccountStatistics() const;
 
 	public:
 		using AddressBasedCache::size;

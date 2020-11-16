@@ -41,19 +41,19 @@ namespace catapult { namespace model {
 		auto predicate = NeverFilter();
 
 		// Act + Assert:
-		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Nemesis_Block)));
-		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Block)));
+		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Block_Nemesis)));
+		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Block_Normal)));
 		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Dummy_Transaction)));
 		EXPECT_TRUE(predicate(*CreateVerifiableEntity(static_cast<EntityType>(0x3FFF))));
 	}
 
 	TEST(TEST_CLASS, HasTypeFilterReturnsTrueForMatchingEntityType) {
 		// Arrange:
-		auto predicate = HasTypeFilter(Entity_Type_Block);
+		auto predicate = HasTypeFilter(Entity_Type_Block_Normal);
 
 		// Act + Assert:
-		EXPECT_FALSE(predicate(*CreateVerifiableEntity(Entity_Type_Nemesis_Block)));
-		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Block)));
+		EXPECT_FALSE(predicate(*CreateVerifiableEntity(Entity_Type_Block_Nemesis)));
+		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Block_Normal)));
 		EXPECT_FALSE(predicate(*CreateVerifiableEntity(Dummy_Transaction)));
 		EXPECT_FALSE(predicate(*CreateVerifiableEntity(static_cast<EntityType>(0x3FFF))));
 	}
@@ -63,8 +63,8 @@ namespace catapult { namespace model {
 		auto predicate = HasBasicTypeFilter(BasicEntityType::Block);
 
 		// Act + Assert:
-		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Nemesis_Block)));
-		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Block)));
+		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Block_Nemesis)));
+		EXPECT_TRUE(predicate(*CreateVerifiableEntity(Entity_Type_Block_Normal)));
 		EXPECT_FALSE(predicate(*CreateVerifiableEntity(Dummy_Transaction)));
 		EXPECT_FALSE(predicate(*CreateVerifiableEntity(static_cast<EntityType>(0x3FFF))));
 	}

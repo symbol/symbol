@@ -76,10 +76,11 @@ namespace catapult { namespace consumers {
 			const RequiresValidationPredicate& requiresValidationPredicate);
 
 	/// Creates a consumer that attempts to synchronize a remote chain with the local chain, which is composed of
-	/// state (in \a cache) and blocks (in \a storage).
+	/// state (in \a cache) and blocks (in \a storage) with \a importanceGrouping.
 	/// \a handlers are used to customize the sync process.
 	/// \note This consumer is non-const because it updates the element generation hashes.
 	disruptor::DisruptorConsumer CreateBlockChainSyncConsumer(
+			uint64_t importanceGrouping,
 			cache::CatapultCache& cache,
 			io::BlockStorageCache& storage,
 			const BlockChainSyncHandlers& handlers);

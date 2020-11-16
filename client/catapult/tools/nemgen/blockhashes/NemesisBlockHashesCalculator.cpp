@@ -20,6 +20,7 @@
 
 #include "NemesisBlockHashesCalculator.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/model/NemesisNotificationPublisher.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
@@ -57,6 +58,15 @@ namespace catapult { namespace tools { namespace nemgen {
 				? model::CalculateMerkleHash(*pBlockStatement)
 				: Hash256();
 
-		return { blockReceiptsHash, cacheStateHashInfo.StateHash, cacheStateHashInfo.SubCacheMerkleRoots, std::move(pBlockStatement) };
+		auto highValueAccountStatistics = readOnlyCache.sub<cache::AccountStateCache>().highValueAccountStatistics();
+		return {
+			highValueAccountStatistics.VotingEligibleAccountsCount,
+			highValueAccountStatistics.HarvestingEligibleAccountsCount,
+			highValueAccountStatistics.TotalVotingBalance,
+			blockReceiptsHash,
+			cacheStateHashInfo.StateHash,
+			cacheStateHashInfo.SubCacheMerkleRoots,
+			std::move(pBlockStatement)
+		};
 	}
 }}}

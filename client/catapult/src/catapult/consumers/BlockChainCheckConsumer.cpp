@@ -59,10 +59,25 @@ namespace catapult { namespace consumers {
 
 				utils::HashPointerSet hashes;
 				const model::BlockElement* pPreviousElement = nullptr;
+				const Hash256* pPreviousImportanceBlockHash = nullptr;
 				for (const auto& element : elements) {
 					// check for a valid chain link
 					if (pPreviousElement && !IsLink(*pPreviousElement, element.Block))
 						return Abort(Failure_Consumer_Remote_Chain_Improper_Link);
+
+					// check for importance link
+					if (model::IsImportanceBlock(element.Block.Type)) {
+						const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(element.Block);
+						if (pPreviousImportanceBlockHash && *pPreviousImportanceBlockHash != blockFooter.PreviousImportanceBlockHash) {
+							CATAPULT_LOG(warning)
+									<< "block at height " << element.Block.Height << " has PreviousImportanceBlockHash "
+									<< blockFooter.PreviousImportanceBlockHash << " but " << *pPreviousImportanceBlockHash
+									<< " is expected";
+							return Abort(Failure_Consumer_Remote_Chain_Improper_Importance_Link);
+						}
+
+						pPreviousImportanceBlockHash = &element.EntityHash;
+					}
 
 					// check for duplicate transactions
 					for (const auto& transactionElement : element.Transactions) {

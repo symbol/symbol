@@ -243,6 +243,7 @@ namespace catapult { namespace sync {
 
 				auto disruptorConsumers = DisruptorConsumersFromBlockConsumers(m_consumers);
 				disruptorConsumers.push_back(CreateBlockChainSyncConsumer(
+						m_state.config().BlockChain.ImportanceGrouping,
 						m_state.cache(),
 						m_state.storage(),
 						CreateBlockChainSyncHandlers(m_state, rollbackInfo)));

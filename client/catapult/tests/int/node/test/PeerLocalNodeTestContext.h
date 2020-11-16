@@ -63,6 +63,9 @@ namespace catapult { namespace test {
 		/// Loads saved height from persisted state.
 		Height loadSavedStateChainHeight() const;
 
+		/// Creates a copy of the default catapult configuration.
+		config::CatapultConfiguration createConfig() const;
+
 	public:
 		/// Waits for node height to equal \a height.
 		void waitForHeight(Height height) const;

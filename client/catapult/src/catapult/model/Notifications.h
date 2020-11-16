@@ -245,6 +245,63 @@ namespace catapult { namespace model {
 		uint32_t NumTransactions;
 	};
 
+	/// Notifies the arrival of a block (type information only).
+	struct BlockTypeNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Core_Block_Type_Notification;
+
+	public:
+		/// Creates a block type notification around \a blockType and \a blockHeight.
+		BlockTypeNotification(EntityType blockType, Height blockHeight)
+				: Notification(Notification_Type, sizeof(BlockTypeNotification))
+				, BlockType(blockType)
+				, BlockHeight(blockHeight)
+		{}
+
+	public:
+		/// Block type.
+		EntityType BlockType;
+
+		/// Block height.
+		Height BlockHeight;
+	};
+
+	/// Notifies the arrival of an importance block.
+	struct ImportanceBlockNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Core_Block_Importance_Notification;
+
+	public:
+		/// Creates an importance block notification around \a votingEligibleAccountsCount, \a harvestingEligibleAccountsCount,
+		/// \a totalVotingBalance and \a previousImportanceBlockHash.
+		ImportanceBlockNotification(
+				uint32_t votingEligibleAccountsCount,
+				uint64_t harvestingEligibleAccountsCount,
+				Amount totalVotingBalance,
+				const Hash256& previousImportanceBlockHash)
+				: Notification(Notification_Type, sizeof(ImportanceBlockNotification))
+				, VotingEligibleAccountsCount(votingEligibleAccountsCount)
+				, HarvestingEligibleAccountsCount(harvestingEligibleAccountsCount)
+				, TotalVotingBalance(totalVotingBalance)
+				, PreviousImportanceBlockHash(previousImportanceBlockHash)
+		{}
+
+	public:
+		/// Number of voting eligible accounts.
+		uint32_t VotingEligibleAccountsCount;
+
+		/// Number of harvesting eligible accounts.
+		uint64_t HarvestingEligibleAccountsCount;
+
+		/// Total balance eligible for voting.
+		Amount TotalVotingBalance;
+
+		/// Previous importance block hash.
+		const Hash256& PreviousImportanceBlockHash;
+	};
+
 	// endregion
 
 	// region transaction

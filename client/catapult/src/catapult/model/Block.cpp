@@ -24,12 +24,33 @@
 
 namespace catapult { namespace model {
 
+	namespace {
+		uint32_t GetBlockFooterSize(EntityType type) {
+			return IsImportanceBlock(type) ? 0 : PaddedBlockFooter::Footer_Size;
+		}
+	}
+
+	bool IsImportanceBlock(EntityType type) {
+		return Entity_Type_Block_Nemesis == type || Entity_Type_Block_Importance == type;
+	}
+
+	uint32_t GetBlockHeaderSize(EntityType type) {
+		return sizeof(BlockHeader) + (IsImportanceBlock(type) ? sizeof(ImportanceBlockFooter) : sizeof(PaddedBlockFooter));
+	}
+
+	RawBuffer GetBlockHeaderDataBuffer(const BlockHeader& header) {
+		return {
+			reinterpret_cast<const uint8_t*>(&header) + VerifiableEntity::Header_Size,
+			GetBlockHeaderSize(header.Type) - VerifiableEntity::Header_Size - GetBlockFooterSize(header.Type)
+		};
+	}
+
 	size_t GetTransactionPayloadSize(const BlockHeader& header) {
-		return header.Size - sizeof(BlockHeader);
+		return header.Size - GetBlockHeaderSize(header.Type);
 	}
 
 	bool IsSizeValid(const Block& block, const TransactionRegistry& registry) {
-		if (block.Size < sizeof(BlockHeader)) {
+		if (block.Size < sizeof(VerifiableEntity) || block.Size < GetBlockHeaderSize(block.Type)) {
 			CATAPULT_LOG(warning) << block.Type << " block failed size validation with size " << block.Size;
 			return false;
 		}

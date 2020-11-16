@@ -35,17 +35,6 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region sign / verify
-
-	/// Signs \a block header as \a signer.
-	/// \note All header data is assumed to be present and valid.
-	void SignBlockHeader(const crypto::KeyPair& signer, Block& block);
-
-	/// Validates signature of \a block header.
-	bool VerifyBlockHeaderSignature(const Block& block);
-
-	// endregion
-
 	// region block transactions info
 
 	/// Information about transactions stored in a block.
@@ -68,6 +57,17 @@ namespace catapult { namespace model {
 
 	/// Calculates information about transactions stored in \a block given \a transactionRegistry.
 	ExtendedBlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block, const TransactionRegistry& transactionRegistry);
+
+	// endregion
+
+	// region sign / verify
+
+	/// Signs \a block header as \a signer.
+	/// \note All header data is assumed to be present and valid.
+	void SignBlockHeader(const crypto::KeyPair& signer, Block& block);
+
+	/// Validates signature of \a block header.
+	bool VerifyBlockHeaderSignature(const Block& block);
 
 	// endregion
 
@@ -107,9 +107,10 @@ namespace catapult { namespace model {
 		catapult::Timestamp Timestamp;
 	};
 
-	/// Creates an unsigned Block given \a context, signer public key (\a signerPublicKey) and \a transactions
+	/// Creates an unsigned Block with \a blockType given \a context, signer public key (\a signerPublicKey) and \a transactions
 	/// for a network with identifier \a networkIdentifier.
 	std::unique_ptr<Block> CreateBlock(
+			EntityType blockType,
 			const PreviousBlockContext& context,
 			NetworkIdentifier networkIdentifier,
 			const Key& signerPublicKey,

@@ -47,7 +47,7 @@ namespace catapult { namespace config {
 	// region importance grouping validation
 
 	namespace {
-		auto CreateCatapultConfiguration(uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
+		auto CreateCatapultConfigurationWithImportanceGrouping(uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
 			auto mutableConfig = CreateMutableCatapultConfiguration();
 			mutableConfig.BlockChain.ImportanceGrouping = importanceGrouping;
 			mutableConfig.BlockChain.MaxRollbackBlocks = maxRollbackBlocks;
@@ -58,12 +58,12 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, ImportanceGroupingIsValidatedAgainstMaxRollbackBlocks) {
 		// Arrange:
 		auto assertNoThrow = [](uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
-			auto config = CreateCatapultConfiguration(importanceGrouping, maxRollbackBlocks);
+			auto config = CreateCatapultConfigurationWithImportanceGrouping(importanceGrouping, maxRollbackBlocks);
 			EXPECT_NO_THROW(ValidateConfiguration(config)) << "IG " << importanceGrouping << ", MRB " << maxRollbackBlocks;
 		};
 
 		auto assertThrow = [](uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
-			auto config = CreateCatapultConfiguration(importanceGrouping, maxRollbackBlocks);
+			auto config = CreateCatapultConfigurationWithImportanceGrouping(importanceGrouping, maxRollbackBlocks);
 			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error)
 					<< "IG " << importanceGrouping << ", MRB " << maxRollbackBlocks;
 		};
@@ -156,6 +156,46 @@ namespace catapult { namespace config {
 		// - exceptions
 		for (auto percentage : std::initializer_list<uint8_t>{ 100, 101, 156, 255 })
 			assertThrow(percentage);
+	}
+
+	// endregion
+
+	// region voting set grouping validation
+
+	namespace {
+		auto CreateCatapultConfigurationWithGroupings(uint32_t importanceGrouping, uint32_t votingSetGrouping) {
+			auto mutableConfig = CreateMutableCatapultConfiguration();
+			mutableConfig.BlockChain.ImportanceGrouping = importanceGrouping;
+			mutableConfig.BlockChain.VotingSetGrouping = votingSetGrouping;
+			return mutableConfig.ToConst();
+		}
+	}
+
+	TEST(TEST_CLASS, VotingSetGroupingMustBeMultipleOfImportanceGrouping) {
+		// Arrange:
+		auto assertNoThrow = [](uint32_t importanceGrouping, uint32_t votingSetGrouping) {
+			auto config = CreateCatapultConfigurationWithGroupings(importanceGrouping, votingSetGrouping);
+			EXPECT_NO_THROW(ValidateConfiguration(config)) << "IG " << importanceGrouping << ", VSG " << votingSetGrouping;
+		};
+
+		auto assertThrow = [](uint32_t importanceGrouping, uint32_t votingSetGrouping) {
+			auto config = CreateCatapultConfigurationWithGroupings(importanceGrouping, votingSetGrouping);
+			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error)
+					<< "IG " << importanceGrouping << ", VSG " << votingSetGrouping;
+		};
+
+		// Act + Assert:
+		// - no exceptions
+		assertNoThrow(200, 200); // IG == VSG
+		assertNoThrow(200, 800); // IG < VSG
+		assertNoThrow(1, 17);
+
+		// - exceptions
+		assertThrow(800, 200); // IG > VSG
+		assertThrow(200, 700); // VSG not multiple of IG
+		assertThrow(200, 799);
+		assertThrow(200, 801);
+		assertThrow(200, 900);
 	}
 
 	// endregion

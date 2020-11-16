@@ -87,9 +87,10 @@ namespace catapult {
 				transactions.push_back(std::move(pTransfer));
 			}
 
+			auto entityType = model::Entity_Type_Block_Normal;
 			model::PreviousBlockContext context;
 			context.GenerationHash = generationHashSeed.copyTo<GenerationHash>();
-			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
+			auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signer.publicKey(), transactions);
 			extensions::BlockExtensions(generationHashSeed).signFullBlock(signer, *pBlock);
 			return pBlock;
 		}

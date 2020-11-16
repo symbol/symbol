@@ -95,7 +95,10 @@ namespace catapult { namespace harvesting {
 			const auto& cache = state.cache();
 			const auto& blockChainConfig = state.config().BlockChain;
 			auto executionConfig = extensions::CreateExecutionConfiguration(state.pluginManager());
-			HarvestingUtFacadeFactory utFacadeFactory(cache, blockChainConfig, executionConfig);
+			HarvestingUtFacadeFactory utFacadeFactory(cache, blockChainConfig, executionConfig, [&storage = state.storage()](auto height) {
+				auto hashRange = storage.view().loadHashesFrom(height, 1);
+				return *hashRange.cbegin();
+			});
 
 			auto blockGenerator = CreateHarvesterBlockGenerator(strategy, transactionRegistry, utFacadeFactory, utCache);
 			auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(

@@ -51,7 +51,7 @@ namespace catapult { namespace handlers {
 		};
 	}
 
-	DEFINE_HEIGHT_REQUEST_HANDLER_TESTS(SubCacheMerkleRootsHandlerTraits, SubCacheMerkleRootsHandler)
+	DEFINE_HEIGHT_REQUEST_HANDLER_TESTS(TEST_CLASS, SubCacheMerkleRootsHandler)
 
 	namespace {
 		void AssertCanRetrieveSubCacheMerkleRoots(size_t numBlocks, Height requestHeight) {

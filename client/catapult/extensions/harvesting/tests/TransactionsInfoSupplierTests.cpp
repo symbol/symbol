@@ -58,10 +58,14 @@ namespace catapult { namespace harvesting {
 			// countRetriever parameter is used
 			static constexpr uint32_t Multiplier = 7;
 
+			static auto EmptyHashSupplier(Height) {
+				return Hash256();
+			}
+
 		public:
 			explicit TestContext(TransactionSelectionStrategy strategy, uint32_t utCacheSize = 0)
 					: m_catapultCache(test::CreateCatapultCacheWithMarkerAccount(Height(7)))
-					, m_utFacadeFactory(m_catapultCache, CreateBlockChainConfiguration(), m_executionConfig.Config)
+					, m_utFacadeFactory(m_catapultCache, CreateBlockChainConfiguration(), m_executionConfig.Config, EmptyHashSupplier)
 					, m_pUtCache(test::CreateSeededMemoryUtCache(utCacheSize))
 					, m_supplier(CreateTransactionsInfoSupplier(strategy, [](const auto&) { return Multiplier; }, *m_pUtCache))
 			{}

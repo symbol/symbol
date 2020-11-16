@@ -24,6 +24,7 @@
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/io/FileBlockStorage.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/EntityHasher.h"
 #include "catapult/preprocessor.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
@@ -84,6 +85,7 @@ namespace catapult { namespace test {
 			m_pParentBlockElement = storage.loadBlockElement(Height(1));
 		}
 
+		m_previousImportanceBlockHash = m_pParentBlockElement->EntityHash;
 		m_pStateHashCalculator->execute(m_pParentBlockElement->Block);
 	}
 
@@ -105,6 +107,7 @@ namespace catapult { namespace test {
 		builder.m_pTailBlockElement = m_pTailBlockElement;
 		builder.m_pParentBlockElement = m_pTailBlockElement;
 		builder.m_statistics = m_statistics;
+		builder.m_previousImportanceBlockHash = m_previousImportanceBlockHash;
 		return builder;
 	}
 
@@ -114,6 +117,7 @@ namespace catapult { namespace test {
 		builder.m_pTailBlockElement = ToSharedBlockElement(block);
 		builder.m_pParentBlockElement = builder.m_pTailBlockElement;
 		builder.m_statistics = m_statistics;
+		builder.m_previousImportanceBlockHash = m_previousImportanceBlockHash;
 		return builder;
 	}
 
@@ -161,8 +165,10 @@ namespace catapult { namespace test {
 			const model::Transactions& transactions) {
 		auto difficulty = chain::CalculateDifficulty(cache::BlockStatisticRange(m_statistics.cbegin(), m_statistics.cend()), m_config);
 
+		auto isImportanceBlock = 0 == (context.BlockHeight.unwrap() + 1) % m_config.ImportanceGrouping;
+		auto entityType = isImportanceBlock ? model::Entity_Type_Block_Importance : model::Entity_Type_Block_Normal;
 		auto signerKeyPair = findBlockSigner(context, timestamp, difficulty);
-		auto pBlock = model::CreateBlock(context, Network_Identifier, signerKeyPair.publicKey(), transactions);
+		auto pBlock = model::CreateBlock(entityType, context, Network_Identifier, signerKeyPair.publicKey(), transactions);
 		pBlock->Timestamp = timestamp;
 		pBlock->Difficulty = difficulty;
 
@@ -177,7 +183,17 @@ namespace catapult { namespace test {
 		auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
 		pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
 
+		if (isImportanceBlock) {
+			auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+			blockFooter.HarvestingEligibleAccountsCount = CountOf(Test_Network_Vrf_Private_Keys);
+			blockFooter.PreviousImportanceBlockHash = m_previousImportanceBlockHash;
+		}
+
 		extensions::BlockExtensions(GetNemesisGenerationHashSeed()).signFullBlock(signerKeyPair, *pBlock);
+
+		if (isImportanceBlock)
+			m_previousImportanceBlockHash = model::CalculateHash(*pBlock);
+
 		return pBlock;
 	}
 

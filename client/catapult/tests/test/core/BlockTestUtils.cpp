@@ -30,6 +30,10 @@
 
 namespace catapult { namespace test {
 
+	namespace {
+		constexpr auto Block_Header_Size = sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter);
+	}
+
 	// region TestBlockTransactions
 
 	TestBlockTransactions::TestBlockTransactions(const ConstTransactions& transactions) : m_transactions(transactions)
@@ -70,18 +74,26 @@ namespace catapult { namespace test {
 
 		struct TestBlockOptions {
 		public:
-			explicit TestBlockOptions(const crypto::KeyPair& signer) : Signer(signer)
+			explicit TestBlockOptions(const crypto::KeyPair& signer)
+					: Signer(signer)
+					, EntityType(model::Entity_Type_Block_Normal)
 			{}
 
 		public:
 			const crypto::KeyPair& Signer;
+			model::EntityType EntityType;
 			catapult::Height Height;
 			catapult::Timestamp Timestamp;
 		};
 
 		std::unique_ptr<model::Block> GenerateBlock(const TestBlockTransactions& transactions, const TestBlockOptions& options) {
 			model::PreviousBlockContext context;
-			auto pBlock = model::CreateBlock(context, Network_Identifier, options.Signer.publicKey(), transactions.get());
+			auto pBlock = model::CreateBlock(
+					options.EntityType,
+					context,
+					Network_Identifier,
+					options.Signer.publicKey(),
+					transactions.get());
 			RandomizeBlock(*pBlock);
 
 			if (Height() != options.Height)
@@ -99,6 +111,12 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<model::Block> GenerateEmptyRandomBlock() {
 		return GenerateBlockWithTransactions(0);
+	}
+
+	std::unique_ptr<model::Block> GenerateImportanceBlockWithTransactions(const TestBlockTransactions& transactions) {
+		auto blockOptions = TestBlockOptions(GenerateKeyPair());
+		blockOptions.EntityType = model::Entity_Type_Block_Importance;
+		return GenerateBlock(transactions, blockOptions);
 	}
 
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const TestBlockTransactions& transactions) {
@@ -147,12 +165,11 @@ namespace catapult { namespace test {
 	// endregion
 
 	std::vector<uint8_t> CreateRandomBlockBuffer(size_t numBlocks) {
-		constexpr auto Entity_Size = sizeof(model::BlockHeader);
-		auto buffer = GenerateRandomVector(numBlocks * Entity_Size);
+		auto buffer = GenerateRandomVector(numBlocks * Block_Header_Size);
 		for (auto i = 0u; i < numBlocks; ++i) {
-			auto& block = reinterpret_cast<model::Block&>(buffer[i * Entity_Size]);
-			block.Size = Entity_Size;
-			block.Type = model::Entity_Type_Block;
+			auto& block = reinterpret_cast<model::Block&>(buffer[i * Block_Header_Size]);
+			block.Size = Block_Header_Size;
+			block.Type = model::Entity_Type_Block_Normal;
 		}
 
 		return buffer;
@@ -163,8 +180,12 @@ namespace catapult { namespace test {
 	}
 
 	model::BlockRange CreateBlockEntityRange(size_t numBlocks) {
+		std::vector<size_t> offsets;
+		for (auto i = 0u; i < numBlocks; ++i)
+			offsets.push_back(i * Block_Header_Size);
+
 		auto buffer = CreateRandomBlockBuffer(numBlocks);
-		return model::BlockRange::CopyFixed(buffer.data(), numBlocks);
+		return model::BlockRange::CopyVariable(buffer.data(), buffer.size(), offsets);
 	}
 
 	std::vector<model::BlockRange> PrepareRanges(size_t count) {

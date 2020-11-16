@@ -177,111 +177,11 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region sign / verify
-
-	namespace {
-		auto CreateSignedBlock(size_t numTransactions) {
-			// random generation hash is used because VerifyBlockHeaderSignature should succeed independent of generation hash
-			auto signer = test::GenerateKeyPair();
-			auto pBlock = test::GenerateBlockWithTransactions(signer, test::GenerateRandomTransactions(numTransactions));
-			extensions::BlockExtensions(test::GenerateRandomByteArray<GenerationHashSeed>()).updateBlockTransactionsHash(*pBlock);
-			SignBlockHeader(signer, *pBlock);
-			return pBlock;
-		}
-	}
-
-	TEST(TEST_CLASS, CanSignAndVerifyBlockWithoutTransactions) {
-		// Arrange:
-		auto pBlock = CreateSignedBlock(0);
-
-		// Act:
-		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
-
-		// Assert:
-		EXPECT_TRUE(isVerified);
-	}
-
-	TEST(TEST_CLASS, CanSignAndVerifyBlockWithTransactions) {
-		// Arrange:
-		auto pBlock = CreateSignedBlock(3);
-
-		// Act:
-		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
-
-		// Assert:
-		EXPECT_TRUE(isVerified);
-	}
-
-	TEST(TEST_CLASS, CanSignAndVerifyBlockHeaderWithTransactions) {
-		// Arrange:
-		auto pBlock = CreateSignedBlock(3);
-		pBlock->Size = sizeof(BlockHeader);
-
-		// Act:
-		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
-
-		// Assert: the block header should still verify even though it doesn't have transaction data
-		EXPECT_TRUE(isVerified);
-	}
-
-	TEST(TEST_CLASS, CannotVerifyBlockWithAlteredSignature) {
-		// Arrange:
-		auto pBlock = CreateSignedBlock(3);
-		pBlock->Signature[0] ^= 0xFF;
-
-		// Act:
-		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
-
-		// Assert:
-		EXPECT_FALSE(isVerified);
-	}
-
-	TEST(TEST_CLASS, CannotVerifyBlockWithAlteredData) {
-		// Arrange:
-		auto pBlock = CreateSignedBlock(3);
-		pBlock->Timestamp = pBlock->Timestamp + Timestamp(1);
-
-		// Act:
-		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
-
-		// Assert:
-		EXPECT_FALSE(isVerified);
-	}
-
-	TEST(TEST_CLASS, CannotVerifyBlockWithAlteredBlockTransactionsHash) {
-		// Arrange:
-		auto pBlock = CreateSignedBlock(3);
-		pBlock->TransactionsHash[0] ^= 0xFF;
-
-		// Act:
-		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
-
-		// Assert:
-		EXPECT_FALSE(isVerified);
-	}
-
-	TEST(TEST_CLASS, CanVerifyBlockWithAlteredTransaction) {
-		// Arrange:
-		auto pBlock = CreateSignedBlock(3);
-		auto transactions = pBlock->Transactions();
-		auto iter = transactions.begin();
-		++iter;
-		iter->Deadline = iter->Deadline + Timestamp(1);
-
-		// Act:
-		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
-
-		// Assert: the header should verify but the block transactions hash should not match
-		EXPECT_TRUE(isVerified);
-	}
-
-	// endregion
-
 	// region block transactions info - CalculateBlockTransactionsInfo
 
 	namespace {
 		struct BasicBlockTransactionsInfoTraits {
-			static BlockTransactionsInfo Calculate(const model::Block& block) {
+			static BlockTransactionsInfo Calculate(const Block& block) {
 				return CalculateBlockTransactionsInfo(block);
 			}
 
@@ -290,7 +190,7 @@ namespace catapult { namespace model {
 		};
 
 		struct ExtendedBlockTransactionsInfoTraits {
-			static ExtendedBlockTransactionsInfo Calculate(const model::Block& block) {
+			static ExtendedBlockTransactionsInfo Calculate(const Block& block) {
 				auto transactionRegistry = mocks::CreateDefaultTransactionRegistry();
 				return CalculateBlockTransactionsInfo(block, transactionRegistry);
 			}
@@ -391,6 +291,178 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_EQ(3u, blockTransactionsInfo.Count);
 		EXPECT_EQ(2u, blockTransactionsInfo.DeepCount);
+	}
+
+	// endregion
+
+	// region traits
+
+	namespace {
+		struct BlockNormalTraits {
+			static constexpr uint32_t Header_Size = sizeof(BlockHeader) + sizeof(PaddedBlockFooter);
+			static constexpr auto Entity_Type = Entity_Type_Block_Normal;
+
+			static std::unique_ptr<Block> CreateBlockWithTransactions(size_t numTransactions = 3) {
+				auto transactions = test::GenerateRandomTransactions(numTransactions);
+				return test::GenerateBlockWithTransactions(transactions);
+			}
+
+			static void AssertZeroedExtendedData(const Block& block) {
+				const auto& blockFooter = GetBlockFooter<PaddedBlockFooter>(block);
+				EXPECT_EQ(0u, blockFooter.BlockHeader_Reserved1);
+			}
+		};
+
+		struct BlockImportanceTraits {
+			static constexpr uint32_t Header_Size = sizeof(BlockHeader) + sizeof(ImportanceBlockFooter);
+			static constexpr auto Entity_Type = Entity_Type_Block_Importance;
+
+			static std::unique_ptr<Block> CreateBlockWithTransactions(size_t numTransactions = 3) {
+				auto transactions = test::GenerateRandomTransactions(numTransactions);
+				return test::GenerateImportanceBlockWithTransactions(transactions);
+			}
+
+			static void AssertZeroedExtendedData(const Block& block) {
+				const auto& blockFooter = GetBlockFooter<ImportanceBlockFooter>(block);
+				EXPECT_EQ(0u, blockFooter.VotingEligibleAccountsCount);
+				EXPECT_EQ(0u, blockFooter.HarvestingEligibleAccountsCount);
+				EXPECT_EQ(Amount(), blockFooter.TotalVotingBalance);
+				EXPECT_EQ(Hash256(), blockFooter.PreviousImportanceBlockHash);
+			}
+		};
+	}
+
+#define BLOCK_TRAITS_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Normal) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Importance) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// endregion
+
+	// region sign / verify
+
+	namespace {
+		template<typename TTraits>
+		auto CreateSignedBlock(size_t numTransactions) {
+			// random generation hash is used because VerifyBlockHeaderSignature should succeed independent of generation hash
+			auto signer = test::GenerateKeyPair();
+			auto pBlock = TTraits::CreateBlockWithTransactions(numTransactions);
+			pBlock->SignerPublicKey = signer.publicKey();
+
+			extensions::BlockExtensions(test::GenerateRandomByteArray<GenerationHashSeed>()).updateBlockTransactionsHash(*pBlock);
+			SignBlockHeader(signer, *pBlock);
+			return pBlock;
+		}
+	}
+
+	BLOCK_TRAITS_TEST(CanSignAndVerifyBlockWithoutTransactions) {
+		// Arrange:
+		auto pBlock = CreateSignedBlock<TTraits>(0);
+
+		// Act:
+		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
+
+		// Assert:
+		EXPECT_TRUE(isVerified);
+	}
+
+	BLOCK_TRAITS_TEST(CanSignAndVerifyBlockWithTransactions) {
+		// Arrange:
+		auto pBlock = CreateSignedBlock<TTraits>(3);
+
+		// Act:
+		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
+
+		// Assert:
+		EXPECT_TRUE(isVerified);
+	}
+
+	BLOCK_TRAITS_TEST(CanSignAndVerifyBlockHeaderWithTransactions) {
+		// Arrange:
+		auto pBlock = CreateSignedBlock<TTraits>(3);
+		pBlock->Size = sizeof(BlockHeader);
+
+		// Act:
+		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
+
+		// Assert: the block header should still verify even though it doesn't have transaction data
+		EXPECT_TRUE(isVerified);
+	}
+
+	BLOCK_TRAITS_TEST(CannotVerifyBlockWithAlteredSignature) {
+		// Arrange:
+		auto pBlock = CreateSignedBlock<TTraits>(3);
+		pBlock->Signature[0] ^= 0xFF;
+
+		// Act:
+		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
+
+		// Assert:
+		EXPECT_FALSE(isVerified);
+	}
+
+	BLOCK_TRAITS_TEST(CannotVerifyBlockWithAlteredData) {
+		// Arrange:
+		auto pBlock = CreateSignedBlock<TTraits>(3);
+		pBlock->Timestamp = pBlock->Timestamp + Timestamp(1);
+
+		// Act:
+		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
+
+		// Assert:
+		EXPECT_FALSE(isVerified);
+	}
+
+	BLOCK_TRAITS_TEST(CannotVerifyBlockWithAlteredBlockTransactionsHash) {
+		// Arrange:
+		auto pBlock = CreateSignedBlock<TTraits>(3);
+		pBlock->TransactionsHash[0] ^= 0xFF;
+
+		// Act:
+		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
+
+		// Assert:
+		EXPECT_FALSE(isVerified);
+	}
+
+	BLOCK_TRAITS_TEST(CanVerifyBlockWithAlteredTransaction) {
+		// Arrange:
+		auto pBlock = CreateSignedBlock<TTraits>(3);
+		auto transactions = pBlock->Transactions();
+		auto iter = transactions.begin();
+		++iter;
+		iter->Deadline = iter->Deadline + Timestamp(1);
+
+		// Act:
+		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
+
+		// Assert: the header should verify but the block transactions hash should not match
+		EXPECT_TRUE(isVerified);
+	}
+
+	TEST(TEST_CLASS, CanVerifyBlockWithModifiedPaddedBlockFooter_Normal) {
+		// Arrange:
+		auto pBlock = CreateSignedBlock<BlockNormalTraits>(3);
+		GetBlockFooter<PaddedBlockFooter>(*pBlock).BlockHeader_Reserved1 ^= 0xFF;
+
+		// Act:
+		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
+
+		// Assert:
+		EXPECT_TRUE(isVerified);
+	}
+
+	TEST(TEST_CLASS, CannotVerifyBlockWithModifiedImportanceBlockFooter_Importance) {
+		// Arrange:
+		auto pBlock = CreateSignedBlock<BlockImportanceTraits>(3);
+		GetBlockFooter<ImportanceBlockFooter>(*pBlock).PreviousImportanceBlockHash[0] ^= 0xFF;
+
+		// Act:
+		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
+
+		// Assert:
+		EXPECT_FALSE(isVerified);
 	}
 
 	// endregion
@@ -496,7 +568,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(std::vector<uint8_t>(transactionPaddingBytes.size(), 0), transactionPaddingBytes);
 		}
 
-		template<typename TContainerTraits>
+		template<typename TTraits, typename TContainerTraits>
 		void AssertCanCreateBlock(size_t numTransactions) {
 			// Arrange:
 			auto signer = test::GenerateKeyPair();
@@ -510,16 +582,17 @@ namespace catapult { namespace model {
 			auto transactions = TContainerTraits::MapTransactions(randomTransactions);
 
 			// Act:
-			auto pBlock = CreateBlock(context, static_cast<NetworkIdentifier>(0x17), signer.publicKey(), transactions);
+			auto networkIdentifier = static_cast<NetworkIdentifier>(0x17);
+			auto pBlock = CreateBlock(TTraits::Entity_Type, context, networkIdentifier, signer.publicKey(), transactions);
 
 			// Assert:
-			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions, true), pBlock->Size);
+			ASSERT_EQ(TTraits::Header_Size + SumTransactionSizes(transactions, true), pBlock->Size);
 			EXPECT_EQ(Signature(), pBlock->Signature);
 
 			EXPECT_EQ(signer.publicKey(), pBlock->SignerPublicKey);
 			EXPECT_EQ(Block::Current_Version, pBlock->Version);
 			EXPECT_EQ(static_cast<NetworkIdentifier>(0x17), pBlock->Network);
-			EXPECT_EQ(Entity_Type_Block, pBlock->Type);
+			EXPECT_EQ(TTraits::Entity_Type, pBlock->Type);
 
 			EXPECT_EQ(Height(1235), pBlock->Height);
 			EXPECT_EQ(Timestamp(), pBlock->Timestamp);
@@ -531,16 +604,17 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Hash256(), pBlock->StateHash);
 			EXPECT_EQ(GetSignerAddress(*pBlock), pBlock->BeneficiaryAddress);
 
+			TTraits::AssertZeroedExtendedData(*pBlock);
 			AssertTransactionsInBlock(*pBlock, transactions);
 		}
 	}
 
-	TEST(TEST_CLASS, CanCreateBlockWithoutTransactions) {
-		AssertCanCreateBlock<SharedPointerTraits>(0);
+	BLOCK_TRAITS_TEST(CanCreateBlockWithoutTransactions) {
+		AssertCanCreateBlock<TTraits, SharedPointerTraits>(0);
 	}
 
-	TEST(TEST_CLASS, CanCreateBlockWithTransactions) {
-		AssertCanCreateBlock<SharedPointerTraits>(5);
+	BLOCK_TRAITS_TEST(CanCreateBlockWithTransactions) {
+		AssertCanCreateBlock<TTraits, SharedPointerTraits>(5);
 	}
 
 	// endregion
@@ -548,36 +622,37 @@ namespace catapult { namespace model {
 	// region create block - StitchBlock
 
 	namespace {
-		template<typename TContainerTraits>
+		template<typename TTraits, typename TContainerTraits>
 		void AssertCanStitchBlock(size_t numTransactions) {
 			// Arrange:
-			BlockHeader blockHeader;
-			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&blockHeader), sizeof(BlockHeader) });
+			auto pBlockHeaderTemplate = utils::MakeUniqueWithSize<BlockHeader>(TTraits::Header_Size);
+			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pBlockHeaderTemplate.get()), TTraits::Header_Size });
+			pBlockHeaderTemplate->Type = TTraits::Entity_Type;
 
 			auto randomTransactions = test::GenerateRandomTransactions(numTransactions);
 			auto transactions = TContainerTraits::MapTransactions(randomTransactions);
 
 			// Act:
-			auto pBlock = StitchBlock(blockHeader, transactions);
+			auto pBlock = StitchBlock(*pBlockHeaderTemplate, transactions);
 
 			// Assert:
-			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions, true), pBlock->Size);
+			ASSERT_EQ(TTraits::Header_Size + SumTransactionSizes(transactions, true), pBlock->Size);
 
 			EXPECT_EQ_MEMORY(
-					reinterpret_cast<const uint8_t*>(&blockHeader) + sizeof(BlockHeader::Size),
+					reinterpret_cast<const uint8_t*>(pBlockHeaderTemplate.get()) + sizeof(BlockHeader::Size),
 					reinterpret_cast<const uint8_t*>(pBlock.get()) + sizeof(BlockHeader::Size),
-					sizeof(BlockHeader) - sizeof(BlockHeader::Size));
+					TTraits::Header_Size - sizeof(BlockHeader::Size));
 
 			AssertTransactionsInBlock(*pBlock, transactions);
 		}
 	}
 
-	TEST(TEST_CLASS, CanStitchBlockWithoutTransactions) {
-		AssertCanStitchBlock<SharedPointerTraits>(0);
+	BLOCK_TRAITS_TEST(CanStitchBlockWithoutTransactions) {
+		AssertCanStitchBlock<TTraits, SharedPointerTraits>(0);
 	}
 
-	TEST(TEST_CLASS, CanStitchBlockWithTransactions) {
-		AssertCanStitchBlock<SharedPointerTraits>(5);
+	BLOCK_TRAITS_TEST(CanStitchBlockWithTransactions) {
+		AssertCanStitchBlock<TTraits, SharedPointerTraits>(5);
 	}
 
 	// endregion

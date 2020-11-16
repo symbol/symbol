@@ -152,7 +152,9 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a copy of the default catapult configuration.
 		config::CatapultConfiguration createConfig() const {
-			return CreatePrototypicalCatapultConfiguration(m_tempDir.name());
+			auto config = CreatePrototypicalCatapultConfiguration(m_tempDir.name());
+			m_configTransform(config);
+			return config;
 		}
 
 		/// Prepares a fresh data \a directory and returns corresponding configuration.

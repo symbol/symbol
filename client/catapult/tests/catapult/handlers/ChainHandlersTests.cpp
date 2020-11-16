@@ -45,7 +45,7 @@ namespace catapult { namespace handlers {
 	// region PushBlockHandler
 
 	namespace {
-		constexpr auto Block_Packet_Size = sizeof(ionet::PacketHeader) + sizeof(model::BlockHeader);
+		constexpr auto Block_Packet_Size = sizeof(ionet::PacketHeader) + sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter);
 
 		namespace {
 			template<typename TAction>

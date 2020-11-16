@@ -66,6 +66,9 @@ namespace catapult { namespace extensions {
 			"EligibleHarvesterValidator",
 			"BalanceDebitValidator",
 			"BalanceTransferValidator",
+			"ImportanceBlockValidator",
+
+			// key link transactions
 			"VrfKeyLinkValidator",
 			"VotingMultiKeyLinkValidator"
 		};

@@ -25,6 +25,7 @@
 	db.blocks.createIndex({ 'block.signerPublicKey': 1 });
 	db.blocks.createIndex({ 'block.timestamp': -1 }, { unique: true });
 	db.blocks.createIndex({ 'block.height': -1 }, { unique: true });
+	db.blocks.createIndex({ 'block.type': 1, 'block.height': -1 }, { unique: true });
 	db.blocks.createIndex({ 'block.signerPublicKey': 1, 'block.height': -1 }, { unique: true });
 	db.blocks.createIndex({ 'block.beneficiaryAddress': 1, 'block.height': -1 }, { unique: true });
 

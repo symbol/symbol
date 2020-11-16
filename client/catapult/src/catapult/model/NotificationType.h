@@ -135,6 +135,12 @@ namespace catapult { namespace model {
 	/// Key link action was received.
 	DEFINE_CORE_NOTIFICATION(Key_Link_Action, 0x0011, Validator);
 
+	/// Importance block was received.
+	DEFINE_CORE_NOTIFICATION(Block_Importance, 0x0012, Validator);
+
+	/// Block was received (type information only).
+	DEFINE_CORE_NOTIFICATION(Block_Type, 0x0013, Validator);
+
 #undef DEFINE_CORE_NOTIFICATION
 
 	// endregion
