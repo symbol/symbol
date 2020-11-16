@@ -128,6 +128,8 @@ namespace catapult { namespace test {
 		config.VotingSetGrouping = 1;
 
 		config.MaxTransactionsPerBlock = 200'000;
+
+		config.ForkHeights.ImportanceBlock = Height(1);
 		return config;
 	}
 

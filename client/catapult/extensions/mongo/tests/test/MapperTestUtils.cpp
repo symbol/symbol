@@ -97,7 +97,7 @@ namespace catapult { namespace test {
 
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock) {
 		// - 6 fields from VerifiableEntity, 12 fields from Block, 4 fields from ImportanceBlockFooter
-		EXPECT_EQ(18u + (model::IsImportanceBlock(block.Type) ? 4 : 0), GetFieldCount(dbBlock));
+		EXPECT_EQ(18u + (model::IsImportanceBlock(block.Type, block.Version) ? 4 : 0), GetFieldCount(dbBlock));
 		AssertEqualVerifiableEntityData(block, dbBlock);
 
 		EXPECT_EQ(block.Height, Height(GetUint64(dbBlock, "height")));
@@ -115,7 +115,7 @@ namespace catapult { namespace test {
 		EXPECT_EQ(block.BeneficiaryAddress, GetAddressValue(dbBlock, "beneficiaryAddress"));
 		EXPECT_EQ(block.FeeMultiplier, BlockFeeMultiplier(GetUint32(dbBlock, "feeMultiplier")));
 
-		if (model::IsImportanceBlock(block.Type)) {
+		if (model::IsImportanceBlock(block.Type, block.Version)) {
 			const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(block);
 			EXPECT_EQ(blockFooter.VotingEligibleAccountsCount, GetUint32(dbBlock, "votingEligibleAccountsCount"));
 			EXPECT_EQ(blockFooter.HarvestingEligibleAccountsCount, GetUint64(dbBlock, "harvestingEligibleAccountsCount"));

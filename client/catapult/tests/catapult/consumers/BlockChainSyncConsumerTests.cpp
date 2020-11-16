@@ -1473,7 +1473,24 @@ namespace catapult { namespace consumers {
 		void RunImportanceBlockLinkTest(bool shouldCreateLink, TAssertResult assertResult) {
 			// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-12
 			ConsumerTestContext context;
-			context.seedStorage(Height(7));
+			{
+				// - make sure height 6 is importance block
+				context.seedStorage(Height(5));
+
+				auto storageModifier = context.Storage.modifier();
+
+				auto pBlock6 = test::GenerateImportanceBlockWithTransactions(1);
+				SetBlockHeight(*pBlock6, Height(6));
+				storageModifier.saveBlock(test::BlockToBlockElement(*pBlock6));
+				context.OriginalBlocks.push_back(std::move(pBlock6));
+
+				auto pBlock7 = test::GenerateBlockWithTransactions(1);
+				SetBlockHeight(*pBlock7, Height(7));
+				storageModifier.saveBlock(test::BlockToBlockElement(*pBlock7));
+				context.OriginalBlocks.push_back(std::move(pBlock7));
+
+				storageModifier.commit();
+			}
 
 			auto pBlock1 = test::GenerateBlockWithTransactions(1);
 			auto pBlock2 = test::GenerateImportanceBlockWithTransactions(1);

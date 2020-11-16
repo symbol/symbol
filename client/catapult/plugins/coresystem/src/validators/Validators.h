@@ -24,6 +24,8 @@
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/validators/ValidatorTypes.h"
 
+namespace catapult { namespace model { struct BlockChainForkHeights; } }
+
 namespace catapult { namespace validators {
 
 	// region Address / Key
@@ -65,8 +67,8 @@ namespace catapult { namespace validators {
 	// region Block / ImportanceBlock
 
 	/// Validator that applies to all block notifications and validates that:
-	/// - block type matches expected block type given \a importanceGrouping
-	DECLARE_STATELESS_VALIDATOR(BlockType, model::BlockTypeNotification)(uint64_t importanceGrouping);
+	/// - block type matches expected block type given \a importanceGrouping and \a forkHeight
+	DECLARE_STATELESS_VALIDATOR(BlockType, model::BlockTypeNotification)(uint64_t importanceGrouping, Height forkHeight);
 
 	/// Validator that applies to all block notifications and validates that:
 	/// - the block signer was eligible to create the block
@@ -110,10 +112,8 @@ namespace catapult { namespace validators {
 	/// - internal padding is zero
 	DECLARE_STATELESS_VALIDATOR(ZeroInternalPadding, model::InternalPaddingNotification)();
 
-	// Validator that introduces first testnet fork at \a forkHeight and validates that:
-	// - before fork block only v1 VotingKeyLink transactions are allowed
-	// - after fork block only v2 VotingKeyLink transactions are allowed
-	DECLARE_STATEFUL_VALIDATOR(EntityForkVersion, model::EntityNotification)(Height forkHeight);
+	/// Validator that checks entity version forks given \a forkHeights.
+	DECLARE_STATEFUL_VALIDATOR(EntityForkVersion, model::EntityNotification)(const model::BlockChainForkHeights& forkHeights);
 
 	// endregion
 }}

@@ -95,7 +95,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		AssertCanMapBlock(*pBlock, Amount(0), 0, 0, Num_Statements);
 
 		// Sanity:
-		EXPECT_FALSE(model::IsImportanceBlock(pBlock->Type));
+		EXPECT_FALSE(model::IsImportanceBlock(pBlock->Type, pBlock->Version));
 	}
 
 	TRAITS_BASED_RECEIPTS_TEST(CanMapImportanceBlockWithoutTransactions) {
@@ -108,7 +108,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		AssertCanMapBlock(*pBlock, Amount(0), 0, 0, Num_Statements);
 
 		// Sanity:
-		EXPECT_TRUE(model::IsImportanceBlock(pBlock->Type));
+		EXPECT_TRUE(model::IsImportanceBlock(pBlock->Type, pBlock->Version));
 	}
 
 	TRAITS_BASED_RECEIPTS_TEST(CanMapBlockWithTransactions) {

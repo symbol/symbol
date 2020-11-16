@@ -67,7 +67,7 @@ namespace catapult { namespace consumers {
 						return Abort(Failure_Consumer_Remote_Chain_Improper_Link);
 
 					// check for importance link
-					if (model::IsImportanceBlock(element.Block.Type)) {
+					if (model::IsImportanceBlock(element.Block.Type, element.Block.Version)) {
 						const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(element.Block);
 						if (pPreviousImportanceBlockHash && *pPreviousImportanceBlockHash != blockFooter.PreviousImportanceBlockHash) {
 							CATAPULT_LOG(warning)

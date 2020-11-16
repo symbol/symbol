@@ -27,17 +27,18 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS BlockTypeValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(BlockType, 123)
+	DEFINE_COMMON_VALIDATOR_TESTS(BlockType, 123, Height(111))
 
 	namespace {
 		void AssertValidationResult(
 				ValidationResult expectedResult,
 				uint64_t importanceGrouping,
 				model::EntityType blockType,
-				Height blockHeight) {
+				Height blockHeight,
+				Height forkHeight) {
 			// Arrange:
 			auto notification = model::BlockTypeNotification(blockType, blockHeight);
-			auto pValidator = CreateBlockTypeValidator(importanceGrouping);
+			auto pValidator = CreateBlockTypeValidator(importanceGrouping, forkHeight);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);
@@ -46,10 +47,15 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(expectedResult, result)
 					<< "importanceGrouping = " << importanceGrouping
 					<< ", blockType = " << blockType
-					<< ", blockHeight = " << blockHeight;
+					<< ", blockHeight = " << blockHeight
+					<< ", forkHeight = " << forkHeight;
 		}
 
-		void AssertValidationResultMultiple(model::EntityType successBlockType, uint64_t importanceGrouping, Height blockHeight) {
+		void AssertValidationResultMultiple(
+				model::EntityType successBlockType,
+				uint64_t importanceGrouping,
+				Height blockHeight,
+				Height forkHeight = Height(0)) {
 			// Arrange:
 			auto blockTypes = std::initializer_list<model::EntityType>{
 				model::Entity_Type_Block_Nemesis,
@@ -62,17 +68,17 @@ namespace catapult { namespace validators {
 				auto expectedResult = successBlockType == blockType ? ValidationResult::Success : Failure_Core_Unexpected_Block_Type;
 
 				// Act + Assert:
-				AssertValidationResult(expectedResult, importanceGrouping, blockType, blockHeight);
+				AssertValidationResult(expectedResult, importanceGrouping, blockType, blockHeight, forkHeight);
 			}
 		}
 	}
 
 	// region validation
 
-	TEST(TEST_CLASS, HeightZero_MustBeImportanceBlock) {
-		AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 50, Height(0));
+	TEST(TEST_CLASS, HeightZero_MustBeNormalBlock) {
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 50, Height(0));
 
-		AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 123, Height(0));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(0));
 	}
 
 	TEST(TEST_CLASS, HeightOne_MustBeNemesisBlock) {
@@ -99,6 +105,22 @@ namespace catapult { namespace validators {
 		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(122));
 		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(124));
 		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(200));
+	}
+
+	// endregion
+
+	// region fork inflection
+
+	TEST(TEST_CLASS, CorrectInflectionAtForkHeight_Importance) {
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(246), Height(247));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(246), Height(246));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Importance, 123, Height(246), Height(245));
+	}
+
+	TEST(TEST_CLASS, CorrectInflectionAtForkHeight_Normal) {
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(200), Height(201));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(200), Height(200));
+		AssertValidationResultMultiple(model::Entity_Type_Block_Normal, 123, Height(200), Height(199));
 	}
 
 	// endregion

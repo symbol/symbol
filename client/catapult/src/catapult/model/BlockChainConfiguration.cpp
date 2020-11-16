@@ -98,6 +98,7 @@ namespace catapult { namespace model {
 #define LOAD_FORK_HEIGHT_PROPERTY(NAME) utils::LoadIniProperty(bag, "fork_heights", #NAME, config.ForkHeights.NAME)
 
 		LOAD_FORK_HEIGHT_PROPERTY(VotingKeyLinkV2);
+		LOAD_FORK_HEIGHT_PROPERTY(ImportanceBlock);
 
 #undef LOAD_FORK_HEIGHT_PROPERTY
 
@@ -116,7 +117,7 @@ namespace catapult { namespace model {
 			numPluginProperties += iter->second.size();
 		}
 
-		utils::VerifyBagSizeExact(bag, 5 + 27 + 1 + numPluginProperties);
+		utils::VerifyBagSizeExact(bag, 5 + 27 + 2 + numPluginProperties);
 		return config;
 	}
 

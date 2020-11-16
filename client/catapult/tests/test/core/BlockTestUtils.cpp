@@ -150,6 +150,7 @@ namespace catapult { namespace test {
 		transactions.push_back(GenerateDeterministicTransaction());
 		auto pBlock = GenerateBlockWithTransactions(keyPair, transactions);
 		pBlock->SignerPublicKey = keyPair.publicKey();
+		pBlock->Version = 1;
 		pBlock->Height = Height(12345);
 		pBlock->Timestamp = Timestamp(54321);
 		pBlock->Difficulty = Difficulty(123'456'789'123'456);

@@ -26,10 +26,22 @@ namespace catapult { namespace validators {
 
 	using Notification = model::BlockTypeNotification;
 
-	DECLARE_STATELESS_VALIDATOR(BlockType, Notification)(uint64_t importanceGrouping) {
-		return MAKE_STATELESS_VALIDATOR(BlockType, [importanceGrouping](const Notification& notification) {
-			auto expectedBlockType = model::CalculateBlockTypeFromHeight(notification.BlockHeight, importanceGrouping);
+	namespace {
+		model::EntityType CalculateExpectedBlockType(Height height, uint64_t importanceGrouping, Height forkHeight) {
+			if (Height(1) == height)
+				return model::Entity_Type_Block_Nemesis;
+
+			if (height <= forkHeight)
+				return model::Entity_Type_Block_Normal;
+
+			return model::CalculateBlockTypeFromHeight(height, importanceGrouping);
+		}
+	}
+
+	DECLARE_STATELESS_VALIDATOR(BlockType, Notification)(uint64_t importanceGrouping, Height forkHeight) {
+		return MAKE_STATELESS_VALIDATOR(BlockType, ([importanceGrouping, forkHeight](const Notification& notification) {
+			auto expectedBlockType = CalculateExpectedBlockType(notification.BlockHeight, importanceGrouping, forkHeight);
 			return expectedBlockType == notification.BlockType ? ValidationResult::Success : Failure_Core_Unexpected_Block_Type;
-		});
+		}));
 	}
 }}

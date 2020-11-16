@@ -258,11 +258,21 @@ namespace catapult { namespace consumers {
 
 				// check that the *first* importance block is properly linked
 				for (const auto& element : elements) {
-					if (!model::IsImportanceBlock(element.Block.Type))
+					if (!model::IsImportanceBlock(element.Block.Type, element.Block.Version))
 						continue;
 
+					Hash256 previousImportanceBlockHash;
 					model::HeightGroupingFacade<Height> groupingFacade(element.Block.Height, m_importanceGrouping);
-					auto previousImportanceBlockHash = m_storage.view().loadBlockElement(groupingFacade.previous(1))->EntityHash;
+					{
+						auto storageView = m_storage.view();
+						auto pPreviousBlockElement = storageView.loadBlockElement(groupingFacade.previous(1));
+
+						// importance blocks are only present (and validated) after fork, so don't check links across fork
+						if (!model::IsImportanceBlock(pPreviousBlockElement->Block.Type, pPreviousBlockElement->Block.Version))
+							break;
+
+						previousImportanceBlockHash = pPreviousBlockElement->EntityHash;
+					}
 
 					const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(element.Block);
 					if (previousImportanceBlockHash != blockFooter.PreviousImportanceBlockHash) {

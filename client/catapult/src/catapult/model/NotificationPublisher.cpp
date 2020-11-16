@@ -102,7 +102,7 @@ namespace catapult { namespace model {
 				sub.notify(BlockTypeNotification(block.Type, block.Height));
 
 				// raise an entity notification
-				sub.notify(EntityNotification(block.Network, block.Type, block.Version, Block::Current_Version, Block::Current_Version));
+				sub.notify(EntityNotification(block.Network, block.Type, block.Version, 1, Block::Current_Version));
 
 				// raise a block notification
 				auto blockTransactionsInfo = CalculateBlockTransactionsInfo(block, m_transactionRegistry);
@@ -112,7 +112,7 @@ namespace catapult { namespace model {
 
 				sub.notify(blockNotification);
 
-				if (IsImportanceBlock(block.Type)) {
+				if (IsImportanceBlock(block.Type, block.Version)) {
 					// raise an importance block notification only for importance blocks
 					const auto& blockFooter = GetBlockFooter<ImportanceBlockFooter>(block);
 					sub.notify(ImportanceBlockNotification(

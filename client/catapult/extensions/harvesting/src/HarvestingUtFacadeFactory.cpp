@@ -151,7 +151,7 @@ namespace catapult { namespace harvesting {
 			updateAccountStates(accountStateCacheDelta);
 
 			// 5. update importance block fields
-			if (model::IsImportanceBlock(pBlock->Type)) {
+			if (model::IsImportanceBlock(pBlock->Type, pBlock->Version)) {
 				accountStateCacheDelta.updateHighValueAccounts(pBlock->Height);
 
 				auto statistics = cache::ReadOnlyAccountStateCache(accountStateCacheDelta).highValueAccountStatistics();
@@ -210,7 +210,7 @@ namespace catapult { namespace harvesting {
 				sub.enableUndo();
 
 				// execute entity
-				if (model::IsImportanceBlock(weakEntityInfo.type())) {
+				if (model::IsImportanceBlock(weakEntityInfo.type(), weakEntityInfo.entity().Version)) {
 					ImportanceFilteringNotificationSubscriber filteringSub(sub);
 					publisher.publish(weakEntityInfo, filteringSub);
 				} else {

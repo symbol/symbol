@@ -25,33 +25,31 @@
 
 namespace catapult { namespace model {
 
-	namespace {
-		uint32_t GetBlockFooterSize(EntityType type) {
-			return IsImportanceBlock(type) ? 0 : PaddedBlockFooter::Footer_Size;
-		}
-	}
+	bool IsImportanceBlock(EntityType type, uint8_t version) {
+		if (version <= 1)
+			return false;
 
-	bool IsImportanceBlock(EntityType type) {
 		return Entity_Type_Block_Nemesis == type || Entity_Type_Block_Importance == type;
 	}
 
-	uint32_t GetBlockHeaderSize(EntityType type) {
-		return sizeof(BlockHeader) + (IsImportanceBlock(type) ? sizeof(ImportanceBlockFooter) : sizeof(PaddedBlockFooter));
+	uint32_t GetBlockHeaderSize(EntityType type, uint8_t version) {
+		return sizeof(BlockHeader) + (IsImportanceBlock(type, version) ? sizeof(ImportanceBlockFooter) : sizeof(PaddedBlockFooter));
 	}
 
 	RawBuffer GetBlockHeaderDataBuffer(const BlockHeader& header) {
+		auto footerSize = IsImportanceBlock(header.Type, header.Version) ? 0 : PaddedBlockFooter::Footer_Size;
 		return {
 			reinterpret_cast<const uint8_t*>(&header) + VerifiableEntity::Header_Size,
-			GetBlockHeaderSize(header.Type) - VerifiableEntity::Header_Size - GetBlockFooterSize(header.Type)
+			GetBlockHeaderSize(header.Type, header.Version) - VerifiableEntity::Header_Size - footerSize
 		};
 	}
 
 	size_t GetTransactionPayloadSize(const BlockHeader& header) {
-		return header.Size - GetBlockHeaderSize(header.Type);
+		return header.Size - GetBlockHeaderSize(header.Type, header.Version);
 	}
 
 	bool IsSizeValid(const Block& block, const TransactionRegistry& registry) {
-		if (block.Size < sizeof(VerifiableEntity) || block.Size < GetBlockHeaderSize(block.Type)) {
+		if (block.Size < sizeof(VerifiableEntity) || block.Size < GetBlockHeaderSize(block.Type, block.Version)) {
 			CATAPULT_LOG(warning) << block.Type << " block failed size validation with size " << block.Size;
 			return false;
 		}

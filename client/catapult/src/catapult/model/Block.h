@@ -36,7 +36,7 @@ namespace catapult { namespace model {
 	struct BlockHeader : public VerifiableEntity {
 	public:
 		/// Block format version.
-		static constexpr uint8_t Current_Version = 1;
+		static constexpr uint8_t Current_Version = 2;
 
 	public:
 		/// Block height.
@@ -98,11 +98,11 @@ namespace catapult { namespace model {
 
 #pragma pack(pop)
 
-	/// Returns \c true if \a type represents an importance block.
-	bool IsImportanceBlock(EntityType type);
+	/// Returns \c true if \a type and \a version represents an importance block.
+	bool IsImportanceBlock(EntityType type, uint8_t version);
 
-	/// Gets the expected block header size for the specified \a type.
-	uint32_t GetBlockHeaderSize(EntityType type);
+	/// Gets the expected block header size for the specified \a type and \a version.
+	uint32_t GetBlockHeaderSize(EntityType type, uint8_t version);
 
 	/// Gets the (const) footer of \a header.
 	template<typename TFooter>
@@ -128,7 +128,7 @@ namespace catapult { namespace model {
 	struct BlockHeaderProperties {
 		/// Gets the header size of \a header.
 		static size_t HeaderSize(const BlockHeader& header) {
-			return GetBlockHeaderSize(header.Type);
+			return GetBlockHeaderSize(header.Type, header.Version);
 		}
 	};
 

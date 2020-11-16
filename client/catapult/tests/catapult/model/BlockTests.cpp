@@ -128,10 +128,11 @@ namespace catapult { namespace model {
 	// region IsImportanceBlock / GetBlockHeaderSize / GetBlockHeaderDataBuffer / GetTransactionPayloadSize
 
 	namespace {
-		void AssertBlockHeaderDataBuffer(uint32_t expectedDataBufferSize, EntityType type) {
+		void AssertBlockHeaderDataBuffer(uint32_t expectedDataBufferSize, EntityType type, uint8_t version) {
 			// Arrange:
 			Block block;
-			block.Size = GetBlockHeaderSize(type) + 123;
+			block.Size = GetBlockHeaderSize(type, version) + 123;
+			block.Version = version;
 			block.Type = type;
 
 			// Act:
@@ -142,10 +143,11 @@ namespace catapult { namespace model {
 			EXPECT_EQ(expectedDataBufferSize, buffer.Size) << type;
 		}
 
-		void AssertTransactionPayloadSize(EntityType type) {
+		void AssertTransactionPayloadSize(EntityType type, uint8_t version) {
 			// Arrange:
 			Block block;
-			block.Size = GetBlockHeaderSize(type) + 123;
+			block.Size = GetBlockHeaderSize(type, version) + 123;
+			block.Version = version;
 			block.Type = type;
 
 			// Act:
@@ -157,20 +159,30 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, IsImportanceBlock_ReturnsTrueOnlyForImportanceBlocks) {
-		EXPECT_TRUE(IsImportanceBlock(Entity_Type_Block_Nemesis));
-		EXPECT_TRUE(IsImportanceBlock(Entity_Type_Block_Importance));
-		EXPECT_FALSE(IsImportanceBlock(static_cast<EntityType>(0)));
-		EXPECT_FALSE(IsImportanceBlock(Entity_Type_Block_Normal));
+		EXPECT_FALSE(IsImportanceBlock(Entity_Type_Block_Nemesis, 1));
+		EXPECT_FALSE(IsImportanceBlock(Entity_Type_Block_Importance, 1));
+		EXPECT_FALSE(IsImportanceBlock(static_cast<EntityType>(0), 1));
+		EXPECT_FALSE(IsImportanceBlock(Entity_Type_Block_Normal, 1));
+
+		EXPECT_TRUE(IsImportanceBlock(Entity_Type_Block_Nemesis, 2));
+		EXPECT_TRUE(IsImportanceBlock(Entity_Type_Block_Importance, 2));
+		EXPECT_FALSE(IsImportanceBlock(static_cast<EntityType>(0), 2));
+		EXPECT_FALSE(IsImportanceBlock(Entity_Type_Block_Normal, 2));
 	}
 
 	TEST(TEST_CLASS, GetBlockHeaderSize_ReturnsCorrectValueBasedOnEntityType) {
 		constexpr uint32_t Importance_Block_Header_Size = sizeof(BlockHeader) + sizeof(ImportanceBlockFooter);
 		constexpr uint32_t Padded_Block_Header_Size = sizeof(BlockHeader) + sizeof(PaddedBlockFooter);
 
-		EXPECT_EQ(Importance_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Nemesis));
-		EXPECT_EQ(Importance_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Importance));
-		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(static_cast<EntityType>(0)));
-		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Normal));
+		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Nemesis, 1));
+		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Importance, 1));
+		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(static_cast<EntityType>(0), 1));
+		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Normal, 1));
+
+		EXPECT_EQ(Importance_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Nemesis, 2));
+		EXPECT_EQ(Importance_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Importance, 2));
+		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(static_cast<EntityType>(0), 2));
+		EXPECT_EQ(Padded_Block_Header_Size, GetBlockHeaderSize(Entity_Type_Block_Normal, 2));
 	}
 
 	TEST(TEST_CLASS, GetBlockHeaderDataBuffer_ReturnsCorrectValueBasedOnEntityType) {
@@ -179,17 +191,27 @@ namespace catapult { namespace model {
 				- VerifiableEntity::Header_Size;
 		constexpr uint32_t Padded_Block_Header_Size = sizeof(BlockHeader) - VerifiableEntity::Header_Size;
 
-		AssertBlockHeaderDataBuffer(Importance_Block_Header_Size, Entity_Type_Block_Nemesis);
-		AssertBlockHeaderDataBuffer(Importance_Block_Header_Size, Entity_Type_Block_Importance);
-		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, static_cast<EntityType>(0));
-		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, Entity_Type_Block_Normal);
+		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, Entity_Type_Block_Nemesis, 1);
+		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, Entity_Type_Block_Importance, 1);
+		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, static_cast<EntityType>(0), 1);
+		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, Entity_Type_Block_Normal, 1);
+
+		AssertBlockHeaderDataBuffer(Importance_Block_Header_Size, Entity_Type_Block_Nemesis, 2);
+		AssertBlockHeaderDataBuffer(Importance_Block_Header_Size, Entity_Type_Block_Importance, 2);
+		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, static_cast<EntityType>(0), 2);
+		AssertBlockHeaderDataBuffer(Padded_Block_Header_Size, Entity_Type_Block_Normal, 2);
 	}
 
 	TEST(TEST_CLASS, GetTransactionPayloadSize_ReturnsCorrectValueBasedOnEntityType) {
-		AssertTransactionPayloadSize(Entity_Type_Block_Nemesis);
-		AssertTransactionPayloadSize(Entity_Type_Block_Importance);
-		AssertTransactionPayloadSize(static_cast<EntityType>(0));
-		AssertTransactionPayloadSize(Entity_Type_Block_Normal);
+		AssertTransactionPayloadSize(Entity_Type_Block_Nemesis, 1);
+		AssertTransactionPayloadSize(Entity_Type_Block_Importance, 1);
+		AssertTransactionPayloadSize(static_cast<EntityType>(0), 1);
+		AssertTransactionPayloadSize(Entity_Type_Block_Normal, 1);
+
+		AssertTransactionPayloadSize(Entity_Type_Block_Nemesis, 2);
+		AssertTransactionPayloadSize(Entity_Type_Block_Importance, 2);
+		AssertTransactionPayloadSize(static_cast<EntityType>(0), 2);
+		AssertTransactionPayloadSize(Entity_Type_Block_Normal, 2);
 	}
 
 	// endregion

@@ -56,10 +56,12 @@ namespace catapult { namespace harvesting {
 		std::unique_ptr<model::Block> CreateUnsignedBlockHeader(
 				const NextBlockContext& context,
 				model::EntityType blockType,
+				uint8_t version,
 				model::NetworkIdentifier networkIdentifier,
 				const Key& signer,
 				const Address& beneficiary) {
 			auto pBlock = model::CreateBlock(blockType, context.ParentContext, networkIdentifier, signer, {});
+			pBlock->Version = version;
 			pBlock->Difficulty = context.Difficulty;
 			pBlock->Timestamp = context.Timestamp;
 			if (Address() != beneficiary)
@@ -70,6 +72,17 @@ namespace catapult { namespace harvesting {
 
 		void AddGenerationHashProof(model::Block& block, const crypto::VrfProof& vrfProof) {
 			block.GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+		}
+
+		model::EntityType HeightToBlockType(const model::BlockChainConfiguration& config, Height height) {
+			if (height <= config.ForkHeights.ImportanceBlock)
+				return model::Entity_Type_Block_Normal;
+
+			return model::CalculateBlockTypeFromHeight(height, config.ImportanceGrouping);
+		}
+
+		uint8_t HeightToVersion(const model::BlockChainConfiguration& config, Height height) {
+			return height <= config.ForkHeights.ImportanceBlock ? 1 : model::Block::Current_Version;
 		}
 	}
 
@@ -129,7 +142,8 @@ namespace catapult { namespace harvesting {
 		utils::StackLogger stackLogger("generating candidate block", utils::LogLevel::debug);
 		auto pBlockHeader = CreateUnsignedBlockHeader(
 				context,
-				model::CalculateBlockTypeFromHeight(context.Height, m_config.ImportanceGrouping),
+				HeightToBlockType(m_config, context.Height),
+				HeightToVersion(m_config, context.Height),
 				m_config.Network.Identifier,
 				pHarvesterKeyPair->publicKey(),
 				m_beneficiary);

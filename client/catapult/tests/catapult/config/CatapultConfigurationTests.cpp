@@ -96,7 +96,8 @@ namespace catapult { namespace config {
 
 			EXPECT_EQ(200'000u, config.MaxTransactionsPerBlock);
 
-			EXPECT_EQ(Height(2121), config.ForkHeights.VotingKeyLinkV2);
+			EXPECT_EQ(Height(111), config.ForkHeights.VotingKeyLinkV2);
+			EXPECT_EQ(Height(222), config.ForkHeights.ImportanceBlock);
 
 			EXPECT_FALSE(config.Plugins.empty());
 		}

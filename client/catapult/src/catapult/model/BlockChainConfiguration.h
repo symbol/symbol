@@ -34,6 +34,9 @@ namespace catapult { namespace model {
 	struct BlockChainForkHeights {
 		/// Last height at which voting key link V1 transactions are allowed.
 		Height VotingKeyLinkV2;
+
+		/// Last height at which V1 blocks are allowed.
+		Height ImportanceBlock;
 	};
 
 	/// Block chain configuration settings.

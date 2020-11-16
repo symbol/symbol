@@ -93,7 +93,7 @@ namespace catapult { namespace mongo { namespace mappers {
 				<< "beneficiaryAddress" << ToBinary(block.BeneficiaryAddress)
 				<< "feeMultiplier" << ToInt32(block.FeeMultiplier);
 
-		if (model::IsImportanceBlock(block.Type)) {
+		if (model::IsImportanceBlock(block.Type, block.Version)) {
 			const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(block);
 			blockDocument
 					<< "votingEligibleAccountsCount" << static_cast<int32_t>(blockFooter.VotingEligibleAccountsCount)

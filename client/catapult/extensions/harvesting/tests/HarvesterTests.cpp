@@ -132,7 +132,7 @@ namespace catapult { namespace harvesting {
 
 			std::unique_ptr<Harvester> CreateHarvester(const model::BlockChainConfiguration& config) {
 				return CreateHarvester(config, [](const auto& blockHeader, auto) {
-					auto size = model::GetBlockHeaderSize(blockHeader.Type);
+					auto size = model::GetBlockHeaderSize(blockHeader.Type, blockHeader.Version);
 					auto pBlock = utils::MakeUniqueWithSize<model::Block>(size);
 					std::memcpy(static_cast<void*>(pBlock.get()), &blockHeader, size);
 					return pBlock;
@@ -183,16 +183,17 @@ namespace catapult { namespace harvesting {
 			void AssertBlockFields(
 					const HarvesterDescriptor& harvester,
 					const Address& beneficiary,
-					model::EntityType expectedType,
+					model::EntityType type,
+					uint8_t version,
 					Height height,
 					Timestamp timestamp,
 					const model::BlockChainConfiguration& config,
 					const model::Block& block) const {
 				const auto& statisticCache = Cache.sub<cache::BlockStatisticCache>();
 				EXPECT_EQ(harvester.SigningPublicKey, block.SignerPublicKey) << height;
-				EXPECT_EQ(1u, block.Version) << height;
+				EXPECT_EQ(version, block.Version) << height;
 				EXPECT_EQ(Network_Identifier, block.Network) << height;
-				EXPECT_EQ(expectedType, block.Type) << height;
+				EXPECT_EQ(type, block.Type) << height;
 				EXPECT_EQ(height, block.Height) << height;
 				EXPECT_EQ(timestamp, block.Timestamp) << height;
 				EXPECT_EQ(chain::CalculateDifficulty(statisticCache, pLastBlock->Height, config), block.Difficulty) << height;
@@ -458,25 +459,21 @@ namespace catapult { namespace harvesting {
 
 				// Assert:
 				EXPECT_TRUE(!!pBlock);
+
+				auto entityType = model::Entity_Type_Block_Normal;
 				auto expectedBeneficiary = expectedBeneficiaryAccessor(bestHarvester.SigningPublicKey);
-				context.AssertBlockFields(
-						bestHarvester,
-						expectedBeneficiary,
-						model::Entity_Type_Block_Normal,
-						Height(2),
-						timestamp,
-						config,
-						*pBlock);
+				context.AssertBlockFields(bestHarvester, expectedBeneficiary, entityType, 2, Height(2), timestamp, config, *pBlock);
 				return true;
 			});
 		}
 
-		void AssertHarvestedBlockHasExpectedType(model::EntityType expectedType, Height height) {
-			test::RunNonDeterministicTest("harvested block has expected type", [expectedType, height]() {
+		void AssertHarvestedBlockHasExpectedType(model::EntityType type, uint8_t version, Height height, Height forkHeight) {
+			test::RunNonDeterministicTest("harvested block has expected type", [type, version, height, forkHeight]() {
 				// Arrange:
 				HarvesterContext context(height - Height(1));
 				auto config = CreateConfiguration();
 				config.ImportanceGrouping = 5;
+				config.ForkHeights.ImportanceBlock = forkHeight;
 
 				auto bestHarvester = context.BestHarvester();
 				auto timestamp = context.CalculateBlockGenerationTime(bestHarvester);
@@ -488,7 +485,7 @@ namespace catapult { namespace harvesting {
 					return false;
 
 				// Assert:
-				context.AssertBlockFields(bestHarvester, context.Beneficiary, expectedType, height, timestamp, config, *pBlock);
+				context.AssertBlockFields(bestHarvester, context.Beneficiary, type, version, height, timestamp, config, *pBlock);
 				return true;
 			});
 		}
@@ -505,14 +502,24 @@ namespace catapult { namespace harvesting {
 		});
 	}
 
-	TEST(TEST_CLASS, HarvestedBlockHasExpectedType_Normal) {
+	TEST(TEST_CLASS, HarvestedBlockHasExpectedTypePreFork_Normal) {
 		for (auto height : { 2u, 3u, 4u, 6u, 7u, 8u, 9u })
-			AssertHarvestedBlockHasExpectedType(model::Entity_Type_Block_Normal, Height(height));
+			AssertHarvestedBlockHasExpectedType(model::Entity_Type_Block_Normal, 1, Height(height), Height(20));
 	}
 
-	TEST(TEST_CLASS, HarvestedBlockHasExpectedType_Importance) {
+	TEST(TEST_CLASS, HarvestedBlockHasExpectedTypePreFork_Importance) {
 		for (auto height : { 5u, 10u, 15u })
-			AssertHarvestedBlockHasExpectedType(model::Entity_Type_Block_Importance, Height(height));
+			AssertHarvestedBlockHasExpectedType(model::Entity_Type_Block_Normal, 1, Height(height), Height(20));
+	}
+
+	TEST(TEST_CLASS, HarvestedBlockHasExpectedTypePostFork_Normal) {
+		for (auto height : { 2u, 3u, 4u, 6u, 7u, 8u, 9u })
+			AssertHarvestedBlockHasExpectedType(model::Entity_Type_Block_Normal, 2, Height(height), Height(0));
+	}
+
+	TEST(TEST_CLASS, HarvestedBlockHasExpectedTypePostFork_Importance) {
+		for (auto height : { 5u, 10u, 15u })
+			AssertHarvestedBlockHasExpectedType(model::Entity_Type_Block_Importance, 2, Height(height), Height(0));
 	}
 
 	TEST(TEST_CLASS, HarvesterRespectsCustomBlockChainConfiguration) {

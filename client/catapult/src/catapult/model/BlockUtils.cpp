@@ -142,7 +142,7 @@ namespace catapult { namespace model {
 				NetworkIdentifier networkIdentifier,
 				const Key& signerPublicKey,
 				const TContainer& transactions) {
-			auto headerSize = GetBlockHeaderSize(blockType);
+			auto headerSize = GetBlockHeaderSize(blockType, Block::Current_Version);
 			auto size = headerSize + CalculateTotalSize(transactions);
 			auto pBlock = utils::MakeUniqueWithSize<Block>(size);
 			std::memset(static_cast<void*>(pBlock.get()), 0, headerSize);
@@ -177,7 +177,7 @@ namespace catapult { namespace model {
 	}
 
 	std::unique_ptr<Block> StitchBlock(const BlockHeader& blockHeader, const Transactions& transactions) {
-		auto headerSize = GetBlockHeaderSize(blockHeader.Type);
+		auto headerSize = GetBlockHeaderSize(blockHeader.Type, blockHeader.Version);
 		auto size = headerSize + CalculateTotalSize(transactions);
 		auto pBlock = utils::MakeUniqueWithSize<Block>(size);
 		auto* pBlockData = reinterpret_cast<uint8_t*>(pBlock.get());

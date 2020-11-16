@@ -21,21 +21,32 @@
 
 #include "Validators.h"
 #include "src/model/VotingKeyLinkTransaction.h"
+#include "catapult/model/BlockChainConfiguration.h"
 
 namespace catapult { namespace validators {
 
 	using Notification = model::EntityNotification;
 
-	DECLARE_STATEFUL_VALIDATOR(EntityForkVersion, Notification)(Height forkHeight) {
-		return MAKE_STATEFUL_VALIDATOR(EntityForkVersion, [forkHeight](const Notification& notification, const ValidatorContext& context) {
-			if (model::Entity_Type_Voting_Key_Link != notification.EntityType)
-				return ValidationResult::Success;
+	namespace {
+		ValidationResult CheckInflection(Height forkHeight, uint8_t preVersion, uint8_t postVersion, Height height, uint8_t version) {
+			return (height <= forkHeight && preVersion == version) || (height > forkHeight && postVersion == version)
+					? ValidationResult::Success
+					: Failure_Core_Invalid_Version;
+		}
+	}
 
-			if ((context.Height <= forkHeight && 1 == notification.EntityVersion) ||
-					(context.Height > forkHeight && 2 == notification.EntityVersion))
-				return ValidationResult::Success;
+	DECLARE_STATEFUL_VALIDATOR(EntityForkVersion, Notification)(const model::BlockChainForkHeights& forkHeights) {
+		return MAKE_STATEFUL_VALIDATOR(EntityForkVersion, [forkHeights](
+				const Notification& notification,
+				const ValidatorContext& context) {
+			auto entityType = notification.EntityType;
+			if (model::BasicEntityType::Block == model::ToBasicEntityType(entityType))
+				return CheckInflection(forkHeights.ImportanceBlock, 1, 2, context.Height, notification.EntityVersion);
 
-			return Failure_Core_Invalid_Version;
+			if (model::Entity_Type_Voting_Key_Link == notification.EntityType)
+				return CheckInflection(forkHeights.VotingKeyLinkV2, 1, 2, context.Height, notification.EntityVersion);
+
+			return ValidationResult::Success;
 		});
 	}
 }}
