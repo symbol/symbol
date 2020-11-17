@@ -34,3 +34,9 @@
 #else
 #define STRICT_SYMBOL_VISIBILITY 0
 #endif
+
+#ifndef _MSC_VER
+#define MAY_ALIAS __attribute__((__may_alias__))
+#else
+#define MAY_ALIAS
+#endif
