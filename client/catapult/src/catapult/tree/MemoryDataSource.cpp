@@ -28,17 +28,27 @@ namespace catapult { namespace tree {
 	{}
 
 	size_t MemoryDataSource::size() const {
-		return m_nodes.size();
+		return m_leafNodes.size() + m_branchNodes.size();
 	}
 
-	std::unique_ptr<const TreeNode> MemoryDataSource::get(const Hash256& hash) const {
-		auto iter = m_nodes.find(hash);
-		return m_nodes.cend() != iter ? std::make_unique<const TreeNode>(iter->second->copy()) : nullptr;
+	TreeNode MemoryDataSource::get(const Hash256& hash) const {
+		auto leafNodeIter = m_leafNodes.find(hash);
+		if (m_leafNodes.cend() != leafNodeIter)
+			return TreeNode(leafNodeIter->second);
+
+		auto branchNodeIter = m_branchNodes.find(hash);
+		if (m_branchNodes.cend() != branchNodeIter)
+			return TreeNode(branchNodeIter->second);
+
+		return TreeNode();
 	}
 
 	void MemoryDataSource::forEach(const consumer<const TreeNode&>& consumer) const {
-		for (const auto& pair : m_nodes)
-			consumer(*pair.second);
+		for (const auto& pair : m_leafNodes)
+			consumer(TreeNode(pair.second));
+
+		for (const auto& pair : m_branchNodes)
+			consumer(TreeNode(pair.second));
 	}
 
 	void MemoryDataSource::set(const LeafTreeNode& node) {
@@ -48,7 +58,7 @@ namespace catapult { namespace tree {
 					<< ", value = " << node.value();
 		}
 
-		save(node);
+		m_leafNodes.emplace(node.hash(), node);
 	}
 
 	void MemoryDataSource::set(const BranchTreeNode& node) {
@@ -58,10 +68,11 @@ namespace catapult { namespace tree {
 					<< ", #links " << node.numLinks();
 		}
 
-		save(node);
+		m_branchNodes.emplace(node.hash(), node);
 	}
 
 	void MemoryDataSource::clear() {
-		m_nodes.clear();
+		m_leafNodes.clear();
+		m_branchNodes.clear();
 	}
 }}

@@ -135,12 +135,11 @@ namespace catapult { namespace tree {
 		backingDataSource.set(node);
 
 		// Act:
-		auto pDataSourceNode = dataSource.get(node.hash());
+		auto dataSourceNode = dataSource.get(node.hash());
 
 		// Assert:
-		ASSERT_TRUE(!!pDataSourceNode);
-		EXPECT_TRUE(pDataSourceNode->isLeaf());
-		EXPECT_EQ(node.hash(), pDataSourceNode->hash());
+		EXPECT_TRUE(dataSourceNode.isLeaf());
+		EXPECT_EQ(node.hash(), dataSourceNode.hash());
 
 		// Sanity:
 		EXPECT_EQ(1u, backingDataSource.size());

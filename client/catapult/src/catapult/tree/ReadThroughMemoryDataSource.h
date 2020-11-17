@@ -43,9 +43,9 @@ namespace catapult { namespace tree {
 
 	public:
 		/// Gets the tree node associated with \a hash.
-		std::unique_ptr<const TreeNode> get(const Hash256& hash) const {
-			auto pNode = m_memoryDataSource.get(hash);
-			return pNode ? std::move(pNode) : m_backingDataSource.get(hash);
+		TreeNode get(const Hash256& hash) const {
+			auto node = m_memoryDataSource.get(hash);
+			return !node.empty() ? std::move(node) : m_backingDataSource.get(hash);
 		}
 
 		/// Gets all nodes in memory and passes them to \a consumer.

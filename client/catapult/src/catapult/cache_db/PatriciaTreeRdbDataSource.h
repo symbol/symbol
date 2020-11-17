@@ -38,13 +38,13 @@ namespace catapult { namespace cache {
 		}
 
 		/// Gets the tree node associated with \a hash.
-		std::unique_ptr<const tree::TreeNode> get(const Hash256& hash) const {
+		tree::TreeNode get(const Hash256& hash) const {
 			auto iter = m_container.find(hash);
 			if (m_container.cend() == iter)
-				return nullptr;
+				return tree::TreeNode();
 
 			const auto& pair = *iter;
-			return std::make_unique<const tree::TreeNode>(pair.second.copy());
+			return pair.second.copy();
 		}
 
 	public:

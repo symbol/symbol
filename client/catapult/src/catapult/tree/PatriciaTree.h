@@ -123,12 +123,10 @@ namespace catapult { namespace tree {
 
 			// if the branch path is completely consumed, find the connecting node in the database
 			// if it is not completely consumed, a branch is being split
-			auto pNextNode = isBranchPathConsumed ? getLinkedNode(branchNode, newPair.Path.nibbleAt(0)) : nullptr;
-			if (!pNextNode)
-				pNextNode = std::make_unique<TreeNode>();
+			auto nextNode = isBranchPathConsumed ? getLinkedNode(branchNode, newPair.Path.nibbleAt(0)) : TreeNode();
 
 			// attach the new node to the existing node (if there is no existing node, it will be set as a leaf)
-			auto updatedNextNode = set(*pNextNode, { newPair.Path.subpath(differenceIndex + 1), newPair.Value });
+			auto updatedNextNode = set(nextNode, { newPair.Path.subpath(differenceIndex + 1), newPair.Value });
 
 			// if the new node is a link, set it directly in the existing branch node
 			if (isBranchPathConsumed) {
@@ -181,10 +179,10 @@ namespace catapult { namespace tree {
 			// look up the branch connecting with `keyPath`, if it is not found (or not found recursively), no node in the tree can match
 			const auto& branchNode = node.asBranchNode();
 			auto nodeLinkIndex = keyPath.nibbleAt(differenceIndex);
-			auto pNextNode = getLinkedNode(branchNode, nodeLinkIndex);
+			auto nextNode = getLinkedNode(branchNode, nodeLinkIndex);
 
 			TreeNode updatedNextNode;
-			if (!pNextNode || !unset(*pNextNode, keyPath.subpath(differenceIndex + 1), updatedNextNode, canMerge))
+			if (nextNode.empty() || !unset(nextNode, keyPath.subpath(differenceIndex + 1), updatedNextNode, canMerge))
 				return false;
 
 			// when removing a node, at most a single branch node can be collapsed
@@ -205,7 +203,7 @@ namespace catapult { namespace tree {
 
 			// merge the branch if it only has a single link (if the tree state is valid, the referenced node must exist)
 			auto lastLinkIndex = branchNode.highestLinkIndex();
-			auto referencedNode = getLinkedNode(branchNode, lastLinkIndex)->copy();
+			auto referencedNode = getLinkedNode(branchNode, lastLinkIndex);
 
 			auto mergedPath = TreeNodePath::Join(branchNode.path(), lastLinkIndex, referencedNode.path());
 			referencedNode.setPath(mergedPath);
@@ -242,11 +240,11 @@ namespace catapult { namespace tree {
 			// look up the branch connecting with `keyPath`, if it is not found (or not found recursively), no node in the tree can match
 			const auto& branchNode = node.asBranchNode();
 			auto nodeLinkIndex = keyPath.nibbleAt(differenceIndex);
-			auto pNextNode = getLinkedNode(branchNode, nodeLinkIndex);
-			if (!pNextNode)
+			auto nextNode = getLinkedNode(branchNode, nodeLinkIndex);
+			if (nextNode.empty())
 				return LookupNotFoundResult();
 
-			return lookup(*pNextNode, keyPath.subpath(differenceIndex + 1), nodePath);
+			return lookup(nextNode, keyPath.subpath(differenceIndex + 1), nodePath);
 		}
 
 		static std::pair<Hash256, bool> LookupNotFoundResult() {
@@ -260,11 +258,12 @@ namespace catapult { namespace tree {
 	public:
 		/// Loads the node with hash \a rootHash and sets it as the root node.
 		bool tryLoad(const Hash256& rootHash) {
-			auto pRootNode = m_dataSource.get(rootHash);
-			if (pRootNode)
-				m_rootNode = pRootNode->copy();
+			auto rootNode = m_dataSource.get(rootHash);
+			if (rootNode.empty())
+				return false;
 
-			return !!pRootNode;
+			setRoot(rootNode);
+			return true;
 		}
 
 		/// Sets the root to \a rootNode.
@@ -305,11 +304,11 @@ namespace catapult { namespace tree {
 			// if the node is a branch, save and prune all its links
 			auto branchNode = BranchTreeNode(node.asBranchNode());
 			for (auto i = 0u; i < BranchTreeNode::Max_Links; ++i) {
-				auto pLinkedNode = branchNode.linkedNode(i);
-				if (!pLinkedNode)
+				auto linkedNode = branchNode.linkedNode(i);
+				if (linkedNode.empty())
 					continue;
 
-				saveAll(*pLinkedNode);
+				saveAll(linkedNode);
 			}
 
 			branchNode.compactLinks();
@@ -321,10 +320,10 @@ namespace catapult { namespace tree {
 	private:
 		// region links
 
-		std::unique_ptr<const TreeNode> getLinkedNode(const BranchTreeNode& branchNode, size_t index) const {
+		TreeNode getLinkedNode(const BranchTreeNode& branchNode, size_t index) const {
 			// copy from memory, if available; otherwise, copy from data source
-			auto pLinkedNode = branchNode.linkedNode(index);
-			return pLinkedNode ? std::move(pLinkedNode) : m_dataSource.get(branchNode.link(index));
+			auto linkedNode = branchNode.linkedNode(index);
+			return !linkedNode.empty() ? std::move(linkedNode) : m_dataSource.get(branchNode.link(index));
 		}
 
 		void setLink(BranchTreeNode& branchNode, const TreeNode& node, size_t index) {

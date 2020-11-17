@@ -81,10 +81,10 @@ namespace catapult { namespace test {
 			dataSource.set(node);
 
 			// Act:
-			auto pDataSourceNode = dataSource.get(GenerateRandomByteArray<Hash256>());
+			auto dataSourceNode = dataSource.get(GenerateRandomByteArray<Hash256>());
 
 			// Assert:
-			EXPECT_FALSE(!!pDataSourceNode);
+			EXPECT_TRUE(dataSourceNode.empty());
 		}
 
 		static void AssertCanGetLeafNode() {
@@ -95,12 +95,11 @@ namespace catapult { namespace test {
 			dataSource.set(node);
 
 			// Act:
-			auto pDataSourceNode = dataSource.get(node.hash());
+			auto dataSourceNode = dataSource.get(node.hash());
 
 			// Assert:
-			ASSERT_TRUE(!!pDataSourceNode);
-			EXPECT_TRUE(pDataSourceNode->isLeaf());
-			EXPECT_EQ(node.hash(), pDataSourceNode->hash());
+			EXPECT_TRUE(dataSourceNode.isLeaf());
+			EXPECT_EQ(node.hash(), dataSourceNode.hash());
 		}
 
 		static void AssertCanGetBranchNode() {
@@ -111,12 +110,11 @@ namespace catapult { namespace test {
 			dataSource.set(node);
 
 			// Act:
-			auto pDataSourceNode = dataSource.get(node.hash());
+			auto dataSourceNode = dataSource.get(node.hash());
 
 			// Assert:
-			ASSERT_TRUE(!!pDataSourceNode);
-			EXPECT_TRUE(pDataSourceNode->isBranch());
-			EXPECT_EQ(node.hash(), pDataSourceNode->hash());
+			EXPECT_TRUE(dataSourceNode.isBranch());
+			EXPECT_EQ(node.hash(), dataSourceNode.hash());
 		}
 
 		// endregion

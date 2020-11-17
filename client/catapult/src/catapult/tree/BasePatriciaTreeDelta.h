@@ -101,7 +101,7 @@ namespace catapult { namespace tree {
 			if (Hash256() == rootHash)
 				tree.clear();
 			else
-				tree.setRoot(*m_dataSource.get(rootHash));
+				tree.setRoot(m_dataSource.get(rootHash));
 		}
 
 	private:

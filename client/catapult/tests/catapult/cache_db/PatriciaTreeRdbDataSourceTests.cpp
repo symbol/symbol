@@ -46,7 +46,7 @@ namespace catapult { namespace cache {
 				return m_dataSource.size();
 			}
 
-			std::unique_ptr<const tree::TreeNode> get(const Hash256& hash) {
+			tree::TreeNode get(const Hash256& hash) {
 				return m_dataSource.get(hash);
 			}
 

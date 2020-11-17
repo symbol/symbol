@@ -94,16 +94,15 @@ namespace catapult { namespace test {
 			markUsed(hash, expectedReachableNames, message);
 
 			// retrieve `hash` node from the data source and process it
-			auto pNode = m_dataSource.get(hash);
-			ASSERT_TRUE(!!pNode) << message;
+			auto node = m_dataSource.get(hash);
+			ASSERT_FALSE(node.empty()) << message;
 
-			const auto& node = *pNode;
 			if (!node.isBranch())
 				return;
 
 			const auto& branchNode = node.asBranchNode();
 			for (auto i = 0u; i < 16; ++i) {
-				EXPECT_FALSE(!!branchNode.linkedNode(i)) << message << " saved branch tree node has node link at " << i;
+				EXPECT_TRUE(branchNode.linkedNode(i).empty()) << message << " saved branch tree node has node link at " << i;
 
 				if (branchNode.hasLink(i))
 					checkReachable(branchNode.link(i), expectedReachableNames, level + 1, i);

@@ -39,7 +39,7 @@ namespace catapult { namespace tree {
 
 	public:
 		/// Gets the tree node associated with \a hash.
-		std::unique_ptr<const TreeNode> get(const Hash256& hash) const;
+		TreeNode get(const Hash256& hash) const;
 
 		/// Gets all nodes and passes them to \a consumer.
 		void forEach(const consumer<const TreeNode&>& consumer) const;
@@ -55,16 +55,8 @@ namespace catapult { namespace tree {
 		void clear();
 
 	private:
-		template<typename TNode>
-		void save(const TNode& node) {
-			// explicitly call hash() before emplace to ensure cached value is used
-			// (and avoid undefined behavior of parameter evaluation order)
-			auto nodeHash = node.hash();
-			m_nodes.emplace(nodeHash, std::make_unique<TreeNode>(node));
-		}
-
-	private:
 		bool m_isVerbose;
-		std::unordered_map<Hash256, std::unique_ptr<TreeNode>, utils::ArrayHasher<Hash256>> m_nodes;
+		std::unordered_map<Hash256, LeafTreeNode, utils::ArrayHasher<Hash256>> m_leafNodes;
+		std::unordered_map<Hash256, BranchTreeNode, utils::ArrayHasher<Hash256>> m_branchNodes;
 	};
 }}

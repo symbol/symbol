@@ -345,9 +345,9 @@ namespace catapult { namespace cache {
 		tree.commit();
 
 		// Assert:
-		EXPECT_TRUE(!!dataSource.get(expectedRoots[0]));
-		EXPECT_TRUE(!!dataSource.get(expectedRoots[1]));
-		EXPECT_TRUE(!!dataSource.get(expectedRoots[2]));
+		EXPECT_FALSE(dataSource.get(expectedRoots[0]).empty());
+		EXPECT_FALSE(dataSource.get(expectedRoots[1]).empty());
+		EXPECT_FALSE(dataSource.get(expectedRoots[2]).empty());
 	}
 
 	// endregion

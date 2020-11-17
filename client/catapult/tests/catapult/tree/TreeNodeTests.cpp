@@ -104,15 +104,15 @@ namespace catapult { namespace tree {
 			auto message = "link at " + std::to_string(index);
 			EXPECT_TRUE(node.hasLink(index)) << message;
 			EXPECT_EQ(expectedLink, node.link(index)) << message;
-			EXPECT_FALSE(!!node.linkedNode(index)) << message;
+			EXPECT_TRUE(node.linkedNode(index).empty()) << message;
 		}
 
 		void AssertNodeLink(const BranchTreeNode& node, size_t index, const Hash256& expectedLink) {
 			auto message = "link at " + std::to_string(index);
 			EXPECT_TRUE(node.hasLink(index)) << message;
 			EXPECT_EQ(expectedLink, node.link(index)) << message;
-			ASSERT_TRUE(!!node.linkedNode(index)) << message;
-			EXPECT_EQ(expectedLink, node.linkedNode(index)->hash()) << message;
+			EXPECT_FALSE(node.linkedNode(index).empty()) << message;
+			EXPECT_EQ(expectedLink, node.linkedNode(index).hash()) << message;
 		}
 
 		void AssertEmptyLinks(const BranchTreeNode& node, size_t start, size_t end) {
@@ -120,7 +120,7 @@ namespace catapult { namespace tree {
 				auto message = "link at " + std::to_string(i);
 				EXPECT_FALSE(node.hasLink(i)) << message;
 				EXPECT_EQ(Hash256(), node.link(i)) << message;
-				EXPECT_FALSE(!!node.linkedNode(i)) << message;
+				EXPECT_TRUE(node.linkedNode(i).empty()) << message;
 			}
 		}
 

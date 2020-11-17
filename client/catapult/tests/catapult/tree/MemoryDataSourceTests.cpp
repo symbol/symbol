@@ -102,12 +102,12 @@ namespace catapult { namespace tree {
 			auto time3 = test::GetCurrentTimeNanoseconds();
 
 			// Assert:
-			auto pSavedNode = dataSource.get(hash1);
-			EXPECT_TRUE(!!pSavedNode);
-			if (!pSavedNode)
+			auto savedNode = dataSource.get(hash1);
+			EXPECT_FALSE(savedNode.empty());
+			if (savedNode.empty())
 				return true;
 
-			EXPECT_EQ(hash1, pSavedNode->hash());
+			EXPECT_EQ(hash1, savedNode.hash());
 
 			// - only the first hash should recalculate the hash, so assert (conservatively) it is at least 1.5x slower
 			auto elaspedHashTime = (time2 - time1).count();
