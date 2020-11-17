@@ -16,7 +16,7 @@ using Address = binary_fixed(24)
 using Hash256 = binary_fixed(32)
 using Hash512 = binary_fixed(64)
 using Key = binary_fixed(32)
-using VotingKey = binary_fixed(48)
+using VotingKey = binary_fixed(32)
 using Signature = binary_fixed(64)
 
 # binary layout for a mosaic
