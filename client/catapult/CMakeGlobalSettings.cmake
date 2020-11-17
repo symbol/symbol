@@ -27,11 +27,13 @@ endif()
 
 ### set boost settings
 add_definitions(-DBOOST_ALL_DYN_LINK)
+add_definitions(-DBOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
-set(CATAPULT_BOOST_COMPONENTS atomic system date_time regex timer chrono log thread filesystem program_options)
+# log requires { atomic chrono filesystem log_setup regex thread }
+set(CATAPULT_BOOST_COMPONENTS atomic chrono filesystem log log_setup program_options regex thread)
 
 ### set openssl definitions
 add_definitions(-DOPENSSL_API_COMPAT=0x10100000L)

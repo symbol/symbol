@@ -27,8 +27,18 @@ OS dependent instructions:
 
 **Windows + MSVC**
 
+generate project files for VS 2019
+```sh
+cmake -G "Visual Studio 16 2019" -A x64 -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
+```
+
+generate project files for VS 2017
 ```sh
 cmake -G "Visual Studio 15 2017 Win64" -DUSE_CONAN=ON -DPYTHON_EXECUTABLE:FILEPATH=X:/python3x/python.exe ..
+```
+
+compilation
+```sh
 cmake --build . --target publish
 msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 ALL_BUILD.vcxproj
 ```

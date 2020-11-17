@@ -41,7 +41,8 @@ OS X:
  - Apple Clang: 11.0.3
 
 Windows:
- - Visual C++: 15.8
+ - Visual Studio 2017 (15.8)
+ - Visual Studio 2019 (16.8)
 
 ### Guides
 

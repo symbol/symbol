@@ -1,6 +1,6 @@
 [requires]
 # release dependencies
-boost/1.73.0
+boost/1.74.0
 cppzmq/4.7.1@nemtech/stable
 mongo-cxx-driver/3.6.1@nemtech/stable
 openssl/1.1.1g@nemtech/stable
@@ -19,33 +19,36 @@ cmake_find_package
 boost:shared = True
 boost:bzip2 = False
 boost:zlib = False
+
 boost:without_atomic = False
 boost:without_chrono = False
 boost:without_container = True
 boost:without_context = True
 boost:without_contract = True
 boost:without_coroutine = True
-boost:without_date_time = False
-boost:without_exception = False
+boost:without_date_time = True
+boost:without_exception = True
 boost:without_fiber = True
 boost:without_filesystem = False
 boost:without_graph = True
 boost:without_graph_parallel = True
+# boost:without_headers = True
 boost:without_iostreams = True
 boost:without_locale = True
 boost:without_log = False
 boost:without_math = True
 boost:without_mpi = True
+# boost:without_nowide = True
 boost:without_program_options = False
 boost:without_python = True
 boost:without_random = True
 boost:without_regex = False
 boost:without_serialization = True
 boost:without_stacktrace = True
-boost:without_system = False
+boost:without_system = True
 boost:without_test = True
 boost:without_thread = False
-boost:without_timer = False
+boost:without_timer = True
 boost:without_type_erasure = True
 boost:without_wave = True
 

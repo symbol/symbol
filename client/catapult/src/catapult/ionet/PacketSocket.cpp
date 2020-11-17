@@ -773,9 +773,16 @@ namespace catapult { namespace ionet {
 
 		public:
 			void start() {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4459) /* declaration of 'query' hides global declaration */
+#endif
 				m_resolver.async_resolve(m_query, m_wrapper.wrap([this](const auto& ec, auto iter) {
 					this->handleResolve(ec, std::move(iter));
 				}));
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 			}
 
 			void cancel() {

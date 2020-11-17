@@ -23,6 +23,7 @@
 #include "catapult/utils/Logging.h"
 #include "catapult/functions.h"
 #include "catapult/preprocessor.h"
+#include <atomic>
 #include <memory>
 #include <thread>
 #include <vector>
