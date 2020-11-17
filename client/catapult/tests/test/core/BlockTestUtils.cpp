@@ -114,13 +114,14 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<model::Block> GenerateImportanceBlockWithTransactions(const TestBlockTransactions& transactions) {
-		auto blockOptions = TestBlockOptions(GenerateKeyPair());
+		auto signer = GenerateKeyPair();
+		auto blockOptions = TestBlockOptions(signer);
 		blockOptions.EntityType = model::Entity_Type_Block_Importance;
 		return GenerateBlock(transactions, blockOptions);
 	}
 
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const TestBlockTransactions& transactions) {
-		return GenerateBlock(transactions, TestBlockOptions(GenerateKeyPair()));
+		return GenerateBlockWithTransactions(GenerateKeyPair(), transactions);
 	}
 
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const TestBlockTransactions& transactions) {

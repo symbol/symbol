@@ -168,7 +168,11 @@ namespace catapult { namespace model {
 		auto headerSize = GetBlockHeaderSize(blockHeader.Type);
 		auto size = headerSize + CalculateTotalSize(transactions);
 		auto pBlock = utils::MakeUniqueWithSize<Block>(size);
-		std::memcpy(static_cast<void*>(pBlock.get()), &blockHeader, headerSize);
+		auto* pBlockData = reinterpret_cast<uint8_t*>(pBlock.get());
+
+		// only copy BlockHeader and zero header footer
+		std::memcpy(pBlockData, &blockHeader, sizeof(BlockHeader));
+		std::memset(pBlockData + sizeof(BlockHeader), 0, headerSize - sizeof(BlockHeader));
 		pBlock->Size = static_cast<uint32_t>(size);
 
 		// append all the transactions

@@ -39,15 +39,6 @@ namespace catapult { namespace harvesting {
 
 		// region test context
 
-		auto CreateBlockChainConfiguration() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
-			config.EnableVerifiableState = true;
-			config.EnableVerifiableReceipts = true;
-			config.CurrencyMosaicId = MosaicId(123);
-			config.ImportanceGrouping = 1;
-			return config;
-		}
-
 		class TestContext {
 		public:
 			explicit TestContext(model::TransactionSelectionStrategy strategy)
@@ -113,6 +104,15 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
+			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
+				auto config = model::BlockChainConfiguration::Uninitialized();
+				config.EnableVerifiableState = true;
+				config.EnableVerifiableReceipts = true;
+				config.CurrencyMosaicId = MosaicId(123);
+				config.ImportanceGrouping = 1;
+				return config;
+			}
+
 			static cache::CacheConfiguration CreateCacheConfiguration(const std::string& databaseDirectory) {
 				return cache::CacheConfiguration(databaseDirectory, utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
 			}

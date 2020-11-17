@@ -154,7 +154,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanRaiseBlockTypeNotifications) {
 		// Arrange:
-		auto pBlock = test::GenerateEmptyRandomBlock();
+		auto pBlock = test::GenerateImportanceBlockWithTransactions(0);
 		pBlock->Type = Entity_Type_Block_Importance;
 		pBlock->Height = Height(9876);
 

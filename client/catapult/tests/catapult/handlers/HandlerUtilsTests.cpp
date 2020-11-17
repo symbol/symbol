@@ -86,7 +86,7 @@ namespace catapult { namespace handlers {
 		ionet::ByteBuffer buffer(Two_Blocks_Packet_Size);
 		auto& packet = test::SetPushBlockPacketInBuffer(buffer);
 		test::SetBlockAt(buffer, sizeof(ionet::Packet));
-		test::SetBlockAt(buffer, sizeof(ionet::Packet) + sizeof(model::BlockHeader));
+		test::SetBlockAt(buffer, sizeof(ionet::Packet) + Block_Header_Size);
 		--packet.Size;
 
 		// Assert:

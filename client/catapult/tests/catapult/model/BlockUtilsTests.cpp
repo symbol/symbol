@@ -625,24 +625,34 @@ namespace catapult { namespace model {
 		template<typename TTraits, typename TContainerTraits>
 		void AssertCanStitchBlock(size_t numTransactions) {
 			// Arrange:
-			auto pBlockHeaderTemplate = utils::MakeUniqueWithSize<BlockHeader>(TTraits::Header_Size);
-			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pBlockHeaderTemplate.get()), TTraits::Header_Size });
-			pBlockHeaderTemplate->Type = TTraits::Entity_Type;
+			static constexpr auto Footer_Size = TTraits::Header_Size - sizeof(BlockHeader);
+
+			// - stitching only copies BlockHeader (and zeros header footer)
+			BlockHeader blockHeaderTemplate;
+			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&blockHeaderTemplate), sizeof(BlockHeader) });
+			blockHeaderTemplate.Type = TTraits::Entity_Type;
 
 			auto randomTransactions = test::GenerateRandomTransactions(numTransactions);
 			auto transactions = TContainerTraits::MapTransactions(randomTransactions);
 
 			// Act:
-			auto pBlock = StitchBlock(*pBlockHeaderTemplate, transactions);
+			auto pBlock = StitchBlock(blockHeaderTemplate, transactions);
 
 			// Assert:
 			ASSERT_EQ(TTraits::Header_Size + SumTransactionSizes(transactions, true), pBlock->Size);
 
+			// - check header (excluding Size field)
+			const auto* pBlockData = reinterpret_cast<const uint8_t*>(pBlock.get());
 			EXPECT_EQ_MEMORY(
-					reinterpret_cast<const uint8_t*>(pBlockHeaderTemplate.get()) + sizeof(BlockHeader::Size),
-					reinterpret_cast<const uint8_t*>(pBlock.get()) + sizeof(BlockHeader::Size),
-					TTraits::Header_Size - sizeof(BlockHeader::Size));
+					reinterpret_cast<const uint8_t*>(&blockHeaderTemplate) + sizeof(BlockHeader::Size),
+					pBlockData + sizeof(BlockHeader::Size),
+					sizeof(BlockHeader) - sizeof(BlockHeader::Size));
 
+			// - check header footer
+			std::array<uint8_t, Footer_Size> zeroData{};
+			EXPECT_EQ_MEMORY(zeroData.data(), pBlockData + sizeof(BlockHeader), Footer_Size);
+
+			// - check transactions
 			AssertTransactionsInBlock(*pBlock, transactions);
 		}
 	}
