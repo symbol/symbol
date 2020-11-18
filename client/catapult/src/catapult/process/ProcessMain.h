@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <functional>
 #include <memory>
 
@@ -47,7 +47,7 @@ namespace catapult { namespace process {
 
 	/// Extracts the resources path from the command line arguments.
 	/// \a argc commmand line arguments are accessible via \a argv.
-	boost::filesystem::path GetResourcesPath(int argc, const char** argv);
+	std::filesystem::path GetResourcesPath(int argc, const char** argv);
 
 	/// Main entry point for a catapult process named \a host with default process options.
 	/// \a argc commmand line arguments are accessible via \a argv.

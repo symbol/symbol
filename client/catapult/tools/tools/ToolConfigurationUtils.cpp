@@ -24,7 +24,7 @@
 namespace catapult { namespace tools {
 
 	config::CatapultConfiguration LoadConfiguration(const std::string& resourcesPathStr) {
-		boost::filesystem::path resourcesPath = resourcesPathStr;
+		std::filesystem::path resourcesPath = resourcesPathStr;
 		resourcesPath /= "resources";
 		std::cout << "loading resources from " << resourcesPath << std::endl;
 		return config::CatapultConfiguration::LoadFromPath(resourcesPath, "server");
@@ -34,15 +34,15 @@ namespace catapult { namespace tools {
 			const std::string& resourcesPath,
 			const model::UniqueNetworkFingerprint& networkFingerprint) {
 		std::vector<ionet::Node> apiNodes;
-		auto apiPeersFilename = boost::filesystem::path(resourcesPath) / "resources" / "peers-api.json";
-		if (boost::filesystem::exists(apiPeersFilename))
+		auto apiPeersFilename = std::filesystem::path(resourcesPath) / "resources" / "peers-api.json";
+		if (std::filesystem::exists(apiPeersFilename))
 			apiNodes = config::LoadPeersConfiguration(apiPeersFilename, networkFingerprint);
 
 		return apiNodes;
 	}
 
 	std::vector<ionet::Node> LoadPeers(const std::string& resourcesPath, const model::UniqueNetworkFingerprint& networkFingerprint) {
-		auto peersFilename = boost::filesystem::path(resourcesPath) / "resources" / "peers-p2p.json";
+		auto peersFilename = std::filesystem::path(resourcesPath) / "resources" / "peers-p2p.json";
 		return config::LoadPeersConfiguration(peersFilename, networkFingerprint);
 	}
 }}

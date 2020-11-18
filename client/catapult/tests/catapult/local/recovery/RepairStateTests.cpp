@@ -50,7 +50,7 @@ namespace catapult { namespace local {
 			TestContext()
 					: m_dataDirectory(m_tempDir.name())
 					, m_catapultCache({}) {
-				boost::filesystem::create_directories(m_dataDirectory.spoolDir(Queue_Name).path());
+				std::filesystem::create_directories(m_dataDirectory.spoolDir(Queue_Name).path());
 			}
 
 		public:
@@ -69,11 +69,11 @@ namespace catapult { namespace local {
 
 		public:
 			bool exists(const std::string& indexName) const {
-				return boost::filesystem::exists(m_dataDirectory.spoolDir(Queue_Name).file(indexName));
+				return std::filesystem::exists(m_dataDirectory.spoolDir(Queue_Name).file(indexName));
 			}
 
 			bool messageExists(uint64_t value) const {
-				return boost::filesystem::exists(m_dataDirectory.spoolDir(Queue_Name).file(GetMessageFilename(value)));
+				return std::filesystem::exists(m_dataDirectory.spoolDir(Queue_Name).file(GetMessageFilename(value)));
 			}
 
 			uint64_t readIndex(const std::string& indexName) const {
@@ -85,7 +85,7 @@ namespace catapult { namespace local {
 			}
 
 			void removeIndex(const std::string& indexName) {
-				boost::filesystem::remove(m_dataDirectory.spoolDir(Queue_Name).file(indexName));
+				std::filesystem::remove(m_dataDirectory.spoolDir(Queue_Name).file(indexName));
 			}
 
 			void writeMessages(uint64_t startValue, uint64_t endValue) {

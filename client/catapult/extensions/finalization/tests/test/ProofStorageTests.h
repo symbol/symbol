@@ -25,7 +25,7 @@
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace test {
 
@@ -57,7 +57,7 @@ namespace catapult { namespace test {
 			static std::unique_ptr<io::ProofStorage> PrepareProofStorage(const std::string& destination, PreparationMode mode) {
 				if (PreparationMode::Default == mode) {
 					const std::string nemesisDirectory = "/00000";
-					boost::filesystem::create_directories(destination + nemesisDirectory);
+					std::filesystem::create_directories(destination + nemesisDirectory);
 
 					FakeFinalizationHeightMapping(destination, 2);
 					SetIndexFinalizationEpoch(destination, FinalizationEpoch(1));

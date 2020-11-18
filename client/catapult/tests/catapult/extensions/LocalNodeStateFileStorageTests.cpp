@@ -145,7 +145,7 @@ namespace catapult { namespace extensions {
 		// Arrange: create a sentinel file
 		test::TempDirectoryGuard tempDir;
 		auto stateDirectory = config::CatapultDirectory(tempDir.name() + "/zstate");
-		boost::filesystem::create_directories(stateDirectory.path());
+		std::filesystem::create_directories(stateDirectory.path());
 		io::IndexFile(stateDirectory.file("supplemental.dat")).set(123);
 
 		// Act:
@@ -213,7 +213,7 @@ namespace catapult { namespace extensions {
 		}
 
 		// - remove the supplemental data file
-		ASSERT_TRUE(boost::filesystem::remove(stateDirectory.file("supplemental.dat")));
+		ASSERT_TRUE(std::filesystem::remove(stateDirectory.file("supplemental.dat")));
 
 		// Act: load the state
 		auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
@@ -243,25 +243,25 @@ namespace catapult { namespace extensions {
 	namespace {
 		void PrepareNonexistentDirectory(const config::CatapultDirectory& directory) {
 			// Sanity:
-			EXPECT_FALSE(boost::filesystem::exists(directory.path()));
+			EXPECT_FALSE(std::filesystem::exists(directory.path()));
 		}
 
 		void PrepareEmptyDirectory(const config::CatapultDirectory& directory) {
 			// Arrange:
-			boost::filesystem::create_directories(directory.path());
+			std::filesystem::create_directories(directory.path());
 
 			// Sanity:
-			EXPECT_TRUE(boost::filesystem::exists(directory.path()));
+			EXPECT_TRUE(std::filesystem::exists(directory.path()));
 		}
 
 		void PrepareDirectoryWithSentinel(const config::CatapultDirectory& directory) {
 			// Arrange:
-			boost::filesystem::create_directories(directory.path());
+			std::filesystem::create_directories(directory.path());
 			io::IndexFile(directory.file("sentinel")).set(1);
 
 			// Sanity:
-			EXPECT_TRUE(boost::filesystem::exists(directory.path()));
-			EXPECT_TRUE(boost::filesystem::exists(directory.file("sentinel")));
+			EXPECT_TRUE(std::filesystem::exists(directory.path()));
+			EXPECT_TRUE(std::filesystem::exists(directory.file("sentinel")));
 		}
 	}
 
@@ -302,7 +302,7 @@ namespace catapult { namespace extensions {
 
 			EXPECT_EQ(3u, test::CountFilesAndDirectories(stateDirectory.path()));
 			for (const auto* supplementalFilename : { "supplemental.dat", "AccountStateCache.dat", "BlockStatisticCache.dat" })
-				EXPECT_TRUE(boost::filesystem::exists(stateDirectory.file(supplementalFilename))) << supplementalFilename;
+				EXPECT_TRUE(std::filesystem::exists(stateDirectory.file(supplementalFilename))) << supplementalFilename;
 		}
 	}
 
@@ -370,7 +370,7 @@ namespace catapult { namespace extensions {
 
 			EXPECT_EQ(3u, test::CountFilesAndDirectories(stateDirectory.path()));
 			for (const auto* supplementalFilename : { "supplemental.dat", "AccountStateCache_summary.dat", "BlockStatisticCache.dat" })
-				EXPECT_TRUE(boost::filesystem::exists(stateDirectory.file(supplementalFilename))) << supplementalFilename;
+				EXPECT_TRUE(std::filesystem::exists(stateDirectory.file(supplementalFilename))) << supplementalFilename;
 		}
 	}
 
@@ -392,7 +392,7 @@ namespace catapult { namespace extensions {
 			// Arrange: write a file in the source directory
 			test::TempDirectoryGuard tempDir;
 			auto stateDirectory = config::CatapultDirectory(tempDir.name() + "/zstate");
-			boost::filesystem::create_directories(stateDirectory.path());
+			std::filesystem::create_directories(stateDirectory.path());
 			io::IndexFile(stateDirectory.file("sentinel")).set(123);
 
 			// - run additional preparation on destination directory
@@ -404,8 +404,8 @@ namespace catapult { namespace extensions {
 			serializer.moveTo(stateDirectory2);
 
 			// Assert:
-			EXPECT_FALSE(boost::filesystem::exists(stateDirectory.file("sentinel")));
-			EXPECT_TRUE(boost::filesystem::exists(stateDirectory2.file("sentinel")));
+			EXPECT_FALSE(std::filesystem::exists(stateDirectory.file("sentinel")));
+			EXPECT_TRUE(std::filesystem::exists(stateDirectory2.file("sentinel")));
 
 			EXPECT_EQ(123u, io::IndexFile(stateDirectory2.file("sentinel")).get());
 		}
@@ -472,9 +472,7 @@ namespace catapult { namespace extensions {
 
 		// Act: save the state
 		constexpr auto SaveState = SaveStateToDirectoryWithCheckpointing;
-		EXPECT_THROW(
-				SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.ChainScore),
-				boost::filesystem::filesystem_error);
+		EXPECT_THROW(SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.ChainScore), std::filesystem::filesystem_error);
 
 		// Assert:
 		EXPECT_EQ(consumers::CommitOperationStep::State_Written, ReadCommitStep(dataDirectory));

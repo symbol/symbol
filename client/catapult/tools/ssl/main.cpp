@@ -30,7 +30,7 @@
 namespace catapult { namespace tools { namespace ssl {
 
 	namespace {
-		auto GetHarvestingKeyPair(const boost::filesystem::path& resourcesPath) {
+		auto GetHarvestingKeyPair(const std::filesystem::path& resourcesPath) {
 			auto bag = utils::ConfigurationBag::FromPath((resourcesPath / "resources" / "config-harvesting.properties").generic_string());
 			std::string harvesterSigningPrivateKey;
 			utils::LoadIniProperty(bag, "harvesting", "HarvesterSigningPrivateKey", harvesterSigningPrivateKey);

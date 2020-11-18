@@ -30,7 +30,7 @@ namespace catapult { namespace extensions {
 	plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config) {
 		plugins::StorageConfiguration storageConfig;
 		storageConfig.PreferCacheDatabase = config.Node.EnableCacheDatabaseStorage;
-		storageConfig.CacheDatabaseDirectory = (boost::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
+		storageConfig.CacheDatabaseDirectory = (std::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
 		storageConfig.MaxCacheDatabaseWriteBatchSize = config.Node.MaxCacheDatabaseWriteBatchSize;
 		return storageConfig;
 	}

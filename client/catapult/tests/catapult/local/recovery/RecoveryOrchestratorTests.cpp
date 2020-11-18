@@ -205,7 +205,7 @@ namespace catapult { namespace local {
 				return dataDirectory().dir(name);
 			}
 
-			boost::filesystem::path spoolDir(const std::string& queueName) const {
+			std::filesystem::path spoolDir(const std::string& queueName) const {
 				return dataDirectory().spoolDir(queueName).path();
 			}
 
@@ -255,7 +255,7 @@ namespace catapult { namespace local {
 
 				// seed the data directory at most once
 				const auto& dataDirectoryRoot = dataDirectory().rootDir();
-				if (!boost::filesystem::exists(dataDirectoryRoot.path() / "00000")) {
+				if (!std::filesystem::exists(dataDirectoryRoot.path() / "00000")) {
 					test::PrepareStorage(dataDirectoryRoot.str());
 
 					if (m_useCacheDatabaseStorage) {
@@ -387,17 +387,17 @@ namespace catapult { namespace local {
 	TEST(TEST_CLASS, CanRepairSpoolingDirectories) {
 		// Arrange: create a message file in a spooling directory that should get purged
 		RecoveryOrchestratorTestContext context;
-		boost::filesystem::create_directories(context.spoolDir("unconfirmed_transactions_change"));
+		std::filesystem::create_directories(context.spoolDir("unconfirmed_transactions_change"));
 		io::IndexFile((context.spoolDir("unconfirmed_transactions_change") / "message").generic_string()).set(0);
 
 		// Sanity:
-		EXPECT_TRUE(boost::filesystem::exists(context.spoolDir("unconfirmed_transactions_change") / "message"));
+		EXPECT_TRUE(std::filesystem::exists(context.spoolDir("unconfirmed_transactions_change") / "message"));
 
 		// Act:
 		context.boot();
 
 		// Assert: the message file was deleted
-		EXPECT_FALSE(boost::filesystem::exists(context.spoolDir("unconfirmed_transactions_change") / "message"));
+		EXPECT_FALSE(std::filesystem::exists(context.spoolDir("unconfirmed_transactions_change") / "message"));
 	}
 
 	// endregion
@@ -468,7 +468,7 @@ namespace catapult { namespace local {
 		template<typename TTraits>
 		void SetMode(const RecoveryOrchestratorTestContext& context, IngestMessagesMode ingestMessagesMode) {
 			auto queuePath = context.spoolDir(TTraits::Queue_Directory_Name);
-			boost::filesystem::create_directories(queuePath);
+			std::filesystem::create_directories(queuePath);
 			auto indexName = IngestMessagesMode::Broker == ingestMessagesMode ? "index_broker_r.dat" : "index_server_r.dat";
 			io::IndexFile((queuePath / indexName).generic_string()).set(0);
 		}
@@ -643,7 +643,7 @@ namespace catapult { namespace local {
 		};
 
 		void PrepareSupplementalDataFile(const config::CatapultDirectory& directory) {
-			boost::filesystem::create_directories(directory.path());
+			std::filesystem::create_directories(directory.path());
 			auto supplementalDataStream = io::BufferedOutputFileStream(io::RawFile(
 					directory.file("supplemental.dat"),
 					io::OpenMode::Read_Write));
@@ -770,7 +770,7 @@ namespace catapult { namespace local {
 		template<typename TTraits>
 		void SetServerBehind(const RecoveryOrchestratorTestContext& context) {
 			auto queuePath = context.spoolDir(TTraits::Queue_Directory_Name);
-			boost::filesystem::create_directories(queuePath);
+			std::filesystem::create_directories(queuePath);
 			io::IndexFile((queuePath / "index.dat").generic_string()).set(5);
 			io::IndexFile((queuePath / "index_server.dat").generic_string()).set(7);
 		}
@@ -907,7 +907,7 @@ namespace catapult { namespace local {
 
 			// - add temp directory with marker
 			auto stateTempDirectory = context.subDir("state.tmp");
-			boost::filesystem::create_directories(stateTempDirectory.path());
+			std::filesystem::create_directories(stateTempDirectory.path());
 			io::IndexFile(stateTempDirectory.file("marker.dat")).set(123);
 
 			// Sanity:
@@ -919,8 +919,8 @@ namespace catapult { namespace local {
 
 			// Assert: files were purged but not moved
 			auto stateDirectory = context.subDir("state");
-			EXPECT_FALSE(boost::filesystem::exists(stateTempDirectory.path()));
-			EXPECT_TRUE(boost::filesystem::exists(stateDirectory.path()));
+			EXPECT_FALSE(std::filesystem::exists(stateTempDirectory.path()));
+			EXPECT_TRUE(std::filesystem::exists(stateDirectory.path()));
 
 			EXPECT_EQ(consumers::CommitOperationStep::All_Updated, context.readCommitStepFile());
 		}
@@ -941,7 +941,7 @@ namespace catapult { namespace local {
 
 		// - add temp directory with marker and supplemental file
 		auto stateTempDirectory = context.subDir("state.tmp");
-		boost::filesystem::create_directories(stateTempDirectory.path());
+		std::filesystem::create_directories(stateTempDirectory.path());
 		io::IndexFile(stateTempDirectory.file("marker.dat")).set(123);
 		io::IndexFile(stateTempDirectory.file("supplemental.dat")).set(999);
 
@@ -955,7 +955,7 @@ namespace catapult { namespace local {
 		// Assert: files were purged and moved
 		// - supplemental.dat from state.tmp should take precedence and it should not be written out again
 		auto stateDirectory = context.subDir("state");
-		EXPECT_FALSE(boost::filesystem::exists(stateTempDirectory.path()));
+		EXPECT_FALSE(std::filesystem::exists(stateTempDirectory.path()));
 		EXPECT_EQ(2u, test::CountFilesAndDirectories(stateDirectory.path()));
 		EXPECT_EQ(123u, io::IndexFile(stateDirectory.file("marker.dat")).get());
 		EXPECT_EQ(999u, io::IndexFile(stateDirectory.file("supplemental.dat")).get());

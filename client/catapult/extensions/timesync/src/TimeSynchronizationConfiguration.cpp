@@ -47,7 +47,7 @@ namespace catapult { namespace timesync {
 
 #undef LOAD_PROPERTY
 
-	TimeSynchronizationConfiguration TimeSynchronizationConfiguration::LoadFromPath(const boost::filesystem::path& resourcesPath) {
+	TimeSynchronizationConfiguration TimeSynchronizationConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
 		return config::LoadIniConfiguration<TimeSynchronizationConfiguration>(resourcesPath / "config-timesync.properties");
 	}
 }}

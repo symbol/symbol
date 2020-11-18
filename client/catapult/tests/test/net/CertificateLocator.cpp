@@ -23,14 +23,13 @@
 #include "catapult/exceptions.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace test {
 
 	namespace {
 		void SaveToFile(const std::string& certDirectory, const std::string& filename, const std::string& buffer) {
-			io::RawFile dataFile((boost::filesystem::path(certDirectory) / filename).generic_string(), io::OpenMode::Read_Write);
+			io::RawFile dataFile((std::filesystem::path(certDirectory) / filename).generic_string(), io::OpenMode::Read_Write);
 			dataFile.write({ reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size() });
 		}
 
@@ -43,7 +42,7 @@ namespace catapult { namespace test {
 
 	std::string GetDefaultCertificateDirectory() {
 		auto certificateDirectory = "./cert";
-		if (!boost::filesystem::exists(certificateDirectory))
+		if (!std::filesystem::exists(certificateDirectory))
 			GenerateCertificateDirectory(certificateDirectory);
 
 		return certificateDirectory;
@@ -55,7 +54,7 @@ namespace catapult { namespace test {
 
 	void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate) {
 		CATAPULT_LOG(info) << "generating new certificate directory: " << certificateDirectory;
-		boost::filesystem::create_directories(certificateDirectory);
+		std::filesystem::create_directories(certificateDirectory);
 
 		SavePemCertificate(pemCertificate, certificateDirectory);
 	}

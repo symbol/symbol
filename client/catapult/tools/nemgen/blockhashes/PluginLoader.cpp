@@ -23,7 +23,7 @@
 #include "catapult/plugins/PluginLoader.h"
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/plugins/PluginModule.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace tools { namespace nemgen {
 
@@ -36,10 +36,10 @@ namespace catapult { namespace tools { namespace nemgen {
 			{}
 
 			~TempDirectoryGuard() {
-				auto numRemovedFiles = boost::filesystem::remove_all(m_directoryPath);
+				auto numRemovedFiles = std::filesystem::remove_all(m_directoryPath);
 				CATAPULT_LOG(info)
 						<< "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles
-						<< " files (exists? " << boost::filesystem::exists(m_directoryPath) << ")";
+						<< " files (exists? " << std::filesystem::exists(m_directoryPath) << ")";
 			}
 
 		private:
@@ -61,10 +61,10 @@ namespace catapult { namespace tools { namespace nemgen {
 			if (CacheDatabaseCleanupMode::Purge != databaseCleanupMode)
 				return;
 
-			if (boost::filesystem::exists(m_config.User.DataDirectory))
+			if (std::filesystem::exists(m_config.User.DataDirectory))
 				CATAPULT_THROW_INVALID_ARGUMENT_1("temporary data directory must not exist", m_config.User.DataDirectory);
 
-			auto temporaryDirectory = (boost::filesystem::path(m_config.User.DataDirectory)).generic_string();
+			auto temporaryDirectory = (std::filesystem::path(m_config.User.DataDirectory)).generic_string();
 			m_pCacheDatabaseGuard = std::make_unique<TempDirectoryGuard>(temporaryDirectory);
 		}
 
@@ -93,7 +93,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		static plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config) {
 			plugins::StorageConfiguration storageConfig;
 			storageConfig.PreferCacheDatabase = config.Node.EnableCacheDatabaseStorage;
-			storageConfig.CacheDatabaseDirectory = (boost::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
+			storageConfig.CacheDatabaseDirectory = (std::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
 			return storageConfig;
 		}
 

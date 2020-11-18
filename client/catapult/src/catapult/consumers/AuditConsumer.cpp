@@ -23,7 +23,7 @@
 #include "InputUtils.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/RawFile.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace catapult { namespace consumers {
 
@@ -61,7 +61,7 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
-			boost::filesystem::path m_auditDirectory;
+			std::filesystem::path m_auditDirectory;
 			mutable size_t m_id;
 		};
 	}

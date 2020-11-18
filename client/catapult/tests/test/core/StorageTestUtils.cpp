@@ -26,7 +26,7 @@
 #include "catapult/model/EntityHasher.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace test {
 
@@ -43,15 +43,15 @@ namespace catapult { namespace test {
 		PrepareStorageWithoutNemesis(destination);
 
 		for (auto filename : { "proof.index.dat" })
-			boost::filesystem::copy_file(std::string(Source_Directory) + "/" + filename, destination + "/" + filename);
+			std::filesystem::copy_file(std::string(Source_Directory) + "/" + filename, destination + "/" + filename);
 
 		for (auto filename : { "00001.dat", "00001.proof", "hashes.dat", "proof.heights.dat" })
-			boost::filesystem::copy_file(std::string(Source_Directory) + "/00000/" + filename, destination + "/00000/" + filename);
+			std::filesystem::copy_file(std::string(Source_Directory) + "/00000/" + filename, destination + "/00000/" + filename);
 	}
 
 	void PrepareStorageWithoutNemesis(const std::string& destination) {
 		const std::string nemesisDirectory = "/00000";
-		boost::filesystem::create_directories(destination + nemesisDirectory);
+		std::filesystem::create_directories(destination + nemesisDirectory);
 
 		SetIndexHeight(destination, 1);
 	}

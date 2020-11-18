@@ -22,13 +22,13 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/exceptions.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <sstream>
 
 namespace catapult { namespace io {
 
 	namespace {
-		const boost::filesystem::path& CreateDirectory(const boost::filesystem::path& directory) {
+		const std::filesystem::path& CreateDirectory(const std::filesystem::path& directory) {
 			config::CatapultDirectory(directory).create();
 			return directory;
 		}
@@ -128,13 +128,13 @@ namespace catapult { namespace io {
 			return false;
 
 		auto nextMessageFilename = m_directory / GetFilename(readerIndexValue);
-		if (!boost::filesystem::exists(nextMessageFilename))
+		if (!std::filesystem::exists(nextMessageFilename))
 			CATAPULT_THROW_RUNTIME_ERROR_1("reading from file queue failed due to missing message file", nextMessageFilename);
 
 		processFilename(nextMessageFilename.generic_string());
 
 		m_readerIndexFile.increment();
-		boost::filesystem::remove(nextMessageFilename);
+		std::filesystem::remove(nextMessageFilename);
 		return true;
 	}
 

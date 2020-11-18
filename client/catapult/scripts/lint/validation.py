@@ -405,7 +405,8 @@ class TypoChecker(SimpleValidator):
             re.compile(r'shared_ptr<(thread::)?IoThreadPool'): 'use unique_ptr instead',
             re.compile(r'auto pData\b'): 'use auto*',
             re.compile(r'[^:]memcpy\('): 'use std::memcpy',
-            re.compile(r'\)\{$'): 'missing space before brace'
+            re.compile(r'\)\{$'): 'missing space before brace',
+            re.compile(r'boost::filesystem'): 'use std::filesystem'
         }
 
     def check(self, lineNumber, line):

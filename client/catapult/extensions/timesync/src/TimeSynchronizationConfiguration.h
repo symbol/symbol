@@ -20,7 +20,7 @@
 
 #pragma once
 #include "catapult/types.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <string>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
@@ -48,6 +48,6 @@ namespace catapult { namespace timesync {
 		static TimeSynchronizationConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
 		/// Loads a time synchronization configuration from \a resourcesPath.
-		static TimeSynchronizationConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
+		static TimeSynchronizationConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
 	};
 }}

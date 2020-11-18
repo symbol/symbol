@@ -22,7 +22,7 @@
 #include "catapult/io/RawFile.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace io {
 
@@ -31,40 +31,40 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, PurgeDirectory_HasNoEffectOnNonexistentDirectory) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto directoryPath = boost::filesystem::path(tempDir.name()) / "staging";
+		auto directoryPath = std::filesystem::path(tempDir.name()) / "staging";
 
 		// Sanity:
-		EXPECT_FALSE(boost::filesystem::exists(directoryPath));
+		EXPECT_FALSE(std::filesystem::exists(directoryPath));
 
 		// Act:
 		PurgeDirectory(directoryPath.generic_string());
 
 		// Assert:
-		EXPECT_FALSE(boost::filesystem::exists(directoryPath));
+		EXPECT_FALSE(std::filesystem::exists(directoryPath));
 	}
 
 	TEST(TEST_CLASS, PurgeDirectory_HasNoEffectOnEmptyDirectory) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto directoryPath = boost::filesystem::path(tempDir.name()) / "staging";
-		boost::filesystem::create_directory(directoryPath);
+		auto directoryPath = std::filesystem::path(tempDir.name()) / "staging";
+		std::filesystem::create_directory(directoryPath);
 
 		// Sanity:
-		EXPECT_TRUE(boost::filesystem::exists(directoryPath));
+		EXPECT_TRUE(std::filesystem::exists(directoryPath));
 
 		// Act:
 		PurgeDirectory(directoryPath.generic_string());
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(directoryPath));
+		EXPECT_TRUE(std::filesystem::exists(directoryPath));
 		EXPECT_EQ(0u, test::CountFilesAndDirectories(directoryPath));
 	}
 
 	TEST(TEST_CLASS, PurgeDirectory_RemovesAllSubFiles) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto directoryPath = boost::filesystem::path(tempDir.name()) / "staging";
-		boost::filesystem::create_directory(directoryPath);
+		auto directoryPath = std::filesystem::path(tempDir.name()) / "staging";
+		std::filesystem::create_directory(directoryPath);
 
 		// - create three files
 		for (const auto& name : { "alpha", "beta", "gamma" })
@@ -77,18 +77,18 @@ namespace catapult { namespace io {
 		PurgeDirectory(directoryPath.generic_string());
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(directoryPath));
+		EXPECT_TRUE(std::filesystem::exists(directoryPath));
 		EXPECT_EQ(0u, test::CountFilesAndDirectories(directoryPath));
 	}
 
 	TEST(TEST_CLASS, PurgeDirectory_RemovesAllSubFolders) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto directoryPath = boost::filesystem::path(tempDir.name()) / "staging";
-		boost::filesystem::create_directory(directoryPath);
+		auto directoryPath = std::filesystem::path(tempDir.name()) / "staging";
+		std::filesystem::create_directory(directoryPath);
 
 		// - create three files inside of a subdirectory
-		boost::filesystem::create_directory(directoryPath / "sub");
+		std::filesystem::create_directory(directoryPath / "sub");
 		for (const auto& name : { "aaa", "bbb", "ccc" })
 			io::RawFile((directoryPath / "sub" / name).generic_string(), io::OpenMode::Read_Write);
 
@@ -100,10 +100,10 @@ namespace catapult { namespace io {
 		PurgeDirectory(directoryPath.generic_string());
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(directoryPath));
+		EXPECT_TRUE(std::filesystem::exists(directoryPath));
 		EXPECT_EQ(0u, test::CountFilesAndDirectories(directoryPath));
 
-		EXPECT_FALSE(boost::filesystem::exists(directoryPath / "sub"));
+		EXPECT_FALSE(std::filesystem::exists(directoryPath / "sub"));
 	}
 }}
 

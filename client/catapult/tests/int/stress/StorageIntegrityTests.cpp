@@ -27,8 +27,8 @@
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
+#include <filesystem>
 
 namespace catapult { namespace io {
 
@@ -49,8 +49,8 @@ namespace catapult { namespace io {
 			test::TempDirectoryGuard tempDir;
 			test::PrepareStorage(tempDir.name());
 
-			auto stagingDirectory = boost::filesystem::path(tempDir.name()) / "staging";
-			boost::filesystem::create_directory(stagingDirectory);
+			auto stagingDirectory = std::filesystem::path(tempDir.name()) / "staging";
+			std::filesystem::create_directory(stagingDirectory);
 
 			BlockStorageCache storage(
 					std::make_unique<FileBlockStorage>(tempDir.name()),

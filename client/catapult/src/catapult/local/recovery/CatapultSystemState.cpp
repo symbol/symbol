@@ -38,11 +38,11 @@ namespace catapult { namespace local {
 	{}
 
 	bool CatapultSystemState::shouldRecoverBroker() const {
-		return boost::filesystem::exists(qualifyRootFile(Broker_Lock_Filename));
+		return std::filesystem::exists(qualifyRootFile(Broker_Lock_Filename));
 	}
 
 	bool CatapultSystemState::shouldRecoverServer() const {
-		return boost::filesystem::exists(qualifyRootFile(Server_Lock_Filename));
+		return std::filesystem::exists(qualifyRootFile(Server_Lock_Filename));
 	}
 
 	consumers::CommitOperationStep CatapultSystemState::commitStep() const {
@@ -54,7 +54,7 @@ namespace catapult { namespace local {
 
 	void CatapultSystemState::reset() {
 		for (const auto& filename : { Broker_Lock_Filename, Server_Lock_Filename, Harvesters_Temp_Filename, Commit_Step_Filename })
-			boost::filesystem::remove(qualifyRootFile(filename));
+			std::filesystem::remove(qualifyRootFile(filename));
 	}
 
 	std::string CatapultSystemState::qualifyRootFile(const std::string& filename) const {

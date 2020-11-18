@@ -22,7 +22,7 @@
 #include "catapult/io/IndexFile.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace io {
 
@@ -70,13 +70,13 @@ namespace catapult { namespace io {
 		template<typename TTraits>
 		class BasicQueueTestContext {
 		public:
-			explicit BasicQueueTestContext(const boost::filesystem::path& directory)
+			explicit BasicQueueTestContext(const std::filesystem::path& directory)
 					: m_tempDataDir(directory.generic_string())
 					, m_directory(m_tempDataDir.name())
 			{}
 
 		public:
-			const boost::filesystem::path& directory() {
+			const std::filesystem::path& directory() {
 				return m_directory;
 			}
 
@@ -90,13 +90,13 @@ namespace catapult { namespace io {
 			}
 
 			size_t countFiles() const {
-				auto begin = boost::filesystem::directory_iterator(m_directory);
-				auto end = boost::filesystem::directory_iterator();
+				auto begin = std::filesystem::directory_iterator(m_directory);
+				auto end = std::filesystem::directory_iterator();
 				return static_cast<size_t>(std::distance(begin, end));
 			}
 
 			bool exists(const std::string& name) const {
-				return boost::filesystem::exists(m_directory / name);
+				return std::filesystem::exists(m_directory / name);
 			}
 
 			std::vector<uint8_t> readAll(const std::string& name) {
@@ -108,7 +108,7 @@ namespace catapult { namespace io {
 
 		private:
 			test::TempDirectoryGuard m_tempDataDir;
-			boost::filesystem::path m_directory;
+			std::filesystem::path m_directory;
 		};
 
 		// endregion
@@ -116,7 +116,7 @@ namespace catapult { namespace io {
 		// region utils
 
 		template<typename TTraits>
-		void SetIndexes(const boost::filesystem::path& directory, uint64_t indexWriterValue, uint64_t indexReaderValue) {
+		void SetIndexes(const std::filesystem::path& directory, uint64_t indexWriterValue, uint64_t indexReaderValue) {
 			if (0 != indexWriterValue)
 				IndexFile((directory / TTraits::Index_Writer_Filename).generic_string()).set(indexWriterValue);
 
@@ -127,11 +127,11 @@ namespace catapult { namespace io {
 		template<typename TTraits>
 		void CreateDirectory(const std::string& name, uint64_t indexWriterValue, uint64_t indexReaderValue) {
 			// Arrange:
-			auto directory = boost::filesystem::path(test::TempDirectoryGuard::DefaultName()) / name;
-			boost::filesystem::create_directories(directory);
+			auto directory = std::filesystem::path(test::TempDirectoryGuard::DefaultName()) / name;
+			std::filesystem::create_directories(directory);
 
 			// Sanity:
-			EXPECT_TRUE(boost::filesystem::exists(directory));
+			EXPECT_TRUE(std::filesystem::exists(directory));
 
 			SetIndexes<TTraits>(directory, indexWriterValue, indexReaderValue);
 		}
@@ -148,7 +148,7 @@ namespace catapult { namespace io {
 			WriterTestContext() : WriterTestContext("q")
 			{}
 
-			explicit WriterTestContext(const boost::filesystem::path& directory)
+			explicit WriterTestContext(const std::filesystem::path& directory)
 					: BasicQueueTestContext<TTraits>(directory)
 					, m_writer(TTraits::CreateWriter(BasicQueueTestContext<TTraits>::directory().generic_string()))
 			{}
@@ -339,7 +339,7 @@ namespace catapult { namespace io {
 		ReaderTestContext() : ReaderTestContext("q")
 		{}
 
-		explicit ReaderTestContext(const boost::filesystem::path& directory)
+		explicit ReaderTestContext(const std::filesystem::path& directory)
 				: BasicQueueTestContext<TTraits>(directory)
 				, m_reader(TTraits::CreateReader(BasicQueueTestContext<TTraits>::directory().generic_string()))
 		{}
@@ -431,7 +431,7 @@ namespace catapult { namespace io {
 		// Arrange:
 		ReaderTestContext<TTraits> context;
 		context.setIndexes(121, 120);
-		boost::filesystem::remove(context.directory() / TTraits::Index_Writer_Filename);
+		std::filesystem::remove(context.directory() / TTraits::Index_Writer_Filename);
 
 		// Act:
 		auto pending = context.reader().pending();
@@ -505,7 +505,7 @@ namespace catapult { namespace io {
 		// Arrange:
 		ReaderTestContext<TTraits> context;
 		context.setIndexes(121, 120);
-		boost::filesystem::remove(context.directory() / TTraits::Index_Writer_Filename);
+		std::filesystem::remove(context.directory() / TTraits::Index_Writer_Filename);
 
 		// Act:
 		auto result = context.reader().tryReadNextMessage(ReadNever);

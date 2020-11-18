@@ -25,7 +25,7 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 using catapult::disruptor::ConsumerInput;
 using catapult::disruptor::InputSource;
@@ -85,11 +85,11 @@ namespace catapult { namespace consumers {
 		}
 
 		void AssertFileContents(
-				const boost::filesystem::path& filename,
+				const std::filesystem::path& filename,
 				InputSource expectedSource,
 				const Key& expectedSourcePublicKey,
 				const model::VerifiableEntity& expectedEntity) {
-			ASSERT_TRUE(boost::filesystem::exists(filename));
+			ASSERT_TRUE(std::filesystem::exists(filename));
 
 			FileContentsChecker checker(filename.generic_string());
 			checker.checkHeader(expectedSource, expectedSourcePublicKey);
@@ -111,8 +111,8 @@ namespace catapult { namespace consumers {
 				// Assert:
 				test::AssertContinued(result);
 
-				auto filename = boost::filesystem::path(auditDirectory) / "1";
-				ASSERT_TRUE(boost::filesystem::exists(filename));
+				auto filename = std::filesystem::path(auditDirectory) / "1";
+				ASSERT_TRUE(std::filesystem::exists(filename));
 
 				auto iter = rangeCopy.cbegin();
 				FileContentsChecker checker(filename.generic_string());
@@ -175,7 +175,7 @@ namespace catapult { namespace consumers {
 			test::AssertContinued(result3);
 			test::AssertContinued(result4);
 
-			auto auditDirectoryPath = boost::filesystem::path(auditDirectory);
+			auto auditDirectoryPath = std::filesystem::path(auditDirectory);
 			AssertFileContents(auditDirectoryPath / "1", InputSource::Remote_Pull, keys[0], *rangeCopy1.cbegin());
 			AssertFileContents(auditDirectoryPath / "2", InputSource::Remote_Push, keys[1], *rangeCopy2.cbegin());
 			AssertFileContents(auditDirectoryPath / "3", InputSource::Local, keys[2], *rangeCopy3.cbegin());

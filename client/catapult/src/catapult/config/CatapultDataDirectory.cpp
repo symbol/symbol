@@ -30,20 +30,20 @@ namespace catapult { namespace config {
 
 	namespace {
 #ifdef _WIN32
-		bool CreateDirectory(const boost::filesystem::path& directory) {
-			boost::system::error_code ec;
-			boost::filesystem::create_directory(directory, ec);
+		bool CreateDirectory(const std::filesystem::path& directory) {
+			std::error_code ec;
+			std::filesystem::create_directory(directory, ec);
 			return !ec;
 		}
 #else
-		bool CreateDirectory(const boost::filesystem::path& directory) {
+		bool CreateDirectory(const std::filesystem::path& directory) {
 			return !mkdir(directory.generic_string().c_str(), 0700);
 		}
 #endif
 	}
 
 	bool CatapultDirectory::exists() const {
-		return boost::filesystem::is_directory(m_directory);
+		return std::filesystem::is_directory(m_directory);
 	}
 
 	void CatapultDirectory::create() const {
@@ -55,7 +55,7 @@ namespace catapult { namespace config {
 	}
 
 	void CatapultDirectory::createAll() const {
-		boost::filesystem::path currentDirectory;
+		std::filesystem::path currentDirectory;
 
 		for (const auto& part : m_directory) {
 			if (currentDirectory.empty())

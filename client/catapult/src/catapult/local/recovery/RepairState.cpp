@@ -36,7 +36,7 @@ namespace catapult { namespace local {
 			StateRepairer(const config::CatapultDirectory& stateChangeDirectory, const cache::CatapultCache& catapultCache)
 					: m_stateChangeDirectory(stateChangeDirectory)
 					, m_catapultCache(catapultCache)
-					, m_isBrokerRecovery(boost::filesystem::exists(m_stateChangeDirectory.file("index_broker_r.dat")))
+					, m_isBrokerRecovery(std::filesystem::exists(m_stateChangeDirectory.file("index_broker_r.dat")))
 			{}
 
 		public:

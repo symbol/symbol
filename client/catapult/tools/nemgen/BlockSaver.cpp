@@ -27,14 +27,14 @@
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/HexParser.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace tools { namespace nemgen {
 
 	namespace {
 		void CreatePlaceholderHashesFile(const std::string& binDirectory) {
-			auto blockVersionedDirectory = boost::filesystem::path(binDirectory) / "00000";
-			boost::filesystem::create_directories(blockVersionedDirectory);
+			auto blockVersionedDirectory = std::filesystem::path(binDirectory) / "00000";
+			std::filesystem::create_directories(blockVersionedDirectory);
 
 			io::RawFile hashesFile((blockVersionedDirectory / "hashes.dat").generic_string(), io::OpenMode::Read_Write);
 			hashesFile.write(Hash256());
@@ -93,7 +93,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	void SaveNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config) {
 		// 1. reset the index file
-		io::IndexFile((boost::filesystem::path(config.BinDirectory) / "index.dat").generic_string()).set(0);
+		io::IndexFile((std::filesystem::path(config.BinDirectory) / "index.dat").generic_string()).set(0);
 
 		// 2. create placeholder hashes file
 		CreatePlaceholderHashesFile(config.BinDirectory);
@@ -111,14 +111,14 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	namespace {
 		void RemoveProofIndexFile(const std::string& binDirectory) {
-			auto proofIndexFilename = boost::filesystem::path(binDirectory) / "proof.index.dat";
+			auto proofIndexFilename = std::filesystem::path(binDirectory) / "proof.index.dat";
 
-			if (boost::filesystem::exists(proofIndexFilename))
-				boost::filesystem::remove(proofIndexFilename);
+			if (std::filesystem::exists(proofIndexFilename))
+				std::filesystem::remove(proofIndexFilename);
 		}
 
 		void CreatePlaceholderHeightsFile(const std::string& binDirectory) {
-			auto blockVersionedDirectory = boost::filesystem::path(binDirectory) / "00000";
+			auto blockVersionedDirectory = std::filesystem::path(binDirectory) / "00000";
 
 			io::RawFile heightsFile((blockVersionedDirectory / "proof.heights.dat").generic_string(), io::OpenMode::Read_Write);
 			io::Write64(heightsFile, 0);

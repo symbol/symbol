@@ -20,7 +20,7 @@
 
 #pragma once
 #include "catapult/utils/FileSize.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
 
@@ -47,6 +47,6 @@ namespace catapult { namespace partialtransaction {
 		static PtConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
 		/// Loads a partial transactions configuration from \a resourcesPath.
-		static PtConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
+		static PtConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
 	};
 }}

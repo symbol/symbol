@@ -26,7 +26,7 @@
 #include "PeersConfiguration.h"
 #include "UserConfiguration.h"
 #include "catapult/model/BlockChainConfiguration.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace catapult { namespace config {
 
@@ -65,7 +65,7 @@ namespace catapult { namespace config {
 	public:
 		/// Loads a catapult configuration from \a resourcesPath given the specified extensions host (\a extensionsHost).
 		/// \note This function is expected to be called be before logging is enabled.
-		static CatapultConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath, const std::string& extensionsHost);
+		static CatapultConfiguration LoadFromPath(const std::filesystem::path& resourcesPath, const std::string& extensionsHost);
 	};
 
 	/// Extracts a node representing the local node from \a config.

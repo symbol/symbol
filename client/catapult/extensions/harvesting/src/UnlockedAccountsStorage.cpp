@@ -22,7 +22,7 @@
 #include "UnlockedFileQueueConsumer.h"
 #include "catapult/io/RawFile.h"
 #include "catapult/exceptions.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace harvesting {
 
@@ -39,11 +39,11 @@ namespace catapult { namespace harvesting {
 
 		void SafeAppend(const std::string& filename, const RawBuffer& encryptedPayload) {
 			auto tempFilename = GetTempFilename(filename);
-			if (boost::filesystem::exists(filename))
-				boost::filesystem::copy_file(filename, tempFilename, boost::filesystem::copy_option::overwrite_if_exists);
+			if (std::filesystem::exists(filename))
+				std::filesystem::copy_file(filename, tempFilename, std::filesystem::copy_options::overwrite_existing);
 
 			Append(tempFilename, encryptedPayload);
-			boost::filesystem::rename(tempFilename, filename);
+			std::filesystem::rename(tempFilename, filename);
 		}
 
 		size_t ReadLastRequestIdentifier(const std::string& filename, HarvestRequestIdentifier& requestIdentifier) {
@@ -62,12 +62,12 @@ namespace catapult { namespace harvesting {
 		}
 
 		void TryRemoveLastRequest(const std::string& filename, const HarvestRequestIdentifier& expectedRequestIdentifier) {
-			if (!boost::filesystem::exists(filename)) {
+			if (!std::filesystem::exists(filename)) {
 				CATAPULT_LOG(warning) << filename << " does not exist";
 				return;
 			}
 
-			if (0 == boost::filesystem::file_size(filename)) {
+			if (0 == std::filesystem::file_size(filename)) {
 				CATAPULT_LOG(debug) << filename << " is empty";
 				return;
 			}
@@ -81,7 +81,7 @@ namespace catapult { namespace harvesting {
 				return;
 			}
 
-			boost::filesystem::resize_file(filename, encryptedPayloadStartPosition);
+			std::filesystem::resize_file(filename, encryptedPayloadStartPosition);
 		}
 	}
 
@@ -132,20 +132,20 @@ namespace catapult { namespace harvesting {
 		}
 
 		// if all requests have been filtered out, remove file
-		if (!pRawFile && boost::filesystem::exists(m_filename))
-			boost::filesystem::remove(m_filename);
+		if (!pRawFile && std::filesystem::exists(m_filename))
+			std::filesystem::remove(m_filename);
 
 		if (pRawFile) {
 			// force file close before doing rename
 			pRawFile.reset();
-			boost::filesystem::rename(GetTempFilename(m_filename), m_filename);
+			std::filesystem::rename(GetTempFilename(m_filename), m_filename);
 		}
 	}
 
 	void UnlockedAccountsStorage::load(
 			const crypto::KeyPair& encryptionKeyPair,
 			const consumer<BlockGeneratorAccountDescriptor&&>& processDescriptor) {
-		if (!boost::filesystem::exists(m_filename))
+		if (!std::filesystem::exists(m_filename))
 			return;
 
 		// read requests

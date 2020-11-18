@@ -22,7 +22,6 @@
 #include "ConsumerResultFactory.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/FileQueue.h"
-#include <boost/filesystem/path.hpp>
 
 namespace catapult { namespace consumers {
 

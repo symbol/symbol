@@ -28,7 +28,7 @@
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace config {
 
@@ -232,15 +232,15 @@ namespace catapult { namespace config {
 			// - copy all files into a temp directory
 			test::TempDirectoryGuard tempDir;
 			for (const auto& configFilename : Config_Filenames) {
-				boost::filesystem::create_directories(tempDir.name());
-				boost::filesystem::copy_file(
-						boost::filesystem::path(Resources_Path) / configFilename,
-						boost::filesystem::path(tempDir.name()) / configFilename);
+				std::filesystem::create_directories(tempDir.name());
+				std::filesystem::copy_file(
+						std::filesystem::path(Resources_Path) / configFilename,
+						std::filesystem::path(tempDir.name()) / configFilename);
 			}
 
 			// - remove a file
 			CATAPULT_LOG(debug) << "removing " << filenameToRemove;
-			EXPECT_TRUE(boost::filesystem::remove(boost::filesystem::path(tempDir.name()) / filenameToRemove));
+			EXPECT_TRUE(std::filesystem::remove(std::filesystem::path(tempDir.name()) / filenameToRemove));
 
 			// Act + Assert: attempt to load the config
 			EXPECT_THROW(CatapultConfiguration::LoadFromPath(tempDir.name(), "server"), catapult_runtime_error);
@@ -249,17 +249,17 @@ namespace catapult { namespace config {
 
 	TEST(TEST_CLASS, ResourcesDirectoryContainsAllConfigFiles) {
 		// Arrange:
-		auto resourcesPath = boost::filesystem::path(Resources_Path);
-		std::set<boost::filesystem::path> expectedFilenames;
+		auto resourcesPath = std::filesystem::path(Resources_Path);
+		std::set<std::filesystem::path> expectedFilenames;
 		for (const auto& configFilename : Config_Filenames)
 			expectedFilenames.insert(resourcesPath / configFilename);
 
 		// Act: collect filenames
 		auto numFiles = 0u;
-		std::set<boost::filesystem::path> actualFilenames;
-		for (const auto& path : boost::filesystem::directory_iterator(resourcesPath)) {
-			CATAPULT_LOG(debug) << "found " << path;
-			actualFilenames.insert(path);
+		std::set<std::filesystem::path> actualFilenames;
+		for (const auto& directoryEntry : std::filesystem::directory_iterator(resourcesPath)) {
+			CATAPULT_LOG(debug) << "found " << directoryEntry.path();
+			actualFilenames.insert(directoryEntry.path());
 			++numFiles;
 		}
 

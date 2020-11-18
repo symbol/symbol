@@ -43,7 +43,7 @@ namespace catapult { namespace partialtransaction {
 
 #undef LOAD_PROPERTY
 
-	PtConfiguration PtConfiguration::LoadFromPath(const boost::filesystem::path& resourcesPath) {
+	PtConfiguration PtConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
 		return config::LoadIniConfiguration<PtConfiguration>(resourcesPath / "config-pt.properties");
 	}
 }}

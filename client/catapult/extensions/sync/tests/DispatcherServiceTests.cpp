@@ -37,7 +37,7 @@
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/test/other/mocks/MockNotificationValidator.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 using ValidationResult = catapult::validators::ValidationResult;
 
@@ -240,7 +240,7 @@ namespace catapult { namespace sync {
 			}
 
 		public:
-			boost::filesystem::path tempPath() const {
+			std::filesystem::path tempPath() const {
 				return m_tempDir.name();
 			}
 
@@ -394,8 +394,8 @@ namespace catapult { namespace sync {
 
 		// - auditing directories were created
 		auto auditDirectory = context.tempPath() / "audit";
-		EXPECT_TRUE(boost::filesystem::is_directory(auditDirectory / "block dispatcher"));
-		EXPECT_TRUE(boost::filesystem::is_directory(auditDirectory / "transaction dispatcher"));
+		EXPECT_TRUE(std::filesystem::is_directory(auditDirectory / "block dispatcher"));
+		EXPECT_TRUE(std::filesystem::is_directory(auditDirectory / "transaction dispatcher"));
 	}
 
 	TEST(TEST_CLASS, CanBootServiceWithAutoSyncCleanupEnabled) {

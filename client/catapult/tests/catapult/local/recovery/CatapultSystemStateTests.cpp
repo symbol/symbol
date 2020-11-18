@@ -66,7 +66,7 @@ namespace catapult { namespace local {
 
 		public:
 			bool exists(const std::string& filename) {
-				return boost::filesystem::exists(m_dataDirectory.rootDir().file(filename));
+				return std::filesystem::exists(m_dataDirectory.rootDir().file(filename));
 			}
 
 		private:

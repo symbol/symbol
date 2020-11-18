@@ -29,8 +29,8 @@
 #ifdef _MSC_VER
 #include <boost/config/compiler/visualc.hpp>
 #endif
-#include <boost/filesystem/path.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <filesystem>
 
 namespace pt = boost::property_tree;
 
@@ -303,7 +303,7 @@ namespace catapult { namespace tools { namespace testvectors {
 			}
 
 			pt::ptree parseJsonFile(const std::string& filename) {
-				auto path = boost::filesystem::path(m_vectorsDirectory) / (filename + ".json");
+				auto path = std::filesystem::path(m_vectorsDirectory) / (filename + ".json");
 				pt::ptree testData;
 				pt::read_json(path.generic_string(), testData);
 				return testData;

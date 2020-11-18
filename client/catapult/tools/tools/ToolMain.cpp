@@ -25,8 +25,7 @@
 #include "catapult/utils/ExceptionLogging.h"
 #include "catapult/version/version.h"
 #include "catapult/preprocessor.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <iostream>
 
 namespace catapult { namespace tools {
@@ -36,17 +35,17 @@ namespace catapult { namespace tools {
 
 		config::LoggingConfiguration LoadLoggingConfiguration(const std::string& userLoggingConfigurationPath) {
 			// if the user has provided a path, try that first
-			std::vector<boost::filesystem::path> loggingConfigurationPaths;
+			std::vector<std::filesystem::path> loggingConfigurationPaths;
 			if (!userLoggingConfigurationPath.empty())
 				loggingConfigurationPaths.emplace_back(userLoggingConfigurationPath);
 
 			// fallback to searching in some default locations
 			constexpr auto Default_Logging_Configuration_Filename = "config-logging.properties";
 			loggingConfigurationPaths.emplace_back(Default_Logging_Configuration_Filename);
-			loggingConfigurationPaths.emplace_back(boost::filesystem::path("..") / "resources" / Default_Logging_Configuration_Filename);
+			loggingConfigurationPaths.emplace_back(std::filesystem::path("..") / "resources" / Default_Logging_Configuration_Filename);
 
 			for (const auto& loggingConfigurationPath : loggingConfigurationPaths) {
-				if (boost::filesystem::exists(loggingConfigurationPath))
+				if (std::filesystem::exists(loggingConfigurationPath))
 					return config::LoadIniConfiguration<config::LoggingConfiguration>(loggingConfigurationPath);
 			}
 

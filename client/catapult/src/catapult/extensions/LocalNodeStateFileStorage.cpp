@@ -53,7 +53,7 @@ namespace catapult { namespace extensions {
 	// region HasSerializedState
 
 	bool HasSerializedState(const config::CatapultDirectory& directory) {
-		return boost::filesystem::exists(directory.file(Supplemental_Data_Filename));
+		return std::filesystem::exists(directory.file(Supplemental_Data_Filename));
 	}
 
 	// endregion
@@ -191,8 +191,8 @@ namespace catapult { namespace extensions {
 
 	void LocalNodeStateSerializer::moveTo(const config::CatapultDirectory& destinationDirectory) {
 		io::PurgeDirectory(destinationDirectory.str());
-		boost::filesystem::remove(destinationDirectory.path());
-		boost::filesystem::rename(m_directory.path(), destinationDirectory.path());
+		std::filesystem::remove(destinationDirectory.path());
+		std::filesystem::rename(m_directory.path(), destinationDirectory.path());
 	}
 
 	// endregion

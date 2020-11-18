@@ -23,10 +23,9 @@
 #include "catapult/constants.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 namespace catapult { namespace io {
 
@@ -58,7 +57,7 @@ namespace catapult { namespace io {
 				auto subDirectoryPath = fs::path(m_guard.name()) / subDirectoryName;
 				auto filePath = subDirectoryPath / "test.dat";
 
-				return boost::filesystem::exists(subDirectoryPath) && boost::filesystem::exists(filePath);
+				return fs::exists(subDirectoryPath) && fs::exists(filePath);
 			}
 
 			auto& hashFile() {
@@ -114,7 +113,7 @@ namespace catapult { namespace io {
 
 		// Assert:
 		EXPECT_TRUE(context.storageExists("00001"));
-		EXPECT_EQ(ValueType::Size, boost::filesystem::file_size(context.filename("00001")));
+		EXPECT_EQ(ValueType::Size, fs::file_size(context.filename("00001")));
 	}
 
 	TEST(TEST_CLASS, StorageCannotOpenWithoutAnyValues_Save) {
@@ -232,7 +231,7 @@ namespace catapult { namespace io {
 		auto values = context.hashFile().loadRangeFrom(Height(2), 3);
 
 		// Assert:
-		ASSERT_EQ(5 * ValueType::Size, boost::filesystem::file_size(context.filename("00000")));
+		ASSERT_EQ(5 * ValueType::Size, fs::file_size(context.filename("00000")));
 		AssertValues(values, { 12, 13, 14 });
 	}
 

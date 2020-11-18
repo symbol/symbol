@@ -25,10 +25,10 @@
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <fstream>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 namespace catapult { namespace io {
 
@@ -181,7 +181,7 @@ namespace catapult { namespace io {
 		FilePrevoteChainStorage storage(tempDir.name());
 		storage.save(pStorageCache->view(), { Default_Round, Height(10), 0 });
 
-		boost::filesystem::remove(Join(tempDir.name(), "voting", "123_42", "index.dat"));
+		fs::remove(Join(tempDir.name(), "voting", "123_42", "index.dat"));
 
 		// Act + Assert:
 		EXPECT_THROW(storage.load(Default_Round, Height(100)), catapult_invalid_argument);

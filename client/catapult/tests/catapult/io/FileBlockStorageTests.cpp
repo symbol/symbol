@@ -23,7 +23,7 @@
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace io {
 
@@ -105,13 +105,13 @@ namespace catapult { namespace io {
 		FileBlockStorage storage(tempDir.name());
 
 		// Sanity:
-		EXPECT_TRUE(boost::filesystem::exists(tempDir.name()));
+		EXPECT_TRUE(std::filesystem::exists(tempDir.name()));
 
 		// Act:
 		storage.purge();
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(tempDir.name()));
+		EXPECT_TRUE(std::filesystem::exists(tempDir.name()));
 	}
 
 	// endregion

@@ -20,7 +20,7 @@
 
 #include "IndexFile.h"
 #include "PodIoUtils.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace io {
 
@@ -30,7 +30,7 @@ namespace catapult { namespace io {
 	{}
 
 	bool IndexFile::exists() const {
-		return boost::filesystem::is_regular_file(m_filename);
+		return std::filesystem::is_regular_file(m_filename);
 	}
 
 	uint64_t IndexFile::get() const {

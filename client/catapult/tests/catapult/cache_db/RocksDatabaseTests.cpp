@@ -25,7 +25,7 @@
 #include "tests/catapult/cache_db/test/SliceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace cache {
 
@@ -69,7 +69,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, RdbThrowsWhenDbCannotBeOpened) {
 		// Arrange: use TempDirectoryGuard to create any intermediate directories (except for last one)
 		test::TempDirectoryGuard dbDirGuard;
-		boost::filesystem::remove(dbDirGuard.name());
+		std::filesystem::remove(dbDirGuard.name());
 
 		// - create a lock file with a name that will be used by Open
 		io::FileLock lock(dbDirGuard.name());

@@ -154,7 +154,7 @@ namespace catapult { namespace test {
 		config.User.DataDirectory = dataDirectory;
 		config.User.CertificateDirectory = dataDirectory.empty()
 				? GetDefaultCertificateDirectory()
-				: (boost::filesystem::path(dataDirectory) / "cert").generic_string();
+				: (std::filesystem::path(dataDirectory) / "cert").generic_string();
 		return config.ToConst();
 	}
 

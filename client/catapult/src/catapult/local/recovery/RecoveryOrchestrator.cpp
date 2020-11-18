@@ -82,7 +82,7 @@ namespace catapult { namespace local {
 		}
 
 		void MoveSupplementalDataFiles(const config::CatapultDataDirectory& dataDirectory) {
-			if (!boost::filesystem::exists(dataDirectory.dir("state.tmp").path()))
+			if (!std::filesystem::exists(dataDirectory.dir("state.tmp").path()))
 				return;
 
 			extensions::LocalNodeStateSerializer serializer(dataDirectory.dir("state.tmp"));

@@ -91,8 +91,8 @@ namespace catapult { namespace process {
 		}
 	}
 
-	boost::filesystem::path GetResourcesPath(int argc, const char** argv) {
-		return boost::filesystem::path(argc > 1 ? argv[1] : "..") / "resources";
+	std::filesystem::path GetResourcesPath(int argc, const char** argv) {
+		return std::filesystem::path(argc > 1 ? argv[1] : "..") / "resources";
 	}
 
 	int ProcessMain(int argc, const char** argv, const std::string& host, const CreateProcessHost& createProcessHost) {
@@ -117,7 +117,7 @@ namespace catapult { namespace process {
 		auto pLoggingGuard = SetupLogging(config.Logging);
 
 		// 3. check instance
-		boost::filesystem::path lockFilePath = config.User.DataDirectory;
+		std::filesystem::path lockFilePath = config.User.DataDirectory;
 		lockFilePath /= host + ".lock";
 		io::FileLock instanceLock(lockFilePath.generic_string());
 		if (!instanceLock.try_lock()) {

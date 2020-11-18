@@ -22,7 +22,7 @@
 #include "catapult/model/Address.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/HexFormatter.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace tools { namespace nemgen {
 
@@ -101,7 +101,7 @@ namespace catapult { namespace tools { namespace nemgen {
 	}
 
 	NemesisConfiguration LoadNemesisConfiguration(const std::string& configPath) {
-		if (!boost::filesystem::exists(configPath)) {
+		if (!std::filesystem::exists(configPath)) {
 			auto message = "aborting load due to missing configuration file";
 			CATAPULT_LOG(fatal) << message << ": " << configPath;
 			CATAPULT_THROW_EXCEPTION(catapult_runtime_error(message));

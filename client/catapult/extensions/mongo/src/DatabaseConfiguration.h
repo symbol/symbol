@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <string>
 #include <unordered_set>
 
@@ -54,6 +54,6 @@ namespace catapult { namespace mongo {
 		static DatabaseConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
 		/// Loads a database configuration from \a resourcesPath.
-		static DatabaseConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
+		static DatabaseConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
 	};
 }}

@@ -20,7 +20,7 @@
 
 #include "CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace catapult { namespace config {
 
@@ -47,7 +47,7 @@ namespace catapult { namespace config {
 
 	namespace {
 		std::string GetPemFilename(const std::string& directory, const std::string& name) {
-			return (boost::filesystem::path(directory) / (name + ".pem")).generic_string();
+			return (std::filesystem::path(directory) / (name + ".pem")).generic_string();
 		}
 	}
 

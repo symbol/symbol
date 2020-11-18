@@ -26,7 +26,6 @@
 #include "catapult/utils/PathUtils.h"
 #include "catapult/utils/StackLogger.h"
 #include "catapult/exceptions.h"
-#include <boost/filesystem.hpp>
 
 namespace catapult { namespace cache {
 

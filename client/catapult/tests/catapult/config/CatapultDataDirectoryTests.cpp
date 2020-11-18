@@ -27,7 +27,7 @@ namespace catapult { namespace config {
 
 #define TEST_CLASS CatapultDataDirectoryTests
 
-	namespace fs = boost::filesystem;
+	namespace fs = std::filesystem;
 
 	namespace {
 		struct TestKey_tag {};
@@ -39,11 +39,11 @@ namespace catapult { namespace config {
 
 		void AssertPermissions(const fs::path& fullPath) {
 			auto status = fs::status(fullPath);
-			EXPECT_NE(fs::perms::perms_not_known, status.permissions());
+			EXPECT_NE(fs::perms::unknown, status.permissions());
 
 			// permissions are not set on windows
 #ifndef _WIN32
-			EXPECT_EQ(fs::perms::owner_all, status.permissions() & fs::perms::all_all);
+			EXPECT_EQ(fs::perms::owner_all, status.permissions() & fs::perms::all);
 #endif
 		}
 	}

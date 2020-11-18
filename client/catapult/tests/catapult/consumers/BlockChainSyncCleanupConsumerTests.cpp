@@ -24,7 +24,7 @@
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace consumers {
 
@@ -34,11 +34,11 @@ namespace catapult { namespace consumers {
 		static constexpr auto Index_Writer_Filename = "index_server.dat";
 		static constexpr auto Index_Reader_Filename = "index_server_r.dat";
 
-		uint64_t ReadIndexFileValue(const boost::filesystem::path& indexFilePath) {
+		uint64_t ReadIndexFileValue(const std::filesystem::path& indexFilePath) {
 			return io::IndexFile(indexFilePath.generic_string()).get();
 		}
 
-		void ProduceThreeStateChangeMessages(const boost::filesystem::path& stateChangeDirectory) {
+		void ProduceThreeStateChangeMessages(const std::filesystem::path& stateChangeDirectory) {
 			// Arrange: write three files
 			io::FileQueueWriter writer(stateChangeDirectory.generic_string(), Index_Writer_Filename);
 			for (auto i = 0u; i < 3; ++i) {
@@ -47,12 +47,12 @@ namespace catapult { namespace consumers {
 			}
 
 			// Sanity:
-			EXPECT_TRUE(boost::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
-			EXPECT_TRUE(boost::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
-			EXPECT_TRUE(boost::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
+			EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
+			EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
+			EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
 
 			EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
-			EXPECT_FALSE(boost::filesystem::exists(stateChangeDirectory / Index_Reader_Filename));
+			EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / Index_Reader_Filename));
 		}
 	}
 
@@ -81,9 +81,9 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 
-		EXPECT_FALSE(boost::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
-		EXPECT_FALSE(boost::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
-		EXPECT_TRUE(boost::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
+		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
+		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
+		EXPECT_TRUE(std::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
 
 		EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
 		EXPECT_EQ(2u, ReadIndexFileValue(stateChangeDirectory / Index_Reader_Filename));
@@ -110,9 +110,9 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 
-		EXPECT_FALSE(boost::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
-		EXPECT_FALSE(boost::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
-		EXPECT_FALSE(boost::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
+		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000000.dat"));
+		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000001.dat"));
+		EXPECT_FALSE(std::filesystem::exists(stateChangeDirectory / "0000000000000002.dat"));
 
 		EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Writer_Filename));
 		EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Reader_Filename));

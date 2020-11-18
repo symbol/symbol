@@ -55,7 +55,7 @@ namespace catapult { namespace harvesting {
 
 #undef LOAD_PROPERTY
 
-	HarvestingConfiguration HarvestingConfiguration::LoadFromPath(const boost::filesystem::path& resourcesPath) {
+	HarvestingConfiguration HarvestingConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
 		return config::LoadIniConfiguration<HarvestingConfiguration>(resourcesPath / "config-harvesting.properties");
 	}
 }}

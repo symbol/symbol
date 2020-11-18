@@ -92,7 +92,7 @@ namespace catapult { namespace sync {
 		return config;
 	}
 
-	TasksConfiguration TasksConfiguration::LoadFromPath(const boost::filesystem::path& resourcesPath) {
+	TasksConfiguration TasksConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
 		return config::LoadIniConfiguration<TasksConfiguration>(resourcesPath / "config-task.properties");
 	}
 }}

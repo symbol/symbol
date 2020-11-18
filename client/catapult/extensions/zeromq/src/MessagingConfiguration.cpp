@@ -43,7 +43,7 @@ namespace catapult { namespace zeromq {
 
 #undef LOAD_PROPERTY
 
-	MessagingConfiguration MessagingConfiguration::LoadFromPath(const boost::filesystem::path& resourcesPath) {
+	MessagingConfiguration MessagingConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
 		return config::LoadIniConfiguration<MessagingConfiguration>(resourcesPath / "config-messaging.properties");
 	}
 }}

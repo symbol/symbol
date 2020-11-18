@@ -19,17 +19,17 @@
 **/
 
 #include "FilesystemUtils.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace io {
 
 	void PurgeDirectory(const std::string& directory) {
-		if (!boost::filesystem::exists(directory))
+		if (!std::filesystem::exists(directory))
 			return;
 
-		auto begin = boost::filesystem::directory_iterator(directory);
-		auto end = boost::filesystem::directory_iterator();
+		auto begin = std::filesystem::directory_iterator(directory);
+		auto end = std::filesystem::directory_iterator();
 		for (auto iter = begin; end != iter; ++iter)
-			boost::filesystem::remove_all(iter->path());
+			std::filesystem::remove_all(iter->path());
 	}
 }}

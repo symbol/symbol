@@ -79,7 +79,7 @@ namespace catapult { namespace io {
 			return false;
 
 		auto blockPath = GetVotingBlockPath(roundDirectory, heightHashPair.Height);
-		if (!boost::filesystem::exists(blockPath))
+		if (!std::filesystem::exists(blockPath))
 			return false;
 
 		return GetBlockHash(blockPath) == heightHashPair.Hash;
@@ -101,7 +101,7 @@ namespace catapult { namespace io {
 				break;
 
 			auto blockPath = GetVotingBlockPath(roundDirectory, startHeight + Height(i));
-			if (!boost::filesystem::exists(blockPath))
+			if (!std::filesystem::exists(blockPath))
 				break;
 
 			chain.push_back(model::BlockRange::FromEntity(LoadBlock(blockPath)));
@@ -138,6 +138,6 @@ namespace catapult { namespace io {
 			return;
 
 		PurgeDirectory(roundDirectory.str());
-		boost::filesystem::remove(roundDirectory.path());
+		std::filesystem::remove(roundDirectory.path());
 	}
 }}

@@ -231,7 +231,7 @@ namespace catapult { namespace importance {
 			}
 
 			size_t fileSize(const std::string& filename) {
-				return boost::filesystem::file_size(qualify(filename));
+				return std::filesystem::file_size(qualify(filename));
 			}
 
 			std::vector<uint8_t> readAll(const std::string& filename) {
@@ -247,7 +247,7 @@ namespace catapult { namespace importance {
 				EXPECT_EQ(1 + expectedFilenames.size(), test::CountFilesAndDirectories(m_tempDir.name()));
 
 				for (const auto& filename : expectedFilenames)
-					EXPECT_TRUE(boost::filesystem::exists(qualify(filename))) << filename;
+					EXPECT_TRUE(std::filesystem::exists(qualify(filename))) << filename;
 			}
 
 			void assertNoFiles() {
@@ -257,7 +257,7 @@ namespace catapult { namespace importance {
 
 		private:
 			std::string qualify(const std::string& filename) const {
-				return (boost::filesystem::path(m_tempDir.name()) / filename).generic_string();
+				return (std::filesystem::path(m_tempDir.name()) / filename).generic_string();
 			}
 
 			io::IndexFile indexFile() {

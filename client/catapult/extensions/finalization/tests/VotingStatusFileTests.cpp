@@ -21,7 +21,7 @@
 #include "finalization/src/VotingStatusFile.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace finalization {
 
@@ -33,11 +33,11 @@ namespace catapult { namespace finalization {
 		constexpr size_t Expected_File_Size = sizeof(model::FinalizationRound) + 2 * sizeof(uint8_t);
 
 		void AssertNotExists(const std::string& filename) {
-			EXPECT_FALSE(boost::filesystem::exists(filename));
+			EXPECT_FALSE(std::filesystem::exists(filename));
 		}
 
 		void AssertExists(const std::string& filename) {
-			EXPECT_TRUE(boost::filesystem::exists(filename));
+			EXPECT_TRUE(std::filesystem::exists(filename));
 			EXPECT_EQ(Expected_File_Size, io::RawFile(filename, io::OpenMode::Read_Only).size());
 		}
 

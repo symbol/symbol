@@ -51,7 +51,7 @@ namespace catapult { namespace mongo {
 
 #undef LOAD_PROPERTY
 
-	DatabaseConfiguration DatabaseConfiguration::LoadFromPath(const boost::filesystem::path& resourcesPath) {
+	DatabaseConfiguration DatabaseConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
 		return config::LoadIniConfiguration<DatabaseConfiguration>(resourcesPath / "config-database.properties");
 	}
 }}

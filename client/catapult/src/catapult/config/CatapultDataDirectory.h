@@ -20,8 +20,7 @@
 
 #pragma once
 #include "catapult/constants.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <iomanip>
 #include <sstream>
 
@@ -33,7 +32,7 @@ namespace catapult { namespace config {
 	class CatapultDirectory {
 	public:
 		/// Creates a directory around \a directory.
-		explicit CatapultDirectory(const boost::filesystem::path& directory) : m_directory(directory)
+		explicit CatapultDirectory(const std::filesystem::path& directory) : m_directory(directory)
 		{}
 
 	public:
@@ -43,7 +42,7 @@ namespace catapult { namespace config {
 		}
 
 		/// Gets the directory path (as filesystem::path).
-		const boost::filesystem::path& path() const {
+		const std::filesystem::path& path() const {
 			return m_directory;
 		}
 
@@ -63,7 +62,7 @@ namespace catapult { namespace config {
 		void createAll() const;
 
 	private:
-		boost::filesystem::path m_directory;
+		std::filesystem::path m_directory;
 	};
 
 	// endregion
@@ -75,7 +74,7 @@ namespace catapult { namespace config {
 	public:
 		/// Creates a storage directory around \a directory and \a identifier
 		template<typename TIdentifier>
-		CatapultStorageDirectory(const boost::filesystem::path& directory, TIdentifier identifier)
+		CatapultStorageDirectory(const std::filesystem::path& directory, TIdentifier identifier)
 				: m_directory(directory)
 				, m_identifier(identifier.unwrap())
 		{}
@@ -113,7 +112,7 @@ namespace catapult { namespace config {
 	class CatapultDataDirectory {
 	public:
 		/// Creates a data directory around \a directory.
-		explicit CatapultDataDirectory(const boost::filesystem::path& directory) : m_directory(directory)
+		explicit CatapultDataDirectory(const std::filesystem::path& directory) : m_directory(directory)
 		{}
 
 	public:
@@ -142,7 +141,7 @@ namespace catapult { namespace config {
 		}
 
 	private:
-		boost::filesystem::path m_directory;
+		std::filesystem::path m_directory;
 	};
 
 	// endregion
@@ -153,7 +152,7 @@ namespace catapult { namespace config {
 	class CatapultDataDirectoryPreparer {
 	public:
 		/// Creates a data directory around \a directory.
-		static CatapultDataDirectory Prepare(const boost::filesystem::path& directory) {
+		static CatapultDataDirectory Prepare(const std::filesystem::path& directory) {
 			CatapultDirectory(directory / "importance").create();
 			CatapultDirectory(directory / "spool").create();
 			return CatapultDataDirectory(directory);
@@ -169,7 +168,7 @@ namespace catapult { namespace config {
 	public:
 		/// Creates a storage directory around \a directory and \a identifier.
 		template<typename TIdentifier>
-		static CatapultStorageDirectory Prepare(const boost::filesystem::path& directory, TIdentifier identifier) {
+		static CatapultStorageDirectory Prepare(const std::filesystem::path& directory, TIdentifier identifier) {
 			CatapultDataDirectory dataDirectory(directory);
 			auto storageDirectory = dataDirectory.storageDir(identifier);
 			CatapultDirectory(storageDirectory.str()).create();

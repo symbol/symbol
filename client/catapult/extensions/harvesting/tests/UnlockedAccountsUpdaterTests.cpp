@@ -142,7 +142,7 @@ namespace catapult { namespace harvesting {
 			}
 
 			void assertNoHarvesterFile() {
-				EXPECT_FALSE(boost::filesystem::exists(harvestersFilename()));
+				EXPECT_FALSE(std::filesystem::exists(harvestersFilename()));
 			}
 
 		private:

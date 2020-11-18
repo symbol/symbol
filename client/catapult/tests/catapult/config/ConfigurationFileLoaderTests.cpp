@@ -22,7 +22,8 @@
 #include "catapult/utils/ConfigurationUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
+#include <fstream>
 
 namespace catapult { namespace config {
 
@@ -33,16 +34,16 @@ namespace catapult { namespace config {
 		constexpr auto Config_Peers_Filename = "peers.json";
 		constexpr auto Not_Config_Filename = "not-config.properties";
 
-		void CreateTemporaryDirectory(const boost::filesystem::path& directoryPath) {
-			boost::filesystem::create_directories(directoryPath);
+		void CreateTemporaryDirectory(const std::filesystem::path& directoryPath) {
+			std::filesystem::create_directories(directoryPath);
 
-			std::ofstream((directoryPath / Config_Filename).generic_string())
+			std::ofstream((directoryPath / Config_Filename).generic_string().c_str(), std::ios_base::out)
 					<< "[test]" << std::endl << std::endl
 					<< "alpha = 7" << std::endl
 					<< "beta = foo" << std::endl
 					<< "gamma = z" << std::endl;
 
-			std::ofstream((directoryPath / Config_Peers_Filename).generic_string())
+			std::ofstream((directoryPath / Config_Peers_Filename).generic_string().c_str(), std::ios_base::out)
 					<< "{ \"knownPeers\": [] }" << std::endl;
 		}
 
@@ -53,7 +54,7 @@ namespace catapult { namespace config {
 			CreateTemporaryDirectory(tempDir.name());
 
 			// Act:
-			func(boost::filesystem::path(tempDir.name()));
+			func(std::filesystem::path(tempDir.name()));
 		}
 	}
 

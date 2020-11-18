@@ -33,7 +33,7 @@ int main(int argc, const char** argv) {
 		auto resourcesPath = process::GetResourcesPath(argc, argv).generic_string();
 		auto disposition = extensions::ProcessDisposition::Production;
 		auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(config, resourcesPath, disposition, Process_Name);
-		AddStaticNodesFromPath(*pBootstrapper, (boost::filesystem::path(resourcesPath) / "peers-p2p.json").generic_string());
+		AddStaticNodesFromPath(*pBootstrapper, (std::filesystem::path(resourcesPath) / "peers-p2p.json").generic_string());
 
 		// register extension(s)
 		pBootstrapper->loadExtensions();

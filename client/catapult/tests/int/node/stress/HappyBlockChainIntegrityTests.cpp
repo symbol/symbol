@@ -31,10 +31,10 @@
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/thread.hpp>
+#include <filesystem>
 
 namespace catapult { namespace local {
 
@@ -96,7 +96,7 @@ namespace catapult { namespace local {
 		void RescheduleTasks(const std::string resourcesDirectory) {
 			namespace pt = boost::property_tree;
 
-			auto configFilePath = (boost::filesystem::path(resourcesDirectory) / "config-task.properties").generic_string();
+			auto configFilePath = (std::filesystem::path(resourcesDirectory) / "config-task.properties").generic_string();
 
 			pt::ptree properties;
 			pt::read_ini(configFilePath, properties);
@@ -288,9 +288,9 @@ namespace catapult { namespace local {
 
 		public:
 			test::StateHashCalculator createStateHashCalculator(const NodeTestContext& context, size_t id) const {
-				boost::filesystem::path stateHashDirectory = m_stateHashCalculationDir.name();
+				std::filesystem::path stateHashDirectory = m_stateHashCalculationDir.name();
 				stateHashDirectory /= std::to_string(id);
-				boost::filesystem::create_directories(stateHashDirectory);
+				std::filesystem::create_directories(stateHashDirectory);
 
 				return test::StateHashCalculator(context.prepareFreshDataDirectory(stateHashDirectory.generic_string()));
 			}

@@ -25,7 +25,7 @@
 #include "catapult/extensions/TransactionExtensions.h"
 #include "catapult/io/RawFile.h"
 #include "catapult/utils/HexParser.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace tools { namespace linker {
 
@@ -103,7 +103,7 @@ namespace catapult { namespace tools { namespace linker {
 				if (options["output"].empty())
 					CATAPULT_THROW_INVALID_ARGUMENT("missing output name path");
 
-				if (boost::filesystem::exists(options["output"].as<std::string>()))
+				if (std::filesystem::exists(options["output"].as<std::string>()))
 					CATAPULT_THROW_INVALID_ARGUMENT("output file already exists");
 			}
 

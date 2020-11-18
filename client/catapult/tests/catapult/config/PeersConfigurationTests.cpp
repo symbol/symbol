@@ -21,7 +21,7 @@
 #include "catapult/config/PeersConfiguration.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace catapult { namespace config {
 
@@ -263,7 +263,7 @@ namespace catapult { namespace config {
 
 	TEST(TEST_CLASS, CanLoadPeersFromResourcesDirectory) {
 		// Arrange: attempt to load from the "real" resources directory
-		auto resourcesPath = boost::filesystem::path("../resources");
+		auto resourcesPath = std::filesystem::path("../resources");
 		for (const auto filename : { "peers-p2p.json", "peers-api.json" }) {
 			CATAPULT_LOG(debug) << "parsing peers from " << filename;
 

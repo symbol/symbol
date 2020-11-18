@@ -49,8 +49,8 @@ namespace catapult { namespace io {
 
 		// region file utils
 
-		bool IsRegularFile(const boost::filesystem::path& path) {
-			return boost::filesystem::exists(path) && boost::filesystem::is_regular_file(path);
+		bool IsRegularFile(const std::filesystem::path& path) {
+			return std::filesystem::exists(path) && std::filesystem::is_regular_file(path);
 		}
 
 		auto OpenBlockFile(const std::string& baseDirectory, Height height, OpenMode mode = OpenMode::Read_Only) {
@@ -73,7 +73,7 @@ namespace catapult { namespace io {
 			: m_dataDirectory(dataDirectory)
 			, m_mode(mode)
 			, m_hashFile(m_dataDirectory, "hashes")
-			, m_indexFile((boost::filesystem::path(m_dataDirectory) / "index.dat").generic_string())
+			, m_indexFile((std::filesystem::path(m_dataDirectory) / "index.dat").generic_string())
 	{}
 
 	// endregion

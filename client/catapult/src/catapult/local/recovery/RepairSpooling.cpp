@@ -22,7 +22,6 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/FilesystemUtils.h"
 #include "catapult/io/IndexFile.h"
-#include <boost/filesystem.hpp>
 
 namespace catapult { namespace local {
 

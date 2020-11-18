@@ -25,7 +25,7 @@
 #include "src/PtSyncSourceService.h"
 #include "catapult/config/ConfigurationFileLoader.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace catapult { namespace partialtransaction {
 
@@ -34,7 +34,7 @@ namespace catapult { namespace partialtransaction {
 			const auto& resourcesPath = bootstrapper.resourcesPath();
 			auto config = PtConfiguration::LoadFromPath(resourcesPath);
 			auto ptCacheOptions = cache::MemoryCacheOptions(config.CacheMaxResponseSize.bytes(), config.CacheMaxSize);
-			AddStaticNodesFromPath(bootstrapper, (boost::filesystem::path(resourcesPath) / "peers-api.json").generic_string());
+			AddStaticNodesFromPath(bootstrapper, (std::filesystem::path(resourcesPath) / "peers-api.json").generic_string());
 
 			// create and register the pt cache (it is optional, so not in server state)
 			auto& extensionManager = bootstrapper.extensionManager();

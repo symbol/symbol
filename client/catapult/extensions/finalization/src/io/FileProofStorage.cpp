@@ -33,7 +33,7 @@ namespace catapult { namespace io {
 	{}
 
 	bool FileProofStorage::FinalizationIndexFile::exists() const {
-		return boost::filesystem::is_regular_file(m_filename);
+		return std::filesystem::is_regular_file(m_filename);
 	}
 
 	model::FinalizationStatistics FileProofStorage::FinalizationIndexFile::get() const {
@@ -62,7 +62,7 @@ namespace catapult { namespace io {
 
 	FileProofStorage::FileProofStorage(const std::string& dataDirectory)
 			: m_dataDirectory(dataDirectory)
-			, m_indexFile((boost::filesystem::path(m_dataDirectory) / "proof.index.dat").generic_string())
+			, m_indexFile((std::filesystem::path(m_dataDirectory) / "proof.index.dat").generic_string())
 	{}
 
 	model::FinalizationStatistics FileProofStorage::statistics() const {

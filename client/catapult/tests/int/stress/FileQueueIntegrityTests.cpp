@@ -21,8 +21,8 @@
 #include "catapult/io/FileQueue.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
+#include <filesystem>
 
 namespace catapult { namespace io {
 
@@ -59,18 +59,18 @@ namespace catapult { namespace io {
 			}
 
 			size_t countFiles() const {
-				auto begin = boost::filesystem::directory_iterator(m_directory);
-				auto end = boost::filesystem::directory_iterator();
+				auto begin = std::filesystem::directory_iterator(m_directory);
+				auto end = std::filesystem::directory_iterator();
 				return static_cast<size_t>(std::distance(begin, end));
 			}
 
 			bool exists(const std::string& name) const {
-				return boost::filesystem::exists(m_directory / name);
+				return std::filesystem::exists(m_directory / name);
 			}
 
 		private:
 			test::TempDirectoryGuard m_tempDataDir;
-			boost::filesystem::path m_directory;
+			std::filesystem::path m_directory;
 		};
 
 		// endregion

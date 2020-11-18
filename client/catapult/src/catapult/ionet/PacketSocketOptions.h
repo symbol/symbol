@@ -22,7 +22,7 @@
 #include "IpProtocol.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/functions.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace boost {
 	namespace asio {
@@ -96,7 +96,7 @@ namespace catapult { namespace ionet {
 	};
 
 	/// Creates an ssl context supplier given the specified certificates in \a certificateDirectory.
-	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const boost::filesystem::path& certificateDirectory);
+	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const std::filesystem::path& certificateDirectory);
 
 	/// Creates an ssl verify callback supplier.
 	supplier<predicate<PacketSocketSslVerifyContext&>> CreateSslVerifyCallbackSupplier();

@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
 
@@ -46,6 +46,6 @@ namespace catapult { namespace zeromq {
 		static MessagingConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
 		/// Loads a messaging configuration from \a resourcesPath.
-		static MessagingConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
+		static MessagingConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
 	};
 }}

@@ -25,7 +25,7 @@
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace harvesting {
 
@@ -183,10 +183,10 @@ namespace catapult { namespace harvesting {
 			test::TempFileGuard guard(Filename);
 			UnlockedAccountsStorage storage(guard.name());
 			auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), numEncryptedPayloads);
-			boost::filesystem::resize_file(guard.name(), numEncryptedPayloads * sizeof(test::HarvestRequestEncryptedPayload) - 1);
+			std::filesystem::resize_file(guard.name(), numEncryptedPayloads * sizeof(test::HarvestRequestEncryptedPayload) - 1);
 
 			// Sanity:
-			EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+			EXPECT_TRUE(std::filesystem::exists(guard.name()));
 
 			// Act + Assert:
 			EXPECT_THROW(storage.remove(test::GetRequestIdentifier(*encryptedPayloads.cbegin())), catapult_runtime_error);
@@ -206,19 +206,19 @@ namespace catapult { namespace harvesting {
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
 		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 1);
-		boost::filesystem::remove(guard.name());
+		std::filesystem::remove(guard.name());
 
 		// Sanity:
 		auto requestIdentifier = test::GetRequestIdentifier(*encryptedPayloads.cbegin());
 		EXPECT_TRUE(storage.contains(requestIdentifier));
-		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+		EXPECT_FALSE(std::filesystem::exists(guard.name()));
 
 		// Act:
 		storage.remove(requestIdentifier);
 
 		// Assert: map but not file was updated
 		EXPECT_FALSE(storage.contains(requestIdentifier));
-		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+		EXPECT_FALSE(std::filesystem::exists(guard.name()));
 	}
 
 	TEST(TEST_CLASS, RemoveCanRemoveAnnouncerFromMapWhenAnnouncerHasAlreadyBeenRemovedFromFile) {
@@ -226,7 +226,7 @@ namespace catapult { namespace harvesting {
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
 		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 3);
-		boost::filesystem::resize_file(guard.name(), 2 * sizeof(test::HarvestRequestEncryptedPayload));
+		std::filesystem::resize_file(guard.name(), 2 * sizeof(test::HarvestRequestEncryptedPayload));
 
 		// Sanity:
 		auto requestIdentifier = test::GetRequestIdentifier(*--encryptedPayloads.cend());
@@ -370,7 +370,7 @@ namespace catapult { namespace harvesting {
 		storage.save(NoFiltering);
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+		EXPECT_TRUE(std::filesystem::exists(guard.name()));
 		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 	}
 
@@ -382,13 +382,13 @@ namespace catapult { namespace harvesting {
 		UnlockedAccountsStorage storage(guard.name());
 
 		// Sanity:
-		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+		EXPECT_TRUE(std::filesystem::exists(guard.name()));
 
 		// Act:
 		storage.save(NoFiltering);
 
 		// Assert:
-		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+		EXPECT_FALSE(std::filesystem::exists(guard.name()));
 	}
 
 	TEST(TEST_CLASS, SaveRemovesExistingFileWhenAllRequestsAreFiltered) {
@@ -401,13 +401,13 @@ namespace catapult { namespace harvesting {
 		AddEncryptedPayloads(storage, encryptedPayloads);
 
 		// Sanity:
-		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+		EXPECT_TRUE(std::filesystem::exists(guard.name()));
 
 		// Act:
 		storage.save(FullFiltering);
 
 		// Assert:
-		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+		EXPECT_FALSE(std::filesystem::exists(guard.name()));
 	}
 
 	TEST(TEST_CLASS, SaveFiltersRequests) {
@@ -421,7 +421,7 @@ namespace catapult { namespace harvesting {
 		storage.save([](const auto& harvesterPublicKey) { return harvesterPublicKey[0] & 1; });
 
 		// Assert:
-		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+		EXPECT_TRUE(std::filesystem::exists(guard.name()));
 		test::HarvestRequestEncryptedPayloads expectedEncryptedPayloads;
 		auto inserter = std::inserter(expectedEncryptedPayloads, expectedEncryptedPayloads.end());
 		std::copy_if(encryptedPayloads.cbegin(), encryptedPayloads.cend(), inserter, [&identifierToHarvester](
@@ -452,7 +452,7 @@ namespace catapult { namespace harvesting {
 		auto originalEncryptedPayloads = CreateFileWithEncryptedPayloads(guard.name(), 3);
 
 		// Sanity:
-		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+		EXPECT_TRUE(std::filesystem::exists(guard.name()));
 		test::AssertHarvesterFileContents(guard.name(), originalEncryptedPayloads);
 
 		// - add new encryptedPayloads
@@ -464,7 +464,7 @@ namespace catapult { namespace harvesting {
 		storage.save(NoFiltering);
 
 		// Assert: there was no load(), so originalEncryptedPayloads should be overwritten with encryptedPayloads
-		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+		EXPECT_TRUE(std::filesystem::exists(guard.name()));
 		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 	}
 
@@ -505,7 +505,7 @@ namespace catapult { namespace harvesting {
 		auto keyPair = test::GenerateKeyPair();
 
 		// Sanity:
-		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+		EXPECT_FALSE(std::filesystem::exists(guard.name()));
 
 		// Act + Assert:
 		UnlockedAccountsStorage storage(guard.name());
@@ -576,7 +576,7 @@ namespace catapult { namespace harvesting {
 		});
 
 		// Assert: remove the file, save and check if it matches initial data
-		boost::filesystem::remove(guard.name());
+		std::filesystem::remove(guard.name());
 		storage.save(NoFiltering);
 		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 
@@ -638,7 +638,7 @@ namespace catapult { namespace harvesting {
 
 		// Assert: file does not exist
 		EXPECT_FALSE(storage.contains(requestIdentifier));
-		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+		EXPECT_FALSE(std::filesystem::exists(guard.name()));
 	}
 
 	TEST(TEST_CLASS, CanRollbackMultipleHarvestersFiles) {
@@ -669,7 +669,7 @@ namespace catapult { namespace harvesting {
 		// Assert: file does not exist
 		EXPECT_FALSE(storage.contains(requestIdentifier1));
 		EXPECT_FALSE(storage.contains(requestIdentifier2));
-		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+		EXPECT_FALSE(std::filesystem::exists(guard.name()));
 	}
 
 	// endregion

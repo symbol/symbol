@@ -56,7 +56,7 @@ namespace catapult { namespace ionet {
 		*m_pPublicKey = publicKey;
 	}
 
-	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const boost::filesystem::path& certificateDirectory) {
+	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const std::filesystem::path& certificateDirectory) {
 		auto pSslContext = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::tlsv13);
 		pSslContext->set_options(
 				boost::asio::ssl::context::no_sslv2

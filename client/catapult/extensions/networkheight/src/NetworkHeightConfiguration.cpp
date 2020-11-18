@@ -46,7 +46,7 @@ namespace catapult { namespace networkheight {
 
 #undef LOAD_PROPERTY
 
-	NetworkHeightConfiguration NetworkHeightConfiguration::LoadFromPath(const boost::filesystem::path& resourcesPath) {
+	NetworkHeightConfiguration NetworkHeightConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
 		return config::LoadIniConfiguration<NetworkHeightConfiguration>(resourcesPath / "config-networkheight.properties");
 	}
 }}

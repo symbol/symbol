@@ -56,7 +56,7 @@
 #include "catapult/subscribers/StateChangeSubscriber.h"
 #include "catapult/subscribers/TransactionStatusSubscriber.h"
 #include "catapult/thread/MultiServicePool.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 using namespace catapult::consumers;
 using namespace catapult::disruptor;
@@ -125,7 +125,7 @@ namespace catapult { namespace sync {
 			// if enabled, add an audit consumer before all other consumers
 			const auto& config = state.config();
 			if (config.Node.EnableDispatcherInputAuditing) {
-				auto auditPath = boost::filesystem::path(config.User.DataDirectory) / "audit" / std::string(options.DispatcherName);
+				auto auditPath = std::filesystem::path(config.User.DataDirectory) / "audit" / std::string(options.DispatcherName);
 				auditPath /= std::to_string(state.timeSupplier()().unwrap());
 				CATAPULT_LOG(debug) << "enabling auditing to " << auditPath;
 

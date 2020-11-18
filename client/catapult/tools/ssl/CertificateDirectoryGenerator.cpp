@@ -24,14 +24,13 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/RawFile.h"
 #include "catapult/exceptions.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace tools { namespace ssl {
 
 	namespace {
 		void SaveToFile(const std::string& directory, const std::string& filename, const std::string& buffer) {
-			io::RawFile dataFile((boost::filesystem::path(directory) / filename).generic_string(), io::OpenMode::Read_Write);
+			io::RawFile dataFile((std::filesystem::path(directory) / filename).generic_string(), io::OpenMode::Read_Write);
 			dataFile.write({ reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size() });
 		}
 
@@ -114,8 +113,8 @@ namespace catapult { namespace tools { namespace ssl {
 	}
 
 	void GenerateCertificateDirectory(crypto::KeyPair&& caKeyPair, const std::string& certificateDirectory, ScenarioId scenarioId) {
-		if (boost::filesystem::exists(certificateDirectory))
-			boost::filesystem::remove_all(certificateDirectory);
+		if (std::filesystem::exists(certificateDirectory))
+			std::filesystem::remove_all(certificateDirectory);
 
 		CATAPULT_LOG(info) << "generating new certificate directory: " << certificateDirectory;
 		config::CatapultDirectory(certificateDirectory).createAll();

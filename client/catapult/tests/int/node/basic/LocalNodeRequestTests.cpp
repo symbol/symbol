@@ -39,7 +39,7 @@ namespace catapult { namespace local {
 
 		class TestCatapultDataDirectory {
 		public:
-			explicit TestCatapultDataDirectory(const boost::filesystem::path& directory) : m_dataDirectory(directory)
+			explicit TestCatapultDataDirectory(const std::filesystem::path& directory) : m_dataDirectory(directory)
 			{}
 
 		public:
@@ -75,7 +75,7 @@ namespace catapult { namespace local {
 			// Sanity: two files are produced when booting with nemesis height
 			EXPECT_EQ(Height(1), context.height());
 			EXPECT_EQ(Height(1), context.loadSavedStateChainHeight());
-			EXPECT_TRUE(boost::filesystem::exists(dataDirectory.commitStep()));
+			EXPECT_TRUE(std::filesystem::exists(dataDirectory.commitStep()));
 			EXPECT_EQ(2u, ReadIndexFileValue(dataDirectory.stateChangeWriterIndex()));
 
 			// Act:
@@ -122,7 +122,7 @@ namespace catapult { namespace local {
 			// Assert: state_change subscriber produces two files each in boot and per sync
 			EXPECT_EQ(2u, ReadIndexFileValue(dataDirectory.commitStep()));
 			EXPECT_EQ(4u, ReadIndexFileValue(dataDirectory.stateChangeWriterIndex()));
-			EXPECT_FALSE(boost::filesystem::exists(dataDirectory.stateChangeReaderIndex()));
+			EXPECT_FALSE(std::filesystem::exists(dataDirectory.stateChangeReaderIndex()));
 		});
 	}
 

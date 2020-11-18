@@ -144,7 +144,7 @@ namespace catapult { namespace test {
 
 		/// Loads saved height from persisted state.
 		Height loadSavedStateChainHeight() const {
-			auto path = boost::filesystem::path(m_tempDir.name()) / "state" / "supplemental.dat";
+			auto path = std::filesystem::path(m_tempDir.name()) / "state" / "supplemental.dat";
 			io::RawFile file(path.generic_string(), io::OpenMode::Read_Only);
 			return io::Read<Height>(file);
 		}

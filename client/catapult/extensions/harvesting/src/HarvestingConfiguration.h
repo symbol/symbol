@@ -20,7 +20,7 @@
 
 #pragma once
 #include "DelegatePrioritizationPolicy.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <string>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
@@ -63,6 +63,6 @@ namespace catapult { namespace harvesting {
 		static HarvestingConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
 		/// Loads a harvesting configuration from \a resourcesPath.
-		static HarvestingConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
+		static HarvestingConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
 	};
 }}

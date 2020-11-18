@@ -110,7 +110,7 @@ namespace catapult { namespace finalization {
 				// - nest VotingKeysDirectory under DataDirectory for testing so that it automatically gets cleaned up
 				auto dataDirectory = config::CatapultDataDirectory(userConfig.DataDirectory);
 				auto votingKeysDirectory = dataDirectory.dir("voting_keys");
-				boost::filesystem::create_directories(votingKeysDirectory.path());
+				std::filesystem::create_directories(votingKeysDirectory.path());
 				const_cast<std::string&>(userConfig.VotingKeysDirectory) = votingKeysDirectory.str();
 
 				SeedVotingPrivateKeyTree(votingKeysDirectory, keyPairDescriptor(voterType).VotingKeyPair);
@@ -210,17 +210,17 @@ namespace catapult { namespace finalization {
 			}
 
 			void assertNoPrevoteChainBackups() {
-				auto prevoteChainDirectory = boost::filesystem::path(testState().state().config().User.DataDirectory) / "voting";
-				EXPECT_FALSE(boost::filesystem::exists(prevoteChainDirectory));
+				auto prevoteChainDirectory = std::filesystem::path(testState().state().config().User.DataDirectory) / "voting";
+				EXPECT_FALSE(std::filesystem::exists(prevoteChainDirectory));
 			}
 
 			void assertSinglePrevoteChainBackup(const model::FinalizationRound& round) {
-				auto prevoteChainDirectory = boost::filesystem::path(testState().state().config().User.DataDirectory) / "voting";
-				EXPECT_TRUE(boost::filesystem::exists(prevoteChainDirectory));
+				auto prevoteChainDirectory = std::filesystem::path(testState().state().config().User.DataDirectory) / "voting";
+				EXPECT_TRUE(std::filesystem::exists(prevoteChainDirectory));
 				EXPECT_EQ(1u, test::CountFilesAndDirectories(prevoteChainDirectory));
 
 				auto filename = std::to_string(round.Epoch.unwrap()) + std::string("_") + std::to_string(round.Point.unwrap());
-				EXPECT_TRUE(boost::filesystem::exists(prevoteChainDirectory / filename));
+				EXPECT_TRUE(std::filesystem::exists(prevoteChainDirectory / filename));
 			}
 
 		private:

@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <string>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
@@ -44,6 +44,6 @@ namespace catapult { namespace networkheight {
 		static NetworkHeightConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
 		/// Loads a network height configuration from \a resourcesPath.
-		static NetworkHeightConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
+		static NetworkHeightConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
 	};
 }}

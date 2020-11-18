@@ -22,7 +22,7 @@
 #include "catapult/utils/BlockSpan.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
 
@@ -79,6 +79,6 @@ namespace catapult { namespace finalization {
 		static FinalizationConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
 		/// Loads a finalization configuration from \a resourcesPath.
-		static FinalizationConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
+		static FinalizationConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
 	};
 }}

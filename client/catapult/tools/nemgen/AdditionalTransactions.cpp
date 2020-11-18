@@ -28,7 +28,7 @@
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransferEntityType.h"
 #include "catapult/utils/MemoryUtils.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace tools { namespace nemgen {
 
@@ -89,8 +89,8 @@ namespace catapult { namespace tools { namespace nemgen {
 			if (directoryPath.empty())
 				return pathNames;
 
-			auto begin = boost::filesystem::directory_iterator(directoryPath);
-			auto end = boost::filesystem::directory_iterator();
+			auto begin = std::filesystem::directory_iterator(directoryPath);
+			auto end = std::filesystem::directory_iterator();
 			for (auto iter = begin; end != iter; ++iter) {
 				auto pathName = iter->path().generic_string();
 				pathNames.insert(std::upper_bound(pathNames.begin(), pathNames.end(), pathName), pathName);

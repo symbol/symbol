@@ -52,7 +52,7 @@ namespace catapult { namespace local {
 				// and an unrelated marker file
 				for (const auto& queueName : GetAllQueueNames()) {
 					auto directory = m_dataDirectory.spoolDir(queueName);
-					boost::filesystem::create_directories(directory.path());
+					std::filesystem::create_directories(directory.path());
 
 					io::IndexFile(directory.file("index.dat")).set(indexValue);
 					io::IndexFile(directory.file("marker")).set(0);
@@ -72,20 +72,20 @@ namespace catapult { namespace local {
 			}
 
 			bool exists(const std::string& queueName) const {
-				return boost::filesystem::exists(m_dataDirectory.spoolDir(queueName).path());
+				return std::filesystem::exists(m_dataDirectory.spoolDir(queueName).path());
 			}
 
 			size_t countRootFiles() const {
-				auto begin = boost::filesystem::directory_iterator(m_dataDirectory.rootDir().path());
-				auto end = boost::filesystem::directory_iterator();
+				auto begin = std::filesystem::directory_iterator(m_dataDirectory.rootDir().path());
+				auto end = std::filesystem::directory_iterator();
 				return static_cast<size_t>(std::count_if(begin, end, [](const auto& entry) {
-					return boost::filesystem::is_regular_file(entry.path());
+					return std::filesystem::is_regular_file(entry.path());
 				}));
 			}
 
 			size_t countFiles(const std::string& queueName) const {
-				auto begin = boost::filesystem::directory_iterator(m_dataDirectory.spoolDir(queueName).path());
-				auto end = boost::filesystem::directory_iterator();
+				auto begin = std::filesystem::directory_iterator(m_dataDirectory.spoolDir(queueName).path());
+				auto end = std::filesystem::directory_iterator();
 				return static_cast<size_t>(std::distance(begin, end));
 			}
 
@@ -98,7 +98,7 @@ namespace catapult { namespace local {
 			}
 
 			void removeIndex(const std::string& queueName, const std::string& indexName) {
-				boost::filesystem::remove(m_dataDirectory.spoolDir(queueName).file(indexName));
+				std::filesystem::remove(m_dataDirectory.spoolDir(queueName).file(indexName));
 			}
 
 		private:
@@ -199,7 +199,7 @@ namespace catapult { namespace local {
 
 			// - only marker left in root dir
 			EXPECT_EQ(1u, context.countRootFiles());
-			EXPECT_TRUE(boost::filesystem::exists(context.rootMarkerFilename()));
+			EXPECT_TRUE(std::filesystem::exists(context.rootMarkerFilename()));
 
 			// - check retained directories
 			for (const auto& retainedQueueName : TTraits::GetRetainedQueueNames())

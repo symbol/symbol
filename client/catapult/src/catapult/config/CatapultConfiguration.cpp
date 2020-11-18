@@ -24,7 +24,6 @@
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
-#include <boost/filesystem.hpp>
 
 namespace catapult { namespace config {
 
@@ -60,7 +59,7 @@ namespace catapult { namespace config {
 	{}
 
 	CatapultConfiguration CatapultConfiguration::LoadFromPath(
-			const boost::filesystem::path& resourcesPath,
+			const std::filesystem::path& resourcesPath,
 			const std::string& extensionsHost) {
 		return CatapultConfiguration(
 				LoadIniConfiguration<model::BlockChainConfiguration>(resourcesPath / Qualify("network")),

@@ -20,7 +20,7 @@
 
 #pragma once
 #include "catapult/utils/TimeSpan.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <unordered_map>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
@@ -134,6 +134,6 @@ namespace catapult { namespace sync {
 		static TasksConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 
 		/// Loads a tasks configuration from \a resourcesPath.
-		static TasksConfiguration LoadFromPath(const boost::filesystem::path& resourcesPath);
+		static TasksConfiguration LoadFromPath(const std::filesystem::path& resourcesPath);
 	};
 }}

@@ -24,7 +24,7 @@
 #include "catapult/io/FileStream.h"
 #include "catapult/model/StepIdentifier.h"
 #include "catapult/exceptions.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <iostream>
 #include <string>
 
@@ -75,7 +75,7 @@ namespace catapult { namespace tools { namespace votingkey {
 
 		private:
 			BmPublicKey generateTree(crypto::VotingKeyPair&& keyPair) {
-				if (boost::filesystem::exists(m_filename))
+				if (std::filesystem::exists(m_filename))
 					CATAPULT_THROW_RUNTIME_ERROR("voting private key tree file already exits");
 
 				io::FileStream stream(io::RawFile(m_filename, io::OpenMode::Read_Write));

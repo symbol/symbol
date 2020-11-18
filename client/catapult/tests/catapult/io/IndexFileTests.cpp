@@ -22,7 +22,7 @@
 #include "catapult/io/RawFile.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace catapult { namespace io {
 
@@ -33,14 +33,14 @@ namespace catapult { namespace io {
 
 		void AssertNotExists(const test::TempFileGuard& tempFile, const IndexFile& indexFile) {
 			// Assert:
-			EXPECT_FALSE(boost::filesystem::exists(tempFile.name()));
+			EXPECT_FALSE(std::filesystem::exists(tempFile.name()));
 
 			EXPECT_FALSE(indexFile.exists());
 		}
 
 		void AssertExists(const test::TempFileGuard& tempFile, const IndexFile& indexFile) {
 			// Assert:
-			EXPECT_TRUE(boost::filesystem::exists(tempFile.name()));
+			EXPECT_TRUE(std::filesystem::exists(tempFile.name()));
 
 			EXPECT_TRUE(indexFile.exists());
 			EXPECT_EQ(sizeof(uint64_t), RawFile(tempFile.name(), OpenMode::Read_Only).size());

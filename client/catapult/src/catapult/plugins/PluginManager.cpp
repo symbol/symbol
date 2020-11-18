@@ -19,7 +19,7 @@
 **/
 
 #include "PluginManager.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace catapult { namespace plugins {
 
@@ -57,7 +57,7 @@ namespace catapult { namespace plugins {
 			return cache::CacheConfiguration();
 
 		return cache::CacheConfiguration(
-				(boost::filesystem::path(m_storageConfig.CacheDatabaseDirectory) / name).generic_string(),
+				(std::filesystem::path(m_storageConfig.CacheDatabaseDirectory) / name).generic_string(),
 				m_storageConfig.MaxCacheDatabaseWriteBatchSize,
 				m_config.EnableVerifiableState ? cache::PatriciaTreeStorageMode::Enabled : cache::PatriciaTreeStorageMode::Disabled);
 	}

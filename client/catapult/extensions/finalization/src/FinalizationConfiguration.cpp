@@ -56,7 +56,7 @@ namespace catapult { namespace finalization {
 
 #undef LOAD_PROPERTY
 
-	FinalizationConfiguration FinalizationConfiguration::LoadFromPath(const boost::filesystem::path& resourcesPath) {
+	FinalizationConfiguration FinalizationConfiguration::LoadFromPath(const std::filesystem::path& resourcesPath) {
 		return config::LoadIniConfiguration<FinalizationConfiguration>(resourcesPath / "config-finalization.properties");
 	}
 }}

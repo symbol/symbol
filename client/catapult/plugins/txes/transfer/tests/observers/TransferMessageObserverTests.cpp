@@ -67,11 +67,11 @@ namespace catapult { namespace observers {
 			}
 
 			uint64_t readIndexFile() const {
-				return io::IndexFile((boost::filesystem::path(m_tempDir.name()) / "index.dat").generic_string()).get();
+				return io::IndexFile((std::filesystem::path(m_tempDir.name()) / "index.dat").generic_string()).get();
 			}
 
 			std::vector<uint8_t> readAll(const std::string& name) {
-				io::RawFile dataFile((boost::filesystem::path(m_tempDir.name()) / name).generic_string(), io::OpenMode::Read_Only);
+				io::RawFile dataFile((std::filesystem::path(m_tempDir.name()) / name).generic_string(), io::OpenMode::Read_Only);
 				std::vector<uint8_t> buffer(dataFile.size());
 				dataFile.read(buffer);
 				return buffer;
