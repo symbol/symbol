@@ -21,13 +21,13 @@
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/io/FileBlockStorage.h"
 #include "catapult/model/BlockUtils.h"
+#include "catapult/thread/ThreadGroup.h"
 #include "catapult/utils/SpinLock.h"
 #include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 #include <filesystem>
 
 namespace catapult { namespace io {
@@ -60,9 +60,9 @@ namespace catapult { namespace io {
 			std::vector<Height> heights(numReaders);
 
 			// Act: set up reader thread(s) that read blocks
-			boost::thread_group threads;
+			thread::ThreadGroup threads;
 			for (auto r = 0u; r < numReaders; ++r) {
-				threads.create_thread([&, r] {
+				threads.spawn([&, r] {
 					test::StressThreadLogger logger("reader thread " + std::to_string(r));
 
 					while (GetMaxHeight() != heights[r]) {
@@ -74,7 +74,7 @@ namespace catapult { namespace io {
 			}
 
 			// - set up a writer thread that writes blocks
-			threads.create_thread([&] {
+			threads.spawn([&] {
 				test::StressThreadLogger logger("writer thread");
 
 				for (auto i = 0u; i < GetNumIterations(); ++i) {
@@ -88,7 +88,7 @@ namespace catapult { namespace io {
 			});
 
 			// - wait for all threads
-			threads.join_all();
+			threads.join();
 
 			// Assert: all readers were able to observe the last height
 			EXPECT_EQ(GetMaxHeight(), storage.view().chainHeight());

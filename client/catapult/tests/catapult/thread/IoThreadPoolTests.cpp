@@ -23,7 +23,6 @@
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "tests/test/core/WaitFunctions.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 #include <memory>
 #include <thread>
 

@@ -24,7 +24,6 @@
 #include "tests/test/nodeps/Waits.h"
 #include "tests/test/other/DisruptorTestUtils.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 
 namespace catapult { namespace disruptor {
 

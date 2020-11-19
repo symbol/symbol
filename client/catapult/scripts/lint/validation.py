@@ -406,7 +406,8 @@ class TypoChecker(SimpleValidator):
             re.compile(r'auto pData\b'): 'use auto*',
             re.compile(r'[^:]memcpy\('): 'use std::memcpy',
             re.compile(r'\)\{$'): 'missing space before brace',
-            re.compile(r'boost::filesystem'): 'use std::filesystem'
+            re.compile(r'boost/(filesystem|thread.hpp)'): 'use std',
+            re.compile(r'boost::(filesystem|thread)'): 'use std'
         }
 
     def check(self, lineNumber, line):

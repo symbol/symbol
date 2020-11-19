@@ -19,11 +19,11 @@
 **/
 
 #include "catapult/utils/Logging.h"
+#include "catapult/thread/ThreadGroup.h"
 #include "catapult/utils/StackLogger.h"
 #include "tests/catapult/utils/test/LoggingTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 
 namespace catapult { namespace utils {
 
@@ -293,9 +293,9 @@ namespace catapult { namespace utils {
 
 			// Act: create a thread pool and write logs from each thread
 			std::atomic<size_t> numWaitingThreads(0);
-			boost::thread_group threads;
+			thread::ThreadGroup threads;
 			for (auto i = 0u; i < test::GetNumDefaultPoolThreads(); ++i) {
-				threads.create_thread([&numWaitingThreads, &idStrings] {
+				threads.spawn([&numWaitingThreads, &idStrings] {
 					auto id = ++numWaitingThreads;
 					while (test::GetNumDefaultPoolThreads() != numWaitingThreads) {}
 
@@ -303,7 +303,7 @@ namespace catapult { namespace utils {
 				});
 			}
 
-			threads.join_all();
+			threads.join();
 		}
 
 		// Assert:

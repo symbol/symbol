@@ -329,7 +329,7 @@ namespace catapult { namespace cache {
 		static constexpr auto Num_Views = 7u;
 		test::SimpleCache cache;
 		std::atomic<size_t> numViews(0);
-		boost::thread_group threads;
+		thread::ThreadGroup threads;
 
 		auto handler = [&numViews](const auto& view) {
 			++numViews;
@@ -342,10 +342,10 @@ namespace catapult { namespace cache {
 		// Act:
 		for (auto i = 0u; i < (Num_Views - 1) / 2; ++i) {
 			// - view
-			threads.create_thread([&cache, &handler]() { handler(cache.createView()); });
+			threads.spawn([&cache, &handler]() { handler(cache.createView()); });
 
 			// - detached delta
-			threads.create_thread([&cache, &handler]() {
+			threads.spawn([&cache, &handler]() {
 				auto lockableDelta = cache.createDetachedDelta();
 				auto detachedDelta = lockableDelta.tryLock();
 				handler(detachedDelta);
@@ -353,9 +353,9 @@ namespace catapult { namespace cache {
 		}
 
 		// - delta
-		threads.create_thread([&cache, &handler]() { handler(cache.createDelta()); });
+		threads.spawn([&cache, &handler]() { handler(cache.createDelta()); });
 
-		threads.join_all();
+		threads.join();
 
 		// Assert:
 		EXPECT_EQ(Num_Views, numViews);

@@ -19,12 +19,12 @@
 **/
 
 #include "IoThreadPool.h"
+#include "ThreadGroup.h"
 #include "ThreadInfo.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/exceptions.h"
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
 
 namespace catapult { namespace thread {
 
@@ -39,7 +39,7 @@ namespace catapult { namespace thread {
 			~ThreadPoolContext() {
 				// destroy the work before waiting for the thread pool threads to stop
 				m_work.reset();
-				m_threads.join_all();
+				m_threads.join();
 			}
 
 		public:
@@ -49,12 +49,12 @@ namespace catapult { namespace thread {
 
 			template<typename TThreadFunc>
 			inline void createThread(TThreadFunc threadFunc) {
-				m_threads.create_thread(threadFunc);
+				m_threads.spawn(threadFunc);
 			}
 
 		private:
 			boost::asio::executor_work_guard<boost::asio::io_context::executor_type> m_work;
-			boost::thread_group m_threads;
+			ThreadGroup m_threads;
 		};
 
 		class DefaultIoThreadPool : public IoThreadPool {

@@ -33,7 +33,6 @@
 #include "tests/TestHarness.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/thread.hpp>
 #include <filesystem>
 
 namespace catapult { namespace local {

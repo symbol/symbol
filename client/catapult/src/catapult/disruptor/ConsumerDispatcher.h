@@ -23,8 +23,8 @@
 #include "Disruptor.h"
 #include "DisruptorConsumer.h"
 #include "DisruptorInspector.h"
+#include "catapult/thread/ThreadGroup.h"
 #include "catapult/utils/NamedObject.h"
-#include <boost/thread.hpp>
 #include <atomic>
 
 namespace catapult { namespace disruptor { class ConsumerEntry; } }
@@ -86,7 +86,7 @@ namespace catapult { namespace disruptor {
 		DisruptorBarriers m_barriers;
 		Disruptor m_disruptor;
 		DisruptorInspector m_inspector;
-		boost::thread_group m_threads;
+		thread::ThreadGroup m_threads;
 		std::atomic<size_t> m_numActiveElements;
 
 		utils::SpinLock m_addSpinLock; // lock to serialize access to Disruptor::add

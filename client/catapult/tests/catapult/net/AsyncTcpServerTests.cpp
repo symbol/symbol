@@ -21,13 +21,13 @@
 #include "catapult/net/AsyncTcpServer.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/thread/IoThreadPool.h"
+#include "catapult/thread/ThreadGroup.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/WaitFunctions.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/SocketTestUtils.h"
 #include <boost/asio/steady_timer.hpp>
-#include <boost/thread.hpp>
 #include <memory>
 #include <thread>
 
@@ -135,7 +135,7 @@ namespace catapult { namespace net {
 					, m_numConnectTimeouts(0) {
 				spawnConnectionAttempts(numAttempts, connectOptions, timeoutMillis);
 				for (auto i = 0u; i < numThreads; ++i)
-					m_threads.create_thread([&]() { m_ioContext.run(); });
+					m_threads.spawn([&]() { m_ioContext.run(); });
 			}
 
 			~ClientService() {
@@ -170,7 +170,7 @@ namespace catapult { namespace net {
 					pConnection->abort();
 
 				m_ioContext.stop();
-				m_threads.join_all();
+				m_threads.join();
 				CATAPULT_LOG(debug) << "ClientService shut down";
 			}
 
@@ -290,7 +290,7 @@ namespace catapult { namespace net {
 
 		private:
 			boost::asio::io_context m_ioContext;
-			boost::thread_group m_threads;
+			thread::ThreadGroup m_threads;
 			uint32_t m_numAttempts;
 			std::atomic<uint32_t> m_numConnects;
 			std::atomic<uint32_t> m_numConnectFailures;

@@ -19,8 +19,8 @@
 **/
 
 #include "catapult/utils/ReentrancyCheckReaderNotificationPolicy.h"
+#include "catapult/thread/ThreadGroup.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 
 namespace catapult { namespace utils {
 
@@ -49,18 +49,18 @@ namespace catapult { namespace utils {
 		// Arrange:
 		constexpr auto Num_Threads = 10u;
 		ReentrancyCheckReaderNotificationPolicy policy;
-		boost::thread_group threads;
+		thread::ThreadGroup threads;
 
 		// Act:
 		std::atomic<size_t> counter(0);
 		for (auto i = 0u; i < Num_Threads; ++i) {
-			threads.create_thread([&policy, &counter] {
+			threads.spawn([&policy, &counter] {
 				policy.readerAcquired();
 				++counter;
 			});
 		}
 
-		threads.join_all();
+		threads.join();
 
 		// Assert:
 		EXPECT_EQ(Num_Threads, counter);

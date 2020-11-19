@@ -19,36 +19,41 @@
 **/
 
 #pragma once
-#include "DisruptorBarrier.h"
-#include <vector>
-#include <stdint.h>
+#include <list>
+#include <thread>
 
-namespace catapult { namespace disruptor {
+namespace catapult { namespace thread {
 
-	/// Container for disruptor barriers.
-	class DisruptorBarriers {
+	/// Container of multiple threads based on boost thread_group.
+	class ThreadGroup {
 	public:
-		/// Creates \a levelsCount barriers with consecutive levels.
-		explicit DisruptorBarriers(size_t levelsCount);
-
-	public:
-		/// Gets the number of barriers.
-		inline size_t size() const {
-			return m_barriers.size();
+		/// Destroys this thread group.
+		~ThreadGroup() {
+			join();
 		}
 
-		/// Gets the (const) barrier at a given \a level.
-		inline const DisruptorBarrier& operator[](size_t level) const {
-			return *m_barriers[level];
+	public:
+		/// Gets the number of threads.
+		size_t size() const {
+			return m_threads.size();
 		}
 
-		/// Gets the barrier at a given \a level.
-		inline DisruptorBarrier& operator[](size_t level) {
-			return *m_barriers[level];
+	public:
+		/// Spawns a new thread around \a func.
+		template<typename TFunction>
+		void spawn(TFunction func) {
+			m_threads.emplace_back(func);
+		}
+
+		/// Waits for all threads to complete.
+		void join() {
+			for (auto& thread : m_threads) {
+				if (thread.joinable())
+					thread.join();
+			}
 		}
 
 	private:
-		/// Holds all barriers (barrier level is an index).
-		std::vector<std::unique_ptr<DisruptorBarrier>> m_barriers;
+		std::list<std::thread> m_threads;
 	};
 }}

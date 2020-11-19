@@ -65,7 +65,7 @@ namespace catapult { namespace disruptor {
 		auto currentLevel = 0u;
 		for (const auto& consumer : consumers) {
 			ConsumerEntry consumerEntry(currentLevel++);
-			m_threads.create_thread([pThis = this, consumerEntry, consumer]() mutable {
+			m_threads.spawn([pThis = this, consumerEntry, consumer]() mutable {
 				thread::SetThreadName(std::to_string(consumerEntry.level()) + " " + pThis->name());
 				while (pThis->m_keepRunning) {
 					auto* pDisruptorElement = pThis->tryNext(consumerEntry);
@@ -92,7 +92,7 @@ namespace catapult { namespace disruptor {
 
 	void ConsumerDispatcher::shutdown() {
 		m_keepRunning = false;
-		m_threads.join_all();
+		m_threads.join();
 	}
 
 	bool ConsumerDispatcher::isRunning() const {

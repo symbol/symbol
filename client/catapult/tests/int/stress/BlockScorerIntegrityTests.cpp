@@ -21,10 +21,10 @@
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/Block.h"
+#include "catapult/thread/ThreadGroup.h"
 #include "catapult/utils/Logging.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 
 namespace catapult { namespace chain {
 
@@ -229,9 +229,9 @@ namespace catapult { namespace chain {
 
 			// - calculate chain scores on all threads
 			const auto numIterationsPerThread = IntegrityTestParameters().NumIterations / test::GetNumDefaultPoolThreads();
-			boost::thread_group threads;
+			thread::ThreadGroup threads;
 			for (auto i = 0u; i < test::GetNumDefaultPoolThreads(); ++i) {
-				threads.create_thread([&predicate, &importances, i, numIterationsPerThread] {
+				threads.spawn([&predicate, &importances, i, numIterationsPerThread] {
 					// Arrange: seed srand per thread
 					std::srand(static_cast<unsigned int>(std::time(nullptr)) + (2u << i));
 
@@ -252,7 +252,7 @@ namespace catapult { namespace chain {
 			}
 
 			// - wait for all threads
-			threads.join_all();
+			threads.join();
 
 			// Assert: the distribution is linearly correlated with importance
 			return CalculateLinearlyCorrelatedHitCountAndImportanceAverageDeviation(importances);

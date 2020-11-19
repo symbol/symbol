@@ -30,6 +30,7 @@
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "catapult/model/EntityHasher.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
+#include "catapult/thread/ThreadGroup.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
@@ -39,7 +40,6 @@
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 
 namespace catapult { namespace harvesting {
 
@@ -212,8 +212,8 @@ namespace catapult { namespace harvesting {
 
 		// Act:
 		// - simulate tx confirmation (block dispatcher) by confirming one tx at a time
-		boost::thread_group threads;
-		threads.create_thread([&context] {
+		thread::ThreadGroup threads;
+		threads.spawn([&context] {
 			for (auto i = 0u; i < GetNumIterations(); ++i) {
 				// 1. get next transaction info from UT cache
 				model::TransactionInfo nextTransactionInfo;
@@ -240,7 +240,7 @@ namespace catapult { namespace harvesting {
 		auto numHarvests = 0u;
 		auto numHarvestAttempts = 0u;
 		auto previousBlockElement = test::BlockToBlockElement(*pLastBlock);
-		threads.create_thread([&context, &numHarvests, &numHarvestAttempts, &previousBlockElement] {
+		threads.spawn([&context, &numHarvests, &numHarvestAttempts, &previousBlockElement] {
 			auto harvestTimestamp = previousBlockElement.Block.Timestamp + Timestamp(std::numeric_limits<int64_t>::max());
 			for (;;) {
 				auto pHarvestedBlock = context.harvester().harvest(previousBlockElement, harvestTimestamp);
@@ -255,7 +255,7 @@ namespace catapult { namespace harvesting {
 		});
 
 		// - wait for all threads
-		threads.join_all();
+		threads.join();
 
 		// Assert: all blocks were harvested (harvesting takes precedence) and all transactions were processed
 		CATAPULT_LOG(debug) << numHarvests << "/" << numHarvestAttempts << " blocks harvested";
@@ -275,8 +275,8 @@ namespace catapult { namespace harvesting {
 
 		// Act:
 		// - let the harvester sometimes see a cache height 1 and sometimes height 2
-		boost::thread_group threads;
-		threads.create_thread([&context] {
+		thread::ThreadGroup threads;
+		threads.spawn([&context] {
 			for (auto i = 0u; i < GetNumIterations(); ++i) {
 				// 1. add block statistic and commit cache at height 2
 				{
@@ -306,7 +306,7 @@ namespace catapult { namespace harvesting {
 		// - simulate harvester by harvesting blocks
 		auto numHarvests = 0u;
 		auto previousBlockElement = test::BlockToBlockElement(*pLastBlock);
-		threads.create_thread([&context, &numHarvests, &previousBlockElement] {
+		threads.spawn([&context, &numHarvests, &previousBlockElement] {
 			auto harvestTimestamp = previousBlockElement.Block.Timestamp + Timestamp(std::numeric_limits<int64_t>::max());
 			for (auto i = 0u; i < GetNumIterations(); ++i) {
 				auto pHarvestedBlock = context.harvester().harvest(previousBlockElement, harvestTimestamp);
@@ -318,7 +318,7 @@ namespace catapult { namespace harvesting {
 		});
 
 		// - wait for all threads
-		threads.join_all();
+		threads.join();
 
 		CATAPULT_LOG(debug) << numHarvests << "/" << GetNumIterations() << " blocks harvested";
 

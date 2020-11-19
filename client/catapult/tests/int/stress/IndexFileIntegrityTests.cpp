@@ -19,9 +19,9 @@
 **/
 
 #include "catapult/io/IndexFile.h"
+#include "catapult/thread/ThreadGroup.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 
 namespace catapult { namespace io {
 
@@ -47,8 +47,8 @@ namespace catapult { namespace io {
 			}
 
 			// Act: writer thread
-			boost::thread_group threads;
-			threads.create_thread([&tempFile, operation] {
+			thread::ThreadGroup threads;
+			threads.spawn([&tempFile, operation] {
 				for (auto i = 0u; i < GetNumIterations(); ++i) {
 					IndexFile indexFile(tempFile.name(), LockMode::None);
 					operation(indexFile, i + 1);
@@ -58,7 +58,7 @@ namespace catapult { namespace io {
 			// - reader thread
 			uint64_t lastValue = 0;
 			bool isAnyDecreasing = false;
-			threads.create_thread([&tempFile, &lastValue, &isAnyDecreasing] {
+			threads.spawn([&tempFile, &lastValue, &isAnyDecreasing] {
 				for (auto i = 0u; i < GetNumIterations(); ++i) {
 					auto value = ReadIndexFileValue(tempFile.name());
 					if (lastValue > value)
@@ -69,7 +69,7 @@ namespace catapult { namespace io {
 			});
 
 			// - wait for all threads
-			threads.join_all();
+			threads.join();
 
 			// Assert:
 			EXPECT_FALSE(isAnyDecreasing);

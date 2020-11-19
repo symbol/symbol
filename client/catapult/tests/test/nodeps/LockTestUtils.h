@@ -19,9 +19,9 @@
 **/
 
 #pragma once
+#include "catapult/thread/ThreadGroup.h"
 #include "catapult/utils/Logging.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 #include <thread>
 
 namespace catapult { namespace test {
@@ -85,7 +85,7 @@ namespace catapult { namespace test {
 	struct LockTestGuard {
 	public:
 		/// Thread group used by the current test.
-		boost::thread_group Threads;
+		thread::ThreadGroup Threads;
 
 	public:
 		/// Creates a guard around \a state.
@@ -95,7 +95,7 @@ namespace catapult { namespace test {
 		/// Destroys guard.
 		~LockTestGuard() {
 			m_state.ShouldBlock = false;
-			Threads.join_all();
+			Threads.join();
 		}
 
 	private:
@@ -109,11 +109,11 @@ namespace catapult { namespace test {
 		// Arrange:
 		constexpr auto Num_Sub_Objects = 10u;
 		std::atomic<size_t> numSubObjects(0);
-		boost::thread_group threads;
+		thread::ThreadGroup threads;
 
 		// Act: create a subobject on multiple threads
 		for (auto i = 0u; i < Num_Sub_Objects; ++i) {
-			threads.create_thread([&]() {
+			threads.spawn([&]() {
 				auto subObject = createSubObject(source);
 				++numSubObjects;
 
@@ -124,7 +124,7 @@ namespace catapult { namespace test {
 			});
 		}
 
-		threads.join_all();
+		threads.join();
 
 		// Assert:
 		EXPECT_EQ(Num_Sub_Objects, numSubObjects);
@@ -140,7 +140,7 @@ namespace catapult { namespace test {
 
 		// - spawn multiple threads
 		for (auto i = 0u; i < Num_Default_Lock_Threads; ++i) {
-			testGuard.Threads.create_thread([&, i] {
+			testGuard.Threads.spawn([&, i] {
 				// Act: acquire a lock and increment and block the counter
 				auto lockGuard = TLockPolicy::ExclusiveLock(lock);
 				state.incrementCounterAndBlock(counter, i);
@@ -161,9 +161,9 @@ namespace catapult { namespace test {
 		uint32_t counter = 0u;
 
 		// - spawn multiple threads
-		boost::thread_group threads;
+		thread::ThreadGroup threads;
 		for (auto i = 0u; i < Num_Default_Lock_Threads; ++i) {
-			threads.create_thread([&, i] {
+			threads.spawn([&, i] {
 				// Act: acquire a lock and increment the counter
 				auto guard = TLockPolicy::ExclusiveLock(lock);
 				CATAPULT_LOG(debug) << "entered lock " << i;
@@ -173,7 +173,7 @@ namespace catapult { namespace test {
 		}
 
 		// - wait for all threads
-		threads.join_all();
+		threads.join();
 
 		// Assert: all threads accessed the counter (individually)
 		EXPECT_EQ(Num_Default_Lock_Threads, counter);

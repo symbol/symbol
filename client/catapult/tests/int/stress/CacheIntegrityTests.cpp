@@ -21,13 +21,13 @@
 #include "plugins/services/hashcache/src/cache/HashCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/NetworkIdentifier.h"
+#include "catapult/thread/ThreadGroup.h"
 #include "catapult/utils/SpinLock.h"
 #include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
-#include <boost/thread.hpp>
 #include <random>
 
 namespace catapult { namespace cache {
@@ -63,9 +63,9 @@ namespace catapult { namespace cache {
 			std::vector<Amount> sums(numReaders);
 
 			// Act: set up reader thread(s) that sum up all account balances
-			boost::thread_group threads;
+			thread::ThreadGroup threads;
 			for (auto r = 0u; r < numReaders; ++r) {
-				threads.create_thread([&, r] {
+				threads.spawn([&, r] {
 					test::StressThreadLogger logger("reader thread " + std::to_string(r));
 
 					for (auto i = 0u; i < GetNumIterations(); ++i) {
@@ -86,7 +86,7 @@ namespace catapult { namespace cache {
 			}
 
 			// - set up a writer thread that adds accounts to the cache
-			threads.create_thread([&] {
+			threads.spawn([&] {
 				test::StressThreadLogger logger("writer thread");
 
 				auto delta = cache.createDelta();
@@ -103,7 +103,7 @@ namespace catapult { namespace cache {
 			});
 
 			// - wait for all threads
-			threads.join_all();
+			threads.join();
 
 			// Assert: all accounts were added to the cache and the reader(s) calculated the correct sum
 			EXPECT_EQ(GetNumIterations(), cache.createView()->size());
