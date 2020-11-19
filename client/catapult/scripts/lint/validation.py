@@ -1104,7 +1104,7 @@ class CopyrightCommentValidator(SimpleValidator):
 
     def __init__(self):
         super().__init__()
-        self.expectedHash = unhexlify('6d244ea9972afcb6b17d695594958de6dc162f50')
+        self.expectedHash = unhexlify('261ac1f521fdc6a8de61d71a65e105cea0838713')
 
     # pylint: disable=attribute-defined-outside-init
     def reset(self, path, errorReporter):

@@ -1,6 +1,7 @@
 /**
-*** Copyright (c) 2016-present,
-*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+*** Copyright (c) 2016-2019, Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp.
+*** Copyright (c) 2020-present, Jaguar0625, gimre, BloodyRookie.
+*** All rights reserved.
 ***
 *** This file is part of Catapult.
 ***
@@ -72,7 +73,7 @@ namespace catapult { namespace utils {
 			if (2u != records.size())
 				return true; // test will fail due to previous EXPECT_EQ
 
-			EXPECT_EQ("<warning> (utils::StackLogger.h@36) pushing scope 'test'", records[0].Message);
+			EXPECT_EQ("<warning> (utils::StackLogger.h@37) pushing scope 'test'", records[0].Message);
 
 			auto elapsedMillis = ParseElapsedMillis(records[1].Message);
 			if (!IsWithinSleepEpsilonRange(elapsedMillis)) {
@@ -81,7 +82,7 @@ namespace catapult { namespace utils {
 			}
 
 			auto elapsedMillisString = " (" + std::to_string(elapsedMillis) + "ms)";
-			EXPECT_EQ("<warning> (utils::StackLogger.h@42) popping scope 'test'" + elapsedMillisString, records[1].Message);
+			EXPECT_EQ("<warning> (utils::StackLogger.h@43) popping scope 'test'" + elapsedMillisString, records[1].Message);
 			return true;
 		});
 	}
@@ -154,7 +155,7 @@ namespace catapult { namespace utils {
 			}
 
 			auto elapsedMillisString = " (" + std::to_string(elapsedMillis) + "ms)";
-			EXPECT_EQ("<warning> (utils::StackLogger.h@76) slow operation detected: 'test'" + elapsedMillisString, records[0].Message);
+			EXPECT_EQ("<warning> (utils::StackLogger.h@77) slow operation detected: 'test'" + elapsedMillisString, records[0].Message);
 			return true;
 		});
 	}
@@ -228,7 +229,7 @@ namespace catapult { namespace utils {
 
 			std::ostringstream expectedMessage;
 			expectedMessage
-					<< "<warning> (utils::StackLogger.h@76) slow operation detected: 'test' (" << elapsedMillis << "ms)"
+					<< "<warning> (utils::StackLogger.h@77) slow operation detected: 'test' (" << elapsedMillis << "ms)"
 					<< std::endl << " + " << subOperationTimes[0] << "ms: 'zeta' (" << subOperationTimes[1] - subOperationTimes[0] << "ms)"
 					<< std::endl << " + " << subOperationTimes[1] << "ms: 'beta' (" << subOperationTimes[2] - subOperationTimes[1] << "ms)"
 					<< std::endl << " + " << subOperationTimes[2] << "ms: 'gamma' (" << elapsedMillis - subOperationTimes[2] << "ms)";

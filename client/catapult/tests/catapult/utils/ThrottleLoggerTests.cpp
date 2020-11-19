@@ -1,6 +1,7 @@
 /**
-*** Copyright (c) 2016-present,
-*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+*** Copyright (c) 2016-2019, Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp.
+*** Copyright (c) 2020-present, Jaguar0625, gimre, BloodyRookie.
+*** All rights reserved.
 ***
 *** This file is part of Catapult.
 ***
@@ -139,7 +140,7 @@ namespace catapult { namespace utils {
 
 		std::string CreateExpectedThrottledMessage(uint64_t numLogAttempts, uint32_t value) {
 			std::ostringstream out;
-			out << "<warning> (utils::ThrottleLoggerTests.cpp@133) [" << numLogAttempts << " log count] throttled message " << value;
+			out << "<warning> (utils::ThrottleLoggerTests.cpp@134) [" << numLogAttempts << " log count] throttled message " << value;
 			return out.str();
 		}
 	}
