@@ -107,7 +107,7 @@ namespace catapult { namespace process {
 			ProcessOptions processOptions,
 			const CreateProcessHost& createProcessHost) {
 		std::set_terminate(&TerminateHandler);
-		thread::SetThreadName("Process Main (" + host + ")");
+		thread::SetThreadName(host + " catapult");
 		version::WriteVersionInformation(std::cout);
 
 		// 1. load and validate the configuration
