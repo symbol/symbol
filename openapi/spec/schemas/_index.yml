@@ -69,6 +69,8 @@ Timestamp:
   "$ref": "./Timestamp.yml"
 UInt32:
   "$ref": "./UInt32.yml"
+UInt64:
+  "$ref": "./UInt64.yml"
 UnresolvedAddress:
   "$ref": "./UnresolvedAddress.yml"
 UnresolvedMosaicId:
@@ -117,6 +119,8 @@ BlockMetaDTO:
   "$ref": "../core/block/schemas/BlockMetaDTO.yml"
 BlockPage:
   "$ref": "../core/block/schemas/BlockPage.yml"
+ImportanceBlockDTO:
+  "$ref": "../core/block/schemas/ImportanceBlockDTO.yml"
 MerklePathItemDTO:
   "$ref": "../core/block/schemas/MerklePathItemDTO.yml"
 MerkleProofInfoDTO:

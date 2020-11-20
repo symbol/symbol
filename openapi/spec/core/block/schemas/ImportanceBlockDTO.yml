@@ -1,0 +1,22 @@
+type: object
+allOf:
+  - $ref: "./BlockDTO.yml"
+  - type: object
+    required:
+      - votingEligibleAccountsCount
+      - harvestingEligibleAccountsCount
+      - totalVotingBalance
+      - previousImportanceBlockHash
+    properties:
+      votingEligibleAccountsCount:
+        $ref: ../../../schemas/UInt32.yml
+        description: Number of voting eligible accounts.
+      harvestingEligibleAccountsCount:
+        $ref: ../../../schemas/UInt64.yml
+        description: Number of harvesting eligible accounts.
+      totalVotingBalance:
+        $ref: "../../../schemas/Amount.yml"
+        description: Total balance eligible for voting.
+      previousImportanceBlockHash:
+        $ref: "../../../schemas/Hash256.yml"
+        description: Previous importance block hash.

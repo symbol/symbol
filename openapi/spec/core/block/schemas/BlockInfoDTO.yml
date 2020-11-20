@@ -10,4 +10,6 @@ properties:
   meta:
     $ref: "./BlockMetaDTO.yml"
   block:
-    $ref: "./BlockDTO.yml"
+    anyOf:
+      - $ref: "./BlockDTO.yml"
+      - $ref: "./ImportanceBlockDTO.yml"
