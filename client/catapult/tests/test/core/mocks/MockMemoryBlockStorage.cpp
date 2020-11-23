@@ -50,6 +50,7 @@ namespace catapult { namespace mocks {
 				test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&block), sizeof(model::BlockHeader) });
 
 				block.Size = sizeof(model::BlockHeader);
+				block.Type = model::Entity_Type_Block_Normal;
 				block.Height = Height(i);
 				storage.saveBlock(test::BlockToBlockElement(block));
 			}
