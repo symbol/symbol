@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "MapperTestUtils.h"
 #include "MongoTestUtils.h"
 #include "mongo/src/MongoStorageContext.h"
 
@@ -78,7 +79,9 @@ namespace catapult { namespace test {
 			auto matchedDocument = database[TTraits::Collection_Name].find_one(filter.view());
 			ASSERT_TRUE(matchedDocument.has_value());
 
-			TTraits::AssertEqual(element, matchedDocument.value().view());
+			auto view = matchedDocument.value().view();
+			TTraits::AssertEqual(element, view);
+			EXPECT_EQ(1u, GetUint32(view["meta"], "version"));
 		}
 	};
 }}
