@@ -37,6 +37,9 @@ namespace catapult { namespace model {
 
 		/// Last height at which V1 blocks are allowed.
 		Height ImportanceBlock;
+
+		/// Last height at which V1 account restrictions are written.
+		Height AccountRestrictionsV2;
 	};
 
 	/// Block chain configuration settings.

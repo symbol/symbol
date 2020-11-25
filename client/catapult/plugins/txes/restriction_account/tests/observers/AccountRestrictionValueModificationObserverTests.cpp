@@ -30,9 +30,9 @@ namespace catapult { namespace observers {
 
 	using ObserverTestContext = test::ObserverTestContextT<test::AccountRestrictionCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(AccountAddressRestrictionValueModification,)
-	DEFINE_COMMON_OBSERVER_TESTS(AccountMosaicRestrictionValueModification,)
-	DEFINE_COMMON_OBSERVER_TESTS(AccountOperationRestrictionValueModification,)
+	DEFINE_COMMON_OBSERVER_TESTS(AccountAddressRestrictionValueModification, Height())
+	DEFINE_COMMON_OBSERVER_TESTS(AccountMosaicRestrictionValueModification, Height())
+	DEFINE_COMMON_OBSERVER_TESTS(AccountOperationRestrictionValueModification, Height())
 
 	namespace {
 		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
@@ -80,6 +80,8 @@ namespace catapult { namespace observers {
 			}
 
 			const auto& restrictions = iter.get();
+			EXPECT_EQ(2u, restrictions.version());
+
 			const auto& restriction = restrictions.restriction(TRestrictionValueTraits::Restriction_Flags);
 			if (IsInsert(notifyMode, action))
 				EXPECT_TRUE(restriction.contains(state::ToVector(restrictionValue)));
@@ -110,7 +112,7 @@ namespace catapult { namespace observers {
 					address,
 					unresolvedRestrictionValue,
 					modification.first);
-			auto pObserver = TRestrictionValueTraits::CreateObserver();
+			auto pObserver = TRestrictionValueTraits::CreateObserver(Height());
 
 			// Act:
 			test::ObserveNotification(*pObserver, notification, context);
@@ -155,7 +157,7 @@ namespace catapult { namespace observers {
 					TOperationTraits::CompleteAccountRestrictionFlags(model::AccountRestrictionFlags::Address),
 					unresolvedFilteredAddress,
 					NotifyMode::Commit == notifyMode ? Del : Add);
-			auto pObserver = CreateAccountAddressRestrictionValueModificationObserver();
+			auto pObserver = CreateAccountAddressRestrictionValueModificationObserver(Height());
 
 			// Act: cache entry is not removed, account address restriction is empty but account mosaic restriction is not
 			test::ObserveNotification(*pObserver, notification, context);
@@ -165,6 +167,8 @@ namespace catapult { namespace observers {
 			ASSERT_TRUE(!!iter.tryGet());
 
 			const auto& restrictions = iter.get();
+			EXPECT_EQ(2u, restrictions.version());
+
 			EXPECT_FALSE(restrictions.isEmpty());
 			EXPECT_TRUE(restrictions.restriction(model::AccountRestrictionFlags::Address).values().empty());
 			EXPECT_EQ(1u, restrictions.restriction(model::AccountRestrictionFlags::MosaicId).values().size());
@@ -283,6 +287,47 @@ namespace catapult { namespace observers {
 	TRAITS_BASED_TEST(ObserverInsertsDelModificationValueIntoRestrictionsInModeRollback) {
 		// Act:
 		AssertObserverInsertsModificationValueIntoRestrictions<TOperationTraits, TRestrictionValueTraits>(NotifyMode::Rollback);
+	}
+
+	// endregion
+
+	// region serialization version fork
+
+	namespace {
+		template<typename TOperationTraits, typename TRestrictionValueTraits>
+		void RunSerializationVersionForkTest(Height forkHeight, Height contextHeight, uint16_t expectedVersion) {
+			// Arrange:
+			ObserverTestContext context(NotifyMode::Commit, contextHeight);
+			auto values = test::GenerateUniqueRandomDataVector<typename TRestrictionValueTraits::ValueType>(1);
+			auto address = test::GenerateRandomByteArray<Address>();
+			test::PopulateCache<TRestrictionValueTraits, TOperationTraits>(context.cache(), address, values);
+
+			auto modification = std::make_pair(Add, TRestrictionValueTraits::RandomValue());
+			auto unresolvedRestrictionValue = TRestrictionValueTraits::Unresolve(modification.second);
+			auto notification = test::CreateAccountRestrictionValueNotification<TRestrictionValueTraits, TOperationTraits>(
+					address,
+					unresolvedRestrictionValue,
+					modification.first);
+			auto pObserver = TRestrictionValueTraits::CreateObserver(forkHeight);
+
+			// Act:
+			test::ObserveNotification(*pObserver, notification, context);
+
+			// Assert:
+			const auto& delta = context.cache().sub<cache::AccountRestrictionCache>();
+			auto iter = delta.find(address);
+
+			const auto& restrictions = iter.get();
+			EXPECT_EQ(expectedVersion, restrictions.version()) << "forkHeight = " << forkHeight << ", contextHeight = " << contextHeight;
+		}
+	}
+
+	TRAITS_BASED_TEST(RestrictionsHasForkDependentVersion) {
+		RunSerializationVersionForkTest<TOperationTraits, TRestrictionValueTraits>(Height(333), Height(200), 1);
+		RunSerializationVersionForkTest<TOperationTraits, TRestrictionValueTraits>(Height(333), Height(332), 1);
+		RunSerializationVersionForkTest<TOperationTraits, TRestrictionValueTraits>(Height(333), Height(333), 1);
+		RunSerializationVersionForkTest<TOperationTraits, TRestrictionValueTraits>(Height(333), Height(334), 2);
+		RunSerializationVersionForkTest<TOperationTraits, TRestrictionValueTraits>(Height(333), Height(400), 2);
 	}
 
 	// endregion

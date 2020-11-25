@@ -45,7 +45,7 @@ namespace catapult { namespace validators {
 			auto cacheView = cache.createView();
 			auto readOnlyCache = cacheView.toReadOnly();
 			auto validatorContext = test::CreateValidatorContext(contextHeight, readOnlyCache);
-			auto pValidator = CreateEntityForkVersionValidator({ Voting_Key_Link_Fork_Height, Block_Fork_Height });
+			auto pValidator = CreateEntityForkVersionValidator({ Voting_Key_Link_Fork_Height, Block_Fork_Height, Height() });
 
 			model::EntityNotification notification(model::NetworkIdentifier::Zero, entityType, entityVersion, 1, 100);
 

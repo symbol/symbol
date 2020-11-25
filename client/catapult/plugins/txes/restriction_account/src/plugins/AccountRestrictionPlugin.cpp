@@ -80,11 +80,11 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateAccountOperationRestrictionNoSelfBlockingValidator());
 		});
 
-		manager.addObserverHook([](auto& builder) {
+		manager.addObserverHook([forkHeight = manager.config().ForkHeights.AccountRestrictionsV2](auto& builder) {
 			builder
-				.add(observers::CreateAccountAddressRestrictionValueModificationObserver())
-				.add(observers::CreateAccountMosaicRestrictionValueModificationObserver())
-				.add(observers::CreateAccountOperationRestrictionValueModificationObserver());
+				.add(observers::CreateAccountAddressRestrictionValueModificationObserver(forkHeight))
+				.add(observers::CreateAccountMosaicRestrictionValueModificationObserver(forkHeight))
+				.add(observers::CreateAccountOperationRestrictionValueModificationObserver(forkHeight));
 		});
 	}
 }}

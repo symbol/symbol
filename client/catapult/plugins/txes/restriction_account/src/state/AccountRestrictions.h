@@ -46,6 +46,12 @@ namespace catapult { namespace state {
 		bool isEmpty() const;
 
 	public:
+		/// Gets the serialization version.
+		uint16_t version() const;
+
+		/// Sets the serialization \a version.
+		void setVersion(uint16_t version);
+
 		/// Gets the const account restriction specified by \a restrictionFlags.
 		const AccountRestriction& restriction(model::AccountRestrictionFlags restrictionFlags) const;
 
@@ -74,6 +80,7 @@ namespace catapult { namespace state {
 
 	private:
 		Address m_address;
+		uint16_t m_version;
 		RestrictionsMap m_restrictions;
 	};
 }}

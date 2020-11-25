@@ -32,6 +32,67 @@ namespace catapult { namespace state {
 #define TEST_CLASS AccountRestrictionsSerializerTests
 
 	namespace {
+		void AssertEqualData(const std::vector<uint8_t>& expectedBuffer, const uint8_t* pData, const std::string& message) {
+			EXPECT_EQ_MEMORY(expectedBuffer.data(), pData, expectedBuffer.size()) << message;
+		}
+
+		// region v1 helpers
+
+		auto CalculateExpectedSizeV1(const AccountRestrictions& restrictions) {
+			auto size = Address::Size + sizeof(uint64_t);
+			for (const auto& pair : restrictions)
+				size += sizeof(model::AccountRestrictionFlags) + sizeof(uint64_t) + pair.second.values().size() * pair.second.valueSize();
+
+			return size;
+		}
+
+		void AssertBufferV1(const AccountRestrictions& restrictions, const std::vector<uint8_t>& buffer, size_t expectedSize) {
+			ASSERT_EQ(expectedSize, buffer.size());
+
+			test::BufferReader reader(buffer);
+			EXPECT_EQ(restrictions.address(), reader.read<Address>());
+			EXPECT_EQ(restrictions.size(), reader.read<uint64_t>());
+
+			auto i = 0u;
+			for (const auto& pair : restrictions) {
+				const auto& restriction = pair.second;
+
+				auto message = "restrictions, restriction at index " + std::to_string(i);
+				EXPECT_EQ(restriction.descriptor().raw(), reader.read<model::AccountRestrictionFlags>()) << message;
+
+				const auto& values = restriction.values();
+				EXPECT_EQ(values.size(), reader.read<uint64_t>()) << message;
+
+				auto j = 0u;
+				for (const auto& value : values) {
+					auto message2 = message + ", value at index " + std::to_string(j);
+					AssertEqualData(value, reader.data(), message2);
+					reader.advance(restriction.valueSize());
+					++j;
+				}
+
+				++i;
+			}
+		}
+
+		void AssertCanSaveAccountRestrictionsV1(const std::vector<size_t>& valuesSizes) {
+			// Arrange:
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream outputStream(buffer);
+			auto restrictions = test::CreateAccountRestrictions(AccountRestrictionOperationType::Allow, valuesSizes);
+			restrictions.setVersion(1);
+
+			// Act:
+			AccountRestrictionsSerializer::Save(restrictions, outputStream);
+
+			// Assert:
+			AssertBufferV1(restrictions, buffer, CalculateExpectedSizeV1(restrictions));
+		}
+
+		// endregion
+
+		// region v2 helpers
+
 		auto CountRestrictions(const AccountRestrictions& restrictions) {
 			return static_cast<size_t>(std::count_if(restrictions.begin(), restrictions.end(), [](const auto& pair) {
 				return !pair.second.values().empty();
@@ -48,10 +109,6 @@ namespace catapult { namespace state {
 			}
 
 			return size;
-		}
-
-		void AssertEqualData(const std::vector<uint8_t>& expectedBuffer, const uint8_t* pData, const std::string& message) {
-			EXPECT_EQ_MEMORY(expectedBuffer.data(), pData, expectedBuffer.size()) << message;
 		}
 
 		void AssertBuffer(const AccountRestrictions& restrictions, const std::vector<uint8_t>& buffer, size_t expectedSize) {
@@ -90,6 +147,7 @@ namespace catapult { namespace state {
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream outputStream(buffer);
 			auto restrictions = test::CreateAccountRestrictions(AccountRestrictionOperationType::Allow, valuesSizes);
+			restrictions.setVersion(2);
 
 			// Act:
 			AccountRestrictionsSerializer::Save(restrictions, outputStream);
@@ -97,9 +155,27 @@ namespace catapult { namespace state {
 			// Assert:
 			AssertBuffer(restrictions, buffer, CalculateExpectedSize(restrictions));
 		}
+
+		// endregion
 	}
 
 	// region Save
+
+	TEST(TEST_CLASS, CanSaveAccountRestrictions_AllRestrictionsEmpty_V1) {
+		AssertCanSaveAccountRestrictionsV1({ 0, 0, 0, 0 });
+	}
+
+	TEST(TEST_CLASS, CanSaveAccountRestrictions_SingleRestrictionNotEmpty_V1) {
+		AssertCanSaveAccountRestrictionsV1({ 1, 0, 0, 0 });
+		AssertCanSaveAccountRestrictionsV1({ 0, 1, 0, 0 });
+		AssertCanSaveAccountRestrictionsV1({ 0, 0, 1, 0 });
+		AssertCanSaveAccountRestrictionsV1({ 0, 0, 0, 1 });
+	}
+
+	TEST(TEST_CLASS, CanSaveAccountRestrictions_NoRestrictionsEmpty_V1) {
+		AssertCanSaveAccountRestrictionsV1({ 5, 3, 6, 7 });
+		AssertCanSaveAccountRestrictionsV1({ 123, 97, 24, 31 });
+	}
 
 	TEST(TEST_CLASS, CanSaveAccountRestrictions_AllRestrictionsEmpty) {
 		AssertCanSaveAccountRestrictions({ 0, 0, 0, 0 });

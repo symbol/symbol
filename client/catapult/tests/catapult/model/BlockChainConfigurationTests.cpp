@@ -97,7 +97,8 @@ namespace catapult { namespace model {
 						"fork_heights",
 						{
 							{ "votingKeyLinkV2", "3333" },
-							{ "importanceBlock", "4444" }
+							{ "importanceBlock", "4444" },
+							{ "accountRestrictionsV2", "5555" }
 						}
 					},
 					{
@@ -167,6 +168,7 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(Height(), config.ForkHeights.VotingKeyLinkV2);
 				EXPECT_EQ(Height(), config.ForkHeights.ImportanceBlock);
+				EXPECT_EQ(Height(), config.ForkHeights.AccountRestrictionsV2);
 
 				EXPECT_TRUE(config.Plugins.empty());
 			}
@@ -218,6 +220,7 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(Height(3333), config.ForkHeights.VotingKeyLinkV2);
 				EXPECT_EQ(Height(4444), config.ForkHeights.ImportanceBlock);
+				EXPECT_EQ(Height(5555), config.ForkHeights.AccountRestrictionsV2);
 
 				EXPECT_EQ(2u, config.Plugins.size());
 				const auto& pluginAlphaBag = config.Plugins.find("alpha")->second;

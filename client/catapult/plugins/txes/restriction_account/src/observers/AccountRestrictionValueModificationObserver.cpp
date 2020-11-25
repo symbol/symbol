@@ -44,7 +44,7 @@ namespace catapult { namespace observers {
 		}
 
 		template<typename TNotification>
-		void ObserveNotification(const TNotification& notification, const ObserverContext& context) {
+		void ObserveNotification(const TNotification& notification, const ObserverContext& context, Height compactFormatForkHeight) {
 			auto& restrictionCache = context.Cache.sub<cache::AccountRestrictionCache>();
 			const auto& address = notification.Address;
 
@@ -55,6 +55,8 @@ namespace catapult { namespace observers {
 			}
 
 			auto& restrictions = restrictionsIter.get();
+			restrictions.setVersion(context.Height <= compactFormatForkHeight ? 1 : 2);
+
 			auto& restriction = restrictions.restriction(notification.AccountRestrictionDescriptor.directionalRestrictionFlags());
 			auto modificationAction = NotifyMode::Commit == context.Mode
 					? notification.Action
@@ -73,11 +75,20 @@ namespace catapult { namespace observers {
 	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(RESTRICTION_VALUE_NAME) \
-	DEFINE_OBSERVER(Account##RESTRICTION_VALUE_NAME##Modification, model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification, []( \
-			const model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification& notification, \
-			const ObserverContext& context) { \
-		ObserveNotification<model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification>(notification, context); \
-	})
+	DECLARE_OBSERVER(Account##RESTRICTION_VALUE_NAME##Modification, model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification)( \
+			Height compactFormatForkHeight) { \
+		return MAKE_OBSERVER( \
+				Account##RESTRICTION_VALUE_NAME##Modification, \
+				model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification, \
+				([compactFormatForkHeight]( \
+						const model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification& notification, \
+						const ObserverContext& context) { \
+							ObserveNotification<model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification>( \
+									notification, \
+									context, \
+									compactFormatForkHeight); \
+				})); \
+	}
 
 	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(AddressRestrictionValue)
 	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(MosaicRestrictionValue)

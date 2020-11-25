@@ -27,13 +27,19 @@ namespace catapult { namespace observers {
 
 	/// Observes changes triggered by account address restriction value modification notifications and:
 	/// - adds / deletes account address restriction value to / from cache
-	DECLARE_OBSERVER(AccountAddressRestrictionValueModification, model::ModifyAccountAddressRestrictionValueNotification)();
+	/// - indicates compact serialization after \a compactFormatForkHeight
+	DECLARE_OBSERVER(AccountAddressRestrictionValueModification, model::ModifyAccountAddressRestrictionValueNotification)(
+			Height compactFormatForkHeight);
 
 	/// Observes changes triggered by account mosaic restriction value modification notifications and:
 	/// - adds / deletes account mosaic restriction value to / from cache
-	DECLARE_OBSERVER(AccountMosaicRestrictionValueModification, model::ModifyAccountMosaicRestrictionValueNotification)();
+	/// - indicates compact serialization after \a compactFormatForkHeight
+	DECLARE_OBSERVER(AccountMosaicRestrictionValueModification, model::ModifyAccountMosaicRestrictionValueNotification)(
+			Height compactFormatForkHeight);
 
 	/// Observes changes triggered by account operation restriction value modification notifications and:
 	/// - adds / deletes account operation restriction value to / from cache
-	DECLARE_OBSERVER(AccountOperationRestrictionValueModification, model::ModifyAccountOperationRestrictionValueNotification)();
+	/// - indicates compact serialization after \a compactFormatForkHeight
+	DECLARE_OBSERVER(AccountOperationRestrictionValueModification, model::ModifyAccountOperationRestrictionValueNotification)(
+			Height compactFormatForkHeight);
 }}

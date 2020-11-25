@@ -28,14 +28,17 @@ namespace catapult { namespace state {
 	void AccountRestrictionsSerializer::Save(const AccountRestrictions& restrictions, io::OutputStream& output) {
 		output.write(restrictions.address());
 
-		auto numRestrictions = static_cast<uint64_t>(std::count_if(restrictions.begin(), restrictions.end(), [](const auto& pair) {
-			return !pair.second.values().empty();
+		auto shouldWriteEmpty = 1 >= restrictions.version();
+
+		auto numRestrictions = static_cast<uint64_t>(std::count_if(restrictions.begin(), restrictions.end(), [shouldWriteEmpty](
+				const auto& pair) {
+			return shouldWriteEmpty || !pair.second.values().empty();
 		}));
 
 		io::Write64(output, numRestrictions);
 		for (const auto& pair : restrictions) {
 			const auto& restriction = pair.second;
-			if (restriction.values().empty())
+			if (!shouldWriteEmpty && restriction.values().empty())
 				continue;
 
 			io::Write16(output, utils::to_underlying_type(restriction.descriptor().raw()));
