@@ -13,7 +13,7 @@ struct RootNamespaceHistory
 	lifetime = NamespaceLifetime
 
 	# root namespace alias
-	rootAlias = NamespaceAliasType
+	rootAlias = NamespaceAlias
 
 	# number of children
 	childrenCount = uint64
