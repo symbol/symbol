@@ -62,8 +62,7 @@ describe('block header codec', () => {
 				receiptsHash: receiptsHashBuffer,
 				stateHash: stateHashBuffer,
 				beneficiaryAddress,
-				feeMultiplier: 10,
-				blockHeader_Reserved1: 0
+				feeMultiplier: 10
 			}
 		};
 	};

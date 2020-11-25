@@ -36,7 +36,7 @@ const createAlias = id => {
 	}
 };
 
-const createNamespace = (id, owner, namespaceType, parentIdOrDuration, path, lifetime, active, alias) => {
+const createNamespace = (id, owner, namespaceType, parentIdOrDuration, path, lifetime, latest, alias) => {
 	// namespace data
 	const namespace = {
 		ownerAddress: new Binary(owner.address),
@@ -60,7 +60,7 @@ const createNamespace = (id, owner, namespaceType, parentIdOrDuration, path, lif
 	else
 		namespace.parentId = Long.fromNumber(parentIdOrDuration);
 
-	return { _id: dbTestUtils.db.createObjectId(id), meta: { active }, namespace };
+	return { _id: dbTestUtils.db.createObjectId(id), meta: { latest }, namespace };
 };
 
 const createNamespaces = (numRounds, owner, startdId = 0) => {

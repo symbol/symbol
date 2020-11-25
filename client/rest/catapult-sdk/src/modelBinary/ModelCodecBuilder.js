@@ -21,19 +21,27 @@
 
 /** @module modelBinary/ModelCodecBuilder */
 const blockHeaderCodec = require('./blockHeaderCodec');
+const importanceBlockHeaderCodec = require('./importanceBlockHeaderCodec');
 const transactionCodec = require('./transactionCodec');
 const verifiableEntityCodec = require('./verifiableEntityCodec');
 const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
 
 const isBlockType = entityType => 0 !== (0x8000 & entityType);
 
-const findCodecs = (entityType, codecs) => {
+const findCodecs = (entityType, codecs, version) => {
+	if (isBlockType(entityType) && (0x8043 === entityType || 0x8243 === entityType))
+		return [verifiableEntityCodec, blockHeaderCodec, importanceBlockHeaderCodec];
+
 	if (isBlockType(entityType))
 		return [verifiableEntityCodec, blockHeaderCodec];
 
-	const codec = codecs[entityType];
-	if (!codec)
+	const codecPerVersion = codecs[entityType];
+	if (!codecPerVersion)
 		throw Error(`no codec registered for '${entityType}'`);
+
+	const codec = codecPerVersion[version];
+	if (!codec)
+		throw Error(`no codec registered for '${entityType}' and version '${version}'`);
 
 	return [verifiableEntityCodec, transactionCodec, codec];
 };
@@ -53,12 +61,16 @@ class ModelCodecBuilder {
 	 * Adds support for a typed transaction.
 	 * @param {module:model/EntityType} type Transaction type.
 	 * @param {object} codec Transaction codec.
+	 * @param {number} version the transaction version
 	 */
-	addTransactionSupport(type, codec) {
-		if (isBlockType(type) || this.codecs[type])
-			throw Error(`codec already registered for '${type}'`);
+	addTransactionSupport(type, codec, version = 1) {
+		if (isBlockType(type) || (this.codecs[type] && this.codecs[type][version]))
+			throw Error(`codec already registered for '${type}' ${version}`);
 
-		this.codecs[type] = codec;
+		if (!this.codecs[type])
+			this.codecs[type] = {};
+
+		this.codecs[type][version] = codec;
 	}
 
 	/**
@@ -76,7 +88,7 @@ class ModelCodecBuilder {
 				// get codecs for the current entity (and ignore the verifiableEntity codec)
 				const size = parser.uint32();
 				const entity = verifiableEntityCodec.deserialize(parser);
-				const codecs = findCodecs(entity.type, txCodecs);
+				const codecs = findCodecs(entity.type, txCodecs, entity.version);
 				codecs.shift();
 
 				codecs.forEach(codec => {
@@ -87,7 +99,7 @@ class ModelCodecBuilder {
 			},
 
 			serialize: (entity, serializer) => {
-				const codecs = findCodecs(entity.type, txCodecs);
+				const codecs = findCodecs(entity.type, txCodecs, entity.version);
 
 				const sizeCalculator = new SerializedSizeCalculator();
 				codecs.forEach(codec => {

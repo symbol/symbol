@@ -19,18 +19,33 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
+const { convertToLong, buildOffsetCondition, longToUint64 } = require('../../db/dbUtils');
 const catapult = require('catapult-sdk');
 
-const createActiveConditions = async catapultDb => {
-	const { height } = await catapultDb.chainStatisticCurrent();
-	return ({
-		$and: [{ 'meta.active': true }, {
-			$or: [
-				{ 'namespace.endHeight': convertToLong(-1) },
-				{ 'namespace.endHeight': { $gt: height } }]
-		}]
-	});
+const { uint64 } = catapult.utils;
+
+const createLatestConditions = (catapultDb, height) => {
+	if (height) {
+		return ({
+			$and: [{ 'meta.latest': true }, {
+				$or: [
+					{ 'namespace.endHeight': convertToLong(-1) },
+					{ 'namespace.endHeight': { $gt: height } }]
+			}]
+		});
+	}
+	return { 'meta.latest': true };
+};
+
+const addActiveFlag = (namespace, height) => {
+	if (!namespace)
+		return namespace;
+
+	// What about calculated fields in mongo?
+	const endHeightUint64 = longToUint64(namespace.namespace.endHeight);
+	const heightUint64 = longToUint64(convertToLong(height));
+	namespace.meta.active = 1 === uint64.compare(endHeightUint64, heightUint64);
+	return namespace;
 };
 
 class NamespaceDb {
@@ -57,7 +72,8 @@ class NamespaceDb {
 	async namespaces(aliasType, level0, ownerAddress, registrationType, options) {
 		const sortingOptions = { id: '_id' };
 		let conditions = {};
-		const activeConditions = await createActiveConditions(this.catapultDb);
+		const { height } = await this.catapultDb.chainStatisticCurrent();
+		const activeConditions = createLatestConditions(this.catapultDb);
 		const offsetCondition = buildOffsetCondition(options, sortingOptions);
 		if (offsetCondition)
 			conditions = Object.assign(conditions, offsetCondition);
@@ -75,7 +91,8 @@ class NamespaceDb {
 			conditions['namespace.registrationType'] = registrationType;
 
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
-		return this.catapultDb.queryPagedDocuments({ $and: [activeConditions, conditions] }, [], sortConditions, 'namespaces', options);
+		return this.catapultDb.queryPagedDocuments({ $and: [activeConditions, conditions] }, [],
+			sortConditions, 'namespaces', options, n => addActiveFlag(n, height));
 	}
 
 	/**
@@ -84,7 +101,8 @@ class NamespaceDb {
 	 * @returns {Promise.<object>} Namespace.
 	 */
 	async namespaceById(id) {
-		const activeConditions = await createActiveConditions(this.catapultDb);
+		const { height } = await this.catapultDb.chainStatisticCurrent();
+		const activeConditions = createLatestConditions(this.catapultDb);
 		const topLevelConditions = { $or: [] };
 
 		for (let level = 0; 3 > level; ++level) {
@@ -96,7 +114,7 @@ class NamespaceDb {
 		}
 
 		return this.catapultDb.queryDocument('namespaces', topLevelConditions)
-			.then(this.catapultDb.sanitizer.renameId);
+			.then(this.catapultDb.sanitizer.renameId).then(n => addActiveFlag(n, height));
 	}
 
 	/**
@@ -110,14 +128,15 @@ class NamespaceDb {
 			[catapult.model.namespace.aliasType.mosaic]: () => ({ 'namespace.alias.mosaicId': { $in: ids.map(convertToLong) } }),
 			[catapult.model.namespace.aliasType.address]: () => ({ 'namespace.alias.address': { $in: ids.map(id => Buffer.from(id)) } })
 		};
-		const activeConditions = await createActiveConditions(this.catapultDb);
+		const { height } = await this.catapultDb.chainStatisticCurrent();
+		const activeConditions = await createLatestConditions(this.catapultDb, height);
 
 		const conditions = { $and: [] };
 		conditions.$and.push(aliasFilterCondition[aliasType]());
 		conditions.$and.push({ 'namespace.alias.type': aliasType });
 		conditions.$and.push(activeConditions);
 
-		return this.catapultDb.queryDocuments('namespaces', conditions);
+		return this.catapultDb.queryDocuments('namespaces', conditions).then(ns => ns.map(n => addActiveFlag(n, height)));
 	}
 
 	// endregion

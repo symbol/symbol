@@ -55,9 +55,9 @@ describe('namespace db', () => {
 		};
 
 		const createNamespace = (objectId, aliasType, level0, ownerAddress, registrationType,
-			active = true, expirationHeight = { start: 1, end: 1000 }) => ({
+			latest = true, expirationHeight = { start: 1, end: 1000 }) => ({
 			_id: createObjectId(objectId),
-			meta: { active },
+			meta: { latest },
 			namespace: {
 				alias: { type: aliasType },
 				level0: convertToLong(level0),
@@ -69,13 +69,13 @@ describe('namespace db', () => {
 		});
 
 		const runTestAndVerifyIds = (dbNamespaces, dbQuery, expectedIds) => {
-			const expectedObjectIds = expectedIds.map(id => createObjectId(id));
+			const expectedObjectIds = expectedIds.map(id => [createObjectId(id[0]), id[1]]);
 
 			return runNamespacesDbTest(
 				dbNamespaces,
 				dbQuery,
 				namespacesPage => {
-					const returnedIds = namespacesPage.data.map(t => t.id);
+					const returnedIds = namespacesPage.data.map(t => [t.id, t.meta.active]);
 					expect(namespacesPage.data.length).to.equal(expectedObjectIds.length);
 					expect(returnedIds.sort()).to.deep.equal(expectedObjectIds.sort());
 				}
@@ -102,22 +102,22 @@ describe('namespace db', () => {
 			const dbNamespaces = () => [createNamespace(10, 1, level0Test1, ownerAddressTest1, 0)];
 
 			it('aliasType', () =>
-				runTestAndVerifyIds(dbNamespaces(), db => db.namespaces(2, undefined, undefined, undefined, paginationOptions), []));
+				runTestAndVerifyIds(dbNamespaces(), db => db.namespaces(2, undefined, undefined, undefined, paginationOptions), [], []));
 
 			it('level0', () =>
 				runTestAndVerifyIds(
 					dbNamespaces(),
-					db => db.namespaces(undefined, level0Test2, undefined, undefined, paginationOptions), []
+					db => db.namespaces(undefined, level0Test2, undefined, undefined, paginationOptions), [], []
 				));
 
 			it('ownerAddress', () =>
 				runTestAndVerifyIds(
 					dbNamespaces(),
-					db => db.namespaces(undefined, undefined, ownerAddressTest2, undefined, paginationOptions), []
+					db => db.namespaces(undefined, undefined, ownerAddressTest2, undefined, paginationOptions), [], []
 				));
 
 			it('registrationType', () =>
-				runTestAndVerifyIds(dbNamespaces(), db => db.namespaces(undefined, undefined, undefined, 1, paginationOptions), []));
+				runTestAndVerifyIds(dbNamespaces(), db => db.namespaces(undefined, undefined, undefined, 1, paginationOptions), [], []));
 		});
 
 		describe('returns filtered namespaces by param', () => {
@@ -136,31 +136,32 @@ describe('namespace db', () => {
 			it('aliasType', () =>
 				runTestAndVerifyIds(
 					dbNamespaces(),
-					db => db.namespaces(2, undefined, undefined, undefined, paginationOptions), [10]
+					db => db.namespaces(2, undefined, undefined, undefined, paginationOptions), [[10, true], [12, false]]
 				));
 
 			it('level0', () =>
 				runTestAndVerifyIds(
 					dbNamespaces(),
-					db => db.namespaces(undefined, level0Test2, undefined, undefined, paginationOptions), [20]
+					db => db.namespaces(undefined, level0Test2, undefined, undefined, paginationOptions), [[20, true]]
 				));
 
 			it('ownerAddress', () =>
 				runTestAndVerifyIds(
 					dbNamespaces(),
-					db => db.namespaces(undefined, undefined, ownerAddressTest2, undefined, paginationOptions), [30]
+					db => db.namespaces(undefined, undefined, ownerAddressTest2, undefined, paginationOptions), [[30, true]]
 				));
 
 			it('registrationType', () =>
 				runTestAndVerifyIds(
 					dbNamespaces(),
-					db => db.namespaces(undefined, undefined, undefined, 1, paginationOptions), [40]
+					db => db.namespaces(undefined, undefined, undefined, 1, paginationOptions), [[40, true]]
 				));
 
 			it('all', () =>
 				runTestAndVerifyIds(
 					dbNamespaces(),
-					db => db.namespaces(undefined, undefined, undefined, undefined, paginationOptions), [10, 20, 30, 40]
+					db => db.namespaces(undefined, undefined, undefined, undefined, paginationOptions),
+					[[10, true], [12, false], [20, true], [30, true], [40, true], [60, false]]
 				));
 		});
 
@@ -176,7 +177,7 @@ describe('namespace db', () => {
 			return runTestAndVerifyIds(
 				dbNamespaces,
 				db => db.namespaces(undefined, undefined, undefined, undefined, paginationOptions),
-				[10, 20, 30]
+				[[10, true], [20, true], [30, true]]
 			);
 		});
 
@@ -191,7 +192,7 @@ describe('namespace db', () => {
 			return runTestAndVerifyIds(
 				dbNamespaces,
 				db => db.namespaces(undefined, undefined, undefined, undefined, paginationOptions),
-				[20]
+				[[20, true]]
 			);
 		});
 
@@ -284,14 +285,16 @@ describe('namespace db', () => {
 				options.sortDirection = 1;
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbNamespaces(), db => db.namespaces(undefined, undefined, undefined, undefined, options), [30]);
+				return runTestAndVerifyIds(dbNamespaces(),
+					db => db.namespaces(undefined, undefined, undefined, undefined, options), [[30, true]]);
 			});
 
 			it('lt', () => {
 				options.sortDirection = -1;
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbNamespaces(), db => db.namespaces(undefined, undefined, undefined, undefined, options), [10]);
+				return runTestAndVerifyIds(dbNamespaces(),
+					db => db.namespaces(undefined, undefined, undefined, undefined, options), [[10, true]]);
 			});
 		});
 	});
@@ -385,7 +388,7 @@ describe('namespace db', () => {
 		const lifetime = { start: 0, end: 100 };
 		const createNamespace = (namespaceId, aliasTarget, aliasType, depth, expirationHeight) => ({
 			meta: {
-				active: true
+				latest: true
 			},
 			namespace: {
 				depth,
@@ -419,7 +422,12 @@ describe('namespace db', () => {
 				.then(() => populateCollection(db, 'namespaces', [namespace1, namespace2, namespace3, namespace4]))
 				.then(() => sanitizeDbEntities([namespace1, namespace2, namespace3, namespace4]))
 				.then(() => dbFacade.activeNamespacesWithAlias(aliasTypeMosaic, [76756, 87823]))
-				.then(entities => { expect(entities).to.deep.equal([namespace1, namespace2]); })
+				.then(entities => {
+					expect(entities).to.deep.equal([
+						{ ...namespace1, meta: { active: true, latest: true } },
+						{ ...namespace2, meta: { active: true, latest: true } }
+					]);
+				})
 				.then(() => db.close());
 		});
 
@@ -445,7 +453,12 @@ describe('namespace db', () => {
 						address.stringToAddress(testAddress.two)
 					]
 				))
-				.then(entities => { expect(entities).to.deep.equal([namespace1, namespace2]); })
+				.then(entities => {
+					expect(entities).to.deep.equal([
+						{ ...namespace1, meta: { active: true, latest: true } },
+						{ ...namespace2, meta: { active: true, latest: true } }
+					]);
+				})
 				.then(() => db.close());
 		});
 
@@ -502,7 +515,7 @@ describe('namespace db', () => {
 				.then(() => populateCollection(db, 'namespaces', [namespace1, namespace2, namespace3]))
 				.then(() => sanitizeDbEntities([namespace1, namespace2, namespace3]))
 				.then(() => dbFacade.activeNamespacesWithAlias(aliasTypeMosaic, [76756, 87823, 57231]))
-				.then(entities => { expect(entities).to.deep.equal([namespace3]); })
+				.then(entities => { expect(entities).to.deep.equal([{ ...namespace3, meta: { active: true, latest: true } }]); })
 				.then(() => db.close());
 		});
 
@@ -527,7 +540,7 @@ describe('namespace db', () => {
 						address.stringToAddress(testAddress.three)
 					]
 				))
-				.then(entities => { expect(entities).to.deep.equal([namespace3]); })
+				.then(entities => { expect(entities).to.deep.equal([{ ...namespace3, meta: { active: true, latest: true } }]); })
 				.then(() => db.close());
 		});
 	});

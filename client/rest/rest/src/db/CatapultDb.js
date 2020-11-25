@@ -264,10 +264,11 @@ class CatapultDb {
 	 * @param {object} sortConditions Condition that describes the order of the results, must be set.
 	 * @param {string} collectionName Name of the collection to be queried.
 	 * @param {object} options Pagination options, must contain `pageSize` and `pageNumber` (starting at 1).
+	 * @param {function} mapper to transform each element of the page.
 	 * @returns {Promise.<object>} Page result, contains the attributes `data` with the actual results, and `paging` with pagination
 	 * metadata - which is comprised of: `pageNumber`, and `pageSize`.
 	 */
-	queryPagedDocuments(queryConditions, removedFields, sortConditions, collectionName, options) {
+	queryPagedDocuments(queryConditions, removedFields, sortConditions, collectionName, options, mapper) {
 		const { pageSize } = options;
 		const pageIndex = options.pageNumber - 1;
 
@@ -282,6 +283,7 @@ class CatapultDb {
 			.limit(pageSize)
 			.toArray()
 			.then(this.sanitizer.renameIds)
+			.then(xs => (mapper ? xs.map(mapper) : xs))
 			.then(result => ({
 				data: result,
 				pagination: {
