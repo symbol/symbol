@@ -32,10 +32,20 @@ namespace catapult { namespace state {
 #define TEST_CLASS AccountRestrictionsSerializerTests
 
 	namespace {
+		auto CountRestrictions(const AccountRestrictions& restrictions) {
+			return static_cast<size_t>(std::count_if(restrictions.begin(), restrictions.end(), [](const auto& pair) {
+				return !pair.second.values().empty();
+			}));
+		}
+
 		auto CalculateExpectedSize(const AccountRestrictions& restrictions) {
 			auto size = Address::Size + sizeof(uint64_t);
-			for (const auto& pair : restrictions)
+			for (const auto& pair : restrictions) {
+				if (pair.second.values().empty())
+					continue;
+
 				size += sizeof(model::AccountRestrictionFlags) + sizeof(uint64_t) + pair.second.values().size() * pair.second.valueSize();
+			}
 
 			return size;
 		}
@@ -49,12 +59,15 @@ namespace catapult { namespace state {
 
 			test::BufferReader reader(buffer);
 			EXPECT_EQ(restrictions.address(), reader.read<Address>());
-			EXPECT_EQ(restrictions.size(), reader.read<uint64_t>());
+			EXPECT_EQ(CountRestrictions(restrictions), reader.read<uint64_t>());
 
 			auto i = 0u;
 			for (const auto& pair : restrictions) {
-				auto message = "restrictions, restriction at index " + std::to_string(i);
 				const auto& restriction = pair.second;
+				if (restriction.values().empty())
+					continue;
+
+				auto message = "restrictions, restriction at index " + std::to_string(i);
 				EXPECT_EQ(restriction.descriptor().raw(), reader.read<model::AccountRestrictionFlags>()) << message;
 
 				const auto& values = restriction.values();
@@ -166,12 +179,24 @@ namespace catapult { namespace state {
 		}
 
 		void AssertOrderedRestrictions() {
-			// Arrange: make address restriction Block and mosaic restriction Allow
-			// - empty restrictions always have Block flag set
+			// Arrange:
 			constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+			constexpr auto Block = model::AccountRestrictionFlags::Block;
+			constexpr auto Outgoing = model::AccountRestrictionFlags::Outgoing;
+
+			// - alternate Block and Allow (notice that ordering is independent of block flag)
 			AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
-			model::AccountRestrictionModification modification{ Add, test::GenerateRandomVector(sizeof(MosaicId)) };
-			restrictions.restriction(model::AccountRestrictionFlags::MosaicId).allow(modification);
+			std::vector<model::AccountRestrictionFlags> allFlags{
+				model::AccountRestrictionFlags::Address | Block, //                   0x8001 & ~Block == 0x0001
+				model::AccountRestrictionFlags::MosaicId, //                          0x0002 & ~Block == 0x0002
+				model::AccountRestrictionFlags::Address | Outgoing, //                0x4001 & ~Block == 0x4001
+				model::AccountRestrictionFlags::TransactionType | Outgoing | Block // 0xC004 & ~Block == 0x4004
+			};
+
+			restrictions.restriction(allFlags[0]).block({ Add, test::GenerateRandomVector(Address::Size) });
+			restrictions.restriction(allFlags[1]).allow({ Add, test::GenerateRandomVector(sizeof(MosaicId)) });
+			restrictions.restriction(allFlags[2]).allow({ Add, test::GenerateRandomVector(Address::Size) });
+			restrictions.restriction(allFlags[3]).block({ Add, test::GenerateRandomVector(sizeof(model::EntityType)) });
 
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream stream(buffer);
@@ -180,14 +205,7 @@ namespace catapult { namespace state {
 			AccountRestrictionsSerializer::Save(restrictions, stream);
 
 			// Assert:
-			constexpr auto Block = model::AccountRestrictionFlags::Block;
-			std::vector<model::AccountRestrictionFlags> orderedAccountRestrictionFlagsContainer{
-				model::AccountRestrictionFlags::Address | Block,
-				model::AccountRestrictionFlags::MosaicId,
-				model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing | Block,
-				model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing | Block
-			};
-			AssertAccountRestrictionFlags(orderedAccountRestrictionFlagsContainer, buffer, Address::Size);
+			AssertAccountRestrictionFlags(allFlags, buffer, Address::Size);
 		}
 	}
 
