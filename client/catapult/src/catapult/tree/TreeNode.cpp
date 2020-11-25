@@ -27,22 +27,31 @@
 namespace catapult { namespace tree {
 
 	namespace {
-		std::vector<uint8_t> EncodeKey(const TreeNodePath& path, bool isLeaf) {
+		void UpdateEncodedKey(crypto::Sha3_256_Builder& builder, const TreeNodePath& path, bool isLeaf) {
+			std::array<uint8_t, sizeof(uint64_t)> buffer; // working buffer to avoid allocations
 			auto numPathNibbles = path.size();
-			std::vector<uint8_t> encodedKey(numPathNibbles / 2 + 1);
 
 			auto i = 0u;
-			encodedKey[0] = isLeaf ? 0x20 : 0; // set leaf flag
+			buffer[0] = isLeaf ? 0x20 : 0; // set leaf flag
 			if (1 == numPathNibbles % 2) {
 				// set odd flag and merge in first nibble
-				encodedKey[0] = static_cast<uint8_t>(encodedKey[0] | 0x10 | path.nibbleAt(0));
+				buffer[0] = static_cast<uint8_t>(buffer[0] |0x10 | path.nibbleAt(0));
 				++i;
 			}
 
-			for (; i < numPathNibbles; i += 2)
-				encodedKey[i / 2 + 1] = static_cast<uint8_t>((path.nibbleAt(i) << 4) + path.nibbleAt(i + 1));
+			auto counter = 1u;
+			for (; i < numPathNibbles; i += 2) {
+				buffer[counter] = static_cast<uint8_t>((path.nibbleAt(i) << 4) + path.nibbleAt(i + 1));
 
-			return encodedKey;
+				if (buffer.size() == ++counter) {
+					// flush working buffer
+					builder.update(buffer);
+					counter = 0;
+				}
+			}
+
+			if (0 != counter)
+				builder.update({ reinterpret_cast<const uint8_t*>(&buffer[0]), counter });
 		}
 	}
 
@@ -51,7 +60,7 @@ namespace catapult { namespace tree {
 	namespace {
 		Hash256 CalculateLeafTreeNodeHash(const TreeNodePath& path, const Hash256& value) {
 			crypto::Sha3_256_Builder builder;
-			builder.update(EncodeKey(path, true));
+			UpdateEncodedKey(builder, path, true);
 			builder.update(value);
 
 			Hash256 hash;
@@ -121,7 +130,7 @@ namespace catapult { namespace tree {
 	const Hash256& BranchTreeNode::hash() const {
 		if (m_isDirty) {
 			crypto::Sha3_256_Builder builder;
-			builder.update(EncodeKey(m_path, false));
+			UpdateEncodedKey(builder, m_path, false);
 			for (auto i = 0u; i < Max_Links; ++i)
 				builder.update({ link(i).data(), sizeof(Hash256) });
 

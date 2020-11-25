@@ -27,6 +27,89 @@ namespace catapult { namespace tree {
 
 #define TEST_CLASS TreeNodeTests
 
+	// region TreeNodePath utils
+
+	namespace {
+		struct TreeNodePathTestCase {
+			TreeNodePath Path;
+			std::vector<uint8_t> RawPath; // includes leaf flag
+		};
+
+		enum class PathType { Short, Long, Ending_On_Boundary };
+
+		TreeNodePathTestCase GetEvenTreeNodePathTestCase(PathType type) {
+			switch (type) {
+			case PathType::Short:
+				return { TreeNodePath(0x64'6F'67'00), { 0x20, 0x64, 0x6F, 0x67, 0x00 } };
+
+			case PathType::Long:
+				return {
+					TreeNodePath(std::vector<uint8_t>{
+						0x64, 0x6F, 0x67, 0x00, 0x19, 0xA3, 0xBC, 0x74,
+						0x24, 0x82, 0x3C, 0x98, 0x79, 0x25, 0xD4, 0x60,
+						0xFC, 0xEE
+					}),
+					{
+						0x20, 0x64, 0x6F, 0x67, 0x00, 0x19, 0xA3, 0xBC,
+						0x74, 0x24, 0x82, 0x3C, 0x98, 0x79, 0x25, 0xD4,
+						0x60, 0xFC, 0xEE
+					}
+				};
+
+			case PathType::Ending_On_Boundary:
+				return {
+					TreeNodePath(std::vector<uint8_t>{
+						0x64, 0x6F, 0x67, 0x00, 0x19, 0xA3, 0xBC, 0x74,
+						0x24, 0x82, 0x3C, 0x98, 0x79, 0x25, 0xD4
+					}),
+					{
+						0x20, 0x64, 0x6F, 0x67, 0x00, 0x19, 0xA3, 0xBC,
+						0x74, 0x24, 0x82, 0x3C, 0x98, 0x79, 0x25, 0xD4
+					}
+				};
+			}
+
+			CATAPULT_THROW_INVALID_ARGUMENT_1("unknown path type was requested", static_cast<int>(type));
+		}
+
+		TreeNodePathTestCase GetOddTreeNodePathTestCase(PathType type) {
+			switch (type) {
+			case PathType::Short:
+				return { TreeNodePath(0x64'6F'67'00).subpath(0, 5), { 0x36, 0x46, 0xF6 } };
+
+			case PathType::Long:
+				return {
+					TreeNodePath(std::vector<uint8_t>{
+						0x64, 0x6F, 0x67, 0x00, 0x19, 0xA3, 0xBC, 0x74,
+						0x24, 0x82, 0x3C, 0x98, 0x79, 0x25, 0xD4, 0x60,
+						0xFC, 0xEE
+					}).subpath(0, 35),
+					{
+						0x36, 0x46, 0xF6, 0x70, 0x01, 0x9A, 0x3B, 0xC7,
+						0x42, 0x48, 0x23, 0xC9, 0x87, 0x92, 0x5D, 0x46,
+						0x0F, 0xCE
+					}
+				};
+
+			case PathType::Ending_On_Boundary:
+				return {
+					TreeNodePath(std::vector<uint8_t>{
+						0x64, 0x6F, 0x67, 0x00, 0x19, 0xA3, 0xBC, 0x74,
+						0x24, 0x82, 0x3C, 0x98, 0x79, 0x25, 0xD4, 0x60
+					}).subpath(0, 31),
+					{
+						0x36, 0x46, 0xF6, 0x70, 0x01, 0x9A, 0x3B, 0xC7,
+						0x42, 0x48, 0x23, 0xC9, 0x87, 0x92, 0x5D, 0x46
+					}
+				};
+			}
+
+			CATAPULT_THROW_INVALID_ARGUMENT_1("unknown path type was requested", static_cast<int>(type));
+		}
+	}
+
+	// endregion
+
 	// region LeafTreeNode
 
 	namespace {
@@ -38,48 +121,47 @@ namespace catapult { namespace tree {
 			builder.final(hash);
 			return hash;
 		}
+
+		void AssertCanCreateLeafNodeWithPath(const TreeNodePathTestCase& testCase) {
+			// Act:
+			auto value = test::GenerateRandomByteArray<Hash256>();
+			auto node = LeafTreeNode(testCase.Path, value);
+
+			// Assert:
+			EXPECT_EQ(testCase.Path, node.path());
+			EXPECT_EQ(value, node.value());
+
+			auto expectedHash = CalculateLeafNodeHash(testCase.RawPath, value);
+			EXPECT_EQ(expectedHash, node.hash());
+		}
 	}
 
-	TEST(TEST_CLASS, CanCreateLeafNodeWithEmptyPath) {
-		// Act:
-		auto path = TreeNodePath();
-		auto value = test::GenerateRandomByteArray<Hash256>();
-		auto node = LeafTreeNode(path, value);
-
-		// Assert:
-		EXPECT_EQ(path, node.path());
-		EXPECT_EQ(value, node.value());
-
-		auto expectedHash = CalculateLeafNodeHash({ 0x20 }, value);
-		EXPECT_EQ(expectedHash, node.hash());
+	TEST(TEST_CLASS, CanCreateLeafTreeNodeWithEmptyPath) {
+		AssertCanCreateLeafNodeWithPath({ TreeNodePath(), { 0x20 } });
 	}
 
-	TEST(TEST_CLASS, CanCreateLeafNodeWithEvenPath) {
-		// Act:
-		auto path = TreeNodePath(0x64'6F'67'00);
-		auto value = test::GenerateRandomByteArray<Hash256>();
-		auto node = LeafTreeNode(path, value);
-
-		// Assert:
-		EXPECT_EQ(path, node.path());
-		EXPECT_EQ(value, node.value());
-
-		auto expectedHash = CalculateLeafNodeHash({ 0x20, 0x64, 0x6F, 0x67, 0x00 }, value);
-		EXPECT_EQ(expectedHash, node.hash());
+	TEST(TEST_CLASS, CanCreateLeafTreeNodeWithEvenPath) {
+		AssertCanCreateLeafNodeWithPath(GetEvenTreeNodePathTestCase(PathType::Short));
 	}
 
-	TEST(TEST_CLASS, CanCreateLeafNodeWithOddPath) {
-		// Act:
-		auto path = TreeNodePath(0x64'6F'67'00);
-		auto value = test::GenerateRandomByteArray<Hash256>();
-		auto node = LeafTreeNode(path.subpath(0, 5), value);
+	TEST(TEST_CLASS, CanCreateLeafTreeNodeWithEvenPath_MultipleWorkingBuffers) {
+		AssertCanCreateLeafNodeWithPath(GetEvenTreeNodePathTestCase(PathType::Long));
+	}
 
-		// Assert:
-		EXPECT_EQ(path.subpath(0, 5), node.path());
-		EXPECT_EQ(value, node.value());
+	TEST(TEST_CLASS, CanCreateLeafTreeNodeWithEvenPath_EndingOnWorkingBufferBoundary) {
+		AssertCanCreateLeafNodeWithPath(GetEvenTreeNodePathTestCase(PathType::Ending_On_Boundary));
+	}
 
-		auto expectedHash = CalculateLeafNodeHash({ 0x36, 0x46, 0xF6 }, value);
-		EXPECT_EQ(expectedHash, node.hash());
+	TEST(TEST_CLASS, CanCreateLeafTreeNodeWithOddPath) {
+		AssertCanCreateLeafNodeWithPath(GetOddTreeNodePathTestCase(PathType::Short));
+	}
+
+	TEST(TEST_CLASS, CanCreateLeafTreeNodeWithOddPath_MultipleWorkingBuffers) {
+		AssertCanCreateLeafNodeWithPath(GetOddTreeNodePathTestCase(PathType::Long));
+	}
+
+	TEST(TEST_CLASS, CanCreateLeafTreeNodeWithOddPath_EndingOnWorkingBufferBoundary) {
+		AssertCanCreateLeafNodeWithPath(GetOddTreeNodePathTestCase(PathType::Ending_On_Boundary));
 	}
 
 	// endregion
@@ -135,43 +217,50 @@ namespace catapult { namespace tree {
 
 	// region BranchTreeNode - constructor
 
+	namespace {
+		void AssertCanCreateBranchNodeWithPath(const TreeNodePathTestCase& testCase) {
+			// Act:
+			auto node = BranchTreeNode(testCase.Path);
+
+			// Assert:
+			EXPECT_EQ(testCase.Path, node.path());
+			AssertNoLinks(node);
+
+			// - strip leaf flag from raw path
+			auto rawPath = testCase.RawPath;
+			rawPath[0] = static_cast<uint8_t>(rawPath[0] & ~0x20);
+
+			auto expectedHash = CalculateEmptyBranchNodeHash(rawPath);
+			EXPECT_EQ(expectedHash, node.hash());
+		}
+	}
+
 	TEST(TEST_CLASS, CanCreateBranchTreeNodeWithEmptyPath) {
-		// Act:
-		auto path = TreeNodePath();
-		auto node = BranchTreeNode(path);
-
-		// Assert:
-		EXPECT_EQ(path, node.path());
-		AssertNoLinks(node);
-
-		auto expectedHash = CalculateEmptyBranchNodeHash({ 0x00 });
-		EXPECT_EQ(expectedHash, node.hash());
+		AssertCanCreateBranchNodeWithPath({ TreeNodePath(), { 0x00 } });
 	}
 
 	TEST(TEST_CLASS, CanCreateBranchTreeNodeWithEvenPath) {
-		// Act:
-		auto path = TreeNodePath(0x64'6F'67'00);
-		auto node = BranchTreeNode(path);
+		AssertCanCreateBranchNodeWithPath(GetEvenTreeNodePathTestCase(PathType::Short));
+	}
 
-		// Assert:
-		EXPECT_EQ(path, node.path());
-		AssertNoLinks(node);
+	TEST(TEST_CLASS, CanCreateBranchTreeNodeWithEvenPath_MultipleWorkingBuffers) {
+		AssertCanCreateBranchNodeWithPath(GetEvenTreeNodePathTestCase(PathType::Long));
+	}
 
-		auto expectedHash = CalculateEmptyBranchNodeHash({ 0x00, 0x64, 0x6F, 0x67, 0x00 });
-		EXPECT_EQ(expectedHash, node.hash());
+	TEST(TEST_CLASS, CanCreateBranchTreeNodeWithEvenPath_EndingOnWorkingBufferBoundary) {
+		AssertCanCreateBranchNodeWithPath(GetEvenTreeNodePathTestCase(PathType::Ending_On_Boundary));
 	}
 
 	TEST(TEST_CLASS, CanCreateBranchTreeNodeWithOddPath) {
-		// Act:
-		auto path = TreeNodePath(0x64'6F'67'00);
-		auto node = BranchTreeNode(path.subpath(0, 5));
+		AssertCanCreateBranchNodeWithPath(GetOddTreeNodePathTestCase(PathType::Short));
+	}
 
-		// Assert:
-		EXPECT_EQ(path.subpath(0, 5), node.path());
-		AssertNoLinks(node);
+	TEST(TEST_CLASS, CanCreateBranchTreeNodeWithOddPath_MultipleWorkingBuffers) {
+		AssertCanCreateBranchNodeWithPath(GetOddTreeNodePathTestCase(PathType::Long));
+	}
 
-		auto expectedHash = CalculateEmptyBranchNodeHash({ 0x16, 0x46, 0xF6 });
-		EXPECT_EQ(expectedHash, node.hash());
+	TEST(TEST_CLASS, CanCreateBranchTreeNodeWithOddPath_EndingOnWorkingBufferBoundary) {
+		AssertCanCreateBranchNodeWithPath(GetOddTreeNodePathTestCase(PathType::Ending_On_Boundary));
 	}
 
 	// endregion
