@@ -1,7 +1,10 @@
 import "state/lock_info.cats"
+import "state/state_header.cats"
 
 # binary layout for hash lock transaction info
 struct HashLockInfo
+	inline StateHeader
+
 	# owner address
 	ownerAddress = Address
 

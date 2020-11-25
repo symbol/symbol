@@ -1,8 +1,11 @@
 import "lock_secret/lock_secret_types.cats"
 import "state/lock_info.cats"
+import "state/state_header.cats"
 
 # binary layout for serialized lock transaction
 struct SecretLockInfo
+	inline StateHeader
+
 	# owner address
 	ownerAddress = Address
 

@@ -1,4 +1,5 @@
 import "state/restriction_mosaic_types.cats"
+import "state/state_header.cats"
 
 # binary layout for a mosaic restriction
 struct MosaicAddressRestrictionEntry
@@ -21,6 +22,8 @@ struct MosaicGlobalRestrictionEntry
 
 # binary layout for a mosaic restriction
 struct MosaicRestrictionEntry
+	inline StateHeader
+
 	# type of restriction being placed upon the entity
 	entryType = MosaicRestrictionEntryType
 

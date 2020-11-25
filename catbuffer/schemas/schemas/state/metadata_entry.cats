@@ -1,8 +1,11 @@
 import "state/metadata_entry_types.cats"
+import "state/state_header.cats"
 import "namespace/namespace_types.cats"
 
 # binary layout of a metadata entry
 struct MetadataEntry
+	inline StateHeader
+
 	# metadata source address (provider)
 	sourceAddress = Address
 

@@ -1,4 +1,5 @@
 import "state/account_state_types.cats"
+import "state/state_header.cats"
 
 # account activity buckets
 struct HeightActivityBuckets
@@ -7,6 +8,8 @@ struct HeightActivityBuckets
 
 # binary layout for non-historical account state
 struct AccountState
+	inline StateHeader
+
 	# address of account
 	address = Address
 

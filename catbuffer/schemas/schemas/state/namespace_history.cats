@@ -1,8 +1,10 @@
-import "mosaic/mosaic_definition.cats"
 import "state/namespace_history_types.cats"
+import "state/state_header.cats"
 
 # binary layout for non-historical root namespace history
 struct RootNamespaceHistory
+	inline StateHeader
+
 	# id of the root namespace history
 	id = NamespaceId
 

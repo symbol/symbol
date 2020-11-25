@@ -1,7 +1,10 @@
 import "types.cats"
+import "state/state_header.cats"
 
 # binary layout for a multisig entry
 struct MultisigEntry
+	inline StateHeader
+
 	# minimum approval for modifications
 	minApproval = uint32
 
