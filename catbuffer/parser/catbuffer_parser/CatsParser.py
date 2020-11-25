@@ -103,7 +103,7 @@ class CatsParser(ScopeManager):
                     condition_field_name = property_type_descriptor['condition']
                     condition_type_descriptor = next(
                         descriptor for descriptor in new_type_layout
-                        if descriptor['name'] == condition_field_name
+                        if 'name' in descriptor and descriptor['name'] == condition_field_name
                     )
 
                     self._require_enum_type_with_value(condition_type_descriptor['type'], property_type_descriptor['condition_value'])

@@ -194,25 +194,61 @@ class CatsParserTests(unittest.TestCase):
             'using Circ = uint16',
             'using Perm = uint16',
             'struct Enclosing',
-            '\tenclosingType = Shape',
+            '\tdiscriminator = Shape',
             '\t# u part 1',
-            '\tcircumference = Circ if enclosingType has circle',
+            '\tcircumference = Circ if discriminator has circle',
             '\t# union pt 2',
-            '\tperimiter = Perm if enclosingType equals rectangle'
+            '\tperimiter = Perm if discriminator equals rectangle'
         ])
 
         # Assert:
         self.assertEqual(4, len(type_descriptors))
         self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'enclosingType', 'type': 'Shape', 'comments': ''},
+            {'name': 'discriminator', 'type': 'Shape', 'comments': ''},
             {
                 'name': 'circumference', 'type': 'Circ',
-                'condition': 'enclosingType', 'condition_value': 'circle', 'condition_operation': 'has',
+                'condition': 'discriminator', 'condition_value': 'circle', 'condition_operation': 'has',
                 'comments': 'u part 1'
             },
             {
                 'name': 'perimiter', 'type': 'Perm',
-                'condition': 'enclosingType', 'condition_value': 'rectangle', 'condition_operation': 'equals',
+                'condition': 'discriminator', 'condition_value': 'rectangle', 'condition_operation': 'equals',
+                'comments': 'union pt 2'
+            }
+        ]})
+
+    def test_can_parse_struct_conditional_types_with_inline_member(self):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tcircle = 4',
+            '\trectangle = 9',
+            'using Circ = uint16',
+            'using Perm = uint16',
+            'struct Version',
+            '\tversion = uint16',
+            'struct Enclosing',
+            '\tinline Version',
+            '\tdiscriminator = Shape',
+            '\t# u part 1',
+            '\tcircumference = Circ if discriminator has circle',
+            '\t# union pt 2',
+            '\tperimiter = Perm if discriminator equals rectangle'
+        ])
+
+        # Assert:
+        self.assertEqual(5, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'type': 'Version', 'disposition': 'inline', 'comments': ''},
+            {'name': 'discriminator', 'type': 'Shape', 'comments': ''},
+            {
+                'name': 'circumference', 'type': 'Circ',
+                'condition': 'discriminator', 'condition_value': 'circle', 'condition_operation': 'has',
+                'comments': 'u part 1'
+            },
+            {
+                'name': 'perimiter', 'type': 'Perm',
+                'condition': 'discriminator', 'condition_value': 'rectangle', 'condition_operation': 'equals',
                 'comments': 'union pt 2'
             }
         ]})
@@ -227,10 +263,10 @@ class CatsParserTests(unittest.TestCase):
             'using Perm = uint16',
             'struct Enclosing',
             '\t# u part 1',
-            '\tcircumference = Circ if enclosingType has circle',
+            '\tcircumference = Circ if discriminator has circle',
             '\t# union pt 2',
-            '\tperimiter = Perm if enclosingType equals rectangle',
-            '\tenclosingType = Shape'
+            '\tperimiter = Perm if discriminator equals rectangle',
+            '\tdiscriminator = Shape'
         ])
 
         # Assert:
@@ -238,15 +274,15 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
             {
                 'name': 'circumference', 'type': 'Circ',
-                'condition': 'enclosingType', 'condition_value': 'circle', 'condition_operation': 'has',
+                'condition': 'discriminator', 'condition_value': 'circle', 'condition_operation': 'has',
                 'comments': 'u part 1'
             },
             {
                 'name': 'perimiter', 'type': 'Perm',
-                'condition': 'enclosingType', 'condition_value': 'rectangle', 'condition_operation': 'equals',
+                'condition': 'discriminator', 'condition_value': 'rectangle', 'condition_operation': 'equals',
                 'comments': 'union pt 2'
             },
-            {'name': 'enclosingType', 'type': 'Shape', 'comments': ''}
+            {'name': 'discriminator', 'type': 'Shape', 'comments': ''}
         ]})
 
     def test_can_parse_struct_array_types(self):
@@ -402,8 +438,8 @@ class CatsParserTests(unittest.TestCase):
             'using Shape = uint8',
             'using Circ = uint16',
             'struct Enclosing',
-            '\tenclosingType = Shape',
-            '\tcircumference = Circ if enclosingType equals 123'
+            '\tdiscriminator = Shape',
+            '\tcircumference = Circ if discriminator equals 123'
         ])
 
     def test_cannot_parse_struct_with_unknown_condition_value(self):
@@ -413,8 +449,8 @@ class CatsParserTests(unittest.TestCase):
             '\tcircle = 1',
             'using Circ = uint16',
             'struct Enclosing',
-            '\tenclosingType = Shape',
-            '\tcircumference = Circ if enclosingType equals hexagon'
+            '\tdiscriminator = Shape',
+            '\tcircumference = Circ if discriminator equals hexagon'
         ])
 
     def test_cannot_parse_struct_with_unknown_array_size(self):
