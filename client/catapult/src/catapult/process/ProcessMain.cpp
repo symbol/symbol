@@ -25,6 +25,7 @@
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/config/ValidateConfiguration.h"
+#include "catapult/crypto/OpensslMemory.h"
 #include "catapult/io/FileLock.h"
 #include "catapult/thread/ThreadInfo.h"
 #include "catapult/utils/ExceptionLogging.h"
@@ -109,6 +110,8 @@ namespace catapult { namespace process {
 		std::set_terminate(&TerminateHandler);
 		thread::SetThreadName(host + " catapult");
 		version::WriteVersionInformation(std::cout);
+
+		crypto::SetupOpensslMemoryFunctions();
 
 		// 1. load and validate the configuration
 		auto config = LoadConfiguration(argc, argv, host);
