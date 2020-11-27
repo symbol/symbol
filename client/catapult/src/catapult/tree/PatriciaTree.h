@@ -303,13 +303,12 @@ namespace catapult { namespace tree {
 			}
 
 			// if the node is a branch, save and prune all its links
-			auto branchNode = BranchTreeNode(node.asBranchNode());
+			auto branchNode = node.asBranchNode();
 			for (auto i = 0u; i < BranchTreeNode::Max_Links; ++i) {
-				auto linkedNode = branchNode.linkedNode(i);
-				if (linkedNode.empty())
+				if (!branchNode.hasLinkedNode(i))
 					continue;
 
-				saveAll(linkedNode);
+				saveAll(branchNode.linkedNode(i));
 			}
 
 			branchNode.compactLinks();

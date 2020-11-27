@@ -186,6 +186,8 @@ namespace catapult { namespace tree {
 		void AssertHashLink(const BranchTreeNode& node, size_t index, const Hash256& expectedLink) {
 			auto message = "link at " + std::to_string(index);
 			EXPECT_TRUE(node.hasLink(index)) << message;
+			EXPECT_FALSE(node.hasLinkedNode(index)) << message;
+
 			EXPECT_EQ(expectedLink, node.link(index)) << message;
 			EXPECT_TRUE(node.linkedNode(index).empty()) << message;
 		}
@@ -193,6 +195,8 @@ namespace catapult { namespace tree {
 		void AssertNodeLink(const BranchTreeNode& node, size_t index, const Hash256& expectedLink) {
 			auto message = "link at " + std::to_string(index);
 			EXPECT_TRUE(node.hasLink(index)) << message;
+			EXPECT_TRUE(node.hasLinkedNode(index)) << message;
+
 			EXPECT_EQ(expectedLink, node.link(index)) << message;
 			EXPECT_FALSE(node.linkedNode(index).empty()) << message;
 			EXPECT_EQ(expectedLink, node.linkedNode(index).hash()) << message;
@@ -202,6 +206,8 @@ namespace catapult { namespace tree {
 			for (auto i = start; i <= end; ++i) {
 				auto message = "link at " + std::to_string(i);
 				EXPECT_FALSE(node.hasLink(i)) << message;
+				EXPECT_FALSE(node.hasLinkedNode(i)) << message;
+
 				EXPECT_EQ(Hash256(), node.link(i)) << message;
 				EXPECT_TRUE(node.linkedNode(i).empty()) << message;
 			}

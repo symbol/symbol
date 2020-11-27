@@ -86,6 +86,10 @@ namespace catapult { namespace tree {
 		/// Returns \c true if this branch has a link at \a index.
 		bool hasLink(size_t index) const;
 
+		/// Returns \c true if this branch has a linked node at \a index.
+		/// \note Linked nodes are loaded on demand. Accordingly, if a node has a link, it might not have a linked node.
+		bool hasLinkedNode(size_t index) const;
+
 		/// Gets the branch link at \a index.
 		const Hash256& link(size_t index) const;
 

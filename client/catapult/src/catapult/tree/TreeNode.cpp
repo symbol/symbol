@@ -113,6 +113,10 @@ namespace catapult { namespace tree {
 		return m_linkSet.test(index);
 	}
 
+	bool BranchTreeNode::hasLinkedNode(size_t index) const {
+		return !!m_linkedNodes[index];
+	}
+
 	const Hash256& BranchTreeNode::link(size_t index) const {
 		const auto& pLinkedNode = m_linkedNodes[index];
 		return pLinkedNode ? pLinkedNode->hash() : m_links[index];
