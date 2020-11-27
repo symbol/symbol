@@ -48,6 +48,17 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region block type
+
+	model::EntityType CalculateBlockTypeFromHeight(Height height, uint64_t importanceGrouping) {
+		if (Height(1) == height)
+			return model::Entity_Type_Block_Nemesis;
+
+		return 0 == height.unwrap() % importanceGrouping ? model::Entity_Type_Block_Importance : model::Entity_Type_Block_Normal;
+	}
+
+	// endregion
+
 	// region block transactions info
 
 	namespace {

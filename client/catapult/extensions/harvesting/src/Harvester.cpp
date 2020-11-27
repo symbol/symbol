@@ -71,13 +71,6 @@ namespace catapult { namespace harvesting {
 		void AddGenerationHashProof(model::Block& block, const crypto::VrfProof& vrfProof) {
 			block.GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
 		}
-
-		model::EntityType HeightToBlockType(const model::BlockChainConfiguration& config, Height height) {
-			// note: voting set grouping is multiple of importance grouping
-			return (0 == height.unwrap() % config.ImportanceGrouping)
-					? model::Entity_Type_Block_Importance
-					: model::Entity_Type_Block_Normal;
-		}
 	}
 
 	Harvester::Harvester(
@@ -136,7 +129,7 @@ namespace catapult { namespace harvesting {
 		utils::StackLogger stackLogger("generating candidate block", utils::LogLevel::debug);
 		auto pBlockHeader = CreateUnsignedBlockHeader(
 				context,
-				HeightToBlockType(m_config, context.Height),
+				model::CalculateBlockTypeFromHeight(context.Height, m_config.ImportanceGrouping),
 				m_config.Network.Identifier,
 				pHarvesterKeyPair->publicKey(),
 				m_beneficiary);

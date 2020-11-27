@@ -20,23 +20,15 @@
 **/
 
 #include "Validators.h"
+#include "catapult/model/BlockUtils.h"
 
 namespace catapult { namespace validators {
 
 	using Notification = model::BlockTypeNotification;
 
-	namespace {
-		model::EntityType CalculateExpectedBlockType(Height height, uint64_t importanceGrouping) {
-			if (Height(1) == height)
-				return model::Entity_Type_Block_Nemesis;
-
-			return 0 == height.unwrap() % importanceGrouping ? model::Entity_Type_Block_Importance : model::Entity_Type_Block_Normal;
-		}
-	}
-
 	DECLARE_STATELESS_VALIDATOR(BlockType, Notification)(uint64_t importanceGrouping) {
 		return MAKE_STATELESS_VALIDATOR(BlockType, [importanceGrouping](const Notification& notification) {
-			auto expectedBlockType = CalculateExpectedBlockType(notification.BlockHeight, importanceGrouping);
+			auto expectedBlockType = model::CalculateBlockTypeFromHeight(notification.BlockHeight, importanceGrouping);
 			return expectedBlockType == notification.BlockType ? ValidationResult::Success : Failure_Core_Unexpected_Block_Type;
 		});
 	}

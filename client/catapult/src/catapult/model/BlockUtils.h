@@ -36,6 +36,13 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region block type
+
+	/// Calculates the block type at \a height given \a importanceGrouping.
+	model::EntityType CalculateBlockTypeFromHeight(Height height, uint64_t importanceGrouping);
+
+	// endregion
+
 	// region block transactions info
 
 	/// Information about transactions stored in a block.

@@ -178,6 +178,42 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region block type
+
+	TEST(TEST_CLASS, CalculateBlockTypeFromHeight_HeightZero_MustBeImportanceBlock) {
+		EXPECT_EQ(Entity_Type_Block_Importance, CalculateBlockTypeFromHeight(Height(0), 50));
+
+		EXPECT_EQ(Entity_Type_Block_Importance, CalculateBlockTypeFromHeight(Height(0), 123));
+	}
+
+	TEST(TEST_CLASS, CalculateBlockTypeFromHeight_HeightOne_MustBeNemesisBlock) {
+		EXPECT_EQ(Entity_Type_Block_Nemesis, CalculateBlockTypeFromHeight(Height(1), 50));
+
+		EXPECT_EQ(Entity_Type_Block_Nemesis, CalculateBlockTypeFromHeight(Height(1), 123));
+	}
+
+	TEST(TEST_CLASS, CalculateBlockTypeFromHeight_HeightImportanceGrouping_MustBeImportanceBlock) {
+		EXPECT_EQ(Entity_Type_Block_Importance, CalculateBlockTypeFromHeight(Height(150), 50));
+		EXPECT_EQ(Entity_Type_Block_Importance, CalculateBlockTypeFromHeight(Height(300), 50));
+
+		EXPECT_EQ(Entity_Type_Block_Importance, CalculateBlockTypeFromHeight(Height(123), 123));
+		EXPECT_EQ(Entity_Type_Block_Importance, CalculateBlockTypeFromHeight(Height(246), 123));
+	}
+
+	TEST(TEST_CLASS, CalculateBlockTypeFromHeight_HeightNotImportanceGrouping_MustBeNormalBlock) {
+		EXPECT_EQ(Entity_Type_Block_Normal, CalculateBlockTypeFromHeight(Height(25), 50));
+		EXPECT_EQ(Entity_Type_Block_Normal, CalculateBlockTypeFromHeight(Height(49), 50));
+		EXPECT_EQ(Entity_Type_Block_Normal, CalculateBlockTypeFromHeight(Height(51), 50));
+		EXPECT_EQ(Entity_Type_Block_Normal, CalculateBlockTypeFromHeight(Height(75), 50));
+
+		EXPECT_EQ(Entity_Type_Block_Normal, CalculateBlockTypeFromHeight(Height(100), 123));
+		EXPECT_EQ(Entity_Type_Block_Normal, CalculateBlockTypeFromHeight(Height(122), 123));
+		EXPECT_EQ(Entity_Type_Block_Normal, CalculateBlockTypeFromHeight(Height(124), 123));
+		EXPECT_EQ(Entity_Type_Block_Normal, CalculateBlockTypeFromHeight(Height(200), 123));
+	}
+
+	// endregion
+
 	// region block transactions info - CalculateBlockTransactionsInfo
 
 	namespace {
