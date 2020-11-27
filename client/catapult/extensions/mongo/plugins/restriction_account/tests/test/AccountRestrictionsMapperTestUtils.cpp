@@ -29,7 +29,7 @@ namespace catapult { namespace test {
 
 	void AssertRestrictionValues(const state::AccountRestriction& restriction, const bsoncxx::document::view& dbRestrictionValues) {
 		EXPECT_FALSE(restriction.values().empty());
-		EXPECT_EQ(restriction.values().size(), test::GetFieldCount(dbRestrictionValues));
+		EXPECT_EQ(restriction.values().size(), GetFieldCount(dbRestrictionValues));
 		for (const auto& dbRestrictionValue : dbRestrictionValues) {
 			auto valueSize = restriction.valueSize();
 			ASSERT_EQ(valueSize, dbRestrictionValue.get_binary().size);
@@ -43,7 +43,10 @@ namespace catapult { namespace test {
 	void AssertEqualAccountRestrictionsData(
 			const state::AccountRestrictions& restrictions,
 			const bsoncxx::document::view& dbAccountRestrictions) {
-		EXPECT_EQ(restrictions.address(), test::GetAddressValue(dbAccountRestrictions, "address"));
+		EXPECT_EQ(3u, GetFieldCount(dbAccountRestrictions));
+		EXPECT_EQ(1u, GetUint32(dbAccountRestrictions, "version"));
+
+		EXPECT_EQ(restrictions.address(), GetAddressValue(dbAccountRestrictions, "address"));
 
 		// note that only restrictions that are not empty should have been saved to the mongo db
 		auto dbRestrictions = dbAccountRestrictions["restrictions"].get_array().value;
@@ -51,11 +54,11 @@ namespace catapult { namespace test {
 		for (const auto& pair : restrictions)
 			numRestrictionsWithValues += pair.second.values().empty() ? 0 : 1;
 
-		ASSERT_EQ(numRestrictionsWithValues, test::GetFieldCount(dbRestrictions));
+		ASSERT_EQ(numRestrictionsWithValues, GetFieldCount(dbRestrictions));
 
 		for (const auto& dbRestriction : dbRestrictions) {
 			auto dbRestrictionView = dbRestriction.get_document().view();
-			auto restrictionFlags = model::AccountRestrictionFlags(test::GetUint32(dbRestrictionView, "restrictionFlags"));
+			auto restrictionFlags = model::AccountRestrictionFlags(GetUint32(dbRestrictionView, "restrictionFlags"));
 			auto descriptor = state::AccountRestrictionDescriptor(restrictionFlags);
 			const auto& restriction = restrictions.restriction(restrictionFlags);
 			EXPECT_EQ(restriction.descriptor().raw(), descriptor.raw());

@@ -36,6 +36,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		bson_stream::document builder;
 		auto doc = builder
 				<< "metadataEntry" << bson_stream::open_document
+					<< "version" << 1
 					<< "compositeHash" << ToBinary(key.uniqueKey())
 					<< "sourceAddress" << ToBinary(key.sourceAddress())
 					<< "targetAddress" << ToBinary(key.targetAddress())

@@ -44,6 +44,7 @@ namespace catapult { namespace mongo { namespace storages {
 			using ModelType = state::AccountState;
 
 			static constexpr auto Collection_Name = "accounts";
+			static constexpr auto Primary_Document_Name = "account";
 			static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
 			static constexpr auto CreateCacheStorage = CreateMongoAccountStateCacheStorage;
 
@@ -95,11 +96,13 @@ namespace catapult { namespace mongo { namespace storages {
 			}
 
 			static auto GetFindFilter(const ModelType& accountState) {
-				return document() << "account.address" << mappers::ToBinary(accountState.Address) << finalize;
+				return document()
+						<< std::string(Primary_Document_Name) + ".address" << mappers::ToBinary(accountState.Address)
+						<< finalize;
 			}
 
 			static void AssertEqual(const ModelType& accountState, const bsoncxx::document::view& view) {
-				test::AssertEqualAccountState(accountState, view["account"].get_document().view());
+				test::AssertEqualAccountState(accountState, view[Primary_Document_Name].get_document().view());
 			}
 		};
 	}

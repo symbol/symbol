@@ -41,7 +41,6 @@ namespace catapult { namespace mongo { namespace plugins {
 			EXPECT_EQ(1u, test::GetFieldCount(view));
 
 			auto accountRestrictionsView = view["accountRestrictions"].get_document().view();
-			EXPECT_EQ(2u, test::GetFieldCount(accountRestrictionsView));
 
 			size_t numRestrictionValues = 0u;
 			for (const auto& pair : restrictions)

@@ -38,6 +38,8 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualMultisigData(const state::MultisigEntry& entry, const bsoncxx::document::view& dbMultisig) {
+		EXPECT_EQ(6u, GetFieldCount(dbMultisig));
+		EXPECT_EQ(1u, GetUint32(dbMultisig, "version"));
 
 		EXPECT_EQ(entry.address(), GetAddressValue(dbMultisig, "accountAddress"));
 		EXPECT_EQ(entry.minApproval(), GetUint32(dbMultisig, "minApproval"));

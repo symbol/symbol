@@ -42,6 +42,9 @@ namespace catapult { namespace test {
 
 	void AssertEqualNamespaceData(const mongo::plugins::NamespaceDescriptor& descriptor, const bsoncxx::document::view& dbNamespace) {
 		auto depth = descriptor.Path.size();
+		EXPECT_EQ(8u + depth, GetFieldCount(dbNamespace));
+		EXPECT_EQ(1u, GetUint32(dbNamespace, "version"));
+
 		auto isRoot = 1 == depth;
 		EXPECT_EQ(isRoot ? Root_Type : Child_Type, GetUint32(dbNamespace, "registrationType"));
 		EXPECT_EQ(depth, GetUint32(dbNamespace, "depth"));

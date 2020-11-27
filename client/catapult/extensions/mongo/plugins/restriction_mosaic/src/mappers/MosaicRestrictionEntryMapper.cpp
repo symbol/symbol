@@ -73,6 +73,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		bson_stream::document builder;
 		auto doc = builder
 				<< "mosaicRestrictionEntry" << bson_stream::open_document
+					<< "version" << 1
 					<< "compositeHash" << ToBinary(restrictionEntry.uniqueKey())
 					<< "entryType" << utils::to_underlying_type(restrictionEntry.entryType());
 

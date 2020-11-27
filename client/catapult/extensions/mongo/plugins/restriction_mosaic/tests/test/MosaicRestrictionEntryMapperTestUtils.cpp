@@ -40,7 +40,8 @@ namespace catapult { namespace test {
 	void MosaicAddressRestrictionTestTraits::AssertEqualRestriction(
 			const state::MosaicRestrictionEntry& restrictionEntry,
 			const bsoncxx::document::view& dbRestrictionEntry) {
-		EXPECT_EQ(5u, GetFieldCount(dbRestrictionEntry));
+		EXPECT_EQ(6u, GetFieldCount(dbRestrictionEntry));
+		EXPECT_EQ(1u, GetUint32(dbRestrictionEntry, "version"));
 
 		const auto& restriction = restrictionEntry.asAddressRestriction();
 		auto compositeHash = restrictionEntry.uniqueKey();
@@ -81,7 +82,8 @@ namespace catapult { namespace test {
 	void MosaicGlobalRestrictionTestTraits::AssertEqualRestriction(
 			const state::MosaicRestrictionEntry& restrictionEntry,
 			const bsoncxx::document::view& dbRestrictionEntry) {
-		EXPECT_EQ(4u, GetFieldCount(dbRestrictionEntry));
+		EXPECT_EQ(5u, GetFieldCount(dbRestrictionEntry));
+		EXPECT_EQ(1u, GetUint32(dbRestrictionEntry, "version"));
 
 		const auto& restriction = restrictionEntry.asGlobalRestriction();
 		auto compositeHash = restrictionEntry.uniqueKey();

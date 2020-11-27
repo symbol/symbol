@@ -83,6 +83,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			using ModelType = NamespaceDescriptor;
 
 			static constexpr auto Collection_Name = "namespaces";
+			static constexpr auto Primary_Document_Name = "namespace";
 			static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
 			static constexpr auto CreateCacheStorage = CreateMongoNamespaceCacheStorage;
 
@@ -116,7 +117,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static void AssertEqual(const ModelType& descriptor, const bsoncxx::document::view& view) {
-				test::AssertEqualNamespaceData(descriptor, view["namespace"].get_document().view());
+				test::AssertEqualNamespaceData(descriptor, view[Primary_Document_Name].get_document().view());
 			}
 		};
 	}

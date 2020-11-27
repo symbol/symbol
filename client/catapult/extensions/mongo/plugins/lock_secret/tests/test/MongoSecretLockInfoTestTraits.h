@@ -30,9 +30,6 @@ namespace catapult { namespace test {
 
 	/// Mongo traits for a secret lock info.
 	struct MongoSecretLockInfoTestTraits : public BasicSecretLockInfoTestTraits {
-		/// Number of additional fields.
-		static constexpr size_t Num_Additional_Fields = 4;
-
 		/// Creates a catapult cache.
 		static cache::CatapultCache CreateCatapultCache();
 

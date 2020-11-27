@@ -38,6 +38,8 @@ namespace catapult { namespace test {
 
 	/// Asserts that \a lockInfo is equal to \a dbLockInfo.
 	inline void AssertEqualBaseLockInfoData(const state::LockInfo& lockInfo, const bsoncxx::document::view& dbLockInfo) {
+		EXPECT_EQ(1u, GetUint32(dbLockInfo, "version"));
+
 		EXPECT_EQ(lockInfo.OwnerAddress, GetAddressValue(dbLockInfo, "ownerAddress"));
 		EXPECT_EQ(lockInfo.MosaicId, MosaicId(GetUint64(dbLockInfo, "mosaicId")));
 		EXPECT_EQ(lockInfo.Amount, Amount(GetUint64(dbLockInfo, "amount")));

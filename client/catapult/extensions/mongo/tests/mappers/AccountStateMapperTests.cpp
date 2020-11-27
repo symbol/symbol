@@ -84,7 +84,6 @@ namespace catapult { namespace mongo { namespace mappers {
 			EXPECT_EQ(1u, test::GetFieldCount(view));
 
 			auto accountView = view["account"].get_document().view();
-			EXPECT_EQ(9u, test::GetFieldCount(accountView));
 			test::AssertEqualAccountState(accountState, accountView);
 		}
 	}

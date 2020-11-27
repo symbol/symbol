@@ -40,6 +40,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			using ModelType = state::MosaicEntry;
 
 			static constexpr auto Collection_Name = "mosaics";
+			static constexpr auto Primary_Document_Name = "mosaic";
 			static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
 			static constexpr auto CreateCacheStorage = CreateMongoMosaicCacheStorage;
 
@@ -73,11 +74,11 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static auto GetFindFilter(const ModelType& mosaicEntry) {
-				return document() << "mosaic.id" << mappers::ToInt64(mosaicEntry.mosaicId()) << finalize;
+				return document() << std::string(Primary_Document_Name) + ".id" << mappers::ToInt64(mosaicEntry.mosaicId()) << finalize;
 			}
 
 			static void AssertEqual(const ModelType& mosaicEntry, const bsoncxx::document::view& view) {
-				test::AssertEqualMosaicData(mosaicEntry, view["mosaic"].get_document().view());
+				test::AssertEqualMosaicData(mosaicEntry, view[Primary_Document_Name].get_document().view());
 			}
 		};
 	}

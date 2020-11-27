@@ -20,7 +20,6 @@
 **/
 
 #pragma once
-#include "MapperTestUtils.h"
 #include "MongoTestUtils.h"
 #include "mongo/src/MongoStorageContext.h"
 
@@ -75,13 +74,16 @@ namespace catapult { namespace test {
 
 	private:
 		static void AssertDbContains(mongocxx::database& database, const ElementType& element) {
+			// Assert: database contains matching element
 			auto filter = TTraits::GetFindFilter(element);
 			auto matchedDocument = database[TTraits::Collection_Name].find_one(filter.view());
 			ASSERT_TRUE(matchedDocument.has_value());
 
 			auto view = matchedDocument.value().view();
 			TTraits::AssertEqual(element, view);
-			EXPECT_EQ(1u, GetUint32(view["meta"], "version"));
+
+			// - all required properties are set
+			EXPECT_TRUE(!!view[TTraits::Primary_Document_Name].get_document().view()["version"]);
 		}
 	};
 }}

@@ -29,6 +29,7 @@ namespace catapult { namespace mongo { namespace plugins {
 	/// Mongo lock info cache storage test traits.
 	template<typename TLockInfoTraits>
 	struct MongoLockInfoCacheStorageTestTraits : public TLockInfoTraits {
+		static constexpr auto Primary_Document_Name = "lock";
 		static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
 
 		/// Adds \a lockInfo to \a delta.
@@ -56,14 +57,14 @@ namespace catapult { namespace mongo { namespace plugins {
 		/// Gets a filter for finding \a lockInfo.
 		static auto GetFindFilter(const typename TLockInfoTraits::ModelType& lockInfo) {
 			return mappers::bson_stream::document()
-					<< std::string(TLockInfoTraits::Id_Property_Name)
+					<< std::string(Primary_Document_Name) + "." + std::string(TLockInfoTraits::Id_Property_Name)
 					<< mappers::ToBinary(TLockInfoTraits::GetId(lockInfo))
 					<< mappers::bson_stream::finalize;
 		}
 
 		/// Asserts that \a lockInfo and \a view are equal.
 		static void AssertEqual(const typename TLockInfoTraits::ModelType& lockInfo, const bsoncxx::document::view& view) {
-			TLockInfoTraits::AssertEqualLockInfoData(lockInfo, view["lock"].get_document().view());
+			TLockInfoTraits::AssertEqualLockInfoData(lockInfo, view[Primary_Document_Name].get_document().view());
 		}
 	};
 }}}

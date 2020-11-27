@@ -37,6 +37,9 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualMosaicData(const state::MosaicEntry& mosaicEntry, const bsoncxx::document::view& dbMosaicEntry) {
+		EXPECT_EQ(9u, GetFieldCount(dbMosaicEntry));
+		EXPECT_EQ(1u, GetUint32(dbMosaicEntry, "version"));
+
 		EXPECT_EQ(mosaicEntry.mosaicId(), MosaicId(GetUint64(dbMosaicEntry, "id")));
 		EXPECT_EQ(mosaicEntry.supply(), Amount(GetUint64(dbMosaicEntry, "supply")));
 

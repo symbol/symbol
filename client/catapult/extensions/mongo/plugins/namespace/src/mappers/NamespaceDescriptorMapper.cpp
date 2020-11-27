@@ -75,6 +75,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		StreamDescriptorMetadata(builder, descriptor);
 		builder
 				<< "namespace" << bson_stream::open_document
+					<< "version" << 1
 					<< "registrationType" << (descriptor.IsRoot() ? Root_Type : Child_Type)
 					<< "depth" << static_cast<int32_t>(path.size());
 

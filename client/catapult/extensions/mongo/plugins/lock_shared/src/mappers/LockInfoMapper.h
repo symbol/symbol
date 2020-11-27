@@ -40,6 +40,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			using namespace catapult::mongo::mappers;
 
 			builder
+					<< "version" << 1
 					<< "ownerAddress" << ToBinary(lockInfo.OwnerAddress)
 					<< "mosaicId" << ToInt64(lockInfo.MosaicId)
 					<< "amount" << ToInt64(lockInfo.Amount)

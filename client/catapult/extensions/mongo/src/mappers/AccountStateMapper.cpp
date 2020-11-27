@@ -132,6 +132,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		bson_stream::document builder;
 		builder
 				<< "account" << bson_stream::open_document
+					<< "version" << 1
 					<< "address" << ToBinary(accountState.Address)
 					<< "addressHeight" << ToInt64(accountState.AddressHeight)
 					<< "publicKey" << ToBinary(accountState.PublicKey)

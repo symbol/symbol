@@ -28,7 +28,8 @@ namespace catapult { namespace test {
 	void AssertEqualMetadataEntry(const state::MetadataEntry& metadataEntry, const bsoncxx::document::view& dbMetadataEntry) {
 		const auto& key = metadataEntry.key();
 		const auto& value = metadataEntry.value();
-		EXPECT_EQ(value.empty() ? 7u : 8u, GetFieldCount(dbMetadataEntry));
+		EXPECT_EQ(value.empty() ? 8u : 9u, GetFieldCount(dbMetadataEntry));
+		EXPECT_EQ(1u, GetUint32(dbMetadataEntry, "version"));
 
 		auto compositeHash = metadataEntry.key().uniqueKey();
 		EXPECT_EQ(compositeHash, GetHashValue(dbMetadataEntry, "compositeHash"));

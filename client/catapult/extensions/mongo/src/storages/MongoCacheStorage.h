@@ -23,7 +23,6 @@
 #include "mongo/src/MongoBulkWriter.h"
 #include "mongo/src/MongoStorageContext.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "mongo/src/mappers/StateVersionMapper.h"
 #include "catapult/thread/FutureUtils.h"
 #include <set>
 #include <unordered_set>
@@ -154,7 +153,7 @@ namespace catapult { namespace mongo { namespace storages {
 			}
 
 			auto insertResults = m_bulkWriter.bulkInsert(TCacheTraits::Collection_Name, allModels, [](const auto& model, auto) {
-				return mappers::AddStateVersion(TCacheTraits::MapToMongoDocument(model), 1);
+				return TCacheTraits::MapToMongoDocument(model);
 			}).get();
 
 			auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(insertResults)));
@@ -247,7 +246,7 @@ namespace catapult { namespace mongo { namespace storages {
 				return;
 
 			auto createDocument = [networkIdentifier = m_networkIdentifier](const auto* pModel, auto) {
-				return mappers::AddStateVersion(TCacheTraits::MapToMongoDocument(*pModel, networkIdentifier), 1);
+				return TCacheTraits::MapToMongoDocument(*pModel, networkIdentifier);
 			};
 			auto upsertResults = m_bulkWriter.bulkUpsert(TCacheTraits::Collection_Name, elements, createDocument, CreateFilter).get();
 			auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(upsertResults)));

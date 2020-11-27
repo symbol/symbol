@@ -41,6 +41,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			using ModelType = state::MosaicRestrictionEntry;
 
 			static constexpr auto Collection_Name = "mosaicRestrictions";
+			static constexpr auto Primary_Document_Name = "mosaicRestrictionEntry";
 			static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
 			static constexpr auto CreateCacheStorage = CreateMongoMosaicRestrictionCacheStorage;
 
@@ -60,7 +61,9 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static auto GetFindFilter(const ModelType& restrictionEntry) {
-				return document() << "mosaicRestrictionEntry.compositeHash" << mappers::ToBinary(restrictionEntry.uniqueKey()) << finalize;
+				return document()
+						<< std::string(Primary_Document_Name) + ".compositeHash" << mappers::ToBinary(restrictionEntry.uniqueKey())
+						<< finalize;
 			}
 		};
 
@@ -89,7 +92,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static void AssertEqual(const ModelType& restrictionEntry, const bsoncxx::document::view& view) {
-				auto dbRestrictionEntry = view["mosaicRestrictionEntry"].get_document().view();
+				auto dbRestrictionEntry = view[Primary_Document_Name].get_document().view();
 				test::MosaicAddressRestrictionTestTraits::AssertEqualRestriction(restrictionEntry, dbRestrictionEntry);
 			}
 		};
@@ -117,7 +120,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static void AssertEqual(const ModelType& restrictionEntry, const bsoncxx::document::view& view) {
-				auto dbRestrictionEntry = view["mosaicRestrictionEntry"].get_document().view();
+				auto dbRestrictionEntry = view[Primary_Document_Name].get_document().view();
 				test::MosaicGlobalRestrictionTestTraits::AssertEqualRestriction(restrictionEntry, dbRestrictionEntry);
 			}
 

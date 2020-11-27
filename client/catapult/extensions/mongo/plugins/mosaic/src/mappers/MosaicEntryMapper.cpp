@@ -44,6 +44,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		bson_stream::document builder;
 		auto doc = builder
 				<< "mosaic" << bson_stream::open_document
+					<< "version" << 1
 					<< "id" << ToInt64(mosaicEntry.mosaicId())
 					<< "supply" << ToInt64(mosaicEntry.supply())
 					<< "startHeight" << ToInt64(definition.startHeight())

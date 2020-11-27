@@ -260,6 +260,9 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualAccountState(const state::AccountState& accountState, const bsoncxx::document::view& dbAccount) {
+		EXPECT_EQ(10u, GetFieldCount(dbAccount));
+		EXPECT_EQ(1u, GetUint32(dbAccount, "version"));
+
 		EXPECT_EQ(accountState.Address, GetAddressValue(dbAccount, "address"));
 		EXPECT_EQ(accountState.AddressHeight, Height(GetUint64(dbAccount, "addressHeight")));
 		EXPECT_EQ(accountState.PublicKey, GetKeyValue(dbAccount, "publicKey"));

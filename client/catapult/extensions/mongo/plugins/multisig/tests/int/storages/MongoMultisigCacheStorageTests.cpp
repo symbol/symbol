@@ -45,6 +45,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			using ModelType = state::MultisigEntry;
 
 			static constexpr auto Collection_Name = "multisigs";
+			static constexpr auto Primary_Document_Name = "multisig";
 			static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
 			static constexpr auto CreateCacheStorage = CreateMongoMultisigCacheStorage;
 
@@ -86,11 +87,13 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static auto GetFindFilter(const ModelType& entry) {
-				return document() << "multisig.accountAddress" << mappers::ToBinary(entry.address()) << finalize;
+				return document()
+						<< std::string(Primary_Document_Name) + ".accountAddress" << mappers::ToBinary(entry.address())
+						<< finalize;
 			}
 
 			static void AssertEqual(const ModelType& entry, const bsoncxx::document::view& view) {
-				test::AssertEqualMultisigData(entry, view["multisig"].get_document().view());
+				test::AssertEqualMultisigData(entry, view[Primary_Document_Name].get_document().view());
 			}
 		};
 	}

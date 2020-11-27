@@ -92,7 +92,6 @@ namespace catapult { namespace mongo { namespace plugins {
 			test::AssertEqualNamespaceMetadata(descriptor, metaView);
 
 			auto namespaceView = documentView["namespace"].get_document().view();
-			EXPECT_EQ(7u + depth, test::GetFieldCount(namespaceView));
 			test::AssertEqualNamespaceData(descriptor, namespaceView);
 		}
 	}
