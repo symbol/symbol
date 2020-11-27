@@ -32,6 +32,17 @@ namespace catapult { namespace ionet {
 				ch = std::isprint(ch) ? ch : '?';
 		}
 
+		void CheckStringSize(const char* propertyName, const std::string& str) {
+			if (str.size() <= std::numeric_limits<uint8_t>::max())
+				return;
+
+			std::ostringstream out;
+			out
+					<< "cannot create node with " << propertyName << " greater than max size"
+					<< std::endl << str << " (size " << str.size() << ")";
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
+
 		std::string GetPrintableName(const Key& identityKey, const NodeEndpoint& endpoint, const NodeMetadata& metadata) {
 			std::ostringstream printableName;
 			if (metadata.Name.empty())
@@ -58,6 +69,10 @@ namespace catapult { namespace ionet {
 			, m_metadata(metadata) {
 		MakePrintable(m_metadata.Name);
 		MakePrintable(m_endpoint.Host);
+
+		CheckStringSize("metadata name", m_metadata.Name);
+		CheckStringSize("endpoint host", m_endpoint.Host);
+
 		m_printableName = GetPrintableName(m_identity.PublicKey, m_endpoint, m_metadata);
 	}
 

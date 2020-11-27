@@ -159,6 +159,64 @@ namespace catapult { namespace ionet {
 
 	// endregion
 
+	// region constructor (size validation)
+
+	namespace {
+		std::string MakeMessage(size_t endpointHostSize, size_t metadataNameSize) {
+			std::ostringstream message;
+			message << "endpointHostSize = " << endpointHostSize << ", metadataNameSize = " << metadataNameSize;
+			return message.str();
+		}
+
+		Node CreateNodeWithStrings(const std::string& endpointHost, const std::string& metadataName) {
+			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
+			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Private_Test, generationHashSeed);
+			return Node(
+				{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
+				{ endpointHost, 1234 },
+				{ networkFingerprint, metadataName, NodeVersion(7), NodeRoles::Peer });
+		}
+
+		void AssertCanCreateNodeWithStrings(size_t endpointHostSize, size_t metadataNameSize) {
+			// Act:
+			auto node = CreateNodeWithStrings(std::string(endpointHostSize, 'h'), std::string(metadataNameSize, 'n'));
+
+			// Assert:
+			auto message = MakeMessage(endpointHostSize, metadataNameSize);
+			EXPECT_EQ(std::string(endpointHostSize, 'h'), node.endpoint().Host) << message;
+			EXPECT_EQ(std::string(metadataNameSize, 'n'), node.metadata().Name) << message;
+		}
+
+		void AssertCannotCreateNodeWithStrings(size_t endpointHostSize, size_t metadataNameSize) {
+			// Act + Assert:
+			EXPECT_THROW(
+					CreateNodeWithStrings(std::string(endpointHostSize, 'h'), std::string(metadataNameSize, 'n')),
+					catapult_invalid_argument) << MakeMessage(endpointHostSize, metadataNameSize);
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateNodeWithStringsLessThanOrEqualToMaxSize) {
+		AssertCanCreateNodeWithStrings(200, 200);
+
+		AssertCanCreateNodeWithStrings(200, 255);
+		AssertCanCreateNodeWithStrings(255, 200);
+
+		AssertCanCreateNodeWithStrings(255, 255);
+	}
+
+	TEST(TEST_CLASS, CannotCreateNodeWithStringsGreaterThanMaxSize) {
+		AssertCannotCreateNodeWithStrings(200, 256);
+		AssertCannotCreateNodeWithStrings(200, 300);
+
+		AssertCannotCreateNodeWithStrings(256, 200);
+		AssertCannotCreateNodeWithStrings(300, 200);
+
+		AssertCannotCreateNodeWithStrings(256, 256);
+		AssertCannotCreateNodeWithStrings(300, 300);
+	}
+
+	// endregion
+
 	// region insertion operator
 
 	namespace {

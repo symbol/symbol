@@ -191,17 +191,6 @@ namespace catapult { namespace ionet {
 		AssertPackedNode(*pNetworkNode, node, "bob.com", "supernode");
 	}
 
-	TEST(TEST_CLASS, CanPackNodeWithTruncatedHostAndName) {
-		// Arrange: create strings that are too large for serialization
-		auto node = CreateNodeForPackTests(std::string(500, 'h'), std::string(400, 'n'));
-
-		// Act:
-		auto pNetworkNode = PackNode(node);
-
-		// Assert: the strings should have been truncated during packing
-		AssertPackedNode(*pNetworkNode, node, std::string(0xFF, 'h'), std::string(0xFF, 'n'));
-	}
-
 	// endregion
 
 	// region UnpackNode
