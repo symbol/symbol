@@ -18,45 +18,46 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+/* eslint-disable */
 const errors = require('../server/errors');
 const catapult = require('catapult-sdk');
+const MerkleTree = require('./MerkelTree');
 
 const packetHeader = catapult.packet.header;
 const { StatePathPacketTypes } = catapult.packet;
-// const { BinaryParser } = catapult.parser;
 const { convert } = catapult.utils;
 
-const merleUtils = {
-
+const merkleUtils = {
 	/**
-     * It sends a merkle tree request to api server for the give state path and key.
-     *
-     * @param {service} services the service object used to call catapult api
-     * @param {PacketType} state the state path packet type from {StatePathPacketTypes}
-     * @param {Uint8Array} key the state identifier as byte array.
-     * @returns {Promise<{formatter: string, payload: *, type: *}>} the response payload ready to be sent as the http response.
-     */
+	 * It sends a merkle tree request to api server for the give state path and key.
+	 *
+	 * @param {service} services the service object used to call catapult api
+	 * @param {PacketType} state the state path packet type from {StatePathPacketTypes}
+	 * @param {Uint8Array} key the state identifier as byte array.
+	 * @returns {Promise<{formatter: string, payload: *, type: *}>} the response payload ready to be sent as the http response.
+	 */
 	requestTree: (services, state, key) => {
 		if (!StatePathPacketTypes.includes(state))
 			throw errors.createInvalidArgumentError('invalid `state` provided');
 
-		const buildResponse = packet =>
-		// const binaryParser = new BinaryParser();
-		// binaryParser.push(packet.payload);
-			({
-				raw: convert.uint8ToHex(packet.payload)
-			});
+		const buildResponse = packet => 
+			{ 
+				const raw = convert.uint8ToHex(packet.payload);
+				return { raw, tree: new MerkleTree().parseMerkleTreeFromRaw(packet.payload)}
+			};
 		const { connections } = services;
 		const { timeout } = services.config.apiNode;
-		const headerBuffer = packetHeader.createBuffer(state,
-			packetHeader.size + key.length);
+		const headerBuffer = packetHeader.createBuffer(
+			state,
+			packetHeader.size + key.length
+		);
 		const heightBuffer = Buffer.from(key);
 		const packetBuffer = Buffer.concat([headerBuffer, heightBuffer]);
-		return connections.singleUse()
+		return connections
+			.singleUse()
 			.then(connection => connection.pushPull(packetBuffer, timeout))
 			.then(packet => buildResponse(packet));
-	}
+	},
 };
 
-module.exports = merleUtils;
+module.exports = merkleUtils;

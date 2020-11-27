@@ -21,6 +21,7 @@
 
 const { MockServer } = require('./utils/routeTestUtils');
 const { test } = require('./utils/routeTestUtils');
+const MerkleTree = require('../../src/routes/MerkelTree');
 const accountRoutes = require('../../src/routes/accountRoutes');
 const routeResultTypes = require('../../src/routes/routeResultTypes');
 const routeUtils = require('../../src/routes/routeUtils');
@@ -422,6 +423,8 @@ describe('account routes', () => {
 				payload: stateTreeBytes
 			};
 			const services = serviceCreator(packet);
+			const merkleTree = new MerkleTree();
+			const tree = merkleTree.parseMerkleTreeFromRaw(stateTreeBytes);
 
 			// Act:
 			it(`for ${packetType} state`, () =>
@@ -436,7 +439,8 @@ describe('account routes', () => {
 						expect(routeContext.responses.length).to.equal(1);
 						expect(routeContext.redirects.length).to.equal(0);
 						expect(routeContext.responses[0]).to.deep.equal({
-							raw: stateTree
+							raw: stateTree,
+							tree
 						});
 					})
 				));

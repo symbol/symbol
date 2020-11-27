@@ -122,3 +122,7 @@ rules:
   - error
   import/named:
   - error
+  class-methods-use-this:
+  - off
+  consistent-return:
+  - off
