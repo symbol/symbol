@@ -17,6 +17,8 @@ enum:
   - Failure_Core_Zero_Public_Key
   - Failure_Core_Nonzero_Internal_Padding
   - Failure_Core_Address_Collision
+  - Failure_Core_Importance_Block_Mismatch
+  - Failure_Core_Unexpected_Block_Type
   - Failure_Core_Invalid_Link_Action
   - Failure_Core_Link_Already_Exists
   - Failure_Core_Inconsistent_Unlink_Data
@@ -139,6 +141,8 @@ enum:
   - Failure_Chain_Block_Not_Hit
   - Failure_Chain_Block_Inconsistent_State_Hash
   - Failure_Chain_Block_Inconsistent_Receipts_Hash
+  - Failure_Chain_Block_Invalid_Vrf_Proof
+  - Failure_Chain_Block_Unknown_Signer
   - Failure_Chain_Unconfirmed_Cache_Too_Full
   - Failure_Consumer_Empty_Input
   - Failure_Consumer_Block_Transactions_Hash_Mismatch
@@ -152,6 +156,7 @@ enum:
   - Failure_Consumer_Remote_Chain_Too_Far_Behind
   - Failure_Consumer_Remote_Chain_Too_Far_In_Future
   - Failure_Consumer_Batch_Signature_Not_Verifiable
+  - Failure_Consumer_Remote_Chain_Improper_Importance_Link
   - Failure_Extension_Partial_Transaction_Cache_Prune
   - Failure_Extension_Partial_Transaction_Dependency_Removed
   - Failure_Extension_Read_Rate_Limit_Exceeded
@@ -174,6 +179,8 @@ description: |
   * Failure_Core_Zero_Public_Key - Validation failed because a public key is zero.
   * Failure_Core_Nonzero_Internal_Padding - Validation failed because internal padding is nonzero.
   * Failure_Core_Address_Collision - Validation failed because an address collision is detected.
+  * Failure_Core_Importance_Block_Mismatch - Validation failed because the block does not match the schema of an importance block.
+  * Failure_Core_Unexpected_Block_Type - Validation failed because the block type is unexpected.
   * Failure_Core_Invalid_Link_Action - Validation failed because link action is invalid.
   * Failure_Core_Link_Already_Exists - Validation failed because main account is already linked to another account.
   * Failure_Core_Inconsistent_Unlink_Data - Validation failed because unlink data is not consistent with existing account link.
@@ -296,6 +303,8 @@ description: |
   * Failure_Chain_Block_Not_Hit - Validation failed because a block was received that is not a hit.
   * Failure_Chain_Block_Inconsistent_State_Hash - Validation failed because a block was received that has an inconsistent state hash.
   * Failure_Chain_Block_Inconsistent_Receipts_Hash - Validation failed because a block was received that has an inconsistent receipts hash.
+  * Failure_Chain_Block_Invalid_Vrf_Proof - Validation failed because the Vrf proof is invalid.
+  * Failure_Chain_Block_Unknown_Signer - Validation failed because the block signer is unknown.
   * Failure_Chain_Unconfirmed_Cache_Too_Full - Validation failed because the unconfirmed cache is too full.
   * Failure_Consumer_Empty_Input - Validation failed because the consumer input is empty.
   * Failure_Consumer_Block_Transactions_Hash_Mismatch - Validation failed because the block transactions hash does not match the calculated value.
@@ -309,6 +318,7 @@ description: |
   * Failure_Consumer_Remote_Chain_Too_Far_Behind - Validation failed because the remote chain is too far behind.
   * Failure_Consumer_Remote_Chain_Too_Far_In_Future - Validation failed because the remote chain timestamp is too far in the future.
   * Failure_Consumer_Batch_Signature_Not_Verifiable - Validation failed because the verification of the signature failed during a batch operation.
+  * Failure_Consumer_Remote_Chain_Improper_Importance_Link - Validation failed because the remote chain has an improper importance link.
   * Failure_Extension_Partial_Transaction_Cache_Prune - Validation failed because the partial transaction was pruned from the temporal cache.
   * Failure_Extension_Partial_Transaction_Dependency_Removed - Validation failed because the partial transaction was pruned from the temporal cache due to its dependency being removed.
   * Failure_Extension_Read_Rate_Limit_Exceeded - Validation failed because socket read rate limit was exceeded.
