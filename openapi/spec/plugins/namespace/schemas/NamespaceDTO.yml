@@ -1,5 +1,6 @@
 type: object
 required:
+  - version
   - registrationType
   - depth
   - level0
@@ -9,6 +10,8 @@ required:
   - startHeight
   - endHeight
 properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
   registrationType:
     $ref: "./NamespaceRegistrationTypeEnum.yml"
   depth:

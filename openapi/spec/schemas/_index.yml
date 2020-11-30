@@ -73,6 +73,8 @@ Secret:
   "$ref": "./Secret.yml"
 Signature:
   "$ref": "./Signature.yml"
+StateVersion:
+  "$ref": "./StateVersion.yml"
 Timestamp:
   "$ref": "./Timestamp.yml"
 UInt32:

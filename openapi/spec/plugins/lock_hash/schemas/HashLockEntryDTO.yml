@@ -1,5 +1,6 @@
 type: object
 required:
+  - version
   - ownerAddress
   - mosaicId
   - amount
@@ -7,6 +8,8 @@ required:
   - status
   - hash
 properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
   ownerAddress:
     $ref: "../../../schemas/Address.yml"
   mosaicId:

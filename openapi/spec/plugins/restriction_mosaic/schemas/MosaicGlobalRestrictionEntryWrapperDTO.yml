@@ -1,10 +1,13 @@
 type: object
 required:
+  - version
   - compositeHash
   - entryType
   - mosaicId
   - restrictions
 properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
   compositeHash:
     $ref: "../../../schemas/Hash256.yml"
   entryType:
