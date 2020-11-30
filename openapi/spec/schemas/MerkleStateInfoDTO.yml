@@ -3,6 +3,14 @@ description: |
   The merkle path information clients can use to proof the state of the given entity.
 required:
   - raw
+  - tree
 properties:
   raw:
     $ref: "./MerkleTreeRaw.yml"
+  tree:
+    description: Merkle tree parsed from merkle tree raw.
+    type: array
+    items:
+      anyOf:
+        - $ref: "./MerkleTreeBranchDTO.yml"
+        - $ref: "./MerkleTreeLeafDTO.yml"

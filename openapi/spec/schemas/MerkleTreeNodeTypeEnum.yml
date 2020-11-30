@@ -1,0 +1,9 @@
+type: integer
+enum:
+  - 0
+  - 255
+description: |
+  Type of Merkle tree node:
+  * 0 - Branch node.
+  * 255 - Leaf node.
+example: 0

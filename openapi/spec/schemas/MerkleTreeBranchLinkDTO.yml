@@ -1,0 +1,13 @@
+type: object
+description: Merkle tree branch link.
+required:
+  - bit
+  - link
+properties:
+  bit:
+    description: Branch link nibble bit index (hexadecimal).
+    type: string
+  link:
+    description: Branch link hash.
+    $ref: "./Hash256.yml"
+    

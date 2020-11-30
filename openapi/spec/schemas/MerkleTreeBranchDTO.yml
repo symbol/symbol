@@ -1,0 +1,34 @@
+type: object
+description: Merkle tree branch node.
+required:
+  - type
+  - path
+  - encodedPath
+  - nibbleCount
+  - linkMask
+  - links
+  - branchHash
+properties:
+  type:
+    description: Merkle tree node type.
+    $ref: "./MerkleTreeNodeTypeEnum.yml"
+  path:
+    description: Branch link path.
+    type: string
+  encodedPath:
+    description: Encoded branch link path.
+    type: string
+  nibbleCount:
+    description: Nibble count.
+    type: integer
+  linkMask:
+    description: Branch link bitmask.
+    type: string
+  links:
+    description: Branch links (max 16).
+    type: array
+    items:
+      $ref: "./MerkleTreeBranchLinkDTO.yml"
+  branchHash:
+    description: Hash of the branch node.
+    $ref: "./Hash256.yml"
