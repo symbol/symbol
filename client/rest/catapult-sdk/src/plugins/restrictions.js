@@ -125,6 +125,7 @@ const restrictionsPlugin = {
 			accountRestrictions: { type: ModelType.object, schemaName: 'accountRestriction.restrictions' }
 		});
 		builder.addSchema('accountRestriction.restrictions', {
+			version: ModelType.uint16,
 			address: ModelType.binary,
 			restrictions: {
 				type: ModelType.array,
@@ -169,6 +170,7 @@ const restrictionsPlugin = {
 			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicRestrictions.entry' }
 		});
 		builder.addSchema('mosaicRestrictions.entry', {
+			version: ModelType.uint16,
 			compositeHash: ModelType.binary,
 			entryType: ModelType.uint32,
 			mosaicId: ModelType.uint64HexIdentifier,

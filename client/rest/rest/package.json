@@ -46,7 +46,7 @@
     "nodemon": "^2.0.6",
     "rimraf": "^2.6.3",
     "sinon": "^7.3.2",
-    "symbol-bootstrap": "0.3.0-alpha-202011220136"
+    "symbol-bootstrap": "0.3.0-alpha-202011301515"
   },
   "dependencies": {
     "catapult-sdk": "link:../catapult-sdk",

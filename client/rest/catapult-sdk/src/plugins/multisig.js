@@ -44,6 +44,7 @@ const multisigPlugin = {
 			multisig: { type: ModelType.object, schemaName: 'multisigEntry.multisig' }
 		});
 		builder.addSchema('multisigEntry.multisig', {
+			version: ModelType.uint16,
 			accountAddress: ModelType.binary,
 			minApproval: ModelType.int,
 			minRemoval: ModelType.int,

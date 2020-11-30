@@ -74,8 +74,9 @@ describe('metadata plugin', () => {
 			expect(modelSchema.metadata).to.contain.all.keys(['metadataEntry', 'id']);
 
 			// - metadataEntry
-			expect(Object.keys(modelSchema.metadataEntry).length).to.equal(8);
+			expect(Object.keys(modelSchema.metadataEntry).length).to.equal(9);
 			expect(modelSchema.metadataEntry).to.contain.all.keys([
+				'version',
 				'compositeHash',
 				'sourceAddress',
 				'targetAddress',

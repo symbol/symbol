@@ -169,6 +169,7 @@ class ModelSchemaBuilder {
 				account: { type: ModelType.object, schemaName: 'account' }
 			},
 			account: {
+				version: ModelType.uint16,
 				address: ModelType.binary,
 				addressHeight: ModelType.uint64,
 				publicKey: ModelType.binary,

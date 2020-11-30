@@ -81,6 +81,7 @@ const namespacePlugin = {
 		});
 
 		builder.addSchema('namespaceDescriptor.namespace', {
+			version: ModelType.uint16,
 			registrationType: ModelType.uint8,
 			depth: ModelType.uint8,
 			level0: ModelType.uint64HexIdentifier,
