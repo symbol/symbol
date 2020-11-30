@@ -1,5 +1,6 @@
 type: object
 required:
+  - version
   - id
   - supply
   - startHeight
@@ -9,6 +10,8 @@ required:
   - divisibility
   - duration
 properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
   id:
     $ref: "../../../schemas/MosaicId.yml"
   supply:

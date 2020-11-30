@@ -1,5 +1,6 @@
 type: object
 required:
+  - version
   - address
   - addressHeight
   - publicKey
@@ -11,6 +12,8 @@ required:
   - importance
   - importanceHeight
 properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
   address:
     $ref: "../../../schemas/Address.yml"
   addressHeight:
