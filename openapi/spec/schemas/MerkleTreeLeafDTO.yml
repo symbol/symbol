@@ -1,0 +1,28 @@
+type: object
+description: Merkle tree leaf node.
+required:
+  - type
+  - path
+  - encodedPath
+  - nibbleCount
+  - value
+  - leafHash
+properties:
+  type:
+    description: Merkle tree node type.
+    $ref: "./MerkleTreeNodeTypeEnum.yml"
+  path:
+    description: Leaf path.
+    type: string
+  encodedPath:
+    description: Encoded leaf path.
+    type: string
+  nibbleCount:
+    description: Nibble count.
+    type: integer
+  value:
+    description: Leaf value (sha256 hash).
+    type: string
+  leafHash:
+    description: Hash of the leaf node.
+    $ref: "./Hash256.yml"
