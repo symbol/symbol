@@ -1,8 +1,11 @@
 type: object
 required:
+  - version
   - address
   - restrictions
 properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
   address:
     $ref: "../../../schemas/Address.yml"
   restrictions:

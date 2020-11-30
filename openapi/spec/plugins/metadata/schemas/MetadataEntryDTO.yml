@@ -1,5 +1,6 @@
 type: object
 required:
+  - version
   - compositeHash
   - sourceAddress
   - targetAddress
@@ -7,6 +8,8 @@ required:
   - metadataType
   - value
 properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
   compositeHash:
     $ref: "../../../schemas/Hash256.yml"
   sourceAddress:

@@ -1,11 +1,14 @@
 type: object
 required:
+  - version
   - accountAddress
   - minApproval
   - minRemoval
   - cosignatoryAddresses
   - multisigAddresses
 properties:
+  version:
+    $ref: "../../../schemas/StateVersion.yml"
   accountAddress:
     $ref: "../../../schemas/Address.yml"
   minApproval:
