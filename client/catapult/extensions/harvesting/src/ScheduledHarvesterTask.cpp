@@ -24,8 +24,17 @@
 
 namespace catapult { namespace harvesting {
 
+	ScheduledHarvesterTask::ScheduledHarvesterTask(const ScheduledHarvesterTaskOptions& options, std::unique_ptr<Harvester>&& pHarvester)
+			: m_harvestingAllowed(options.HarvestingAllowed)
+			, m_lastBlockElementSupplier(options.LastBlockElementSupplier)
+			, m_timeSupplier(options.TimeSupplier)
+			, m_rangeConsumer(options.RangeConsumer)
+			, m_pHarvester(std::move(pHarvester))
+			, m_pIsAnyHarvestedBlockPending(std::make_shared<std::atomic_bool>(false))
+	{}
+
 	void ScheduledHarvesterTask::harvest() {
-		if (m_isAnyHarvestedBlockPending || !m_harvestingAllowed())
+		if (*m_pIsAnyHarvestedBlockPending || !m_harvestingAllowed())
 			return;
 
 		auto pLastBlockElement = m_lastBlockElementSupplier();
@@ -34,9 +43,14 @@ namespace catapult { namespace harvesting {
 			return;
 
 		CATAPULT_LOG(info) << "successfully harvested block at " << pBlock->Height << " with signer " << pBlock->SignerPublicKey;
-		m_isAnyHarvestedBlockPending = true;
-		m_rangeConsumer(model::BlockRange::FromEntity(std::move(pBlock)), [&isBlockPending = m_isAnyHarvestedBlockPending](auto, auto) {
-			isBlockPending = false;
+		*m_pIsAnyHarvestedBlockPending = true;
+
+		// flag needs to be captured as shared_ptr in order to avoid race condition when harvesting service
+		// is shutdown before dispatcher service and block completes processing in interim period
+		m_rangeConsumer(model::BlockRange::FromEntity(std::move(pBlock)), [pIsAnyBlockPending = m_pIsAnyHarvestedBlockPending](
+				auto,
+				auto) {
+			*pIsAnyBlockPending = false;
 		});
 	}
 }}
