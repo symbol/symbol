@@ -52,8 +52,9 @@ const finalizationProofCodec = {
 		while (0 !== sizeLeft) {
 			const messageGroupSize = parser.uint32();
 			const hashCount = parser.uint32();
-			const signatureCount = parser.uint32();
+			const signatureCount = parser.uint16();
 			const messageGroup = {
+				signatureSchema: parser.uint16(),
 				stage: parser.uint32(),
 				height: parser.uint64(),
 				hashes: [],
@@ -62,14 +63,9 @@ const finalizationProofCodec = {
 
 			for (let i = 0; i < hashCount; i++)
 				messageGroup.hashes.push(parser.buffer(sizes.hash256));
-
 			for (let i = 0; i < signatureCount; i++) {
 				const signature = {
 					root: {
-						parentPublicKey: parser.buffer(sizes.signerPublicKey),
-						signature: parser.buffer(sizes.signature)
-					},
-					top: {
 						parentPublicKey: parser.buffer(sizes.signerPublicKey),
 						signature: parser.buffer(sizes.signature)
 					},
@@ -80,7 +76,6 @@ const finalizationProofCodec = {
 				};
 				messageGroup.signatures.push(signature);
 			}
-
 			proof.messageGroups.push(messageGroup);
 			sizeLeft -= messageGroupSize;
 		}

@@ -64,6 +64,21 @@ yarn test
 yarn bootstrap-stop
 ```
 
+## Testnet
+
+Another alternative, is having bootstrap creating a Testnet node without rest that you can run from code:
+
+```
+yarn bootstrap-start-testnet
+```
+
+In another terminal
+
+```
+yarn start:dev
+```
+
+
 ## Usage
 
 Please refer to the [documentation](https://nemtech.github.io/api.html) for more information.

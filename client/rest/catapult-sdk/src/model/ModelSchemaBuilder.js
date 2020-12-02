@@ -103,6 +103,7 @@ class ModelSchemaBuilder {
 				messageGroups: { type: ModelType.array, schemaName: 'messageGroup' }
 			},
 			messageGroup: {
+				signatureSchema: ModelType.uint16,
 				stage: ModelType.uint32,
 				height: ModelType.uint64,
 				hashes: { type: ModelType.array, schemaName: ModelType.binary },
@@ -110,7 +111,6 @@ class ModelSchemaBuilder {
 			},
 			bmTreeSignature: {
 				root: { type: ModelType.object, schemaName: 'parentPublicKeySignaturePair' },
-				top: { type: ModelType.object, schemaName: 'parentPublicKeySignaturePair' },
 				bottom: { type: ModelType.object, schemaName: 'parentPublicKeySignaturePair' }
 			},
 			parentPublicKeySignaturePair: {

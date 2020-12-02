@@ -5900,10 +5900,10 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-symbol-bootstrap@0.3.0-alpha-202011301515:
-  version "0.3.0-alpha-202011301515"
-  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-0.3.0-alpha-202011301515.tgz#737c6b9556afba4f087d6ac5ba6bbabbd4922a0f"
-  integrity sha512-FBWXSrMrQE3BOUmIYMgVCI+RLlwVg6eh5aJ+HHhKNuuts+Glpid9xE12J+MxDLEzFEx9N/qvUVT/tLx2fO9+vQ==
+symbol-bootstrap@0.3.0-alpha-202012011317:
+  version "0.3.0-alpha-202012011317"
+  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-0.3.0-alpha-202012011317.tgz#3a04060cf09b78a3b31818f8e44761c252ef1c41"
+  integrity sha512-nLYQy+3VpyTi6wgq7Hrtg1JXXD+olZ4u+/tlYHwnjq/mpTyfVQAeWKJWq9z5buyPvuZQdUgcxG5IRytWx/uaSg==
   dependencies:
     "@oclif/command" "^1.7.0"
     "@oclif/config" "^1.16.0"
