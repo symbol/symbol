@@ -156,6 +156,8 @@ namespace catapult { namespace chain {
 			CATAPULT_THROW_INVALID_ARGUMENT("cannot set max finalization round below min");
 
 		m_state.MaxFinalizationRound = round;
+
+		CATAPULT_LOG(trace) << "set max finalization round to " << m_state.MaxFinalizationRound;
 	}
 
 	RoundMessageAggregatorAddResult MultiRoundMessageAggregatorModifier::add(const std::shared_ptr<model::FinalizationMessage>& pMessage) {
@@ -184,6 +186,8 @@ namespace catapult { namespace chain {
 		roundMessageAggregators.erase(roundMessageAggregators.begin(), iter);
 
 		m_state.MinFinalizationRound = roundMessageAggregators.cend() == iter ? m_state.MaxFinalizationRound : iter->first;
+
+		CATAPULT_LOG(trace) << "set min finalization round to " << m_state.MinFinalizationRound << " after pruning at epoch " << epoch;
 	}
 
 	// endregion

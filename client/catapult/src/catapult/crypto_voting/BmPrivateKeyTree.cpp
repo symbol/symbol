@@ -278,6 +278,8 @@ namespace catapult { namespace crypto {
 	}
 
 	BmTreeSignature BmPrivateKeyTree::sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer) {
+		CATAPULT_LOG(trace) << "signing with key identifier " << keyIdentifier;
+
 		if (!canSign(keyIdentifier))
 			CATAPULT_THROW_INVALID_ARGUMENT_1("sign called with invalid key identifier", keyIdentifier);
 
@@ -296,6 +298,8 @@ namespace catapult { namespace crypto {
 	}
 
 	void BmPrivateKeyTree::wipe(const BmKeyIdentifier& keyIdentifier) {
+		CATAPULT_LOG(trace) << "wiping key identifier " << keyIdentifier;
+
 		if (!check(keyIdentifier, m_lastWipeKeyIdentifier))
 			CATAPULT_THROW_INVALID_ARGUMENT_1("wipe called with invalid key identifier", keyIdentifier);
 
@@ -312,11 +316,17 @@ namespace catapult { namespace crypto {
 	}
 
 	bool BmPrivateKeyTree::check(const BmKeyIdentifier& keyIdentifier, const BmKeyIdentifier& referenceKeyIdentifier) const {
-		if (keyIdentifier < referenceKeyIdentifier)
+		if (keyIdentifier < referenceKeyIdentifier) {
+			CATAPULT_LOG(warning) << "rejecting key identifier " << keyIdentifier << " less than reference " << referenceKeyIdentifier;
 			return false;
+		}
 
-		if (keyIdentifier < m_options.StartKeyIdentifier || keyIdentifier > m_options.EndKeyIdentifier)
+		if (keyIdentifier < m_options.StartKeyIdentifier || keyIdentifier > m_options.EndKeyIdentifier) {
+			CATAPULT_LOG(warning)
+					<< "rejecting out of range key identifier " << keyIdentifier
+					<< "(start " << m_options.StartKeyIdentifier << ", end " << m_options.EndKeyIdentifier << ")";
 			return false;
+		}
 
 		return true;
 	}

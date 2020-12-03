@@ -122,6 +122,46 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region FinalizationMessage (insertion operator)
+
+	namespace {
+		void AssertStringRepresentation(FinalizationStage stage, const std::string& expectedStageName) {
+			// Arrange:
+			std::vector<std::string> hashStrings{
+				"D14E96D509A0966A7CCBFEE7F3D92AB2AC05C4A42DFB05B3A8C8EFD5C35B9620",
+				"13C519B8A78B0AFC78E15E52EAC9B1208BB9CF961B274A9D138CD161C08F033C",
+				"E5BA68896934C6F2745B528AB636761AFC9BEE8A32B3CD7E9CF4C0E16A00C633",
+				"2E6BD2BBB35EA998677C5A67DAC13F7E6377FA898427ABCB14274E49812FF013"
+			};
+
+			auto pMessage = test::CreateMessage(Height(12), 3);
+			pMessage->StepIdentifier = { FinalizationEpoch(101), FinalizationPoint(17), stage };
+			pMessage->Signature.Root.ParentPublicKey = utils::ParseByteArray<VotingKey>(hashStrings[0]);
+			for (auto i = 0u; i < pMessage->HashesCount; ++i)
+				pMessage->HashesPtr()[i] = utils::ParseByteArray<Hash256>(hashStrings[i + 1]);
+
+			// Act:
+			auto str = test::ToString(*pMessage);
+
+			// Assert:
+			auto expected = "message for (101, 17) " + expectedStageName + " at 12 from " + hashStrings[0]
+					+ "\n + " + hashStrings[1] + " @ 12"
+					+ "\n + " + hashStrings[2] + " @ 13"
+					+ "\n + " + hashStrings[3] + " @ 14";
+			EXPECT_EQ(expected, str);
+		}
+	}
+
+	TEST(TEST_CLASS, CanOutputPrevoteMessage) {
+		AssertStringRepresentation(FinalizationStage::Prevote, "prevote");
+	}
+
+	TEST(TEST_CLASS, CanOutputPrecommitMessage) {
+		AssertStringRepresentation(FinalizationStage::Precommit, "precommit");
+	}
+
+	// endregion
+
 	// region CalculateMessageHash
 
 	TEST(TEST_CLASS, CalculateMessageHash_ProducesDifferentHashesForMessagesWithDifferentBodyContents) {

@@ -52,31 +52,50 @@ namespace catapult { namespace chain {
 					const MultiRoundMessageAggregator& messageAggregator)
 					: m_round(round)
 					, m_timer(time, stepDuration)
-					, m_messageAggregator(messageAggregator)
-			{}
+					, m_messageAggregator(messageAggregator) {
+				CATAPULT_LOG(debug) << "creating finalization stage advancer for round " << round << " at " << time;
+			}
 
 		public:
 			bool canSendPrevote(Timestamp time) const override {
-				if (m_timer.isElapsed(time, 1))
+				if (m_timer.isElapsed(time, 1)) {
+					CATAPULT_LOG(trace) << "can send prevote - time elapsed";
 					return true;
+				}
 
 				return requireRoundContext([](const auto&, const auto& roundContext) {
-					return roundContext.isCompletable();
+					if (roundContext.isCompletable()) {
+						CATAPULT_LOG(trace) << "can send prevote - completable";
+						return true;
+					}
+
+					CATAPULT_LOG(trace) << "cannot send prevote - not completable";
+					return false;
 				});
 			}
 
 			bool canSendPrecommit(Timestamp time, model::HeightHashPair& target) const override {
 				return requireRoundContext([this, time, &target](const auto& messageAggregatorView, const auto& roundContext) {
 					auto bestPrevoteResultPair = roundContext.tryFindBestPrevote();
-					if (!bestPrevoteResultPair.second)
+					if (!bestPrevoteResultPair.second) {
+						CATAPULT_LOG(trace) << "cannot send precommit - no best prevote";
 						return false;
+					}
 
 					auto estimate = messageAggregatorView.findEstimate(m_round - FinalizationPoint(1));
-					if (!roundContext.isDescendant(estimate, bestPrevoteResultPair.first))
+					if (!roundContext.isDescendant(estimate, bestPrevoteResultPair.first)) {
+						CATAPULT_LOG(trace) << "cannot send precommit - not descendant";
 						return false;
+					}
 
-					if (!m_timer.isElapsed(time, 2) && !roundContext.isCompletable())
+					if (m_timer.isElapsed(time, 2)) {
+						CATAPULT_LOG(trace) << "can send precommit - time elapsed";
+					} else if (roundContext.isCompletable()) {
+						CATAPULT_LOG(trace) << "can send precommit - completable";
+					} else {
+						CATAPULT_LOG(trace) << "cannot send precommit - neither time elapsed nor completable";
 						return false;
+					}
 
 					target = bestPrevoteResultPair.first;
 					return true;
@@ -85,7 +104,13 @@ namespace catapult { namespace chain {
 
 			bool canStartNextRound() const override {
 				return requireRoundContext([](const auto&, const auto& roundContext) {
-					return roundContext.isCompletable();
+					if (roundContext.isCompletable()) {
+						CATAPULT_LOG(trace) << "can start next round - completable";
+						return true;
+					}
+
+					CATAPULT_LOG(trace) << "cannot start next round - not completable";
+					return false;
 				});
 			}
 

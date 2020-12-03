@@ -123,7 +123,12 @@ namespace catapult { namespace chain {
 
 		public:
 			RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage) override {
-				if (0 == pMessage->HashesCount || pMessage->HashesCount > m_finalizationContext.config().MaxHashesPerPoint)
+				auto maxHashesPerPoint = m_finalizationContext.config().MaxHashesPerPoint;
+				CATAPULT_LOG(trace)
+						<< "received message at " << pMessage->StepIdentifier
+						<< " with " << pMessage->HashesCount << " hashes (max " << maxHashesPerPoint << ")";
+
+				if (0 == pMessage->HashesCount || pMessage->HashesCount > maxHashesPerPoint)
 					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 
 				auto isPrevote = IsPrevote(*pMessage);
@@ -159,6 +164,10 @@ namespace catapult { namespace chain {
 					CATAPULT_LOG(warning) << "rejecting finalization message with result " << processResultPair.first;
 					return RoundMessageAggregatorAddResult::Failure_Processing;
 				}
+
+				CATAPULT_LOG(trace)
+						<< "processing message for epoch " << m_finalizationContext.epoch() << " with weight " << processResultPair.second
+						<< std::endl << *pMessage;
 
 				m_messages.emplace(messageKey, CreateMessageDescriptor(pMessage));
 

@@ -55,6 +55,9 @@ namespace catapult { namespace io {
 					return;
 				}
 
+				CATAPULT_LOG(info)
+						<< "saving proof for round " << proof.Round << " at height " << proof.Height
+						<< " with hash " << proof.Hash;
 				m_pStorage->saveProof(proof);
 				m_pSubscriber->notifyFinalizedBlock(proof.Round, proof.Height, proof.Hash);
 			}

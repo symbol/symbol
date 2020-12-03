@@ -82,6 +82,7 @@ namespace catapult { namespace finalization {
 						auto roundRange = model::FinalizationRoundRange(
 								messageAggregatorView.minFinalizationRound(),
 								messageAggregatorView.maxFinalizationRound());
+						CATAPULT_LOG(trace) << "requesting finalization messages within range " << roundRange;
 						return std::make_pair(roundRange, messageAggregatorView.shortHashes());
 					},
 					serverHooks.messageRangeConsumer());

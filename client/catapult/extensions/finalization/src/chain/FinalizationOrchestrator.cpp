@@ -68,9 +68,9 @@ namespace catapult { namespace chain {
 	}
 
 	void FinalizationOrchestrator::poll(Timestamp time) {
-		// on first call to poll, don't call startRound in order to use original values for m_votingStatus
+		// on first call to poll, don't call ClearFlags in order to use original values for m_votingStatus
 		if (!m_pStageAdvancer)
-			m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
+			startRound(time);
 
 		if (!m_votingStatus.HasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
 			process(m_pMessageFactory->createPrevote(m_votingStatus.Round), "prevote");
@@ -85,12 +85,14 @@ namespace catapult { namespace chain {
 
 		if (m_votingStatus.HasSentPrecommit && m_pStageAdvancer->canStartNextRound()) {
 			m_votingStatus.Round.Point = m_votingStatus.Round.Point + FinalizationPoint(1);
+
+			ClearFlags(m_votingStatus);
 			startRound(time);
 		}
 	}
 
 	void FinalizationOrchestrator::startRound(Timestamp time) {
-		ClearFlags(m_votingStatus);
+		CATAPULT_LOG(debug) << "starting orchestrator round " << m_votingStatus.Round << " at " << time;
 		m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
 	}
 
@@ -102,6 +104,9 @@ namespace catapult { namespace chain {
 			return;
 		}
 
+		CATAPULT_LOG(trace)
+				<< "sending message for " << m_votingStatus.Round
+				<< std::endl << *pMessage;
 		m_messageSink(std::move(pMessage));
 	}
 

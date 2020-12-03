@@ -41,6 +41,8 @@ namespace catapult { namespace finalization {
 		auto votingSetHeight = model::CalculateVotingSetEndHeight(epoch - FinalizationEpoch(1), m_config.VotingSetGrouping);
 		auto generationHash = m_blockStorage.view().loadBlockElement(votingSetHeight)->GenerationHash;
 
+		CATAPULT_LOG(trace) << "creating finalization context for epoch " << epoch << " with grouped height " << votingSetHeight;
+
 		// when constructing FinalizationContext, to prevent possible deadlock, only have a single lock (to AccountStateCache) outstanding
 		auto accountStateCacheView = m_accountStateCache.createView();
 		return model::FinalizationContext(epoch, votingSetHeight, generationHash, m_config, *accountStateCacheView);

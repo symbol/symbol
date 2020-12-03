@@ -76,6 +76,7 @@ namespace catapult { namespace finalization {
 						auto&& messages) {
 					auto newMessages = ionet::FinalizationMessages();
 					auto extractedMessages = model::FinalizationMessageRange::ExtractEntitiesFromRange(std::move(messages.Range));
+					CATAPULT_LOG(trace) << "received " << extractedMessages.size() << " messages from peer " << messages.SourceIdentity;
 
 					auto roundRange = CreateFinalizationRoundRange(messageAggregator);
 					for (const auto& pMessage : extractedMessages) {

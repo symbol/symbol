@@ -76,6 +76,9 @@ namespace catapult { namespace model {
 
 #pragma pack(pop)
 
+	/// Insertion operator for outputting \a message to \a out.
+	std::ostream& operator<<(std::ostream& out, const FinalizationMessage& message);
+
 	/// Range of finalization messages.
 	using FinalizationMessageRange = EntityRange<FinalizationMessage>;
 
