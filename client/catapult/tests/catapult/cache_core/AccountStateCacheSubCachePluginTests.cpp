@@ -99,7 +99,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, Summary_CannotSaveAll) {
 		// Arrange:
 		test::TempDirectoryGuard dbDirGuard;
-		auto cacheConfig = CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Disabled);
+		auto cacheConfig = CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Disabled);
 		PrepareCannotSaveTest(cacheConfig, [](auto& storage, auto& catapultCache, auto& stream) {
 			auto cacheView = catapultCache.createView();
 
@@ -148,7 +148,7 @@ namespace catapult { namespace cache {
 			class CacheConfigurationFactory {
 			public:
 				CacheConfiguration create() {
-					return CacheConfiguration(m_dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Disabled);
+					return CacheConfiguration(m_dbDirGuard.name(), cache::PatriciaTreeStorageMode::Disabled);
 				}
 
 			private:

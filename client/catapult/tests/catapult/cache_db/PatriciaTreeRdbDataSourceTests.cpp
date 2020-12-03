@@ -30,7 +30,7 @@ namespace catapult { namespace cache {
 	namespace {
 		auto DefaultSettings(const std::string& dbName) {
 			// use 0 size to force flush after every write
-			return RocksDatabaseSettings(dbName, { "default" }, utils::FileSize(), FilterPruningMode::Disabled);
+			return RocksDatabaseSettings(dbName, { "default" }, FilterPruningMode::Disabled);
 		}
 
 		class RocksDataSourceWrapper {

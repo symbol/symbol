@@ -29,7 +29,7 @@ namespace catapult { namespace tree {
 
 	namespace {
 		auto DefaultSettings(const std::string& dbDir) {
-			return cache::RocksDatabaseSettings(dbDir, { "default" }, utils::FileSize(), cache::FilterPruningMode::Disabled);
+			return cache::RocksDatabaseSettings(dbDir, { "default" }, cache::FilterPruningMode::Disabled);
 		}
 
 		class RocksPatriciaTreeTraits {

@@ -129,7 +129,7 @@ namespace catapult { namespace consumers {
 			// Arrange:
 			test::TempDirectoryGuard dbDirGuard;
 			auto config = model::BlockChainConfiguration::Uninitialized();
-			auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+			auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Enabled);
 			auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
 
 			auto delta = cache.createDelta();

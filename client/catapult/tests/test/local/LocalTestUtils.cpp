@@ -68,10 +68,11 @@ namespace catapult { namespace test {
 			config.BlockDisruptorSize = 4 * 1024;
 			config.TransactionDisruptorSize = 16 * 1024;
 
-			config.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromMegabytes(5);
 			config.MaxTrackedNodes = 5'000;
 
 			config.ListenInterface = "0.0.0.0";
+
+			config.CacheDatabase.MaxWriteBatchSize = utils::FileSize::FromMegabytes(5);
 
 			config.Local.Host = "127.0.0.1";
 			config.Local.FriendlyName = "LOCAL";

@@ -33,29 +33,55 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_FALSE(config.ShouldUseCacheDatabase);
 		EXPECT_TRUE(config.CacheDatabaseDirectory.empty());
-		EXPECT_EQ(utils::FileSize(), config.MaxCacheDatabaseWriteBatchSize);
+		EXPECT_EQ(utils::FileSize(), config.CacheDatabaseConfig.MaxWriteBatchSize);
 		EXPECT_FALSE(config.ShouldStorePatriciaTrees);
 	}
 
-	TEST(TEST_CLASS, CanCreateConfigurationWithPathButNotPatriciaTreeStorage) {
+	TEST(TEST_CLASS, CanCreateConfigurationWithPathButNotPatriciaTreeStorage_DefaultConfig) {
 		// Act:
-		CacheConfiguration config("xyz", utils::FileSize::FromMegabytes(4), PatriciaTreeStorageMode::Disabled);
+		CacheConfiguration config("xyz", PatriciaTreeStorageMode::Disabled);
 
 		// Assert:
 		EXPECT_TRUE(config.ShouldUseCacheDatabase);
 		EXPECT_EQ("xyz", config.CacheDatabaseDirectory);
-		EXPECT_EQ(utils::FileSize::FromMegabytes(4), config.MaxCacheDatabaseWriteBatchSize);
+		EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabaseConfig.MaxWriteBatchSize);
 		EXPECT_FALSE(config.ShouldStorePatriciaTrees);
 	}
 
-	TEST(TEST_CLASS, CanCreateConfigurationWithPathAndPatriciaTreeStorage) {
+	TEST(TEST_CLASS, CanCreateConfigurationWithPathButNotPatriciaTreeStorage_CustomConfig) {
 		// Act:
-		CacheConfiguration config("xyz", utils::FileSize::FromMegabytes(4), PatriciaTreeStorageMode::Enabled);
+		auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+		cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromMegabytes(4);
+		CacheConfiguration config("xyz", cacheDatabaseConfig, PatriciaTreeStorageMode::Disabled);
 
 		// Assert:
 		EXPECT_TRUE(config.ShouldUseCacheDatabase);
 		EXPECT_EQ("xyz", config.CacheDatabaseDirectory);
-		EXPECT_EQ(utils::FileSize::FromMegabytes(4), config.MaxCacheDatabaseWriteBatchSize);
+		EXPECT_EQ(utils::FileSize::FromMegabytes(4), config.CacheDatabaseConfig.MaxWriteBatchSize);
+		EXPECT_FALSE(config.ShouldStorePatriciaTrees);
+	}
+
+	TEST(TEST_CLASS, CanCreateConfigurationWithPathAndPatriciaTreeStorage_DefaultConfig) {
+		// Act:
+		CacheConfiguration config("xyz", PatriciaTreeStorageMode::Enabled);
+
+		// Assert:
+		EXPECT_TRUE(config.ShouldUseCacheDatabase);
+		EXPECT_EQ("xyz", config.CacheDatabaseDirectory);
+		EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabaseConfig.MaxWriteBatchSize);
+		EXPECT_TRUE(config.ShouldStorePatriciaTrees);
+	}
+
+	TEST(TEST_CLASS, CanCreateConfigurationWithPathAndPatriciaTreeStorage_CustomConfig) {
+		// Act:
+		auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+		cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromMegabytes(4);
+		CacheConfiguration config("xyz", cacheDatabaseConfig, PatriciaTreeStorageMode::Enabled);
+
+		// Assert:
+		EXPECT_TRUE(config.ShouldUseCacheDatabase);
+		EXPECT_EQ("xyz", config.CacheDatabaseDirectory);
+		EXPECT_EQ(utils::FileSize::FromMegabytes(4), config.CacheDatabaseConfig.MaxWriteBatchSize);
 		EXPECT_TRUE(config.ShouldStorePatriciaTrees);
 	}
 }}

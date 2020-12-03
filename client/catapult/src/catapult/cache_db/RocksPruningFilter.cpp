@@ -27,6 +27,12 @@ namespace catapult { namespace cache {
 
 	class RocksPruningFilter::RocksPruningFilterImpl final : public rocksdb::CompactionFilter {
 	public:
+		RocksPruningFilterImpl()
+				: m_compactionBoundary(0)
+				, m_numRemoved(0)
+		{}
+
+	public:
 		const char* Name() const override {
 			return "pruning compaction filter";
 		}

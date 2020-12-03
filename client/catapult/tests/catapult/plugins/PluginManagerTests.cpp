@@ -43,6 +43,7 @@ namespace catapult { namespace plugins {
 		// Assert:
 		EXPECT_FALSE(config.PreferCacheDatabase);
 		EXPECT_TRUE(config.CacheDatabaseDirectory.empty());
+		EXPECT_EQ(utils::FileSize::FromKilobytes(0), config.CacheDatabaseConfig.MaxWriteBatchSize);
 	}
 
 	TEST(TEST_CLASS, CanCreateManager) {
@@ -78,12 +79,12 @@ namespace catapult { namespace plugins {
 		auto storageConfig = StorageConfiguration();
 		storageConfig.PreferCacheDatabase = true;
 		storageConfig.CacheDatabaseDirectory = "abc";
-		storageConfig.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromKilobytes(23);
+		storageConfig.CacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromKilobytes(23);
 
 		auto assertCacheConfiguration = [](const auto& cacheConfig, const auto& expectedDirectory) {
 			EXPECT_TRUE(cacheConfig.ShouldUseCacheDatabase);
 			EXPECT_EQ(expectedDirectory, cacheConfig.CacheDatabaseDirectory);
-			EXPECT_EQ(utils::FileSize::FromKilobytes(23), cacheConfig.MaxCacheDatabaseWriteBatchSize);
+			EXPECT_EQ(utils::FileSize::FromKilobytes(23), cacheConfig.CacheDatabaseConfig.MaxWriteBatchSize);
 			EXPECT_FALSE(cacheConfig.ShouldStorePatriciaTrees);
 		};
 

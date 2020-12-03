@@ -285,7 +285,7 @@ namespace catapult { namespace extensions {
 			auto cacheConfig = cache::CacheConfiguration();
 			test::TempDirectoryGuard dbDirGuard;
 			if (enableVerifiableState)
-				cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+				cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Enabled);
 
 			auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
 			test::LocalNodeTestState state(config, "", std::move(cache));
@@ -521,7 +521,7 @@ namespace catapult { namespace extensions {
 		test::TempDirectoryGuard dbDirGuard;
 		NemesisOptions nemesisOptions{ Importance(1234), Amount() };
 		auto config = CreateDefaultConfiguration(nemesisBlock, nemesisOptions);
-		auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+		auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Enabled);
 		auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
 		{
 			// - calculate the expected state hash after block execution

@@ -835,7 +835,7 @@ namespace catapult { namespace harvesting {
 
 		private:
 			static cache::CacheConfiguration CreateCacheConfiguration(const std::string& databaseDirectory) {
-				return cache::CacheConfiguration(databaseDirectory, utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+				return cache::CacheConfiguration(databaseDirectory, cache::PatriciaTreeStorageMode::Enabled);
 			}
 
 		private:

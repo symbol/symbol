@@ -301,10 +301,12 @@ namespace catapult { namespace local {
 		public:
 			std::vector<std::pair<Hash256, bool>> searchAccountStateCachePatriciaTree(const std::vector<Hash256>& hashes) {
 				// 1. create an RDB container for accessing AccountStateCache::patricia_tree
+				auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+				cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromMegabytes(5);
 				auto database = cache::CacheDatabase(cache::CacheDatabaseSettings(
 						dataDirectory().dir("statedb").file("AccountStateCache"),
+						cacheDatabaseConfig,
 						{ "default", "key_lookup", "patricia_tree" },
-						utils::FileSize::FromMegabytes(5),
 						cache::FilterPruningMode::Disabled));
 				auto container = cache::PatriciaTreeContainer(database, 2);
 

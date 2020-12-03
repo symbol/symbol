@@ -21,6 +21,7 @@
 
 #pragma once
 #include "RocksPruningFilter.h"
+#include "catapult/config/NodeConfiguration.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/types.h"
 #include <memory>
@@ -36,6 +37,8 @@ namespace rocksdb {
 }
 
 namespace catapult { namespace cache {
+
+	// region RdbDataIterator
 
 	/// Iterator adapter, allowing existence check on keys and data retrieval.
 	class RdbDataIterator {
@@ -85,33 +88,47 @@ namespace catapult { namespace cache {
 		bool m_isFound;
 	};
 
+	// endregion
+
+	// region RocksDatabaseSettings
+
 	/// RocksDb settings.
 	struct RocksDatabaseSettings {
 	public:
 		/// Creates default database settings.
 		RocksDatabaseSettings();
 
-		/// Creates database settings around \a databaseDirectory, column names (\a columnFamilyNames),
-		/// maximum size of saved batch (\a maxDatabaseWriteBatchSize) and \a pruningMode.
+		/// Creates database settings around \a databaseDirectory, column family names (\a columnFamilyNames) and \a pruningMode.
 		RocksDatabaseSettings(
 				const std::string& databaseDirectory,
 				const std::vector<std::string>& columnFamilyNames,
-				utils::FileSize maxDatabaseWriteBatchSize,
+				FilterPruningMode pruningMode);
+
+		/// Creates database settings around \a databaseDirectory, \a databaseConfig, column family names (\a columnFamilyNames)
+		/// and \a pruningMode.
+		RocksDatabaseSettings(
+				const std::string& databaseDirectory,
+				const config::NodeConfiguration::CacheDatabaseSubConfiguration& databaseConfig,
+				const std::vector<std::string>& columnFamilyNames,
 				FilterPruningMode pruningMode);
 
 	public:
 		/// Database directory.
 		const std::string DatabaseDirectory;
 
+		/// Database configuration.
+		const config::NodeConfiguration::CacheDatabaseSubConfiguration DatabaseConfig;
+
 		/// Names of database columns.
 		const std::vector<std::string> ColumnFamilyNames;
-
-		/// Maximum size of database write batch.
-		const utils::FileSize MaxDatabaseWriteBatchSize;
 
 		/// Database pruning mode.
 		const FilterPruningMode PruningMode;
 	};
+
+	// endregion
+
+	// region RocksDatabase
 
 	/// RocksDb-backed database.
 	class RocksDatabase {
@@ -159,4 +176,6 @@ namespace catapult { namespace cache {
 		std::unique_ptr<rocksdb::DB> m_pDb;
 		std::vector<rocksdb::ColumnFamilyHandle*> m_handles;
 	};
+
+	// endregion
 }}

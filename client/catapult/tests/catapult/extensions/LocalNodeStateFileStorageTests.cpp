@@ -321,7 +321,7 @@ namespace catapult { namespace extensions {
 
 	namespace {
 		cache::CatapultCache CreateCacheWithRealCoreSystemPlugins(const std::string& databaseDirectory) {
-			auto cacheConfig = cache::CacheConfiguration(databaseDirectory, utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+			auto cacheConfig = cache::CacheConfiguration(databaseDirectory, cache::PatriciaTreeStorageMode::Enabled);
 
 			cache::AccountStateCacheTypes::Options options;
 			options.ImportanceGrouping = 1;

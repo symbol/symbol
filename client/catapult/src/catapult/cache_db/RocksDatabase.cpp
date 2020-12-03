@@ -78,21 +78,72 @@ namespace catapult { namespace cache {
 
 	// region RocksDatabaseSettings
 
-	RocksDatabaseSettings::RocksDatabaseSettings() : PruningMode(FilterPruningMode::Disabled)
+	RocksDatabaseSettings::RocksDatabaseSettings()
+			: RocksDatabaseSettings(std::string(), std::vector<std::string>(), FilterPruningMode::Disabled)
 	{}
 
 	RocksDatabaseSettings::RocksDatabaseSettings(
 			const std::string& databaseDirectory,
 			const std::vector<std::string>& columnFamilyNames,
-			utils::FileSize maxDatabaseWriteBatchSize,
+			FilterPruningMode pruningMode)
+			: RocksDatabaseSettings(
+					databaseDirectory,
+					config::NodeConfiguration::CacheDatabaseSubConfiguration(),
+					columnFamilyNames,
+					pruningMode)
+	{}
+
+	RocksDatabaseSettings::RocksDatabaseSettings(
+			const std::string& databaseDirectory,
+			const config::NodeConfiguration::CacheDatabaseSubConfiguration& databaseConfig,
+			const std::vector<std::string>& columnFamilyNames,
 			FilterPruningMode pruningMode)
 			: DatabaseDirectory(databaseDirectory)
+			, DatabaseConfig(databaseConfig)
 			, ColumnFamilyNames(columnFamilyNames)
-			, MaxDatabaseWriteBatchSize(maxDatabaseWriteBatchSize)
 			, PruningMode(pruningMode)
 	{}
 
 	// endregion
+
+	// region RocksDatabase
+
+	namespace {
+		rocksdb::Options CreateDatabaseOptions(const config::NodeConfiguration::CacheDatabaseSubConfiguration& config) {
+			rocksdb::Options dbOptions;
+			dbOptions.create_if_missing = true;
+			dbOptions.create_missing_column_families = true;
+
+			if (config.MaxOpenFiles > 0)
+				dbOptions.max_open_files = static_cast<int>(config.MaxOpenFiles);
+
+			if (config.MaxBackgroundThreads > 0)
+				dbOptions.IncreaseParallelism(static_cast<int>(config.MaxBackgroundThreads));
+
+			if (config.MaxSubcompactionThreads > 0)
+				dbOptions.max_subcompactions = config.MaxSubcompactionThreads;
+
+			if (config.EnableStatistics)
+				dbOptions.statistics = rocksdb::CreateDBStatistics();
+
+			return dbOptions;
+		}
+
+		rocksdb::ColumnFamilyOptions CreateColumnFamilyOptions(
+				const config::NodeConfiguration::CacheDatabaseSubConfiguration& config,
+				rocksdb::CompactionFilter* pCompactionFilter) {
+			rocksdb::ColumnFamilyOptions columnFamilyOptions;
+			columnFamilyOptions.compaction_filter = pCompactionFilter;
+
+			if (utils::FileSize() != config.BlockCacheSize)
+				columnFamilyOptions.OptimizeForPointLookup(config.BlockCacheSize.bytes());
+
+			if (utils::FileSize() != config.MemtableMemoryBudget)
+				columnFamilyOptions.OptimizeLevelStyleCompaction(config.MemtableMemoryBudget.bytes());
+
+			return columnFamilyOptions;
+		}
+	}
 
 	RocksDatabase::RocksDatabase() = default;
 
@@ -100,28 +151,18 @@ namespace catapult { namespace cache {
 			: m_settings(settings)
 			, m_pruningFilter(m_settings.PruningMode)
 			, m_pWriteBatch(std::make_unique<rocksdb::WriteBatch>()) {
-		if (settings.ColumnFamilyNames.empty())
+		if (m_settings.ColumnFamilyNames.empty())
 			CATAPULT_THROW_INVALID_ARGUMENT("missing column family names");
-
-		if (0 != settings.MaxDatabaseWriteBatchSize.bytes() && settings.MaxDatabaseWriteBatchSize < utils::FileSize::FromKilobytes(100))
-			CATAPULT_THROW_INVALID_ARGUMENT("too small setting of DatabaseWriteBatchSize");
 
 		config::CatapultDirectory(m_settings.DatabaseDirectory).createAll();
 
-		m_pruningFilter.setPruningBoundary(0);
+		auto columnFamilyOptions = CreateColumnFamilyOptions(m_settings.DatabaseConfig, m_pruningFilter.compactionFilter());
+		std::vector<rocksdb::ColumnFamilyDescriptor> columnFamilies;
+		for (const auto& columnFamilyName : m_settings.ColumnFamilyNames)
+			columnFamilies.push_back(rocksdb::ColumnFamilyDescriptor(columnFamilyName, columnFamilyOptions));
 
 		rocksdb::DB* pDb;
-		rocksdb::Options dbOptions;
-		dbOptions.create_if_missing = true;
-		dbOptions.create_missing_column_families = true;
-
-		rocksdb::ColumnFamilyOptions defaultColumnOptions;
-		defaultColumnOptions.compaction_filter = m_pruningFilter.compactionFilter();
-
-		std::vector<rocksdb::ColumnFamilyDescriptor> columnFamilies;
-		for (const auto& columnFamilyName : settings.ColumnFamilyNames)
-			columnFamilies.push_back(rocksdb::ColumnFamilyDescriptor(columnFamilyName, defaultColumnOptions));
-
+		auto dbOptions = CreateDatabaseOptions(m_settings.DatabaseConfig);
 		auto status = rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
 		m_pDb.reset(pDb);
 		if (!status.ok())
@@ -216,9 +257,11 @@ namespace catapult { namespace cache {
 	}
 
 	void RocksDatabase::saveIfBatchFull() {
-		if (m_pWriteBatch->GetDataSize() < m_settings.MaxDatabaseWriteBatchSize.bytes())
+		if (m_pWriteBatch->GetDataSize() < m_settings.DatabaseConfig.MaxWriteBatchSize.bytes())
 			return;
 
 		flush();
 	}
+
+	// endregion
 }}

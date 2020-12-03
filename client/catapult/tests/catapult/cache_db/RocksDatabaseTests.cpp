@@ -37,11 +37,9 @@ namespace catapult { namespace cache {
 				const std::vector<std::string>& columnNames,
 				size_t numKilobytes = 0,
 				FilterPruningMode pruningMode = FilterPruningMode::Disabled) {
-			return RocksDatabaseSettings(
-					test::TempDirectoryGuard::DefaultName(),
-					columnNames,
-					utils::FileSize::FromKilobytes(numKilobytes),
-					pruningMode);
+			auto config = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+			config.MaxWriteBatchSize = utils::FileSize::FromKilobytes(numKilobytes);
+			return RocksDatabaseSettings(test::TempDirectoryGuard::DefaultName(), config, columnNames, pruningMode);
 		}
 
 		auto DefaultSettings() {
@@ -78,11 +76,6 @@ namespace catapult { namespace cache {
 
 		// Act + Assert:
 		EXPECT_THROW(RocksDatabase(CreateSettings({ "default" })), catapult_runtime_error);
-	}
-
-	TEST(TEST_CLASS, RdbThrowsWhenBatchSizeIsTooSmall) {
-		test::TempDirectoryGuard dbDirGuard;
-		EXPECT_THROW(RocksDatabase(CreateSettings({ "default" }, 99)), catapult_invalid_argument);
 	}
 
 	TEST(TEST_CLASS, CanOpenDatabaseWithValidBatchSize) {

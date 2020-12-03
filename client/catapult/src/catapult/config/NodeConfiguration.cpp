@@ -76,7 +76,6 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(EnableDispatcherAbortWhenFull);
 		LOAD_NODE_PROPERTY(EnableDispatcherInputAuditing);
 
-		LOAD_NODE_PROPERTY(MaxCacheDatabaseWriteBatchSize);
 		LOAD_NODE_PROPERTY(MaxTrackedNodes);
 
 		LOAD_NODE_PROPERTY(MinPartnerNodeVersion);
@@ -87,6 +86,19 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(ListenInterface);
 
 #undef LOAD_NODE_PROPERTY
+
+#define LOAD_CACHE_DATABASE_PROPERTY(NAME) utils::LoadIniProperty(bag, "cache_database", #NAME, config.CacheDatabase.NAME)
+
+		LOAD_CACHE_DATABASE_PROPERTY(EnableStatistics);
+		LOAD_CACHE_DATABASE_PROPERTY(MaxOpenFiles);
+		LOAD_CACHE_DATABASE_PROPERTY(MaxBackgroundThreads);
+		LOAD_CACHE_DATABASE_PROPERTY(MaxSubcompactionThreads);
+		LOAD_CACHE_DATABASE_PROPERTY(BlockCacheSize);
+		LOAD_CACHE_DATABASE_PROPERTY(MemtableMemoryBudget);
+
+		LOAD_CACHE_DATABASE_PROPERTY(MaxWriteBatchSize);
+
+#undef LOAD_CACHE_DATABASE_PROPERTY
 
 #define LOAD_LOCALNODE_PROPERTY(NAME) utils::LoadIniProperty(bag, "localnode", #NAME, config.Local.NAME)
 
@@ -129,7 +141,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 37 + 4 + 4 + 5 + 7);
+		utils::VerifyBagSizeExact(bag, 36 + 7 + 4 + 4 + 5 + 7);
 		return config;
 	}
 

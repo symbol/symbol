@@ -76,7 +76,6 @@ namespace catapult { namespace config {
 							{ "enableDispatcherAbortWhenFull", "true" },
 							{ "enableDispatcherInputAuditing", "true" },
 
-							{ "maxCacheDatabaseWriteBatchSize", "17KB" },
 							{ "maxTrackedNodes", "222" },
 
 							{ "minPartnerNodeVersion", "3.3.3.3" },
@@ -85,6 +84,19 @@ namespace catapult { namespace config {
 							{ "trustedHosts", "foo,BAR" },
 							{ "localNetworks", "1.2.3.4,9.8.7.6" },
 							{ "listenInterface", "2.4.8.16" }
+						}
+					},
+					{
+						"cache_database",
+						{
+							{ "enableStatistics", "true" },
+							{ "maxOpenFiles", "1111" },
+							{ "maxBackgroundThreads", "19" },
+							{ "maxSubcompactionThreads", "11" },
+							{ "blockCacheSize", "111MB" },
+							{ "memtableMemoryBudget", "45MB" },
+
+							{ "maxWriteBatchSize", "17KB" }
 						}
 					},
 					{
@@ -177,7 +189,6 @@ namespace catapult { namespace config {
 				EXPECT_FALSE(config.EnableDispatcherAbortWhenFull);
 				EXPECT_FALSE(config.EnableDispatcherInputAuditing);
 
-				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(0u, config.MaxTrackedNodes);
 
 				EXPECT_EQ(ionet::NodeVersion(), config.MinPartnerNodeVersion);
@@ -186,6 +197,15 @@ namespace catapult { namespace config {
 				EXPECT_TRUE(config.TrustedHosts.empty());
 				EXPECT_TRUE(config.LocalNetworks.empty());
 				EXPECT_EQ("", config.ListenInterface);
+
+				EXPECT_FALSE(config.CacheDatabase.EnableStatistics);
+				EXPECT_EQ(0u, config.CacheDatabase.MaxOpenFiles);
+				EXPECT_EQ(0u, config.CacheDatabase.MaxBackgroundThreads);
+				EXPECT_EQ(0u, config.CacheDatabase.MaxSubcompactionThreads);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabase.BlockCacheSize);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabase.MemtableMemoryBudget);
+
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabase.MaxWriteBatchSize);
 
 				EXPECT_EQ("", config.Local.Host);
 				EXPECT_EQ("", config.Local.FriendlyName);
@@ -255,7 +275,6 @@ namespace catapult { namespace config {
 				EXPECT_TRUE(config.EnableDispatcherAbortWhenFull);
 				EXPECT_TRUE(config.EnableDispatcherInputAuditing);
 
-				EXPECT_EQ(utils::FileSize::FromKilobytes(17), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(222u, config.MaxTrackedNodes);
 
 				EXPECT_EQ(ionet::NodeVersion(0x03030303), config.MinPartnerNodeVersion);
@@ -264,6 +283,15 @@ namespace catapult { namespace config {
 				EXPECT_EQ(std::unordered_set<std::string>({ "foo", "BAR" }), config.TrustedHosts);
 				EXPECT_EQ(std::unordered_set<std::string>({ "1.2.3.4", "9.8.7.6" }), config.LocalNetworks);
 				EXPECT_EQ("2.4.8.16", config.ListenInterface);
+
+				EXPECT_TRUE(config.CacheDatabase.EnableStatistics);
+				EXPECT_EQ(1111u, config.CacheDatabase.MaxOpenFiles);
+				EXPECT_EQ(19u, config.CacheDatabase.MaxBackgroundThreads);
+				EXPECT_EQ(11u, config.CacheDatabase.MaxSubcompactionThreads);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(111), config.CacheDatabase.BlockCacheSize);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(45), config.CacheDatabase.MemtableMemoryBudget);
+
+				EXPECT_EQ(utils::FileSize::FromKilobytes(17), config.CacheDatabase.MaxWriteBatchSize);
 
 				EXPECT_EQ("alice.com", config.Local.Host);
 				EXPECT_EQ("a GREAT node", config.Local.FriendlyName);

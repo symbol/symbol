@@ -141,7 +141,6 @@ namespace catapult { namespace config {
 			EXPECT_TRUE(config.EnableDispatcherAbortWhenFull);
 			EXPECT_TRUE(config.EnableDispatcherInputAuditing);
 
-			EXPECT_EQ(utils::FileSize::FromMegabytes(5), config.MaxCacheDatabaseWriteBatchSize);
 			EXPECT_EQ(5'000u, config.MaxTrackedNodes);
 
 			EXPECT_EQ(ionet::GetCurrentServerVersion(), config.MinPartnerNodeVersion);
@@ -150,6 +149,15 @@ namespace catapult { namespace config {
 			EXPECT_TRUE(config.TrustedHosts.empty());
 			EXPECT_EQ(std::unordered_set<std::string>({ "127.0.0.1" }), config.LocalNetworks);
 			EXPECT_EQ("0.0.0.0", config.ListenInterface);
+
+			EXPECT_FALSE(config.CacheDatabase.EnableStatistics);
+			EXPECT_EQ(0u, config.CacheDatabase.MaxOpenFiles);
+			EXPECT_EQ(0u, config.CacheDatabase.MaxBackgroundThreads);
+			EXPECT_EQ(0u, config.CacheDatabase.MaxSubcompactionThreads);
+			EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabase.BlockCacheSize);
+			EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.CacheDatabase.MemtableMemoryBudget);
+
+			EXPECT_EQ(utils::FileSize::FromMegabytes(5), config.CacheDatabase.MaxWriteBatchSize);
 
 			EXPECT_EQ("", config.Local.Host);
 			EXPECT_EQ("", config.Local.FriendlyName);

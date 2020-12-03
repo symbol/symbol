@@ -585,7 +585,7 @@ namespace catapult { namespace harvesting {
 			auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
 			auto balance = Amount(1'000'000'000'000);
 			auto cacheConfig = enableVerifiableState
-					? cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled)
+					? cache::CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Enabled)
 					: cache::CacheConfiguration();
 			TestContext context(
 					CreateCacheWithAccount(cacheConfig, Height(1), accountDescriptorWrapper, balance, model::ImportanceHeight(1)),

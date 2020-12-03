@@ -59,7 +59,7 @@ namespace catapult { namespace plugins {
 
 		return cache::CacheConfiguration(
 				(std::filesystem::path(m_storageConfig.CacheDatabaseDirectory) / name).generic_string(),
-				m_storageConfig.MaxCacheDatabaseWriteBatchSize,
+				m_storageConfig.CacheDatabaseConfig,
 				m_config.EnableVerifiableState ? cache::PatriciaTreeStorageMode::Enabled : cache::PatriciaTreeStorageMode::Disabled);
 	}
 

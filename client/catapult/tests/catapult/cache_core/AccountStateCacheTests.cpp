@@ -427,7 +427,7 @@ namespace catapult { namespace cache {
 	ID_BASED_TEST(FindByMutableAutomaticallyOptimizesCurrencyMosaicAccessWhenPresent) {
 		// Arrange:
 		test::TempDirectoryGuard dbDirGuard;
-		auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+		auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Enabled);
 
 		AccountStateCache cache(cacheConfig, Default_Cache_Options);
 		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
@@ -457,7 +457,7 @@ namespace catapult { namespace cache {
 	ID_BASED_TEST(FindByMutableAutomaticallyOptimizesCurrencyMosaicAccessWhenNotPresent) {
 		// Arrange: this test needs to use rocksdb because it serializes / deserializes account states for each delta
 		test::TempDirectoryGuard dbDirGuard;
-		auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+		auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Enabled);
 
 		AccountStateCache cache(cacheConfig, Default_Cache_Options);
 		auto accountIdentifier = TTraits::GenerateAccountIdentifier();

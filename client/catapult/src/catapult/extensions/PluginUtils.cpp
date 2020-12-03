@@ -32,7 +32,7 @@ namespace catapult { namespace extensions {
 		plugins::StorageConfiguration storageConfig;
 		storageConfig.PreferCacheDatabase = config.Node.EnableCacheDatabaseStorage;
 		storageConfig.CacheDatabaseDirectory = (std::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
-		storageConfig.MaxCacheDatabaseWriteBatchSize = config.Node.MaxCacheDatabaseWriteBatchSize;
+		storageConfig.CacheDatabaseConfig = config.Node.CacheDatabase;
 		return storageConfig;
 	}
 

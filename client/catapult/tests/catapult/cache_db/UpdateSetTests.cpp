@@ -98,7 +98,6 @@ namespace catapult { namespace cache {
 						: Context(RocksDatabaseSettings(
 								test::TempDirectoryGuard::DefaultName(),
 								{ "default" },
-								utils::FileSize(),
 								FilterPruningMode::Disabled))
 						, Set(Context.database(), 0) {
 					// seed the set with a few elements

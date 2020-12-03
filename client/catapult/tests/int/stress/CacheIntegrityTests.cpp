@@ -278,8 +278,12 @@ namespace catapult { namespace cache {
 		auto multipler = test::GetStressIterationCount() ? 10u : 1u;
 		auto entriesCount = 100'000 * multipler;
 		auto pruneCount = 30'000 * multipler;
+
+		auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+		cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromMegabytes(5);
+
 		test::TempDirectoryGuard dbDirGuard;
-		CacheConfiguration config(dbDirGuard.name(), utils::FileSize::FromMegabytes(5), PatriciaTreeStorageMode::Disabled);
+		CacheConfiguration config(dbDirGuard.name(), cacheDatabaseConfig, PatriciaTreeStorageMode::Disabled);
 
 		// - set retention time to 0, to simplify test
 		HashCache cache(config, utils::TimeSpan::FromSeconds(0));

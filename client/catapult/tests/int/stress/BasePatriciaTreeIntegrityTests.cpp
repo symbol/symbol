@@ -60,7 +60,10 @@ namespace catapult { namespace cache {
 				const std::string& expectedMerkleRootStr) {
 			// Arrange: create a db-backed account state cache
 			test::TempDirectoryGuard dbDirGuard;
-			CacheConfiguration cacheConfig(dbDirGuard.name(), utils::FileSize::FromMegabytes(5), PatriciaTreeStorageMode::Enabled);
+
+			auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+			cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromMegabytes(5);
+			CacheConfiguration cacheConfig(dbDirGuard.name(), cacheDatabaseConfig, PatriciaTreeStorageMode::Enabled);
 			AccountStateCache cache(cacheConfig, CreateAccountStateCacheOptions());
 
 			// - load all test accounts into the delta
@@ -159,8 +162,12 @@ namespace catapult { namespace cache {
 		void AssertCanApplyManyAddsToTree(size_t numBatches) {
 			// Arrange: create a db-backed account state cache
 			CATAPULT_LOG(debug) << "creating patricia tree enabled cache";
+
+			auto cacheDatabaseConfig = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+			cacheDatabaseConfig.MaxWriteBatchSize = utils::FileSize::FromMegabytes(5);
+
 			test::TempDirectoryGuard dbDirGuard;
-			CacheConfiguration cacheConfig(dbDirGuard.name(), utils::FileSize::FromMegabytes(5), PatriciaTreeStorageMode::Enabled);
+			CacheConfiguration cacheConfig(dbDirGuard.name(), cacheDatabaseConfig, PatriciaTreeStorageMode::Enabled);
 			AccountStateCache cache(cacheConfig, CreateAccountStateCacheOptions());
 
 			// - load all test accounts into the delta

@@ -70,7 +70,7 @@ namespace catapult { namespace harvesting {
 		cache::CatapultCache CreateCatapultCache(const std::string& databaseDirectory) {
 			auto cacheId = cache::HashCache::Id;
 			auto config = CreateConfiguration();
-			auto cacheConfig = cache::CacheConfiguration(databaseDirectory, utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+			auto cacheConfig = cache::CacheConfiguration(databaseDirectory, cache::PatriciaTreeStorageMode::Enabled);
 
 			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
 			test::CoreSystemCacheFactory::CreateSubCaches(config, subCaches);

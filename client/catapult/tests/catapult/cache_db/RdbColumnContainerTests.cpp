@@ -52,11 +52,9 @@ namespace catapult { namespace cache {
 		};
 
 		auto CreateSettings(size_t numKilobytes, FilterPruningMode pruningMode = FilterPruningMode::Disabled) {
-			return RocksDatabaseSettings(
-					test::TempDirectoryGuard::DefaultName(),
-					{ "default" },
-					utils::FileSize::FromKilobytes(numKilobytes),
-					pruningMode);
+			auto config = config::NodeConfiguration::CacheDatabaseSubConfiguration();
+			config.MaxWriteBatchSize = utils::FileSize::FromKilobytes(numKilobytes);
+			return RocksDatabaseSettings(test::TempDirectoryGuard::DefaultName(), config, { "default" }, pruningMode);
 		}
 
 		auto DefaultSettings() {

@@ -126,9 +126,6 @@ namespace catapult { namespace config {
 		/// \c true if all dispatcher inputs should be audited.
 		bool EnableDispatcherInputAuditing;
 
-		/// Maximum cache database write batch size.
-		utils::FileSize MaxCacheDatabaseWriteBatchSize;
-
 		/// Maximum number of nodes to track in memory.
 		uint32_t MaxTrackedNodes;
 
@@ -146,6 +143,37 @@ namespace catapult { namespace config {
 
 		/// Network interface on which to listen.
 		std::string ListenInterface;
+
+	public:
+		/// Cache database configuration.
+		struct CacheDatabaseSubConfiguration {
+			/// \c true if operational statistics should be captured and logged.
+			bool EnableStatistics;
+
+			/// Maximum number of open files.
+			uint32_t MaxOpenFiles;
+
+			/// Maximum number of background threads.
+			uint32_t MaxBackgroundThreads;
+
+			/// Maximum number of threads that will concurrently perform a compaction.
+			uint32_t MaxSubcompactionThreads;
+
+			/// Block cache size.
+			/// \note Optimizes for point lookup when nonzero.
+			utils::FileSize BlockCacheSize;
+
+			/// Memtable memory budget.
+			/// \note Optimizes level style compaction when nonzero.
+			utils::FileSize MemtableMemoryBudget;
+
+			/// Maximum write batch size.
+			utils::FileSize MaxWriteBatchSize;
+		};
+
+	public:
+		/// Cache database configuration.
+		CacheDatabaseSubConfiguration CacheDatabase;
 
 	public:
 		/// Local node configuration.

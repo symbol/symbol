@@ -45,8 +45,8 @@ namespace catapult { namespace plugins {
 		/// Base directory to use for storing cache database.
 		std::string CacheDatabaseDirectory;
 
-		/// Maximum cache database write batch size.
-		utils::FileSize MaxCacheDatabaseWriteBatchSize;
+		/// Cache database configuration.
+		config::NodeConfiguration::CacheDatabaseSubConfiguration CacheDatabaseConfig;
 	};
 
 	/// Manager for registering plugins.

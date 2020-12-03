@@ -78,11 +78,21 @@ namespace catapult { namespace config {
 				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
 			}
 		}
+
+		void ValidateConfiguration(const config::NodeConfiguration& config) {
+			auto maxWriteBatchSize = config.CacheDatabase.MaxWriteBatchSize;
+			if (utils::FileSize() != maxWriteBatchSize && maxWriteBatchSize < utils::FileSize::FromKilobytes(100)) {
+				std::ostringstream out;
+				out << "MaxWriteBatchSize (" << maxWriteBatchSize << ") must be unset or at least 100KB";
+				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
+			}
+		}
 	}
 
 	void ValidateConfiguration(const CatapultConfiguration& config) {
 		ValidateConfiguration(config.BlockChain);
 		ValidateConfiguration(config.BlockChain, config.Inflation);
+		ValidateConfiguration(config.Node);
 	}
 
 #undef CATAPULT_THROW_VALIDATION_ERROR

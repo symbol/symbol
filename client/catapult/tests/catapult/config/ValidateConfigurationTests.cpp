@@ -269,4 +269,41 @@ namespace catapult { namespace config {
 	}
 
 	// endregion
+
+	// region cache database max write batch size validation
+
+	namespace {
+		auto CreateCatapultConfigurationWithMaxWriteBatchSize(utils::FileSize maxWriteBatchSize) {
+			auto mutableConfig = CreateMutableCatapultConfiguration();
+			mutableConfig.Node.CacheDatabase.MaxWriteBatchSize = maxWriteBatchSize;
+			return mutableConfig.ToConst();
+		}
+	}
+
+	TEST(TEST_CLASS, MaxWriteBatchSizeMustBeUnsetOrAtLeastMinValue) {
+		// Arrange:
+		auto assertNoThrow = [](uint32_t maxWriteBatchSizeKb) {
+			auto config = CreateCatapultConfigurationWithMaxWriteBatchSize(utils::FileSize::FromKilobytes(maxWriteBatchSizeKb));
+			EXPECT_NO_THROW(ValidateConfiguration(config)) << "size " << maxWriteBatchSizeKb;
+		};
+
+		auto assertThrow = [](uint32_t maxWriteBatchSizeKb) {
+			auto config = CreateCatapultConfigurationWithMaxWriteBatchSize(utils::FileSize::FromKilobytes(maxWriteBatchSizeKb));
+			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error) << "size " << maxWriteBatchSizeKb;
+		};
+
+		// Act + Assert:
+		// - no exceptions
+		assertNoThrow(0); // unset
+		assertNoThrow(100); // min value
+		assertNoThrow(101);
+		assertNoThrow(9999);
+
+		// - exceptions
+		assertThrow(1);
+		assertThrow(50);
+		assertThrow(99);
+	}
+
+	// endregion
 }}

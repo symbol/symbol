@@ -88,11 +88,7 @@ namespace catapult { namespace cache {
 		class CacheDatabaseHolder {
 		public:
 			CacheDatabaseHolder()
-					: m_database(CacheDatabaseSettings(
-							m_dbDirGuard.name(),
-							{ "default", "patricia_tree" },
-							utils::FileSize(),
-							FilterPruningMode::Disabled))
+					: m_database(CacheDatabaseSettings(m_dbDirGuard.name(), { "default", "patricia_tree" }, FilterPruningMode::Disabled))
 			{}
 
 		public:

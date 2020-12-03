@@ -38,8 +38,8 @@ namespace catapult { namespace cache {
 				: m_pDatabase(config.ShouldUseCacheDatabase
 						? std::make_unique<CacheDatabase>(CacheDatabaseSettings(
 								config.CacheDatabaseDirectory,
+								config.CacheDatabaseConfig,
 								GetAdjustedColumnFamilyNames(config, columnFamilyNames),
-								config.MaxCacheDatabaseWriteBatchSize,
 								pruningMode))
 						: std::make_unique<CacheDatabase>())
 				, m_containerMode(GetContainerMode(config))
