@@ -6,7 +6,6 @@ services:
   - docker
 env:
   global:
-    - DEV_BRANCH=dev
     - RELEASE_BRANCH=main
     - POST_RELEASE_BRANCH=main
     - RELEASE_MESSAGE=release
@@ -17,7 +16,8 @@ env:
 cache: yarn
 
 before_script:
-- . ./travis/travis-functions.sh && log_env_variables
+- . ./travis/docker-functions.sh
+- log_env_variables
 - echo '$SUBPROJECT'
 - sh yarn_setup.sh
 
@@ -27,16 +27,16 @@ jobs:
   include:
     - stage: test
       name: docker test build
-      script: /bin/bash travis/docker-functions.sh docker_build_version_file
+      script: docker_build $(load_version_from_file)
     - stage: publish
       name: docker publish alpha
-      script: /bin/bash travis/docker-functions.sh docker_build_version_file publish
+      script: docker_build $(load_version_from_file) publish
       if: branch = env(DEV_BRANCH) AND type = push
     - stage: release
       name: docker publish release
-      script: /bin/bash travis/docker-functions.sh docker_build_version_file release
+      script: docker_build $(load_version_from_file) release
       if: branch = env(RELEASE_BRANCH) AND type = api AND commit_message = env(RELEASE_MESSAGE)
     - stage: post release
       name: tag and version upgrade
-      script: /bin/bash travis/travis-functions.sh post_release_version_file
+      script: post_release_version_file
       if: branch = env(RELEASE_BRANCH) AND type = api AND commit_message = env(RELEASE_MESSAGE)
