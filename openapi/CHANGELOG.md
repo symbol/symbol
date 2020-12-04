@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.4] - 25-Sep-2020
+
+Targets catapult-rest 2.1.0
+
+### Added
+
+- Added new core failure status.
+- Added version field to states.
+- Added ``/merkle`` endpoints and Merkle Tree for states.
+- Added new block types.
+- Added ``/node/unlockedaccount`` endpoint.
+- Updated Finalization Proof dto for the latest Testnet server changes.
+- Added Account restriction search ``/restrictions/account`` endpoint.
+- Added get mosaic restriction by composite hash ``/restrictions/mosaic/{compositeHash}`` endpoint.
+- Added get secret lock by composite hash ``/lock/secret/{compositeHash}`` endpoint.
+- Added get metadata by composite hash ``/metadata/{compositeHash}`` endpoint.
+- Added new IPv4 and IPv6 Role Types.
+- Added new private Network Types.
+
+### Updated
+
+- Allowing hash lock searches without filters.
+- Allowing secret lock searches without filters.
+- Updated finalization proof schema added optional ``signatureSchema``.
+
+### Removed
+
+- ``id`` from namespace's meta.
+
 ## [0.10.0] - 25-Sep-2020
 
 Targets catapult-rest 2.1.0
