@@ -5,6 +5,9 @@ required:
   - hashes
   - signatures
 properties:
+  signatureSchema:
+    description: Signature schema to sepecify v1/v2 voting signature (Optional. For testnet only).
+    type: integer
   stage:
     description: Message stage
     $ref: "./StageEnum.yml"
