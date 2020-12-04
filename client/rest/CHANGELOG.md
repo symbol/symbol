@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.2.0] - 3-Dec-2020
+### Added
+- Catapult-server finality (0.10.0.4 - testnet/v3) support.
+- Added version fields to states.
+- Added `/merkle` endpoints returning the merkle trees.
+- Simplified search endpoints.
+- Added multi-version transaction support.
+- Added Symbol Bootstrap support for development and unit testing.
+- Added V1 and V2 voting key link transaction support.
+
+### Updated
+- Updated `latest` flag in namespace's collection and endpoints.
+- Updated finality proof endpoints to match the latest Testnet changes. 
+- Updated server status codes.
+
+### Fixed
+- Fixed `transferMosaicId`, `fromHeight` and `toHeight` transaction search filters.
+
 ## [v2.1.0] - 25-Sept-2020
 ### Added
 - Added `totalTransactionsCount` to the block meta.
