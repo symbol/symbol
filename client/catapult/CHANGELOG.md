@@ -3,24 +3,36 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.10.0.4] - 06-Nov-2020
-### Added 
- - ipv6 support (#63)
+## [0.10.0.4] - 04-Dec-2020
+### Added
+ - ipv6 support #63
+ - versions to all state primary documents in mongo #113 #115
+ - clang 11.0.1 support
+ - gcc 10.2.0 support
 
 ### Fixed
- - finalization fork resolution #102 
+ - finalization fork resolution #102
  - add ListenInterface #55
  - resolve confirmed transaction addresses #82
  - recovery finalization support (EnableRevoteOnBoot), #90
  - check node version when adding to node container #97
  - allow non-voting nodes to pull finalization proofs more aggressively #99
  - fix mongo indexes
- - minor issues: #93, #96, #98, #100, #101, #104, #105
+ - non-voting node with higher importances does not get rolled back when a fork is resolved #108
+ - reduce allocations
+   - in PatriciaTree
+   - using custom memory pool with OpenSSL
+ - Trail-of-Bits: cosmetic changes
+ - minor issues: #93, #96, #98, #100, #101, #104, #105, #116
 
 ### Changed
  - change voting key tree into key list
  - change voting key link transaction, to use shorter keys
  - mongo namespace meta.active -> meta.latest
+ - upgrade dependencies to latest versions
+ - drop use of boost::filesystem and boost::thread_group
+ - add extended importance blocks to allow trustless verification of finalization proofs #103
+ - only serialize non-empty AccountRestrictions #114
 
 ## [0.10.0.3] - 25-Sep-2020
 ### Fixed
@@ -333,6 +345,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.10.0.4]: https://github.com/nemtech/catapult-server/compare/v0.10.0.3...v0.10.0.4
 [0.10.0.3]: https://github.com/nemtech/catapult-server/compare/v0.10.0.2...v0.10.0.3
 [0.10.0.2]: https://github.com/nemtech/catapult-server/compare/v0.10.0.1...v0.10.0.2
 [0.10.0.1]: https://github.com/nemtech/catapult-server/compare/v0.9.6.4...v0.10.0.1
@@ -355,4 +368,3 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 [0.3.0.1]: https://github.com/nemtech/catapult-server/compare/v0.2.0.2...v0.3.0.1
 [0.2.0.2]: https://github.com/nemtech/catapult-server/compare/v0.1.0.1...v0.2.0.2
 [0.1.0.1]: https://github.com/nemtech/catapult-server/releases/tag/v0.1.0.1
-
