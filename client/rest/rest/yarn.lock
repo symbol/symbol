@@ -3492,7 +3492,7 @@ lodash.without@~4.4.0:
   resolved "https://registry.yarnpkg.com/lodash.without/-/lodash.without-4.4.0.tgz#3cd4574a00b67bae373a94b748772640507b7aac"
   integrity sha1-PNRXSgC2e643OpS3SHcmQFB7eqw=
 
-lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19:
+lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
@@ -5900,10 +5900,10 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-symbol-bootstrap@0.3.0-alpha-202012011317:
-  version "0.3.0-alpha-202012011317"
-  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-0.3.0-alpha-202012011317.tgz#3a04060cf09b78a3b31818f8e44761c252ef1c41"
-  integrity sha512-nLYQy+3VpyTi6wgq7Hrtg1JXXD+olZ4u+/tlYHwnjq/mpTyfVQAeWKJWq9z5buyPvuZQdUgcxG5IRytWx/uaSg==
+symbol-bootstrap@0.3.0-alpha-202012041002:
+  version "0.3.0-alpha-202012041002"
+  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-0.3.0-alpha-202012041002.tgz#a924b4be4a679f6e710e4ddc74b90a6a94d1525b"
+  integrity sha512-z7FukaQTeG2gKiGwL4kGy2b57WKfx0jE9DvTh4Pjdyrg/0Hht2u9giBg385Jsf8jsfurGfbNBPESumpgfsXUYw==
   dependencies:
     "@oclif/command" "^1.7.0"
     "@oclif/config" "^1.16.0"
@@ -5911,6 +5911,7 @@ symbol-bootstrap@0.3.0-alpha-202012011317:
     figlet "^1.2.4"
     handlebars "^4.7.6"
     js-yaml "^3.14.0"
+    lodash "^4.17.20"
     memorystream "^0.3.1"
     node-forge "^0.10.0"
     rxjs "^6.6.3"

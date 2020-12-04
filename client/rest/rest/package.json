@@ -47,7 +47,7 @@
     "nodemon": "^2.0.6",
     "rimraf": "^2.6.3",
     "sinon": "^7.3.2",
-    "symbol-bootstrap": "0.3.0-alpha-202012011317"
+    "symbol-bootstrap": "0.3.0-alpha-202012041002"
   },
   "dependencies": {
     "catapult-sdk": "link:../catapult-sdk",
@@ -57,9 +57,9 @@
     "nyc": "^14.1.1",
     "restify": "^8.3.3",
     "restify-errors": "^8.0.0",
+    "sshpk": "1.16.1",
     "winston": "^3.2.1",
     "ws": "^7.1.0",
-    "zeromq": "^5.1.0",
-    "sshpk": "1.16.1"
+    "zeromq": "^5.1.0"
   }
 }
