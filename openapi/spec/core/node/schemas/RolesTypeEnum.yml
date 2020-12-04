@@ -1,19 +1,17 @@
 type: integer
-enum:
-  - 1
-  - 2
-  - 3
-  - 4
-  - 5
-  - 6
-  - 7
 description: |
-  Role of the node:
+  A number that defines the different roles the node provides. Possible roles are:
   * 1 - Peer node.
   * 2 - Api node.
-  * 3 - Peer Api node.
   * 4 - Voting node.
-  * 5 - Peer Voting node.
-  * 6 - Api Voting node.
-  * 7 - Peer Api Voting node.
-example: 2
+  * 64 - IPv4 compatible node
+  * 128 - IPv6 compatible node.
+
+  The values are bitwise added together, Examples:
+  1 = Just Peer.
+  2 = Just Api.
+  3 = Peer and Api node.
+  7 = Peer, Api and Voting node.
+  65 = IPv4 and Peer node.
+
+example: 7
