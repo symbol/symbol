@@ -39,8 +39,16 @@ namespace catapult { namespace plugins {
 
 	/// Additional storage configuration.
 	struct StorageConfiguration {
+	public:
+		/// Creates default configuration.
+		StorageConfiguration()
+				: PreferCacheDatabase(false)
+				, CacheDatabaseConfig() // default initialize
+		{}
+
+	public:
 		/// Prefer using a database for cache storage.
-		bool PreferCacheDatabase = false;
+		bool PreferCacheDatabase;
 
 		/// Base directory to use for storing cache database.
 		std::string CacheDatabaseDirectory;
