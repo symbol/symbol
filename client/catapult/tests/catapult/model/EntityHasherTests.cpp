@@ -143,7 +143,7 @@ namespace catapult { namespace model {
 
 		// Act: change the last byte
 		auto* pLastByte = reinterpret_cast<uint8_t*>(pEntity.get() + 1) - TTraits::Footer_Size - 1;
-		++*pLastByte;
+		*pLastByte ^= 0xFF;
 		auto modifiedHash = TTraits::CalculateHash(*pEntity, generationHashSeed);
 
 		// Assert:
