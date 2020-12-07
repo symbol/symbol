@@ -14,6 +14,19 @@ Required
  - pkg-config [for zeromq]
  - zsh [for Step 2]
 
+## Step 0 - (Optional) Ubuntu setup
+
+``` sh
+sudo apt update
+sudo apt -y upgrade
+sudo apt -y install gcc g++ cmake libssl-dev ninja-build zsh pkg-config
+
+zsh
+
+mkdir -p cat_deps_dir
+export CAT_DEPS_DIR=$HOME/cat_deps_dir
+```
+
 ## Step 1 - Download all dependencies from source
 
 ```sh
@@ -160,7 +173,7 @@ git clone https://github.com/nemtech/catapult-server.git
 cd catapult-server
 
 mkdir _build && cd _build
-cmake BOOST_ROOT="${CAT_DEPS_DIR}/boost" cmake .. \
+BOOST_ROOT="${CAT_DEPS_DIR}/boost" cmake .. \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DCMAKE_PREFIX_PATH="${CAT_DEPS_DIR}/facebook;${CAT_DEPS_DIR}/google;${CAT_DEPS_DIR}/mongodb;${CAT_DEPS_DIR}/zeromq" \
 	\
