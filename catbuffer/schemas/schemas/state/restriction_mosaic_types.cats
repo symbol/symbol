@@ -50,4 +50,4 @@ struct GlobalKeyValueSet
 	keyValueCount = uint8
 
 	# key value array
-	keys = array(GlobalKeyValue, keyValueCount)
+	keys = array(GlobalKeyValue, keyValueCount, sort_key=key)
