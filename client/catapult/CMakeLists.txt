@@ -30,7 +30,7 @@ endfunction()
 
 ### setup boost
 message("--- locating boost dependencies ---")
-find_package(Boost COMPONENTS ${CATAPULT_BOOST_COMPONENTS} REQUIRED)
+find_package(Boost 1.74.0 EXACT COMPONENTS ${CATAPULT_BOOST_COMPONENTS} REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 message("boost     ver: ${Boost_VERSION}")
@@ -40,7 +40,7 @@ message("boost    libs: ${Boost_LIBRARIES}")
 ### setup openssl
 message("--- locating openssl dependencies ---")
 
-find_package(OpenSSL REQUIRED)
+find_package(OpenSSL 1.1.1 EXACT REQUIRED)
 message("OpenSSL   ver: ${OPENSSL_VERSION}")
 message("OpenSSL  root: ${OPENSSL_ROOT_DIR}")
 message("OpenSSL   inc: ${OPENSSL_INCLUDE_DIR}")
@@ -54,7 +54,7 @@ endfunction()
 
 ### setup rocksdb
 message("--- locating rocksdb dependencies ---")
-find_package(RocksDB REQUIRED)
+find_package(RocksDB 6.13.3 EXACT REQUIRED)
 
 if(WIN32)
 	set(RocksDB_LIBRARY RocksDB::rocksdb)

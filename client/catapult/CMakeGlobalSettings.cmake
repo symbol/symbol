@@ -210,7 +210,7 @@ endif()
 ### define gtest helper functions
 
 if(ENABLE_TESTS)
-	find_package(GTest REQUIRED)
+	find_package(GTest 1.10.0 EXACT REQUIRED)
 endif()
 
 # find and set gtest includes
