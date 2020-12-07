@@ -23,7 +23,7 @@ struct AddressKeyValueSet
 	keyValueCount = uint8
 
 	# key value array
-	keys = array(AddressKeyValue, keyValueCount)
+	keys = array(AddressKeyValue, keyValueCount, sort_key=key)
 
 # binary layout of restriction rule being applied
 struct RestrictionRule
