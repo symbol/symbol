@@ -26,7 +26,8 @@ namespace catapult { namespace ionet {
 
 	namespace {
 		uint8_t GetPackedSize(const std::string& str) {
-			return static_cast<uint8_t>(std::min<size_t>(str.size(), std::numeric_limits<uint8_t>::max()));
+			// string sizes are checked in Node constructor, so checked_cast is precautionary
+			return utils::checked_cast<size_t, uint8_t>(str.size());
 		}
 	}
 
