@@ -24,8 +24,15 @@ Make sure that the server's host is accessible from the internet and that the po
 
 ### Prerequisites
 
+Required
+
  * cmake >= 3.14
+ * git
  * python 3.x
+
+Recommended
+
+ - ninja-build
 
 ### Compilers
 

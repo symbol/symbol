@@ -10,12 +10,9 @@ Assume an environment variable named `CAT_DEPS_DIR` is defined as the directory 
 
 Required
 
- - git
  - OpenSSL dev library (libssl-dev) >= 1.1.1g
-
-Recommended
-
- - ninja-build
+ - pkg-config [for zeromq]
+ - zsh [for Step 2]
 
 ## Step 1 - Download all dependencies from source
 
@@ -165,7 +162,11 @@ cd catapult-server
 mkdir _build && cd _build
 cmake BOOST_ROOT="${CAT_DEPS_DIR}/boost" cmake .. \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	-DCMAKE_PREFIX_PATH="${CAT_DEPS_DIR}/facebook:${CAT_DEPS_DIR}/google:${CAT_DEPS_DIR}/mongodb:${CAT_DEPS_DIR}/zeromq" \
+	-DCMAKE_PREFIX_PATH="${CAT_DEPS_DIR}/facebook;${CAT_DEPS_DIR}/google;${CAT_DEPS_DIR}/mongodb;${CAT_DEPS_DIR}/zeromq" \
 	\
 	-GNinja
+ninja publish
+ninja -j4
 ```
+
+:warning: On MacOS, use ':' as separator character instead of ';'.
