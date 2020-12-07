@@ -33,7 +33,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
 # log requires { atomic chrono filesystem log_setup regex thread }
-set(CATAPULT_BOOST_COMPONENTS atomic chrono filesystem log log_setup program_options regex thread)
+set(CATAPULT_BOOST_COMPONENTS atomic chrono date_time filesystem log log_setup program_options regex thread)
 
 ### set openssl definitions
 add_definitions(-DOPENSSL_API_COMPAT=0x10100000L)
