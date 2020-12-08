@@ -29,6 +29,7 @@ const bootstrapper = require('./server/bootstrapper');
 const formatters = require('./server/formatters');
 const messageFormattingRules = require('./server/messageFormattingRules');
 const catapult = require('catapult-sdk');
+const sshpk = require('sshpk');
 const winston = require('winston');
 const fs = require('fs');
 
@@ -148,8 +149,19 @@ const registerRoutes = (server, db, services) => {
 
 (() => {
 	const config = loadConfig();
+
 	configureLogging(config.logging);
 	winston.verbose('finished loading rest server config', config);
+
+	// Loading and caching certificates.
+	config.apiNode = {
+		...config.apiNode,
+		certificate: fs.readFileSync(config.apiNode.tlsClientCertificatePath),
+		key: fs.readFileSync(config.apiNode.tlsClientKeyPath),
+		caCertificate: fs.readFileSync(config.apiNode.tlsCaCertificatePath)
+	};
+	const nodeCertKey = sshpk.parsePrivateKey(config.apiNode.key);
+	config.apiNode.nodePublicKey = nodeCertKey.toPublic().part.A.data;
 
 	const network = catapult.model.networkInfo.networks[config.network.name];
 	if (!network) {
@@ -178,10 +190,7 @@ const registerRoutes = (server, db, services) => {
 			serviceManager.pushService(server, 'close');
 
 			const connectionConfig = {
-				apiNode: config.apiNode,
-				certificate: fs.readFileSync(config.apiNode.tlsClientCertificatePath),
-				key: fs.readFileSync(config.apiNode.tlsClientKeyPath),
-				caCertificate: fs.readFileSync(config.apiNode.tlsCaCertificatePath)
+				apiNode: config.apiNode
 			};
 			const connectionService = createConnectionService(connectionConfig, winston.verbose);
 			registerRoutes(server, db, { codec: serverAndCodec.codec, config, connectionService });

@@ -20,21 +20,32 @@
  */
 
 const routeResultTypes = require('./routeResultTypes');
-const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
-const { version: restVersion } = require('../../package.json');
 const nodeInfoCodec = require('../sockets/nodeInfoCodec');
 const nodePeersCodec = require('../sockets/nodePeersCodec');
 const nodeTimeCodec = require('../sockets/nodeTimeCodec');
 const catapult = require('catapult-sdk');
+const fs = require('fs');
+const path = require('path');
 
 const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;
 const { BinaryParser } = catapult.parser;
 
+// ATM, both rest and rest sdk share the same version. In the future,
+// we will have an open api and sdk dependencies with their given versions.
+const restVersion = fs
+	.readFileSync(path.resolve(__dirname, '../../../version.txt'), 'UTF-8')
+	.trim();
+const sdkVersion = restVersion;
+
 const buildResponse = (packet, codec, resultType) => {
 	const binaryParser = new BinaryParser();
 	binaryParser.push(packet.payload);
-	return { payload: codec.deserialize(binaryParser), type: resultType, formatter: 'ws' };
+	return {
+		payload: codec.deserialize(binaryParser),
+		type: resultType,
+		formatter: 'ws'
+	};
 };
 
 module.exports = {
@@ -55,18 +66,31 @@ module.exports = {
 			});
 
 			// Check database status
-			const dbStatusPromise = new Promise((resolve, reject) => (db.database.serverConfig.isConnected() ? resolve() : reject()));
+			const dbStatusPromise = new Promise((resolve, reject) =>
+				(db.database.serverConfig.isConnected() ? resolve() : reject()));
 
 			// Check apiNode status
-			const packetBuffer = packetHeader.createBuffer(PacketType.nodeDiscoveryPullPing, packetHeader.size);
-			const apiNodeStatusPromise = services.connections.singleUse()
-				.then(connection => connection.pushPull(packetBuffer, services.config.apiNode.timeout))
+			const packetBuffer = packetHeader.createBuffer(
+				PacketType.nodeDiscoveryPullPing,
+				packetHeader.size
+			);
+			const apiNodeStatusPromise = services.connections
+				.singleUse()
+				.then(connection =>
+					connection.pushPull(packetBuffer, services.config.apiNode.timeout))
 				.then(packet => parseNodeInfoPacket(packet));
 
-			return Promise.allSettled([dbStatusPromise, apiNodeStatusPromise])
-				.then(results => {
-					const statusCode = results.some(result => 'fulfilled' !== result.status) ? 503 : 200;
-					const checkResult = result => ('fulfilled' === result.status ? ServiceStatus.up : ServiceStatus.down);
+			return Promise.allSettled([dbStatusPromise, apiNodeStatusPromise]).then(
+				results => {
+					const statusCode = results.some(
+						result => 'fulfilled' !== result.status
+					)
+						? 503
+						: 200;
+					const checkResult = result =>
+						('fulfilled' === result.status
+							? ServiceStatus.up
+							: ServiceStatus.down);
 
 					res.status(statusCode);
 					res.send({
@@ -79,25 +103,40 @@ module.exports = {
 						type: routeResultTypes.nodeHealth
 					});
 					next();
-				});
+				}
+			);
 		});
 
 		server.get('/node/info', (req, res, next) => {
-			const packetBuffer = packetHeader.createBuffer(PacketType.nodeDiscoveryPullPing, packetHeader.size);
-			return connections.singleUse()
+			const packetBuffer = packetHeader.createBuffer(
+				PacketType.nodeDiscoveryPullPing,
+				packetHeader.size
+			);
+			return connections
+				.singleUse()
 				.then(connection => connection.pushPull(packetBuffer, timeout))
 				.then(packet => {
-					res.send(buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo));
+					const response = buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo);
+					response.payload.nodePublicKey = services.config.apiNode.nodePublicKey;
+					res.send(
+						response
+					);
 					next();
 				});
 		});
 
 		server.get('/node/peers', (req, res, next) => {
-			const packetBuffer = packetHeader.createBuffer(PacketType.nodeDiscoveryPullPeers, packetHeader.size);
-			return connections.singleUse()
+			const packetBuffer = packetHeader.createBuffer(
+				PacketType.nodeDiscoveryPullPeers,
+				packetHeader.size
+			);
+			return connections
+				.singleUse()
 				.then(connection => connection.pushPull(packetBuffer, timeout))
 				.then(packet => {
-					res.send(buildResponse(packet, nodePeersCodec, routeResultTypes.nodeInfo));
+					res.send(
+						buildResponse(packet, nodePeersCodec, routeResultTypes.nodeInfo)
+					);
 					next();
 				});
 		});
@@ -122,11 +161,36 @@ module.exports = {
 			}));
 
 		server.get('/node/time', (req, res, next) => {
-			const packetBuffer = packetHeader.createBuffer(PacketType.timeSyncNodeTime, packetHeader.size);
-			return connections.singleUse()
+			const packetBuffer = packetHeader.createBuffer(
+				PacketType.timeSyncNodeTime,
+				packetHeader.size
+			);
+			return connections
+				.singleUse()
 				.then(connection => connection.pushPull(packetBuffer, timeout))
 				.then(packet => {
-					res.send(buildResponse(packet, nodeTimeCodec, routeResultTypes.nodeTime));
+					res.send(
+						buildResponse(packet, nodeTimeCodec, routeResultTypes.nodeTime)
+					);
+					next();
+				});
+		});
+
+		server.get('/node/unlockedaccount', (req, res, next) => {
+			const { convert } = catapult.utils;
+			const headerBuffer = packetHeader.createBuffer(
+				PacketType.unlockedAccount,
+				packetHeader.size
+			);
+			const packetBuffer = headerBuffer;
+			return connections
+				.singleUse()
+				.then(connection => connection.pushPull(packetBuffer, timeout))
+				.then(packet => {
+					const unlockedKeys = convert
+						.uint8ToHex(packet.payload)
+						.match(/.{1,64}/g);
+					res.send({ unlockedAccount: !unlockedKeys ? [] : unlockedKeys });
 					next();
 				});
 		});

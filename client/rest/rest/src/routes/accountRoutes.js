@@ -19,10 +19,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const merkleUtils = require('./merkleUtils');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
 const AccountType = require('../plugins/AccountType');
 const errors = require('../server/errors');
+const catapult = require('catapult-sdk');
+
+const { PacketType } = catapult.packet;
 
 module.exports = {
 	register: (server, db, services) => {
@@ -63,6 +67,18 @@ module.exports = {
 
 			return db.accountsByIds(accountIds.map(accountId => ({ [idOptions.type]: accountId })))
 				.then(sender.sendArray(idOptions.keyName, res, next));
+		});
+
+		// this endpoint is here because it is expected to support requests by block other than <current block>
+		server.get('/accounts/:accountId/merkle', (req, res, next) => {
+			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+			const encodedAddress = 'publicKey' === type ? catapult.model.address.publicKeyToAddress(accountId, db.networkId) : accountId;
+			const state = PacketType.accountStatePath;
+			return merkleUtils.requestTree(services, state,
+				encodedAddress).then(response => {
+				res.send(response);
+				next();
+			});
 		});
 	}
 };

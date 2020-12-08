@@ -58,7 +58,12 @@ class ModelSchemaBuilder {
 				receiptsHash: ModelType.binary,
 				stateHash: ModelType.binary,
 				beneficiaryAddress: ModelType.binary,
-				feeMultiplier: ModelType.uint32
+				feeMultiplier: ModelType.uint32,
+				// optional. How to create subclasses?
+				votingEligibleAccountsCount: ModelType.uint32,
+				harvestingEligibleAccountsCount: ModelType.uint64,
+				totalVotingBalance: ModelType.uint64,
+				previousImportanceBlockHash: ModelType.binary
 			},
 			blockHeaderMetadata: {
 				hash: ModelType.binary,
@@ -98,6 +103,7 @@ class ModelSchemaBuilder {
 				messageGroups: { type: ModelType.array, schemaName: 'messageGroup' }
 			},
 			messageGroup: {
+				signatureSchema: ModelType.uint16,
 				stage: ModelType.uint32,
 				height: ModelType.uint64,
 				hashes: { type: ModelType.array, schemaName: ModelType.binary },
@@ -105,7 +111,6 @@ class ModelSchemaBuilder {
 			},
 			bmTreeSignature: {
 				root: { type: ModelType.object, schemaName: 'parentPublicKeySignaturePair' },
-				top: { type: ModelType.object, schemaName: 'parentPublicKeySignaturePair' },
 				bottom: { type: ModelType.object, schemaName: 'parentPublicKeySignaturePair' }
 			},
 			parentPublicKeySignaturePair: {
@@ -164,6 +169,7 @@ class ModelSchemaBuilder {
 				account: { type: ModelType.object, schemaName: 'account' }
 			},
 			account: {
+				version: ModelType.uint16,
 				address: ModelType.binary,
 				addressHeight: ModelType.uint64,
 				publicKey: ModelType.binary,
@@ -228,7 +234,8 @@ class ModelSchemaBuilder {
 				friendlyName: ModelType.string,
 				host: ModelType.string,
 				publicKey: ModelType.binary,
-				networkGenerationHashSeed: ModelType.binary
+				networkGenerationHashSeed: ModelType.binary,
+				nodePublicKey: ModelType.binary
 			},
 			communicationTimestamps: {
 				receiveTimestamp: ModelType.uint64,

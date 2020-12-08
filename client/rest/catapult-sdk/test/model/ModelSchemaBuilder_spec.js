@@ -163,7 +163,6 @@ describe('model schema builder', () => {
 				'blockHeaderWithMetadata.block',
 
 				'bmTreeSignature.root',
-				'bmTreeSignature.top',
 				'bmTreeSignature.bottom',
 
 				'transactionWithMetadata.meta',
@@ -223,6 +222,7 @@ describe('model schema builder', () => {
 				'blockHeader.receiptsHash',
 				'blockHeader.stateHash',
 				'blockHeader.beneficiaryAddress',
+				'blockHeader.previousImportanceBlockHash',
 				'blockHeader.signature',
 				'blockHeader.signerPublicKey',
 				'blockHeaderMetadata.hash',
@@ -250,6 +250,7 @@ describe('model schema builder', () => {
 
 				'nodeInfo.publicKey',
 				'nodeInfo.networkGenerationHashSeed',
+				'nodeInfo.nodePublicKey',
 				'stateTree.tree.schemaName'
 			]);
 		});
@@ -263,7 +264,10 @@ describe('model schema builder', () => {
 				'blockHeader.height',
 				'blockHeader.timestamp',
 				'blockHeader.difficulty',
+				'blockHeader.harvestingEligibleAccountsCount',
+				'blockHeader.totalVotingBalance',
 				'blockHeaderMetadata.totalFee',
+
 				'finalizedBlock.height',
 				'finalizationProof.height',
 				'messageGroup.height',
@@ -391,6 +395,7 @@ describe('model schema builder', () => {
 			// Assert:
 			expect(matchingProperties).to.deep.equal([
 				'blockHeader.feeMultiplier',
+				'blockHeader.votingEligibleAccountsCount',
 				'finalizedBlock.finalizationEpoch',
 				'finalizedBlock.finalizationPoint',
 				'finalizationProof.version',

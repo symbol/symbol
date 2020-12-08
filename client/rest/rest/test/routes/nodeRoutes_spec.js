@@ -20,11 +20,16 @@
  */
 
 const { MockServer, test } = require('./utils/routeTestUtils');
-const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
-const { version: restVersion } = require('../../package.json');
 const nodeRoutes = require('../../src/routes/nodeRoutes');
 const errors = require('../../src/server/errors');
 const { expect } = require('chai');
+const fs = require('fs');
+const path = require('path');
+
+// ATM, both rest and rest sdk share the same version. In the future,
+// we will have an open api and sdk dependencies with their given versions.
+const restVersion = fs.readFileSync(path.resolve(__dirname, '../../../version.txt'), 'UTF-8').trim();
+const sdkVersion = restVersion;
 
 describe('node routes', () => {
 	describe('get', () => {
@@ -209,6 +214,11 @@ describe('node routes', () => {
 					0xB4, 0x64, 0x72, 0x42, 0xF1, 0xFF, 0x11, 0x00, 0x9F, 0xD0, 0x9A, 0x8F, 0x3D, 0x35, 0x87, 0xF8
 				]);
 
+				const nodePublicKeyBuffer = Buffer.from([
+					0xE4, 0x28, 0xC1, 0xF1, 0xC9, 0x97, 0x5C, 0x3A, 0xA5, 0x1B, 0x2A, 0x41, 0x76, 0x81, 0x58, 0xC1,
+					0x07, 0x7D, 0x16, 0xB4, 0x60, 0x99, 0x9A, 0xAB, 0xE7, 0xAD, 0xB5, 0x26, 0x2B, 0xE2, 0x9A, 0x68
+				]);
+
 				const packet = {
 					type: 601,
 					size: 57,
@@ -225,6 +235,7 @@ describe('node routes', () => {
 					])
 				};
 				const services = serviceCreator(packet);
+				services.config.apiNode.nodePublicKey = nodePublicKeyBuffer;
 
 				// Act:
 				return test.route.prepareExecuteRoute(nodeRoutes.register, '/node/info', 'get', {}, {}, services, routeContext =>
@@ -242,6 +253,7 @@ describe('node routes', () => {
 								port: 7900,
 								publicKey: publicKeyBuffer,
 								networkGenerationHashSeed: networkGenerationHashSeedBuffer,
+								nodePublicKey: nodePublicKeyBuffer,
 								roles: 2,
 								version: 23
 							},
@@ -401,6 +413,34 @@ describe('node routes', () => {
 								}
 							},
 							type: 'nodeTime'
+						});
+					}));
+			});
+		});
+
+		describe('unlocked account', () => {
+			it('can retrieve unlocked account', () => {
+				// Arrange:
+				const packet = {
+					type: 772,
+					size: 40,
+					payload: Buffer.from([0x9b, 0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78, 0x9b,
+						0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78, 0x9b,
+						0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78, 0x9b, 0x4E, 0xF2, 0x78])
+				};
+				const services = serviceCreator(packet);
+
+				// Act:
+				return test.route.prepareExecuteRoute(nodeRoutes.register, '/node/unlockedaccount', 'get', {}, {}, services, routeContext =>
+					routeContext.routeInvoker().then(() => {
+						// Assert:
+						expect(routeContext.numNextCalls).to.equal(1);
+						expect(routeContext.responses.length).to.equal(1);
+						expect(routeContext.redirects.length).to.equal(0);
+						expect(routeContext.responses[0]).to.deep.equal({
+							unlockedAccount: [
+								'9B4EF2789B4EF2789B4EF2789B4EF2789B4EF2789B4EF2789B4EF2789B4EF278'
+							]
 						});
 					}));
 			});

@@ -92,9 +92,8 @@ describe('aggregate plugin', () => {
 		});
 
 		const getSubTxCodecs = () => {
-			const txCodecs = [];
 			// notice that this codec (unlike the one in ModelCodecBuilder_spec assumes that it is embedded)
-			txCodecs[constants.knownTxType] = {
+			const codec = {
 				deserialize: parser => {
 					const transaction = {};
 					transaction.alpha = parser.uint32();
@@ -117,7 +116,9 @@ describe('aggregate plugin', () => {
 				}
 			};
 
-			return txCodecs;
+			return {
+				[constants.knownTxType]: { 1: codec }
+			};
 		};
 
 		const generateAggregate = () => {
@@ -159,7 +160,7 @@ describe('aggregate plugin', () => {
 					Buffer.of(0x00, 0x00, 0x00, 0x00), // embedded transaction header reserved 1 4b
 					SignerPublicKey_Buffer,
 					Buffer.of(0x00, 0x00, 0x00, 0x00), // entity body reserved 1
-					Buffer.of(0x2A), // version 1b
+					Buffer.of(0x01), // version 1b
 					Buffer.of(0x55), // network 1b
 					Buffer.of(type & 0xFF, (type >> 8) & 0xFF), // type 2b
 					Buffer.of(0x46, 0x8B, 0x15, 0x2D), // alpha
@@ -170,7 +171,7 @@ describe('aggregate plugin', () => {
 					embeddedTransactionHeader_Reserved1: 0,
 					signerPublicKey: SignerPublicKey_Buffer,
 					entityBody_Reserved1: 0,
-					version: 0x2A,
+					version: 0x01,
 					network: 0x55,
 					type,
 					alpha: 0x2D158B46,

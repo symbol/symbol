@@ -40,7 +40,24 @@ describe('lock secret plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/:address/lock/secret'
+				'/account/:address/lock/secret',
+				'/lock/secret',
+				'/lock/secret/:compositeHash',
+				'/lock/secret/:compositeHash/merkle'
+			]);
+		});
+
+		it('registers POST routes', () => {
+			// Arrange:
+			const routes = [];
+			const server = test.setup.createCapturingMockServer('post', routes);
+
+			// Act:
+			lockSecret.registerRoutes(server, {});
+
+			// Assert:
+			test.assert.assertRoutes(routes, [
+				'/lock/secret'
 			]);
 		});
 	});

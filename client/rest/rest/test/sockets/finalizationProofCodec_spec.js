@@ -49,14 +49,11 @@ describe('deserialize', () => {
 	const createSignature = () => {
 		const rootParentPublicKey = testPublicKey;
 		const rootSignature = testInnerSignature;
-		const topParentPublicKey = testPublicKey;
-		const topSignature = testInnerSignature;
 		const bottomParentPublicKey = testPublicKey;
 		const bottomSignature = testInnerSignature;
 
 		const signature = [
 			rootParentPublicKey, rootSignature,
-			topParentPublicKey, topSignature,
 			bottomParentPublicKey, bottomSignature
 		];
 
@@ -66,12 +63,14 @@ describe('deserialize', () => {
 	const createMessageGroup = (hashCount, signatureCount) => {
 		const messageGroupSize = Buffer.from([0x00, 0x00, 0x00, 0x00]); // 4b
 		const messageGrouphashCount = Buffer.from([0x00, 0x00, 0x00, 0x00]); // 4b
-		const messageGroupsignatureCount = Buffer.from([0x00, 0x00, 0x00, 0x00]); // 4b
+		const messageGroupsignatureCount = Buffer.from([0x00, 0x00]); // 2b
+		const messageGroupsignatureSchema = Buffer.from([0x01, 0x00]); // 2b
 		const messageGroupStage = Buffer.from([0x01, 0x00, 0x00, 0x00]); // 4b
 		const messageGroupHeight = Buffer.from([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]); // 8b
 
 		const messageGroup = [
-			messageGroupSize, messageGrouphashCount, messageGroupsignatureCount, messageGroupStage, messageGroupHeight
+			messageGroupSize, messageGrouphashCount, messageGroupsignatureCount,
+			messageGroupsignatureSchema, messageGroupStage, messageGroupHeight
 		];
 
 		for (let i = 0; i < hashCount; ++i)
@@ -83,7 +82,7 @@ describe('deserialize', () => {
 		const messageGroupBuffer = Buffer.concat(messageGroup);
 		messageGroupBuffer.writeInt32LE(messageGroupBuffer.length, 0);
 		messageGroupBuffer.writeInt32LE(hashCount, 4);
-		messageGroupBuffer.writeInt32LE(signatureCount, 8);
+		messageGroupBuffer.writeInt16LE(signatureCount, 8);
 
 		return messageGroupBuffer;
 	};
@@ -102,10 +101,6 @@ describe('deserialize', () => {
 						parentPublicKey: testPublicKey,
 						signature: testInnerSignature
 					},
-					top: {
-						parentPublicKey: testPublicKey,
-						signature: testInnerSignature
-					},
 					bottom: {
 						parentPublicKey: testPublicKey,
 						signature: testInnerSignature
@@ -121,6 +116,7 @@ describe('deserialize', () => {
 			for (let i = 0; i < messageGroupsCount; ++i) {
 				finalizationProof.push(createMessageGroup(hashCount, signatureCount));
 				expectedMessageGroups.push({
+					signatureSchema: 1,
 					stage: 1,
 					height: [1, 0],
 					hashes: expectedHashes,

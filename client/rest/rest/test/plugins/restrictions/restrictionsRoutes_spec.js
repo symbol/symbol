@@ -33,20 +33,20 @@ const { addresses } = test.sets;
 
 describe('restrictions routes', () => {
 	describe('account restrictions', () => {
-		describe('get by address', () => {
-			test.route.document.addGetDocumentRouteTests(restrictionsRoutes.register, {
-				route: '/restrictions/account/:address',
+		describe('by address', () => {
+			const parsedAddresses = addresses.valid.map(address.stringToAddress);
+			test.route.document.addGetPostDocumentRouteTests(restrictionsRoutes.register, {
+				routes: { singular: '/restrictions/account/:address', plural: '/restrictions/account' },
 				inputs: {
-					valid: {
-						object: { address: addresses.valid[0] },
-						parsed: [[address.stringToAddress(addresses.valid[0])]],
-						printable: addresses.valid[0]
-					},
-					invalid: {
-						object: { address: addresses.invalid },
-						error: 'address has an invalid format'
+					valid: { object: { address: addresses.valid[0] }, parsed: [parsedAddresses[0]], printable: addresses.valid[0] },
+					validMultiple: { object: { addresses: addresses.valid }, parsed: parsedAddresses },
+					invalid: { object: { address: '12345' }, error: 'address has an invalid format' },
+					invalidMultiple: {
+						object: { addresses: [addresses.valid[0], '12345'] },
+						error: 'element in array addresses has an invalid format'
 					}
 				},
+
 				dbApiName: 'accountRestrictionsByAddresses',
 				type: 'accountRestrictions'
 			});
@@ -252,6 +252,30 @@ describe('restrictions routes', () => {
 
 				// Act + Assert:
 				expect(() => mockServer.callRoute(route, req)).to.throw('targetAddress has an invalid format');
+			});
+
+			describe('by compositeHash', () => {
+				const compositeHashes = ['C54AFD996DF1F52748EBC5B40F8D0DC242A6A661299149F5F96A0C21ECCB653F'];
+				const parsedCompositeHashes = compositeHashes.map(routeUtils.namedParserMap.hash256);
+				test.route.document.addGetPostDocumentRouteTests(restrictionsRoutes.register, {
+					routes: { singular: '/restrictions/mosaic/:compositeHash', plural: '/restrictions/mosaic' },
+					inputs: {
+						valid: {
+							object: { compositeHash: compositeHashes[0] },
+							parsed: [parsedCompositeHashes[0]],
+							printable: compositeHashes[0]
+						},
+						validMultiple: { object: { compositeHashes }, parsed: parsedCompositeHashes },
+						invalid: { object: { compositeHash: '12345' }, error: 'compositeHash has an invalid format' },
+						invalidMultiple: {
+							object: { compositeHashes: [compositeHashes[0], '12345'] },
+							error: 'element in array compositeHashes has an invalid format'
+						}
+					},
+
+					dbApiName: 'mosaicRestrictionByCompositeHash',
+					type: 'mosaicRestrictions'
+				});
 			});
 		});
 	});

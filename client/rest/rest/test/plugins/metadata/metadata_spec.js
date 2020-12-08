@@ -34,13 +34,29 @@ describe('metadata plugin', () => {
 			// Arrange:
 			const routes = [];
 			const server = test.setup.createCapturingMockServer('get', routes);
-			const registeredRoutes = ['/metadata'];
+			const registeredRoutes = ['/metadata',
+				'/metadata/:compositeHash',
+				'/metadata/:compositeHash/merkle'];
 
 			// Act:
 			metadata.registerRoutes(server, {});
 
 			// Assert:
 			test.assert.assertRoutes(routes, registeredRoutes);
+		});
+
+		it('registers POST routes', () => {
+			// Arrange:
+			const routes = [];
+			const server = test.setup.createCapturingMockServer('post', routes);
+
+			// Act:
+			metadata.registerRoutes(server, {});
+
+			// Assert:
+			test.assert.assertRoutes(routes, [
+				'/metadata'
+			]);
 		});
 	});
 });

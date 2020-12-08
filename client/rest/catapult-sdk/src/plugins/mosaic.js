@@ -49,6 +49,7 @@ const mosaicPlugin = {
 		});
 
 		builder.addSchema('mosaicDescriptor.mosaic', {
+			version: ModelType.uint16,
 			id: ModelType.uint64HexIdentifier,
 			supply: ModelType.uint64,
 			startHeight: ModelType.uint64,

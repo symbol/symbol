@@ -22,6 +22,7 @@
 const lockSecretRoutes = require('../../../src/plugins/lockSecret/lockSecretRoutes');
 const routeUtils = require('../../../src/routes/routeUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
+const { test } = require('../../routes/utils/routeTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const sinon = require('sinon');
@@ -104,114 +105,138 @@ describe('lock secret routes', () => {
 			dbSecretLocksFake.resetHistory();
 		});
 
-		describe('GET', () => {
-			const route = mockServer.getRoute('/account/:address/lock/secret').get();
+		const aliases = ['/account/:address/lock/secret', '/lock/secret'];
+		aliases.forEach(alias => {
+			describe(`GET ${alias}`, () => {
+				const route = mockServer.getRoute(alias).get();
 
-			describe('by address', () => {
-				it('parses and forwards paging options', () => {
+				describe('by address', () => {
+					it('parses and forwards paging options', () => {
 					// Arrange:
-					const pagingBag = 'fakePagingBagObject';
-					const paginationParser = sinon.stub(routeUtils, 'parsePaginationArguments').returns(pagingBag);
-					const req = { params: { address: testAddress } };
+						const pagingBag = 'fakePagingBagObject';
+						const paginationParser = sinon.stub(routeUtils, 'parsePaginationArguments').returns(pagingBag);
+						const req = { params: { address: testAddress } };
 
-					// Act:
-					return mockServer.callRoute(route, req).then(() => {
+						// Act:
+						return mockServer.callRoute(route, req).then(() => {
 						// Assert:
-						expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
-						expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId' });
-						expect(dbSecretLocksFake.calledOnce).to.equal(true);
-						expect(dbSecretLocksFake.firstCall.args[2]).to.deep.equal(pagingBag);
-						paginationParser.restore();
-					});
-				});
-
-				it('allowed sort fields are taken into account', () => {
-					// Arrange:
-					const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
-					const expectedAllowedSortFields = { id: 'objectId' };
-
-					// Act:
-					return mockServer.callRoute(route, { params: { address: testAddress } }).then(() => {
-						// Assert:
-						expect(paginationParserSpy.calledOnce).to.equal(true);
-						expect(paginationParserSpy.firstCall.args[2]).to.deep.equal(expectedAllowedSortFields);
-						paginationParserSpy.restore();
-					});
-				});
-
-				it('forwards address', () => {
-					// Arrange:
-					const req = { params: { address: testAddress } };
-
-					// Act:
-					return mockServer.callRoute(route, req).then(() => {
-						// Assert:
-						expect(dbSecretLocksFake.calledOnce).to.equal(true);
-						expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
-
-						expect(mockServer.next.calledOnce).to.equal(true);
-					});
-				});
-
-				it('forwards secret', () => {
-					// Arrange:
-					const req = { params: { address: testAddress, secret: testSecret } };
-
-					// Act:
-					return mockServer.callRoute(route, req).then(() => {
-						// Assert:
-						expect(dbSecretLocksFake.calledOnce).to.equal(true);
-						expect(dbSecretLocksFake.firstCall.args[1]).to.deep.equal(convert.hexToUint8(testSecret));
-
-						expect(mockServer.next.calledOnce).to.equal(true);
-					});
-				});
-
-				it('returns empty if no secret locks found', () => {
-					// Arrange:
-					const req = { params: { address: testAddressNoLocks } };
-
-					// Act:
-					return mockServer.callRoute(route, req).then(() => {
-						// Assert:
-						expect(dbSecretLocksFake.calledOnce).to.equal(true);
-						expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddressNoLocks)]);
-
-						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-							payload: emptyPageSample,
-							type: 'secretLockInfo',
-							structure: 'page'
+							expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
+							expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId' });
+							expect(dbSecretLocksFake.calledOnce).to.equal(true);
+							expect(dbSecretLocksFake.firstCall.args[2]).to.deep.equal(pagingBag);
+							paginationParser.restore();
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
 					});
-				});
 
-				it('returns page with results', () => {
+					it('allowed sort fields are taken into account', () => {
 					// Arrange:
-					const req = { params: { address: testAddress } };
+						const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
+						const expectedAllowedSortFields = { id: 'objectId' };
 
-					// Act:
-					return mockServer.callRoute(route, req).then(() => {
+						// Act:
+						return mockServer.callRoute(route, { params: { address: testAddress } }).then(() => {
 						// Assert:
-						expect(dbSecretLocksFake.calledOnce).to.equal(true);
-						expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
-
-						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-							payload: pageSample,
-							type: 'secretLockInfo',
-							structure: 'page'
+							expect(paginationParserSpy.calledOnce).to.equal(true);
+							expect(paginationParserSpy.firstCall.args[2]).to.deep.equal(expectedAllowedSortFields);
+							paginationParserSpy.restore();
 						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+					});
+
+					it('forwards address', () => {
+					// Arrange:
+						const req = { params: { address: testAddress } };
+
+						// Act:
+						return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+							expect(dbSecretLocksFake.calledOnce).to.equal(true);
+							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
+
+							expect(mockServer.next.calledOnce).to.equal(true);
+						});
+					});
+
+					it('forwards secret', () => {
+					// Arrange:
+						const req = { params: { address: testAddress, secret: testSecret } };
+
+						// Act:
+						return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+							expect(dbSecretLocksFake.calledOnce).to.equal(true);
+							expect(dbSecretLocksFake.firstCall.args[1]).to.deep.equal(convert.hexToUint8(testSecret));
+
+							expect(mockServer.next.calledOnce).to.equal(true);
+						});
+					});
+
+					it('returns empty if no secret locks found', () => {
+					// Arrange:
+						const req = { params: { address: testAddressNoLocks } };
+
+						// Act:
+						return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+							expect(dbSecretLocksFake.calledOnce).to.equal(true);
+							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddressNoLocks)]);
+
+							expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+								payload: emptyPageSample,
+								type: 'secretLockInfo',
+								structure: 'page'
+							});
+							expect(mockServer.next.calledOnce).to.equal(true);
+						});
+					});
+
+					it('returns page with results', () => {
+					// Arrange:
+						const req = { params: { address: testAddress } };
+
+						// Act:
+						return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+							expect(dbSecretLocksFake.calledOnce).to.equal(true);
+							expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
+
+							expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+								payload: pageSample,
+								type: 'secretLockInfo',
+								structure: 'page'
+							});
+							expect(mockServer.next.calledOnce).to.equal(true);
+						});
+					});
+
+					it('throws error if address is invalid', () => {
+					// Arrange:
+						const req = { params: { address: 'AB12345' } };
+
+						// Act + Assert:
+						expect(() => mockServer.callRoute(route, req)).to.throw('address has an invalid format');
 					});
 				});
+			});
+		});
 
-				it('throws error if address is invalid', () => {
-					// Arrange:
-					const req = { params: { address: 'AB12345' } };
+		describe('by compositeHash', () => {
+			const compositeHashes = ['C54AFD996DF1F52748EBC5B40F8D0DC242A6A661299149F5F96A0C21ECCB653F'];
+			const uint64Hashes = compositeHashes.map(routeUtils.namedParserMap.hash256);
+			test.route.document.addGetPostDocumentRouteTests(lockSecretRoutes.register, {
+				routes: { singular: '/lock/secret/:compositeHash', plural: '/lock/secret' },
 
-					// Act + Assert:
-					expect(() => mockServer.callRoute(route, req)).to.throw('address has an invalid format');
-				});
+				inputs: {
+					valid: { object: { compositeHash: compositeHashes[0] }, parsed: [uint64Hashes[0]], printable: compositeHashes[0] },
+					validMultiple: { object: { compositeHashes }, parsed: uint64Hashes },
+					invalid: { object: { compositeHash: '12345' }, error: 'compositeHash has an invalid format' },
+					invalidMultiple: {
+						object: { compositeHashes: [compositeHashes[0], '12345'] },
+						error: 'element in array compositeHashes has an invalid format'
+					}
+				},
+
+				dbApiName: 'secretLocksByCompositeHash',
+				type: 'secretLockInfo'
 			});
 		});
 	});

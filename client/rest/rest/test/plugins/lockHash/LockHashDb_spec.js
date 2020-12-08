@@ -234,8 +234,8 @@ describe('hash locks db', () => {
 			// Assert:
 			return runHashLocksDbTest(
 				dbHashLocks,
-				db => db.hashLockByHash(hashTest02),
-				hashLock => { expect(hashLock).to.equal(undefined); }
+				db => db.hashLockByHash([hashTest02]),
+				hashLock => { expect(hashLock.length).to.equal(0); }
 			);
 		});
 
@@ -250,8 +250,10 @@ describe('hash locks db', () => {
 			// Assert:
 			return runHashLocksDbTest(
 				dbHashLocks,
-				db => db.hashLockByHash(hashTest02),
-				hashLock => {
+				db => db.hashLockByHash([hashTest02]),
+				hashLocks => {
+					expect(hashLocks.length).to.equal(1);
+					const hashLock = hashLocks[0];
 					expect(hashLock.id).to.deep.equal(createObjectId(20));
 					expect(hashLock.lock.ownerAddress.buffer).to.deep.equal(ownerAddressTest1);
 					expect(hashLock.lock.hash.buffer).to.deep.equal(hashTest02);

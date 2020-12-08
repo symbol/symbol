@@ -21,6 +21,7 @@
 
 const testDbOptions = require('./testDbOptions');
 const CatapultDb = require('../../../src/db/CatapultDb');
+const { convertToLong } = require('../../../src/db/dbUtils');
 const test = require('../../testUtils');
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
@@ -260,6 +261,7 @@ const runDbTest = (dbEntities, collectionName, createDbFacade, issueDbCommand, a
 
 	// Act + Assert:
 	return db.connect(testDbOptions.url, 'test')
+		.then(() => populateCollection(db, 'chainStatistic', { current: { height: convertToLong(10) } }))
 		.then(() => populateCollection(db, collectionName, dbEntities))
 		.then(() => sanitizeDbEntities(collectionName, dbEntities))
 		.then(() => issueDbCommand(dbFacade))

@@ -19,18 +19,50 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const merkleUtils = require('../../routes/merkleUtils');
 const routeUtils = require('../../routes/routeUtils');
+const catapult = require('catapult-sdk');
+
+const { PacketType } = catapult.packet;
 
 module.exports = {
 	register: (server, db, services) => {
+		const sender = routeUtils.createSender('secretLockInfo');
+
 		server.get('/account/:address/lock/secret', (req, res, next) => {
 			const { params } = req;
-			const accountAddress = routeUtils.parseArgument(params, 'address', 'address');
+			const accountAddresses = params.address ? [routeUtils.parseArgument(params, 'address', 'address')] : [];
 			const secret = params.secret ? routeUtils.parseArgument(params, 'secret', 'hash256') : undefined;
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
+			return db.secretLocks(accountAddresses, secret, options)
+				.then(result => sender.sendPage(res, next)(result));
+		});
 
-			return db.secretLocks([accountAddress], secret, options)
-				.then(result => routeUtils.createSender('secretLockInfo').sendPage(res, next)(result));
+		server.get('/lock/secret', (req, res, next) => {
+			const { params } = req;
+			const accountAddresses = params.address ? [routeUtils.parseArgument(params, 'address', 'address')] : [];
+			const secret = params.secret ? routeUtils.parseArgument(params, 'secret', 'hash256') : undefined;
+			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
+			return db.secretLocks(accountAddresses, secret, options)
+				.then(result => sender.sendPage(res, next)(result));
+		});
+
+		routeUtils.addGetPostDocumentRoutes(
+			server,
+			sender,
+			{ base: '/lock/secret', singular: 'compositeHash', plural: 'compositeHashes' },
+			params => db.secretLocksByCompositeHash(params),
+			routeUtils.namedParserMap.hash256
+		);
+
+		server.get('/lock/secret/:compositeHash/merkle', (req, res, next) => {
+			const compositeHash = routeUtils.parseArgument(req.params, 'compositeHash', 'hash256');
+			const state = PacketType.secretLockStatePath;
+			return merkleUtils.requestTree(services, state,
+				compositeHash).then(response => {
+				res.send(response);
+				next();
+			});
 		});
 	}
 };

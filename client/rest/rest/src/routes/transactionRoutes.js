@@ -74,12 +74,11 @@ module.exports = {
 				embedded: params.embedded ? routeUtils.parseArgument(params, 'embedded', 'boolean') : undefined,
 
 				/** transfer transaction specific filters */
-				transferMosaicId: params.transferMosaicId ? routeUtils.parseArgument(params, 'transferMosaicId', 'uint64') : undefined,
+				transferMosaicId: params.transferMosaicId ? routeUtils.parseArgument(params, 'transferMosaicId', 'uint64hex') : undefined,
 				fromTransferAmount: params.fromTransferAmount
 					? routeUtils.parseArgument(params, 'fromTransferAmount', 'uint64') : undefined,
 				toTransferAmount: params.toTransferAmount ? routeUtils.parseArgument(params, 'toTransferAmount', 'uint64') : undefined
 			};
-
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
 
 			return db.transactions(params.group, filters, options)

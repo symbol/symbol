@@ -40,7 +40,26 @@ describe('restrictions plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
+				'/restrictions/account',
 				'/restrictions/account/:address',
+				'/restrictions/account/:address/merkle',
+				'/restrictions/mosaic',
+				'/restrictions/mosaic/:compositeHash',
+				'/restrictions/mosaic/:compositeHash/merkle'
+			]);
+		});
+
+		it('registers POST routes', () => {
+			// Arrange:
+			const routes = [];
+			const server = test.setup.createCapturingMockServer('post', routes);
+
+			// Act:
+			restrictions.registerRoutes(server, {});
+
+			// Assert:
+			test.assert.assertRoutes(routes, [
+				'/restrictions/account',
 				'/restrictions/mosaic'
 			]);
 		});

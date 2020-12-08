@@ -27,7 +27,8 @@ const { expect } = require('chai');
 const constants = {
 	knownTxType: 0x4123,
 	sizes: {
-		blockHeader: 376,
+		blockHeader: 372,
+		importanceBlockHeader: 376,
 		transactionHeader: 128,
 		transaction: 128 + 8 + 1
 	}
@@ -80,7 +81,7 @@ describe('model codec builder', () => {
 				Signature_Buffer,
 				Signer_Buffer,
 				Buffer.of(0x00, 0x00, 0x00, 0x00), // entity body reserved 1 4b
-				Buffer.of(0x2A), // version 1b
+				Buffer.of(0x01), // version 1b
 				Buffer.of(0x81), // network 1b
 				Buffer.of(type & 0xFF, (type >> 8) & 0xFF) // type 2b
 			]),
@@ -89,7 +90,7 @@ describe('model codec builder', () => {
 				signature: Signature_Buffer,
 				signerPublicKey: Signer_Buffer,
 				entityBody_Reserved1: 0,
-				version: 0x2A,
+				version: 0x01,
 				network: 0x81,
 				type
 			}
@@ -106,7 +107,6 @@ describe('model codec builder', () => {
 		const stateHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
 		const beneficiaryAddress = test.random.bytes(test.constants.sizes.addressDecoded); // 24
 		const feeMultiplierBuffer = Buffer.of(0x0A, 0x00, 0x00, 0x00);
-		const reservedPadding = Buffer.of(0x00, 0x00, 0x00, 0x00);
 
 		const data = generateVerifiableEntity(constants.sizes.blockHeader, 0x8000);
 		data.buffer = Buffer.concat([
@@ -122,8 +122,7 @@ describe('model codec builder', () => {
 			receiptsHashBuffer, // 32b
 			stateHashBuffer, // 32b
 			Buffer.from(beneficiaryAddress), // address 24b
-			feeMultiplierBuffer, // 4b
-			reservedPadding // 4b
+			feeMultiplierBuffer // 4b
 		]);
 
 		Object.assign(data.object, {
@@ -138,8 +137,7 @@ describe('model codec builder', () => {
 			receiptsHash: receiptsHashBuffer,
 			stateHash: stateHashBuffer,
 			beneficiaryAddress,
-			feeMultiplier: 10,
-			blockHeader_Reserved1: 0
+			feeMultiplier: 10
 		});
 		return data;
 	};

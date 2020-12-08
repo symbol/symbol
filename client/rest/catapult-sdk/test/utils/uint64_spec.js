@@ -288,6 +288,28 @@ describe('uint64', () => {
 		});
 	});
 
+	describe('compare', () => {
+		const successTestCases = [
+			{ a: '0', b: '0', value: 0 },
+			{ a: '20', b: '10', value: 1 },
+			{ a: '10', b: '20', value: -1 },
+			{ a: '20', b: '20', value: 0 },
+			{ a: '18446744073709500000', b: '438', value: 1 },
+			{ a: '438', b: '18446744073709500000', value: -1 },
+			{ a: '18446744073709551615', b: '438', value: 1 },
+			{ a: '438', b: '18446744073709551615', value: -1 },
+			{ a: '18446744073709551615', b: '18446744073709551615', value: 0 }
+		];
+
+		successTestCases.forEach(testCase => {
+			it(`compare (${testCase.a}) and (${testCase.b} should be (${testCase.value})`, () => {
+				const a = uint64.fromString(testCase.a);
+				const b = uint64.fromString(testCase.b);
+				expect(uint64.compare(a, b)).to.equal(testCase.value);
+			});
+		});
+	});
+
 	describe('multiply', () => {
 		const successTestCases = [
 			{

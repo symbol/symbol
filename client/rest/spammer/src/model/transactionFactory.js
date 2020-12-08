@@ -30,7 +30,7 @@ const createTransaction = (options, type) => ({
 	signature: new Uint8Array(catapult.constants.sizes.signature),
 	signerPublicKey: options.signerPublicKey,
 	entityBody_Reserved1: 0,
-	version: options.networkId + 3,
+	version: 1,
 	network: options.networkId,
 	type,
 	transactionsHash: new Uint8Array(catapult.constants.sizes.hash256),

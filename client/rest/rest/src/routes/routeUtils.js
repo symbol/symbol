@@ -32,6 +32,7 @@ const constants = {
 	sizes: {
 		hexPublicKey: 64,
 		addressEncoded: 39,
+		addressDecoded: 24,
 		hash256: 32,
 		hash512: 64
 	}
@@ -58,7 +59,8 @@ const namedParserMap = {
 	address: str => {
 		if (constants.sizes.addressEncoded === str.length)
 			return address.stringToAddress(str);
-
+		// if (constants.sizes.addressDecoded * 2 === str.length)
+		// 	return convert.hexToUint8(str);
 		throw Error(`invalid length of address '${str.length}'`);
 	},
 	publicKey: str => {
@@ -72,6 +74,8 @@ const namedParserMap = {
 			return ['publicKey', convert.hexToUint8(str)];
 		if (constants.sizes.addressEncoded === str.length)
 			return ['address', address.stringToAddress(str)];
+		// if (constants.sizes.addressDecoded * 2 === str.length)
+		// 	return ['address', convert.hexToUint8(str)];
 
 		throw Error(`invalid length of account id '${str.length}'`);
 	},
@@ -101,6 +105,11 @@ const getBoundedPageSize = (pageSize, optionsPageSize) =>
 const isPage = page => undefined !== page.data && undefined !== page.pagination.pageNumber && undefined !== page.pagination.pageSize;
 
 const routeUtils = {
+
+	/**
+	 * Named parsers if it needs to be called directly.
+	 */
+	namedParserMap,
 	/**
 	 * Parses an argument and throws an invalid argument error if it is invalid.
 	 * @param {object} args Container containing the argument to parse.

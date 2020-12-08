@@ -88,9 +88,10 @@ describe('namespace plugin', () => {
 			expect(modelSchema['namespaceDescriptor.meta']).to.contain.all.keys(['active', 'index']);
 
 			// - namespaceDescriptor.namespace
-			expect(Object.keys(modelSchema['namespaceDescriptor.namespace']).length).to.equal(10);
+			expect(Object.keys(modelSchema['namespaceDescriptor.namespace']).length).to.equal(11);
 			expect(modelSchema['namespaceDescriptor.namespace']).to.contain.all.keys([
-				'registrationType', 'depth', 'level0', 'level1', 'level2', 'alias', 'parentId', 'ownerAddress', 'startHeight', 'endHeight'
+				'version', 'registrationType', 'depth', 'level0', 'level1', 'level2',
+				'alias', 'parentId', 'ownerAddress', 'startHeight', 'endHeight'
 			]);
 
 			// - namespaceDescriptor.alias.mosaic

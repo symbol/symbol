@@ -28,7 +28,6 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 
 const { address } = catapult.model;
-const { convert } = catapult.utils;
 
 describe('lock hash routes', () => {
 	describe('hash locks', () => {
@@ -193,21 +192,26 @@ describe('lock hash routes', () => {
 					expect(() => mockServer.callRoute(route, req)).to.throw('address has an invalid format');
 				});
 			});
+		});
 
-			describe('by hash', () => {
-				const hash = 'C54AFD996DF1F52748EBC5B40F8D0DC242A6A661299149F5F96A0C21ECCB653F';
-				test.route.document.addGetDocumentRouteTests(lockHashRoutes.register, {
-					route: '/lock/hash/:hash',
-					inputs: {
-						valid: { object: { hash }, parsed: [convert.hexToUint8(hash)], printable: hash },
-						invalid: {
-							object: { hash: '12345' },
-							error: 'hash has an invalid format'
-						}
-					},
-					dbApiName: 'hashLockByHash',
-					type: 'hashLockInfo'
-				});
+		describe('by hash', () => {
+			const hashes = ['C54AFD996DF1F52748EBC5B40F8D0DC242A6A661299149F5F96A0C21ECCB653F'];
+			const uint64Hashes = hashes.map(routeUtils.namedParserMap.hash256);
+			test.route.document.addGetPostDocumentRouteTests(lockHashRoutes.register, {
+				routes: { singular: '/lock/hash/:hash', plural: '/lock/hash' },
+
+				inputs: {
+					valid: { object: { hash: hashes[0] }, parsed: [uint64Hashes[0]], printable: hashes[0] },
+					validMultiple: { object: { hashes }, parsed: uint64Hashes },
+					invalid: { object: { hash: '12345' }, error: 'hash has an invalid format' },
+					invalidMultiple: {
+						object: { hashes: [hashes[0], '12345'] },
+						error: 'element in array hashes has an invalid format'
+					}
+				},
+
+				dbApiName: 'hashLockByHash',
+				type: 'hashLockInfo'
 			});
 		});
 	});

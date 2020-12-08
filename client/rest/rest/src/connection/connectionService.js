@@ -48,9 +48,9 @@ module.exports.createConnectionService = (config, logger = () => {}) => {
 
 		const contextOptions = {
 			minVersion: 'TLSv1.3',
-			key: config.key,
-			cert: config.certificate,
-			ca: config.caCertificate
+			key: node.key,
+			cert: node.certificate,
+			ca: node.caCertificate
 			// sigalgs: 'ed25519'
 		};
 		let secureContext;

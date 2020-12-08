@@ -65,6 +65,18 @@ const uint64Module = {
 	},
 
 	/**
+	 * Compares two UInt64, returning 1 if a is grater, -1 if b is grater, 0 if they are equals
+	 * @param {module:utils/uint64~uint64} a this object
+	 * @param {module:utils/uint64~uint64} b the other
+	 * @returns {number} - -1, 0, 1
+	 */
+	compare(a, b) {
+		const long_a = Long.fromBits(a[0], a[1], true);
+		const long_b = Long.fromBits(b[0], b[1], true);
+		return long_a.compare(long_b);
+	},
+
+	/**
 	 * Converts a (64bit) uint8 array into a uint64.
 	 * @param {Uint8Array} uint8Array A uint8 array.
 	 * @returns {module:utils/uint64~uint64} Uint64 representation of the input.

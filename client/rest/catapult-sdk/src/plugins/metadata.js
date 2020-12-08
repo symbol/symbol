@@ -65,6 +65,7 @@ const metadataPlugin = {
 		});
 
 		builder.addSchema('metadataEntry', {
+			version: ModelType.uint16,
 			compositeHash: ModelType.binary,
 			sourceAddress: ModelType.binary,
 			targetAddress: ModelType.binary,

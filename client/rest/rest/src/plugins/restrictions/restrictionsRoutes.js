@@ -18,10 +18,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+const merkleUtils = require('../../routes/merkleUtils');
 const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
 const catapult = require('catapult-sdk');
+
+const { PacketType } = catapult.packet;
 
 const { uint64 } = catapult.utils;
 
@@ -29,12 +31,37 @@ module.exports = {
 	register: (server, db, services) => {
 		const accountRestrictionsSender = routeUtils.createSender('accountRestrictions');
 
-		server.get('/restrictions/account/:address', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			return db.accountRestrictionsByAddresses([accountAddress])
-				.then(accountRestrictionsSender.sendOne(req.params.address, res, next));
+		// SEARCH
+		server.get('/restrictions/account', (req, res, next) => {
+			const { params } = req;
+			const address = params.address ? routeUtils.parseArgument(params, 'address', 'address') : undefined;
+			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
+			return db.accountRestrictions(address, options)
+				.then(result => accountRestrictionsSender.sendPage(res, next)(result));
 		});
 
+		// GET ONE/MANY
+		routeUtils.addGetPostDocumentRoutes(
+			server,
+			accountRestrictionsSender,
+			{ base: '/restrictions/account', singular: 'address', plural: 'addresses' },
+			params => db.accountRestrictionsByAddresses(params),
+			routeUtils.namedParserMap.address
+		);
+
+		// MERKLE
+		server.get('/restrictions/account/:address/merkle', (req, res, next) => {
+			const encodedAddress = routeUtils.parseArgument(req.params, 'address', 'address');
+			const state = PacketType.accountRestrictionsStatePath;
+			return merkleUtils.requestTree(services, state,
+				encodedAddress).then(response => {
+				res.send(response);
+				next();
+			});
+		});
+
+		// SEARCH
+		const mosaicRestrictionSender = routeUtils.createSender(routeResultTypes.mosaicRestrictions);
 		server.get('/restrictions/mosaic', (req, res, next) => {
 			const { params } = req;
 			const mosaicId = params.mosaicId ? routeUtils.parseArgument(params, 'mosaicId', uint64.fromHex) : undefined;
@@ -44,7 +71,27 @@ module.exports = {
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
 
 			return db.mosaicRestrictions(mosaicId, entryType, targetAddress, options)
-				.then(result => routeUtils.createSender(routeResultTypes.mosaicRestrictions).sendPage(res, next)(result));
+				.then(result => mosaicRestrictionSender.sendPage(res, next)(result));
+		});
+
+		// GET ONE MANY
+		routeUtils.addGetPostDocumentRoutes(
+			server,
+			mosaicRestrictionSender,
+			{ base: '/restrictions/mosaic', singular: 'compositeHash', plural: 'compositeHashes' },
+			params => db.mosaicRestrictionByCompositeHash(params),
+			routeUtils.namedParserMap.hash256
+		);
+
+		// GET MERKLE
+		server.get('/restrictions/mosaic/:compositeHash/merkle', (req, res, next) => {
+			const compositeHash = routeUtils.parseArgument(req.params, 'compositeHash', 'hash256');
+			const state = PacketType.mosaicRestrictionsStatePath;
+			return merkleUtils.requestTree(services, state,
+				compositeHash).then(response => {
+				res.send(response);
+				next();
+			});
 		});
 	}
 };
