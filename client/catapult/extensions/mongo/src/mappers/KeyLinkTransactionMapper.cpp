@@ -30,13 +30,74 @@ namespace catapult { namespace mongo { namespace mappers {
 	namespace {
 		template<typename TTransaction>
 		void StreamVotingTransaction(bson_stream::document& builder, const TTransaction& transaction) {
+			if (1 == transaction.Version) {
+				std::array<uint8_t, VotingKey::Size + 16> v1VotingKey{};
+				std::memcpy(v1VotingKey.data(), transaction.LinkedPublicKey.data(), VotingKey::Size);
+				builder << "linkedPublicKey" << ToBinary(v1VotingKey.data(), v1VotingKey.size());
+			} else {
+				builder << "linkedPublicKey" << ToBinary(transaction.LinkedPublicKey);
+			}
+
 			builder
-					<< "linkedPublicKey" << ToBinary(transaction.LinkedPublicKey)
 					<< "startEpoch" << ToInt32(transaction.StartEpoch)
 					<< "endEpoch" << ToInt32(transaction.EndEpoch)
 					<< "linkAction" << utils::to_underlying_type(transaction.LinkAction);
 		}
 
+		class MongoVotingTransactionPlugin : public MongoTransactionPlugin {
+		public:
+			model::EntityType type() const override {
+				return model::Entity_Type_Voting_Key_Link;
+			}
+
+			void streamTransaction(bsoncxx::builder::stream::document& builder, const model::Transaction& transaction) const override {
+				if (transaction.Version > 1)
+					StreamVotingTransaction(builder, static_cast<const model::VotingKeyLinkTransaction&>(transaction));
+				else
+					StreamVotingTransaction(builder, static_cast<const model::VotingKeyLinkV1Transaction&>(transaction));
+			}
+
+			std::vector<bsoncxx::document::value> extractDependentDocuments(
+					const model::Transaction&,
+					const MongoTransactionMetadata&) const override {
+				return {};
+			}
+
+			bool supportsEmbedding() const override {
+				return true;
+			}
+
+			const EmbeddedMongoTransactionPlugin& embeddedPlugin() const override {
+				return m_embeddedPlugin;
+			}
+
+		private:
+			class MongoVotingTransactionEmbeddedPlugin : public EmbeddedMongoTransactionPlugin {
+			public:
+				model::EntityType type() const override {
+					return model::Entity_Type_Voting_Key_Link;
+				}
+
+				void streamTransaction(
+						bsoncxx::builder::stream::document& builder,
+						const model::EmbeddedTransaction& transaction) const override {
+					if (transaction.Version > 1)
+						StreamVotingTransaction(builder, static_cast<const model::EmbeddedVotingKeyLinkTransaction&>(transaction));
+					else
+						StreamVotingTransaction(builder, static_cast<const model::EmbeddedVotingKeyLinkV1Transaction&>(transaction));
+				}
+			};
+
+		private:
+			MongoVotingTransactionEmbeddedPlugin m_embeddedPlugin;
+		};
+	}
+
+	std::unique_ptr<MongoTransactionPlugin> CreateVotingKeyLinkTransactionMongoPlugin() {
+		return std::make_unique<MongoVotingTransactionPlugin>();
+	}
+
+	namespace {
 		template<typename TTransaction>
 		void StreamVrfTransaction(bson_stream::document& builder, const TTransaction& transaction) {
 			builder
@@ -45,6 +106,5 @@ namespace catapult { namespace mongo { namespace mappers {
 		}
 	}
 
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(VotingKeyLink, StreamVotingTransaction)
 	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(VrfKeyLink, StreamVrfTransaction)
 }}}

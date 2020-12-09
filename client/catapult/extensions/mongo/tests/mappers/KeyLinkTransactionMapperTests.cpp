@@ -56,8 +56,9 @@ namespace catapult { namespace mongo { namespace mappers {
 	PLUGIN_TEST(CanMapLinkTransaction) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&transaction), sizeof(typename TTraits::TransactionType) });
 		transaction.LinkAction = model::LinkAction::Unlink;
-		test::FillWithRandomData(transaction.LinkedPublicKey);
+		transaction.Version = 2;
 
 		auto pPlugin = TTraits::CreatePlugin();
 
@@ -78,6 +79,44 @@ namespace catapult { namespace mongo { namespace mappers {
 			EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));
 			EXPECT_EQ(transaction.LinkedPublicKey, test::GetKeyValue(view, "linkedPublicKey"));
 		}
+	}
+
+	namespace {
+		template<typename TTransaction, typename TTraits>
+		void AssertCanMapLinkTransaction_VotingV1() {
+			// Arrange:
+			TTransaction transaction;
+			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&transaction), sizeof(TTransaction) });
+			transaction.LinkAction = model::LinkAction::Unlink;
+			transaction.Version = 1;
+
+			auto pPlugin = TTraits::CreatePlugin();
+
+			// Act:
+			mappers::bson_stream::document builder;
+			pPlugin->streamTransaction(builder, transaction);
+			auto view = builder.view();
+
+			// Assert:
+			EXPECT_EQ(4u, test::GetFieldCount(view));
+			EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));
+			EXPECT_EQ(transaction.LinkedPublicKey, test::GetVotingKeyValue(view, "linkedPublicKey"));
+			EXPECT_EQ(transaction.StartEpoch, FinalizationEpoch(test::GetUint32(view, "startEpoch")));
+			EXPECT_EQ(transaction.EndEpoch, FinalizationEpoch(test::GetUint32(view, "endEpoch")));
+
+			// - check key padding
+			auto fullLinkedPublicKey = view["linkedPublicKey"].get_binary();
+			EXPECT_EQ(48u, fullLinkedPublicKey.size);
+			EXPECT_EQ_MEMORY((std::array<uint8_t, 16>().data()), fullLinkedPublicKey.bytes + VotingKey::Size, 16);
+		}
+	}
+
+	TEST(TEST_CLASS, CanMapLinkTransaction_VotingV1_Regular) {
+		AssertCanMapLinkTransaction_VotingV1<model::VotingKeyLinkV1Transaction, VotingRegularTraits>();
+	}
+
+	TEST(TEST_CLASS, CanMapLinkTransaction_VotingV1_Embedded) {
+		AssertCanMapLinkTransaction_VotingV1<model::EmbeddedVotingKeyLinkV1Transaction, VotingEmbeddedTraits>();
 	}
 
 	// endregion
