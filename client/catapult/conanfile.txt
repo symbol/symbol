@@ -67,6 +67,7 @@ gtest:no_main = True
 [imports]
 # on windows, copy shared libraries into bin directory
 bin, *.dll -> ./bin
+lib, *.dll -> ./bin
 
 # on macos, copy shared libraries into deps directory
 lib, *.dylib* -> ./deps
