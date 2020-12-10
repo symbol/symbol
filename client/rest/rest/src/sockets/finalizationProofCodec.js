@@ -26,6 +26,8 @@ const { sizes } = catapult.constants;
 
 const headerSize = 56;
 
+const v2ForkHeight = 215500; // This is the v1/v2 fork height on testnet
+
 const finalizationProofCodec = {
 	/**
 	 * Parses finalization proof.
@@ -45,35 +47,45 @@ const finalizationProofCodec = {
 		proof.finalizationPoint = parser.uint32();
 		proof.height = parser.uint64();
 		proof.hash = parser.buffer(sizes.hash256);
-
+		const v2Schema = catapult.utils.uint64.compact(proof.height) > v2ForkHeight;
 		// parse message groups
 		proof.messageGroups = [];
 		let sizeLeft = size - headerSize;
 		while (0 !== sizeLeft) {
 			const messageGroupSize = parser.uint32();
 			const hashCount = parser.uint32();
-			const signatureCount = parser.uint16();
+			const signatureCount = v2Schema ? parser.uint16() : parser.uint32();
 			const messageGroup = {
-				signatureSchema: parser.uint16(),
+				signatureSchema: v2Schema ? parser.uint16() : undefined,
 				stage: parser.uint32(),
 				height: parser.uint64(),
 				hashes: [],
 				signatures: []
 			};
 
+			const votingKeySize = v2Schema ? sizes.signerPublicKey : sizes.votingKey;
+			const votingSignatureSize = v2Schema ? sizes.signature : sizes.signature + 32;
+
 			for (let i = 0; i < hashCount; i++)
 				messageGroup.hashes.push(parser.buffer(sizes.hash256));
 			for (let i = 0; i < signatureCount; i++) {
 				const signature = {
 					root: {
-						parentPublicKey: parser.buffer(sizes.signerPublicKey),
-						signature: parser.buffer(sizes.signature)
+						parentPublicKey: parser.buffer(votingKeySize),
+						signature: parser.buffer(votingSignatureSize)
+					},
+					top: v2Schema ? undefined : {
+						parentPublicKey: parser.buffer(votingKeySize),
+						signature: parser.buffer(votingSignatureSize)
 					},
 					bottom: {
-						parentPublicKey: parser.buffer(sizes.signerPublicKey),
-						signature: parser.buffer(sizes.signature)
+						parentPublicKey: parser.buffer(votingKeySize),
+						signature: parser.buffer(votingSignatureSize)
 					}
 				};
+				if (!signature.top)
+					delete signature.top;
+
 				messageGroup.signatures.push(signature);
 			}
 			proof.messageGroups.push(messageGroup);
