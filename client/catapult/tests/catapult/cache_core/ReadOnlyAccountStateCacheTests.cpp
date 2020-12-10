@@ -243,7 +243,7 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region highValueAccountStatistics
+	// region highValueAccountStatistics - basic
 
 	namespace {
 		std::vector<Address> AddAccountsWithBalances(AccountStateCacheDelta& delta, const std::vector<Amount>& balances) {
@@ -308,16 +308,16 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, HighValueAccountStatistics_ReturnsAllAccountsMeetingCriteria) {
 		// Arrange:
 		auto deltaAction = [](const auto& addresses, auto& delta) {
-			// - add 3/4 accounts with sufficient balance (uncommitted) [6 match]
+			// - add 3/4 accounts with sufficient balance (uncommitted) [7 match]
 			auto uncommittedAddresses = AddAccountsWithBalances(*delta, {
 				Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(1'500'000)
 			});
 
-			// - modify two [6 match]
+			// - modify two [7 match]
 			delta->find(addresses[1]).get().Balances.credit(Harvesting_Mosaic_Id, Amount(500'000));
 			delta->find(addresses[4]).get().Balances.debit(Harvesting_Mosaic_Id, Amount(200'001));
 
-			// - delete two [4 match]
+			// - delete two [5 match]
 			delta->queueRemove(addresses[2], Height(1));
 			delta->queueRemove(uncommittedAddresses[0], Height(1));
 			delta->commitRemovals();
@@ -327,8 +327,67 @@ namespace catapult { namespace cache {
 			auto statistics = ReadOnlyAccountStateCache(*delta).highValueAccountStatistics();
 
 			// Assert:
+			EXPECT_EQ(4u, statistics.VotingEligibleAccountsCount);
+			EXPECT_EQ(5u, statistics.HarvestingEligibleAccountsCount);
+			EXPECT_EQ(Amount(8'000'000), statistics.TotalVotingBalance);
+		};
+		auto viewAction = [](const auto&, const auto& view) {
+			// Act:
+			auto statistics = ReadOnlyAccountStateCache(*view).highValueAccountStatistics();
+
+			// Assert:
 			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
 			EXPECT_EQ(4u, statistics.HarvestingEligibleAccountsCount);
+			EXPECT_EQ(Amount(6'300'000), statistics.TotalVotingBalance);
+		};
+
+		// - add 4/6 accounts with sufficient balance [4 match]
+		auto balances = std::vector<Amount>{
+			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000), Amount(4'000'000)
+		};
+		RunHighValueAddressesTest(balances, deltaAction, viewAction);
+	}
+
+	// endregion
+
+	// region highValueAccountStatistics - voting eligibility
+
+	TEST(TEST_CLASS, HighValueAccountStatistics_RequiresVotingKeyForVotingEligibleAccounts) {
+		// Arrange:
+		auto deltaAction = [](const auto& addresses, auto& delta) {
+			// - add 3/4 accounts with sufficient balance (uncommitted) [7 match]
+			auto uncommittedAddresses = AddAccountsWithBalances(*delta, {
+				Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(1'500'000)
+			});
+
+			// - modify two [7 match]
+			delta->find(addresses[1]).get().Balances.credit(Harvesting_Mosaic_Id, Amount(500'000));
+			delta->find(addresses[4]).get().Balances.debit(Harvesting_Mosaic_Id, Amount(200'001));
+
+			// - delete two [5 match]
+			delta->queueRemove(addresses[2], Height(1));
+			delta->queueRemove(uncommittedAddresses[0], Height(1));
+			delta->commitRemovals();
+
+			// - create a second entry for a voting account [5 match]
+			delta->find(addresses[5]).get().Balances.credit(Harvesting_Mosaic_Id, Amount(1));
+			delta->updateHighValueAccounts(Height(1));
+
+			// - remove a voting key [5 match]
+			// - importantly, the account is NOT pruned because earlier entry is voting eligible
+			{
+				auto accountIter = delta->find(addresses[5]);
+				auto& votingPublicKeys = accountIter.get().SupplementalPublicKeys.voting();
+				votingPublicKeys.remove(votingPublicKeys.get(0));
+			}
+
+			// Act:
+			delta->updateHighValueAccounts(Height(2));
+			auto statistics = ReadOnlyAccountStateCache(*delta).highValueAccountStatistics();
+
+			// Assert:
+			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
+			EXPECT_EQ(5u, statistics.HarvestingEligibleAccountsCount);
 			EXPECT_EQ(Amount(4'000'000), statistics.TotalVotingBalance);
 		};
 		auto viewAction = [](const auto&, const auto& view) {
@@ -336,13 +395,15 @@ namespace catapult { namespace cache {
 			auto statistics = ReadOnlyAccountStateCache(*view).highValueAccountStatistics();
 
 			// Assert:
-			EXPECT_EQ(2u, statistics.VotingEligibleAccountsCount);
-			EXPECT_EQ(3u, statistics.HarvestingEligibleAccountsCount);
-			EXPECT_EQ(Amount(2'300'000), statistics.TotalVotingBalance);
+			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
+			EXPECT_EQ(4u, statistics.HarvestingEligibleAccountsCount);
+			EXPECT_EQ(Amount(6'300'000), statistics.TotalVotingBalance);
 		};
 
-		// - add 3/5 accounts with sufficient balance [3 match]
-		auto balances = std::vector<Amount>{ Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000) };
+		// - add 4/6 accounts with sufficient balance [4 match]
+		auto balances = std::vector<Amount>{
+			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000), Amount(4'000'000)
+		};
 		RunHighValueAddressesTest(balances, deltaAction, viewAction);
 	}
 

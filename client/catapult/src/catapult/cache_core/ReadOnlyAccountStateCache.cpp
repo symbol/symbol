@@ -63,11 +63,17 @@ namespace catapult { namespace cache {
 		template<typename TSource>
 		HighValueAccountStatistics ComputeHighValueAccountStatistics(const TSource& source) {
 			HighValueAccountStatistics statistics;
-			statistics.VotingEligibleAccountsCount = static_cast<uint32_t>(source.accountHistories().size());
 			statistics.HarvestingEligibleAccountsCount = source.addresses().size();
 
-			for (const auto& accountHistoryPair : source.accountHistories())
-				statistics.TotalVotingBalance = statistics.TotalVotingBalance + accountHistoryPair.second.balance().get();
+			statistics.VotingEligibleAccountsCount = 0;
+			for (const auto& accountHistoryPair : source.accountHistories()) {
+				const auto& balanceHistory = accountHistoryPair.second.balance();
+				if (Amount() == balanceHistory.get())
+					continue;
+
+				++statistics.VotingEligibleAccountsCount;
+				statistics.TotalVotingBalance = statistics.TotalVotingBalance + balanceHistory.get();
+			}
 
 			return statistics;
 		}
