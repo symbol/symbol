@@ -53,10 +53,18 @@ namespace catapult { namespace process {
 			return pFilter;
 		}
 
-		std::shared_ptr<void> SetupLogging(const config::LoggingConfiguration& config) {
+		std::shared_ptr<void> SetupLogging(const std::string& host, const config::LoggingConfiguration& config) {
 			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
-			pBootstrapper->addConsoleLogger(config::GetConsoleLoggerOptions(config.Console), *CreateLogFilter(config.Console));
+
 			pBootstrapper->addFileLogger(config::GetFileLoggerOptions(config.File), *CreateLogFilter(config.File));
+
+			// log version only to file before initializing console
+			std::ostringstream versionStream;
+			versionStream << "catapult " << host << std::endl;
+			version::WriteVersionInformation(versionStream);
+			CATAPULT_LOG(important) << versionStream.str();
+
+			pBootstrapper->addConsoleLogger(config::GetConsoleLoggerOptions(config.Console), *CreateLogFilter(config.Console));
 			return PORTABLE_MOVE(pBootstrapper);
 		}
 
@@ -118,7 +126,7 @@ namespace catapult { namespace process {
 		ValidateConfiguration(config);
 
 		// 2. initialize logging
-		auto pLoggingGuard = SetupLogging(config.Logging);
+		auto pLoggingGuard = SetupLogging(host, config.Logging);
 
 		// 3. check instance
 		std::filesystem::path lockFilePath = config.User.DataDirectory;
