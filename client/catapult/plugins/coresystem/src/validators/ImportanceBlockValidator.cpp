@@ -38,6 +38,9 @@ namespace catapult { namespace validators {
 		// ImportanceBlockNotification is raised after BlockNotification, so this validator is checking the state
 		// *after* the processing of the current block and all transactions
 		auto statistics = context.Cache.sub<cache::AccountStateCache>().highValueAccountStatistics();
+		if (context.Height <= Height(223200)) // known testnet bug, skip validation
+			return ValidationResult::Success;
+
 		if (AreEqual(notification, statistics))
 			return ValidationResult::Success;
 
