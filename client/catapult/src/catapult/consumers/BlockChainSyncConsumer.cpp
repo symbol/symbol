@@ -265,9 +265,14 @@ namespace catapult { namespace consumers {
 					model::HeightGroupingFacade<Height> groupingFacade(element.Block.Height, m_importanceGrouping);
 					{
 						auto storageView = m_storage.view();
-						auto pPreviousBlockElement = storageView.loadBlockElement(groupingFacade.previous(1));
+						auto previousImportanceBlockHeight = groupingFacade.previous(1);
 
 						// importance blocks are only present (and validated) after fork, so don't check links across fork
+						// skip the check if the first *TWO* importance blocks are in the chain part and, thus, second is not anchored
+						if (previousImportanceBlockHeight > storageView.chainHeight())
+							break;
+
+						auto pPreviousBlockElement = storageView.loadBlockElement(previousImportanceBlockHeight);
 						if (!model::IsImportanceBlock(pPreviousBlockElement->Block.Type, pPreviousBlockElement->Block.Version))
 							break;
 
