@@ -101,9 +101,9 @@ namespace catapult { namespace plugins {
 
 			if (0 == config.MaxRollbackBlocks) {
 				// enable deep rollbacks
-				importance::StorageImportanceCalculatorFactory calculatorFactory(config, directory);
-				pCommitCalculator = calculatorFactory.createWriteCalculator(std::move(pCommitCalculator));
-				pRollbackCalculator = calculatorFactory.createReadCalculator(std::move(pRollbackCalculator));
+				importance::StorageImportanceCalculatorFactory calculatorFactory(config);
+				pCommitCalculator = calculatorFactory.createWriteCalculator(std::move(pCommitCalculator), directory.dir("wip"));
+				pRollbackCalculator = calculatorFactory.createReadCalculator(std::move(pRollbackCalculator), directory);
 			}
 
 			return observers::CreateRecalculateImportancesObserver(std::move(pCommitCalculator), std::move(pRollbackCalculator));

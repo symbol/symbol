@@ -144,10 +144,12 @@ namespace catapult { namespace extensions {
 				auto blockExecutionContext = chain::BlockExecutionContext(rootObserver, resolverContext, observerState);
 
 				// Act: use BlockExecutor to execute all transactions and blocks
-				if (NotifyMode::Commit == mode)
+				if (NotifyMode::Commit == mode) {
 					chain::ExecuteBlock(blockElement, blockExecutionContext);
-				else
+					commitImportanceWipFiles();
+				} else {
 					chain::RollbackBlock(blockElement, blockExecutionContext);
+				}
 
 				delta.template sub<cache::AccountStateCache>().updateHighValueAccounts(height);
 				m_cache.commit(height);
@@ -216,6 +218,20 @@ namespace catapult { namespace extensions {
 			}
 
 		private:
+			void commitImportanceWipFiles() {
+				// simulate state change move of importance wip files
+				auto destDirectory = config::CatapultDataDirectory(m_tempDataDir.name()).dir("importance");
+				auto sourceDirectory = destDirectory.dir("wip");
+				auto begin = std::filesystem::directory_iterator(sourceDirectory.path());
+				auto end = std::filesystem::directory_iterator();
+				for (auto iter = begin; iter != end; ++iter) {
+					if (!iter->is_regular_file())
+						continue;
+
+					std::filesystem::rename(iter->path(), destDirectory.path() / iter->path().filename());
+				}
+			}
+
 			std::unique_ptr<model::Block> createBlock(Height height) {
 				// if there are transactions, add them to the block
 				auto transactionsIter = m_heightToTransactions.find(height);

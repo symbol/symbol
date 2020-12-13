@@ -266,21 +266,19 @@ namespace catapult { namespace importance {
 
 	// region StorageImportanceCalculatorFactory
 
-	StorageImportanceCalculatorFactory::StorageImportanceCalculatorFactory(
-			const model::BlockChainConfiguration& config,
-			const config::CatapultDirectory& directory)
-			: m_config(config)
-			, m_directory(directory)
+	StorageImportanceCalculatorFactory::StorageImportanceCalculatorFactory(const model::BlockChainConfiguration& config) : m_config(config)
 	{}
 
 	std::unique_ptr<ImportanceCalculator> StorageImportanceCalculatorFactory::createWriteCalculator(
-			std::unique_ptr<ImportanceCalculator>&& pCalculator) const {
-		return std::make_unique<WriteDecorator>(m_config, m_directory, std::move(pCalculator));
+			std::unique_ptr<ImportanceCalculator>&& pCalculator,
+			const config::CatapultDirectory& directory) const {
+		return std::make_unique<WriteDecorator>(m_config, directory, std::move(pCalculator));
 	}
 
 	std::unique_ptr<ImportanceCalculator> StorageImportanceCalculatorFactory::createReadCalculator(
-			std::unique_ptr<ImportanceCalculator>&& pCalculator) const {
-		return std::make_unique<ReadDecorator>(m_config, m_directory, std::move(pCalculator));
+			std::unique_ptr<ImportanceCalculator>&& pCalculator,
+			const config::CatapultDirectory& directory) const {
+		return std::make_unique<ReadDecorator>(m_config, directory, std::move(pCalculator));
 	}
 
 	// endregion

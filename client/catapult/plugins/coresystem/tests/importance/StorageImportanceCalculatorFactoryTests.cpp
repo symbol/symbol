@@ -215,11 +215,11 @@ namespace catapult { namespace importance {
 
 		public:
 			auto createWriteCalculator(const MockImportanceCalculator::RecalculateMap& map) const {
-				return factory().createWriteCalculator(std::make_unique<MockImportanceCalculator>(map));
+				return factory().createWriteCalculator(std::make_unique<MockImportanceCalculator>(map), directory());
 			}
 
 			auto createReadCalculator(const MockImportanceCalculator::RecalculateMap& map) const {
-				return factory().createReadCalculator(std::make_unique<MockImportanceCalculator>(map));
+				return factory().createReadCalculator(std::make_unique<MockImportanceCalculator>(map), directory());
 			}
 
 		public:
@@ -266,7 +266,11 @@ namespace catapult { namespace importance {
 			}
 
 			StorageImportanceCalculatorFactory factory() const {
-				return StorageImportanceCalculatorFactory(m_config, config::CatapultDirectory(m_tempDir.name()));
+				return StorageImportanceCalculatorFactory(m_config);
+			}
+
+			config::CatapultDirectory directory() const {
+				return config::CatapultDirectory(m_tempDir.name());
 			}
 
 		private:

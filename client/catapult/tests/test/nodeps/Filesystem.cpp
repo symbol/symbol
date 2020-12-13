@@ -133,7 +133,7 @@ namespace catapult { namespace test {
 					return true;
 				}
 
-				if (!recurse || !std::filesystem::is_directory(iter->path()))
+				if (!recurse || !iter->is_directory())
 					continue;
 
 				if (TryFindPluginsDirectory(iter->path().generic_string(), false, pluginsDirectory))

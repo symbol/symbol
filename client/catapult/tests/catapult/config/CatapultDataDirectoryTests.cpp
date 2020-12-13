@@ -59,6 +59,7 @@ namespace catapult { namespace config {
 		EXPECT_EQ("foo/bar", directory.str());
 		EXPECT_EQ(fs::path("foo/bar"), directory.path());
 		EXPECT_EQ("foo/bar/abc", directory.file("abc"));
+		EXPECT_EQ("foo/bar/def", directory.dir("def").str());
 
 		EXPECT_FALSE(directory.exists());
 	}
@@ -229,6 +230,7 @@ namespace catapult { namespace config {
 		EXPECT_EQ("foo", directory.str());
 		EXPECT_EQ(fs::path("foo"), directory.path());
 		EXPECT_EQ("foo/abc", directory.file("abc"));
+		EXPECT_EQ("foo/def", directory.dir("def").str());
 	}
 
 	TEST(TEST_CLASS, CanGetSubDirectory) {
@@ -242,6 +244,7 @@ namespace catapult { namespace config {
 		EXPECT_EQ("foo/bar", directory.str());
 		EXPECT_EQ(fs::path("foo/bar"), directory.path());
 		EXPECT_EQ("foo/bar/abc", directory.file("abc"));
+		EXPECT_EQ("foo/bar/def", directory.dir("def").str());
 	}
 
 	TEST(TEST_CLASS, CanGetSpoolSubDirectory) {
@@ -255,6 +258,7 @@ namespace catapult { namespace config {
 		EXPECT_EQ("foo/spool/bar", directory.str());
 		EXPECT_EQ(fs::path("foo/spool/bar"), directory.path());
 		EXPECT_EQ("foo/spool/bar/abc", directory.file("abc"));
+		EXPECT_EQ("foo/spool/bar/def", directory.dir("def").str());
 	}
 
 	TEST(TEST_CLASS, CanGetStorageDirectory) {
@@ -277,7 +281,14 @@ namespace catapult { namespace config {
 	// region CatapultDataDirectoryPreparer
 
 	namespace {
-		constexpr const char* Sub_Directories[] = { "/importance", "/spool" };
+		constexpr const char* Sub_Directories[] = { "/importance", "/importance/wip", "/spool" };
+
+		void AssertPreparedDirectoriesExist(const std::string& directory) {
+			EXPECT_EQ(2u, test::CountFilesAndDirectories(directory));
+			EXPECT_EQ(1u, test::CountFilesAndDirectories(directory + "/importance"));
+			EXPECT_EQ(0u, test::CountFilesAndDirectories(directory + "/importance/wip"));
+			EXPECT_EQ(0u, test::CountFilesAndDirectories(directory + "/spool"));
+		}
 	}
 
 	TEST(TEST_CLASS, CatapultDataDirectoryPreparer_PreparerCreatesSubDirectoriesWhenNotPresent) {
@@ -296,7 +307,7 @@ namespace catapult { namespace config {
 		for (const auto* subDirectory : Sub_Directories)
 			EXPECT_TRUE(fs::is_directory(tempDir.name() + subDirectory)) << subDirectory;
 
-		EXPECT_EQ(CountOf(Sub_Directories), test::CountFilesAndDirectories(tempDir.name()));
+		AssertPreparedDirectoriesExist(tempDir.name());
 	}
 
 	TEST(TEST_CLASS, CatapultDataDirectoryPreparer_PreparerSucceedsWhenSubDirectoriesArePresent) {
@@ -317,7 +328,7 @@ namespace catapult { namespace config {
 		for (const auto* subDirectory : Sub_Directories)
 			EXPECT_TRUE(fs::is_directory(tempDir.name() + subDirectory)) << subDirectory;
 
-		EXPECT_EQ(CountOf(Sub_Directories), test::CountFilesAndDirectories(tempDir.name()));
+		AssertPreparedDirectoriesExist(tempDir.name());
 	}
 
 	// endregion

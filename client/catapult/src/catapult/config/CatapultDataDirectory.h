@@ -52,6 +52,11 @@ namespace catapult { namespace config {
 			return (m_directory / name).generic_string();
 		}
 
+		/// Gets the directory with \a name.
+		CatapultDirectory dir(const std::string& name) const {
+			return CatapultDirectory(m_directory / name);
+		}
+
 	public:
 		/// Returns \c true if directory exits.
 		bool exists() const;
@@ -154,7 +159,7 @@ namespace catapult { namespace config {
 	public:
 		/// Creates a data directory around \a directory.
 		static CatapultDataDirectory Prepare(const std::filesystem::path& directory) {
-			CatapultDirectory(directory / "importance").create();
+			CatapultDirectory(directory / "importance" / "wip").createAll();
 			CatapultDirectory(directory / "spool").create();
 			return CatapultDataDirectory(directory);
 		}

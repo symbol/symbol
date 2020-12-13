@@ -30,18 +30,21 @@ namespace catapult { namespace importance {
 	/// Factory for creating importance calculators that persist importance information to disk for long term storage.
 	class StorageImportanceCalculatorFactory {
 	public:
-		/// Creates a factory around \a config and \a directory.
-		StorageImportanceCalculatorFactory(const model::BlockChainConfiguration& config, const config::CatapultDirectory& directory);
+		/// Creates a factory around \a config.
+		explicit StorageImportanceCalculatorFactory(const model::BlockChainConfiguration& config);
 
 	public:
-		/// Decorates \a pCalculator by writing its results to disk.
-		std::unique_ptr<ImportanceCalculator> createWriteCalculator(std::unique_ptr<ImportanceCalculator>&& pCalculator) const;
+		/// Decorates \a pCalculator by writing its results to \a directory.
+		std::unique_ptr<ImportanceCalculator> createWriteCalculator(
+				std::unique_ptr<ImportanceCalculator>&& pCalculator,
+				const config::CatapultDirectory& directory) const;
 
-		/// Decorates \a pCalculator by restoring older importances from disk.
-		std::unique_ptr<ImportanceCalculator> createReadCalculator(std::unique_ptr<ImportanceCalculator>&& pCalculator) const;
+		/// Decorates \a pCalculator by restoring older importances from \a directory.
+		std::unique_ptr<ImportanceCalculator> createReadCalculator(
+				std::unique_ptr<ImportanceCalculator>&& pCalculator,
+				const config::CatapultDirectory& directory) const;
 
 	private:
 		const model::BlockChainConfiguration& m_config;
-		config::CatapultDirectory m_directory;
 	};
 }}

@@ -50,6 +50,34 @@ namespace catapult { namespace local {
 			return std::make_unique<io::FileBlockStorage>(stagingDirectory, io::FileBlockStorageMode::None);
 		}
 
+		class CommitImportanceFilesStateChangeSubscriber : public subscribers::StateChangeSubscriber {
+		public:
+			explicit CommitImportanceFilesStateChangeSubscriber(const config::CatapultDataDirectory& dataDirectory)
+					: m_dataDirectory(dataDirectory)
+			{}
+
+		public:
+			void notifyScoreChange(const model::ChainScore&) override
+			{}
+
+			void notifyStateChange(const subscribers::StateChangeInfo&) override {
+				// when state is committed, move importance files from wip to base
+				auto destDirectory = m_dataDirectory.dir("importance");
+				auto sourceDirectory = destDirectory.dir("wip");
+				auto begin = std::filesystem::directory_iterator(sourceDirectory.path());
+				auto end = std::filesystem::directory_iterator();
+				for (auto iter = begin; iter != end; ++iter) {
+					if (!iter->is_regular_file())
+						continue;
+
+					std::filesystem::rename(iter->path(), destDirectory.path() / iter->path().filename());
+				}
+			}
+
+		private:
+			config::CatapultDataDirectory m_dataDirectory;
+		};
+
 		std::unique_ptr<subscribers::StateChangeSubscriber> CreateStateChangeSubscriber(
 				subscribers::SubscriptionManager& subscriptionManager,
 				const cache::CatapultCache& catapultCache,
@@ -57,6 +85,7 @@ namespace catapult { namespace local {
 			subscriptionManager.addStateChangeSubscriber(CreateFileStateChangeStorage(
 					std::make_unique<io::FileQueueWriter>(dataDirectory.spoolDir("state_change").str(), "index_server.dat"),
 					[&catapultCache]() { return catapultCache.changesStorages(); }));
+			subscriptionManager.addStateChangeSubscriber(std::make_unique<CommitImportanceFilesStateChangeSubscriber>(dataDirectory));
 			return subscriptionManager.createStateChangeSubscriber();
 		}
 

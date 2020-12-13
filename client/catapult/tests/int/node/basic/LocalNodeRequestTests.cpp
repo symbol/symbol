@@ -23,6 +23,7 @@
 #include "tests/int/node/test/LocalNodeApiTraits.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/int/node/test/PeerLocalNodeTestContext.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace local {
@@ -54,6 +55,10 @@ namespace catapult { namespace local {
 
 			std::string stateChangeReaderIndex() const {
 				return m_dataDirectory.spoolDir("state_change").file("index_server_r.dat");
+			}
+
+			config::CatapultDirectory dir(const std::string& name) const {
+				return m_dataDirectory.dir(name);
 			}
 
 		private:
@@ -153,6 +158,26 @@ namespace catapult { namespace local {
 
 		// - the connection is still active
 		context.assertSingleReaderConnection();
+	}
+
+	// endregion
+
+	// region push - side effects
+
+	TEST(TEST_CLASS, SuccessfulImportanceBlockPushCommitsImportanceFiles) {
+		AssertCanPushBlockToLocalNode(test::NodeFlag::Regular, [](const auto&, const auto& dataDirectory) {
+			// Assert: importance files were committed from wip to base
+			auto importanceDirectory = dataDirectory.dir("importance");
+			EXPECT_EQ(4u, test::CountFilesAndDirectories(importanceDirectory.path()));
+			EXPECT_EQ(0u, test::CountFilesAndDirectories(importanceDirectory.dir("wip").path()));
+
+			for (auto name : { "index.dat", "0000000000000001.dat", "0000000000000002.dat" })
+				EXPECT_TRUE(std::filesystem::exists(importanceDirectory.file(name))) << name;
+
+			auto indexFile = io::IndexFile(importanceDirectory.file("index.dat"));
+			ASSERT_TRUE(indexFile.exists());
+			EXPECT_EQ(2u, indexFile.get());
+		});
 	}
 
 	// endregion
