@@ -98,6 +98,7 @@ namespace catapult { namespace plugins {
 				auto names = GetPermanentObserverNames();
 
 				// transient observers
+				names.push_back("HighValueAccountCommitObserver");
 				names.push_back("RecalculateImportancesObserver");
 				names.push_back("HighValueAccountRollbackObserver");
 				names.push_back("BlockStatisticObserver");
@@ -115,7 +116,6 @@ namespace catapult { namespace plugins {
 					"TransactionFeeActivityObserver",
 					"HarvestFeeObserver",
 					"TotalTransactionsObserver",
-					"HighValueAccountCommitObserver",
 
 					// key link transactions
 					"VrfKeyLinkObserver",

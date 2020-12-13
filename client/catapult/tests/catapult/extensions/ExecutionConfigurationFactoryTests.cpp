@@ -50,9 +50,9 @@ namespace catapult { namespace extensions {
 			"TransactionFeeActivityObserver",
 			"HarvestFeeObserver",
 			"TotalTransactionsObserver",
-			"HighValueAccountCommitObserver",
 			"VrfKeyLinkObserver",
 			"VotingMultiKeyLinkObserver",
+			"HighValueAccountCommitObserver",
 			"RecalculateImportancesObserver",
 			"HighValueAccountRollbackObserver",
 			"BlockStatisticObserver"

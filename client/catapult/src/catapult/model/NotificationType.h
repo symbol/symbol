@@ -137,6 +137,9 @@ namespace catapult { namespace model {
 	DEFINE_CORE_NOTIFICATION(Key_Link_Action, 0x0011, Validator);
 
 	/// Importance block was received.
+	/// \note This notification type cannot support observation without more substantial changes.
+	/// CoreSystem observers assume that no notifications raised after Block can trigger state changes.
+	/// ImportanceBlockValidator relies on Block_Importance being raised after Block for the same reason.
 	DEFINE_CORE_NOTIFICATION(Block_Importance, 0x0012, Validator);
 
 	/// Block was received (type information only).

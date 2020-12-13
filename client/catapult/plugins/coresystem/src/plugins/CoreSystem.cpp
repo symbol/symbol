@@ -216,13 +216,18 @@ namespace catapult { namespace plugins {
 				.add(observers::CreateBeneficiaryObserver())
 				.add(observers::CreateTransactionFeeActivityObserver())
 				.add(observers::CreateHarvestFeeObserver(harvestFeeOptions, calculator))
-				.add(observers::CreateTotalTransactionsObserver())
-				.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Commit));
+				.add(observers::CreateTotalTransactionsObserver());
 		});
 
 		auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
 		manager.addTransientObserverHook([&config, dataDirectory](auto& builder) {
+			// important:
+			// HighValueAccountObserver and RecalculateImportancesObserver are both triggered by BlockNotification and must execute
+			// AFTER all state changes.
+			// Since transient observers are guaranteed to not cause any state changes, the aforementioned observers can be safely
+			// registered as transient observers independent of any transient observers registered by other plugins.
 			builder
+				.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Commit))
 				.add(CreateRecalculateImportancesObserver(config, dataDirectory.dir("importance")))
 				.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Rollback))
 				.add(observers::CreateBlockStatisticObserver(config.MaxDifficultyBlocks, config.DefaultDynamicFeeMultiplier));
