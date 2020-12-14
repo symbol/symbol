@@ -31,6 +31,7 @@ namespace catapult { namespace importance {
 
 	namespace {
 		constexpr auto Index_Filename = "index.dat";
+		constexpr auto Empty_Bucket_Sentinel = std::numeric_limits<uint32_t>::max();
 
 		// region utils
 
@@ -111,17 +112,25 @@ namespace catapult { namespace importance {
 			}
 
 			PackedAccountEntry pack(const state::AccountState& accountState) const {
-				PackedAccountEntry entry;
+				auto entry = PackedAccountEntry();
 				entry.Address = accountState.Address;
 				entry.HarvestingBalance = accountState.Balances.get(m_config.HarvestingMosaicId);
 
 				// ImportanceHeight isn't needed because it is derivable from file
 				entry.Importance = accountState.ImportanceSnapshots.current();
 
+				auto importanceHeight = accountState.ImportanceSnapshots.height();
+				auto groupingFacade = model::HeightGroupingFacade<model::ImportanceHeight>(importanceHeight, m_config.ImportanceGrouping);
+
 				auto previousBucketIter = ++accountState.ActivityBuckets.begin();
-				entry.TotalFeesPaid = previousBucketIter->TotalFeesPaid;
-				entry.BeneficiaryCount = previousBucketIter->BeneficiaryCount;
-				entry.RawScore = previousBucketIter->RawScore;
+				if (groupingFacade.previous(1) == previousBucketIter->StartHeight) {
+					entry.TotalFeesPaid = previousBucketIter->TotalFeesPaid;
+					entry.BeneficiaryCount = previousBucketIter->BeneficiaryCount;
+					entry.RawScore = previousBucketIter->RawScore;
+				} else{
+					entry.BeneficiaryCount = Empty_Bucket_Sentinel;
+				}
+
 				return entry;
 			}
 
@@ -154,7 +163,7 @@ namespace catapult { namespace importance {
 				if (ImportanceRollbackMode::Disabled == mode)
 					CATAPULT_THROW_INVALID_ARGUMENT("cannot rollback importances when rollback is disabled");
 
-				model::HeightGroupingFacade<model::ImportanceHeight> groupingFacade(importanceHeight, m_config.ImportanceGrouping);
+				auto groupingFacade = model::HeightGroupingFacade<model::ImportanceHeight>(importanceHeight, m_config.ImportanceGrouping);
 
 				// if the most recently calculated importance height is being rolled back, bypass file loading because it will be in memory
 				auto lastImportanceHeight = model::ImportanceHeight(io::IndexFile(m_directory.file(Index_Filename)).get());
@@ -229,7 +238,7 @@ namespace catapult { namespace importance {
 						if (readManager.shouldSetImportance(i))
 							accountStateIter.get().ImportanceSnapshots.set(entry.Importance, readManager.current(i));
 
-						if (readManager.shouldSetActivityBucket(i)) {
+						if (readManager.shouldSetActivityBucket(i) && Empty_Bucket_Sentinel != entry.BeneficiaryCount) {
 							accountStateIter.get().ActivityBuckets.update(readManager.bucketHeight(i), [&entry](auto& bucket) {
 								bucket.TotalFeesPaid = entry.TotalFeesPaid;
 								bucket.BeneficiaryCount = entry.BeneficiaryCount;
