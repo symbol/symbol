@@ -54,9 +54,15 @@ namespace catapult { namespace state {
 		m_heightVotingPublicKeysMap.add(height, votingPublicKeys);
 	}
 
-	void AccountHistory::prune(Height height) {
-		m_heightBalanceMap.prune(height);
-		m_heightVrfPublicKeyMap.prune(height);
-		m_heightVotingPublicKeysMap.prune(height);
+	void AccountHistory::pruneLess(Height height) {
+		m_heightBalanceMap.pruneLess(height);
+		m_heightVrfPublicKeyMap.pruneLess(height);
+		m_heightVotingPublicKeysMap.pruneLess(height);
+	}
+
+	void AccountHistory::pruneGreater(Height height) {
+		m_heightBalanceMap.pruneGreater(height);
+		m_heightVrfPublicKeyMap.pruneGreater(height);
+		m_heightVotingPublicKeysMap.pruneGreater(height);
 	}
 }}

@@ -78,7 +78,7 @@ namespace catapult { namespace state {
 
 		/// Prunes all values less than \a height.
 		/// \note Prune will never change the result of value queries at or after \a height.
-		void prune(Height height) {
+		void pruneLess(Height height) {
 			auto iter = m_heightValueMap.lower_bound(height);
 			if (m_heightValueMap.end() == iter)
 				return;
@@ -86,6 +86,12 @@ namespace catapult { namespace state {
 			auto valueAtPruneHeight = iter->second;
 			m_heightValueMap.erase(iter, m_heightValueMap.end());
 			add(height, valueAtPruneHeight);
+		}
+
+		/// Prunes all values greater than \a height.
+		void pruneGreater(Height height) {
+			auto iter = m_heightValueMap.lower_bound(height);
+			m_heightValueMap.erase(m_heightValueMap.begin(), iter);
 		}
 
 	private:

@@ -117,6 +117,11 @@ namespace catapult { namespace cache {
 					updateOne(pair.second, effectiveBalanceCalculator(pair.second));
 			}
 
+			void pruneGreater() {
+				for (auto& pair : m_accountHistories)
+					pair.second.pruneGreater(m_height);
+			}
+
 			void prune(Amount minBalance) {
 				utils::map_erase_if(m_accountHistories, [minBalance](const auto& pair) {
 					return !pair.second.anyAtLeast(minBalance);
@@ -184,7 +189,7 @@ namespace catapult { namespace cache {
 
 	void HighValueAccountsUpdater::prune(Height height) {
 		utils::map_erase_if(m_accountHistories, [height, minBalance = m_options.MinVoterBalance](auto& pair) {
-			pair.second.prune(height);
+			pair.second.pruneLess(height);
 			return !pair.second.anyAtLeast(minBalance);
 		});
 	}
@@ -232,6 +237,7 @@ namespace catapult { namespace cache {
 		};
 
 		HighValueBalancesUpdater updater(m_accountHistories, m_height);
+		updater.pruneGreater();
 		updater.update(deltas.Added, effectiveBalanceCalculator);
 		updater.update(deltas.Copied, effectiveBalanceCalculator);
 		updater.update(deltas.Removed, [](const auto&) { return std::make_pair(Amount(), false); });

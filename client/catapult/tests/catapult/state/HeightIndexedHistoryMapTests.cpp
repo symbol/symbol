@@ -277,27 +277,43 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region prune
+	// region pruneLess
 
 	namespace {
-		void RunPruneTest(Height pruneHeight, const consumer<const HistoryMap&>& checkHistory) {
-			// Arrange:
+		HistoryMap CreateHistoryForBasicPruneTest() {
 			HistoryMap history;
 			history.add(Height(11), Timestamp(12));
 			history.add(Height(22), Timestamp(98));
 			history.add(Height(33), Timestamp(67));
+			return history;
+		}
+
+		void RunPruneLessTest(Height pruneHeight, const consumer<const HistoryMap&>& checkHistory) {
+			// Arrange:
+			auto history = CreateHistoryForBasicPruneTest();
 
 			// Act:
-			history.prune(pruneHeight);
+			history.pruneLess(pruneHeight);
 
 			// Assert:
 			checkHistory(history);
 		}
 	}
 
-	TEST(TEST_CLASS, CanPrune_ExactMatch) {
+	TEST(TEST_CLASS, CanPruneLess_HasNoEffectWhenEmpty) {
+		// Arrange:
+		HistoryMap history;
+
 		// Act:
-		RunPruneTest(Height(22), [](const auto& history) {
+		history.pruneLess(Height(22));
+
+		// Assert:
+		EXPECT_EQ(0u, history.size());
+	}
+
+	TEST(TEST_CLASS, CanPruneLess_ExactMatch) {
+		// Act:
+		RunPruneLessTest(Height(22), [](const auto& history) {
 			// Assert:
 			EXPECT_EQ(2u, history.size());
 			EXPECT_EQ(std::vector<Height>({ Height(22), Height(33) }), history.heights());
@@ -311,9 +327,9 @@ namespace catapult { namespace state {
 		});
 	}
 
-	TEST(TEST_CLASS, CanPrune_InexactMatch_OneLess) {
+	TEST(TEST_CLASS, CanPruneLess_InexactMatch_OneLess) {
 		// Act:
-		RunPruneTest(Height(32), [](const auto& history) {
+		RunPruneLessTest(Height(32), [](const auto& history) {
 			// Assert:
 			EXPECT_EQ(2u, history.size());
 			EXPECT_EQ(std::vector<Height>({ Height(32), Height(33) }), history.heights());
@@ -327,9 +343,9 @@ namespace catapult { namespace state {
 		});
 	}
 
-	TEST(TEST_CLASS, CanPrune_InexactMatch_OneGreater) {
+	TEST(TEST_CLASS, CanPruneLess_InexactMatch_OneGreater) {
 		// Act:
-		RunPruneTest(Height(23), [](const auto& history) {
+		RunPruneLessTest(Height(23), [](const auto& history) {
 			// Assert:
 			EXPECT_EQ(2u, history.size());
 			EXPECT_EQ(std::vector<Height>({ Height(23), Height(33) }), history.heights());
@@ -343,9 +359,9 @@ namespace catapult { namespace state {
 		});
 	}
 
-	TEST(TEST_CLASS, CanPrune_InexactMatch_None) {
+	TEST(TEST_CLASS, CanPruneLess_InexactMatch_None) {
 		// Act:
-		RunPruneTest(Height(7), [](const auto& history) {
+		RunPruneLessTest(Height(7), [](const auto& history) {
 			// Assert:
 			EXPECT_EQ(3u, history.size());
 			EXPECT_EQ(std::vector<Height>({ Height(11), Height(22), Height(33) }), history.heights());
@@ -357,9 +373,9 @@ namespace catapult { namespace state {
 		});
 	}
 
-	TEST(TEST_CLASS, CanPrune_InexactMatch_All) {
+	TEST(TEST_CLASS, CanPruneLess_InexactMatch_All) {
 		// Act:
-		RunPruneTest(Height(98), [](const auto& history) {
+		RunPruneLessTest(Height(98), [](const auto& history) {
 			// Assert:
 			EXPECT_EQ(1u, history.size());
 			EXPECT_EQ(std::vector<Height>({ Height(98) }), history.heights());
@@ -368,6 +384,107 @@ namespace catapult { namespace state {
 			EXPECT_EQ(Timestamp(0), history.get(Height(97)));
 			EXPECT_EQ(Timestamp(67), history.get(Height(98)));
 			EXPECT_EQ(Timestamp(67), history.get(Height(99)));
+		});
+	}
+
+	// endregion
+
+	// region pruneGreater
+
+	namespace {
+		void RunPruneGreaterTest(Height pruneHeight, const consumer<const HistoryMap&>& checkHistory) {
+			// Arrange:
+			auto history = CreateHistoryForBasicPruneTest();
+
+			// Act:
+			history.pruneGreater(pruneHeight);
+
+			// Assert:
+			checkHistory(history);
+		}
+	}
+
+	TEST(TEST_CLASS, CanPruneGreater_HasNoEffectWhenEmpty) {
+		// Arrange:
+		HistoryMap history;
+
+		// Act:
+		history.pruneGreater(Height(22));
+
+		// Assert:
+		EXPECT_EQ(0u, history.size());
+	}
+
+	TEST(TEST_CLASS, CanPruneGreater_ExactMatch) {
+		// Act:
+		RunPruneGreaterTest(Height(22), [](const auto& history) {
+			// Assert:
+			EXPECT_EQ(2u, history.size());
+			EXPECT_EQ(std::vector<Height>({ Height(11), Height(22) }), history.heights());
+			EXPECT_EQ(Timestamp(98), history.get());
+
+			EXPECT_EQ(Timestamp(0), history.get(Height(10)));
+			EXPECT_EQ(Timestamp(12), history.get(Height(11)));
+			EXPECT_EQ(Timestamp(98), history.get(Height(22)));
+			EXPECT_EQ(Timestamp(98), history.get(Height(33)));
+		});
+	}
+
+	TEST(TEST_CLASS, CanPruneGreater_InexactMatch_OneLess) {
+		// Act:
+		RunPruneGreaterTest(Height(32), [](const auto& history) {
+			// Assert:
+			EXPECT_EQ(2u, history.size());
+			EXPECT_EQ(std::vector<Height>({ Height(11), Height(22) }), history.heights());
+			EXPECT_EQ(Timestamp(98), history.get());
+
+			EXPECT_EQ(Timestamp(0), history.get(Height(10)));
+			EXPECT_EQ(Timestamp(12), history.get(Height(11)));
+			EXPECT_EQ(Timestamp(98), history.get(Height(22)));
+			EXPECT_EQ(Timestamp(98), history.get(Height(33)));
+		});
+	}
+
+	TEST(TEST_CLASS, CanPruneGreater_InexactMatch_OneGreater) {
+		// Act:
+		RunPruneGreaterTest(Height(23), [](const auto& history) {
+			// Assert:
+			EXPECT_EQ(2u, history.size());
+			EXPECT_EQ(std::vector<Height>({ Height(11), Height(22) }), history.heights());
+			EXPECT_EQ(Timestamp(98), history.get());
+
+			EXPECT_EQ(Timestamp(0), history.get(Height(10)));
+			EXPECT_EQ(Timestamp(12), history.get(Height(11)));
+			EXPECT_EQ(Timestamp(98), history.get(Height(22)));
+			EXPECT_EQ(Timestamp(98), history.get(Height(33)));
+		});
+	}
+
+	TEST(TEST_CLASS, CanPruneGreater_InexactMatch_None) {
+		// Act:
+		RunPruneGreaterTest(Height(98), [](const auto& history) {
+			// Assert:
+			EXPECT_EQ(3u, history.size());
+			EXPECT_EQ(std::vector<Height>({ Height(11), Height(22), Height(33) }), history.heights());
+			EXPECT_EQ(Timestamp(67), history.get());
+
+			EXPECT_EQ(Timestamp(12), history.get(Height(11)));
+			EXPECT_EQ(Timestamp(98), history.get(Height(22)));
+			EXPECT_EQ(Timestamp(67), history.get(Height(33)));
+		});
+	}
+
+	TEST(TEST_CLASS, CanPruneGreater_InexactMatch_All) {
+		// Act:
+		RunPruneGreaterTest(Height(7), [](const auto& history) {
+			// Assert:
+			EXPECT_EQ(0u, history.size());
+			EXPECT_EQ(std::vector<Height>(), history.heights());
+			EXPECT_EQ(Timestamp(0), history.get());
+
+			EXPECT_EQ(Timestamp(0), history.get(Height(11)));
+			EXPECT_EQ(Timestamp(0), history.get(Height(22)));
+			EXPECT_EQ(Timestamp(0), history.get(Height(33)));
 		});
 	}
 

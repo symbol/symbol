@@ -422,7 +422,7 @@ namespace catapult { namespace harvesting {
 			return amounts;
 		}
 
-		auto CreateAccounts(cache::AccountStateCacheDelta& cache, const std::vector<Amount>& balances) {
+		auto CreateAccounts(cache::AccountStateCacheDelta& cache, Height height, const std::vector<Amount>& balances) {
 			constexpr Importance Default_Importance(1'000'000);
 			auto signingKeyPairs = CreateKeyPairs(balances.size());
 			auto votingKeyPairs = CreateKeyPairs(balances.size());
@@ -440,7 +440,7 @@ namespace catapult { namespace harvesting {
 				});
 			}
 
-			cache.updateHighValueAccounts(Default_Height);
+			cache.updateHighValueAccounts(height);
 			return signingKeyPairs;
 		}
 
@@ -450,7 +450,7 @@ namespace catapult { namespace harvesting {
 			auto catapultCache = test::CreateEmptyCatapultCache(config);
 			{
 				auto delta = catapultCache.createDelta();
-				CreateAccounts(delta.sub<cache::AccountStateCache>(), balances);
+				CreateAccounts(delta.sub<cache::AccountStateCache>(), importanceMultipleHeight, balances);
 				catapultCache.commit(importanceMultipleHeight - Height(1));
 			}
 
@@ -578,7 +578,7 @@ namespace catapult { namespace harvesting {
 		auto catapultCache = test::CreateEmptyCatapultCache(config);
 		{
 			auto delta = catapultCache.createDelta();
-			keyPairs = CreateAccounts(delta.sub<cache::AccountStateCache>(), harvestingBalances);
+			keyPairs = CreateAccounts(delta.sub<cache::AccountStateCache>(), importanceMultipleHeight, harvestingBalances);
 			catapultCache.commit(importanceMultipleHeight - Height(1));
 		}
 

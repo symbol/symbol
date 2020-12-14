@@ -714,6 +714,54 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(updater.removedAddresses().empty());
 	}
 
+	TEST(TEST_CLASS, Updater_VoterEligible_CanProcessMixedViaMultipleUpdates_SimulateRollback) {
+		// Arrange: add seven [5 match {0, 2, 4, 5, 6}]
+		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
+		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
+			Amount(2'100'000), Amount(900'000), Amount(2'000'000), Amount(800'000), Amount(2'200'000), Amount(2'400'000), Amount(2'300'000)
+		});
+
+		auto accounts = CreateAccounts({});
+		HighValueAccountsUpdater updater(CreateOptions(), accounts);
+
+		// Act:
+		updater.setHeight(Height(3));
+		updater.update(deltas.deltas());
+
+		// - modify four [5 match {0, 1, 3, 4, 5}]
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[1])).first->second, Amount(1'200'000));
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[2])).first->second, Amount(1));
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[3])).first->second, Amount(1'250'000));
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[6])).first->second, Amount(300'001));
+
+		updater.setHeight(Height(9));
+		updater.update(deltas.deltas());
+
+		// - delete two [3 match {0, 3, 5}]
+		deltas.Removed.insert(*deltas.Added.find(addedAddresses[1]));
+		deltas.Removed.insert(*deltas.Added.find(addedAddresses[4]));
+
+		updater.setHeight(Height(6));
+		updater.update(deltas.deltas());
+
+		// Assert: since last update was at height 6, no updates from height 9 should be present
+		//         (deltas is cumulative, so copied changes are included in deltas applied at height 6)
+		auto expectedAccountHistories = test::GenerateAccountHistories({
+			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+			{ addedAddresses[2], { { Height(3), Amount(2'000'000) }, { Height(6), Amount() } } },
+			{ addedAddresses[3], { { Height(6), Amount(2'050'000) } } },
+			{ addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(6), Amount() } } },
+			{ addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
+			{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(6), Amount() } } }
+		});
+
+		test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
+
+		// Sanity:
+		EXPECT_EQ(5u, updater.addresses().size());
+		EXPECT_TRUE(updater.removedAddresses().empty());
+	}
+
 	// endregion
 
 	// region updater - voter eligible accounts (voting public key requirement)
@@ -1075,7 +1123,7 @@ namespace catapult { namespace cache {
 				model::AddressSet(addedAddresses.cbegin(), addedAddresses.cbegin() + 3),
 				CreateThreeAccountHistories());
 		HighValueAccountsUpdater updater(CreateOptions(), originalAccounts);
-		updater.setHeight(Height(3));
+		updater.setHeight(Height(9));
 		updater.update(deltas.deltas());
 
 		// Act:
@@ -1086,7 +1134,7 @@ namespace catapult { namespace cache {
 
 		// - notice that GetHarvesterEligibleTestBalances includes one account with min voter balance
 		auto expectedAccountHistories = CreateThreeAccountHistories();
-		expectedAccountHistories.emplace(addedAddresses[5], test::CreateAccountHistory({ { Height(3), Min_Voter_Balance } }));
+		expectedAccountHistories.emplace(addedAddresses[5], test::CreateAccountHistory({ { Height(9), Min_Voter_Balance } }));
 		test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, accounts.accountHistories());
 
 		// - updater is cleared

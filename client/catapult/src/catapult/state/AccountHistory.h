@@ -52,9 +52,12 @@ namespace catapult { namespace state {
 		/// Adds \a votingPublicKeys at \a height.
 		void add(Height height, const std::vector<model::PinnedVotingKey>& votingPublicKeys);
 
-		/// Prunes all balances less than \a height.
-		/// \note Prune will never change the result of balance queries at or after \a height.
-		void prune(Height height);
+		/// Prunes all values less than \a height.
+		/// \note Prune will never change the result of value queries at or after \a height.
+		void pruneLess(Height height);
+
+		/// Prunes all values greater than \a height.
+		void pruneGreater(Height height);
 
 	private:
 		HeightIndexedHistoryMap<Amount> m_heightBalanceMap;

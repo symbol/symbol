@@ -205,19 +205,39 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region prune
+	// region pruneLess
 
 	namespace {
 		template<typename TTraits>
-		void RunPruneTest(Height pruneHeight, const consumer<const AccountHistory&>& checkHistory) {
-			// Arrange:
+		AccountHistory CreateAccountHistoryForBasicPruneTest() {
 			AccountHistory history;
 			history.add(Height(11), TTraits::ToValue(12));
 			history.add(Height(22), TTraits::ToValue(98));
 			history.add(Height(33), TTraits::ToValue(67));
+			return history;
+		}
+
+		AccountHistory CreateAccountHistoryForHeterogenousPruneTest() {
+			AccountHistory history;
+
+			history.add(Height(11), Amount(12));
+			history.add(Height(22), Amount(98));
+			history.add(Height(33), Amount(67));
+
+			history.add(Height(12), Key{ { 100 } });
+
+			history.add(Height(20), VotingPublicKeysTraits::ToValue(75));
+			history.add(Height(44), VotingPublicKeysTraits::ToValue(200));
+			return history;
+		}
+
+		template<typename TTraits>
+		void RunPruneLessTest(Height pruneHeight, const consumer<const AccountHistory&>& checkHistory) {
+			// Arrange:
+			auto history = CreateAccountHistoryForBasicPruneTest<TTraits>();
 
 			// Act:
-			history.prune(pruneHeight);
+			history.pruneLess(pruneHeight);
 
 			// Assert:
 			checkHistory(history);
@@ -229,9 +249,9 @@ namespace catapult { namespace state {
 		}
 	}
 
-	HISTORY_VALUE_TEST(CanPrune) {
+	HISTORY_VALUE_TEST(CanPruneLess) {
 		// Act:
-		RunPruneTest<TTraits>(Height(22), [](const auto& history) {
+		RunPruneLessTest<TTraits>(Height(22), [](const auto& history) {
 			const auto& valueHistory = TTraits::GetValueHistory(history);
 
 			// Assert:
@@ -247,21 +267,12 @@ namespace catapult { namespace state {
 		});
 	}
 
-	TEST(TEST_CLASS, CanPruneHeterogenousValues) {
+	TEST(TEST_CLASS, CanPruneLessHeterogenousValues) {
 		// Arrange:
-		AccountHistory history;
-
-		history.add(Height(11), Amount(12));
-		history.add(Height(22), Amount(98));
-		history.add(Height(33), Amount(67));
-
-		history.add(Height(12), Key{ { 100 } });
-
-		history.add(Height(22), VotingPublicKeysTraits::ToValue(75));
-		history.add(Height(44), VotingPublicKeysTraits::ToValue(200));
+		auto history = CreateAccountHistoryForHeterogenousPruneTest();
 
 		// Act:
-		history.prune(Height(33));
+		history.pruneLess(Height(33));
 
 		// Assert:
 		{
@@ -290,6 +301,77 @@ namespace catapult { namespace state {
 
 			EXPECT_EQ(VotingPublicKeysTraits::ToValue(75), valueHistory.get(Height(33)));
 			EXPECT_EQ(VotingPublicKeysTraits::ToValue(200), valueHistory.get(Height(44)));
+		}
+	}
+
+	// endregion
+
+	// region pruneGreater
+
+	namespace {
+		template<typename TTraits>
+		void RunPruneGreaterTest(Height pruneHeight, const consumer<const AccountHistory&>& checkHistory) {
+			// Arrange:
+			auto history = CreateAccountHistoryForBasicPruneTest<TTraits>();
+
+			// Act:
+			history.pruneGreater(pruneHeight);
+
+			// Assert:
+			checkHistory(history);
+		}
+	}
+
+	HISTORY_VALUE_TEST(CanPruneGreater) {
+		// Act:
+		RunPruneGreaterTest<TTraits>(Height(22), [](const auto& history) {
+			const auto& valueHistory = TTraits::GetValueHistory(history);
+
+			// Assert:
+			EXPECT_EQ(2u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(11), Height(22) }), valueHistory.heights());
+			EXPECT_EQ(TTraits::ToValue(98), valueHistory.get());
+
+			EXPECT_EQ(TTraits::ToValue(12), valueHistory.get(Height(11)));
+			EXPECT_EQ(TTraits::ToValue(98), valueHistory.get(Height(22)));
+			EXPECT_EQ(TTraits::ToValue(98), valueHistory.get(Height(33)));
+		});
+	}
+
+	TEST(TEST_CLASS, CanPruneGreaterHeterogenousValues) {
+		// Arrange:
+		auto history = CreateAccountHistoryForHeterogenousPruneTest();
+
+		// Act:
+		history.pruneGreater(Height(22));
+
+		// Assert:
+		{
+			const auto& valueHistory = history.balance();
+			EXPECT_EQ(2u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(11), Height(22) }), valueHistory.heights());
+			EXPECT_EQ(Amount(98), valueHistory.get());
+
+			EXPECT_EQ(Amount(12), valueHistory.get(Height(11)));
+			EXPECT_EQ(Amount(98), valueHistory.get(Height(22)));
+		}
+
+		{
+			const auto& valueHistory = history.vrfPublicKey();
+			EXPECT_EQ(1u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(12) }), valueHistory.heights());
+			EXPECT_EQ(Key{ { 100 } }, valueHistory.get());
+
+			EXPECT_EQ(Key{ { 100 } }, valueHistory.get(Height(12)));
+		}
+
+		{
+			const auto& valueHistory = history.votingPublicKeys();
+			EXPECT_EQ(1u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(20) }), valueHistory.heights());
+			EXPECT_EQ(VotingPublicKeysTraits::ToValue(75), valueHistory.get());
+
+			EXPECT_EQ(VotingPublicKeysTraits::ToValue(75), valueHistory.get(Height(20)));
 		}
 	}
 
