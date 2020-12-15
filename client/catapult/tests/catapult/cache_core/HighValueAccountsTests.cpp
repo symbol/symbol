@@ -81,30 +81,38 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_TRUE(accounts.addresses().empty());
+		EXPECT_TRUE(accounts.removedAddresses().empty());
 
 		EXPECT_TRUE(accounts.accountHistories().empty());
 	}
 
 	TEST(TEST_CLASS, Accounts_CanCreateAroundInputs) {
-		// Act:
+		// Arrange:
 		auto addresses = GenerateRandomAddresses(4);
+		auto removedAddresses = GenerateRandomAddresses(3);
 		auto accountHistories = CreateThreeAccountHistories();
-		HighValueAccounts accounts(addresses, accountHistories);
+
+		// Act:
+		HighValueAccounts accounts(addresses, removedAddresses, accountHistories);
 
 		// Assert:
 		EXPECT_EQ(addresses, accounts.addresses());
+		EXPECT_EQ(removedAddresses, accounts.removedAddresses());
 
 		test::AssertEqual(accountHistories, accounts.accountHistories());
 	}
 
 	TEST(TEST_CLASS, Accounts_CanCreateAroundMovedInputs) {
-		// Act:
+		// Arrange:
 		auto addresses = GenerateRandomAddresses(4);
-		auto addressesCopy = addresses;
-		HighValueAccounts accounts(std::move(addresses), CreateThreeAccountHistories());
+		auto removedAddresses = GenerateRandomAddresses(3);
+
+		// Act:
+		HighValueAccounts accounts(model::AddressSet(addresses), model::AddressSet(removedAddresses), CreateThreeAccountHistories());
 
 		// Assert:
-		EXPECT_EQ(addressesCopy, accounts.addresses());
+		EXPECT_EQ(addresses, accounts.addresses());
+		EXPECT_EQ(removedAddresses, accounts.removedAddresses());
 
 		test::AssertEqual(CreateThreeAccountHistories(), accounts.accountHistories());
 	}
@@ -114,21 +122,25 @@ namespace catapult { namespace cache {
 	// region updater - constructor
 
 	namespace {
+		HighValueAccounts CreateAccounts(const model::AddressSet& addresses, const model::AddressSet& removedAddresses) {
+			return HighValueAccounts(addresses, removedAddresses, AddressAccountHistoryMap());
+		}
+
 		HighValueAccounts CreateAccounts(const model::AddressSet& addresses) {
-			return HighValueAccounts(addresses, AddressAccountHistoryMap());
+			return CreateAccounts(addresses, model::AddressSet());
 		}
 	}
 
 	TEST(TEST_CLASS, Updater_CanCreateAroundAccounts) {
 		// Act:
-		auto accounts = HighValueAccounts(GenerateRandomAddresses(4), CreateThreeAccountHistories());
+		auto accounts = HighValueAccounts(GenerateRandomAddresses(4), GenerateRandomAddresses(3), CreateThreeAccountHistories());
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
 
 		// Assert:
 		EXPECT_EQ(Height(1), updater.height());
 
 		EXPECT_EQ(accounts.addresses(), updater.addresses());
-		EXPECT_TRUE(updater.removedAddresses().empty());
+		EXPECT_EQ(accounts.removedAddresses(), updater.removedAddresses());
 
 		test::AssertEqual(accounts.accountHistories(), updater.accountHistories());
 	}
@@ -139,7 +151,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, Updater_CanSetHeight) {
 		// Arrange:
-		auto accounts = CreateAccounts(GenerateRandomAddresses(3));
+		auto accounts = CreateAccounts(GenerateRandomAddresses(4), GenerateRandomAddresses(3));
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
 
 		// Act:
@@ -149,7 +161,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Height(7), updater.height());
 
 		EXPECT_EQ(accounts.addresses(), updater.addresses());
-		EXPECT_TRUE(updater.removedAddresses().empty());
+		EXPECT_EQ(accounts.removedAddresses(), updater.removedAddresses());
 
 		EXPECT_TRUE(updater.accountHistories().empty());
 	}
@@ -408,6 +420,63 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_EQ(Pick(addedAddresses, { 0, 2 }), updater.addresses());
 		EXPECT_EQ(Pick(addedAddresses, { 1 }), updater.removedAddresses());
+
+		// Sanity:
+		EXPECT_TRUE(updater.accountHistories().empty());
+	}
+
+	// endregion
+
+	// region updater - harvester eligible accounts [removed account persistence]
+
+	TEST(TEST_CLASS, Updater_HarvesterEligible_NewlyRemovedAccountsAreAddedToOriginalRemovedAccounts) {
+		// ***  this is a modification of Updater_HarvesterEligible_CanProcessMixedViaMultipleUpdates_SingleAccount ***
+
+		// Arrange: { 0, 1 } are treated as original accounts whereas { 2, 3 } are treated as added accounts
+		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
+		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
+			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000)
+		});
+
+		// - add removed addresses at { 4, 5 }
+		addedAddresses.push_back(test::GenerateRandomByteArray<Address>());
+		addedAddresses.push_back(test::GenerateRandomByteArray<Address>());
+
+		auto accounts = CreateAccounts(
+				model::AddressSet(addedAddresses.cbegin(), addedAddresses.cbegin() + 2),
+				model::AddressSet(addedAddresses.cbegin() + 4, addedAddresses.cend()));
+		HighValueAccountsUpdater updater(CreateOptions(), accounts);
+
+		// Act:
+		updater.update(deltas.deltas());
+
+		// Assert:
+		EXPECT_EQ(Pick(addedAddresses, { 0, 2 }), updater.addresses());
+		EXPECT_EQ(Pick(addedAddresses, { 4, 5, 1 }), updater.removedAddresses());
+
+		// Act: modify all
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[0])).first->second, Amount(200'000));
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[1])).first->second, Amount(300'000));
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[2])).first->second, Amount(1));
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[3])).first->second, Amount(200'000));
+
+		updater.update(deltas.deltas());
+
+		// Assert:
+		EXPECT_EQ(Pick(addedAddresses, { 1, 3 }), updater.addresses());
+		EXPECT_EQ(Pick(addedAddresses, { 4, 5, 0 }), updater.removedAddresses());
+
+		// Act: revert all
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[0])).first->second, Amount(200'000));
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[1])).first->second, Amount(300'000));
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[2])).first->second, Amount(1));
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[3])).first->second, Amount(200'000));
+
+		updater.update(deltas.deltas());
+
+		// Assert:
+		EXPECT_EQ(Pick(addedAddresses, { 0, 2 }), updater.addresses());
+		EXPECT_EQ(Pick(addedAddresses, { 4, 5, 1 }), updater.removedAddresses());
 
 		// Sanity:
 		EXPECT_TRUE(updater.accountHistories().empty());
@@ -1121,6 +1190,7 @@ namespace catapult { namespace cache {
 
 		auto originalAccounts = HighValueAccounts(
 				model::AddressSet(addedAddresses.cbegin(), addedAddresses.cbegin() + 3),
+				model::AddressSet(),
 				CreateThreeAccountHistories());
 		HighValueAccountsUpdater updater(CreateOptions(), originalAccounts);
 		updater.setHeight(Height(9));
@@ -1131,6 +1201,7 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_EQ(Pick(addedAddresses, { 0, 2, 4, 5 }), accounts.addresses());
+		EXPECT_EQ(Pick(addedAddresses, { 1 }), accounts.removedAddresses());
 
 		// - notice that GetHarvesterEligibleTestBalances includes one account with min voter balance
 		auto expectedAccountHistories = CreateThreeAccountHistories();

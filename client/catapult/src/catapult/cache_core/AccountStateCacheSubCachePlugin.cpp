@@ -71,6 +71,7 @@ namespace catapult { namespace cache {
 		template<typename THighValueAccounts>
 		void WriteHighValueAccounts(const THighValueAccounts& accounts, io::OutputStream& output) {
 			WriteAddresses(accounts.addresses(), output);
+			WriteAddresses(accounts.removedAddresses(), output);
 			WriteAccountHistories(accounts.accountHistories(), output);
 			output.flush();
 		}
@@ -140,8 +141,9 @@ namespace catapult { namespace cache {
 
 		HighValueAccounts ReadHighValueAccounts(io::InputStream& input) {
 			auto addresses = ReadAddresses(input);
+			auto removedAddresses = ReadAddresses(input);
 			auto accountHistories = ReadAccountHistories(input);
-			return HighValueAccounts(std::move(addresses), std::move(accountHistories));
+			return HighValueAccounts(std::move(addresses), std::move(removedAddresses), std::move(accountHistories));
 		}
 
 		// endregion

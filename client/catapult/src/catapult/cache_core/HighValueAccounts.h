@@ -35,21 +35,32 @@ namespace catapult { namespace cache {
 		/// Creates an empty container.
 		HighValueAccounts();
 
-		/// Creates a container around \a addresses and \a accountHistories.
-		HighValueAccounts(const model::AddressSet& addresses, const AddressAccountHistoryMap& accountHistories);
+		/// Creates a container around \a addresses, \a removedAddresses and \a accountHistories.
+		HighValueAccounts(
+				const model::AddressSet& addresses,
+				const model::AddressSet& removedAddresses,
+				const AddressAccountHistoryMap& accountHistories);
 
-		/// Creates a container around \a addresses and \a accountHistories.
-		HighValueAccounts(model::AddressSet&& addresses, AddressAccountHistoryMap&& accountHistories);
+		/// Creates a container around \a addresses, \a removedAddresses and \a accountHistories.
+		HighValueAccounts(
+				model::AddressSet&& addresses,
+				model::AddressSet&& removedAddresses,
+				AddressAccountHistoryMap&& accountHistories);
 
 	public:
 		/// Gets the high value (harvester eligible) addresses.
 		const model::AddressSet& addresses() const;
+
+		/// Gets the (removed) high value (harvester eligible) addresses that were once high value but no longer.
+		/// \note This is required for deterministic rollback.
+		const model::AddressSet& removedAddresses() const;
 
 		/// Gets the high value (voter eligible) account histories.
 		const AddressAccountHistoryMap& accountHistories() const;
 
 	private:
 		model::AddressSet m_addresses;
+		model::AddressSet m_removedAddresses;
 		AddressAccountHistoryMap m_accountHistories;
 	};
 
@@ -69,7 +80,8 @@ namespace catapult { namespace cache {
 		/// Gets the (current) high value (harvester eligible) addresses.
 		const model::AddressSet& addresses() const;
 
-		/// Gets the (removed) high value (harvester eligible) addresses relative to the initial addresses.
+		/// Gets the (removed) high value (harvester eligible) addresses that were once high value but no longer.
+		/// \note This is required for deterministic rollback.
 		const model::AddressSet& removedAddresses() const;
 
 		/// Gets the high value (voter eligible) account histories.

@@ -29,18 +29,30 @@ namespace catapult { namespace cache {
 	HighValueAccounts::HighValueAccounts()
 	{}
 
-	HighValueAccounts::HighValueAccounts(const model::AddressSet& addresses, const AddressAccountHistoryMap& accountHistories)
+	HighValueAccounts::HighValueAccounts(
+			const model::AddressSet& addresses,
+			const model::AddressSet& removedAddresses,
+			const AddressAccountHistoryMap& accountHistories)
 			: m_addresses(addresses)
+			, m_removedAddresses(removedAddresses)
 			, m_accountHistories(accountHistories)
 	{}
 
-	HighValueAccounts::HighValueAccounts(model::AddressSet&& addresses, AddressAccountHistoryMap&& accountHistories)
+	HighValueAccounts::HighValueAccounts(
+			model::AddressSet&& addresses,
+			model::AddressSet&& removedAddresses,
+			AddressAccountHistoryMap&& accountHistories)
 			: m_addresses(std::move(addresses))
+			, m_removedAddresses(removedAddresses)
 			, m_accountHistories(std::move(accountHistories))
 	{}
 
 	const model::AddressSet& HighValueAccounts::addresses() const {
 		return m_addresses;
+	}
+
+	const model::AddressSet& HighValueAccounts::removedAddresses() const {
+		return m_removedAddresses;
 	}
 
 	const AddressAccountHistoryMap& HighValueAccounts::accountHistories() const {
@@ -158,6 +170,7 @@ namespace catapult { namespace cache {
 			: m_options(options)
 			, m_original(accounts.addresses())
 			, m_current(accounts.addresses())
+			, m_removed(accounts.removedAddresses())
 			, m_accountHistories(accounts.accountHistories())
 			, m_height(Height(1))
 	{}
@@ -195,7 +208,7 @@ namespace catapult { namespace cache {
 	}
 
 	HighValueAccounts HighValueAccountsUpdater::detachAccounts() {
-		auto accounts = HighValueAccounts(std::move(m_current), std::move(m_accountHistories));
+		auto accounts = HighValueAccounts(std::move(m_current), std::move(m_removed), std::move(m_accountHistories));
 
 		m_current.clear();
 		m_removed.clear();

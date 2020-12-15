@@ -191,12 +191,51 @@ namespace catapult { namespace cache {
 			pinnedPublicKey.EndEpoch = FinalizationEpoch(endEpoch);
 		}
 
+		struct RunRoundtripTestInput {
+		public:
+			RunRoundtripTestInput(
+					const std::vector<Amount>& balances,
+					const std::vector<size_t>& expectedAddressIndexes,
+					const std::vector<size_t>& expectedRemovedAddressIndexes,
+					const std::vector<std::pair<size_t, std::vector<std::pair<Height, Amount>>>>& expectedAccountHistories)
+					: Balances(balances)
+					, ExpectedAddresses([expectedAddressIndexes](const auto& addresses) {
+						return Pick(addresses, expectedAddressIndexes);
+					})
+					, ExpectedRemovedAddresses([expectedRemovedAddressIndexes](const auto& addresses) {
+						return Pick(addresses, expectedRemovedAddressIndexes);
+					})
+					, ExpectedAccountHistories([expectedAccountHistories](const auto& addresses) {
+						test::AddressBalanceHistorySeeds seeds;
+						for (const auto& pair : expectedAccountHistories)
+							seeds.emplace_back(addresses[pair.first], pair.second);
+
+						return test::GenerateAccountHistories(seeds);
+					})
+			{}
+
+		private:
+			template<typename T>
+			using AddressFilterAndTransform = std::function<T (const std::vector<Address>&)>;
+
+		public:
+			std::vector<Amount> Balances;
+			AddressFilterAndTransform<model::AddressSet> ExpectedAddresses;
+			AddressFilterAndTransform<model::AddressSet> ExpectedRemovedAddresses;
+			AddressFilterAndTransform<AddressAccountHistoryMap> ExpectedAccountHistories;
+
+		private:
+			static model::AddressSet Pick(const std::vector<Address>& addresses, const std::vector<size_t>& indexes) {
+				model::AddressSet filteredAddresses;
+				for (auto index : indexes)
+					filteredAddresses.insert(addresses[index]);
+
+				return filteredAddresses;
+			}
+		};
+
 		template<typename TTraits>
-		void RunRoundtripTest(
-				const AccountStateCacheTypes::Options& options,
-				const std::vector<Amount>& balances,
-				const std::function<model::AddressSet (const std::vector<Address>&)>& getExpectedAddresses,
-				const std::function<AddressAccountHistoryMap (const std::vector<Address>&)>& getExpectedAccountHistories) {
+		void RunRoundtripTest(const AccountStateCacheTypes::Options& options, const RunRoundtripTestInput& input) {
 			// Arrange:
 			typename TTraits::CacheConfigurationFactory cacheConfigFactory;
 			auto cacheConfig = cacheConfigFactory.create();
@@ -206,9 +245,9 @@ namespace catapult { namespace cache {
 
 			// Act:
 			std::vector<Address> addresses;
-			auto vrfPublicKeys = test::GenerateRandomDataVector<Key>(balances.size() + 1);
-			auto votingPublicKeys = test::GenerateRandomDataVector<model::PinnedVotingKey>(balances.size() + 1);
-			SetFinalizationEpochs(votingPublicKeys[balances.size() - 1], 200, 400);
+			auto vrfPublicKeys = test::GenerateRandomDataVector<Key>(input.Balances.size() + 1);
+			auto votingPublicKeys = test::GenerateRandomDataVector<model::PinnedVotingKey>(input.Balances.size() + 1);
+			SetFinalizationEpochs(votingPublicKeys[input.Balances.size() - 1], 200, 400);
 			SetFinalizationEpochs(votingPublicKeys.back(), 600, 900);
 			{
 				AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
@@ -217,14 +256,25 @@ namespace catapult { namespace cache {
 
 				auto catapultCache = test::CoreSystemCacheFactory::Create(CreateConfigurationFromOptions(options));
 				{
+					// - part 1: add all accounts AND commit them so that there is possibility of nonzero removedAccounts
 					auto cacheDelta = catapultCache.createDelta();
 					auto& delta = cacheDelta.sub<AccountStateCache>();
-					addresses = AddAccountsWithBalances(delta, balances, vrfPublicKeys, votingPublicKeys);
+					addresses = AddAccountsWithBalances(delta, input.Balances, vrfPublicKeys, votingPublicKeys);
 					delta.updateHighValueAccounts(Height(3));
+					catapultCache.commit(Height(3));
+				}
 
-					// - change the first account's balance
+				{
+					// - part 2: make modifications for testing removedAddresses and accountHistories
+					auto cacheDelta = catapultCache.createDelta();
+					auto& delta = cacheDelta.sub<AccountStateCache>();
+
+					// - increase the first account's balance
 					// - this shows (a) balance and key histories are independent (b) deep balance history is stored
 					delta.find(addresses.front()).get().Balances.credit(Harvesting_Mosaic_Id, Amount(100'000));
+
+					// - decrease the third account's balance so that it is no longer important
+					delta.find(addresses[2]).get().Balances.debit(Harvesting_Mosaic_Id, Amount(100'000));
 					delta.updateHighValueAccounts(Height(4));
 
 					// - change the last account's supplemental public keys
@@ -240,8 +290,9 @@ namespace catapult { namespace cache {
 					delta.updateHighValueAccounts(Height(5));
 
 					// Sanity:
-					EXPECT_EQ(getExpectedAddresses(addresses).size(), delta.highValueAccounts().addresses().size());
-					EXPECT_EQ(getExpectedAccountHistories(addresses).size(), delta.highValueAccounts().accountHistories().size());
+					EXPECT_EQ(input.ExpectedAddresses(addresses).size(), delta.highValueAccounts().addresses().size());
+					EXPECT_EQ(input.ExpectedRemovedAddresses(addresses).size(), delta.highValueAccounts().removedAddresses().size());
+					EXPECT_EQ(input.ExpectedAccountHistories(addresses).size(), delta.highValueAccounts().accountHistories().size());
 
 					// - save summary
 					if (!saver.save(cacheDelta, stream))
@@ -261,13 +312,14 @@ namespace catapult { namespace cache {
 
 			// Assert: all accounts were loaded as appropriate
 			auto view = plugin.cache().createView();
-			EXPECT_EQ(TTraits::Should_Load_Accounts ? balances.size() : 0u, view->size());
+			EXPECT_EQ(TTraits::Should_Load_Accounts ? input.Balances.size() : 0u, view->size());
 
 			// - all high value account information was loaded
-			EXPECT_EQ(getExpectedAddresses(addresses), view->highValueAccounts().addresses());
+			EXPECT_EQ(input.ExpectedAddresses(addresses), view->highValueAccounts().addresses());
+			EXPECT_EQ(input.ExpectedRemovedAddresses(addresses), view->highValueAccounts().removedAddresses());
 
 			// - augment expected account (balance) histories with expected key histories
-			auto expectedAccountHistories = getExpectedAccountHistories(addresses);
+			auto expectedAccountHistories = input.ExpectedAccountHistories(addresses);
 			for (auto& accountHistoryPair : expectedAccountHistories) {
 				// - augment with original expected public keys
 				for (auto i = 0u; i < addresses.size(); ++i) {
@@ -280,7 +332,7 @@ namespace catapult { namespace cache {
 				// - augment with modified expected public keys
 				if (addresses.back() == accountHistoryPair.first) {
 					accountHistoryPair.second.add(Height(5), vrfPublicKeys.back());
-					accountHistoryPair.second.add(Height(5), { votingPublicKeys[balances.size() - 1], votingPublicKeys.back() });
+					accountHistoryPair.second.add(Height(5), { votingPublicKeys[input.Balances.size() - 1], votingPublicKeys.back() });
 				}
 			}
 
@@ -296,15 +348,12 @@ namespace catapult { namespace cache {
 		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
 
 		// Act + Assert:
-		RunRoundtripTest<TTraits>(
-				options,
-				{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
-				[](const auto& addresses) {
-					return model::AddressSet({ addresses[0], addresses[2], addresses[3] });
-				},
-				[](const auto&) {
-					return AddressAccountHistoryMap();
-				});
+		RunRoundtripTest<TTraits>(options, {
+			{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
+			{ 0, 3 },
+			{ 2 },
+			{}
+		});
 	}
 
 	ROUNDTRIP_TEST(CanRoundtripAccountHistoriesOnly) {
@@ -315,18 +364,15 @@ namespace catapult { namespace cache {
 		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
 
 		// Act + Assert:
-		RunRoundtripTest<TTraits>(
-				options,
-				{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
-				[](const auto&) {
-					return model::AddressSet();
-				},
-				[](const auto& addresses) {
-					return test::GenerateAccountHistories({
-						{ addresses[0], { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
-						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
-					});
-				});
+		RunRoundtripTest<TTraits>(options, {
+			{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
+			{},
+			{},
+			{
+				{ 0, { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
+				{ 3, { { Height(3), Amount(1'250'000) } } }
+			}
+		});
 	}
 
 	ROUNDTRIP_TEST(CanRoundtripHighValueAddressesAndAccountHistories) {
@@ -337,18 +383,15 @@ namespace catapult { namespace cache {
 		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
 
 		// Act + Assert:
-		RunRoundtripTest<TTraits>(
-				options,
-				{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
-				[](const auto& addresses) {
-					return model::AddressSet({ addresses[0], addresses[2], addresses[3] });
-				},
-				[](const auto& addresses) {
-					return test::GenerateAccountHistories({
-						{ addresses[0], { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
-						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
-					});
-				});
+		RunRoundtripTest<TTraits>(options, {
+			{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
+			{ 0, 3 },
+			{ 2 },
+			{
+				{ 0, { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
+				{ 3, { { Height(3), Amount(1'250'000) } } }
+			}
+		});
 	}
 
 	// endregion
