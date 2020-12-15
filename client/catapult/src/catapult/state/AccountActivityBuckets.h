@@ -51,6 +51,9 @@ namespace catapult { namespace state {
 		using ActivityBucketStack = CompactArrayStack<ActivityBucket, Activity_Bucket_History_Size>;
 
 	public:
+		/// Returns \c true when no buckets are present.
+		bool empty() const;
+
 		/// Gets the activity bucket at \a height.
 		ActivityBucket get(model::ImportanceHeight height) const;
 
@@ -62,6 +65,9 @@ namespace catapult { namespace state {
 		/// Tries to update the bucket at \a height by passing its components to \a consumer.
 		/// \note This will never create a new bucket.
 		bool tryUpdate(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer);
+
+		/// Pushes an empty bucket.
+		void push();
 
 		/// Pops the current bucket.
 		void pop();

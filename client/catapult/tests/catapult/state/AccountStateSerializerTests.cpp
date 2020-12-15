@@ -149,11 +149,21 @@ namespace catapult { namespace state {
 
 		template<typename TSnapshot>
 		void PushSnapshot(AccountState& accountState, const TSnapshot& snapshot) {
+			if (model::ImportanceHeight() == snapshot.Height) {
+				accountState.ImportanceSnapshots.push();
+				return;
+			}
+
 			accountState.ImportanceSnapshots.set(snapshot.Importance, snapshot.Height);
 		}
 
 		template<typename TBucket>
 		void PushBucket(AccountState& accountState, const TBucket& bucket) {
+			if (model::ImportanceHeight() == bucket.StartHeight) {
+				accountState.ActivityBuckets.push();
+				return;
+			}
+
 			accountState.ActivityBuckets.update(bucket.StartHeight, [&bucket](auto& accountStateBucket) {
 				accountStateBucket.TotalFeesPaid = bucket.TotalFeesPaid;
 				accountStateBucket.BeneficiaryCount = bucket.BeneficiaryCount;
@@ -162,10 +172,10 @@ namespace catapult { namespace state {
 		}
 
 		void ClearSnapshotsAndBuckets(AccountState& accountState) {
-			while (model::ImportanceHeight() != accountState.ImportanceSnapshots.height())
+			while (!accountState.ImportanceSnapshots.empty())
 				accountState.ImportanceSnapshots.pop();
 
-			while (model::ImportanceHeight() != accountState.ActivityBuckets.begin()->StartHeight)
+			while (!accountState.ActivityBuckets.empty())
 				accountState.ActivityBuckets.pop();
 		}
 
@@ -340,8 +350,16 @@ namespace catapult { namespace state {
 
 			static void CoerceToDesiredFormat(AccountState& accountState) {
 				// push a zero importance to indicate a regular account
-				auto nextHeight = accountState.ImportanceSnapshots.height() + model::ImportanceHeight(1);
-				accountState.ImportanceSnapshots.set(Importance(), nextHeight);
+				accountState.ImportanceSnapshots.push();
+
+				// push a zero gap in activity buckets for better coverage
+				auto topHeight = accountState.ActivityBuckets.begin()->StartHeight;
+				accountState.ActivityBuckets.push();
+				accountState.ActivityBuckets.update(topHeight + model::ImportanceHeight(100), [](auto& bucket) {
+					bucket.TotalFeesPaid = test::GenerateRandomValue<Amount>();
+					bucket.BeneficiaryCount = static_cast<uint32_t>(test::Random());
+					bucket.RawScore = test::Random();
+				});
 			}
 		};
 

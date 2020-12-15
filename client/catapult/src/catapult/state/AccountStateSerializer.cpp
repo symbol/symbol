@@ -32,9 +32,7 @@ namespace catapult { namespace state {
 		enum class AccountStateFormat : uint8_t { Regular = 0, High_Value = 1 };
 
 		AccountStateFormat GetFormat(const AccountState& accountState) {
-			return Importance() == accountState.ImportanceSnapshots.current()
-					? AccountStateFormat::Regular
-					: AccountStateFormat::High_Value;
+			return accountState.ImportanceSnapshots.active() ? AccountStateFormat::High_Value : AccountStateFormat::Regular;
 		}
 
 		// endregion
@@ -77,15 +75,19 @@ namespace catapult { namespace state {
 		public:
 			void apply(AccountState& accountState) {
 				for (const auto& snapshot : m_snapshots) {
-					if (model::ImportanceHeight() == snapshot.Height)
+					if (model::ImportanceHeight() == snapshot.Height) {
+						accountState.ImportanceSnapshots.push();
 						continue;
+					}
 
 					accountState.ImportanceSnapshots.set(snapshot.Importance, snapshot.Height);
 				}
 
 				for (const auto& bucket : m_buckets) {
-					if (model::ImportanceHeight() == bucket.StartHeight)
+					if (model::ImportanceHeight() == bucket.StartHeight) {
+						accountState.ActivityBuckets.push();
 						continue;
+					}
 
 					accountState.ActivityBuckets.update(bucket.StartHeight, [&bucket](auto& accountStateBucket) {
 						accountStateBucket = bucket;
