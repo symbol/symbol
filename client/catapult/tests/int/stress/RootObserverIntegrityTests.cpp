@@ -129,7 +129,7 @@ namespace catapult { namespace extensions {
 			}
 
 		public:
-			void notify(Height height, NotifyMode mode) {
+			void notify(Height height, const consumer<const model::BlockElement&, const chain::BlockExecutionContext>& notifier) {
 				// Arrange:
 				auto pBlock = createBlock(height);
 				auto blockElement = test::BlockToBlockElement(*pBlock);
@@ -144,16 +144,22 @@ namespace catapult { namespace extensions {
 				auto observerState = observers::ObserverState(delta);
 				auto blockExecutionContext = chain::BlockExecutionContext(rootObserver, resolverContext, observerState);
 
-				// Act: use BlockExecutor to execute all transactions and blocks
-				if (NotifyMode::Commit == mode) {
-					chain::ExecuteBlock(blockElement, blockExecutionContext);
-					commitImportanceWipFiles();
-				} else {
-					chain::RollbackBlock(blockElement, blockExecutionContext);
-				}
+				// Act:
+				notifier(blockElement, blockExecutionContext);
 
 				delta.template sub<cache::AccountStateCache>().updateHighValueAccounts(height);
 				m_cache.commit(height);
+			}
+
+			void notify(Height height, NotifyMode mode) {
+				notify(height, [this, mode](const auto& blockElement, const auto& blockExecutionContext) {
+					if (NotifyMode::Commit == mode) {
+						chain::ExecuteBlock(blockElement, blockExecutionContext);
+						commitImportanceWipFiles();
+					} else {
+						chain::RollbackBlock(blockElement, blockExecutionContext);
+					}
+				});
 			}
 
 			void notifyAllCommit(Height startHeight, Height endHeight) {
@@ -322,7 +328,7 @@ namespace catapult { namespace extensions {
 		context.notifyAllCommit(Height(247), Height(369));
 
 		// Assert: only newly high balance accounts should have updated importances
-		context.assertLinearImportances({ 1, 10, model::ImportanceHeight(246) });
+		context.assertZeroedImportances({ 1, 10, model::ImportanceHeight(0) });
 		context.assertLinearImportances({ 25, 10, model::ImportanceHeight(369) }); // updated
 	}
 
@@ -345,7 +351,7 @@ namespace catapult { namespace extensions {
 		// Assert: only current high balance accounts should have updated importances
 		// - original accounts [6, 10] but NOT [1, 5]
 		// - new accounts [25, 29] but NOT [30, 34]
-		context.assertLinearImportances({ 1, 5, model::ImportanceHeight(246) });
+		context.assertZeroedImportances({ 1, 5, model::ImportanceHeight(0) });
 		context.assertLinearImportances({ 6, 5, model::ImportanceHeight(369), 5 }); // updated
 		context.assertLinearImportances({ 25, 5, model::ImportanceHeight(369) }); // updated
 		context.assertZeroedImportances({ 30, 5, model::ImportanceHeight(0), 5 }); // excluded
@@ -369,7 +375,7 @@ namespace catapult { namespace extensions {
 		context.notify(Height(246), NotifyMode::Commit);
 
 		// Sanity:
-		context.assertSingleImportance(1, model::ImportanceHeight(123), Importance(1)); // excluded
+		context.assertSingleImportance(1, model::ImportanceHeight(0), Importance(0)); // excluded
 		context.assertSingleImportance(2, model::ImportanceHeight(246), Importance(3)); // increased (3 instead of 2)
 
 		// Act: rollback importances to height 245
@@ -396,7 +402,7 @@ namespace catapult { namespace extensions {
 		context.notifyAllCommit(Height(247), Height(369));
 
 		// Sanity:
-		context.assertLinearImportances({ 1, 10, model::ImportanceHeight(246) });
+		context.assertZeroedImportances({ 1, 10, model::ImportanceHeight(0) });
 		context.assertLinearImportances({ 25, 10, model::ImportanceHeight(369) }); // updated
 
 		// Act: rollback importances to height 246
@@ -424,7 +430,7 @@ namespace catapult { namespace extensions {
 		context.notifyAllCommit(Height(247), Height(369));
 
 		// Sanity:
-		context.assertLinearImportances({ 1, 5, model::ImportanceHeight(246) });
+		context.assertZeroedImportances({ 1, 5, model::ImportanceHeight(0) });
 		context.assertLinearImportances({ 6, 5, model::ImportanceHeight(369), 5 }); // updated
 		context.assertLinearImportances({ 25, 5, model::ImportanceHeight(369) }); // updated
 		context.assertZeroedImportances({ 30, 5, model::ImportanceHeight(0), 5 }); // excluded
@@ -458,7 +464,7 @@ namespace catapult { namespace extensions {
 		context.notify(Height(246), NotifyMode::Commit);
 
 		// Sanity:
-		context.assertSingleImportance(1, model::ImportanceHeight(123), Importance(1)); // excluded
+		context.assertSingleImportance(1, model::ImportanceHeight(0), Importance(0)); // excluded
 		context.assertSingleImportance(2, model::ImportanceHeight(246), Importance(3)); // increased (3 instead of 2)
 
 		// Arrange: replace some existing high value accounts with new high value accounts
@@ -509,7 +515,7 @@ namespace catapult { namespace extensions {
 		context.notify(Height(246), NotifyMode::Commit);
 
 		// Sanity:
-		context.assertSingleImportance(25, model::ImportanceHeight(123), Importance(1)); // excluded
+		context.assertSingleImportance(25, model::ImportanceHeight(0), Importance(0)); // excluded
 		context.assertSingleImportance(26, model::ImportanceHeight(246), Importance(3)); // increased (3 instead of 2)
 
 		// Act: rollback importances to height 122 (requires two rollbacks)
@@ -550,11 +556,13 @@ namespace catapult { namespace extensions {
 		// - calculate importances through height 1000
 		context.notifyAllCommit(Height(1), Height(1000));
 
-		// Act: rollback importances to height 122
-		context.notifyAllRollback(Height(1000), Height(122));
+		// - rollback importances to height 616 (two restorations at 861 and 738)
+		context.notifyAllRollback(Height(1000), Height(616));
 
-		// Assert: importances are zeroed because rollback was too deep
-		context.assertZeroedImportances({ 1, 10, model::ImportanceHeight(0) });
+		// Act + Assert: cannot rollback any further
+		context.notify(Height(615), [](const auto& blockElement, const auto& blockExecutionContext) {
+			EXPECT_THROW(chain::RollbackBlock(blockElement, blockExecutionContext), catapult_out_of_range);
+		});
 	}
 
 	// endregion

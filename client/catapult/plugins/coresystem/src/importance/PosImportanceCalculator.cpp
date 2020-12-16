@@ -101,6 +101,10 @@ namespace catapult { namespace importance {
 					auto currentBucket = activityBuckets.get(importanceHeight);
 					if (currentBucket.StartHeight == importanceHeight)
 						activityBuckets.pop();
+
+					// shift the removed account's buckets and snapshots
+					activityBuckets.push();
+					accountState.ImportanceSnapshots.push();
 				}
 			}
 

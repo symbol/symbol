@@ -30,6 +30,8 @@ namespace catapult { namespace importance {
 #define TEST_CLASS RestoreImportanceCalculatorTests
 
 	namespace {
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
+		constexpr auto Default_Balance = Amount(100);
 		constexpr auto No_Op = [](const state::AccountActivityBuckets::HeightDetachedActivityBucket&) {};
 
 		struct TestHeights {
@@ -40,9 +42,10 @@ namespace catapult { namespace importance {
 		};
 
 		auto& AddRandomAccount(cache::AccountStateCacheDelta& delta) {
-			auto key = test::GenerateRandomByteArray<Key>();
-			delta.addAccount(key, Height(1));
-			auto& accountState = delta.find(key).get();
+			auto address = test::GenerateRandomByteArray<Address>();
+			delta.addAccount(address, Height(1));
+			auto& accountState = delta.find(address).get();
+			accountState.Balances.credit(Harvesting_Mosaic_Id, Default_Balance);
 			return accountState;
 		}
 
@@ -71,51 +74,27 @@ namespace catapult { namespace importance {
 		}
 	}
 
-	// region no importance change
+	// region failure
 
-	TEST(TEST_CLASS, NoImportanceChangeWhenAccountDoesNotHaveAnyImportanceSet) {
-		// Arrange:
-		RunTestWithDelta([](auto& delta) {
-			const auto& accountState = AddRandomAccount(delta);
-
-			// Act:
-			Recalculate(TestHeights::Two, delta);
-
-			// Assert: nothing to restore
-			AssertImportance(accountState.ImportanceSnapshots, Importance(), TestHeights::Zero);
-			AssertBucket(accountState.ActivityBuckets, TestHeights::Zero);
-		});
-	}
-
-	TEST(TEST_CLASS, NoImportanceChangeWhenAccountHasImportanceSetAtHeightLessThanRestoreHeight) {
+	TEST(TEST_CLASS, FailureWhenAccountDoesNotHaveAnyImportanceSet) {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState = AddRandomAccount(delta);
-			accountState.ImportanceSnapshots.set(Importance(987), TestHeights::Two);
-			accountState.ActivityBuckets.update(TestHeights::Two, No_Op);
+			accountState.ActivityBuckets.update(TestHeights::One, No_Op);
 
 			// Act:
-			Recalculate(TestHeights::Three, delta);
-
-			// Assert: nothing to restore (TH.2 < TH.3)
-			AssertImportance(accountState.ImportanceSnapshots, Importance(987), TestHeights::Two);
-			AssertBucket(accountState.ActivityBuckets, TestHeights::Two);
+			EXPECT_THROW(Recalculate(TestHeights::One, delta), catapult_out_of_range);
 		});
 	}
 
-	TEST(TEST_CLASS, NoImportanceChangeWhenAccountHasImportanceSetAtRestoreHeight) {
+	TEST(TEST_CLASS, FailureWhenAccountDoesNotHaveAnyActivityBucketSet) {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState = AddRandomAccount(delta);
-			accountState.ImportanceSnapshots.set(Importance(987), TestHeights::Two);
-			accountState.ActivityBuckets.update(TestHeights::Two, No_Op);
+			accountState.ImportanceSnapshots.set(Importance(777), TestHeights::One);
 
 			// Act:
-			Recalculate(TestHeights::Two, delta);
-
-			// Assert: importance is not restored (TH.2 == TH.2) but bucket is removed
-			AssertImportance(accountState.ImportanceSnapshots, Importance(987), TestHeights::Two);
-			AssertBucket(accountState.ActivityBuckets, TestHeights::Zero);
+			EXPECT_THROW(Recalculate(TestHeights::One, delta), catapult_out_of_range);
 		});
 	}
 
@@ -202,9 +181,8 @@ namespace catapult { namespace importance {
 
 	// region multiple accounts
 
-	TEST(TEST_CLASS, ImportancesAreRestoredForMultipleAccounts) {
-		// Arrange:
-		RunTestWithDelta([](auto& delta) {
+	namespace {
+		std::vector<Address> SeedFourAccounts(cache::AccountStateCacheDelta& delta) {
 			auto& accountState1 = AddRandomAccount(delta);
 			accountState1.ImportanceSnapshots.set(Importance(1), TestHeights::One);
 			accountState1.ImportanceSnapshots.set(Importance(2), TestHeights::Two);
@@ -213,7 +191,9 @@ namespace catapult { namespace importance {
 			accountState1.ActivityBuckets.update(TestHeights::Two, No_Op);
 			accountState1.ActivityBuckets.update(TestHeights::Three, No_Op);
 
-			const auto& accountState2 = AddRandomAccount(delta);
+			auto& accountState2 = AddRandomAccount(delta);
+			accountState2.ImportanceSnapshots.set(Importance(9), TestHeights::Three);
+			accountState2.ActivityBuckets.update(TestHeights::Three, No_Op);
 
 			auto& accountState3 = AddRandomAccount(delta);
 			accountState3.ImportanceSnapshots.set(Importance(1), TestHeights::One);
@@ -229,19 +209,66 @@ namespace catapult { namespace importance {
 			accountState4.ActivityBuckets.update(TestHeights::Two, No_Op);
 			accountState4.ActivityBuckets.update(TestHeights::Three, No_Op);
 
+			return { accountState1.Address, accountState2.Address, accountState3.Address, accountState4.Address };
+		}
+	}
+
+	TEST(TEST_CLASS, ImportancesAreRestoredForMultipleAccounts) {
+		// Arrange:
+		RunTestWithDelta([](auto& delta) {
+			auto addresses = SeedFourAccounts(delta);
+
 			// Act:
 			Recalculate(TestHeights::Two, delta);
 
 			// Assert:
-			AssertImportance(accountState1.ImportanceSnapshots, Importance(2), TestHeights::Two);
-			AssertImportance(accountState2.ImportanceSnapshots, Importance(), TestHeights::Zero);
-			AssertImportance(accountState3.ImportanceSnapshots, Importance(1), TestHeights::One);
-			AssertImportance(accountState4.ImportanceSnapshots, Importance(5), TestHeights::Two);
-			AssertBucket(accountState1.ActivityBuckets, TestHeights::Two);
-			AssertBucket(accountState2.ActivityBuckets, TestHeights::Zero);
-			AssertBucket(accountState3.ActivityBuckets, TestHeights::One);
-			AssertBucket(accountState4.ActivityBuckets, TestHeights::Two);
+			EXPECT_EQ(4u, delta.size());
+			AssertImportance(delta.find(addresses[0]).get().ImportanceSnapshots, Importance(2), TestHeights::Two);
+			AssertImportance(delta.find(addresses[1]).get().ImportanceSnapshots, Importance(), TestHeights::Zero);
+			AssertImportance(delta.find(addresses[2]).get().ImportanceSnapshots, Importance(1), TestHeights::One);
+			AssertImportance(delta.find(addresses[3]).get().ImportanceSnapshots, Importance(5), TestHeights::Two);
+			AssertBucket(delta.find(addresses[0]).get().ActivityBuckets, TestHeights::Two);
+			AssertBucket(delta.find(addresses[1]).get().ActivityBuckets, TestHeights::Zero);
+			AssertBucket(delta.find(addresses[2]).get().ActivityBuckets, TestHeights::One);
+			AssertBucket(delta.find(addresses[3]).get().ActivityBuckets, TestHeights::Two);
 		});
+	}
+
+	TEST(TEST_CLASS, ImportancesAreRestoredForMultipleAccountsWithRemovals) {
+		// Arrange:
+		auto options = test::CreateDefaultAccountStateCacheOptions();
+		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
+		options.MinHarvesterBalance = Amount(1);
+		cache::AccountStateCache cache(cache::CacheConfiguration(), options);
+
+		std::vector<Address> addresses;
+		{
+			auto lockedDelta = cache.createDelta();
+			auto& delta = *lockedDelta;
+			addresses = SeedFourAccounts(delta);
+			delta.updateHighValueAccounts(Height(1));
+			cache.commit();
+		}
+
+		// - transition one account to unimportant and delete another
+		auto lockedDelta = cache.createDelta();
+		auto& delta = *lockedDelta;
+		delta.queueRemove(addresses[1], Height(1));
+		delta.find(addresses[2]).get().Balances.debit(Harvesting_Mosaic_Id, Default_Balance);
+		delta.commitRemovals();
+		delta.updateHighValueAccounts(Height(1));
+
+		// Act:
+		Recalculate(TestHeights::Two, delta);
+
+		// Assert:
+		EXPECT_EQ(3u, delta.size());
+		AssertImportance(delta.find(addresses[0]).get().ImportanceSnapshots, Importance(2), TestHeights::Two);
+		AssertImportance(delta.find(addresses[2]).get().ImportanceSnapshots, Importance(1), TestHeights::One);
+		AssertImportance(delta.find(addresses[3]).get().ImportanceSnapshots, Importance(5), TestHeights::Two);
+		AssertBucket(delta.find(addresses[0]).get().ActivityBuckets, TestHeights::Two);
+		AssertBucket(delta.find(addresses[2]).get().ActivityBuckets, TestHeights::One);
+		AssertBucket(delta.find(addresses[3]).get().ActivityBuckets, TestHeights::Two);
 	}
 
 	// endregion
