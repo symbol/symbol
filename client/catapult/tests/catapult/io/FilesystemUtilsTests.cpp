@@ -29,6 +29,8 @@ namespace catapult { namespace io {
 
 #define TEST_CLASS FilesystemUtilsTests
 
+	// region PurgeDirectory
+
 	TEST(TEST_CLASS, PurgeDirectory_HasNoEffectOnNonexistentDirectory) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
@@ -106,5 +108,78 @@ namespace catapult { namespace io {
 
 		EXPECT_FALSE(std::filesystem::exists(directoryPath / "sub"));
 	}
+
+	// endregion
+
+	// region MoveAllFiles
+
+	TEST(TEST_CLASS, MoveAllFiles_HasNoEffectWhenDirectoryIsEmpty) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto sourceDirectory = (std::filesystem::path(tempDir.name()) / "source").generic_string();
+		auto destDirectory = (std::filesystem::path(tempDir.name()) / "dest").generic_string();
+
+		std::filesystem::create_directory(sourceDirectory);
+		std::filesystem::create_directory(destDirectory);
+
+		// Act:
+		MoveAllFiles(sourceDirectory, destDirectory);
+
+		// Assert:
+		EXPECT_EQ(0u, test::CountFilesAndDirectories(sourceDirectory));
+		EXPECT_EQ(0u, test::CountFilesAndDirectories(destDirectory));
+	}
+
+	TEST(TEST_CLASS, MoveAllFiles_DoesNotMoveSubDirectories) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto sourceDirectory = (std::filesystem::path(tempDir.name()) / "source").generic_string();
+		auto destDirectory = (std::filesystem::path(tempDir.name()) / "dest").generic_string();
+
+		std::filesystem::create_directory(sourceDirectory);
+		std::filesystem::create_directory(destDirectory);
+
+		// - create three directories
+		for (const auto& name : { "alpha", "beta", "gamma" })
+			std::filesystem::create_directory(std::filesystem::path(sourceDirectory) / name);
+
+		// Sanity:
+		EXPECT_EQ(3u, test::CountFilesAndDirectories(sourceDirectory));
+		EXPECT_EQ(0u, test::CountFilesAndDirectories(destDirectory));
+
+		// Act:
+		MoveAllFiles(sourceDirectory, destDirectory);
+
+		// Assert:
+		EXPECT_EQ(3u, test::CountFilesAndDirectories(sourceDirectory));
+		EXPECT_EQ(0u, test::CountFilesAndDirectories(destDirectory));
+	}
+
+	TEST(TEST_CLASS, MoveAllFiles_MovesFiles) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto sourceDirectory = (std::filesystem::path(tempDir.name()) / "source").generic_string();
+		auto destDirectory = (std::filesystem::path(tempDir.name()) / "dest").generic_string();
+
+		std::filesystem::create_directory(sourceDirectory);
+		std::filesystem::create_directory(destDirectory);
+
+		// - create three files
+		for (const auto& name : { "alpha", "beta", "gamma" })
+			io::RawFile((std::filesystem::path(sourceDirectory) / name).generic_string(), io::OpenMode::Read_Write);
+
+		// Sanity:
+		EXPECT_EQ(3u, test::CountFilesAndDirectories(sourceDirectory));
+		EXPECT_EQ(0u, test::CountFilesAndDirectories(destDirectory));
+
+		// Act:
+		MoveAllFiles(sourceDirectory, destDirectory);
+
+		// Assert:
+		EXPECT_EQ(0u, test::CountFilesAndDirectories(sourceDirectory));
+		EXPECT_EQ(3u, test::CountFilesAndDirectories(destDirectory));
+	}
+
+	// endregion
 }}
 

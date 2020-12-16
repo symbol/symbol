@@ -37,6 +37,7 @@
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/io/FileQueue.h"
+#include "catapult/io/FilesystemUtils.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/local/HostUtils.h"
 #include "catapult/utils/StackLogger.h"
@@ -63,15 +64,7 @@ namespace catapult { namespace local {
 			void notifyStateChange(const subscribers::StateChangeInfo&) override {
 				// when state is committed, move importance files from wip to base
 				auto destDirectory = m_dataDirectory.dir("importance");
-				auto sourceDirectory = destDirectory.dir("wip");
-				auto begin = std::filesystem::directory_iterator(sourceDirectory.path());
-				auto end = std::filesystem::directory_iterator();
-				for (auto iter = begin; iter != end; ++iter) {
-					if (!iter->is_regular_file())
-						continue;
-
-					std::filesystem::rename(iter->path(), destDirectory.path() / iter->path().filename());
-				}
+				io::MoveAllFiles(destDirectory.dir("wip").str(), destDirectory.str());
 			}
 
 		private:

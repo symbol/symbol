@@ -19,29 +19,24 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "FilesystemUtils.h"
-#include <filesystem>
+#include "RepairImportance.h"
+#include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/io/FilesystemUtils.h"
 
-namespace catapult { namespace io {
+namespace catapult { namespace local {
 
-	void PurgeDirectory(const std::string& directory) {
-		if (!std::filesystem::exists(directory))
+	void RepairImportance(const config::CatapultDataDirectory& dataDirectory, consumers::CommitOperationStep commitStep) {
+		auto importanceDirectory = dataDirectory.dir("importance");
+		auto importanceWipDirectory = importanceDirectory.dir("wip");
+		if (consumers::CommitOperationStep::State_Written != commitStep) {
+			// importance/wip files should be purged if state hasn't been fully written
+			CATAPULT_LOG(debug) << " - purging " << importanceWipDirectory.str();
+			io::PurgeDirectory(importanceWipDirectory.str());
 			return;
-
-		auto begin = std::filesystem::directory_iterator(directory);
-		auto end = std::filesystem::directory_iterator();
-		for (auto iter = begin; end != iter; ++iter)
-			std::filesystem::remove_all(iter->path());
-	}
-
-	void MoveAllFiles(const std::string& sourceDirectory, const std::string& destDirectory) {
-		auto begin = std::filesystem::directory_iterator(sourceDirectory);
-		auto end = std::filesystem::directory_iterator();
-		for (auto iter = begin; iter != end; ++iter) {
-			if (!iter->is_regular_file())
-				continue;
-
-			std::filesystem::rename(iter->path(), destDirectory / iter->path().filename());
+		} else {
+			// otherwise, copy importance/wip files to commit them
+			CATAPULT_LOG(debug) << " - committing " << importanceWipDirectory.str();
+			io::MoveAllFiles(importanceWipDirectory.str(), importanceDirectory.str());
 		}
 	}
 }}

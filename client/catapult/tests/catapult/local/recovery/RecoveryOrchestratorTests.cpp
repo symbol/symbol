@@ -385,22 +385,43 @@ namespace catapult { namespace local {
 
 	// endregion
 
-	// region basic spooling recovery
+	// region basic spooling / importance recovery
 
 	TEST(TEST_CLASS, CanRepairSpoolingDirectories) {
 		// Arrange: create a message file in a spooling directory that should get purged
 		RecoveryOrchestratorTestContext context;
 		std::filesystem::create_directories(context.spoolDir("unconfirmed_transactions_change"));
-		io::IndexFile((context.spoolDir("unconfirmed_transactions_change") / "message").generic_string()).set(0);
+
+		auto canaryFilename = context.spoolDir("unconfirmed_transactions_change") / "message";
+		io::IndexFile(canaryFilename.generic_string()).set(0);
 
 		// Sanity:
-		EXPECT_TRUE(std::filesystem::exists(context.spoolDir("unconfirmed_transactions_change") / "message"));
+		EXPECT_TRUE(std::filesystem::exists(canaryFilename));
 
 		// Act:
 		context.boot();
 
 		// Assert: the message file was deleted
-		EXPECT_FALSE(std::filesystem::exists(context.spoolDir("unconfirmed_transactions_change") / "message"));
+		EXPECT_FALSE(std::filesystem::exists(canaryFilename));
+	}
+
+	TEST(TEST_CLASS, CanRepairImportanceDirectories) {
+		// Arrange: create a file in the importance/wip directory that should get purged
+		RecoveryOrchestratorTestContext context;
+		std::filesystem::create_directories(context.subDir("importance").dir("wip").path());
+
+		auto canaryFilename = context.subDir("importance").dir("wip").file("foo");
+		io::IndexFile(canaryFilename).set(0);
+
+		// Sanity:
+		EXPECT_TRUE(std::filesystem::exists(canaryFilename));
+
+		// Act:
+		context.boot();
+
+		// Assert: the file was deleted and NOT moved
+		EXPECT_FALSE(std::filesystem::exists(canaryFilename));
+		EXPECT_EQ(1u, test::CountFilesAndDirectories(context.subDir("importance").path()));
 	}
 
 	// endregion

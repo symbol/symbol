@@ -20,13 +20,12 @@
 **/
 
 #pragma once
-#include <string>
+#include "catapult/consumers/BlockChainSyncHandlers.h"
 
-namespace catapult { namespace io {
+namespace catapult { namespace config { class CatapultDataDirectory; } }
 
-	/// Deletes everything in \a directory but does not delete the directory itself.
-	void PurgeDirectory(const std::string& directory);
+namespace catapult { namespace local {
 
-	/// Moves all files from \a sourceDirectory to \a destDirectory.
-	void MoveAllFiles(const std::string& sourceDirectory, const std::string& destDirectory);
+	/// Repairs catapult importance files inside \a dataDirectory given last server commit operation step that succeeded (\a commitStep).
+	void RepairImportance(const config::CatapultDataDirectory& dataDirectory, consumers::CommitOperationStep commitStep);
 }}

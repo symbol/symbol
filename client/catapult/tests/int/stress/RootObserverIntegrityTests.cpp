@@ -24,6 +24,7 @@
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/PluginUtils.h"
+#include "catapult/io/FilesystemUtils.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
@@ -221,15 +222,7 @@ namespace catapult { namespace extensions {
 			void commitImportanceWipFiles() {
 				// simulate state change move of importance wip files
 				auto destDirectory = config::CatapultDataDirectory(m_tempDataDir.name()).dir("importance");
-				auto sourceDirectory = destDirectory.dir("wip");
-				auto begin = std::filesystem::directory_iterator(sourceDirectory.path());
-				auto end = std::filesystem::directory_iterator();
-				for (auto iter = begin; iter != end; ++iter) {
-					if (!iter->is_regular_file())
-						continue;
-
-					std::filesystem::rename(iter->path(), destDirectory.path() / iter->path().filename());
-				}
+				io::MoveAllFiles(destDirectory.dir("wip").str(), destDirectory.str());
 			}
 
 			std::unique_ptr<model::Block> createBlock(Height height) {

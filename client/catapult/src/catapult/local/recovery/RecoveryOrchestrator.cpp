@@ -23,6 +23,7 @@
 #include "CatapultSystemState.h"
 #include "MultiBlockLoader.h"
 #include "RecoveryStorageAdapter.h"
+#include "RepairImportance.h"
 #include "RepairSpooling.h"
 #include "RepairState.h"
 #include "StateChangeRepairingSubscriber.h"
@@ -140,6 +141,9 @@ namespace catapult { namespace local {
 
 				CATAPULT_LOG(info) << "repairing spooling, commit step " << utils::to_underlying_type(systemState.commitStep());
 				RepairSpooling(m_dataDirectory, systemState.commitStep());
+
+				CATAPULT_LOG(info) << "repairing importance";
+				RepairImportance(m_dataDirectory, systemState.commitStep());
 
 				CATAPULT_LOG(info) << "repairing messages";
 				repairSubscribers();
