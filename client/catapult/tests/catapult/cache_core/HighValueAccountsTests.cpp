@@ -482,6 +482,65 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(updater.accountHistories().empty());
 	}
 
+	namespace {
+		template<typename TSetSelector>
+		void AssertHarvesterEligibleRemovedAccountIsTrackedWhenItHasHistoricalInformation(TSetSelector setSelector) {
+			// Arrange:
+			test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
+			auto addedAddresses = AddAccountsWithBalances(setSelector(deltas), GetHarvesterEligibleTestBalances());
+
+			auto accounts = CreateAccounts({});
+			HighValueAccountsUpdater updater(CreateOptions(), accounts);
+
+			// - set historical information on removed accounts
+			auto importanceHeight = model::ImportanceHeight(222);
+			setSelector(deltas).find(addedAddresses[1])->second.ImportanceSnapshots.set(Importance(111), importanceHeight);
+			setSelector(deltas).find(addedAddresses[3])->second.ActivityBuckets.update(importanceHeight, [](const auto&) {});
+
+			// Act:
+			updater.update(deltas.deltas());
+
+			// Assert:
+			EXPECT_EQ(Pick(addedAddresses, { 0, 2, 4, 5 }), updater.addresses());
+			EXPECT_EQ(Pick(addedAddresses, { 1, 3 }), updater.removedAddresses());
+
+			// Sanity:
+			EXPECT_EQ(1u, updater.accountHistories().size());
+		}
+	}
+
+	TEST(TEST_CLASS, Updater_HarvesterEligible_AddedRemovedAccountIsTrackedWhenItHasHistoricalInformation) {
+		AssertHarvesterEligibleRemovedAccountIsTrackedWhenItHasHistoricalInformation(SelectAdded);
+	}
+
+	TEST(TEST_CLASS, Updater_HarvesterEligible_CopiedRemovedAccountIsTrackedWhenItHasHistoricalInformation) {
+		AssertHarvesterEligibleRemovedAccountIsTrackedWhenItHasHistoricalInformation(SelectCopied);
+	}
+
+	TEST(TEST_CLASS, Updater_HarvesterEligible_RemovedRemovedAccountIsNotTrackedWhenItHasHistoricalInformation) {
+		// Arrange:
+		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
+		auto addedAddresses = AddAccountsWithBalances(deltas.Removed, GetHarvesterEligibleTestBalances());
+
+		auto accounts = CreateAccounts({});
+		HighValueAccountsUpdater updater(CreateOptions(), accounts);
+
+		// - set historical information on removed accounts
+		auto importanceHeight = model::ImportanceHeight(222);
+		deltas.Removed.find(addedAddresses[1])->second.ImportanceSnapshots.set(Importance(111), importanceHeight);
+		deltas.Removed.find(addedAddresses[3])->second.ActivityBuckets.update(importanceHeight, [](const auto&) {});
+
+		// Act:
+		updater.update(deltas.deltas());
+
+		// Assert: removal takes precedence
+		EXPECT_TRUE(updater.addresses().empty());
+		EXPECT_TRUE(updater.removedAddresses().empty());
+
+		// Sanity:
+		EXPECT_TRUE(updater.accountHistories().empty());
+	}
+
 	// endregion
 
 	// region updater - voter eligible accounts

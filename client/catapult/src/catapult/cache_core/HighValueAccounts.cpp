@@ -64,6 +64,13 @@ namespace catapult { namespace cache {
 	// region HighValueAddressesUpdater
 
 	namespace {
+		struct HighValueAccountDescriptor {
+			bool IsHighValue;
+			bool HasHistoricalInformation;
+		};
+
+		using HighValueAccountDescriptorCalculator = std::function<HighValueAccountDescriptor (const state::AccountState&)>;
+
 		class HighValueAddressesUpdater {
 		private:
 			using MemorySetType = AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType::SetType::MemorySetType;
@@ -79,22 +86,21 @@ namespace catapult { namespace cache {
 			{}
 
 		public:
-			void update(const MemorySetType& source, const predicate<const state::AccountState&>& include) {
+			void update(const MemorySetType& source, const HighValueAccountDescriptorCalculator& highValueAccountDescriptorCalculator) {
 				for (const auto& pair : source)
-					updateOne(pair.second.Address, include(pair.second));
+					updateOne(pair.second.Address, highValueAccountDescriptorCalculator(pair.second));
 			}
 
 		private:
-			void updateOne(const Address& address, bool shouldInclude) {
-				if (shouldInclude) {
+			void updateOne(const Address& address, const HighValueAccountDescriptor& descriptor) {
+				if (descriptor.IsHighValue) {
 					m_current.insert(address);
-
-					// needed for multiblock syncs when original account is removed and then readded
 					m_removed.erase(address);
 				} else {
 					m_current.erase(address);
 
-					if (m_original.cend() != m_original.find(address))
+					// need to check HasHistoricalInformation in order for multiblock syncs to work
+					if (m_original.cend() != m_original.find(address) || descriptor.HasHistoricalInformation)
 						m_removed.insert(address);
 				}
 			}
@@ -229,13 +235,16 @@ namespace catapult { namespace cache {
 
 	void HighValueAccountsUpdater::updateHarvestingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas) {
 		auto hasHighValue = [&options = m_options](const auto& accountState) {
-			return EffectiveBalanceRetriever(accountState, options.HarvestingMosaicId, options.MinHarvesterBalance).second;
+			return HighValueAccountDescriptor{
+				EffectiveBalanceRetriever(accountState, options.HarvestingMosaicId, options.MinHarvesterBalance).second,
+				state::HasHistoricalInformation(accountState)
+			};
 		};
 
 		HighValueAddressesUpdater updater(m_original, m_current, m_removed);
 		updater.update(deltas.Added, hasHighValue);
 		updater.update(deltas.Copied, hasHighValue);
-		updater.update(deltas.Removed, [](const auto&) { return false; });
+		updater.update(deltas.Removed, [](const auto&) { return HighValueAccountDescriptor{ false, false }; });
 	}
 
 	void HighValueAccountsUpdater::updateVotingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas) {
