@@ -168,6 +168,30 @@ namespace catapult { namespace cache {
 
 	// endregion
 
+	// region updater - setRemovedAddresses
+
+	TEST(TEST_CLASS, Updater_CanSetRemovedAddresses) {
+		// Arrange:
+		auto accounts = CreateAccounts(GenerateRandomAddresses(4), GenerateRandomAddresses(3));
+		HighValueAccountsUpdater updater(CreateOptions(), accounts);
+		auto newRemovedAddresses = GenerateRandomAddresses(5);
+
+		// Sanity:
+		EXPECT_EQ(accounts.removedAddresses(), updater.removedAddresses());
+		EXPECT_NE(accounts.removedAddresses(), newRemovedAddresses);
+
+		// Act:
+		updater.setRemovedAddresses(model::AddressSet(newRemovedAddresses));
+
+		// Assert:
+		EXPECT_EQ(accounts.addresses(), updater.addresses());
+		EXPECT_EQ(newRemovedAddresses, updater.removedAddresses());
+
+		EXPECT_TRUE(updater.accountHistories().empty());
+	}
+
+	// endregion
+
 	// region updater - harvester eligible accounts
 
 	namespace {

@@ -201,6 +201,10 @@ namespace catapult { namespace cache {
 		m_height = height;
 	}
 
+	void HighValueAccountsUpdater::setRemovedAddresses(model::AddressSet&& removedAddresses) {
+		m_removed = std::move(removedAddresses);
+	}
+
 	void HighValueAccountsUpdater::update(const deltaset::DeltaElements<MemorySetType>& deltas) {
 		updateHarvestingAccounts(deltas);
 		updateVotingAccounts(deltas);

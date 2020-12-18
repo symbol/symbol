@@ -91,6 +91,9 @@ namespace catapult { namespace cache {
 		/// Sets the \a height of the update operation.
 		void setHeight(Height height);
 
+		/// Sets the removed addresses to \a removedAddresses.
+		void setRemovedAddresses(model::AddressSet&& removedAddresses);
+
 		/// Updates high value accounts based on changes described in \a deltas.
 		void update(const deltaset::DeltaElements<MemorySetType>& deltas);
 

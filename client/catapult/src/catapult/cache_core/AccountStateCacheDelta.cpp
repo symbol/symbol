@@ -170,6 +170,32 @@ namespace catapult { namespace cache {
 		m_highValueAccountsUpdater.update(m_pStateByAddress->deltas());
 	}
 
+	void BasicAccountStateCacheDelta::processHighValueRemovedAccounts(model::ImportanceHeight importanceHeight) {
+		model::AddressSet filteredRemovedHighValueAddresses;
+
+		const auto& removedHighValueAddresses = m_highValueAccountsUpdater.removedAddresses();
+		for (const auto& address : removedHighValueAddresses) {
+			auto accountStateIter = find(address);
+			if (!accountStateIter.tryGet())
+				continue;
+
+			auto& accountState = accountStateIter.get();
+			auto& activityBuckets = accountState.ActivityBuckets;
+			auto currentBucket = activityBuckets.get(importanceHeight);
+			if (currentBucket.StartHeight == importanceHeight)
+				activityBuckets.pop();
+
+			// shift the removed account's buckets and snapshots
+			activityBuckets.push();
+			accountState.ImportanceSnapshots.push();
+
+			if (state::HasHistoricalInformation(accountState))
+				filteredRemovedHighValueAddresses.insert(address);
+		}
+
+		m_highValueAccountsUpdater.setRemovedAddresses(std::move(filteredRemovedHighValueAddresses));
+	}
+
 	HighValueAccounts BasicAccountStateCacheDelta::detachHighValueAccounts() {
 		return m_highValueAccountsUpdater.detachAccounts();
 	}

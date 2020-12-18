@@ -154,4 +154,20 @@ namespace catapult { namespace test {
 		accountState.SupplementalPublicKeys.linked().unset();
 		accountState.SupplementalPublicKeys.linked().set(linkedPublicKey);
 	}
+
+	std::vector<Height::ValueType> GetSnapshotHeights(const state::AccountImportanceSnapshots& snapshots) {
+		std::vector<Height::ValueType> heights;
+		for (const auto& snapshot : snapshots)
+			heights.push_back(snapshot.Height.unwrap());
+
+		return heights;
+	}
+
+	std::vector<Height::ValueType> GetBucketHeights(const state::AccountActivityBuckets& buckets) {
+		std::vector<Height::ValueType> heights;
+			for (const auto& bucket : buckets)
+				heights.push_back(bucket.StartHeight.unwrap());
+
+			return heights;
+	}
 }}

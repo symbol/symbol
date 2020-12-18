@@ -47,4 +47,10 @@ namespace catapult { namespace test {
 
 	/// Forcibly clears and sets linked public key in \a accountState to \a linkedPublicKey.
 	void ForceSetLinkedPublicKey(state::AccountState& accountState, const Key& linkedPublicKey);
+
+	/// Gets the heights of all \a snapshots.
+	std::vector<Height::ValueType> GetSnapshotHeights(const state::AccountImportanceSnapshots& snapshots);
+
+	/// Gets the heights of all \a buckets.
+	std::vector<Height::ValueType> GetBucketHeights(const state::AccountActivityBuckets& buckets);
 }}

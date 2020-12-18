@@ -25,6 +25,7 @@
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/state/AccountActivityBuckets.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
+#include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace importance {
@@ -570,22 +571,6 @@ namespace catapult { namespace importance {
 				}
 			}
 		}
-
-		std::vector<Height::ValueType> GetHeights(const state::AccountImportanceSnapshots& snapshots) {
-			std::vector<Height::ValueType> heights;
-			for (const auto& snapshot : snapshots)
-				heights.push_back(snapshot.Height.unwrap());
-
-			return heights;
-		}
-
-		std::vector<Height::ValueType> GetHeights(const state::AccountActivityBuckets& buckets) {
-			std::vector<Height::ValueType> heights;
-			for (const auto& bucket : buckets)
-				heights.push_back(bucket.StartHeight.unwrap());
-
-			return heights;
-		}
 	}
 
 	TEST(TEST_CLASS, PosCreatesNewActivityBucketOnlyForAccountsWithMinBalanceAtRecalculationHeight) {
@@ -597,19 +582,19 @@ namespace catapult { namespace importance {
 				EXPECT_EQ(0u, bucket.RawScore) << "account " << i;
 
 				// - no new bucket is set and existing buckets are shifted
-				EXPECT_EQ(std::vector<uint64_t>({ 0, 25, 1, 0, 0, 0, 0 }), GetHeights(buckets));
+				EXPECT_EQ(std::vector<uint64_t>({ 0, 25, 1, 0, 0, 0, 0 }), test::GetBucketHeights(buckets));
 
 				// - no new importance is set and existing snapshots are shifted
-				EXPECT_EQ(std::vector<uint64_t>({ 0, 25, 0 }), GetHeights(snapshots));
+				EXPECT_EQ(std::vector<uint64_t>({ 0, 25, 0 }), test::GetSnapshotHeights(snapshots));
 			} else {
 				EXPECT_EQ(Recalculation_Height, bucket.StartHeight) << "account " << i;
 				EXPECT_NE(0u, bucket.RawScore) << "account " << i;
 
 				// - new activity bucket is set
-				EXPECT_EQ(std::vector<uint64_t>({ Recalculation_Height.unwrap(), 25, 1, 0, 0, 0, 0 }), GetHeights(buckets));
+				EXPECT_EQ(std::vector<uint64_t>({ Recalculation_Height.unwrap(), 25, 1, 0, 0, 0, 0 }), test::GetBucketHeights(buckets));
 
 				// - new importance is set
-				EXPECT_EQ(std::vector<uint64_t>({ Recalculation_Height.unwrap(), 25, 0 }), GetHeights(snapshots));
+				EXPECT_EQ(std::vector<uint64_t>({ Recalculation_Height.unwrap(), 25, 0 }), test::GetSnapshotHeights(snapshots));
 			}
 		});
 	}
