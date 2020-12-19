@@ -231,13 +231,12 @@ namespace catapult { namespace test {
 				++numImportances;
 			}
 
-			auto expectedNumImportances = std::count_if(snapshots.begin(), snapshots.end(), [](const auto& snapshot) {
-				return model::ImportanceHeight(0) != snapshot.Height;
-			});
-			EXPECT_EQ(static_cast<size_t>(expectedNumImportances), numImportances);
+			size_t expectedNumImportances = snapshots.active() ? Importance_History_Size - Rollback_Buffer_Size : 0;
+			EXPECT_EQ(expectedNumImportances, numImportances);
 		}
 
 		void AssertEqualAccountActivityBuckets(
+				bool isActive,
 				const state::AccountActivityBuckets& buckets,
 				const bsoncxx::document::view& dbActivityBuckets) {
 			size_t numActivityBuckets = 0;
@@ -252,10 +251,8 @@ namespace catapult { namespace test {
 				++numActivityBuckets;
 			}
 
-			auto expectedNumActivityBuckets = std::count_if(buckets.begin(), buckets.end(), [](const auto& bucket) {
-				return model::ImportanceHeight(0) != bucket.StartHeight;
-			});
-			EXPECT_EQ(static_cast<size_t>(expectedNumActivityBuckets), numActivityBuckets);
+			size_t expectedNumActivityBuckets = isActive ? Activity_Bucket_History_Size - Rollback_Buffer_Size : 0;
+			EXPECT_EQ(expectedNumActivityBuckets, numActivityBuckets);
 		}
 	}
 
@@ -272,7 +269,10 @@ namespace catapult { namespace test {
 
 		AssertEqualAccountPublicKeys(accountState.SupplementalPublicKeys, dbAccount["supplementalPublicKeys"].get_document());
 		AssertEqualAccountImportanceSnapshots(accountState.ImportanceSnapshots, dbAccount["importances"].get_array().value);
-		AssertEqualAccountActivityBuckets(accountState.ActivityBuckets, dbAccount["activityBuckets"].get_array().value);
+		AssertEqualAccountActivityBuckets(
+				accountState.ImportanceSnapshots.active(),
+				accountState.ActivityBuckets,
+				dbAccount["activityBuckets"].get_array().value);
 
 		auto dbMosaics = dbAccount["mosaics"].get_array().value;
 		size_t numMosaics = 0;

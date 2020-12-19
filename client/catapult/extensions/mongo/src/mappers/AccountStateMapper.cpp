@@ -85,35 +85,44 @@ namespace catapult { namespace mongo { namespace mappers {
 			publicKeysDocument << bson_stream::close_document;
 		}
 
-		void StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {
+		void StreamAccountImportanceInformation(
+				bson_stream::document& builder,
+				const state::AccountImportanceSnapshots& snapshots,
+				const state::AccountActivityBuckets& buckets) {
 			auto importancesArray = builder << "importances" << bson_stream::open_array;
-			for (const auto& snapshot : snapshots) {
-				if (model::ImportanceHeight(0) == snapshot.Height)
-					break;
 
-				importancesArray
-						<< bson_stream::open_document
-							<< "value" << ToInt64(snapshot.Importance)
-							<< "height" << ToInt64(snapshot.Height)
-						<< bson_stream::close_document;
+			if (snapshots.active()) {
+				auto i = 0u;
+				for (const auto& snapshot : snapshots) {
+					if (i++ >= Importance_History_Size - Rollback_Buffer_Size)
+						break;
+
+					importancesArray
+							<< bson_stream::open_document
+								<< "value" << ToInt64(snapshot.Importance)
+								<< "height" << ToInt64(snapshot.Height)
+							<< bson_stream::close_document;
+				}
 			}
 
 			importancesArray << bson_stream::close_array;
-		}
 
-		void StreamAccountActivityBuckets(bson_stream::document& builder, const state::AccountActivityBuckets& buckets) {
 			auto activityBucketsArray = builder << "activityBuckets" << bson_stream::open_array;
-			for (const auto& bucket : buckets) {
-				if (model::ImportanceHeight(0) == bucket.StartHeight)
-					break;
 
-				activityBucketsArray
-						<< bson_stream::open_document
-							<< "startHeight" << ToInt64(bucket.StartHeight)
-							<< "totalFeesPaid" << ToInt64(bucket.TotalFeesPaid)
-							<< "beneficiaryCount" << static_cast<int32_t>(bucket.BeneficiaryCount)
-							<< "rawScore" << static_cast<int64_t>(bucket.RawScore)
-						<< bson_stream::close_document;
+			if (snapshots.active()) {
+				auto i = 0u;
+				for (const auto& bucket : buckets) {
+					if (i++ >= Activity_Bucket_History_Size - Rollback_Buffer_Size)
+						break;
+
+					activityBucketsArray
+							<< bson_stream::open_document
+								<< "startHeight" << ToInt64(bucket.StartHeight)
+								<< "totalFeesPaid" << ToInt64(bucket.TotalFeesPaid)
+								<< "beneficiaryCount" << static_cast<int32_t>(bucket.BeneficiaryCount)
+								<< "rawScore" << static_cast<int64_t>(bucket.RawScore)
+							<< bson_stream::close_document;
+				}
 			}
 
 			activityBucketsArray << bson_stream::close_array;
@@ -140,8 +149,7 @@ namespace catapult { namespace mongo { namespace mappers {
 					<< "accountType" << utils::to_underlying_type(accountState.AccountType);
 
 		StreamAccountPublicKeys(builder, accountState.SupplementalPublicKeys);
-		StreamAccountImportanceSnapshots(builder, accountState.ImportanceSnapshots);
-		StreamAccountActivityBuckets(builder, accountState.ActivityBuckets);
+		StreamAccountImportanceInformation(builder, accountState.ImportanceSnapshots, accountState.ActivityBuckets);
 		StreamAccountBalances(builder, accountState.Balances);
 		builder << bson_stream::close_document;
 		return builder << bson_stream::finalize;

@@ -32,9 +32,9 @@ namespace catapult { namespace mongo { namespace mappers {
 
 #define TEST_CLASS AccountStateMapperTests
 
-	// region ToDbModel
-
 	namespace {
+		// region test utils
+
 		struct RandomSeed {
 			state::AccountPublicKeys::KeyType SupplementalPublicKeysMask = state::AccountPublicKeys::KeyType::Unset;
 			uint8_t NumVotingKeys = 0;
@@ -69,6 +69,15 @@ namespace catapult { namespace mongo { namespace mappers {
 			return accountState;
 		}
 
+		void AssertMapping(const state::AccountState& accountState, const bsoncxx::document::value& dbAccount) {
+			// Assert:
+			auto view = dbAccount.view();
+			EXPECT_EQ(1u, test::GetFieldCount(view));
+
+			auto accountView = view["account"].get_document().view();
+			test::AssertEqualAccountState(accountState, accountView);
+		}
+
 		void AssertCanMapAccountState(
 				Height publicKeyHeight,
 				std::initializer_list<model::Mosaic> mosaics,
@@ -80,13 +89,13 @@ namespace catapult { namespace mongo { namespace mappers {
 			auto dbAccount = ToDbModel(accountState);
 
 			// Assert:
-			auto view = dbAccount.view();
-			EXPECT_EQ(1u, test::GetFieldCount(view));
-
-			auto accountView = view["account"].get_document().view();
-			test::AssertEqualAccountState(accountState, accountView);
+			AssertMapping(accountState, dbAccount);
 		}
+
+		// endregion
 	}
+
+	// region mapping - toggling public key and mosaics
 
 	TEST(TEST_CLASS, CanMapAccountStateWithNeitherPublicKeyNorMosaics) {
 		AssertCanMapAccountState(Height(0), {});
@@ -115,6 +124,10 @@ namespace catapult { namespace mongo { namespace mappers {
 				Height(456),
 				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
 	}
+
+	// endregion
+
+	// region mapping - supplemental public keys
 
 	namespace {
 		void ForEachRandomSeed(const consumer<const RandomSeed&>& action) {
@@ -145,6 +158,95 @@ namespace catapult { namespace mongo { namespace mappers {
 			// Act + Assert:
 			AssertCanMapAccountState(Height(456), { { MosaicId(1234), Amount(234) } }, seed);
 		});
+	}
+
+	// endregion
+
+	// region mapping - importance snapshots and activity buckets
+
+	namespace {
+		struct ActiveImportanceTraits {
+			static constexpr auto Num_Expected_Importances = Importance_History_Size - Rollback_Buffer_Size;
+			static constexpr auto Num_Expected_Activity_Buckets = Activity_Bucket_History_Size - Rollback_Buffer_Size;
+
+			static void ConfigureImportanceSnapshots(state::AccountImportanceSnapshots&)
+			{}
+		};
+
+		struct InactiveImportanceTraits {
+			static constexpr auto Num_Expected_Importances = 0u;
+			static constexpr auto Num_Expected_Activity_Buckets = 0u;
+
+			static void ConfigureImportanceSnapshots(state::AccountImportanceSnapshots& snapshots) {
+				snapshots.push();
+			}
+		};
+
+		template<typename TTraits>
+		void AssertImportanceInformation(const bsoncxx::document::value& dbAccount) {
+			auto accountView = dbAccount.view()["account"].get_document().view();
+			auto importancesArray = accountView["importances"].get_array().value;
+			auto activityBucketsArray = accountView["activityBuckets"].get_array().value;
+
+			EXPECT_EQ(TTraits::Num_Expected_Importances, test::GetFieldCount(importancesArray));
+			EXPECT_EQ(TTraits::Num_Expected_Activity_Buckets, test::GetFieldCount(activityBucketsArray));
+		}
+
+		template<typename TTraits>
+		void AssertCanMapAccountStateWithNoActivityBuckets() {
+			// Arrange:
+			state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
+			accountState.ImportanceSnapshots.set(Importance(234), model::ImportanceHeight(345));
+			TTraits::ConfigureImportanceSnapshots(accountState.ImportanceSnapshots);
+
+			// Act:
+			auto dbAccount = ToDbModel(accountState);
+
+			// Assert:
+			AssertMapping(accountState, dbAccount);
+
+			// Sanity:
+			AssertImportanceInformation<TTraits>(dbAccount);
+		}
+
+		template<typename TTraits>
+		void AssertCanMapAccountStateWithActivityBuckets() {
+			// Arrange:
+			state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
+			accountState.ImportanceSnapshots.set(Importance(234), model::ImportanceHeight(345));
+			TTraits::ConfigureImportanceSnapshots(accountState.ImportanceSnapshots);
+
+			// - set bucket heights to be { 120, 0, 0, 30, 0 }
+			accountState.ActivityBuckets.update(model::ImportanceHeight(30), [](auto& bucket) { bucket.RawScore = 222; });
+			accountState.ActivityBuckets.push();
+			accountState.ActivityBuckets.push();
+			accountState.ActivityBuckets.update(model::ImportanceHeight(120), [](auto& bucket) { bucket.RawScore = 111; });
+
+			// Act:
+			auto dbAccount = ToDbModel(accountState);
+
+			// Assert:
+			AssertMapping(accountState, dbAccount);
+
+			// Sanity:
+			AssertImportanceInformation<TTraits>(dbAccount);
+		}
+	}
+
+	TEST(TEST_CLASS, CanMapAccountStateWithActiveImportanceAndNoActivityBuckets) {
+		AssertCanMapAccountStateWithNoActivityBuckets<ActiveImportanceTraits>();
+	}
+
+	TEST(TEST_CLASS, CanMapAccountStateWithActiveImportanceAndActivityBuckets) {
+		AssertCanMapAccountStateWithActivityBuckets<ActiveImportanceTraits>();
+	}
+
+	TEST(TEST_CLASS, CanMapAccountStateWithInactiveImportanceAndNoActivityBuckets) {
+		AssertCanMapAccountStateWithNoActivityBuckets<InactiveImportanceTraits>();
+	}
+
+	TEST(TEST_CLASS, CanMapAccountStateWithInactiveImportanceAndActivityBuckets) {
+		AssertCanMapAccountStateWithActivityBuckets<InactiveImportanceTraits>();
 	}
 
 	// endregion
