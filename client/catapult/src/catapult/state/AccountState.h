@@ -82,6 +82,9 @@ namespace catapult { namespace state {
 	/// Returns \c true if \a accountType corresponds to a remote account.
 	bool IsRemote(AccountType accountType);
 
+	/// Returns \c true if \a accountState contains any historical information.
+	bool HasHistoricalInformation(const AccountState& accountState);
+
 	/// Requires that \a remoteAccountState and \a mainAccountState state are linked.
 	void RequireLinkedRemoteAndMainAccounts(const AccountState& remoteAccountState, const AccountState& mainAccountState);
 

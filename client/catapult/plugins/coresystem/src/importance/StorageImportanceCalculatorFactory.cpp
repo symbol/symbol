@@ -31,6 +31,7 @@ namespace catapult { namespace importance {
 
 	namespace {
 		constexpr auto Index_Filename = "index.dat";
+		constexpr auto Empty_Bucket_Sentinel = std::numeric_limits<uint32_t>::max();
 
 		// region utils
 
@@ -94,20 +95,29 @@ namespace catapult { namespace importance {
 
 		private:
 			void writeToFile(model::ImportanceHeight importanceHeight, const cache::AccountStateCacheDelta& cache) const {
-				io::FileStream output(io::RawFile(m_directory.file(GetFilename(importanceHeight)), io::OpenMode::Read_Write));
+				auto filename = m_directory.file(GetFilename(importanceHeight));
+				CATAPULT_LOG(debug) << "writing importances to file " << filename << " for height " << importanceHeight;
+
+				io::FileStream output(io::RawFile(filename, io::OpenMode::Read_Write));
 				cache::StateVersion<PackedAccountEntry>::Write(output);
 
-				const auto& highValueAddresses = cache.highValueAccounts().addresses();
-				io::Write64(output, highValueAddresses.size());
+				const auto& highValueAccounts = cache.highValueAccounts();
+				io::Write64(output, highValueAccounts.addresses().size());
+				io::Write64(output, highValueAccounts.removedAddresses().size());
 
-				for (const auto& address : highValueAddresses) {
+				writeAll(output, cache, highValueAccounts.addresses());
+				writeAll(output, cache, highValueAccounts.removedAddresses());
+
+				io::IndexFile(m_directory.file(Index_Filename)).set(importanceHeight.unwrap());
+			}
+
+			void writeAll(io::OutputStream& output, const cache::AccountStateCacheDelta& cache, const model::AddressSet& addresses) const {
+				for (const auto& address : addresses) {
 					auto accountStateIter = cache.find(address);
 
 					auto entry = pack(accountStateIter.get());
 					output.write({ reinterpret_cast<const uint8_t*>(&entry), sizeof(PackedAccountEntry) });
 				}
-
-				io::IndexFile(m_directory.file(Index_Filename)).set(importanceHeight.unwrap());
 			}
 
 			PackedAccountEntry pack(const state::AccountState& accountState) const {
@@ -122,6 +132,14 @@ namespace catapult { namespace importance {
 				entry.TotalFeesPaid = previousBucketIter->TotalFeesPaid;
 				entry.BeneficiaryCount = previousBucketIter->BeneficiaryCount;
 				entry.RawScore = previousBucketIter->RawScore;
+
+				// each file contains an importance snapshot for the current height and a bucket for the previous height
+				// set a sentinel value if the bucket (not snapshot) is empty to deserialize properly
+				auto isNemesisSnapshot = model::ImportanceHeight(1) == accountState.ImportanceSnapshots.height();
+				auto isCorrespondingBucketEmpty = model::ImportanceHeight() == previousBucketIter->StartHeight;
+				if (!isNemesisSnapshot && isCorrespondingBucketEmpty)
+					entry.BeneficiaryCount = Empty_Bucket_Sentinel;
+
 				return entry;
 			}
 
@@ -154,7 +172,7 @@ namespace catapult { namespace importance {
 				if (ImportanceRollbackMode::Disabled == mode)
 					CATAPULT_THROW_INVALID_ARGUMENT("cannot rollback importances when rollback is disabled");
 
-				model::HeightGroupingFacade<model::ImportanceHeight> groupingFacade(importanceHeight, m_config.ImportanceGrouping);
+				auto groupingFacade = model::HeightGroupingFacade<model::ImportanceHeight>(importanceHeight, m_config.ImportanceGrouping);
 
 				// if the most recently calculated importance height is being rolled back, bypass file loading because it will be in memory
 				auto lastImportanceHeight = model::ImportanceHeight(io::IndexFile(m_directory.file(Index_Filename)).get());
@@ -165,20 +183,11 @@ namespace catapult { namespace importance {
 
 				CATAPULT_LOG(debug) << "restoring older importances from file for height " << importanceHeight;
 
-				// clear all importance information
-				model::AddressSet addresses;
-				for (const auto& address : cache.highValueAccounts().addresses()) {
-					auto accountStateIter = cache.find(address);
-					accountStateIter.get().ImportanceSnapshots = {};
-					accountStateIter.get().ActivityBuckets = {};
-					addresses.emplace(address);
-				}
-
 				ReadManager readManager(
 						groupingFacade.previous(Activity_Bucket_History_Size - Rollback_Buffer_Size - 2),
 						groupingFacade.next(1),
 						m_config.ImportanceGrouping);
-				readFromFiles(readManager, addresses, cache);
+				readFromFiles(readManager, cache);
 			}
 
 		private:
@@ -215,26 +224,33 @@ namespace catapult { namespace importance {
 				model::HeightGroupingFacade<model::ImportanceHeight> m_groupingFacade;
 			};
 
-			void readFromFiles(
-					const ReadManager& readManager,
-					const model::AddressSet& addresses,
-					cache::AccountStateCacheDelta& cache) const {
+			void readFromFiles(const ReadManager& readManager, cache::AccountStateCacheDelta& cache) const {
+				model::AddressSet addresses;
 				for (auto i = 0u; readManager.shouldProcess(i); ++i) {
 					processFile(readManager.current(i), [&readManager, &addresses, &cache, i](const auto& entry) {
-						// skip any non-high value accounts
-						if (addresses.cend() == addresses.find(entry.Address))
-							return;
-
 						auto accountStateIter = cache.find(entry.Address);
-						if (readManager.shouldSetImportance(i))
-							accountStateIter.get().ImportanceSnapshots.set(entry.Importance, readManager.current(i));
+						if (addresses.cend() == addresses.find(entry.Address)) {
+							Clear(accountStateIter.get());
+							addresses.insert(entry.Address);
+						}
+
+						if (readManager.shouldSetImportance(i)) {
+							if (Importance() != entry.Importance)
+								accountStateIter.get().ImportanceSnapshots.set(entry.Importance, readManager.current(i));
+							else
+								accountStateIter.get().ImportanceSnapshots.push();
+						}
 
 						if (readManager.shouldSetActivityBucket(i)) {
-							accountStateIter.get().ActivityBuckets.update(readManager.bucketHeight(i), [&entry](auto& bucket) {
-								bucket.TotalFeesPaid = entry.TotalFeesPaid;
-								bucket.BeneficiaryCount = entry.BeneficiaryCount;
-								bucket.RawScore = entry.RawScore;
-							});
+							if (Empty_Bucket_Sentinel != entry.BeneficiaryCount) {
+								accountStateIter.get().ActivityBuckets.update(readManager.bucketHeight(i), [&entry](auto& bucket) {
+									bucket.TotalFeesPaid = entry.TotalFeesPaid;
+									bucket.BeneficiaryCount = entry.BeneficiaryCount;
+									bucket.RawScore = entry.RawScore;
+								});
+							} else {
+								accountStateIter.get().ActivityBuckets.push();
+							}
 						}
 					});
 				}
@@ -248,11 +264,19 @@ namespace catapult { namespace importance {
 				cache::StateVersion<PackedAccountEntry>::ReadAndCheck(input);
 
 				auto count = io::Read64(input);
-				for (auto i = 0u; i < count; ++i) {
+				auto removedCount = io::Read64(input);
+
+				for (auto i = 0u; i < count + removedCount; ++i) {
 					PackedAccountEntry entry;
 					input.read({ reinterpret_cast<uint8_t*>(&entry), sizeof(PackedAccountEntry) });
 					process(entry);
 				}
+			}
+
+		private:
+			static void Clear(state::AccountState& accountState) {
+				accountState.ImportanceSnapshots = {};
+				accountState.ActivityBuckets = {};
 			}
 
 		private:

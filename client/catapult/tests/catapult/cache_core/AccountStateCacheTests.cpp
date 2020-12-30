@@ -1238,8 +1238,8 @@ namespace catapult { namespace cache {
 			return test::AddAccountsWithBalances(delta, Harvesting_Mosaic_Id, balances);
 		}
 
-		const auto& GetHighValueAddresses(const AccountStateCacheView& view) {
-			return view.highValueAccounts().addresses();
+		const auto& CalculateHighValueAccounts(const AccountStateCacheView& view) {
+			return view.highValueAccounts();
 		}
 
 		const auto& CalculateHighValueAccounts(AccountStateCacheDelta& delta) {
@@ -1284,7 +1284,9 @@ namespace catapult { namespace cache {
 		};
 		auto viewAction = [](const auto&, const auto& view) {
 			// Act + Assert:
-			EXPECT_TRUE(GetHighValueAddresses(*view).empty());
+			const auto& highValueAccounts = CalculateHighValueAccounts(*view);
+			EXPECT_TRUE(highValueAccounts.addresses().empty());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 
 		// - add 0/3 with sufficient balance
@@ -1302,7 +1304,9 @@ namespace catapult { namespace cache {
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), GetHighValueAddresses(*view));
+			const auto& highValueAccounts = CalculateHighValueAccounts(*view);
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAccounts.addresses());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 
 		// - add 2/3 accounts with sufficient balance
@@ -1324,7 +1328,9 @@ namespace catapult { namespace cache {
 		};
 		auto viewAction = [](const auto&, const auto& view) {
 			// Act + Assert:
-			EXPECT_TRUE(GetHighValueAddresses(*view).empty());
+			const auto& highValueAccounts = CalculateHighValueAccounts(*view);
+			EXPECT_TRUE(highValueAccounts.addresses().empty());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 
 		RunHighValueAddressesTest({}, deltaAction, viewAction);
@@ -1344,7 +1350,9 @@ namespace catapult { namespace cache {
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0] }), GetHighValueAddresses(*view));
+			const auto& highValueAccounts = CalculateHighValueAccounts(*view);
+			EXPECT_EQ(model::AddressSet({ addresses[0] }), highValueAccounts.addresses());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 
 		// - add 1/3 accounts with sufficient balance
@@ -1367,7 +1375,9 @@ namespace catapult { namespace cache {
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), GetHighValueAddresses(*view));
+			const auto& highValueAccounts = CalculateHighValueAccounts(*view);
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAccounts.addresses());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 
 		// - add 2/3 accounts with sufficient balance
@@ -1397,7 +1407,9 @@ namespace catapult { namespace cache {
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), GetHighValueAddresses(*view));
+			const auto& highValueAccounts = CalculateHighValueAccounts(*view);
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), highValueAccounts.addresses());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 
 		// - add 3/5 accounts with sufficient balance [3 match]
@@ -1449,12 +1461,62 @@ namespace catapult { namespace cache {
 			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		}
 
-		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), GetHighValueAddresses(*cache.createView()));
+		auto view = cache.createView();
+		const auto& highValueAccounts = CalculateHighValueAccounts(*view);
+		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), highValueAccounts.addresses());
+		EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
+	}
+
+	TEST(TEST_CLASS, HighValueRemovedAddressesArePreservedInView) {
+		// Arrange: set min balance to 1M
+		auto options = Default_Cache_Options;
+		options.MinHarvesterBalance = Amount(1'000'000);
+		AccountStateCache cache(CacheConfiguration(), options);
+
+		// - prepare delta with requested accounts
+		std::vector<Address> addresses;
+		{
+			{
+				// - add 3/5 accounts with sufficient balance [3 match]
+				auto delta = cache.createDelta();
+				addresses = AddAccountsWithBalances(*delta, {
+					Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000)
+				});
+				delta->updateHighValueAccounts(Height(1));
+				cache.commit();
+			}
+
+			// - remove one account and commit
+			{
+				auto delta = cache.createDelta();
+				delta->queueRemove(addresses[2], Height(1));
+				delta->commitRemovals();
+				delta->updateHighValueAccounts(Height(1));
+				cache.commit();
+			}
+
+			// Act: remove another account but don't commit
+			auto delta = cache.createDelta();
+			delta->queueRemove(addresses[4], Height(1));
+			delta->commitRemovals();
+			delta->updateHighValueAccounts(Height(1));
+
+			// Assert: delta has two removed accounts
+			const auto& highValueAccounts = CalculateHighValueAccounts(*delta);
+			EXPECT_EQ(model::AddressSet({ addresses[0] }), highValueAccounts.addresses());
+			EXPECT_EQ(model::AddressSet({ addresses[2], addresses[4] }), highValueAccounts.removedAddresses());
+		}
+
+		// Assert: view has one removed account
+		auto view = cache.createView();
+		const auto& highValueAccounts = CalculateHighValueAccounts(*view);
+		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[4] }), highValueAccounts.addresses());
+		EXPECT_EQ(model::AddressSet({ addresses[2] }), highValueAccounts.removedAddresses());
 	}
 
 	// endregion
 
-	// region updateHighValueAccounts / detachHighValueAccounts
+	// region updateHighValueAccounts
 
 	TEST(TEST_CLASS, UpdateHighValueAccountsProcessesAccounts) {
 		// Arrange: set min balance to 1M
@@ -1475,6 +1537,149 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAccounts().addresses());
 	}
+
+	// endregion
+
+	// region processHighValueRemovedAccounts
+
+	namespace {
+		model::AddressSet Pick(const std::vector<Address>& addresses, std::initializer_list<size_t> indexes) {
+			model::AddressSet addressSet;
+			for (auto index : indexes)
+				addressSet.insert(addresses[index]);
+
+			return addressSet;
+		}
+
+		template<typename TAction>
+		void RunProcessHighValueRemovedAccountsTest(TAction action) {
+			// Arrange: set min balance to 1M
+			auto options = Default_Cache_Options;
+			options.MinHarvesterBalance = Amount(1'000'000);
+			AccountStateCache cache(CacheConfiguration(), options);
+
+			// - prepare cache with 6/6 accounts with sufficient balance
+			std::vector<Address> addresses;
+			{
+				auto delta = cache.createDelta();
+				addresses = AddAccountsWithBalances(*delta, {
+					Amount(1'100'000), Amount(1'900'000), Amount(1'000'000), Amount(2'000'000), Amount(1'200'000), Amount(1'500'000)
+				});
+				delta->updateHighValueAccounts(Height(1));
+				cache.commit();
+			}
+
+			// - remove two
+			auto delta = cache.createDelta();
+			delta->queueRemove(addresses[0], Height(1));
+			delta->queueRemove(addresses[3], Height(1));
+			delta->commitRemovals();
+
+			// - lower balance of two
+			delta->find(addresses[1]).get().Balances.debit(Harvesting_Mosaic_Id, Amount(1'200'000));
+			delta->find(addresses[4]).get().Balances.debit(Harvesting_Mosaic_Id, Amount(1'200'000));
+
+			action(addresses, *delta);
+		}
+	}
+
+	TEST(TEST_CLASS, ProcessHighValueRemovedAccountsFiltersRemovedAddressesNoLongerInCache) {
+		// Arrange:
+		RunProcessHighValueRemovedAccountsTest([](const auto& addresses, auto& delta) {
+			// - set importance on lowered balance accounts
+			delta.find(addresses[1]).get().ImportanceSnapshots.set(Importance(1), model::ImportanceHeight(111));
+			delta.find(addresses[4]).get().ImportanceSnapshots.set(Importance(2), model::ImportanceHeight(111));
+
+			delta.updateHighValueAccounts(Height(1));
+
+			// Sanity: before process, all four removed accounts are tracked
+			EXPECT_EQ(Pick(addresses, { 0, 1, 3, 4 }), delta.highValueAccounts().removedAddresses());
+
+			// Act:
+			delta.processHighValueRemovedAccounts(model::ImportanceHeight(222));
+
+			// Assert: 0 and 3 were dropped because they're on longer in cache
+			EXPECT_EQ(Pick(addresses, { 1, 4 }), delta.highValueAccounts().removedAddresses());
+			EXPECT_EQ(Pick(addresses, { 2, 5 }), delta.highValueAccounts().addresses());
+		});
+	}
+
+	TEST(TEST_CLASS, ProcessHighValueRemovedAccountsFiltersRemovedAddressesNoLongerHavingHistoricalInformation) {
+		// Arrange:
+		RunProcessHighValueRemovedAccountsTest([](const auto& addresses, auto& delta) {
+			// - don't set importance on lowered balance accounts
+			delta.updateHighValueAccounts(Height(1));
+
+			// Sanity: before process, all four removed accounts are tracked
+			EXPECT_EQ(Pick(addresses, { 0, 1, 3, 4 }), delta.highValueAccounts().removedAddresses());
+
+			// Act:
+			delta.processHighValueRemovedAccounts(model::ImportanceHeight(222));
+
+			// Assert:
+			EXPECT_EQ(model::AddressSet(), delta.highValueAccounts().removedAddresses());
+			EXPECT_EQ(Pick(addresses, { 2, 5 }), delta.highValueAccounts().addresses());
+		});
+	}
+
+	TEST(TEST_CLASS, ProcessHighValueRemovedAccountsPushesEmptyEntriesOnRetainedRemovedAddresses) {
+		// Arrange:
+		RunProcessHighValueRemovedAccountsTest([](const auto& addresses, auto& delta) {
+			// - set importance and buckets on lowered balance accounts
+			delta.find(addresses[1]).get().ImportanceSnapshots.set(Importance(1), model::ImportanceHeight(111));
+			delta.find(addresses[4]).get().ImportanceSnapshots.set(Importance(2), model::ImportanceHeight(111));
+
+			delta.find(addresses[1]).get().ActivityBuckets.update(model::ImportanceHeight(100), [](const auto&) {});
+			delta.find(addresses[4]).get().ActivityBuckets.update(model::ImportanceHeight(100), [](const auto&) {});
+
+			delta.updateHighValueAccounts(Height(1));
+
+			// Act:
+			delta.processHighValueRemovedAccounts(model::ImportanceHeight(222));
+
+			// Assert:
+			for (auto address : Pick(addresses, { 1, 4 })) {
+				auto accountStateIter = delta.find(address);
+				auto snapshotHeights = test::GetSnapshotHeights(accountStateIter.get().ImportanceSnapshots);
+				auto bucketHeights = test::GetBucketHeights(accountStateIter.get().ActivityBuckets);
+				EXPECT_EQ(std::vector<uint64_t>({ 0, 111, 0 }), snapshotHeights) << address;
+				EXPECT_EQ(std::vector<uint64_t>({ 0, 100, 0, 0, 0, 0, 0 }), bucketHeights) << address;
+			}
+		});
+	}
+
+	TEST(TEST_CLASS, ProcessHighValueRemovedAccountsPopsCurrentBucketFromRetainedRemovedAddresses) {
+		// Arrange:
+		RunProcessHighValueRemovedAccountsTest([](const auto& addresses, auto& delta) {
+			// - set importance and buckets on lowered balance accounts
+			delta.find(addresses[1]).get().ImportanceSnapshots.set(Importance(1), model::ImportanceHeight(222));
+			delta.find(addresses[4]).get().ImportanceSnapshots.set(Importance(2), model::ImportanceHeight(222));
+
+			delta.find(addresses[1]).get().ActivityBuckets.update(model::ImportanceHeight(111), [](const auto&) {});
+			delta.find(addresses[1]).get().ActivityBuckets.update(model::ImportanceHeight(222), [](const auto&) {});
+
+			delta.find(addresses[4]).get().ActivityBuckets.update(model::ImportanceHeight(111), [](const auto&) {});
+			delta.find(addresses[4]).get().ActivityBuckets.update(model::ImportanceHeight(222), [](const auto&) {});
+
+			delta.updateHighValueAccounts(Height(1));
+
+			// Act:
+			delta.processHighValueRemovedAccounts(model::ImportanceHeight(222));
+
+			// Assert: 222 bucket is replaced with empty bucket but 222 importance is not
+			for (auto address : Pick(addresses, { 1, 4 })) {
+				auto accountStateIter = delta.find(address);
+				auto snapshotHeights = test::GetSnapshotHeights(accountStateIter.get().ImportanceSnapshots);
+				auto bucketHeights = test::GetBucketHeights(accountStateIter.get().ActivityBuckets);
+				EXPECT_EQ(std::vector<uint64_t>({ 0, 222, 0 }), snapshotHeights) << address;
+				EXPECT_EQ(std::vector<uint64_t>({ 0, 111, 0, 0, 0, 0, 0 }), bucketHeights) << address;
+			}
+		});
+	}
+
+	// endregion
+
+	// region detachHighValueAccounts
 
 	TEST(TEST_CLASS, DetachHighValueAccountsIsDestructive) {
 		// Arrange: set min balance to 1M
@@ -1565,15 +1770,21 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CanSpecifyInitialValuesViaInit) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+
 		auto addresses = test::GenerateRandomDataVector<Address>(3);
 		auto addressSet = model::AddressSet(addresses.cbegin(), addresses.cend());
 
+		auto removedAddresses = test::GenerateRandomDataVector<Address>(2);
+		auto removedAddressSet = model::AddressSet(removedAddresses.cbegin(), removedAddresses.cend());
+
 		// Act:
-		cache.init(HighValueAccounts(addressSet, AddressAccountHistoryMap()));
+		cache.init(HighValueAccounts(addressSet, removedAddressSet, AddressAccountHistoryMap()));
 
 		// Assert:
 		auto view = cache.createView();
-		EXPECT_EQ(addressSet, GetHighValueAddresses(*view));
+		const auto& highValueAccounts = view->highValueAccounts();
+		EXPECT_EQ(addressSet, highValueAccounts.addresses());
+		EXPECT_EQ(removedAddressSet, highValueAccounts.removedAddresses());
 	}
 
 	// endregion

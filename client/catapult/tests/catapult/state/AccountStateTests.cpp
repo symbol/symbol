@@ -79,6 +79,52 @@ namespace catapult { namespace state {
 
 	// endregion
 
+	// region HasHistoricalInformation
+
+	TEST(TEST_CLASS, HasHistoricalInformationReturnsTrueWhenImportanceSnapshotsIsNotEmpty) {
+		// Arrange:
+		AccountState accountState(test::GenerateRandomAddress(), Height(1));
+
+		// Sanity: initially false
+		EXPECT_FALSE(HasHistoricalInformation(accountState));
+
+		// - set an importance
+		accountState.ImportanceSnapshots.set(Importance(111), model::ImportanceHeight(222));
+
+		// Act + Assert: true as long any snapshot is set
+		for (auto i = 0u; i < Importance_History_Size; ++i) {
+			EXPECT_TRUE(HasHistoricalInformation(accountState));
+
+			accountState.ImportanceSnapshots.push();
+		}
+
+		// Assert: false now that it is empty again
+		EXPECT_FALSE(HasHistoricalInformation(accountState));
+	}
+
+	TEST(TEST_CLASS, HasHistoricalInformationReturnsTrueWhenActivityBucketsIsNotEmpty) {
+		// Arrange:
+		AccountState accountState(test::GenerateRandomAddress(), Height(1));
+
+		// Sanity: initially false
+		EXPECT_FALSE(HasHistoricalInformation(accountState));
+
+		// - set an activity bucket
+		accountState.ActivityBuckets.update(model::ImportanceHeight(222), [](const auto&) {});
+
+		// Act + Assert: true as long any bucket is set
+		for (auto i = 0u; i < Activity_Bucket_History_Size; ++i) {
+			EXPECT_TRUE(HasHistoricalInformation(accountState));
+
+			accountState.ActivityBuckets.push();
+		}
+
+		// Assert: false now that it is empty again
+		EXPECT_FALSE(HasHistoricalInformation(accountState));
+	}
+
+	// endregion
+
 	// region RequireLinkedRemoteAndMainAccounts
 
 	namespace {

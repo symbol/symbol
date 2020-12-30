@@ -33,6 +33,7 @@ namespace catapult { namespace importance {
 
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(2222);
+		constexpr auto Backup_Harvesting_Mosaic_Id = MosaicId(3333);
 		constexpr auto Importance_Grouping = static_cast<uint32_t>(123);
 		constexpr auto Default_Calculation_Mode = ImportanceRollbackMode::Enabled;
 
@@ -43,6 +44,7 @@ namespace catapult { namespace importance {
 		struct FileHeader {
 			uint16_t Version;
 			uint64_t Count;
+			uint64_t RemovedCount;
 		};
 
 		struct AccountHeader {
@@ -77,34 +79,46 @@ namespace catapult { namespace importance {
 					ImportanceRollbackMode mode,
 					model::ImportanceHeight importanceHeight,
 					cache::AccountStateCacheDelta& cache) const override {
-				const auto& highValueAddresses = cache.highValueAccounts().addresses();
-				for (const auto& address : highValueAddresses) {
-					auto accountStateIter = cache.find(address);
-					auto mapIter = m_map.find({ address, importanceHeight });
-					if (m_map.cend() == mapIter) {
-						std::ostringstream out;
-						out << "unexpected recalculate call for " << address << " at " << importanceHeight;
-						CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-					}
+				for (const auto& address : cache.highValueAccounts().addresses())
+					process(cache.find(address).get(), mode, importanceHeight);
 
-					// simulate the real PosImportanceCalculator that does the following:
-					// 1. sets importance at `importanceHeight`
-					// 2. finalizes activity bucket at previous `importanceHeight`
-					// 3. creates empty activity bucket at `importanceHeight`
+				for (const auto& address : cache.highValueAccounts().removedAddresses())
+					process(cache.find(address).get(), mode, importanceHeight);
+			}
 
-					// add mode to configured importance to provide indirect way of checking correct mode was passed
-					auto importance = mapIter->second.Importance + Importance(static_cast<Importance::ValueType>(mode));
-					accountStateIter.get().ImportanceSnapshots.set(importance, importanceHeight);
-
-					auto groupingFacade = model::HeightGroupingFacade<model::ImportanceHeight>(importanceHeight, Importance_Grouping);
-					accountStateIter.get().ActivityBuckets.update(groupingFacade.previous(1), [&seed = mapIter->second](auto& bucket) {
-						bucket.TotalFeesPaid = seed.TotalFeesPaid;
-						bucket.BeneficiaryCount = seed.BeneficiaryCount;
-						bucket.RawScore = seed.RawScore;
-					});
-
-					accountStateIter.get().ActivityBuckets.update(importanceHeight, [](const auto&) {});
+		private:
+			void process(state::AccountState& accountState, ImportanceRollbackMode mode, model::ImportanceHeight importanceHeight) const {
+				auto mapIter = m_map.find({ accountState.Address, importanceHeight });
+				if (m_map.cend() == mapIter) {
+					std::ostringstream out;
+					out << "unexpected recalculate call for " << accountState.Address << " at " << importanceHeight;
+					CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 				}
+
+				if (Amount(0) == accountState.Balances.get(Harvesting_Mosaic_Id)) {
+					// simulate removed account
+					accountState.ImportanceSnapshots.push();
+					accountState.ActivityBuckets.push();
+					return;
+				}
+
+				// simulate the real PosImportanceCalculator that does the following:
+				// 1. sets importance at `importanceHeight`
+				// 2. finalizes activity bucket at previous `importanceHeight`
+				// 3. creates empty activity bucket at `importanceHeight`
+
+				// add mode to configured importance to provide indirect way of checking correct mode was passed
+				auto importance = mapIter->second.Importance + Importance(static_cast<Importance::ValueType>(mode));
+				accountState.ImportanceSnapshots.set(importance, importanceHeight);
+
+				auto groupingFacade = model::HeightGroupingFacade<model::ImportanceHeight>(importanceHeight, Importance_Grouping);
+				accountState.ActivityBuckets.update(groupingFacade.previous(1), [&seed = mapIter->second](auto& bucket) {
+					bucket.TotalFeesPaid = seed.TotalFeesPaid;
+					bucket.BeneficiaryCount = seed.BeneficiaryCount;
+					bucket.RawScore = seed.RawScore;
+				});
+
+				accountState.ActivityBuckets.update(importanceHeight, [](const auto&) {});
 			}
 
 		private:
@@ -122,33 +136,55 @@ namespace catapult { namespace importance {
 
 		public:
 			CacheHolder()
-					: m_cache(
-							cache::CacheConfiguration(),
-							test::CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id))
-					, m_delta(m_cache.createDelta())
+					: m_cache(cache::CacheConfiguration(), CreateCacheOptions())
+					, m_pDelta(std::make_unique<LockedAccountStateCacheDelta>(m_cache.createDelta()))
 			{}
 
 		public:
 			auto& get() {
-				return *m_delta;
+				return delta();
 			}
 
 		public:
 			void addAccounts(const std::vector<Address>& addresses, const std::vector<Amount>& balances) {
 				auto i = 0u;
 				for (const auto& address : addresses) {
-					m_delta->addAccount(address, Height(1));
-					m_delta->find(address).get().Balances.credit(Harvesting_Mosaic_Id, balances[i]);
+					delta().addAccount(address, Height(1));
+					auto accountStateIter = delta().find(address);
+					accountStateIter.get().Balances.credit(Harvesting_Mosaic_Id, balances[i]);
+					accountStateIter.get().Balances.credit(Backup_Harvesting_Mosaic_Id, balances[i]);
 					++i;
 				}
 
-				m_delta->updateHighValueAccounts(Height(1));
+				delta().updateHighValueAccounts(Height(1));
 			}
 
 			std::vector<Address> addAccounts(const std::vector<Amount>& balances) {
 				auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
 				addAccounts(addresses, balances);
 				return addresses;
+			}
+
+			void addMissingAccounts(const std::vector<Address>& addresses) {
+				for (const auto& address : addresses) {
+					if (!delta().contains(address))
+						delta().addAccount(address, Height(1));
+				}
+			}
+
+			void clearBalances(const std::vector<Address>& addresses) {
+				for (const auto& address : addresses) {
+					auto accountStateIter = delta().find(address);
+					accountStateIter.get().Balances.debit(Harvesting_Mosaic_Id, accountStateIter.get().Balances.get(Harvesting_Mosaic_Id));
+				}
+
+				delta().updateHighValueAccounts(Height(1));
+			}
+
+			void commit() {
+				m_cache.commit();
+				m_pDelta.reset();
+				m_pDelta = std::make_unique<LockedAccountStateCacheDelta>(m_cache.createDelta());
 			}
 
 		public:
@@ -158,7 +194,7 @@ namespace catapult { namespace importance {
 					const std::vector<ImportanceSnapshot>& expected,
 					const std::string& postfix = std::string()) const {
 				auto message = "account at " + std::to_string(id) + " importance" + postfix;
-				AssertEqual(expected, m_delta->find(address).get().ImportanceSnapshots, message);
+				AssertEqual(expected, delta().find(address).get().ImportanceSnapshots, message);
 			}
 
 			void assertEqualActivityBuckets(
@@ -167,7 +203,23 @@ namespace catapult { namespace importance {
 					const std::vector<ActivityBucket>& expected,
 					const std::string& postfix = std::string()) const {
 				auto message = "account at " + std::to_string(id) + " activity bucket" + postfix;
-				AssertEqual(expected, m_delta->find(address).get().ActivityBuckets, message);
+				AssertEqual(expected, delta().find(address).get().ActivityBuckets, message);
+			}
+
+		private:
+			const cache::AccountStateCacheDelta& delta() const {
+				return **m_pDelta;
+			}
+
+			cache::AccountStateCacheDelta& delta() {
+				return **m_pDelta;
+			}
+
+		private:
+			static cache::AccountStateCacheTypes::Options CreateCacheOptions() {
+				auto options = test::CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
+				options.MinHarvesterBalance = Amount(1);
+				return options;
 			}
 
 		private:
@@ -200,8 +252,10 @@ namespace catapult { namespace importance {
 			}
 
 		private:
+			using LockedAccountStateCacheDelta = cache::LockedCacheDelta<cache::AccountStateCacheDelta>;
+
 			cache::AccountStateCache m_cache;
-			cache::LockedCacheDelta<cache::AccountStateCacheDelta> m_delta;
+			std::unique_ptr<LockedAccountStateCacheDelta> m_pDelta;
 		};
 
 		// endregion
@@ -314,14 +368,19 @@ namespace catapult { namespace importance {
 				ASSERT_EQ(m_buffer.size(), actual.size());
 
 				// - check header
-				EXPECT_EQ_MEMORY(&m_buffer[0], &actual[0], sizeof(FileHeader));
+				FileHeader header;
+				std::memcpy(&header, &m_buffer[0], sizeof(FileHeader));
 
-				// - check files (can be out of order)
-				std::set<std::vector<uint8_t>> actualSplitAccountParts;
+				EXPECT_EQ_MEMORY(&header, &actual[0], sizeof(FileHeader));
+
+				// - check importance entries (can be out of order)
 				std::set<std::vector<uint8_t>> expectedSplitAccountParts;
-				for (auto offset = sizeof(FileHeader); offset < m_buffer.size(); offset += Account_Part_Size) {
-					actualSplitAccountParts.emplace(&actual[offset], &actual[offset] + Account_Part_Size);
+				std::set<std::vector<uint8_t>> actualSplitAccountParts;
+
+				auto offset = sizeof(FileHeader);
+				for (auto i = 0u; i < header.Count + header.RemovedCount; ++i, offset += Account_Part_Size) {
 					expectedSplitAccountParts.emplace(&m_buffer[offset], &m_buffer[offset] + Account_Part_Size);
+					actualSplitAccountParts.emplace(&actual[offset], &actual[offset] + Account_Part_Size);
 				}
 
 				EXPECT_EQ(expectedSplitAccountParts, actualSplitAccountParts);
@@ -405,10 +464,48 @@ namespace catapult { namespace importance {
 		EXPECT_EQ(Importance_Height.unwrap(), context.loadIndexValue());
 		context.assertFiles({ Importance_Filename });
 
-		FileContentsBuilder contentsBuilder({ 1, 3 });
+		FileContentsBuilder contentsBuilder({ 1, 3, 0 });
 		contentsBuilder.append({ addresses[0], Amount(2000) }, { Importance(111), Amount(222), 14, 400 });
 		contentsBuilder.append({ addresses[1], Amount(1000) }, { Importance(123), Amount(432), 22, 200 });
 		contentsBuilder.append({ addresses[2], Amount(3000) }, { Importance(444), Amount(110), 10, 300 });
+		contentsBuilder.assertContents(context.readAll(Importance_Filename));
+	}
+
+	TEST(TEST_CLASS, WriteCalculatorCanWriteSingleImportanceFileWithRemovedAddresses) {
+		// Arrange:
+		static constexpr auto Importance_Height = model::ImportanceHeight(246);
+		static constexpr auto Importance_Filename = "00000000000000F6.dat";
+
+		TestContext context;
+		CacheHolder holder;
+
+		auto removedAddresses = holder.addAccounts({ Amount(4000), Amount(6000) });
+		holder.commit();
+		holder.clearBalances(removedAddresses);
+
+		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
+
+		// Act:
+		auto pCalculator = context.createWriteCalculator({
+			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } },
+
+			{ { removedAddresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+			{ { removedAddresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } }
+		});
+		pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get());
+
+		// Assert:
+		EXPECT_EQ(Importance_Height.unwrap(), context.loadIndexValue());
+		context.assertFiles({ Importance_Filename });
+
+		FileContentsBuilder contentsBuilder({ 1, 3, 2 });
+		contentsBuilder.append({ addresses[0], Amount(2000) }, { Importance(111), Amount(222), 14, 400 });
+		contentsBuilder.append({ addresses[1], Amount(1000) }, { Importance(123), Amount(432), 22, 200 });
+		contentsBuilder.append({ addresses[2], Amount(3000) }, { Importance(444), Amount(110), 10, 300 });
+		contentsBuilder.append({ removedAddresses[0], Amount(0) }, { Importance(0), Amount(0), 0xFFFFFFFF, 0 });
+		contentsBuilder.append({ removedAddresses[1], Amount(0) }, { Importance(0), Amount(0), 0xFFFFFFFF, 0 });
 		contentsBuilder.assertContents(context.readAll(Importance_Filename));
 	}
 
@@ -444,7 +541,7 @@ namespace catapult { namespace importance {
 		EXPECT_EQ(Importance_Height.unwrap(), context.loadIndexValue());
 		context.assertFiles({ Importance_Filename });
 
-		FileContentsBuilder contentsBuilder({ 1, 4 });
+		FileContentsBuilder contentsBuilder({ 1, 4, 0 });
 		contentsBuilder.append({ addresses1[0], Amount(2000) }, { Importance(111), Amount(222), 14, 400 });
 		contentsBuilder.append({ addresses1[1], Amount(1000) }, { Importance(123), Amount(432), 22, 200 });
 		contentsBuilder.append({ addresses1[2], Amount(3000) }, { Importance(444), Amount(110), 10, 300 });
@@ -603,6 +700,7 @@ namespace catapult { namespace importance {
 						const std::vector<Address>& relevantAddresses,
 						const std::vector<Amount>& relevantBalances) {
 					m_holder.addAccounts(relevantAddresses, relevantBalances);
+					m_holder.commit();
 				}
 
 			public:
@@ -632,7 +730,12 @@ namespace catapult { namespace importance {
 						const std::vector<Address>& relevantAddresses,
 						const std::vector<Amount>& relevantBalances) {
 					m_calculateHolder.addAccounts(addresses, balances);
+					m_calculateHolder.commit();
+
 					m_restoreHolder.addAccounts(relevantAddresses, relevantBalances);
+
+					// account state cache should contain all accounts, even disabled ones
+					m_restoreHolder.addMissingAccounts(addresses);
 				}
 
 			public:
@@ -650,6 +753,16 @@ namespace catapult { namespace importance {
 			};
 		};
 
+		void ToggleBalance(state::AccountState& accountState, bool enable) {
+			auto currentBalance = accountState.Balances.get(Harvesting_Mosaic_Id);
+			if (enable) {
+				auto originalBalance = accountState.Balances.get(Backup_Harvesting_Mosaic_Id);
+				accountState.Balances.credit(Harvesting_Mosaic_Id, originalBalance - currentBalance);
+			} else {
+				accountState.Balances.debit(Harvesting_Mosaic_Id, currentBalance);
+			}
+		}
+
 		template<typename TTraits, typename TAction>
 		void PrepareRollbackTest(TAction action) {
 			// Arrange:
@@ -666,25 +779,31 @@ namespace catapult { namespace importance {
 			for (auto height : heights) {
 				auto importanceHeight = model::ImportanceHeight(height);
 				recalculateMap.insert({ { addresses[0], importanceHeight }, { Importance(111 * height), Amount(222), 14, 400 + height } });
-
-				if (TTraits::Should_Seed_Additional_Accounts)
-					recalculateMap.insert({ { addresses[1], importanceHeight }, { Importance(999 * height), Amount(5), 11, 6 + height } });
-
+				recalculateMap.insert({ { addresses[1], importanceHeight }, { Importance(999 * height), Amount(5), 11, 6 + height } });
 				recalculateMap.insert({ { addresses[2], importanceHeight }, { Importance(123 * height), Amount(432), 22, 200 + height } });
-
-				if (TTraits::Should_Seed_Additional_Accounts)
-					recalculateMap.insert({ { addresses[3], importanceHeight }, { Importance(876 * height), Amount(8), 19, 5 + height } });
-
+				recalculateMap.insert({ { addresses[3], importanceHeight }, { Importance(876 * height), Amount(8), 19, 5 + height } });
 				recalculateMap.insert({ { addresses[4], importanceHeight }, { Importance(444 * height), Amount(110), 10, 300 + height } });
 			}
 
 			// - recalculate at all heights from nemesis
 			auto pCalculator = context.createWriteCalculator(recalculateMap);
-			for (auto height : heights)
-				pCalculator->recalculate(Default_Calculation_Mode, model::ImportanceHeight(height), holderFactory.calculateHolder().get());
+			for (auto height : heights) {
+				auto& delta = holderFactory.calculateHolder().get();
+
+				if (TTraits::Should_Seed_Additional_Accounts) {
+					// - toggle the balance of account 1 to report an importance but have gaps in buckets
+					//  (this will effectively move address into addresses or removedAddresses as appropriate)
+					ToggleBalance(delta.find(addresses[1]).get(), 369 != height && 492 != height && 738 != height);
+
+					// - toggle the balance of account 3 to NOT report an importance but have nonempty buckets
+					ToggleBalance(delta.find(addresses[3]).get(), 369 == height || 492 == height);
+				}
+
+				pCalculator->recalculate(Default_Calculation_Mode, model::ImportanceHeight(height), delta);
+			}
 
 			// -  limit the highValueAccounts to the three relevant accounts
-			action(relevantAddresses, context, holderFactory.restoreHolder());
+			action(addresses, context, holderFactory.restoreHolder());
 		}
 
 		template<typename TTraits>
@@ -699,8 +818,8 @@ namespace catapult { namespace importance {
 
 				// Assert: importance at recalculate point should be restored
 				holder.assertEqualImportances(addresses[0], 0, { { Importance(111 * 615), Importance_Height } });
-				holder.assertEqualImportances(addresses[1], 1, { { Importance(123 * 615), Importance_Height } });
-				holder.assertEqualImportances(addresses[2], 2, { { Importance(444 * 615), Importance_Height } });
+				holder.assertEqualImportances(addresses[2], 2, { { Importance(123 * 615), Importance_Height } });
+				holder.assertEqualImportances(addresses[4], 4, { { Importance(444 * 615), Importance_Height } });
 
 				// - activity buckets through recalculate point should be restored (only raw score is modified as sentinel)
 				//   important: in order to calculate importances correctly, Activity_Bucket_History_Size buckets need to be restored
@@ -711,20 +830,41 @@ namespace catapult { namespace importance {
 					{ { Amount(222), 14, 400 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
 					{ { Amount(222), 14, 400 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) }
 				});
-				holder.assertEqualActivityBuckets(addresses[1], 1, {
+				holder.assertEqualActivityBuckets(addresses[2], 2, {
 					{ { Amount(432), 22, 200 + 738 }, Importance_Height },
 					{ { Amount(432), 22, 200 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
 					{ { Amount(432), 22, 200 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
 					{ { Amount(432), 22, 200 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
 					{ { Amount(432), 22, 200 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) }
 				});
-				holder.assertEqualActivityBuckets(addresses[2], 2, {
+				holder.assertEqualActivityBuckets(addresses[4], 4, {
 					{ { Amount(110), 10, 300 + 738 }, Importance_Height },
 					{ { Amount(110), 10, 300 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
 					{ { Amount(110), 10, 300 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
 					{ { Amount(110), 10, 300 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
 					{ { Amount(110), 10, 300 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) }
 				});
+
+				// - check additional accounts when enabled
+				if (TTraits::Should_Seed_Additional_Accounts) {
+					holder.assertEqualImportances(addresses[1], 1, { { Importance(999 * 615), Importance_Height } });
+					holder.assertEqualImportances(addresses[3], 3, { { Importance(0), model::ImportanceHeight(0) } });
+
+					holder.assertEqualActivityBuckets(addresses[1], 1, {
+						{ { Amount(0), 0, 0 }, model::ImportanceHeight(Importance_Height) },
+						{ { Amount(5), 11, 6 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
+						{ { Amount(0), 0, 0 }, model::ImportanceHeight() },
+						{ { Amount(0), 0, 0 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
+						{ { Amount(5), 11, 6 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) }
+					});
+					holder.assertEqualActivityBuckets(addresses[3], 3, {
+						{ { Amount(0), 0, 0 }, model::ImportanceHeight(0) },
+						{ { Amount(0), 0, 0 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
+						{ { Amount(8), 19, 5 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
+						{ { Amount(8), 19, 5 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
+						{ { Amount(0), 0, 0 }, model::ImportanceHeight(0) }
+					});
+				}
 			});
 		}
 
@@ -740,13 +880,23 @@ namespace catapult { namespace importance {
 
 				// Assert: importance at recalculate point should be restored
 				holder.assertEqualImportances(addresses[0], 0, { { Importance(111 * 1), Importance_Height } });
-				holder.assertEqualImportances(addresses[1], 1, { { Importance(123 * 1), Importance_Height } });
-				holder.assertEqualImportances(addresses[2], 2, { { Importance(444 * 1), Importance_Height } });
+				holder.assertEqualImportances(addresses[2], 2, { { Importance(123 * 1), Importance_Height } });
+				holder.assertEqualImportances(addresses[4], 4, { { Importance(444 * 1), Importance_Height } });
 
 				// - activity buckets through recalculate point should be restored (only raw score is modified as sentinel)
 				holder.assertEqualActivityBuckets(addresses[0], 0, { { { Amount(222), 14, 400 + 123 }, Importance_Height } });
-				holder.assertEqualActivityBuckets(addresses[1], 1, { { { Amount(432), 22, 200 + 123 }, Importance_Height } });
-				holder.assertEqualActivityBuckets(addresses[2], 2, { { { Amount(110), 10, 300 + 123 }, Importance_Height } });
+				holder.assertEqualActivityBuckets(addresses[2], 2, { { { Amount(432), 22, 200 + 123 }, Importance_Height } });
+				holder.assertEqualActivityBuckets(addresses[4], 4, { { { Amount(110), 10, 300 + 123 }, Importance_Height } });
+
+				// - check additional accounts when enabled
+				//   (3 is not present in nemesis but test doesn't prune removedAddresses realistically)
+				if (TTraits::Should_Seed_Additional_Accounts) {
+					holder.assertEqualImportances(addresses[1], 1, { { Importance(999), Importance_Height } });
+					holder.assertEqualImportances(addresses[3], 3, { { Importance(0), model::ImportanceHeight(0) } });
+
+					holder.assertEqualActivityBuckets(addresses[1], 1, { { { Amount(5), 11, 6 + 123 }, Importance_Height } });
+					holder.assertEqualActivityBuckets(addresses[3], 3, { { { Amount(0), 0, 0 }, model::ImportanceHeight(0) } });
+				}
 			});
 		}
 	}
@@ -755,7 +905,7 @@ namespace catapult { namespace importance {
 		AssertCanRoundtripToPointAfterNemesis<MinimumAccountsTraits>();
 	}
 
-	TEST(TEST_CLASS, CanRoundtripToPointAfterNemesisWithIgnoredAccountsInImporanceFiles) {
+	TEST(TEST_CLASS, CanRoundtripToPointAfterNemesisWithOtherAccountsInImportanceFiles) {
 		AssertCanRoundtripToPointAfterNemesis<AdditionalAccountsTraits>();
 	}
 
@@ -763,7 +913,7 @@ namespace catapult { namespace importance {
 		AssertCanRoundtripToNemesis<MinimumAccountsTraits>();
 	}
 
-	TEST(TEST_CLASS, CanRoundtripToNemesisWithIgnoredAccountsInImporanceFiles) {
+	TEST(TEST_CLASS, CanRoundtripToNemesisWithOtherAccountsInImportanceFiles) {
 		AssertCanRoundtripToNemesis<AdditionalAccountsTraits>();
 	}
 

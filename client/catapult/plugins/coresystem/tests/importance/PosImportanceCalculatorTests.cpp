@@ -25,6 +25,7 @@
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/state/AccountActivityBuckets.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
+#include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace importance {
@@ -100,7 +101,7 @@ namespace catapult { namespace importance {
 		public:
 			void seedDelta(const std::vector<AccountSeed>& accountSeeds, model::ImportanceHeight importanceHeight) {
 				uint8_t i = 0;
-				for (auto accountData : accountSeeds) {
+				for (const auto& accountData : accountSeeds) {
 					auto key = Key{ { ++i } };
 					delta().addAccount(key, Height(importanceHeight.unwrap()));
 					auto& accountState = get(key);
@@ -514,16 +515,15 @@ namespace catapult { namespace importance {
 	// region activity bucket creation / removal
 
 	namespace {
-		void RunActivityBucketCreationRemovalTest(
-				const consumer<const state::AccountActivityBuckets&, uint8_t>& checkIneligibleBalance,
-				const consumer<const state::AccountActivityBuckets&, uint8_t>& checkEligibleBalance) {
+		template<typename TAction>
+		void RunActivityBucketCreationRemovalTest(TAction action) {
 			// Arrange:
 			auto config = CreateBlockChainConfiguration(0);
 
 			std::vector<AccountSeed> accountSeeds;
 			for (auto i = 1u; i <= Num_Account_States; ++i) {
 				std::vector<state::AccountActivityBuckets::ActivityBucket> buckets;
-				buckets.push_back(CreateActivityBucket(Amount(100), 200, Recalculation_Height));
+				buckets.push_back(CreateActivityBucket(Amount(100), 200, model::ImportanceHeight(1)));
 				accountSeeds.push_back({ config.MinHarvesterBalance, buckets });
 			}
 
@@ -532,6 +532,16 @@ namespace catapult { namespace importance {
 
 			CacheHolder holder(config.MinHarvesterBalance);
 			holder.seedDelta(accountSeeds, Recalculation_Height);
+
+			// - seed an importance and bucket at height 25
+			for (uint8_t i = 1u; i <= Num_Account_States; ++i) {
+				auto& accountState = holder.get(Key{ { i } });
+				accountState.ImportanceSnapshots.set(Importance(i), model::ImportanceHeight(25));
+				accountState.ActivityBuckets.update(model::ImportanceHeight(25), [i](auto& bucket) {
+					bucket.RawScore = i * i;
+				});
+			}
+
 			holder.commit();
 
 			for (uint8_t i = 1u; i <= Num_Account_States; ++i) {
@@ -555,26 +565,38 @@ namespace catapult { namespace importance {
 					// note that this will not happen in real scenario
 					EXPECT_FALSE(holder.delta().contains(Key{ { i } })) << "account " << i;
 				} else {
-					const auto& buckets = holder.delta().find(Key{ { i } }).get().ActivityBuckets;
-					auto checker = (1 == i % 2) ? checkIneligibleBalance : checkEligibleBalance;
-					checker(buckets, i);
+					auto isEligible = 1 != i % 2;
+					auto& accountState = holder.get(Key{ { i } });
+					action(isEligible, accountState.ImportanceSnapshots, accountState.ActivityBuckets, i);
 				}
 			}
 		}
 	}
 
 	TEST(TEST_CLASS, PosCreatesNewActivityBucketOnlyForAccountsWithMinBalanceAtRecalculationHeight) {
-		RunActivityBucketCreationRemovalTest(
-				[](const auto& buckets, auto i) {
-					const auto& bucket = buckets.get(Recalculation_Height);
-					EXPECT_EQ(model::ImportanceHeight(), bucket.StartHeight) << "account " << i;
-					EXPECT_EQ(0u, bucket.RawScore) << "account " << i;
-				},
-				[](const auto& buckets, auto i) {
-					const auto& bucket = buckets.get(Recalculation_Height);
-					EXPECT_EQ(Recalculation_Height, bucket.StartHeight) << "account " << i;
-					EXPECT_NE(0u, bucket.RawScore) << "account " << i;
-				});
+		RunActivityBucketCreationRemovalTest([](auto isEligible, const auto& snapshots, const auto& buckets, auto i) {
+			const auto& bucket = buckets.get(Recalculation_Height);
+			auto message = "account " + std::to_string(i) + (isEligible ? " eligible" : " ineligible");
+			if (!isEligible) {
+				EXPECT_EQ(model::ImportanceHeight(), bucket.StartHeight) << "account " << i;
+				EXPECT_EQ(0u, bucket.RawScore) << "account " << i;
+
+				// - no new bucket is set and existing buckets are shifted
+				EXPECT_EQ(std::vector<uint64_t>({ 0, 25, 1, 0, 0, 0, 0 }), test::GetBucketHeights(buckets));
+
+				// - no new importance is set and existing snapshots are shifted
+				EXPECT_EQ(std::vector<uint64_t>({ 0, 25, 0 }), test::GetSnapshotHeights(snapshots));
+			} else {
+				EXPECT_EQ(Recalculation_Height, bucket.StartHeight) << "account " << i;
+				EXPECT_NE(0u, bucket.RawScore) << "account " << i;
+
+				// - new activity bucket is set
+				EXPECT_EQ(std::vector<uint64_t>({ Recalculation_Height.unwrap(), 25, 1, 0, 0, 0, 0 }), test::GetBucketHeights(buckets));
+
+				// - new importance is set
+				EXPECT_EQ(std::vector<uint64_t>({ Recalculation_Height.unwrap(), 25, 0 }), test::GetSnapshotHeights(snapshots));
+			}
+		});
 	}
 
 	// endregion

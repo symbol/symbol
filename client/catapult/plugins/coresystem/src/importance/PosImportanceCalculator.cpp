@@ -90,18 +90,7 @@ namespace catapult { namespace importance {
 						<< " at height " << importanceHeight;
 
 				// 5. disable collection of activity for the removed accounts
-				const auto& removedHighValueAddresses = highValueAccounts.removedAddresses();
-				for (const auto& address : removedHighValueAddresses) {
-					auto accountStateIter = cache.find(address);
-					if (!accountStateIter.tryGet())
-						continue;
-
-					auto& accountState = accountStateIter.get();
-					auto& activityBuckets = accountState.ActivityBuckets;
-					auto currentBucket = activityBuckets.get(importanceHeight);
-					if (currentBucket.StartHeight == importanceHeight)
-						activityBuckets.pop();
-				}
+				cache.processHighValueRemovedAccounts(importanceHeight);
 			}
 
 		private:

@@ -29,18 +29,30 @@ namespace catapult { namespace cache {
 	HighValueAccounts::HighValueAccounts()
 	{}
 
-	HighValueAccounts::HighValueAccounts(const model::AddressSet& addresses, const AddressAccountHistoryMap& accountHistories)
+	HighValueAccounts::HighValueAccounts(
+			const model::AddressSet& addresses,
+			const model::AddressSet& removedAddresses,
+			const AddressAccountHistoryMap& accountHistories)
 			: m_addresses(addresses)
+			, m_removedAddresses(removedAddresses)
 			, m_accountHistories(accountHistories)
 	{}
 
-	HighValueAccounts::HighValueAccounts(model::AddressSet&& addresses, AddressAccountHistoryMap&& accountHistories)
+	HighValueAccounts::HighValueAccounts(
+			model::AddressSet&& addresses,
+			model::AddressSet&& removedAddresses,
+			AddressAccountHistoryMap&& accountHistories)
 			: m_addresses(std::move(addresses))
+			, m_removedAddresses(removedAddresses)
 			, m_accountHistories(std::move(accountHistories))
 	{}
 
 	const model::AddressSet& HighValueAccounts::addresses() const {
 		return m_addresses;
+	}
+
+	const model::AddressSet& HighValueAccounts::removedAddresses() const {
+		return m_removedAddresses;
 	}
 
 	const AddressAccountHistoryMap& HighValueAccounts::accountHistories() const {
@@ -52,6 +64,13 @@ namespace catapult { namespace cache {
 	// region HighValueAddressesUpdater
 
 	namespace {
+		struct HighValueAccountDescriptor {
+			bool IsHighValue;
+			bool HasHistoricalInformation;
+		};
+
+		using HighValueAccountDescriptorCalculator = std::function<HighValueAccountDescriptor (const state::AccountState&)>;
+
 		class HighValueAddressesUpdater {
 		private:
 			using MemorySetType = AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType::SetType::MemorySetType;
@@ -67,22 +86,21 @@ namespace catapult { namespace cache {
 			{}
 
 		public:
-			void update(const MemorySetType& source, const predicate<const state::AccountState&>& include) {
+			void update(const MemorySetType& source, const HighValueAccountDescriptorCalculator& highValueAccountDescriptorCalculator) {
 				for (const auto& pair : source)
-					updateOne(pair.second.Address, include(pair.second));
+					updateOne(pair.second.Address, highValueAccountDescriptorCalculator(pair.second));
 			}
 
 		private:
-			void updateOne(const Address& address, bool shouldInclude) {
-				if (shouldInclude) {
+			void updateOne(const Address& address, const HighValueAccountDescriptor& descriptor) {
+				if (descriptor.IsHighValue) {
 					m_current.insert(address);
-
-					// needed for multiblock syncs when original account is removed and then readded
 					m_removed.erase(address);
 				} else {
 					m_current.erase(address);
 
-					if (m_original.cend() != m_original.find(address))
+					// need to check HasHistoricalInformation in order for multiblock syncs to work
+					if (m_original.cend() != m_original.find(address) || descriptor.HasHistoricalInformation)
 						m_removed.insert(address);
 				}
 			}
@@ -158,6 +176,7 @@ namespace catapult { namespace cache {
 			: m_options(options)
 			, m_original(accounts.addresses())
 			, m_current(accounts.addresses())
+			, m_removed(accounts.removedAddresses())
 			, m_accountHistories(accounts.accountHistories())
 			, m_height(Height(1))
 	{}
@@ -182,6 +201,10 @@ namespace catapult { namespace cache {
 		m_height = height;
 	}
 
+	void HighValueAccountsUpdater::setRemovedAddresses(model::AddressSet&& removedAddresses) {
+		m_removed = std::move(removedAddresses);
+	}
+
 	void HighValueAccountsUpdater::update(const deltaset::DeltaElements<MemorySetType>& deltas) {
 		updateHarvestingAccounts(deltas);
 		updateVotingAccounts(deltas);
@@ -195,7 +218,7 @@ namespace catapult { namespace cache {
 	}
 
 	HighValueAccounts HighValueAccountsUpdater::detachAccounts() {
-		auto accounts = HighValueAccounts(std::move(m_current), std::move(m_accountHistories));
+		auto accounts = HighValueAccounts(std::move(m_current), std::move(m_removed), std::move(m_accountHistories));
 
 		m_current.clear();
 		m_removed.clear();
@@ -216,13 +239,16 @@ namespace catapult { namespace cache {
 
 	void HighValueAccountsUpdater::updateHarvestingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas) {
 		auto hasHighValue = [&options = m_options](const auto& accountState) {
-			return EffectiveBalanceRetriever(accountState, options.HarvestingMosaicId, options.MinHarvesterBalance).second;
+			return HighValueAccountDescriptor{
+				EffectiveBalanceRetriever(accountState, options.HarvestingMosaicId, options.MinHarvesterBalance).second,
+				state::HasHistoricalInformation(accountState)
+			};
 		};
 
 		HighValueAddressesUpdater updater(m_original, m_current, m_removed);
 		updater.update(deltas.Added, hasHighValue);
 		updater.update(deltas.Copied, hasHighValue);
-		updater.update(deltas.Removed, [](const auto&) { return false; });
+		updater.update(deltas.Removed, [](const auto&) { return HighValueAccountDescriptor{ false, false }; });
 	}
 
 	void HighValueAccountsUpdater::updateVotingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas) {

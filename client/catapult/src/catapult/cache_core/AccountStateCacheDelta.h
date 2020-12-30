@@ -156,6 +156,9 @@ namespace catapult { namespace cache {
 		/// Updates high value accounts at \a height.
 		void updateHighValueAccounts(Height height);
 
+		/// Processes removed high value accounts at \a height.
+		void processHighValueRemovedAccounts(model::ImportanceHeight importanceHeight);
+
 		/// Detaches high value accounts from this delta.
 		HighValueAccounts detachHighValueAccounts();
 

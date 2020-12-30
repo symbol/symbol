@@ -23,6 +23,12 @@
 
 namespace catapult { namespace state {
 
+	bool AccountActivityBuckets::empty() const {
+		return std::all_of(m_buckets.begin(), m_buckets.end(), [](const auto& bucket) {
+			return model::ImportanceHeight() == bucket.StartHeight;
+		});
+	}
+
 	AccountActivityBuckets::ActivityBucket AccountActivityBuckets::get(model::ImportanceHeight height) const {
 		auto iter = std::find_if(m_buckets.begin(), m_buckets.end(), [height](const auto& bucket) {
 			return bucket.StartHeight == height;
@@ -37,6 +43,10 @@ namespace catapult { namespace state {
 
 	bool AccountActivityBuckets::tryUpdate(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer) {
 		return tryUpdate(height, consumer, false);
+	}
+
+	void AccountActivityBuckets::push() {
+		m_buckets.push(ActivityBucket());
 	}
 
 	void AccountActivityBuckets::pop() {
@@ -56,7 +66,7 @@ namespace catapult { namespace state {
 			const consumer<HeightDetachedActivityBucket&>& consumer,
 			bool shouldCreateNewBucket) {
 		auto lastHeight = m_buckets.begin()->StartHeight;
-		if (lastHeight > height) {
+		if (model::ImportanceHeight() != lastHeight && lastHeight > height) {
 			std::ostringstream out;
 			out << "older buckets cannot be updated (last = " << lastHeight << ", new = " << height << ")";
 			CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());

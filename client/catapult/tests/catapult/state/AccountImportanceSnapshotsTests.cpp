@@ -27,6 +27,8 @@ namespace catapult { namespace state {
 #define TEST_CLASS AccountImportanceSnapshotsTests
 
 	namespace {
+		// region test utils
+
 		void AssertCurrentImportance(const AccountImportanceSnapshots& snapshots, Importance importance, model::ImportanceHeight height) {
 			// Assert: accessible via current functions
 			EXPECT_EQ(importance, snapshots.current());
@@ -56,6 +58,15 @@ namespace catapult { namespace state {
 			// - expected number of importances
 			EXPECT_EQ(Importance_History_Size, index);
 		}
+
+		void AssertEmpty(const AccountImportanceSnapshots& snapshots) {
+			EXPECT_TRUE(snapshots.empty());
+			EXPECT_FALSE(snapshots.active());
+			AssertCurrentImportance(snapshots, Importance(0), model::ImportanceHeight(0));
+			AssertHistoricalValues(snapshots, { { std::make_pair(0, 0), std::make_pair(0, 0), std::make_pair(0, 0) } });
+		}
+
+		// endregion
 	}
 
 	// region ctor
@@ -65,13 +76,12 @@ namespace catapult { namespace state {
 		AccountImportanceSnapshots snapshots;
 
 		// Assert:
-		AssertCurrentImportance(snapshots, Importance(0), model::ImportanceHeight(0));
-		AssertHistoricalValues(snapshots, { { std::make_pair(0, 0), std::make_pair(0, 0), std::make_pair(0, 0) } });
+		AssertEmpty(snapshots);
 	}
 
 	// endregion
 
-	// region set / pop
+	// region set
 
 	TEST(TEST_CLASS, CanSetSnapshot) {
 		// Act:
@@ -79,6 +89,8 @@ namespace catapult { namespace state {
 		snapshots.set(Importance(123), model::ImportanceHeight(234));
 
 		// Assert:
+		EXPECT_FALSE(snapshots.empty());
+		EXPECT_TRUE(snapshots.active());
 		AssertCurrentImportance(snapshots, Importance(123), model::ImportanceHeight(234));
 		AssertHistoricalValues(snapshots, { { std::make_pair(123, 234), std::make_pair(0, 0), std::make_pair(0, 0) } });
 	}
@@ -111,6 +123,8 @@ namespace catapult { namespace state {
 		snapshots.set(Importance(246), model::ImportanceHeight(235));
 
 		// Assert:
+		EXPECT_FALSE(snapshots.empty());
+		EXPECT_TRUE(snapshots.active());
 		AssertCurrentImportance(snapshots, Importance(246), model::ImportanceHeight(235));
 		AssertHistoricalValues(snapshots, { { std::make_pair(246, 235), std::make_pair(123, 234), std::make_pair(0, 0) } });
 	}
@@ -124,28 +138,107 @@ namespace catapult { namespace state {
 		snapshots.set(Importance(345), model::ImportanceHeight(999));
 
 		// Assert: roll over after max (3) is set
+		EXPECT_FALSE(snapshots.empty());
+		EXPECT_TRUE(snapshots.active());
 		AssertCurrentImportance(snapshots, Importance(345), model::ImportanceHeight(999));
 		AssertHistoricalValues(snapshots, { { std::make_pair(345, 999), std::make_pair(111, 789), std::make_pair(222, 444) } });
+	}
+
+	TEST(TEST_CLASS, CanSetAfterPush) {
+		// Act:
+		AccountImportanceSnapshots snapshots;
+		snapshots.set(Importance(123), model::ImportanceHeight(234));
+		snapshots.push();
+		snapshots.set(Importance(111), model::ImportanceHeight(789));
+
+		// Assert:
+		EXPECT_FALSE(snapshots.empty());
+		EXPECT_TRUE(snapshots.active());
+		AssertCurrentImportance(snapshots, Importance(111), model::ImportanceHeight(789));
+		AssertHistoricalValues(snapshots, { { std::make_pair(111, 789), std::make_pair(0, 0), std::make_pair(123, 234) } });
+	}
+
+	// endregion
+
+	// region push / pop
+
+	namespace {
+		void Fill(AccountImportanceSnapshots& snapshots) {
+			// Arrange:
+			snapshots.set(Importance(123), model::ImportanceHeight(234));
+			snapshots.set(Importance(222), model::ImportanceHeight(444));
+			snapshots.set(Importance(111), model::ImportanceHeight(789));
+
+			// Sanity:
+			EXPECT_EQ(Importance(111), snapshots.get(model::ImportanceHeight(789)));
+		}
+	}
+
+	TEST(TEST_CLASS, CanPushSnapshotWhenEmpty) {
+		// Act:
+		AccountImportanceSnapshots snapshots;
+		snapshots.push();
+
+		// Assert:
+		AssertEmpty(snapshots);
+	}
+
+	TEST(TEST_CLASS, CanPushSnapshotWhenNotEmpty) {
+		// Arrange:
+		AccountImportanceSnapshots snapshots;
+		Fill(snapshots);
+
+		// Act:
+		snapshots.push();
+
+		// Assert:
+		EXPECT_FALSE(snapshots.empty());
+		EXPECT_FALSE(snapshots.active());
+		AssertCurrentImportance(snapshots, Importance(), model::ImportanceHeight());
+		AssertHistoricalValues(snapshots, { { std::make_pair(0, 0), std::make_pair(111, 789), std::make_pair(222, 444) } });
+	}
+
+	TEST(TEST_CLASS, CanPushAllSnapshots) {
+		// Arrange:
+		AccountImportanceSnapshots snapshots;
+		Fill(snapshots);
+
+		// Act:
+		for (auto i = 0u; i < Importance_History_Size; ++i)
+			snapshots.push();
+
+		// Assert:
+		AssertEmpty(snapshots);
 	}
 
 	TEST(TEST_CLASS, CanPopMostRecentSnapshot) {
 		// Arrange:
 		AccountImportanceSnapshots snapshots;
-		snapshots.set(Importance(123), model::ImportanceHeight(234));
-		snapshots.set(Importance(222), model::ImportanceHeight(444));
-		snapshots.set(Importance(111), model::ImportanceHeight(789));
-
-		// Sanity:
-		EXPECT_EQ(Importance(111), snapshots.get(model::ImportanceHeight(789)));
+		Fill(snapshots);
 
 		// Act:
 		snapshots.pop();
 
 		// Assert:
+		EXPECT_FALSE(snapshots.empty());
+		EXPECT_TRUE(snapshots.active());
 		AssertCurrentImportance(snapshots, Importance(222), model::ImportanceHeight(444));
 		AssertHistoricalValues(snapshots, { { std::make_pair(222, 444), std::make_pair(123, 234), std::make_pair(0, 0) } });
 
 		EXPECT_EQ(Importance(), snapshots.get(model::ImportanceHeight(789)));
+	}
+
+	TEST(TEST_CLASS, CanPopAllSnapshots) {
+		// Arrange:
+		AccountImportanceSnapshots snapshots;
+		Fill(snapshots);
+
+		// Act:
+		for (auto i = 0u; i < Importance_History_Size; ++i)
+			snapshots.pop();
+
+		// Assert:
+		AssertEmpty(snapshots);
 	}
 
 	// endregion

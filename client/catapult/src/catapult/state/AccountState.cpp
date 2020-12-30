@@ -58,6 +58,10 @@ namespace catapult { namespace state {
 		}
 	}
 
+	bool HasHistoricalInformation(const AccountState& accountState) {
+		return !accountState.ImportanceSnapshots.empty() || !accountState.ActivityBuckets.empty();
+	}
+
 	void RequireLinkedRemoteAndMainAccounts(const AccountState& remoteAccountState, const AccountState& mainAccountState) {
 		RequireAccountType(remoteAccountState, AccountType::Remote, "REMOTE");
 		RequireAccountType(mainAccountState, AccountType::Main, "MAIN");

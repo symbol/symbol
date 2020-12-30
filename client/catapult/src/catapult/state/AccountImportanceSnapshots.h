@@ -41,6 +41,12 @@ namespace catapult { namespace state {
 		using SnapshotStack = CompactArrayStack<ImportanceSnapshot, Importance_History_Size>;
 
 	public:
+		/// Returns \c true when no snapshots are present.
+		bool empty() const;
+
+		/// Returns \c true when top-level snapshot is nonzero.
+		bool active() const;
+
 		/// Gets the current importance of the account.
 		Importance current() const;
 
@@ -53,6 +59,9 @@ namespace catapult { namespace state {
 	public:
 		/// Sets the current account importance to \a importance at \a height.
 		void set(Importance importance, model::ImportanceHeight height);
+
+		/// Pushes an empty importance.
+		void push();
 
 		/// Pops the current importance.
 		void pop();
