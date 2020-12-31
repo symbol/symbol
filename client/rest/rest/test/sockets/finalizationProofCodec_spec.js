@@ -63,14 +63,13 @@ describe('deserialize', () => {
 	const createMessageGroup = (hashCount, signatureCount) => {
 		const messageGroupSize = Buffer.from([0x00, 0x00, 0x00, 0x00]); // 4b
 		const messageGrouphashCount = Buffer.from([0x00, 0x00, 0x00, 0x00]); // 4b
-		const messageGroupsignatureCount = Buffer.from([0x00, 0x00]); // 2b
-		const messageGroupsignatureSchema = Buffer.from([0x01, 0x00]); // 2b
+		const messageGroupsignatureCount = Buffer.from([0x00, 0x00, 0x00, 0x00]); // 4b
 		const messageGroupStage = Buffer.from([0x01, 0x00, 0x00, 0x00]); // 4b
 		const messageGroupHeight = Buffer.from([0xCD, 0x49, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00]); // 8b
 
 		const messageGroup = [
 			messageGroupSize, messageGrouphashCount, messageGroupsignatureCount,
-			messageGroupsignatureSchema, messageGroupStage, messageGroupHeight
+			messageGroupStage, messageGroupHeight
 		];
 
 		for (let i = 0; i < hashCount; ++i)
@@ -116,7 +115,6 @@ describe('deserialize', () => {
 			for (let i = 0; i < messageGroupsCount; ++i) {
 				finalizationProof.push(createMessageGroup(hashCount, signatureCount));
 				expectedMessageGroups.push({
-					signatureSchema: 1,
 					stage: 1,
 					height: [215501, 0],
 					hashes: expectedHashes,

@@ -28,20 +28,16 @@ const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator
 
 const isBlockType = entityType => 0 !== (0x8000 & entityType);
 
-const findCodecs = (entityType, codecs, version) => {
+const findCodecs = (entityType, codecs) => {
 	if (isBlockType(entityType) && (0x8043 === entityType || 0x8243 === entityType))
 		return [verifiableEntityCodec, blockHeaderCodec, importanceBlockHeaderCodec];
 
 	if (isBlockType(entityType))
 		return [verifiableEntityCodec, blockHeaderCodec];
 
-	const codecPerVersion = codecs[entityType];
-	if (!codecPerVersion)
-		throw Error(`no codec registered for '${entityType}'`);
-
-	const codec = codecPerVersion[version];
+	const codec = codecs[entityType];
 	if (!codec)
-		throw Error(`no codec registered for '${entityType}' and version '${version}'`);
+		throw Error(`no codec registered for '${entityType}'`);
 
 	return [verifiableEntityCodec, transactionCodec, codec];
 };
@@ -63,14 +59,11 @@ class ModelCodecBuilder {
 	 * @param {object} codec Transaction codec.
 	 * @param {number} version the transaction version
 	 */
-	addTransactionSupport(type, codec, version = 1) {
-		if (isBlockType(type) || (this.codecs[type] && this.codecs[type][version]))
-			throw Error(`codec already registered for '${type}' ${version}`);
+	addTransactionSupport(type, codec) {
+		if (isBlockType(type) || this.codecs[type])
+			throw Error(`codec already registered for '${type}'`);
 
-		if (!this.codecs[type])
-			this.codecs[type] = {};
-
-		this.codecs[type][version] = codec;
+		this.codecs[type] = codec;
 	}
 
 	/**

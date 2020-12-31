@@ -10,6 +10,12 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 - Fixed v1 voting key issue in finalization route.
 
+## [v2.2.2] - 31-Dec-2020
+
+### Updated
+
+- Voting key v1 to track mainnet (catapult-server).
+
 ## [v2.2.0] - 8-Dec-2020
 
 ### Added

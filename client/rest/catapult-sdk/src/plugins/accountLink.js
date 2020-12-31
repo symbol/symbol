@@ -87,24 +87,6 @@ const accountLinkPlugin = {
 		codecBuilder.addTransactionSupport(EntityType.votingKeyLink, {
 			deserialize: parser => {
 				const transaction = {};
-				transaction.linkedPublicKey = parser.buffer(constants.sizes.votingKey);
-				transaction.startEpoch = parser.uint32();
-				transaction.endEpoch = parser.uint32();
-				transaction.linkAction = parser.uint8();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.linkedPublicKey);
-				serializer.writeUint32(transaction.startEpoch);
-				serializer.writeUint32(transaction.endEpoch);
-				serializer.writeUint8(transaction.linkAction);
-			}
-		}, 1);
-
-		codecBuilder.addTransactionSupport(EntityType.votingKeyLink, {
-			deserialize: parser => {
-				const transaction = {};
 				transaction.linkedPublicKey = parser.buffer(constants.sizes.signerPublicKey);
 				transaction.startEpoch = parser.uint32();
 				transaction.endEpoch = parser.uint32();
@@ -118,7 +100,7 @@ const accountLinkPlugin = {
 				serializer.writeUint32(transaction.endEpoch);
 				serializer.writeUint8(transaction.linkAction);
 			}
-		}, 2);
+		});
 
 		codecBuilder.addTransactionSupport(EntityType.vrfKeyLink, {
 			deserialize: parser => {

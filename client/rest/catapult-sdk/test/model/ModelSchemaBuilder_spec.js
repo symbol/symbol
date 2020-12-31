@@ -163,7 +163,6 @@ describe('model schema builder', () => {
 				'blockHeaderWithMetadata.block',
 
 				'bmTreeSignature.root',
-				'bmTreeSignature.top',
 				'bmTreeSignature.bottom',
 
 				'transactionWithMetadata.meta',
