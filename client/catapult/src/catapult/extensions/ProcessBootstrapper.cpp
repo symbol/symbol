@@ -21,6 +21,7 @@
 
 #include "ProcessBootstrapper.h"
 #include "PluginUtils.h"
+#include "catapult/net/PacketIoPicker.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "catapult/utils/Logging.h"
 #include <boost/exception_ptr.hpp>
@@ -53,6 +54,7 @@ namespace catapult { namespace extensions {
 #ifdef STRICT_SYMBOL_VISIBILITY
 			// need to forcibly inject typeinfos into containing exe so that they are properly resolved across modules
 			ForceSymbolInjection<model::EmbeddedTransactionPlugin>();
+			ForceSymbolInjection<net::PacketIoPicker>();
 #endif
 	}
 
