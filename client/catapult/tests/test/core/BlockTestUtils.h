@@ -90,8 +90,8 @@ namespace catapult { namespace test {
 	/// Creates a block entity range composed of \a numBlocks blocks.
 	model::BlockRange CreateBlockEntityRange(size_t numBlocks);
 
-	/// Creates \a count ranges of blocks.
-	std::vector<model::BlockRange> PrepareRanges(size_t count);
+	/// Creates \a count ranges of blocks with \a increment additional blocks in each range.
+	std::vector<model::BlockRange> PrepareRanges(size_t count, size_t increment = 0);
 
 	/// Counts the number of transactions in \a block.
 	size_t CountTransactions(const model::Block& block);

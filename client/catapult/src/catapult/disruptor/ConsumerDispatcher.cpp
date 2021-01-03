@@ -62,7 +62,8 @@ namespace catapult { namespace disruptor {
 			, m_barriers(consumers.size() + 1)
 			, m_disruptor(options.DisruptorSize, options.ElementTraceInterval)
 			, m_inspector(inspector)
-			, m_numActiveElements(0) {
+			, m_numActiveElements(0)
+			, m_memorySize(0) {
 		auto currentLevel = 0u;
 		for (const auto& consumer : consumers) {
 			ConsumerEntry consumerEntry(currentLevel++);
@@ -112,6 +113,10 @@ namespace catapult { namespace disruptor {
 		return m_numActiveElements.load();
 	}
 
+	utils::FileSize ConsumerDispatcher::memorySize() const {
+		return utils::FileSize::FromBytes(m_memorySize.load());
+	}
+
 	DisruptorElement* ConsumerDispatcher::tryNext(ConsumerEntry& consumerEntry) {
 		while (true) {
 			auto consumerBarrierPosition = m_barriers[consumerEntry.level()].position();
@@ -154,10 +159,12 @@ namespace catapult { namespace disruptor {
 		return requiredCapacity == totalCapacity;
 	}
 
-	ProcessingCompleteFunc ConsumerDispatcher::wrap(const ProcessingCompleteFunc& processingComplete) {
-		return [processingComplete, &numActiveElements = m_numActiveElements](auto elementId, const auto& result) {
+	ProcessingCompleteFunc ConsumerDispatcher::wrap(const ProcessingCompleteFunc& processingComplete, utils::FileSize inputMemorySize) {
+		return [this, processingComplete, inputMemorySize](auto elementId, const auto& result) {
 			processingComplete(elementId, result);
-			--numActiveElements;
+
+			m_memorySize -= inputMemorySize.bytes();
+			--m_numActiveElements;
 		};
 	}
 
@@ -176,8 +183,11 @@ namespace catapult { namespace disruptor {
 			return 0;
 		}
 
+		auto inputMemorySize = input.memorySize();
+		m_memorySize += inputMemorySize.bytes();
 		++m_numActiveElements;
-		auto id = m_disruptor.add(std::move(input), wrap(processingComplete));
+
+		auto id = m_disruptor.add(std::move(input), wrap(processingComplete, inputMemorySize));
 		m_barriers[0].advance();
 		return id;
 	}

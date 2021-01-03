@@ -50,6 +50,9 @@ namespace catapult { namespace extensions {
 		locator.registerServiceCounter<ConsumerDispatcher>(dispatcherName, counterPrefix + " ELEM ACT", [](const auto& dispatcher) {
 			return dispatcher.numActiveElements();
 		});
+		locator.registerServiceCounter<ConsumerDispatcher>(dispatcherName, counterPrefix + " ELEM MEM", [](const auto& dispatcher) {
+			return dispatcher.memorySize().megabytes();
+		});
 	}
 
 	thread::Task CreateBatchTransactionTask(TransactionBatchRangeDispatcher& dispatcher, const std::string& name) {

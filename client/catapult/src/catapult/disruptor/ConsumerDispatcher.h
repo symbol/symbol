@@ -71,6 +71,9 @@ namespace catapult { namespace disruptor {
 		/// Gets the number of elements currently in the disruptor.
 		size_t numActiveElements() const;
 
+		/// Gets the cumulative size of all elements currently in the disruptor.
+		utils::FileSize memorySize() const;
+
 	private:
 		DisruptorElement* tryNext(ConsumerEntry& consumerEntry);
 
@@ -78,7 +81,7 @@ namespace catapult { namespace disruptor {
 
 		bool canProcessNextElement() const;
 
-		ProcessingCompleteFunc wrap(const ProcessingCompleteFunc& processingComplete);
+		ProcessingCompleteFunc wrap(const ProcessingCompleteFunc& processingComplete, utils::FileSize inputMemorySize);
 
 	private:
 		size_t m_elementTraceInterval;
@@ -89,6 +92,7 @@ namespace catapult { namespace disruptor {
 		DisruptorInspector m_inspector;
 		thread::ThreadGroup m_threads;
 		std::atomic<size_t> m_numActiveElements;
+		std::atomic<uint64_t> m_memorySize;
 
 		utils::SpinLock m_addSpinLock; // lock to serialize access to Disruptor::add
 	};

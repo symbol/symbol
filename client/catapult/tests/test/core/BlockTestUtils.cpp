@@ -190,10 +190,10 @@ namespace catapult { namespace test {
 		return model::BlockRange::CopyVariable(buffer.data(), buffer.size(), offsets);
 	}
 
-	std::vector<model::BlockRange> PrepareRanges(size_t count) {
+	std::vector<model::BlockRange> PrepareRanges(size_t count, size_t increment) {
 		std::vector<model::BlockRange> ranges;
 		for (auto i = 0u; i < count; ++i)
-			ranges.push_back(CreateBlockEntityRange(3));
+			ranges.push_back(CreateBlockEntityRange(3 + increment * i));
 
 		return ranges;
 	}

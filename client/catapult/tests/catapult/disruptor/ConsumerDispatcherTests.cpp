@@ -32,7 +32,8 @@ namespace catapult { namespace disruptor {
 #define TEST_CLASS ConsumerDispatcherTests
 
 	namespace {
-		static constexpr ConsumerDispatcherOptions Test_Dispatcher_Options{ "ConsumerDispatcherTests", 16u * 1024 };
+		constexpr ConsumerDispatcherOptions Test_Dispatcher_Options{ "ConsumerDispatcherTests", 16u * 1024 };
+		constexpr uint64_t Block_Header_Size = sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter);
 
 		auto CreateNoOpConsumer() {
 			return [](const auto&) {
@@ -48,6 +49,7 @@ namespace catapult { namespace disruptor {
 		void AssertHasProcessedNoElements(ConsumerDispatcher& dispatcher) {
 			EXPECT_EQ(0u, dispatcher.numAddedElements());
 			EXPECT_EQ(0u, dispatcher.numActiveElements());
+			EXPECT_EQ(utils::FileSize(), dispatcher.memorySize());
 			EXPECT_TRUE(dispatcher.isRunning());
 		}
 	}
@@ -191,16 +193,16 @@ namespace catapult { namespace disruptor {
 
 	// endregion
 
-	// region numActiveElements
+	// region numActiveElements / memorySize
 
-	TEST(TEST_CLASS, NumActiveElementsReportsNumberOfInProgressElements) {
+	TEST(TEST_CLASS, NumActiveElementsAndMemorySizeReportNumberOfInProgressElements) {
 		// Arrange:
 		test::AutoSetFlag isExecutingBlockedElementCallback;
 		test::AutoSetFlag isElementCallbackUnblocked;
 		auto pIsExecuting = isExecutingBlockedElementCallback.state();
 		auto pIsUnblocked = isElementCallbackUnblocked.state();
 
-		auto ranges = test::PrepareRanges(6);
+		auto ranges = test::PrepareRanges(6, 1);
 		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, { CreateNoOpConsumer() });
 
 		// Act: block the third element
@@ -220,9 +222,10 @@ namespace catapult { namespace disruptor {
 		// - wait until the blocked element callback is called
 		isExecutingBlockedElementCallback.state()->wait();
 
-		// Assert: all elements should be added and four should be active
+		// Assert: all elements should be added and four should be active (each range contains 3 + i elements)
 		EXPECT_EQ(6u, dispatcher.numAddedElements());
 		EXPECT_EQ(4u, dispatcher.numActiveElements());
+		EXPECT_EQ(utils::FileSize::FromBytes((5 + 6 + 7 + 8) * Block_Header_Size), dispatcher.memorySize());
 
 		// Act: allow all elements to complete
 		isElementCallbackUnblocked.state()->set();
@@ -231,6 +234,7 @@ namespace catapult { namespace disruptor {
 		// Assert: no elements should be active
 		EXPECT_EQ(6u, dispatcher.numAddedElements());
 		EXPECT_EQ(0u, dispatcher.numActiveElements());
+		EXPECT_EQ(utils::FileSize(), dispatcher.memorySize());
 	}
 
 	// endregion
@@ -383,6 +387,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(1u, collectedHeights.size());
 		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
 		EXPECT_EQ(0u, dispatcher.numActiveElements());
+		EXPECT_EQ(utils::FileSize(), dispatcher.memorySize());
 		EXPECT_EQ(expectedHeights, collectedHeights.get());
 		EXPECT_EQ(1u, numInspectorCalls);
 	}
@@ -418,6 +423,7 @@ namespace catapult { namespace disruptor {
 		// Assert:
 		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
 		EXPECT_EQ(0u, dispatcher.numActiveElements());
+		EXPECT_EQ(utils::FileSize(), dispatcher.memorySize());
 		EXPECT_EQ(expectedHeights, collectedHeights.get());
 		EXPECT_EQ(expectedHeights, inspectedHeights.get());
 		EXPECT_EQ(std::vector<CompletionStatus>(5, CompletionStatus::Normal), inspectedStatuses);
@@ -449,6 +455,7 @@ namespace catapult { namespace disruptor {
 		// Assert:
 		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
 		EXPECT_EQ(0u, dispatcher.numActiveElements());
+		EXPECT_EQ(utils::FileSize(), dispatcher.memorySize());
 		EXPECT_EQ(expectedHeights, collectedHeights[0].get());
 		EXPECT_EQ(expectedHeights, collectedHeights[1].get());
 		EXPECT_EQ(expectedHeights, collectedHeights[2].get());

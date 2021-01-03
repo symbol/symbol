@@ -114,9 +114,10 @@ namespace catapult { namespace extensions {
 			counters[counter.id().name()] = counter.value();
 
 		// Assert:
-		ASSERT_EQ(2u, counters.size());
+		ASSERT_EQ(3u, counters.size());
 		EXPECT_EQ(3u, counters.at("XYZ ELEM TOT"));
 		EXPECT_EQ(2u, counters.at("XYZ ELEM ACT"));
+		EXPECT_EQ(0u, counters.at("XYZ ELEM MEM")); // total size is less than 1MB
 
 		// Cleanup:
 		isElementCallbackUnblocked.state()->set();

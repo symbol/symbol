@@ -28,6 +28,8 @@ namespace catapult { namespace disruptor {
 #define TEST_CLASS ConsumerInputTests
 
 	namespace {
+		// region BlockTraits
+
 		struct BlockTraits : public test::BlockTraits {
 		public:
 			using test::BlockTraits::CreateInput;
@@ -52,6 +54,10 @@ namespace catapult { namespace disruptor {
 			}
 		};
 
+		// endregion
+
+		// region TransactionTraits
+
 		struct TransactionTraits : public test::TransactionTraits {
 		public:
 			using test::TransactionTraits::CreateInput;
@@ -75,9 +81,13 @@ namespace catapult { namespace disruptor {
 				AssertInput(input, numTransactions, entities, InputSource::Unknown);
 			}
 		};
+
+		// endregion
 	}
 
 #define ENTITY_TRAITS_BASED_TEST(TEST_NAME) ENTITY_TRAITS_BASED_CLASS_TEST(TEST_CLASS, TEST_NAME)
+
+	// region constructor
 
 	TEST(TEST_CLASS, CanCreateEmptyConsumerInput) {
 		// Act:
@@ -117,6 +127,61 @@ namespace catapult { namespace disruptor {
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputAroundMultipleEntities) {
 		TTraits::AssertConsumerInputCreation(3);
 	}
+
+	// endregion
+
+	// region memorySize
+
+	TEST(TEST_CLASS, CanCalculateMemorySizeForEmptyInput) {
+		// Act:
+		ConsumerInput input;
+
+		// Assert:
+		EXPECT_EQ(utils::FileSize(), input.memorySize());
+	}
+
+	TEST(TEST_CLASS, CanCalculateMemorySizeForBlockConsumerInput) {
+		// Arrange:
+		auto pBlock1 = test::GenerateEmptyRandomBlock();
+		pBlock1->Size = 123;
+
+		auto pBlock2 = test::GenerateEmptyRandomBlock();
+		pBlock2->Size = 500;
+
+		auto pBlock3 = test::GenerateEmptyRandomBlock();
+		pBlock3->Size = 222;
+
+		auto range = test::CreateEntityRange({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
+		ConsumerInput input(std::move(range), InputSource::Remote_Push);
+
+		// Act:
+		auto memorySize = input.memorySize();
+
+		// Assert:
+		EXPECT_EQ(utils::FileSize::FromBytes(845), memorySize);
+	}
+
+	TEST(TEST_CLASS, CanCalculateMemorySizeForTransactionConsumerInput) {
+		// Arrange:
+		auto pTransaction1 = test::GenerateRandomTransaction();
+		pTransaction1->Size = 123;
+
+		auto pTransaction2 = test::GenerateRandomTransaction();
+		pTransaction2->Size = 500;
+
+		auto range = test::CreateEntityRange(std::vector<const model::Transaction*>{ pTransaction1.get(), pTransaction2.get() });
+		ConsumerInput input(std::move(range), InputSource::Remote_Pull);
+
+		// Act:
+		auto memorySize = input.memorySize();
+
+		// Assert:
+		EXPECT_EQ(utils::FileSize::FromBytes(623), memorySize);
+	}
+
+	// endregion
+
+	// region detach range
 
 	ENTITY_TRAITS_BASED_TEST(CanDetachMatchingEntitiesFromInput) {
 		// Arrange:
@@ -164,6 +229,10 @@ namespace catapult { namespace disruptor {
 		EXPECT_THROW(TTraits::DetachRange(input), catapult_runtime_error);
 	}
 
+	// endregion
+
+	// region insertion operator
+
 	TEST(TEST_CLASS, CanOutputEmptyConsumerInput) {
 		// Arrange:
 		ConsumerInput input;
@@ -172,18 +241,24 @@ namespace catapult { namespace disruptor {
 		auto str = test::ToString(input);
 
 		// Assert:
-		EXPECT_EQ("empty from Unknown", str);
+		EXPECT_EQ("empty from Unknown with size 0B", str);
 	}
 
 	namespace {
 		ConsumerInput PrepareBlockConsumerInputForOutputTests(Height startHeight) {
 			// Arrange:
 			auto pBlock1 = test::GenerateEmptyRandomBlock();
-			auto pBlock2 = test::GenerateEmptyRandomBlock();
-			auto pBlock3 = test::GenerateEmptyRandomBlock();
+			pBlock1->Size = 123;
 			pBlock1->Height = startHeight;
+
+			auto pBlock2 = test::GenerateEmptyRandomBlock();
+			pBlock2->Size = 500;
 			pBlock2->Height = startHeight + Height(1);
+
+			auto pBlock3 = test::GenerateEmptyRandomBlock();
+			pBlock3->Size = 222;
 			pBlock3->Height = startHeight + Height(2);
+
 			auto range = test::CreateEntityRange({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
 			ConsumerInput input(std::move(range), InputSource::Remote_Push);
 			input.blocks()[0].EntityHash = { { 0x98, 0xD6, 0xF4, 0xC2, 0xFF } };
@@ -199,7 +274,7 @@ namespace catapult { namespace disruptor {
 		auto str = test::ToString(input);
 
 		// Assert:
-		EXPECT_EQ("3 blocks (heights 12345 - 12347) [98D6F4C2] from Remote_Push", str);
+		EXPECT_EQ("3 blocks (heights 12345 - 12347) [98D6F4C2] from Remote_Push with size 845B", str);
 	}
 
 	TEST(TEST_CLASS, CanOutputBlockConsumerInputWithDetachedRange) {
@@ -216,14 +291,18 @@ namespace catapult { namespace disruptor {
 		auto str = test::ToString(input);
 
 		// Assert:
-		EXPECT_EQ("3 blocks (heights 12345 - 12347) [98D6F4C2] empty from Remote_Push", str);
+		EXPECT_EQ("3 blocks (heights 12345 - 12347) [98D6F4C2] empty from Remote_Push with size 845B", str);
 	}
 
 	namespace {
 		ConsumerInput PrepareTransactionConsumerInputForOutputTests() {
 			// Arrange:
 			auto pTransaction1 = test::GenerateRandomTransaction();
+			pTransaction1->Size = 123;
+
 			auto pTransaction2 = test::GenerateRandomTransaction();
+			pTransaction2->Size = 500;
+
 			auto range = test::CreateEntityRange(std::vector<const model::Transaction*>{ pTransaction1.get(), pTransaction2.get() });
 			ConsumerInput input(std::move(range), InputSource::Remote_Pull);
 			input.transactions()[0].EntityHash = { { 0x00, 0xDA, 0x28, 0x96, 0xFF } };
@@ -239,7 +318,7 @@ namespace catapult { namespace disruptor {
 		auto str = test::ToString(input);
 
 		// Assert:
-		EXPECT_EQ("2 txes [00DA2896] from Remote_Pull", str);
+		EXPECT_EQ("2 txes [00DA2896] from Remote_Pull with size 623B", str);
 	}
 
 	TEST(TEST_CLASS, CanOutputTransactionConsumerInputWithDetachedRange) {
@@ -256,6 +335,8 @@ namespace catapult { namespace disruptor {
 		auto str = test::ToString(input);
 
 		// Assert:
-		EXPECT_EQ("2 txes [00DA2896] empty from Remote_Pull", str);
+		EXPECT_EQ("2 txes [00DA2896] empty from Remote_Pull with size 623B", str);
 	}
+
+	// endregion
 }}

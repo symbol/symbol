@@ -119,7 +119,7 @@ namespace catapult { namespace disruptor {
 		auto str = test::ToString(element);
 
 		// Assert:
-		EXPECT_EQ("element 21 (2 txes [00DA2896] from Remote_Pull)", str);
+		EXPECT_EQ("element 21 (2 txes [00DA2896] from Remote_Pull with size 348B)", str);
 	}
 
 	namespace {

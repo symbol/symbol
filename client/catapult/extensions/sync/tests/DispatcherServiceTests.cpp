@@ -48,7 +48,7 @@ namespace catapult { namespace sync {
 
 	namespace {
 		constexpr auto Num_Expected_Services = 5u;
-		constexpr auto Num_Expected_Counters = 8u;
+		constexpr auto Num_Expected_Counters = 10u;
 		constexpr auto Num_Expected_Tasks = 1u;
 
 		constexpr auto Block_Elements_Counter_Name = "BLK ELEM TOT";

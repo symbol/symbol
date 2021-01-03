@@ -34,9 +34,14 @@ namespace catapult { namespace disruptor {
 			: m_blockRange(std::move(range.Range))
 			, m_source(source)
 			, m_sourceIdentity(range.SourceIdentity) {
+		uint64_t memorySize = 0;
 		m_blockElements.reserve(m_blockRange.size());
-		for (const auto& block : m_blockRange)
+		for (const auto& block : m_blockRange) {
 			m_blockElements.push_back(model::BlockElement(block));
+			memorySize += block.Size;
+		}
+
+		m_memorySize = utils::FileSize::FromBytes(memorySize);
 
 		if (!m_blockElements.empty()) {
 			m_startHeight = m_blockElements.front().Block.Height;
@@ -48,9 +53,14 @@ namespace catapult { namespace disruptor {
 			: m_transactionRange(std::move(range.Range))
 			, m_source(source)
 			, m_sourceIdentity(range.SourceIdentity) {
+		uint64_t memorySize = 0;
 		m_transactionElements.reserve(m_transactionRange.size());
-		for (const auto& transaction : m_transactionRange)
+		for (const auto& transaction : m_transactionRange) {
 			m_transactionElements.push_back(FreeTransactionElement(transaction));
+			memorySize += transaction.Size;
+		}
+
+		m_memorySize = utils::FileSize::FromBytes(memorySize);
 	}
 
 	// endregion
@@ -101,6 +111,10 @@ namespace catapult { namespace disruptor {
 
 	const model::NodeIdentity& ConsumerInput::sourceIdentity() const {
 		return m_sourceIdentity;
+	}
+
+	utils::FileSize ConsumerInput::memorySize() const {
+		return m_memorySize;
 	}
 
 	// endregion
@@ -155,7 +169,7 @@ namespace catapult { namespace disruptor {
 		if (input.empty())
 			out << "empty ";
 
-		out << "from " << input.source();
+		out << "from " << input.source() << " with size " << input.memorySize();
 		return out;
 	}
 

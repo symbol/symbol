@@ -48,7 +48,7 @@ namespace catapult { namespace partialtransaction {
 
 		constexpr auto Num_Pre_Existing_Services = 3u;
 		constexpr auto Num_Expected_Services = 2u + Num_Pre_Existing_Services;
-		constexpr auto Num_Expected_Counters = 2u;
+		constexpr auto Num_Expected_Counters = 3u;
 		constexpr auto Num_Expected_Tasks = 1u;
 
 		constexpr auto Service_Name = "pt.writers";
