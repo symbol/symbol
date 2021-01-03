@@ -65,7 +65,7 @@ namespace catapult { namespace state {
 			// Arrange:
 			auto buffer1 = test::GenerateRandomVector(bufferSize);
 			auto buffer2 = buffer1;
-			++buffer2[differenceIndex];
+			buffer2[differenceIndex] ^= 0xFF;
 
 			// Act + Assert:
 			for (auto i = start; i <= end; ++i) {
