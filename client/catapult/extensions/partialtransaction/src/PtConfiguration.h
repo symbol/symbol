@@ -34,7 +34,7 @@ namespace catapult { namespace partialtransaction {
 		utils::FileSize CacheMaxResponseSize;
 
 		/// Maximum size of the partial transactions cache.
-		uint32_t CacheMaxSize;
+		utils::FileSize CacheMaxSize;
 
 	private:
 		PtConfiguration() = default;

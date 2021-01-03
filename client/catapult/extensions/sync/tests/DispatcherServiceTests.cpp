@@ -1331,8 +1331,12 @@ namespace catapult { namespace sync {
 	// region spam filtering
 
 	namespace {
-		void AssertTransactionSpamThrottleBehavior(bool enableFiltering, uint32_t maxCacheSize, uint32_t expectedCacheSize) {
+		void AssertTransactionSpamThrottleBehavior(
+				bool enableFiltering,
+				uint32_t maxTransactionsInCache,
+				uint32_t expectedUnfilteredCount) {
 			// Arrange:
+			auto defaultTransactionSize = CreateSignedTransactionEntityRange(1).begin()->Size;
 			TestContext context;
 
 			// - configure spam filter
@@ -1340,25 +1344,25 @@ namespace catapult { namespace sync {
 			auto& nodeConfig = const_cast<config::NodeConfiguration&>(config.Node);
 			nodeConfig.EnableTransactionSpamThrottling = enableFiltering;
 			nodeConfig.TransactionSpamThrottlingMaxBoostFee = Amount(10'000'000);
-			nodeConfig.UnconfirmedTransactionsCacheMaxSize = maxCacheSize;
-			const_cast<uint32_t&>(config.BlockChain.MaxTransactionsPerBlock) = maxCacheSize / 2;
+			nodeConfig.UnconfirmedTransactionsCacheMaxSize = utils::FileSize::FromBytes(maxTransactionsInCache * defaultTransactionSize);
+			const_cast<uint32_t&>(config.BlockChain.MaxTransactionsPerBlock) = maxTransactionsInCache / 2;
 
 			// - boot the service
 			context.boot();
 			auto factory = context.testState().state().hooks().transactionRangeConsumerFactory()(disruptor::InputSource::Local);
 
 			// Act: try to fill the ut cache with transactions
-			factory(CreateSignedTransactionEntityRange(maxCacheSize));
+			factory(CreateSignedTransactionEntityRange(maxTransactionsInCache));
 			context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
 
 			// - wait for the transactions to flow through the consumers
 			const auto& utCache = const_cast<const extensions::ServiceState&>(context.testState().state()).utCache();
 			WAIT_FOR_ONE_EXPR(context.counter(Transaction_Elements_Counter_Name));
-			WAIT_FOR_VALUE_EXPR(expectedCacheSize, utCache.view().size());
+			WAIT_FOR_VALUE_EXPR(expectedUnfilteredCount, utCache.view().size());
 
 			// Assert:
-			EXPECT_EQ(expectedCacheSize, utCache.view().size());
-			EXPECT_EQ(maxCacheSize - expectedCacheSize, context.numTransactionStatuses());
+			EXPECT_EQ(expectedUnfilteredCount, utCache.view().size());
+			EXPECT_EQ(maxTransactionsInCache - expectedUnfilteredCount, context.numTransactionStatuses());
 		}
 	}
 

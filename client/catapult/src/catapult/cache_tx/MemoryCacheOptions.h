@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include <stdint.h>
+#include "catapult/utils/FileSize.h"
 
 namespace catapult { namespace cache {
 
@@ -28,20 +28,19 @@ namespace catapult { namespace cache {
 	class MemoryCacheOptions {
 	public:
 		/// Creates default options.
-		constexpr MemoryCacheOptions() : MemoryCacheOptions(0, 0)
-		{}
+		constexpr MemoryCacheOptions() = default;
 
 		/// Creates options with custom \a maxResponseSize and \a maxCacheSize.
-		constexpr MemoryCacheOptions(uint64_t maxResponseSize, uint64_t maxCacheSize)
+		constexpr MemoryCacheOptions(utils::FileSize maxResponseSize, utils::FileSize maxCacheSize)
 				: MaxResponseSize(maxResponseSize)
 				, MaxCacheSize(maxCacheSize)
 		{}
 
 	public:
 		/// Maximum response size.
-		uint64_t MaxResponseSize;
+		utils::FileSize MaxResponseSize;
 
 		/// Maximum size of the cache.
-		uint64_t MaxCacheSize;
+		utils::FileSize MaxCacheSize;
 	};
 }}

@@ -73,6 +73,7 @@ namespace catapult { namespace local {
 		EXPECT_TRUE(test::HasCounter(counters, "TX ELEM TOT")) << "service local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "UNLKED ACCTS")) << "peer local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE")) << "local node counters";
+		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE MEM")) << "local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "TOT CONF TXES")) << "local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "MEM CUR RSS")) << "memory counters";
 		EXPECT_TRUE(test::HasCounter(counters, "NODES")) << "node container counters";

@@ -329,7 +329,7 @@ namespace catapult { namespace chain {
 		class UpdaterTestContext {
 		public:
 			UpdaterTestContext()
-					: m_transactionsCache(cache::MemoryCacheOptions(1024, 1000))
+					: m_transactionsCache(cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(1)))
 					, m_pUniqueValidator(std::make_unique<MockPtValidator>())
 					, m_pValidator(m_pUniqueValidator.get())
 					, m_pPool(test::CreateStartedIoThreadPool())

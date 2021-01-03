@@ -20,7 +20,7 @@
 **/
 
 #include "MemoryUtCache.h"
-#include "AccountCounters.h"
+#include "AccountWeights.h"
 #include "CacheSizeLogger.h"
 #include "catapult/model/EntityInfo.h"
 #include "catapult/model/FeeUtils.h"
@@ -51,11 +51,13 @@ namespace catapult { namespace cache {
 	// region MemoryUtCacheView
 
 	MemoryUtCacheView::MemoryUtCacheView(
-			uint64_t maxResponseSize,
+			utils::FileSize maxResponseSize,
+			utils::FileSize cacheSize,
 			const TransactionDataContainer& transactionDataContainer,
 			const IdLookup& idLookup,
 			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 			: m_maxResponseSize(maxResponseSize)
+			, m_cacheSize(cacheSize)
 			, m_transactionDataContainer(transactionDataContainer)
 			, m_idLookup(idLookup)
 			, m_readLock(std::move(readLock))
@@ -63,6 +65,10 @@ namespace catapult { namespace cache {
 
 	size_t MemoryUtCacheView::size() const {
 		return m_transactionDataContainer.size();
+	}
+
+	utils::FileSize MemoryUtCacheView::memorySize() const {
+		return m_cacheSize;
 	}
 
 	bool MemoryUtCacheView::contains(const Hash256& hash) const {
@@ -99,7 +105,7 @@ namespace catapult { namespace cache {
 			if (knownShortHashes.cend() == iter) {
 				auto pTransaction = data.pEntity;
 				totalSize += pTransaction->Size;
-				if (totalSize > m_maxResponseSize)
+				if (totalSize > m_maxResponseSize.bytes())
 					break;
 
 				transactions.push_back(pTransaction);
@@ -120,17 +126,19 @@ namespace catapult { namespace cache {
 
 		public:
 			MemoryUtCacheModifier(
-					uint64_t maxCacheSize,
+					utils::FileSize maxCacheSize,
+					utils::FileSize& cacheSize,
 					size_t& idSequence,
 					TransactionDataContainer& transactionDataContainer,
 					IdLookup& idLookup,
-					AccountCounters& counters,
+					AccountWeights& weights,
 					utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
 					: m_maxCacheSize(maxCacheSize)
+					, m_cacheSize(cacheSize)
 					, m_idSequence(idSequence)
 					, m_transactionDataContainer(transactionDataContainer)
 					, m_idLookup(idLookup)
-					, m_counters(counters)
+					, m_weights(weights)
 					, m_writeLock(std::move(writeLock))
 			{}
 
@@ -139,8 +147,13 @@ namespace catapult { namespace cache {
 				return m_transactionDataContainer.size();
 			}
 
+			utils::FileSize memorySize() const override {
+				return m_cacheSize;
+			}
+
 			bool add(const model::TransactionInfo& transactionInfo) override {
-				if (m_maxCacheSize <= m_transactionDataContainer.size())
+				auto transactionSize = transactionInfo.pEntity->Size;
+				if (m_maxCacheSize.bytes() - m_cacheSize.bytes() < transactionSize)
 					return false;
 
 				if (m_idLookup.cend() != m_idLookup.find(transactionInfo.EntityHash))
@@ -149,9 +162,11 @@ namespace catapult { namespace cache {
 				m_idLookup.emplace(transactionInfo.EntityHash, ++m_idSequence);
 				m_transactionDataContainer.emplace(transactionInfo, m_idSequence);
 
-				m_counters.increment(transactionInfo.pEntity->SignerPublicKey);
+				m_weights.increment(transactionInfo.pEntity->SignerPublicKey, transactionSize);
 
-				LogSizes("unconfirmed transactions", m_transactionDataContainer.size(), m_maxCacheSize);
+				auto oldCacheSize = m_cacheSize;
+				m_cacheSize = utils::FileSize::FromBytes(m_cacheSize.bytes() + transactionSize);
+				LogSizes("unconfirmed transactions", oldCacheSize, m_cacheSize, m_maxCacheSize);
 				return true;
 			}
 
@@ -163,15 +178,17 @@ namespace catapult { namespace cache {
 				auto dataIter = m_transactionDataContainer.find(TransactionData(iter->second));
 				auto erasedInfo = dataIter->copy();
 
-				m_counters.decrement(dataIter->pEntity->SignerPublicKey);
+				auto transactionSize = dataIter->pEntity->Size;
+				m_weights.decrement(dataIter->pEntity->SignerPublicKey, transactionSize);
+				m_cacheSize = utils::FileSize::FromBytes(m_cacheSize.bytes() - transactionSize);
 
 				m_transactionDataContainer.erase(dataIter);
 				m_idLookup.erase(iter);
 				return erasedInfo;
 			}
 
-			size_t count(const Key& key) const override {
-				return m_counters.count(key);
+			utils::FileSize memorySizeForAccount(const Key& key) const override {
+				return utils::FileSize::FromBytes(m_weights.weight(key));
 			}
 
 			std::vector<model::TransactionInfo> removeAll() override {
@@ -185,18 +202,20 @@ namespace catapult { namespace cache {
 				for (const auto& data : m_transactionDataContainer)
 					transactionInfosCopy.emplace_back(data.copy());
 
+				m_cacheSize = utils::FileSize();
 				m_transactionDataContainer.clear();
 				m_idLookup.clear();
-				m_counters.reset();
+				m_weights.reset();
 				return transactionInfosCopy;
 			}
 
 		private:
-			uint64_t m_maxCacheSize;
+			utils::FileSize m_maxCacheSize;
+			utils::FileSize& m_cacheSize;
 			size_t& m_idSequence;
 			TransactionDataContainer& m_transactionDataContainer;
 			IdLookup& m_idLookup;
-			AccountCounters& m_counters;
+			AccountWeights& m_weights;
 			utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
 		};
 	}
@@ -207,8 +226,10 @@ namespace catapult { namespace cache {
 
 	struct MemoryUtCache::Impl {
 		cache::TransactionDataContainer TransactionDataContainer;
+		utils::FileSize CacheSize;
+
 		std::unordered_map<Hash256, size_t, utils::ArrayHasher<Hash256>> IdLookup;
-		AccountCounters Counters;
+		AccountWeights Weights;
 	};
 
 	MemoryUtCache::MemoryUtCache(const MemoryCacheOptions& options)
@@ -221,17 +242,23 @@ namespace catapult { namespace cache {
 
 	MemoryUtCacheView MemoryUtCache::view() const {
 		auto readLock = m_lock.acquireReader();
-		return MemoryUtCacheView(m_options.MaxResponseSize, m_pImpl->TransactionDataContainer, m_pImpl->IdLookup, std::move(readLock));
+		return MemoryUtCacheView(
+				m_options.MaxResponseSize,
+				m_pImpl->CacheSize,
+				m_pImpl->TransactionDataContainer,
+				m_pImpl->IdLookup,
+				std::move(readLock));
 	}
 
 	UtCacheModifierProxy MemoryUtCache::modifier() {
 		auto writeLock = m_lock.acquireWriter();
 		return UtCacheModifierProxy(std::make_unique<MemoryUtCacheModifier>(
 				m_options.MaxCacheSize,
+				m_pImpl->CacheSize,
 				m_idSequence,
 				m_pImpl->TransactionDataContainer,
 				m_pImpl->IdLookup,
-				m_pImpl->Counters,
+				m_pImpl->Weights,
 				std::move(writeLock)));
 	}
 

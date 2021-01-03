@@ -45,6 +45,10 @@ namespace catapult { namespace test {
 
 	// region transfer transaction
 
+	size_t GetTransferTransactionSize() {
+		return sizeof(model::TransferTransaction);
+	}
+
 	namespace {
 		std::unique_ptr<model::Transaction> CreateUnsignedTransferTransaction(
 				const Key& signerPublicKey,

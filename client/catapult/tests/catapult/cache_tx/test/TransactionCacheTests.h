@@ -104,7 +104,7 @@ namespace catapult { namespace test {
 
 	private:
 		static cache::MemoryCacheOptions CreateDefaultOptions() {
-			return cache::MemoryCacheOptions(1'000'000, 1'000);
+			return cache::MemoryCacheOptions(utils::FileSize::FromKilobytes(2), utils::FileSize::FromKilobytes(2));
 		}
 	};
 

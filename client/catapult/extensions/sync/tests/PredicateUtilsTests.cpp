@@ -93,7 +93,7 @@ namespace catapult { namespace sync {
 
 		struct ThrottleTestSettings {
 			bool EnableTransactionSpamThrottling;
-			uint32_t MaxCacheSize;
+			uint64_t MaxCacheSize;
 			uint32_t MaxBlockSize;
 		};
 
@@ -105,7 +105,7 @@ namespace catapult { namespace sync {
 
 			config.Node.EnableTransactionSpamThrottling = settings.EnableTransactionSpamThrottling;
 			config.Node.TransactionSpamThrottlingMaxBoostFee = Amount(10'000'000);
-			config.Node.UnconfirmedTransactionsCacheMaxSize = settings.MaxCacheSize;
+			config.Node.UnconfirmedTransactionsCacheMaxSize = utils::FileSize::FromBytes(settings.MaxCacheSize);
 			return config.ToConst();
 		}
 
@@ -129,7 +129,7 @@ namespace catapult { namespace sync {
 			auto readOnlyCatapultCache = catapultCacheView.toReadOnly();
 
 			// - create a ut cache with some transactions
-			cache::MemoryUtCache utCache(cache::MemoryCacheOptions(1024, 1024));
+			cache::MemoryUtCache utCache(cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromBytes(settings.MaxCacheSize)));
 			auto utCacheModifier = utCache.modifier();
 			for (const auto& transactionInfo : test::CreateTransactionInfos(cacheSize))
 				utCacheModifier.add(transactionInfo);
@@ -139,9 +139,6 @@ namespace catapult { namespace sync {
 			auto pTransaction = utils::UniqueToShared(test::GenerateRandomTransaction());
 			pTransaction->Type = transactionType;
 			pTransaction->MaxFee = Amount(2'000'000);
-
-			// Sanity:
-			EXPECT_EQ(cacheSize, utCacheModifier.size());
 
 			// Act:
 			auto isThrottled = CreateUtUpdaterThrottle(config)(model::TransactionInfo(pTransaction), throttleContext);
@@ -153,8 +150,13 @@ namespace catapult { namespace sync {
 					<< ", maxBlockSize = " << settings.MaxBlockSize;
 		}
 
-		constexpr ThrottleTestSettings No_Spam_Test_Settings{ false, 100, 50 };
-		constexpr ThrottleTestSettings Spam_Test_Settings{ true, 100, 50 };
+		ThrottleTestSettings SpamThrottleDisabledTestSettings() {
+			return { false, 100 * test::GetDefaultRandomTransactionSize(), 50 };
+		}
+
+		ThrottleTestSettings SpamThrottleEnabledTestSettings() {
+			return { true, 100 * test::GetDefaultRandomTransactionSize(), 50 };
+		}
 	}
 
 	// endregion
@@ -162,19 +164,19 @@ namespace catapult { namespace sync {
 	// region CreateUtUpdaterThrottle (no spam filtering)
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsFalseWhenCacheSizeIsLessThanMaxCacheSize_NoSpamFiltering) {
-		AssertUtUpdaterThrottleResult(false, No_Spam_Test_Settings, 0);
-		AssertUtUpdaterThrottleResult(false, No_Spam_Test_Settings, 49);
-		AssertUtUpdaterThrottleResult(false, No_Spam_Test_Settings, 51);
-		AssertUtUpdaterThrottleResult(false, No_Spam_Test_Settings, 99);
+		AssertUtUpdaterThrottleResult(false, SpamThrottleDisabledTestSettings(), 0);
+		AssertUtUpdaterThrottleResult(false, SpamThrottleDisabledTestSettings(), 49);
+		AssertUtUpdaterThrottleResult(false, SpamThrottleDisabledTestSettings(), 51);
+		AssertUtUpdaterThrottleResult(false, SpamThrottleDisabledTestSettings(), 99);
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsTrueWhenCacheSizeIsEqualToMaxCacheSize_NoSpamFiltering) {
-		AssertUtUpdaterThrottleResult(true, No_Spam_Test_Settings, 100);
+		AssertUtUpdaterThrottleResult(true, SpamThrottleDisabledTestSettings(), 100);
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsTrueWhenCacheSizeIsGreaterThanMaxCacheSize_NoSpamFiltering) {
-		AssertUtUpdaterThrottleResult(true, No_Spam_Test_Settings, 101);
-		AssertUtUpdaterThrottleResult(true, No_Spam_Test_Settings, 200);
+		AssertUtUpdaterThrottleResult(true, SpamThrottleDisabledTestSettings(), 101);
+		AssertUtUpdaterThrottleResult(true, SpamThrottleDisabledTestSettings(), 200);
 	}
 
 	// endregion
@@ -182,30 +184,30 @@ namespace catapult { namespace sync {
 	// region CreateUtUpdaterThrottle (spam filtering)
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsFalseWhenCacheSizeIsLessThanMaxBlockSize_SpamFiltering) {
-		AssertUtUpdaterThrottleResult(false, Spam_Test_Settings, 0);
-		AssertUtUpdaterThrottleResult(false, Spam_Test_Settings, 49);
+		AssertUtUpdaterThrottleResult(false, SpamThrottleEnabledTestSettings(), 0);
+		AssertUtUpdaterThrottleResult(false, SpamThrottleEnabledTestSettings(), 49);
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleIsInfluencedByCacheFillLevel_SpamFiltering) {
 		// Act: even though transaction has high fee, it is throttled when cache is nearly full
-		AssertUtUpdaterThrottleResult(false, Spam_Test_Settings, 51);
-		AssertUtUpdaterThrottleResult(true, Spam_Test_Settings, 99);
+		AssertUtUpdaterThrottleResult(false, SpamThrottleEnabledTestSettings(), 51);
+		AssertUtUpdaterThrottleResult(true, SpamThrottleEnabledTestSettings(), 99);
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleIsInfluencedByTransactionType_SpamFiltering) {
 		// Act: cache throttling is only bypassed for aggregate bonded transactions
-		AssertUtUpdaterThrottleResult(true, Spam_Test_Settings, 99, Normal_Transaction_Type);
-		AssertUtUpdaterThrottleResult(true, Spam_Test_Settings, 99, Aggregate_Transaction_Type);
-		AssertUtUpdaterThrottleResult(false, Spam_Test_Settings, 99, Aggregate_Bonded_Transaction_Type);
+		AssertUtUpdaterThrottleResult(true, SpamThrottleEnabledTestSettings(), 99, Normal_Transaction_Type);
+		AssertUtUpdaterThrottleResult(true, SpamThrottleEnabledTestSettings(), 99, Aggregate_Transaction_Type);
+		AssertUtUpdaterThrottleResult(false, SpamThrottleEnabledTestSettings(), 99, Aggregate_Bonded_Transaction_Type);
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsTrueWhenCacheSizeIsEqualToMaxCacheSize_SpamFiltering) {
-		AssertUtUpdaterThrottleResult(true, Spam_Test_Settings, 100);
+		AssertUtUpdaterThrottleResult(true, SpamThrottleEnabledTestSettings(), 100);
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsTrueWhenCacheSizeIsGreaterThanMaxCacheSize_SpamFiltering) {
-		AssertUtUpdaterThrottleResult(true, Spam_Test_Settings, 101);
-		AssertUtUpdaterThrottleResult(true, Spam_Test_Settings, 200);
+		AssertUtUpdaterThrottleResult(true, SpamThrottleEnabledTestSettings(), 101);
+		AssertUtUpdaterThrottleResult(true, SpamThrottleEnabledTestSettings(), 200);
 	}
 
 	// endregion

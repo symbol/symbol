@@ -384,7 +384,7 @@ namespace catapult { namespace extensions {
 		class KnownHashPredicateTestContext {
 		public:
 			KnownHashPredicateTestContext()
-					: m_utCache(cache::MemoryCacheOptions(Num_Infos_Per_Group, Num_Infos_Per_Group))
+					: m_utCache(cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(1)))
 					, m_transactionInfos(test::CreateTransactionInfos(Num_Infos_Per_Group)) {
 				test::AddAll(m_utCache, m_transactionInfos);
 			}

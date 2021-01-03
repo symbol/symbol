@@ -57,7 +57,7 @@ namespace catapult { namespace test {
 
 			config.ShortLivedCacheMaxSize = 10;
 
-			config.UnconfirmedTransactionsCacheMaxSize = 100;
+			config.UnconfirmedTransactionsCacheMaxSize = utils::FileSize::FromMegabytes(5);
 
 			config.ConnectTimeout = utils::TimeSpan::FromSeconds(10);
 			config.SyncTimeout = utils::TimeSpan::FromSeconds(10);
@@ -164,11 +164,13 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<cache::MemoryUtCache> CreateUtCache() {
-		return std::make_unique<cache::MemoryUtCache>(cache::MemoryCacheOptions(1024, 1000));
+		auto cacheOptions = cache::MemoryCacheOptions(utils::FileSize::FromKilobytes(1), utils::FileSize::FromMegabytes(1));
+		return std::make_unique<cache::MemoryUtCache>(cacheOptions);
 	}
 
 	std::unique_ptr<cache::MemoryUtCacheProxy> CreateUtCacheProxy() {
-		return std::make_unique<cache::MemoryUtCacheProxy>(cache::MemoryCacheOptions(1024, 1000));
+		auto cacheOptions = cache::MemoryCacheOptions(utils::FileSize::FromKilobytes(1), utils::FileSize::FromMegabytes(1));
+		return std::make_unique<cache::MemoryUtCacheProxy>(cacheOptions);
 	}
 
 	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManagerWithRealPlugins() {

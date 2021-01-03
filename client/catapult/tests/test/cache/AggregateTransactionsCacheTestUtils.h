@@ -21,6 +21,7 @@
 
 #pragma once
 #include "UnsupportedTransactionsChangeSubscribers.h"
+#include "catapult/utils/FileSize.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include <unordered_map>
 
@@ -160,6 +161,20 @@ namespace catapult { namespace test {
 			size_t m_size;
 		};
 
+		class MockMemorySizeCacheModifier : public UnsupportedCacheModifierType {
+		public:
+			explicit MockMemorySizeCacheModifier(size_t size) : m_size(size)
+			{}
+
+		public:
+			utils::FileSize memorySize() const override {
+				return utils::FileSize::FromBytes(m_size);
+			}
+
+		private:
+			size_t m_size;
+		};
+
 		template<bool AddResult>
 		class MockAddCacheModifier : public UnsupportedCacheModifierType {
 		public:
@@ -221,7 +236,7 @@ namespace catapult { namespace test {
 
 		// endregion
 
-		// region aggregate transaction cache - size
+		// region aggregate transaction cache - size / memorySize
 
 	public:
 		static void AssertSizeDelegatesToCache() {
@@ -233,6 +248,17 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(14u, size);
+		}
+
+		static void AssertMemorySizeDelegatesToCache() {
+			// Arrange:
+			TestContext<MockMemorySizeCacheModifier> context(14);
+
+			// Act:
+			auto size = context.aggregate().modifier().memorySize();
+
+			// Assert:
+			EXPECT_EQ(utils::FileSize::FromBytes(14), size);
 		}
 
 		// endregion
@@ -600,6 +626,7 @@ namespace catapult { namespace test {
 
 #define DEFINE_AGGREGATE_TRANSACTIONS_CACHE_TESTS(TEST_CLASS, TRAITS_NAME) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, SizeDelegatesToCache) \
+	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, MemorySizeDelegatesToCache) \
 	\
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, AddDelegatesToCacheAndSubscriberAfterSuccessfulCacheAdd) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, SingleNotifificationForRedundantAdds) \

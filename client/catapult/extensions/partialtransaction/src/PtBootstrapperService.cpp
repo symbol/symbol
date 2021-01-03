@@ -48,6 +48,9 @@ namespace catapult { namespace partialtransaction {
 				locator.registerServiceCounter<PtCache>(Cache_Service_Name, "PT CACHE", [](const auto& cache) {
 					return cache.view().size();
 				});
+				locator.registerServiceCounter<PtCache>(Cache_Service_Name, "PT CACHE MEM", [](const auto& cache) {
+					return cache.view().memorySize().megabytes();
+				});
 			}
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {

@@ -167,13 +167,13 @@ namespace catapult { namespace subscribers {
 
 		struct PtCacheTraits : public PtChangeTraits {
 			static auto CreateAggregate(SubscriptionManager& manager) {
-				return manager.createPtCache(cache::MemoryCacheOptions(100, 100));
+				return manager.createPtCache(cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(1)));
 			}
 		};
 
 		struct UtCacheTraits : public UtChangeTraits {
 			static auto CreateAggregate(SubscriptionManager& manager) {
-				return manager.createUtCache(cache::MemoryCacheOptions(100, 100));
+				return manager.createUtCache(cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(1)));
 			}
 		};
 	}
@@ -338,7 +338,7 @@ namespace catapult { namespace subscribers {
 	namespace {
 		struct PtTraits {
 			static auto CreateCache(SubscriptionManager& manager) {
-				return manager.createPtCache(cache::MemoryCacheOptions(100, 100));
+				return manager.createPtCache(cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(1)));
 			}
 
 			static void AddSubscriberWithAddCounter(SubscriptionManager& manager, size_t& counter) {
@@ -362,7 +362,7 @@ namespace catapult { namespace subscribers {
 
 		struct UtTraits {
 			static auto CreateCache(SubscriptionManager& manager) {
-				return manager.createUtCache(cache::MemoryCacheOptions(100, 100));
+				return manager.createUtCache(cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(1)));
 			}
 
 			static void AddSubscriberWithAddCounter(SubscriptionManager& manager, size_t& counter) {

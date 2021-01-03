@@ -205,6 +205,9 @@ namespace catapult { namespace local {
 				m_counters.emplace_back(utils::DiagnosticCounterId("UT CACHE"), [&source = *m_pUtCache]() {
 					return source.view().size();
 				});
+				m_counters.emplace_back(utils::DiagnosticCounterId("UT CACHE MEM"), [&source = *m_pUtCache]() {
+					return source.view().memorySize().megabytes();
+				});
 
 				AddNodeCounters(m_counters, m_nodes);
 			}

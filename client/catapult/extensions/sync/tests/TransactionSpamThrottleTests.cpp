@@ -75,7 +75,7 @@ namespace catapult { namespace sync {
 					, m_catapultCacheView(m_catapultCache.createView())
 					, m_readOnlyCatapultCache(m_catapultCacheView.toReadOnly())
 					, m_height(height)
-					, m_transactionsCache(cache::MemoryCacheOptions(1024, 100'000))
+					, m_transactionsCache(cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromMegabytes(1)))
 					, m_transactionsCacheModifier(m_transactionsCache.modifier())
 			{}
 
@@ -107,8 +107,13 @@ namespace catapult { namespace sync {
 		enum class TransactionBondPolicy { Unbonded, Bonded };
 
 		struct ThrottleTestSettings {
-			SpamThrottleConfiguration ThrottleConfig{ Amount(10'000'000), Importance(1'000'000), 1'200, 120 };
-			uint32_t CacheSize = 120;
+			SpamThrottleConfiguration ThrottleConfig{
+				Amount(10'000'000),
+				Importance(1'000'000),
+				utils::FileSize::FromBytes(1200 * test::GetDefaultRandomTransactionSize()),
+				120
+			};
+			uint32_t CacheSeedCount = 120;
 			Importance DefaultImportance = Importance(1'000);
 			Importance SignerImportance = Importance();
 			Amount Fee = Amount();
@@ -116,9 +121,9 @@ namespace catapult { namespace sync {
 			TransactionBondPolicy BondPolicy = TransactionBondPolicy::Unbonded;
 		};
 
-		ThrottleTestSettings CreateSettingsWithCacheSize(uint32_t cacheSize) {
+		ThrottleTestSettings CreateSettingsWithCacheSeedCount(uint32_t cacheSeedCount) {
 			ThrottleTestSettings settings;
-			settings.CacheSize = cacheSize;
+			settings.CacheSeedCount = cacheSeedCount;
 			return settings;
 		}
 
@@ -141,26 +146,26 @@ namespace catapult { namespace sync {
 			return settings;
 		}
 
-		ThrottleTestSettings CreateSettings(uint32_t cacheSize, Importance signerImportance, Amount fee) {
+		ThrottleTestSettings CreateSettings(uint32_t cacheSeedCount, Importance signerImportance, Amount fee) {
 			ThrottleTestSettings settings;
-			settings.CacheSize = cacheSize;
+			settings.CacheSeedCount = cacheSeedCount;
 			settings.SignerImportance = signerImportance;
 			settings.Fee = fee;
 			return settings;
 		}
 
-		ThrottleTestSettings CreateSettings(uint32_t cacheMaxSize, uint32_t cacheSize, TransactionSource source) {
+		ThrottleTestSettings CreateSettings(uint32_t cacheMaxSize, uint32_t cacheSeedCount, TransactionSource source) {
 			ThrottleTestSettings settings;
-			settings.ThrottleConfig.MaxCacheSize = cacheMaxSize;
-			settings.ThrottleConfig.MaxBlockSize = 10;
-			settings.CacheSize = cacheSize;
+			settings.ThrottleConfig.MaxCacheSize = utils::FileSize::FromBytes(cacheMaxSize * test::GetDefaultRandomTransactionSize());
+			settings.ThrottleConfig.MaxTransactionsPerBlock = 10;
+			settings.CacheSeedCount = cacheSeedCount;
 			settings.DefaultImportance = Importance();
 			settings.Source = source;
 			return settings;
 		}
 
-		ThrottleTestSettings CreateSettings(uint32_t cacheMaxSize, uint32_t cacheSize, TransactionBondPolicy bondPolicy) {
-			auto settings = CreateSettings(cacheMaxSize, cacheSize, TransactionSource::New);
+		ThrottleTestSettings CreateSettings(uint32_t cacheMaxSize, uint32_t cacheSeedCount, TransactionBondPolicy bondPolicy) {
+			auto settings = CreateSettings(cacheMaxSize, cacheSeedCount, TransactionSource::New);
 			settings.BondPolicy = bondPolicy;
 			return settings;
 		}
@@ -175,7 +180,7 @@ namespace catapult { namespace sync {
 			{
 				auto delta = catapultCache.createDelta();
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
-				publicKeys = SeedAccountStateCache(accountStateCacheDelta, settings.CacheSize, settings.DefaultImportance);
+				publicKeys = SeedAccountStateCache(accountStateCacheDelta, settings.CacheSeedCount, settings.DefaultImportance);
 				signerPublicKey = AddAccount(accountStateCacheDelta, settings.SignerImportance);
 				catapultCache.commit(Height(1));
 			}
@@ -184,7 +189,7 @@ namespace catapult { namespace sync {
 			context.addTransactions(publicKeys);
 
 			// Sanity:
-			EXPECT_EQ(settings.CacheSize, context.transactionsCacheModifier().size());
+			EXPECT_EQ(settings.CacheSeedCount, context.transactionsCacheModifier().size());
 
 			std::vector<const model::Transaction*> transactions;
 			auto isBonded = [&transactions, bondPolicy = settings.BondPolicy](const auto& transaction) {
@@ -200,8 +205,11 @@ namespace catapult { namespace sync {
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "for importance " << settings.SignerImportance;
-			auto expectedTransactions =
-					settings.CacheSize >= settings.ThrottleConfig.MaxBlockSize && settings.CacheSize < settings.ThrottleConfig.MaxCacheSize
+			auto cacheSize = utils::FileSize::FromBytes(settings.CacheSeedCount * test::GetDefaultRandomTransactionSize());
+			auto isBondedPredicateCalled =
+					settings.CacheSeedCount >= settings.ThrottleConfig.MaxTransactionsPerBlock
+					&& cacheSize < settings.ThrottleConfig.MaxCacheSize;
+			auto expectedTransactions = isBondedPredicateCalled
 					? std::vector<const model::Transaction*>{ transactionInfo.pEntity.get() }
 					: std::vector<const model::Transaction*>();
 			EXPECT_EQ(expectedTransactions, transactions) << "for importance " << settings.SignerImportance;
@@ -212,22 +220,22 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, TransactionIsNotFilteredWhenCacheSizeIsSmallerThanBlockSize) {
 		// Act: max block size is 120
-		AssertThrottling(CreateSettingsWithCacheSize(0), false);
-		AssertThrottling(CreateSettingsWithCacheSize(1), false);
-		AssertThrottling(CreateSettingsWithCacheSize(10), false);
-		AssertThrottling(CreateSettingsWithCacheSize(119), false);
+		AssertThrottling(CreateSettingsWithCacheSeedCount(0), false);
+		AssertThrottling(CreateSettingsWithCacheSeedCount(1), false);
+		AssertThrottling(CreateSettingsWithCacheSeedCount(10), false);
+		AssertThrottling(CreateSettingsWithCacheSeedCount(119), false);
 	}
 
 	TEST(TEST_CLASS, TransactionIsFilteredWhenCacheSizeIsEqualToBlockSizeAndTransactionDoesNotMeetRequirements) {
 		// Act: max block size is 120
-		AssertThrottling(CreateSettingsWithCacheSize(120), true);
+		AssertThrottling(CreateSettingsWithCacheSeedCount(120), true);
 	}
 
 	TEST(TEST_CLASS, TransactionIsFilteredWhenCacheSizeIsGreaterThanBlockSizeAndTransactionDoesNotMeetRequirements) {
 		// Act: max block size is 120
-		AssertThrottling(CreateSettingsWithCacheSize(121), true);
-		AssertThrottling(CreateSettingsWithCacheSize(200), true);
-		AssertThrottling(CreateSettingsWithCacheSize(500), true);
+		AssertThrottling(CreateSettingsWithCacheSeedCount(121), true);
+		AssertThrottling(CreateSettingsWithCacheSeedCount(200), true);
+		AssertThrottling(CreateSettingsWithCacheSeedCount(500), true);
 	}
 
 	// endregion
@@ -282,7 +290,7 @@ namespace catapult { namespace sync {
 			{
 				auto delta = catapultCache.createDelta();
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
-				publicKeys = SeedAccountStateCache(accountStateCacheDelta, config.MaxCacheSize, settings.SignerImportance);
+				publicKeys = SeedAccountStateCache(accountStateCacheDelta, 1200, settings.SignerImportance);
 				catapultCache.commit(Height(1));
 			}
 
@@ -295,7 +303,8 @@ namespace catapult { namespace sync {
 
 			bool isFiltered = false;
 			auto index = 0u;
-			while (!isFiltered && config.MaxCacheSize > context.transactionsCacheModifier().size()) {
+			uint64_t cacheMemorySize = 0;
+			while (!isFiltered && config.MaxCacheSize > utils::FileSize::FromBytes(cacheMemorySize)) {
 				auto transactionInfo = CreateTransactionInfo(publicKeys[index], settings.Fee);
 				auto filter = CreateTransactionSpamThrottle(config, [](const auto&) { return false; });
 
@@ -309,6 +318,8 @@ namespace catapult { namespace sync {
 
 				if (AccountPolicy::Multiple == accountPolicy)
 					++index;
+
+				cacheMemorySize += transactionInfo.pEntity->Size;
 			}
 
 			// Assert:
@@ -334,7 +345,7 @@ namespace catapult { namespace sync {
 		// - different accounts fill the cache
 		// - rounded solutions for equation: importance * e^(-3 * y / 1200) * 100 * (1200 - y) = 1
 		std::vector<uint64_t> rawImportances{ 1'000'000, 100'000, 10'000, 1000, 100, 10 };
-		std::vector<uint32_t> expectedCacheSizes{ 1200, 1199, 1181, 1059, 669, 120 };
+		std::vector<uint32_t> expectedCacheSizes{ 1200, 1198, 1181, 1059, 668, 120 };
 		for (auto i = 0u; i < rawImportances.size(); ++i) {
 			auto settings = CreateSettings(0, Importance(rawImportances[i]), Amount());
 			AssertThrottling(settings, AccountPolicy::Multiple, expectedCacheSizes[i]);

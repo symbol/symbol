@@ -90,7 +90,7 @@ namespace catapult { namespace config {
 		utils::FileSize UnconfirmedTransactionsCacheMaxResponseSize;
 
 		/// Maximum size of the unconfirmed transactions cache.
-		uint32_t UnconfirmedTransactionsCacheMaxSize;
+		utils::FileSize UnconfirmedTransactionsCacheMaxSize;
 
 		/// Timeout for connecting to a peer.
 		utils::TimeSpan ConnectTimeout;

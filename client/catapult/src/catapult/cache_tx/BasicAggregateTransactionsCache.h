@@ -54,6 +54,10 @@ namespace catapult { namespace cache {
 			return m_modifier.size();
 		}
 
+		utils::FileSize memorySize() const override {
+			return modifier().memorySize();
+		}
+
 		bool add(const TransactionInfoType& transactionInfo) override {
 			if (!m_modifier.add(transactionInfo))
 				return false;

@@ -29,7 +29,8 @@
 namespace catapult { namespace test {
 
 	std::unique_ptr<cache::MemoryUtCache> CreateSeededMemoryUtCache(uint32_t count) {
-		auto pCache = std::make_unique<cache::MemoryUtCache>(cache::MemoryCacheOptions(1000, 1000));
+		auto cacheOptions = cache::MemoryCacheOptions(utils::FileSize::FromKilobytes(1), utils::FileSize::FromMegabytes(1));
+		auto pCache = std::make_unique<cache::MemoryUtCache>(cacheOptions);
 		auto transactionInfos = CreateTransactionInfos(count);
 		AddAll(*pCache, transactionInfos);
 		return pCache;

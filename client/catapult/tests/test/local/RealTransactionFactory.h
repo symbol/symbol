@@ -32,6 +32,9 @@ namespace catapult { namespace test {
 	// notice that these helper functions create concrete transaction types
 	// they are in local test utils because non-local tests should be using MockTransaction
 
+	/// Gets the size of a transfer transaction without a message.
+	size_t GetTransferTransactionSize();
+
 	/// Creates basic unsigned transfer transaction with specified \a signerPublicKey, \a recipient and \a amount.
 	std::unique_ptr<model::Transaction> CreateUnsignedTransferTransaction(
 			const Key& signerPublicKey,

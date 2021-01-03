@@ -34,7 +34,7 @@ namespace catapult { namespace partialtransaction {
 		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			const auto& resourcesPath = bootstrapper.resourcesPath();
 			auto config = PtConfiguration::LoadFromPath(resourcesPath);
-			auto ptCacheOptions = cache::MemoryCacheOptions(config.CacheMaxResponseSize.bytes(), config.CacheMaxSize);
+			auto ptCacheOptions = cache::MemoryCacheOptions(config.CacheMaxResponseSize, config.CacheMaxSize);
 			AddStaticNodesFromPath(bootstrapper, (std::filesystem::path(resourcesPath) / "peers-api.json").generic_string());
 
 			// create and register the pt cache (it is optional, so not in server state)

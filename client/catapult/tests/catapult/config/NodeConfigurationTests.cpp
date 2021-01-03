@@ -59,7 +59,7 @@ namespace catapult { namespace config {
 							{ "minFeeMultiplier", "864" },
 							{ "transactionSelectionStrategy", "maximize-fee" },
 							{ "unconfirmedTransactionsCacheMaxResponseSize", "234KB" },
-							{ "unconfirmedTransactionsCacheMaxSize", "98'763" },
+							{ "unconfirmedTransactionsCacheMaxSize", "98MB" },
 
 							{ "connectTimeout", "4m" },
 							{ "syncTimeout", "5m" },
@@ -175,7 +175,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(BlockFeeMultiplier(0), config.MinFeeMultiplier);
 				EXPECT_EQ(model::TransactionSelectionStrategy::Oldest, config.TransactionSelectionStrategy);
 				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.UnconfirmedTransactionsCacheMaxResponseSize);
-				EXPECT_EQ(0u, config.UnconfirmedTransactionsCacheMaxSize);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.UnconfirmedTransactionsCacheMaxSize);
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.ConnectTimeout);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.SyncTimeout);
@@ -264,7 +264,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(BlockFeeMultiplier(864), config.MinFeeMultiplier);
 				EXPECT_EQ(model::TransactionSelectionStrategy::Maximize_Fee, config.TransactionSelectionStrategy);
 				EXPECT_EQ(utils::FileSize::FromKilobytes(234), config.UnconfirmedTransactionsCacheMaxResponseSize);
-				EXPECT_EQ(98'763u, config.UnconfirmedTransactionsCacheMaxSize);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(98), config.UnconfirmedTransactionsCacheMaxSize);
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(4), config.ConnectTimeout);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(5), config.SyncTimeout);

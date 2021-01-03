@@ -34,7 +34,7 @@ namespace catapult { namespace cache {
 	// region utils
 
 	namespace {
-		constexpr auto Default_Options = MemoryCacheOptions(1'000'000, 1'000);
+		constexpr auto Default_Options = MemoryCacheOptions(utils::FileSize::FromMegabytes(1), utils::FileSize::FromMegabytes(1));
 
 		void AddAll(cache::PtCache& cache, const std::vector<model::TransactionInfo>& transactionInfos) {
 			auto modifier = cache.modifier();
@@ -51,10 +51,18 @@ namespace catapult { namespace cache {
 				modifier.add(transactionInfo.EntityHash, cosignature);
 		}
 
+		void AssertCacheSize(MemoryPtCache& cache, size_t expectedSize, size_t expectedMemorySize) {
+			// Assert: check view and modifier sizes
+			EXPECT_EQ(expectedSize, cache.view().size());
+			EXPECT_EQ(expectedSize, cache.modifier().size());
+
+			// - check view and modifier memory sizes
+			EXPECT_EQ(utils::FileSize::FromBytes(expectedMemorySize), cache.view().memorySize());
+			EXPECT_EQ(utils::FileSize::FromBytes(expectedMemorySize), cache.modifier().memorySize());
+		}
+
 		void AssertCacheSize(MemoryPtCache& cache, size_t expectedSize) {
-			// Assert: check both view and modifier sizes
-			EXPECT_EQ(cache.view().size(), expectedSize);
-			EXPECT_EQ(cache.modifier().size(), expectedSize);
+			AssertCacheSize(cache, expectedSize, expectedSize * test::GetDefaultRandomTransactionSize());
 		}
 
 		auto PrepareCache(const std::vector<Hash256>& hashes, const MemoryCacheOptions& options = Default_Options) {
@@ -233,6 +241,9 @@ namespace catapult { namespace cache {
 		// - transaction in cache is correct
 		auto transactionInfoFromCache = cache.view().find(originalInfos[3].EntityHash);
 		AssertTransactionWithCosignatures(*originalInfos[3].pEntity, { cosignature }, transactionInfoFromCache);
+
+		// - check cache sizes
+		AssertCacheSize(cache, 5, 5 * test::GetDefaultRandomTransactionSize() + sizeof(model::Cosignature));
 	}
 
 	TEST(TEST_CLASS, CanAttachManyCosignaturesToKnownTransaction) {
@@ -260,6 +271,9 @@ namespace catapult { namespace cache {
 		// Assert:
 		auto transactionInfoFromCache = cache.view().find(originalInfos[3].EntityHash);
 		AssertTransactionWithCosignatures(*originalInfos[3].pEntity, Sort(cosignatures), transactionInfoFromCache);
+
+		// - check cache sizes
+		AssertCacheSize(cache, 5, 5 * test::GetDefaultRandomTransactionSize() + 20 * sizeof(model::Cosignature));
 	}
 
 	TEST(TEST_CLASS, AttachingCosignatureWithSameSignerToSameTransactionTwiceHasNoEffect) {
@@ -273,7 +287,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature));
 
 		// Sanity:
-		AssertCacheSize(cache, 5);
+		AssertCacheSize(cache, 5, 5 * test::GetDefaultRandomTransactionSize() + sizeof(model::Cosignature));
 
 		// Act: add another cosignature with the same signer
 		auto cosignature2 = test::CreateRandomDetachedCosignature();
@@ -283,6 +297,9 @@ namespace catapult { namespace cache {
 		// Assert:
 		auto transactionInfoFromCache = cache.view().find(originalInfos[3].EntityHash);
 		AssertTransactionWithCosignatures(*originalInfos[3].pEntity, { cosignature }, transactionInfoFromCache);
+
+		// - check cache sizes
+		AssertCacheSize(cache, 5, 5 * test::GetDefaultRandomTransactionSize() + sizeof(model::Cosignature));
 	}
 
 	TEST(TEST_CLASS, CannotAttachCosignatureToUnknownTransaction) {
@@ -296,6 +313,9 @@ namespace catapult { namespace cache {
 		// Act + Assert: no transaction in the cache should match the random hash
 		auto cosignature = test::CreateRandomDetachedCosignature();
 		EXPECT_FALSE(!!cache.modifier().add(test::GenerateRandomByteArray<Hash256>(), cosignature));
+
+		// - check cache sizes
+		AssertCacheSize(cache, 5);
 	}
 
 	// endregion
@@ -315,6 +335,40 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		AssertCacheSize(cache, 5);
+
+		// - only odd infos should remain
+		for (auto i = 1u; i < transactionInfos.size(); i += 2)
+			EXPECT_TRUE(!!cache.view().find(transactionInfos[i].EntityHash)) << "info at " << i;
+
+		// - even infos should be removed
+		for (auto i = 0u; i < transactionInfos.size(); i += 2) {
+			EXPECT_FALSE(!!cache.view().find(transactionInfos[i].EntityHash)) << "info at " << i;
+			test::AssertEqual(transactionInfos[i], removedInfos[i / 2]);
+		}
+	}
+
+	TEST(TEST_CLASS, CanRemoveTransactionInfosWithCosignaturesByHash) {
+		// Arrange:
+		auto transactionInfos = test::CreateTransactionInfos(10);
+		MemoryPtCache cache(Default_Options);
+		AddAll(cache, transactionInfos);
+
+		// - attach two cosignatures to every transaction
+		for (const auto& transactionInfo : transactionInfos) {
+			cache.modifier().add(transactionInfo.EntityHash, test::CreateRandomDetachedCosignature());
+			cache.modifier().add(transactionInfo.EntityHash, test::CreateRandomDetachedCosignature());
+		}
+
+		// Sanity:
+		AssertCacheSize(cache, 10, 10 * (test::GetDefaultRandomTransactionSize() + 2 * sizeof(model::Cosignature)));
+
+		// Act: remove every second info
+		std::vector<model::DetachedTransactionInfo> removedInfos;
+		for (auto i = 0u; i < transactionInfos.size(); i += 2)
+			removedInfos.push_back(cache.modifier().remove(transactionInfos[i].EntityHash));
+
+		// Assert:
+		AssertCacheSize(cache, 5, 5 * (test::GetDefaultRandomTransactionSize() + 2 * sizeof(model::Cosignature)));
 
 		// - only odd infos should remain
 		for (auto i = 1u; i < transactionInfos.size(); i += 2)
@@ -822,7 +876,7 @@ namespace catapult { namespace cache {
 
 		void AssertMaxResponseSizeIsRespectedOnlyTransactions(uint32_t numExpectedTransactions, uint32_t maxResponseSize) {
 			// Arrange:
-			MemoryPtCache cache(MemoryCacheOptions(maxResponseSize, 1000));
+			MemoryPtCache cache(MemoryCacheOptions(utils::FileSize::FromBytes(maxResponseSize), utils::FileSize::FromKilobytes(1)));
 			AddAll(cache, test::CreateTransactionInfos(5));
 
 			// Act:
@@ -835,7 +889,7 @@ namespace catapult { namespace cache {
 
 		void AssertMaxResponseSizeIsRespectedOnlyCosignatures(uint32_t numExpectedTransactions, uint32_t maxResponseSize) {
 			// Arrange:
-			MemoryPtCache cache(MemoryCacheOptions(maxResponseSize, 1000));
+			MemoryPtCache cache(MemoryCacheOptions(utils::FileSize::FromBytes(maxResponseSize), utils::FileSize::FromKilobytes(1)));
 			auto transactionInfos = test::CreateTransactionInfos(5);
 			AddAll(cache, transactionInfos);
 
@@ -856,7 +910,7 @@ namespace catapult { namespace cache {
 
 		void AssertMaxResponseSizeIsRespectedTransactionsWithCosignatures(uint32_t numExpectedTransactions, uint32_t maxResponseSize) {
 			// Arrange:
-			MemoryPtCache cache(MemoryCacheOptions(maxResponseSize, 1000));
+			MemoryPtCache cache(MemoryCacheOptions(utils::FileSize::FromBytes(maxResponseSize), utils::FileSize::FromKilobytes(1)));
 			auto transactionInfos = test::CreateTransactionInfos(5);
 			AddAll(cache, transactionInfos);
 
@@ -902,47 +956,61 @@ namespace catapult { namespace cache {
 
 	// region max size
 
-	TEST(TEST_CLASS, CacheCanContainMaxTransactions) {
-		// Arrange: fill the cache with one less than max transactions
-		MemoryPtCache cache(MemoryCacheOptions(1024, 5));
-		AddAll(cache, test::CreateTransactionInfos(4));
-		auto transactionInfo = test::CreateRandomTransactionInfo();
+	TEST(TEST_CLASS, CacheCanUseMaximumMemory) {
+		// Arrange:
+		MemoryPtCache cache(MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromBytes(500)));
+		{
+			auto modifier = cache.modifier();
+			modifier.add(test::CreateRandomTransactionInfoWithSize(150));
+			modifier.add(test::CreateRandomTransactionInfoWithSize(177));
+		}
 
-		// Act: add another info
+		// Act: add another info that fills cache
+		auto transactionInfo = test::CreateRandomTransactionInfoWithSize(173);
 		auto isAdded = cache.modifier().add(transactionInfo);
 
 		// Assert: the new info was added
 		EXPECT_TRUE(isAdded);
-		AssertCacheSize(cache, 5);
+		AssertCacheSize(cache, 3, 500);
 		EXPECT_TRUE(!!cache.view().find(transactionInfo.EntityHash));
 	}
 
-	TEST(TEST_CLASS, CacheCannotContainMoreThanMaxTransactions) {
-		// Arrange: fill the cache with max transactions
-		MemoryPtCache cache(MemoryCacheOptions(1024, 5));
-		AddAll(cache, test::CreateTransactionInfos(5));
-		auto transactionInfo = test::CreateRandomTransactionInfo();
+	TEST(TEST_CLASS, CacheCannotAddNewTransactionThatWillExceedMaximumMemory) {
+		// Arrange:
+		MemoryPtCache cache(MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromBytes(500)));
+		{
+			auto modifier = cache.modifier();
+			modifier.add(test::CreateRandomTransactionInfoWithSize(150));
+			modifier.add(test::CreateRandomTransactionInfoWithSize(177));
+		}
 
-		// Act: add another info
+		// Act: add another info that overflows cache
+		auto transactionInfo = test::CreateRandomTransactionInfoWithSize(174);
 		auto isAdded = cache.modifier().add(transactionInfo);
 
 		// Assert: the new info was not added
 		EXPECT_FALSE(isAdded);
-		AssertCacheSize(cache, 5);
+		AssertCacheSize(cache, 2, 327);
 		EXPECT_FALSE(!!cache.view().find(transactionInfo.EntityHash));
 	}
 
-	TEST(TEST_CLASS, CacheCanAcceptNewTransactionsAfterMaxTransactionsAreReduced) {
-		// Arrange:
-		MemoryPtCache cache(MemoryCacheOptions(1024, 5));
-		auto transactionInfo = test::CreateRandomTransactionInfo();
+	TEST(TEST_CLASS, CacheUsingMaximumMemoryCanAddNewTransactionAfterMemoryIsReduced) {
+		// Arrange: fill the cache
+		Hash256 seedHash;
+		MemoryPtCache cache(MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromBytes(500)));
+		{
+			auto modifier = cache.modifier();
+			modifier.add(test::CreateRandomTransactionInfoWithSize(150));
 
-		// - fill the cache with max transactions
-		auto seedTransactionInfos = test::CreateTransactionInfos(5);
-		auto seedHash = seedTransactionInfos[2].EntityHash;
-		AddAll(cache, seedTransactionInfos);
+			auto transactionInfo = test::CreateRandomTransactionInfoWithSize(177);
+			seedHash = transactionInfo.EntityHash;
+			modifier.add(transactionInfo);
+
+			modifier.add(test::CreateRandomTransactionInfoWithSize(173));
+		}
 
 		// Act: remove a transaction from the cache and add a new transaction
+		auto transactionInfo = test::CreateRandomTransactionInfoWithSize(176);
 		auto isAdded = false;
 		{
 			auto modifier = cache.modifier();
@@ -952,8 +1020,33 @@ namespace catapult { namespace cache {
 
 		// Assert: the new info was added
 		EXPECT_TRUE(isAdded);
-		AssertCacheSize(cache, 5);
+		AssertCacheSize(cache, 3, 499);
+		EXPECT_FALSE(!!cache.view().find(seedHash));
 		EXPECT_TRUE(!!cache.view().find(transactionInfo.EntityHash));
+	}
+
+	TEST(TEST_CLASS, CacheCanAddCosignatureThatWillExceedMaximumMemory) {
+		// Arrange:
+		Hash256 seedHash;
+		MemoryPtCache cache(MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromBytes(500)));
+		{
+			auto modifier = cache.modifier();
+			modifier.add(test::CreateRandomTransactionInfoWithSize(150));
+
+			auto transactionInfo = test::CreateRandomTransactionInfoWithSize(177);
+			seedHash = transactionInfo.EntityHash;
+			modifier.add(transactionInfo);
+
+			modifier.add(test::CreateRandomTransactionInfoWithSize(173));
+		}
+
+		// Act: add a cosignature that will exceed memory
+		auto cosignature = test::CreateRandomDetachedCosignature();
+		auto transactionInfoFromAdd = cache.modifier().add(seedHash, cosignature);
+
+		// Assert: the new cosignature was added
+		EXPECT_TRUE(!!transactionInfoFromAdd);
+		AssertCacheSize(cache, 3, 500 + sizeof(model::Cosignature));
 	}
 
 	// endregion

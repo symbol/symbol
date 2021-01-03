@@ -45,10 +45,11 @@ namespace catapult { namespace cache {
 		using TransactionInfoConsumer = predicate<const model::TransactionInfo&>;
 
 	public:
-		/// Creates a view around a maximum response size (\a maxResponseSize), a transaction data container
-		/// (\a transactionDataContainer) and an id lookup (\a idLookup) with lock context \a readLock.
+		/// Creates a view around a maximum response size (\a maxResponseSize), current cache size (\a cacheSize),
+		/// a transaction data container (\a transactionDataContainer) and an id lookup (\a idLookup) with lock context \a readLock.
 		MemoryUtCacheView(
-				uint64_t maxResponseSize,
+				utils::FileSize maxResponseSize,
+				utils::FileSize cacheSize,
 				const TransactionDataContainer& transactionDataContainer,
 				const IdLookup& idLookup,
 				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
@@ -56,6 +57,9 @@ namespace catapult { namespace cache {
 	public:
 		/// Gets the number of unconfirmed transactions in the cache.
 		size_t size() const;
+
+		/// Gets the memory size of all unconfirmed transactions in the cache.
+		utils::FileSize memorySize() const;
 
 		/// Returns \c true if the cache contains an unconfirmed transaction with associated \a hash, \c false otherwise.
 		bool contains(const Hash256& hash) const;
@@ -72,7 +76,8 @@ namespace catapult { namespace cache {
 		UnknownTransactions unknownTransactions(BlockFeeMultiplier minFeeMultiplier, const utils::ShortHashesSet& knownShortHashes) const;
 
 	private:
-		uint64_t m_maxResponseSize;
+		utils::FileSize m_maxResponseSize;
+		utils::FileSize m_cacheSize;
 		const TransactionDataContainer& m_transactionDataContainer;
 		const IdLookup& m_idLookup;
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;

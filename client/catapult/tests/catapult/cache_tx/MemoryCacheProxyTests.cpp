@@ -42,7 +42,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateProxyAroundMemoryCache) {
 		// Arrange:
-		CacheProxy cache(MemoryCacheOptions(1'000'000, 1'000));
+		CacheProxy cache(MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(1)));
 
 		// Act: add some infos
 		for (const auto& info : test::CreateTransactionInfos(5))
@@ -79,7 +79,10 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CanCreateProxyAroundMemoryCacheAggregate) {
 		// Arrange:
 		size_t numModifierCalls = 0;
-		CacheProxy cache(MemoryCacheOptions(1'000'000, 1'000), CreateMockMutableCache, numModifierCalls);
+		CacheProxy cache(
+				MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(1)),
+				CreateMockMutableCache,
+				numModifierCalls);
 
 		// Act: add some infos
 		for (const auto& info : test::CreateTransactionInfos(5))

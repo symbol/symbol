@@ -33,7 +33,9 @@ namespace catapult { namespace cache {
 #define TEST_CLASS MemoryUtCacheTests
 
 	namespace {
-		constexpr auto Default_Options = MemoryCacheOptions(1'000'000, 1'000);
+		// region test utils
+
+		constexpr auto Default_Options = MemoryCacheOptions(utils::FileSize::FromMegabytes(1), utils::FileSize::FromMegabytes(1));
 		using UnknownTransactions = std::vector<std::shared_ptr<const model::Transaction>>;
 
 		void AssertDeadlines(const UnknownTransactions& transactions, const std::vector<Timestamp::ValueType>& expectedDeadlines) {
@@ -72,11 +74,21 @@ namespace catapult { namespace cache {
 			return hashes;
 		}
 
-		void AssertCacheSize(MemoryUtCache& cache, size_t expectedSize) {
-			// Assert: check both view and modifier sizes
-			EXPECT_EQ(cache.view().size(), expectedSize);
-			EXPECT_EQ(cache.modifier().size(), expectedSize);
+		void AssertCacheSize(MemoryUtCache& cache, size_t expectedSize, size_t expectedMemorySize) {
+			// Assert: check view and modifier sizes
+			EXPECT_EQ(expectedSize, cache.view().size());
+			EXPECT_EQ(expectedSize, cache.modifier().size());
+
+			// - check view and modifier memory sizes
+			EXPECT_EQ(utils::FileSize::FromBytes(expectedMemorySize), cache.view().memorySize());
+			EXPECT_EQ(utils::FileSize::FromBytes(expectedMemorySize), cache.modifier().memorySize());
 		}
+
+		void AssertCacheSize(MemoryUtCache& cache, size_t expectedSize) {
+			AssertCacheSize(cache, expectedSize, expectedSize * test::GetDefaultRandomTransactionSize());
+		}
+
+		// endregion
 	}
 
 	// region constructor
@@ -298,7 +310,7 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region count
+	// region memorySizeForAccount
 
 	namespace {
 		struct CacheInitializationResult {
@@ -327,9 +339,13 @@ namespace catapult { namespace cache {
 			test::AddAll(cache, initializationResult.TransactionInfos);
 			return initializationResult;
 		}
+
+		utils::FileSize GetExpectedMemorySize(uint32_t multiple) {
+			return utils::FileSize::FromBytes(multiple * test::GetDefaultRandomTransactionSize());
+		}
 	}
 
-	TEST(TEST_CLASS, CountReturnsNumberOfTransactionsInCacheSignedByAccount) {
+	TEST(TEST_CLASS, MemorySizeForAccountReturnsSizeOfTransactionsInCacheSignedByAccount) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
 
@@ -337,13 +353,13 @@ namespace catapult { namespace cache {
 		auto initializationResult = DefaultInitializeCache(cache);
 
 		// Act:
-		auto count = cache.modifier().count(initializationResult.SameSigner);
+		auto memorySize = cache.modifier().memorySizeForAccount(initializationResult.SameSigner);
 
 		// Assert:
-		EXPECT_EQ(5u, count);
+		EXPECT_EQ(GetExpectedMemorySize(5), memorySize);
 	}
 
-	TEST(TEST_CLASS, AddUpdatesCounters) {
+	TEST(TEST_CLASS, AddUpdatesAccountMemorySizes) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
 
@@ -359,12 +375,12 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_EQ(13u, cache.view().size());
 		auto modifier = cache.modifier();
-		EXPECT_EQ(5u, modifier.count(key));
+		EXPECT_EQ(GetExpectedMemorySize(5), modifier.memorySizeForAccount(key));
 		for (const auto& transactionInfo : transactionInfos)
-			EXPECT_EQ(1u, modifier.count(transactionInfo.pEntity->SignerPublicKey));
+			EXPECT_EQ(GetExpectedMemorySize(1), modifier.memorySizeForAccount(transactionInfo.pEntity->SignerPublicKey));
 	}
 
-	TEST(TEST_CLASS, RemoveUpdatesCounters) {
+	TEST(TEST_CLASS, RemoveUpdatesAccountMemorySizes) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
 
@@ -373,7 +389,7 @@ namespace catapult { namespace cache {
 
 		// Sanity:
 		EXPECT_EQ(13u, cache.view().size());
-		EXPECT_EQ(5u, cache.modifier().count(initializationResult.SameSigner));
+		EXPECT_EQ(GetExpectedMemorySize(5), cache.modifier().memorySizeForAccount(initializationResult.SameSigner));
 
 		// Act: remove 2 transaction infos
 		cache.modifier().remove(initializationResult.TransactionInfosWithSameSigner[1].EntityHash);
@@ -382,29 +398,29 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_EQ(11u, cache.view().size());
 		auto modifier = cache.modifier();
-		EXPECT_EQ(3u, modifier.count(initializationResult.SameSigner));
+		EXPECT_EQ(GetExpectedMemorySize(3), modifier.memorySizeForAccount(initializationResult.SameSigner));
 		for (const auto& transactionInfo : initializationResult.TransactionInfos)
-			EXPECT_EQ(1u, modifier.count(transactionInfo.pEntity->SignerPublicKey));
+			EXPECT_EQ(GetExpectedMemorySize(1), modifier.memorySizeForAccount(transactionInfo.pEntity->SignerPublicKey));
 	}
 
-	TEST(TEST_CLASS, RemoveAllUpdatesCounters) {
+	TEST(TEST_CLASS, RemoveAllUpdatesAccountMemorySizes) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
 		auto initializationResult = DefaultInitializeCache(cache);
 		auto modifier = cache.modifier();
 
 		// Sanity:
-		EXPECT_EQ(5u, modifier.count(initializationResult.SameSigner));
+		EXPECT_EQ(GetExpectedMemorySize(5), modifier.memorySizeForAccount(initializationResult.SameSigner));
 		for (const auto& transactionsInfo : initializationResult.TransactionInfos)
-			EXPECT_EQ(1u, modifier.count(transactionsInfo.pEntity->SignerPublicKey));
+			EXPECT_EQ(GetExpectedMemorySize(1), modifier.memorySizeForAccount(transactionsInfo.pEntity->SignerPublicKey));
 
 		// Act:
 		modifier.removeAll();
 
 		// Assert:
-		EXPECT_EQ(0u, modifier.count(initializationResult.SameSigner));
+		EXPECT_EQ(utils::FileSize(), modifier.memorySizeForAccount(initializationResult.SameSigner));
 		for (const auto& transactionsInfo : initializationResult.TransactionInfos)
-			EXPECT_EQ(0u, modifier.count(transactionsInfo.pEntity->SignerPublicKey));
+			EXPECT_EQ(utils::FileSize(), modifier.memorySizeForAccount(transactionsInfo.pEntity->SignerPublicKey));
 	}
 
 	// endregion
@@ -572,9 +588,9 @@ namespace catapult { namespace cache {
 	DEFINE_BASIC_UNKNOWN_TRANSACTIONS_TESTS(MemoryUtCacheTests, MemoryUtCacheUnknownTransactionsTraits)
 
 	namespace {
-		void AssertMaxResponseSizeIsRespected(uint32_t numExpectedTransactions, uint32_t maxResponseSize) {
+		void AssertMaxResponseSizeIsRespected(uint32_t numExpectedTransactions, size_t maxResponseSize) {
 			// Arrange:
-			MemoryUtCache cache(MemoryCacheOptions(maxResponseSize, 1000));
+			MemoryUtCache cache(MemoryCacheOptions(utils::FileSize::FromBytes(maxResponseSize), utils::FileSize::FromKilobytes(1)));
 			test::AddAll(cache, test::CreateTransactionInfos(5));
 
 			// Act:
@@ -595,7 +611,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, UnknownTransactionsReturnsTransactionsWithTotalSizeOfAtMostMaxResponseSize) {
 		// Arrange: determine transaction size from a generated transaction
-		auto transactionSize = test::CreateTransactionInfos(1)[0].pEntity->Size;
+		auto transactionSize = test::GetDefaultRandomTransactionSize();
 
 		// Assert:
 		AssertMaxResponseSizeIsRespected(2, 3 * transactionSize - 1);
@@ -645,53 +661,61 @@ namespace catapult { namespace cache {
 
 	// region max size
 
-	namespace {
-		auto CreateTransactionInfoWithDeadline(Timestamp deadline) {
-			return test::CreateTransactionInfoWithDeadline(deadline.unwrap());
+	TEST(TEST_CLASS, CacheCanUseMaximumMemory) {
+		// Arrange:
+		MemoryUtCache cache(MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromBytes(500)));
+		{
+			auto modifier = cache.modifier();
+			modifier.add(test::CreateRandomTransactionInfoWithSize(150));
+			modifier.add(test::CreateRandomTransactionInfoWithSize(177));
 		}
-	}
 
-	TEST(TEST_CLASS, CacheCanContainMaxTransactions) {
-		// Arrange: fill the cache with one less than max transactions
-		MemoryUtCache cache(MemoryCacheOptions(1024, 5));
-		test::AddAll(cache, test::CreateTransactionInfos(4));
-		auto transactionInfo = CreateTransactionInfoWithDeadline(Timestamp(1234));
-
-		// Act: add another info
+		// Act: add another info that fills cache
+		auto transactionInfo = test::CreateRandomTransactionInfoWithSize(173);
 		auto isAdded = cache.modifier().add(transactionInfo);
 
 		// Assert: the new info was added
 		EXPECT_TRUE(isAdded);
-		AssertCacheSize(cache, 5);
-		test::AssertDeadlines(cache, { 1, 2, 3, 4, 1234 });
+		AssertCacheSize(cache, 3, 500);
+		EXPECT_TRUE(cache.view().contains(transactionInfo.EntityHash));
 	}
 
-	TEST(TEST_CLASS, CacheCannotContainMoreThanMaxTransactions) {
-		// Arrange: fill the cache with max transactions
-		MemoryUtCache cache(MemoryCacheOptions(1024, 5));
-		test::AddAll(cache, test::CreateTransactionInfos(5));
-		auto transactionInfo = CreateTransactionInfoWithDeadline(Timestamp(1234));
+	TEST(TEST_CLASS, CacheCannotAddNewTransactionThatWillExceedMaximumMemory) {
+		// Arrange:
+		MemoryUtCache cache(MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromBytes(500)));
+		{
+			auto modifier = cache.modifier();
+			modifier.add(test::CreateRandomTransactionInfoWithSize(150));
+			modifier.add(test::CreateRandomTransactionInfoWithSize(177));
+		}
 
-		// Act: add another info
+		// Act: add another info that overflows cache
+		auto transactionInfo = test::CreateRandomTransactionInfoWithSize(174);
 		auto isAdded = cache.modifier().add(transactionInfo);
 
 		// Assert: the new info was not added
 		EXPECT_FALSE(isAdded);
-		AssertCacheSize(cache, 5);
-		test::AssertDeadlines(cache, { 1, 2, 3, 4, 5 });
+		AssertCacheSize(cache, 2, 327);
+		EXPECT_FALSE(cache.view().contains(transactionInfo.EntityHash));
 	}
 
-	TEST(TEST_CLASS, CacheCanAcceptNewTransactionsAfterMaxTransactionsAreReduced) {
-		// Arrange:
-		MemoryUtCache cache(MemoryCacheOptions(1024, 5));
-		auto transactionInfo = CreateTransactionInfoWithDeadline(Timestamp(1234));
+	TEST(TEST_CLASS, CacheUsingMaximumMemoryCanAddNewTransactionAfterMemoryIsReduced) {
+		// Arrange: fill the cache
+		Hash256 seedHash;
+		MemoryUtCache cache(MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromBytes(500)));
+		{
+			auto modifier = cache.modifier();
+			modifier.add(test::CreateRandomTransactionInfoWithSize(150));
 
-		// - fill the cache with max transactions
-		auto seedInfos = test::CreateTransactionInfos(5);
-		auto seedHash = seedInfos[2].EntityHash;
-		test::AddAll(cache, seedInfos);
+			auto transactionInfo = test::CreateRandomTransactionInfoWithSize(177);
+			seedHash = transactionInfo.EntityHash;
+			modifier.add(transactionInfo);
+
+			modifier.add(test::CreateRandomTransactionInfoWithSize(173));
+		}
 
 		// Act: remove a transaction from the cache and add a new transaction
+		auto transactionInfo = test::CreateRandomTransactionInfoWithSize(176);
 		auto isAdded = false;
 		{
 			auto modifier = cache.modifier();
@@ -701,8 +725,9 @@ namespace catapult { namespace cache {
 
 		// Assert: the new info was added
 		EXPECT_TRUE(isAdded);
-		AssertCacheSize(cache, 5);
-		test::AssertDeadlines(cache, { 1, 2, 4, 5, 1234 });
+		AssertCacheSize(cache, 3, 499);
+		EXPECT_FALSE(cache.view().contains(seedHash));
+		EXPECT_TRUE(cache.view().contains(transactionInfo.EntityHash));
 	}
 
 	// endregion

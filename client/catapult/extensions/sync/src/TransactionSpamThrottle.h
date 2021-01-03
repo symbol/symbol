@@ -21,6 +21,7 @@
 
 #pragma once
 #include "catapult/chain/UtUpdater.h"
+#include "catapult/utils/FileSize.h"
 
 namespace catapult { namespace sync {
 
@@ -30,16 +31,20 @@ namespace catapult { namespace sync {
 		/// Creates a default spam throttle configuration.
 		SpamThrottleConfiguration()
 				: TotalImportance(0)
-				, MaxCacheSize(0)
-				, MaxBlockSize(0)
+				, MaxTransactionsPerBlock(0)
 		{}
 
-		/// Creates a spam throttle configuration around \a maxBoostFee, \a totalImportance, \a maxCacheSize and \a maxBlockSize.
-		SpamThrottleConfiguration(Amount maxBoostFee, Importance totalImportance, uint32_t maxCacheSize, uint32_t maxBlockSize)
+		/// Creates a spam throttle configuration around \a maxBoostFee, \a totalImportance, \a maxCacheSize
+		/// and \a maxTransactionsPerBlock.
+		SpamThrottleConfiguration(
+				Amount maxBoostFee,
+				Importance totalImportance,
+				utils::FileSize maxCacheSize,
+				uint32_t maxTransactionsPerBlock)
 				: MaxBoostFee(maxBoostFee)
 				, TotalImportance(totalImportance)
 				, MaxCacheSize(maxCacheSize)
-				, MaxBlockSize(maxBlockSize)
+				, MaxTransactionsPerBlock(maxTransactionsPerBlock)
 		{}
 
 	public:
@@ -49,11 +54,11 @@ namespace catapult { namespace sync {
 		/// Total importance of all accounts.
 		Importance TotalImportance;
 
-		/// Maximum transactions cache size.
-		uint32_t MaxCacheSize;
+		/// Maximum transactions cache size (in bytes).
+		utils::FileSize MaxCacheSize;
 
-		/// Maximum block size.
-		uint32_t MaxBlockSize;
+		/// Maximum number of transactions per block (count).
+		uint32_t MaxTransactionsPerBlock;
 	};
 
 	/// Creates a throttle using \a config to filter out transactions that are considered to be spam.

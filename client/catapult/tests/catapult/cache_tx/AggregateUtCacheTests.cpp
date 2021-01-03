@@ -37,6 +37,10 @@ namespace catapult { namespace cache {
 				CATAPULT_THROW_RUNTIME_ERROR("size - not supported in mock");
 			}
 
+			utils::FileSize memorySize() const override {
+				CATAPULT_THROW_RUNTIME_ERROR("memorySize - not supported in mock");
+			}
+
 			bool add(const model::TransactionInfo&) override {
 				CATAPULT_THROW_RUNTIME_ERROR("add - not supported in mock");
 			}
@@ -45,8 +49,8 @@ namespace catapult { namespace cache {
 				CATAPULT_THROW_RUNTIME_ERROR("remove - not supported in mock");
 			}
 
-			size_t count(const Key&) const override {
-				CATAPULT_THROW_RUNTIME_ERROR("count - not supported in mock");
+			utils::FileSize memorySizeForAccount(const Key&) const override {
+				CATAPULT_THROW_RUNTIME_ERROR("memorySizeForAccount - not supported in mock");
 			}
 
 			std::vector<model::TransactionInfo> removeAll() override {
@@ -106,39 +110,39 @@ namespace catapult { namespace cache {
 	// region count
 
 	namespace {
-		class MockCountUtCacheModifier : public UnsupportedUtCacheModifier {
+		class MockMemorySizeForAccountUtCacheModifier : public UnsupportedUtCacheModifier {
 		public:
-			MockCountUtCacheModifier(size_t& numCountCalls, std::vector<Key>& keys)
-					: m_numCountCalls(numCountCalls)
+			MockMemorySizeForAccountUtCacheModifier(size_t& numMemorySizeCalls, std::vector<Key>& keys)
+					: m_numMemorySizeCalls(numMemorySizeCalls)
 					, m_keys(keys) {
-				m_numCountCalls = 0;
+				m_numMemorySizeCalls = 0;
 			}
 
 		public:
-			size_t count(const Key& key) const override {
+			utils::FileSize memorySizeForAccount(const Key& key) const override {
 				m_keys.push_back(key);
-				return ++m_numCountCalls;
+				return utils::FileSize::FromKilobytes(++m_numMemorySizeCalls);
 			}
 
 		private:
-			size_t& m_numCountCalls;
+			size_t& m_numMemorySizeCalls;
 			std::vector<Key>& m_keys;
 		};
 	}
 
-	TEST(TEST_CLASS, CountDelegatesToCache) {
+	TEST(TEST_CLASS, MemorySizeForAccountDelegatesToCache) {
 		// Arrange:
-		size_t numCountCalls;
+		size_t numMemorySizeCalls;
 		std::vector<Key> keys;
 		auto key = test::GenerateRandomByteArray<Key>();
-		TestContext<MockCountUtCacheModifier> context(numCountCalls, keys);
+		TestContext<MockMemorySizeForAccountUtCacheModifier> context(numMemorySizeCalls, keys);
 
 		// Act:
-		auto numReturnedCountCalls = context.aggregate().modifier().count(key);
+		auto memorySize = context.aggregate().modifier().memorySizeForAccount(key);
 
-		// Assert: - check ut cache modifier was called as expected
-		EXPECT_EQ(1u, numReturnedCountCalls);
-		EXPECT_EQ(1u, numCountCalls);
+		// Assert: check ut cache modifier was called as expected
+		EXPECT_EQ(utils::FileSize::FromKilobytes(1), memorySize);
+		EXPECT_EQ(1u, numMemorySizeCalls);
 		EXPECT_EQ(std::vector<Key>({ key }), keys);
 	}
 

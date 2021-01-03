@@ -38,6 +38,10 @@ namespace catapult { namespace cache {
 				CATAPULT_THROW_RUNTIME_ERROR("size - not supported in mock");
 			}
 
+			utils::FileSize memorySize() const override {
+				CATAPULT_THROW_RUNTIME_ERROR("memorySize - not supported in mock");
+			}
+
 			bool add(const model::DetachedTransactionInfo&) override {
 				CATAPULT_THROW_RUNTIME_ERROR("add - not supported in mock");
 			}

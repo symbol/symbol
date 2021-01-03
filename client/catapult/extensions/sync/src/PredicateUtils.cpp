@@ -38,9 +38,9 @@ namespace catapult { namespace sync {
 			return transaction.Type == model::MakeEntityType(model::BasicEntityType::Transaction, model::FacilityCode::Aggregate, 2);
 		}
 
-		chain::UtUpdater::Throttle CreateDefaultUtUpdaterThrottle(uint64_t maxCacheSize) {
+		chain::UtUpdater::Throttle CreateDefaultUtUpdaterThrottle(utils::FileSize maxCacheSize) {
 			return [maxCacheSize](const auto&, const auto& context) {
-				return context.TransactionsCache.size() >= maxCacheSize;
+				return context.TransactionsCache.memorySize() >= maxCacheSize;
 			};
 		}
 	}

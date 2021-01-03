@@ -35,6 +35,9 @@ namespace catapult { namespace cache {
 		/// Gets the number of transactions in the cache.
 		virtual size_t size() const = 0;
 
+		/// Gets the memory size of all unconfirmed transactions in the cache.
+		virtual utils::FileSize memorySize() const = 0;
+
 		/// Adds the transaction info (\a transactionInfo) to the cache.
 		/// Returns \c true if the transaction info was successfully added.
 		virtual bool add(const model::TransactionInfo& transactionInfo) = 0;
@@ -42,8 +45,8 @@ namespace catapult { namespace cache {
 		/// Removes the transaction identified by \a hash from the cache.
 		virtual model::TransactionInfo remove(const Hash256& hash) = 0;
 
-		/// Gets the number of transactions an account with public \a key has placed into the cache.
-		virtual size_t count(const Key& key) const = 0;
+		/// Gets the memory size of transactions an account with public \a key has placed into the cache.
+		virtual utils::FileSize memorySizeForAccount(const Key& key) const = 0;
 
 		/// Removes all transactions from the cache.
 		virtual std::vector<model::TransactionInfo> removeAll() = 0;
@@ -56,9 +59,9 @@ namespace catapult { namespace cache {
 		using BasicTransactionsCacheModifierProxy<model::TransactionInfo, UtCacheModifier>::BasicTransactionsCacheModifierProxy;
 
 	public:
-		/// Gets the number of transactions an account with public \a key has placed into the cache.
-		size_t count(const Key& key) const {
-			return modifier().count(key);
+		/// Gets the memory size of transactions an account with public \a key has placed into the cache.
+		utils::FileSize memorySizeForAccount(const Key& key) const {
+			return modifier().memorySizeForAccount(key);
 		}
 
 		/// Removes all transactions from the cache.

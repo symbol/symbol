@@ -49,7 +49,9 @@ namespace catapult { namespace chain {
 		public:
 			UpdaterTestContext()
 					: m_pPluginManager(CreatePluginManager())
-					, m_transactionsCache(cache::MemoryCacheOptions(1024, GetNumIterations() * 2))
+					, m_transactionsCache(cache::MemoryCacheOptions(
+							utils::FileSize::FromKilobytes(1),
+							utils::FileSize::FromBytes(test::GetTransferTransactionSize() * GetNumIterations() * 2)))
 					, m_cache(CreateCatapultCache())
 					, m_updater(
 							m_transactionsCache,

@@ -19,47 +19,50 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "AccountCounters.h"
+#include "AccountWeights.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/exceptions.h"
 
 namespace catapult { namespace cache {
 
-	AccountCounters::AccountCounters() : m_totalUseCount(0)
+	AccountWeights::AccountWeights() : m_totalWeight(0)
 	{}
 
-	size_t AccountCounters::size() const {
-		return m_accountCounters.size();
+	size_t AccountWeights::size() const {
+		return m_accountWeights.size();
 	}
 
-	size_t AccountCounters::deepSize() const {
-		return m_totalUseCount;
+	uint64_t AccountWeights::totalWeight() const {
+		return m_totalWeight;
 	}
 
-	size_t AccountCounters::count(const Key& key) const {
-		auto iter = m_accountCounters.find(key);
-		return m_accountCounters.cend() == iter ? 0 : iter->second;
+	uint64_t AccountWeights::weight(const Key& key) const {
+		auto iter = m_accountWeights.find(key);
+		return m_accountWeights.cend() == iter ? 0 : iter->second;
 	}
 
-	void AccountCounters::increment(const Key& key) {
-		++m_accountCounters[key];
-		++m_totalUseCount;
+	void AccountWeights::increment(const Key& key, uint64_t delta) {
+		if (0 == delta)
+			return;
+
+		m_accountWeights[key] += delta;
+		m_totalWeight += delta;
 	}
 
-	void AccountCounters::decrement(const Key& key) {
-		auto& useCount = m_accountCounters[key];
-		if (0 == useCount)
-			CATAPULT_THROW_RUNTIME_ERROR_1("use count cannot be decremented below zero for key", key);
+	void AccountWeights::decrement(const Key& key, uint64_t delta) {
+		auto& weight = m_accountWeights[key];
+		if (weight < delta)
+			CATAPULT_THROW_RUNTIME_ERROR_1("weight cannot be decremented below zero for key", key);
 
-		--useCount;
-		--m_totalUseCount;
+		weight -= delta;
+		m_totalWeight -= delta;
 
-		if (0 == useCount)
-			m_accountCounters.erase(key);
+		if (0 == weight)
+			m_accountWeights.erase(key);
 	}
 
-	void AccountCounters::reset() {
-		m_accountCounters.clear();
-		m_totalUseCount = 0;
+	void AccountWeights::reset() {
+		m_accountWeights.clear();
+		m_totalWeight = 0;
 	}
 }}

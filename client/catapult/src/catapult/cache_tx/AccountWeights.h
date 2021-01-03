@@ -26,34 +26,34 @@
 
 namespace catapult { namespace cache {
 
-	/// Counters for tracking how often an account is used.
-	class AccountCounters {
+	/// Map of accounts to weights.
+	class AccountWeights {
 	public:
-		/// Creates account counters.
-		AccountCounters();
+		/// Creates account weights.
+		AccountWeights();
 
 	public:
-		/// Gets the number of unique accounts used.
+		/// Gets the number of unique accounts.
 		size_t size() const;
 
-		/// Gets the sum of all use counts.
-		size_t deepSize() const;
+		/// Gets the sum of all weights.
+		uint64_t totalWeight() const;
 
-		/// Gets the use count for the account with public \a key.
-		size_t count(const Key& key) const;
+		/// Gets the weight for the account with public \a key.
+		uint64_t weight(const Key& key) const;
 
 	public:
-		/// Increases the use count for the account with public \a key.
-		void increment(const Key& key);
+		/// Increases the weight for the account with public \a key by \a delta.
+		void increment(const Key& key, uint64_t delta);
 
-		/// Decreases the use count for the account with public \a key.
-		void decrement(const Key& key);
+		/// Decreases the weight for the account with public \a key by \a delta.
+		void decrement(const Key& key, uint64_t delta);
 
-		/// Resets the counters.
+		/// Resets the weights.
 		void reset();
 
 	private:
-		std::unordered_map<Key, size_t, utils::ArrayHasher<Key>> m_accountCounters;
-		size_t m_totalUseCount;
+		std::unordered_map<Key, uint64_t, utils::ArrayHasher<Key>> m_accountWeights;
+		uint64_t m_totalWeight;
 	};
 }}

@@ -579,8 +579,7 @@ class MultiConditionChecker(SimpleValidator):
         self.patternDefineTests = re.compile(r'#define [A-Z_]*DEFINE_[A-Z_]*_TEST[^S]')
         self.patternDefineTestTraits = re.compile(r'#define [A-Z_]*DEFINE_[A-Z_]*_TEST_TRAITS[A-Z_]*')
         self.patternFileSize = re.compile(r'FileSize&')
-        self.patternOperator = re.compile(r'operator')
-        self.patternTryParseValue = re.compile(r'TryParseValue')
+        self.patternFileSizeReferenceAllowed = re.compile(r'operator|TryParseValue|cacheSize')
         self.patternFileSizeCast = re.compile(r'const_cast<utils::FileSize&>.* = ')
         self.patternTestExpectedSize = re.compile(r'expected\w*Size =[^=]')
 
@@ -711,8 +710,8 @@ class MultiConditionChecker(SimpleValidator):
         if not self.patternFileSize.search(line):
             return False
 
-        # ignore operator, TryParseValue
-        if self.patternOperator.search(line) or self.patternTryParseValue.search(line):
+        # ignore lines where FileSize reference is explicitly allowed
+        if self.patternFileSizeReferenceAllowed.search(line):
             return False
 
         # ignore cast

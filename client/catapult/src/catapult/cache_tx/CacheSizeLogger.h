@@ -20,21 +20,25 @@
 **/
 
 #pragma once
-#include <stdint.h>
+#include "catapult/utils/FileSize.h"
 
 namespace catapult { namespace cache {
 
-	/// Logs cache sizes for a cache with \a name at specified levels of fullness given its \a actual and \a max sizes.
-	inline void LogSizes(const char* name, size_t actual, uint64_t max) {
-		auto logCacheSizeIf = [name, actual](uint64_t desired, const char* description) {
-			if (actual != desired)
+	/// Logs cache sizes for a cache with \a name at specified levels of fullness
+	/// given its old (\a oldSize), new (\a newSize) and max (\a maxSize) sizes.
+	inline void LogSizes(const char* name, utils::FileSize oldSize, utils::FileSize newSize, utils::FileSize maxSize) {
+		auto logCacheSizeIf = [name, oldSize, newSize, maxSize](uint32_t percentage, const auto* description) {
+			auto desiredSize = utils::FileSize::FromBytes(maxSize.bytes() * percentage / 100);
+			if (oldSize > desiredSize || newSize < desiredSize)
 				return;
 
-			CATAPULT_LOG(warning) << name << " cache is " << description << " (size = " << actual << ")";
+			CATAPULT_LOG(warning) << name << " cache is " << description << " (size = " << newSize << ")";
 		};
 
-		// log if cache is filling up (or full)
-		logCacheSizeIf(max / 2, "half full");
-		logCacheSizeIf(max, "full");
+		// log if cache is filling up
+		logCacheSizeIf(50, "half full");
+		logCacheSizeIf(90, "90 percent full");
+		logCacheSizeIf(95, "95 percent full");
+		logCacheSizeIf(99, "99 percent full");
 	}
 }}

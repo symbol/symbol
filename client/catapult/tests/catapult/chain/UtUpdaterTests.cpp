@@ -128,7 +128,7 @@ namespace catapult { namespace chain {
 					, m_pUtChangeSubscriber(std::make_unique<mocks::MockUtChangeSubscriber>())
 					, m_utChangeSubscriber(*m_pUtChangeSubscriber)
 					, m_transactionsCache(
-							cache::MemoryCacheOptions(1024, 1000),
+							cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(2)),
 							cache::CreateAggregateUtCache,
 							std::move(m_pUtChangeSubscriber))
 					, m_updater(

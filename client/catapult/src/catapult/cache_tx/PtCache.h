@@ -39,6 +39,10 @@ namespace catapult { namespace cache {
 		/// Gets the number of transactions in the cache.
 		virtual size_t size() const = 0;
 
+		/// Gets the memory size of all partial transactions in the cache.
+		/// \note Size of detached cosignatures is not included.
+		virtual utils::FileSize memorySize() const = 0;
+
 		/// Adds the transaction info (\a transactionInfo) to the cache.
 		/// Returns \c true if the transaction info was successfully added.
 		virtual bool add(const model::DetachedTransactionInfo& transactionInfo) = 0;

@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "catapult/utils/FileSize.h"
 #include "catapult/types.h"
 #include <memory>
 
@@ -40,6 +41,11 @@ namespace catapult { namespace cache {
 		/// Gets the number of transactions in the cache.
 		size_t size() const {
 			return m_pModifier->size();
+		}
+
+		/// Gets the memory size of all transactions in the cache.
+		utils::FileSize memorySize() const {
+			return modifier().memorySize();
 		}
 
 		/// Adds the transaction info (\a transactionInfo) to the cache.
