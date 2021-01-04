@@ -1,6 +1,6 @@
 [requires]
 # release dependencies
-boost/1.74.0
+boost/1.75.0
 cppzmq/4.7.1@nemtech/stable
 mongo-cxx-driver/3.6.1@nemtech/stable
 openssl/1.1.1g@nemtech/stable
@@ -38,7 +38,7 @@ boost:without_locale = False
 boost:without_log = False
 boost:without_math = False
 boost:without_mpi = True
-# boost:without_nowide = True
+boost:without_nowide = True
 boost:without_program_options = False
 boost:without_python = True
 boost:without_random = False
