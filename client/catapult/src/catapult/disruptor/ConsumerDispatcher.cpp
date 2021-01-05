@@ -29,7 +29,7 @@ namespace catapult { namespace disruptor {
 
 	namespace {
 		const ConsumerDispatcherOptions& CheckOptions(const ConsumerDispatcherOptions& options) {
-			if (!options.DispatcherName || 0 == options.DisruptorSize)
+			if (!options.DispatcherName || 0 == options.DisruptorSlotCount || utils::FileSize() == options.DisruptorMaxMemorySize)
 				CATAPULT_THROW_INVALID_ARGUMENT("consumer dispatcher options are invalid");
 
 			return options;
@@ -56,11 +56,10 @@ namespace catapult { namespace disruptor {
 			const std::vector<DisruptorConsumer>& consumers,
 			const DisruptorInspector& inspector)
 			: NamedObjectMixin(CheckOptions(options).DispatcherName)
-			, m_elementTraceInterval(options.ElementTraceInterval)
-			, m_shouldThrowIfFull(options.ShouldThrowWhenFull)
+			, m_options(options)
 			, m_keepRunning(true)
 			, m_barriers(consumers.size() + 1)
-			, m_disruptor(options.DisruptorSize, options.ElementTraceInterval)
+			, m_disruptor(m_options.DisruptorSlotCount, m_options.ElementTraceInterval)
 			, m_inspector(inspector)
 			, m_numActiveElements(0)
 			, m_memorySize(0) {
@@ -85,7 +84,7 @@ namespace catapult { namespace disruptor {
 			});
 		}
 
-		CATAPULT_LOG(info) << options.DispatcherName << " ConsumerDispatcher spawned " << m_threads.size() << " workers";
+		CATAPULT_LOG(info) << m_options.DispatcherName << " ConsumerDispatcher spawned " << m_threads.size() << " workers";
 	}
 
 	ConsumerDispatcher::~ConsumerDispatcher() {
@@ -141,7 +140,7 @@ namespace catapult { namespace disruptor {
 			return;
 
 		auto& element = m_disruptor.elementAt(consumerPosition);
-		LogCompletion(element, m_barriers, m_elementTraceInterval);
+		LogCompletion(element, m_barriers, m_options.ElementTraceInterval);
 		m_inspector(element.input(), element.completionResult());
 		element.markProcessingComplete();
 	}
@@ -174,16 +173,25 @@ namespace catapult { namespace disruptor {
 			return 0;
 		}
 
+		auto inputMemorySize = input.memorySize();
+
 		// need to atomically check spare capacity AND add element
 		utils::SpinLockGuard guard(m_addSpinLock);
-		if (!canProcessNextElement()) {
-			if (m_shouldThrowIfFull)
+		auto isFull = !canProcessNextElement();
+		if (m_options.DisruptorMaxMemorySize.bytes() - m_memorySize < inputMemorySize.bytes()) {
+			CATAPULT_LOG(warning)
+					<< "disruptor memory is full (max = " << m_options.DisruptorMaxMemorySize
+					<< ", current = " << utils::FileSize::FromBytes(m_memorySize) << ")";
+			isFull = true;
+		}
+
+		if (isFull) {
+			if (m_options.ShouldThrowWhenFull)
 				CATAPULT_THROW_RUNTIME_ERROR("consumer is too far behind");
 
 			return 0;
 		}
 
-		auto inputMemorySize = input.memorySize();
 		m_memorySize += inputMemorySize.bytes();
 		++m_numActiveElements;
 

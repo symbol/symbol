@@ -65,8 +65,11 @@ namespace catapult { namespace test {
 			config.SocketWorkingBufferSize = utils::FileSize::FromKilobytes(4);
 			config.MaxPacketDataSize = utils::FileSize::FromMegabytes(100);
 
-			config.BlockDisruptorSize = 4 * 1024;
-			config.TransactionDisruptorSize = 16 * 1024;
+			config.BlockDisruptorSlotCount = 4 * 1024;
+			config.BlockDisruptorMaxMemorySize = utils::FileSize::FromMegabytes(100);
+
+			config.TransactionDisruptorSlotCount = 16 * 1024;
+			config.TransactionDisruptorMaxMemorySize = utils::FileSize::FromMegabytes(100);
 
 			config.MaxTrackedNodes = 5'000;
 

@@ -32,7 +32,8 @@ namespace catapult { namespace disruptor {
 
 		// Assert:
 		EXPECT_EQ("foo dispatcher", options.DispatcherName);
-		EXPECT_EQ(123u, options.DisruptorSize);
+		EXPECT_EQ(123u, options.DisruptorSlotCount);
+		EXPECT_EQ(utils::FileSize::FromMegabytes(1024), options.DisruptorMaxMemorySize);
 		EXPECT_EQ(1u, options.ElementTraceInterval);
 		EXPECT_TRUE(options.ShouldThrowWhenFull);
 	}

@@ -20,17 +20,18 @@
 **/
 
 #pragma once
-#include <stddef.h>
+#include "catapult/utils/FileSize.h"
 
 namespace catapult { namespace disruptor {
 
 	/// Consumer dispatcher options.
 	struct ConsumerDispatcherOptions {
 	public:
-		/// Creates options around \a dispatcherName and \a disruptorSize.
-		constexpr ConsumerDispatcherOptions(const char* dispatcherName, size_t disruptorSize)
+		/// Creates options around \a dispatcherName and \a disruptorSlotCount.
+		constexpr ConsumerDispatcherOptions(const char* dispatcherName, size_t disruptorSlotCount)
 				: DispatcherName(dispatcherName)
-				, DisruptorSize(disruptorSize)
+				, DisruptorSlotCount(disruptorSlotCount)
+				, DisruptorMaxMemorySize(utils::FileSize::FromMegabytes(1024))
 				, ElementTraceInterval(1)
 				, ShouldThrowWhenFull(true)
 		{}
@@ -39,8 +40,11 @@ namespace catapult { namespace disruptor {
 		/// Name of the dispatcher.
 		const char* DispatcherName;
 
-		/// Disruptor size.
-		size_t DisruptorSize;
+		/// Number of slots in the disruptor circular buffer.
+		size_t DisruptorSlotCount;
+
+		/// Maximum memory of all elements in the disruptor circular buffer.
+		utils::FileSize DisruptorMaxMemorySize;
 
 		/// Multiple of elements at which an element should be traced through queue and completion.
 		size_t ElementTraceInterval;

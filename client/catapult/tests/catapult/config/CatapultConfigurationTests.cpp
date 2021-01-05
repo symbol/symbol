@@ -133,9 +133,12 @@ namespace catapult { namespace config {
 			EXPECT_EQ(100u, config.SocketWorkingBufferSensitivity);
 			EXPECT_EQ(utils::FileSize::FromMegabytes(150), config.MaxPacketDataSize);
 
-			EXPECT_EQ(4096u, config.BlockDisruptorSize);
+			EXPECT_EQ(4096u, config.BlockDisruptorSlotCount);
+			EXPECT_EQ(utils::FileSize::FromMegabytes(300), config.BlockDisruptorMaxMemorySize);
 			EXPECT_EQ(1u, config.BlockElementTraceInterval);
-			EXPECT_EQ(16384u, config.TransactionDisruptorSize);
+
+			EXPECT_EQ(8192u, config.TransactionDisruptorSlotCount);
+			EXPECT_EQ(utils::FileSize::FromMegabytes(20), config.TransactionDisruptorMaxMemorySize);
 			EXPECT_EQ(10u, config.TransactionElementTraceInterval);
 
 			EXPECT_TRUE(config.EnableDispatcherAbortWhenFull);

@@ -84,8 +84,7 @@ namespace catapult { namespace disruptor {
 		ProcessingCompleteFunc wrap(const ProcessingCompleteFunc& processingComplete, utils::FileSize inputMemorySize);
 
 	private:
-		size_t m_elementTraceInterval;
-		bool m_shouldThrowIfFull;
+		ConsumerDispatcherOptions m_options;
 		std::atomic_bool m_keepRunning;
 		DisruptorBarriers m_barriers;
 		Disruptor m_disruptor;

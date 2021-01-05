@@ -82,14 +82,16 @@ namespace catapult { namespace sync {
 		}
 
 		ConsumerDispatcherOptions CreateBlockConsumerDispatcherOptions(const config::NodeConfiguration& config) {
-			auto options = ConsumerDispatcherOptions("block dispatcher", config.BlockDisruptorSize);
+			auto options = ConsumerDispatcherOptions("block dispatcher", config.BlockDisruptorSlotCount);
+			options.DisruptorMaxMemorySize = config.BlockDisruptorMaxMemorySize;
 			options.ElementTraceInterval = config.BlockElementTraceInterval;
 			options.ShouldThrowWhenFull = config.EnableDispatcherAbortWhenFull;
 			return options;
 		}
 
 		ConsumerDispatcherOptions CreateTransactionConsumerDispatcherOptions(const config::NodeConfiguration& config) {
-			auto options = ConsumerDispatcherOptions("transaction dispatcher", config.TransactionDisruptorSize);
+			auto options = ConsumerDispatcherOptions("transaction dispatcher", config.TransactionDisruptorSlotCount);
+			options.DisruptorMaxMemorySize = config.TransactionDisruptorMaxMemorySize;
 			options.ElementTraceInterval = config.TransactionElementTraceInterval;
 			options.ShouldThrowWhenFull = config.EnableDispatcherAbortWhenFull;
 			return options;

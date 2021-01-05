@@ -68,9 +68,12 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(SocketWorkingBufferSensitivity);
 		LOAD_NODE_PROPERTY(MaxPacketDataSize);
 
-		LOAD_NODE_PROPERTY(BlockDisruptorSize);
+		LOAD_NODE_PROPERTY(BlockDisruptorSlotCount);
+		LOAD_NODE_PROPERTY(BlockDisruptorMaxMemorySize);
 		LOAD_NODE_PROPERTY(BlockElementTraceInterval);
-		LOAD_NODE_PROPERTY(TransactionDisruptorSize);
+
+		LOAD_NODE_PROPERTY(TransactionDisruptorSlotCount);
+		LOAD_NODE_PROPERTY(TransactionDisruptorMaxMemorySize);
 		LOAD_NODE_PROPERTY(TransactionElementTraceInterval);
 
 		LOAD_NODE_PROPERTY(EnableDispatcherAbortWhenFull);
@@ -141,7 +144,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 36 + 7 + 4 + 4 + 5 + 7);
+		utils::VerifyBagSizeExact(bag, 38 + 7 + 4 + 4 + 5 + 7);
 		return config;
 	}
 

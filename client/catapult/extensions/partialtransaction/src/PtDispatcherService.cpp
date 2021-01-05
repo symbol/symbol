@@ -55,7 +55,8 @@ namespace catapult { namespace partialtransaction {
 		}
 
 		ConsumerDispatcherOptions CreateTransactionConsumerDispatcherOptions(const config::NodeConfiguration& config) {
-			auto options = ConsumerDispatcherOptions("partial transaction dispatcher", config.TransactionDisruptorSize);
+			auto options = ConsumerDispatcherOptions("partial transaction dispatcher", config.TransactionDisruptorSlotCount);
+			options.DisruptorMaxMemorySize = config.TransactionDisruptorMaxMemorySize;
 			options.ElementTraceInterval = config.TransactionElementTraceInterval;
 			options.ShouldThrowWhenFull = config.EnableDispatcherAbortWhenFull;
 			return options;

@@ -68,9 +68,12 @@ namespace catapult { namespace config {
 							{ "socketWorkingBufferSensitivity", "6225" },
 							{ "maxPacketDataSize", "10MB" },
 
-							{ "blockDisruptorSize", "1000" },
+							{ "blockDisruptorSlotCount", "1000" },
+							{ "blockDisruptorMaxMemorySize", "15MB" },
 							{ "blockElementTraceInterval", "34" },
-							{ "transactionDisruptorSize", "9876" },
+
+							{ "transactionDisruptorSlotCount", "9876" },
+							{ "transactionDisruptorMaxMemorySize", "101KB" },
 							{ "transactionElementTraceInterval", "98" },
 
 							{ "enableDispatcherAbortWhenFull", "true" },
@@ -181,9 +184,12 @@ namespace catapult { namespace config {
 				EXPECT_EQ(0u, config.SocketWorkingBufferSensitivity);
 				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.MaxPacketDataSize);
 
-				EXPECT_EQ(0u, config.BlockDisruptorSize);
+				EXPECT_EQ(0u, config.BlockDisruptorSlotCount);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.BlockDisruptorMaxMemorySize);
 				EXPECT_EQ(0u, config.BlockElementTraceInterval);
-				EXPECT_EQ(0u, config.TransactionDisruptorSize);
+
+				EXPECT_EQ(0u, config.TransactionDisruptorSlotCount);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.TransactionDisruptorMaxMemorySize);
 				EXPECT_EQ(0u, config.TransactionElementTraceInterval);
 
 				EXPECT_FALSE(config.EnableDispatcherAbortWhenFull);
@@ -267,9 +273,12 @@ namespace catapult { namespace config {
 				EXPECT_EQ(6225u, config.SocketWorkingBufferSensitivity);
 				EXPECT_EQ(utils::FileSize::FromMegabytes(10), config.MaxPacketDataSize);
 
-				EXPECT_EQ(1000u, config.BlockDisruptorSize);
+				EXPECT_EQ(1000u, config.BlockDisruptorSlotCount);
+				EXPECT_EQ(utils::FileSize::FromMegabytes(15), config.BlockDisruptorMaxMemorySize);
 				EXPECT_EQ(34u, config.BlockElementTraceInterval);
-				EXPECT_EQ(9876u, config.TransactionDisruptorSize);
+
+				EXPECT_EQ(9876u, config.TransactionDisruptorSlotCount);
+				EXPECT_EQ(utils::FileSize::FromKilobytes(101), config.TransactionDisruptorMaxMemorySize);
 				EXPECT_EQ(98u, config.TransactionElementTraceInterval);
 
 				EXPECT_TRUE(config.EnableDispatcherAbortWhenFull);

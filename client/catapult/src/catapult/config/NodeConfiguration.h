@@ -108,14 +108,20 @@ namespace catapult { namespace config {
 		/// Maximum packet data size.
 		utils::FileSize MaxPacketDataSize;
 
-		/// Size of the block disruptor circular buffer.
-		uint32_t BlockDisruptorSize;
+		/// Number of slots in the block disruptor circular buffer.
+		uint32_t BlockDisruptorSlotCount;
+
+		/// Maximum memory of all elements in the block disruptor circular buffer.
+		utils::FileSize BlockDisruptorMaxMemorySize;
 
 		/// Multiple of elements at which a block element should be traced through queue and completion.
 		uint32_t BlockElementTraceInterval;
 
-		/// Size of the transaction disruptor circular buffer.
-		uint32_t TransactionDisruptorSize;
+		/// Number of slots in the transaction disruptor circular buffer.
+		uint32_t TransactionDisruptorSlotCount;
+
+		/// Maximum memory of all elements in the transaction disruptor circular buffer.
+		utils::FileSize TransactionDisruptorMaxMemorySize;
 
 		/// Multiple of elements at which a transaction element should be traced through queue and completion.
 		uint32_t TransactionElementTraceInterval;
