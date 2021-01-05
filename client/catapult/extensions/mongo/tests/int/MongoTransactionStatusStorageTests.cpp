@@ -44,8 +44,8 @@ namespace catapult { namespace mongo {
 
 		using TransactionStatusesMap = std::unordered_map<Hash256, model::TransactionStatus, utils::ArrayHasher<Hash256>>;
 
-		auto ResetDatabaseAndCreateMongoContext(thread::IoThreadPool& pool) {
-			test::ResetDatabase(test::DatabaseName());
+		auto PrepareDatabaseAndCreateMongoContext(thread::IoThreadPool& pool) {
+			test::PrepareDatabase(test::DatabaseName());
 			return test::CreateDefaultMongoStorageContext(test::DatabaseName(), pool);
 		}
 
@@ -88,7 +88,7 @@ namespace catapult { namespace mongo {
 		public:
 			explicit TransactionStatusSubscriberContext(size_t numTransactionStatuses)
 					: m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads))
-					, m_pMongoContext(ResetDatabaseAndCreateMongoContext(*m_pPool))
+					, m_pMongoContext(PrepareDatabaseAndCreateMongoContext(*m_pPool))
 					, m_pSubscriber(CreateMongoTransactionStatusStorage(*m_pMongoContext))
 					, m_statuses(CreateTransactionStatuses(numTransactionStatuses))
 			{}
@@ -102,10 +102,16 @@ namespace catapult { namespace mongo {
 				return m_statuses;
 			}
 
-			TransactionStatusesMap toMap() const {
+			TransactionStatusesMap toMap(size_t startIndex = 0) const {
 				TransactionStatusesMap map;
-				for (const auto& status : m_statuses)
+
+				auto i = 0u;
+				for (const auto& status : m_statuses) {
+					if (startIndex > i++)
+						continue;
+
 					map.emplace(status.Hash, status);
+				}
 
 				return map;
 			}
@@ -177,6 +183,21 @@ namespace catapult { namespace mongo {
 		TransactionStatusesMap map;
 		map.emplace(status.Hash, status);
 		AssertTransactionStatuses(map);
+	}
+
+	TEST(TEST_CLASS, TransactionStatusCollectionIsCapped) {
+		// Arrange: max is set to 25 in PrepareDatabase
+		TransactionStatusSubscriberContext context(30);
+
+		// Sanity:
+		test::AssertCollectionSize(Collection_Name, 0);
+
+		// Act:
+		for (const auto& status : context.statuses())
+			context.saveTransactionStatus(status);
+
+		// Assert: only the 25 most recent statuses are saved
+		AssertTransactionStatuses(context.toMap(5));
 	}
 
 	// endregion

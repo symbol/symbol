@@ -92,6 +92,14 @@ namespace catapult { namespace test {
 		auto unconfirmedTransactions = database["unconfirmedTransactions"];
 		auto hashIndex = document() << "meta.hash" << 1 << finalize;
 		unconfirmedTransactions.create_index(hashIndex.view(), mongocxx::options::index().unique(true));
+
+		// cap 'transactionStatuses' collection
+		auto transactionStatusesOptions = document()
+				<< "capped" << true
+				<< "size" << std::numeric_limits<int>::max()
+				<< "max" << 25
+				<< finalize;
+		database.create_collection("transactionStatuses", transactionStatusesOptions.view());
 	}
 
 	bsoncxx::document::value CreateFilter(const std::shared_ptr<state::AccountState>& pAccountState) {

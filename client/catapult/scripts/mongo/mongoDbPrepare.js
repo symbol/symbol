@@ -57,7 +57,7 @@
 
 	['unconfirmedTransactions', 'partialTransactions'].forEach(addTransactionCollection);
 
-	db.createCollection('transactionStatuses');
+	db.createCollection('transactionStatuses', { capped: true, size: 53000000, max: 500000 });
 	db.transactionStatuses.createIndex({ 'status.hash': 1 }, { unique: true });
 	db.transactionStatuses.createIndex({ 'status.deadline': -1 });
 })();
