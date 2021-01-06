@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "ChainFunctions.h"
 #include "RemoteNodeSynchronizer.h"
 #include "catapult/handlers/HandlerTypes.h"
 #include "catapult/model/RangeTypes.h"
@@ -31,10 +32,12 @@ namespace catapult { namespace chain {
 	/// Function signature for supplying a range of short hashes.
 	using ShortHashesSupplier = supplier<model::ShortHashRange>;
 
-	/// Creates an unconfirmed transactions synchronizer around the specified short hashes supplier (\a shortHashesSupplier)
-	/// and transaction range consumer (\a transactionRangeConsumer) for transactions with fee multipliers at least \a minFeeMultiplier.
+	/// Creates an unconfirmed transactions synchronizer around the specified time supplier (\a timeSupplier),
+	/// short hashes supplier (\a shortHashesSupplier) and transaction range consumer (\a transactionRangeConsumer)
+	/// for transactions with fee multipliers at least \a minFeeMultiplier.
 	RemoteNodeSynchronizer<api::RemoteTransactionApi> CreateUtSynchronizer(
 			BlockFeeMultiplier minFeeMultiplier,
+			const TimeSupplier& timeSupplier,
 			const ShortHashesSupplier& shortHashesSupplier,
 			const handlers::TransactionRangeHandler& transactionRangeConsumer);
 }}

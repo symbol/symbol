@@ -76,7 +76,7 @@ namespace catapult { namespace handlers {
 
 	namespace {
 		struct PullTransactionsTraits {
-			static constexpr auto Data_Header_Size = sizeof(BlockFeeMultiplier);
+			static constexpr auto Data_Header_Size = sizeof(Timestamp) + sizeof(BlockFeeMultiplier);
 			static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
 			static constexpr auto Valid_Request_Payload_Size = SizeOf32<utils::ShortHash>();
 
@@ -84,8 +84,8 @@ namespace catapult { namespace handlers {
 			using RetrieverParamType = utils::ShortHashesSet;
 
 			using UtRetrieverAdapter = std::function<UnconfirmedTransactions (const utils::ShortHashesSet&)>;
-			static auto RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever) {
-				handlers::RegisterPullTransactionsHandler(handlers, [utRetriever](auto, const auto& knownShortHashes) {
+			static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever) {
+				handlers::RegisterPullTransactionsHandler(handlers, [utRetriever](auto, auto, const auto& knownShortHashes) {
 					return utRetriever(knownShortHashes);
 				});
 			}
@@ -99,12 +99,36 @@ namespace catapult { namespace handlers {
 	// region PullTransactionsHandler - request + response tests
 
 	namespace {
-		struct PullTransactionsRequestResponseTraits {
+		class PullTransactionsRequestResponseTraits {
+		public:
 			static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
-			static constexpr auto RegisterHandler = handlers::RegisterPullTransactionsHandler;
 
-			using FilterType = BlockFeeMultiplier;
+#pragma pack(push, 1)
 
+			struct FilterType {
+			public:
+				Timestamp Deadline;
+				BlockFeeMultiplier FeeMultiplier;
+
+			public:
+				constexpr bool operator==(const FilterType& rhs) const {
+					return Deadline == rhs.Deadline && FeeMultiplier == rhs.FeeMultiplier;
+				}
+			};
+
+#pragma pack(pop)
+
+			using UtRetrieverAdapter = std::function<UnconfirmedTransactions (const FilterType&, const utils::ShortHashesSet&)>;
+			static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever) {
+				handlers::RegisterPullTransactionsHandler(handlers, [utRetriever](
+						auto minDeadline,
+						auto minFeeMultiplier,
+						const auto& knownShortHashes) {
+					return utRetriever({ minDeadline, minFeeMultiplier, }, knownShortHashes);
+				});
+			}
+
+		public:
 			class PullResponseContext {
 			public:
 				explicit PullResponseContext(size_t numResponseTransactions) {

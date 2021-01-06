@@ -36,8 +36,11 @@ namespace catapult { namespace api {
 			static constexpr auto Packet_Type = ionet::PacketType::Pull_Partial_Transaction_Infos;
 			static constexpr auto Friendly_Name = "pull partial transaction infos";
 
-			static auto CreateRequestPacketPayload(cache::ShortHashPairRange&& knownShortHashPairs) {
-				return ionet::PacketPayloadFactory::FromFixedSizeRange(Packet_Type, std::move(knownShortHashPairs));
+			static auto CreateRequestPacketPayload(Timestamp minDeadline, cache::ShortHashPairRange&& knownShortHashPairs) {
+				ionet::PacketPayloadBuilder builder(Packet_Type);
+				builder.appendValue(minDeadline);
+				builder.appendRange(std::move(knownShortHashPairs));
+				return builder.build();
 			}
 
 		public:
@@ -64,8 +67,10 @@ namespace catapult { namespace api {
 			{}
 
 		public:
-			FutureType<TransactionInfosTraits> transactionInfos(cache::ShortHashPairRange&& knownShortHashPairs) const override {
-				return m_impl.dispatch(TransactionInfosTraits(m_registry), std::move(knownShortHashPairs));
+			FutureType<TransactionInfosTraits> transactionInfos(
+					Timestamp minDeadline,
+					cache::ShortHashPairRange&& knownShortHashPairs) const override {
+				return m_impl.dispatch(TransactionInfosTraits(m_registry), minDeadline, std::move(knownShortHashPairs));
 			}
 
 		private:

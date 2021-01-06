@@ -30,8 +30,8 @@ namespace catapult { namespace partialtransaction {
 	/// Vector of cosigned (partial) transaction infos.
 	using CosignedTransactionInfos = std::vector<model::CosignedTransactionInfo>;
 
-	/// Prototype for a function that retrieves partial transaction infos given a set of short hash pairs.
-	using CosignedTransactionInfosRetriever = std::function<CosignedTransactionInfos (const cache::ShortHashPairMap&)>;
+	/// Prototype for a function that retrieves partial transaction infos given a filter and a set of short hash pairs.
+	using CosignedTransactionInfosRetriever = std::function<CosignedTransactionInfos (Timestamp, const cache::ShortHashPairMap&)>;
 
 	/// Function signature for consuming a vector of cosigned transaction infos.
 	using CosignedTransactionInfosConsumer = consumer<CosignedTransactionInfos&&>;

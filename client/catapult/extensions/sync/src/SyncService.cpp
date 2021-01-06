@@ -80,6 +80,7 @@ namespace catapult { namespace sync {
 		thread::Task CreatePullUtTask(const extensions::ServiceState& state, net::PacketWriters& packetWriters) {
 			auto utSynchronizer = chain::CreateUtSynchronizer(
 					state.config().Node.MinFeeMultiplier,
+					state.timeSupplier(),
 					[&cache = state.utCache()]() { return cache.view().shortHashes(); },
 					state.hooks().transactionRangeConsumerFactory()(Sync_Source));
 

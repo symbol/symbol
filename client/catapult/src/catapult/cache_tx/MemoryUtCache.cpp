@@ -92,11 +92,15 @@ namespace catapult { namespace cache {
 	}
 
 	MemoryUtCacheView::UnknownTransactions MemoryUtCacheView::unknownTransactions(
+			Timestamp minDeadline,
 			BlockFeeMultiplier minFeeMultiplier,
 			const utils::ShortHashesSet& knownShortHashes) const {
 		uint64_t totalSize = 0;
 		UnknownTransactions transactions;
 		for (const auto& data : m_transactionDataContainer) {
+			if (data.pEntity->Deadline < minDeadline)
+				continue;
+
 			if (data.pEntity->MaxFee < model::CalculateTransactionFee(minFeeMultiplier, *data.pEntity))
 				continue;
 

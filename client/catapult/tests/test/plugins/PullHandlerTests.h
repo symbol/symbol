@@ -56,18 +56,39 @@ namespace catapult { namespace test {
 	private:
 		using FilterType = typename TTraits::FilterType;
 
+	private:
+		struct ShortHashTraits {
+			using Container = utils::ShortHashesSet;
+
+			static uint32_t CalculatePayloadSize(uint32_t count) {
+				return count * SizeOf32<utils::ShortHash>();
+			}
+
+			static auto ExtractFromPacket(const ionet::Packet& packet, size_t count) {
+				auto filterValue = reinterpret_cast<const FilterType&>(*packet.Data());
+
+				utils::ShortHashesSet extractedShortHashes;
+				auto pShortHashData = reinterpret_cast<const utils::ShortHash*>(packet.Data() + sizeof(FilterType));
+				for (auto i = 0u; i < count; ++i)
+					extractedShortHashes.insert(*pShortHashData++);
+
+				return std::make_pair(filterValue, extractedShortHashes);
+			}
+		};
+
 	public:
+		template<typename THashTraits = ShortHashTraits>
 		static void AssertFunc(uint32_t numRequestHashes, uint32_t numResponseEntities) {
 			// Arrange:
 			auto packetType = TTraits::Packet_Type;
-			auto shortHashesSize = numRequestHashes * SizeOf32<utils::ShortHash>();
-			auto pPacket = test::CreateRandomPacket(SizeOf32<FilterType>() + shortHashesSize, packetType);
+			auto hashesSize = THashTraits::CalculatePayloadSize(numRequestHashes);
+			auto pPacket = test::CreateRandomPacket(SizeOf32<FilterType>() + hashesSize, packetType);
 			ionet::ServerPacketHandlers handlers;
 			size_t counter = 0;
 
-			auto extractedRequestData = ExtractRequestParametersFromPacket(*pPacket, numRequestHashes);
+			auto extractedRequestData = THashTraits::ExtractFromPacket(*pPacket, numRequestHashes);
 			FilterType actualFilterValue;
-			utils::ShortHashesSet actualRequestHashes;
+			typename THashTraits::Container actualRequestHashes;
 			typename TTraits::PullResponseContext responseContext(numResponseEntities);
 			TTraits::RegisterHandler(handlers, [&](auto filterValue, const auto& requestHashes) {
 				++counter;
@@ -92,18 +113,6 @@ namespace catapult { namespace test {
 
 			// - let the traits assert the returned payload (may be one or more buffers)
 			responseContext.assertPayload(payload);
-		}
-
-	private:
-		static auto ExtractRequestParametersFromPacket(const ionet::Packet& packet, size_t numRequestHashes) {
-			auto filterValue = reinterpret_cast<const FilterType&>(*packet.Data());
-
-			utils::ShortHashesSet extractedShortHashes;
-			auto pShortHashData = reinterpret_cast<const utils::ShortHash*>(packet.Data() + sizeof(FilterType));
-			for (auto i = 0u; i < numRequestHashes; ++i)
-				extractedShortHashes.insert(*pShortHashData++);
-
-			return std::make_pair(filterValue, extractedShortHashes);
 		}
 	};
 

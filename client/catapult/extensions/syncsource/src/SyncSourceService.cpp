@@ -56,8 +56,8 @@ namespace catapult { namespace syncsource {
 
 			config.PushBlockCallback = extensions::CreateBlockPushEntityCallback(state.hooks());
 			config.ChainScoreSupplier = [&chainScore = state.score()]() { return chainScore.get(); };
-			config.UtRetriever = [&cache = state.utCache()](auto minFeeMultiplier, const auto& shortHashes) {
-				return cache.view().unknownTransactions(minFeeMultiplier, shortHashes);
+			config.UtRetriever = [&cache = state.utCache()](auto minDeadline, auto minFeeMultiplier, const auto& shortHashes) {
+				return cache.view().unknownTransactions(minDeadline, minFeeMultiplier, shortHashes);
 			};
 
 			return config;

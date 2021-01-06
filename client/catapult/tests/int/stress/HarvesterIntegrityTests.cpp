@@ -222,7 +222,7 @@ namespace catapult { namespace harvesting {
 				model::TransactionInfo nextTransactionInfo;
 				{
 					auto utCacheView = context.transactionsCache().view();
-					auto pTransaction = utCacheView.unknownTransactions(BlockFeeMultiplier(0), utils::ShortHashesSet())[0];
+					auto pTransaction = utCacheView.unknownTransactions(Timestamp(0), BlockFeeMultiplier(0), utils::ShortHashesSet())[0];
 					auto transactionHash = model::CalculateHash(*pTransaction, test::GetNemesisGenerationHashSeed());
 					nextTransactionInfo = model::TransactionInfo(std::move(pTransaction), transactionHash);
 				}

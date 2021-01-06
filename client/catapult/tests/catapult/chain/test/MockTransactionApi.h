@@ -34,6 +34,12 @@ namespace catapult { namespace mocks {
 			Unconfirmed_Transactions
 		};
 
+		struct UtRequest {
+			Timestamp Deadline;
+			BlockFeeMultiplier FeeMultiplier;
+			model::ShortHashRange ShortHashes;
+		};
+
 	public:
 		/// Creates a transaction api around a range of transactions (\a transactionRange).
 		explicit MockTransactionApi(const model::TransactionRange& transactionRange)
@@ -55,11 +61,12 @@ namespace catapult { namespace mocks {
 
 	public:
 		/// Gets the configured unconfirmed transactions and throws if the error entry point is set to Unconfirmed_Transactions.
-		/// \note The \a minFeeMultiplier and \a knownShortHashes parameters are captured.
+		/// \note The \a minDeadline, \a minFeeMultiplier and \a knownShortHashes parameters are captured.
 		thread::future<model::TransactionRange> unconfirmedTransactions(
+				Timestamp minDeadline,
 				BlockFeeMultiplier minFeeMultiplier,
 				model::ShortHashRange&& knownShortHashes) const override {
-			m_utRequests.emplace_back(minFeeMultiplier, std::move(knownShortHashes));
+			m_utRequests.emplace_back(UtRequest{ minDeadline, minFeeMultiplier, std::move(knownShortHashes) });
 			if (shouldRaiseException(EntryPoint::Unconfirmed_Transactions))
 				return CreateFutureException<model::TransactionRange>("unconfirmed transactions error has been set");
 
@@ -79,6 +86,6 @@ namespace catapult { namespace mocks {
 	private:
 		model::TransactionRange m_transactionRange;
 		EntryPoint m_errorEntryPoint;
-		mutable std::vector<std::pair<BlockFeeMultiplier, model::ShortHashRange>> m_utRequests;
+		mutable std::vector<UtRequest> m_utRequests;
 	};
 }}

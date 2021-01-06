@@ -36,9 +36,10 @@ namespace catapult { namespace api {
 		{}
 
 	public:
-		/// Gets all unconfirmed transactions from the remote that have a fee multiplier at least \a minFeeMultiplier
-		/// and do not have a short hash in \a knownShortHashes.
+		/// Gets all unconfirmed transactions from the remote that have a deadline at least \a minDeadline,
+		/// a fee multiplier at least \a minFeeMultiplier and do not have a short hash in \a knownShortHashes.
 		virtual thread::future<model::TransactionRange> unconfirmedTransactions(
+				Timestamp minDeadline,
 				BlockFeeMultiplier minFeeMultiplier,
 				model::ShortHashRange&& knownShortHashes) const = 0;
 	};

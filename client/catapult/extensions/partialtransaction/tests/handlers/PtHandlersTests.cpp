@@ -92,13 +92,23 @@ namespace catapult { namespace handlers {
 
 	namespace {
 		struct PullTransactionsTraits {
-			static constexpr auto Data_Header_Size = 0u;
+			static constexpr auto Data_Header_Size = sizeof(Timestamp);
 			static constexpr auto Packet_Type = ionet::PacketType::Pull_Partial_Transaction_Infos;
-			static constexpr auto RegisterHandler = RegisterPullPartialTransactionInfosHandler;
 			static constexpr auto Valid_Request_Payload_Size = SizeOf32<cache::ShortHashPair>();
 
 			using ResponseType = CosignedTransactionInfos;
 			using RetrieverParamType = cache::ShortHashPairMap;
+
+			using TransactionInfosRetrieverAdapter = std::function<CosignedTransactionInfos (const cache::ShortHashPairMap&)>;
+			static void RegisterHandler(
+					ionet::ServerPacketHandlers& handlers,
+					const TransactionInfosRetrieverAdapter& transactionInfosRetriever) {
+				handlers::RegisterPullPartialTransactionInfosHandler(handlers, [transactionInfosRetriever](
+						auto,
+						const auto& knownShortHashPairs) {
+					return transactionInfosRetriever(knownShortHashPairs);
+				});
+			}
 		};
 	}
 
@@ -109,132 +119,121 @@ namespace catapult { namespace handlers {
 	// region PullPartialTransactionInfosHandler - request + response tests
 
 	namespace {
-		auto ExtractFromPacket(const ionet::Packet& packet, size_t numRequestHashPairs) {
-			cache::ShortHashPairMap extractedMap;
-			const auto* pData = reinterpret_cast<const cache::ShortHashPair*>(packet.Data());
-			for (auto i = 0u; i < numRequestHashPairs; ++i) {
-				extractedMap.emplace(pData->TransactionShortHash, pData->CosignaturesShortHash);
-				++pData;
+		struct ShortHashPairTraits {
+			using Container = cache::ShortHashPairMap;
+
+			static uint32_t CalculatePayloadSize(uint32_t count) {
+				return count * SizeOf32<cache::ShortHashPair>();
 			}
 
-			return extractedMap;
-		}
+			static auto ExtractFromPacket(const ionet::Packet& packet, size_t count) {
+				auto filterValue = reinterpret_cast<const Timestamp&>(*packet.Data());
 
-		class PullResponseContext {
-		public:
-			explicit PullResponseContext(size_t numResponseTransactions) {
-				// note: 0th element will have 0 cosignatures
-				for (uint16_t i = 0u; i < numResponseTransactions; ++i) {
-					m_transactionInfos.push_back({
-						test::GenerateRandomByteArray<Hash256>(),
-						i % 2 ? nullptr : mocks::CreateMockTransaction(static_cast<uint16_t>(i)),
-						test::GenerateRandomDataVector<model::Cosignature>(i)
-					});
+				cache::ShortHashPairMap extractedMap;
+				const auto* pData = reinterpret_cast<const cache::ShortHashPair*>(packet.Data() + sizeof(Timestamp));
+				for (auto i = 0u; i < count; ++i) {
+					extractedMap.emplace(pData->TransactionShortHash, pData->CosignaturesShortHash);
+					++pData;
 				}
+
+				return std::make_pair(filterValue, extractedMap);
 			}
-
-		public:
-			const auto& response() const {
-				return m_transactionInfos;
-			}
-
-			auto responseSize() const {
-				return utils::Sum(m_transactionInfos, [](const auto& transactionInfo) {
-					size_t size = sizeof(uint64_t);
-					size += transactionInfo.pTransaction
-							? transactionInfo.pTransaction->Size + utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8)
-							: Hash256::Size;
-					size += transactionInfo.Cosignatures.size() * sizeof(model::Cosignature);
-					return size;
-				});
-			}
-
-			void assertPayload(const ionet::PacketPayload& payload) {
-				// number of buffers is dependent on transactionInfo
-				auto expectedNumBuffers = utils::Sum(m_transactionInfos, [](const auto& transactionInfo) {
-					size_t numBuffers = 2;
-					if (transactionInfo.pTransaction && 0 != utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8))
-						++numBuffers;
-
-					if (!transactionInfo.Cosignatures.empty())
-						++numBuffers;
-
-					return numBuffers;
-				});
-				ASSERT_EQ(expectedNumBuffers, payload.buffers().size());
-
-				auto i = 0u;
-				for (auto infoIndex = 0u; infoIndex < m_transactionInfos.size(); ++infoIndex) {
-					const auto& transactionInfo = m_transactionInfos[infoIndex];
-					auto failedMessage = " for info " + std::to_string(infoIndex);
-
-					auto tagValue = reinterpret_cast<const uint64_t&>(*payload.buffers()[i++].pData);
-					uint64_t expectedTagValue = static_cast<uint16_t>(transactionInfo.Cosignatures.size());
-					expectedTagValue |= transactionInfo.pTransaction ? 0x8000 : 0;
-					EXPECT_EQ(expectedTagValue, tagValue) << failedMessage;
-
-					if (transactionInfo.pTransaction) {
-						const auto& transaction = reinterpret_cast<const mocks::MockTransaction&>(*payload.buffers()[i++].pData);
-						EXPECT_EQ(*transactionInfo.pTransaction, transaction) << failedMessage;
-
-						auto paddingSize = utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8);
-						if (0 != paddingSize) {
-							auto zeros = std::vector<uint8_t>(paddingSize, 0);
-							auto paddingBuffer = payload.buffers()[i++];
-							EXPECT_EQ_MEMORY(zeros.data(), paddingBuffer.pData, paddingBuffer.Size);
-						}
-					} else {
-						const auto& hash = reinterpret_cast<const Hash256&>(*payload.buffers()[i++].pData);
-						EXPECT_EQ(transactionInfo.EntityHash, hash) << failedMessage;
-					}
-
-					if (!transactionInfo.Cosignatures.empty()) {
-						const auto* pCosignatures = payload.buffers()[i++].pData;
-						auto expectedSize = transactionInfo.Cosignatures.size() * sizeof(model::Cosignature);
-						EXPECT_EQ_MEMORY(transactionInfo.Cosignatures.data(), pCosignatures, expectedSize) << failedMessage;
-					}
-				}
-			}
-
-		private:
-			CosignedTransactionInfos m_transactionInfos;
 		};
 
-		void AssertPullResponseIsSetWhenPacketIsValid(uint32_t numRequestHashPairs, uint32_t numResponseTransactions) {
-			// Arrange:
-			auto packetType = PullTransactionsTraits::Packet_Type;
-			auto pPacket = test::CreateRandomPacket(numRequestHashPairs * SizeOf32<cache::ShortHashPair>(), packetType);
-			ionet::ServerPacketHandlers handlers;
-			size_t counter = 0;
+		class PullTransactionsRequestResponseTraits {
+		public:
+			static constexpr auto Packet_Type = ionet::PacketType::Pull_Partial_Transaction_Infos;
+			static constexpr auto RegisterHandler = handlers::RegisterPullPartialTransactionInfosHandler;
 
-			auto extractedRequestHashPairs = ExtractFromPacket(*pPacket, numRequestHashPairs);
-			cache::ShortHashPairMap actualRequestHashPairs;
-			PullResponseContext responseContext(numResponseTransactions);
-			RegisterPullPartialTransactionInfosHandler(handlers, [&](const auto& requestHashPairs) {
-				++counter;
-				actualRequestHashPairs = requestHashPairs;
-				return responseContext.response();
-			});
+			using FilterType = Timestamp;
 
-			// Act:
-			ionet::ServerPacketHandlerContext handlerContext;
-			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
+		public:
+			class PullResponseContext {
+			public:
+				explicit PullResponseContext(size_t numResponseTransactions) {
+					// note: 0th element will have 0 cosignatures
+					for (uint16_t i = 0u; i < numResponseTransactions; ++i) {
+						m_transactionInfos.push_back({
+							test::GenerateRandomByteArray<Hash256>(),
+							i % 2 ? nullptr : mocks::CreateMockTransaction(static_cast<uint16_t>(i)),
+							test::GenerateRandomDataVector<model::Cosignature>(i)
+						});
+					}
+				}
 
-			// Assert: the requested hash pairs were passed to the supplier
-			EXPECT_EQ(extractedRequestHashPairs, actualRequestHashPairs);
+			public:
+				const auto& response() const {
+					return m_transactionInfos;
+				}
 
-			// - the handler was called and has the correct header
-			EXPECT_EQ(1u, counter);
-			ASSERT_TRUE(handlerContext.hasResponse());
-			auto payload = handlerContext.response();
-			test::AssertPacketHeader(payload, sizeof(ionet::PacketHeader) + responseContext.responseSize(), packetType);
+				auto responseSize() const {
+					return utils::Sum(m_transactionInfos, [](const auto& transactionInfo) {
+						size_t size = sizeof(uint64_t);
+						size += transactionInfo.pTransaction
+								? transactionInfo.pTransaction->Size + utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8)
+								: Hash256::Size;
+						size += transactionInfo.Cosignatures.size() * sizeof(model::Cosignature);
+						return size;
+					});
+				}
 
-			// - let the traits assert the returned payload (may be one or more buffers)
-			responseContext.assertPayload(payload);
-		}
+				void assertPayload(const ionet::PacketPayload& payload) {
+					// number of buffers is dependent on transactionInfo
+					auto expectedNumBuffers = utils::Sum(m_transactionInfos, [](const auto& transactionInfo) {
+						size_t numBuffers = 2;
+						if (transactionInfo.pTransaction && 0 != utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8))
+							++numBuffers;
+
+						if (!transactionInfo.Cosignatures.empty())
+							++numBuffers;
+
+						return numBuffers;
+					});
+					ASSERT_EQ(expectedNumBuffers, payload.buffers().size());
+
+					auto i = 0u;
+					for (auto infoIndex = 0u; infoIndex < m_transactionInfos.size(); ++infoIndex) {
+						const auto& transactionInfo = m_transactionInfos[infoIndex];
+						auto failedMessage = " for info " + std::to_string(infoIndex);
+
+						auto tagValue = reinterpret_cast<const uint64_t&>(*payload.buffers()[i++].pData);
+						uint64_t expectedTagValue = static_cast<uint16_t>(transactionInfo.Cosignatures.size());
+						expectedTagValue |= transactionInfo.pTransaction ? 0x8000 : 0;
+						EXPECT_EQ(expectedTagValue, tagValue) << failedMessage;
+
+						if (transactionInfo.pTransaction) {
+							const auto& transaction = reinterpret_cast<const mocks::MockTransaction&>(*payload.buffers()[i++].pData);
+							EXPECT_EQ(*transactionInfo.pTransaction, transaction) << failedMessage;
+
+							auto paddingSize = utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8);
+							if (0 != paddingSize) {
+								auto zeros = std::vector<uint8_t>(paddingSize, 0);
+								auto paddingBuffer = payload.buffers()[i++];
+								EXPECT_EQ_MEMORY(zeros.data(), paddingBuffer.pData, paddingBuffer.Size);
+							}
+						} else {
+							const auto& hash = reinterpret_cast<const Hash256&>(*payload.buffers()[i++].pData);
+							EXPECT_EQ(transactionInfo.EntityHash, hash) << failedMessage;
+						}
+
+						if (!transactionInfo.Cosignatures.empty()) {
+							const auto* pCosignatures = payload.buffers()[i++].pData;
+							auto expectedSize = transactionInfo.Cosignatures.size() * sizeof(model::Cosignature);
+							EXPECT_EQ_MEMORY(transactionInfo.Cosignatures.data(), pCosignatures, expectedSize) << failedMessage;
+						}
+					}
+				}
+
+			private:
+				CosignedTransactionInfos m_transactionInfos;
+			};
+		};
 	}
 
-	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(TEST_CLASS, PullTransactions, AssertPullResponseIsSetWhenPacketIsValid)
+	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(
+			TEST_CLASS,
+			PullTransactions,
+			test::PullEntitiesHandlerAssertAdapter<PullTransactionsRequestResponseTraits>::AssertFunc<ShortHashPairTraits>)
 
 	// endregion
 }}

@@ -136,7 +136,9 @@ namespace catapult { namespace cache {
 		return shortHashPairs;
 	}
 
-	MemoryPtCacheView::UnknownTransactionInfos MemoryPtCacheView::unknownTransactions(const ShortHashPairMap& knownShortHashPairs) const {
+	MemoryPtCacheView::UnknownTransactionInfos MemoryPtCacheView::unknownTransactions(
+			Timestamp minDeadline,
+			const ShortHashPairMap& knownShortHashPairs) const {
 		uint64_t totalSize = 0;
 		UnknownTransactionInfos unknownTransactionInfos;
 		for (const auto& pair : m_transactionDataContainer) {
@@ -146,6 +148,9 @@ namespace catapult { namespace cache {
 
 			// if both hashes match, the data is completely known, so skip it
 			if (knownShortHashPairs.cend() != iter && iter->second == utils::ToShortHash(ptData.cosignaturesHash()))
+				continue;
+
+			if (ptData.transaction()->Deadline < minDeadline)
 				continue;
 
 			auto entrySize = sizeof(Hash256) + sizeof(model::Cosignature) * ptData.cosignatures().size();

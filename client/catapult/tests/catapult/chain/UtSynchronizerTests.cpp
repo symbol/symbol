@@ -52,7 +52,7 @@ namespace catapult { namespace chain {
 				}
 
 				const auto& singleRequest() const {
-					return m_pTransactionApi->utRequests()[0].second;
+					return m_pTransactionApi->utRequests()[0].ShortHashes;
 				}
 
 				void setError(bool setError = true) {
@@ -63,7 +63,8 @@ namespace catapult { namespace chain {
 				}
 
 				void checkAdditionalRequestParameters() {
-					EXPECT_EQ(BlockFeeMultiplier(17), m_pTransactionApi->utRequests()[0].first);
+					EXPECT_EQ(Timestamp(84), m_pTransactionApi->utRequests()[0].Deadline);
+					EXPECT_EQ(BlockFeeMultiplier(17), m_pTransactionApi->utRequests()[0].FeeMultiplier);
 				}
 
 			private:
@@ -87,7 +88,8 @@ namespace catapult { namespace chain {
 			static auto CreateSynchronizer(
 					const ShortHashesSupplier& shortHashesSupplier,
 					const handlers::TransactionRangeHandler& transactionRangeConsumer) {
-				return CreateUtSynchronizer(BlockFeeMultiplier(17), shortHashesSupplier, transactionRangeConsumer);
+				auto timeSupplier = []() { return Timestamp(84); };
+				return CreateUtSynchronizer(BlockFeeMultiplier(17), timeSupplier, shortHashesSupplier, transactionRangeConsumer);
 			}
 		};
 	}

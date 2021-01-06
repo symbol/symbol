@@ -746,8 +746,9 @@ namespace catapult { namespace cache {
 		public:
 			static UnknownTransactionInfos GetUnknownTransactions(
 					const MemoryPtCacheView& view,
+					Timestamp minDeadline,
 					const ShortHashPairMap& knownShortHashPairs) {
-				return view.unknownTransactions(knownShortHashPairs);
+				return view.unknownTransactions(minDeadline, knownShortHashPairs);
 			}
 
 			static void AddAllToCache(cache::PtCache& cache, const std::vector<model::TransactionInfo>& transactionInfos) {
@@ -815,7 +816,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		RunUnknownTransactionWithCosignaturesTest([](const auto& cache, const auto& info, const auto& cosignatures, auto) {
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions({});
+			auto unknownInfos = cache.view().unknownTransactions(Timestamp(), {});
 
 			// Assert:
 			ASSERT_EQ(1u, unknownInfos.size());
@@ -829,7 +830,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		RunUnknownTransactionWithCosignaturesTest([](const auto& cache, const auto& info, const auto& cosignatures, auto shortHashPair) {
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions({
+			auto unknownInfos = cache.view().unknownTransactions(Timestamp(), {
 				{ shortHashPair.TransactionShortHash, utils::ShortHash() }
 			});
 
@@ -845,7 +846,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		RunUnknownTransactionWithCosignaturesTest([](const auto& cache, const auto&, const auto&, auto shortHashPair) {
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions({
+			auto unknownInfos = cache.view().unknownTransactions(Timestamp(), {
 				{ shortHashPair.TransactionShortHash, shortHashPair.CosignaturesShortHash }
 			});
 
@@ -880,7 +881,7 @@ namespace catapult { namespace cache {
 			AddAll(cache, test::CreateTransactionInfos(5));
 
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions({});
+			auto unknownInfos = cache.view().unknownTransactions(Timestamp(), {});
 
 			// Assert: notice that no ordering is guaranteed
 			EXPECT_EQ(numExpectedTransactions, unknownInfos.size());
@@ -901,7 +902,7 @@ namespace catapult { namespace cache {
 			}
 
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions(knownShortHashes);
+			auto unknownInfos = cache.view().unknownTransactions(Timestamp(), knownShortHashes);
 
 			// Assert: notice that no ordering is guaranteed
 			EXPECT_EQ(numExpectedTransactions, unknownInfos.size());
@@ -919,7 +920,7 @@ namespace catapult { namespace cache {
 				AddAll(cache, transactionInfo, test::GenerateRandomDataVector<model::Cosignature>(3));
 
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions({});
+			auto unknownInfos = cache.view().unknownTransactions(Timestamp(), {});
 
 			// Assert: notice that no ordering is guaranteed
 			EXPECT_EQ(numExpectedTransactions, unknownInfos.size());

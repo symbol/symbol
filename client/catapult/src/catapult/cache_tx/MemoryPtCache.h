@@ -65,8 +65,9 @@ namespace catapult { namespace cache {
 		/// \note Each short hash pair consists of the first 4 bytes of the transaction hash and the first 4 bytes of the cosignature hash.
 		ShortHashPairRange shortHashPairs() const;
 
-		/// Gets a vector of all unknown transaction infos in the cache that do not have a short hash pair in \a knownShortHashPairs.
-		UnknownTransactionInfos unknownTransactions(const ShortHashPairMap& knownShortHashPairs) const;
+		/// Gets a vector of all unknown transaction infos in the cache that have a deadline at least \a minDeadline
+		/// and do not have a short hash pair in \a knownShortHashPairs.
+		UnknownTransactionInfos unknownTransactions(Timestamp minDeadline, const ShortHashPairMap& knownShortHashPairs) const;
 
 	private:
 		utils::FileSize m_maxResponseSize;

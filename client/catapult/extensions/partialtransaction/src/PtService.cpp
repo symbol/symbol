@@ -53,6 +53,7 @@ namespace catapult { namespace partialtransaction {
 			const auto& ptCache = GetMemoryPtCache(locator);
 			const auto& serverHooks = GetPtServerHooks(locator);
 			auto ptSynchronizer = chain::CreatePtSynchronizer(
+					state.timeSupplier(),
 					[&ptCache]() { return ptCache.view().shortHashPairs(); },
 					serverHooks.cosignedTransactionInfosConsumer());
 

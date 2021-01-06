@@ -52,7 +52,7 @@ namespace catapult { namespace api {
 		}
 
 		struct UtTraits {
-			static constexpr uint32_t Request_Data_Header_Size = sizeof(BlockFeeMultiplier);
+			static constexpr uint32_t Request_Data_Header_Size = sizeof(Timestamp) + sizeof(BlockFeeMultiplier);
 			static constexpr uint32_t Request_Data_Size = 3 * sizeof(utils::ShortHash);
 
 			static std::vector<uint32_t> KnownShortHashValues() {
@@ -64,7 +64,7 @@ namespace catapult { namespace api {
 			}
 
 			static auto Invoke(const RemoteTransactionApi& api) {
-				return api.unconfirmedTransactions(BlockFeeMultiplier(17), KnownShortHashes());
+				return api.unconfirmedTransactions(Timestamp(84), BlockFeeMultiplier(17), KnownShortHashes());
 			}
 
 			static auto CreateValidResponsePacket() {
@@ -83,7 +83,8 @@ namespace catapult { namespace api {
 			static void ValidateRequest(const ionet::Packet& packet) {
 				EXPECT_EQ(ionet::PacketType::Pull_Transactions, packet.Type);
 				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Header_Size + Request_Data_Size, packet.Size);
-				EXPECT_EQ(BlockFeeMultiplier(17), reinterpret_cast<const BlockFeeMultiplier&>(*packet.Data()));
+				EXPECT_EQ(Timestamp(84), reinterpret_cast<const Timestamp&>(*packet.Data()));
+				EXPECT_EQ(BlockFeeMultiplier(17), reinterpret_cast<const BlockFeeMultiplier&>(packet.Data()[sizeof(Timestamp)]));
 				EXPECT_EQ_MEMORY(packet.Data() + Request_Data_Header_Size, KnownShortHashValues().data(), Request_Data_Size);
 			}
 

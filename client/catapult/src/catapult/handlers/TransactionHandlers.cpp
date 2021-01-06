@@ -33,8 +33,23 @@ namespace catapult { namespace handlers {
 				CreatePushEntityHandler<model::Transaction>(registry, transactionRangeHandler));
 	}
 
+	namespace {
+#pragma pack(push, 1)
+
+	struct TransactionsFilter {
+		Timestamp Deadline;
+		BlockFeeMultiplier FeeMultiplier;
+	};
+
+#pragma pack(pop)
+	}
+
 	void RegisterPullTransactionsHandler(ionet::ServerPacketHandlers& handlers, const UtRetriever& utRetriever) {
 		constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
-		handlers.registerHandler(Packet_Type, PullEntitiesHandler<BlockFeeMultiplier>::Create(Packet_Type, utRetriever));
+		handlers.registerHandler(Packet_Type, PullEntitiesHandler<TransactionsFilter>::Create(Packet_Type, [utRetriever](
+				const auto& filter,
+				const auto& shortHashes) {
+			return utRetriever(filter.Deadline, filter.FeeMultiplier, shortHashes);
+		}));
 	}
 }}

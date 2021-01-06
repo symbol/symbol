@@ -51,7 +51,7 @@ namespace catapult { namespace chain {
 				}
 
 				const auto& singleRequest() const {
-					return m_pTransactionApi->transactionInfosRequests()[0];
+					return m_pTransactionApi->transactionInfosRequests()[0].ShortHashPairs;
 				}
 
 				void setError(bool setError = true) {
@@ -62,7 +62,7 @@ namespace catapult { namespace chain {
 				}
 
 				void checkAdditionalRequestParameters() {
-					// no additional request parameters
+					EXPECT_EQ(Timestamp(84), m_pTransactionApi->transactionInfosRequests()[0].Deadline);
 				}
 
 			private:
@@ -94,7 +94,8 @@ namespace catapult { namespace chain {
 			static auto CreateSynchronizer(
 					const partialtransaction::ShortHashPairsSupplier& shortHashPairsSupplier,
 					const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer) {
-				return CreatePtSynchronizer(shortHashPairsSupplier, transactionInfosConsumer);
+				auto timeSupplier = []() { return Timestamp(84); };
+				return CreatePtSynchronizer(timeSupplier, shortHashPairsSupplier, transactionInfosConsumer);
 			}
 
 			static void AssertCustomResponse(const ResponseContainerType& expectedResponse, const ResponseContainerType& actualResponse) {

@@ -67,6 +67,7 @@ namespace catapult { namespace api {
 		}
 
 		struct TransactionInfosTraits {
+			static constexpr uint32_t Request_Data_Header_Size = sizeof(Timestamp);
 			static constexpr uint32_t Request_Data_Size = 3 * sizeof(cache::ShortHashPair);
 
 			static std::vector<uint32_t> KnownHashesValues() {
@@ -79,7 +80,7 @@ namespace catapult { namespace api {
 			}
 
 			static auto Invoke(const RemotePtApi& api) {
-				return api.transactionInfos(KnownShortHashPairs());
+				return api.transactionInfos(Timestamp(84), KnownShortHashPairs());
 			}
 
 			static auto CreateValidResponsePacket() {
@@ -97,8 +98,9 @@ namespace catapult { namespace api {
 
 			static void ValidateRequest(const ionet::Packet& packet) {
 				EXPECT_EQ(ionet::PacketType::Pull_Partial_Transaction_Infos, packet.Type);
-				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
-				EXPECT_EQ_MEMORY(packet.Data(), KnownHashesValues().data(), Request_Data_Size);
+				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Header_Size + Request_Data_Size, packet.Size);
+				EXPECT_EQ(Timestamp(84), reinterpret_cast<const Timestamp&>(*packet.Data()));
+				EXPECT_EQ_MEMORY(packet.Data() + Request_Data_Header_Size, KnownHashesValues().data(), Request_Data_Size);
 			}
 
 			static void ValidateResponse(

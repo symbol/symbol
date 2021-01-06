@@ -71,9 +71,12 @@ namespace catapult { namespace cache {
 		/// \note Each short hash consists of the first 4 bytes of the complete hash.
 		model::ShortHashRange shortHashes() const;
 
-		/// Gets a vector of all transactions in the cache that have a fee multiplier at least \a minFeeMultiplier
-		/// and do not have a short hash in \a knownShortHashes.
-		UnknownTransactions unknownTransactions(BlockFeeMultiplier minFeeMultiplier, const utils::ShortHashesSet& knownShortHashes) const;
+		/// Gets a vector of all transactions in the cache that have a deadline at least \a minDeadline,
+		/// a fee multiplier at least \a minFeeMultiplier and do not have a short hash in \a knownShortHashes.
+		UnknownTransactions unknownTransactions(
+				Timestamp minDeadline,
+				BlockFeeMultiplier minFeeMultiplier,
+				const utils::ShortHashesSet& knownShortHashes) const;
 
 	private:
 		utils::FileSize m_maxResponseSize;
