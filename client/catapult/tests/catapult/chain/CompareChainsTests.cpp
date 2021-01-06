@@ -45,6 +45,7 @@ namespace catapult { namespace chain {
 			CompareHashesMockChainApi(const model::ChainScore& score, Height height)
 					: MockChainApi(score, height)
 					, m_hashes(test::GenerateRandomDataVector<Hash256>(height.unwrap()))
+					, m_maxHashesBatchSize(std::numeric_limits<size_t>::max())
 					, m_nextScoreIndex(0)
 			{}
 
@@ -57,6 +58,10 @@ namespace catapult { namespace chain {
 
 				for (auto i = 0u; i < numAddtionalHashes; ++i)
 					m_hashes.push_back(test::GenerateRandomByteArray<Hash256>());
+			}
+
+			void setMaxHashesBatchSize(size_t maxHashesBatchSize) {
+				m_maxHashesBatchSize = maxHashesBatchSize;
 			}
 
 			void pushChainScore(const ChainScore& score) {
@@ -82,13 +87,14 @@ namespace catapult { namespace chain {
 					return std::make_pair(model::HashRange(), false);
 
 				auto startIndex = height.unwrap() - 1;
-				auto count = std::min<size_t>(m_hashes.size() - startIndex, maxHashes);
+				auto count = std::min<size_t>({ m_hashes.size() - startIndex, maxHashes, m_maxHashesBatchSize });
 				auto hashRange = model::HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(&m_hashes[startIndex]), count);
 				return std::make_pair(std::move(hashRange), count);
 			}
 
 		public:
 			std::vector<Hash256> m_hashes;
+			size_t m_maxHashesBatchSize;
 			std::vector<ChainScore> m_scores;
 			mutable size_t m_nextScoreIndex;
 		};
@@ -774,6 +780,40 @@ namespace catapult { namespace chain {
 			{ Height(34), 20 }, // (7 + 62) / 2
 			{ Height(48), 20 } // (34 + 62) / 2
 		});
+	}
+
+	// endregion
+
+	// region regression tests
+
+	TEST(TEST_CLASS, RemoteHasSmallerBatchSizeThanLocal) {
+		// Arrange: Local { ..., A, B }, Remote { ..., C, D, E, F }
+		// - batch sizes: { remote = 100, local = 1210 }
+		CompareHashesMockChainApi local(ChainScore(10), Height(4261));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(4263));
+		local.syncHashes(remote, -4, 2);
+		remote.setMaxHashesBatchSize(100);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(1210, 1)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+		EXPECT_EQ(Height(4259), result.CommonBlockHeight);
+		EXPECT_EQ(2u, result.ForkDepth);
+
+		// - check requests
+		auto expectedHashesFromRequests = std::vector<std::pair<Height, uint32_t>>{
+			{ Height(1), 1210 },
+			{ Height(2131), 1210 },
+			{ Height(3196), 1210 },
+			{ Height(3728), 1210 },
+			{ Height(3994), 1210 },
+			{ Height(4127), 1210 },
+			{ Height(4194), 1210 }
+		};
+		EXPECT_EQ(expectedHashesFromRequests, local.hashesFromRequests());
+		EXPECT_EQ(expectedHashesFromRequests, remote.hashesFromRequests());
 	}
 
 	// endregion

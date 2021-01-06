@@ -142,7 +142,7 @@ namespace catapult { namespace chain {
 				auto startingHeight = m_startingHashesHeight;
 				auto maxHashes = m_options.HashesPerBatch;
 
-				CATAPULT_LOG(trace)
+				CATAPULT_LOG(debug)
 						<< "comparing hashes with local height " << m_localHeight
 						<< ", starting height " << startingHeight
 						<< ", max hashes " << maxHashes;
@@ -165,8 +165,9 @@ namespace catapult { namespace chain {
 				if (isProcessingFirstBatchOfHashes() && 0 == firstDifferenceIndex)
 					return ChainComparisonCode::Remote_Is_Forked;
 
+				// need to use min because remote is allowed to return [1, m_options.HashesPerBatch] hashes
 				auto commonBlockHeight = m_startingHashesHeight + Height(firstDifferenceIndex - 1);
-				auto localHeightDerivedFromHashes = m_startingHashesHeight + Height(localHashes.size() - 1);
+				auto localHeightDerivedFromHashes = m_startingHashesHeight + Height(std::min(localHashes.size(), remoteHashes.size()) - 1);
 
 				if (0 == firstDifferenceIndex) {
 					// search previous hashes for first common block
@@ -176,8 +177,13 @@ namespace catapult { namespace chain {
 
 				if (remoteHashes.size() == firstDifferenceIndex) {
 					if (localHeightDerivedFromHashes >= m_localHeight) {
-						if (localHeightDerivedFromHashes < m_remoteHeight)
+						if (localHeightDerivedFromHashes < m_remoteHeight) {
+							CATAPULT_LOG(debug)
+									<< "preparing final comparison with local height " << m_localHeight
+									<< ", derived local height " << localHeightDerivedFromHashes
+									<< ", remote height " << m_remoteHeight;
 							return tryContinue(localHeightDerivedFromHashes - Height(1));
+						}
 
 						m_stage = Stage::Score_Local;
 						return Incomplete_Chain_Comparison_Code;
