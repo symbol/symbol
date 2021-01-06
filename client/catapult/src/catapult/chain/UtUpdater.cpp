@@ -143,6 +143,7 @@ namespace catapult { namespace chain {
 			auto validatorContext = contextBuilder.buildValidatorContext();
 			auto observerContext = contextBuilder.buildObserverContext();
 
+			size_t numRejectedTransactions = 0;
 			for (const auto& utInfo : utInfos) {
 				const auto& entity = *utInfo.pEntity;
 				const auto& entityHash = utInfo.EntityHash;
@@ -179,8 +180,8 @@ namespace catapult { namespace chain {
 				auto entityInfo = model::WeakEntityInfo(entity, entityHash);
 				m_executionConfig.pNotificationPublisher->publish(entityInfo, sub);
 				if (!IsValidationResultSuccess(sub.result())) {
-					CATAPULT_LOG_LEVEL(validators::MapToLogLevel(sub.result()))
-							<< "dropping transaction " << TransactionInfoFormatter(utInfo) << ": " << sub.result();
+					CATAPULT_LOG(trace) << "dropping transaction " << TransactionInfoFormatter(utInfo) << ": " << sub.result();
+					++numRejectedTransactions;
 
 					// only forward failure (not neutral) results
 					if (IsValidationResultFailure(sub.result()))
@@ -191,6 +192,9 @@ namespace catapult { namespace chain {
 					continue;
 				}
 			}
+
+			if (numRejectedTransactions > 0)
+				CATAPULT_LOG(warning) << "apply dropped " << numRejectedTransactions << " transactions";
 		}
 
 		bool throttle(

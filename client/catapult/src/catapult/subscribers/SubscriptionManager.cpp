@@ -120,7 +120,7 @@ namespace catapult { namespace subscribers {
 		public:
 			void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) override {
 				auto result = validators::ValidationResult(status);
-				CATAPULT_LOG_LEVEL(validators::MapToLogLevel(result))
+				CATAPULT_LOG(trace)
 						<< "rejected tx " << hash << " due to result " << result
 						<< " (deadline " << transaction.Deadline << ")";
 			}
