@@ -24,6 +24,7 @@
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
@@ -74,8 +75,8 @@ namespace catapult { namespace harvesting {
 		// region RunUtFacadeTest / AssertEmpty
 
 		void SetDependentState(cache::CatapultCache& catapultCache) {
-			auto delta = catapultCache.createDelta();
-			delta.dependentState().LastRecalculationHeight = Default_Last_Recalculation_Height;
+			auto cacheDelta = catapultCache.createDelta();
+			cacheDelta.dependentState().LastRecalculationHeight = Default_Last_Recalculation_Height;
 			catapultCache.commit(Default_Height);
 		}
 
@@ -449,8 +450,8 @@ namespace catapult { namespace harvesting {
 			auto importanceMultipleHeight = model::CalculateGroupedHeight<Height>(Default_Height, config.ImportanceGrouping);
 			auto catapultCache = test::CreateEmptyCatapultCache(config);
 			{
-				auto delta = catapultCache.createDelta();
-				CreateAccounts(delta.sub<cache::AccountStateCache>(), importanceMultipleHeight, balances);
+				auto cacheDelta = catapultCache.createDelta();
+				CreateAccounts(cacheDelta.sub<cache::AccountStateCache>(), importanceMultipleHeight, balances);
 				catapultCache.commit(importanceMultipleHeight - Height(1));
 			}
 
@@ -577,8 +578,8 @@ namespace catapult { namespace harvesting {
 		std::vector<crypto::KeyPair> keyPairs;
 		auto catapultCache = test::CreateEmptyCatapultCache(config);
 		{
-			auto delta = catapultCache.createDelta();
-			keyPairs = CreateAccounts(delta.sub<cache::AccountStateCache>(), importanceMultipleHeight, harvestingBalances);
+			auto cacheDelta = catapultCache.createDelta();
+			keyPairs = CreateAccounts(cacheDelta.sub<cache::AccountStateCache>(), importanceMultipleHeight, harvestingBalances);
 			catapultCache.commit(importanceMultipleHeight - Height(1));
 		}
 
@@ -752,6 +753,19 @@ namespace catapult { namespace harvesting {
 		});
 	}
 
+	TEST(TEST_CLASS, CommitCannotBeCalledMultipleTimes) {
+		// Arrange:
+		RunUtFacadeTest(0, [](auto& facade, const auto&, const auto&) {
+			// - call commit once
+			auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
+			auto pBlock = facade.commit(*pBlockHeader);
+			EXPECT_TRUE(!!pBlock);
+
+			// Act + Assert: call commit again
+			EXPECT_THROW(facade.commit(*pBlockHeader), catapult_invalid_argument);
+		});
+	}
+
 	// endregion
 
 	// region FacadeTestContext
@@ -806,7 +820,7 @@ namespace catapult { namespace harvesting {
 			}
 
 			void setCacheHeight(Height height) {
-				auto delta = m_cache.createDelta();
+				auto cacheDelta = m_cache.createDelta();
 				m_cache.commit(height);
 			}
 
@@ -1242,6 +1256,57 @@ namespace catapult { namespace harvesting {
 			auto stateHashInfo = cacheDelta.calculateStateHash(height);
 			EXPECT_EQ(stateHashInfo.StateHash, blockStateHash);
 		});
+	}
+
+	// endregion
+
+	// region commit - deadlock
+
+	TEST(TEST_CLASS, CommitAcquiresResourcesInCorrectOrderSoAsToNotDeadlockWithBlockChainSyncConsumer) {
+		// Arrange: create factory and facade
+		auto config = CreateBlockChainConfiguration();
+		auto importanceMultipleHeight = model::CalculateGroupedHeight<Height>(Default_Height, config.ImportanceGrouping);
+		auto catapultCache = test::CreateEmptyCatapultCache(config);
+		{
+			auto cacheDelta = catapultCache.createDelta();
+			catapultCache.commit(importanceMultipleHeight - Height(1));
+		}
+
+		// - simulate storage
+		auto pBlockStorage = mocks::CreateMemoryBlockStorageCache(1);
+		auto hashSupplier = [&blockStorage = *pBlockStorage](auto) {
+			CATAPULT_LOG(debug) << "harvester: acquire storage read lock";
+			auto blockStorageView = blockStorage.view();
+			test::Pause();
+			return Hash256();
+		};
+
+		test::MockExecutionConfiguration executionConfig;
+		HarvestingUtFacadeFactory factory(catapultCache, config, executionConfig.Config, hashSupplier);
+
+		auto pFacade = factory.create(Default_Time);
+		ASSERT_TRUE(!!pFacade);
+
+		// - simulate consumer
+		auto consumerThread = std::thread([&catapultCache, &blockStorage = *pBlockStorage]() {
+			CATAPULT_LOG(debug) << "consumer: acquire storage write lock";
+			auto blockStorageModifier = blockStorage.modifier();
+			test::Pause();
+
+			CATAPULT_LOG(debug) << "consumer: acquire cache write lock";
+			auto cacheDelta = catapultCache.createDelta();
+			catapultCache.commit(Height(1));
+		});
+
+		// Act: create a block without deadlock
+		CATAPULT_LOG(debug) << "harvester: acquire cache read lock";
+		auto pBlockHeader = CreateImportanceBlockHeader(importanceMultipleHeight);
+		auto pBlock = pFacade->commit(*pBlockHeader);
+		CATAPULT_LOG(debug) << "harvester: created block";
+
+		// Assert:
+		EXPECT_TRUE(!!pBlock);
+		consumerThread.join();
 	}
 
 	// endregion

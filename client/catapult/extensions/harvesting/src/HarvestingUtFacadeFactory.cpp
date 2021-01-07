@@ -82,6 +82,30 @@ namespace catapult { namespace harvesting {
 	// region HarvestingUtFacade::Impl
 
 	class HarvestingUtFacade::Impl {
+	private:
+		class CacheFacade {
+		public:
+			explicit CacheFacade(const cache::CatapultCache& cache)
+					: m_cacheDetachableDelta(cache.createDetachableDelta())
+					, m_cacheDetachedDelta(m_cacheDetachableDelta.detach())
+					, m_pCacheDelta(m_cacheDetachedDelta.tryLock())
+			{}
+
+		public:
+			Height height() {
+				return m_cacheDetachableDelta.height();
+			}
+
+			cache::CatapultCacheDelta& delta() {
+				return *m_pCacheDelta;
+			}
+
+		private:
+			cache::CatapultCacheDetachableDelta m_cacheDetachableDelta;
+			cache::CatapultCacheDetachedDelta m_cacheDetachedDelta;
+			std::unique_ptr<cache::CatapultCacheDelta> m_pCacheDelta;
+		};
+
 	public:
 		Impl(
 				Timestamp blockTime,
@@ -93,9 +117,8 @@ namespace catapult { namespace harvesting {
 				, m_blockChainConfig(blockChainConfig)
 				, m_executionConfig(executionConfig)
 				, m_importanceBlockHashSupplier(importanceBlockHashSupplier)
-				, m_cacheDetachableDelta(cache.createDetachableDelta())
-				, m_cacheDetachedDelta(m_cacheDetachableDelta.detach())
-				, m_pCacheDelta(m_cacheDetachedDelta.tryLock()) {
+				, m_pCacheFacade(std::make_unique<CacheFacade>(cache))
+				, m_cacheHeight(m_pCacheFacade->height()) {
 			// add additional observers to monitor accounts
 			observers::DemuxObserverBuilder observerBuilder;
 			observerBuilder.add(CreateHarvestingAccountAddressObserver(m_affectedAccounts));
@@ -106,7 +129,7 @@ namespace catapult { namespace harvesting {
 
 	public:
 		Height height() const {
-			return m_cacheDetachableDelta.height() + Height(1);
+			return m_cacheHeight + Height(1);
 		}
 
 	public:
@@ -129,12 +152,15 @@ namespace catapult { namespace harvesting {
 		}
 
 		std::unique_ptr<model::Block> commit(const model::BlockHeader& blockHeader, const model::Transactions& transactions) {
+			if (!m_pCacheFacade)
+				CATAPULT_THROW_INVALID_ARGUMENT("facade has already committed a block");
+
 			// 1. stitch block
 			auto pBlock = model::StitchBlock(blockHeader, transactions);
 			auto importanceHeight = model::ConvertToImportanceHeight(pBlock->Height, m_blockChainConfig.ImportanceGrouping);
 
 			// 2. add back fee surpluses to accounts (skip cache lookup if no surplus)
-			auto& accountStateCacheDelta = m_pCacheDelta->sub<cache::AccountStateCache>();
+			auto& accountStateCacheDelta = m_pCacheFacade->delta().sub<cache::AccountStateCache>();
 			for (const auto& transaction : pBlock->Transactions()) {
 				auto surplus = transaction.MaxFee - model::CalculateTransactionFee(blockHeader.FeeMultiplier, transaction);
 				if (Amount(0) != surplus) {
@@ -159,20 +185,26 @@ namespace catapult { namespace harvesting {
 				blockFooter.VotingEligibleAccountsCount = statistics.VotingEligibleAccountsCount;
 				blockFooter.HarvestingEligibleAccountsCount = statistics.HarvestingEligibleAccountsCount;
 				blockFooter.TotalVotingBalance = statistics.TotalVotingBalance;
-
-				// assume block has height that is multiple of importance grouping
-				model::HeightGroupingFacade<Height> groupingFacade(pBlock->Height, m_blockChainConfig.ImportanceGrouping);
-				blockFooter.PreviousImportanceBlockHash = m_importanceBlockHashSupplier(groupingFacade.previous(1));
 			}
 
 			// 6. update block fields
 			pBlock->StateHash = m_blockChainConfig.EnableVerifiableState
-					? m_pCacheDelta->calculateStateHash(height()).StateHash
+					? m_pCacheFacade->delta().calculateStateHash(height()).StateHash
 					: Hash256();
 
 			pBlock->ReceiptsHash = m_blockChainConfig.EnableVerifiableReceipts
 					? model::CalculateMerkleHash(*m_blockStatementBuilder.build())
 					: Hash256();
+
+			// 7. update PreviousImportanceBlockHash after releasing cache lock to avoid potential deadlock
+			m_pCacheFacade.reset();
+			if (model::IsImportanceBlock(pBlock->Type)) {
+				// assume block has height that is multiple of importance grouping
+				model::HeightGroupingFacade<Height> groupingFacade(pBlock->Height, m_blockChainConfig.ImportanceGrouping);
+
+				auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
+				blockFooter.PreviousImportanceBlockHash = m_importanceBlockHashSupplier(groupingFacade.previous(1));
+			}
 
 			return pBlock;
 		}
@@ -187,7 +219,7 @@ namespace catapult { namespace harvesting {
 		bool process(const Processor& processor) {
 			// prepare state and contexts
 			chain::ProcessContextsBuilder contextBuilder(height(), m_blockTime, m_executionConfig);
-			contextBuilder.setCache(*m_pCacheDelta);
+			contextBuilder.setCache(m_pCacheFacade->delta());
 			if (m_blockChainConfig.EnableVerifiableReceipts)
 				contextBuilder.setBlockStatementBuilder(m_blockStatementBuilder);
 
@@ -248,9 +280,8 @@ namespace catapult { namespace harvesting {
 		chain::ExecutionConfiguration m_executionConfig;
 		ImportanceBlockHashSupplier m_importanceBlockHashSupplier;
 
-		cache::CatapultCacheDetachableDelta m_cacheDetachableDelta;
-		cache::CatapultCacheDetachedDelta m_cacheDetachedDelta;
-		std::unique_ptr<cache::CatapultCacheDelta> m_pCacheDelta;
+		std::unique_ptr<CacheFacade> m_pCacheFacade;
+		Height m_cacheHeight;
 
 		model::BlockStatementBuilder m_blockStatementBuilder;
 		HarvestingAffectedAccounts m_affectedAccounts;
