@@ -28,59 +28,44 @@ namespace catapult { namespace disruptor {
 #define TEST_CLASS ConsumerInputTests
 
 	namespace {
-		// region BlockTraits
+		// region traits + utils
 
 		struct BlockTraits : public test::BlockTraits {
-		public:
-			using test::BlockTraits::CreateInput;
+			using EntityType = model::Block;
 
-			static model::BlockRange CreateRange(size_t numEntities, test::EntitiesVector& entities) {
-				auto range = test::CreateBlockEntityRange(numEntities);
-				entities = test::ExtractEntities(range);
-				return range;
-			}
+			static constexpr auto GenerateRandomEntity = test::GenerateEmptyRandomBlock;
 
 			static auto DetachRange(ConsumerInput& input) {
 				return input.detachBlockRange();
 			}
-
-			static void AssertConsumerInputCreation(size_t numBlocks) {
-				// Act:
-				test::EntitiesVector entities;
-				auto input = CreateInput(numBlocks, entities);
-
-				// Assert:
-				AssertInput(input, numBlocks, entities, InputSource::Unknown);
-			}
 		};
 
-		// endregion
-
-		// region TransactionTraits
-
 		struct TransactionTraits : public test::TransactionTraits {
-		public:
-			using test::TransactionTraits::CreateInput;
+			using EntityType = model::Transaction;
 
-			static model::TransactionRange CreateRange(size_t numEntities, test::EntitiesVector& entities) {
-				auto range = test::CreateTransactionEntityRange(numEntities);
-				entities = test::ExtractEntities(range);
-				return range;
+			static auto GenerateRandomEntity() {
+				return test::GenerateRandomTransaction();
 			}
 
 			static auto DetachRange(ConsumerInput& input) {
 				return input.detachTransactionRange();
 			}
-
-			static void AssertConsumerInputCreation(size_t numTransactions) {
-				// Act:
-				test::EntitiesVector entities;
-				auto input = CreateInput(numTransactions, entities);
-
-				// Assert:
-				AssertInput(input, numTransactions, entities, InputSource::Unknown);
-			}
 		};
+
+		template<typename TTraits>
+		auto CreateEntityRange(std::initializer_list<uint32_t> sizes) {
+			std::vector<std::unique_ptr<typename TTraits::EntityType>> entities;
+			std::vector<const typename TTraits::EntityType*> entityPointers;
+
+			for (auto size : sizes) {
+				entities.push_back(TTraits::GenerateRandomEntity());
+				entities.back()->Size = size;
+
+				entityPointers.push_back(entities.back().get());
+			}
+
+			return test::CreateEntityRange(entityPointers);
+		}
 
 		// endregion
 	}
@@ -88,6 +73,22 @@ namespace catapult { namespace disruptor {
 #define ENTITY_TRAITS_BASED_TEST(TEST_NAME) ENTITY_TRAITS_BASED_CLASS_TEST(TEST_CLASS, TEST_NAME)
 
 	// region constructor
+
+	namespace {
+		template<typename TTraits>
+		void AssertConsumerInputCreation(std::initializer_list<uint32_t> sizes) {
+			// Arrange:
+			auto range = CreateEntityRange<TTraits>(sizes);
+			auto entities = test::ExtractEntities(range);
+
+			// Act:
+			auto input = ConsumerInput(std::move(range));
+
+			// Assert:
+			auto expectedCount = static_cast<size_t>(std::distance(sizes.begin(), sizes.end()));
+			TTraits::AssertInput(input, expectedCount, entities, InputSource::Unknown);
+		}
+	}
 
 	TEST(TEST_CLASS, CanCreateEmptyConsumerInput) {
 		// Act:
@@ -99,8 +100,10 @@ namespace catapult { namespace disruptor {
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputWithCustomSource) {
 		// Arrange:
-		test::EntitiesVector entities;
-		auto range = TTraits::CreateRange(3, entities);
+		auto range = CreateEntityRange<TTraits>({ 123, 123, 123 });
+		auto entities = test::ExtractEntities(range);
+
+		// Act:
 		auto input = ConsumerInput(std::move(range), InputSource::Local);
 
 		// Assert:
@@ -109,9 +112,11 @@ namespace catapult { namespace disruptor {
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputWithCustomContext) {
 		// Arrange:
-		test::EntitiesVector entities;
 		auto identityKey = test::GenerateRandomByteArray<Key>();
-		auto range = TTraits::CreateRange(3, entities);
+		auto range = CreateEntityRange<TTraits>({ 123, 123, 123 });
+		auto entities = test::ExtractEntities(range);
+
+		// Act:
 		auto input = ConsumerInput({ std::move(range), { identityKey, "11.22.33.44" } }, InputSource::Local);
 
 		// Assert:
@@ -121,11 +126,11 @@ namespace catapult { namespace disruptor {
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputAroundSingleEntity) {
-		TTraits::AssertConsumerInputCreation(1);
+		AssertConsumerInputCreation<TTraits>({ 123 });
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputAroundMultipleEntities) {
-		TTraits::AssertConsumerInputCreation(3);
+		AssertConsumerInputCreation<TTraits>({ 123, 123, 123 });
 	}
 
 	// endregion
@@ -133,25 +138,19 @@ namespace catapult { namespace disruptor {
 	// region memorySize
 
 	TEST(TEST_CLASS, CanCalculateMemorySizeForEmptyInput) {
-		// Act:
+		// Arrange:
 		ConsumerInput input;
 
+		// Act:
+		auto memorySize = input.memorySize();
+
 		// Assert:
-		EXPECT_EQ(utils::FileSize(), input.memorySize());
+		EXPECT_EQ(utils::FileSize(), memorySize);
 	}
 
 	TEST(TEST_CLASS, CanCalculateMemorySizeForBlockConsumerInput) {
 		// Arrange:
-		auto pBlock1 = test::GenerateEmptyRandomBlock();
-		pBlock1->Size = 123;
-
-		auto pBlock2 = test::GenerateEmptyRandomBlock();
-		pBlock2->Size = 500;
-
-		auto pBlock3 = test::GenerateEmptyRandomBlock();
-		pBlock3->Size = 222;
-
-		auto range = test::CreateEntityRange({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
+		auto range = CreateEntityRange<BlockTraits>({ 123, 500, 222 });
 		ConsumerInput input(std::move(range), InputSource::Remote_Push);
 
 		// Act:
@@ -163,13 +162,7 @@ namespace catapult { namespace disruptor {
 
 	TEST(TEST_CLASS, CanCalculateMemorySizeForTransactionConsumerInput) {
 		// Arrange:
-		auto pTransaction1 = test::GenerateRandomTransaction();
-		pTransaction1->Size = 123;
-
-		auto pTransaction2 = test::GenerateRandomTransaction();
-		pTransaction2->Size = 500;
-
-		auto range = test::CreateEntityRange(std::vector<const model::Transaction*>{ pTransaction1.get(), pTransaction2.get() });
+		auto range = CreateEntityRange<TransactionTraits>({ 123, 500 });
 		ConsumerInput input(std::move(range), InputSource::Remote_Pull);
 
 		// Act:
@@ -246,20 +239,14 @@ namespace catapult { namespace disruptor {
 
 	namespace {
 		ConsumerInput PrepareBlockConsumerInputForOutputTests(Height startHeight) {
-			// Arrange:
-			auto pBlock1 = test::GenerateEmptyRandomBlock();
-			pBlock1->Size = 123;
-			pBlock1->Height = startHeight;
+			auto range = CreateEntityRange<BlockTraits>({ 123, 500, 222 });
 
-			auto pBlock2 = test::GenerateEmptyRandomBlock();
-			pBlock2->Size = 500;
-			pBlock2->Height = startHeight + Height(1);
+			auto height = startHeight;
+			for (auto& block : range) {
+				block.Height = height;
+				height = height + Height(1);
+			}
 
-			auto pBlock3 = test::GenerateEmptyRandomBlock();
-			pBlock3->Size = 222;
-			pBlock3->Height = startHeight + Height(2);
-
-			auto range = test::CreateEntityRange({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
 			ConsumerInput input(std::move(range), InputSource::Remote_Push);
 			input.blocks()[0].EntityHash = { { 0x98, 0xD6, 0xF4, 0xC2, 0xFF } };
 			return input;
@@ -296,14 +283,7 @@ namespace catapult { namespace disruptor {
 
 	namespace {
 		ConsumerInput PrepareTransactionConsumerInputForOutputTests() {
-			// Arrange:
-			auto pTransaction1 = test::GenerateRandomTransaction();
-			pTransaction1->Size = 123;
-
-			auto pTransaction2 = test::GenerateRandomTransaction();
-			pTransaction2->Size = 500;
-
-			auto range = test::CreateEntityRange(std::vector<const model::Transaction*>{ pTransaction1.get(), pTransaction2.get() });
+			auto range = CreateEntityRange<TransactionTraits>({ 123, 500 });
 			ConsumerInput input(std::move(range), InputSource::Remote_Pull);
 			input.transactions()[0].EntityHash = { { 0x00, 0xDA, 0x28, 0x96, 0xFF } };
 			return input;
