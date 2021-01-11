@@ -270,31 +270,4 @@ namespace catapult { namespace chain {
 	void UtUpdater::update(const utils::HashPointerSet& confirmedTransactionHashes, const std::vector<model::TransactionInfo>& utInfos) {
 		m_pImpl->update(confirmedTransactionHashes, utInfos);
 	}
-
-	namespace {
-		bool IsValidUpdateResult(const UtUpdateResult& updateResult) {
-			return UtUpdateResult::UpdateType::New == updateResult.Type;
-		}
-	}
-
-	std::vector<model::TransactionInfo> SelectValid(
-			std::vector<model::TransactionInfo>&& transactionInfos,
-			const std::vector<UtUpdateResult>& updateResults) {
-		if (transactionInfos.size() != updateResults.size()) {
-			std::ostringstream out;
-			out
-					<< "number of transaction infos " << transactionInfos.size()
-					<< " must match number of update results " << updateResults.size();
-			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-		}
-
-		std::vector<model::TransactionInfo> filteredTransactionInfos;
-
-		for (auto i = 0u; i < transactionInfos.size(); ++i) {
-			if (IsValidUpdateResult(updateResults[i]))
-				filteredTransactionInfos.push_back(std::move(transactionInfos[i]));
-		}
-
-		return filteredTransactionInfos;
-	}
 }}

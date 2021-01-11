@@ -420,38 +420,4 @@ namespace catapult { namespace chain {
 	thread::future<CosignatureUpdateResult> PtUpdater::update(const model::DetachedCosignature& cosignature) {
 		return m_pImpl->update(cosignature);
 	}
-
-	namespace {
-		bool IsValidUpdateResult(const PtUpdateResult& updateResult) {
-			switch (updateResult.Type) {
-			case PtUpdateResult::UpdateType::New:
-			case PtUpdateResult::UpdateType::Existing:
-				return true;
-
-			default:
-				return false;
-			}
-		}
-	}
-
-	std::vector<model::TransactionInfo> SelectValid(
-			std::vector<model::TransactionInfo>&& transactionInfos,
-			const std::vector<PtUpdateResult>& updateResults) {
-		if (transactionInfos.size() != updateResults.size()) {
-			std::ostringstream out;
-			out
-					<< "number of transaction infos " << transactionInfos.size()
-					<< " must match number of update results " << updateResults.size();
-			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-		}
-
-		std::vector<model::TransactionInfo> filteredTransactionInfos;
-
-		for (auto i = 0u; i < transactionInfos.size(); ++i) {
-			if (IsValidUpdateResult(updateResults[i]))
-				filteredTransactionInfos.push_back(std::move(transactionInfos[i]));
-		}
-
-		return filteredTransactionInfos;
-	}
 }}

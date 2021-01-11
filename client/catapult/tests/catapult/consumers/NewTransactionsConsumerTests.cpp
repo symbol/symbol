@@ -33,9 +33,11 @@ namespace catapult { namespace consumers {
 #define TEST_CLASS NewTransactionsConsumerTests
 
 	namespace {
-		struct NewTransactionsSinkParams {
+		// region ConsumerTestContext
+
+		struct NewTransactionsProcessorParams {
 		public:
-			explicit NewTransactionsSinkParams(std::vector<model::TransactionInfo>&& addedTransactionInfos)
+			explicit NewTransactionsProcessorParams(std::vector<model::TransactionInfo>&& addedTransactionInfos)
 					: AddedTransactionInfos(CopyInfos(addedTransactionInfos))
 			{}
 
@@ -53,25 +55,35 @@ namespace catapult { namespace consumers {
 			std::vector<model::TransactionInfo> AddedTransactionInfos;
 		};
 
-		class MockNewTransactionsSink : public test::ParamsCapture<NewTransactionsSinkParams> {
+		class MockNewTransactionsProcessor : public test::ParamsCapture<NewTransactionsProcessorParams> {
 		public:
-			void operator()(std::vector<model::TransactionInfo>&& addedTransactionInfos) const {
-				const_cast<MockNewTransactionsSink*>(this)->push(std::move(addedTransactionInfos));
+			chain::BatchUpdateResult operator()(std::vector<model::TransactionInfo>&& addedTransactionInfos) const {
+				const_cast<MockNewTransactionsProcessor*>(this)->push(std::move(addedTransactionInfos));
+				return chain::BatchUpdateResult() == BatchUpdateResult
+						? chain::BatchUpdateResult(addedTransactionInfos.size(), 0, 0)
+						: BatchUpdateResult;
 			}
+
+		public:
+			chain::BatchUpdateResult BatchUpdateResult;
 		};
 
 		struct ConsumerTestContext {
 		public:
 			ConsumerTestContext()
-					: Consumer(CreateNewTransactionsConsumer([&handler = NewTransactionsSink](auto&& transactionInfos) {
-						handler(std::move(transactionInfos));
+					: Consumer(CreateNewTransactionsConsumer([&handler = NewTransactionsProcessor](auto&& transactionInfos) {
+						return handler(std::move(transactionInfos));
 					}))
 			{}
 
 		public:
-			MockNewTransactionsSink NewTransactionsSink;
+			MockNewTransactionsProcessor NewTransactionsProcessor;
 			disruptor::DisruptorConsumer Consumer;
 		};
+
+		// endregion
+
+		// region test utils
 
 		ConsumerInput CreateInput(size_t numTransactions) {
 			auto input = test::CreateConsumerInputWithTransactions(numTransactions, disruptor::InputSource::Unknown);
@@ -96,7 +108,11 @@ namespace catapult { namespace consumers {
 			// Sanity:
 			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, element.ResultSeverity) << message;
 		}
+
+		// endregion
 	}
+
+	// region basic tests
 
 	TEST(TEST_CLASS, CanProcessZeroEntities) {
 		ConsumerTestContext context;
@@ -116,7 +132,7 @@ namespace catapult { namespace consumers {
 		EXPECT_TRUE(input.empty());
 
 		// - the new transactions handler was called once (with three entities)
-		const auto& params = context.NewTransactionsSink.params();
+		const auto& params = context.NewTransactionsProcessor.params();
 		ASSERT_EQ(1u, params.size());
 		const auto& actualInfos = params[0].AddedTransactionInfos;
 		ASSERT_EQ(3u, actualInfos.size());
@@ -146,7 +162,7 @@ namespace catapult { namespace consumers {
 		EXPECT_TRUE(input.empty());
 
 		// - the new transactions handler was called once (with zero entities)
-		const auto& params = context.NewTransactionsSink.params();
+		const auto& params = context.NewTransactionsProcessor.params();
 		ASSERT_EQ(1u, params.size());
 		const auto& actualInfos = params[0].AddedTransactionInfos;
 		EXPECT_TRUE(actualInfos.empty());
@@ -168,7 +184,7 @@ namespace catapult { namespace consumers {
 		EXPECT_TRUE(input.empty());
 
 		// - the new transactions handler was called once (with two entities)
-		const auto& params = context.NewTransactionsSink.params();
+		const auto& params = context.NewTransactionsProcessor.params();
 		ASSERT_EQ(1u, params.size());
 		const auto& actualInfos = params[0].AddedTransactionInfos;
 		ASSERT_EQ(2u, actualInfos.size());
@@ -176,6 +192,10 @@ namespace catapult { namespace consumers {
 		AssertEqual(input.transactions()[1], actualInfos[0], "info at 0");
 		AssertEqual(input.transactions()[4], actualInfos[1], "info at 1");
 	}
+
+	// endregion
+
+	// region aggregate tests
 
 	namespace {
 		void AssertAggregateResult(
@@ -243,4 +263,27 @@ namespace catapult { namespace consumers {
 			disruptor::ConsumerResultSeverity::Failure
 		});
 	}
+
+	// endregion
+
+	// region stateful validation tests
+
+	TEST(TEST_CLASS, StatefulValidationFailureIsMappedToFailure) {
+		// Arrange:
+		ConsumerTestContext context;
+		auto input = CreateInput(3);
+		for (auto i = 0u; i < 3u; ++i)
+			input.transactions()[i].ResultSeverity = disruptor::ConsumerResultSeverity::Success;
+
+		// - indicate 2 successes and 1 failure
+		context.NewTransactionsProcessor.BatchUpdateResult = chain::BatchUpdateResult(2, 0, 1);
+
+		// Act:
+		auto result = context.Consumer(input);
+
+		// Assert:
+		test::AssertAborted(result, validators::ValidationResult::Failure, disruptor::ConsumerResultSeverity::Failure);
+	}
+
+	// endregion
 }}

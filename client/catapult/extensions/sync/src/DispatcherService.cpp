@@ -31,6 +31,7 @@
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/chain/ChainUtils.h"
+#include "catapult/chain/TransactionUpdateResultUtils.h"
 #include "catapult/chain/UtUpdater.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/consumers/AuditConsumer.h"
@@ -335,6 +336,7 @@ namespace catapult { namespace sync {
 					// only broadcast transactions that have passed stateful validation on this node
 					auto updateResults = utUpdater.update(transactionInfos);
 					newTransactionsSink(chain::SelectValid(std::move(transactionInfos), updateResults));
+					return chain::AggregateUpdateResults(updateResults);
 				}));
 
 				return CreateConsumerDispatcher(

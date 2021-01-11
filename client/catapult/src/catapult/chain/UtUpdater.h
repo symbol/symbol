@@ -121,9 +121,4 @@ namespace catapult { namespace chain {
 		class Impl;
 		std::unique_ptr<Impl> m_pImpl;
 	};
-
-	/// Filters \a transactionInfos based on \a updateResults by selecting only valid transactions.
-	std::vector<model::TransactionInfo> SelectValid(
-			std::vector<model::TransactionInfo>&& transactionInfos,
-			const std::vector<UtUpdateResult>& updateResults);
 }}

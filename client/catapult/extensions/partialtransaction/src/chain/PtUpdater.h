@@ -116,9 +116,4 @@ namespace catapult { namespace chain {
 		class Impl;
 		std::shared_ptr<Impl> m_pImpl; // shared_ptr to allow use of enable_shared_from_this
 	};
-
-	/// Filters \a transactionInfos based on \a updateResults by selecting only valid transactions.
-	std::vector<model::TransactionInfo> SelectValid(
-			std::vector<model::TransactionInfo>&& transactionInfos,
-			const std::vector<PtUpdateResult>& updateResults);
 }}

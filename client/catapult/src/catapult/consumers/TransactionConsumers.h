@@ -22,6 +22,7 @@
 #pragma once
 #include "HashCheckOptions.h"
 #include "InputUtils.h"
+#include "catapult/chain/BatchUpdateResult.h"
 #include "catapult/chain/ChainFunctions.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/disruptor/DisruptorConsumer.h"
@@ -62,9 +63,9 @@ namespace catapult { namespace consumers {
 			const chain::FailedTransactionSink& failedTransactionSink);
 
 	/// Prototype for a function that is called with new transactions.
-	using NewTransactionsSink = consumer<TransactionInfos&&>;
+	using NewTransactionsProcessor = std::function<chain::BatchUpdateResult (TransactionInfos&&)>;
 
-	/// Creates a consumer that calls \a newTransactionsSink with all new transactions.
+	/// Creates a consumer that calls \a newTransactionsProcessor with all new transactions.
 	/// \note This consumer must be last because it destroys the input.
-	disruptor::DisruptorConsumer CreateNewTransactionsConsumer(const NewTransactionsSink& newTransactionsSink);
+	disruptor::DisruptorConsumer CreateNewTransactionsConsumer(const NewTransactionsProcessor& newTransactionsProcessor);
 }}

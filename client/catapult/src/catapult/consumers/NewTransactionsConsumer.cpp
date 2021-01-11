@@ -27,8 +27,8 @@ namespace catapult { namespace consumers {
 	namespace {
 		class NewTransactionsConsumer {
 		public:
-			explicit NewTransactionsConsumer(const NewTransactionsSink& newTransactionsSink)
-					: m_newTransactionsSink(newTransactionsSink)
+			explicit NewTransactionsConsumer(const NewTransactionsProcessor& newTransactionsProcessor)
+					: m_newTransactionsProcessor(newTransactionsProcessor)
 			{}
 
 		public:
@@ -49,13 +49,11 @@ namespace catapult { namespace consumers {
 
 				// 3. filter transactions
 				//    - the input elements are still valid even though the backing range has been detached
-				auto i = 0u;
-				auto numSuccesses = 0u;
-				auto numFailures = 0u;
+				size_t i = 0;
+				size_t numFailures = 0;
 				for (const auto& element : input.transactions()) {
 					if (disruptor::ConsumerResultSeverity::Success == element.ResultSeverity) {
 						transactionInfos.emplace_back(model::MakeTransactionInfo(transactions[i], element));
-						++numSuccesses;
 					} else if (disruptor::ConsumerResultSeverity::Failure == element.ResultSeverity) {
 						++numFailures;
 					}
@@ -64,20 +62,21 @@ namespace catapult { namespace consumers {
 				}
 
 				// 4. call the sink
-				m_newTransactionsSink(std::move(transactionInfos));
+				auto aggregateResult = m_newTransactionsProcessor(std::move(transactionInfos));
+				aggregateResult.FailureCount += numFailures;
 
 				// 5. indicate input was consumed and processing is complete
-				return numFailures > 0
+				return aggregateResult.FailureCount > 0
 						? Abort(validators::ValidationResult::Failure)
-						: numSuccesses > 0 ? CompleteSuccess() : CompleteNeutral();
+						: aggregateResult.SuccessCount > 0 ? CompleteSuccess() : CompleteNeutral();
 			}
 
 		private:
-			NewTransactionsSink m_newTransactionsSink;
+			NewTransactionsProcessor m_newTransactionsProcessor;
 		};
 	}
 
-	disruptor::DisruptorConsumer CreateNewTransactionsConsumer(const NewTransactionsSink& newTransactionsSink) {
-		return NewTransactionsConsumer(newTransactionsSink);
+	disruptor::DisruptorConsumer CreateNewTransactionsConsumer(const NewTransactionsProcessor& newTransactionsProcessor) {
+		return NewTransactionsConsumer(newTransactionsProcessor);
 	}
 }}

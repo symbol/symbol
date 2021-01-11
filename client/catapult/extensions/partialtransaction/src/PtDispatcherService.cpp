@@ -27,6 +27,7 @@
 #include "partialtransaction/src/handlers/CosignatureHandlers.h"
 #include "partialtransaction/src/handlers/PtHandlers.h"
 #include "catapult/cache_tx/MemoryPtCache.h"
+#include "catapult/chain/TransactionUpdateResultUtils.h"
 #include "catapult/consumers/RecentHashCache.h"
 #include "catapult/consumers/ReclaimMemoryInspector.h"
 #include "catapult/consumers/TransactionConsumers.h"
@@ -116,8 +117,8 @@ namespace catapult { namespace partialtransaction {
 						futures.push_back(ptUpdater.update(transactionInfo));
 
 					auto updateResults = thread::get_all(std::move(futures));
-
 					newTransactionsSink(chain::SelectValid(std::move(transactionInfos), updateResults));
+					return chain::AggregateUpdateResults(updateResults);
 				}));
 
 				return CreateConsumerDispatcher(CreateTransactionConsumerDispatcherOptions(m_nodeConfig), disruptorConsumers);
