@@ -34,6 +34,7 @@ boost:without_graph = True
 boost:without_graph_parallel = True
 # boost:without_headers = True
 boost:without_iostreams = True
+boost:without_json = True
 boost:without_locale = False
 boost:without_log = False
 boost:without_math = False
