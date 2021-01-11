@@ -231,7 +231,6 @@ namespace catapult { namespace sync {
 				const auto& utCache = const_cast<const extensions::ServiceState&>(m_state).utCache();
 				auto requiresValidationPredicate = ToRequiresValidationPredicate(m_state.hooks().knownHashPredicate(utCache));
 				m_consumers.push_back(CreateBlockChainCheckConsumer(
-						m_nodeConfig.MaxBlocksPerSyncAttempt,
 						m_state.config().BlockChain.MaxBlockFutureTime,
 						m_state.timeSupplier()));
 				m_consumers.push_back(CreateBlockStatelessValidationConsumer(

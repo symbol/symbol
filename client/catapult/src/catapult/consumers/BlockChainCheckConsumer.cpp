@@ -38,12 +38,8 @@ namespace catapult { namespace consumers {
 
 		class BlockChainCheckConsumer {
 		public:
-			BlockChainCheckConsumer(
-					uint32_t maxChainSize,
-					const utils::TimeSpan& maxBlockFutureTime,
-					const chain::TimeSupplier& timeSupplier)
-					: m_maxChainSize(maxChainSize)
-					, m_maxBlockFutureTime(maxBlockFutureTime)
+			BlockChainCheckConsumer(const utils::TimeSpan& maxBlockFutureTime, const chain::TimeSupplier& timeSupplier)
+					: m_maxBlockFutureTime(maxBlockFutureTime)
 					, m_timeSupplier(timeSupplier)
 			{}
 
@@ -51,9 +47,6 @@ namespace catapult { namespace consumers {
 			ConsumerResult operator()(const BlockElements& elements) const {
 				if (elements.empty())
 					return Abort(Failure_Consumer_Empty_Input);
-
-				if (elements.size() > m_maxChainSize)
-					return Abort(Failure_Consumer_Remote_Chain_Too_Many_Blocks);
 
 				if (!isChainTimestampAllowed(elements.back().Block.Timestamp))
 					return Abort(Failure_Consumer_Remote_Chain_Too_Far_In_Future);
@@ -98,16 +91,14 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
-			uint32_t m_maxChainSize;
 			utils::TimeSpan m_maxBlockFutureTime;
 			chain::TimeSupplier m_timeSupplier;
 		};
 	}
 
 	disruptor::ConstBlockConsumer CreateBlockChainCheckConsumer(
-			uint32_t maxChainSize,
 			const utils::TimeSpan& maxBlockFutureTime,
 			const chain::TimeSupplier& timeSupplier) {
-		return BlockChainCheckConsumer(maxChainSize, maxBlockFutureTime, timeSupplier);
+		return BlockChainCheckConsumer(maxBlockFutureTime, timeSupplier);
 	}
 }}

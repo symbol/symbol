@@ -32,10 +32,8 @@ namespace catapult { namespace consumers {
 #define TEST_CLASS BlockChainCheckConsumerTests
 
 	namespace {
-		constexpr uint32_t Test_Block_Chain_Limit = 20;
-
 		disruptor::ConstBlockConsumer CreateDefaultBlockChainCheckConsumer() {
-			return CreateBlockChainCheckConsumer(Test_Block_Chain_Limit, utils::TimeSpan::FromHours(1), []() {
+			return CreateBlockChainCheckConsumer(utils::TimeSpan::FromHours(1), []() {
 				return Timestamp(100);
 			});
 		}
@@ -45,40 +43,6 @@ namespace catapult { namespace consumers {
 
 	TEST(TEST_CLASS, CanProcessZeroEntities) {
 		test::AssertPassthroughForEmptyInput(CreateDefaultBlockChainCheckConsumer());
-	}
-
-	// endregion
-
-	// region max chain size
-
-	namespace {
-		void AssertBlockChainSizeValidation(uint32_t chainSize, disruptor::CompletionStatus expectedStatus) {
-			// Arrange:
-			auto elements = test::CreateBlockElements(chainSize);
-			test::LinkBlocks(Height(12), elements);
-			auto consumer = CreateDefaultBlockChainCheckConsumer();
-
-			// Act:
-			auto result = consumer(elements);
-
-			// Assert:
-			if (disruptor::CompletionStatus::Normal == expectedStatus)
-				test::AssertContinued(result);
-			else
-				test::AssertAborted(result, Failure_Consumer_Remote_Chain_Too_Many_Blocks, disruptor::ConsumerResultSeverity::Failure);
-		}
-	}
-
-	TEST(TEST_CLASS, BlockChainSizeCanBeLessThanBlockLimit) {
-		AssertBlockChainSizeValidation(Test_Block_Chain_Limit - 1, disruptor::CompletionStatus::Normal);
-	}
-
-	TEST(TEST_CLASS, BlockChainSizeCanBeEqualToBlockLimit) {
-		AssertBlockChainSizeValidation(Test_Block_Chain_Limit, disruptor::CompletionStatus::Normal);
-	}
-
-	TEST(TEST_CLASS, BlockChainSizeCannotBeGreaterThanBlockLimit) {
-		AssertBlockChainSizeValidation(Test_Block_Chain_Limit + 1, disruptor::CompletionStatus::Aborted);
 	}
 
 	// endregion
@@ -94,7 +58,7 @@ namespace catapult { namespace consumers {
 			// Arrange:
 			auto elements = test::CreateBlockElements(chainSize);
 			test::LinkBlocks(Height(12), elements);
-			auto consumer = CreateBlockChainCheckConsumer(Test_Block_Chain_Limit, maxBlockFutureTime, [currentTime]() {
+			auto consumer = CreateBlockChainCheckConsumer(maxBlockFutureTime, [currentTime]() {
 				return currentTime;
 			});
 

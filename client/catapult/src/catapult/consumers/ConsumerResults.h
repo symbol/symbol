@@ -41,35 +41,32 @@ namespace catapult { namespace consumers {
 	/// Validation failed because an entity hash is present in the recency cache.
 	DEFINE_NEUTRAL_CONSUMER_RESULT(Hash_In_Recency_Cache, 3);
 
-	/// Validation failed because the chain part has too many blocks.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Too_Many_Blocks, 4);
-
 	/// Validation failed because the chain is internally improperly linked.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Improper_Link, 5);
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Improper_Link, 4);
 
 	/// Validation failed because the chain part contains duplicate transactions.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Duplicate_Transactions, 6);
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Duplicate_Transactions, 5);
 
 	/// Validation failed because the chain part does not link to the current chain.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Unlinked, 7);
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Unlinked, 6);
 
 	/// Validation failed because the remote chain difficulties do not match the calculated difficulties.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Difficulties_Mismatch, 8);
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Difficulties_Mismatch, 7);
 
 	/// Validation failed because the remote chain score is not better.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Score_Not_Better, 9);
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Score_Not_Better, 8);
 
 	/// Validation failed because the remote chain is too far behind.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Too_Far_Behind, 10);
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Too_Far_Behind, 9);
 
 	/// Validation failed because the remote chain timestamp is too far in the future.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Too_Far_In_Future, 11);
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Too_Far_In_Future, 10);
 
 	/// Validation failed because the verification of the signature failed during a batch operation.
-	DEFINE_CONSUMER_RESULT(Batch_Signature_Not_Verifiable, 12);
+	DEFINE_CONSUMER_RESULT(Batch_Signature_Not_Verifiable, 11);
 
 	/// Validation failed because the chain has an improper importance link.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Improper_Importance_Link, 13);
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Improper_Importance_Link, 12);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

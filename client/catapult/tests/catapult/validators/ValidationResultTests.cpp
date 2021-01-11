@@ -165,7 +165,7 @@ namespace catapult { namespace validators {
 		// Assert: ordered by facility code name
 		EXPECT_EQ("Failure_Aggregate_Too_Many_Cosignatures", test::ToString(static_cast<ValidationResult>(0x80410003)));
 		EXPECT_EQ("Failure_Chain_Unlinked", test::ToString(static_cast<ValidationResult>(0x80FF0001)));
-		EXPECT_EQ("Failure_Consumer_Remote_Chain_Improper_Link", test::ToString(static_cast<ValidationResult>(0x80FE0005)));
+		EXPECT_EQ("Failure_Consumer_Remote_Chain_Improper_Link", test::ToString(static_cast<ValidationResult>(0x80FE0004)));
 		EXPECT_EQ("Failure_Core_Insufficient_Balance", test::ToString(static_cast<ValidationResult>(0x80430003)));
 		EXPECT_EQ("Failure_Extension_Partial_Transaction_Cache_Prune", test::ToString(static_cast<ValidationResult>(0x80450001)));
 		EXPECT_EQ("Failure_Hash_Already_Exists", test::ToString(static_cast<ValidationResult>(0x81490001)));
