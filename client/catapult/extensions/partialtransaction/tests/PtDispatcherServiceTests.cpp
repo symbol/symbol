@@ -134,7 +134,7 @@ namespace catapult { namespace partialtransaction {
 					: m_numCompletedTransactions(0)
 					, m_pWriters(std::make_shared<mocks::BroadcastAwareMockPacketWriters>()) {
 				auto pBootstrapperRegistrar = CreatePtBootstrapperServiceRegistrar([]() {
-					auto cacheOptions = cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(1));
+					auto cacheOptions = cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(2));
 					return std::make_unique<cache::MemoryPtCacheProxy>(cacheOptions);
 				});
 				pBootstrapperRegistrar->registerServices(locator(), testState().state());
