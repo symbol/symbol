@@ -42,11 +42,13 @@ namespace catapult { namespace chain {
 
 #define EXPECT_EQ_TRANSACTION_UPDATE_RESULT(RESULT, UPDATE_TYPE, NUM_COSIGNATURES_ADDED) \
 	do { \
-		EXPECT_EQ(TransactionUpdateResult::UpdateType::UPDATE_TYPE, RESULT.Type); \
+		EXPECT_EQ(PtUpdateResult::UpdateType::UPDATE_TYPE, RESULT.Type); \
 		EXPECT_EQ(static_cast<size_t>(NUM_COSIGNATURES_ADDED), RESULT.NumCosignaturesAdded); \
 	} while (false)
 
 	namespace {
+		// region transaction factories
+
 		model::TransactionInfo CreateRandomTransactionInfo(const std::shared_ptr<const model::Transaction>& pTransaction) {
 			auto transactionInfo = test::CreateRandomTransactionInfo();
 			transactionInfo.pEntity = pTransaction;
@@ -56,6 +58,8 @@ namespace catapult { namespace chain {
 		std::shared_ptr<model::AggregateTransaction> CreateRandomAggregateTransaction(uint32_t numCosignatures) {
 			return test::CreateRandomAggregateTransactionWithCosignatures(numCosignatures);
 		}
+
+		// endregion
 
 		// region ExpectedValidatorCalls
 
@@ -351,7 +355,7 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			const auto& transactionsCache() const {
+			auto& transactionsCache() {
 				return m_transactionsCache;
 			}
 
@@ -468,6 +472,8 @@ namespace catapult { namespace chain {
 
 		// endregion
 
+		// region tests
+
 		template<typename TAction>
 		void RunTestWithTransactionInCache(uint32_t numCosignatures, TAction action) {
 			// Arrange:
@@ -483,6 +489,8 @@ namespace catapult { namespace chain {
 			// Act:
 			action(context, transactionInfo, *pTransaction);
 		}
+
+		// endregion
 	}
 
 	// region update transaction - invalid aggregate
@@ -514,6 +522,31 @@ namespace catapult { namespace chain {
 
 		EXPECT_TRUE(context.completedTransactions().empty());
 		context.assertSingleFailedTransaction(transactionInfo, Validate_Partial_Raw_Result);
+		context.validator().assertCalls(*pTransaction, transactionInfo.EntityHash, { 1, 0, 0 });
+	}
+
+	TEST(TEST_CLASS, CannotAddAggregateWithoutCosignaturesWhenCacheIsFull) {
+		// Arrange:
+		UpdaterTestContext context;
+
+		// - fill up the cache
+		while (context.transactionsCache().modifier().add(CreateRandomTransactionInfo(CreateRandomAggregateTransaction(0))))
+		{}
+
+		auto originalCacheSize = context.transactionsCache().view().size();
+
+		auto pTransaction = CreateRandomAggregateTransaction(0);
+		auto transactionInfo = CreateRandomTransactionInfo(pTransaction);
+
+		// Act:
+		auto result = context.updater().update(transactionInfo).get();
+
+		// Assert:
+		EXPECT_EQ_TRANSACTION_UPDATE_RESULT(result, Neutral, 0);
+		EXPECT_EQ(originalCacheSize, context.transactionsCache().view().size());
+
+		EXPECT_TRUE(context.completedTransactions().empty());
+		EXPECT_TRUE(context.failedTransactionStatuses().empty());
 		context.validator().assertCalls(*pTransaction, transactionInfo.EntityHash, { 1, 0, 0 });
 	}
 
@@ -1331,6 +1364,61 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ_TRANSACTION_UPDATE_RESULT(result1, New, 3);
 		EXPECT_EQ(CosignatureUpdateResult::Ineligible, result2);
+	}
+
+	// endregion
+
+	// region SelectValid
+
+	TEST(TEST_CLASS, SelectValid_FailsWhenFewerTransactionInfosThanUpdateResults) {
+		// Arrange:
+		auto transactionInfos = test::CreateTransactionInfos(2);
+		auto updateResults = std::vector<PtUpdateResult>{
+			{ PtUpdateResult::UpdateType::New, 0 },
+			{ PtUpdateResult::UpdateType::New, 0 },
+			{ PtUpdateResult::UpdateType::New, 0 }
+		};
+
+		// Act + Assert:
+		EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, SelectValid_FailsWhenMoreTransactionInfosThanUpdateResults) {
+		// Arrange:
+		auto transactionInfos = test::CreateTransactionInfos(4);
+		auto updateResults = std::vector<PtUpdateResult>{
+			{ PtUpdateResult::UpdateType::New, 0 },
+			{ PtUpdateResult::UpdateType::New, 0 },
+			{ PtUpdateResult::UpdateType::New, 0 }
+		};
+
+		// Act + Assert:
+		EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, SelectValid_FiltersOutInvalidTransactions) {
+		// Arrange:
+		auto transactionInfos = test::CreateTransactionInfos(8);
+		auto updateResults = std::vector<PtUpdateResult>{
+			{ PtUpdateResult::UpdateType::New, 0 },
+			{ PtUpdateResult::UpdateType::Existing, 0 },
+			{ PtUpdateResult::UpdateType::Invalid, 0 },
+			{ PtUpdateResult::UpdateType::Neutral, 0 },
+			{ PtUpdateResult::UpdateType::Neutral, 0 },
+			{ PtUpdateResult::UpdateType::Existing, 0 },
+			{ PtUpdateResult::UpdateType::Invalid, 0 },
+			{ PtUpdateResult::UpdateType::New, 0 }
+		};
+
+		// Act:
+		auto filteredTransactionInfos = SelectValid(test::CopyTransactionInfos(transactionInfos), updateResults);
+
+		// Assert:
+		ASSERT_EQ(4u, filteredTransactionInfos.size());
+		test::AssertEqual(transactionInfos[0], filteredTransactionInfos[0], "0");
+		test::AssertEqual(transactionInfos[1], filteredTransactionInfos[1], "1");
+		test::AssertEqual(transactionInfos[5], filteredTransactionInfos[2], "2");
+		test::AssertEqual(transactionInfos[7], filteredTransactionInfos[3], "3");
 	}
 
 	// endregion

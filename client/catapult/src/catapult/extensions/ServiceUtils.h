@@ -33,6 +33,9 @@ namespace catapult { namespace extensions {
 	TSink CreatePushEntitySink(const extensions::ServiceLocator& locator, const std::string& serviceName) {
 		return [&locator, serviceName](const auto& entities) {
 			auto payload = ionet::CreateBroadcastPayload(entities);
+			if (sizeof(ionet::PacketHeader) == payload.header().Size)
+				return;
+
 			locator.service<net::PacketWriters>(serviceName)->broadcast(payload);
 		};
 	}
@@ -42,6 +45,9 @@ namespace catapult { namespace extensions {
 	TSink CreatePushEntitySink(const extensions::ServiceLocator& locator, const std::string& serviceName, ionet::PacketType packetType) {
 		return [&locator, serviceName, packetType](const auto& entities) {
 			auto payload = ionet::CreateBroadcastPayload(entities, packetType);
+			if (sizeof(ionet::PacketHeader) == payload.header().Size)
+				return;
+
 			locator.service<net::PacketWriters>(serviceName)->broadcast(payload);
 		};
 	}

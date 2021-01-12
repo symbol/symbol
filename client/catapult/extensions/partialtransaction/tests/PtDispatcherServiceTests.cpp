@@ -349,8 +349,8 @@ namespace catapult { namespace partialtransaction {
 					EXPECT_EQ(0u, view.size());
 					EXPECT_FALSE(!!view.find(expectedHashes[0]));
 
-					// - note that broadcast is done before validation
-					EXPECT_EQ(1u, context.numBroadcastCalls());
+					// - nothing was broadcast
+					EXPECT_EQ(0u, context.numBroadcastCalls());
 					EXPECT_EQ(0u, context.numCompletedTransactions());
 				});
 	}

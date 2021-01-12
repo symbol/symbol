@@ -503,6 +503,8 @@ namespace catapult { namespace chain {
 		}
 	}
 
+	// region traits
+
 #define NON_SUCCESS_VALIDATION_TRAITS_BASED_TEST(TEST_NAME) \
 	template<ValidationResult TResult> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Neutral) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationResult::Neutral>(); } \
@@ -510,20 +512,34 @@ namespace catapult { namespace chain {
 	template<ValidationResult TResult> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
+		constexpr auto New = UtUpdateResult::UpdateType::New;
+		constexpr auto Neutral = UtUpdateResult::UpdateType::Neutral;
+		constexpr auto Invalid = UtUpdateResult::UpdateType::Invalid;
+
 		struct NewTransactionsTraits {
 			static constexpr auto TransactionSource = UtUpdater::TransactionSource::New;
 
-			static void Update(UtUpdater& updater, const std::vector<model::TransactionInfo>& transactionInfos) {
-				updater.update(transactionInfos);
+			static std::vector<UtUpdateResult> Update(UtUpdater& updater, const std::vector<model::TransactionInfo>& transactionInfos) {
+				return updater.update(transactionInfos);
+			}
+
+			static void CheckResults(const std::vector<UtUpdateResult>& actual, const std::vector<UtUpdateResult::UpdateType>& expected) {
+				ASSERT_EQ(expected.size(), actual.size());
+				for (auto i = 0u; i < expected.size(); ++i)
+					EXPECT_EQ(expected[i], actual[i].Type) << "at " << i;
 			}
 		};
 
 		struct RevertedTransactionsTraits {
 			static constexpr auto TransactionSource = UtUpdater::TransactionSource::Reverted;
 
-			static void Update(UtUpdater& updater, const std::vector<model::TransactionInfo>& transactionInfos) {
+			static std::vector<UtUpdateResult> Update(UtUpdater& updater, const std::vector<model::TransactionInfo>& transactionInfos) {
 				updater.update({}, transactionInfos);
+				return std::vector<UtUpdateResult>();
 			}
+
+			static void CheckResults(const std::vector<UtUpdateResult>&, const std::vector<UtUpdateResult::UpdateType>&)
+			{}
 		};
 	}
 
@@ -536,6 +552,8 @@ namespace catapult { namespace chain {
 #define NEW_TRANSACTIONS_NON_SUCCESS_VALIDATION_TRAITS_BASED_TEST(TEST_NAME) \
 	NEW_TRANSACTIONS_TRAITS_BASED_TEST(TEST_NAME##_Neutral) { Assert##TEST_NAME<TTraits>(ValidationResult::Neutral); } \
 	NEW_TRANSACTIONS_TRAITS_BASED_TEST(TEST_NAME##_Failure) { Assert##TEST_NAME<TTraits>(ValidationResult::Failure); }
+
+	// endregion
 
 	// region shared tests - apply new transactions to cache
 
@@ -558,9 +576,11 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(0u, context.transactionsCache().view().size());
 
 			// Act:
-			TTraits::Update(context.updater(), transactionData.UtInfos);
+			auto updateResults = TTraits::Update(context.updater(), transactionData.UtInfos);
 
 			// Assert:
+			TTraits::CheckResults(updateResults, std::vector<UtUpdateResult::UpdateType>(numTransactions, New));
+
 			EXPECT_EQ(numTransactions, context.transactionsCache().view().size());
 			test::AssertContainsAll(context.transactionsCache(), transactionData.Hashes);
 
@@ -604,9 +624,11 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(0u, context.transactionsCache().view().size());
 
 		// Act:
-		TTraits::Update(context.updater(), transactionData.UtInfos);
+		auto updateResults = TTraits::Update(context.updater(), transactionData.UtInfos);
 
 		// Assert: only transactions with multiples of at least 20 were added
+		TTraits::CheckResults(updateResults, { Neutral, New, Neutral, New, New, New, New, Neutral, Neutral, New });
+
 		EXPECT_EQ(6u, context.transactionsCache().view().size());
 		test::AssertContainsAll(context.transactionsCache(), Select(transactionData.Hashes, { 1, 3, 4, 5, 6, 9 }));
 
@@ -629,9 +651,11 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(0u, context.transactionsCache().view().size());
 
 		// Act:
-		TTraits::Update(context.updater(), transactionData.UtInfos);
+		auto updateResults = TTraits::Update(context.updater(), transactionData.UtInfos);
 
 		// Assert: the throttled transactions were not added
+		TTraits::CheckResults(updateResults, { Neutral, New, Neutral, New, Neutral });
+
 		EXPECT_EQ(2u, context.transactionsCache().view().size());
 		test::AssertContainsAll(context.transactionsCache(), Select(transactionData.Hashes, { 1, 3 }));
 
@@ -663,9 +687,11 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(0u, context.transactionsCache().view().size());
 
 			// Act:
-			TTraits::Update(context.updater(), transactionData.UtInfos);
+			auto updateResults = TTraits::Update(context.updater(), transactionData.UtInfos);
 
 			// Assert:
+			TTraits::CheckResults(updateResults, { New, Invalid, New, New, Invalid, New });
+
 			EXPECT_EQ(4u, context.transactionsCache().view().size());
 			test::AssertContainsAll(context.transactionsCache(), Select(transactionData.Hashes, { 0, 2, 3, 5 }));
 
@@ -699,9 +725,11 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(0u, context.transactionsCache().view().size());
 
 			// Act:
-			TTraits::Update(context.updater(), transactionData.UtInfos);
+			auto updateResults = TTraits::Update(context.updater(), transactionData.UtInfos);
 
 			// Assert:
+			TTraits::CheckResults(updateResults, { New, Invalid, New, New, Invalid, New });
+
 			EXPECT_EQ(4u, context.transactionsCache().view().size());
 			test::AssertContainsAll(context.transactionsCache(), Select(transactionData.Hashes, { 0, 2, 3, 5 }));
 
@@ -740,9 +768,11 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(3u, context.transactionsCache().view().size());
 
 			// Act:
-			TTraits::Update(context.updater(), transactionData.UtInfos);
+			auto updateResults = TTraits::Update(context.updater(), transactionData.UtInfos);
 
 			// Assert: the cache contains original and new transactions
+			TTraits::CheckResults(updateResults, { New, New, New, New });
+
 			EXPECT_EQ(7u, context.transactionsCache().view().size());
 			test::AssertContainsAll(context.transactionsCache(), originalTransactionData.Hashes);
 			test::AssertContainsAll(context.transactionsCache(), transactionData.Hashes);
@@ -799,9 +829,11 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(3u, context.transactionsCache().view().size());
 
 			// Act:
-			TTraits::Update(context.updater(), transactionData.UtInfos);
+			auto updateResults = TTraits::Update(context.updater(), transactionData.UtInfos);
 
 			// Assert: the duplicate transactions were not added
+			TTraits::CheckResults(updateResults, { New, Neutral, New, Neutral, New });
+
 			EXPECT_EQ(6u, context.transactionsCache().view().size());
 			test::AssertContainsAll(context.transactionsCache(), originalTransactionData.Hashes);
 			test::AssertContainsAll(context.transactionsCache(), transactionData.Hashes);
@@ -865,9 +897,11 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(3u, context.transactionsCache().view().size());
 
 		// Act:
-		context.updater().update(transactionData.UtInfos);
+		auto updateResults = context.updater().update(transactionData.UtInfos);
 
 		// Assert: the cache contains original and new transactions
+		NewTransactionsTraits::CheckResults(updateResults, { Neutral, Neutral, Neutral, Neutral });
+
 		EXPECT_EQ(7u, context.transactionsCache().view().size());
 		test::AssertContainsAll(context.transactionsCache(), originalTransactionData.Hashes);
 		test::AssertContainsAll(context.transactionsCache(), transactionData.Hashes);
@@ -1061,6 +1095,57 @@ namespace catapult { namespace chain {
 		context.assertEntityInfos(unconfirmedEntityInfos);
 
 		context.assertSubscriberCalls({ 0, 1, 4 }, { 25, 49 });
+	}
+
+	// endregion
+
+	// region SelectValid
+
+	TEST(TEST_CLASS, SelectValid_FailsWhenFewerTransactionInfosThanUpdateResults) {
+		// Arrange:
+		auto transactionInfos = test::CreateTransactionInfos(2);
+		auto updateResults = std::vector<UtUpdateResult>{
+			{ New },
+			{ New },
+			{ New }
+		};
+
+		// Act + Assert:
+		EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, SelectValid_FailsWhenMoreTransactionInfosThanUpdateResults) {
+		// Arrange:
+		auto transactionInfos = test::CreateTransactionInfos(4);
+		auto updateResults = std::vector<UtUpdateResult>{
+			{ New },
+			{ New },
+			{ New }
+		};
+
+		// Act + Assert:
+		EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, SelectValid_FiltersOutInvalidTransactions) {
+		// Arrange:
+		auto transactionInfos = test::CreateTransactionInfos(6);
+		auto updateResults = std::vector<UtUpdateResult>{
+			{ New },
+			{ Invalid },
+			{ Neutral },
+			{ Invalid },
+			{ New },
+			{ Neutral }
+		};
+
+		// Act:
+		auto filteredTransactionInfos = SelectValid(test::CopyTransactionInfos(transactionInfos), updateResults);
+
+		// Assert:
+		ASSERT_EQ(2u, filteredTransactionInfos.size());
+		test::AssertEqual(transactionInfos[0], filteredTransactionInfos[0], "0");
+		test::AssertEqual(transactionInfos[4], filteredTransactionInfos[1], "1");
 	}
 
 	// endregion

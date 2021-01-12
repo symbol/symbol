@@ -40,7 +40,7 @@ namespace catapult { namespace extensions {
 		using TransactionSink = extensions::SharedNewTransactionsSink;
 	}
 
-	TEST(TEST_CLASS, CanCreatePushEntitySink) {
+	TEST(TEST_CLASS, CanCreatePushEntitySink_BroadcastsNonzeroEntities) {
 		// Arrange:
 		auto pWriters = std::make_shared<mocks::BroadcastAwareMockPacketWriters>();
 		auto transactionInfos = test::CreateTransactionInfos(1);
@@ -60,7 +60,24 @@ namespace catapult { namespace extensions {
 		test::AssertEqualPayload(expectedPayload, pWriters->broadcastedPayloads()[0]);
 	}
 
-	TEST(TEST_CLASS, CanCreatePushEntitySinkWithCustomPacketType) {
+	TEST(TEST_CLASS, CanCreatePushEntitySink_SkipsBroadcastOfZeroEntities) {
+		// Arrange:
+		auto pWriters = std::make_shared<mocks::BroadcastAwareMockPacketWriters>();
+		auto transactionInfos = test::CreateTransactionInfos(0);
+
+		config::CatapultKeys keys;
+		ServiceLocator locator(keys);
+		locator.registerService(Service_Name, pWriters);
+
+		// Act:
+		auto sink = CreatePushEntitySink<TransactionSink>(locator, Service_Name);
+		sink(transactionInfos);
+
+		// Assert:
+		ASSERT_EQ(0u, pWriters->broadcastedPayloads().size());
+	}
+
+	TEST(TEST_CLASS, CanCreatePushEntitySinkWithCustomPacketType_BroadcastsNonzeroEntities) {
 		// Arrange:
 		auto pWriters = std::make_shared<mocks::BroadcastAwareMockPacketWriters>();
 		auto transactionInfos = test::CreateTransactionInfos(1);
@@ -78,6 +95,23 @@ namespace catapult { namespace extensions {
 		ASSERT_EQ(1u, pWriters->broadcastedPayloads().size());
 		EXPECT_EQ(ionet::PacketType::Push_Partial_Transactions, pWriters->broadcastedPayloads()[0].header().Type);
 		test::AssertEqualPayload(expectedPayload, pWriters->broadcastedPayloads()[0]);
+	}
+
+	TEST(TEST_CLASS, CanCreatePushEntitySinkWithCustomPacketType_SkipsBroadcastOfZeroEntities) {
+		// Arrange:
+		auto pWriters = std::make_shared<mocks::BroadcastAwareMockPacketWriters>();
+		auto transactionInfos = test::CreateTransactionInfos(0);
+
+		config::CatapultKeys keys;
+		ServiceLocator locator(keys);
+		locator.registerService(Service_Name, pWriters);
+
+		// Act:
+		auto sink = CreatePushEntitySink<TransactionSink>(locator, Service_Name, ionet::PacketType::Push_Partial_Transactions);
+		sink(transactionInfos);
+
+		// Assert:
+		ASSERT_EQ(0u, pWriters->broadcastedPayloads().size());
 	}
 
 	TEST(TEST_CLASS, CanCreateCloseConnectionSink) {

@@ -147,7 +147,7 @@ namespace catapult { namespace chain {
 		};
 
 	public:
-		thread::future<TransactionUpdateResult> update(const model::TransactionInfo& transactionInfo) {
+		thread::future<PtUpdateResult> update(const model::TransactionInfo& transactionInfo) {
 			if (model::Entity_Type_Aggregate_Bonded != transactionInfo.pEntity->Type)
 				CATAPULT_THROW_INVALID_ARGUMENT("PtUpdater only supports bonded aggregate transactions");
 
@@ -161,10 +161,10 @@ namespace catapult { namespace chain {
 				cosignatures = ExtractCosignatures(*pAggregateTransaction, aggregateHash, transactionInfoFromCache);
 
 				if (transactionInfoFromCache)
-					return update(cosignatures, TransactionUpdateResult::UpdateType::Existing);
+					return update(cosignatures, PtUpdateResult::UpdateType::Existing);
 			}
 
-			auto pPromise = std::make_shared<thread::promise<TransactionUpdateResult>>(); // needs to be copyable to pass to post
+			auto pPromise = std::make_shared<thread::promise<PtUpdateResult>>(); // needs to be copyable to pass to post
 			auto updateFuture = pPromise->get_future();
 
 			TransactionUpdateContext updateContext;
@@ -182,22 +182,23 @@ namespace catapult { namespace chain {
 		}
 
 	private:
-		thread::future<TransactionUpdateResult> updateImpl(const TransactionUpdateContext& updateContext) {
+		thread::future<PtUpdateResult> updateImpl(const TransactionUpdateContext& updateContext) {
 			const auto& aggregateHash = updateContext.AggregateHash;
 			auto pAggregateTransactionWithoutCosignatures = RemoveCosignatures(updateContext.pAggregateTransaction);
 			if (!isValid(*pAggregateTransactionWithoutCosignatures, aggregateHash))
-				return thread::make_ready_future(TransactionUpdateResult{ TransactionUpdateResult::UpdateType::Invalid, 0 });
+				return thread::make_ready_future(PtUpdateResult{ PtUpdateResult::UpdateType::Invalid, 0 });
 
 			// notice that the merkle component hash is not stored in the pt cache
 			auto transactionInfo = model::DetachedTransactionInfo(pAggregateTransactionWithoutCosignatures, aggregateHash);
 			transactionInfo.OptionalExtractedAddresses = updateContext.pExtractedAddresses;
-			m_transactionsCache.modifier().add(transactionInfo);
+			if (!m_transactionsCache.modifier().add(transactionInfo))
+				return thread::make_ready_future(PtUpdateResult{ PtUpdateResult::UpdateType::Neutral, 0 });
 
 			// if no cosignatures are present, check if the aggregate doesn't require any cosignatures (e.g. 1-of-1)
 			if (updateContext.Cosignatures.empty())
 				checkCompleteness(aggregateHash);
 
-			return update(updateContext.Cosignatures, TransactionUpdateResult::UpdateType::New);
+			return update(updateContext.Cosignatures, PtUpdateResult::UpdateType::New);
 		}
 
 	public:
@@ -238,11 +239,9 @@ namespace catapult { namespace chain {
 			return addCosignature(cosignature);
 		}
 
-		thread::future<TransactionUpdateResult> update(
-				const DetachedCosignatures& cosignatures,
-				TransactionUpdateResult::UpdateType updateType) {
+		thread::future<PtUpdateResult> update(const DetachedCosignatures& cosignatures, PtUpdateResult::UpdateType updateType) {
 			if (cosignatures.empty())
-				return thread::make_ready_future(TransactionUpdateResult{ updateType, 0u });
+				return thread::make_ready_future(PtUpdateResult{ updateType, 0u });
 
 			std::vector<thread::future<CosignatureUpdateResult>> futures;
 			for (const auto& cosignature : cosignatures)
@@ -255,7 +254,7 @@ namespace catapult { namespace chain {
 					return CosignatureUpdateResult::Added_Incomplete == result || CosignatureUpdateResult::Added_Complete == result;
 				});
 
-				return TransactionUpdateResult{ updateType, static_cast<size_t>(numCosignaturesAdded) };
+				return PtUpdateResult{ updateType, static_cast<size_t>(numCosignaturesAdded) };
 			});
 		}
 
@@ -414,11 +413,45 @@ namespace catapult { namespace chain {
 
 	PtUpdater::~PtUpdater() = default;
 
-	thread::future<TransactionUpdateResult> PtUpdater::update(const model::TransactionInfo& transactionInfo) {
+	thread::future<PtUpdateResult> PtUpdater::update(const model::TransactionInfo& transactionInfo) {
 		return m_pImpl->update(transactionInfo);
 	}
 
 	thread::future<CosignatureUpdateResult> PtUpdater::update(const model::DetachedCosignature& cosignature) {
 		return m_pImpl->update(cosignature);
+	}
+
+	namespace {
+		bool IsValidUpdateResult(const PtUpdateResult& updateResult) {
+			switch (updateResult.Type) {
+			case PtUpdateResult::UpdateType::New:
+			case PtUpdateResult::UpdateType::Existing:
+				return true;
+
+			default:
+				return false;
+			}
+		}
+	}
+
+	std::vector<model::TransactionInfo> SelectValid(
+			std::vector<model::TransactionInfo>&& transactionInfos,
+			const std::vector<PtUpdateResult>& updateResults) {
+		if (transactionInfos.size() != updateResults.size()) {
+			std::ostringstream out;
+			out
+					<< "number of transaction infos " << transactionInfos.size()
+					<< " must match number of update results " << updateResults.size();
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
+
+		std::vector<model::TransactionInfo> filteredTransactionInfos;
+
+		for (auto i = 0u; i < transactionInfos.size(); ++i) {
+			if (IsValidUpdateResult(updateResults[i]))
+				filteredTransactionInfos.push_back(std::move(transactionInfos[i]));
+		}
+
+		return filteredTransactionInfos;
 	}
 }}

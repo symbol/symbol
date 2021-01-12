@@ -108,15 +108,16 @@ namespace catapult { namespace partialtransaction {
 
 			std::shared_ptr<ConsumerDispatcher> build(
 					chain::PtUpdater& ptUpdater,
-					const extensions::SharedNewTransactionsSink& newTransactionSink) {
+					const extensions::SharedNewTransactionsSink& newTransactionsSink) {
 				auto disruptorConsumers = DisruptorConsumersFromTransactionConsumers(m_consumers);
-				disruptorConsumers.push_back(CreateNewTransactionsConsumer([&ptUpdater, newTransactionSink](auto&& transactionInfos) {
-					newTransactionSink(transactionInfos);
-					std::vector<thread::future<chain::TransactionUpdateResult>> futures;
+				disruptorConsumers.push_back(CreateNewTransactionsConsumer([&ptUpdater, newTransactionsSink](auto&& transactionInfos) {
+					std::vector<thread::future<chain::PtUpdateResult>> futures;
 					for (const auto& transactionInfo : transactionInfos)
 						futures.push_back(ptUpdater.update(transactionInfo));
 
-					thread::when_all(std::move(futures)).get();
+					auto updateResults = thread::get_all(std::move(futures));
+
+					newTransactionsSink(chain::SelectValid(std::move(transactionInfos), updateResults));
 				}));
 
 				return CreateConsumerDispatcher(CreateTransactionConsumerDispatcherOptions(m_nodeConfig), disruptorConsumers);

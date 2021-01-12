@@ -39,8 +39,8 @@ namespace catapult { namespace chain {
 
 	// region results
 
-	/// Result of a transaction update.
-	struct TransactionUpdateResult {
+	/// Result of a partial transaction update.
+	struct PtUpdateResult {
 		/// Possible update types.
 		enum class UpdateType {
 			/// New transaction.
@@ -50,7 +50,10 @@ namespace catapult { namespace chain {
 			Existing,
 
 			/// Invalid transaction.
-			Invalid
+			Invalid,
+
+			/// Neutral transaction (e.g. cache is full).
+			Neutral
 		};
 
 		/// Type of the update.
@@ -104,7 +107,7 @@ namespace catapult { namespace chain {
 
 	public:
 		/// Updates this cache by adding a new transaction info (\a transactionInfo).
-		thread::future<TransactionUpdateResult> update(const model::TransactionInfo& transactionInfo);
+		thread::future<PtUpdateResult> update(const model::TransactionInfo& transactionInfo);
 
 		/// Updates this cache by adding a new \a cosignature.
 		thread::future<CosignatureUpdateResult> update(const model::DetachedCosignature& cosignature);
@@ -113,4 +116,9 @@ namespace catapult { namespace chain {
 		class Impl;
 		std::shared_ptr<Impl> m_pImpl; // shared_ptr to allow use of enable_shared_from_this
 	};
+
+	/// Filters \a transactionInfos based on \a updateResults by selecting only valid transactions.
+	std::vector<model::TransactionInfo> SelectValid(
+			std::vector<model::TransactionInfo>&& transactionInfos,
+			const std::vector<PtUpdateResult>& updateResults);
 }}
