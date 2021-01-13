@@ -120,8 +120,12 @@ namespace catapult { namespace chain {
 					return model::CalculateFinalizationEpochForHeight(nextProofHeight, m_votingSetGrouping);
 
 				auto unfinalizedBlocksDuration = BlockDuration((localChainHeight - localFinalizedHeight).unwrap());
-				if (BlockDuration() != m_unfinalizedBlocksDuration && unfinalizedBlocksDuration >= m_unfinalizedBlocksDuration)
-					return model::CalculateFinalizationEpochForHeight(localFinalizedHeight, m_votingSetGrouping);
+				if (BlockDuration() != m_unfinalizedBlocksDuration && unfinalizedBlocksDuration >= m_unfinalizedBlocksDuration) {
+					auto epoch = model::CalculateFinalizationEpochForHeight(localFinalizedHeight, m_votingSetGrouping);
+					return model::CalculateVotingSetEndHeight(epoch, m_votingSetGrouping) != localFinalizedHeight
+							? epoch
+							: epoch + FinalizationEpoch(1);
+				}
 
 				return FinalizationEpoch();
 			}

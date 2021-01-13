@@ -281,14 +281,7 @@ namespace catapult { namespace chain {
 	// region success
 
 	namespace {
-		void AssertSuccess(TestContext& context, FinalizationEpoch proofEpoch) {
-			// Arrange:
-			auto pProof = std::make_shared<model::FinalizationProof>();
-			pProof->Round = { proofEpoch, FinalizationPoint(111) };
-			pProof->Height = Height(234);
-			pProof->Hash = Hash256{ { 33 } };
-			context.api().setProof(pProof);
-
+		void AssertSuccess(TestContext& context, FinalizationEpoch proofEpoch, Height proofHeight) {
 			// Act:
 			auto result = context.synchronize();
 
@@ -301,8 +294,20 @@ namespace catapult { namespace chain {
 			ASSERT_EQ(1u, context.storage().savedProofDescriptors().size());
 			const auto& savedProofDescriptor = context.storage().savedProofDescriptors()[0];
 			EXPECT_EQ(test::CreateFinalizationRound(proofEpoch.unwrap(), 111), savedProofDescriptor.Round);
-			EXPECT_EQ(Height(234), savedProofDescriptor.Height);
+			EXPECT_EQ(proofHeight, savedProofDescriptor.Height);
 			EXPECT_EQ(Hash256{ { 33 } }, savedProofDescriptor.Hash);
+		}
+
+		void AssertSuccess(TestContext& context, FinalizationEpoch proofEpoch) {
+			// Arrange:
+			auto pProof = std::make_shared<model::FinalizationProof>();
+			pProof->Round = { proofEpoch, FinalizationPoint(111) };
+			pProof->Height = Height(234);
+			pProof->Hash = Hash256{ { 33 } };
+			context.api().setProof(pProof);
+
+			// Act + Assert:
+			AssertSuccess(context, proofEpoch, Height(234));
 		}
 
 		void AssertSuccess(Height localChainHeight, FinalizationEpoch remoteEpoch) {
@@ -387,6 +392,26 @@ namespace catapult { namespace chain {
 
 		// Act + Assert: next end of epoch is pulled
 		AssertSuccess(context, FinalizationEpoch(6));
+	}
+
+	TEST(TEST_CLASS, SuccessWhenCalculatedRequestEpochIsFullyProven_NonzeroUnfinalizedBlocksDuration) {
+		// Arrange:
+		// -  local finalized height 14400 epoch 21
+		// - remote finalized height 15013 epoch 22
+		TestContext context(720, Height(15000), Height(14400), BlockDuration(16));
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(22), Height(15013)));
+
+		auto pProof = std::make_shared<model::FinalizationProof>();
+		pProof->Round = { FinalizationEpoch(22), FinalizationPoint(111) };
+		pProof->Height = Height(15013);
+		pProof->Hash = Hash256{ { 33 } };
+		context.api().setProof(pProof);
+
+		// Act + Assert:
+		// - local actual unfinalized blocks (600) > configured unfinalized blocks (16)
+		// - calculateRequestEpoch initially calculates request from epoch 21
+		// - since end of epoch 21 (14400) is already finalized, request epoch is incremented
+		AssertSuccess(context, FinalizationEpoch(22), Height(15013));
 	}
 
 	// endregion
