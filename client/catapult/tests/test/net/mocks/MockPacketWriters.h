@@ -196,9 +196,14 @@ namespace catapult { namespace mocks {
 	/// Mock packet writers that has a broadcast implementation.
 	class BroadcastAwareMockPacketWriters : public MockPacketWriters {
 	public:
+		/// Creates writers.
+		BroadcastAwareMockPacketWriters() : m_numBroadcastCalls(0)
+		{}
+
+	public:
 		/// Gets the number of broadcast calls.
 		size_t numBroadcastCalls() const {
-			return m_payloads.size();
+			return m_numBroadcastCalls;
 		}
 
 		/// Gets the broadcasted payloads.
@@ -209,9 +214,11 @@ namespace catapult { namespace mocks {
 	public:
 		void broadcast(const ionet::PacketPayload& payload) override {
 			m_payloads.push_back(payload);
+			++m_numBroadcastCalls;
 		}
 
 	private:
+		std::atomic<size_t> m_numBroadcastCalls;
 		std::vector<ionet::PacketPayload> m_payloads;
 	};
 }}
