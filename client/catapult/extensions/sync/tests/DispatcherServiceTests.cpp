@@ -1217,10 +1217,12 @@ namespace catapult { namespace sync {
 		AssertTransactionRangeConsumeHandlesBanning(transactionValidationResults, std::move(range), 1);
 	}
 
-	TEST(TEST_CLASS, Dispatcher_NodeIsNotBannedWhenStatefulValidationIsFailure_TransactionRange) {
+	TEST(TEST_CLASS, Dispatcher_NodeIsBannedWhenStatefulValidationIsFailure_TransactionRange) {
+		// note that this behavior is (node) configuration-dependent
 		ValidationResults transactionValidationResults;
 		transactionValidationResults.Stateful = ValidationResult::Failure;
-		AssertTransactionRangeConsumeHandlesBanning(transactionValidationResults, CreateSignedTransactionEntityRange(1), 0);
+		auto range = test::CreateTransactionEntityRange(1);
+		AssertTransactionRangeConsumeHandlesBanning(transactionValidationResults, std::move(range), 1);
 	}
 
 	TEST(TEST_CLASS, Dispatcher_NodeIsNotBannedWhenHostIsInLocalNetworks_TransactionRange) {

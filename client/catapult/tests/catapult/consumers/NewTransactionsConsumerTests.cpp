@@ -70,10 +70,16 @@ namespace catapult { namespace consumers {
 
 		struct ConsumerTestContext {
 		public:
-			ConsumerTestContext()
-					: Consumer(CreateNewTransactionsConsumer([&handler = NewTransactionsProcessor](auto&& transactionInfos) {
-						return handler(std::move(transactionInfos));
-					}))
+			ConsumerTestContext() : ConsumerTestContext(0, 101)
+			{}
+
+			ConsumerTestContext(uint32_t minTransactionFailuresCountForBan, uint32_t minTransactionFailuresPercentForBan)
+					: Consumer(CreateNewTransactionsConsumer(
+							minTransactionFailuresCountForBan,
+							minTransactionFailuresPercentForBan,
+							[&handler = NewTransactionsProcessor](auto&& transactionInfos) {
+								return handler(std::move(transactionInfos));
+							}))
 			{}
 
 		public:
@@ -283,6 +289,50 @@ namespace catapult { namespace consumers {
 
 		// Assert:
 		test::AssertAborted(result, validators::ValidationResult::Failure, disruptor::ConsumerResultSeverity::Failure);
+	}
+
+	// endregion
+
+	// region banning (fatal result)
+
+	namespace {
+		void RunBanningTest(
+				uint32_t minTransactionFailuresCountForBan,
+				uint32_t minTransactionFailuresPercentForBan,
+				uint32_t numFailures,
+				uint32_t numSuccesses,
+				disruptor::ConsumerResultSeverity expectedSeverity) {
+			// Arrange:
+			ConsumerTestContext context(minTransactionFailuresCountForBan, minTransactionFailuresPercentForBan);
+			auto input = CreateInput(numFailures + numSuccesses);
+			for (auto i = 0u; i < numFailures; ++i)
+				input.transactions()[i].ResultSeverity = disruptor::ConsumerResultSeverity::Failure;
+
+			for (auto i = 0u; i < numSuccesses; ++i)
+				input.transactions()[numFailures + i].ResultSeverity = disruptor::ConsumerResultSeverity::Success;
+
+			// Act:
+			auto result = context.Consumer(input);
+
+			// Assert:
+			test::AssertAborted(result, validators::ValidationResult::Failure, expectedSeverity);
+		}
+	}
+
+	TEST(TEST_CLASS, FailureResultWhenNeitherFailureCountNorFailurePercentAreAtLeastMinThreshold) {
+		RunBanningTest(3, 10, 2, 98, disruptor::ConsumerResultSeverity::Failure);
+	}
+
+	TEST(TEST_CLASS, FatalResultOnlyWhenFailureCountIsAtLeastMinThreshold) {
+		RunBanningTest(3, 10, 2, 1, disruptor::ConsumerResultSeverity::Failure); // 2 < 3
+		RunBanningTest(3, 10, 3, 1, disruptor::ConsumerResultSeverity::Fatal); //   3 = 3
+		RunBanningTest(3, 10, 4, 1, disruptor::ConsumerResultSeverity::Fatal); //   4 > 3
+	}
+
+	TEST(TEST_CLASS, FatalResultOnlyWhenFailurePercentIsAtLeastMinThreshold) {
+		RunBanningTest(3, 10, 4, 37, disruptor::ConsumerResultSeverity::Failure); // 4/41 < 10%
+		RunBanningTest(3, 10, 4, 36, disruptor::ConsumerResultSeverity::Fatal); //   4/40 = 10%
+		RunBanningTest(3, 10, 4, 35, disruptor::ConsumerResultSeverity::Fatal); //   4/39 > 10%
 	}
 
 	// endregion

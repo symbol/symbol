@@ -330,14 +330,17 @@ namespace catapult { namespace sync {
 						validatorPool,
 						failedTransactionSink));
 
+				const auto& banningConfig = m_nodeConfig.Banning;
 				auto disruptorConsumers = DisruptorConsumersFromTransactionConsumers(m_consumers);
 				disruptorConsumers.push_back(CreateNewTransactionsConsumer(
+						banningConfig.MinTransactionFailuresCountForBan,
+						banningConfig.MinTransactionFailuresPercentForBan,
 						[&utUpdater, newTransactionsSink = m_state.hooks().newTransactionsSink()](auto&& transactionInfos) {
-					// only broadcast transactions that have passed stateful validation on this node
-					auto updateResults = utUpdater.update(transactionInfos);
-					newTransactionsSink(chain::SelectValid(std::move(transactionInfos), updateResults));
-					return chain::AggregateUpdateResults(updateResults);
-				}));
+							// only broadcast transactions that have passed stateful validation on this node
+							auto updateResults = utUpdater.update(transactionInfos);
+							newTransactionsSink(chain::SelectValid(std::move(transactionInfos), updateResults));
+							return chain::AggregateUpdateResults(updateResults);
+						}));
 
 				return CreateConsumerDispatcher(
 						m_state,

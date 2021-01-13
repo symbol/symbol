@@ -27,8 +27,13 @@ namespace catapult { namespace consumers {
 	namespace {
 		class NewTransactionsConsumer {
 		public:
-			explicit NewTransactionsConsumer(const NewTransactionsProcessor& newTransactionsProcessor)
-					: m_newTransactionsProcessor(newTransactionsProcessor)
+			NewTransactionsConsumer(
+					uint32_t minTransactionFailuresCountForBan,
+					uint32_t minTransactionFailuresPercentForBan,
+					const NewTransactionsProcessor& newTransactionsProcessor)
+					: m_minTransactionFailuresCountForBan(minTransactionFailuresCountForBan)
+					, m_minTransactionFailuresPercentForBan(minTransactionFailuresPercentForBan)
+					, m_newTransactionsProcessor(newTransactionsProcessor)
 			{}
 
 		public:
@@ -66,17 +71,28 @@ namespace catapult { namespace consumers {
 				aggregateResult.FailureCount += numFailures;
 
 				// 5. indicate input was consumed and processing is complete
-				return aggregateResult.FailureCount > 0
-						? Abort(validators::ValidationResult::Failure)
-						: aggregateResult.SuccessCount > 0 ? CompleteSuccess() : CompleteNeutral();
+				if (0 == aggregateResult.FailureCount)
+					return aggregateResult.SuccessCount > 0 ? CompleteSuccess() : CompleteNeutral();
+
+				auto shouldBan =
+						aggregateResult.FailureCount >= m_minTransactionFailuresCountForBan
+						&& aggregateResult.FailureCount * 100 / transactions.size() >= m_minTransactionFailuresPercentForBan;
+				return shouldBan
+						? Abort(validators::ValidationResult::Failure, disruptor::ConsumerResultSeverity::Fatal)
+						: Abort(validators::ValidationResult::Failure);
 			}
 
 		private:
+			uint32_t m_minTransactionFailuresCountForBan;
+			uint32_t m_minTransactionFailuresPercentForBan;
 			NewTransactionsProcessor m_newTransactionsProcessor;
 		};
 	}
 
-	disruptor::DisruptorConsumer CreateNewTransactionsConsumer(const NewTransactionsProcessor& newTransactionsProcessor) {
-		return NewTransactionsConsumer(newTransactionsProcessor);
+	disruptor::DisruptorConsumer CreateNewTransactionsConsumer(
+			uint32_t minTransactionFailuresCountForBan,
+			uint32_t minTransactionFailuresPercentForBan,
+			const NewTransactionsProcessor& newTransactionsProcessor) {
+		return NewTransactionsConsumer(minTransactionFailuresCountForBan, minTransactionFailuresPercentForBan, newTransactionsProcessor);
 	}
 }}

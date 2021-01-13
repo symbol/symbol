@@ -142,9 +142,12 @@ namespace catapult { namespace config {
 		LOAD_BANNING_PROPERTY(ReadRateMonitoringBucketDuration);
 		LOAD_BANNING_PROPERTY(MaxReadRateMonitoringTotalSize);
 
+		LOAD_BANNING_PROPERTY(MinTransactionFailuresCountForBan);
+		LOAD_BANNING_PROPERTY(MinTransactionFailuresPercentForBan);
+
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 38 + 7 + 4 + 4 + 5 + 7);
+		utils::VerifyBagSizeExact(bag, 38 + 7 + 4 + 4 + 5 + 9);
 		return config;
 	}
 

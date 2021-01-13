@@ -140,7 +140,10 @@ namespace catapult { namespace config {
 
 							{ "numReadRateMonitoringBuckets", "7" },
 							{ "readRateMonitoringBucketDuration", "9m" },
-							{ "maxReadRateMonitoringTotalSize", "11KB" }
+							{ "maxReadRateMonitoringTotalSize", "11KB" },
+
+							{ "minTransactionFailuresCountForBan", "111" },
+							{ "minTransactionFailuresPercentForBan", "432" }
 						}
 					}
 				};
@@ -237,6 +240,9 @@ namespace catapult { namespace config {
 				EXPECT_EQ(0u, config.Banning.NumReadRateMonitoringBuckets);
 				EXPECT_EQ(utils::TimeSpan(), config.Banning.ReadRateMonitoringBucketDuration);
 				EXPECT_EQ(utils::FileSize(), config.Banning.MaxReadRateMonitoringTotalSize);
+
+				EXPECT_EQ(0u, config.Banning.MinTransactionFailuresCountForBan);
+				EXPECT_EQ(0u, config.Banning.MinTransactionFailuresPercentForBan);
 			}
 
 			static void AssertCustom(const NodeConfiguration& config) {
@@ -326,6 +332,9 @@ namespace catapult { namespace config {
 				EXPECT_EQ(7u, config.Banning.NumReadRateMonitoringBuckets);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(9), config.Banning.ReadRateMonitoringBucketDuration);
 				EXPECT_EQ(utils::FileSize::FromKilobytes(11), config.Banning.MaxReadRateMonitoringTotalSize);
+
+				EXPECT_EQ(111u, config.Banning.MinTransactionFailuresCountForBan);
+				EXPECT_EQ(432u, config.Banning.MinTransactionFailuresPercentForBan);
 			}
 		};
 	}

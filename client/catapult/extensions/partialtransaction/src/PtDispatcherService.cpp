@@ -110,16 +110,20 @@ namespace catapult { namespace partialtransaction {
 			std::shared_ptr<ConsumerDispatcher> build(
 					chain::PtUpdater& ptUpdater,
 					const extensions::SharedNewTransactionsSink& newTransactionsSink) {
+				const auto& banningConfig = m_nodeConfig.Banning;
 				auto disruptorConsumers = DisruptorConsumersFromTransactionConsumers(m_consumers);
-				disruptorConsumers.push_back(CreateNewTransactionsConsumer([&ptUpdater, newTransactionsSink](auto&& transactionInfos) {
-					std::vector<thread::future<chain::PtUpdateResult>> futures;
-					for (const auto& transactionInfo : transactionInfos)
-						futures.push_back(ptUpdater.update(transactionInfo));
+				disruptorConsumers.push_back(CreateNewTransactionsConsumer(
+						banningConfig.MinTransactionFailuresCountForBan,
+						banningConfig.MinTransactionFailuresPercentForBan,
+						[&ptUpdater, newTransactionsSink](auto&& transactionInfos) {
+							std::vector<thread::future<chain::PtUpdateResult>> futures;
+							for (const auto& transactionInfo : transactionInfos)
+								futures.push_back(ptUpdater.update(transactionInfo));
 
-					auto updateResults = thread::get_all(std::move(futures));
-					newTransactionsSink(chain::SelectValid(std::move(transactionInfos), updateResults));
-					return chain::AggregateUpdateResults(updateResults);
-				}));
+							auto updateResults = thread::get_all(std::move(futures));
+							newTransactionsSink(chain::SelectValid(std::move(transactionInfos), updateResults));
+							return chain::AggregateUpdateResults(updateResults);
+						}));
 
 				return CreateConsumerDispatcher(CreateTransactionConsumerDispatcherOptions(m_nodeConfig), disruptorConsumers);
 			}

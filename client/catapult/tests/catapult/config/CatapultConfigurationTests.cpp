@@ -186,6 +186,9 @@ namespace catapult { namespace config {
 			EXPECT_EQ(4u, config.Banning.NumReadRateMonitoringBuckets);
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(15), config.Banning.ReadRateMonitoringBucketDuration);
 			EXPECT_EQ(utils::FileSize::FromMegabytes(100), config.Banning.MaxReadRateMonitoringTotalSize);
+
+			EXPECT_EQ(8u, config.Banning.MinTransactionFailuresCountForBan);
+			EXPECT_EQ(10u, config.Banning.MinTransactionFailuresPercentForBan);
 		}
 
 		void AssertDefaultLoggingConfiguration(

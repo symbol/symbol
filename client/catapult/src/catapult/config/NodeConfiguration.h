@@ -253,6 +253,12 @@ namespace catapult { namespace config {
 
 			/// Maximum size allowed during full read rate monitoring period.
 			utils::FileSize MaxReadRateMonitoringTotalSize;
+
+			/// Minimum number of transaction failures to trigger a ban.
+			uint32_t MinTransactionFailuresCountForBan;
+
+			/// Minimum percentage of transaction failures to trigger a ban.
+			uint32_t MinTransactionFailuresPercentForBan;
 		};
 
 	public:

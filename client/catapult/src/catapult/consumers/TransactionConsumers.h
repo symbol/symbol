@@ -65,7 +65,11 @@ namespace catapult { namespace consumers {
 	/// Prototype for a function that is called with new transactions.
 	using NewTransactionsProcessor = std::function<chain::BatchUpdateResult (TransactionInfos&&)>;
 
-	/// Creates a consumer that calls \a newTransactionsProcessor with all new transactions.
+	/// Creates a consumer that calls \a newTransactionsProcessor with all new transactions that will conditionally ban based on
+	/// \a minTransactionFailuresCountForBan and \a minTransactionFailuresPercentForBan.
 	/// \note This consumer must be last because it destroys the input.
-	disruptor::DisruptorConsumer CreateNewTransactionsConsumer(const NewTransactionsProcessor& newTransactionsProcessor);
+	disruptor::DisruptorConsumer CreateNewTransactionsConsumer(
+			uint32_t minTransactionFailuresCountForBan,
+			uint32_t minTransactionFailuresPercentForBan,
+			const NewTransactionsProcessor& newTransactionsProcessor);
 }}
