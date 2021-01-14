@@ -33,10 +33,12 @@ namespace catapult { namespace harvesting {
 	/// Unlocked accounts updater.
 	class UnlockedAccountsUpdater {
 	public:
-		/// Creates unlocked accounts updater around \a cache, \a unlockedAccounts, node owner (\a encryptionKeyPair) and \a dataDirectory.
+		/// Creates unlocked accounts updater around \a cache, \a unlockedAccounts, node owner
+		/// (identified by \a signingPublicKey and \a encryptionKeyPair) and \a dataDirectory.
 		UnlockedAccountsUpdater(
 				const cache::CatapultCache& cache,
 				UnlockedAccounts& unlockedAccounts,
+				const Key& signingPublicKey,
 				const crypto::KeyPair& encryptionKeyPair,
 				const config::CatapultDataDirectory& dataDirectory);
 
@@ -50,6 +52,7 @@ namespace catapult { namespace harvesting {
 	private:
 		const cache::CatapultCache& m_cache;
 		UnlockedAccounts& m_unlockedAccounts;
+		Key m_signingPublicKey;
 		const crypto::KeyPair& m_encryptionKeyPair;
 		config::CatapultDataDirectory m_dataDirectory;
 		std::string m_harvestersFilename;

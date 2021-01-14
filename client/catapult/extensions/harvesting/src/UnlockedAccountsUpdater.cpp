@@ -55,11 +55,13 @@ namespace catapult { namespace harvesting {
 		class DescriptorProcessor {
 		public:
 			DescriptorProcessor(
+					const Key& signingPublicKey,
 					const Key& nodePublicKey,
 					const cache::CatapultCache& cache,
 					UnlockedAccounts& unlockedAccounts,
 					UnlockedAccountsStorage& storage)
-					: m_nodePublicKey(nodePublicKey)
+					: m_signingPublicKey(signingPublicKey)
+					, m_nodePublicKey(nodePublicKey)
 					, m_cache(cache)
 					, m_unlockedAccounts(unlockedAccounts)
 					, m_storage(storage)
@@ -152,6 +154,10 @@ namespace catapult { namespace harvesting {
 					return false;
 				}
 
+				// skip node link check for remote (non-delegated) harvesters
+				if (accountState.PublicKey == m_signingPublicKey)
+					return true;
+
 				if (GetNodePublicKey(accountState) != m_nodePublicKey) {
 					CATAPULT_LOG(warning) << "rejecting delegation from " << accountState.PublicKey << ": invalid node public key";
 					return false;
@@ -161,6 +167,7 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
+			Key m_signingPublicKey;
 			Key m_nodePublicKey;
 			const cache::CatapultCache& m_cache;
 			UnlockedAccounts& m_unlockedAccounts;
@@ -174,10 +181,12 @@ namespace catapult { namespace harvesting {
 	UnlockedAccountsUpdater::UnlockedAccountsUpdater(
 			const cache::CatapultCache& cache,
 			UnlockedAccounts& unlockedAccounts,
+			const Key& signingPublicKey,
 			const crypto::KeyPair& encryptionKeyPair,
 			const config::CatapultDataDirectory& dataDirectory)
 			: m_cache(cache)
 			, m_unlockedAccounts(unlockedAccounts)
+			, m_signingPublicKey(signingPublicKey)
 			, m_encryptionKeyPair(encryptionKeyPair)
 			, m_dataDirectory(dataDirectory)
 			, m_harvestersFilename(m_dataDirectory.rootDir().file("harvesters.dat"))
@@ -193,7 +202,12 @@ namespace catapult { namespace harvesting {
 
 	void UnlockedAccountsUpdater::update() {
 		// 1. process queued accounts
-		DescriptorProcessor processor(m_encryptionKeyPair.publicKey(), m_cache, m_unlockedAccounts, m_unlockedAccountsStorage);
+		DescriptorProcessor processor(
+				m_signingPublicKey,
+				m_encryptionKeyPair.publicKey(),
+				m_cache,
+				m_unlockedAccounts,
+				m_unlockedAccountsStorage);
 		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_encryptionKeyPair, std::ref(processor));
 
 		// 2. prune accounts that are not eligible to harvest the next block
