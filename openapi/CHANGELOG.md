@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.11.0] - 14-Jan-2021
+## [0.11.1] - 14-Jan-2021
 
 Targets catapult-rest 2.3.0
 
@@ -15,6 +15,7 @@ Targets catapult-rest 2.3.0
 #### Updated
 
 - Re tracked catpult `main` branch.
+- Updated `PrivateTest` network type from `0x80` to `0xA8`.
 
 ## [0.10.5] - 10-Dec-2020
 
