@@ -5,7 +5,5 @@ required:
 properties:
   root:
     $ref: "./ParentPublicKeySignaturePair.yml"
-  top:
-    $ref: "./ParentPublicKeySignaturePair.yml"
   bottom:
     $ref: "./ParentPublicKeySignaturePair.yml"
