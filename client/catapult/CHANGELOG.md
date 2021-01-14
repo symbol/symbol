@@ -3,7 +3,34 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0.5] - 14-Jan-2020
+
+### Fixed
+ - deep rollback
+   - insert gaps into AccountState stacks to fix deep rollback bug, #121
+   - prune newer account histories during rollback, #120
+   - write importance files to importance/wip and add commit step, #119
+ - importance block processing
+   - guarantee HighValueAccountCommitObserver is executed AFTER all other state-changing observers, #118
+   - fix calculation of VotingEligibleAccountsCount to only include currently eligible accounts
+   - fix potential deadlock when harvesting importance block, #137
+ - fix infinite loop in CompareChains when remote returns less than configured hashes, #126
+
+### Changed
+ - update boost to version 75
+ - pull finalization proofs more aggressively when unfinalizedBlocksDuration is 0
+ - UT and PT handling
+   - add MinDeadline filter to PT and UT requests
+   - only propagate valid PTs and UTs
+   - punish stateful transaction failures
+   - add configuration to ban nodes that send a lot of bad transactions
+ - memory enhancements
+   - change PT and UT limits from count to size
+   - add memory limits on dispatcher queues
+   - (mongo) cap size of transactionStatuses collection, #135
+
 ## [0.10.0.4] - 04-Dec-2020
+
 ### Added
  - ipv6 support #63
  - versions to all state primary documents in mongo #113 #115
@@ -35,6 +62,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
  - only serialize non-empty AccountRestrictions #114
 
 ## [0.10.0.3] - 25-Sep-2020
+
 ### Fixed
  - bugfix: importance files should not be spooled to disk when delta is detached
 
@@ -45,6 +73,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 - Trail-of-Bits: strip RPATHs from built modules by default
 
 ## [0.10.0.2] - 22-Sep-2020
+
 ### Fixed
  - bugfix: validation of nemesis block containing transactions dependent on DynamicFeeMultiplier
  - bugfix: fix rollback when importance information is spooled to disk
@@ -342,9 +371,11 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 - Minor crash and bug fixes detected during the Catapult Developer Preview.
 
 ## [0.1.0.1] - 14-May-2018
+
 ### Added
 - Initial code release.
 
+[0.10.0.5]: https://github.com/nemtech/catapult-server/compare/v0.10.0.4...v0.10.0.5
 [0.10.0.4]: https://github.com/nemtech/catapult-server/compare/v0.10.0.3...v0.10.0.4
 [0.10.0.3]: https://github.com/nemtech/catapult-server/compare/v0.10.0.2...v0.10.0.3
 [0.10.0.2]: https://github.com/nemtech/catapult-server/compare/v0.10.0.1...v0.10.0.2
