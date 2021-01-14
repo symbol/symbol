@@ -55,7 +55,7 @@ namespace catapult { namespace tools { namespace linker {
 						"secret key to sign the transaction");
 				optionsBuilder("linkedPublicKey",
 						OptionsValue<std::string>(),
-						"linked public key (32 bytes for vrf, 48 bytes for voting)");
+						"linked public key");
 				optionsBuilder("startEpoch,b",
 						OptionsValue<uint32_t>()->default_value(1),
 						"voting key start epoch");
