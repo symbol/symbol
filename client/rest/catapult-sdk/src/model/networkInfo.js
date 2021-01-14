@@ -52,7 +52,7 @@ const networks = (() => {
 		public: createNetworkInfo(0x68),
 		publicTest: createNetworkInfo(0x98),
 		private: createNetworkInfo(0x78),
-		privateTest: createNetworkInfo(0x80)
+		privateTest: createNetworkInfo(0xa8)
 	};
 })();
 

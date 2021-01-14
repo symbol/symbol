@@ -75,7 +75,7 @@ describe('network routes', () => {
 						+ '[plugin:catapult.plugins.aggregate]\n'
 						+ 'maxTransactionsPerAggregate = 1\'000'));
 
-				const services = { config: { network: { propertiesFilePath: 'wouldBeValidFilePath' } } };
+				const services = { config: { apiNode: { networkPropertyFilePath: 'wouldBeValidFilePath' } } };
 				const mockServer = new MockServer();
 
 				networkRoutes.register(mockServer.server, {}, services);
@@ -103,7 +103,7 @@ describe('network routes', () => {
 						+ '[plugin:catapult.plugins.aggregate]\n'
 						+ 'maxTransactionsPerAggregate = 1\'000'));
 
-				const services = { config: { network: { propertiesFilePath: 'wouldBeValidFilePath' } } };
+				const services = { config: { apiNode: { networkPropertyFilePath: 'wouldBeValidFilePath' } } };
 				const mockServer = new MockServer();
 
 				networkRoutes.register(mockServer.server, {}, services);
@@ -122,7 +122,7 @@ describe('network routes', () => {
 
 			it('errors if no file path specified', () => {
 				const mockServer = new MockServer();
-				networkRoutes.register(mockServer.server, {}, { config: { network: {} } });
+				networkRoutes.register(mockServer.server, {}, { config: { apiNode: {} } });
 
 				const route = mockServer.getRoute('/network/properties').get();
 				return mockServer.callRoute(route).then(() => {
@@ -135,7 +135,7 @@ describe('network routes', () => {
 				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
 					callback(null, '{ "not": "iniFormat" }'));
 
-				const services = { config: { network: {} } };
+				const services = { config: { apiNode: {} } };
 				const mockServer = new MockServer();
 
 				networkRoutes.register(mockServer.server, {}, services);
@@ -150,7 +150,7 @@ describe('network routes', () => {
 
 			it('errors if the file does not exist', () => {
 				const mockServer = new MockServer();
-				networkRoutes.register(mockServer.server, {}, { config: { network: { propertiesFilePath: 'nowaythispath€xists' } } });
+				networkRoutes.register(mockServer.server, {}, { config: { apiNode: { networkPropertyFilePath: 'nowaythispath€xists' } } });
 
 				const route = mockServer.getRoute('/network/properties').get();
 				return mockServer.callRoute(route).then(() => {
@@ -164,7 +164,8 @@ describe('network routes', () => {
 			const runNetworkFeesTest = (testName, feeMultipliers, average, median, max, min) => {
 				const services = {
 					config: {
-						numBlocksTransactionFeeStats: feeMultipliers.length
+						numBlocksTransactionFeeStats: feeMultipliers.length,
+						apiNode: { nodePropertyFilePath: 'wouldBeValidFilePath' }
 					}
 				};
 
@@ -174,6 +175,10 @@ describe('network routes', () => {
 				};
 
 				it(`${testName}: [${feeMultipliers}] average:${average}, median:${median}, max:${max}, min:${min}`, () => {
+					const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					callback(null, '[node]\n'
+						+ 'minFeeMultiplier = 100'));
+
 					// Arrange:
 					const mockServer = new MockServer();
 					networkRoutes.register(mockServer.server, db, services);
@@ -189,9 +194,11 @@ describe('network routes', () => {
 							averageFeeMultiplier: average,
 							medianFeeMultiplier: median,
 							highestFeeMultiplier: max,
-							lowestFeeMultiplier: min
+							lowestFeeMultiplier: min,
+							minFeeMultiplier: 100
 						});
 						expect(mockServer.next.calledOnce).to.equal(true);
+						readFileStub.restore();
 					});
 				});
 			};
@@ -232,7 +239,7 @@ describe('network routes', () => {
 				const db = {
 					latestBlocksFeeMultiplier: dbLatestBlocksFeeMultiplierFake
 				};
-				const services = { config: { network: { propertiesFilePath: 'wouldBeValidFilePath' } } };
+				const services = { config: { apiNode: { networkPropertyFilePath: 'wouldBeValidFilePath' } } };
 				const mockServer = new MockServer();
 
 				networkRoutes.register(mockServer.server, db, services);
@@ -250,7 +257,7 @@ describe('network routes', () => {
 
 			it('errors if no file path specified', () => {
 				const mockServer = new MockServer();
-				networkRoutes.register(mockServer.server, {}, { config: { network: {} } });
+				networkRoutes.register(mockServer.server, {}, { config: { apiNode: {} } });
 
 				const route = mockServer.getRoute('/network/fees/rental').get();
 				return mockServer.callRoute(route).then(() => {
@@ -263,7 +270,7 @@ describe('network routes', () => {
 				readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
 					callback(null, '{ "not": "iniFormat" }'));
 
-				const services = { config: { network: {} } };
+				const services = { config: { apiNode: {} } };
 				const mockServer = new MockServer();
 
 				networkRoutes.register(mockServer.server, {}, services);
@@ -277,7 +284,7 @@ describe('network routes', () => {
 
 			it('errors if the file does not exist', () => {
 				const mockServer = new MockServer();
-				networkRoutes.register(mockServer.server, {}, { config: { network: { propertiesFilePath: 'nowaythispath€xists' } } });
+				networkRoutes.register(mockServer.server, {}, { config: { apiNode: { networkPropertyFilePath: 'nowaythispath€xists' } } });
 
 				const route = mockServer.getRoute('/network/fees/rental').get();
 				return mockServer.callRoute(route).then(() => {
@@ -313,7 +320,7 @@ describe('network routes', () => {
 					const db = {
 						latestBlocksFeeMultiplier: dbLatestBlocksFeeMultiplierFake
 					};
-					const services = { config: { network: { propertiesFilePath: 'wouldBeValidFilePath' } } };
+					const services = { config: { apiNode: { networkPropertyFilePath: 'wouldBeValidFilePath' } } };
 					const mockServer = new MockServer();
 
 					networkRoutes.register(mockServer.server, db, services);

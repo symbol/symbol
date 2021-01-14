@@ -40,7 +40,9 @@
     "timeout": 1000,
     "tlsClientCertificatePath": "/",
     "tlsClientKeyPath": "/",
-    "tlsCaCertificatePath": "/"
+    "tlsCaCertificatePath": "/",
+    "networkPropertyFilePath": "/",
+    "nodePropertyFilePath": "/"
   },
 
   "websocket": {

@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.3.0] - 14-Jan-2021
+
+### Added
+
+- `minFeeMultiplier` from the current connected Node in transaction fees endpoint
+- Added new `nodePropertyFilePath` in `rest.json`.
+
+### Updated
+
+- Moved `config-network.properties` path config from `network` to `apiNode`.
+- Updated `PrivateTest` network type from `0x80` to `0xA8`.
+- Re tracked to catapult-server `main` branches.
+
 ## [v2.2.1] - 9-Dec-2020
 
 ### Fixed

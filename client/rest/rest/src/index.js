@@ -69,7 +69,6 @@ const loadConfig = () => {
 	configFiles.forEach(configFile => {
 		winston.info(`loading config from ${configFile}`);
 		const partialConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-
 		if (config) {
 			// override config
 			catapult.utils.objects.checkSchemaAgainstTemplate(config, partialConfig);

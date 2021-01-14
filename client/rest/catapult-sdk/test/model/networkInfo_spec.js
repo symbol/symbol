@@ -66,7 +66,7 @@ describe('network info', () => {
 
 		it('defines private test test network', () => {
 			// Assert:
-			expect(networkInfo.networks.privateTest).to.deep.equal({ id: 0x80, bytePrefix: '80', charPrefix: 'Q' });
+			expect(networkInfo.networks.privateTest).to.deep.equal({ id: 0xa8, bytePrefix: 'A8', charPrefix: 'V' });
 		});
 	});
 
