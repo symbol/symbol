@@ -31,8 +31,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		constexpr auto Network_Identifier = NetworkIdentifier::Private_Test;
-		constexpr auto Encoded_Address = "QAAA244WMCB2JXGNQTQHQOS45TGBFF4V2ONA6DI";
-		constexpr auto Decoded_Address = "80000D73966083A4DCCD84E0783A5CECCC129795D39A0F0D";
+		constexpr auto Encoded_Address = "VAAA244WMCB2JXGNQTQHQOS45TGBFF4V2POL32Y";
+		constexpr auto Decoded_Address = "A8000D73966083A4DCCD84E0783A5CECCC129795D3DCBDEB";
 		constexpr auto Public_Key = "75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C";
 
 		void AssertCannotCreateAddress(const std::string& encoded) {
