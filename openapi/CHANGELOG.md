@@ -14,7 +14,7 @@ Targets catapult-rest 2.3.0
 
 #### Updated
 
-- Re tracked catpult `main` branch.
+- Re tracked catapult `main` branch.
 - Updated `PrivateTest` network type from `0x80` to `0xA8`.
 
 ## [0.10.5] - 10-Dec-2020
