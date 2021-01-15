@@ -96,7 +96,7 @@ namespace catapult { namespace process {
 			if (ProcessOptions::Exit_After_Termination_Signal == processOptions)
 				WaitForTerminationSignal();
 
-			CATAPULT_LOG(info) << "shutting down process";
+			CATAPULT_LOG(important) << "SHUTTING DOWN PROCESS";
 			pProcessHost.reset();
 		}
 	}
