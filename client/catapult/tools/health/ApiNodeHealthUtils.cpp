@@ -243,7 +243,7 @@ namespace catapult { namespace tools { namespace health {
 				// convert the response to a string and parse out values from it
 				std::ostringstream out;
 				out << &m_response;
-				ParseResponseBody(out.str(), m_values);
+				ParseResponseBody(out.str(), std::string(), m_values);
 
 				// chain the next HTTP GET request (write will complete successfully if none are left)
 				writeHttpGetRequest();
@@ -263,10 +263,13 @@ namespace catapult { namespace tools { namespace health {
 
 		private:
 			static std::pair<std::string, uint64_t> ParseJsonUint64Value(const std::string& jsonPart) {
-				// match: "height":"12"
-				std::regex uint64ValueRegex("\"(\\w+)\":\"(\\d+)\"");
+				// match: "height":"12" (with optionally quoted value)
+				std::regex uint64ValueRegexWithQuotes("\"(\\w+)\":\"(\\S+)\"");
+				std::regex uint64ValueRegexWithoutQuotes("\"(\\w+)\":(\\S+)");
+
 				std::smatch uint64ValueMatch;
-				std::regex_match(jsonPart, uint64ValueMatch, uint64ValueRegex);
+				if (!std::regex_match(jsonPart, uint64ValueMatch, uint64ValueRegexWithQuotes))
+					std::regex_match(jsonPart, uint64ValueMatch, uint64ValueRegexWithoutQuotes);
 
 				// first part is the name (height)
 				auto name = uint64ValueMatch[1];
@@ -278,27 +281,50 @@ namespace catapult { namespace tools { namespace health {
 				return std::make_pair(name, value);
 			}
 
-			// dumb parser that only supports flat JSON documents composed entirely of uint64 values
-			static void ParseResponseBody(const std::string& response, ResultType& values) {
-				// match {(.*)}
+			static size_t ParseSubObject(const std::string& response, ResultType& values) {
+				// match: "latestFinalizedBlock":{...}
+				auto colonIndex = response.find_first_of(':');
+				auto prefix = response.substr(1, colonIndex - 2) + "::";
+
 				auto openingBraceIndex = response.find_first_of('{');
 				auto closingBraceIndex = response.find_first_of('}', openingBraceIndex);
+
+				// subObjectJsonBody must include outer braces
+				auto subObjectJsonBody = response.substr(openingBraceIndex, closingBraceIndex - openingBraceIndex + 1);
+				ParseResponseBody(subObjectJsonBody, prefix, values);
+				return closingBraceIndex;
+			}
+
+			// dumb parser that only parses integral values
+			static void ParseResponseBody(const std::string& response, const std::string& prefix, ResultType& values) {
+				// match: {(.*)}
+				auto openingBraceIndex = response.find_first_of('{');
+				auto closingBraceIndex = response.find_last_of('}', openingBraceIndex);
 				auto jsonBodyWithoutBraces = response.substr(openingBraceIndex + 1, closingBraceIndex - openingBraceIndex - 1);
 
 				std::vector<std::string> jsonParts;
 				for (;;) {
+					auto subObjectStart = jsonBodyWithoutBraces.find(":{\"");
 					auto commaIndex = jsonBodyWithoutBraces.find_first_of(',');
 					if (std::string::npos == commaIndex) {
-						jsonParts.push_back(jsonBodyWithoutBraces);
+						if (std::string::npos != jsonBodyWithoutBraces.find(':'))
+							jsonParts.push_back(jsonBodyWithoutBraces);
+
 						break;
 					}
 
-					jsonParts.push_back(jsonBodyWithoutBraces.substr(0, commaIndex));
+					if (subObjectStart < commaIndex)
+						commaIndex = ParseSubObject(jsonBodyWithoutBraces, values);
+					else
+						jsonParts.push_back(jsonBodyWithoutBraces.substr(0, commaIndex));
+
 					jsonBodyWithoutBraces = jsonBodyWithoutBraces.substr(commaIndex + 1);
 				}
 
-				for (const auto& jsonPart : jsonParts)
-					values.emplace(ParseJsonUint64Value(jsonPart));
+				for (const auto& jsonPart : jsonParts) {
+					auto parsedKeyValuePair = ParseJsonUint64Value(jsonPart);
+					values.emplace(prefix + parsedKeyValuePair.first, parsedKeyValuePair.second);
+				}
 			}
 
 		private:
@@ -316,13 +342,14 @@ namespace catapult { namespace tools { namespace health {
 	}
 
 	thread::future<api::ChainStatistics> CreateApiNodeChainStatisticsFuture(thread::IoThreadPool& pool, const ionet::Node& node) {
-		auto apiUris = std::vector<std::string>{ "/chain/height", "/chain/score" };
+		auto apiUris = std::vector<std::string>{ "/chain/info" };
 		auto pRetriever = std::make_shared<MultiHttpGetRetriever>(pool.ioContext(), node.endpoint().Host, Rest_Api_Port, apiUris);
 		pRetriever->start();
 		return pRetriever->future().then([pRetriever](auto&& valuesMapFuture) {
 			auto valuesMap = valuesMapFuture.get();
 			api::ChainStatistics chainStatistics;
 			chainStatistics.Height = Height(valuesMap["height"]);
+			chainStatistics.FinalizedHeight = Height(valuesMap["latestFinalizedBlock::height"]);
 			chainStatistics.Score = model::ChainScore(valuesMap["scoreHigh"], valuesMap["scoreLow"]);
 			return chainStatistics;
 		});

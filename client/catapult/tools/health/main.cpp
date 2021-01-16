@@ -55,8 +55,12 @@ namespace catapult { namespace tools { namespace health {
 		thread::future<api::ChainStatistics> StartChainStatisticsFuture(
 				thread::IoThreadPool& pool,
 				ionet::PacketIo& io,
-				NodeInfo& nodeInfo) {
-			if (!HasFlag(ionet::NodeRoles::Peer, nodeInfo.Node.metadata().Roles)) {
+				NodeInfo& nodeInfo,
+				bool preferRestApi) {
+			auto roles = nodeInfo.Node.metadata().Roles;
+			auto isPeer = HasFlag(ionet::NodeRoles::Peer, roles);
+			auto isApi = HasFlag(ionet::NodeRoles::Api, roles);
+			if (!isPeer || (isApi && preferRestApi)) {
 				return CreateApiNodeChainStatisticsFuture(pool, nodeInfo.Node);
 			} else {
 				auto pApi = api::CreateRemoteChainApiWithoutRegistry(io);
@@ -64,8 +68,12 @@ namespace catapult { namespace tools { namespace health {
 			}
 		}
 
-		thread::future<bool> CreateChainStatisticsFuture(thread::IoThreadPool& pool, ionet::PacketIo& io, NodeInfo& nodeInfo) {
-			return StartChainStatisticsFuture(pool, io, nodeInfo).then([&nodeInfo](auto&& chainStatisticsFuture) {
+		thread::future<bool> CreateChainStatisticsFuture(
+				thread::IoThreadPool& pool,
+				ionet::PacketIo& io,
+				NodeInfo& nodeInfo,
+				bool preferRestApi) {
+			return StartChainStatisticsFuture(pool, io, nodeInfo, preferRestApi).then([&nodeInfo](auto&& chainStatisticsFuture) {
 				return UnwrapFutureAndSuppressErrors("querying chain statistics", std::move(chainStatisticsFuture), [&nodeInfo](
 						const auto& chainStatistics) {
 					nodeInfo.ChainHeight = chainStatistics.Height;
@@ -196,13 +204,20 @@ namespace catapult { namespace tools { namespace health {
 			{}
 
 		private:
+			void prepareAdditionalOptions(OptionsBuilder& optionsBuilder) override {
+				optionsBuilder("preferRestApi",
+						OptionsSwitch(),
+						"uses REST API when available (default only uses REST when direct access is not supported)");
+			}
+
 			std::vector<thread::future<bool>> getNodeInfoFutures(
+					const Options& options,
 					thread::IoThreadPool& pool,
 					ionet::PacketIo& io,
 					const model::NodeIdentity&,
 					NodeInfo& nodeInfo) override {
 				std::vector<thread::future<bool>> infoFutures;
-				infoFutures.emplace_back(CreateChainStatisticsFuture(pool, io, nodeInfo));
+				infoFutures.emplace_back(CreateChainStatisticsFuture(pool, io, nodeInfo, options["preferRestApi"].as<bool>()));
 				infoFutures.emplace_back(CreateDiagnosticCountersFuture(io, nodeInfo));
 				return infoFutures;
 			}

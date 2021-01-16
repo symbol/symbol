@@ -54,10 +54,11 @@ namespace catapult { namespace tools {
 			optionsBuilder("resources,r",
 					OptionsValue<std::string>(m_resourcesPath)->default_value(".."),
 					"the path to the resources directory");
+			prepareAdditionalOptions(optionsBuilder);
 			positional.add("resources", -1);
 		}
 
-		int run(const Options&) override final {
+		int run(const Options& options) override final {
 			auto config = LoadConfiguration(m_resourcesPath);
 			auto networkFingerprint = model::UniqueNetworkFingerprint(
 					config.BlockChain.Network.Identifier,
@@ -67,10 +68,10 @@ namespace catapult { namespace tools {
 
 			MultiNodeConnector connector(config.User.CertificateDirectory);
 			std::vector<NodeInfoFuture> nodeInfoFutures;
-			auto addNodeInfoFutures = [this, &connector, &nodeInfoFutures](const auto& nodes) {
+			auto addNodeInfoFutures = [this, &options, &connector, &nodeInfoFutures](const auto& nodes) {
 				for (const auto& node : nodes) {
 					CATAPULT_LOG(debug) << "preparing to get stats from node " << node;
-					nodeInfoFutures.push_back(this->createNodeInfoFuture(connector, node));
+					nodeInfoFutures.push_back(this->createNodeInfoFuture(options, connector, node));
 				}
 			};
 
@@ -90,14 +91,14 @@ namespace catapult { namespace tools {
 		}
 
 	private:
-		NodeInfoFuture createNodeInfoFuture(MultiNodeConnector& connector, const ionet::Node& node) {
+		NodeInfoFuture createNodeInfoFuture(const Options& options, MultiNodeConnector& connector, const ionet::Node& node) {
 			auto pNodeInfo = std::make_shared<TNodeInfo>(node);
-			return thread::compose(connector.connect(node), [this, node, pNodeInfo, &connector](auto&& socketInfoFuture) {
+			return thread::compose(connector.connect(node), [this, &options, node, pNodeInfo, &connector](auto&& socketInfoFuture) {
 				try {
 					auto socketInfo = socketInfoFuture.get();
 					auto pIo = socketInfo.socket()->buffered();
 					auto nodeIdentity = model::NodeIdentity{ socketInfo.publicKey(), socketInfo.host() };
-					auto infoFutures = this->getNodeInfoFutures(connector.pool(), *pIo, nodeIdentity, *pNodeInfo);
+					auto infoFutures = this->getNodeInfoFutures(options, connector.pool(), *pIo, nodeIdentity, *pNodeInfo);
 
 					// capture pIo so that it stays alive until all dependent futures are complete
 					return thread::when_all(std::move(infoFutures)).then([pIo, pNodeInfo](auto&&) {
@@ -112,8 +113,12 @@ namespace catapult { namespace tools {
 		}
 
 	private:
-		/// Gets all futures to fill \a nodeInfo for \a nodeIdentity using \a pool and \a io.
+		/// Prepare additional named (\a optionsBuilder) options of the tool.
+		virtual void prepareAdditionalOptions(OptionsBuilder& optionsBuilder) = 0;
+
+		/// Gets all futures to fill \a nodeInfo for \a nodeIdentity using \a pool and \a io given \a options.
 		virtual std::vector<thread::future<bool>> getNodeInfoFutures(
+				const Options& options,
 				thread::IoThreadPool& pool,
 				ionet::PacketIo& io,
 				const model::NodeIdentity& nodeIdentity,

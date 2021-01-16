@@ -319,7 +319,11 @@ namespace catapult { namespace tools { namespace network {
 			{}
 
 		private:
+			void prepareAdditionalOptions(OptionsBuilder&) override
+			{}
+
 			std::vector<thread::future<bool>> getNodeInfoFutures(
+					const Options&,
 					thread::IoThreadPool&,
 					ionet::PacketIo& io,
 					const model::NodeIdentity& nodeIdentity,
