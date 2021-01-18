@@ -23,6 +23,7 @@
 #include "catapult/cache/CatapultCacheBuilder.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/cache/SimpleCache.h"
+#include "tests/test/core/NotificationTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace observers {
@@ -148,12 +149,8 @@ namespace catapult { namespace observers {
 			return model::NotificationContext(height, model::ResolverContext());
 		}
 
-		void NotifyBlock(const TouchingObserver& observer, ObserverContext& context, Timestamp timestamp) {
-			observer.notify(model::BlockNotification(Address(), Address(), timestamp, Difficulty(), BlockFeeMultiplier()), context);
-		}
-
 		void NotifyBlock(const TouchingObserver& observer, ObserverContext& context) {
-			NotifyBlock(observer, context, Timestamp());
+			observer.notify(test::CreateBlockNotification(), context);
 		}
 	}
 

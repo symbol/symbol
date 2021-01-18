@@ -207,14 +207,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Block_Notification;
 
 	public:
-		/// Creates a block notification around \a harvester, \a beneficiary, \a timestamp, \a difficulty and \a feeMultiplier.
+		/// Creates a block notification around \a blockType, \a harvester, \a beneficiary, \a timestamp, \a difficulty
+		/// and \a feeMultiplier.
 		BlockNotification(
+				EntityType blockType,
 				const Address& harvester,
 				const Address& beneficiary,
 				Timestamp timestamp,
 				Difficulty difficulty,
 				BlockFeeMultiplier feeMultiplier)
 				: Notification(Notification_Type, sizeof(BlockNotification))
+				, BlockType(blockType)
 				, Harvester(harvester)
 				, Beneficiary(beneficiary)
 				, Timestamp(timestamp)
@@ -224,6 +227,9 @@ namespace catapult { namespace model {
 		{}
 
 	public:
+		/// Block type.
+		EntityType BlockType;
+
 		/// Block harvester.
 		Address Harvester;
 

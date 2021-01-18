@@ -244,6 +244,7 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<BlockNotification>(*pBlock, [&block = *pBlock](const auto& notification) {
 			// Assert:
+			EXPECT_EQ(model::Entity_Type_Block_Normal, notification.BlockType);
 			EXPECT_EQ(GetSignerAddress(block), notification.Harvester);
 			EXPECT_EQ(block.BeneficiaryAddress, notification.Beneficiary);
 			EXPECT_EQ(Timestamp(123), notification.Timestamp);
@@ -264,6 +265,7 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<BlockNotification>(*pBlock, [&block = *pBlock](const auto& notification) {
 			// Assert: mock embeddedCount is `Size % 100`
+			EXPECT_EQ(model::Entity_Type_Block_Normal, notification.BlockType);
 			EXPECT_EQ(GetSignerAddress(block), notification.Harvester);
 			EXPECT_EQ(block.BeneficiaryAddress, notification.Beneficiary);
 			EXPECT_EQ(Timestamp(432), notification.Timestamp);

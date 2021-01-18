@@ -22,6 +22,7 @@
 #include "src/observers/Observers.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -54,7 +55,11 @@ namespace catapult { namespace observers {
 		}
 
 		BlockNotification CreateBlockNotification(const state::BlockStatistic& statistic) {
-			return BlockNotification(Address(), Address(), statistic.Timestamp, statistic.Difficulty, statistic.FeeMultiplier);
+			auto notification = test::CreateBlockNotification();
+			notification.Timestamp = statistic.Timestamp;
+			notification.Difficulty = statistic.Difficulty;
+			notification.FeeMultiplier = statistic.FeeMultiplier;
+			return notification;
 		}
 	}
 

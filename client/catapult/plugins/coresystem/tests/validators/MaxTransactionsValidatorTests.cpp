@@ -32,11 +32,13 @@ namespace catapult { namespace validators {
 
 	namespace {
 		constexpr uint32_t Max_Transactions = 10;
+		constexpr auto Success_Result = ValidationResult::Success;
+		constexpr auto Failure_Result = Failure_Core_Too_Many_Transactions;
 
-		void AssertValidationResult(ValidationResult expectedResult, uint32_t numTransactions) {
+		void AssertValidationResult(ValidationResult expectedResult, model::EntityType blockType, uint32_t numTransactions) {
 			// Arrange:
-			auto harvester = test::GenerateRandomByteArray<Address>();
-			auto notification = test::CreateBlockNotification(harvester);
+			auto notification = test::CreateBlockNotification();
+			notification.BlockType = blockType;
 			notification.NumTransactions = numTransactions;
 			auto pValidator = CreateMaxTransactionsValidator(Max_Transactions);
 
@@ -44,32 +46,43 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result);
+			EXPECT_EQ(expectedResult, result) << blockType << ", numTransactions " << numTransactions;
 		}
 	}
 
 	// region validation
 
 	TEST(TEST_CLASS, SuccessWhenBlockContainsNoTransactions) {
-		AssertValidationResult(ValidationResult::Success, 0);
+		for (auto blockType : { model::Entity_Type_Block_Nemesis, model::Entity_Type_Block_Normal, model::Entity_Type_Block_Importance })
+			AssertValidationResult(Success_Result, blockType, 0);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenBlockContainsLessThanMaxTransactions) {
-		constexpr auto expectedResult = ValidationResult::Success;
-		AssertValidationResult(expectedResult, 1);
-		AssertValidationResult(expectedResult, 5);
-		AssertValidationResult(expectedResult, Max_Transactions - 1);
+		for (auto blockType : { model::Entity_Type_Block_Nemesis, model::Entity_Type_Block_Normal, model::Entity_Type_Block_Importance }) {
+			AssertValidationResult(Success_Result, blockType, 1);
+			AssertValidationResult(Success_Result, blockType, 5);
+			AssertValidationResult(Success_Result, blockType, Max_Transactions - 1);
+		}
 	}
 
 	TEST(TEST_CLASS, SuccessWhenBlockContainsMaxTransactions) {
-		AssertValidationResult(ValidationResult::Success, Max_Transactions);
+		for (auto blockType : { model::Entity_Type_Block_Nemesis, model::Entity_Type_Block_Normal, model::Entity_Type_Block_Importance })
+			AssertValidationResult(Success_Result, blockType, Max_Transactions);
 	}
 
-	TEST(TEST_CLASS, FailureWhenBlockContainsMoreThanMaxTransactions) {
-		constexpr auto expectedResult = Failure_Core_Too_Many_Transactions;
-		AssertValidationResult(expectedResult, Max_Transactions + 1);
-		AssertValidationResult(expectedResult, Max_Transactions + 10);
-		AssertValidationResult(expectedResult, Max_Transactions + 100);
+	TEST(TEST_CLASS, SuccessWhenBlockContainsMoreThanMaxTransactions_Nemesis) {
+		auto blockType = model::Entity_Type_Block_Nemesis;
+		AssertValidationResult(Success_Result, blockType, Max_Transactions + 1);
+		AssertValidationResult(Success_Result, blockType, Max_Transactions + 10);
+		AssertValidationResult(Success_Result, blockType, Max_Transactions + 100);
+	}
+
+	TEST(TEST_CLASS, FailureWhenBlockContainsMoreThanMaxTransactions_NonNemesis) {
+		for (auto blockType : { model::Entity_Type_Block_Normal, model::Entity_Type_Block_Importance }) {
+			AssertValidationResult(Failure_Result, blockType, Max_Transactions + 1);
+			AssertValidationResult(Failure_Result, blockType, Max_Transactions + 10);
+			AssertValidationResult(Failure_Result, blockType, Max_Transactions + 100);
+		}
 	}
 
 	// endregion
