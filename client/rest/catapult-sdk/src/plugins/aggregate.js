@@ -34,21 +34,17 @@ Object.assign(constants.sizes, sizes, {
 });
 
 const createSubTransactionCodec = txCodecs => {
-	const getTxCodec = (type, version) => {
+	const getTxCodec = type => {
 		// unlike in block case (handled by ModelCodecBuilder), don't fallback to unknown transaction type
-
-		if (!txCodecs[type])
-			throw Error(`error unsupported transaction type (${type}) in aggregate `);
-
-		const txCodec = txCodecs[type][version];
+		const txCodec = txCodecs[type];
 		if (!txCodec)
-			throw Error(`error unsupported transaction type (${type}) and version (${version}) in aggregate `);
+			throw Error(`error unsupported transaction type (${type}) in aggregate`);
 
 		return txCodec;
 	};
 
 	const serializeAll = (transaction, serializer) => {
-		const codecs = [embeddedEntityCodec, getTxCodec(transaction.type, transaction.version)];
+		const codecs = [embeddedEntityCodec, getTxCodec(transaction.type)];
 		codecs.forEach(codec => {
 			codec.serialize(transaction, serializer);
 		});
@@ -66,7 +62,7 @@ const createSubTransactionCodec = txCodecs => {
 			const size = parser.uint32();
 			const entity = embeddedEntityCodec.deserialize(parser);
 
-			const txCodec = getTxCodec(entity.type, entity.version);
+			const txCodec = getTxCodec(entity.type);
 			Object.assign(entity, txCodec.deserialize(parser));
 			return { size, entity };
 		},

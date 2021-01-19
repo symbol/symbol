@@ -75,7 +75,7 @@ module.exports = {
 					medianFeeMultiplier: Math.floor(median(feeMultipliers[1])),
 					highestFeeMultiplier: Math.max(...feeMultipliers[1]),
 					lowestFeeMultiplier: Math.min(...feeMultipliers[1]),
-					minFeeMultiplier: Number(feeMultipliers[0].node.minFeeMultiplier.replace(`'`, ''))
+					minFeeMultiplier: Number(feeMultipliers[0].node.minFeeMultiplier.replace('\'', ''))
 				});
 				next();
 			});

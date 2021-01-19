@@ -176,7 +176,7 @@ describe('network routes', () => {
 
 				it(`${testName}: [${feeMultipliers}] average:${average}, median:${median}, max:${max}, min:${min}`, () => {
 					const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, '[node]\n'
+						callback(null, '[node]\n'
 						+ 'minFeeMultiplier = 100'));
 
 					// Arrange:
