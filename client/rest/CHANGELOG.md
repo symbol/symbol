@@ -10,7 +10,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 - Fixed aggregate transaction codec issue.
 
-**We We are fixing the [multisig cosignature nofitifcation issue](https://github.com/nemtech/catapult-rest/issues/278) which will be included in the next release.
+**We are fixing the [multisig cosignature nofitifcation issue](https://github.com/nemtech/catapult-rest/issues/278) which will be included in the next release.
 
 ## [v2.3.0] - 14-Jan-2021
 
