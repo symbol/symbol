@@ -20,18 +20,41 @@
 **/
 
 #include "tools/ToolMain.h"
-#include "catapult/crypto/KeyPair.h"
+#include "tools/AccountPrinter.h"
 #include "catapult/model/Address.h"
-#include "catapult/utils/HexParser.h"
-#include "catapult/utils/Logging.h"
-#include "catapult/utils/RandomGenerator.h"
-#include "catapult/exceptions.h"
-#include <iostream>
-#include <string>
+#include "catapult/utils/ConfigurationValueParsers.h"
+#include <filesystem>
+#include <fstream>
 
 namespace catapult { namespace tools { namespace address {
 
 	namespace {
+		// region Mode
+
+		enum class Mode { Encoded_Address, Decoded_Address, Public_Key, Secret_Key };
+
+		Mode ParseMode(const std::string& str) {
+			static const std::array<std::pair<const char*, Mode>, 4> String_To_Mode_Pairs{{
+				{ "encoded", Mode::Encoded_Address },
+				{ "decoded", Mode::Decoded_Address },
+				{ "public", Mode::Public_Key },
+				{ "secret", Mode::Secret_Key }
+			}};
+
+			Mode mode;
+			if (!utils::TryParseEnumValue(String_To_Mode_Pairs, str, mode)) {
+				std::ostringstream out;
+				out << "'" << str << "' is not a valid mode";
+				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+			}
+
+			return mode;
+		}
+
+		// endregion
+
+		// region AddressTool
+
 		class AddressTool : public Tool {
 		public:
 			std::string name() const override {
@@ -39,84 +62,95 @@ namespace catapult { namespace tools { namespace address {
 			}
 
 			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
-				optionsBuilder("generate,g",
-						OptionsValue<uint32_t>(m_numRandomKeys)->default_value(3),
-						"number of random keys to generate");
-				optionsBuilder("public,p",
-						OptionsValue<std::string>(m_publicKey),
-						"show address associated with public key");
-				optionsBuilder("secret,s",
-						OptionsValue<std::string>(m_secretKey),
-						"show address and public key associated with private key");
 				optionsBuilder("network,n",
-						OptionsValue<std::string>(m_networkName)->default_value("private"),
+						OptionsValue<std::string>()->default_value("private"),
 						"network, possible values: private (default), private-test, public, public-test");
-				optionsBuilder("useLowEntropySource,w",
+
+				optionsBuilder("mode,m",
+						OptionsValue<std::string>()->required(),
+						"mode, possible values: encoded, decoded, public, secret");
+
+				optionsBuilder("input,i",
+						OptionsValue<std::string>()->required(),
+						"input value or file");
+
+				optionsBuilder("output,o",
+						OptionsValue<std::string>(),
+						"(optional) output file");
+
+				optionsBuilder("format,f",
+						OptionsValue<std::string>()->default_value("pretty"),
+						"output format, possible values: pretty (default), csv");
+
+				optionsBuilder("suppressConsole",
 						OptionsSwitch(),
-						"true if a low entropy source should be used for randomness (unsafe)");
+						"true to suppress console output");
 			}
 
 			int run(const Options& options) override {
-				model::NetworkIdentifier networkIdentifier;
-				if (!model::TryParseValue(m_networkName, networkIdentifier))
-					CATAPULT_THROW_INVALID_ARGUMENT_1("unknown network", m_networkName);
+				auto mode = ParseMode(options["mode"].as<std::string>());
+				auto input = options["input"].as<std::string>();
+				auto format = ParseAccountPrinterFormat(options["format"].as<std::string>());
+				auto networkName = options["network"].as<std::string>();
 
-				if (!m_publicKey.empty()) {
-					output(networkIdentifier, utils::ParseByteArray<Key>(m_publicKey));
-					return 0;
+				if (!options["suppressConsole"].as<bool>()) {
+					auto pPrinter = CreatePrinter(std::cout, format, networkName);
+					ProcessAll(mode, input, *pPrinter);
 				}
 
-				if (!m_secretKey.empty()) {
-					output(networkIdentifier, crypto::KeyPair::FromString(m_secretKey));
-					return 0;
+				if (options.count("output")) {
+					std::ofstream fout(options["output"].as<std::string>(), std::ios::out);
+					auto pPrinter = CreatePrinter(fout, format, networkName);
+					ProcessAll(mode, input, *pPrinter);
 				}
-
-				if (options["useLowEntropySource"].as<bool>())
-					generateKeys(networkIdentifier, utils::LowEntropyRandomGenerator());
-				else
-					generateKeys(networkIdentifier, utils::HighEntropyRandomGenerator());
 
 				return 0;
 			}
 
 		private:
-			void output(model::NetworkIdentifier networkIdentifier, const crypto::KeyPair& keyPair) {
-				std::cout
-						<< std::setw(Label_Width) << "private key: "
-						<< crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey()) << std::endl;
-				output(networkIdentifier, keyPair.publicKey());
+			static std::unique_ptr<AccountPrinter> CreatePrinter(
+					std::ostream& out,
+					AccountPrinterFormat format,
+					const std::string& networkName) {
+				auto pPrinter = CreateAccountPrinter(out, format);
+				pPrinter->setNetwork(networkName);
+				return pPrinter;
 			}
 
-			void output(model::NetworkIdentifier networkIdentifier, const Key& publicKey) {
-				auto address = model::PublicKeyToAddress(publicKey, networkIdentifier);
-				std::cout
-						<< std::setw(Label_Width) << "public key: " << publicKey << std::endl
-						<< std::setw(Label_Width - static_cast<int>(m_networkName.size()) - 3)
-								<< "address (" << m_networkName << "): " << model::AddressToString(address) << std::endl
-						<< std::setw(Label_Width) << "address decoded: " << address << std::endl;
-			}
+			static void ProcessAll(Mode mode, const std::string& input, AccountPrinter& printer) {
+				if (std::filesystem::exists(input)) {
+					std::ifstream fin(input, std::ios::in);
 
-			template<typename TGenerator>
-			void generateKeys(model::NetworkIdentifier networkIdentifier, TGenerator&& generator) {
-				std::cout << "--- generating " << m_numRandomKeys << " keys ---" << std::endl;
-
-				for (auto i = 0u; i < m_numRandomKeys; ++i) {
-					output(networkIdentifier, crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&generator]() {
-						return static_cast<uint8_t>(generator());
-					})));
-					std::cout << std::endl;
+					std::string line;
+					while (fin >> line)
+						Process(mode, line, printer);
+				} else {
+					Process(mode, input, printer);
 				}
 			}
 
-		private:
-			uint32_t m_numRandomKeys;
-			std::string m_publicKey;
-			std::string m_secretKey;
-			std::string m_networkName;
+			static void Process(Mode mode, const std::string& value, AccountPrinter& printer) {
+				switch (mode) {
+				case Mode::Encoded_Address:
+					printer.print(model::StringToAddress(value));
+					break;
 
-		private:
-			static constexpr int Label_Width = 24;
+				case Mode::Decoded_Address:
+					printer.print(utils::ParseByteArray<Address>(value));
+					break;
+
+				case Mode::Public_Key:
+					printer.print(utils::ParseByteArray<Key>(value));
+					break;
+
+				case Mode::Secret_Key:
+					printer.print(crypto::KeyPair::FromString(value));
+					break;
+				}
+			}
 		};
+
+		// endregion
 	}
 }}}
 
