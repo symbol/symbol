@@ -63,9 +63,12 @@ namespace catapult { namespace mongo {
 		}
 
 		void EmptyCollection(MongoStorageContext& context, const std::string& collectionName) {
+			mongocxx::options::delete_options options;
+			options.write_concern(context.bulkWriter().writeOptions());
+
 			auto database = context.createDatabaseConnection();
 			auto collection = database[collectionName];
-			collection.delete_many({});
+			collection.delete_many({}, options);
 		}
 
 		class MongoServices {
@@ -94,7 +97,7 @@ namespace catapult { namespace mongo {
 			// keep the minimum high enough in order to avoid deadlock while waiting for mongo operations due to blocking io threads
 			auto numWriterThreads = std::max(4u, std::min(std::thread::hardware_concurrency(), dbConfig.MaxWriterThreads));
 			auto* pBulkWriterPool = bootstrapper.pool().pushIsolatedPool("bulk writer", numWriterThreads);
-			auto pMongoBulkWriter = MongoBulkWriter::Create(dbUri, dbName, *pBulkWriterPool);
+			auto pMongoBulkWriter = MongoBulkWriter::Create(dbUri, dbName, dbConfig.WriteTimeout, *pBulkWriterPool);
 
 			// create transaction registry
 			const auto& config = bootstrapper.config();

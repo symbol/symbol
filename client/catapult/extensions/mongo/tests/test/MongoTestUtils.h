@@ -57,8 +57,12 @@ namespace catapult { namespace test {
 	/// Creates a filter for the given \a pAccountState.
 	bsoncxx::document::value CreateFilter(const std::shared_ptr<state::AccountState>& pAccountState);
 
-	/// Creates a default mongo storage context for database \a dbName using \a pool
-	std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(const std::string& dbName, thread::IoThreadPool& pool);
+	/// Creates a default mongo storage context for database \a dbName using \a pool with the specified error policy mode
+	///(\a errorPolicyMode).
+	std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(
+			const std::string& dbName,
+			thread::IoThreadPool& pool,
+			mongo::MongoErrorPolicy::Mode errorPolicyMode = mongo::MongoErrorPolicy::Mode::Strict);
 
 	/// Creates a default mongo transaction registry that supports mock transactions.
 	mongo::MongoTransactionRegistry CreateDefaultMongoTransactionRegistry();
@@ -113,7 +117,7 @@ namespace catapult { namespace test {
 			PrepareDatabase(DatabaseName());
 
 		auto pPool = utils::UniqueToShared(CreateStartedIoThreadPool(Num_Default_Mongo_Test_Pool_Threads));
-		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), *pPool);
+		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), utils::TimeSpan::FromMinutes(10), *pPool);
 		auto pMongoContext = std::make_shared<mongo::MongoStorageContext>(DefaultDbUri(), DatabaseName(), pWriter, errorPolicyMode);
 
 		auto pRegistry = std::make_shared<mongo::MongoTransactionRegistry>();

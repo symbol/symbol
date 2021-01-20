@@ -27,6 +27,7 @@
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/ParallelFor.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "catapult/utils/TimeSpan.h"
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
 #include <boost/asio/io_context.hpp>
@@ -45,11 +46,11 @@ namespace catapult { namespace mongo {
 	private:
 		struct BulkWriteParams {
 		public:
-			BulkWriteParams(MongoBulkWriter& mongoBulkWriter, const std::string& collectionName)
-					: pConnection(mongoBulkWriter.m_connectionPool.acquire())
-					, Database(pConnection->database(mongoBulkWriter.m_dbName))
+			BulkWriteParams(MongoBulkWriter& bulkWriter, const std::string& collectionName)
+					: pConnection(bulkWriter.m_connectionPool.acquire())
+					, Database(pConnection->database(bulkWriter.m_dbName))
 					, Collection(Database[collectionName])
-					, Bulk(Collection.create_bulk_write())
+					, Bulk(Collection.create_bulk_write(GetBulkWriteOptions(bulkWriter)))
 		{}
 
 		public:
@@ -57,6 +58,13 @@ namespace catapult { namespace mongo {
 			mongocxx::database Database;
 			mongocxx::collection Collection;
 			mongocxx::bulk_write Bulk;
+
+		private:
+			static mongocxx::options::bulk_write GetBulkWriteOptions(const MongoBulkWriter& bulkWriter) {
+				mongocxx::options::bulk_write options;
+				options.write_concern(bulkWriter.writeOptions());
+				return options;
+			}
 		};
 
 		using AccountStates = std::unordered_set<std::shared_ptr<const state::AccountState>>;
@@ -75,22 +83,40 @@ namespace catapult { namespace mongo {
 		using CreateFilter = std::function<bsoncxx::document::value (const TEntity&)>;
 
 	private:
-		MongoBulkWriter(const mongocxx::uri& uri, const std::string& dbName, thread::IoThreadPool& pool)
+		MongoBulkWriter(
+				const mongocxx::uri& uri,
+				const std::string& dbName,
+				const utils::TimeSpan& writeTimeout,
+				thread::IoThreadPool& pool)
 				: m_dbName(dbName)
+				, m_writeTimeout(writeTimeout)
 				, m_pool(pool)
 				, m_connectionPool(uri)
 		{}
 
 	public:
-		/// Creates a mongo bulk writer connected to \a uri that will use database \a dbName for bulk writes.
+		/// Creates a mongo bulk writer connected to \a uri that will use database \a dbName for bulk writes with the specified
+		/// \a writeTimeout.
 		/// \note Concurrent writes are performed using the specified thread \a pool.
-		static std::shared_ptr<MongoBulkWriter> Create(const mongocxx::uri& uri, const std::string& dbName, thread::IoThreadPool& pool) {
+		static std::shared_ptr<MongoBulkWriter> Create(
+				const mongocxx::uri& uri,
+				const std::string& dbName,
+				const utils::TimeSpan& writeTimeout,
+				thread::IoThreadPool& pool) {
 			// cannot use make_shared with private constructor
 			auto pBackingMemory = utils::MakeUniqueWithSize<uint8_t>(sizeof(MongoBulkWriter));
-			auto pWriterRaw = new (pBackingMemory.get()) MongoBulkWriter(uri, dbName, pool);
+			auto pWriterRaw = new (pBackingMemory.get()) MongoBulkWriter(uri, dbName, writeTimeout, pool);
 			auto pWriter = std::shared_ptr<MongoBulkWriter>(pWriterRaw);
 			pBackingMemory.release();
 			return pWriter;
+		}
+
+	public:
+		/// Gets the write options.
+		mongocxx::write_concern writeOptions() const {
+			mongocxx::write_concern options;
+			options.timeout(std::chrono::milliseconds(m_writeTimeout.millis()));
+			return options;
 		}
 
 	public:
@@ -246,6 +272,7 @@ namespace catapult { namespace mongo {
 
 	private:
 		std::string m_dbName;
+		utils::TimeSpan m_writeTimeout;
 		thread::IoThreadPool& m_pool;
 		mongocxx::pool m_connectionPool;
 	};

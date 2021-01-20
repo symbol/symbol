@@ -138,7 +138,11 @@ namespace catapult { namespace mongo { namespace storages {
 			auto collection = m_database[TCacheTraits::Collection_Name];
 
 			auto filter = CreateDeleteFilter(ids);
-			auto deleteResult = collection.delete_many(filter.view());
+
+			mongocxx::options::delete_options options;
+			options.write_concern(m_bulkWriter.writeOptions());
+
+			auto deleteResult = collection.delete_many(filter.view(), options);
 			m_errorPolicy.checkDeletedAtLeast(ids.size(), BulkWriteResult(deleteResult.value().result()), "removed and modified elements");
 		}
 

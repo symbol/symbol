@@ -263,7 +263,11 @@ namespace catapult { namespace mongo {
 						<< indexName
 						<< open_document << "$gt" << static_cast<int64_t>(height.unwrap()) << close_document
 						<< finalize;
-				auto result = collection.delete_many(filter.view());
+
+				mongocxx::options::delete_options options;
+				options.write_concern(m_context.bulkWriter().writeOptions());
+
+				auto result = collection.delete_many(filter.view(), options);
 				if (result)
 					CATAPULT_LOG(debug) << "deleted " << result->deleted_count() << " " << collectionName;
 				else

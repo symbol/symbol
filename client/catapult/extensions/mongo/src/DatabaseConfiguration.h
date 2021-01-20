@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "catapult/utils/TimeSpan.h"
 #include <filesystem>
 #include <string>
 #include <unordered_set>
@@ -42,6 +43,9 @@ namespace catapult { namespace mongo {
 
 		/// Maximum number of heights to drop at once.
 		uint32_t MaxDropBatchSize;
+
+		/// Write timeout.
+		utils::TimeSpan WriteTimeout;
 
 		/// Named database plugins to enable.
 		std::unordered_set<std::string> Plugins;

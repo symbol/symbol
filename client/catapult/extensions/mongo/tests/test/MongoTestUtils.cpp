@@ -111,9 +111,12 @@ namespace catapult { namespace test {
 		return filter;
 	}
 
-	std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(const std::string& dbName, thread::IoThreadPool& pool) {
-		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), dbName, pool);
-		return std::make_unique<mongo::MongoStorageContext>(DefaultDbUri(), dbName, pWriter, mongo::MongoErrorPolicy::Mode::Strict);
+	std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(
+			const std::string& dbName,
+			thread::IoThreadPool& pool,
+			mongo::MongoErrorPolicy::Mode errorPolicyMode) {
+		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), dbName, utils::TimeSpan::FromMinutes(10), pool);
+		return std::make_unique<mongo::MongoStorageContext>(DefaultDbUri(), dbName, pWriter, errorPolicyMode);
 	}
 
 	mongo::MongoTransactionRegistry CreateDefaultMongoTransactionRegistry() {

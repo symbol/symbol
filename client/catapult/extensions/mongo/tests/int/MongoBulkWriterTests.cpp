@@ -27,6 +27,7 @@
 #include "catapult/model/EntityInfo.h"
 #include "catapult/state/AccountState.h"
 #include "catapult/utils/StackLogger.h"
+#include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
@@ -143,13 +144,13 @@ namespace catapult { namespace mongo {
 			PerformanceContext() : PerformanceContext(static_cast<size_t>(GetDefaultEntityCount()))
 			{}
 
-			explicit PerformanceContext(size_t numEntities)
+			explicit PerformanceContext(size_t numEntities, const utils::TimeSpan& writeTimeout = utils::TimeSpan::FromMinutes(10))
 					: m_accountStates(CreateAccountStates(numEntities))
 					, m_transactions(CreateTransactions(numEntities))
 					, m_transactionElements(CreateTransactionElements(m_transactions))
 					, m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads)) {
 				test::PrepareDatabase(test::DatabaseName());
-				m_pBulkWriter = MongoBulkWriter::Create(test::DefaultDbUri(), test::DatabaseName(), *m_pPool);
+				m_pBulkWriter = MongoBulkWriter::Create(test::DefaultDbUri(), test::DatabaseName(), writeTimeout, *m_pPool);
 				m_connection = test::CreateDbConnection();
 			}
 
@@ -185,6 +186,22 @@ namespace catapult { namespace mongo {
 			mongocxx::client m_connection;
 		};
 	}
+
+	// region create
+
+	TEST(TEST_CLASS, CanCreateWriterWithCustomOptions) {
+		// Act:
+		auto writeTimeout = utils::TimeSpan::FromMinutes(7);
+		PerformanceContext context(10, writeTimeout);
+		auto writeOptions = context.bulkWriter().writeOptions();
+
+		// Assert: only set options are overridden
+		auto optionsView = writeOptions.to_document().view();
+		EXPECT_EQ(1u, test::GetFieldCount(optionsView));
+		EXPECT_EQ(writeTimeout, utils::TimeSpan::FromMilliseconds(test::GetUint32(optionsView, "wtimeout")));
+	}
+
+	// endregion
 
 	// region performance
 

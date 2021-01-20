@@ -41,13 +41,14 @@ namespace catapult { namespace mongo {
 		LOAD_DB_PROPERTY(DatabaseName);
 		LOAD_DB_PROPERTY(MaxWriterThreads);
 		LOAD_DB_PROPERTY(MaxDropBatchSize);
+		LOAD_DB_PROPERTY(WriteTimeout);
 
 #undef LOAD_DB_PROPERTY
 
 		auto pluginsPair = utils::ExtractSectionAsUnorderedSet(bag, "plugins");
 		config.Plugins = pluginsPair.first;
 
-		utils::VerifyBagSizeExact(bag, 4 + pluginsPair.second);
+		utils::VerifyBagSizeExact(bag, 5 + pluginsPair.second);
 		return config;
 	}
 
