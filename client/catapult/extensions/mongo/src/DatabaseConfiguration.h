@@ -40,6 +40,9 @@ namespace catapult { namespace mongo {
 		/// Maximum number of database writer threads.
 		uint32_t MaxWriterThreads;
 
+		/// Maximum number of heights to drop at once.
+		uint32_t MaxDropBatchSize;
+
 		/// Named database plugins to enable.
 		std::unordered_set<std::string> Plugins;
 

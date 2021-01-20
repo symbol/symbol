@@ -117,7 +117,11 @@ namespace catapult { namespace mongo {
 
 			// add a pre load handler for initializing (nemesis) storage
 			// (pPluginManager is kept alive by pTransactionRegistry)
-			auto pMongoBlockStorage = CreateMongoBlockStorage(*pMongoContext, *pTransactionRegistry, pPluginManager->receiptRegistry());
+			auto pMongoBlockStorage = CreateMongoBlockStorage(
+					*pMongoContext,
+					dbConfig.MaxDropBatchSize,
+					*pTransactionRegistry,
+					pPluginManager->receiptRegistry());
 
 			// empty unconfirmed and partial transactions collections
 			EmptyCollection(*pMongoContext, Ut_Collection_Name);

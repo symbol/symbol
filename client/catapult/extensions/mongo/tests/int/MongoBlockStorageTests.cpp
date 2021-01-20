@@ -48,6 +48,7 @@ namespace catapult { namespace mongo {
 
 		constexpr uint64_t Multiple_Blocks_Count = 10;
 		constexpr uint64_t Default_Transactions_Per_Block = 9;
+		constexpr uint32_t Max_Drop_Batch_Size = 3;
 
 		struct BlockElementCounts {
 			size_t NumTransactions = 0;
@@ -81,7 +82,7 @@ namespace catapult { namespace mongo {
 					test::DbInitializationType::None,
 					errorPolicyMode,
 					[&receiptRegistry](auto& context, const auto& transactionRegistry) {
-						return mongo::CreateMongoBlockStorage(context, transactionRegistry, receiptRegistry);
+						return mongo::CreateMongoBlockStorage(context, Max_Drop_Batch_Size, transactionRegistry, receiptRegistry);
 					});
 
 			return decltype(pBlockStorage)(pBlockStorage.get(), [pMongoReceiptRegistry, pBlockStorage](const auto*) {});
@@ -658,27 +659,45 @@ namespace catapult { namespace mongo {
 
 	// region dropBlocksAfter
 
-	TEST(TEST_CLASS, CanDropBlocks) {
-		// Arrange:
-		TestContext context(Multiple_Blocks_Count);
-		context.saveBlocks();
+	namespace {
+		void AssertCanDropBlocks(size_t topHeight, Height dropHeight) {
+			// Arrange:
+			TestContext context(topHeight);
+			context.saveBlocks();
 
-		// Act:
-		context.storage().dropBlocksAfter(Height(5));
+			// Act:
+			context.storage().dropBlocksAfter(dropHeight);
 
-		// Assert:
-		ASSERT_EQ(Height(5), context.storage().chainHeight());
-		BlockElementCounts blockElementCounts;
-		for (const auto& blockElement : context.elements()) {
-			if (blockElement.Block.Height <= Height(5)) {
-				AssertEqual(blockElement, Default_Transactions_Per_Block);
-				blockElementCounts.AddCounts(blockElement);
-			} else {
-				AssertNoBlockOrTransactions(blockElement.Block.Height);
+			// Assert:
+			ASSERT_EQ(dropHeight, context.storage().chainHeight());
+			BlockElementCounts blockElementCounts;
+			for (const auto& blockElement : context.elements()) {
+				if (blockElement.Block.Height <= dropHeight) {
+					AssertEqual(blockElement, Default_Transactions_Per_Block);
+					blockElementCounts.AddCounts(blockElement);
+				} else {
+					AssertNoBlockOrTransactions(blockElement.Block.Height);
+				}
 			}
-		}
 
-		AssertCollectionSizes(blockElementCounts);
+			AssertCollectionSizes(blockElementCounts);
+		}
+	}
+
+	TEST(TEST_CLASS, CanDropBlocks_OneBatchToNemesis) {
+		AssertCanDropBlocks(Max_Drop_Batch_Size - 1, Height(1));
+	}
+
+	TEST(TEST_CLASS, CanDropBlocks_OneBatch) {
+		AssertCanDropBlocks(Multiple_Blocks_Count, Height(Multiple_Blocks_Count - Max_Drop_Batch_Size));
+	}
+
+	TEST(TEST_CLASS, CanDropBlocks_MultipleBatches) {
+		AssertCanDropBlocks(Multiple_Blocks_Count, Height(Multiple_Blocks_Count - 2 * Max_Drop_Batch_Size));
+	}
+
+	TEST(TEST_CLASS, CanDropBlocks_MultipleBatchesUneven) {
+		AssertCanDropBlocks(Multiple_Blocks_Count, Height(Multiple_Blocks_Count - (2 * Max_Drop_Batch_Size + 1)));
 	}
 
 	// endregion

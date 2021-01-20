@@ -137,26 +137,15 @@ namespace catapult { namespace mongo {
 			statementsFuture.get();
 		}
 
-		void DropDocuments(mongocxx::database& database, const std::string& collectionName, const std::string& indexName, Height height) {
-			auto blocks = database[collectionName];
-			auto filter = document()
-					<< indexName
-					<< open_document << "$gt" << static_cast<int64_t>(height.unwrap()) << close_document
-					<< finalize;
-			auto result = blocks.delete_many(filter.view());
-			if (result)
-				CATAPULT_LOG(info) << "deleted " << result->deleted_count() << " " << collectionName;
-			else
-				CATAPULT_THROW_RUNTIME_ERROR("delete returned empty result");
-		}
-
 		class MongoBlockStorage final : public io::LightBlockStorage {
 		public:
 			MongoBlockStorage(
 					MongoStorageContext& context,
+					uint32_t maxDropBatchSize,
 					const MongoTransactionRegistry& transactionRegistry,
 					const MongoReceiptRegistry& receiptRegistry)
 					: m_context(context)
+					, m_maxDropBatchSize(maxDropBatchSize)
 					, m_transactionRegistry(transactionRegistry)
 					, m_receiptRegistry(receiptRegistry)
 					, m_database(m_context.createDatabaseConnection())
@@ -209,7 +198,7 @@ namespace catapult { namespace mongo {
 					return;
 
 				setHeight(height);
-				dropAll(height);
+				dropAll(height, dbHeight);
 			}
 
 			// endregion
@@ -245,16 +234,45 @@ namespace catapult { namespace mongo {
 				m_errorPolicy.checkUpserted(1, result, "height");
 			}
 
-			void dropAll(Height height) {
-				DropDocuments(m_database, "blocks", "block.height", height);
-				DropDocuments(m_database, "transactions", "meta.height", height);
-				DropDocuments(m_database, "transactionStatements", "statement.height", height);
-				DropDocuments(m_database, "addressResolutionStatements", "statement.height", height);
-				DropDocuments(m_database, "mosaicResolutionStatements", "statement.height", height);
+			void dropAll(Height newHeight, Height oldHeight) {
+				auto heightIncrement = Height(m_maxDropBatchSize);
+
+				auto height = oldHeight;
+				while (height > heightIncrement && height - heightIncrement > newHeight) {
+					height = height - heightIncrement;
+					dropAllAfter(height);
+				}
+
+				if (newHeight != height)
+					dropAllAfter(newHeight);
+			}
+
+			void dropAllAfter(Height height) {
+				CATAPULT_LOG(debug) << "dropping blocks after " << height;
+
+				dropDocuments("blocks", "block.height", height);
+				dropDocuments("transactions", "meta.height", height);
+				dropDocuments("transactionStatements", "statement.height", height);
+				dropDocuments("addressResolutionStatements", "statement.height", height);
+				dropDocuments("mosaicResolutionStatements", "statement.height", height);
+			}
+
+			void dropDocuments(const std::string& collectionName, const std::string& indexName, Height height) {
+				auto collection = m_database[collectionName];
+				auto filter = document()
+						<< indexName
+						<< open_document << "$gt" << static_cast<int64_t>(height.unwrap()) << close_document
+						<< finalize;
+				auto result = collection.delete_many(filter.view());
+				if (result)
+					CATAPULT_LOG(debug) << "deleted " << result->deleted_count() << " " << collectionName;
+				else
+					CATAPULT_THROW_RUNTIME_ERROR("delete returned empty result");
 			}
 
 		private:
 			MongoStorageContext& m_context;
+			uint32_t m_maxDropBatchSize;
 			const MongoTransactionRegistry& m_transactionRegistry;
 			const MongoReceiptRegistry& m_receiptRegistry;
 			MongoDatabase m_database;
@@ -264,8 +282,9 @@ namespace catapult { namespace mongo {
 
 	std::unique_ptr<io::LightBlockStorage> CreateMongoBlockStorage(
 			MongoStorageContext& context,
+			uint32_t maxDropBatchSize,
 			const MongoTransactionRegistry& transactionRegistry,
 			const MongoReceiptRegistry& receiptRegistry) {
-		return std::make_unique<MongoBlockStorage>(context, transactionRegistry, receiptRegistry);
+		return std::make_unique<MongoBlockStorage>(context, maxDropBatchSize, transactionRegistry, receiptRegistry);
 	}
 }}
