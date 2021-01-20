@@ -153,7 +153,7 @@ namespace catapult { namespace local {
 				if (heights.Cache > heights.Storage)
 					CATAPULT_THROW_RUNTIME_ERROR_2("cache height is larger than storage height", heights.Cache, heights.Storage);
 
-				if (!stateRef().Config.Node.EnableCacheDatabaseStorage)
+				if (!stateRef().Config.Node.EnableCacheDatabaseStorage || Height(1) == heights.Cache)
 					repairStateFromStorage(heights);
 
 				CATAPULT_LOG(info) << "loaded block chain (height = " << heights.Storage << ", score = " << m_score.get() << ")";

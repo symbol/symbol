@@ -992,9 +992,9 @@ namespace catapult { namespace local {
 	// region state loading - cache database disabled
 
 	namespace {
-		void AssertLoadChainTest(Height cacheHeight, Height storageHeight) {
+		void AssertLoadChainTest(Height cacheHeight, Height storageHeight, Flags flags = Flags::Default) {
 			// Arrange:
-			RecoveryOrchestratorTestContext context(Flags::Default, storageHeight, cacheHeight);
+			RecoveryOrchestratorTestContext context(flags, storageHeight, cacheHeight);
 			context.enableBlockHeightsObserver();
 
 			// Act:
@@ -1103,8 +1103,8 @@ namespace catapult { namespace local {
 		AssertLoadsOnlyNemesis(Height(0), Height(1));
 	}
 
-	TEST(TEST_CLASS, LoadsOnlyNemesisWhenCacheIsEmptyAndMultipleBlocksInStorage_CacheDatabaseEnabled) {
-		AssertLoadsOnlyNemesis(Height(0), Height(4));
+	TEST(TEST_CLASS, CanLoadChainWhenCacheIsEmptyAndMultipleBlocksInStorage_CacheDatabaseEnabled) {
+		AssertLoadChainTest(Height(0), Height(4), Flags::Cache_Database_Enabled);
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheHeightIsLessThanStorageHeight_CacheDatabaseEnabled) {
