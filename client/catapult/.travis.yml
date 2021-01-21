@@ -1,7 +1,18 @@
 language: python
 sudo: false
 
-install: pip3 install ply
+addons:
+  apt:
+    packages:
+    - shellcheck
+
+install:
+ - pip3 install ply pycodestyle pylint pylint-quotes
+
 script:
   - mkdir logs
   - python3 scripts/lint/checkProjectStructure.py --text --depCheckDir src --depCheckDir extensions --depCheckDir plugins --destDir logs
+  - pushd scripts
+  - pylint --rcfile .pylintrc --load-plugins pylint_quotes --output-format=parseable ./*/*.py
+  - pycodestyle --config=.pycodestyle ./*/*.py
+  - shellcheck --format=gcc ./*/*.sh
