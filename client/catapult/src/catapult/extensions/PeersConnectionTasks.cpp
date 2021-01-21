@@ -116,7 +116,7 @@ namespace catapult { namespace extensions {
 		public:
 			thread::future<thread::TaskResult> process(const ionet::NodeSet& addCandidates) {
 				if (addCandidates.empty()) {
-					CATAPULT_LOG(debug) << "no add candidates for service " << m_state.ServiceId;
+					CATAPULT_LOG(debug) << "no add candidates for service " << utils::HexFormat(m_state.ServiceId);
 					return thread::make_ready_future(thread::TaskResult::Continue);
 				}
 
@@ -163,7 +163,7 @@ namespace catapult { namespace extensions {
 				}
 
 				if (0 == state.PacketWriters.numActiveWriters())
-					CATAPULT_LOG(warning) << "unable to connect to any nodes for service " << state.ServiceId;
+					CATAPULT_LOG(warning) << "unable to connect to any nodes for service " << utils::HexFormat(state.ServiceId);
 			}
 
 		private:

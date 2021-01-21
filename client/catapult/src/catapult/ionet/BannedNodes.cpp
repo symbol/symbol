@@ -78,7 +78,7 @@ namespace catapult { namespace ionet {
 		CATAPULT_LOG(warning)
 				<< "banning node with identity " << nodeIdentity
 				<< " for " << iter->second.BanDuration
-				<< ", reason: " << iter->second.Reason;
+				<< ", reason: " << utils::HexFormat(iter->second.Reason);
 	}
 
 	void BannedNodes::prune() {
