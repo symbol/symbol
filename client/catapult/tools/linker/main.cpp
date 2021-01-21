@@ -21,6 +21,7 @@
 
 #include "tools/ToolMain.h"
 #include "tools/ToolConfigurationUtils.h"
+#include "catapult/builders/AccountKeyLinkBuilder.h"
 #include "catapult/builders/VotingKeyLinkBuilder.h"
 #include "catapult/builders/VrfKeyLinkBuilder.h"
 #include "catapult/extensions/TransactionExtensions.h"
@@ -31,6 +32,86 @@
 namespace catapult { namespace tools { namespace linker {
 
 	namespace {
+		// region key type
+
+		enum class KeyType { Voting, Vrf, Remote };
+
+		KeyType ParseKeyType(const std::string& str) {
+			static const std::array<std::pair<const char*, KeyType>, 3> String_To_KeyType_Pairs{{
+				{ "voting", KeyType::Voting },
+				{ "vrf", KeyType::Vrf },
+				{ "remote", KeyType::Remote }
+			}};
+
+			KeyType keyType;
+			if (!utils::TryParseEnumValue(String_To_KeyType_Pairs, str, keyType)) {
+				std::ostringstream out;
+				out << "'" << str << "' is not a valid link key type";
+				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+			}
+
+			return keyType;
+		}
+
+		// endregion
+
+		// region builder wrappers
+
+		class KeyLinkTransactionFactory {
+		public:
+			KeyLinkTransactionFactory(model::NetworkIdentifier networkIdentifier, const Key& signerPublicKey)
+					: m_networkIdentifier(networkIdentifier)
+					, m_signerPublicKey(signerPublicKey)
+			{}
+
+		public:
+			auto create(KeyType keyType, const std::string& linkedPublicKey, FinalizationEpoch startEpoch, FinalizationEpoch endEpoch) {
+				switch (keyType) {
+					case KeyType::Voting:
+						return createVotingKeyLinkTransaction(linkedPublicKey, startEpoch, endEpoch);
+					case KeyType::Vrf:
+						return createVrfKeyLinkTransaction(linkedPublicKey);
+					case KeyType::Remote:
+						return createRemoteKeyLinkTransaction(linkedPublicKey);
+				}
+
+				return std::shared_ptr<model::Transaction>();
+			}
+
+		private:
+			std::shared_ptr<model::Transaction> createVotingKeyLinkTransaction(
+					const std::string& linkedPublicKey,
+					FinalizationEpoch startEpoch,
+					FinalizationEpoch endEpoch) {
+				builders::VotingKeyLinkBuilder builder(m_networkIdentifier, m_signerPublicKey);
+				builder.setLinkedPublicKey(utils::ParseByteArray<VotingKey>(linkedPublicKey));
+				builder.setLinkAction(model::LinkAction::Link);
+				builder.setStartEpoch(startEpoch);
+				builder.setEndEpoch(endEpoch);
+				return builder.build();
+			}
+
+			std::shared_ptr<model::Transaction> createVrfKeyLinkTransaction(const std::string& linkedPublicKey) {
+				builders::VrfKeyLinkBuilder builder(m_networkIdentifier, m_signerPublicKey);
+				builder.setLinkedPublicKey(utils::ParseByteArray<Key>(linkedPublicKey));
+				builder.setLinkAction(model::LinkAction::Link);
+				return builder.build();
+			}
+
+			std::shared_ptr<model::Transaction> createRemoteKeyLinkTransaction(const std::string& linkedPublicKey) {
+				builders::AccountKeyLinkBuilder builder(m_networkIdentifier, m_signerPublicKey);
+				builder.setLinkedPublicKey(utils::ParseByteArray<Key>(linkedPublicKey));
+				builder.setLinkAction(model::LinkAction::Link);
+				return builder.build();
+			}
+
+		private:
+			model::NetworkIdentifier m_networkIdentifier;
+			Key m_signerPublicKey;
+		};
+
+		// endregion
+
 		void SaveTransaction(const model::Transaction& transaction, const std::string& filePath) {
 			io::RawFile dataFile(filePath, io::OpenMode::Read_Write);
 			dataFile.write({ reinterpret_cast<const uint8_t*>(&transaction), transaction.Size });
@@ -49,7 +130,7 @@ namespace catapult { namespace tools { namespace linker {
 
 				optionsBuilder("type",
 						OptionsValue<std::string>()->default_value("vrf"),
-						"link transaction type: voting, vrf");
+						"link transaction type: voting, vrf, remote");
 				optionsBuilder("secret,s",
 						OptionsValue<std::string>(),
 						"secret key to sign the transaction");
@@ -75,11 +156,12 @@ namespace catapult { namespace tools { namespace linker {
 				auto networkIdentifier = config.BlockChain.Network.Identifier;
 				auto signer = crypto::KeyPair::FromString(options["secret"].as<std::string>());
 				auto linkedPublicKey = options["linkedPublicKey"].as<std::string>();
+				auto keyType = ParseKeyType(options["type"].as<std::string>());
 				auto startEpoch = FinalizationEpoch(options["startEpoch"].as<uint32_t>());
 				auto endEpoch = FinalizationEpoch(options["endEpoch"].as<uint32_t>());
-				auto pTransaction = options["type"].as<std::string>() == "voting"
-						? createVotingKeyLinkTransaction(networkIdentifier, signer.publicKey(), linkedPublicKey, startEpoch, endEpoch)
-						: createVrfKeyLinkTransaction(networkIdentifier, signer.publicKey(), linkedPublicKey);
+
+				KeyLinkTransactionFactory factory(networkIdentifier, signer.publicKey());
+				auto pTransaction = factory.create(keyType, linkedPublicKey, startEpoch, endEpoch);
 
 				// 2. sign it
 				pTransaction->Deadline = Timestamp(1);
@@ -95,9 +177,6 @@ namespace catapult { namespace tools { namespace linker {
 
 		private:
 			void validateOptions(const Options& options) {
-				if (options["type"].as<std::string>() != "voting" && options["type"].as<std::string>() != "vrf")
-					CATAPULT_THROW_INVALID_ARGUMENT("invalid --type argument");
-
 				if (options["secret"].empty())
 					CATAPULT_THROW_INVALID_ARGUMENT("missing secret key");
 
@@ -106,30 +185,6 @@ namespace catapult { namespace tools { namespace linker {
 
 				if (std::filesystem::exists(options["output"].as<std::string>()))
 					CATAPULT_THROW_INVALID_ARGUMENT("output file already exists");
-			}
-
-			std::shared_ptr<model::Transaction> createVotingKeyLinkTransaction(
-					model::NetworkIdentifier networkIdentifier,
-					const Key& publicKey,
-					const std::string& linkedPublicKey,
-					FinalizationEpoch startEpoch,
-					FinalizationEpoch endEpoch) {
-				builders::VotingKeyLinkBuilder builder(networkIdentifier, publicKey);
-				builder.setLinkedPublicKey(utils::ParseByteArray<VotingKey>(linkedPublicKey));
-				builder.setLinkAction(model::LinkAction::Link);
-				builder.setStartEpoch(startEpoch);
-				builder.setEndEpoch(endEpoch);
-				return builder.build();
-			}
-
-			std::shared_ptr<model::Transaction> createVrfKeyLinkTransaction(
-					model::NetworkIdentifier networkIdentifier,
-					const Key& publicKey,
-					const std::string& linkedPublicKey) {
-				builders::VrfKeyLinkBuilder builder(networkIdentifier, publicKey);
-				builder.setLinkedPublicKey(utils::ParseByteArray<Key>(linkedPublicKey));
-				builder.setLinkAction(model::LinkAction::Link);
-				return builder.build();
 			}
 		};
 	}
