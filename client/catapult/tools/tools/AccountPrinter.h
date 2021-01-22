@@ -59,4 +59,7 @@ namespace catapult { namespace tools {
 
 	/// Creates an account printer with \a format around \a out.
 	std::unique_ptr<AccountPrinter> CreateAccountPrinter(std::ostream& out, AccountPrinterFormat format);
+
+	/// Creates an aggregate account printer around \a printers.
+	std::unique_ptr<AccountPrinter> CreateAggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers);
 }}

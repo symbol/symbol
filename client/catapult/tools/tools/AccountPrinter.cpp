@@ -189,4 +189,45 @@ namespace catapult { namespace tools {
 
 		return std::make_unique<PrettyAccountPrinter>(out);
 	}
+
+	namespace {
+		// region AggregateAccountPrinter
+
+		class AggregateAccountPrinter : public AccountPrinter {
+		public:
+			explicit AggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers) : m_printers(std::move(printers))
+			{}
+
+		public:
+			void setNetwork(const std::string& networkName) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->setNetwork(networkName);
+			}
+
+		public:
+			void print(const Address& address) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->print(address);
+			}
+
+			void print(const Key& publicKey) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->print(publicKey);
+			}
+
+			void print(const crypto::KeyPair& keyPair) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->print(keyPair);
+			}
+
+		private:
+			std::vector<std::unique_ptr<AccountPrinter>> m_printers;
+		};
+
+		// endregion
+	}
+
+	std::unique_ptr<AccountPrinter> CreateAggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers) {
+		return std::make_unique<AggregateAccountPrinter>(std::move(printers));
+	}
 }}

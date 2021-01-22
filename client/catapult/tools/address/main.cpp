@@ -20,11 +20,9 @@
 **/
 
 #include "tools/ToolMain.h"
-#include "tools/AccountPrinter.h"
+#include "tools/AccountTool.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
-#include <filesystem>
-#include <fstream>
 
 namespace catapult { namespace tools { namespace address {
 
@@ -53,99 +51,40 @@ namespace catapult { namespace tools { namespace address {
 
 		// endregion
 
-		// region AddressTool
+		// region AddressInspectorTool
 
-		class AddressTool : public Tool {
+		class AddressInspectorTool : public AccountTool {
 		public:
-			std::string name() const override {
-				return "Address Tool";
-			}
+			AddressInspectorTool() : AccountTool("Address Inspector Tool")
+			{}
 
-			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
-				optionsBuilder("network,n",
-						OptionsValue<std::string>()->default_value("private"),
-						"network, possible values: private (default), private-test, public, public-test");
-
+		private:
+			void prepareAdditionalOptions(OptionsBuilder& optionsBuilder) override {
 				optionsBuilder("mode,m",
 						OptionsValue<std::string>()->required(),
 						"mode, possible values: encoded, decoded, public, secret");
-
-				optionsBuilder("input,i",
-						OptionsValue<std::string>()->required(),
-						"input value or file");
-
-				optionsBuilder("output,o",
-						OptionsValue<std::string>(),
-						"(optional) output file");
-
-				optionsBuilder("format,f",
-						OptionsValue<std::string>()->default_value("pretty"),
-						"output format, possible values: pretty (default), csv");
-
-				optionsBuilder("suppressConsole",
-						OptionsSwitch(),
-						"true to suppress console output");
 			}
 
-			int run(const Options& options) override {
+			void process(const Options& options, const std::vector<std::string>& values, AccountPrinter& printer) override {
 				auto mode = ParseMode(options["mode"].as<std::string>());
-				auto input = options["input"].as<std::string>();
-				auto format = ParseAccountPrinterFormat(options["format"].as<std::string>());
-				auto networkName = options["network"].as<std::string>();
+				for (const auto& value : values) {
+					switch (mode) {
+					case Mode::Encoded_Address:
+						printer.print(model::StringToAddress(value));
+						break;
 
-				if (!options["suppressConsole"].as<bool>()) {
-					auto pPrinter = CreatePrinter(std::cout, format, networkName);
-					ProcessAll(mode, input, *pPrinter);
-				}
+					case Mode::Decoded_Address:
+						printer.print(utils::ParseByteArray<Address>(value));
+						break;
 
-				if (options.count("output")) {
-					std::ofstream fout(options["output"].as<std::string>(), std::ios::out);
-					auto pPrinter = CreatePrinter(fout, format, networkName);
-					ProcessAll(mode, input, *pPrinter);
-				}
+					case Mode::Public_Key:
+						printer.print(utils::ParseByteArray<Key>(value));
+						break;
 
-				return 0;
-			}
-
-		private:
-			static std::unique_ptr<AccountPrinter> CreatePrinter(
-					std::ostream& out,
-					AccountPrinterFormat format,
-					const std::string& networkName) {
-				auto pPrinter = CreateAccountPrinter(out, format);
-				pPrinter->setNetwork(networkName);
-				return pPrinter;
-			}
-
-			static void ProcessAll(Mode mode, const std::string& input, AccountPrinter& printer) {
-				if (std::filesystem::exists(input)) {
-					std::ifstream fin(input, std::ios::in);
-
-					std::string line;
-					while (fin >> line)
-						Process(mode, line, printer);
-				} else {
-					Process(mode, input, printer);
-				}
-			}
-
-			static void Process(Mode mode, const std::string& value, AccountPrinter& printer) {
-				switch (mode) {
-				case Mode::Encoded_Address:
-					printer.print(model::StringToAddress(value));
-					break;
-
-				case Mode::Decoded_Address:
-					printer.print(utils::ParseByteArray<Address>(value));
-					break;
-
-				case Mode::Public_Key:
-					printer.print(utils::ParseByteArray<Key>(value));
-					break;
-
-				case Mode::Secret_Key:
-					printer.print(crypto::KeyPair::FromString(value));
-					break;
+					case Mode::Secret_Key:
+						printer.print(crypto::KeyPair::FromString(value));
+						break;
+					}
 				}
 			}
 		};
@@ -155,6 +94,6 @@ namespace catapult { namespace tools { namespace address {
 }}}
 
 int main(int argc, const char** argv) {
-	catapult::tools::address::AddressTool tool;
+	catapult::tools::address::AddressInspectorTool tool;
 	return catapult::tools::ToolMain(argc, argv, tool);
 }
