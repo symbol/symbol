@@ -136,7 +136,7 @@ namespace catapult { namespace cache {
 			columnFamilyOptions.compaction_filter = pCompactionFilter;
 
 			if (utils::FileSize() != config.BlockCacheSize)
-				columnFamilyOptions.OptimizeForPointLookup(config.BlockCacheSize.bytes());
+				columnFamilyOptions.OptimizeForPointLookup(config.BlockCacheSize.megabytes());
 
 			if (utils::FileSize() != config.MemtableMemoryBudget)
 				columnFamilyOptions.OptimizeLevelStyleCompaction(config.MemtableMemoryBudget.bytes());
