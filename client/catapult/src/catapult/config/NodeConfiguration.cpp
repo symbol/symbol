@@ -57,6 +57,7 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(ShortLivedCacheMaxSize);
 
 		LOAD_NODE_PROPERTY(MinFeeMultiplier);
+		LOAD_NODE_PROPERTY(MaxTimeBehindPullTransactionsStart);
 		LOAD_NODE_PROPERTY(TransactionSelectionStrategy);
 		LOAD_NODE_PROPERTY(UnconfirmedTransactionsCacheMaxResponseSize);
 		LOAD_NODE_PROPERTY(UnconfirmedTransactionsCacheMaxSize);
@@ -147,7 +148,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 38 + 7 + 4 + 4 + 5 + 9);
+		utils::VerifyBagSizeExact(bag, 39 + 7 + 4 + 4 + 5 + 9);
 		return config;
 	}
 

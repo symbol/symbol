@@ -70,10 +70,25 @@ namespace catapult { namespace extensions {
 
 	SelectorSettings CreateIncomingSelectorSettings(const ServiceState& state, ionet::ServiceIdentifier serviceId) {
 		return SelectorSettings(
-			state.cache(),
-			state.config().BlockChain.TotalChainImportance,
-			state.nodes(),
-			serviceId,
-			state.config().Node.IncomingConnections);
+				state.cache(),
+				state.config().BlockChain.TotalChainImportance,
+				state.nodes(),
+				serviceId,
+				state.config().Node.IncomingConnections);
+	}
+
+	namespace {
+		Timestamp LoadLastBlockTimestamp(const io::BlockStorageCache& storage) {
+			auto storageView = storage.view();
+			auto chainHeight = storageView.chainHeight();
+			return storageView.loadBlock(chainHeight)->Timestamp;
+		}
+	}
+
+	predicate<> CreateTransactionPullPredicate(const ServiceState& state) {
+		auto maxTimeBehind = state.config().Node.MaxTimeBehindPullTransactionsStart;
+		return [maxTimeBehind, &storage = state.storage(), timeSupplier = state.timeSupplier()]() {
+			return LoadLastBlockTimestamp(storage) + maxTimeBehind >= timeSupplier();
+		};
 	}
 }}

@@ -42,4 +42,21 @@ namespace catapult { namespace chain {
 			});
 		};
 	}
+
+	/// Creates a conditional remote node synchronizer around \a pSynchronizer that only executes when \a shouldExecute returns \c true.
+	template<typename TSynchronizer>
+	RemoteNodeSynchronizer<typename TSynchronizer::RemoteApiType> CreateConditionalRemoteNodeSynchronizer(
+			const std::shared_ptr<TSynchronizer>& pSynchronizer,
+			const predicate<>& shouldExecute) {
+		return [pSynchronizer, shouldExecute](const auto& remoteApi) {
+			if (!shouldExecute())
+				return thread::make_ready_future(ionet::NodeInteractionResultCode::Neutral);
+
+			// pSynchronizer is captured in the second lambda to compose, which extends its lifetime until
+			// the async operation is complete
+			return thread::compose(pSynchronizer->operator()(remoteApi), [pSynchronizer](auto&& future) {
+				return std::move(future);
+			});
+		};
+	}
 }}

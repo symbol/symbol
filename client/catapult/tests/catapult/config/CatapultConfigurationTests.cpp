@@ -122,6 +122,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(10'000'000u, config.ShortLivedCacheMaxSize);
 
 			EXPECT_EQ(BlockFeeMultiplier(0), config.MinFeeMultiplier);
+			EXPECT_EQ(utils::TimeSpan::FromMinutes(5), config.MaxTimeBehindPullTransactionsStart);
 			EXPECT_EQ(model::TransactionSelectionStrategy::Oldest, config.TransactionSelectionStrategy);
 			EXPECT_EQ(utils::FileSize::FromMegabytes(5), config.UnconfirmedTransactionsCacheMaxResponseSize);
 			EXPECT_EQ(utils::FileSize::FromMegabytes(20), config.UnconfirmedTransactionsCacheMaxSize);

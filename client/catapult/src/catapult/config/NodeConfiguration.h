@@ -83,6 +83,10 @@ namespace catapult { namespace config {
 		/// Minimum fee multiplier of transactions to propagate and include in blocks.
 		BlockFeeMultiplier MinFeeMultiplier;
 
+		/// Transaction pulls will only be initiated when the timestamp of the last block in the local chain is within this value
+		/// of the network time.
+		utils::TimeSpan MaxTimeBehindPullTransactionsStart;
+
 		/// Transaction selection strategy used for syncing and harvesting unconfirmed transactions.
 		model::TransactionSelectionStrategy TransactionSelectionStrategy;
 

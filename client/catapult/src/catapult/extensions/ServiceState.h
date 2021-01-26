@@ -254,5 +254,8 @@ namespace catapult { namespace extensions {
 	/// Creates incoming selector settings based on \a state for \a serviceId.
 	SelectorSettings CreateIncomingSelectorSettings(const ServiceState& state, ionet::ServiceIdentifier serviceId);
 
+	/// Creates a predicate based on \a state that returns \c true when transaction data should be pulled.
+	predicate<> CreateTransactionPullPredicate(const ServiceState& state);
+
 	// endregion
 }}

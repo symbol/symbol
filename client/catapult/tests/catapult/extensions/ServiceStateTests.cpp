@@ -26,6 +26,7 @@
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/thread/MultiServicePool.h"
+#include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
@@ -251,6 +252,45 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(ionet::NodeRoles::None, settings.RequiredRole);
 		EXPECT_EQ(14u, settings.Config.MaxConnections);
 		EXPECT_TRUE(!!settings.ImportanceRetriever);
+	}
+
+	// endregion
+
+	// region CreateTransactionPullPredicate
+
+	namespace {
+		bool RunTransactionPullPredicateTest(Timestamp networkTime, Timestamp lastBlockTime, const utils::TimeSpan& maxTimeBehind) {
+			// Arrange:
+			test::ServiceTestState testState(cache::CatapultCache({}), [networkTime]() { return networkTime; });
+			const_cast<utils::TimeSpan&>(testState.state().config().Node.MaxTimeBehindPullTransactionsStart) = maxTimeBehind;
+
+			// - storage already contains nemesis block (height 1)
+			{
+				auto modifier = testState.state().storage().modifier();
+				auto pBlockTwo = test::GenerateBlockWithTransactions(0, Height(2), lastBlockTime);
+				modifier.saveBlock(test::BlockToBlockElement(*pBlockTwo));
+				modifier.commit();
+			}
+
+			// Act:
+			auto predicate = CreateTransactionPullPredicate(testState.state());
+			return predicate();
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateTransactionPullPredicate) {
+		// Assert: network <  last block
+		EXPECT_TRUE(RunTransactionPullPredicateTest(Timestamp(30 * 1000 - 1), Timestamp(60 * 1000), utils::TimeSpan::FromSeconds(30)));
+		EXPECT_TRUE(RunTransactionPullPredicateTest(Timestamp(30 * 1000), Timestamp(60 * 1000), utils::TimeSpan::FromSeconds(30)));
+		EXPECT_TRUE(RunTransactionPullPredicateTest(Timestamp(60 * 1000 - 1), Timestamp(60 * 1000), utils::TimeSpan::FromSeconds(30)));
+
+		// network ==  last block
+		EXPECT_TRUE(RunTransactionPullPredicateTest(Timestamp(60 * 1000), Timestamp(60 * 1000), utils::TimeSpan::FromSeconds(30)));
+
+		// network >  last block
+		EXPECT_TRUE(RunTransactionPullPredicateTest(Timestamp(60 * 1000 + 1), Timestamp(60 * 1000), utils::TimeSpan::FromSeconds(30)));
+		EXPECT_TRUE(RunTransactionPullPredicateTest(Timestamp(90 * 1000), Timestamp(60 * 1000), utils::TimeSpan::FromSeconds(30)));
+		EXPECT_FALSE(RunTransactionPullPredicateTest(Timestamp(90 * 1000 + 1), Timestamp(60 * 1000), utils::TimeSpan::FromSeconds(30)));
 	}
 
 	// endregion

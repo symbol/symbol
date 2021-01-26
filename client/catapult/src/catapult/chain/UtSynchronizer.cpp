@@ -65,9 +65,10 @@ namespace catapult { namespace chain {
 			BlockFeeMultiplier minFeeMultiplier,
 			const TimeSupplier& timeSupplier,
 			const ShortHashesSupplier& shortHashesSupplier,
-			const handlers::TransactionRangeHandler& transactionRangeConsumer) {
+			const handlers::TransactionRangeHandler& transactionRangeConsumer,
+			const predicate<>& shouldExecute) {
 		auto traits = UtTraits(minFeeMultiplier, timeSupplier, shortHashesSupplier, transactionRangeConsumer);
 		auto pSynchronizer = std::make_shared<EntitiesSynchronizer<UtTraits>>(std::move(traits));
-		return CreateRemoteNodeSynchronizer(pSynchronizer);
+		return CreateConditionalRemoteNodeSynchronizer(pSynchronizer, shouldExecute);
 	}
 }}

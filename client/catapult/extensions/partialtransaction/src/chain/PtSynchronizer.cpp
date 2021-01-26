@@ -60,9 +60,10 @@ namespace catapult { namespace chain {
 	RemoteNodeSynchronizer<api::RemotePtApi> CreatePtSynchronizer(
 			const TimeSupplier& timeSupplier,
 			const partialtransaction::ShortHashPairsSupplier& shortHashPairsSupplier,
-			const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer) {
+			const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer,
+			const predicate<>& shouldExecute) {
 		auto traits = PtTraits(timeSupplier, shortHashPairsSupplier, transactionInfosConsumer);
 		auto pSynchronizer = std::make_shared<EntitiesSynchronizer<PtTraits>>(std::move(traits));
-		return CreateRemoteNodeSynchronizer(pSynchronizer);
+		return CreateConditionalRemoteNodeSynchronizer(pSynchronizer, shouldExecute);
 	}
 }}

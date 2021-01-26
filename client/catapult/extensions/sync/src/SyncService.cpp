@@ -82,7 +82,8 @@ namespace catapult { namespace sync {
 					state.config().Node.MinFeeMultiplier,
 					state.timeSupplier(),
 					[&cache = state.utCache()]() { return cache.view().shortHashes(); },
-					state.hooks().transactionRangeConsumerFactory()(Sync_Source));
+					state.hooks().transactionRangeConsumerFactory()(Sync_Source),
+					extensions::CreateTransactionPullPredicate(state));
 
 			thread::Task task;
 			task.Name = "pull unconfirmed transactions task";

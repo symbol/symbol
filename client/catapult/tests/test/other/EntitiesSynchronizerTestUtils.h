@@ -55,7 +55,8 @@ namespace catapult { namespace test {
 		};
 
 	private:
-		static auto CreateSynchronizer(TestContext& context) {
+		template<typename ...TArgs>
+		static auto CreateSynchronizer(TestContext& context, TArgs... args) {
 			auto& requestRangeSupplierCalls = context.RequestRangeSupplierCalls;
 			const auto& requestRange = context.RequestRange;
 			auto requestRangeSupplier = [&requestRangeSupplierCalls, &requestRange]() {
@@ -70,7 +71,7 @@ namespace catapult { namespace test {
 				capturedResponseContainer = std::move(responseContainer);
 			};
 
-			return TTraits::CreateSynchronizer(requestRangeSupplier, responseContainerConsumer);
+			return TTraits::CreateSynchronizer(requestRangeSupplier, responseContainerConsumer, std::forward<TArgs>(args)...);
 		}
 
 		template<typename TResponseContainer, typename TResponseEntity>
@@ -211,6 +212,30 @@ namespace catapult { namespace test {
 			};
 			EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
 		}
+
+		/// Asserts a neutral interaction when conditional predicate returns \c false.
+		static void AssertNeutralInteractionWhenConditionBypassesRequest() {
+			// Arrange:
+			// - create the synchronizer
+			auto requestRange = TTraits::CreateRequestRange(5);
+			TestContext context(requestRange);
+			auto synchronizer = CreateSynchronizer(context, false);
+
+			// - create the api
+			auto responseContainer = TTraits::CreateResponseContainer(5);
+			auto remoteApiWrapper = TTraits::CreateRemoteApi(responseContainer);
+
+			// Act:
+			auto code = synchronizer(remoteApiWrapper.api()).get();
+
+			// Assert: check result and counters
+			EXPECT_EQ(ionet::NodeInteractionResultCode::Neutral, code);
+			EXPECT_EQ(0u, context.RequestRangeSupplierCalls);
+			EXPECT_EQ(0u, context.ResponseContainerConsumerCalls);
+
+			// - check request range
+			EXPECT_EQ(0u, remoteApiWrapper.numCalls());
+		}
 	};
 
 #define MAKE_ENTITIES_SYNCHRONIZER_TEST(TEST_CLASS, TRAITS_NAME, TEST_NAME) \
@@ -221,4 +246,8 @@ namespace catapult { namespace test {
 	MAKE_ENTITIES_SYNCHRONIZER_TEST(SYNCHRONIZER_NAME##Tests, SYNCHRONIZER_NAME##Traits, NeutralInteractionWhenNoDataIsPulled) \
 	MAKE_ENTITIES_SYNCHRONIZER_TEST(SYNCHRONIZER_NAME##Tests, SYNCHRONIZER_NAME##Traits, FailedInteractionWhenRemoteApiThrows) \
 	MAKE_ENTITIES_SYNCHRONIZER_TEST(SYNCHRONIZER_NAME##Tests, SYNCHRONIZER_NAME##Traits, CanRecoverAfterFailedInteraction)
+
+#define DEFINE_CONDITIONAL_ENTITIES_SYNCHRONIZER_TESTS(SYNCHRONIZER_NAME) \
+	DEFINE_ENTITIES_SYNCHRONIZER_TESTS(SYNCHRONIZER_NAME) \
+	MAKE_ENTITIES_SYNCHRONIZER_TEST(SYNCHRONIZER_NAME##Tests, SYNCHRONIZER_NAME##Traits, NeutralInteractionWhenConditionBypassesRequest)
 }}

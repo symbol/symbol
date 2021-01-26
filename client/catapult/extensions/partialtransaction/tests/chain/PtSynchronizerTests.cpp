@@ -93,9 +93,13 @@ namespace catapult { namespace chain {
 
 			static auto CreateSynchronizer(
 					const partialtransaction::ShortHashPairsSupplier& shortHashPairsSupplier,
-					const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer) {
-				auto timeSupplier = []() { return Timestamp(84); };
-				return CreatePtSynchronizer(timeSupplier, shortHashPairsSupplier, transactionInfosConsumer);
+					const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer,
+					bool shouldExecute = true) {
+				return CreatePtSynchronizer(
+						[]() { return Timestamp(84); },
+						shortHashPairsSupplier,
+						transactionInfosConsumer,
+						[shouldExecute]() { return shouldExecute; });
 			}
 
 			static void AssertCustomResponse(const ResponseContainerType& expectedResponse, const ResponseContainerType& actualResponse) {
@@ -107,5 +111,5 @@ namespace catapult { namespace chain {
 		};
 	}
 
-	DEFINE_ENTITIES_SYNCHRONIZER_TESTS(PtSynchronizer)
+	DEFINE_CONDITIONAL_ENTITIES_SYNCHRONIZER_TESTS(PtSynchronizer)
 }}

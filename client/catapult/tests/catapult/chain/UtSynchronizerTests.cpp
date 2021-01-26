@@ -87,12 +87,17 @@ namespace catapult { namespace chain {
 
 			static auto CreateSynchronizer(
 					const ShortHashesSupplier& shortHashesSupplier,
-					const handlers::TransactionRangeHandler& transactionRangeConsumer) {
-				auto timeSupplier = []() { return Timestamp(84); };
-				return CreateUtSynchronizer(BlockFeeMultiplier(17), timeSupplier, shortHashesSupplier, transactionRangeConsumer);
+					const handlers::TransactionRangeHandler& transactionRangeConsumer,
+					bool shouldExecute = true) {
+				return CreateUtSynchronizer(
+						BlockFeeMultiplier(17),
+						[]() { return Timestamp(84); },
+						shortHashesSupplier,
+						transactionRangeConsumer,
+						[shouldExecute]() { return shouldExecute; });
 			}
 		};
 	}
 
-	DEFINE_ENTITIES_SYNCHRONIZER_TESTS(UtSynchronizer)
+	DEFINE_CONDITIONAL_ENTITIES_SYNCHRONIZER_TESTS(UtSynchronizer)
 }}
