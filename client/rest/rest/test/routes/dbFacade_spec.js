@@ -24,6 +24,7 @@ const { convertToLong } = require('../../src/db/dbUtils');
 const dbFacade = require('../../src/routes/dbFacade');
 const testDbOptions = require('../db/utils/testDbOptions');
 const { expect } = require('chai');
+const { Binary } = require('mongodb');
 const sinon = require('sinon');
 
 const Mijin_Test_Network = testDbOptions.networkId;
@@ -73,18 +74,19 @@ describe('db facade', () => {
 				transactionsByHashesStub.restore();
 			});
 		};
+		const toBinary = hash => new Binary(`${hash}`);
 
-		const createFailed = value => ({ status: { f: value } });
-		const createUnwrappedFailedStatus = value => ({ group: 'failed', f: value });
-		const createTransaction = (hash, deadline, height) => ({ meta: { hash, height }, transaction: { deadline } });
+		const createFailed = (value, hash) => ({ status: { f: value, hash: toBinary(hash) } });
+		const createUnwrappedFailedStatus = (value, hash) => ({ group: 'failed', f: value, hash: toBinary(hash) });
+		const createTransaction = (hash, deadline, height) => ({ meta: { hash: toBinary(hash), height }, transaction: { deadline } });
 		const createUnconfirmedStatus = (hash, deadline) => ({
-			group: 'unconfirmed', code: 0, hash, deadline, height: 0
+			group: 'unconfirmed', code: 0, hash: toBinary(hash), deadline, height: 0
 		});
 		const createConfirmedStatus = (hash, deadline, height) => ({
-			group: 'confirmed', code: 0, hash, deadline, height
+			group: 'confirmed', code: 0, hash: toBinary(hash), deadline, height
 		});
 		const createUnwrappedCustomStatus = (hash, deadline, height) => ({
-			group: 'custom', code: 0, hash, deadline, height
+			group: 'custom', code: 0, hash: toBinary(hash), deadline, height
 		});
 
 		it('unknown hashes are properly mapped', () =>
@@ -94,8 +96,8 @@ describe('db facade', () => {
 
 		it('failed transactions have type appended', () =>
 			addTransactionStatusesByHashesTest({
-				failed: [createFailed(123), createFailed(456)],
-				expected: [createUnwrappedFailedStatus(123), createUnwrappedFailedStatus(456)]
+				failed: [createFailed(123, 11111), createFailed(456, 22222)],
+				expected: [createUnwrappedFailedStatus(123, 11111), createUnwrappedFailedStatus(456, 22222)]
 			}));
 
 		it('unconfirmed transactions are properly mapped', () =>
@@ -118,15 +120,16 @@ describe('db facade', () => {
 
 		it('mixed elements are properly mapped', () =>
 			addTransactionStatusesByHashesTest({
-				failed: [createFailed(123), createFailed(456)],
-				unconfirmed: [createTransaction(111, 222, 0), createTransaction(333, 444, 0)],
+				failed: [createFailed(123, 1111), createFailed(456, 88), createFailed(456, 22222)],
+				unconfirmed: [createTransaction(111, 222, 0), createTransaction(333, 444, 0), createTransaction(55, 444, 0)],
 				confirmed: [createTransaction(55, 66, 77), createTransaction(88, 99, 11)],
-				custom: [createTransaction(87, 98, 43)],
+				custom: [createTransaction(111, 98, 43), createTransaction(87, 98, 43)],
 				expected: [
-					createUnwrappedFailedStatus(123), createUnwrappedFailedStatus(456),
+					createConfirmedStatus(55, 66, 77), createConfirmedStatus(88, 99, 11),
 					createUnconfirmedStatus(111, 222), createUnconfirmedStatus(333, 444),
 					createUnwrappedCustomStatus(87, 98, 43),
-					createConfirmedStatus(55, 66, 77), createConfirmedStatus(88, 99, 11)
+					createUnwrappedFailedStatus(123, 1111), createUnwrappedFailedStatus(456, 22222)
+
 				]
 			}));
 	});

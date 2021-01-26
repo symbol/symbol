@@ -63,21 +63,32 @@ const dbFacade = {
 	 */
 	transactionStatusesByHashes: (db, hashes, additionalTransactionStates) => {
 		const transactionStates = [].concat(
+			// order matters and it determines the priority at which the status will be returned
+			// * this was agreed by the team, since a transaction with the same hash (same transaction), can be announced multiple times
+			// * and be present in different status collections at the same time also not sure if the same hash can be "failed" multiple
+			// * times for different reasons (codes) in the database
+			[{ dbPostfix: '', friendlyName: 'confirmed' }],
 			[{ dbPostfix: 'Unconfirmed', friendlyName: 'unconfirmed' }],
-			additionalTransactionStates,
-			[{ dbPostfix: '', friendlyName: 'confirmed' }]
+			additionalTransactionStates
 		);
 
 		const promises = [];
-		promises.push(db.transactionsByHashesFailed(hashes)
-			.then(objs => objs.map(status => status.status))	// removes wrapping property
-			.then(objs => objs.map(status => Object.assign(status, { group: 'failed' }))));
 		transactionStates.forEach(state => {
 			const dbPromise = db.transactionsByHashes(state.friendlyName, hashes);
 			promises.push(dbPromise.then(objs => objs.map(transaction => extractFromMetadata(state.friendlyName, transaction))));
 		});
+		promises.push(db.transactionsByHashesFailed(hashes)
+			.then(objs => objs.map(status => status.status))	// removes wrapping property
+			.then(objs => objs.map(status => Object.assign(status, { group: 'failed' }))));
 
-		return Promise.all(promises).then(tuple => [].concat(...tuple));
+		return Promise.all(promises).then(tuple => {
+			const resultingStatuses = [];
+			tuple.forEach(statusArray => statusArray.forEach(statusResult => {
+				if (!resultingStatuses.some(status => 0 === status.hash.buffer.compare(statusResult.hash.buffer)))
+					resultingStatuses.push(statusResult);
+			}));
+			return resultingStatuses;
+		});
 	}
 };
 
