@@ -258,6 +258,7 @@ function make_build_dir {
 		BOOST_ROOT="${depsdir}/boost" cmake .. \
 		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 		-DCMAKE_PREFIX_PATH="${depsdir}/facebook${sep}${depsdir}/google${sep}${depsdir}/mongodb${sep}${depsdir}/zeromq" \
+		-DCMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_PREFIX" \
 		\
 		-GNinja
 		ninja publish

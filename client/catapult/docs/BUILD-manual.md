@@ -45,7 +45,7 @@ scripts/configure-manual.sh install deps
 
 ## Step 2: Prepare build directory
 
-For creating/updating the `_build` directory type into a terminal:
+For creating/updating the ``_build`` directory type into a terminal:
 
 ```sh
 scripts/configure-manual.sh
@@ -71,7 +71,7 @@ sudo ninja install
 ```
 
 > **NOTE:**
-> You can change the default installation location passing ``-DCMAKE_INSTALL_PREFIX=...`` to ``cmake``. In this case you might not require ``sudo``.
+> You can change the default installation location by running step 2 with the ``CMAKE_INSTALL_PREFIX`` environment variable set, e.g. ``CMAKE_INSTALL_PREFIX=... scripts/configure-manual.sh``. In this case you might not require ``sudo``.
 
 Regardless of whether the tools are installed globally or not, their dependencies must be accessible before running them so make sure to update ``LD_LIBRARY_PATH``:
 
