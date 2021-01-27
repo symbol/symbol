@@ -367,10 +367,22 @@ namespace catapult { namespace sync {
 					state.config().BlockChain.Network.NodeEqualityStrategy);
 			locator.registerRootedService("dispatcher.transaction.batch", pBatchRangeDispatcher);
 
-			state.hooks().setTransactionRangeConsumerFactory([&dispatcher = *pBatchRangeDispatcher, &nodes = state.nodes()](auto source) {
-				return [&dispatcher, &nodes, source](auto&& range) {
-					if (!nodes.view().isBanned(range.SourceIdentity))
-						dispatcher.queue(std::move(range), source);
+			auto shouldProcessTransactions = extensions::CreateShouldProcessTransactionsPredicate(state);
+			auto& dispatcher = *pBatchRangeDispatcher;
+			auto& nodes = state.nodes();
+			state.hooks().setTransactionRangeConsumerFactory([shouldProcessTransactions, &dispatcher, &nodes](auto source) {
+				return [shouldProcessTransactions, &dispatcher, &nodes, source](auto&& range) {
+					if (!shouldProcessTransactions()) {
+						CATAPULT_LOG(trace) << "ignoring push due to should process transactions predicate";
+						return;
+					}
+
+					if (nodes.view().isBanned(range.SourceIdentity)) {
+						CATAPULT_LOG(trace) << "ignoring push from banned node " << range.SourceIdentity;
+						return;
+					}
+
+					dispatcher.queue(std::move(range), source);
 				};
 			});
 

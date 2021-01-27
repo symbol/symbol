@@ -474,9 +474,9 @@ namespace catapult { namespace partialtransaction {
 			auto expectedHashes = CalculateHashes(transactionRegistry, transactionRange);
 			auto expectedPayload = ExtractTransactionPayload(transactionRange);
 
-			// Act:
+			// Act: forward all batched transactions to the dispatcher
 			invokeHook(GetPtServerHooks(context.locator()), std::move(transactionRange));
-			context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
+			context.testState().state().tasks()[0].Callback();
 
 			// Assert: wait for element processing to finish
 			WAIT_FOR_VALUE_EXPR(3u, context.cache().view().size());
@@ -519,6 +519,30 @@ namespace catapult { namespace partialtransaction {
 			// Act:
 			hooks.ptRangeConsumer()(std::move(transactionRange));
 		});
+	}
+
+	TEST(TEST_CLASS, PtRangeConsumerDoesNotForwardTransactionRangeToDispatcherWhenTransactionsShouldNotBeProcessed) {
+		// Arrange:
+		TestContext context(ValidationResult::Success);
+		const_cast<config::NodeConfiguration&>(context.testState().config().Node).MaxTimeBehindPullTransactionsStart = utils::TimeSpan();
+		context.boot();
+
+		// - prepare a transaction range
+		const auto& transactionRegistry = context.registry();
+		auto transactionRange = CreateAggregateTransactionRange(transactionRegistry, 3, false);
+
+		// Act: forward all batched transactions to the dispatcher
+		GetPtServerHooks(context.locator()).ptRangeConsumer()(std::move(transactionRange));
+		context.testState().state().tasks()[0].Callback();
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Assert: nothing was forwarded
+		auto view = context.cache().view();
+		EXPECT_EQ(0u, view.size());
+		EXPECT_EQ(0u, context.numBroadcastCalls());
+		EXPECT_EQ(0u, context.numCompletedTransactions());
 	}
 
 	namespace {

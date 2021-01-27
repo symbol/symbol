@@ -56,7 +56,7 @@ namespace catapult { namespace partialtransaction {
 					state.timeSupplier(),
 					[&ptCache]() { return ptCache.view().shortHashPairs(); },
 					serverHooks.cosignedTransactionInfosConsumer(),
-					extensions::CreateTransactionPullPredicate(state));
+					extensions::CreateShouldProcessTransactionsPredicate(state));
 
 			thread::Task task;
 			task.Name = "pull partial transactions task";

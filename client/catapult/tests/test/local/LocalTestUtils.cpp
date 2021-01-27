@@ -57,6 +57,9 @@ namespace catapult { namespace test {
 
 			config.ShortLivedCacheMaxSize = 10;
 
+			// allow transactions with current time to be included in block two
+			config.MaxTimeBehindPullTransactionsStart = utils::TimeSpan::FromMilliseconds(
+					(CreateDefaultNetworkTimeSupplier()() + utils::TimeSpan::FromHours(1)).unwrap());
 			config.UnconfirmedTransactionsCacheMaxSize = utils::FileSize::FromMegabytes(5);
 
 			config.ConnectTimeout = utils::TimeSpan::FromSeconds(10);

@@ -202,7 +202,13 @@ namespace catapult { namespace partialtransaction {
 					cosignaturesSink(newCosignatures);
 			});
 
-			hooks.setPtRangeConsumer([&batchRangeDispatcher](auto&& transactionRange) {
+			auto shouldProcessTransactions = extensions::CreateShouldProcessTransactionsPredicate(state);
+			hooks.setPtRangeConsumer([shouldProcessTransactions, &batchRangeDispatcher](auto&& transactionRange) {
+				if (!shouldProcessTransactions()) {
+					CATAPULT_LOG(trace) << "ignoring push due to should process transactions predicate";
+					return;
+				}
+
 				batchRangeDispatcher.queue(std::move(transactionRange), InputSource::Remote_Push);
 			});
 

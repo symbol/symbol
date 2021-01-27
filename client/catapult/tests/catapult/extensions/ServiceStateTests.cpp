@@ -256,7 +256,7 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region CreateTransactionPullPredicate
+	// region CreateShouldProcessTransactionsPredicate
 
 	namespace {
 		bool RunTransactionPullPredicateTest(Timestamp networkTime, Timestamp lastBlockTime, const utils::TimeSpan& maxTimeBehind) {
@@ -273,12 +273,12 @@ namespace catapult { namespace extensions {
 			}
 
 			// Act:
-			auto predicate = CreateTransactionPullPredicate(testState.state());
+			auto predicate = CreateShouldProcessTransactionsPredicate(testState.state());
 			return predicate();
 		}
 	}
 
-	TEST(TEST_CLASS, CanCreateTransactionPullPredicate) {
+	TEST(TEST_CLASS, CanCreateShouldProcessTransactionsPredicate) {
 		// Assert: network <  last block
 		EXPECT_TRUE(RunTransactionPullPredicateTest(Timestamp(30 * 1000 - 1), Timestamp(60 * 1000), utils::TimeSpan::FromSeconds(30)));
 		EXPECT_TRUE(RunTransactionPullPredicateTest(Timestamp(30 * 1000), Timestamp(60 * 1000), utils::TimeSpan::FromSeconds(30)));

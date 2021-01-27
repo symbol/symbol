@@ -85,7 +85,7 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	predicate<> CreateTransactionPullPredicate(const ServiceState& state) {
+	predicate<> CreateShouldProcessTransactionsPredicate(const ServiceState& state) {
 		auto maxTimeBehind = state.config().Node.MaxTimeBehindPullTransactionsStart;
 		return [maxTimeBehind, &storage = state.storage(), timeSupplier = state.timeSupplier()]() {
 			return LoadLastBlockTimestamp(storage) + maxTimeBehind >= timeSupplier();

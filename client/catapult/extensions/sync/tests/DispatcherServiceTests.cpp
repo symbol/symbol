@@ -1300,6 +1300,34 @@ namespace catapult { namespace sync {
 		EXPECT_EQ(1u, context.bannedNodesDeepSize());
 	}
 
+	TEST(TEST_CLASS, Dispatcher_TransactionRangeIsIgnoredWhenTransactionsShouldNotBeProcessed) {
+		// Arrange:
+		TestContext context;
+		const_cast<config::NodeConfiguration&>(context.testState().config().Node).MaxTimeBehindPullTransactionsStart = utils::TimeSpan();
+		context.boot();
+		auto factory = context.testState().state().hooks().transactionRangeConsumerFactory()(disruptor::InputSource::Local);
+
+		// - ensure deadline is in range
+		auto signer = test::GenerateKeyPair();
+		auto pValidTransaction = test::GenerateRandomTransaction();
+		pValidTransaction->SignerPublicKey = signer.publicKey();
+		pValidTransaction->Deadline = test::CreateDefaultNetworkTimeSupplier()() + Timestamp(60'000);
+		extensions::TransactionExtensions(test::GetNemesisGenerationHashSeed()).sign(signer, *pValidTransaction);
+
+		auto range = test::CreateEntityRange({ pValidTransaction.get() });
+
+		// Act:
+		factory(std::move(range));
+		context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Assert: nothing was forwarded
+		EXPECT_EQ(0u, context.counter(Block_Elements_Counter_Name));
+		EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
+	}
+
 	// endregion
 
 	// region transaction status subscriber flush

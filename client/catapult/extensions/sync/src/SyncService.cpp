@@ -83,7 +83,7 @@ namespace catapult { namespace sync {
 					state.timeSupplier(),
 					[&cache = state.utCache()]() { return cache.view().shortHashes(); },
 					state.hooks().transactionRangeConsumerFactory()(Sync_Source),
-					extensions::CreateTransactionPullPredicate(state));
+					extensions::CreateShouldProcessTransactionsPredicate(state));
 
 			thread::Task task;
 			task.Name = "pull unconfirmed transactions task";
