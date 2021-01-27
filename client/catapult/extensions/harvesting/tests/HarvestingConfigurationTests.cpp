@@ -22,6 +22,7 @@
 #include "harvesting/src/HarvestingConfiguration.h"
 #include "catapult/model/Address.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
+#include "tests/test/nodeps/TestNetworkConstants.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace harvesting {
@@ -112,10 +113,10 @@ namespace catapult { namespace harvesting {
 		auto config = HarvestingConfiguration::LoadFromPath("../resources");
 
 		// Assert:
-		EXPECT_EQ("", config.HarvesterSigningPrivateKey);
-		EXPECT_EQ("", config.HarvesterVrfPrivateKey);
+		EXPECT_EQ(test::Test_Network_Private_Keys[0], config.HarvesterSigningPrivateKey);
+		EXPECT_EQ(test::Test_Network_Vrf_Private_Keys[0], config.HarvesterVrfPrivateKey);
 
-		EXPECT_FALSE(config.EnableAutoHarvesting);
+		EXPECT_TRUE(config.EnableAutoHarvesting);
 		EXPECT_EQ(5u, config.MaxUnlockedAccounts);
 		EXPECT_EQ(DelegatePrioritizationPolicy::Importance, config.DelegatePrioritizationPolicy);
 		EXPECT_EQ(Address(), config.BeneficiaryAddress);

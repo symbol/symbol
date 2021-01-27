@@ -45,12 +45,10 @@ namespace catapult { namespace test {
 			pt::write_ini(configFilePath, properties);
 		}
 
-		void SetAutoHarvesting(const std::string& configFilePath) {
+		void ClearAutoHarvesting(const std::string& configFilePath) {
 			pt::ptree properties;
 			pt::read_ini(configFilePath, properties);
-			properties.put("harvesting.enableAutoHarvesting", true);
-			properties.put("harvesting.harvesterSigningPrivateKey", "3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB");
-			properties.put("harvesting.harvesterVrfPrivateKey", "438991D416F98BF6CC4A09A428E36C94AF9A38ACA6997AD3320FCE9D550D9C66");
+			properties.put("harvesting.enableAutoHarvesting", false);
 			pt::write_ini(configFilePath, properties);
 		}
 	}
@@ -71,7 +69,7 @@ namespace catapult { namespace test {
 			return;
 
 		auto harvestingConfigFilePath = CopyFile(destinationResourcesPath, "config-harvesting.properties");
-		if (HasFlag(NodeFlag::Auto_Harvest, nodeFlag))
-			SetAutoHarvesting(harvestingConfigFilePath);
+		if (!HasFlag(NodeFlag::Auto_Harvest, nodeFlag))
+			ClearAutoHarvesting(harvestingConfigFilePath);
 	}
 }}

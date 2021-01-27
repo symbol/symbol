@@ -59,8 +59,8 @@ namespace catapult { namespace config {
 					utils::ParseByteArray<GenerationHashSeed>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6"),
 					config.Network.GenerationHashSeed);
 
-			EXPECT_TRUE(config.EnableVerifiableState);
-			EXPECT_TRUE(config.EnableVerifiableReceipts);
+			EXPECT_FALSE(config.EnableVerifiableState);
+			EXPECT_FALSE(config.EnableVerifiableReceipts);
 
 			EXPECT_EQ(test::Default_Currency_Mosaic_Id, config.CurrencyMosaicId);
 			EXPECT_EQ(test::Default_Harvesting_Mosaic_Id, config.HarvestingMosaicId);
@@ -77,10 +77,10 @@ namespace catapult { namespace config {
 			EXPECT_EQ(utils::TimeSpan::FromHours(24), config.MaxTransactionLifetime);
 			EXPECT_EQ(utils::TimeSpan::FromMilliseconds(500), config.MaxBlockFutureTime);
 
-			EXPECT_EQ(Amount(8'998'999'998'000'000), config.InitialCurrencyAtomicUnits);
+			EXPECT_EQ(Amount(8'999'999'998'000'000), config.InitialCurrencyAtomicUnits);
 			EXPECT_EQ(Amount(9'000'000'000'000'000), config.MaxMosaicAtomicUnits);
 
-			EXPECT_EQ(Importance(15'000'000), config.TotalChainImportance);
+			EXPECT_EQ(Importance(17'000'000), config.TotalChainImportance);
 			EXPECT_EQ(Amount(500), config.MinHarvesterBalance);
 			EXPECT_EQ(Amount(4'000'000), config.MaxHarvesterBalance);
 			EXPECT_EQ(Amount(50'000), config.MinVoterBalance);
