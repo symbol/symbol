@@ -196,7 +196,8 @@ namespace catapult { namespace mongo {
 		auto writeOptions = context.bulkWriter().writeOptions();
 
 		// Assert: only set options are overridden
-		auto optionsView = writeOptions.to_document().view();
+		auto optionsDoc = writeOptions.to_document();
+		auto optionsView = optionsDoc.view();
 		EXPECT_EQ(1u, test::GetFieldCount(optionsView));
 		EXPECT_EQ(writeTimeout, utils::TimeSpan::FromMilliseconds(test::GetUint32(optionsView, "wtimeout")));
 	}
