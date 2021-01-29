@@ -50,7 +50,7 @@ namespace catapult { namespace chain {
 					, m_cacheDelta(m_cache.createDelta())
 					, m_observerContext(
 							model::NotificationContext(Height(123), CreateResolverContext()),
-							observers::ObserverState(m_cacheDelta),
+							observers::ObserverState(m_cacheDelta, m_blockStatementBuilder),
 							executeMode)
 					, m_sub(m_observer, m_observerContext) {
 				CATAPULT_LOG(debug) << "preparing test context with execute mode " << executeMode;
@@ -84,6 +84,10 @@ namespace catapult { namespace chain {
 					// - appropriate resolvers were passed down
 					EXPECT_EQ(MosaicId(22), observerContext.Resolvers.resolve(UnresolvedMosaicId(11)));
 				}
+
+				// - no resolution statements were created
+				auto pStatement = m_blockStatementBuilder.build();
+				EXPECT_EQ(0u, pStatement->MosaicResolutionStatements.size());
 			}
 
 			void assertUndoObserverHashes(const std::vector<Hash256>& expectedHashes) {
@@ -100,6 +104,7 @@ namespace catapult { namespace chain {
 			cache::CatapultCache m_cache;
 			cache::CatapultCacheDelta m_cacheDelta;
 
+			model::BlockStatementBuilder m_blockStatementBuilder;
 			observers::ObserverContext m_observerContext;
 
 			ProcessingUndoNotificationSubscriber m_sub;

@@ -35,7 +35,7 @@ namespace catapult { namespace chain {
 				? observers::NotifyMode::Rollback
 				: observers::NotifyMode::Commit;
 		auto undoObserverContext = observers::ObserverContext(
-				model::NotificationContext(m_observerContext.Height, m_observerContext.Resolvers),
+				model::NotificationContext(m_observerContext.Height, m_observerContext.UndecoratedResolvers),
 				observers::ObserverState(m_observerContext.Cache),
 				undoMode);
 		for (auto iter = m_notificationBuffers.crbegin(); m_notificationBuffers.crend() != iter; ++iter) {

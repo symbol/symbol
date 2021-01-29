@@ -72,6 +72,8 @@ namespace catapult { namespace observers {
 	namespace {
 		constexpr auto Default_Height = Height(123);
 
+		enum class ResolversType { Decorated, Undecorated };
+
 		model::NotificationContext CreateNotificationContext() {
 			auto resolvers = model::ResolverContext(
 					[](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
@@ -87,7 +89,11 @@ namespace catapult { namespace observers {
 			statementBuilder.addReceipt(receipt);
 		}
 
-		void AssertContext(const ObserverContext& context, const cache::CatapultCacheDelta& cacheDelta, NotifyMode mode) {
+		void AssertContext(
+				const ObserverContext& context,
+				const cache::CatapultCacheDelta& cacheDelta,
+				NotifyMode mode,
+				ResolversType resolversType) {
 			// Assert:
 			EXPECT_EQ(&cacheDelta, &context.Cache);
 			EXPECT_EQ(mode, context.Mode);
@@ -95,34 +101,41 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(Default_Height, context.Height);
 
 			// - resolvers are copied into context and wired up correctly
-			auto resolvedMosaicId = context.Resolvers.resolve(UnresolvedMosaicId(24));
+			const auto& resolvers = ResolversType::Decorated == resolversType ? context.Resolvers : context.UndecoratedResolvers;
+			auto resolvedMosaicId = resolvers.resolve(UnresolvedMosaicId(24));
 			EXPECT_EQ(MosaicId(48), resolvedMosaicId);
 
-			auto resolvedAddress = context.Resolvers.resolve(UnresolvedAddress{ { 11, 32 } });
+			auto resolvedAddress = resolvers.resolve(UnresolvedAddress{ { 11, 32 } });
 			EXPECT_EQ(Address{ { 11 } }, resolvedAddress);
 		}
 	}
 
-	TEST(TEST_CLASS, CanCreateCommitObserverContextWithoutBlockStatementBuilder) {
+#define NOTIFY_MODE_TEST(TEST_NAME) \
+	template<NotifyMode Notify_Mode> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Commit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NotifyMode::Commit>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Rollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NotifyMode::Rollback>(); } \
+	template<NotifyMode Notify_Mode> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	NOTIFY_MODE_TEST(CanCreateObserverContextWithoutBlockStatementBuilder) {
 		// Act:
 		RunTestWithCache([](auto& cacheDelta) {
-			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta), NotifyMode::Commit);
+			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta), Notify_Mode);
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
-			AssertContext(context, cacheDelta, NotifyMode::Commit);
+			AssertContext(context, cacheDelta, Notify_Mode, ResolversType::Decorated);
 		});
 	}
 
-	TEST(TEST_CLASS, CanCreateCommitObserverContextWithBlockStatementBuilder) {
+	NOTIFY_MODE_TEST(CanCreateObserverContextWithBlockStatementBuilder) {
 		// Act:
 		RunTestWithCache([](auto& cacheDelta) {
 			model::BlockStatementBuilder blockStatementBuilder;
-			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta, blockStatementBuilder), NotifyMode::Commit);
+			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta, blockStatementBuilder), Notify_Mode);
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
-			AssertContext(context, cacheDelta, NotifyMode::Commit);
+			AssertContext(context, cacheDelta, Notify_Mode, ResolversType::Decorated);
 
 			auto pStatement = blockStatementBuilder.build();
 			EXPECT_EQ(1u, pStatement->TransactionStatements.size()); // AddRandomReceipt
@@ -131,31 +144,33 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	TEST(TEST_CLASS, CanCreateRollbackObserverContextWithoutBlockStatementBuilder) {
+	NOTIFY_MODE_TEST(CanCreateObserverContextWithoutBlockStatementBuilder_UndecoratedResolvers) {
 		// Act:
 		RunTestWithCache([](auto& cacheDelta) {
-			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta), NotifyMode::Rollback);
+			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta), Notify_Mode);
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
-			AssertContext(context, cacheDelta, NotifyMode::Rollback);
+			AssertContext(context, cacheDelta, Notify_Mode, ResolversType::Undecorated);
 		});
 	}
 
-	TEST(TEST_CLASS, CanCreateRollbackObserverContextWithBlockStatementBuilder) {
-		// Act: (this test is added for completeness because receipts are never generated during rollback)
+	NOTIFY_MODE_TEST(CanCreateObserverContextWithBlockStatementBuilder_UndecoratedResolvers) {
+		// Act:
 		RunTestWithCache([](auto& cacheDelta) {
 			model::BlockStatementBuilder blockStatementBuilder;
-			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta, blockStatementBuilder), NotifyMode::Rollback);
+			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta, blockStatementBuilder), Notify_Mode);
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
-			AssertContext(context, cacheDelta, NotifyMode::Rollback);
+			AssertContext(context, cacheDelta, Notify_Mode, ResolversType::Undecorated);
 
+			// - transaction statements are still created
+			// - no resolution statements are created by the undecorated resolvers
 			auto pStatement = blockStatementBuilder.build();
 			EXPECT_EQ(1u, pStatement->TransactionStatements.size()); // AddRandomReceipt
-			EXPECT_EQ(1u, pStatement->AddressResolutionStatements.size()); // AssertContext
-			EXPECT_EQ(1u, pStatement->MosaicResolutionStatements.size()); // AssertContext
+			EXPECT_EQ(0u, pStatement->AddressResolutionStatements.size()); // AssertContext
+			EXPECT_EQ(0u, pStatement->MosaicResolutionStatements.size()); // AssertContext
 		});
 	}
 

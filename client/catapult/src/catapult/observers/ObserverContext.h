@@ -86,6 +86,10 @@ namespace catapult { namespace observers {
 		/// Notification mode.
 		const NotifyMode Mode;
 
+		/// Original (undecorated) alias resolvers from the notification context.
+		/// \note These are used during undo to avoid adding resolutions.
+		const model::ResolverContext UndecoratedResolvers;
+
 	public:
 		/// Statement builder.
 		ObserverStatementBuilder& StatementBuilder();

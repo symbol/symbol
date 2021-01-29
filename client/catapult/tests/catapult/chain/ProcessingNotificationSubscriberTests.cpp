@@ -56,7 +56,7 @@ namespace catapult { namespace chain {
 					, m_validatorContext(test::CreateValidatorContext(Height(123), m_cacheDelta.toReadOnly()))
 					, m_observerContext(
 							model::NotificationContext(Height(123), CreateResolverContext()),
-							observers::ObserverState(m_cacheDelta),
+							observers::ObserverState(m_cacheDelta, m_blockStatementBuilder),
 							executeMode)
 					, m_sub(m_validator, m_validatorContext, m_observer, m_observerContext) {
 				CATAPULT_LOG(debug) << "preparing test context with execute mode " << executeMode;
@@ -111,6 +111,10 @@ namespace catapult { namespace chain {
 						EXPECT_EQ(MosaicId(22), observerContext.Resolvers.resolve(UnresolvedMosaicId(11)));
 					}
 				}
+
+				// - no resolution statements were created
+				auto pStatement = m_blockStatementBuilder.build();
+				EXPECT_EQ(0u, pStatement->MosaicResolutionStatements.size());
 			}
 
 			void assertObserverHashes(const std::vector<Hash256>& expectedHashes) {
@@ -129,6 +133,7 @@ namespace catapult { namespace chain {
 			cache::CatapultCacheDelta m_cacheDelta;
 
 			validators::ValidatorContext m_validatorContext;
+			model::BlockStatementBuilder m_blockStatementBuilder;
 			observers::ObserverContext m_observerContext;
 
 			ProcessingNotificationSubscriber m_sub;

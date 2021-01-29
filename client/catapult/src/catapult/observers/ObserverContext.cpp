@@ -66,6 +66,7 @@ namespace catapult { namespace observers {
 			: NotificationContext(notificationContext.Height, BindConditional(notificationContext.Resolvers, state.pBlockStatementBuilder))
 			, Cache(state.Cache)
 			, Mode(mode)
+			, UndecoratedResolvers(notificationContext.Resolvers)
 			, m_statementBuilder(CreateObserverStatementBuilder(state.pBlockStatementBuilder))
 	{}
 
