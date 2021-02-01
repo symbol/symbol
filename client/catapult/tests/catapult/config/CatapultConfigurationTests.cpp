@@ -109,6 +109,8 @@ namespace catapult { namespace config {
 			EXPECT_TRUE(config.EnableCacheDatabaseStorage);
 			EXPECT_TRUE(config.EnableAutoSyncCleanup);
 
+			EXPECT_EQ(1u, config.FileDatabaseBatchSize);
+
 			EXPECT_TRUE(config.EnableTransactionSpamThrottling);
 			EXPECT_EQ(Amount(10'000'000), config.TransactionSpamThrottlingMaxBoostFee);
 

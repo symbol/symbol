@@ -45,10 +45,12 @@
 namespace catapult { namespace local {
 
 	namespace {
-		std::unique_ptr<io::PrunableBlockStorage> CreateStagingBlockStorage(const config::CatapultDataDirectory& dataDirectory) {
+		std::unique_ptr<io::PrunableBlockStorage> CreateStagingBlockStorage(
+				const config::CatapultDataDirectory& dataDirectory,
+				uint32_t fileDatabaseBatchSize) {
 			auto stagingDirectory = dataDirectory.spoolDir("block_sync").str();
 			config::CatapultDirectory(stagingDirectory).create();
-			return std::make_unique<io::FileBlockStorage>(stagingDirectory, io::FileBlockStorageMode::None);
+			return std::make_unique<io::FileBlockStorage>(stagingDirectory, fileDatabaseBatchSize, io::FileBlockStorageMode::None);
 		}
 
 		class CommitImportanceFilesStateChangeSubscriber : public subscribers::StateChangeSubscriber {
@@ -122,7 +124,7 @@ namespace catapult { namespace local {
 					, m_catapultCache({}) // note that sub caches are added in boot
 					, m_storage(
 							m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber),
-							CreateStagingBlockStorage(m_dataDirectory))
+							CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
 					, m_pUtCache(m_pBootstrapper->subscriptionManager().createUtCache(extensions::GetUtCacheOptions(m_config.Node)))
 					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
 					, m_pNodeSubscriber(CreateNodeSubscriber(

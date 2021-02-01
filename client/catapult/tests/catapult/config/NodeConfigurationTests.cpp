@@ -44,6 +44,8 @@ namespace catapult { namespace config {
 							{ "enableCacheDatabaseStorage", "true" },
 							{ "enableAutoSyncCleanup", "true" },
 
+							{ "fileDatabaseBatchSize", "888" },
+
 							{ "enableTransactionSpamThrottling", "true" },
 							{ "transactionSpamThrottlingMaxBoostFee", "54'123" },
 
@@ -164,6 +166,8 @@ namespace catapult { namespace config {
 				EXPECT_FALSE(config.EnableCacheDatabaseStorage);
 				EXPECT_FALSE(config.EnableAutoSyncCleanup);
 
+				EXPECT_EQ(0u, config.FileDatabaseBatchSize);
+
 				EXPECT_FALSE(config.EnableTransactionSpamThrottling);
 				EXPECT_EQ(Amount(), config.TransactionSpamThrottlingMaxBoostFee);
 
@@ -256,6 +260,8 @@ namespace catapult { namespace config {
 				EXPECT_TRUE(config.EnableSingleThreadPool);
 				EXPECT_TRUE(config.EnableCacheDatabaseStorage);
 				EXPECT_TRUE(config.EnableAutoSyncCleanup);
+
+				EXPECT_EQ(888u, config.FileDatabaseBatchSize);
 
 				EXPECT_TRUE(config.EnableTransactionSpamThrottling);
 				EXPECT_EQ(Amount(54'123), config.TransactionSpamThrottlingMaxBoostFee);

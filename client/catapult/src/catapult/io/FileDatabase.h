@@ -42,6 +42,9 @@ namespace catapult { namespace io {
 		FileDatabase(const config::CatapultDirectory& directory, const Options& options);
 
 	public:
+		/// Returns \c true if a payload for \a id is contained.
+		bool exists(uint64_t id) const;
+
 		/// Gets an input stream for \a id and optionally returns the stream size (\a pSize).
 		std::unique_ptr<InputStream> inputStream(uint64_t id, size_t* pSize = nullptr) const;
 

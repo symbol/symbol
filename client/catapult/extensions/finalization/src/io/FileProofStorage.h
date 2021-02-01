@@ -21,6 +21,7 @@
 
 #pragma once
 #include "ProofStorage.h"
+#include "catapult/io/FileDatabase.h"
 #include "catapult/io/FixedSizeValueStorage.h"
 #include "catapult/io/IndexFile.h"
 #include <string>
@@ -30,8 +31,9 @@ namespace catapult { namespace io {
 	/// File-based proof storage.
 	class FileProofStorage final : public ProofStorage {
 	public:
-		/// Creates a file-based proof storage, where proofs will be stored inside \a dataDirectory.
-		explicit FileProofStorage(const std::string& dataDirectory);
+		/// Creates a file-based proof storage, where proofs will be stored inside \a dataDirectory
+		/// with a file database batch size of \a fileDatabaseBatchSize
+		FileProofStorage(const std::string& dataDirectory, uint32_t fileDatabaseBatchSize);
 
 	public:
 		model::FinalizationStatistics statistics() const override;
@@ -64,7 +66,7 @@ namespace catapult { namespace io {
 		};
 
 	private:
-		std::string m_dataDirectory;
+		FileDatabase m_database;
 		FinalizationIndexFile m_indexFile;
 	};
 }}

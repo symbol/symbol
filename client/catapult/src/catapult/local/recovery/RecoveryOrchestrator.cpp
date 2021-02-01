@@ -77,10 +77,12 @@ namespace catapult { namespace local {
 
 		// endregion
 
-		std::unique_ptr<io::PrunableBlockStorage> CreateStagingBlockStorage(const config::CatapultDataDirectory& dataDirectory) {
+		std::unique_ptr<io::PrunableBlockStorage> CreateStagingBlockStorage(
+				const config::CatapultDataDirectory& dataDirectory,
+				uint32_t fileDatabaseBatchSize) {
 			auto stagingDirectory = dataDirectory.spoolDir("block_recover").str();
 			config::CatapultDirectory(stagingDirectory).create();
-			return std::make_unique<io::FileBlockStorage>(stagingDirectory, io::FileBlockStorageMode::None);
+			return std::make_unique<io::FileBlockStorage>(stagingDirectory, fileDatabaseBatchSize, io::FileBlockStorageMode::None);
 		}
 
 		void MoveSupplementalDataFiles(const config::CatapultDataDirectory& dataDirectory) {
@@ -91,8 +93,11 @@ namespace catapult { namespace local {
 			serializer.moveTo(dataDirectory.dir("state"));
 		}
 
-		Height MoveBlockFiles(const config::CatapultDirectory& stagingDirectory, io::BlockStorage& destinationStorage) {
-			io::FileBlockStorage staging(stagingDirectory.str());
+		Height MoveBlockFiles(
+				const config::CatapultDirectory& stagingDirectory,
+				io::BlockStorage& destinationStorage,
+				uint32_t fileDatabaseBatchSize) {
+			io::FileBlockStorage staging(stagingDirectory.str(), fileDatabaseBatchSize);
 			if (Height(0) == staging.chainHeight())
 				return Height(0);
 
@@ -111,7 +116,9 @@ namespace catapult { namespace local {
 					, m_dataDirectory(config::CatapultDataDirectoryPreparer::Prepare(m_config.User.DataDirectory))
 					, m_catapultCache({}) // note that sub caches are added in boot
 					, m_pBlockStorage(m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber))
-					, m_storage(CreateReadOnlyStorageAdapter(*m_pBlockStorage), CreateStagingBlockStorage(m_dataDirectory))
+					, m_storage(
+							CreateReadOnlyStorageAdapter(*m_pBlockStorage),
+							CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
 					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
 					, m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
 					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
@@ -218,7 +225,10 @@ namespace catapult { namespace local {
 
 				CATAPULT_LOG(debug) << " - moving supplemental data and block files";
 				MoveSupplementalDataFiles(m_dataDirectory);
-				auto startHeight = MoveBlockFiles(m_dataDirectory.spoolDir("block_sync"), *m_pBlockStorage);
+				auto startHeight = MoveBlockFiles(
+						m_dataDirectory.spoolDir("block_sync"),
+						*m_pBlockStorage,
+						m_config.Node.FileDatabaseBatchSize);
 
 				// when verifiable state is enabled, forcibly regenerate all patricia trees because cache changes are coalesced
 				if (stateRef().Config.BlockChain.EnableVerifiableState && startHeight > Height(0)) {

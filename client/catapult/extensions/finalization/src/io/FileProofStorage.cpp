@@ -61,9 +61,9 @@ namespace catapult { namespace io {
 
 	// region FileProofStorage
 
-	FileProofStorage::FileProofStorage(const std::string& dataDirectory)
-			: m_dataDirectory(dataDirectory)
-			, m_indexFile((std::filesystem::path(m_dataDirectory) / "proof.index.dat").generic_string())
+	FileProofStorage::FileProofStorage(const std::string& dataDirectory, uint32_t fileDatabaseBatchSize)
+			: m_database(config::CatapultDirectory(dataDirectory), { fileDatabaseBatchSize, ".proof" })
+			, m_indexFile((std::filesystem::path(dataDirectory) / "proof.index.dat").generic_string())
 	{}
 
 	model::FinalizationStatistics FileProofStorage::statistics() const {
@@ -74,22 +74,11 @@ namespace catapult { namespace io {
 	}
 
 	namespace {
-		static constexpr auto Proof_File_Extension = ".proof";
-
-		auto OpenProofFile(const std::string& baseDirectory, FinalizationEpoch epoch, OpenMode mode = OpenMode::Read_Only) {
-			auto storageDir = config::CatapultStorageDirectoryPreparer::Prepare(baseDirectory, epoch);
-			return std::make_unique<RawFile>(storageDir.storageFile(Proof_File_Extension), mode);
-		}
-	}
-
-	namespace {
-		std::shared_ptr<model::FinalizationProof> ReadFinalizationProof(RawFile& proofFile) {
-			auto size = Read32(proofFile);
-			proofFile.seek(0);
-
+		std::shared_ptr<model::FinalizationProof> ReadFinalizationProof(InputStream& proofStream) {
+			auto size = Read32(proofStream);
 			auto pProof = utils::MakeSharedWithSize<model::FinalizationProof>(size);
 			pProof->Size = size;
-			proofFile.read({ reinterpret_cast<uint8_t*>(pProof.get()), size });
+			proofStream.read({ reinterpret_cast<uint8_t*>(pProof.get()) + sizeof(uint32_t), size - sizeof(uint32_t) });
 			return pProof;
 		}
 	}
@@ -105,8 +94,8 @@ namespace catapult { namespace io {
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		auto pProofFile = OpenProofFile(m_dataDirectory, epoch);
-		return ReadFinalizationProof(*pProofFile);
+		auto pProofStream = m_database.inputStream(epoch.unwrap());
+		return ReadFinalizationProof(*pProofStream);
 	}
 
 	std::shared_ptr<const model::FinalizationProof> FileProofStorage::loadProof(Height height) const {
@@ -144,10 +133,9 @@ namespace catapult { namespace io {
 		}
 
 		{
-			auto pProofFile = OpenProofFile(m_dataDirectory, proof.Round.Epoch, OpenMode::Read_Write);
-			BufferedOutputFileStream stream(std::move(*pProofFile));
-			stream.write({ reinterpret_cast<const uint8_t*>(&proof), proof.Size });
-			stream.flush();
+			auto pProofStream = m_database.outputStream(proof.Round.Epoch.unwrap());
+			pProofStream->write({ reinterpret_cast<const uint8_t*>(&proof), proof.Size });
+			pProofStream->flush();
 		}
 
 		m_indexFile.set({ proof.Round, proof.Height, proof.Hash });

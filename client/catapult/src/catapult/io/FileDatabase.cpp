@@ -72,6 +72,21 @@ namespace catapult { namespace io {
 			CATAPULT_THROW_INVALID_ARGUMENT("batch size must be nonzero");
 	}
 
+	bool FileDatabase::exists(uint64_t id) const {
+		auto filePath = getFilePath(id, false);
+		if (!std::filesystem::exists(filePath))
+			return false;
+
+		if (bypassHeader())
+			return true;
+
+		auto rawFile = RawFile(filePath, OpenMode::Read_Only);
+
+		auto headerOffset = getHeaderOffset(id);
+		rawFile.seek(headerOffset);
+		return 0 != Read64(rawFile);
+	}
+
 	std::unique_ptr<InputStream> FileDatabase::inputStream(uint64_t id, size_t* pSize) const {
 		auto filePath = getFilePath(id, false);
 

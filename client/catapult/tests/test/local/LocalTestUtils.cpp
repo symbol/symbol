@@ -51,6 +51,8 @@ namespace catapult { namespace test {
 
 			config.EnableAddressReuse = true;
 
+			config.FileDatabaseBatchSize = File_Database_Batch_Size;
+
 			config.MaxHashesPerSyncAttempt = 4 * 100;
 			config.MaxBlocksPerSyncAttempt = 2 * 100;
 			config.MaxChainBytesPerSyncAttempt = utils::FileSize::FromKilobytes(8 * 512);

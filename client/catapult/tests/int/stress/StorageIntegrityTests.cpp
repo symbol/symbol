@@ -28,6 +28,7 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 #include <filesystem>
 
@@ -54,8 +55,11 @@ namespace catapult { namespace io {
 			std::filesystem::create_directory(stagingDirectory);
 
 			BlockStorageCache storage(
-					std::make_unique<FileBlockStorage>(tempDir.name()),
-					std::make_unique<FileBlockStorage>(stagingDirectory.generic_string(), FileBlockStorageMode::None));
+					std::make_unique<FileBlockStorage>(tempDir.name(), test::File_Database_Batch_Size),
+					std::make_unique<FileBlockStorage>(
+							stagingDirectory.generic_string(),
+							test::File_Database_Batch_Size,
+							FileBlockStorageMode::None));
 
 			// - note that there can only ever be a single writer at a time since only one modifier can be outstanding at once
 			std::vector<Height> heights(numReaders);

@@ -43,7 +43,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 
 		void UpdateFileBlockStorageData(const model::BlockElement& blockElement, const std::string& binDirectory) {
-			io::FileBlockStorage storage(binDirectory);
+			io::FileBlockStorage storage(binDirectory, 1);
 			storage.saveBlock(blockElement);
 		}
 
@@ -148,7 +148,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		auto pNemesisProof = CreateNemesisProof(blockElement.EntityHash);
 
 		// 4. save proof
-		io::FileProofStorage proofStorage(config.BinDirectory);
+		io::FileProofStorage proofStorage(config.BinDirectory, 1);
 		proofStorage.saveProof(*pNemesisProof);
 	}
 }}}

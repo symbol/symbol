@@ -154,6 +154,62 @@ namespace catapult { namespace io {
 
 	// endregion
 
+	// region exists
+
+	namespace {
+		void RunExistsTest(uint64_t idToCheck, bool expectedResult) {
+			// Arrange:
+			TestContext context;
+
+			auto payloads = CreatePayloads({ 50, 10, 30 });
+			WriteAll(context.database(), 10, payloads);
+
+			// Act:
+			auto exists = context.database().exists(idToCheck);
+
+			// Assert:
+			EXPECT_EQ(expectedResult, exists);
+		}
+	}
+
+	TEST(TEST_CLASS, ExistsReturnsFalseWhenFileDoesNotExist) {
+		RunExistsTest(15, false);
+	}
+
+	TEST(TEST_CLASS, ExistsReturnsFalseWhenFileExistsButPayloadDoesNot) {
+		RunExistsTest(13, false);
+	}
+
+	TEST(TEST_CLASS, ExistsReturnsTrueWhenFileAndPayloadExist) {
+		RunExistsTest(11, true);
+	}
+
+	namespace {
+		void RunHeaderlessModeExistsTest(uint64_t idToCheck, bool expectedResult) {
+			// Arrange:
+			TestContext context(1);
+
+			auto payloads = CreatePayloads({ 50, 1, 30 });
+			WriteAll(context.database(), 10, payloads);
+
+			// Act:
+			auto exists = context.database().exists(idToCheck);
+
+			// Assert:
+			EXPECT_EQ(expectedResult, exists);
+		}
+	}
+
+	TEST(TEST_CLASS, ExistsReturnsFalseWhenFileDoesNotExist_HeaderlesssMode) {
+		RunHeaderlessModeExistsTest(13, false);
+	}
+
+	TEST(TEST_CLASS, ExistsReturnsTrueWhenFileExists_HeaderlesssMode) {
+		RunHeaderlessModeExistsTest(11, true); // notice that header check is bypassed
+	}
+
+	// endregion
+
 	// region write - single file
 
 	namespace {

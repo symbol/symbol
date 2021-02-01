@@ -26,6 +26,7 @@
 #include "catapult/io/RawFile.h"
 #include "catapult/model/EntityHasher.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 #include <filesystem>
 
@@ -59,7 +60,7 @@ namespace catapult { namespace test {
 
 	void ModifyNemesis(const std::string& destination, const consumer<model::Block&, const model::BlockElement&>& modify) {
 		// load from file storage to allow successive modifications
-		io::FileBlockStorage storage(destination);
+		io::FileBlockStorage storage(destination, File_Database_Batch_Size);
 		auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
 
 		// modify nemesis block and resign it

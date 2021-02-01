@@ -21,6 +21,7 @@
 
 #include "finalization/src/io/FileProofStorage.h"
 #include "finalization/tests/test/ProofStorageTests.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace io {
@@ -31,7 +32,7 @@ namespace catapult { namespace io {
 		struct FileProofStorageTraits {
 
 			static std::unique_ptr<ProofStorage> CreateStorage(const std::string& destination) {
-				return std::make_unique<FileProofStorage>(destination);
+				return std::make_unique<FileProofStorage>(destination, test::File_Database_Batch_Size);
 			}
 		};
 	}

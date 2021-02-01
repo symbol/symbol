@@ -26,6 +26,7 @@
 #include "tests/catapult/subscribers/test/UnsupportedSubscribers.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/TestHarness.h"
@@ -39,7 +40,9 @@ namespace catapult { namespace subscribers {
 
 	namespace {
 		config::CatapultConfiguration CreateConfiguration() {
-			return test::MutableCatapultConfiguration().ToConst();
+			test::MutableCatapultConfiguration config;
+			config.Node.FileDatabaseBatchSize = test::File_Database_Batch_Size;
+			return config.ToConst();
 		}
 	}
 
