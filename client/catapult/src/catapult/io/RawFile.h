@@ -60,6 +60,17 @@ namespace catapult { namespace io {
 		RawFile& operator=(RawFile&& rhs) = delete;
 
 	public:
+		/// Gets the size of the file.
+		uint64_t size() const;
+
+		/// Gets the position in the file.
+		uint64_t position() const;
+
+	public:
+		/// Reads data from the file into \a dataBuffer
+		/// Throws catapult_file_io_error exception if requested amount of data could not be read.
+		void read(const MutableRawBuffer& dataBuffer);
+
 		/// Writes data pointed to by \a dataBuffer to the file.
 		/// If proper amount of data could not be written catapult_file_io_error exception will be thrown.
 		void write(const RawBuffer& dataBuffer);
@@ -68,15 +79,8 @@ namespace catapult { namespace io {
 		/// Throws catapult_file_io_error exception if seek has failed.
 		void seek(uint64_t position);
 
-		/// Reads data from the file into \a dataBuffer
-		/// Throws catapult_file_io_error exception if requested amount of data could not be read.
-		void read(const MutableRawBuffer& dataBuffer);
-
-		/// Gets the size of the file.
-		uint64_t size() const;
-
-		/// Gets the position in the file.
-		uint64_t position() const;
+		/// Truncates the file at its current position.
+		void truncate();
 
 	private:
 		class FileDescriptorHolder final {
