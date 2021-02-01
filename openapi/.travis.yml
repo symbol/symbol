@@ -4,26 +4,21 @@ node_js:
 cache:
   directories:
     - "node_modules"
+env:
+  global:
+    - RELEASE_BRANCH=main
+    - POST_RELEASE_BRANCH=main
+    - RELEASE_MESSAGE=release
 before_script:
   - npm install -g yaml-cli
   - npm install
-script:
   - npm run build
-  - npm test
   - npm run postman
   - npm run version:prepare
   - npm run version:pack
+script:
+  - npm test
 deploy:
-  - provider: script
-    skip_cleanup: true
-    script: /bin/sh travis/githubPages.sh
-    on:
-      branch: main
-  - provider: script
-    skip_cleanup: true
-    script: /bin/sh travis/release.sh
-    on:
-      branch: $RELEASE_BRANCH
   - provider: releases
     skip_cleanup: true
     file:
@@ -32,3 +27,16 @@ deploy:
     api_key: $GITHUB_TOKEN
     on:
       tags: true
+jobs:
+  include:
+    - stage: test
+      name: test
+      script: npm test
+    - stage: deploy
+      name: githubPages
+      script: /bin/sh travis/githubPages.sh
+      if: branch = env(RELEASE_BRANCH) AND type = push
+    - stage: release
+      name: release
+      script: /bin/sh travis/release.sh
+      if: branch = env(RELEASE_BRANCH) AND type = api AND commit_message = env(RELEASE_MESSAGE)
