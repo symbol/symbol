@@ -299,6 +299,20 @@ namespace catapult { namespace model {
 		TTraits::AssertDeepCount(3, blockTransactionsInfo);
 	}
 
+	BLOCK_TRANSACTIONS_INFO_TEST(CanCalculateBlockTransactionsInfoForBlockWithMultipleTransactions_32BitOverflow) {
+		// Arrange:
+		auto pBlock = test::GenerateBlockWithTransactions(GenerateTransactionsWithSizes({ 132, 222, 552 }));
+		pBlock->FeeMultiplier = BlockFeeMultiplier(15134406);
+
+		// Act:
+		auto blockTransactionsInfo = TTraits::Calculate(*pBlock);
+
+		// Assert:
+		EXPECT_EQ(3u, blockTransactionsInfo.Count);
+		EXPECT_EQ(Amount(15134406ull * 906), blockTransactionsInfo.TotalFee);
+		TTraits::AssertDeepCount(3, blockTransactionsInfo);
+	}
+
 	TEST(TEST_CLASS, CalculateBlockTransactionsInfoIncludesEmbeddedTransactionsInDeepCount_Extended) {
 		// Arrange:
 		auto transactions = GenerateTransactionsWithSizes({ 132, 222, 552 });

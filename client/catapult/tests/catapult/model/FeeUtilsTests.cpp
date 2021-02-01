@@ -53,6 +53,10 @@ namespace catapult { namespace model {
 		AssertCanCalculateTransactionFee(842, BlockFeeMultiplier(11), Amount(842 * 11));
 	}
 
+	TEST(TEST_CLASS, CanCalculateTransactionFeeWhenFeeMultiplierIsNonzero_32BitOverflow) {
+		AssertCanCalculateTransactionFee(842, BlockFeeMultiplier(15134406), Amount(842ull * 15134406));
+	}
+
 	// endregion
 
 	// region CalculateTransactionMaxFeeMultiplier

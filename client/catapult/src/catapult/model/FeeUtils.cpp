@@ -25,7 +25,7 @@
 namespace catapult { namespace model {
 
 	Amount CalculateTransactionFee(BlockFeeMultiplier feeMultiplier, const Transaction& transaction) {
-		return Amount(feeMultiplier.unwrap() * transaction.Size);
+		return Amount(static_cast<uint64_t>(feeMultiplier.unwrap()) * transaction.Size);
 	}
 
 	BlockFeeMultiplier CalculateTransactionMaxFeeMultiplier(const Transaction& transaction) {
