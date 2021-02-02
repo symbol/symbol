@@ -77,7 +77,7 @@ namespace catapult { namespace tools { namespace addressgen {
 
 				for (auto& descriptor : m_descriptors) {
 					auto searchString = descriptor.SearchString;
-					while (searchString.size() > descriptor.BestMatchSize) {
+					while (searchString.size() > descriptor.BestMatchSize || !descriptor.pBestKeyPair) {
 						auto matchIndex = addressString.find(searchString);
 						auto isMatch = std::string::npos != matchIndex;
 						if (descriptor.MatchStart)
@@ -86,9 +86,11 @@ namespace catapult { namespace tools { namespace addressgen {
 							isMatch = matchIndex + searchString.size() == addressString.size();
 
 						if (isMatch) {
-							CATAPULT_LOG(info)
-									<< "searching for '" << descriptor.SearchString << "' found " << addressString
-									<< " (" << searchString.size() << "/" << descriptor.SearchString.size() << ")";
+							if (!searchString.empty()) {
+								CATAPULT_LOG(info)
+										<< "searching for '" << descriptor.SearchString << "' found " << addressString
+										<< " (" << searchString.size() << "/" << descriptor.SearchString.size() << ")";
+							}
 
 							descriptor.BestMatchSize = searchString.size();
 							descriptor.pBestKeyPair = std::make_unique<crypto::KeyPair>(std::move(candidateDescriptor.KeyPair));
@@ -124,7 +126,7 @@ namespace catapult { namespace tools { namespace addressgen {
 			};
 
 			static bool IsComplete(const SearchDescriptor& descriptor) {
-				return descriptor.SearchString.size() == descriptor.BestMatchSize;
+				return descriptor.SearchString.size() == descriptor.BestMatchSize && !!descriptor.pBestKeyPair;
 			}
 
 		private:
@@ -137,7 +139,7 @@ namespace catapult { namespace tools { namespace addressgen {
 
 		class AddressGeneratorTool : public AccountTool {
 		public:
-			AddressGeneratorTool() : AccountTool("Address Generator Tool")
+			AddressGeneratorTool() : AccountTool("Address Generator Tool", AccountTool::InputDisposition::Optional)
 			{}
 
 		private:

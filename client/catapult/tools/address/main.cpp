@@ -55,7 +55,7 @@ namespace catapult { namespace tools { namespace address {
 
 		class AddressInspectorTool : public AccountTool {
 		public:
-			AddressInspectorTool() : AccountTool("Address Inspector Tool")
+			AddressInspectorTool() : AccountTool("Address Inspector Tool", AccountTool::InputDisposition::Required)
 			{}
 
 		private:

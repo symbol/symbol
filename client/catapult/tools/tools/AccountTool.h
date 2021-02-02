@@ -28,9 +28,21 @@ namespace catapult { namespace tools {
 
 	/// Base class for a tool that performs operations on one or more account-related inputs.
 	class AccountTool : public Tool {
+	protected:
+		/// Disposition of input option.
+		enum class InputDisposition {
+			/// Required.
+			Required,
+
+			/// Optional (default is empty string).
+			Optional
+		};
+
 	public:
-		/// Creates a tool with \a name.
-		explicit AccountTool(const std::string& name) : m_name(name)
+		/// Creates a tool with \a name and input disposition (\a inputDisposition).
+		AccountTool(const std::string& name, InputDisposition inputDisposition)
+				: m_name(name)
+				, m_inputDisposition(inputDisposition)
 		{}
 
 	public:
@@ -44,7 +56,9 @@ namespace catapult { namespace tools {
 					"network, possible values: private (default), private-test, public, public-test");
 
 			optionsBuilder("input,i",
-					OptionsValue<std::string>()->required(),
+					InputDisposition::Required == m_inputDisposition
+							? OptionsValue<std::string>()->required()
+							: OptionsValue<std::string>()->default_value(""),
 					"input value (comma-delimited) or file");
 			optionsBuilder("output,o",
 					OptionsValue<std::string>(),
@@ -111,5 +125,6 @@ namespace catapult { namespace tools {
 
 	private:
 		std::string m_name;
+		InputDisposition m_inputDisposition;
 	};
 }}
