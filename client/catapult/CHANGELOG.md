@@ -3,7 +3,22 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.10.0.5] - 14-Jan-2020
+## [0.10.0.6] - 02-Feb-2021
+
+### Added
+ - mongo: new config-database settings writeTimeout and maxDropBatchSize
+ - new config-node setting: maxTimeBehindPullTransactionsStart - delay transaction pulls and processing of pushes until node is close to being synced
+ - allow remote links in linker tool
+
+### Fixed
+ - local remote harvesting account should not require node link #142
+ - bypass MaxTransactionValidator for nemesis block
+ - prevent resolution statements from being created during chain undo #148
+
+### Changed
+ - breaking: split address tool into two separate tools: tool.addressgen (vanity generator) and tool.address (converter)
+
+## [0.10.0.5] - 14-Jan-2021
 
 ### Fixed
  - deep rollback
@@ -375,6 +390,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.10.0.6]: https://github.com/nemtech/catapult-server/compare/v0.10.0.5...v0.10.0.6
 [0.10.0.5]: https://github.com/nemtech/catapult-server/compare/v0.10.0.4...v0.10.0.5
 [0.10.0.4]: https://github.com/nemtech/catapult-server/compare/v0.10.0.3...v0.10.0.4
 [0.10.0.3]: https://github.com/nemtech/catapult-server/compare/v0.10.0.2...v0.10.0.3
