@@ -72,6 +72,17 @@ class ReceiptsDb {
 			conditions[[`statement.receipts.${artifactIdType}`]] = convertToLong(filters.artifactId);
 		}
 
+		if (undefined !== filters.fromHeight || undefined !== filters.toHeight) {
+			const heightPath = 'statement.height';
+			conditions[heightPath] = {};
+
+			if (undefined !== filters.fromHeight)
+				conditions[heightPath].$gte = convertToLong(filters.fromHeight);
+
+			if (undefined !== filters.toHeight)
+				conditions[heightPath].$lte = convertToLong(filters.toHeight);
+		}
+
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'transactionStatements', options);
 	}

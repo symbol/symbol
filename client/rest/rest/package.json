@@ -13,14 +13,14 @@
     "test": "mocha --full-trace --recursive",
     "test:coverage": "nyc npm test && nyc report --reporter=text-lcov",
     "test:jenkins": "cross-env JUNIT_REPORT_PATH=test-results.xml mocha --reporter mocha-jenkins-reporter --mongoHost db --forbid-only --full-trace --recursive test || exit 0",
-    "test:travis": "npm run bootstrap-start-detached && nyc npm test && nyc report --reporter=text-lcov | coveralls && npm run bootstrap-stop ",
+    "test:travis": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint src test",
     "lint:fix": "eslint src test --fix",
     "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0",
     "bootstrap-clean": "symbol-bootstrap clean",
     "bootstrap-start": "symbol-bootstrap start -a light -c bootstrap-preset.yml --healthCheck",
     "bootstrap-start-testnet": "symbol-bootstrap start -p testnet -a dual -c bootstrap-preset-testnet.yml --healthCheck",
-    "bootstrap-start-detached": "symbol-bootstrap start -a light -c bootstrap-preset.yml --detached --healthCheck",
+    "bootstrap-start-detached": "symbol-bootstrap start -a light -c bootstrap-preset.yml --detached --healthCheck --pullImages",
     "bootstrap-stop": "symbol-bootstrap stop",
     "bootstrap-run": "symbol-bootstrap run",
     "bootstrap-run-detached": "symbol-bootstrap run --detached --healthCheck",
@@ -47,7 +47,7 @@
     "nodemon": "^2.0.6",
     "rimraf": "^2.6.3",
     "sinon": "^7.3.2",
-    "symbol-bootstrap": "0.3.0-alpha-202012081631"
+    "symbol-bootstrap": "0.4.1"
   },
   "dependencies": {
     "catapult-sdk": "link:../catapult-sdk",

@@ -4,6 +4,7 @@ node_js:
   - "12"
 services:
   - docker
+  - mongodb
 env:
   global:
     - RELEASE_BRANCH=main
@@ -19,6 +20,8 @@ before_script:
 - . ./travis/docker-functions.sh
 - log_env_variables
 - echo '$SUBPROJECT'
+- mongo mydb_test --eval 'db.createUser({user:"travis",pwd:"test",roles:["readWrite"]});'
+- if [[ ! -z "$DOCKER_USERNAME" ]] ; then echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin; fi
 - sh yarn_setup.sh
 
 script: cd ${SUBPROJECT} && yarn run lint && yarn run test:travis && cd ..

@@ -10,6 +10,7 @@ nodes:
   - trustedHosts: '127.0.0.1, 172.20.0.25, 172.20.0.1'
     localNetworks: '127.0.0.1, 172.20.0.25, 172.20.0.1'
     brokerOpenPort: 7902
+    openPort: '{{add $index 7900}}'
 gateways:
   - excludeDockerService: true
     name: rest

@@ -72,7 +72,6 @@ module.exports = {
 				recipientAddress: params.recipientAddress ? routeUtils.parseArgument(params, 'recipientAddress', 'address') : undefined,
 				transactionTypes: params.type ? routeUtils.parseArgumentAsArray(params, 'type', 'uint') : undefined,
 				embedded: params.embedded ? routeUtils.parseArgument(params, 'embedded', 'boolean') : undefined,
-
 				/** transfer transaction specific filters */
 				transferMosaicId: params.transferMosaicId ? routeUtils.parseArgument(params, 'transferMosaicId', 'uint64hex') : undefined,
 				fromTransferAmount: params.fromTransferAmount
@@ -80,7 +79,6 @@ module.exports = {
 				toTransferAmount: params.toTransferAmount ? routeUtils.parseArgument(params, 'toTransferAmount', 'uint64') : undefined
 			};
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
-
 			return db.transactions(params.group, filters, options)
 				.then(result => routeUtils.createSender(routeResultTypes.transaction).sendPage(res, next)(result));
 		});

@@ -206,6 +206,34 @@ describe('receipts routes', () => {
 				});
 			});
 
+			it('forwards fromHeight', () => {
+				// Arrange:
+				const req = { params: { fromHeight: '123' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+					expect(dbTransactionStatementsFake.firstCall.args[0].fromHeight).to.deep.equal([123, 0]);
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards toHeight', () => {
+				// Arrange:
+				const req = { params: { toHeight: '123' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+					expect(dbTransactionStatementsFake.firstCall.args[0].toHeight).to.deep.equal([123, 0]);
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
 			describe('forwards receiptType', () => {
 				it('one element', () => {
 					// Arrange:

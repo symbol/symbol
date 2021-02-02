@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const multisigUtils = require('./multisigUtils');
 const merkleUtils = require('../../routes/merkleUtils');
 const routeUtils = require('../../routes/routeUtils');
 const catapult = require('catapult-sdk');
@@ -44,58 +45,9 @@ module.exports = {
 			});
 		});
 
-		const getMultisigEntries = (multisigEntries, fieldName) => {
-			const addresses = new Set();
-			multisigEntries.forEach(multisigEntry => multisigEntry.multisig[fieldName].forEach(address => {
-				addresses.add(address.buffer);
-			}));
-
-			return db.multisigsByAddresses(Array.from(addresses));
-		};
-
 		server.get('/account/:address/multisig/graph', (req, res, next) => {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-
-			const multisigLevels = [];
-			return db.multisigsByAddresses([accountAddress])
-				.then(multisigEntries => {
-					if (0 === multisigEntries.length)
-						return Promise.resolve(undefined);
-
-					multisigLevels.push({
-						level: 0,
-						multisigEntries: [multisigEntries[0]]
-					});
-
-					return Promise.resolve(multisigEntries[0]);
-				})
-				.then(multisigEntry => {
-					if (undefined === multisigEntry)
-						return Promise.resolve(undefined);
-
-					const handleUpstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'multisigAddresses')
-						.then(entries => {
-							if (0 === entries.length)
-								return Promise.resolve();
-
-							multisigLevels.unshift({ level, multisigEntries: entries });
-							return handleUpstream(level - 1, entries);
-						});
-
-					const handleDownstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'cosignatoryAddresses')
-						.then(entries => {
-							if (0 === entries.length)
-								return Promise.resolve();
-
-							multisigLevels.push({ level, multisigEntries: entries });
-							return handleDownstream(level + 1, entries);
-						});
-
-					const upstreamPromise = handleUpstream(-1, [multisigEntry]);
-					const downstreamPromise = handleDownstream(1, [multisigEntry]);
-					return Promise.all([upstreamPromise, downstreamPromise])
-						.then(() => multisigLevels);
-				})
+			return multisigUtils.getMultisigGraph(db, accountAddress)
 				.then(response => {
 					const sender = routeUtils.createSender('multisigGraph');
 					return undefined === response

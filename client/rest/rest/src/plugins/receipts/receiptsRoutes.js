@@ -29,6 +29,8 @@ module.exports = {
 			const { params } = req;
 			const filters = {
 				height: params.height ? routeUtils.parseArgument(params, 'height', 'uint64') : undefined,
+				fromHeight: params.fromHeight ? routeUtils.parseArgument(params, 'fromHeight', 'uint64') : undefined,
+				toHeight: params.toHeight ? routeUtils.parseArgument(params, 'toHeight', 'uint64') : undefined,
 				receiptType: params.receiptType ? routeUtils.parseArgumentAsArray(params, 'receiptType', 'uint') : undefined,
 				recipientAddress: params.recipientAddress ? routeUtils.parseArgument(params, 'recipientAddress', 'address') : undefined,
 				senderAddress: params.senderAddress ? routeUtils.parseArgument(params, 'senderAddress', 'address') : undefined,

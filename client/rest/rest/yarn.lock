@@ -802,16 +802,12 @@ caseless@~0.12.0:
 
 "catapult-sdk@link:../catapult-sdk":
   version "0.0.0"
-  dependencies:
-    js-sha3 "^0.8.0"
-    long "^4.0.0"
-    ripemd160 "^2.0.2"
-    tweetnacl "^1.0.1"
+  uid ""
 
-catbuffer-typescript@0.0.24-alpha-202011210642:
-  version "0.0.24-alpha-202011210642"
-  resolved "https://registry.yarnpkg.com/catbuffer-typescript/-/catbuffer-typescript-0.0.24-alpha-202011210642.tgz#d4837354b55f7eee5d994bd71642da813e012916"
-  integrity sha512-rxbr92UcwTgCrpEbapaLROyMAE9RAssU7OXmWfodvYmi3VADZAo3OzqF3pxCSALvCJNRgWB2bXKT0IvE/012CA==
+catbuffer-typescript@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/catbuffer-typescript/-/catbuffer-typescript-0.1.1.tgz#152746d7ec07af28da31c2f4ad9e00cc27133d5a"
+  integrity sha512-r/z3UKG3YCCdsTEHRXGe3IQxA8OaBRBE31e9du2LOaLStGxYCmxUjfRtJ/DyKfgpS55fJPl3w/VFMnsfwIHmkA==
 
 chai@^4.2.0:
   version "4.2.0"
@@ -5904,10 +5900,10 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-symbol-bootstrap@0.3.0-alpha-202012081631:
-  version "0.3.0-alpha-202012081631"
-  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-0.3.0-alpha-202012081631.tgz#ce2a50165bb513fa0c8a8423f8576e9e8b19c25c"
-  integrity sha512-2N/amDgmm5foqOw6EGaKyfRC6xqrQh9T6fx/fkMefdrf54caJ9Qc/RXdcD/pF4aM4DhSzWRsCIveA3i+vIHj+w==
+symbol-bootstrap@0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-0.4.1.tgz#7495c9e096ad0f4015852ec8bd329b3e48fc1756"
+  integrity sha512-Cxm8wnR+atUKvyFRRG9jV1zE03vw7MYc5gIALsAsR6Tdu1X9IGU6BiG4e9CgCPjrv4HhA6wcuW+309eMaZBw7w==
   dependencies:
     "@oclif/command" "^1.7.0"
     "@oclif/config" "^1.16.0"
@@ -5921,24 +5917,24 @@ symbol-bootstrap@0.3.0-alpha-202012081631:
     rxjs "^6.6.3"
     shx "^0.3.2"
     sshpk "^1.16.1"
-    symbol-sdk "0.21.1-alpha-202011211848"
+    symbol-sdk "0.23.0"
     tslib "^1.13.0"
     utf8 "^2.1.2"
     winston "^3.3.3"
 
-symbol-openapi-typescript-fetch-client@0.10.1-SNAPSHOT.202011191848:
-  version "0.10.1-SNAPSHOT.202011191848"
-  resolved "https://registry.yarnpkg.com/symbol-openapi-typescript-fetch-client/-/symbol-openapi-typescript-fetch-client-0.10.1-SNAPSHOT.202011191848.tgz#44445d2344aeebacbed29b70afc6247ac2d61cc8"
-  integrity sha512-5V7FBtdzz8nX3U06a6yqudLOMvk0/sw+cD5uIubYOmOrleIWFp2nb1IE7nrCSr1t4Qr/Rlg9UU6T/Xuyfp4YFA==
+symbol-openapi-typescript-fetch-client@0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/symbol-openapi-typescript-fetch-client/-/symbol-openapi-typescript-fetch-client-0.11.1.tgz#e4e67a8cdd47032d2a4ed5619c7e882182edf6d5"
+  integrity sha512-4YVS4RzKOPv3c2+g0N989mglw53Kd91jEUpjxEltjZBzfoCNPc2cM12Ct1DWZVlnypo23iVOkGCM/mkR7Qflsw==
 
-symbol-sdk@0.21.1-alpha-202011211848:
-  version "0.21.1-alpha-202011211848"
-  resolved "https://registry.yarnpkg.com/symbol-sdk/-/symbol-sdk-0.21.1-alpha-202011211848.tgz#0a9a411039152e31ad8f08a273b0de22859d8711"
-  integrity sha512-qPOFSYHwVvMi2gg0WE/4PndBhPgghtC4hlvwS6x0Q9juZNz2/D63z6wZyBdXonlMmW8LNLWgWHx9QbMhb9ojWg==
+symbol-sdk@0.23.0:
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/symbol-sdk/-/symbol-sdk-0.23.0.tgz#c3577e48255a1093e4474e281fd38812863e14a8"
+  integrity sha512-rYqy2f+omwZC7JUXznR2timoEnUkC/OZIEh8mBW/zyrKrMpseZdL/YTIq6Ht11TKolBPib2J5f5H1n33a+sYng==
   dependencies:
     "@js-joda/core" "^3.2.0"
     bluebird "^3.7.2"
-    catbuffer-typescript "0.0.24-alpha-202011210642"
+    catbuffer-typescript "0.1.1"
     crypto-js "^4.0.0"
     diff "^4.0.2"
     futoin-hkdf "^1.3.2"
@@ -5952,7 +5948,7 @@ symbol-sdk@0.21.1-alpha-202011211848:
     ripemd160 "^2.0.2"
     rxjs "^6.6.3"
     rxjs-compat "^6.6.3"
-    symbol-openapi-typescript-fetch-client "0.10.1-SNAPSHOT.202011191848"
+    symbol-openapi-typescript-fetch-client "0.11.1"
     tweetnacl "^1.0.3"
     ws "^7.3.1"
 
