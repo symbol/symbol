@@ -30,6 +30,7 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 
 namespace catapult { namespace test {
@@ -82,7 +83,7 @@ namespace catapult { namespace test {
 			m_pNemesisBlock = storage.loadBlock(Height(1));
 		} else {
 			CATAPULT_LOG(debug) << "initializing BlockChainBuilder from resources path: " << resourcesPath;
-			io::FileBlockStorage storage(resourcesPath);
+			io::FileBlockStorage storage(resourcesPath, File_Database_Batch_Size);
 			m_pParentBlockElement = storage.loadBlockElement(Height(1));
 		}
 

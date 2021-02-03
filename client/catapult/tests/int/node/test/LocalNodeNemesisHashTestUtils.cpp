@@ -47,9 +47,10 @@ namespace catapult { namespace test {
 		}
 	}
 
-	void SetNemesisReceiptsHash(const std::string& destination) {
+	void SetNemesisReceiptsHash(const std::string& destination, NemesisStorageDisposition disposition) {
 		// calculate the receipts hash (default nemesis block has zeroed receipts hash)
-		ModifyNemesis(destination, [](auto& nemesisBlock, const auto&) {
+		auto modify = NemesisStorageDisposition::Seed == disposition ? ModifySeedNemesis : ModifyNemesis;
+		modify(destination, [](auto& nemesisBlock, const auto&) {
 			model::BlockStatementBuilder blockStatementBuilder;
 
 			// 1. add harvest fee receipt
@@ -77,9 +78,13 @@ namespace catapult { namespace test {
 		});
 	}
 
-	void SetNemesisStateHash(const std::string& destination, const config::CatapultConfiguration& config) {
+	void SetNemesisStateHash(
+			const std::string& destination,
+			NemesisStorageDisposition disposition,
+			const config::CatapultConfiguration& config) {
 		// calculate the state hash (default nemesis block has zeroed state hash)
-		ModifyNemesis(destination, [&config](auto& nemesisBlock, const auto& nemesisBlockElement) {
+		auto modify = NemesisStorageDisposition::Seed == disposition ? ModifySeedNemesis : ModifyNemesis;
+		modify(destination, [&config](auto& nemesisBlock, const auto& nemesisBlockElement) {
 			nemesisBlock.StateHash = CalculateNemesisStateHash(nemesisBlockElement, config);
 		});
 	}

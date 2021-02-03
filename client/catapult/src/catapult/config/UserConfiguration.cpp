@@ -42,6 +42,7 @@ namespace catapult { namespace config {
 
 #define LOAD_STORAGE_PROPERTY(NAME) LOAD_PROPERTY("storage", NAME)
 
+		LOAD_STORAGE_PROPERTY(SeedDirectory);
 		LOAD_STORAGE_PROPERTY(DataDirectory);
 		LOAD_STORAGE_PROPERTY(CertificateDirectory);
 		LOAD_STORAGE_PROPERTY(VotingKeysDirectory);
@@ -49,7 +50,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_STORAGE_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 5);
+		utils::VerifyBagSizeExact(bag, 6);
 		return config;
 	}
 

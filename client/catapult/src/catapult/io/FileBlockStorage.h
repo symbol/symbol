@@ -21,6 +21,7 @@
 
 #pragma once
 #include "BlockStorage.h"
+#include "FileDatabase.h"
 #include "FixedSizeValueStorage.h"
 #include "IndexFile.h"
 #include "RawFile.h"
@@ -41,8 +42,11 @@ namespace catapult { namespace io {
 	class FileBlockStorage final : public PrunableBlockStorage {
 	public:
 		/// Creates a file-based block storage, where blocks will be stored inside \a dataDirectory
-		/// with specified storage \a mode.
-		explicit FileBlockStorage(const std::string& dataDirectory, FileBlockStorageMode mode = FileBlockStorageMode::Hash_Index);
+		/// with a file database batch size of \a fileDatabaseBatchSize and specified storage \a mode.
+		FileBlockStorage(
+				const std::string& dataDirectory,
+				uint32_t fileDatabaseBatchSize,
+				FileBlockStorageMode mode = FileBlockStorageMode::Hash_Index);
 
 	public:
 		// LightBlockStorage
@@ -65,6 +69,8 @@ namespace catapult { namespace io {
 	private:
 		std::string m_dataDirectory;
 		FileBlockStorageMode m_mode;
+		FileDatabase m_blockDatabase;
+		FileDatabase m_statementDatabase;
 
 		HashFile m_hashFile;
 		IndexFile m_indexFile;

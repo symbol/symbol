@@ -51,6 +51,7 @@ namespace catapult { namespace io {
 		constexpr const char* Error_Read = "couldn't read from file";
 		constexpr const char* Error_Seek = "couldn't seek in file";
 		constexpr const char* Error_Seek_Outside = "couldn't seek past end of file";
+		constexpr const char* Error_Truncate = "couldn't truncate file";
 		constexpr const char* Error_Desc = "invalid file descriptor";
 		constexpr const char* Error_Close = "couldn't close the file";
 
@@ -98,6 +99,7 @@ namespace catapult { namespace io {
 		constexpr auto write = ::_write;
 		constexpr auto read = ::_read;
 		constexpr auto lseek = ::_lseeki64;
+		constexpr auto ftruncate = _chsize_s;
 		constexpr auto fstat = ::_fstati64;
 		using StatStruct = struct ::_stat64;
 
@@ -218,6 +220,10 @@ namespace catapult { namespace io {
 			return -1 == lseek(fd, offset, SEEK_SET) ? MakeFailureResult(false) : MakeSuccessResult(true);
 		}
 
+		FileOperationResult<bool> nemTruncate(int fd, int64_t offset) {
+			return -1 == ftruncate(fd, offset) ? MakeFailureResult(false) : MakeSuccessResult(true);
+		}
+
 		FileOperationResult<bool> nemFileSize(int fd, uint64_t& fileSize) {
 			StatStruct st;
 			fileSize = 0;
@@ -309,12 +315,12 @@ namespace catapult { namespace io {
 		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Size, fileSizeResult);
 	}
 
-	void RawFile::write(const RawBuffer& dataBuffer) {
-		auto writeResult = nemWrite(m_fd.raw(), dataBuffer);
-		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Write, writeResult);
+	uint64_t RawFile::size() const {
+		return m_fileSize;
+	}
 
-		m_position += writeResult.Value;
-		m_fileSize = std::max(m_fileSize, m_position);
+	uint64_t RawFile::position() const {
+		return m_position;
 	}
 
 	void RawFile::read(const MutableRawBuffer& dataBuffer) {
@@ -322,6 +328,14 @@ namespace catapult { namespace io {
 		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Read, readResult);
 
 		m_position += readResult.Value;
+	}
+
+	void RawFile::write(const RawBuffer& dataBuffer) {
+		auto writeResult = nemWrite(m_fd.raw(), dataBuffer);
+		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Write, writeResult);
+
+		m_position += writeResult.Value;
+		m_fileSize = std::max(m_fileSize, m_position);
 	}
 
 	void RawFile::seek(uint64_t position) {
@@ -338,12 +352,11 @@ namespace catapult { namespace io {
 		m_position = position;
 	}
 
-	uint64_t RawFile::size() const {
-		return m_fileSize;
-	}
+	void RawFile::truncate() {
+		auto truncateResult = nemTruncate(m_fd.raw(), static_cast<int64_t>(m_position));
+		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Truncate, truncateResult);
 
-	uint64_t RawFile::position() const {
-		return m_position;
+		m_fileSize = m_position;
 	}
 
 	// endregion

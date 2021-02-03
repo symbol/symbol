@@ -70,7 +70,7 @@ namespace catapult { namespace local {
 			auto pParentBlock = std::make_unique<model::Block>();
 			pParentBlock->Timestamp = Timestamp();
 
-			io::FileBlockStorage storage(dataDirectory.str());
+			io::FileBlockStorage storage(dataDirectory.str(), test::File_Database_Batch_Size);
 			for (auto i = 0u; i < numBlocks; ++i) {
 				auto blockWithAttributes = test::CreateBlock(nemesisKeyPairs, recipients[i], rnd, height, utils::TimeSpan::FromMinutes(1));
 				storage.saveBlock(test::BlockToBlockElement(*blockWithAttributes.pBlock));
@@ -554,7 +554,7 @@ namespace catapult { namespace local {
 				test::PrepareStorageWithoutNemesis(directory);
 				test::FakeHeight(directory, m_startHeight.unwrap());
 
-				io::FileBlockStorage storage(directory);
+				io::FileBlockStorage storage(directory, test::File_Database_Batch_Size);
 				for (auto height = m_startHeight; height <= m_endHeight; height = height + Height(1)) {
 					auto pBlock = test::GenerateBlockWithTransactions(createTransactionsForBlock(height));
 					pBlock->SignerPublicKey = m_transactionSignerKeyPair.publicKey();

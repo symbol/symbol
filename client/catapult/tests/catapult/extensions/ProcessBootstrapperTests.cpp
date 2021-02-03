@@ -24,6 +24,7 @@
 #include "catapult/utils/HexParser.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/TestHarness.h"
 
@@ -35,13 +36,14 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCreateBootstrapper) {
 		// Arrange:
-		auto config = test::CreateUninitializedCatapultConfiguration();
-		const_cast<uint32_t&>(config.BlockChain.BlockTimeSmoothingFactor) = 15;
-		const_cast<bool&>(config.Node.EnableCacheDatabaseStorage) = true;
-		const_cast<std::string&>(config.User.DataDirectory) = "base_data_dir";
+		test::MutableCatapultConfiguration config;
+		config.BlockChain.BlockTimeSmoothingFactor = 15;
+		config.Node.EnableCacheDatabaseStorage = true;
+		config.Node.FileDatabaseBatchSize = test::File_Database_Batch_Size;
+		config.User.DataDirectory = "base_data_dir";
 
 		// Act:
-		ProcessBootstrapper bootstrapper(config, "resources path", ProcessDisposition::Recovery, "bootstrapper");
+		ProcessBootstrapper bootstrapper(config.ToConst(), "resources path", ProcessDisposition::Recovery, "bootstrapper");
 
 		// Assert: compare BlockTimeSmoothingFactor as a sentinel value because the bootstrapper copies the config
 		EXPECT_EQ(15u, bootstrapper.config().BlockChain.BlockTimeSmoothingFactor);
@@ -79,6 +81,7 @@ namespace catapult { namespace extensions {
 		void RunExtensionsTest(const std::string& directory, const std::string& name, TAction action) {
 			// Arrange:
 			test::MutableCatapultConfiguration config;
+			config.Node.FileDatabaseBatchSize = test::File_Database_Batch_Size;
 			config.User.PluginsDirectory = directory;
 			config.Extensions.Names = { name };
 			auto bootstrapper = CreateBootstrapper(config.ToConst());
@@ -156,6 +159,7 @@ namespace catapult { namespace extensions {
 			test::MutableCatapultConfiguration config;
 			config.BlockChain.Network.Identifier = model::NetworkIdentifier::Private_Test;
 			config.BlockChain.Network.GenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
+			config.Node.FileDatabaseBatchSize = test::File_Database_Batch_Size;
 			return config.ToConst();
 		}
 

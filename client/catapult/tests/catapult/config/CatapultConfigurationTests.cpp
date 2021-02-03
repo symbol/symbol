@@ -109,6 +109,8 @@ namespace catapult { namespace config {
 			EXPECT_TRUE(config.EnableCacheDatabaseStorage);
 			EXPECT_TRUE(config.EnableAutoSyncCleanup);
 
+			EXPECT_EQ(100u, config.FileDatabaseBatchSize);
+
 			EXPECT_TRUE(config.EnableTransactionSpamThrottling);
 			EXPECT_EQ(Amount(10'000'000), config.TransactionSpamThrottlingMaxBoostFee);
 
@@ -222,6 +224,7 @@ namespace catapult { namespace config {
 			// Assert:
 			EXPECT_TRUE(config.EnableDelegatedHarvestersAutoDetection);
 
+			EXPECT_EQ("../seed", config.SeedDirectory);
 			EXPECT_EQ("../data", config.DataDirectory);
 			EXPECT_EQ("../certificate", config.CertificateDirectory);
 			EXPECT_EQ("../votingkeys", config.VotingKeysDirectory);

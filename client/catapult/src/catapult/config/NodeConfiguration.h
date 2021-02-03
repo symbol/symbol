@@ -53,6 +53,10 @@ namespace catapult { namespace config {
 		/// \note This should be \c false if broker process is running.
 		bool EnableAutoSyncCleanup;
 
+		/// Maximum number of payloads to store in each file database disk file.
+		/// \note This is recommended to be a factor of 10000.
+		uint32_t FileDatabaseBatchSize;
+
 		/// \c true if transaction spam throttling should be enabled.
 		bool EnableTransactionSpamThrottling;
 

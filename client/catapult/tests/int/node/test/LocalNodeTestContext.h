@@ -94,19 +94,28 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		config::CatapultKeys initializeDataDirectory(const std::string& directory) const {
-			PrepareStorage(directory);
+		config::CatapultKeys initializeDataDirectory(
+				const std::string& directory,
+				NemesisStorageDisposition nemesisStorageDisposition = NemesisStorageDisposition::Seed) const {
+			auto nemesisDirectory = directory;
+			if (NemesisStorageDisposition::Seed == nemesisStorageDisposition && !HasFlag(NodeFlag::Bypass_Seed, m_nodeFlag)) {
+				nemesisDirectory += "/seed";
+				PrepareSeedStorage(nemesisDirectory);
+			} else {
+				PrepareStorage(nemesisDirectory);
+			}
+
 			PrepareConfiguration(directory, m_nodeFlag);
 			config::CatapultDataDirectoryPreparer::Prepare(directory);
 
 			if (HasFlag(NodeFlag::Verify_Receipts, m_nodeFlag))
-				SetNemesisReceiptsHash(directory);
+				SetNemesisReceiptsHash(nemesisDirectory, nemesisStorageDisposition);
 
 			if (HasFlag(NodeFlag::Verify_State, m_nodeFlag)) {
 				auto config = CreatePrototypicalCatapultConfiguration(directory);
 				prepareCatapultConfiguration(config);
 
-				SetNemesisStateHash(directory, config);
+				SetNemesisStateHash(nemesisDirectory, nemesisStorageDisposition, config);
 			}
 
 			return config::CatapultKeys(findCertificateSubdirectory(directory));
@@ -160,7 +169,7 @@ namespace catapult { namespace test {
 
 		/// Prepares a fresh data \a directory and returns corresponding configuration.
 		config::CatapultConfiguration prepareFreshDataDirectory(const std::string& directory) const {
-			initializeDataDirectory(directory);
+			initializeDataDirectory(directory, NemesisStorageDisposition::Data);
 
 			auto config = CreatePrototypicalCatapultConfiguration(directory);
 			prepareCatapultConfiguration(config);

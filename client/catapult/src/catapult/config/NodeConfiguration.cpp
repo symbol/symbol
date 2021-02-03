@@ -44,6 +44,8 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(EnableCacheDatabaseStorage);
 		LOAD_NODE_PROPERTY(EnableAutoSyncCleanup);
 
+		LOAD_NODE_PROPERTY(FileDatabaseBatchSize);
+
 		LOAD_NODE_PROPERTY(EnableTransactionSpamThrottling);
 		LOAD_NODE_PROPERTY(TransactionSpamThrottlingMaxBoostFee);
 
@@ -148,7 +150,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 39 + 7 + 4 + 4 + 5 + 9);
+		utils::VerifyBagSizeExact(bag, 40 + 7 + 4 + 4 + 5 + 9);
 		return config;
 	}
 

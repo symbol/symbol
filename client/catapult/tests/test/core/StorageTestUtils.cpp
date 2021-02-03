@@ -26,6 +26,7 @@
 #include "catapult/io/RawFile.h"
 #include "catapult/model/EntityHasher.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/nodeps/TestNetworkConstants.h"
 #include <filesystem>
 
@@ -38,16 +39,48 @@ namespace catapult { namespace test {
 			io::RawFile indexFile(destination + "/index.dat", io::OpenMode::Read_Write);
 			io::Write64(indexFile, height);
 		}
+
+		void PrepareStorage(const std::string& destination, uint32_t fileDatabaseBatchSize) {
+			PrepareStorageWithoutNemesis(destination);
+
+			for (auto filename : { "proof.index.dat" })
+				std::filesystem::copy_file(std::string(Source_Directory) + "/" + filename, destination + "/" + filename);
+
+			for (auto filename : { "hashes.dat", "proof.heights.dat" })
+				std::filesystem::copy_file(std::string(Source_Directory) + "/00000/" + filename, destination + "/00000/" + filename);
+
+			for (auto extension : { ".dat", ".proof" }) {
+				if (1 == fileDatabaseBatchSize) {
+					std::filesystem::copy_file(
+							std::string(Source_Directory) + "/00000/00001" + extension,
+							destination + "/00000/00001" + extension);
+					continue;
+				}
+
+				io::RawFile inputFile(std::string(Source_Directory) + "/00000/00001" + extension, io::OpenMode::Read_Only);
+				io::RawFile outputFile(destination + "/00000/00000" + extension, io::OpenMode::Read_Write);
+
+				// write file database header
+				auto headerSize = fileDatabaseBatchSize * sizeof(uint64_t);
+				outputFile.write(std::vector<uint8_t>(headerSize));
+				outputFile.seek(sizeof(uint64_t));
+				Write64(outputFile, headerSize);
+				outputFile.seek(headerSize);
+
+				// copy input file contents
+				std::vector<uint8_t> inputBuffer(inputFile.size());
+				inputFile.read(inputBuffer);
+				outputFile.write(inputBuffer);
+			}
+		}
 	}
 
 	void PrepareStorage(const std::string& destination) {
-		PrepareStorageWithoutNemesis(destination);
+		PrepareStorage(destination, File_Database_Batch_Size);
+	}
 
-		for (auto filename : { "proof.index.dat" })
-			std::filesystem::copy_file(std::string(Source_Directory) + "/" + filename, destination + "/" + filename);
-
-		for (auto filename : { "00001.dat", "00001.proof", "hashes.dat", "proof.heights.dat" })
-			std::filesystem::copy_file(std::string(Source_Directory) + "/00000/" + filename, destination + "/00000/" + filename);
+	void PrepareSeedStorage(const std::string& destination) {
+		PrepareStorage(destination, 1);
 	}
 
 	void PrepareStorageWithoutNemesis(const std::string& destination) {
@@ -57,23 +90,40 @@ namespace catapult { namespace test {
 		SetIndexHeight(destination, 1);
 	}
 
+	namespace {
+		void ModifyNemesis(
+				const std::string& destination,
+				uint32_t fileDatabaseBatchSize,
+				const consumer<model::Block&, const model::BlockElement&>& modify) {
+			// load from file storage to allow successive modifications
+			io::FileBlockStorage storage(destination, fileDatabaseBatchSize);
+			auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
+
+			// modify nemesis block and resign it
+			auto& nemesisBlock = const_cast<model::Block&>(pNemesisBlockElement->Block);
+			modify(nemesisBlock, *pNemesisBlockElement);
+			extensions::BlockExtensions(GetNemesisGenerationHashSeed()).signFullBlock(
+					crypto::KeyPair::FromString(Test_Network_Nemesis_Private_Key),
+					nemesisBlock);
+
+			// overwrite the nemesis file in destination
+			// (only the block and entity hash need to be rewritten; this works because block size does not change)
+			auto nemesisFilename = destination + "/00000/0000" + (1 == fileDatabaseBatchSize ? "1.dat" : "0.dat");
+			io::RawFile nemesisFile(nemesisFilename, io::OpenMode::Read_Append);
+			if (1 != fileDatabaseBatchSize)
+				nemesisFile.seek(fileDatabaseBatchSize * sizeof(uint64_t));
+
+			nemesisFile.write({ reinterpret_cast<const uint8_t*>(&nemesisBlock), nemesisBlock.Size });
+			nemesisFile.write(model::CalculateHash(nemesisBlock));
+		}
+	}
+
 	void ModifyNemesis(const std::string& destination, const consumer<model::Block&, const model::BlockElement&>& modify) {
-		// load from file storage to allow successive modifications
-		io::FileBlockStorage storage(destination);
-		auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
+		ModifyNemesis(destination, File_Database_Batch_Size, modify);
+	}
 
-		// modify nemesis block and resign it
-		auto& nemesisBlock = const_cast<model::Block&>(pNemesisBlockElement->Block);
-		modify(nemesisBlock, *pNemesisBlockElement);
-		extensions::BlockExtensions(GetNemesisGenerationHashSeed()).signFullBlock(
-				crypto::KeyPair::FromString(Test_Network_Nemesis_Private_Key),
-				nemesisBlock);
-
-		// overwrite the nemesis file in destination
-		// (only the block and entity hash need to be rewritten; this works because block size does not change)
-		io::RawFile nemesisFile(destination + "/00000/00001.dat", io::OpenMode::Read_Append);
-		nemesisFile.write({ reinterpret_cast<const uint8_t*>(&nemesisBlock), nemesisBlock.Size });
-		nemesisFile.write(model::CalculateHash(nemesisBlock));
+	void ModifySeedNemesis(const std::string& destination, const consumer<model::Block&, const model::BlockElement&>& modify) {
+		ModifyNemesis(destination, 1, modify);
 	}
 
 	void FakeHeight(const std::string& destination, uint64_t height) {

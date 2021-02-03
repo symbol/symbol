@@ -88,10 +88,13 @@ namespace catapult { namespace test {
 			auto blockStatementPair = storage.loadBlockStatementData(height);
 
 			// - deserialize block statement
-			mocks::MockMemoryStream stream(blockStatementPair.first);
-			auto pBlockStatement = std::make_shared<model::BlockStatement>();
-			io::ReadBlockStatement(stream, *pBlockStatement);
-			const_cast<model::BlockElement&>(*pBlockElement).OptionalStatement = std::move(pBlockStatement);
+			if (blockStatementPair.second) {
+				mocks::MockMemoryStream stream(blockStatementPair.first);
+				auto pBlockStatement = std::make_shared<model::BlockStatement>();
+				io::ReadBlockStatement(stream, *pBlockStatement);
+				const_cast<model::BlockElement&>(*pBlockElement).OptionalStatement = std::move(pBlockStatement);
+			}
+
 			return pBlockElement;
 		}
 
@@ -120,13 +123,20 @@ namespace catapult { namespace test {
 
 		static void Assert(
 				const model::BlockElement& originalBlockElement,
-				const std::pair<std::vector<uint8_t>, bool>& blockElementPair) {
+				const std::pair<std::vector<uint8_t>, bool>& blockStatementPair) {
 			// Assert:
+			if (!blockStatementPair.second) {
+				EXPECT_FALSE(!!originalBlockElement.OptionalStatement);
+				return;
+			}
+
+			// - serialize and compare the block statement
 			ASSERT_TRUE(!!originalBlockElement.OptionalStatement);
+
 			auto expectedData = SerializeBlockStatement(*originalBlockElement.OptionalStatement);
-			ASSERT_TRUE(blockElementPair.second);
-			ASSERT_EQ(expectedData.size(), blockElementPair.first.size());
-			EXPECT_EQ_MEMORY(expectedData.data(), blockElementPair.first.data(), expectedData.size());
+			ASSERT_TRUE(blockStatementPair.second);
+			ASSERT_EQ(expectedData.size(), blockStatementPair.first.size());
+			EXPECT_EQ_MEMORY(expectedData.data(), blockStatementPair.first.data(), expectedData.size());
 		}
 
 		static void AssertLoadError(const io::BlockStorage& storage, Height height) {
@@ -559,6 +569,29 @@ namespace catapult { namespace test {
 			TLoadTraits::Assert(blockElement2, result2);
 		}
 
+		template<typename TLoadTraits>
+		static void AssertCanLoadMultipleSavedWithoutStatements() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithBlocks(5);
+
+			auto pBlock1 = GenerateBlockWithTransactions(5, Height(6));
+			auto pBlock2 = GenerateBlockWithTransactions(5, Height(7));
+			auto blockElement1 = BlockToBlockElement(*pBlock1, GenerateRandomByteArray<Hash256>());
+			auto blockElement2 = BlockToBlockElement(*pBlock2, GenerateRandomByteArray<Hash256>());
+			pStorage->saveBlock(blockElement1);
+			pStorage->saveBlock(blockElement2);
+
+			// Act:
+			auto result1 = TLoadTraits::Load(*pStorage, Height(6));
+			auto result2 = TLoadTraits::Load(*pStorage, Height(7));
+
+			// Assert:
+			EXPECT_EQ(Height(7), pStorage->chainHeight());
+
+			TLoadTraits::Assert(blockElement1, result1);
+			TLoadTraits::Assert(blockElement2, result2);
+		}
+
 		// endregion
 
 		// region purge
@@ -641,7 +674,8 @@ namespace catapult { namespace test {
 	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CanLoadAtHeightLessThanChainHeight) \
 	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CanLoadAtChainHeight) \
 	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CannotLoadAtHeightGreaterThanChainHeight) \
-	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CanLoadMultipleSaved)
+	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CanLoadMultipleSaved) \
+	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CanLoadMultipleSavedWithoutStatements)
 
 #define DEFINE_PRUNABLE_BLOCK_STORAGE_TESTS(TRAITS_NAME) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, PurgeDestroysStorage) \
