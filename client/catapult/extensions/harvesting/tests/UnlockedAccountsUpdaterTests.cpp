@@ -46,29 +46,42 @@ namespace catapult { namespace harvesting {
 
 		public:
 			explicit TestContext(SeedOptions seedOptions = SeedOptions::Public_Key)
+					: TestContext(test::GenerateKeyPair(), test::GenerateKeyPair(), seedOptions)
+			{}
+
+		private:
+			TestContext(crypto::KeyPair&& mainKeyPair, crypto::KeyPair&& remoteKeyPair, SeedOptions seedOptions)
 					: m_dataDirectory(config::CatapultDataDirectory(m_directoryGuard.name()))
 					, m_config(CreateBlockChainConfiguration())
 					, m_cache(test::CreateEmptyCatapultCache(m_config))
 					, m_unlockedAccounts(10, [](const auto&) { return 0; })
-					, m_primaryMainAccountPublicKey(test::GenerateRandomByteArray<Key>())
+					, m_primaryMainAccountPublicKey(mainKeyPair.publicKey())
+					, m_primarySigningPublicKey(SeedOptions::Remote == seedOptions ? remoteKeyPair.publicKey() : mainKeyPair.publicKey())
 					, m_encryptionKeyPair(test::GenerateKeyPair())
-					, m_updater(m_cache, m_unlockedAccounts, m_primaryMainAccountPublicKey, m_encryptionKeyPair, m_dataDirectory) {
-				auto descriptor = BlockGeneratorAccountDescriptor(test::GenerateKeyPair(), test::GenerateKeyPair());
-				auto signingPublicKey = descriptor.signingKeyPair().publicKey();
+					, m_updater(m_cache, m_unlockedAccounts, m_primarySigningPublicKey, m_encryptionKeyPair, m_dataDirectory) {
+				if (SeedOptions::Remote == seedOptions) {
+					auto descriptor = BlockGeneratorAccountDescriptor(std::move(remoteKeyPair), test::GenerateKeyPair());
+					auto vrfPublicKey = descriptor.vrfKeyPair().publicKey();
+					m_unlockedAccounts.modifier().add(std::move(descriptor));
+					addAccount(m_primaryMainAccountPublicKey, m_primarySigningPublicKey, vrfPublicKey, Amount(1234));
+
+					modifyAccount(m_primaryMainAccountPublicKey, [](auto& accountState) {
+						accountState.SupplementalPublicKeys.node().unset();
+					});
+
+					return;
+				}
+
+				auto descriptor = BlockGeneratorAccountDescriptor(std::move(mainKeyPair), test::GenerateKeyPair());
 				auto vrfPublicKey = descriptor.vrfKeyPair().publicKey();
 				m_unlockedAccounts.modifier().add(std::move(descriptor));
 
-				if (SeedOptions::Remote == seedOptions) {
-					addAccount(m_primaryMainAccountPublicKey, signingPublicKey, vrfPublicKey, Amount(1234));
-				} else if (SeedOptions::Address == seedOptions) {
-					auto address = model::PublicKeyToAddress(signingPublicKey, m_config.Network.Identifier);
+				if (SeedOptions::Address == seedOptions) {
+					auto address = model::PublicKeyToAddress(m_primarySigningPublicKey, m_config.Network.Identifier);
 					addMainAccount(address, vrfPublicKey, Amount(1234));
-					m_primaryMainAccountPublicKey = signingPublicKey;
 				} else {
-					m_primaryMainAccountPublicKey = addAccount(signingPublicKey, vrfPublicKey, Amount(1234));
+					addAccount(m_primarySigningPublicKey, vrfPublicKey, Amount(1234));
 				}
-
-				m_primarySigningPublicKey = signingPublicKey;
 			}
 
 		public:
@@ -225,10 +238,9 @@ namespace catapult { namespace harvesting {
 			cache::CatapultCache m_cache;
 			UnlockedAccounts m_unlockedAccounts;
 			Key m_primaryMainAccountPublicKey;
+			Key m_primarySigningPublicKey;
 			crypto::KeyPair m_encryptionKeyPair;
 			UnlockedAccountsUpdater m_updater;
-
-			Key m_primarySigningPublicKey;
 		};
 
 		// endregion
@@ -375,6 +387,30 @@ namespace catapult { namespace harvesting {
 
 		// Assert:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
+	}
+
+	namespace {
+		void AssertUpdateDoesNotPruneValidHarvesterWithoutNodeLink(TestContext::SeedOptions seedOptions) {
+			// Arrange:
+			TestContext context(seedOptions);
+
+			// Sanity:
+			EXPECT_EQ(1u, context.numUnlockedAccounts());
+
+			// Act:
+			context.update();
+
+			// Assert:
+			EXPECT_EQ(1u, context.numUnlockedAccounts());
+		}
+	}
+
+	TEST(TEST_CLASS, UpdateDoesNotPruneValidMainAccountWithoutNodeLink) {
+		AssertUpdateDoesNotPruneValidHarvesterWithoutNodeLink(TestContext::SeedOptions::Public_Key);
+	}
+
+	TEST(TEST_CLASS, UpdateDoesNotPruneValidRemoteHarvesterWithoutNodeLink) {
+		AssertUpdateDoesNotPruneValidHarvesterWithoutNodeLink(TestContext::SeedOptions::Remote);
 	}
 
 	TEST(TEST_CLASS, UpdateRemovesFileWhenAllAccountsArePruned) {

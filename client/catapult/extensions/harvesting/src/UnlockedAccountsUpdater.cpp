@@ -155,7 +155,7 @@ namespace catapult { namespace harvesting {
 				}
 
 				// skip node link check for remote (non-delegated) harvesters
-				if (accountState.PublicKey == m_signingPublicKey)
+				if (GetLinkedPublicKey(accountState) == m_signingPublicKey)
 					return true;
 
 				if (GetNodePublicKey(accountState) != m_nodePublicKey) {
