@@ -161,6 +161,7 @@ namespace catapult { namespace test {
 		config.BlockChain = std::move(blockChainConfig);
 		config.Node = CreateNodeConfiguration();
 
+		config.User.SeedDirectory = (std::filesystem::path(dataDirectory) / "seed").generic_string();
 		config.User.DataDirectory = dataDirectory;
 		config.User.CertificateDirectory = dataDirectory.empty()
 				? GetDefaultCertificateDirectory()

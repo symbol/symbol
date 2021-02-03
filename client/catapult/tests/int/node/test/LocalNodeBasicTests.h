@@ -202,7 +202,7 @@ namespace catapult { namespace test {
 
 		static void AssertLocalNodeCannotBootWhenCacheAndStorageHeightsAreInconsistent() {
 			// Arrange: boot with storage height (2) ahead of cache height (1)
-			TestContext context(NodeFlag::Require_Explicit_Boot);
+			TestContext context(NodeFlag::Require_Explicit_Boot | NodeFlag::Bypass_Seed);
 			auto boot = [&context]() {
 				context.boot([](auto& bootstrapper) {
 					auto pBlock = GenerateBlockWithTransactions(0, Height(2));

@@ -35,11 +35,17 @@ namespace catapult { namespace test {
 	/// Prepares the storage by creating the \a destination directory structure and seeding a nemesis block.
 	void PrepareStorage(const std::string& destination);
 
+	/// Prepares the seed storage by creating the \a destination directory structure and seeding a nemesis block.
+	void PrepareSeedStorage(const std::string& destination);
+
 	/// Prepares the storage by creating the \a destination directory structure.
 	void PrepareStorageWithoutNemesis(const std::string& destination);
 
 	/// Modifies the nemesis block stored in \a destination by applying \a modify.
 	void ModifyNemesis(const std::string& destination, const consumer<model::Block&, const model::BlockElement&>& modify);
+
+	/// Modifies the seed nemesis block stored in \a destination by applying \a modify.
+	void ModifySeedNemesis(const std::string& destination, const consumer<model::Block&, const model::BlockElement&>& modify);
 
 	/// Fakes file-based chain located at \a destination to \a height
 	/// by setting proper value in index.dat and filling 00000/hashes.dat.

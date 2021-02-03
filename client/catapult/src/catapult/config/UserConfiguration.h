@@ -32,6 +32,9 @@ namespace catapult { namespace config {
 		/// \c true if potential delegated harvesters should be automatically detected.
 		bool EnableDelegatedHarvestersAutoDetection;
 
+		/// Seed directory containing nemesis.
+		std::string SeedDirectory;
+
 		/// Data directory.
 		std::string DataDirectory;
 

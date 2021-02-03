@@ -45,6 +45,73 @@
 namespace catapult { namespace local {
 
 	namespace {
+		// region data directory preparation
+
+		void ImportRootFilesFromSeed(const std::string& seedDirectory, const config::CatapultDataDirectory& dataDirectory) {
+			auto begin = std::filesystem::directory_iterator(seedDirectory);
+			auto end = std::filesystem::directory_iterator();
+
+			for (auto iter = begin; end != iter; ++iter) {
+				if (!iter->is_regular_file())
+					continue;
+
+				std::filesystem::copy_file(iter->path(), dataDirectory.rootDir().file(iter->path().filename().generic_string()));
+			}
+		}
+
+		void ImportVersionedFilesFromSeed(
+				const std::string& seedDirectory,
+				const config::CatapultDataDirectory& dataDirectory,
+				uint32_t fileDatabaseBatchSize) {
+			auto outputDirectory = dataDirectory.dir("00000");
+			outputDirectory.create();
+
+			auto begin = std::filesystem::directory_iterator(seedDirectory + "/00000");
+			auto end = std::filesystem::directory_iterator();
+
+			for (auto iter = begin; end != iter; ++iter) {
+				auto filename = iter->path().filename().generic_string();
+				if (0 != filename.find("00001") || 1 == fileDatabaseBatchSize) {
+					// copy plain file
+					std::filesystem::copy_file(iter->path(), outputDirectory.file(filename));
+					continue;
+				}
+
+				// import file database
+				auto outputFilename = "00000" + iter->path().extension().generic_string();
+				io::RawFile inputFile(iter->path().generic_string(), io::OpenMode::Read_Only);
+				io::RawFile outputFile(outputDirectory.file(outputFilename), io::OpenMode::Read_Write);
+
+				// write file database header
+				auto headerSize = fileDatabaseBatchSize * sizeof(uint64_t);
+				outputFile.write(std::vector<uint8_t>(headerSize));
+				outputFile.seek(sizeof(uint64_t));
+				Write64(outputFile, headerSize);
+				outputFile.seek(headerSize);
+
+				// copy input file contents
+				std::vector<uint8_t> inputBuffer(inputFile.size());
+				inputFile.read(inputBuffer);
+				outputFile.write(inputBuffer);
+			}
+		}
+
+		config::CatapultDataDirectory PrepareDataDirectory(const config::CatapultConfiguration& config) {
+			auto dataDirectory = config::CatapultDataDirectoryPreparer::Prepare(config.User.DataDirectory);
+
+			if (!std::filesystem::exists(dataDirectory.rootDir().file("index.dat"))) {
+				CATAPULT_LOG(info) << "importing seed directory";
+				ImportRootFilesFromSeed(config.User.SeedDirectory, dataDirectory);
+				ImportVersionedFilesFromSeed(config.User.SeedDirectory, dataDirectory, config.Node.FileDatabaseBatchSize);
+			}
+
+			return dataDirectory;
+		}
+
+		// endregion
+
+		// region storage and subscriber factories
+
 		std::unique_ptr<io::PrunableBlockStorage> CreateStagingBlockStorage(
 				const config::CatapultDataDirectory& dataDirectory,
 				uint32_t fileDatabaseBatchSize) {
@@ -93,6 +160,10 @@ namespace catapult { namespace local {
 			return subscriptionManager.createNodeSubscriber();
 		}
 
+		// endregion
+
+		// region utils
+
 		void AddNodeCounters(std::vector<utils::DiagnosticCounter>& counters, const ionet::NodeContainer& nodes) {
 			counters.emplace_back(utils::DiagnosticCounterId("NODES"), [&nodes]() {
 				return nodes.view().size();
@@ -106,13 +177,15 @@ namespace catapult { namespace local {
 			});
 		}
 
+		// endregion
+
 		class DefaultLocalNode final : public LocalNode {
 		public:
 			DefaultLocalNode(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper, const config::CatapultKeys& keys)
 					: m_pBootstrapper(std::move(pBootstrapper))
 					, m_serviceLocator(keys)
 					, m_config(m_pBootstrapper->config())
-					, m_dataDirectory(config::CatapultDataDirectoryPreparer::Prepare(m_config.User.DataDirectory))
+					, m_dataDirectory(PrepareDataDirectory(m_config))
 					, m_nodes(
 							m_config.Node.MaxTrackedNodes,
 							m_config.BlockChain.Network.NodeEqualityStrategy,

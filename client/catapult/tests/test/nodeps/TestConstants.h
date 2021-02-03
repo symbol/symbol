@@ -38,8 +38,7 @@ namespace catapult { namespace test {
 	constexpr Importance Default_Total_Chain_Importance(8'999'999'998);
 
 	/// File database batch size used in tests.
-	/// \note This is dependent on the generated nemesis seed.
-	constexpr uint32_t File_Database_Batch_Size = 1;
+	constexpr uint32_t File_Database_Batch_Size = 100;
 
 	/// Network generation hash seed string used by deterministic tests.
 	constexpr auto Deterministic_Network_Generation_Hash_Seed_String = "070D67A92D441EAAD25AB5C78F1F68628BE33EAA1DEBEDBE14D4FBE8F4DC326E";

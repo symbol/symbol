@@ -27,9 +27,22 @@ namespace catapult { namespace config { class CatapultConfiguration; } }
 
 namespace catapult { namespace test {
 
-	/// Updates the nemesis block in the \a destination directory by setting an appropriate receipts hash.
-	void SetNemesisReceiptsHash(const std::string& destination);
+	/// Type of nemesis storage.
+	enum class NemesisStorageDisposition {
+		/// Nemesis in seed directory.
+		Seed,
 
-	/// Updates the nemesis block in the \a destination directory by setting an appropriate state hash in accordance with \a config.
-	void SetNemesisStateHash(const std::string& destination, const config::CatapultConfiguration& config);
+		/// Nemesis in data directory.
+		Data
+	};
+
+	/// Updates the nemesis block in the \a destination directory with \a disposition by setting an appropriate receipts hash.
+	void SetNemesisReceiptsHash(const std::string& destination, NemesisStorageDisposition disposition);
+
+	/// Updates the nemesis block in the \a destination directory with \a disposition by setting an appropriate state hash
+	/// in accordance with \a config.
+	void SetNemesisStateHash(
+			const std::string& destination,
+			NemesisStorageDisposition disposition,
+			const config::CatapultConfiguration& config);
 }}

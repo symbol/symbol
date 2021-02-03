@@ -36,8 +36,8 @@ namespace catapult { namespace io {
 			using Guard = test::TempDirectoryGuard;
 			using StorageType = FileBlockStorage;
 
-			static std::unique_ptr<StorageType> OpenStorage(const std::string& destination) {
-				return std::make_unique<StorageType>(destination, test::File_Database_Batch_Size);
+			static std::unique_ptr<StorageType> OpenStorage(const std::string& destination, uint32_t fileDatabaseBatchSize = 1) {
+				return std::make_unique<StorageType>(destination, fileDatabaseBatchSize);
 			}
 
 			static std::unique_ptr<StorageType> PrepareStorage(const std::string& destination, Height height = Height()) {
@@ -45,7 +45,7 @@ namespace catapult { namespace io {
 				if (Height() != height)
 					test::FakeHeight(destination, height.unwrap());
 
-				return OpenStorage(destination);
+				return OpenStorage(destination, test::File_Database_Batch_Size);
 			}
 		};
 	}
@@ -132,7 +132,7 @@ namespace catapult { namespace io {
 
 		// - append some data
 		{
-			io::RawFile file(tempDir.name() + "/00000/00002.dat", io::OpenMode::Read_Append);
+			io::RawFile file(tempDir.name() + "/00000/00000.dat", io::OpenMode::Read_Append);
 			file.seek(file.size());
 			std::vector<uint8_t> buffer{ 42 };
 			file.write(buffer);

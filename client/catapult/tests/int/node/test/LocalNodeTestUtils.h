@@ -67,7 +67,10 @@ namespace catapult { namespace test {
 		Require_Explicit_Boot = 256,
 
 		/// Node supporting auto sync cleanup.
-		Auto_Sync_Cleanup = 512
+		Auto_Sync_Cleanup = 512,
+
+		/// Bypass seed directory and prepare data directory directly.
+		Bypass_Seed = 1024
 	};
 
 	MAKE_BITWISE_ENUM(NodeFlag)
