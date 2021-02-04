@@ -27,13 +27,13 @@
 #include "RepairSpooling.h"
 #include "RepairState.h"
 #include "StateChangeRepairingSubscriber.h"
+#include "StateRecoveryMode.h"
 #include "StorageStart.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
-#include "catapult/extensions/LocalNodeStateFileStorage.h"
 #include "catapult/extensions/LocalNodeStateRef.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/io/BlockStorageCache.h"
@@ -157,11 +157,11 @@ namespace catapult { namespace local {
 
 				CATAPULT_LOG(info) << "loading state";
 				auto heights = extensions::LoadStateFromDirectory(m_dataDirectory.dir("state"), stateRef(), m_pluginManager);
-				if (heights.Cache > heights.Storage)
-					CATAPULT_THROW_RUNTIME_ERROR_2("cache height is larger than storage height", heights.Cache, heights.Storage);
-
-				if (!stateRef().Config.Node.EnableCacheDatabaseStorage || Height(1) == heights.Cache)
+				auto stateRecoveryMode = CalculateStateRecoveryMode(m_config.Node, heights);
+				if (StateRecoveryMode::Repair == stateRecoveryMode)
 					repairStateFromStorage(heights);
+				else if (StateRecoveryMode::Reseed == stateRecoveryMode)
+					CATAPULT_THROW_INVALID_ARGUMENT("reseed operation detected - please use the importer tool");
 
 				CATAPULT_LOG(info) << "loaded block chain (height = " << heights.Storage << ", score = " << m_score.get() << ")";
 
@@ -190,9 +190,6 @@ namespace catapult { namespace local {
 			}
 
 			void repairStateFromStorage(const extensions::StateHeights& heights) {
-				if (heights.Cache == heights.Storage)
-					return;
-
 				// disable load optimizations (loading from the saved state is optimization enough) in order to prevent
 				// discontinuities in block analysis (e.g. statistic cache expects consecutive blocks)
 				CATAPULT_LOG(info) << "loading state - block loading required";

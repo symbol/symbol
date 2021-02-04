@@ -100,22 +100,9 @@ namespace catapult { namespace local {
 
 	// region block change notifications
 
-	TEST(TEST_CLASS, BlockChangeNotificationsAreNotRaisedWhenHeightIsGreaterThanOne) {
+	TEST(TEST_CLASS, BlockChangeNotificationsAreNotRaisedWhenPreviousExecutionIsDetected) {
 		// Arrange:
 		TestContext context(2);
-		mocks::MockBlockChangeSubscriber subscriber;
-
-		// Act:
-		EXPECT_THROW(context.notifier().raise(subscriber), catapult_runtime_error);
-
-		// Assert:
-		const auto& capturedBlockElements = subscriber.copiedBlockElements();
-		EXPECT_EQ(0u, capturedBlockElements.size());
-	}
-
-	TEST(TEST_CLASS, BlockChangeNotificationsAreNotRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsDetected) {
-		// Arrange: add account to indicate previous execution
-		TestContext context(1);
 		context.addRandomAccountToCache();
 		mocks::MockBlockChangeSubscriber subscriber;
 
@@ -127,9 +114,9 @@ namespace catapult { namespace local {
 		EXPECT_EQ(0u, capturedBlockElements.size());
 	}
 
-	TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsNotDetected_WithoutStatement) {
+	TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenPreviousExecutionIsNotDetected_WithoutStatement) {
 		// Arrange:
-		TestContext context(1);
+		TestContext context(2);
 		mocks::MockBlockChangeSubscriber subscriber;
 
 		// Act:
@@ -143,9 +130,9 @@ namespace catapult { namespace local {
 		EXPECT_FALSE(capturedBlockElements[0]->OptionalStatement);
 	}
 
-	TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsNotDetected_WithStatement) {
+	TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenPreviousExecutionIsNotDetected_WithStatement) {
 		// Arrange:
-		TestContext context(1);
+		TestContext context(2);
 		auto pBlockStatement = context.reseedNemesisWithStatement();
 		mocks::MockBlockChangeSubscriber subscriber;
 
@@ -165,9 +152,10 @@ namespace catapult { namespace local {
 
 	// region finalization notifications
 
-	TEST(TEST_CLASS, FinalizationNotificationsAreNotRaisedWhenHeightIsGreaterThanOne) {
+	TEST(TEST_CLASS, FinalizationNotificationsAreNotRaisedWhenPreviousExecutionIsDetected) {
 		// Arrange:
 		TestContext context(2);
+		context.addRandomAccountToCache();
 		mocks::MockFinalizationSubscriber subscriber;
 
 		// Act:
@@ -177,9 +165,9 @@ namespace catapult { namespace local {
 		EXPECT_EQ(0u, subscriber.finalizedBlockParams().params().size());
 	}
 
-	TEST(TEST_CLASS, FinalizationNotificationsAreRaisedWhenHeightIsEqualToOne) {
+	TEST(TEST_CLASS, FinalizationNotificationsAreRaisedWhenPreviousExecutionIsNotDetected) {
 		// Arrange:
-		TestContext context(1);
+		TestContext context(2);
 		mocks::MockFinalizationSubscriber subscriber;
 
 		// Act:
@@ -217,9 +205,10 @@ namespace catapult { namespace local {
 		}
 	}
 
-	TEST(TEST_CLASS, StateChangeNotificationsAreNotRaisedWhenHeightIsGreaterThanOne) {
+	TEST(TEST_CLASS, StateChangeNotificationsAreNotRaisedWhenPreviousExecutionIsDetected) {
 		// Arrange:
 		TestContext context(2);
+		context.addRandomAccountToCache();
 		mocks::MockStateChangeSubscriber subscriber;
 
 		// Act:
@@ -230,9 +219,9 @@ namespace catapult { namespace local {
 		EXPECT_EQ(0u, subscriber.numStateChanges());
 	}
 
-	TEST(TEST_CLASS, StateChangeNotificationsAreRaisedWhenHeightIsEqualToOne) {
+	TEST(TEST_CLASS, StateChangeNotificationsAreRaisedWhenPreviousExecutionIsNotDetected) {
 		// Arrange:
-		TestContext context(1);
+		TestContext context(2);
 		mocks::MockStateChangeSubscriber subscriber;
 
 		// - register consumer because CatapultCacheDelta wrapped by CacheChanges is temporary and will be out of scope below

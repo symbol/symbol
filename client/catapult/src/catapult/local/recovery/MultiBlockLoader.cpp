@@ -31,6 +31,7 @@
 #include "catapult/model/Elements.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/plugins/PluginManager.h"
+#include "catapult/subscribers/StateChangeInfo.h"
 #include "catapult/utils/StackLogger.h"
 
 namespace catapult { namespace local {
@@ -113,11 +114,13 @@ namespace catapult { namespace local {
 				const BlockDependentNotificationObserverFactory& observerFactory,
 				const plugins::PluginManager& pluginManager,
 				const extensions::LocalNodeStateRef& stateRef,
-				Height startHeight)
+				Height startHeight,
+				const consumer<LoadedBlockStatus&&>& statusConsumer)
 				: m_observerFactory(observerFactory)
 				, m_pluginManager(pluginManager)
 				, m_stateRef(stateRef)
 				, m_startHeight(startHeight)
+				, m_statusConsumer(statusConsumer)
 		{}
 
 	public:
@@ -127,6 +130,7 @@ namespace catapult { namespace local {
 			auto height = m_startHeight;
 			auto pParentBlockElement = storage.loadBlockElement(height - Height(1));
 
+			model::ChainScore previousScore;
 			model::ChainScore score;
 			Hash256 stateHash;
 			auto chainHeight = storage.chainHeight();
@@ -134,10 +138,20 @@ namespace catapult { namespace local {
 				auto pBlockElement = storage.loadBlockElement(height);
 				score += model::ChainScore(chain::CalculateScore(pParentBlockElement->Block, pBlockElement->Block));
 
-				stateHash = execute(*pBlockElement);
+				const auto& blockElement = *pBlockElement;
+				const auto& statusConsumer = m_statusConsumer;
+				stateHash = execute(blockElement, [&previousScore, &score, &blockElement, &statusConsumer](auto&& cacheChanges) {
+					if (!statusConsumer)
+						return;
+
+					auto scoreDelta = score - previousScore;
+					auto stateChangeInfo = subscribers::StateChangeInfo{ std::move(cacheChanges), scoreDelta, blockElement.Block.Height };
+					statusConsumer(LoadedBlockStatus{ blockElement, score, stateChangeInfo });
+				});
 				notifyProgress(height, chainHeight);
 
 				pParentBlockElement = std::move(pBlockElement);
+				previousScore = score;
 				height = height + Height(1);
 			}
 
@@ -151,7 +165,7 @@ namespace catapult { namespace local {
 		}
 
 	private:
-		Hash256 execute(const model::BlockElement& blockElement) const {
+		Hash256 execute(const model::BlockElement& blockElement, const consumer<cache::CacheChanges&&>& cacheChangesConsumer) const {
 			auto cacheDelta = m_stateRef.Cache.createDelta();
 			auto observerState = observers::ObserverState(cacheDelta);
 
@@ -165,6 +179,8 @@ namespace catapult { namespace local {
 			// populate patricia tree delta
 			auto stateHash = cacheDelta.calculateStateHash(block.Height).StateHash;
 
+			cacheChangesConsumer(cache::CacheChanges(cacheDelta));
+
 			m_stateRef.Cache.commit(block.Height);
 			return stateHash;
 		}
@@ -174,14 +190,16 @@ namespace catapult { namespace local {
 		const plugins::PluginManager& m_pluginManager;
 		const extensions::LocalNodeStateRef& m_stateRef;
 		Height m_startHeight;
+		consumer<LoadedBlockStatus&&> m_statusConsumer;
 	};
 
 	model::ChainScore LoadBlockChain(
 			const BlockDependentNotificationObserverFactory& observerFactory,
 			const plugins::PluginManager& pluginManager,
 			const extensions::LocalNodeStateRef& stateRef,
-			Height startHeight) {
-		BlockChainLoader loader(observerFactory, pluginManager, stateRef, startHeight);
+			Height startHeight,
+			const consumer<LoadedBlockStatus&&>& statusConsumer) {
+		BlockChainLoader loader(observerFactory, pluginManager, stateRef, startHeight, statusConsumer);
 
 		utils::StackLogger logger("load block chain", utils::LogLevel::important);
 		utils::StackTimer stopwatch;

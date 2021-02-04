@@ -90,9 +90,9 @@ namespace catapult { namespace local {
 	}
 
 	void NemesisBlockNotifier::raise(const consumer<model::BlockElement>& action) {
-		// bypass if chain has advanced past nemesis and/or appears to have been previously executed
+		// bypass if chain appears to have been previously executed
 		auto storageView = m_storage.view();
-		if (Nemesis_Height != storageView.chainHeight() || HasPreviousExecution(m_cache))
+		if (HasPreviousExecution(m_cache))
 			CATAPULT_THROW_RUNTIME_ERROR("NemesisBlockNotifier can only be called during first boot");
 
 		auto pNemesisBlockElement = storageView.loadBlockElement(Nemesis_Height);

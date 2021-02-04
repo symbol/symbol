@@ -30,7 +30,6 @@ namespace {
 int main(int argc, const char** argv) {
 	using namespace catapult;
 
-	// reuse broker configuration, which contains all extensions needed for recovery
 	auto processOptions = process::ProcessOptions::Exit_After_Process_Host_Creation;
 	return process::ProcessMain(argc, argv, Process_Name, processOptions, [argc, argv](auto&& config, const auto&) {
 		// create bootstrapper
