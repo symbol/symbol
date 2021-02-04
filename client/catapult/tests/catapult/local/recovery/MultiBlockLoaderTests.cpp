@@ -23,22 +23,18 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
-#include "catapult/extensions/PluginUtils.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/subscribers/StateChangeInfo.h"
-#include "tests/catapult/local/recovery/test/FilechainTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/BlockStateHash.h"
+#include "tests/test/local/FilechainTestUtils.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/mocks/MockBlockHeightCapturingNotificationObserver.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/TestHarness.h"
-#include <random>
 
 namespace catapult { namespace local {
 

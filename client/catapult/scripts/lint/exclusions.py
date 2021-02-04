@@ -49,6 +49,7 @@ NAMESPACES_FALSEPOSITIVES = (
 
     # main entry points
     re.compile(r'src.catapult.process.broker.main.cpp'),
+    re.compile(r'src.catapult.process.importer.main.cpp'),
     re.compile(r'src.catapult.process.recovery.main.cpp'),
     re.compile(r'src.catapult.process.server.main.cpp'),
     re.compile(r'tests.bench.nodeps.BenchMain.cpp'),
@@ -98,6 +99,7 @@ CORE_FIRSTINCLUDES = {
     'src/catapult/ionet/IoEnums.cpp': 'ConnectResult.h',
     'src/catapult/net/NetEnums.cpp': 'NodeRequestResult.h',
     'src/catapult/process/broker/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
+    'src/catapult/process/importer/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
     'src/catapult/process/recovery/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
     'src/catapult/process/server/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
     'src/catapult/version/nix/what_version.cpp': 'catapult/version/version.h',
