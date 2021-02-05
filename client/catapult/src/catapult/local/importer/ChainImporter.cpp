@@ -56,6 +56,17 @@ namespace catapult { namespace local {
 			return subscriptionManager.createStateChangeSubscriber();
 		}
 
+#pragma pack(push, 1)
+
+		struct FinalizationProofHeader : public model::SizePrefixedEntity {
+			uint32_t Version;
+			model::FinalizationRound Round;
+			catapult::Height Height;
+			Hash256 Hash;
+		};
+
+#pragma pack(pop)
+
 		class DefaultChainImporter final : public ChainImporter {
 		public:
 			explicit DefaultChainImporter(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper)
@@ -126,7 +137,8 @@ namespace catapult { namespace local {
 				auto stateChangeDir = m_dataDirectory.spoolDir("state_change");
 				std::filesystem::copy(stateChangeDir.file("index_server.dat"), stateChangeDir.file("index.dat"));
 
-				// 	reseedFinalizationNotifications();
+				// process proofs
+				generateFinalizationNotifications();
 			}
 
 			void loadAllBlocks(const consumer<LoadedBlockStatus&&>& statusConsumer) {
@@ -137,16 +149,16 @@ namespace catapult { namespace local {
 				m_score += partialScore;
 			}
 
-			// TODO: will enable this in a followup review
-			// void reseedFinalizationNotifications() {
-			// 	io::FileProofStorage proofStorage(m_config.User.DataDirectory);
+			void generateFinalizationNotifications() {
+				io::FileDatabase proofFileDatabase(m_dataDirectory.rootDir(), { m_config.Node.FileDatabaseBatchSize, ".proof" });
+				for (uint64_t id = 2; proofFileDatabase.contains(id); ++id) {
+					auto pProofStream = proofFileDatabase.inputStream(id);
 
-			// 	auto lastProofEpoch = proofStorage.statistics().Round.Epoch;
-			// 	for (auto epoch = FinalizationEpoch(1); epoch <= lastProofEpoch; epoch = epoch + FinalizationEpoch(1)) {
-			// 		auto pProof = proofStorage.loadProof(epoch);
-			// 		m_pFinalizationSubscriber->notifyFinalizedBlock(pProof->Round, pProof->Height, pProof->Hash);
-			// 	}
-			// }
+					FinalizationProofHeader proofHeader;
+					pProofStream->read({ reinterpret_cast<uint8_t*>(&proofHeader), sizeof(FinalizationProofHeader) });
+					m_pFinalizationSubscriber->notifyFinalizedBlock(proofHeader.Round, proofHeader.Height, proofHeader.Hash);
+				}
+			}
 
 		public:
 			void shutdown() override {

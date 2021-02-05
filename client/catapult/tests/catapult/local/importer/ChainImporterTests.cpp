@@ -95,23 +95,18 @@ namespace catapult { namespace local {
 
 		// endregion
 
-		// region seeders
+		// region FinalizationProofHeader
 
-		void PrepareRandomBlocks(const config::CatapultDirectory& dataDirectory, uint64_t numBlocks) {
-			auto recipients = test::GenerateRandomAddresses(numBlocks);
+#pragma pack(push, 1)
 
-			// generate block per every recipient, each with random number of transactions
-			auto height = 2u;
-			std::mt19937_64 rnd;
-			auto nemesisKeyPairs = test::GetNemesisKeyPairs();
+		struct FinalizationProofHeader : public model::SizePrefixedEntity {
+			uint32_t Version;
+			model::FinalizationRound Round;
+			catapult::Height Height;
+			Hash256 Hash;
+		};
 
-			io::FileBlockStorage storage(dataDirectory.str(), test::File_Database_Batch_Size);
-			for (auto i = 0u; i < numBlocks; ++i) {
-				auto blockWithAttributes = test::CreateBlock(nemesisKeyPairs, recipients[i], rnd, height, utils::TimeSpan::FromMinutes(1));
-				storage.saveBlock(test::BlockToBlockElement(*blockWithAttributes.pBlock));
-				++height;
-			}
-		}
+#pragma pack(pop)
 
 		// endregion
 
@@ -156,7 +151,33 @@ namespace catapult { namespace local {
 			}
 
 			void seedBlocks(uint64_t numBlocks) {
-				PrepareRandomBlocks(m_dataDirectory.rootDir(), numBlocks);
+				auto recipients = test::GenerateRandomAddresses(numBlocks);
+
+				// generate block per every recipient, each with random number of transactions
+				auto height = 2u;
+				std::mt19937_64 rnd;
+				auto nemesisKeyPairs = test::GetNemesisKeyPairs();
+
+				io::FileBlockStorage storage(m_dataDirectory.rootDir().str(), test::File_Database_Batch_Size);
+				for (auto i = 0u; i < numBlocks; ++i) {
+					auto timeSpacing = utils::TimeSpan::FromMinutes(1);
+					auto blockWithAttributes = test::CreateBlock(nemesisKeyPairs, recipients[i], rnd, height, timeSpacing);
+					storage.saveBlock(test::BlockToBlockElement(*blockWithAttributes.pBlock));
+					++height;
+				}
+			}
+
+			void seedProofs(uint64_t numProofs) {
+				io::FileDatabase proofFileDatabase(m_dataDirectory.rootDir(), { test::File_Database_Batch_Size, ".proof" });
+				for (auto i = 0u; i < numProofs; ++i) {
+					auto pProofStream = proofFileDatabase.outputStream(2 + i);
+
+					FinalizationProofHeader proofHeader;
+					test::FillWithRandomData(proofHeader);
+					proofHeader.Height = Height(3 + 2 * i);
+
+					pProofStream->write({ reinterpret_cast<const uint8_t*>(&proofHeader), sizeof(FinalizationProofHeader) });
+				}
 			}
 
 		public:
@@ -301,6 +322,7 @@ namespace catapult { namespace local {
 		// Arrange:
 		TestContext context;
 		context.seedBlocks(5);
+		context.seedProofs(2);
 
 		// Act:
 		context.boot();
@@ -317,6 +339,7 @@ namespace catapult { namespace local {
 		// Arrange:
 		TestContext context;
 		context.seedBlocks(5);
+		context.seedProofs(2);
 
 		// Act:
 		context.boot(SubscriberMode::Block_Change);
@@ -333,6 +356,7 @@ namespace catapult { namespace local {
 		// Arrange:
 		TestContext context;
 		context.seedBlocks(5);
+		context.seedProofs(2);
 
 		// Act:
 		context.boot(SubscriberMode::State_Change);
@@ -349,6 +373,7 @@ namespace catapult { namespace local {
 		// Arrange:
 		TestContext context;
 		context.seedBlocks(5);
+		context.seedProofs(2);
 
 		// Act:
 		context.boot(SubscriberMode::Finalization);
@@ -358,7 +383,7 @@ namespace catapult { namespace local {
 
 		EXPECT_TRUE(context.blockChangeHeights().empty());
 		EXPECT_TRUE(context.stateChangeHeights().empty());
-		EXPECT_EQ(std::vector<Height>({ Height(1) }), context.finalizationHeights());
+		EXPECT_EQ(std::vector<Height>({ Height(1), Height(3), Height(5) }), context.finalizationHeights());
 	}
 
 	// endregion
@@ -370,6 +395,7 @@ namespace catapult { namespace local {
 			// Arrange:
 			TestContext context;
 			context.seedBlocks(5);
+			context.seedProofs(2);
 
 			// Act:
 			context.boot(SubscriberMode::None, cacheDatabaseMode);
