@@ -130,7 +130,7 @@ namespace catapult { namespace io {
 	std::pair<std::vector<uint8_t>, bool> FileBlockStorage::loadBlockStatementData(Height height) const {
 		requireHeight(height, "block statement data");
 
-		if (!m_statementDatabase.exists(height.unwrap()))
+		if (!m_statementDatabase.contains(height.unwrap()))
 			return std::make_pair(std::vector<uint8_t>(), false);
 
 		size_t streamSize = 0;

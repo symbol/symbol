@@ -72,7 +72,7 @@ namespace catapult { namespace io {
 			CATAPULT_THROW_INVALID_ARGUMENT("batch size must be nonzero");
 	}
 
-	bool FileDatabase::exists(uint64_t id) const {
+	bool FileDatabase::contains(uint64_t id) const {
 		auto filePath = getFilePath(id, false);
 		if (!std::filesystem::exists(filePath))
 			return false;

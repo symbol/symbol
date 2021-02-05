@@ -154,10 +154,10 @@ namespace catapult { namespace io {
 
 	// endregion
 
-	// region exists
+	// region contains
 
 	namespace {
-		void RunExistsTest(uint64_t idToCheck, bool expectedResult) {
+		void RunContainsTest(uint64_t idToCheck, bool expectedResult) {
 			// Arrange:
 			TestContext context;
 
@@ -165,27 +165,27 @@ namespace catapult { namespace io {
 			WriteAll(context.database(), 10, payloads);
 
 			// Act:
-			auto exists = context.database().exists(idToCheck);
+			auto contains = context.database().contains(idToCheck);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, exists);
+			EXPECT_EQ(expectedResult, contains);
 		}
 	}
 
-	TEST(TEST_CLASS, ExistsReturnsFalseWhenFileDoesNotExist) {
-		RunExistsTest(15, false);
+	TEST(TEST_CLASS, ContainsReturnsFalseWhenFileDoesNotExist) {
+		RunContainsTest(15, false);
 	}
 
-	TEST(TEST_CLASS, ExistsReturnsFalseWhenFileExistsButPayloadDoesNot) {
-		RunExistsTest(13, false);
+	TEST(TEST_CLASS, ContainsReturnsFalseWhenFileExistsButPayloadDoesNot) {
+		RunContainsTest(13, false);
 	}
 
-	TEST(TEST_CLASS, ExistsReturnsTrueWhenFileAndPayloadExist) {
-		RunExistsTest(11, true);
+	TEST(TEST_CLASS, ContainsReturnsTrueWhenFileAndPayloadExist) {
+		RunContainsTest(11, true);
 	}
 
 	namespace {
-		void RunHeaderlessModeExistsTest(uint64_t idToCheck, bool expectedResult) {
+		void RunHeaderlessModeContainsTest(uint64_t idToCheck, bool expectedResult) {
 			// Arrange:
 			TestContext context(1);
 
@@ -193,19 +193,19 @@ namespace catapult { namespace io {
 			WriteAll(context.database(), 10, payloads);
 
 			// Act:
-			auto exists = context.database().exists(idToCheck);
+			auto contains = context.database().contains(idToCheck);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, exists);
+			EXPECT_EQ(expectedResult, contains);
 		}
 	}
 
-	TEST(TEST_CLASS, ExistsReturnsFalseWhenFileDoesNotExist_HeaderlesssMode) {
-		RunHeaderlessModeExistsTest(13, false);
+	TEST(TEST_CLASS, ContainsReturnsFalseWhenFileDoesNotExist_HeaderlesssMode) {
+		RunHeaderlessModeContainsTest(13, false);
 	}
 
-	TEST(TEST_CLASS, ExistsReturnsTrueWhenFileExists_HeaderlesssMode) {
-		RunHeaderlessModeExistsTest(11, true); // notice that header check is bypassed
+	TEST(TEST_CLASS, ContainsReturnsTrueWhenFileExists_HeaderlesssMode) {
+		RunHeaderlessModeContainsTest(11, true); // notice that header check is bypassed
 	}
 
 	// endregion
