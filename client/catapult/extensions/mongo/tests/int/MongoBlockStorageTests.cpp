@@ -591,7 +591,8 @@ namespace catapult { namespace mongo {
 		EXPECT_EQ(3u, static_cast<size_t>(database["transactions"].count_documents(filter.view())));
 	}
 
-	TEST(TEST_CLASS, CanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent) {
+	template<typename TPrepare>
+	void AssertCanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent(TPrepare prepare) {
 		// Arrange: create new block with same height as db
 		auto transactions = test::GenerateRandomTransactions(7);
 		auto pBlock = test::GenerateBlockWithTransactions(transactions);
@@ -602,9 +603,10 @@ namespace catapult { namespace mongo {
 		// - prepare db with blocks
 		TestContext context(Multiple_Blocks_Count, MongoErrorPolicy::Mode::Idempotent);
 		context.saveBlocks();
+		auto expectedBlockCount = prepare();
 
 		// Sanity:
-		ASSERT_EQ(Height(Multiple_Blocks_Count), context.storage().chainHeight());
+		ASSERT_EQ(Height(expectedBlockCount), context.storage().chainHeight());
 
 		// Act:
 		context.storage().saveBlock(newBlockElement);
@@ -624,6 +626,29 @@ namespace catapult { namespace mongo {
 		blockElementCounts.AddCounts(newBlockElement);
 
 		AssertCollectionSizes(blockElementCounts);
+	}
+
+	TEST(TEST_CLASS, CanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent) {
+		AssertCanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent([]() {
+			return Multiple_Blocks_Count;
+		});
+	}
+
+	TEST(TEST_CLASS, CanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent_OrphanedDocuments) {
+		AssertCanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent([]() {
+			// Arrange: set the height one less without dropping the block or transactions
+			auto connection = test::CreateDbConnection();
+			auto database = connection[test::DatabaseName()];
+
+			auto journalHeight = document()
+					<< "$set" << open_document
+						<< "current.height" << static_cast<int64_t>(Multiple_Blocks_Count - 1)
+					<< close_document
+					<< finalize;
+
+			TrySetChainStatisticDocument(database, journalHeight.view());
+			return Multiple_Blocks_Count - 1;
+		});
 	}
 
 	namespace {

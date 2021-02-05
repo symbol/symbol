@@ -179,8 +179,10 @@ namespace catapult { namespace mongo {
 			void saveBlock(const model::BlockElement& blockElement) override {
 				auto height = blockElement.Block.Height;
 
-				if (MongoErrorPolicy::Mode::Idempotent == m_errorPolicy.mode())
+				if (MongoErrorPolicy::Mode::Idempotent == m_errorPolicy.mode()) {
 					dropBlocksAfter(height - Height(1));
+					dropAllAfter(height - Height(1)); // forcibly drop orphaned documents
+				}
 
 				auto dbHeight = chainHeight();
 				if (height != dbHeight + Height(1)) {
