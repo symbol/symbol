@@ -34,6 +34,7 @@ namespace catapult { namespace thread {
 			size_t numPartitions,
 			TWorkCallback callback) {
 		// region ParallelContext
+
 		class ParallelContext {
 		public:
 			ParallelContext() : m_numOutstandingOperations(1) // note that the work partitioning is the initial operation

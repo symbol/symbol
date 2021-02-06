@@ -29,7 +29,7 @@ namespace catapult {
 	namespace plugins { class PluginManager; }
 }
 
-namespace catapult { namespace tools { namespace nemgen {
+namespace catapult { namespace tools { namespace plugins {
 
 	/// Possible cache database cleanup modes.
 	enum class CacheDatabaseCleanupMode {
@@ -51,7 +51,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	public:
 		/// Gets the plugin manager.
-		plugins::PluginManager& manager();
+		catapult::plugins::PluginManager& manager();
 
 		/// Gets the transaction registry.
 		const model::TransactionRegistry& transactionRegistry() const;

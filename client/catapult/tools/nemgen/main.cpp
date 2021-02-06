@@ -25,7 +25,7 @@
 #include "BlockSaver.h"
 #include "NemesisConfigurationLoader.h"
 #include "NemesisExecutionHasher.h"
-#include "blockhashes/PluginLoader.h"
+#include "tools/plugins/PluginLoader.h"
 #include "tools/ToolConfigurationUtils.h"
 #include "catapult/io/RawFile.h"
 
@@ -79,9 +79,9 @@ namespace catapult { namespace tools { namespace nemgen {
 
 				// 2. load transaction plugins
 				auto databaseCleanupMode = options["useTemporaryCacheDatabase"].as<bool>()
-						? CacheDatabaseCleanupMode::Purge
-						: CacheDatabaseCleanupMode::None;
-				PluginLoader pluginLoader(config, databaseCleanupMode);
+						? plugins::CacheDatabaseCleanupMode::Purge
+						: plugins::CacheDatabaseCleanupMode::None;
+				plugins::PluginLoader pluginLoader(config, databaseCleanupMode);
 				pluginLoader.loadAll();
 
 				// 3. create the nemesis block element

@@ -26,7 +26,7 @@
 #include "catapult/plugins/PluginModule.h"
 #include <filesystem>
 
-namespace catapult { namespace tools { namespace nemgen {
+namespace catapult { namespace tools { namespace plugins {
 
 	namespace {
 		// region TempDirectoryGuard
@@ -70,7 +70,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 
 	public:
-		plugins::PluginManager& manager() {
+		catapult::plugins::PluginManager& manager() {
 			return m_pluginManager;
 		}
 
@@ -91,8 +91,8 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 
 	private:
-		static plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config) {
-			plugins::StorageConfiguration storageConfig;
+		static catapult::plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config) {
+			catapult::plugins::StorageConfiguration storageConfig;
 			storageConfig.PreferCacheDatabase = config.Node.EnableCacheDatabaseStorage;
 			storageConfig.CacheDatabaseDirectory = (std::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
 			return storageConfig;
@@ -100,8 +100,8 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	private:
 		const config::CatapultConfiguration& m_config;
-		std::vector<plugins::PluginModule> m_pluginModules;
-		plugins::PluginManager m_pluginManager;
+		std::vector<catapult::plugins::PluginModule> m_pluginModules;
+		catapult::plugins::PluginManager m_pluginManager;
 
 		std::unique_ptr<TempDirectoryGuard> m_pCacheDatabaseGuard;
 	};
@@ -116,7 +116,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	PluginLoader::~PluginLoader() = default;
 
-	plugins::PluginManager& PluginLoader::manager() {
+	catapult::plugins::PluginManager& PluginLoader::manager() {
 		return m_pImpl->manager();
 	}
 
