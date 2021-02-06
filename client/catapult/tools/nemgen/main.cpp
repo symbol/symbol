@@ -49,17 +49,15 @@ namespace catapult { namespace tools { namespace nemgen {
 			}
 
 			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
-				optionsBuilder("resources,r",
-						OptionsValue<std::string>(m_resourcesPath)->default_value(".."),
-						"the path to the resources directory");
+				AddResourcesOption(optionsBuilder);
 
 				optionsBuilder("nemesisProperties,p",
 						OptionsValue<std::string>(m_nemesisPropertiesFilePath),
-						"the path to the nemesis properties file");
+						"path to the nemesis properties file");
 
 				optionsBuilder("summary,s",
 						OptionsValue<std::string>(m_summaryFilePath),
-						"the path to summary output file (default: <bindir>/summary.txt)");
+						"path to summary output file (default: <bindir>/summary.txt)");
 
 				optionsBuilder("no-summary,n",
 						OptionsSwitch(),
@@ -72,7 +70,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 			int run(const Options& options) override {
 				// 1. load config and disable loading of user certificates during block generation
-				auto config = LoadConfiguration(m_resourcesPath);
+				auto config = LoadConfiguration(GetResourcesOptionValue(options));
 				const_cast<bool&>(config.User.EnableDelegatedHarvestersAutoDetection) = false;
 
 				auto nemesisConfig = LoadNemesisConfiguration(m_nemesisPropertiesFilePath);
@@ -119,7 +117,6 @@ namespace catapult { namespace tools { namespace nemgen {
 			}
 
 		private:
-			std::string m_resourcesPath;
 			std::string m_nemesisPropertiesFilePath;
 			std::string m_summaryFilePath;
 		};

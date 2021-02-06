@@ -45,16 +45,16 @@ namespace catapult { namespace tools { namespace benchmark {
 			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
 				optionsBuilder("num threads,t",
 						OptionsValue<uint32_t>(m_numThreads)->default_value(0),
-						"the number of threads");
+						"number of threads");
 				optionsBuilder("num partitions,p",
 						OptionsValue<uint32_t>(m_numPartitions)->default_value(0),
-						"the number of partitions");
+						"number of partitions");
 				optionsBuilder("ops / partition,o",
 						OptionsValue<uint32_t>(m_opsPerPartition)->default_value(1000),
-						"the number of operations per partition");
+						"number of operations per partition");
 				optionsBuilder("data size,s",
 						OptionsValue<uint32_t>(m_dataSize)->default_value(148),
-						"the size of the data to generate");
+						"size of the data to generate");
 			}
 
 			int run(const Options&) override {

@@ -51,20 +51,19 @@ namespace catapult { namespace tools {
 		}
 
 		void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional& positional) override final {
-			optionsBuilder("resources,r",
-					OptionsValue<std::string>(m_resourcesPath)->default_value(".."),
-					"the path to the resources directory");
+			AddResourcesOption(optionsBuilder);
 			prepareAdditionalOptions(optionsBuilder);
 			positional.add("resources", -1);
 		}
 
 		int run(const Options& options) override final {
-			auto config = LoadConfiguration(m_resourcesPath);
+			auto resourcesPath = GetResourcesOptionValue(options);
+			auto config = LoadConfiguration(resourcesPath);
 			auto networkFingerprint = model::UniqueNetworkFingerprint(
 					config.BlockChain.Network.Identifier,
 					config.BlockChain.Network.GenerationHashSeed);
-			auto p2pNodes = LoadPeers(m_resourcesPath, networkFingerprint);
-			auto apiNodes = LoadOptionalApiPeers(m_resourcesPath, networkFingerprint);
+			auto p2pNodes = LoadPeers(resourcesPath, networkFingerprint);
+			auto apiNodes = LoadOptionalApiPeers(resourcesPath, networkFingerprint);
 
 			MultiNodeConnector connector(config.User.CertificateDirectory);
 			std::vector<NodeInfoFuture> nodeInfoFutures;
@@ -129,6 +128,5 @@ namespace catapult { namespace tools {
 
 	private:
 		std::string m_censusName;
-		std::string m_resourcesPath;
 	};
 }}

@@ -24,11 +24,20 @@
 
 namespace catapult { namespace tools {
 
-	config::CatapultConfiguration LoadConfiguration(const std::string& resourcesPathStr) {
-		std::filesystem::path resourcesPath = resourcesPathStr;
-		resourcesPath /= "resources";
-		std::cout << "loading resources from " << resourcesPath << std::endl;
-		return config::CatapultConfiguration::LoadFromPath(resourcesPath, "server");
+	void AddResourcesOption(OptionsBuilder& optionsBuilder) {
+		optionsBuilder("resources,r",
+				OptionsValue<std::string>()->default_value(".."),
+				"path to the resources directory");
+	}
+
+	std::string GetResourcesOptionValue(const Options& options) {
+		return options["resources"].as<std::string>();
+	}
+
+	config::CatapultConfiguration LoadConfiguration(const std::string& resourcesPath) {
+		auto configPath = std::filesystem::path(resourcesPath) / "resources";
+		std::cout << "loading resources from " << configPath << std::endl;
+		return config::CatapultConfiguration::LoadFromPath(configPath, "server");
 	}
 
 	std::vector<ionet::Node> LoadOptionalApiPeers(

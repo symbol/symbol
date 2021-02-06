@@ -124,9 +124,7 @@ namespace catapult { namespace tools { namespace linker {
 			}
 
 			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
-				optionsBuilder("resources,r",
-						OptionsValue<std::string>()->default_value(".."),
-						"the path to the resources directory");
+				AddResourcesOption(optionsBuilder);
 
 				optionsBuilder("type",
 						OptionsValue<std::string>()->default_value("vrf"),
@@ -149,7 +147,7 @@ namespace catapult { namespace tools { namespace linker {
 			}
 
 			int run(const Options& options) override {
-				auto config = LoadConfiguration(options["resources"].as<std::string>());
+				auto config = LoadConfiguration(GetResourcesOptionValue(options));
 				validateOptions(options);
 
 				// 1. create transaction

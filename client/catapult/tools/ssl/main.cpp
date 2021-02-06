@@ -45,9 +45,7 @@ namespace catapult { namespace tools { namespace ssl {
 			}
 
 			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
-				optionsBuilder("resources,r",
-						OptionsValue<std::string>()->default_value(".."),
-						"the path to the resources directory");
+				AddResourcesOption(optionsBuilder);
 
 				optionsBuilder(
 						"scenario",
@@ -80,7 +78,7 @@ namespace catapult { namespace tools { namespace ssl {
 					CATAPULT_THROW_RUNTIME_ERROR_1("invalid value of scenario id", utils::to_underlying_type(scenarioId));
 
 				// note: harvester key will be used to generate CA certificate
-				auto keyPair = GetHarvestingKeyPair(options["resources"].as<std::string>());
+				auto keyPair = GetHarvestingKeyPair(GetResourcesOptionValue(options));
 				bool isSuccess = true;
 				try {
 					SslClient sslClient(*pPool, std::move(keyPair), m_tempCertificateDirectory, scenarioId);
