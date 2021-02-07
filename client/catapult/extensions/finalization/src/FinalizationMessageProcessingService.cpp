@@ -30,6 +30,7 @@
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/extensions/ServiceUtils.h"
 #include "catapult/thread/MultiServicePool.h"
+#include "catapult/utils/ThrottleLogger.h"
 
 namespace catapult { namespace finalization {
 
@@ -83,7 +84,7 @@ namespace catapult { namespace finalization {
 						// ignore messages associated with an out of range finalization round
 						auto messageRound = pMessage->StepIdentifier.Round();
 						if (!model::IsInRange(roundRange, messageRound)) {
-							CATAPULT_LOG(debug)
+							CATAPULT_LOG_THROTTLE(debug, 30 * 1000)
 									<< "skipping message with out of bounds round " << messageRound
 									<< " when current range is " << roundRange;
 							continue;
