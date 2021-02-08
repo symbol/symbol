@@ -2,13 +2,21 @@
 # This program automates common/essential tasks for building catapult-server
 
 function help {
-	echo "$0 creates a _build directory ready to be compiled."
-	echo "Available commands:"
-	echo "    $prog install system_reqs          Installs apt dependencies. Requires sudo."
-	echo "          debian packages: $debs"
-	echo "    $prog download deps                Obtain 3rd party libs."
-	echo "    $prog install deps                 Compile & install 3rd party libs."
-	echo "    $prog                              Compile catapult-server."
+cat << EOF
+$prog creates a _build directory ready to be compiled.
+Syntax: $prog [options] [command]
+
+Options:
+    -j <number>          Parallel compilation jobs. Default is $jobs
+
+Available commands:
+    system_reqs          Installs apt dependencies. Requires sudo.
+                         debian packages: $debs
+    download deps        Obtain 3rd party libs.
+    install deps         Compile & install 3rd party libs.
+    <empty>              Compile catapult-server.
+
+EOF
 	if [ "_$CAT_DEPS_DIR" == "_" ]; then
 		echo "Environment variable CAT_DEPS_DIR not set. Required for storing source dependencies."
 		echo "Default value is: $HOME/cat_deps_dir"
@@ -91,7 +99,7 @@ function install_boost {
 
 function install_git_dependency {
 	cd ${2}
-	mkdir _build
+	mkdir -p _build
 	cd _build
 
 	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="$depsdir/${1}" ${cmake_options[@]} ..
@@ -276,12 +284,27 @@ function make_build_dir {
 #-------------------------------------------------------
 
 prog=$0
-jobs=8
+jobs=4
+if [[ -f /proc/cpuinfo ]]; then
+	jobs=`cat /proc/cpuinfo | grep "^processor" | wc -l`
+fi
 warn_env=0
 debs="git gcc g++ cmake curl libssl-dev ninja-build pkg-config libpython-dev"
+cmd=""
 
-cmd=$1
-shift
+while [ true ]; do
+	opt=$1
+	shift
+	if [ "_$opt" == "_-j" ]; then
+		jobs=$1
+		shift
+		echo "jobs $jobs"
+		continue
+	else
+		cmd=$opt
+		break
+	fi
+done
 
 if [ "_$cmd" == "_install" ]; then
 	install_main $@
@@ -291,6 +314,7 @@ elif [ "_$cmd" == "_" ]; then
 	make_build_dir $@
 fi
 
+echo "Error: $cmd"
 #error flow
 help
 exit 1
