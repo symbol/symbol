@@ -29,8 +29,10 @@ namespace catapult {
 	namespace model {
 		struct Block;
 		struct BlockChainConfiguration;
+		struct BlockElement;
 	}
 	namespace plugins { class PluginManager; }
+	namespace subscribers { struct StateChangeInfo; }
 }
 
 namespace catapult { namespace local {
@@ -51,11 +53,25 @@ namespace catapult { namespace local {
 			const NotificationObserverFactory& transientObserverFactory,
 			const NotificationObserverFactory& permanentObserverFactory);
 
+	/// Information about each loaded block.
+	struct LoadedBlockStatus {
+		/// Loaded block element.
+		const model::BlockElement& BlockElement;
+
+		/// Chain score after applying the block.
+		const model::ChainScore& ChainScore;
+
+		/// State change information.
+		const subscribers::StateChangeInfo& StateChangeInfo;
+	};
+
 	/// Loads a block chain from storage using the supplied observer factory (\a observerFactory) and plugin manager (\a pluginManager)
 	/// and updating \a stateRef starting with the block at \a startHeight.
+	/// Each loaded block and supporting information is passed to \a statusConsumer.
 	model::ChainScore LoadBlockChain(
 			const BlockDependentNotificationObserverFactory& observerFactory,
 			const plugins::PluginManager& pluginManager,
 			const extensions::LocalNodeStateRef& stateRef,
-			Height startHeight);
+			Height startHeight,
+			const consumer<LoadedBlockStatus&&>& statusConsumer = consumer<LoadedBlockStatus>());
 }}

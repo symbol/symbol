@@ -23,21 +23,18 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
-#include "catapult/extensions/PluginUtils.h"
-#include "catapult/io/BlockStorageCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
-#include "tests/catapult/local/recovery/test/FilechainTestUtils.h"
+#include "catapult/subscribers/StateChangeInfo.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/BlockStateHash.h"
+#include "tests/test/local/FilechainTestUtils.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/mocks/MockBlockHeightCapturingNotificationObserver.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/TestHarness.h"
-#include <random>
 
 namespace catapult { namespace local {
 
@@ -161,6 +158,10 @@ namespace catapult { namespace local {
 				return m_factoryHeights;
 			}
 
+			const auto& statusHeights() const {
+				return m_statusHeights;
+			}
+
 		public:
 			void setStorageChainHeight(Height chainHeight) {
 				auto storage = m_state.ref().Storage.modifier();
@@ -180,7 +181,21 @@ namespace catapult { namespace local {
 					return std::make_unique<mocks::MockBlockHeightCapturingNotificationObserver>(this->m_observerBlockHeights);
 				};
 
-				return LoadBlockChain(observerFactory, m_pluginManager, m_state.ref(), startHeight);
+				auto score = LoadBlockChain(observerFactory, m_pluginManager, m_state.ref(), startHeight, [this](const auto& status) {
+					// check status for internal consistency
+					auto newComputedScore = m_statusScore;
+					newComputedScore += status.StateChangeInfo.ScoreDelta;
+
+					EXPECT_EQ(status.BlockElement.Block.Height, status.StateChangeInfo.Height);
+					EXPECT_EQ(newComputedScore, status.ChainScore);
+
+					m_statusScore = newComputedScore;
+					m_statusHeights.push_back(status.BlockElement.Block.Height);
+				});
+
+				// check score for consistency
+				EXPECT_EQ(m_statusScore, score);
+				return score;
 			}
 
 		private:
@@ -188,6 +203,9 @@ namespace catapult { namespace local {
 			std::vector<Height> m_observerBlockHeights;
 			test::LocalNodeTestState m_state;
 			plugins::PluginManager m_pluginManager;
+
+			model::ChainScore m_statusScore;
+			std::vector<Height> m_statusHeights;
 		};
 
 		constexpr uint64_t CalculateExpectedScore(size_t height) {
@@ -214,6 +232,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(model::ChainScore(), score);
 		EXPECT_EQ(0u, context.observerBlockHeights().size());
 		EXPECT_EQ(0u, context.factoryHeights().size());
+		EXPECT_EQ(0u, context.statusHeights().size());
 	}
 
 	TEST(TEST_CLASS, LoadBlockChainLoadsSingleBlockWhenStorageHeightIsTwo) {
@@ -230,6 +249,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(1u, context.observerBlockHeights().size());
 		EXPECT_EQ(expectedHeights, context.observerBlockHeights());
 		EXPECT_EQ(expectedHeights, context.factoryHeights());
+		EXPECT_EQ(expectedHeights, context.statusHeights());
 	}
 
 	TEST(TEST_CLASS, LoadBlockChainLoadsMultipleBlocksWhenStorageHeightIsGreaterThanTwo) {
@@ -246,6 +266,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(6u, context.observerBlockHeights().size());
 		EXPECT_EQ(expectedHeights, context.observerBlockHeights());
 		EXPECT_EQ(expectedHeights, context.factoryHeights());
+		EXPECT_EQ(expectedHeights, context.statusHeights());
 	}
 
 	TEST(TEST_CLASS, LoadBlockChainLoadsMultipleBlocksStartingAtArbitraryHeight) {
@@ -262,6 +283,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(4u, context.observerBlockHeights().size());
 		EXPECT_EQ(expectedHeights, context.observerBlockHeights());
 		EXPECT_EQ(expectedHeights, context.factoryHeights());
+		EXPECT_EQ(expectedHeights, context.statusHeights());
 	}
 
 	// endregion

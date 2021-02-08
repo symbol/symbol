@@ -20,10 +20,11 @@
 **/
 
 #include "catapult/extensions/ProcessBootstrapper.h"
-#include "catapult/local/recovery/RecoveryOrchestrator.h"
+#include "catapult/local/importer/ChainImporter.h"
 #include "catapult/process/ProcessMain.h"
 
 namespace {
+	// reuse recovery configuration, which contains all extensions needed for importer
 	constexpr auto Process_Name = "recovery";
 }
 
@@ -34,13 +35,13 @@ int main(int argc, const char** argv) {
 	return process::ProcessMain(argc, argv, Process_Name, processOptions, [argc, argv](auto&& config, const auto&) {
 		// create bootstrapper
 		auto resourcesPath = process::GetResourcesPath(argc, argv).generic_string();
-		auto disposition = extensions::ProcessDisposition::Recovery;
+		auto disposition = extensions::ProcessDisposition::Production;
 		auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(config, resourcesPath, disposition, Process_Name);
 
 		// register extension(s)
 		pBootstrapper->loadExtensions();
 
 		// create the local node
-		return local::CreateRecoveryOrchestrator(std::move(pBootstrapper));
+		return local::CreateChainImporter(std::move(pBootstrapper));
 	});
 }

@@ -31,14 +31,13 @@
 #include "catapult/local/server/FileStateChangeStorage.h"
 #include "catapult/model/Address.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
-#include "tests/catapult/local/recovery/test/FilechainTestUtils.h"
-#include "tests/test/core/BlockStorageTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/FinalizationTestUtils.h"
 #include "tests/test/core/StateTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/core/TransactionStatusTestUtils.h"
 #include "tests/test/local/BlockStateHash.h"
+#include "tests/test/local/FilechainTestUtils.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/MessageIngestionTestContext.h"
@@ -1035,7 +1034,7 @@ namespace catapult { namespace local {
 			RecoveryOrchestratorTestContext context(flags, storageHeight, cacheHeight);
 			context.enableBlockHeightsObserver();
 
-			// Act + Assert:
+			// Act + Assert: exception is always rethrown by CreateAndBootHost as catapult_runtime_error
 			EXPECT_THROW(context.boot(), catapult_runtime_error);
 		}
 	}
@@ -1044,8 +1043,8 @@ namespace catapult { namespace local {
 		AssertLoadChainTest(Height(0), Height(1));
 	}
 
-	TEST(TEST_CLASS, CanLoadChainWhenCacheIsEmptyAndMultipleBlocksInStorage_CacheDatabaseDisabled) {
-		AssertLoadChainTest(Height(0), Height(4));
+	TEST(TEST_CLASS, LoadingChainThrowsWhenCacheIsEmptyAndMultipleBlocksInStorage_CacheDatabaseDisabled) {
+		AssertThrowsLoadChainTest(Flags::Default, Height(0), Height(4));
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheHeightIsLessThanStorageHeight_CacheDatabaseDisabled) {
@@ -1103,8 +1102,8 @@ namespace catapult { namespace local {
 		AssertLoadsOnlyNemesis(Height(0), Height(1));
 	}
 
-	TEST(TEST_CLASS, CanLoadChainWhenCacheIsEmptyAndMultipleBlocksInStorage_CacheDatabaseEnabled) {
-		AssertLoadChainTest(Height(0), Height(4), Flags::Cache_Database_Enabled);
+	TEST(TEST_CLASS, LoadingChainThrowsWhenCacheIsEmptyAndMultipleBlocksInStorage_CacheDatabaseEnabled) {
+		AssertThrowsLoadChainTest(Flags::Cache_Database_Enabled, Height(0), Height(4));
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheHeightIsLessThanStorageHeight_CacheDatabaseEnabled) {
