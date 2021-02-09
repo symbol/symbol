@@ -85,7 +85,8 @@ const namespaceUtils = {
 								aliasName += `.${uniqueTransactions.find(t => t.namespaceId.equals(n.namespace.level1)).name}`;
 							if (3 <= n.namespace.depth)
 								aliasName += `.${uniqueTransactions.find(t => t.namespaceId.equals(n.namespace.level2)).name}`;
-							names.push(aliasName);
+							if (-1 === names.indexOf(aliasName))
+								names.push(aliasName);
 						});
 					return { [aliasFieldName]: id, names };
 				});

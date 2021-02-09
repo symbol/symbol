@@ -61,6 +61,8 @@ describe('namespace utils', () => {
 		const registerNamespaceTransactionsFromNamespaceIdsFake = sinon.fake(() => {
 			const transactions = [
 				createRegisterNamespaceTransaction(12345, 1, 1, 'a'),
+				createRegisterNamespaceTransaction(33437, 1, 1, 'a'),
+				createRegisterNamespaceTransaction(12345, 1, 1, 'a'),
 				createRegisterNamespaceTransaction(67891, 1, 1, 'b'),
 				createRegisterNamespaceTransaction(38467, 1, 1, 'c'),
 				createRegisterNamespaceTransaction(23456, 1, 1, 'd'),
