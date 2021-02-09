@@ -30,6 +30,7 @@ const namespace = require('./namespace/namespace');
 const receipts = require('./receipts/receipts');
 const restrictions = require('./restrictions/restrictions');
 const MessageChannelBuilder = require('../connection/MessageChannelBuilder');
+const catapult = require('catapult-sdk');
 
 const plugins = {
 	accountLink: empty,
@@ -62,7 +63,8 @@ module.exports = {
 	 */
 	configure: (pluginNames, server, db, services) => {
 		const transactionStates = [];
-		const messageChannelBuilder = new MessageChannelBuilder(services.config.websocket);
+		const networkIdentifier = catapult.model.networkInfo.networks[services.config.network.name].id;
+		const messageChannelBuilder = new MessageChannelBuilder(services.config.websocket, networkIdentifier);
 		(pluginNames || []).forEach(pluginName => {
 			if (!plugins[pluginName])
 				throw Error(`plugin '${pluginName}' not supported by route system`);

@@ -32,11 +32,22 @@ const createBlockDescriptor = (marker, handler) => ({
 	handler
 });
 
-const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler) => topicParam => {
+const { convert } = catapult.utils;
+const { namespace, address } = catapult.model;
+
+const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler, networkIdentifier) => topicParam => {
 	if (!topicParam)
 		return emptyAddressHandler(markerByte);
 
-	return Buffer.concat([Buffer.of(markerByte), Buffer.from(catapult.model.address.stringToAddress(topicParam))]);
+	// If the sent param is an namespace id hex like C0FB8AA409916260
+	if (convert.isHexString(topicParam) && 16 === topicParam.length) {
+		const addressByteArray = namespace.encodeNamespace(convert.hexToUint8(topicParam), networkIdentifier);
+		return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
+	}
+	// When it's a encoded address.
+	// TAHNZXQBC57AA7KJTMGS3PJPZBXN7DV5JHJU42A
+	const addressByteArray = address.stringToAddress(topicParam);
+	return Buffer.concat([Buffer.of(markerByte), Buffer.from(addressByteArray)]);
 };
 
 /**
@@ -46,15 +57,18 @@ class MessageChannelBuilder {
 	/**
 	 * Creates a builder.
 	 * @param {object} config Message queue configuration.
+	 * @param {number} networkIdentifier the network identifier
 	 */
-	constructor(config) {
+	constructor(config, networkIdentifier) {
 		this.descriptors = {};
 		this.channelMarkers = {};
 
 		const emptyAddressHandler = config && config.allowOptionalAddress
 			? markerByte => Buffer.of(markerByte)
 			: () => { throw new Error('address param missing from address subscription'); };
-		this.createAddressFilter = markerChar => createPolicyBasedAddressFilter(markerChar.charCodeAt(0), emptyAddressHandler);
+
+		this.createAddressFilter = markerChar =>
+			createPolicyBasedAddressFilter(markerChar.charCodeAt(0), emptyAddressHandler, networkIdentifier);
 
 		// add basic descriptors
 		this.descriptors.block = createBlockDescriptor(

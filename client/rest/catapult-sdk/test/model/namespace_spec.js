@@ -20,6 +20,7 @@
  */
 
 const namespace = require('../../src/model/namespace');
+const convert = require('../../src/utils/convert');
 const { expect } = require('chai');
 
 describe('namespace', () => {
@@ -41,6 +42,17 @@ describe('namespace', () => {
 
 			// Assert:
 			expect(Object.keys(namespace.aliasType).length).to.equal(Object.keys(reverseMapping).length);
+		});
+	});
+
+	describe('encodeNamespace', () => {
+		it('Testnet valid', () => {
+			// Assert:
+			const encoded = namespace.encodeNamespace(convert.hexToUint8('C0FB8AA409916260'), 152);
+			const encodedHex = convert.uint8ToHex(encoded);
+			const expectedEncodedHex = '9960629109A48AFBC0000000000000000000000000000000';
+			expect(encodedHex).to.be.equal(expectedEncodedHex);
+			expect(encoded).to.be.deep.equal(convert.hexToUint8(expectedEncodedHex));
 		});
 	});
 });

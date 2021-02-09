@@ -25,15 +25,20 @@ const test = require('../testUtils');
 const { expect } = require('chai');
 
 describe('message channel builder', () => {
+	const networkIdentifier = 152;
 	const addressTemplate = {
 		encoded: 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA',
-		decoded: Buffer.from('6823BB7C3C089D996585466380EDBDC19D4959184893E38C', 'hex')
+		decodedHex: '6823BB7C3C089D996585466380EDBDC19D4959184893E38C',
+		decoded: Buffer.from('6823BB7C3C089D996585466380EDBDC19D4959184893E38C', 'hex'),
+		aliasDecodedHex: '9960629109A48AFBC0000000000000000000000000000000',
+		aliasEncodedHex: 'C0FB8AA409916260',
+		aliasDecoded: Buffer.from('9960629109A48AFBC0000000000000000000000000000000', 'hex')
 	};
 
 	const addAddressFilterTests = (markerByte, createFilter) => {
 		it('rejects marker without topic param', () => {
 			// Arrange:
-			const filter = createFilter(new MessageChannelBuilder());
+			const filter = createFilter(new MessageChannelBuilder({}, networkIdentifier));
 
 			// Act:
 			expect(() => filter('')).to.throw('address param missing from address subscription');
@@ -53,7 +58,7 @@ describe('message channel builder', () => {
 
 		it('accepts marker with topic param', () => {
 			// Arrange:
-			const filter = createFilter(new MessageChannelBuilder());
+			const filter = createFilter(new MessageChannelBuilder({}, networkIdentifier));
 
 			// Act:
 			const topic = filter(addressTemplate.encoded);
@@ -64,9 +69,22 @@ describe('message channel builder', () => {
 			expect(topic.slice(1)).to.deep.equal(addressTemplate.decoded);
 		});
 
+		it('accepts marker with topic param encoded alias hex', () => {
+			// Arrange:
+			const filter = createFilter(new MessageChannelBuilder({}, networkIdentifier));
+
+			// Act:
+			const topic = filter(addressTemplate.aliasEncodedHex);
+
+			// Assert:
+			expect(topic.length).to.equal(test.constants.sizes.addressDecoded + 1);
+			expect(topic[0]).to.equal(markerByte);
+			expect(topic.slice(1)).to.deep.equal(addressTemplate.aliasDecoded);
+		});
+
 		it('rejects marker with invalid topic param', () => {
 			// Arrange:
-			const filter = createFilter(new MessageChannelBuilder());
+			const filter = createFilter(new MessageChannelBuilder({}, networkIdentifier));
 
 			// Act:
 			expect(() => filter('NAAAA')).to.throw('NAAAA does not represent a valid encoded address');
@@ -76,7 +94,7 @@ describe('message channel builder', () => {
 	describe('default channels', () => {
 		it('are all present', () => {
 			// Act:
-			const channels = new MessageChannelBuilder().build();
+			const channels = new MessageChannelBuilder({}, networkIdentifier).build();
 			const defaultChannelNames = Object.keys(channels);
 
 			// Assert:
@@ -94,7 +112,7 @@ describe('message channel builder', () => {
 			describe('filter', () => {
 				it('accepts marker without topic param', () => {
 					// Arrange:
-					const { filter } = new MessageChannelBuilder().build().block;
+					const { filter } = new MessageChannelBuilder({}, networkIdentifier).build().block;
 
 					// Act:
 					const topic = filter('');
@@ -105,7 +123,7 @@ describe('message channel builder', () => {
 
 				it('rejects marker with topic param', () => {
 					// Arrange:
-					const { filter } = new MessageChannelBuilder().build().block;
+					const { filter } = new MessageChannelBuilder({}, networkIdentifier).build().block;
 
 					// Act:
 					expect(() => filter(addressTemplate.encoded)).to.throw('unexpected param to block subscription');
@@ -114,7 +132,7 @@ describe('message channel builder', () => {
 
 			describe('handler', () => {
 				it('is set to block type', () => {
-					const messageChannelBuilder = new MessageChannelBuilder();
+					const messageChannelBuilder = new MessageChannelBuilder({}, networkIdentifier);
 					expect(messageChannelBuilder.descriptors.block.handler).to.equal(ServerMessageHandler.block);
 				});
 			});
@@ -124,7 +142,7 @@ describe('message channel builder', () => {
 			describe('filter', () => { addAddressFilterTests(0x61, builder => builder.build().confirmedAdded.filter); });
 			describe('handler', () => {
 				it('is set to transaction type', () => {
-					const messageChannelBuilder = new MessageChannelBuilder();
+					const messageChannelBuilder = new MessageChannelBuilder({}, networkIdentifier);
 					expect(messageChannelBuilder.descriptors.confirmedAdded.handler).to.equal(ServerMessageHandler.transaction);
 				});
 			});
@@ -134,7 +152,7 @@ describe('message channel builder', () => {
 			describe('filter', () => { addAddressFilterTests(0x75, builder => builder.build().unconfirmedAdded.filter); });
 			describe('handler', () => {
 				it('is set to transaction type', () => {
-					const messageChannelBuilder = new MessageChannelBuilder();
+					const messageChannelBuilder = new MessageChannelBuilder({}, networkIdentifier);
 					expect(messageChannelBuilder.descriptors.unconfirmedAdded.handler).to.equal(ServerMessageHandler.transaction);
 				});
 			});
@@ -144,7 +162,7 @@ describe('message channel builder', () => {
 			describe('filter', () => { addAddressFilterTests(0x72, builder => builder.build().unconfirmedRemoved.filter); });
 			describe('handler', () => {
 				it('is set to transaction type', () => {
-					const messageChannelBuilder = new MessageChannelBuilder();
+					const messageChannelBuilder = new MessageChannelBuilder({}, networkIdentifier);
 					expect(messageChannelBuilder.descriptors.unconfirmedRemoved.handler).to.equal(ServerMessageHandler.transactionHash);
 				});
 			});
@@ -154,7 +172,7 @@ describe('message channel builder', () => {
 			describe('filter', () => { addAddressFilterTests(0x73, builder => builder.build().status.filter); });
 			describe('handler', () => {
 				it('is set to transaction type', () => {
-					const messageChannelBuilder = new MessageChannelBuilder();
+					const messageChannelBuilder = new MessageChannelBuilder({}, networkIdentifier);
 					expect(messageChannelBuilder.descriptors.status.handler).to.equal(ServerMessageHandler.transactionStatus);
 				});
 			});
@@ -170,7 +188,7 @@ describe('message channel builder', () => {
 			describe('filter', () => { addAddressFilterTests(0x7A, builder => createChannelInfo(builder).filter); });
 			describe('handler', () => {
 				it('is set to transaction type', () => {
-					const messageChannelBuilder = new MessageChannelBuilder();
+					const messageChannelBuilder = new MessageChannelBuilder({}, networkIdentifier);
 					createChannelInfo(messageChannelBuilder);
 					expect(messageChannelBuilder.descriptors.foo.handler).to.equal(ServerMessageHandler.transaction);
 				});
@@ -185,7 +203,7 @@ describe('message channel builder', () => {
 			describe('filter', () => { addAddressFilterTests(0x7A, builder => createChannelInfo(builder).filter); });
 			describe('handler', () => {
 				it('is set to transaction hash type', () => {
-					const messageChannelBuilder = new MessageChannelBuilder();
+					const messageChannelBuilder = new MessageChannelBuilder({}, networkIdentifier);
 					createChannelInfo(messageChannelBuilder);
 					expect(messageChannelBuilder.descriptors.foo.handler).to.equal(ServerMessageHandler.transactionHash);
 				});
@@ -212,7 +230,7 @@ describe('message channel builder', () => {
 							return 40;
 						}
 					};
-					const { handler } = createChannelInfo(new MessageChannelBuilder());
+					const { handler } = createChannelInfo(new MessageChannelBuilder({}, networkIdentifier));
 
 					// Act:
 					const buffer = [55, 77, 33];
@@ -231,7 +249,7 @@ describe('message channel builder', () => {
 
 		it('cannot be added with multi-character marker', () => {
 			// Arrange:
-			const builder = new MessageChannelBuilder();
+			const builder = new MessageChannelBuilder({}, networkIdentifier);
 
 			// Assert:
 			expect(() => builder.add('foo', 'zz', ServerMessageHandler.transaction)).to.throw('channel marker must be single character');
@@ -239,7 +257,7 @@ describe('message channel builder', () => {
 
 		it('cannot override default channel', () => {
 			// Arrange:
-			const builder = new MessageChannelBuilder();
+			const builder = new MessageChannelBuilder({}, networkIdentifier);
 
 			// Assert:
 			expect(() => builder.add('status', 'z', ServerMessageHandler.transaction)).to.throw('channel has already been registered');
@@ -248,7 +266,7 @@ describe('message channel builder', () => {
 
 		it('cannot be registered multiple times', () => {
 			// Arrange:
-			const builder = new MessageChannelBuilder();
+			const builder = new MessageChannelBuilder({}, networkIdentifier);
 			builder.add('foo', 'z', ServerMessageHandler.transaction);
 
 			// Assert:
