@@ -114,7 +114,7 @@ class CatapultDb {
 	}
 
 	connect(url, dbName, connectionPoolSize) {
-		return connector.connectToDatabase(url, dbName, connectionPoolSize)
+		return connector.connectToDatabase(url, dbName, connectionPoolSize || 10)
 			.then(client => {
 				this.client = client;
 				this.database = client.db();
