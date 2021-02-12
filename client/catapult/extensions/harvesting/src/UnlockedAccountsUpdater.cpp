@@ -26,6 +26,7 @@
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/io/RawFile.h"
 #include "catapult/model/Address.h"
+#include "catapult/utils/ThrottleLogger.h"
 
 namespace catapult { namespace harvesting {
 
@@ -90,10 +91,15 @@ namespace catapult { namespace harvesting {
 					auto readOnlyAccountStateCache = cache::ReadOnlyAccountStateCache(cacheView.sub<cache::AccountStateCache>());
 					cache::ImportanceView view(readOnlyAccountStateCache);
 
-					auto address = model::PublicKeyToAddress(
-							descriptor.signingKeyPair().publicKey(),
-							readOnlyAccountStateCache.networkIdentifier());
+					const auto& signingPublicKey = descriptor.signingKeyPair().publicKey();
+					auto address = model::PublicKeyToAddress(signingPublicKey, readOnlyAccountStateCache.networkIdentifier());
 					auto shouldPruneAccount = !view.canHarvest(address, height);
+
+					if (shouldPruneAccount && m_signingPublicKey == signingPublicKey) {
+						CATAPULT_LOG_THROTTLE(warning, utils::TimeSpan::FromHours(6).millis())
+								<< "primary signing public key " << m_signingPublicKey << " does not meet harvesting requirements";
+						return false;
+					}
 
 					if (!shouldPruneAccount) {
 						auto remoteAccountStateIter = readOnlyAccountStateCache.find(address);

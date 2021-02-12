@@ -84,7 +84,7 @@ namespace catapult { namespace finalization {
 						// ignore messages associated with an out of range finalization round
 						auto messageRound = pMessage->StepIdentifier.Round();
 						if (!model::IsInRange(roundRange, messageRound)) {
-							CATAPULT_LOG_THROTTLE(debug, 30 * 1000)
+							CATAPULT_LOG_THROTTLE(debug, utils::TimeSpan::FromSeconds(30).millis())
 									<< "skipping message with out of bounds round " << messageRound
 									<< " when current range is " << roundRange;
 							continue;

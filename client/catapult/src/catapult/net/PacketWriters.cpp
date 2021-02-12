@@ -321,7 +321,7 @@ namespace catapult { namespace net {
 			ionet::NodePacketIoPair pickOne(const utils::TimeSpan& ioDuration) override {
 				WriterState state;
 				if (!m_writers.pickOne(state)) {
-					CATAPULT_LOG_THROTTLE(warning, 60'000) << "no packet io available for checkout";
+					CATAPULT_LOG_THROTTLE(warning, utils::TimeSpan::FromMinutes(1).millis()) << "no packet io available for checkout";
 					return ionet::NodePacketIoPair();
 				}
 

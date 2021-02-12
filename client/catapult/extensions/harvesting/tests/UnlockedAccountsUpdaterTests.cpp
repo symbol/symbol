@@ -478,7 +478,7 @@ namespace catapult { namespace harvesting {
 		});
 	}
 
-	TEST(TEST_CLASS, UpdatePrunesIneligbileHarvesterAccounts) {
+	TEST(TEST_CLASS, UpdatePrunesIneligibleHarvesterAccounts) {
 		AssertPruned([](auto& accountState) {
 			accountState.Balances.debit(Harvesting_Mosaic_Id, accountState.Balances.get(Harvesting_Mosaic_Id));
 		});
@@ -535,10 +535,10 @@ namespace catapult { namespace harvesting {
 		});
 	}
 
-	TEST(TEST_CLASS, UpdatePrunesIneligbileHarvesterAccounts_Primary) {
+	TEST(TEST_CLASS, UpdateDoesNotPruneIneligibleHarvesterAccounts_Primary) {
 		AssertPrunedPrimary([](auto& accountState) {
 			accountState.Balances.debit(Harvesting_Mosaic_Id, accountState.Balances.get(Harvesting_Mosaic_Id));
-		});
+		}, false);
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotSaveAccountWhenMaxUnlockedHasBeenReached) {

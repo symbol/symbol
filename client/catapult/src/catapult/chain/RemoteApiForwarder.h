@@ -53,7 +53,8 @@ namespace catapult { namespace chain {
 		thread::future<ionet::NodeInteractionResult> processSync(TRemoteApiAction action, TRemoteApiFactory apiFactory) const {
 			auto packetIoPair = m_packetIoPicker.pickOne(m_timeout);
 			if (!packetIoPair) {
-				CATAPULT_LOG_THROTTLE(warning, 60'000) << "no packet io available for operation '" << m_operationName << "'";
+				CATAPULT_LOG_THROTTLE(warning, utils::TimeSpan::FromMinutes(1).millis())
+						<< "no packet io available for operation '" << m_operationName << "'";
 				return thread::make_ready_future(ionet::NodeInteractionResult());
 			}
 
