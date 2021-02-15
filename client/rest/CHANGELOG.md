@@ -9,6 +9,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Fixed
 
 - Fixed duplicate alias names returned from namespace endpoint issue.
+- Fixed duplicated status results. The status is now retrieved by priority.
 
 ### Changed
 
