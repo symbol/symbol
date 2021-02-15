@@ -60,7 +60,7 @@ namespace catapult { namespace io {
 		}
 
 		int NemOpen(const std::string& lockFilePath) {
-			int fd = ::open(lockFilePath.c_str(), O_RDONLY | O_CREAT | O_CLOEXEC | O_EXCL, 0);
+			int fd = ::open(lockFilePath.c_str(), O_RDWR | O_CREAT | O_CLOEXEC | O_EXCL, 0);
 			return (Invalid_Descriptor != fd) && TryLockFile(fd) ? fd : Invalid_Descriptor;
 		}
 
