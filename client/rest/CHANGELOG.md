@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.3.3] - 15-Feb-2021
+
+### Fixed
+
+- Fixed duplicate alias names returned from namespace endpoint issue.
+
+### Changed
+
+- Set default connection pool size to 10.
+- Changed `node/storage` endpoint to use estimated counts from mongo collections.
+- Allow all transaction groups to be queried by cosigners.
+- Allow address aliases in web socket listener subscriptions.
+
 ## [v2.3.2] - 02-Feb-2021
 
 ### Added
