@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0.7] - 15-Feb-2021
+
+### Added
+ - tool: importer to populate database from block files
+ - tool: verify to check the validity of blocks before import
+
+### Fixed
+ - breaking: fix overflow in CalculateTransactionFee, #151
+ - recovery process needs to drop orphaned documents associated with previous block, #155
+ - check linked public key (remote) instead of main public key, #142
+ - minor issues: #153, #158, #159
+
+### Changed
+ - allow storing multiple payloads per file in FileDatabase to reduce inode usage, #152
+
 ## [0.10.0.6] - 02-Feb-2021
 
 ### Added
@@ -390,6 +405,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.10.0.7]: https://github.com/nemtech/catapult-server/compare/v0.10.0.6...v0.10.0.7
 [0.10.0.6]: https://github.com/nemtech/catapult-server/compare/v0.10.0.5...v0.10.0.6
 [0.10.0.5]: https://github.com/nemtech/catapult-server/compare/v0.10.0.4...v0.10.0.5
 [0.10.0.4]: https://github.com/nemtech/catapult-server/compare/v0.10.0.3...v0.10.0.4
