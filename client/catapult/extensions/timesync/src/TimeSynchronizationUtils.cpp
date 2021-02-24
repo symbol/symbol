@@ -60,9 +60,11 @@ namespace catapult { namespace timesync {
 				const ImportanceAwareNodeSelector& selector,
 				const ionet::NodeContainer& nodes,
 				Height height) {
-			auto view = cache.createView();
-			cache::ImportanceView importanceView(view->asReadOnly());
-			auto selectedNodes = selector.selectNodes(importanceView, nodes.view(), height);
+			// to prevent deadlock with node selection, nodes lock must be acquired before cache lock
+			auto nodesView = nodes.view();
+			auto cacheView = cache.createView();
+			cache::ImportanceView importanceView(cacheView->asReadOnly());
+			auto selectedNodes = selector.selectNodes(importanceView, nodesView, height);
 			CATAPULT_LOG(debug) << "timesync: number of selected nodes: " << selectedNodes.size();
 			return selectedNodes;
 		}
