@@ -24,6 +24,7 @@
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/SharedKey.h"
 #include "catapult/crypto/Signer.h"
+#include "catapult/extensions/Bip32.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/MosaicIdGenerator.h"
 #include "catapult/utils/HexParser.h"
@@ -123,7 +124,7 @@ namespace catapult { namespace tools { namespace testvectors {
 		// endregion
 
 		auto CreateHashTester(const consumer<const RawBuffer&, Hash256&>& hashFunc) {
-			return [hashFunc] (const auto& testCase, auto testCaseNumber) {
+			return [hashFunc] (const auto&, const auto& testCase, auto testCaseNumber) {
 				// Arrange:
 				auto expectedHash = ParseHash256(Get<>(testCase, "hash"), testCaseNumber);
 				auto length = Get<size_t>(testCase, "length");
@@ -138,7 +139,7 @@ namespace catapult { namespace tools { namespace testvectors {
 			};
 		}
 
-		bool KeyConversionTester(const pt::ptree& testCase, size_t testCaseNumber) {
+		bool KeyConversionTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto privateKey = ParsePrivateKey(Get<>(testCase, "privateKey"), testCaseNumber);
 			auto expectedPublicKey = ParsePublicKey(Get<>(testCase, "publicKey"), testCaseNumber);
@@ -150,7 +151,7 @@ namespace catapult { namespace tools { namespace testvectors {
 			return expectedPublicKey == keyPair.publicKey();
 		}
 
-		bool AddressConversionTester(const pt::ptree& testCase, size_t testCaseNumber) {
+		bool AddressConversionTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto publicKey = ParsePublicKey(Get<>(testCase, "publicKey"), testCaseNumber);
 			auto expectedAddressPublic = ParseAddress(Get<>(testCase, "address_Public"), testCaseNumber);
@@ -171,7 +172,7 @@ namespace catapult { namespace tools { namespace testvectors {
 					expectedAddressPrivateTest == addressPrivateTest;
 		}
 
-		bool SigningTester(const pt::ptree& testCase, size_t testCaseNumber) {
+		bool SigningTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto privateKey = ParsePrivateKey(Get<>(testCase, "privateKey"), testCaseNumber);
 			auto publicKey = ParsePublicKey(Get<>(testCase, "publicKey"), testCaseNumber);
@@ -192,7 +193,7 @@ namespace catapult { namespace tools { namespace testvectors {
 			return expectedSignature == signature;
 		}
 
-		bool DeriveTester(const pt::ptree& testCase, size_t testCaseNumber) {
+		bool DeriveTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto privateKey = ParsePrivateKey(Get<>(testCase, "privateKey"), testCaseNumber);
 			auto otherPublicKey = ParsePublicKey(Get<>(testCase, "otherPublicKey"), testCaseNumber);
@@ -219,7 +220,7 @@ namespace catapult { namespace tools { namespace testvectors {
 			return result;
 		}
 
-		bool DecryptTester(const pt::ptree& testCase, size_t testCaseNumber) {
+		bool DecryptTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto privateKey = ParsePrivateKey(Get<>(testCase, "privateKey"), testCaseNumber);
 			auto otherPublicKey = ParsePublicKey(Get<>(testCase, "otherPublicKey"), testCaseNumber);
@@ -243,7 +244,7 @@ namespace catapult { namespace tools { namespace testvectors {
 			return decryptionResult && clearText == decrypted;
 		}
 
-		bool MosaicIdDerivationTester(const pt::ptree& testCase, size_t testCaseNumber) {
+		bool MosaicIdDerivationTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto nonce = MosaicNonce(Get<MosaicNonce::ValueType>(testCase, "mosaicNonce"));
 			auto addressPublic = ParseAddress(Get<>(testCase, "address_Public"), testCaseNumber);
@@ -269,6 +270,31 @@ namespace catapult { namespace tools { namespace testvectors {
 					expectedMosaicIdPrivateTest == mosaicIdPrivateTest;
 		}
 
+		bool Bip32DerivationTester(const std::string& testGroupName, const pt::ptree& testCase, size_t testCaseNumber) {
+			// Arrange:
+			uint32_t coinId = "test_net" == testGroupName ? 1 : 4343;
+
+			auto seedStr = Get<>(testCase, "seed");
+			auto seed = ParseVector(seedStr, testCaseNumber, seedStr.size() / 2);
+			auto expectedRootPublicKey = ParsePublicKey(Get<>(testCase, "rootPublicKey"), testCaseNumber);
+
+			std::vector<Key> expectedChildPublicKeys;
+			for (const auto& childPair : testCase.get_child("childAccounts"))
+				expectedChildPublicKeys.push_back(ParsePublicKey(Get<>(childPair.second, "publicKey"), testCaseNumber));
+
+			// Act:
+			auto node = extensions::Bip32Node::FromSeed(seed);
+
+			std::vector<Key> childPublicKeys;
+			for (auto i = 0u; i < expectedChildPublicKeys.size(); ++i)
+				childPublicKeys.push_back(extensions::Bip32Node::ExtractKeyPair(node.derive({ 44, coinId, i, 0, 0 })).publicKey());
+
+			auto rootPublicKey = extensions::Bip32Node::ExtractKeyPair(std::move(node)).publicKey();
+
+			// Assert:
+			return expectedRootPublicKey == rootPublicKey && expectedChildPublicKeys == childPublicKeys;
+		}
+
 		class TestVectorsTool : public Tool {
 		public:
 			std::string name() const override {
@@ -281,7 +307,9 @@ namespace catapult { namespace tools { namespace testvectors {
 						"path to test-vectors directory");
 
 				optionsBuilder("inclusion-filter,i",
-						OptionsValue<std::vector<uint16_t>>(m_inclusionFilter)->multitoken()->default_value({ 0, 1, 2, 3, 4, 5 }, "all"),
+						OptionsValue<std::vector<uint16_t>>(m_inclusionFilter)->multitoken()->default_value(
+								{ 0, 1, 2, 3, 4, 5, 6 },
+								"all"),
 						"identifiers of tests to include");
 
 				positional.add("vectors-dir", -1);
@@ -295,6 +323,7 @@ namespace catapult { namespace tools { namespace testvectors {
 				runTest(3, "3.test-derive", "shared key derive", DeriveTester);
 				runTest(4, "4.test-cipher", "aes-gcm decryption", DecryptTester);
 				runTest(5, "5.test-mosaic-id", "mosaic id derivation", MosaicIdDerivationTester);
+				runTest(6, "6.test-bip32-derivation", "BIP32 derivation", Bip32DerivationTester);
 				return 0;
 			}
 
@@ -314,7 +343,7 @@ namespace catapult { namespace tools { namespace testvectors {
 					uint16_t testId,
 					const std::string& testCaseFilename,
 					const std::string& testName,
-					const predicate<const pt::ptree&, size_t>& testFunc) {
+					const predicate<const std::string&, const pt::ptree&, size_t>& testFunc) {
 				if (!shouldExecute(testId)) {
 					CATAPULT_LOG(debug) << testName << " SKIPPED";
 					return;
@@ -324,10 +353,19 @@ namespace catapult { namespace tools { namespace testvectors {
 				size_t numFailed = 0;
 				auto testCases = parseJsonFile(testCaseFilename);
 				for (const auto& testCasePair : testCases) {
-					if (!testFunc(testCasePair.second, testCaseNumber))
-						++numFailed;
+					auto updateCounters = [&testCaseNumber, &numFailed](auto result) {
+						if (!result)
+							++numFailed;
 
-					++testCaseNumber;
+						++testCaseNumber;
+					};
+
+					if (!testCasePair.first.empty()) {
+						for (const auto& subTestCasePair : testCasePair.second)
+							updateCounters(testFunc(testCasePair.first, subTestCasePair.second, testCaseNumber));
+					} else {
+						updateCounters(testFunc(std::string(), testCasePair.second, testCaseNumber));
+					}
 				}
 
 				if (numFailed)

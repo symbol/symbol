@@ -87,6 +87,11 @@ namespace catapult { namespace crypto {
 		HMAC(EVP_sha256(), key.pData, static_cast<int>(key.Size), input.pData, input.Size, output.data(), &outputSize);
 	}
 
+	void Hmac_Sha512(const RawBuffer& key, const RawBuffer& input, Hash512& output) {
+		unsigned int outputSize = 0;
+		HMAC(EVP_sha512(), key.pData, static_cast<int>(key.Size), input.pData, input.Size, output.data(), &outputSize);
+	}
+
 	// endregion
 
 	// region hash builders

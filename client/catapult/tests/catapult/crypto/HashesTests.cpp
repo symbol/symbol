@@ -365,12 +365,17 @@ namespace catapult { namespace crypto {
 
 	// endregion
 
-	// region Hmac_Sha256
+	// region Hmac_Sha256 / Hmac_Sha512
 
 	// data from: https://github.com/randombit/botan/blob/master/src/tests/data/mac/hmac.vec
 
 	namespace {
 		struct Hmac_Sha256_Traits {
+		public:
+			using HashType = Hash256;
+
+			static constexpr auto Hmac = Hmac_Sha256;
+
 		public:
 			static std::vector<std::string> SampleTestVectorsKey() {
 				return {
@@ -433,30 +438,99 @@ namespace catapult { namespace crypto {
 				};
 			}
 		};
+
+		struct Hmac_Sha512_Traits {
+		public:
+			using HashType = Hash512;
+
+			static constexpr auto Hmac = Hmac_Sha512;
+
+		public:
+			static std::vector<std::string> SampleTestVectorsKey() {
+				return {
+					"0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B",
+					"4A656665",
+					"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+					"0102030405060708090A0B0C0D0E0F10111213141516171819",
+					"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+						"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+						"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+						"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+						"AAAAAA",
+					"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+						"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+						"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+						"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+						"AAAAAA"
+				};
+			}
+
+			static std::vector<std::string> SampleTestVectorsInput() {
+				return {
+					"4869205468657265",
+					"7768617420646F2079612077616E7420666F72206E6F7468696E673F",
+					"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+					"CDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCD",
+					"54657374205573696E67204C6172676572205468616E20426C6F636B2D53697A"
+						"65204B6579202D2048617368204B6579204669727374",
+					"5468697320697320612074657374207573696E672061206C6172676572207468"
+						"616E20626C6F636B2D73697A65206B657920616E642061206C61726765722074"
+						"68616E20626C6F636B2D73697A6520646174612E20546865206B6579206E6565"
+						"647320746F20626520686173686564206265666F7265206265696E6720757365"
+						"642062792074686520484D414320616C676F726974686D2E"
+				};
+			}
+
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return {
+					"87AA7CDEA5EF619D4FF0B4241A1D6CB02379F4E2CE4EC2787AD0B30545E17CDE"
+					"DAA833B7D6B8A702038B274EAEA3F4E4BE9D914EEB61F1702E696C203A126854",
+					"164B7A7BFCF819E2E395FBE73B56E0A387BD64222E831FD610270CD7EA250554"
+					"9758BF75C05A994A6D034F65F8F0E6FDCAEAB1A34D4A6B4B636E070A38BCE737",
+					"FA73B0089D56A284EFB0F0756C890BE9B1B5DBDD8EE81A3655F83E33B2279D39"
+					"BF3E848279A722C806B485A47E67C807B946A337BEE8942674278859E13292FB",
+					"B0BA465637458C6990E5A8C5F61D4AF7E576D97FF94B872DE76F8050361EE3DB"
+					"A91CA5C11AA25EB4D679275CC5788063A5F19741120C4F2DE2ADEBEB10A298DD",
+					"80B24263C7C1A3EBB71493C1DD7BE8B49B46D1F41B4AEEC1121B013783F8F352"
+					"6B56D037E05F2598BD0FD2215D6A1E5295E64F73F63F0AEC8B915A985D786598",
+					"E37B6A775DC87DBAA4DFA9F96E5E3FFDDEBD71F8867289865DF5A32D20CDC944"
+					"B6022CAC3C4982B10D5EEB55C3E4DE15134676FB6DE0446065C97440FA8C6A58"
+				};
+			}
+		};
+
+		template<typename TTraits>
+		void RunHmacTestVectors() {
+			// Arrange:
+			auto keys = TTraits::SampleTestVectorsKey();
+			auto inputs = TTraits::SampleTestVectorsInput();
+			auto expectedHashes = TTraits::SampleTestVectorsOutput();
+
+			// Sanity:
+			ASSERT_EQ(keys.size(), expectedHashes.size());
+			ASSERT_EQ(inputs.size(), expectedHashes.size());
+
+			for (auto i = 0u; i < keys.size(); ++i) {
+				auto key = test::HexStringToVector(keys[i]);
+				auto input = test::HexStringToVector(inputs[i]);
+				auto expected = expectedHashes[i];
+
+				// Act:
+				typename TTraits::HashType output;
+				TTraits::Hmac(key, input, output);
+
+				// Assert:
+				EXPECT_EQ(utils::ParseByteArray<typename TTraits::HashType>(expected), output) << "at test vector " << i;
+			}
+		}
 	}
 
 	TEST(TEST_CLASS, Hmac_Sha256_SampleTestVectors) {
-		// Arrange:
-		auto keys = Hmac_Sha256_Traits::SampleTestVectorsKey();
-		auto inputs = Hmac_Sha256_Traits::SampleTestVectorsInput();
-		auto expectedHashes = Hmac_Sha256_Traits::SampleTestVectorsOutput();
+		RunHmacTestVectors<Hmac_Sha256_Traits>();
+	}
 
-		// Sanity:
-		ASSERT_EQ(keys.size(), expectedHashes.size());
-		ASSERT_EQ(inputs.size(), expectedHashes.size());
-
-		for (auto i = 0u; i < keys.size(); ++i) {
-			auto key = test::HexStringToVector(keys[i]);
-			auto input = test::HexStringToVector(inputs[i]);
-			auto expected = expectedHashes[i];
-
-			// Act:
-			Hash256 output;
-			Hmac_Sha256(key, input, output);
-
-			// Assert:
-			EXPECT_EQ(utils::ParseByteArray<Hash256>(expected), output) << "at test vector " << i;
-		}
+	TEST(TEST_CLASS, Hmac_Sha512_SampleTestVectors) {
+		RunHmacTestVectors<Hmac_Sha512_Traits>();
 	}
 
 	// endregion
