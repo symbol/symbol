@@ -33,6 +33,9 @@ namespace catapult { namespace crypto {
 	/// Calculates the Bitcoin hash 160 of \a dataBuffer into \a hash (sha256 + ripemd).
 	void Bitcoin160(const RawBuffer& dataBuffer, Hash160& hash);
 
+	/// Calculates the sha256 hash of \a dataBuffer into \a hash.
+	void Sha256(const RawBuffer& dataBuffer, Hash256& hash);
+
 	/// Calculates the double sha256 hash of \a dataBuffer into \a hash.
 	void Sha256Double(const RawBuffer& dataBuffer, Hash256& hash);
 
@@ -47,6 +50,9 @@ namespace catapult { namespace crypto {
 
 	/// Calculates the sha512 HMAC of \a input with \a key, producing \a output.
 	void Hmac_Sha512(const RawBuffer& key, const RawBuffer& input, Hash512& output);
+
+	/// Calculates the sha512 PBKDF2 of \a password with \a salt and \a iterationCount, producing \a output.
+	void Pbkdf2_Sha512(const RawBuffer& password, const RawBuffer& salt, uint32_t iterationCount, Hash512& output);
 
 	// endregion
 

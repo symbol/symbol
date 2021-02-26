@@ -56,16 +56,14 @@ namespace catapult { namespace crypto {
 		HashSingleBuffer(EVP_ripemd160(), dataBuffer, hash);
 	}
 
-	namespace {
-		void Sha256(const RawBuffer& dataBuffer, Hash256& hash) {
-			HashSingleBuffer(EVP_sha256(), dataBuffer, hash);
-		}
-	}
-
 	void Bitcoin160(const RawBuffer& dataBuffer, Hash160& hash) {
 		Hash256 firstHash;
 		Sha256(dataBuffer, firstHash);
 		Ripemd160(firstHash, hash);
+	}
+
+	void Sha256(const RawBuffer& dataBuffer, Hash256& hash) {
+		HashSingleBuffer(EVP_sha256(), dataBuffer, hash);
 	}
 
 	void Sha256Double(const RawBuffer& dataBuffer, Hash256& hash) {
@@ -90,6 +88,18 @@ namespace catapult { namespace crypto {
 	void Hmac_Sha512(const RawBuffer& key, const RawBuffer& input, Hash512& output) {
 		unsigned int outputSize = 0;
 		HMAC(EVP_sha512(), key.pData, static_cast<int>(key.Size), input.pData, input.Size, output.data(), &outputSize);
+	}
+
+	void Pbkdf2_Sha512(const RawBuffer& password, const RawBuffer& salt, uint32_t iterationCount, Hash512& output) {
+		PKCS5_PBKDF2_HMAC(
+				reinterpret_cast<const char*>(password.pData),
+				static_cast<int>(password.Size),
+				salt.pData,
+				static_cast<int>(salt.Size),
+				static_cast<int>(iterationCount),
+				EVP_sha512(),
+				Hash512::Size,
+				output.data());
 	}
 
 	// endregion
