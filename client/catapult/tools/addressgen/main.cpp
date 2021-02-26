@@ -20,118 +20,52 @@
 **/
 
 #include "tools/ToolMain.h"
+#include "MultiAddressMatcher.h"
 #include "tools/AccountTool.h"
 #include "tools/ToolThreadUtils.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/SecureRandomGenerator.h"
-#include "catapult/model/Address.h"
-#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/SpinLock.h"
 #include <boost/asio.hpp>
-#include <list>
 #include <thread>
 
 namespace catapult { namespace tools { namespace addressgen {
 
 	namespace {
-		// region KeyCollection
+		// region basic matching
 
-		class KeyCollection {
-		public:
-			struct CandidateDescriptor {
-			public:
-				CandidateDescriptor(model::NetworkIdentifier networkIdentifier, crypto::PrivateKey&& privateKey)
-						: KeyPair(crypto::KeyPair::FromPrivate(std::move(privateKey)))
-						, AddressString(model::AddressToString(model::PublicKeyToAddress(KeyPair.publicKey(), networkIdentifier)))
-				{}
-
-			public:
-				crypto::KeyPair KeyPair;
-				std::string AddressString;
-			};
-
-		public:
-			bool isComplete() const {
-				return std::all_of(m_descriptors.cbegin(), m_descriptors.cend(), IsComplete);
+		void AddSearchPatterns(MultiAddressMatcher& matcher, const std::vector<std::string>& values, uint32_t count) {
+			for (auto i = 0u; i < count; ++i) {
+				for (const auto& value : values)
+					matcher.addSearchPattern(value);
 			}
+		}
 
-		public:
-			void addSearchPattern(const std::string& pattern) {
-				SearchDescriptor descriptor;
-				descriptor.SearchString = pattern;
+		void MatchAll(MultiAddressMatcher& matcher, AccountPrinter& printer, uint32_t numThreads) {
+			utils::SpinLock matcherLock;
+			auto pPool = CreateStartedThreadPool(numThreads);
+			for (auto i = 0u; i < pPool->numWorkerThreads(); ++i) {
+				pPool->ioContext().dispatch([&printer, &matcher, &matcherLock]() {
+					auto randomGenerator = crypto::SecureRandomGenerator();
 
-				if ('^' == pattern[0]) {
-					descriptor.MatchStart = true;
-					PopFront(descriptor.SearchString);
-				} else if ('$' == pattern.back()) {
-					descriptor.MatchEnd = true;
-					descriptor.SearchString.pop_back();
-				}
+					for (;;) {
+						Key privateKeyBuffer;
+						randomGenerator.fill(privateKeyBuffer.data(), privateKeyBuffer.size());
+						auto privateKey = crypto::PrivateKey::FromBufferSecure(privateKeyBuffer);
 
-				m_descriptors.push_back(std::move(descriptor));
-			}
+						utils::SpinLockGuard guard(matcherLock);
+						const auto* pNewKeyPair = matcher.accept(std::move(privateKey));
+						if (pNewKeyPair)
+							printer.print(*pNewKeyPair);
 
-			const crypto::KeyPair* accept(CandidateDescriptor&& candidateDescriptor) {
-				const auto& addressString = candidateDescriptor.AddressString;
-
-				for (auto& descriptor : m_descriptors) {
-					auto searchString = descriptor.SearchString;
-					while (!searchString.empty() && (searchString.size() > descriptor.BestMatchSize || !descriptor.pBestKeyPair)) {
-						auto matchIndex = addressString.find(searchString);
-						auto isMatch = std::string::npos != matchIndex;
-						if (descriptor.MatchStart)
-							isMatch = 0 == matchIndex;
-						else if (descriptor.MatchEnd)
-							isMatch = matchIndex + searchString.size() == addressString.size();
-
-						if (isMatch) {
-							if (!searchString.empty()) {
-								CATAPULT_LOG(info)
-										<< "searching for '" << descriptor.SearchString << "' found " << addressString
-										<< " (" << searchString.size() << "/" << descriptor.SearchString.size() << ")";
-							}
-
-							descriptor.BestMatchSize = searchString.size();
-							descriptor.pBestKeyPair = std::make_unique<crypto::KeyPair>(std::move(candidateDescriptor.KeyPair));
-
-							if (IsComplete(descriptor))
-								return descriptor.pBestKeyPair.get();
-						}
-
-						if (descriptor.MatchEnd)
-							PopFront(searchString);
-						else
-							searchString.pop_back();
+						if (matcher.isComplete())
+							return;
 					}
-				}
-
-				return nullptr;
+				});
 			}
 
-		private:
-			static void PopFront(std::string& str) {
-				str = str.substr(1);
-			}
-
-		private:
-			struct SearchDescriptor {
-				std::string SearchString;
-
-				bool MatchStart = false;
-				bool MatchEnd = false;
-				size_t BestMatchSize = 0;
-
-				std::unique_ptr<crypto::KeyPair> pBestKeyPair;
-			};
-
-			static bool IsComplete(const SearchDescriptor& descriptor) {
-				return descriptor.SearchString.size() == descriptor.BestMatchSize && !!descriptor.pBestKeyPair;
-			}
-
-		private:
-			std::list<SearchDescriptor> m_descriptors;
-		};
+			pPool->join();
+		}
 
 		// endregion
 
@@ -153,42 +87,13 @@ namespace catapult { namespace tools { namespace addressgen {
 			}
 
 			void process(const Options& options, const std::vector<std::string>& values, AccountPrinter& printer) override {
-				auto count = options["count"].as<uint32_t>();
-
 				// network value is validated before process is called
 				model::NetworkIdentifier networkIdentifier;
 				model::TryParseValue(options["network"].as<std::string>(), networkIdentifier);
 
-				KeyCollection keys;
-				for (auto i = 0u; i < count; ++i) {
-					for (const auto& value : values)
-						keys.addSearchPattern(value);
-				}
-
-				utils::SpinLock keysLock;
-				auto pPool = CreateStartedThreadPool(options["threads"].as<uint32_t>());
-				for (auto i = 0u; i < pPool->numWorkerThreads(); ++i) {
-					pPool->ioContext().dispatch([networkIdentifier, &printer, &keys, &keysLock]() {
-						auto randomGenerator = crypto::SecureRandomGenerator();
-
-						for (;;) {
-							Key privateKeyBuffer;
-							randomGenerator.fill(privateKeyBuffer.data(), privateKeyBuffer.size());
-							auto privateKey = crypto::PrivateKey::FromBufferSecure(privateKeyBuffer);
-							auto candidateDescriptor = KeyCollection::CandidateDescriptor(networkIdentifier, std::move(privateKey));
-
-							utils::SpinLockGuard guard(keysLock);
-							const auto* pNewKeyPair = keys.accept(std::move(candidateDescriptor));
-							if (pNewKeyPair)
-								printer.print(*pNewKeyPair);
-
-							if (keys.isComplete())
-								return;
-						}
-					});
-				}
-
-				pPool->join();
+				MultiAddressMatcher matcher(networkIdentifier);
+				AddSearchPatterns(matcher, values, options["count"].as<uint32_t>());
+				MatchAll(matcher, printer, options["threads"].as<uint32_t>());
 			}
 		};
 
