@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0.8] - 26-Feb-2021
+
+### Added
+ - sdk: basic support for BIP32 and BIP39
+
+### Fixed
+ - fix deadlock between timesync and node selection, #162
+ - addressgen - fix matching logic when no substrings match
+
 ## [0.10.0.7] - 15-Feb-2021
 
 ### Added
@@ -405,6 +414,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.10.0.8]: https://github.com/nemtech/catapult-server/compare/v0.10.0.7...v0.10.0.8
 [0.10.0.7]: https://github.com/nemtech/catapult-server/compare/v0.10.0.6...v0.10.0.7
 [0.10.0.6]: https://github.com/nemtech/catapult-server/compare/v0.10.0.5...v0.10.0.6
 [0.10.0.5]: https://github.com/nemtech/catapult-server/compare/v0.10.0.4...v0.10.0.5
