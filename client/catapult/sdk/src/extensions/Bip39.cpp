@@ -35,9 +35,9 @@ namespace catapult { namespace extensions {
 		std::vector<std::string> words;
 		auto processByte = [&next, &counter, &words](auto byte, size_t bitcount) {
 			for (auto i = 0u; i < bitcount; ++i) {
-				next <<= 1;
+				next = static_cast<uint16_t>(next << 1);
 				next = static_cast<uint16_t>(next | (byte & 0x80) >> 7);
-				byte <<= 1;
+				byte = static_cast<uint8_t>(byte << 1);
 
 				// 2^11 == 2048
 				if (11 == ++counter) {
