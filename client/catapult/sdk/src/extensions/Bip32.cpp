@@ -25,16 +25,28 @@
 
 namespace catapult { namespace extensions {
 
-	Bip32Node::Bip32Node(const RawBuffer& key, const RawBuffer& data) {
-		Hash512 hmacResult;
-		crypto::Hmac_Sha512(key, data, hmacResult);
+	namespace {
+		Hash512 Hmac_Sha512(const RawBuffer& key, const RawBuffer& data) {
+			Hash512 hmacResult;
+			crypto::Hmac_Sha512(key, data, hmacResult);
+			return hmacResult;
+		}
+	}
 
-		m_privateKey = crypto::PrivateKey::FromBufferSecure({ &hmacResult[0], crypto::PrivateKey::Size });
+	Bip32Node::Bip32Node(const RawBuffer& key, const RawBuffer& data) : Bip32Node(Hmac_Sha512(key, data))
+	{}
+
+	Bip32Node::Bip32Node(Hash512&& hmacResult)
+			: m_keyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromBufferSecure({ &hmacResult[0], crypto::PrivateKey::Size }))) {
 		std::memcpy(&m_chainCode[0], &hmacResult[crypto::PrivateKey::Size], Hash512::Size - crypto::PrivateKey::Size);
 	}
 
 	const Hash256& Bip32Node::chainCode() const {
 		return m_chainCode;
+	}
+
+	const Key& Bip32Node::publicKey() const {
+		return m_keyPair.publicKey();
 	}
 
 #ifdef _MSC_VER
@@ -49,7 +61,7 @@ namespace catapult { namespace extensions {
 
 		std::array<uint8_t, Hmac_Data_Size> hmacData;
 		hmacData[0] = 0;
-		std::memcpy(&hmacData[1], m_privateKey.data(), m_privateKey.size());
+		std::memcpy(&hmacData[1], m_keyPair.privateKey().data(), m_keyPair.privateKey().size());
 
 		// write id as big endian and set high bit
 		auto reversedId = BSWAP(id);
@@ -58,7 +70,7 @@ namespace catapult { namespace extensions {
 		return Bip32Node(m_chainCode, hmacData);
 	}
 
-	Bip32Node Bip32Node::derive(std::initializer_list<uint32_t> path) {
+	Bip32Node Bip32Node::derive(const std::vector<uint32_t>& path) {
 		auto iter = path.begin();
 		auto nextNode = derive(*iter++);
 		for (; path.end() != iter ; ++iter)
@@ -73,6 +85,6 @@ namespace catapult { namespace extensions {
 	}
 
 	crypto::KeyPair Bip32Node::ExtractKeyPair(Bip32Node&& node) {
-		return crypto::KeyPair::FromPrivate(std::move(node.m_privateKey));
+		return std::move(node.m_keyPair);
 	}
 }}

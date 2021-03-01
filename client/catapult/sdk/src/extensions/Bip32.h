@@ -29,16 +29,22 @@ namespace catapult { namespace extensions {
 	private:
 		Bip32Node(const RawBuffer& key, const RawBuffer& data);
 
+	private:
+		Bip32Node(Hash512&& hmacResult);
+
 	public:
 		/// Gets the node's chain code.
 		const Hash256& chainCode() const;
+
+		/// Gets the node's public key.
+		const Key& publicKey() const;
 
 	public:
 		/// Derives a direct child node with \a id.
 		Bip32Node derive(uint32_t id);
 
 		/// Derives a descendent node with \a path.
-		Bip32Node derive(std::initializer_list<uint32_t> path);
+		Bip32Node derive(const std::vector<uint32_t>& path);
 
 	public:
 		/// Creates a BIP32 root node from \a seed.
@@ -48,7 +54,7 @@ namespace catapult { namespace extensions {
 		static crypto::KeyPair ExtractKeyPair(Bip32Node&& node);
 
 	private:
-		crypto::PrivateKey m_privateKey;
+		crypto::KeyPair m_keyPair;
 		Hash256 m_chainCode;
 	};
 }}
