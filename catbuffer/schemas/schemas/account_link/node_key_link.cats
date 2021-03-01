@@ -18,5 +18,8 @@ struct NodeKeyLinkTransaction
 
 # binary layout for an embedded node key link transaction
 struct EmbeddedNodeKeyLinkTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x424C
+
 	inline EmbeddedTransaction
 	inline NodeKeyLinkTransactionBody

@@ -32,5 +32,8 @@ struct MosaicMetadataTransaction
 
 # binary layout for an embedded mosaic metadata transaction
 struct EmbeddedMosaicMetadataTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x4244
+
 	inline EmbeddedTransaction
 	inline MosaicMetadataTransactionBody

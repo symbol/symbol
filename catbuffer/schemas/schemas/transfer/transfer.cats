@@ -33,5 +33,8 @@ struct TransferTransaction
 
 # binary layout for an embedded transfer transaction
 struct EmbeddedTransferTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x4154
+
 	inline EmbeddedTransaction
 	inline TransferTransactionBody

@@ -28,6 +28,9 @@ struct MosaicDefinitionTransaction
 
 # binary layout for an embedded mosaic definition transaction
 struct EmbeddedMosaicDefinitionTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x414D
+
 	inline EmbeddedTransaction
 	inline MosaicDefinitionTransactionBody
 

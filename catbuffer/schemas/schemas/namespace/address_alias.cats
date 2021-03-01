@@ -22,5 +22,8 @@ struct AddressAliasTransaction
 
 # binary layout for an embedded address alias transaction
 struct EmbeddedAddressAliasTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x424E
+
 	inline EmbeddedTransaction
 	inline AddressAliasTransactionBody

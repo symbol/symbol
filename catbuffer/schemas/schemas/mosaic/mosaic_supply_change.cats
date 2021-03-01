@@ -22,5 +22,8 @@ struct MosaicSupplyChangeTransaction
 
 # binary layout for an embedded mosaic supply change transaction
 struct EmbeddedMosaicSupplyChangeTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x424D
+
 	inline EmbeddedTransaction
 	inline MosaicSupplyChangeTransactionBody

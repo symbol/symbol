@@ -21,5 +21,8 @@ struct HashLockTransaction
 
 # binary layout for an embedded hash lock transaction
 struct EmbeddedHashLockTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x4148
+
 	inline EmbeddedTransaction
 	inline HashLockTransactionBody

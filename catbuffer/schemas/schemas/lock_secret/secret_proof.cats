@@ -28,5 +28,8 @@ struct SecretProofTransaction
 
 # binary layout for an embedded secret proof transaction
 struct EmbeddedSecretProofTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x4252
+
 	inline EmbeddedTransaction
 	inline SecretProofTransactionBody

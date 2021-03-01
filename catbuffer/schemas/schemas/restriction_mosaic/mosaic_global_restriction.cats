@@ -34,5 +34,8 @@ struct MosaicGlobalRestrictionTransaction
 
 # binary layout for an embedded mosaic global restriction transaction
 struct EmbeddedMosaicGlobalRestrictionTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x4151
+
 	inline EmbeddedTransaction
 	inline MosaicGlobalRestrictionTransactionBody

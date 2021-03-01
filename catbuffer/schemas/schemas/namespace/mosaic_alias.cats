@@ -22,5 +22,8 @@ struct MosaicAliasTransaction
 
 # binary layout for an embedded mosaic alias transaction
 struct EmbeddedMosaicAliasTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x434E
+
 	inline EmbeddedTransaction
 	inline MosaicAliasTransactionBody

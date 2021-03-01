@@ -28,5 +28,8 @@ struct SecretLockTransaction
 
 # binary layout for an embedded secret lock transaction
 struct EmbeddedSecretLockTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x4152
+
 	inline EmbeddedTransaction
 	inline SecretLockTransactionBody

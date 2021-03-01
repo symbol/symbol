@@ -31,5 +31,8 @@ struct AccountMosaicRestrictionTransaction
 
 # binary layout for an embedded account mosaic restriction transaction
 struct EmbeddedAccountMosaicRestrictionTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x4250
+
 	inline EmbeddedTransaction
 	inline AccountMosaicRestrictionTransactionBody

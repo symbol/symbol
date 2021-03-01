@@ -31,5 +31,8 @@ struct AccountAddressRestrictionTransaction
 
 # binary layout for an embedded account address restriction transaction
 struct EmbeddedAccountAddressRestrictionTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x4150
+
 	inline EmbeddedTransaction
 	inline AccountAddressRestrictionTransactionBody

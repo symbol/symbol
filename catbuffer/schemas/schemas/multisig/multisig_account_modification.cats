@@ -33,5 +33,8 @@ struct MultisigAccountModificationTransaction
 
 # binary layout for an embedded multisig account modification transaction
 struct EmbeddedMultisigAccountModificationTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x4155
+
 	inline EmbeddedTransaction
 	inline MultisigAccountModificationTransactionBody

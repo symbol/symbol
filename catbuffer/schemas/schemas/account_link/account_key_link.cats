@@ -18,5 +18,8 @@ struct AccountKeyLinkTransaction
 
 # binary layout for an embedded account key link transaction
 struct EmbeddedAccountKeyLinkTransaction
+	const uint8 version = 1
+	const EntityType entityType = 0x414C
+
 	inline EmbeddedTransaction
 	inline AccountKeyLinkTransactionBody
