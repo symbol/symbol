@@ -34,18 +34,11 @@ namespace catapult { namespace tools { namespace addressgen {
 	namespace {
 		// region basic matching
 
-		void AddSearchPatterns(MultiAddressMatcher& matcher, const std::vector<std::string>& values, uint32_t count) {
-			for (auto i = 0u; i < count; ++i) {
-				for (const auto& value : values)
-					matcher.addSearchPattern(value);
-			}
-		}
-
-		void MatchAll(MultiAddressMatcher& matcher, AccountPrinter& printer, uint32_t numThreads) {
-			utils::SpinLock matcherLock;
+		void RunGenerator(uint32_t numThreads, const predicate<crypto::PrivateKey&&>& acceptPrivateKey) {
+			utils::SpinLock acceptLock;
 			auto pPool = CreateStartedThreadPool(numThreads);
 			for (auto i = 0u; i < pPool->numWorkerThreads(); ++i) {
-				pPool->ioContext().dispatch([&printer, &matcher, &matcherLock]() {
+				pPool->ioContext().dispatch([acceptPrivateKey, &acceptLock]() {
 					auto randomGenerator = crypto::SecureRandomGenerator();
 
 					for (;;) {
@@ -53,18 +46,45 @@ namespace catapult { namespace tools { namespace addressgen {
 						randomGenerator.fill(privateKeyBuffer.data(), privateKeyBuffer.size());
 						auto privateKey = crypto::PrivateKey::FromBufferSecure(privateKeyBuffer);
 
-						utils::SpinLockGuard guard(matcherLock);
-						const auto* pNewKeyPair = matcher.accept(std::move(privateKey));
-						if (pNewKeyPair)
-							printer.print(*pNewKeyPair);
-
-						if (matcher.isComplete())
+						utils::SpinLockGuard guard(acceptLock);
+						if (!acceptPrivateKey(std::move(privateKey)))
 							return;
 					}
 				});
 			}
 
 			pPool->join();
+		}
+
+		void Generate(uint32_t count, uint32_t numThreads, AccountPrinter& printer) {
+			std::atomic<uint32_t> numGenerated(0);
+			RunGenerator(numThreads, [count, &printer, &numGenerated](auto&& privateKey) {
+				auto keyPair = crypto::KeyPair::FromPrivate(std::move(privateKey));
+
+				if (++numGenerated <= count) {
+					printer.print(keyPair);
+					return true;
+				}
+
+				return false;
+			});
+		}
+
+		void AddSearchPatterns(MultiAddressMatcher& matcher, const std::vector<std::string>& values, uint32_t count) {
+			for (auto i = 0u; i < count; ++i) {
+				for (const auto& value : values)
+					matcher.addSearchPattern(value);
+			}
+		}
+
+		void MatchAll(MultiAddressMatcher& matcher, uint32_t numThreads, AccountPrinter& printer) {
+			RunGenerator(numThreads, [&matcher, &printer](auto&& privateKey) {
+				const auto* pNewKeyPair = matcher.accept(std::move(privateKey));
+				if (pNewKeyPair)
+					printer.print(*pNewKeyPair);
+
+				return !matcher.isComplete();
+			});
 		}
 
 		// endregion
@@ -91,9 +111,15 @@ namespace catapult { namespace tools { namespace addressgen {
 				model::NetworkIdentifier networkIdentifier;
 				model::TryParseValue(options["network"].as<std::string>(), networkIdentifier);
 
-				MultiAddressMatcher matcher(networkIdentifier);
-				AddSearchPatterns(matcher, values, options["count"].as<uint32_t>());
-				MatchAll(matcher, printer, options["threads"].as<uint32_t>());
+				auto count = options["count"].as<uint32_t>();
+				auto numThreads = options["threads"].as<uint32_t>();
+				if (values.empty() || values[0].empty()) {
+					Generate(count, numThreads, printer);
+				} else {
+					MultiAddressMatcher matcher(networkIdentifier);
+					AddSearchPatterns(matcher, values, count);
+					MatchAll(matcher, numThreads, printer);
+				}
 			}
 		};
 
