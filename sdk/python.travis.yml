@@ -1,0 +1,19 @@
+language: python
+python:
+  - '3.7'
+cache:
+  directories:
+    - "$HOME/.cache/pip"
+install:
+  - pip install -r requirements.txt
+env:
+  global:
+    RELEASE_BRANCH=main
+jobs:
+  include:
+    - stage: always
+      name: pylint
+      script: pylint --load-plugins pylint_quotes -- core nis1 sym test/* vectors
+      name: pycodestyle
+      script: pycodestyle --config=.pycodestyle -- core nis1 sym test/* vectors
+
