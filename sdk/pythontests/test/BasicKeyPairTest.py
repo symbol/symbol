@@ -1,7 +1,7 @@
-import random
 from abc import abstractmethod
 
 from core.CryptoTypes import PrivateKey, PublicKey, Signature
+from tests.test.NemTestUtils import NemTestUtils
 
 
 class KeyPairTestDescriptor:
@@ -37,7 +37,7 @@ class BasicKeyPairTest:
         test_descriptor = self.get_test_descriptor()
 
         key_pair = test_descriptor.key_pair_class(PrivateKey.random())
-        message = random.randbytes(21)
+        message = NemTestUtils.randbytes(21)
 
         # Act:
         signature = key_pair.sign(message)
@@ -52,7 +52,7 @@ class BasicKeyPairTest:
         private_key = PrivateKey.random()
         key_pair1 = test_descriptor.key_pair_class(private_key)
         key_pair2 = test_descriptor.key_pair_class(private_key)
-        message = random.randbytes(21)
+        message = NemTestUtils.randbytes(21)
 
         # Act:
         signature1 = key_pair1.sign(message)
@@ -67,7 +67,7 @@ class BasicKeyPairTest:
 
         key_pair1 = test_descriptor.key_pair_class(PrivateKey.random())
         key_pair2 = test_descriptor.key_pair_class(PrivateKey.random())
-        message = random.randbytes(21)
+        message = NemTestUtils.randbytes(21)
 
         # Act:
         signature1 = key_pair1.sign(message)
@@ -84,7 +84,7 @@ class BasicKeyPairTest:
         # Arrange:
         test_descriptor = self.get_test_descriptor()
 
-        message = random.randbytes(21)
+        message = NemTestUtils.randbytes(21)
         key_pair = test_descriptor.key_pair_class(PrivateKey.random())
         signature = key_pair.sign(message)
 
@@ -98,11 +98,11 @@ class BasicKeyPairTest:
         # Arrange:
         test_descriptor = self.get_test_descriptor()
 
-        message = random.randbytes(21)
+        message = NemTestUtils.randbytes(21)
         signature = test_descriptor.key_pair_class(PrivateKey.random()).sign(message)
 
         # Act:
-        is_verified = test_descriptor.verifier_class(PublicKey(random.randbytes(32))).verify(message, signature)
+        is_verified = test_descriptor.verifier_class(PublicKey(NemTestUtils.randbytes(32))).verify(message, signature)
 
         # Assert:
         self.assertFalse(is_verified)
@@ -111,7 +111,7 @@ class BasicKeyPairTest:
         # Arrange:
         test_descriptor = self.get_test_descriptor()
 
-        message = random.randbytes(21)
+        message = NemTestUtils.randbytes(21)
         key_pair = test_descriptor.key_pair_class(PrivateKey.random())
         signature = key_pair.sign(message)
 
@@ -130,7 +130,7 @@ class BasicKeyPairTest:
         # Arrange:
         test_descriptor = self.get_test_descriptor()
 
-        message = random.randbytes(21)
+        message = NemTestUtils.randbytes(21)
         key_pair = test_descriptor.key_pair_class(PrivateKey.random())
         signature = key_pair.sign(message)
 
