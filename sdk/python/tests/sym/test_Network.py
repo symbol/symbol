@@ -1,6 +1,6 @@
 import unittest
 
-from test.test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
+from tests.test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
 from core.CryptoTypes import PublicKey
 from sym.Network import Network
 
