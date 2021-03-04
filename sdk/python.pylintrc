@@ -152,13 +152,13 @@ inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
 method-name-hint=(([a-z][a-zA-Z0-9_]{2,30})|(_[a-zA-Z0-9_]*))$
 
 # Regular expression matching correct method names
-method-rgx=(([a-z][a-zA-Z0-9_]{2,30})|(_[a-zA-Z0-9_]*))$
+method-rgx=(([a-z][a-zA-Z0-9_]{2,30})|(test_[a-zA-Z0-9_]+)|(_[a-zA-Z0-9_]*))$
 
 # Naming hint for module names
 module-name-hint=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
 
 # Regular expression matching correct module names
-module-rgx=([A-Za-z][a-zA-Z0-9]+)$
+module-rgx=(test_)?([A-Za-z][a-zA-Z0-9]+)$
 
 # Colon-delimited sets of names that determine each other's naming style when
 # the name regexes allow several styles.

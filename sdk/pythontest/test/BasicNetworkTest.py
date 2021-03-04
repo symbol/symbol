@@ -1,23 +1,26 @@
-# pylint: disable=invalid-name
 from abc import abstractmethod
 
 
-# pylint: disable=too-few-public-methods,too-many-function-args
 class NetworkTestDescriptor:
+    # pylint: disable=too-few-public-methods
+
     def __init__(
             self,
             network_class,
             deterministic_public_key,
             expected_mainnet_address_network_pair,
             expected_testnet_address_network_pair):
+        # pylint: disable=too-many-function-args
+
         self.network_class = network_class
         self.deterministic_public_key = deterministic_public_key
         (self.expected_mainnet_address, self.mainnet_network) = expected_mainnet_address_network_pair
         (self.expected_testnet_address, self.testnet_network) = expected_testnet_address_network_pair
 
 
-# pylint: disable=no-member
 class BasicNetworkTest:
+    # pylint: disable=no-member
+
     def test_can_convert_mainnet_public_key_to_address(self):
         # Arrange:
         test_descriptor = self.get_test_descriptor()

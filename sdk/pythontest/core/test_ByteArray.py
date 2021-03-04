@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 from binascii import hexlify
 import random
 import unittest

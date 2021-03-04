@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 from abc import abstractmethod
 import datetime
 
@@ -6,16 +5,18 @@ import datetime
 CUSTOM_EPOCH_TIME = datetime.datetime(2021, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
 
 
-# pylint: disable=too-few-public-methods
 class NetworkTimestampTestDescriptor:
+    # pylint: disable=too-few-public-methods
+
     def __init__(self, network_timestamp_class, epoch, time_units):
         self.network_timestamp_class = network_timestamp_class
         self.epoch = epoch
         self.time_units = time_units
 
 
-# pylint: disable=no-member
 class BasicNetworkTimestampTest:
+    # pylint: disable=no-member
+
     # region to_datetime
 
     def test_can_convert_epochal_timestamp_to_datetime(self):

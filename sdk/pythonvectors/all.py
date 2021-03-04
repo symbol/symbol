@@ -9,8 +9,9 @@ from core.CryptoTypes import PrivateKey, PublicKey, Signature
 from core.Network import NetworkLocator
 
 
-# pylint: disable=too-few-public-methods
 class ClassLocator:
+    # pylint: disable=too-few-public-methods
+
     def __init__(self, key_pair_class, verifier_class, network_class):
         self.key_pair_class = key_pair_class
         self.verifier_class = verifier_class
@@ -18,6 +19,8 @@ class ClassLocator:
 
 
 class VectorsTestSuite:
+    # pylint: disable=too-few-public-methods
+
     def __init__(self, identifier, filename, description):
         self.identifier = identifier
         self.__filename = filename
@@ -158,8 +161,9 @@ class Bip39DerivationTester(VectorsTestSuite):
         return [(expected_root_public_key, root_public_key)]
 
 
-# pylint: disable=import-outside-toplevel
 def load_class_locator(blockchain):
+    # pylint: disable=import-outside-toplevel
+
     if 'symbol' == blockchain:
         from sym.KeyPair import KeyPair, Verifier
         from sym.Network import Network
@@ -170,8 +174,9 @@ def load_class_locator(blockchain):
     return ClassLocator(KeyPair, Verifier, Network)
 
 
-# pylint: disable=too-many-locals
 def main():
+    # pylint: disable=too-many-locals
+
     test_identifiers = range(0, 7)
     parser = argparse.ArgumentParser(description='nem test vectors harness')
     parser.add_argument('--vectors', help='path to test-vectors directory', required=True)

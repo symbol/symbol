@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 from binascii import unhexlify
 import unittest
 from core.Bip32 import Bip32
