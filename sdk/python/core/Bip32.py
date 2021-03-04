@@ -12,7 +12,7 @@ class Bip32Node():
 
     def __init__(self, key, data):
         """Creates a BIP32 node around a key and data."""
-        hmac_result = hmac.digest(key, data, hashlib.sha512)
+        hmac_result = hmac.new(key, data, hashlib.sha512).digest()
 
         self.private_key = PrivateKey(hmac_result[0:32])
         self.chain_code = hmac_result[32:]

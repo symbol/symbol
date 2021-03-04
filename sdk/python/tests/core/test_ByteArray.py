@@ -1,8 +1,8 @@
-import random
 import unittest
 from binascii import hexlify
 
 from core.ByteArray import ByteArray
+from tests.test.NemTestUtils import NemTestUtils
 
 FIXED_SIZE = 24
 TEST_BYTES = bytes([
@@ -14,7 +14,7 @@ TEST_HEX = 'C5FB65CB902623D93DF2E682FFB13F99D50FAC24D5FF2A42'
 
 
 def random_hex_string(size):
-    return hexlify(random.randbytes(size)).decode('utf8')
+    return hexlify(NemTestUtils.randbytes(size)).decode('utf8')
 
 
 class ByteArrayTest(unittest.TestCase):
@@ -28,7 +28,7 @@ class ByteArrayTest(unittest.TestCase):
     def test_cannot_create_byte_array_with_incorrect_number_of_bytes(self):
         for size in [0, FIXED_SIZE - 1, FIXED_SIZE + 1]:
             with self.assertRaises(ValueError):
-                ByteArray(FIXED_SIZE, random.randbytes(size))
+                ByteArray(FIXED_SIZE, NemTestUtils.randbytes(size))
 
     def test_can_create_byte_array_with_correct_number_of_hex_characters(self):
         # Act:
@@ -53,7 +53,7 @@ class ByteArrayTest(unittest.TestCase):
         self.assertEqual(byte_array_with_explicit_tag, ByteArray(FIXED_SIZE, TEST_BYTES, str))
         self.assertEqual(byte_array_with_explicit_tag, ByteArray(FIXED_SIZE, TEST_HEX, str))
 
-        self.assertNotEqual(byte_array, ByteArray(FIXED_SIZE, random.randbytes(FIXED_SIZE)))
+        self.assertNotEqual(byte_array, ByteArray(FIXED_SIZE, NemTestUtils.randbytes(FIXED_SIZE)))
         self.assertNotEqual(byte_array, ByteArray(FIXED_SIZE, random_hex_string(FIXED_SIZE)))
         self.assertNotEqual(byte_array, byte_array_with_explicit_tag)
 

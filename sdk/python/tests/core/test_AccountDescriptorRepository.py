@@ -1,8 +1,8 @@
-import random
 import unittest
 
 from core.AccountDescriptorRepository import AccountDescriptorRepository
 from core.CryptoTypes import PublicKey
+from tests.test.NemTestUtils import NemTestUtils
 
 PUBLIC_KEY_1 = PublicKey('A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74')
 PUBLIC_KEY_2 = PublicKey('9A755901AA014A4EACAE615523D2B50C27F954CB936927331F1116C8D5B7B2AA')
@@ -79,7 +79,7 @@ class AccountDescriptorRepositoryTest(unittest.TestCase):
 
         # Act + Assert:
         with self.assertRaises(StopIteration):
-            repository.find_by_public_key(PublicKey(random.randbytes(32)))
+            repository.find_by_public_key(PublicKey(NemTestUtils.randbytes(32)))
 
     def test_can_find_by_public_key_when_match(self):
         # Arrange:

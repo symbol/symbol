@@ -1,7 +1,7 @@
-import random
 import unittest
 
 from core.CryptoTypes import PrivateKey, PublicKey, Signature
+from tests.test.NemTestUtils import NemTestUtils
 
 
 class CryptoTypesTest(unittest.TestCase):
@@ -33,7 +33,7 @@ class CryptoTypesTest(unittest.TestCase):
 
     def test_equality_is_only_possible_for_same_types(self):
         # Arrange:
-        raw_bytes = random.randbytes(32)
+        raw_bytes = NemTestUtils.randbytes(32)
 
         # Act + Assert:
         self.assertEqual(PrivateKey(raw_bytes), PrivateKey(raw_bytes))
@@ -44,7 +44,7 @@ class CryptoTypesTest(unittest.TestCase):
 
     def _assert_can_create_byte_array_with_correct_number_of_bytes(self, byte_array_type, size):
         # Arrange:
-        raw_bytes = random.randbytes(size)
+        raw_bytes = NemTestUtils.randbytes(size)
 
         # Act:
         byte_array = byte_array_type(raw_bytes)
@@ -55,4 +55,4 @@ class CryptoTypesTest(unittest.TestCase):
     def _assert_cannot_create_byte_array_with_incorrect_number_of_bytes(self, byte_array_type, required_size):
         for size in [0, required_size - 1, required_size + 1]:
             with self.assertRaises(ValueError):
-                byte_array_type(random.randbytes(size))
+                byte_array_type(NemTestUtils.randbytes(size))

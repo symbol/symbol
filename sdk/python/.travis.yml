@@ -1,19 +1,44 @@
 language: python
+
 python:
-  - '3.7'
-cache:
-  directories:
-    - "$HOME/.cache/pip"
-install:
-  - pip install -r requirements.txt
+  - 3.6
+
 env:
   global:
     RELEASE_BRANCH=main
+    TEST_VECTORS_ROOT=$HOME/nemtech/test-vectors
+
+cache:
+  directories:
+    - "$HOME/.cache/pip"
+
+addons:
+  apt:
+    packages:
+    - zbar-tools
+
+install:
+  - pip install -r requirements.txt
+  - git clone --depth=50 --branch=main https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
+
 jobs:
   include:
     - stage: always
-      name: pylint
-      script: pylint --load-plugins pylint_quotes -- core nis1 sym test/* vectors
-      name: pycodestyle
-      script: pycodestyle --config=.pycodestyle -- core nis1 sym test/* vectors
+      name: lint
+      script:
+        - isort --check-only --line-length 140 core nis1 sym tests/* vectors
+        - pycodestyle --config=.pycodestyle -- core nis1 sym tests/* vectors
+        - pylint --load-plugins pylint_quotes -- core nis1 sym tests/* vectors
 
+    - stage: always
+      name: test
+      script:
+        - python3 -m unittest discover -v ./tests/core
+        - python3 -m unittest discover -v ./tests/nis1
+        - python3 -m unittest discover -v ./tests/sym
+
+    - stage: always
+      name: vectors
+      script:
+        - python3 -m vectors.all --blockchain nis1 --vectors "$TEST_VECTORS_ROOT/nis1" --tests 0 1 2 3 4 5
+        - python3 -m vectors.all --blockchain symbol --vectors "$TEST_VECTORS_ROOT"
