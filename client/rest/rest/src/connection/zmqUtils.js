@@ -122,7 +122,7 @@ module.exports = {
 					if (!isValidSubEvent(key))
 						throw Error(`${key} indicates an unsupported subevent`);
 				} else if (!(key in zsockets)) {
-					const zsocket = zsocketFactory(key, emitter);
+					const zsocket = zsocketFactory(key, emitter, multisocketEmitter.zsocketCount());
 					zsocket.on('zsocket_close', () => {
 						// firing of close indicates socket is fully closed, so prevent it from being closed again
 						// by bypassing close in removeAllListeners

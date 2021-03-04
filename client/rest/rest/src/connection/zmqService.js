@@ -22,12 +22,13 @@
 const zmqUtils = require('./zmqUtils');
 const zmq = require('zeromq');
 
-const createZmqSocket = (key, zmqConfig, logger) => {
+const createZmqSocket = (key, zmqConfig, logger, currentSocketCount) => {
 	const zsocket = zmq.socket('sub');
 	zsocket.key = key;
 	zmqUtils.prepareZsocket(zsocket, zmqConfig, logger);
 
 	zsocket.connect(`tcp://${zmqConfig.host}:${zmqConfig.port}`);
+	logger.info(`Current zmq subscription count: ${currentSocketCount + 1}`);
 	return zsocket;
 };
 
@@ -51,11 +52,14 @@ const findSubscriptionInfo = (key, emitter, codec, channelDescriptors) => {
  * @returns {object} Newly created zmq connection service that is a stripped down EventEmitter.
  */
 module.exports.createZmqConnectionService = (zmqConfig, codec, channelDescriptors, logger) =>
-	zmqUtils.createMultisocketEmitter((key, emitter) => {
+	zmqUtils.createMultisocketEmitter((key, emitter, currentSocketCount) => {
+		if (currentSocketCount * 4 > (!zmqConfig.maxSubscriptions ? 500 : zmqConfig.maxSubscriptions) - 4)
+			throw new Error('Max subscriptions reached.');
+
 		logger.info(`subscribing to ${key}`);
 		const subscriptionInfo = findSubscriptionInfo(key, emitter, codec, channelDescriptors);
 
-		const zsocket = createZmqSocket(key, zmqConfig, logger);
+		const zsocket = createZmqSocket(key, zmqConfig, logger, currentSocketCount);
 		// the second param (handler) gets called with the provided args in the message, which vary depending on the defined handler type
 		// (block, transaction, transactionStatus...)
 		zsocket.subscribe(subscriptionInfo.filter);

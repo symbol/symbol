@@ -51,7 +51,8 @@
       "port": 7902,
       "monitorInterval": 500,
       "connectTimeout": 10000,
-      "monitorLoggingThrottle": 60000
+      "monitorLoggingThrottle": 60000,
+      "maxSubscriptions": 500
     },
     "allowOptionalAddress": true
   },
