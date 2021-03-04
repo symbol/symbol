@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+
 from mnemonic import Mnemonic
 
 from core.BufferWriter import BufferWriter

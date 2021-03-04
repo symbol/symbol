@@ -1,5 +1,5 @@
-from abc import abstractmethod
 import random
+from abc import abstractmethod
 
 from core.CryptoTypes import PrivateKey, PublicKey, Signature
 

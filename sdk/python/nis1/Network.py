@@ -1,4 +1,5 @@
 import base64
+
 import sha3
 
 from core.Network import Network as BasicNetwork

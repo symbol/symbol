@@ -1,5 +1,5 @@
-from abc import abstractmethod
 import datetime
+from abc import abstractmethod
 
 
 class NetworkTimestamp:

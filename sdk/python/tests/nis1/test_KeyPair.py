@@ -1,8 +1,8 @@
 import unittest
 
-from tests.test.BasicKeyPairTest import BasicKeyPairTest, KeyPairTestDescriptor
 from core.CryptoTypes import PrivateKey, PublicKey
 from nis1.KeyPair import KeyPair, Verifier
+from tests.test.BasicKeyPairTest import BasicKeyPairTest, KeyPairTestDescriptor
 
 
 class NetworkTest(BasicKeyPairTest, unittest.TestCase):

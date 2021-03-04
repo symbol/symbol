@@ -1,4 +1,5 @@
 import unittest
+
 from core.Network import Network, NetworkLocator
 
 

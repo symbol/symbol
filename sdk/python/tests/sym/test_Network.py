@@ -1,8 +1,8 @@
 import unittest
 
-from tests.test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
 from core.CryptoTypes import PublicKey
 from sym.Network import Network
+from tests.test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
 
 
 class NetworkTest(BasicNetworkTest, unittest.TestCase):
