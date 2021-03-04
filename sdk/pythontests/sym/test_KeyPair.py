@@ -1,6 +1,6 @@
 import unittest
 
-from test.test.BasicKeyPairTest import BasicKeyPairTest, KeyPairTestDescriptor
+from tests.test.BasicKeyPairTest import BasicKeyPairTest, KeyPairTestDescriptor
 from core.CryptoTypes import PrivateKey, PublicKey
 from sym.KeyPair import KeyPair, Verifier
 

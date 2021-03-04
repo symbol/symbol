@@ -1,7 +1,7 @@
 import datetime
 import unittest
 
-from test.test.BasicNetworkTimestampTest import BasicNetworkTimestampTest, NetworkTimestampTestDescriptor
+from tests.test.BasicNetworkTimestampTest import BasicNetworkTimestampTest, NetworkTimestampTestDescriptor
 from sym.NetworkTimestamp import NetworkTimestamp
 
 
