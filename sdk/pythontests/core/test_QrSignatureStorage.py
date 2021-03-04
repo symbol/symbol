@@ -8,7 +8,6 @@ import qrcode
 from core.CryptoTypes import Signature
 from core.QrSignatureStorage import QrSignatureStorage
 
-
 # (32 + 64*X) * 8/5 > 1852 [version 40, max]; X = 18
 # https://www.qrcode.com/en/about/version.html
 MAX_SIGNATURES_PER_QRCODE = 17

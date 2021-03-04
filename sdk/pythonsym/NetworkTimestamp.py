@@ -1,7 +1,7 @@
 import datetime
 
-from core.NetworkTimestamp import NetworkTimestamp as BasicNetworkTimestamp, NetworkTimestampDatetimeConverter
-
+from core.NetworkTimestamp import NetworkTimestamp as BasicNetworkTimestamp
+from core.NetworkTimestamp import NetworkTimestampDatetimeConverter
 
 EPOCH_TIME = datetime.datetime(2021, 3, 14, 0, 6, 25, tzinfo=datetime.timezone.utc)
 

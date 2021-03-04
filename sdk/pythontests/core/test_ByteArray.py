@@ -1,6 +1,7 @@
-from binascii import hexlify
 import random
 import unittest
+from binascii import hexlify
+
 from core.ByteArray import ByteArray
 
 FIXED_SIZE = 24

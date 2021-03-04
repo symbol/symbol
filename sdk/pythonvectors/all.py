@@ -1,8 +1,8 @@
 import argparse
-from binascii import unhexlify
 import json
 import os
 import time
+from binascii import unhexlify
 
 from core.Bip32 import Bip32
 from core.CryptoTypes import PrivateKey, PublicKey, Signature

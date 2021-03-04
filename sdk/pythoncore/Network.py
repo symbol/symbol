@@ -1,5 +1,5 @@
-from abc import abstractmethod
 import hashlib
+from abc import abstractmethod
 
 
 class Network:

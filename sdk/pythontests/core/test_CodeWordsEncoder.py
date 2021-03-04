@@ -3,8 +3,6 @@ import unittest
 from core.CodeWordsEncoder import CodeWords, CodeWordsEncoder
 
 
-# region CodeWordsTest
-
 class CodeWordsTest(unittest.TestCase):
     def test_equality_is_supported(self):
         # Arrange:
@@ -25,8 +23,6 @@ class CodeWordsTest(unittest.TestCase):
 
         # Act + Assert:
         self.assertEqual('cat+bird+dog', str(code_words))
-
-# endregion
 
 
 WORD_LIST = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'eta', 'theta', 'iota', 'kappa', 'lambda']

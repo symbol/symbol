@@ -4,8 +4,6 @@ import unittest
 from core.NetworkTimestamp import NetworkTimestamp, NetworkTimestampDatetimeConverter
 
 
-# region NetworkTimestampTest
-
 # needed because NetworkTimestamp is abstract
 class ConcreteNetworkTimestamp(NetworkTimestamp):
     def add_seconds(self, count):
@@ -63,10 +61,6 @@ class NetworkTimestampTest(unittest.TestCase):
     def test_string_is_supported(self):
         self.assertEqual('123', str(ConcreteNetworkTimestamp(123)))
 
-# endregion
-
-
-# region NetworkTimestampDatetimeConverterTest
 
 def create_converter():
     return NetworkTimestampDatetimeConverter(datetime.datetime(2020, 1, 2, 3), 'hours')
@@ -120,5 +114,3 @@ class NetworkTimestampDatetimeConverterTest(unittest.TestCase):
 
         # Assert:
         self.assertEqual(5, raw_timestamp)
-
-# endregion

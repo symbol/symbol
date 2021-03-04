@@ -2,7 +2,6 @@ import unittest
 
 from core.NodeDescriptorRepository import NodeDescriptorRepository
 
-
 YAML_INPUT = '''
 - host: ALICE
   roles: [historical, XXL]
