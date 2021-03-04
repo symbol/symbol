@@ -22,9 +22,10 @@ class KeyPair:
         return Signature(self.__sk.sign(message))
 
 
-# pylint: disable=too-few-public-methods
 class Verifier:
     """Verifies signatures signed by a single key pair."""
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, public_key):
         """Creates a verifier from a public key."""

@@ -16,8 +16,8 @@ class ByteArray:
         self.bytes = raw_bytes
         self.__tag = tag
 
-    # pylint: disable=protected-access
     def __eq__(self, other):
+        # pylint: disable=protected-access
         return self.bytes == other.bytes and self.__tag == other.__tag
 
     def __str__(self):

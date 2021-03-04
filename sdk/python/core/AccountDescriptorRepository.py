@@ -3,9 +3,10 @@ import yaml
 from core.CryptoTypes import PublicKey
 
 
-# pylint: disable=too-few-public-methods
 class AccountDescriptor:
     """Represents an account."""
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, descriptor_yaml):
         """Creates a descriptor from a yaml container."""

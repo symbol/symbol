@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 import os.path
 import tempfile
 import unittest

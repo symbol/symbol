@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 import unittest
 
 from test.test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor

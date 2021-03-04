@@ -1,12 +1,12 @@
-# pylint: disable=invalid-name
 from abc import abstractmethod
 import random
 
 from core.CryptoTypes import PrivateKey, PublicKey, Signature
 
 
-# pylint: disable=too-few-public-methods,too-many-function-args
 class KeyPairTestDescriptor:
+    # pylint: disable=too-few-public-methods
+
     def __init__(self, key_pair_class, verifier_class, deterministic_private_key, expected_public_key):
         self.key_pair_class = key_pair_class
         self.verifier_class = verifier_class
@@ -14,8 +14,9 @@ class KeyPairTestDescriptor:
         self.expected_public_key = expected_public_key
 
 
-# pylint: disable=no-member
 class BasicKeyPairTest:
+    # pylint: disable=no-member
+
     def test_can_create_key_pair_from_private_key(self):
         # Arrange:
         test_descriptor = self.get_test_descriptor()

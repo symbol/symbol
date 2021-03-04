@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 import unittest
 
 from core.CodeWordsEncoder import CodeWords, CodeWordsEncoder
