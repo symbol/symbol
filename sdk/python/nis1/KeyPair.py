@@ -9,7 +9,7 @@ class KeyPair:
 
     def __init__(self, private_key):
         """Creates a key pair from a private key."""
-        self.__sk = private_key.bytes
+        self.__sk = private_key.bytes[::-1]
         self.__pk = ed25519.publickey_hash_unsafe(self.__sk, sha3.keccak_512)
 
     @property
