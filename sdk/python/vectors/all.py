@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import sys
 import time
 from binascii import unhexlify
 
@@ -199,6 +200,8 @@ def main():
         Bip32DerivationTester(class_locator),
         Bip39DerivationTester(class_locator),
     ]
+
+    num_failed_suites = 0
     for test_suite in test_suites:
         if test_suite.identifier not in args.tests:
             print('[ SKIPPED ] {} test'.format(test_suite.description))
@@ -234,8 +237,12 @@ def main():
             test_message_prefix = '[{:8.4f}s] {} test:'.format(elapsed_time, test_suite.description)
             if num_failed:
                 print('{} {} failures out of {}'.format(test_message_prefix, num_failed, test_case_number))
+                num_failed_suites += 1
             else:
                 print('{} successes {}'.format(test_message_prefix, test_case_number))
+
+    if num_failed_suites:
+        sys.exit(1)
 
 
 if '__main__' == __name__:
