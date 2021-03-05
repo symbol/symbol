@@ -19,7 +19,7 @@ addons:
 
 install:
   - pip install -r requirements.txt
-  - git clone --depth=50 --branch=main https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
+  - git clone --depth=1 --branch=main https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
 
 jobs:
   include:
