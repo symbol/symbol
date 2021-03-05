@@ -9,14 +9,14 @@ from validation import Line
 
 
 class PpType(Enum):
-    Include = 1
-    Define = 2
-    Undef = 3
-    Ifdef = 4
-    Else = 5
-    Endif = 6
-    Pragma = 7
-    Error = 8
+    INCLUDE = 1
+    DEFINE = 2
+    UNDEF = 3
+    IFDEF = 4
+    ELSE = 5
+    ENDIF = 6
+    PRAGMA = 7
+    ERROR = 8
 
 
 class Preproc:
@@ -24,17 +24,17 @@ class Preproc:
         self.line = line
         self.lineno = lineno
         matchToType = {
-            'define': PpType.Define,
-            'undef': PpType.Undef,
-            'extern': PpType.Ifdef,
-            'if': PpType.Ifdef,
-            'ifdef': PpType.Ifdef,
-            'ifndef': PpType.Ifdef,
-            'elif': PpType.Else,
-            'else': PpType.Else,
-            'endif': PpType.Endif,
-            'pragma': PpType.Pragma,
-            'error': PpType.Error
+            'define': PpType.DEFINE,
+            'undef': PpType.UNDEF,
+            'extern': PpType.IFDEF,
+            'if': PpType.IFDEF,
+            'ifdef': PpType.IFDEF,
+            'ifndef': PpType.IFDEF,
+            'elif': PpType.ELSE,
+            'else': PpType.ELSE,
+            'endif': PpType.ENDIF,
+            'pragma': PpType.PRAGMA,
+            'error': PpType.ERROR
         }
         if word in matchToType:
             self.type = matchToType[word]
@@ -47,7 +47,7 @@ class Preproc:
 
 class Include:
     def __init__(self, line, lineno, include, rest):
-        self.type = PpType.Include
+        self.type = PpType.INCLUDE
         self.line = line
         self.lineno = lineno
         self.include = include
@@ -58,8 +58,8 @@ class Include:
 
 
 class MultilineMacro(Enum):
-    PpLine = 1
-    Continuation = 2
+    PPLINE = 1
+    CONTINUATION = 2
 
 
 class IndentFix:
@@ -115,7 +115,7 @@ class HeaderParser:
             line = line.strip('\n')
             if fixNo < len(self.fixes) and lineNumber == self.fixes[fixNo].lineno:
                 line = line.strip('\n')
-                if MultilineMacro.PpLine == self.fixes[fixNo].type:
+                if MultilineMacro.PPLINE == self.fixes[fixNo].type:
                     line = line.strip()
                     firstContinuation = True
                 else:
@@ -132,7 +132,7 @@ class HeaderParser:
     def reportIndents(self):
         firstContinuation = False
         for fix in self.fixes:
-            if MultilineMacro.PpLine == fix.type:
+            if MultilineMacro.PPLINE == fix.type:
                 if re.match(r'\s+', fix.line):
                     errorMsg = 'preprocessor should be aligned to column 0'
                     self.errorReporter('indentedPreprocessor', Line(self.path, fix.line.strip('\n\r'), fix.lineno, errorMsg))
@@ -147,7 +147,7 @@ class HeaderParser:
                     firstContinuation = False
 
     def processContinuation(self, line):
-        self.fixes.append(IndentFix(MultilineMacro.Continuation, self.lineNumber, line))
+        self.fixes.append(IndentFix(MultilineMacro.CONTINUATION, self.lineNumber, line))
         return line and '\\' == line[-1]
 
     def processPreprocessor(self, line):
@@ -156,7 +156,7 @@ class HeaderParser:
             multiline = True
         # this is here to skip pragma from preprocessor indent check
         if line != '#pragma once':
-            self.fixes.append(IndentFix(MultilineMacro.PpLine, self.lineNumber, line))
+            self.fixes.append(IndentFix(MultilineMacro.PPLINE, self.lineNumber, line))
         return multiline
 
     def parseFile(self, inputStream):
@@ -192,7 +192,7 @@ class HeaderParser:
             else:
                 if self.patternInclude.match(line):
                     self.parseInclude(line)
-                    self.fixes.append(IndentFix(MultilineMacro.PpLine, self.lineNumber, line))
+                    self.fixes.append(IndentFix(MultilineMacro.PPLINE, self.lineNumber, line))
                 elif self.patternPreprocessor.match(line):
                     self.parsePreprocessor(line)
                     multiline = self.processPreprocessor(line)

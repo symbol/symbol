@@ -44,19 +44,19 @@ class SimpleNsTokenizer:
 
 
 class Mode(Enum):
-    Normal = 1
-    CollectNsName = 2
-    CollectOpeningBrace = 3
-    CollectTypeName = 4
-    CollectSemiColon = 5
-    SkipTillEol = 6
-    CollectNamespaceKeyword = 7
-    CollectEnum = 8
+    NORMAL = 1
+    COLLECT_NS_NAME = 2
+    COLLECT_OPENING_BRACE = 3
+    COLLECT_TYPE_NAME = 4
+    COLLECT_SEMICOLON = 5
+    SKIP_UNTIL_EOL = 6
+    COLLECT_NAMESPACE_KEYWORD = 7
+    COLLECT_ENUM = 8
 
 
 class NamespaceType(Enum):
-    Normal = 1
-    Inline = 2
+    NORMAL = 1
+    INLINE = 2
 
 
 def createDict():
@@ -77,7 +77,7 @@ class ForwardsValidator(SimpleValidator):
         super().reset(path, errorReporter)
         self.matchLineNumber = 0
         self.parsingDone = False
-        self.mode = Mode.Normal
+        self.mode = Mode.NORMAL
         self.namespaceType = None
         self.tokenizer = SimpleNsTokenizer()
         self.tok = None
@@ -115,14 +115,14 @@ class ForwardsValidator(SimpleValidator):
         self.tokenizer.feed(line + '\n')
         self.line = line
         dispatch = {
-            Mode.Normal: self._keywordCheck,
-            Mode.CollectNamespaceKeyword: self._collectNamespaceKeyword,
-            Mode.CollectNsName: self._collectNsName,
-            Mode.CollectOpeningBrace: self._collectOpeningBrace,
-            Mode.CollectTypeName: self._collectTypeName,
-            Mode.CollectEnum: self._collectEnum,
-            Mode.CollectSemiColon: self._collectSemiColon,
-            Mode.SkipTillEol: self._skipTillEol
+            Mode.NORMAL: self._keywordCheck,
+            Mode.COLLECT_NAMESPACE_KEYWORD: self._collectNamespaceKeyword,
+            Mode.COLLECT_NS_NAME: self._collectNsName,
+            Mode.COLLECT_OPENING_BRACE: self._collectOpeningBrace,
+            Mode.COLLECT_TYPE_NAME: self._collectTypeName,
+            Mode.COLLECT_ENUM: self._collectEnum,
+            Mode.COLLECT_SEMICOLON: self._collectSemiColon,
+            Mode.SKIP_UNTIL_EOL: self._skipTillEol
         }
         for tok in self.tokenizer:
             if self.parsingDone:
@@ -132,31 +132,31 @@ class ForwardsValidator(SimpleValidator):
             self.tok = tok[1]
             dispatch[self.mode]()
 
-        if self.mode == Mode.SkipTillEol:
-            self.mode = Mode.Normal
+        if self.mode == Mode.SKIP_UNTIL_EOL:
+            self.mode = Mode.NORMAL
 
     def _keywordCheck(self):
         if self.tok == 'namespace':
-            self.mode = Mode.CollectNsName
-            self.namespaceType = NamespaceType.Normal
+            self.mode = Mode.COLLECT_NS_NAME
+            self.namespaceType = NamespaceType.NORMAL
         elif self.tok == 'inline':
-            self.mode = Mode.CollectNamespaceKeyword
+            self.mode = Mode.COLLECT_NAMESPACE_KEYWORD
         elif self.tok == 'class' or self.tok == 'struct':
-            self.mode = Mode.CollectTypeName
+            self.mode = Mode.COLLECT_TYPE_NAME
             self.typeType = self.tok
         elif self.tok == 'enum':
-            self.mode = Mode.CollectEnum
+            self.mode = Mode.COLLECT_ENUM
             self.typeType = self.tok
         elif self.tok == 'template':
-            self.mode = Mode.SkipTillEol
+            self.mode = Mode.SKIP_UNTIL_EOL
             self.preTypeLines.append(self.line[self.tokPos:])
         elif self.tok == 'extern':
             # we assume it's a single line extern and simply ignore the content
-            self.mode = Mode.SkipTillEol
+            self.mode = Mode.SKIP_UNTIL_EOL
         elif self.tok.startswith('#'):
-            self.mode = Mode.SkipTillEol
+            self.mode = Mode.SKIP_UNTIL_EOL
         elif self.tok.startswith('//'):
-            self.mode = Mode.SkipTillEol
+            self.mode = Mode.SKIP_UNTIL_EOL
             self.preTypeLines.append(self.line[self.tokPos:])
         elif self.tok == '}':
             self.namespaceStack.pop()
@@ -174,8 +174,8 @@ class ForwardsValidator(SimpleValidator):
 
     def _collectNamespaceKeyword(self):
         if 'namespace' == self.tok:
-            self.mode = Mode.CollectNsName
-            self.namespaceType = NamespaceType.Inline
+            self.mode = Mode.COLLECT_NS_NAME
+            self.namespaceType = NamespaceType.INLINE
         else:
             info('final token', self.tok)
             self.parsingDone = True
@@ -195,7 +195,7 @@ class ForwardsValidator(SimpleValidator):
             current['namespaces'][self.tok]['type'] = self.namespaceType
 
         self.namespaceStack.append(self.tok)
-        self.mode = Mode.CollectOpeningBrace
+        self.mode = Mode.COLLECT_OPENING_BRACE
 
         fqNamespace = '::'.join(self.namespaceStack)
         for filtered in FILTER_NAMESPACES:
@@ -221,13 +221,13 @@ class ForwardsValidator(SimpleValidator):
         self.preTypeLines = []
 
     def _collectOpeningBrace(self):
-        self.mode = Mode.Normal
+        self.mode = Mode.NORMAL
         if not '{' == self.tok:
             info('invalid token >>{}<<, expected: {}'.format(self.tok, '{'))
             self.parsingDone = True
 
     def _collectSemiColon(self):
-        self.mode = Mode.Normal
+        self.mode = Mode.NORMAL
         if ';' == self.tok:
             self._addForward(self.typeType, self.lastName)
         else:
@@ -236,7 +236,7 @@ class ForwardsValidator(SimpleValidator):
 
     def _collectTypeName(self):
         self.lastName = self.tok
-        self.mode = Mode.CollectSemiColon
+        self.mode = Mode.COLLECT_SEMICOLON
 
     def _collectEnum(self):
         if 'class' == self.tok:
@@ -263,7 +263,7 @@ class ForwardsValidator(SimpleValidator):
 
     def _skipTillEol(self):
         if self.tok == '\n':
-            self.mode = Mode.Normal
+            self.mode = Mode.NORMAL
 
     @staticmethod
     def _formatFwd(className, classSpec):
@@ -287,7 +287,7 @@ class ForwardsValidator(SimpleValidator):
             for namespaceName, subDeclarations in sorted(declarations['namespaces'].items()):
                 lines = ForwardsValidator._format(subDeclarations, level + 1)
                 nsType = declarations['namespaces'][namespaceName]['type']
-                content = 'inline ' if NamespaceType.Inline == nsType else ''
+                content = 'inline ' if NamespaceType.INLINE == nsType else ''
 
                 if not lines:
                     continue

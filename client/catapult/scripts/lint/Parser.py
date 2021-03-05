@@ -13,21 +13,21 @@ lex.lex()
 
 
 class Mode(Enum):
-    Normal = 1
-    CollectNs = 2
-    CollectTemplate = 3
-    CollectClass = 4
-    CollectEnum = 5
-    InsideClassOrEnum = 6
-    FindSemiColon = 7
-    FindClosingParen = 8
-    FindClosingBrace = 9
-    Operator = 10
+    NORMAL = 1
+    COLLECT_NS = 2
+    COLLECT_TEMPLATE = 3
+    COLLECT_CLASS = 4
+    COLLECT_ENUM = 5
+    INSIDE_CLASS_OR_ENUM = 6
+    FIND_SEMICOLON = 7
+    FIND_CLOSING_PAREN = 8
+    FIND_CLOSING_BRACE = 9
+    OPERATOR = 10
 
 
 class NextTokenBehavior(Enum):
-    Skip = 1
-    Pick = 2
+    SKIP = 1
+    PICK = 2
 
 
 PRINT_INFO = 0
@@ -133,7 +133,7 @@ class NamespacesParser:
         self.errorReporter = errorReporter
         self.path = path
         self.lineNumber = 0
-        self.mode = Mode.Normal
+        self.mode = Mode.NORMAL
         self.curNsPart = ''
         self.namespaceStack = []
         self.templateBracketLevel = 0
@@ -185,31 +185,31 @@ class NamespacesParser:
 
     def _parseNormalName(self, tok):
         if tok.value == 'namespace':
-            self.mode = Mode.CollectNs
+            self.mode = Mode.COLLECT_NS
             self.curNsPart = ''
             debug('Collect NS')
         elif tok.value == 'template':
             self.insideTemplateCallback = None
             self.templateContent = []
             self.collectTemplate(tok)
-            self.mode = Mode.CollectTemplate
+            self.mode = Mode.COLLECT_TEMPLATE
             debug('Collect Template')
         elif tok.value == 'class' or tok.value == 'struct':
-            self.mode = Mode.CollectClass
+            self.mode = Mode.COLLECT_CLASS
             self.nameStack.append(tok)
             debug('Collect ' + tok.value)
         elif tok.value == 'enum':
-            self.mode = Mode.CollectEnum
+            self.mode = Mode.COLLECT_ENUM
             self.nameStack.append(tok)
             debug('Collect Enum')
         elif tok.value == 'using':
-            self.mode = Mode.FindSemiColon
+            self.mode = Mode.FIND_SEMICOLON
             self.nameStack.append(tok)
             debug('Collect Using')
         else:
             self.nameStack.append(tok)
             if tok.value == 'operator':
-                self.mode = Mode.Operator
+                self.mode = Mode.OPERATOR
 
     def _parseNormalStringLiteral(self, tok):
         # Ignore extern "C"
@@ -220,7 +220,7 @@ class NamespacesParser:
         self.insideTemplateCallback = lambda tok: self.nameStack.append(tok)  # pylint: disable=unnecessary-lambda
         self.templateContent = []
         self.collectTemplate(tok)
-        self.mode = Mode.CollectTemplate
+        self.mode = Mode.COLLECT_TEMPLATE
 
     def _parseNormalPrecompMacro(self, tok):
         if self.namespaceStack and tok.value.startswith('#include'):
@@ -236,18 +236,18 @@ class NamespacesParser:
         self._quitIfNoNamestack(tok)
 
         self.findCloseParen(tok)
-        self.mode = Mode.FindClosingParen
+        self.mode = Mode.FIND_CLOSING_PAREN
 
     def _parseNormalBrace(self, tok):
         self._quitIfNoNamestack(tok)
 
         self.findCloseBrace(tok)
         trace_print('level brace open', self.currentBraceLevel, 'parens', self.hadParens)
-        self.mode = Mode.FindClosingBrace
+        self.mode = Mode.FIND_CLOSING_BRACE
         if self.hadParens or self.nameStack[0].value == 'extern':
             self.closingBraceCallback = self.clearNameStack
         else:
-            self.closingBraceCallback = self.clearNameStackAndFindSemiColon
+            self.closingBraceCallback = self.clearNameStackAndFindSemicolon
 
     def _parseNormalSemiColon(self, tok):
         self._quitIfNoNamestack(tok)
@@ -262,7 +262,7 @@ class NamespacesParser:
     def _parseNormalEquals(self, tok):
         self._quitIfNoNamestack(tok)
         self.nameStack.append(tok)
-        self.mode = Mode.FindSemiColon
+        self.mode = Mode.FIND_SEMICOLON
 
     def saveTokenOrBye(self, previousToken, token, tokenName):
         del previousToken
@@ -274,58 +274,58 @@ class NamespacesParser:
     def _operatorEquals(self, nextToken):
         if nextToken.type == 'EQUALS':
             self.nameStack.append(nextToken)
-            return NextTokenBehavior.Pick
+            return NextTokenBehavior.PICK
 
         # operator=
         self.tok = nextToken
-        return NextTokenBehavior.Skip
+        return NextTokenBehavior.SKIP
 
     def _operatorPlus(self, nextToken):
         # operator+= operator++
         if nextToken.type == 'EQUALS' or nextToken.type == 'PLUS':
             self.nameStack.append(nextToken)
-            return NextTokenBehavior.Pick
+            return NextTokenBehavior.PICK
 
         # operator+
         self.tok = nextToken
-        return NextTokenBehavior.Skip
+        return NextTokenBehavior.SKIP
 
     def _operatorMinus(self, nextToken):
         # operator-= operator-- operator->
         if nextToken.type == 'EQUALS' or nextToken.type == 'MINUS' or nextToken.type == 'CLOSE_BRACKET':
             self.nameStack.append(nextToken)
-            return NextTokenBehavior.Pick
+            return NextTokenBehavior.PICK
 
         # operator-
         self.tok = nextToken
-        return NextTokenBehavior.Skip
+        return NextTokenBehavior.SKIP
 
     def _operatorLessThan(self, nextToken):
         # operator <<, <=
         if nextToken.type == 'OPEN_BRACKET' or nextToken.type == 'EQUALS':
             self.nameStack.append(nextToken)
-            return NextTokenBehavior.Pick
+            return NextTokenBehavior.PICK
 
         # operator<
         self.tok = nextToken
-        return NextTokenBehavior.Skip
+        return NextTokenBehavior.SKIP
 
     def _operatorGreaterThan(self, nextToken):
         # operator >=
         if nextToken.type == 'EQUALS':
             self.nameStack.append(nextToken)
-            return NextTokenBehavior.Pick
+            return NextTokenBehavior.PICK
 
         # operator>
         self.tok = nextToken
-        return NextTokenBehavior.Skip
+        return NextTokenBehavior.SKIP
 
     # pylint: disable=too-many-branches
     def collectOperator(self):
         tok = lex.token()
         self.nameStack.append(tok)
         tok2 = lex.token()
-        behavior = NextTokenBehavior.Pick
+        behavior = NextTokenBehavior.PICK
         # operator()
         if tok.type == 'OPEN_PAREN':
             self.saveTokenOrBye(tok, tok2, 'CLOSE_PAREN')
@@ -363,7 +363,7 @@ class NamespacesParser:
         else:
             self.quit(tok2)
 
-        if behavior == NextTokenBehavior.Pick:
+        if behavior == NextTokenBehavior.PICK:
             self.tok = lex.token()
 
     def addNamespace(self):
@@ -395,7 +395,7 @@ class NamespacesParser:
         self.nameStack = []
         self.closingBraceCallback = None
 
-    def clearNameStackAndFindSemiColon(self):
+    def clearNameStackAndFindSemicolon(self):
         self.tok = lex.token()
         self.nameStack.append(self.tok)
         if self.tok.type == 'SEMI_COLON':
@@ -410,24 +410,24 @@ class NamespacesParser:
     def parseFile(self, inputStream):
         lex.input(inputStream.read())
         while True:
-            if self.mode == Mode.Operator:
+            if self.mode == Mode.OPERATOR:
                 self.collectOperator()
-                self.mode = Mode.Normal
+                self.mode = Mode.NORMAL
             else:
                 self.tok = lex.token()
                 trace_print(self.mode, self.tok)
             if not self.tok:
                 break
             dispatch = {
-                Mode.Normal: self.parseNormal,
-                Mode.CollectNs: self.collectNs,
-                Mode.CollectTemplate: self.collectTemplate,
-                Mode.CollectClass: self.collectClass,
-                Mode.CollectEnum: self.collectEnum,
-                Mode.InsideClassOrEnum: self.findClassEnd,
-                Mode.FindSemiColon: self.findSemiColon,
-                Mode.FindClosingParen: self.findCloseParen,
-                Mode.FindClosingBrace: self.findCloseBrace
+                Mode.NORMAL: self.parseNormal,
+                Mode.COLLECT_NS: self.collectNs,
+                Mode.COLLECT_TEMPLATE: self.collectTemplate,
+                Mode.COLLECT_CLASS: self.collectClass,
+                Mode.COLLECT_ENUM: self.collectEnum,
+                Mode.INSIDE_CLASS_OR_ENUM: self.findClassEnd,
+                Mode.FIND_SEMICOLON: self.findSemiColon,
+                Mode.FIND_CLOSING_PAREN: self.findCloseParen,
+                Mode.FIND_CLOSING_BRACE: self.findCloseBrace
             }
             dispatch[self.mode](self.tok)
 
@@ -462,7 +462,7 @@ class NamespacesParser:
         sys.exit(1)
 
     def switchToNormal(self):
-        self.mode = Mode.Normal
+        self.mode = Mode.NORMAL
         self.hadParens = False
 
     def collectNs(self, tok):
@@ -475,7 +475,7 @@ class NamespacesParser:
             self.namespaceStack.append(namespace)
             self.switchToNormal()
         elif tok.type == 'EQUALS':
-            self.mode = Mode.FindSemiColon
+            self.mode = Mode.FIND_SEMICOLON
             debug('got namespace rename "{}"'.format(self.curNsPart))
 
     def collectTemplate(self, tok):
@@ -491,7 +491,7 @@ class NamespacesParser:
                     self.templateHadClass = False
 
                 if self.wasTemplateInstantiation:
-                    self.mode = Mode.FindSemiColon
+                    self.mode = Mode.FIND_SEMICOLON
                     self.wasTemplateInstantiation = False
                 else:
                     self.switchToNormal()
@@ -511,7 +511,7 @@ class NamespacesParser:
     def collectClass(self, tok):
         if tok.type == 'OPEN_BRACE':
             self.currentBraceLevel += 1
-            self.mode = Mode.InsideClassOrEnum
+            self.mode = Mode.INSIDE_CLASS_OR_ENUM
             if self.namespaceStack:
                 self.namespaceStack[-1].hadClass = True
                 info('HAD CLASS')
@@ -539,7 +539,7 @@ class NamespacesParser:
     def collectEnum(self, tok):
         if tok.type == 'OPEN_BRACE':
             self.currentBraceLevel += 1
-            self.mode = Mode.InsideClassOrEnum
+            self.mode = Mode.INSIDE_CLASS_OR_ENUM
             if self.namespaceStack:
                 self.namespaceStack[-1].hadEnum = True
                 info('HAD ENUM')
