@@ -46,7 +46,10 @@ module.exports = {
 				client.send(view, err => {
 					if (err) {
 						winston.error(`websocket ${client.uid}: error sending data to websocket`, err);
-						client.close();
+						if (err.message)
+							client.close(1013, err.message.substring(0, 123));
+						else
+							client.close();
 					}
 				});
 			});
@@ -73,7 +76,10 @@ module.exports = {
 
 		const closeWithError = (message, err) => {
 			winston.error(`websocket ${client.uid}: ${message}`, err);
-			client.close();
+			if (err && err.message)
+				client.close(1013, err.message.substring(0, 123));
+			else
+				client.close();
 		};
 
 		client.on('error', err => {
