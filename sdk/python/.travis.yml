@@ -8,9 +8,7 @@ env:
     RELEASE_BRANCH=main
     TEST_VECTORS_ROOT=$HOME/nemtech/test-vectors
 
-cache:
-  directories:
-    - "$HOME/.cache/pip"
+cache: pip
 
 addons:
   apt:
