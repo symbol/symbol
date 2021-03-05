@@ -106,7 +106,7 @@ namespace catapult { namespace test {
 
 		auto marker = zeromq::BlockMarker::Block_Marker;
 		AssertMessagePart(message[0], &marker, sizeof(zeromq::BlockMarker));
-		AssertMessagePart(message[1], &blockElement.Block, sizeof(model::BlockHeader));
+		AssertMessagePart(message[1], &blockElement.Block, model::GetBlockHeaderSize(blockElement.Block.Type));
 		AssertMessagePart(message[2], &blockElement.EntityHash, Hash256::Size);
 		AssertMessagePart(message[3], &blockElement.GenerationHash, Hash256::Size);
 	}

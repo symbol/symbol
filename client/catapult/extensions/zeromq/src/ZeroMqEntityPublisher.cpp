@@ -153,7 +153,7 @@ namespace catapult { namespace zeromq {
 		zmq::multipart_t multipart;
 		auto marker = BlockMarker::Block_Marker;
 		multipart.addmem(&marker, sizeof(BlockMarker));
-		multipart.addmem(static_cast<const void*>(&blockElement.Block), sizeof(model::BlockHeader));
+		multipart.addmem(static_cast<const void*>(&blockElement.Block), model::GetBlockHeaderSize(blockElement.Block.Type));
 		multipart.addmem(static_cast<const void*>(&blockElement.EntityHash), Hash256::Size);
 		multipart.addmem(static_cast<const void*>(&blockElement.GenerationHash), Hash256::Size);
 		pMessageGroup->add(std::move(multipart));

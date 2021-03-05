@@ -139,22 +139,31 @@ namespace catapult { namespace zeromq {
 
 	// region publishBlockHeader
 
+	namespace {
+		void AssertCanPublishBlockHeader(std::unique_ptr<model::Block>&& pBlock) {
+			// Arrange:
+			EntityPublisherContext context;
+			context.subscribe(BlockMarker::Block_Marker);
+
+			auto blockElement = test::BlockToBlockElement(*pBlock);
+
+			// Act:
+			context.publishBlockHeader(blockElement);
+
+			// Assert:
+			zmq::multipart_t message;
+			test::ZmqReceive(message, context.zmqSocket());
+
+			test::AssertBlockHeaderMessage(message, blockElement);
+		}
+	}
+
 	TEST(TEST_CLASS, CanPublishBlockHeader) {
-		// Arrange:
-		EntityPublisherContext context;
-		context.subscribe(BlockMarker::Block_Marker);
+		AssertCanPublishBlockHeader(test::GenerateEmptyRandomBlock());
+	}
 
-		auto pBlock = test::GenerateEmptyRandomBlock();
-		auto blockElement = test::BlockToBlockElement(*pBlock);
-
-		// Act:
-		context.publishBlockHeader(blockElement);
-
-		// Assert:
-		zmq::multipart_t message;
-		test::ZmqReceive(message, context.zmqSocket());
-
-		test::AssertBlockHeaderMessage(message, blockElement);
+	TEST(TEST_CLASS, CanPublishImportanceBlockHeader) {
+		AssertCanPublishBlockHeader(test::GenerateImportanceBlockWithTransactions(test::ConstTransactions()));
 	}
 
 	// endregion
