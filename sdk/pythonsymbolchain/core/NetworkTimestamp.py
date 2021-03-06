@@ -27,7 +27,7 @@ class NetworkTimestamp:
         return self.add_minutes(60 * count)
 
     def __eq__(self, other):
-        return self.timestamp == other.timestamp
+        return isinstance(other, NetworkTimestamp) and self.timestamp == other.timestamp
 
     def __str__(self):
         return str(self.timestamp)

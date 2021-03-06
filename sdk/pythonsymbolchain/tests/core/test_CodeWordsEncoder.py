@@ -12,6 +12,7 @@ class CodeWordsTest(unittest.TestCase):
         self.assertEqual(code_words, CodeWords(['cat', 'bird', 'dog']))
         self.assertNotEqual(code_words, CodeWords(['cat', 'bird', 'DOG']))
         self.assertNotEqual(code_words, CodeWords(['cat', 'bird']))
+        self.assertNotEqual(code_words, None)
 
     def test_string_is_supported(self):
         self.assertEqual('cat bird dog', str(CodeWords(['cat', 'bird', 'dog'])))

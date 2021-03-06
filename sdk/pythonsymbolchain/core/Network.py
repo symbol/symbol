@@ -37,7 +37,7 @@ class Network:
         """Creates an encoded address from an address without checksum and checksum bytes."""
 
     def __eq__(self, other):
-        return self.name == other.name and self.identifier == other.identifier
+        return isinstance(other, Network) and self.name == other.name and self.identifier == other.identifier
 
     def __str__(self):
         return self.name
@@ -49,7 +49,7 @@ class NetworkLocator:
     @staticmethod
     def find_by_name(networks, names):
         """Finds a network with a specified name within a list of networks."""
-        if str == type(names):
+        if isinstance(names, str):
             names = [names]
 
         return next(network for network in networks if network.name in names)
@@ -57,7 +57,7 @@ class NetworkLocator:
     @staticmethod
     def find_by_identifier(networks, identifiers):
         """Finds a network with a specified identifier within a list of networks."""
-        if int == type(identifiers):
+        if isinstance(identifiers, int):
             identifiers = [identifiers]
 
         return next(network for network in networks if network.identifier in identifiers)

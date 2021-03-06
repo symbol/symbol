@@ -215,7 +215,7 @@ def main():
 
             parsed_json = json.loads(infile.read())
             for test_vectors in parsed_json:
-                if str == type(test_vectors):
+                if isinstance(test_vectors, str):
                     test_group_name = test_vectors
                     test_vectors = parsed_json[test_group_name]
                 else:

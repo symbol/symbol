@@ -5,6 +5,8 @@ from symbolchain.tests.test.NemTestUtils import NemTestUtils
 
 
 class CryptoTypesTest(unittest.TestCase):
+    # PrivateKey
+
     def test_can_create_private_key_with_correct_number_of_bytes(self):
         self._assert_can_create_byte_array_with_correct_number_of_bytes(PrivateKey, 32)
 
@@ -19,17 +21,37 @@ class CryptoTypesTest(unittest.TestCase):
         # Assert:
         self.assertNotEqual(private_key1, private_key2)
 
+    # endregion
+
+    # region PublicKey
+
     def test_can_create_public_key_with_correct_number_of_bytes(self):
         self._assert_can_create_byte_array_with_correct_number_of_bytes(PublicKey, 32)
 
     def test_cannot_create_public_key_with_incorrect_number_of_bytes(self):
         self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(PublicKey, 32)
 
+    def test_can_create_public_key_from_existing_public_key(self):
+        # Arrange:
+        raw_bytes = NemTestUtils.randbytes(32)
+
+        # Act:
+        byte_array = PublicKey(PublicKey(raw_bytes))
+
+        # Assert:
+        self.assertEqual(raw_bytes, byte_array.bytes)
+
+    # endregion
+
+    # region Signature
+
     def test_can_create_signature_with_correct_number_of_bytes(self):
         self._assert_can_create_byte_array_with_correct_number_of_bytes(Signature, 64)
 
     def test_cannot_create_signature_with_incorrect_number_of_bytes(self):
         self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(Signature, 64)
+
+    # endregion
 
     def test_equality_is_only_possible_for_same_types(self):
         # Arrange:
@@ -42,17 +64,17 @@ class CryptoTypesTest(unittest.TestCase):
         self.assertNotEqual(PrivateKey(raw_bytes), PublicKey(raw_bytes))
         self.assertNotEqual(PublicKey(raw_bytes), PrivateKey(raw_bytes))
 
-    def _assert_can_create_byte_array_with_correct_number_of_bytes(self, byte_array_type, size):
+    def _assert_can_create_byte_array_with_correct_number_of_bytes(self, byte_array_class, size):
         # Arrange:
         raw_bytes = NemTestUtils.randbytes(size)
 
         # Act:
-        byte_array = byte_array_type(raw_bytes)
+        byte_array = byte_array_class(raw_bytes)
 
         # Assert:
         self.assertEqual(raw_bytes, byte_array.bytes)
 
-    def _assert_cannot_create_byte_array_with_incorrect_number_of_bytes(self, byte_array_type, required_size):
+    def _assert_cannot_create_byte_array_with_incorrect_number_of_bytes(self, byte_array_class, required_size):
         for size in [0, required_size - 1, required_size + 1]:
             with self.assertRaises(ValueError):
-                byte_array_type(NemTestUtils.randbytes(size))
+                byte_array_class(NemTestUtils.randbytes(size))

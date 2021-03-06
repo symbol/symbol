@@ -57,6 +57,7 @@ class NetworkTimestampTest(unittest.TestCase):
         self.assertEqual(timestamp, ConcreteNetworkTimestamp(123))
         self.assertNotEqual(timestamp, ConcreteNetworkTimestamp(122))
         self.assertNotEqual(timestamp, ConcreteNetworkTimestamp(124))
+        self.assertNotEqual(timestamp, None)
 
     def test_string_is_supported(self):
         self.assertEqual('123', str(ConcreteNetworkTimestamp(123)))

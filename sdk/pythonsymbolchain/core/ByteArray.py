@@ -7,7 +7,7 @@ class ByteArray:
     def __init__(self, fixed_size, array_input, tag=None):
         """Creates a byte array from bytes or hex string."""
         raw_bytes = array_input
-        if str == type(raw_bytes):
+        if isinstance(raw_bytes, str):
             raw_bytes = unhexlify(raw_bytes)
 
         if fixed_size != len(raw_bytes):
@@ -18,7 +18,7 @@ class ByteArray:
 
     def __eq__(self, other):
         # pylint: disable=protected-access
-        return self.bytes == other.bytes and self.__tag == other.__tag
+        return isinstance(other, ByteArray) and self.bytes == other.bytes and self.__tag == other.__tag
 
     def __str__(self):
         return hexlify(self.bytes).decode('utf8').upper()
