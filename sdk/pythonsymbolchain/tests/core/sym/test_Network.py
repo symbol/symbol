@@ -1,8 +1,18 @@
 import unittest
+from binascii import unhexlify
 
 from symbolchain.core.CryptoTypes import PublicKey
-from symbolchain.core.sym.Network import Network
+from symbolchain.core.sym.Network import Address, Network
+from symbolchain.tests.test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
 from symbolchain.tests.test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
+
+
+class AddressTest(BasicAddressTest, unittest.TestCase):
+    def get_test_descriptor(self):
+        return AddressTestDescriptor(
+            Address,
+            'TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA',
+            unhexlify('985783F7A83BE5D8084C6DA3B366CAAFACC129F36A3EA90C'))
 
 
 class NetworkTest(BasicNetworkTest, unittest.TestCase):
@@ -10,8 +20,8 @@ class NetworkTest(BasicNetworkTest, unittest.TestCase):
         return NetworkTestDescriptor(
             Network,
             PublicKey('C5FB65CB902623D93DF2E682FFB13F99D50FAC24D5FF2A42F68C7CA1772FE8A0'),
-            [b'NBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNKZIBEY', Network.PUBLIC],
-            [b'TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA', Network.PUBLIC_TEST])
+            [Address('NBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNKZIBEY'), Network.PUBLIC],
+            [Address('TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA'), Network.PUBLIC_TEST])
 
     def test_correct_predefined_networks_are_registered(self):
         self.assertEqual(4, len(Network.NETWORKS))
