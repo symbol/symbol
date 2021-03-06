@@ -6,7 +6,7 @@ class CodeWords:
         self.separator = ' '
 
     def __eq__(self, other):
-        return self.words == other.words
+        return isinstance(other, CodeWords) and self.words == other.words
 
     def __str__(self):
         return self.separator.join(self.words)

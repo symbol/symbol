@@ -12,6 +12,7 @@ class NetworkTest(unittest.TestCase):
         self.assertEqual(foo_network, Network('foo', 0x55))
         self.assertNotEqual(foo_network, Network('Foo', 0x55))
         self.assertNotEqual(foo_network, Network('foo', 0x54))
+        self.assertNotEqual(foo_network, None)
 
     def test_string_is_supported(self):
         self.assertEqual('foo', str(Network('foo', 0x55)))

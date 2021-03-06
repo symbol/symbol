@@ -25,7 +25,7 @@ class PublicKey(ByteArray):
 
     def __init__(self, public_key):
         """Creates a public key from bytes or a hex string."""
-        super().__init__(32, public_key, PublicKey)
+        super().__init__(32, public_key.bytes if isinstance(public_key, PublicKey) else public_key, PublicKey)
 
 
 class Signature(ByteArray):

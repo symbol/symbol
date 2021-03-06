@@ -56,6 +56,7 @@ class ByteArrayTest(unittest.TestCase):
         self.assertNotEqual(byte_array, ByteArray(FIXED_SIZE, NemTestUtils.randbytes(FIXED_SIZE)))
         self.assertNotEqual(byte_array, ByteArray(FIXED_SIZE, random_hex_string(FIXED_SIZE)))
         self.assertNotEqual(byte_array, byte_array_with_explicit_tag)
+        self.assertNotEqual(byte_array, None)
 
     def test_string_is_supported(self):
         self.assertEqual(TEST_HEX, str(ByteArray(FIXED_SIZE, TEST_BYTES)))
