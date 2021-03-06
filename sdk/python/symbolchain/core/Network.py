@@ -26,14 +26,14 @@ class Network:
         part_three_hash_builder.update(version)
         checksum = part_three_hash_builder.digest()[0:4]
 
-        return self.create_encoded_address(version, checksum)
+        return self.create_address(version, checksum)
 
     @abstractmethod
     def address_hasher(self):
         """Gets the primary hasher to use in the public key to address conversion."""
 
     @abstractmethod
-    def create_encoded_address(self, address_without_checksum, checksum):
+    def create_address(self, address_without_checksum, checksum):
         """Creates an encoded address from an address without checksum and checksum bytes."""
 
     def __eq__(self, other):

@@ -13,10 +13,11 @@ from symbolchain.core.Network import NetworkLocator
 class ClassLocator:
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, key_pair_class, verifier_class, network_class):
+    def __init__(self, key_pair_class, verifier_class, network_class, address_class):
         self.key_pair_class = key_pair_class
         self.verifier_class = verifier_class
         self.network_class = network_class
+        self.address_class = address_class
 
 
 class VectorsTestSuite:
@@ -57,15 +58,15 @@ class AddressConversionTester(VectorsTestSuite):
     def process(self, test_vector, _):
         # Arrange:
         public_key = PublicKey(test_vector['publicKey'])
-        expected_address_mainnet = test_vector['address_Public']
-        expected_address_testnet = test_vector['address_PublicTest']
+        expected_address_mainnet = self.class_locator.address_class(test_vector['address_Public'])
+        expected_address_testnet = self.class_locator.address_class(test_vector['address_PublicTest'])
 
         mainnet = NetworkLocator.find_by_name(self.class_locator.network_class.NETWORKS, ['public', 'mainnet'])
         testnet = NetworkLocator.find_by_name(self.class_locator.network_class.NETWORKS, ['public_test', 'testnet'])
 
         # Act:
-        actual_address_mainnet = mainnet.public_key_to_address(public_key).decode('utf8')
-        actual_address_testnet = testnet.public_key_to_address(public_key).decode('utf8')
+        actual_address_mainnet = mainnet.public_key_to_address(public_key)
+        actual_address_testnet = testnet.public_key_to_address(public_key)
 
         # Assert:
         return [
@@ -167,12 +168,12 @@ def load_class_locator(blockchain):
 
     if 'symbol' == blockchain:
         from symbolchain.core.sym.KeyPair import KeyPair, Verifier
-        from symbolchain.core.sym.Network import Network
-        return ClassLocator(KeyPair, Verifier, Network)
+        from symbolchain.core.sym.Network import Address, Network
+        return ClassLocator(KeyPair, Verifier, Network, Address)
 
     from symbolchain.core.nis1.KeyPair import KeyPair, Verifier
-    from symbolchain.core.nis1.Network import Network
-    return ClassLocator(KeyPair, Verifier, Network)
+    from symbolchain.core.nis1.Network import Address, Network
+    return ClassLocator(KeyPair, Verifier, Network, Address)
 
 
 def main():
