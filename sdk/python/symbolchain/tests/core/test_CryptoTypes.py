@@ -1,10 +1,20 @@
 import unittest
 
-from symbolchain.core.CryptoTypes import PrivateKey, PublicKey, Signature
+from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.tests.test.NemTestUtils import NemTestUtils
 
 
 class CryptoTypesTest(unittest.TestCase):
+    # Hash256
+
+    def test_can_create_hash256_with_correct_number_of_bytes(self):
+        self._assert_can_create_byte_array_with_correct_number_of_bytes(Hash256, 32)
+
+    def test_cannot_create_hash256_with_incorrect_number_of_bytes(self):
+        self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(Hash256, 32)
+
+    # endregion
+
     # PrivateKey
 
     def test_can_create_private_key_with_correct_number_of_bytes(self):
@@ -58,11 +68,17 @@ class CryptoTypesTest(unittest.TestCase):
         raw_bytes = NemTestUtils.randbytes(32)
 
         # Act + Assert:
-        self.assertEqual(PrivateKey(raw_bytes), PrivateKey(raw_bytes))
-        self.assertEqual(PublicKey(raw_bytes), PublicKey(raw_bytes))
+        self.assertEqual(Hash256(raw_bytes), Hash256(raw_bytes))
+        self.assertNotEqual(Hash256(raw_bytes), PrivateKey(raw_bytes))
+        self.assertNotEqual(Hash256(raw_bytes), PublicKey(raw_bytes))
 
+        self.assertNotEqual(PrivateKey(raw_bytes), Hash256(raw_bytes))
+        self.assertEqual(PrivateKey(raw_bytes), PrivateKey(raw_bytes))
         self.assertNotEqual(PrivateKey(raw_bytes), PublicKey(raw_bytes))
+
+        self.assertNotEqual(PublicKey(raw_bytes), Hash256(raw_bytes))
         self.assertNotEqual(PublicKey(raw_bytes), PrivateKey(raw_bytes))
+        self.assertEqual(PublicKey(raw_bytes), PublicKey(raw_bytes))
 
     def _assert_can_create_byte_array_with_correct_number_of_bytes(self, byte_array_class, size):
         # Arrange:

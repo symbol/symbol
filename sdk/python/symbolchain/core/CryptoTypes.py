@@ -3,6 +3,16 @@ import secrets
 from .ByteArray import ByteArray
 
 
+class Hash256(ByteArray):
+    """Represents a 256-bit hash."""
+
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self, hash256):
+        """Creates a hash from bytes or a hex string."""
+        super().__init__(32, hash256, Hash256)
+
+
 class PrivateKey(ByteArray):
     """Represents a private key."""
 

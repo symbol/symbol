@@ -3,7 +3,7 @@ import tempfile
 import unittest
 
 from symbolchain.core.AccountDescriptorRepository import AccountDescriptorRepository
-from symbolchain.core.CryptoTypes import PrivateKey, PublicKey, Signature
+from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.core.facade.BatchOperations import BatchOperations
 from symbolchain.core.facade.NisFacade import NisFacade
 from symbolchain.core.nis1.Network import Address
@@ -137,9 +137,9 @@ class BatchOperationsTest(unittest.TestCase):
 
             # overrwrite second qrcode with the intention to corrupt it
             if corrupt_hash:
-                transaction_hash = NemTestUtils.randbytes(32)
+                transaction_hash = Hash256(NemTestUtils.randbytes(32))
             else:
-                transaction_hash = operations.facade.Hasher(transactions[1].serialize()).digest()
+                transaction_hash = operations.facade.hash_buffer(transactions[1].serialize())
 
             if corrupt_signature:
                 signature = Signature(NemTestUtils.randbytes(64))
