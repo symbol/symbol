@@ -6,7 +6,7 @@ from PIL import Image
 from pyzbar import pyzbar
 
 from .BufferWriter import BufferWriter
-from .CryptoTypes import Signature
+from .CryptoTypes import Hash256, Signature
 
 TRANSACTION_HASH_SIZE = 32
 SIGNATURE_SIZE = 64
@@ -22,7 +22,7 @@ class QrSignatureStorage:
     def save(self, name, transaction_hash, signatures):
         """Saves a transaction hash along with attesting signatures."""
         writer = BufferWriter()
-        writer.write_bytes(transaction_hash)
+        writer.write_bytes(transaction_hash.bytes)
         for signature in signatures:
             writer.write_bytes(signature.bytes)
 
@@ -44,7 +44,7 @@ class QrSignatureStorage:
         if decoded_buffer_size < TRANSACTION_HASH_SIZE or 0 != (decoded_buffer_size - TRANSACTION_HASH_SIZE) % SIGNATURE_SIZE:
             raise ValueError('decoded buffer from QR code has unexpected size {}'.format(decoded_buffer_size))
 
-        transaction_hash = decoded_buffer[0:TRANSACTION_HASH_SIZE]
+        transaction_hash = Hash256(decoded_buffer[0:TRANSACTION_HASH_SIZE])
 
         signatures = []
         for i in range(0, (decoded_buffer_size - TRANSACTION_HASH_SIZE) // SIGNATURE_SIZE):

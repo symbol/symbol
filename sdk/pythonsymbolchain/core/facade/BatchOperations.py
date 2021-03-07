@@ -31,7 +31,7 @@ class BatchOperations:
 
         transaction_buffer = transaction.serialize()
         signature = self.facade.KeyPair(signer_private_key).sign(transaction_buffer)
-        transaction_hash = self.facade.Hasher(transaction_buffer).digest()
+        transaction_hash = self.facade.hash_buffer(transaction_buffer)
         signature_storage.save(output_filename, transaction_hash, [signature])
 
     def sign_all(self, transactions, private_key_storage, signature_storage):
@@ -48,7 +48,7 @@ class BatchOperations:
             (signed_transaction_hash, signatures) = signature_groups[i]
 
             transaction_buffer = transaction.serialize()
-            transaction_hash = self.facade.Hasher(transaction_buffer).digest()
+            transaction_hash = self.facade.hash_buffer(transaction_buffer)
 
             if signed_transaction_hash != transaction_hash:
                 raise self.PrepareError('transaction hash at {} does not match signed transaction hash'.format(i))
