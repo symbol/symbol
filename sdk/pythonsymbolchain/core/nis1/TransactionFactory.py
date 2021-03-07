@@ -1,13 +1,9 @@
-import sha3
-
 from ..BufferWriter import BufferWriter
 from .TransferTransaction import TransferTransaction
 
 
 class TransactionFactory:
     """Factory for creating transactions."""
-
-    HASHER = sha3.keccak_256
 
     def __init__(self, network, type_parsing_rules=None):
         """Creates a factory for the specified network."""

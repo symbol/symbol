@@ -1,5 +1,4 @@
 import unittest
-from binascii import unhexlify
 from functools import reduce
 
 from symbolchain.core.CryptoTypes import PublicKey, Signature
@@ -21,31 +20,6 @@ class MockTransaction:
 
 
 class TransactionFactoryTest(unittest.TestCase):
-    # region hasher
-
-    def test_hasher_is_correct(self):
-        # Arrange:
-        message = ''.join([
-            'A6151D4904E18EC288243028CEDA30556E6C42096AF7150D6A7232CA5DBA52BD',
-            '2192E23DAA5FA2BEA3D4BD95EFA2389CD193FCD3376E70A5C097B32C1C62C80A',
-            'F9D710211545F7CDDDF63747420281D64529477C61E721273CFD78F8890ABB40',
-            '70E97BAA52AC8FF61C26D195FC54C077DEF7A3F6F79B36E046C1A83CE9674BA1',
-            '983EC2FB58947DE616DD797D6499B0385D5E8A213DB9AD5078A8E0C940FF0CB6',
-            'BF92357EA5609F778C3D1FB1E7E36C35DB873361E2BE5C125EA7148EFF4A035B',
-            '0CCE880A41190B2E22924AD9D1B82433D9C023924F2311315F07B88BFD428500',
-            '47BF3BE785C4CE11C09D7E02065D30F6324365F93C5E7E423A07D754EB314B5F',
-            'E9DB4614275BE4BE26AF017ABDC9C338D01368226FE9AF1FB1F815E7317BDBB3',
-            '0A0F36DC69'
-        ])
-
-        # Act:
-        hash_value = TransactionFactory.HASHER(unhexlify(message)).digest()
-
-        # Assert:
-        self.assertEqual(unhexlify('4E9E79AB7434F6C7401FB3305D55052EE829B9E46D5D05D43B59FEFB32E9A619'), hash_value)
-
-    # endregion
-
     # region create
 
     def test_can_create_transfer(self):
