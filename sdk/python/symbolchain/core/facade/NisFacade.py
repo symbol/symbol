@@ -19,4 +19,5 @@ class NisFacade:
     def __init__(self, network_name, account_descriptor_repository):
         """Creates a facade."""
         network = NetworkLocator.find_by_name(Network.NETWORKS, network_name)
-        self.transaction_factory = TransactionFactory(network, TypeParsingRules(account_descriptor_repository).as_map())
+        self.account_descriptor_repository = account_descriptor_repository
+        self.transaction_factory = TransactionFactory(network, TypeParsingRules(self.account_descriptor_repository).as_map())
