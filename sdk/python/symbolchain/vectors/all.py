@@ -13,11 +13,16 @@ from symbolchain.core.Network import NetworkLocator
 class ClassLocator:
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, key_pair_class, verifier_class, network_class, address_class):
-        self.key_pair_class = key_pair_class
-        self.verifier_class = verifier_class
+    def __init__(self, facade_class, network_class, address_class):
+        self.facade_class = facade_class
+        self.key_pair_class = self.facade_class.KeyPair
+        self.verifier_class = self.facade_class.Verifier
         self.network_class = network_class
         self.address_class = address_class
+
+    @property
+    def bip32_root_node_factory(self):
+        return Bip32(self.facade_class.BIP32_CURVE_NAME)
 
 
 class VectorsTestSuite:
@@ -126,13 +131,14 @@ class Bip32DerivationTester(VectorsTestSuite):
             expected_child_public_keys.append(PublicKey(child_test_vector['publicKey']))
 
         # Act:
-        root_node = Bip32.from_seed(seed)
+        root_node = self.class_locator.bip32_root_node_factory.from_seed(seed)
         root_public_key = self.class_locator.key_pair_class(root_node.private_key).public_key
 
         child_public_keys = []
         for child_test_vector in test_vector['childAccounts']:
             child_node = root_node.derive_path(child_test_vector['path'])
-            child_public_keys.append(self.class_locator.key_pair_class(child_node.private_key).public_key)
+            child_key_pair = self.class_locator.facade_class.bip32_node_to_key_pair(child_node)
+            child_public_keys.append(child_key_pair.public_key)
 
         # Assert:
         return [
@@ -156,7 +162,7 @@ class Bip39DerivationTester(VectorsTestSuite):
         expected_root_public_key = PublicKey(test_vector['rootPublicKey'])
 
         # Act:
-        root_node = Bip32.from_mnemonic(mnemonic, passphrase)
+        root_node = self.class_locator.bip32_root_node_factory.from_mnemonic(mnemonic, passphrase)
         root_public_key = self.class_locator.key_pair_class(root_node.private_key).public_key
 
         # Assert:
@@ -167,13 +173,13 @@ def load_class_locator(blockchain):
     # pylint: disable=import-outside-toplevel
 
     if 'symbol' == blockchain:
-        from symbolchain.core.sym.KeyPair import KeyPair, Verifier
+        from symbolchain.core.facade.SymFacade import SymFacade
         from symbolchain.core.sym.Network import Address, Network
-        return ClassLocator(KeyPair, Verifier, Network, Address)
+        return ClassLocator(SymFacade, Network, Address)
 
-    from symbolchain.core.nis1.KeyPair import KeyPair, Verifier
+    from symbolchain.core.facade.NisFacade import NisFacade
     from symbolchain.core.nis1.Network import Address, Network
-    return ClassLocator(KeyPair, Verifier, Network, Address)
+    return ClassLocator(NisFacade, Network, Address)
 
 
 def main():

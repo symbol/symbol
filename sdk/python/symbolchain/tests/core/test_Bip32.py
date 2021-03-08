@@ -13,7 +13,7 @@ class Bip32Test(unittest.TestCase):
 
     def test_can_create_root_node(self):
         # Act:
-        node = Bip32.from_seed(DETERIMINISTIC_SEED)
+        node = Bip32().from_seed(DETERIMINISTIC_SEED)
 
         # Assert:
         self._assert_bip32_node(
@@ -21,9 +21,19 @@ class Bip32Test(unittest.TestCase):
             unhexlify('90046A93DE5380A72B5E45010748567D5EA02BBF6522F979E05C0D8D8CA9FFFB'),
             unhexlify('2B4BE7F19EE27BBF30C667B642D5F4AA69FD169872F8FC3059C08EBAE2EB19E7'))
 
+    def test_can_create_root_node_with_custom_curve_name(self):
+        # Act:
+        node = Bip32(curve_name='ed25519-keccak').from_seed(DETERIMINISTIC_SEED)
+
+        # Assert:
+        self._assert_bip32_node(
+            node,
+            unhexlify('9CFCA256458AAC0A0550A30DC7639D87364E4323BA61ED41454818E3317BAED0'),
+            unhexlify('A3D76D92ACF784D68F4EA2F6DE5507A3520385237A80277132B6C8F3685601B2'))
+
     def test_can_derive_single_level_node(self):
         # Act:
-        node = Bip32.from_seed(DETERIMINISTIC_SEED).derive_one(0)
+        node = Bip32().from_seed(DETERIMINISTIC_SEED).derive_one(0)
 
         # Assert:
         self._assert_bip32_node(
@@ -43,7 +53,7 @@ class Bip32Test(unittest.TestCase):
 
     def test_can_derive_child_nodes_chained(self):
         # Act:
-        node = Bip32.from_seed(DETERIMINISTIC_SEED)
+        node = Bip32().from_seed(DETERIMINISTIC_SEED)
         child_node0 = node.derive_one(44).derive_one(4343).derive_one(0).derive_one(0).derive_one(0)
         child_node1 = node.derive_one(44).derive_one(4343).derive_one(1).derive_one(0).derive_one(0)
 
@@ -52,7 +62,7 @@ class Bip32Test(unittest.TestCase):
 
     def test_can_derive_child_nodes_path(self):
         # Act:
-        node = Bip32.from_seed(DETERIMINISTIC_SEED)
+        node = Bip32().from_seed(DETERIMINISTIC_SEED)
         child_node0 = node.derive_path([44, 4343, 0, 0, 0])
         child_node1 = node.derive_path([44, 4343, 1, 0, 0])
 
@@ -69,7 +79,7 @@ class Bip32Test(unittest.TestCase):
 
     def test_can_derive_child_nodes_from_mnemonic_with_password(self):
         # Act:
-        node = Bip32.from_mnemonic(DETERIMINISTIC_MNEMONIC, 'TREZOR')
+        node = Bip32().from_mnemonic(DETERIMINISTIC_MNEMONIC, 'TREZOR')
         child_node0 = node.derive_path([44, 4343, 0, 0, 0])
         child_node1 = node.derive_path([44, 4343, 1, 0, 0])
         child_node2 = node.derive_path([44, 4343, 2, 0, 0])

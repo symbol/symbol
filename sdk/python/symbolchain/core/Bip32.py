@@ -35,14 +35,17 @@ class Bip32Node():
 
 
 class Bip32():
-    """Factory of root BIP32 nodes """
-    @staticmethod
-    def from_seed(seed):
-        """Creates a root BIP32 node from a seed."""
-        root_node_prefix = b'ed25519 seed'
-        return Bip32Node(root_node_prefix, seed)
+    """Factory of BIP32 root nodes """
 
-    @staticmethod
-    def from_mnemonic(mnemonic, password):
-        """Creates a root BIP32 node from a BIP39 mnemonic and password."""
-        return Bip32.from_seed(Mnemonic('english').to_seed(mnemonic, password))
+    def __init__(self, curve_name='ed25519', mnemonic_language='english'):
+        """Creates a BIP32 root node factory."""
+        self.root_hmac_key = (curve_name + ' seed').encode('utf8')
+        self.mnemonic_language = mnemonic_language
+
+    def from_seed(self, seed):
+        """Creates a BIP32 root node from a seed."""
+        return Bip32Node(self.root_hmac_key, seed)
+
+    def from_mnemonic(self, mnemonic, password):
+        """Creates a BIP32 root node from a BIP39 mnemonic and password."""
+        return self.from_seed(Mnemonic(self.mnemonic_language).to_seed(mnemonic, password))
