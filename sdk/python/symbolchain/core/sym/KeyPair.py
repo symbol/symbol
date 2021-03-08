@@ -2,7 +2,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from ..CryptoTypes import PublicKey, Signature
+from ..CryptoTypes import PrivateKey, PublicKey, Signature
 
 
 class KeyPair:
@@ -14,8 +14,16 @@ class KeyPair:
 
     @property
     def public_key(self):
-        """Gets public key."""
+        """Gets the public key."""
         return PublicKey(self.__sk.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw))
+
+    @property
+    def private_key(self):
+        """Gets the private key."""
+        return PrivateKey(self.__sk.private_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PrivateFormat.Raw,
+                encryption_algorithm=serialization.NoEncryption()))
 
     def sign(self, message):
         """Signs a message with the private key."""
