@@ -1,13 +1,18 @@
 import unittest
 from binascii import unhexlify
 
+from symbolchain.core.Bip32 import Bip32
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey
 from symbolchain.core.facade.SymFacade import SymFacade
 from symbolchain.tests.test.NemTestUtils import NemTestUtils
 
 
 class SymFacadeTest(unittest.TestCase):
-    # region constants / hasher
+    # region constants
+
+    def test_bip32_constants_are_correct(self):
+        self.assertEqual(4343, SymFacade.BIP32_COIN_ID)
+        self.assertEqual('ed25519', SymFacade.BIP32_CURVE_NAME)
 
     def test_key_pair_is_correct(self):
         # Arrange:
@@ -32,7 +37,27 @@ class SymFacadeTest(unittest.TestCase):
         # Assert:
         self.assertTrue(is_verified)
 
-    def test_hasher_is_correct(self):
+    # endregion
+
+    # region constructor
+
+    def test_can_create_around_known_network(self):
+        # Act:
+        facade = SymFacade('public_test')
+
+        # Assert:
+        self.assertEqual('public_test', facade.network.name)
+
+    def test_cannot_create_around_unknown_network(self):
+        # Act:
+        with self.assertRaises(StopIteration):
+            SymFacade('foo')
+
+    # endregion
+
+    # region hash_buffer
+
+    def test_can_hash_buffer(self):
         # Arrange:
         message = ''.join([
             'A6151D4904E18EC288243028CEDA30556E6C42096AF7150D6A7232CA5DBA52BD',
@@ -55,18 +80,39 @@ class SymFacadeTest(unittest.TestCase):
 
     # endregion
 
-    # region constructor
+    # region bip32_node_to_key_pair
 
-    def test_can_create_around_known_network(self):
+    def _assert_bip32_child_public_keys(self, passphrase, expected_child_public_keys):
+        # Arrange:
+        mnemonic_seed = ' '.join([
+            'hamster', 'diagram', 'private', 'dutch', 'cause', 'delay', 'private', 'meat', 'slide', 'toddler', 'razor', 'book',
+            'happy', 'fancy', 'gospel', 'tennis', 'maple', 'dilemma', 'loan', 'word', 'shrug', 'inflict', 'delay', 'length'
+        ])
+
         # Act:
-        facade = SymFacade('public_test')
+        root_node = Bip32(SymFacade.BIP32_CURVE_NAME).from_mnemonic(mnemonic_seed, passphrase)
+
+        child_public_keys = []
+        for i in range(0, len(expected_child_public_keys)):
+            child_node = root_node.derive_path([44, SymFacade.BIP32_COIN_ID, i, 0, 0])
+            child_key_pair = SymFacade.bip32_node_to_key_pair(child_node)
+            child_public_keys.append(child_key_pair.public_key)
 
         # Assert:
-        self.assertNotEqual(None, facade)
+        self.assertEqual(expected_child_public_keys, child_public_keys)
 
-    def test_cannot_create_around_unknown_network(self):
-        # Act:
-        with self.assertRaises(StopIteration):
-            SymFacade('foo')
+    def test_can_use_bip32_derivation_without_passphrase(self):
+        self._assert_bip32_child_public_keys('', [
+            PublicKey('E9CFE9F59CB4393E61B2F42769D9084A644B16883C32C2823E7DF9A3AF83C121'),
+            PublicKey('0DE8C3235271E4C9ACF5482F7DFEC1E5C4B20FFC71548703EACF593153F116F9'),
+            PublicKey('259866A68A00C325713342232056333D60710E223FC920566B3248B266E899D5')
+        ])
+
+    def test_can_use_bip32_derivation_with_passphrase(self):
+        self._assert_bip32_child_public_keys('TREZOR', [
+            PublicKey('47F4D39D36D11C07735D7BE99220696AAEE7B3EE161D61422220DFE3FF120B15'),
+            PublicKey('4BA67E87E8C14F3EB82B3677EA959B56A9D7355705019CED1FCF6C76104E628C'),
+            PublicKey('8115D75C13C2D25E7FA3009D03D63F1F32601CDCCA9244D5FDAC74BCF3E892E3')
+        ])
 
     # endregion
