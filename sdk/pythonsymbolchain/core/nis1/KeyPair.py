@@ -1,6 +1,6 @@
 import sha3
 
-from ..CryptoTypes import PublicKey, Signature
+from ..CryptoTypes import PrivateKey, PublicKey, Signature
 from .external import ed25519
 
 
@@ -14,8 +14,13 @@ class KeyPair:
 
     @property
     def public_key(self):
-        """Gets public key."""
+        """Gets the public key."""
         return PublicKey(self.__pk)
+
+    @property
+    def private_key(self):
+        """Gets the private key."""
+        return PrivateKey(self.__sk[::-1])
 
     def sign(self, message):
         """Signs a message with the private key."""

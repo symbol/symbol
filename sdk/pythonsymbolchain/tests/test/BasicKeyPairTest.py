@@ -30,6 +30,7 @@ class BasicKeyPairTest:
 
         # Assert:
         self.assertEqual(public_key, key_pair.public_key)
+        self.assertEqual(private_key, key_pair.private_key)
 
     # region sign
 
