@@ -22,46 +22,31 @@ class MockTransaction:
 class TransactionFactoryTest(unittest.TestCase):
     # region create
 
-    def test_can_create_transfer(self):
+    def test_can_create_known_transaction_from_descriptor(self):
         # Arrange:
         factory = TransactionFactory(FOO_NETWORK)
 
         # Act:
-        transaction = factory.create('transfer')
+        transaction = factory.create({'type': 'transfer'})
 
         # Assert:
         self.assertEqual(0x0101, transaction.type)
         self.assertEqual(0x54000001, transaction.version)
 
-    def test_cannot_create_non_transfer(self):
+    def test_cannot_create_unknown_transaction_from_descriptor(self):
         # Arrange:
         factory = TransactionFactory(FOO_NETWORK)
 
         # Act + Assert:
         with self.assertRaises(ValueError):
-            factory.create('multisig')
+            factory.create({'type': 'multisig'})
 
-    # endregion
-
-    # region create_from_descriptor
-
-    def test_can_create_from_descriptor(self):
+    def test_can_create_with_simple_property_override(self):
         # Arrange:
         factory = TransactionFactory(FOO_NETWORK)
 
         # Act:
-        transaction = factory.create_from_descriptor({'type': 'transfer'})
-
-        # Assert:
-        self.assertEqual(0x0101, transaction.type)
-        self.assertEqual(0x54000001, transaction.version)
-
-    def test_can_create_from_descriptor_with_simple_property_override(self):
-        # Arrange:
-        factory = TransactionFactory(FOO_NETWORK)
-
-        # Act:
-        transaction = factory.create_from_descriptor({
+        transaction = factory.create({
             'type': 'transfer',
             'recipient': 'recipient_name'
         })
@@ -70,12 +55,12 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual(0x0101, transaction.type)
         self.assertEqual('recipient_name', transaction.recipient)
 
-    def test_can_create_from_descriptor_with_custom_setter_override(self):
+    def test_can_create_with_custom_setter_override(self):
         # Arrange:
         factory = TransactionFactory(FOO_NETWORK)
 
         # Act:
-        transaction = factory.create_from_descriptor({
+        transaction = factory.create({
             'type': 'transfer',
             'message': 'hello world',
         })
@@ -84,14 +69,14 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual(0x0101, transaction.type)
         self.assertEqual(b'hello world', transaction.message)
 
-    def test_can_create_from_descriptor_with_custom_rule_override(self):
+    def test_can_create_with_custom_rule_override(self):
         # Arrange:
         factory = TransactionFactory(FOO_NETWORK, {
             Address: lambda address: address + ' ADDRESS'
         })
 
         # Act:
-        transaction = factory.create_from_descriptor({
+        transaction = factory.create({
             'type': 'transfer',
             'recipient': 'recipient_name'
         })
@@ -100,7 +85,7 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual(0x0101, transaction.type)
         self.assertEqual('recipient_name ADDRESS', transaction.recipient)
 
-    def test_can_create_from_descriptor_with_multiple_overrides(self):
+    def test_can_create_with_multiple_overrides(self):
         # Arrange:
         factory = TransactionFactory(FOO_NETWORK, {
             Address: lambda address: address + ' ADDRESS',
@@ -108,7 +93,7 @@ class TransactionFactoryTest(unittest.TestCase):
         })
 
         # Act:
-        transaction = factory.create_from_descriptor({
+        transaction = factory.create({
             'type': 'transfer',
             'timestamp': 98765,
             'signer': 'signer_name',

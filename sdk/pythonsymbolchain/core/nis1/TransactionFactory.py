@@ -13,16 +13,15 @@ class TransactionFactory:
         if not self.type_parsing_rules:
             self.type_parsing_rules = {}
 
-    def create(self, name):
-        """Creates a transaction."""
+    def _create(self, name):
         if name not in [TransferTransaction.NAME]:
             raise ValueError('transaction named {} is not supported'.format(name))
 
         return TransferTransaction(self.network)
 
-    def create_from_descriptor(self, transaction_descriptor):
+    def create(self, transaction_descriptor):
         """Creates a transaction from a transaction descriptor."""
-        transaction = self.create(transaction_descriptor['type'])
+        transaction = self._create(transaction_descriptor['type'])
 
         for key, value in transaction_descriptor.items():
             if 'type' == key:

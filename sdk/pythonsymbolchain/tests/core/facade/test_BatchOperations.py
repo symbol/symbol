@@ -139,7 +139,7 @@ class BatchOperationsTest(unittest.TestCase):
             if corrupt_hash:
                 transaction_hash = Hash256(NemTestUtils.randbytes(32))
             else:
-                transaction_hash = operations.facade.hash_buffer(transactions[1].serialize())
+                transaction_hash = operations.facade.hash_transaction_buffer(transactions[1].serialize())
 
             if corrupt_signature:
                 signature = Signature(NemTestUtils.randbytes(64))
