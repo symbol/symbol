@@ -1,14 +1,14 @@
 import unittest
-from binascii import unhexlify
 
 from symbolchain.core.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.core.Bip32 import Bip32
-from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey
+from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.core.facade.NisFacade import NisFacade
 from symbolchain.tests.test.NemTestUtils import NemTestUtils
 
 YAML_INPUT = '''
 - public_key: A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74
+  name: TEST
 '''
 
 
@@ -48,8 +48,8 @@ class NisFacadeTest(unittest.TestCase):
 
     def test_can_create_around_known_network(self):
         # Act:
-        facade = NisFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
-        transaction = facade.transaction_factory.create('transfer')
+        facade = NisFacade('testnet')
+        transaction = facade.transaction_factory.create({'type': 'transfer'})
 
         # Assert:
         self.assertEqual('testnet', facade.network.name)
@@ -64,28 +64,44 @@ class NisFacadeTest(unittest.TestCase):
 
     # endregion
 
-    # region hash_buffer
+    # region hash_transaction_buffer / sign_transaction_buffer
 
-    def test_can_hash_buffer(self):
+    @staticmethod
+    def _create_real_transfer_buffer():
+        facade = NisFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+        transaction = facade.transaction_factory.create({
+            'type': 'transfer',
+            'timestamp': 187751734,
+            'signer': 'TEST',
+            'recipient': 'TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF',
+            'amount': 1000000
+        })
+        return transaction.serialize()
+
+    def test_can_hash_transaction_buffer(self):
         # Arrange:
-        message = ''.join([
-            'A6151D4904E18EC288243028CEDA30556E6C42096AF7150D6A7232CA5DBA52BD',
-            '2192E23DAA5FA2BEA3D4BD95EFA2389CD193FCD3376E70A5C097B32C1C62C80A',
-            'F9D710211545F7CDDDF63747420281D64529477C61E721273CFD78F8890ABB40',
-            '70E97BAA52AC8FF61C26D195FC54C077DEF7A3F6F79B36E046C1A83CE9674BA1',
-            '983EC2FB58947DE616DD797D6499B0385D5E8A213DB9AD5078A8E0C940FF0CB6',
-            'BF92357EA5609F778C3D1FB1E7E36C35DB873361E2BE5C125EA7148EFF4A035B',
-            '0CCE880A41190B2E22924AD9D1B82433D9C023924F2311315F07B88BFD428500',
-            '47BF3BE785C4CE11C09D7E02065D30F6324365F93C5E7E423A07D754EB314B5F',
-            'E9DB4614275BE4BE26AF017ABDC9C338D01368226FE9AF1FB1F815E7317BDBB3',
-            '0A0F36DC69'
-        ])
+        transaction_buffer = self._create_real_transfer_buffer()
 
         # Act:
-        hash_value = NisFacade.hash_buffer(unhexlify(message))
+        hash_value = NisFacade.hash_transaction_buffer(transaction_buffer)
 
         # Assert:
-        self.assertEqual(Hash256('4E9E79AB7434F6C7401FB3305D55052EE829B9E46D5D05D43B59FEFB32E9A619'), hash_value)
+        self.assertEqual(Hash256('520547F6B7E8D7217AB5D8DB9E572682B05C6BAA7F3F900DE1429CEC43253543'), hash_value)
+
+    def test_can_sign_transaction_buffer(self):
+        # Arrange:
+        transaction_buffer = self._create_real_transfer_buffer()
+        private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+
+        # Act:
+        signature = NisFacade.sign_transaction_buffer(NisFacade.KeyPair(private_key), transaction_buffer)
+
+        # Assert:
+        expected_signature = Signature(''.join([
+            'AD1BD313FDD7F8502FAD22854569A515F87E50EAB01F1CCC60D93FBDFC9AFF2E'
+            '89D7EF3C045AFED3C19827BBBF70F4DD12541189CE4F946CC0CB13B15558EC0C'
+        ]))
+        self.assertEqual(expected_signature, signature)
 
     # endregion
 

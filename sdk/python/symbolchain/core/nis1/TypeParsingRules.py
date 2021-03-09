@@ -3,7 +3,7 @@ from .Network import Address
 
 
 class TypeParsingRules:
-    """Rules for parsing nis1 types."""
+    """Rules for parsing nis types."""
 
     # pylint: disable=too-few-public-methods
 

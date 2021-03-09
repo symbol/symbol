@@ -17,19 +17,29 @@ class NisFacade:
     KeyPair = KeyPair
     Verifier = Verifier
 
-    def __init__(self, network_name, account_descriptor_repository):
-        """Creates a facade."""
+    def __init__(self, network_name, account_descriptor_repository=None):
+        """Creates a nis facade."""
         self.network = NetworkLocator.find_by_name(Network.NETWORKS, network_name)
         self.account_descriptor_repository = account_descriptor_repository
-        self.transaction_factory = TransactionFactory(self.network, TypeParsingRules(self.account_descriptor_repository).as_map())
+
+        type_parsing_rules = None
+        if account_descriptor_repository:
+            type_parsing_rules = TypeParsingRules(self.account_descriptor_repository).as_map()
+
+        self.transaction_factory = TransactionFactory(self.network, type_parsing_rules)
 
     @staticmethod
-    def hash_buffer(buffer):
-        """Hashes a buffer."""
-        return Hash256(sha3.keccak_256(buffer).digest())
+    def hash_transaction_buffer(transaction_buffer):
+        """Hashes a nis transaction buffer."""
+        return Hash256(sha3.keccak_256(transaction_buffer).digest())
+
+    @staticmethod
+    def sign_transaction_buffer(key_pair, transaction_buffer):
+        """Signs a nis transaction buffer."""
+        return key_pair.sign(transaction_buffer)
 
     @staticmethod
     def bip32_node_to_key_pair(bip32_node):
-        """Derives a KeyPair from a BIP32 node."""
+        """Derives a nis KeyPair from a BIP32 node."""
         # BIP32 private keys should be used as is, so reverse here to counteract reverse in KeyPair
         return KeyPair(PrivateKey(bip32_node.private_key.bytes[::-1]))
