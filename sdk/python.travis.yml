@@ -23,9 +23,9 @@ jobs:
   include:
     - stage: lint
       script:
-        - isort --check-only --line-length 140 symbolchain/core/* symbolchain/tests/* symbolchain/vectors
-        - pycodestyle --config=.pycodestyle -- symbolchain/core/* symbolchain/tests/* symbolchain/vectors
-        - pylint --load-plugins pylint_quotes -- symbolchain/core/* symbolchain/tests/* symbolchain/vectors
+        - isort --check-only --line-length 140 symbolchain/core symbolchain/tests symbolchain/vectors examples
+        - pycodestyle --config=.pycodestyle -- symbolchain/core symbolchain/tests symbolchain/vectors examples
+        - pylint --load-plugins pylint_quotes -- symbolchain/core symbolchain/tests symbolchain/vectors examples
 
     - stage: test
       name: "Unit tests"
@@ -38,6 +38,12 @@ jobs:
         - git clone --depth=1 --branch=main https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
         - python3 -m symbolchain.vectors.all --blockchain nis1 --vectors "$TEST_VECTORS_ROOT/nis1"
         - python3 -m symbolchain.vectors.all --blockchain symbol --vectors "$TEST_VECTORS_ROOT"
+
+    - stage: run examples
+      script:
+       - PYTHONPATH=. python examples/bip32_keypair.py
+       - PYTHONPATH=. python examples/transaction_aggregate.py --private examples/resources/zero.sha256.txt
+       - PYTHONPATH=. python examples/transaction_sign.py
 
     - stage: alpha package
       name: "Alpha / dev package"
