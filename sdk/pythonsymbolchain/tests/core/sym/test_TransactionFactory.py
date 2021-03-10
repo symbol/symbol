@@ -1,8 +1,9 @@
 import unittest
+from binascii import hexlify
 
 from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
 
-from symbolchain.core.CryptoTypes import PublicKey
+from symbolchain.core.CryptoTypes import PublicKey, Signature
 from symbolchain.core.sym.Network import Address, Network
 from symbolchain.core.sym.TransactionFactory import TransactionFactory
 from symbolchain.tests.test.NemTestUtils import NemTestUtils
@@ -79,18 +80,22 @@ class TransactionFactoryTest(unittest.TestCase):
             'type': 'transfer',
             'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
         })
-        signature = NemTestUtils.randbytes(64)
+        signature = Signature(NemTestUtils.randbytes(64))
 
         # Sanity:
         self.assertEqual(bytes([0] * 64), transaction.signature)
 
         # Act:
-        factory.attach_signature(transaction, signature)
+        signed_transaction_buffer = factory.attach_signature(transaction, signature)
 
         # Assert:
         self._assert_transfer(transaction)
         self.assertEqual(TEST_SIGNER_PUBLIC_KEY, transaction.signerPublicKey)
 
-        self.assertEqual(signature, transaction.signature)
+        self.assertEqual(signature.bytes, transaction.signature)
+
+        serialized_transaction_hex = hexlify(transaction.serialize()).decode('utf8').upper()
+        expected_buffer = '{{"payload": "{}"}}'.format(serialized_transaction_hex).encode('utf8')
+        self.assertEqual(expected_buffer, signed_transaction_buffer)
 
     # endregion

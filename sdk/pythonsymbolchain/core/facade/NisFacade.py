@@ -16,29 +16,35 @@ class NisFacade:
     KeyPair = KeyPair
     Verifier = Verifier
 
-    def __init__(self, network_name, account_descriptor_repository=None):
+    def __init__(self, nis_network_name, account_descriptor_repository=None):
         """Creates a nis facade."""
-        self.network = NetworkLocator.find_by_name(Network.NETWORKS, network_name)
+        self.network = NetworkLocator.find_by_name(Network.NETWORKS, nis_network_name)
         self.account_descriptor_repository = account_descriptor_repository
+        self.transaction_factory = self._create_nis_transaction_factory()
 
+    def _create_nis_transaction_factory(self):
         type_parsing_rules = None
         if self.account_descriptor_repository:
-            type_parsing_rules = self.account_descriptor_repository.to_type_parsing_rules_map({
-                Address: 'address',
-                PublicKey: 'public_key'
-            })
+            type_parsing_rules = self.account_descriptor_repository.to_type_parsing_rules_map(self._create_nis_type_to_property_mapping())
 
-        self.transaction_factory = TransactionFactory(self.network, type_parsing_rules)
+        return TransactionFactory(self.network, type_parsing_rules)
 
     @staticmethod
-    def hash_transaction_buffer(transaction_buffer):
-        """Hashes a nis transaction buffer."""
-        return Hash256(sha3.keccak_256(transaction_buffer).digest())
+    def _create_nis_type_to_property_mapping():
+        return {
+            Address: 'address',
+            PublicKey: 'public_key'
+        }
 
     @staticmethod
-    def sign_transaction_buffer(key_pair, transaction_buffer):
-        """Signs a nis transaction buffer."""
-        return key_pair.sign(transaction_buffer)
+    def hash_transaction(transaction):
+        """Hashes a nis transaction."""
+        return Hash256(sha3.keccak_256(transaction.serialize()).digest())
+
+    @staticmethod
+    def sign_transaction(key_pair, transaction):
+        """Signs a nis transaction."""
+        return key_pair.sign(transaction.serialize())
 
     @staticmethod
     def bip32_node_to_key_pair(bip32_node):
