@@ -60,14 +60,14 @@ class NisFacadeTest(unittest.TestCase):
     def test_cannot_create_around_unknown_network(self):
         # Act:
         with self.assertRaises(StopIteration):
-            NisFacade('foo', AccountDescriptorRepository(YAML_INPUT))
+            NisFacade('foo')
 
     # endregion
 
-    # region hash_transaction_buffer / sign_transaction_buffer
+    # region hash_transaction / sign_transaction
 
     @staticmethod
-    def _create_real_transfer_buffer():
+    def _create_real_transfer():
         facade = NisFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
         transaction = facade.transaction_factory.create({
             'type': 'transfer',
@@ -76,25 +76,25 @@ class NisFacadeTest(unittest.TestCase):
             'recipient': 'TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF',
             'amount': 1000000
         })
-        return transaction.serialize()
+        return transaction
 
-    def test_can_hash_transaction_buffer(self):
+    def test_can_hash_transaction(self):
         # Arrange:
-        transaction_buffer = self._create_real_transfer_buffer()
+        transaction = self._create_real_transfer()
 
         # Act:
-        hash_value = NisFacade.hash_transaction_buffer(transaction_buffer)
+        hash_value = NisFacade.hash_transaction(transaction)
 
         # Assert:
         self.assertEqual(Hash256('520547F6B7E8D7217AB5D8DB9E572682B05C6BAA7F3F900DE1429CEC43253543'), hash_value)
 
-    def test_can_sign_transaction_buffer(self):
+    def test_can_sign_transaction(self):
         # Arrange:
-        transaction_buffer = self._create_real_transfer_buffer()
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+        transaction = self._create_real_transfer()
 
         # Act:
-        signature = NisFacade.sign_transaction_buffer(NisFacade.KeyPair(private_key), transaction_buffer)
+        signature = NisFacade.sign_transaction(NisFacade.KeyPair(private_key), transaction)
 
         # Assert:
         expected_signature = Signature(''.join([

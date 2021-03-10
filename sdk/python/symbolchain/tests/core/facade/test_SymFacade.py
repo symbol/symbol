@@ -1,10 +1,15 @@
 import unittest
-from binascii import unhexlify
 
+from symbolchain.core.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.core.Bip32 import Bip32
-from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey
+from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.core.facade.SymFacade import SymFacade
 from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+YAML_INPUT = '''
+- public_key: 87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8
+  name: TEST
+'''
 
 
 class SymFacadeTest(unittest.TestCase):
@@ -44,9 +49,16 @@ class SymFacadeTest(unittest.TestCase):
     def test_can_create_around_known_network(self):
         # Act:
         facade = SymFacade('public_test')
+        transaction = facade.transaction_factory.create({
+            'type': 'transfer',
+            'signerPublicKey': PublicKey(NemTestUtils.randbytes(32))
+        })
 
         # Assert:
         self.assertEqual('public_test', facade.network.name)
+
+        self.assertEqual(0x4154, transaction.type)
+        self.assertEqual(1, transaction.version)
 
     def test_cannot_create_around_unknown_network(self):
         # Act:
@@ -55,28 +67,82 @@ class SymFacadeTest(unittest.TestCase):
 
     # endregion
 
-    # region hash_buffer
+    # region hash_transaction / sign_transaction
 
-    def test_can_hash_buffer(self):
+    @staticmethod
+    def _create_real_transfer(facade):
+        transaction = facade.transaction_factory.create({
+            'type': 'transfer',
+            'signerPublicKey': 'TEST',
+            'fee': 1000000,
+            'deadline': 41998024783,
+            'recipientAddress': 'TD4PJKW5JP3CNHA47VDFIM25RCWTWRGT45HMPSA',
+            'mosaics': [(0x2CF403E85507F39E, 1000000)]
+        })
+        return transaction
+
+    @staticmethod
+    def _create_real_aggregates(facade):
+        return [
+            facade.transaction_factory.create({
+                'type': aggregate_type,
+                'signerPublicKey': 'TEST'
+            })
+            for aggregate_type in ['aggregateComplete', 'aggregateBonded']
+        ]
+
+    def test_can_hash_transaction(self):
         # Arrange:
-        message = ''.join([
-            'A6151D4904E18EC288243028CEDA30556E6C42096AF7150D6A7232CA5DBA52BD',
-            '2192E23DAA5FA2BEA3D4BD95EFA2389CD193FCD3376E70A5C097B32C1C62C80A',
-            'F9D710211545F7CDDDF63747420281D64529477C61E721273CFD78F8890ABB40',
-            '70E97BAA52AC8FF61C26D195FC54C077DEF7A3F6F79B36E046C1A83CE9674BA1',
-            '983EC2FB58947DE616DD797D6499B0385D5E8A213DB9AD5078A8E0C940FF0CB6',
-            'BF92357EA5609F778C3D1FB1E7E36C35DB873361E2BE5C125EA7148EFF4A035B',
-            '0CCE880A41190B2E22924AD9D1B82433D9C023924F2311315F07B88BFD428500',
-            '47BF3BE785C4CE11C09D7E02065D30F6324365F93C5E7E423A07D754EB314B5F',
-            'E9DB4614275BE4BE26AF017ABDC9C338D01368226FE9AF1FB1F815E7317BDBB3',
-            '0A0F36DC69'
-        ])
+        private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+
+        transaction = self._create_real_transfer(facade)
+        transaction.signature = facade.sign_transaction(facade.KeyPair(private_key), transaction).bytes
 
         # Act:
-        hash_value = SymFacade.hash_buffer(unhexlify(message))
+        hash_value = facade.hash_transaction(transaction)
 
         # Assert:
-        self.assertEqual(Hash256('85FEF4EEC0B798E6F4CF29EB5B8D3F3096885EB88865DD62D5D0BD63ADE67384'), hash_value)
+        self.assertEqual(Hash256('3FAC33913FB3D7CF24618FD654C6635517B3199961062869DF96DA6B5B22F26F'), hash_value)
+
+    def test_cannot_hash_aggregate_transaction(self):
+        # Arrange:
+        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+
+        for transaction in self._create_real_aggregates(facade):
+            # Act + Assert:
+            with self.assertRaises(ValueError):
+                facade.hash_transaction(transaction)
+
+    def test_can_sign_transaction(self):
+        # Arrange:
+        private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+
+        transaction = self._create_real_transfer(facade)
+
+        # Sanity:
+        self.assertEqual(bytes([0] * 64), transaction.signature)
+
+        # Act:
+        signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
+
+        # Assert:
+        expected_signature = Signature(''.join([
+            'FD112693296E28EED2438C75DFDDDFBC87B8F9A51AEAF7806014D93AE89893BD',
+            'AD6E74DA06C3502632A6C905E674DA6E13B8C6DFCB198504546EAD01294AB104'
+        ]))
+        self.assertEqual(expected_signature, signature)
+
+    def test_cannot_sign_aggregate_transaction(self):
+        # Arrange:
+        private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+
+        for transaction in self._create_real_aggregates(facade):
+            # Act + Assert:
+            with self.assertRaises(ValueError):
+                facade.sign_transaction(facade.KeyPair(private_key), transaction)
 
     # endregion
 

@@ -29,9 +29,8 @@ class BatchOperations:
         signer_account_name = self.facade.account_descriptor_repository.find_by_public_key(transaction.signer).name
         signer_private_key = private_key_storage.load(signer_account_name)
 
-        transaction_buffer = transaction.serialize()
-        signature = self.facade.sign_transaction_buffer(self.facade.KeyPair(signer_private_key), transaction_buffer)
-        transaction_hash = self.facade.hash_transaction_buffer(transaction_buffer)
+        signature = self.facade.sign_transaction(self.facade.KeyPair(signer_private_key), transaction)
+        transaction_hash = self.facade.hash_transaction(transaction)
         signature_storage.save(output_filename, transaction_hash, [signature])
 
     def sign_all(self, transactions, private_key_storage, signature_storage):
@@ -47,13 +46,11 @@ class BatchOperations:
         for i, transaction in enumerate(transactions):
             (signed_transaction_hash, signatures) = signature_groups[i]
 
-            transaction_buffer = transaction.serialize()
-            transaction_hash = self.facade.hash_transaction_buffer(transaction_buffer)
-
+            transaction_hash = self.facade.hash_transaction(transaction)
             if signed_transaction_hash != transaction_hash:
                 raise self.PrepareError('transaction hash at {} does not match signed transaction hash'.format(i))
 
-            if not self.facade.Verifier(transaction.signer).verify(transaction_buffer, signatures[0]):
+            if not self.facade.Verifier(transaction.signer).verify(transaction.serialize(), signatures[0]):
                 raise self.PrepareError('transaction signature at {} does not verify'.format(i))
 
         for i, transaction in enumerate(transactions):

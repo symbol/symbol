@@ -1,3 +1,5 @@
+from binascii import hexlify
+
 from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
 from symbol_catbuffer.TransactionBuilderFactory import TransactionBuilderFactory
 
@@ -30,7 +32,11 @@ class TransactionFactory:
     @staticmethod
     def attach_signature(transaction, signature):
         """Attaches a signature to a transaction."""
-        transaction.signature = signature
+        transaction.signature = signature.bytes
+
+        transaction_buffer = transaction.serialize()
+        json_payload = '{{"payload": "{}"}}'.format(hexlify(transaction_buffer).decode('utf8').upper())
+        return json_payload.encode('utf8')
 
     @staticmethod
     def _build_type_hints_map(transaction):
