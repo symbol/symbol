@@ -3,6 +3,7 @@ import base64
 import sha3
 
 from ..ByteArray import ByteArray
+from ..CryptoTypes import Hash256
 from ..Network import Network as BasicNetwork
 
 
@@ -26,6 +27,11 @@ class Address(ByteArray):
 class Network(BasicNetwork):
     """Represents a symbol network."""
 
+    def __init__(self, name, identifier, generation_hash_seed=None):
+        """Creates a new network with the specified name, identifier byte and generation hash seed."""
+        super().__init__(name, identifier)
+        self.generation_hash_seed = generation_hash_seed
+
     def address_hasher(self):
         return sha3.sha3_256()
 
@@ -33,8 +39,8 @@ class Network(BasicNetwork):
         return Address(address_without_checksum + checksum[0:3])
 
 
-Network.PUBLIC = Network('public', 0x68)
+Network.PUBLIC = Network('public', 0x68, Hash256('57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6'))
 Network.PRIVATE = Network('private', 0x78)
-Network.PUBLIC_TEST = Network('public_test', 0x98)
+Network.PUBLIC_TEST = Network('public_test', 0x98, Hash256('45FBCF2F0EA36EFA7923C9BC923D6503169651F7FA4EFC46A8EAF5AE09057EBD'))
 Network.PRIVATE_TEST = Network('private_test', 0xA8)
 Network.NETWORKS = [Network.PUBLIC, Network.PRIVATE, Network.PUBLIC_TEST, Network.PRIVATE_TEST]
