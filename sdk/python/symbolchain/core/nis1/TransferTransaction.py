@@ -71,7 +71,7 @@ class TransferTransaction:
         writer.write_int(self.deadline, 4)
 
         writer.write_int(RECIPIENT_LENGTH, 4)
-        writer.write_bytes(self.recipient.bytes)
+        writer.write_string(str(self.recipient))
 
         writer.write_int(self.amount, 8)
 
