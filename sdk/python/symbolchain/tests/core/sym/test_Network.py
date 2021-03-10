@@ -1,10 +1,13 @@
 import unittest
 from binascii import unhexlify
 
-from symbolchain.core.CryptoTypes import PublicKey
+from symbolchain.core.CryptoTypes import Hash256, PublicKey
 from symbolchain.core.sym.Network import Address, Network
 from symbolchain.tests.test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
 from symbolchain.tests.test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
+
+PUBLIC_GENERATION_HASH_SEED = Hash256('57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6')
+PUBLIC_TEST_GENERATION_HASH_SEED = Hash256('45FBCF2F0EA36EFA7923C9BC923D6503169651F7FA4EFC46A8EAF5AE09057EBD')
 
 
 class AddressTest(BasicAddressTest, unittest.TestCase):
@@ -28,6 +31,13 @@ class NetworkTest(BasicNetworkTest, unittest.TestCase):
         self.assertEqual(['public', 'private', 'public_test', 'private_test'], [network.name for network in Network.NETWORKS])
 
         self._assert_network(Network.PUBLIC, 'public', 0x68)
+        self.assertEqual(PUBLIC_GENERATION_HASH_SEED, Network.PUBLIC.generation_hash_seed)
+
         self._assert_network(Network.PRIVATE, 'private', 0x78)
+        self.assertEqual(None, Network.PRIVATE.generation_hash_seed)
+
         self._assert_network(Network.PUBLIC_TEST, 'public_test', 0x98)
+        self.assertEqual(PUBLIC_TEST_GENERATION_HASH_SEED, Network.PUBLIC_TEST.generation_hash_seed)
+
         self._assert_network(Network.PRIVATE_TEST, 'private_test', 0xA8)
+        self.assertEqual(None, Network.PRIVATE_TEST.generation_hash_seed)
