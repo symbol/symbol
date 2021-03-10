@@ -1,6 +1,8 @@
+import base64
 import unittest
 
 from symbolchain.core.AccountDescriptorRepository import AccountDescriptorRepository
+from symbolchain.core.ByteArray import ByteArray
 from symbolchain.core.CryptoTypes import PublicKey
 from symbolchain.tests.test.NemTestUtils import NemTestUtils
 
@@ -19,12 +21,22 @@ YAML_INPUT = '''
   name: BOB
   roles: [BLUE, main]
 
-- address:  TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C
+- address: TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C
   name: charlie
 '''.format(public_key_1=PUBLIC_KEY_1, public_key_2=PUBLIC_KEY_2)
 
 
+# NIS style address to avoid circular import
+class MockAddress(ByteArray):
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self, address):
+        super().__init__(25, base64.b32decode(address), MockAddress)
+
+
 class AccountDescriptorRepositoryTest(unittest.TestCase):
+    # region load and find
+
     def test_can_load_descriptors_file(self):
         # Arrange:
         repository = AccountDescriptorRepository(YAML_INPUT)
@@ -115,3 +127,64 @@ class AccountDescriptorRepositoryTest(unittest.TestCase):
 
     def test_find_all_by_role_when_no_role_filter_is_provided(self):
         self._assert_can_find_all_by_role(None, ['alice', 'TEST1', 'BOB', 'charlie'])
+
+    # endregion
+
+    # region to_type_parsing_rules_map
+
+    @staticmethod
+    def _create_type_parsing_rules():
+        return AccountDescriptorRepository(YAML_INPUT).to_type_parsing_rules_map({
+            MockAddress: 'address',
+            PublicKey: 'public_key'
+        })
+
+    def _assert_can_parse_address(self, value, expected_value):
+        # Arrange:
+        type_parsing_rules = self._create_type_parsing_rules()
+
+        # Act:
+        value = type_parsing_rules[MockAddress](value)
+
+        # Assert:
+        self.assertEqual(expected_value, value)
+
+    def test_can_parse_named_address_with_overrride(self):
+        self._assert_can_parse_address('alice', MockAddress('TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF'))
+
+    def test_cannot_parse_named_address_without_overrride(self):
+        # Arrange:
+        type_parsing_rules = self._create_type_parsing_rules()
+
+        # Act + Assert:
+        with self.assertRaises(TypeError):
+            type_parsing_rules[MockAddress]('TEST1')
+
+    def test_can_parse_unnamed_address(self):
+        self._assert_can_parse_address('TAVOZX4HDVOAR4W6K4WJHWPD3MOFU27DFEJDR2PR', MockAddress('TAVOZX4HDVOAR4W6K4WJHWPD3MOFU27DFEJDR2PR'))
+
+    def _assert_can_parse_public_key(self, value, expected_value):
+        # Arrange:
+        type_parsing_rules = self._create_type_parsing_rules()
+
+        # Act:
+        value = type_parsing_rules[PublicKey](value)
+
+        # Assert:
+        self.assertEqual(expected_value, value)
+
+    def test_can_parse_named_public_key_with_overrride(self):
+        self._assert_can_parse_public_key('TEST1', PUBLIC_KEY_1)
+
+    def test_cannot_parse_named_public_key_without_overrride(self):
+        # Arrange:
+        type_parsing_rules = self._create_type_parsing_rules()
+
+        # Act + Assert:
+        with self.assertRaises(TypeError):
+            type_parsing_rules[PublicKey]('alice')
+
+    def test_can_parse_unnamed_public_key(self):
+        self._assert_can_parse_public_key(str(PUBLIC_KEY_2), PUBLIC_KEY_2)
+
+    # endregion

@@ -41,51 +41,7 @@ class TransactionFactoryTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             factory.create({'type': 'multisig'})
 
-    def test_can_create_with_simple_property_override(self):
-        # Arrange:
-        factory = TransactionFactory(FOO_NETWORK)
-
-        # Act:
-        transaction = factory.create({
-            'type': 'transfer',
-            'recipient': 'recipient_name'
-        })
-
-        # Assert:
-        self.assertEqual(0x0101, transaction.type)
-        self.assertEqual('recipient_name', transaction.recipient)
-
-    def test_can_create_with_custom_setter_override(self):
-        # Arrange:
-        factory = TransactionFactory(FOO_NETWORK)
-
-        # Act:
-        transaction = factory.create({
-            'type': 'transfer',
-            'message': 'hello world',
-        })
-
-        # Assert:
-        self.assertEqual(0x0101, transaction.type)
-        self.assertEqual(b'hello world', transaction.message)
-
-    def test_can_create_with_custom_rule_override(self):
-        # Arrange:
-        factory = TransactionFactory(FOO_NETWORK, {
-            Address: lambda address: address + ' ADDRESS'
-        })
-
-        # Act:
-        transaction = factory.create({
-            'type': 'transfer',
-            'recipient': 'recipient_name'
-        })
-
-        # Assert:
-        self.assertEqual(0x0101, transaction.type)
-        self.assertEqual('recipient_name ADDRESS', transaction.recipient)
-
-    def test_can_create_with_multiple_overrides(self):
+    def test_can_create_known_transaction_with_multiple_overrides(self):
         # Arrange:
         factory = TransactionFactory(FOO_NETWORK, {
             Address: lambda address: address + ' ADDRESS',

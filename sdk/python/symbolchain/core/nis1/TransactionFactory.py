@@ -1,4 +1,5 @@
 from ..BufferWriter import BufferWriter
+from ..TransactionDescriptorProcessor import TransactionDescriptorProcessor
 from .TransferTransaction import TransferTransaction
 
 
@@ -10,9 +11,6 @@ class TransactionFactory:
         self.network = network
         self.type_parsing_rules = type_parsing_rules
 
-        if not self.type_parsing_rules:
-            self.type_parsing_rules = {}
-
     def _create(self, name):
         if name not in [TransferTransaction.NAME]:
             raise ValueError('transaction named {} is not supported'.format(name))
@@ -21,19 +19,11 @@ class TransactionFactory:
 
     def create(self, transaction_descriptor):
         """Creates a transaction from a transaction descriptor."""
-        transaction = self._create(transaction_descriptor['type'])
+        processor = TransactionDescriptorProcessor(transaction_descriptor, self.type_parsing_rules)
+        transaction = self._create(processor.lookup_value('type'))
 
-        for key, value in transaction_descriptor.items():
-            if 'type' == key:
-                continue
-
-            if key in transaction.__dict__:
-                type_hint = type(transaction).__annotations__.get(key)  # pylint: disable=no-member
-                if type_hint in self.type_parsing_rules:
-                    value = self.type_parsing_rules[type_hint](value)
-
-            setattr(transaction, key, value)
-
+        processor.set_type_hints(type(transaction).__annotations__)  # pylint: disable=no-member
+        processor.copy_to(transaction, ['type'])
         return transaction
 
     @staticmethod

@@ -1,11 +1,10 @@
 import sha3
 
-from ..CryptoTypes import Hash256, PrivateKey
+from ..CryptoTypes import Hash256, PrivateKey, PublicKey
 from ..Network import NetworkLocator
 from ..nis1.KeyPair import KeyPair, Verifier
-from ..nis1.Network import Network
+from ..nis1.Network import Address, Network
 from ..nis1.TransactionFactory import TransactionFactory
-from ..nis1.TypeParsingRules import TypeParsingRules
 
 
 class NisFacade:
@@ -23,8 +22,11 @@ class NisFacade:
         self.account_descriptor_repository = account_descriptor_repository
 
         type_parsing_rules = None
-        if account_descriptor_repository:
-            type_parsing_rules = TypeParsingRules(self.account_descriptor_repository).as_map()
+        if self.account_descriptor_repository:
+            type_parsing_rules = self.account_descriptor_repository.to_type_parsing_rules_map({
+                Address: 'address',
+                PublicKey: 'public_key'
+            })
 
         self.transaction_factory = TransactionFactory(self.network, type_parsing_rules)
 
