@@ -1,0 +1,96 @@
+import unittest
+
+from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
+
+from symbolchain.core.CryptoTypes import PublicKey
+from symbolchain.core.sym.Network import Address, Network
+from symbolchain.core.sym.TransactionFactory import TransactionFactory
+from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+FOO_NETWORK = Network('foo', 0x54)
+TEST_SIGNER_PUBLIC_KEY = NemTestUtils.randbytes(32)
+
+
+class TransactionFactoryTest(unittest.TestCase):
+    # region create
+
+    def _assert_transfer(self, transaction):
+        self.assertEqual(0x4154, transaction.type)
+        self.assertEqual(1, transaction.version)
+        self.assertEqual(NetworkTypeDto.PUBLIC_TEST, transaction.network)
+
+    def test_can_create_known_transaction_from_descriptor(self):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST)
+
+        # Act:
+        transaction = factory.create({
+            'type': 'transfer',
+            'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
+        })
+
+        # Assert:
+        self._assert_transfer(transaction)
+        self.assertEqual(TEST_SIGNER_PUBLIC_KEY, transaction.signerPublicKey)
+
+    def test_cannot_create_unknown_transaction_from_descriptor(self):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST)
+
+        # Act + Assert:
+        with self.assertRaises(ValueError):
+            factory.create({
+                'type': 'foo',
+                'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
+            })
+
+    def test_can_create_known_transaction_with_multiple_overrides(self):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST, {
+            Address: lambda address: address + ' ADDRESS',
+            PublicKey: lambda address: address + ' PUBLICKEY'
+        })
+
+        # Act:
+        transaction = factory.create({
+            'type': 'transfer',
+            'signerPublicKey': 'signer_name',
+            'recipientAddress': 'recipient_name',
+            'message': 'hello world',
+            'mosaics': [(0x12345678ABCDEF, 12345)]
+        })
+
+        # Assert:
+        self._assert_transfer(transaction)
+        self.assertEqual('signer_name PUBLICKEY', transaction.signerPublicKey)
+
+        self.assertEqual('recipient_name ADDRESS', transaction.recipientAddress)
+        self.assertEqual('hello world', transaction.message)
+        self.assertEqual([(0x12345678ABCDEF, 12345)], transaction.mosaics)
+
+    # endregion
+
+    # region attach_signature
+
+    def test_can_attach_signature_to_transaction(self):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST)
+        transaction = factory.create({
+            'type': 'transfer',
+            'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
+        })
+        signature = NemTestUtils.randbytes(64)
+
+        # Sanity:
+        self.assertEqual(bytes([0] * 64), transaction.signature)
+
+        # Act:
+        factory.attach_signature(transaction, signature)
+
+        # Assert:
+        self._assert_transfer(transaction)
+        self.assertEqual(TEST_SIGNER_PUBLIC_KEY, transaction.signerPublicKey)
+
+        self.assertEqual(signature, transaction.signature)
+
+    # endregion
