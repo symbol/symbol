@@ -1,7 +1,7 @@
 language: python
 
 python:
-  - 3.6
+  - 3.7
 
 env:
   global:
@@ -36,7 +36,7 @@ jobs:
       if: branch = env(DEV_BRANCH) OR branch = env(RELEASE_BRANCH)
       script:
         - git clone --depth=1 --branch=main https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
-        - python3 -m symbolchain.vectors.all --blockchain nis1 --vectors "$TEST_VECTORS_ROOT/nis1" --tests 0 1 2 3 4 5
+        - python3 -m symbolchain.vectors.all --blockchain nis1 --vectors "$TEST_VECTORS_ROOT/nis1"
         - python3 -m symbolchain.vectors.all --blockchain symbol --vectors "$TEST_VECTORS_ROOT"
 
     - stage: alpha package
