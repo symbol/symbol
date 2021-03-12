@@ -26,6 +26,15 @@ catapult-server code is organized as follows:
 | /tests | Collection of tests. |
 | /tools | Tools to deploy and monitor networks and nodes. |
 
+## Versioning
+
+Versioning starting with 1.0.0.0 release. Testnet releases use odd numbers for minor field.
+
+| description | versions | 
+|-------------|----------|
+| example mainnet build numbers | 1.0.0.0, 1.2.x.x, 1.4.x.x, 2.2.x.x, 3.4.x.x |
+| example testnet build numbers | 1.1.0.0, 1.3.x.x, 1.5.x.x, 2.3.x.x, 3.5.x.x |
+
 ## Building the Image
 
 To compile catapult-server source code, follow the [developer notes](docs/README.md). 

@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.0.0] - 12-Mar-2021
+
+Mainnet launch.
+
 ## [0.10.0.8] - 26-Feb-2021
 
 ### Added
