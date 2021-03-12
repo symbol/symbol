@@ -4,16 +4,17 @@ from functools import reduce
 from symbolchain.core.CryptoTypes import PublicKey
 from symbolchain.core.nis1.Network import Address, Network
 from symbolchain.core.nis1.TransferTransaction import TransferTransaction
+from symbolchain.tests.test.BasicNisTransactionTest import BasicNisTransactionTest, NisTransactionTestDescriptor
 
 FOO_NETWORK = Network('foo', 0x54)
 
 
-class TransferTransactionTest(unittest.TestCase):
+class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
     # region basic
 
-    def test_constants_are_correct(self):
-        self.assertEqual('transfer', TransferTransaction.NAME)
-        self.assertEqual(0x0101, TransferTransaction.TYPE)
+    @staticmethod
+    def get_test_descriptor():
+        return NisTransactionTestDescriptor(TransferTransaction, 'transfer', 0x0101, FOO_NETWORK)
 
     def test_can_create(self):
         # Act:
@@ -36,16 +37,6 @@ class TransferTransactionTest(unittest.TestCase):
     # endregion
 
     # region properties
-
-    def test_deadline_is_updated_with_timestamp(self):
-        # Arrange:
-        transaction = TransferTransaction(FOO_NETWORK)
-
-        # Act:
-        transaction.timestamp = 9876
-
-        # Assert:
-        self.assertEqual(9876 + 60 * 60, transaction.deadline)
 
     def test_fee_is_updated_with_amount(self):
         # Arrange:

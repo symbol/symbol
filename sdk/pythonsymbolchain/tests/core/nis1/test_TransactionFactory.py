@@ -24,14 +24,15 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def test_can_create_known_transaction_from_descriptor(self):
         # Arrange:
-        factory = TransactionFactory(FOO_NETWORK)
+        for transaction_name, transaction_type in [('transfer', 0x0101), ('importance-transfer', 0x0801)]:
+            factory = TransactionFactory(FOO_NETWORK)
 
-        # Act:
-        transaction = factory.create({'type': 'transfer'})
+            # Act:
+            transaction = factory.create({'type': transaction_name})
 
-        # Assert:
-        self.assertEqual(0x0101, transaction.type)
-        self.assertEqual(0x54000001, transaction.version)
+            # Assert:
+            self.assertEqual(transaction_type, transaction.type)
+            self.assertEqual(0x54000001, transaction.version)
 
     def test_cannot_create_unknown_transaction_from_descriptor(self):
         # Arrange:

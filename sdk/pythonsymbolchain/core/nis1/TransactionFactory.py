@@ -1,5 +1,6 @@
 from ..BufferWriter import BufferWriter
 from ..TransactionDescriptorProcessor import TransactionDescriptorProcessor
+from .ImportanceTransferTransaction import ImportanceTransferTransaction
 from .TransferTransaction import TransferTransaction
 
 
@@ -12,10 +13,11 @@ class TransactionFactory:
         self.type_parsing_rules = type_parsing_rules
 
     def _create(self, name):
-        if name not in [TransferTransaction.NAME]:
+        transaction_classes = [ImportanceTransferTransaction, TransferTransaction]
+        if name not in [transaction_class.NAME for transaction_class in transaction_classes]:
             raise ValueError('transaction named {} is not supported'.format(name))
 
-        return TransferTransaction(self.network)
+        return next(transaction_class for transaction_class in transaction_classes if name == transaction_class.NAME)(self.network)
 
     def create(self, transaction_descriptor):
         """Creates a transaction from a transaction descriptor."""
