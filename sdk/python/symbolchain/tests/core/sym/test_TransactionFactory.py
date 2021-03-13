@@ -20,13 +20,13 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual(1, transaction.version)
         self.assertEqual(NetworkTypeDto.PUBLIC_TEST, transaction.network)
 
-    def test_can_create_known_transaction_from_descriptor(self):
+    def _assert_can_create_known_transaction_from_descriptor(self, transaction_type, create_function_accessor):
         # Arrange:
         factory = TransactionFactory(Network.PUBLIC_TEST)
 
         # Act:
-        transaction = factory.create({
-            'type': 'transfer',
+        transaction = create_function_accessor(factory)({
+            'type': transaction_type,
             'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
         })
 
@@ -34,18 +34,30 @@ class TransactionFactoryTest(unittest.TestCase):
         self._assert_transfer(transaction)
         self.assertEqual(TEST_SIGNER_PUBLIC_KEY, transaction.signerPublicKey)
 
-    def test_cannot_create_unknown_transaction_from_descriptor(self):
+    def test_can_create_known_transaction_from_descriptor(self):
+        self._assert_can_create_known_transaction_from_descriptor('transfer', lambda factory: factory.create)
+
+    def test_can_create_known_transaction_from_descriptor_embedded(self):
+        self._assert_can_create_known_transaction_from_descriptor('embeddedTransfer', lambda factory: factory.create_embedded)
+
+    def _assert_cannot_create_unknown_transaction_from_descriptor(self, transaction_type, create_function_accessor):
         # Arrange:
         factory = TransactionFactory(Network.PUBLIC_TEST)
 
         # Act + Assert:
         with self.assertRaises(ValueError):
-            factory.create({
-                'type': 'foo',
+            create_function_accessor(factory)({
+                'type': transaction_type,
                 'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
             })
 
-    def test_can_create_known_transaction_with_multiple_overrides(self):
+    def test_cannot_create_unknown_transaction_from_descriptor(self):
+        self._assert_cannot_create_unknown_transaction_from_descriptor('embeddedTransfer', lambda factory: factory.create)
+
+    def test_cannot_create_unknown_transaction_from_descriptor_embedded(self):
+        self._assert_cannot_create_unknown_transaction_from_descriptor('transfer', lambda factory: factory.create_embedded)
+
+    def _assert_can_create_known_transaction_with_multiple_overrides(self, transaction_type, create_function_accessor):
         # Arrange:
         factory = TransactionFactory(Network.PUBLIC_TEST, {
             Address: lambda address: address + ' ADDRESS',
@@ -53,8 +65,8 @@ class TransactionFactoryTest(unittest.TestCase):
         })
 
         # Act:
-        transaction = factory.create({
-            'type': 'transfer',
+        transaction = create_function_accessor(factory)({
+            'type': transaction_type,
             'signerPublicKey': 'signer_name',
             'recipientAddress': 'recipient_name',
             'message': 'hello world',
@@ -68,6 +80,12 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual('recipient_name ADDRESS', transaction.recipientAddress)
         self.assertEqual('hello world', transaction.message)
         self.assertEqual([(0x12345678ABCDEF, 12345)], transaction.mosaics)
+
+    def test_can_create_known_transaction_with_multiple_overrides(self):
+        self._assert_can_create_known_transaction_with_multiple_overrides('transfer', lambda factory: factory.create)
+
+    def test_can_create_known_transaction_with_multiple_overridesembedded(self):
+        self._assert_can_create_known_transaction_with_multiple_overrides('embeddedTransfer', lambda factory: factory.create_embedded)
 
     # endregion
 

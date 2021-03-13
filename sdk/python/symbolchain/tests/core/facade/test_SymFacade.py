@@ -1,4 +1,5 @@
 import unittest
+from binascii import unhexlify
 
 from symbolchain.core.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.core.Bip32 import Bip32
@@ -71,7 +72,7 @@ class SymFacadeTest(unittest.TestCase):
 
     @staticmethod
     def _create_real_transfer(facade):
-        transaction = facade.transaction_factory.create({
+        return facade.transaction_factory.create({
             'type': 'transfer',
             'signerPublicKey': 'TEST',
             'fee': 1000000,
@@ -79,17 +80,24 @@ class SymFacadeTest(unittest.TestCase):
             'recipientAddress': 'TD4PJKW5JP3CNHA47VDFIM25RCWTWRGT45HMPSA',
             'mosaics': [(0x2CF403E85507F39E, 1000000)]
         })
-        return transaction
 
     @staticmethod
-    def _create_real_aggregates(facade):
-        return [
-            facade.transaction_factory.create({
-                'type': aggregate_type,
-                'signerPublicKey': 'TEST'
-            })
-            for aggregate_type in ['aggregateComplete', 'aggregateBonded']
-        ]
+    def _create_real_aggregate(facade):
+        aggregate = facade.transaction_factory.create({
+            'type': 'aggregateComplete',
+            'signerPublicKey': 'TEST',
+            'fee': 2000000,
+            'deadline': 42238390163,
+            'transactionsHash': unhexlify('71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'),
+        })
+        transfer = facade.transaction_factory.create_embedded({
+            'type': 'embeddedTransfer',
+            'signerPublicKey': 'TEST',
+            'recipientAddress': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
+            'mosaics': [(0x2CF403E85507F39E, 1000000)]
+        })
+        aggregate.transactions.append(transfer)
+        return aggregate
 
     def test_can_hash_transaction(self):
         # Arrange:
@@ -105,14 +113,19 @@ class SymFacadeTest(unittest.TestCase):
         # Assert:
         self.assertEqual(Hash256('3FAC33913FB3D7CF24618FD654C6635517B3199961062869DF96DA6B5B22F26F'), hash_value)
 
-    def test_cannot_hash_aggregate_transaction(self):
+    def test_can_hash_aggregate_transaction(self):
         # Arrange:
+        private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
         facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
 
-        for transaction in self._create_real_aggregates(facade):
-            # Act + Assert:
-            with self.assertRaises(ValueError):
-                facade.hash_transaction(transaction)
+        transaction = self._create_real_aggregate(facade)
+        transaction.signature = facade.sign_transaction(facade.KeyPair(private_key), transaction).bytes
+
+        # Act:
+        hash_value = facade.hash_transaction(transaction)
+
+        # Assert:
+        self.assertEqual(Hash256('6B14F18A594FEEEE14731FD381C45991D9A59B7BC948EAE9DF2D977ABEAF0FBE'), hash_value)
 
     def test_can_sign_transaction(self):
         # Arrange:
@@ -134,15 +147,25 @@ class SymFacadeTest(unittest.TestCase):
         ]))
         self.assertEqual(expected_signature, signature)
 
-    def test_cannot_sign_aggregate_transaction(self):
+    def test_can_sign_aggregate_transaction(self):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
         facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
 
-        for transaction in self._create_real_aggregates(facade):
-            # Act + Assert:
-            with self.assertRaises(ValueError):
-                facade.sign_transaction(facade.KeyPair(private_key), transaction)
+        transaction = self._create_real_aggregate(facade)
+
+        # Sanity:
+        self.assertEqual(bytes([0] * 64), transaction.signature)
+
+        # Act:
+        signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
+
+        # Assert:
+        expected_signature = Signature(''.join([
+            '76597917A1CFB587A74329432CE84460F73E36E1C4DBB968E5849116BE87B8CC',
+            '96B273F2C0506CDE44CDD924A9A5802019F140B56EDDB0AF73277651C9DA8008'
+        ]))
+        self.assertEqual(expected_signature, signature)
 
     # endregion
 
