@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.3.5] - 13-Mar-2021
+
+### Updated
+
+- Updated catapult-server (v1.0.0.0) status codes.
+
 ## [v2.3.4] - 5-Mar-2021
 
 ### Fixed
