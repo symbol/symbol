@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.0] - 13-Mar-2021
+
+Milestone: Symbol Mainnet
+
+- Release for Symbol mainnet.
+
 ## [0.11.2] - 02-Feb-2021
 
 Targets catapult-rest 2.3.2
