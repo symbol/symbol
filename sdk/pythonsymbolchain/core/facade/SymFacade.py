@@ -15,6 +15,13 @@ TRANSACTION_HEADER_SIZE = sum(field[1] for field in [
     ('reserved2', 4)
 ])
 
+AGGREGATE_HASHED_SIZE = sum(field[1] for field in [
+    ('version_network_type', 4),
+    ('max_fee', 8),
+    ('deadline', 8),
+    ('transactions_hash', 32)
+])
+
 
 class SymFacade:
     """Facade used to interact with symbol blockchain."""
@@ -54,11 +61,12 @@ class SymFacade:
 
     def hash_transaction(self, transaction):
         """Hashes a symbol transaction."""
-        hash_buffer = transaction.signature
-        hash_buffer += transaction.signerPublicKey
-        hash_buffer += self.network.generation_hash_seed.bytes
-        hash_buffer += self._transaction_data_buffer(transaction.serialize())
-        return Hash256(sha3.sha3_256(hash_buffer).digest())
+        hasher = sha3.sha3_256()
+        hasher.update(transaction.signature)
+        hasher.update(transaction.signerPublicKey)
+        hasher.update(self.network.generation_hash_seed.bytes)
+        hasher.update(self._transaction_data_buffer(transaction.serialize()))
+        return Hash256(hasher.digest())
 
     def sign_transaction(self, key_pair, transaction):
         """Signs a symbol transaction."""
@@ -73,11 +81,11 @@ class SymFacade:
 
     @staticmethod
     def _transaction_data_buffer(transaction_buffer):
-        if SymFacade._is_aggregate_transaction(transaction_buffer):
-            raise ValueError('aggregate transactions are not supported')
-
         data_buffer_start = TRANSACTION_HEADER_SIZE
         data_buffer_end = len(transaction_buffer)
+        if SymFacade._is_aggregate_transaction(transaction_buffer):
+            data_buffer_end = TRANSACTION_HEADER_SIZE + AGGREGATE_HASHED_SIZE
+
         return transaction_buffer[data_buffer_start:data_buffer_end]
 
     @staticmethod

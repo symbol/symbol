@@ -1,5 +1,6 @@
 from binascii import hexlify
 
+from symbol_catbuffer.EmbeddedTransactionBuilderFactory import EmbeddedTransactionBuilderFactory
 from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
 from symbol_catbuffer.TransactionBuilderFactory import TransactionBuilderFactory
 
@@ -16,18 +17,26 @@ class TransactionFactory:
         self.network = network
         self.type_parsing_rules = type_parsing_rules
 
-    def _create(self, name, signer_public_key):
-        return TransactionBuilderFactory.createByName(name, signer_public_key, NetworkTypeDto(self.network.identifier))
-
-    def create(self, transaction_descriptor):
-        """Creates a transaction from a transaction descriptor."""
+    def _create(self, transaction_descriptor, factory_class):
         processor = TransactionDescriptorProcessor(transaction_descriptor, self.type_parsing_rules)
         processor.set_type_hints({'signerPublicKey': PublicKey})
-        transaction = self._create(processor.lookup_value('type'), processor.lookup_value('signerPublicKey'))
+
+        transaction = factory_class.createByName(
+            processor.lookup_value('type'),
+            processor.lookup_value('signerPublicKey'),
+            NetworkTypeDto(self.network.identifier))
 
         processor.set_type_hints(self._build_type_hints_map(transaction))
         processor.copy_to(transaction, ['type', 'signerPublicKey'])
         return transaction
+
+    def create(self, transaction_descriptor):
+        """Creates a transaction from a transaction descriptor."""
+        return self._create(transaction_descriptor, TransactionBuilderFactory)
+
+    def create_embedded(self, transaction_descriptor):
+        """Creates an embedded transaction from a transaction descriptor."""
+        return self._create(transaction_descriptor, EmbeddedTransactionBuilderFactory)
 
     @staticmethod
     def attach_signature(transaction, signature):
