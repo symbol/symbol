@@ -35,7 +35,7 @@ describe('status', () => {
 			// Assert:
 			expect(status.toString(0x80410003)).to.equal('Failure_Aggregate_Too_Many_Cosignatures');
 			expect(status.toString(0x80FF0001)).to.equal('Failure_Chain_Unlinked');
-			expect(status.toString(0x80FE0005)).to.equal('Failure_Consumer_Remote_Chain_Improper_Link');
+			expect(status.toString(0x80FE0005)).to.equal('Failure_Consumer_Remote_Chain_Duplicate_Transactions');
 			expect(status.toString(0x80430005)).to.equal('Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block');
 			expect(status.toString(0x80450001)).to.equal('Failure_Extension_Partial_Transaction_Cache_Prune');
 			expect(status.toString(0x81490001)).to.equal('Failure_Hash_Already_Exists');
