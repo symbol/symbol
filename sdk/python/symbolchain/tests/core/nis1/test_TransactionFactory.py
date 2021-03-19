@@ -74,7 +74,7 @@ class TransactionFactoryTest(unittest.TestCase):
     def test_can_attach_signature_to_transaction(self):
         # Arrange:
         transaction = MockTransaction(bytes([0x44, 0x55, 0x98, 0x12, 0x71, 0xAB, 0x72]))
-        signature = Signature(NemTestUtils.randbytes(64))
+        signature = NemTestUtils.randcryptotype(Signature)
 
         # Act:
         signed_transaction_buffer = TransactionFactory.attach_signature(transaction, signature)

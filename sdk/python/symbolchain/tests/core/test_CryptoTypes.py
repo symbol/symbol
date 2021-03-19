@@ -13,6 +13,9 @@ class CryptoTypesTest(unittest.TestCase):
     def test_cannot_create_hash256_with_incorrect_number_of_bytes(self):
         self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(Hash256, 32)
 
+    def test_can_create_zeroed_hash256(self):
+        self._assert_can_create_zeroed_byte_array(Hash256, 32)
+
     # endregion
 
     # PrivateKey
@@ -61,6 +64,9 @@ class CryptoTypesTest(unittest.TestCase):
     def test_cannot_create_signature_with_incorrect_number_of_bytes(self):
         self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(Signature, 64)
 
+    def test_can_create_zeroed_signature(self):
+        self._assert_can_create_zeroed_byte_array(Signature, 64)
+
     # endregion
 
     def test_equality_is_only_possible_for_same_types(self):
@@ -94,3 +100,10 @@ class CryptoTypesTest(unittest.TestCase):
         for size in [0, required_size - 1, required_size + 1]:
             with self.assertRaises(ValueError):
                 byte_array_class(NemTestUtils.randbytes(size))
+
+    def _assert_can_create_zeroed_byte_array(self, byte_array_class, size):
+        # Act:
+        byte_array = byte_array_class.zero()
+
+        # Assert:
+        self.assertEqual(byte_array_class(bytes([0] * size)), byte_array)

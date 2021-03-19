@@ -14,3 +14,8 @@ class NemTestUtils:
             return random.randbytes(count)
 
         return bytes([random.randint(0x00, 0xFF) for _ in range(0, count)])
+
+    @staticmethod
+    def randcryptotype(crypto_type_class):
+        """Generates a random crypto type."""
+        return crypto_type_class(NemTestUtils.randbytes(crypto_type_class.SIZE))

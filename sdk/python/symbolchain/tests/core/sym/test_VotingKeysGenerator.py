@@ -41,9 +41,9 @@ class VotingKeysGeneratorTest(unittest.TestCase):
             seed_value = next_value % 256
 
             if not self.fill_private_key:
-                return PrivateKey(seed_value.to_bytes(32, 'big'))
+                return PrivateKey(seed_value.to_bytes(PrivateKey.SIZE, 'big'))
 
-            return PrivateKey(bytes([(seed_value + i) % 256 for i in range(0, 32)]))
+            return PrivateKey(bytes([(seed_value + i) % 256 for i in range(0, PrivateKey.SIZE)]))
 
     # endregion
 
@@ -58,7 +58,7 @@ class VotingKeysGeneratorTest(unittest.TestCase):
         voting_keys_buffer = voting_keys_generator.generate(7, 11)
 
         # Assert:
-        self.assertEqual(32 + 48 + 5 * 96, len(voting_keys_buffer))
+        self.assertEqual(32 + PublicKey.SIZE + 16 + 5 * (PrivateKey.SIZE + Signature.SIZE), len(voting_keys_buffer))
 
         reader = BufferReader(voting_keys_buffer)
         self.assertEqual(7, reader.read_int(8))
@@ -66,7 +66,7 @@ class VotingKeysGeneratorTest(unittest.TestCase):
         self.assertEqual(0xFFFFFFFFFFFFFFFF, reader.read_int(8))
         self.assertEqual(0xFFFFFFFFFFFFFFFF, reader.read_int(8))
 
-        self.assertEqual(root_key_pair.public_key, PublicKey(reader.read_bytes(32)))
+        self.assertEqual(root_key_pair.public_key, PublicKey(reader.read_bytes(PublicKey.SIZE)))
         self.assertEqual(7, reader.read_int(8))
         self.assertEqual(11, reader.read_int(8))
 
@@ -79,15 +79,15 @@ class VotingKeysGeneratorTest(unittest.TestCase):
         voting_keys_buffer = voting_keys_generator.generate(7, 11)
 
         # Assert:
-        self.assertEqual(32 + 48 + 5 * 96, len(voting_keys_buffer))
+        self.assertEqual(32 + PublicKey.SIZE + 16 + 5 * (PrivateKey.SIZE + Signature.SIZE), len(voting_keys_buffer))
 
         reader = BufferReader(voting_keys_buffer)
-        reader.read_bytes(32 + 48)  # skip header
+        reader.read_bytes(32 + PublicKey.SIZE + 16)  # skip header
 
         verifier = Verifier(root_key_pair.public_key)
         for i in reversed(range(0, 5)):
-            child_private_key = PrivateKey(reader.read_bytes(32))
-            signature = Signature(reader.read_bytes(64))
+            child_private_key = PrivateKey(reader.read_bytes(PrivateKey.SIZE))
+            signature = Signature(reader.read_bytes(Signature.SIZE))
 
             child_key_pair = KeyPair(child_private_key)
             signed_payload = child_key_pair.public_key.bytes + (7 + i).to_bytes(8, 'little')

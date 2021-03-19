@@ -14,8 +14,8 @@ class Bip32Node():
         """Creates a BIP32 node around a key and data."""
         hmac_result = hmac.new(key, data, hashlib.sha512).digest()
 
-        self.private_key = PrivateKey(hmac_result[0:32])
-        self.chain_code = hmac_result[32:]
+        self.private_key = PrivateKey(hmac_result[0:PrivateKey.SIZE])
+        self.chain_code = hmac_result[PrivateKey.SIZE:]
 
     def derive_one(self, identifier):
         """Derives a direct child node with specified identifier."""

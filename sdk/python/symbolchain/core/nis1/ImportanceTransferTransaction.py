@@ -1,8 +1,6 @@
 from ..CryptoTypes import PublicKey
 from .Transaction import Transaction
 
-REMOTE_ACCOUNT_LENGTH = 32
-
 
 class ImportanceTransferTransaction(Transaction):
     """Represents an importance transfer transaction."""
@@ -27,7 +25,7 @@ class ImportanceTransferTransaction(Transaction):
     def serialize_custom(self, writer):
         writer.write_int(self.mode, 4)
 
-        writer.write_int(REMOTE_ACCOUNT_LENGTH, 4)
+        writer.write_int(PublicKey.SIZE, 4)
         writer.write_bytes(self.remote_account.bytes)
 
     @staticmethod

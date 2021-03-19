@@ -1,5 +1,7 @@
 import sha3
 
+from ..CryptoTypes import Hash256
+
 
 class MerkleHashBuilder:
     """Builder for creating a merkle hash."""
@@ -10,12 +12,12 @@ class MerkleHashBuilder:
 
     def update(self, component_hash):
         """Adds a hash to the merkle hash."""
-        self.hashes.append(component_hash)
+        self.hashes.append(component_hash.bytes)
 
     def final(self):
         """Calculates the merkle hash."""
         if not self.hashes:
-            return bytes([0] * 32)
+            return Hash256.zero()
 
         num_remaining_hashes = len(self.hashes)
         while num_remaining_hashes > 1:
@@ -36,4 +38,4 @@ class MerkleHashBuilder:
 
             num_remaining_hashes //= 2
 
-        return self.hashes[0]
+        return Hash256(self.hashes[0])

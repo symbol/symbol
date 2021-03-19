@@ -91,7 +91,7 @@ class AccountDescriptorRepositoryTest(unittest.TestCase):
 
         # Act + Assert:
         with self.assertRaises(StopIteration):
-            repository.find_by_public_key(PublicKey(NemTestUtils.randbytes(32)))
+            repository.find_by_public_key(NemTestUtils.randcryptotype(PublicKey))
 
     def test_can_find_by_public_key_when_match(self):
         # Arrange:

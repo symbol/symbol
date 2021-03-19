@@ -1,7 +1,7 @@
 import sha3
 from symbol_catbuffer.EntityTypeDto import EntityTypeDto
 
-from ..CryptoTypes import Hash256, PublicKey
+from ..CryptoTypes import Hash256, PublicKey, Signature
 from ..Network import NetworkLocator
 from ..sym.KeyPair import KeyPair, Verifier
 from ..sym.Network import Address, Network
@@ -10,8 +10,8 @@ from ..sym.TransactionFactory import TransactionFactory
 TRANSACTION_HEADER_SIZE = sum(field[1] for field in [
     ('size', 4),
     ('reserved1', 4),
-    ('signature', 64),
-    ('signer', 32),
+    ('signature', Signature.SIZE),
+    ('signer', PublicKey.SIZE),
     ('reserved2', 4)
 ])
 
@@ -19,7 +19,7 @@ AGGREGATE_HASHED_SIZE = sum(field[1] for field in [
     ('version_network_type', 4),
     ('max_fee', 8),
     ('deadline', 8),
-    ('transactions_hash', 32)
+    ('transactions_hash', Hash256.SIZE)
 ])
 
 
