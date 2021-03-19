@@ -15,7 +15,7 @@ MAX_SIGNATURES_PER_QRCODE = 17
 
 def write_random_qrcode(directory, name, data_size):
     # abuse transaction_hash by changing its underlying bytes
-    transaction_hash = Hash256(NemTestUtils.randbytes(32))
+    transaction_hash = NemTestUtils.randcryptotype(Hash256)
     transaction_hash.bytes = NemTestUtils.randbytes(data_size)
     QrSignatureStorage(directory).save(name, transaction_hash, [])
 
@@ -28,8 +28,8 @@ class QrSignatureStorageTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_directory:
             storage = QrSignatureStorage(temp_directory)
 
-            transaction_hash = Hash256(NemTestUtils.randbytes(32))
-            signatures = [Signature(NemTestUtils.randbytes(64)) for _ in range(0, num_signatures)]
+            transaction_hash = NemTestUtils.randcryptotype(Hash256)
+            signatures = [NemTestUtils.randcryptotype(Signature) for _ in range(0, num_signatures)]
 
             # Act:
             storage.save('foo', transaction_hash, signatures)
@@ -55,8 +55,8 @@ class QrSignatureStorageTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_directory:
             storage = QrSignatureStorage(temp_directory)
 
-            transaction_hash = Hash256(NemTestUtils.randbytes(32))
-            signatures = [Signature(NemTestUtils.randbytes(64)) for _ in range(0, MAX_SIGNATURES_PER_QRCODE + 1)]
+            transaction_hash = NemTestUtils.randcryptotype(Hash256)
+            signatures = [NemTestUtils.randcryptotype(Signature) for _ in range(0, MAX_SIGNATURES_PER_QRCODE + 1)]
 
             # Act + Assert:
             with self.assertRaises(qrcode.exceptions.DataOverflowError):
@@ -71,8 +71,8 @@ class QrSignatureStorageTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_directory:
             storage = QrSignatureStorage(temp_directory)
 
-            transaction_hash = Hash256(NemTestUtils.randbytes(32))
-            signatures = [Signature(NemTestUtils.randbytes(64)) for _ in range(0, num_signatures)]
+            transaction_hash = NemTestUtils.randcryptotype(Hash256)
+            signatures = [NemTestUtils.randcryptotype(Signature) for _ in range(0, num_signatures)]
             storage.save('foo', transaction_hash, signatures)
 
             # Act:
@@ -96,7 +96,7 @@ class QrSignatureStorageTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_directory:
             storage = QrSignatureStorage(temp_directory)
 
-            transaction_hash = Hash256(NemTestUtils.randbytes(32))
+            transaction_hash = NemTestUtils.randcryptotype(Hash256)
             storage.save('foo', transaction_hash, [])
 
             # Sanity:
@@ -116,9 +116,9 @@ class QrSignatureStorageTest(unittest.TestCase):
                 storage.load('foo')
 
     def test_cannot_load_qrcode_containing_insufficient_data(self):
-        self._assert_cannot_load_qrcode(31)  # less than transaction_hash
+        self._assert_cannot_load_qrcode(Hash256.SIZE - 1)  # less than transaction_hash
 
     def test_cannot_load_qrcode_containing_partial_signature(self):
-        self._assert_cannot_load_qrcode(32 + 64 * 2 + 32)  # 2.5 signatures
+        self._assert_cannot_load_qrcode(Hash256.SIZE + Signature.SIZE * 2 + Signature.SIZE // 2)  # 2.5 signatures
 
     # endregion

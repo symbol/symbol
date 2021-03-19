@@ -52,7 +52,7 @@ class SymFacadeTest(unittest.TestCase):
         facade = SymFacade('public_test')
         transaction = facade.transaction_factory.create({
             'type': 'transfer',
-            'signerPublicKey': PublicKey(NemTestUtils.randbytes(32))
+            'signerPublicKey': NemTestUtils.randcryptotype(PublicKey)
         })
 
         # Assert:
@@ -135,7 +135,7 @@ class SymFacadeTest(unittest.TestCase):
         transaction = self._create_real_transfer(facade)
 
         # Sanity:
-        self.assertEqual(bytes([0] * 64), transaction.signature)
+        self.assertEqual(Signature.zero().bytes, transaction.signature)
 
         # Act:
         signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
@@ -155,7 +155,7 @@ class SymFacadeTest(unittest.TestCase):
         transaction = self._create_real_aggregate(facade)
 
         # Sanity:
-        self.assertEqual(bytes([0] * 64), transaction.signature)
+        self.assertEqual(Signature.zero().bytes, transaction.signature)
 
         # Act:
         signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)

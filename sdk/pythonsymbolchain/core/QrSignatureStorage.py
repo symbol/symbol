@@ -8,9 +8,6 @@ from pyzbar import pyzbar
 from .BufferWriter import BufferWriter
 from .CryptoTypes import Hash256, Signature
 
-TRANSACTION_HASH_SIZE = 32
-SIGNATURE_SIZE = 64
-
 
 class QrSignatureStorage:
     """Loads and saves signatures as QR codes in a directory."""
@@ -41,15 +38,15 @@ class QrSignatureStorage:
         decoded_buffer = self._qrcode_payload_to_binary(qrcode_payload)
 
         decoded_buffer_size = len(decoded_buffer)
-        if decoded_buffer_size < TRANSACTION_HASH_SIZE or 0 != (decoded_buffer_size - TRANSACTION_HASH_SIZE) % SIGNATURE_SIZE:
+        if decoded_buffer_size < Hash256.SIZE or 0 != (decoded_buffer_size - Hash256.SIZE) % Signature.SIZE:
             raise ValueError('decoded buffer from QR code has unexpected size {}'.format(decoded_buffer_size))
 
-        transaction_hash = Hash256(decoded_buffer[0:TRANSACTION_HASH_SIZE])
+        transaction_hash = Hash256(decoded_buffer[0:Hash256.SIZE])
 
         signatures = []
-        for i in range(0, (decoded_buffer_size - TRANSACTION_HASH_SIZE) // SIGNATURE_SIZE):
-            signature_start = TRANSACTION_HASH_SIZE + i * SIGNATURE_SIZE
-            signatures.append(Signature(decoded_buffer[signature_start:signature_start + SIGNATURE_SIZE]))
+        for i in range(0, (decoded_buffer_size - Hash256.SIZE) // Signature.SIZE):
+            signature_start = Hash256.SIZE + i * Signature.SIZE
+            signatures.append(Signature(decoded_buffer[signature_start:signature_start + Signature.SIZE]))
 
         return (transaction_hash, signatures)
 

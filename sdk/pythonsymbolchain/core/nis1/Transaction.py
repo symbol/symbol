@@ -2,9 +2,8 @@ from abc import abstractmethod
 from binascii import hexlify
 
 from ..BufferWriter import BufferWriter
+from ..CryptoTypes import PublicKey
 from .NetworkTimestamp import NetworkTimestamp
-
-SIGNER_LENGTH = 32
 
 
 class Transaction:
@@ -34,7 +33,7 @@ class Transaction:
         writer.write_int(self.version, 4)
         writer.write_int(self.timestamp, 4)
 
-        writer.write_int(SIGNER_LENGTH, 4)
+        writer.write_int(PublicKey.SIZE, 4)
         writer.write_bytes(self.signer.bytes)
 
         writer.write_int(self.fee, 8)

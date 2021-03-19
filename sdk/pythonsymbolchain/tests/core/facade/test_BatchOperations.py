@@ -137,12 +137,12 @@ class BatchOperationsTest(unittest.TestCase):
 
             # overrwrite second qrcode with the intention to corrupt it
             if corrupt_hash:
-                transaction_hash = Hash256(NemTestUtils.randbytes(32))
+                transaction_hash = NemTestUtils.randcryptotype(Hash256)
             else:
                 transaction_hash = operations.facade.hash_transaction(transactions[1])
 
             if corrupt_signature:
-                signature = Signature(NemTestUtils.randbytes(64))
+                signature = NemTestUtils.randcryptotype(Signature)
             else:
                 signer_account_name = operations.facade.account_descriptor_repository.find_by_public_key(transactions[1].signer).name
                 signer_private_key = private_key_storage.load(signer_account_name)
@@ -183,7 +183,10 @@ class BatchOperationsTest(unittest.TestCase):
             self.assertEqual(2, len(payload_filenames))
             for i, filename in enumerate(['payload_test0.dat', 'payload_test1.dat']):
                 self.assertTrue(filename in payload_filenames)
-                self.assertEqual(os.path.getsize(os.path.join(payload_directory, filename)), len(transactions[i].serialize()) + 64 + 8)
+
+                expected_file_size = len(transactions[i].serialize()) + Signature.SIZE + 8
+                actual_file_size = os.path.getsize(os.path.join(payload_directory, filename))
+                self.assertEqual(expected_file_size, actual_file_size)
 
     # endregion
 

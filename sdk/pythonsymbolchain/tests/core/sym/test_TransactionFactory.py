@@ -9,7 +9,7 @@ from symbolchain.core.sym.TransactionFactory import TransactionFactory
 from symbolchain.tests.test.NemTestUtils import NemTestUtils
 
 FOO_NETWORK = Network('foo', 0x54)
-TEST_SIGNER_PUBLIC_KEY = NemTestUtils.randbytes(32)
+TEST_SIGNER_PUBLIC_KEY = NemTestUtils.randbytes(PublicKey.SIZE)
 
 
 class TransactionFactoryTest(unittest.TestCase):
@@ -98,10 +98,10 @@ class TransactionFactoryTest(unittest.TestCase):
             'type': 'transfer',
             'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
         })
-        signature = Signature(NemTestUtils.randbytes(64))
+        signature = NemTestUtils.randcryptotype(Signature)
 
         # Sanity:
-        self.assertEqual(bytes([0] * 64), transaction.signature)
+        self.assertEqual(Signature.zero().bytes, transaction.signature)
 
         # Act:
         signed_transaction_buffer = factory.attach_signature(transaction, signature)

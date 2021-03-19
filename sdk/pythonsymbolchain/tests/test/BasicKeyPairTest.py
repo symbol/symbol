@@ -104,7 +104,7 @@ class BasicKeyPairTest:
         signature = test_descriptor.key_pair_class(PrivateKey.random()).sign(message)
 
         # Act:
-        is_verified = test_descriptor.verifier_class(PublicKey(NemTestUtils.randbytes(32))).verify(message, signature)
+        is_verified = test_descriptor.verifier_class(NemTestUtils.randcryptotype(PublicKey)).verify(message, signature)
 
         # Assert:
         self.assertFalse(is_verified)
@@ -137,7 +137,7 @@ class BasicKeyPairTest:
         signature = key_pair.sign(message)
 
         verifier = test_descriptor.verifier_class(key_pair.public_key)
-        for i in range(0, 64):
+        for i in range(0, Signature.SIZE):
             mutable_signature = bytearray(signature.bytes)
             mutable_signature[i] ^= 0xFF
 
