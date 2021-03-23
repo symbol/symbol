@@ -41,6 +41,7 @@ jobs:
 
     - stage: alpha package
       name: "Alpha / dev package"
+      if: branch = env(DEV_BRANCH)
       script: echo "deployment"
       deploy:
         on:
