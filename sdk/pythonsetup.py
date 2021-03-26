@@ -4,9 +4,18 @@ with open('README.md', 'r') as readme_file:
     README = readme_file.read()
 
 NAME = 'symbol-sdk-core-python'
-VERSION = '0.2.0a1'
+VERSION = '0.2.0a2'
 
-REQUIRES = []
+REQUIRES = [
+    'catbuffer==0.1.2.20210313.163026a1',
+    'cryptography==3.4.6',
+    'mnemonic==0.19',
+    'Pillow==8.1.1',
+    'pysha3==1.0.2',
+    'PyYAML==5.4.1',
+    'pyzbar==0.1.8',
+    'qrcode==6.1'
+]
 
 setup(
     name=NAME,
