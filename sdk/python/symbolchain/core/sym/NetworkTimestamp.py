@@ -3,7 +3,7 @@ import datetime
 from ..NetworkTimestamp import NetworkTimestamp as BasicNetworkTimestamp
 from ..NetworkTimestamp import NetworkTimestampDatetimeConverter
 
-EPOCH_TIME = datetime.datetime(2021, 3, 14, 0, 6, 25, tzinfo=datetime.timezone.utc)
+EPOCH_TIME = datetime.datetime(2021, 3, 16, 0, 6, 25, tzinfo=datetime.timezone.utc)
 
 
 class NetworkTimestamp(BasicNetworkTimestamp):
