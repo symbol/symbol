@@ -7,8 +7,10 @@ class ImportanceTransferTransaction(Transaction):
     NAME = 'importance-transfer'
     TYPE = 0x0801
 
-    signer: PublicKey
-    remote_account: PublicKey
+    TYPE_HINTS = {
+        'signer': PublicKey,
+        'remote_account': PublicKey
+    }
 
     def __init__(self, network):
         """Creates an importance transfer transaction for the specified network."""

@@ -10,8 +10,10 @@ class TransferTransaction(Transaction):
     NAME = 'transfer'
     TYPE = 0x0101
 
-    signer: PublicKey
-    recipient: Address
+    TYPE_HINTS = {
+        'signer': PublicKey,
+        'recipient': Address
+    }
 
     def __init__(self, network):
         """Creates a transfer transaction for the specified network."""
