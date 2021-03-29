@@ -24,7 +24,7 @@ class TransactionFactory:
         processor = TransactionDescriptorProcessor(transaction_descriptor, self.type_parsing_rules)
         transaction = self._create(processor.lookup_value('type'))
 
-        processor.set_type_hints(type(transaction).__annotations__)  # pylint: disable=no-member
+        processor.set_type_hints(type(transaction).TYPE_HINTS)
         processor.copy_to(transaction, ['type'])
         return transaction
 
