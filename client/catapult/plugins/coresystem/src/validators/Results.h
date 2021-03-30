@@ -94,6 +94,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because main account has too many links of the specified type.
 	DEFINE_CORE_RESULT(Too_Many_Links, 105);
 
+	/// Validation failed because the start epoch is invalid.
+	DEFINE_CORE_RESULT(Link_Start_Epoch_Invalid, 106);
+
 	// endregion
 
 #ifndef CUSTOM_RESULT_DEFINITION

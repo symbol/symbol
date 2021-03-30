@@ -39,6 +39,9 @@ namespace catapult { namespace validators {
 
 	DECLARE_STATELESS_VALIDATOR(VotingKeyLinkRange, Notification)(uint32_t minRange, uint32_t maxRange) {
 		return MAKE_STATELESS_VALIDATOR(VotingKeyLinkRange, ([minRange, maxRange](const Notification& notification) {
+			if (FinalizationEpoch() == notification.LinkedPublicKey.StartEpoch)
+				return Failure_Core_Link_Start_Epoch_Invalid;
+
 			return IsOutsideRange(notification, minRange, maxRange) ? Failure_Core_Invalid_Link_Range : ValidationResult::Success;
 		}));
 	}

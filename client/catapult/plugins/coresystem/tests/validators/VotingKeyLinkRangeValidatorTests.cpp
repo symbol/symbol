@@ -50,6 +50,10 @@ namespace catapult { namespace validators {
 		}
 	}
 
+	TEST(TEST_CLASS, ValidationFailsWhenStartIsZero) {
+		AssertRangeValidatorTest(Failure_Core_Link_Start_Epoch_Invalid, 0, 49);
+	}
+
 	TEST(TEST_CLASS, ValidationFailsWhenStartIsLargerThanEnd) {
 		AssertRangeValidatorTest(Failure_Result, 61, 60);
 	}
