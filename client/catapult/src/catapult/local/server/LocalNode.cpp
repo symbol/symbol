@@ -47,6 +47,10 @@ namespace catapult { namespace local {
 	namespace {
 		// region data directory preparation
 
+		void MakeWriteable(const std::filesystem::path& filepath) {
+			std::filesystem::permissions(filepath, std::filesystem::perms::owner_write, std::filesystem::perm_options::add);
+		}
+
 		void ImportRootFilesFromSeed(const std::string& seedDirectory, const config::CatapultDataDirectory& dataDirectory) {
 			auto begin = std::filesystem::directory_iterator(seedDirectory);
 			auto end = std::filesystem::directory_iterator();
@@ -55,7 +59,11 @@ namespace catapult { namespace local {
 				if (!iter->is_regular_file())
 					continue;
 
-				std::filesystem::copy_file(iter->path(), dataDirectory.rootDir().file(iter->path().filename().generic_string()));
+				auto destinationFilename = dataDirectory.rootDir().file(iter->path().filename().generic_string());
+				std::filesystem::copy_file(iter->path(), destinationFilename);
+
+				if (std::string::npos != destinationFilename.find(".dat"))
+					MakeWriteable(destinationFilename);
 			}
 		}
 
@@ -73,7 +81,9 @@ namespace catapult { namespace local {
 				auto filename = iter->path().filename().generic_string();
 				if (0 != filename.find("00001") || 1 == fileDatabaseBatchSize) {
 					// copy plain file
-					std::filesystem::copy_file(iter->path(), outputDirectory.file(filename));
+					auto destinationFilename = outputDirectory.file(filename);
+					std::filesystem::copy_file(iter->path(), destinationFilename);
+					MakeWriteable(destinationFilename);
 					continue;
 				}
 

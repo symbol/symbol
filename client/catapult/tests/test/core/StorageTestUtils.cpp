@@ -35,6 +35,10 @@ namespace catapult { namespace test {
 	namespace {
 		constexpr auto Source_Directory = "../seed/private-test";
 
+		void MakeReadOnly(const std::filesystem::path& filepath) {
+			std::filesystem::permissions(filepath, std::filesystem::perms::owner_read, std::filesystem::perm_options::replace);
+		}
+
 		void SetIndexHeight(const std::string& destination, uint64_t height) {
 			io::RawFile indexFile(destination + "/index.dat", io::OpenMode::Read_Write);
 			io::Write64(indexFile, height);
@@ -81,6 +85,13 @@ namespace catapult { namespace test {
 
 	void PrepareSeedStorage(const std::string& destination) {
 		PrepareStorage(destination, 1);
+
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(destination)) {
+			if (!entry.is_regular_file())
+				continue;
+
+			MakeReadOnly(entry.path());
+		}
 	}
 
 	void PrepareStorageWithoutNemesis(const std::string& destination) {
@@ -91,6 +102,10 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
+		std::string GetNemesisFilename(const std::string& destination, uint32_t fileDatabaseBatchSize) {
+			return destination + "/00000/0000" + (1 == fileDatabaseBatchSize ? "1.dat" : "0.dat");
+		}
+
 		void ModifyNemesis(
 				const std::string& destination,
 				uint32_t fileDatabaseBatchSize,
@@ -108,7 +123,7 @@ namespace catapult { namespace test {
 
 			// overwrite the nemesis file in destination
 			// (only the block and entity hash need to be rewritten; this works because block size does not change)
-			auto nemesisFilename = destination + "/00000/0000" + (1 == fileDatabaseBatchSize ? "1.dat" : "0.dat");
+			auto nemesisFilename = GetNemesisFilename(destination, fileDatabaseBatchSize);
 			io::RawFile nemesisFile(nemesisFilename, io::OpenMode::Read_Append);
 			if (1 != fileDatabaseBatchSize)
 				nemesisFile.seek(fileDatabaseBatchSize * sizeof(uint64_t));
@@ -123,7 +138,12 @@ namespace catapult { namespace test {
 	}
 
 	void ModifySeedNemesis(const std::string& destination, const consumer<model::Block&, const model::BlockElement&>& modify) {
+		auto nemesisFilename = GetNemesisFilename(destination, 1);
+		std::filesystem::permissions(nemesisFilename, std::filesystem::perms::owner_write, std::filesystem::perm_options::add);
+
 		ModifyNemesis(destination, 1, modify);
+
+		MakeReadOnly(nemesisFilename);
 	}
 
 	void FakeHeight(const std::string& destination, uint64_t height) {
