@@ -9,8 +9,6 @@ from ..Network import Network as BasicNetwork
 class Address(ByteArray):
     """Represents a nis address."""
 
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, address):
         """Creates an address from a decoded or encoded address."""
         raw_bytes = address

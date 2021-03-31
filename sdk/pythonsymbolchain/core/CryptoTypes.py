@@ -6,8 +6,6 @@ from .ByteArray import ByteArray
 class Hash256(ByteArray):
     """Represents a 256-bit hash."""
 
-    # pylint: disable=too-few-public-methods
-
     SIZE = 32
 
     def __init__(self, hash256):
@@ -22,8 +20,6 @@ class Hash256(ByteArray):
 
 class PrivateKey(ByteArray):
     """Represents a private key."""
-
-    # pylint: disable=too-few-public-methods
 
     SIZE = 32
 
@@ -40,8 +36,6 @@ class PrivateKey(ByteArray):
 class PublicKey(ByteArray):
     """Represents a public key."""
 
-    # pylint: disable=too-few-public-methods
-
     SIZE = 32
 
     def __init__(self, public_key):
@@ -51,8 +45,6 @@ class PublicKey(ByteArray):
 
 class Signature(ByteArray):
     """Represents a signature."""
-
-    # pylint: disable=too-few-public-methods
 
     SIZE = 64
 

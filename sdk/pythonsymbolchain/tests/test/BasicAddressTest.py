@@ -2,8 +2,6 @@ from abc import abstractmethod
 
 
 class AddressTestDescriptor:
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, address_class, encoded_address, decoded_address):
         self.address_class = address_class
         self.encoded_address = encoded_address

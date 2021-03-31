@@ -4,8 +4,6 @@ import yaml
 class NodeDescriptor:
     """Represents a node."""
 
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, descriptor_yaml):
         """Creates a descriptor from a yaml container."""
         self.host = descriptor_yaml.get('host')

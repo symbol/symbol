@@ -6,8 +6,6 @@ from .KeyPair import KeyPair
 class VotingKeysGenerator:
     """Generates symbol voting keys."""
 
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, root_key_pair, private_key_generator=PrivateKey.random):
         """Creates a generator around a voting root key pair."""
         self.root_key_pair = root_key_pair

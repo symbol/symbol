@@ -11,8 +11,6 @@ from symbolchain.core.Network import NetworkLocator
 
 
 class ClassLocator:
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, facade_class, network_class, address_class):
         self.facade_class = facade_class
         self.key_pair_class = self.facade_class.KeyPair
@@ -26,8 +24,6 @@ class ClassLocator:
 
 
 class VectorsTestSuite:
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, identifier, filename, description):
         self.identifier = identifier
         self._filename = filename
