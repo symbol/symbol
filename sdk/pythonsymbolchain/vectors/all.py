@@ -30,12 +30,12 @@ class VectorsTestSuite:
 
     def __init__(self, identifier, filename, description):
         self.identifier = identifier
-        self.__filename = filename
+        self._filename = filename
         self.description = description
 
     @property
     def filename(self):
-        return '{}.{}'.format(self.identifier, self.__filename)
+        return '{}.{}'.format(self.identifier, self._filename)
 
 
 class KeyConversionTester(VectorsTestSuite):

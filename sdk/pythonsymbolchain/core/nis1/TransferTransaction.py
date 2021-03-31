@@ -21,7 +21,7 @@ class TransferTransaction(Transaction):
 
         self.recipient = None
         self.amount = 0
-        self.__message = None
+        self._message = None
 
     @property
     def fee(self):
@@ -36,15 +36,15 @@ class TransferTransaction(Transaction):
     @property
     def message(self):
         """Gets the message."""
-        return self.__message
+        return self._message
 
     @message.setter
     def message(self, value):
         """Sets the message."""
         if isinstance(value, str):
-            self.__message = value.encode('utf8')
+            self._message = value.encode('utf8')
         else:
-            self.__message = bytes(value)
+            self._message = bytes(value)
 
     def serialize_custom(self, writer):
         writer.write_int(RECIPIENT_LENGTH, 4)
