@@ -2,8 +2,6 @@ from abc import abstractmethod
 
 
 class NetworkTestDescriptor:
-    # pylint: disable=too-few-public-methods
-
     def __init__(
             self,
             network_class,

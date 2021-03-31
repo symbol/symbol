@@ -2,8 +2,6 @@ from abc import abstractmethod
 
 
 class NisTransactionTestDescriptor:
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, transaction_class, transaction_name, transaction_type, network):
         self.transaction_class = transaction_class
         self.transaction_name = transaction_name

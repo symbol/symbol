@@ -5,8 +5,6 @@ CUSTOM_EPOCH_TIME = datetime.datetime(2021, 1, 1, 0, 0, 0, tzinfo=datetime.timez
 
 
 class NetworkTimestampTestDescriptor:
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, network_timestamp_class, epoch, time_units):
         self.network_timestamp_class = network_timestamp_class
         self.epoch = epoch

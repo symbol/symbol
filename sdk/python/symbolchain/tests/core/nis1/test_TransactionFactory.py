@@ -10,8 +10,6 @@ FOO_NETWORK = Network('foo', 0x54)
 
 
 class MockTransaction:
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, buffer):
         self.buffer = buffer
 

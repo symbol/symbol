@@ -6,8 +6,6 @@ from .CryptoTypes import PublicKey
 class AccountDescriptor:
     """Represents an account."""
 
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, descriptor_yaml):
         """Creates a descriptor from a yaml container."""
         self.public_key = descriptor_yaml.get('public_key')

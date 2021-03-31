@@ -28,8 +28,6 @@ YAML_INPUT = '''
 
 # NIS style address to avoid circular import
 class MockAddress(ByteArray):
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, address):
         super().__init__(25, base64.b32decode(address), MockAddress)
 

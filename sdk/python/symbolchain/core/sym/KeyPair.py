@@ -33,8 +33,6 @@ class KeyPair:
 class Verifier:
     """Verifies signatures signed by a single key pair."""
 
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, public_key):
         """Creates a verifier from a public key."""
         self._pk = ed25519.Ed25519PublicKey.from_public_bytes(public_key.bytes)

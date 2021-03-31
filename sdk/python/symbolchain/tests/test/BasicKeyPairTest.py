@@ -6,8 +6,6 @@ from .NemTestUtils import NemTestUtils
 
 
 class KeyPairTestDescriptor:
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, key_pair_class, verifier_class, deterministic_private_key, expected_public_key):
         self.key_pair_class = key_pair_class
         self.verifier_class = verifier_class

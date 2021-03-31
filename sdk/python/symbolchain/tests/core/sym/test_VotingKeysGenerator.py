@@ -15,8 +15,6 @@ class VotingKeysGeneratorTest(unittest.TestCase):
     # region private key generators
 
     class SeededPrivateKeyGenerator:
-        # pylint: disable=too-few-public-methods
-
         def __init__(self, values):
             self.values = values
             self.next_index = 0
@@ -26,8 +24,6 @@ class VotingKeysGeneratorTest(unittest.TestCase):
             return self.values[self.next_index - 1]
 
     class FibPrivateKeyGenerator:
-        # pylint: disable=too-few-public-methods
-
         def __init__(self, fill_private_key=False):
             self.fill_private_key = fill_private_key
             self.value1 = 1
