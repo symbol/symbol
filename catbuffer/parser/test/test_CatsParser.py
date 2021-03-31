@@ -1,5 +1,3 @@
-# pylint: disable=invalid-name
-# pylint: disable=too-many-public-methods
 import unittest
 
 from catparser.CatsParser import CatsParseException, CatsParser
@@ -32,6 +30,8 @@ def int_descriptor(size, explicit_type=True):
 
 
 class CatsParserTests(unittest.TestCase):
+    # pylint: disable=too-many-public-methods
+
     # region utils
 
     def _assert_parse_delayed_exception(self, lines):

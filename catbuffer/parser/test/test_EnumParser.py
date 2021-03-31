@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 import unittest
 from test.constants import (INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES, PRIMITIVE_TYPE_TUPLES, VALID_PROPERTY_NAMES,
                             VALID_USER_TYPE_NAMES)

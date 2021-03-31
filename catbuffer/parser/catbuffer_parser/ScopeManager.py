@@ -1,4 +1,3 @@
-# pylint: disable=too-few-public-methods
 from .CatsParseException import CatsParseException
 
 
