@@ -10,24 +10,24 @@ class KeyPair:
 
     def __init__(self, private_key):
         """Creates a key pair from a private key."""
-        self.__sk = ed25519.Ed25519PrivateKey.from_private_bytes(private_key.bytes)
+        self._sk = ed25519.Ed25519PrivateKey.from_private_bytes(private_key.bytes)
 
     @property
     def public_key(self):
         """Gets the public key."""
-        return PublicKey(self.__sk.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw))
+        return PublicKey(self._sk.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw))
 
     @property
     def private_key(self):
         """Gets the private key."""
-        return PrivateKey(self.__sk.private_bytes(
+        return PrivateKey(self._sk.private_bytes(
                 encoding=serialization.Encoding.Raw,
                 format=serialization.PrivateFormat.Raw,
                 encryption_algorithm=serialization.NoEncryption()))
 
     def sign(self, message):
         """Signs a message with the private key."""
-        return Signature(self.__sk.sign(message))
+        return Signature(self._sk.sign(message))
 
 
 class Verifier:
@@ -37,12 +37,12 @@ class Verifier:
 
     def __init__(self, public_key):
         """Creates a verifier from a public key."""
-        self.__pk = ed25519.Ed25519PublicKey.from_public_bytes(public_key.bytes)
+        self._pk = ed25519.Ed25519PublicKey.from_public_bytes(public_key.bytes)
 
     def verify(self, message, signature):
         """Verifies a message signature."""
         try:
-            self.__pk.verify(signature.bytes, message)
+            self._pk.verify(signature.bytes, message)
             return True
         except InvalidSignature:
             return False
