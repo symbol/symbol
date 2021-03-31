@@ -1,4 +1,5 @@
 import re
+
 from .CatsParseException import CatsParseException
 
 REGEXES = {

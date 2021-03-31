@@ -1,1 +1,4 @@
-pyyaml>=4.2b1
+isort==5.7.0
+pycodestyle==2.6.0
+pylint==2.7.2
+pylint-quotes==0.2.1

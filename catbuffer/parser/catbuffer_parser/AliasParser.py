@@ -1,6 +1,6 @@
 # pylint: disable=too-few-public-methods
-from .RegexParserFactory import RegexParserFactory
 from .parserutils import parse_builtin, require_user_type_name
+from .RegexParserFactory import RegexParserFactory
 
 
 class AliasParser:

@@ -2,6 +2,7 @@
 import argparse
 import os
 import pprint
+
 from catparser.CatsParser import CatsParser
 
 try:
@@ -54,7 +55,7 @@ def _generate_output(generator_name, output_path, schema, options):
                 output_file.write('%s\n' % line)
 
 
-def generate():
+def main():
     parser = argparse.ArgumentParser(description='CATS code generator')
     parser.add_argument('-s', '--schema', help='input CATS file', required=True)
     parser.add_argument('-o', '--output', help='output directory, if not provided, _generated/{generator} is used')
@@ -85,4 +86,5 @@ def generate():
         _generate_output(args.generator, output_path, type_descriptors, {'copyright': args.copyright})
 
 
-generate()
+if '__main__' == __name__:
+    main()

@@ -1,7 +1,8 @@
 # pylint: disable=invalid-name
 import unittest
-from catparser.ScopeManager import ScopeManager
+
 from catparser.CatsParseException import CatsParseException
+from catparser.ScopeManager import ScopeManager
 
 
 class ScopeManagerTest(unittest.TestCase):

@@ -1,13 +1,12 @@
 # pylint: disable=too-few-public-methods
 from .CatsParseException import CatsParseException
 from .CompositeTypeParser import CompositeTypeParser
+from .parserutils import (is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex, require_property_name,
+                          require_user_type_name)
 from .RegexParserFactory import RegexParserFactory
-from .parserutils import \
-    is_builtin, is_dec_or_hex, is_primitive, \
-    parse_builtin, parse_dec_or_hex, require_property_name, require_user_type_name
-
 
 # region StructParser(Factory)
+
 
 class StructParser(CompositeTypeParser):
     """Parser for `struct` statements"""

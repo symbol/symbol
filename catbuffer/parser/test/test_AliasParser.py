@@ -1,7 +1,8 @@
 # pylint: disable=invalid-name
 import unittest
-from test.constants import BUILTIN_TYPE_TUPLES, VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES
-from test.ParserTestUtils import SingleLineParserTestUtils, ParserFactoryTestUtils
+from test.constants import BUILTIN_TYPE_TUPLES, INVALID_USER_TYPE_NAMES, VALID_USER_TYPE_NAMES
+from test.ParserTestUtils import ParserFactoryTestUtils, SingleLineParserTestUtils
+
 from catparser.AliasParser import AliasParserFactory
 
 

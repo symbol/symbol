@@ -1,11 +1,27 @@
 language: python
+
 python:
-  - "3.6"
+  - 3.6
 
-install: pip install pycodestyle pylint pylint-quotes pyyaml
+cache: pip
 
-script:
-  - pylint --load-plugins pylint_quotes main.py catparser test
-  - pycodestyle --config=.pycodestyle .
-  - python3 -m unittest discover -v
-  - bash ./scripts/generate_all.sh
+install:
+  - pip install -r requirements.txt
+
+jobs:
+  include:
+    - stage: lint
+      script:
+        - isort --check-only --line-length 140 main.py catparser test
+        - pycodestyle --config=.pycodestyle -- main.py catparser test
+        - pylint --load-plugins pylint_quotes -- main.py catparser test
+
+    - stage: test
+      name: "unit tests"
+      script:
+        - python3 -m unittest discover -v
+
+    - stage: test
+      name: "generate all"
+      script:
+        - bash ./scripts/generate_all.sh

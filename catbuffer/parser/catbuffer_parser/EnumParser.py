@@ -1,8 +1,8 @@
 # pylint: disable=too-few-public-methods
 from .CatsParseException import CatsParseException
 from .CompositeTypeParser import CompositeTypeParser
+from .parserutils import parse_builtin, parse_dec_or_hex, require_primitive, require_property_name, require_user_type_name
 from .RegexParserFactory import RegexParserFactory
-from .parserutils import parse_dec_or_hex, parse_builtin, require_property_name, require_user_type_name, require_primitive
 
 
 class EnumParser(CompositeTypeParser):

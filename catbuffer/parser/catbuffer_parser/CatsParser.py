@@ -1,4 +1,5 @@
 from collections import OrderedDict
+
 from .AliasParser import AliasParserFactory
 from .CatsParseException import CatsParseException
 from .CommentParser import CommentParser
