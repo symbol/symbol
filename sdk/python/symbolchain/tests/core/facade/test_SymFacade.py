@@ -167,6 +167,29 @@ class SymFacadeTest(unittest.TestCase):
         ]))
         self.assertEqual(expected_signature, signature)
 
+    def _assert_can_verify_transaction(self, transaction_factory):
+        # Arrange:
+        private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+
+        transaction = transaction_factory(facade)
+
+        # Sanity:
+        self.assertEqual(Signature.zero().bytes, transaction.signature)
+
+        # Act:
+        signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
+        is_verified = facade.verify_transaction(transaction, signature)
+
+        # Assert:
+        self.assertTrue(is_verified)
+
+    def test_can_verify_transaction(self):
+        self._assert_can_verify_transaction(self._create_real_transfer)
+
+    def test_can_verify_aggregate_transaction(self):
+        self._assert_can_verify_transaction(self._create_real_aggregate)
+
     # endregion
 
     # region bip32_node_to_key_pair

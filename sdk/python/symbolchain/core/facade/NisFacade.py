@@ -47,6 +47,11 @@ class NisFacade:
         return key_pair.sign(transaction.serialize())
 
     @staticmethod
+    def verify_transaction(transaction, signature):
+        """Verifies a nis transaction."""
+        return Verifier(transaction.signer_public_key).verify(transaction.serialize(), signature)
+
+    @staticmethod
     def bip32_node_to_key_pair(bip32_node):
         """Derives a nis KeyPair from a BIP32 node."""
         # BIP32 private keys should be used as is, so reverse here to counteract reverse in KeyPair
