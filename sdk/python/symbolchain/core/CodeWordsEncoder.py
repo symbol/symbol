@@ -1,3 +1,6 @@
+from mnemonic import Mnemonic
+
+
 class CodeWords:
     """Represents a group of words that encode some binary data."""
 
@@ -15,8 +18,8 @@ class CodeWords:
 class CodeWordsEncoder:
     """Encodes and decodes values using wordlists."""
 
-    def __init__(self, wordlist):
-        self.wordlist = wordlist
+    def __init__(self, wordlist='english'):
+        self.wordlist = wordlist if not isinstance(wordlist, str) else Mnemonic(wordlist).wordlist
         self.wordlist_size = len(self.wordlist)
 
         if self.wordlist_size < 2:
