@@ -2,6 +2,8 @@ import os
 
 import yaml
 
+from ..CryptoTypes import PublicKey
+
 
 class BatchOperations:
     """Provides facade-based batch operations."""
@@ -26,7 +28,9 @@ class BatchOperations:
         ]
 
     def _sign_one(self, transaction, private_key_storage, signature_storage, output_filename):
-        signer_account_name = self.facade.account_descriptor_repository.find_by_public_key(transaction.signer_public_key).name
+        # in symbol models, signer_public_key is bytes and needs to be wrapped
+        signer_public_key = PublicKey(transaction.signer_public_key)
+        signer_account_name = self.facade.account_descriptor_repository.find_by_public_key(signer_public_key).name
         signer_private_key = private_key_storage.load(signer_account_name)
 
         signature = self.facade.sign_transaction(self.facade.KeyPair(signer_private_key), transaction)
@@ -50,7 +54,7 @@ class BatchOperations:
             if signed_transaction_hash != transaction_hash:
                 raise self.PrepareError('transaction hash at {} does not match signed transaction hash'.format(i))
 
-            if not self.facade.Verifier(transaction.signer_public_key).verify(transaction.serialize(), signatures[0]):
+            if not self.facade.verify_transaction(transaction, signatures[0]):
                 raise self.PrepareError('transaction signature at {} does not verify'.format(i))
 
         for i, transaction in enumerate(transactions):

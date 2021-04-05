@@ -103,6 +103,18 @@ class NisFacadeTest(unittest.TestCase):
         ]))
         self.assertEqual(expected_signature, signature)
 
+    def test_can_verify_transaction(self):
+        # Arrange:
+        private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
+        transaction = self._create_real_transfer()
+
+        # Act:
+        signature = NisFacade.sign_transaction(NisFacade.KeyPair(private_key), transaction)
+        is_verified = NisFacade.verify_transaction(transaction, signature)
+
+        # Assert:
+        self.assertTrue(is_verified)
+
     # endregion
 
     # region bip32_node_to_key_pair

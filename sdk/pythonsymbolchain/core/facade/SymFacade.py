@@ -74,6 +74,12 @@ class SymFacade:
         sign_buffer += self._transaction_data_buffer(transaction.serialize())
         return key_pair.sign(sign_buffer)
 
+    def verify_transaction(self, transaction, signature):
+        """Verifies a symbol transaction."""
+        verify_buffer = self.network.generation_hash_seed.bytes
+        verify_buffer += self._transaction_data_buffer(transaction.serialize())
+        return Verifier(PublicKey(transaction.signer_public_key)).verify(verify_buffer, signature)
+
     @staticmethod
     def bip32_node_to_key_pair(bip32_node):
         """Derives a symbol KeyPair from a BIP32 node."""
