@@ -1,5 +1,7 @@
 import unittest
 
+import yaml
+
 from symbolchain.core.NodeDescriptorRepository import NodeDescriptorRepository
 
 YAML_INPUT = '''
@@ -17,12 +19,21 @@ YAML_INPUT = '''
 
 
 class NodeDescriptorRepositoryTest(unittest.TestCase):
-    def test_can_load_descriptors_file(self):
+    def test_can_load_descriptors_yaml(self):
         # Arrange:
         repository = NodeDescriptorRepository(YAML_INPUT)
 
         # Assert:
         self.assertEqual(4, len(repository.descriptors))
+        self.assertEqual(['ALICE', 'bob', 'charlie', 'mercury'], [descriptor.host for descriptor in repository.descriptors])
+
+    def test_can_load_descriptors_list(self):
+        # Arrange:
+        repository = NodeDescriptorRepository(yaml.load(YAML_INPUT, Loader=yaml.SafeLoader))
+
+        # Assert:
+        self.assertEqual(4, len(repository.descriptors))
+        self.assertEqual(['ALICE', 'bob', 'charlie', 'mercury'], [descriptor.host for descriptor in repository.descriptors])
 
     def _assert_can_find_all_by_role(self, role, expected_match_hosts):
         # Arrange:

@@ -1,6 +1,8 @@
 import base64
 import unittest
 
+import yaml
+
 from symbolchain.core.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.core.ByteArray import ByteArray
 from symbolchain.core.CryptoTypes import PublicKey
@@ -35,12 +37,21 @@ class MockAddress(ByteArray):
 class AccountDescriptorRepositoryTest(unittest.TestCase):
     # region load and find
 
-    def test_can_load_descriptors_file(self):
+    def test_can_load_descriptors_yaml(self):
         # Arrange:
         repository = AccountDescriptorRepository(YAML_INPUT)
 
         # Assert:
         self.assertEqual(4, len(repository.descriptors))
+        self.assertEqual(['alice', 'TEST1', 'BOB', 'charlie'], [descriptor.name for descriptor in repository.descriptors])
+
+    def test_can_load_descriptors_list(self):
+        # Arrange:
+        repository = AccountDescriptorRepository(yaml.load(YAML_INPUT, Loader=yaml.SafeLoader))
+
+        # Assert:
+        self.assertEqual(4, len(repository.descriptors))
+        self.assertEqual(['alice', 'TEST1', 'BOB', 'charlie'], [descriptor.name for descriptor in repository.descriptors])
 
     def test_cannot_find_by_name_when_no_match(self):
         # Arrange:

@@ -4,7 +4,7 @@ with open('README.md', 'r') as readme_file:
     README = readme_file.read()
 
 NAME = 'symbol-sdk-core-python'
-VERSION = '0.2.0a3'
+VERSION = '0.2.0a4'
 
 REQUIRES = [
     'catbuffer==0.1.2.20210313.163026a1',
