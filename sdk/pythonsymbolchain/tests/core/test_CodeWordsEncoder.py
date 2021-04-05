@@ -50,6 +50,24 @@ class CodeWordsEncoderTest(unittest.TestCase):
         self.assertEqual(CodeWords(['O', 'X', 'O', 'X']), code_words)
         self.assertEqual(10, value)
 
+    def _assert_can_create_encoder_with_bip_wordlist(self, encoder, expected_words):
+        # Arrange:
+        value_to_encode = 3 + 1712 * 2048 + 350 * 2048 * 2048
+
+        # Act:
+        code_words = encoder.encode_int(value_to_encode)
+        value = encoder.decode_int(code_words)
+
+        # Assert:
+        self.assertEqual(CodeWords(expected_words), code_words)
+        self.assertEqual(value_to_encode, value)
+
+    def test_can_create_encoder_with_default_bip_wordlist(self):
+        self._assert_can_create_encoder_with_bip_wordlist(CodeWordsEncoder(), ['about', 'stock', 'cloth'])
+
+    def test_can_create_encoder_with_custom_bip_wordlist(self):
+        self._assert_can_create_encoder_with_bip_wordlist(CodeWordsEncoder('spanish'), ['abierto', 'ser', 'carro'])
+
     # endregion
 
     # region encode_int
