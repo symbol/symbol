@@ -19,15 +19,15 @@ class TransactionFactory:
 
     def _create(self, transaction_descriptor, factory_class):
         processor = TransactionDescriptorProcessor(transaction_descriptor, self.type_parsing_rules)
-        processor.set_type_hints({'signerPublicKey': PublicKey})
+        processor.set_type_hints({'signer_public_key': PublicKey})
 
         transaction = factory_class.createByName(
             processor.lookup_value('type'),
-            processor.lookup_value('signerPublicKey'),
+            processor.lookup_value('signer_public_key'),
             NetworkTypeDto(self.network.identifier))
 
         processor.set_type_hints(self._build_type_hints_map(transaction))
-        processor.copy_to(transaction, ['type', 'signerPublicKey'])
+        processor.copy_to(transaction, ['type', 'signer_public_key'])
         return transaction
 
     def create(self, transaction_descriptor):

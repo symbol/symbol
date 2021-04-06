@@ -27,12 +27,12 @@ class TransactionFactoryTest(unittest.TestCase):
         # Act:
         transaction = create_function_accessor(factory)({
             'type': transaction_type,
-            'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
+            'signer_public_key': TEST_SIGNER_PUBLIC_KEY
         })
 
         # Assert:
         self._assert_transfer(transaction)
-        self.assertEqual(TEST_SIGNER_PUBLIC_KEY, transaction.signerPublicKey)
+        self.assertEqual(TEST_SIGNER_PUBLIC_KEY, transaction.signer_public_key)
 
     def test_can_create_known_transaction_from_descriptor(self):
         self._assert_can_create_known_transaction_from_descriptor('transfer', lambda factory: factory.create)
@@ -48,7 +48,7 @@ class TransactionFactoryTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             create_function_accessor(factory)({
                 'type': transaction_type,
-                'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
+                'signer_public_key': TEST_SIGNER_PUBLIC_KEY
             })
 
     def test_cannot_create_unknown_transaction_from_descriptor(self):
@@ -67,17 +67,17 @@ class TransactionFactoryTest(unittest.TestCase):
         # Act:
         transaction = create_function_accessor(factory)({
             'type': transaction_type,
-            'signerPublicKey': 'signer_name',
-            'recipientAddress': 'recipient_name',
+            'signer_public_key': 'signer_name',
+            'recipient_address': 'recipient_name',
             'message': 'hello world',
             'mosaics': [(0x12345678ABCDEF, 12345)]
         })
 
         # Assert:
         self._assert_transfer(transaction)
-        self.assertEqual('signer_name PUBLICKEY', transaction.signerPublicKey)
+        self.assertEqual('signer_name PUBLICKEY', transaction.signer_public_key)
 
-        self.assertEqual('recipient_name ADDRESS', transaction.recipientAddress)
+        self.assertEqual('recipient_name ADDRESS', transaction.recipient_address)
         self.assertEqual('hello world', transaction.message)
         self.assertEqual([(0x12345678ABCDEF, 12345)], transaction.mosaics)
 
@@ -96,7 +96,7 @@ class TransactionFactoryTest(unittest.TestCase):
         factory = TransactionFactory(Network.PUBLIC_TEST)
         transaction = factory.create({
             'type': 'transfer',
-            'signerPublicKey': TEST_SIGNER_PUBLIC_KEY
+            'signer_public_key': TEST_SIGNER_PUBLIC_KEY
         })
         signature = NemTestUtils.randcryptotype(Signature)
 
@@ -108,7 +108,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Assert:
         self._assert_transfer(transaction)
-        self.assertEqual(TEST_SIGNER_PUBLIC_KEY, transaction.signerPublicKey)
+        self.assertEqual(TEST_SIGNER_PUBLIC_KEY, transaction.signer_public_key)
 
         self.assertEqual(signature.bytes, transaction.signature)
 
