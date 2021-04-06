@@ -28,11 +28,11 @@ jobs:
         - pylint --load-plugins pylint_quotes -- symbolchain/core symbolchain/tests symbolchain/vectors examples
 
     - stage: test
-      name: "Unit tests"
+      name: unit tests
       script:
         - python3 -m unittest discover -v symbolchain.tests
 
-    - name: "Test vectors"
+    - name: test vectors
       if: branch = env(DEV_BRANCH) OR branch = env(RELEASE_BRANCH)
       script:
         - git clone --depth=1 --branch=main https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
@@ -43,10 +43,11 @@ jobs:
       script:
        - PYTHONPATH=. python examples/bip32_keypair.py
        - PYTHONPATH=. python examples/transaction_aggregate.py --private examples/resources/zero.sha256.txt
+       - PYTHONPATH=. python examples/transaction_multisig.py
        - PYTHONPATH=. python examples/transaction_sign.py
 
     - stage: alpha package
-      name: "Alpha / dev package"
+      name: alpha / dev package
       if: branch = env(DEV_BRANCH)
       script: echo "deployment"
       deploy:
@@ -55,4 +56,4 @@ jobs:
         provider: pypi
         username: $PYPI_USER
         password: $PYPI_PASS
-        distributions: 'sdist bdist_wheel'
+        distributions: sdist bdist_wheel

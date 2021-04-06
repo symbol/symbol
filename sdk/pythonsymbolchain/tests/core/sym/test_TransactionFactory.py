@@ -1,6 +1,9 @@
 import unittest
 from binascii import hexlify
 
+from symbol_catbuffer.AccountRestrictionFlagsDto import AccountRestrictionFlagsDto
+from symbol_catbuffer.EntityTypeDto import EntityTypeDto
+from symbol_catbuffer.MosaicRestrictionTypeDto import MosaicRestrictionTypeDto
 from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
 
 from symbolchain.core.CryptoTypes import PublicKey, Signature
@@ -20,13 +23,13 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual(1, transaction.version)
         self.assertEqual(NetworkTypeDto.PUBLIC_TEST, transaction.network)
 
-    def _assert_can_create_known_transaction_from_descriptor(self, transaction_type, create_function_accessor):
+    def _assert_can_create_known_transaction_from_descriptor(self, create_function_accessor):
         # Arrange:
         factory = TransactionFactory(Network.PUBLIC_TEST)
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': transaction_type,
+            'type': 'transfer',
             'signer_public_key': TEST_SIGNER_PUBLIC_KEY
         })
 
@@ -35,29 +38,29 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual(TEST_SIGNER_PUBLIC_KEY, transaction.signer_public_key)
 
     def test_can_create_known_transaction_from_descriptor(self):
-        self._assert_can_create_known_transaction_from_descriptor('transfer', lambda factory: factory.create)
+        self._assert_can_create_known_transaction_from_descriptor(lambda factory: factory.create)
 
     def test_can_create_known_transaction_from_descriptor_embedded(self):
-        self._assert_can_create_known_transaction_from_descriptor('embeddedTransfer', lambda factory: factory.create_embedded)
+        self._assert_can_create_known_transaction_from_descriptor(lambda factory: factory.create_embedded)
 
-    def _assert_cannot_create_unknown_transaction_from_descriptor(self, transaction_type, create_function_accessor):
+    def _assert_cannot_create_unknown_transaction_from_descriptor(self, create_function_accessor):
         # Arrange:
         factory = TransactionFactory(Network.PUBLIC_TEST)
 
         # Act + Assert:
         with self.assertRaises(ValueError):
             create_function_accessor(factory)({
-                'type': transaction_type,
+                'type': 'xtransfer',
                 'signer_public_key': TEST_SIGNER_PUBLIC_KEY
             })
 
     def test_cannot_create_unknown_transaction_from_descriptor(self):
-        self._assert_cannot_create_unknown_transaction_from_descriptor('embeddedTransfer', lambda factory: factory.create)
+        self._assert_cannot_create_unknown_transaction_from_descriptor(lambda factory: factory.create)
 
     def test_cannot_create_unknown_transaction_from_descriptor_embedded(self):
-        self._assert_cannot_create_unknown_transaction_from_descriptor('transfer', lambda factory: factory.create_embedded)
+        self._assert_cannot_create_unknown_transaction_from_descriptor(lambda factory: factory.create_embedded)
 
-    def _assert_can_create_known_transaction_with_multiple_overrides(self, transaction_type, create_function_accessor):
+    def _assert_can_create_known_transaction_with_multiple_overrides(self, create_function_accessor):
         # Arrange:
         factory = TransactionFactory(Network.PUBLIC_TEST, {
             Address: lambda address: address + ' ADDRESS',
@@ -66,7 +69,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': transaction_type,
+            'type': 'transfer',
             'signer_public_key': 'signer_name',
             'recipient_address': 'recipient_name',
             'message': 'hello world',
@@ -82,10 +85,90 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual([(0x12345678ABCDEF, 12345)], transaction.mosaics)
 
     def test_can_create_known_transaction_with_multiple_overrides(self):
-        self._assert_can_create_known_transaction_with_multiple_overrides('transfer', lambda factory: factory.create)
+        self._assert_can_create_known_transaction_with_multiple_overrides(lambda factory: factory.create)
 
-    def test_can_create_known_transaction_with_multiple_overridesembedded(self):
-        self._assert_can_create_known_transaction_with_multiple_overrides('embeddedTransfer', lambda factory: factory.create_embedded)
+    def test_can_create_known_transaction_with_multiple_overrides_embedded(self):
+        self._assert_can_create_known_transaction_with_multiple_overrides(lambda factory: factory.create_embedded)
+
+    # endregion
+
+    # region flags and enums handling
+
+    def _assert_can_create_transaction_with_default_flags_handling(self, create_function_accessor):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST)
+
+        # Act:
+        transaction = create_function_accessor(factory)({
+            'type': 'accountAddressRestriction',
+            'signer_public_key': 'signer_name',
+            'restriction_flags': 'address mosaic_id transaction_type outgoing block'
+        })
+
+        # Assert:
+        Flags = AccountRestrictionFlagsDto
+        self.assertEqual(
+            [Flags.ADDRESS, Flags.MOSAIC_ID, Flags.TRANSACTION_TYPE, Flags.OUTGOING, Flags.BLOCK],
+            transaction.restriction_flags)
+
+    def test_can_create_transaction_with_default_flags_handling(self):
+        self._assert_can_create_transaction_with_default_flags_handling(lambda factory: factory.create)
+
+    def test_can_create_transaction_with_default_flags_handling_embedded(self):
+        self._assert_can_create_transaction_with_default_flags_handling(lambda factory: factory.create_embedded)
+
+    def _assert_can_create_transaction_with_default_enum_handling(self, create_function_accessor):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST)
+
+        # Act:
+        transaction = create_function_accessor(factory)({
+            'type': 'mosaicGlobalRestriction',
+            'signer_public_key': 'signer_name',
+            'mosaic_id': 0x12345,
+            'previous_restriction_type': 'le',
+            'new_restriction_type': 'gt'
+        })
+
+        # Assert:
+        self.assertEqual(MosaicRestrictionTypeDto.LE, transaction.previous_restriction_type)
+        self.assertEqual(MosaicRestrictionTypeDto.GT, transaction.new_restriction_type)
+
+    def test_can_create_transaction_with_default_enum_handling(self):
+        self._assert_can_create_transaction_with_default_enum_handling(lambda factory: factory.create)
+
+    def test_can_create_transaction_with_default_enum_handling_embedded(self):
+        self._assert_can_create_transaction_with_default_enum_handling(lambda factory: factory.create_embedded)
+
+    def _assert_can_create_transaction_with_default_enum_array_handling(self, create_function_accessor):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST)
+
+        # Act:
+        transaction = create_function_accessor(factory)({
+            'type': 'accountOperationRestriction',
+            'signer_public_key': 'signer_name',
+            'restriction_additions': [
+                'transfer_transaction',
+                'account_key_link_transaction'
+            ],
+            'restriction_deletions': [
+                'vrf_key_link_transaction',
+                'voting_key_link_transaction'
+            ]
+        })
+
+        # Assert:
+        expected_additions = [EntityTypeDto.TRANSFER_TRANSACTION, EntityTypeDto.ACCOUNT_KEY_LINK_TRANSACTION]
+        self.assertEqual(expected_additions, transaction.restriction_additions)
+        expected_deletions = [EntityTypeDto.VRF_KEY_LINK_TRANSACTION, EntityTypeDto.VOTING_KEY_LINK_TRANSACTION]
+        self.assertEqual(expected_deletions, transaction.restriction_deletions)
+
+    def test_can_create_transaction_with_default_enum_array_handling(self):
+        self._assert_can_create_transaction_with_default_enum_array_handling(lambda factory: factory.create)
+
+    def test_can_create_transaction_with_default_enum_array_handling_embedded(self):
+        self._assert_can_create_transaction_with_default_enum_array_handling(lambda factory: factory.create_embedded)
 
     # endregion
 

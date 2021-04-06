@@ -30,7 +30,7 @@ class TransactionDescriptorProcessor:
                 raise ValueError('transaction does not have attribute {}'.format(key))
 
             value = self.lookup_value(key)
-            if not isinstance(value, str) and not isinstance(value, bytes) and hasattr(value, '__iter__'):
+            if not any(isinstance(value, type_class) for type_class in [str, bytes, tuple]) and hasattr(value, '__iter__'):
                 for item in value:
                     getattr(transaction, key).append(item)
             else:
