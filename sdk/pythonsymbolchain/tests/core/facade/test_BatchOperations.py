@@ -28,14 +28,14 @@ ACCOUNTS_YAML_INPUT = '''
 
 TRANSACTIONS_YAML_INPUT = '''
 - type: transfer
-  signer: TEST
-  recipient: ALICE
+  signer_public_key: TEST
+  recipient_address: ALICE
   amount: 3000000
   message: Hello world!
 
 - type: transfer
-  signer: TEST
-  recipient: {bob_address}
+  signer_public_key: TEST
+  recipient_address: {bob_address}
   amount: 1000000
 '''.format(bob_address=BOB_ADDRESS)
 
@@ -55,15 +55,15 @@ class BatchOperationsTest(unittest.TestCase):
 
         self.assertEqual(0x0101, transactions[0].type)
         self.assertEqual(0x98000001, transactions[0].version)
-        self.assertEqual(TEST_PUBLIC_KEY, transactions[0].signer)
-        self.assertEqual(ALICE_ADDRESS, transactions[0].recipient)
+        self.assertEqual(TEST_PUBLIC_KEY, transactions[0].signer_public_key)
+        self.assertEqual(ALICE_ADDRESS, transactions[0].recipient_address)
         self.assertEqual(3000000, transactions[0].amount)
         self.assertEqual(b'Hello world!', transactions[0].message)
 
         self.assertEqual(0x0101, transactions[1].type)
         self.assertEqual(0x98000001, transactions[1].version)
-        self.assertEqual(TEST_PUBLIC_KEY, transactions[1].signer)
-        self.assertEqual(BOB_ADDRESS, transactions[1].recipient)
+        self.assertEqual(TEST_PUBLIC_KEY, transactions[1].signer_public_key)
+        self.assertEqual(BOB_ADDRESS, transactions[1].recipient_address)
         self.assertEqual(1000000, transactions[1].amount)
         self.assertEqual(None, transactions[1].message)
 
@@ -144,7 +144,8 @@ class BatchOperationsTest(unittest.TestCase):
             if corrupt_signature:
                 signature = NemTestUtils.randcryptotype(Signature)
             else:
-                signer_account_name = operations.facade.account_descriptor_repository.find_by_public_key(transactions[1].signer).name
+                signer_public_key = transactions[1].signer_public_key
+                signer_account_name = operations.facade.account_descriptor_repository.find_by_public_key(signer_public_key).name
                 signer_private_key = private_key_storage.load(signer_account_name)
                 signature = operations.facade.KeyPair(signer_private_key).sign(transactions[1].serialize())
 

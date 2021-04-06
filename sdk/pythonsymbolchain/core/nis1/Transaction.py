@@ -14,7 +14,7 @@ class Transaction:
         self.type = transaction_type
         self.version = (network.identifier << 24) + 1
         self.timestamp = 0
-        self.signer = None
+        self.signer_public_key = None
 
     @property
     def deadline(self):
@@ -34,7 +34,7 @@ class Transaction:
         writer.write_int(self.timestamp, 4)
 
         writer.write_int(PublicKey.SIZE, 4)
-        writer.write_bytes(self.signer.bytes)
+        writer.write_bytes(self.signer_public_key.bytes)
 
         writer.write_int(self.fee, 8)
         writer.write_int(self.deadline, 4)
@@ -77,7 +77,7 @@ class Transaction:
 
     def __str__(self):
         formatter = Transaction._FieldFormatter()
-        for name in ['type', 'version', 'timestamp', 'signer', 'fee', 'deadline'] + self.field_names():
+        for name in ['type', 'version', 'timestamp', 'signer_public_key', 'fee', 'deadline'] + self.field_names():
             formatter.add_field(name, getattr(self, name))
 
         return str(formatter)

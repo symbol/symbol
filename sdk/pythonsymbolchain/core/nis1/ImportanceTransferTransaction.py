@@ -8,8 +8,8 @@ class ImportanceTransferTransaction(Transaction):
     TYPE = 0x0801
 
     TYPE_HINTS = {
-        'signer': PublicKey,
-        'remote_account': PublicKey
+        'signer_public_key': PublicKey,
+        'remote_account_public_key': PublicKey
     }
 
     def __init__(self, network):
@@ -17,7 +17,7 @@ class ImportanceTransferTransaction(Transaction):
         super().__init__(network, ImportanceTransferTransaction.TYPE)
 
         self.mode = 0
-        self.remote_account = None
+        self.remote_account_public_key = None
 
     @property
     def fee(self):
@@ -28,8 +28,8 @@ class ImportanceTransferTransaction(Transaction):
         writer.write_int(self.mode, 4)
 
         writer.write_int(PublicKey.SIZE, 4)
-        writer.write_bytes(self.remote_account.bytes)
+        writer.write_bytes(self.remote_account_public_key.bytes)
 
     @staticmethod
     def field_names():
-        return ['mode', 'remote_account']
+        return ['mode', 'remote_account_public_key']

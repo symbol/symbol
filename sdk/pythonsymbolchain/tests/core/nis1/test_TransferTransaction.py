@@ -24,9 +24,9 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
         self.assertEqual(0x0101, transaction.type)
         self.assertEqual(0x54000001, transaction.version)
         self.assertEqual(0, transaction.timestamp)
-        self.assertEqual(None, transaction.signer)
+        self.assertEqual(None, transaction.signer_public_key)
 
-        self.assertEqual(None, transaction.recipient)
+        self.assertEqual(None, transaction.recipient_address)
         self.assertEqual(0, transaction.amount)
         self.assertEqual(None, transaction.message)
 
@@ -97,9 +97,9 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
     def _create_transfer_for_serialization_tests(include_message=False):
         transaction = TransferTransaction(FOO_NETWORK)
         transaction.timestamp = 12345
-        transaction.signer = PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0')
+        transaction.signer_public_key = PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0')
 
-        transaction.recipient = Address('TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33')
+        transaction.recipient_address = Address('TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33')
         transaction.amount = 15 * 10000000000 - 1
 
         if include_message:
@@ -119,12 +119,12 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
             [0x01, 0x01, 0x00, 0x00],  # type
             [0x01, 0x00, 0x00, 0x54],  # version
             [0x39, 0x30, 0x00, 0x00],  # timestamp
-            [0x20, 0x00, 0x00, 0x00],  # signer length
-            transaction.signer.bytes,  # signer
+            [0x20, 0x00, 0x00, 0x00],  # public key length
+            transaction.signer_public_key.bytes,  # signer public key
             [0x60, 0xAE, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00],  # fee
             [0x49, 0x3E, 0x00, 0x00],  # deadline
-            [0x28, 0x00, 0x00, 0x00],  # recipient length
-            str(transaction.recipient).encode('utf8'),  # recipient
+            [0x28, 0x00, 0x00, 0x00],  # address length
+            str(transaction.recipient_address).encode('utf8'),  # recipient address
             [0xFF, 0x5B, 0xB2, 0xEC, 0x22, 0x00, 0x00, 0x00],  # amount
             [0x00, 0x00, 0x00, 0x00]  # message length
         ]
@@ -143,12 +143,12 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
             [0x01, 0x01, 0x00, 0x00],  # type
             [0x01, 0x00, 0x00, 0x54],  # version
             [0x39, 0x30, 0x00, 0x00],  # timestamp
-            [0x20, 0x00, 0x00, 0x00],  # signer length
-            transaction.signer.bytes,  # signer
+            [0x20, 0x00, 0x00, 0x00],  # public key length
+            transaction.signer_public_key.bytes,  # signer public key
             [0xB0, 0x71, 0x0B, 0x00, 0x00, 0x00, 0x00, 0x00],  # fee
             [0x49, 0x3E, 0x00, 0x00],  # deadline
-            [0x28, 0x00, 0x00, 0x00],  # recipient length
-            str(transaction.recipient).encode('utf8'),  # recipient
+            [0x28, 0x00, 0x00, 0x00],  # address length
+            str(transaction.recipient_address).encode('utf8'),  # recipient address
             [0xFF, 0x5B, 0xB2, 0xEC, 0x22, 0x00, 0x00, 0x00],  # amount
             [0x0F, 0x00, 0x00, 0x00],  # message length (including message header)
             [0x01, 0x00, 0x00, 0x00],  # message type
@@ -171,15 +171,15 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
 
         # Assert:
         expected_transaction_str = '\n'.join([
-            '     type = 257 [0x101]',
-            '  version = 1409286145 [0x54000001]',
-            'timestamp = 12345 [0x3039]',
-            '   signer = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
-            '      fee = 700000 [0xAAE60]',
-            ' deadline = 15945 [0x3E49]',
-            'recipient = TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
-            '   amount = 149999999999 [0x22ECB25BFF]',
-            '  message = None'
+            '             type = 257 [0x101]',
+            '          version = 1409286145 [0x54000001]',
+            '        timestamp = 12345 [0x3039]',
+            'signer_public_key = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
+            '              fee = 700000 [0xAAE60]',
+            '         deadline = 15945 [0x3E49]',
+            'recipient_address = TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
+            '           amount = 149999999999 [0x22ECB25BFF]',
+            '          message = None'
         ])
         self.assertEqual(expected_transaction_str, transaction_str)
 
@@ -192,15 +192,15 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
 
         # Assert:
         expected_transaction_str = '\n'.join([
-            '     type = 257 [0x101]',
-            '  version = 1409286145 [0x54000001]',
-            'timestamp = 12345 [0x3039]',
-            '   signer = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
-            '      fee = 750000 [0xB71B0]',
-            ' deadline = 15945 [0x3E49]',
-            'recipient = TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
-            '   amount = 149999999999 [0x22ECB25BFF]',
-            '  message = 4455981271AB72'
+            '             type = 257 [0x101]',
+            '          version = 1409286145 [0x54000001]',
+            '        timestamp = 12345 [0x3039]',
+            'signer_public_key = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
+            '              fee = 750000 [0xB71B0]',
+            '         deadline = 15945 [0x3E49]',
+            'recipient_address = TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
+            '           amount = 149999999999 [0x22ECB25BFF]',
+            '          message = 4455981271AB72'
         ])
         self.assertEqual(expected_transaction_str, transaction_str)
 
@@ -214,15 +214,15 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
 
         # Assert:
         expected_transaction_str = '\n'.join([
-            '     type = 257 [0x101]',
-            '  version = 1409286145 [0x54000001]',
-            'timestamp = 12345 [0x3039]',
-            '   signer = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
-            '      fee = 750000 [0xB71B0]',
-            ' deadline = 15945 [0x3E49]',
-            'recipient = TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
-            '   amount = 149999999999 [0x22ECB25BFF]',
-            '  message = Hello!!'
+            '             type = 257 [0x101]',
+            '          version = 1409286145 [0x54000001]',
+            '        timestamp = 12345 [0x3039]',
+            'signer_public_key = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
+            '              fee = 750000 [0xB71B0]',
+            '         deadline = 15945 [0x3E49]',
+            'recipient_address = TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
+            '           amount = 149999999999 [0x22ECB25BFF]',
+            '          message = Hello!!'
         ])
         self.assertEqual(expected_transaction_str, transaction_str)
 
