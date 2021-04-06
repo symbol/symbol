@@ -17,8 +17,8 @@ def main():
     key_pair = KeyPair(PrivateKey(unhexlify('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF')))
     transaction = facade.transaction_factory.create({
         'type': 'transfer',
-        'signerPublicKey': key_pair.public_key.bytes,
-        'recipientAddress': Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y').bytes,
+        'signer_public_key': key_pair.public_key.bytes,
+        'recipient_address': Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y').bytes,
         'fee': 625,
         'deadline': 12345,
         'message': 'V belom plashche s krovavym podboyem, sharkayushchey kavaleriyskoy pokhodkoy,'.encode('utf-8'),

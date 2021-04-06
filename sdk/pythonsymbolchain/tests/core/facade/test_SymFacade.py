@@ -52,7 +52,7 @@ class SymFacadeTest(unittest.TestCase):
         facade = SymFacade('public_test')
         transaction = facade.transaction_factory.create({
             'type': 'transfer',
-            'signerPublicKey': NemTestUtils.randcryptotype(PublicKey)
+            'signer_public_key': NemTestUtils.randcryptotype(PublicKey)
         })
 
         # Assert:
@@ -74,10 +74,10 @@ class SymFacadeTest(unittest.TestCase):
     def _create_real_transfer(facade):
         return facade.transaction_factory.create({
             'type': 'transfer',
-            'signerPublicKey': 'TEST',
+            'signer_public_key': 'TEST',
             'fee': 1000000,
             'deadline': 41998024783,
-            'recipientAddress': 'TD4PJKW5JP3CNHA47VDFIM25RCWTWRGT45HMPSA',
+            'recipient_address': 'TD4PJKW5JP3CNHA47VDFIM25RCWTWRGT45HMPSA',
             'mosaics': [(0x2CF403E85507F39E, 1000000)]
         })
 
@@ -85,15 +85,15 @@ class SymFacadeTest(unittest.TestCase):
     def _create_real_aggregate(facade):
         aggregate = facade.transaction_factory.create({
             'type': 'aggregateComplete',
-            'signerPublicKey': 'TEST',
+            'signer_public_key': 'TEST',
             'fee': 2000000,
             'deadline': 42238390163,
-            'transactionsHash': unhexlify('71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'),
+            'transactions_hash': unhexlify('71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'),
         })
         transfer = facade.transaction_factory.create_embedded({
             'type': 'embeddedTransfer',
-            'signerPublicKey': 'TEST',
-            'recipientAddress': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
+            'signer_public_key': 'TEST',
+            'recipient_address': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
             'mosaics': [(0x2CF403E85507F39E, 1000000)]
         })
         aggregate.transactions.append(transfer)

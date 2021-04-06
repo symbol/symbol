@@ -7,7 +7,7 @@ NAME = 'symbol-sdk-core-python'
 VERSION = '0.2.0a4'
 
 REQUIRES = [
-    'catbuffer==0.1.2.20210313.163026a1',
+    'catbuffer==1.0.0.20210406.122213a1',
     'cryptography==3.4.6',
     'mnemonic==0.19',
     'Pillow==8.1.1',

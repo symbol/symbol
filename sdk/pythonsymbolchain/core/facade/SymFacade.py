@@ -63,7 +63,7 @@ class SymFacade:
         """Hashes a symbol transaction."""
         hasher = sha3.sha3_256()
         hasher.update(transaction.signature)
-        hasher.update(transaction.signerPublicKey)
+        hasher.update(transaction.signer_public_key)
         hasher.update(self.network.generation_hash_seed.bytes)
         hasher.update(self._transaction_data_buffer(transaction.serialize()))
         return Hash256(hasher.digest())
