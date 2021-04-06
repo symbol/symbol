@@ -72,8 +72,8 @@ class NisFacadeTest(unittest.TestCase):
         transaction = facade.transaction_factory.create({
             'type': 'transfer',
             'timestamp': 187751734,
-            'signer': 'TEST',
-            'recipient': 'TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF',
+            'signer_public_key': 'TEST',
+            'recipient_address': 'TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF',
             'amount': 1000000
         })
         return transaction

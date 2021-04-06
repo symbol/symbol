@@ -11,15 +11,15 @@ class TransferTransaction(Transaction):
     TYPE = 0x0101
 
     TYPE_HINTS = {
-        'signer': PublicKey,
-        'recipient': Address
+        'signer_public_key': PublicKey,
+        'recipient_address': Address
     }
 
     def __init__(self, network):
         """Creates a transfer transaction for the specified network."""
         super().__init__(network, TransferTransaction.TYPE)
 
-        self.recipient = None
+        self.recipient_address = None
         self.amount = 0
         self._message = None
 
@@ -48,7 +48,7 @@ class TransferTransaction(Transaction):
 
     def serialize_custom(self, writer):
         writer.write_int(RECIPIENT_LENGTH, 4)
-        writer.write_string(str(self.recipient))
+        writer.write_string(str(self.recipient_address))
 
         writer.write_int(self.amount, 8)
 
@@ -66,4 +66,4 @@ class TransferTransaction(Transaction):
 
     @staticmethod
     def field_names():
-        return ['recipient', 'amount', 'message']
+        return ['recipient_address', 'amount', 'message']

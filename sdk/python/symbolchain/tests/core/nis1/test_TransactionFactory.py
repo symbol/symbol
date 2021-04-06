@@ -51,8 +51,8 @@ class TransactionFactoryTest(unittest.TestCase):
         transaction = factory.create({
             'type': 'transfer',
             'timestamp': 98765,
-            'signer': 'signer_name',
-            'recipient': 'recipient_name',
+            'signer_public_key': 'signer_name',
+            'recipient_address': 'recipient_name',
             'message': 'hello world',
         })
 
@@ -60,9 +60,9 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual(0x0101, transaction.type)
         self.assertEqual(0x54000001, transaction.version)
         self.assertEqual(98765, transaction.timestamp)
-        self.assertEqual('signer_name PUBLICKEY', transaction.signer)
+        self.assertEqual('signer_name PUBLICKEY', transaction.signer_public_key)
 
-        self.assertEqual('recipient_name ADDRESS', transaction.recipient)
+        self.assertEqual('recipient_name ADDRESS', transaction.recipient_address)
         self.assertEqual(b'hello world', transaction.message)
 
     # endregion
