@@ -91,7 +91,7 @@ class SymFacadeTest(unittest.TestCase):
             'transactions_hash': unhexlify('71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'),
         })
         transfer = facade.transaction_factory.create_embedded({
-            'type': 'embeddedTransfer',
+            'type': 'transfer',
             'signer_public_key': 'TEST',
             'recipient_address': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
             'mosaics': [(0x2CF403E85507F39E, 1000000)]

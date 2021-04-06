@@ -140,6 +140,27 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
         self.assertEqual('signer_name PUBLICKEY', transaction.signer)
         self.assertEqual([(1, 2), (3, 5)], transaction.mosaics)
 
+    def test_can_copy_to_when_transaction_contains_tuple_attribute(self):
+        # Arrange:
+        transaction_descriptor = {
+            'type': 'transfer',
+            'signer': 'signer_name',
+            'payload': (1, 2)
+        }
+        type_parsing_rules = {PublicKey: lambda name: name + ' PUBLICKEY'}
+        processor = TransactionDescriptorProcessor(transaction_descriptor, type_parsing_rules)
+        processor.set_type_hints({'signer': PublicKey})
+
+        transaction = SimpleNamespace(type=None, signer=None, payload=None)
+
+        # Act:
+        processor.copy_to(transaction)
+
+        # Assert:
+        self.assertEqual('transfer', transaction.type)
+        self.assertEqual('signer_name PUBLICKEY', transaction.signer)
+        self.assertEqual((1, 2), transaction.payload)
+
     def test_can_copy_to_when_transaction_contains_bytes_attribute(self):
         # Arrange:
         transaction_descriptor = {
