@@ -26,8 +26,8 @@ class IdGeneratorTest(unittest.TestCase):
 
     def test_generate_mosaic_id_different_addresses_produce_different_ids(self):
         # Arrange:
-        address1 = Address(NemTestUtils.randbytes(24))
-        address2 = Address(NemTestUtils.randbytes(24))
+        address1 = Address(NemTestUtils.randcryptotype(Address))
+        address2 = Address(NemTestUtils.randcryptotype(Address))
 
         # Act:
         mosaic_id1 = generate_mosaic_id(address1, 812613930)
@@ -38,7 +38,7 @@ class IdGeneratorTest(unittest.TestCase):
 
     def test_generate_mosaic_id_different_nonces_produce_different_ids(self):
         # Arrange:
-        address = Address(NemTestUtils.randbytes(24))
+        address = Address(NemTestUtils.randcryptotype(Address))
 
         # Act:
         mosaic_id1 = generate_mosaic_id(address, 812613930)
@@ -50,7 +50,7 @@ class IdGeneratorTest(unittest.TestCase):
     def test_generate_mosaic_id_has_high_bit_cleared(self):
         # Arrange:
         for _ in range(0, 1000):
-            address = Address(NemTestUtils.randbytes(24))
+            address = Address(NemTestUtils.randcryptotype(Address))
 
             # Act:
             mosaic_id = generate_mosaic_id(address, 812613930)

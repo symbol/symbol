@@ -9,13 +9,17 @@ from ..Network import Network as BasicNetwork
 class Address(ByteArray):
     """Represents a nis address."""
 
+    SIZE = 25
+
     def __init__(self, address):
         """Creates an address from a decoded or encoded address."""
         raw_bytes = address
-        if isinstance(raw_bytes, str):
-            raw_bytes = base64.b32decode(raw_bytes)
+        if isinstance(address, str):
+            raw_bytes = base64.b32decode(address)
+        elif isinstance(address, Address):
+            raw_bytes = address.bytes
 
-        super().__init__(25, raw_bytes, Address)
+        super().__init__(self.SIZE, raw_bytes, Address)
 
     def __str__(self):
         return base64.b32encode(self.bytes).decode('utf8')
