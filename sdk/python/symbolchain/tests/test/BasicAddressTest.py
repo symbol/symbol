@@ -11,6 +11,25 @@ class AddressTestDescriptor:
 class BasicAddressTest:
     # pylint: disable=no-member
 
+    def test_size_constant_is_correct(self):
+        # Arrange:
+        test_descriptor = self.get_test_descriptor()
+
+        # Act + Assert:
+        self.assertEqual(len(test_descriptor.decoded_address), test_descriptor.address_class.SIZE)
+
+    def test_can_create_from_address(self):
+        # Arrange:
+        test_descriptor = self.get_test_descriptor()
+        original_address = test_descriptor.address_class(test_descriptor.encoded_address)
+
+        # Act:
+        address = test_descriptor.address_class(original_address)
+
+        # Assert:
+        self.assertEqual(test_descriptor.decoded_address, address.bytes)
+        self.assertEqual(test_descriptor.encoded_address, str(address))
+
     def test_can_create_from_encoded_address(self):
         # Arrange:
         test_descriptor = self.get_test_descriptor()
