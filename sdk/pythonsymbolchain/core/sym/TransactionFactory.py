@@ -98,15 +98,25 @@ class TransactionFactory:
             processor.lookup_value('signer_public_key'),
             NetworkTypeDto(self.network.identifier))
 
-        processor.set_type_hints(self._build_type_hints_map(transaction))
+        all_type_hints = self._build_type_hints_map(transaction)
+        processor.set_type_hints(all_type_hints)
         processor.copy_to(transaction, ['type', 'signer_public_key'])
 
         # autogenerate artifact ids
         if 'namespaceRegistration' == transaction_type:
-            transaction.id = generate_namespace_id(transaction.name.decode('utf8'), transaction.parent_id)
+            transaction.id = generate_namespace_id(transaction.name, transaction.parent_id)
         elif 'mosaicDefinition' == transaction_type:
             address = self.network.public_key_to_address(PublicKey(transaction.signer_public_key))
             transaction.id = generate_mosaic_id(address, transaction.nonce)
+
+        # auto encode strings
+        for key in transaction_descriptor.keys():
+            if key in all_type_hints:
+                continue
+
+            value = getattr(transaction, key)
+            if isinstance(value, str):
+                setattr(transaction, key, value.encode('utf8'))
 
         return transaction
 

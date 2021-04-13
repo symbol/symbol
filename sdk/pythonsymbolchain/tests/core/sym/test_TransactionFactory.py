@@ -84,7 +84,7 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual('signer_name PUBLICKEY', transaction.signer_public_key)
 
         self.assertEqual('recipient_name ADDRESS', transaction.recipient_address)
-        self.assertEqual('hello world', transaction.message)
+        self.assertEqual(b'hello world', transaction.message)
         self.assertEqual([(0x12345678ABCDEF, 12345)], transaction.mosaics)
 
     def test_can_create_known_transaction_with_multiple_overrides(self):
@@ -187,7 +187,7 @@ class TransactionFactoryTest(unittest.TestCase):
             'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
             'registration_type': 'root',
             'duration': 123,
-            'name': 'roger'.encode('utf8')
+            'name': 'roger'
         })
 
         # Assert:
@@ -210,7 +210,7 @@ class TransactionFactoryTest(unittest.TestCase):
             'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
             'registration_type': 'child',
             'parent_id': generate_namespace_id('roger'),
-            'name': 'charlie'.encode('utf8')
+            'name': 'charlie'
         })
 
         # Assert:
