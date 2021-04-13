@@ -44,7 +44,8 @@ class TransactionSample:
             self.secret_lock(),
             self.secret_proof(),
 
-            self.namespace_registration(),
+            self.namespace_root_registration(),
+            self.namespace_child_registration(),
             self.mosaic_definition(),
             self.mosaic_supply_change(),
 
@@ -218,29 +219,38 @@ class TransactionSample:
     # region namespace and mosaic
 
     @staticmethod
-    def namespace_registration():
+    def namespace_root_registration():
         return {
             'type': 'namespaceRegistration',
             'registration_type': 'root',
             'duration': 123,
-            'id': generate_namespace_id('charlie'),
+            'name': 'roger'.encode('utf8')
+        }
+
+    @staticmethod
+    def namespace_child_registration():
+        return {
+            'type': 'namespaceRegistration',
+            'registration_type': 'child',
+            'parent_id': generate_namespace_id('roger'),
             'name': 'charlie'.encode('utf8')
         }
 
-    def mosaic_definition(self):
+    @staticmethod
+    def mosaic_definition():
         return {
             'type': 'mosaicDefinition',
             'duration': 1,
             'nonce': 123,
-            'id': generate_mosaic_id(self.sample_address, 123),
             'flags': 'transferable restrictable',
             'divisibility': 2
         }
 
     def mosaic_supply_change(self):
+        address = self.facade.network.public_key_to_address(self.key_pair.public_key)
         return {
             'type': 'mosaicSupplyChange',
-            'mosaic_id': generate_mosaic_id(self.sample_address, 123),
+            'mosaic_id': generate_mosaic_id(address, 123),
             'delta': 1000 * 100,  # assuming divisibility = 2
             'action': 'increase'
         }
