@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Reads utf-8 encoded files with names "part<id>.txt".
+# Reads utf8 encoded files with names "part<id>.txt".
 # Creates aggregate transaction where each files is a message inside embedded transfers.
 # Signs aggregate transaction using private key provided in file specified via `--private` switch.
 #
@@ -23,7 +23,7 @@ def read_private_key(private_filename):
 
 
 def read_contents(filepath):
-    with open(filepath, 'rt', encoding='utf-8') as infile:
+    with open(filepath, 'rt', encoding='utf8') as infile:
         return infile.read()
 
 
@@ -40,7 +40,7 @@ def add_embedded_transfers(facade, public_key):
             'recipient_address': recipient.bytes,
             # note: additional 0 byte at the beginning is added for compatibility with explorer
             # and other tools that treat messages starting with 00 byte as "plain text"
-            'message': bytes(1) + msg.encode('utf-8')
+            'message': bytes(1) + msg.encode('utf8')
         })
 
         embedded_transactions.append(embedded)
