@@ -8,6 +8,7 @@ from binascii import unhexlify
 from symbolchain.core.Bip32 import Bip32
 from symbolchain.core.CryptoTypes import PrivateKey, PublicKey, Signature
 from symbolchain.core.Network import NetworkLocator
+from symbolchain.core.sym.IdGenerator import generate_mosaic_id
 
 
 class ClassLocator:
@@ -112,6 +113,29 @@ class VerifyTester(VectorsTestSuite):
         return [(True, is_verified)]
 
 
+class MosaicIdDerivationTester(VectorsTestSuite):
+    def __init__(self, class_locator):
+        super().__init__(5, 'test-mosaic-id', 'mosaic id derivation')
+        self.class_locator = class_locator
+
+    def process(self, test_vector, _):
+        # Arrange:
+        nonce = test_vector['mosaicNonce']
+
+        mosaic_id_pairs = []
+        for network_tag in ['Public', 'PublicTest', 'Private', 'PrivateTest']:
+            address = self.class_locator.address_class(test_vector['address_' + network_tag])
+            expected_mosaic_id = test_vector['mosaicId_' + network_tag]
+
+            # Act:
+            mosaic_id = generate_mosaic_id(address, nonce)
+
+            # Assert:
+            mosaic_id_pairs.append((expected_mosaic_id, '{:016X}'.format(mosaic_id)))
+
+        return mosaic_id_pairs
+
+
 class Bip32DerivationTester(VectorsTestSuite):
     def __init__(self, class_locator):
         super().__init__(6, 'test-hd-derivation', 'BIP32 derivation')
@@ -203,6 +227,9 @@ def main():
         Bip32DerivationTester(class_locator),
         Bip39DerivationTester(class_locator),
     ]
+
+    if 'symbol' == args.blockchain:
+        test_suites += [MosaicIdDerivationTester(class_locator)]
 
     num_failed_suites = 0
     for test_suite in test_suites:
