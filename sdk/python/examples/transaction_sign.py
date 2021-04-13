@@ -224,7 +224,7 @@ class TransactionSample:
             'type': 'namespaceRegistration',
             'registration_type': 'root',
             'duration': 123,
-            'name': 'roger'.encode('utf8')
+            'name': 'roger'
         }
 
     @staticmethod
@@ -233,7 +233,7 @@ class TransactionSample:
             'type': 'namespaceRegistration',
             'registration_type': 'child',
             'parent_id': generate_namespace_id('roger'),
-            'name': 'charlie'.encode('utf8')
+            'name': 'charlie'
         }
 
     @staticmethod
@@ -260,7 +260,7 @@ class TransactionSample:
     # region metadata
 
     def account_metadata(self):
-        value = 'much coffe, such wow'.encode('utf8')
+        value = 'much coffe, such wow'
         return {
             'type': 'accountMetadata',
             'target_address': self.sample_address.bytes,
@@ -270,7 +270,7 @@ class TransactionSample:
         }
 
     def mosaic_metadata(self):
-        value = 'Once upon a midnight dreary'.encode('utf8')
+        value = 'Once upon a midnight dreary'
         return {
             'type': 'mosaicMetadata',
             'target_mosaic_id': SAMPLE_MOSAIC_ID,
@@ -281,7 +281,7 @@ class TransactionSample:
         }
 
     def namespace_metadata(self):
-        value = 'while I pondered, weak and weary'.encode('utf8')
+        value = 'while I pondered, weak and weary'
         return {
             'type': 'namespaceMetadata',
             'target_namespace_id': SAMPLE_NAMESPACE_ID,
@@ -339,13 +339,13 @@ class TransactionSample:
     def transfer_without_mosaics(self):
         return {
             **self.basic_transfer(),
-            'message': 'V belom plashche s krovavym podboyem, sharkayushchey kavaleriyskoy pokhodkoy,'.encode('utf8')
+            'message': 'V belom plashche s krovavym podboyem, sharkayushchey kavaleriyskoy pokhodkoy,'
         }
 
     def transfer(self):
         return {
             **self.basic_transfer(),
-            'message': 'V belom plashche s krovavym podboyem, sharkayushchey kavaleriyskoy pokhodkoy,'.encode('utf8'),
+            'message': 'V belom plashche s krovavym podboyem, sharkayushchey kavaleriyskoy pokhodkoy,',
             'mosaics': [
                 (SAMPLE_MOSAIC_ID, 12345_000000),
                 (0x1234567812345678, 10)
