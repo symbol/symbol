@@ -7,6 +7,7 @@ from symbol_catbuffer.MosaicRestrictionTypeDto import MosaicRestrictionTypeDto
 from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
 
 from symbolchain.core.CryptoTypes import PublicKey, Signature
+from symbolchain.core.sym.IdGenerator import generate_mosaic_id, generate_namespace_id
 from symbolchain.core.sym.Network import Address, Network
 from symbolchain.core.sym.TransactionFactory import TransactionFactory
 from symbolchain.tests.test.NemTestUtils import NemTestUtils
@@ -16,6 +17,8 @@ TEST_SIGNER_PUBLIC_KEY = NemTestUtils.randbytes(PublicKey.SIZE)
 
 
 class TransactionFactoryTest(unittest.TestCase):
+    # pylint: disable=too-many-public-methods
+
     # region create
 
     def _assert_transfer(self, transaction):
@@ -169,6 +172,80 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def test_can_create_transaction_with_default_enum_array_handling_embedded(self):
         self._assert_can_create_transaction_with_default_enum_array_handling(lambda factory: factory.create_embedded)
+
+    # endregion
+
+    # region id autogeneration
+
+    def _assert_can_autogenerate_namespace_registration_root_id(self, create_function_accessor):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST)
+
+        # Act:
+        transaction = create_function_accessor(factory)({
+            'type': 'namespaceRegistration',
+            'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
+            'registration_type': 'root',
+            'duration': 123,
+            'name': 'roger'.encode('utf8')
+        })
+
+        # Assert:
+        expected_id = generate_namespace_id('roger')
+        self.assertEqual(expected_id, transaction.id)
+
+    def test_can_autogenerate_namespace_registration_root_id(self):
+        self._assert_can_autogenerate_namespace_registration_root_id(lambda factory: factory.create)
+
+    def test_can_autogenerate_namespace_registration_root_id_embedded(self):
+        self._assert_can_autogenerate_namespace_registration_root_id(lambda factory: factory.create_embedded)
+
+    def _assert_can_autogenerate_namespace_registration_child_id(self, create_function_accessor):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST)
+
+        # Act:
+        transaction = create_function_accessor(factory)({
+            'type': 'namespaceRegistration',
+            'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
+            'registration_type': 'child',
+            'parent_id': generate_namespace_id('roger'),
+            'name': 'charlie'.encode('utf8')
+        })
+
+        # Assert:
+        expected_id = generate_namespace_id('charlie', generate_namespace_id('roger'))
+        self.assertEqual(expected_id, transaction.id)
+
+    def test_can_autogenerate_namespace_registration_child_id(self):
+        self._assert_can_autogenerate_namespace_registration_child_id(lambda factory: factory.create)
+
+    def test_can_autogenerate_namespace_registration_child_id_embedded(self):
+        self._assert_can_autogenerate_namespace_registration_child_id(lambda factory: factory.create_embedded)
+
+    def _assert_can_autogenerate_mosaic_definition_id(self, create_function_accessor):
+        # Arrange:
+        factory = TransactionFactory(Network.PUBLIC_TEST)
+
+        # Act:
+        transaction = create_function_accessor(factory)({
+            'type': 'mosaicDefinition',
+            'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
+            'duration': 1,
+            'nonce': 123,
+            'flags': 'transferable restrictable',
+            'divisibility': 2
+        })
+
+        # Assert:
+        expected_id = generate_mosaic_id(factory.network.public_key_to_address(PublicKey(TEST_SIGNER_PUBLIC_KEY)), 123)
+        self.assertEqual(expected_id, transaction.id)
+
+    def test_can_autogenerate_mosaic_definition_id(self):
+        self._assert_can_autogenerate_mosaic_definition_id(lambda factory: factory.create)
+
+    def test_can_autogenerate_mosaic_definition_id_embedded(self):
+        self._assert_can_autogenerate_mosaic_definition_id(lambda factory: factory.create_embedded)
 
     # endregion
 

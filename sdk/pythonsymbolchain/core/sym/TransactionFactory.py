@@ -7,6 +7,7 @@ from symbol_catbuffer.TransactionBuilderFactory import TransactionBuilderFactory
 
 from ..CryptoTypes import PublicKey
 from ..TransactionDescriptorProcessor import TransactionDescriptorProcessor
+from .IdGenerator import generate_mosaic_id, generate_namespace_id
 from .Network import Address
 
 
@@ -91,13 +92,22 @@ class TransactionFactory:
 
         processor.set_type_hints({'signer_public_key': PublicKey})
 
+        transaction_type = processor.lookup_value('type')
         transaction = factory_class.create_by_name(
-            processor.lookup_value('type'),
+            transaction_type,
             processor.lookup_value('signer_public_key'),
             NetworkTypeDto(self.network.identifier))
 
         processor.set_type_hints(self._build_type_hints_map(transaction))
         processor.copy_to(transaction, ['type', 'signer_public_key'])
+
+        # autogenerate artifact ids
+        if 'namespaceRegistration' == transaction_type:
+            transaction.id = generate_namespace_id(transaction.name.decode('utf8'), transaction.parent_id)
+        elif 'mosaicDefinition' == transaction_type:
+            address = self.network.public_key_to_address(PublicKey(transaction.signer_public_key))
+            transaction.id = generate_mosaic_id(address, transaction.nonce)
+
         return transaction
 
     def create(self, transaction_descriptor):
