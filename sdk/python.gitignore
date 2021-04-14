@@ -8,3 +8,6 @@ __pycache__/
 _generated/
 .python-version
 working/
+build/
+dist/
+*.egg-info/
