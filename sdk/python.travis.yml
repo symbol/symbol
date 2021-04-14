@@ -57,3 +57,16 @@ jobs:
         username: $PYPI_USER
         password: $PYPI_PASS
         distributions: sdist bdist_wheel
+
+    - stage: release package
+      name: release package
+      if: branch = env(RELEASE_BRANCH)
+      script: echo "deployment"
+      deploy:
+        on:
+          branch: $RELEASE_BRANCH
+        provider: pypi
+        username: $PYPI_USER
+        password: $PYPI_PASS
+        distributions: sdist bdist_wheel
+
