@@ -4,7 +4,7 @@ with open('README.md', 'r') as readme_file:
     README = readme_file.read()
 
 NAME = 'symbol-sdk-core-python'
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
 REQUIRES = [
     'catbuffer==1.0.0',
@@ -33,6 +33,6 @@ setup(
     long_description=README,
     long_description_content_type='text/markdown',
     classifiers=[
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ]
 )
