@@ -1,0 +1,16 @@
+language: python
+
+python:
+  - 3.6
+
+cache: pip
+
+install:
+  - pip install catbuffer_parser
+
+jobs:
+  include:
+    - stage: parse
+      name: parse all
+      script:
+        - python3 -m catbuffer_parser --schema ./schemas/all.cats --include ./schemas/
