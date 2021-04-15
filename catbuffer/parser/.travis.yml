@@ -38,7 +38,7 @@ jobs:
       script: echo "deployment"
       deploy:
         on:
-          branch: $DEV_BRANCH
+          branch: $ALPHA_BRANCH
         provider: pypi
         username: $PYPI_USER
         password: $PYPI_PASS
