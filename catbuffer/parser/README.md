@@ -10,7 +10,7 @@ The [schemas](schemas) folder contains definitions for each entity's data struct
 
 ## Requirements
 
-* Python >= 3.4
+* Python >= 3.6
 
 ## Installation
 
@@ -50,10 +50,3 @@ However, ``catbuffer-parser`` can still be used on its own to parse input files 
 git clone --depth 1 --branch v1.0.0 https://github.com/nemtech/catbuffer-schemas.git
 python3 -m catbuffer_parser --schema catbuffer-schemas/schemas/transfer/transfer.cats --include catbuffer-schemas/schemas
 ```
-
-There is also a script in the ``scripts`` folder to parse and validate all schemas:
-
-```bash
-scripts/generate_all.sh
-```
-

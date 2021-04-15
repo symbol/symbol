@@ -22,20 +22,20 @@ jobs:
         - pylint --load-plugins pylint_quotes -- catbuffer_parser test
 
     - stage: test
-      name: "unit tests"
+      name: unit tests
       script:
         - python3 -m unittest discover -v
 
     - stage: parse
-      name: "parse all"
+      name: parse all (catbuffer-schemas)
       script:
         - git clone --depth 1 --branch v1.0.0 https://github.com/nemtech/catbuffer-schemas.git
-        - bash ./scripts/generate_all.sh
+        - python3 -m catbuffer_parser --schema ./catbuffer-schemas/schemas/all.cats --include ./catbuffer-schemas/schemas/
 
     - stage: alpha package
       name: alpha / dev package
       if: branch = env(ALPHA_BRANCH)
-      script: echo "deployment"
+      script: echo deployment
       deploy:
         on:
           branch: $ALPHA_BRANCH
@@ -47,7 +47,7 @@ jobs:
     - stage: release package
       name: release package
       if: branch = env(RELEASE_BRANCH) AND type = api
-      script: echo "deployment"
+      script: echo deployment
       deploy:
         on:
           branch: $RELEASE_BRANCH
