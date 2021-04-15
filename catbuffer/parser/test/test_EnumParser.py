@@ -3,8 +3,8 @@ from test.constants import (INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES, PRI
                             VALID_USER_TYPE_NAMES)
 from test.ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, SingleLineParserTestUtils
 
-from catparser.CatsParseException import CatsParseException
-from catparser.EnumParser import EnumParserFactory, EnumValueParserFactory
+from catbuffer_parser.CatsParseException import CatsParseException
+from catbuffer_parser.EnumParser import EnumParserFactory, EnumValueParserFactory
 
 
 def primitive_enum_descriptor(size, is_signed):

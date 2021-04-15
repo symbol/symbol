@@ -3,25 +3,42 @@ language: python
 python:
   - 3.6
 
+env:
+  global:
+    RELEASE_BRANCH=main
+
 cache: pip
 
 install:
-  - pip install -r requirements.txt
+  - pip install -r lint_requirements.txt
 
 jobs:
   include:
     - stage: lint
       script:
-        - isort --check-only --line-length 140 main.py catparser test
-        - pycodestyle --config=.pycodestyle -- main.py catparser test
-        - pylint --load-plugins pylint_quotes -- main.py catparser test
+        - isort --check-only --line-length 140 catbuffer_parser test
+        - pycodestyle --config=.pycodestyle -- catbuffer_parser test
+        - pylint --load-plugins pylint_quotes -- catbuffer_parser test
 
     - stage: test
       name: "unit tests"
       script:
         - python3 -m unittest discover -v
 
-    - stage: test
-      name: "generate all"
+    - stage: parse
+      name: "parse all"
       script:
+        - git clone --depth 1 --branch v1.0.0 https://github.com/nemtech/catbuffer-schemas.git
         - bash ./scripts/generate_all.sh
+
+    - stage: release package
+      name: release package
+      if: branch = env(RELEASE_BRANCH) AND type = api
+      script: echo "deployment"
+      deploy:
+        on:
+          branch: $RELEASE_BRANCH
+        provider: pypi
+        username: $PYPI_USER
+        password: $PYPI_PASS
+        distributions: sdist bdist_wheel

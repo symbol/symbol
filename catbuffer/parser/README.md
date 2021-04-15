@@ -1,6 +1,6 @@
 # catbuffer
 
-[![Build Status](https://api.travis-ci.com/nemtech/catbuffer.svg?branch=main)](https://travis-ci.com/nemtech/catbuffer)
+[![Build Status](https://api.travis-ci.com/nemtech/catbuffer-parser.svg?branch=main)](https://travis-ci.com/nemtech/catbuffer-parser)
 
 The catbuffer library defines the protocol to serialize and deserialize Symbol entities. Code generators from the [catbuffer-generators](https://github.com/nemtech/catbuffer-generators) project can then produce the leanest code necessary to serialize and deserialize those entities.
 
@@ -14,22 +14,22 @@ The [schemas](schemas) folder contains definitions for each entity's data struct
 
 ## Installation
 
-1. Clone the ``catbuffer`` repository:
+1. Clone the ``catbuffer-parser`` repository:
 
 ```bash
-git clone https://github.com/nemtech/catbuffer
+git clone https://github.com/nemtech/catbuffer-parser
 ```
 
-2. Install the package requirements:
+2. (optional) Install lint requirements:
 
 ```bash
-pip3 install -r requirements.txt
+pip3 install -r lint_requirements.txt
 ```
 
 ## Usage
 
 ```bash
-python3 main.py [OPTIONS]
+python3 -m catbuffer_parser [OPTIONS]
 ```
 
 | Option               | Description                                                                                                                                                | Default       |
@@ -44,10 +44,11 @@ python3 main.py [OPTIONS]
 
 In order to produce any output file, the [catbuffer-generators](https://github.com/nemtech/catbuffer-generators) project is needed. Please see this project's usage examples.
 
-However, ``catbuffer`` can still be used on its own to parse input files and check their validity:
+However, ``catbuffer-parser`` can still be used on its own to parse input files and check their validity:
 
 ```bash
-python3 main.py --schema schemas/transfer/transfer.cats
+git clone --depth 1 --branch v1.0.0 https://github.com/nemtech/catbuffer-schemas.git
+python3 -m catbuffer_parser --schema catbuffer-schemas/schemas/transfer/transfer.cats --include catbuffer-schemas/schemas
 ```
 
 There is also a script in the ``scripts`` folder to parse and validate all schemas:
@@ -56,21 +57,3 @@ There is also a script in the ``scripts`` folder to parse and validate all schem
 scripts/generate_all.sh
 ```
 
-> **NOTE:**
-> These scripts require Bash 4 or higher.
-
-### Run the linter
-
-```bash
-pylint --load-plugins pylint_quotes main.py catparser test
-pycodestyle --config=.pycodestyle .
-```
-
-### Run the tests
-
-```bash
-python3 -m unittest discover -v
-```
-
-Copyright (c) 2016-2019, Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp.
-Copyright (c) 2020-present, Jaguar0625, gimre, BloodyRookie.

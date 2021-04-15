@@ -3,8 +3,8 @@ from test.constants import (BUILTIN_TYPE_TUPLES, INVALID_PROPERTY_NAMES, INVALID
                             VALID_PROPERTY_NAMES, VALID_USER_TYPE_NAMES)
 from test.ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, SingleLineParserTestUtils
 
-from catparser.CatsParseException import CatsParseException
-from catparser.StructParser import (StructArrayMemberParserFactory, StructConstParserFactory, StructInlineParserFactory,
+from catbuffer_parser.CatsParseException import CatsParseException
+from catbuffer_parser.StructParser import (StructArrayMemberParserFactory, StructConstParserFactory, StructInlineParserFactory,
                                     StructParserFactory, StructScalarMemberParserFactory)
 
 # region StructParserTest

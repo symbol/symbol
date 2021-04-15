@@ -2,7 +2,7 @@ import argparse
 import os
 import pprint
 
-from catparser.CatsParser import CatsParser
+from catbuffer_parser.CatsParser import CatsParser
 
 try:
     from generators.All import AVAILABLE_GENERATORS
@@ -55,7 +55,10 @@ def _generate_output(generator_name, output_path, schema, options):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='CATS code generator')
+    parser = argparse.ArgumentParser(
+        prog=None if globals().get('__spec__') is None else 'python -m {}'.format(__spec__.name.partition('.')[0]),
+        description='CATS code generator'
+    )
     parser.add_argument('-s', '--schema', help='input CATS file', required=True)
     parser.add_argument('-o', '--output', help='output directory, if not provided, _generated/{generator} is used')
     parser.add_argument('-i', '--include', help='schema root directory', default='./schemas')

@@ -1,7 +1,7 @@
 import unittest
 
-from catparser.CatsParseException import CatsParseException
-from catparser.ScopeManager import ScopeManager
+from catbuffer_parser.CatsParseException import CatsParseException
+from catbuffer_parser.ScopeManager import ScopeManager
 
 
 class ScopeManagerTest(unittest.TestCase):

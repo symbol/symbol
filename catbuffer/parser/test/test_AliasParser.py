@@ -2,7 +2,7 @@ import unittest
 from test.constants import BUILTIN_TYPE_TUPLES, INVALID_USER_TYPE_NAMES, VALID_USER_TYPE_NAMES
 from test.ParserTestUtils import ParserFactoryTestUtils, SingleLineParserTestUtils
 
-from catparser.AliasParser import AliasParserFactory
+from catbuffer_parser.AliasParser import AliasParserFactory
 
 
 class AliasParserFactoryTest(unittest.TestCase):

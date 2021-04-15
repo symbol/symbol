@@ -1,6 +1,6 @@
 import unittest
 
-from catparser.CommentParser import CommentParser
+from catbuffer_parser.CommentParser import CommentParser
 
 
 class CommentParserTest(unittest.TestCase):

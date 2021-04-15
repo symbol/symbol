@@ -1,7 +1,7 @@
 import unittest
 from test.ParserTestUtils import ParserFactoryTestUtils, SingleLineParserTestUtils
 
-from catparser.ImportParser import ImportParserFactory, ImportResult
+from catbuffer_parser.ImportParser import ImportParserFactory, ImportResult
 
 VALID_IMPORT_FILE_NAMES = ['A', 'aBzZzac09', 'aa bb.cats', 'foo.cats', 'foo bar', 'foo bar.cats', '$^$']
 

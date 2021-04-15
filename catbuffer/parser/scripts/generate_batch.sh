@@ -12,9 +12,8 @@ function generate_batch {
     do
         echo "generating ${input}"
         python_args=(
-            "${folder}/main.py"
-            --schema "${folder}/schemas/${input}.cats"
-            --include "${folder}/schemas")
+            --schema "${folder}/catbuffer-schemas/schemas/${input}.cats"
+            --include "${folder}/catbuffer-schemas/schemas")
         if [ "$#" -ge 3 ]; then
             python_args+=(
                 --output "${folder}/_generated/$3"
@@ -22,7 +21,7 @@ function generate_batch {
                 --copyright "${folder}/HEADER.inc")
         fi
 
-        if ! python3 "${python_args[@]}"; then
+        if ! python3 -m catbuffer_parser "${python_args[@]}"; then
             echo -e "${start_error_color}ERROR: failed generating ${input}${end_color}"
             exit 1
         fi
