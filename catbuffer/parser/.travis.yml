@@ -6,6 +6,7 @@ python:
 env:
   global:
     RELEASE_BRANCH=main
+    ALPHA_BRANCH=alpha
 
 cache: pip
 
@@ -30,6 +31,18 @@ jobs:
       script:
         - git clone --depth 1 --branch v1.0.0 https://github.com/nemtech/catbuffer-schemas.git
         - bash ./scripts/generate_all.sh
+
+    - stage: alpha package
+      name: alpha / dev package
+      if: branch = env(ALPHA_BRANCH)
+      script: echo "deployment"
+      deploy:
+        on:
+          branch: $DEV_BRANCH
+        provider: pypi
+        username: $PYPI_USER
+        password: $PYPI_PASS
+        distributions: sdist bdist_wheel
 
     - stage: release package
       name: release package
