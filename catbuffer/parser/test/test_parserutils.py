@@ -4,7 +4,7 @@ from test.constants import (BUILTIN_TYPE_TUPLES, INT_TYPE_TUPLES, INVALID_PRIMIT
 
 from catbuffer_parser.CatsParseException import CatsParseException
 from catbuffer_parser.parserutils import (is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex, require_primitive,
-                                   require_property_name, require_user_type_name)
+                                          require_property_name, require_user_type_name)
 
 # region naming conventions
 

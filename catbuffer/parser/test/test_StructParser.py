@@ -5,7 +5,7 @@ from test.ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtil
 
 from catbuffer_parser.CatsParseException import CatsParseException
 from catbuffer_parser.StructParser import (StructArrayMemberParserFactory, StructConstParserFactory, StructInlineParserFactory,
-                                    StructParserFactory, StructScalarMemberParserFactory)
+                                           StructParserFactory, StructScalarMemberParserFactory)
 
 # region StructParserTest
 
