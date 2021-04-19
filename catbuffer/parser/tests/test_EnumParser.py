@@ -1,10 +1,10 @@
 import unittest
-from test.constants import (INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES, PRIMITIVE_TYPE_TUPLES, VALID_PROPERTY_NAMES,
-                            VALID_USER_TYPE_NAMES)
-from test.ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, SingleLineParserTestUtils
 
 from catbuffer_parser.CatsParseException import CatsParseException
 from catbuffer_parser.EnumParser import EnumParserFactory, EnumValueParserFactory
+
+from .constants import INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES, PRIMITIVE_TYPE_TUPLES, VALID_PROPERTY_NAMES, VALID_USER_TYPE_NAMES
+from .ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, SingleLineParserTestUtils
 
 
 def primitive_enum_descriptor(size, is_signed):

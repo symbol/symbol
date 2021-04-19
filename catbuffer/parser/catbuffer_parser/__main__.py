@@ -2,7 +2,7 @@ import argparse
 import os
 import pprint
 
-from catbuffer_parser.CatsParser import CatsParser
+from .CatsParser import CatsParser
 
 try:
     from generators.All import AVAILABLE_GENERATORS

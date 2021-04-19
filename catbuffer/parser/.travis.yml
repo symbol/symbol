@@ -6,7 +6,7 @@ python:
 env:
   global:
     RELEASE_BRANCH=main
-    ALPHA_BRANCH=alpha
+    DEV_BRANCH=dev
 
 cache: pip
 
@@ -17,25 +17,25 @@ jobs:
   include:
     - stage: lint
       script:
-        - isort --check-only --line-length 140 catbuffer_parser test
-        - pycodestyle --config=.pycodestyle -- catbuffer_parser test
-        - pylint --load-plugins pylint_quotes -- catbuffer_parser test
+        - isort --check-only --line-length 140 catbuffer_parser setup.py tests
+        - pycodestyle --config=.pycodestyle -- catbuffer_parser setup.py tests
+        - pylint --load-plugins pylint_quotes -- catbuffer_parser setup.py tests
 
     - stage: test
-      name: "unit tests"
+      name: unit tests
       script:
         - python3 -m unittest discover -v
 
     - stage: parse
-      name: "parse all"
+      name: parse all (catbuffer-schemas)
       script:
-        - git clone --depth 1 --branch v1.0.0 https://github.com/nemtech/catbuffer-schemas.git
-        - bash ./scripts/generate_all.sh
+        - git clone --depth 1 --branch v1.0.2 https://github.com/nemtech/catbuffer-schemas.git
+        - python3 -m catbuffer_parser --schema ./catbuffer-schemas/schemas/all.cats --include ./catbuffer-schemas/schemas/
 
-    - stage: alpha package
+    - stage: alpha / dev package
       name: alpha / dev package
-      if: branch = env(ALPHA_BRANCH)
-      script: echo "deployment"
+      if: branch = env(DEV_BRANCH)
+      script: echo deployment
       deploy:
         on:
           branch: $DEV_BRANCH
@@ -47,7 +47,7 @@ jobs:
     - stage: release package
       name: release package
       if: branch = env(RELEASE_BRANCH) AND type = api
-      script: echo "deployment"
+      script: echo deployment
       deploy:
         on:
           branch: $RELEASE_BRANCH

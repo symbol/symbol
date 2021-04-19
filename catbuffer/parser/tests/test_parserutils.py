@@ -1,10 +1,11 @@
 import unittest
-from test.constants import (BUILTIN_TYPE_TUPLES, INT_TYPE_TUPLES, INVALID_PRIMITIVE_NAMES, INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES,
-                            UINT_TYPE_TUPLES, VALID_PRIMITIVE_NAMES, VALID_PROPERTY_NAMES, VALID_USER_TYPE_NAMES)
 
 from catbuffer_parser.CatsParseException import CatsParseException
 from catbuffer_parser.parserutils import (is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex, require_primitive,
                                           require_property_name, require_user_type_name)
+
+from .constants import (BUILTIN_TYPE_TUPLES, INT_TYPE_TUPLES, INVALID_PRIMITIVE_NAMES, INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES,
+                        UINT_TYPE_TUPLES, VALID_PRIMITIVE_NAMES, VALID_PROPERTY_NAMES, VALID_USER_TYPE_NAMES)
 
 # region naming conventions
 

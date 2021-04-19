@@ -1,11 +1,12 @@
 import unittest
-from test.constants import (BUILTIN_TYPE_TUPLES, INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES, VALID_PRIMITIVE_NAMES,
-                            VALID_PROPERTY_NAMES, VALID_USER_TYPE_NAMES)
-from test.ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, SingleLineParserTestUtils
 
 from catbuffer_parser.CatsParseException import CatsParseException
 from catbuffer_parser.StructParser import (StructArrayMemberParserFactory, StructConstParserFactory, StructInlineParserFactory,
                                            StructParserFactory, StructScalarMemberParserFactory)
+
+from .constants import (BUILTIN_TYPE_TUPLES, INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES, VALID_PRIMITIVE_NAMES, VALID_PROPERTY_NAMES,
+                        VALID_USER_TYPE_NAMES)
+from .ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, SingleLineParserTestUtils
 
 # region StructParserTest
 
