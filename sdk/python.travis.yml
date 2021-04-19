@@ -5,8 +5,8 @@ python:
 
 env:
   global:
-    DEV_BRANCH=dev
     RELEASE_BRANCH=main
+    DEV_BRANCH=dev
     TEST_VECTORS_ROOT=$HOME/nemtech/test-vectors
 
 cache: pip
@@ -23,9 +23,9 @@ jobs:
   include:
     - stage: lint
       script:
-        - isort --check-only --line-length 140 symbolchain/core tests examples setup.py
-        - pycodestyle --config=.pycodestyle -- symbolchain/core tests examples setup.py
-        - pylint --load-plugins pylint_quotes -- symbolchain/core tests examples setup.py
+        - isort --check-only --line-length 140 symbolchain setup.py tests examples
+        - pycodestyle --config=.pycodestyle -- symbolchain setup.py tests examples
+        - pylint --load-plugins pylint_quotes -- symbolchain setup.py tests examples
 
     - stage: test
       name: unit tests
@@ -49,7 +49,7 @@ jobs:
     - stage: alpha / dev package
       name: alpha / dev package
       if: branch = env(DEV_BRANCH)
-      script: echo "deployment"
+      script: echo deployment
       deploy:
         on:
           branch: $DEV_BRANCH
@@ -60,8 +60,8 @@ jobs:
 
     - stage: release package
       name: release package
-      if: branch = env(RELEASE_BRANCH)
-      script: echo "deployment"
+      if: branch = env(RELEASE_BRANCH) AND type = api
+      script: echo deployment
       deploy:
         on:
           branch: $RELEASE_BRANCH
@@ -69,4 +69,3 @@ jobs:
         username: $PYPI_USER
         password: $PYPI_PASS
         distributions: sdist bdist_wheel
-
