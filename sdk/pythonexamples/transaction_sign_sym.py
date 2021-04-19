@@ -9,23 +9,22 @@ from binascii import hexlify, unhexlify
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey
 from symbolchain.core.facade.SymFacade import SymFacade
 from symbolchain.core.sym.IdGenerator import generate_mosaic_id, generate_namespace_id
-from symbolchain.core.sym.KeyPair import KeyPair
-from symbolchain.core.sym.Network import Address
 
 SAMPLE_MOSAIC_ID = 0x7EDCBA90FEDCBA90
 SAMPLE_NAMESPACE_ID = 0xC01DFEE7FEEDDEAD
+MESSAGE = 'V belom plashche s krovavym podboyem, sharkayushchey kavaleriyskoy pokhodkoy'
 
 
-class TransactionSample:
+class SymTransactionSample:
     # pylint: disable=too-many-public-methods
 
     def __init__(self):
         self.facade = SymFacade('public_test')
-        self.key_pair = KeyPair(PrivateKey(unhexlify('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF')))
-        self.sample_address = Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
+        self.key_pair = self.facade.KeyPair(PrivateKey(unhexlify('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF')))
+        self.sample_address = self.facade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
         self.sample_public_key = PublicKey(unhexlify('BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F'))
 
-    def run(self):
+    def run_all(self):
         transaction_descriptors = [
             self.account_address_restriction_1(),
             self.account_address_restriction_2(),
@@ -339,13 +338,13 @@ class TransactionSample:
     def transfer_without_mosaics(self):
         return {
             **self.basic_transfer(),
-            'message': 'V belom plashche s krovavym podboyem, sharkayushchey kavaleriyskoy pokhodkoy,'
+            'message': MESSAGE
         }
 
     def transfer(self):
         return {
             **self.basic_transfer(),
-            'message': 'V belom plashche s krovavym podboyem, sharkayushchey kavaleriyskoy pokhodkoy,',
+            'message': MESSAGE,
             'mosaics': [
                 (SAMPLE_MOSAIC_ID, 12345_000000),
                 (0x1234567812345678, 10)
@@ -356,8 +355,8 @@ class TransactionSample:
 
 
 def main():
-    sample = TransactionSample()
-    sample.run()
+    sample = SymTransactionSample()
+    sample.run_all()
 
 
 if __name__ == '__main__':
