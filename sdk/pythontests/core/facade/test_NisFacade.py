@@ -72,10 +72,11 @@ class NisFacadeTest(unittest.TestCase):
         facade = NisFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
         transaction = facade.transaction_factory.create({
             'type': 'transfer',
-            'timestamp': 187751734,
             'signer_public_key': 'TEST',
-            'recipient_address': 'TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF',
-            'amount': 1000000
+            'deadline': 191291916,
+            'recipient_address': 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
+            'amount': 5100000,
+            'message': 'blah blah'
         })
         return transaction
 
@@ -87,7 +88,7 @@ class NisFacadeTest(unittest.TestCase):
         hash_value = NisFacade.hash_transaction(transaction)
 
         # Assert:
-        self.assertEqual(Hash256('520547F6B7E8D7217AB5D8DB9E572682B05C6BAA7F3F900DE1429CEC43253543'), hash_value)
+        self.assertEqual(Hash256('A7064DB890A4E7329AAB2AE7DCFA5EC76D7E374590C61EC85E03C698DF4EA79D'), hash_value)
 
     def test_can_sign_transaction(self):
         # Arrange:
@@ -99,8 +100,8 @@ class NisFacadeTest(unittest.TestCase):
 
         # Assert:
         expected_signature = Signature(''.join([
-            'AD1BD313FDD7F8502FAD22854569A515F87E50EAB01F1CCC60D93FBDFC9AFF2E'
-            '89D7EF3C045AFED3C19827BBBF70F4DD12541189CE4F946CC0CB13B15558EC0C'
+            '23A7B3433D16172E6C8659DB24233C5A8222C589098EA7A8FBBCB19691C67DB1'
+            '3FB2AB7BB215265A3E3D74D32683516B03785BFEB2A2DE6DAC09F5E34A793706'
         ]))
         self.assertEqual(expected_signature, signature)
 
