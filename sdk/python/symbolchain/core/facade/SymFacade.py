@@ -29,6 +29,7 @@ class SymFacade:
     BIP32_COIN_ID = 4343
     BIP32_CURVE_NAME = 'ed25519'
 
+    Address = Address
     KeyPair = KeyPair
     Verifier = Verifier
 
