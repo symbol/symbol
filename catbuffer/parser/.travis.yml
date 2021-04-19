@@ -6,7 +6,7 @@ python:
 env:
   global:
     RELEASE_BRANCH=main
-    ALPHA_BRANCH=alpha
+    DEV_BRANCH=dev
 
 cache: pip
 
@@ -32,13 +32,13 @@ jobs:
         - git clone --depth 1 --branch v1.0.2 https://github.com/nemtech/catbuffer-schemas.git
         - python3 -m catbuffer_parser --schema ./catbuffer-schemas/schemas/all.cats --include ./catbuffer-schemas/schemas/
 
-    - stage: alpha package
+    - stage: alpha / dev package
       name: alpha / dev package
-      if: branch = env(ALPHA_BRANCH)
+      if: branch = env(DEV_BRANCH)
       script: echo deployment
       deploy:
         on:
-          branch: $ALPHA_BRANCH
+          branch: $DEV_BRANCH
         provider: pypi
         username: $PYPI_USER
         password: $PYPI_PASS
