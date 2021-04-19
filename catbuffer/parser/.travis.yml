@@ -17,9 +17,9 @@ jobs:
   include:
     - stage: lint
       script:
-        - isort --check-only --line-length 140 catbuffer_parser setup.py test
-        - pycodestyle --config=.pycodestyle -- catbuffer_parser setup.py test
-        - pylint --load-plugins pylint_quotes -- catbuffer_parser setup.py test
+        - isort --check-only --line-length 140 catbuffer_parser setup.py tests
+        - pycodestyle --config=.pycodestyle -- catbuffer_parser setup.py tests
+        - pylint --load-plugins pylint_quotes -- catbuffer_parser setup.py tests
 
     - stage: test
       name: unit tests
