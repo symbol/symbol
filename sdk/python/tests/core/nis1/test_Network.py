@@ -3,8 +3,9 @@ from binascii import unhexlify
 
 from symbolchain.core.CryptoTypes import PublicKey
 from symbolchain.core.nis1.Network import Address, Network
-from symbolchain.tests.test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
-from symbolchain.tests.test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
+
+from ...test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
+from ...test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
 
 
 class AddressTest(BasicAddressTest, unittest.TestCase):

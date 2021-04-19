@@ -2,7 +2,8 @@ import datetime
 import unittest
 
 from symbolchain.core.sym.NetworkTimestamp import NetworkTimestamp
-from symbolchain.tests.test.BasicNetworkTimestampTest import BasicNetworkTimestampTest, NetworkTimestampTestDescriptor
+
+from ...test.BasicNetworkTimestampTest import BasicNetworkTimestampTest, NetworkTimestampTestDescriptor
 
 
 class NetworkTimestampTest(BasicNetworkTimestampTest, unittest.TestCase):

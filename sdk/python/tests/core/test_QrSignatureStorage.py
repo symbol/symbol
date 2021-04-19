@@ -3,7 +3,8 @@ import unittest
 
 from symbolchain.core.CryptoTypes import Hash256, Signature
 from symbolchain.core.QrSignatureStorage import QrSignatureStorage
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ..test.NemTestUtils import NemTestUtils
 
 
 def write_random_qrcode(directory, name, data_size):
