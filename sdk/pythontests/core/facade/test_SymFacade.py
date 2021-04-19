@@ -5,7 +5,8 @@ from symbolchain.core.AccountDescriptorRepository import AccountDescriptorReposi
 from symbolchain.core.Bip32 import Bip32
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.core.facade.SymFacade import SymFacade
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ...test.NemTestUtils import NemTestUtils
 
 YAML_INPUT = '''
 - public_key: 87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8

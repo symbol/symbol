@@ -2,7 +2,8 @@ import unittest
 from binascii import hexlify
 
 from symbolchain.core.ByteArray import ByteArray
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ..test.NemTestUtils import NemTestUtils
 
 FIXED_SIZE = 24
 TEST_BYTES = bytes([

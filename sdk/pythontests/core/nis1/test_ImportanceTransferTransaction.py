@@ -4,7 +4,8 @@ from functools import reduce
 from symbolchain.core.CryptoTypes import PublicKey
 from symbolchain.core.nis1.ImportanceTransferTransaction import ImportanceTransferTransaction
 from symbolchain.core.nis1.Network import Network
-from symbolchain.tests.test.BasicNisTransactionTest import BasicNisTransactionTest, NisTransactionTestDescriptor
+
+from ...test.BasicNisTransactionTest import BasicNisTransactionTest, NisTransactionTestDescriptor
 
 FOO_NETWORK = Network('foo', 0x54)
 

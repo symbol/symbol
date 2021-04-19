@@ -2,7 +2,8 @@ import unittest
 
 from symbolchain.core.CryptoTypes import Hash256
 from symbolchain.core.sym.MerkleHashBuilder import MerkleHashBuilder
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ...test.NemTestUtils import NemTestUtils
 
 
 class MerkleHashBuilderTest(unittest.TestCase):
