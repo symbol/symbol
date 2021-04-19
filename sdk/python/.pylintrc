@@ -231,7 +231,7 @@ notes=FIXME,XXX,TODO
 [SIMILARITIES]
 
 # Ignore comments when computing similarities.
-ignore-comments=yes
+ignore-comments=no
 
 # Ignore docstrings when computing similarities.
 ignore-docstrings=yes
@@ -240,7 +240,7 @@ ignore-docstrings=yes
 ignore-imports=yes
 
 # Minimum lines number of a similarity.
-min-similarity-lines=4
+min-similarity-lines=5
 
 
 [SPELLING]
