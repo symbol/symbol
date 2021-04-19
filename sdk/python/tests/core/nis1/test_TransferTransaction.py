@@ -24,16 +24,16 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
         # Assert:
         self.assertEqual(0x0101, transaction.type)
         self.assertEqual(0x54000001, transaction.version)
-        self.assertEqual(0, transaction.timestamp)
         self.assertEqual(None, transaction.signer_public_key)
+        self.assertEqual(0, transaction.deadline)
 
         self.assertEqual(None, transaction.recipient_address)
         self.assertEqual(0, transaction.amount)
         self.assertEqual(None, transaction.message)
 
         # - properties
+        self.assertEqual(0, transaction.timestamp)
         self.assertEqual(50000, transaction.fee)
-        self.assertEqual(60 * 60, transaction.deadline)
 
     # endregion
 
@@ -97,8 +97,8 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
     @staticmethod
     def _create_transfer_for_serialization_tests(include_message=False):
         transaction = TransferTransaction(FOO_NETWORK)
-        transaction.timestamp = 12345
         transaction.signer_public_key = PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0')
+        transaction.deadline = 12345 + 24 * 60 * 60
 
         transaction.recipient_address = Address('TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33')
         transaction.amount = 15 * 10000000000 - 1
@@ -123,7 +123,7 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
             [0x20, 0x00, 0x00, 0x00],  # public key length
             transaction.signer_public_key.bytes,  # signer public key
             [0x60, 0xAE, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00],  # fee
-            [0x49, 0x3E, 0x00, 0x00],  # deadline
+            [0xB9, 0x81, 0x01, 0x00],  # deadline
             [0x28, 0x00, 0x00, 0x00],  # address length
             str(transaction.recipient_address).encode('utf8'),  # recipient address
             [0xFF, 0x5B, 0xB2, 0xEC, 0x22, 0x00, 0x00, 0x00],  # amount
@@ -147,7 +147,7 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
             [0x20, 0x00, 0x00, 0x00],  # public key length
             transaction.signer_public_key.bytes,  # signer public key
             [0xB0, 0x71, 0x0B, 0x00, 0x00, 0x00, 0x00, 0x00],  # fee
-            [0x49, 0x3E, 0x00, 0x00],  # deadline
+            [0xB9, 0x81, 0x01, 0x00],  # deadline
             [0x28, 0x00, 0x00, 0x00],  # address length
             str(transaction.recipient_address).encode('utf8'),  # recipient address
             [0xFF, 0x5B, 0xB2, 0xEC, 0x22, 0x00, 0x00, 0x00],  # amount
@@ -177,7 +177,7 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
             '        timestamp = 12345 [0x3039]',
             'signer_public_key = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
             '              fee = 700000 [0xAAE60]',
-            '         deadline = 15945 [0x3E49]',
+            '         deadline = 98745 [0x181B9]',
             'recipient_address = TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
             '           amount = 149999999999 [0x22ECB25BFF]',
             '          message = None'
@@ -198,7 +198,7 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
             '        timestamp = 12345 [0x3039]',
             'signer_public_key = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
             '              fee = 750000 [0xB71B0]',
-            '         deadline = 15945 [0x3E49]',
+            '         deadline = 98745 [0x181B9]',
             'recipient_address = TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
             '           amount = 149999999999 [0x22ECB25BFF]',
             '          message = 4455981271AB72'
@@ -220,7 +220,7 @@ class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
             '        timestamp = 12345 [0x3039]',
             'signer_public_key = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
             '              fee = 750000 [0xB71B0]',
-            '         deadline = 15945 [0x3E49]',
+            '         deadline = 98745 [0x181B9]',
             'recipient_address = TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33',
             '           amount = 149999999999 [0x22ECB25BFF]',
             '          message = Hello!!'

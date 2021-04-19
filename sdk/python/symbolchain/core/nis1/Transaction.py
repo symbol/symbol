@@ -13,13 +13,13 @@ class Transaction:
         """Creates a transaction for the specified network."""
         self.type = transaction_type
         self.version = (network.identifier << 24) + 1
-        self.timestamp = 0
         self.signer_public_key = None
+        self.deadline = 0
 
     @property
-    def deadline(self):
-        """Gets the deadline."""
-        return NetworkTimestamp(self.timestamp).add_hours(1).timestamp
+    def timestamp(self):
+        """Gets the timestamp."""
+        return max(0, NetworkTimestamp(self.deadline).add_hours(-24).timestamp)
 
     @property
     def fee(self):
