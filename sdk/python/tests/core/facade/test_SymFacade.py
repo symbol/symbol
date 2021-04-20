@@ -112,7 +112,7 @@ class SymFacadeTest(unittest.TestCase):
         hash_value = facade.hash_transaction(transaction)
 
         # Assert:
-        self.assertEqual(Hash256('3FAC33913FB3D7CF24618FD654C6635517B3199961062869DF96DA6B5B22F26F'), hash_value)
+        self.assertEqual(Hash256('17EBC7D64F01AA12F55A2B1F50C99B02BC25D06928CEAD1F249A4373B5EB1914'), hash_value)
 
     def test_can_hash_aggregate_transaction(self):
         # Arrange:
@@ -126,7 +126,7 @@ class SymFacadeTest(unittest.TestCase):
         hash_value = facade.hash_transaction(transaction)
 
         # Assert:
-        self.assertEqual(Hash256('6B14F18A594FEEEE14731FD381C45991D9A59B7BC948EAE9DF2D977ABEAF0FBE'), hash_value)
+        self.assertEqual(Hash256('A029FCAC4957C6531B4492F08C211CDDE52C3CD72F2016D6EA37EC96B85606E7'), hash_value)
 
     def test_can_sign_transaction(self):
         # Arrange:
@@ -143,8 +143,8 @@ class SymFacadeTest(unittest.TestCase):
 
         # Assert:
         expected_signature = Signature(''.join([
-            'FD112693296E28EED2438C75DFDDDFBC87B8F9A51AEAF7806014D93AE89893BD',
-            'AD6E74DA06C3502632A6C905E674DA6E13B8C6DFCB198504546EAD01294AB104'
+            '9BC2691B3176149D5E76ED15D83BAB7AC403C754106DFA94E4264F73B92DEC1B',
+            '1D514F23C07735EF394DA005AD96C86011EDF49F1FEE56CF3E280B49BEE26608'
         ]))
         self.assertEqual(expected_signature, signature)
 
@@ -163,8 +163,8 @@ class SymFacadeTest(unittest.TestCase):
 
         # Assert:
         expected_signature = Signature(''.join([
-            '76597917A1CFB587A74329432CE84460F73E36E1C4DBB968E5849116BE87B8CC',
-            '96B273F2C0506CDE44CDD924A9A5802019F140B56EDDB0AF73277651C9DA8008'
+            'CD95F7D677A66E980B0B24605049CF405CB1E350ACF65F2BC5427BBBFF531557',
+            '487176A464DA6E5D6B17D71ADDD727C3D0C469513C1AB36F27547ED6101B4809'
         ]))
         self.assertEqual(expected_signature, signature)
 
