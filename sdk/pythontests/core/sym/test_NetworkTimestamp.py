@@ -25,7 +25,7 @@ class NetworkTimestampTest(BasicNetworkTimestampTest, unittest.TestCase):
 
     def test_can_add_seconds(self):
         # Arrange:
-        timestamp = NetworkTimestamp(100)  # pylint: disable=duplicate-code
+        timestamp = NetworkTimestamp(100)
 
         # Act:
         new_timestamp = timestamp.add_seconds(50)

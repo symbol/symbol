@@ -155,10 +155,10 @@ method-name-hint=(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$
 method-rgx=(([a-z][a-z0-9_]{2,30})|(test_[a-z0-9_]+)|(_[a-z0-9_]*))$
 
 # Naming hint for module names
-module-name-hint=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9_]+))$
+module-name-hint=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9_]+)|(__main__))$
 
 # Regular expression matching correct module names
-module-rgx=(test_)?([A-Za-z][a-zA-Z0-9_]+)$
+module-rgx=((test_)?([A-Za-z][a-zA-Z0-9_]+)|(__main__))$
 
 # Colon-delimited sets of names that determine each other's naming style when
 # the name regexes allow several styles.
@@ -231,7 +231,7 @@ notes=FIXME,XXX,TODO
 [SIMILARITIES]
 
 # Ignore comments when computing similarities.
-ignore-comments=no
+ignore-comments=yes
 
 # Ignore docstrings when computing similarities.
 ignore-docstrings=yes
@@ -240,7 +240,7 @@ ignore-docstrings=yes
 ignore-imports=yes
 
 # Minimum lines number of a similarity.
-min-similarity-lines=5
+min-similarity-lines=4
 
 
 [SPELLING]
