@@ -50,6 +50,10 @@ jobs:
       name: alpha / dev package
       if: branch = env(DEV_BRANCH)
       script: echo deployment
+      before_deploy:
+        - sed -i "s/^\([0-9]\+.[0-9]\+.[0-9]\+\).*/\1a${TRAVIS_BUILD_NUMBER}/" version.txt
+        - git add version.txt
+        - git commit -m "automatic travis version bump"
       deploy:
         on:
           branch: $DEV_BRANCH
