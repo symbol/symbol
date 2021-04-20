@@ -20,7 +20,7 @@ setup(
     url='https://github.com/nemtech/catbuffer-parser',
     keywords=['symbol', 'catbuffer', 'parser', 'catbuffer-parser'],
     install_requires=REQUIRES,
-    packages=find_packages(exclude=('test', 'test/*')),
+    packages=find_packages(exclude=('tests', 'tests/*')),
     include_package_data=True,
     license='MIT',
     long_description=README,
