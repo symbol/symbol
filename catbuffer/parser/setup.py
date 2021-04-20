@@ -4,7 +4,9 @@ with open('README.md', 'r') as readme_file:
     README = readme_file.read()
 
 NAME = 'catbuffer-parser'
-VERSION = '1.0.0'
+
+with open('version.txt', 'r') as version_file:
+    VERSION = version_file.read().strip()
 
 REQUIRES = [
 ]
