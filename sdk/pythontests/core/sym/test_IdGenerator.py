@@ -3,7 +3,8 @@ import unittest
 from symbolchain.core.sym.IdGenerator import (generate_mosaic_alias_id, generate_mosaic_id, generate_namespace_id, generate_namespace_path,
                                               is_valid_namespace_name)
 from symbolchain.core.sym.Network import Address
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ...test.NemTestUtils import NemTestUtils
 
 TEST_VECTORS = {
     'uppercase': ['CAT.token', 'CAT.TOKEN', 'cat.TOKEN', 'cAt.ToKeN', 'CaT.tOkEn'],

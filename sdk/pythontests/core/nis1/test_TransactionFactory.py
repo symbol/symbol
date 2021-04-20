@@ -4,7 +4,8 @@ from functools import reduce
 from symbolchain.core.CryptoTypes import PublicKey, Signature
 from symbolchain.core.nis1.Network import Address, Network
 from symbolchain.core.nis1.TransactionFactory import TransactionFactory
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ...test.NemTestUtils import NemTestUtils
 
 FOO_NETWORK = Network('foo', 0x54)
 

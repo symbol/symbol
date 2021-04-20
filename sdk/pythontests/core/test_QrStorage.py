@@ -5,7 +5,8 @@ import unittest
 import qrcode
 
 from symbolchain.core.QrStorage import QrStorage
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ..test.NemTestUtils import NemTestUtils
 
 MAX_DATA_BYTES = 1155
 

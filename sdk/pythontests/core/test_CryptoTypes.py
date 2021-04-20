@@ -1,7 +1,8 @@
 import unittest
 
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ..test.NemTestUtils import NemTestUtils
 
 
 class CryptoTypesTest(unittest.TestCase):

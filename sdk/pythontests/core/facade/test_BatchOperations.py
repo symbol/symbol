@@ -9,7 +9,8 @@ from symbolchain.core.facade.NisFacade import NisFacade
 from symbolchain.core.nis1.Network import Address
 from symbolchain.core.PrivateKeyStorage import PrivateKeyStorage
 from symbolchain.core.QrSignatureStorage import QrSignatureStorage
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ...test.NemTestUtils import NemTestUtils
 
 # NisFacade is used in tests, so constants are using nis formats
 
