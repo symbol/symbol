@@ -44,8 +44,8 @@ jobs:
        - PYTHONPATH=. python examples/bip32_keypair.py
        - PYTHONPATH=. python examples/transaction_aggregate.py --private examples/resources/zero.sha256.txt
        - PYTHONPATH=. python examples/transaction_multisig.py
-       - PYTHONPATH=. python examples/transaction_sign_sym.py
-       - PYTHONPATH=. python examples/transaction_sign_nis1.py
+       - PYTHONPATH=. python examples/transaction_sign.py --blockchain=nis1
+       - PYTHONPATH=. python examples/transaction_sign.py --blockchain=symbol
 
     - stage: alpha / dev package
       name: alpha / dev package
