@@ -3,8 +3,9 @@ from binascii import unhexlify
 
 from symbolchain.core.CryptoTypes import Hash256, PublicKey
 from symbolchain.core.sym.Network import Address, Network
-from symbolchain.tests.test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
-from symbolchain.tests.test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
+
+from ...test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
+from ...test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
 
 PUBLIC_GENERATION_HASH_SEED = Hash256('57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6')
 PUBLIC_TEST_GENERATION_HASH_SEED = Hash256('45FBCF2F0EA36EFA7923C9BC923D6503169651F7FA4EFC46A8EAF5AE09057EBD')

@@ -2,7 +2,8 @@ import unittest
 
 from symbolchain.core.CryptoTypes import PrivateKey, PublicKey
 from symbolchain.core.sym.KeyPair import KeyPair, Verifier
-from symbolchain.tests.test.BasicKeyPairTest import BasicKeyPairTest, KeyPairTestDescriptor
+
+from ...test.BasicKeyPairTest import BasicKeyPairTest, KeyPairTestDescriptor
 
 
 class NetworkTest(BasicKeyPairTest, unittest.TestCase):

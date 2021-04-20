@@ -10,7 +10,8 @@ from symbolchain.core.CryptoTypes import PublicKey, Signature
 from symbolchain.core.sym.IdGenerator import generate_mosaic_id, generate_namespace_id
 from symbolchain.core.sym.Network import Address, Network
 from symbolchain.core.sym.TransactionFactory import TransactionFactory
-from symbolchain.tests.test.NemTestUtils import NemTestUtils
+
+from ...test.NemTestUtils import NemTestUtils
 
 FOO_NETWORK = Network('foo', 0x54)
 TEST_SIGNER_PUBLIC_KEY = NemTestUtils.randbytes(PublicKey.SIZE)
