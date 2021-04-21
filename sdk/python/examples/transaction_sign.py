@@ -55,7 +55,7 @@ class SymTransactionSample(TransactionSample):
 
     def set_common_fields(self, descriptor):
         descriptor.update({
-            'signer_public_key': self.key_pair.public_key.bytes,
+            'signer_public_key': self.key_pair.public_key,
             'fee': 625,
             'deadline': 12345
         })

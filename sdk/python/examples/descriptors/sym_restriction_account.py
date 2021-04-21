@@ -2,7 +2,7 @@ from symbolchain.core.facade.SymFacade import SymFacade
 
 
 def descriptor_factory():
-    sample_address = SymFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y').bytes
+    sample_address = SymFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
     sample_mosaic_id = 0x7EDCBA90FEDCBA90
 
     return [
