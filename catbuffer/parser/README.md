@@ -1,4 +1,4 @@
-# catbuffer
+# catbuffer parser
 
 [![Build Status](https://api.travis-ci.com/nemtech/catbuffer-parser.svg?branch=main)](https://travis-ci.com/nemtech/catbuffer-parser)
 
@@ -6,7 +6,7 @@ The catbuffer library defines the protocol to serialize and deserialize Symbol e
 
 Using catbuffer-generators, developers can generate builder classes for a given set of programming languages. For example, the [Symbol SDKs](https://nemtech.github.io/sdk) use the generated code to interact with the entities in binary form before announcing them to the network.
 
-The [schemas](schemas) folder contains definitions for each entity's data structure. These definitions are always kept up to date and in sync with the [catapult server](https://github.com/nemtech/catapult-server) code.
+The [schemas](https://github.com/nemtech/catbuffer-schemas) folder contains definitions for each entity's data structure. These definitions are always kept up to date and in sync with the [catapult server](https://github.com/nemtech/catapult-server) code.
 
 ## Requirements
 
