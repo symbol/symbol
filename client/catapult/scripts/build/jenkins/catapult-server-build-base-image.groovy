@@ -3,54 +3,52 @@ pipeline {
         label 'cat-server-01'
     }
 
-    stages {
-        stage('setup parameters') {
-            steps {
-                script {
-                    properties([
-                        parameters([
-                            choice(name: 'COMPILER', choices: ['gcc-10', 'clang-11'], description: 'compiler'),
-                            text(name: 'SANITIZERS', defaultValue: '', description: 'comma delimited sanitizers (clang only)'),
-                            choice(name: 'ARCH', choices: ['skylake', 'broadwell', 'westmere'], description: 'architecture')
-                        ])
-                    ])
-                }
-            }
-        }
+    parameters {
+        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+        choice name: 'COMPILER_CONFIGURATION',
+            choices: ['clang-latest', 'gcc-latest', 'clang-address-undefined', 'clang-thread'],
+            description: 'compiler configuration'
+    }
 
+    stages {
         stage('prepare base image') {
             steps {
                 script {
-                    dest_image_name = "symbolplatform/symbol-server-build-base:${COMPILER}"
-                    if (params.SANITIZERS)
-                        dest_image_name += '-' + params.SANITIZERS.replaceAll(',', '-')
-                    dest_image_name += "-${ARCH}"
+                    dest_image_name = "symbolplatform/symbol-server-build-base:${COMPILER_CONFIGURATION}"
 
-                    base_image_build_layer(0, "${dest_image_name}-preimage1")
-                    base_image_build_layer(1, "${dest_image_name}-preimage2")
-                    base_image = base_image_build_layer(2, "${dest_image_name}")
+                    basic_python_command = """
+                        python3 ./scripts/build/baseImageDockerfileGenerator.py \
+                            --compiler-configuration scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
+                            --versions ./scripts/build/versions.properties \
+                    """
+
+                    for (layer in ['os', 'boost', 'deps', 'test'])
+                        base_image = base_image_build_layer("${layer}", "${basic_python_command}")
+
                     base_image.push()
+
+                    // create conan base images
+                    if ("${COMPILER_CONFIGURATION}" == "clang-latest" || "${COMPILER_CONFIGURATION}" == "gcc-latest") {
+                        base_image = base_image_build_layer('conan', "${basic_python_command}")
+                        base_image.push()
+                    }
                 }
             }
         }
     }
 }
 
-def base_image_build_layer(layer, dest_image_name) {
+def base_image_build_layer(layer, basic_python_command) {
     sh """
-        python3 ./scripts/build/baseImageDockerfileGenerator.py \
-            --layer=${layer} \
-            --compiler="${params.COMPILER}" \
-            --sanitizers="${params.SANITIZERS ?: ''}" \
-            --architecture="${params.ARCH}" \
-            --versions="./scripts/build/versions.properties" > Dockerfile
+        ${basic_python_command} --layer ${layer} > Dockerfile
+        ${basic_python_command} --layer ${layer} --name-only > dest_image_name.txt
 
         echo "*** LAYER ${layer} ***"
         cat Dockerfile
+        cat dest_image_name.txt
     """
 
-    script {
-        docker_image = docker.build "${dest_image_name}"
-        return docker_image
-    }
+    dest_image_name = readFile(file: 'dest_image_name.txt').trim()
+    docker_image = docker.build "${dest_image_name}"
+    return docker_image
 }

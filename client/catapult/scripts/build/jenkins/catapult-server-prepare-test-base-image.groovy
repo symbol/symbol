@@ -3,6 +3,10 @@ pipeline {
         label 'cat-server-01'
     }
 
+    parameters {
+        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+    }
+
     stages {
         stage('prepare Dockerfile') {
             steps {
@@ -17,15 +21,16 @@ pipeline {
                 }
             }
         }
+
         stage('build image') {
             steps {
                 script {
-                    sh """
-                        echo "*** Dockerfile ***"
+                    sh '''
+                        echo '*** Dockerfile ***'
                         cat Dockerfile
-                    """
+                    '''
 
-                    docker_image = docker.build "symbolplatform/catapult-test-base:latest"
+                    docker_image = docker.build 'symbolplatform/catapult-test-base:latest'
                     docker_image.push()
                 }
             }

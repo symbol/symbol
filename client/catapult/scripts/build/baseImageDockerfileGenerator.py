@@ -1,7 +1,9 @@
 import argparse
 
+from configuration import load_compiler_configuration
+
 SINGLE_COMMAND_SEPARATOR = ' \\\n    && '
-CLANG_CXX_FLAGS = ['-std=c++1y', '-stdlib=libc++']
+LAYER_TO_IMAGE_TAG_MAP = {'os': 'preimage1', 'boost': 'preimage2', 'deps': 'preimage3', 'test': '', 'conan': 'conan'}
 
 
 def print_line(lines, **kwargs):
@@ -30,10 +32,11 @@ class OptionsDescriptor:
 
 
 class OptionsManager:
-    def __init__(self, compiler, sanitizers, architecture, versions_filepath):
-        self.compiler = compiler
-        self.sanitizers = [] if not sanitizers else sanitizers.split(',')
-        self.architecture = architecture
+    def __init__(self, compiler_configuration, versions_filepath):
+        self.compiler = compiler_configuration.compiler
+        self.sanitizers = compiler_configuration.sanitizers
+        self.architecture = compiler_configuration.architecture
+        self.stl = compiler_configuration.stl
 
         self.versions = {}
         with (open(versions_filepath, 'rt')) as infile:
@@ -42,39 +45,45 @@ class OptionsManager:
                 if 2 == len(line_parts):
                     self.versions[line_parts[0]] = line_parts[1]
 
+    @property
     def is_clang(self):
-        return self.compiler.startswith('clang')
+        return self.compiler.c.startswith('clang')
 
-    def base_image(self):
-        return 'symbolplatform/symbol-server-compiler:{}'.format(self.compiler)
+    @property
+    def base_image_name(self):
+        return 'symbolplatform/symbol-server-compiler:{}-{}'.format(self.compiler.c, self.compiler.version)
 
-    def pre_image(self, tag):
-        compilation = self.compiler
-        if self.sanitizers:
-            compilation = '-'.join([self.compiler] + self.sanitizers)
+    def layer_image_name(self, layer):
+        name_parts = [self.compiler.c, str(self.compiler.version)]
+        if 'conan' != layer:
+            name_parts.extend(self.sanitizers + [self.architecture])
 
-        return 'symbolplatform/symbol-server-build-base:{}-{}-preimage{}'.format(compilation, self.architecture, tag)
+        tag = LAYER_TO_IMAGE_TAG_MAP[layer]
+        if tag:
+            name_parts.append(tag)
+
+        return 'symbolplatform/symbol-server-build-base:{}'.format('-'.join(name_parts))
 
     def bootstrap(self):
         options = []
-        if self.is_clang():
+        if self.is_clang:
             options += ['--with-toolset=clang']
 
         return options
 
     def b2(self):  # pylint: disable=invalid-name
         options = []
-        cxxflags = [self._arch_flag()]
-        if self.is_clang():
+        cxxflags = [self._arch_flag]
+        if self.is_clang:
             options += ['toolset=clang']
-            options += [format_multivalue_options('linkflags', ['-stdlib=libc++'])]
-            cxxflags += CLANG_CXX_FLAGS
+            options += [format_multivalue_options('linkflags', ['-stdlib={}'.format(self.stl.lib)])]
+            cxxflags += self._stl_flags
 
         options += [format_multivalue_options('cxxflags', cxxflags)]
         return options
 
     def openssl(self):
-        return [format_multivalue_options('CFLAGS', [self._arch_flag()])]
+        return [format_multivalue_options('CFLAGS', [self._arch_flag])]
 
     def openssl_configure(self):
         if 'address' in self.sanitizers:
@@ -113,11 +122,6 @@ class OptionsManager:
 
     def _zmq_descriptor(self):
         descriptor = OptionsDescriptor()
-        if self.is_clang():
-            # Xeon-based build machine, even with -mskylake seems to do miscompilation in libzmq,
-            # try to pass additional flags to disable faulty optimizations
-            descriptor.options += ['-mno-avx', '-mno-avx2']
-
         if 'thread' in self.sanitizers:
             descriptor.sanitizer = 'thread'
 
@@ -150,19 +154,24 @@ class OptionsManager:
         descriptor.options += ['-DBENCHMARK_ENABLE_GTEST_TESTS=OFF']
         return self._cmake(descriptor)
 
+    @property
     def _arch_flag(self):
         return '-march={}'.format(self.architecture)
+
+    @property
+    def _stl_flags(self):
+        return None if not self.stl else ['-std={}'.format(self.stl.version), '-stdlib={}'.format(self.stl.lib)]
 
     def _cmake(self, descriptor):
         descriptor.options += [
             '-DCMAKE_BUILD_TYPE=Release',
             '-DCMAKE_INSTALL_PREFIX=/usr',
         ]
-        descriptor.cxxflags += [self._arch_flag()]
+        descriptor.cxxflags += [self._arch_flag]
 
-        if self.is_clang():
-            descriptor.options += [format_multivalue_options('-DCMAKE_CXX_COMPILER', ['clang++'])]
-            descriptor.cxxflags += CLANG_CXX_FLAGS
+        if self.is_clang:
+            descriptor.options += [format_multivalue_options('-DCMAKE_CXX_COMPILER', [self.compiler.cpp])]
+            descriptor.cxxflags += self._stl_flags
 
         if descriptor.sanitizer:
             sanitize_flag = '-fsanitize={}'.format(descriptor.sanitizer)
@@ -182,7 +191,7 @@ class OptionsManager:
         return descriptor.options
 
 
-def generate_phase_zero(options):
+def generate_phase_os(options):
     apt_packages = [
         'autoconf',
         'ca-certificates',
@@ -204,10 +213,10 @@ def generate_phase_zero(options):
     ]
 
     print_lines([
-        'FROM {BASE_IMAGE}',
+        'FROM {BASE_IMAGE_NAME}',
         'ARG DEBIAN_FRONTEND=noninteractive',
         'MAINTAINER Catapult Development Team'
-    ], BASE_IMAGE=options.base_image())
+    ], BASE_IMAGE_NAME=options.base_image_name)
 
     print_line_with_continuation([
         'RUN apt-get -y update',
@@ -218,18 +227,21 @@ def generate_phase_zero(options):
     cmake_version = options.versions['cmake']
     cmake_script = 'cmake-{}-Linux-x86_64.sh'.format(cmake_version)
     cmake_uri = 'https://github.com/Kitware/CMake/releases/download/v{}'.format(cmake_version)
-    print_line_with_continuation([
+    print_line([
         'curl -o {CMAKE_SCRIPT} -SL "{CMAKE_URI}/{CMAKE_SCRIPT}"',
         'chmod +x {CMAKE_SCRIPT}',
         './{CMAKE_SCRIPT} --skip-license --prefix=/usr',
         'rm -rf {CMAKE_SCRIPT}'
     ], CMAKE_SCRIPT=cmake_script, CMAKE_URI=cmake_uri)
 
+
+def generate_phase_boost(options):
+    print('FROM {}'.format(options.layer_image_name('os')))
     gosu_version = options.versions['gosu']
     gosu_target = '/usr/local/bin/gosu'
     gosu_uri = 'https://github.com/tianon/gosu/releases/download/{}'.format(gosu_version)
     print_line([
-        'curl -o {GOSU_TARGET} -SL "{GOSU_URI}/gosu-$(dpkg --print-architecture)"',
+        'RUN curl -o {GOSU_TARGET} -SL "{GOSU_URI}/gosu-$(dpkg --print-architecture)"',
         'chmod +x {GOSU_TARGET}'
     ], GOSU_TARGET=gosu_target, GOSU_URI=gosu_uri)
 
@@ -290,8 +302,8 @@ def add_git_dependency(organization, project, versions_map, options, revision=1)
     ], ORGANIZATION=organization, PROJECT=project, VERSION=version, OPTIONS=' '.join(options), REVISION=revision)
 
 
-def generate_phase_one(options):
-    print('FROM {}'.format(options.pre_image(1)))
+def generate_phase_deps(options):
+    print('FROM {}'.format(options.layer_image_name('boost')))
     add_git_dependency('mongodb', 'mongo-c-driver', options.versions, options.mongo_c())
     add_git_dependency('mongodb', 'mongo-cxx-driver', options.versions, options.mongo_cxx())
 
@@ -301,8 +313,8 @@ def generate_phase_one(options):
     add_git_dependency('facebook', 'rocksdb', options.versions, options.rocks())
 
 
-def generate_phase_two(options):
-    print('FROM {}'.format(options.pre_image(2)))
+def generate_phase_test(options):
+    print('FROM {}'.format(options.layer_image_name('deps')))
     add_git_dependency('google', 'googletest', options.versions, options.googletest())
     add_git_dependency('google', 'benchmark', options.versions, options.googlebench())
 
@@ -314,7 +326,7 @@ def generate_phase_two(options):
         'RUN apt-get -y update',
         'apt-get remove -y --purge pylint',
         'apt-get install -y {APT_PACKAGES}',
-        'pip3 install -U pycodestyle pylint'
+        'python3 -m pip install -U pycodestyle pylint'
     ], APT_PACKAGES=' '.join(apt_packages))
 
     if options.sanitizers:
@@ -335,20 +347,41 @@ def generate_phase_two(options):
     ])
 
 
+def generate_phase_conan(options):
+    print('FROM {}'.format(options.layer_image_name('os')))
+
+    apt_packages = ['python3-pip']
+
+    print_line([
+        'RUN apt-get -y update',
+        'apt-get install -y {APT_PACKAGES}',
+        'python3 -m pip install -U "conan>=1.33.0"'
+    ], APT_PACKAGES=' '.join(apt_packages))
+
+
 def main():
     parser = argparse.ArgumentParser(description='catapult base image dockerfile generator')
-    parser.add_argument('--layer', help='docker layer to generate', choices=(0, 1, 2), type=int, required=True)
-    parser.add_argument('--compiler', help='compiler', choices=('gcc-10', 'clang-11'), required=True)
-    parser.add_argument('--sanitizers', help='comma delimited sanitizers (clang only)')
-    parser.add_argument('--architecture', help='target architecture', choices=('skylake', 'broadwell', 'westmere'), required=True)
+    parser.add_argument('--layer', help='name of docker layer to generate', choices=LAYER_TO_IMAGE_TAG_MAP.keys(), required=True)
+    parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
     parser.add_argument('--versions', help='locked versions file', required=True)
+    parser.add_argument('--name-only', help='true to output layer name', action='store_true')
     args = parser.parse_args()
 
-    options = OptionsManager(args.compiler, args.sanitizers, args.architecture, args.versions)
+    compiler_configuration = load_compiler_configuration(args.compiler_configuration)
+    options_manager = OptionsManager(compiler_configuration, args.versions)
+
+    if args.name_only:
+        print(options_manager.layer_image_name(args.layer))
+        return
+
+    options = options_manager
     {
-        0: generate_phase_zero,
-        1: generate_phase_one,
-        2: generate_phase_two
+        'os': generate_phase_os,
+        'boost': generate_phase_boost,
+        'deps': generate_phase_deps,
+        'test': generate_phase_test,
+
+        'conan': generate_phase_conan
     }[args.layer](options)
 
 
