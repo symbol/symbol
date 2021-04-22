@@ -5,6 +5,7 @@ from symbol_catbuffer.EmbeddedTransactionBuilderFactory import EmbeddedTransacti
 from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
 from symbol_catbuffer.TransactionBuilderFactory import TransactionBuilderFactory
 
+from ..ByteArray import ByteArray
 from ..CryptoTypes import PublicKey
 from ..TransactionDescriptorProcessor import TransactionDescriptorProcessor
 from .IdGenerator import generate_mosaic_id, generate_namespace_id
@@ -59,6 +60,13 @@ def create_enum_parser(name):
     return parser
 
 
+def sym_type_converter(value):
+    if isinstance(value, ByteArray):
+        return value.bytes
+
+    return value
+
+
 class TransactionFactory:
     """Factory for creating transactions."""
 
@@ -88,11 +96,12 @@ class TransactionFactory:
         return {**default_rules, **self.type_parsing_rules}
 
     def _create(self, transaction_descriptor, factory_class):
-        processor = TransactionDescriptorProcessor(transaction_descriptor, self._extend_type_parsing_rules())
+        processor = TransactionDescriptorProcessor(transaction_descriptor, self._extend_type_parsing_rules(), sym_type_converter)
 
         processor.set_type_hints({'signer_public_key': PublicKey})
 
         transaction_type = processor.lookup_value('type')
+
         transaction = factory_class.create_by_name(
             transaction_type,
             processor.lookup_value('signer_public_key'),

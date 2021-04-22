@@ -24,15 +24,15 @@ class ImportanceTransferTransactionTest(BasicNisTransactionTest, unittest.TestCa
         # Assert:
         self.assertEqual(0x0801, transaction.type)
         self.assertEqual(0x54000001, transaction.version)
-        self.assertEqual(0, transaction.timestamp)
         self.assertEqual(None, transaction.signer_public_key)
+        self.assertEqual(0, transaction.deadline)
 
         self.assertEqual(0, transaction.mode)
         self.assertEqual(None, transaction.remote_account_public_key)
 
         # - properties
+        self.assertEqual(0, transaction.timestamp)
         self.assertEqual(150000, transaction.fee)
-        self.assertEqual(60 * 60, transaction.deadline)
 
     # endregion
 
@@ -41,8 +41,8 @@ class ImportanceTransferTransactionTest(BasicNisTransactionTest, unittest.TestCa
     @staticmethod
     def _create_transfer_for_serialization_tests():
         transaction = ImportanceTransferTransaction(FOO_NETWORK)
-        transaction.timestamp = 12345
         transaction.signer_public_key = PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0')
+        transaction.deadline = 12345 + 24 * 60 * 60
 
         transaction.mode = 2
         transaction.remote_account_public_key = PublicKey('9764026AA71A3CD0189990D1B7B8275B8D80863CF271235DFC745F30651E93AA')
@@ -63,7 +63,7 @@ class ImportanceTransferTransactionTest(BasicNisTransactionTest, unittest.TestCa
             [0x20, 0x00, 0x00, 0x00],  # public key length
             transaction.signer_public_key.bytes,  # signer public key
             [0xF0, 0x49, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00],  # fee
-            [0x49, 0x3E, 0x00, 0x00],  # deadline
+            [0xB9, 0x81, 0x01, 0x00],  # deadline
             [0x02, 0x00, 0x00, 0x00],  # mode
             [0x20, 0x00, 0x00, 0x00],  # public key length
             transaction.remote_account_public_key.bytes,  # remote account public key
@@ -89,7 +89,7 @@ class ImportanceTransferTransactionTest(BasicNisTransactionTest, unittest.TestCa
             '                timestamp = 12345 [0x3039]',
             '        signer_public_key = D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0',
             '                      fee = 150000 [0x249F0]',
-            '                 deadline = 15945 [0x3E49]',
+            '                 deadline = 98745 [0x181B9]',
             '                     mode = 2 [0x2]',
             'remote_account_public_key = 9764026AA71A3CD0189990D1B7B8275B8D80863CF271235DFC745F30651E93AA'
         ])

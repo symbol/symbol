@@ -51,8 +51,8 @@ class TransactionFactoryTest(unittest.TestCase):
         # Act:
         transaction = factory.create({
             'type': 'transfer',
-            'timestamp': 98765,
             'signer_public_key': 'signer_name',
+            'deadline': 98765 + 24 * 60 * 60,
             'recipient_address': 'recipient_name',
             'message': 'hello world',
         })

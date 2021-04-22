@@ -39,16 +39,16 @@ class MultisigAccountModificationSample:
         embedded_transactions = [
             self.facade.transaction_factory.create_embedded({
                 'type': 'multisigAccountModification',
-                'signer_public_key': self.multisig_key_pair.public_key.bytes,
+                'signer_public_key': self.multisig_key_pair.public_key,
                 'min_approval_delta': 1,
                 'min_removal_delta': 1,
-                'address_additions': list(map(self.to_address_bytes, self.cosignatory_key_pairs))
+                'address_additions': list(map(self.to_address, self.cosignatory_key_pairs))
             })
         ]
 
         return self.facade.transaction_factory.create({
             'type': 'aggregateComplete',
-            'signer_public_key': self.multisig_key_pair.public_key.bytes,
+            'signer_public_key': self.multisig_key_pair.public_key,
             'fee': 625,
             'deadline': 12345,
             'transactions_hash': self.calculate_transactions_hash(embedded_transactions).bytes,
@@ -62,8 +62,8 @@ class MultisigAccountModificationSample:
             hash_builder.update(Hash256(sha3.sha3_256(embedded_transaction.serialize()).digest()))
         return hash_builder.final()
 
-    def to_address_bytes(self, key_pair):
-        return self.facade.network.public_key_to_address(key_pair.public_key).bytes
+    def to_address(self, key_pair):
+        return self.facade.network.public_key_to_address(key_pair.public_key)
 
     def add_cosignatures(self, aggregate_transaction):
         transaction_hash = self.facade.hash_transaction(aggregate_transaction).bytes

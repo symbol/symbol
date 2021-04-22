@@ -36,8 +36,8 @@ def add_embedded_transfers(facade, public_key):
         msg = read_contents(filepath)
         embedded = facade.transaction_factory.create_embedded({
             'type': 'transfer',
-            'signer_public_key': public_key.bytes,
-            'recipient_address': recipient.bytes,
+            'signer_public_key': public_key,
+            'recipient_address': recipient,
             # note: additional 0 byte at the beginning is added for compatibility with explorer
             # and other tools that treat messages starting with 00 byte as "plain text"
             'message': bytes(1) + msg.encode('utf8')
@@ -68,10 +68,10 @@ def main():
 
     aggregate = facade.transaction_factory.create({
         'type': 'aggregateComplete',
-        'signer_public_key': key_pair.public_key.bytes,
+        'signer_public_key': key_pair.public_key,
         'fee': 0,
         'deadline': 1,
-        'transactions_hash': merkle_hash.bytes,
+        'transactions_hash': merkle_hash,
         'transactions': embedded_transactions
     })
 

@@ -13,6 +13,7 @@ class NisFacade:
     BIP32_COIN_ID = 43
     BIP32_CURVE_NAME = 'ed25519-keccak'
 
+    Address = Address
     KeyPair = KeyPair
     Verifier = Verifier
 

@@ -12,12 +12,12 @@ from symbolchain.core.sym.IdGenerator import generate_mosaic_id
 
 
 class ClassLocator:
-    def __init__(self, facade_class, network_class, address_class):
+    def __init__(self, facade_class, network_class):
         self.facade_class = facade_class
         self.key_pair_class = self.facade_class.KeyPair
         self.verifier_class = self.facade_class.Verifier
         self.network_class = network_class
-        self.address_class = address_class
+        self.address_class = self.facade_class.Address
 
     @property
     def bip32_root_node_factory(self):
@@ -194,12 +194,12 @@ def load_class_locator(blockchain):
 
     if 'symbol' == blockchain:
         from symbolchain.core.facade.SymFacade import SymFacade
-        from symbolchain.core.sym.Network import Address, Network
-        return ClassLocator(SymFacade, Network, Address)
+        from symbolchain.core.sym.Network import Network
+        return ClassLocator(SymFacade, Network)
 
     from symbolchain.core.facade.NisFacade import NisFacade
-    from symbolchain.core.nis1.Network import Address, Network
-    return ClassLocator(NisFacade, Network, Address)
+    from symbolchain.core.nis1.Network import Network
+    return ClassLocator(NisFacade, Network)
 
 
 def main():
