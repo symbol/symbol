@@ -20,16 +20,29 @@ class BasicNisTransactionTest:
         self.assertEqual(test_descriptor.transaction_name, test_descriptor.transaction_class.NAME)
         self.assertEqual(test_descriptor.transaction_type, test_descriptor.transaction_class.TYPE)
 
-    def test_deadline_is_updated_with_timestamp(self):
+    def test_timestamp_is_updated_with_deadline(self):
         # Arrange:
         test_descriptor = self.get_test_descriptor()
         transaction = test_descriptor.transaction_class(test_descriptor.network)
 
         # Act:
-        transaction.timestamp = 9876
+        transaction.deadline = 9876 + 24 * 60 * 60
 
         # Assert:
-        self.assertEqual(9876 + 60 * 60, transaction.deadline)
+        self.assertEqual(9876 + 24 * 60 * 60, transaction.deadline)
+        self.assertEqual(9876, transaction.timestamp)
+
+    def test_timestamp_is_never_set_to_negative(self):
+        # Arrange:
+        test_descriptor = self.get_test_descriptor()
+        transaction = test_descriptor.transaction_class(test_descriptor.network)
+
+        # Act:
+        transaction.deadline = 1
+
+        # Assert:
+        self.assertEqual(1, transaction.deadline)
+        self.assertEqual(0, transaction.timestamp)
 
     @abstractmethod
     def get_test_descriptor(self):

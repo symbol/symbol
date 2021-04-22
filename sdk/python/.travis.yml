@@ -44,12 +44,17 @@ jobs:
        - PYTHONPATH=. python examples/bip32_keypair.py
        - PYTHONPATH=. python examples/transaction_aggregate.py --private examples/resources/zero.sha256.txt
        - PYTHONPATH=. python examples/transaction_multisig.py
-       - PYTHONPATH=. python examples/transaction_sign.py
+       - PYTHONPATH=. python examples/transaction_sign.py --blockchain=nis1
+       - PYTHONPATH=. python examples/transaction_sign.py --blockchain=symbol
 
     - stage: alpha / dev package
       name: alpha / dev package
       if: branch = env(DEV_BRANCH)
       script: echo deployment
+      before_deploy:
+        - sed -i "s/^\([0-9]\+.[0-9]\+.[0-9]\+\).*/\1a${TRAVIS_BUILD_NUMBER}/" version.txt
+        - git add version.txt
+        - git commit -m "automatic travis version bump"
       deploy:
         on:
           branch: $DEV_BRANCH
