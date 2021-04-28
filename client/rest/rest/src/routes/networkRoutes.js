@@ -131,7 +131,7 @@ module.exports = {
 		});
 
 		// CMC specific, only return the plain value of the max mosaic supply
-		server.get('/network/currency/total', (req, res, next) => readAndParseNetworkPropertiesFile()
+		server.get('/network/currency/supply/max', (req, res, next) => readAndParseNetworkPropertiesFile()
 			.then(propertiesObject => {
 				const maxSupply = propertiesObject.chain.maxMosaicAtomicUnits.replace(/'/g, '').slice(0, -6);
 				res.setHeader('content-type', 'text/plain');

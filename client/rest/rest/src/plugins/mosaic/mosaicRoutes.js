@@ -71,7 +71,7 @@ module.exports = {
 				.then(fileData => ini.parse(fileData));
 		};
 
-		server.get('/network/currency/circulating', (req, res, next) => readAndParseNetworkPropertiesFile()
+		server.get('/network/currency/supply/total', (req, res, next) => readAndParseNetworkPropertiesFile()
 			.then(propertiesObject => {
 				const currencyId = propertiesObject.chain.currencyMosaicId.replace(/'/g, '').replace('0x', '');
 				const mosaicId = routeUtils.parseArgument({ mosaicId: currencyId }, 'mosaicId', 'uint64hex');
