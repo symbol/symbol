@@ -1,0 +1,4 @@
+disposition: tests
+use_conan: false
+enable_diagnostics: false
+enable_tests: true
