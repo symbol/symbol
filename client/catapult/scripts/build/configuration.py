@@ -29,5 +29,5 @@ def load_build_configuration(filepath):
     with open(filepath, 'rt') as configuration_infile:
         configuration_yaml = yaml.load(configuration_infile, Loader=yaml.SafeLoader)
 
-        configuration_keys = ['disposition', 'use_conan', 'enable_diagnostics', 'enable_tests']
+        configuration_keys = ['disposition', 'use_conan', 'enable_diagnostics']
         return namedtuple('BuildConfiguration', configuration_keys)(*[configuration_yaml[key] for key in configuration_keys])

@@ -47,21 +47,10 @@ class OptionsManager(BasicBuildManager):
 
     def docker_run_settings(self):
         settings = [
-            ('IMAGE_TYPE', self.image_type),
-
             ('CC', self.compiler.c),
             ('CXX', self.compiler.cpp),
-
-            ('BUILD_VISIBILITY', 'none'),
-
             ('CCACHE_DIR', '/ccache')
         ]
-
-        if self.enable_diagnostics:
-            settings.append(('ENABLE_CATAPULT_DIAGNOSTICS', 'ON'))
-
-        if self.sanitizers:
-            settings.append(('USE_SANITIZER', ''.join(self.sanitizers)))
 
         return ['--env={}={}'.format(key, value) for key, value in sorted(settings)]
 

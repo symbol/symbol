@@ -73,11 +73,9 @@ class BuildManager(BasicBuildManager):
                 ('OPENSSL_ROOT_DIR', '/usr/local')
             ])
 
-        # if self.exclude_tests:
-        #    settings.append(('ENABLE_TESTS', 'OFF'))
-
         if self.is_release:
             settings.append(('CATAPULT_BUILD_RELEASE', 'ON'))
+            settings.append(('ENABLE_TESTS', 'OFF'))
 
         return ['-D{}={}'.format(key, value) for key, value in settings]
 
