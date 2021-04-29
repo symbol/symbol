@@ -126,17 +126,16 @@ def main():
 
     # copy files
 
-    # if not args.dry_run:
-    #     print('copying files')
-    #     catapult_src_path = Path('').resolve()
-    #     os.chdir(OUTPUT_DIR)
+    if not args.dry_run:
+        print('copying files')
+        catapult_src_path = Path('').resolve()
+        os.chdir(OUTPUT_DIR)
 
-    #     for folder_name in ['scripts', 'seed', 'resources']:
-    #         os.mkdir(folder_name)
-    #         shutil.copytree(catapult_src_path / folder_name, folder_name)
+        for folder_name in ['scripts', 'seed', 'resources']:
+            shutil.copytree(catapult_src_path / folder_name, folder_name)
 
-    #     if (catapult_src_path / 'internal').is_dir():
-    #         pass
+        if (catapult_src_path / 'internal').is_dir():
+            pass
 
     # prepare image
 

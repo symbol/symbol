@@ -1,5 +1,7 @@
 import argparse
 import os
+import shutil
+from pathlib import Path
 
 from BasicBuildManager import BasicBuildManager
 from process import ProcessManager
@@ -86,6 +88,54 @@ class BuildManager(BasicBuildManager):
     def build(self):
         self.dispatch_subprocess(['ninja', 'publish'])
         self.dispatch_subprocess(['ninja'])
+        self.dispatch_subprocess(['ninja', 'install'])
+
+    @staticmethod
+    def _copy_with_symlinks(directory_path, pattern, destination):
+        for file in Path(directory_path).glob(pattern):
+            shutil.copy(file, destination, follow_symlinks=False)
+
+    def copy_dependencies(self, destination):
+        if self.use_conan:
+            shutil.copytree('./deps', destination, symlinks=True)
+            return
+
+        os.makedirs(destination)
+        for name in ['atomic', 'chrono', 'date_time', 'filesystem', 'log', 'log_setup', 'program_options', 'regex', 'thread']:
+            self._copy_with_symlinks('/mybuild/lib', 'libboost_{}.so*'.format(name), destination)
+
+        for name in ['bson-1.0', 'mongoc-1.0', 'bsoncxx', 'mongocxx', 'zmq', 'rocks', 'snappy', 'gflags']:
+            self._copy_with_symlinks('/usr/lib/x86_64-linux-gnu', 'lib{}.so*'.format(name), destination)
+
+    def copy_compiler_deps(self, destination):
+        for dependency_pattern in self.compiler.deps:
+            self._copy_with_symlinks(os.path.dirname(dependency_pattern), os.path.basename(dependency_pattern), destination)
+
+    def copy_sanitizer_deps(self, destination):
+        for name in ['crypto', 'ssl']:
+            self._copy_with_symlinks('/usr/local/lib/', 'lib{}*'.format(name), destination)
+
+        shutil.copytree('/usr/local/lib/engines-1.1', Path(destination) / 'engines-1.1', symlinks=True)
+
+    def copy_files(self):
+        deps_output_path = '/binaries/deps'
+        tests_output_path = '/binaries/tests'
+
+        # copy deps
+        self.copy_dependencies(deps_output_path)
+        self.copy_compiler_deps(deps_output_path)
+
+        if self.sanitizers:
+            self.copy_sanitizer_deps(deps_output_path)
+
+        # copy tests
+        if not self.is_release:
+            os.makedirs(tests_output_path)
+            self._copy_with_symlinks('./bin', 'tests*', tests_output_path)
+
+        # list directories
+        self.dispatch_subprocess(['ls', '-alh', deps_output_path])
+        self.dispatch_subprocess(['ls', '-alh', tests_output_path])
 
 
 def main():
@@ -108,6 +158,8 @@ def main():
 
     builder.run_cmake()
     builder.build()
+    if not args.dry_run:
+        builder.copy_files()
 
 
 if __name__ == '__main__':
