@@ -326,7 +326,7 @@ def generate_phase_test(options):
         'RUN apt-get -y update',
         'apt-get remove -y --purge pylint',
         'apt-get install -y {APT_PACKAGES}',
-        'python3 -m pip install -U pycodestyle pylint'
+        'python3 -m pip install -U pycodestyle pylint pyyaml'
     ], APT_PACKAGES=' '.join(apt_packages))
 
     if options.sanitizers:
