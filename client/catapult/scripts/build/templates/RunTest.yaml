@@ -1,0 +1,46 @@
+version: '2.1'
+services:
+  db:
+    image: mongo:4.2-rc
+    user: {{USER}}
+    networks:
+      test_net:
+        ipv6_address: 2001:3200:{{NETWORK_IP}}::25
+    command: mongod --bind_ip_all --dbpath=/mongo --logpath /mongo/mongod.log
+    stop_signal: SIGINT
+    volumes:
+      - ./mongo/{{BUILD_NUMBER}}:/mongo:rw
+
+  test:
+    image: {{IMAGE_NAME}}
+    user: {{USER}}
+    networks:
+      test_net:
+        ipv6_address: 2001:3200:{{NETWORK_IP}}::20
+    environment:
+      - GTESTFILTER={{GTESTFILTER}}
+      - STRESSCOUNT={{STRESSCOUNT}}
+      - LD_LIBRARY_PATH=/usr/catapult/lib:/usr/catapult/deps
+    working_dir: /catapult-data/workdir
+    cap_add:
+      - SYS_PTRACE
+    command: >-
+      python3 /catapult-src/scripts/build/runDockerTestsInnerTest.py
+        --exe-path /usr/catapult/tests
+        --out-dir /catapult-data/logs
+        --verbosity {{VERBOSITY}}
+    volumes:
+      - ./catapult-data:/catapult-data
+      - ./catapult-src:/catapult-src
+    depends_on:
+      - db
+
+networks:
+  test_net:
+    enable_ipv6: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+       - subnet: 2001:3200:{{NETWORK_IP}}::/64
+         gateway: 2001:3200:{{NETWORK_IP}}::1

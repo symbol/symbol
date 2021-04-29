@@ -54,6 +54,18 @@ class EnvironmentManager:
 
     # endregion
 
+    # region globs
+
+    def find_glob(self, directory_path, pattern):
+        self._print_command('find_glob', [directory_path, pattern])
+
+        if self.dry_run:
+            return ['[({})match{}]'.format(pattern, i) for i in range(1, 3)]
+
+        return Path(directory_path).glob(pattern)
+
+    # endregion
+
     # region file copying
 
     def copy_glob_with_symlinks(self, directory_path, pattern, destination):

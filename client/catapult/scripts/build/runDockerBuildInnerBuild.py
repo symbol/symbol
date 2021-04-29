@@ -102,7 +102,7 @@ class BuildManager(BasicBuildManager):
         for name in ['atomic', 'chrono', 'date_time', 'filesystem', 'log', 'log_setup', 'program_options', 'regex', 'thread']:
             self.environment_manager.copy_glob_with_symlinks('/mybuild/lib', 'libboost_{}.so*'.format(name), destination)
 
-        for name in ['bson-1.0', 'mongoc-1.0', 'bsoncxx', 'mongocxx', 'zmq', 'rocks', 'snappy', 'gflags']:
+        for name in ['bson-1.0', 'mongoc-1.0', 'bsoncxx', 'mongocxx', 'zmq', 'rocksdb', 'snappy', 'gflags']:
             self.environment_manager.copy_glob_with_symlinks('/usr/lib/x86_64-linux-gnu', 'lib{}.so*'.format(name), destination)
 
     def copy_compiler_deps(self, destination):

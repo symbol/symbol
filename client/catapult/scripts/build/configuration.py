@@ -1,5 +1,5 @@
-import os
 from collections import namedtuple
+from pathlib import Path
 
 import yaml
 
@@ -7,7 +7,7 @@ import yaml
 def load_compiler_configuration(filepath):
     with open(filepath, 'rt') as configuration_infile:
         configuration_yaml = yaml.load(configuration_infile, Loader=yaml.SafeLoader)
-        with open(os.path.join(os.path.dirname(filepath), configuration_yaml['compiler'])) as compiler_infile:
+        with open(Path(filepath).parent / configuration_yaml['compiler']) as compiler_infile:
             compiler_yaml = yaml.load(compiler_infile, Loader=yaml.SafeLoader)
 
             compiler_keys = ['c', 'cpp', 'version', 'deps']
