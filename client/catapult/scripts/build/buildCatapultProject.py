@@ -1,35 +1,34 @@
 import argparse
 import os
-import shutil
 from pathlib import Path
 
 from BasicBuildManager import BasicBuildManager
+from environment import EnvironmentManager
 from process import ProcessManager
 
 CONAN_NEMTECH_REMOTE = 'https://catapult.jfrog.io/artifactory/api/conan/ngl-conan'
 
 
 class LinuxEnvironment:
-    def __init__(self, use_conan, process_manager):
+    def __init__(self, use_conan, process_manager, environment_manager):
         self.use_conan = use_conan
         self.dispatch_subprocess = process_manager.dispatch_subprocess
+        self.environment_manager = environment_manager
 
     def prepare(self):
         self._prepare_directory()
         self._prepare_environment_variables()
 
-    @staticmethod
-    def _prepare_directory():
-        os.makedirs('/tmp/_build')
-        os.chdir('/tmp/_build')
+    def _prepare_directory(self):
+        self.environment_manager.mkdirs('/tmp/_build')
+        self.environment_manager.chdir('/tmp/_build')
 
     def _prepare_environment_variables(self):
         if self.use_conan:
-            # conan cache directory
-            os.environ['HOME'] = '/conan'
+            self.environment_manager.set_env_var('HOME', '/conan')  # conan cache directory
         else:
-            os.environ['BOOST_ROOT'] = '/mybuild'
-            os.environ['GTEST_ROOT'] = '/usr/local'
+            self.environment_manager.set_env_var('BOOST_ROOT', '/mybuild')
+            self.environment_manager.set_env_var('GTEST_ROOT', '/usr/local')
 
     def prepare_conan(self, settings):
         # create default profile if it does not exist
@@ -48,9 +47,10 @@ class LinuxEnvironment:
 
 
 class BuildManager(BasicBuildManager):
-    def __init__(self, args, process_manager):
+    def __init__(self, args, process_manager, environment_manager):
         super().__init__(args.compiler_configuration, args.build_configuration)
         self.dispatch_subprocess = process_manager.dispatch_subprocess
+        self.environment_manager = environment_manager
 
     def cmake_settings(self):
         settings = [
@@ -90,32 +90,29 @@ class BuildManager(BasicBuildManager):
         self.dispatch_subprocess(['ninja'])
         self.dispatch_subprocess(['ninja', 'install'])
 
-    @staticmethod
-    def _copy_with_symlinks(directory_path, pattern, destination):
-        for file in Path(directory_path).glob(pattern):
-            shutil.copy(file, destination, follow_symlinks=False)
-
     def copy_dependencies(self, destination):
         if self.use_conan:
-            shutil.copytree('./deps', destination, symlinks=True)
+            self.environment_manager.copy_tree_with_symlinks('./deps', destination)
             return
 
-        os.makedirs(destination)
+        self.environment_manager.mkdirs(destination)
         for name in ['atomic', 'chrono', 'date_time', 'filesystem', 'log', 'log_setup', 'program_options', 'regex', 'thread']:
-            self._copy_with_symlinks('/mybuild/lib', 'libboost_{}.so*'.format(name), destination)
+            self.environment_manager.copy_glob_with_symlinks('/mybuild/lib', 'libboost_{}.so*'.format(name), destination)
 
         for name in ['bson-1.0', 'mongoc-1.0', 'bsoncxx', 'mongocxx', 'zmq', 'rocks', 'snappy', 'gflags']:
-            self._copy_with_symlinks('/usr/lib/x86_64-linux-gnu', 'lib{}.so*'.format(name), destination)
+            self.environment_manager.copy_glob_with_symlinks('/usr/lib/x86_64-linux-gnu', 'lib{}.so*'.format(name), destination)
 
     def copy_compiler_deps(self, destination):
         for dependency_pattern in self.compiler.deps:
-            self._copy_with_symlinks(os.path.dirname(dependency_pattern), os.path.basename(dependency_pattern), destination)
+            directory_path = os.path.dirname(dependency_pattern)
+            pattern = os.path.basename(dependency_pattern)
+            self.environment_manager.copy_glob_with_symlinks(directory_path, pattern, destination)
 
     def copy_sanitizer_deps(self, destination):
         for name in ['crypto', 'ssl']:
-            self._copy_with_symlinks('/usr/local/lib/', 'lib{}*'.format(name), destination)
+            self.environment_manager.copy_glob_with_symlinks('/usr/local/lib/', 'lib{}*'.format(name), destination)
 
-        shutil.copytree('/usr/local/lib/engines-1.1', Path(destination) / 'engines-1.1', symlinks=True)
+        self.environment_manager.copy_tree_with_symlinks('/usr/local/lib/engines-1.1', Path(destination) / 'engines-1.1')
 
     def copy_files(self):
         deps_output_path = '/binaries/deps'
@@ -130,8 +127,9 @@ class BuildManager(BasicBuildManager):
 
         # copy tests
         if not self.is_release:
-            os.makedirs(tests_output_path)
-            self._copy_with_symlinks('./bin', 'tests*', tests_output_path)
+            self.environment_manager.mkdirs(tests_output_path)
+            self.environment_manager.copy_glob_with_symlinks('./bin', 'bench*', tests_output_path)  # TODO ask gimre
+            self.environment_manager.copy_glob_with_symlinks('./bin', 'tests*', tests_output_path)
 
         # list directories
         self.dispatch_subprocess(['ls', '-alh', deps_output_path])
@@ -146,11 +144,11 @@ def main():
     args = parser.parse_args()
 
     process_manager = ProcessManager(args.dry_run)
-    builder = BuildManager(args, process_manager)
-    env = LinuxEnvironment(builder.use_conan, process_manager)
+    environment_manager = EnvironmentManager(args.dry_run)
 
-    if not args.dry_run:
-        env.prepare()
+    builder = BuildManager(args, process_manager, environment_manager)
+    env = LinuxEnvironment(builder.use_conan, process_manager, environment_manager)
+    env.prepare()
 
     if builder.use_conan:
         env.prepare_conan({'version': builder.compiler.version, 'libcxx': builder.stl.lib})
@@ -158,8 +156,7 @@ def main():
 
     builder.run_cmake()
     builder.build()
-    if not args.dry_run:
-        builder.copy_files()
+    builder.copy_files()
 
 
 if __name__ == '__main__':

@@ -1,10 +1,9 @@
 import argparse
-import os
-import shutil
 import sys
 from pathlib import Path
 
 from BasicBuildManager import BasicBuildManager
+from environment import EnvironmentManager
 from process import ProcessManager
 
 CCACHE_ROOT = '/home/ubuntu/jenkins/ccache'
@@ -86,19 +85,12 @@ def create_docker_run_command(options, compiler_configuration_filepath, build_co
     return docker_args
 
 
-def rm_failure_handler(func, path, excinfo):
-    del func
-    del path
-    if excinfo[0] != FileNotFoundError:
-        raise excinfo[1]
+def cleanup_directories(environment_manager, ccache_host_directory, conan_host_directory):
+    environment_manager.rmtree(OUTPUT_DIR)
+    environment_manager.mkdirs(BINARIES_DIR)
 
-
-def cleanup_directories(ccache_host_directory, conan_host_directory):
-    shutil.rmtree(OUTPUT_DIR, onerror=rm_failure_handler)
-    os.makedirs(BINARIES_DIR)
-
-    os.makedirs(ccache_host_directory, exist_ok=True)
-    os.makedirs(conan_host_directory, exist_ok=True)
+    environment_manager.mkdirs(ccache_host_directory, exist_ok=True)
+    environment_manager.mkdirs(conan_host_directory, exist_ok=True)
 
 
 def main():
@@ -112,8 +104,11 @@ def main():
     options = OptionsManager(args)
     docker_run = create_docker_run_command(options, args.compiler_configuration, args.build_configuration, args.user)
 
-    if not args.dry_run:
-        cleanup_directories(options.ccache_path / 'tmp', options.conan_path)
+    environment_manager = EnvironmentManager(args.dry_run)
+    environment_manager.rmtree(OUTPUT_DIR)
+    environment_manager.mkdirs(BINARIES_DIR)
+    environment_manager.mkdirs(options.ccache_path / 'tmp', exist_ok=True)
+    environment_manager.mkdirs(options.conan_path, exist_ok=True)
 
     # run build
 
@@ -129,13 +124,10 @@ def main():
     if not args.dry_run:
         print('copying files')
         catapult_src_path = Path('').resolve()
-        os.chdir(OUTPUT_DIR)
+        environment_manager.chdir(OUTPUT_DIR)
 
         for folder_name in ['scripts', 'seed', 'resources']:
-            shutil.copytree(catapult_src_path / folder_name, folder_name)
-
-        if (catapult_src_path / 'internal').is_dir():
-            pass
+            environment_manager.copy_tree_with_symlinks(catapult_src_path / folder_name, folder_name)
 
     # prepare image
 
