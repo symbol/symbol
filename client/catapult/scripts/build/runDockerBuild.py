@@ -75,8 +75,7 @@ def create_docker_run_command(options, compiler_configuration_filepath, build_co
         '--user={}'.format(user),
     ] + docker_run_settings + volume_mappings + [
         options.base_image_name,
-        'python3',
-        '/catapult-src/scripts/build/buildCatapultProject.py',
+        'python3', '/catapult-src/scripts/build/buildCatapultProject.py',  # TODO rename to runDockerBuildInnerBuild
         # assume paths are relative...
         '--compiler-configuration=/catapult-src/{}'.format(compiler_configuration_filepath),
         '--build-configuration=/catapult-src/{}'.format(build_configuration_filepath)
@@ -93,11 +92,32 @@ def cleanup_directories(environment_manager, ccache_host_directory, conan_host_d
     environment_manager.mkdirs(conan_host_directory, exist_ok=True)
 
 
+def prepare_docker_image(process_manager, destination_image_tag, container_id=None):
+    cid_filepath = '{}.cid'.format(destination_image_tag)
+    destination_image_name = 'symbolplatform/symbol-server-test:catapult-server-{}'.format(destination_image_tag)
+    process_manager.dispatch_subprocess([
+        'docker', 'run',
+        '--cidfile={}'.format(cid_filepath),
+        '--volume={}:/data'.format(Path('output').resolve()),
+        'symbolplatform/catapult-test-base:latest',
+        'python3', '/data/scripts/build/runDockerBuildInnerPrepare.py',
+        '--disposition=dev'
+    ])
+
+    if not container_id:
+        with open(cid_filepath, 'rt') as cid_infile:
+            container_id = cid_infile.read()
+
+    process_manager.dispatch_subprocess(['docker', 'commit', container_id, destination_image_name])
+    process_manager.dispatch_subprocess(['docker', 'push', destination_image_name])
+
+
 def main():
     parser = argparse.ArgumentParser(description='catapult project build generator')
     parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
     parser.add_argument('--build-configuration', help='path to build configuration yaml', required=True)
     parser.add_argument('--user', help='docker user', required=True)
+    parser.add_argument('--destination-image-tag', help='docker destination image tag', required=True)
     parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
     args = parser.parse_args()
 
@@ -110,7 +130,7 @@ def main():
     environment_manager.mkdirs(options.ccache_path / 'tmp', exist_ok=True)
     environment_manager.mkdirs(options.conan_path, exist_ok=True)
 
-    # run build
+    print('building project')
 
     process_manager = ProcessManager(args.dry_run)
 
@@ -119,20 +139,20 @@ def main():
     if return_code:
         sys.exit(return_code)
 
-    # copy files
+    print('copying files')
 
-    if not args.dry_run:
-        print('copying files')
-        catapult_src_path = Path('').resolve()
-        environment_manager.chdir(OUTPUT_DIR)
+    catapult_src_path = Path('').resolve()
 
-        for folder_name in ['scripts', 'seed', 'resources']:
-            environment_manager.copy_tree_with_symlinks(catapult_src_path / folder_name, folder_name)
+    environment_manager.chdir(OUTPUT_DIR)
 
-    # prepare image
+    for folder_name in ['scripts', 'seed', 'resources']:
+        environment_manager.copy_tree_with_symlinks(catapult_src_path / folder_name, folder_name)
 
-    print('prepared image')
-    sys.exit(0)
+    environment_manager.chdir('..')
+
+    print('building docker image')
+
+    prepare_docker_image(process_manager, args.destination_image_tag, '<dry_run_container_id>' if args.dry_run else None)
 
 
 if __name__ == '__main__':

@@ -128,7 +128,6 @@ class BuildManager(BasicBuildManager):
         # copy tests
         if not self.is_release:
             self.environment_manager.mkdirs(tests_output_path)
-            self.environment_manager.copy_glob_with_symlinks('./bin', 'bench*', tests_output_path)  # TODO ask gimre
             self.environment_manager.copy_glob_with_symlinks('./bin', 'tests*', tests_output_path)
 
         # list directories

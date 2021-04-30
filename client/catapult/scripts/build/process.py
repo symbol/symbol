@@ -16,7 +16,8 @@ def dispatch_subprocess(command_line, show_output=True):
 
     process.wait()
 
-    return process.returncode
+    if 0 != process.returncode:
+        raise SubprocessError('{} exited with {}'.format(' '.join(command_line), process.returncode))
 
 
 class ProcessManager:

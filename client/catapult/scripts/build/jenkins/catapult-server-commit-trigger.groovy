@@ -9,6 +9,7 @@ pipeline {
         stage('build') {
             steps {
                 script {
+                    sh 'printenv'
                     dispatch_build_job('gcc-latest', 'tests-metal')
                 }
             }
