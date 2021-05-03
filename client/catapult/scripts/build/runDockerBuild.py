@@ -75,7 +75,7 @@ def create_docker_run_command(options, compiler_configuration_filepath, build_co
         '--user={}'.format(user),
     ] + docker_run_settings + volume_mappings + [
         options.base_image_name,
-        'python3', '/catapult-src/scripts/build/buildCatapultProject.py',  # TODO rename to runDockerBuildInnerBuild
+        'python3', '/catapult-src/scripts/build/runDockerBuildInnerBuild.py',
         # assume paths are relative...
         '--compiler-configuration=/catapult-src/{}'.format(compiler_configuration_filepath),
         '--build-configuration=/catapult-src/{}'.format(build_configuration_filepath)
