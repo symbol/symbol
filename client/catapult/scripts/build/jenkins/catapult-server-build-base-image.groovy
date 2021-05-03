@@ -16,21 +16,19 @@ pipeline {
                 script {
                     dest_image_name = "symbolplatform/symbol-server-build-base:${COMPILER_CONFIGURATION}"
 
-                    basic_python_command = """
+                    base_image_dockerfile_generator_command = """
                         python3 ./scripts/build/baseImageDockerfileGenerator.py \
                             --compiler-configuration scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
                             --versions ./scripts/build/versions.properties \
                     """
 
-                    for (layer in ['os', 'boost', 'deps', 'test'])
-                        base_image = base_image_build_layer("${layer}", "${basic_python_command}")
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-token-symbolserverbot') {
+                        for (layer in ['os', 'boost', 'deps', 'test'])
+                            base_image_build_layer("${layer}", "${base_image_dockerfile_generator_command}").push()
 
-                    base_image.push()
-
-                    // create conan base images
-                    if ("${COMPILER_CONFIGURATION}" == "clang-latest" || "${COMPILER_CONFIGURATION}" == "gcc-latest") {
-                        base_image = base_image_build_layer('conan', "${basic_python_command}")
-                        base_image.push()
+                        // create conan base images
+                        if ("${COMPILER_CONFIGURATION}" == "clang-latest" || "${COMPILER_CONFIGURATION}" == "gcc-latest")
+                            base_image_build_layer('conan', "${base_image_dockerfile_generator_command}").push()
                     }
                 }
             }
@@ -38,10 +36,10 @@ pipeline {
     }
 }
 
-def base_image_build_layer(layer, basic_python_command) {
+def base_image_build_layer(layer, base_image_dockerfile_generator_command) {
     sh """
-        ${basic_python_command} --layer ${layer} > Dockerfile
-        ${basic_python_command} --layer ${layer} --name-only > dest_image_name.txt
+        ${base_image_dockerfile_generator_command} --layer ${layer} > Dockerfile
+        ${base_image_dockerfile_generator_command} --layer ${layer} --name-only > dest_image_name.txt
 
         echo "*** LAYER ${layer} ***"
         cat Dockerfile

@@ -1,10 +1,10 @@
 import sys
-from subprocess import PIPE, STDOUT, Popen
+from subprocess import PIPE, STDOUT, Popen, SubprocessError
 
 MAX_LINE_LENGTH = 140
 
 
-def dispatch_subprocess(command_line, show_output=True):
+def dispatch_subprocess(command_line, show_output=True, handle_error=True):
     process = Popen(command_line, stdout=PIPE, stderr=STDOUT)
 
     for line_bin in iter(process.stdout.readline, b''):
@@ -16,15 +16,20 @@ def dispatch_subprocess(command_line, show_output=True):
 
     process.wait()
 
-    if 0 != process.returncode:
-        raise SubprocessError('{} exited with {}'.format(' '.join(command_line), process.returncode))
+    if handle_error:
+        if 0 != process.returncode:
+            raise SubprocessError('{} exited with {}'.format(' '.join(command_line), process.returncode))
+    else:
+        return process.returncode
+
+    return 0
 
 
 class ProcessManager:
     def __init__(self, dry_run=False):
         self.dry_run = dry_run
 
-    def dispatch_subprocess(self, command_line, show_output=True):
+    def dispatch_subprocess(self, command_line, show_output=True, handle_error=True):
         full_command_line = ' '.join(command_line)
         if MAX_LINE_LENGTH > len(full_command_line):
             self._print_info_line('[*]', full_command_line)
@@ -36,7 +41,7 @@ class ProcessManager:
         if self.dry_run:
             return 0
 
-        return dispatch_subprocess(command_line, show_output)
+        return dispatch_subprocess(command_line, show_output, handle_error)
 
     @staticmethod
     def _print_info_line(prefix, line):

@@ -23,4 +23,3 @@ RUN apt-get -y update && apt-get install -y \
     cp perf /usr/bin && \
     cd ../../.. && \
     rm -rf linux.git
-CMD ["/bin/bash"]

@@ -11,36 +11,44 @@ pipeline {
                 stage('gcc-10') {
                     steps {
                         script {
-                            dispatch_base_image_job('gcc-latest')
+                            dispatch_build_base_image_job('gcc-latest')
                         }
                     }
                 }
                 stage('clang-11') {
                     steps {
                         script {
-                            dispatch_base_image_job('clang-latest')
+                            dispatch_build_base_image_job('clang-latest')
                         }
                     }
                 }
                 stage('clang-11 ausan') {
                     steps {
                         script {
-                            dispatch_base_image_job('clang-address-undefined')
+                            dispatch_build_base_image_job('clang-address-undefined')
                         }
                     }
                 }
                 stage('clang-11 tsan') {
                     steps {
                         script {
-                            dispatch_base_image_job('clang-thread')
+                            dispatch_build_base_image_job('clang-thread')
+                        }
+                    }
+                }
+
+                stage('release base image') {
+                    steps {
+                        script {
+                            dispatch_prepare_base_image_job('release')
                         }
                     }
                 }
                 stage('test base image') {
                     steps {
-                        build job: 'server-pipelines/catapult-server-prepare-test-base-image', parameters: [
-                            string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
-                        ]
+                        script {
+                            dispatch_prepare_base_image_job('test')
+                        }
                     }
                 }
             }
@@ -48,9 +56,17 @@ pipeline {
     }
 }
 
-def dispatch_base_image_job(compiler_configuration) {
+def dispatch_build_base_image_job(compiler_configuration) {
     build job: 'server-pipelines/catapult-server-build-base-image', parameters: [
         string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
         string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
     ]
 }
+
+def dispatch_prepare_base_image_job(image_type) {
+    build job: 'server-pipelines/catapult-server-prepare-base-image', parameters: [
+        string(name: 'IMAGE_TYPE', value: "${image_type}"),
+        string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
+    ]
+}
+

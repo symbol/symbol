@@ -1,17 +1,11 @@
 import argparse
 import os
-from pathlib import Path
 
 from environment import EnvironmentManager
 from process import ProcessManager
 
 DATA_VOLUME = '/data'
 USER_HOME = '/usr/catapult'
-
-
-def install_apt_package(process_manager, name):
-    process_manager.dispatch_subprocess(['apt-get', 'update'])
-    process_manager.dispatch_subprocess(['apt-get', 'install', '-y', name])
 
 
 def main():
@@ -25,14 +19,10 @@ def main():
     process_manager = ProcessManager(args.dry_run)
     environment_manager = EnvironmentManager(args.dry_run)
 
-    install_apt_package(process_manager, 'gdb')
-
     is_dev_build = 'dev' == args.disposition
     if is_dev_build:
         for name in ['seed', 'scripts', 'resources']:
             environment_manager.copy_tree_with_symlinks(os.path.join(DATA_VOLUME, name), os.path.join(USER_HOME, name))
-    else:
-        install_apt_package(process_manager, 'openssl')
 
     bin_folder_names = ['bin', 'deps', 'lib']
     if is_dev_build:

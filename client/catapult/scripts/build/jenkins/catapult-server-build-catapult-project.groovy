@@ -25,13 +25,26 @@ pipeline {
                     fully_qualified_user = readFile(file: 'user.txt').trim()
                     destination_image_tag = get_destination_image_tag()
 
-                    sh """
+                    run_docker_build_command = """
                         python3 scripts/build/runDockerBuild.py \
                             --compiler-configuration scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
                             --build-configuration scripts/build/configurations/${BUILD_CONFIGURATION}.yaml \
                             --user ${fully_qualified_user} \
-                            --destination-image-tag ${destination_image_tag}
+                            --destination-image-tag ${destination_image_tag} \
                     """
+
+                    sh "${run_docker_build_command} --base-image-names-only > base_image_names.txt"
+
+                    base_image_names = readFile(file: 'base_image_names.txt').split('\n')
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-token-symbolserverbot') {
+                        for (base_image_name in base_image_names)
+                            docker.image(base_image_name).pull()
+
+                        sh "${run_docker_build_command}"
+
+                        dest_image = docker.image("symbolplatform/symbol-server-test:catapult-server-${destination_image_tag}")
+                        dest_image.push()
+                    }
                 }
             }
         }

@@ -269,7 +269,7 @@ def generate_phase_boost(options):
 
     print_args = {
         'BOOST_ARCHIVE': 'boost_1_{}_0'.format(boost_version),
-        'BOOST_URI': 'https://dl.bintray.com/boostorg/release/1.{}.0/source'.format(boost_version),
+        'BOOST_URI': 'https://boostorg.jfrog.io/artifactory/main/release/1.{}.0/source'.format(boost_version),
         'BOOTSTRAP_OPTIONS': ' '.join(options.bootstrap()),
         'B2_OPTIONS': ' '.join(options.b2()),
         'BOOST_DISABLED_LIBS': ' '.join(boost_disabled_libs)

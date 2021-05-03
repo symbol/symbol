@@ -19,6 +19,9 @@ class LinuxEnvironment:
         self._prepare_directory()
         self._prepare_environment_variables()
 
+        self.dispatch_subprocess(['ccache', '-M', '30G'])
+        self.dispatch_subprocess(['ccache', '-s'])
+
     def _prepare_directory(self):
         self.environment_manager.mkdirs('/tmp/_build')
         self.environment_manager.chdir('/tmp/_build')
@@ -32,7 +35,7 @@ class LinuxEnvironment:
 
     def prepare_conan(self, settings):
         # create default profile if it does not exist
-        if self.dispatch_subprocess(['conan', 'profile', 'get', 'settings.compiler', 'default'], False):
+        if self.dispatch_subprocess(['conan', 'profile', 'get', 'settings.compiler', 'default'], show_output=False, handle_error=False):
             self.dispatch_subprocess(['conan', 'profile', 'new', 'default', '--detect'])
 
         self.dispatch_subprocess(['conan', 'remote', 'add', '--force', 'nemtech', CONAN_NEMTECH_REMOTE])

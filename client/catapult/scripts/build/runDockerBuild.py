@@ -30,11 +30,15 @@ class OptionsManager(BasicBuildManager):
         return '-'.join([version] + self.sanitizers + [self.architecture])
 
     @property
-    def base_image_name(self):
+    def build_base_image_name(self):
         if self.use_conan:
             return 'symbolplatform/symbol-server-build-base:{}-{}-{}'.format(self.compiler.c, self.compiler.version, 'conan')
 
         return 'symbolplatform/symbol-server-build-base:{}'.format(self.compilation_friendly_name)
+
+    @property
+    def prepare_base_image_name(self):
+        return 'symbolplatform/symbol-server-test-base:latest'
 
     @property
     def ccache_path(self):
@@ -74,7 +78,7 @@ def create_docker_run_command(options, compiler_configuration_filepath, build_co
         '--rm',
         '--user={}'.format(user),
     ] + docker_run_settings + volume_mappings + [
-        options.base_image_name,
+        options.build_base_image_name,
         'python3', '/catapult-src/scripts/build/runDockerBuildInnerBuild.py',
         # assume paths are relative...
         '--compiler-configuration=/catapult-src/{}'.format(compiler_configuration_filepath),
@@ -92,14 +96,14 @@ def cleanup_directories(environment_manager, ccache_host_directory, conan_host_d
     environment_manager.mkdirs(conan_host_directory, exist_ok=True)
 
 
-def prepare_docker_image(process_manager, destination_image_tag, container_id=None):
+def prepare_docker_image(process_manager, prepare_base_image_name, destination_image_tag, container_id):
     cid_filepath = '{}.cid'.format(destination_image_tag)
     destination_image_name = 'symbolplatform/symbol-server-test:catapult-server-{}'.format(destination_image_tag)
     process_manager.dispatch_subprocess([
         'docker', 'run',
         '--cidfile={}'.format(cid_filepath),
         '--volume={}:/data'.format(Path('output').resolve()),
-        'symbolplatform/catapult-test-base:latest',
+        'registry.hub.docker.com/{}'.format(prepare_base_image_name),
         'python3', '/data/scripts/build/runDockerBuildInnerPrepare.py',
         '--disposition=dev'
     ])
@@ -109,7 +113,6 @@ def prepare_docker_image(process_manager, destination_image_tag, container_id=No
             container_id = cid_infile.read()
 
     process_manager.dispatch_subprocess(['docker', 'commit', container_id, destination_image_name])
-    process_manager.dispatch_subprocess(['docker', 'push', destination_image_name])
 
 
 def main():
@@ -119,9 +122,16 @@ def main():
     parser.add_argument('--user', help='docker user', required=True)
     parser.add_argument('--destination-image-tag', help='docker destination image tag', required=True)
     parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
+    parser.add_argument('--base-image-names-only', help='only output the base image names', action='store_true')
     args = parser.parse_args()
 
     options = OptionsManager(args)
+
+    if args.base_image_names_only:
+        print(options.build_base_image_name)
+        print(options.prepare_base_image_name)
+        return
+
     docker_run = create_docker_run_command(options, args.compiler_configuration, args.build_configuration, args.user)
 
     environment_manager = EnvironmentManager(args.dry_run)
@@ -134,7 +144,6 @@ def main():
 
     process_manager = ProcessManager(args.dry_run)
 
-    process_manager.dispatch_subprocess(['docker', 'pull', options.base_image_name])
     return_code = process_manager.dispatch_subprocess(docker_run)
     if return_code:
         sys.exit(return_code)
@@ -152,7 +161,8 @@ def main():
 
     print('building docker image')
 
-    prepare_docker_image(process_manager, args.destination_image_tag, '<dry_run_container_id>' if args.dry_run else None)
+    container_id = '<dry_run_container_id>' if args.dry_run else None
+    prepare_docker_image(process_manager, options.prepare_base_image_name, args.destination_image_tag, container_id)
 
 
 if __name__ == '__main__':
