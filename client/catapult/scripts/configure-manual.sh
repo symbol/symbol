@@ -60,7 +60,7 @@ function download_boost {
 	local boost_ver=1_${1}_0
 	local boost_ver_dotted=1.${1}.0
 
-	curl -o boost_${boost_ver}.tar.gz -SL https://dl.bintray.com/boostorg/release/${boost_ver_dotted}/source/boost_${boost_ver}.tar.gz
+	curl -o boost_${boost_ver}.tar.gz -SL https://boostorg.jfrog.io/artifactory/main/release/${boost_ver_dotted}/source/boost_${boost_ver}.tar.gz
 	tar -xzf boost_${boost_ver}.tar.gz
 	mv boost_${boost_ver} boost
 }

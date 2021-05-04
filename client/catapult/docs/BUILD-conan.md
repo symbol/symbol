@@ -51,7 +51,7 @@ While Conan will be building and installing packages, you might want to go for a
 as this will probably take *a bit*.
 
 ```sh
-conan remote add nemtech https://api.bintray.com/conan/nemtech/symbol-server-dependencies
+conan remote add nemtech https://catapult.jfrog.io/artifactory/api/conan/ngl-conan
 
 git clone https://github.com/nemtech/catapult-server.git
 cd catapult-server
