@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'cat-server-01'
+        label 'ubuntu-20.04-8cores-16Gig'
     }
 
     parameters {

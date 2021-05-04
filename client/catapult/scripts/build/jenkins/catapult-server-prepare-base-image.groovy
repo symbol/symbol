@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'cat-server-01'
-    }
+    agent any
 
     parameters {
         gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
