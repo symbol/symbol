@@ -6,8 +6,8 @@ from BasicBuildManager import BasicBuildManager
 from environment import EnvironmentManager
 from process import ProcessManager
 
-CCACHE_ROOT = '/home/ubuntu/jenkins/ccache'
-CONAN_HOST = '/home/ubuntu/jenkins/conan-'
+CCACHE_ROOT = '/jenkins_cache/ccache'
+CONAN_ROOT = '/jenkins_cache/conan'
 
 OUTPUT_DIR = Path('') / 'output'
 BINARIES_DIR = OUTPUT_DIR / 'binaries'
@@ -46,7 +46,7 @@ class OptionsManager(BasicBuildManager):
 
     @property
     def conan_path(self):
-        return Path(CONAN_HOST + ('clang' if self.is_clang else 'gcc'))
+        return Path(CONAN_ROOT) / ('clang' if self.is_clang else 'gcc')
 
     def docker_run_settings(self):
         settings = [
@@ -88,12 +88,12 @@ def create_docker_run_command(options, compiler_configuration_filepath, build_co
     return docker_args
 
 
-def cleanup_directories(environment_manager, ccache_host_directory, conan_host_directory):
+def cleanup_directories(environment_manager, ccache_root_directory, conan_root_directory):
     environment_manager.rmtree(OUTPUT_DIR)
     environment_manager.mkdirs(BINARIES_DIR)
 
-    environment_manager.mkdirs(ccache_host_directory, exist_ok=True)
-    environment_manager.mkdirs(conan_host_directory, exist_ok=True)
+    environment_manager.mkdirs(ccache_root_directory, exist_ok=True)
+    environment_manager.mkdirs(conan_root_directory, exist_ok=True)
 
 
 def prepare_docker_image(process_manager, prepare_base_image_name, destination_image_tag, container_id):
