@@ -1,9 +1,9 @@
 # pylint: disable=too-few-public-methods
 
-from enum import Enum
 import os
 import re
 import shutil
+from enum import Enum
 
 from validation import Line
 
@@ -23,7 +23,7 @@ class Preproc:
     def __init__(self, line, lineno, word):
         self.line = line
         self.lineno = lineno
-        matchToType = {
+        match_to_type = {
             'define': PpType.DEFINE,
             'undef': PpType.UNDEF,
             'extern': PpType.IFDEF,
@@ -36,8 +36,8 @@ class Preproc:
             'pragma': PpType.PRAGMA,
             'error': PpType.ERROR
         }
-        if word in matchToType:
-            self.type = matchToType[word]
+        if word in match_to_type:
+            self.type = match_to_type[word]
         else:
             raise RuntimeError('unknown preprocessor directive' + line)
 
@@ -69,7 +69,7 @@ class IndentFix:
         self.line = line
 
 
-def fixTabs(line, count):
+def fix_tabs(line, count):
     if count == 0:
         return line
 
@@ -82,138 +82,138 @@ def fixTabs(line, count):
 
 
 class HeaderParser:
-    patternInclude = re.compile(r'\s*#\s*include[ \t]*(["<][^">]*[">])(.*)')
-    patternPreprocessor = re.compile(r'\s*#\s*(\w*)')
-    patternExtern = re.compile(r'\s*extern\s*')
-    patternEmptyLine = re.compile(r'^\s*$')
+    PATTERN_INCLUDE = re.compile(r'\s*#\s*include[ \t]*(["<][^">]*[">])(.*)')
+    PATTERN_PREPROCESSOR = re.compile(r'\s*#\s*(\w*)')
+    PATTERN_EXTERN = re.compile(r'\s*extern\s*')
+    PATTERN_EMPTY_LINE = re.compile(r'^\s*$')
 
-    def __init__(self, errorReporter, path, simpleValidators, fixIndentsInFiles=False):
-        self.errorReporter = errorReporter
+    def __init__(self, error_reporter, path, simple_validators, fix_indentsInFiles=False):
+        self.error_reporter = error_reporter
         self.path = path
-        self.lineNumber = 0
+        self.line_number = 0
         self.preprocessor = []
         #
         self.includes = []
-        self.includeError = None
-        self.simpleValidators = simpleValidators
+        self.include_error = None
+        self.simple_validators = simple_validators
 
         self.fixes = []
         # need to open as binary so that python can see '\r\n'
-        self.parseFile(open(self.path, 'rb'))
+        self.parse_file(open(self.path, 'rb'))
         if self.fixes:
-            if fixIndentsInFiles:
-                self.fixIndents(open(self.path, 'r'), open(self.path + '.tmp', 'wb'))
+            if fix_indentsInFiles:
+                self.fix_indents(open(self.path, 'r'), open(self.path + '.tmp', 'wb'))
                 os.remove(self.path)
                 shutil.move(self.path + '.tmp', self.path)
-            self.reportIndents()
+            self.report_indents()
 
-    def fixIndents(self, inf, outf):
-        fixNo = 0
-        lineNumber = 1
-        firstContinuation = False
+    def fix_indents(self, inf, outf):
+        fix_no = 0
+        line_number = 1
+        first_continuation = False
         for line in inf:
             line = line.strip('\n')
-            if fixNo < len(self.fixes) and lineNumber == self.fixes[fixNo].lineno:
+            if fix_no < len(self.fixes) and line_number == self.fixes[fix_no].lineno:
                 line = line.strip('\n')
-                if MultilineMacro.PPLINE == self.fixes[fixNo].type:
+                if MultilineMacro.PPLINE == self.fixes[fix_no].type:
                     line = line.strip()
-                    firstContinuation = True
+                    first_continuation = True
                 else:
-                    if firstContinuation:
-                        tabsMatch = re.match(r'^\t+', line)
-                        tabsCount = len(tabsMatch.group(0)) if tabsMatch else 0
-                        firstContinuation = False
-                    line = fixTabs(line, 1 - tabsCount)
-                fixNo += 1
+                    if first_continuation:
+                        tabs_match = re.match(r'^\t+', line)
+                        tabs_count = len(tabs_match.group(0)) if tabs_match else 0
+                        first_continuation = False
+                    line = fix_tabs(line, 1 - tabs_count)
+                fix_no += 1
             line = line + '\n'
-            lineNumber += 1
+            line_number += 1
             outf.write(line.encode('utf-8'))
 
-    def reportIndents(self):
-        firstContinuation = False
+    def report_indents(self):
+        first_continuation = False
         for fix in self.fixes:
             if MultilineMacro.PPLINE == fix.type:
                 if re.match(r'\s+', fix.line):
-                    errorMsg = 'preprocessor should be aligned to column 0'
-                    self.errorReporter('indentedPreprocessor', Line(self.path, fix.line.strip('\n\r'), fix.lineno, errorMsg))
-                    firstContinuation = True
+                    error_msg = 'preprocessor should be aligned to column 0'
+                    self.error_reporter('indentedPreprocessor', Line(self.path, fix.line.strip('\n\r'), fix.lineno, error_msg))
+                    first_continuation = True
             else:
-                if firstContinuation:
-                    tabsMatch = re.match(r'^\t+', fix.line)
-                    tabsCount = len(tabsMatch.group(0)) if tabsMatch else 0
-                    if 1 != tabsCount:
-                        errorMsg = 'first continuation must have single indent'
-                        self.errorReporter('indentedPreprocessor', Line(self.path, fix.line.strip('\n\r'), fix.lineno, errorMsg))
-                    firstContinuation = False
+                if first_continuation:
+                    tabs_match = re.match(r'^\t+', fix.line)
+                    tabs_count = len(tabs_match.group(0)) if tabs_match else 0
+                    if 1 != tabs_count:
+                        error_msg = 'first continuation must have single indent'
+                        self.error_reporter('indentedPreprocessor', Line(self.path, fix.line.strip('\n\r'), fix.lineno, error_msg))
+                    first_continuation = False
 
-    def processContinuation(self, line):
-        self.fixes.append(IndentFix(MultilineMacro.CONTINUATION, self.lineNumber, line))
+    def process_continuation(self, line):
+        self.fixes.append(IndentFix(MultilineMacro.CONTINUATION, self.line_number, line))
         return line and '\\' == line[-1]
 
-    def processPreprocessor(self, line):
+    def process_preprocessor(self, line):
         multiline = False
         if '\\' == line[-1]:
             multiline = True
         # this is here to skip pragma from preprocessor indent check
         if line != '#pragma once':
-            self.fixes.append(IndentFix(MultilineMacro.PPLINE, self.lineNumber, line))
+            self.fixes.append(IndentFix(MultilineMacro.PPLINE, self.line_number, line))
         return multiline
 
-    def parseFile(self, inputStream):
-        self.lineNumber = 1
+    def parse_file(self, input_stream):
+        self.line_number = 1
         pprev = None
         prev = None
         temp = None
-        isEmptyLine = False
-        prevEmptyLine = False
+        is_empty_line = False
+        prev_empty_line = False
         multiline = False
 
-        for validator in self.simpleValidators:
-            validator.reset(self.path, self.errorReporter)
+        for validator in self.simple_validators:
+            validator.reset(self.path, self.error_reporter)
 
-        for rawLine in inputStream:
-            line = rawLine.decode('utf8')
+        for raw_line in input_stream:
+            line = raw_line.decode('utf8')
             line = line.strip('\n')
 
             pprev = prev
             prev = temp
             temp = re.sub('\t', '    ', line)
 
-            for validator in self.simpleValidators:
-                validator.check(self.lineNumber, line)
+            for validator in self.simple_validators:
+                validator.check(self.line_number, line)
 
-            prevEmptyLine = isEmptyLine
-            isEmptyLine = bool(self.patternEmptyLine.match(line))
-            if isEmptyLine and prevEmptyLine:
-                self.errorReporter('consecutiveEmpty', Line(self.path, pprev + prev + temp, self.lineNumber))
+            prev_empty_line = is_empty_line
+            is_empty_line = bool(self.PATTERN_EMPTY_LINE.match(line))
+            if is_empty_line and prev_empty_line:
+                self.error_reporter('consecutiveEmpty', Line(self.path, pprev + prev + temp, self.line_number))
 
             if multiline:
-                multiline = self.processContinuation(line)
+                multiline = self.process_continuation(line)
             else:
-                if self.patternInclude.match(line):
-                    self.parseInclude(line)
-                    self.fixes.append(IndentFix(MultilineMacro.PPLINE, self.lineNumber, line))
-                elif self.patternPreprocessor.match(line):
-                    self.parsePreprocessor(line)
-                    multiline = self.processPreprocessor(line)
-                elif self.patternExtern.match(line):
-                    self.parseExtern(line)
-            self.lineNumber += 1
+                if self.PATTERN_INCLUDE.match(line):
+                    self.parse_include(line)
+                    self.fixes.append(IndentFix(MultilineMacro.PPLINE, self.line_number, line))
+                elif self.PATTERN_PREPROCESSOR.match(line):
+                    self.parse_preprocessor(line)
+                    multiline = self.process_preprocessor(line)
+                elif self.PATTERN_EXTERN.match(line):
+                    self.parse_extern(line)
+            self.line_number += 1
 
         if prev and not prev.strip():
-            self.errorReporter('emptyNearEnd', Line(self.path, pprev + prev + temp, self.lineNumber))
+            self.error_reporter('emptyNearEnd', Line(self.path, pprev + prev + temp, self.line_number))
 
-        for validator in self.simpleValidators:
+        for validator in self.simple_validators:
             validator.finalize()
 
-    def parseInclude(self, line):
-        res = self.patternInclude.match(line)
-        self.preprocessor.append(Include(line, self.lineNumber, res.group(1), res.group(2)))
+    def parse_include(self, line):
+        res = self.PATTERN_INCLUDE.match(line)
+        self.preprocessor.append(Include(line, self.line_number, res.group(1), res.group(2)))
         self.includes.append(res.group(1))
 
-    def parsePreprocessor(self, line):
-        res = self.patternPreprocessor.match(line)
-        self.preprocessor.append(Preproc(line, self.lineNumber, res.group(1)))
+    def parse_preprocessor(self, line):
+        res = self.PATTERN_PREPROCESSOR.match(line)
+        self.preprocessor.append(Preproc(line, self.line_number, res.group(1)))
 
-    def parseExtern(self, line):
-        self.preprocessor.append(Preproc(line, self.lineNumber, 'extern'))
+    def parse_extern(self, line):
+        self.preprocessor.append(Preproc(line, self.line_number, 'extern'))

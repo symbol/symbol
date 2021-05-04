@@ -1,12 +1,12 @@
 # python 3
 import argparse
-from fileinput import FileInput
 import os
 import re
 import shutil
-
+from fileinput import FileInput
 
 # region file system utils
+
 
 def find_headers(directory):
     return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f.endswith('.h')]
@@ -96,16 +96,16 @@ class Publisher:
 
     def publish_merged_file(self, filename):
         merged_path = os.path.join(self.publish_catapult_directory, filename)
-        merged_file = open(merged_path, 'w')
-        self.headers.append(os.path.join('catapult', filename))
+        with open(merged_path, 'w') as merged_file:
+            self.headers.append(os.path.join('catapult', filename))
 
-        for source_directory in self.source_directories:
-            component_file = os.path.join(source_directory, filename)
-            if not os.path.exists(component_file):
-                continue
+            for source_directory in self.source_directories:
+                component_file = os.path.join(source_directory, filename)
+                if not os.path.exists(component_file):
+                    continue
 
-            for line in FileInput(component_file):
-                merged_file.write(line)
+                for line in FileInput(component_file):
+                    merged_file.write(line)
 
     def publish_sdk_extensions(self, component):
         # ensure the source directory exists
@@ -117,13 +117,12 @@ class Publisher:
 
     def flush_master_header(self, exclusions=None):
         master_header_path = os.path.join(self.publish_catapult_directory, 'catapult.h')
-        master_header_file = open(master_header_path, 'w')
-
-        master_header_file.writelines(['#pragma once', '\n'])
-        for header in self.headers:
-            path_parts = os.path.split(header)
-            if None is exclusions or path_parts[-1] not in exclusions:
-                master_header_file.writelines(['#include "{}"'.format(header), '\n'])
+        with open(master_header_path, 'w') as master_header_file:
+            master_header_file.writelines(['#pragma once', '\n'])
+            for header in self.headers:
+                path_parts = os.path.split(header)
+                if None is exclusions or path_parts[-1] not in exclusions:
+                    master_header_file.writelines(['#include "{}"'.format(header), '\n'])
 
     def register_source_directory(self, source_directory):
         require_existence(source_directory)

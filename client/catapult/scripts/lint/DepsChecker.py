@@ -1,6 +1,6 @@
-from collections import defaultdict
 import os
 import re
+from collections import defaultdict
 
 
 class Rule:  # pylint: disable=too-few-public-methods
@@ -13,20 +13,20 @@ class Rule:  # pylint: disable=too-few-public-methods
 
 
 class DepsChecker:
-    def __init__(self, configPath, errors, verbose=False):
-        self.configPath = configPath
+    def __init__(self, config_path, errors, verbose=False):
+        self.config_path = config_path
         self.errors = errors
         self.verbose = verbose
         self.lines = []
         self.defines = {}
         self.rules = []
-        self.readConfig()
-        self.createRules()
+        self.read_config()
+        self.create_rules()
 
-    def readConfig(self):
-        ownDir = os.path.dirname(os.path.realpath(__file__))
-        configPath = os.path.join(ownDir, self.configPath)
-        with open(configPath, 'r') as fin:
+    def read_config(self):
+        own_dir = os.path.dirname(os.path.realpath(__file__))
+        config_path = os.path.join(own_dir, self.config_path)
+        with open(config_path, 'r') as fin:
             self.parse(fin)
 
     def parse(self, fin):
@@ -48,33 +48,33 @@ class DepsChecker:
             if len(rule) != 2 and len(define) != 2:
                 raise RuntimeError('could not parse line: {}'.format(line))
 
-    def expandDefine(self, expanded, ruleSrc, ruleDest, level=1):
+    def expand_define(self, expanded, rule_src, rule_dest, level=1):
         if level >= 5:
             raise RuntimeError('define nesting level too deep')
 
-        if ruleSrc in self.defines:
-            for srcDep in self.defines[ruleSrc]:
-                self.expandDefine(expanded, srcDep, ruleDest, level + 1)
-        elif ruleDest in self.defines:
-            for destDep in self.defines[ruleDest]:
-                self.expandDefine(expanded, ruleSrc, destDep, level + 1)
+        if rule_src in self.defines:
+            for src_dep in self.defines[rule_src]:
+                self.expand_define(expanded, src_dep, rule_dest, level + 1)
+        elif rule_dest in self.defines:
+            for dest_dep in self.defines[rule_dest]:
+                self.expand_define(expanded, rule_src, dest_dep, level + 1)
         else:
-            expanded.append(Rule(ruleSrc, ruleDest))
+            expanded.append(Rule(rule_src, rule_dest))
 
-    def processDefines(self):
-        expandedRules = []
+    def process_defines(self):
+        expanded_rules = []
         for rule in self.lines:
-            self.expandDefine(expandedRules, rule.src, rule.dest)
+            self.expand_define(expanded_rules, rule.src, rule.dest)
 
-        return expandedRules
+        return expanded_rules
 
     @staticmethod
-    def isSelfContained(rules, name, deps):
+    def is_self_contained(rules, name, deps):
         del name
         return all(map(lambda dep: dep not in rules, deps))
 
     @staticmethod
-    def addRule(rules, name, dep):
+    def add_rule(rules, name, dep):
         if dep in rules:
             for subdep in rules[dep]:
                 rules[name].add(subdep)
@@ -82,63 +82,63 @@ class DepsChecker:
         rules[name].add(dep)
 
     @staticmethod
-    def addRules(rules, name, deps):
+    def add_rules(rules, name, deps):
         for dep in deps:
-            DepsChecker.addRule(rules, name, dep)
+            DepsChecker.add_rule(rules, name, dep)
 
-    def createRule(self, ruleSrc, ruleDest):
-        srcPattern = '^{}$'.format(ruleSrc)
-        destPattern = '^{}$'.format(ruleDest)
-        self.rules.append((re.compile(srcPattern), re.compile(destPattern)))
+    def create_rule(self, rule_src, rule_dest):
+        src_pattern = '^{}$'.format(rule_src)
+        dest_pattern = '^{}$'.format(rule_dest)
+        self.rules.append((re.compile(src_pattern), re.compile(dest_pattern)))
 
-    def processRules(self, expandedRules):
-        transitiveRules = defaultdict(set)
-        for rule in expandedRules:
-            transitiveRules[rule.src].add(rule.dest)
+    def process_rules(self, expanded_rules):
+        transitive_rules = defaultdict(set)
+        for rule in expanded_rules:
+            transitive_rules[rule.src].add(rule.dest)
 
         rules = defaultdict(set)
-        while transitiveRules:
-            current = iter(transitiveRules.items())
-            addedRule = False
+        while transitive_rules:
+            current = iter(transitive_rules.items())
+            added_rule = False
             while True:
                 try:
                     name, deps = next(current)
                 except StopIteration:
                     break
 
-                if DepsChecker.isSelfContained(transitiveRules, name, deps):
-                    DepsChecker.addRules(rules, name, deps)
-                    del transitiveRules[name]
-                    addedRule = True
+                if DepsChecker.is_self_contained(transitive_rules, name, deps):
+                    DepsChecker.add_rules(rules, name, deps)
+                    del transitive_rules[name]
+                    added_rule = True
                     break
 
-            if not addedRule:
+            if not added_rule:
                 raise RuntimeError('loop in rules detected')
 
-        for rule, ruleSet in rules.items():
-            for dep in ruleSet:
+        for rule, rule_set in rules.items():
+            for dep in rule_set:
                 if self.verbose:
                     print(' + {} -> {}'.format(rule, dep))
 
-                self.createRule(rule, dep)
+                self.create_rule(rule, dep)
 
-    def createRules(self):
-        expandedRules = self.processDefines()
-        self.processRules(expandedRules)
+    def create_rules(self):
+        expanded_rules = self.process_defines()
+        self.process_rules(expanded_rules)
 
-    def match(self, path, srcIncludeDir, destIncludeDir, fullInclude):
-        fixedDestDir = destIncludeDir
+    def match(self, path, src_include_dir, dest_include_dir, full_include):
+        fixed_dest_dir = dest_include_dir
 
         # hack: local includes
         # if include contains only signle dir, treat it as a local include and prepend current src dir
-        if '/' not in destIncludeDir and destIncludeDir != 'catapult':
-            fixedDestDir = srcIncludeDir + '/' + destIncludeDir
+        if '/' not in dest_include_dir and dest_include_dir != 'catapult':
+            fixed_dest_dir = src_include_dir + '/' + dest_include_dir
 
         for pattern, allowed in self.rules:
-            if pattern.match(srcIncludeDir) and allowed.match(fixedDestDir):
+            if pattern.match(src_include_dir) and allowed.match(fixed_dest_dir):
                 return True
 
-        dep = '{} -> {}'.format(srcIncludeDir, destIncludeDir)
-        msg = '{:50s} # {} includes {}'.format(dep, path, fullInclude)
-        self.errors.append((srcIncludeDir, dep, msg))
+        dep = '{} -> {}'.format(src_include_dir, dest_include_dir)
+        msg = '{:50s} # {} includes {}'.format(dep, path, full_include)
+        self.errors.append((src_include_dir, dep, msg))
         return False

@@ -60,7 +60,7 @@ t_EXCLAMATION = r'!'
 t_PRECOMP_MACRO = r'\#(.*?\\\n|.*)*'  # gimre: regex to handle multiline #defines
 
 
-def t_COMMENT_SINGLELINE(tok):
+def t_COMMENT_SINGLELINE(tok):  # pylint: disable=invalid-name
     r'\/\/.*\n'
     tok.lexer.lineno += len([a for a in tok.value if a == '\n'])
 
@@ -76,12 +76,12 @@ t_SQUOTE = r'\''
 t_STRING_LITERAL = r'"([^"\\]|\\.)*"'
 
 
-def t_COMMENT_MULTILINE(tok):
+def t_COMMENT_MULTILINE(tok):  # pylint: disable=invalid-name
     r'/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/'
     tok.lexer.lineno += len([a for a in tok.value if a == '\n'])
 
 
-def t_NEWLINE(tok):
+def t__n_e_w_l_i_n_e(tok):
     r'\n+'
     tok.lexer.lineno += len(tok.value)
 

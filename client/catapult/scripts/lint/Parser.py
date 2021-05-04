@@ -1,11 +1,11 @@
-from collections import defaultdict
-from enum import Enum
 import re
 import sys
 import traceback
+from collections import defaultdict
+from enum import Enum
 from xml.sax.saxutils import escape as xmlEscape
 
-from colorPrint import warning, colorPrint, Fore, Style
+from colorPrint import Fore, Style, color_print, warning
 from cppLexer import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from validation import Line
 
@@ -41,12 +41,12 @@ DEST_DIR = '.'
 
 def info(*args):
     if 1 == PRINT_INFO:
-        colorPrint(Fore.GREEN, *args)
+        color_print(Fore.GREEN, *args)
 
 
 def debug(*args):
     if 1 == PRINT_DEBUG:
-        colorPrint(Fore.GREEN, *args)
+        color_print(Fore.GREEN, *args)
 
 
 def trace_print(*args):
@@ -54,9 +54,9 @@ def trace_print(*args):
         print(*args)
 
 
-def has(tokenName, stack):
+def has(token_name, stack):
     for token in stack:
-        if token.type == tokenName:
+        if token.type == token_name:
             return True
     return False
 
@@ -85,28 +85,28 @@ class NamespaceInfo:  # pylint: disable=too-few-public-methods
 
     # pylint: disable=attribute-defined-outside-init
     def __ior__(self, other):
-        self.hadForward = self.hadForward or other.hadForward
-        self.hadFuncOrVar = self.hadFuncOrVar or other.hadFuncOrVar
-        self.hadClass = self.hadClass or other.hadClass
-        self.hadEnum = self.hadEnum or other.hadEnum
-        self.hadUsing = self.hadUsing or other.hadUsing
-        self.hadTest = self.hadTest or other.hadTest
-        self.hadConstant = self.hadConstant or other.hadConstant
-        self.hadInclude = self.hadInclude or other.hadInclude
+        self.had_forward = self.had_forward or other.had_forward
+        self.had_func_or_var = self.had_func_or_var or other.had_func_or_var
+        self.had_class = self.had_class or other.had_class
+        self.had_enum = self.had_enum or other.had_enum
+        self.had_using = self.had_using or other.had_using
+        self.had_test = self.had_test or other.had_test
+        self.had_constant = self.had_constant or other.had_constant
+        self.had_include = self.had_include or other.had_include
         # this is a hack for some catapult-specific macros usage
-        self.hadDefineMacro = self.hadDefineMacro or other.hadDefineMacro
+        self.had_define_macro = self.had_define_macro or other.had_define_macro
         return self
 
     def empty(self):
-        return not (self.hadForward or
-                    self.hadClass or
-                    self.hadEnum or
-                    self.hadFuncOrVar or
-                    self.hadUsing or
-                    self.hadTest or
-                    self.hadConstant or
-                    self.hadInclude or
-                    self.hadDefineMacro)
+        return not (self.had_forward or
+                    self.had_class or
+                    self.had_enum or
+                    self.had_func_or_var or
+                    self.had_using or
+                    self.had_test or
+                    self.had_constant or
+                    self.had_include or
+                    self.had_define_macro)
 
     def __eq__(self, other):
         return self.name == other.name
@@ -117,65 +117,65 @@ class NamespaceInfo:  # pylint: disable=too-few-public-methods
     def __repr__(self):
         return '{} (fwd:{}, class:{}, enum:{}, funcOrVar:{}, using:{}, const:{} inc:{}, def:{})'.format(
             self.name or 'None',
-            self.hadForward,
-            self.hadClass,
-            self.hadEnum,
-            self.hadFuncOrVar,
-            self.hadUsing,
-            self.hadConstant,
-            self.hadInclude,
-            self.hadDefineMacro)
+            self.had_forward,
+            self.had_class,
+            self.had_enum,
+            self.had_func_or_var,
+            self.had_using,
+            self.had_constant,
+            self.had_include,
+            self.had_define_macro)
 
 
 # pylint: disable=too-many-instance-attributes
 class NamespacesParser:
-    def __init__(self, errorReporter, path):
-        self.errorReporter = errorReporter
+    def __init__(self, error_reporter, path):
+        self.error_reporter = error_reporter
         self.path = path
-        self.lineNumber = 0
+        self.line_number = 0
         self.mode = Mode.NORMAL
-        self.curNsPart = ''
-        self.namespaceStack = []
-        self.templateBracketLevel = 0
-        self.templateHadClass = False
-        self.templateContent = []
-        self.wasTemplateInstantiation = False
-        self.hadParens = False
-        self.currentBraceLevel = 0
-        self.currentColonBraceLevel = 0
-        self.nameStack = []
-        self.currentParenLevel = 0
-        self.closingBraceCallback = None
+        self.cur_ns_part = ''
+        self.namespace_stack = []
+        self.template_bracket_level = 0
+        self.template_had_class = False
+        self.template_content = []
+        self.was_template_instantiation = False
+        self.had_parens = False
+        self.current_brace_level = 0
+        self.current_colon_brace_level = 0
+        self.name_stack = []
+        self.current_paren_level = 0
+        self.closing_brace_callback = None
         self.namespaces = set([])
-        self.templateErrors = []
-        self.insideTemplateCallback = None
+        self.template_errors = []
+        self.inside_template_callback = None
 
         self.tok = None
         info(self.path)
-        self.parseFile(open(self.path, 'r'))
+        self.parse_file(open(self.path, 'r'))
 
-    def _quitIfNoNamestack(self, token):
-        if not self.nameStack:
+    def _quit_if_no_namestack(self, token):
+        if not self.name_stack:
             self.quit(token)
 
-    def parseNormal(self, tok):
+    def parse_normal(self, tok):
         if tok.type == 'CLOSE_BRACE':
-            self.addNamespace()
+            self.add_namespace()
             return
 
         if tok.type in ('COLON', 'ASTERISK', 'COMMA', 'AMPERSTAND', 'OPEN_SQUARE_BRACKET', 'CLOSE_SQUARE_BRACKET'):
-            self.nameStack.append(tok)
+            self.name_stack.append(tok)
             return
 
         dispatch = {
-            'NAME': self._parseNormalName,
-            'STRING_LITERAL': self._parseNormalStringLiteral,
-            'OPEN_BRACKET': self._parseNormalOpenBracket,
-            'PRECOMP_MACRO': self._parseNormalPrecompMacro,
-            'OPEN_PAREN': self._parseNormalOpenParen,
-            'OPEN_BRACE': self._parseNormalBrace,
-            'SEMI_COLON': self._parseNormalSemiColon,
-            'EQUALS': self._parseNormalEquals
+            'NAME': self._parse_normal_name,
+            'STRING_LITERAL': self._parse_normal_string_literal,
+            'OPEN_BRACKET': self._parse_normal_open_bracket,
+            'PRECOMP_MACRO': self._parse_normal_precomp_macro,
+            'OPEN_PAREN': self._parse_normal_open_paren,
+            'OPEN_BRACE': self._parse_normal_brace,
+            'SEMI_COLON': self._parse_normal_semi_colon,
+            'EQUALS': self._parse_normal_equals
         }
 
         if tok.type in dispatch:
@@ -183,165 +183,165 @@ class NamespacesParser:
         else:
             self.quit(tok)
 
-    def _parseNormalName(self, tok):
+    def _parse_normal_name(self, tok):
         if tok.value == 'namespace':
             self.mode = Mode.COLLECT_NS
-            self.curNsPart = ''
+            self.cur_ns_part = ''
             debug('Collect NS')
         elif tok.value == 'template':
-            self.insideTemplateCallback = None
-            self.templateContent = []
-            self.collectTemplate(tok)
+            self.inside_template_callback = None
+            self.template_content = []
+            self.collect_template(tok)
             self.mode = Mode.COLLECT_TEMPLATE
             debug('Collect Template')
         elif tok.value == 'class' or tok.value == 'struct':
             self.mode = Mode.COLLECT_CLASS
-            self.nameStack.append(tok)
+            self.name_stack.append(tok)
             debug('Collect ' + tok.value)
         elif tok.value == 'enum':
             self.mode = Mode.COLLECT_ENUM
-            self.nameStack.append(tok)
+            self.name_stack.append(tok)
             debug('Collect Enum')
         elif tok.value == 'using':
             self.mode = Mode.FIND_SEMICOLON
-            self.nameStack.append(tok)
+            self.name_stack.append(tok)
             debug('Collect Using')
         else:
-            self.nameStack.append(tok)
+            self.name_stack.append(tok)
             if tok.value == 'operator':
                 self.mode = Mode.OPERATOR
 
-    def _parseNormalStringLiteral(self, tok):
+    def _parse_normal_string_literal(self, tok):
         # Ignore extern "C"
         if not tok.value == '"C"':
             self.quit(tok)
 
-    def _parseNormalOpenBracket(self, tok):
-        self.insideTemplateCallback = lambda tok: self.nameStack.append(tok)  # pylint: disable=unnecessary-lambda
-        self.templateContent = []
-        self.collectTemplate(tok)
+    def _parse_normal_open_bracket(self, tok):
+        self.inside_template_callback = lambda tok: self.name_stack.append(tok)  # pylint: disable=unnecessary-lambda
+        self.template_content = []
+        self.collect_template(tok)
         self.mode = Mode.COLLECT_TEMPLATE
 
-    def _parseNormalPrecompMacro(self, tok):
-        if self.namespaceStack and tok.value.startswith('#include'):
-            self.namespaceStack[-1].hadInclude = True
+    def _parse_normal_precomp_macro(self, tok):
+        if self.namespace_stack and tok.value.startswith('#include'):
+            self.namespace_stack[-1].had_include = True
             info('HAD INCLUDE')
 
-        if not self.namespaceStack and re.match(r'#define [A-Z_]*TEST_CLASS ', tok.value):
-            errorMsg = '`#define TEST_CLASS` outside of any namespace'
-            self.errorReporter('preprocessorOther', Line(self.path, '', tok.lineno, errorMsg))
+        if not self.namespace_stack and re.match(r'#define [A-Z_]*TEST_CLASS ', tok.value):
+            error_msg = '`#define TEST_CLASS` outside of any namespace'
+            self.error_reporter('preprocessorOther', Line(self.path, '', tok.lineno, error_msg))
 
-    def _parseNormalOpenParen(self, tok):
+    def _parse_normal_open_paren(self, tok):
         debug('open paren')
-        self._quitIfNoNamestack(tok)
+        self._quit_if_no_namestack(tok)
 
-        self.findCloseParen(tok)
+        self.find_close_paren(tok)
         self.mode = Mode.FIND_CLOSING_PAREN
 
-    def _parseNormalBrace(self, tok):
-        self._quitIfNoNamestack(tok)
+    def _parse_normal_brace(self, tok):
+        self._quit_if_no_namestack(tok)
 
-        self.findCloseBrace(tok)
-        trace_print('level brace open', self.currentBraceLevel, 'parens', self.hadParens)
+        self.find_close_brace(tok)
+        trace_print('level brace open', self.current_brace_level, 'parens', self.had_parens)
         self.mode = Mode.FIND_CLOSING_BRACE
-        if self.hadParens or self.nameStack[0].value == 'extern':
-            self.closingBraceCallback = self.clearNameStack
+        if self.had_parens or self.name_stack[0].value == 'extern':
+            self.closing_brace_callback = self.clear_name_stack
         else:
-            self.closingBraceCallback = self.clearNameStackAndFindSemicolon
+            self.closing_brace_callback = self.clear_name_stack_and_find_semicolon
 
-    def _parseNormalSemiColon(self, tok):
-        self._quitIfNoNamestack(tok)
+    def _parse_normal_semi_colon(self, tok):
+        self._quit_if_no_namestack(tok)
 
-        if has('OPEN_PAREN', self.nameStack) and has('CLOSE_PAREN', self.nameStack):
-            if self.namespaceStack:
-                self.namespaceStack[-1].hadFuncOrVar = True
+        if has('OPEN_PAREN', self.name_stack) and has('CLOSE_PAREN', self.name_stack):
+            if self.namespace_stack:
+                self.namespace_stack[-1].had_func_or_var = True
                 info('HAD FUNC or VAR')
 
-        self.clearNameStack()
+        self.clear_name_stack()
 
-    def _parseNormalEquals(self, tok):
-        self._quitIfNoNamestack(tok)
-        self.nameStack.append(tok)
+    def _parse_normal_equals(self, tok):
+        self._quit_if_no_namestack(tok)
+        self.name_stack.append(tok)
         self.mode = Mode.FIND_SEMICOLON
 
-    def saveTokenOrBye(self, previousToken, token, tokenName):
-        del previousToken
-        if token.type == tokenName:
-            self.nameStack.append(token)
+    def save_token_or_bye(self, previous_token, token, token_name):
+        del previous_token
+        if token.type == token_name:
+            self.name_stack.append(token)
         else:
             self.quit(token)
 
-    def _operatorEquals(self, nextToken):
-        if nextToken.type == 'EQUALS':
-            self.nameStack.append(nextToken)
+    def _operator_equals(self, next_token):
+        if next_token.type == 'EQUALS':
+            self.name_stack.append(next_token)
             return NextTokenBehavior.PICK
 
         # operator=
-        self.tok = nextToken
+        self.tok = next_token
         return NextTokenBehavior.SKIP
 
-    def _operatorPlus(self, nextToken):
+    def _operator_plus(self, next_token):
         # operator+= operator++
-        if nextToken.type == 'EQUALS' or nextToken.type == 'PLUS':
-            self.nameStack.append(nextToken)
+        if next_token.type == 'EQUALS' or next_token.type == 'PLUS':
+            self.name_stack.append(next_token)
             return NextTokenBehavior.PICK
 
         # operator+
-        self.tok = nextToken
+        self.tok = next_token
         return NextTokenBehavior.SKIP
 
-    def _operatorMinus(self, nextToken):
+    def _operator_minus(self, next_token):
         # operator-= operator-- operator->
-        if nextToken.type == 'EQUALS' or nextToken.type == 'MINUS' or nextToken.type == 'CLOSE_BRACKET':
-            self.nameStack.append(nextToken)
+        if next_token.type == 'EQUALS' or next_token.type == 'MINUS' or next_token.type == 'CLOSE_BRACKET':
+            self.name_stack.append(next_token)
             return NextTokenBehavior.PICK
 
         # operator-
-        self.tok = nextToken
+        self.tok = next_token
         return NextTokenBehavior.SKIP
 
-    def _operatorLessThan(self, nextToken):
+    def _operator_less_than(self, next_token):
         # operator <<, <=
-        if nextToken.type == 'OPEN_BRACKET' or nextToken.type == 'EQUALS':
-            self.nameStack.append(nextToken)
+        if next_token.type == 'OPEN_BRACKET' or next_token.type == 'EQUALS':
+            self.name_stack.append(next_token)
             return NextTokenBehavior.PICK
 
         # operator<
-        self.tok = nextToken
+        self.tok = next_token
         return NextTokenBehavior.SKIP
 
-    def _operatorGreaterThan(self, nextToken):
+    def _operator_greater_than(self, next_token):
         # operator >=
-        if nextToken.type == 'EQUALS':
-            self.nameStack.append(nextToken)
+        if next_token.type == 'EQUALS':
+            self.name_stack.append(next_token)
             return NextTokenBehavior.PICK
 
         # operator>
-        self.tok = nextToken
+        self.tok = next_token
         return NextTokenBehavior.SKIP
 
     # pylint: disable=too-many-branches
-    def collectOperator(self):
+    def collect_operator(self):
         tok = lex.token()
-        self.nameStack.append(tok)
+        self.name_stack.append(tok)
         tok2 = lex.token()
         behavior = NextTokenBehavior.PICK
         # operator()
         if tok.type == 'OPEN_PAREN':
-            self.saveTokenOrBye(tok, tok2, 'CLOSE_PAREN')
+            self.save_token_or_bye(tok, tok2, 'CLOSE_PAREN')
         # operator[]
         elif tok.type == 'OPEN_SQUARE_BRACKET':
-            self.saveTokenOrBye(tok, tok2, 'CLOSE_SQUARE_BRACKET')
+            self.save_token_or_bye(tok, tok2, 'CLOSE_SQUARE_BRACKET')
         # operator==
         elif tok.type == 'EQUALS':
-            behavior = self._operatorEquals(tok2)
+            behavior = self._operator_equals(tok2)
         elif tok.type == 'PLUS':
-            behavior = self._operatorPlus(tok2)
+            behavior = self._operator_plus(tok2)
         elif tok.type == 'MINUS':
-            behavior = self._operatorMinus(tok2)
+            behavior = self._operator_minus(tok2)
         # operator!=
         elif tok.type == 'EXCLAMATION':
-            self.saveTokenOrBye(tok, tok2, 'EQUALS')
+            self.save_token_or_bye(tok, tok2, 'EQUALS')
         # operator|
         elif tok.type == 'PIPE':
             self.tok = tok2
@@ -357,22 +357,22 @@ class NamespacesParser:
             self.tok = tok2
             return
         elif tok.type == 'OPEN_BRACKET':
-            behavior = self._operatorLessThan(tok2)
+            behavior = self._operator_less_than(tok2)
         elif tok.type == 'CLOSE_BRACKET':
-            behavior = self._operatorGreaterThan(tok2)
+            behavior = self._operator_greater_than(tok2)
         else:
             self.quit(tok2)
 
         if behavior == NextTokenBehavior.PICK:
             self.tok = lex.token()
 
-    def addNamespace(self):
-        name = '::'.join(map(lambda c: c.current, self.namespaceStack))
+    def add_namespace(self):
+        name = '::'.join(map(lambda c: c.current, self.namespace_stack))
         if ANON_NS_FAKENAME in name:
             if self.path.endswith('.h'):
-                self.errorReporter('anonNamespace', Line(self.path, name, self.tok.lineno))
+                self.error_reporter('anonNamespace', Line(self.path, name, self.tok.lineno))
 
-        current = self.namespaceStack.pop()
+        current = self.namespace_stack.pop()
         current.name = name
         dummy = NamespaceInfo('')
         dummy.name = name
@@ -386,32 +386,32 @@ class NamespacesParser:
                 i |= current
             info('merging namespace ', current)
 
-    def addTemplateError(self, line):
-        name = '::'.join(map(lambda c: c.current, self.namespaceStack))
+    def add_template_error(self, line):
+        name = '::'.join(map(lambda c: c.current, self.namespace_stack))
         dummy = TemplateError(name, line)
-        self.templateErrors.append(dummy)
+        self.template_errors.append(dummy)
 
-    def clearNameStack(self):
-        self.nameStack = []
-        self.closingBraceCallback = None
+    def clear_name_stack(self):
+        self.name_stack = []
+        self.closing_brace_callback = None
 
-    def clearNameStackAndFindSemicolon(self):
+    def clear_name_stack_and_find_semicolon(self):  # pylint: disable=invalid-name
         self.tok = lex.token()
-        self.nameStack.append(self.tok)
+        self.name_stack.append(self.tok)
         if self.tok.type == 'SEMI_COLON':
-            self.switchToNormal()
-            self.checkProperties()
+            self.switch_to_normal()
+            self.check_properties()
         else:
             self.quit(self.tok)
 
-        self.nameStack = []
-        self.closingBraceCallback = None
+        self.name_stack = []
+        self.closing_brace_callback = None
 
-    def parseFile(self, inputStream):
-        lex.input(inputStream.read())
+    def parse_file(self, input_stream):
+        lex.input(input_stream.read())
         while True:
             if self.mode == Mode.OPERATOR:
-                self.collectOperator()
+                self.collect_operator()
                 self.mode = Mode.NORMAL
             else:
                 self.tok = lex.token()
@@ -419,24 +419,24 @@ class NamespacesParser:
             if not self.tok:
                 break
             dispatch = {
-                Mode.NORMAL: self.parseNormal,
-                Mode.COLLECT_NS: self.collectNs,
-                Mode.COLLECT_TEMPLATE: self.collectTemplate,
-                Mode.COLLECT_CLASS: self.collectClass,
-                Mode.COLLECT_ENUM: self.collectEnum,
-                Mode.INSIDE_CLASS_OR_ENUM: self.findClassEnd,
-                Mode.FIND_SEMICOLON: self.findSemiColon,
-                Mode.FIND_CLOSING_PAREN: self.findCloseParen,
-                Mode.FIND_CLOSING_BRACE: self.findCloseBrace
+                Mode.NORMAL: self.parse_normal,
+                Mode.COLLECT_NS: self.collect_ns,
+                Mode.COLLECT_TEMPLATE: self.collect_template,
+                Mode.COLLECT_CLASS: self.collect_class,
+                Mode.COLLECT_ENUM: self.collect_enum,
+                Mode.INSIDE_CLASS_OR_ENUM: self.find_class_end,
+                Mode.FIND_SEMICOLON: self.find_semi_colon,
+                Mode.FIND_CLOSING_PAREN: self.find_close_paren,
+                Mode.FIND_CLOSING_BRACE: self.find_close_brace
             }
             dispatch[self.mode](self.tok)
 
     def quit(self, tok):
         if not TEXT_OUTPUT:
-            with open(DEST_DIR + '/tests.fatalerror.xml', 'w') as outputStream:
-                outputStream.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-                outputStream.write('<testsuites tests="0" failures="0" disabled="0" errors="1" time="0" name="AllTests">\n')
-                outputStream.write('  <testsuite name="Parser" tests="0" failures="0" disabled="0" errors="1" time="0">\n')
+            with open(DEST_DIR + '/tests.fatalerror.xml', 'w') as output_stream:
+                output_stream.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+                output_stream.write('<testsuites tests="0" failures="0" disabled="0" errors="1" time="0" name="AllTests">\n')
+                output_stream.write('  <testsuite name="Parser" tests="0" failures="0" disabled="0" errors="1" time="0">\n')
                 msg = 'Error while parsing the file: {}\n'.format(self.path)
                 for _ in range(20):
                     msg += repr(tok.type) + ' : ' + repr(tok.value) + '\n'
@@ -444,11 +444,11 @@ class NamespacesParser:
                     if not tok:
                         break
 
-                outputStream.write('  <testcase status="run" time="0" classname="parser" name="ERROR">\n')
-                outputStream.write('    <error message="{}" type=""><![CDATA[{}]]></error>\n'.format(xmlEscape(msg), msg))
-                outputStream.write('  </testcase>\n')
-                outputStream.write('  </testsuite>\n')
-                outputStream.write('</testsuites>\n')
+                output_stream.write('  <testcase status="run" time="0" classname="parser" name="ERROR">\n')
+                output_stream.write('    <error message="{}" type=""><![CDATA[{}]]></error>\n'.format(xmlEscape(msg), msg))
+                output_stream.write('  </testcase>\n')
+                output_stream.write('  </testsuite>\n')
+                output_stream.write('</testsuites>\n')
 
         else:
             print(Fore.RED + Style.BRIGHT + 'Quitting ' + self.path + Style.RESET_ALL)
@@ -461,193 +461,193 @@ class NamespacesParser:
                     break
         sys.exit(1)
 
-    def switchToNormal(self):
+    def switch_to_normal(self):
         self.mode = Mode.NORMAL
-        self.hadParens = False
+        self.had_parens = False
 
-    def collectNs(self, tok):
+    def collect_ns(self, tok):
         if tok.type == 'NAME':
-            self.curNsPart = tok.value
+            self.cur_ns_part = tok.value
         elif tok.type == 'OPEN_BRACE':
-            if not self.curNsPart:
-                self.curNsPart = ANON_NS_FAKENAME
-            namespace = NamespaceInfo(self.curNsPart)
-            self.namespaceStack.append(namespace)
-            self.switchToNormal()
+            if not self.cur_ns_part:
+                self.cur_ns_part = ANON_NS_FAKENAME
+            namespace = NamespaceInfo(self.cur_ns_part)
+            self.namespace_stack.append(namespace)
+            self.switch_to_normal()
         elif tok.type == 'EQUALS':
             self.mode = Mode.FIND_SEMICOLON
-            debug('got namespace rename "{}"'.format(self.curNsPart))
+            debug('got namespace rename "{}"'.format(self.cur_ns_part))
 
-    def collectTemplate(self, tok):
-        self.templateContent.append(tok)
+    def collect_template(self, tok):
+        self.template_content.append(tok)
         if tok.type == 'OPEN_BRACKET':
-            self.templateBracketLevel += 1
+            self.template_bracket_level += 1
         elif tok.type == 'CLOSE_BRACKET':
-            self.templateBracketLevel -= 1
-            if self.templateBracketLevel == 0:
-                if self.templateHadClass:
-                    line = ' '.join(map(lambda e: e.value, self.templateContent))
-                    self.addTemplateError(line)
-                    self.templateHadClass = False
+            self.template_bracket_level -= 1
+            if self.template_bracket_level == 0:
+                if self.template_had_class:
+                    line = ' '.join(map(lambda e: e.value, self.template_content))
+                    self.add_template_error(line)
+                    self.template_had_class = False
 
-                if self.wasTemplateInstantiation:
+                if self.was_template_instantiation:
                     self.mode = Mode.FIND_SEMICOLON
-                    self.wasTemplateInstantiation = False
+                    self.was_template_instantiation = False
                 else:
-                    self.switchToNormal()
+                    self.switch_to_normal()
 
         # template instantiation
         elif tok.type == 'NAME' and (tok.value == 'class' or tok.value == 'struct'):
-            if self.templateBracketLevel > 0:
-                self.templateHadClass = True
-            if self.insideTemplateCallback:
-                self.insideTemplateCallback(tok)
-            self.wasTemplateInstantiation = True
+            if self.template_bracket_level > 0:
+                self.template_had_class = True
+            if self.inside_template_callback:
+                self.inside_template_callback(tok)
+            self.was_template_instantiation = True
             tok = lex.token()
 
-        if self.insideTemplateCallback:
-            self.insideTemplateCallback(tok)
+        if self.inside_template_callback:
+            self.inside_template_callback(tok)
 
-    def collectClass(self, tok):
+    def collect_class(self, tok):
         if tok.type == 'OPEN_BRACE':
-            self.currentBraceLevel += 1
+            self.current_brace_level += 1
             self.mode = Mode.INSIDE_CLASS_OR_ENUM
-            if self.namespaceStack:
-                self.namespaceStack[-1].hadClass = True
+            if self.namespace_stack:
+                self.namespace_stack[-1].had_class = True
                 info('HAD CLASS')
             else:
                 warning('WARNING: Class at ROOT namespace found: ', self.path)
 
         elif tok.type == 'SEMI_COLON':
-            self.switchToNormal()
+            self.switch_to_normal()
 
             # do not consider forward declarations in global scope
             # (they do not add anything to namespace)
-            if not self.namespaceStack:
-                # no need to clearNameStack() cause it is empty
+            if not self.namespace_stack:
+                # no need to clear_name_stack() cause it is empty
                 return
 
-            self.namespaceStack[-1].hadForward = True
+            self.namespace_stack[-1].had_forward = True
 
-            name = '::'.join(map(lambda c: c.current, self.namespaceStack))
-            objName = ' '.join(map(lambda c: c.value, self.nameStack))
-            info('HAD FORWARD', name, objName)
-            self.clearNameStack()
+            name = '::'.join(map(lambda c: c.current, self.namespace_stack))
+            obj_name = ' '.join(map(lambda c: c.value, self.name_stack))
+            info('HAD FORWARD', name, obj_name)
+            self.clear_name_stack()
         else:
-            self.nameStack.append(tok)
+            self.name_stack.append(tok)
 
-    def collectEnum(self, tok):
+    def collect_enum(self, tok):
         if tok.type == 'OPEN_BRACE':
-            self.currentBraceLevel += 1
+            self.current_brace_level += 1
             self.mode = Mode.INSIDE_CLASS_OR_ENUM
-            if self.namespaceStack:
-                self.namespaceStack[-1].hadEnum = True
+            if self.namespace_stack:
+                self.namespace_stack[-1].had_enum = True
                 info('HAD ENUM')
             else:
                 warning('WARNING: Enum at ROOT namespace found: ', self.path)
 
         elif tok.type == 'SEMI_COLON':
-            self.switchToNormal()
-            self.namespaceStack[-1].hadForward = True
+            self.switch_to_normal()
+            self.namespace_stack[-1].had_forward = True
 
-            name = '::'.join(map(lambda c: c.current, self.namespaceStack))
-            objName = ' '.join(map(lambda c: c.value, self.nameStack))
-            info('HAD FORWARD', name, objName)
-            self.clearNameStack()
+            name = '::'.join(map(lambda c: c.current, self.namespace_stack))
+            obj_name = ' '.join(map(lambda c: c.value, self.name_stack))
+            info('HAD FORWARD', name, obj_name)
+            self.clear_name_stack()
 
         else:
-            self.nameStack.append(tok)
+            self.name_stack.append(tok)
 
-    def findClassEnd(self, tok):
-        if self.currentBraceLevel == 0:
+    def find_class_end(self, tok):
+        if self.current_brace_level == 0:
             if tok.type == 'SEMI_COLON':
-                self.switchToNormal()
-                self.clearNameStack()
+                self.switch_to_normal()
+                self.clear_name_stack()
             else:
                 self.quit(tok)
         if tok.type == 'OPEN_BRACE':
-            self.currentBraceLevel += 1
+            self.current_brace_level += 1
         if tok.type == 'CLOSE_BRACE':
-            self.currentBraceLevel -= 1
+            self.current_brace_level -= 1
 
-    def findCloseBrace(self, tok):
+    def find_close_brace(self, tok):
         if tok.type == 'OPEN_BRACE':
-            if 0 == self.currentBraceLevel:
-                self.nameStack.append(tok)
-            self.currentBraceLevel += 1
-            trace_print('level brace open', self.currentBraceLevel)
+            if 0 == self.current_brace_level:
+                self.name_stack.append(tok)
+            self.current_brace_level += 1
+            trace_print('level brace open', self.current_brace_level)
         elif tok.type == 'CLOSE_BRACE':
-            self.currentBraceLevel -= 1
-            trace_print('level brace close', self.currentBraceLevel)
-            if self.currentBraceLevel == 0:
-                self.nameStack.append(tok)
-                self.switchToNormal()
-                self.checkProperties()
-                self.closingBraceCallback()
+            self.current_brace_level -= 1
+            trace_print('level brace close', self.current_brace_level)
+            if self.current_brace_level == 0:
+                self.name_stack.append(tok)
+                self.switch_to_normal()
+                self.check_properties()
+                self.closing_brace_callback()
 
-    def _checkFuncOrVar(self):
-        if has('OPEN_BRACE', self.nameStack) and has('CLOSE_BRACE', self.nameStack):
-            if self.namespaceStack:
-                self.namespaceStack[-1].hadFuncOrVar = True
+    def _check_func_or_var(self):
+        if has('OPEN_BRACE', self.name_stack) and has('CLOSE_BRACE', self.name_stack):
+            if self.namespace_stack:
+                self.namespace_stack[-1].had_func_or_var = True
                 info('HAD FUNC or VAR')
             else:
-                functionName = ' '.join(map(lambda e: e.value, self.nameStack))
-                info('WARNING: Probably function at ROOT namespace found: ', self.path, functionName)
-        if has('OPEN_SQUARE_BRACKET', self.nameStack) and has('CLOSE_SQUARE_BRACKET', self.nameStack):
-            if self.namespaceStack:
-                self.namespaceStack[-1].hadFuncOrVar = True
+                function_name = ' '.join(map(lambda e: e.value, self.name_stack))
+                info('WARNING: Probably function at ROOT namespace found: ', self.path, function_name)
+        if has('OPEN_SQUARE_BRACKET', self.name_stack) and has('CLOSE_SQUARE_BRACKET', self.name_stack):
+            if self.namespace_stack:
+                self.namespace_stack[-1].had_func_or_var = True
                 info('HAD FUNC or VAR')
             else:
-                warning('WARNING: Unknown case: ', self.path, ' '.join(map(lambda e: e.value, self.nameStack)))
+                warning('WARNING: Unknown case: ', self.path, ' '.join(map(lambda e: e.value, self.name_stack)))
 
-    def checkProperties(self):
-        if self.nameStack[0].value == 'using':
-            if self.namespaceStack:
-                self.namespaceStack[-1].hadUsing = True
+    def check_properties(self):
+        if self.name_stack[0].value == 'using':
+            if self.namespace_stack:
+                self.namespace_stack[-1].had_using = True
                 info('HAD USING')
-        elif self.nameStack[0].value == 'TEST':
-            if self.namespaceStack:
-                self.namespaceStack[-1].hadTest = True
+        elif self.name_stack[0].value == 'TEST':
+            if self.namespace_stack:
+                self.namespace_stack[-1].had_test = True
                 info('HAD TEST')
-        elif self.nameStack[0].value == 'extern':
+        elif self.name_stack[0].value == 'extern':
             # Ignore
             pass
         else:
-            self._checkFuncOrVar()
+            self._check_func_or_var()
 
             # if constexpr and has assignment
-            if self.nameStack[0].value == 'constexpr' and has('EQUALS', self.nameStack):
-                self.namespaceStack[-1].hadConstant = True
+            if self.name_stack[0].value == 'constexpr' and has('EQUALS', self.name_stack):
+                self.namespace_stack[-1].had_constant = True
                 info('HAD Constant')
 
-    def findSemiColon(self, tok):
-        if self.currentColonBraceLevel == 0:
-            self.nameStack.append(tok)
+    def find_semi_colon(self, tok):
+        if self.current_colon_brace_level == 0:
+            self.name_stack.append(tok)
             if tok.type == 'SEMI_COLON':
-                self.switchToNormal()
-                self.checkProperties()
-                self.clearNameStack()
+                self.switch_to_normal()
+                self.check_properties()
+                self.clear_name_stack()
 
         if tok.type == 'OPEN_BRACE':
-            self.currentColonBraceLevel += 1
-            trace_print('level colon brace open', self.currentColonBraceLevel)
+            self.current_colon_brace_level += 1
+            trace_print('level colon brace open', self.current_colon_brace_level)
         if tok.type == 'CLOSE_BRACE':
-            self.currentColonBraceLevel -= 1
-            trace_print('level colon brace clode', self.currentColonBraceLevel)
+            self.current_colon_brace_level -= 1
+            trace_print('level colon brace clode', self.current_colon_brace_level)
 
-    def findCloseParen(self, tok):
-        self.nameStack.append(tok)
+    def find_close_paren(self, tok):
+        self.name_stack.append(tok)
         if tok.type == 'OPEN_PAREN':
-            self.currentParenLevel += 1
-            trace_print('level after open ', self.currentParenLevel)
+            self.current_paren_level += 1
+            trace_print('level after open ', self.current_paren_level)
         if tok.type == 'CLOSE_PAREN':
-            self.currentParenLevel -= 1
-            trace_print('level after close ', self.currentParenLevel)
-            if self.currentParenLevel == 0:
-                if self.namespaceStack:
-                    if self.nameStack and self.nameStack[0].value.startswith('DEFINE_'):
-                        self.namespaceStack[-1].hadDefineMacro = True
+            self.current_paren_level -= 1
+            trace_print('level after close ', self.current_paren_level)
+            if self.current_paren_level == 0:
+                if self.namespace_stack:
+                    if self.name_stack and self.name_stack[0].value.startswith('DEFINE_'):
+                        self.namespace_stack[-1].had_define_macro = True
                         info('HAD DEFINE_* macro')
-                self.switchToNormal()
-                self.hadParens = True
-                debug('close paren {} namespaceStack:{}'.format(self.hadParens, len(self.namespaceStack)))
+                self.switch_to_normal()
+                self.had_parens = True
+                debug('close paren {} namespace_stack:{}'.format(self.had_parens, len(self.namespace_stack)))

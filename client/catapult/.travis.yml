@@ -11,7 +11,8 @@ install:
 
 script:
   - mkdir logs
-  - python3 scripts/lint/checkProjectStructure.py --text --depCheckDir src --depCheckDir extensions --depCheckDir plugins --destDir logs
+  - pip3 install colorama
+  - python3 scripts/lint/checkProjectStructure.py --text --dep-check-dir src --dep-check-dir extensions --dep-check-dir plugins --dest-dir logs
   - pushd scripts
   - pylint --rcfile .pylintrc --load-plugins pylint_quotes --output-format=parseable ./*/*.py
   - pycodestyle --config=.pycodestyle ./*/*.py
