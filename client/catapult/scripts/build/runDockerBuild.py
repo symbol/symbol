@@ -9,7 +9,7 @@ from process import ProcessManager
 CCACHE_ROOT = '/home/ubuntu/jenkins/ccache'
 CONAN_HOST = '/home/ubuntu/jenkins/conan-'
 
-OUTPUT_DIR = Path('..') / 'output'
+OUTPUT_DIR = Path('') / 'output'
 BINARIES_DIR = OUTPUT_DIR / 'binaries'
 
 
