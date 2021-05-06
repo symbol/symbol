@@ -8,6 +8,7 @@ pipeline {
     }
 
     parameters {
+        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
         string name: 'TEST_IMAGE_NAME', description: 'docker test image name', defaultValue: 'catapult-server-test-images-3..'
         choice name: 'TEST_MODE',
             choices: ['bench', 'test'],
@@ -18,6 +19,15 @@ pipeline {
     }
 
     stages {
+        stage('print env') {
+            steps {
+                script {
+                    echo "TEST_IMAGE_NAME: ${TEST_IMAGE_NAME}"
+                    echo "      TEST_MODE: ${TEST_MODE}"
+                    echo "      VERBOSITY: ${VERBOSITY}"
+                }
+            }
+        }
         stage('build') {
             steps {
                 script {

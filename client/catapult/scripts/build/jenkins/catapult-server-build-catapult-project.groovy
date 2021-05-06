@@ -18,6 +18,15 @@ pipeline {
     }
 
     stages {
+        stage('print env') {
+            steps {
+                script {
+                    echo "     MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}"
+                    echo "COMPILER_CONFIGURATION: ${COMPILER_CONFIGURATION}"
+                    echo "   BUILD_CONFIGURATION: ${BUILD_CONFIGURATION}"
+                }
+            }
+        }
         stage('build') {
             steps {
                 script {
