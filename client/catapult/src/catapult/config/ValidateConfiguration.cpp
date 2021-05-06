@@ -41,14 +41,17 @@ namespace catapult { namespace config {
 			if (100u < config.HarvestBeneficiaryPercentage + config.HarvestNetworkPercentage) {
 				std::ostringstream out;
 				out
-						<< "HarvestBeneficiaryPercentage (" << config.HarvestBeneficiaryPercentage << ") plus HarvestNetworkPercentage ("
-						<< config.HarvestNetworkPercentage << ") must not be greater than 100";
+						<< "HarvestBeneficiaryPercentage (" << utils::make_printable(config.HarvestBeneficiaryPercentage)
+						<< ") plus HarvestNetworkPercentage (" << utils::make_printable(config.HarvestNetworkPercentage)
+						<< ") must not be greater than 100";
 				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
 			}
 
 			if (99u < config.ImportanceActivityPercentage) {
 				std::ostringstream out;
-				out << "ImportanceActivityPercentage (" << config.ImportanceActivityPercentage << ") must not be greater than 99";
+				out
+						<< "ImportanceActivityPercentage (" << utils::make_printable(config.ImportanceActivityPercentage)
+						<< ") must not be greater than 99";
 				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
 			}
 

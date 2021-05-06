@@ -58,6 +58,60 @@ namespace catapult { namespace utils {
 
 	// endregion
 
+	// region make_printable
+
+	namespace {
+		template<typename T>
+		void AssertCanMakePrintable(T value, const std::string& expected, const std::string& tag = std::string()) {
+			// Act:
+			auto actual = test::ToString(make_printable(value));
+
+			// Assert:
+			EXPECT_EQ(expected, actual) << sizeof(T) << " size " << tag;
+		}
+
+		template<typename T, typename TLarge>
+		void AssertCanMakePrintableMinMax() {
+			// Arrange:
+			auto minValue = std::numeric_limits<T>::min();
+			auto maxValue = std::numeric_limits<T>::max();
+
+			// Act + Assert:
+			AssertCanMakePrintable(minValue, test::ToString(static_cast<TLarge>(minValue)), "min");
+			AssertCanMakePrintable(maxValue, test::ToString(static_cast<TLarge>(maxValue)), "max");
+		}
+	}
+
+	TEST(TEST_CLASS, MakePrintableMakesSignedIntegralTypesPrintable) {
+		AssertCanMakePrintable(static_cast<int8_t>(-123), "-123");
+		AssertCanMakePrintable(static_cast<int16_t>(-123), "-123");
+		AssertCanMakePrintable(static_cast<int32_t>(-123), "-123");
+		AssertCanMakePrintable(static_cast<int64_t>(-123), "-123");
+	}
+
+	TEST(TEST_CLASS, MakePrintableMakesSignedIntegralTypesPrintable_MinMax) {
+		AssertCanMakePrintableMinMax<int8_t, int64_t>();
+		AssertCanMakePrintableMinMax<int16_t, int64_t>();
+		AssertCanMakePrintableMinMax<int32_t, int64_t>();
+		AssertCanMakePrintableMinMax<int64_t, int64_t>();
+	}
+
+	TEST(TEST_CLASS, MakePrintableMakesUnsignedIntegralTypesPrintable) {
+		AssertCanMakePrintable(static_cast<uint8_t>(200), "200");
+		AssertCanMakePrintable(static_cast<uint16_t>(200), "200");
+		AssertCanMakePrintable(static_cast<uint32_t>(200), "200");
+		AssertCanMakePrintable(static_cast<uint64_t>(200), "200");
+	}
+
+	TEST(TEST_CLASS, MakePrintableMakesUnsignedIntegralTypesPrintable_MinMax) {
+		AssertCanMakePrintableMinMax<uint8_t, uint64_t>();
+		AssertCanMakePrintableMinMax<uint16_t, uint64_t>();
+		AssertCanMakePrintableMinMax<uint32_t, uint64_t>();
+		AssertCanMakePrintableMinMax<uint64_t, uint64_t>();
+	}
+
+	// endregion
+
 	// region to_ratio
 
 	TEST(TEST_CLASS, ToRatioReturnsExpectedValue) {

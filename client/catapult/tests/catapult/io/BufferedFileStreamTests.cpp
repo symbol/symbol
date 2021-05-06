@@ -20,6 +20,7 @@
 **/
 
 #include "catapult/io/BufferedFileStream.h"
+#include "catapult/utils/Casting.h"
 #include "tests/catapult/io/test/StreamTests.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
@@ -114,7 +115,9 @@ namespace catapult { namespace io {
 			void writeToOutput(TOutput& output, std::initializer_list<size_t> writeSizes, size_t chunkSize) {
 				for (auto writeSize : writeSizes) {
 					auto randomData = test::GenerateRandomVector(writeSize);
-					CATAPULT_LOG(info) << "writing " << randomData[0] << " " << randomData[1];
+					CATAPULT_LOG(info)
+							<< "writing " << utils::make_printable(randomData[0])
+							<< " " << utils::make_printable(randomData[1]);
 
 					auto currentChunkSize = 0 == chunkSize ? writeSize : chunkSize;
 					for (size_t i = 0u; i < writeSize; i += currentChunkSize)

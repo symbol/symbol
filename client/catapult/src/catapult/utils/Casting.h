@@ -33,6 +33,23 @@ namespace catapult { namespace utils {
 		return ref;
 	}
 
+	/// Makes \a value printable.
+	template<
+		typename T,
+		typename X = std::enable_if_t<std::is_integral_v<T>>
+	>
+	T make_printable(T value) {
+		return value;
+	}
+
+	inline int16_t make_printable(int8_t value) {
+		return static_cast<int16_t>(value);
+	}
+
+	inline uint16_t make_printable(uint8_t value) {
+		return static_cast<uint16_t>(value);
+	}
+
 	/// Creates a ratio from \a numerator and \a denominator.
 	template<typename T>
 	double to_ratio(T numerator, T denominator) {
@@ -57,7 +74,7 @@ namespace catapult { namespace utils {
 			"checked_cast can only be used when data truncation is possible");
 
 		if (value < dest_limits::min() || value > dest_limits::max())
-			CATAPULT_THROW_RUNTIME_ERROR_1("checked_cast detected data truncation", value);
+			CATAPULT_THROW_RUNTIME_ERROR_1("checked_cast detected data truncation", make_printable(value));
 
 		return static_cast<TDest>(value);
 	}
