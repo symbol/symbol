@@ -10,25 +10,84 @@ pipeline {
             description: 'compiler configuration'
     }
 
+    environment {
+        DOCKER_URL = 'https://registry.hub.docker.com'
+        DOCKER_CREDENTIALS_ID = 'docker-hub-token-symbolserverbot'
+    }
+
+    options {
+        ansiColor('css')
+        timestamps()
+    }
+
     stages {
-        stage('prepare base image') {
-            steps {
-                script {
-                    dest_image_name = "symbolplatform/symbol-server-build-base:${COMPILER_CONFIGURATION}"
+        stage('prepare') {
+            stages {
+                stage('prepare variables') {
+                    steps {
+                        script {
+                            dest_image_name = "symbolplatform/symbol-server-build-base:${COMPILER_CONFIGURATION}"
 
-                    base_image_dockerfile_generator_command = """
-                        python3 ./scripts/build/baseImageDockerfileGenerator.py \
-                            --compiler-configuration scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
-                            --versions ./scripts/build/versions.properties \
-                    """
+                            base_image_dockerfile_generator_command = """
+                                python3 ./scripts/build/baseImageDockerfileGenerator.py \
+                                    --compiler-configuration scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
+                                    --versions ./scripts/build/versions.properties \
+                            """
+                        }
+                    }
+                }
+                stage('print env') {
+                    steps {
+                        echo """
+                                    env.GIT_BRANCH: ${env.GIT_BRANCH}
+                                 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
 
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-token-symbolserverbot') {
-                        for (layer in ['os', 'boost', 'deps', 'test'])
-                            base_image_build_layer("${layer}", "${base_image_dockerfile_generator_command}").push()
+                            COMPILER_CONFIGURATION: ${COMPILER_CONFIGURATION}
 
-                        // create conan base images
-                        if ("${COMPILER_CONFIGURATION}" == "clang-latest" || "${COMPILER_CONFIGURATION}" == "gcc-latest")
-                            base_image_build_layer('conan', "${base_image_dockerfile_generator_command}").push()
+                                   dest_image_name: ${dest_image_name}
+                        """
+                    }
+                }
+            }
+        }
+        stage('build image') {
+            stages {
+                stage('build os') {
+                    steps {
+                        script {
+                            build_and_push_layer('os', "${base_image_dockerfile_generator_command}")
+                        }
+                    }
+                }
+                stage('build boost') {
+                    steps {
+                        script {
+                            build_and_push_layer('boost', "${base_image_dockerfile_generator_command}")
+                        }
+                    }
+                }
+                stage('build deps') {
+                    steps {
+                        script {
+                            build_and_push_layer('deps', "${base_image_dockerfile_generator_command}")
+                        }
+                    }
+                }
+                stage('build test') {
+                    steps {
+                        script {
+                            build_and_push_layer('test', "${base_image_dockerfile_generator_command}")
+                        }
+                    }
+                }
+                stage('build conan') {
+                    when {
+                        expression { "${COMPILER_CONFIGURATION}" == 'clang-latest' || "${COMPILER_CONFIGURATION}" == 'gcc-latest' }
+                    }
+                    steps {
+                        script {
+                            build_and_push_layer('conan', "${base_image_dockerfile_generator_command}")
+                        }
                     }
                 }
             }
@@ -36,17 +95,20 @@ pipeline {
     }
 }
 
-def base_image_build_layer(layer, base_image_dockerfile_generator_command) {
-    sh """
-        ${base_image_dockerfile_generator_command} --layer ${layer} > Dockerfile
-        ${base_image_dockerfile_generator_command} --layer ${layer} --name-only > dest_image_name.txt
+def build_and_push_layer(layer, base_image_dockerfile_generator_command) {
+    docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
+        dest_image_name = sh(
+            script: "${base_image_dockerfile_generator_command} --layer ${layer} --name-only",
+            returnStdout: true
+        ).trim()
 
-        echo "*** LAYER ${layer} ***"
-        cat Dockerfile
-        cat dest_image_name.txt
-    """
+        sh """
+            ${base_image_dockerfile_generator_command} --layer ${layer} > Dockerfile
 
-    dest_image_name = readFile(file: 'dest_image_name.txt').trim()
-    docker_image = docker.build "${dest_image_name}"
-    return docker_image
+            echo "*** LAYER ${layer} => ${dest_image_name} ***"
+            cat Dockerfile
+        """
+
+        docker.build("${dest_image_name}").push()
+    }
 }

@@ -5,7 +5,21 @@ pipeline {
         gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
     }
 
+    options {
+        ansiColor('css')
+        timestamps()
+    }
+
     stages {
+        stage('print env') {
+            steps {
+                echo """
+                            env.GIT_BRANCH: ${env.GIT_BRANCH}
+                         MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
+                """
+            }
+        }
+
         stage('build servers') {
             parallel {
                 stage('gcc-latest (conan)') {
@@ -65,7 +79,8 @@ pipeline {
 }
 
 def dispatch_build_job(compiler_configuration, build_configuration) {
-    build job: 'server-pipelines/catapult-server-build-catapult-project', parameters: [
+    // TODO: rename to build-catapult-project
+    build job: 'server-pipelines/catapult-server-commit-trigger', parameters: [
         string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
         string(name: 'BUILD_CONFIGURATION', value: "${build_configuration}"),
         string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")

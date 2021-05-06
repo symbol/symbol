@@ -9,6 +9,10 @@ MONGO_DIR = Path('mongo')
 OUTPUT_DIR = Path('catapult-data')
 
 
+def get_image_label(image_name):
+    return image_name[image_name.index(':') + 1:]
+
+
 def create_docker_compose_command(mode):
     return [
         'docker-compose', 'up',
@@ -20,10 +24,10 @@ def create_docker_compose_command(mode):
 
 def prepare_docker_compose_file(input_filepath, image_name, user, verbosity, outfile):
     replacements = [
-        ('{{IMAGE_NAME}}', 'registry.hub.docker.com/symbolplatform/symbol-server-test:{}'.format(image_name)),
+        ('{{IMAGE_NAME}}', image_name),
         ('{{USER}}', '"{}"'.format(user)),
 
-        ('{{BUILD_NUMBER}}', image_name),
+        ('{{BUILD_NUMBER}}', get_image_label(image_name)),
         ('{{NETWORK_IP}}', '3000'),
         ('{{GTESTFILTER}}', '*'),
         ('{{STRESSCOUNT}}', '1'),
@@ -53,7 +57,7 @@ def main():
     compose_template_filepath = compose_template_directory / 'Run{}.yaml'.format(args.mode.capitalize())
     print('processing template from {}'.format(compose_template_filepath))
     prepare_args = [compose_template_filepath, args.image, args.user, args.verbosity]
-    prepare_docker_compose_file(*(prepare_args + [sys.stdout]))
+    prepare_docker_compose_file(*(prepare_args + [sys.stdout]))  # pylint: disable=too-many-function-args
 
     if not args.dry_run:
         with open('docker-compose.yaml', 'wt') as outfile:
@@ -66,7 +70,7 @@ def main():
     environment_manager.mkdirs(OUTPUT_DIR / 'workdir')
 
     environment_manager.rmtree(MONGO_DIR)
-    environment_manager.mkdirs(MONGO_DIR / args.image)
+    environment_manager.mkdirs(MONGO_DIR / get_image_label(args.image))
 
     process_manager.dispatch_subprocess(['ls', '-laF'])
     process_manager.dispatch_subprocess(['ls', '-laF', 'catapult-src'])

@@ -8,7 +8,27 @@ pipeline {
             description: 'image type'
     }
 
+    options {
+        ansiColor('css')
+        timestamps()
+    }
+
+    environment {
+        DOCKER_URL = 'https://registry.hub.docker.com'
+        DOCKER_CREDENTIALS_ID = 'docker-hub-token-symbolserverbot'
+    }
+
     stages {
+        stage('print env') {
+            steps {
+                echo """
+                            env.GIT_BRANCH: ${env.GIT_BRANCH}
+                         MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
+
+                                IMAGE_TYPE: ${IMAGE_TYPE}
+                """
+            }
+        }
         stage('prepare Dockerfile') {
             steps {
                 script {
@@ -22,17 +42,20 @@ pipeline {
                 }
             }
         }
+        stage('print Dockerfile') {
+            steps {
+                sh '''
+                    echo '*** Dockerfile ***'
+                    cat Dockerfile
+                '''
+            }
+        }
 
         stage('build image') {
             steps {
                 script {
-                    sh '''
-                        echo '*** Dockerfile ***'
-                        cat Dockerfile
-                    '''
-
                     docker_image = docker.build "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:latest"
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-token-symbolserverbot') {
+                    docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
                         docker_image.push()
                     }
                 }

@@ -5,7 +5,21 @@ pipeline {
         gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
     }
 
+    options {
+        ansiColor('css')
+        timestamps()
+    }
+
     stages {
+        stage('print env') {
+            steps {
+                echo """
+                            env.GIT_BRANCH: ${env.GIT_BRANCH}
+                         MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
+                """
+            }
+        }
+
         stage('build base images') {
             parallel {
                 stage('gcc-10') {

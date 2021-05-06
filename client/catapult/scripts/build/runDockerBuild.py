@@ -9,7 +9,8 @@ from process import ProcessManager
 CCACHE_ROOT = '/jenkins_cache/ccache'
 CONAN_ROOT = '/jenkins_cache/conan'
 
-OUTPUT_DIR = Path('') / 'output'
+SRC_DIR = Path('catapult-src').resolve()
+OUTPUT_DIR = Path('output').resolve()
 BINARIES_DIR = OUTPUT_DIR / 'binaries'
 
 
@@ -60,7 +61,7 @@ class OptionsManager(BasicBuildManager):
 
 def get_volume_mappings(ccache_path, conan_path):
     mappings = [
-        (Path('').resolve(), '/catapult-src'),
+        (SRC_DIR, '/catapult-src'),
         (BINARIES_DIR.resolve(), '/binaries'),
         (conan_path, '/conan'),
         (ccache_path, '/ccache')
@@ -80,9 +81,9 @@ def create_docker_run_command(options, compiler_configuration_filepath, build_co
     ] + docker_run_settings + volume_mappings + [
         options.build_base_image_name,
         'python3', '/catapult-src/scripts/build/runDockerBuildInnerBuild.py',
-        # assume paths are relative...
-        '--compiler-configuration=/catapult-src/{}'.format(compiler_configuration_filepath),
-        '--build-configuration=/catapult-src/{}'.format(build_configuration_filepath)
+        # assume paths are relative to workdir
+        '--compiler-configuration=/{}'.format(compiler_configuration_filepath),
+        '--build-configuration=/{}'.format(build_configuration_filepath)
     ]
 
     return docker_args
@@ -96,15 +97,16 @@ def cleanup_directories(environment_manager, ccache_root_directory, conan_root_d
     environment_manager.mkdirs(conan_root_directory, exist_ok=True)
 
 
-def prepare_docker_image(process_manager, prepare_base_image_name, destination_image_tag, container_id):
-    cid_filepath = '{}.cid'.format(destination_image_tag)
-    destination_image_name = 'symbolplatform/symbol-server-test:catapult-server-{}'.format(destination_image_tag)
+def prepare_docker_image(process_manager, prepare_base_image_name, destination_image_label, container_id):
+    cid_filepath = '{}.cid'.format(destination_image_label)
+    destination_image_name = 'symbolplatform/symbol-server-test:{}'.format(destination_image_label)
     process_manager.dispatch_subprocess([
         'docker', 'run',
         '--cidfile={}'.format(cid_filepath),
-        '--volume={}:/data'.format(Path('output').resolve()),
+        '--volume={}:/catapult-src'.format(SRC_DIR),  # TODO: ask gimre why this is needed :/
+        '--volume={}:/data'.format(OUTPUT_DIR),
         'registry.hub.docker.com/{}'.format(prepare_base_image_name),
-        'python3', '/data/scripts/build/runDockerBuildInnerPrepare.py',
+        'python3', '/catapult-src/scripts/build/runDockerBuildInnerPrepare.py',
         '--disposition=dev'
     ])
 
@@ -120,7 +122,7 @@ def main():
     parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
     parser.add_argument('--build-configuration', help='path to build configuration yaml', required=True)
     parser.add_argument('--user', help='docker user', required=True)
-    parser.add_argument('--destination-image-tag', help='docker destination image tag', required=True)
+    parser.add_argument('--destination-image-label', help='docker destination image label', required=True)
     parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
     parser.add_argument('--base-image-names-only', help='only output the base image names', action='store_true')
     args = parser.parse_args()
@@ -150,19 +152,17 @@ def main():
 
     print('copying files')
 
-    catapult_src_path = Path('').resolve()
-
     environment_manager.chdir(OUTPUT_DIR)
 
     for folder_name in ['scripts', 'seed', 'resources']:
-        environment_manager.copy_tree_with_symlinks(catapult_src_path / folder_name, folder_name)
+        environment_manager.copy_tree_with_symlinks(SRC_DIR / folder_name, folder_name)
 
-    environment_manager.chdir('..')
+    environment_manager.chdir(SRC_DIR)
 
     print('building docker image')
 
     container_id = '<dry_run_container_id>' if args.dry_run else None
-    prepare_docker_image(process_manager, options.prepare_base_image_name, args.destination_image_tag, container_id)
+    prepare_docker_image(process_manager, options.prepare_base_image_name, args.destination_image_label, container_id)
 
 
 if __name__ == '__main__':
