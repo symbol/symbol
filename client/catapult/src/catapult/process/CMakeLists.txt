@@ -8,4 +8,4 @@ add_subdirectory(importer)
 add_subdirectory(recovery)
 add_subdirectory(server)
 
-install(TARGETS catapult.broker catapult.importer catapult.recovery catapult.server )
+install(TARGETS catapult.broker catapult.importer catapult.recovery catapult.server)
