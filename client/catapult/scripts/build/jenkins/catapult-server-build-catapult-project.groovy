@@ -44,7 +44,7 @@ pipeline {
                                 returnStdout: true
                             ).trim()
 
-                            build_image_label = get_build_image_label()
+                            build_image_label = '' != TEST_IMAGE_LABEL ? TEST_IMAGE_LABEL : get_build_image_label()
                             build_image_full_name = "symbolplatform/symbol-server-test:${build_image_label}"
                         }
                     }
@@ -160,6 +160,12 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            junit 'catapult-data/logs/*.xml'
         }
     }
 }
