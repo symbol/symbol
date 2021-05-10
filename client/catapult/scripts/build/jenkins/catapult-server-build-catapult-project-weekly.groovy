@@ -79,8 +79,7 @@ pipeline {
 }
 
 def dispatch_build_job(compiler_configuration, build_configuration) {
-    // TODO: rename to build-catapult-project
-    build job: 'server-pipelines/catapult-server-commit-trigger', parameters: [
+    build job: 'server-pipelines/catapult-server-build-catapult-project', parameters: [
         string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
         string(name: 'BUILD_CONFIGURATION', value: "${build_configuration}"),
         string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
