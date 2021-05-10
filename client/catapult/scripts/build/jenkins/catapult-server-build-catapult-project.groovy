@@ -70,11 +70,22 @@ pipeline {
                         """
                     }
                 }
+                stage('git checkout') {
+                    when {
+                        expression { is_manual_build() }
+                    }
+                    steps {
+                        dir('catapult-src') {
+                            git branch: "${get_branch_name()}",
+                                url: 'https://github.com/nemtech/catapult-server.git'
+                        }
+                    }
+                }
             }
         }
         stage('build') {
             when {
-                expression { 'none' != BUILD_CONFIGURATION }
+                expression { is_build_enabled() }
             }
             stages {
                 stage('prepare variables') {
@@ -126,12 +137,12 @@ pipeline {
         }
         stage('test') {
             when {
-                expression { 'none' != TEST_MODE }
+                expression { is_test_enabled() }
             }
             stages {
                 stage('pull dependency images') {
                     when {
-                        expression { '' != TEST_IMAGE_LABEL }
+                        expression { is_custom_test_image() }
                     }
                     steps {
                         script {
@@ -144,7 +155,7 @@ pipeline {
                 stage('run tests') {
                     steps {
                         script {
-                            if ('' != TEST_IMAGE_LABEL)
+                            if (is_custom_test_image())
                                 test_image_name = "registry.hub.docker.com/symbolplatform/symbol-server-test:${build_image_label}"
                             else
                                 test_image_name = "symbolplatform/symbol-server-test:${build_image_label}"
@@ -170,8 +181,28 @@ pipeline {
     }
 }
 
+def is_build_enabled() {
+    return 'none' != BUILD_CONFIGURATION
+}
+
+def is_test_enabled() {
+    return 'none' != TEST_MODE
+}
+
+def is_manual_build() {
+    return null != MANUAL_GIT_BRANCH && '' != MANUAL_GIT_BRANCH && 'null' != MANUAL_GIT_BRANCH
+}
+
+def is_custom_test_image() {
+    return '' != TEST_IMAGE_LABEL
+}
+
+def get_branch_name() {
+    return is_manual_build() ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
+}
+
 def get_build_image_label() {
-    friendly_branch_name = 'null' != MANUAL_GIT_BRANCH ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
+    friendly_branch_name = get_branch_name()
     if (0 == friendly_branch_name.indexOf('origin/'))
         friendly_branch_name = friendly_branch_name.substring(7)
 
