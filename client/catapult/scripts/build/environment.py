@@ -96,6 +96,19 @@ class EnvironmentManager:
 
     # endregion
 
+    # region file moving
+
+    def move_glob_with_symlinks(self, directory_path, pattern, destination):
+        self._print_command('move_glob', [directory_path, pattern, destination])
+
+        if self.dry_run:
+            return
+
+        for file in Path(directory_path).glob(pattern):
+            shutil.move(str(file), str(destination))
+
+    # endregion
+
     @staticmethod
     def _print_command(command, args):
         print('\033[0;33m[*] <{}> {}\033[0;0m'.format(command, ' '.join(str(x) for x in args)))

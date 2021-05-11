@@ -31,6 +31,13 @@ def main():
     for name in bin_folder_names:
         environment_manager.copy_tree_with_symlinks(DATA_VOLUME / 'binaries' / name, USER_HOME / name)
 
+    # LD_LIBRARY_PATH is not passed when llvm-symbolizer is started via asan,
+    # so move libs to system location
+    if is_dev_build:
+        environment_manager.move_glob_with_symlinks(USER_HOME / 'deps', 'libLLVM-11.*', '/usr/lib/x86_64-linux-gnu')
+
+        process_manager.dispatch_subprocess(['ls', '-laF', '/usr/lib/x86_64-linux-gnu'])
+
     process_manager.dispatch_subprocess(['ls', '-laF', USER_HOME])
 
     for name in ['seed', 'scripts', 'resources', 'bin', 'deps', 'lib', 'tests']:

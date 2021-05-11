@@ -26,6 +26,7 @@ services:
       - SYS_PTRACE
     command: >-
       python3 /catapult-src/scripts/build/runDockerTestsInnerTest.py
+        --compiler-configuration /{{COMPILER_CONFIGURATION}}
         --exe-path /usr/catapult/tests
         --out-dir /catapult-data/logs
         --verbosity {{VERBOSITY}}

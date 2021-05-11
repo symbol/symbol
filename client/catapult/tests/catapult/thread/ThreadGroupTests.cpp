@@ -115,4 +115,59 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(3u, threads.size());
 		EXPECT_EQ(6u, value);
 	}
+
+	TEST(TEST_CLASS, Violation_Tsan) {
+		// Arrange:
+		size_t value = 0;
+		ThreadGroup threads;
+
+		// Act:
+		threads.spawn([&value]() {
+			test::Pause();
+			value += 1;
+		});
+
+		threads.spawn([&value]() {
+			value += 2;
+		});
+
+		threads.spawn([&value]() {
+			test::Pause();
+			value += 3;
+		});
+
+		threads.join();
+
+		// Assert:
+		EXPECT_EQ(3u, threads.size());
+		EXPECT_EQ(6u, value);
+	}
+
+	TEST(TEST_CLASS, Violation_Ubsan) {
+		// Arrange:
+#pragma pack(push, 1)
+		struct UnalignedStruct {
+			uint8_t Alpha;
+			uint64_t Beta;
+		};
+#pragma pack(pop)
+
+		// Act:
+		UnalignedStruct s;
+		s.Alpha = 1;
+		s.Beta = 2;
+
+		// Assert:
+		EXPECT_EQ(1u, s.Alpha);
+		EXPECT_EQ(2u, s.Beta);
+	}
+
+	TEST(TEST_CLASS, Violation_Asan) {
+		// Act:
+		int* p = new int();
+		*p = 7;
+
+		// Assert:
+		EXPECT_EQ(7, *p);
+	}
 }}

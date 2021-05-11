@@ -121,6 +121,7 @@ pipeline {
                         sh """
                             python3 catapult-src/scripts/build/runDockerTests.py \
                                 --image registry.hub.docker.com/symbolplatform/symbol-server-test-base:latest \
+                                --compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
                                 --user ${fully_qualified_user} \
                                 --mode lint
                         """
@@ -183,6 +184,7 @@ pipeline {
                             sh """
                                 python3 catapult-src/scripts/build/runDockerTests.py \
                                     --image ${test_image_name} \
+                                    --compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
                                     --user ${fully_qualified_user} \
                                     --mode ${TEST_MODE} \
                                     --verbosity ${TEST_VERBOSITY}

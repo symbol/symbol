@@ -22,16 +22,18 @@ def create_docker_compose_command(mode):
     ]
 
 
-def prepare_docker_compose_file(input_filepath, image_name, user, verbosity, outfile):
+def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
+    image_name = prepare_replacements['image_name']
     replacements = [
         ('{{IMAGE_NAME}}', image_name),
-        ('{{USER}}', '"{}"'.format(user)),
+        ('{{COMPILER_CONFIGURATION}}', prepare_replacements['compiler_configuration']),
+        ('{{USER}}', '"{}"'.format(prepare_replacements['user'])),
 
         ('{{BUILD_NUMBER}}', get_image_label(image_name)),
         ('{{NETWORK_IP}}', '3000'),
         ('{{GTESTFILTER}}', '*'),
         ('{{STRESSCOUNT}}', '1'),
-        ('{{VERBOSITY}}', verbosity)
+        ('{{VERBOSITY}}', prepare_replacements['verbosity'])
     ]
 
     with open(input_filepath, 'rt') as infile:
@@ -45,6 +47,7 @@ def prepare_docker_compose_file(input_filepath, image_name, user, verbosity, out
 def main():
     parser = argparse.ArgumentParser(description='catapult tests runner')
     parser.add_argument('--image', help='docker tests image', required=True)
+    parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
     parser.add_argument('--user', help='docker user', required=True)
     parser.add_argument('--mode', help='test mode', choices=('bench', 'test', 'lint'), required=True)
     parser.add_argument('--verbosity', help='verbosity level', default='max')
@@ -56,12 +59,17 @@ def main():
     compose_template_directory = Path(__file__).parent / 'templates'
     compose_template_filepath = compose_template_directory / 'Run{}.yaml'.format(args.mode.capitalize())
     print('processing template from {}'.format(compose_template_filepath))
-    prepare_args = [compose_template_filepath, args.image, args.user, args.verbosity]
-    prepare_docker_compose_file(*(prepare_args + [sys.stdout]))  # pylint: disable=too-many-function-args
+    prepare_replacements = {
+        'image_name': args.image,
+        'compiler_configuration': args.compiler_configuration,
+        'user': args.user,
+        'verbosity': args.verbosity
+    }
+    prepare_docker_compose_file(compose_template_filepath, prepare_replacements, sys.stdout)
 
     if not args.dry_run:
         with open('docker-compose.yaml', 'wt') as outfile:
-            prepare_docker_compose_file(*(prepare_args + [outfile]))
+            prepare_docker_compose_file(compose_template_filepath, prepare_replacements, outfile)
 
     environment_manager = EnvironmentManager(args.dry_run)
     environment_manager.mkdirs(OUTPUT_DIR / 'logs', exist_ok=True)
