@@ -116,6 +116,16 @@ pipeline {
                         }
                     }
                 }
+                stage('lint') {
+                    steps {
+                        sh """
+                            python3 catapult-src/scripts/build/runDockerTests.py \
+                                --image registry.hub.docker.com/symbolplatform/symbol-server-test-base:latest \
+                                --user ${fully_qualified_user} \
+                                --mode lint
+                        """
+                    }
+                }
                 stage('build') {
                     steps {
                         sh "${run_docker_build_command}"
@@ -132,6 +142,16 @@ pipeline {
                             }
                         }
                     }
+                }
+            }
+            post {
+                always {
+                    recordIssues enabledForFailure: true, tool: pyLint(pattern: 'catapult-data/logs/pylint.log')
+                    recordIssues enabledForFailure: true, tool: pep8(pattern: 'catapult-data/logs/pycodestyle.log')
+                    recordIssues enabledForFailure: true, tool: gcc(pattern: 'catapult-data/logs/isort.log', name: 'isort', id: 'isort')
+
+                    recordIssues enabledForFailure: true,
+                        tool: gcc(pattern: 'catapult-data/logs/shellcheck.log', name: 'shellcheck', id: 'shellcheck')
                 }
             }
         }
@@ -173,10 +193,16 @@ pipeline {
             }
         }
     }
-
     post {
         always {
             junit 'catapult-data/logs/*.xml'
+
+            dir('catapult-data') {
+                deleteDir()
+            }
+            dir('mongo') {
+                deleteDir()
+            }
         }
     }
 }

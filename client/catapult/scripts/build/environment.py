@@ -56,13 +56,14 @@ class EnvironmentManager:
 
     # region globs
 
-    def find_glob(self, directory_path, pattern):
-        self._print_command('find_glob', [directory_path, pattern])
+    def find_glob(self, directory_path, pattern, recursive=False):
+        self._print_command('find_glob', [directory_path, pattern, recursive])
 
         if self.dry_run:
             return ['[({})match{}]'.format(pattern, i) for i in range(1, 3)]
 
-        return Path(directory_path).glob(pattern)
+        glob_func = Path.glob if not recursive else Path.rglob
+        return glob_func(Path(directory_path), pattern)
 
     # endregion
 

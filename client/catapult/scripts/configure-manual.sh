@@ -50,7 +50,7 @@ EOF
 }
 
 function reqroot {
-	if [ "_`whoami`" != "_root" ]; then
+	if [ "_$(whoami)" != "_root" ]; then
 		echo "Please run as root. (or use sudo)"
 		exit 1
 	fi
@@ -60,15 +60,15 @@ function download_boost {
 	local boost_ver=1_${1}_0
 	local boost_ver_dotted=1.${1}.0
 
-	curl -o boost_${boost_ver}.tar.gz -SL https://boostorg.jfrog.io/artifactory/main/release/${boost_ver_dotted}/source/boost_${boost_ver}.tar.gz
-	tar -xzf boost_${boost_ver}.tar.gz
-	mv boost_${boost_ver} boost
+	curl -o "boost_${boost_ver}.tar.gz" -SL "https://boostorg.jfrog.io/artifactory/main/release/${boost_ver_dotted}/source/boost_${boost_ver}.tar.gz"
+	tar -xzf "boost_${boost_ver}.tar.gz"
+	mv "boost_${boost_ver}" boost
 }
 
 function download_git_dependency {
-	git clone git://github.com/${1}/${2}.git
-	cd ${2}
-	git checkout ${3}
+	git "clone git://github.com/${1}/${2}.git"
+	cd "${2}"
+	git checkout "${3}"
 	cd ..
 }
 
@@ -89,72 +89,72 @@ function download_all {
 
 function install_boost {
 	cd boost
-	./bootstrap.sh with-toolset=clang --prefix=${boost_output_dir}
+	./bootstrap.sh with-toolset=clang --prefix="${boost_output_dir}"
 
 	b2_options=()
-	b2_options+=(--prefix=${boost_output_dir})
-	./b2 ${b2_options[@]} -j $jobs stage release
-	./b2 install ${b2_options[@]}
+	b2_options+=("--prefix=${boost_output_dir}")
+	./b2 "${b2_options[@]}" -j "$jobs" stage release
+	./b2 install "${b2_options[@]}"
 }
 
 function install_git_dependency {
-	cd ${2}
+	cd "${2}"
 	mkdir -p _build
 	cd _build
 
-	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="$depsdir/${1}" ${cmake_options[@]} ..
-	make -j $jobs && make install
+	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="$depsdir/${1}" "${cmake_options[@]}" ..
+	make -j "$jobs" && make install
 }
 
 function install_google_test {
 	cmake_options=()
-	cmake_options+=(-DCMAKE_POSITION_INDEPENDENT_CODE=ON)
+	cmake_options+=("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
 	install_git_dependency google googletest
 }
 
 function install_google_benchmark {
 	cmake_options=()
-	cmake_options+=(-DBENCHMARK_ENABLE_GTEST_TESTS=OFF)
+	cmake_options+=("-DBENCHMARK_ENABLE_GTEST_TESTS=OFF")
 	install_git_dependency google benchmark
 }
 
 function install_mongo_c_driver {
 	cmake_options=()
-	cmake_options+=(-DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF)
-	cmake_options+=(-DENABLE_MONGODB_AWS_AUTH=OFF)
-	cmake_options+=(-DENABLE_TESTS=OFF)
-	cmake_options+=(-DENABLE_EXAMPLES=OFF)
-	cmake_options+=(-DENABLE_SASL=OFF)
+	cmake_options+=("-DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF")
+	cmake_options+=("-DENABLE_MONGODB_AWS_AUTH=OFF")
+	cmake_options+=("-DENABLE_TESTS=OFF")
+	cmake_options+=("-DENABLE_EXAMPLES=OFF")
+	cmake_options+=("-DENABLE_SASL=OFF")
 	install_git_dependency mongodb mongo-c-driver
 }
 
 function install_mongo_cxx_driver {
 	cmake_options=()
-	cmake_options+=(-DBOOST_ROOT=${boost_output_dir})
-	cmake_options+=(-DCMAKE_CXX_STANDARD=17)
+	cmake_options+=("-DBOOST_ROOT=${boost_output_dir}")
+	cmake_options+=("-DCMAKE_CXX_STANDARD=17")
 	install_git_dependency mongodb mongo-cxx-driver
 }
 
 function install_zmq_lib {
 	cmake_options=()
-	cmake_options+=(-DWITH_TLS=OFF)
+	cmake_options+=("-DWITH_TLS=OFF")
 	install_git_dependency zeromq libzmq
 }
 
 function install_zmq_cpp {
 	cmake_options=()
-	cmake_options+=(-DCPPZMQ_BUILD_TESTS=OFF)
+	cmake_options+=("-DCPPZMQ_BUILD_TESTS=OFF")
 	install_git_dependency zeromq cppzmq
 }
 
 function install_rocks {
 	cmake_options=()
-	cmake_options+=(-DPORTABLE=1)
-	cmake_options+=(-DWITH_TESTS=OFF)
-	cmake_options+=(-DWITH_TOOLS=OFF)
-	cmake_options+=(-DWITH_BENCHMARK_TOOLS=OFF)
-	cmake_options+=(-DWITH_CORE_TOOLS=OFF)
-	cmake_options+=(-DWITH_GFLAGS=OFF)
+	cmake_options+=("-DPORTABLE=1")
+	cmake_options+=("-DWITH_TESTS=OFF")
+	cmake_options+=("-DWITH_TOOLS=OFF")
+	cmake_options+=("-DWITH_BENCHMARK_TOOLS=OFF")
+	cmake_options+=("-DWITH_CORE_TOOLS=OFF")
+	cmake_options+=("-DWITH_GFLAGS=OFF")
 	install_git_dependency facebook rocksdb
 }
 
@@ -184,14 +184,14 @@ function install_system_reqs {
 	set -e
 	apt update
 	apt -y upgrade
-	apt -y install $debs
+	apt -y install "$debs"
 	set +e
 }
 
 force_download=0
 
 function download_deps {
-	if [ -d $depsdir ]; then
+	if [ -d "$depsdir" ]; then
 		echo -n "Warning: ${depsdir} already exists. "
 		if [ ${force_download} -eq 0 ]; then
 			echo "Download skipped."
@@ -199,9 +199,9 @@ function download_deps {
 		fi
 		echo ""
 	fi
-	mkdir -p $depsdir
+	mkdir -p "$depsdir"
 	set -e
-	pushd $depsdir > /dev/null
+	pushd "$depsdir" > /dev/null
 		mkdir -p source
 		pushd source > /dev/null
 			download_all
@@ -211,10 +211,10 @@ function download_deps {
 }
 
 function install_deps {
-	if [ ! -d ${boost_output_dir} ]; then
+	if [ ! -d "${boost_output_dir}" ]; then
 		download_deps
 	fi
-	pushd $depsdir > /dev/null
+	pushd "$depsdir" > /dev/null
 		install_all
 	popd
 }
@@ -225,11 +225,11 @@ function install_main {
 	cmd=$1
 	shift
 	if [ "_$cmd" == "_system_reqs" ]; then
-		install_system_reqs $@
+		install_system_reqs "$@"
 		exitok
 	elif [ "_$cmd" == "_deps" ]; then
 		set_depsdir
-		install_deps $@
+		install_deps "$@"
 		exitok
 	fi
 }
@@ -243,7 +243,7 @@ function download {
 	set_depsdir
 	if [ "_$cmd" == "_deps" ]; then
 		force_download=1
-		download_deps $@
+		download_deps "$@"
 		exitok
 	fi
 }
@@ -252,7 +252,7 @@ function make_build_dir {
 	set_depsdir
 	echo "building using ${jobs} jobs"
 	echo "dependencies dir: ${depsdir}"
-	if [ ! -d ${boost_output_dir} ]; then
+	if [ ! -d "${boost_output_dir}" ]; then
 		install_deps
 	fi
 	echo "dependencies OK at: ${depsdir}"
@@ -286,13 +286,13 @@ function make_build_dir {
 prog=$0
 jobs=4
 if [[ -f /proc/cpuinfo ]]; then
-	jobs=`cat /proc/cpuinfo | grep "^processor" | wc -l`
+	jobs=$(grep -c "^processor" /proc/cpuinfo)
 fi
 warn_env=0
 debs="git gcc g++ cmake curl libssl-dev ninja-build pkg-config libpython-dev"
 cmd=""
 
-while [ true ]; do
+while true; do
 	opt=$1
 	shift
 	if [ "_$opt" == "_-j" ]; then
@@ -307,11 +307,11 @@ while [ true ]; do
 done
 
 if [ "_$cmd" == "_install" ]; then
-	install_main $@
+	install_main "$@"
 elif [ "_$cmd" == "_download" ]; then
-	download $@
+	download "$@"
 elif [ "_$cmd" == "_" ]; then
-	make_build_dir $@
+	make_build_dir "$@"
 fi
 
 echo "Error: $cmd"

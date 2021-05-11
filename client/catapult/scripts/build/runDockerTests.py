@@ -46,7 +46,7 @@ def main():
     parser = argparse.ArgumentParser(description='catapult tests runner')
     parser.add_argument('--image', help='docker tests image', required=True)
     parser.add_argument('--user', help='docker user', required=True)
-    parser.add_argument('--mode', help='test mode', choices=('bench', 'test'), required=True)
+    parser.add_argument('--mode', help='test mode', choices=('bench', 'test', 'lint'), required=True)
     parser.add_argument('--verbosity', help='verbosity level', default='max')
     parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
     args = parser.parse_args()
@@ -64,16 +64,11 @@ def main():
             prepare_docker_compose_file(*(prepare_args + [outfile]))
 
     environment_manager = EnvironmentManager(args.dry_run)
-    environment_manager.rmtree(OUTPUT_DIR)
-    environment_manager.mkdirs(OUTPUT_DIR)
-    environment_manager.mkdirs(OUTPUT_DIR / 'logs')
-    environment_manager.mkdirs(OUTPUT_DIR / 'workdir')
+    environment_manager.mkdirs(OUTPUT_DIR / 'logs', exist_ok=True)
+    environment_manager.mkdirs(OUTPUT_DIR / 'workdir', exist_ok=True)
 
-    environment_manager.rmtree(MONGO_DIR)
-    environment_manager.mkdirs(MONGO_DIR / get_image_label(args.image))
-
-    process_manager.dispatch_subprocess(['ls', '-laF'])
-    process_manager.dispatch_subprocess(['ls', '-laF', 'catapult-src'])
+    if 'test' == args.mode:
+        environment_manager.mkdirs(MONGO_DIR / get_image_label(args.image))
 
     docker_compose_args = create_docker_compose_command(args.mode)
     if process_manager.dispatch_subprocess(docker_compose_args, handle_error=False):

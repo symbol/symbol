@@ -17,7 +17,7 @@ def prepare_tests(environment_manager):
 def main():
     parser = argparse.ArgumentParser(description='catapult test runner')
     parser.add_argument('--exe-path', help='path to executables', required=True)
-    parser.add_argument('--out-dir', help='directory in which to store result files', required=True)
+    parser.add_argument('--out-dir', help='directory in which to store test output files', required=True)
     parser.add_argument('--verbosity', help='output verbosity', choices=('suite', 'test', 'max'), default='max')
     parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
     args = parser.parse_args()
