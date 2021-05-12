@@ -1,0 +1,14 @@
+c: clang
+cpp: clang++
+version: 12
+
+stl:
+  version: c++1y
+  lib: libc++
+
+deps:
+  - /usr/lib/llvm-12/lib/libc++.so.*
+  - /usr/lib/llvm-12/lib/libc++abi.so.*
+
+  - /usr/lib/llvm-12/bin/llvm-symbolizer
+  - /usr/lib/x86_64-linux-gnu/libLLVM-12.*

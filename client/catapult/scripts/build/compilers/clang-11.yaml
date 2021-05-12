@@ -9,5 +9,6 @@ stl:
 deps:
   - /usr/lib/llvm-11/lib/libc++.so.*
   - /usr/lib/llvm-11/lib/libc++abi.so.*
-  - /usr/lib/x86_64-linux-gnu/libLLVM-11.*
+
   - /usr/lib/llvm-11/bin/llvm-symbolizer
+  - /usr/lib/x86_64-linux-gnu/libLLVM-11.*

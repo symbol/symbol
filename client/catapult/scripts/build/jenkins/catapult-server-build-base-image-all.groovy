@@ -22,31 +22,38 @@ pipeline {
 
         stage('build base images') {
             parallel {
-                stage('gcc-10') {
+                stage('gcc latest') {
                     steps {
                         script {
                             dispatch_build_base_image_job('gcc-latest')
                         }
                     }
                 }
-                stage('clang-11') {
+                stage('clang latest') {
                     steps {
                         script {
                             dispatch_build_base_image_job('clang-latest')
                         }
                     }
                 }
-                stage('clang-11 ausan') {
+                stage('clang ausan') {
                     steps {
                         script {
                             dispatch_build_base_image_job('clang-address-undefined')
                         }
                     }
                 }
-                stage('clang-11 tsan') {
+                stage('clang tsan') {
                     steps {
                         script {
                             dispatch_build_base_image_job('clang-thread')
+                        }
+                    }
+                }
+                stage('clang 11') {
+                    steps {
+                        script {
+                            dispatch_build_base_image_job('clang-11')
                         }
                     }
                 }

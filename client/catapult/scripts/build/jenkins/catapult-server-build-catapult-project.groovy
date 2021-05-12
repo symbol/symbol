@@ -6,7 +6,7 @@ pipeline {
     parameters {
         gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
         choice name: 'COMPILER_CONFIGURATION',
-            choices: ['gcc-latest', 'clang-latest', 'clang-address-undefined', 'clang-thread'],
+            choices: ['gcc-latest', 'clang-latest', 'clang-address-undefined', 'clang-thread', 'clang-11'],
             description: 'compiler configuration'
         choice name: 'BUILD_CONFIGURATION',
             choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],

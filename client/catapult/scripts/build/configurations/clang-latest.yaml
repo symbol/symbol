@@ -1,2 +1,2 @@
-compiler: ../compilers/clang-11.yaml
+compiler: ../compilers/clang-12.yaml
 architecture: skylake

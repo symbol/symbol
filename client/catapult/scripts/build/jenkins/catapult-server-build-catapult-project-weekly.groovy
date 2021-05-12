@@ -73,6 +73,14 @@ pipeline {
                         }
                     }
                 }
+
+                stage('clang-11') {
+                    steps {
+                        script {
+                            dispatch_build_job('clang-11', 'tests-metal')
+                        }
+                    }
+                }
             }
         }
     }
