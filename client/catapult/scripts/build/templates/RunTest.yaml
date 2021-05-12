@@ -24,6 +24,8 @@ services:
     working_dir: /catapult-data/workdir
     cap_add:
       - SYS_PTRACE
+    ulimits:
+      core: -1
     command: >-
       python3 /catapult-src/scripts/build/runDockerTestsInnerTest.py
         --compiler-configuration /{{COMPILER_CONFIGURATION}}

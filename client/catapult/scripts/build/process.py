@@ -70,6 +70,7 @@ class ProcessManager:
                     sys.stdout.write(line)
                     sys.stdout.flush()
 
+            print('process exited with return code: {}'.format(process.returncode))
             return process.returncode
 
     @staticmethod

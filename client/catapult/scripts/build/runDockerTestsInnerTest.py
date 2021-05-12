@@ -100,6 +100,36 @@ def process_sanitizer_logs_all(environment_manager, output_directory, test_name)
     })
 
 
+SEGV_RESULT_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" timestamp="0" time="0" name="AllTests">
+    <testsuite name="Segmentation" tests="1" failures="1" disabled="0" errors="0" time="0">
+        <testcase name="SegmentationFault" status="run" time="0.002" classname="unknown">
+            <failure message="Segmentation fault happened" type=""><![CDATA[{}]]></failure>
+        </testcase>
+    </testsuite>
+</testsuites>
+'''
+
+
+def handle_core_file(process_manager, core_path, test_exe_filepath, base_output_filepath):
+    print('core file detected {}'.format(core_path))
+
+    gdb_output_filepath = '{}.core.txt'.format(base_output_filepath)
+    process_manager.dispatch_subprocess([
+        'gdb', '--batch', '--quiet',
+        '-ex', 'thread apply all bt full',
+        '-ex', 'quit',
+        test_exe_filepath,
+        core_path
+    ], redirect_filename=gdb_output_filepath)
+
+    with open(gdb_output_filepath, 'rt') as infile:
+        contents = infile.read()
+
+    with open('{}.core.xml'.format(base_output_filepath), 'wt') as outfile:
+        outfile.write(SEGV_RESULT_TEMPLATE.format(contents))
+
+
 def main():
     parser = argparse.ArgumentParser(description='catapult test runner')
     parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
@@ -123,17 +153,23 @@ def main():
     process_manager.dispatch_subprocess(['ls', '-laF', '/catapult-src'])
 
     failed_test_suites = []
-    for filepath in environment_manager.find_glob(args.exe_path, 'tests*'):
-        output_filepath = Path(args.out_dir) / (filepath.name + '.xml')
+    for test_exe_filepath in environment_manager.find_glob(args.exe_path, 'tests*'):
+        base_output_filepath = Path(args.out_dir) / test_exe_filepath.name
+
+        output_filepath = '{}.xml'.format(base_output_filepath)
         test_args = [
-            filepath,
+            test_exe_filepath,
             '--gtest_output=xml:{}'.format(output_filepath),
             Path(args.exe_path) / '..' / 'lib'
         ]
-        if process_manager.dispatch_test_subprocess(test_args, args.verbosity):
-            failed_test_suites.append(filepath)
 
-        process_sanitizer_logs_all(environment_manager, Path(args.out_dir), filepath.name)
+        if process_manager.dispatch_test_subprocess(test_args, args.verbosity):
+            for core_path in Path('.').glob('core*'):
+                handle_core_file(process_manager, core_path, test_exe_filepath, base_output_filepath)
+
+            failed_test_suites.append(test_exe_filepath)
+
+        process_sanitizer_logs_all(environment_manager, Path(args.out_dir), test_exe_filepath.name)
 
     if failed_test_suites:
         print('test failures detected')

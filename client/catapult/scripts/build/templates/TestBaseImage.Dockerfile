@@ -3,6 +3,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 MAINTAINER Catapult Development Team
 RUN apt-get -y update && apt-get install -y \
     bison \
+    gdb \
     git \
     flex \
     python3 \
