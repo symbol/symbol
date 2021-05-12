@@ -3,6 +3,10 @@ in: query
 description: |
   When true, the endpoint also returns all the embedded aggregate transactions.
   Otherwise, only top-level transactions used to calculate the block transactionsHash are returned.
+  **Note:** This field does not work when combined with the ``address`` parameter. This is,
+  embedded transactions containing the address specified through the ``address`` parameter
+  will not be returned even when used with ``embedded=true``. There is no problem when using
+  other parameters like ``recipientAddress`` instead.
 schema:
   type: boolean
   default: false
