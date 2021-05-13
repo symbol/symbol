@@ -103,10 +103,10 @@ def prepare_docker_image(process_manager, prepare_base_image_name, destination_i
     process_manager.dispatch_subprocess([
         'docker', 'run',
         '--cidfile={}'.format(cid_filepath),
-        '--volume={}:/catapult-src'.format(SRC_DIR),  # TODO: ask gimre why this is needed :/
+        '--volume={}:/scripts'.format(SRC_DIR / 'scripts' / 'build'),
         '--volume={}:/data'.format(OUTPUT_DIR),
         'registry.hub.docker.com/{}'.format(prepare_base_image_name),
-        'python3', '/catapult-src/scripts/build/runDockerBuildInnerPrepare.py',
+        'python3', '/scripts/runDockerBuildInnerPrepare.py',
         '--disposition=dev'
     ])
 
