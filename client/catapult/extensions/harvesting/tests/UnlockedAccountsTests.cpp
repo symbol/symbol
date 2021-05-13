@@ -76,10 +76,10 @@ namespace catapult { namespace harvesting {
 	// region basic ctor, add, remove
 
 	namespace {
-		std::pair<Key, size_t> GetPrioritizedVrfPublicKey(const UnlockedAccounts& accounts, const Key& signingPublicKey) {
+		std::pair<Key, size_t> GetPrioritizedVrfPublicKey(const UnlockedAccountsView& accountsView, const Key& signingPublicKey) {
 			auto index = 0u;
 			auto vrfPublicKey = Key();
-			accounts.view().forEach([&signingPublicKey, &index, &vrfPublicKey](const auto& descriptor) {
+			accountsView.forEach([&signingPublicKey, &index, &vrfPublicKey](const auto& descriptor) {
 				if (descriptor.signingKeyPair().publicKey() != signingPublicKey) {
 					++index;
 					return true;
@@ -92,8 +92,8 @@ namespace catapult { namespace harvesting {
 			return std::make_pair(vrfPublicKey, index);
 		}
 
-		Key GetVrfPublicKey(const UnlockedAccounts& accounts, const Key& signingPublicKey) {
-			return GetPrioritizedVrfPublicKey(accounts, signingPublicKey).first;
+		Key GetVrfPublicKey(const UnlockedAccountsView& accountsView, const Key& signingPublicKey) {
+			return GetPrioritizedVrfPublicKey(accountsView, signingPublicKey).first;
 		}
 	}
 
@@ -123,7 +123,7 @@ namespace catapult { namespace harvesting {
 
 		// - vrf public key is properly associated
 		EXPECT_FALSE(view.contains(accountDescriptorWrapper.VrfPublicKey));
-		EXPECT_EQ(accountDescriptorWrapper.VrfPublicKey, GetVrfPublicKey(accounts, accountDescriptorWrapper.SigningPublicKey));
+		EXPECT_EQ(accountDescriptorWrapper.VrfPublicKey, GetVrfPublicKey(view, accountDescriptorWrapper.SigningPublicKey));
 	}
 
 	TEST(TEST_CLASS, CanAddMultipleAccountsToContainer) {
@@ -149,8 +149,8 @@ namespace catapult { namespace harvesting {
 		// - vrf public keys are properly associated
 		EXPECT_FALSE(view.contains(accountDescriptorWrapper1.VrfPublicKey));
 		EXPECT_FALSE(view.contains(accountDescriptorWrapper2.VrfPublicKey));
-		EXPECT_EQ(accountDescriptorWrapper1.VrfPublicKey, GetVrfPublicKey(accounts, accountDescriptorWrapper1.SigningPublicKey));
-		EXPECT_EQ(accountDescriptorWrapper2.VrfPublicKey, GetVrfPublicKey(accounts, accountDescriptorWrapper2.SigningPublicKey));
+		EXPECT_EQ(accountDescriptorWrapper1.VrfPublicKey, GetVrfPublicKey(view, accountDescriptorWrapper1.SigningPublicKey));
+		EXPECT_EQ(accountDescriptorWrapper2.VrfPublicKey, GetVrfPublicKey(view, accountDescriptorWrapper2.SigningPublicKey));
 	}
 
 	TEST(TEST_CLASS, AdditionOfAlreadyAddedAccountUpdatesVrfPublicKey) {
@@ -180,7 +180,7 @@ namespace catapult { namespace harvesting {
 		// - last vrf public key is properly associated
 		EXPECT_FALSE(view.contains(vrfKeyPair1.publicKey()));
 		EXPECT_FALSE(view.contains(vrfKeyPair2.publicKey()));
-		EXPECT_EQ(vrfKeyPair2.publicKey(), GetVrfPublicKey(accounts, signingKeyPair.publicKey()));
+		EXPECT_EQ(vrfKeyPair2.publicKey(), GetVrfPublicKey(view, signingKeyPair.publicKey()));
 	}
 
 	TEST(TEST_CLASS, AdditionOfAlreadyAddedAccountUpdatesVrfPublicKeyAndPreservesPriority) {
@@ -218,7 +218,7 @@ namespace catapult { namespace harvesting {
 		EXPECT_FALSE(view.contains(vrfKeyPair1.publicKey()));
 		EXPECT_FALSE(view.contains(vrfKeyPair2.publicKey()));
 
-		const auto& vrfPrioritizedPublicKey = GetPrioritizedVrfPublicKey(accounts, signingKeyPair1.publicKey());
+		const auto& vrfPrioritizedPublicKey = GetPrioritizedVrfPublicKey(view, signingKeyPair1.publicKey());
 		EXPECT_EQ(vrfKeyPair2.publicKey(), vrfPrioritizedPublicKey.first);
 		EXPECT_EQ(0u, vrfPrioritizedPublicKey.second);
 	}

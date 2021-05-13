@@ -168,6 +168,11 @@ namespace catapult { namespace consumers {
 			}
 
 			ConsumerResult preprocess(const BlockElements& elements, InputSource source, SyncState& syncState) const {
+				// 0. retrieve finalized height hash pairs (this needs to happen before taking storage lock because
+				//    LocalFinalizedHeightHashPairSupplier takes a storage lock)
+				auto localFinalizedHeightHashPair = m_handlers.LocalFinalizedHeightHashPairSupplier();
+				auto networkFinalizedHeightHashPair = m_handlers.NetworkFinalizedHeightHashPairSupplier();
+
 				// 1. check that the peer chain can be linked to the current chain
 				auto storageView = m_storage.view();
 				auto peerStartHeight = elements[0].Block.Height;
@@ -176,9 +181,6 @@ namespace catapult { namespace consumers {
 					return Abort(Failure_Consumer_Remote_Chain_Unlinked);
 
 				// 2. check that the remote chain is not too far behind the current chain
-				auto localFinalizedHeightHashPair = m_handlers.LocalFinalizedHeightHashPairSupplier();
-				auto networkFinalizedHeightHashPair = m_handlers.NetworkFinalizedHeightHashPairSupplier();
-
 				auto isFinalizedBlockLocal = Contains(storageView, networkFinalizedHeightHashPair);
 				auto isFinalizedBlockRemote = Contains(elements, networkFinalizedHeightHashPair);
 				auto isFinalizedBlockUpdate = !isFinalizedBlockLocal && isFinalizedBlockRemote;

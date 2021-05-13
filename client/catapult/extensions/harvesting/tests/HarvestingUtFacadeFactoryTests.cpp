@@ -583,6 +583,14 @@ namespace catapult { namespace harvesting {
 			catapultCache.commit(importanceMultipleHeight - Height(1));
 		}
 
+		// Sanity:
+		{
+			auto view = catapultCache.createView();
+			auto statistics = cache::ReadOnlyAccountStateCache(view.sub<cache::AccountStateCache>()).highValueAccountStatistics();
+			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
+		}
+
+		// Arrange: create facade and block
 		test::MockExecutionConfiguration executionConfig;
 		executionConfig.pObserver = std::make_shared<MockBalancesNotificationObserver>();
 		executionConfig.Config.pObserver = executionConfig.pObserver;
@@ -595,13 +603,6 @@ namespace catapult { namespace harvesting {
 
 		auto pFacade = factory.create(Default_Time);
 		auto pOriginalBlock = CreateImportanceBlockHeader(importanceMultipleHeight);
-
-		// Sanity:
-		{
-			auto view = catapultCache.createView();
-			auto statistics = cache::ReadOnlyAccountStateCache(view.sub<cache::AccountStateCache>()).highValueAccountStatistics();
-			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
-		}
 
 		// Act: transfers from last account to first two accounts
 		// before: 1990, 1995, 2000, 2005, 2010
