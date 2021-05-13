@@ -1,10 +1,9 @@
-import argparse
 import re
 import sys
 from enum import Enum
 from xml.sax.saxutils import quoteattr
 
-# region process_sanitizer_log
+# region io helpers
 
 
 def _read_lines(filename):
@@ -16,39 +15,33 @@ def _read_lines(filename):
     return data
 
 
-def _output_xml_test_case(entry, fout):
-    fout.write('''<testcase name="{}" status="run" time="0.002" classname="{}">
+def _output_xml_test_case(entry, outfile):
+    outfile.write('''<testcase name="{}" status="run" time="0.002" classname="{}">
 '''.format(entry.name, entry.error))
-    fout.write('<failure message={} type=""><![CDATA['.format(quoteattr(entry.message)))
-    fout.write(entry.create_header())
-    fout.write('\n'.join(entry.trace))
-    fout.write('>]]></failure>')
-    fout.write('</testcase>')
+    outfile.write('<failure message={} type=""><![CDATA['.format(quoteattr(entry.message)))
+    outfile.write(entry.create_header())
+    outfile.write('\n'.join(entry.trace))
+    outfile.write('>]]></failure>')
+    outfile.write('</testcase>')
 
 
-def _output_xml_to_file(parsed, sanitizer_name, fout):
-    fout.write('''<?xml version="1.0" encoding="UTF-8"?>
+def _output_xml_to_file(parsed, sanitizer_name, outfile):
+    outfile.write('''<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="1" failures="1" disabled="0" errors="0" timestamp="0" time="0" name="AllTests">
     <testsuite name="{}" tests="1" failures="{}" disabled="0" errors="0" time="0">
 '''.format(sanitizer_name, len(parsed)))
     for entry in parsed:
-        _output_xml_test_case(entry, fout)
-    fout.write('''
+        _output_xml_test_case(entry, outfile)
+    outfile.write('''
     </testsuite>
 </testsuites>
 ''')
 
 
 def _output_xml(parsed, sanitizer_name, filename):
-    with open(filename, 'w') as fout:
-        _output_xml_to_file(parsed, sanitizer_name, fout)
+    with open(filename, 'w') as outfile:
+        _output_xml_to_file(parsed, sanitizer_name, outfile)
 
-
-def process_sanitizer_log(logname, output_name, sanitizer_name, parser):
-    for line in _read_lines(logname):
-        parser.push(line)
-
-    _output_xml(parser.parsed, sanitizer_name, output_name)
 
 # endregion
 
@@ -191,25 +184,22 @@ class TsanParser(BasicParser):
 
 # endregion
 
+# region parse_san_log
 
-def main():
-    parser = argparse.ArgumentParser(description='catapult test runner')
-    parser.add_argument('--input', help='path to input file', required=True)
-    parser.add_argument('--output', help='path to output file', required=True)
-    parser.add_argument('--mode', help='parsing mode', choices=('asan', 'tsan'), required=True)
-    args = parser.parse_args()
 
+def parse_san_log(input_filepath, output_filepath, mode):
     sanitizer_name = ''
     parser = None
-    if 'asan' == args.mode:
+    if 'asan' == mode:
         sanitizer_name = 'Address'
         parser = AsanParser()
-    elif 'tsan' == args.mode:
+    elif 'tsan' == mode:
         sanitizer_name = 'Tsan'
         parser = TsanParser()
 
-    process_sanitizer_log(args.input, args.output, sanitizer_name, parser)
+    for line in _read_lines(input_filepath):
+        parser.push(line)
 
+    _output_xml(parser.parsed, sanitizer_name, output_filepath)
 
-if __name__ == '__main__':
-    main()
+# endregion

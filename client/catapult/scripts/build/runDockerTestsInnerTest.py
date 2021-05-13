@@ -5,6 +5,7 @@ from pathlib import Path
 from configuration import load_compiler_configuration
 from environment import EnvironmentManager
 from process import ProcessManager
+from sanParser import parse_san_log
 
 USER_HOME = Path('/usr/catapult')
 TSAN_SUPPRESSIONS_PATH = '/tmp/tsan-suppressions.txt'
@@ -28,36 +29,34 @@ class SanitizerEnvironment:
         if 'address' in self.sanitizers:
             self.prepare_address_sanitizer()
 
+    def _set_san_options(self, name, custom_options):
+        options = {
+            'external_symbolizer_path': str(USER_HOME / 'deps' / 'llvm-symbolizer'),
+            'print_stacktrace': 1,
+            'verbosity': 1,
+            'log_path': '{}log'.format(name)
+        }
+        options.update(custom_options)
+
+        options_string = ':'.join(map('{0[0]}={0[1]}'.format, options.items()))
+        self.environment_manager.set_env_var('{}_OPTIONS'.format(name.upper()), options_string)
+        print('{} options: {}'.format(name, options_string))
+
     def prepare_thread_sanitizer(self):
         with open(TSAN_SUPPRESSIONS_PATH, 'wt') as outfile:
             outfile.write('race:~weak_ptr\n')
             outfile.write('race:~executor\n')
             outfile.write('race:global_logger::get()')
 
-        options = {
-            'external_symbolizer_path': str(USER_HOME / 'deps' / 'llvm-symbolizer'),
+        self._set_san_options('tsan', {
             'suppressions': TSAN_SUPPRESSIONS_PATH,
-            'log_path': 'tsanlog'
-        }
-
-        options_string = ':'.join(map('{0[0]}={0[1]}'.format, options.items()))
-        self.environment_manager.set_env_var('TSAN_OPTIONS', options_string)
-        print('tsan options: {}'.format(options_string))
+        })
 
     def prepare_undefined_sanitizer(self):
-        options = {
-            'external_symbolizer_path': str(USER_HOME / 'deps' / 'llvm-symbolizer'),
-            'print_stacktrace': 1,
-            'log_path': 'ubsanlog'
-        }
-        options_string = ':'.join(map('{0[0]}={0[1]}'.format, options.items()))
-        self.environment_manager.set_env_var('UBSAN_OPTIONS', options_string)
-        print('ubsan options: {}'.format(options_string))
+        self._set_san_options('ubsan', {})
 
     def prepare_address_sanitizer(self):
-        options = {
-            'external_symbolizer_path': str(USER_HOME / 'deps' / 'llvm-symbolizer'),
-            'verbosity': 1,
+        self._set_san_options('asan', {
             'check_initialization_order': 'true',
             'strict_init_order': 'true',
             'detect_stack_use_after_return': 'true',
@@ -65,12 +64,7 @@ class SanitizerEnvironment:
             'strict_string_checks': 'true',
             'new_delete_type_mismatch': 'false',
             'detect_leaks': 'true',
-            'log_path': 'asanlog'
-        }
-
-        options_string = ':'.join(map('{0[0]}={0[1]}'.format, options.items()))
-        self.environment_manager.set_env_var('ASAN_OPTIONS', options_string)
-        print('asan options: {}'.format(options_string))
+        })
 
 
 def prepare_tests(environment_manager):
@@ -81,43 +75,29 @@ def prepare_tests(environment_manager):
     environment_manager.copy_tree_with_symlinks('/catapult-src/tests/int/stress/resources', '/catapult-data/tests/int/stress/resources')
 
 
-def create_san_parser_args(input_filepath, output_filepath, mode):
-    return [
-        'python3', '/catapult-src/scripts/build/san/sanParser.py',
-        '--input={}'.format(input_filepath),
-        '--output={}'.format(str(output_filepath)),
-        '--mode={}'.format(mode)
-    ]
+def process_sanitizer_logs(environment_manager, output_directory, san_descriptor):
+    counter = 1
+    for logfile_name in environment_manager.find_glob('.', san_descriptor['input_pattern']):
+        log_name = output_directory / '{}.{}.xml'.format(san_descriptor['output_filename_prefix'], counter)
+        parse_san_log(logfile_name, log_name, san_descriptor['parser_name'])
+
+        logfile_name.unlink()
+        counter += 1
 
 
-def handle_sanitizer_logs(process_manager, output_directory, test_name):
+def process_sanitizer_logs_all(environment_manager, output_directory, test_name):
     print('test_name', test_name)
 
-    counter = 1
-    for logfile_name in Path('.').glob('tsanlog*'):
-        log_name = output_directory / '{}.thread.{}.xml'.format(test_name, counter)
-        #process_manager.dispatch_subprocess(['cat', str(logfile_name)])
-        process_manager.dispatch_subprocess(create_san_parser_args(logfile_name, log_name, 'tsan'))
-        #process_manager.dispatch_subprocess(['cat', str(log_name)])
-        counter += 1
-
-    for logfile_name in Path('.').glob('tsanlog*'):
-        logfile_name.unlink()
-
-    process_manager.dispatch_subprocess(['ls', '-laF', '.'])
-
-    counter = 1
-    for logfile_name in Path('.').glob('ubsanlog*'):
-        log_name = output_directory / '{}.undefined.address.{}.xml'.format(test_name, counter)
-        #process_manager.dispatch_subprocess(['cat', str(logfile_name)])
-        process_manager.dispatch_subprocess(create_san_parser_args(logfile_name, log_name, 'asan'))
-        #process_manager.dispatch_subprocess(['cat', str(log_name)])
-        counter += 1
-
-    for logfile_name in Path('.').glob('ubsanlog*'):
-        logfile_name.unlink()
-
-    process_manager.dispatch_subprocess(['ls', '-laF', '.'])
+    process_sanitizer_logs(environment_manager, output_directory, {
+        'input_pattern': 'tsanlog*',
+        'output_filename_prefix': '{}.thread'.format(test_name),
+        'parser_name': 'tsan'
+    })
+    process_sanitizer_logs(environment_manager, output_directory, {
+        'input_pattern': 'ubsanlog*',
+        'output_filename_prefix': '{}.undefined.address'.format(test_name),
+        'parser_name': 'asan'
+    })
 
 
 def main():
@@ -143,11 +123,7 @@ def main():
     process_manager.dispatch_subprocess(['ls', '-laF', '/catapult-src'])
 
     failed_test_suites = []
-    for filepath in environment_manager.find_glob(args.exe_path, 'tests.catapult.thread*'):
-        if '.int.' in str(filepath):
-            print('skipping int tests')
-            continue
-
+    for filepath in environment_manager.find_glob(args.exe_path, 'tests*'):
         output_filepath = Path(args.out_dir) / (filepath.name + '.xml')
         test_args = [
             filepath,
@@ -157,7 +133,7 @@ def main():
         if process_manager.dispatch_test_subprocess(test_args, args.verbosity):
             failed_test_suites.append(filepath)
 
-        handle_sanitizer_logs(process_manager, Path(args.out_dir), filepath.name)
+        process_sanitizer_logs_all(environment_manager, Path(args.out_dir), filepath.name)
 
     if failed_test_suites:
         print('test failures detected')

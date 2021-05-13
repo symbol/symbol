@@ -73,7 +73,6 @@ class BuildManager(BasicBuildManager):
 
         if self.sanitizers:
             settings.extend([
-                # TODO: check if this works as expected
                 ('USE_SANITIZER', ','.join(self.sanitizers)),
                 ('OPENSSL_ROOT_DIR', '/usr/local')
             ])
