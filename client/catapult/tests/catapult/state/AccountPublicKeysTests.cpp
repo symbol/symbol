@@ -597,14 +597,22 @@ namespace catapult { namespace state {
 		EXPECT_EQ(VotingKey{ { 0x32 } }, accessor.get(2).VotingKey);
 	}
 
-	PUBLIC_KEYS_ACCESSOR_TEST(CannotAddOutOfOrderKeys) {
+	PUBLIC_KEYS_ACCESSOR_TEST(CanAddOutOfOrderKeys) {
 		// Arrange:
 		PublicKeysAccessor accessor;
 		accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
 
-		// Act + Assert:
-		EXPECT_THROW(accessor.add({ { { 0x44 } }, Epoch(100), Epoch(110) }), catapult_invalid_argument);
-		EXPECT_THROW(accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) }), catapult_invalid_argument);
+		// Act:
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x33 } }, Epoch(20), Epoch(40) });
+		accessor.add({ { { 0x22 } }, Epoch(70), Epoch(80) });
+
+		// Assert:
+		ASSERT_EQ(4u, accessor.size());
+		EXPECT_EQ(VotingKey{ { 0x33 } }, accessor.get(0).VotingKey);
+		EXPECT_EQ(VotingKey{ { 0x22 } }, accessor.get(1).VotingKey);
+		EXPECT_EQ(VotingKey{ { 0x44 } }, accessor.get(2).VotingKey);
+		EXPECT_EQ(VotingKey{ { 0x98 } }, accessor.get(3).VotingKey);
 	}
 
 	PUBLIC_KEY_ACCESSOR_TEST(CannotAddKeyWithOverlappingRange) {

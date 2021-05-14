@@ -143,15 +143,46 @@ namespace catapult { namespace state {
 		return m_pKeys ? *m_pKeys : std::vector<TPinnedAccountPublicKey>();
 	}
 
+	namespace {
+		template<typename TPinnedAccountPublicKey>
+		bool ContainsEpoch(const TPinnedAccountPublicKey& key, FinalizationEpoch epoch) {
+			return key.StartEpoch <= epoch && epoch <= key.EndEpoch;
+		}
+
+		template<typename TPinnedAccountPublicKey>
+		void EnsureNoOverlap(const std::vector<TPinnedAccountPublicKey>& keys, const TPinnedAccountPublicKey& key) {
+			auto anyOverlap = std::any_of(keys.cbegin(), keys.cend(), [&key](const auto& existingKey) {
+				return ContainsEpoch(key, existingKey.StartEpoch)
+						|| ContainsEpoch(key, existingKey.EndEpoch)
+						|| ContainsEpoch(existingKey, key.StartEpoch);
+			});
+
+			if (!anyOverlap)
+				return;
+
+			std::ostringstream out;
+			out
+				<< "cannot add key with overlapping epoch " << key << std::endl
+				<< "existing keys:" << std::endl;
+			for (const auto& existingKey : keys)
+				out << " - " << existingKey << std::endl;
+
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
+	}
+
 	template<typename TPinnedAccountPublicKey>
 	void PUBLIC_KEYS_ACCESSOR_T::add(const TPinnedAccountPublicKey& key) {
-		if (upperBound() >= key.StartEpoch)
-			CATAPULT_THROW_INVALID_ARGUMENT("cannot add out of order public key");
-
 		if (!m_pKeys)
 			m_pKeys = std::make_shared<std::vector<TPinnedAccountPublicKey>>();
 
-		m_pKeys->push_back(key);
+		EnsureNoOverlap(*m_pKeys, key);
+
+		// use an insertion sort to keep keys in deterministic order for serialization
+		auto iter = std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [&key](const auto& existingKey) {
+			return existingKey.StartEpoch > key.EndEpoch;
+		});
+		m_pKeys->insert(iter, key);
 	}
 
 	template<typename TPinnedAccountPublicKey>
