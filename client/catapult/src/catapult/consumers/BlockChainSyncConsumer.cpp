@@ -46,7 +46,18 @@ namespace catapult { namespace consumers {
 
 		public:
 			void addBlockTransactionInfos(const std::shared_ptr<const model::BlockElement>& pBlockElement) {
-				model::ExtractTransactionInfos(TransactionInfos, pBlockElement);
+				// blocks are processed in reverse order, so each block element processed is older than all previously processed
+				// block elements. insert the oldest transactions at the beginning of TransactionInfos so that they're reapplied first.
+				consumers::TransactionInfos blockTransactionInfos;
+				model::ExtractTransactionInfos(blockTransactionInfos, pBlockElement);
+
+				if (blockTransactionInfos.empty())
+					return;
+
+				TransactionInfos.insert(
+						TransactionInfos.begin(),
+						std::make_move_iterator(blockTransactionInfos.begin()),
+						std::make_move_iterator(blockTransactionInfos.end()));
 			}
 		};
 

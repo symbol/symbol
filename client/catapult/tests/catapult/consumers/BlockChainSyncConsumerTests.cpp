@@ -281,14 +281,14 @@ namespace catapult { namespace consumers {
 
 		struct TransactionsChangeParams {
 		public:
-			TransactionsChangeParams(const HashSet& addedTransactionHashes, const HashSet& revertedTransactionHashes)
+			TransactionsChangeParams(const HashSet& addedTransactionHashes, const std::vector<Hash256>& revertedTransactionHashes)
 					: AddedTransactionHashes(addedTransactionHashes)
 					, RevertedTransactionHashes(revertedTransactionHashes)
 			{}
 
 		public:
 			const HashSet AddedTransactionHashes;
-			const HashSet RevertedTransactionHashes;
+			const std::vector<Hash256> RevertedTransactionHashes;
 		};
 
 		class MockTransactionsChange : public test::ParamsCapture<TransactionsChangeParams> {
@@ -309,10 +309,10 @@ namespace catapult { namespace consumers {
 				return hashes;
 			}
 
-			static HashSet CopyHashes(const std::vector<model::TransactionInfo>& transactionInfos) {
-				HashSet hashes;
+			static std::vector<Hash256> CopyHashes(const std::vector<model::TransactionInfo>& transactionInfos) {
+				std::vector<Hash256> hashes;
 				for (const auto& transactionInfo : transactionInfos)
-					hashes.insert(transactionInfo.EntityHash);
+					hashes.push_back(transactionInfo.EntityHash);
 
 				return hashes;
 			}
@@ -1146,6 +1146,10 @@ namespace catapult { namespace consumers {
 				auto message = "hash at " + std::to_string(i++);
 				EXPECT_CONTAINS_MESSAGE(actual, hash, message);
 			}
+		}
+
+		void AssertHashesAreEqual(const std::vector<Hash256>& expected, const std::vector<Hash256>& actual) {
+			EXPECT_EQ(expected, actual);
 		}
 
 		class InputTransactionBuilder {
