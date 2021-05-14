@@ -1,3 +1,4 @@
+import argparse
 import re
 import sys
 from enum import Enum
@@ -158,16 +159,9 @@ class TsanParser(BasicParser):
         }
 
     def parse_start_header(self, line):
-        # parsing finished
-        if line.startswith('ThreadSanitizer: reported'):
-            return
-
-        if not line.startswith('=================='):
-            print('INVALID MARKER')
-            sys.exit(1)
-
-        self.current_error = self.create_error()
-        self.state = self.ParserState.WARNING
+        if line.startswith('=================='):
+            self.current_error = self.create_error()
+            self.state = self.ParserState.WARNING
 
     def create_checker(self, expected_beginning, next_state):
         def checker(line):
@@ -184,7 +178,7 @@ class TsanParser(BasicParser):
 
 # endregion
 
-# region parse_san_log
+# region parse_san_log / main
 
 
 def parse_san_log(input_filepath, output_filepath, mode):
@@ -201,5 +195,20 @@ def parse_san_log(input_filepath, output_filepath, mode):
         parser.push(line)
 
     _output_xml(parser.parsed, sanitizer_name, output_filepath)
+
+
+def main():
+    parser = argparse.ArgumentParser(description='sanitizer log parser')
+    parser.add_argument('--input', help='path to input file', required=True)
+    parser.add_argument('--output', help='path to output file', required=True)
+    parser.add_argument('--mode', help='parsing mode', choices=('asan', 'tsan'), required=True)
+    args = parser.parse_args()
+
+    parse_san_log(args.input, args.output, args.mode)
+
+
+if __name__ == '__main__':
+    main()
+
 
 # endregion
