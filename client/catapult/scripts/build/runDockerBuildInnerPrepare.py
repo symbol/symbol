@@ -10,7 +10,7 @@ USER_HOME = Path('/usr/catapult')
 
 def main():
     parser = argparse.ArgumentParser(description='catapult project build generator')
-    parser.add_argument('--disposition', help='type of image to create', choices=('dev', 'private', 'public'), required=True)
+    parser.add_argument('--disposition', help='type of image to create', choices=('tests', 'private', 'public'), required=True)
     parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
     args = parser.parse_args()
 
@@ -19,7 +19,7 @@ def main():
     process_manager = ProcessManager(args.dry_run)
     environment_manager = EnvironmentManager(args.dry_run)
 
-    is_dev_build = 'dev' == args.disposition
+    is_dev_build = 'tests' == args.disposition
     if is_dev_build:
         for name in ['seed', 'scripts', 'resources']:
             environment_manager.copy_tree_with_symlinks(DATA_VOLUME / name, USER_HOME / name)
@@ -39,7 +39,11 @@ def main():
 
     process_manager.dispatch_subprocess(['ls', '-laF', USER_HOME])
 
-    for name in ['seed', 'scripts', 'resources', 'bin', 'deps', 'lib', 'tests']:
+    ls_folder_names = ['bin', 'deps', 'lib']
+    if is_dev_build:
+        ls_folder_names.extend(['seed', 'scripts', 'resources', 'tests'])
+
+    for name in ls_folder_names:
         process_manager.dispatch_subprocess(['ls', '-laF', USER_HOME / name])
 
 

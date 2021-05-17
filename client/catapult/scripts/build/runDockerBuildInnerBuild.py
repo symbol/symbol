@@ -81,6 +81,9 @@ class BuildManager(BasicBuildManager):
             settings.append(('CATAPULT_BUILD_RELEASE', 'ON'))
             settings.append(('ENABLE_TESTS', 'OFF'))
 
+        if 'public' == self.build_disposition:
+            settings.append(('CATAPULT_BUILD_RELEASE_PUBLIC', 'ON'))
+
         return ['-D{}={}'.format(key, value) for key, value in settings]
 
     def run_cmake(self):
@@ -135,7 +138,9 @@ class BuildManager(BasicBuildManager):
 
         # list directories
         self.dispatch_subprocess(['ls', '-alh', deps_output_path])
-        self.dispatch_subprocess(['ls', '-alh', tests_output_path])
+
+        if not self.is_release:
+            self.dispatch_subprocess(['ls', '-alh', tests_output_path])
 
 
 def main():

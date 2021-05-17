@@ -1,0 +1,3 @@
+disposition: public
+use_conan: false
+enable_diagnostics: false

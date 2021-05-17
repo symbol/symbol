@@ -28,7 +28,7 @@ class BasicBuildManager:
 
     @property
     def build_configuration(self):
-        return 'Release' if self.is_release else 'RelWithDebInfo'
+        return 'RelWithDebInfo'
 
     @property
     def versioned_compiler(self):

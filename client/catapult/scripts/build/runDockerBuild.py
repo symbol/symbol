@@ -100,17 +100,29 @@ def cleanup_directories(environment_manager, ccache_root_directory, conan_root_d
     environment_manager.mkdirs(conan_root_directory, exist_ok=True)
 
 
-def prepare_docker_image(process_manager, prepare_base_image_name, destination_image_label, container_id):
+def prepare_docker_image(process_manager, container_id, prepare_replacements):
+    destination_image_label = prepare_replacements['destination_image_label']
     cid_filepath = '{}.cid'.format(destination_image_label)
-    destination_image_name = 'symbolplatform/symbol-server-test:{}'.format(destination_image_label)
+    if not container_id:
+        Path(cid_filepath).unlink(missing_ok=True)
+
+    build_disposition = prepare_replacements['build_disposition']
+    disposition_to_repository_map = {
+        'tests': 'symbol-server-test',
+        'private': 'symbol-server-private',
+        'public': 'symbol-server'
+    }
+    destination_repository = disposition_to_repository_map[build_disposition]
+
+    destination_image_name = 'symbolplatform/{}:{}'.format(destination_repository, destination_image_label)
     process_manager.dispatch_subprocess([
         'docker', 'run',
         '--cidfile={}'.format(cid_filepath),
         '--volume={}:/scripts'.format(SRC_DIR / 'scripts' / 'build'),
         '--volume={}:/data'.format(OUTPUT_DIR),
-        'registry.hub.docker.com/{}'.format(prepare_base_image_name),
+        'registry.hub.docker.com/{}'.format(prepare_replacements['base_image_name']),
         'python3', '/scripts/runDockerBuildInnerPrepare.py',
-        '--disposition=dev'
+        '--disposition={}'.format(build_disposition)
     ])
 
     if not container_id:
@@ -166,7 +178,11 @@ def main():
     print('building docker image')
 
     container_id = '<dry_run_container_id>' if args.dry_run else None
-    prepare_docker_image(process_manager, options.prepare_base_image_name, args.destination_image_label, container_id)
+    prepare_docker_image(process_manager, container_id, {
+        'base_image_name': options.prepare_base_image_name,
+        'destination_image_label': args.destination_image_label,
+        'build_disposition': options.build_disposition
+    })
 
 
 if __name__ == '__main__':

@@ -29,6 +29,13 @@ pipeline {
                         }
                     }
                 }
+                stage('gcc 10 westmere') {
+                    steps {
+                        script {
+                            dispatch_build_base_image_job('gcc-10-westmere', 'ubuntu', true)
+                        }
+                    }
+                }
                 stage('gcc 11 [fedora]') {
                     steps {
                         script {
