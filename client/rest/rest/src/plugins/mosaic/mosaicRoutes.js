@@ -22,9 +22,6 @@
 const merkleUtils = require('../../routes/merkleUtils');
 const routeUtils = require('../../routes/routeUtils');
 const catapult = require('catapult-sdk');
-const ini = require('ini');
-const fs = require('fs');
-const util = require('util');
 
 const { PacketType } = catapult.packet;
 
@@ -63,25 +60,5 @@ module.exports = {
 				next();
 			});
 		});
-
-		// CMC specific endpoint
-		const readAndParseNetworkPropertiesFile = () => {
-			const readFile = util.promisify(fs.readFile);
-			return readFile(services.config.apiNode.networkPropertyFilePath, 'utf8')
-				.then(fileData => ini.parse(fileData));
-		};
-
-		server.get('/network/currency/supply/total', (req, res, next) => readAndParseNetworkPropertiesFile()
-			.then(propertiesObject => {
-				const currencyId = propertiesObject.chain.currencyMosaicId.replace(/'/g, '').replace('0x', '');
-				const mosaicId = routeUtils.parseArgument({ mosaicId: currencyId }, 'mosaicId', 'uint64hex');
-				return db.mosaicsByIds([mosaicId]).then(response => {
-					const s = response[0].mosaic.supply.toString();
-					const supply = `${s.substring(0, s.length - 6)}.${s.substring(s.length - 6, s.length)}`;
-					res.setHeader('content-type', 'text/plain');
-					res.send(supply);
-					next();
-				});
-			}));
 	}
 };

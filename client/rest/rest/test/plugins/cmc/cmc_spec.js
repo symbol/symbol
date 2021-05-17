@@ -19,15 +19,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MosaicDb = require('../../../src/plugins/mosaic/MosaicDb');
-const mosaic = require('../../../src/plugins/mosaic/mosaic');
+const CmcDb = require('../../../src/plugins/cmc/CmcDb');
+const cmc = require('../../../src/plugins/cmc/cmc');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 
-describe('mosaic plugin', () => {
-	pluginTest.assertThat.pluginCreatesDb(mosaic, MosaicDb);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(mosaic);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(mosaic);
+describe('cmc plugin', () => {
+	pluginTest.assertThat.pluginCreatesDb(cmc, CmcDb);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(cmc);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(cmc);
 
 	describe('register routes', () => {
 		it('registers GET routes', () => {
@@ -36,27 +36,13 @@ describe('mosaic plugin', () => {
 			const server = test.setup.createCapturingMockServer('get', routes);
 
 			// Act:
-			mosaic.registerRoutes(server, {});
+			cmc.registerRoutes(server, {});
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/mosaics',
-				'/mosaics/:mosaicId',
-				'/mosaics/:mosaicId/merkle'
-			]);
-		});
-
-		it('registers POST routes', () => {
-			// Arrange:
-			const routes = [];
-			const server = test.setup.createCapturingMockServer('post', routes);
-
-			// Act:
-			mosaic.registerRoutes(server, {});
-
-			// Assert:
-			test.assert.assertRoutes(routes, [
-				'/mosaics'
+				'/network/currency/supply/circulating',
+				'/network/currency/supply/total',
+				'/network/currency/supply/max'
 			]);
 		});
 	});

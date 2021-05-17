@@ -22,6 +22,7 @@
 /** @module plugins/catapultModelSystem */
 const accountLink = require('./accountLink');
 const aggregate = require('./aggregate');
+const cmc = require('./cmc');
 const lockHash = require('./lockHash');
 const lockSecret = require('./lockSecret');
 const metadata = require('./metadata');
@@ -46,7 +47,8 @@ const plugins = {
 	namespace,
 	receipts,
 	restrictions,
-	transfer
+	transfer,
+	cmc
 };
 
 /**

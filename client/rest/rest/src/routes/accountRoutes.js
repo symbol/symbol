@@ -23,12 +23,8 @@ const merkleUtils = require('./merkleUtils');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
 const AccountType = require('../plugins/AccountType');
-const MosaicDb = require('../plugins/mosaic/MosaicDb');
 const errors = require('../server/errors');
 const catapult = require('catapult-sdk');
-const ini = require('ini');
-const fs = require('fs');
-const util = require('util');
 
 const { PacketType } = catapult.packet;
 
@@ -84,35 +80,5 @@ module.exports = {
 				next();
 			});
 		});
-
-		// CMC specific endpoint
-		const readAndParseNetworkPropertiesFile = () => {
-			const readFile = util.promisify(fs.readFile);
-			return readFile(services.config.apiNode.networkPropertyFilePath, 'utf8')
-				.then(fileData => ini.parse(fileData));
-		};
-
-		// CMC specific endpoint
-		server.get('/network/currency/supply/circulating', (req, res, next) => readAndParseNetworkPropertiesFile()
-			.then(async propertiesObject => {
-				const mosaicDB = new MosaicDb(db);
-				/* eslint-disable global-require */
-				const uncirculatedAddresses = require('../constants/unCirculatedAccounts');
-				const accountIds = routeUtils.parseArgumentAsArray({ addresses: uncirculatedAddresses }, 'addresses', 'address');
-				const currencyId = propertiesObject.chain.currencyMosaicId.replace(/'/g, '').replace('0x', '');
-				const mosaicId = routeUtils.parseArgument({ mosaicId: currencyId }, 'mosaicId', 'uint64hex');
-
-				const mosaics = await mosaicDB.mosaicsByIds([mosaicId]);
-				const accounts = await db.accountsByIds(accountIds.map(accountId => ({ [AccountType.address]: accountId })));
-
-				const totalSupply = parseInt(mosaics[0].mosaic.supply.toString(), 10);
-				const totalUncirculated = accounts.reduce((a, b) => a + parseInt(b.account.mosaics[0].amount.toString(), 10), 0);
-
-				const s = (totalSupply - totalUncirculated).toString();
-				const result = `${s.substring(0, s.length - 6)}.${s.substring(s.length - 6, s.length)}`;
-				res.setHeader('content-type', 'text/plain');
-				res.send(result);
-				next();
-			}));
 	}
 };
