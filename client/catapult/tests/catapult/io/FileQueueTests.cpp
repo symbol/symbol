@@ -66,6 +66,33 @@ namespace catapult { namespace io {
 
 		// endregion
 
+		// region reader traits
+
+		struct UnconditionalReadTraits {
+			static bool TryReadNextMessage(FileQueueReader& reader, const consumer<const std::vector<uint8_t>&>& consumer) {
+				return reader.tryReadNextMessage(consumer);
+			}
+		};
+
+		struct ConditionalReadTraits {
+			static bool TryReadNextMessage(FileQueueReader& reader, const consumer<const std::vector<uint8_t>&>& consumer) {
+				return reader.tryReadNextMessageConditional([consumer](const auto& buffer) {
+					consumer(buffer);
+					return true;
+				});
+			}
+		};
+
+#define READER_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits, typename TReaderTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Default) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DefaultTraits, UnconditionalReadTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Custom) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CustomTraits, UnconditionalReadTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Default_Cond) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DefaultTraits, ConditionalReadTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Custom_Cond) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CustomTraits, ConditionalReadTraits>(); } \
+	template<typename TTraits, typename TReaderTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+		// endregion
+
 		// region BasicQueueTestContext
 
 		template<typename TTraits>
@@ -485,14 +512,14 @@ namespace catapult { namespace io {
 			EXPECT_EQ(expectedIndexReaderValue, context.readIndexReaderFile());
 		}
 
-		template<typename TTraits>
+		template<typename TTraits, typename TReaderTraits>
 		void AssertCannotReadWithIndexValues(uint64_t indexWriterValue, uint64_t indexReaderValue) {
 			// Arrange:
 			ReaderTestContext<TTraits> context;
 			context.setIndexes(indexWriterValue, indexReaderValue);
 
 			// Act:
-			auto result = context.reader().tryReadNextMessage(ReadNever);
+			auto result = TReaderTraits::TryReadNextMessage(context.reader(), ReadNever);
 
 			// Assert:
 			EXPECT_FALSE(result);
@@ -502,14 +529,14 @@ namespace catapult { namespace io {
 		}
 	}
 
-	DIRECTORY_TRAITS_BASED_TEST(CannotReadWhenWriterIndexDoesNotExist) {
+	READER_TRAITS_BASED_TEST(CannotReadWhenWriterIndexDoesNotExist) {
 		// Arrange:
 		ReaderTestContext<TTraits> context;
 		context.setIndexes(121, 120);
 		std::filesystem::remove(context.directory() / TTraits::Index_Writer_Filename);
 
 		// Act:
-		auto result = context.reader().tryReadNextMessage(ReadNever);
+		auto result = TReaderTraits::TryReadNextMessage(context.reader(), ReadNever);
 
 		// Assert:
 		EXPECT_FALSE(result);
@@ -519,22 +546,22 @@ namespace catapult { namespace io {
 		EXPECT_EQ(120u, context.readIndexReaderFile());
 	}
 
-	DIRECTORY_TRAITS_BASED_TEST(CannotReadWhenReaderIndexIsGreaterThanWriterIndex) {
-		AssertCannotReadWithIndexValues<TTraits>(120, 121);
-		AssertCannotReadWithIndexValues<TTraits>(120, 500);
+	READER_TRAITS_BASED_TEST(CannotReadWhenReaderIndexIsGreaterThanWriterIndex) {
+		AssertCannotReadWithIndexValues<TTraits, TReaderTraits>(120, 121);
+		AssertCannotReadWithIndexValues<TTraits, TReaderTraits>(120, 500);
 	}
 
-	DIRECTORY_TRAITS_BASED_TEST(CannotReadWhenReaderIndexIsEqualToWriterIndex) {
-		AssertCannotReadWithIndexValues<TTraits>(120, 120);
+	READER_TRAITS_BASED_TEST(CannotReadWhenReaderIndexIsEqualToWriterIndex) {
+		AssertCannotReadWithIndexValues<TTraits, TReaderTraits>(120, 120);
 	}
 
-	DIRECTORY_TRAITS_BASED_TEST(CannotReadWhenMessageAtReaderIndexDoesNotExist) {
+	READER_TRAITS_BASED_TEST(CannotReadWhenMessageAtReaderIndexDoesNotExist) {
 		// Arrange:
 		ReaderTestContext<TTraits> context;
 		context.setIndexes(120, 118);
 
 		// Act:
-		EXPECT_THROW(context.reader().tryReadNextMessage(ReadNever), catapult_runtime_error);
+		EXPECT_THROW(TReaderTraits::TryReadNextMessage(context.reader(), ReadNever), catapult_runtime_error);
 
 		// Assert: reader index should not have been incremented because no data was processed
 		EXPECT_EQ(2u, context.countFiles());
@@ -545,7 +572,7 @@ namespace catapult { namespace io {
 
 	// region FileQueueReader - read (data ready)
 
-	DIRECTORY_TRAITS_BASED_TEST(CanReadWhenReaderIndexIsLessThanWriterIndex) {
+	READER_TRAITS_BASED_TEST(CanReadWhenReaderIndexIsLessThanWriterIndex) {
 		// Arrange:
 		ReaderTestContext<TTraits> context;
 		context.setIndexes(120, 118);
@@ -560,7 +587,7 @@ namespace catapult { namespace io {
 		// Act:
 		auto numCalls = 0u;
 		std::vector<uint8_t> readBuffer;
-		auto result = context.reader().tryReadNextMessage([&numCalls, &readBuffer](const auto& buffer) {
+		auto result = TReaderTraits::TryReadNextMessage(context.reader(), [&numCalls, &readBuffer](const auto& buffer) {
 			++numCalls;
 			readBuffer = buffer;
 		});
@@ -575,26 +602,76 @@ namespace catapult { namespace io {
 		AssertIndexFiles(context, 120, 119);
 	}
 
-	DIRECTORY_TRAITS_BASED_TEST(CanReadAtMostOneFileWhenReaderIndexIsLessThanWriterIndex) {
+	template<typename TTraits>
+	class TwoFileReaderTestContext {
+	private:
+		static constexpr auto Message1_Filename = "0000000000000076.dat"; // 118 == 0x76
+		static constexpr auto Message2_Filename = "0000000000000077.dat"; // 119 == 0x77
+
+	public:
+		TwoFileReaderTestContext()
+				: m_writeBuffer1(test::GenerateRandomVector(21))
+				, m_writeBuffer2(test::GenerateRandomVector(17)) {
+			setup();
+		}
+
+	public:
+		auto& reader() {
+			return m_context.reader();
+		}
+
+		const auto& writeBuffer1() const {
+			return m_writeBuffer1;
+		}
+
+	private:
+		void setup() {
+			// Arrange:
+			m_context.setIndexes(120, 118);
+
+			m_context.write(Message1_Filename, m_writeBuffer1);
+			m_context.write(Message2_Filename, m_writeBuffer2);
+
+			// Sanity:
+			EXPECT_TRUE(m_context.exists(Message1_Filename));
+			EXPECT_TRUE(m_context.exists(Message2_Filename));
+		}
+
+	public:
+		void assertZeroFilesConsumed() {
+			EXPECT_EQ(4u, m_context.countFiles());
+			AssertIndexFiles(m_context, 120, 118);
+
+			EXPECT_TRUE(m_context.exists(Message1_Filename));
+			EXPECT_EQ(m_writeBuffer1, m_context.readAll(Message1_Filename));
+
+			EXPECT_TRUE(m_context.exists(Message2_Filename));
+			EXPECT_EQ(m_writeBuffer2, m_context.readAll(Message2_Filename));
+		}
+
+		void assertSingleFileConsumed() {
+			EXPECT_EQ(3u, m_context.countFiles());
+			AssertIndexFiles(m_context, 120, 119);
+
+			EXPECT_TRUE(m_context.exists(Message2_Filename));
+			EXPECT_EQ(m_writeBuffer2, m_context.readAll(Message2_Filename));
+		}
+
+	private:
+		ReaderTestContext<TTraits> m_context;
+
+		std::vector<uint8_t> m_writeBuffer1;
+		std::vector<uint8_t> m_writeBuffer2;
+	};
+
+	READER_TRAITS_BASED_TEST(CanReadAtMostOneFileWhenReaderIndexIsLessThanWriterIndex) {
 		// Arrange:
-		ReaderTestContext<TTraits> context;
-		context.setIndexes(120, 118);
-
-		constexpr auto Message1_Filename = "0000000000000076.dat"; // 118 == 0x76
-		constexpr auto Message2_Filename = "0000000000000077.dat"; // 119 == 0x77
-		auto writeBuffer1 = test::GenerateRandomVector(21);
-		auto writeBuffer2 = test::GenerateRandomVector(17);
-		context.write(Message1_Filename, writeBuffer1);
-		context.write(Message2_Filename, writeBuffer2);
-
-		// Sanity:
-		EXPECT_TRUE(context.exists(Message1_Filename));
-		EXPECT_TRUE(context.exists(Message2_Filename));
+		TwoFileReaderTestContext<TTraits> context;
 
 		// Act:
 		auto numCalls = 0u;
 		std::vector<uint8_t> readBuffer;
-		auto result = context.reader().tryReadNextMessage([&numCalls, &readBuffer](const auto& buffer) {
+		auto result = TReaderTraits::TryReadNextMessage(context.reader(), [&numCalls, &readBuffer](const auto& buffer) {
 			++numCalls;
 			readBuffer = buffer;
 		});
@@ -602,17 +679,13 @@ namespace catapult { namespace io {
 		// Assert:
 		EXPECT_TRUE(result);
 		EXPECT_EQ(1u, numCalls);
-		EXPECT_EQ(writeBuffer1, readBuffer);
+		EXPECT_EQ(context.writeBuffer1(), readBuffer);
 
 		// - processed data file should have been deleted
-		EXPECT_EQ(3u, context.countFiles());
-		AssertIndexFiles(context, 120, 119);
-
-		EXPECT_TRUE(context.exists(Message2_Filename));
-		EXPECT_EQ(writeBuffer2, context.readAll(Message2_Filename));
+		context.assertSingleFileConsumed();
 	}
 
-	DIRECTORY_TRAITS_BASED_TEST(ReadDoesNotRemoveUnsuccessfullyProcessedDataFile) {
+	READER_TRAITS_BASED_TEST(ReadDoesNotRemoveUnsuccessfullyProcessedDataFile) {
 		// Arrange:
 		ReaderTestContext<TTraits> context;
 		context.setIndexes(120, 118);
@@ -625,7 +698,7 @@ namespace catapult { namespace io {
 		EXPECT_TRUE(context.exists(Message_Filename));
 
 		// Act: trigger a consumer exception
-		EXPECT_THROW(context.reader().tryReadNextMessage(ReadNever), catapult_invalid_argument);
+		EXPECT_THROW(TReaderTraits::TryReadNextMessage(context.reader(), ReadNever), catapult_invalid_argument);
 
 		// Assert: data file should not have been deleted because it was not successfully processed
 		EXPECT_EQ(3u, context.countFiles());
@@ -633,6 +706,66 @@ namespace catapult { namespace io {
 
 		EXPECT_TRUE(context.exists(Message_Filename));
 		EXPECT_EQ(writeBuffer, context.readAll(Message_Filename));
+	}
+
+	// endregion
+
+	// region FileQueueReader - read (data ready, conditional)
+
+	DIRECTORY_TRAITS_BASED_TEST(ReadConditionalDoesNotRemoveProcessedDataFileWhenPredicateReturnsFalse) {
+		// Arrange:
+		TwoFileReaderTestContext<TTraits> context;
+
+		// Act:
+		auto numCalls = 0u;
+		std::vector<uint8_t> readBuffer;
+		auto result = context.reader().tryReadNextMessageConditional([&numCalls, &readBuffer](const auto& buffer) {
+			++numCalls;
+			readBuffer = buffer;
+			return false;
+		});
+
+		// Assert:
+		EXPECT_FALSE(result);
+		EXPECT_EQ(1u, numCalls);
+		EXPECT_EQ(context.writeBuffer1(), readBuffer);
+
+		// - processed data file should NOT have been deleted
+		context.assertZeroFilesConsumed();
+	}
+
+	DIRECTORY_TRAITS_BASED_TEST(ReadConditionalAllowsReprocessingOfSameFileWhenPredicateReturnsFalse) {
+		// Arrange:
+		TwoFileReaderTestContext<TTraits> context;
+
+		auto numCalls = 0u;
+		std::vector<uint8_t> readBuffer1;
+		auto result1 = context.reader().tryReadNextMessageConditional([&numCalls, &readBuffer1](const auto& buffer) {
+			++numCalls;
+			readBuffer1 = buffer;
+			return false;
+		});
+
+		// Sanity:
+		EXPECT_FALSE(result1);
+		EXPECT_EQ(1u, numCalls);
+		EXPECT_EQ(context.writeBuffer1(), readBuffer1);
+
+		// Act:
+		std::vector<uint8_t> readBuffer2;
+		auto result2 = context.reader().tryReadNextMessageConditional([&numCalls, &readBuffer2](const auto& buffer) {
+			++numCalls;
+			readBuffer2 = buffer;
+			return true;
+		});
+
+		// Assert:
+		EXPECT_TRUE(result2);
+		EXPECT_EQ(2u, numCalls);
+		EXPECT_EQ(context.writeBuffer1(), readBuffer2);
+
+		// - processed data file should have been deleted
+		context.assertSingleFileConsumed();
 	}
 
 	// endregion

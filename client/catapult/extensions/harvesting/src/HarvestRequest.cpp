@@ -42,4 +42,23 @@ namespace catapult { namespace harvesting {
 		std::memcpy(requestIdentifier.data(), request.EncryptedPayload.pData, requestIdentifier.size());
 		return requestIdentifier;
 	}
+
+	std::vector<uint8_t> SerializeHarvestRequest(const HarvestRequest& request) {
+		std::vector<uint8_t> requestBuffer(1 + sizeof(Height) + Key::Size + request.EncryptedPayload.Size);
+		requestBuffer[0] = static_cast<uint8_t>(request.Operation);
+		std::memcpy(&requestBuffer[1], &request.Height, sizeof(Height));
+		std::memcpy(&requestBuffer[1 + sizeof(Height)], request.MainAccountPublicKey.data(), Key::Size);
+		std::memcpy(&requestBuffer[1 + sizeof(Height) + Key::Size], request.EncryptedPayload.pData, request.EncryptedPayload.Size);
+		return requestBuffer;
+	}
+
+	HarvestRequest DeserializeHarvestRequest(const std::vector<uint8_t>& buffer) {
+		// note: unencrypted values come from TransferMessageObserver so they are trusted
+		HarvestRequest request;
+		request.Operation = static_cast<HarvestRequestOperation>(buffer[0]);
+		std::memcpy(static_cast<void*>(&request.Height), &buffer[1], sizeof(Height));
+		std::memcpy(request.MainAccountPublicKey.data(), &buffer[1 + sizeof(Height)], Key::Size);
+		request.EncryptedPayload = RawBuffer{ &buffer[1 + sizeof(Height) + Key::Size], HarvestRequest::EncryptedPayloadSize() };
+		return request;
+	}
 }}

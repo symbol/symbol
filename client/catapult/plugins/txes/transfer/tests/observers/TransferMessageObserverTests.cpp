@@ -59,7 +59,9 @@ namespace catapult { namespace observers {
 	namespace {
 		class TransferMessageObserverTestContext {
 		public:
-			explicit TransferMessageObserverTestContext(NotifyMode notifyMode) : m_notifyMode(notifyMode)
+			explicit TransferMessageObserverTestContext(NotifyMode notifyMode, Height height = Height(444))
+					: m_notifyMode(notifyMode)
+					, m_height(height)
 			{}
 
 		public:
@@ -82,12 +84,13 @@ namespace catapult { namespace observers {
 			void observe(const Address& recipient, const model::TransferMessageNotification& notification) {
 				auto pObserver = CreateTransferMessageObserver(0x1122334455667788, recipient, config::CatapultDirectory(m_tempDir.name()));
 
-				test::ObserverTestContext context(m_notifyMode);
+				test::ObserverTestContext context(m_notifyMode, m_height);
 				test::ObserveNotification(*pObserver, notification, context);
 			}
 
 		private:
 			NotifyMode m_notifyMode;
+			Height m_height;
 			test::TempDirectoryGuard m_tempDir;
 		};
 	}
@@ -150,9 +153,25 @@ namespace catapult { namespace observers {
 
 	// region not filtered - files created
 
+	namespace {
+		struct MessageHeader {
+			uint8_t FirstByte;
+			catapult::Height Height;
+			Key SignerPublicKey;
+		};
+
+		MessageHeader DeserializeMessageHeader(const std::vector<uint8_t>& buffer) {
+			MessageHeader messageHeader;
+			messageHeader.FirstByte = buffer[0];
+			std::memcpy(static_cast<void*>(&messageHeader.Height), &buffer[1], sizeof(Height));
+			std::memcpy(messageHeader.SignerPublicKey.data(), &buffer[1 + sizeof(Height)], Key::Size);
+			return messageHeader;
+		}
+	}
+
 	MESSAGE_OBSERVER_TRAITS_BASED_TEST(MessageIsWrittenWhenMarkerAndRecipientBothMatch) {
 		// Arrange:
-		TransferMessageObserverTestContext context(TTraits::Notify_Mode);
+		TransferMessageObserverTestContext context(TTraits::Notify_Mode, Height(789));
 
 		auto sender = test::GenerateRandomByteArray<Key>();
 		auto recipient = test::GenerateRandomByteArray<Address>();
@@ -170,11 +189,13 @@ namespace catapult { namespace observers {
 
 		auto expectedMessagePayloadSize = 3u;
 		auto messageFileContents = context.readAll("0000000000000000.dat");
-		ASSERT_EQ(1 + Key::Size + expectedMessagePayloadSize, messageFileContents.size());
+		ASSERT_EQ(1 + sizeof(Height) + Key::Size + expectedMessagePayloadSize, messageFileContents.size());
 
-		EXPECT_EQ(TTraits::Message_First_Byte, messageFileContents[0]);
-		EXPECT_EQ(sender, reinterpret_cast<const Key&>(messageFileContents[1]));
-		EXPECT_EQ_MEMORY(&message[sizeof(uint64_t)], &messageFileContents[1 + Key::Size], expectedMessagePayloadSize);
+		auto messageHeader = DeserializeMessageHeader(messageFileContents);
+		EXPECT_EQ(TTraits::Message_First_Byte, messageHeader.FirstByte);
+		EXPECT_EQ(Height(789), messageHeader.Height);
+		EXPECT_EQ(sender, messageHeader.SignerPublicKey);
+		EXPECT_EQ_MEMORY(&message[sizeof(uint64_t)], &messageFileContents[1 + sizeof(Height) + Key::Size], expectedMessagePayloadSize);
 	}
 
 	// endregion

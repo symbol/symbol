@@ -78,19 +78,9 @@ namespace catapult { namespace harvesting {
 	// endregion
 
 	namespace {
-		// region utils
-
-		auto SerializeHarvestRequest(const HarvestRequest& request) {
-			std::vector<uint8_t> requestBuffer(1 + Key::Size + request.EncryptedPayload.Size);
-			requestBuffer[0] = static_cast<uint8_t>(request.Operation);
-			reinterpret_cast<Key&>(requestBuffer[1]) = request.MainAccountPublicKey;
-			std::memcpy(&requestBuffer[1 + Key::Size], request.EncryptedPayload.pData, request.EncryptedPayload.Size);
-			return requestBuffer;
-		}
-
-		// endregion
-
 		// region test context
+
+		constexpr auto Default_Height = Height(100);
 
 		class TestContext {
 		public:
@@ -109,12 +99,13 @@ namespace catapult { namespace harvesting {
 			void runConsumerAndAssert(
 					const std::vector<BlockGeneratorAccountDescriptor>& descriptors,
 					const std::vector<std::vector<uint8_t>>& messages,
-					std::initializer_list<size_t> validIndexes) {
+					std::initializer_list<size_t> validIndexes,
+					Height maxHeight = Default_Height) {
 				// Act:
 				config::CatapultDirectory directory(m_directoryGuard.name());
 				std::vector<std::vector<uint8_t>> collectedMessages;
 				std::vector<BlockGeneratorAccountDescriptor> collectedDescriptors;
-				UnlockedFileQueueConsumer(directory, m_keyPair, [&collectedMessages, &collectedDescriptors](
+				UnlockedFileQueueConsumer(directory, maxHeight, m_keyPair, [&collectedMessages, &collectedDescriptors](
 						const auto& request,
 						auto&& descriptor) {
 					collectedMessages.emplace_back(SerializeHarvestRequest(request));
@@ -141,10 +132,10 @@ namespace catapult { namespace harvesting {
 			enum class InvalidMessageFlag { Invalid_Tag, Invalid_Decrypted_Data_Size };
 			enum class Sizes { Underflow, Normal, Overflow };
 
-			auto prepareMessage(const BlockGeneratorAccountDescriptor& descriptor) {
+			auto prepareMessage(const BlockGeneratorAccountDescriptor& descriptor, Height height = Default_Height) {
 				auto clearText = test::ToClearTextBuffer(descriptor);
 				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(m_keyPair.publicKey(), clearText);
-				return EncryptedPayloadToMessage(encryptedPayload);
+				return EncryptedPayloadToMessage(encryptedPayload, height);
 			}
 
 			auto prepareMessages(
@@ -172,7 +163,7 @@ namespace catapult { namespace harvesting {
 			auto prepareInvalidMessage(const BlockGeneratorAccountDescriptor& descriptor, InvalidMessageFlag invalidMessageFlag) {
 				if (InvalidMessageFlag::Invalid_Tag == invalidMessageFlag) {
 					auto messageBuffer = prepareMessage(descriptor);
-					messageBuffer[Key::Size + 1] ^= 0xFF;
+					messageBuffer[1 + sizeof(Height) + Key::Size] ^= 0xFF;
 					return messageBuffer;
 				}
 
@@ -183,16 +174,15 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			static std::vector<uint8_t> EncryptedPayloadToMessage(const test::HarvestRequestEncryptedPayload& encryptedPayload) {
-				std::vector<uint8_t> messageBuffer;
-				messageBuffer.push_back(test::RandomByte() % 2);
-
-				auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
-				messageBuffer.insert(messageBuffer.end(), mainAccountPublicKey.cbegin(), mainAccountPublicKey.cend());
-
-				auto encryptedBuffer = test::CopyHarvestRequestEncryptedPayloadToBuffer(encryptedPayload);
-				messageBuffer.insert(messageBuffer.end(), encryptedBuffer.cbegin(), encryptedBuffer.cend());
-				return messageBuffer;
+			static std::vector<uint8_t> EncryptedPayloadToMessage(
+					const test::HarvestRequestEncryptedPayload& encryptedPayload,
+					Height height = Default_Height) {
+				HarvestRequest request;
+				request.Operation = static_cast<HarvestRequestOperation>(test::RandomByte() % 2);
+				request.Height = height;
+				request.MainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+				request.EncryptedPayload = encryptedPayload.Data;
+				return SerializeHarvestRequest(request);
 			}
 
 			template<typename T>
@@ -216,7 +206,11 @@ namespace catapult { namespace harvesting {
 		};
 
 		// endregion
+	}
 
+	// region consumer tests
+
+	namespace {
 		void AssertConsumerFiltersMessages(
 				std::initializer_list<size_t> validIndexes,
 				std::initializer_list<TestContext::Sizes> messageDeltas) {
@@ -230,8 +224,6 @@ namespace catapult { namespace harvesting {
 			context.runConsumerAndAssert(descriptors, messages, validIndexes);
 		}
 	}
-
-	// region consumer tests
 
 	TEST(TEST_CLASS, ConsumerDoesNotFilterValidMessages) {
 		AssertConsumerFiltersMessages({ 0, 1, 2 }, { TestContext::Sizes::Normal, TestContext::Sizes::Normal, TestContext::Sizes::Normal });
@@ -267,6 +259,36 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, ConsumerFiltersMessagesThatHaveDecryptedDataOfInvalidSize) {
 		AssertConsumerFiltersMessages(TestContext::InvalidMessageFlag::Invalid_Decrypted_Data_Size);
+	}
+
+	TEST(TEST_CLASS, ConsumerOnlyProcessesMessagesAtHeightLessThanOrEqualToMaxHeight) {
+		// Arrange:
+		TestContext context;
+		auto descriptors = test::GenerateRandomAccountDescriptors(3);
+		std::vector<std::vector<uint8_t>> messages;
+		messages.emplace_back(context.prepareMessage(descriptors[0], Default_Height - Height(1)));
+		messages.emplace_back(context.prepareMessage(descriptors[1], Default_Height));
+		messages.emplace_back(context.prepareMessage(descriptors[2], Default_Height + Height(1)));
+		context.write(messages);
+
+		// Act + Assert:
+		context.runConsumerAndAssert(descriptors, messages, { 0, 1 });
+	}
+
+	TEST(TEST_CLASS, ConsumerCanReprocessMessageThatWasSkippedDueToInsufficientHeightWhenMaxHeightIncreases) {
+		// Arrange:
+		TestContext context;
+		auto descriptors = test::GenerateRandomAccountDescriptors(4);
+		std::vector<std::vector<uint8_t>> messages;
+		messages.emplace_back(context.prepareMessage(descriptors[0], Default_Height));
+		messages.emplace_back(context.prepareMessage(descriptors[1], Default_Height + Height(1)));
+		messages.emplace_back(context.prepareMessage(descriptors[2], Default_Height + Height(2)));
+		messages.emplace_back(context.prepareMessage(descriptors[3], Default_Height + Height(3)));
+		context.write(messages);
+
+		// Act + Assert:
+		context.runConsumerAndAssert(descriptors, messages, { 0 });
+		context.runConsumerAndAssert(descriptors, messages, { 1, 2 }, Default_Height + Height(2));
 	}
 
 	// endregion

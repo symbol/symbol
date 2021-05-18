@@ -30,16 +30,7 @@ namespace catapult { namespace harvesting {
 
 	namespace {
 		size_t ExpectedSerializedHarvestRequestSize() {
-			return 1 + Key::Size + HarvestRequest::EncryptedPayloadSize();
-		}
-
-		HarvestRequest DeserializeHarvestRequest(const std::vector<uint8_t>& buffer) {
-			HarvestRequest request;
-			// note: value of direction comes from TransferMessageObserver, so it is trusted
-			request.Operation = static_cast<HarvestRequestOperation>(buffer[0]);
-			request.MainAccountPublicKey = reinterpret_cast<const Key&>(buffer[1]);
-			request.EncryptedPayload = RawBuffer{ &buffer[1 + Key::Size], HarvestRequest::EncryptedPayloadSize() };
-			return request;
+			return 1 + sizeof(Height) + Key::Size + HarvestRequest::EncryptedPayloadSize();
 		}
 	}
 
@@ -63,27 +54,34 @@ namespace catapult { namespace harvesting {
 
 	void UnlockedFileQueueConsumer(
 			const config::CatapultDirectory& directory,
+			Height maxHeight,
 			const crypto::KeyPair& encryptionKeyPair,
 			const consumer<const HarvestRequest&, BlockGeneratorAccountDescriptor&&>& processDescriptor) {
 		io::FileQueueReader reader(directory.str());
-		auto appendMessage = [&encryptionKeyPair, &processDescriptor](const auto& buffer) {
+		auto appendMessage = [maxHeight, &encryptionKeyPair, &processDescriptor](const auto& buffer) {
 			// filter out invalid requests
 			if (ExpectedSerializedHarvestRequestSize() != buffer.size()) {
 				CATAPULT_LOG(warning) << "rejecting buffer with wrong size: " << buffer.size();
-				return;
+				return true;
 			}
 
 			auto harvestRequest = DeserializeHarvestRequest(buffer);
+			if (maxHeight < harvestRequest.Height) {
+				CATAPULT_LOG(debug) << "skipping request with height " << harvestRequest.Height << " given max height " << maxHeight;
+				return false; // not fully processed
+			}
+
 			auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(harvestRequest.EncryptedPayload, encryptionKeyPair);
 			if (!decryptedPair.second) {
-				CATAPULT_LOG(warning) << "rejecting buffer that could not be decrypted";
-				return;
+				CATAPULT_LOG(warning) << "rejecting request with encrypted payload that could not be decrypted";
+				return true;
 			}
 
 			processDescriptor(harvestRequest, std::move(decryptedPair.first));
+			return true;
 		};
 
-		while (reader.tryReadNextMessage(appendMessage))
+		while (reader.tryReadNextMessageConditional(appendMessage))
 		{}
 	}
 }}

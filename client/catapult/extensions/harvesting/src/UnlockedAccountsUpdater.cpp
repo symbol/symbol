@@ -214,7 +214,9 @@ namespace catapult { namespace harvesting {
 				m_cache,
 				m_unlockedAccounts,
 				m_unlockedAccountsStorage);
-		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_encryptionKeyPair, std::ref(processor));
+
+		auto cacheHeight = m_cache.createView().height();
+		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), cacheHeight, m_encryptionKeyPair, std::ref(processor));
 
 		// 2. prune accounts that are not eligible to harvest the next block
 		auto numPrunedAccounts = processor.pruneUnlockedAccounts();

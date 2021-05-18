@@ -37,6 +37,7 @@ namespace catapult { namespace harvesting {
 
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
+		constexpr auto Default_Height = Height(100);
 
 		// region test context
 
@@ -114,47 +115,50 @@ namespace catapult { namespace harvesting {
 			}
 
 		public:
+			void setCacheHeight(Height cacheHeight) {
+				auto delta = m_cache.createDelta();
+				m_cache.commit(cacheHeight);
+			}
+
 			void modifyAccount(const Key& publicKey, const consumer<state::AccountState&>& modify) {
 				auto delta = m_cache.createDelta();
 				auto& accountStateCache = delta.sub<cache::AccountStateCache>();
 
 				modify(accountStateCache.find(publicKey).get());
 
-				m_cache.commit(Height(100));
+				m_cache.commit(Default_Height);
 			}
 
 			auto queueAddMessageWithHarvester(
 					const crypto::KeyPair& ephemeralKeyPair,
 					const BlockGeneratorAccountDescriptor& descriptor,
-					const Key& mainAccountPublicKey) {
+					const Key& mainAccountPublicKey,
+					Height height = Default_Height) {
 				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(
 						ephemeralKeyPair,
 						m_encryptionKeyPair.publicKey(),
 						test::ToClearTextBuffer(descriptor));
 
-				io::FileQueueWriter writer(m_dataDirectory.dir("transfer_message").str());
-				io::Write8(writer, utils::to_underlying_type(HarvestRequestOperation::Add));
-				writer.write(mainAccountPublicKey);
-				writer.write({ reinterpret_cast<const uint8_t*>(&encryptedPayload), sizeof(encryptedPayload) });
-				writer.flush();
-
+				queueMessage(HarvestRequestOperation::Add, encryptedPayload, mainAccountPublicKey, height);
 				return encryptedPayload;
 			}
 
-			auto queueAddMessageWithHarvester(const BlockGeneratorAccountDescriptor& descriptor, const Key& mainAccountPublicKey) {
-				return queueAddMessageWithHarvester(test::GenerateKeyPair(), descriptor, mainAccountPublicKey);
+			auto queueAddMessageWithHarvester(
+					const BlockGeneratorAccountDescriptor& descriptor,
+					const Key& mainAccountPublicKey,
+					Height height = Default_Height) {
+				return queueAddMessageWithHarvester(test::GenerateKeyPair(), descriptor, mainAccountPublicKey, height);
 			}
 
 			auto queueAddMessageWithHarvester(const BlockGeneratorAccountDescriptor& descriptor) {
 				return queueAddMessageWithHarvester(descriptor, test::GenerateRandomByteArray<Key>());
 			}
 
-			void queueRemoveMessage(const test::HarvestRequestEncryptedPayload& encryptedPayload, const Key& mainAccountPublicKey) {
-				io::FileQueueWriter writer(m_dataDirectory.dir("transfer_message").str());
-				io::Write8(writer, utils::to_underlying_type(HarvestRequestOperation::Remove));
-				writer.write(mainAccountPublicKey);
-				writer.write({ reinterpret_cast<const uint8_t*>(&encryptedPayload), sizeof(encryptedPayload) });
-				writer.flush();
+			void queueRemoveMessage(
+					const test::HarvestRequestEncryptedPayload& encryptedPayload,
+					const Key& mainAccountPublicKey,
+					Height height = Default_Height) {
+				queueMessage(HarvestRequestOperation::Remove, encryptedPayload, mainAccountPublicKey, height);
 			}
 
 			void appendHarvesterDirectlyToHarvestersFile(const BlockGeneratorAccountDescriptor& descriptor) {
@@ -185,13 +189,13 @@ namespace catapult { namespace harvesting {
 				auto delta = m_cache.createDelta();
 				auto& accountStateCache = delta.sub<cache::AccountStateCache>();
 
-				accountStateCache.addAccount(accountIdentifier, Height(100));
+				accountStateCache.addAccount(accountIdentifier, Default_Height);
 				auto mainAccountStateIter = accountStateCache.find(accountIdentifier);
 				mainAccountStateIter.get().Balances.credit(Harvesting_Mosaic_Id, balance);
-				mainAccountStateIter.get().ImportanceSnapshots.set(Importance(1000), model::ImportanceHeight(100));
+				mainAccountStateIter.get().ImportanceSnapshots.set(Importance(1000), model::ImportanceHeight(Default_Height.unwrap()));
 				mainAccountStateIter.get().SupplementalPublicKeys.vrf().set(vrfPublicKey);
 
-				m_cache.commit(Height(100));
+				m_cache.commit(Default_Height);
 			}
 
 			Key addAccount(const Key& signingPublicKey, const Key& vrfPublicKey, Amount balance) {
@@ -210,12 +214,25 @@ namespace catapult { namespace harvesting {
 				mainAccountStateIter.get().SupplementalPublicKeys.linked().set(signingPublicKey);
 				mainAccountStateIter.get().SupplementalPublicKeys.node().set(m_encryptionKeyPair.publicKey());
 
-				accountStateCache.addAccount(signingPublicKey, Height(100));
+				accountStateCache.addAccount(signingPublicKey, Default_Height);
 				auto remoteAccountStateIter = accountStateCache.find(signingPublicKey);
 				remoteAccountStateIter.get().AccountType = state::AccountType::Remote;
 				remoteAccountStateIter.get().SupplementalPublicKeys.linked().set(mainAccountPublicKey);
 
-				m_cache.commit(Height(100));
+				m_cache.commit(Default_Height);
+			}
+
+			void queueMessage(
+					HarvestRequestOperation operation,
+					const test::HarvestRequestEncryptedPayload& encryptedPayload,
+					const Key& mainAccountPublicKey,
+					Height height) {
+				io::FileQueueWriter writer(m_dataDirectory.dir("transfer_message").str());
+				io::Write8(writer, utils::to_underlying_type(operation));
+				io::Write(writer, height);
+				writer.write(mainAccountPublicKey);
+				writer.write({ reinterpret_cast<const uint8_t*>(&encryptedPayload), sizeof(encryptedPayload) });
+				writer.flush();
 			}
 
 		private:
@@ -355,6 +372,47 @@ namespace catapult { namespace harvesting {
 		AssertUpdateBypasses([](auto& accountState) {
 			SetRandom(accountState.SupplementalPublicKeys.vrf());
 		});
+	}
+
+	TEST(TEST_CLASS, UpdateDoesNotSaveAccountWithHeightGreaterThanCacheHeight) {
+		// Arrange:
+		TestContext context;
+		auto descriptors = test::GenerateRandomAccountDescriptors(1);
+		auto mainAccountPublicKey = context.addEnabledAccount(descriptors[0]);
+
+		context.queueAddMessageWithHarvester(descriptors[0], mainAccountPublicKey, Default_Height + Height(1));
+
+		// Sanity:
+		EXPECT_EQ(1u, context.numUnlockedAccounts());
+
+		// Act:
+		context.update();
+
+		// Assert: insufficient height message was ignored
+		EXPECT_EQ(1u, context.numUnlockedAccounts());
+		context.assertNoHarvesterFile();
+	}
+
+	TEST(TEST_CLASS, UpdateCanReprocessMessageThatWasSkippedDueToInsufficientHeightWhenCacheHeightIncreases) {
+		// Arrange:
+		TestContext context;
+		auto descriptors = test::GenerateRandomAccountDescriptors(1);
+		auto mainAccountPublicKey = context.addEnabledAccount(descriptors[0]);
+
+		// - first update with insufficient height
+		auto encryptedPayload = context.queueAddMessageWithHarvester(descriptors[0], mainAccountPublicKey, Default_Height + Height(1));
+		context.update();
+
+		// Sanity: insufficient height message was ignored
+		EXPECT_EQ(1u, context.numUnlockedAccounts());
+
+		// Act: second update with sufficient height
+		context.setCacheHeight(Default_Height + Height(1));
+		context.update();
+
+		// Assert: valid account was added to unlocked accounts and to unlocked harvesters file
+		EXPECT_EQ(2u, context.numUnlockedAccounts());
+		context.assertHarvesterFileRecords({ encryptedPayload });
 	}
 
 	// endregion

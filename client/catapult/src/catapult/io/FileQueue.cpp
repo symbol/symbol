@@ -112,18 +112,28 @@ namespace catapult { namespace io {
 	}
 
 	bool FileQueueReader::tryReadNextMessage(const consumer<const std::vector<uint8_t>&>& consumer) {
-		return process([consumer](const auto& nextMessageFilename) {
-			auto buffer = ReadAllContents(nextMessageFilename);
+		return tryReadNextMessageConditional([consumer](const auto& buffer) {
 			consumer(buffer);
+			return true;
+		});
+	}
+
+	bool FileQueueReader::tryReadNextMessageConditional(const predicate<const std::vector<uint8_t>&>& predicate) {
+		return process([predicate](const auto& nextMessageFilename) {
+			auto buffer = ReadAllContents(nextMessageFilename);
+			return predicate(buffer);
 		});
 	}
 
 	void FileQueueReader::skip(uint32_t count) {
-		for (auto i = 0u; i < count; ++i)
-			process([](const auto&) {});
+		for (auto i = 0u; i < count; ++i) {
+			process([](const auto&) {
+				return true;
+			});
+		}
 	}
 
-	bool FileQueueReader::process(const consumer<const std::string&>& processFilename) {
+	bool FileQueueReader::process(const predicate<const std::string&>& processFilename) {
 		auto readerIndexValue = m_readerIndexFile.get();
 		if (!m_writerIndexFile.exists() || readerIndexValue >= m_writerIndexFile.get())
 			return false;
@@ -132,7 +142,8 @@ namespace catapult { namespace io {
 		if (!std::filesystem::exists(nextMessageFilename))
 			CATAPULT_THROW_RUNTIME_ERROR_1("reading from file queue failed due to missing message file", nextMessageFilename);
 
-		processFilename(nextMessageFilename.generic_string());
+		if (!processFilename(nextMessageFilename.generic_string()))
+			return false; // file was not fully processed, so don't delete it
 
 		m_readerIndexFile.increment();
 		std::filesystem::remove(nextMessageFilename);

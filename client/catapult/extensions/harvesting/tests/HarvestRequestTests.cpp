@@ -49,4 +49,34 @@ namespace catapult { namespace harvesting {
 		// Assert:
 		EXPECT_EQ(expectedRequestIdentifier, requestIdentifier);
 	}
+
+	TEST(TEST_CLASS, CanRoundtripHarvestRequest) {
+		// Arrange:
+		auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+		auto encryptedPayload = test::GenerateRandomVector(HarvestRequest::EncryptedPayloadSize());
+
+		HarvestRequest originalRequest;
+		originalRequest.Operation = HarvestRequestOperation::Remove;
+		originalRequest.Height = Height(753);
+		originalRequest.MainAccountPublicKey = mainAccountPublicKey;
+		originalRequest.EncryptedPayload = RawBuffer(encryptedPayload);
+
+		// Act: serialize
+		auto buffer = SerializeHarvestRequest(originalRequest);
+
+		// Sanity:
+		ASSERT_EQ(1u + 8 + 32 + HarvestRequest::EncryptedPayloadSize(), buffer.size());
+
+		// Act: deserialize
+		auto request = DeserializeHarvestRequest(buffer);
+
+		// Assert:
+		EXPECT_EQ(HarvestRequestOperation::Remove, request.Operation);
+		EXPECT_EQ(Height(753), request.Height);
+		EXPECT_EQ(mainAccountPublicKey, request.MainAccountPublicKey);
+
+		ASSERT_EQ(encryptedPayload.size(), request.EncryptedPayload.Size);
+		EXPECT_NE(encryptedPayload.data(), request.EncryptedPayload.pData);
+		EXPECT_EQ_MEMORY(encryptedPayload.data(), request.EncryptedPayload.pData, encryptedPayload.size());
+	}
 }}

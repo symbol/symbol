@@ -42,6 +42,9 @@ namespace catapult { namespace harvesting {
 		/// Request operation.
 		HarvestRequestOperation Operation;
 
+		/// Request height.
+		catapult::Height Height;
+
 		/// Public key of the main account that initiated the request.
 		Key MainAccountPublicKey;
 
@@ -59,4 +62,10 @@ namespace catapult { namespace harvesting {
 
 	/// Gets a unique identifier for \a request.
 	HarvestRequestIdentifier GetRequestIdentifier(const HarvestRequest& request);
+
+	/// Serializes harvest \a request into buffer.
+	std::vector<uint8_t> SerializeHarvestRequest(const HarvestRequest& request);
+
+	/// Deserializes harvest request from \a buffer.
+	HarvestRequest DeserializeHarvestRequest(const std::vector<uint8_t>& buffer);
 }}
