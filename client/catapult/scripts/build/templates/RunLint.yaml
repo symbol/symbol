@@ -1,0 +1,12 @@
+version: '2.1'
+services:
+  lint:
+    image: {{IMAGE_NAME}}
+    user: {{USER}}
+    working_dir: /catapult-src
+    cap_add:
+      - SYS_PTRACE
+    command: python3 /catapult-src/scripts/build/runDockerTestsInnerLint.py --out-dir /catapult-data/logs
+    volumes:
+      - ./catapult-data:/catapult-data
+      - ./catapult-src:/catapult-src

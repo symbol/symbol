@@ -1,0 +1,3 @@
+compiler: ../compilers/clang-12.yaml
+sanitizers: thread
+architecture: skylake
