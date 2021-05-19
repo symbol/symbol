@@ -73,7 +73,7 @@ function download_git_dependency {
 }
 
 function download_all {
-	download_boost 75
+	download_boost 76
 
 	download_git_dependency google googletest release-1.10.0
 	download_git_dependency google benchmark v1.5.2

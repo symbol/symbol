@@ -1,6 +1,6 @@
 [requires]
 # release dependencies
-boost/1.75.0
+boost/1.76.0
 cppzmq/4.7.1@nemtech/stable
 mongo-cxx-driver/3.6.1@nemtech/stable
 openssl/1.1.1g@nemtech/stable
