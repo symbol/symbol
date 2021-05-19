@@ -21,7 +21,7 @@
 
 #pragma once
 #include "catapult/utils/TimeSpan.h"
-#include <cstdint>
+#include <stdint.h>
 
 namespace catapult { namespace timesync { namespace filters {
 

@@ -43,7 +43,7 @@ namespace catapult { namespace cache {
 		template<typename T>
 		struct FindIteratorSchemeAccessor<
 				T,
-				utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(0)->findIterator(state::BlockStatistic()))>>
+				utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(1)->findIterator(state::BlockStatistic()))>>
 				: LookupFindIteratorFlag
 		{};
 

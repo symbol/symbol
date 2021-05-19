@@ -91,14 +91,14 @@ namespace catapult { namespace model {
 		template<typename T>
 		struct MetadataTypeAccessor<
 				T,
-				utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(0)->TargetMosaicId)>>
+				utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(1)->TargetMosaicId)>>
 				: public MosaicMetadataFlag
 		{};
 
 		template<typename T>
 		struct MetadataTypeAccessor<
 				T,
-				utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(0)->TargetNamespaceId)>>
+				utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(1)->TargetNamespaceId)>>
 				: public NamespaceMetadataFlag
 		{};
 
