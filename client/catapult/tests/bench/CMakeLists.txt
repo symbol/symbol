@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
 
-# find and set benchmark includes
-function(catapult_add_benchmark_dependencies TARGET_NAME)
-	find_package(benchmark 1.5.2 EXACT REQUIRED)
+# setup benchmark
+message("--- locating bench dependencies ---")
+find_package(benchmark 1.5.3 EXACT REQUIRED)
+message("bench     ver: ${benchmark_VERSION}")
 
+# add benchmark dependencies
+function(catapult_add_benchmark_dependencies TARGET_NAME)
 	# this should both link and add proper include path
 	target_link_libraries(${TARGET_NAME} benchmark::benchmark)
 endfunction()
