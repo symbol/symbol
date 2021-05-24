@@ -22,6 +22,7 @@
 #pragma once
 #include "RestrictionValueMap.h"
 #include "catapult/types.h"
+#include <limits>
 
 namespace catapult { namespace state {
 

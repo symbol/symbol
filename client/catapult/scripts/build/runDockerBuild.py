@@ -17,6 +17,7 @@ BINARIES_DIR = OUTPUT_DIR / 'binaries'
 class OptionsManager(BasicBuildManager):
     def __init__(self, args):
         super().__init__(args.compiler_configuration, args.build_configuration)
+        self.operating_system = args.operating_system
 
     @property
     def image_type(self):
@@ -33,13 +34,15 @@ class OptionsManager(BasicBuildManager):
     @property
     def build_base_image_name(self):
         if self.use_conan:
-            return 'symbolplatform/symbol-server-build-base:{}-{}-{}'.format(self.compiler.c, self.compiler.version, 'conan')
+            name_parts = [self.operating_system, self.versioned_compiler, 'conan']
+        else:
+            name_parts = [self.operating_system, self.compilation_friendly_name]
 
-        return 'symbolplatform/symbol-server-build-base:{}'.format(self.compilation_friendly_name)
+        return 'symbolplatform/symbol-server-build-base:{}'.format('-'.join(name_parts))
 
     @property
     def prepare_base_image_name(self):
-        return 'symbolplatform/symbol-server-test-base:latest'
+        return 'symbolplatform/symbol-server-test-base:{}'.format(self.operating_system)
 
     @property
     def ccache_path(self):
@@ -121,6 +124,7 @@ def main():
     parser = argparse.ArgumentParser(description='catapult project build generator')
     parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
     parser.add_argument('--build-configuration', help='path to build configuration yaml', required=True)
+    parser.add_argument('--operating-system', help='operating system', required=True)
     parser.add_argument('--user', help='docker user', required=True)
     parser.add_argument('--destination-image-label', help='docker destination image label', required=True)
     parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')

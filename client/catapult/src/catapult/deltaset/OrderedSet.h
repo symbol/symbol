@@ -27,7 +27,7 @@
 namespace catapult { namespace deltaset {
 
 	/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
-	template<typename TSet, typename X = decltype((*reinterpret_cast<TSet*>(0)).lower_bound(typename TSet::value_type()))>
+	template<typename TSet, typename X = decltype((*reinterpret_cast<TSet*>(1)).lower_bound(typename TSet::value_type()))>
 	void PruneBaseSet(TSet& elements, const PruningBoundary<typename TSet::value_type>& pruningBoundary) {
 		auto iter = elements.lower_bound(pruningBoundary.value());
 		elements.erase(elements.cbegin(), iter);

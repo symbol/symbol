@@ -22,62 +22,68 @@ pipeline {
 
         stage('build servers') {
             parallel {
-                stage('gcc-latest (conan)') {
+                stage('gcc 10 (conan)') {
                     steps {
                         script {
-                            dispatch_build_job('gcc-latest', 'tests-conan')
+                            dispatch_build_job('gcc-10', 'tests-conan', 'ubuntu')
                         }
                     }
                 }
-                stage('clang-latest (conan)') {
+                stage('gcc 10 (metal)') {
                     steps {
                         script {
-                            dispatch_build_job('clang-latest', 'tests-conan')
+                            dispatch_build_job('gcc-10', 'tests-metal', 'ubuntu')
                         }
                     }
                 }
-
-                stage('gcc-latest (metal)') {
+                stage('gcc 11 (metal) [fedora]') {
                     steps {
                         script {
-                            dispatch_build_job('gcc-latest', 'tests-metal')
-                        }
-                    }
-                }
-                stage('clang-latest (metal)') {
-                    steps {
-                        script {
-                            dispatch_build_job('clang-latest', 'tests-metal')
+                            dispatch_build_job('gcc-11', 'tests-metal', 'fedora')
                         }
                     }
                 }
 
-                stage('clang-address-undefined') {
+                stage('clang 11 (metal)') {
                     steps {
                         script {
-                            dispatch_build_job('clang-address-undefined', 'tests-metal')
+                            dispatch_build_job('clang-11', 'tests-metal', 'ubuntu')
                         }
                     }
                 }
-                stage('clang-thread') {
+                stage('clang 12 (conan)') {
                     steps {
                         script {
-                            dispatch_build_job('clang-thread', 'tests-metal')
+                            dispatch_build_job('clang-12', 'tests-conan', 'ubuntu')
                         }
                     }
                 }
-                stage('clang-diagnostics') {
+                stage('clang 12 (metal)') {
                     steps {
                         script {
-                            dispatch_build_job('clang-latest', 'tests-diagnostics')
+                            dispatch_build_job('clang-12', 'tests-metal', 'ubuntu')
                         }
                     }
                 }
 
-                stage('clang-11') {
+                stage('clang ausan') {
                     steps {
                         script {
-                            dispatch_build_job('clang-11', 'tests-metal')
+                            dispatch_build_job('clang-ausan', 'tests-metal', 'ubuntu')
+                        }
+                    }
+                }
+                stage('clang tsan') {
+                    steps {
+                        script {
+                            dispatch_build_job('clang-tsan', 'tests-metal', 'ubuntu')
+                        }
+                    }
+                }
+                stage('clang diagnostics') {
+                    steps {
+                        script {
+                            dispatch_build_job('clang-12', 'tests-diagnostics', 'ubuntu')
                         }
                     }
                 }
@@ -86,10 +92,11 @@ pipeline {
     }
 }
 
-def dispatch_build_job(compiler_configuration, build_configuration) {
+def dispatch_build_job(compiler_configuration, build_configuration, operating_system) {
     build job: 'server-pipelines/catapult-server-build-catapult-project', parameters: [
         string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
         string(name: 'BUILD_CONFIGURATION', value: "${build_configuration}"),
+        string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
         string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
     ]
 }

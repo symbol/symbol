@@ -33,8 +33,9 @@ def main():
 
     # LD_LIBRARY_PATH is not passed when llvm-symbolizer is started via asan, so move libs to system location
     if is_dev_build:
-        environment_manager.move_glob_with_symlinks(USER_HOME / 'deps', 'libLLVM*', '/usr/lib/x86_64-linux-gnu')
-        process_manager.dispatch_subprocess(['ls', '-laF', '/usr/lib/x86_64-linux-gnu'])
+        system_bin_path = environment_manager.system_bin_path
+        environment_manager.move_glob_with_symlinks(USER_HOME / 'deps', 'libLLVM*', system_bin_path)
+        process_manager.dispatch_subprocess(['ls', '-laF', system_bin_path])
 
     process_manager.dispatch_subprocess(['ls', '-laF', USER_HOME])
 

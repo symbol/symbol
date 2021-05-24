@@ -34,6 +34,7 @@
 #endif
 #include <boost/property_tree/json_parser.hpp>
 #include <filesystem>
+#include <optional>
 
 namespace pt = boost::property_tree;
 

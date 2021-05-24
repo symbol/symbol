@@ -36,7 +36,7 @@ namespace catapult { namespace subscribers {
 		};
 
 		template<typename TSubscriber>
-		struct Flusher<TSubscriber, utils::traits::is_type_expression_t<decltype(reinterpret_cast<TSubscriber*>(0)->flush())>> {
+		struct Flusher<TSubscriber, utils::traits::is_type_expression_t<decltype(reinterpret_cast<TSubscriber*>(1)->flush())>> {
 			static void Flush(TSubscriber& subscriber) {
 				subscriber.flush();
 			}

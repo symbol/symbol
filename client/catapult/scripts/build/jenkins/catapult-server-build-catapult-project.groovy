@@ -6,11 +6,14 @@ pipeline {
     parameters {
         gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
         choice name: 'COMPILER_CONFIGURATION',
-            choices: ['gcc-latest', 'clang-latest', 'clang-address-undefined', 'clang-thread', 'clang-11'],
+            choices: ['gcc-10', 'gcc-11', 'clang-11', 'clang-12', 'clang-ausan', 'clang-tsan'],
             description: 'compiler configuration'
         choice name: 'BUILD_CONFIGURATION',
             choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
             description: 'build configuration'
+        choice name: 'OPERATING_SYSTEM',
+            choices: ['ubuntu', 'fedora'],
+            description: 'operating system'
 
         string name: 'TEST_IMAGE_LABEL', description: 'docker test image label', defaultValue: ''
         choice name: 'TEST_MODE',
@@ -57,6 +60,7 @@ pipeline {
 
                             COMPILER_CONFIGURATION: ${COMPILER_CONFIGURATION}
                                BUILD_CONFIGURATION: ${BUILD_CONFIGURATION}
+                                  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
 
                                   TEST_IMAGE_LABEL: ${TEST_IMAGE_LABEL}
                                          TEST_MODE: ${TEST_MODE}
@@ -95,6 +99,7 @@ pipeline {
                                 python3 catapult-src/scripts/build/runDockerBuild.py \
                                     --compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
                                     --build-configuration catapult-src/scripts/build/configurations/${BUILD_CONFIGURATION}.yaml \
+                                    --operating-system ${OPERATING_SYSTEM} \
                                     --user ${fully_qualified_user} \
                                     --destination-image-label ${build_image_label} \
                             """
@@ -120,7 +125,7 @@ pipeline {
                     steps {
                         sh """
                             python3 catapult-src/scripts/build/runDockerTests.py \
-                                --image registry.hub.docker.com/symbolplatform/symbol-server-test-base:latest \
+                                --image registry.hub.docker.com/symbolplatform/symbol-server-test-base:${OPERATING_SYSTEM} \
                                 --compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
                                 --user ${fully_qualified_user} \
                                 --mode lint

@@ -21,8 +21,9 @@
 
 #pragma once
 #include <array>
-#include <cstdint>
 #include <vector>
+#include <stddef.h>
+#include <stdint.h>
 
 namespace catapult { namespace state {
 

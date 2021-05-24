@@ -190,7 +190,7 @@ namespace catapult { namespace cache {
 			template<typename T>
 			struct MerkleRootAccessor<
 					T,
-					utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(0)->tryGetMerkleRoot())>>
+					utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(1)->tryGetMerkleRoot())>>
 					: public SupportedFeatureFlag
 			{};
 
@@ -200,7 +200,7 @@ namespace catapult { namespace cache {
 			template<typename T>
 			struct MerkleRootMutator<
 					T,
-					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(0)->setMerkleRoot(Hash256()))>>
+					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(1)->setMerkleRoot(Hash256()))>>
 					: public SupportedFeatureFlag
 			{};
 
@@ -211,7 +211,7 @@ namespace catapult { namespace cache {
 			struct PruneMutator<
 					TPruneValue,
 					T,
-					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(0)->prune(TPruneValue()))>>
+					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(1)->prune(TPruneValue()))>>
 					: public SupportedFeatureFlag
 			{};
 

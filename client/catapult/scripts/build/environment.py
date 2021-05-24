@@ -16,6 +16,18 @@ class EnvironmentManager:
 
     # region environment variables
 
+    @property
+    def system_bin_path(self):
+        if self.dry_run:
+            return '<SYSTEM_BIN_PATH>'
+
+        for descriptor in [('ubuntu', '/usr/lib/x86_64-linux-gnu'), ('fedora', '/usr/lib64')]:
+            if Path(descriptor[1]).exists():
+                self._print_command('system_bin_path', ['detected', descriptor[1], 'for', descriptor[0]])
+                return descriptor[1]
+
+        raise RuntimeError('unable to detect system bin path')
+
     def set_env_var(self, key, value):
         self._print_command('set_env_var', [key, value])
 

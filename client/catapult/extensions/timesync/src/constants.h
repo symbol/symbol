@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include <cstdint>
+#include <stdint.h>
 
 namespace catapult { namespace timesync {
 

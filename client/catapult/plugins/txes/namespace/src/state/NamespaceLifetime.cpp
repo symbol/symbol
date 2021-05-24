@@ -21,6 +21,7 @@
 
 #include "NamespaceLifetime.h"
 #include "catapult/exceptions.h"
+#include <limits>
 
 namespace catapult { namespace state {
 

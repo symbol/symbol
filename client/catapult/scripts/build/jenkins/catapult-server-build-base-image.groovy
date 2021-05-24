@@ -6,8 +6,13 @@ pipeline {
     parameters {
         gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
         choice name: 'COMPILER_CONFIGURATION',
-            choices: ['clang-latest', 'gcc-latest', 'clang-address-undefined', 'clang-thread', 'clang-11'],
+            choices: ['gcc-10', 'gcc-11', 'clang-11', 'clang-12', 'clang-ausan', 'clang-tsan'],
             description: 'compiler configuration'
+        choice name: 'OPERATING_SYSTEM',
+            choices: ['ubuntu', 'fedora'],
+            description: 'operating system'
+
+        booleanParam name: 'SHOULD_BUILD_CONAN_LAYER', description: 'true to build conan layer', defaultValue: false
     }
 
     environment {
@@ -26,11 +31,12 @@ pipeline {
                 stage('prepare variables') {
                     steps {
                         script {
-                            dest_image_name = "symbolplatform/symbol-server-build-base:${COMPILER_CONFIGURATION}"
+                            dest_image_name = "symbolplatform/symbol-server-build-base:${OPERATING_SYSTEM}-${COMPILER_CONFIGURATION}"
 
                             base_image_dockerfile_generator_command = """
                                 python3 ./scripts/build/baseImageDockerfileGenerator.py \
                                     --compiler-configuration scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
+                                    --operating-system ${OPERATING_SYSTEM} \
                                     --versions ./scripts/build/versions.properties \
                             """
                         }
@@ -43,6 +49,8 @@ pipeline {
                                  MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
 
                             COMPILER_CONFIGURATION: ${COMPILER_CONFIGURATION}
+                                  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
+                          SHOULD_BUILD_CONAN_LAYER: ${SHOULD_BUILD_CONAN_LAYER}
 
                                    dest_image_name: ${dest_image_name}
                         """
@@ -82,7 +90,7 @@ pipeline {
                 }
                 stage('build conan') {
                     when {
-                        expression { "${COMPILER_CONFIGURATION}" == 'clang-latest' || "${COMPILER_CONFIGURATION}" == 'gcc-latest' }
+                        expression { SHOULD_BUILD_CONAN_LAYER.toBoolean() }
                     }
                     steps {
                         script {

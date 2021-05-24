@@ -23,17 +23,19 @@ def format_multivalue_options(key, values):
     return '{}=\'{}\''.format(key, ' '.join(values))
 
 
-class OptionsDescriptor:
-    def __init__(self):
-        self.options = []
-        self.cxxflags = []
-        self.linkflags = []
-        self.sanitizer = None
-
+# region OptionsManager
 
 class OptionsManager:
-    def __init__(self, compiler_configuration, versions_filepath):
+    class OptionsDescriptor:
+        def __init__(self):
+            self.options = []
+            self.cxxflags = []
+            self.linkflags = []
+            self.sanitizer = None
+
+    def __init__(self, compiler_configuration, operating_system, versions_filepath):
         self.compiler = compiler_configuration.compiler
+        self.operating_system = operating_system
         self.sanitizers = compiler_configuration.sanitizers
         self.architecture = compiler_configuration.architecture
         self.stl = compiler_configuration.stl
@@ -51,10 +53,11 @@ class OptionsManager:
 
     @property
     def base_image_name(self):
-        return 'symbolplatform/symbol-server-compiler:{}-{}'.format(self.compiler.c, self.compiler.version)
+        name_parts = [self.operating_system, self.compiler.c, str(self.compiler.version)]
+        return 'symbolplatform/symbol-server-compiler:{}'.format('-'.join(name_parts))
 
     def layer_image_name(self, layer):
-        name_parts = [self.compiler.c, str(self.compiler.version)]
+        name_parts = [self.operating_system, self.compiler.c, str(self.compiler.version)]
         if 'conan' != layer:
             name_parts.extend(self.sanitizers + [self.architecture])
 
@@ -95,7 +98,7 @@ class OptionsManager:
         return []
 
     def mongo_c(self):
-        descriptor = OptionsDescriptor()
+        descriptor = self.OptionsDescriptor()
         descriptor.options += [
             '-DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF',
             '-DENABLE_MONGODB_AWS_AUTH=OFF',
@@ -106,7 +109,7 @@ class OptionsManager:
         return self._cmake(descriptor)
 
     def mongo_cxx(self):
-        descriptor = OptionsDescriptor()
+        descriptor = self.OptionsDescriptor()
         descriptor.options += ['-DCMAKE_CXX_STANDARD=17']
         return self._cmake(descriptor)
 
@@ -121,14 +124,14 @@ class OptionsManager:
         return self._cmake(descriptor)
 
     def _zmq_descriptor(self):
-        descriptor = OptionsDescriptor()
+        descriptor = self.OptionsDescriptor()
         if 'thread' in self.sanitizers:
             descriptor.sanitizer = 'thread'
 
         return descriptor
 
     def rocks(self):
-        descriptor = OptionsDescriptor()
+        descriptor = self.OptionsDescriptor()
         descriptor.options += [
             '-DPORTABLE=1',
             '-DWITH_TESTS=OFF',
@@ -144,13 +147,13 @@ class OptionsManager:
         return self._cmake(descriptor)
 
     def googletest(self):
-        descriptor = OptionsDescriptor()
+        descriptor = self.OptionsDescriptor()
         descriptor.options += ['-DCMAKE_POSITION_INDEPENDENT_CODE=ON']
         descriptor.sanitizer = ','.join(self.sanitizers)
         return self._cmake(descriptor)
 
     def googlebench(self):
-        descriptor = OptionsDescriptor()
+        descriptor = self.OptionsDescriptor()
         descriptor.options += ['-DBENCHMARK_ENABLE_GTEST_TESTS=OFF']
         return self._cmake(descriptor)
 
@@ -191,38 +194,101 @@ class OptionsManager:
         return descriptor.options
 
 
-def generate_phase_os(options):
-    apt_packages = [
-        'autoconf',
-        'ca-certificates',
-        'ccache',
-        'curl',
-        'gdb',
-        'git',
-        'libatomic-ops-dev',
-        'libgflags-dev',
-        'libsnappy-dev',
-        'libtool',
-        'libunwind-dev',
-        'make',
-        'ninja-build',
-        'pkg-config',
-        'python3',
-        'python3-ply',
-        'xz-utils'
-    ]
+# endregion
 
+# region SYSTEMS
+
+class UbuntuSystem:
+    @staticmethod
+    def add_base_os_packages():
+        apt_packages = [
+            'autoconf',
+            'ca-certificates',
+            'ccache',
+            'curl',
+            'gdb',
+            'git',
+            'libatomic-ops-dev',
+            'libgflags-dev',
+            'libsnappy-dev',
+            'libtool',
+            'libunwind-dev',
+            'make',
+            'ninja-build',
+            'pkg-config',
+            'python3',
+            'python3-ply',
+            'xz-utils'
+        ]
+        print_line_with_continuation([
+            'RUN apt-get -y update',
+            'apt-get install -y {APT_PACKAGES}',
+            'rm -rf /var/lib/apt/lists/*'
+        ], APT_PACKAGES=' '.join(apt_packages))
+
+    @staticmethod
+    def add_test_packages(install_openssl):
+        apt_packages = ['python3-pip']
+        if install_openssl:
+            apt_packages += ['libssl-dev']
+
+        print_line([
+            'RUN apt-get -y update',
+            'apt-get remove -y --purge pylint',
+            'apt-get install -y {APT_PACKAGES}',
+            'python3 -m pip install -U pycodestyle pylint pyyaml'
+        ], APT_PACKAGES=' '.join(apt_packages))
+
+
+class FedoraSystem:
+    @staticmethod
+    def add_base_os_packages():
+        rpm_packages = [
+            'ccache',
+            'curl',
+            'gdb',
+            'gflags-devel',
+            'git',
+            'libunwind-devel',
+            'make',
+            'ninja-build',
+            'python3',
+            'xz'
+        ]
+        print_line_with_continuation([
+            'RUN dnf update --assumeyes',
+            'dnf install --assumeyes {RPM_PACKAGES}',
+            'dnf clean all',
+            'rm -rf /var/cache/yum'
+        ], RPM_PACKAGES=' '.join(rpm_packages))
+
+    @staticmethod
+    def add_test_packages(install_openssl):
+        rpm_packages = ['python3-pip']
+        if install_openssl:
+            rpm_packages += ['openssl-devel']
+
+        print_line([
+            'RUN dnf update --assumeyes',
+            'dnf remove --assumeyes pylint',
+            'dnf install --assumeyes {RPM_PACKAGES}',
+            'python3 -m pip install -U pycodestyle pylint pyyaml',
+            'dnf clean all',
+            'rm -rf /var/cache/yum'
+        ], RPM_PACKAGES=' '.join(rpm_packages))
+
+
+SYSTEMS = {'ubuntu': UbuntuSystem, 'fedora': FedoraSystem}
+
+
+def generate_phase_os(options):
     print_lines([
         'FROM {BASE_IMAGE_NAME}',
         'ARG DEBIAN_FRONTEND=noninteractive',
         'MAINTAINER Catapult Development Team'
     ], BASE_IMAGE_NAME=options.base_image_name)
 
-    print_line_with_continuation([
-        'RUN apt-get -y update',
-        'apt-get install -y {APT_PACKAGES}',
-        'rm -rf /var/lib/apt/lists/*'
-    ], APT_PACKAGES=' '.join(apt_packages))
+    SYSTEMS[options.operating_system].add_base_os_packages()
 
     cmake_version = options.versions['cmake']
     cmake_script = 'cmake-{}-Linux-x86_64.sh'.format(cmake_version)
@@ -318,16 +384,7 @@ def generate_phase_test(options):
     add_git_dependency('google', 'googletest', options.versions, options.googletest())
     add_git_dependency('google', 'benchmark', options.versions, options.googlebench())
 
-    apt_packages = ['python3-pip']
-    if not options.sanitizers:
-        apt_packages += ['libssl-dev']
-
-    print_line([
-        'RUN apt-get -y update',
-        'apt-get remove -y --purge pylint',
-        'apt-get install -y {APT_PACKAGES}',
-        'python3 -m pip install -U pycodestyle pylint pyyaml'
-    ], APT_PACKAGES=' '.join(apt_packages))
+    SYSTEMS[options.operating_system].add_test_packages(not options.sanitizers)
 
     if options.sanitizers:
         print_line([
@@ -363,12 +420,13 @@ def main():
     parser = argparse.ArgumentParser(description='catapult base image dockerfile generator')
     parser.add_argument('--layer', help='name of docker layer to generate', choices=LAYER_TO_IMAGE_TAG_MAP.keys(), required=True)
     parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
+    parser.add_argument('--operating-system', help='operating system', required=True)
     parser.add_argument('--versions', help='locked versions file', required=True)
     parser.add_argument('--name-only', help='true to output layer name', action='store_true')
     args = parser.parse_args()
 
     compiler_configuration = load_compiler_configuration(args.compiler_configuration)
-    options_manager = OptionsManager(compiler_configuration, args.versions)
+    options_manager = OptionsManager(compiler_configuration, args.operating_system, args.versions)
 
     if args.name_only:
         print(options_manager.layer_image_name(args.layer))

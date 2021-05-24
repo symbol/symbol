@@ -23,9 +23,9 @@
 #include "catapult/types.h"
 #include <algorithm>
 #include <array>
-#include <cstdlib>
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 namespace catapult { namespace test {
 
