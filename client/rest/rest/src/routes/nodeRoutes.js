@@ -142,11 +142,18 @@ module.exports = {
 		});
 
 		server.get('/node/server', (req, res, next) => {
+			const { deployment } = services.config;
 			res.send({
 				payload: {
 					serverInfo: {
 						restVersion,
-						sdkVersion
+						sdkVersion,
+						deployment: {
+							deploymentTool: deployment && deployment.deploymentTool ? deployment.deploymentTool : 'N/A',
+							deploymentToolVersion: deployment && deployment.deploymentToolVersion
+								? deployment.deploymentToolVersion : 'N/A',
+							lastUpdatedDate: deployment && deployment.lastUpdatedDate ? deployment.lastUpdatedDate : 'N/A'
+						}
 					}
 				},
 				type: routeResultTypes.serverInfo

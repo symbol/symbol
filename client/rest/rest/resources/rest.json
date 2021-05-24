@@ -81,5 +81,11 @@
     }
   },
 
-  "numBlocksTransactionFeeStats": 300
+  "numBlocksTransactionFeeStats": 300,
+
+  "deployment": {
+    "deploymentTool": "",
+    "deploymentToolVersion": "",
+    "lastUpdatedDate": ""
+  }
 }

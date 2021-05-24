@@ -104,6 +104,7 @@ describe('model schema builder', () => {
 				'nodeTime',
 				'serverInfo',
 				'serverInfoData',
+				'deploymentData',
 				'stateTree',
 				'storageInfo'
 			]);
@@ -179,7 +180,8 @@ describe('model schema builder', () => {
 
 				'nodeHealth.status',
 				'nodeTime.communicationTimestamps',
-				'serverInfo.serverInfo'
+				'serverInfo.serverInfo',
+				'serverInfoData.deployment'
 			]);
 		});
 
@@ -333,7 +335,11 @@ describe('model schema builder', () => {
 				'nodeInfo.friendlyName',
 				'nodeInfo.host',
 				'serverInfoData.restVersion',
-				'serverInfoData.sdkVersion'
+				'serverInfoData.sdkVersion',
+				'deploymentData.deploymentTool',
+				'deploymentData.deploymentToolVersion',
+				'deploymentData.lastUpdatedDate'
+
 			]);
 		});
 

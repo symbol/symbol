@@ -248,7 +248,13 @@ class ModelSchemaBuilder {
 			},
 			serverInfoData: {
 				restVersion: ModelType.string,
-				sdkVersion: ModelType.string
+				sdkVersion: ModelType.string,
+				deployment: { type: ModelType.object, schemaName: 'deploymentData' }
+			},
+			deploymentData: {
+				deploymentTool: ModelType.string,
+				deploymentToolVersion: ModelType.string,
+				lastUpdatedDate: ModelType.string
 			},
 			stateTree: {
 				tree: { type: ModelType.array, schemaName: ModelType.binary }
