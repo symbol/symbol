@@ -130,7 +130,8 @@ const registerRoutes = (server, db, services) => {
 			},
 			apiNode: services.config.apiNode,
 			websocket: services.config.websocket,
-			numBlocksTransactionFeeStats: services.config.numBlocksTransactionFeeStats
+			numBlocksTransactionFeeStats: services.config.numBlocksTransactionFeeStats,
+			deployment: services.config.deployment
 		},
 		connections: services.connectionService
 	};

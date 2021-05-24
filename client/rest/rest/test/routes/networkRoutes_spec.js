@@ -161,11 +161,21 @@ describe('network routes', () => {
 		});
 
 		describe('network fees transaction', () => {
+			let readFileStub = null;
+			afterEach(() => {
+				if (null !== readFileStub) {
+					readFileStub.restore();
+					readFileStub = null;
+				}
+			});
 			const runNetworkFeesTest = (testName, feeMultipliers, average, median, max, min) => {
 				const services = {
 					config: {
 						numBlocksTransactionFeeStats: feeMultipliers.length,
-						apiNode: { nodePropertyFilePath: 'wouldBeValidFilePath' }
+						apiNode: {
+							nodePropertyFilePath: 'node.properties',
+							networkPropertyFilePath: 'network.properties'
+						}
 					}
 				};
 
@@ -175,9 +185,13 @@ describe('network routes', () => {
 				};
 
 				it(`${testName}: [${feeMultipliers}] average:${average}, median:${median}, max:${max}, min:${min}`, () => {
-					const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					readFileStub = sinon.stub(fs, 'readFile');
+					readFileStub.onFirstCall().callsFake((path, data, callback) =>
 						callback(null, '[node]\n'
 						+ 'minFeeMultiplier = 100'));
+					readFileStub.onSecondCall().callsFake((path, data, callback) =>
+						callback(null, '[chain]\n'
+						+ 'defaultDynamicFeeMultiplier = 1\'000'));
 
 					// Arrange:
 					const mockServer = new MockServer();
@@ -198,14 +212,14 @@ describe('network routes', () => {
 							minFeeMultiplier: 100
 						});
 						expect(mockServer.next.calledOnce).to.equal(true);
-						readFileStub.restore();
 					});
 				});
 			};
 
 			describe('network fees are computed correctly for the following values', () => {
-				runNetworkFeesTest('One block', [0], 0, 0, 0, 0);
-				runNetworkFeesTest('All 0s', [0, 0, 0, 0, 0], 0, 0, 0, 0);
+				runNetworkFeesTest('One block', [0], 1000, 1000, 0, 0);
+				runNetworkFeesTest('All 0s', [0, 0, 0, 0, 0], 1000, 1000, 0, 0);
+				runNetworkFeesTest('With 0s', [10, 0, 0, 0, 10], 604, 1000, 10, 0);
 				runNetworkFeesTest('Big values', [999999999, 999999999, 999999999, 999999999], 999999999, 999999999, 999999999, 999999999);
 				runNetworkFeesTest('Correct average', [1, 1, 1, 1], 1, 1, 1, 1);
 				runNetworkFeesTest('Correct median', [90, 92, 93, 88, 95, 88, 97, 87, 98], 92, 92, 98, 87);

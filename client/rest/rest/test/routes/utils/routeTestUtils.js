@@ -40,10 +40,12 @@ class MockServer {
 		this.send = sinon.fake();
 		this.redirect = sinon.fake();
 		this.status = sinon.fake();
+		this.setHeader = sinon.fake();
 		this.res = {
 			send: this.send,
 			redirect: this.redirect,
-			status: this.status
+			status: this.status,
+			setHeader: this.setHeader
 		};
 	}
 

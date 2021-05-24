@@ -42,7 +42,12 @@ describe('node routes', () => {
 				})
 			},
 			config: {
-				apiNode: { timeout: 1000 }
+				apiNode: { timeout: 1000 },
+				deployment: {
+					deploymentTool: 'symbol-bootstrap',
+					deploymentToolVersion: '1.0.2',
+					lastUpdatedDate: '1900-01-01'
+				}
 			}
 		});
 
@@ -356,7 +361,12 @@ describe('node routes', () => {
 					payload: {
 						serverInfo: {
 							restVersion,
-							sdkVersion
+							sdkVersion,
+							deployment: {
+								deploymentTool: 'symbol-bootstrap',
+								deploymentToolVersion: '1.0.2',
+								lastUpdatedDate: '1900-01-01'
+							}
 						}
 					},
 					type: 'serverInfo'

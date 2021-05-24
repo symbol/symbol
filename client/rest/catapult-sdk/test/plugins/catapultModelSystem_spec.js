@@ -56,7 +56,8 @@ describe('catapult model system', () => {
 				'namespace',
 				'receipts',
 				'restrictions',
-				'transfer'
+				'transfer',
+				'cmc'
 			]);
 		});
 	});
