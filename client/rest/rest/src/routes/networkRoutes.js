@@ -48,6 +48,8 @@ module.exports = {
 				.then(fileData => ini.parse(fileData));
 		};
 
+		const sanitizeInput = value => value.replace(/[^0-9]/g, '');
+
 		server.get('/network', (req, res, next) => {
 			res.send({ name: services.config.network.name, description: services.config.network.description });
 			next();
@@ -69,10 +71,16 @@ module.exports = {
 		server.get('/network/fees/transaction', (req, res, next) => {
 			const numBlocksTransactionFeeStats = services.config.numBlocksTransactionFeeStats || 1;
 			const latestBlocksFeeMultiplier = db.latestBlocksFeeMultiplier(numBlocksTransactionFeeStats);
-			return Promise.all([readAndParseNodePropertiesFile(), latestBlocksFeeMultiplier]).then(feeMultipliers => {
+			return Promise.all([readAndParseNodePropertiesFile(), latestBlocksFeeMultiplier,
+				readAndParseNetworkPropertiesFile()]).then(feeMultipliers => {
+				// defaultDynamicFeeMultiplier -> uint32
+				const defaultDynamicFeeMultiplier = parseInt(sanitizeInput(
+					feeMultipliers[2].chain.defaultDynamicFeeMultiplier
+				), 10);
+				const defaultedFeeMultipliers = feeMultipliers[1].map(f => (0 === f ? defaultDynamicFeeMultiplier : f));
 				res.send({
-					averageFeeMultiplier: Math.floor(average(feeMultipliers[1])),
-					medianFeeMultiplier: Math.floor(median(feeMultipliers[1])),
+					averageFeeMultiplier: Math.floor(average(defaultedFeeMultipliers)),
+					medianFeeMultiplier: Math.floor(median(defaultedFeeMultipliers)),
 					highestFeeMultiplier: Math.max(...feeMultipliers[1]),
 					lowestFeeMultiplier: Math.min(...feeMultipliers[1]),
 					minFeeMultiplier: Number(feeMultipliers[0].node.minFeeMultiplier.replace('\'', ''))
@@ -81,53 +89,49 @@ module.exports = {
 			});
 		});
 
-		server.get('/network/fees/rental', (req, res, next) => {
-			const sanitizeInput = value => value.replace(/[^0-9]/g, '');
+		server.get('/network/fees/rental', (req, res, next) => readAndParseNetworkPropertiesFile().then(propertiesObject => {
+			const maxDifficultyBlocks = parseInt(sanitizeInput(
+				propertiesObject.chain.maxDifficultyBlocks
+			), 10);
 
-			return readAndParseNetworkPropertiesFile().then(propertiesObject => {
-				const maxDifficultyBlocks = parseInt(sanitizeInput(
-					propertiesObject.chain.maxDifficultyBlocks
-				), 10);
+			// defaultDynamicFeeMultiplier -> uint32
+			const defaultDynamicFeeMultiplier = parseInt(sanitizeInput(
+				propertiesObject.chain.defaultDynamicFeeMultiplier
+			), 10);
 
-				// defaultDynamicFeeMultiplier -> uint32
-				const defaultDynamicFeeMultiplier = parseInt(sanitizeInput(
-					propertiesObject.chain.defaultDynamicFeeMultiplier
-				), 10);
+			// rootNamespaceRentalFeePerBlock -> uint64
+			const rootNamespaceRentalFeePerBlock = uint64.fromString(sanitizeInput(
+				propertiesObject['plugin:catapult'].plugins.namespace.rootNamespaceRentalFeePerBlock
+			));
 
-				// rootNamespaceRentalFeePerBlock -> uint64
-				const rootNamespaceRentalFeePerBlock = uint64.fromString(sanitizeInput(
-					propertiesObject['plugin:catapult'].plugins.namespace.rootNamespaceRentalFeePerBlock
-				));
+			// childNamespaceRentalFee -> uint64
+			const childNamespaceRentalFee = uint64.fromString(sanitizeInput(
+				propertiesObject['plugin:catapult'].plugins.namespace.childNamespaceRentalFee
+			));
 
-				// childNamespaceRentalFee -> uint64
-				const childNamespaceRentalFee = uint64.fromString(sanitizeInput(
-					propertiesObject['plugin:catapult'].plugins.namespace.childNamespaceRentalFee
-				));
+			// mosaicRentalFee -> uint64
+			const mosaicRentalFee = uint64.fromString(sanitizeInput(
+				propertiesObject['plugin:catapult'].plugins.mosaic.mosaicRentalFee
+			));
 
-				// mosaicRentalFee -> uint64
-				const mosaicRentalFee = uint64.fromString(sanitizeInput(
-					propertiesObject['plugin:catapult'].plugins.mosaic.mosaicRentalFee
-				));
+			return db.latestBlocksFeeMultiplier(maxDifficultyBlocks || 1).then(feeMultipliers => {
+				const defaultedFeeMultipliers = feeMultipliers.map(f => (0 === f ? defaultDynamicFeeMultiplier : f));
+				const medianNetworkMultiplier = Math.floor(median(defaultedFeeMultipliers));
+				const uint64MedianNetworkMultiplier = uint64.fromUint(medianNetworkMultiplier);
 
-				return db.latestBlocksFeeMultiplier(maxDifficultyBlocks || 1).then(feeMultipliers => {
-					const defaultedFeeMultipliers = feeMultipliers.map(f => (0 === f ? defaultDynamicFeeMultiplier : f));
-					const medianNetworkMultiplier = Math.floor(median(defaultedFeeMultipliers));
-					const uint64MedianNetworkMultiplier = uint64.fromUint(medianNetworkMultiplier);
-
-					res.send({
-						effectiveRootNamespaceRentalFeePerBlock:
+				res.send({
+					effectiveRootNamespaceRentalFeePerBlock:
 							uint64.toString(uint64.multiply(rootNamespaceRentalFeePerBlock, uint64MedianNetworkMultiplier)),
-						effectiveChildNamespaceRentalFee:
+					effectiveChildNamespaceRentalFee:
 							uint64.toString(uint64.multiply(childNamespaceRentalFee, uint64MedianNetworkMultiplier)),
-						effectiveMosaicRentalFee:
+					effectiveMosaicRentalFee:
 							uint64.toString(uint64.multiply(mosaicRentalFee, uint64MedianNetworkMultiplier))
-					});
-					next();
 				});
-			}).catch(() => {
-				res.send(errors.createInvalidArgumentError('there was an error reading the network properties file'));
 				next();
 			});
-		});
+		}).catch(() => {
+			res.send(errors.createInvalidArgumentError('there was an error reading the network properties file'));
+			next();
+		}));
 	}
 };
