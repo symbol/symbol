@@ -1,7 +1,9 @@
 # catapult-server
 
 [![docs](badges/docs--green.svg)](https://nemtech.github.io)
-[![docker](badges/docker-techbureau-brightgreen.svg)](https://hub.docker.com/u/techbureau)
+[![build rel](https://jenkins.symboldev.com/buildStatus/icon?subject=build%20rel&job=server-pipelines%2Fcatapult-server-release-build)](https://jenkins.symboldev.com/job/server-pipelines/job/catapult-server-release-build/)
+[![build dev](https://jenkins.symboldev.com/buildStatus/icon?subject=build%20dev&job=server-pipelines%2Fcatapult-server-build-catapult-project)](https://jenkins.symboldev.com/job/server-pipelines/job/catapult-server-build-catapult-project/)
+[![docker](badges/docker-symbolplatform-brightgreen.svg)](https://hub.docker.com/u/symbolplatform)
 
 Symbol-based networks rely on nodes to provide a trustless, high-performance, and secure blockchain platform.
 
@@ -30,14 +32,14 @@ catapult-server code is organized as follows:
 
 Versioning starting with 1.0.0.0 release. Testnet releases use odd numbers for minor field.
 
-| description | versions | 
+| description | versions |
 |-------------|----------|
 | example mainnet build numbers | 1.0.0.0, 1.2.x.x, 1.4.x.x, 2.2.x.x, 3.4.x.x |
 | example testnet build numbers | 1.1.0.0, 1.3.x.x, 1.5.x.x, 2.3.x.x, 3.5.x.x |
 
 ## Building the Image
 
-To compile catapult-server source code, follow the [developer notes](docs/README.md). 
+To compile catapult-server source code, follow the [developer notes](docs/README.md).
 
 ## Running catapult-server
 
@@ -45,7 +47,7 @@ catapult-server executable can be used either to run different types of nodes or
 
 ### Test Network Node
 
-Developers can deploy test net nodes to experiment with the offered transaction set in a live network without the loss of valuable assets. 
+Developers can deploy test net nodes to experiment with the offered transaction set in a live network without the loss of valuable assets.
 
 To run a test net node, follow [this guide](https://nemtech.github.io/guides/network/running-a-test-net-node.html).
 
@@ -55,12 +57,12 @@ At the time of writing, the main public network has not been launched. Follow th
 
 ### Private Test Network
 
-With Symbol, businesses can launch and extend private networks by developing custom plugins and extensions at the protocol level. The package [Service Bootstrap] contains the necessary setup scripts to deploy a network for testing and development purposes with just one command. 
+With Symbol, businesses can launch and extend private networks by developing custom plugins and extensions at the protocol level. The package [Service Bootstrap] contains the necessary setup scripts to deploy a network for testing and development purposes with just one command.
 
 To run a private test net, follow [this guide](https://nemtech.github.io/guides/network/creating-a-private-test-net.html#creating-a-private-test-net).
 
 ### Private Network
- 
+
 Instructions on how to launch a secure and production-ready private chain will be released here.
 
 ## Contributing
@@ -71,7 +73,7 @@ Before contributing please [read this](CONTRIBUTING.md).
 
 - [Symbol Developer Documentation][developer documentation]
 - [Symbol Whitepaper][whitepaper]
-- Join the community [slack group (#help)][slack] 
+- Join the community [slack group (#help)][slack]
 - If you found a bug, [open a new issue][issues]
 
 ## License
