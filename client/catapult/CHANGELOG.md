@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.1.0] - 26-May-2021
+
+### Fixed
+ - recover delegated harvesters on resync, #173
+ - reapply transactions oldest first when resolving fork
+ - fix reentrancy failures in diagnostics build
+ - server should make files writeable when copying seed, #168
+ - rollback bug leading to crashes in testnet
+
+### Changed
+ - add Failure_Link_Start_Epoch_Invalid when voting link is attempted with zero StartEpoch, #170
+ - upgrade dependencies to latest versions
+ - gcc 11 support
+
 ## [1.0.0.0] - 12-Mar-2021
 
 Mainnet launch.
@@ -418,6 +432,7 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
+[1.0.1.0]: https://github.com/nemtech/catapult-server/compare/v1.0.0.0...v1.0.1.0
 [0.10.0.8]: https://github.com/nemtech/catapult-server/compare/v0.10.0.7...v0.10.0.8
 [0.10.0.7]: https://github.com/nemtech/catapult-server/compare/v0.10.0.6...v0.10.0.7
 [0.10.0.6]: https://github.com/nemtech/catapult-server/compare/v0.10.0.5...v0.10.0.6
