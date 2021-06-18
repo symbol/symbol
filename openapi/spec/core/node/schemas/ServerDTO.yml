@@ -2,6 +2,7 @@ type: object
 required:
   - restVersion
   - sdkVersion
+  - deployment
 properties:
   restVersion:
     type: string
@@ -11,3 +12,5 @@ properties:
     type: string
     example: 0.7.14
     description: catapult-sdk component version.
+  deployment:
+    $ref: "./DeploymentDTO.yml"

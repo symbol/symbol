@@ -189,6 +189,8 @@ RolesTypeEnum:
   "$ref": "../core/node/schemas/RolesTypeEnum.yml"
 CommunicationTimestampsDTO:
   "$ref": "../core/node/schemas/CommunicationTimestampsDTO.yml"
+DeploymentDTO:
+  "$ref": "../core/node/schemas/DeploymentDTO.yml"
 NodeHealthDTO:
   "$ref": "../core/node/schemas/NodeHealthDTO.yml"
 NodeHealthInfoDTO:
