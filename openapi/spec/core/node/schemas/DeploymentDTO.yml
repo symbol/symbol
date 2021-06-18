@@ -1,0 +1,18 @@
+type: object
+required:
+  - deploymentTool
+  - deploymentToolVersion
+  - lastUpdatedDate
+properties:
+  deploymentTool:
+    type: string
+    example: 'symbol-bootstrap'
+    description: 'The tool used to create, maintain and deploy the node. Examples: symbol-bootstrap, manual.'
+  deploymentToolVersion:
+    type: string
+    example: '1.0.6'
+    description: 'The version of the tool used to create, maintain and deploy the node.'
+  lastUpdatedDate:
+    type: string
+    example: '2021-06-02'
+    description: 'When was the node last upgraded.'
