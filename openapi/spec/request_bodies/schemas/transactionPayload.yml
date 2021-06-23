@@ -2,4 +2,5 @@ type: object
 properties:
   payload:
     type: string
-    description: Transaction payload.
+    description: Transaction payload in hexadecimal format.
+    example: "00112233445566778899AABBCCDDEEFF"
