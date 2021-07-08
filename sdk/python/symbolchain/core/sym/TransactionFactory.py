@@ -150,7 +150,8 @@ class TransactionFactory:
     def _build_type_hints_map(transaction):
         mapping = {
             'UnresolvedAddressDto': Address,
-            'KeyDto': PublicKey
+            'KeyDto': PublicKey,
+            'VotingKeyDto': PublicKey
         }
 
         type_hints = {}
