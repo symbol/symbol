@@ -115,6 +115,32 @@ class TransactionFactoryTest(unittest.TestCase):
     def test_can_create_known_transaction_with_multiple_overrides_embedded(self):
         self._assert_can_create_known_transaction_with_multiple_overrides(self.create_embedded)
 
+    def _assert_can_create_transaction_with_voting_key_link_overrides(self, create_function_accessor):
+        # Arrange: VotingKeyDto is translated into PublicKey
+        factory = TransactionFactory(Network.PUBLIC_TEST, {
+            PublicKey: lambda address: address + ' PUBLICKEY'
+        })
+
+        # Act:
+        transaction = create_function_accessor(factory)({
+            'type': 'votingKeyLink',
+            'signer_public_key': 'signer_name',
+            'linked_public_key': 'linked_name'
+        })
+
+        # Assert:
+        self.assertEqual(0x4143, transaction.type)
+        self.assertEqual(1, transaction.version)
+        self.assertEqual(NetworkTypeDto.PUBLIC_TEST, transaction.network)
+        self.assertEqual('signer_name PUBLICKEY', transaction.signer_public_key)
+        self.assertEqual('linked_name PUBLICKEY', transaction.linked_public_key)
+
+    def test_can_create_transaction_with_voting_key_link_overrides(self):
+        self._assert_can_create_transaction_with_voting_key_link_overrides(self.create)
+
+    def test_can_create_transaction_with_voting_key_link_overrides_embedded(self):
+        self._assert_can_create_transaction_with_voting_key_link_overrides(self.create_embedded)
+
     # endregion
 
     # region flags and enums handling
