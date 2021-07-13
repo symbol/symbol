@@ -81,7 +81,7 @@ pipeline {
                     steps {
                         dir('catapult-src') {
                             git branch: "${get_branch_name()}",
-                                url: 'https://github.com/nemtech/catapult-server.git'
+                                url: 'https://github.com/symbol/catapult-client.git'
                         }
                     }
                 }
