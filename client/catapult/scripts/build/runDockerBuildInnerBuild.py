@@ -147,7 +147,7 @@ def main():
     parser = argparse.ArgumentParser(description='catapult project build generator')
     parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
     parser.add_argument('--build-configuration', help='path to build configuration yaml', required=True)
-    parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
+    parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
     args = parser.parse_args()
 
     process_manager = ProcessManager(args.dry_run)

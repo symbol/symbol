@@ -140,7 +140,7 @@ def main():
     parser.add_argument('--operating-system', help='operating system', required=True)
     parser.add_argument('--user', help='docker user', required=True)
     parser.add_argument('--destination-image-label', help='docker destination image label', required=True)
-    parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
+    parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
     parser.add_argument('--base-image-names-only', help='only output the base image names', action='store_true')
     args = parser.parse_args()
 

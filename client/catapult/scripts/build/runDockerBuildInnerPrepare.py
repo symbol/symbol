@@ -11,7 +11,7 @@ USER_HOME = Path('/usr/catapult')
 def main():
     parser = argparse.ArgumentParser(description='catapult project build generator')
     parser.add_argument('--disposition', help='type of image to create', choices=('tests', 'private', 'public'), required=True)
-    parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
+    parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
     args = parser.parse_args()
 
     print('preparing {} image'.format(args.disposition))
