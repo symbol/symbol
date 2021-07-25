@@ -9,10 +9,12 @@ from symbolchain.core.CryptoTypes import PublicKey
 
 from ..test.NemTestUtils import NemTestUtils
 
+ENCODED_ADDRESS_1 = 'TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF'
+ENCODED_ADDRESS_2 = 'TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C'
 PUBLIC_KEY_1 = PublicKey('A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74')
 PUBLIC_KEY_2 = PublicKey('9A755901AA014A4EACAE615523D2B50C27F954CB936927331F1116C8D5B7B2AA')
 YAML_INPUT = '''
-- address: TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF
+- address: {address_1}
   name: alice
   roles: [green, main]
 
@@ -24,15 +26,20 @@ YAML_INPUT = '''
   name: BOB
   roles: [BLUE, main]
 
-- address: TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C
+- address: {address_2}
   name: charlie
-'''.format(public_key_1=PUBLIC_KEY_1, public_key_2=PUBLIC_KEY_2)
+'''.format(address_1=ENCODED_ADDRESS_1, address_2=ENCODED_ADDRESS_2, public_key_1=PUBLIC_KEY_1, public_key_2=PUBLIC_KEY_2)
 
 
 # NIS style address to avoid circular import
 class MockAddress(ByteArray):
+    SIZE = 25
+
     def __init__(self, address):
-        super().__init__(25, base64.b32decode(address), MockAddress)
+        super().__init__(self.SIZE, base64.b32decode(address), MockAddress)
+
+    def __str__(self):
+        return base64.b32encode(self.bytes).decode('utf8')
 
 
 class AccountDescriptorRepositoryTest(unittest.TestCase):
@@ -114,6 +121,39 @@ class AccountDescriptorRepositoryTest(unittest.TestCase):
         # Assert:
         self.assertEqual('TEST1', descriptor1.name)
         self.assertEqual('BOB', descriptor2.name)
+
+    def _assert_cannot_find_by_address_when_no_match(self, converter):
+        # Arrange:
+        repository = AccountDescriptorRepository(YAML_INPUT)
+
+        # Act + Assert:
+        with self.assertRaises(StopIteration):
+            encoded_address = base64.b32encode(NemTestUtils.randbytes(MockAddress.SIZE)).decode('utf8')
+            repository.find_by_address(converter(encoded_address))
+
+    def _assert_can_find_by_address_when_match(self, converter):
+        # Arrange:
+        repository = AccountDescriptorRepository(YAML_INPUT)
+
+        # Act:
+        descriptor1 = repository.find_by_address(converter(ENCODED_ADDRESS_1))
+        descriptor2 = repository.find_by_address(converter(ENCODED_ADDRESS_2))
+
+        # Assert:
+        self.assertEqual('alice', descriptor1.name)
+        self.assertEqual('charlie', descriptor2.name)
+
+    def test_cannot_find_by_address_when_no_match_string_input(self):
+        self._assert_cannot_find_by_address_when_no_match(lambda encoded_address: encoded_address)
+
+    def test_can_find_by_address_when_match_string_input(self):
+        self._assert_can_find_by_address_when_match(lambda encoded_address: encoded_address)
+
+    def test_cannot_find_by_address_when_no_match_typed_input(self):
+        self._assert_cannot_find_by_address_when_no_match(MockAddress)
+
+    def test_can_find_by_address_when_match_typed_input(self):
+        self._assert_can_find_by_address_when_match(MockAddress)
 
     def _assert_can_find_all_by_role(self, role, expected_match_names):
         # Arrange:

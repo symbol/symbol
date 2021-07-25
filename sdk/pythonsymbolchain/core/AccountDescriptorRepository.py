@@ -33,6 +33,10 @@ class AccountDescriptorRepository:
         """Finds the account descriptor with a matching public key."""
         return next(descriptor for descriptor in self.descriptors if descriptor.public_key and public_key == descriptor.public_key)
 
+    def find_by_address(self, address):
+        """Finds the account descriptor with a matching address."""
+        return next(descriptor for descriptor in self.descriptors if descriptor.address and str(address) == descriptor.address)
+
     def find_all_by_role(self, role):
         """Finds all account descriptors with a matching role."""
         return [descriptor for descriptor in self.descriptors if not role or role in descriptor.roles]
