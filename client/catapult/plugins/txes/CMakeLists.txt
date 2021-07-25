@@ -45,6 +45,11 @@ function(catapult_tx_plugin_tests TARGET_NAME)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
 
+function(catapult_plugin_test_library TARGET_NAME)
+	catapult_library_target(${TARGET_NAME})
+	target_link_libraries(${TARGET_NAME} ${GTEST_LIBRARIES})
+endfunction()
+
 add_subdirectory(account_link)
 add_subdirectory(aggregate)
 add_subdirectory(lock_hash)

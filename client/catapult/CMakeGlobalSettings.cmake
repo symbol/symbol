@@ -209,15 +209,6 @@ endif()
 
 ### define gtest helper functions
 
-if(ENABLE_TESTS)
-	find_package(GTest 1.10.0 EXACT REQUIRED)
-endif()
-
-# find and set gtest includes
-function(catapult_add_gtest_dependencies)
-	include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
-endfunction()
-
 # add tests subdirectory
 function(catapult_add_tests_subdirectory DIRECTORY_NAME)
 	if(ENABLE_TESTS)
@@ -418,8 +409,6 @@ endfunction()
 
 # used to define a catapult test executable
 function(catapult_test_executable TARGET_NAME)
-	include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
-
 	catapult_executable(${TARGET_NAME} ${ARGN})
 	add_test(NAME ${TARGET_NAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TARGET_NAME})
 
@@ -431,9 +420,6 @@ endfunction()
 function(catapult_test_executable_target TARGET_NAME TEST_DEPENDENCY_NAME)
 	catapult_test_executable(${TARGET_NAME} ${ARGN})
 
-	# inline instead of calling catapult_add_gtest_dependencies in order to apply gtest dependencies to correct scope
-	include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
-
 	# customize and export compiler options for gtest
 	catapult_set_test_compiler_options()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
@@ -443,7 +429,7 @@ function(catapult_test_executable_target TARGET_NAME TEST_DEPENDENCY_NAME)
 	MATH(EXPR TEST_END_INDEX "${TEST_END_INDEX}+1")
 	string(SUBSTRING ${TARGET_NAME} ${TEST_END_INDEX} -1 LIBRARY_UNDER_TEST)
 
-	target_link_libraries(${TARGET_NAME} tests.catapult.test.${TEST_DEPENDENCY_NAME} ${LIBRARY_UNDER_TEST})
+	target_link_libraries(${TARGET_NAME} tests.catapult.test.${TEST_DEPENDENCY_NAME} ${LIBRARY_UNDER_TEST} ${GTEST_LIBRARIES})
 	catapult_target(${TARGET_NAME})
 endfunction()
 
