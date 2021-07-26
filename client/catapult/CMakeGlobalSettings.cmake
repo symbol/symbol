@@ -84,6 +84,11 @@ if(USE_SANITIZER)
 		if(ENABLE_FUZZ_BUILD)
 			set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fsanitize=address -fno-sanitize-recover=all")
 		endif()
+
+		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+			# disable vptr on M1
+			set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fno-sanitize=vptr")
+		endif()
 	endif()
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SANITIZATION_FLAGS}")

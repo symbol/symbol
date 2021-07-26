@@ -697,7 +697,12 @@ namespace catapult { namespace net {
 			// Assert: all additional connections timed out because the connect handshake couldn't be completed
 			EXPECT_EQ(0u, clientServicePhase2.numConnects());
 			EXPECT_EQ(Max_Test_Connections, clientServicePhase2.numConnectFailures());
+#if !defined(__APPLE__) || !defined(__aarch64__)
 			EXPECT_EQ(Max_Test_Connections, clientServicePhase2.numConnectTimeouts());
+#else
+			EXPECT_LE(Num_Default_Threads, clientServicePhase2.numConnectTimeouts());
+			EXPECT_GE(Max_Test_Connections, clientServicePhase2.numConnectTimeouts());
+#endif
 
 			// - there is (still) one connection per thread
 			EXPECT_EQ(Num_Default_Threads, server.asyncServer().numLifetimeConnections());

@@ -609,12 +609,13 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, ReadOrWaitForDataIsTriggered) {
 		// Arrange: send a buffer containing a packet
 		std::atomic<size_t> callbackMask(0);
+		std::atomic_bool areServerCallbacksRegistered(false);
 		std::vector<ByteBuffer> sendBuffers{ test::GenerateRandomPacketBuffer(100) };
 
 		// Act: "server" - in parallel try to async_read the data and wait for the data to become available
 		//      "client" - sends a single buffer
 		auto pPool = test::CreateStartedIoThreadPool();
-		test::SpawnPacketServerWork(pPool->ioContext(), [&callbackMask](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(pPool->ioContext(), [&callbackMask, &areServerCallbacksRegistered](const auto& pServerSocket) {
 			pServerSocket->waitForData([pServerSocket, &callbackMask]() {
 				callbackMask += (1 << 8);
 			});
@@ -622,8 +623,18 @@ namespace catapult { namespace ionet {
 			pServerSocket->read([pServerSocket, &callbackMask](auto, const auto*) {
 				callbackMask += (1 << 4);
 			});
+
+			areServerCallbacksRegistered = true;
 		});
-		auto pClientSocket = test::AddClientWriteBuffersTask(pPool->ioContext(), sendBuffers);
+
+		auto pClientSocket = test::CreateClientSocket(pPool->ioContext());
+		pClientSocket->connect().then([&areServerCallbacksRegistered, sendBuffers](auto&& socketFuture) {
+			// - wait for waitForData callback to be registered before sending data
+			//   this is a workaround for a race condition on Mac M1
+			WAIT_FOR(areServerCallbacksRegistered);
+			socketFuture.get()->write(sendBuffers);
+		});
+
 		pPool->join();
 
 		// Assert:
@@ -634,12 +645,14 @@ namespace catapult { namespace ionet {
 		// Arrange: send a single buffer containing a single packet
 		SendBuffersResult result;
 		std::atomic<size_t> numCallbackCalls(0);
+		std::atomic_bool areServerCallbacksRegistered(false);
 		std::vector<ByteBuffer> sendBuffers{ test::GenerateRandomPacketBuffer(100) };
 
 		// Act: "server" - waits for data to become available and reads the data
 		//      "client" - sends a single buffer
 		auto pPool = test::CreateStartedIoThreadPool();
-		test::SpawnPacketServerWork(pPool->ioContext(), [&result, &numCallbackCalls](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(pPool->ioContext(), [&result, &numCallbackCalls, &areServerCallbacksRegistered](
+				const auto& pServerSocket) {
 			pServerSocket->waitForData([pServerSocket, &result, &numCallbackCalls]() {
 				++numCallbackCalls;
 
@@ -647,8 +660,18 @@ namespace catapult { namespace ionet {
 					FillResult(result, pServerSocket, code, pPacket);
 				});
 			});
+
+			areServerCallbacksRegistered = true;
 		});
-		auto pClientSocket = test::AddClientWriteBuffersTask(pPool->ioContext(), sendBuffers);
+
+		auto pClientSocket = test::CreateClientSocket(pPool->ioContext());
+		pClientSocket->connect().then([&areServerCallbacksRegistered, sendBuffers](auto&& socketFuture) {
+			// - wait for waitForData callback to be registered before sending data
+			//   this is a workaround for a race condition on Mac M1
+			WAIT_FOR(areServerCallbacksRegistered);
+			socketFuture.get()->write(sendBuffers);
+		});
+
 		pPool->join();
 
 		// Assert:
