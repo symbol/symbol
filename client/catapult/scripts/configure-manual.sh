@@ -66,7 +66,7 @@ function download_boost {
 }
 
 function download_git_dependency {
-	git "clone git://github.com/${1}/${2}.git"
+	git clone "git://github.com/${1}/${2}.git"
 	cd "${2}"
 	git checkout "${3}"
 	cd ..
