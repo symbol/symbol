@@ -1,5 +1,5 @@
 #!/bin/bash
-# This program automates common/essential tasks for building catapult-server
+# This program automates common/essential tasks for building catapult-client
 
 function help {
 cat << EOF
@@ -14,7 +14,7 @@ Available commands:
                          debian packages: $debs
     download deps        Obtain 3rd party libs.
     install deps         Compile & install 3rd party libs.
-    <empty>              Compile catapult-server.
+    <empty>              Compile catapult-client.
 
 EOF
 	if [ "_$CAT_DEPS_DIR" == "_" ]; then

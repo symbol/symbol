@@ -15,15 +15,15 @@ All scripts used in this guide can be found in the ``scripts/build`` folder afte
 
 These instructions have been verified to work on Ubuntu 20.04 with 8 GB of RAM and 4 CPU cores. **The scripts used are not ready for Windows yet**.
 
-## Step 1: Clone (and rename) catapult-server
+## Step 1: Clone (and rename) catapult-client
 
 Clone the git repository but name it ``catapult-src``:
 
 ```sh
-git clone https://github.com/nemtech/catapult-server.git catapult-src
+git clone https://github.com/symbol/catapult-client.git catapult-src
 ```
 
-## Step 2: Compiling the server
+## Step 2: Compiling the client
 
 The script ``scripts/build/runDockerBuild.py`` prepares the directory structure and fires compilation within the appropriate docker image.
 
@@ -114,7 +114,7 @@ They are created running ``baseImageDockerfileGenerator.py`` multiple times, wit
 
 ### Ready-made base images
 
-Compiler images' ``Dockerfiles`` are available in the [scripts/build/compilers directory](https://github.com/nemtech/catapult-server/tree/main/scripts/build/compilers).
+Compiler images' ``Dockerfiles`` are available in the [scripts/build/compilers directory](https://github.com/symbol/catapult-client/tree/main/scripts/build/compilers).
 
 These images are built automatically via Docker Hub and are available in the [Docker Hub symbol-server-compiler repository](https://hub.docker.com/repository/docker/symbolplatform/symbol-server-compiler).
 

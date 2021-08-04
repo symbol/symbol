@@ -53,8 +53,8 @@ as this will probably take *a bit*.
 ```sh
 conan remote add nemtech https://catapult.jfrog.io/artifactory/api/conan/ngl-conan
 
-git clone https://github.com/nemtech/catapult-server.git
-cd catapult-server
+git clone https://github.com/symbol/catapult-client.git
+cd catapult-client
 
 mkdir _build && cd _build
 conan install .. --build missing

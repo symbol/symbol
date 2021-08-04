@@ -1,20 +1,20 @@
 # Running a Private Network on Ubuntu 18.04 (LTS)
 
-The instructions below describe the minimum amount of changes to run a network from the catapult-server build.
+The instructions below describe the minimum amount of changes to run a network from the catapult-client build.
 
 NOTE: Replace ``private-test`` occurrences with the network type selected.
 The possible network values are: ``private``, ``private-test``, ``public`` and ``public-test``.
 
 ## Prerequisites
 
-* Have built catapult-server following either [Conan](BUILD-conan.md) or [manual](BUILD-manual.md) instructions.
+* Have built catapult-client following either [Conan](BUILD-conan.md) or [manual](BUILD-manual.md) instructions.
 
 ## Copy the configuration template
 
-After building catapult-server, copy the configuration templates from the root folder of the repository under the ``_build`` directory.
+After building catapult-client, copy the configuration templates from the root folder of the repository under the ``_build`` directory.
 
 ```sh
-cd catapult-server/_build
+cd catapult-client/_build
 cp ../resources/* resources/
 cp ../tools/nemgen/resources/private-test.properties resources/
 ```
@@ -35,7 +35,7 @@ The script generates ten accounts for the nemesis block, but the number of accou
 
 ## Create the seed and transactions directory
 
-1. Create a directory to save the generated nemesis block under ``catapult-server/_build``.
+1. Create a directory to save the generated nemesis block under ``catapult-client/_build``.
 
     ```sh
     mkdir -p seed/00000
@@ -49,7 +49,7 @@ The script generates ten accounts for the nemesis block, but the number of accou
 
 ## Edit the nemesis block
 
-catapult-server calls the first block in the chain the nemesis block.
+catapult-client calls the first block in the chain the nemesis block.
 The first block is defined before launching a new network and sets the initial distribution of mosaics.
 
 The file ``resources/private-test.properties`` defines the transactions issued in the nemesis block.
@@ -119,7 +119,7 @@ Replace at least one address in each list with an address from ``nemesis.address
 ## Edit the network properties
 
 The file ``resources/config-network.properties`` defines the network configuration.
-Learn more about each network property in [this guide](https://nemtech.github.io/guides/network/configuring-network-properties.html#properties).
+Learn more about each network property in [this guide](https://symbol.github.io/guides/network/configuring-network-properties.html#properties).
 
 Edit the properties file to match the nemesis block with the desired network configuration. Important properties to check are:
 
@@ -137,7 +137,7 @@ Edit the properties file to match the nemesis block with the desired network con
 
 ## Append the VRF Keys to the nemesis block
 
-The process of creating new blocks is called [harvesting](https://nemtech.github.io/concepts/harvesting.html).
+The process of creating new blocks is called [harvesting](https://symbol.github.io/concepts/harvesting.html).
 Each node of the network can host zero or more harvester accounts to create new blocks and get rewarded.
 
 In order to be an eligible harvester, the account must:

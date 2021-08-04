@@ -11,13 +11,13 @@ For Windows, [Build with CONAN](BUILD-conan.md) is strongly encouraged.
 
 These instructions have been verified to work on Ubuntu 20.04 with 8 GB of RAM and 4 CPU cores.
 
-## Step 1: Clone catapult-server
+## Step 1: Clone catapult-client
 
 As usual, clone the git repository:
 
 ```sh
-git clone https://github.com/nemtech/catapult-server.git
-cd catapult-server
+git clone https://github.com/symbol/catapult-client.git
+cd catapult-client
 ```
 
 ## Step 2: Install build prerequisites
