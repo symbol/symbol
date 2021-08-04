@@ -7,24 +7,14 @@
 #
 
 import argparse
-from binascii import unhexlify
 from pathlib import Path
 
 import sha3
 
-from symbolchain.core.CryptoTypes import Hash256, PrivateKey
+from examples.examples_utils import read_contents, read_private_key
+from symbolchain.core.CryptoTypes import Hash256
 from symbolchain.core.facade.SymbolFacade import SymbolFacade
-from symbolchain.core.symbol.KeyPair import KeyPair
 from symbolchain.core.symbol.MerkleHashBuilder import MerkleHashBuilder
-
-
-def read_private_key(private_filename):
-    return KeyPair(PrivateKey(unhexlify(read_contents(private_filename).strip())))
-
-
-def read_contents(filepath):
-    with open(filepath, 'rt', encoding='utf8') as infile:
-        return infile.read()
 
 
 def add_embedded_transfers(facade, public_key):
@@ -67,7 +57,7 @@ def main():
     merkle_hash = hash_builder.final()
 
     aggregate = facade.transaction_factory.create({
-        'type': 'aggregateComplete',
+        'type': 'aggregate_complete',
         'signer_public_key': key_pair.public_key,
         'fee': 0,
         'deadline': 1,

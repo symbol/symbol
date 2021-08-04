@@ -1,21 +1,18 @@
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
-
-
 def descriptor_factory():
-    sample_address = SymbolFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
+    sample_address = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y'
     sample_namespace_id = 0xC01DFEE7FEEDDEAD
     sample_mosaic_id = 0x7EDCBA90FEDCBA90
 
     return [
         {
-            'type': 'addressAlias',
+            'type': 'address_alias',
             'namespace_id': sample_namespace_id,
             'address': sample_address,
             'alias_action': 'link'
         },
 
         {
-            'type': 'mosaicAlias',
+            'type': 'mosaic_alias',
             'namespace_id': sample_namespace_id,
             'mosaic_id': sample_mosaic_id,
             'alias_action': 'link'

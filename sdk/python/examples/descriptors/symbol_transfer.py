@@ -1,8 +1,5 @@
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
-
-
 def descriptor_factory():
-    sample_address = SymbolFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y').bytes
+    sample_address = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y'
     sample_mosaic_id = 0x7EDCBA90FEDCBA90
 
     return [
@@ -11,7 +8,7 @@ def descriptor_factory():
             'type': 'transfer',
             'recipient_address': sample_address,
             'mosaics': [
-                (sample_mosaic_id, 12345_000000)
+                {'mosaic_id': sample_mosaic_id, 'amount': 12345_000000}
             ]
         },
 
@@ -27,7 +24,7 @@ def descriptor_factory():
             'type': 'transfer',
             'recipient_address': sample_address,
             'mosaics': [
-                (sample_mosaic_id, 12345_000000)
+                {'mosaic_id': sample_mosaic_id, 'amount': 12345_000000}
             ],
             'message': 'You miss 100%% of the shots you don’t take'
         }

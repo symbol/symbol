@@ -59,7 +59,7 @@ class SymbolFacadeTest(unittest.TestCase):
         # Assert:
         self.assertEqual('testnet', facade.network.name)
 
-        self.assertEqual(0x4154, transaction.type)
+        self.assertEqual(0x4154, transaction.type_.value)
         self.assertEqual(1, transaction.version)
 
     def test_cannot_create_around_unknown_network(self):
@@ -79,13 +79,15 @@ class SymbolFacadeTest(unittest.TestCase):
             'fee': 1000000,
             'deadline': 41998024783,
             'recipient_address': 'TD4PJKW5JP3CNHA47VDFIM25RCWTWRGT45HMPSA',
-            'mosaics': [(0x2CF403E85507F39E, 1000000)]
+            'mosaics': [
+                {'mosaic_id': 0x2CF403E85507F39E, 'amount': 1000000}
+            ]
         })
 
     @staticmethod
     def _create_real_aggregate(facade):
         aggregate = facade.transaction_factory.create({
-            'type': 'aggregateComplete',
+            'type': 'aggregate_complete',
             'signer_public_key': 'TEST',
             'fee': 2000000,
             'deadline': 42238390163,
@@ -95,7 +97,9 @@ class SymbolFacadeTest(unittest.TestCase):
             'type': 'transfer',
             'signer_public_key': 'TEST',
             'recipient_address': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
-            'mosaics': [(0x2CF403E85507F39E, 1000000)]
+            'mosaics': [
+                {'mosaic_id': 0x2CF403E85507F39E, 'amount': 1000000}
+            ]
         })
         aggregate.transactions.append(transfer)
         return aggregate
@@ -106,7 +110,8 @@ class SymbolFacadeTest(unittest.TestCase):
         facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_transfer(facade)
-        transaction.signature = facade.sign_transaction(facade.KeyPair(private_key), transaction).bytes
+        signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
+        facade.transaction_factory.attach_signature(transaction, signature)
 
         # Act:
         hash_value = facade.hash_transaction(transaction)
@@ -120,7 +125,8 @@ class SymbolFacadeTest(unittest.TestCase):
         facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_aggregate(facade)
-        transaction.signature = facade.sign_transaction(facade.KeyPair(private_key), transaction).bytes
+        signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
+        facade.transaction_factory.attach_signature(transaction, signature)
 
         # Act:
         hash_value = facade.hash_transaction(transaction)
@@ -136,7 +142,7 @@ class SymbolFacadeTest(unittest.TestCase):
         transaction = self._create_real_transfer(facade)
 
         # Sanity:
-        self.assertEqual(Signature.zero().bytes, transaction.signature)
+        self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
         # Act:
         signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
@@ -156,7 +162,7 @@ class SymbolFacadeTest(unittest.TestCase):
         transaction = self._create_real_aggregate(facade)
 
         # Sanity:
-        self.assertEqual(Signature.zero().bytes, transaction.signature)
+        self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
         # Act:
         signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
@@ -176,7 +182,7 @@ class SymbolFacadeTest(unittest.TestCase):
         transaction = transaction_factory(facade)
 
         # Sanity:
-        self.assertEqual(Signature.zero().bytes, transaction.signature)
+        self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
         # Act:
         signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)

@@ -8,6 +8,7 @@ env:
     RELEASE_BRANCH=main
     DEV_BRANCH=dev
     TEST_VECTORS_ROOT=$HOME/nemtech/test-vectors
+    CATBUFFER_SCHEMAS=$HOME/catbuffer-schemas
 
 cache: pip
 
@@ -30,6 +31,11 @@ jobs:
       name: unit tests
       script:
         - python3 -m unittest discover -v
+
+    - name: catbuffer test vectors
+      script:
+        - git clone --depth=1 --branch=test-vectors https://github.com/symbol/catbuffer-schemas.git $CATBUFFER_SCHEMAS
+        - PYTHONPATH=. pytest generator
 
     - name: test vectors
       if: branch = env(DEV_BRANCH) OR branch = env(RELEASE_BRANCH)

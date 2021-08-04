@@ -13,7 +13,6 @@ class TransactionDescriptorProcessor:
             raise ValueError(f'transaction descriptor does not have attribute {key}')
 
         value = self.transaction_descriptor[key]
-
         type_hint = self.type_hints.get(key)
         if type_hint in self.type_parsing_rules:
             value = self.type_parsing_rules[type_hint](value)

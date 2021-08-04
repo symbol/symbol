@@ -8,6 +8,7 @@ from binascii import unhexlify
 
 import sha3
 
+import symbolchain.sc
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey
 from symbolchain.core.facade.SymbolFacade import SymbolFacade
 from symbolchain.core.symbol.KeyPair import KeyPair
@@ -38,7 +39,7 @@ class MultisigAccountModificationSample:
     def create_aggregate_transaction(self):
         embedded_transactions = [
             self.facade.transaction_factory.create_embedded({
-                'type': 'multisigAccountModification',
+                'type': 'multisig_account_modification',
                 'signer_public_key': self.multisig_key_pair.public_key,
                 'min_approval_delta': 1,
                 'min_removal_delta': 1,
@@ -47,7 +48,7 @@ class MultisigAccountModificationSample:
         ]
 
         return self.facade.transaction_factory.create({
-            'type': 'aggregateComplete',
+            'type': 'aggregate_complete',
             'signer_public_key': self.multisig_key_pair.public_key,
             'fee': 625,
             'deadline': 12345,
@@ -68,7 +69,11 @@ class MultisigAccountModificationSample:
     def add_cosignatures(self, aggregate_transaction):
         transaction_hash = self.facade.hash_transaction(aggregate_transaction).bytes
         for key_pair in self.cosignatory_key_pairs:
-            cosignature = (0, key_pair.public_key.bytes, key_pair.sign(transaction_hash).bytes)
+            # version = 0
+            cosignature = symbolchain.sc.Cosignature()
+            cosignature.version = 0
+            cosignature.signer_public_key = key_pair.public_key
+            cosignature.signature = key_pair.sign(transaction_hash)
             aggregate_transaction.cosignatures.append(cosignature)
 
 

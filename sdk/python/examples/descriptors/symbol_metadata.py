@@ -1,8 +1,5 @@
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
-
-
 def descriptor_factory():
-    sample_address = SymbolFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
+    sample_address = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y'
     sample_namespace_id = 0xC01DFEE7FEEDDEAD
     sample_mosaic_id = 0x7EDCBA90FEDCBA90
     value1 = 'much coffe, such wow'
@@ -11,7 +8,7 @@ def descriptor_factory():
 
     return [
         {
-            'type': 'accountMetadata',
+            'type': 'account_metadata',
             'target_address': sample_address,
             'scoped_metadata_key': 0xC0FFE,
             'value_size_delta': len(value1),
@@ -19,7 +16,7 @@ def descriptor_factory():
         },
 
         {
-            'type': 'mosaicMetadata',
+            'type': 'mosaic_metadata',
             'target_mosaic_id': sample_mosaic_id,
             'target_address': sample_address,
             'scoped_metadata_key': 0xFACADE,
@@ -28,7 +25,7 @@ def descriptor_factory():
         },
 
         {
-            'type': 'namespaceMetadata',
+            'type': 'namespace_metadata',
             'target_namespace_id': sample_namespace_id,
             'target_address': sample_address,
             'scoped_metadata_key': 0xC1CADA,

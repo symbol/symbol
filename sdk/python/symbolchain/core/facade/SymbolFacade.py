@@ -1,7 +1,6 @@
 import sha3
 
-from symbol_catbuffer.EntityTypeDto import EntityTypeDto
-
+from ...sc import TransactionType
 from ..CryptoTypes import Hash256, PublicKey, Signature
 from ..Network import NetworkLocator
 from ..symbol.KeyPair import KeyPair, Verifier
@@ -46,27 +45,21 @@ class SymbolFacade:
             type_to_property_mapping = self._create_symbol_type_to_property_mapping()
             type_parsing_rules = self.account_descriptor_repository.to_type_parsing_rules_map(type_to_property_mapping)
 
-            for key in type_parsing_rules.keys():
-                type_parsing_rules[key] = self._unwrap_mapped_type(type_parsing_rules[key])
-
         return TransactionFactory(self.network, type_parsing_rules)
 
     @staticmethod
     def _create_symbol_type_to_property_mapping():
         return {
             Address: 'address',
-            PublicKey: 'public_key'
+            PublicKey: 'public_key',
+            Hash256: 'hash'
         }
-
-    @staticmethod
-    def _unwrap_mapped_type(transform):
-        return lambda value: transform(value).bytes
 
     def hash_transaction(self, transaction):
         """Hashes a symbol transaction."""
         hasher = sha3.sha3_256()
-        hasher.update(transaction.signature)
-        hasher.update(transaction.signer_public_key)
+        hasher.update(transaction.signature.bytes)
+        hasher.update(transaction.signer_public_key.bytes)
         hasher.update(self.network.generation_hash_seed.bytes)
         hasher.update(self._transaction_data_buffer(transaction.serialize()))
         return Hash256(hasher.digest())
@@ -81,7 +74,7 @@ class SymbolFacade:
         """Verifies a symbol transaction."""
         verify_buffer = self.network.generation_hash_seed.bytes
         verify_buffer += self._transaction_data_buffer(transaction.serialize())
-        return Verifier(PublicKey(transaction.signer_public_key)).verify(verify_buffer, signature)
+        return Verifier(PublicKey(transaction.signer_public_key.bytes)).verify(verify_buffer, signature)
 
     @staticmethod
     def bip32_node_to_key_pair(bip32_node):
@@ -101,5 +94,5 @@ class SymbolFacade:
     def _is_aggregate_transaction(transaction_buffer):
         transaction_type_offset = TRANSACTION_HEADER_SIZE + 2  # skip version and network byte
         transaction_type = (transaction_buffer[transaction_type_offset + 1] << 8) + transaction_buffer[transaction_type_offset]
-        aggregate_types = [EntityTypeDto.AGGREGATE_BONDED_TRANSACTION.value, EntityTypeDto.AGGREGATE_COMPLETE_TRANSACTION.value]
+        aggregate_types = [TransactionType.AGGREGATE_BONDED.value, TransactionType.AGGREGATE_COMPLETE.value]
         return transaction_type in aggregate_types
