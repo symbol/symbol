@@ -96,9 +96,11 @@ def main():
     if args.force:
         environment_manager.rmtree(args.target)
 
-    source_dir = Path(args.target) / SOURCE_DIR_NAME
-    environment_manager.mkdirs(source_dir, exist_ok=True)
-    environment_manager.chdir(source_dir)
+    target_directory = Path(args.target).absolute()
+
+    source_directory = Path(args.target) / SOURCE_DIR_NAME
+    environment_manager.mkdirs(source_directory, exist_ok=True)
+    environment_manager.chdir(source_directory)
 
     process_manager = ProcessManager(args.dry_run)
 
@@ -122,7 +124,7 @@ def main():
 
     if args.build:
         print('[x] building all dependencies')
-        builder = Builder(args.target, versions, process_manager, environment_manager)
+        builder = Builder(target_directory, versions, process_manager, environment_manager)
         if args.use_clang:
             builder.use_clang()
 
