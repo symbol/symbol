@@ -1,8 +1,8 @@
 # catapult-client
 
 [![docs](badges/docs--green.svg)](https://symbol.github.io)
-[![build rel](https://jenkins.symboldev.com/buildStatus/icon?subject=build%20rel&job=server-pipelines%2Fcatapult-server-release-build)](https://jenkins.symboldev.com/job/server-pipelines/job/catapult-server-release-build/)
-[![build dev](https://jenkins.symboldev.com/buildStatus/icon?subject=build%20dev&job=server-pipelines%2Fcatapult-server-build-catapult-project)](https://jenkins.symboldev.com/job/server-pipelines/job/catapult-server-build-catapult-project/)
+[![build rel](https://jenkins.symboldev.com/buildStatus/icon?subject=build%20rel&job=server-pipelines%2Fcatapult-client-release-build)](https://jenkins.symboldev.com/job/server-pipelines/job/catapult-client-release-build/)
+[![build dev](https://jenkins.symboldev.com/buildStatus/icon?subject=build%20dev&job=server-pipelines%2Fcatapult-client-build-catapult-project)](https://jenkins.symboldev.com/job/server-pipelines/job/catapult-client-build-catapult-project/)
 [![docker](badges/docker-symbolplatform-brightgreen.svg)](https://hub.docker.com/u/symbolplatform)
 
 Symbol-based networks rely on nodes to provide a trustless, high-performance, and secure blockchain platform.

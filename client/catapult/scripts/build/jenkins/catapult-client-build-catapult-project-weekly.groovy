@@ -59,7 +59,7 @@ pipeline {
 }
 
 def dispatch_build_job(compiler_configuration, build_configuration, operating_system) {
-    build job: 'server-pipelines/catapult-server-build-catapult-project', parameters: [
+    build job: 'server-pipelines/catapult-client-build-catapult-project', parameters: [
         string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
         string(name: 'BUILD_CONFIGURATION', value: "${build_configuration}"),
         string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),

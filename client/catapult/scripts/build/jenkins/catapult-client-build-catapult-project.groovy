@@ -240,5 +240,5 @@ def get_build_image_label() {
         friendly_branch_name = friendly_branch_name.substring(7)
 
     friendly_branch_name = friendly_branch_name.replaceAll('/', '-')
-    return "catapult-server-${friendly_branch_name}-${env.BUILD_NUMBER}"
+    return "catapult-client-${friendly_branch_name}-${env.BUILD_NUMBER}"
 }
