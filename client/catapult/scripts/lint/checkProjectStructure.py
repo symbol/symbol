@@ -105,14 +105,25 @@ def check_cpp_include(inc_a, inc_b):
     return None
 
 
-INCLUDE_PRIORITIES = {'"src': 100, '"mongo': 125, '"zeromq': 125, '"plugins': 150, '"catapult': 200, '"tests': 500}
+INCLUDE_PRIORITIES_1LVL = {'"src': 100, '"mongo': 125, '"zeromq': 125, '"plugins': 150,
+                           '"catapult': 200, '"symbol': 200, '"tests': 500, '"test': 500}
+
+INCLUDE_PRIORITIES_2LVL = {'extended': -100, 'txes': -50}
 
 
 def check_local_include(path_a, path_b):
     part_a = path_a[0]
     part_b = path_b[0]
-    val_a = INCLUDE_PRIORITIES[part_a] if part_a in INCLUDE_PRIORITIES else 1
-    val_b = INCLUDE_PRIORITIES[part_b] if part_b in INCLUDE_PRIORITIES else 1
+    val_a = INCLUDE_PRIORITIES_1LVL[part_a] if part_a in INCLUDE_PRIORITIES_1LVL else 1
+    val_b = INCLUDE_PRIORITIES_1LVL[part_b] if part_b in INCLUDE_PRIORITIES_1LVL else 1
+
+    if part_a == '"symbol' and len(path_a) > 1:
+        part_a = path_a[1]
+        val_a = val_a+INCLUDE_PRIORITIES_2LVL[part_a] if part_a in INCLUDE_PRIORITIES_2LVL else val_a
+
+    if part_b == '"symbol' and len(path_b) > 1:
+        part_b = path_b[1]
+        val_b = val_b+INCLUDE_PRIORITIES_2LVL[part_b] if part_b in INCLUDE_PRIORITIES_2LVL else val_b
 
     if 'tests' in path_a:
         val_a += 250
@@ -319,7 +330,7 @@ class Entry:
             self.check_cross_includes(error_reporter, sorted_includes, path_elements)
 
         if original_includes != sorted_includes:
-            print('I got includes mismatch')
+            print('I got includes mismatch in file', full_path)
             print('original', list(map(str, original_includes)))
             print('     new', list(map(str, sorted_includes)))
             error_reporter('includesOrder', IncludesError(full_path, sorted_includes))

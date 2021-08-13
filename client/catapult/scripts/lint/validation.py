@@ -433,7 +433,7 @@ class BasicFunctionAliasValidator(SimpleValidator):
         }
 
     def check(self, line_number, line):
-        if re.match(r'src.catapult.functions.h', self.path):
+        if re.match(r'src.catapult.functions.h', self.path) or re.match(r'src.symbol.functions.h', self.path):
             return
 
         for k, error_msg in self.errors.items():
