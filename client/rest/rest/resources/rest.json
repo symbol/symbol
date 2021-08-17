@@ -5,6 +5,9 @@
   },
 
   "port": 3000,
+  "protocol": "HTTPS",
+  "sslKeyPath": "",
+  "sslCertificatePath": "",
   "crossDomain": {
     "allowedHosts": ["*"],
     "allowedMethods": ["GET", "POST", "PUT", "OPTIONS"]

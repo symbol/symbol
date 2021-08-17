@@ -113,7 +113,7 @@ const createServer = config => {
 		ws: messageFormattingRules
 	});
 	return {
-		server: bootstrapper.createServer(config.crossDomain, formatters.create(modelSystem.formatters), config.throttling),
+		server: bootstrapper.createServer(config, formatters.create(modelSystem.formatters), config.throttling),
 		codec: modelSystem.codec
 	};
 };
