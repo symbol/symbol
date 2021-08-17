@@ -27,6 +27,7 @@ const restify = require('restify');
 const restifyErrors = require('restify-errors');
 const winston = require('winston');
 const WebSocket = require('ws');
+const fs = require('fs');
 
 const isPromise = object => object && object.catch;
 
@@ -88,36 +89,83 @@ const catapultRestifyPlugins = {
 	}
 };
 
+const readSSLFileSync = (path, fileType, pathProperty) => {
+	if (!path) {
+		throw new Error(
+			`No SSL ${fileType} found, '${pathProperty}' property in the configuration must be provided.`
+		);
+	}
+	try {
+		return fs.readFileSync(path);
+	} catch (err) {
+		if ('ENOENT' === err.code) {
+			throw new Error(
+				`SSL ${fileType} file cannot be found at the path: ${path}`
+			);
+		} else {
+			throw err;
+		}
+	}
+};
+
 module.exports = {
 	createCrossDomainHeaderAdder,
 
 	/**
 	 * Creates a REST api server.
-	 * @param {array} crossDomainConfig Configuration related to access control, contains allowed host and HTTP methods.
+	 * @param {object} config Application configuration (see rest.json).
 	 * @param {object} formatters Formatters to use for formatting responses.
 	 * @param {object} throttlingConfig Throttling configuration parameters, if not provided throttling won't be enabled.
 	 * @returns {object} Server.
 	 */
-	createServer: (crossDomainConfig, formatters, throttlingConfig) => {
-		// create the server using a custom formatter
-		const server = restify.createServer({
+	createServer: (config, formatters, throttlingConfig) => {
+		if (!config)
+			throw new Error('Config must be provided!');
+
+		if (!config.protocol) {
+			winston.warn(
+				'Protocol(HTTPS|HTTP) is not configured explicitly in the configuration, defaulting to HTTPS.'
+			);
+		}
+
+		const protocol = config.protocol || 'HTTPS';
+		winston.info(`Using protocol: ${protocol}`);
+
+		const serverOptions = {
 			name: '', // disable server header in response
 			formatters: {
 				'application/json': formatters.json
-			}
-		});
+			},
+			...('HTTPS' === protocol
+				? {
+					key: readSSLFileSync(config.sslKeyPath, 'Key', 'sslKeyPath'),
+					certificate: readSSLFileSync(
+						config.sslCertificatePath,
+						'Certificate',
+						'sslCertificatePath'
+					)
+				}
+				: {})
+		};
+
+		// create the server using a custom formatter
+		const server = restify.createServer(serverOptions);
 
 		// only allow application/json
 		server.pre(catapultRestifyPlugins.body());
 
-		const addCrossDomainHeaders = createCrossDomainHeaderAdder(crossDomainConfig || {});
+		// config.crossDomain: Configuration related to access control, contains allowed host and HTTP methods.
+		if (!config.crossDomain)
+			winston.warn('CORS was not enabled - configuration incomplete');
+
+		const addCrossDomainHeaders = createCrossDomainHeaderAdder(
+			config.crossDomain || {}
+		);
+
 		server.use(catapultRestifyPlugins.crossDomain(addCrossDomainHeaders));
 		server.use(restify.plugins.acceptParser('application/json'));
 		server.use(restify.plugins.queryParser({ mapParams: true, parseArrays: false }));
 		server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
-
-		if (!crossDomainConfig)
-			winston.warn('CORS was not enabled - configuration incomplete');
 
 		if (throttlingConfig) {
 			if (throttlingConfig.burst && throttlingConfig.rate) {
