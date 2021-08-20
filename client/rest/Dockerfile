@@ -9,6 +9,5 @@ WORKDIR /app
 COPY . /app/catapult-rest
 RUN cd catapult-rest \
  && ./yarn_setup.sh
-RUN cd catapult-rest/rest \
- && yarn build
+RUN cd catapult-rest/rest
 WORKDIR /app/catapult-rest/rest

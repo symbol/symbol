@@ -2,11 +2,8 @@
   "name": "catapult-sdk",
   "version": "0.0.0",
   "description": "Catapult SDK core",
-  "main": "_build/index.js",
+  "main": "src/index.js",
   "scripts": {
-    "clean": "rimraf _build && mkdir _build && rimraf _build_browser && mkdir _build_browser",
-    "build": "ncp src/ _build && cross-env BABEL_ENV=production babel src -d _build_browser --source-maps",
-    "rebuild": "npm run clean && npm run build",
     "test": "mocha --full-trace --recursive",
     "test:coverage": "nyc npm test && nyc report --reporter=text-lcov",
     "test:jenkins": "cross-env JUNIT_REPORT_PATH=test-results.xml mocha --reporter mocha-jenkins-reporter --forbid-only --full-trace --recursive test || exit 0",
@@ -19,10 +16,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-plugin-transform-inline-environment-variables": "^6.8.0",
-    "babel-preset-env": "^1.7.0",
     "chai": "^4.2.0",
     "coveralls": "^3.0.9",
     "cross-env": "^5.2.0",
