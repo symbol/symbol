@@ -9,14 +9,14 @@ from binascii import unhexlify
 import sha3
 
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey
-from symbolchain.core.facade.SymFacade import SymFacade
-from symbolchain.core.sym.KeyPair import KeyPair
-from symbolchain.core.sym.MerkleHashBuilder import MerkleHashBuilder
+from symbolchain.core.facade.SymbolFacade import SymbolFacade
+from symbolchain.core.symbol.KeyPair import KeyPair
+from symbolchain.core.symbol.MerkleHashBuilder import MerkleHashBuilder
 
 
 class MultisigAccountModificationSample:
     def __init__(self):
-        self.facade = SymFacade('public_test')
+        self.facade = SymbolFacade('public_test')
         self.multisig_key_pair = KeyPair(PrivateKey(unhexlify('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF')))
         self.cosignatory_key_pairs = [
             KeyPair(PrivateKey(unhexlify('AABBCCDDEEFF11002233445566778899AABBCCDDEEFF11002233445566778899'))),

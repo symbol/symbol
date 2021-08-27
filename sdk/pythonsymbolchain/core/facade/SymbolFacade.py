@@ -3,9 +3,9 @@ from symbol_catbuffer.EntityTypeDto import EntityTypeDto
 
 from ..CryptoTypes import Hash256, PublicKey, Signature
 from ..Network import NetworkLocator
-from ..sym.KeyPair import KeyPair, Verifier
-from ..sym.Network import Address, Network
-from ..sym.TransactionFactory import TransactionFactory
+from ..symbol.KeyPair import KeyPair, Verifier
+from ..symbol.Network import Address, Network
+from ..symbol.TransactionFactory import TransactionFactory
 
 TRANSACTION_HEADER_SIZE = sum(field[1] for field in [
     ('size', 4),
@@ -23,7 +23,7 @@ AGGREGATE_HASHED_SIZE = sum(field[1] for field in [
 ])
 
 
-class SymFacade:
+class SymbolFacade:
     """Facade used to interact with symbol blockchain."""
 
     BIP32_COIN_ID = 4343
@@ -33,16 +33,17 @@ class SymFacade:
     KeyPair = KeyPair
     Verifier = Verifier
 
-    def __init__(self, sym_network_name, account_descriptor_repository=None):
+    def __init__(self, symbol_network_name, account_descriptor_repository=None):
         """Creates a symbol facade."""
-        self.network = NetworkLocator.find_by_name(Network.NETWORKS, sym_network_name)
+        self.network = NetworkLocator.find_by_name(Network.NETWORKS, symbol_network_name)
         self.account_descriptor_repository = account_descriptor_repository
-        self.transaction_factory = self._create_sym_transaction_factory()
+        self.transaction_factory = self._create_symbol_transaction_factory()
 
-    def _create_sym_transaction_factory(self):
+    def _create_symbol_transaction_factory(self):
         type_parsing_rules = None
         if self.account_descriptor_repository:
-            type_parsing_rules = self.account_descriptor_repository.to_type_parsing_rules_map(self._create_sym_type_to_property_mapping())
+            type_to_property_mapping = self._create_symbol_type_to_property_mapping()
+            type_parsing_rules = self.account_descriptor_repository.to_type_parsing_rules_map(type_to_property_mapping)
 
             for key in type_parsing_rules.keys():
                 type_parsing_rules[key] = self._unwrap_mapped_type(type_parsing_rules[key])
@@ -50,7 +51,7 @@ class SymFacade:
         return TransactionFactory(self.network, type_parsing_rules)
 
     @staticmethod
-    def _create_sym_type_to_property_mapping():
+    def _create_symbol_type_to_property_mapping():
         return {
             Address: 'address',
             PublicKey: 'public_key'
@@ -90,7 +91,7 @@ class SymFacade:
     def _transaction_data_buffer(transaction_buffer):
         data_buffer_start = TRANSACTION_HEADER_SIZE
         data_buffer_end = len(transaction_buffer)
-        if SymFacade._is_aggregate_transaction(transaction_buffer):
+        if SymbolFacade._is_aggregate_transaction(transaction_buffer):
             data_buffer_end = TRANSACTION_HEADER_SIZE + AGGREGATE_HASHED_SIZE
 
         return transaction_buffer[data_buffer_start:data_buffer_end]

@@ -8,9 +8,9 @@ from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
 
 from symbolchain.core.ByteArray import ByteArray
 from symbolchain.core.CryptoTypes import PublicKey, Signature
-from symbolchain.core.sym.IdGenerator import generate_mosaic_id, generate_namespace_id
-from symbolchain.core.sym.Network import Address, Network
-from symbolchain.core.sym.TransactionFactory import TransactionFactory
+from symbolchain.core.symbol.IdGenerator import generate_mosaic_id, generate_namespace_id
+from symbolchain.core.symbol.Network import Address, Network
+from symbolchain.core.symbol.TransactionFactory import TransactionFactory
 
 from ...test.NemTestUtils import NemTestUtils
 

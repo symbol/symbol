@@ -4,7 +4,7 @@ from binascii import unhexlify
 from symbolchain.core.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.core.Bip32 import Bip32
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
-from symbolchain.core.facade.SymFacade import SymFacade
+from symbolchain.core.facade.SymbolFacade import SymbolFacade
 
 from ...test.NemTestUtils import NemTestUtils
 
@@ -14,19 +14,19 @@ YAML_INPUT = '''
 '''
 
 
-class SymFacadeTest(unittest.TestCase):
+class SymbolFacadeTest(unittest.TestCase):
     # region constants
 
     def test_bip32_constants_are_correct(self):
-        self.assertEqual(4343, SymFacade.BIP32_COIN_ID)
-        self.assertEqual('ed25519', SymFacade.BIP32_CURVE_NAME)
+        self.assertEqual(4343, SymbolFacade.BIP32_COIN_ID)
+        self.assertEqual('ed25519', SymbolFacade.BIP32_CURVE_NAME)
 
     def test_key_pair_is_correct(self):
         # Arrange:
         private_key = PrivateKey('E88283CE35FE74C89FFCB2D8BFA0A2CF6108BDC0D07606DEE34D161C30AC2F1E')
 
         # Act:
-        key_pair = SymFacade.KeyPair(private_key)
+        key_pair = SymbolFacade.KeyPair(private_key)
 
         # Assert:
         self.assertEqual(PublicKey('E29C5934F44482E7A9F50725C8681DE6CA63F49E5562DB7E5BC9EABA31356BAD'), key_pair.public_key)
@@ -34,12 +34,12 @@ class SymFacadeTest(unittest.TestCase):
     def test_can_sign_and_verify(self):
         # Arrange:
         private_key = PrivateKey.random()
-        key_pair = SymFacade.KeyPair(private_key)
+        key_pair = SymbolFacade.KeyPair(private_key)
         message = NemTestUtils.randbytes(21)
 
         # Act:
         signature = key_pair.sign(message)
-        is_verified = SymFacade.Verifier(key_pair.public_key).verify(message, signature)
+        is_verified = SymbolFacade.Verifier(key_pair.public_key).verify(message, signature)
 
         # Assert:
         self.assertTrue(is_verified)
@@ -50,7 +50,7 @@ class SymFacadeTest(unittest.TestCase):
 
     def test_can_create_around_known_network(self):
         # Act:
-        facade = SymFacade('public_test')
+        facade = SymbolFacade('public_test')
         transaction = facade.transaction_factory.create({
             'type': 'transfer',
             'signer_public_key': NemTestUtils.randcryptotype(PublicKey)
@@ -65,7 +65,7 @@ class SymFacadeTest(unittest.TestCase):
     def test_cannot_create_around_unknown_network(self):
         # Act:
         with self.assertRaises(StopIteration):
-            SymFacade('foo')
+            SymbolFacade('foo')
 
     # endregion
 
@@ -103,7 +103,7 @@ class SymFacadeTest(unittest.TestCase):
     def test_can_hash_transaction(self):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_transfer(facade)
         transaction.signature = facade.sign_transaction(facade.KeyPair(private_key), transaction).bytes
@@ -117,7 +117,7 @@ class SymFacadeTest(unittest.TestCase):
     def test_can_hash_aggregate_transaction(self):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_aggregate(facade)
         transaction.signature = facade.sign_transaction(facade.KeyPair(private_key), transaction).bytes
@@ -131,7 +131,7 @@ class SymFacadeTest(unittest.TestCase):
     def test_can_sign_transaction(self):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_transfer(facade)
 
@@ -151,7 +151,7 @@ class SymFacadeTest(unittest.TestCase):
     def test_can_sign_aggregate_transaction(self):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_aggregate(facade)
 
@@ -171,7 +171,7 @@ class SymFacadeTest(unittest.TestCase):
     def _assert_can_verify_transaction(self, transaction_factory):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = transaction_factory(facade)
 
@@ -203,12 +203,12 @@ class SymFacadeTest(unittest.TestCase):
         ])
 
         # Act:
-        root_node = Bip32(SymFacade.BIP32_CURVE_NAME).from_mnemonic(mnemonic_seed, passphrase)
+        root_node = Bip32(SymbolFacade.BIP32_CURVE_NAME).from_mnemonic(mnemonic_seed, passphrase)
 
         child_public_keys = []
         for i in range(0, len(expected_child_public_keys)):
-            child_node = root_node.derive_path([44, SymFacade.BIP32_COIN_ID, i, 0, 0])
-            child_key_pair = SymFacade.bip32_node_to_key_pair(child_node)
+            child_node = root_node.derive_path([44, SymbolFacade.BIP32_COIN_ID, i, 0, 0])
+            child_key_pair = SymbolFacade.bip32_node_to_key_pair(child_node)
             child_public_keys.append(child_key_pair.public_key)
 
         # Assert:

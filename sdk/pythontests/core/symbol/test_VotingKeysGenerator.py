@@ -7,8 +7,8 @@ import yaml
 
 from symbolchain.core.BufferReader import BufferReader
 from symbolchain.core.CryptoTypes import PrivateKey, PublicKey, Signature
-from symbolchain.core.sym.KeyPair import KeyPair, Verifier
-from symbolchain.core.sym.VotingKeysGenerator import VotingKeysGenerator
+from symbolchain.core.symbol.KeyPair import KeyPair, Verifier
+from symbolchain.core.symbol.VotingKeysGenerator import VotingKeysGenerator
 
 
 class VotingKeysGeneratorTest(unittest.TestCase):

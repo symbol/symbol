@@ -2,7 +2,7 @@ import unittest
 from binascii import unhexlify
 
 from symbolchain.core.CryptoTypes import Hash256, PublicKey
-from symbolchain.core.sym.Network import Address, Network
+from symbolchain.core.symbol.Network import Address, Network
 
 from ...test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
 from ...test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
