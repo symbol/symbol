@@ -55,7 +55,7 @@ def main():
     parser.add_argument('--private', help='path to file with private key', required=True)
     args = parser.parse_args()
 
-    facade = SymbolFacade('public_test')
+    facade = SymbolFacade('testnet')
     key_pair = read_private_key(args.private)
 
     embedded_transactions = add_embedded_transfers(facade, key_pair.public_key)

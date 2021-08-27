@@ -7,8 +7,8 @@ from symbolchain.core.symbol.Network import Address, Network
 from ...test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
 from ...test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
 
-PUBLIC_GENERATION_HASH_SEED = Hash256('57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6')
-PUBLIC_TEST_GENERATION_HASH_SEED = Hash256('3B5E1FA6445653C971A50687E75E6D09FB30481055E3990C84B25E9222DC1155')
+MAINNET_GENERATION_HASH_SEED = Hash256('57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6')
+TESTNET_GENERATION_HASH_SEED = Hash256('3B5E1FA6445653C971A50687E75E6D09FB30481055E3990C84B25E9222DC1155')
 
 
 class AddressTest(BasicAddressTest, unittest.TestCase):
@@ -24,21 +24,15 @@ class NetworkTest(BasicNetworkTest, unittest.TestCase):
         return NetworkTestDescriptor(
             Network,
             PublicKey('C5FB65CB902623D93DF2E682FFB13F99D50FAC24D5FF2A42F68C7CA1772FE8A0'),
-            [Address('NBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNKZIBEY'), Network.PUBLIC],
-            [Address('TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA'), Network.PUBLIC_TEST])
+            [Address('NBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNKZIBEY'), Network.MAINNET],
+            [Address('TBLYH55IHPS5QCCMNWR3GZWKV6WMCKPTNI7KSDA'), Network.TESTNET])
 
     def test_correct_predefined_networks_are_registered(self):
-        self.assertEqual(4, len(Network.NETWORKS))
-        self.assertEqual(['public', 'private', 'public_test', 'private_test'], [network.name for network in Network.NETWORKS])
+        self.assertEqual(2, len(Network.NETWORKS))
+        self.assertEqual(['mainnet', 'testnet'], [network.name for network in Network.NETWORKS])
 
-        self._assert_network(Network.PUBLIC, 'public', 0x68)
-        self.assertEqual(PUBLIC_GENERATION_HASH_SEED, Network.PUBLIC.generation_hash_seed)
+        self._assert_network(Network.MAINNET, 'mainnet', 0x68)
+        self.assertEqual(MAINNET_GENERATION_HASH_SEED, Network.MAINNET.generation_hash_seed)
 
-        self._assert_network(Network.PRIVATE, 'private', 0x78)
-        self.assertEqual(None, Network.PRIVATE.generation_hash_seed)
-
-        self._assert_network(Network.PUBLIC_TEST, 'public_test', 0x98)
-        self.assertEqual(PUBLIC_TEST_GENERATION_HASH_SEED, Network.PUBLIC_TEST.generation_hash_seed)
-
-        self._assert_network(Network.PRIVATE_TEST, 'private_test', 0xA8)
-        self.assertEqual(None, Network.PRIVATE_TEST.generation_hash_seed)
+        self._assert_network(Network.TESTNET, 'testnet', 0x98)
+        self.assertEqual(TESTNET_GENERATION_HASH_SEED, Network.TESTNET.generation_hash_seed)

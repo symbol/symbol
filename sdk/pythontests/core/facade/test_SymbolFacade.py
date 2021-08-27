@@ -50,14 +50,14 @@ class SymbolFacadeTest(unittest.TestCase):
 
     def test_can_create_around_known_network(self):
         # Act:
-        facade = SymbolFacade('public_test')
+        facade = SymbolFacade('testnet')
         transaction = facade.transaction_factory.create({
             'type': 'transfer',
             'signer_public_key': NemTestUtils.randcryptotype(PublicKey)
         })
 
         # Assert:
-        self.assertEqual('public_test', facade.network.name)
+        self.assertEqual('testnet', facade.network.name)
 
         self.assertEqual(0x4154, transaction.type)
         self.assertEqual(1, transaction.version)
@@ -103,7 +103,7 @@ class SymbolFacadeTest(unittest.TestCase):
     def test_can_hash_transaction(self):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_transfer(facade)
         transaction.signature = facade.sign_transaction(facade.KeyPair(private_key), transaction).bytes
@@ -117,7 +117,7 @@ class SymbolFacadeTest(unittest.TestCase):
     def test_can_hash_aggregate_transaction(self):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_aggregate(facade)
         transaction.signature = facade.sign_transaction(facade.KeyPair(private_key), transaction).bytes
@@ -131,7 +131,7 @@ class SymbolFacadeTest(unittest.TestCase):
     def test_can_sign_transaction(self):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_transfer(facade)
 
@@ -151,7 +151,7 @@ class SymbolFacadeTest(unittest.TestCase):
     def test_can_sign_aggregate_transaction(self):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = self._create_real_aggregate(facade)
 
@@ -171,7 +171,7 @@ class SymbolFacadeTest(unittest.TestCase):
     def _assert_can_verify_transaction(self, transaction_factory):
         # Arrange:
         private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-        facade = SymbolFacade('public_test', AccountDescriptorRepository(YAML_INPUT))
+        facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 
         transaction = transaction_factory(facade)
 
