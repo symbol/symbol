@@ -11,7 +11,7 @@ struct VrfKeyLinkTransactionBody
 # binary layout for a non-embedded vrf key link transaction
 struct VrfKeyLinkTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4243
+	const TransactionType transaction_type = vrf_key_link
 
 	inline Transaction
 	inline VrfKeyLinkTransactionBody
@@ -19,7 +19,7 @@ struct VrfKeyLinkTransaction
 # binary layout for an embedded vrf key link transaction
 struct EmbeddedVrfKeyLinkTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4243
+	const TransactionType transaction_type = vrf_key_link
 
 	inline EmbeddedTransaction
 	inline VrfKeyLinkTransactionBody

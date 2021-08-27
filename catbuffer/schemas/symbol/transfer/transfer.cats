@@ -26,7 +26,7 @@ struct TransferTransactionBody
 # binary layout for a non-embedded transfer transaction
 struct TransferTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4154
+	const TransactionType transaction_type = transfer
 
 	inline Transaction
 	inline TransferTransactionBody
@@ -34,7 +34,7 @@ struct TransferTransaction
 # binary layout for an embedded transfer transaction
 struct EmbeddedTransferTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4154
+	const TransactionType transaction_type = transfer
 
 	inline EmbeddedTransaction
 	inline TransferTransactionBody

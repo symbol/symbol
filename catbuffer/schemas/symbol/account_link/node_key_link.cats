@@ -11,7 +11,7 @@ struct NodeKeyLinkTransactionBody
 # binary layout for a non-embedded node key link transaction
 struct NodeKeyLinkTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x424C
+	const TransactionType transaction_type = node_key_link
 
 	inline Transaction
 	inline NodeKeyLinkTransactionBody
@@ -19,7 +19,7 @@ struct NodeKeyLinkTransaction
 # binary layout for an embedded node key link transaction
 struct EmbeddedNodeKeyLinkTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x424C
+	const TransactionType transaction_type = node_key_link
 
 	inline EmbeddedTransaction
 	inline NodeKeyLinkTransactionBody

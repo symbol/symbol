@@ -1,4 +1,5 @@
 import "entity.cats"
+import "transaction_type.cats"
 
 # binary layout for address based account restriction
 struct AccountRestrictionAddressValue

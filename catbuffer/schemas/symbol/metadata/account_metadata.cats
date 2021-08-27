@@ -22,7 +22,7 @@ struct AccountMetadataTransactionBody
 # binary layout for a non-embedded account metadata transaction
 struct AccountMetadataTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4144
+	const TransactionType transaction_type = account_metadata
 
 	inline Transaction
 	inline AccountMetadataTransactionBody
@@ -30,7 +30,7 @@ struct AccountMetadataTransaction
 # binary layout for an embedded account metadata transaction
 struct EmbeddedAccountMetadataTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4144
+	const TransactionType transaction_type = account_metadata
 
 	inline EmbeddedTransaction
 	inline AccountMetadataTransactionBody

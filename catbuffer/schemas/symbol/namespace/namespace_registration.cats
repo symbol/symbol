@@ -24,7 +24,7 @@ struct NamespaceRegistrationTransactionBody
 # binary layout for a non-embedded namespace registration transaction
 struct NamespaceRegistrationTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x414E
+	const TransactionType transaction_type = namespace_registration
 
 	inline Transaction
 	inline NamespaceRegistrationTransactionBody
@@ -32,7 +32,7 @@ struct NamespaceRegistrationTransaction
 # binary layout for an embedded namespace registration transaction
 struct EmbeddedNamespaceRegistrationTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x414E
+	const TransactionType transaction_type = namespace_registration
 
 	inline EmbeddedTransaction
 	inline NamespaceRegistrationTransactionBody

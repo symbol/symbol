@@ -21,7 +21,7 @@ struct SecretLockTransactionBody
 # binary layout for a non-embedded secret lock transaction
 struct SecretLockTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4152
+	const TransactionType transaction_type = secret_lock
 
 	inline Transaction
 	inline SecretLockTransactionBody
@@ -29,7 +29,7 @@ struct SecretLockTransaction
 # binary layout for an embedded secret lock transaction
 struct EmbeddedSecretLockTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4152
+	const TransactionType transaction_type = secret_lock
 
 	inline EmbeddedTransaction
 	inline SecretLockTransactionBody

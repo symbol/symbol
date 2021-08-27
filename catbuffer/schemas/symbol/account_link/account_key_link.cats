@@ -11,7 +11,7 @@ struct AccountKeyLinkTransactionBody
 # binary layout for a non-embedded account key link transaction
 struct AccountKeyLinkTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x414C
+	const TransactionType transaction_type = account_key_link
 
 	inline Transaction
 	inline AccountKeyLinkTransactionBody
@@ -19,7 +19,7 @@ struct AccountKeyLinkTransaction
 # binary layout for an embedded account key link transaction
 struct EmbeddedAccountKeyLinkTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x414C
+	const TransactionType transaction_type = account_key_link
 
 	inline EmbeddedTransaction
 	inline AccountKeyLinkTransactionBody

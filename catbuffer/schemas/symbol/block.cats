@@ -82,7 +82,7 @@ struct ImportanceBlockFooter
 # binary layout for a nemesis block header
 struct NemesisBlockHeader
 	const uint8 block_version = 1
-	const BlockType block_type = 0x8043
+	const BlockType block_type = nemesis
 
 	inline BlockHeader
 	inline ImportanceBlockFooter
@@ -90,7 +90,7 @@ struct NemesisBlockHeader
 # binary layout for a normal block header
 struct NormalBlockHeader
 	const uint8 block_version = 1
-	const BlockType block_type = 0x8143
+	const BlockType block_type = normal
 
 	inline BlockHeader
 
@@ -100,7 +100,7 @@ struct NormalBlockHeader
 # binary layout for an importance block header
 struct ImportanceBlockHeader
 	const uint8 block_version = 1
-	const BlockType block_type = 0x8243
+	const BlockType block_type = importance
 
 	inline BlockHeader
 	inline ImportanceBlockFooter

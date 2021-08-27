@@ -1,9 +1,5 @@
 import "entity.cats"
-
-# enumeration of transaction types
-enum TransactionType : uint16
-	# reserved transaction type
-	reserved = 0x0000
+import "transaction_type.cats"
 
 # binary layout for a transaction
 struct Transaction

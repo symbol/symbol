@@ -15,7 +15,7 @@ struct MosaicAliasTransactionBody
 # binary layout for a non-embedded mosaic alias transaction
 struct MosaicAliasTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x434E
+	const TransactionType transaction_type = mosaic_alias
 
 	inline Transaction
 	inline MosaicAliasTransactionBody
@@ -23,7 +23,7 @@ struct MosaicAliasTransaction
 # binary layout for an embedded mosaic alias transaction
 struct EmbeddedMosaicAliasTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x434E
+	const TransactionType transaction_type = mosaic_alias
 
 	inline EmbeddedTransaction
 	inline MosaicAliasTransactionBody

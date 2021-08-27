@@ -21,7 +21,7 @@ struct SecretProofTransactionBody
 # binary layout for a non-embedded secret proof transaction
 struct SecretProofTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4252
+	const TransactionType transaction_type = secret_proof
 
 	inline Transaction
 	inline SecretProofTransactionBody
@@ -29,7 +29,7 @@ struct SecretProofTransaction
 # binary layout for an embedded secret proof transaction
 struct EmbeddedSecretProofTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4252
+	const TransactionType transaction_type = secret_proof
 
 	inline EmbeddedTransaction
 	inline SecretProofTransactionBody

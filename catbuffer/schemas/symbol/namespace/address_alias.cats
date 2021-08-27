@@ -15,7 +15,7 @@ struct AddressAliasTransactionBody
 # binary layout for a non-embedded address alias transaction
 struct AddressAliasTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x424E
+	const TransactionType transaction_type = address_alias
 
 	inline Transaction
 	inline AddressAliasTransactionBody
@@ -23,7 +23,7 @@ struct AddressAliasTransaction
 # binary layout for an embedded address alias transaction
 struct EmbeddedAddressAliasTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x424E
+	const TransactionType transaction_type = address_alias
 
 	inline EmbeddedTransaction
 	inline AddressAliasTransactionBody

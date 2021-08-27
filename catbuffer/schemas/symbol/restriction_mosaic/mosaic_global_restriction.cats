@@ -27,7 +27,7 @@ struct MosaicGlobalRestrictionTransactionBody
 # binary layout for a non-embedded mosaic global restriction transaction
 struct MosaicGlobalRestrictionTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4151
+	const TransactionType transaction_type = mosaic_global_restriction
 
 	inline Transaction
 	inline MosaicGlobalRestrictionTransactionBody
@@ -35,7 +35,7 @@ struct MosaicGlobalRestrictionTransaction
 # binary layout for an embedded mosaic global restriction transaction
 struct EmbeddedMosaicGlobalRestrictionTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4151
+	const TransactionType transaction_type = mosaic_global_restriction
 
 	inline EmbeddedTransaction
 	inline MosaicGlobalRestrictionTransactionBody

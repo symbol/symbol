@@ -26,7 +26,7 @@ struct NamespaceMetadataTransactionBody
 # binary layout for a non-embedded namespace metadata transaction
 struct NamespaceMetadataTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4344
+	const TransactionType transaction_type = namespace_metadata
 
 	inline Transaction
 	inline NamespaceMetadataTransactionBody
@@ -34,7 +34,7 @@ struct NamespaceMetadataTransaction
 # binary layout for an embedded namespace metadata transaction
 struct EmbeddedNamespaceMetadataTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4344
+	const TransactionType transaction_type = namespace_metadata
 
 	inline EmbeddedTransaction
 	inline NamespaceMetadataTransactionBody

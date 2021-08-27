@@ -24,7 +24,7 @@ struct AccountOperationRestrictionTransactionBody
 # binary layout for a non-embedded account operation restriction transaction
 struct AccountOperationRestrictionTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4350
+	const TransactionType transaction_type = account_operation_restriction
 
 	inline Transaction
 	inline AccountOperationRestrictionTransactionBody
@@ -32,7 +32,7 @@ struct AccountOperationRestrictionTransaction
 # binary layout for an embedded account operation restriction transaction
 struct EmbeddedAccountOperationRestrictionTransaction
 	const uint8 transaction_version = 1
-	const TransactionType transaction_type = 0x4350
+	const TransactionType transaction_type = account_operation_restriction
 
 	inline EmbeddedTransaction
 	inline AccountOperationRestrictionTransactionBody
