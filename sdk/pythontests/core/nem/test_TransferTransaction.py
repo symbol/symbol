@@ -2,20 +2,20 @@ import unittest
 from functools import reduce
 
 from symbolchain.core.CryptoTypes import PublicKey
-from symbolchain.core.nis1.Network import Address, Network
-from symbolchain.core.nis1.TransferTransaction import TransferTransaction
+from symbolchain.core.nem.Network import Address, Network
+from symbolchain.core.nem.TransferTransaction import TransferTransaction
 
-from ...test.BasicNisTransactionTest import BasicNisTransactionTest, NisTransactionTestDescriptor
+from ...test.BasicNemTransactionTest import BasicNemTransactionTest, NemTransactionTestDescriptor
 
 FOO_NETWORK = Network('foo', 0x54)
 
 
-class TransferTransactionTest(BasicNisTransactionTest, unittest.TestCase):
+class TransferTransactionTest(BasicNemTransactionTest, unittest.TestCase):
     # region basic
 
     @staticmethod
     def get_test_descriptor():
-        return NisTransactionTestDescriptor(TransferTransaction, 'transfer', 0x0101, FOO_NETWORK)
+        return NemTransactionTestDescriptor(TransferTransaction, 'transfer', 0x0101, FOO_NETWORK)
 
     def test_can_create(self):
         # Act:

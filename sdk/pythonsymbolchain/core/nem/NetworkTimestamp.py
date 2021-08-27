@@ -7,7 +7,7 @@ EPOCH_TIME = datetime.datetime(2015, 3, 29, 0, 6, 25, tzinfo=datetime.timezone.u
 
 
 class NetworkTimestamp(BasicNetworkTimestamp):
-    """Represents a nis network timestamp with second resolution."""
+    """Represents a nem network timestamp with second resolution."""
 
     def add_seconds(self, count):
         return NetworkTimestamp(self.timestamp + count)

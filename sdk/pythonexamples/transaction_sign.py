@@ -10,7 +10,7 @@ from abc import abstractmethod
 from binascii import hexlify, unhexlify
 
 from symbolchain.core.CryptoTypes import PrivateKey
-from symbolchain.core.facade.NisFacade import NisFacade
+from symbolchain.core.facade.NemFacade import NemFacade
 from symbolchain.core.facade.SymFacade import SymFacade
 
 
@@ -38,9 +38,9 @@ class TransactionSample:
         print('---- ' * 20)
 
 
-class NisTransactionSample(TransactionSample):
+class NemTransactionSample(TransactionSample):
     def __init__(self):
-        super().__init__(NisFacade('testnet'))
+        super().__init__(NemFacade('testnet'))
 
     def set_common_fields(self, descriptor):
         descriptor.update({
@@ -63,15 +63,15 @@ class SymTransactionSample(TransactionSample):
 
 def main():
     parser = argparse.ArgumentParser(description='transaction sign example')
-    parser.add_argument('--blockchain', help='blockchain', choices=('nis1', 'symbol'), required=True)
+    parser.add_argument('--blockchain', help='blockchain', choices=('nem', 'symbol'), required=True)
     args = parser.parse_args()
 
-    if 'nis1' == args.blockchain:
+    if 'nem' == args.blockchain:
         factory_names = [
-            'descriptors.nis1_importance_transfer',
-            'descriptors.nis1_transfer'
+            'descriptors.nem_importance_transfer',
+            'descriptors.nem_transfer'
         ]
-        sample = NisTransactionSample()
+        sample = NemTransactionSample()
     else:
         factory_names = [
             'descriptors.sym_alias',

@@ -7,7 +7,7 @@ from ..Network import Network as BasicNetwork
 
 
 class Address(ByteArray):
-    """Represents a nis address."""
+    """Represents a nem address."""
 
     SIZE = 25
 
@@ -26,7 +26,7 @@ class Address(ByteArray):
 
 
 class Network(BasicNetwork):
-    """Represents a nis network."""
+    """Represents a nem network."""
 
     def address_hasher(self):
         return sha3.keccak_256()

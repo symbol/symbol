@@ -2,7 +2,7 @@ import unittest
 from binascii import unhexlify
 
 from symbolchain.core.CryptoTypes import PublicKey
-from symbolchain.core.nis1.Network import Address, Network
+from symbolchain.core.nem.Network import Address, Network
 
 from ...test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
 from ...test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor

@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 
-class NisTransactionTestDescriptor:
+class NemTransactionTestDescriptor:
     def __init__(self, transaction_class, transaction_name, transaction_type, network):
         self.transaction_class = transaction_class
         self.transaction_name = transaction_name
@@ -9,7 +9,7 @@ class NisTransactionTestDescriptor:
         self.network = network
 
 
-class BasicNisTransactionTest:
+class BasicNemTransactionTest:
     # pylint: disable=no-member
 
     def test_constants_are_correct(self):
