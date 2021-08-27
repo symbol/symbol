@@ -51,7 +51,7 @@ class NemTransactionSample(TransactionSample):
 
 class SymbolTransactionSample(TransactionSample):
     def __init__(self):
-        super().__init__(SymbolFacade('public_test'))
+        super().__init__(SymbolFacade('testnet'))
 
     def set_common_fields(self, descriptor):
         descriptor.update({

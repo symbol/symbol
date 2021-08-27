@@ -63,8 +63,8 @@ class AddressConversionTester(VectorsTestSuite):
         expected_address_mainnet = self.class_locator.address_class(test_vector['address_Public'])
         expected_address_testnet = self.class_locator.address_class(test_vector['address_PublicTest'])
 
-        mainnet = NetworkLocator.find_by_name(self.class_locator.network_class.NETWORKS, ['public', 'mainnet'])
-        testnet = NetworkLocator.find_by_name(self.class_locator.network_class.NETWORKS, ['public_test', 'testnet'])
+        mainnet = NetworkLocator.find_by_name(self.class_locator.network_class.NETWORKS, 'mainnet')
+        testnet = NetworkLocator.find_by_name(self.class_locator.network_class.NETWORKS, 'testnet')
 
         # Act:
         actual_address_mainnet = mainnet.public_key_to_address(public_key)

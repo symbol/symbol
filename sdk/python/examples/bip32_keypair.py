@@ -25,7 +25,7 @@ def derive_key(root_node, facade, change, index):
 
 
 def main():
-    facade = SymbolFacade('public_test')
+    facade = SymbolFacade('testnet')
 
     bip = Bip32(facade.BIP32_CURVE_NAME)
     root_node = bip.from_mnemonic('axis buzz cycle dynamic eyebrow future gym hybrid ivory just know lyrics', 'correcthorsebatterystaple')

@@ -38,7 +38,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_create_known_transaction_from_descriptor(self, public_key, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
 
         # Act:
         transaction = create_function_accessor(factory)({
@@ -70,7 +70,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_cannot_create_unknown_transaction_from_descriptor(self, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
 
         # Act + Assert:
         with self.assertRaises(ValueError):
@@ -87,7 +87,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_create_known_transaction_with_multiple_overrides(self, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST, {
+        factory = TransactionFactory(Network.TESTNET, {
             Address: lambda address: address + ' ADDRESS',
             PublicKey: lambda address: address + ' PUBLICKEY'
         })
@@ -117,7 +117,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_create_transaction_with_voting_key_link_overrides(self, create_function_accessor):
         # Arrange: VotingKeyDto is translated into PublicKey
-        factory = TransactionFactory(Network.PUBLIC_TEST, {
+        factory = TransactionFactory(Network.TESTNET, {
             PublicKey: lambda address: address + ' PUBLICKEY'
         })
 
@@ -147,7 +147,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_create_transaction_with_default_flags_handling(self, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
 
         # Act:
         transaction = create_function_accessor(factory)({
@@ -170,7 +170,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_create_transaction_with_default_enum_handling(self, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
 
         # Act:
         transaction = create_function_accessor(factory)({
@@ -193,7 +193,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_create_transaction_with_default_enum_array_handling(self, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
 
         # Act:
         transaction = create_function_accessor(factory)({
@@ -227,7 +227,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_create_transaction_with_type_conversion(self, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
 
         # Act:
         transaction = create_function_accessor(factory)({
@@ -251,7 +251,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_autogenerate_namespace_registration_root_id(self, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
 
         # Act:
         transaction = create_function_accessor(factory)({
@@ -274,7 +274,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_autogenerate_namespace_registration_child_id(self, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
 
         # Act:
         transaction = create_function_accessor(factory)({
@@ -297,7 +297,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_autogenerate_mosaic_definition_id(self, create_function_accessor):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
 
         # Act:
         transaction = create_function_accessor(factory)({
@@ -325,7 +325,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def test_can_attach_signature_to_transaction(self):
         # Arrange:
-        factory = TransactionFactory(Network.PUBLIC_TEST)
+        factory = TransactionFactory(Network.TESTNET)
         transaction = factory.create({
             'type': 'transfer',
             'signer_public_key': TEST_SIGNER_PUBLIC_KEY
