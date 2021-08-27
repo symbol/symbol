@@ -2,8 +2,8 @@ import unittest
 from functools import reduce
 
 from symbolchain.core.CryptoTypes import PublicKey, Signature
-from symbolchain.core.nis1.Network import Address, Network
-from symbolchain.core.nis1.TransactionFactory import TransactionFactory
+from symbolchain.core.nem.Network import Address, Network
+from symbolchain.core.nem.TransactionFactory import TransactionFactory
 
 from ...test.NemTestUtils import NemTestUtils
 

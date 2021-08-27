@@ -197,9 +197,9 @@ def load_class_locator(blockchain):
         from symbolchain.core.sym.Network import Network
         return ClassLocator(SymFacade, Network)
 
-    from symbolchain.core.facade.NisFacade import NisFacade
-    from symbolchain.core.nis1.Network import Network
-    return ClassLocator(NisFacade, Network)
+    from symbolchain.core.facade.NemFacade import NemFacade
+    from symbolchain.core.nem.Network import Network
+    return ClassLocator(NemFacade, Network)
 
 
 def main():
@@ -208,7 +208,7 @@ def main():
     test_identifiers = range(0, 7)
     parser = argparse.ArgumentParser(description='nem test vectors harness')
     parser.add_argument('--vectors', help='path to test-vectors directory', required=True)
-    parser.add_argument('--blockchain', choices=['nis1', 'symbol'], default='symbol')
+    parser.add_argument('--blockchain', choices=['nem', 'symbol'], default='symbol')
     parser.add_argument(
         '--tests',
         help='identifiers of tests to include',

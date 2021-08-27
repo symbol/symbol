@@ -1,8 +1,8 @@
-from symbolchain.core.facade.NisFacade import NisFacade
+from symbolchain.core.facade.NemFacade import NemFacade
 
 
 def descriptor_factory():
-    sample_address = NisFacade.Address('TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C')
+    sample_address = NemFacade.Address('TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C')
 
     return [
         # mosaics but no message

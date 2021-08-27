@@ -3,7 +3,7 @@ import unittest
 from symbolchain.core.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.core.Bip32 import Bip32
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
-from symbolchain.core.facade.NisFacade import NisFacade
+from symbolchain.core.facade.NemFacade import NemFacade
 
 from ...test.NemTestUtils import NemTestUtils
 
@@ -13,19 +13,19 @@ YAML_INPUT = '''
 '''
 
 
-class NisFacadeTest(unittest.TestCase):
+class NemFacadeTest(unittest.TestCase):
     # region constants
 
     def test_bip32_constants_are_correct(self):
-        self.assertEqual(43, NisFacade.BIP32_COIN_ID)
-        self.assertEqual('ed25519-keccak', NisFacade.BIP32_CURVE_NAME)
+        self.assertEqual(43, NemFacade.BIP32_COIN_ID)
+        self.assertEqual('ed25519-keccak', NemFacade.BIP32_CURVE_NAME)
 
     def test_key_pair_is_correct(self):
         # Arrange:
         private_key = PrivateKey('ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57')  # reversed
 
         # Act:
-        key_pair = NisFacade.KeyPair(private_key)
+        key_pair = NemFacade.KeyPair(private_key)
 
         # Assert:
         self.assertEqual(PublicKey('D6C3845431236C5A5A907A9E45BD60DA0E12EFD350B970E7F58E3499E2E7A2F0'), key_pair.public_key)
@@ -33,12 +33,12 @@ class NisFacadeTest(unittest.TestCase):
     def test_can_sign_and_verify(self):
         # Arrange:
         private_key = PrivateKey.random()
-        key_pair = NisFacade.KeyPair(private_key)
+        key_pair = NemFacade.KeyPair(private_key)
         message = NemTestUtils.randbytes(21)
 
         # Act:
         signature = key_pair.sign(message)
-        is_verified = NisFacade.Verifier(key_pair.public_key).verify(message, signature)
+        is_verified = NemFacade.Verifier(key_pair.public_key).verify(message, signature)
 
         # Assert:
         self.assertTrue(is_verified)
@@ -49,7 +49,7 @@ class NisFacadeTest(unittest.TestCase):
 
     def test_can_create_around_known_network(self):
         # Act:
-        facade = NisFacade('testnet')
+        facade = NemFacade('testnet')
         transaction = facade.transaction_factory.create({'type': 'transfer'})
 
         # Assert:
@@ -61,7 +61,7 @@ class NisFacadeTest(unittest.TestCase):
     def test_cannot_create_around_unknown_network(self):
         # Act:
         with self.assertRaises(StopIteration):
-            NisFacade('foo')
+            NemFacade('foo')
 
     # endregion
 
@@ -69,7 +69,7 @@ class NisFacadeTest(unittest.TestCase):
 
     @staticmethod
     def _create_real_transfer():
-        facade = NisFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+        facade = NemFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
         transaction = facade.transaction_factory.create({
             'type': 'transfer',
             'signer_public_key': 'TEST',
@@ -85,7 +85,7 @@ class NisFacadeTest(unittest.TestCase):
         transaction = self._create_real_transfer()
 
         # Act:
-        hash_value = NisFacade.hash_transaction(transaction)
+        hash_value = NemFacade.hash_transaction(transaction)
 
         # Assert:
         self.assertEqual(Hash256('A7064DB890A4E7329AAB2AE7DCFA5EC76D7E374590C61EC85E03C698DF4EA79D'), hash_value)
@@ -96,7 +96,7 @@ class NisFacadeTest(unittest.TestCase):
         transaction = self._create_real_transfer()
 
         # Act:
-        signature = NisFacade.sign_transaction(NisFacade.KeyPair(private_key), transaction)
+        signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
 
         # Assert:
         expected_signature = Signature(''.join([
@@ -111,8 +111,8 @@ class NisFacadeTest(unittest.TestCase):
         transaction = self._create_real_transfer()
 
         # Act:
-        signature = NisFacade.sign_transaction(NisFacade.KeyPair(private_key), transaction)
-        is_verified = NisFacade.verify_transaction(transaction, signature)
+        signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
+        is_verified = NemFacade.verify_transaction(transaction, signature)
 
         # Assert:
         self.assertTrue(is_verified)
@@ -129,12 +129,12 @@ class NisFacadeTest(unittest.TestCase):
         ])
 
         # Act:
-        root_node = Bip32(NisFacade.BIP32_CURVE_NAME).from_mnemonic(mnemonic_seed, passphrase)
+        root_node = Bip32(NemFacade.BIP32_CURVE_NAME).from_mnemonic(mnemonic_seed, passphrase)
 
         child_public_keys = []
         for i in range(0, len(expected_child_public_keys)):
-            child_node = root_node.derive_path([44, NisFacade.BIP32_COIN_ID, i, 0, 0])
-            child_key_pair = NisFacade.bip32_node_to_key_pair(child_node)
+            child_node = root_node.derive_path([44, NemFacade.BIP32_COIN_ID, i, 0, 0])
+            child_key_pair = NemFacade.bip32_node_to_key_pair(child_node)
             child_public_keys.append(child_key_pair.public_key)
 
         # Assert:

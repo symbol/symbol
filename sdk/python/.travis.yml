@@ -35,16 +35,16 @@ jobs:
     - name: test vectors
       if: branch = env(DEV_BRANCH) OR branch = env(RELEASE_BRANCH)
       script:
-        - git clone --depth=1 --branch=pre-cleanup https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
-        - python3 -m tests.vectors.all --blockchain nis1 --vectors "$TEST_VECTORS_ROOT/nis1"
-        - python3 -m tests.vectors.all --blockchain symbol --vectors "$TEST_VECTORS_ROOT"
+        - git clone --depth=1 --branch=main https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
+        - python3 -m tests.vectors.all --blockchain nem --vectors "$TEST_VECTORS_ROOT/nem"
+        - python3 -m tests.vectors.all --blockchain symbol --vectors "$TEST_VECTORS_ROOT/symbol"
 
     - stage: run examples
       script:
        - PYTHONPATH=. python examples/bip32_keypair.py
        - PYTHONPATH=. python examples/transaction_aggregate.py --private examples/resources/zero.sha256.txt
        - PYTHONPATH=. python examples/transaction_multisig.py
-       - PYTHONPATH=. python examples/transaction_sign.py --blockchain=nis1
+       - PYTHONPATH=. python examples/transaction_sign.py --blockchain=nem
        - PYTHONPATH=. python examples/transaction_sign.py --blockchain=symbol
 
     - stage: alpha / dev package

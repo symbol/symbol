@@ -5,14 +5,14 @@ import unittest
 from symbolchain.core.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.core.facade.BatchOperations import BatchOperations
-from symbolchain.core.facade.NisFacade import NisFacade
-from symbolchain.core.nis1.Network import Address
+from symbolchain.core.facade.NemFacade import NemFacade
+from symbolchain.core.nem.Network import Address
 from symbolchain.core.PrivateKeyStorage import PrivateKeyStorage
 from symbolchain.core.QrSignatureStorage import QrSignatureStorage
 
 from ...test.NemTestUtils import NemTestUtils
 
-# NisFacade is used in tests, so constants are using nis formats
+# NemFacade is used in tests, so constants are using nem formats
 
 TEST_PUBLIC_KEY = PublicKey('0F74A2F537CD9C986DF018994DDE75BDEEE05E35EB9FE27ADF506CA8475064F7')
 TEST_PRIVATE_KEY = PrivateKey('D9639DC6F49DAD02A42FD8C217F1B1B4F8CE31CCD770388B645E639C72FF24FA')
@@ -194,7 +194,7 @@ class BatchOperationsTest(unittest.TestCase):
 
     @staticmethod
     def _create_operations(output_file_prefix=''):
-        facade = NisFacade('testnet', AccountDescriptorRepository(ACCOUNTS_YAML_INPUT))
+        facade = NemFacade('testnet', AccountDescriptorRepository(ACCOUNTS_YAML_INPUT))
         return BatchOperations(facade, output_file_prefix)
 
     @staticmethod

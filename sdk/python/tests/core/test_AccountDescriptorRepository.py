@@ -31,7 +31,7 @@ YAML_INPUT = '''
 '''.format(address_1=ENCODED_ADDRESS_1, address_2=ENCODED_ADDRESS_2, public_key_1=PUBLIC_KEY_1, public_key_2=PUBLIC_KEY_2)
 
 
-# NIS style address to avoid circular import
+# nem style address to avoid circular import
 class MockAddress(ByteArray):
     SIZE = 25
 

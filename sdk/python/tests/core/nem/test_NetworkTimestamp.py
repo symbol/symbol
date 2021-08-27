@@ -1,7 +1,7 @@
 import datetime
 import unittest
 
-from symbolchain.core.nis1.NetworkTimestamp import NetworkTimestamp
+from symbolchain.core.nem.NetworkTimestamp import NetworkTimestamp
 
 from ...test.BasicNetworkTimestampTest import BasicNetworkTimestampTest, NetworkTimestampTestDescriptor
 
