@@ -1,9 +1,9 @@
-from symbolchain.core.facade.SymFacade import SymFacade
-from symbolchain.core.sym.IdGenerator import generate_mosaic_id
+from symbolchain.core.facade.SymbolFacade import SymbolFacade
+from symbolchain.core.symbol.IdGenerator import generate_mosaic_id
 
 
 def descriptor_factory():
-    sample_address = SymFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
+    sample_address = SymbolFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
 
     return [
         {

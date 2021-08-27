@@ -1,7 +1,7 @@
 import unittest
 
 from symbolchain.core.CryptoTypes import PrivateKey, PublicKey
-from symbolchain.core.sym.KeyPair import KeyPair, Verifier
+from symbolchain.core.symbol.KeyPair import KeyPair, Verifier
 
 from ...test.BasicKeyPairTest import BasicKeyPairTest, KeyPairTestDescriptor
 

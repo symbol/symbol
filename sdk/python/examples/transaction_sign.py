@@ -11,7 +11,7 @@ from binascii import hexlify, unhexlify
 
 from symbolchain.core.CryptoTypes import PrivateKey
 from symbolchain.core.facade.NemFacade import NemFacade
-from symbolchain.core.facade.SymFacade import SymFacade
+from symbolchain.core.facade.SymbolFacade import SymbolFacade
 
 
 class TransactionSample:
@@ -49,9 +49,9 @@ class NemTransactionSample(TransactionSample):
         })
 
 
-class SymTransactionSample(TransactionSample):
+class SymbolTransactionSample(TransactionSample):
     def __init__(self):
-        super().__init__(SymFacade('public_test'))
+        super().__init__(SymbolFacade('public_test'))
 
     def set_common_fields(self, descriptor):
         descriptor.update({
@@ -74,17 +74,17 @@ def main():
         sample = NemTransactionSample()
     else:
         factory_names = [
-            'descriptors.sym_alias',
-            'descriptors.sym_key_link',
-            'descriptors.sym_lock',
-            'descriptors.sym_metadata',
-            'descriptors.sym_mosaic',
-            'descriptors.sym_namespace',
-            'descriptors.sym_restriction_account',
-            'descriptors.sym_restriction_mosaic',
-            'descriptors.sym_transfer'
+            'descriptors.symbol_alias',
+            'descriptors.symbol_key_link',
+            'descriptors.symbol_lock',
+            'descriptors.symbol_metadata',
+            'descriptors.symbol_mosaic',
+            'descriptors.symbol_namespace',
+            'descriptors.symbol_restriction_account',
+            'descriptors.symbol_restriction_mosaic',
+            'descriptors.symbol_transfer'
         ]
-        sample = SymTransactionSample()
+        sample = SymbolTransactionSample()
 
     total_descriptors_count = 0
     for factory_name in factory_names:

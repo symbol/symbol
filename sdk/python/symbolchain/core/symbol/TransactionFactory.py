@@ -60,7 +60,7 @@ def create_enum_parser(name):
     return parser
 
 
-def sym_type_converter(value):
+def symbol_type_converter(value):
     if isinstance(value, ByteArray):
         return value.bytes
 
@@ -96,7 +96,7 @@ class TransactionFactory:
         return {**default_rules, **self.type_parsing_rules}
 
     def _create(self, transaction_descriptor, factory_class):
-        processor = TransactionDescriptorProcessor(transaction_descriptor, self._extend_type_parsing_rules(), sym_type_converter)
+        processor = TransactionDescriptorProcessor(transaction_descriptor, self._extend_type_parsing_rules(), symbol_type_converter)
 
         processor.set_type_hints({'signer_public_key': PublicKey})
 
