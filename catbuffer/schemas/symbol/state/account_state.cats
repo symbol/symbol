@@ -17,7 +17,7 @@ struct AccountState
 	addressHeight = Height
 
 	# public key of account
-	publicKey = Key
+	publicKey = PublicKey
 
 	# height at which public key has been obtained
 	publicKeyHeight = Height
@@ -35,13 +35,13 @@ struct AccountState
 	votingPublicKeysCount = uint8
 
 	# linked account public key
-	linkedPublicKey = Key if supplementalPublicKeysMask has linked
+	linkedPublicKey = PublicKey if supplementalPublicKeysMask has linked
 
 	# node public key
-	nodePublicKey = Key if supplementalPublicKeysMask has node
+	nodePublicKey = PublicKey if supplementalPublicKeysMask has node
 
 	# vrf public key
-	vrfPublicKey = Key if supplementalPublicKeysMask has vrf
+	vrfPublicKey = PublicKey if supplementalPublicKeysMask has vrf
 
 	# voting public keys
 	votingPublicKeys = array(PinnedVotingKey, votingPublicKeysCount)

@@ -3,7 +3,7 @@ import "transaction.cats"
 # binary layout for a node key link transaction
 struct NodeKeyLinkTransactionBody
 	# linked public key
-	linkedPublicKey = Key
+	linkedPublicKey = PublicKey
 
 	# link action
 	linkAction = LinkAction

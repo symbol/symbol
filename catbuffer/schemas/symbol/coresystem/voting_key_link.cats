@@ -3,7 +3,7 @@ import "transaction.cats"
 # binary layout for a voting key link transaction
 struct VotingKeyLinkTransactionBody
 	# linked public key
-	linkedPublicKey = VotingKey
+	linkedPublicKey = VotingPublicKey
 
 	# start finalization epoch
 	startEpoch = FinalizationEpoch

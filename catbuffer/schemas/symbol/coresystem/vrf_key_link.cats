@@ -3,7 +3,7 @@ import "transaction.cats"
 # binary layout for a vrf key link transaction
 struct VrfKeyLinkTransactionBody
 	# linked public key
-	linkedPublicKey = Key
+	linkedPublicKey = PublicKey
 
 	# link action
 	linkAction = LinkAction

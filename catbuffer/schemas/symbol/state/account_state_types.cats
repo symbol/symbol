@@ -41,7 +41,7 @@ enum AccountStateFormat : uint8
 # pinned voting key
 struct PinnedVotingKey
 	# voting key
-	votingKey = VotingKey
+	votingKey = VotingPublicKey
 
 	# start finalization epoch
 	startEpoch = FinalizationEpoch

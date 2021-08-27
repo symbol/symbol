@@ -6,7 +6,7 @@ struct Cosignature
 	version = uint64
 
 	# cosigner public key
-	signerPublicKey = Key
+	signerPublicKey = PublicKey
 
 	# cosigner signature
 	signature = Signature

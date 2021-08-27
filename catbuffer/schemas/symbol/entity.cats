@@ -29,7 +29,7 @@ struct VerifiableEntity
 # binary layout for a blockchain entity (block or transaction)
 struct EntityBody
 	# entity signer's public key
-	signerPublicKey = Key
+	signerPublicKey = PublicKey
 
 	# reserved padding to align end of EntityBody on 8-byte boundary
 	entityBody_Reserved1 = uint32
