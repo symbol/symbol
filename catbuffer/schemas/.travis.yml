@@ -13,4 +13,4 @@ jobs:
     - stage: parse
       name: parse all
       script:
-        - python3 -m catbuffer_parser --schema ./schemas/all.cats --include ./schemas/
+        - python3 -m catbuffer_parser --schema ./symbol/all.cats --include ./symbol
