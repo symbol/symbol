@@ -16,23 +16,23 @@ struct AccountOperationRestrictionTransactionBody
 	accountRestrictionTransactionBody_Reserved1 = uint32
 
 	# account restriction additions
-	restrictionAdditions = array(EntityType, restrictionAdditionsCount)
+	restrictionAdditions = array(TransactionType, restrictionAdditionsCount)
 
 	# account restriction deletions
-	restrictionDeletions = array(EntityType, restrictionDeletionsCount)
+	restrictionDeletions = array(TransactionType, restrictionDeletionsCount)
 
 # binary layout for a non-embedded account operation restriction transaction
 struct AccountOperationRestrictionTransaction
-	const uint8 version = 1
-	const EntityType entityType = 0x4350
+	const uint8 transaction_version = 1
+	const TransactionType transaction_type = 0x4350
 
 	inline Transaction
 	inline AccountOperationRestrictionTransactionBody
 
 # binary layout for an embedded account operation restriction transaction
 struct EmbeddedAccountOperationRestrictionTransaction
-	const uint8 version = 1
-	const EntityType entityType = 0x4350
+	const uint8 transaction_version = 1
+	const TransactionType transaction_type = 0x4350
 
 	inline EmbeddedTransaction
 	inline AccountOperationRestrictionTransactionBody

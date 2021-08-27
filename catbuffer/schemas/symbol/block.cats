@@ -4,7 +4,18 @@ using ProofGamma = binary_fixed(32)
 using ProofVerificationHash = binary_fixed(16)
 using ProofScalar = binary_fixed(32)
 
-# Verfiable random function proof
+# enumeration of block types
+enum BlockType : uint16
+	# nemesis block
+	nemesis = 0x8043
+
+	# normal block
+	normal = 0x8143
+
+	# importance block
+	importance = 0x8243
+
+# verfiable random function proof
 struct VrfProof
 	# gamma
 	gamma = ProofGamma
@@ -20,6 +31,9 @@ struct BlockHeader
 	inline SizePrefixedEntity
 	inline VerifiableEntity
 	inline EntityBody
+
+	# block type
+	type = BlockType
 
 	# block height
 	height = Height
@@ -67,16 +81,16 @@ struct ImportanceBlockFooter
 
 # binary layout for a nemesis block header
 struct NemesisBlockHeader
-	const uint8 version = 1
-	const EntityType entityType = 0x8043
+	const uint8 block_version = 1
+	const BlockType block_type = 0x8043
 
 	inline BlockHeader
 	inline ImportanceBlockFooter
 
 # binary layout for a normal block header
 struct NormalBlockHeader
-	const uint8 version = 1
-	const EntityType entityType = 0x8143
+	const uint8 block_version = 1
+	const BlockType block_type = 0x8143
 
 	inline BlockHeader
 
@@ -85,8 +99,8 @@ struct NormalBlockHeader
 
 # binary layout for an importance block header
 struct ImportanceBlockHeader
-	const uint8 version = 1
-	const EntityType entityType = 0x8243
+	const uint8 block_version = 1
+	const BlockType block_type = 0x8243
 
 	inline BlockHeader
 	inline ImportanceBlockFooter

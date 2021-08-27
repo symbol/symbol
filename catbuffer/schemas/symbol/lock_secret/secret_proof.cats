@@ -20,16 +20,16 @@ struct SecretProofTransactionBody
 
 # binary layout for a non-embedded secret proof transaction
 struct SecretProofTransaction
-	const uint8 version = 1
-	const EntityType entityType = 0x4252
+	const uint8 transaction_version = 1
+	const TransactionType transaction_type = 0x4252
 
 	inline Transaction
 	inline SecretProofTransactionBody
 
 # binary layout for an embedded secret proof transaction
 struct EmbeddedSecretProofTransaction
-	const uint8 version = 1
-	const EntityType entityType = 0x4252
+	const uint8 transaction_version = 1
+	const TransactionType transaction_type = 0x4252
 
 	inline EmbeddedTransaction
 	inline SecretProofTransactionBody

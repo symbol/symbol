@@ -13,16 +13,16 @@ struct HashLockTransactionBody
 
 # binary layout for a non-embedded hash lock transaction
 struct HashLockTransaction
-	const uint8 version = 1
-	const EntityType entityType = 0x4148
+	const uint8 transaction_version = 1
+	const TransactionType transaction_type = 0x4148
 
 	inline Transaction
 	inline HashLockTransactionBody
 
 # binary layout for an embedded hash lock transaction
 struct EmbeddedHashLockTransaction
-	const uint8 version = 1
-	const EntityType entityType = 0x4148
+	const uint8 transaction_version = 1
+	const TransactionType transaction_type = 0x4148
 
 	inline EmbeddedTransaction
 	inline HashLockTransactionBody

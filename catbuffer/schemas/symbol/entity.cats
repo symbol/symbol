@@ -1,10 +1,5 @@
 import "types.cats"
 
-# enumeration of entity types
-enum EntityType : uint16
-	# reserved entity type
-	reserved = 0x0000
-
 # enumeration of network types
 enum NetworkType : uint8
 	# public network
@@ -39,6 +34,3 @@ struct EntityBody
 
 	# entity network
 	network = NetworkType
-
-	# entity type
-	type = EntityType

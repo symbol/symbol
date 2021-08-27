@@ -19,16 +19,16 @@ struct MosaicAddressRestrictionTransactionBody
 
 # binary layout for a non-embedded mosaic address restriction transaction
 struct MosaicAddressRestrictionTransaction
-	const uint8 version = 1
-	const EntityType entityType = 0x4251
+	const uint8 transaction_version = 1
+	const TransactionType transaction_type = 0x4251
 
 	inline Transaction
 	inline MosaicAddressRestrictionTransactionBody
 
 # binary layout for an embedded mosaic address restriction transaction
 struct EmbeddedMosaicAddressRestrictionTransaction
-	const uint8 version = 1
-	const EntityType entityType = 0x4251
+	const uint8 transaction_version = 1
+	const TransactionType transaction_type = 0x4251
 
 	inline EmbeddedTransaction
 	inline MosaicAddressRestrictionTransactionBody

@@ -22,7 +22,7 @@ struct AccountRestrictionTransactionTypeValue
 	restrictionValuesCount = uint64
 
 	# restriction values
-	restrictionValues = array(EntityType, restrictionValuesCount)
+	restrictionValues = array(TransactionType, restrictionValuesCount)
 
 # binary layout for account restrictions
 struct AccountRestrictionsInfo
