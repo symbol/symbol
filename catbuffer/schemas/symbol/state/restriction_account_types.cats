@@ -31,10 +31,10 @@ struct AccountRestrictionsInfo
 	restrictionFlags = AccountRestrictionFlags
 
 	#  address restrictions
-	addressRestrictions = AccountRestrictionAddressValue if restrictionFlags has address
+	addressRestrictions = AccountRestrictionAddressValue if address in restrictionFlags
 
 	# mosaic identifier restrictions
-	mosaicIdRestrictions = AccountRestrictionMosaicValue if restrictionFlags has mosaicId
+	mosaicIdRestrictions = AccountRestrictionMosaicValue if mosaicId in restrictionFlags
 
 	# transaction type restrictions
-	transactionTypeRestrictions = AccountRestrictionTransactionTypeValue if restrictionFlags has transactionType
+	transactionTypeRestrictions = AccountRestrictionTransactionTypeValue if transactionType in restrictionFlags

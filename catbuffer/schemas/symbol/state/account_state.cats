@@ -35,22 +35,22 @@ struct AccountState
 	votingPublicKeysCount = uint8
 
 	# linked account public key
-	linkedPublicKey = PublicKey if supplementalPublicKeysMask has linked
+	linkedPublicKey = PublicKey if linked in supplementalPublicKeysMask
 
 	# node public key
-	nodePublicKey = PublicKey if supplementalPublicKeysMask has node
+	nodePublicKey = PublicKey if node in supplementalPublicKeysMask
 
 	# vrf public key
-	vrfPublicKey = PublicKey if supplementalPublicKeysMask has vrf
+	vrfPublicKey = PublicKey if vrf in supplementalPublicKeysMask
 
 	# voting public keys
 	votingPublicKeys = array(PinnedVotingKey, votingPublicKeysCount)
 
 	# current importance snapshot of the account
-	importanceSnapshots = ImportanceSnapshot if format equals highValue
+	importanceSnapshots = ImportanceSnapshot if highValue equals format
 
 	# activity buckets of the account
-	activityBuckets = HeightActivityBuckets if format equals highValue
+	activityBuckets = HeightActivityBuckets if highValue equals format
 
 	# number of total balances (mosaics)
 	balancesCount = uint16

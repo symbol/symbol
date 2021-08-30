@@ -26,10 +26,10 @@ struct NamespaceAlias
 	namespaceAliasType = NamespaceAliasType
 
 	# mosaic alias
-	mosaicAlias = MosaicId if namespaceAliasType equals mosaicId
+	mosaicAlias = MosaicId if mosaicId equals namespaceAliasType
 
 	# address alias
-	addressAlias = Address if namespaceAliasType equals address
+	addressAlias = Address if address equals namespaceAliasType
 
 # binary layout for a namespace path
 struct NamespacePath

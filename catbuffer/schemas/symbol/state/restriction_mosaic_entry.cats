@@ -28,7 +28,7 @@ struct MosaicRestrictionEntry
 	entryType = MosaicRestrictionEntryType
 
 	# address restriction rule
-	addressEntry = MosaicAddressRestrictionEntry if entryType equals address
+	addressEntry = MosaicAddressRestrictionEntry if address equals entryType
 
 	# global mosaic rule
-	globalEntry = MosaicGlobalRestrictionEntry if entryType equals global
+	globalEntry = MosaicGlobalRestrictionEntry if global equals entryType

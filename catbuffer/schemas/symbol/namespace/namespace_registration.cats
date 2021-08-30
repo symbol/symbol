@@ -4,10 +4,10 @@ import "transaction.cats"
 # binary layout for a namespace registration transaction
 struct NamespaceRegistrationTransactionBody
 	# namespace duration
-	duration = BlockDuration if registrationType equals root
+	duration = BlockDuration if root equals registrationType
 
 	# parent namespace identifier
-	parentId = NamespaceId if registrationType equals child
+	parentId = NamespaceId if child equals registrationType
 
 	# namespace identifier
 	id = NamespaceId
