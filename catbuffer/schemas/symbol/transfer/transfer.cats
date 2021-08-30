@@ -21,7 +21,7 @@ struct TransferTransactionBody
 	mosaics = array(UnresolvedMosaic, mosaicsCount, sort_key=mosaicId)
 
 	# attached message
-	message = array(byte, messageSize)
+	message = array(uint8, messageSize)
 
 # binary layout for a non-embedded transfer transaction
 struct TransferTransaction

@@ -19,7 +19,7 @@ struct NamespaceRegistrationTransactionBody
 	nameSize = uint8
 
 	# namespace name
-	name = array(byte, nameSize)
+	name = array(uint8, nameSize)
 
 # binary layout for a non-embedded namespace registration transaction
 struct NamespaceRegistrationTransaction

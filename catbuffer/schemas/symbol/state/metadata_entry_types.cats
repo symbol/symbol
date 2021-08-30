@@ -19,4 +19,4 @@ struct MetadataValue
 	size = uint16
 
 	# data of the value
-	data = array(byte, size)
+	data = array(uint8, size)

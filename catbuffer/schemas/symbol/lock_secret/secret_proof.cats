@@ -16,7 +16,7 @@ struct SecretProofTransactionBody
 	hashAlgorithm = LockHashAlgorithm
 
 	# proof data
-	proof = array(byte, proofSize)
+	proof = array(uint8, proofSize)
 
 # binary layout for a non-embedded secret proof transaction
 struct SecretProofTransaction
