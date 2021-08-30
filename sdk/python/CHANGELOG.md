@@ -16,5 +16,12 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Fixed
  - add mapping for voting key dto
 
+## [2.0.0] - 30-Aug-2021
+
+### Changed
+ - rename nis1 => nem
+ - rename sym => symbol
+
+[2.0.0]: https://github.com/symbol/sdk-python/compare/v1.0.3...v2.0.0
 [1.0.3]: https://github.com/symbol/sdk-python/compare/v1.0.0...v1.0.3
 [1.0.0]: https://github.com/symbol/sdk-python/releases/tag/v1.0.0
