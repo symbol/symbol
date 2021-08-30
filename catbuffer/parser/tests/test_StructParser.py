@@ -231,10 +231,10 @@ class StructParserTest(unittest.TestCase):
         with self.assertRaises(CatsParseException):
             parser.append({'name': 'bar'})
 
+
 # endregion
 
 # region StructConstParserTest
-
 
 class StructConstParserFactoryTest(unittest.TestCase):
     def test_is_match_returns_true_for_positives(self):
@@ -294,10 +294,10 @@ class StructConstParserTest(unittest.TestCase):
             VALID_USER_TYPE_NAMES + VALID_PRIMITIVE_NAMES,
             INVALID_USER_TYPE_NAMES + ['binary_fixed(32)'])
 
+
 # endregion
 
 # region StructInlineParserTest
-
 
 class StructInlineParserFactoryTest(unittest.TestCase):
     def test_is_match_returns_true_for_positives(self):
@@ -398,10 +398,10 @@ class StructScalarParserTest(unittest.TestCase):
             VALID_PROPERTY_NAMES,
             INVALID_PROPERTY_NAMES)
 
+
 # endregion
 
 # region StructArrayMemberParser
-
 
 VALID_ARRAY_PATTERNS = ['foo = {0}(bar, {1}baz)', '$$$ = {0}(&, {1}**)', '$$$ = {0}(&, {1}**, sort_key=@@)']
 INVALID_ARRAY_PATTERNS = [

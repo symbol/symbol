@@ -41,10 +41,10 @@ class RequirePropertyNameTest(unittest.TestCase):
             with self.assertRaises(CatsParseException):
                 require_property_name(string)
 
+
 # endregion
 
 # region primitive
-
 
 class IsPrimitiveTest(unittest.TestCase):
     def test_true_for_positives(self):
@@ -79,10 +79,10 @@ class RequirePrimitiveTest(unittest.TestCase):
             with self.assertRaises(CatsParseException):
                 require_primitive(string)
 
+
 # endregion
 
 # region dec or hex
-
 
 INVALID_NUMERIC_STRINGS = ['AFE', '0x8Y8', 'p', '&']
 
@@ -120,10 +120,10 @@ class ParseDecOrHexTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 parse_dec_or_hex(string)
 
+
 # endregion
 
 # region builtin
-
 
 INVALID_BUILTIN_TYPE_NAMES = [
     'binary_fixed(2x22)',  # malformed number

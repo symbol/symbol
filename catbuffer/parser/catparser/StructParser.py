@@ -74,10 +74,10 @@ class StructParserFactory(RegexParserFactory):
     def __init__(self):
         super().__init__(r'struct (\S+)', StructParser)
 
+
 # endregion
 
 # region StructConstParser(Factory)
-
 
 class StructConstParser:
     """Parser for const struct members"""
@@ -134,10 +134,10 @@ class StructInlineParserFactory(RegexParserFactory):
     def __init__(self):
         super().__init__(r'inline (\S+)', StructInlineParser)
 
+
 # endregion
 
 # region StructScalarMemberParser(Factory)
-
 
 class StructScalarMemberParser:
     """Parser for non-inline scalar struct members"""
@@ -175,10 +175,10 @@ class StructScalarMemberParserFactory(RegexParserFactory):
     def __init__(self):
         super().__init__(r'(\S+) = (\S+)( if (\S+) (not )?(equals|in) (\S+))?', StructScalarMemberParser)
 
+
 # endregion
 
 # region StructArrayMemberParser(Factory)
-
 
 class StructArrayMemberParser:
     """Parser for non-inline array struct members"""
