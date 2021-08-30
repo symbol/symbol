@@ -13,9 +13,9 @@ from pathlib import Path
 import sha3
 
 from symbolchain.core.CryptoTypes import Hash256, PrivateKey
-from symbolchain.core.facade.SymFacade import SymFacade
-from symbolchain.core.sym.KeyPair import KeyPair
-from symbolchain.core.sym.MerkleHashBuilder import MerkleHashBuilder
+from symbolchain.core.facade.SymbolFacade import SymbolFacade
+from symbolchain.core.symbol.KeyPair import KeyPair
+from symbolchain.core.symbol.MerkleHashBuilder import MerkleHashBuilder
 
 
 def read_private_key(private_filename):
@@ -55,7 +55,7 @@ def main():
     parser.add_argument('--private', help='path to file with private key', required=True)
     args = parser.parse_args()
 
-    facade = SymFacade('public_test')
+    facade = SymbolFacade('public_test')
     key_pair = read_private_key(args.private)
 
     embedded_transactions = add_embedded_transfers(facade, key_pair.public_key)
