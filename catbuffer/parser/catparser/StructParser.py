@@ -155,9 +155,11 @@ class StructScalarMemberParser:
             property_type_descriptor = {'type': linked_type_name}
 
         if match.group(3):
+            is_negated = 'not ' == match.group(5)
+
             property_type_descriptor['condition'] = match.group(4)
-            property_type_descriptor['condition_operation'] = match.group(5)
-            property_type_descriptor['condition_value'] = match.group(6)
+            property_type_descriptor['condition_operation'] = ('not ' if is_negated else '') + match.group(6)
+            property_type_descriptor['condition_value'] = match.group(7)
 
         property_type_descriptor['name'] = require_property_name(match.group(1))
         return property_type_descriptor
@@ -166,7 +168,7 @@ class StructScalarMemberParser:
 class StructScalarMemberParserFactory(RegexParserFactory):
     """Factory for creating struct scalar member parsers"""
     def __init__(self):
-        super().__init__(r'(\S+) = (\S+)( if (\S+) (equals|has) (\S+))?', StructScalarMemberParser)
+        super().__init__(r'(\S+) = (\S+)( if (\S+) (not )?(equals|in) (\S+))?', StructScalarMemberParser)
 
 # endregion
 

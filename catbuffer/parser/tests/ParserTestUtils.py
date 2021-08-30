@@ -67,7 +67,7 @@ class ParserFactoryTestUtils:
 
         # Act + Assert:
         for line in matches:
-            self.unittest.assertTrue(factory.is_match(line))
+            self.unittest.assertTrue(factory.is_match(line), line)
 
     def assert_negatives(self, matches):
         # Arrange:
@@ -75,4 +75,4 @@ class ParserFactoryTestUtils:
 
         # Act + Assert:
         for line in matches:
-            self.unittest.assertFalse(factory.is_match(line))
+            self.unittest.assertFalse(factory.is_match(line), line)

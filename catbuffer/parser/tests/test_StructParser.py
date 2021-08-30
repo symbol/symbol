@@ -342,21 +342,22 @@ class StructInlineParserTest(unittest.TestCase):
 # region StructScalarMemberParser
 
 
+def _generate_operation_dependent_patterns(pattern):
+    return [pattern.format(operation) for operation in ['equals', 'in', 'not equals', 'not in']]
+
+
 class StructScalarParserFactoryTest(unittest.TestCase):
     def test_is_match_returns_true_for_positives(self):
         # Assert:
         ParserFactoryTestUtils(StructScalarMemberParserFactory, self).assert_positives([
-            'foo = bar', 'foo = BAR', 'fzaZa09 = d', '& = $$$', 'foo = fazFZA90',
-            'foo = bar if abc equals def', 'foo = bar if abc has def'
-        ])
+            'foo = bar', 'foo = BAR', 'fzaZa09 = d', '& = $$$', 'foo = fazFZA90'
+        ] + _generate_operation_dependent_patterns('foo = bar if abc {} def'))
 
     def test_is_match_returns_false_for_negatives(self):
         # Assert:
         ParserFactoryTestUtils(StructScalarMemberParserFactory, self).assert_negatives([
-            ' foo = bar', 'foo = bar ', 'foo = ', '= bar', 'foo = array(bar, baz)', 'foo = bar if abc mask def',
-            'foo = bar if abc equals', 'foo = bar abc equals def',
-            'foo = bar if abc has', 'foo = bar abc has def'
-        ])
+            ' foo = bar', 'foo = bar ', 'foo = ', '= bar', 'foo = array(bar, baz)', 'foo = bar if abc mask def'
+        ] + _generate_operation_dependent_patterns('foo = bar if abc {}') + _generate_operation_dependent_patterns('foo = bar abc {} def'))
 
 
 class StructScalarParserTest(unittest.TestCase):
@@ -377,17 +378,27 @@ class StructScalarParserTest(unittest.TestCase):
                 'car = {0}'.format(builtin_tuple[0]),
                 {'name': 'car', 'type': 'byte', 'signedness': builtin_tuple[2], 'size': builtin_tuple[1]})
 
+    def _assert_can_parse_conditional_custom_declaration(self, operation):
+        # Act + Assert:
+        self._assert_parse(
+            'roadGrade = RoadGrade_ if terrain {} road'.format(operation),
+            {
+                'name': 'roadGrade',
+                'type': 'RoadGrade_',
+                'condition': 'terrain',
+                'condition_operation': operation,
+                'condition_value': 'road'
+            })
+
     def test_can_parse_conditional_custom_declaration_equals(self):
         # Act + Assert:
-        self._assert_parse(
-            'roadGrade = RoadGrade_ if terrain equals road',
-            {'name': 'roadGrade', 'type': 'RoadGrade_', 'condition': 'terrain', 'condition_operation': 'equals', 'condition_value': 'road'})
+        self._assert_can_parse_conditional_custom_declaration('equals')
+        self._assert_can_parse_conditional_custom_declaration('not equals')
 
-    def test_can_parse_conditional_custom_declaration_has(self):
+    def test_can_parse_conditional_custom_declaration_in(self):
         # Act + Assert:
-        self._assert_parse(
-            'roadGrade = RoadGrade_ if terrain has road',
-            {'name': 'roadGrade', 'type': 'RoadGrade_', 'condition': 'terrain', 'condition_operation': 'has', 'condition_value': 'road'})
+        self._assert_can_parse_conditional_custom_declaration('in')
+        self._assert_can_parse_conditional_custom_declaration('not in')
 
     def test_member_names_must_have_property_name_semantics(self):
         # Assert:
