@@ -1,6 +1,6 @@
 import unittest
 
-from catbuffer_parser.ImportParser import ImportParserFactory, ImportResult
+from catparser.ImportParser import ImportParserFactory, ImportResult
 
 from .ParserTestUtils import ParserFactoryTestUtils, SingleLineParserTestUtils
 

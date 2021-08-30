@@ -1,6 +1,6 @@
 import unittest
 
-from catbuffer_parser.AliasParser import AliasParserFactory
+from catparser.AliasParser import AliasParserFactory
 
 from .constants import BUILTIN_TYPE_TUPLES, INVALID_USER_TYPE_NAMES, VALID_USER_TYPE_NAMES
 from .ParserTestUtils import ParserFactoryTestUtils, SingleLineParserTestUtils

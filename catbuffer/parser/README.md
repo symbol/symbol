@@ -29,7 +29,7 @@ pip3 install -r lint_requirements.txt
 ## Usage
 
 ```bash
-python3 -m catbuffer_parser [OPTIONS]
+python3 -m catparser [OPTIONS]
 ```
 
 | Option               | Description                                                                                                                                                | Default       |
@@ -48,5 +48,5 @@ However, ``catbuffer-parser`` can still be used on its own to parse input files 
 
 ```bash
 git clone --depth 1 --branch v1.0.0 https://github.com/nemtech/catbuffer-schemas.git
-python3 -m catbuffer_parser --schema catbuffer-schemas/schemas/transfer/transfer.cats --include catbuffer-schemas/schemas
+python3 -m catparser --schema catbuffer-schemas/schemas/transfer/transfer.cats --include catbuffer-schemas/schemas
 ```

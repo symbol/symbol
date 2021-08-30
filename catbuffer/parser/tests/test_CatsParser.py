@@ -1,6 +1,6 @@
 import unittest
 
-from catbuffer_parser.CatsParser import CatsParseException, CatsParser
+from catparser.CatsParser import CatsParseException, CatsParser
 
 
 def parse_all(lines, imports=None):

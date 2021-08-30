@@ -17,9 +17,9 @@ jobs:
   include:
     - stage: lint
       script:
-        - isort --check-only --line-length 140 catbuffer_parser setup.py tests
-        - pycodestyle --config=.pycodestyle -- catbuffer_parser setup.py tests
-        - pylint --load-plugins pylint_quotes -- catbuffer_parser setup.py tests
+        - isort --check-only --line-length 140 catparser setup.py tests
+        - pycodestyle --config=.pycodestyle -- catparser setup.py tests
+        - pylint --load-plugins pylint_quotes -- catparser setup.py tests
 
     - stage: test
       name: unit tests
@@ -30,7 +30,7 @@ jobs:
       name: parse all (catbuffer-schemas)
       script:
         - git clone --depth 1 --branch v1.0.2 https://github.com/nemtech/catbuffer-schemas.git
-        - python3 -m catbuffer_parser --schema ./catbuffer-schemas/schemas/all.cats --include ./catbuffer-schemas/schemas/
+        - python3 -m catparser --schema ./catbuffer-schemas/schemas/all.cats --include ./catbuffer-schemas/schemas/
 
     - stage: alpha / dev package
       name: alpha / dev package
