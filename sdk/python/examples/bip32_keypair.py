@@ -7,7 +7,7 @@
 #
 
 from symbolchain.core.Bip32 import Bip32
-from symbolchain.core.facade.SymFacade import SymFacade
+from symbolchain.core.facade.SymbolFacade import SymbolFacade
 
 
 def derive_key(root_node, facade, change, index):
@@ -25,7 +25,7 @@ def derive_key(root_node, facade, change, index):
 
 
 def main():
-    facade = SymFacade('public_test')
+    facade = SymbolFacade('public_test')
 
     bip = Bip32(facade.BIP32_CURVE_NAME)
     root_node = bip.from_mnemonic('axis buzz cycle dynamic eyebrow future gym hybrid ivory just know lyrics', 'correcthorsebatterystaple')

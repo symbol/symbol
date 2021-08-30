@@ -10,8 +10,8 @@ from abc import abstractmethod
 from binascii import hexlify, unhexlify
 
 from symbolchain.core.CryptoTypes import PrivateKey
-from symbolchain.core.facade.NisFacade import NisFacade
-from symbolchain.core.facade.SymFacade import SymFacade
+from symbolchain.core.facade.NemFacade import NemFacade
+from symbolchain.core.facade.SymbolFacade import SymbolFacade
 
 
 class TransactionSample:
@@ -38,9 +38,9 @@ class TransactionSample:
         print('---- ' * 20)
 
 
-class NisTransactionSample(TransactionSample):
+class NemTransactionSample(TransactionSample):
     def __init__(self):
-        super().__init__(NisFacade('testnet'))
+        super().__init__(NemFacade('testnet'))
 
     def set_common_fields(self, descriptor):
         descriptor.update({
@@ -49,9 +49,9 @@ class NisTransactionSample(TransactionSample):
         })
 
 
-class SymTransactionSample(TransactionSample):
+class SymbolTransactionSample(TransactionSample):
     def __init__(self):
-        super().__init__(SymFacade('public_test'))
+        super().__init__(SymbolFacade('public_test'))
 
     def set_common_fields(self, descriptor):
         descriptor.update({
@@ -63,28 +63,28 @@ class SymTransactionSample(TransactionSample):
 
 def main():
     parser = argparse.ArgumentParser(description='transaction sign example')
-    parser.add_argument('--blockchain', help='blockchain', choices=('nis1', 'symbol'), required=True)
+    parser.add_argument('--blockchain', help='blockchain', choices=('nem', 'symbol'), required=True)
     args = parser.parse_args()
 
-    if 'nis1' == args.blockchain:
+    if 'nem' == args.blockchain:
         factory_names = [
-            'descriptors.nis1_importance_transfer',
-            'descriptors.nis1_transfer'
+            'descriptors.nem_importance_transfer',
+            'descriptors.nem_transfer'
         ]
-        sample = NisTransactionSample()
+        sample = NemTransactionSample()
     else:
         factory_names = [
-            'descriptors.sym_alias',
-            'descriptors.sym_key_link',
-            'descriptors.sym_lock',
-            'descriptors.sym_metadata',
-            'descriptors.sym_mosaic',
-            'descriptors.sym_namespace',
-            'descriptors.sym_restriction_account',
-            'descriptors.sym_restriction_mosaic',
-            'descriptors.sym_transfer'
+            'descriptors.symbol_alias',
+            'descriptors.symbol_key_link',
+            'descriptors.symbol_lock',
+            'descriptors.symbol_metadata',
+            'descriptors.symbol_mosaic',
+            'descriptors.symbol_namespace',
+            'descriptors.symbol_restriction_account',
+            'descriptors.symbol_restriction_mosaic',
+            'descriptors.symbol_transfer'
         ]
-        sample = SymTransactionSample()
+        sample = SymbolTransactionSample()
 
     total_descriptors_count = 0
     for factory_name in factory_names:

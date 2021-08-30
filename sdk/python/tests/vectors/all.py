@@ -8,7 +8,7 @@ from binascii import unhexlify
 from symbolchain.core.Bip32 import Bip32
 from symbolchain.core.CryptoTypes import PrivateKey, PublicKey, Signature
 from symbolchain.core.Network import NetworkLocator
-from symbolchain.core.sym.IdGenerator import generate_mosaic_id
+from symbolchain.core.symbol.IdGenerator import generate_mosaic_id
 
 
 class ClassLocator:
@@ -193,13 +193,13 @@ def load_class_locator(blockchain):
     # pylint: disable=import-outside-toplevel
 
     if 'symbol' == blockchain:
-        from symbolchain.core.facade.SymFacade import SymFacade
-        from symbolchain.core.sym.Network import Network
-        return ClassLocator(SymFacade, Network)
+        from symbolchain.core.facade.SymbolFacade import SymbolFacade
+        from symbolchain.core.symbol.Network import Network
+        return ClassLocator(SymbolFacade, Network)
 
-    from symbolchain.core.facade.NisFacade import NisFacade
-    from symbolchain.core.nis1.Network import Network
-    return ClassLocator(NisFacade, Network)
+    from symbolchain.core.facade.NemFacade import NemFacade
+    from symbolchain.core.nem.Network import Network
+    return ClassLocator(NemFacade, Network)
 
 
 def main():
@@ -208,7 +208,7 @@ def main():
     test_identifiers = range(0, 7)
     parser = argparse.ArgumentParser(description='nem test vectors harness')
     parser.add_argument('--vectors', help='path to test-vectors directory', required=True)
-    parser.add_argument('--blockchain', choices=['nis1', 'symbol'], default='symbol')
+    parser.add_argument('--blockchain', choices=['nem', 'symbol'], default='symbol')
     parser.add_argument(
         '--tests',
         help='identifiers of tests to include',
