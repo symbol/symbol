@@ -79,7 +79,6 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(0, len(type_descriptors))
 
     def test_parse_is_aborted_on_unknown_line(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'using Foo = uint8',
             'alias Bar = uint8'
@@ -254,7 +253,6 @@ class CatsParserTests(unittest.TestCase):
         ]})
 
     def test_cannot_parse_struct_vararray_numeric_size_types(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'using Car = uint16',
             'struct Fleet',
@@ -263,7 +261,6 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_struct_vararray_fill_types(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'using Car = uint16',
             'struct Fleet',
@@ -308,7 +305,6 @@ class CatsParserTests(unittest.TestCase):
         ]})
 
     def test_cannot_parse_struct_with_unknown_member_type(self):
-        # Act + Assert:
         for type_name in ['MosaicId', 'array(MosaicId, 10)']:
             self._assert_parse_delayed_exception([
                 'struct Foo',
@@ -316,7 +312,6 @@ class CatsParserTests(unittest.TestCase):
             ])
 
     def test_cannot_parse_struct_with_unknown_array_size(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'using MosaicId = uint16',
             'struct Foo',
@@ -324,7 +319,6 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_struct_with_unknown_sort_key(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'using Face = uint16',
             'struct Tracking',
@@ -332,7 +326,6 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_struct_with_unknown_inline_type(self):
-        # Act + Assert:
         for type_name in ['MosaicId', 'array(MosaicId, 10)', 'uint8', 'binary_fixed(25)']:
             self._assert_parse_delayed_exception([
                 'struct Foo',
@@ -376,11 +369,9 @@ class CatsParserTests(unittest.TestCase):
         ]})
 
     def test_can_parse_struct_enum_conditional_types(self):
-        # Act + Assert:
         self._assert_can_parse_struct_enum_conditional_types('')
 
     def test_can_parse_struct_enum_conditional_types_negated(self):
-        # Act + Assert:
         self._assert_can_parse_struct_enum_conditional_types('not ')
 
     def test_can_parse_struct_enum_conditional_types_with_inline_member(self):
@@ -452,7 +443,6 @@ class CatsParserTests(unittest.TestCase):
         ]})
 
     def test_cannot_parse_struct_with_numeric_enum_condition_value(self):
-        # Act + Assert:
         self._assert_parse_commit_exception([
             'enum Shape : uint8',
             '\tcircle = 1',
@@ -463,7 +453,6 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_struct_with_unknown_enum_condition_value(self):
-        # Act + Assert:
         self._assert_parse_commit_exception([
             'enum Shape : uint8',
             '\tcircle = 1',
@@ -503,15 +492,12 @@ class CatsParserTests(unittest.TestCase):
         ]})
 
     def test_can_parse_struct_byte_conditional_types(self):
-        # Act + Assert:
         self._assert_can_parse_struct_byte_conditional_types('')
 
     def test_can_parse_struct_byte_conditional_types_negated(self):
-        # Act + Assert:
         self._assert_can_parse_struct_byte_conditional_types('not ')
 
     def test_cannot_parse_struct_with_non_numeric_byte_condition_value(self):
-        # Act + Assert:
         self._assert_parse_commit_exception([
             'using Circ = uint16',
             'struct Enclosing',
@@ -520,7 +506,6 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_struct_with_unsupported_type_condition(self):
-        # Act + Assert:
         self._assert_parse_commit_exception([
             'using Shape = uint8',
             'using Circ = uint16',
@@ -572,7 +557,6 @@ class CatsParserTests(unittest.TestCase):
         ]})
 
     def test_cannot_parse_struct_with_invalid_const_type(self):
-        # Act + Assert:
         self._assert_parse_commit_exception([
             'using Shape = uint8',
             'struct Enclosing',
@@ -580,7 +564,6 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_struct_with_unknown_const_enum_value(self):
-        # Act + Assert:
         self._assert_parse_commit_exception([
             'enum Shape : uint8',
             '\tcircle = 4',
@@ -590,7 +573,6 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_struct_with_unknown_const_type(self):
-        # Act + Assert:
         for type_name in ['uint7', 'binary_fixed(25)', 'Car']:
             self._assert_parse_delayed_exception([
                 'struct Foo',
@@ -638,7 +620,6 @@ class CatsParserTests(unittest.TestCase):
         ]})
 
     def test_cannot_parse_enum_with_non_numeric_value(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'enum EntityType : uint16',
             '\ttransfer = QZ'
@@ -683,7 +664,6 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(9, counter)
 
     def test_cannot_parse_schema_with_duplicate_struct_property_names_in_same_scope(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'struct Bar',
             '\tfoo = uint8',
@@ -691,7 +671,6 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_schema_with_duplicate_enum_property_names_in_same_scope(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'enum Bar : uint16',
             '\tfoo = 4',

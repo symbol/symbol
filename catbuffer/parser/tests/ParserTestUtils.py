@@ -34,12 +34,12 @@ class SingleLineParserTestUtils:
             self.assert_parse_exception(line)
 
     def assert_naming(self, pattern, valid_names, invalid_names):
+        # Act + Assert: no exception
         for name in valid_names:
-            # Act + Assert: no exception
             self.parser_factory_type().create().process_line(pattern.format(name))
 
+        # Act + Assert: exception
         for name in invalid_names:
-            # Act + Assert: exception
             self.assert_parse_exception(pattern.format(name))
 
 

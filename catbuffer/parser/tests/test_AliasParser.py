@@ -8,13 +8,11 @@ from .ParserTestUtils import ParserFactoryTestUtils, SingleLineParserTestUtils
 
 class AliasParserFactoryTest(unittest.TestCase):
     def test_is_match_returns_true_for_positives(self):
-        # Assert:
         ParserFactoryTestUtils(AliasParserFactory, self).assert_positives([
             'using A = foo', 'using ^ = $$$', 'using A90zaZa = te$t'
         ])
 
     def test_is_match_returns_false_for_negatives(self):
-        # Assert:
         ParserFactoryTestUtils(AliasParserFactory, self).assert_negatives([
             ' using A = foo', 'using A = foo ', 'import A = foo', 'using A = foo bar', 'using A B = foo bar'
         ])
@@ -23,13 +21,11 @@ class AliasParserFactoryTest(unittest.TestCase):
 class AliasParserTest(unittest.TestCase):
     def test_can_parse_builtin_as_alias(self):
         for builtin_tuple in BUILTIN_TYPE_TUPLES:
-            # Act + Assert:
             SingleLineParserTestUtils(AliasParserFactory, self).assert_parse(
                 'using Age = {0}'.format(builtin_tuple[0]),
                 ('Age', {'type': 'byte', 'signedness': builtin_tuple[2], 'size': builtin_tuple[1]}))
 
     def test_alias_names_must_have_type_name_semantics(self):
-        # Assert:
         SingleLineParserTestUtils(AliasParserFactory, self).assert_naming(
             'using {0} = uint32',
             VALID_USER_TYPE_NAMES,

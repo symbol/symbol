@@ -107,12 +107,10 @@ class IsDecOrHexTest(unittest.TestCase):
 
 class ParseDecOrHexTest(unittest.TestCase):
     def test_can_parse_dec(self):
-        # Act + Assert:
         self.assertEqual(10, parse_dec_or_hex('10'))
         self.assertEqual(123, parse_dec_or_hex('123'))
 
     def test_can_parse_hex(self):
-        # Act + Assert:
         self.assertEqual(0x10, parse_dec_or_hex('0x10'))
         self.assertEqual(0x123, parse_dec_or_hex('0x123'))
         self.assertEqual(0xAFE, parse_dec_or_hex('0xAFE'))
