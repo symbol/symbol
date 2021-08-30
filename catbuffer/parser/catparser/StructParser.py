@@ -91,13 +91,19 @@ class StructConstParser:
         const_descriptor = {
             'name': require_property_name(match.group(2)),
             'disposition': 'const',
-            'value': parse_dec_or_hex(match.group(3))
+            'value': match.group(3)
         }
 
+        is_numeric = False
         if is_primitive(type_name):
             const_descriptor = {**const_descriptor, **parse_builtin(type_name)}
+            is_numeric = True
         else:
             const_descriptor['type'] = require_user_type_name(type_name)
+            is_numeric = is_dec_or_hex(const_descriptor['value'])
+
+        if is_numeric:
+            const_descriptor['value'] = parse_dec_or_hex(const_descriptor['value'])
 
         return const_descriptor
 

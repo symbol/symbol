@@ -407,24 +407,6 @@ class CatsParserTests(unittest.TestCase):
             {'name': 'baz', **uint_descriptor(4), 'comments': ''}
         ]})
 
-    def test_can_parse_struct_with_const_member(self):
-        # Act:
-        type_descriptors = parse_all([
-            'struct Pair',
-            '\tfooBar = uint64',
-            '# some const comment',
-            '\tconst int8 tupleSize = 2',
-            '\tbaz = uint32'
-        ])
-
-        # Assert:
-        self.assertEqual(1, len(type_descriptors))
-        self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'fooBar', **uint_descriptor(8), 'comments': ''},
-            {'name': 'tupleSize', **int_descriptor(1), 'disposition': 'const', 'value': 2, 'comments': 'some const comment'},
-            {'name': 'baz', **uint_descriptor(4), 'comments': ''}
-        ]})
-
     def test_cannot_parse_struct_with_unknown_member_type(self):
         # Act + Assert:
         for type_name in ['MosaicId', 'array(MosaicId, 10)']:
@@ -477,6 +459,66 @@ class CatsParserTests(unittest.TestCase):
                 'struct Foo',
                 '\tinline {0}'.format(type_name)
             ])
+
+    # endregion
+
+    # region struct - const
+
+    def test_can_parse_struct_with_const_member(self):
+        # Act:
+        type_descriptors = parse_all([
+            'struct Pair',
+            '\tfooBar = uint64',
+            '# some const comment',
+            '\tconst int8 tupleSize = 2',
+            '\tbaz = uint32'
+        ])
+
+        # Assert:
+        self.assertEqual(1, len(type_descriptors))
+        self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'fooBar', **uint_descriptor(8), 'comments': ''},
+            {'name': 'tupleSize', **int_descriptor(1), 'disposition': 'const', 'value': 2, 'comments': 'some const comment'},
+            {'name': 'baz', **uint_descriptor(4), 'comments': ''}
+        ]})
+
+    def test_can_parse_struct_with_const_enum_member(self):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tcircle = 4',
+            '\trectangle = 9',
+            'struct Enclosing',
+            '\t# c part 1',
+            '\tconst Shape c1 = rectangle',
+            '\t# const pt 2',
+            '\tconst Shape c2 = 7'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'disposition': 'const', 'name': 'c1', 'type': 'Shape', 'comments': 'c part 1', 'value': 'rectangle'},
+            {'disposition': 'const', 'name': 'c2', 'type': 'Shape', 'comments': 'const pt 2', 'value': 7}
+        ]})
+
+    def test_cannot_parse_struct_with_invalid_const_type(self):
+        # Act + Assert:
+        self._assert_parse_commit_exception([
+            'using Shape = uint8',
+            'struct Enclosing',
+            '\tconst Shape c1 = rectangle',
+        ])
+
+    def test_cannot_parse_struct_with_unknown_const_enum_value(self):
+        # Act + Assert:
+        self._assert_parse_commit_exception([
+            'enum Shape : uint8',
+            '\tcircle = 4',
+            '\trectangle = 9',
+            'struct Enclosing',
+            '\tconst Shape c1 = square',
+        ])
 
     def test_cannot_parse_struct_with_unknown_const_type(self):
         # Act + Assert:

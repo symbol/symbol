@@ -109,6 +109,10 @@ class CatsParser(ScopeManager):
 
                     self._require_enum_type_with_value(condition_type_descriptor['type'], property_type_descriptor['condition_value'])
 
+                if 'const' == property_type_descriptor.get('disposition'):
+                    if not isinstance(property_type_descriptor['value'], int):
+                        self._require_enum_type_with_value(property_type_descriptor['type'], property_type_descriptor['value'])
+
         self._set_type_descriptor(parsed_tuple[0], {**parsed_tuple[1], **self.active_parser.partial_descriptor})
         self.active_parser = None
 

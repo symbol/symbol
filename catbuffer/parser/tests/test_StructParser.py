@@ -279,12 +279,19 @@ class StructConstParserTest(unittest.TestCase):
                 'const ColorShade red = {0}'.format(value),
                 {'name': 'red', 'type': 'ColorShade', 'value': 33, 'disposition': 'const'})
 
-    def test_cannot_parse_non_numeric_value(self):
+    def test_cannot_parse_non_numeric_value_for_uint_type_constant(self):
         # Act + Assert:
         for value in ['FOO', 'AF']:
             SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(
                 'const uint16 foo = {0}'.format(value),
                 ValueError)
+
+    def test_can_parse_non_numeric_value_for_custom_type_constant(self):
+        # Act + Assert:
+        for value in ['FOO', 'AF']:
+            self._assert_parse(
+                'const ColorShade red = {0}'.format(value),
+                {'name': 'red', 'type': 'ColorShade', 'value': value, 'disposition': 'const'})
 
     def test_cannot_parse_binary_fixed_type_constant(self):
         # Act + Assert:
