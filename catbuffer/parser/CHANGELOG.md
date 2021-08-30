@@ -14,9 +14,11 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
  - allow enum value names to be used as constant values
  - add 'not' keyword and support for negative conditions
  - allow numeric conditionals as well as enum conditionals
+ - add support for numeric arrays
 
 ### Changed
  - rename keyword 'has' to 'in'
+ - deprecate explicit use of 'byte' type
 
 [2.0.0]: https://github.com/symbol/catbuffer-parser/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/symbol/catbuffer-parser/releases/tag/v1.0.0

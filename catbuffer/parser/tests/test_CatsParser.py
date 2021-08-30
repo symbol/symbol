@@ -185,89 +185,6 @@ class CatsParserTests(unittest.TestCase):
             {'name': 'amount', 'type': 'Amount', 'comments': ''}
         ]})
 
-    def test_can_parse_struct_array_types(self):
-        # Act:
-        type_descriptors = parse_all([
-            'using Truck = uint16',
-            'using Car = uint16',
-            'struct Fleet',
-            '\tcarCount = uint8',
-            '# all trucks in the fleet',
-            '\ttrucks = array(Truck, 10)',
-            '\tcars = array(Car, carCount)'
-        ])
-
-        # Assert:
-        self.assertEqual(3, len(type_descriptors))
-        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'carCount', **uint_descriptor(1), 'comments': ''},
-            {'name': 'trucks', 'type': 'Truck', 'size': 10, 'comments': 'all trucks in the fleet'},
-            {'name': 'cars', 'type': 'Car', 'size': 'carCount', 'comments': ''}
-        ]})
-
-    def test_can_parse_struct_sorted_array_types(self):
-        # Act:
-        type_descriptors = parse_all([
-            'struct Face',
-            '\teyeColor = uint8',
-            'struct Tracking',
-            '\tfaces = array(Face, 10, sort_key=eyeColor)'
-        ])
-
-        # Assert:
-        self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['Tracking'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'faces', 'type': 'Face', 'size': 10, 'sort_key': 'eyeColor', 'comments': ''}
-        ]})
-
-    def test_can_parse_struct_vararray_types(self):
-        # Act:
-        type_descriptors = parse_all([
-            'using Car = uint16',
-            'struct Fleet',
-            '\tcarsSize = uint8',
-            '# all cars in the fleet',
-            '\tcars = array(Car, size=carsSize)'
-        ])
-
-        # Assert:
-        self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'carsSize', **uint_descriptor(1), 'comments': ''},
-            {'name': 'cars', 'type': 'Car', 'size': 'carsSize', 'disposition': 'var', 'comments': 'all cars in the fleet'}
-        ]})
-
-    def test_can_parse_struct_array_fill_types(self):
-        # Act:
-        type_descriptors = parse_all([
-            'using Car = uint16',
-            'struct Fleet',
-            '# all cars in the fleet',
-            '\tcars = array(Car, __FILL__)'
-        ])
-
-        # Assert:
-        self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'cars', 'type': 'Car', 'size': 0, 'disposition': 'fill', 'comments': 'all cars in the fleet'}
-        ]})
-
-    def test_cannot_parse_struct_vararray_numeric_size_types(self):
-        self._assert_parse_delayed_exception([
-            'using Car = uint16',
-            'struct Fleet',
-            '# all cars in the fleet',
-            '\tcars = array(Car, size=123)'
-        ])
-
-    def test_cannot_parse_struct_vararray_fill_types(self):
-        self._assert_parse_delayed_exception([
-            'using Car = uint16',
-            'struct Fleet',
-            '# all cars in the fleet',
-            '\tcars = array(Car, size=__FILL__)'
-        ])
-
     def test_can_parse_struct_closed_by_other_type(self):
         # Act:
         type_descriptors = parse_all([
@@ -311,6 +228,132 @@ class CatsParserTests(unittest.TestCase):
                 '\tid = {0}'.format(type_name)
             ])
 
+    def test_cannot_parse_struct_with_unknown_inline_type(self):
+        for type_name in ['MosaicId', 'array(MosaicId, 10)', 'uint8', 'binary_fixed(25)']:
+            self._assert_parse_delayed_exception([
+                'struct Foo',
+                '\tinline {0}'.format(type_name)
+            ])
+
+    # endregion
+
+    # region struct - array
+
+    def test_can_parse_struct_array_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'using Truck = uint16',
+            'using Car = uint16',
+            'struct Fleet',
+            '\tcarCount = uint8',
+            '# all trucks in the fleet',
+            '\ttrucks = array(Truck, 10)',
+            '\tcars = array(Car, carCount)'
+        ])
+
+        # Assert:
+        self.assertEqual(3, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'carCount', **uint_descriptor(1), 'comments': ''},
+            {'name': 'trucks', 'type': 'Truck', 'size': 10, 'disposition': 'array', 'comments': 'all trucks in the fleet'},
+            {'name': 'cars', 'type': 'Car', 'size': 'carCount', 'disposition': 'array', 'comments': ''}
+        ]})
+
+    def test_can_parse_struct_numeric_array_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'struct Fleet',
+            '\tcarCount = uint8',
+            '# all trucks in the fleet',
+            '\ttrucks = array(uint16, 10)',
+            '\tcars = array(int32, carCount)'
+        ])
+
+        # Assert:
+        self.assertEqual(1, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'carCount', **uint_descriptor(1), 'comments': ''},
+            {
+                'name': 'trucks',
+                'type': 'byte',
+                'size': 10,
+                'disposition': 'array',
+                'comments': 'all trucks in the fleet',
+                'element_disposition': uint_descriptor(2, False)
+            },
+            {
+                'name': 'cars',
+                'type': 'byte',
+                'size': 'carCount',
+                'disposition': 'array',
+                'comments': '',
+                'element_disposition': int_descriptor(4, False)
+            }
+        ]})
+
+    def test_can_parse_struct_sorted_array_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'struct Face',
+            '\teyeColor = uint8',
+            'struct Tracking',
+            '\tfaces = array(Face, 10, sort_key=eyeColor)'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Tracking'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'faces', 'type': 'Face', 'size': 10, 'disposition': 'array', 'sort_key': 'eyeColor', 'comments': ''}
+        ]})
+
+    def test_can_parse_struct_vararray_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'using Car = uint16',
+            'struct Fleet',
+            '\tcarsSize = uint8',
+            '# all cars in the fleet',
+            '\tcars = array(Car, size=carsSize)'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'carsSize', **uint_descriptor(1), 'comments': ''},
+            {'name': 'cars', 'type': 'Car', 'size': 'carsSize', 'disposition': 'array sized', 'comments': 'all cars in the fleet'}
+        ]})
+
+    def test_can_parse_struct_array_fill_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'using Car = uint16',
+            'struct Fleet',
+            '# all cars in the fleet',
+            '\tcars = array(Car, __FILL__)'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'cars', 'type': 'Car', 'size': 0, 'disposition': 'array fill', 'comments': 'all cars in the fleet'}
+        ]})
+
+    def test_cannot_parse_struct_vararray_numeric_size_types(self):
+        self._assert_parse_delayed_exception([
+            'using Car = uint16',
+            'struct Fleet',
+            '# all cars in the fleet',
+            '\tcars = array(Car, size=123)'
+        ])
+
+    def test_cannot_parse_struct_vararray_fill_types(self):
+        self._assert_parse_delayed_exception([
+            'using Car = uint16',
+            'struct Fleet',
+            '# all cars in the fleet',
+            '\tcars = array(Car, size=__FILL__)'
+        ])
+
     def test_cannot_parse_struct_with_unknown_array_size(self):
         self._assert_parse_delayed_exception([
             'using MosaicId = uint16',
@@ -318,19 +361,18 @@ class CatsParserTests(unittest.TestCase):
             '\tids = array(MosaicId, numMosaics)'
         ])
 
-    def test_cannot_parse_struct_with_unknown_sort_key(self):
+    def test_cannot_parse_struct_with_unknown_array_sort_key(self):
         self._assert_parse_delayed_exception([
             'using Face = uint16',
             'struct Tracking',
             '\tfaces = array(Face, 10, sort_key=eyeColor)'
         ])
 
-    def test_cannot_parse_struct_with_unknown_inline_type(self):
-        for type_name in ['MosaicId', 'array(MosaicId, 10)', 'uint8', 'binary_fixed(25)']:
-            self._assert_parse_delayed_exception([
-                'struct Foo',
-                '\tinline {0}'.format(type_name)
-            ])
+    def test_cannot_parse_struct_with_byte_array(self):
+        self._assert_parse_delayed_exception([
+            'struct Fleet',
+            '\ttrucks = array(byte, 10)'
+        ])
 
     # endregion
 
@@ -478,7 +520,7 @@ class CatsParserTests(unittest.TestCase):
         # Assert:
         self.assertEqual(3, len(type_descriptors))
         self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'discriminator', 'type': 'byte', 'signedness': 'unsigned', 'size': 4, 'comments': ''},
+            {'name': 'discriminator', 'comments': '', **uint_descriptor(4)},
             {
                 'name': 'circumference', 'type': 'Circ',
                 'condition': 'discriminator', 'condition_value': 0x040, 'condition_operation': '{}in'.format(prefix),

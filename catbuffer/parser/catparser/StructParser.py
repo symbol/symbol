@@ -189,7 +189,20 @@ class StructArrayMemberParser:
         match = self.regex.match(line)
 
         # type is resolved to exist upstream, so its naming doesn't need to be checked here
-        property_type_descriptor = {'type': match.group(2)}
+        element_type_name = match.group(2)
+
+        if 'byte' == element_type_name:
+            raise CatsParseException('explicit use of byte is deprecated please use uint8 or int8 instead')
+
+        property_type_descriptor = {}
+        if is_primitive(element_type_name):
+            builtin_type_descriptor = parse_builtin(element_type_name)
+            element_type_name = builtin_type_descriptor['type']
+
+            property_type_descriptor['element_disposition'] = {**builtin_type_descriptor}
+            del property_type_descriptor['element_disposition']['type']
+
+        property_type_descriptor['type'] = element_type_name
 
         # size can be interpreted in different ways for count-based arrays
         # size must be a field reference for size-based arrays
@@ -200,9 +213,11 @@ class StructArrayMemberParser:
 
             if '__FILL__' == array_size:
                 array_size = 0
-                property_type_descriptor['disposition'] = 'fill'
+                property_type_descriptor['disposition'] = 'array fill'  # expands to fill the rest of the structure
+            else:
+                property_type_descriptor['disposition'] = 'array'
         else:
-            property_type_descriptor['disposition'] = 'var'
+            property_type_descriptor['disposition'] = 'array sized'  # fits a predefined size
 
         property_type_descriptor['size'] = array_size
 
