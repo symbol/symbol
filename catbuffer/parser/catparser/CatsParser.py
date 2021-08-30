@@ -107,7 +107,14 @@ class CatsParser(ScopeManager):
                         if 'name' in descriptor and descriptor['name'] == condition_field_name
                     )
 
-                    self._require_enum_type_with_value(condition_type_descriptor['type'], property_type_descriptor['condition_value'])
+                    condition_type_name = condition_type_descriptor['type']
+                    condition_value = property_type_descriptor['condition_value']
+                    if 'byte' == condition_type_name:
+                        if not isinstance(condition_value, int):
+                            error_message_format = 'condition value "{0}" for "{1}" must be numeric'
+                            raise CatsParseException(error_message_format.format(condition_value, condition_field_name))
+                    else:
+                        self._require_enum_type_with_value(condition_type_name, condition_value)
 
                 if 'const' == property_type_descriptor.get('disposition'):
                     if not isinstance(property_type_descriptor['value'], int):

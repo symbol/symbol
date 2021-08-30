@@ -378,7 +378,7 @@ class StructScalarParserTest(unittest.TestCase):
                 'car = {0}'.format(builtin_tuple[0]),
                 {'name': 'car', 'type': 'byte', 'signedness': builtin_tuple[2], 'size': builtin_tuple[1]})
 
-    def _assert_can_parse_conditional_custom_declaration(self, operation):
+    def _assert_can_parse_conditional_enum_declaration(self, operation):
         # Act + Assert:
         self._assert_parse(
             'roadGrade = RoadGrade_ if terrain {} road'.format(operation),
@@ -390,15 +390,38 @@ class StructScalarParserTest(unittest.TestCase):
                 'condition_value': 'road'
             })
 
-    def test_can_parse_conditional_custom_declaration_equals(self):
+    def test_can_parse_conditional_enum_declaration_equals(self):
         # Act + Assert:
-        self._assert_can_parse_conditional_custom_declaration('equals')
-        self._assert_can_parse_conditional_custom_declaration('not equals')
+        self._assert_can_parse_conditional_enum_declaration('equals')
+        self._assert_can_parse_conditional_enum_declaration('not equals')
 
-    def test_can_parse_conditional_custom_declaration_in(self):
+    def test_can_parse_conditional_enum_declaration_in(self):
         # Act + Assert:
-        self._assert_can_parse_conditional_custom_declaration('in')
-        self._assert_can_parse_conditional_custom_declaration('not in')
+        self._assert_can_parse_conditional_enum_declaration('in')
+        self._assert_can_parse_conditional_enum_declaration('not in')
+
+    def _assert_can_parse_conditional_byte_declaration(self, operation):
+        # Act + Assert:
+        for value in ['33', '0x21']:
+            self._assert_parse(
+                'roadGrade = RoadGrade_ if terrain {} {}'.format(operation, value),
+                {
+                    'name': 'roadGrade',
+                    'type': 'RoadGrade_',
+                    'condition': 'terrain',
+                    'condition_operation': operation,
+                    'condition_value': 33
+                })
+
+    def test_can_parse_conditional_byte_declaration_equals(self):
+        # Act + Assert:
+        self._assert_can_parse_conditional_byte_declaration('equals')
+        self._assert_can_parse_conditional_byte_declaration('not equals')
+
+    def test_can_parse_conditional_byte_declaration_in(self):
+        # Act + Assert:
+        self._assert_can_parse_conditional_byte_declaration('in')
+        self._assert_can_parse_conditional_byte_declaration('not in')
 
     def test_member_names_must_have_property_name_semantics(self):
         # Assert:

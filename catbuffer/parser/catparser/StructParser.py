@@ -159,7 +159,12 @@ class StructScalarMemberParser:
 
             property_type_descriptor['condition'] = match.group(4)
             property_type_descriptor['condition_operation'] = ('not ' if is_negated else '') + match.group(6)
-            property_type_descriptor['condition_value'] = match.group(7)
+
+            condition_value = match.group(7)
+            if is_dec_or_hex(condition_value):
+                condition_value = parse_dec_or_hex(condition_value)
+
+            property_type_descriptor['condition_value'] = condition_value
 
         property_type_descriptor['name'] = require_property_name(match.group(1))
         return property_type_descriptor
