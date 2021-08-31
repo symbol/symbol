@@ -1,11 +1,14 @@
 type: object
 required:
   - id
+  - meta
   - statement
 description: Collection of receipts related to a transaction.
 properties:
   id:
     type: string
     description: Internal resource identifier.
+  meta:
+    $ref: "./StatementMetaDTO.yml"
   statement:
     $ref: "./TransactionStatementDTO.yml"

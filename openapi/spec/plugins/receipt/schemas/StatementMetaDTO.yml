@@ -1,0 +1,8 @@
+type: object
+required:
+  - timestamp
+description: Metadata related to the statment, including block information.
+properties:
+  timestamp:
+    $ref: "../../../schemas/Timestamp.yml"
+
