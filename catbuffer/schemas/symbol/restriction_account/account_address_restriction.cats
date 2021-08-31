@@ -13,7 +13,7 @@ struct AccountAddressRestrictionTransactionBody
 	restrictionDeletionsCount = uint8
 
 	# reserved padding to align restrictionAdditions on 8-byte boundary
-	accountRestrictionTransactionBody_Reserved1 = uint32
+	accountRestrictionTransactionBody_Reserved1 = make_reserved(uint32, 0)
 
 	# account restriction additions
 	restrictionAdditions = array(UnresolvedAddress, restrictionAdditionsCount)

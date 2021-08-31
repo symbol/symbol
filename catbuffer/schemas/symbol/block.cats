@@ -95,7 +95,7 @@ struct NormalBlockHeader
 	inline BlockHeader
 
 	# reserved padding to align end of BlockHeader on 8-byte boundary
-	blockHeader_Reserved1 = uint32
+	blockHeader_Reserved1 = make_reserved(uint32, 0)
 
 # binary layout for an importance block header
 struct ImportanceBlockHeader

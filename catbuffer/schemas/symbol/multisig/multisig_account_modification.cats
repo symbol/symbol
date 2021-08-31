@@ -15,7 +15,7 @@ struct MultisigAccountModificationTransactionBody
 	addressDeletionsCount = uint8
 
 	# reserved padding to align addressAdditions on 8-byte boundary
-	multisigAccountModificationTransactionBody_Reserved1 = uint32
+	multisigAccountModificationTransactionBody_Reserved1 = make_reserved(uint32, 0)
 
 	# cosignatory address additions
 	addressAdditions = array(UnresolvedAddress, addressAdditionsCount)

@@ -11,7 +11,7 @@ struct AggregateTransactionBody
 	payloadSize = uint32
 
 	# reserved padding to align end of AggregateTransactionHeader on 8-byte boundary
-	aggregateTransactionHeader_Reserved1 = uint32
+	aggregateTransactionHeader_Reserved1 = make_reserved(uint32, 0)
 
 	# sub-transaction data (transactions are variable sized and payload size is in bytes)
 	transactions = array(EmbeddedTransaction, size=payloadSize)
