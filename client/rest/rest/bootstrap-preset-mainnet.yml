@@ -1,0 +1,20 @@
+#nodeEqualityStrategy: public-key
+logLevel: 'Debug'
+throttlingBurst: 35
+throttlingRate: 1000
+databases:
+  - name: db
+    openPort: true
+nodes:
+  - trustedHosts: '127.0.0.1, 172.20.0.25, 172.20.0.1'
+    localNetworks: '127.0.0.1, 172.20.0.25, 172.20.0.1'
+    openPort: true
+    brokerOpenPort: 7902
+gateways:
+  - excludeDockerService: true
+    name: rest
+    apiNodeConfigPath: target/gateways/rest/api-node-config
+    restLoggingFilename: target/rest.log
+    databaseHost: localhost
+    apiNodeHost: localhost
+

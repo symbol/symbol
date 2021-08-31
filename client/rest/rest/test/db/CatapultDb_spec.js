@@ -394,17 +394,15 @@ describe('catapult db', () => {
 			});
 		});
 	});
-
+	const runBlockAtHeightDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
+		const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
+		return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)
+			.then(() => test.db.populateDatabase(db, dbEntities))
+			.then(() => issueDbCommand(db))
+			.then(assertDbCommandResult)
+			.then(() => db.close());
+	};
 	describe('block at height', () => {
-		const runBlockAtHeightDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
-			const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
-			return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)
-				.then(() => test.db.populateDatabase(db, dbEntities))
-				.then(() => issueDbCommand(db))
-				.then(assertDbCommandResult)
-				.then(() => db.close());
-		};
-
 		it('undefined is returned for block at unknown height', () =>
 			// Assert:
 			runDbTest(
@@ -441,6 +439,72 @@ describe('catapult db', () => {
 				{ blocks: seedBlock, transactions: blockTransactions },
 				db => db.blockAtHeight(Long.fromNumber(Default_Height)),
 				block => expect(block).to.deep.equal(stripExtraneousBlockInformation(renameId(seedBlock)))
+			);
+		});
+	});
+
+	describe('blocks at heights', () => {
+		it('can retrieve empty blocks when no heights', () => {
+			// Arrange:
+			const seedBlock1 = test.db.createDbBlock(Default_Height);
+			const blockTransactions = test.db.createDbTransactions(2, test.random.publicKey(), test.random.address());
+
+			// Assert:
+			return runBlockAtHeightDbTest(
+				{ blocks: [seedBlock1], transactions: blockTransactions },
+				db => db.blocksAtHeights(
+					[]
+				),
+				blocks => expect(blocks).to.deep.equal(
+					[]
+				)
+			);
+		});
+
+		it('can retrieve blocks with transactions at heights', () => {
+			// Arrange:
+			const seedBlock1 = test.db.createDbBlock(Default_Height);
+			const seedBlock2 = test.db.createDbBlock(Default_Height + 1);
+			const seedBlock3 = test.db.createDbBlock(Default_Height + 2);
+			const blockTransactions = test.db.createDbTransactions(2, test.random.publicKey(), test.random.address());
+
+			// Assert:
+			return runBlockAtHeightDbTest(
+				{ blocks: [seedBlock1, seedBlock2, seedBlock3], transactions: blockTransactions },
+				db => db.blocksAtHeights(
+					[Long.fromNumber(Default_Height), Long.fromNumber(Default_Height + 1)]
+				),
+				blocks => expect(blocks).to.deep.equal(
+					[stripExtraneousBlockInformation(renameId(seedBlock1)), stripExtraneousBlockInformation(renameId(seedBlock2))]
+				)
+			);
+		});
+
+		it('can retrieve blocks with transactions at heights with projection', () => {
+			// Arrange:
+			const seedBlock1 = test.db.createDbBlock(Default_Height);
+			const seedBlock2 = test.db.createDbBlock(Default_Height + 1);
+			const seedBlock3 = test.db.createDbBlock(Default_Height + 2);
+			const blockTransactions = test.db.createDbTransactions(2, test.random.publicKey(), test.random.address());
+
+			// Assert:
+			const projectBlock = block => ({
+				id: block._id,
+				block: {
+					height: block.block.height,
+					timestamp: block.block.timestamp,
+					feeMultiplier: block.block.feeMultiplier
+				}
+			});
+			return runBlockAtHeightDbTest(
+				{ blocks: [seedBlock1, seedBlock2, seedBlock3], transactions: blockTransactions },
+				db => db.blocksAtHeights(
+					[Long.fromNumber(Default_Height), Long.fromNumber(Default_Height + 1)],
+					{ 'block.timestamp': 1, 'block.height': 1, 'block.feeMultiplier': 1 }
+				),
+				blocks => expect(blocks).to.deep.equal(
+					[projectBlock(seedBlock1), projectBlock(seedBlock2)]
+				)
 			);
 		});
 	});

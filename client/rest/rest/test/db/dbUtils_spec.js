@@ -90,6 +90,24 @@ describe('db utils', () => {
 			expect(() => dbUtils.longToUint64('abc')).to.throw('abc has an invalid format: not long');
 		});
 	});
+	describe('uniqueLongList', () => {
+		it('unique list empty', () => {
+			// Act + Assert
+			expect(dbUtils.uniqueLongList([])).to.deep.equal([]);
+		});
+
+		it('unique list not duplicated', () => {
+			// Act + Assert
+			expect(dbUtils.uniqueLongList([convertToLong(1), convertToLong(2), convertToLong(3)]))
+				.to.deep.equal([convertToLong(1), convertToLong(2), convertToLong(3)]);
+		});
+
+		it('unique list duplicated', () => {
+			// Act + Assert
+			expect(dbUtils.uniqueLongList([convertToLong(3), convertToLong(1), convertToLong(3)]))
+				.to.deep.equal([convertToLong(3), convertToLong(1)]);
+		});
+	});
 
 	describe('buildOffsetCondition', () => {
 		it('undefined offset', () => {

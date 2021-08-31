@@ -15,9 +15,10 @@
     "lint:fix": "eslint src test --fix",
     "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0",
     "bootstrap-clean": "symbol-bootstrap clean",
-    "bootstrap-start": "symbol-bootstrap start -a light -c bootstrap-preset.yml --healthCheck",
-    "bootstrap-start-testnet": "symbol-bootstrap start -p testnet -a dual -c bootstrap-preset-testnet.yml --healthCheck",
-    "bootstrap-start-detached": "symbol-bootstrap start -a light -c bootstrap-preset.yml --detached --healthCheck --pullImages",
+    "bootstrap-start": "symbol-bootstrap start -a light -c bootstrap-preset.yml --healthCheck --noPassword",
+    "bootstrap-start-testnet": "symbol-bootstrap start -p testnet -a dual -c bootstrap-preset-testnet.yml --healthCheck --noPassword",
+    "bootstrap-start-mainnet": "symbol-bootstrap start -p testnet -a dual -c bootstrap-preset-mainnet.yml --healthCheck --noPassword",
+    "bootstrap-start-detached": "symbol-bootstrap start -a light -c bootstrap-preset.yml --detached --healthCheck --noPassword",
     "bootstrap-stop": "symbol-bootstrap stop",
     "bootstrap-run": "symbol-bootstrap run",
     "bootstrap-run-detached": "symbol-bootstrap run --detached --healthCheck",
@@ -45,7 +46,7 @@
     "nyc": "^14.1.1",
     "rimraf": "^2.6.3",
     "sinon": "^7.3.2",
-    "symbol-bootstrap": "1.0.4"
+    "symbol-bootstrap": "^1.0.8-alpha-202108171450"
   },
   "dependencies": {
     "catapult-sdk": "link:../catapult-sdk",

@@ -19,7 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
+const { convertToLong, buildOffsetCondition, uniqueLongList } = require('../../db/dbUtils');
 const catapult = require('catapult-sdk');
 
 const { convert, uint64 } = catapult.utils;
@@ -84,7 +84,9 @@ class ReceiptsDb {
 		}
 
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
-		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'transactionStatements', options);
+
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions,
+			'transactionStatements', options).then(page => this.addBlockMeta(page));
 	}
 
 	/**
@@ -109,7 +111,44 @@ class ReceiptsDb {
 			conditions['statement.height'] = convertToLong(height);
 
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
-		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, `${artifact}ResolutionStatements`, options);
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions,
+			`${artifact}ResolutionStatements`, options).then(page => this.addBlockMeta(page));
+	}
+
+	/**
+	 * It retrives and adds the blocks information to the statements' meta.
+	 *
+	 * The block information includes the its timestamp
+	 *
+	 * @param {object} page the page without meta in the items.
+	 * @returns {Promise<{pagination, data}>} the page with the added block's meta to the items.
+	 */
+	async addBlockMeta(page) {
+		const blockHeights = uniqueLongList(
+			page.data.map(pageItem => pageItem.statement.height)
+		);
+		const blocks = await this.catapultDb.blocksAtHeights(blockHeights,
+			{ 'block.timestamp': 1, 'block.height': 1 });
+		const data = page.data.map(pageItem => {
+			const statementBlock = blocks.find(
+				blockInfo => blockInfo.block.height.equals(
+					pageItem.statement.height
+				)
+			);
+			if (!statementBlock) {
+				throw new Error(
+					`Cannot find block with height ${pageItem.statement.height.toString()}`
+				);
+			}
+			if (!statementBlock.block.timestamp) {
+				throw new Error(
+					`Cannot find timestamp in block with height ${pageItem.statement.height.toString()}`
+				);
+			}
+			// creates a copy of the page item with the added timestamp to the meta field.
+			return { meta: { ...pageItem.meta, timestamp: statementBlock.block.timestamp }, ...pageItem };
+		});
+		return { data, pagination: page.pagination };
 	}
 }
 

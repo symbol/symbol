@@ -77,7 +77,14 @@ const dbUtils = {
 			return { [sortFieldDbRelation[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: offset } };
 		}
 		return undefined;
-	}
-};
+	},
 
+	/**
+	 * Creates copy of the array without duplicated longs.
+	 * @param {Long[]} duplicatedIds of {Long} objects.
+	 * @returns {Long[]} copy of the original list without duplicated values.
+	 */
+	uniqueLongList: duplicatedIds => duplicatedIds.filter((height, index) =>
+		index === duplicatedIds.findIndex(anotherHeight => anotherHeight.equals(height)))
+};
 module.exports = dbUtils;
