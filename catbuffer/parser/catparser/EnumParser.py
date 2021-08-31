@@ -29,7 +29,7 @@ class EnumParser(CompositeTypeParser):
 
     def _require_unknown_property(self, property_name):
         if any(property_name == property_type_descriptor['name'] for property_type_descriptor in self.type_descriptor['values']):
-            raise CatsParseException('duplicate definition for enum value "{0}"'.format(property_name))
+            raise CatsParseException('duplicate definition for enum value "{}"'.format(property_name))
 
 
 class EnumParserFactory(RegexParserFactory):

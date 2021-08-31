@@ -15,7 +15,7 @@ REGEXES = {
 def _match_regex_or_throw(regex_key, line):
     match = REGEXES[regex_key].match(line)
     if not match:
-        raise CatsParseException('unable to parse "{0}": {1}'.format(regex_key, line))
+        raise CatsParseException('unable to parse "{}": {}'.format(regex_key, line))
 
     return match
 

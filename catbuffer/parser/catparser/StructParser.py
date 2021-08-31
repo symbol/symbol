@@ -48,7 +48,7 @@ class StructParser(CompositeTypeParser):
 
         last_property = layout[-1]
         if 'fill' == last_property.get('disposition'):
-            raise CatsParseException('array property with fill disposition "{0}" must be last property'.format(last_property['name']))
+            raise CatsParseException('array property with fill disposition "{}" must be last property'.format(last_property['name']))
 
     def _require_known_property(self, property_name, allow_numeric=True):
         # size can be a constant represented by a numeric type
@@ -57,12 +57,12 @@ class StructParser(CompositeTypeParser):
 
         if all('name' not in property_type_descriptor or property_name != property_type_descriptor['name']
                for property_type_descriptor in self.type_descriptor['layout']):
-            raise CatsParseException('no definition for referenced property "{0}"'.format(property_name))
+            raise CatsParseException('no definition for referenced property "{}"'.format(property_name))
 
     def _require_unknown_property(self, descriptor_uid):
         if any(descriptor_uid == self._get_descriptor_uid(property_type_descriptor)
                for property_type_descriptor in self.type_descriptor['layout']):
-            raise CatsParseException('duplicate definition for property "{0}"'.format(descriptor_uid))
+            raise CatsParseException('duplicate definition for property "{}"'.format(descriptor_uid))
 
     @staticmethod
     def _get_descriptor_uid(descriptor):

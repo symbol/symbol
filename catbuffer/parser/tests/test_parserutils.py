@@ -180,7 +180,7 @@ class ParseBuiltinTest(unittest.TestCase):
         for size_tuple in [('32', 32), ('0x20', 32), ('25', 25)]:
             # Act + Assert:
             self._assert_parse(
-                'binary_fixed({0})'.format(size_tuple[0]),
+                'binary_fixed({})'.format(size_tuple[0]),
                 {'type': 'byte', 'signedness': 'unsigned', 'size': size_tuple[1]})
 
     def test_cannot_parse_invalid_builtin(self):

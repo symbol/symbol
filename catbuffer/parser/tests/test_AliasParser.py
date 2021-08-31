@@ -22,12 +22,12 @@ class AliasParserTest(unittest.TestCase):
     def test_can_parse_builtin_as_alias(self):
         for builtin_tuple in BUILTIN_TYPE_TUPLES:
             SingleLineParserTestUtils(AliasParserFactory, self).assert_parse(
-                'using Age = {0}'.format(builtin_tuple[0]),
+                'using Age = {}'.format(builtin_tuple[0]),
                 ('Age', {'type': 'byte', 'signedness': builtin_tuple[2], 'size': builtin_tuple[1]}))
 
     def test_alias_names_must_have_type_name_semantics(self):
         SingleLineParserTestUtils(AliasParserFactory, self).assert_naming(
-            'using {0} = uint32',
+            'using {} = uint32',
             VALID_USER_TYPE_NAMES,
             INVALID_USER_TYPE_NAMES)
 

@@ -43,7 +43,7 @@ class StructParserTest(unittest.TestCase):
             ('Car', {'type': 'struct', 'layout': []}))
 
     def test_struct_names_must_have_type_name_semantics(self):
-        MultiLineParserTestUtils(StructParserFactory, self).assert_naming('struct {0}', VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES)
+        MultiLineParserTestUtils(StructParserFactory, self).assert_naming('struct {}', VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES)
 
     def test_can_append_scalar(self):
         # Arrange:
@@ -297,13 +297,13 @@ class StructConstParserTest(unittest.TestCase):
 
     def test_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
-            '{0} = make_const(uint32, 123)',
+            '{} = make_const(uint32, 123)',
             VALID_PROPERTY_NAMES,
             INVALID_PROPERTY_NAMES)
 
     def test_type_names_must_have_type_name_or_uint_semantics(self):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
-            'foo = make_const({0}, 123)',
+            'foo = make_const({}, 123)',
             VALID_USER_TYPE_NAMES + VALID_PRIMITIVE_NAMES,
             INVALID_USER_TYPE_NAMES + ['binary_fixed(32)'])
 
@@ -363,7 +363,7 @@ class StructScalarParserTest(unittest.TestCase):
     def test_can_parse_simple_builtin_declaration(self):
         for builtin_tuple in BUILTIN_TYPE_TUPLES:
             self._assert_parse(
-                'car = {0}'.format(builtin_tuple[0]),
+                'car = {}'.format(builtin_tuple[0]),
                 {'name': 'car', 'type': 'byte', 'signedness': builtin_tuple[2], 'size': builtin_tuple[1]})
 
     def _assert_can_parse_conditional_enum_declaration(self, operation):
@@ -407,7 +407,7 @@ class StructScalarParserTest(unittest.TestCase):
 
     def test_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructScalarMemberParserFactory, self).assert_naming(
-            '{0} = uint32',
+            '{} = uint32',
             VALID_PROPERTY_NAMES,
             INVALID_PROPERTY_NAMES)
 
@@ -416,10 +416,10 @@ class StructScalarParserTest(unittest.TestCase):
 
 # region StructArrayMemberParser
 
-VALID_ARRAY_PATTERNS = ['foo = {0}(bar, {1}baz)', '$$$ = {0}(&, {1}**)', '$$$ = {0}(&, {1}**, sort_key=@@)']
+VALID_ARRAY_PATTERNS = ['foo = {}(bar, {}baz)', '$$$ = {}(&, {}**)', '$$$ = {}(&, {}**, sort_key=@@)']
 INVALID_ARRAY_PATTERNS = [
-    ' foo = {0}(bar, {1}baz)', 'foo = {0}(bar, {1}baz) ', 'foo = ', '= {0}(bar, {1}baz)',
-    'foo = {0}(bar, {1}baz', 'foo = {0}(bar, {1}baz) if abc equals def', 'foo = {0}(bar, {1}baz) if abc has def'
+    ' foo = {}(bar, {}baz)', 'foo = {}(bar, {}baz) ', 'foo = ', '= {}(bar, {}baz)',
+    'foo = {}(bar, {}baz', 'foo = {}(bar, {}baz) if abc equals def', 'foo = {}(bar, {}baz) if abc has def'
 ]
 ARRAY_DIMENSION_QUALIFIERS = ['', 'size=']
 
@@ -456,52 +456,52 @@ class StructArrayMemberParserTest(unittest.TestCase):
     def test_can_parse_array_with_non_numeric_size(self):
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
             self._assert_parse(
-                'vehicles = array({0}, garageSize)'.format(type_name),
+                'vehicles = array({}, garageSize)'.format(type_name),
                 {'name': 'vehicles', 'size': 'garageSize', 'disposition': 'array', **self._get_type_descriptor(type_name)})
 
     def test_can_parse_array_with_numeric_size(self):
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
             for numeric_str in ['10', '0x0A']:
                 self._assert_parse(
-                    'vehicles = array({0}, {1})'.format(type_name, numeric_str),
+                    'vehicles = array({}, {})'.format(type_name, numeric_str),
                     {'name': 'vehicles', 'size': 10, 'disposition': 'array', **self._get_type_descriptor(type_name)})
 
     def test_can_parse_array_with_fill_size(self):
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
             self._assert_parse(
-                'vehicles = array({0}, __FILL__)'.format(type_name),
+                'vehicles = array({}, __FILL__)'.format(type_name),
                 {'name': 'vehicles', 'size': 0, 'disposition': 'array fill', **self._get_type_descriptor(type_name)})
 
     def test_can_parse_array_with_sort_key(self):
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
             self._assert_parse(
-                'vehicles = array({0}, 10, sort_key=bar)'.format(type_name),
+                'vehicles = array({}, 10, sort_key=bar)'.format(type_name),
                 {'name': 'vehicles', 'size': 10, 'disposition': 'array', 'sort_key': 'bar', **self._get_type_descriptor(type_name)})
 
     def test_can_parse_vararray_with_non_numeric_size(self):
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
             self._assert_parse(
-                'vehicles = array({0}, size=garageSize)'.format(type_name),
+                'vehicles = array({}, size=garageSize)'.format(type_name),
                 {'name': 'vehicles', 'size': 'garageSize', 'disposition': 'array sized', **self._get_type_descriptor(type_name)})
 
     def test_can_parse_vararray_with_unsupported_numeric_size(self):
         # Act + Assert: size is not converted for var array
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
             self._assert_parse(
-                'vehicles = array({0}, size=0x0A)'.format(type_name),
+                'vehicles = array({}, size=0x0A)'.format(type_name),
                 {'name': 'vehicles', 'size': '0x0A', 'disposition': 'array sized', **self._get_type_descriptor(type_name)})
 
     def test_can_parse_vararray_with_unsupported_fill_size(self):
         # Act + Assert: size is not converted for var array
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
             self._assert_parse(
-                'vehicles = array({0}, size=__FILL__)'.format(type_name),
+                'vehicles = array({}, size=__FILL__)'.format(type_name),
                 {'name': 'vehicles', 'size': '__FILL__', 'disposition': 'array sized', **self._get_type_descriptor(type_name)})
 
     def test_can_parse_vararray_with_sort_key(self):
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
             self._assert_parse(
-                'vehicles = array({0}, size=garageSize, sort_key=bar)'.format(type_name),
+                'vehicles = array({}, size=garageSize, sort_key=bar)'.format(type_name),
                 {
                     'name': 'vehicles',
                     'size': 'garageSize',
@@ -513,12 +513,12 @@ class StructArrayMemberParserTest(unittest.TestCase):
     def test_cannot_parse_array_with_explicit_byte_type(self):
         for size in ['100', 'size=100']:
             SingleLineParserTestUtils(StructArrayMemberParserFactory, self).assert_parse_exception(
-                'vehicles = array(byte, {0})'.format(size),
+                'vehicles = array(byte, {})'.format(size),
                 CatsParseException)
 
     def test_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructArrayMemberParserFactory, self).assert_naming(
-            '{0} = array(Car, 10)',
+            '{} = array(Car, 10)',
             VALID_PROPERTY_NAMES,
             INVALID_PROPERTY_NAMES)
 

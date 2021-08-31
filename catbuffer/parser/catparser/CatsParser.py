@@ -61,7 +61,7 @@ class CatsParser(ScopeManager):
         try:
             factory = next(factory for factory in active_factories if factory.is_match(line_stripped))
         except StopIteration as ex:
-            raise CatsParseException('none of the parsers matched the line "{0}"'.format(line_stripped)) from ex
+            raise CatsParseException('none of the parsers matched the line "{}"'.format(line_stripped)) from ex
 
         parser = factory.create()
         parse_result = parser.process_line(line_stripped)
@@ -111,7 +111,7 @@ class CatsParser(ScopeManager):
                     condition_value = property_type_descriptor['condition_value']
                     if 'byte' == condition_type_name:
                         if not isinstance(condition_value, int):
-                            error_message_format = 'condition value "{0}" for "{1}" must be numeric'
+                            error_message_format = 'condition value "{}" for "{}" must be numeric'
                             raise CatsParseException(error_message_format.format(condition_value, condition_field_name))
                     else:
                         self._require_enum_type_with_value(condition_type_name, condition_value)
@@ -125,26 +125,26 @@ class CatsParser(ScopeManager):
 
     def _require_known_type(self, type_name):
         if type_name not in self.wip_type_descriptors and 'byte' != type_name:
-            raise CatsParseException('no definition for linked type "{0}"'.format(type_name))
+            raise CatsParseException('no definition for linked type "{}"'.format(type_name))
 
         return type_name
 
     def _require_type_with_field(self, type_name, field_name):
         type_descriptor = self.wip_type_descriptors[type_name]
         if not any(field_name == field['name'] for field in type_descriptor['layout']):
-            raise CatsParseException('"{0}" does not have field "{1}"'.format(type_name, field_name))
+            raise CatsParseException('"{}" does not have field "{}"'.format(type_name, field_name))
 
     def _require_enum_type_with_value(self, type_name, value_name):
         enum_type_descriptor = self.wip_type_descriptors[type_name]
         if 'values' not in enum_type_descriptor:
-            raise CatsParseException('linked type "{0}" must be an enum type'.format(type_name))
+            raise CatsParseException('linked type "{}" must be an enum type'.format(type_name))
 
         if not any(value_name == value['name'] for value in enum_type_descriptor['values']):
-            raise CatsParseException('linked enum type "{0}" does not contain value "{1}"'.format(type_name, value_name))
+            raise CatsParseException('linked enum type "{}" does not contain value "{}"'.format(type_name, value_name))
 
     def _set_type_descriptor(self, type_name, type_descriptor):
         if type_name in self.wip_type_descriptors:
-            raise CatsParseException('duplicate definition for type "{0}"'.format(type_name))
+            raise CatsParseException('duplicate definition for type "{}"'.format(type_name))
 
         self.wip_type_descriptors[type_name] = type_descriptor
 

@@ -225,14 +225,14 @@ class CatsParserTests(unittest.TestCase):
         for type_name in ['MosaicId', 'array(MosaicId, 10)']:
             self._assert_parse_delayed_exception([
                 'struct Foo',
-                '\tid = {0}'.format(type_name)
+                '\tid = {}'.format(type_name)
             ])
 
     def test_cannot_parse_struct_with_unknown_inline_type(self):
         for type_name in ['MosaicId', 'array(MosaicId, 10)', 'uint8', 'binary_fixed(25)']:
             self._assert_parse_delayed_exception([
                 'struct Foo',
-                '\tinline {0}'.format(type_name)
+                '\tinline {}'.format(type_name)
             ])
 
     # endregion

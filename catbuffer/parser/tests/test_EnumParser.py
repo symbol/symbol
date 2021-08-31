@@ -40,16 +40,16 @@ class EnumParserTest(unittest.TestCase):
     def test_can_parse_type_declaration(self):
         for primitive_tuple in PRIMITIVE_TYPE_TUPLES:
             self._assert_parse(
-                'enum Colors : {0}'.format(primitive_tuple[0]),
+                'enum Colors : {}'.format(primitive_tuple[0]),
                 ('Colors', {'type': 'enum', 'size': primitive_tuple[1], 'signedness': primitive_tuple[2], 'values': []}))
 
     def test_cannot_parse_enum_declaration_with_invalid_base(self):
         for base_type in ['uint7', 'uint9']:
-            self._assert_parse_exception('enum Colors : {0}'.format(base_type))
+            self._assert_parse_exception('enum Colors : {}'.format(base_type))
 
     def test_enum_names_must_have_type_name_semantics(self):
         MultiLineParserTestUtils(EnumParserFactory, self).assert_naming(
-            'enum {0} : uint8',
+            'enum {} : uint8',
             VALID_USER_TYPE_NAMES,
             INVALID_USER_TYPE_NAMES)
 
@@ -125,4 +125,4 @@ class EnumValueParserTest(unittest.TestCase):
         SingleLineParserTestUtils(EnumValueParserFactory, self).assert_parse_exception('red = uint16', ValueError)
 
     def test_member_names_must_have_property_name_semantics(self):
-        SingleLineParserTestUtils(EnumValueParserFactory, self).assert_naming('{0} = 12', VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES)
+        SingleLineParserTestUtils(EnumValueParserFactory, self).assert_naming('{} = 12', VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES)
