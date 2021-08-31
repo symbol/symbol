@@ -473,6 +473,8 @@ ResolutionStatementPage:
   "$ref": "../plugins/receipt/schemas/ResolutionStatementPage.yml"
 SourceDTO:
   "$ref": "../plugins/receipt/schemas/SourceDTO.yml"
+StatementMetaDTO:
+  "$ref": "../plugins/receipt/schemas/StatementMetaDTO.yml"
 TransactionStatementDTO:
   "$ref": "../plugins/receipt/schemas/TransactionStatementDTO.yml"
 TransactionStatementInfoDTO:
