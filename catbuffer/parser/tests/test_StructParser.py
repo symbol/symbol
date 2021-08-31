@@ -381,7 +381,7 @@ class StructScalarParserTest(unittest.TestCase):
     def _assert_can_parse_conditional_enum_declaration(self, operation):
         # Act + Assert:
         self._assert_parse(
-            'roadGrade = RoadGrade_ if terrain {} road'.format(operation),
+            'roadGrade = RoadGrade_ if road {} terrain'.format(operation),
             {
                 'name': 'roadGrade',
                 'type': 'RoadGrade_',
@@ -404,7 +404,7 @@ class StructScalarParserTest(unittest.TestCase):
         # Act + Assert:
         for value in ['33', '0x21']:
             self._assert_parse(
-                'roadGrade = RoadGrade_ if terrain {} {}'.format(operation, value),
+                'roadGrade = RoadGrade_ if {} {} terrain'.format(value, operation),
                 {
                     'name': 'roadGrade',
                     'type': 'RoadGrade_',

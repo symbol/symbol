@@ -354,9 +354,9 @@ class CatsParserTests(unittest.TestCase):
             'struct Enclosing',
             '\tdiscriminator = Shape',
             '\t# u part 1',
-            '\tcircumference = Circ if discriminator {}in circle'.format(prefix),
+            '\tcircumference = Circ if circle {}in discriminator'.format(prefix),
             '\t# union pt 2',
-            '\tperimiter = Perm if discriminator {}equals rectangle'.format(prefix)
+            '\tperimiter = Perm if rectangle {}equals discriminator'.format(prefix)
         ])
 
         # Assert:
@@ -397,9 +397,9 @@ class CatsParserTests(unittest.TestCase):
             '\tinline Version',
             '\tdiscriminator = Shape',
             '\t# u part 1',
-            '\tcircumference = Circ if discriminator in circle',
+            '\tcircumference = Circ if circle in discriminator',
             '\t# union pt 2',
-            '\tperimiter = Perm if discriminator equals rectangle'
+            '\tperimiter = Perm if rectangle equals discriminator'
         ])
 
         # Assert:
@@ -429,9 +429,9 @@ class CatsParserTests(unittest.TestCase):
             'using Perm = uint16',
             'struct Enclosing',
             '\t# u part 1',
-            '\tcircumference = Circ if discriminator in circle',
+            '\tcircumference = Circ if circle in discriminator',
             '\t# union pt 2',
-            '\tperimiter = Perm if discriminator equals rectangle',
+            '\tperimiter = Perm if rectangle equals discriminator',
             '\tdiscriminator = Shape'
         ])
 
@@ -459,7 +459,7 @@ class CatsParserTests(unittest.TestCase):
             'using Circ = uint16',
             'struct Enclosing',
             '\tdiscriminator = Shape',
-            '\tcircumference = Circ if discriminator equals 1'
+            '\tcircumference = Circ if 1 equals discriminator'
         ])
 
     def test_cannot_parse_struct_with_unknown_enum_condition_value(self):
@@ -470,7 +470,7 @@ class CatsParserTests(unittest.TestCase):
             'using Circ = uint16',
             'struct Enclosing',
             '\tdiscriminator = Shape',
-            '\tcircumference = Circ if discriminator equals hexagon'
+            '\tcircumference = Circ if hexagon equals discriminator'
         ])
 
     def _assert_can_parse_struct_byte_conditional_types(self, prefix):
@@ -481,9 +481,9 @@ class CatsParserTests(unittest.TestCase):
             'struct Enclosing',
             '\tdiscriminator = uint32',
             '\t# u part 1',
-            '\tcircumference = Circ if discriminator {}in 0x040'.format(prefix),
+            '\tcircumference = Circ if 0x040 {}in discriminator'.format(prefix),
             '\t# union pt 2',
-            '\tperimiter = Perm if discriminator {}equals 123'.format(prefix)
+            '\tperimiter = Perm if 123 {}equals discriminator'.format(prefix)
         ])
 
         # Assert:
@@ -516,7 +516,7 @@ class CatsParserTests(unittest.TestCase):
             'using Circ = uint16',
             'struct Enclosing',
             '\tdiscriminator = uint32',
-            '\tcircumference = Circ if discriminator equals foo'
+            '\tcircumference = Circ if foo equals discriminator'
         ])
 
     def test_cannot_parse_struct_with_unsupported_type_condition(self):
@@ -526,7 +526,7 @@ class CatsParserTests(unittest.TestCase):
             'using Circ = uint16',
             'struct Enclosing',
             '\tdiscriminator = Shape',
-            '\tcircumference = Circ if discriminator equals 123'
+            '\tcircumference = Circ if 123 equals discriminator'
         ])
 
     # endregion
