@@ -237,20 +237,25 @@ class StructParserTest(unittest.TestCase):
 # region StructConstParserTest
 
 class StructConstParserFactoryTest(unittest.TestCase):
+    @staticmethod
+    def _expand_disposition_seed_patterns(seed_patterns):
+        return [seed_pattern.format(disposition) for disposition in ['make_const', 'make_reserved'] for seed_pattern in seed_patterns]
+
     def test_is_match_returns_true_for_positives(self):
-        ParserFactoryTestUtils(StructConstParserFactory, self).assert_positives([
-            'foo = make_const(Foo, Bar)', 'FOO = make_const(FOO, BAR)', 'FzaZa09 = make_const(Za09Za, fzaZa09)',
-            '$$$ = make_const(!!!, ###)'
-        ])
+        ParserFactoryTestUtils(StructConstParserFactory, self).assert_positives(self._expand_disposition_seed_patterns([
+            'foo = {}(Foo, Bar)', 'FOO = {}(FOO, BAR)', 'FzaZa09 = {}(Za09Za, fzaZa09)', '$$$ = {}(!!!, ###)'
+        ]))
 
     def test_is_match_returns_false_for_negatives(self):
-        ParserFactoryTestUtils(StructConstParserFactory, self).assert_negatives([
-            ' foo = make_const(Foo, Bar)', 'foo = make_const(Foo, Bar) ', 'foo = make_const(Foo)', 'foo = make_const()',
-            'foo make_const(Foo, Bar)', 'foo = make_const(Foo, Bar', 'foo = make_const Foo, Bar'
-        ])
+        ParserFactoryTestUtils(StructConstParserFactory, self).assert_negatives(self._expand_disposition_seed_patterns([
+            ' foo = {}(Foo, Bar)', 'foo = {}(Foo, Bar) ', 'foo = {}(Foo)', 'foo = {}()',
+            'foo {}(Foo, Bar)', 'foo = {}(Foo, Bar', 'foo = {} Foo, Bar'
+        ]) + ['foo = make_pair(Foo, Bar)'])
 
 
 class StructConstParserTest(unittest.TestCase):
+    SUPPORTED_DISPOSITIONS = ['const', 'reserved']
+
     def _assert_parse(self, line, expected_result):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse(line, expected_result)
 
@@ -258,31 +263,37 @@ class StructConstParserTest(unittest.TestCase):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(line)
 
     def test_can_parse_uint_type_constant(self):
-        for value in [32, 0x20]:
-            self._assert_parse(
-                'foo = make_const(uint16, {0})'.format(value),
-                {'name': 'foo', 'type': 'byte', 'signedness': 'unsigned', 'size': 2, 'value': 32, 'disposition': 'const'})
+        for disposition in self.SUPPORTED_DISPOSITIONS:
+            for value in [32, 0x20]:
+                self._assert_parse(
+                    'foo = make_{}(uint16, {})'.format(disposition, value),
+                    {'name': 'foo', 'type': 'byte', 'signedness': 'unsigned', 'size': 2, 'value': 32, 'disposition': disposition})
 
     def test_can_parse_custom_type_constant(self):
-        for value in [33, 0x21]:
-            self._assert_parse(
-                'red = make_const(ColorShade, {0})'.format(value),
-                {'name': 'red', 'type': 'ColorShade', 'value': 33, 'disposition': 'const'})
+        for disposition in self.SUPPORTED_DISPOSITIONS:
+            for value in [33, 0x21]:
+                self._assert_parse(
+                    'red = make_{}(ColorShade, {})'.format(disposition, value),
+                    {'name': 'red', 'type': 'ColorShade', 'value': 33, 'disposition': disposition})
 
     def test_cannot_parse_non_numeric_value_for_uint_type_constant(self):
-        for value in ['FOO', 'AF']:
-            SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(
-                'foo = make_const(uint16, {0})'.format(value),
-                ValueError)
+        for disposition in self.SUPPORTED_DISPOSITIONS:
+            for value in ['FOO', 'AF']:
+                SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(
+                    'foo = make_{}(uint16, {})'.format(disposition, value),
+                    ValueError)
 
     def test_can_parse_non_numeric_value_for_custom_type_constant(self):
-        for value in ['FOO', 'AF']:
-            self._assert_parse(
-                'red = make_const(ColorShade, {0})'.format(value),
-                {'name': 'red', 'type': 'ColorShade', 'value': value, 'disposition': 'const'})
+        for disposition in self.SUPPORTED_DISPOSITIONS:
+            for value in ['FOO', 'AF']:
+                self._assert_parse(
+                    'red = make_{}(ColorShade, {})'.format(disposition, value),
+                    {'name': 'red', 'type': 'ColorShade', 'value': value, 'disposition': disposition})
 
     def test_cannot_parse_binary_fixed_type_constant(self):
-        SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception('foo = make_const(binary_fixed(25), 123)')
+        for disposition in self.SUPPORTED_DISPOSITIONS:
+            SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(
+                'foo = make_{}(binary_fixed(25), 123)'.format(disposition))
 
     def test_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
@@ -324,20 +335,20 @@ class StructInlineParserTest(unittest.TestCase):
 # region StructScalarMemberParser
 
 
-def _generate_operation_dependent_patterns(pattern):
-    return [pattern.format(operation) for operation in ['equals', 'in', 'not equals', 'not in']]
-
-
 class StructScalarParserFactoryTest(unittest.TestCase):
+    @staticmethod
+    def _expand_operation_seed_pattern(seed_pattern):
+        return [seed_pattern.format(operation) for operation in ['equals', 'in', 'not equals', 'not in']]
+
     def test_is_match_returns_true_for_positives(self):
         ParserFactoryTestUtils(StructScalarMemberParserFactory, self).assert_positives([
             'foo = bar', 'foo = BAR', 'fzaZa09 = d', '& = $$$', 'foo = fazFZA90'
-        ] + _generate_operation_dependent_patterns('foo = bar if abc {} def'))
+        ] + self._expand_operation_seed_pattern('foo = bar if abc {} def'))
 
     def test_is_match_returns_false_for_negatives(self):
         ParserFactoryTestUtils(StructScalarMemberParserFactory, self).assert_negatives([
             ' foo = bar', 'foo = bar ', 'foo = ', '= bar', 'foo = array(bar, baz)', 'foo = bar if abc mask def'
-        ] + _generate_operation_dependent_patterns('foo = bar if abc {}') + _generate_operation_dependent_patterns('foo = bar abc {} def'))
+        ] + self._expand_operation_seed_pattern('foo = bar if abc {}') + self._expand_operation_seed_pattern('foo = bar abc {} def'))
 
 
 class StructScalarParserTest(unittest.TestCase):

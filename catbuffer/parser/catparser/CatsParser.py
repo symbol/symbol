@@ -116,7 +116,7 @@ class CatsParser(ScopeManager):
                     else:
                         self._require_enum_type_with_value(condition_type_name, condition_value)
 
-                if 'const' == property_type_descriptor.get('disposition'):
+                if any(disposition == property_type_descriptor.get('disposition') for disposition in ['const', 'reserved']):
                     if not isinstance(property_type_descriptor['value'], int):
                         self._require_enum_type_with_value(property_type_descriptor['type'], property_type_descriptor['value'])
 

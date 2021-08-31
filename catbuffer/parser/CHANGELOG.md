@@ -11,6 +11,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [2.0.0] - 30-Aug-2021
 
 ### Added
+ - first class support for reserved fields with 'make_reserved' keyword
  - allow enum value names to be used as constant values
  - add 'not' keyword and support for negative conditions
  - allow numeric conditionals as well as enum conditionals

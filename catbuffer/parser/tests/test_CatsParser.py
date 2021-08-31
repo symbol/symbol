@@ -558,15 +558,15 @@ class CatsParserTests(unittest.TestCase):
 
     # endregion
 
-    # region struct - const
+    # region struct - const / reserved
 
-    def test_can_parse_struct_with_const_member(self):
+    def _assert_can_parse_struct_with_const_member(self, disposition):
         # Act:
         type_descriptors = parse_all([
             'struct Pair',
             '\tfooBar = uint64',
             '# some const comment',
-            '\ttupleSize = make_const(int8, 2)',
+            '\ttupleSize = make_{}(int8, 2)'.format(disposition),
             '\tbaz = uint32'
         ])
 
@@ -574,11 +574,17 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(1, len(type_descriptors))
         self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
             {'name': 'fooBar', **uint_descriptor(8), 'comments': ''},
-            {'name': 'tupleSize', **int_descriptor(1), 'disposition': 'const', 'value': 2, 'comments': 'some const comment'},
+            {'name': 'tupleSize', **int_descriptor(1), 'disposition': disposition, 'value': 2, 'comments': 'some const comment'},
             {'name': 'baz', **uint_descriptor(4), 'comments': ''}
         ]})
 
-    def test_can_parse_struct_with_const_enum_member(self):
+    def test_can_parse_struct_with_const_member(self):
+        self._assert_can_parse_struct_with_const_member('const')
+
+    def test_can_parse_struct_with_reserved_member(self):
+        self._assert_can_parse_struct_with_const_member('reserved')
+
+    def _assert_can_parse_struct_with_const_enum_member(self, disposition):
         # Act:
         type_descriptors = parse_all([
             'enum Shape : uint8',
@@ -586,40 +592,64 @@ class CatsParserTests(unittest.TestCase):
             '\trectangle = 9',
             'struct Enclosing',
             '\t# c part 1',
-            '\tc1 = make_const(Shape, rectangle)',
+            '\tc1 = make_{}(Shape, rectangle)'.format(disposition),
             '\t# const pt 2',
-            '\tc2 = make_const(Shape, 7)'
+            '\tc2 = make_{}(Shape, 7)'.format(disposition)
         ])
 
         # Assert:
         self.assertEqual(2, len(type_descriptors))
         self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
-            {'disposition': 'const', 'name': 'c1', 'type': 'Shape', 'comments': 'c part 1', 'value': 'rectangle'},
-            {'disposition': 'const', 'name': 'c2', 'type': 'Shape', 'comments': 'const pt 2', 'value': 7}
+            {'disposition': disposition, 'name': 'c1', 'type': 'Shape', 'comments': 'c part 1', 'value': 'rectangle'},
+            {'disposition': disposition, 'name': 'c2', 'type': 'Shape', 'comments': 'const pt 2', 'value': 7}
         ]})
 
-    def test_cannot_parse_struct_with_invalid_const_type(self):
+    def test_can_parse_struct_with_const_enum_member(self):
+        self._assert_can_parse_struct_with_const_enum_member('const')
+
+    def test_can_parse_struct_with_reserved_enum_member(self):
+        self._assert_can_parse_struct_with_const_enum_member('reserved')
+
+    def _assert_cannot_parse_struct_with_invalid_const_type(self, disposition):
         self._assert_parse_commit_exception([
             'using Shape = uint8',
             'struct Enclosing',
-            '\tc1 = make_const(Shape, rectangle)'
+            '\tc1 = make_{}(Shape, rectangle)'.format(disposition)
         ])
 
-    def test_cannot_parse_struct_with_unknown_const_enum_value(self):
+    def test_cannot_parse_struct_with_invalid_const_type(self):
+        self._assert_cannot_parse_struct_with_invalid_const_type('const')
+
+    def test_cannot_parse_struct_with_invalid_reserved_type(self):
+        self._assert_cannot_parse_struct_with_invalid_const_type('reserved')
+
+    def _assert_cannot_parse_struct_with_unknown_const_enum_value(self, disposition):
         self._assert_parse_commit_exception([
             'enum Shape : uint8',
             '\tcircle = 4',
             '\trectangle = 9',
             'struct Enclosing',
-            '\tc1 = make_const(Shape, square)'
+            '\tc1 = make_{}(Shape, square)'.format(disposition)
         ])
 
-    def test_cannot_parse_struct_with_unknown_const_type(self):
+    def test_cannot_parse_struct_with_unknown_const_enum_value(self):
+        self._assert_cannot_parse_struct_with_unknown_const_enum_value('const')
+
+    def test_cannot_parse_struct_with_unknown_reserved_enum_value(self):
+        self._assert_cannot_parse_struct_with_unknown_const_enum_value('reserved')
+
+    def _assert_cannot_parse_struct_with_unknown_const_type(self, disposition):
         for type_name in ['uint7', 'binary_fixed(25)', 'Car']:
             self._assert_parse_delayed_exception([
                 'struct Foo',
-                '\tbar = make_const({0}, 123)'.format(type_name)
+                '\tbar = make_{}({}, 123)'.format(disposition, type_name)
             ])
+
+    def test_cannot_parse_struct_with_unknown_const_type(self):
+        self._assert_cannot_parse_struct_with_unknown_const_type('const')
+
+    def test_cannot_parse_struct_with_unknown_reserved_type(self):
+        self._assert_cannot_parse_struct_with_unknown_const_type('reserved')
 
     # endregion
 
