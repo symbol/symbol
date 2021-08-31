@@ -1,13 +1,9 @@
 import argparse
+import importlib
 import os
 import pprint
 
 from .CatsParser import CatsParser
-
-try:
-    from generators.All import AVAILABLE_GENERATORS
-except ImportError:
-    AVAILABLE_GENERATORS = {}
 
 
 class MultiFileParser:
@@ -43,8 +39,7 @@ class MultiFileParser:
         self.cats_parser.pop_scope()
 
 
-def _generate_output(generator_name, output_path, schema, options):
-    generator_class = AVAILABLE_GENERATORS[generator_name]
+def _generate_output(generator_class, output_path, schema, options):
     os.makedirs(output_path, exist_ok=True)
     generator = generator_class(schema, options)
     for generated_descriptor in generator:
@@ -63,8 +58,7 @@ def main():
     parser.add_argument('-o', '--output', help='output directory, if not provided, _generated/{generator} is used')
     parser.add_argument('-i', '--include', help='schema root directory', default='./schemas')
 
-    generators_list = list(AVAILABLE_GENERATORS.keys())
-    parser.add_argument('-g', '--generator', help='generator to use to produce output files', choices=generators_list)
+    parser.add_argument('-g', '--generator', help='generator to use to produce output files')
     parser.add_argument('-c', '--copyright', help='file containing copyright data to use with output files', default='../HEADER.inc')
     args = parser.parse_args()
 
@@ -81,11 +75,22 @@ def main():
 
     # generate and output code
     if args.generator:
+        generator_class_name = os.path.splitext(args.generator)[1][1:]
+
+        print()
+        print('loading generator {} from {}'.format(generator_class_name, args.generator))
+
+        generator_module = importlib.import_module(args.generator)
+        generator_class = getattr(generator_module, generator_class_name)
+
+        print('loaded generator: {}'.format(generator_class))
+        print()
+
         output_path = args.output
         if output_path is None:
             output_path = os.path.join('_generated', args.generator)
 
-        _generate_output(args.generator, output_path, type_descriptors, {'copyright': args.copyright})
+        _generate_output(generator_class, output_path, type_descriptors, {'copyright': args.copyright})
 
 
 if '__main__' == __name__:
