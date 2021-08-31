@@ -17,6 +17,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
  - add support for numeric arrays
 
 ### Changed
+ - replace `const` keyword with `make_const` to preserve a unified left to right flow
  - rename keyword 'has' to 'in'
  - deprecate explicit use of 'byte' type
 

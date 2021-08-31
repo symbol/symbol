@@ -239,12 +239,14 @@ class StructParserTest(unittest.TestCase):
 class StructConstParserFactoryTest(unittest.TestCase):
     def test_is_match_returns_true_for_positives(self):
         ParserFactoryTestUtils(StructConstParserFactory, self).assert_positives([
-            'const Foo foo = Bar', 'const FOO FOO = BAR', 'const Za09Za FzaZa09 = fzaZa09', 'const !!! $$$ = ###'
+            'foo = make_const(Foo, Bar)', 'FOO = make_const(FOO, BAR)', 'FzaZa09 = make_const(Za09Za, fzaZa09)',
+            '$$$ = make_const(!!!, ###)'
         ])
 
     def test_is_match_returns_false_for_negatives(self):
         ParserFactoryTestUtils(StructConstParserFactory, self).assert_negatives([
-            ' const Foo foo = Bar', 'const Foo foo = Bar ', 'const Foo foo =', 'const Foo foo Bar', 'const Foo = Bar', 'const Foo'
+            ' foo = make_const(Foo, Bar)', 'foo = make_const(Foo, Bar) ', 'foo = make_const(Foo)', 'foo = make_const()',
+            'foo make_const(Foo, Bar)', 'foo = make_const(Foo, Bar', 'foo = make_const Foo, Bar'
         ])
 
 
@@ -258,39 +260,39 @@ class StructConstParserTest(unittest.TestCase):
     def test_can_parse_uint_type_constant(self):
         for value in [32, 0x20]:
             self._assert_parse(
-                'const uint16 foo = {0}'.format(value),
+                'foo = make_const(uint16, {0})'.format(value),
                 {'name': 'foo', 'type': 'byte', 'signedness': 'unsigned', 'size': 2, 'value': 32, 'disposition': 'const'})
 
     def test_can_parse_custom_type_constant(self):
         for value in [33, 0x21]:
             self._assert_parse(
-                'const ColorShade red = {0}'.format(value),
+                'red = make_const(ColorShade, {0})'.format(value),
                 {'name': 'red', 'type': 'ColorShade', 'value': 33, 'disposition': 'const'})
 
     def test_cannot_parse_non_numeric_value_for_uint_type_constant(self):
         for value in ['FOO', 'AF']:
             SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(
-                'const uint16 foo = {0}'.format(value),
+                'foo = make_const(uint16, {0})'.format(value),
                 ValueError)
 
     def test_can_parse_non_numeric_value_for_custom_type_constant(self):
         for value in ['FOO', 'AF']:
             self._assert_parse(
-                'const ColorShade red = {0}'.format(value),
+                'red = make_const(ColorShade, {0})'.format(value),
                 {'name': 'red', 'type': 'ColorShade', 'value': value, 'disposition': 'const'})
 
     def test_cannot_parse_binary_fixed_type_constant(self):
-        SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception('const binary_fixed(25) foo = 123')
+        SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception('foo = make_const(binary_fixed(25), 123)')
 
     def test_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
-            'const uint32 {0} = 123',
+            '{0} = make_const(uint32, 123)',
             VALID_PROPERTY_NAMES,
             INVALID_PROPERTY_NAMES)
 
     def test_type_names_must_have_type_name_or_uint_semantics(self):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
-            'const {0} foo = 123',
+            'foo = make_const({0}, 123)',
             VALID_USER_TYPE_NAMES + VALID_PRIMITIVE_NAMES,
             INVALID_USER_TYPE_NAMES + ['binary_fixed(32)'])
 

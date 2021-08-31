@@ -86,10 +86,10 @@ class StructConstParser:
 
     def process_line(self, line):
         match = self.regex.match(line)
-        type_name = match.group(1)
+        type_name = match.group(2)
 
         const_descriptor = {
-            'name': require_property_name(match.group(2)),
+            'name': require_property_name(match.group(1)),
             'disposition': 'const',
             'value': match.group(3)
         }
@@ -111,7 +111,7 @@ class StructConstParser:
 class StructConstParserFactory(RegexParserFactory):
     """Factory for creating struct const parsers"""
     def __init__(self):
-        super().__init__(r'const (\S+) (\S+) = (\S+)', StructConstParser)
+        super().__init__(r'(\S+) = make_const\((\S+), (\S+)\)', StructConstParser)
 
 
 # endregion

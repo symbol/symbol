@@ -566,7 +566,7 @@ class CatsParserTests(unittest.TestCase):
             'struct Pair',
             '\tfooBar = uint64',
             '# some const comment',
-            '\tconst int8 tupleSize = 2',
+            '\ttupleSize = make_const(int8, 2)',
             '\tbaz = uint32'
         ])
 
@@ -586,9 +586,9 @@ class CatsParserTests(unittest.TestCase):
             '\trectangle = 9',
             'struct Enclosing',
             '\t# c part 1',
-            '\tconst Shape c1 = rectangle',
+            '\tc1 = make_const(Shape, rectangle)',
             '\t# const pt 2',
-            '\tconst Shape c2 = 7'
+            '\tc2 = make_const(Shape, 7)'
         ])
 
         # Assert:
@@ -602,7 +602,7 @@ class CatsParserTests(unittest.TestCase):
         self._assert_parse_commit_exception([
             'using Shape = uint8',
             'struct Enclosing',
-            '\tconst Shape c1 = rectangle',
+            '\tc1 = make_const(Shape, rectangle)'
         ])
 
     def test_cannot_parse_struct_with_unknown_const_enum_value(self):
@@ -611,14 +611,14 @@ class CatsParserTests(unittest.TestCase):
             '\tcircle = 4',
             '\trectangle = 9',
             'struct Enclosing',
-            '\tconst Shape c1 = square',
+            '\tc1 = make_const(Shape, square)'
         ])
 
     def test_cannot_parse_struct_with_unknown_const_type(self):
         for type_name in ['uint7', 'binary_fixed(25)', 'Car']:
             self._assert_parse_delayed_exception([
                 'struct Foo',
-                '\tconst {0} bar = 123'.format(type_name)
+                '\tbar = make_const({0}, 123)'.format(type_name)
             ])
 
     # endregion
