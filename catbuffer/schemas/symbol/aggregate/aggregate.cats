@@ -21,16 +21,16 @@ struct AggregateTransactionBody
 
 # binary layout for an aggregate complete transaction
 struct AggregateCompleteTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = aggregate_complete
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, aggregate_complete)
 
 	inline Transaction
 	inline AggregateTransactionBody
 
 # binary layout for an aggregate bonded transaction
 struct AggregateBondedTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = aggregate_bonded
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, aggregate_bonded)
 
 	inline Transaction
 	inline AggregateTransactionBody

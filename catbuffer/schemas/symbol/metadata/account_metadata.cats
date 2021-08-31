@@ -21,16 +21,16 @@ struct AccountMetadataTransactionBody
 
 # binary layout for a non-embedded account metadata transaction
 struct AccountMetadataTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = account_metadata
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, account_metadata)
 
 	inline Transaction
 	inline AccountMetadataTransactionBody
 
 # binary layout for an embedded account metadata transaction
 struct EmbeddedAccountMetadataTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = account_metadata
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, account_metadata)
 
 	inline EmbeddedTransaction
 	inline AccountMetadataTransactionBody

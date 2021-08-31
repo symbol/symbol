@@ -25,16 +25,16 @@ struct TransferTransactionBody
 
 # binary layout for a non-embedded transfer transaction
 struct TransferTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = transfer
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, transfer)
 
 	inline Transaction
 	inline TransferTransactionBody
 
 # binary layout for an embedded transfer transaction
 struct EmbeddedTransferTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = transfer
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, transfer)
 
 	inline EmbeddedTransaction
 	inline TransferTransactionBody

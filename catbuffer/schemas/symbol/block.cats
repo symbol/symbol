@@ -81,16 +81,16 @@ struct ImportanceBlockFooter
 
 # binary layout for a nemesis block header
 struct NemesisBlockHeader
-	const uint8 block_version = 1
-	const BlockType block_type = nemesis
+	block_version = make_const(uint8, 1)
+	block_type = make_const(BlockType, nemesis)
 
 	inline BlockHeader
 	inline ImportanceBlockFooter
 
 # binary layout for a normal block header
 struct NormalBlockHeader
-	const uint8 block_version = 1
-	const BlockType block_type = normal
+	block_version = make_const(uint8, 1)
+	block_type = make_const(BlockType, normal)
 
 	inline BlockHeader
 
@@ -99,8 +99,8 @@ struct NormalBlockHeader
 
 # binary layout for an importance block header
 struct ImportanceBlockHeader
-	const uint8 block_version = 1
-	const BlockType block_type = importance
+	block_version = make_const(uint8, 1)
+	block_type = make_const(BlockType, importance)
 
 	inline BlockHeader
 	inline ImportanceBlockFooter

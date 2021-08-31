@@ -23,16 +23,16 @@ struct NamespaceRegistrationTransactionBody
 
 # binary layout for a non-embedded namespace registration transaction
 struct NamespaceRegistrationTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = namespace_registration
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, namespace_registration)
 
 	inline Transaction
 	inline NamespaceRegistrationTransactionBody
 
 # binary layout for an embedded namespace registration transaction
 struct EmbeddedNamespaceRegistrationTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = namespace_registration
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, namespace_registration)
 
 	inline EmbeddedTransaction
 	inline NamespaceRegistrationTransactionBody

@@ -20,16 +20,16 @@ struct MosaicDefinitionTransactionBody
 
 # binary layout for a non-embedded mosaic definition transaction
 struct MosaicDefinitionTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = mosaic_definition
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, mosaic_definition)
 
 	inline Transaction
 	inline MosaicDefinitionTransactionBody
 
 # binary layout for an embedded mosaic definition transaction
 struct EmbeddedMosaicDefinitionTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = mosaic_definition
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, mosaic_definition)
 
 	inline EmbeddedTransaction
 	inline MosaicDefinitionTransactionBody

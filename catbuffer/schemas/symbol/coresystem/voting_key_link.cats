@@ -16,16 +16,16 @@ struct VotingKeyLinkTransactionBody
 
 # binary layout for a non-embedded voting key link transaction
 struct VotingKeyLinkTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = voting_key_link
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, voting_key_link)
 
 	inline Transaction
 	inline VotingKeyLinkTransactionBody
 
 # binary layout for an embedded voting key link transaction
 struct EmbeddedVotingKeyLinkTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = voting_key_link
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, voting_key_link)
 
 	inline EmbeddedTransaction
 	inline VotingKeyLinkTransactionBody

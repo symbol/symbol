@@ -19,16 +19,16 @@ struct MosaicAddressRestrictionTransactionBody
 
 # binary layout for a non-embedded mosaic address restriction transaction
 struct MosaicAddressRestrictionTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = mosaic_address_restriction
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, mosaic_address_restriction)
 
 	inline Transaction
 	inline MosaicAddressRestrictionTransactionBody
 
 # binary layout for an embedded mosaic address restriction transaction
 struct EmbeddedMosaicAddressRestrictionTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = mosaic_address_restriction
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, mosaic_address_restriction)
 
 	inline EmbeddedTransaction
 	inline MosaicAddressRestrictionTransactionBody

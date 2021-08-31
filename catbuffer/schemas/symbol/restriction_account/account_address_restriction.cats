@@ -23,16 +23,16 @@ struct AccountAddressRestrictionTransactionBody
 
 # binary layout for a non-embedded account address restriction transaction
 struct AccountAddressRestrictionTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = account_address_restriction
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, account_address_restriction)
 
 	inline Transaction
 	inline AccountAddressRestrictionTransactionBody
 
 # binary layout for an embedded account address restriction transaction
 struct EmbeddedAccountAddressRestrictionTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = account_address_restriction
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, account_address_restriction)
 
 	inline EmbeddedTransaction
 	inline AccountAddressRestrictionTransactionBody

@@ -26,16 +26,16 @@ struct MosaicGlobalRestrictionTransactionBody
 
 # binary layout for a non-embedded mosaic global restriction transaction
 struct MosaicGlobalRestrictionTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = mosaic_global_restriction
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, mosaic_global_restriction)
 
 	inline Transaction
 	inline MosaicGlobalRestrictionTransactionBody
 
 # binary layout for an embedded mosaic global restriction transaction
 struct EmbeddedMosaicGlobalRestrictionTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = mosaic_global_restriction
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, mosaic_global_restriction)
 
 	inline EmbeddedTransaction
 	inline MosaicGlobalRestrictionTransactionBody

@@ -24,16 +24,16 @@ struct MosaicMetadataTransactionBody
 
 # binary layout for a non-embedded mosaic metadata transaction
 struct MosaicMetadataTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = mosaic_metadata
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, mosaic_metadata)
 
 	inline Transaction
 	inline MosaicMetadataTransactionBody
 
 # binary layout for an embedded mosaic metadata transaction
 struct EmbeddedMosaicMetadataTransaction
-	const uint8 transaction_version = 1
-	const TransactionType transaction_type = mosaic_metadata
+	transaction_version = make_const(uint8, 1)
+	transaction_type = make_const(TransactionType, mosaic_metadata)
 
 	inline EmbeddedTransaction
 	inline MosaicMetadataTransactionBody
