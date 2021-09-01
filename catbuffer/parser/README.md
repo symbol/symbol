@@ -47,6 +47,6 @@ In order to produce any output file, the [catbuffer-generators](https://github.c
 However, ``catbuffer-parser`` can still be used on its own to parse input files and check their validity:
 
 ```bash
-git clone --depth 1 --branch v1.0.0 https://github.com/nemtech/catbuffer-schemas.git
-python3 -m catparser --schema catbuffer-schemas/schemas/transfer/transfer.cats --include catbuffer-schemas/schemas
+git clone --depth 1 --branch v2.0.0a https://github.com/nemtech/catbuffer-schemas.git
+python3 -m catparser --schema ../catbuffer-schemas/symbol/transfer/transfer.cats --include ../catbuffer-schemas/symbol
 ```
