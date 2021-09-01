@@ -1,7 +1,9 @@
 import argparse
+import glob
 import importlib
 import os
 import pprint
+import re
 
 from .CatsParser import CatsParser
 
@@ -49,7 +51,31 @@ def _generate_output(generator_class, output_path, schema, options):
                 output_file.write('%s\n' % line)
 
 
+def build_available_generator_map():
+    generator_map = {}
+    if os.path.exists('generators'):
+        generator_file_name_pattern = re.compile(r'^generators/(.*)/(.+File|Builder)Generator\.py$', re.IGNORECASE)
+
+        for generator_path in glob.glob('generators/*/*Generator.py'):
+            generator_file_name_match = generator_file_name_pattern.match(generator_path)
+            if generator_file_name_match:
+                generator_class_name = generator_path.replace('/', '.')[:-3]
+                generator_map[generator_file_name_match.group(1)] = generator_class_name
+
+    if generator_map:
+        print('autodetected the following generators:')
+        for short_name in generator_map:
+            print(' + {} => {}'.format(short_name, generator_map[short_name]))
+
+        print()
+
+    return generator_map
+
+
 def main():
+    generator_map = build_available_generator_map()
+    available_generator_names = generator_map.keys() if generator_map else None
+
     parser = argparse.ArgumentParser(
         prog=None if globals().get('__spec__') is None else 'python -m {}'.format(__spec__.name.partition('.')[0]),
         description='CATS code generator'
@@ -58,7 +84,7 @@ def main():
     parser.add_argument('-o', '--output', help='output directory, if not provided, _generated/{generator} is used')
     parser.add_argument('-i', '--include', help='schema root directory', default='./schemas')
 
-    parser.add_argument('-g', '--generator', help='generator to use to produce output files')
+    parser.add_argument('-g', '--generator', help='generator to use to produce output files', choices=available_generator_names)
     parser.add_argument('-c', '--copyright', help='file containing copyright data to use with output files', default='../HEADER.inc')
     args = parser.parse_args()
 
@@ -75,12 +101,13 @@ def main():
 
     # generate and output code
     if args.generator:
-        generator_class_name = os.path.splitext(args.generator)[1][1:]
+        generator_full_name = generator_map.get(args.generator, args.generator)
+        generator_class_name = os.path.splitext(generator_full_name)[1][1:]
 
         print()
-        print('loading generator {} from {}'.format(generator_class_name, args.generator))
+        print('loading generator {} from {}'.format(generator_class_name, generator_full_name))
 
-        generator_module = importlib.import_module(args.generator)
+        generator_module = importlib.import_module(generator_full_name)
         generator_class = getattr(generator_module, generator_class_name)
 
         print('loaded generator: {}'.format(generator_class))
@@ -88,7 +115,7 @@ def main():
 
         output_path = args.output
         if output_path is None:
-            output_path = os.path.join('_generated', args.generator)
+            output_path = os.path.join('_generated', generator_class_name)
 
         _generate_output(generator_class, output_path, type_descriptors, {'copyright': args.copyright})
 
