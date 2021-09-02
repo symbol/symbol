@@ -22,7 +22,7 @@ using Signature = binary_fixed(64)
 # binary layout for a mosaic
 struct Mosaic
 	# mosaic identifier
-	mosaicId = MosaicId
+	mosaic_id = MosaicId
 
 	# mosaic amount
 	amount = Amount
@@ -30,7 +30,7 @@ struct Mosaic
 # binary layout for an unresolved mosaic
 struct UnresolvedMosaic
 	# mosaic identifier
-	mosaicId = UnresolvedMosaicId
+	mosaic_id = UnresolvedMosaicId
 
 	# mosaic amount
 	amount = Amount
@@ -38,7 +38,7 @@ struct UnresolvedMosaic
 # enumeration of link actions
 enum LinkAction : uint8
 	# unlink account
-	unlink = 0x00
+	UNLINK = 0x00
 
 	# link account
-	link = 0x01
+	LINK = 0x01

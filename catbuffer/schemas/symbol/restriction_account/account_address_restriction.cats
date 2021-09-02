@@ -4,35 +4,35 @@ import "transaction.cats"
 # binary layout for an account address restriction transaction
 struct AccountAddressRestrictionTransactionBody
 	# account restriction flags
-	restrictionFlags = AccountRestrictionFlags
+	restriction_flags = AccountRestrictionFlags
 
 	# number of account restriction additions
-	restrictionAdditionsCount = uint8
+	restriction_additions_count = uint8
 
 	# number of account restriction deletions
-	restrictionDeletionsCount = uint8
+	restriction_deletions_count = uint8
 
 	# reserved padding to align restrictionAdditions on 8-byte boundary
-	accountRestrictionTransactionBody_Reserved1 = make_reserved(uint32, 0)
+	account_restriction_transaction_body_reserved_1 = make_reserved(uint32, 0)
 
 	# account restriction additions
-	restrictionAdditions = array(UnresolvedAddress, restrictionAdditionsCount)
+	restriction_additions = array(UnresolvedAddress, restriction_additions_count)
 
 	# account restriction deletions
-	restrictionDeletions = array(UnresolvedAddress, restrictionDeletionsCount)
+	restriction_deletions = array(UnresolvedAddress, restriction_deletions_count)
 
 # binary layout for a non-embedded account address restriction transaction
 struct AccountAddressRestrictionTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, account_address_restriction)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_ADDRESS_RESTRICTION)
 
 	inline Transaction
 	inline AccountAddressRestrictionTransactionBody
 
 # binary layout for an embedded account address restriction transaction
 struct EmbeddedAccountAddressRestrictionTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, account_address_restriction)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_ADDRESS_RESTRICTION)
 
 	inline EmbeddedTransaction
 	inline AccountAddressRestrictionTransactionBody

@@ -4,10 +4,10 @@ import "transaction_type.cats"
 # enumeration of network types
 enum NetworkType : uint16
 	# main network
-	mainnet = 0x68
+	MAINNET = 0x68
 
 	# test network
-	testnet = 0x98
+	TESTNET = 0x98
 
 # binary layout for a transaction
 struct Transaction
@@ -24,10 +24,10 @@ struct Transaction
 	timestamp = Timestamp
 
 	# transaction public key size
-	signerPublicKeySize = make_reserved(uint32, 32)
+	signer_public_key_size = make_reserved(uint32, 32)
 
 	# transaction public key
-	signerPublicKey = PublicKey
+	signer_public_key = PublicKey
 
 	# transaction fee
 	fee = Amount

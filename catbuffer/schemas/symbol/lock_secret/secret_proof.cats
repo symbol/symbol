@@ -4,32 +4,32 @@ import "transaction.cats"
 # binary layout for a secret proof transaction
 struct SecretProofTransactionBody
 	# locked mosaic recipient address
-	recipientAddress = UnresolvedAddress
+	recipient_address = UnresolvedAddress
 
 	# secret
 	secret = Hash256
 
 	# proof size in bytes
-	proofSize = uint16
+	proof_size = uint16
 
 	# hash algorithm
-	hashAlgorithm = LockHashAlgorithm
+	hash_algorithm = LockHashAlgorithm
 
 	# proof data
-	proof = array(uint8, proofSize)
+	proof = array(uint8, proof_size)
 
 # binary layout for a non-embedded secret proof transaction
 struct SecretProofTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, secret_proof)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, SECRET_PROOF)
 
 	inline Transaction
 	inline SecretProofTransactionBody
 
 # binary layout for an embedded secret proof transaction
 struct EmbeddedSecretProofTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, secret_proof)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, SECRET_PROOF)
 
 	inline EmbeddedTransaction
 	inline SecretProofTransactionBody

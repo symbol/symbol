@@ -13,16 +13,16 @@ struct HashLockTransactionBody
 
 # binary layout for a non-embedded hash lock transaction
 struct HashLockTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, hash_lock)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, HASH_LOCK)
 
 	inline Transaction
 	inline HashLockTransactionBody
 
 # binary layout for an embedded hash lock transaction
 struct EmbeddedHashLockTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, hash_lock)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, HASH_LOCK)
 
 	inline EmbeddedTransaction
 	inline HashLockTransactionBody

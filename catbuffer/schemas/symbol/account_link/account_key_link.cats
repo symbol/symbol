@@ -3,23 +3,23 @@ import "transaction.cats"
 # binary layout for an account key link transaction
 struct AccountKeyLinkTransactionBody
 	# linked public key
-	linkedPublicKey = PublicKey
+	linked_public_key = PublicKey
 
 	# link action
-	linkAction = LinkAction
+	link_action = LinkAction
 
 # binary layout for a non-embedded account key link transaction
 struct AccountKeyLinkTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, account_key_link)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_KEY_LINK)
 
 	inline Transaction
 	inline AccountKeyLinkTransactionBody
 
 # binary layout for an embedded account key link transaction
 struct EmbeddedAccountKeyLinkTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, account_key_link)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_KEY_LINK)
 
 	inline EmbeddedTransaction
 	inline AccountKeyLinkTransactionBody

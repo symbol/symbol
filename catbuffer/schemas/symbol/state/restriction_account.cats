@@ -10,7 +10,7 @@ struct AccountRestrictions
 	address = Address
 
 	# number of restrictions
-	restrictionsCount = uint64
+	restrictions_count = uint64
 
 	# account restrictions
-	restrictions = array(AccountRestrictionsInfo, restrictionsCount)
+	restrictions = array(AccountRestrictionsInfo, restrictions_count)

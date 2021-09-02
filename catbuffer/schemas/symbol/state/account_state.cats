@@ -14,46 +14,46 @@ struct AccountState
 	address = Address
 
 	# height at which address has been obtained
-	addressHeight = Height
+	address_height = Height
 
 	# public key of account
-	publicKey = PublicKey
+	public_key = PublicKey
 
 	# height at which public key has been obtained
-	publicKeyHeight = Height
+	public_key_height = Height
 
 	# type of account
-	accountType = AccountType
+	account_type = AccountType
 
 	# account format
 	format = AccountStateFormat
 
 	# mask of supplemental public key flags
-	supplementalPublicKeysMask = AccountKeyTypeFlags
+	supplemental_public_keys_mask = AccountKeyTypeFlags
 
 	# number of voting public keys
-	votingPublicKeysCount = uint8
+	voting_public_keys_count = uint8
 
 	# linked account public key
-	linkedPublicKey = PublicKey if linked in supplementalPublicKeysMask
+	linked_public_key = PublicKey if LINKED in supplemental_public_keys_mask
 
 	# node public key
-	nodePublicKey = PublicKey if node in supplementalPublicKeysMask
+	node_public_key = PublicKey if NODE in supplemental_public_keys_mask
 
 	# vrf public key
-	vrfPublicKey = PublicKey if vrf in supplementalPublicKeysMask
+	vrf_public_key = PublicKey if VRF in supplemental_public_keys_mask
 
 	# voting public keys
-	votingPublicKeys = array(PinnedVotingKey, votingPublicKeysCount)
+	voting_public_keys = array(PinnedVotingKey, voting_public_keys_count)
 
 	# current importance snapshot of the account
-	importanceSnapshots = ImportanceSnapshot if highValue equals format
+	importance_snapshots = ImportanceSnapshot if HIGH_VALUE equals format
 
 	# activity buckets of the account
-	activityBuckets = HeightActivityBuckets if highValue equals format
+	activity_buckets = HeightActivityBuckets if HIGH_VALUE equals format
 
 	# number of total balances (mosaics)
-	balancesCount = uint16
+	balances_count = uint16
 
 	# balances of account
-	balances = array(Mosaic, balancesCount)
+	balances = array(Mosaic, balances_count)

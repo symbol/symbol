@@ -7,19 +7,19 @@ struct SecretLockInfo
 	inline StateHeader
 
 	# owner address
-	ownerAddress = Address
+	owner_address = Address
 
 	# mosaic associated with lock
 	mosaic = Mosaic
 
 	# height at which the lock expires
-	endHeight = Height
+	end_height = Height
 
 	# flag indicating whether or not the lock was already used
 	status = LockStatus
 
 	# hash algorithm
-	hashAlgorithm = LockHashAlgorithm
+	hash_algorithm = LockHashAlgorithm
 
 	# transaction secret
 	secret = Hash256

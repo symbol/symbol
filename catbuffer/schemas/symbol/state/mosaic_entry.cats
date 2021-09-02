@@ -6,7 +6,7 @@ struct MosaicEntry
 	inline StateHeader
 
 	# entry id
-	mosaicId = MosaicId
+	mosaic_id = MosaicId
 
 	# total supply amount
 	supply = Amount

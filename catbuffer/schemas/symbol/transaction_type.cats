@@ -1,73 +1,73 @@
 # enumeration of transaction types
 enum TransactionType : uint16
 	# account key link transaction
-	account_key_link = 0x414C
+	ACCOUNT_KEY_LINK = 0x414C
 
 	# node key link transaction
-	node_key_link = 0x424C
+	NODE_KEY_LINK = 0x424C
 
 	# aggregate complete transaction
-	aggregate_complete = 0x4141
+	AGGREGATE_COMPLETE = 0x4141
 
 	# aggregate bonded transaction
-	aggregate_bonded = 0x4241
+	AGGREGATE_BONDED = 0x4241
 
 	# voting key link transaction
-	voting_key_link = 0x4143
+	VOTING_KEY_LINK = 0x4143
 
 	# vrf key link transaction
-	vrf_key_link = 0x4243
+	VRF_KEY_LINK = 0x4243
 
 	# hash lock transaction
-	hash_lock = 0x4148
+	HASH_LOCK = 0x4148
 
 	# secret lock transaction
-	secret_lock = 0x4152
+	SECRET_LOCK = 0x4152
 
 	# secret proof transaction
-	secret_proof = 0x4252
+	SECRET_PROOF = 0x4252
 
 	# account metadata transaction
-	account_metadata = 0x4144
+	ACCOUNT_METADATA = 0x4144
 
 	# mosaic metadata transaction
-	mosaic_metadata = 0x4244
+	MOSAIC_METADATA = 0x4244
 
 	# namespace metadata transaction
-	namespace_metadata = 0x4344
+	NAMESPACE_METADATA = 0x4344
 
 	# mosaic definition transaction
-	mosaic_definition = 0x414D
+	MOSAIC_DEFINITION = 0x414D
 
 	# mosaic supply change transaction
-	mosaic_supply_change = 0x424D
+	MOSAIC_SUPPLY_CHANGE = 0x424D
 
 	# multisig account modification transaction
-	multisig_account_modification = 0x4155
+	MULTISIG_ACCOUNT_MODIFICATION = 0x4155
 
 	# address alias transaction
-	address_alias = 0x424E
+	ADDRESS_ALIAS = 0x424E
 
 	# mosaic alias transaction
-	mosaic_alias = 0x434E
+	MOSAIC_ALIAS = 0x434E
 
 	# namespace registration transaction
-	namespace_registration = 0x414E
+	NAMESPACE_REGISTRATION = 0x414E
 
 	# account address restriction transaction
-	account_address_restriction = 0x4150
+	ACCOUNT_ADDRESS_RESTRICTION = 0x4150
 
 	# account mosaic restriction transaction
-	account_mosaic_restriction = 0x4250
+	ACCOUNT_MOSAIC_RESTRICTION = 0x4250
 
 	# account operation restriction transaction
-	account_operation_restriction = 0x4350
+	ACCOUNT_OPERATION_RESTRICTION = 0x4350
 
 	# mosaic address restriction transaction
-	mosaic_address_restriction = 0x4251
+	MOSAIC_ADDRESS_RESTRICTION = 0x4251
 
 	# mosaic global restriction transaction
-	mosaic_global_restriction = 0x4151
+	MOSAIC_GLOBAL_RESTRICTION = 0x4151
 
 	# transfer transaction
-	transfer = 0x4154
+	TRANSFER = 0x4154

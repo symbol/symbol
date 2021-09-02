@@ -3,55 +3,55 @@ import "entity.cats"
 # enumeration of receipt types
 enum ReceiptType : uint16
 	# reserved receipt type
-	reserved = 0x0000
+	RESERVED = 0x0000
 
 	# mosaic rental fee receipt type
-	mosaic_rental_fee = 0x124D
+	MOSAIC_RENTAL_FEE = 0x124D
 
 	# namespace rental fee receipt type
-	namespace_rental_fee = 0x134E
+	NAMESPACE_RENTAL_FEE = 0x134E
 
 	# harvest fee receipt type
-	harvest_fee = 0x2143
+	HARVEST_FEE = 0x2143
 
 	# lock hash completed receipt type
-	lockHash_completed = 0x2248
+	LOCK_HASH_COMPLETED = 0x2248
 
 	# lock hash expired receipt type
-	lockHash_expired = 0x2348
+	LOCK_HASH_EXPIRED = 0x2348
 
 	# lock secret completed receipt type
-	lockSecret_completed = 0x2252
+	LOCK_SECRET_COMPLETED = 0x2252
 
 	# lock secret expired receipt type
-	lockSecret_expired = 0x2352
+	LOCK_SECRET_EXPIRED = 0x2352
 
 	# lock hash created receipt type
-	lockHash_created = 0x3148
+	LOCK_HASH_CREATED = 0x3148
 
 	# lock secret created receipt type
-	lockSecret_created = 0x3152
+	LOCK_SECRET_CREATED = 0x3152
 
 	# mosaic expired receipt type
-	mosaic_expired = 0x414D
+	MOSAIC_EXPIRED = 0x414D
 
 	# namespace expired receipt type
-	namespace_expired = 0x414E
+	NAMESPACE_EXPIRED = 0x414E
 
 	# namespace deleted receipt type
-	namespace_deleted = 0x424E
+	NAMESPACE_DELETED = 0x424E
 
 	# inflation receipt type
-	inflation = 0x5143
+	INFLATION = 0x5143
 
 	# transaction group receipt type
-	transaction_group = 0xE143
+	TRANSACTION_GROUP = 0xE143
 
 	# address alias resolution receipt type
-	address_alias_resolution = 0xF143
+	ADDRESS_ALIAS_RESOLUTION = 0xF143
 
 	# mosaic alias resolution receipt type
-	mosaic_alias_resolution = 0xF243
+	MOSAIC_ALIAS_RESOLUTION = 0xF243
 
 # binary layout for a receipt entity
 struct Receipt
@@ -71,10 +71,10 @@ struct BalanceTransferReceipt
 	mosaic = Mosaic
 
 	# mosaic sender address
-	senderAddress = Address
+	sender_address = Address
 
 	# mosaic recipient address
-	recipientAddress = Address
+	recipient_address = Address
 
 # binary layout for a balance change receipt
 struct BalanceChangeReceipt
@@ -84,7 +84,7 @@ struct BalanceChangeReceipt
 	mosaic = Mosaic
 
 	# account address
-	targetAddress = Address
+	target_address = Address
 
 # binary layout for an inflation receipt
 struct InflationReceipt
@@ -98,4 +98,4 @@ struct MosaicExpiryReceipt
 	inline Receipt
 
 	# expiring mosaic id
-	artifactId = MosaicId
+	artifact_id = MosaicId

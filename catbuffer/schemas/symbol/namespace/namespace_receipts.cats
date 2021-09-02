@@ -6,4 +6,4 @@ struct NamespaceExpiryReceipt
 	inline Receipt
 
 	# expiring namespace id
-	artifactId = NamespaceId
+	artifact_id = NamespaceId

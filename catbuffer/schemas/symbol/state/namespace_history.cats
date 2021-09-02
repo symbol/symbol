@@ -9,16 +9,16 @@ struct RootNamespaceHistory
 	id = NamespaceId
 
 	# namespace owner address
-	ownerAddress = Address
+	owner_address = Address
 
 	# lifetime in blocks
 	lifetime = NamespaceLifetime
 
 	# root namespace alias
-	rootAlias = NamespaceAlias
+	root_alias = NamespaceAlias
 
 	# number of children
-	childrenCount = uint64
+	children_count = uint64
 
 	# save child sub-namespace paths
-	paths = array(NamespacePath, childrenCount, sort_key=path)
+	paths = array(NamespacePath, children_count, sort_key=path)

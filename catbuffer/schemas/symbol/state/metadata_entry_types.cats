@@ -5,13 +5,13 @@ using ScopedMetadataKey = uint64
 # enum for the different types of metadata
 enum MetadataType : uint8
 	# account metadata
-	account = 0
+	ACCOUNT = 0
 
 	# mosaic metadata
-	mosaic = 1
+	MOSAIC = 1
 
 	# namespace metadata
-	namespace = 2
+	NAMESPACE = 2
 
 # binary layout of a metadata entry value
 struct MetadataValue

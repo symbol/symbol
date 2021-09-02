@@ -9,7 +9,7 @@ struct MosaicResolutionStatement
 	unresolved = UnresolvedMosaicId
 
 	# resolution entries
-	resolutionEntries = array(MosaicResolutionEntry, __FILL__)
+	resolution_entries = array(MosaicResolutionEntry, __FILL__)
 
 # binary layout for an address resolution statement
 struct AddressResolutionStatement
@@ -19,4 +19,4 @@ struct AddressResolutionStatement
 	unresolved = UnresolvedAddress
 
 	# resolution entries
-	resolutionEntries = array(AddressResolutionEntry, __FILL__)
+	resolution_entries = array(AddressResolutionEntry, __FILL__)

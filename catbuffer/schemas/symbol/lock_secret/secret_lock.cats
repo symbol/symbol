@@ -4,7 +4,7 @@ import "transaction.cats"
 # binary layout for a secret lock transaction
 struct SecretLockTransactionBody
 	# locked mosaic recipient address
-	recipientAddress = UnresolvedAddress
+	recipient_address = UnresolvedAddress
 
 	# secret
 	secret = Hash256
@@ -16,20 +16,20 @@ struct SecretLockTransactionBody
 	duration = BlockDuration
 
 	# hash algorithm
-	hashAlgorithm = LockHashAlgorithm
+	hash_algorithm = LockHashAlgorithm
 
 # binary layout for a non-embedded secret lock transaction
 struct SecretLockTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, secret_lock)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, SECRET_LOCK)
 
 	inline Transaction
 	inline SecretLockTransactionBody
 
 # binary layout for an embedded secret lock transaction
 struct EmbeddedSecretLockTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, secret_lock)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, SECRET_LOCK)
 
 	inline EmbeddedTransaction
 	inline SecretLockTransactionBody

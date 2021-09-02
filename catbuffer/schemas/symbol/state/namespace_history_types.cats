@@ -4,40 +4,40 @@ import "types.cats"
 # binary layout for namespace lifetime
 struct NamespaceLifetime
 	# start height
-	lifetimeStart = Height
+	lifetime_start = Height
 
 	# end height
-	lifetimeEnd = Height
+	lifetime_end = Height
 
 # namespace alias type
 enum NamespaceAliasType : uint8
 	# no alias
-	none = 0
+	NONE = 0
 
 	# if alias is mosaicId
-	mosaicId = 1
+	MOSAIC_ID = 1
 
 	# if alias is address
-	address = 2
+	ADDRESS = 2
 
 # binary layout for alias
 struct NamespaceAlias
 	# namespace alias type
-	namespaceAliasType = NamespaceAliasType
+	namespace_alias_type = NamespaceAliasType
 
 	# mosaic alias
-	mosaicAlias = MosaicId if mosaicId equals namespaceAliasType
+	mosaic_alias = MosaicId if MOSAIC_ID equals namespace_alias_type
 
 	# address alias
-	addressAlias = Address if address equals namespaceAliasType
+	address_alias = Address if ADDRESS equals namespace_alias_type
 
 # binary layout for a namespace path
 struct NamespacePath
 	# number of paths (excluding root id)
-	pathSize = uint8
+	path_size = uint8
 
 	# namespace path (excluding root id)
-	path = array(NamespaceId, pathSize)
+	path = array(NamespaceId, path_size)
 
 	# namespace alias
 	alias = NamespaceAlias

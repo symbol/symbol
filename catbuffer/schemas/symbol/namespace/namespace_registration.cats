@@ -4,35 +4,35 @@ import "transaction.cats"
 # binary layout for a namespace registration transaction
 struct NamespaceRegistrationTransactionBody
 	# namespace duration
-	duration = BlockDuration if root equals registrationType
+	duration = BlockDuration if ROOT equals registration_type
 
 	# parent namespace identifier
-	parentId = NamespaceId if child equals registrationType
+	parent_id = NamespaceId if CHILD equals registration_type
 
 	# namespace identifier
 	id = NamespaceId
 
 	# namespace registration type
-	registrationType = NamespaceRegistrationType
+	registration_type = NamespaceRegistrationType
 
 	# namespace name size
-	nameSize = uint8
+	name_size = uint8
 
 	# namespace name
-	name = array(uint8, nameSize)
+	name = array(uint8, name_size)
 
 # binary layout for a non-embedded namespace registration transaction
 struct NamespaceRegistrationTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, namespace_registration)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, NAMESPACE_REGISTRATION)
 
 	inline Transaction
 	inline NamespaceRegistrationTransactionBody
 
 # binary layout for an embedded namespace registration transaction
 struct EmbeddedNamespaceRegistrationTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, namespace_registration)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, NAMESPACE_REGISTRATION)
 
 	inline EmbeddedTransaction
 	inline NamespaceRegistrationTransactionBody

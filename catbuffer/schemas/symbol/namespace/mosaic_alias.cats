@@ -4,26 +4,26 @@ import "transaction.cats"
 # binary layout for an mosaic alias transaction
 struct MosaicAliasTransactionBody
 	# identifier of the namespace that will become an alias
-	namespaceId = NamespaceId
+	namespace_id = NamespaceId
 
 	# aliased mosaic identifier
-	mosaicId = MosaicId
+	mosaic_id = MosaicId
 
 	# alias action
-	aliasAction = AliasAction
+	alias_action = AliasAction
 
 # binary layout for a non-embedded mosaic alias transaction
 struct MosaicAliasTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, mosaic_alias)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ALIAS)
 
 	inline Transaction
 	inline MosaicAliasTransactionBody
 
 # binary layout for an embedded mosaic alias transaction
 struct EmbeddedMosaicAliasTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, mosaic_alias)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ALIAS)
 
 	inline EmbeddedTransaction
 	inline MosaicAliasTransactionBody

@@ -6,22 +6,22 @@ struct MultisigEntry
 	inline StateHeader
 
 	# minimum approval for modifications
-	minApproval = uint32
+	min_approval = uint32
 
 	# minimum approval for removal
-	minRemoval = uint32
+	min_removal = uint32
 
 	# account address
-	accountAddress = Address
+	account_address = Address
 
 	# number of cosignatories
-	cosignatoryAddressesCount = uint64
+	cosignatory_addresses_count = uint64
 
 	# cosignatories for account
-	cosignatoryAddresses = array(Address, cosignatoryAddressesCount)
+	cosignatory_addresses = array(Address, cosignatory_addresses_count)
 
 	# number of other accounts for which the entry is cosignatory
-	multisigAddressesCount = uint64
+	multisig_addresses_count = uint64
 
 	# accounts for which the entry is cosignatory
-	multisigAddresses = array(Address, multisigAddressesCount)
+	multisig_addresses = array(Address, multisig_addresses_count)

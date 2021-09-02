@@ -6,7 +6,7 @@ struct Cosignature
 	version = uint64
 
 	# cosigner public key
-	signerPublicKey = PublicKey
+	signer_public_key = PublicKey
 
 	# cosigner signature
 	signature = Signature
@@ -16,4 +16,4 @@ struct DetachedCosignature
 	inline Cosignature
 
 	# hash of the aggregate transaction that is signed by this cosignature
-	parentHash = Hash256
+	parent_hash = Hash256

@@ -5,53 +5,53 @@ import "transaction.cats"
 # this is a hint used by the client but ignored by the server
 enum MessageType : uint32
 	# plain message
-	plain = 0x0001
+	PLAIN = 0x0001
 
 	# encrypted message
-	encrypted = 0x0002
+	ENCRYPTED = 0x0002
 
 # binary layout for a message
 struct Message
 	# message type
-	messageType = MessageType
+	message_type = MessageType
 
 	# message size
-	messageSize = uint32
+	message_size = uint32
 
 	# message payload
-	message = array(uint8, messageSize)
+	message = array(uint8, message_size)
 
 # binary layout for a transfer transaction (V1)
 struct TransferTransaction
-	version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, transfer)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, TRANSFER)
 
 	inline Transaction
 
 	# recipient address size
-	recipientAddressSize = make_reserved(uint32, 40)
+	recipient_address_size = make_reserved(uint32, 40)
 
 	# recipient address
-	recipientAddress = Address
+	recipient_address = Address
 
 	# XEM amount
 	amount = Amount
 
 	# message envelope size
-	messageEnvelopeSize = uint32
+	message_envelope_size = uint32
 
 	# optional message
-	message = Message if 0 not equals messageEnvelopeSize
+	message = Message if 0 not equals message_envelope_size
 
 # binary layout for a transfer transaction (V2)
 struct TransferTransaction2
-	version = make_const(uint8, 2)
+	TRANSACTION_VERSION = make_const(uint8, 2)
 
 	inline TransferTransaction
 
 	# number of attached mosaics
-	mosaicsCount = uint8
+	mosaics_count = uint8
 
 	# attached mosaics
 	# notice that mosaic amount is multipled by transfer amount to get effective amount
-	mosaics = array(Mosaic, mosaicsCount, sort_key=mosaicId)
+	mosaics = array(Mosaic, mosaics_count, sort_key=mosaic_id)

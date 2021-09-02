@@ -4,10 +4,10 @@ import "restriction_mosaic/restriction_mosaic_types.cats"
 # type of mosaic restriction entry
 enum MosaicRestrictionEntryType : uint8
 	# address restriction
-	address = 0
+	ADDRESS = 0
 
 	# global (mosaic) restriction
-	global = 1
+	GLOBAL = 1
 
 # layout for mosaic address restriction key-value pair
 struct AddressKeyValue
@@ -20,21 +20,21 @@ struct AddressKeyValue
 # binary layout for mosaic address restriction key-value set
 struct AddressKeyValueSet
 	# number of key value pairs
-	keyValueCount = uint8
+	key_value_count = uint8
 
 	# key value array
-	keys = array(AddressKeyValue, keyValueCount, sort_key=key)
+	keys = array(AddressKeyValue, key_value_count, sort_key=key)
 
 # binary layout of restriction rule being applied
 struct RestrictionRule
 	# identifier of the mosaic providing the restriction key
-	referenceMosaicId = MosaicId
+	reference_mosaic_id = MosaicId
 
 	# restriction value
-	restrictionValue = uint64
+	restriction_value = uint64
 
 	# restriction type
-	restrictionType = MosaicRestrictionType
+	restriction_type = MosaicRestrictionType
 
 # binary layout for a global key-value
 struct GlobalKeyValue
@@ -42,12 +42,12 @@ struct GlobalKeyValue
 	key = MosaicRestrictionKey
 
 	# restriction rule (the value) associated with a key
-	restrictionRule = RestrictionRule
+	restriction_rule = RestrictionRule
 
 # binary layout for a global restriction key-value set
 struct GlobalKeyValueSet
 	# number of key value pairs
-	keyValueCount = uint8
+	key_value_count = uint8
 
 	# key value array
-	keys = array(GlobalKeyValue, keyValueCount, sort_key=key)
+	keys = array(GlobalKeyValue, key_value_count, sort_key=key)

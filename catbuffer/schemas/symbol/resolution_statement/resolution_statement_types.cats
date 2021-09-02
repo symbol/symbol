@@ -1,10 +1,10 @@
 # binary layout for receipt source
 struct ReceiptSource
 	# transaction primary source (e.g. index within block)
-	primaryId = uint32
+	primary_id = uint32
 
 	# transaction secondary source (e.g. index within aggregate)
-	secondaryId = uint32
+	secondary_id = uint32
 
 # binary layout for address resolution entry
 struct AddressResolutionEntry

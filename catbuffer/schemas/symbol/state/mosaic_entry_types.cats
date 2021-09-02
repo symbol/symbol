@@ -15,10 +15,10 @@ struct MosaicProperties
 # binary layout for mosaic definition
 struct MosaicDefinition
 	# block height
-	startHeight = Height
+	start_height = Height
 
 	# mosaic owner
-	ownerAddress = Address
+	owner_address = Address
 
 	# revision
 	revision = uint32

@@ -7,19 +7,19 @@ struct MetadataEntry
 	inline StateHeader
 
 	# metadata source address (provider)
-	sourceAddress = Address
+	source_address = Address
 
 	# metadata target address
-	targetAddress = Address
+	target_address = Address
 
 	# metadata key scoped to source, target and type
-	scopedMetadataKey = ScopedMetadataKey
+	scoped_metadata_key = ScopedMetadataKey
 
 	# target id
-	targetId = uint64
+	target_id = uint64
 
 	# metadata type
-	metadataType = MetadataType
+	metadata_type = MetadataType
 
 	# value
 	value = MetadataValue

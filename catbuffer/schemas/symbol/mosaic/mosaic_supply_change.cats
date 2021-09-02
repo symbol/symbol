@@ -4,7 +4,7 @@ import "transaction.cats"
 # binary layout for a mosaic supply change transaction
 struct MosaicSupplyChangeTransactionBody
 	# affected mosaic identifier
-	mosaicId = UnresolvedMosaicId
+	mosaic_id = UnresolvedMosaicId
 
 	# change amount
 	delta = Amount
@@ -14,16 +14,16 @@ struct MosaicSupplyChangeTransactionBody
 
 # binary layout for a non-embedded mosaic supply change transaction
 struct MosaicSupplyChangeTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, mosaic_supply_change)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_SUPPLY_CHANGE)
 
 	inline Transaction
 	inline MosaicSupplyChangeTransactionBody
 
 # binary layout for an embedded mosaic supply change transaction
 struct EmbeddedMosaicSupplyChangeTransaction
-	transaction_version = make_const(uint8, 1)
-	transaction_type = make_const(TransactionType, mosaic_supply_change)
+	TRANSACTION_VERSION = make_const(uint8, 1)
+	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_SUPPLY_CHANGE)
 
 	inline EmbeddedTransaction
 	inline MosaicSupplyChangeTransactionBody

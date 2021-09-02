@@ -11,7 +11,7 @@ struct NamespaceId
 # binary layout for a mosaic id
 struct MosaicId
 	# namespace id
-	namespaceId = NamespaceId
+	namespace_id = NamespaceId
 
 	# size
 	size = uint32
@@ -22,7 +22,7 @@ struct MosaicId
 # binary layout for a mosaic
 struct Mosaic
 	# mosaic id
-	mosaicId = MosaicId
+	mosaic_id = MosaicId
 
 	# quantity
 	amount = Amount
