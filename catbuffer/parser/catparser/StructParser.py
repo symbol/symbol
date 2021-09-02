@@ -48,7 +48,7 @@ class StructParser(CompositeTypeParser):
 
         last_property = layout[-1]
         if 'fill' == last_property.get('disposition'):
-            raise CatsParseException('array property with fill disposition "{0}" must be last property'.format(last_property['name']))
+            raise CatsParseException('array property with fill disposition "{}" must be last property'.format(last_property['name']))
 
     def _require_known_property(self, property_name, allow_numeric=True):
         # size can be a constant represented by a numeric type
@@ -57,12 +57,12 @@ class StructParser(CompositeTypeParser):
 
         if all('name' not in property_type_descriptor or property_name != property_type_descriptor['name']
                for property_type_descriptor in self.type_descriptor['layout']):
-            raise CatsParseException('no definition for referenced property "{0}"'.format(property_name))
+            raise CatsParseException('no definition for referenced property "{}"'.format(property_name))
 
     def _require_unknown_property(self, descriptor_uid):
         if any(descriptor_uid == self._get_descriptor_uid(property_type_descriptor)
                for property_type_descriptor in self.type_descriptor['layout']):
-            raise CatsParseException('duplicate definition for property "{0}"'.format(descriptor_uid))
+            raise CatsParseException('duplicate definition for property "{}"'.format(descriptor_uid))
 
     @staticmethod
     def _get_descriptor_uid(descriptor):
@@ -74,10 +74,10 @@ class StructParserFactory(RegexParserFactory):
     def __init__(self):
         super().__init__(r'struct (\S+)', StructParser)
 
+
 # endregion
 
 # region StructConstParser(Factory)
-
 
 class StructConstParser:
     """Parser for const struct members"""
@@ -86,18 +86,24 @@ class StructConstParser:
 
     def process_line(self, line):
         match = self.regex.match(line)
-        type_name = match.group(1)
+        type_name = match.group(3)
 
         const_descriptor = {
-            'name': require_property_name(match.group(2)),
-            'disposition': 'const',
-            'value': parse_dec_or_hex(match.group(3))
+            'name': require_property_name(match.group(1)),
+            'disposition': match.group(2),
+            'value': match.group(4)
         }
 
+        is_numeric = False
         if is_primitive(type_name):
             const_descriptor = {**const_descriptor, **parse_builtin(type_name)}
+            is_numeric = True
         else:
             const_descriptor['type'] = require_user_type_name(type_name)
+            is_numeric = is_dec_or_hex(const_descriptor['value'])
+
+        if is_numeric:
+            const_descriptor['value'] = parse_dec_or_hex(const_descriptor['value'])
 
         return const_descriptor
 
@@ -105,7 +111,7 @@ class StructConstParser:
 class StructConstParserFactory(RegexParserFactory):
     """Factory for creating struct const parsers"""
     def __init__(self):
-        super().__init__(r'const (\S+) (\S+) = (\S+)', StructConstParser)
+        super().__init__(r'(\S+) = make_(const|reserved)\((\S+), (\S+)\)', StructConstParser)
 
 
 # endregion
@@ -128,10 +134,10 @@ class StructInlineParserFactory(RegexParserFactory):
     def __init__(self):
         super().__init__(r'inline (\S+)', StructInlineParser)
 
+
 # endregion
 
 # region StructScalarMemberParser(Factory)
-
 
 class StructScalarMemberParser:
     """Parser for non-inline scalar struct members"""
@@ -149,9 +155,16 @@ class StructScalarMemberParser:
             property_type_descriptor = {'type': linked_type_name}
 
         if match.group(3):
-            property_type_descriptor['condition'] = match.group(4)
-            property_type_descriptor['condition_operation'] = match.group(5)
-            property_type_descriptor['condition_value'] = match.group(6)
+            is_negated = 'not ' == match.group(5)
+
+            property_type_descriptor['condition'] = match.group(7)
+            property_type_descriptor['condition_operation'] = ('not ' if is_negated else '') + match.group(6)
+
+            condition_value = match.group(4)
+            if is_dec_or_hex(condition_value):
+                condition_value = parse_dec_or_hex(condition_value)
+
+            property_type_descriptor['condition_value'] = condition_value
 
         property_type_descriptor['name'] = require_property_name(match.group(1))
         return property_type_descriptor
@@ -160,12 +173,12 @@ class StructScalarMemberParser:
 class StructScalarMemberParserFactory(RegexParserFactory):
     """Factory for creating struct scalar member parsers"""
     def __init__(self):
-        super().__init__(r'(\S+) = (\S+)( if (\S+) (equals|has) (\S+))?', StructScalarMemberParser)
+        super().__init__(r'(\S+) = (\S+)( if (\S+) (not )?(equals|in) (\S+))?', StructScalarMemberParser)
+
 
 # endregion
 
 # region StructArrayMemberParser(Factory)
-
 
 class StructArrayMemberParser:
     """Parser for non-inline array struct members"""
@@ -176,7 +189,20 @@ class StructArrayMemberParser:
         match = self.regex.match(line)
 
         # type is resolved to exist upstream, so its naming doesn't need to be checked here
-        property_type_descriptor = {'type': match.group(2)}
+        element_type_name = match.group(2)
+
+        if 'byte' == element_type_name:
+            raise CatsParseException('explicit use of byte is deprecated please use uint8 or int8 instead')
+
+        property_type_descriptor = {}
+        if is_primitive(element_type_name):
+            builtin_type_descriptor = parse_builtin(element_type_name)
+            element_type_name = builtin_type_descriptor['type']
+
+            property_type_descriptor['element_disposition'] = {**builtin_type_descriptor}
+            del property_type_descriptor['element_disposition']['type']
+
+        property_type_descriptor['type'] = element_type_name
 
         # size can be interpreted in different ways for count-based arrays
         # size must be a field reference for size-based arrays
@@ -187,9 +213,11 @@ class StructArrayMemberParser:
 
             if '__FILL__' == array_size:
                 array_size = 0
-                property_type_descriptor['disposition'] = 'fill'
+                property_type_descriptor['disposition'] = 'array fill'  # expands to fill the rest of the structure
+            else:
+                property_type_descriptor['disposition'] = 'array'
         else:
-            property_type_descriptor['disposition'] = 'var'
+            property_type_descriptor['disposition'] = 'array sized'  # fits a predefined size
 
         property_type_descriptor['size'] = array_size
 

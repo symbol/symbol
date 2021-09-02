@@ -1,6 +1,6 @@
 import unittest
 
-from catbuffer_parser.CatsParser import CatsParseException, CatsParser
+from catparser.CatsParser import CatsParseException, CatsParser
 
 
 def parse_all(lines, imports=None):
@@ -79,7 +79,6 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(0, len(type_descriptors))
 
     def test_parse_is_aborted_on_unknown_line(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'using Foo = uint8',
             'alias Bar = uint8'
@@ -186,191 +185,6 @@ class CatsParserTests(unittest.TestCase):
             {'name': 'amount', 'type': 'Amount', 'comments': ''}
         ]})
 
-    def test_can_parse_struct_conditional_types(self):
-        # Act:
-        type_descriptors = parse_all([
-            'enum Shape : uint8',
-            '\tcircle = 4',
-            '\trectangle = 9',
-            'using Circ = uint16',
-            'using Perm = uint16',
-            'struct Enclosing',
-            '\tdiscriminator = Shape',
-            '\t# u part 1',
-            '\tcircumference = Circ if discriminator has circle',
-            '\t# union pt 2',
-            '\tperimiter = Perm if discriminator equals rectangle'
-        ])
-
-        # Assert:
-        self.assertEqual(4, len(type_descriptors))
-        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'discriminator', 'type': 'Shape', 'comments': ''},
-            {
-                'name': 'circumference', 'type': 'Circ',
-                'condition': 'discriminator', 'condition_value': 'circle', 'condition_operation': 'has',
-                'comments': 'u part 1'
-            },
-            {
-                'name': 'perimiter', 'type': 'Perm',
-                'condition': 'discriminator', 'condition_value': 'rectangle', 'condition_operation': 'equals',
-                'comments': 'union pt 2'
-            }
-        ]})
-
-    def test_can_parse_struct_conditional_types_with_inline_member(self):
-        # Act:
-        type_descriptors = parse_all([
-            'enum Shape : uint8',
-            '\tcircle = 4',
-            '\trectangle = 9',
-            'using Circ = uint16',
-            'using Perm = uint16',
-            'struct Version',
-            '\tversion = uint16',
-            'struct Enclosing',
-            '\tinline Version',
-            '\tdiscriminator = Shape',
-            '\t# u part 1',
-            '\tcircumference = Circ if discriminator has circle',
-            '\t# union pt 2',
-            '\tperimiter = Perm if discriminator equals rectangle'
-        ])
-
-        # Assert:
-        self.assertEqual(5, len(type_descriptors))
-        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
-            {'type': 'Version', 'disposition': 'inline', 'comments': ''},
-            {'name': 'discriminator', 'type': 'Shape', 'comments': ''},
-            {
-                'name': 'circumference', 'type': 'Circ',
-                'condition': 'discriminator', 'condition_value': 'circle', 'condition_operation': 'has',
-                'comments': 'u part 1'
-            },
-            {
-                'name': 'perimiter', 'type': 'Perm',
-                'condition': 'discriminator', 'condition_value': 'rectangle', 'condition_operation': 'equals',
-                'comments': 'union pt 2'
-            }
-        ]})
-
-    def test_can_parse_struct_conditional_types_trailing_discriminator(self):
-        # Act:
-        type_descriptors = parse_all([
-            'enum Shape : uint8',
-            '\tcircle = 4',
-            '\trectangle = 9',
-            'using Circ = uint16',
-            'using Perm = uint16',
-            'struct Enclosing',
-            '\t# u part 1',
-            '\tcircumference = Circ if discriminator has circle',
-            '\t# union pt 2',
-            '\tperimiter = Perm if discriminator equals rectangle',
-            '\tdiscriminator = Shape'
-        ])
-
-        # Assert:
-        self.assertEqual(4, len(type_descriptors))
-        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
-            {
-                'name': 'circumference', 'type': 'Circ',
-                'condition': 'discriminator', 'condition_value': 'circle', 'condition_operation': 'has',
-                'comments': 'u part 1'
-            },
-            {
-                'name': 'perimiter', 'type': 'Perm',
-                'condition': 'discriminator', 'condition_value': 'rectangle', 'condition_operation': 'equals',
-                'comments': 'union pt 2'
-            },
-            {'name': 'discriminator', 'type': 'Shape', 'comments': ''}
-        ]})
-
-    def test_can_parse_struct_array_types(self):
-        # Act:
-        type_descriptors = parse_all([
-            'using Truck = uint16',
-            'using Car = uint16',
-            'struct Fleet',
-            '\tcarCount = uint8',
-            '# all trucks in the fleet',
-            '\ttrucks = array(Truck, 10)',
-            '\tcars = array(Car, carCount)'
-        ])
-
-        # Assert:
-        self.assertEqual(3, len(type_descriptors))
-        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'carCount', **uint_descriptor(1), 'comments': ''},
-            {'name': 'trucks', 'type': 'Truck', 'size': 10, 'comments': 'all trucks in the fleet'},
-            {'name': 'cars', 'type': 'Car', 'size': 'carCount', 'comments': ''}
-        ]})
-
-    def test_can_parse_struct_sorted_array_types(self):
-        # Act:
-        type_descriptors = parse_all([
-            'struct Face',
-            '\teyeColor = uint8',
-            'struct Tracking',
-            '\tfaces = array(Face, 10, sort_key=eyeColor)'
-        ])
-
-        # Assert:
-        self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['Tracking'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'faces', 'type': 'Face', 'size': 10, 'sort_key': 'eyeColor', 'comments': ''}
-        ]})
-
-    def test_can_parse_struct_vararray_types(self):
-        # Act:
-        type_descriptors = parse_all([
-            'using Car = uint16',
-            'struct Fleet',
-            '\tcarsSize = uint8',
-            '# all cars in the fleet',
-            '\tcars = array(Car, size=carsSize)'
-        ])
-
-        # Assert:
-        self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'carsSize', **uint_descriptor(1), 'comments': ''},
-            {'name': 'cars', 'type': 'Car', 'size': 'carsSize', 'disposition': 'var', 'comments': 'all cars in the fleet'}
-        ]})
-
-    def test_can_parse_struct_array_fill_types(self):
-        # Act:
-        type_descriptors = parse_all([
-            'using Car = uint16',
-            'struct Fleet',
-            '# all cars in the fleet',
-            '\tcars = array(Car, __FILL__)'
-        ])
-
-        # Assert:
-        self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'cars', 'type': 'Car', 'size': 0, 'disposition': 'fill', 'comments': 'all cars in the fleet'}
-        ]})
-
-    def test_cannot_parse_struct_vararray_numeric_size_types(self):
-        # Act + Assert:
-        self._assert_parse_delayed_exception([
-            'using Car = uint16',
-            'struct Fleet',
-            '# all cars in the fleet',
-            '\tcars = array(Car, size=123)'
-        ])
-
-    def test_cannot_parse_struct_vararray_fill_types(self):
-        # Act + Assert:
-        self._assert_parse_delayed_exception([
-            'using Car = uint16',
-            'struct Fleet',
-            '# all cars in the fleet',
-            '\tcars = array(Car, size=__FILL__)'
-        ])
-
     def test_can_parse_struct_closed_by_other_type(self):
         # Act:
         type_descriptors = parse_all([
@@ -407,13 +221,352 @@ class CatsParserTests(unittest.TestCase):
             {'name': 'baz', **uint_descriptor(4), 'comments': ''}
         ]})
 
-    def test_can_parse_struct_with_const_member(self):
+    def test_cannot_parse_struct_with_unknown_member_type(self):
+        for type_name in ['MosaicId', 'array(MosaicId, 10)']:
+            self._assert_parse_delayed_exception([
+                'struct Foo',
+                '\tid = {}'.format(type_name)
+            ])
+
+    def test_cannot_parse_struct_with_unknown_inline_type(self):
+        for type_name in ['MosaicId', 'array(MosaicId, 10)', 'uint8', 'binary_fixed(25)']:
+            self._assert_parse_delayed_exception([
+                'struct Foo',
+                '\tinline {}'.format(type_name)
+            ])
+
+    # endregion
+
+    # region struct - array
+
+    def test_can_parse_struct_array_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'using Truck = uint16',
+            'using Car = uint16',
+            'struct Fleet',
+            '\tcarCount = uint8',
+            '# all trucks in the fleet',
+            '\ttrucks = array(Truck, 10)',
+            '\tcars = array(Car, carCount)'
+        ])
+
+        # Assert:
+        self.assertEqual(3, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'carCount', **uint_descriptor(1), 'comments': ''},
+            {'name': 'trucks', 'type': 'Truck', 'size': 10, 'disposition': 'array', 'comments': 'all trucks in the fleet'},
+            {'name': 'cars', 'type': 'Car', 'size': 'carCount', 'disposition': 'array', 'comments': ''}
+        ]})
+
+    def test_can_parse_struct_numeric_array_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'struct Fleet',
+            '\tcarCount = uint8',
+            '# all trucks in the fleet',
+            '\ttrucks = array(uint16, 10)',
+            '\tcars = array(int32, carCount)'
+        ])
+
+        # Assert:
+        self.assertEqual(1, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'carCount', **uint_descriptor(1), 'comments': ''},
+            {
+                'name': 'trucks',
+                'type': 'byte',
+                'size': 10,
+                'disposition': 'array',
+                'comments': 'all trucks in the fleet',
+                'element_disposition': uint_descriptor(2, False)
+            },
+            {
+                'name': 'cars',
+                'type': 'byte',
+                'size': 'carCount',
+                'disposition': 'array',
+                'comments': '',
+                'element_disposition': int_descriptor(4, False)
+            }
+        ]})
+
+    def test_can_parse_struct_sorted_array_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'struct Face',
+            '\teyeColor = uint8',
+            'struct Tracking',
+            '\tfaces = array(Face, 10, sort_key=eyeColor)'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Tracking'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'faces', 'type': 'Face', 'size': 10, 'disposition': 'array', 'sort_key': 'eyeColor', 'comments': ''}
+        ]})
+
+    def test_can_parse_struct_vararray_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'using Car = uint16',
+            'struct Fleet',
+            '\tcarsSize = uint8',
+            '# all cars in the fleet',
+            '\tcars = array(Car, size=carsSize)'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'carsSize', **uint_descriptor(1), 'comments': ''},
+            {'name': 'cars', 'type': 'Car', 'size': 'carsSize', 'disposition': 'array sized', 'comments': 'all cars in the fleet'}
+        ]})
+
+    def test_can_parse_struct_array_fill_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'using Car = uint16',
+            'struct Fleet',
+            '# all cars in the fleet',
+            '\tcars = array(Car, __FILL__)'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'cars', 'type': 'Car', 'size': 0, 'disposition': 'array fill', 'comments': 'all cars in the fleet'}
+        ]})
+
+    def test_cannot_parse_struct_vararray_numeric_size_types(self):
+        self._assert_parse_delayed_exception([
+            'using Car = uint16',
+            'struct Fleet',
+            '# all cars in the fleet',
+            '\tcars = array(Car, size=123)'
+        ])
+
+    def test_cannot_parse_struct_vararray_fill_types(self):
+        self._assert_parse_delayed_exception([
+            'using Car = uint16',
+            'struct Fleet',
+            '# all cars in the fleet',
+            '\tcars = array(Car, size=__FILL__)'
+        ])
+
+    def test_cannot_parse_struct_with_unknown_array_size(self):
+        self._assert_parse_delayed_exception([
+            'using MosaicId = uint16',
+            'struct Foo',
+            '\tids = array(MosaicId, numMosaics)'
+        ])
+
+    def test_cannot_parse_struct_with_unknown_array_sort_key(self):
+        self._assert_parse_delayed_exception([
+            'using Face = uint16',
+            'struct Tracking',
+            '\tfaces = array(Face, 10, sort_key=eyeColor)'
+        ])
+
+    def test_cannot_parse_struct_with_byte_array(self):
+        self._assert_parse_delayed_exception([
+            'struct Fleet',
+            '\ttrucks = array(byte, 10)'
+        ])
+
+    # endregion
+
+    # region struct - conditional
+
+    def _assert_can_parse_struct_enum_conditional_types(self, prefix):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tcircle = 4',
+            '\trectangle = 9',
+            'using Circ = uint16',
+            'using Perm = uint16',
+            'struct Enclosing',
+            '\tdiscriminator = Shape',
+            '\t# u part 1',
+            '\tcircumference = Circ if circle {}in discriminator'.format(prefix),
+            '\t# union pt 2',
+            '\tperimiter = Perm if rectangle {}equals discriminator'.format(prefix)
+        ])
+
+        # Assert:
+        self.assertEqual(4, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'discriminator', 'type': 'Shape', 'comments': ''},
+            {
+                'name': 'circumference', 'type': 'Circ',
+                'condition': 'discriminator', 'condition_value': 'circle', 'condition_operation': '{}in'.format(prefix),
+                'comments': 'u part 1'
+            },
+            {
+                'name': 'perimiter', 'type': 'Perm',
+                'condition': 'discriminator', 'condition_value': 'rectangle', 'condition_operation': '{}equals'.format(prefix),
+                'comments': 'union pt 2'
+            }
+        ]})
+
+    def test_can_parse_struct_enum_conditional_types(self):
+        self._assert_can_parse_struct_enum_conditional_types('')
+
+    def test_can_parse_struct_enum_conditional_types_negated(self):
+        self._assert_can_parse_struct_enum_conditional_types('not ')
+
+    def test_can_parse_struct_enum_conditional_types_with_inline_member(self):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tcircle = 4',
+            '\trectangle = 9',
+            'using Circ = uint16',
+            'using Perm = uint16',
+            'struct Version',
+            '\tversion = uint16',
+            'struct Enclosing',
+            '\tinline Version',
+            '\tdiscriminator = Shape',
+            '\t# u part 1',
+            '\tcircumference = Circ if circle in discriminator',
+            '\t# union pt 2',
+            '\tperimiter = Perm if rectangle equals discriminator'
+        ])
+
+        # Assert:
+        self.assertEqual(5, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'type': 'Version', 'disposition': 'inline', 'comments': ''},
+            {'name': 'discriminator', 'type': 'Shape', 'comments': ''},
+            {
+                'name': 'circumference', 'type': 'Circ',
+                'condition': 'discriminator', 'condition_value': 'circle', 'condition_operation': 'in',
+                'comments': 'u part 1'
+            },
+            {
+                'name': 'perimiter', 'type': 'Perm',
+                'condition': 'discriminator', 'condition_value': 'rectangle', 'condition_operation': 'equals',
+                'comments': 'union pt 2'
+            }
+        ]})
+
+    def test_can_parse_struct_enum_conditional_types_trailing_discriminator(self):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tcircle = 4',
+            '\trectangle = 9',
+            'using Circ = uint16',
+            'using Perm = uint16',
+            'struct Enclosing',
+            '\t# u part 1',
+            '\tcircumference = Circ if circle in discriminator',
+            '\t# union pt 2',
+            '\tperimiter = Perm if rectangle equals discriminator',
+            '\tdiscriminator = Shape'
+        ])
+
+        # Assert:
+        self.assertEqual(4, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {
+                'name': 'circumference', 'type': 'Circ',
+                'condition': 'discriminator', 'condition_value': 'circle', 'condition_operation': 'in',
+                'comments': 'u part 1'
+            },
+            {
+                'name': 'perimiter', 'type': 'Perm',
+                'condition': 'discriminator', 'condition_value': 'rectangle', 'condition_operation': 'equals',
+                'comments': 'union pt 2'
+            },
+            {'name': 'discriminator', 'type': 'Shape', 'comments': ''}
+        ]})
+
+    def test_cannot_parse_struct_with_numeric_enum_condition_value(self):
+        self._assert_parse_commit_exception([
+            'enum Shape : uint8',
+            '\tcircle = 1',
+            'using Circ = uint16',
+            'struct Enclosing',
+            '\tdiscriminator = Shape',
+            '\tcircumference = Circ if 1 equals discriminator'
+        ])
+
+    def test_cannot_parse_struct_with_unknown_enum_condition_value(self):
+        self._assert_parse_commit_exception([
+            'enum Shape : uint8',
+            '\tcircle = 1',
+            'using Circ = uint16',
+            'struct Enclosing',
+            '\tdiscriminator = Shape',
+            '\tcircumference = Circ if hexagon equals discriminator'
+        ])
+
+    def _assert_can_parse_struct_byte_conditional_types(self, prefix):
+        # Act:
+        type_descriptors = parse_all([
+            'using Circ = uint16',
+            'using Perm = uint16',
+            'struct Enclosing',
+            '\tdiscriminator = uint32',
+            '\t# u part 1',
+            '\tcircumference = Circ if 0x040 {}in discriminator'.format(prefix),
+            '\t# union pt 2',
+            '\tperimiter = Perm if 123 {}equals discriminator'.format(prefix)
+        ])
+
+        # Assert:
+        self.assertEqual(3, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'discriminator', 'comments': '', **uint_descriptor(4)},
+            {
+                'name': 'circumference', 'type': 'Circ',
+                'condition': 'discriminator', 'condition_value': 0x040, 'condition_operation': '{}in'.format(prefix),
+                'comments': 'u part 1'
+            },
+            {
+                'name': 'perimiter', 'type': 'Perm',
+                'condition': 'discriminator', 'condition_value': 123, 'condition_operation': '{}equals'.format(prefix),
+                'comments': 'union pt 2'
+            }
+        ]})
+
+    def test_can_parse_struct_byte_conditional_types(self):
+        self._assert_can_parse_struct_byte_conditional_types('')
+
+    def test_can_parse_struct_byte_conditional_types_negated(self):
+        self._assert_can_parse_struct_byte_conditional_types('not ')
+
+    def test_cannot_parse_struct_with_non_numeric_byte_condition_value(self):
+        self._assert_parse_commit_exception([
+            'using Circ = uint16',
+            'struct Enclosing',
+            '\tdiscriminator = uint32',
+            '\tcircumference = Circ if foo equals discriminator'
+        ])
+
+    def test_cannot_parse_struct_with_unsupported_type_condition(self):
+        self._assert_parse_commit_exception([
+            'using Shape = uint8',
+            'using Circ = uint16',
+            'struct Enclosing',
+            '\tdiscriminator = Shape',
+            '\tcircumference = Circ if 123 equals discriminator'
+        ])
+
+    # endregion
+
+    # region struct - const / reserved
+
+    def _assert_can_parse_struct_with_const_member(self, disposition):
         # Act:
         type_descriptors = parse_all([
             'struct Pair',
             '\tfooBar = uint64',
             '# some const comment',
-            '\tconst int8 tupleSize = 2',
+            '\ttupleSize = make_{}(int8, 2)'.format(disposition),
             '\tbaz = uint32'
         ])
 
@@ -421,70 +574,82 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(1, len(type_descriptors))
         self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
             {'name': 'fooBar', **uint_descriptor(8), 'comments': ''},
-            {'name': 'tupleSize', **int_descriptor(1), 'disposition': 'const', 'value': 2, 'comments': 'some const comment'},
+            {'name': 'tupleSize', **int_descriptor(1), 'disposition': disposition, 'value': 2, 'comments': 'some const comment'},
             {'name': 'baz', **uint_descriptor(4), 'comments': ''}
         ]})
 
-    def test_cannot_parse_struct_with_unknown_member_type(self):
-        # Act + Assert:
-        for type_name in ['MosaicId', 'array(MosaicId, 10)']:
-            self._assert_parse_delayed_exception([
-                'struct Foo',
-                '\tid = {0}'.format(type_name)
-            ])
+    def test_can_parse_struct_with_const_member(self):
+        self._assert_can_parse_struct_with_const_member('const')
 
-    def test_cannot_parse_struct_with_non_enum_condition_link(self):
-        # Act + Assert:
+    def test_can_parse_struct_with_reserved_member(self):
+        self._assert_can_parse_struct_with_const_member('reserved')
+
+    def _assert_can_parse_struct_with_const_enum_member(self, disposition):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tcircle = 4',
+            '\trectangle = 9',
+            'struct Enclosing',
+            '\t# c part 1',
+            '\tc1 = make_{}(Shape, rectangle)'.format(disposition),
+            '\t# const pt 2',
+            '\tc2 = make_{}(Shape, 7)'.format(disposition)
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'disposition': disposition, 'name': 'c1', 'type': 'Shape', 'comments': 'c part 1', 'value': 'rectangle'},
+            {'disposition': disposition, 'name': 'c2', 'type': 'Shape', 'comments': 'const pt 2', 'value': 7}
+        ]})
+
+    def test_can_parse_struct_with_const_enum_member(self):
+        self._assert_can_parse_struct_with_const_enum_member('const')
+
+    def test_can_parse_struct_with_reserved_enum_member(self):
+        self._assert_can_parse_struct_with_const_enum_member('reserved')
+
+    def _assert_cannot_parse_struct_with_invalid_const_type(self, disposition):
         self._assert_parse_commit_exception([
             'using Shape = uint8',
-            'using Circ = uint16',
             'struct Enclosing',
-            '\tdiscriminator = Shape',
-            '\tcircumference = Circ if discriminator equals 123'
+            '\tc1 = make_{}(Shape, rectangle)'.format(disposition)
         ])
 
-    def test_cannot_parse_struct_with_unknown_condition_value(self):
-        # Act + Assert:
+    def test_cannot_parse_struct_with_invalid_const_type(self):
+        self._assert_cannot_parse_struct_with_invalid_const_type('const')
+
+    def test_cannot_parse_struct_with_invalid_reserved_type(self):
+        self._assert_cannot_parse_struct_with_invalid_const_type('reserved')
+
+    def _assert_cannot_parse_struct_with_unknown_const_enum_value(self, disposition):
         self._assert_parse_commit_exception([
             'enum Shape : uint8',
-            '\tcircle = 1',
-            'using Circ = uint16',
+            '\tcircle = 4',
+            '\trectangle = 9',
             'struct Enclosing',
-            '\tdiscriminator = Shape',
-            '\tcircumference = Circ if discriminator equals hexagon'
+            '\tc1 = make_{}(Shape, square)'.format(disposition)
         ])
 
-    def test_cannot_parse_struct_with_unknown_array_size(self):
-        # Act + Assert:
-        self._assert_parse_delayed_exception([
-            'using MosaicId = uint16',
-            'struct Foo',
-            '\tids = array(MosaicId, numMosaics)'
-        ])
+    def test_cannot_parse_struct_with_unknown_const_enum_value(self):
+        self._assert_cannot_parse_struct_with_unknown_const_enum_value('const')
 
-    def test_cannot_parse_struct_with_unknown_sort_key(self):
-        # Act + Assert:
-        self._assert_parse_delayed_exception([
-            'using Face = uint16',
-            'struct Tracking',
-            '\tfaces = array(Face, 10, sort_key=eyeColor)'
-        ])
+    def test_cannot_parse_struct_with_unknown_reserved_enum_value(self):
+        self._assert_cannot_parse_struct_with_unknown_const_enum_value('reserved')
 
-    def test_cannot_parse_struct_with_unknown_inline_type(self):
-        # Act + Assert:
-        for type_name in ['MosaicId', 'array(MosaicId, 10)', 'uint8', 'binary_fixed(25)']:
-            self._assert_parse_delayed_exception([
-                'struct Foo',
-                '\tinline {0}'.format(type_name)
-            ])
-
-    def test_cannot_parse_struct_with_unknown_const_type(self):
-        # Act + Assert:
+    def _assert_cannot_parse_struct_with_unknown_const_type(self, disposition):
         for type_name in ['uint7', 'binary_fixed(25)', 'Car']:
             self._assert_parse_delayed_exception([
                 'struct Foo',
-                '\tconst {0} bar = 123'.format(type_name)
+                '\tbar = make_{}({}, 123)'.format(disposition, type_name)
             ])
+
+    def test_cannot_parse_struct_with_unknown_const_type(self):
+        self._assert_cannot_parse_struct_with_unknown_const_type('const')
+
+    def test_cannot_parse_struct_with_unknown_reserved_type(self):
+        self._assert_cannot_parse_struct_with_unknown_const_type('reserved')
 
     # endregion
 
@@ -527,7 +692,6 @@ class CatsParserTests(unittest.TestCase):
         ]})
 
     def test_cannot_parse_enum_with_non_numeric_value(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'enum EntityType : uint16',
             '\ttransfer = QZ'
@@ -572,7 +736,6 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(9, counter)
 
     def test_cannot_parse_schema_with_duplicate_struct_property_names_in_same_scope(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'struct Bar',
             '\tfoo = uint8',
@@ -580,7 +743,6 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_schema_with_duplicate_enum_property_names_in_same_scope(self):
-        # Act + Assert:
         self._assert_parse_delayed_exception([
             'enum Bar : uint16',
             '\tfoo = 4',

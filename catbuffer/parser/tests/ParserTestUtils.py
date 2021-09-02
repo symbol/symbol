@@ -1,4 +1,4 @@
-from catbuffer_parser.CatsParseException import CatsParseException
+from catparser.CatsParseException import CatsParseException
 
 
 class SingleLineParserTestUtils:
@@ -34,12 +34,12 @@ class SingleLineParserTestUtils:
             self.assert_parse_exception(line)
 
     def assert_naming(self, pattern, valid_names, invalid_names):
+        # Act + Assert: no exception
         for name in valid_names:
-            # Act + Assert: no exception
             self.parser_factory_type().create().process_line(pattern.format(name))
 
+        # Act + Assert: exception
         for name in invalid_names:
-            # Act + Assert: exception
             self.assert_parse_exception(pattern.format(name))
 
 
@@ -67,7 +67,7 @@ class ParserFactoryTestUtils:
 
         # Act + Assert:
         for line in matches:
-            self.unittest.assertTrue(factory.is_match(line))
+            self.unittest.assertTrue(factory.is_match(line), line)
 
     def assert_negatives(self, matches):
         # Arrange:
@@ -75,4 +75,4 @@ class ParserFactoryTestUtils:
 
         # Act + Assert:
         for line in matches:
-            self.unittest.assertFalse(factory.is_match(line))
+            self.unittest.assertFalse(factory.is_match(line), line)

@@ -19,7 +19,7 @@ class ScopeManager:
 
     def scope(self):
         """Gets the current location"""
-        return ['{0}:{1}'.format(scope.name, scope.line_number) for scope in self.scopes][::-1]
+        return ['{}:{}'.format(scope.name, scope.line_number) for scope in self.scopes][::-1]
 
     def pop_scope(self):
         """Pops the input scope"""

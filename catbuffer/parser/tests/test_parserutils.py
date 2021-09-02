@@ -1,8 +1,8 @@
 import unittest
 
-from catbuffer_parser.CatsParseException import CatsParseException
-from catbuffer_parser.parserutils import (is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex, require_primitive,
-                                          require_property_name, require_user_type_name)
+from catparser.CatsParseException import CatsParseException
+from catparser.parserutils import (is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex, require_primitive,
+                                   require_property_name, require_user_type_name)
 
 from .constants import (BUILTIN_TYPE_TUPLES, INT_TYPE_TUPLES, INVALID_PRIMITIVE_NAMES, INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES,
                         UINT_TYPE_TUPLES, VALID_PRIMITIVE_NAMES, VALID_PROPERTY_NAMES, VALID_USER_TYPE_NAMES)
@@ -41,10 +41,10 @@ class RequirePropertyNameTest(unittest.TestCase):
             with self.assertRaises(CatsParseException):
                 require_property_name(string)
 
+
 # endregion
 
 # region primitive
-
 
 class IsPrimitiveTest(unittest.TestCase):
     def test_true_for_positives(self):
@@ -79,10 +79,10 @@ class RequirePrimitiveTest(unittest.TestCase):
             with self.assertRaises(CatsParseException):
                 require_primitive(string)
 
+
 # endregion
 
 # region dec or hex
-
 
 INVALID_NUMERIC_STRINGS = ['AFE', '0x8Y8', 'p', '&']
 
@@ -107,12 +107,10 @@ class IsDecOrHexTest(unittest.TestCase):
 
 class ParseDecOrHexTest(unittest.TestCase):
     def test_can_parse_dec(self):
-        # Act + Assert:
         self.assertEqual(10, parse_dec_or_hex('10'))
         self.assertEqual(123, parse_dec_or_hex('123'))
 
     def test_can_parse_hex(self):
-        # Act + Assert:
         self.assertEqual(0x10, parse_dec_or_hex('0x10'))
         self.assertEqual(0x123, parse_dec_or_hex('0x123'))
         self.assertEqual(0xAFE, parse_dec_or_hex('0xAFE'))
@@ -122,10 +120,10 @@ class ParseDecOrHexTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 parse_dec_or_hex(string)
 
+
 # endregion
 
 # region builtin
-
 
 INVALID_BUILTIN_TYPE_NAMES = [
     'binary_fixed(2x22)',  # malformed number
@@ -182,7 +180,7 @@ class ParseBuiltinTest(unittest.TestCase):
         for size_tuple in [('32', 32), ('0x20', 32), ('25', 25)]:
             # Act + Assert:
             self._assert_parse(
-                'binary_fixed({0})'.format(size_tuple[0]),
+                'binary_fixed({})'.format(size_tuple[0]),
                 {'type': 'byte', 'signedness': 'unsigned', 'size': size_tuple[1]})
 
     def test_cannot_parse_invalid_builtin(self):

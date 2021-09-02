@@ -1,6 +1,6 @@
 import unittest
 
-from catbuffer_parser.CommentParser import CommentParser
+from catparser.CommentParser import CommentParser
 
 
 class CommentParserTest(unittest.TestCase):
@@ -48,6 +48,21 @@ class CommentParserTest(unittest.TestCase):
         # Assert:
         self.assertEqual({'comments': 'this is a comment foo bar'}, result)
 
+    def test_can_add_multi_line_comment_with_newlines(self):
+        # Arrange:
+        parser = CommentParser()
+
+        # Act:
+        parser.try_process_line('# this is a comment')
+        parser.try_process_line('#')
+        parser.try_process_line('# baz')
+        parser.try_process_line('#')
+        parser.try_process_line('# foo bar')
+        result = parser.commit()
+
+        # Assert:
+        self.assertEqual({'comments': 'this is a comment\nbaz\nfoo bar'}, result)
+
     def test_post_processing_removes_leading_and_trailing_whitespace_per_line(self):
         # Arrange:
         parser = CommentParser()
@@ -59,6 +74,21 @@ class CommentParserTest(unittest.TestCase):
 
         # Assert:
         self.assertEqual({'comments': 'this is a comment foo   bar'}, result)
+
+    def test_post_processing_removes_leading_and_trailing_whitespace_per_line_with_newlines(self):
+        # Arrange:
+        parser = CommentParser()
+
+        # Act:
+        parser.try_process_line('#    this is a comment   ')
+        parser.try_process_line('#            ')
+        parser.try_process_line('#        baz    ')
+        parser.try_process_line('#     ')
+        parser.try_process_line('#      foo   bar   ')
+        result = parser.commit()
+
+        # Assert:
+        self.assertEqual({'comments': 'this is a comment\nbaz\nfoo   bar'}, result)
 
     def test_can_reuse_parser(self):
         # Arrange:
