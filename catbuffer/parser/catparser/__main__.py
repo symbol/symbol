@@ -2,8 +2,10 @@ import argparse
 import glob
 import importlib
 import os
-import pprint
 import re
+import sys
+
+import yaml
 
 from .CatsParser import CatsParser
 
@@ -51,7 +53,7 @@ def _generate_output(generator_class, output_path, schema, options):
                 output_file.write('%s\n' % line)
 
 
-def build_available_generator_map():
+def _build_available_generator_map():
     generator_map = {}
     if os.path.exists('generators'):
         generator_file_name_pattern = re.compile(r'^generators/(.*)/(.+File|Builder)Generator\.py$', re.IGNORECASE)
@@ -72,8 +74,19 @@ def build_available_generator_map():
     return generator_map
 
 
+def _dump_type_descriptors(type_descriptors, out):
+    needs_separator = False
+    for key in type_descriptors:
+        if needs_separator:
+            out.write('\n')
+
+        out.write('name: {}\n'.format(key))
+        yaml.dump(type_descriptors[key], out)
+        needs_separator = True
+
+
 def main():
-    generator_map = build_available_generator_map()
+    generator_map = _build_available_generator_map()
     available_generator_names = generator_map.keys() if generator_map else None
 
     parser = argparse.ArgumentParser(
@@ -83,6 +96,7 @@ def main():
     parser.add_argument('-s', '--schema', help='input CATS file', required=True)
     parser.add_argument('-o', '--output', help='output directory, if not provided, _generated/{generator} is used')
     parser.add_argument('-i', '--include', help='schema root directory', default='./schemas')
+    parser.add_argument('-x', '--export', help='export schemas as yaml')
 
     parser.add_argument('-g', '--generator', help='generator to use to produce output files', choices=available_generator_names)
     parser.add_argument('-c', '--copyright', help='file containing copyright data to use with output files', default='../HEADER.inc')
@@ -92,15 +106,18 @@ def main():
     file_parser.set_include_path(args.include)
     file_parser.parse(args.schema)
 
-    # console output the parsed schema
-    printer = pprint.PrettyPrinter(width=140)
-    printer.pprint('*** *** ***')
     type_descriptors = file_parser.cats_parser.type_descriptors()
-    for key in type_descriptors:
-        printer.pprint((key, type_descriptors[key]))
 
-    # generate and output code
+    # dump parsed type descriptors
+    if not args.generator:
+        _dump_type_descriptors(type_descriptors, sys.stdout)
+
+    if args.export:
+        with open(args.export, 'wt') as out:
+            _dump_type_descriptors(type_descriptors, out)
+
     if args.generator:
+        # load and run generator
         generator_full_name = generator_map.get(args.generator, args.generator)
         generator_class_name = os.path.splitext(generator_full_name)[1][1:]
 
