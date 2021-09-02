@@ -1,7 +1,6 @@
 from .CatsParseException import CatsParseException
 from .CompositeTypeParser import CompositeTypeParser
-from .parserutils import (is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex, require_property_name,
-                          require_user_type_name)
+from .parserutils import TypeNameChecker, is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex
 from .RegexParserFactory import RegexParserFactory
 
 # region StructParser(Factory)
@@ -19,7 +18,7 @@ class StructParser(CompositeTypeParser):
 
     def process_line(self, line):
         match = self.regex.match(line)
-        self.type_name = require_user_type_name(match.group(2))
+        self.type_name = TypeNameChecker.require_user_type(match.group(2))
         self.type_descriptor = {'type': 'struct', 'layout': []}
 
         if match.group(1):
@@ -91,9 +90,11 @@ class StructConstParser:
         match = self.regex.match(line)
         type_name = match.group(3)
 
+        disposition = match.group(2)
+        property_name_checker = TypeNameChecker.require_const_property if 'const' == disposition else TypeNameChecker.require_property
         const_descriptor = {
-            'name': require_property_name(match.group(1)),
-            'disposition': match.group(2),
+            'name': property_name_checker(match.group(1)),
+            'disposition': disposition,
             'value': match.group(4)
         }
 
@@ -102,7 +103,7 @@ class StructConstParser:
             const_descriptor = {**const_descriptor, **parse_builtin(type_name)}
             is_numeric = True
         else:
-            const_descriptor['type'] = require_user_type_name(type_name)
+            const_descriptor['type'] = TypeNameChecker.require_user_type(type_name)
             is_numeric = is_dec_or_hex(const_descriptor['value'])
 
         if is_numeric:
@@ -175,7 +176,7 @@ class StructScalarMemberParser:
 
             property_type_descriptor['condition_value'] = condition_value
 
-        property_type_descriptor['name'] = require_property_name(match.group(1))
+        property_type_descriptor['name'] = TypeNameChecker.require_property(match.group(1))
         return property_type_descriptor
 
 
@@ -233,7 +234,7 @@ class StructArrayMemberParser:
         if match.group(5):
             property_type_descriptor['sort_key'] = match.group(6)
 
-        property_type_descriptor['name'] = require_property_name(match.group(1))
+        property_type_descriptor['name'] = TypeNameChecker.require_property(match.group(1))
         return property_type_descriptor
 
 

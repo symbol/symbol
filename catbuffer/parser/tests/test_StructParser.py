@@ -4,8 +4,7 @@ from catparser.CatsParseException import CatsParseException
 from catparser.StructParser import (StructArrayMemberParserFactory, StructConstParserFactory, StructInlineParserFactory,
                                     StructParserFactory, StructScalarMemberParserFactory)
 
-from .constants import (BUILTIN_TYPE_TUPLES, INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES, VALID_PRIMITIVE_NAMES, VALID_PROPERTY_NAMES,
-                        VALID_USER_TYPE_NAMES)
+from .constants import BUILTIN_TYPE_TUPLES, NameConstants
 from .ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, SingleLineParserTestUtils
 
 # region StructParserTest
@@ -52,13 +51,16 @@ class StructParserTest(unittest.TestCase):
             ('Car', {'type': 'struct', 'disposition': 'inline', 'layout': []}))
 
     def test_struct_names_must_have_type_name_semantics(self):
-        MultiLineParserTestUtils(StructParserFactory, self).assert_naming('struct {}', VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES)
+        MultiLineParserTestUtils(StructParserFactory, self).assert_naming(
+            'struct {}',
+            NameConstants.VALID_USER_TYPES,
+            NameConstants.INVALID_USER_TYPES)
 
     def test_inline_struct_names_must_have_type_name_semantics(self):
         MultiLineParserTestUtils(StructParserFactory, self).assert_naming(
             'inline struct {}',
-            VALID_USER_TYPE_NAMES,
-            INVALID_USER_TYPE_NAMES)
+            NameConstants.VALID_USER_TYPES,
+            NameConstants.INVALID_USER_TYPES)
 
     def test_can_append_scalar(self):
         # Arrange:
@@ -279,48 +281,65 @@ class StructConstParserTest(unittest.TestCase):
 
     def test_can_parse_uint_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'foo' if 'reserved' == disposition else 'FOO'
             for value in [32, 0x20]:
                 self._assert_parse(
-                    'foo = make_{}(uint16, {})'.format(disposition, value),
-                    {'name': 'foo', 'type': 'byte', 'signedness': 'unsigned', 'size': 2, 'value': 32, 'disposition': disposition})
+                    '{} = make_{}(uint16, {})'.format(name, disposition, value),
+                    {'name': name, 'type': 'byte', 'signedness': 'unsigned', 'size': 2, 'value': 32, 'disposition': disposition})
 
     def test_can_parse_custom_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'red' if 'reserved' == disposition else 'RED'
             for value in [33, 0x21]:
                 self._assert_parse(
-                    'red = make_{}(ColorShade, {})'.format(disposition, value),
-                    {'name': 'red', 'type': 'ColorShade', 'value': 33, 'disposition': disposition})
+                    '{} = make_{}(ColorShade, {})'.format(name, disposition, value),
+                    {'name': name, 'type': 'ColorShade', 'value': 33, 'disposition': disposition})
 
     def test_cannot_parse_non_numeric_value_for_uint_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'foo' if 'reserved' == disposition else 'FOO'
             for value in ['FOO', 'AF']:
                 SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(
-                    'foo = make_{}(uint16, {})'.format(disposition, value),
+                    '{} = make_{}(uint16, {})'.format(name, disposition, value),
                     ValueError)
 
     def test_can_parse_non_numeric_value_for_custom_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'red' if 'reserved' == disposition else 'RED'
             for value in ['FOO', 'AF']:
                 self._assert_parse(
-                    'red = make_{}(ColorShade, {})'.format(disposition, value),
-                    {'name': 'red', 'type': 'ColorShade', 'value': value, 'disposition': disposition})
+                    '{} = make_{}(ColorShade, {})'.format(name, disposition, value),
+                    {'name': name, 'type': 'ColorShade', 'value': value, 'disposition': disposition})
 
     def test_cannot_parse_binary_fixed_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'foo' if 'reserved' == disposition else 'FOO'
             SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(
-                'foo = make_{}(binary_fixed(25), 123)'.format(disposition))
+                '{} = make_{}(binary_fixed(25), 123)'.format(name, disposition))
 
-    def test_member_names_must_have_property_name_semantics(self):
+    def test_const_member_names_must_have_const_property_name_semantics(self):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
             '{} = make_const(uint32, 123)',
-            VALID_PROPERTY_NAMES,
-            INVALID_PROPERTY_NAMES)
+            NameConstants.VALID_CONST_PROPERTIES,
+            NameConstants.INVALID_CONST_PROPERTIES)
 
-    def test_type_names_must_have_type_name_or_uint_semantics(self):
+    def test_reserved_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
-            'foo = make_const({}, 123)',
-            VALID_USER_TYPE_NAMES + VALID_PRIMITIVE_NAMES,
-            INVALID_USER_TYPE_NAMES + ['binary_fixed(32)'])
+            '{} = make_reserved(uint32, 123)',
+            NameConstants.VALID_PROPERTIES,
+            NameConstants.INVALID_PROPERTIES)
+
+    def test_const_type_names_must_have_type_name_or_uint_semantics(self):
+        SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
+            'FOO = make_const({}, 123)',
+            NameConstants.VALID_USER_TYPES + NameConstants.VALID_PRIMITIVES,
+            [name for name in NameConstants.INVALID_USER_TYPES if name not in NameConstants.VALID_PRIMITIVES] + ['binary_fixed(32)'])
+
+    def test_reserved_type_names_must_have_type_name_or_uint_semantics(self):
+        SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
+            'foo = make_reserved({}, 123)',
+            NameConstants.VALID_USER_TYPES + NameConstants.VALID_PRIMITIVES,
+            [name for name in NameConstants.INVALID_USER_TYPES if name not in NameConstants.VALID_PRIMITIVES] + ['binary_fixed(32)'])
 
 
 # endregion
@@ -396,9 +415,9 @@ class StructScalarParserTest(unittest.TestCase):
 
     def _assert_can_parse_conditional_enum_declaration(self, operation):
         self._assert_parse(
-            'roadGrade = RoadGrade_ if road {} terrain'.format(operation),
+            'road_grade = RoadGrade_ if road {} terrain'.format(operation),
             {
-                'name': 'roadGrade',
+                'name': 'road_grade',
                 'type': 'RoadGrade_',
                 'condition': 'terrain',
                 'condition_operation': operation,
@@ -416,9 +435,9 @@ class StructScalarParserTest(unittest.TestCase):
     def _assert_can_parse_conditional_byte_declaration(self, operation):
         for value in ['33', '0x21']:
             self._assert_parse(
-                'roadGrade = RoadGrade_ if {} {} terrain'.format(value, operation),
+                'road_grade = RoadGrade_ if {} {} terrain'.format(value, operation),
                 {
-                    'name': 'roadGrade',
+                    'name': 'road_grade',
                     'type': 'RoadGrade_',
                     'condition': 'terrain',
                     'condition_operation': operation,
@@ -436,8 +455,8 @@ class StructScalarParserTest(unittest.TestCase):
     def test_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructScalarMemberParserFactory, self).assert_naming(
             '{} = uint32',
-            VALID_PROPERTY_NAMES,
-            INVALID_PROPERTY_NAMES)
+            NameConstants.VALID_PROPERTIES,
+            NameConstants.INVALID_PROPERTIES)
 
 
 # endregion
@@ -547,7 +566,7 @@ class StructArrayMemberParserTest(unittest.TestCase):
     def test_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructArrayMemberParserFactory, self).assert_naming(
             '{} = array(Car, 10)',
-            VALID_PROPERTY_NAMES,
-            INVALID_PROPERTY_NAMES)
+            NameConstants.VALID_PROPERTIES,
+            NameConstants.INVALID_PROPERTIES)
 
 # endregion

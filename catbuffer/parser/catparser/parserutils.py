@@ -3,8 +3,9 @@ import re
 from .CatsParseException import CatsParseException
 
 REGEXES = {
-    'user_type_name': re.compile(r'^[A-Z][a-zA-Z0-9]*$'),
-    'property_name': re.compile(r'^[a-z_][a-zA-Z0-9_]*$'),
+    'user_type_name': re.compile(r'^[A-Z][A-Z0-9]*[a-z][a-zA-Z0-9]*$'),  # UpperCamelCase
+    'const_property_name': re.compile(r'^[A-Z_][A-Z0-9_]*$'),  # TITLE_CASE
+    'property_name': re.compile(r'^[a-z_][a-z0-9_]*$'),  # snake_case
 
     'int_or_uint': re.compile(r'^(u)?int(8|16|32|64)$'),
     'binary_fixed_type': re.compile(r'^binary_fixed\((0x[0-9A-F]+|[0-9]+)\)$'),
@@ -20,27 +21,38 @@ def _match_regex_or_throw(regex_key, line):
     return match
 
 
-def require_user_type_name(type_name):
-    """Raises an exception if the specified name is not a valid user type name"""
-    _match_regex_or_throw('user_type_name', type_name)
-    return type_name
+class TypeNameChecker:
+    @staticmethod
+    def require_user_type(type_name):
+        """Raises an exception if the specified name is not a valid user type name"""
+        _match_regex_or_throw('user_type_name', type_name)
+        return type_name
 
+    @staticmethod
+    def require_const_property(type_name):
+        """Raises an exception if the specified name is not a valid const property name"""
+        _match_regex_or_throw('const_property_name', type_name)
+        return type_name
 
-def require_property_name(type_name):
-    """Raises an exception if the specified name is not a valid property name"""
-    _match_regex_or_throw('property_name', type_name)
-    return type_name
+    @staticmethod
+    def require_property(type_name):
+        """Raises an exception if the specified name is not a valid property name"""
+        if REGEXES['int_or_uint'].match(type_name):
+            raise CatsParseException('unable to parse "property_name": {}'.format(type_name))
+
+        _match_regex_or_throw('property_name', type_name)
+        return type_name
+
+    @staticmethod
+    def require_primitive(type_name):
+        """Raises an exception if the specified name is not a valid primitive name"""
+        _match_regex_or_throw('int_or_uint', type_name)
+        return type_name
 
 
 def is_primitive(type_name):
     """Returns true if the specified name is a valid primitive name"""
     return REGEXES['int_or_uint'].match(type_name)
-
-
-def require_primitive(type_name):
-    """Raises an exception if the specified name is not a valid primitive name"""
-    _match_regex_or_throw('int_or_uint', type_name)
-    return type_name
 
 
 def is_dec_or_hex(string):

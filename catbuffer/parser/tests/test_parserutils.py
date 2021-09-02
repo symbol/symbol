@@ -1,45 +1,71 @@
 import unittest
 
 from catparser.CatsParseException import CatsParseException
-from catparser.parserutils import (is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex, require_primitive,
-                                   require_property_name, require_user_type_name)
+from catparser.parserutils import TypeNameChecker, is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex
 
-from .constants import (BUILTIN_TYPE_TUPLES, INT_TYPE_TUPLES, INVALID_PRIMITIVE_NAMES, INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES,
-                        UINT_TYPE_TUPLES, VALID_PRIMITIVE_NAMES, VALID_PROPERTY_NAMES, VALID_USER_TYPE_NAMES)
+from .constants import BUILTIN_TYPE_TUPLES, INT_TYPE_TUPLES, UINT_TYPE_TUPLES, NameConstants
 
 # region naming conventions
 
 
-class RequireUserTypeNameTest(unittest.TestCase):
+class RequireUserTypeTest(unittest.TestCase):
     def test_nothrow_for_positives(self):
-        for string in VALID_USER_TYPE_NAMES:
+        for name in NameConstants.VALID_USER_TYPES:
             # Act:
-            result = require_user_type_name(string)
+            result = TypeNameChecker.require_user_type(name)
 
             # Assert:
-            self.assertEqual(string, result)
+            self.assertEqual(name, result)
 
     def test_throw_for_negatives(self):
-        for string in INVALID_USER_TYPE_NAMES:
-            # Act:
+        for name in NameConstants.INVALID_USER_TYPES:
             with self.assertRaises(CatsParseException):
-                require_user_type_name(string)
+                TypeNameChecker.require_user_type(name)
 
 
-class RequirePropertyNameTest(unittest.TestCase):
+class RequireConstPropertyTest(unittest.TestCase):
     def test_nothrow_for_positives(self):
-        for string in VALID_PROPERTY_NAMES:
+        for name in NameConstants.VALID_CONST_PROPERTIES:
             # Act:
-            result = require_property_name(string)
+            result = TypeNameChecker.require_const_property(name)
 
             # Assert:
-            self.assertEqual(string, result)
+            self.assertEqual(name, result)
 
     def test_throw_for_negatives(self):
-        for string in INVALID_PROPERTY_NAMES:
-            # Act:
+        for name in NameConstants.INVALID_CONST_PROPERTIES:
             with self.assertRaises(CatsParseException):
-                require_property_name(string)
+                TypeNameChecker.require_const_property(name)
+
+
+class RequirePropertyTest(unittest.TestCase):
+    def test_nothrow_for_positives(self):
+        for name in NameConstants.VALID_PROPERTIES:
+            # Act:
+            result = TypeNameChecker.require_property(name)
+
+            # Assert:
+            self.assertEqual(name, result)
+
+    def test_throw_for_negatives(self):
+        for name in NameConstants.INVALID_PROPERTIES:
+            with self.assertRaises(CatsParseException):
+                TypeNameChecker.require_property(name)
+
+
+class RequirePrimitiveTest(unittest.TestCase):
+    def test_nothrow_for_positives(self):
+        for name in NameConstants.VALID_PRIMITIVES:
+            # Act:
+            result = TypeNameChecker.require_primitive(name)
+
+            # Assert:
+            self.assertEqual(name, result)
+
+    def test_throw_for_negatives(self):
+        for name in NameConstants.INVALID_PRIMITIVES:
+            with self.assertRaises(CatsParseException):
+                TypeNameChecker.require_primitive(name)
 
 
 # endregion
@@ -48,36 +74,20 @@ class RequirePropertyNameTest(unittest.TestCase):
 
 class IsPrimitiveTest(unittest.TestCase):
     def test_true_for_positives(self):
-        for string in VALID_PRIMITIVE_NAMES:
+        for name in NameConstants.VALID_PRIMITIVES:
             # Act:
-            result = is_primitive(string)
+            result = is_primitive(name)
 
             # Assert:
             self.assertTrue(result)
 
     def test_false_for_negatives(self):
-        for string in INVALID_PRIMITIVE_NAMES:
+        for name in NameConstants.INVALID_PRIMITIVES:
             # Act:
-            result = is_primitive(string)
+            result = is_primitive(name)
 
             # Assert:
             self.assertFalse(result)
-
-
-class RequirePrimitiveTest(unittest.TestCase):
-    def test_nothrow_for_positives(self):
-        for string in VALID_PRIMITIVE_NAMES:
-            # Act:
-            result = require_primitive(string)
-
-            # Assert:
-            self.assertEqual(string, result)
-
-    def test_throw_for_negatives(self):
-        for string in INVALID_PRIMITIVE_NAMES:
-            # Act:
-            with self.assertRaises(CatsParseException):
-                require_primitive(string)
 
 
 # endregion
@@ -146,9 +156,9 @@ class IsBuiltinTest(unittest.TestCase):
             self.assertTrue(result)
 
     def test_false_for_negatives(self):
-        for string in INVALID_BUILTIN_TYPE_NAMES:
+        for name in INVALID_BUILTIN_TYPE_NAMES:
             # Act:
-            result = is_builtin(string)
+            result = is_builtin(name)
 
             # Assert:
             self.assertFalse(result)

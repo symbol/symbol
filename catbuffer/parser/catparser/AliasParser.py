@@ -1,4 +1,4 @@
-from .parserutils import parse_builtin, require_user_type_name
+from .parserutils import TypeNameChecker, parse_builtin
 from .RegexParserFactory import RegexParserFactory
 
 
@@ -12,7 +12,7 @@ class AliasParser:
 
         # aliases are only supported for builtin types
         return (
-            require_user_type_name(match.group(1)),
+            TypeNameChecker.require_user_type(match.group(1)),
             parse_builtin(match.group(2))
         )
 

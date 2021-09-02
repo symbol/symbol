@@ -10,6 +10,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
  - 'inline struct' directive to express macro-like expansion
 
 ### Changed
+ - enforce strict pythonic naming
  - parser output to YAML instead of python objects
 
 ## [2.0.0] - 02-Sep-2021
