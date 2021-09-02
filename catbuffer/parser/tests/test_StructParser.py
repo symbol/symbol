@@ -12,15 +12,19 @@ from .ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, S
 
 
 class StructParserFactoryTest(unittest.TestCase):
+    @staticmethod
+    def _expand_struct_seed_patterns(seed_patterns):
+        return [seed_pattern.format(disposition) for disposition in ['inline struct', 'struct'] for seed_pattern in seed_patterns]
+
     def test_is_match_returns_true_for_positives(self):
-        ParserFactoryTestUtils(StructParserFactory, self).assert_positives([
-            'struct F', 'struct Foo', 'struct FooZA09za', 'struct foo', 'struct 8oo', 'struct $^^$'
-        ])
+        ParserFactoryTestUtils(StructParserFactory, self).assert_positives(self._expand_struct_seed_patterns([
+            '{} F', '{} Foo', '{} FooZA09za', '{} foo', '{} 8oo', '{} $^^$'
+        ]))
 
     def test_is_match_returns_false_for_negatives(self):
-        ParserFactoryTestUtils(StructParserFactory, self).assert_negatives([
-            ' struct Foo', 'struct Foo ', 'struct ', 'struct foo bar'
-        ])
+        ParserFactoryTestUtils(StructParserFactory, self).assert_negatives(self._expand_struct_seed_patterns([
+            ' {} Foo', '{} Foo ', '{} ', '{} foo bar'
+        ]))
 
 
 class StructParserTest(unittest.TestCase):
@@ -37,13 +41,24 @@ class StructParserTest(unittest.TestCase):
         # Assert
         self.assertEqual(4, len(parser.factories()))
 
-    def test_can_parse_type_declaration(self):
+    def test_can_parse_struct_declaration(self):
         self._assert_parse(
             'struct Car',
             ('Car', {'type': 'struct', 'layout': []}))
 
+    def test_can_parse_inline_struct_declaration(self):
+        self._assert_parse(
+            'inline struct Car',
+            ('Car', {'type': 'struct', 'disposition': 'inline', 'layout': []}))
+
     def test_struct_names_must_have_type_name_semantics(self):
         MultiLineParserTestUtils(StructParserFactory, self).assert_naming('struct {}', VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES)
+
+    def test_inline_struct_names_must_have_type_name_semantics(self):
+        MultiLineParserTestUtils(StructParserFactory, self).assert_naming(
+            'inline struct {}',
+            VALID_USER_TYPE_NAMES,
+            INVALID_USER_TYPE_NAMES)
 
     def test_can_append_scalar(self):
         # Arrange:
@@ -313,22 +328,35 @@ class StructConstParserTest(unittest.TestCase):
 # region StructInlineParserTest
 
 class StructInlineParserFactoryTest(unittest.TestCase):
+    @staticmethod
+    def _expand_inline_seed_patterns(seed_patterns):
+        return [seed_pattern.format(disposition) for disposition in ['foo = ', ''] for seed_pattern in seed_patterns]
+
     def test_is_match_returns_true_for_positives(self):
-        ParserFactoryTestUtils(StructInlineParserFactory, self).assert_positives([
-            'inline Bar', 'inline BAR', 'inline fzaZa09', 'inline $$$'
-        ])
+        ParserFactoryTestUtils(StructInlineParserFactory, self).assert_positives(self._expand_inline_seed_patterns([
+            '{}inline Bar', '{}inline BAR', '{}inline fzaZa09', '{}inline $$$'
+        ]))
 
     def test_is_match_returns_false_for_negatives(self):
         ParserFactoryTestUtils(StructInlineParserFactory, self).assert_negatives([
-            ' inline Bar', 'inline Bar ', 'inline ', ' Bar'
-        ])
+            ' {}inline Bar', '{}inline Bar ', '{}inline '
+        ] + [' Bar', 'foo = Bar'])
 
 
 class StructInlineParserTest(unittest.TestCase):
-    def test_can_parse_simple_custom_declaration(self):
-        SingleLineParserTestUtils(StructInlineParserFactory, self).assert_parse(
+    def _assert_parse(self, line, expected_result):
+        SingleLineParserTestUtils(StructInlineParserFactory, self).assert_parse(line, expected_result)
+
+    def test_can_parse_unnamed_inline_declaration(self):
+        self._assert_parse(
             'inline Vehicle_',
             {'type': 'Vehicle_', 'disposition': 'inline'})
+
+    def test_can_parse_named_inline_declaration(self):
+        self._assert_parse(
+            'alpha = inline Vehicle_',
+            {'type': 'Vehicle_', 'disposition': 'inline', 'name': 'alpha'})
+
 
 # endregion
 

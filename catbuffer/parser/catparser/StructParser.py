@@ -19,8 +19,11 @@ class StructParser(CompositeTypeParser):
 
     def process_line(self, line):
         match = self.regex.match(line)
-        self.type_name = require_user_type_name(match.group(1))
+        self.type_name = require_user_type_name(match.group(2))
         self.type_descriptor = {'type': 'struct', 'layout': []}
+
+        if match.group(1):
+            self.type_descriptor['disposition'] = 'inline'
 
     def append(self, property_type_descriptor):
         self._require_no_array_with_fill_disposition()
@@ -72,7 +75,7 @@ class StructParser(CompositeTypeParser):
 class StructParserFactory(RegexParserFactory):
     """Factory for creating struct parsers"""
     def __init__(self):
-        super().__init__(r'struct (\S+)', StructParser)
+        super().__init__(r'(inline )?struct (\S+)', StructParser)
 
 
 # endregion
@@ -126,13 +129,19 @@ class StructInlineParser:
     def process_line(self, line):
         # type is resolved to exist upstream, so its naming doesn't need to be checked here
         match = self.regex.match(line)
-        return {'type': match.group(1), 'disposition': 'inline'}
+        inline_descriptor = {'type': match.group(3), 'disposition': 'inline'}
+
+        inline_name_prefix = match.group(2)
+        if inline_name_prefix:
+            inline_descriptor['name'] = inline_name_prefix
+
+        return inline_descriptor
 
 
 class StructInlineParserFactory(RegexParserFactory):
     """Factory for creating struct inline parsers"""
     def __init__(self):
-        super().__init__(r'inline (\S+)', StructInlineParser)
+        super().__init__(r'((\S+) = )?inline (\S+)', StructInlineParser)
 
 
 # endregion

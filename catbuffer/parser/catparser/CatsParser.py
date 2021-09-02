@@ -1,3 +1,4 @@
+import re
 from collections import OrderedDict
 
 from .AliasParser import AliasParserFactory
@@ -74,18 +75,77 @@ class CatsParser(ScopeManager):
 
         if self.active_parser:
             if 'type' in parse_result:
-                self._require_known_type(parse_result['type'])
-
                 # perform extra validation on some property links for better error detection/messages
                 if 'sort_key' in parse_result:
                     # sort key processing will only occur if linked field type already exists
                     self._require_type_with_field(parse_result['type'], parse_result['sort_key'])
+
+                # perform inline struct expansion
+                if self._handle_inline_struct({**parse_result, **partial_descriptor}):
+                    return
 
             self.active_parser.append({**parse_result, **partial_descriptor})
         elif hasattr(parse_result, 'import_file'):
             self.import_resolver(parse_result.import_file)
         else:
             self._set_type_descriptor(parse_result[0], {**parse_result[1], **partial_descriptor})
+
+    def _handle_inline_struct(self, parse_result):
+        linked_type_name = parse_result['type']
+        member_type_descriptor = self._require_known_type(linked_type_name)
+
+        # special primitive types, like byte, do not have explicit type descriptors
+        is_inline_struct = member_type_descriptor and 'inline' == member_type_descriptor.get('disposition')
+        is_inline_member = 'inline' == parse_result.get('disposition')
+
+        if is_inline_member:
+            if not member_type_descriptor:
+                raise CatsParseException('type "{}" cannot be inlined'.format(linked_type_name))
+        else:
+            if is_inline_struct:
+                raise CatsParseException('inline struct type "{}" can only be used as a named inline'.format(linked_type_name))
+
+            return False
+
+        if is_inline_struct and not parse_result.get('name'):
+            raise CatsParseException('inline struct type "{}" must be named when inlined'.format(linked_type_name))
+
+        if not is_inline_struct:
+            if parse_result.get('name'):
+                raise CatsParseException('struct type "{}" must be unnamed when inlined'.format(linked_type_name))
+
+            return False
+
+        comment_map = self._build_comment_map(parse_result['comments'])
+
+        for inline_struct_member_descriptor in member_type_descriptor['layout']:
+            modified_member_descriptor = {**inline_struct_member_descriptor}
+            modified_member_descriptor['comments'] = '\n'.join(comment_map.get(modified_member_descriptor['name'], []))
+
+            if '__value__' == modified_member_descriptor['name']:
+                modified_member_descriptor['name'] = parse_result['name']
+            else:
+                modified_member_descriptor['name'] = '{}&{}'.format(parse_result['name'], modified_member_descriptor['name'])
+
+            self.active_parser.append(modified_member_descriptor)
+
+        return True
+
+    @staticmethod
+    def _build_comment_map(comments):
+        member_comment_start_regex = re.compile(r'^\[(\S+)\] ')
+
+        comment_map = {}
+        active_comment_key = None
+        for line in comments.split('\n'):
+            member_comment_start_match = member_comment_start_regex.match(line)
+            if member_comment_start_match:
+                active_comment_key = member_comment_start_match.group(1)
+                comment_map[active_comment_key] = [line[len(active_comment_key) + 3:]]
+            elif active_comment_key:
+                comment_map[active_comment_key].append(line)
+
+        return comment_map
 
     def _close_type(self):
         if not self.active_parser:
@@ -124,10 +184,13 @@ class CatsParser(ScopeManager):
         self.active_parser = None
 
     def _require_known_type(self, type_name):
-        if type_name not in self.wip_type_descriptors and 'byte' != type_name:
+        if 'byte' == type_name:
+            return None
+
+        if type_name not in self.wip_type_descriptors:
             raise CatsParseException('no definition for linked type "{}"'.format(type_name))
 
-        return type_name
+        return self.wip_type_descriptors[type_name]
 
     def _require_type_with_field(self, type_name, field_name):
         type_descriptor = self.wip_type_descriptors[type_name]
@@ -148,7 +211,16 @@ class CatsParser(ScopeManager):
 
         self.wip_type_descriptors[type_name] = type_descriptor
 
+    @staticmethod
+    def _is_inline_struct(type_descriptor):
+        return 'struct' == type_descriptor.get('type') and 'inline' == type_descriptor.get('disposition')
+
     def type_descriptors(self):
         """Returns all parsed type descriptors"""
         self._close_type()
-        return self.wip_type_descriptors
+
+        # skip inline structs as they're treated as macros and expanded by the parser
+        return {
+            name: self.wip_type_descriptors[name] for name in self.wip_type_descriptors
+            if not self._is_inline_struct(self.wip_type_descriptors[name])
+        }

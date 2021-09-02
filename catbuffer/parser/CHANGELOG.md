@@ -7,6 +7,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ### Added
  - YAML export option
+ - 'inline struct' directive to express macro-like expansion
 
 ### Changed
  - parser output to YAML instead of python objects

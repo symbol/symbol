@@ -202,7 +202,18 @@ class CatsParserTests(unittest.TestCase):
             {'name': 'amount', **uint_descriptor(4), 'comments': ''}
         ]})
 
-    def test_can_parse_struct_with_inline_member(self):
+    def test_cannot_parse_struct_with_unknown_member_type(self):
+        for type_name in ['MosaicId', 'array(MosaicId, 10)']:
+            self._assert_parse_delayed_exception([
+                'struct Foo',
+                '\tid = {}'.format(type_name)
+            ])
+
+    # endregion
+
+    # region struct - inline
+
+    def test_can_parse_struct_with_unnamed_inline_member_referencing_struct(self):
         # Act:
         type_descriptors = parse_all([
             'struct Placeholder',
@@ -221,12 +232,98 @@ class CatsParserTests(unittest.TestCase):
             {'name': 'baz', **uint_descriptor(4), 'comments': ''}
         ]})
 
-    def test_cannot_parse_struct_with_unknown_member_type(self):
-        for type_name in ['MosaicId', 'array(MosaicId, 10)']:
-            self._assert_parse_delayed_exception([
-                'struct Foo',
-                '\tid = {}'.format(type_name)
-            ])
+    def test_cannot_parse_struct_with_unnamed_inline_member_referencing_inline_struct(self):
+        self._assert_parse_delayed_exception([
+            'inline struct Placeholder',
+            'struct Pair',
+            '\tfooBar = uint64',
+            '\tinline Placeholder'
+        ])
+
+    def test_can_parse_struct_with_named_inline_member_referencing_inline_struct(self):
+        # Act:
+        type_descriptors = parse_all([
+            'inline struct Placeholder',
+            '\tsize = uint8',
+            '\t__value__ = int32',
+            'struct Pair',
+            '\tfooBar = uint64',
+            '# some placeholder comment',
+            '\tsomething = inline Placeholder',
+            '\tbaz = uint32'
+        ])
+
+        # Assert:
+        self.assertEqual(1, len(type_descriptors))
+        self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'fooBar', **uint_descriptor(8), 'comments': ''},
+            {'name': 'something&size', **uint_descriptor(1), 'comments': ''},
+            {'name': 'something', **int_descriptor(4), 'comments': ''},
+            {'name': 'baz', **uint_descriptor(4), 'comments': ''}
+        ]})
+
+    def test_can_parse_struct_with_named_inline_member_referencing_inline_struct_custom_comment_propagation(self):
+        # Act:
+        type_descriptors = parse_all([
+            'inline struct Placeholder',
+            '\t# placeholder size',
+            '\tsize = uint8',
+            '\t# placeholder value',
+            '\t__value__ = int32',
+            'struct Pair',
+            '\tfooBar = uint64',
+            '# ignored text',
+            '#',
+            '# [__value__]',
+            '# something cool',
+            '#',
+            '# something else cool',
+            '#',
+            '# [size]',
+            '# size of something',
+            '\tsomething = inline Placeholder',
+            '\tbaz = uint32'
+        ])
+
+        # Assert:
+        self.assertEqual(1, len(type_descriptors))
+        self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'fooBar', **uint_descriptor(8), 'comments': ''},
+            {'name': 'something&size', **uint_descriptor(1), 'comments': 'size of something'},
+            {'name': 'something', **int_descriptor(4), 'comments': 'something cool\nsomething else cool'},
+            {'name': 'baz', **uint_descriptor(4), 'comments': ''}
+        ]})
+
+    def test_cannot_parse_struct_with_named_inline_member_referencing_struct(self):
+        self._assert_parse_delayed_exception([
+            'struct Placeholder',
+            '\tsize = uint8',
+            '\t__value__ = uint32',
+            'struct Pair',
+            '\tfooBar = uint64',
+            '\tsomething = inline Placeholder'
+        ])
+
+    def test_cannot_parse_struct_with_inline_struct_member(self):
+        self._assert_parse_delayed_exception([
+            'inline struct Placeholder',
+            'struct Pair',
+            '\tfooBar = uint64',
+            '\tbad = Placeholder'
+        ])
+
+    def _assert_cannot_parse_struct_with_inline_byte_member(self, inline_prefix):
+        self._assert_parse_delayed_exception([
+            'struct Pair',
+            '\tfooBar = uint64',
+            '\t{}inline byte'.format(inline_prefix)
+        ])
+
+    def test_cannot_parse_struct_with_unnamed_inline_byte_member(self):
+        self._assert_cannot_parse_struct_with_inline_byte_member('')
+
+    def test_cannot_parse_struct_with_named_inline_byte_member(self):
+        self._assert_cannot_parse_struct_with_inline_byte_member('something = ')
 
     def test_cannot_parse_struct_with_unknown_inline_type(self):
         for type_name in ['MosaicId', 'array(MosaicId, 10)', 'uint8', 'binary_fixed(25)']:
