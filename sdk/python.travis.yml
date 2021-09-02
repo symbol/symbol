@@ -35,7 +35,7 @@ jobs:
     - name: test vectors
       if: branch = env(DEV_BRANCH) OR branch = env(RELEASE_BRANCH)
       script:
-        - git clone --depth=1 --branch=main https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
+        - git clone --depth=1 --branch=pre-cleanup https://github.com/nemtech/test-vectors.git $TEST_VECTORS_ROOT
         - python3 -m tests.vectors.all --blockchain nis1 --vectors "$TEST_VECTORS_ROOT/nis1"
         - python3 -m tests.vectors.all --blockchain symbol --vectors "$TEST_VECTORS_ROOT"
 
