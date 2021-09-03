@@ -7,6 +7,7 @@ import sys
 
 import yaml
 
+from .CatsParseException import CatsParseException
 from .CatsParser import CatsParser
 
 
@@ -104,9 +105,17 @@ def main():
 
     file_parser = MultiFileParser()
     file_parser.set_include_path(args.include)
-    file_parser.parse(args.schema)
 
-    type_descriptors = file_parser.cats_parser.type_descriptors()
+    try:
+        file_parser.parse(args.schema)
+        type_descriptors = file_parser.cats_parser.type_descriptors()
+    except CatsParseException as ex:
+        print('\033[31m{}\033[39m'.format(ex.message))
+        print('\033[33m{}\033[39m'.format(ex.scope[0]))
+        for location in ex.scope[1:]:
+            print(' + {}'.format(location))
+
+        sys.exit(1)
 
     # dump parsed type descriptors
     if not args.generator:

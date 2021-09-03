@@ -32,7 +32,7 @@ class CatsParser(ScopeManager):
         try:
             self._process_line(line)
         except Exception as ex:
-            raise CatsParseException('\n'.join(self.scope()), ex) from ex
+            raise CatsParseException(self.scope(), ex) from ex
 
     def commit(self):
         """Completes processing of current type"""
