@@ -257,7 +257,7 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(1, len(type_descriptors))
         self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
             {'name': 'foo_bar', **uint_descriptor(8), 'comments': ''},
-            {'name': 'something&size', **uint_descriptor(1), 'comments': ''},
+            {'name': 'something_size', **uint_descriptor(1), 'comments': ''},
             {'name': 'something', **int_descriptor(4), 'comments': ''},
             {'name': 'baz', **uint_descriptor(4), 'comments': ''}
         ]})
@@ -289,7 +289,7 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(1, len(type_descriptors))
         self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
             {'name': 'foo_bar', **uint_descriptor(8), 'comments': ''},
-            {'name': 'something&size', **uint_descriptor(1), 'comments': 'size of something'},
+            {'name': 'something_size', **uint_descriptor(1), 'comments': 'size of something'},
             {'name': 'something', **int_descriptor(4), 'comments': 'something cool\nsomething else cool'},
             {'name': 'baz', **uint_descriptor(4), 'comments': ''}
         ]})
@@ -354,6 +354,28 @@ class CatsParserTests(unittest.TestCase):
             {'name': 'car_count', **uint_descriptor(1), 'comments': ''},
             {'name': 'trucks', 'type': 'Truck', 'size': 10, 'disposition': 'array', 'comments': 'all trucks in the fleet'},
             {'name': 'cars', 'type': 'Car', 'size': 'car_count', 'disposition': 'array', 'comments': ''}
+        ]})
+
+    def test_can_parse_inline_struct_array_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'using Truck = uint16',
+            'using Car = uint16',
+            'inline struct InlinedFleet',
+            '\tcar_count = uint8',
+            '# all trucks in the fleet',
+            '\ttrucks = array(Truck, 10)',
+            '\tcars = array(Car, car_count)',
+            'struct Fleet',
+            '\tfleet = inline InlinedFleet'
+        ])
+
+        # Assert:
+        self.assertEqual(3, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'fleet_car_count', **uint_descriptor(1), 'comments': ''},
+            {'name': 'fleet_trucks', 'type': 'Truck', 'size': 10, 'disposition': 'array', 'comments': ''},
+            {'name': 'fleet_cars', 'type': 'Car', 'size': 'fleet_car_count', 'disposition': 'array', 'comments': ''}
         ]})
 
     def test_can_parse_struct_numeric_array_types(self):
@@ -512,6 +534,46 @@ class CatsParserTests(unittest.TestCase):
 
     def test_can_parse_struct_enum_conditional_types_negated(self):
         self._assert_can_parse_struct_enum_conditional_types('not ')
+
+    def _assert_can_parse_inline_struct_enum_conditional_types(self, prefix):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tCIRCLE = 4',
+            '\tRECTANGLE = 9',
+            'using Circ = uint16',
+            'using Perm = uint16',
+            'inline struct Inlined',
+            '\tdiscriminator = Shape',
+            '\t# u part 1',
+            '\tcircumference = Circ if CIRCLE {}in discriminator'.format(prefix),
+            '\t# union pt 2',
+            '\tperimiter = Perm if RECTANGLE {}equals discriminator'.format(prefix),
+            'struct Enclosing',
+            '\tfoo = inline Inlined',
+        ])
+
+        # Assert:
+        self.assertEqual(4, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'foo_discriminator', 'type': 'Shape', 'comments': ''},
+            {
+                'name': 'foo_circumference', 'type': 'Circ',
+                'condition': 'foo_discriminator', 'condition_value': 'CIRCLE', 'condition_operation': '{}in'.format(prefix),
+                'comments': ''
+            },
+            {
+                'name': 'foo_perimiter', 'type': 'Perm',
+                'condition': 'foo_discriminator', 'condition_value': 'RECTANGLE', 'condition_operation': '{}equals'.format(prefix),
+                'comments': ''
+            }
+        ]})
+
+    def test_can_parse_inline_struct_enum_conditional_types(self):
+        self._assert_can_parse_inline_struct_enum_conditional_types('')
+
+    def test_can_parse_inline_struct_enum_conditional_types_negated(self):
+        self._assert_can_parse_inline_struct_enum_conditional_types('not ')
 
     def test_can_parse_struct_enum_conditional_types_with_inline_member(self):
         # Act:
@@ -681,6 +743,32 @@ class CatsParserTests(unittest.TestCase):
 
     def test_can_parse_struct_with_reserved_member(self):
         self._assert_can_parse_struct_with_const_member('reserved')
+
+    def test_cannot_parse_inline_struct_with_const_member(self):
+        self._assert_parse_commit_exception([
+            'inline struct InlinedPair',
+            '\tTUPLE_SIZE = make_const(int8, 2)'
+        ])
+
+    def test_can_parse_inline_struct_with_reserved_member(self):
+        # Act:
+        type_descriptors = parse_all([
+            'inline struct InlinedPair',
+            '\tfoo_bar = uint64',
+            '# some const comment',
+            '\ttuple_size = make_reserved(int8, 2)',
+            '\tbaz = uint32',
+            'struct Pair',
+            '\tfoo = inline InlinedPair',
+        ])
+
+        # Assert:
+        self.assertEqual(1, len(type_descriptors))
+        self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'foo_foo_bar', **uint_descriptor(8), 'comments': ''},
+            {'name': 'foo_tuple_size', **int_descriptor(1), 'disposition': 'reserved', 'value': 2, 'comments': ''},
+            {'name': 'foo_baz', **uint_descriptor(4), 'comments': ''}
+        ]})
 
     def _assert_can_parse_struct_with_const_enum_member(self, disposition):
         # Act:

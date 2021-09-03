@@ -119,17 +119,29 @@ class CatsParser(ScopeManager):
         comment_map = self._build_comment_map(parse_result['comments'])
 
         for inline_struct_member_descriptor in member_type_descriptor['layout']:
-            modified_member_descriptor = {**inline_struct_member_descriptor}
-            modified_member_descriptor['comments'] = '\n'.join(comment_map.get(modified_member_descriptor['name'], []))
+            property_descriptor = {**inline_struct_member_descriptor}
+            property_descriptor['comments'] = '\n'.join(comment_map.get(property_descriptor['name'], []))
 
-            if '__value__' == modified_member_descriptor['name']:
-                modified_member_descriptor['name'] = parse_result['name']
-            else:
-                modified_member_descriptor['name'] = '{}&{}'.format(parse_result['name'], modified_member_descriptor['name'])
+            property_name = parse_result['name']
+            property_descriptor['name'] = self._make_inlined_name(property_name, property_descriptor['name'])
 
-            self.active_parser.append(modified_member_descriptor)
+            if property_descriptor.get('condition'):
+                property_descriptor['condition'] = self._make_inlined_name(property_name, property_descriptor['condition'])
+
+            if (property_descriptor.get('size')
+                    and any(property_descriptor['size'] == descriptor['name'] for descriptor in member_type_descriptor['layout'])):
+                property_descriptor['size'] = self._make_inlined_name(property_name, property_descriptor['size'])
+
+            self.active_parser.append(property_descriptor)
 
         return True
+
+    @staticmethod
+    def _make_inlined_name(property_name_prefix, internal_property_name):
+        if '__value__' == internal_property_name:
+            return property_name_prefix
+
+        return'{}_{}'.format(property_name_prefix, internal_property_name)
 
     @staticmethod
     def _build_comment_map(comments):
@@ -151,10 +163,10 @@ class CatsParser(ScopeManager):
         if not self.active_parser:
             return
 
-        parsed_tuple = self.active_parser.commit()
+        (new_type_name, new_type_descriptor) = self.active_parser.commit()
 
-        if 'layout' in parsed_tuple[1]:
-            new_type_layout = parsed_tuple[1]['layout']
+        if 'layout' in new_type_descriptor:
+            new_type_layout = new_type_descriptor['layout']
             for property_type_descriptor in new_type_layout:
                 if 'condition' in property_type_descriptor:
                     # when condition is being post processed here, it is known that the linked condition field is part of
@@ -180,7 +192,11 @@ class CatsParser(ScopeManager):
                     if not isinstance(property_type_descriptor['value'], int):
                         self._require_enum_type_with_value(property_type_descriptor['type'], property_type_descriptor['value'])
 
-        self._set_type_descriptor(parsed_tuple[0], {**parsed_tuple[1], **self.active_parser.partial_descriptor})
+                if 'inline' == new_type_descriptor.get('disposition') and 'const' == property_type_descriptor.get('disposition'):
+                    error_message_format = 'inline struct "{}" cannot include const field "{}"'
+                    raise CatsParseException(error_message_format.format(new_type_name, property_type_descriptor['name']))
+
+        self._set_type_descriptor(new_type_name, {**new_type_descriptor, **self.active_parser.partial_descriptor})
         self.active_parser = None
 
     def _require_known_type(self, type_name):
