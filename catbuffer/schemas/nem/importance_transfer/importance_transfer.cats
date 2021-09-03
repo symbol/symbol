@@ -18,8 +18,7 @@ struct ImportanceTransferTransaction
 	# importance transfer mode
 	mode = ImportanceTransferMode
 
-	# remote account public key size
-	remote_public_key_size = make_reserved(uint32, 32)
-
-	# public key of remote account to which importance should be transferred
-	remote_public_key = PublicKey
+	# [__value__] public key of remote account to which importance should be transferred
+	#
+	# [size] remote account public key size
+	remote_public_key = inline SizePrefixedPublicKey

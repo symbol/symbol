@@ -28,11 +28,10 @@ struct TransferTransaction
 
 	inline Transaction
 
-	# recipient address size
-	recipient_address_size = make_reserved(uint32, 40)
-
-	# recipient address
-	recipient_address = Address
+	# [__value__] recipient address
+	#
+	# [size] recipient address size
+	recipient_address = inline SizePrefixedAddress
 
 	# XEM amount
 	amount = Amount

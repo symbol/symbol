@@ -23,11 +23,10 @@ struct Transaction
 	# transaction timestamp
 	timestamp = Timestamp
 
-	# transaction public key size
-	signer_public_key_size = make_reserved(uint32, 32)
-
-	# transaction public key
-	signer_public_key = PublicKey
+	# [__value__] transaction signer public key
+	#
+	# [size] transaction signer public key size
+	signer_public_key = inline SizePrefixedPublicKey
 
 	# transaction fee
 	fee = Amount

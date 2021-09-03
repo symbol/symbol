@@ -2,22 +2,20 @@ import "types.cats"
 
 # binary layout for a namespace id
 struct NamespaceId
-	# size
-	size = uint32
-
-	# name
-	name = array(int8, size)
+	# [__value__] name
+	#
+	# [size] name size
+	name = inline SizePrefixedString
 
 # binary layout for a mosaic id
 struct MosaicId
 	# namespace id
 	namespace_id = NamespaceId
 
-	# size
-	size = uint32
-
-	# name
-	name = array(int8, size)
+	# [__value__] name
+	#
+	# [size] name size
+	name = inline SizePrefixedString
 
 # binary layout for a mosaic
 struct Mosaic
