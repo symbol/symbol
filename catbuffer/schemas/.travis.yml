@@ -14,3 +14,4 @@ jobs:
       name: parse all
       script:
         - python3 -m catparser --schema ./symbol/all.cats --include ./symbol
+        - python3 -m catparser --schema ./nem/all.cats --include ./nem
