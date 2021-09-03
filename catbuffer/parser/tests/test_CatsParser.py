@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 import unittest
 
 from catparser.CatsParser import CatsParseException, CatsParser
@@ -497,7 +498,7 @@ class CatsParserTests(unittest.TestCase):
 
     # region struct - conditional
 
-    def _assert_can_parse_struct_enum_conditional_types(self, prefix):
+    def _assert_can_parse_struct_with_scalar_properties_conditional_on_enum(self, prefix):
         # Act:
         type_descriptors = parse_all([
             'enum Shape : uint8',
@@ -529,13 +530,51 @@ class CatsParserTests(unittest.TestCase):
             }
         ]})
 
-    def test_can_parse_struct_enum_conditional_types(self):
-        self._assert_can_parse_struct_enum_conditional_types('')
+    def test_can_parse_struct_with_scalar_properties_conditional_on_enum(self):
+        self._assert_can_parse_struct_with_scalar_properties_conditional_on_enum('')
 
-    def test_can_parse_struct_enum_conditional_types_negated(self):
-        self._assert_can_parse_struct_enum_conditional_types('not ')
+    def test_can_parse_struct_with_scalar_properties_conditional_on_enum_negated(self):
+        self._assert_can_parse_struct_with_scalar_properties_conditional_on_enum('not ')
 
-    def _assert_can_parse_inline_struct_enum_conditional_types(self, prefix):
+    def _assert_can_parse_struct_with_array_properties_conditional_on_enum(self, prefix):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tCIRCLE = 4',
+            '\tRECTANGLE = 9',
+            'struct Enclosing',
+            '\tdiscriminator = Shape',
+            '\t# u part 1',
+            '\tcircumference = array(uint16, 10) if CIRCLE {}in discriminator'.format(prefix),
+            '\t# union pt 2',
+            '\tperimiter = array(int32, 0x14) if RECTANGLE {}equals discriminator'.format(prefix)
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'discriminator', 'type': 'Shape', 'comments': ''},
+            {
+                'name': 'circumference', 'type': 'byte', 'disposition': 'array', 'size': 10,
+                'element_disposition': uint_descriptor(2, False),
+                'condition': 'discriminator', 'condition_value': 'CIRCLE', 'condition_operation': '{}in'.format(prefix),
+                'comments': 'u part 1'
+            },
+            {
+                'name': 'perimiter', 'type': 'byte', 'disposition': 'array', 'size': 20,
+                'element_disposition': int_descriptor(4, False),
+                'condition': 'discriminator', 'condition_value': 'RECTANGLE', 'condition_operation': '{}equals'.format(prefix),
+                'comments': 'union pt 2'
+            }
+        ]})
+
+    def test_can_parse_struct_with_array_properties_conditional_on_enum(self):
+        self._assert_can_parse_struct_with_array_properties_conditional_on_enum('')
+
+    def test_can_parse_struct_with_array_properties_conditional_on_enum_negated(self):
+        self._assert_can_parse_struct_with_array_properties_conditional_on_enum('not ')
+
+    def _assert_can_parse_inline_struct_with_scalar_properties_conditional_on_enum(self, prefix):
         # Act:
         type_descriptors = parse_all([
             'enum Shape : uint8',
@@ -569,13 +608,13 @@ class CatsParserTests(unittest.TestCase):
             }
         ]})
 
-    def test_can_parse_inline_struct_enum_conditional_types(self):
-        self._assert_can_parse_inline_struct_enum_conditional_types('')
+    def test_can_parse_inline_struct_with_scalar_properties_conditional_on_enum(self):
+        self._assert_can_parse_inline_struct_with_scalar_properties_conditional_on_enum('')
 
-    def test_can_parse_inline_struct_enum_conditional_types_negated(self):
-        self._assert_can_parse_inline_struct_enum_conditional_types('not ')
+    def test_can_parse_inline_struct_with_scalar_properties_conditional_on_enum_negated(self):
+        self._assert_can_parse_inline_struct_with_scalar_properties_conditional_on_enum('not ')
 
-    def test_can_parse_struct_enum_conditional_types_with_inline_member(self):
+    def test_can_parse_struct_with_scalar_properties_conditional_on_enum_with_inline_member(self):
         # Act:
         type_descriptors = parse_all([
             'enum Shape : uint8',
@@ -611,7 +650,7 @@ class CatsParserTests(unittest.TestCase):
             }
         ]})
 
-    def test_can_parse_struct_enum_conditional_types_trailing_discriminator(self):
+    def test_can_parse_struct_with_scalar_properties_conditional_on_enum_with_trailing_discriminator(self):
         # Act:
         type_descriptors = parse_all([
             'enum Shape : uint8',
@@ -660,10 +699,10 @@ class CatsParserTests(unittest.TestCase):
             'using Circ = uint16',
             'struct Enclosing',
             '\tdiscriminator = Shape',
-            '\tcircumference = Circ if hexagon equals discriminator'
+            '\tcircumference = Circ if HEXAGON equals discriminator'
         ])
 
-    def _assert_can_parse_struct_byte_conditional_types(self, prefix):
+    def _assert_can_parse_struct_with_scalar_properties_conditional_on_integer(self, prefix):
         # Act:
         type_descriptors = parse_all([
             'using Circ = uint16',
@@ -692,18 +731,18 @@ class CatsParserTests(unittest.TestCase):
             }
         ]})
 
-    def test_can_parse_struct_byte_conditional_types(self):
-        self._assert_can_parse_struct_byte_conditional_types('')
+    def test_can_parse_struct_with_scalar_properties_conditional_on_integer(self):
+        self._assert_can_parse_struct_with_scalar_properties_conditional_on_integer('')
 
-    def test_can_parse_struct_byte_conditional_types_negated(self):
-        self._assert_can_parse_struct_byte_conditional_types('not ')
+    def test_can_parse_struct_with_scalar_properties_conditional_on_integer_negated(self):
+        self._assert_can_parse_struct_with_scalar_properties_conditional_on_integer('not ')
 
-    def test_cannot_parse_struct_with_non_numeric_byte_condition_value(self):
+    def test_cannot_parse_struct_with_non_numeric_integer_condition_value(self):
         self._assert_parse_commit_exception([
             'using Circ = uint16',
             'struct Enclosing',
             '\tdiscriminator = uint32',
-            '\tcircumference = Circ if foo equals discriminator'
+            '\tcircumference = Circ if FOO equals discriminator'
         ])
 
     def test_cannot_parse_struct_with_unsupported_type_condition(self):

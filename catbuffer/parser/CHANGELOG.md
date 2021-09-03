@@ -8,6 +8,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - YAML export option
  - 'inline struct' directive to express macro-like expansion
+ - conditional support for array types
 
 ### Changed
  - enforce strict pythonic naming

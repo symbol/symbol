@@ -7,8 +7,8 @@ REGEXES = {
     'const_property_name': re.compile(r'^[A-Z_][A-Z0-9_]*$'),  # TITLE_CASE
     'property_name': re.compile(r'^[a-z_][a-z0-9_]*$'),  # snake_case
 
-    'int_or_uint': re.compile(r'^(u)?int(8|16|32|64)$'),
-    'binary_fixed_type': re.compile(r'^binary_fixed\((0x[0-9A-F]+|[0-9]+)\)$'),
+    'int_or_uint': re.compile(r'^(?P<unsigned>u)?int(?P<size>8|16|32|64)$'),
+    'binary_fixed_type': re.compile(r'^binary_fixed\((?P<size>0x[0-9A-F]+|[0-9]+)\)$'),
     'dec_or_hex': re.compile(r'^(0x[0-9A-F]+|[0-9]+)$'),
 }
 
@@ -75,11 +75,11 @@ def parse_builtin(type_name):
     is_unsigned = True
     binary_fixed_type_match = REGEXES['binary_fixed_type'].match(type_name)
     if binary_fixed_type_match:
-        type_descriptor = {'size': parse_dec_or_hex(binary_fixed_type_match.group(1))}
+        type_descriptor = {'size': parse_dec_or_hex(binary_fixed_type_match.group('size'))}
     else:
         match = _match_regex_or_throw('int_or_uint', type_name)
-        is_unsigned = bool(match.group(1))
-        uint_byte_count = int(match.group(2)) // 8
+        is_unsigned = bool(match.group('unsigned'))
+        uint_byte_count = int(match.group('size')) // 8
         type_descriptor = {'size': uint_byte_count}
 
     return {**type_descriptor, 'type': 'byte', 'signedness': 'unsigned' if is_unsigned else 'signed'}

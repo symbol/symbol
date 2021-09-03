@@ -57,13 +57,13 @@ def _generate_output(generator_class, output_path, schema, options):
 def _build_available_generator_map():
     generator_map = {}
     if os.path.exists('generators'):
-        generator_file_name_pattern = re.compile(r'^generators/(.*)/(.+File|Builder)Generator\.py$', re.IGNORECASE)
+        generator_file_name_pattern = re.compile(r'^generators/(?P<short_name>.*)/(?:.+File|Builder)Generator\.py$', re.IGNORECASE)
 
         for generator_path in glob.glob('generators/*/*Generator.py'):
             generator_file_name_match = generator_file_name_pattern.match(generator_path)
             if generator_file_name_match:
                 generator_class_name = generator_path.replace('/', '.')[:-3]
-                generator_map[generator_file_name_match.group(1)] = generator_class_name
+                generator_map[generator_file_name_match.group('short_name')] = generator_class_name
 
     if generator_map:
         print('autodetected the following generators:')

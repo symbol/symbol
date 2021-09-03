@@ -463,10 +463,14 @@ class StructScalarParserTest(unittest.TestCase):
 
 # region StructArrayMemberParser
 
-VALID_ARRAY_PATTERNS = ['foo = {}(bar, {}baz)', '$$$ = {}(&, {}**)', '$$$ = {}(&, {}**, sort_key=@@)']
+VALID_ARRAY_PATTERNS = [
+    'foo = {}(bar, {}baz)', '$$$ = {}(&, {}**)', '$$$ = {}(&, {}**, sort_key=@@)',
+    'foo = {}(bar, {}baz) if abc equals def',
+    'foo = {}(bar, {}baz) if abc in def'
+]
 INVALID_ARRAY_PATTERNS = [
     ' foo = {}(bar, {}baz)', 'foo = {}(bar, {}baz) ', 'foo = ', '= {}(bar, {}baz)',
-    'foo = {}(bar, {}baz', 'foo = {}(bar, {}baz) if abc equals def', 'foo = {}(bar, {}baz) if abc has def'
+    'foo = {}(bar, {}baz', 'foo = {}(bar, {}baz) if abc has def'
 ]
 ARRAY_DIMENSION_QUALIFIERS = ['', 'size=']
 
@@ -508,9 +512,9 @@ class StructArrayMemberParserTest(unittest.TestCase):
 
     def test_can_parse_array_with_numeric_size(self):
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
-            for numeric_str in ['10', '0x0A']:
+            for size in ['10', '0x0A']:
                 self._assert_parse(
-                    'vehicles = array({}, {})'.format(type_name, numeric_str),
+                    'vehicles = array({}, {})'.format(type_name, size),
                     {'name': 'vehicles', 'size': 10, 'disposition': 'array', **self._get_type_descriptor(type_name)})
 
     def test_can_parse_array_with_fill_size(self):
@@ -556,6 +560,29 @@ class StructArrayMemberParserTest(unittest.TestCase):
                     'sort_key': 'bar',
                     **self._get_type_descriptor(type_name)
                 })
+
+    def _assert_can_parse_conditional_byte_declaration(self, operation):
+        for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
+            for value in ['33', '0x21']:
+                self._assert_parse(
+                    'vehicles = array({}, 123) if {} {} foo'.format(type_name, value, operation),
+                    {
+                        'name': 'vehicles',
+                        'size': 123,
+                        'disposition': 'array',
+                        **self._get_type_descriptor(type_name),
+                        'condition': 'foo',
+                        'condition_operation': operation,
+                        'condition_value': 33
+                    })
+
+    def test_can_parse_conditional_byte_declaration_equals(self):
+        self._assert_can_parse_conditional_byte_declaration('equals')
+        self._assert_can_parse_conditional_byte_declaration('not equals')
+
+    def test_can_parse_conditional_byte_declaration_in(self):
+        self._assert_can_parse_conditional_byte_declaration('in')
+        self._assert_can_parse_conditional_byte_declaration('not in')
 
     def test_cannot_parse_array_with_explicit_byte_type(self):
         for size in ['100', 'size=100']:

@@ -145,14 +145,14 @@ class CatsParser(ScopeManager):
 
     @staticmethod
     def _build_comment_map(comments):
-        member_comment_start_regex = re.compile(r'^\[(\S+)\] ')
+        member_comment_start_regex = re.compile(r'^\[(?P<comment_key>\S+)\] ')
 
         comment_map = {}
         active_comment_key = None
         for line in comments.split('\n'):
             member_comment_start_match = member_comment_start_regex.match(line)
             if member_comment_start_match:
-                active_comment_key = member_comment_start_match.group(1)
+                active_comment_key = member_comment_start_match.group('comment_key')
                 comment_map[active_comment_key] = [line[len(active_comment_key) + 3:]]
             elif active_comment_key:
                 comment_map[active_comment_key].append(line)
