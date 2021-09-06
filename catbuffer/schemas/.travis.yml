@@ -6,11 +6,11 @@ python:
 cache: pip
 
 install:
-  - pip install catbuffer_parser
+  - pip install -r requirements.txt
 
 jobs:
   include:
     - stage: parse
       name: parse all
       script:
-        - python3 -m catbuffer_parser --schema ./symbol/all.cats --include ./symbol
+        - python3 -m catparser --schema ./symbol/all.cats --include ./symbol
