@@ -1,3 +1,4 @@
+import re
 from collections import OrderedDict
 
 from .AliasParser import AliasParserFactory
@@ -31,7 +32,7 @@ class CatsParser(ScopeManager):
         try:
             self._process_line(line)
         except Exception as ex:
-            raise CatsParseException('\n'.join(self.scope()), ex) from ex
+            raise CatsParseException(self.scope(), ex) from ex
 
     def commit(self):
         """Completes processing of current type"""
@@ -74,12 +75,14 @@ class CatsParser(ScopeManager):
 
         if self.active_parser:
             if 'type' in parse_result:
-                self._require_known_type(parse_result['type'])
-
                 # perform extra validation on some property links for better error detection/messages
                 if 'sort_key' in parse_result:
                     # sort key processing will only occur if linked field type already exists
                     self._require_type_with_field(parse_result['type'], parse_result['sort_key'])
+
+                # perform inline struct expansion
+                if self._handle_inline_struct({**parse_result, **partial_descriptor}):
+                    return
 
             self.active_parser.append({**parse_result, **partial_descriptor})
         elif hasattr(parse_result, 'import_file'):
@@ -87,14 +90,83 @@ class CatsParser(ScopeManager):
         else:
             self._set_type_descriptor(parse_result[0], {**parse_result[1], **partial_descriptor})
 
+    def _handle_inline_struct(self, parse_result):
+        linked_type_name = parse_result['type']
+        member_type_descriptor = self._require_known_type(linked_type_name)
+
+        # special primitive types, like byte, do not have explicit type descriptors
+        is_inline_struct = member_type_descriptor and 'inline' == member_type_descriptor.get('disposition')
+        is_inline_member = 'inline' == parse_result.get('disposition')
+
+        if is_inline_member:
+            if not member_type_descriptor:
+                raise CatsParseException('type "{}" cannot be inlined'.format(linked_type_name))
+        else:
+            if is_inline_struct:
+                raise CatsParseException('inline struct type "{}" can only be used as a named inline'.format(linked_type_name))
+
+            return False
+
+        if is_inline_struct and not parse_result.get('name'):
+            raise CatsParseException('inline struct type "{}" must be named when inlined'.format(linked_type_name))
+
+        if not is_inline_struct:
+            if parse_result.get('name'):
+                raise CatsParseException('struct type "{}" must be unnamed when inlined'.format(linked_type_name))
+
+            return False
+
+        comment_map = self._build_comment_map(parse_result['comments'])
+
+        for inline_struct_member_descriptor in member_type_descriptor['layout']:
+            property_descriptor = {**inline_struct_member_descriptor}
+            property_descriptor['comments'] = '\n'.join(comment_map.get(property_descriptor['name'], []))
+
+            property_name = parse_result['name']
+            property_descriptor['name'] = self._make_inlined_name(property_name, property_descriptor['name'])
+
+            if property_descriptor.get('condition'):
+                property_descriptor['condition'] = self._make_inlined_name(property_name, property_descriptor['condition'])
+
+            if (property_descriptor.get('size')
+                    and any(property_descriptor['size'] == descriptor['name'] for descriptor in member_type_descriptor['layout'])):
+                property_descriptor['size'] = self._make_inlined_name(property_name, property_descriptor['size'])
+
+            self.active_parser.append(property_descriptor)
+
+        return True
+
+    @staticmethod
+    def _make_inlined_name(property_name_prefix, internal_property_name):
+        if '__value__' == internal_property_name:
+            return property_name_prefix
+
+        return'{}_{}'.format(property_name_prefix, internal_property_name)
+
+    @staticmethod
+    def _build_comment_map(comments):
+        member_comment_start_regex = re.compile(r'^\[(?P<comment_key>\S+)\] ')
+
+        comment_map = {}
+        active_comment_key = None
+        for line in comments.split('\n'):
+            member_comment_start_match = member_comment_start_regex.match(line)
+            if member_comment_start_match:
+                active_comment_key = member_comment_start_match.group('comment_key')
+                comment_map[active_comment_key] = [line[len(active_comment_key) + 3:]]
+            elif active_comment_key:
+                comment_map[active_comment_key].append(line)
+
+        return comment_map
+
     def _close_type(self):
         if not self.active_parser:
             return
 
-        parsed_tuple = self.active_parser.commit()
+        (new_type_name, new_type_descriptor) = self.active_parser.commit()
 
-        if 'layout' in parsed_tuple[1]:
-            new_type_layout = parsed_tuple[1]['layout']
+        if 'layout' in new_type_descriptor:
+            new_type_layout = new_type_descriptor['layout']
             for property_type_descriptor in new_type_layout:
                 if 'condition' in property_type_descriptor:
                     # when condition is being post processed here, it is known that the linked condition field is part of
@@ -120,14 +192,21 @@ class CatsParser(ScopeManager):
                     if not isinstance(property_type_descriptor['value'], int):
                         self._require_enum_type_with_value(property_type_descriptor['type'], property_type_descriptor['value'])
 
-        self._set_type_descriptor(parsed_tuple[0], {**parsed_tuple[1], **self.active_parser.partial_descriptor})
+                if 'inline' == new_type_descriptor.get('disposition') and 'const' == property_type_descriptor.get('disposition'):
+                    error_message_format = 'inline struct "{}" cannot include const field "{}"'
+                    raise CatsParseException(error_message_format.format(new_type_name, property_type_descriptor['name']))
+
+        self._set_type_descriptor(new_type_name, {**new_type_descriptor, **self.active_parser.partial_descriptor})
         self.active_parser = None
 
     def _require_known_type(self, type_name):
-        if type_name not in self.wip_type_descriptors and 'byte' != type_name:
+        if 'byte' == type_name:
+            return None
+
+        if type_name not in self.wip_type_descriptors:
             raise CatsParseException('no definition for linked type "{}"'.format(type_name))
 
-        return type_name
+        return self.wip_type_descriptors[type_name]
 
     def _require_type_with_field(self, type_name, field_name):
         type_descriptor = self.wip_type_descriptors[type_name]
@@ -148,7 +227,16 @@ class CatsParser(ScopeManager):
 
         self.wip_type_descriptors[type_name] = type_descriptor
 
+    @staticmethod
+    def _is_inline_struct(type_descriptor):
+        return 'struct' == type_descriptor.get('type') and 'inline' == type_descriptor.get('disposition')
+
     def type_descriptors(self):
         """Returns all parsed type descriptors"""
         self._close_type()
-        return self.wip_type_descriptors
+
+        # skip inline structs as they're treated as macros and expanded by the parser
+        return {
+            name: self.wip_type_descriptors[name] for name in self.wip_type_descriptors
+            if not self._is_inline_struct(self.wip_type_descriptors[name])
+        }

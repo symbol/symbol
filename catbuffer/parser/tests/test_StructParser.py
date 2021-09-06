@@ -4,23 +4,26 @@ from catparser.CatsParseException import CatsParseException
 from catparser.StructParser import (StructArrayMemberParserFactory, StructConstParserFactory, StructInlineParserFactory,
                                     StructParserFactory, StructScalarMemberParserFactory)
 
-from .constants import (BUILTIN_TYPE_TUPLES, INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES, VALID_PRIMITIVE_NAMES, VALID_PROPERTY_NAMES,
-                        VALID_USER_TYPE_NAMES)
+from .constants import BUILTIN_TYPE_TUPLES, NameConstants
 from .ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, SingleLineParserTestUtils
 
 # region StructParserTest
 
 
 class StructParserFactoryTest(unittest.TestCase):
+    @staticmethod
+    def _expand_struct_seed_patterns(seed_patterns):
+        return [seed_pattern.format(disposition) for disposition in ['inline struct', 'struct'] for seed_pattern in seed_patterns]
+
     def test_is_match_returns_true_for_positives(self):
-        ParserFactoryTestUtils(StructParserFactory, self).assert_positives([
-            'struct F', 'struct Foo', 'struct FooZA09za', 'struct foo', 'struct 8oo', 'struct $^^$'
-        ])
+        ParserFactoryTestUtils(StructParserFactory, self).assert_positives(self._expand_struct_seed_patterns([
+            '{} F', '{} Foo', '{} FooZA09za', '{} foo', '{} 8oo', '{} $^^$'
+        ]))
 
     def test_is_match_returns_false_for_negatives(self):
-        ParserFactoryTestUtils(StructParserFactory, self).assert_negatives([
-            ' struct Foo', 'struct Foo ', 'struct ', 'struct foo bar'
-        ])
+        ParserFactoryTestUtils(StructParserFactory, self).assert_negatives(self._expand_struct_seed_patterns([
+            ' {} Foo', '{} Foo ', '{} ', '{} foo bar'
+        ]))
 
 
 class StructParserTest(unittest.TestCase):
@@ -37,13 +40,27 @@ class StructParserTest(unittest.TestCase):
         # Assert
         self.assertEqual(4, len(parser.factories()))
 
-    def test_can_parse_type_declaration(self):
+    def test_can_parse_struct_declaration(self):
         self._assert_parse(
             'struct Car',
             ('Car', {'type': 'struct', 'layout': []}))
 
+    def test_can_parse_inline_struct_declaration(self):
+        self._assert_parse(
+            'inline struct Car',
+            ('Car', {'type': 'struct', 'disposition': 'inline', 'layout': []}))
+
     def test_struct_names_must_have_type_name_semantics(self):
-        MultiLineParserTestUtils(StructParserFactory, self).assert_naming('struct {}', VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES)
+        MultiLineParserTestUtils(StructParserFactory, self).assert_naming(
+            'struct {}',
+            NameConstants.VALID_USER_TYPES,
+            NameConstants.INVALID_USER_TYPES)
+
+    def test_inline_struct_names_must_have_type_name_semantics(self):
+        MultiLineParserTestUtils(StructParserFactory, self).assert_naming(
+            'inline struct {}',
+            NameConstants.VALID_USER_TYPES,
+            NameConstants.INVALID_USER_TYPES)
 
     def test_can_append_scalar(self):
         # Arrange:
@@ -264,48 +281,65 @@ class StructConstParserTest(unittest.TestCase):
 
     def test_can_parse_uint_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'foo' if 'reserved' == disposition else 'FOO'
             for value in [32, 0x20]:
                 self._assert_parse(
-                    'foo = make_{}(uint16, {})'.format(disposition, value),
-                    {'name': 'foo', 'type': 'byte', 'signedness': 'unsigned', 'size': 2, 'value': 32, 'disposition': disposition})
+                    '{} = make_{}(uint16, {})'.format(name, disposition, value),
+                    {'name': name, 'type': 'byte', 'signedness': 'unsigned', 'size': 2, 'value': 32, 'disposition': disposition})
 
     def test_can_parse_custom_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'red' if 'reserved' == disposition else 'RED'
             for value in [33, 0x21]:
                 self._assert_parse(
-                    'red = make_{}(ColorShade, {})'.format(disposition, value),
-                    {'name': 'red', 'type': 'ColorShade', 'value': 33, 'disposition': disposition})
+                    '{} = make_{}(ColorShade, {})'.format(name, disposition, value),
+                    {'name': name, 'type': 'ColorShade', 'value': 33, 'disposition': disposition})
 
     def test_cannot_parse_non_numeric_value_for_uint_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'foo' if 'reserved' == disposition else 'FOO'
             for value in ['FOO', 'AF']:
                 SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(
-                    'foo = make_{}(uint16, {})'.format(disposition, value),
+                    '{} = make_{}(uint16, {})'.format(name, disposition, value),
                     ValueError)
 
     def test_can_parse_non_numeric_value_for_custom_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'red' if 'reserved' == disposition else 'RED'
             for value in ['FOO', 'AF']:
                 self._assert_parse(
-                    'red = make_{}(ColorShade, {})'.format(disposition, value),
-                    {'name': 'red', 'type': 'ColorShade', 'value': value, 'disposition': disposition})
+                    '{} = make_{}(ColorShade, {})'.format(name, disposition, value),
+                    {'name': name, 'type': 'ColorShade', 'value': value, 'disposition': disposition})
 
     def test_cannot_parse_binary_fixed_type_constant(self):
         for disposition in self.SUPPORTED_DISPOSITIONS:
+            name = 'foo' if 'reserved' == disposition else 'FOO'
             SingleLineParserTestUtils(StructConstParserFactory, self).assert_parse_exception(
-                'foo = make_{}(binary_fixed(25), 123)'.format(disposition))
+                '{} = make_{}(binary_fixed(25), 123)'.format(name, disposition))
 
-    def test_member_names_must_have_property_name_semantics(self):
+    def test_const_member_names_must_have_const_property_name_semantics(self):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
             '{} = make_const(uint32, 123)',
-            VALID_PROPERTY_NAMES,
-            INVALID_PROPERTY_NAMES)
+            NameConstants.VALID_CONST_PROPERTIES,
+            NameConstants.INVALID_CONST_PROPERTIES)
 
-    def test_type_names_must_have_type_name_or_uint_semantics(self):
+    def test_reserved_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
-            'foo = make_const({}, 123)',
-            VALID_USER_TYPE_NAMES + VALID_PRIMITIVE_NAMES,
-            INVALID_USER_TYPE_NAMES + ['binary_fixed(32)'])
+            '{} = make_reserved(uint32, 123)',
+            NameConstants.VALID_PROPERTIES,
+            NameConstants.INVALID_PROPERTIES)
+
+    def test_const_type_names_must_have_type_name_or_uint_semantics(self):
+        SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
+            'FOO = make_const({}, 123)',
+            NameConstants.VALID_USER_TYPES + NameConstants.VALID_PRIMITIVES,
+            [name for name in NameConstants.INVALID_USER_TYPES if name not in NameConstants.VALID_PRIMITIVES] + ['binary_fixed(32)'])
+
+    def test_reserved_type_names_must_have_type_name_or_uint_semantics(self):
+        SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
+            'foo = make_reserved({}, 123)',
+            NameConstants.VALID_USER_TYPES + NameConstants.VALID_PRIMITIVES,
+            [name for name in NameConstants.INVALID_USER_TYPES if name not in NameConstants.VALID_PRIMITIVES] + ['binary_fixed(32)'])
 
 
 # endregion
@@ -313,22 +347,35 @@ class StructConstParserTest(unittest.TestCase):
 # region StructInlineParserTest
 
 class StructInlineParserFactoryTest(unittest.TestCase):
+    @staticmethod
+    def _expand_inline_seed_patterns(seed_patterns):
+        return [seed_pattern.format(disposition) for disposition in ['foo = ', ''] for seed_pattern in seed_patterns]
+
     def test_is_match_returns_true_for_positives(self):
-        ParserFactoryTestUtils(StructInlineParserFactory, self).assert_positives([
-            'inline Bar', 'inline BAR', 'inline fzaZa09', 'inline $$$'
-        ])
+        ParserFactoryTestUtils(StructInlineParserFactory, self).assert_positives(self._expand_inline_seed_patterns([
+            '{}inline Bar', '{}inline BAR', '{}inline fzaZa09', '{}inline $$$'
+        ]))
 
     def test_is_match_returns_false_for_negatives(self):
         ParserFactoryTestUtils(StructInlineParserFactory, self).assert_negatives([
-            ' inline Bar', 'inline Bar ', 'inline ', ' Bar'
-        ])
+            ' {}inline Bar', '{}inline Bar ', '{}inline '
+        ] + [' Bar', 'foo = Bar'])
 
 
 class StructInlineParserTest(unittest.TestCase):
-    def test_can_parse_simple_custom_declaration(self):
-        SingleLineParserTestUtils(StructInlineParserFactory, self).assert_parse(
+    def _assert_parse(self, line, expected_result):
+        SingleLineParserTestUtils(StructInlineParserFactory, self).assert_parse(line, expected_result)
+
+    def test_can_parse_unnamed_inline_declaration(self):
+        self._assert_parse(
             'inline Vehicle_',
             {'type': 'Vehicle_', 'disposition': 'inline'})
+
+    def test_can_parse_named_inline_declaration(self):
+        self._assert_parse(
+            'alpha = inline Vehicle_',
+            {'type': 'Vehicle_', 'disposition': 'inline', 'name': 'alpha'})
+
 
 # endregion
 
@@ -368,9 +415,9 @@ class StructScalarParserTest(unittest.TestCase):
 
     def _assert_can_parse_conditional_enum_declaration(self, operation):
         self._assert_parse(
-            'roadGrade = RoadGrade_ if road {} terrain'.format(operation),
+            'road_grade = RoadGrade_ if road {} terrain'.format(operation),
             {
-                'name': 'roadGrade',
+                'name': 'road_grade',
                 'type': 'RoadGrade_',
                 'condition': 'terrain',
                 'condition_operation': operation,
@@ -388,9 +435,9 @@ class StructScalarParserTest(unittest.TestCase):
     def _assert_can_parse_conditional_byte_declaration(self, operation):
         for value in ['33', '0x21']:
             self._assert_parse(
-                'roadGrade = RoadGrade_ if {} {} terrain'.format(value, operation),
+                'road_grade = RoadGrade_ if {} {} terrain'.format(value, operation),
                 {
-                    'name': 'roadGrade',
+                    'name': 'road_grade',
                     'type': 'RoadGrade_',
                     'condition': 'terrain',
                     'condition_operation': operation,
@@ -408,18 +455,22 @@ class StructScalarParserTest(unittest.TestCase):
     def test_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructScalarMemberParserFactory, self).assert_naming(
             '{} = uint32',
-            VALID_PROPERTY_NAMES,
-            INVALID_PROPERTY_NAMES)
+            NameConstants.VALID_PROPERTIES,
+            NameConstants.INVALID_PROPERTIES)
 
 
 # endregion
 
 # region StructArrayMemberParser
 
-VALID_ARRAY_PATTERNS = ['foo = {}(bar, {}baz)', '$$$ = {}(&, {}**)', '$$$ = {}(&, {}**, sort_key=@@)']
+VALID_ARRAY_PATTERNS = [
+    'foo = {}(bar, {}baz)', '$$$ = {}(&, {}**)', '$$$ = {}(&, {}**, sort_key=@@)',
+    'foo = {}(bar, {}baz) if abc equals def',
+    'foo = {}(bar, {}baz) if abc in def'
+]
 INVALID_ARRAY_PATTERNS = [
     ' foo = {}(bar, {}baz)', 'foo = {}(bar, {}baz) ', 'foo = ', '= {}(bar, {}baz)',
-    'foo = {}(bar, {}baz', 'foo = {}(bar, {}baz) if abc equals def', 'foo = {}(bar, {}baz) if abc has def'
+    'foo = {}(bar, {}baz', 'foo = {}(bar, {}baz) if abc has def'
 ]
 ARRAY_DIMENSION_QUALIFIERS = ['', 'size=']
 
@@ -461,9 +512,9 @@ class StructArrayMemberParserTest(unittest.TestCase):
 
     def test_can_parse_array_with_numeric_size(self):
         for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
-            for numeric_str in ['10', '0x0A']:
+            for size in ['10', '0x0A']:
                 self._assert_parse(
-                    'vehicles = array({}, {})'.format(type_name, numeric_str),
+                    'vehicles = array({}, {})'.format(type_name, size),
                     {'name': 'vehicles', 'size': 10, 'disposition': 'array', **self._get_type_descriptor(type_name)})
 
     def test_can_parse_array_with_fill_size(self):
@@ -510,6 +561,29 @@ class StructArrayMemberParserTest(unittest.TestCase):
                     **self._get_type_descriptor(type_name)
                 })
 
+    def _assert_can_parse_conditional_byte_declaration(self, operation):
+        for type_name in self.DEFAULT_ARRAY_ELEMENT_TYPES:
+            for value in ['33', '0x21']:
+                self._assert_parse(
+                    'vehicles = array({}, 123) if {} {} foo'.format(type_name, value, operation),
+                    {
+                        'name': 'vehicles',
+                        'size': 123,
+                        'disposition': 'array',
+                        **self._get_type_descriptor(type_name),
+                        'condition': 'foo',
+                        'condition_operation': operation,
+                        'condition_value': 33
+                    })
+
+    def test_can_parse_conditional_byte_declaration_equals(self):
+        self._assert_can_parse_conditional_byte_declaration('equals')
+        self._assert_can_parse_conditional_byte_declaration('not equals')
+
+    def test_can_parse_conditional_byte_declaration_in(self):
+        self._assert_can_parse_conditional_byte_declaration('in')
+        self._assert_can_parse_conditional_byte_declaration('not in')
+
     def test_cannot_parse_array_with_explicit_byte_type(self):
         for size in ['100', 'size=100']:
             SingleLineParserTestUtils(StructArrayMemberParserFactory, self).assert_parse_exception(
@@ -519,7 +593,7 @@ class StructArrayMemberParserTest(unittest.TestCase):
     def test_member_names_must_have_property_name_semantics(self):
         SingleLineParserTestUtils(StructArrayMemberParserFactory, self).assert_naming(
             '{} = array(Car, 10)',
-            VALID_PROPERTY_NAMES,
-            INVALID_PROPERTY_NAMES)
+            NameConstants.VALID_PROPERTIES,
+            NameConstants.INVALID_PROPERTIES)
 
 # endregion

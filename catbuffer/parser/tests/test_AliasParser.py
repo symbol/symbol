@@ -2,7 +2,7 @@ import unittest
 
 from catparser.AliasParser import AliasParserFactory
 
-from .constants import BUILTIN_TYPE_TUPLES, INVALID_USER_TYPE_NAMES, VALID_USER_TYPE_NAMES
+from .constants import BUILTIN_TYPE_TUPLES, NameConstants
 from .ParserTestUtils import ParserFactoryTestUtils, SingleLineParserTestUtils
 
 
@@ -28,8 +28,8 @@ class AliasParserTest(unittest.TestCase):
     def test_alias_names_must_have_type_name_semantics(self):
         SingleLineParserTestUtils(AliasParserFactory, self).assert_naming(
             'using {} = uint32',
-            VALID_USER_TYPE_NAMES,
-            INVALID_USER_TYPE_NAMES)
+            NameConstants.VALID_USER_TYPES,
+            NameConstants.INVALID_USER_TYPES)
 
     def test_cannot_parse_invalid_alias(self):
         # Arrange:

@@ -3,7 +3,7 @@ import unittest
 from catparser.CatsParseException import CatsParseException
 from catparser.EnumParser import EnumParserFactory, EnumValueParserFactory
 
-from .constants import INVALID_PROPERTY_NAMES, INVALID_USER_TYPE_NAMES, PRIMITIVE_TYPE_TUPLES, VALID_PROPERTY_NAMES, VALID_USER_TYPE_NAMES
+from .constants import PRIMITIVE_TYPE_TUPLES, NameConstants
 from .ParserTestUtils import MultiLineParserTestUtils, ParserFactoryTestUtils, SingleLineParserTestUtils
 
 
@@ -50,8 +50,8 @@ class EnumParserTest(unittest.TestCase):
     def test_enum_names_must_have_type_name_semantics(self):
         MultiLineParserTestUtils(EnumParserFactory, self).assert_naming(
             'enum {} : uint8',
-            VALID_USER_TYPE_NAMES,
-            INVALID_USER_TYPE_NAMES)
+            NameConstants.VALID_USER_TYPES,
+            NameConstants.INVALID_USER_TYPES)
 
     def test_can_append_value(self):
         # Arrange:
@@ -113,16 +113,19 @@ class EnumValueParserTest(unittest.TestCase):
 
     def test_can_parse_dec_declaration(self):
         self._assert_parse(
-            'red = 12',
-            {'name': 'red', 'value': 12})
+            'RED = 12',
+            {'name': 'RED', 'value': 12})
 
     def test_can_parse_hex_declaration(self):
         self._assert_parse(
-            'red = 0x11',
-            {'name': 'red', 'value': 17})
+            'RED = 0x11',
+            {'name': 'RED', 'value': 17})
 
     def test_cannot_parse_non_numeric_declaration(self):
-        SingleLineParserTestUtils(EnumValueParserFactory, self).assert_parse_exception('red = uint16', ValueError)
+        SingleLineParserTestUtils(EnumValueParserFactory, self).assert_parse_exception('RED = uint16', ValueError)
 
-    def test_member_names_must_have_property_name_semantics(self):
-        SingleLineParserTestUtils(EnumValueParserFactory, self).assert_naming('{} = 12', VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES)
+    def test_member_names_must_have_const_property_name_semantics(self):
+        SingleLineParserTestUtils(EnumValueParserFactory, self).assert_naming(
+            '{} = 12',
+            NameConstants.VALID_CONST_PROPERTIES,
+            NameConstants.INVALID_CONST_PROPERTIES)

@@ -1,4 +1,4 @@
-from .parserutils import parse_builtin, require_user_type_name
+from .parserutils import TypeNameChecker, parse_builtin
 from .RegexParserFactory import RegexParserFactory
 
 
@@ -12,12 +12,12 @@ class AliasParser:
 
         # aliases are only supported for builtin types
         return (
-            require_user_type_name(match.group(1)),
-            parse_builtin(match.group(2))
+            TypeNameChecker.require_user_type(match.group('alias_type_name')),
+            parse_builtin(match.group('aliased_type_name'))
         )
 
 
 class AliasParserFactory(RegexParserFactory):
     """Factory for creating alias parsers"""
     def __init__(self):
-        super().__init__(r'using (\S+) = (\S+)', AliasParser)
+        super().__init__(r'using (?P<alias_type_name>\S+) = (?P<aliased_type_name>\S+)', AliasParser)

@@ -1,7 +1,6 @@
 from .CatsParseException import CatsParseException
 from .CompositeTypeParser import CompositeTypeParser
-from .parserutils import (is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex, require_property_name,
-                          require_user_type_name)
+from .parserutils import TypeNameChecker, is_builtin, is_dec_or_hex, is_primitive, parse_builtin, parse_dec_or_hex
 from .RegexParserFactory import RegexParserFactory
 
 # region StructParser(Factory)
@@ -19,8 +18,11 @@ class StructParser(CompositeTypeParser):
 
     def process_line(self, line):
         match = self.regex.match(line)
-        self.type_name = require_user_type_name(match.group(1))
+        self.type_name = TypeNameChecker.require_user_type(match.group('struct_type_name'))
         self.type_descriptor = {'type': 'struct', 'layout': []}
+
+        if match.group('inline'):
+            self.type_descriptor['disposition'] = 'inline'
 
     def append(self, property_type_descriptor):
         self._require_no_array_with_fill_disposition()
@@ -72,7 +74,7 @@ class StructParser(CompositeTypeParser):
 class StructParserFactory(RegexParserFactory):
     """Factory for creating struct parsers"""
     def __init__(self):
-        super().__init__(r'struct (\S+)', StructParser)
+        super().__init__(r'(?P<inline>inline )?struct (?P<struct_type_name>\S+)', StructParser)
 
 
 # endregion
@@ -86,12 +88,14 @@ class StructConstParser:
 
     def process_line(self, line):
         match = self.regex.match(line)
-        type_name = match.group(3)
+        type_name = match.group('type_name')
 
+        disposition = match.group('disposition')
+        property_name_checker = TypeNameChecker.require_const_property if 'const' == disposition else TypeNameChecker.require_property
         const_descriptor = {
-            'name': require_property_name(match.group(1)),
-            'disposition': match.group(2),
-            'value': match.group(4)
+            'name': property_name_checker(match.group('name')),
+            'disposition': disposition,
+            'value': match.group('value')
         }
 
         is_numeric = False
@@ -99,7 +103,7 @@ class StructConstParser:
             const_descriptor = {**const_descriptor, **parse_builtin(type_name)}
             is_numeric = True
         else:
-            const_descriptor['type'] = require_user_type_name(type_name)
+            const_descriptor['type'] = TypeNameChecker.require_user_type(type_name)
             is_numeric = is_dec_or_hex(const_descriptor['value'])
 
         if is_numeric:
@@ -111,7 +115,7 @@ class StructConstParser:
 class StructConstParserFactory(RegexParserFactory):
     """Factory for creating struct const parsers"""
     def __init__(self):
-        super().__init__(r'(\S+) = make_(const|reserved)\((\S+), (\S+)\)', StructConstParser)
+        super().__init__(r'(?P<name>\S+) = make_(?P<disposition>const|reserved)\((?P<type_name>\S+), (?P<value>\S+)\)', StructConstParser)
 
 
 # endregion
@@ -126,18 +130,44 @@ class StructInlineParser:
     def process_line(self, line):
         # type is resolved to exist upstream, so its naming doesn't need to be checked here
         match = self.regex.match(line)
-        return {'type': match.group(1), 'disposition': 'inline'}
+        inline_descriptor = {'type': match.group('inline_type_name'), 'disposition': 'inline'}
+
+        inline_name_prefix = match.group('name')
+        if inline_name_prefix:
+            inline_descriptor['name'] = inline_name_prefix
+
+        return inline_descriptor
 
 
 class StructInlineParserFactory(RegexParserFactory):
     """Factory for creating struct inline parsers"""
     def __init__(self):
-        super().__init__(r'inline (\S+)', StructInlineParser)
+        super().__init__(r'(?:(?P<name>\S+) = )?inline (?P<inline_type_name>\S+)', StructInlineParser)
 
 
 # endregion
 
 # region StructScalarMemberParser(Factory)
+
+OPTIONAL_CONDITIONAL_REGEX_PATTERN = \
+    r'(?: if (?P<condition_value>\S+) (?P<condition_negate>not )?(?P<condition_operation>equals|in) (?P<condition>\S+))?'
+
+
+def parse_conditional_instruction(property_type_descriptor, match):
+    if not match.group('condition_value'):
+        return
+
+    is_negated = 'not ' == match.group('condition_negate')
+
+    property_type_descriptor['condition'] = match.group('condition')
+    property_type_descriptor['condition_operation'] = ('not ' if is_negated else '') + match.group('condition_operation')
+
+    condition_value = match.group('condition_value')
+    if is_dec_or_hex(condition_value):
+        condition_value = parse_dec_or_hex(condition_value)
+
+    property_type_descriptor['condition_value'] = condition_value
+
 
 class StructScalarMemberParser:
     """Parser for non-inline scalar struct members"""
@@ -146,7 +176,7 @@ class StructScalarMemberParser:
 
     def process_line(self, line):
         match = self.regex.match(line)
-        linked_type_name = match.group(2)
+        linked_type_name = match.group('type_name')
 
         # type is resolved to exist upstream, so its naming doesn't need to be checked here
         if is_builtin(linked_type_name):
@@ -154,26 +184,18 @@ class StructScalarMemberParser:
         else:
             property_type_descriptor = {'type': linked_type_name}
 
-        if match.group(3):
-            is_negated = 'not ' == match.group(5)
+        parse_conditional_instruction(property_type_descriptor, match)
 
-            property_type_descriptor['condition'] = match.group(7)
-            property_type_descriptor['condition_operation'] = ('not ' if is_negated else '') + match.group(6)
-
-            condition_value = match.group(4)
-            if is_dec_or_hex(condition_value):
-                condition_value = parse_dec_or_hex(condition_value)
-
-            property_type_descriptor['condition_value'] = condition_value
-
-        property_type_descriptor['name'] = require_property_name(match.group(1))
+        property_type_descriptor['name'] = TypeNameChecker.require_property(match.group('name'))
         return property_type_descriptor
 
 
 class StructScalarMemberParserFactory(RegexParserFactory):
     """Factory for creating struct scalar member parsers"""
     def __init__(self):
-        super().__init__(r'(\S+) = (\S+)( if (\S+) (not )?(equals|in) (\S+))?', StructScalarMemberParser)
+        super().__init__(
+            r'(?P<name>\S+) = (?P<type_name>\S+)' + OPTIONAL_CONDITIONAL_REGEX_PATTERN,
+            StructScalarMemberParser)
 
 
 # endregion
@@ -189,7 +211,7 @@ class StructArrayMemberParser:
         match = self.regex.match(line)
 
         # type is resolved to exist upstream, so its naming doesn't need to be checked here
-        element_type_name = match.group(2)
+        element_type_name = match.group('element_type_name')
 
         if 'byte' == element_type_name:
             raise CatsParseException('explicit use of byte is deprecated please use uint8 or int8 instead')
@@ -206,8 +228,8 @@ class StructArrayMemberParser:
 
         # size can be interpreted in different ways for count-based arrays
         # size must be a field reference for size-based arrays
-        array_size = match.group(4)
-        if not match.group(3):
+        array_size = match.group('size')
+        if not match.group('byte_size'):
             if is_dec_or_hex(array_size):
                 array_size = parse_dec_or_hex(array_size)
 
@@ -221,16 +243,21 @@ class StructArrayMemberParser:
 
         property_type_descriptor['size'] = array_size
 
-        if match.group(5):
-            property_type_descriptor['sort_key'] = match.group(6)
+        if match.group('sort_key'):
+            property_type_descriptor['sort_key'] = match.group('sort_key')
 
-        property_type_descriptor['name'] = require_property_name(match.group(1))
+        parse_conditional_instruction(property_type_descriptor, match)
+
+        property_type_descriptor['name'] = TypeNameChecker.require_property(match.group('name'))
         return property_type_descriptor
 
 
 class StructArrayMemberParserFactory(RegexParserFactory):
     """Factory for creating struct array member parsers"""
     def __init__(self):
-        super().__init__(r'(\S+) = array\((\S+), (size=)?(\S+)(, sort_key=(\S+))?\)', StructArrayMemberParser)
+        super().__init__(
+            r'(?P<name>\S+) = array\((?P<element_type_name>\S+), (?P<byte_size>size=)?(?P<size>\S+)(?:, sort_key=(?P<sort_key>\S+))?\)'
+            + OPTIONAL_CONDITIONAL_REGEX_PATTERN,
+            StructArrayMemberParser)
 
 # endregion

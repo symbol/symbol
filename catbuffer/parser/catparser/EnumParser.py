@@ -1,6 +1,6 @@
 from .CatsParseException import CatsParseException
 from .CompositeTypeParser import CompositeTypeParser
-from .parserutils import parse_builtin, parse_dec_or_hex, require_primitive, require_property_name, require_user_type_name
+from .parserutils import TypeNameChecker, parse_builtin, parse_dec_or_hex
 from .RegexParserFactory import RegexParserFactory
 
 
@@ -11,9 +11,9 @@ class EnumParser(CompositeTypeParser):
 
     def process_line(self, line):
         match = self.regex.match(line)
-        self.type_name = require_user_type_name(match.group(1))
+        self.type_name = TypeNameChecker.require_user_type(match.group('enum_type_name'))
 
-        base_type = require_primitive(match.group(2))
+        base_type = TypeNameChecker.require_primitive(match.group('underlying_type_name'))
         builtin_type_descriptor = parse_builtin(base_type)
         self.type_descriptor = {
             'type': 'enum',
@@ -35,7 +35,7 @@ class EnumParser(CompositeTypeParser):
 class EnumParserFactory(RegexParserFactory):
     """Factory for creating enum parsers"""
     def __init__(self):
-        super().__init__(r'enum (\S+) : (u?int\d+)', EnumParser)
+        super().__init__(r'enum (?P<enum_type_name>\S+) : (?P<underlying_type_name>u?int\d+)', EnumParser)
 
 
 class EnumValueParser:
@@ -45,10 +45,13 @@ class EnumValueParser:
 
     def process_line(self, line):
         match = self.regex.match(line)
-        return {'name': require_property_name(match.group(1)), 'value': parse_dec_or_hex(match.group(2))}
+        return {
+            'name': TypeNameChecker.require_const_property(match.group('name')),
+            'value': parse_dec_or_hex(match.group('value'))
+        }
 
 
 class EnumValueParserFactory(RegexParserFactory):
     """Factory for creating enum value parsers"""
     def __init__(self):
-        super().__init__(r'(\S+) = (\S+)', EnumValueParser)
+        super().__init__(r'(?P<name>\S+) = (?P<value>\S+)', EnumValueParser)

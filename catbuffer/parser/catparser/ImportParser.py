@@ -17,10 +17,10 @@ class ImportParser:
 
     def process_line(self, line):
         match = self.regex.match(line)
-        return ImportResult(match.group(1))
+        return ImportResult(match.group('filename'))
 
 
 class ImportParserFactory(RegexParserFactory):
     """Factory for creating import parsers"""
     def __init__(self):
-        super().__init__(r'import "([\S ]+)"', ImportParser)
+        super().__init__(r'import "(?P<filename>[\S ]+)"', ImportParser)
