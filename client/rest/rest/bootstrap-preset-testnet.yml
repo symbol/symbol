@@ -17,4 +17,5 @@ gateways:
     restLoggingFilename: target/rest.log
     databaseHost: localhost
     apiNodeHost: localhost
+    restProtocol: HTTP
 

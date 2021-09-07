@@ -22,6 +22,7 @@
 const test = require('./utils/dbTestUtils');
 const testDbOptions = require('./utils/testDbOptions');
 const CatapultDb = require('../../src/db/CatapultDb');
+const { uniqueLongList } = require('../../src/db/dbUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
@@ -695,22 +696,62 @@ describe('catapult db', () => {
 		const addTransactionAtHeight = (height, type) => {
 			const aggregateId = test.db.createObjectId(id);
 			const hash = new Binary(Buffer.from(createTransactionHash(id++)));
-			const meta = { height, hash, addresses: [] };
+			const meta = { height: Long.fromNumber(height), hash, addresses: [] };
 			transactions.push({ _id: aggregateId, meta, transaction: { type } });
 
 			const numDependentDocuments = (options || {}).numDependentDocuments || 0;
-			for (let j = 0; j < numDependentDocuments; ++j)
-				transactions.push({ _id: test.db.createObjectId(id++), meta: { height, aggregateId }, transaction: {} });
+			for (let j = 0; j < numDependentDocuments; ++j) {
+				transactions.push({
+					_id: test.db.createObjectId(id++),
+					meta: { height: Long.fromNumber(height), aggregateId },
+					transaction: {}
+				});
+			}
 		};
 
 		for (let i = 0; i < numTransactionsPerHeight; ++i) {
-			// transactionsAtHeight only worked for both aggregates, so pick each type alteratively
+			// transactionsAtHeight only worked for both aggregates, so pick each type alternatively
 			const type = 0 === i % 2 ? EntityType.aggregateComplete : EntityType.aggregateBonded;
 			heights.forEach(height => { addTransactionAtHeight(height, type); });
 		}
 
 		return transactions;
 	};
+
+	/**
+	 * It creates the blocks for the given transactions.
+	 *
+	 * @param {object[]} transactions the transactions to know the required blocks
+	 * @returns {object[]} the block of the transactions to be stored
+	 */
+	const createBlocks = transactions => {
+		// notice that generated transactions only contain what was used by transactionsAtHeight for filtering (meta.height)
+		const heights = transactions.map(transaction => transaction.meta.height).map(Long.fromNumber);
+		return uniqueLongList(heights).map(height => test.db.createDbBlock(height));
+	};
+
+	/**
+	 * It copies the transactions adding the blocks meta.
+	 *
+	 * @param {object[]} transactions the transactions without the blocks' meta.
+	 * @param {object[]} blocks the blocks of the transactions.
+	 * @returns {object[]} the transactions with the blocks' meta like the db would return after joining the results.
+	 */
+	const addBlockMeta = (transactions, blocks) => transactions.map(transaction => {
+		const { height } = transaction.meta;
+		const blockEntity = blocks.find(storedBlock => '0' !== height.toString() && storedBlock.block.height.equals(height));
+		if (!blockEntity)
+			return transaction;
+
+		return {
+			...transaction,
+			meta: {
+				...transaction.meta,
+				timestamp: blockEntity.block.timestamp,
+				feeMultiplier: blockEntity.block.feeMultiplier
+			}
+		};
+	});
 
 	describe('transaction by id', () => {
 		const runTransactionsDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
@@ -729,37 +770,42 @@ describe('catapult db', () => {
 			it('can retrieve each transaction by id', () => {
 				// Arrange:
 				const seedTransactions = traits.createSeedTransactions();
+				const blocks = createBlocks(seedTransactions);
+				const transactionsWithBlockMeta = addBlockMeta(seedTransactions, blocks);
 				const allIds = traits.allIds.map(idTraits.convertToId);
 
 				// Act + Assert:
 				return runTransactionsDbTest(
-					{ [idTraits.collectionName]: seedTransactions },
+					{ [idTraits.collectionName]: seedTransactions, blocks },
 					db => idTraits.transactionsByIds(db, allIds),
-					transactions => assertEqualDocuments(traits.expected(seedTransactions, traits.allIds), transactions)
+					transactions => assertEqualDocuments(traits.expected(transactionsWithBlockMeta, traits.allIds), transactions)
 				);
 			});
 
 			it('can retrieve transaction using known id', () => {
 				// Arrange:
 				const seedTransactions = traits.createSeedTransactions();
+				const blocks = createBlocks(seedTransactions);
+				const transactionsWithBlockMeta = addBlockMeta(seedTransactions, blocks);
 				const documentId = idTraits.convertToId(traits.validId);
 
 				// Act + Assert:
 				return runTransactionsDbTest(
-					{ [idTraits.collectionName]: seedTransactions },
+					{ [idTraits.collectionName]: seedTransactions, blocks },
 					db => idTraits.transactionsByIds(db, [documentId]),
-					transactions => assertEqualDocuments(traits.expected(seedTransactions, [traits.validId]), transactions)
+					transactions => assertEqualDocuments(traits.expected(transactionsWithBlockMeta, [traits.validId]), transactions)
 				);
 			});
 
 			it('cannot retrieve transaction using unknown id', () => {
 				// Arrange:
 				const seedTransactions = traits.createSeedTransactions();
+				const blocks = createBlocks(seedTransactions);
 				const documentId = idTraits.convertToId(traits.invalidId);
 
 				// Act + Assert:
 				return runTransactionsDbTest(
-					{ [idTraits.collectionName]: seedTransactions },
+					{ [idTraits.collectionName]: seedTransactions, blocks },
 					db => idTraits.transactionsByIds(db, [documentId]),
 					transactions => expect(transactions).to.deep.equal([])
 				);
@@ -768,6 +814,8 @@ describe('catapult db', () => {
 			it('can retrieve only known transactions by id', () => {
 				// Arrange:
 				const seedTransactions = traits.createSeedTransactions();
+				const blocks = createBlocks(seedTransactions);
+				const transactionsWithBlockMeta = addBlockMeta(seedTransactions, blocks);
 				const allIds = traits.allIds.map(idTraits.convertToId);
 				// make a copy and insert invalid id in the middle
 				const mixedIds = allIds.slice();
@@ -775,9 +823,9 @@ describe('catapult db', () => {
 
 				// Act + Assert:
 				return runTransactionsDbTest(
-					{ [idTraits.collectionName]: seedTransactions },
+					{ [idTraits.collectionName]: seedTransactions, blocks },
 					db => idTraits.transactionsByIds(db, mixedIds),
-					transactions => assertEqualDocuments(traits.expected(seedTransactions, traits.allIds), transactions)
+					transactions => assertEqualDocuments(traits.expected(transactionsWithBlockMeta, traits.allIds), transactions)
 				);
 			});
 		};
@@ -850,13 +898,15 @@ describe('catapult db', () => {
 				// 4 (5, 6)  (height 34)
 				// ...
 				const seedTransactions = createSeedTransactions(3, [21, 34], { numDependentDocuments: 2 });
+				const blocks = createBlocks(seedTransactions);
+				const transactionsWithBlockMeta = addBlockMeta(seedTransactions, blocks);
 				const documentId = test.db.createObjectId(5);
 
 				// Act + Assert:
 				return runTransactionsDbTest(
-					{ transactions: seedTransactions },
+					{ transactions: seedTransactions, blocks },
 					db => db.transactionsByIds(TransactionGroups.confirmed, [documentId]),
-					transactions => assertEqualDocuments([renameId(seedTransactions[4])], transactions)
+					transactions => assertEqualDocuments([renameId(transactionsWithBlockMeta[4])], transactions)
 				);
 			});
 		});
@@ -1357,7 +1407,7 @@ describe('catapult db', () => {
 		const createTransaction = (objectId, addresses, height, signerPublicKey, recipientAddress, type, mosaics) => ({
 			_id: createObjectId(objectId),
 			meta: {
-				height,
+				height: Long.fromNumber(height),
 				addresses: addresses.map(a => Buffer.from(a))
 			},
 			transaction: {
@@ -1379,10 +1429,11 @@ describe('catapult db', () => {
 		});
 
 		const runTestAndVerifyIds = (dbTransactions, filters, options, expectedIds) => {
+			const blocks = createBlocks(dbTransactions);
 			const expectedObjectIds = expectedIds.map(id => createObjectId(id));
 
 			return runDbTest(
-				{ transactions: dbTransactions },
+				{ transactions: dbTransactions, blocks },
 				db => db.transactions(TransactionGroups.confirmed, filters, options),
 				transactionsPage => {
 					const returnedIds = transactionsPage.data.map(t => t.id);
@@ -1397,10 +1448,11 @@ describe('catapult db', () => {
 			const dbTransactions = [
 				createTransaction(10, [account1.address], 123, account1.publicKey, account2.address, EntityType.transfer)
 			];
+			const blocks = createBlocks(dbTransactions);
 
 			// Act + Assert:
 			return runDbTest(
-				{ transactions: dbTransactions },
+				{ transactions: dbTransactions, blocks },
 				db => db.transactions(TransactionGroups.confirmed, {}, paginationOptions),
 				page => {
 					const expected_keys = ['meta', 'transaction', 'id'];
@@ -1414,10 +1466,11 @@ describe('catapult db', () => {
 			const dbTransactions = [
 				createTransaction(10, [account1.address], 1, 0, 0, 0)
 			];
+			const blocks = createBlocks(dbTransactions);
 
 			// Act + Assert:
 			return runDbTest(
-				{ transactions: dbTransactions },
+				{ transactions: dbTransactions, blocks },
 				db => db.transactions(TransactionGroups.confirmed, {}, paginationOptions),
 				transactionsPage => {
 					expect(transactionsPage.data[0].meta.addresses).to.equal(undefined);
@@ -1553,7 +1606,7 @@ describe('catapult db', () => {
 				createTransaction(20, [], 30),
 				createTransaction(30, [], 10)
 			];
-
+			const blocks = createBlocks(dbTransactions());
 			it('direction ascending', () => {
 				const options = {
 					pageSize: 10,
@@ -1564,7 +1617,7 @@ describe('catapult db', () => {
 
 				// Act + Assert:
 				return runDbTest(
-					{ transactions: dbTransactions() },
+					{ transactions: dbTransactions(), blocks },
 					db => db.transactions(TransactionGroups.confirmed, [], options),
 					transactionsPage => {
 						expect(transactionsPage.data[0].id).to.deep.equal(createObjectId(10));
@@ -1584,7 +1637,7 @@ describe('catapult db', () => {
 
 				// Act + Assert:
 				return runDbTest(
-					{ transactions: dbTransactions() },
+					{ transactions: dbTransactions(), blocks },
 					db => db.transactions(TransactionGroups.confirmed, [], options),
 					transactionsPage => {
 						expect(transactionsPage.data[0].id).to.deep.equal(createObjectId(30));
@@ -1605,7 +1658,7 @@ describe('catapult db', () => {
 
 				// Act + Assert:
 				return runDbTest(
-					{ transactions: dbTransactions() },
+					{ transactions: dbTransactions(), blocks },
 					db => db.transactions(TransactionGroups.confirmed, [], options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
@@ -1822,15 +1875,17 @@ describe('catapult db', () => {
 				const dbTransactions = () => ({
 					transactions: [createTransaction(10, [], 1)],
 					partialTransactions: [createTransaction(20, [], 1)],
-					unconfirmedTransactions: [createTransaction(30, [], 1)]
+					unconfirmedTransactions: [createTransaction(30, [], 1)],
+					blocks: [test.db.createDbBlock(1)]
 				});
 
 				const runGroupTest = (group, expectedIds) => {
 					it(`group: ${group}`, () => {
 						const expectedObjectIds = expectedIds.map(id => createObjectId(id));
 
+						const transactions = dbTransactions();
 						return runDbTest(
-							dbTransactions(),
+							transactions,
 							db => db.transactions(group, {}, paginationOptions),
 							transactionsPage => {
 								const returnedIds = transactionsPage.data.map(t => t.id);

@@ -135,7 +135,9 @@ class ModelSchemaBuilder {
 				height: ModelType.uint64,
 				hash: ModelType.binary,
 				merkleComponentHash: ModelType.binary,
-				index: ModelType.int
+				index: ModelType.int,
+				timestamp: ModelType.uint64,
+				feeMultiplier: ModelType.uint32
 			},
 			transactionWithMetadata: {
 				id: ModelType.objectId,
