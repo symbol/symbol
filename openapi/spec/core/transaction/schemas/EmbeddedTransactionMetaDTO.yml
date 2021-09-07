@@ -15,3 +15,7 @@ properties:
   index:
     type: integer
     description: Transaction index within the aggregate.
+  timestamp:
+    $ref: "../../../schemas/Timestamp.yml"
+  feeMultiplier:
+    $ref: "../../../schemas/BlockFeeMultiplier.yml"
