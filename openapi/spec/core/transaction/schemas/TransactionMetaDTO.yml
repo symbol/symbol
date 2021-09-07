@@ -14,3 +14,7 @@ properties:
   index:
     type: integer
     description: Transaction index within the block.
+  timestamp:
+    $ref: "../../../schemas/Timestamp.yml"
+  feeMultiplier:
+    $ref: "../../../schemas/BlockFeeMultiplier.yml"
