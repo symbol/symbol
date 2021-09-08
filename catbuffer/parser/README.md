@@ -32,21 +32,22 @@ pip3 install -r lint_requirements.txt
 python3 -m catparser [OPTIONS]
 ```
 
-| Option               | Description                                                                                                                                                | Default       |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| -s, --schema TEXT    | Input CATS file                                                                                                                                            |               |
-| -o, --output TEXT    | Output directory                                                                                                                                           | _generated    |
-| -i, --include TEXT   | Schema root directory                                                                                                                                      | ./schemas     |
-| -g, --generator TEXT | Generator to use to produce output files (see the [available generators](https://github.com/symbol/catbuffer-generators/blob/main/generators/All.py#L4)). |               |
-| -c, --copyright TEXT | File containing copyright data to use with output files.                                                                                                   | ../HEADER.inc |
+| Option               | Description                                                                                                                                                |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -s, --schema TEXT    | Input CATS file                                                                                                                                            |
+| -i, --include TEXT   | Schema root directory                                                                                                                                      |
+| -o, --output TEXT    | YAML output file (optional)                                                                                                                                |
 
 ## Examples
 
-In order to produce any output file, the [catbuffer-generators](https://github.com/symbol/catbuffer-generators) project is needed. Please see this project's usage examples.
-
-However, ``catparser`` can still be used on its own to parse input files and check their validity:
+``catparser`` can be used on its own to parse input files, check their validity and optionally output a YAML file containing the parsed type descriptors:
 
 ```bash
 git clone --depth 1 --branch v2.0.0a https://github.com/symbol/catbuffer-schemas.git
+
+# parse but don't output anything
 python3 -m catparser --schema ../catbuffer-schemas/symbol/transfer/transfer.cats --include ../catbuffer-schemas/symbol
+
+# parse and output a YAML file
+python3 -m catparser --schema ../catbuffer-schemas/symbol/transfer/transfer.cats --include ../catbuffer-schemas/symbol --output ../catbuffer-schemas/all.yaml
 ```
