@@ -1,4 +1,3 @@
-# transaction
 import "account_link/account_key_link.cats"
 import "account_link/node_key_link.cats"
 import "aggregate/aggregate.cats"

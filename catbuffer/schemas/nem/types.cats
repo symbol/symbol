@@ -1,9 +1,11 @@
 using Amount = uint64
+using Height = uint64
 using Timestamp = uint32
 
 using Address = binary_fixed(40)
 using Hash256 = binary_fixed(32)
 using PublicKey = binary_fixed(32)
+using Signature = binary_fixed(64)
 
 # binary layout for a size prefixed address
 inline struct SizePrefixedAddress
@@ -23,11 +25,19 @@ inline struct SizePrefixedHash256
 
 # binary layout for a size prefixed public key
 inline struct SizePrefixedPublicKey
-	# address size
+	# public key size
 	size = make_reserved(uint32, 32)
 
-	# address value
+	# public key value
 	__value__ = PublicKey
+
+# binary layout for a size prefixed signature
+inline struct SizePrefixedSignature
+	# signature size
+	size = make_reserved(uint32, 64)
+
+	# signature value
+	__value__ = Signature
 
 # binary layout for a size prefixed string
 inline struct SizePrefixedString

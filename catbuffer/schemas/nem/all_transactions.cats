@@ -1,0 +1,7 @@
+import "account_key_link/account_key_link.cats"
+import "mosaic/mosaic_definition.cats"
+import "mosaic/mosaic_supply_change.cats"
+import "multisig/multisig_account_modification.cats"
+import "multisig/multisig.cats"
+import "namespace/namespace_registration.cats"
+import "transfer/transfer.cats"
