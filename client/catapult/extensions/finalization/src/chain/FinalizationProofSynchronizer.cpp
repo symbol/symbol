@@ -22,9 +22,9 @@
 #include "FinalizationProofSynchronizer.h"
 #include "finalization/src/api/RemoteProofApi.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "finalization/src/model/VotingSet.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/HeightGrouping.h"
+#include "catapult/model/VotingSet.h"
 
 namespace catapult { namespace chain {
 

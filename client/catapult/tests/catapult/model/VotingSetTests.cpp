@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/model/VotingSet.h"
+#include "catapult/model/VotingSet.h"
 #include "catapult/model/HeightGrouping.h"
 #include "tests/TestHarness.h"
 
