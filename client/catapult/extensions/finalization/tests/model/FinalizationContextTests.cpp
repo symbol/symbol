@@ -88,15 +88,31 @@ namespace catapult { namespace model {
 			return accountViews;
 		}
 
-		void SetBalance(cache::AccountStateCache& cache, Height height, const Address& address, Amount balance) {
+		void ModifyAccount(
+				cache::AccountStateCache& cache,
+				Height height,
+				const Address& address,
+				const consumer<state::AccountState&>& modifier) {
 			auto delta = cache.createDelta();
 
-			auto& balances = delta->find(address).get().Balances;
-			balances.debit(Harvesting_Mosaic_Id, balances.get(Harvesting_Mosaic_Id));
-			balances.credit(Harvesting_Mosaic_Id, balance);
+			modifier(delta->find(address).get());
 
 			delta->updateHighValueAccounts(height);
 			cache.commit();
+		}
+
+		consumer<state::AccountState&> SetBalanceModifier(Amount balance) {
+			return [balance](auto& accountState) {
+				auto& balances = accountState.Balances;
+				balances.debit(Harvesting_Mosaic_Id, balances.get(Harvesting_Mosaic_Id));
+				balances.credit(Harvesting_Mosaic_Id, balance);
+			};
+		}
+
+		consumer<state::AccountState&> AppendVotingPublicKeyModifier(Epoch startEpoch, Epoch endEpoch) {
+			return [startEpoch, endEpoch](auto& accountState) {
+				accountState.SupplementalPublicKeys.voting().add({ test::GenerateRandomByteArray<VotingKey>(), startEpoch, endEpoch });
+			};
 		}
 
 		template<typename TAction>
@@ -182,7 +198,7 @@ namespace catapult { namespace model {
 		auto accountViews = AddAccountsWithBalances(cache, Height(122), { Amount(7'000'000), Amount(1'000'000), Amount(4'000'000) });
 
 		// - transition second account to voter eligible
-		SetBalance(cache, Height(123), accountViews[1].Address, Amount(3'000'000));
+		ModifyAccount(cache, Height(123), accountViews[1].Address, SetBalanceModifier(Amount(3'000'000)));
 
 		// Act:
 		FinalizationContext context(Epoch(50), Height(123), generationHash, config, *cache.createView());
@@ -207,7 +223,7 @@ namespace catapult { namespace model {
 		auto accountViews = AddAccountsWithBalances(cache, Height(122), { Amount(7'000'000), Amount(9'000'000), Amount(4'000'000) });
 
 		// - transition second account to voter ineligible
-		SetBalance(cache, Height(123), accountViews[1].Address, Amount(1'000'000));
+		ModifyAccount(cache, Height(123), accountViews[1].Address, SetBalanceModifier(Amount(1'000'000)));
 
 		// Act:
 		FinalizationContext context(Epoch(50), Height(123), generationHash, config, *cache.createView());
@@ -221,6 +237,59 @@ namespace catapult { namespace model {
 
 		// Sanity:
 		EXPECT_EQ(Amount(0), context.lookup(accountViews[1].VotingPublicKey1).Weight);
+	}
+
+	TEST(TEST_CLASS, CanCreateContextAroundHighValueAccounts_AccountTransitioningExpiredVotingKey) {
+		// Arrange:
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
+		auto config = CreateConfigurationWithSize(9876);
+
+		cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
+		auto accountViews = AddAccountsWithBalances(cache, Height(122), { Amount(7'000'000), Amount(9'000'000), Amount(4'000'000) });
+
+		// - add additional voting key to first and third accounts
+		for (auto i : std::initializer_list<size_t>{ 0, 2 })
+			ModifyAccount(cache, Height(123), accountViews[i].Address, AppendVotingPublicKeyModifier(Epoch(201), Epoch(250)));
+
+		// Act:
+		FinalizationContext context(Epoch(225), Height(123), generationHash, config, *cache.createView());
+
+		// Assert:
+		EXPECT_EQ(Epoch(225), context.epoch());
+		EXPECT_EQ(Height(123), context.height());
+		EXPECT_EQ(generationHash, context.generationHash());
+		EXPECT_EQ(9876u, context.config().Size);
+		EXPECT_EQ(Amount(11'000'000), context.weight());
+
+		// Sanity:
+		EXPECT_EQ(Amount(0), context.lookup(accountViews[1].VotingPublicKey1).Weight);
+	}
+
+	TEST(TEST_CLASS, CanCreateContextAroundHighValueAccounts_AccountTransitioningUnregisteredVotingKey) {
+		// Arrange:
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
+		auto config = CreateConfigurationWithSize(9876);
+
+		cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
+		auto accountViews = AddAccountsWithBalances(cache, Height(122), { Amount(7'000'000), Amount(9'000'000), Amount(4'000'000) });
+
+		// - add additional voting key to first and third accounts
+		ModifyAccount(cache, Height(123), accountViews[0].Address, AppendVotingPublicKeyModifier(Epoch(201), Epoch(250)));
+		ModifyAccount(cache, Height(123), accountViews[2].Address, AppendVotingPublicKeyModifier(Epoch(230), Epoch(250)));
+
+		// Act:
+		FinalizationContext context(Epoch(225), Height(123), generationHash, config, *cache.createView());
+
+		// Assert: although third account has voting key registered for future epoch, it doesn't have voting key for current epoch
+		EXPECT_EQ(Epoch(225), context.epoch());
+		EXPECT_EQ(Height(123), context.height());
+		EXPECT_EQ(generationHash, context.generationHash());
+		EXPECT_EQ(9876u, context.config().Size);
+		EXPECT_EQ(Amount(7'000'000), context.weight());
+
+		// Sanity:
+		EXPECT_EQ(Amount(0), context.lookup(accountViews[1].VotingPublicKey1).Weight);
+		EXPECT_EQ(Amount(0), context.lookup(accountViews[2].VotingPublicKey1).Weight);
 	}
 
 	// endregion

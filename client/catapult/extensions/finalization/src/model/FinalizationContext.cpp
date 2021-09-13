@@ -50,10 +50,14 @@ namespace catapult { namespace model {
 			if (Amount() == balance)
 				continue;
 
+			auto effectiveVotingPublicKey = Find(accountHistory.votingPublicKeys().get(m_height), m_epoch);
+			if (VotingKey() == effectiveVotingPublicKey)
+				continue;
+
 			auto accountView = FinalizationAccountView();
 			accountView.Weight = balance;
 
-			m_accounts.emplace(Find(accountHistory.votingPublicKeys().get(m_height), m_epoch), accountView);
+			m_accounts.emplace(effectiveVotingPublicKey, accountView);
 			m_weight = m_weight + balance;
 		}
 	}
