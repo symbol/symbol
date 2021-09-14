@@ -224,6 +224,25 @@ namespace catapult { namespace finalization {
 				EXPECT_TRUE(std::filesystem::exists(prevoteChainDirectory / filename));
 			}
 
+			void assertNoVoteBackups() {
+				auto votesBackupDirectory = std::filesystem::path(testState().state().config().User.DataDirectory) / "votes_backup";
+				EXPECT_FALSE(std::filesystem::exists(votesBackupDirectory));
+			}
+
+			void assertVoteBackups(const model::FinalizationRound& round) {
+				auto votesBackupDirectory = std::filesystem::path(testState().state().config().User.DataDirectory) / "votes_backup";
+				EXPECT_TRUE(std::filesystem::exists(votesBackupDirectory));
+				EXPECT_EQ(1u, test::CountFilesAndDirectories(votesBackupDirectory));
+
+				auto epochVotesBackupDirectory = votesBackupDirectory / std::to_string(round.Epoch.unwrap());
+				EXPECT_TRUE(std::filesystem::exists(epochVotesBackupDirectory));
+				EXPECT_EQ(2u, test::CountFilesAndDirectories(epochVotesBackupDirectory));
+
+				auto voteFilenamePrefix = std::to_string(round.Point.unwrap()) + "_";
+				EXPECT_TRUE(std::filesystem::exists(epochVotesBackupDirectory / (voteFilenamePrefix + "prevote.dat")));
+				EXPECT_TRUE(std::filesystem::exists(epochVotesBackupDirectory / (voteFilenamePrefix + "precommit.dat")));
+			}
+
 		private:
 			static auto CreateBmKeyIdentifier(FinalizationEpoch epoch, model::FinalizationStage stage) {
 				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage });
@@ -365,6 +384,7 @@ namespace catapult { namespace finalization {
 			// - no messages were sent
 			AssertNoMessages(storage, messages);
 			context.assertNoPrevoteChainBackups();
+			context.assertNoVoteBackups();
 
 			// - voting status wasn't changed
 			auto votingStatus = context.votingStatus();
@@ -400,6 +420,7 @@ namespace catapult { namespace finalization {
 				// - two messages were sent
 				AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
 				context.assertSinglePrevoteChainBackup(Default_Round);
+				context.assertVoteBackups(Default_Round);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -460,6 +481,7 @@ namespace catapult { namespace finalization {
 				// - no messages were sent but prevote chain was saved prior to message being rejected due to ineligibility
 				EXPECT_TRUE(messages.empty());
 				context.assertSinglePrevoteChainBackup(Default_Round);
+				context.assertNoVoteBackups();
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -509,6 +531,7 @@ namespace catapult { namespace finalization {
 				// - two messages were sent
 				AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
 				context.assertSinglePrevoteChainBackup(Default_Round);
+				context.assertVoteBackups(Default_Round);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -550,6 +573,7 @@ namespace catapult { namespace finalization {
 			// - two messages were sent
 			AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
 			context.assertSinglePrevoteChainBackup(Default_Round);
+			context.assertVoteBackups(Default_Round);
 
 			// - voting status was changed
 			auto votingStatus = context.votingStatus();
@@ -584,6 +608,7 @@ namespace catapult { namespace finalization {
 				// - no messages were sent
 				AssertNoMessages(storage, messages);
 				context.assertNoPrevoteChainBackups();
+				context.assertNoVoteBackups();
 
 				// - voting status was not changed
 				auto votingStatus = context.votingStatus();
@@ -627,6 +652,7 @@ namespace catapult { namespace finalization {
 			// - no messages were sent
 			AssertNoMessages(storage, messages);
 			context.assertNoPrevoteChainBackups();
+			context.assertNoVoteBackups();
 
 			// - voting status was changed
 			auto votingStatus = context.votingStatus();
@@ -660,6 +686,7 @@ namespace catapult { namespace finalization {
 			// - no messages were sent
 			AssertNoMessages(storage, messages);
 			context.assertNoPrevoteChainBackups();
+			context.assertNoVoteBackups();
 
 			// - voting status was not changed
 			auto votingStatus = context.votingStatus();
@@ -697,6 +724,7 @@ namespace catapult { namespace finalization {
 			// - two messages were sent
 			AssertTwoMessages(epoch, 15, context.hashes()[1], storage, messages);
 			context.assertSinglePrevoteChainBackup({ Finalization_Epoch, FinalizationPoint(15) });
+			context.assertVoteBackups({ Finalization_Epoch, FinalizationPoint(15) });
 
 			// - voting status was not changed
 			auto votingStatus = context.votingStatus();

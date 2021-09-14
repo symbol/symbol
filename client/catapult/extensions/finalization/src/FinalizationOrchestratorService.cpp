@@ -42,6 +42,20 @@ namespace catapult { namespace finalization {
 
 		// region BootstrapperFacade
 
+		void SaveMessageToDisk(const config::CatapultDirectory& dataDirectory, const model::FinalizationMessage& message) {
+			auto votesEpochDirectory = dataDirectory.dir("votes_backup").dir(std::to_string(message.StepIdentifier.Epoch.unwrap()));
+			votesEpochDirectory.createAll();
+
+			std::ostringstream messageFilename;
+			messageFilename
+					<< message.StepIdentifier.Round().Point
+					<< "_"
+					<< (model::FinalizationStage::Precommit == message.StepIdentifier.Stage() ? "precommit" : "prevote")
+					<< ".dat";
+			io::RawFile messageFile(votesEpochDirectory.file(messageFilename.str()), io::OpenMode::Read_Write);
+			messageFile.write({ reinterpret_cast<const uint8_t*>(&message), message.Size });
+		}
+
 		class BootstrapperFacade {
 		private:
 			enum class EpochStatus { Continue, Wait, Advance };
@@ -56,7 +70,8 @@ namespace catapult { namespace finalization {
 					, m_hooks(GetFinalizationServerHooks(locator))
 					, m_proofStorage(GetProofStorageCache(locator))
 					, m_blockStorage(state.storage())
-					, m_votingStatusFile(config::CatapultDirectory(state.config().User.DataDirectory).file("voting_status.dat"))
+					, m_dataDirectory(state.config().User.DataDirectory)
+					, m_votingStatusFile(m_dataDirectory.file("voting_status.dat"))
 					, m_orchestrator(
 							config.EnableRevoteOnBoot ? LoadVotingStatusFromStorage(m_proofStorage) : m_votingStatusFile.load(),
 							[stepDuration = config.StepDuration, &messageAggregator = m_messageAggregator](auto point, auto time) {
@@ -66,7 +81,8 @@ namespace catapult { namespace finalization {
 								const auto& votingPublicKey = message.Signature.Root.ParentPublicKey;
 								return factory.create(message.StepIdentifier.Epoch).isEligibleVoter(votingPublicKey);
 							},
-							[&hooks = m_hooks](auto&& pMessage) {
+							[&hooks = m_hooks, dataDirectory = m_dataDirectory](auto&& pMessage) {
+								SaveMessageToDisk(dataDirectory, *pMessage);
 								hooks.messageRangeConsumer()(model::FinalizationMessageRange::FromEntity(std::move(pMessage)));
 							},
 							chain::CreateFinalizationMessageFactory(
@@ -184,6 +200,7 @@ namespace catapult { namespace finalization {
 			io::ProofStorageCache& m_proofStorage;
 			io::BlockStorageCache& m_blockStorage;
 
+			config::CatapultDirectory m_dataDirectory;
 			VotingStatusFile m_votingStatusFile;
 			chain::FinalizationOrchestrator m_orchestrator;
 			action m_finalizer;
