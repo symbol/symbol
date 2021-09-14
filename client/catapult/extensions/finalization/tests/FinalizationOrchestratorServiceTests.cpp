@@ -86,12 +86,14 @@ namespace catapult { namespace finalization {
 					: OrchestratorStartRound(orchestratorStartRound)
 					, StorageStartRound({ Finalization_Epoch - FinalizationEpoch(1), FinalizationPoint(5) })
 					, LastFinalizedHeight(Height(244))
+					, ShouldPrepareVotingPrivateKeyTrees(true)
 			{}
 
 		public:
 			model::FinalizationRound OrchestratorStartRound;
 			model::FinalizationRound StorageStartRound;
 			Height LastFinalizedHeight;
+			bool ShouldPrepareVotingPrivateKeyTrees;
 		};
 
 		class TestContext : public test::VoterSeededCacheDependentServiceLocatorTestContext<FinalizationOrchestratorServiceTraits> {
@@ -114,7 +116,9 @@ namespace catapult { namespace finalization {
 				std::filesystem::create_directories(votingKeysDirectory.path());
 				const_cast<std::string&>(userConfig.VotingKeysDirectory) = votingKeysDirectory.str();
 
-				SeedVotingPrivateKeyTree(votingKeysDirectory, keyPairDescriptor(voterType).VotingKeyPair);
+				if (options.ShouldPrepareVotingPrivateKeyTrees)
+					SeedVotingPrivateKeyTree(votingKeysDirectory, keyPairDescriptor(voterType).VotingKeyPair);
+
 				SeedVotingStatus(dataDirectory.rootDir(), options.OrchestratorStartRound);
 
 				// register hooks
@@ -304,6 +308,45 @@ namespace catapult { namespace finalization {
 
 	// endregion
 
+	// region task - test traits
+
+	namespace {
+		struct OnePollTraits {
+			// aggregator is updated at start of task, but voting status is updated at end of task
+			static constexpr size_t Num_Repetitions = 1;
+
+			static model::FinalizationRound ExpectedAggregatorMaxRound() {
+				return test::CreateFinalizationRound(6, 8);
+			}
+
+			static model::FinalizationRound ExpectedVotingStatusMaxRound() {
+				return test::CreateFinalizationRound(6, 9);
+			}
+		};
+
+		struct MultiplePollTraits {
+			// on second task execution, storage and orchestrator have same epoch but height is not at end of epoch,
+			// so epoch is not advanced
+			static constexpr size_t Num_Repetitions = 5;
+
+			static model::FinalizationRound ExpectedAggregatorMaxRound() {
+				return test::CreateFinalizationRound(6, 9);
+			}
+
+			static model::FinalizationRound ExpectedVotingStatusMaxRound() {
+				return test::CreateFinalizationRound(6, 9);
+			}
+		};
+	}
+
+#define VARIABLE_POLL_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_OnePoll) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OnePollTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_MultiplePolls) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultiplePollTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// endregion
+
 	// region task - test utils
 
 	namespace {
@@ -394,119 +437,75 @@ namespace catapult { namespace finalization {
 		});
 	}
 
-	namespace {
-		void AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocks(
-				size_t numRepetitions,
-				const model::FinalizationRound& expectedAggregatorMaxRound,
-				const model::FinalizationRound& expectedVotingStatusMaxRound) {
-			// Arrange:
-			TestContext context;
-			context.createCompletedRound();
+	VARIABLE_POLL_TEST(CanRunFinalizationTaskWhenThereArePendingFinalizedBlocks) {
+		// Arrange:
+		TestContext context;
+		context.createCompletedRound();
 
-			// - override the storage hash so that it matches
-			auto& blockStorage = context.testState().state().storage();
-			mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 1200);
-			context.setHash(1, blockStorage.view().loadBlockElement(Height(245))->EntityHash);
+		// - override the storage hash so that it matches
+		auto& blockStorage = context.testState().state().storage();
+		mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 1200);
+		context.setHash(1, blockStorage.view().loadBlockElement(Height(245))->EntityHash);
 
-			RunFinalizationTaskTest(context, numRepetitions, Default_Voting_Set_Grouping, [&](
-					const auto& aggregator,
-					const auto& storage,
-					const auto& messages) {
-				// Assert: check aggregator
-				auto epoch = Finalization_Epoch.unwrap();
-				EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
-				EXPECT_EQ(expectedAggregatorMaxRound, aggregator.view().maxFinalizationRound());
+		RunFinalizationTaskTest(context, TTraits::Num_Repetitions, Default_Voting_Set_Grouping, [&](
+				const auto& aggregator,
+				const auto& storage,
+				const auto& messages) {
+			// Assert: check aggregator
+			auto epoch = Finalization_Epoch.unwrap();
+			EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
+			EXPECT_EQ(TTraits::ExpectedAggregatorMaxRound(), aggregator.view().maxFinalizationRound());
 
-				// - two messages were sent
-				AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
-				context.assertSinglePrevoteChainBackup(Default_Round);
-				context.assertVoteBackups(Default_Round);
+			// - two messages were sent
+			AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
+			context.assertSinglePrevoteChainBackup(Default_Round);
+			context.assertVoteBackups(Default_Round);
 
-				// - voting status was changed
-				auto votingStatus = context.votingStatus();
-				EXPECT_EQ(expectedVotingStatusMaxRound, votingStatus.Round);
-				EXPECT_FALSE(votingStatus.HasSentPrevote);
-				EXPECT_FALSE(votingStatus.HasSentPrecommit);
-			});
-		}
+			// - voting status was changed
+			auto votingStatus = context.votingStatus();
+			EXPECT_EQ(TTraits::ExpectedVotingStatusMaxRound(), votingStatus.Round);
+			EXPECT_FALSE(votingStatus.HasSentPrevote);
+			EXPECT_FALSE(votingStatus.HasSentPrecommit);
+		});
 	}
 
-	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocks_OnePoll) {
-		// Assert: aggregator is updated at start of task, but voting status is updated at end of task
-		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocks(
-				1,
-				test::CreateFinalizationRound(6, 8),
-				test::CreateFinalizationRound(6, 9));
-	}
+	VARIABLE_POLL_TEST(CanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter) {
+		// Arrange:
+		TestContext context(TestContextOptions(), VoterType::Ineligible);
+		context.createCompletedRound();
 
-	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocks_MultiplePolls) {
-		// Assert: on second task execution, storage and orchestrator have same epoch but height is not at end of epoch,
-		//         so epoch is not advanced
-		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocks(
-				5,
-				test::CreateFinalizationRound(6, 9),
-				test::CreateFinalizationRound(6, 9));
-	}
+		// - override the storage hash so that it matches
+		auto& blockStorage = context.testState().state().storage();
+		mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 1200);
+		context.setHash(1, blockStorage.view().loadBlockElement(Height(245))->EntityHash);
 
-	namespace {
-		void AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter(
-				size_t numRepetitions,
-				const model::FinalizationRound& expectedAggregatorMaxRound,
-				const model::FinalizationRound& expectedVotingStatusMaxRound) {
-			// Arrange:
-			TestContext context(TestContextOptions(), VoterType::Ineligible);
-			context.createCompletedRound();
+		RunFinalizationTaskTest(context, TTraits::Num_Repetitions, Default_Voting_Set_Grouping, [&](
+				const auto& aggregator,
+				const auto& storage,
+				const auto& messages) {
+			// Assert: check aggregator
+			auto epoch = Finalization_Epoch.unwrap();
+			EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
+			EXPECT_EQ(TTraits::ExpectedAggregatorMaxRound(), aggregator.view().maxFinalizationRound());
 
-			// - override the storage hash so that it matches
-			auto& blockStorage = context.testState().state().storage();
-			mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 1200);
-			context.setHash(1, blockStorage.view().loadBlockElement(Height(245))->EntityHash);
+			// Assert: storage was called
+			const auto& savedProofDescriptors = storage.savedProofDescriptors();
+			ASSERT_EQ(1u, savedProofDescriptors.size());
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
+			EXPECT_EQ(Height(245), savedProofDescriptors[0].Height);
+			EXPECT_EQ(context.hashes()[1], savedProofDescriptors[0].Hash);
 
-			RunFinalizationTaskTest(context, numRepetitions, Default_Voting_Set_Grouping, [&](
-					const auto& aggregator,
-					const auto& storage,
-					const auto& messages) {
-				// Assert: check aggregator
-				auto epoch = Finalization_Epoch.unwrap();
-				EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
-				EXPECT_EQ(expectedAggregatorMaxRound, aggregator.view().maxFinalizationRound());
+			// - no messages were sent but prevote chain was saved prior to message being rejected due to ineligibility
+			EXPECT_TRUE(messages.empty());
+			context.assertSinglePrevoteChainBackup(Default_Round);
+			context.assertNoVoteBackups();
 
-				// Assert: storage was called
-				const auto& savedProofDescriptors = storage.savedProofDescriptors();
-				ASSERT_EQ(1u, savedProofDescriptors.size());
-				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
-				EXPECT_EQ(Height(245), savedProofDescriptors[0].Height);
-				EXPECT_EQ(context.hashes()[1], savedProofDescriptors[0].Hash);
-
-				// - no messages were sent but prevote chain was saved prior to message being rejected due to ineligibility
-				EXPECT_TRUE(messages.empty());
-				context.assertSinglePrevoteChainBackup(Default_Round);
-				context.assertNoVoteBackups();
-
-				// - voting status was changed
-				auto votingStatus = context.votingStatus();
-				EXPECT_EQ(expectedVotingStatusMaxRound, votingStatus.Round);
-				EXPECT_FALSE(votingStatus.HasSentPrevote);
-				EXPECT_FALSE(votingStatus.HasSentPrecommit);
-			});
-		}
-	}
-
-	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter_OnePoll) {
-		// Assert: aggregator is updated at start of task, but voting status is updated at end of task
-		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter(
-				1,
-				test::CreateFinalizationRound(6, 8),
-				test::CreateFinalizationRound(6, 9));
-	}
-
-	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter_MultiplePolls) {
-		// Assert: on second task execution, storage and orchestrator have same epoch but height is not at end of epoch,
-		//         so epoch is not advanced
-		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter(
-				5,
-				test::CreateFinalizationRound(6, 9),
-				test::CreateFinalizationRound(6, 9));
+			// - voting status was changed
+			auto votingStatus = context.votingStatus();
+			EXPECT_EQ(TTraits::ExpectedVotingStatusMaxRound(), votingStatus.Round);
+			EXPECT_FALSE(votingStatus.HasSentPrevote);
+			EXPECT_FALSE(votingStatus.HasSentPrecommit);
+		});
 	}
 
 	namespace {
@@ -729,6 +728,45 @@ namespace catapult { namespace finalization {
 			// - voting status was not changed
 			auto votingStatus = context.votingStatus();
 			EXPECT_EQ(test::CreateFinalizationRound(epoch, 16), votingStatus.Round);
+			EXPECT_FALSE(votingStatus.HasSentPrevote);
+			EXPECT_FALSE(votingStatus.HasSentPrecommit);
+		});
+	}
+
+	// endregion
+
+	// region task - unregistered voting keys
+
+	VARIABLE_POLL_TEST(CanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithUnregisteredServiceVoter) {
+		// Arrange: don't create any voting_private_key_tree files
+		TestContextOptions options;
+		options.ShouldPrepareVotingPrivateKeyTrees = false;
+
+		TestContext context(options);
+		context.createCompletedRound();
+
+		// - override the storage hash so that it matches
+		auto& blockStorage = context.testState().state().storage();
+		mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 1200);
+		context.setHash(1, blockStorage.view().loadBlockElement(Height(245))->EntityHash);
+
+		RunFinalizationTaskTest(context, TTraits::Num_Repetitions, Default_Voting_Set_Grouping, [&](
+				const auto& aggregator,
+				const auto&,
+				const auto& messages) {
+			// Assert: check aggregator
+			auto epoch = Finalization_Epoch.unwrap();
+			EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
+			EXPECT_EQ(TTraits::ExpectedAggregatorMaxRound(), aggregator.view().maxFinalizationRound());
+
+			// - no messages were sent but prevote chain was saved prior to message being rejected due to ineligibility
+			EXPECT_TRUE(messages.empty());
+			context.assertSinglePrevoteChainBackup(Default_Round);
+			context.assertNoVoteBackups();
+
+			// - voting status was changed
+			auto votingStatus = context.votingStatus();
+			EXPECT_EQ(TTraits::ExpectedVotingStatusMaxRound(), votingStatus.Round);
 			EXPECT_FALSE(votingStatus.HasSentPrevote);
 			EXPECT_FALSE(votingStatus.HasSentPrecommit);
 		});

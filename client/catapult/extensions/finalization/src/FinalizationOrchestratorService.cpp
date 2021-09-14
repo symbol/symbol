@@ -185,6 +185,11 @@ namespace catapult { namespace finalization {
 					auto keyTreeFilename = directory.file(GetVotingPrivateKeyTreeFilename(treeSequenceId++));
 					CATAPULT_LOG(debug) << "loading voting private key tree from " << keyTreeFilename;
 
+					if (!std::filesystem::exists(keyTreeFilename)) {
+						CATAPULT_LOG(error) << "could not load voting private key tree from " << keyTreeFilename;
+						return std::unique_ptr<crypto::BmPrivateKeyTree>();
+					}
+
 					auto keyTreeFile = io::RawFile(keyTreeFilename, io::OpenMode::Read_Append);
 					pKeyTreeStream = std::make_shared<io::FileStream>(std::move(keyTreeFile));
 
