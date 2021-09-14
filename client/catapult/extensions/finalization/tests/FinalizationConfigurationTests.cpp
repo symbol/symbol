@@ -119,7 +119,7 @@ namespace catapult { namespace finalization {
 		EXPECT_FALSE(config.EnableRevoteOnBoot);
 
 		EXPECT_EQ(10'000u, config.Size);
-		EXPECT_EQ(7'000u, config.Threshold);
+		EXPECT_EQ(6'700u, config.Threshold);
 		EXPECT_EQ(utils::TimeSpan::FromMinutes(2), config.StepDuration);
 
 		EXPECT_EQ(utils::TimeSpan::FromMinutes(10), config.ShortLivedCacheMessageDuration);
