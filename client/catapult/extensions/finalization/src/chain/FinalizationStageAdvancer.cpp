@@ -84,7 +84,10 @@ namespace catapult { namespace chain {
 
 					auto estimate = messageAggregatorView.findEstimate(m_round - FinalizationPoint(1));
 					if (!roundContext.isDescendant(estimate, bestPrevoteResultPair.first)) {
-						CATAPULT_LOG(trace) << "cannot send precommit - not descendant";
+						CATAPULT_LOG(trace)
+								<< "cannot send precommit - not descendant"
+								<< std::endl << "      estimate: " << estimate
+								<< std::endl << "  best prevote: " << bestPrevoteResultPair.first;
 						return false;
 					}
 
