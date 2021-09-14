@@ -55,8 +55,11 @@ namespace catapult { namespace model {
 
 	/// Creates a notification publisher around \a transactionRegistry for the specified \a mode given specified
 	/// fee mosaic id (\a feeMosaicId).
+	/// For blocks with heights at or after \a feeDebitAppliedLastForkHeight, fee debit notification
+	/// will be raised after custom notifications.
 	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
 			const TransactionRegistry& transactionRegistry,
 			UnresolvedMosaicId feeMosaicId,
+			Height feeDebitAppliedLastForkHeight,
 			PublicationMode mode = PublicationMode::All);
 }}

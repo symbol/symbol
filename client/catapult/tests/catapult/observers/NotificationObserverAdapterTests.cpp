@@ -43,7 +43,7 @@ namespace catapult { namespace observers {
 			const auto& observer = *pObserver;
 
 			auto registry = mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Publish_Custom_Notifications);
-			auto pPublisher = model::CreateNotificationPublisher(registry, UnresolvedMosaicId());
+			auto pPublisher = model::CreateNotificationPublisher(registry, UnresolvedMosaicId(), Height());
 			NotificationObserverAdapter adapter(std::move(pObserver), std::move(pPublisher));
 
 			// Act + Assert:
@@ -72,20 +72,7 @@ namespace catapult { namespace observers {
 			//         (notice that only 4/6 are raised on observer channel)
 			EXPECT_EQ(5u + 1 + 4, observer.notificationTypes().size());
 
-			std::vector<model::NotificationType> expectedNotificationTypes{
-				model::Core_Source_Change_Notification,
-				model::Core_Register_Account_Public_Key_Notification,
-				model::Core_Transaction_Notification,
-				model::Core_Transaction_Fee_Notification,
-				model::Core_Balance_Debit_Notification,
-
-				// mock transaction notifications
-				model::Core_Register_Account_Public_Key_Notification,
-				mocks::Mock_Observer_1_Notification,
-				mocks::Mock_All_1_Notification,
-				mocks::Mock_Observer_2_Notification,
-				mocks::Mock_All_2_Notification
-			};
+			auto expectedNotificationTypes = mocks::GetExpectedMockTransactionObserverNotificationTypes();
 			EXPECT_EQ(expectedNotificationTypes, observer.notificationTypes());
 
 			// - spot check the account public keys as a proxy for verifying data integrity
