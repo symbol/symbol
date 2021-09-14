@@ -168,7 +168,7 @@ pipeline {
 
                                 git add ./scripts/build/server.version.yaml
                                 git add ./src/catapult/version/version_inc.h
-                                git commit -m \"bump version to ${bumped_version}\"
+                                git commit -m \"bump version to ${new_version}\"
                                 git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/symbol/catapult-client.git
                             """
                         }
