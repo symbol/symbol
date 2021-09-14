@@ -78,4 +78,35 @@ namespace catapult { namespace model {
 	}
 
 	// endregion
+
+	// region FindVotingPublicKeyForEpoch
+
+	namespace {
+		VotingKey RunFindVotingPublicKeyForEpoch(FinalizationEpoch::ValueType epoch) {
+			return FindVotingPublicKeyForEpoch({
+				{ { { 1 } }, FinalizationEpoch(125), FinalizationEpoch(130) },
+				{ { { 2 } }, FinalizationEpoch(150), FinalizationEpoch(170) },
+				{ { { 3 } }, FinalizationEpoch(171), FinalizationEpoch(180) }
+			}, FinalizationEpoch(epoch));
+		}
+	}
+
+	TEST(TEST_CLASS, FindVotingPublicKeyForEpoch_ReturnsZeroKeyWhenNoPinnedVotingKeys) {
+		EXPECT_EQ(VotingKey(), FindVotingPublicKeyForEpoch({}, FinalizationEpoch(123)));
+	}
+
+	TEST(TEST_CLASS, FindVotingPublicKeyForEpoch_ReturnsVotingKeyWhenRegisteredForEpoch) {
+		EXPECT_EQ(VotingKey{ { 1 } }, RunFindVotingPublicKeyForEpoch(125));
+		EXPECT_EQ(VotingKey{ { 2 } }, RunFindVotingPublicKeyForEpoch(150));
+		EXPECT_EQ(VotingKey{ { 2 } }, RunFindVotingPublicKeyForEpoch(160));
+		EXPECT_EQ(VotingKey{ { 2 } }, RunFindVotingPublicKeyForEpoch(170));
+		EXPECT_EQ(VotingKey{ { 3 } }, RunFindVotingPublicKeyForEpoch(180));
+	}
+
+	TEST(TEST_CLASS, FindVotingPublicKeyForEpoch_ReturnsZeroKeyWhenNotRegisteredForEpoch) {
+		for (auto epoch : std::initializer_list<FinalizationEpoch::ValueType>{ 70, 124, 131, 140, 149, 181, 300 })
+			EXPECT_EQ(VotingKey(), RunFindVotingPublicKeyForEpoch(epoch)) << "epoch " << epoch;
+	}
+
+	// endregion
 }}

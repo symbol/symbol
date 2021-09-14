@@ -61,6 +61,13 @@ namespace catapult { namespace test {
 			MosaicId mosaicId,
 			const std::vector<Amount>& balances);
 
+	/// Adds random accounts to \a delta with specified \a balances of \a mosaicId and overlapping voting key lifetimes.
+	/// \note Accounts will have voting key lifetimes of [(10, 60), (20, 70) ...]
+	std::vector<Address> AddAccountsWithBalancesAndOverlappingVotingKeyLifetimes(
+			cache::AccountStateCacheDelta& delta,
+			MosaicId mosaicId,
+			const std::vector<Amount>& balances);
+
 	/// Asserts that \a expected and \a actual are equal.
 	void AssertEqual(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
 

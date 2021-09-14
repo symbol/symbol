@@ -59,6 +59,27 @@ namespace catapult { namespace test {
 		return addresses;
 	}
 
+	std::vector<Address> AddAccountsWithBalancesAndOverlappingVotingKeyLifetimes(
+			cache::AccountStateCacheDelta& delta,
+			MosaicId mosaicId,
+			const std::vector<Amount>& balances) {
+		auto addresses = AddAccountsWithBalances(delta, mosaicId, balances);
+
+		auto i = 1u;
+		for (const auto& address : addresses) {
+			auto accountIter = delta.find(address);
+			auto& accountState = accountIter.get();
+
+			// remove existing voting key and add one with 50 epoch lifetime
+			auto& votingPublicKeys = accountState.SupplementalPublicKeys.voting();
+			votingPublicKeys.remove(votingPublicKeys.get(0));
+			votingPublicKeys.add({ GenerateRandomByteArray<VotingKey>(), FinalizationEpoch(i * 10), FinalizationEpoch((i + 5) * 10) });
+			++i;
+		}
+
+		return addresses;
+	}
+
 	namespace {
 		enum class AccountHistoryEqualityPolicy { All, Balance_Only };
 

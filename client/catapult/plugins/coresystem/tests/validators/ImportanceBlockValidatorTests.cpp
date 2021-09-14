@@ -31,16 +31,17 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS ImportanceBlockValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(ImportanceBlock,)
+	DEFINE_COMMON_VALIDATOR_TESTS(ImportanceBlock, Height(), 1)
 
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 		constexpr auto Failure_Result = Failure_Core_Importance_Block_Mismatch;
+		constexpr auto Fork_Height = Height(1000);
 
 		// region test utils
 
 		template<typename TNotificationModifier>
-		void AssertValidationResult(ValidationResult expectedResult, TNotificationModifier modifier) {
+		void AssertValidationResult(ValidationResult expectedResult, Height height, TNotificationModifier modifier) {
 			// Arrange:
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
@@ -53,21 +54,21 @@ namespace catapult { namespace validators {
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-				test::AddAccountsWithBalances(accountStateCacheDelta, Harvesting_Mosaic_Id, {
+				test::AddAccountsWithBalancesAndOverlappingVotingKeyLifetimes(accountStateCacheDelta, Harvesting_Mosaic_Id, {
 					Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000)
 				});
 				accountStateCacheDelta.updateHighValueAccounts(Height(1));
 				cache.commit(Height(1));
 			}
 
-			auto pValidator = CreateImportanceBlockValidator();
+			auto pValidator = CreateImportanceBlockValidator(Fork_Height, 25);
 
 			auto previousHash = test::GenerateRandomByteArray<Hash256>();
 			auto notification = model::ImportanceBlockNotification(2, 3, Amount(2'300'000), previousHash);
 			modifier(notification);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, cache);
+			auto result = test::ValidateNotification(*pValidator, notification, cache, height);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
@@ -78,25 +79,41 @@ namespace catapult { namespace validators {
 
 	// region tests
 
-	TEST(TEST_CLASS, SuccessWhenAllFieldsMatch) {
-		AssertValidationResult(ValidationResult::Success, [](const auto&) {});
+	TEST(TEST_CLASS, SuccessWhenAllFieldsMatch_BeforeFork) {
+		AssertValidationResult(ValidationResult::Success, Height(1), [](const auto&) {});
+	}
+
+	TEST(TEST_CLASS, SuccessWhenAllFieldsMatch_AtFork) {
+		AssertValidationResult(ValidationResult::Success, Fork_Height, [](auto& notification) {
+			// Arrange: height => epoch 41
+			notification.VotingEligibleAccountsCount = 1;
+			notification.TotalVotingBalance = Amount(1'100'000);
+		});
+	}
+
+	TEST(TEST_CLASS, SuccessWhenAllFieldsMatch_AfterFork) {
+		AssertValidationResult(ValidationResult::Success, Fork_Height + Height(1000), [](auto& notification) {
+			// Arrange: height => epoch 81
+			notification.VotingEligibleAccountsCount = 1;
+			notification.TotalVotingBalance = Amount(1'200'000);
+		});
 	}
 
 	TEST(TEST_CLASS, FailureWhenFieldMismatch_VotingEligibleAccountsCount) {
-		AssertValidationResult(Failure_Result, [](auto& notification) { --notification.VotingEligibleAccountsCount; });
-		AssertValidationResult(Failure_Result, [](auto& notification) { ++notification.VotingEligibleAccountsCount; });
+		AssertValidationResult(Failure_Result, Height(1), [](auto& notification) { --notification.VotingEligibleAccountsCount; });
+		AssertValidationResult(Failure_Result, Height(1), [](auto& notification) { ++notification.VotingEligibleAccountsCount; });
 	}
 
 	TEST(TEST_CLASS, FailureWhenFieldMismatch_HarvestingEligibleAccountsCount) {
-		AssertValidationResult(Failure_Result, [](auto& notification) { --notification.HarvestingEligibleAccountsCount; });
-		AssertValidationResult(Failure_Result, [](auto& notification) { ++notification.HarvestingEligibleAccountsCount; });
+		AssertValidationResult(Failure_Result, Height(1), [](auto& notification) { --notification.HarvestingEligibleAccountsCount; });
+		AssertValidationResult(Failure_Result, Height(1), [](auto& notification) { ++notification.HarvestingEligibleAccountsCount; });
 	}
 
 	TEST(TEST_CLASS, FailureWhenFieldMismatch_TotalVotingBalance) {
-		AssertValidationResult(Failure_Result, [](auto& notification) {
+		AssertValidationResult(Failure_Result, Height(1), [](auto& notification) {
 			notification.TotalVotingBalance = notification.TotalVotingBalance - Amount(1);
 		});
-		AssertValidationResult(Failure_Result, [](auto& notification) {
+		AssertValidationResult(Failure_Result, Height(1), [](auto& notification) {
 			notification.TotalVotingBalance = notification.TotalVotingBalance + Amount(1);
 		});
 	}

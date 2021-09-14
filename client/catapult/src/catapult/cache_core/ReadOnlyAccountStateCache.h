@@ -79,8 +79,9 @@ namespace catapult { namespace cache {
 		/// Gets the harvesting mosaic id.
 		MosaicId harvestingMosaicId() const;
 
-		/// Gets the high value account statistics.
-		HighValueAccountStatistics highValueAccountStatistics() const;
+		/// Gets the high value account statistics at the specified \a epoch.
+		/// \note When \a epoch is zero, statistics don't filter out accounts without registered voting public keys.
+		HighValueAccountStatistics highValueAccountStatistics(FinalizationEpoch epoch) const;
 
 	public:
 		using AddressBasedCache::size;

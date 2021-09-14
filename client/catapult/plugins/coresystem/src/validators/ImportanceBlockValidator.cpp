@@ -21,6 +21,7 @@
 
 #include "Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/model/VotingSet.h"
 
 namespace catapult { namespace validators {
 
@@ -34,25 +35,33 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATEFUL_VALIDATOR(ImportanceBlock, [](const Notification& notification, const ValidatorContext& context) {
-		// ImportanceBlockNotification is raised after BlockNotification, so this validator is checking the state
-		// *after* the processing of the current block and all transactions
-		auto statistics = context.Cache.sub<cache::AccountStateCache>().highValueAccountStatistics();
-		if (AreEqual(notification, statistics))
-			return ValidationResult::Success;
+	DECLARE_STATEFUL_VALIDATOR(ImportanceBlock, Notification)(
+			Height totalVotingBalanceCalculationFixForkHeight,
+			uint64_t votingSetGrouping) {
+		return MAKE_STATEFUL_VALIDATOR(ImportanceBlock, ([totalVotingBalanceCalculationFixForkHeight, votingSetGrouping](
+				const Notification& notification,
+				const ValidatorContext& context) {
+			auto epoch = context.Height < totalVotingBalanceCalculationFixForkHeight
+					? FinalizationEpoch(0)
+					: model::CalculateFinalizationEpochForHeight(context.Height, votingSetGrouping);
 
-		CATAPULT_LOG(debug)
-				<< "detected importance block mismatch at " << context.Height
-				<< std::endl << "VotingEligibleAccountsCount"
-				<< std::endl << " + notification " << notification.VotingEligibleAccountsCount
-				<< std::endl << " + statistics   " << statistics.VotingEligibleAccountsCount
-				<< std::endl << "HarvestingEligibleAccountsCount"
-				<< std::endl << " + notification " << notification.HarvestingEligibleAccountsCount
-				<< std::endl << " + statistics   " << statistics.HarvestingEligibleAccountsCount
-				<< std::endl << "TotalVotingBalance"
-				<< std::endl << " + notification " << notification.TotalVotingBalance
-				<< std::endl << " + statistics   " << statistics.TotalVotingBalance;
+			auto statistics = context.Cache.sub<cache::AccountStateCache>().highValueAccountStatistics(epoch);
+			if (AreEqual(notification, statistics))
+				return ValidationResult::Success;
 
-		return Failure_Core_Importance_Block_Mismatch;
-	})
+			CATAPULT_LOG(debug)
+					<< "detected importance block mismatch at " << context.Height
+					<< std::endl << "VotingEligibleAccountsCount"
+					<< std::endl << " + notification " << notification.VotingEligibleAccountsCount
+					<< std::endl << " + statistics   " << statistics.VotingEligibleAccountsCount
+					<< std::endl << "HarvestingEligibleAccountsCount"
+					<< std::endl << " + notification " << notification.HarvestingEligibleAccountsCount
+					<< std::endl << " + statistics   " << statistics.HarvestingEligibleAccountsCount
+					<< std::endl << "TotalVotingBalance"
+					<< std::endl << " + notification " << notification.TotalVotingBalance
+					<< std::endl << " + statistics   " << statistics.TotalVotingBalance;
+
+			return Failure_Core_Importance_Block_Mismatch;
+		}));
+	}
 }}
