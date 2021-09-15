@@ -20,11 +20,11 @@
 **/
 
 #include "FinalizationContextFactory.h"
-#include "finalization/src/model/VotingSet.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "catapult/model/VotingSet.h"
 
 namespace catapult { namespace finalization {
 

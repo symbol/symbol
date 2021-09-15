@@ -19,8 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#define CATAPULT_VERSION_MAJOR 1
-#define CATAPULT_VERSION_MINOR 0
-#define CATAPULT_VERSION_REVISION 2
-#define CATAPULT_VERSION_BUILD 0
+#include "PinnedVotingKey.h"
+#include <algorithm>
+
+namespace catapult { namespace model {
+
+	VotingKey FindVotingPublicKeyForEpoch(const std::vector<PinnedVotingKey>& pinnedPublicKeys, FinalizationEpoch epoch) {
+		auto iter = std::find_if(pinnedPublicKeys.cbegin(), pinnedPublicKeys.cend(), [epoch](const auto& pinnedPublicKey) {
+			return pinnedPublicKey.StartEpoch <= epoch && epoch <= pinnedPublicKey.EndEpoch;
+		});
+		return pinnedPublicKeys.cend() != iter ? iter->VotingKey : VotingKey();
+	}
+}}

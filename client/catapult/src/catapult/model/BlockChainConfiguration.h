@@ -125,6 +125,16 @@ namespace catapult { namespace model {
 		/// Unparsed map of plugin configuration.
 		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;
 
+	public:
+		/// Fork heights configuration.
+		struct ForkHeights {
+			/// Height of fork to fix TotalVotingBalance calculation.
+			Height TotalVotingBalanceCalculationFix;
+		};
+
+		/// Fork heights.
+		BlockChainConfiguration::ForkHeights ForkHeights;
+
 	private:
 		BlockChainConfiguration() = default;
 

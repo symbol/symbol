@@ -59,7 +59,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				? model::CalculateMerkleHash(*pBlockStatement)
 				: Hash256();
 
-		auto highValueAccountStatistics = readOnlyCache.sub<cache::AccountStateCache>().highValueAccountStatistics();
+		auto highValueAccountStatistics = readOnlyCache.sub<cache::AccountStateCache>().highValueAccountStatistics(FinalizationEpoch(0));
 		return {
 			highValueAccountStatistics.VotingEligibleAccountsCount,
 			highValueAccountStatistics.HarvestingEligibleAccountsCount,

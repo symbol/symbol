@@ -22,6 +22,7 @@
 #pragma once
 #include "catapult/types.h"
 #include <iosfwd>
+#include <vector>
 
 namespace catapult { namespace model {
 
@@ -61,4 +62,8 @@ namespace catapult { namespace model {
 	};
 
 #pragma pack(pop)
+
+	/// Finds the voting public key in \a pinnedPublicKeys that is active at \a epoch.
+	/// \note Zero key will be returned when no matching voting public key is found.
+	VotingKey FindVotingPublicKeyForEpoch(const std::vector<PinnedVotingKey>& pinnedPublicKeys, FinalizationEpoch epoch);
 }}

@@ -77,7 +77,7 @@ class DefaultRules:
     def first_test_include_check(sorted_includes, path_elements):
         full_path = '/'.join(path_elements)
         if 'test' not in path_elements:
-            if 'int' in path_elements or 'bench' in path_elements:
+            if any(subdir in path_elements for subdir in ['int', 'bench', 'stress']):
                 return sorted_includes[0].include
 
         if path_elements[0] != 'tests':

@@ -51,7 +51,7 @@ def main():
     parser.add_argument('--user', help='docker user', required=True)
     parser.add_argument('--mode', help='test mode', choices=('bench', 'test', 'lint'), required=True)
     parser.add_argument('--verbosity', help='verbosity level', default='max')
-    parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
+    parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
     args = parser.parse_args()
 
     process_manager = ProcessManager(args.dry_run)
@@ -72,6 +72,7 @@ def main():
             prepare_docker_compose_file(compose_template_filepath, prepare_replacements, outfile)
 
     environment_manager = EnvironmentManager(args.dry_run)
+    environment_manager.set_env_var('COMPOSE_HTTP_TIMEOUT', '200')
     environment_manager.mkdirs(OUTPUT_DIR / 'logs', exist_ok=True)
     environment_manager.mkdirs(OUTPUT_DIR / 'workdir', exist_ok=True)
 

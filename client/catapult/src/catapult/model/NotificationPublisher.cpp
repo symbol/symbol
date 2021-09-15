@@ -38,11 +38,45 @@ namespace catapult { namespace model {
 			return { block.Type, blockSignerAddress, block.BeneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier };
 		}
 
+		class CustomNotificationPublisher : public NotificationPublisher {
+		public:
+			explicit CustomNotificationPublisher(const TransactionRegistry& transactionRegistry)
+					: m_transactionRegistry(transactionRegistry)
+			{}
+
+		public:
+			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
+				RequireKnown(entityInfo.type());
+
+				if (BasicEntityType::Transaction != ToBasicEntityType(entityInfo.type()))
+					return;
+
+				return publish(static_cast<const Transaction&>(entityInfo.entity()), entityInfo.hash(), sub);
+			}
+
+			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
+				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
+
+				PublishContext context;
+				context.SignerAddress = GetSignerAddress(transaction);
+				plugin.publish(WeakEntityInfoT<Transaction>(transaction, hash), context, sub);
+			}
+
+		private:
+			const TransactionRegistry& m_transactionRegistry;
+		};
+
 		class BasicNotificationPublisher : public NotificationPublisher {
 		public:
-			BasicNotificationPublisher(const TransactionRegistry& transactionRegistry, UnresolvedMosaicId feeMosaicId)
+			BasicNotificationPublisher(
+					const TransactionRegistry& transactionRegistry,
+					UnresolvedMosaicId feeMosaicId,
+					Height feeDebitAppliedLastForkHeight,
+					bool includeCustomNotifications)
 					: m_transactionRegistry(transactionRegistry)
 					, m_feeMosaicId(feeMosaicId)
+					, m_feeDebitAppliedLastForkHeight(feeDebitAppliedLastForkHeight)
+					, m_includeCustomNotifications(includeCustomNotifications)
 			{}
 
 		public:
@@ -59,13 +93,12 @@ namespace catapult { namespace model {
 				sub.notify(AccountPublicKeyNotification(entity.SignerPublicKey));
 
 				// 3. publish entity specific notifications
-				const auto* pBlockHeader = entityInfo.isAssociatedBlockHeaderSet() ? &entityInfo.associatedBlockHeader() : nullptr;
 				switch (basicEntityType) {
 				case BasicEntityType::Block:
-					return publish(static_cast<const Block&>(entity), sub);
+					return publishBlock(static_cast<const Block&>(entity), sub);
 
 				case BasicEntityType::Transaction:
-					return publish(static_cast<const Transaction&>(entity), entityInfo.hash(), pBlockHeader, sub);
+					return publishTransaction(entityInfo, sub);
 
 				default:
 					return;
@@ -92,7 +125,7 @@ namespace catapult { namespace model {
 				}
 			}
 
-			void publish(const Block& block, NotificationSubscriber& sub) const {
+			void publishBlock(const Block& block, NotificationSubscriber& sub) const {
 				// raise an account public key notification
 				auto blockSignerAddress = GetSignerAddress(block);
 				if (blockSignerAddress != block.BeneficiaryAddress)
@@ -126,19 +159,11 @@ namespace catapult { namespace model {
 				sub.notify(SignatureNotification(block.SignerPublicKey, block.Signature, GetBlockHeaderDataBuffer(block)));
 			}
 
-			void publish(
-					const Transaction& transaction,
-					const Hash256& hash,
-					const BlockHeader* pBlockHeader,
-					NotificationSubscriber& sub) const {
-				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
-				auto attributes = plugin.attributes();
-
-				// raise an entity notification
-				sub.notify(EntityNotification(transaction.Network, transaction.Version, attributes.MinVersion, attributes.MaxVersion));
-
-				// raise transaction notifications
+			void publishTransaction(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const {
+				const auto& transaction = static_cast<const Transaction&>(entityInfo.entity());
+				const auto* pBlockHeader = entityInfo.isAssociatedBlockHeaderSet() ? &entityInfo.associatedBlockHeader() : nullptr;
 				auto fee = pBlockHeader ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction) : transaction.MaxFee;
+
 				CATAPULT_LOG(trace)
 						<< "[Transaction Fee Info]" << std::endl
 						<< "+       pBlockHeader: " << !!pBlockHeader << std::endl
@@ -148,10 +173,48 @@ namespace catapult { namespace model {
 						<< "+   transaction.Size: " << transaction.Size << std::endl
 						<< "+   transaction.Type: " << transaction.Type;
 
+				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
+				publishTransactionPreCustom(transaction, entityInfo.hash(), fee, plugin, sub);
+
+				auto shouldApplyFeeDebitLast = !pBlockHeader || pBlockHeader->Height >= m_feeDebitAppliedLastForkHeight;
+				if (m_includeCustomNotifications && shouldApplyFeeDebitLast)
+					publishTransactionCustom(entityInfo, sub);
+
+				publishTransactionPostCustom(transaction, fee, plugin, sub);
+
+				if (m_includeCustomNotifications && !shouldApplyFeeDebitLast)
+					publishTransactionCustom(entityInfo, sub);
+			}
+
+			void publishTransactionPreCustom(
+					const Transaction& transaction,
+					const Hash256& hash,
+					Amount fee,
+					const model::TransactionPlugin& plugin,
+					NotificationSubscriber& sub) const {
+				auto attributes = plugin.attributes();
+
+				// raise an entity notification
+				sub.notify(EntityNotification(transaction.Network, transaction.Version, attributes.MinVersion, attributes.MaxVersion));
+
+				// raise transaction notifications
 				auto signerAddress = GetSignerAddress(transaction);
 				sub.notify(TransactionNotification(signerAddress, hash, transaction.Type, transaction.Deadline));
 				sub.notify(TransactionDeadlineNotification(transaction.Deadline, attributes.MaxLifetime));
 				sub.notify(TransactionFeeNotification(signerAddress, transaction.Size, fee, transaction.MaxFee));
+			}
+
+			void publishTransactionCustom(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const {
+				CustomNotificationPublisher(m_transactionRegistry).publish(entityInfo, sub);
+			}
+
+			void publishTransactionPostCustom(
+					const Transaction& transaction,
+					Amount fee,
+					const model::TransactionPlugin& plugin,
+					NotificationSubscriber& sub) const {
+				// raise a debit notification
+				auto signerAddress = GetSignerAddress(transaction);
 				sub.notify(BalanceDebitNotification(signerAddress, m_feeMosaicId, fee));
 
 				// raise a signature notification
@@ -165,68 +228,25 @@ namespace catapult { namespace model {
 		private:
 			const TransactionRegistry& m_transactionRegistry;
 			UnresolvedMosaicId m_feeMosaicId;
-		};
-
-		class CustomNotificationPublisher : public NotificationPublisher {
-		public:
-			explicit CustomNotificationPublisher(const TransactionRegistry& transactionRegistry)
-					: m_transactionRegistry(transactionRegistry)
-			{}
-
-		public:
-			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
-				RequireKnown(entityInfo.type());
-
-				if (BasicEntityType::Transaction != ToBasicEntityType(entityInfo.type()))
-					return;
-
-				return publish(static_cast<const Transaction&>(entityInfo.entity()), entityInfo.hash(), sub);
-			}
-
-			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
-				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
-
-				PublishContext context;
-				context.SignerAddress = GetSignerAddress(transaction);
-				plugin.publish(WeakEntityInfoT<Transaction>(transaction, hash), context, sub);
-			}
-
-		private:
-			const TransactionRegistry& m_transactionRegistry;
-		};
-
-		class AllNotificationPublisher : public NotificationPublisher {
-		public:
-			AllNotificationPublisher(const TransactionRegistry& transactionRegistry, UnresolvedMosaicId feeMosaicId)
-					: m_basicPublisher(transactionRegistry, feeMosaicId)
-					, m_customPublisher(transactionRegistry)
-			{}
-
-		public:
-			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
-				m_basicPublisher.publish(entityInfo, sub);
-				m_customPublisher.publish(entityInfo, sub);
-			}
-
-		private:
-			BasicNotificationPublisher m_basicPublisher;
-			CustomNotificationPublisher m_customPublisher;
+			Height m_feeDebitAppliedLastForkHeight;
+			bool m_includeCustomNotifications;
 		};
 	}
 
 	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
 			const TransactionRegistry& transactionRegistry,
 			UnresolvedMosaicId feeMosaicId,
+			Height feeDebitAppliedLastForkHeight,
 			PublicationMode mode) {
 		switch (mode) {
 		case PublicationMode::Basic:
-			return std::make_unique<BasicNotificationPublisher>(transactionRegistry, feeMosaicId);
+			return std::make_unique<BasicNotificationPublisher>(transactionRegistry, feeMosaicId, feeDebitAppliedLastForkHeight, false);
 
 		case PublicationMode::Custom:
 			return std::make_unique<CustomNotificationPublisher>(transactionRegistry);
 
 		default:
-			return std::make_unique<AllNotificationPublisher>(transactionRegistry, feeMosaicId);
+			return std::make_unique<BasicNotificationPublisher>(transactionRegistry, feeMosaicId, feeDebitAppliedLastForkHeight, true);
 		}
 	}
 }}

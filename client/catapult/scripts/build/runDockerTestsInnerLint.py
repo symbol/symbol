@@ -98,7 +98,7 @@ def run_python_linters(linter_runner, python_files):
 def main():
     parser = argparse.ArgumentParser(description='catapult lint runner')
     parser.add_argument('--out-dir', help='directory in which to store lint output files', required=True)
-    parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
+    parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
     args = parser.parse_args()
 
     process_manager = ProcessManager(args.dry_run)

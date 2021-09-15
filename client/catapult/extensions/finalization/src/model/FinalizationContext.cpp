@@ -24,15 +24,6 @@
 
 namespace catapult { namespace model {
 
-	namespace {
-		VotingKey Find(const std::vector<PinnedVotingKey>& pinnedPublicKeys, FinalizationEpoch epoch) {
-			auto iter = std::find_if(pinnedPublicKeys.cbegin(), pinnedPublicKeys.cend(), [epoch](const auto& pinnedPublicKey) {
-				return pinnedPublicKey.StartEpoch <= epoch && epoch <= pinnedPublicKey.EndEpoch;
-			});
-			return pinnedPublicKeys.cend() != iter ? iter->VotingKey : VotingKey();
-		}
-	}
-
 	FinalizationContext::FinalizationContext(
 			FinalizationEpoch epoch,
 			Height height,
@@ -50,10 +41,14 @@ namespace catapult { namespace model {
 			if (Amount() == balance)
 				continue;
 
+			auto effectiveVotingPublicKey = FindVotingPublicKeyForEpoch(accountHistory.votingPublicKeys().get(m_height), m_epoch);
+			if (VotingKey() == effectiveVotingPublicKey)
+				continue;
+
 			auto accountView = FinalizationAccountView();
 			accountView.Weight = balance;
 
-			m_accounts.emplace(Find(accountHistory.votingPublicKeys().get(m_height), m_epoch), accountView);
+			m_accounts.emplace(effectiveVotingPublicKey, accountView);
 			m_weight = m_weight + balance;
 		}
 	}

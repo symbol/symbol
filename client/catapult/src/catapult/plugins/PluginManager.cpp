@@ -230,7 +230,11 @@ namespace catapult { namespace plugins {
 	// region publisher
 
 	PluginManager::PublisherPointer PluginManager::createNotificationPublisher(model::PublicationMode mode) const {
-		return model::CreateNotificationPublisher(m_transactionRegistry, model::GetUnresolvedCurrencyMosaicId(m_config), mode);
+		return model::CreateNotificationPublisher(
+				m_transactionRegistry,
+				model::GetUnresolvedCurrencyMosaicId(m_config),
+				m_config.ForkHeights.TotalVotingBalanceCalculationFix,
+				mode);
 	}
 
 	// endregion

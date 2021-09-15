@@ -37,6 +37,15 @@ message("boost     ver: ${Boost_VERSION}")
 message("boost     inc: ${Boost_INCLUDE_DIR}")
 message("boost    libs: ${Boost_LIBRARIES}")
 
+### setup gtest
+if(ENABLE_TESTS)
+	message("--- locating gtest dependencies ---")
+
+	find_package(GTest 1.10.0 EXACT REQUIRED)
+	message("GTest     ver: ${GTest_VERSION}")
+	message("GTest    libs: ${GTEST_LIBRARIES}")
+endif()
+
 ### setup openssl
 message("--- locating openssl dependencies ---")
 

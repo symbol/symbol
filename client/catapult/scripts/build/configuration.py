@@ -4,6 +4,17 @@ from pathlib import Path
 import yaml
 
 
+def load_versions_map(filepath):
+    versions = {}
+    with (open(filepath, 'rt')) as infile:
+        for line in infile.readlines():
+            line_parts = line.strip().split(' = ')
+            if 2 == len(line_parts):
+                versions[line_parts[0]] = line_parts[1]
+
+    return versions
+
+
 def load_compiler_configuration(filepath):
     with open(filepath, 'rt') as configuration_infile:
         configuration_yaml = yaml.load(configuration_infile, Loader=yaml.SafeLoader)

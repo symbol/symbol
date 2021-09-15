@@ -433,7 +433,7 @@ class BasicFunctionAliasValidator(SimpleValidator):
         }
 
     def check(self, line_number, line):
-        if re.match(r'src.catapult.functions.h', self.path):
+        if re.match(r'src.catapult.functions.h', self.path) or re.match(r'src.symbol.functions.h', self.path):
             return
 
         for k, error_msg in self.errors.items():
@@ -831,7 +831,9 @@ class UtilsSubdirValidator(SimpleValidator):
         if 'tests' in splitted and 'utils' in splitted:
             idx = rindex(splitted, 'utils')
             # skip catapult/utils
-            if idx > 0 and splitted[idx - 1] != 'catapult':
+            dir_not_catapult = splitted[idx - 1] != 'catapult'  # catapult-client
+            dir_not_core = splitted[idx - 1] != 'core'  # sdk-cpp
+            if idx > 0 and dir_not_catapult and dir_not_core:
                 self.has_utils = True
 
     def check(self, line_number, line):

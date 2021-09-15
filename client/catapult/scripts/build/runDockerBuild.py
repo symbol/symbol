@@ -102,9 +102,10 @@ def cleanup_directories(environment_manager, ccache_root_directory, conan_root_d
 
 def prepare_docker_image(process_manager, container_id, prepare_replacements):
     destination_image_label = prepare_replacements['destination_image_label']
-    cid_filepath = '{}.cid'.format(destination_image_label)
+    cid_filepath = Path('{}.cid'.format(destination_image_label))
     if not container_id:
-        Path(cid_filepath).unlink(missing_ok=True)
+        if cid_filepath.exists():
+            cid_filepath.unlink()
 
     build_disposition = prepare_replacements['build_disposition']
     disposition_to_repository_map = {
@@ -139,7 +140,7 @@ def main():
     parser.add_argument('--operating-system', help='operating system', required=True)
     parser.add_argument('--user', help='docker user', required=True)
     parser.add_argument('--destination-image-label', help='docker destination image label', required=True)
-    parser.add_argument('--dry-run', help='outputs desired commands without runing them', action='store_true')
+    parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
     parser.add_argument('--base-image-names-only', help='only output the base image names', action='store_true')
     args = parser.parse_args()
 

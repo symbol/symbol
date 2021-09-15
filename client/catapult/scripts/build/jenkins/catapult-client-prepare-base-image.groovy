@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     parameters {
-        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
         choice name: 'OPERATING_SYSTEM',
-            choices: ['ubuntu', 'fedora'],
+            choices: ['ubuntu', 'fedora', 'debian'],
             description: 'operating system'
         choice name: 'IMAGE_TYPE',
             choices: ['release', 'test'],

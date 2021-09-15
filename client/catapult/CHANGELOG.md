@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.2.0] - 14-Sep-2021
+
+### Added
+ - support for Mac M1 builds
+
+### Fixed
+ - (BREAKING FORK) voting statistics in ImportanceBlockFooter
+ - total voting weight calculation in FinalizationContext
+ - crash when voting node runs out of voting keys
+
+### Changed
+ - (BREAKING FORK) debit fee after processing custom transaction notifications
+ - backup voting messages sent by client for diagnostic and recovery purposes
+
 ## [1.0.1.0] - 26-May-2021
 
 ### Fixed
@@ -432,6 +446,7 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
+[1.0.2.0]: https://github.com/nemtech/catapult-server/compare/v1.0.1.0...v1.0.2.0
 [1.0.1.0]: https://github.com/nemtech/catapult-server/compare/v1.0.0.0...v1.0.1.0
 [0.10.0.8]: https://github.com/nemtech/catapult-server/compare/v0.10.0.7...v0.10.0.8
 [0.10.0.7]: https://github.com/nemtech/catapult-server/compare/v0.10.0.6...v0.10.0.7

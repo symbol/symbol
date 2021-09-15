@@ -61,14 +61,21 @@ namespace catapult { namespace cache {
 
 	namespace {
 		template<typename TSource>
-		HighValueAccountStatistics ComputeHighValueAccountStatistics(const TSource& source) {
+		HighValueAccountStatistics ComputeHighValueAccountStatistics(const TSource& source, FinalizationEpoch epoch) {
 			HighValueAccountStatistics statistics;
 			statistics.HarvestingEligibleAccountsCount = source.addresses().size();
 
 			statistics.VotingEligibleAccountsCount = 0;
 			for (const auto& accountHistoryPair : source.accountHistories()) {
+				// call get overload without height because this function always calculates *current* statistics
+				// epoch is only used (optionally) for filtering
 				const auto& balanceHistory = accountHistoryPair.second.balance();
 				if (Amount() == balanceHistory.get())
+					continue;
+
+				const auto& votingPublicKeys = accountHistoryPair.second.votingPublicKeys().get();
+				auto effectiveVotingPublicKey = model::FindVotingPublicKeyForEpoch(votingPublicKeys, epoch);
+				if (FinalizationEpoch() != epoch && VotingKey() == effectiveVotingPublicKey)
 					continue;
 
 				++statistics.VotingEligibleAccountsCount;
@@ -79,9 +86,9 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	HighValueAccountStatistics ReadOnlyAccountStateCache::highValueAccountStatistics() const {
+	HighValueAccountStatistics ReadOnlyAccountStateCache::highValueAccountStatistics(FinalizationEpoch epoch) const {
 		return m_pCache
-				? ComputeHighValueAccountStatistics(m_pCache->highValueAccounts())
-				: ComputeHighValueAccountStatistics(m_pCacheDelta->highValueAccounts());
+				? ComputeHighValueAccountStatistics(m_pCache->highValueAccounts(), epoch)
+				: ComputeHighValueAccountStatistics(m_pCacheDelta->highValueAccounts(), epoch);
 	}
 }}

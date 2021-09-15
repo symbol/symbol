@@ -86,7 +86,7 @@ namespace catapult { namespace validators {
 			const auto& validator = *pValidator;
 
 			auto registry = mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Publish_Custom_Notifications);
-			auto pPublisher = model::CreateNotificationPublisher(registry, UnresolvedMosaicId());
+			auto pPublisher = model::CreateNotificationPublisher(registry, UnresolvedMosaicId(), Height());
 			NotificationValidatorAdapter adapter(std::move(pValidator), std::move(pPublisher));
 
 			// Act + Assert:
@@ -113,22 +113,7 @@ namespace catapult { namespace validators {
 			//         (notice that only 4/6 are raised on validator channel)
 			EXPECT_EQ(8u + 4, validator.notificationTypes().size());
 
-			std::vector<model::NotificationType> expectedNotificationTypes{
-				model::Core_Register_Account_Public_Key_Notification,
-				model::Core_Entity_Notification,
-				model::Core_Transaction_Notification,
-				model::Core_Transaction_Deadline_Notification,
-				model::Core_Transaction_Fee_Notification,
-				model::Core_Balance_Debit_Notification,
-				model::Core_Signature_Notification,
-
-				// mock transaction notifications
-				model::Core_Register_Account_Public_Key_Notification,
-				mocks::Mock_Validator_1_Notification,
-				mocks::Mock_All_1_Notification,
-				mocks::Mock_Validator_2_Notification,
-				mocks::Mock_All_2_Notification
-			};
+			auto expectedNotificationTypes = mocks::GetExpectedMockTransactionValidatorNotificationTypes();
 			EXPECT_EQ(expectedNotificationTypes, validator.notificationTypes());
 
 			// - spot check the signer keys as a proxy for verifying data integrity
@@ -162,12 +147,13 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(12u - 8, validator.notificationTypes().size());
 
 			std::vector<model::NotificationType> expectedNotificationTypes{
-				model::Core_Balance_Debit_Notification,
-				model::Core_Signature_Notification,
-
 				// mock transaction notifications
 				mocks::Mock_Validator_1_Notification,
-				mocks::Mock_All_1_Notification
+				mocks::Mock_All_1_Notification,
+
+				// basic transaction notifications
+				model::Core_Balance_Debit_Notification,
+				model::Core_Signature_Notification
 			};
 			EXPECT_EQ(expectedNotificationTypes, validator.notificationTypes());
 

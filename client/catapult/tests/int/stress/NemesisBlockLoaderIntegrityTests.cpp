@@ -140,7 +140,8 @@ namespace catapult { namespace extensions {
 		RunNemesisBlockTest([](const auto& stateRef) {
 			auto cacheView = stateRef.Cache.createView();
 			auto readOnlyCache = cacheView.toReadOnly();
-			auto highValueAccountStatistics = readOnlyCache.template sub<cache::AccountStateCache>().highValueAccountStatistics();
+			const auto& accountStateCache = readOnlyCache.template sub<cache::AccountStateCache>();
+			auto highValueAccountStatistics = accountStateCache.highValueAccountStatistics(FinalizationEpoch(0));
 
 			// Assert:
 			EXPECT_EQ(0u, highValueAccountStatistics.VotingEligibleAccountsCount);

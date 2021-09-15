@@ -247,7 +247,7 @@ namespace catapult { namespace cache {
 
 	namespace {
 		std::vector<Address> AddAccountsWithBalances(AccountStateCacheDelta& delta, const std::vector<Amount>& balances) {
-			return test::AddAccountsWithBalances(delta, Harvesting_Mosaic_Id, balances);
+			return test::AddAccountsWithBalancesAndOverlappingVotingKeyLifetimes(delta, Harvesting_Mosaic_Id, balances);
 		}
 
 		template<typename TDeltaAction, typename TViewAction>
@@ -283,7 +283,7 @@ namespace catapult { namespace cache {
 		auto deltaAction = [](const auto&, auto& delta) {
 			// Act:
 			delta->updateHighValueAccounts(Height(1));
-			auto statistics = ReadOnlyAccountStateCache(*delta).highValueAccountStatistics();
+			auto statistics = ReadOnlyAccountStateCache(*delta).highValueAccountStatistics(FinalizationEpoch(0));
 
 			// Assert:
 			EXPECT_EQ(0u, statistics.VotingEligibleAccountsCount);
@@ -292,7 +292,7 @@ namespace catapult { namespace cache {
 		};
 		auto viewAction = [](const auto&, const auto& view) {
 			// Act:
-			auto statistics = ReadOnlyAccountStateCache(*view).highValueAccountStatistics();
+			auto statistics = ReadOnlyAccountStateCache(*view).highValueAccountStatistics(FinalizationEpoch(0));
 
 			// Assert:
 			EXPECT_EQ(0u, statistics.VotingEligibleAccountsCount);
@@ -324,7 +324,7 @@ namespace catapult { namespace cache {
 
 			// Act:
 			delta->updateHighValueAccounts(Height(1));
-			auto statistics = ReadOnlyAccountStateCache(*delta).highValueAccountStatistics();
+			auto statistics = ReadOnlyAccountStateCache(*delta).highValueAccountStatistics(FinalizationEpoch(0));
 
 			// Assert:
 			EXPECT_EQ(4u, statistics.VotingEligibleAccountsCount);
@@ -333,7 +333,7 @@ namespace catapult { namespace cache {
 		};
 		auto viewAction = [](const auto&, const auto& view) {
 			// Act:
-			auto statistics = ReadOnlyAccountStateCache(*view).highValueAccountStatistics();
+			auto statistics = ReadOnlyAccountStateCache(*view).highValueAccountStatistics(FinalizationEpoch(0));
 
 			// Assert:
 			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
@@ -383,7 +383,7 @@ namespace catapult { namespace cache {
 
 			// Act:
 			delta->updateHighValueAccounts(Height(2));
-			auto statistics = ReadOnlyAccountStateCache(*delta).highValueAccountStatistics();
+			auto statistics = ReadOnlyAccountStateCache(*delta).highValueAccountStatistics(FinalizationEpoch(0));
 
 			// Assert:
 			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
@@ -392,7 +392,7 @@ namespace catapult { namespace cache {
 		};
 		auto viewAction = [](const auto&, const auto& view) {
 			// Act:
-			auto statistics = ReadOnlyAccountStateCache(*view).highValueAccountStatistics();
+			auto statistics = ReadOnlyAccountStateCache(*view).highValueAccountStatistics(FinalizationEpoch(0));
 
 			// Assert:
 			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
@@ -405,6 +405,96 @@ namespace catapult { namespace cache {
 			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000), Amount(4'000'000)
 		};
 		RunHighValueAddressesTest(balances, deltaAction, viewAction);
+	}
+
+	namespace {
+		template<typename TDeltaChecker, typename TViewChecker>
+		void AssertHighValueAccountStatisticsRequiresVotingKeyForVotingEligibleAccountsToBeAvailableAtEpoch(
+				FinalizationEpoch epoch,
+				TDeltaChecker deltaChecker,
+				TViewChecker viewChecker) {
+			// Arrange:
+			auto deltaAction = [epoch, deltaChecker](const auto& addresses, auto& delta) {
+				// - add 2/4 accounts with sufficient VOTING balance [5 match]
+				// - lifetimes: *10-60*, 20-70, 30-80, *40-90*
+				auto uncommittedAddresses = AddAccountsWithBalances(*delta, {
+					Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(1'500'000)
+				});
+
+				// - remove a voting key [4 match]
+				// - importantly, the account is NOT pruned because earlier entry is voting eligible
+				{
+					auto accountIter = delta->find(addresses[5]);
+					auto& votingPublicKeys = accountIter.get().SupplementalPublicKeys.voting();
+					votingPublicKeys.remove(votingPublicKeys.get(0));
+				}
+
+				// Act:
+				delta->updateHighValueAccounts(Height(2));
+				auto statistics = ReadOnlyAccountStateCache(*delta).highValueAccountStatistics(epoch);
+
+				// Assert:
+				deltaChecker(statistics);
+			};
+			auto viewAction = [epoch, viewChecker](const auto&, const auto& view) {
+				// Act:
+				auto statistics = ReadOnlyAccountStateCache(*view).highValueAccountStatistics(epoch);
+
+				// Assert:
+				viewChecker(statistics);
+			};
+
+			// - add 3/6 accounts with sufficient VOTING balance [3 match]
+			// - lifetimes: *10-60*, 20-70, 30-80, 40-90, *50-100*, *60-110*
+			auto balances = std::vector<Amount>{
+				Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000), Amount(4'000'000)
+			};
+			RunHighValueAddressesTest(balances, deltaAction, viewAction);
+		}
+	}
+
+	TEST(TEST_CLASS, HighValueAccountStatistics_RequiresVotingKeyForVotingEligibleAccountsToBeAvailableAtEpoch) {
+		// Arrange:
+		auto deltaChecker = [](const auto& statistics) {
+			// Assert:
+			EXPECT_EQ(2u, statistics.VotingEligibleAccountsCount);
+			EXPECT_EQ(7u, statistics.HarvestingEligibleAccountsCount);
+			EXPECT_EQ(Amount(2'700'000), statistics.TotalVotingBalance);
+		};
+		auto viewChecker = [](const auto& statistics) {
+			// Assert:
+			EXPECT_EQ(2u, statistics.VotingEligibleAccountsCount);
+			EXPECT_EQ(4u, statistics.HarvestingEligibleAccountsCount);
+			EXPECT_EQ(Amount(5'200'000), statistics.TotalVotingBalance);
+		};
+
+		// Act: accounts without voting key registered at epoch should be filtered
+		AssertHighValueAccountStatisticsRequiresVotingKeyForVotingEligibleAccountsToBeAvailableAtEpoch(
+				FinalizationEpoch(90),
+				deltaChecker,
+				viewChecker);
+	}
+
+	TEST(TEST_CLASS, HighValueAccountStatistics_RequiresVotingKeyForVotingEligibleAccountsToBeAvailableAtEpoch_LegacyModeWithBug) {
+		// Arrange:
+		auto deltaChecker = [](const auto& statistics) {
+			// Assert:
+			EXPECT_EQ(4u, statistics.VotingEligibleAccountsCount);
+			EXPECT_EQ(7u, statistics.HarvestingEligibleAccountsCount);
+			EXPECT_EQ(Amount(4'900'000), statistics.TotalVotingBalance);
+		};
+		auto viewChecker = [](const auto& statistics) {
+			// Assert:
+			EXPECT_EQ(3u, statistics.VotingEligibleAccountsCount);
+			EXPECT_EQ(4u, statistics.HarvestingEligibleAccountsCount);
+			EXPECT_EQ(Amount(6'300'000), statistics.TotalVotingBalance);
+		};
+
+		// Act: accounts without voting key registered at epoch are NOT filtered
+		AssertHighValueAccountStatisticsRequiresVotingKeyForVotingEligibleAccountsToBeAvailableAtEpoch(
+				FinalizationEpoch(0),
+				deltaChecker,
+				viewChecker);
 	}
 
 	// endregion

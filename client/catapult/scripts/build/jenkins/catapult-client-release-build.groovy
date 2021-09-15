@@ -6,22 +6,14 @@ pipeline {
     parameters {
         gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
         choice name: 'COMPILER_CONFIGURATION',
-            choices: ['gcc-10', 'gcc-11', 'clang-11', 'clang-12', 'clang-ausan', 'clang-tsan'],
+            choices: ['gcc-10', 'gcc-10-westmere', 'gcc-11', 'clang-11', 'clang-12'],
             description: 'compiler configuration'
         choice name: 'BUILD_CONFIGURATION',
-            choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
+            choices: ['release-private', 'release-public'],
             description: 'build configuration'
         choice name: 'OPERATING_SYSTEM',
             choices: ['ubuntu', 'fedora'],
             description: 'operating system'
-
-        string name: 'TEST_IMAGE_LABEL', description: 'docker test image label', defaultValue: ''
-        choice name: 'TEST_MODE',
-            choices: ['test', 'bench', 'none'],
-            description: 'test mode'
-        choice name: 'TEST_VERBOSITY',
-            choices: ['suite', 'test', 'max'],
-            description: 'output verbosity level'
 
         booleanParam name: 'SHOULD_PUBLISH_BUILD_IMAGE', description: 'true to publish build image', defaultValue: false
     }
@@ -37,6 +29,22 @@ pipeline {
     }
 
     stages {
+        // stage('preliminary') {
+        //     when {
+        //         expression { is_public_build() && SHOULD_PUBLISH_BUILD_IMAGE.toBoolean() }
+        //     }
+
+        //     steps {
+        //         script {
+        //             timeout(time: 10, unit: 'SECONDS') {
+        //                 input(
+        //                     id: "userInput",
+        //                     message: "Are you sure you want to create public build?"
+        //                 )
+        //             }
+        //         }
+        //     }
+        // }
         stage('prepare') {
             stages {
                 stage('prepare variables') {
@@ -47,8 +55,9 @@ pipeline {
                                 returnStdout: true
                             ).trim()
 
-                            build_image_label = '' != TEST_IMAGE_LABEL ? TEST_IMAGE_LABEL : get_build_image_label()
-                            build_image_full_name = "symbolplatform/symbol-server-test:${build_image_label}"
+                            build_image_repo = get_build_image_repo()
+                            build_image_label = get_build_image_label()
+                            build_image_full_name = "symbolplatform/${build_image_repo}:${build_image_label}"
                         }
                     }
                 }
@@ -56,15 +65,12 @@ pipeline {
                     steps {
                         echo """
                                     env.GIT_BRANCH: ${env.GIT_BRANCH}
+                                    env.GIT_COMMIT: ${env.GIT_COMMIT}
                                  MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
 
                             COMPILER_CONFIGURATION: ${COMPILER_CONFIGURATION}
                                BUILD_CONFIGURATION: ${BUILD_CONFIGURATION}
                                   OPERATING_SYSTEM: ${OPERATING_SYSTEM}
-
-                                  TEST_IMAGE_LABEL: ${TEST_IMAGE_LABEL}
-                                         TEST_MODE: ${TEST_MODE}
-                                    TEST_VERBOSITY: ${TEST_VERBOSITY}
 
                         SHOULD_PUBLISH_BUILD_IMAGE: ${SHOULD_PUBLISH_BUILD_IMAGE}
 
@@ -88,9 +94,6 @@ pipeline {
             }
         }
         stage('build') {
-            when {
-                expression { is_build_enabled() }
-            }
             stages {
                 stage('prepare variables') {
                     steps {
@@ -121,17 +124,6 @@ pipeline {
                         }
                     }
                 }
-                stage('lint') {
-                    steps {
-                        sh """
-                            python3 catapult-src/scripts/build/runDockerTests.py \
-                                --image registry.hub.docker.com/symbolplatform/symbol-server-test-base:${OPERATING_SYSTEM} \
-                                --compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
-                                --user ${fully_qualified_user} \
-                                --mode lint
-                        """
-                    }
-                }
                 stage('build') {
                     steps {
                         sh "${run_docker_build_command}"
@@ -143,95 +135,107 @@ pipeline {
                     }
                     steps {
                         script {
+                            short_label = get_short_image_label()
                             docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-                                docker.image(build_image_full_name).push()
+                                built_image = docker.image(build_image_full_name)
+                                built_image.push()
+                                built_image.push("${short_label}")
                             }
                         }
                     }
-                }
-            }
-            post {
-                always {
-                    recordIssues enabledForFailure: true, tool: pyLint(pattern: 'catapult-data/logs/pylint.log')
-                    recordIssues enabledForFailure: true, tool: pep8(pattern: 'catapult-data/logs/pycodestyle.log')
-                    recordIssues enabledForFailure: true, tool: gcc(pattern: 'catapult-data/logs/isort.log', name: 'isort', id: 'isort')
-
-                    recordIssues enabledForFailure: true,
-                        tool: gcc(pattern: 'catapult-data/logs/shellcheck.log', name: 'shellcheck', id: 'shellcheck')
                 }
             }
         }
-        stage('test') {
-            when {
-                expression { is_test_enabled() }
-            }
-            stages {
-                stage('pull dependency images') {
-                    when {
-                        expression { is_custom_test_image() }
-                    }
-                    steps {
-                        script {
-                            docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-                                docker.image(build_image_full_name).pull()
-                            }
-                        }
-                    }
-                }
-                stage('run tests') {
-                    steps {
-                        script {
-                            if (is_custom_test_image())
-                                test_image_name = "registry.hub.docker.com/symbolplatform/symbol-server-test:${build_image_label}"
-                            else
-                                test_image_name = "symbolplatform/symbol-server-test:${build_image_label}"
 
+        stage('bump version') {
+            when {
+                expression { is_public_build() && SHOULD_PUBLISH_BUILD_IMAGE.toBoolean() }
+            }
+            steps {
+                script {
+                    sh 'ls -alh ./catapult-src/scripts/build/versions.properties'
+                    new_version = bump_version()
+
+                    dir('catapult-src') {
+                        // NOTE: assuming correct branch is checked out
+                        withCredentials([usernamePassword(
+                                credentialsId: 'nemtechopsbot-git',
+                                passwordVariable: 'GIT_PASSWORD',
+                                usernameVariable: 'GIT_USERNAME')]) {
                             sh """
-                                python3 catapult-src/scripts/build/runDockerTests.py \
-                                    --image ${test_image_name} \
-                                    --compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
-                                    --user ${fully_qualified_user} \
-                                    --mode ${TEST_MODE} \
-                                    --verbosity ${TEST_VERBOSITY}
+                                git config --global user.email "nemtechopsbot@127.0.0.1"
+                                git config --global user.name "nemtechopsbot"
+
+                                git add ./scripts/build/server.version.yaml
+                                git add ./src/catapult/version/version_inc.h
+                                git commit -m \"bump version to ${new_version}\"
+                                git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/symbol/catapult-client.git
                             """
                         }
+
+                        sh """
+                            git status
+                            git log -1
+                        """
                     }
                 }
             }
         }
     }
-    post {
-        always {
-            junit 'catapult-data/logs/*.xml'
-
-            dir('catapult-data') {
-                deleteDir()
-            }
-            dir('mongo') {
-                deleteDir()
-            }
-        }
-    }
 }
 
-def is_build_enabled() {
-    return 'none' != BUILD_CONFIGURATION
-}
-
-def is_test_enabled() {
-    return 'none' != TEST_MODE
+def is_public_build() {
+    return 'release-public' == BUILD_CONFIGURATION
 }
 
 def is_manual_build() {
     return null != MANUAL_GIT_BRANCH && '' != MANUAL_GIT_BRANCH && 'null' != MANUAL_GIT_BRANCH
 }
 
-def is_custom_test_image() {
-    return '' != TEST_IMAGE_LABEL
-}
-
 def get_branch_name() {
     return is_manual_build() ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
+}
+
+def bump_version() {
+    version_path = './catapult-src/scripts/build/server.version.yaml'
+    data = readYaml(file: version_path)
+    version = data.version
+
+    def (major, minor, patch, build) = version.tokenize('.').collect { it.toInteger() }
+    def bumped_version = "${major}.${minor}.${patch}.${build + 1}"
+
+    data.version = bumped_version
+    writeYaml(file: version_path, data: data, overwrite: true)
+
+    versioninc_contents = readFile(file: './catapult-src/scripts/build/templates/version_inc.h')
+    versioninc_contents = versioninc_contents
+        .replaceAll('\\{\\{MAJOR\\}\\}', "${major}")
+        .replaceAll('\\{\\{MINOR\\}\\}', "${minor}")
+        .replaceAll('\\{\\{REVISION\\}\\}', "${patch}")
+        .replaceAll('\\{\\{BUILD\\}\\}', "${build}")
+    writeFile(file: './catapult-src/src/catapult/version/version_inc.h', text: versioninc_contents)
+
+    return bumped_version
+}
+
+def get_public_version() {
+    version_path = './catapult-src/scripts/build/server.version.yaml'
+    data = readYaml(file: version_path)
+    return data.version
+}
+
+def get_build_image_repo() {
+    return is_public_build() ? 'symbol-server' : 'symbol-server-private'
+}
+
+def get_architecture_label() {
+    data = readYaml(file: "./catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml")
+    architecture = data.architecture
+
+    if ('skylake' == architecture)
+        return ''
+
+    return "-${architecture}"
 }
 
 def get_build_image_label() {
@@ -240,5 +244,16 @@ def get_build_image_label() {
         friendly_branch_name = friendly_branch_name.substring(7)
 
     friendly_branch_name = friendly_branch_name.replaceAll('/', '-')
-    return "catapult-server-${friendly_branch_name}-${env.BUILD_NUMBER}"
+    architecture = get_architecture_label()
+    git_hash="${env.GIT_COMMIT}".substring(0, 8)
+    return "${COMPILER_CONFIGURATION}-${friendly_branch_name}${architecture}-${git_hash}"
+}
+
+def get_short_image_label() {
+    architecture = get_architecture_label()
+    if (!is_public_build())
+        return "${COMPILER_CONFIGURATION}${architecture}"
+
+    version_string = get_public_version()
+    return "${COMPILER_CONFIGURATION}-${version_string}${architecture}"
 }

@@ -104,7 +104,7 @@ namespace catapult { namespace chain {
 			return;
 		}
 
-		CATAPULT_LOG(trace)
+		CATAPULT_LOG(info)
 				<< "sending message for " << m_votingStatus.Round
 				<< std::endl << *pMessage;
 		m_messageSink(std::move(pMessage));

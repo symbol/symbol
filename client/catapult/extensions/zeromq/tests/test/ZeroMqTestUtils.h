@@ -130,7 +130,7 @@ namespace catapult { namespace test {
 				, m_pZeroMqEntityPublisher(std::make_shared<zeromq::ZeroMqEntityPublisher>(
 						listenInterface,
 						GetDefaultLocalHostZmqPort(),
-						model::CreateNotificationPublisher(m_registry, UnresolvedMosaicId())))
+						model::CreateNotificationPublisher(m_registry, UnresolvedMosaicId(), Height())))
 				, m_zmqSocket(m_zmqContext, ZMQ_SUB) {
 			m_zmqSocket.set(zmq::sockopt::rcvtimeo, 10);
 			if (std::string::npos != listenInterface.find(':'))
@@ -230,7 +230,7 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a message queue context using the supplied subscriber creator (\a subscriberCreator).
 		explicit MqContextT(const SubscriberCreator& subscriberCreator)
-				: m_pNotificationPublisher(model::CreateNotificationPublisher(registry(), UnresolvedMosaicId()))
+				: m_pNotificationPublisher(model::CreateNotificationPublisher(registry(), UnresolvedMosaicId(), Height()))
 				, m_pZeroMqSubscriber(subscriberCreator(publisher()))
 		{}
 

@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
     }
 
     options {
@@ -26,6 +26,13 @@ pipeline {
                     steps {
                         script {
                             dispatch_build_base_image_job('gcc-10', 'ubuntu', true)
+                        }
+                    }
+                }
+                stage('gcc 8 [debian]') {
+                    steps {
+                        script {
+                            dispatch_build_base_image_job('gcc-8', 'debian', false)
                         }
                     }
                 }
@@ -89,6 +96,13 @@ pipeline {
                         }
                     }
                 }
+                stage('test base image [debian]') {
+                    steps {
+                        script {
+                            dispatch_prepare_base_image_job('test', 'debian')
+                        }
+                    }
+                }
                 stage('test base image [fedora]') {
                     steps {
                         script {
@@ -102,7 +116,7 @@ pipeline {
 }
 
 def dispatch_build_base_image_job(compiler_configuration, operating_system, should_build_conan_layer) {
-    build job: 'server-pipelines/catapult-server-build-base-image', parameters: [
+    build job: 'server-pipelines/catapult-client-build-base-image', parameters: [
         string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
         string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
         string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${should_build_conan_layer}"),
@@ -111,7 +125,7 @@ def dispatch_build_base_image_job(compiler_configuration, operating_system, shou
 }
 
 def dispatch_prepare_base_image_job(image_type, operating_system) {
-    build job: 'server-pipelines/catapult-server-prepare-base-image', parameters: [
+    build job: 'server-pipelines/catapult-client-prepare-base-image', parameters: [
         string(name: 'IMAGE_TYPE', value: "${image_type}"),
         string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
         string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")

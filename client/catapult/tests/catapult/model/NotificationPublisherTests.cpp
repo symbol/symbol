@@ -33,26 +33,32 @@ namespace catapult { namespace model {
 
 	namespace {
 		constexpr auto Currency_Mosaic_Id = UnresolvedMosaicId(1234);
+		constexpr auto Fork_Height = Height(1000);
 
 		constexpr auto Plugin_Option_Flags = static_cast<mocks::PluginOptionFlags>(
 				utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers)
 				| utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications)
 				| utils::to_underlying_type(mocks::PluginOptionFlags::Contains_Embeddings));
 
-		template<typename TEntity, typename TAssertSubFunc>
-		void PublishAll(const TEntity& entity, PublicationMode mode, TAssertSubFunc assertSub) {
+		template<typename TAssertSubFunc>
+		void PublishAll(const WeakEntityInfo& entityInfo, PublicationMode mode, TAssertSubFunc assertSub) {
 			// Arrange:
 			mocks::MockNotificationSubscriber sub;
 
 			auto registry = mocks::CreateDefaultTransactionRegistry(Plugin_Option_Flags);
-			auto pPub = CreateNotificationPublisher(registry, Currency_Mosaic_Id, mode);
+			auto pPub = CreateNotificationPublisher(registry, Currency_Mosaic_Id, Fork_Height, mode);
 
 			// Act:
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			pPub->publish(WeakEntityInfo(entity, hash), sub);
+			pPub->publish(entityInfo, sub);
 
 			// Assert:
 			assertSub(sub);
+		}
+
+		template<typename TEntity, typename TAssertSubFunc>
+		void PublishAll(const TEntity& entity, PublicationMode mode, TAssertSubFunc assertSub) {
+			auto hash = test::GenerateRandomByteArray<Hash256>();
+			PublishAll(WeakEntityInfo(entity, hash), mode, assertSub);
 		}
 
 		template<typename TEntity, typename TAssertSubFunc>
@@ -66,7 +72,7 @@ namespace catapult { namespace model {
 			mocks::MockTypedNotificationSubscriber<TNotification> sub;
 
 			auto registry = mocks::CreateDefaultTransactionRegistry(Plugin_Option_Flags);
-			auto pPub = CreateNotificationPublisher(registry, Currency_Mosaic_Id);
+			auto pPub = CreateNotificationPublisher(registry, Currency_Mosaic_Id, Fork_Height);
 
 			// Act:
 			pPub->publish(entityInfo, sub);
@@ -89,7 +95,7 @@ namespace catapult { namespace model {
 
 	// region block
 
-	TEST(TEST_CLASS, CanRaiseBlockSourceChangeNotifications) {
+	TEST(TEST_CLASS, CanPublishBlockSourceChangeNotifications) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 
@@ -103,7 +109,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockAccountNotifications_WithBeneficiary) {
+	TEST(TEST_CLASS, CanPublishBlockAccountNotifications_WithBeneficiary) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		test::FillWithRandomData(pBlock->SignerPublicKey);
@@ -121,7 +127,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockAccountNotifications_WithoutBeneficiary) {
+	TEST(TEST_CLASS, CanPublishBlockAccountNotifications_WithoutBeneficiary) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		test::FillWithRandomData(pBlock->SignerPublicKey);
@@ -138,7 +144,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBeneficiaryAccountNotification) {
+	TEST(TEST_CLASS, CanPublishBeneficiaryAccountNotification) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		test::FillWithRandomData(pBlock->SignerPublicKey);
@@ -153,7 +159,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockTypeNotifications) {
+	TEST(TEST_CLASS, CanPublishBlockTypeNotifications) {
 		// Arrange:
 		auto pBlock = test::GenerateImportanceBlockWithTransactions(0);
 		pBlock->Type = Entity_Type_Block_Importance;
@@ -167,7 +173,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockEntityNotifications) {
+	TEST(TEST_CLASS, CanPublishBlockEntityNotifications) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		pBlock->Version = 0x5A;
@@ -184,7 +190,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockSignatureNotifications_BlockNormal) {
+	TEST(TEST_CLASS, CanPublishBlockSignatureNotifications_BlockNormal) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		test::FillWithRandomData(pBlock->SignerPublicKey);
@@ -201,7 +207,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockSignatureNotifications_BlockImportance) {
+	TEST(TEST_CLASS, CanPublishBlockSignatureNotifications_BlockImportance) {
 		// Arrange:
 		auto pBlock = test::GenerateImportanceBlockWithTransactions(0);
 		test::FillWithRandomData(pBlock->SignerPublicKey);
@@ -234,7 +240,7 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockNotifications_BlockWithoutTransactions) {
+	TEST(TEST_CLASS, CanPublishBlockNotifications_BlockWithoutTransactions) {
 		// Arrange:
 		auto pBlock = GenerateBlockWithTransactionSizes({});
 		pBlock->Timestamp = Timestamp(123);
@@ -255,7 +261,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockNotifications_BlockWithTransactions) {
+	TEST(TEST_CLASS, CanPublishBlockNotifications_BlockWithTransactions) {
 		// Arrange:
 		auto pBlock = GenerateBlockWithTransactionSizes({ 211, 225, 217 });
 		pBlock->Timestamp = Timestamp(432);
@@ -276,7 +282,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseImportanceBlockNotifications_BlockImportance) {
+	TEST(TEST_CLASS, CanPublishImportanceBlockNotifications_BlockImportance) {
 		// Arrange:
 		auto pBlock = test::GenerateImportanceBlockWithTransactions(0);
 		auto& blockFooter = GetBlockFooter<ImportanceBlockFooter>(*pBlock);
@@ -358,7 +364,7 @@ namespace catapult { namespace model {
 
 	// region transaction
 
-	TEST(TEST_CLASS, CanRaiseTransactionSourceChangeNotifications) {
+	TEST(TEST_CLASS, CanPublishTransactionSourceChangeNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(0);
 
@@ -372,7 +378,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseTransactionAccountNotifications) {
+	TEST(TEST_CLASS, CanPublishTransactionAccountNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(0);
 		test::FillWithRandomData(pTransaction->SignerPublicKey);
@@ -389,7 +395,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseTransactionEntityNotifications) {
+	TEST(TEST_CLASS, CanPublishTransactionEntityNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(0);
 		pTransaction->Version = 0x5A;
@@ -405,7 +411,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseTransactionSignatureNotifications) {
+	TEST(TEST_CLASS, CanPublishTransactionSignatureNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		test::FillWithRandomData(pTransaction->SignerPublicKey);
@@ -424,7 +430,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseTransactionNotifications) {
+	TEST(TEST_CLASS, CanPublishTransactionNotifications) {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto pTransaction = mocks::CreateMockTransaction(12);
@@ -441,7 +447,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseTransactionDeadlineNotifications) {
+	TEST(TEST_CLASS, CanPublishTransactionDeadlineNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		pTransaction->Deadline = Timestamp(454);
@@ -454,7 +460,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseTransactionFeeNotification_BlockIndependent) {
+	TEST(TEST_CLASS, CanPublishTransactionFeeNotification_BlockIndependent) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		pTransaction->MaxFee = Amount(765);
@@ -469,7 +475,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseTransactionFeeNotification_BlockDependent) {
+	TEST(TEST_CLASS, CanPublishTransactionFeeNotification_BlockDependent) {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto pTransaction = test::GenerateRandomTransactionWithSize(234);
@@ -490,7 +496,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseTransactionFeeDebitNotifications) {
+	TEST(TEST_CLASS, CanPublishTransactionFeeDebitNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		test::FillWithRandomData(pTransaction->SignerPublicKey);
@@ -517,9 +523,33 @@ namespace catapult { namespace model {
 			EXPECT_EQ(mocks::Mock_All_2_Notification, notificationTypes[startIndex + 7]);
 			EXPECT_EQ(mocks::Mock_Hash_Notification, notificationTypes[startIndex + 8]);
 		}
+
+		std::vector<NotificationType> AssertCanPublishCustomTransactionNotificationsAtHeight(
+				Height height,
+				size_t expectedCustomStartIndex) {
+			// Arrange:
+			auto hash = test::GenerateRandomByteArray<Hash256>();
+			auto pTransaction = mocks::CreateMockTransaction(12);
+
+			BlockHeader blockHeader;
+			blockHeader.Height = height;
+			auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
+
+			// Act:
+			std::vector<NotificationType> notificationTypes;
+			PublishAll(weakEntityInfo, [expectedCustomStartIndex, &transaction = *pTransaction, &notificationTypes](const auto& sub) {
+				notificationTypes = sub.notificationTypes();
+
+				// Assert: 8 raised by NotificationPublisher, 9 raised by MockTransaction::publish
+				ASSERT_EQ(8u + 9, sub.numNotifications());
+				AssertCustomTransactionNotifications(notificationTypes, expectedCustomStartIndex);
+			});
+
+			return notificationTypes;
+		}
 	}
 
-	TEST(TEST_CLASS, CanRaiseCustomTransactionNotifications) {
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
 
@@ -527,11 +557,29 @@ namespace catapult { namespace model {
 		PublishAll(*pTransaction, [&transaction = *pTransaction](const auto& sub) {
 			// Assert: 8 raised by NotificationPublisher, 9 raised by MockTransaction::publish
 			ASSERT_EQ(8u + 9, sub.numNotifications());
-			AssertCustomTransactionNotifications(sub.notificationTypes(), 8);
+			AssertCustomTransactionNotifications(sub.notificationTypes(), 6);
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseCustomTransactionNotificationsDependentOnHash) {
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotifications_BlockDependentBeforeFork) {
+		// Assert: custom transactions are last and precede fee debit notification
+		auto notificationTypes = AssertCanPublishCustomTransactionNotificationsAtHeight(Height(Fork_Height.unwrap() / 2), 8);
+		EXPECT_EQ(Core_Balance_Debit_Notification, notificationTypes[6]);
+	}
+
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotifications_BlockDependentAtFork) {
+		// Assert: custom transactions are before fee debit notification
+		auto notificationTypes = AssertCanPublishCustomTransactionNotificationsAtHeight(Fork_Height, 6);
+		EXPECT_EQ(Core_Balance_Debit_Notification, notificationTypes[15]);
+	}
+
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotifications_BlockDependentAfterFork) {
+		// Assert: custom transactions are before fee debit notification
+		auto notificationTypes = AssertCanPublishCustomTransactionNotificationsAtHeight(Fork_Height + Height(1000), 6);
+		EXPECT_EQ(Core_Balance_Debit_Notification, notificationTypes[15]);
+	}
+
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotificationsDependentOnHash) {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto pTransaction = mocks::CreateMockTransaction(12);
@@ -543,7 +591,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseCustomTransactionNotificationsDependentOnSignerAddress) {
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotificationsDependentOnSignerAddress) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		auto signerAddress = GetSignerAddress(*pTransaction);

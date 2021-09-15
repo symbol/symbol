@@ -23,10 +23,10 @@
 #include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/io/PrevoteChainStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "finalization/src/model/VotingSet.h"
 #include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/HeightGrouping.h"
+#include "catapult/model/VotingSet.h"
 
 namespace catapult { namespace chain {
 

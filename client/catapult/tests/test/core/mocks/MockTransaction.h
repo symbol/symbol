@@ -167,6 +167,12 @@ namespace catapult { namespace mocks {
 	/// Gets the address of the recipient of \a transaction.
 	Address GetRecipientAddress(const EmbeddedMockTransaction& transaction);
 
+	/// Gets the expected types of notifications raised by a MockTransaction in observer mode.
+	std::vector<model::NotificationType> GetExpectedMockTransactionObserverNotificationTypes();
+
+	/// Gets the expected types of notifications raised by a MockTransaction in validator mode.
+	std::vector<model::NotificationType> GetExpectedMockTransactionValidatorNotificationTypes();
+
 	/// Creates a mock transaction with variable data composed of \a dataSize random bytes.
 	std::unique_ptr<MockTransaction> CreateMockTransaction(uint16_t dataSize);
 

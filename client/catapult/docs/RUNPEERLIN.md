@@ -1,10 +1,10 @@
 # Running a Peer Node on Ubuntu 18.04 (LTS)
 
-These instructions summarize the minimum number of steps to run a [peer node](https://nemtech.github.io/concepts/node.html#id1) and connect it to an existing network using the catapult-server build.
+These instructions summarize the minimum number of steps to run a [peer node](https://symbol.github.io/concepts/node.html#id1) and connect it to an existing network using the catapult-client build.
 
 ## Prerequisites
 
-* Have built catapult-server following either [Conan](BUILD-conan.md) or [manual](BUILD-manual.md) instructions.
+* Have built catapult-client following either [Conan](BUILD-conan.md) or [manual](BUILD-manual.md) instructions.
 * Have defined the network nemesis block. Follow [these instructions](RUNNETWORKLIN.md) to run a private network.
 
 ## Replace the network configuration
@@ -15,12 +15,12 @@ If you have not launched a network yet, move directly to ["Edit the node propert
 
 1. Download a copy of the following files and folders from the node that originated the network:
 
-   * ``catapult-server/_build/resources/``
-   * ``catapult-server/_build/seed/``
+   * ``catapult-client/_build/resources/``
+   * ``catapult-client/_build/seed/``
 
-2. Save the downloaded files from the candidate peer node server in a new folder named ``network-config`` under the ``catapult-server/_build`` directory.
+2. Save the downloaded files from the candidate peer node client in a new folder named ``network-config`` under the ``catapult-client/_build`` directory.
 
-3. To add the network configuration to the peer node, run the following commands from the ``catapult-server/_build`` directory.
+3. To add the network configuration to the peer node, run the following commands from the ``catapult-client/_build`` directory.
 
    ```sh
    mkdir seed
@@ -31,14 +31,14 @@ If you have not launched a network yet, move directly to ["Edit the node propert
 ## Edit the node properties
 
 The file ``resources/config-node.properties`` defines the node configuration.
-Learn more about each network property in [this guide](https://nemtech.github.io/guides/network/configuring-node-properties.html#properties).
+Learn more about each network property in [this guide](https://symbol.github.io/guides/network/configuring-node-properties.html#properties).
 
 Open ``resources/config-node.properties`` and search for the ``[localnode]`` section.
 Then, edit the properties with the node details. You will need at least these properties:
 
 * ``host``: IP address or domain name of your node.
 * ``friendlyName``: Name of your node for display purposes.
-* ``version``: Version of catapult-server used by your node. Leave empty to use the current one.
+* ``version``: Version of catapult-client used by your node. Leave empty to use the current one.
 * ``roles``: A comma-separated list of the following values:
   * ``Peer``: Node verifies transactions and blocks, runs the consensus algorithm, creates new blocks ([Documentation](https://docs.symbolplatform.com/concepts/node#peer-node)).
   * ``Api``: Node provides REST access to the blockchain ([Documentation](https://docs.symbolplatform.com/concepts/node#api-node)).
@@ -59,7 +59,7 @@ roles = IPv4,Peer
 
 ## Enable harvesting
 
-This step enables [harvesting](https://nemtech.github.io/concepts/harvesting.html), which allows the node to produce new blocks.
+This step enables [harvesting](https://symbol.github.io/concepts/harvesting.html), which allows the node to produce new blocks.
 
 > **NOTE:**
 > At least one node of the network must have harvesting enabled to produce new blocks. If you don't want to enable harvesting, move directly to [Add other peer nodes](#add-other-peer-nodes).
@@ -83,7 +83,7 @@ This step enables [harvesting](https://nemtech.github.io/concepts/harvesting.htm
     ...
     ```
 
-   * Replace ``<HARVESTER_SIGNING_PRIVATE_KEY>`` with the private key of an [eligible account](https://nemtech.github.io/concepts/harvesting.html#eligibility-criteria).
+   * Replace ``<HARVESTER_SIGNING_PRIVATE_KEY>`` with the private key of an [eligible account](https://symbol.github.io/concepts/harvesting.html#eligibility-criteria).
 
    * Replace ``<HARVESTER_VRF_PRIVATE_KEY>`` with the private key linked to the harvester account to randomize the block production. The link could be defined in the [nemesis block](RUNNETWORKLIN.md#append-the-vrf-keys-to-the-nemesis-block) or at a later point by announcing a **VRFKeyLinkTransaction** with the [CLI](https://github.com/nemtech/symbol-cli/blob/gh-pages/0.20.3.md#vrfkeylink) or [SDKs](https://github.com/nemtech/symbol-sdk-typescript-javascript).
 
@@ -91,15 +91,7 @@ This step enables [harvesting](https://nemtech.github.io/concepts/harvesting.htm
 
 Catapult uses TLS 1.3 to provide secure connections and identity assurance among all nodes.
 
-1. To generate and self sign the TLS certificate, you can download and run the script [cert-generate.sh](https://github.com/tech-bureau/catapult-service-bootstrap/blob/master/common/ruby/script/cert-generate.sh) from the ``catapult-server/_build`` directory.
-
-    ```sh
-    mkdir certificate
-    cd certificate
-    curl https://raw.githubusercontent.com/tech-bureau/catapult-service-bootstrap/master/common/ruby/script/cert-generate.sh --output cert-generate.sh
-    chmod 777 cert-generate.sh
-    ./cert-generate.sh
-    ```
+1. To generate and self sign the TLS certificate, you can use [symbol-node-configurator](https://github.com/symbol/symbol-node-configurator).
 
 2. Open ``resources/config-user.properties`` and make sure that ``certificateDirectory`` points to the directory where the TLS certificates are being stored.
 

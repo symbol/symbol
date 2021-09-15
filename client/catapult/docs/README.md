@@ -1,6 +1,6 @@
 # Developer Notes
 
-This document is intended for readers interested in catapult-server development.
+This document is intended for readers interested in catapult-client development.
 
 ## Hardware requirements
 
@@ -17,10 +17,10 @@ Although you might be able to run the software in less powerful instances, you m
 
 ## Port requirements
 
-The port ``7900`` is required by catapult-server to communicate between nodes.
-Make sure that the server's host is accessible from the internet and that the port is open and available.
+The port ``7900`` is required by catapult-client to communicate between nodes.
+Make sure that the node's host is accessible from the internet and that the port is open and available.
 
-## Building catapult-server
+## Building catapult-client
 
 ### Prerequisites
 
@@ -84,10 +84,10 @@ race:global_logger::get()
 
 * [How to create a new network](RUNNETWORKLIN.md)
 
-* [Network configuration](https://nemtech.github.io/guides/network/configuring-network-properties.html)
+* [Network configuration](https://symbol.github.io/guides/network/configuring-network-properties.html)
 
 ## Running a peer node
 
 * [How to create a node and connect to an existing network](RUNPEERLIN.md)
 
-* [Node configuration](https://nemtech.github.io/guides/network/configuring-node-properties.html)
+* [Node configuration](https://symbol.github.io/guides/network/configuring-node-properties.html)

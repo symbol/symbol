@@ -1,11 +1,11 @@
-# Contributing to catapult-server
+# Contributing to catapult-client
 
-First off, thank you for considering contributing to catapult-server.
+First off, thank you for considering contributing to catapult-client.
 
-catapult-server is an open source project and we love to receive contributions from
+catapult-client is an open source project and we love to receive contributions from
 our community — you! There are many ways to contribute, from writing tutorials or blog
 posts, improving the documentation, submitting bug reports and feature requests or
-writing code which can be incorporated into catapult-server itself.
+writing code which can be incorporated into catapult-client itself.
 
 Following these guidelines helps to communicate that you respect the time of
 the developers managing and developing this open source project. In return,
@@ -16,8 +16,8 @@ Please, **don't use the issue tracker for support questions**.
 
 ## Bug reports
 
-If you think you have found a bug in catapult-server, first make sure that you
-are testing against the latest version of catapult-server - your issue may already
+If you think you have found a bug in catapult-client, first make sure that you
+are testing against the latest version of catapult-client - your issue may already
 have been fixed. If not, search our issues list on GitHub in case a similar
 issue has already been opened.
 
@@ -41,7 +41,7 @@ Open a new issue [here][github-issues].
 
 ## Contributing code and documentation changes
 
-If you have a bugfix or new feature that you would like to contribute to catapult-server, please find or open an issue
+If you have a bugfix or new feature that you would like to contribute to catapult-client, please find or open an issue
 about it first. Talk about what you would like to do. It may be that somebody is already working on it, or that there
 are particular issues that you should know about before implementing the change.
 
@@ -58,7 +58,7 @@ you agree to license the material under the project's licenses and warrant that 
 
 ### Fork and clone the repository
 
-You will need to fork the main catapult-server code or documentation repository and clone
+You will need to fork the main catapult-client code or documentation repository and clone
 it to your local machine. See [github help page](https://help.github.com/articles/fork-a-repo/) for help.
 
 Further instructions for specific projects are given below.
@@ -72,8 +72,8 @@ Further instructions for specific projects are given below.
 5. Do **not** use github's *pull request* feature, pull requests will be rejected.
 Because of internal review process we require patched generated with `git diff -U100000 base <your-change>`
 
-Then sit back and wait. There will probably be discussion about changes and, if any changes are needed, we would love to work with you to get your changes merged into catapult-server.
+Then sit back and wait. There will probably be discussion about changes and, if any changes are needed, we would love to work with you to get your changes merged into catapult-client.
 
 *CONTRIBUTING.md is based on [CONTRIBUTING-template.md](https://github.com/nayafia/contributing-template/blob/master/CONTRIBUTING-template.md)* , [elasticsearch/CONTRIBUTING](https://github.com/elastic/elasticsearch/blob/master/CONTRIBUTING.md) and [spark/CONTRIBUTING](https://github.com/apache/spark/blob/master/CONTRIBUTING.md)
 
-[github-issues]: https://github.com/nemtech/catapult-server/issues
+[github-issues]: https://github.com/symbol/catapult-client/issues

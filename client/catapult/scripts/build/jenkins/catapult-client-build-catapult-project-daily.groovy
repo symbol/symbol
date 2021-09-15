@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'main', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
     }
 
     options {
@@ -25,43 +25,29 @@ pipeline {
                 stage('gcc 10 (conan)') {
                     steps {
                         script {
-                            dispatch_build_job('gcc-10', 'tests-conan', 'ubuntu')
+                            dispatch_build_job('gcc-10', 'tests-conan')
                         }
                     }
                 }
                 stage('gcc 10 (metal)') {
                     steps {
                         script {
-                            dispatch_build_job('gcc-10', 'tests-metal', 'ubuntu')
-                        }
-                    }
-                }
-                stage('gcc 11 (metal) [fedora]') {
-                    steps {
-                        script {
-                            dispatch_build_job('gcc-11', 'tests-metal', 'fedora')
+                            dispatch_build_job('gcc-10', 'tests-metal')
                         }
                     }
                 }
 
-                stage('clang 11 (metal)') {
-                    steps {
-                        script {
-                            dispatch_build_job('clang-11', 'tests-metal', 'ubuntu')
-                        }
-                    }
-                }
                 stage('clang 12 (conan)') {
                     steps {
                         script {
-                            dispatch_build_job('clang-12', 'tests-conan', 'ubuntu')
+                            dispatch_build_job('clang-12', 'tests-conan')
                         }
                     }
                 }
                 stage('clang 12 (metal)') {
                     steps {
                         script {
-                            dispatch_build_job('clang-12', 'tests-metal', 'ubuntu')
+                            dispatch_build_job('clang-12', 'tests-metal')
                         }
                     }
                 }
@@ -69,21 +55,21 @@ pipeline {
                 stage('clang ausan') {
                     steps {
                         script {
-                            dispatch_build_job('clang-ausan', 'tests-metal', 'ubuntu')
+                            dispatch_build_job('clang-ausan', 'tests-metal')
                         }
                     }
                 }
                 stage('clang tsan') {
                     steps {
                         script {
-                            dispatch_build_job('clang-tsan', 'tests-metal', 'ubuntu')
+                            dispatch_build_job('clang-tsan', 'tests-metal')
                         }
                     }
                 }
                 stage('clang diagnostics') {
                     steps {
                         script {
-                            dispatch_build_job('clang-12', 'tests-diagnostics', 'ubuntu')
+                            dispatch_build_job('clang-12', 'tests-diagnostics')
                         }
                     }
                 }
@@ -92,11 +78,11 @@ pipeline {
     }
 }
 
-def dispatch_build_job(compiler_configuration, build_configuration, operating_system) {
-    build job: 'server-pipelines/catapult-server-build-catapult-project', parameters: [
+def dispatch_build_job(compiler_configuration, build_configuration) {
+    build job: 'server-pipelines/catapult-client-build-catapult-project', parameters: [
         string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
         string(name: 'BUILD_CONFIGURATION', value: "${build_configuration}"),
-        string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
+        string(name: 'OPERATING_SYSTEM', value: 'ubuntu'),
         string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
     ]
 }

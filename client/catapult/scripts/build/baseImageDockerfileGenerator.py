@@ -1,6 +1,7 @@
 import argparse
 
-from configuration import load_compiler_configuration
+from configuration import load_compiler_configuration, load_versions_map
+from dependency_flags import DEPENDENCY_FLAGS
 
 SINGLE_COMMAND_SEPARATOR = ' \\\n    && '
 LAYER_TO_IMAGE_TAG_MAP = {'os': 'preimage1', 'boost': 'preimage2', 'deps': 'preimage3', 'test': '', 'conan': 'conan'}
@@ -40,12 +41,7 @@ class OptionsManager:
         self.architecture = compiler_configuration.architecture
         self.stl = compiler_configuration.stl
 
-        self.versions = {}
-        with (open(versions_filepath, 'rt')) as infile:
-            for line in infile.readlines():
-                line_parts = line.strip().split(' = ')
-                if 2 == len(line_parts):
-                    self.versions[line_parts[0]] = line_parts[1]
+        self.versions = load_versions_map(versions_filepath)
 
     @property
     def is_clang(self):
@@ -99,28 +95,28 @@ class OptionsManager:
 
     def mongo_c(self):
         descriptor = self.OptionsDescriptor()
-        descriptor.options += [
-            '-DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF',
-            '-DENABLE_MONGODB_AWS_AUTH=OFF',
-            '-DENABLE_TESTS=OFF',
-            '-DENABLE_EXAMPLES=OFF',
-            '-DENABLE_SASL=OFF'
-        ]
+        descriptor.options += DEPENDENCY_FLAGS['mongodb_mongo-c-driver']
         return self._cmake(descriptor)
 
     def mongo_cxx(self):
         descriptor = self.OptionsDescriptor()
-        descriptor.options += ['-DCMAKE_CXX_STANDARD=17']
+        descriptor.options += DEPENDENCY_FLAGS['mongodb_mongo-cxx-driver']
         return self._cmake(descriptor)
 
     def libzmq(self):
         descriptor = self._zmq_descriptor()
-        descriptor.options += ['-DWITH_TLS=OFF']
+        descriptor.options += DEPENDENCY_FLAGS['zeromq_libzmq']
+
+        if self.is_clang:
+            # Xeon-based build machine, even with -mskylake seems to do miscompilation in libzmq,
+            # try to pass additional flags to disable faulty optimizations
+            descriptor.cxxflags += ['-mno-avx', '-mno-avx2']
+
         return self._cmake(descriptor)
 
     def cppzmq(self):
         descriptor = self._zmq_descriptor()
-        descriptor.options += ['-DCPPZMQ_BUILD_TESTS=OFF']
+        descriptor.options += DEPENDENCY_FLAGS['zeromq_cppzmq']
         return self._cmake(descriptor)
 
     def _zmq_descriptor(self):
@@ -132,14 +128,7 @@ class OptionsManager:
 
     def rocks(self):
         descriptor = self.OptionsDescriptor()
-        descriptor.options += [
-            '-DPORTABLE=1',
-            '-DWITH_TESTS=OFF',
-            '-DWITH_TOOLS=OFF',
-            '-DWITH_BENCHMARK_TOOLS=OFF',
-            '-DWITH_CORE_TOOLS=OFF',
-            '-DWITH_GFLAGS=OFF'
-        ]
+        descriptor.options += DEPENDENCY_FLAGS['facebook_rocksdb']
 
         if 'undefined' in self.sanitizers:
             descriptor.options += ['-DUSE_RTTI=1']
@@ -148,13 +137,13 @@ class OptionsManager:
 
     def googletest(self):
         descriptor = self.OptionsDescriptor()
-        descriptor.options += ['-DCMAKE_POSITION_INDEPENDENT_CODE=ON']
+        descriptor.options += DEPENDENCY_FLAGS['google_googletest']
         descriptor.sanitizer = ','.join(self.sanitizers)
         return self._cmake(descriptor)
 
     def googlebench(self):
         descriptor = self.OptionsDescriptor()
-        descriptor.options += ['-DBENCHMARK_ENABLE_GTEST_TESTS=OFF']
+        descriptor.options += DEPENDENCY_FLAGS['google_benchmark']
         return self._cmake(descriptor)
 
     @property
@@ -278,7 +267,7 @@ class FedoraSystem:
         ], RPM_PACKAGES=' '.join(rpm_packages))
 
 
-SYSTEMS = {'ubuntu': UbuntuSystem, 'fedora': FedoraSystem}
+SYSTEMS = {'ubuntu': UbuntuSystem, 'debian': UbuntuSystem, 'fedora': FedoraSystem}
 
 
 def generate_phase_os(options):
