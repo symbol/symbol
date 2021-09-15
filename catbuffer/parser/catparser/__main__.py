@@ -42,14 +42,7 @@ class MultiFileParser:
 
 
 def _dump_type_descriptors(type_descriptors, out):
-    needs_separator = False
-    for key in type_descriptors:
-        if needs_separator:
-            out.write('\n')
-
-        out.write('name: {}\n'.format(key))
-        yaml.dump(type_descriptors[key], out)
-        needs_separator = True
+    yaml.dump(list(map(lambda e: {**{'name': e[0]}, **e[1]}, type_descriptors.items())), out)
 
 
 def main():
