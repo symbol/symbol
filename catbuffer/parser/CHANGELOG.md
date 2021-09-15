@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.0.2] - 15-Sep-2021
+
+### Fixed
+ - actually generate proper YAML files
+
+### Removed
+ - one pass code generation
+
 ## [2.0.1] - 06-Sep-2021
 
 ### Added
@@ -33,6 +41,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - initial code release
 
+[2.0.2]: https://github.com/symbol/catbuffer-parser/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/symbol/catbuffer-parser/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/symbol/catbuffer-parser/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/symbol/catbuffer-parser/releases/tag/v1.0.0
