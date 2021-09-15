@@ -3,6 +3,8 @@ struct NamespaceRegistrationTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, NAMESPACE_REGISTRATION)
 
+	inline Transaction
+
 	# [__value__] mosaic rental fee sink public key
 	#
 	# [size] mosaic rental fee sink public key size
