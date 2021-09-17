@@ -20,7 +20,7 @@ struct Cosignature
 # binary layout for a multisig transaction
 struct MultisigTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
-	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_COSIGNATURE)
+	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_TRANSACTION)
 
 	inline Transaction
 
