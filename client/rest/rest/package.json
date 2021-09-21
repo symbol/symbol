@@ -15,7 +15,7 @@
     "lint:fix": "eslint src test --fix",
     "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0",
     "bootstrap-clean": "symbol-bootstrap clean",
-    "bootstrap-start": "symbol-bootstrap start -a light -c bootstrap-preset.yml --healthCheck --noPassword",
+    "bootstrap-start": "symbol-bootstrap start -a light -c bootstrap-preset-local.yml --healthCheck --noPassword",
     "bootstrap-start-testnet": "symbol-bootstrap start -p testnet -a dual -c bootstrap-preset-testnet.yml --healthCheck --noPassword",
     "bootstrap-start-mainnet": "symbol-bootstrap start -p testnet -a dual -c bootstrap-preset-mainnet.yml --healthCheck --noPassword",
     "bootstrap-start-detached": "symbol-bootstrap start -a light -c bootstrap-preset.yml --detached --healthCheck --noPassword",
@@ -57,6 +57,6 @@
     "sshpk": "1.16.1",
     "winston": "^3.2.1",
     "ws": "^7.1.0",
-    "zeromq": "^5.1.0"
+    "zeromq": "^5.2.8"
   }
 }
