@@ -49,7 +49,7 @@ struct TransferTransaction2
 	inline TransferTransaction
 
 	# number of attached mosaics
-	mosaics_count = uint8
+	mosaics_count = uint32
 
 	# attached mosaics
 	# notice that mosaic amount is multipled by transfer amount to get effective amount
