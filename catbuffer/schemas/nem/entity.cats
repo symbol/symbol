@@ -1,7 +1,7 @@
 import "types.cats"
 
 # enumeration of network types
-enum NetworkType : uint16
+enum NetworkType : uint8
 	# main network
 	MAINNET = 0x68
 
@@ -11,7 +11,10 @@ enum NetworkType : uint16
 # binary layout for a blockchain entity (block or transaction)
 struct EntityBody
 	# entity version
-	version = uint16
+	version = uint8
+
+	# reserved padding between version and network type
+	entity_body_reserved_1 = make_reserved(uint16, 0)
 
 	# entity network
 	network = NetworkType
