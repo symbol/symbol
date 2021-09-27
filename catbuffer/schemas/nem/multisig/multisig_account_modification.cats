@@ -37,5 +37,8 @@ struct MultisigAccountModificationTransaction2
 
 	inline MultisigAccountModificationTransaction
 
+	# the size of the min_approval_delta
+	min_approval_delta_size = make_reserved(uint32, 4)
+
 	# relative change of the minimal number of cosignatories required when approving a transaction
 	min_approval_delta = int32
