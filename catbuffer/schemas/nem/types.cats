@@ -18,7 +18,7 @@ inline struct SizePrefixedAddress
 # binary layout for a size prefixed 32-byte hash
 inline struct SizePrefixedHash256
 	# hash size
-	size = make_reserved(uint32, 40)
+	size = make_reserved(uint32, 32)
 
 	# hash value
 	__value__ = Hash256

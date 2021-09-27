@@ -7,6 +7,9 @@ struct Cosignature
 
 	inline Transaction
 
+	# multisig transaction hash outer size
+	multisig_transaction_hash_outer_size = make_reserved(int32, 36)
+
 	# [__value__] multisig transaction hash
 	#
 	# [size] multisig transaction hash size
@@ -14,7 +17,7 @@ struct Cosignature
 
 	# [__value__] multisig account address
 	#
-	# [size] multisig account size
+	# [size] multisig account address size
 	multisig_account_address = inline SizePrefixedAddress
 
 # binary layout for a multisig transaction
