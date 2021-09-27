@@ -15,7 +15,7 @@ struct Cosignature
 	# [__value__] multisig account address
 	#
 	# [size] multisig account size
-	multisig_account_address = inline SizePrefixedPublicKey
+	multisig_account_address = inline SizePrefixedAddress
 
 # binary layout for a multisig transaction
 struct MultisigTransaction
