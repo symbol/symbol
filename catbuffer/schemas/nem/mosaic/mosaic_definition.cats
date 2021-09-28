@@ -65,7 +65,7 @@ struct MosaicDefinition
 	levy_size = uint32
 
 	# optional levy that is applied to transfers of this mosaic
-	levy = MosaicLevy if 0xFFFFFFFF not equals levy_size
+	levy = MosaicLevy if 0x00000000 not equals levy_size
 
 # binary layout for an importance transfer transaction
 struct MosaicDefinitionTransaction
