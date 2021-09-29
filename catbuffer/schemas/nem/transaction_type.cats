@@ -16,7 +16,7 @@ enum TransactionType : uint32
 	MULTISIG_COSIGNATURE = 0x1002
 
 	# multisig transaction
-	MULTISIG_TRANSACTION = 0x01003
+	MULTISIG_TRANSACTION = 0x01004
 
 	# namespace registration transaction
 	# alternatively called provision namespace transaction
