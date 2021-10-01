@@ -2,4 +2,4 @@ name: recipientAddress
 in: query
 description: Filter by address of the account receiving the transaction.
 schema:
-  $ref: "../../schemas/AddressBase32.yml"
+  $ref: "../../schemas/Address.yml"

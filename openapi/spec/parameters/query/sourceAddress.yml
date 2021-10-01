@@ -2,4 +2,4 @@ name: sourceAddress
 in: query
 description: Filter by address sending the metadata entry.
 schema:
-  $ref: "../../schemas/AddressBase32.yml"
+  $ref: "../../schemas/Address.yml"

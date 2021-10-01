@@ -1,5 +1,3 @@
 type: string
-description: |
-  Address expressed in hexadecimal base. If the bit 0 of byte 0 is not set (like in 0x90), then it is a
-  regular address. Else (e.g. 0x91) it represents a namespace id which starts at byte 1.
-example: 90340017CFF3DD2BCF3B2670CDCB9FC8C75754E2325F297C
+anyOf:
+    - $ref: "./Address.yml"

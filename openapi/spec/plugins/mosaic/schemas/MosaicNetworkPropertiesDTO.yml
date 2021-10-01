@@ -13,7 +13,7 @@ properties:
     description: Maximum mosaic divisibility.
     example: "6"
   mosaicRentalFeeSinkAddress:
-    $ref: "../../../schemas/AddressBase32.yml"
+    $ref: "../../../schemas/Address.yml"
     description: Address of the mosaic rental fee sink account.
     example: SDKDPA36TE53BO24FD4KA6OPGOUSEVOU3O5SIFI
   mosaicRentalFee:

@@ -1,8 +1,6 @@
 # Generic types
 Address:
   "$ref": "./Address.yml"
-AddressBase32:
-  "$ref": "./AddressBase32.yml"
 Amount:
   "$ref": "./Amount.yml"
 BlockDuration:

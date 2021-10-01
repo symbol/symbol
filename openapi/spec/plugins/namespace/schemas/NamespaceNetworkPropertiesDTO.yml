@@ -29,7 +29,7 @@ properties:
     description: Reserved root namespaces that cannot be claimed.
     example: xem, nem, user, account, org, com, biz, net, edu, mil, gov, info
   namespaceRentalFeeSinkAddress:
-    $ref: "../../../schemas/AddressBase32.yml"
+    $ref: "../../../schemas/Address.yml"
     description: Address of the namespace rental fee sink account.
     example: SDTZ23JBJZP3GTKKM2P6FYCMXS6RQYPB6R477TQ
   rootNamespaceRentalFeePerBlock:
