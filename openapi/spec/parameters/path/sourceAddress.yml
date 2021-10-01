@@ -3,4 +3,4 @@ in: path
 description: Account address.
 required: true
 schema:
-  $ref: "../../schemas/AddressBase32.yml"
+  $ref: "../../schemas/Address.yml"

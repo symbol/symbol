@@ -102,7 +102,7 @@ properties:
     description: Percentage of the harvested fee that is collected by the network.
     example: "5"
   harvestNetworkFeeSinkAddress:
-    $ref: "../../../schemas/AddressBase32.yml"
+    $ref: "../../../schemas/Address.yml"
     description: Address of the harvest network fee sink account.
     example: "SDKDPA36TE53BO24FD4KA6OPGOUSEVOU3O5SIFI"
   blockPruneInterval:

@@ -1,4 +1,3 @@
 type: string
-format: hex
-description: Address expressed in hexadecimal base.
-example: 9081FCCB41F8C8409A9B99E485E0E28D23BD6304EF7215E0
+description: Address encoded using a 32-character set.
+example: TADP6C2GVEG654OP5LZI32P2GYJSCMEGQBYB7QY
