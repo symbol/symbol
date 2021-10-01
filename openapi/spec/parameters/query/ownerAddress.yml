@@ -2,4 +2,4 @@ name: ownerAddress
 in: query
 description: Filter by owner address.
 schema:
-  $ref: "../../schemas/AddressBase32.yml"
+  $ref: "../../schemas/Address.yml"

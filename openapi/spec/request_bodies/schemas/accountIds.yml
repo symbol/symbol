@@ -9,4 +9,4 @@ properties:
     type: array
     description: Array of addresses.
     items:
-      $ref: "../../schemas/AddressBase32.yml"
+      $ref: "../../schemas/Address.yml"
