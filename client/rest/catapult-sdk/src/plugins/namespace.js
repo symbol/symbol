@@ -47,7 +47,7 @@ const namespacePlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.aliasAddress, {
 			namespaceId: ModelType.uint64HexIdentifier,
-			address: ModelType.binary,
+			address: ModelType.encodedAddress,
 			aliasAction: ModelType.uint8
 		});
 
@@ -91,7 +91,7 @@ const namespacePlugin = {
 			alias: { type: ModelType.object, schemaName: entity => getAliasBasicType(entity.type) },
 
 			parentId: ModelType.uint64HexIdentifier,
-			ownerAddress: ModelType.binary,
+			ownerAddress: ModelType.encodedAddress,
 
 			startHeight: ModelType.uint64,
 			endHeight: ModelType.uint64
@@ -104,7 +104,7 @@ const namespacePlugin = {
 
 		builder.addSchema('namespaceDescriptor.alias.address', {
 			type: ModelType.uint8,
-			address: ModelType.binary
+			address: ModelType.encodedAddress
 		});
 
 		builder.addSchema('namespaceDescriptor.alias.empty', {
@@ -131,7 +131,7 @@ const namespacePlugin = {
 		});
 
 		builder.addSchema('accountNamesTuple', {
-			address: ModelType.binary,
+			address: ModelType.encodedAddress,
 			names: { type: ModelType.array, schemaName: ModelType.string }
 		});
 	},

@@ -51,7 +51,7 @@ const receiptsPlugin = {
 
 		addStatementSchema('addressResolution', {
 			height: ModelType.uint64,
-			unresolved: ModelType.binary,
+			unresolved: ModelType.encodedAddress,
 			resolutionEntries: { type: ModelType.array, schemaName: 'receipts.entry.address' }
 		});
 		addStatementSchema('mosaicResolution', {
@@ -72,7 +72,7 @@ const receiptsPlugin = {
 		// addressResolution statements
 		builder.addSchema('receipts.entry.address', {
 			source: { type: ModelType.object, schemaName: 'receipts.source' },
-			resolved: ModelType.binary
+			resolved: ModelType.encodedAddress
 		});
 
 		// mosaicResolution statements
@@ -85,7 +85,7 @@ const receiptsPlugin = {
 		builder.addSchema('receipts.balanceChange', {
 			version: ModelType.int,
 			type: ModelType.int,
-			targetAddress: ModelType.binary,
+			targetAddress: ModelType.encodedAddress,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64
 		});
@@ -93,8 +93,8 @@ const receiptsPlugin = {
 		builder.addSchema('receipts.balanceTransfer', {
 			version: ModelType.int,
 			type: ModelType.int,
-			senderAddress: ModelType.binary,
-			recipientAddress: ModelType.binary,
+			senderAddress: ModelType.encodedAddress,
+			recipientAddress: ModelType.encodedAddress,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64
 		});

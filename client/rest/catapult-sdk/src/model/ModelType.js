@@ -59,10 +59,13 @@ const ModelType = {
 	int: SchemaType.max + 10,
 
 	/** Schema property type indicating a boolean value. */
-	boolean: SchemaType.max + 11
+	boolean: SchemaType.max + 11,
+
+	/** Schema property type indicating a binary value as base32Address. */
+	encodedAddress: SchemaType.max + 12
 };
 
 Object.assign(ModelType, SchemaType);
-ModelType.max = ModelType.boolean;
+ModelType.max = ModelType.encodedAddress;
 
 module.exports = ModelType;

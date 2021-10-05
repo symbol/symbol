@@ -34,7 +34,7 @@ const constants = { sizes };
 const metadataPlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.accountMetadata, {
-			targetAddress: ModelType.binary,
+			targetAddress: ModelType.encodedAddress,
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			valueSizeDelta: ModelType.int,
 			valueSize: ModelType.uint16,
@@ -42,7 +42,7 @@ const metadataPlugin = {
 		});
 
 		builder.addTransactionSupport(EntityType.mosaicMetadata, {
-			targetAddress: ModelType.binary,
+			targetAddress: ModelType.encodedAddress,
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetMosaicId: ModelType.uint64HexIdentifier,
 			valueSizeDelta: ModelType.int,
@@ -51,7 +51,7 @@ const metadataPlugin = {
 		});
 
 		builder.addTransactionSupport(EntityType.namespaceMetadata, {
-			targetAddress: ModelType.binary,
+			targetAddress: ModelType.encodedAddress,
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetNamespaceId: ModelType.uint64HexIdentifier,
 			valueSizeDelta: ModelType.int,
@@ -67,8 +67,8 @@ const metadataPlugin = {
 		builder.addSchema('metadataEntry', {
 			version: ModelType.uint16,
 			compositeHash: ModelType.binary,
-			sourceAddress: ModelType.binary,
-			targetAddress: ModelType.binary,
+			sourceAddress: ModelType.encodedAddress,
+			targetAddress: ModelType.encodedAddress,
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetId: ModelType.uint64HexIdentifier,
 			metadataType: ModelType.int,

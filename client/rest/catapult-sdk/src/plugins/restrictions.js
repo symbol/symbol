@@ -126,7 +126,7 @@ const restrictionsPlugin = {
 		});
 		builder.addSchema('accountRestriction.restrictions', {
 			version: ModelType.uint16,
-			address: ModelType.binary,
+			address: ModelType.encodedAddress,
 			restrictions: {
 				type: ModelType.array,
 				schemaName: entity => {
@@ -148,7 +148,7 @@ const restrictionsPlugin = {
 		builder.addTransactionSupport(EntityType.mosaicRestrictionAddress, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			restrictionKey: ModelType.uint64HexIdentifier,
-			targetAddress: ModelType.binary,
+			targetAddress: ModelType.encodedAddress,
 			previousRestrictionValue: ModelType.uint64,
 			newRestrictionValue: ModelType.uint64
 		});
@@ -174,7 +174,7 @@ const restrictionsPlugin = {
 			compositeHash: ModelType.binary,
 			entryType: ModelType.uint32,
 			mosaicId: ModelType.uint64HexIdentifier,
-			targetAddress: ModelType.binary,
+			targetAddress: ModelType.encodedAddress,
 			restrictions: { type: ModelType.array, schemaName: 'mosaicRestrictions.entry.restrictions' }
 		});
 		builder.addSchema('mosaicRestrictions.entry.restrictions', {

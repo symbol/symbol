@@ -20,9 +20,11 @@
  */
 
 const errors = require('../server/errors');
+const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
 
 const { Long, ObjectId } = MongoDb;
+const { address } = catapult.model;
 
 const convertToLong = value => {
 	if (Number.isInteger(value))
@@ -77,6 +79,18 @@ const dbUtils = {
 			return { [sortFieldDbRelation[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: offset } };
 		}
 		return undefined;
+	},
+
+	/**
+	 * Convert binary to Unresolved address
+	 * @param {MongoDb.Binary} binary Address|NamespaceId from MongoDb.
+	 * @returns {string} AddressBase32|NamespaceId
+	 */
+	bufferToUnresolvedAddress: binary => {
+		if (!(binary instanceof MongoDb.Binary))
+			return undefined;
+		// return as Address base 32
+		return address.addressToString(binary.buffer);
 	},
 
 	/**

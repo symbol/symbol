@@ -36,8 +36,8 @@ const multisigPlugin = {
 		builder.addTransactionSupport(EntityType.modifyMultisigAccount, {
 			minRemovalDelta: ModelType.int,
 			minApprovalDelta: ModelType.int,
-			addressAdditions: { type: ModelType.array, schemaName: ModelType.binary },
-			addressDeletions: { type: ModelType.array, schemaName: ModelType.binary }
+			addressAdditions: { type: ModelType.array, schemaName: ModelType.encodedAddress },
+			addressDeletions: { type: ModelType.array, schemaName: ModelType.encodedAddress }
 		});
 
 		builder.addSchema('multisigEntry', {
@@ -45,11 +45,11 @@ const multisigPlugin = {
 		});
 		builder.addSchema('multisigEntry.multisig', {
 			version: ModelType.uint16,
-			accountAddress: ModelType.binary,
+			accountAddress: ModelType.encodedAddress,
 			minApproval: ModelType.int,
 			minRemoval: ModelType.int,
-			multisigAddresses: { type: ModelType.array, schemaName: ModelType.binary },
-			cosignatoryAddresses: { type: ModelType.array, schemaName: ModelType.binary }
+			multisigAddresses: { type: ModelType.array, schemaName: ModelType.encodedAddress },
+			cosignatoryAddresses: { type: ModelType.array, schemaName: ModelType.encodedAddress }
 		});
 		builder.addSchema('multisigGraph', {
 			level: ModelType.none,

@@ -33,7 +33,7 @@ const constants = { sizes };
 const transferPlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.transfer, {
-			recipientAddress: ModelType.binary,
+			recipientAddress: ModelType.encodedAddress,
 			message: ModelType.binary,
 			mosaics: { type: ModelType.array, schemaName: 'mosaic' }
 		});

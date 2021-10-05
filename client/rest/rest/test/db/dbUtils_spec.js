@@ -24,7 +24,7 @@ const { convertToLong } = require('../../src/db/dbUtils');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
 
-const { ObjectId } = MongoDb;
+const { ObjectId, Binary } = MongoDb;
 
 describe('db utils', () => {
 	describe('convertToLong', () => {
@@ -165,6 +165,30 @@ describe('db utils', () => {
 			expect(dbUtils.buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
 				_id: { $lt: convertToLong([1234, 5678]) }
 			});
+		});
+	});
+
+	describe('bufferToUnresolvedAddress', () => {
+		it('can convert from buffer to Address', () => {
+			// Arrange
+			const object = new Binary(Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex'));
+
+			// Act:
+			const result = dbUtils.bufferToUnresolvedAddress(object);
+
+			// Assert:
+			expect(result).to.equal('TDQNCOHK6KWDILABL7YLMMPMGYRORL72AS74YVQ');
+		});
+
+		it('cannot convert from invalid data type', () => {
+			// Arrange
+			const object = '99CAAB0FD01CCF25BA000000000000000000000000000000';
+
+			// Act:
+			const result = dbUtils.bufferToUnresolvedAddress(object);
+
+			// Assert:
+			expect(result).to.equal(undefined);
 		});
 	});
 });

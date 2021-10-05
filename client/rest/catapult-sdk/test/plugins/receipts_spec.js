@@ -151,7 +151,8 @@ describe('receipts plugin', () => {
 					[ModelType.uint64HexIdentifier]: () => 'uint64HexIdentifier',
 					[ModelType.objectId]: () => 'objectId',
 					[ModelType.string]: () => 'string',
-					[ModelType.int]: () => 'int'
+					[ModelType.int]: () => 'int',
+					[ModelType.encodedAddress]: () => 'encodedAddress'
 				};
 				const transactionStatement = {
 					statement: {

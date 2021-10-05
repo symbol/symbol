@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { bufferToUnresolvedAddress } = require('../db/dbUtils');
 const catapult = require('catapult-sdk');
 
 const { ModelType, status } = catapult.model;
@@ -35,5 +36,6 @@ module.exports = {
 	[ModelType.uint64]: value => uint64.toString(value),
 	[ModelType.uint64HexIdentifier]: value => uint64.toHex(value),
 	[ModelType.int]: value => value,
-	[ModelType.boolean]: value => value
+	[ModelType.boolean]: value => value,
+	[ModelType.encodedAddress]: value => bufferToUnresolvedAddress(value)
 };
