@@ -130,6 +130,9 @@ namespace catapult { namespace model {
 		struct ForkHeights {
 			/// Height of fork to fix TotalVotingBalance calculation.
 			Height TotalVotingBalanceCalculationFix;
+
+			/// Height of fork at which to reissue the treasury.
+			Height TreasuryReissuance;
 		};
 
 		/// Fork heights.

@@ -96,7 +96,8 @@ namespace catapult { namespace model {
 					{
 						"fork_heights",
 						{
-							{ "totalVotingBalanceCalculationFix", "998877" }
+							{ "totalVotingBalanceCalculationFix", "998877" },
+							{ "treasuryReissuance", "11998877" }
 						}
 					},
 					{
@@ -165,6 +166,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(0u, config.MaxTransactionsPerBlock);
 
 				EXPECT_EQ(Height(0), config.ForkHeights.TotalVotingBalanceCalculationFix);
+				EXPECT_EQ(Height(0), config.ForkHeights.TreasuryReissuance);
 
 				EXPECT_TRUE(config.Plugins.empty());
 			}
@@ -215,6 +217,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(120u, config.MaxTransactionsPerBlock);
 
 				EXPECT_EQ(Height(998877), config.ForkHeights.TotalVotingBalanceCalculationFix);
+				EXPECT_EQ(Height(11998877), config.ForkHeights.TreasuryReissuance);
 
 				EXPECT_EQ(2u, config.Plugins.size());
 				const auto& pluginAlphaBag = config.Plugins.find("alpha")->second;
