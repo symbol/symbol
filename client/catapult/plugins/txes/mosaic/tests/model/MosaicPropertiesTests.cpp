@@ -53,11 +53,8 @@ namespace catapult { namespace model {
 		EXPECT_EQ(5u, properties.divisibility());
 		EXPECT_EQ(BlockDuration(234), properties.duration());
 
-		for (auto flag = 1u; flag < utils::to_underlying_type(MosaicFlags::All); flag <<= 1) {
-			EXPECT_EQ(
-					MosaicFlags::Transferable != static_cast<MosaicFlags>(flag),
-					properties.is(static_cast<MosaicFlags>(flag))) << "flag " << flag;
-		}
+		for (auto flag = 1u; flag < utils::to_underlying_type(MosaicFlags::All); flag <<= 1)
+			EXPECT_EQ(!!(flag & 0x05), properties.is(static_cast<MosaicFlags>(flag))) << "flag " << flag;
 	}
 
 	// endregion

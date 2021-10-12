@@ -33,13 +33,11 @@ namespace catapult { namespace test {
 
 	public:
 		static void AssertSuccessWhenProcessingValidValue() {
-			// Assert:
 			for (auto value : TTraits::ValidValues())
 				AssertValueValidationResult(validators::ValidationResult::Success, static_cast<EnumType>(value));
 		}
 
 		static void AssertFailureWhenProcessingInvalidValue() {
-			// Assert:
 			for (auto value : TTraits::InvalidValues())
 				AssertValueValidationResult(TTraits::Failure_Result, static_cast<EnumType>(value));
 		}

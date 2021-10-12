@@ -39,13 +39,14 @@ namespace catapult { namespace validators {
 
 	// region MosaicDefinitionTransaction
 
-	/// Validator that applies to mosaic properties notifications and validates that:
-	/// - definition has valid mosaic flags
-	DECLARE_STATELESS_VALIDATOR(MosaicFlags, model::MosaicPropertiesNotification)();
-
 	/// Validator that applies to mosaic nonce notifications and validates that:
 	/// - mosaic id is the expected id generated from signer and nonce
 	DECLARE_STATELESS_VALIDATOR(MosaicId, model::MosaicNonceNotification)();
+
+	/// Validator that applies to mosaic properties notifications and validates that:
+	/// - definition has valid mosaic flags
+	/// - definition prior to \a revokableForkHeight does not have Revokable flag
+	DECLARE_STATEFUL_VALIDATOR(MosaicFlags, model::MosaicPropertiesNotification)(Height revokableForkHeight);
 
 	/// Validator that applies to mosaic definition notifications and validates that:
 	/// - the mosaic is available and can be created or modified

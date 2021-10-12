@@ -20,32 +20,38 @@
 **/
 
 #pragma once
-#include "catapult/utils/BitwiseEnum.h"
-#include <stdint.h>
+#include "MosaicEntityType.h"
+#include "catapult/model/Mosaic.h"
+#include "catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
 
-	/// Mosaic property flags.
-	enum class MosaicFlags : uint8_t {
-		/// No flags present.
-		None = 0x00,
+#pragma pack(push, 1)
 
-		/// Mosaic supports supply changes even when mosaic owner owns partial supply.
-		Supply_Mutable = 0x01,
+	/// Binary layout for a mosaic supply revocation transaction body.
+	template<typename THeader>
+	struct MosaicSupplyRevocationTransactionBody : public THeader {
+	private:
+		using TransactionType = MosaicSupplyRevocationTransactionBody<THeader>;
 
-		/// Mosaic supports transfers between arbitrary accounts.
-		/// \note When not set, mosaic can only be transferred to and from mosaic owner.
-		Transferable = 0x02,
+	public:
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Supply_Revocation, 1)
 
-		/// Mosaic supports custom restrictions configured by mosaic owner.
-		Restrictable = 0x04,
+	public:
+		/// Address from which tokens should be revoked.
+		UnresolvedAddress SourceAddress;
 
-		/// Mosaic supports revocation of tokens by creator.
-		Revokable = 0x08,
+		/// Revoked mosaic.
+		UnresolvedMosaic Mosaic;
 
-		/// All flags.
-		All = 0x0F
+	public:
+		/// Calculates the real size of a mosaic supply revocation \a transaction.
+		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
+			return sizeof(TransactionType);
+		}
 	};
 
-	MAKE_BITWISE_ENUM(MosaicFlags)
+	DEFINE_EMBEDDABLE_TRANSACTION(MosaicSupplyRevocation)
+
+#pragma pack(pop)
 }}

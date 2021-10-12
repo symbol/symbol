@@ -20,16 +20,19 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "tests/test/plugins/DiscreteIntegerValidatorTests.h"
+#include "tests/test/cache/CacheTestUtils.h"
+#include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicFlagsValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicFlags,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicFlags, Height())
 
 	namespace {
+		constexpr auto Revokable_Fork_Height = Height(1000);
+
 		struct MosaicFlagsTraits {
 			using EnumType = model::MosaicFlags;
 
@@ -37,19 +40,87 @@ namespace catapult { namespace validators {
 			static constexpr auto CreateValidator = CreateMosaicFlagsValidator;
 
 			static std::vector<uint8_t> ValidValues() {
-				return { 0x00, 0x02, 0x05, 0x07 };
+				return { 0x00, 0x02, 0x05, 0x07 }; // valid values prior to any fork
 			}
 
-			static std::vector<uint8_t> InvalidValues() {
-				return { 0x08, 0x09, 0xFF };
+			static std::vector<uint8_t> ValidValuesAfterRevokableFork() {
+				return { 0x08, 0x09, 0x0F };
 			}
 
-			static auto CreateNotification(EnumType value) {
+			static std::vector<uint8_t> InvalidValuesAfterRevokableFork() {
+				return { 0x10, 0x11, 0xFF };
+			}
+
+			static auto CreateNotification(model::MosaicFlags value) {
 				model::MosaicProperties properties(value, 0, BlockDuration());
 				return model::MosaicPropertiesNotification(properties);
 			}
 		};
+
+		void AssertValueValidationResult(ValidationResult expectedResult, model::MosaicFlags value, Height height) {
+			// Arrange:
+			auto pValidator = MosaicFlagsTraits::CreateValidator(Revokable_Fork_Height);
+			auto notification = MosaicFlagsTraits::CreateNotification(value);
+
+			auto cache = test::CreateEmptyCatapultCache();
+			auto cacheView = cache.createView();
+			auto readOnlyCache = cacheView.toReadOnly();
+			auto validatorContext = test::CreateValidatorContext(height, readOnlyCache);
+
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification, validatorContext);
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "value " << static_cast<uint64_t>(value) << " at " << height;
+		}
 	}
 
-	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, MosaicFlagsTraits)
+	// region basic
+
+	TEST(TEST_CLASS, SuccessWhenProcessingValidValue) {
+		for (auto value : MosaicFlagsTraits::ValidValues())
+			AssertValueValidationResult(ValidationResult::Success, static_cast<model::MosaicFlags>(value), Height(1));
+	}
+
+	TEST(TEST_CLASS, FailureWhenProcessingInvalidValue) {
+		for (auto value : MosaicFlagsTraits::ValidValuesAfterRevokableFork())
+			AssertValueValidationResult(MosaicFlagsTraits::Failure_Result, static_cast<model::MosaicFlags>(value), Height(1));
+
+		for (auto value : MosaicFlagsTraits::InvalidValuesAfterRevokableFork())
+			AssertValueValidationResult(MosaicFlagsTraits::Failure_Result, static_cast<model::MosaicFlags>(value), Height(1));
+	}
+
+	// endregion
+
+	// region revokable fork
+
+	TEST(TEST_CLASS, FailureWhenRevokableFlagIsPresentBeforeRevokableFork) {
+		for (auto value : MosaicFlagsTraits::ValidValuesAfterRevokableFork()) {
+			for (auto heightAdjustment : { Height(1), Height(100) }) {
+				auto height = Revokable_Fork_Height - heightAdjustment;
+				AssertValueValidationResult(MosaicFlagsTraits::Failure_Result, static_cast<model::MosaicFlags>(value), height);
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, SuccessWhenRevokableFlagIsPresentAtRevokableFork) {
+		for (auto value : MosaicFlagsTraits::ValidValuesAfterRevokableFork())
+			AssertValueValidationResult(ValidationResult::Success, static_cast<model::MosaicFlags>(value), Revokable_Fork_Height);
+	}
+
+	TEST(TEST_CLASS, SuccessWhenRevokableFlagIsPresentAfterRevokableFork) {
+		for (auto value : MosaicFlagsTraits::ValidValuesAfterRevokableFork()) {
+			for (auto heightAdjustment : { Height(1), Height(100) }) {
+				auto height = Revokable_Fork_Height + heightAdjustment;
+				AssertValueValidationResult(ValidationResult::Success, static_cast<model::MosaicFlags>(value), height);
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, FailureWhenProcessingInvalidValueAtRevokableFork) {
+		for (auto value : MosaicFlagsTraits::InvalidValuesAfterRevokableFork())
+			AssertValueValidationResult(MosaicFlagsTraits::Failure_Result, static_cast<model::MosaicFlags>(value), Revokable_Fork_Height);
+	}
+
+	// endregion
 }}

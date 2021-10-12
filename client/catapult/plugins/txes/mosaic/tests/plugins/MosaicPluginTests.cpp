@@ -59,7 +59,8 @@ namespace catapult { namespace plugins {
 			static std::vector<model::EntityType> GetTransactionTypes() {
 				return {
 					model::Entity_Type_Mosaic_Definition,
-					model::Entity_Type_Mosaic_Supply_Change
+					model::Entity_Type_Mosaic_Supply_Change,
+					model::Entity_Type_Mosaic_Supply_Revocation
 				};
 			}
 
@@ -81,7 +82,6 @@ namespace catapult { namespace plugins {
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
 				return {
-					"MosaicFlagsValidator",
 					"MosaicIdValidator",
 					"MosaicSupplyChangeValidator"
 				};
@@ -89,6 +89,7 @@ namespace catapult { namespace plugins {
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
 				return {
+					"MosaicFlagsValidator",
 					"RequiredMosaicValidator",
 					"MosaicAvailabilityValidator",
 					"MosaicDivisibilityValidator",

@@ -20,32 +20,14 @@
 **/
 
 #pragma once
-#include "catapult/utils/BitwiseEnum.h"
-#include <stdint.h>
+#include "catapult/plugins.h"
+#include <memory>
 
-namespace catapult { namespace model {
+namespace catapult { namespace model { class TransactionPlugin; } }
 
-	/// Mosaic property flags.
-	enum class MosaicFlags : uint8_t {
-		/// No flags present.
-		None = 0x00,
+namespace catapult { namespace plugins {
 
-		/// Mosaic supports supply changes even when mosaic owner owns partial supply.
-		Supply_Mutable = 0x01,
-
-		/// Mosaic supports transfers between arbitrary accounts.
-		/// \note When not set, mosaic can only be transferred to and from mosaic owner.
-		Transferable = 0x02,
-
-		/// Mosaic supports custom restrictions configured by mosaic owner.
-		Restrictable = 0x04,
-
-		/// Mosaic supports revocation of tokens by creator.
-		Revokable = 0x08,
-
-		/// All flags.
-		All = 0x0F
-	};
-
-	MAKE_BITWISE_ENUM(MosaicFlags)
+	/// Creates a mosaic supply revocation transaction plugin.
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateMosaicSupplyRevocationTransactionPlugin();
 }}
