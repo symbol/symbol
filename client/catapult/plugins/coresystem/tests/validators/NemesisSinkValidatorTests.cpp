@@ -28,20 +28,27 @@
 
 namespace catapult { namespace validators {
 
-	DEFINE_COMMON_VALIDATOR_TESTS(NemesisSink,)
+	DEFINE_COMMON_VALIDATOR_TESTS(NemesisSink, Height(), std::vector<Signature>())
 
 #define TEST_CLASS NemesisSinkValidatorTests
 
 	namespace {
 		constexpr auto Success_Result = ValidationResult::Success;
 		constexpr auto Failure_Result = Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;
+		constexpr auto Fork_Height = Height(1000);
+
+		enum class ExplicitlyAllowedSignatureMode { Enabled, Disabled };
 
 		crypto::KeyPair GetNemesisAccount() {
 			// note that the nemesis account is fake in order to ensure that it is being retrieved from the context
 			return crypto::KeyPair::FromString("0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF");
 		}
 
-		void AssertValidationResult(ValidationResult expectedResult, const Key& signer, Height::ValueType height) {
+		void AssertValidationResult(
+				ValidationResult expectedResult,
+				const Key& signer,
+				Height height,
+				ExplicitlyAllowedSignatureMode explicitlyAllowedSignatureMode = ExplicitlyAllowedSignatureMode::Disabled) {
 			// Arrange:
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheView = cache.createView();
@@ -49,10 +56,13 @@ namespace catapult { namespace validators {
 			model::NetworkInfo networkInfo;
 			networkInfo.NemesisSignerPublicKey = GetNemesisAccount().publicKey();
 
-			auto pValidator = CreateNemesisSinkValidator();
-			auto context = test::CreateValidatorContext(Height(height), networkInfo, readOnlyCache);
+			auto signatures = test::GenerateRandomDataVector<Signature>(3);
+			auto pValidator = CreateNemesisSinkValidator(Fork_Height, signatures);
+			auto context = test::CreateValidatorContext(height, networkInfo, readOnlyCache);
 
-			auto signature = test::GenerateRandomByteArray<Signature>();
+			auto signature = ExplicitlyAllowedSignatureMode::Enabled == explicitlyAllowedSignatureMode
+					? signatures[1]
+					: test::GenerateRandomByteArray<Signature>();
 			model::SignatureNotification notification(signer, signature, {});
 
 			// Act:
@@ -63,40 +73,50 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, SuccessWhenValidatingEntityNotSignedByTheNemesisAccount) {
+	TEST(TEST_CLASS, SuccessWhenValidatingSignatureNotFromNemesisAccount) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
 
-		// Sanity:
-		EXPECT_NE(GetNemesisAccount().publicKey(), signer);
-
 		// Assert: signer is allowed at all heights
-		AssertValidationResult(Success_Result, signer, 1);
-		AssertValidationResult(Success_Result, signer, 10);
-		AssertValidationResult(Success_Result, signer, 100);
+		AssertValidationResult(Success_Result, signer, Height(1));
+		AssertValidationResult(Success_Result, signer, Height(10));
+		AssertValidationResult(Success_Result, signer, Height(100));
 	}
 
-	TEST(TEST_CLASS, SuccessWhenValidatingEntityAtHeightOneSignedByNemesisAccount) {
+	TEST(TEST_CLASS, SuccessWhenValidatingSignatureFromNemesisAccountAtHeightOne) {
 		// Arrange:
 		auto signer = GetNemesisAccount().publicKey();
-
-		// Sanity:
-		EXPECT_EQ(GetNemesisAccount().publicKey(), signer);
 
 		// Assert: allowed at height one
-		AssertValidationResult(Success_Result, signer, 1);
+		AssertValidationResult(Success_Result, signer, Height(1));
 	}
 
-	TEST(TEST_CLASS, FailureWhenValidatingEntityNotAtHeightOneSignedByNemesisAccount) {
+	TEST(TEST_CLASS, FailureWhenValidatingSignatureFromNemesisAccountNotAtHeightOne) {
 		// Arrange:
 		auto signer = GetNemesisAccount().publicKey();
 
-		// Sanity:
-		EXPECT_EQ(GetNemesisAccount().publicKey(), signer);
-
 		// Assert: not allowed at heights greater than one
-		AssertValidationResult(Failure_Result, signer, 2);
-		AssertValidationResult(Failure_Result, signer, 10);
-		AssertValidationResult(Failure_Result, signer, 100);
+		AssertValidationResult(Failure_Result, signer, Fork_Height - Height(100));
+		AssertValidationResult(Failure_Result, signer, Fork_Height);
+		AssertValidationResult(Failure_Result, signer, Fork_Height + Height(100));
+	}
+
+	TEST(TEST_CLASS, FailureWhenValidatingSignatureFromNemesisAccountNotAtForkHeightWithExplicitlyAllowedSignatures) {
+		// Arrange:
+		auto signer = GetNemesisAccount().publicKey();
+
+		// Assert: not allowed at non-fork heights
+		AssertValidationResult(Failure_Result, signer, Fork_Height - Height(100), ExplicitlyAllowedSignatureMode::Enabled);
+		AssertValidationResult(Failure_Result, signer, Fork_Height - Height(1), ExplicitlyAllowedSignatureMode::Enabled);
+		AssertValidationResult(Failure_Result, signer, Fork_Height + Height(1), ExplicitlyAllowedSignatureMode::Enabled);
+		AssertValidationResult(Failure_Result, signer, Fork_Height + Height(100), ExplicitlyAllowedSignatureMode::Enabled);
+	}
+
+	TEST(TEST_CLASS, SuccessWhenValidatingSignatureFromNemesisAccountAtForkHeightWithExplicitlyAllowedSignatures) {
+		// Arrange:
+		auto signer = GetNemesisAccount().publicKey();
+
+		// Assert: allowed at fork height because of explicit allowance
+		AssertValidationResult(Success_Result, signer, Fork_Height, ExplicitlyAllowedSignatureMode::Enabled);
 	}
 }}

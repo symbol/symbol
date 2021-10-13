@@ -49,8 +49,11 @@ namespace catapult { namespace validators {
 	// region VerifiableEntity
 
 	/// Validator that applies to all signature notifications and validates that:
-	/// - nemesis account signatures are not allowed after the nemesis block
-	DECLARE_STATEFUL_VALIDATOR(NemesisSink, model::SignatureNotification)();
+	/// - nemesis account signatures are not allowed after the nemesis block unless they are in
+	///   \a additionalAllowedSignatures at \a additionalAllowedSignaturesHeight.
+	DECLARE_STATEFUL_VALIDATOR(NemesisSink, model::SignatureNotification)(
+			Height additionalAllowedSignaturesHeight,
+			const std::vector<Signature>& additionalAllowedSignatures);
 
 	/// Validator that applies to all entity notifications and validates that:
 	/// - the entity targets the expected network (\a networkIdentifier)
