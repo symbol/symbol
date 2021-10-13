@@ -37,6 +37,18 @@ namespace catapult { namespace model {
 		constexpr auto Nemesis_Generation_Hash_Seed = "CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230";
 		constexpr auto Harvest_Network_Fee_Sink_Address = "SBHI5UVMDQ36X3USYK6UQELCLZ7YL3T2WP5OCKY";
 
+		constexpr auto Signature_1 =
+				"395C2B37C7AABBEC3C08BD42DAF52D93D1BF003FF6A731E54F63003383EF1CE0"
+				"302871ADD90DF04638DC617ACF2F5BB759C3DDC060E55A554477543210976C75";
+
+		constexpr auto Signature_2 =
+				"401ECCE607FF9710A00B677A487D36B9B9B3B0DC6DF59DA0A2BD77603E80B82B"
+				"D0A82FE949055C5BB7A00F83AF4FF1242965CBF62C9D083344FF294D157259B2";
+
+		constexpr auto Signature_3 =
+				"3A785A34EA7FAB8AD7ED1B95EC0C0C1CC4097104DD3A47AB06E138D59DC48D75"
+				"300996EDEF0C24641EE5EFFD83A3EFE10CE4CA41DAAF642342E988A0A0EA7FB6";
+
 		struct BlockChainConfigurationTraits {
 			using ConfigurationType = BlockChainConfiguration;
 
@@ -98,6 +110,14 @@ namespace catapult { namespace model {
 						{
 							{ "totalVotingBalanceCalculationFix", "998877" },
 							{ "treasuryReissuance", "11998877" }
+						}
+					},
+					{
+						"additional_nemesis_account_transaction_signatures",
+						{
+							{ Signature_1, "true" },
+							{ Signature_2, "false" },
+							{ Signature_3, "true" }
 						}
 					},
 					{
@@ -168,6 +188,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Height(0), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(0), config.ForkHeights.TreasuryReissuance);
 
+				EXPECT_TRUE(config.AdditionalNemesisAccountTransactionSignatures.empty());
 				EXPECT_TRUE(config.Plugins.empty());
 			}
 
@@ -219,6 +240,13 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Height(998877), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(11998877), config.ForkHeights.TreasuryReissuance);
 
+				EXPECT_EQ(
+						std::vector<Signature>({
+							utils::ParseByteArray<Signature>(Signature_1),
+							utils::ParseByteArray<Signature>(Signature_3)
+						}),
+						config.AdditionalNemesisAccountTransactionSignatures);
+
 				EXPECT_EQ(2u, config.Plugins.size());
 				const auto& pluginAlphaBag = config.Plugins.find("alpha")->second;
 				EXPECT_EQ(1u, pluginAlphaBag.size());
@@ -241,6 +269,16 @@ namespace catapult { namespace model {
 		auto& networkProperties = container["network"];
 		auto hasIdentifierKey = [](const auto& pair) { return "identifier" == pair.first; };
 		std::find_if(networkProperties.begin(), networkProperties.end(), hasIdentifierKey)->second = "foonet";
+
+		// Act + Assert:
+		EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(container)), utils::property_malformed_error);
+	}
+
+	TEST(TEST_CLASS, CannotLoadBlockChainConfigurationWithInvalidAdditionalNemesisAccountTransactionSignature) {
+		// Arrange: set an invalid (too short) signature in the container
+		using Traits = BlockChainConfigurationTraits;
+		auto container = Traits::CreateProperties();
+		container["additional_nemesis_account_transaction_signatures"][1] = { Nemesis_Generation_Hash_Seed, "true" };
 
 		// Act + Assert:
 		EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(container)), utils::property_malformed_error);

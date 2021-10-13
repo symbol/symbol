@@ -122,9 +122,6 @@ namespace catapult { namespace model {
 		/// Maximum number of transactions per block.
 		uint32_t MaxTransactionsPerBlock;
 
-		/// Unparsed map of plugin configuration.
-		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;
-
 	public:
 		/// Fork heights configuration.
 		struct ForkHeights {
@@ -137,6 +134,14 @@ namespace catapult { namespace model {
 
 		/// Fork heights.
 		BlockChainConfiguration::ForkHeights ForkHeights;
+
+	public:
+		/// Additional nemesis account transaction signatures.
+		/// \note These are allowed to occur after the nemesis block.
+		std::vector<Signature> AdditionalNemesisAccountTransactionSignatures;
+
+		/// Unparsed map of plugin configuration.
+		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;
 
 	private:
 		BlockChainConfiguration() = default;

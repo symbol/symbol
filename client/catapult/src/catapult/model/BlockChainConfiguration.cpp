@@ -23,6 +23,7 @@
 #include "Address.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
+#include "catapult/utils/HexParser.h"
 
 DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT
 
@@ -34,6 +35,45 @@ namespace catapult { namespace model {
 		void CheckPluginName(const std::string& pluginName) {
 			if (std::any_of(pluginName.cbegin(), pluginName.cend(), [](auto ch) { return (ch < 'a' || ch > 'z') && '.' != ch; }))
 				CATAPULT_THROW_INVALID_ARGUMENT_1("plugin name contains unexpected character", pluginName);
+		}
+
+		size_t ParseSignaturesSection(const utils::ConfigurationBag& bag, std::vector<Signature>& signatures) {
+			auto signaturesPair = utils::ExtractSectionAsOrderedVector(bag, "additional_nemesis_account_transaction_signatures");
+
+			for (const auto& str : signaturesPair.first) {
+				Signature signature;
+				if (!utils::TryParseHexStringIntoContainer(str.data(), str.size(), signature)) {
+					auto message = "property could not be parsed";
+					CATAPULT_THROW_AND_LOG_1(utils::property_malformed_error, message, std::string(str));
+				}
+
+				signatures.push_back(signature);
+			}
+
+			return signaturesPair.second;
+		}
+
+		size_t ParsePluginSections(const utils::ConfigurationBag& bag, std::unordered_map<std::string, utils::ConfigurationBag>& plugins) {
+			std::unordered_set<std::string> otherSections{
+				"network", "chain", "fork_heights", "additional_nemesis_account_transaction_signatures"
+			};
+
+			size_t numPluginProperties = 0;
+			for (const auto& section : bag.sections()) {
+				if (otherSections.cend() != otherSections.find(section))
+					continue;
+
+				std::string prefix("plugin:");
+				if (section.size() <= prefix.size() || 0 != section.find(prefix))
+					CATAPULT_THROW_INVALID_ARGUMENT_1("configuration bag contains unexpected section", section);
+
+				auto pluginName = section.substr(prefix.size());
+				CheckPluginName(pluginName);
+				auto iter = plugins.emplace(pluginName, utils::ExtractSectionAsBag(bag, section.c_str())).first;
+				numPluginProperties += iter->second.size();
+			}
+
+			return numPluginProperties;
 		}
 	}
 
@@ -102,22 +142,10 @@ namespace catapult { namespace model {
 
 #undef LOAD_FORK_HEIGHT_PROPERTY
 
-		size_t numPluginProperties = 0;
-		for (const auto& section : bag.sections()) {
-			if ("network" == section || "chain" == section || "fork_heights" == section)
-				continue;
+		auto numAdditionalSignatures = ParseSignaturesSection(bag, config.AdditionalNemesisAccountTransactionSignatures);
+		auto numPluginProperties = ParsePluginSections(bag, config.Plugins);
 
-			std::string prefix("plugin:");
-			if (section.size() <= prefix.size() || 0 != section.find(prefix))
-				CATAPULT_THROW_INVALID_ARGUMENT_1("configuration bag contains unexpected section", section);
-
-			auto pluginName = section.substr(prefix.size());
-			CheckPluginName(pluginName);
-			auto iter = config.Plugins.emplace(pluginName, utils::ExtractSectionAsBag(bag, section.c_str())).first;
-			numPluginProperties += iter->second.size();
-		}
-
-		utils::VerifyBagSizeExact(bag, 5 + 27 + 2 + numPluginProperties);
+		utils::VerifyBagSizeExact(bag, 5 + 27 + 2 + numAdditionalSignatures + numPluginProperties);
 		return config;
 	}
 
