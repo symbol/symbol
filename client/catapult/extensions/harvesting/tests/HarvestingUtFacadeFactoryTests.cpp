@@ -574,8 +574,8 @@ namespace catapult { namespace harvesting {
 		private:
 			void notify(const model::BalanceTransferNotification& notification, observers::ObserverContext& context) const {
 				auto& accountStateCacheDelta = context.Cache.sub<cache::AccountStateCache>();
-				auto senderIter = accountStateCacheDelta.find(notification.Sender);
-				auto recipientIter = accountStateCacheDelta.find(context.Resolvers.resolve(notification.Recipient));
+				auto senderIter = accountStateCacheDelta.find(notification.Sender.resolved(context.Resolvers));
+				auto recipientIter = accountStateCacheDelta.find(notification.Recipient.resolved(context.Resolvers));
 
 				auto& senderState = senderIter.get();
 				auto& recipientState = recipientIter.get();

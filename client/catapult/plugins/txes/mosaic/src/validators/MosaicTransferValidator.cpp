@@ -36,13 +36,13 @@ namespace catapult { namespace validators {
 				const Address& owner,
 				const Notification& notification,
 				const model::ResolverContext& resolvers) {
-			if (owner == notification.Sender)
+			if (owner == notification.Sender.resolved(resolvers))
 				return true;
 
 			// the owner must exist if the mosaic lookup succeeded
 			const auto& accountStateCache = cache.sub<cache::AccountStateCache>();
 			auto ownerAccountStateIter = accountStateCache.find(owner);
-			return ownerAccountStateIter.get().Address == resolvers.resolve(notification.Recipient);
+			return ownerAccountStateIter.get().Address == notification.Recipient.resolved(resolvers);
 		}
 	}
 

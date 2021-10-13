@@ -28,7 +28,7 @@ namespace catapult { namespace observers {
 			const model::BalanceDebitNotification& notification,
 			const ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::AccountStateCache>();
-		auto senderIter = cache.find(notification.Sender);
+		auto senderIter = cache.find(notification.Sender.resolved(context.Resolvers));
 		auto& senderState = senderIter.get();
 
 		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);

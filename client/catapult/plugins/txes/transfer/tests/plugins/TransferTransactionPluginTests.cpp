@@ -197,10 +197,13 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 		for (auto i = 0u; i < 2u; ++i) {
 			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
+				EXPECT_TRUE(notification.Sender.isResolved());
+				EXPECT_FALSE(notification.Recipient.isResolved());
+
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
 				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
-				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
+				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient.unresolved());
 				EXPECT_EQ(BalanceTransferNotification::AmountType::Static, notification.TransferAmountType);
 			});
 		}
@@ -256,10 +259,13 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 		for (auto i = 0u; i < 3u; ++i) {
 			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
+				EXPECT_TRUE(notification.Sender.isResolved());
+				EXPECT_FALSE(notification.Recipient.isResolved());
+
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
 				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
-				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
+				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient.unresolved());
 				EXPECT_EQ(BalanceTransferNotification::AmountType::Static, notification.TransferAmountType);
 			});
 		}

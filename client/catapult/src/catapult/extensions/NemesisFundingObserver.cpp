@@ -35,13 +35,14 @@ namespace catapult { namespace extensions {
 				CATAPULT_THROW_INVALID_ARGUMENT("NemesisFundingObserver only supports commit mode for nemesis block");
 
 			// never fund non-nemesis accounts
-			if (nemesisAddress != notification.Sender)
+			auto senderAddress = notification.Sender.resolved(context.Resolvers);
+			if (nemesisAddress != senderAddress)
 				return;
 
 			auto& cache = context.Cache.sub<cache::AccountStateCache>();
-			cache.addAccount(notification.Sender, context.Height);
+			cache.addAccount(senderAddress, context.Height);
 
-			auto senderIter = cache.find(notification.Sender);
+			auto senderIter = cache.find(senderAddress);
 			auto& senderState = senderIter.get();
 
 			auto mosaicId = context.Resolvers.resolve(notification.MosaicId);

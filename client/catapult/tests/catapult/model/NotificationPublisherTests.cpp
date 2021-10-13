@@ -505,7 +505,7 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<BalanceDebitNotification>(*pTransaction, [&transaction = *pTransaction](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
 			EXPECT_EQ(Currency_Mosaic_Id, notification.MosaicId);
 			EXPECT_EQ(Amount(765), notification.Amount);
 		});

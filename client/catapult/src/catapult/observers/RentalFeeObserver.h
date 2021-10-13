@@ -35,10 +35,11 @@ namespace catapult { namespace observers {
 			if (NotifyMode::Rollback == context.Mode)
 				return;
 
+			auto senderAddress = notification.Sender.resolved(context.Resolvers);
 			auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-			auto recipient = context.Resolvers.resolve(notification.Recipient);
+			auto recipientAddress = context.Resolvers.resolve(notification.Recipient);
 			auto effectiveAmount = Amount(notification.Amount.unwrap() * context.Cache.dependentState().DynamicFeeMultiplier.unwrap());
-			model::BalanceTransferReceipt receipt(receiptType, notification.Sender, recipient, mosaicId, effectiveAmount);
+			model::BalanceTransferReceipt receipt(receiptType, senderAddress, recipientAddress, mosaicId, effectiveAmount);
 			context.StatementBuilder().addReceipt(receipt);
 		});
 	}

@@ -59,18 +59,26 @@ namespace catapult { namespace validators {
 			return ProcessMosaicRules(notification.MosaicId, context, [&notification, &resolvers = context.Resolvers](
 					const auto& cache,
 					const auto& mosaicRules) {
-				auto isSenderAuthorized = cache::EvaluateMosaicRestrictionResolvedRulesForAddress(cache, notification.Sender, mosaicRules);
+				auto isSenderAuthorized = cache::EvaluateMosaicRestrictionResolvedRulesForAddress(
+						cache,
+						notification.Sender.resolved(resolvers),
+						mosaicRules);
 				auto isRecipientAuthorized = cache::EvaluateMosaicRestrictionResolvedRulesForAddress(
 						cache,
-						resolvers.resolve(notification.Recipient),
+						notification.Recipient.resolved(resolvers),
 						mosaicRules);
 				return isSenderAuthorized && isRecipientAuthorized;
 			});
 		}
 
 		ValidationResult CheckDebitAuthorization(const model::BalanceDebitNotification& notification, const ValidatorContext& context) {
-			return ProcessMosaicRules(notification.MosaicId, context, [&notification](const auto& cache, const auto& mosaicRules) {
-				return cache::EvaluateMosaicRestrictionResolvedRulesForAddress(cache, notification.Sender, mosaicRules);
+			return ProcessMosaicRules(notification.MosaicId, context, [&notification, &resolvers = context.Resolvers](
+					const auto& cache,
+					const auto& mosaicRules) {
+				return cache::EvaluateMosaicRestrictionResolvedRulesForAddress(
+						cache,
+						notification.Sender.resolved(resolvers),
+						mosaicRules);
 			});
 		}
 	}

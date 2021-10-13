@@ -55,7 +55,7 @@ namespace catapult { namespace validators {
 			return CheckAccount(
 					maxMosaics,
 					context.Resolvers.resolve(notification.MosaicId),
-					context.Resolvers.resolve(notification.Recipient),
+					notification.Recipient.resolved(context.Resolvers),
 					context);
 		});
 	}

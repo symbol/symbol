@@ -66,7 +66,7 @@ namespace catapult { namespace validators {
 
 			Amount amount;
 			auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-			if (FindAccountBalance(cache, notification.Sender, mosaicId, amount)) {
+			if (FindAccountBalance(cache, notification.Sender.resolved(context.Resolvers), mosaicId, amount)) {
 				Amount effectiveAmount;
 				auto dynamicFeeMultiplier = context.Cache.dependentState().DynamicFeeMultiplier;
 				if (TryGetEffectiveAmount(notification, dynamicFeeMultiplier, effectiveAmount) && amount >= effectiveAmount)
