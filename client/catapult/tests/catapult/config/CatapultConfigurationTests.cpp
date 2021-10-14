@@ -96,6 +96,10 @@ namespace catapult { namespace config {
 
 			EXPECT_EQ(200'000u, config.MaxTransactionsPerBlock);
 
+			EXPECT_EQ(
+					utils::ParseByteArray<Hash256>("C30D3BA3FCA89CEBA10CC50EE5F62F19D0694FD80F3680933A1F480E1F2E2932"),
+					config.TreasuryReissuanceBlockTransactionsHash);
+
 			EXPECT_EQ(Height(528'000), config.ForkHeights.TotalVotingBalanceCalculationFix);
 			EXPECT_EQ(Height(600'000), config.ForkHeights.TreasuryReissuance);
 

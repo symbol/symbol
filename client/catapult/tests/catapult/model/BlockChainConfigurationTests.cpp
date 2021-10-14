@@ -36,6 +36,7 @@ namespace catapult { namespace model {
 		constexpr auto Nemesis_Signer_Public_Key = "C738E237C98760FA72726BA13DC2A1E3C13FA67DE26AF09742E972EE4EE45E1C";
 		constexpr auto Nemesis_Generation_Hash_Seed = "CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230";
 		constexpr auto Harvest_Network_Fee_Sink_Address = "SBHI5UVMDQ36X3USYK6UQELCLZ7YL3T2WP5OCKY";
+		constexpr auto Treasury_Reissuance_Block_Transactions_Hash = "D426477D230C8ACD3F8D307C389230F6A43DACE8144C98BE4175CB55AB1100F6";
 
 		constexpr auto Signature_1 =
 				"395C2B37C7AABBEC3C08BD42DAF52D93D1BF003FF6A731E54F63003383EF1CE0"
@@ -102,7 +103,9 @@ namespace catapult { namespace model {
 							{ "harvestNetworkPercentage", "21" },
 							{ "harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address },
 
-							{ "maxTransactionsPerBlock", "120" }
+							{ "maxTransactionsPerBlock", "120" },
+
+							{ "treasuryReissuanceBlockTransactionsHash", Treasury_Reissuance_Block_Transactions_Hash }
 						}
 					},
 					{
@@ -185,6 +188,8 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(0u, config.MaxTransactionsPerBlock);
 
+				EXPECT_EQ(Hash256(), config.TreasuryReissuanceBlockTransactionsHash);
+
 				EXPECT_EQ(Height(0), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(0), config.ForkHeights.TreasuryReissuance);
 
@@ -236,6 +241,10 @@ namespace catapult { namespace model {
 				EXPECT_EQ(StringToAddress(Harvest_Network_Fee_Sink_Address), config.HarvestNetworkFeeSinkAddress);
 
 				EXPECT_EQ(120u, config.MaxTransactionsPerBlock);
+
+				EXPECT_EQ(
+						utils::ParseByteArray<Hash256>(Treasury_Reissuance_Block_Transactions_Hash),
+						config.TreasuryReissuanceBlockTransactionsHash);
 
 				EXPECT_EQ(Height(998877), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(11998877), config.ForkHeights.TreasuryReissuance);

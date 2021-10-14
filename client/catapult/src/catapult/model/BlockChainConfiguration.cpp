@@ -133,6 +133,8 @@ namespace catapult { namespace model {
 
 		LOAD_CHAIN_PROPERTY(MaxTransactionsPerBlock);
 
+		LOAD_CHAIN_PROPERTY(TreasuryReissuanceBlockTransactionsHash);
+
 #undef LOAD_CHAIN_PROPERTY
 
 #define LOAD_FORK_HEIGHT_PROPERTY(NAME) utils::LoadIniProperty(bag, "fork_heights", #NAME, config.ForkHeights.NAME)
@@ -145,7 +147,7 @@ namespace catapult { namespace model {
 		auto numAdditionalSignatures = ParseSignaturesSection(bag, config.AdditionalNemesisAccountTransactionSignatures);
 		auto numPluginProperties = ParsePluginSections(bag, config.Plugins);
 
-		utils::VerifyBagSizeExact(bag, 5 + 27 + 2 + numAdditionalSignatures + numPluginProperties);
+		utils::VerifyBagSizeExact(bag, 5 + 28 + 2 + numAdditionalSignatures + numPluginProperties);
 		return config;
 	}
 

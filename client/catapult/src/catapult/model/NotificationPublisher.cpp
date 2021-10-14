@@ -35,7 +35,15 @@ namespace catapult { namespace model {
 		}
 
 		BlockNotification CreateBlockNotification(const Block& block, const Address& blockSignerAddress) {
-			return { block.Type, blockSignerAddress, block.BeneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier };
+			return {
+				block.Type,
+				blockSignerAddress,
+				block.BeneficiaryAddress,
+				block.Timestamp,
+				block.Difficulty,
+				block.FeeMultiplier,
+				block.TransactionsHash
+			};
 		}
 
 		class CustomNotificationPublisher : public NotificationPublisher {

@@ -256,6 +256,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Timestamp(123), notification.Timestamp);
 			EXPECT_EQ(Difficulty(575), notification.Difficulty);
 			EXPECT_EQ(BlockFeeMultiplier(3), notification.FeeMultiplier);
+			EXPECT_EQ(block.TransactionsHash, notification.TransactionsHash);
 			EXPECT_EQ(Amount(0), notification.TotalFee);
 			EXPECT_EQ(0u, notification.NumTransactions);
 		});
@@ -277,6 +278,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Timestamp(432), notification.Timestamp);
 			EXPECT_EQ(Difficulty(575), notification.Difficulty);
 			EXPECT_EQ(BlockFeeMultiplier(3), notification.FeeMultiplier);
+			EXPECT_EQ(block.TransactionsHash, notification.TransactionsHash);
 			EXPECT_EQ(Amount(3 * 653), notification.TotalFee);
 			EXPECT_EQ(3u + 11 + 25 + 17, notification.NumTransactions);
 		});

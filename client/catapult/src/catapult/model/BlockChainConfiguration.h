@@ -122,6 +122,9 @@ namespace catapult { namespace model {
 		/// Maximum number of transactions per block.
 		uint32_t MaxTransactionsPerBlock;
 
+		/// Treasury reissuance block's expected transactions hash.
+		Hash256 TreasuryReissuanceBlockTransactionsHash;
+
 	public:
 		/// Fork heights configuration.
 		struct ForkHeights {
