@@ -62,7 +62,8 @@ namespace catapult { namespace plugins {
 		auto rentalFeeConfig = ToMosaicRentalFeeConfiguration(manager.config().Network, unresolvedCurrencyMosaicId, config);
 		manager.addTransactionSupport(CreateMosaicDefinitionTransactionPlugin(rentalFeeConfig));
 		manager.addTransactionSupport(CreateMosaicSupplyChangeTransactionPlugin());
-		manager.addTransactionSupport(CreateMosaicSupplyRevocationTransactionPlugin());
+		manager.addTransactionSupport(CreateMosaicSupplyRevocationTransactionPlugin(
+				model::GetNemesisSignerAddress(manager.config().Network)));
 
 		manager.addCacheSupport<cache::MosaicCacheStorage>(
 				std::make_unique<cache::MosaicCache>(manager.cacheConfig(cache::MosaicCache::Name)));

@@ -21,13 +21,14 @@
 
 #pragma once
 #include "catapult/plugins.h"
+#include "catapult/types.h"
 #include <memory>
 
 namespace catapult { namespace model { class TransactionPlugin; } }
 
 namespace catapult { namespace plugins {
 
-	/// Creates a mosaic supply revocation transaction plugin.
+	/// Creates a mosaic supply revocation transaction plugin given the nemesis address (\a nemesisAddress).
 	PLUGIN_API
-	std::unique_ptr<model::TransactionPlugin> CreateMosaicSupplyRevocationTransactionPlugin();
+	std::unique_ptr<model::TransactionPlugin> CreateMosaicSupplyRevocationTransactionPlugin(const Address& nemesisAddress);
 }}

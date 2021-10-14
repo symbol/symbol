@@ -31,18 +31,23 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-			constexpr auto Mosaic_Flags_Revokable = utils::to_underlying_type(MosaicFlags::Revokable);
-			// MosaicFlagsValidator prevents any mosaics from being created with Revokable flag prior to fork block
-			// consequently, MosaicSupplyRevocation transactions will be rejected until then because of Revokable flag requirement
-			sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.Mosaic.MosaicId, Mosaic_Flags_Revokable));
-			sub.notify(BalanceTransferNotification(
-					transaction.SourceAddress,
-					context.SignerAddress,
-					transaction.Mosaic.MosaicId,
-					transaction.Mosaic.Amount));
+		auto CreatePublisher(const Address& nemesisAddress) {
+			return [nemesisAddress](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
+				auto isNemesisSigner = nemesisAddress == context.SignerAddress;
+				auto requiredMosaicFlags = utils::to_underlying_type(isNemesisSigner ? MosaicFlags::None : MosaicFlags::Revokable);
+
+				// MosaicFlagsValidator prevents any mosaics from being created with Revokable flag prior to fork block
+				// consequently, MosaicSupplyRevocation transactions will be rejected until then because of Revokable flag requirement
+				sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.Mosaic.MosaicId, requiredMosaicFlags));
+
+				sub.notify(BalanceTransferNotification(
+						transaction.SourceAddress,
+						context.SignerAddress,
+						transaction.Mosaic.MosaicId,
+						transaction.Mosaic.Amount));
+			};
 		}
 	}
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicSupplyRevocation, Default, Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(MosaicSupplyRevocation, Default, CreatePublisher, Address)
 }}

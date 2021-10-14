@@ -20,6 +20,7 @@
 **/
 
 #include "catapult/model/NetworkInfo.h"
+#include "catapult/model/Address.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
@@ -57,6 +58,23 @@ namespace catapult { namespace model {
 		EXPECT_EQ(nemesisSignerPublicKey, networkInfo.NemesisSignerPublicKey);
 		EXPECT_EQ(generationHashSeed, networkInfo.GenerationHashSeed);
 		EXPECT_EQ(utils::TimeSpan::FromHours(123), networkInfo.EpochAdjustment);
+	}
+
+	TEST(TEST_CLASS, CanGetNemesisSignerAddressForNetwork) {
+		// Arrange:
+		auto nemesisSignerPublicKey = test::GenerateRandomByteArray<Key>();
+		NetworkInfo networkInfo(
+				static_cast<NetworkIdentifier>(0xB9),
+				static_cast<NodeIdentityEqualityStrategy>(0xA7),
+				nemesisSignerPublicKey,
+				test::GenerateRandomByteArray<GenerationHashSeed>(),
+				utils::TimeSpan::FromHours(123));
+
+		// Act:
+		auto nemesisSignerAddress = GetNemesisSignerAddress(networkInfo);
+
+		// Assert:
+		EXPECT_EQ(PublicKeyToAddress(nemesisSignerPublicKey, static_cast<NetworkIdentifier>(0xB9)), nemesisSignerAddress);
 	}
 
 	TEST(TEST_CLASS, CanGetUniqueNetworkFingerprintForNetwork) {
