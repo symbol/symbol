@@ -92,4 +92,29 @@ namespace catapult { namespace cache {
 
 		return candidateTransactionInfoPointers;
 	}
+
+	std::vector<const model::TransactionInfo*> GetMatchingTransactionInfoPointers(
+			const MemoryUtCacheView& utCacheView,
+			const std::vector<Signature>& signatures) {
+		std::vector<const model::TransactionInfo*> transactionInfoPointers;
+		transactionInfoPointers.resize(signatures.size());
+
+		utCacheView.forEach([&signatures, &transactionInfoPointers](const auto& transactionInfo) {
+			// order needs to be preserved in order to allow TransactionsHash to be precomputed
+			for (auto i = 0u; i < signatures.size(); ++i) {
+				if (signatures[i] == transactionInfo.pEntity->Signature) {
+					transactionInfoPointers[i] = &transactionInfo;
+					break;
+				}
+			}
+
+			return true;
+		});
+
+		auto isNullptr = [](const auto* pTransactionInfo) { return !pTransactionInfo; };
+		transactionInfoPointers.erase(
+				std::remove_if(transactionInfoPointers.begin(), transactionInfoPointers.end(), isNullptr),
+				transactionInfoPointers.end());
+		return transactionInfoPointers;
+	}
 }}

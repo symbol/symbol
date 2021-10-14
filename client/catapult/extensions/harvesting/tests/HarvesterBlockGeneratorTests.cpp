@@ -42,19 +42,35 @@ namespace catapult { namespace harvesting {
 
 		class TestContext {
 		public:
-			explicit TestContext(model::TransactionSelectionStrategy strategy)
-					: m_config(CreateBlockChainConfiguration())
+			explicit TestContext(model::TransactionSelectionStrategy strategy) : TestContext(strategy, {})
+			{}
+
+			TestContext(model::TransactionSelectionStrategy strategy, const std::unordered_set<size_t>& explicitTransactionIndexes)
+					: m_config(CreateBlockChainConfiguration(!explicitTransactionIndexes.empty()))
 					, m_catapultCache(test::CreateEmptyCatapultCache(m_config, CreateCacheConfiguration(m_dbDirGuard.name())))
 					, m_transactionRegistry(mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Contains_Embeddings))
 					, m_utFacadeFactory(m_catapultCache, m_config, m_executionConfig.Config, [](auto) { return Hash256(); })
 					, m_pUtCache(test::CreateSeededMemoryUtCache(0))
-					, m_generator(CreateHarvesterBlockGenerator(strategy, m_transactionRegistry, m_utFacadeFactory, *m_pUtCache)) {
+					, m_generator(CreateHarvesterBlockGenerator(
+							strategy,
+							m_transactionRegistry,
+							m_utFacadeFactory,
+							m_config,
+							*m_pUtCache)) {
 				// add 5 transaction infos to UT cache with multipliers alternating between 10 and 20
 				m_transactionInfos = test::CreateTransactionInfosFromSizeMultiplierPairs({
 					{ 201, 200 }, { 202, 100 }, { 203, 200 }, { 204, 100 }, { 205, 200 }
 				});
-				for (auto& transactionInfo : m_transactionInfos)
-					const_cast<model::Transaction&>(*transactionInfo.pEntity).Type = mocks::MockTransaction::Entity_Type;
+
+				size_t i = 0;
+				for (auto& transactionInfo : m_transactionInfos) {
+					auto& transaction = const_cast<model::Transaction&>(*transactionInfo.pEntity);
+					transaction.Type = mocks::MockTransaction::Entity_Type;
+					transaction.Signature = explicitTransactionIndexes.cend() == explicitTransactionIndexes.find(i)
+							? test::GenerateRandomByteArray<Signature>()
+							: m_config.AdditionalNemesisAccountTransactionSignatures[i];
+					++i;
+				}
 
 				test::AddAll(*m_pUtCache, m_transactionInfos);
 
@@ -105,12 +121,18 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
+			static model::BlockChainConfiguration CreateBlockChainConfiguration(bool isTreasuryReissuanceForkHeight) {
 				auto config = model::BlockChainConfiguration::Uninitialized();
 				config.EnableVerifiableState = true;
 				config.EnableVerifiableReceipts = true;
 				config.CurrencyMosaicId = MosaicId(123);
 				config.ImportanceGrouping = 1;
+
+				if (isTreasuryReissuanceForkHeight) {
+					config.ForkHeights.TreasuryReissuance = Cache_Height + Height(1);
+					config.AdditionalNemesisAccountTransactionSignatures = test::GenerateRandomDataVector<Signature>(5);
+				}
+
 				return config;
 			}
 
@@ -194,7 +216,7 @@ namespace catapult { namespace harvesting {
 
 		// Assert: 4 (deterministic) transactions should have been added to the block
 		ASSERT_TRUE(!!pBlock);
-		EXPECT_EQ(4u, model::CalculateBlockTransactionsInfo(*pBlock).Count);
+		ASSERT_EQ(4u, model::CalculateBlockTransactionsInfo(*pBlock).Count);
 
 		auto i = 0u;
 		for (const auto& transaction : pBlock->Transactions()) {
@@ -215,6 +237,43 @@ namespace catapult { namespace harvesting {
 		//   that should be explicitly be credited
 		//   (since MockExecutionConfiguration is used, no observers will cause any additional state changes)
 		std::vector<Amount> expectedSurpluses{ Amount(201 * 10), Amount(0), Amount(203 * 10), Amount(0), Amount(0) };
+		EXPECT_EQ(context.calculateExpectedStateHash(expectedSurpluses), pBlock->StateHash);
+	}
+
+	// endregion
+
+	// region generation success (fork)
+
+	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork) {
+		// Arrange:
+		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 1, 3 });
+
+		// Act:
+		auto pBlock = context.generate(Cache_Height + Height(1), 0);
+
+		// Assert: 3 (allowed) transactions should have been added to the block
+		ASSERT_TRUE(!!pBlock);
+		ASSERT_EQ(3u, model::CalculateBlockTransactionsInfo(*pBlock).Count);
+
+		auto i = 1u;
+		for (const auto& transaction : pBlock->Transactions()) {
+			// - transactions are uniquely identified in this test by size
+			EXPECT_EQ(200u + i, transaction.Size) << "transaction at " << i;
+			i *= 2;
+		}
+
+		// - nonzero because transactions present
+		EXPECT_NE(Hash256(), pBlock->TransactionsHash);
+		EXPECT_EQ(BlockFeeMultiplier(0), pBlock->FeeMultiplier);
+
+		// - state changes but no receipts generated
+		EXPECT_NE(context.initialStateHash(), pBlock->StateHash);
+		EXPECT_EQ(Hash256(), pBlock->ReceiptsHash);
+
+		// - first 4 transactions are included in generated block and, of those, even transactions have surpluses
+		//   that should be explicitly be credited
+		//   (since MockExecutionConfiguration is used, no observers will cause any additional state changes)
+		std::vector<Amount> expectedSurpluses{ Amount(201 * 20), Amount(202 * 10), Amount(0), Amount(204 * 10), Amount(0) };
 		EXPECT_EQ(context.calculateExpectedStateHash(expectedSurpluses), pBlock->StateHash);
 	}
 

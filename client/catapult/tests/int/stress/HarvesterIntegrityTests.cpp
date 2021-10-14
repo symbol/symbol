@@ -102,6 +102,7 @@ namespace catapult { namespace harvesting {
 						strategy,
 						m_pPluginManager->transactionRegistry(),
 						utFacadeFactory,
+						m_config.BlockChain,
 						m_transactionsCache);
 				m_pHarvester = std::make_unique<Harvester>(m_cache, m_config.BlockChain, Address(), m_unlockedAccounts, blockGenerator);
 			}
