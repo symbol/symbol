@@ -169,7 +169,7 @@ describe('db utils', () => {
 	});
 
 	describe('bufferToUnresolvedAddress', () => {
-		it('can convert from buffer to Address', () => {
+		it('can convert from Binary to Address', () => {
 			// Arrange
 			const object = new Binary(Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex'));
 
@@ -180,15 +180,34 @@ describe('db utils', () => {
 			expect(result).to.equal('TDQNCOHK6KWDILABL7YLMMPMGYRORL72AS74YVQ');
 		});
 
-		it('cannot convert from invalid data type', () => {
+		it('can convert from Buffer to Address', () => {
 			// Arrange
-			const object = '99CAAB0FD01CCF25BA000000000000000000000000000000';
+			const object = Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex');
+
+			// Act:
+			const result = dbUtils.bufferToUnresolvedAddress(object);
+
+			// Assert:
+			expect(result).to.equal('TDQNCOHK6KWDILABL7YLMMPMGYRORL72AS74YVQ');
+		});
+
+		it('can convert from undefined to undefined address', () => {
+			// Arrange
+			const object = undefined;
 
 			// Act:
 			const result = dbUtils.bufferToUnresolvedAddress(object);
 
 			// Assert:
 			expect(result).to.equal(undefined);
+		});
+
+		it('cannot convert from invalid data type', () => {
+			// Arrange
+			const object = '99CAAB0FD01CCF25BA000000000000000000000000000000';
+
+			// act + Assert:
+			expect(() => dbUtils.bufferToUnresolvedAddress(object)).to.throw('Cannot convert binary address, unknown String type');
 		});
 	});
 });

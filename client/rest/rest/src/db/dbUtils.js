@@ -87,10 +87,16 @@ const dbUtils = {
 	 * @returns {string} AddressBase32|NamespaceId
 	 */
 	bufferToUnresolvedAddress: binary => {
-		if (!(binary instanceof MongoDb.Binary))
+		if (!binary)
 			return undefined;
-		// return as Address base 32
-		return address.addressToString(binary.buffer);
+
+		if ((binary instanceof MongoDb.Binary))
+			return address.addressToString(binary.buffer);
+
+		if ((binary instanceof Uint8Array))
+			return address.addressToString(binary);
+
+		throw new Error(`Cannot convert binary address, unknown ${binary.constructor.name} type`);
 	},
 
 	/**
