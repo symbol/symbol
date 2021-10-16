@@ -1170,7 +1170,7 @@ class EmptyStatementValidator(SimpleValidator):
             if not any(stripped_line.startswith(prefix) for prefix in ['virtual ~', 'while ']):
                 self.report_error(line_number, line, 'empty statement body must be on new line')
 
-        # `{};` must never be on its own line unless preceeded by what looks like class continuation
+        # `{};` must never be on its own line unless preceded by what looks like class continuation
         if stripped_line.endswith(r'{};'):
             if any(self.previous_stripped_line.startswith(prefix) or stripped_line.startswith(prefix) for prefix in [':', ',']):
                 if stripped_line != r'{};':
