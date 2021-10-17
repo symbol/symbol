@@ -42,7 +42,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				const UnresolvedAddress& recipient,
 				const std::vector<uint8_t>& message,
 				std::initializer_list<model::UnresolvedMosaic> mosaics) {
-			builders::TransferBuilder builder(model::NetworkIdentifier::Private_Test, signer);
+			builders::TransferBuilder builder(model::NetworkIdentifier::Testnet, signer);
 			builder.setRecipientAddress(recipient);
 
 			if (!message.empty())

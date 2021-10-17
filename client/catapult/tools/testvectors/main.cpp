@@ -170,22 +170,15 @@ namespace catapult { namespace tools { namespace testvectors {
 		std::optional<bool> AddressConversionTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto publicKey = ParsePublicKey(Get<>(testCase, "publicKey"), testCaseNumber);
-			auto expectedAddressPublic = ParseAddress(Get<>(testCase, "address_Public"), testCaseNumber);
-			auto expectedAddressPublicTest = ParseAddress(Get<>(testCase, "address_PublicTest"), testCaseNumber);
-			auto expectedAddressPrivate = ParseAddress(Get<>(testCase, "address_Private"), testCaseNumber);
-			auto expectedAddressPrivateTest = ParseAddress(Get<>(testCase, "address_PrivateTest"), testCaseNumber);
+			auto expectedAddressMainnet = ParseAddress(Get<>(testCase, "address_Public"), testCaseNumber);
+			auto expectedAddressTestnet = ParseAddress(Get<>(testCase, "address_PublicTest"), testCaseNumber);
 
 			// Act:
-			auto addressPublic = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Public);
-			auto addressPublicTest = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Public_Test);
-			auto addressPrivate = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Private);
-			auto addressPrivateTest = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Private_Test);
+			auto addressMainnet = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Mainnet);
+			auto addressTestnet = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Testnet);
 
 			// Assert:
-			return expectedAddressPublic == addressPublic &&
-					expectedAddressPublicTest == addressPublicTest &&
-					expectedAddressPrivate == addressPrivate &&
-					expectedAddressPrivateTest == addressPrivateTest;
+			return expectedAddressMainnet == addressMainnet && expectedAddressTestnet == addressTestnet;
 		}
 
 		std::optional<bool> SignTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
@@ -277,27 +270,18 @@ namespace catapult { namespace tools { namespace testvectors {
 		std::optional<bool> MosaicIdDerivationTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto nonce = MosaicNonce(Get<MosaicNonce::ValueType>(testCase, "mosaicNonce"));
-			auto addressPublic = ParseAddress(Get<>(testCase, "address_Public"), testCaseNumber);
-			auto addressPublicTest = ParseAddress(Get<>(testCase, "address_PublicTest"), testCaseNumber);
-			auto addressPrivate = ParseAddress(Get<>(testCase, "address_Private"), testCaseNumber);
-			auto addressPrivateTest = ParseAddress(Get<>(testCase, "address_PrivateTest"), testCaseNumber);
+			auto addressMainnet = ParseAddress(Get<>(testCase, "address_Public"), testCaseNumber);
+			auto addressTestnet = ParseAddress(Get<>(testCase, "address_PublicTest"), testCaseNumber);
 
-			auto expectedMosaicIdPublic = ParseMosaicId(Get<>(testCase, "mosaicId_Public"), testCaseNumber);
-			auto expectedMosaicIdPublicTest = ParseMosaicId(Get<>(testCase, "mosaicId_PublicTest"), testCaseNumber);
-			auto expectedMosaicIdPrivate = ParseMosaicId(Get<>(testCase, "mosaicId_Private"), testCaseNumber);
-			auto expectedMosaicIdPrivateTest = ParseMosaicId(Get<>(testCase, "mosaicId_PrivateTest"), testCaseNumber);
+			auto expectedMosaicIdMainnet = ParseMosaicId(Get<>(testCase, "mosaicId_Public"), testCaseNumber);
+			auto expectedMosaicIdTestnet = ParseMosaicId(Get<>(testCase, "mosaicId_PublicTest"), testCaseNumber);
 
 			// Act:
-			auto mosaicIdPublic = model::GenerateMosaicId(addressPublic, nonce);
-			auto mosaicIdPublicTest = model::GenerateMosaicId(addressPublicTest, nonce);
-			auto mosaicIdPrivate = model::GenerateMosaicId(addressPrivate, nonce);
-			auto mosaicIdPrivateTest = model::GenerateMosaicId(addressPrivateTest, nonce);
+			auto mosaicIdMainnet = model::GenerateMosaicId(addressMainnet, nonce);
+			auto mosaicIdTestnet = model::GenerateMosaicId(addressTestnet, nonce);
 
 			// Assert:
-			return expectedMosaicIdPublic == mosaicIdPublic &&
-					expectedMosaicIdPublicTest == mosaicIdPublicTest &&
-					expectedMosaicIdPrivate == mosaicIdPrivate &&
-					expectedMosaicIdPrivateTest == mosaicIdPrivateTest;
+			return expectedMosaicIdMainnet == mosaicIdMainnet && expectedMosaicIdTestnet == mosaicIdTestnet;
 		}
 
 		std::optional<bool> Bip32DerivationTester(const std::string&, const pt::ptree& testCase, size_t testCaseNumber) {
@@ -346,7 +330,7 @@ namespace catapult { namespace tools { namespace testvectors {
 			}
 
 			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional& positional) override {
-				optionsBuilder("vectors-dir,v",
+				optionsBuilder("vectors,v",
 						OptionsValue<std::string>(m_vectorsDirectory)->required(),
 						"path to test-vectors directory");
 
@@ -356,7 +340,7 @@ namespace catapult { namespace tools { namespace testvectors {
 								"all"),
 						"identifiers of tests to include");
 
-				positional.add("vectors-dir", -1);
+				positional.add("vectors", -1);
 			}
 
 			int run(const Options&) override {
@@ -379,7 +363,7 @@ namespace catapult { namespace tools { namespace testvectors {
 			}
 
 			pt::ptree parseJsonFile(const std::string& filename) {
-				auto path = std::filesystem::path(m_vectorsDirectory) / (filename + ".json");
+				auto path = std::filesystem::path(m_vectorsDirectory) / "symbol" / (filename + ".json");
 				pt::ptree testData;
 				pt::read_json(path.generic_string(), testData);
 				return testData;

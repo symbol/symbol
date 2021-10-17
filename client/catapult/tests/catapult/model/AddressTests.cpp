@@ -30,9 +30,9 @@ namespace catapult { namespace model {
 #define TEST_CLASS AddressTests
 
 	namespace {
-		constexpr auto Network_Identifier = NetworkIdentifier::Private_Test;
-		constexpr auto Encoded_Address = "VAAA244WMCB2JXGNQTQHQOS45TGBFF4V2POL32Y";
-		constexpr auto Decoded_Address = "A8000D73966083A4DCCD84E0783A5CECCC129795D3DCBDEB";
+		constexpr auto Network_Identifier = NetworkIdentifier::Testnet;
+		constexpr auto Encoded_Address = "TAAA244WMCB2JXGNQTQHQOS45TGBFF4V2OVVOFY";
+		constexpr auto Decoded_Address = "98000D73966083A4DCCD84E0783A5CECCC129795D3AB5717";
 		constexpr auto Public_Key = "75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C";
 
 		void AssertCannotCreateAddress(const std::string& encoded) {
@@ -93,7 +93,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expected = Encoded_Address;
 		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
-		auto networkIdentifier = NetworkIdentifier::Private_Test;
+		auto networkIdentifier = NetworkIdentifier::Testnet;
 
 		// Act:
 		auto encoded = PublicKeyToAddressString(publicKey, networkIdentifier);
@@ -109,15 +109,15 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForWellKnownNetwork) {
 		// Arrange:
-		auto expected = utils::ParseByteArray<Address>("78000D73966083A4DCCD84E0783A5CECCC129795D3878B85");
+		auto expected = utils::ParseByteArray<Address>("98000D73966083A4DCCD84E0783A5CECCC129795D3AB5717");
 		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
-		auto networkIdentifier = NetworkIdentifier::Private;
+		auto networkIdentifier = NetworkIdentifier::Testnet;
 
 		// Act:
 		auto decoded = PublicKeyToAddress(publicKey, networkIdentifier);
 
 		// Assert:
-		EXPECT_TRUE(IsValidAddress(decoded, NetworkIdentifier::Private));
+		EXPECT_TRUE(IsValidAddress(decoded, NetworkIdentifier::Testnet));
 		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkIdentifier));
 		EXPECT_EQ(expected, decoded);
 	}
@@ -170,12 +170,12 @@ namespace catapult { namespace model {
 		auto pubKey = test::GenerateRandomByteArray<Key>();
 
 		// Act:
-		auto decoded1 = PublicKeyToAddress(pubKey, NetworkIdentifier::Public);
-		auto decoded2 = PublicKeyToAddress(pubKey, NetworkIdentifier::Public_Test);
+		auto decoded1 = PublicKeyToAddress(pubKey, NetworkIdentifier::Mainnet);
+		auto decoded2 = PublicKeyToAddress(pubKey, NetworkIdentifier::Testnet);
 
 		// Assert:
-		EXPECT_TRUE(IsValidAddress(decoded1, NetworkIdentifier::Public));
-		EXPECT_TRUE(IsValidAddress(decoded2, NetworkIdentifier::Public_Test));
+		EXPECT_TRUE(IsValidAddress(decoded1, NetworkIdentifier::Mainnet));
+		EXPECT_TRUE(IsValidAddress(decoded2, NetworkIdentifier::Testnet));
 		EXPECT_NE(decoded1, decoded2);
 	}
 

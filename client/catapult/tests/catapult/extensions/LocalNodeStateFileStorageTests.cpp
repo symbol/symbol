@@ -47,7 +47,7 @@ namespace catapult { namespace extensions {
 #define TEST_CLASS LocalNodeStateFileStorageTests
 
 	namespace {
-		constexpr auto Default_Network_Id = model::NetworkIdentifier::Private_Test;
+		constexpr auto Default_Network_Id = model::NetworkIdentifier::Testnet;
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 
 		constexpr size_t Account_Cache_Size = 123;

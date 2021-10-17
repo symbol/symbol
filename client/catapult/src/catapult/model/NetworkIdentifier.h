@@ -32,25 +32,11 @@ namespace catapult { namespace model {
 	/* Default (zero) identifier that does not identify any known network. */ \
 	ENUM_VALUE(Zero, 0) \
 	\
-	/* Mijin network identifier. */ \
-	ENUM_VALUE(Mijin, 0x60) \
+	/* Main network identifier. */ \
+	ENUM_VALUE(Mainnet, 0x68) \
 	\
-	/* Public network identifier. */ \
-	ENUM_VALUE(Public, 0x68) \
-	\
-	/* Private network identifier. */ \
-	ENUM_VALUE(Private, 0x78) \
-	\
-	/* TEST network identifiers */ \
-	\
-	/* Mijin test network identifier. */ \
-	ENUM_VALUE(Mijin_Test, 0x90) \
-	\
-	/* Public test network identifier. */ \
-	ENUM_VALUE(Public_Test, 0x98) \
-	\
-	/* Private test network identifier. */ \
-	ENUM_VALUE(Private_Test, 0xA8)
+	/* Test network identifier. */ \
+	ENUM_VALUE(Testnet, 0x98)
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
 	/// Possible network identifiers.

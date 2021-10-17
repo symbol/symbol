@@ -36,13 +36,9 @@ namespace catapult { namespace model {
 #undef DEFINE_ENUM
 
 	namespace {
-		const std::array<std::pair<const char*, NetworkIdentifier>, 6> String_To_Network_Identifier_Pairs{{
-			{ "mijin", NetworkIdentifier::Mijin },
-			{ "public", NetworkIdentifier::Public },
-			{ "private", NetworkIdentifier::Private },
-			{ "mijin-test", NetworkIdentifier::Mijin_Test },
-			{ "public-test", NetworkIdentifier::Public_Test },
-			{ "private-test", NetworkIdentifier::Private_Test }
+		const std::array<std::pair<const char*, NetworkIdentifier>, 2> String_To_Network_Identifier_Pairs{{
+			{ "mainnet", NetworkIdentifier::Mainnet },
+			{ "testnet", NetworkIdentifier::Testnet }
 		}};
 	}
 

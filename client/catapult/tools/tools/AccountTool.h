@@ -52,8 +52,8 @@ namespace catapult { namespace tools {
 
 		void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override final {
 			optionsBuilder("network,n",
-					OptionsValue<std::string>()->default_value("private"),
-					"network, possible values: private (default), private-test, public, public-test");
+					OptionsValue<std::string>()->default_value("testnet"),
+					"network, possible values: testnet (default), mainnet");
 
 			optionsBuilder("input,i",
 					InputDisposition::Required == m_inputDisposition

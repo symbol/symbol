@@ -30,24 +30,24 @@ namespace catapult {
 
 #define TEST_CLASS AddressIntegrityTests
 
-	TEST(TEST_CLASS, CanFindAddressStartingWithPA) {
+	TEST(TEST_CLASS, CanFindAddressStartingWithTA) {
 		// Arrange:
 		for (auto i = 0u; i < 1000; ++i) {
 			auto kp = test::GenerateKeyPair();
-			auto rawAddress = model::PublicKeyToAddress(kp.publicKey(), model::NetworkIdentifier::Private);
+			auto rawAddress = model::PublicKeyToAddress(kp.publicKey(), model::NetworkIdentifier::Testnet);
 			auto address = model::AddressToString(rawAddress);
-			if (address[0] == 'P' && address[1] == 'A')
+			if (address[0] == 'T' && address[1] == 'A')
 				return;
 		}
 
-		FAIL() << "could not generate PA* address";
+		FAIL() << "could not generate TA* address";
 	}
 
 	namespace {
-		struct PrivateTestNetworkTraits {
-			static constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
+		struct TestnetTraits {
+			static constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
 			static constexpr auto Nemesis_Private_Key = test::Test_Network_Nemesis_Private_Key;
-			static constexpr auto Expected_Nemesis_Address = "VARNAMOK7M4ZHNL75ZNNYC6UAM5EGH57UGHVZIA";
+			static constexpr auto Expected_Nemesis_Address = "TARNAMOK7M4ZHNL75ZNNYC6UAM5EGH57UE4ICKQ";
 
 			static std::vector<const char*> PrivateKeys() {
 				return std::vector<const char*>(&test::Test_Network_Private_Keys[0], &test::Test_Network_Private_Keys[11]);
@@ -55,17 +55,17 @@ namespace catapult {
 
 			static std::vector<std::string> ExpectedAddresses() {
 				return {
-					"VAAA26Z5QXYHDIVO2EYSEF7BUMC7FYQPBSWEMGQ",
-					"VAAA3ZE57CKRZY762QG4OG3RMM2EEAN6SIGNQ7Y",
-					"VAAA4RUOJ2RBEKWYOZHSMZWTDGHMCRDUCPOEXKY",
-					"VAAA6NI72BJ4FEE24JNVTSQRZHXGZCZCJ7BKOBQ",
-					"VAAA7O53WQULXNOK2GTP7QURX7RKPRDNF4SBYXQ",
-					"VAAAC7XL2E6XC2NCSXI4C6MG7HWZGE47WEVZQOA",
-					"VAAADPWJ27OZVPSPMWCX5QQWWC47IF6KUFEWPEQ",
-					"VAAAEBW5QTJAYLWOYUZDJO7BJIZCIFRP3FWJKAY",
-					"VAAAFAXT2EHGLAOXOR6I3JXR27ED7Q3LEFUDUYA",
-					"VAAAG6WJ6IHREIOJN4U5H6GV5HAQLWU7SMXJYSY",
-					"VAAAHTKTAW4NLGLXU7U2ZWP5LWQ4Y7DGYVDIIJA"
+					"TAAA26Z5QXYHDIVO2EYSEF7BUMC7FYQPBRUQJKY",
+					"TAAA3ZE57CKRZY762QG4OG3RMM2EEAN6SLZ7X4Y",
+					"TAAA4RUOJ2RBEKWYOZHSMZWTDGHMCRDUCOMCD2Y",
+					"TAAA6NI72BJ4FEE24JNVTSQRZHXGZCZCJ5LEYLQ",
+					"TAAA7O53WQULXNOK2GTP7QURX7RKPRDNF4TP4NI",
+					"TAAAC7XL2E6XC2NCSXI4C6MG7HWZGE47WFLXNPI",
+					"TAAADPWJ27OZVPSPMWCX5QQWWC47IF6KUFMXQEI",
+					"TAAAEBW5QTJAYLWOYUZDJO7BJIZCIFRP3FABGFQ",
+					"TAAAFAXT2EHGLAOXOR6I3JXR27ED7Q3LEERIDOQ",
+					"TAAAG6WJ6IHREIOJN4U5H6GV5HAQLWU7SOXKGHY",
+					"TAAAHTKTAW4NLGLXU7U2ZWP5LWQ4Y7DGYU2YUHI"
 				};
 			}
 		};
@@ -79,7 +79,7 @@ namespace catapult {
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Private_Test) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrivateTestNetworkTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Testnet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestnetTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(NemesisKeyProducesExpectedAddress) {

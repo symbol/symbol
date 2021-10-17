@@ -36,7 +36,7 @@
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
 	}
 
 	BlockChainBuilder::BlockChainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator)

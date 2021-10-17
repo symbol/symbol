@@ -479,7 +479,7 @@ namespace catapult { namespace test {
 
 		static void AssertStorageSeedInitiallyContainsNemesisBlock() {
 			// Arrange:
-			constexpr auto Source_Directory = "../seed/private-test";
+			constexpr auto Source_Directory = "../seed/testnet";
 
 			auto nemesisBlockElement = BlockToBlockElement(GetNemesisBlock(), GetNemesisGenerationHashSeed());
 

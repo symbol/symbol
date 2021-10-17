@@ -77,7 +77,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CanPurgeValueWithAddressFromCache) {
 		// Arrange:
 		auto publicKey = test::GenerateRandomByteArray<Key>();
-		auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Private_Test);
+		auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Testnet);
 		auto otherAddress = test::GenerateRandomAddress();
 
 		// - add two accounts one of which will be purged
@@ -114,7 +114,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CanPurgeValueWithAddressAndPublicKeyFromCache) {
 		// Arrange:
 		auto publicKey = test::GenerateRandomByteArray<Key>();
-		auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Private_Test);
+		auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Testnet);
 		auto otherAddress = test::GenerateRandomAddress();
 
 		// - add two accounts one of which will be purged

@@ -33,7 +33,7 @@
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr auto Source_Directory = "../seed/private-test";
+		constexpr auto Source_Directory = "../seed/testnet";
 
 		void MakeReadOnly(const std::filesystem::path& filepath) {
 			std::filesystem::permissions(filepath, std::filesystem::perms::owner_read, std::filesystem::perm_options::replace);

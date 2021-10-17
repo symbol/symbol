@@ -41,7 +41,7 @@ namespace catapult { namespace extensions {
 		using NotifyMode = observers::NotifyMode;
 
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
 
 		Importance GetTotalChainImportance(uint32_t numAccounts) {
 			return Importance(numAccounts * (numAccounts + 1) / 2);

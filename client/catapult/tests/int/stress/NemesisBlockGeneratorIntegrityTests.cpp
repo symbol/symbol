@@ -35,7 +35,7 @@ namespace catapult {
 #define TEST_CLASS NemesisBlockGeneratorIntegrityTests
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
 		constexpr Amount Nemesis_Amount(9000000000ull / CountOf(test::Test_Network_Private_Keys) * 1000000ull);
 
 		bool VerifyNemesisNetworkTransactionSignature(const model::Transaction& transaction) {

@@ -157,7 +157,7 @@ namespace catapult { namespace extensions {
 
 		auto CreateCatapultConfigurationWithCustomNetworkFingerprint() {
 			test::MutableCatapultConfiguration config;
-			config.BlockChain.Network.Identifier = model::NetworkIdentifier::Private_Test;
+			config.BlockChain.Network.Identifier = model::NetworkIdentifier::Testnet;
 			config.BlockChain.Network.GenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
 			config.Node.FileDatabaseBatchSize = test::File_Database_Batch_Size;
 			return config.ToConst();
@@ -215,7 +215,7 @@ namespace catapult { namespace extensions {
 		ASSERT_EQ(1u, bootstrapper.staticNodes().size());
 
 		const auto& node = bootstrapper.staticNodes()[0];
-		EXPECT_EQ(model::NetworkIdentifier::Private_Test, node.metadata().NetworkFingerprint.Identifier);
+		EXPECT_EQ(model::NetworkIdentifier::Testnet, node.metadata().NetworkFingerprint.Identifier);
 
 		auto expectedGenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
 		EXPECT_EQ(expectedGenerationHashSeed, node.metadata().NetworkFingerprint.GenerationHashSeed);

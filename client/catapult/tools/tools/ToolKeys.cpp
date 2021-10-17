@@ -65,7 +65,7 @@ namespace catapult { namespace tools {
 		addresses.reserve(count);
 		while (count != addresses.size()) {
 			NextKey(seedKey);
-			auto address = model::PublicKeyToAddress(seedKey, model::NetworkIdentifier::Private_Test);
+			auto address = model::PublicKeyToAddress(seedKey, model::NetworkIdentifier::Testnet);
 
 			// just to have addresses starting with 'SA'
 			if (0 == (address[1] & 0xF8))

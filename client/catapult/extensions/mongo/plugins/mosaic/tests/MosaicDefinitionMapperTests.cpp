@@ -37,7 +37,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicDefinition)
 
 		auto CreateMosaicDefinitionTransactionBuilder(const Key& signer, MosaicNonce nonce, const model::MosaicProperties& properties) {
-			auto networkIdentifier = model::NetworkIdentifier::Private_Test;
+			auto networkIdentifier = model::NetworkIdentifier::Testnet;
 			builders::MosaicDefinitionBuilder builder(networkIdentifier, signer);
 			builder.setNonce(nonce);
 			builder.setFlags(properties.flags());
