@@ -42,6 +42,9 @@ enum TransactionType : uint16
 	# MosaicSupplyChangeTransaction
 	MOSAIC_SUPPLY_CHANGE = 0x424D
 
+	# MosaicSupplyRevocationTransaction
+	MOSAIC_SUPPLY_REVOCATION = 0x434D
+
 	# MultisigAccountModificationTransaction
 	MULTISIG_ACCOUNT_MODIFICATION = 0x4155
 

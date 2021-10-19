@@ -21,6 +21,9 @@ enum MosaicFlags : uint8
 	# See MosaicAddressRestrictionTransaction and MosaicGlobalRestrictionTransaction.
 	RESTRICTABLE = 0x04
 
+	# Mosaic supports revocation of tokens by the mosaic creator.
+	REVOKABLE = 0x08
+
 # Enumeration of mosaic supply change actions.
 enum MosaicSupplyChangeAction : uint8
 	# Decreases the supply.
