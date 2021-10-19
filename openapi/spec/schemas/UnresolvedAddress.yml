@@ -4,5 +4,4 @@ description: |
   regular address. Example: TAOXUJOTTW3W5XTBQMQEX3SQNA6MCUVGXLXR3TA. 
   Otherwise (e.g. 0x91) it represents a namespace id which starts at byte 1. Example: THBIMC3THGH5RUYAAAAAAAAAAAAAAAAAAAAAAAA
 example: TAOXUJOTTW3W5XTBQMQEX3SQNA6MCUVGXLXR3TA
-anyOf:
-    - $ref: "./Address.yml"
+
