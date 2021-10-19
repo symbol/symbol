@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "HeightDependentAddress.h"
 #include "NetworkInfo.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/FileSize.h"
@@ -116,7 +117,10 @@ namespace catapult { namespace model {
 		/// Percentage of the harvested fee that is collected by the network.
 		uint8_t HarvestNetworkPercentage;
 
-		/// Address of the harvest network fee sink account.
+		/// Address of the harvest network fee sink account (V1).
+		Address HarvestNetworkFeeSinkAddressV1;
+
+		/// Address of the harvest network fee sink account (latest).
 		Address HarvestNetworkFeeSinkAddress;
 
 		/// Maximum number of transactions per block.
@@ -159,6 +163,9 @@ namespace catapult { namespace model {
 
 	/// Gets the unresolved currency mosaic id from \a config.
 	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config);
+
+	/// Gets the harvest network fee sink address from \a config.
+	HeightDependentAddress GetHarvestNetworkFeeSinkAddress(const BlockChainConfiguration& config);
 
 	/// Calculates the duration of time that expired transactions should be cached for the block chain described by \a config.
 	utils::TimeSpan CalculateTransactionCacheDuration(const BlockChainConfiguration& config);

@@ -129,6 +129,7 @@ namespace catapult { namespace model {
 
 		LOAD_CHAIN_PROPERTY(HarvestBeneficiaryPercentage);
 		LOAD_CHAIN_PROPERTY(HarvestNetworkPercentage);
+		LOAD_CHAIN_PROPERTY(HarvestNetworkFeeSinkAddressV1);
 		LOAD_CHAIN_PROPERTY(HarvestNetworkFeeSinkAddress);
 
 		LOAD_CHAIN_PROPERTY(MaxTransactionsPerBlock);
@@ -147,7 +148,7 @@ namespace catapult { namespace model {
 		auto numAdditionalSignatures = ParseSignaturesSection(bag, config.AdditionalNemesisAccountTransactionSignatures);
 		auto numPluginProperties = ParsePluginSections(bag, config.Plugins);
 
-		utils::VerifyBagSizeExact(bag, 5 + 28 + 2 + numAdditionalSignatures + numPluginProperties);
+		utils::VerifyBagSizeExact(bag, 5 + 29 + 2 + numAdditionalSignatures + numPluginProperties);
 		return config;
 	}
 
@@ -157,6 +158,12 @@ namespace catapult { namespace model {
 
 	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config) {
 		return UnresolvedMosaicId(config.CurrencyMosaicId.unwrap());
+	}
+
+	HeightDependentAddress GetHarvestNetworkFeeSinkAddress(const BlockChainConfiguration& config) {
+		HeightDependentAddress sinkAddress(config.HarvestNetworkFeeSinkAddress);
+		sinkAddress.trySet(config.HarvestNetworkFeeSinkAddressV1, config.ForkHeights.TreasuryReissuance);
+		return sinkAddress;
 	}
 
 	namespace {

@@ -92,7 +92,8 @@ namespace catapult { namespace config {
 
 			EXPECT_EQ(10u, config.HarvestBeneficiaryPercentage);
 			EXPECT_EQ(5u, config.HarvestNetworkPercentage);
-			EXPECT_EQ(model::StringToAddress("TCNKYBPT77IODEBW55PJMMVE3TEH3W73TCLRVXA"), config.HarvestNetworkFeeSinkAddress);
+			EXPECT_EQ(model::StringToAddress("TCNKYBPT77IODEBW55PJMMVE3TEH3W73TCLRVXA"), config.HarvestNetworkFeeSinkAddressV1);
+			EXPECT_EQ(model::StringToAddress("TBRZAOZWIUL5OJPUPH4MQDJAEBXKENDIUFKI2YY"), config.HarvestNetworkFeeSinkAddress);
 
 			EXPECT_EQ(200'000u, config.MaxTransactionsPerBlock);
 

@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "catapult/model/HeightDependentAddress.h"
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
 
@@ -53,8 +54,8 @@ namespace catapult { namespace observers {
 		/// Percentage of the harvested fee that is collected by the network.
 		uint8_t HarvestNetworkPercentage;
 
-		/// Address of the harvest network fee sink account.
-		Address HarvestNetworkFeeSinkAddress;
+		/// Address of the harvest network fee sink account(s).
+		model::HeightDependentAddress HarvestNetworkFeeSinkAddress;
 	};
 
 	/// Observes block notifications and triggers importance recalculations using either \a pCommitCalculator (for commits)

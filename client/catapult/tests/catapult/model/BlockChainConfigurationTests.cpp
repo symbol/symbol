@@ -35,7 +35,8 @@ namespace catapult { namespace model {
 	namespace {
 		constexpr auto Nemesis_Signer_Public_Key = "C738E237C98760FA72726BA13DC2A1E3C13FA67DE26AF09742E972EE4EE45E1C";
 		constexpr auto Nemesis_Generation_Hash_Seed = "CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230";
-		constexpr auto Harvest_Network_Fee_Sink_Address = "SBHI5UVMDQ36X3USYK6UQELCLZ7YL3T2WP5OCKY";
+		constexpr auto Harvest_Network_Fee_Sink_Address_V1 = "TBTBPZBJV3U5PU6TNC6GOSB54E5IZA5KQ6KGJXY";
+		constexpr auto Harvest_Network_Fee_Sink_Address = "TCRRSPVMOOPX3QA2JRN432LFODY2KA4EJBEZUKQ";
 		constexpr auto Treasury_Reissuance_Block_Transactions_Hash = "D426477D230C8ACD3F8D307C389230F6A43DACE8144C98BE4175CB55AB1100F6";
 
 		constexpr auto Signature_1 =
@@ -101,6 +102,7 @@ namespace catapult { namespace model {
 
 							{ "harvestBeneficiaryPercentage", "56" },
 							{ "harvestNetworkPercentage", "21" },
+							{ "harvestNetworkFeeSinkAddressV1", Harvest_Network_Fee_Sink_Address_V1 },
 							{ "harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address },
 
 							{ "maxTransactionsPerBlock", "120" },
@@ -184,6 +186,7 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(0u, config.HarvestBeneficiaryPercentage);
 				EXPECT_EQ(0u, config.HarvestNetworkPercentage);
+				EXPECT_EQ(Address(), config.HarvestNetworkFeeSinkAddressV1);
 				EXPECT_EQ(Address(), config.HarvestNetworkFeeSinkAddress);
 
 				EXPECT_EQ(0u, config.MaxTransactionsPerBlock);
@@ -238,6 +241,7 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(56u, config.HarvestBeneficiaryPercentage);
 				EXPECT_EQ(21, config.HarvestNetworkPercentage);
+				EXPECT_EQ(StringToAddress(Harvest_Network_Fee_Sink_Address_V1), config.HarvestNetworkFeeSinkAddressV1);
 				EXPECT_EQ(StringToAddress(Harvest_Network_Fee_Sink_Address), config.HarvestNetworkFeeSinkAddress);
 
 				EXPECT_EQ(120u, config.MaxTransactionsPerBlock);
@@ -354,6 +358,40 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_EQ(UnresolvedMosaicId(1234), GetUnresolvedCurrencyMosaicId(config));
+	}
+
+	TEST(TEST_CLASS, CanGetHarvestNetworkFeeSinkAddressWithoutFork) {
+		// Arrange:
+		auto config = BlockChainConfiguration::Uninitialized();
+		config.HarvestNetworkFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
+		config.HarvestNetworkFeeSinkAddress = test::GenerateRandomByteArray<Address>();
+		config.ForkHeights.TreasuryReissuance = Height();
+
+		// Act:
+		auto sinkAddress = GetHarvestNetworkFeeSinkAddress(config);
+
+		// Assert:
+		EXPECT_EQ(config.HarvestNetworkFeeSinkAddress, sinkAddress.get(Height(0)));
+		EXPECT_EQ(config.HarvestNetworkFeeSinkAddress, sinkAddress.get(Height(1)));
+	}
+
+	TEST(TEST_CLASS, CanGetHarvestNetworkFeeSinkAddressWithFork) {
+		// Arrange:
+		auto config = BlockChainConfiguration::Uninitialized();
+		config.HarvestNetworkFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
+		config.HarvestNetworkFeeSinkAddress = test::GenerateRandomByteArray<Address>();
+		config.ForkHeights.TreasuryReissuance = Height(1234);
+
+		// Act:
+		auto sinkAddress = GetHarvestNetworkFeeSinkAddress(config);
+
+		// Assert:
+		EXPECT_EQ(config.HarvestNetworkFeeSinkAddress, sinkAddress.get(Height(0)));
+		EXPECT_EQ(config.HarvestNetworkFeeSinkAddressV1, sinkAddress.get(Height(1)));
+
+		EXPECT_EQ(config.HarvestNetworkFeeSinkAddressV1, sinkAddress.get(Height(1233)));
+		EXPECT_EQ(config.HarvestNetworkFeeSinkAddress, sinkAddress.get(Height(1234)));
+		EXPECT_EQ(config.HarvestNetworkFeeSinkAddress, sinkAddress.get(Height(1235)));
 	}
 
 	namespace {

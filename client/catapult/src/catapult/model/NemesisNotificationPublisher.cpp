@@ -29,7 +29,7 @@ namespace catapult { namespace model {
 		NemesisNotificationPublisherOptions options;
 
 		if (0 < config.HarvestNetworkPercentage)
-			options.SpecialAccountAddresses.insert(config.HarvestNetworkFeeSinkAddress);
+			options.SpecialAccountAddresses.insert(GetHarvestNetworkFeeSinkAddress(config).get(Height(1)));
 
 		return options;
 	}
