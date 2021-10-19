@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.1] - 19-Oct-2021
+
+Milestone: Symbol Mainnet
+
+- fix: Address and UnresolvedAddress is Base32, not Hex.
+- feat: Added feeMultiplier and timestamp to transaction's meta.
+- feat: Added meta to transaction and resolution statements.
+- feat: added deployment data to /node/server.
+
 ## [1.0.0] - 13-Mar-2021
 
 Milestone: Symbol Mainnet
