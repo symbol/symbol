@@ -279,7 +279,8 @@ namespace catapult { namespace plugins {
 		void AddSubTransactionExpectations(
 				test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder& builder,
 				const AggregateTransactionWrapper& wrapper,
-				uint8_t count) {
+				uint8_t count,
+				Height expectedBlockHeight = Height()) {
 			for (auto i = 0u; i < count; ++i) {
 				builder.addExpectation<SourceChangeNotification>(i, [](const auto& notification) {
 					EXPECT_EQ(0u, notification.PrimaryId);
@@ -306,10 +307,12 @@ namespace catapult { namespace plugins {
 				builder.addExpectation<AccountPublicKeyNotification>(i * 2 + 1, [&wrapper, i](const auto& notification) {
 					EXPECT_EQ(wrapper.SubTransactions[i]->RecipientPublicKey, notification.PublicKey);
 				});
-				builder.addExpectation<mocks::MockAddressNotification>(i, [&wrapper, i](const auto& notification) {
+				builder.addExpectation<mocks::MockPublisherContextNotification>(i, [&wrapper, expectedBlockHeight, i](
+						const auto& notification) {
 					const auto& signerPublicKey = wrapper.SubTransactions[i]->SignerPublicKey;
 					auto signerAddress = PublicKeyToAddress(signerPublicKey, static_cast<NetworkIdentifier>(100 + i));
-					EXPECT_EQ(signerAddress, notification.Address);
+					EXPECT_EQ(signerAddress, notification.SignerAddress);
+					EXPECT_EQ(expectedBlockHeight, notification.BlockHeight);
 				});
 			}
 		}
@@ -332,41 +335,63 @@ namespace catapult { namespace plugins {
 			EntityNotification::Notification_Type,
 			AggregateEmbeddedTransactionNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
-			mocks::MockAddressNotification::Notification_Type,
+			mocks::MockPublisherContextNotification::Notification_Type,
 
 			SourceChangeNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
 			EntityNotification::Notification_Type,
 			AggregateEmbeddedTransactionNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
-			mocks::MockAddressNotification::Notification_Type
+			mocks::MockPublisherContextNotification::Notification_Type
 		}, registry);
 	}
 
+	namespace {
+		void AssertCanPublishAllNotificationsWhenOnlySubTransactionsArePresent(Height blockHeight) {
+			// Arrange:
+			auto registry = mocks::CreateDefaultTransactionRegistry();
+			auto wrapper = CreateAggregateTransaction(2, 0);
+
+			const auto& transaction = *wrapper.pTransaction;
+			test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
+			builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.SignerPublicKey, notification.SignerPublicKey);
+				EXPECT_EQ(2u, notification.TransactionsCount);
+				EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
+				EXPECT_EQ(0u, notification.CosignaturesCount);
+				EXPECT_FALSE(!!notification.CosignaturesPtr);
+			});
+			builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
+				EXPECT_EQ(2u, notification.TransactionsCount);
+				EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
+			});
+
+			AddSubTransactionExpectations(builder, wrapper, 2, blockHeight);
+
+			if (Height() == blockHeight) {
+				// Act + Assert:
+				builder.runTest(transaction, registry);
+			} else {
+				// Arrange: link a block
+				auto hash = test::GenerateRandomByteArray<Hash256>();
+
+				BlockHeader blockHeader;
+				blockHeader.Height = blockHeight;
+				auto weakEntityInfo = WeakEntityInfoT<model::Transaction>(transaction, hash, blockHeader);
+
+				// Act + Assert:
+				builder.runTest(weakEntityInfo, registry);
+			}
+		}
+	}
+
 	TEST(TEST_CLASS, CanPublishAllNotificationsWhenOnlySubTransactionsArePresent) {
-		// Arrange:
-		auto registry = mocks::CreateDefaultTransactionRegistry();
-		auto wrapper = CreateAggregateTransaction(2, 0);
+		AssertCanPublishAllNotificationsWhenOnlySubTransactionsArePresent(Height());
+	}
 
-		const auto& transaction = *wrapper.pTransaction;
-		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
-		builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.SignerPublicKey);
-			EXPECT_EQ(2u, notification.TransactionsCount);
-			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
-			EXPECT_EQ(0u, notification.CosignaturesCount);
-			EXPECT_FALSE(!!notification.CosignaturesPtr);
-		});
-		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
-			EXPECT_EQ(2u, notification.TransactionsCount);
-			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
-		});
-
-		AddSubTransactionExpectations(builder, wrapper, 2);
-
-		// Act + Assert:
-		builder.runTest(transaction, registry);
+	TEST(TEST_CLASS, CanPublishAllNotificationsWhenOnlySubTransactionsArePresent_AttachedToBlock) {
+		AssertCanPublishAllNotificationsWhenOnlySubTransactionsArePresent(Height(1234));
 	}
 
 	// endregion
@@ -469,14 +494,14 @@ namespace catapult { namespace plugins {
 			EntityNotification::Notification_Type,
 			AggregateEmbeddedTransactionNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
-			mocks::MockAddressNotification::Notification_Type,
+			mocks::MockPublisherContextNotification::Notification_Type,
 
 			SourceChangeNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
 			EntityNotification::Notification_Type,
 			AggregateEmbeddedTransactionNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
-			mocks::MockAddressNotification::Notification_Type,
+			mocks::MockPublisherContextNotification::Notification_Type,
 
 			// signature notifications are raised last (and with wrong source) for performance reasons
 			InternalPaddingNotification::Notification_Type,

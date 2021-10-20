@@ -54,6 +54,9 @@ namespace catapult { namespace model {
 	struct PublishContext {
 		/// Address of the published transaction signer.
 		Address SignerAddress;
+
+		/// Block height, if available, or zero otherwise.
+		Height BlockHeight;
 	};
 
 	/// Typed transaction plugin.

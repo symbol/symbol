@@ -51,14 +51,16 @@ namespace catapult { namespace model {
 				if (BasicEntityType::Transaction != ToBasicEntityType(entityInfo.type()))
 					return;
 
-				return publish(static_cast<const Transaction&>(entityInfo.entity()), entityInfo.hash(), sub);
+				auto height = entityInfo.isAssociatedBlockHeaderSet() ? entityInfo.associatedBlockHeader().Height : Height(0);
+				return publish(static_cast<const Transaction&>(entityInfo.entity()), entityInfo.hash(), height, sub);
 			}
 
-			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
+			void publish(const Transaction& transaction, const Hash256& hash, Height height, NotificationSubscriber& sub) const {
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
 
 				PublishContext context;
 				context.SignerAddress = GetSignerAddress(transaction);
+				context.BlockHeight = height;
 				plugin.publish(WeakEntityInfoT<Transaction>(transaction, hash), context, sub);
 			}
 

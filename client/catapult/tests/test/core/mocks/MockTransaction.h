@@ -57,8 +57,8 @@ namespace catapult { namespace mocks {
 	/// Hash notification raised on no channels.
 	DEFINE_MOCK_NOTIFICATION(Hash, 0xFFFD, None);
 
-	/// Address notification raised on no channels.
-	DEFINE_MOCK_NOTIFICATION(Address, 0xFFFC, None);
+	/// Publisher context notification raised on no channels.
+	DEFINE_MOCK_NOTIFICATION(Publisher_Context, 0xFFFC, None);
 
 #undef DEFINE_MOCK_NOTIFICATION
 
@@ -80,22 +80,27 @@ namespace catapult { namespace mocks {
 		const Hash256& Hash;
 	};
 
-	/// Notifies the arrival of a (resolved) address.
-	struct MockAddressNotification : public model::Notification {
+	/// Notifies the arrival of a publisher context.
+	/// \note This is used to verify the values in a publisher context are set correctly.
+	struct MockPublisherContextNotification : public model::Notification {
 	public:
 		/// Matching notification type.
-		static constexpr auto Notification_Type = Mock_Address_Notification;
+		static constexpr auto Notification_Type = Mock_Publisher_Context_Notification;
 
 	public:
-		/// Creates an address notification around \a address.
-		explicit MockAddressNotification(const Address& address)
-				: model::Notification(Notification_Type, sizeof(MockAddressNotification))
-				, Address(address)
+		/// Creates a publisher context notification around \a signerAddress and \a blockHeight.
+		MockPublisherContextNotification(const Address& signerAddress, Height blockHeight)
+				: model::Notification(Notification_Type, sizeof(MockPublisherContextNotification))
+				, SignerAddress(signerAddress)
+				, BlockHeight(blockHeight)
 		{}
 
 	public:
-		/// Address.
-		catapult::Address Address;
+		/// Address of the published transaction signer.
+		Address SignerAddress;
+
+		/// Block height, if available, or zero otherwise.
+		Height BlockHeight;
 	};
 
 	// endregion

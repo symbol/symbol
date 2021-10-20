@@ -21,6 +21,7 @@
 
 #pragma once
 #include "TransactionPluginTests.h"
+#include "catapult/model/Block.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 
 namespace catapult { namespace test {
@@ -76,6 +77,11 @@ namespace catapult { namespace test {
 			}
 
 			template<typename... TArgs>
+			void runTest(const model::WeakEntityInfoT<model::Transaction>& transactionInfo, TArgs&& ...args) {
+				runTestHelper(transactionInfo, std::forward<TArgs>(args)...);
+			}
+
+			template<typename... TArgs>
 			void runTestWithHash(const TransactionType& transaction, const Hash256& transactionHash, TArgs&& ...args) {
 				runTestHelper(model::WeakEntityInfoT<model::Transaction>(transaction, transactionHash), std::forward<TArgs>(args)...);
 			}
@@ -105,6 +111,15 @@ namespace catapult { namespace test {
 			return context;
 		}
 
+		static model::PublishContext CreatePublishContext(const model::WeakEntityInfoT<model::Transaction>& transactionInfo) {
+			auto context = CreatePublishContext(transactionInfo.entity());
+
+			if (transactionInfo.isAssociatedBlockHeaderSet())
+				context.BlockHeight = transactionInfo.associatedBlockHeader().Height;
+
+			return context;
+		}
+
 		static void PublishTransaction(
 				const model::TransactionPlugin& plugin,
 				const TransactionType& transaction,
@@ -116,7 +131,7 @@ namespace catapult { namespace test {
 				const model::TransactionPlugin& plugin,
 				const model::WeakEntityInfoT<model::Transaction>& transactionInfo,
 				model::NotificationSubscriber& sub) {
-			plugin.publish(transactionInfo, CreatePublishContext(transactionInfo.entity()), sub);
+			plugin.publish(transactionInfo, CreatePublishContext(transactionInfo), sub);
 		}
 
 		static void PublishTransaction(

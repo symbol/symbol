@@ -514,7 +514,7 @@ namespace catapult { namespace model {
 	namespace {
 		void AssertCustomTransactionNotifications(const std::vector<NotificationType>& notificationTypes, size_t startIndex) {
 			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, notificationTypes[startIndex]);
-			EXPECT_EQ(mocks::Mock_Address_Notification, notificationTypes[startIndex + 1]);
+			EXPECT_EQ(mocks::Mock_Publisher_Context_Notification, notificationTypes[startIndex + 1]);
 			EXPECT_EQ(mocks::Mock_Observer_1_Notification, notificationTypes[startIndex + 2]);
 			EXPECT_EQ(mocks::Mock_Validator_1_Notification, notificationTypes[startIndex + 3]);
 			EXPECT_EQ(mocks::Mock_All_1_Notification, notificationTypes[startIndex + 4]);
@@ -591,15 +591,37 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanPublishCustomTransactionNotificationsDependentOnSignerAddress) {
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotificationsDependentOnPublisherContext_AttachedToBlock) {
 		// Arrange:
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		auto signerAddress = GetSignerAddress(*pTransaction);
 
+		BlockHeader blockHeader;
+		blockHeader.Height = Height(123);
+		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
+
 		// Act:
-		PublishOne<mocks::MockAddressNotification>(*pTransaction, [&signerAddress](const auto& notification) {
+		PublishOne<mocks::MockPublisherContextNotification>(weakEntityInfo, [&signerAddress](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(signerAddress, notification.Address);
+			EXPECT_EQ(signerAddress, notification.SignerAddress);
+			EXPECT_EQ(Height(123), notification.BlockHeight);
+		});
+	}
+
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotificationsDependentOnPublisherContext_Unattached) {
+		// Arrange:
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		auto pTransaction = mocks::CreateMockTransaction(12);
+		auto signerAddress = GetSignerAddress(*pTransaction);
+
+		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash);
+
+		// Act:
+		PublishOne<mocks::MockPublisherContextNotification>(weakEntityInfo, [&signerAddress](const auto& notification) {
+			// Assert:
+			EXPECT_EQ(signerAddress, notification.SignerAddress);
+			EXPECT_EQ(Height(), notification.BlockHeight);
 		});
 	}
 
