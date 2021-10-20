@@ -20,10 +20,14 @@
 **/
 
 #pragma once
+#include "catapult/model/HeightDependentAddress.h"
 #include "catapult/utils/BlockSpan.h"
 #include <unordered_set>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult {
+	namespace model { struct BlockChainConfiguration; }
+	namespace utils { class ConfigurationBag; }
+}
 
 namespace catapult { namespace config {
 
@@ -39,7 +43,10 @@ namespace catapult { namespace config {
 		/// Maximum mosaic divisibility.
 		uint8_t MaxMosaicDivisibility;
 
-		/// Address of the mosaic rental fee sink account.
+		/// Address of the mosaic rental fee sink account (V1).
+		Address MosaicRentalFeeSinkAddressV1;
+
+		/// Address of the mosaic rental fee sink account (latest).
 		Address MosaicRentalFeeSinkAddress;
 
 		/// Mosaic rental fee.
@@ -55,4 +62,9 @@ namespace catapult { namespace config {
 		/// Loads a mosaic configuration from \a bag.
 		static MosaicConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
+
+	/// Gets the mosaic rental fee sink address from \a config and \a blockChainConfig.
+	model::HeightDependentAddress GetMosaicRentalFeeSinkAddress(
+			const MosaicConfiguration& config,
+			const model::BlockChainConfiguration& blockChainConfig);
 }}

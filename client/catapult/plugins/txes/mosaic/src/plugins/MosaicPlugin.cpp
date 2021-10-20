@@ -38,16 +38,14 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		MosaicRentalFeeConfiguration ToMosaicRentalFeeConfiguration(
-				const model::NetworkInfo& network,
+				const model::BlockChainConfiguration& blockChainConfig,
 				UnresolvedMosaicId currencyMosaicId,
 				const config::MosaicConfiguration& config) {
 			MosaicRentalFeeConfiguration rentalFeeConfig;
 			rentalFeeConfig.CurrencyMosaicId = currencyMosaicId;
 			rentalFeeConfig.Fee = config.MosaicRentalFee;
-			rentalFeeConfig.NemesisSignerPublicKey = network.NemesisSignerPublicKey;
-
-			// sink address is already resolved but needs to be passed as unresolved into notification
-			rentalFeeConfig.SinkAddress = config.MosaicRentalFeeSinkAddress.copyTo<UnresolvedAddress>();
+			rentalFeeConfig.NemesisSignerPublicKey = blockChainConfig.Network.NemesisSignerPublicKey;
+			rentalFeeConfig.SinkAddress = config::GetMosaicRentalFeeSinkAddress(config, blockChainConfig);
 			return rentalFeeConfig;
 		}
 
@@ -59,7 +57,7 @@ namespace catapult { namespace plugins {
 	void RegisterMosaicSubsystem(PluginManager& manager) {
 		auto config = model::LoadPluginConfiguration<config::MosaicConfiguration>(manager.config(), "catapult.plugins.mosaic");
 		auto unresolvedCurrencyMosaicId = model::GetUnresolvedCurrencyMosaicId(manager.config());
-		auto rentalFeeConfig = ToMosaicRentalFeeConfiguration(manager.config().Network, unresolvedCurrencyMosaicId, config);
+		auto rentalFeeConfig = ToMosaicRentalFeeConfiguration(manager.config(), unresolvedCurrencyMosaicId, config);
 		manager.addTransactionSupport(CreateMosaicDefinitionTransactionPlugin(rentalFeeConfig));
 		manager.addTransactionSupport(CreateMosaicSupplyChangeTransactionPlugin());
 		manager.addTransactionSupport(CreateMosaicSupplyRevocationTransactionPlugin(

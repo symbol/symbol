@@ -40,12 +40,11 @@ namespace catapult { namespace plugins {
 		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(MosaicDefinition, MosaicRentalFeeConfiguration, 1, 1,)
 
 		MosaicRentalFeeConfiguration CreateRentalFeeConfiguration(Amount fee) {
-			return {
-				UnresolvedMosaicId(1234),
-				test::GenerateRandomUnresolvedAddress(),
-				fee,
-				test::GenerateRandomByteArray<Key>()
-			};
+			HeightDependentAddress sinkAddress(test::GenerateRandomByteArray<Address>());
+			sinkAddress.trySet(test::GenerateRandomByteArray<Address>(), Height(1111));
+			sinkAddress.trySet(test::GenerateRandomByteArray<Address>(), Height(2222));
+
+			return { UnresolvedMosaicId(1234), sinkAddress, fee, test::GenerateRandomByteArray<Key>() };
 		}
 	}
 
@@ -61,15 +60,43 @@ namespace catapult { namespace plugins {
 	// region publish - nemesis signer
 
 	namespace {
+		auto Run_Test_Height = Height(1500);
+
+		WeakEntityInfoT<Transaction> ToTransactionInfo(
+				const MosaicDefinitionTransaction& transaction,
+				const Hash256& hash,
+				const BlockHeader& blockHeader) {
+			return { transaction, hash, blockHeader };
+		}
+
+		WeakEntityInfoT<EmbeddedTransaction> ToTransactionInfo(
+				const EmbeddedMosaicDefinitionTransaction& transaction,
+				const Hash256& hash,
+				const BlockHeader& blockHeader) {
+			return { transaction, hash, blockHeader };
+		}
+
+		template<typename TBuilder, typename TTransaction>
+		void RunTest(const TBuilder& builder, const TTransaction& transaction, const MosaicRentalFeeConfiguration& config) {
+			// Arrange:
+			auto hash = test::GenerateRandomByteArray<Hash256>();
+
+			BlockHeader blockHeader;
+			blockHeader.Height = Run_Test_Height;
+
+			// Act + Assert:
+			builder.runTest(ToTransactionInfo(transaction, hash, blockHeader), config);
+		}
+
 		template<typename TTraits>
 		void AddCommonExpectations(
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const MosaicRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
 			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
-				EXPECT_FALSE(notification.Address.isResolved());
+				EXPECT_TRUE(notification.Address.isResolved());
 
-				EXPECT_EQ(config.SinkAddress, notification.Address.unresolved());
+				EXPECT_EQ(config.SinkAddress.get(Height(Run_Test_Height)), notification.Address.resolved());
 			});
 			builder.template addExpectation<MosaicNonceNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
@@ -119,7 +146,7 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, config, transaction);
 
 		// Act + Assert:
-		builder.runTest(transaction, config);
+		RunTest(builder, transaction, config);
 	}
 
 	// endregion
@@ -155,23 +182,26 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, config, transaction);
 		builder.template addExpectation<BalanceTransferNotification>([&config, &transaction](const auto& notification) {
 			EXPECT_TRUE(notification.Sender.isResolved());
-			EXPECT_FALSE(notification.Recipient.isResolved());
+			EXPECT_TRUE(notification.Recipient.isResolved());
 
 			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
-			EXPECT_EQ(config.SinkAddress, notification.Recipient.unresolved());
+			EXPECT_EQ(config.SinkAddress.get(Height(Run_Test_Height)), notification.Recipient.resolved());
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);
 			EXPECT_EQ(BalanceTransferNotification::AmountType::Dynamic, notification.TransferAmountType);
 		});
 		builder.template addExpectation<MosaicRentalFeeNotification>([&config, &transaction](const auto& notification) {
+			EXPECT_TRUE(notification.Sender.isResolved());
+			EXPECT_TRUE(notification.Recipient.isResolved());
+
 			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
-			EXPECT_EQ(config.SinkAddress, notification.Recipient);
+			EXPECT_EQ(config.SinkAddress.get(Height(Run_Test_Height)), notification.Recipient.resolved());
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);
 		});
 
 		// Act + Assert:
-		builder.runTest(transaction, config);
+		RunTest(builder, transaction, config);
 	}
 
 	// endregion

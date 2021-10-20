@@ -34,22 +34,19 @@ namespace catapult { namespace plugins {
 		auto CreatePublisher(const MosaicRentalFeeConfiguration& config) {
 			return [config](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 				// 1. sink account notification
-				sub.notify(AccountAddressNotification(config.SinkAddress));
+				auto sinkAddress = config.SinkAddress.get(context.BlockHeight);
+				sub.notify(AccountAddressNotification(sinkAddress));
 
 				// 2. rental fee charge
 				// a. exempt the nemesis account
 				if (config.NemesisSignerPublicKey != transaction.SignerPublicKey) {
 					sub.notify(BalanceTransferNotification(
 							context.SignerAddress,
-							config.SinkAddress,
+							sinkAddress,
 							config.CurrencyMosaicId,
 							config.Fee,
 							BalanceTransferNotification::AmountType::Dynamic));
-					sub.notify(MosaicRentalFeeNotification(
-							context.SignerAddress,
-							config.SinkAddress,
-							config.CurrencyMosaicId,
-							config.Fee));
+					sub.notify(MosaicRentalFeeNotification(context.SignerAddress, sinkAddress, config.CurrencyMosaicId, config.Fee));
 				}
 
 				// 3. registration

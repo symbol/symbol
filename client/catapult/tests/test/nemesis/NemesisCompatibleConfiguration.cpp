@@ -42,6 +42,7 @@ namespace catapult { namespace test {
 				{ "maxMosaicDuration", "456d" },
 				{ "maxMosaicDivisibility", "6" },
 
+				{ "mosaicRentalFeeSinkAddressV1", Mosaic_Rental_Fee_Sink_Address },
 				{ "mosaicRentalFeeSinkAddress", Mosaic_Rental_Fee_Sink_Address },
 				{ "mosaicRentalFee", "500" }
 			}
@@ -58,6 +59,7 @@ namespace catapult { namespace test {
 				{ "namespaceGracePeriodDuration", "1h" },
 				{ "reservedRootNamespaceNames", "cat" },
 
+				{ "namespaceRentalFeeSinkAddressV1", Namespace_Rental_Fee_Sink_Address },
 				{ "namespaceRentalFeeSinkAddress", Namespace_Rental_Fee_Sink_Address },
 				{ "rootNamespaceRentalFeePerBlock", "10" },
 				{ "childNamespaceRentalFee", "10000" }

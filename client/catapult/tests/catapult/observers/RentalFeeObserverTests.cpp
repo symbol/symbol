@@ -47,7 +47,7 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			UnresolvedAddress Recipient;
+			model::ResolvableAddress Recipient;
 		};
 
 		auto CreateMockRentalFeeObserver() {

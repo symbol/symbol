@@ -71,24 +71,19 @@ namespace catapult { namespace test {
 			}
 
 		public:
-			template<typename... TArgs>
-			void runTest(const TransactionType& transaction, TArgs&& ...args) {
+			template<typename TTransactionProxy, typename... TArgs>
+			void runTest(const TTransactionProxy& transaction, TArgs&& ...args) const {
 				runTestHelper(transaction, std::forward<TArgs>(args)...);
 			}
 
 			template<typename... TArgs>
-			void runTest(const model::WeakEntityInfoT<model::Transaction>& transactionInfo, TArgs&& ...args) {
-				runTestHelper(transactionInfo, std::forward<TArgs>(args)...);
-			}
-
-			template<typename... TArgs>
-			void runTestWithHash(const TransactionType& transaction, const Hash256& transactionHash, TArgs&& ...args) {
+			void runTestWithHash(const TransactionType& transaction, const Hash256& transactionHash, TArgs&& ...args) const {
 				runTestHelper(model::WeakEntityInfoT<model::Transaction>(transaction, transactionHash), std::forward<TArgs>(args)...);
 			}
 
 		private:
 			template<typename TTransactionProxy, typename... TArgs>
-			void runTestHelper(const TTransactionProxy& transaction, TArgs&& ...args) {
+			void runTestHelper(const TTransactionProxy& transaction, TArgs&& ...args) const {
 				auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
 				for (const auto& pSubscriber : m_subscribers)
@@ -111,7 +106,8 @@ namespace catapult { namespace test {
 			return context;
 		}
 
-		static model::PublishContext CreatePublishContext(const model::WeakEntityInfoT<model::Transaction>& transactionInfo) {
+		template<typename TTransaction>
+		static model::PublishContext CreatePublishContext(const model::WeakEntityInfoT<TTransaction>& transactionInfo) {
 			auto context = CreatePublishContext(transactionInfo.entity());
 
 			if (transactionInfo.isAssociatedBlockHeaderSet())
@@ -120,18 +116,21 @@ namespace catapult { namespace test {
 			return context;
 		}
 
-		static void PublishTransaction(
-				const model::TransactionPlugin& plugin,
-				const TransactionType& transaction,
-				model::NotificationSubscriber& sub) {
-			plugin.publish({ transaction, Hash256() }, CreatePublishContext(transaction), sub);
+		static model::WeakEntityInfoT<model::Transaction> ToTransactionInfo(
+				const model::WeakEntityInfoT<model::Transaction>& transactionInfo) {
+			return transactionInfo;
 		}
 
+		static model::WeakEntityInfoT<model::Transaction> ToTransactionInfo(const TransactionType& transaction) {
+			return { transaction, Hash256() };
+		}
+
+		template<typename TTransactionProxy>
 		static void PublishTransaction(
 				const model::TransactionPlugin& plugin,
-				const model::WeakEntityInfoT<model::Transaction>& transactionInfo,
+				const TTransactionProxy& transaction,
 				model::NotificationSubscriber& sub) {
-			plugin.publish(transactionInfo, CreatePublishContext(transactionInfo), sub);
+			plugin.publish(ToTransactionInfo(transaction), CreatePublishContext(transaction), sub);
 		}
 
 		static void PublishTransaction(
@@ -139,6 +138,15 @@ namespace catapult { namespace test {
 				const TransactionType& transaction,
 				model::NotificationSubscriber& sub) {
 			plugin.publish(transaction, CreatePublishContext(transaction), sub);
+		}
+
+		// note: this is a bit of an abuse because WeakEntityInfoT<EmbeddedTransaction> is never used,
+		//       but it indirectly allows setting BlockHeight in PublishContext
+		static void PublishTransaction(
+				const model::EmbeddedTransactionPlugin& plugin,
+				const model::WeakEntityInfoT<model::EmbeddedTransaction>& transactionInfo,
+				model::NotificationSubscriber& sub) {
+			plugin.publish(transactionInfo.entity(), CreatePublishContext(transactionInfo), sub);
 		}
 	};
 }}
