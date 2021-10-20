@@ -19,38 +19,24 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/tests/test/MongoPluginTestUtils.h"
-#include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
-#include "plugins/txes/mosaic/src/model/MosaicReceiptType.h"
-#include "tests/TestHarness.h"
+#include "MosaicSupplyRevocationMapper.h"
+#include "mongo/src/MongoTransactionPluginFactory.h"
+#include "mongo/src/mappers/MapperUtils.h"
+#include "plugins/txes/mosaic/src/model/MosaicSupplyRevocationTransaction.h"
+
+using namespace catapult::mongo::mappers;
 
 namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
-		struct MongoMosaicPluginTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
-
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {
-					model::Entity_Type_Mosaic_Definition,
-					model::Entity_Type_Mosaic_Supply_Change,
-					model::Entity_Type_Mosaic_Supply_Revocation
-				};
-			}
-
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return {
-					model::Receipt_Type_Mosaic_Expired,
-					model::Receipt_Type_Mosaic_Rental_Fee
-				};
-			}
-
-			static std::string GetStorageName() {
-				return "{ MosaicCache }";
-			}
-		};
+		template<typename TTransaction>
+		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
+			builder
+					<< "sourceAddress" << ToBinary(transaction.SourceAddress)
+					<< "mosaicId" << ToInt64(transaction.Mosaic.MosaicId)
+					<< "amount" << ToInt64(transaction.Mosaic.Amount);
+		}
 	}
 
-	DEFINE_MONGO_PLUGIN_TESTS(MongoMosaicPluginTests, MongoMosaicPluginTraits)
+	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(MosaicSupplyRevocation, StreamTransaction)
 }}}
