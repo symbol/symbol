@@ -1,18 +1,21 @@
 import "namespace/namespace_types.cats"
 import "transaction.cats"
 
-# binary layout for an mosaic alias transaction
+# Shared content between MosaicAliasTransaction and EmbeddedMosaicAliasTransaction
 struct MosaicAliasTransactionBody
-	# identifier of the namespace that will become an alias
+	# Identifier of the namespace that will become (or stop being) an alias for the Mosaic.
 	namespace_id = NamespaceId
 
-	# aliased mosaic identifier
+	# Aliased mosaic identifier.
 	mosaic_id = MosaicId
 
-	# alias action
+	# Alias action.
 	alias_action = AliasAction
 
-# binary layout for a non-embedded mosaic alias transaction
+# Attach or detach a [namespace](/concepts/namespace.html) to a Mosaic.
+#
+# Setting an alias to a mosaic is only possible if the account announcing this transaction
+# has also created the namespace and the mosaic involved.
 struct MosaicAliasTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ALIAS)
@@ -20,7 +23,7 @@ struct MosaicAliasTransaction
 	inline Transaction
 	inline MosaicAliasTransactionBody
 
-# binary layout for an embedded mosaic alias transaction
+# Embedded version of MosaicAliasTransaction
 struct EmbeddedMosaicAliasTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ALIAS)

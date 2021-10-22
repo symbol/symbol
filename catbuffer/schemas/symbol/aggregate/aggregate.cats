@@ -1,25 +1,35 @@
 import "aggregate/cosignature.cats"
 import "transaction.cats"
 
-# binary layout for an aggregate transaction
+# Shared content between AggregateCompleteTransaction and AggregateBondedTransaction.
 struct AggregateTransactionBody
-	# aggregate hash of an aggregate's transactions
+	# Hash of the aggregate's transaction.
 	transactions_hash = Hash256
 
-	# transaction payload size in bytes
-	# \note this is the total number of bytes occupied by all sub-transactions
+	# Transaction payload size in bytes.
+	#
+	# This is the total number of bytes occupied by all embedded transactions,
+	# including any padding present.
 	payload_size = uint32
 
-	# reserved padding to align end of AggregateTransactionHeader on 8-byte boundary
+	# Reserved padding to align end of AggregateTransactionHeader to an 8-byte boundary.
 	aggregate_transaction_header_reserved_1 = make_reserved(uint32, 0)
 
-	# sub-transaction data (transactions are variable sized and payload size is in bytes)
+	# Embedded transaction data.
+	#
+	# Transactions are variable-sized and the total payload size is in bytes.
+	#
+	# Embedded transactions cannot be aggregates.
 	transactions = array(EmbeddedTransaction, size=payload_size)
 
-	# cosignatures data (fills remaining body space after transactions)
+	# Cosignatures data.
+	#
+	# Fills up remaining body space after transactions.
 	cosignatures = array(Cosignature, __FILL__)
 
-# binary layout for an aggregate complete transaction
+# Send transactions in batches to different accounts.
+#
+# Use this transaction when all required signatures are available when the transaction is created.
 struct AggregateCompleteTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, AGGREGATE_COMPLETE)
@@ -27,7 +37,14 @@ struct AggregateCompleteTransaction
 	inline Transaction
 	inline AggregateTransactionBody
 
-# binary layout for an aggregate bonded transaction
+# Propose an arrangement of transactions between different accounts.
+#
+# Use this transaction when not all required signatures are available when the transaction is created.
+#
+# Missing signatures must be provided using a Cosignature or DetachedCosignature.
+#
+# To prevent spam attacks, before trying to announce this transaction a HashLockTransaction must be
+# successfully announced and confirmed.
 struct AggregateBondedTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, AGGREGATE_BONDED)

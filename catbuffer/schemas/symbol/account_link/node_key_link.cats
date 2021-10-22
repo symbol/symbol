@@ -1,14 +1,16 @@
 import "transaction.cats"
 
-# binary layout for a node key link transaction
+# Shared content between NodeKeyLinkTransaction and EmbeddedNodeKeyLinkTransaction.
 struct NodeKeyLinkTransactionBody
-	# linked public key
+	# Linked public key.
 	linked_public_key = PublicKey
 
-	# link action
+	# Account link action.
 	link_action = LinkAction
 
-# binary layout for a non-embedded node key link transaction
+# This transaction is required for all accounts willing to activate delegated harvesting.
+#
+# Announce a NodeKeyLinkTransaction to link an account with a public key used by TLS to create sessions.
 struct NodeKeyLinkTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, NODE_KEY_LINK)
@@ -16,7 +18,7 @@ struct NodeKeyLinkTransaction
 	inline Transaction
 	inline NodeKeyLinkTransactionBody
 
-# binary layout for an embedded node key link transaction
+# Embedded version of NodeKeyLinkTransaction.
 struct EmbeddedNodeKeyLinkTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, NODE_KEY_LINK)

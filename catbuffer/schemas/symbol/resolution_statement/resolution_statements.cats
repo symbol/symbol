@@ -1,22 +1,24 @@
 import "receipts.cats"
 import "resolution_statement/resolution_statement_types.cats"
 
-# binary layout for a mosaic resolution statement
+# A Mosaic resolution statement links a namespace alias used in a transaction to the real mosaic id
+# **at the time of the transaction**.
 struct MosaicResolutionStatement
 	inline Receipt
 
-	# unresolved mosaic
+	# Unresolved mosaic.
 	unresolved = UnresolvedMosaicId
 
-	# resolution entries
+	# Resolution entries.
 	resolution_entries = array(MosaicResolutionEntry, __FILL__)
 
-# binary layout for an address resolution statement
+# An Address resolution statement links a namespace alias used in a transaction to the real address
+# **at the time of the transaction**.
 struct AddressResolutionStatement
 	inline Receipt
 
-	# unresolved address
+	# Unresolved address.
 	unresolved = UnresolvedAddress
 
-	# resolution entries
+	# Resolution entries.
 	resolution_entries = array(AddressResolutionEntry, __FILL__)

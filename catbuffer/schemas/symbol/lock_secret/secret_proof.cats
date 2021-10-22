@@ -1,24 +1,28 @@
 import "lock_secret/lock_secret_types.cats"
 import "transaction.cats"
 
-# binary layout for a secret proof transaction
+# Shared content between SecretProofTransaction and EmbeddedSecretProofTransaction.
 struct SecretProofTransactionBody
-	# locked mosaic recipient address
+	# Address that receives the funds once unlocked.
 	recipient_address = UnresolvedAddress
 
-	# secret
+	# Hashed proof.
 	secret = Hash256
 
-	# proof size in bytes
+	# Proof size in bytes
 	proof_size = uint16
 
-	# hash algorithm
+	# Algorithm used to hash the proof.
 	hash_algorithm = LockHashAlgorithm
 
-	# proof data
+	# Original random set of bytes that were hashed.
 	proof = array(uint8, proof_size)
 
-# binary layout for a non-embedded secret proof transaction
+# Conclude a token swap between different chains.
+#
+# Use a SecretProofTransaction to unlock the funds locked by a SecretLockTransaction.
+#
+# The transaction must prove knowing the *proof* that unlocks the mosaics.
 struct SecretProofTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, SECRET_PROOF)
@@ -26,7 +30,7 @@ struct SecretProofTransaction
 	inline Transaction
 	inline SecretProofTransactionBody
 
-# binary layout for an embedded secret proof transaction
+# Embedded version of SecretProofTransaction.
 struct EmbeddedSecretProofTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, SECRET_PROOF)

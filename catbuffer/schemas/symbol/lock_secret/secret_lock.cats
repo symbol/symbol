@@ -1,24 +1,31 @@
 import "lock_secret/lock_secret_types.cats"
 import "transaction.cats"
 
-# binary layout for a secret lock transaction
+# Shared content between SecretLockTransaction and EmbeddedSecretLockTransaction.
 struct SecretLockTransactionBody
-	# locked mosaic recipient address
+	# Address that receives the funds once successfully unlocked by a SecretProofTransaction.
 	recipient_address = UnresolvedAddress
 
-	# secret
+	# Hashed proof.
 	secret = Hash256
 
-	# locked mosaic
+	# Locked mosaics.
 	mosaic = UnresolvedMosaic
 
-	# number of blocks for which a lock should be valid
+	# Number of blocks to wait for the SecretProofTransaction.
 	duration = BlockDuration
 
-	# hash algorithm
+	# Algorithm used to hash the proof.
 	hash_algorithm = LockHashAlgorithm
 
-# binary layout for a non-embedded secret lock transaction
+# Start a token swap between different chains.
+#
+# Use a SecretLockTransaction to transfer mosaics between two accounts.
+# The mosaics sent remain locked until a valid SecretProofTransaction unlocks them.
+#
+# The default expiration date is **365 days** after announcement (See the `maxSecretLockDuration` network property).
+# If the lock expires before a valid SecretProofTransaction is announced the locked
+# amount goes back to the initiator of the SecretLockTransaction.
 struct SecretLockTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, SECRET_LOCK)
@@ -26,7 +33,7 @@ struct SecretLockTransaction
 	inline Transaction
 	inline SecretLockTransactionBody
 
-# binary layout for an embedded secret lock transaction
+# Embedded version of SecretLockTransaction.
 struct EmbeddedSecretLockTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, SECRET_LOCK)

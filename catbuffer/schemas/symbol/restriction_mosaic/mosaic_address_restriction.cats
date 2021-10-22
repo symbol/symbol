@@ -1,23 +1,25 @@
 import "transaction.cats"
 
-# binary layout for a mosaic address restriction transaction
+# Shared content between MosaicAddressRestrictionTransaction and EmbeddedMosaicAddressRestrictionTransaction.
 struct MosaicAddressRestrictionTransactionBody
-	# identifier of the mosaic to which the restriction applies
+	# Identifier of the mosaic to which the restriction applies.
 	mosaic_id = UnresolvedMosaicId
 
-	# restriction key
+	# Restriction key.
 	restriction_key = uint64
 
-	# previous restriction value
+	# Previous restriction value. Set `previousRestrictionValue` to `FFFFFFFFFFFFFFFF` if
+	# the target address does not have a previous restriction value for this mosaic id
+	# and restriction key.
 	previous_restriction_value = uint64
 
-	# new restriction value
+	# New restriction value.
 	new_restriction_value = uint64
 
-	# address being restricted
+	# Address being restricted.
 	target_address = UnresolvedAddress
 
-# binary layout for a non-embedded mosaic address restriction transaction
+# Set address specific rules to transfer a restrictable mosaic.
 struct MosaicAddressRestrictionTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ADDRESS_RESTRICTION)
@@ -25,7 +27,7 @@ struct MosaicAddressRestrictionTransaction
 	inline Transaction
 	inline MosaicAddressRestrictionTransactionBody
 
-# binary layout for an embedded mosaic address restriction transaction
+# Embedded version of MosaicAddressRestrictionTransaction.
 struct EmbeddedMosaicAddressRestrictionTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_ADDRESS_RESTRICTION)

@@ -1,28 +1,30 @@
 import "transaction.cats"
 
-# binary layout for a mosaic metadata transaction
+# Shared content between MosaicMetadataTransaction and EmbeddedMosaicMetadataTransaction.
 struct MosaicMetadataTransactionBody
-	# metadata target address
+	# Account owning the mosaic whose metadata should be modified.
 	target_address = UnresolvedAddress
 
-	# metadata key scoped to source, target and type
+	# Metadata key scoped to source, target and type.
 	scoped_metadata_key = uint64
 
-	# target mosaic identifier
+	# Mosaic whose metadata should be modified.
 	target_mosaic_id = UnresolvedMosaicId
 
-	# change in value size in bytes
+	# Change in value size in bytes, compared to previous size.
 	value_size_delta = int16
 
-	# value size in bytes
+	# Size in bytes of the `value` array.
 	value_size = uint16
 
-	# difference between existing value and new value
-	# \note when there is no existing value, new value is same this value
-	# \note when there is an existing value, new value is calculated as xor(previous-value, value)
+	# Difference between existing value and new value.
+	# \note When there is no existing value, this array is directly used and `value_size_delta`==`value_size`.
+	# \note When there is an existing value, the new value is the byte-wise XOR of the previous value and this array.
 	value = array(uint8, value_size)
 
-# binary layout for a non-embedded mosaic metadata transaction
+# Associate a key-value state ([metadata](/concepts/metadata.html)) to a **mosaic**.
+#
+# Compare to AccountMetadataTransaction and NamespaceMetadataTransaction.
 struct MosaicMetadataTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_METADATA)
@@ -30,7 +32,7 @@ struct MosaicMetadataTransaction
 	inline Transaction
 	inline MosaicMetadataTransactionBody
 
-# binary layout for an embedded mosaic metadata transaction
+# Embedded version of MosaicMetadataTransaction.
 struct EmbeddedMosaicMetadataTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_METADATA)

@@ -1,20 +1,32 @@
 import "transaction.cats"
 
-# binary layout for a voting key link transaction
+# Shared content between VotingKeyLinkTransaction and EmbeddedVotingKeyLinkTransaction.
 struct VotingKeyLinkTransactionBody
-	# linked public key
+	# Linked voting public key.
 	linked_public_key = VotingPublicKey
 
-	# start finalization epoch
+	# Starting finalization epoch.
 	start_epoch = FinalizationEpoch
 
-	# end finalization epoch
+	# Ending finalization epoch.
 	end_epoch = FinalizationEpoch
 
-	# link action
+	# Account link action.
 	link_action = LinkAction
 
-# binary layout for a non-embedded voting key link transaction
+# Link an account with a BLS public key required for finalization voting.
+#
+# This transaction is required for node operators wanting to vote for
+# [finalization](/concepts/block.html#finalization).
+#
+# Announce a VotingKeyLinkTransaction to associate a voting key with an account during a fixed period.
+# An account can be linked to up to **3** different voting keys at the same time.
+#
+# The recommended production setting is to always have at least **2** linked keys with different
+# ``endPoint`` values to ensure a key is registered after the first one expires.
+#
+# See more details in
+# [the manual node setup guide](/guides/network/running-a-symbol-node-manually.html#manual-voting-key-renewal).
 struct VotingKeyLinkTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, VOTING_KEY_LINK)
@@ -22,7 +34,7 @@ struct VotingKeyLinkTransaction
 	inline Transaction
 	inline VotingKeyLinkTransactionBody
 
-# binary layout for an embedded voting key link transaction
+# Embedded version of VotingKeyLinkTransaction.
 struct EmbeddedVotingKeyLinkTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, VOTING_KEY_LINK)

@@ -1,30 +1,33 @@
 import "restriction_mosaic/restriction_mosaic_types.cats"
 import "transaction.cats"
 
-# binary layout for a mosaic global restriction transaction
+# Shared content between MosaicGlobalRestrictionTransaction and EmbeddedMosaicGlobalRestrictionTransaction.
 struct MosaicGlobalRestrictionTransactionBody
-	# identifier of the mosaic being restricted
+	# Identifier of the mosaic being restricted. The mosaic creator must be the signer of the transaction.
 	mosaic_id = UnresolvedMosaicId
 
-	# identifier of the mosaic providing the restriction key
+	# Identifier of the mosaic providing the restriction key.
+	# The mosaic global restriction for the mosaic identifier depends on global restrictions set
+	# on the reference mosaic. Set `reference_mosaic_id` to **0** if the mosaic giving the
+	# restriction equals the `mosaic_id`.
 	reference_mosaic_id = UnresolvedMosaicId
 
-	# restriction key relative to the reference mosaic identifier
+	# Restriction key relative to the reference mosaic identifier.
 	restriction_key = uint64
 
-	# previous restriction value
+	# Previous restriction value.
 	previous_restriction_value = uint64
 
-	# new restriction value
+	# New restriction value.
 	new_restriction_value = uint64
 
-	# previous restriction type
+	# Previous restriction type.
 	previous_restriction_type = MosaicRestrictionType
 
-	# new restriction type
+	# New restriction type.
 	new_restriction_type = MosaicRestrictionType
 
-# binary layout for a non-embedded mosaic global restriction transaction
+# Set global rules to transfer a restrictable mosaic.
 struct MosaicGlobalRestrictionTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_GLOBAL_RESTRICTION)
@@ -32,7 +35,7 @@ struct MosaicGlobalRestrictionTransaction
 	inline Transaction
 	inline MosaicGlobalRestrictionTransactionBody
 
-# binary layout for an embedded mosaic global restriction transaction
+# Embedded version of MosaicGlobalRestrictionTransaction.
 struct EmbeddedMosaicGlobalRestrictionTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_GLOBAL_RESTRICTION)

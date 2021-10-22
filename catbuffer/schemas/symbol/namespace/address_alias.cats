@@ -1,18 +1,22 @@
 import "namespace/namespace_types.cats"
 import "transaction.cats"
 
-# binary layout for an address alias transaction
+# Shared content between AddressAliasTransaction and EmbeddedAddressAliasTransaction.
 struct AddressAliasTransactionBody
-	# identifier of the namespace that will become an alias
+	# Identifier of the namespace that will become (or stop being) an alias for the address.
 	namespace_id = NamespaceId
 
-	# aliased address
+	# Aliased address.
 	address = Address
 
-	# alias action
+	# Alias action.
 	alias_action = AliasAction
 
-# binary layout for a non-embedded address alias transaction
+# Attach or detach a [namespace](/concepts/namespace.html)
+# (alias) to an account address..
+#
+# A namespace can be assigned to any account present in the network (this is, an account
+# which has received at least one transaction).
 struct AddressAliasTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ADDRESS_ALIAS)
@@ -20,7 +24,7 @@ struct AddressAliasTransaction
 	inline Transaction
 	inline AddressAliasTransactionBody
 
-# binary layout for an embedded address alias transaction
+# Embedded version of AddressAliasTransaction.
 struct EmbeddedAddressAliasTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ADDRESS_ALIAS)

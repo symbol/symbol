@@ -1,19 +1,19 @@
 import "types.cats"
 
-# cosignature attached to an aggregate transaction
+# Cosignature attached to an AggregateCompleteTransaction or AggregateBondedTransaction.
 struct Cosignature
-	# version
+	# Version.
 	version = uint64
 
-	# cosigner public key
+	# Cosigner public key.
 	signer_public_key = PublicKey
 
-	# cosigner signature
+	# Transaction signature.
 	signature = Signature
 
-# cosignature detached from an aggregate transaction
+# Cosignature detached from an AggregateCompleteTransaction or AggregateBondedTransaction.
 struct DetachedCosignature
 	inline Cosignature
 
-	# hash of the aggregate transaction that is signed by this cosignature
+	# Hash of the AggregateBondedTransaction that is signed by this cosignature.
 	parent_hash = Hash256

@@ -1,9 +1,9 @@
 import "namespace/namespace_types.cats"
 import "receipts.cats"
 
-# binary layout for a namespace expiry receipt
+# Receipt generated when a [namespace](/concepts/namespace.html) expires.
 struct NamespaceExpiryReceipt
 	inline Receipt
 
-	# expiring namespace id
+	# Expiring namespace identifier.
 	artifact_id = NamespaceId

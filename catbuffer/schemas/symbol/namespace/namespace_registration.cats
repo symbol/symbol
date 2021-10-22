@@ -1,27 +1,29 @@
 import "namespace/namespace_types.cats"
 import "transaction.cats"
 
-# binary layout for a namespace registration transaction
+# Shared content between NamespaceRegistrationTransaction and EmbeddedNamespaceRegistrationTransaction.
 struct NamespaceRegistrationTransactionBody
-	# namespace duration
+	# Number of confirmed blocks you would like to rent the namespace for. Required for root namespaces.
 	duration = BlockDuration if ROOT equals registration_type
 
-	# parent namespace identifier
+	# Parent namespace identifier. Required for sub-namespaces.
 	parent_id = NamespaceId if CHILD equals registration_type
 
-	# namespace identifier
+	# Namespace identifier.
 	id = NamespaceId
 
-	# namespace registration type
+	# Namespace registration type.
 	registration_type = NamespaceRegistrationType
 
-	# namespace name size
+	# Namespace name size in bytes.
 	name_size = uint8
 
-	# namespace name
+	# Namespace name.
 	name = array(uint8, name_size)
 
-# binary layout for a non-embedded namespace registration transaction
+# Register (or renew a registration for) a [namespace](/concepts/namespace.html).
+#
+# Namespaces help keep assets organized.
 struct NamespaceRegistrationTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, NAMESPACE_REGISTRATION)
@@ -29,7 +31,7 @@ struct NamespaceRegistrationTransaction
 	inline Transaction
 	inline NamespaceRegistrationTransactionBody
 
-# binary layout for an embedded namespace registration transaction
+# Embedded version of NamespaceRegistrationTransaction.
 struct EmbeddedNamespaceRegistrationTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, NAMESPACE_REGISTRATION)

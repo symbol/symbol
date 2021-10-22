@@ -1,73 +1,73 @@
-# enumeration of transaction types
+# Enumeration of Transaction types
 enum TransactionType : uint16
-	# account key link transaction
+	# AccountKeyLinkTransaction
 	ACCOUNT_KEY_LINK = 0x414C
 
-	# node key link transaction
+	# NodeKeyLinkTransaction
 	NODE_KEY_LINK = 0x424C
 
-	# aggregate complete transaction
+	# AggregateCompleteTransaction
 	AGGREGATE_COMPLETE = 0x4141
 
-	# aggregate bonded transaction
+	# AggregateBondedTransaction
 	AGGREGATE_BONDED = 0x4241
 
-	# voting key link transaction
+	# VotingKeyLinkTransaction
 	VOTING_KEY_LINK = 0x4143
 
-	# vrf key link transaction
+	# VrfKeyLinkTransaction
 	VRF_KEY_LINK = 0x4243
 
-	# hash lock transaction
+	# HashLockTransaction
 	HASH_LOCK = 0x4148
 
-	# secret lock transaction
+	# SecretLockTransaction
 	SECRET_LOCK = 0x4152
 
-	# secret proof transaction
+	# SecretProofTransaction
 	SECRET_PROOF = 0x4252
 
-	# account metadata transaction
+	# AccountMetadataTransaction
 	ACCOUNT_METADATA = 0x4144
 
-	# mosaic metadata transaction
+	# MosaicMetadataTransaction
 	MOSAIC_METADATA = 0x4244
 
-	# namespace metadata transaction
+	# NamespaceMetadataTransaction
 	NAMESPACE_METADATA = 0x4344
 
-	# mosaic definition transaction
+	# MosaicDefinitionTransaction
 	MOSAIC_DEFINITION = 0x414D
 
-	# mosaic supply change transaction
+	# MosaicSupplyChangeTransaction
 	MOSAIC_SUPPLY_CHANGE = 0x424D
 
-	# multisig account modification transaction
+	# MultisigAccountModificationTransaction
 	MULTISIG_ACCOUNT_MODIFICATION = 0x4155
 
-	# address alias transaction
+	# AddressAliasTransaction
 	ADDRESS_ALIAS = 0x424E
 
-	# mosaic alias transaction
+	# MosaicAliasTransaction
 	MOSAIC_ALIAS = 0x434E
 
-	# namespace registration transaction
+	# NamespaceRegistrationTransaction
 	NAMESPACE_REGISTRATION = 0x414E
 
-	# account address restriction transaction
+	# AccountAddressRestrictionTransaction
 	ACCOUNT_ADDRESS_RESTRICTION = 0x4150
 
-	# account mosaic restriction transaction
+	# AccountMosaicRestrictionTransaction
 	ACCOUNT_MOSAIC_RESTRICTION = 0x4250
 
-	# account operation restriction transaction
+	# AccountOperationRestrictionTransaction
 	ACCOUNT_OPERATION_RESTRICTION = 0x4350
 
-	# mosaic address restriction transaction
+	# MosaicAddressRestrictionTransaction
 	MOSAIC_ADDRESS_RESTRICTION = 0x4251
 
-	# mosaic global restriction transaction
+	# MosaicGlobalRestrictionTransaction
 	MOSAIC_GLOBAL_RESTRICTION = 0x4151
 
-	# transfer transaction
+	# TransferTransaction
 	TRANSFER = 0x4154

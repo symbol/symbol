@@ -1,101 +1,101 @@
 import "entity.cats"
 
-# enumeration of receipt types
+# Enumeration of receipt types.
 enum ReceiptType : uint16
-	# reserved receipt type
+	# Reserved.
 	RESERVED = 0x0000
 
-	# mosaic rental fee receipt type
+	# Mosaic rental fee receipt.
 	MOSAIC_RENTAL_FEE = 0x124D
 
-	# namespace rental fee receipt type
+	# Namespace rental fee receipt.
 	NAMESPACE_RENTAL_FEE = 0x134E
 
-	# harvest fee receipt type
+	# Harvest fee receipt.
 	HARVEST_FEE = 0x2143
 
-	# lock hash completed receipt type
+	# Hash lock completed receipt.
 	LOCK_HASH_COMPLETED = 0x2248
 
-	# lock hash expired receipt type
+	# Hash lock expired receipt.
 	LOCK_HASH_EXPIRED = 0x2348
 
-	# lock secret completed receipt type
+	# Secret lock completed receipt.
 	LOCK_SECRET_COMPLETED = 0x2252
 
-	# lock secret expired receipt type
+	# Secret lock expired receipt.
 	LOCK_SECRET_EXPIRED = 0x2352
 
-	# lock hash created receipt type
+	# Hash lock created receipt.
 	LOCK_HASH_CREATED = 0x3148
 
-	# lock secret created receipt type
+	# Secret lock created receipt.
 	LOCK_SECRET_CREATED = 0x3152
 
-	# mosaic expired receipt type
+	# Mosaic expired receipt.
 	MOSAIC_EXPIRED = 0x414D
 
-	# namespace expired receipt type
+	# Namespace expired receipt.
 	NAMESPACE_EXPIRED = 0x414E
 
-	# namespace deleted receipt type
+	# Namespace deleted receipt.
 	NAMESPACE_DELETED = 0x424E
 
-	# inflation receipt type
+	# Inflation receipt.
 	INFLATION = 0x5143
 
-	# transaction group receipt type
+	# Transaction group receipt.
 	TRANSACTION_GROUP = 0xE143
 
-	# address alias resolution receipt type
+	# Address alias resolution receipt.
 	ADDRESS_ALIAS_RESOLUTION = 0xF143
 
-	# mosaic alias resolution receipt type
+	# Mosaic alias resolution receipt.
 	MOSAIC_ALIAS_RESOLUTION = 0xF243
 
-# binary layout for a receipt entity
+# Receipts provide proof for every state change not retrievable from the block.
 struct Receipt
 	inline SizePrefixedEntity
 
-	# receipt version
+	# Receipt version.
 	version = uint16
 
-	# receipt type
+	# Type of receipt.
 	type = ReceiptType
 
-# binary layout for a balance transfer receipt
+# An invisible state change triggered a mosaic transfer.
 struct BalanceTransferReceipt
 	inline Receipt
 
-	# mosaic
+	# Transferred mosaic
 	mosaic = Mosaic
 
-	# mosaic sender address
+	# Address of the sender account.
 	sender_address = Address
 
-	# mosaic recipient address
+	# Address of the recipient account.
 	recipient_address = Address
 
-# binary layout for a balance change receipt
+# An invisible state change modified an account's balance.
 struct BalanceChangeReceipt
 	inline Receipt
 
-	# mosaic
+	# Modified mosaic.
 	mosaic = Mosaic
 
-	# account address
+	# Address of the affected account.
 	target_address = Address
 
-# binary layout for an inflation receipt
+# Network currency mosaics were created due to [inflation](/concepts/inflation).
 struct InflationReceipt
 	inline Receipt
 
-	# mosaic
+	# Created mosaic.
 	mosaic = Mosaic
 
-# binary layout for a mosaic expiry receipt
+# An mosaic expired.
 struct MosaicExpiryReceipt
 	inline Receipt
 
-	# expiring mosaic id
+	# Expiring mosaic id.
 	artifact_id = MosaicId

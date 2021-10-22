@@ -1,17 +1,33 @@
 import "transaction.cats"
 
-# binary layout for a hash lock transaction
+# Shared content between HashLockTransaction and EmbeddedHashLockTransaction.
 struct HashLockTransactionBody
-	# lock mosaic
+	# Locked mosaic.
 	mosaic = UnresolvedMosaic
 
-	# number of blocks for which a lock should be valid
+	# Number of blocks for which a lock should be valid.
+	#
+	# The default maximum is 48h (See the `maxHashLockDuration` network property).
 	duration = BlockDuration
 
-	# lock hash
+	# Hash of the AggregateBondedTransaction to be confirmed before unlocking the mosaics.
 	hash = Hash256
 
-# binary layout for a non-embedded hash lock transaction
+# Lock a deposit needed to announce an AggregateBondedTransaction.
+#
+# An AggregateBondedTransaction consumes network resources as it is stored in every node's partial cache while
+# it waits to be fully signed. To avoid spam attacks a HashLockTransaction must be announced and confirmed
+# before an AggregateBondedTransaction can be announced. The HashLockTransaction locks a certain amount of funds
+# (**10** XYM by default) until the aggregate is signed.
+#
+# Upon completion of the aggregate, the locked funds become available again to the account that signed the HashLockTransaction.
+#
+# If the lock expires before the aggregate is signed by all cosignatories (**48h by default),
+# the locked funds become a reward collected by the block harvester at the height where the lock expires.
+#
+# \note It is not necessary to sign the aggregate and its HashLockTransaction with the same account.
+# For example, if Bob wants to announce an aggregate and does not have enough funds to announce a HashLockTransaction,
+# he can ask Alice to announce the lock transaction for him by sharing the signed AggregateTransaction hash.
 struct HashLockTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, HASH_LOCK)
@@ -19,7 +35,7 @@ struct HashLockTransaction
 	inline Transaction
 	inline HashLockTransactionBody
 
-# binary layout for an embedded hash lock transaction
+# Embedded version of HashLockTransaction.
 struct EmbeddedHashLockTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, HASH_LOCK)

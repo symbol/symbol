@@ -1,24 +1,30 @@
 using MosaicNonce = uint32
 
-# enumeration of mosaic property flags
+# Enumeration of mosaic property flags.
 enum MosaicFlags : uint8
-	# no flags present
+	# No flags present.
 	NONE = 0x00
 
-	# mosaic supports supply changes even when mosaic owner owns partial supply
+	# Mosaic supports supply changes through a MosaicSupplyChangeTransaction even
+	# when mosaic creator only owns a partial supply.
+	#
+	# If the mosaic creator owns the totality of the supply, it can be changed even
+	# if this flag is not set.
 	SUPPLY_MUTABLE = 0x01
 
-	# mosaic supports transfers between arbitrary accounts
-	# \note when not set, mosaic can only be transferred to and from mosaic owner
+	# Mosaic supports TransferTransaction between arbitrary accounts.
+	# When not set, this mosaic can only be transferred to or from the mosaic creator.
 	TRANSFERABLE = 0x02
 
-	# mosaic supports custom restrictions configured by mosaic owner
+	# Mosaic supports custom restrictions configured by the mosaic creator.
+	#
+	# See MosaicAddressRestrictionTransaction and MosaicGlobalRestrictionTransaction.
 	RESTRICTABLE = 0x04
 
-# enumeration of mosaic supply change actions
+# Enumeration of mosaic supply change actions.
 enum MosaicSupplyChangeAction : uint8
-	# decreases the supply
+	# Decreases the supply.
 	DECREASE = 0x00
 
-	# increases the supply
+	# Increases the supply.
 	INCREASE = 0x01

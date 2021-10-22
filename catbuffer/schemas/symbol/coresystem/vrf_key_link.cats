@@ -1,14 +1,20 @@
 import "transaction.cats"
 
-# binary layout for a vrf key link transaction
+# Shared content between VrfKeyLinkTransaction and EmbeddedVrfKeyLinkTransaction.
 struct VrfKeyLinkTransactionBody
-	# linked public key
+	# Linked VRF public key.
 	linked_public_key = PublicKey
 
-	# link action
+	# Account link action.
 	link_action = LinkAction
 
-# binary layout for a non-embedded vrf key link transaction
+# Link an account with a VRF public key required for harvesting.
+#
+# Announce a VrfKeyLinkTransaction to link an account with a VRF public key.
+# The linked key is used to randomize block production and leader/participant selection.
+#
+# This transaction is required for all accounts wishing to
+# [harvest](/concepts/harvesting.html).
 struct VrfKeyLinkTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, VRF_KEY_LINK)
@@ -16,7 +22,7 @@ struct VrfKeyLinkTransaction
 	inline Transaction
 	inline VrfKeyLinkTransactionBody
 
-# binary layout for an embedded vrf key link transaction
+# Embedded version of VrfKeyLinkTransaction.
 struct EmbeddedVrfKeyLinkTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, VRF_KEY_LINK)

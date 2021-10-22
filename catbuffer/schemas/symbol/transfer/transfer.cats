@@ -1,6 +1,6 @@
 import "transaction.cats"
 
-# binary layout for a transfer transaction
+# Shared content between TransferTransaction and EmbeddedTransferTransaction.
 struct TransferTransactionBody
 	# recipient address
 	recipient_address = UnresolvedAddress
@@ -23,7 +23,7 @@ struct TransferTransactionBody
 	# attached message
 	message = array(uint8, message_size)
 
-# binary layout for a non-embedded transfer transaction
+# Send mosaics and messages between two accounts.
 struct TransferTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, TRANSFER)
@@ -31,7 +31,7 @@ struct TransferTransaction
 	inline Transaction
 	inline TransferTransactionBody
 
-# binary layout for an embedded transfer transaction
+# Embedded version of TransferTransaction.
 struct EmbeddedTransferTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, TRANSFER)

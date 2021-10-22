@@ -1,24 +1,26 @@
 import "mosaic/mosaic_types.cats"
 import "transaction.cats"
 
-# binary layout for a mosaic definition transaction
+# Shared content between MosaicDefinitionTransaction and Embedded MosaicDefinitionTransaction.
 struct MosaicDefinitionTransactionBody
-	# mosaic identifier
+	# Unique mosaic identifier obtained from the generator account's public key and the `nonce`.
+	#
+	# The SDK's can take care of generating this ID for you.
 	id = MosaicId
 
-	# mosaic duration
+	# Mosaic duration expressed in blocks. If set to 0, the mosaic never expires.
 	duration = BlockDuration
 
-	# mosaic nonce
+	# Random nonce used to generate the mosaic id.
 	nonce = MosaicNonce
 
-	# mosaic flags
+	# Mosaic flags.
 	flags = MosaicFlags
 
-	# mosaic divisibility
+	# Mosaic divisibility.
 	divisibility = uint8
 
-# binary layout for a non-embedded mosaic definition transaction
+# Create a new  [mosaic](/concepts/mosaic.html).
 struct MosaicDefinitionTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_DEFINITION)
@@ -26,7 +28,7 @@ struct MosaicDefinitionTransaction
 	inline Transaction
 	inline MosaicDefinitionTransactionBody
 
-# binary layout for an embedded mosaic definition transaction
+# Embedded version of MosaicDefinitionTransaction.
 struct EmbeddedMosaicDefinitionTransaction
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_DEFINITION)
