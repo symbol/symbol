@@ -498,6 +498,29 @@ namespace catapult { namespace model {
 		});
 	}
 
+	TEST(TEST_CLASS, CanPublishTransactionFeeNotification_BlockDependentWithMaxFeeFlag) {
+		// Arrange:
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		auto pTransaction = test::GenerateRandomTransactionWithSize(234);
+		pTransaction->Type = mocks::MockTransaction::Entity_Type;
+		pTransaction->MaxFee = Amount(765);
+
+		// - nonzero VerifiableEntityHeader_Reserved1 is used as a sentinel by HarvestingUtFacade to bypass block dependent fee calculation
+		BlockHeader blockHeader;
+		blockHeader.FeeMultiplier = BlockFeeMultiplier(4);
+		blockHeader.VerifiableEntityHeader_Reserved1 = 1;
+		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
+
+		// Act:
+		PublishOne<TransactionFeeNotification>(weakEntityInfo, [&transaction = *pTransaction](const auto& notification) {
+			// Assert: max fee is used when there is associated block with MaxFee flag
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
+			EXPECT_EQ(transaction.Size, notification.TransactionSize);
+			EXPECT_EQ(Amount(765), notification.Fee);
+			EXPECT_EQ(Amount(765), notification.MaxFee);
+		});
+	}
+
 	TEST(TEST_CLASS, CanPublishTransactionFeeDebitNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);

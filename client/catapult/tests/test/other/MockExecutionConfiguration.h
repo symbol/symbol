@@ -44,12 +44,16 @@ namespace catapult { namespace test {
 	public:
 		explicit PublisherParams(const model::WeakEntityInfo& entityInfo)
 				: EntityInfo(entityInfo)
+				, EntityType(entityInfo.type())
 				, HashCopy(entityInfo.hash())
+				, BlockHeight(entityInfo.isAssociatedBlockHeaderSet() ? entityInfo.associatedBlockHeader().Height : Height())
 		{}
 
 	public:
 		const model::WeakEntityInfo EntityInfo;
+		const model::EntityType EntityType;
 		const Hash256 HashCopy;
+		const Height BlockHeight;
 	};
 
 	struct MockNotification : public model::Notification {
