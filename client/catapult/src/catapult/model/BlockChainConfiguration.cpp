@@ -37,19 +37,14 @@ namespace catapult { namespace model {
 				CATAPULT_THROW_INVALID_ARGUMENT_1("plugin name contains unexpected character", pluginName);
 		}
 
+		bool TryParseSignature(const std::string& str, Signature& signature) {
+			return utils::TryParseHexStringIntoContainer(str.data(), str.size(), signature);
+		}
+
 		size_t ParseSignaturesSection(const utils::ConfigurationBag& bag, std::vector<Signature>& signatures) {
-			auto signaturesPair = utils::ExtractSectionAsOrderedVector(bag, "additional_nemesis_account_transaction_signatures");
-
-			for (const auto& str : signaturesPair.first) {
-				Signature signature;
-				if (!utils::TryParseHexStringIntoContainer(str.data(), str.size(), signature)) {
-					auto message = "property could not be parsed";
-					CATAPULT_THROW_AND_LOG_1(utils::property_malformed_error, message, std::string(str));
-				}
-
-				signatures.push_back(signature);
-			}
-
+			auto sectionName = "additional_nemesis_account_transaction_signatures";
+			auto signaturesPair = utils::ExtractSectionKeysAsTypedVector<Signature>(bag, sectionName, TryParseSignature);
+			signatures = std::move(signaturesPair.first);
 			return signaturesPair.second;
 		}
 

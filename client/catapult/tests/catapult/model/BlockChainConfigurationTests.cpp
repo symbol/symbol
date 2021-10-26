@@ -287,16 +287,6 @@ namespace catapult { namespace model {
 		EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(container)), utils::property_malformed_error);
 	}
 
-	TEST(TEST_CLASS, CannotLoadBlockChainConfigurationWithInvalidAdditionalNemesisAccountTransactionSignature) {
-		// Arrange: set an invalid (too short) signature in the container
-		using Traits = BlockChainConfigurationTraits;
-		auto container = Traits::CreateProperties();
-		container["additional_nemesis_account_transaction_signatures"][1] = { Nemesis_Generation_Hash_Seed, "true" };
-
-		// Act + Assert:
-		EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(container)), utils::property_malformed_error);
-	}
-
 	namespace {
 		void AssertCannotLoadWithSection(const std::string& section) {
 			// Arrange:

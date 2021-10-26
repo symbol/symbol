@@ -21,6 +21,7 @@
 
 #pragma once
 #include "ConfigurationBag.h"
+#include "catapult/functions.h"
 #include <unordered_set>
 #include <vector>
 
@@ -49,4 +50,27 @@ namespace catapult { namespace utils {
 	/// Extracts all \a section properties from \a bag into an ordered vector.
 	/// \note All section properties are expected to be boolean and only ones with \c true values will be included.
 	std::pair<std::vector<std::string>, size_t> ExtractSectionAsOrderedVector(const ConfigurationBag& bag, const char* section);
+
+	/// Extracts all \a section properties from \a bag into an ordered and typed vector using \a valueParser to parse values.
+	/// \note All section properties are expected to be boolean and only ones with \c true values will be included.
+	template<typename TValue>
+	std::pair<std::vector<TValue>, size_t> ExtractSectionKeysAsTypedVector(
+			const ConfigurationBag& bag,
+			const char* section,
+			const predicate<const std::string&, TValue&>& valueParser) {
+		auto valuesPair = ExtractSectionAsOrderedVector(bag, section);
+
+		std::vector<TValue> values;
+		for (const auto& str : valuesPair.first) {
+			TValue value;
+			if (!valueParser(str, value)) {
+				auto message = "property could not be parsed";
+				CATAPULT_THROW_AND_LOG_2(property_malformed_error, message, std::string(section), std::string(str));
+			}
+
+			values.push_back(value);
+		}
+
+		return std::make_pair(std::move(values), valuesPair.second);
+	}
 }}

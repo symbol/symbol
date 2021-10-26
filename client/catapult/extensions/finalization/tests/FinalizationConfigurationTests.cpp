@@ -20,6 +20,8 @@
 **/
 
 #include "finalization/src/FinalizationConfiguration.h"
+#include "catapult/model/Address.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -28,6 +30,10 @@ namespace catapult { namespace finalization {
 #define TEST_CLASS FinalizationConfigurationTests
 
 	namespace {
+		constexpr auto Address_1 = "TBEWFIHYADXHS77T4WEKYJ6DE4E543UIDEPTCNI";
+		constexpr auto Address_2 = "TBYQVTCEPB7A4EQQMMHJNNHMU37MLGPPQLFSSWY";
+		constexpr auto Address_3 = "TB6VZWUTPVNZNMG44YIVGS5EAIYJUU57BLS43VI";
+
 		struct FinalizationConfigurationTraits {
 			using ConfigurationType = FinalizationConfiguration;
 
@@ -49,14 +55,24 @@ namespace catapult { namespace finalization {
 							{ "maxHashesPerPoint", "123" },
 							{ "prevoteBlocksMultiple", "7" },
 
-							{ "unfinalizedBlocksDuration", "7m" }
+							{ "unfinalizedBlocksDuration", "7m" },
+
+							{ "treasuryReissuanceEpoch", "99" }
+						}
+					},
+					{
+						"treasury_reissuance_epoch_ineligible_voter_addresses",
+						{
+							{ Address_1, "true" },
+							{ Address_2, "false" },
+							{ Address_3, "true" }
 						}
 					}
 				};
 			}
 
-			static bool IsSectionOptional(const std::string&) {
-				return false;
+			static bool IsSectionOptional(const std::string& section) {
+				return "treasury_reissuance_epoch_ineligible_voter_addresses" == section;
 			}
 
 			static void AssertZero(const FinalizationConfiguration& config) {
@@ -75,6 +91,9 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(0u, config.PrevoteBlocksMultiple);
 
 				EXPECT_EQ(utils::BlockSpan(), config.UnfinalizedBlocksDuration);
+
+				EXPECT_EQ(FinalizationEpoch(0), config.TreasuryReissuanceEpoch);
+				EXPECT_TRUE(config.TreasuryReissuanceEpochIneligibleVoterAddresses.empty());
 
 				EXPECT_EQ(0u, config.VotingSetGrouping);
 			}
@@ -95,6 +114,11 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(7u, config.PrevoteBlocksMultiple);
 
 				EXPECT_EQ(utils::BlockSpan::FromMinutes(7), config.UnfinalizedBlocksDuration);
+
+				EXPECT_EQ(FinalizationEpoch(99), config.TreasuryReissuanceEpoch);
+				EXPECT_EQ(
+						model::AddressSet({ model::StringToAddress(Address_1), model::StringToAddress(Address_3) }),
+						config.TreasuryReissuanceEpochIneligibleVoterAddresses);
 
 				EXPECT_EQ(0u, config.VotingSetGrouping);
 			}
@@ -129,6 +153,9 @@ namespace catapult { namespace finalization {
 		EXPECT_EQ(4u, config.PrevoteBlocksMultiple);
 
 		EXPECT_EQ(utils::BlockSpan(), config.UnfinalizedBlocksDuration);
+
+		EXPECT_EQ(FinalizationEpoch(0), config.TreasuryReissuanceEpoch);
+		EXPECT_TRUE(config.TreasuryReissuanceEpochIneligibleVoterAddresses.empty());
 
 		EXPECT_EQ(0u, config.VotingSetGrouping);
 	}
