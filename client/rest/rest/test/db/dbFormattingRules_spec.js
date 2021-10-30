@@ -240,14 +240,14 @@ describe('db formatting rules', () => {
 		});
 	});
 
-	it('can format encodedAddress type', () => {
+	it('can format encodedAddress type using hex', () => {
 		// Arrange
 		const object = test.factory.createBinary(Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex'));
 
 		// Act:
-		const result = formattingRules[ModelType.encodedAddress](object);
+		const result = formattingRules[ModelType.encodedAddress](object, false);
 
 		// Assert:
-		expect(result).to.equal('TDQNCOHK6KWDILABL7YLMMPMGYRORL72AS74YVQ');
+		expect(result).to.equal('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56');
 	});
 });

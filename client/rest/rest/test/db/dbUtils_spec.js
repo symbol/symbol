@@ -24,7 +24,7 @@ const { convertToLong } = require('../../src/db/dbUtils');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
 
-const { ObjectId, Binary } = MongoDb;
+const { ObjectId } = MongoDb;
 
 describe('db utils', () => {
 	describe('convertToLong', () => {
@@ -169,18 +169,18 @@ describe('db utils', () => {
 	});
 
 	describe('bufferToUnresolvedAddress', () => {
-		it('can convert from Binary to Address', () => {
+		it('can convert from Buffer to encoded address', () => {
 			// Arrange
-			const object = new Binary(Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex'));
+			const object = Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex');
 
 			// Act:
-			const result = dbUtils.bufferToUnresolvedAddress(object);
+			const result = dbUtils.bufferToUnresolvedAddress(object, true);
 
 			// Assert:
 			expect(result).to.equal('TDQNCOHK6KWDILABL7YLMMPMGYRORL72AS74YVQ');
 		});
 
-		it('can convert from Buffer to Address', () => {
+		it('can convert from Buffer to decoded address', () => {
 			// Arrange
 			const object = Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex');
 
@@ -188,7 +188,7 @@ describe('db utils', () => {
 			const result = dbUtils.bufferToUnresolvedAddress(object);
 
 			// Assert:
-			expect(result).to.equal('TDQNCOHK6KWDILABL7YLMMPMGYRORL72AS74YVQ');
+			expect(result).to.equal('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56');
 		});
 
 		it('can convert from undefined to undefined address', () => {

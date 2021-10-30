@@ -82,21 +82,27 @@ const dbUtils = {
 	},
 
 	/**
-	 * Convert binary to Unresolved address
-	 * @param {MongoDb.Binary} binary Address|NamespaceId from MongoDb.
-	 * @returns {string} AddressBase32|NamespaceId
-	 */
-	bufferToUnresolvedAddress: binary => {
+     * Formats binary to a base32 address or hex address
+     * @param {MongoDb.Binary} binary Address|NamespaceId from MongoDb.
+     * @param {boolean} formatAddressUsingBase32 if base32 format should be used when formatting an address. Hex otherwise.
+     * @returns {string} the address in base32 format or hex format depending on formatAddressUsingBase32
+     */
+	bufferToUnresolvedAddress: (binary, formatAddressUsingBase32) => {
 		if (!binary)
 			return undefined;
 
-		if ((binary instanceof MongoDb.Binary))
-			return address.addressToString(binary.buffer);
+		const getBuffer = () => {
+			if ((binary instanceof MongoDb.Binary))
+				return binary.buffer;
 
-		if ((binary instanceof Uint8Array))
-			return address.addressToString(binary);
+			if ((binary instanceof Uint8Array))
+				return binary;
 
-		throw new Error(`Cannot convert binary address, unknown ${binary.constructor.name} type`);
+			throw new Error(
+				`Cannot convert binary address, unknown ${binary.constructor.name} type`
+			);
+		};
+		return formatAddressUsingBase32 ? address.addressToString(getBuffer()) : catapult.utils.convert.uint8ToHex(getBuffer());
 	},
 
 	/**
