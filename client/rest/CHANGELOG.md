@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.3.7] - 31-Oct-2021
+
+### Added
+
+- Native HTTPS support by providing SSL certificates.
+- `timestamp` in recipients payload.
+- `timestamp` and `feeMultipler`in transactions payloads.
+
+### Fixed
+
+- Removed babel from local `catapult-sdk` module.
+- Docker image migrated to ubuntu v20.04.
+
 ## [v2.3.6] - 24-May-2021
 
 ### Added
