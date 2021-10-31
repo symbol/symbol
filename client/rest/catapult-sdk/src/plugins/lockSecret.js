@@ -38,19 +38,19 @@ const lockSecretPlugin = {
 		});
 		builder.addSchema('secretLockInfo.lock', {
 			version: ModelType.uint16,
-			ownerAddress: ModelType.binary,
+			ownerAddress: ModelType.encodedAddress,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			endHeight: ModelType.uint64,
 			status: ModelType.uint8,
 			hashAlgorithm: ModelType.uint8,
 			secret: ModelType.binary,
-			recipientAddress: ModelType.binary,
+			recipientAddress: ModelType.encodedAddress,
 			compositeHash: ModelType.binary
 		});
 
 		builder.addTransactionSupport(EntityType.secretLock, {
-			recipientAddress: ModelType.binary,
+			recipientAddress: ModelType.encodedAddress,
 			secret: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
@@ -59,7 +59,7 @@ const lockSecretPlugin = {
 		});
 		builder.addTransactionSupport(EntityType.secretProof, {
 			secret: ModelType.binary,
-			recipientAddress: ModelType.binary,
+			recipientAddress: ModelType.encodedAddress,
 			proof: ModelType.binary,
 			hashAlgorithm: ModelType.uint8
 		});

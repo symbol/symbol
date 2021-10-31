@@ -4,7 +4,6 @@
   "description": "",
   "main": "",
   "scripts": {
-    "build": "echo \"build is not supported\"",
     "test:jenkins": "echo \"test is not supported\"",
     "lint": "eslint websocket",
     "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit websocket || exit 0"

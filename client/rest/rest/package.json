@@ -2,13 +2,10 @@
   "name": "catapult-api-rest",
   "version": "0.0.0",
   "description": "",
-  "main": "_build/index.js",
+  "main": "src/index.js",
   "scripts": {
-    "clean": "rimraf _build && mkdir _build",
-    "build": "ncp src/ _build",
-    "rebuild": "npm run clean && npm run build",
     "version": "echo $npm_package_version",
-    "start": "node _build/index.js",
+    "start": "node src/index.js",
     "start:dev": "nodemon src/index.js target/gateways/rest/rest.json",
     "test": "mocha --full-trace --recursive",
     "test:coverage": "nyc npm test && nyc report --reporter=text-lcov",
@@ -18,9 +15,10 @@
     "lint:fix": "eslint src test --fix",
     "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0",
     "bootstrap-clean": "symbol-bootstrap clean",
-    "bootstrap-start": "symbol-bootstrap start -a light -c bootstrap-preset.yml --healthCheck",
-    "bootstrap-start-testnet": "symbol-bootstrap start -p testnet -a dual -c bootstrap-preset-testnet.yml --healthCheck",
-    "bootstrap-start-detached": "symbol-bootstrap start -a light -c bootstrap-preset.yml --detached --healthCheck --pullImages",
+    "bootstrap-start": "symbol-bootstrap start -a light -c bootstrap-preset-local.yml --healthCheck --noPassword",
+    "bootstrap-start-testnet": "symbol-bootstrap start -p testnet -a dual -c bootstrap-preset-testnet.yml --healthCheck --noPassword --upgrade",
+    "bootstrap-start-mainnet": "symbol-bootstrap start -p testnet -a dual -c bootstrap-preset-mainnet.yml --healthCheck --noPassword --upgrade",
+    "bootstrap-start-detached": "symbol-bootstrap start -a light -c bootstrap-preset.yml --detached --healthCheck --noPassword --upgrade",
     "bootstrap-stop": "symbol-bootstrap stop",
     "bootstrap-run": "symbol-bootstrap run",
     "bootstrap-run-detached": "symbol-bootstrap run --detached --healthCheck",
@@ -32,6 +30,7 @@
   "license": "ISC",
   "devDependencies": {
     "chai": "^4.2.0",
+    "coveralls": "^3.1.1",
     "cross-env": "^5.2.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.1.0",
@@ -41,25 +40,23 @@
     "eslint-plugin-react-hooks": "^2.5.0",
     "hippie": "^0.6.1",
     "minimist": "^1.2.0",
-    "mocha": "^6.1.4",
+    "mocha": "^9.1.0",
     "mocha-jenkins-reporter": "^0.4.3",
-    "ncp": "^2.0.0",
     "nodemon": "^2.0.6",
+    "nyc": "^14.1.1",
     "rimraf": "^2.6.3",
     "sinon": "^7.3.2",
-    "symbol-bootstrap": "1.0.4"
+    "symbol-bootstrap": "^1.1.0-alpha-202110051739"
   },
   "dependencies": {
     "catapult-sdk": "link:../catapult-sdk",
-    "coveralls": "^3.0.9",
     "ini": "^1.3.5",
     "mongodb": "^3.3.0-beta2",
-    "nyc": "^14.1.1",
     "restify": "^8.3.3",
     "restify-errors": "^8.0.0",
     "sshpk": "1.16.1",
     "winston": "^3.2.1",
     "ws": "^7.1.0",
-    "zeromq": "^5.1.0"
+    "zeromq": "^5.2.8"
   }
 }

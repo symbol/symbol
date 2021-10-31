@@ -22,7 +22,7 @@
 const {
 	indexOfLeafWithHash, buildAuditPath, NodePosition, siblingOf, HashNotFoundError,
 	InvalidTree, evenify
-} = require('../../src/crypto/merkleAuditProof.js');
+} = require('../../src/crypto/merkleAuditProof');
 const convert = require('../../src/utils/convert');
 const { expect } = require('chai');
 

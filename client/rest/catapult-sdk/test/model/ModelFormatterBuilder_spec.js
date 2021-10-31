@@ -35,7 +35,8 @@ const formattingRules = {
 	[ModelType.uint64HexIdentifier]: () => 'uint64HexIdentifier',
 	[ModelType.objectId]: () => 'objectId',
 	[ModelType.string]: () => 'string',
-	[ModelType.int]: () => 'int'
+	[ModelType.int]: () => 'int',
+	[ModelType.encodedAddress]: () => 'encodedAddress'
 };
 
 describe('model formatter builder', () => {
@@ -171,7 +172,7 @@ describe('model formatter builder', () => {
 					transactionsHash: 'binary',
 					receiptsHash: 'binary',
 					stateHash: 'binary',
-					beneficiaryAddress: 'binary'
+					beneficiaryAddress: 'encodedAddress'
 				}
 			});
 		});
@@ -202,7 +203,7 @@ describe('model formatter builder', () => {
 			expect(result).to.deep.equal({
 				id: 'objectId',
 				account: {
-					address: 'binary',
+					address: 'encodedAddress',
 					addressHeight: 'uint64',
 					publicKey: 'binary',
 					publicKeyHeight: 'uint64',

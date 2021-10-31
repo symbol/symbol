@@ -146,7 +146,8 @@ describe('namespace plugin', () => {
 					[ModelType.uint64HexIdentifier]: () => 'uint64HexIdentifier',
 					[ModelType.objectId]: () => 'objectId',
 					[ModelType.string]: () => 'string',
-					[ModelType.int]: () => 'int'
+					[ModelType.int]: () => 'int',
+					[ModelType.encodedAddress]: () => 'encodedAddress'
 				};
 				const namespaceDescriptorNamespace = {
 					registrationType: null,
@@ -213,7 +214,7 @@ describe('namespace plugin', () => {
 				expect(formattedAlias).to.contain.all.keys(['type', 'address']);
 				expect(formattedAlias).deep.equal({
 					type: 'uint8',
-					address: 'binary'
+					address: 'encodedAddress'
 				});
 			});
 

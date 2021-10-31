@@ -152,4 +152,15 @@ describe('message formatting rules', () => {
 		// Assert:
 		expect(result).to.deep.equal(true);
 	});
+
+	it('can format decodedAddress type', () => {
+		// Arrange:
+		const object = test.factory.createBinary(Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex'));
+
+		// Act:
+		const result = formattingRules[ModelType.encodedAddress](object);
+
+		// Assert:
+		expect(result).to.deep.equal('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56');
+	});
 });

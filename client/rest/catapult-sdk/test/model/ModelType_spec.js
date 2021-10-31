@@ -41,7 +41,8 @@ describe('model type enumeration', () => {
 			uint64HexIdentifier: 12,
 			int: 13,
 			boolean: 14,
-			max: 14
+			encodedAddress: 15,
+			max: 15
 		});
 	});
 });

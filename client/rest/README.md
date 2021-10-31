@@ -26,7 +26,6 @@ Catapult REST gateway combines HTTP and WebSockets to perform read and write act
 
 ```
 cd rest
-yarn build
 yarn bootstrap-start
 ```
 
@@ -48,7 +47,6 @@ Alternatively, you can run bootstrap in `detached` mode to avoid opening a new t
 
 ```
 cd rest
-yarn build
 yarn bootstrap-start-detached
 yarn start:dev
 yarn bootstrap-stop
@@ -58,7 +56,6 @@ Useful for test automation:
 
 ```
 cd rest
-yarn build
 yarn bootstrap-start-detached
 yarn test
 yarn bootstrap-stop

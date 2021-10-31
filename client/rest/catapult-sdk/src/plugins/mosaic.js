@@ -53,7 +53,7 @@ const mosaicPlugin = {
 			id: ModelType.uint64HexIdentifier,
 			supply: ModelType.uint64,
 			startHeight: ModelType.uint64,
-			ownerAddress: ModelType.binary,
+			ownerAddress: ModelType.encodedAddress,
 			revision: ModelType.int,
 			flags: ModelType.uint8,
 			divisibility: ModelType.uint8,

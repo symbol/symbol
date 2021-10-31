@@ -84,7 +84,9 @@ class ReceiptsDb {
 		}
 
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
-		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'transactionStatements', options);
+
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions,
+			'transactionStatements', options).then(page => this.addBlockMeta(page));
 	}
 
 	/**
@@ -109,7 +111,21 @@ class ReceiptsDb {
 			conditions['statement.height'] = convertToLong(height);
 
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
-		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, `${artifact}ResolutionStatements`, options);
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions,
+			`${artifact}ResolutionStatements`, options).then(page => this.addBlockMeta(page));
+	}
+
+	/**
+	 * It retrieves and adds the blocks information to the statements' meta.
+	 *
+	 * The block information includes the its timestamp
+	 *
+	 * @param {object} page the page without meta in the items.
+	 * @returns {Promise<{pagination, data}>} the page with the added block's meta to the items.
+	 */
+	async addBlockMeta(page) {
+		const data = await this.catapultDb.addBlockMetaToEntityList(page.data, ['timestamp'], item => item.statement.height);
+		return { data, pagination: page.pagination };
 	}
 }
 

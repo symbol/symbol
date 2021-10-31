@@ -223,7 +223,6 @@ describe('model schema builder', () => {
 				'blockHeader.transactionsHash',
 				'blockHeader.receiptsHash',
 				'blockHeader.stateHash',
-				'blockHeader.beneficiaryAddress',
 				'blockHeader.previousImportanceBlockHash',
 				'blockHeader.signature',
 				'blockHeader.signerPublicKey',
@@ -245,7 +244,6 @@ describe('model schema builder', () => {
 
 				'transactionStatus.hash',
 
-				'account.address',
 				'account.publicKey',
 				'accountLinkPublicKey.publicKey',
 				'votingPublicKey.publicKey',
@@ -277,6 +275,7 @@ describe('model schema builder', () => {
 				'transaction.deadline',
 				'transaction.maxFee',
 				'transactionMetadata.height',
+				'transactionMetadata.timestamp',
 
 				'transactionStatus.deadline',
 				'transactionStatus.height',
@@ -408,9 +407,21 @@ describe('model schema builder', () => {
 				'finalizationProof.finalizationEpoch',
 				'finalizationProof.finalizationPoint',
 				'messageGroup.stage',
+				'transactionMetadata.feeMultiplier',
 				'activityBucket.beneficiaryCount',
 				'votingPublicKey.startEpoch',
 				'votingPublicKey.endEpoch'
+			]);
+		});
+
+		it('exposes correct encodedAddress properties', () => {
+			// Act:
+			const matchingProperties = extractSchemaPropertiesWithType('encodedAddress');
+
+			// Assert:
+			expect(matchingProperties).to.deep.equal([
+				'blockHeader.beneficiaryAddress',
+				'account.address'
 			]);
 		});
 

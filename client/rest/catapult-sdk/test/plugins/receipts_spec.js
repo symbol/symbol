@@ -37,7 +37,7 @@ describe('receipts plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 14);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 15);
 			expect(modelSchema).to.contain.all.keys([
 				'addressResolutionStatement',
 				'addressResolutionStatement.statement',
@@ -45,6 +45,7 @@ describe('receipts plugin', () => {
 				'mosaicResolutionStatement.statement',
 				'transactionStatement',
 				'transactionStatement.statement',
+				'statement.meta',
 				'receipts.balanceChange',
 				'receipts.balanceTransfer',
 				'receipts.artifactExpiry',
@@ -59,7 +60,7 @@ describe('receipts plugin', () => {
 			// - mosaicResolutionStatement
 			// - transactionStatement
 			['addressResolution', 'mosaicResolution', 'transaction'].forEach(statementType => {
-				expect(Object.keys(modelSchema[`${statementType}Statement`]).length).to.equal(2);
+				expect(Object.keys(modelSchema[`${statementType}Statement`])).deep.equal(['id', 'meta', 'statement']);
 				expect(modelSchema[`${statementType}Statement`]).to.contain.all.keys(['statement']);
 			});
 
@@ -89,6 +90,10 @@ describe('receipts plugin', () => {
 			expect(Object.keys(modelSchema['receipts.entry.address']).length).to.equal(2);
 			expect(modelSchema['receipts.entry.address']).to.contain.all.keys([
 				'source', 'resolved'
+			]);
+
+			expect(modelSchema['statement.meta']).to.contain.all.keys([
+				'timestamp'
 			]);
 
 			// - receipts.entry.mosaic
@@ -146,7 +151,8 @@ describe('receipts plugin', () => {
 					[ModelType.uint64HexIdentifier]: () => 'uint64HexIdentifier',
 					[ModelType.objectId]: () => 'objectId',
 					[ModelType.string]: () => 'string',
-					[ModelType.int]: () => 'int'
+					[ModelType.int]: () => 'int',
+					[ModelType.encodedAddress]: () => 'encodedAddress'
 				};
 				const transactionStatement = {
 					statement: {

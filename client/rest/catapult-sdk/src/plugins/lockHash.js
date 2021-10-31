@@ -38,7 +38,7 @@ const lockHashPlugin = {
 		});
 		builder.addSchema('hashLockInfo.lock', {
 			version: ModelType.uint16,
-			ownerAddress: ModelType.binary,
+			ownerAddress: ModelType.encodedAddress,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			endHeight: ModelType.uint64,
