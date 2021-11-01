@@ -34,7 +34,7 @@ const modelCodec = catapult.plugins.catapultModelSystem.configure(['transfer', '
 const { uint64 } = catapult.utils;
 
 (() => {
-	const Mijin_Test_Network = catapult.model.networkInfo.networks.mijinTest.id;
+	const Testnet_Network = catapult.model.networkInfo.networks.testnet.id;
 	const options = spammerOptions.options();
 
 	const client = restify.createJsonClient({
@@ -70,7 +70,7 @@ const { uint64 } = catapult.utils;
 		for (let i = 0; i < options.predefinedRecipients; ++i) {
 			const keyPair = catapult.crypto.createKeyPairFromPrivateKeyString(curPrivateKey);
 			curPrivateKey = catapult.utils.convert.uint8ToHex(keyPair.publicKey);
-			recipients.push(address.publicKeyToAddress(keyPair.publicKey, Mijin_Test_Network));
+			recipients.push(address.publicKeyToAddress(keyPair.publicKey, Testnet_Network));
 		}
 
 		return () => recipients[random.uint32(options.predefinedRecipients - 1)];
@@ -80,7 +80,7 @@ const { uint64 } = catapult.utils;
 		const keySize = 32;
 		const privateKey = crypto.randomBytes(keySize);
 		const keyPair = catapult.crypto.createKeyPairFromPrivateKeyString(catapult.utils.convert.uint8ToHex(privateKey));
-		return address.publicKeyToAddress(keyPair.publicKey, Mijin_Test_Network);
+		return address.publicKeyToAddress(keyPair.publicKey, Testnet_Network);
 	};
 
 	const pickKeyPair = (privateKeys => {
@@ -93,7 +93,7 @@ const { uint64 } = catapult.utils;
 	const prepareTransferTransaction = txId => {
 		const keyPair = pickKeyPair();
 		const transfer = transactionFactory.createRandomTransfer(
-			{ signerPublicKey: keyPair.publicKey, networkId: Mijin_Test_Network, transferId: txId },
+			{ signerPublicKey: keyPair.publicKey, networkId: Testnet_Network, transferId: txId },
 			0 === options.predefinedRecipients ? randomRecipient : predefinedRecipient
 		);
 		transactionExtensions.sign(modelCodec, keyPair, transfer);
@@ -131,7 +131,7 @@ const { uint64 } = catapult.utils;
 
 	const createTransfer = (signerPublicKey, recipientAddress, transferId, amount) => {
 		const transfer = transactionFactory.createRandomTransfer(
-			{ signerPublicKey, networkId: Mijin_Test_Network, transferId },
+			{ signerPublicKey, networkId: Testnet_Network, transferId },
 			() => recipientAddress
 		);
 
@@ -145,7 +145,7 @@ const { uint64 } = catapult.utils;
 		const keyPairs = Array.from(Array(numProxies), randomKeyPair);
 		keyPairs.unshift(keyPairSender);
 
-		const addresses = keyPairs.map(keyPair => address.publicKeyToAddress(keyPair.publicKey, Mijin_Test_Network));
+		const addresses = keyPairs.map(keyPair => address.publicKeyToAddress(keyPair.publicKey, Testnet_Network));
 		const transfers = [];
 
 		for (let i = 0; i < numProxies; ++i) {
@@ -165,7 +165,7 @@ const { uint64 } = catapult.utils;
 		));
 
 		const aggregate = transactionFactory.createAggregateTransaction(
-			{ signerPublicKey: keyPairSender.publicKey, networkId: Mijin_Test_Network },
+			{ signerPublicKey: keyPairSender.publicKey, networkId: Testnet_Network },
 			transfers
 		);
 

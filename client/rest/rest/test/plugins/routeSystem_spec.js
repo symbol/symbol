@@ -24,7 +24,7 @@ const { test } = require('../routes/utils/routeTestUtils');
 const { expect } = require('chai');
 
 describe('route system', () => {
-	const servicesTemplate = { config: { websocket: {}, network: { name: 'publicTest' } }, connections: {} };
+	const servicesTemplate = { config: { websocket: {}, network: { name: 'testnet' } }, connections: {} };
 	const configureTrailingParameters = [{ put: () => {} }, {}, servicesTemplate];
 
 	it('cannot register unknown extension', () => {
@@ -158,7 +158,7 @@ describe('route system', () => {
 
 		it('extension filter accepts marker without topic param with allowOptionalAddress', () => {
 			// Arrange:
-			const services = { config: { websocket: { allowOptionalAddress: true }, network: { name: 'publicTest' } }, connections: {} };
+			const services = { config: { websocket: { allowOptionalAddress: true }, network: { name: 'testnet' } }, connections: {} };
 			const { messageChannelDescriptors } = routeSystem.configure(['aggregate'], { put: () => {} }, {}, services);
 			const { filter } = messageChannelDescriptors.partialAdded;
 

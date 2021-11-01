@@ -27,7 +27,7 @@ const { expect } = require('chai');
 const { Binary } = require('mongodb');
 const sinon = require('sinon');
 
-const Mijin_Test_Network = testDbOptions.networkId;
+const Testnet_Network = testDbOptions.networkId;
 
 describe('db facade', () => {
 	describe('run height dependent operation', () => {
@@ -61,7 +61,7 @@ describe('db facade', () => {
 			// Act:
 			const hashes = [1, 2, 3, 4];
 			const transactionStates = [{ dbPostfix: 'Custom', friendlyName: 'custom' }];
-			const db = new CatapultDb({ networkId: Mijin_Test_Network });
+			const db = new CatapultDb({ networkId: Testnet_Network });
 			return dbFacade.transactionStatusesByHashes(db, hashes, transactionStates).then(result => {
 				expect(transactionsByHashesFailedStub.withArgs(hashes).callCount).to.equal(1);
 				expect(transactionsByHashesStub.withArgs('confirmed', hashes).callCount).to.equal(1);

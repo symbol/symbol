@@ -69,7 +69,7 @@ describe('network routes', () => {
 			it('can retrieve network properties', () => {
 				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
 					callback(null, '[network]\n'
-						+ 'identifier = mijin-test\n'
+						+ 'identifier = testnet\n'
 						+ '[chain]\n'
 						+ 'enableVerifiableState = true\n'
 						+ '[plugin:catapult.plugins.aggregate]\n'
@@ -84,7 +84,7 @@ describe('network routes', () => {
 				return mockServer.callRoute(route).then(() => {
 					expect(mockServer.next.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						network: { identifier: 'mijin-test' },
+						network: { identifier: 'testnet' },
 						chain: { enableVerifiableState: true },
 						plugins: { aggregate: { maxTransactionsPerAggregate: '1\'000' } }
 					});
@@ -95,7 +95,7 @@ describe('network routes', () => {
 			it('skips non-explicit properties', () => {
 				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
 					callback(null, '[network]\n'
-						+ 'identifier = mijin-test\n'
+						+ 'identifier = testnet\n'
 						+ '[chain]\n'
 						+ 'enableVerifiableState = true\n'
 						+ '[private]\n'
@@ -112,7 +112,7 @@ describe('network routes', () => {
 				return mockServer.callRoute(route).then(() => {
 					expect(mockServer.next.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						network: { identifier: 'mijin-test' },
+						network: { identifier: 'testnet' },
 						chain: { enableVerifiableState: true },
 						plugins: { aggregate: { maxTransactionsPerAggregate: '1\'000' } }
 					});

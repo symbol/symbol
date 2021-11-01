@@ -31,7 +31,7 @@ const createKey = catapult.crypto.createKeyPairFromPrivateKeyString;
 
 describe('transaction factory', () => {
 	const Private_Key = '8D31B712AB28D49591EAF5066E9E967B44507FC19C3D54D742F7B3A255CFF4AB';
-	const Mijin_Test_Network = catapult.model.networkInfo.networks.mijinTest.id;
+	const Testnet_Network = catapult.model.networkInfo.networks.testnet.id;
 
 	const assertTransactionData = (transaction, keyPair, version, type) => {
 		const txDeadline = catapult.utils.uint64.compact(transaction.deadline);
@@ -52,7 +52,7 @@ describe('transaction factory', () => {
 
 			// Act:
 			const transaction = transactionFactory.createRandomTransfer(
-				{ signerPublicKey: keyPair.publicKey, networkId: Mijin_Test_Network, transferId: 0x1234 },
+				{ signerPublicKey: keyPair.publicKey, networkId: Testnet_Network, transferId: 0x1234 },
 				() => recipientAddress
 			);
 
