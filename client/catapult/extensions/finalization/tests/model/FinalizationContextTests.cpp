@@ -316,32 +316,9 @@ namespace catapult { namespace model {
 			// Assert:
 			action(context, generationHash, accountViews);
 		}
-	}
 
-	TEST(TEST_CLASS, CanCreateContextAroundHighValueAccounts_TreasuryReissuanceEpochIneligibleVoterAddressesAtTreasuryReissuanceEpoch) {
-		// Arrange:
-		RunTreasuryReissuanceEpochTest(FinalizationEpoch(50), FinalizationEpoch(50), [](
-				const auto& context,
-				const auto& generationHash,
-				const auto& accountViews) {
-			// Assert: voting accounts 1 + 3 are excluded
-			EXPECT_EQ(Epoch(50), context.epoch());
-			EXPECT_EQ(Height(123), context.height());
-			EXPECT_EQ(generationHash, context.generationHash());
-			EXPECT_EQ(9876u, context.config().Size);
-			EXPECT_EQ(Amount(11'000'000), context.weight());
-
-			// Sanity:
-			EXPECT_EQ(Amount(0), context.lookup(accountViews[1].VotingPublicKey1).Weight);
-			EXPECT_EQ(Amount(0), context.lookup(accountViews[3].VotingPublicKey1).Weight);
-		});
-	}
-
-	TEST(TEST_CLASS, CanCreateContextAroundHighValueAccounts_TreasuryReissuanceEpochIneligibleVoterAddressesAtOtherEpoch) {
-		// Arrange:
-		for (auto treasuryReissuanceEpoch : { FinalizationEpoch(49), FinalizationEpoch(51) }) {
-			CATAPULT_LOG(debug) << "running test with treasury reissuance epoch " << treasuryReissuanceEpoch;
-
+		void AssertTreasuryReissuanceEpochIneligibleVoterAddressesEligibleAtEpoch(FinalizationEpoch treasuryReissuanceEpoch) {
+			// Arrange:
 			RunTreasuryReissuanceEpochTest(FinalizationEpoch(50), treasuryReissuanceEpoch, [](
 					const auto& context,
 					const auto& generationHash,
@@ -354,6 +331,39 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Amount(25'000'000), context.weight());
 			});
 		}
+
+		void AssertTreasuryReissuanceEpochIneligibleVoterAddressesIneligibleAtEpoch(FinalizationEpoch treasuryReissuanceEpoch) {
+			// Arrange:
+			RunTreasuryReissuanceEpochTest(FinalizationEpoch(50), treasuryReissuanceEpoch, [](
+					const auto& context,
+					const auto& generationHash,
+					const auto& accountViews) {
+				// Assert: voting accounts 1 + 3 are excluded
+				EXPECT_EQ(Epoch(50), context.epoch());
+				EXPECT_EQ(Height(123), context.height());
+				EXPECT_EQ(generationHash, context.generationHash());
+				EXPECT_EQ(9876u, context.config().Size);
+				EXPECT_EQ(Amount(11'000'000), context.weight());
+
+				// Sanity:
+				EXPECT_EQ(Amount(0), context.lookup(accountViews[1].VotingPublicKey1).Weight);
+				EXPECT_EQ(Amount(0), context.lookup(accountViews[3].VotingPublicKey1).Weight);
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateContextAroundHighValueAccounts_TreasuryReissuanceEpochIneligibleVoterAddressesEligibleBeforeEpoch) {
+		AssertTreasuryReissuanceEpochIneligibleVoterAddressesEligibleAtEpoch(FinalizationEpoch(100));
+		AssertTreasuryReissuanceEpochIneligibleVoterAddressesEligibleAtEpoch(FinalizationEpoch(51));
+	}
+
+	TEST(TEST_CLASS, CanCreateContextAroundHighValueAccounts_TreasuryReissuanceEpochIneligibleVoterAddressesIneligibleAtEpoch) {
+		AssertTreasuryReissuanceEpochIneligibleVoterAddressesIneligibleAtEpoch(FinalizationEpoch(50));
+	}
+
+	TEST(TEST_CLASS, CanCreateContextAroundHighValueAccounts_TreasuryReissuanceEpochIneligibleVoterAddressesIneligibleAfterEpoch) {
+		AssertTreasuryReissuanceEpochIneligibleVoterAddressesIneligibleAtEpoch(FinalizationEpoch(49));
+		AssertTreasuryReissuanceEpochIneligibleVoterAddressesIneligibleAtEpoch(FinalizationEpoch(25));
 	}
 
 	// endregion
