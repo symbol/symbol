@@ -316,7 +316,7 @@ namespace catapult { namespace sync {
 						m_state.timeSupplier(),
 						extensions::CreateHashCheckOptions(m_nodeConfig.ShortLivedCacheTransactionDuration, m_nodeConfig),
 						m_state.hooks().knownHashPredicate(utCache),
-						m_state.config().BlockChain.AdditionalNemesisAccountTransactionSignatures));
+						GetHighPriorityTransactionSignatures(m_state.config().BlockChain)));
 			}
 
 			std::shared_ptr<ConsumerDispatcher> build(thread::IoThreadPool& validatorPool, chain::UtUpdater& utUpdater) {
@@ -347,6 +347,19 @@ namespace catapult { namespace sync {
 						m_state,
 						CreateTransactionConsumerDispatcherOptions(m_nodeConfig),
 						std::move(disruptorConsumers));
+			}
+
+		private:
+			static std::vector<Signature> GetHighPriorityTransactionSignatures(const model::BlockChainConfiguration& config) {
+				std::vector<Signature> signatures;
+
+				const auto& reissuanceSignatures1 = config.TreasuryReissuanceTransactionSignatures;
+				signatures.insert(signatures.end(), reissuanceSignatures1.cbegin(), reissuanceSignatures1.cend());
+
+				const auto& reissuanceSignatures2 = config.TreasuryReissuanceFallbackTransactionSignatures;
+				signatures.insert(signatures.end(), reissuanceSignatures2.cbegin(), reissuanceSignatures2.cend());
+
+				return signatures;
 			}
 
 		private:

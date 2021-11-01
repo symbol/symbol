@@ -23,6 +23,7 @@
 #include "Results.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/validators/ValidatorTypes.h"
+#include <vector>
 
 namespace catapult { namespace validators {
 
@@ -88,10 +89,10 @@ namespace catapult { namespace validators {
 			uint64_t votingSetGrouping);
 
 	/// Validator that applies to all block notifications and validates that:
-	/// - the block at \a height has the specified transactions hash (\a expectedTransactionsHash).
+	/// - the block at \a height has any of the specified transactions hashes (\a expectedTransactionsHashes).
 	DECLARE_STATEFUL_VALIDATOR(ExplicitBlockTransactionsHash, model::BlockNotification)(
 			Height height,
-			const Hash256& expectedTransactionsHash);
+			const std::vector<Hash256>& expectedTransactionsHashes);
 
 	// endregion
 

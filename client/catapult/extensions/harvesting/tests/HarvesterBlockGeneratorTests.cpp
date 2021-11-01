@@ -66,9 +66,13 @@ namespace catapult { namespace harvesting {
 				for (auto& transactionInfo : m_transactionInfos) {
 					auto& transaction = const_cast<model::Transaction&>(*transactionInfo.pEntity);
 					transaction.Type = mocks::MockTransaction::Entity_Type;
-					transaction.Signature = explicitTransactionIndexes.cend() == explicitTransactionIndexes.find(i)
-							? test::GenerateRandomByteArray<Signature>()
-							: m_config.AdditionalNemesisAccountTransactionSignatures[i];
+					transaction.Signature = test::GenerateRandomByteArray<Signature>();
+					if (explicitTransactionIndexes.cend() != explicitTransactionIndexes.find(i))
+						transaction.Signature = m_config.TreasuryReissuanceTransactionSignatures[i];
+
+					if (explicitTransactionIndexes.cend() != explicitTransactionIndexes.find(0x80 | i))
+						transaction.Signature = m_config.TreasuryReissuanceFallbackTransactionSignatures[i - 3];
+
 					++i;
 				}
 
@@ -130,7 +134,8 @@ namespace catapult { namespace harvesting {
 
 				if (isTreasuryReissuanceForkHeight) {
 					config.ForkHeights.TreasuryReissuance = Cache_Height + Height(1);
-					config.AdditionalNemesisAccountTransactionSignatures = test::GenerateRandomDataVector<Signature>(5);
+					config.TreasuryReissuanceTransactionSignatures = test::GenerateRandomDataVector<Signature>(3);
+					config.TreasuryReissuanceFallbackTransactionSignatures = test::GenerateRandomDataVector<Signature>(2);
 				}
 
 				return config;
@@ -244,37 +249,110 @@ namespace catapult { namespace harvesting {
 
 	// region generation success (fork)
 
-	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork) {
+	namespace {
+		void AssertForkBlockTransactions(
+				const TestContext& context,
+				const model::Block& block,
+				const std::vector<size_t>& expectedTransactionIds,
+				const std::vector<Amount>& expectedSurpluses) {
+			// Assert:
+			ASSERT_EQ(expectedTransactionIds.size(), model::CalculateBlockTransactionsInfo(block).Count);
+
+			auto i = 0u;
+			for (const auto& transaction : block.Transactions()) {
+				// - transactions are uniquely identified in this test by size
+				EXPECT_EQ(expectedTransactionIds[i], transaction.Size) << "transaction at " << i;
+				++i;
+			}
+
+			// - nonzero because transactions present
+			EXPECT_NE(Hash256(), block.TransactionsHash);
+			EXPECT_EQ(BlockFeeMultiplier(0), block.FeeMultiplier);
+
+			// - state changes but no receipts generated
+			EXPECT_NE(context.initialStateHash(), block.StateHash);
+			EXPECT_EQ(Hash256(), block.ReceiptsHash);
+
+			// - transactions in the block have surpluses that should be explicitly be credited
+			//   (since MockExecutionConfiguration is used, no observers will cause any additional state changes)
+			EXPECT_EQ(context.calculateExpectedStateHash(expectedSurpluses), block.StateHash);
+		}
+	}
+
+	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_AllPreferredAndAllFallbackPicksFallback) {
 		// Arrange:
-		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 1, 3 });
+		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 1, 2, 0x83, 0x84 });
 
 		// Act:
 		auto pBlock = context.generate(Cache_Height + Height(1), 0);
 
-		// Assert: 3 (allowed) transactions should have been added to the block
+		// Assert: 2/2 (fallback) transactions should have been added to the block
 		ASSERT_TRUE(!!pBlock);
-		ASSERT_EQ(3u, model::CalculateBlockTransactionsInfo(*pBlock).Count);
 
-		auto i = 1u;
-		for (const auto& transaction : pBlock->Transactions()) {
-			// - transactions are uniquely identified in this test by size
-			EXPECT_EQ(200u + i, transaction.Size) << "transaction at " << i;
-			i *= 2;
-		}
+		std::vector<Amount> expectedSurpluses{ Amount(0), Amount(0), Amount(0), Amount(204 * 10), Amount(205 * 20) };
+		AssertForkBlockTransactions(context, *pBlock, { 204, 205 }, expectedSurpluses);
+	}
 
-		// - nonzero because transactions present
-		EXPECT_NE(Hash256(), pBlock->TransactionsHash);
+	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_AllPreferredAndSomeFallbackPicksFallback) {
+		// Arrange:
+		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 1, 2, 0x84 });
+
+		// Act:
+		auto pBlock = context.generate(Cache_Height + Height(1), 0);
+
+		// Assert: 1/2 (fallback) transactions should have been added to the block
+		ASSERT_TRUE(!!pBlock);
+
+		std::vector<Amount> expectedSurpluses{ Amount(0), Amount(0), Amount(0), Amount(0), Amount(205 * 20) };
+		AssertForkBlockTransactions(context, *pBlock, { 205 }, expectedSurpluses);
+	}
+
+	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_AllPreferredPicksPreferred) {
+		// Arrange:
+		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 1, 2 });
+
+		// Act:
+		auto pBlock = context.generate(Cache_Height + Height(1), 0);
+
+		// Assert: 3/3 (preferred) transactions should have been added to the block
+		ASSERT_TRUE(!!pBlock);
+
+		std::vector<Amount> expectedSurpluses{ Amount(201 * 20), Amount(202 * 10), Amount(203 * 20), Amount(0), Amount(0) };
+		AssertForkBlockTransactions(context, *pBlock, { 201, 202, 203 }, expectedSurpluses);
+	}
+
+	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_SomePreferredPicksPreferred) {
+		// Arrange:
+		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 2 });
+
+		// Act:
+		auto pBlock = context.generate(Cache_Height + Height(1), 0);
+
+		// Assert: 3/3 (preferred) transactions should have been added to the block
+		ASSERT_TRUE(!!pBlock);
+
+		std::vector<Amount> expectedSurpluses{ Amount(201 * 20), Amount(0), Amount(203 * 20), Amount(0), Amount(0) };
+		AssertForkBlockTransactions(context, *pBlock, { 201, 203 }, expectedSurpluses);
+	}
+
+	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_NonePicksNone) {
+		// Arrange:
+		TestContext context(model::TransactionSelectionStrategy::Oldest, {});
+
+		// Act:
+		auto pBlock = context.generate(Cache_Height + Height(1), 0);
+
+		// Assert:
+		ASSERT_TRUE(!!pBlock);
+		EXPECT_EQ(0u, model::CalculateBlockTransactionsInfo(*pBlock).Count);
+
+		// - zeroed because no transactions
+		EXPECT_EQ(Hash256(), pBlock->TransactionsHash);
 		EXPECT_EQ(BlockFeeMultiplier(0), pBlock->FeeMultiplier);
 
-		// - state changes but no receipts generated
-		EXPECT_NE(context.initialStateHash(), pBlock->StateHash);
+		// - no state changes and no receipts generated
+		EXPECT_EQ(context.initialStateHash(), pBlock->StateHash);
 		EXPECT_EQ(Hash256(), pBlock->ReceiptsHash);
-
-		// - first 4 transactions are included in generated block and, of those, even transactions have surpluses
-		//   that should be explicitly be credited
-		//   (since MockExecutionConfiguration is used, no observers will cause any additional state changes)
-		std::vector<Amount> expectedSurpluses{ Amount(201 * 20), Amount(202 * 10), Amount(0), Amount(204 * 10), Amount(0) };
-		EXPECT_EQ(context.calculateExpectedStateHash(expectedSurpluses), pBlock->StateHash);
 	}
 
 	// endregion
