@@ -4,6 +4,6 @@ enum:
   - 152
 description: |
   Network type:
-  * 0x68 (104 decimal) - Public main network.
-  * 0x98 (152 decimal) - Public test network.
+  * 0x68 (104 decimal) - Main network.
+  * 0x98 (152 decimal) - Test network.
 example: 144
