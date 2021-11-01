@@ -1,17 +1,9 @@
 type: integer
 enum:
-  - 96
-  - 144
-  - 120
-  - 168
   - 104
   - 152
 description: |
   Network type:
-  * 0x60 (96 decimal) - Mijin network.
-  * 0x90 (144 decimal) - Mijin test network.
-  * 0x78 (120 decimal) - Private network.
-  * 0xA8 (168 decimal) - Private test network.
   * 0x68 (104 decimal) - Public main network.
   * 0x98 (152 decimal) - Public test network.
 example: 144
