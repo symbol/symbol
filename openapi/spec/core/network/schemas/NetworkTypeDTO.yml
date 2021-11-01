@@ -6,8 +6,8 @@ properties:
   name:
     type: string
     description: Network name.
-    example: mijinTest
+    example: testnet
   description:
     type: string
     description: A short text describing the network.
-    example: catapult development network
+    example: catapult public test network
