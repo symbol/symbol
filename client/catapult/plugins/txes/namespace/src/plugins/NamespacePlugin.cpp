@@ -70,17 +70,15 @@ namespace catapult { namespace plugins {
 		// region namespace
 
 		NamespaceRentalFeeConfiguration ToNamespaceRentalFeeConfiguration(
-				const model::NetworkInfo& network,
+				const model::BlockChainConfiguration& blockChainConfig,
 				UnresolvedMosaicId currencyMosaicId,
 				const config::NamespaceConfiguration& config) {
 			NamespaceRentalFeeConfiguration rentalFeeConfig;
 			rentalFeeConfig.CurrencyMosaicId = currencyMosaicId;
 			rentalFeeConfig.RootFeePerBlock = config.RootNamespaceRentalFeePerBlock;
 			rentalFeeConfig.ChildFee = config.ChildNamespaceRentalFee;
-			rentalFeeConfig.NemesisSignerPublicKey = network.NemesisSignerPublicKey;
-
-			// sink address is already resolved but needs to be passed as unresolved into notification
-			rentalFeeConfig.SinkAddress = config.NamespaceRentalFeeSinkAddress.copyTo<UnresolvedAddress>();
+			rentalFeeConfig.NemesisSignerPublicKey = blockChainConfig.Network.NemesisSignerPublicKey;
+			rentalFeeConfig.SinkAddress = config::GetNamespaceRentalFeeSinkAddress(config, blockChainConfig);
 			return rentalFeeConfig;
 		}
 
@@ -147,7 +145,7 @@ namespace catapult { namespace plugins {
 
 		void RegisterNamespaceSubsystem(PluginManager& manager, const config::NamespaceConfiguration& config) {
 			auto currencyMosaicId = model::GetUnresolvedCurrencyMosaicId(manager.config());
-			auto rentalFeeConfig = ToNamespaceRentalFeeConfiguration(manager.config().Network, currencyMosaicId, config);
+			auto rentalFeeConfig = ToNamespaceRentalFeeConfiguration(manager.config(), currencyMosaicId, config);
 			manager.addTransactionSupport(CreateNamespaceRegistrationTransactionPlugin(rentalFeeConfig));
 
 			auto minDuration = config.MinNamespaceDuration.blocks(manager.config().BlockGenerationTargetTime);

@@ -26,11 +26,25 @@ namespace catapult { namespace validators {
 
 	using Notification = model::SignatureNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(NemesisSink, [](const Notification& notification, const ValidatorContext& context) {
-		auto isBlockHeightOne = context.Height == Height(1);
-		auto isNemesisPublicKey = notification.SignerPublicKey == context.Network.NemesisSignerPublicKey;
-		return isBlockHeightOne || !isNemesisPublicKey
-				? ValidationResult::Success
-				: Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;
-	})
+	DECLARE_STATEFUL_VALIDATOR(NemesisSink, Notification)(
+			Height additionalAllowedSignaturesHeight,
+			const std::vector<Signature>& additionalAllowedSignatures) {
+		return MAKE_STATEFUL_VALIDATOR(NemesisSink, ([additionalAllowedSignaturesHeight, additionalAllowedSignatures](
+				const Notification& notification,
+				const ValidatorContext& context) {
+			auto isNemesisPublicKey = notification.SignerPublicKey == context.Network.NemesisSignerPublicKey;
+			if (!isNemesisPublicKey || Height(1) == context.Height)
+				return ValidationResult::Success;
+
+			if (additionalAllowedSignaturesHeight != context.Height && Height() != context.Height)
+				return Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;
+
+			auto isExplicitlyAllowed = additionalAllowedSignatures.cend() != std::find(
+					additionalAllowedSignatures.cbegin(),
+					additionalAllowedSignatures.cend(),
+					notification.Signature);
+
+			return isExplicitlyAllowed ? ValidationResult::Success : Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;
+		}));
+	}
 }}

@@ -47,14 +47,16 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto config = BlockChainConfiguration::Uninitialized();
 		config.HarvestNetworkPercentage = 15;
+		config.ForkHeights.TreasuryReissuance = Height(100);
 		test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
+		test::FillWithRandomData(config.HarvestNetworkFeeSinkAddressV1);
 
 		// Act:
 		auto options = ExtractNemesisNotificationPublisherOptions(config);
 
 		// Assert:
 		EXPECT_EQ(1u, options.SpecialAccountAddresses.size());
-		EXPECT_EQ(AddressSet{ config.HarvestNetworkFeeSinkAddress }, options.SpecialAccountAddresses);
+		EXPECT_EQ(AddressSet{ config.HarvestNetworkFeeSinkAddressV1 }, options.SpecialAccountAddresses);
 	}
 
 	// endregion

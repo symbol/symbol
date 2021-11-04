@@ -22,6 +22,7 @@
 #pragma once
 #include "catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/NotificationTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include <vector>
 
 namespace catapult { namespace mocks {
@@ -113,7 +114,7 @@ namespace catapult { namespace mocks {
 		public:
 			explicit Transfer(const model::BalanceTransferNotification& notification)
 					: Transfer(
-							notification.Sender.resolved(),
+							notification.Sender.resolved(test::CreateResolverContextXor()),
 							notification.Recipient.unresolved(),
 							notification.MosaicId,
 							notification.Amount)

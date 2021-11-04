@@ -35,7 +35,15 @@ namespace catapult { namespace model {
 		}
 
 		BlockNotification CreateBlockNotification(const Block& block, const Address& blockSignerAddress) {
-			return { block.Type, blockSignerAddress, block.BeneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier };
+			return {
+				block.Type,
+				blockSignerAddress,
+				block.BeneficiaryAddress,
+				block.Timestamp,
+				block.Difficulty,
+				block.FeeMultiplier,
+				block.TransactionsHash
+			};
 		}
 
 		class CustomNotificationPublisher : public NotificationPublisher {
@@ -164,7 +172,11 @@ namespace catapult { namespace model {
 			void publishTransaction(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const {
 				const auto& transaction = static_cast<const Transaction&>(entityInfo.entity());
 				const auto* pBlockHeader = entityInfo.isAssociatedBlockHeaderSet() ? &entityInfo.associatedBlockHeader() : nullptr;
-				auto fee = pBlockHeader ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction) : transaction.MaxFee;
+
+				// when VerifiableEntityHeader_Reserved1 is set (currently by HarvestingUtFacade), MaxFee should be used
+				auto fee = pBlockHeader && 0 == pBlockHeader->VerifiableEntityHeader_Reserved1
+						? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction)
+						: transaction.MaxFee;
 
 				CATAPULT_LOG(trace)
 						<< "[Transaction Fee Info]" << std::endl

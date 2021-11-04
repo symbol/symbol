@@ -23,6 +23,7 @@
 #include "Results.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/validators/ValidatorTypes.h"
+#include <vector>
 
 namespace catapult { namespace validators {
 
@@ -49,8 +50,11 @@ namespace catapult { namespace validators {
 	// region VerifiableEntity
 
 	/// Validator that applies to all signature notifications and validates that:
-	/// - nemesis account signatures are not allowed after the nemesis block
-	DECLARE_STATEFUL_VALIDATOR(NemesisSink, model::SignatureNotification)();
+	/// - nemesis account signatures are not allowed after the nemesis block unless they are in
+	///   \a additionalAllowedSignatures at \a additionalAllowedSignaturesHeight.
+	DECLARE_STATEFUL_VALIDATOR(NemesisSink, model::SignatureNotification)(
+			Height additionalAllowedSignaturesHeight,
+			const std::vector<Signature>& additionalAllowedSignatures);
 
 	/// Validator that applies to all entity notifications and validates that:
 	/// - the entity targets the expected network (\a networkIdentifier)
@@ -83,6 +87,12 @@ namespace catapult { namespace validators {
 	DECLARE_STATEFUL_VALIDATOR(ImportanceBlock, model::ImportanceBlockNotification)(
 			Height totalVotingBalanceCalculationFixForkHeight,
 			uint64_t votingSetGrouping);
+
+	/// Validator that applies to all block notifications and validates that:
+	/// - the block at \a height has any of the specified transactions hashes (\a expectedTransactionsHashes).
+	DECLARE_STATEFUL_VALIDATOR(ExplicitBlockTransactionsHash, model::BlockNotification)(
+			Height height,
+			const std::vector<Hash256>& expectedTransactionsHashes);
 
 	// endregion
 

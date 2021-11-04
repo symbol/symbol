@@ -21,6 +21,7 @@
 
 #include "MosaicConfiguration.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
@@ -41,12 +42,21 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(MaxMosaicDuration);
 		LOAD_PROPERTY(MaxMosaicDivisibility);
 
+		LOAD_PROPERTY(MosaicRentalFeeSinkAddressV1);
 		LOAD_PROPERTY(MosaicRentalFeeSinkAddress);
 		LOAD_PROPERTY(MosaicRentalFee);
 
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 5);
+		utils::VerifyBagSizeExact(bag, 6);
 		return config;
+	}
+
+	model::HeightDependentAddress GetMosaicRentalFeeSinkAddress(
+			const MosaicConfiguration& config,
+			const model::BlockChainConfiguration& blockChainConfig) {
+		model::HeightDependentAddress sinkAddress(config.MosaicRentalFeeSinkAddress);
+		sinkAddress.trySet(config.MosaicRentalFeeSinkAddressV1, blockChainConfig.ForkHeights.TreasuryReissuance);
+		return sinkAddress;
 	}
 }}

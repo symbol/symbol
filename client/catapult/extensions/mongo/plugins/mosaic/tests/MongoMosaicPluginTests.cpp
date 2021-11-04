@@ -34,7 +34,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			static std::vector<model::EntityType> GetTransactionTypes() {
 				return {
 					model::Entity_Type_Mosaic_Definition,
-					model::Entity_Type_Mosaic_Supply_Change
+					model::Entity_Type_Mosaic_Supply_Change,
+					model::Entity_Type_Mosaic_Supply_Revocation
 				};
 			}
 

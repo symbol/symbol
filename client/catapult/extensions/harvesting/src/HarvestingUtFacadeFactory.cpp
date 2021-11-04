@@ -137,7 +137,10 @@ namespace catapult { namespace harvesting {
 		bool apply(const model::TransactionInfo& transactionInfo) {
 			auto originalSource = m_blockStatementBuilder.source();
 
-			if (apply(model::WeakEntityInfo(*transactionInfo.pEntity, transactionInfo.EntityHash)))
+			model::BlockHeader blockHeader;
+			setBlockHeaderFieldsForApply(blockHeader);
+
+			if (apply(model::WeakEntityInfo(*transactionInfo.pEntity, transactionInfo.EntityHash, blockHeader)))
 				return true;
 
 			auto finalSource = m_blockStatementBuilder.source();
@@ -148,7 +151,10 @@ namespace catapult { namespace harvesting {
 		}
 
 		void unapply(const model::TransactionInfo& transactionInfo) {
-			unapply(model::WeakEntityInfo(*transactionInfo.pEntity, transactionInfo.EntityHash));
+			model::BlockHeader blockHeader;
+			setBlockHeaderFieldsForApply(blockHeader);
+
+			unapply(model::WeakEntityInfo(*transactionInfo.pEntity, transactionInfo.EntityHash, blockHeader));
 			m_blockStatementBuilder.popSource();
 		}
 
@@ -215,6 +221,13 @@ namespace catapult { namespace harvesting {
 		}
 
 	private:
+		void setBlockHeaderFieldsForApply(model::BlockHeader& blockHeader) const {
+			blockHeader.Height = height();
+
+			// indicate transaction MaxFee should be used (this works because the associated block header is not validated)
+			blockHeader.VerifiableEntityHeader_Reserved1 = 1;
+		}
+
 		using Processor = predicate<
 			const validators::stateful::NotificationValidator&,
 			const validators::ValidatorContext&,

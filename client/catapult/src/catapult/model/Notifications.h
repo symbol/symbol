@@ -207,15 +207,16 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Block_Notification;
 
 	public:
-		/// Creates a block notification around \a blockType, \a harvester, \a beneficiary, \a timestamp, \a difficulty
-		/// and \a feeMultiplier.
+		/// Creates a block notification around \a blockType, \a harvester, \a beneficiary, \a timestamp, \a difficulty,
+		/// \a feeMultiplier and \a transactionsHash.
 		BlockNotification(
 				EntityType blockType,
 				const Address& harvester,
 				const Address& beneficiary,
 				Timestamp timestamp,
 				Difficulty difficulty,
-				BlockFeeMultiplier feeMultiplier)
+				BlockFeeMultiplier feeMultiplier,
+				const Hash256& transactionsHash)
 				: Notification(Notification_Type, sizeof(BlockNotification))
 				, BlockType(blockType)
 				, Harvester(harvester)
@@ -223,6 +224,7 @@ namespace catapult { namespace model {
 				, Timestamp(timestamp)
 				, Difficulty(difficulty)
 				, FeeMultiplier(feeMultiplier)
+				, TransactionsHash(transactionsHash)
 				, NumTransactions(0)
 		{}
 
@@ -244,6 +246,9 @@ namespace catapult { namespace model {
 
 		/// Block fee multiplier.
 		BlockFeeMultiplier FeeMultiplier;
+
+		/// Hash of the transactions in this block.
+		Hash256 TransactionsHash;
 
 		/// Total block fee.
 		Amount TotalFee;

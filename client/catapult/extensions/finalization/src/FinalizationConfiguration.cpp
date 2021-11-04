@@ -21,12 +21,24 @@
 
 #include "FinalizationConfiguration.h"
 #include "catapult/config/ConfigurationFileLoader.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
 namespace catapult { namespace finalization {
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "finalization", #NAME, config.NAME)
+
+	namespace {
+		size_t ParseAddressesSection(const utils::ConfigurationBag& bag, model::AddressSet& addresses) {
+			auto sectionName = "treasury_reissuance_epoch_ineligible_voter_addresses";
+			auto addressesPair = utils::ExtractSectionKeysAsTypedVector<Address>(bag, sectionName, [](const auto& str, auto& address) {
+				return model::TryParseValue(str, address);
+			});
+			addresses.insert(addressesPair.first.cbegin(), addressesPair.first.cend());
+			return addressesPair.second;
+		}
+	}
 
 	FinalizationConfiguration FinalizationConfiguration::Uninitialized() {
 		return FinalizationConfiguration();
@@ -51,7 +63,11 @@ namespace catapult { namespace finalization {
 
 		LOAD_PROPERTY(UnfinalizedBlocksDuration);
 
-		utils::VerifyBagSizeExact(bag, 10);
+		LOAD_PROPERTY(TreasuryReissuanceEpoch);
+
+		auto numAddresses = ParseAddressesSection(bag, config.TreasuryReissuanceEpochIneligibleVoterAddresses);
+
+		utils::VerifyBagSizeExact(bag, 11 + numAddresses);
 		return config;
 	}
 

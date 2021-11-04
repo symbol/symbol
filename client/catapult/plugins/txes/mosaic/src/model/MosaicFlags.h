@@ -40,8 +40,11 @@ namespace catapult { namespace model {
 		/// Mosaic supports custom restrictions configured by mosaic owner.
 		Restrictable = 0x04,
 
+		/// Mosaic supports revocation of tokens by creator.
+		Revokable = 0x08,
+
 		/// All flags.
-		All = 0x07
+		All = 0x0F
 	};
 
 	MAKE_BITWISE_ENUM(MosaicFlags)

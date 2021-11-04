@@ -55,6 +55,8 @@ namespace catapult { namespace harvesting {
 
 		class TestContext {
 		private:
+			using TransactionsInfoSupplierFactory = std::function<TransactionsInfoSupplier (const cache::ReadWriteUtCache&)>;
+
 			// constant returned by countRetriever and multiplied by count argument in order to implicitly check
 			// countRetriever parameter is used
 			static constexpr uint32_t Multiplier = 7;
@@ -65,10 +67,16 @@ namespace catapult { namespace harvesting {
 
 		public:
 			explicit TestContext(TransactionSelectionStrategy strategy, uint32_t utCacheSize = 0)
+					: TestContext([strategy](const auto& utCache) {
+						return CreateTransactionsInfoSupplier(strategy, [](const auto&) { return Multiplier; }, utCache);
+					}, utCacheSize)
+			{}
+
+			explicit TestContext(const TransactionsInfoSupplierFactory& supplierFactory, uint32_t utCacheSize = 0)
 					: m_catapultCache(test::CreateCatapultCacheWithMarkerAccount(Height(7)))
 					, m_utFacadeFactory(m_catapultCache, CreateBlockChainConfiguration(), m_executionConfig.Config, EmptyHashSupplier)
 					, m_pUtCache(test::CreateSeededMemoryUtCache(utCacheSize))
-					, m_supplier(CreateTransactionsInfoSupplier(strategy, [](const auto&) { return Multiplier; }, *m_pUtCache))
+					, m_supplier(supplierFactory(*m_pUtCache))
 			{}
 
 		public:
@@ -381,6 +389,74 @@ namespace catapult { namespace harvesting {
 
 		// - 10 transactions (1 failure notification each)
 		context.assertValidatorCalls(10);
+	}
+
+	// endregion
+
+	// region specific signatures
+
+	namespace {
+		TransactionsInfoSupplier CreateExplicitTransactionsInfoSupplierForSpecificSignatures(const cache::ReadWriteUtCache& utCache) {
+			auto allTransactionInfos = test::ExtractTransactionInfos(utCache.view(), 10);
+			return CreateExplicitTransactionsInfoSupplier({
+				allTransactionInfos[0]->pEntity->Signature,
+				allTransactionInfos[9]->pEntity->Signature,
+				allTransactionInfos[5]->pEntity->Signature,
+				allTransactionInfos[2]->pEntity->Signature
+			}, utCache);
+		}
+	}
+
+	TEST(TEST_CLASS, ExplicitSignatures_CanSelectTransactions) {
+		// Arrange:
+		TestContext context(CreateExplicitTransactionsInfoSupplierForSpecificSignatures, 10);
+
+		// Act:
+		auto transactionsInfo = context.supply(0);
+
+		// Assert:
+		// 1. four transactions are chosen
+		// 2. multiplier is zero
+		auto expectedTransactionInfos = context.extractUtInfos({ 0, 9, 5, 2 });
+		AssertTransactionsInfo(transactionsInfo, BlockFeeMultiplier(0), expectedTransactionInfos);
+
+		// - 4 transactions (2 success notifications each)
+		context.assertValidatorCalls(4 * 2);
+	}
+
+	TEST(TEST_CLASS, ExplicitSignatures_CanSelectTransactionsWhereSomeFailValidation) {
+		// Arrange:
+		TestContext context(CreateExplicitTransactionsInfoSupplierForSpecificSignatures, 10);
+		context.setValidationFailureAt(1, 5);
+
+		// Act:
+		auto transactionsInfo = context.supply(0);
+
+		// Assert:
+		// 1. two transactions are chosen
+		// 2. multiplier is zero
+		auto expectedTransactionInfos = context.extractUtInfos({ 0, 9 });
+		AssertTransactionsInfo(transactionsInfo, BlockFeeMultiplier(0), expectedTransactionInfos);
+
+		// - 2 transactions (2 success notifications each) + 2 transactions (1 failure notification each)
+		context.assertValidatorCalls(2 * 2 + 2);
+	}
+
+	TEST(TEST_CLASS, ExplicitSignatures_CanSelectTransactionsWhereAllFailValidation) {
+		// Arrange:
+		TestContext context(CreateExplicitTransactionsInfoSupplierForSpecificSignatures, 10);
+		context.setValidationFailureAt(0);
+
+		// Act:
+		auto transactionsInfo = context.supply(0);
+
+		// Assert:
+		// 1. two transactions are chosen
+		// 2. multiplier is zero
+		AssertTransactionsInfo(transactionsInfo, BlockFeeMultiplier(0), {});
+
+		// - 4 transactions (1 failure notification each)
+		context.assertValidatorCalls(4);
 	}
 
 	// endregion

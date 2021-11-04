@@ -20,8 +20,8 @@
 **/
 
 #pragma once
+#include "catapult/model/HeightDependentAddress.h"
 #include "catapult/plugins.h"
-#include "catapult/types.h"
 #include <memory>
 
 namespace catapult { namespace model { class TransactionPlugin; } }
@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 		UnresolvedMosaicId CurrencyMosaicId;
 
 		/// Address of the rental fee sink account.
-		UnresolvedAddress SinkAddress;
+		model::HeightDependentAddress SinkAddress;
 
 		/// Mosaic rental fee.
 		Amount Fee;

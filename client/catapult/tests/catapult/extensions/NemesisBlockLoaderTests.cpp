@@ -211,7 +211,12 @@ namespace catapult { namespace extensions {
 				.add(observers::CreateAccountPublicKeyObserver())
 				.add(observers::CreateBalanceTransferObserver())
 				.add(observers::CreateHarvestFeeObserver(
-						{ Harvesting_Mosaic_Id, 20, harvestNetworkPercentage, harvestNetworkFeeSinkAddress },
+						{
+							Harvesting_Mosaic_Id,
+							20,
+							harvestNetworkPercentage,
+							model::HeightDependentAddress(harvestNetworkFeeSinkAddress)
+						},
 						model::InflationCalculator()));
 			return builder.build();
 		}
@@ -674,7 +679,9 @@ namespace catapult { namespace extensions {
 			// - create the state
 			auto config = CreateDefaultConfiguration(*nemesisBlockSignerPair.pBlock, nemesisOptions);
 			config.HarvestNetworkPercentage = harvestNetworkPercentage;
-			config.HarvestNetworkFeeSinkAddress = harvestNetworkFeeSinkAddress;
+			config.ForkHeights.TreasuryReissuance = Height(100);
+			test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
+			config.HarvestNetworkFeeSinkAddressV1 = harvestNetworkFeeSinkAddress;
 			test::LocalNodeTestState state(config);
 			SetNemesisBlock(state.ref().Storage, nemesisBlockSignerPair, config.Network, NemesisBlockModification::None);
 

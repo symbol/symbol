@@ -21,14 +21,20 @@
 
 #include "src/config/MosaicConfiguration.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace config {
 
+#define TEST_CLASS MosaicConfigurationTests
+
+	// region MosaicConfiguration
+
 	namespace {
-		constexpr auto Mosaic_Rental_Fee_Sink_Address = "SBLIPGUADOMVLQI2TQ7SMGFHSVOZNE4H2I5NBIQ";
+		constexpr auto Mosaic_Rental_Fee_Sink_Address_V1 = "TB4V5Q54TUMWAEXNICRP3JDDUDDFK4UVBJ7MKQA";
+		constexpr auto Mosaic_Rental_Fee_Sink_Address = "TDDVCZTD4ITLQ2HKUR3EFXB22TXCOS5BZ2ZOECI";
 
 		struct MosaicConfigurationTraits {
 			using ConfigurationType = MosaicConfiguration;
@@ -42,6 +48,7 @@ namespace catapult { namespace config {
 							{ "maxMosaicDuration", "2340h" },
 							{ "maxMosaicDivisibility", "7" },
 
+							{ "mosaicRentalFeeSinkAddressV1", Mosaic_Rental_Fee_Sink_Address_V1 },
 							{ "mosaicRentalFeeSinkAddress", Mosaic_Rental_Fee_Sink_Address },
 							{ "mosaicRentalFee", "773388" }
 						}
@@ -59,6 +66,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(utils::BlockSpan(), config.MaxMosaicDuration);
 				EXPECT_EQ(0u, config.MaxMosaicDivisibility);
 
+				EXPECT_EQ(Address(), config.MosaicRentalFeeSinkAddressV1);
 				EXPECT_EQ(Address(), config.MosaicRentalFeeSinkAddress);
 				EXPECT_EQ(Amount(), config.MosaicRentalFee);
 			}
@@ -69,6 +77,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(utils::BlockSpan::FromHours(2340), config.MaxMosaicDuration);
 				EXPECT_EQ(7u, config.MaxMosaicDivisibility);
 
+				EXPECT_EQ(model::StringToAddress(Mosaic_Rental_Fee_Sink_Address_V1), config.MosaicRentalFeeSinkAddressV1);
 				EXPECT_EQ(model::StringToAddress(Mosaic_Rental_Fee_Sink_Address), config.MosaicRentalFeeSinkAddress);
 				EXPECT_EQ(Amount(773388), config.MosaicRentalFee);
 			}
@@ -76,4 +85,48 @@ namespace catapult { namespace config {
 	}
 
 	DEFINE_CONFIGURATION_TESTS(MosaicConfigurationTests, Mosaic)
+
+	// endregion
+
+	// region calculated properties
+
+	TEST(TEST_CLASS, CanGetMosaicRentalFeeSinkAddressWithoutFork) {
+		// Arrange:
+		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+		blockChainConfig.ForkHeights.TreasuryReissuance = Height();
+
+		auto config = MosaicConfiguration::Uninitialized();
+		config.MosaicRentalFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
+		config.MosaicRentalFeeSinkAddress = test::GenerateRandomByteArray<Address>();
+
+		// Act:
+		auto sinkAddress = GetMosaicRentalFeeSinkAddress(config, blockChainConfig);
+
+		// Assert:
+		EXPECT_EQ(config.MosaicRentalFeeSinkAddress, sinkAddress.get(Height(0)));
+		EXPECT_EQ(config.MosaicRentalFeeSinkAddress, sinkAddress.get(Height(1)));
+	}
+
+	TEST(TEST_CLASS, CanGetMosaicRentalFeeSinkAddressWithFork) {
+		// Arrange:
+		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+		blockChainConfig.ForkHeights.TreasuryReissuance = Height(1234);
+
+		auto config = MosaicConfiguration::Uninitialized();
+		config.MosaicRentalFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
+		config.MosaicRentalFeeSinkAddress = test::GenerateRandomByteArray<Address>();
+
+		// Act:
+		auto sinkAddress = GetMosaicRentalFeeSinkAddress(config, blockChainConfig);
+
+		// Assert:
+		EXPECT_EQ(config.MosaicRentalFeeSinkAddress, sinkAddress.get(Height(0)));
+		EXPECT_EQ(config.MosaicRentalFeeSinkAddressV1, sinkAddress.get(Height(1)));
+
+		EXPECT_EQ(config.MosaicRentalFeeSinkAddressV1, sinkAddress.get(Height(1233)));
+		EXPECT_EQ(config.MosaicRentalFeeSinkAddress, sinkAddress.get(Height(1234)));
+		EXPECT_EQ(config.MosaicRentalFeeSinkAddress, sinkAddress.get(Height(1235)));
+	}
+
+	// endregion
 }}
