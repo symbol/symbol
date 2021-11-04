@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3.0] - 05-Nov-2021
+
+### Added
+ - new MosaicFlag called Revokable. Inspired by [this idea](https://github.com/symbol/NIP/issues/57)
+ - new MosaicSupplyRevocationTransaction.
+
+### Fixed
+ - removes previous touchpoints of centralization. 
+
 ## [1.0.2.0] - 14-Sep-2021
 
 ### Added
@@ -446,6 +455,7 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
+[1.0.3.0]: https://github.com/nemtech/catapult-server/compare/v1.0.2.0...v1.0.3.0
 [1.0.2.0]: https://github.com/nemtech/catapult-server/compare/v1.0.1.0...v1.0.2.0
 [1.0.1.0]: https://github.com/nemtech/catapult-server/compare/v1.0.0.0...v1.0.1.0
 [0.10.0.8]: https://github.com/nemtech/catapult-server/compare/v0.10.0.7...v0.10.0.8
