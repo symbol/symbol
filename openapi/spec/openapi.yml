@@ -6,8 +6,8 @@ tags:
 paths:
   "$ref": "./routes.yml"
 externalDocs:
-  description: Symbol Developers
-  url: https://nemtech.github.io/
+  description: Symbol Technical Documentation
+  url: https://docs.symbolplatform.com/
 servers:
   - url: http://localhost:3000
     description: Local development
