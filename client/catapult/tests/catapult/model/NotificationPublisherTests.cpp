@@ -485,6 +485,7 @@ namespace catapult { namespace model {
 		pTransaction->MaxFee = Amount(765);
 
 		BlockHeader blockHeader;
+		blockHeader.VerifiableEntityHeader_Reserved1 = 0;
 		blockHeader.FeeMultiplier = BlockFeeMultiplier(4);
 		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
 
@@ -507,8 +508,8 @@ namespace catapult { namespace model {
 
 		// - nonzero VerifiableEntityHeader_Reserved1 is used as a sentinel by HarvestingUtFacade to bypass block dependent fee calculation
 		BlockHeader blockHeader;
-		blockHeader.FeeMultiplier = BlockFeeMultiplier(4);
 		blockHeader.VerifiableEntityHeader_Reserved1 = 1;
+		blockHeader.FeeMultiplier = BlockFeeMultiplier(4);
 		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
 
 		// Act:
@@ -557,6 +558,7 @@ namespace catapult { namespace model {
 			auto pTransaction = mocks::CreateMockTransaction(12);
 
 			BlockHeader blockHeader;
+			blockHeader.VerifiableEntityHeader_Reserved1 = 0;
 			blockHeader.Height = height;
 			auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
 
@@ -623,6 +625,7 @@ namespace catapult { namespace model {
 		auto signerAddress = GetSignerAddress(*pTransaction);
 
 		BlockHeader blockHeader;
+		blockHeader.VerifiableEntityHeader_Reserved1 = 0;
 		blockHeader.Height = Height(123);
 		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
 
