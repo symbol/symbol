@@ -25,8 +25,8 @@ const test = require('../testUtils');
 const { expect } = require('chai');
 
 const Address_Decoded_Size = 24;
-const Network_Mijin_Identifier = 0x60;
-const Network_Public_Test_Identifier = 0x98;
+const Network_Mainnet_Identifier = 0x68;
+const Network_Testnet_Identifier = 0x98;
 
 describe('address', () => {
 	describe('stringToAddress', () => {
@@ -95,14 +95,14 @@ describe('address', () => {
 	describe('publicKeyToAddress', () => {
 		it('can create address from public key for well known network', () => {
 			// Arrange:
-			const expectedHex = '6023BB7C3C089D996585466380EDBDC19D49591848B37277';
+			const expectedHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38C';
 			const publicKey = convert.hexToUint8('3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB');
 
 			// Act:
-			const decoded = address.publicKeyToAddress(publicKey, Network_Mijin_Identifier);
+			const decoded = address.publicKeyToAddress(publicKey, Network_Mainnet_Identifier);
 
 			// Assert:
-			expect(decoded[0]).to.equal(Network_Mijin_Identifier);
+			expect(decoded[0]).to.equal(Network_Mainnet_Identifier);
 			expect(address.isValidAddress(decoded)).to.equal(true);
 			expect(convert.uint8ToHex(decoded)).to.equal(expectedHex);
 		});
@@ -113,10 +113,10 @@ describe('address', () => {
 			const publicKey = convert.hexToUint8('3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB');
 
 			// Act:
-			const decoded = address.publicKeyToAddress(publicKey, Network_Public_Test_Identifier);
+			const decoded = address.publicKeyToAddress(publicKey, Network_Testnet_Identifier);
 
 			// Assert:
-			expect(decoded[0]).to.equal(Network_Public_Test_Identifier);
+			expect(decoded[0]).to.equal(Network_Testnet_Identifier);
 			expect(address.isValidAddress(decoded)).to.equal(true);
 			expect(convert.uint8ToHex(decoded)).to.equal(expectedHex);
 		});
@@ -126,8 +126,8 @@ describe('address', () => {
 			const publicKey = convert.hexToUint8('3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB');
 
 			// Act:
-			const decoded1 = address.publicKeyToAddress(publicKey, Network_Mijin_Identifier);
-			const decoded2 = address.publicKeyToAddress(publicKey, Network_Mijin_Identifier);
+			const decoded1 = address.publicKeyToAddress(publicKey, Network_Mainnet_Identifier);
+			const decoded2 = address.publicKeyToAddress(publicKey, Network_Mainnet_Identifier);
 
 			// Assert:
 			expect(address.isValidAddress(decoded1)).to.equal(true);
@@ -140,8 +140,8 @@ describe('address', () => {
 			const publicKey2 = test.random.publicKey();
 
 			// Act:
-			const decoded1 = address.publicKeyToAddress(publicKey1, Network_Mijin_Identifier);
-			const decoded2 = address.publicKeyToAddress(publicKey2, Network_Mijin_Identifier);
+			const decoded1 = address.publicKeyToAddress(publicKey1, Network_Mainnet_Identifier);
+			const decoded2 = address.publicKeyToAddress(publicKey2, Network_Mainnet_Identifier);
 
 			// Assert:
 			expect(address.isValidAddress(decoded1)).to.equal(true);
@@ -154,8 +154,8 @@ describe('address', () => {
 			const publicKey = test.random.publicKey();
 
 			// Act:
-			const decoded1 = address.publicKeyToAddress(publicKey, Network_Mijin_Identifier);
-			const decoded2 = address.publicKeyToAddress(publicKey, Network_Public_Test_Identifier);
+			const decoded1 = address.publicKeyToAddress(publicKey, Network_Mainnet_Identifier);
+			const decoded2 = address.publicKeyToAddress(publicKey, Network_Testnet_Identifier);
 
 			// Assert:
 			expect(address.isValidAddress(decoded1)).to.equal(true);

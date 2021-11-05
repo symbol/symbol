@@ -31,7 +31,7 @@ const sinon = require('sinon');
 const { address, EntityType } = catapult.model;
 
 const { Long, Binary } = MongoDb;
-const Mijin_Test_Network = testDbOptions.networkId;
+const Testnet_Network = testDbOptions.networkId;
 const Default_Height = 34567;
 
 const DefaultPagingOptions = {
@@ -63,11 +63,11 @@ describe('catapult db', () => {
 		return dbObject;
 	};
 
-	const keyToAddress = key => Buffer.from(address.publicKeyToAddress(key, Mijin_Test_Network));
+	const keyToAddress = key => Buffer.from(address.publicKeyToAddress(key, Testnet_Network));
 
 	const runDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
 		// Arrange:
-		const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
+		const db = new CatapultDb(Object.assign({ networkId: Testnet_Network }, DefaultPagingOptions));
 
 		// Act + Assert:
 		return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)
@@ -121,7 +121,7 @@ describe('catapult db', () => {
 
 		it('can close unconnected db', () => {
 			// Arrange:
-			const db = new CatapultDb({ networkId: Mijin_Test_Network });
+			const db = new CatapultDb({ networkId: Testnet_Network });
 
 			// Act + Assert: no exception
 			expect(() => db.close()).to.not.throw();
@@ -396,7 +396,7 @@ describe('catapult db', () => {
 		});
 	});
 	const runBlockAtHeightDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
-		const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
+		const db = new CatapultDb(Object.assign({ networkId: Testnet_Network }, DefaultPagingOptions));
 		return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)
 			.then(() => test.db.populateDatabase(db, dbEntities))
 			.then(() => issueDbCommand(db))
@@ -756,7 +756,7 @@ describe('catapult db', () => {
 	describe('transaction by id', () => {
 		const runTransactionsDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
 			// Arrange:
-			const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
+			const db = new CatapultDb(Object.assign({ networkId: Testnet_Network }, DefaultPagingOptions));
 
 			// Act + Assert:
 			return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)
@@ -919,7 +919,7 @@ describe('catapult db', () => {
 				it(group, () => {
 					// Arrange:
 					const transactionsByIdsImplStub = sinon.stub(CatapultDb.prototype, 'transactionsByIdsImpl').returns('');
-					const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
+					const db = new CatapultDb(Object.assign({ networkId: Testnet_Network }, DefaultPagingOptions));
 
 					// Act
 					db[dbCall](group, [param]);
@@ -2413,7 +2413,7 @@ describe('catapult db', () => {
 
 		const runAccountByIdsDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
 			// Arrange:
-			const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
+			const db = new CatapultDb(Object.assign({ networkId: Testnet_Network }, DefaultPagingOptions));
 
 			// Act + Assert:
 			return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)

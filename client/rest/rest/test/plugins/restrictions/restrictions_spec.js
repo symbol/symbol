@@ -36,7 +36,7 @@ describe('restrictions plugin', () => {
 			const server = test.setup.createCapturingMockServer('get', routes);
 
 			// Act:
-			restrictions.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
+			restrictions.registerRoutes(server, {}, { network: { name: 'testnet' } });
 
 			// Assert:
 			test.assert.assertRoutes(routes, [

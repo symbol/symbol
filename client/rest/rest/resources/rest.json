@@ -1,7 +1,7 @@
 {
   "network": {
-    "name": "mijinTest",
-    "description": "catapult development network"
+    "name": "testnet",
+    "description": "catapult public test network"
   },
 
   "port": 3000,

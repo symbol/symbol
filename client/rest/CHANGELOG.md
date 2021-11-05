@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.3.8] - 1-Nov-2021
+
+### Added
+
+- Removed private network type support.
+- Renamed network names to from `public` to `mainnet` and from `publicTest` to `testnet`.
+
 ## [v2.3.7] - 31-Oct-2021
 
 ### Added
