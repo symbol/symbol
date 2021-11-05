@@ -179,7 +179,7 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
 		MosaicRentalFeeNotification(
 				const Address& sender,
-				const UnresolvedAddress& recipient,
+				const ResolvableAddress& recipient,
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount)
 				: BasicBalanceNotification(sender, mosaicId, amount)
@@ -188,7 +188,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Recipient.
-		UnresolvedAddress Recipient;
+		ResolvableAddress Recipient;
 	};
 
 	// endregion

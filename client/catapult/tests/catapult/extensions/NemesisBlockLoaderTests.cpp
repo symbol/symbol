@@ -45,7 +45,7 @@ namespace catapult { namespace extensions {
 #define TEST_CLASS NemesisBlockLoaderTests
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
 
 		// currency and harvesting mosaic transfers need to be tested for correct behavior
 		constexpr auto Currency_Mosaic_Id = MosaicId(3456);
@@ -79,7 +79,7 @@ namespace catapult { namespace extensions {
 				auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), unresolvedTransfers);
 				pTransaction->SignerPublicKey = nemesisPublicKey;
 				pTransaction->Version = mocks::MockTransaction::Current_Version;
-				pTransaction->Network = model::NetworkIdentifier::Private_Test;
+				pTransaction->Network = model::NetworkIdentifier::Testnet;
 				transactions.push_back(std::move(pTransaction));
 			}
 
@@ -211,7 +211,12 @@ namespace catapult { namespace extensions {
 				.add(observers::CreateAccountPublicKeyObserver())
 				.add(observers::CreateBalanceTransferObserver())
 				.add(observers::CreateHarvestFeeObserver(
-						{ Harvesting_Mosaic_Id, 20, harvestNetworkPercentage, harvestNetworkFeeSinkAddress },
+						{
+							Harvesting_Mosaic_Id,
+							20,
+							harvestNetworkPercentage,
+							model::HeightDependentAddress(harvestNetworkFeeSinkAddress)
+						},
 						model::InflationCalculator()));
 			return builder.build();
 		}
@@ -588,7 +593,7 @@ namespace catapult { namespace extensions {
 					Amount()));
 
 			// - resolution receipts due to use of CreateResolverContextXor and interaction with MockTransaction
-			auto recipient = model::PublicKeyToAddress(GetTransactionRecipient(nemesisBlock, 0), model::NetworkIdentifier::Private_Test);
+			auto recipient = model::PublicKeyToAddress(GetTransactionRecipient(nemesisBlock, 0), model::NetworkIdentifier::Testnet);
 			blockStatementBuilder.addResolution(test::UnresolveXor(recipient), recipient);
 			blockStatementBuilder.addResolution(test::UnresolveXor(receiptMosaicId), receiptMosaicId);
 
@@ -674,7 +679,9 @@ namespace catapult { namespace extensions {
 			// - create the state
 			auto config = CreateDefaultConfiguration(*nemesisBlockSignerPair.pBlock, nemesisOptions);
 			config.HarvestNetworkPercentage = harvestNetworkPercentage;
-			config.HarvestNetworkFeeSinkAddress = harvestNetworkFeeSinkAddress;
+			config.ForkHeights.TreasuryReissuance = Height(100);
+			test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
+			config.HarvestNetworkFeeSinkAddressV1 = harvestNetworkFeeSinkAddress;
 			test::LocalNodeTestState state(config);
 			SetNemesisBlock(state.ref().Storage, nemesisBlockSignerPair, config.Network, NemesisBlockModification::None);
 

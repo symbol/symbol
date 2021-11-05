@@ -65,7 +65,7 @@ namespace catapult { namespace plugins {
 
 			void publish(
 					const WeakEntityInfoT<Transaction>& transactionInfo,
-					const PublishContext&,
+					const PublishContext& context,
 					NotificationSubscriber& sub) const override {
 				const auto& aggregate = CastToDerivedType(transactionInfo.entity());
 
@@ -113,6 +113,7 @@ namespace catapult { namespace plugins {
 					//   (calculateRealSize would have failed if plugin is unknown or not embeddable)
 					PublishContext subContext;
 					subContext.SignerAddress = GetSignerAddress(subTransaction);
+					subContext.BlockHeight = context.BlockHeight;
 					plugin.publish(subTransaction, subContext, sub);
 				}
 

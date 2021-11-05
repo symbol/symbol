@@ -24,6 +24,12 @@
 
 namespace catapult { namespace model {
 
+	namespace {
+		bool Contains(const AddressSet& addresses, const Address& address) {
+			return addresses.cend() != addresses.find(address);
+		}
+	}
+
 	FinalizationContext::FinalizationContext(
 			FinalizationEpoch epoch,
 			Height height,
@@ -44,6 +50,14 @@ namespace catapult { namespace model {
 			auto effectiveVotingPublicKey = FindVotingPublicKeyForEpoch(accountHistory.votingPublicKeys().get(m_height), m_epoch);
 			if (VotingKey() == effectiveVotingPublicKey)
 				continue;
+
+			const auto& address = accountHistoryPair.first;
+			if (config.TreasuryReissuanceEpoch <= epoch && Contains(config.TreasuryReissuanceEpochIneligibleVoterAddresses, address)) {
+				CATAPULT_LOG(info)
+						<< "excluding voting account " << address
+						<< " from voting set at epoch " << config.TreasuryReissuanceEpoch;
+				continue;
+			}
 
 			auto accountView = FinalizationAccountView();
 			accountView.Weight = balance;

@@ -357,6 +357,14 @@ namespace catapult { namespace utils {
 		AssertUnsignedIntDecimalParseFailure<Importance, Importance::ValueType>();
 	}
 
+	TEST(TEST_CLASS, CanParseValidFinalizationEpoch) {
+		AssertUnsignedIntDecimalParseSuccess<FinalizationEpoch, FinalizationEpoch::ValueType>(0xFFFF'FFFF);
+	}
+
+	TEST(TEST_CLASS, CannotParseInvalidFinalizationEpoch) {
+		AssertUnsignedIntDecimalParseFailure<FinalizationEpoch, FinalizationEpoch::ValueType>();
+	}
+
 	TEST(TEST_CLASS, CanParseValidMosaicId) {
 		AssertUnsignedIntHexParseSuccess<MosaicId::ValueType>(0xFFFF'FFFF'FFFF'FFFF, "", [](auto value) {
 			return MosaicId(static_cast<MosaicId::ValueType>(value));

@@ -84,7 +84,9 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(UnresolvedAddressSet{ transaction.RecipientAddress }, notification.ParticipantsByAddress);
 		});
 		builder.template addExpectation<BalanceDebitNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
+			EXPECT_TRUE(notification.Sender.isResolved());
+
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
 			EXPECT_EQ(transaction.Mosaic.MosaicId, notification.MosaicId);
 			EXPECT_EQ(transaction.Mosaic.Amount, notification.Amount);
 		});
@@ -95,8 +97,11 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
 		});
 		builder.template addExpectation<BalanceTransferNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
-			EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
+			EXPECT_TRUE(notification.Sender.isResolved());
+			EXPECT_FALSE(notification.Recipient.isResolved());
+
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
+			EXPECT_EQ(transaction.RecipientAddress, notification.Recipient.unresolved());
 			EXPECT_EQ(transaction.Mosaic.MosaicId, notification.MosaicId);
 			EXPECT_EQ(Amount(0), notification.Amount);
 			EXPECT_EQ(BalanceTransferNotification::AmountType::Static, notification.TransferAmountType);

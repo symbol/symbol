@@ -133,7 +133,7 @@ namespace catapult { namespace harvesting {
 			});
 
 			auto pUnlockedAccounts = unlockedAccountsHolder.pUnlockedAccounts;
-			auto blockGenerator = CreateHarvesterBlockGenerator(strategy, transactionRegistry, utFacadeFactory, utCache);
+			auto blockGenerator = CreateHarvesterBlockGenerator(strategy, transactionRegistry, utFacadeFactory, blockChainConfig, utCache);
 			auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(
 					CreateHarvesterTaskOptions(state),
 					std::make_unique<Harvester>(cache, blockChainConfig, beneficiaryAddress, *pUnlockedAccounts, blockGenerator));

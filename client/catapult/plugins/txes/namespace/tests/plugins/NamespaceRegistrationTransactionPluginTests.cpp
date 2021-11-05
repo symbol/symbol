@@ -41,13 +41,11 @@ namespace catapult { namespace plugins {
 		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(NamespaceRegistration, NamespaceRentalFeeConfiguration, 1, 1,)
 
 		NamespaceRentalFeeConfiguration CreateRentalFeeConfiguration(Amount rootFeePerBlock, Amount childFee) {
-			return {
-				UnresolvedMosaicId(1234),
-				test::GenerateRandomUnresolvedAddress(),
-				rootFeePerBlock,
-				childFee,
-				test::GenerateRandomByteArray<Key>()
-			};
+			HeightDependentAddress sinkAddress(test::GenerateRandomByteArray<Address>());
+			sinkAddress.trySet(test::GenerateRandomByteArray<Address>(), Height(1111));
+			sinkAddress.trySet(test::GenerateRandomByteArray<Address>(), Height(2222));
+
+			return { UnresolvedMosaicId(1234), sinkAddress, rootFeePerBlock, childFee, test::GenerateRandomByteArray<Key>() };
 		}
 
 		template<typename TTraits>
@@ -74,15 +72,43 @@ namespace catapult { namespace plugins {
 	// region publish - root nemesis signer
 
 	namespace {
+		auto Run_Test_Height = Height(1500);
+
+		WeakEntityInfoT<Transaction> ToTransactionInfo(
+				const NamespaceRegistrationTransaction& transaction,
+				const Hash256& hash,
+				const BlockHeader& blockHeader) {
+			return { transaction, hash, blockHeader };
+		}
+
+		WeakEntityInfoT<EmbeddedTransaction> ToTransactionInfo(
+				const EmbeddedNamespaceRegistrationTransaction& transaction,
+				const Hash256& hash,
+				const BlockHeader& blockHeader) {
+			return { transaction, hash, blockHeader };
+		}
+
+		template<typename TBuilder, typename TTransaction>
+		void RunTest(const TBuilder& builder, const TTransaction& transaction, const NamespaceRentalFeeConfiguration& config) {
+			// Arrange:
+			auto hash = test::GenerateRandomByteArray<Hash256>();
+
+			BlockHeader blockHeader;
+			blockHeader.Height = Run_Test_Height;
+
+			// Act + Assert:
+			builder.runTest(ToTransactionInfo(transaction, hash, blockHeader), config);
+		}
+
 		template<typename TTraits>
 		void AddCommonRootExpectations(
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const NamespaceRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
 			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
-				EXPECT_FALSE(notification.Address.isResolved());
+				EXPECT_TRUE(notification.Address.isResolved());
 
-				EXPECT_EQ(config.SinkAddress, notification.Address.unresolved());
+				EXPECT_EQ(config.SinkAddress.get(Run_Test_Height), notification.Address.resolved());
 			});
 			builder.template addExpectation<NamespaceRegistrationNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
@@ -138,7 +164,7 @@ namespace catapult { namespace plugins {
 		AddCommonRootExpectations<TTraits>(builder, config, *pTransaction);
 
 		// Act + Assert:
-		builder.runTest(*pTransaction, config);
+		RunTest(builder, *pTransaction, config);
 	}
 
 	// endregion
@@ -174,21 +200,27 @@ namespace catapult { namespace plugins {
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonRootExpectations<TTraits>(builder, config, transaction);
 		builder.template addExpectation<BalanceTransferNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
-			EXPECT_EQ(config.SinkAddress, notification.Recipient);
+			EXPECT_TRUE(notification.Sender.isResolved());
+			EXPECT_TRUE(notification.Recipient.isResolved());
+
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
+			EXPECT_EQ(config.SinkAddress.get(Run_Test_Height), notification.Recipient.resolved());
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(Amount(987 * transaction.Duration.unwrap()), notification.Amount);
 			EXPECT_EQ(BalanceTransferNotification::AmountType::Dynamic, notification.TransferAmountType);
 		});
 		builder.template addExpectation<NamespaceRentalFeeNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
-			EXPECT_EQ(config.SinkAddress, notification.Recipient);
+			EXPECT_TRUE(notification.Sender.isResolved());
+			EXPECT_TRUE(notification.Recipient.isResolved());
+
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
+			EXPECT_EQ(config.SinkAddress.get(Run_Test_Height), notification.Recipient.resolved());
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(Amount(987 * transaction.Duration.unwrap()), notification.Amount);
 		});
 
 		// Act + Assert:
-		builder.runTest(transaction, config);
+		RunTest(builder, transaction, config);
 	}
 
 	// endregion
@@ -224,7 +256,7 @@ namespace catapult { namespace plugins {
 		AddCommonRootExpectations<TTraits>(builder, config, *pTransaction);
 
 		// Act + Assert:
-		builder.runTest(*pTransaction, config);
+		RunTest(builder, *pTransaction, config);
 	}
 
 	// endregion
@@ -238,9 +270,9 @@ namespace catapult { namespace plugins {
 				const NamespaceRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
 			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
-				EXPECT_FALSE(notification.Address.isResolved());
+				EXPECT_TRUE(notification.Address.isResolved());
 
-				EXPECT_EQ(config.SinkAddress, notification.Address.unresolved());
+				EXPECT_EQ(config.SinkAddress.get(Run_Test_Height), notification.Address.resolved());
 			});
 			builder.template addExpectation<NamespaceRegistrationNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
@@ -296,7 +328,7 @@ namespace catapult { namespace plugins {
 		AddCommonChildExpectations<TTraits>(builder, config, *pTransaction);
 
 		// Act + Assert:
-		builder.runTest(*pTransaction, config);
+		RunTest(builder, *pTransaction, config);
 	}
 
 	// endregion
@@ -332,21 +364,27 @@ namespace catapult { namespace plugins {
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonChildExpectations<TTraits>(builder, config, transaction);
 		builder.template addExpectation<BalanceTransferNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
-			EXPECT_EQ(config.SinkAddress, notification.Recipient);
+			EXPECT_TRUE(notification.Sender.isResolved());
+			EXPECT_TRUE(notification.Recipient.isResolved());
+
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
+			EXPECT_EQ(config.SinkAddress.get(Run_Test_Height), notification.Recipient.resolved());
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(Amount(777), notification.Amount);
 			EXPECT_EQ(BalanceTransferNotification::AmountType::Dynamic, notification.TransferAmountType);
 		});
 		builder.template addExpectation<NamespaceRentalFeeNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
-			EXPECT_EQ(config.SinkAddress, notification.Recipient);
+			EXPECT_TRUE(notification.Sender.isResolved());
+			EXPECT_TRUE(notification.Recipient.isResolved());
+
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
+			EXPECT_EQ(config.SinkAddress.get(Run_Test_Height), notification.Recipient.resolved());
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(Amount(777), notification.Amount);
 		});
 
 		// Act + Assert:
-		builder.runTest(transaction, config);
+		RunTest(builder, transaction, config);
 	}
 
 	// endregion

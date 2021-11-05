@@ -256,6 +256,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Timestamp(123), notification.Timestamp);
 			EXPECT_EQ(Difficulty(575), notification.Difficulty);
 			EXPECT_EQ(BlockFeeMultiplier(3), notification.FeeMultiplier);
+			EXPECT_EQ(block.TransactionsHash, notification.TransactionsHash);
 			EXPECT_EQ(Amount(0), notification.TotalFee);
 			EXPECT_EQ(0u, notification.NumTransactions);
 		});
@@ -277,6 +278,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Timestamp(432), notification.Timestamp);
 			EXPECT_EQ(Difficulty(575), notification.Difficulty);
 			EXPECT_EQ(BlockFeeMultiplier(3), notification.FeeMultiplier);
+			EXPECT_EQ(block.TransactionsHash, notification.TransactionsHash);
 			EXPECT_EQ(Amount(3 * 653), notification.TotalFee);
 			EXPECT_EQ(3u + 11 + 25 + 17, notification.NumTransactions);
 		});
@@ -483,6 +485,7 @@ namespace catapult { namespace model {
 		pTransaction->MaxFee = Amount(765);
 
 		BlockHeader blockHeader;
+		blockHeader.VerifiableEntityHeader_Reserved1 = 0;
 		blockHeader.FeeMultiplier = BlockFeeMultiplier(4);
 		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
 
@@ -496,6 +499,29 @@ namespace catapult { namespace model {
 		});
 	}
 
+	TEST(TEST_CLASS, CanPublishTransactionFeeNotification_BlockDependentWithMaxFeeFlag) {
+		// Arrange:
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		auto pTransaction = test::GenerateRandomTransactionWithSize(234);
+		pTransaction->Type = mocks::MockTransaction::Entity_Type;
+		pTransaction->MaxFee = Amount(765);
+
+		// - nonzero VerifiableEntityHeader_Reserved1 is used as a sentinel by HarvestingUtFacade to bypass block dependent fee calculation
+		BlockHeader blockHeader;
+		blockHeader.VerifiableEntityHeader_Reserved1 = 1;
+		blockHeader.FeeMultiplier = BlockFeeMultiplier(4);
+		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
+
+		// Act:
+		PublishOne<TransactionFeeNotification>(weakEntityInfo, [&transaction = *pTransaction](const auto& notification) {
+			// Assert: max fee is used when there is associated block with MaxFee flag
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
+			EXPECT_EQ(transaction.Size, notification.TransactionSize);
+			EXPECT_EQ(Amount(765), notification.Fee);
+			EXPECT_EQ(Amount(765), notification.MaxFee);
+		});
+	}
+
 	TEST(TEST_CLASS, CanPublishTransactionFeeDebitNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
@@ -505,7 +531,7 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<BalanceDebitNotification>(*pTransaction, [&transaction = *pTransaction](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
 			EXPECT_EQ(Currency_Mosaic_Id, notification.MosaicId);
 			EXPECT_EQ(Amount(765), notification.Amount);
 		});
@@ -514,7 +540,7 @@ namespace catapult { namespace model {
 	namespace {
 		void AssertCustomTransactionNotifications(const std::vector<NotificationType>& notificationTypes, size_t startIndex) {
 			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, notificationTypes[startIndex]);
-			EXPECT_EQ(mocks::Mock_Address_Notification, notificationTypes[startIndex + 1]);
+			EXPECT_EQ(mocks::Mock_Publisher_Context_Notification, notificationTypes[startIndex + 1]);
 			EXPECT_EQ(mocks::Mock_Observer_1_Notification, notificationTypes[startIndex + 2]);
 			EXPECT_EQ(mocks::Mock_Validator_1_Notification, notificationTypes[startIndex + 3]);
 			EXPECT_EQ(mocks::Mock_All_1_Notification, notificationTypes[startIndex + 4]);
@@ -532,6 +558,7 @@ namespace catapult { namespace model {
 			auto pTransaction = mocks::CreateMockTransaction(12);
 
 			BlockHeader blockHeader;
+			blockHeader.VerifiableEntityHeader_Reserved1 = 0;
 			blockHeader.Height = height;
 			auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
 
@@ -591,15 +618,38 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanPublishCustomTransactionNotificationsDependentOnSignerAddress) {
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotificationsDependentOnPublisherContext_AttachedToBlock) {
 		// Arrange:
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		auto signerAddress = GetSignerAddress(*pTransaction);
 
+		BlockHeader blockHeader;
+		blockHeader.VerifiableEntityHeader_Reserved1 = 0;
+		blockHeader.Height = Height(123);
+		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
+
 		// Act:
-		PublishOne<mocks::MockAddressNotification>(*pTransaction, [&signerAddress](const auto& notification) {
+		PublishOne<mocks::MockPublisherContextNotification>(weakEntityInfo, [&signerAddress](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(signerAddress, notification.Address);
+			EXPECT_EQ(signerAddress, notification.SignerAddress);
+			EXPECT_EQ(Height(123), notification.BlockHeight);
+		});
+	}
+
+	TEST(TEST_CLASS, CanPublishCustomTransactionNotificationsDependentOnPublisherContext_Unattached) {
+		// Arrange:
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		auto pTransaction = mocks::CreateMockTransaction(12);
+		auto signerAddress = GetSignerAddress(*pTransaction);
+
+		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash);
+
+		// Act:
+		PublishOne<mocks::MockPublisherContextNotification>(weakEntityInfo, [&signerAddress](const auto& notification) {
+			// Assert:
+			EXPECT_EQ(signerAddress, notification.SignerAddress);
+			EXPECT_EQ(Height(), notification.BlockHeight);
 		});
 	}
 

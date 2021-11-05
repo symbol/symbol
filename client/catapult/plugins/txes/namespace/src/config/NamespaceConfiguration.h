@@ -20,10 +20,14 @@
 **/
 
 #pragma once
+#include "catapult/model/HeightDependentAddress.h"
 #include "catapult/utils/BlockSpan.h"
 #include <unordered_set>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult {
+	namespace model { struct BlockChainConfiguration; }
+	namespace utils { class ConfigurationBag; }
+}
 
 namespace catapult { namespace config {
 
@@ -51,7 +55,10 @@ namespace catapult { namespace config {
 		/// Reserved root namespaces that cannot be claimed.
 		std::unordered_set<std::string> ReservedRootNamespaceNames;
 
-		/// Address of the namespace rental fee sink account.
+		/// Address of the namespace rental fee sink account (V1).
+		Address NamespaceRentalFeeSinkAddressV1;
+
+		/// Address of the namespace rental fee sink account (latest).
 		Address NamespaceRentalFeeSinkAddress;
 
 		/// Root namespace rental fee per block.
@@ -70,4 +77,9 @@ namespace catapult { namespace config {
 		/// Loads a namespace configuration from \a bag.
 		static NamespaceConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
+
+	/// Gets the namespace rental fee sink address from \a config and \a blockChainConfig.
+	model::HeightDependentAddress GetNamespaceRentalFeeSinkAddress(
+			const NamespaceConfiguration& config,
+			const model::BlockChainConfiguration& blockChainConfig);
 }}

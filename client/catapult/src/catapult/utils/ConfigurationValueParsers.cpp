@@ -212,6 +212,13 @@ namespace catapult { namespace utils {
 		return TryParseCustomUnsignedIntDecimalValue<Importance::ValueType>([](auto raw) { return Importance(raw); }, str, parsedValue);
 	}
 
+	bool TryParseValue(const std::string& str, FinalizationEpoch& parsedValue) {
+		return TryParseCustomUnsignedIntDecimalValue<FinalizationEpoch::ValueType>(
+				[](auto raw) { return FinalizationEpoch(raw); },
+				str,
+				parsedValue);
+	}
+
 	bool TryParseValue(const std::string& str, MosaicId& parsedValue) {
 		return TryParseCustomUnsignedIntHexValue<MosaicId::ValueType>([](auto raw) { return MosaicId(raw); }, str, parsedValue);
 	}

@@ -40,7 +40,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				int8_t minApprovalDelta,
 				uint8_t numAddressAdditions,
 				uint8_t numAddressDeletions) {
-			builders::MultisigAccountModificationBuilder builder(model::NetworkIdentifier::Private_Test, signer);
+			builders::MultisigAccountModificationBuilder builder(model::NetworkIdentifier::Testnet, signer);
 			builder.setMinRemovalDelta(minRemovalDelta);
 			builder.setMinApprovalDelta(minApprovalDelta);
 

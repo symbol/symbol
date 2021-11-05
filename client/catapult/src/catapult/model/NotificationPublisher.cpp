@@ -35,7 +35,15 @@ namespace catapult { namespace model {
 		}
 
 		BlockNotification CreateBlockNotification(const Block& block, const Address& blockSignerAddress) {
-			return { block.Type, blockSignerAddress, block.BeneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier };
+			return {
+				block.Type,
+				blockSignerAddress,
+				block.BeneficiaryAddress,
+				block.Timestamp,
+				block.Difficulty,
+				block.FeeMultiplier,
+				block.TransactionsHash
+			};
 		}
 
 		class CustomNotificationPublisher : public NotificationPublisher {
@@ -51,14 +59,16 @@ namespace catapult { namespace model {
 				if (BasicEntityType::Transaction != ToBasicEntityType(entityInfo.type()))
 					return;
 
-				return publish(static_cast<const Transaction&>(entityInfo.entity()), entityInfo.hash(), sub);
+				auto height = entityInfo.isAssociatedBlockHeaderSet() ? entityInfo.associatedBlockHeader().Height : Height(0);
+				return publish(static_cast<const Transaction&>(entityInfo.entity()), entityInfo.hash(), height, sub);
 			}
 
-			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
+			void publish(const Transaction& transaction, const Hash256& hash, Height height, NotificationSubscriber& sub) const {
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
 
 				PublishContext context;
 				context.SignerAddress = GetSignerAddress(transaction);
+				context.BlockHeight = height;
 				plugin.publish(WeakEntityInfoT<Transaction>(transaction, hash), context, sub);
 			}
 
@@ -162,7 +172,11 @@ namespace catapult { namespace model {
 			void publishTransaction(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const {
 				const auto& transaction = static_cast<const Transaction&>(entityInfo.entity());
 				const auto* pBlockHeader = entityInfo.isAssociatedBlockHeaderSet() ? &entityInfo.associatedBlockHeader() : nullptr;
-				auto fee = pBlockHeader ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction) : transaction.MaxFee;
+
+				// when VerifiableEntityHeader_Reserved1 is set (currently by HarvestingUtFacade), MaxFee should be used
+				auto fee = pBlockHeader && 0 == pBlockHeader->VerifiableEntityHeader_Reserved1
+						? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction)
+						: transaction.MaxFee;
 
 				CATAPULT_LOG(trace)
 						<< "[Transaction Fee Info]" << std::endl

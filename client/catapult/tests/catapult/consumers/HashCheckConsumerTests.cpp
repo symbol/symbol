@@ -533,11 +533,14 @@ namespace catapult { namespace consumers {
 			utils::HashSet m_hashes;
 		};
 
-		static auto CreateTransactionConsumer(const MockKnownHashPredicate& predicate) {
+		static auto CreateTransactionConsumer(
+				const MockKnownHashPredicate& predicate,
+				const std::vector<Signature>& highPriorityTransactionSignatures = std::vector<Signature>()) {
 			return CreateTransactionHashCheckConsumer(
 					[]() { return Timestamp(1); },
 					Default_Options,
-					[&predicate](auto timestamp, const auto& hash) { return predicate(timestamp, hash); });
+					[&predicate](auto timestamp, const auto& hash) { return predicate(timestamp, hash); },
+					highPriorityTransactionSignatures);
 		}
 
 		void AssertEqual(
@@ -685,6 +688,56 @@ namespace catapult { namespace consumers {
 		AssertEqual(elements, 2, predicate.params(), 1);
 		AssertEqual(elements, 4, predicate.params(), 2);
 		AssertEqual(elements, 5, predicate.params(), 3);
+	}
+
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(ExternallySeenButNotPreviouslySeenEntitiesWithinMultipleEntitiesAreSkipped_HighPriority) {
+		// Arrange: prepare an input with 9 elements and a subset input with 4 elements
+		auto transactions = test::MakeConst(test::GenerateRandomTransactions(9));
+		auto subsetElements = CreateTransactionElements(transactions, { 1, 4, 5, 6 });
+		auto elements = CreateTransactionElements(transactions);
+
+		// - mark elements 0, 5, 7 as externally seen
+		MockKnownHashPredicate predicate;
+		predicate.markSeen(elements[0].EntityHash);
+		predicate.markSeen(elements[5].EntityHash);
+		predicate.markSeen(elements[7].EntityHash);
+
+		// - mark some elements as high priority (3, 4, 5, 7)
+		auto consumer = CreateTransactionConsumer(predicate, {
+			elements[3].Transaction.Signature,
+			elements[4].Transaction.Signature,
+			elements[5].Transaction.Signature,
+			elements[7].Transaction.Signature
+		});
+
+		// - process / cache the first (subset) input
+		consumer(subsetElements);
+
+		// - clear any captured predicate calls
+		predicate.clear();
+
+		// Act: process the second (full) input
+		auto result = consumer(elements);
+
+		// Assert: only previously seen (1, 4, 5, 6) and/or externally seen (0, 5, 7) elements were skipped
+		//                                  H  H                                H  H
+		//         element 4 is NOT skipped because it is high priority and has not been externally seen
+		test::AssertContinued(result);
+		for (auto i : { 0u, 1u, 5u, 6u, 7u })
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, elements[i].ResultSeverity) << "element at " << i;
+
+		for (auto i : { 2u, 3u, 4u, 8u })
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, elements[i].ResultSeverity) << "element at " << i;
+
+		// - the predicate was called only for elements not previously seen (0, 2, 3, 7, 8) and/or high priority (3, 4, 5, 7)
+		ASSERT_EQ(7u, predicate.params().size());
+		AssertEqual(elements, 0, predicate.params(), 0);
+		AssertEqual(elements, 2, predicate.params(), 1);
+		AssertEqual(elements, 3, predicate.params(), 2);
+		AssertEqual(elements, 4, predicate.params(), 3);
+		AssertEqual(elements, 5, predicate.params(), 4);
+		AssertEqual(elements, 7, predicate.params(), 5);
+		AssertEqual(elements, 8, predicate.params(), 6);
 	}
 
 	// endregion

@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(MosaicRecipient, [](const Notification& notification, const ValidatorContext& context) {
 		AccountRestrictionView view(context.Cache);
-		if (!view.initialize(context.Resolvers.resolve(notification.Recipient)))
+		if (!view.initialize(notification.Recipient.resolved(context.Resolvers)))
 			return ValidationResult::Success;
 
 		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);

@@ -92,7 +92,7 @@ namespace catapult { namespace observers {
 
 			// only if amount is non-zero create receipt for network sink account
 			if (Amount() != networkAmount)
-				applier.apply(options.HarvestNetworkFeeSinkAddress, networkAmount);
+				applier.apply(options.HarvestNetworkFeeSinkAddress.get(context.Height), networkAmount);
 
 			// only if amount is non-zero create receipt for beneficiary account
 			if (Amount() != beneficiaryAmount)

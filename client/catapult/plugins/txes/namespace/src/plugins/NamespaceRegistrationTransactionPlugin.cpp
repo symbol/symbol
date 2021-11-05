@@ -37,13 +37,17 @@ namespace catapult { namespace plugins {
 				const TTransaction& transaction,
 				const PublishContext& context,
 				NotificationSubscriber& sub) {
-			// a. exempt the nemesis account
+			// a. sink account notification
+			auto sinkAddress = config.SinkAddress.get(context.BlockHeight);
+			sub.notify(AccountAddressNotification(sinkAddress));
+
+			// b. exempt the nemesis account
 			if (config.NemesisSignerPublicKey == transaction.SignerPublicKey)
 				return;
 
 			auto rentalFee = config.ChildFee;
 			if (transaction.IsRootRegistration()) {
-				// b. don't charge fees for eternal namespaces
+				// c. don't charge fees for eternal namespaces
 				if (Eternal_Artifact_Duration == transaction.Duration)
 					return;
 
@@ -52,23 +56,20 @@ namespace catapult { namespace plugins {
 
 			sub.notify(BalanceTransferNotification(
 					context.SignerAddress,
-					config.SinkAddress,
+					sinkAddress,
 					config.CurrencyMosaicId,
 					rentalFee,
 					BalanceTransferNotification::AmountType::Dynamic));
-			sub.notify(NamespaceRentalFeeNotification(context.SignerAddress, config.SinkAddress, config.CurrencyMosaicId, rentalFee));
+			sub.notify(NamespaceRentalFeeNotification(context.SignerAddress, sinkAddress, config.CurrencyMosaicId, rentalFee));
 		}
 
 		template<typename TTransaction>
 		auto CreatePublisher(const NamespaceRentalFeeConfiguration& config) {
 			return [config](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
-				// 1. sink account notification
-				sub.notify(AccountAddressNotification(config.SinkAddress));
-
-				// 2. rental fee charge
+				// 1. rental fee charge
 				PublishBalanceTransfer(config, transaction, context, sub);
 
-				// 3. registration notifications
+				// 2. registration notifications
 				sub.notify(NamespaceRegistrationNotification(transaction.RegistrationType));
 				auto parentId = Namespace_Base_Id;
 				if (transaction.IsRootRegistration()) {

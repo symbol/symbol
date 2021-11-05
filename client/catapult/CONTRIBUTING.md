@@ -25,15 +25,16 @@ It is very helpful if you can prepare a reproduction of the bug. In other words,
 provide a small test case which we can run to confirm your bug. It makes it easier to
 find the problem and to fix it.
 
-Please, take in consideration the next template to report your issue:
+Please, take in consideration the following template to report your issue:
 
-> **Expected Behaviour**\
-> Short and expressive sentence explaining what the code should do.\
-> **Current Behaviour**\
-> A short sentence enplaning what the code does. \
+> **Expected Behavior**\
+> Short and expressive sentence explaining what the code should do.
+>
+> **Current Behavior**\
+> A short sentence enplaning what the code does.
+>
 > **Steps to reproduce**\
 > For faster issue detection, we would need a step by step description do reproduce the issue.
-
 
 Provide as much information as you can.
 
@@ -50,7 +51,7 @@ important to find the best approach before writing too much code.
 
 ### Contributing License Notice
 
-Due to dual licensing of catapult and possible future easing of selected open source licens, when you contribute code,
+Due to dual licensing of catapult and possible future easing of selected open source license, when you contribute code,
 you'll be required to provide signed waiver of copyrights.
 
 Whether or not you state this explicitly, by submitting any copyrighted material via pull request, email, or other means
@@ -68,11 +69,10 @@ Further instructions for specific projects are given below.
 1. Make sure your code meets coding style (file with rules will be provided later).
 2. Code without corresponding tests will not be accepted.
 3. Run our lint tool `scripts/lint/checkProjectStructure.py --text`
-4. Test your change, run tests to make sure that nothing is broken
-5. Do **not** use github's *pull request* feature, pull requests will be rejected.
-Because of internal review process we require patched generated with `git diff -U100000 base <your-change>`
+4. Test your changes, run tests to make sure that nothing is broken
+5. Use github's *pull request* feature to submit your proposed changes.
 
-Then sit back and wait. There will probably be discussion about changes and, if any changes are needed, we would love to work with you to get your changes merged into catapult-client.
+Then sit back and wait. There will probably be discussion about the changes and, if any are needed, we would love to work with you to get them merged into catapult-client.
 
 *CONTRIBUTING.md is based on [CONTRIBUTING-template.md](https://github.com/nayafia/contributing-template/blob/master/CONTRIBUTING-template.md)* , [elasticsearch/CONTRIBUTING](https://github.com/elastic/elasticsearch/blob/master/CONTRIBUTING.md) and [spark/CONTRIBUTING](https://github.com/apache/spark/blob/master/CONTRIBUTING.md)
 

@@ -57,7 +57,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 				if (model::Core_Balance_Transfer_Notification == notification.Type) {
 					using NotificationType = model::BalanceTransferNotification;
-					checkSender(static_cast<const NotificationType&>(notification).Sender);
+					checkSender(static_cast<const NotificationType&>(notification).Sender.resolved());
 				}
 			}
 

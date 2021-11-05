@@ -129,7 +129,7 @@ namespace catapult { namespace mocks {
 		pTransaction->SignerPublicKey = signer;
 		pTransaction->RecipientPublicKey = recipient;
 		pTransaction->Version = 1;
-		pTransaction->Network = NetworkIdentifier::Private_Test;
+		pTransaction->Network = NetworkIdentifier::Testnet;
 		return pTransaction;
 	}
 
@@ -149,7 +149,7 @@ namespace catapult { namespace mocks {
 				PluginOptionFlags options,
 				NotificationSubscriber& sub) {
 			sub.notify(AccountPublicKeyNotification(mockTransaction.RecipientPublicKey));
-			sub.notify(MockAddressNotification(context.SignerAddress));
+			sub.notify(MockPublisherContextNotification(context.SignerAddress, context.BlockHeight));
 
 			if (IsPluginOptionFlagSet(options, PluginOptionFlags::Publish_Custom_Notifications)) {
 				sub.notify(test::CreateNotification(Mock_Observer_1_Notification));

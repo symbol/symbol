@@ -20,6 +20,7 @@
 **/
 
 #include "catapult/utils/ConfigurationUtils.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {
@@ -225,6 +226,93 @@ namespace catapult { namespace utils {
 
 		// Act:
 		auto resultPair = TTraits::ExtractSectionAsContainer(bag, "foo");
+
+		// Assert:
+		EXPECT_TRUE(resultPair.first.empty());
+		EXPECT_EQ(0u, resultPair.second);
+	}
+
+	// endregion
+
+	// region ExtractSectionKeysAsTypedVector
+
+	namespace {
+		std::vector<std::string> GetHashStrings() {
+			return {
+				"9B9FADB394D6ABD82D3D50D7349A549929658EDB888E759709E3E5D42BABB2D6",
+				"873475716418283D4A10A62F4247C6B2B821C98573C194B8AB84E096A4EE9783",
+				"7A21C94D3860A78C49A321702F46ABD2CD3B00A59E6F87DA5EC224CEF57CC346"
+			};
+		}
+
+		std::vector<Hash256> GetHashes(std::initializer_list<size_t> indexes) {
+			auto hashStrings = GetHashStrings();
+
+			std::vector<Hash256> hashes;
+			for (auto index : indexes)
+				hashes.push_back(ParseByteArray<Hash256>(hashStrings[index]));
+
+			return hashes;
+		}
+
+		bool HashParser(const std::string& str, Hash256& hash) {
+			return TryParseHexStringIntoContainer(str.data(), str.size(), hash);
+		}
+	}
+
+	TEST(TEST_CLASS, ExtractSectionKeysAsTypedVectorCanExtractTypedValues) {
+		// Arrange:
+		auto hashStrings = GetHashStrings();
+		auto bag = ConfigurationBag({
+			{ "none", { { hashStrings[0], "false" }, { hashStrings[1], "false" }, { hashStrings[2], "false" } } },
+			{ "some", { { hashStrings[0], "true" }, { hashStrings[1], "false" }, { hashStrings[2], "true" } } },
+			{ "all", { { hashStrings[0], "true" }, { hashStrings[1], "true" }, { hashStrings[2], "true" } } }
+		});
+
+		// Act:
+		auto noneResultPair = ExtractSectionKeysAsTypedVector<Hash256>(bag, "none", HashParser);
+		auto someResultPair = ExtractSectionKeysAsTypedVector<Hash256>(bag, "some", HashParser);
+		auto allResultPair = ExtractSectionKeysAsTypedVector<Hash256>(bag, "all", HashParser);
+
+		// Assert:
+		EXPECT_TRUE(noneResultPair.first.empty());
+		EXPECT_EQ(3u, noneResultPair.second);
+
+		EXPECT_EQ(GetHashes({ 0, 2 }), someResultPair.first);
+		EXPECT_EQ(3u, someResultPair.second);
+
+		EXPECT_EQ(GetHashes({ 0, 1, 2 }), allResultPair.first);
+		EXPECT_EQ(3u, allResultPair.second);
+	}
+
+	TEST(TEST_CLASS, ExtractSectionKeysAsTypedVectorFailsWhenAnyKeyIsNotParseable) {
+		// Arrange:
+		auto hashStrings = GetHashStrings();
+		auto bag = ConfigurationBag({
+			{ "foo", { { hashStrings[0], "true" }, { hashStrings[1] + "AA", "true" }, { hashStrings[2], "true" } } }
+		});
+
+		// Act + Assert:
+		EXPECT_THROW(ExtractSectionKeysAsTypedVector<Hash256>(bag, "foo", HashParser), property_malformed_error);
+	}
+
+	TEST(TEST_CLASS, ExtractSectionKeysAsTypedVectorFailsWhenAnyValueIsNotBoolean) {
+		// Arrange:
+		auto hashStrings = GetHashStrings();
+		auto bag = ConfigurationBag({
+			{ "foo", { { hashStrings[0], "true" }, { hashStrings[1], "1" }, { hashStrings[2], "true" } } }
+		});
+
+		// Act + Assert:
+		EXPECT_THROW(ExtractSectionKeysAsTypedVector<Hash256>(bag, "foo", HashParser), property_malformed_error);
+	}
+
+	TEST(TEST_CLASS, ExtractSectionKeysAsTypedVectorCanExtractUnknownSectionAsEmptyContainer) {
+		// Arrange:
+		auto bag = ConfigurationBag({});
+
+		// Act:
+		auto resultPair = ExtractSectionKeysAsTypedVector<Hash256>(bag, "foo", HashParser);
 
 		// Assert:
 		EXPECT_TRUE(resultPair.first.empty());

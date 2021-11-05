@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "catapult/model/ContainerTypes.h"
 #include "catapult/utils/BlockSpan.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
@@ -63,6 +64,12 @@ namespace catapult { namespace finalization {
 		/// Target duration of unfinalized blocks.
 		/// \note This should be zero when `EnableVoting` is \c true.
 		utils::BlockSpan UnfinalizedBlocksDuration;
+
+		/// Epoch during which the treasury funds are burnt and reminted.
+		FinalizationEpoch TreasuryReissuanceEpoch;
+
+		/// Addresses of accounts that are ineligible to vote during the treasury reissuance epoch.
+		model::AddressSet TreasuryReissuanceEpochIneligibleVoterAddresses;
 
 		/// Number of blocks that should be treated as a group for voting set purposes.
 		/// \note This is copied from BlockChainConfiguration for easy access.

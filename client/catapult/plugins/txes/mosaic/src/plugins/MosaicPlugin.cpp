@@ -22,6 +22,7 @@
 #include "MosaicPlugin.h"
 #include "MosaicDefinitionTransactionPlugin.h"
 #include "MosaicSupplyChangeTransactionPlugin.h"
+#include "MosaicSupplyRevocationTransactionPlugin.h"
 #include "src/cache/MosaicCache.h"
 #include "src/cache/MosaicCacheStorage.h"
 #include "src/config/MosaicConfiguration.h"
@@ -37,16 +38,14 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		MosaicRentalFeeConfiguration ToMosaicRentalFeeConfiguration(
-				const model::NetworkInfo& network,
+				const model::BlockChainConfiguration& blockChainConfig,
 				UnresolvedMosaicId currencyMosaicId,
 				const config::MosaicConfiguration& config) {
 			MosaicRentalFeeConfiguration rentalFeeConfig;
 			rentalFeeConfig.CurrencyMosaicId = currencyMosaicId;
 			rentalFeeConfig.Fee = config.MosaicRentalFee;
-			rentalFeeConfig.NemesisSignerPublicKey = network.NemesisSignerPublicKey;
-
-			// sink address is already resolved but needs to be passed as unresolved into notification
-			rentalFeeConfig.SinkAddress = config.MosaicRentalFeeSinkAddress.copyTo<UnresolvedAddress>();
+			rentalFeeConfig.NemesisSignerPublicKey = blockChainConfig.Network.NemesisSignerPublicKey;
+			rentalFeeConfig.SinkAddress = config::GetMosaicRentalFeeSinkAddress(config, blockChainConfig);
 			return rentalFeeConfig;
 		}
 
@@ -58,9 +57,11 @@ namespace catapult { namespace plugins {
 	void RegisterMosaicSubsystem(PluginManager& manager) {
 		auto config = model::LoadPluginConfiguration<config::MosaicConfiguration>(manager.config(), "catapult.plugins.mosaic");
 		auto unresolvedCurrencyMosaicId = model::GetUnresolvedCurrencyMosaicId(manager.config());
-		auto rentalFeeConfig = ToMosaicRentalFeeConfiguration(manager.config().Network, unresolvedCurrencyMosaicId, config);
+		auto rentalFeeConfig = ToMosaicRentalFeeConfiguration(manager.config(), unresolvedCurrencyMosaicId, config);
 		manager.addTransactionSupport(CreateMosaicDefinitionTransactionPlugin(rentalFeeConfig));
 		manager.addTransactionSupport(CreateMosaicSupplyChangeTransactionPlugin());
+		manager.addTransactionSupport(CreateMosaicSupplyRevocationTransactionPlugin(
+				model::GetNemesisSignerAddress(manager.config().Network)));
 
 		manager.addCacheSupport<cache::MosaicCacheStorage>(
 				std::make_unique<cache::MosaicCache>(manager.cacheConfig(cache::MosaicCache::Name)));
@@ -74,24 +75,22 @@ namespace catapult { namespace plugins {
 
 		manager.addStatelessValidatorHook([](auto& builder) {
 			builder
-				.add(validators::CreateMosaicFlagsValidator())
 				.add(validators::CreateMosaicIdValidator())
 				.add(validators::CreateMosaicSupplyChangeValidator());
 		});
 
-		auto maxDuration = config.MaxMosaicDuration.blocks(manager.config().BlockGenerationTargetTime);
-		auto maxAtomicUnits = manager.config().MaxMosaicAtomicUnits;
-		manager.addStatefulValidatorHook([config, maxDuration, maxAtomicUnits, unresolvedCurrencyMosaicId](auto& builder) {
+		manager.addStatefulValidatorHook([config, unresolvedCurrencyMosaicId, &networkConfig = manager.config()](auto& builder) {
 			builder
+				.add(validators::CreateMosaicFlagsValidator(networkConfig.ForkHeights.TreasuryReissuance))
 				.add(validators::CreateRequiredMosaicValidator())
 				.add(validators::CreateMosaicAvailabilityValidator())
 				.add(validators::CreateMosaicDivisibilityValidator(config.MaxMosaicDivisibility))
-				.add(validators::CreateMosaicDurationValidator(maxDuration))
+				.add(validators::CreateMosaicDurationValidator(config.MaxMosaicDuration.blocks(networkConfig.BlockGenerationTargetTime)))
 				.add(validators::CreateMosaicTransferValidator(unresolvedCurrencyMosaicId))
 				.add(validators::CreateMaxMosaicsBalanceTransferValidator(config.MaxMosaicsPerAccount))
 				.add(validators::CreateMaxMosaicsSupplyChangeValidator(config.MaxMosaicsPerAccount))
 				// note that the following validator depends on RequiredMosaicValidator
-				.add(validators::CreateMosaicSupplyChangeAllowedValidator(maxAtomicUnits));
+				.add(validators::CreateMosaicSupplyChangeAllowedValidator(networkConfig.MaxMosaicAtomicUnits));
 		});
 
 		auto currencyMosaicId = manager.config().CurrencyMosaicId;

@@ -42,7 +42,7 @@ namespace catapult { namespace harvesting {
 		constexpr auto Default_Time = Timestamp(987);
 		constexpr auto Default_Last_Recalculation_Height = model::ImportanceHeight(1234);
 
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
 		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 		constexpr auto Fork_Height = Height(1000);
@@ -87,6 +87,18 @@ namespace catapult { namespace harvesting {
 			return Hash256();
 		}
 
+		void AssertDependentBlockHeights(const test::MockNotificationPublisher& publisher) {
+			auto i = 0u;
+			for (const auto& param : publisher.params()) {
+				if (model::BasicEntityType::Transaction == model::ToBasicEntityType(param.EntityType))
+					EXPECT_EQ(Default_Height + Height(1), param.BlockHeight) << "published entity at " << i;
+				else
+					EXPECT_EQ(Height(), param.BlockHeight) << "published entity at " << i;
+
+				++i;
+			}
+		}
+
 		template<typename TAction>
 		void RunUtFacadeTest(TAction action) {
 			// Arrange: create factory and facade
@@ -101,6 +113,7 @@ namespace catapult { namespace harvesting {
 
 			// Act + Assert:
 			action(*pFacade, executionConfig);
+			AssertDependentBlockHeights(*executionConfig.pNotificationPublisher);
 		}
 
 		template<typename TAction>
@@ -124,6 +137,7 @@ namespace catapult { namespace harvesting {
 
 			// Act + Assert:
 			action(*pFacade, transactionInfos, executionConfig);
+			AssertDependentBlockHeights(*executionConfig.pNotificationPublisher);
 		}
 
 		void AssertEmpty(const HarvestingUtFacade& facade) {
@@ -574,8 +588,8 @@ namespace catapult { namespace harvesting {
 		private:
 			void notify(const model::BalanceTransferNotification& notification, observers::ObserverContext& context) const {
 				auto& accountStateCacheDelta = context.Cache.sub<cache::AccountStateCache>();
-				auto senderIter = accountStateCacheDelta.find(notification.Sender);
-				auto recipientIter = accountStateCacheDelta.find(context.Resolvers.resolve(notification.Recipient));
+				auto senderIter = accountStateCacheDelta.find(notification.Sender.resolved(context.Resolvers));
+				auto recipientIter = accountStateCacheDelta.find(notification.Recipient.resolved(context.Resolvers));
 
 				auto& senderState = senderIter.get();
 				auto& recipientState = recipientIter.get();
@@ -677,6 +691,7 @@ namespace catapult { namespace harvesting {
 			auto pBlockHeader = std::make_unique<model::BlockHeader>();
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pBlockHeader.get()), sizeof(model::BlockHeader) });
 			pBlockHeader->Size = sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter);
+			pBlockHeader->Type = model::Entity_Type_Block_Normal;
 			pBlockHeader->Height = height;
 			pBlockHeader->FeeMultiplier = BlockFeeMultiplier();
 			pBlockHeader->ReceiptsHash = Hash256();

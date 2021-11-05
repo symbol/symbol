@@ -21,6 +21,7 @@
 
 #include "NamespaceConfiguration.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
@@ -46,13 +47,22 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(NamespaceGracePeriodDuration);
 		LOAD_PROPERTY(ReservedRootNamespaceNames);
 
+		LOAD_PROPERTY(NamespaceRentalFeeSinkAddressV1);
 		LOAD_PROPERTY(NamespaceRentalFeeSinkAddress);
 		LOAD_PROPERTY(RootNamespaceRentalFeePerBlock);
 		LOAD_PROPERTY(ChildNamespaceRentalFee);
 
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 10);
+		utils::VerifyBagSizeExact(bag, 11);
 		return config;
+	}
+
+	model::HeightDependentAddress GetNamespaceRentalFeeSinkAddress(
+			const NamespaceConfiguration& config,
+			const model::BlockChainConfiguration& blockChainConfig) {
+		model::HeightDependentAddress sinkAddress(config.NamespaceRentalFeeSinkAddress);
+		sinkAddress.trySet(config.NamespaceRentalFeeSinkAddressV1, blockChainConfig.ForkHeights.TreasuryReissuance);
+		return sinkAddress;
 	}
 }}

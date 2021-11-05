@@ -42,10 +42,12 @@ namespace catapult { namespace consumers {
 	/// Creates a consumer that checks entities for previous processing based on their hash.
 	/// \a timeSupplier is used for generating timestamps and \a options specifies additional cache options.
 	/// \a knownHashPredicate returns \c true for known hashes.
+	/// Recency check is skipped for transactions with signatures in \a highPriorityTransactionSignatures.
 	disruptor::TransactionConsumer CreateTransactionHashCheckConsumer(
 			const chain::TimeSupplier& timeSupplier,
 			const HashCheckOptions& options,
-			const chain::KnownHashPredicate& knownHashPredicate);
+			const chain::KnownHashPredicate& knownHashPredicate,
+			const std::vector<Signature>& highPriorityTransactionSignatures = std::vector<Signature>());
 
 	/// Creates a consumer that runs stateless validation using \a pValidationPolicy and calls \a failedTransactionSink for each failure.
 	disruptor::TransactionConsumer CreateTransactionStatelessValidationConsumer(

@@ -102,7 +102,7 @@ namespace catapult { namespace model {
 	struct BasicBalanceNotification : public Notification {
 	public:
 		/// Creates a notification around \a sender, \a mosaicId and \a amount.
-		BasicBalanceNotification(const Address& sender, UnresolvedMosaicId mosaicId, Amount amount)
+		BasicBalanceNotification(const ResolvableAddress& sender, UnresolvedMosaicId mosaicId, Amount amount)
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, Sender(sender)
 				, MosaicId(mosaicId)
@@ -111,7 +111,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Sender.
-		Address Sender;
+		ResolvableAddress Sender;
 
 		/// Mosaic id.
 		UnresolvedMosaicId MosaicId;
@@ -134,8 +134,8 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount
 		/// with optional amount type (\a transferAmountType) indicating interpretation of transfer amount.
 		BalanceTransferNotification(
-				const Address& sender,
-				const UnresolvedAddress& recipient,
+				const ResolvableAddress& sender,
+				const ResolvableAddress& recipient,
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount,
 				AmountType transferAmountType = AmountType::Static)
@@ -146,7 +146,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Recipient.
-		UnresolvedAddress Recipient;
+		ResolvableAddress Recipient;
 
 		/// Amount type indicating interpretation of transfer amount.
 		AmountType TransferAmountType;
@@ -207,15 +207,16 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Block_Notification;
 
 	public:
-		/// Creates a block notification around \a blockType, \a harvester, \a beneficiary, \a timestamp, \a difficulty
-		/// and \a feeMultiplier.
+		/// Creates a block notification around \a blockType, \a harvester, \a beneficiary, \a timestamp, \a difficulty,
+		/// \a feeMultiplier and \a transactionsHash.
 		BlockNotification(
 				EntityType blockType,
 				const Address& harvester,
 				const Address& beneficiary,
 				Timestamp timestamp,
 				Difficulty difficulty,
-				BlockFeeMultiplier feeMultiplier)
+				BlockFeeMultiplier feeMultiplier,
+				const Hash256& transactionsHash)
 				: Notification(Notification_Type, sizeof(BlockNotification))
 				, BlockType(blockType)
 				, Harvester(harvester)
@@ -223,6 +224,7 @@ namespace catapult { namespace model {
 				, Timestamp(timestamp)
 				, Difficulty(difficulty)
 				, FeeMultiplier(feeMultiplier)
+				, TransactionsHash(transactionsHash)
 				, NumTransactions(0)
 		{}
 
@@ -244,6 +246,9 @@ namespace catapult { namespace model {
 
 		/// Block fee multiplier.
 		BlockFeeMultiplier FeeMultiplier;
+
+		/// Hash of the transactions in this block.
+		Hash256 TransactionsHash;
 
 		/// Total block fee.
 		Amount TotalFee;

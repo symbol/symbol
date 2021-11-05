@@ -581,7 +581,7 @@ namespace catapult { namespace local {
 
 				std::unique_ptr<model::Transaction> generateAt(size_t index, Timestamp deadline) const override {
 					auto keyPair = crypto::KeyPair::FromString(test::Test_Network_Private_Keys[index]);
-					auto recipient = model::PublicKeyToAddress(keyPair.publicKey(), model::NetworkIdentifier::Private_Test);
+					auto recipient = model::PublicKeyToAddress(keyPair.publicKey(), model::NetworkIdentifier::Testnet);
 					auto unresolvedRecipient = extensions::CopyToUnresolvedAddress(recipient);
 					auto pTransaction = test::CreateTransferTransaction(keyPair, unresolvedRecipient, Amount(0));
 					pTransaction->Deadline = deadline;

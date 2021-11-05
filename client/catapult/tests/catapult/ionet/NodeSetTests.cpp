@@ -36,13 +36,13 @@ namespace catapult { namespace ionet {
 			auto key1 = test::GenerateRandomByteArray<Key>();
 			auto key2 = test::GenerateRandomByteArray<Key>();
 			return {
-				{ "default", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Private) } },
-				{ "copy", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Private) } },
-				{ "diff-key", { { key2, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Private) } },
-				{ "diff-host", { { key1, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Private) } },
-				{ "diff-key-host", { { key2, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Private) } },
-				{ "diff-endpoint", { { key1, "11.22.33.44" }, { "alice.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Private) } },
-				{ "diff-metadata", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Public) } }
+				{ "default", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "copy", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-key", { { key2, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-host", { { key1, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-key-host", { { key2, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-endpoint", { { key1, "11.22.33.44" }, { "alice.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Testnet) } },
+				{ "diff-metadata", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mainnet) } }
 			};
 		}
 	}

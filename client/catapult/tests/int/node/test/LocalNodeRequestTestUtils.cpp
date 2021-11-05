@@ -71,7 +71,7 @@ namespace catapult { namespace test {
 		}
 
 		std::shared_ptr<model::Block> CreateBlock() {
-			constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
+			constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
 			auto signer = GetNemesisAccountKeyPair();
 			auto context = LoadNemesisPreviousBlockContext();
 

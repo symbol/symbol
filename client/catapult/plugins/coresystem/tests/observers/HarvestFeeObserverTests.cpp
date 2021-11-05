@@ -33,7 +33,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS HarvestFeeObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(HarvestFee, { MosaicId(), 0, 0, Address() }, model::InflationCalculator())
+	DEFINE_COMMON_OBSERVER_TESTS(HarvestFee, { MosaicId(), 0, 0, model::HeightDependentAddress(Address()) }, model::InflationCalculator())
 
 	// region traits
 
@@ -121,7 +121,12 @@ namespace catapult { namespace observers {
 
 		template<typename TAction>
 		void RunHarvestFeeObserverTest(NotifyMode notifyMode, uint8_t harvestBeneficiaryPercentage, TAction action) {
-			auto options = HarvestFeeOptions{ Currency_Mosaic_Id, harvestBeneficiaryPercentage, 0, Address() };
+			auto options = HarvestFeeOptions{
+				Currency_Mosaic_Id,
+				harvestBeneficiaryPercentage,
+				0,
+				model::HeightDependentAddress(Address())
+			};
 			RunHarvestFeeObserverTest(notifyMode, options, model::InflationCalculator(), action);
 		}
 	}
@@ -309,7 +314,7 @@ namespace catapult { namespace observers {
 			options.CurrencyMosaicId = Currency_Mosaic_Id;
 			options.HarvestBeneficiaryPercentage = harvestBeneficiaryPercentage;
 			options.HarvestNetworkPercentage = harvestNetworkPercentage;
-			options.HarvestNetworkFeeSinkAddress = ToAddress(options.HarvestNetworkFeeSinkPublicKey);
+			options.HarvestNetworkFeeSinkAddress = model::HeightDependentAddress(ToAddress(options.HarvestNetworkFeeSinkPublicKey));
 			return options;
 		}
 	}
@@ -422,6 +427,43 @@ namespace catapult { namespace observers {
 
 		// Act + Assert:
 		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(1), finalBalances, { { harvester, Amount(1) } });
+	}
+
+	// endregion
+
+	// region sink address height dependence
+
+	TEST(TEST_CLASS, HarvesterSharesFeesAccordingToGivenPercentage_NetworkSinkV1BeforeFork) {
+		// Arrange: 205 * 0.2 = 41
+		auto options = CreateOptionsFromPercentages(0, 20);
+		options.HarvestNetworkFeeSinkAddress = model::HeightDependentAddress(test::GenerateRandomByteArray<Address>());
+		options.HarvestNetworkFeeSinkAddress.trySet(
+				ToAddress(options.HarvestNetworkFeeSinkPublicKey),
+				Observer_Context_Height + Height(1));
+
+		auto harvester = test::GenerateRandomByteArray<Key>();
+		auto beneficiary = test::GenerateRandomByteArray<Key>();
+		BalancesInfo finalBalances{ Amount(987 + 164), Amount(234), Amount(444 + 41) };
+
+		// Act + Assert:
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(205), finalBalances, {
+			{ harvester, Amount(164) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(41) }
+		});
+	}
+
+	TEST(TEST_CLASS, HarvesterSharesFeesAccordingToGivenPercentage_NetworkSinkLatestAtFork) {
+		// Arrange: 205 * 0.2 = 41
+		auto options = CreateOptionsFromPercentages(0, 20);
+		options.HarvestNetworkFeeSinkAddress.trySet(test::GenerateRandomByteArray<Address>(), Observer_Context_Height);
+
+		auto harvester = test::GenerateRandomByteArray<Key>();
+		auto beneficiary = test::GenerateRandomByteArray<Key>();
+		BalancesInfo finalBalances{ Amount(987 + 164), Amount(234), Amount(444 + 41) };
+
+		// Act + Assert:
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(205), finalBalances, {
+			{ harvester, Amount(164) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(41) }
+		});
 	}
 
 	// endregion

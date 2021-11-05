@@ -30,30 +30,17 @@ namespace catapult { namespace model {
 	struct NetworkInfo {
 	public:
 		/// Creates a default, uninitialized network info.
-		constexpr NetworkInfo()
-				: NetworkInfo(
-						NetworkIdentifier::Zero,
-						NodeIdentityEqualityStrategy::Key,
-						Key(),
-						catapult::GenerationHashSeed(),
-						utils::TimeSpan())
-		{}
+		NetworkInfo();
 
 		/// Creates a network info around network \a identifier, node equality strategy (\a nodeEqualityStrategy),
 		/// nemesis signer public key (\a nemesisSignerPublicKey), nemesis generation hash seed (\a generationHashSeed)
 		/// and nemesis epoch time adjustment (\a epochAdjustment).
-		constexpr NetworkInfo(
+		NetworkInfo(
 				NetworkIdentifier identifier,
 				NodeIdentityEqualityStrategy nodeEqualityStrategy,
 				const Key& nemesisSignerPublicKey,
 				const catapult::GenerationHashSeed& generationHashSeed,
-				const utils::TimeSpan& epochAdjustment)
-				: Identifier(identifier)
-				, NodeEqualityStrategy(nodeEqualityStrategy)
-				, NemesisSignerPublicKey(nemesisSignerPublicKey)
-				, GenerationHashSeed(generationHashSeed)
-				, EpochAdjustment(epochAdjustment)
-		{}
+				const utils::TimeSpan& epochAdjustment);
 
 	public:
 		/// Network identifier.
@@ -72,8 +59,9 @@ namespace catapult { namespace model {
 		utils::TimeSpan EpochAdjustment;
 	};
 
+	/// Gets the nemesis signer address for \a networkInfo.
+	Address GetNemesisSignerAddress(const NetworkInfo& networkInfo);
+
 	/// Gets the unique network fingerprint for \a networkInfo.
-	inline UniqueNetworkFingerprint GetUniqueNetworkFingerprint(const NetworkInfo& networkInfo) {
-		return UniqueNetworkFingerprint(networkInfo.Identifier, networkInfo.GenerationHashSeed);
-	}
+	UniqueNetworkFingerprint GetUniqueNetworkFingerprint(const NetworkInfo& networkInfo);
 }}

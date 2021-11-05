@@ -71,6 +71,9 @@ namespace catapult { namespace utils {
 	/// Tries to parse \a str into an Importance (\a parsedValue).
 	bool TryParseValue(const std::string& str, Importance& parsedValue);
 
+	/// Tries to parse \a str into a FinalizationEpoch (\a parsedValue).
+	bool TryParseValue(const std::string& str, FinalizationEpoch& parsedValue);
+
 	/// Tries to parse \a str into a MosaicId (\a parsedValue).
 	bool TryParseValue(const std::string& str, MosaicId& parsedValue);
 

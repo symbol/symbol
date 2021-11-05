@@ -77,6 +77,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because an unexpected block type is detected.
 	DEFINE_CORE_RESULT(Unexpected_Block_Type, 16);
 
+	/// Validation failed because a block did not have the expected transactions hash at a specified height.
+	DEFINE_CORE_RESULT(Block_Explicit_Transactions_Hash_Mismatch, 17);
+
 	// region key link results
 
 	/// Validation failed because link action is invalid.

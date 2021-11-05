@@ -82,6 +82,7 @@ namespace catapult { namespace test {
 
 			// give each info a unique entity hash so that they can all be added to a UT cache
 			FillWithRandomData(transactionInfos.back().EntityHash);
+			FillWithRandomData(transactionInfos.back().MerkleComponentHash);
 		}
 
 		return transactionInfos;

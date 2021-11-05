@@ -35,8 +35,8 @@ namespace catapult { namespace observers {
 			const model::BalanceTransferNotification& notification,
 			const ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::AccountStateCache>();
-		auto senderIter = cache.find(notification.Sender);
-		auto recipientIter = cache.find(context.Resolvers.resolve(notification.Recipient));
+		auto senderIter = cache.find(notification.Sender.resolved(context.Resolvers));
+		auto recipientIter = cache.find(notification.Recipient.resolved(context.Resolvers));
 
 		auto& senderState = senderIter.get();
 		auto& recipientState = recipientIter.get();

@@ -37,7 +37,7 @@ namespace catapult { namespace test {
 	}
 
 	Address Accounts::getAddress(size_t id) const {
-		return model::PublicKeyToAddress(getKeyPair(id).publicKey(), model::NetworkIdentifier::Private_Test);
+		return model::PublicKeyToAddress(getKeyPair(id).publicKey(), model::NetworkIdentifier::Testnet);
 	}
 
 	const crypto::KeyPair& Accounts::getKeyPair(size_t id) const {

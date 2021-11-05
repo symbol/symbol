@@ -899,6 +899,8 @@ def main():
     print('*** lint elapsed {0:.3f}s ***'.format(elapsed_seconds))
     print()
 
+    os.sys.exit(analyzer.con_reporter.total_failures)
+
 
 if __name__ == '__main__':
     main()

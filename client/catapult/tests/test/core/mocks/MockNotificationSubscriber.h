@@ -22,6 +22,7 @@
 #pragma once
 #include "catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/NotificationTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include <vector>
 
 namespace catapult { namespace mocks {
@@ -112,7 +113,11 @@ namespace catapult { namespace mocks {
 		struct Transfer {
 		public:
 			explicit Transfer(const model::BalanceTransferNotification& notification)
-					: Transfer(notification.Sender, notification.Recipient, notification.MosaicId, notification.Amount)
+					: Transfer(
+							notification.Sender.resolved(test::CreateResolverContextXor()),
+							notification.Recipient.unresolved(),
+							notification.MosaicId,
+							notification.Amount)
 			{}
 
 			Transfer(const Address& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount)

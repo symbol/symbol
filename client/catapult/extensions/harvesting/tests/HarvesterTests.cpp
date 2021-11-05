@@ -45,7 +45,7 @@ namespace catapult { namespace harvesting {
 	namespace {
 		// region constants / factory functions
 
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Private_Test;
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(1234);
 		constexpr auto Min_Voter_Balance = Amount(1000);
 

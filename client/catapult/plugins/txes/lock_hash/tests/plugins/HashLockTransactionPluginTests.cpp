@@ -72,7 +72,9 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.Mosaic.Amount, notification.Mosaic.Amount);
 		});
 		builder.template addExpectation<BalanceDebitNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
+			EXPECT_TRUE(notification.Sender.isResolved());
+
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender.resolved());
 			EXPECT_EQ(transaction.Mosaic.MosaicId, notification.MosaicId);
 			EXPECT_EQ(transaction.Mosaic.Amount, notification.Amount);
 		});

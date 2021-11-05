@@ -30,20 +30,24 @@ namespace catapult { namespace observers {
 	namespace {
 		using ObserverTestContext = test::ObserverTestContextT<test::CoreSystemCacheFactory>;
 
-		constexpr auto Mock_Notification = static_cast<model::NotificationType>(0xFFFF'FFFF);
 		constexpr auto Default_Receipt_Type = static_cast<model::ReceiptType>(0x1234);
 
-		struct MockRentalFeeNotification : public model::BalanceTransferNotification {
+		struct MockRentalFeeNotification : public model::BasicBalanceNotification<MockRentalFeeNotification> {
+		public:
+			static constexpr auto Notification_Type = static_cast<model::NotificationType>(0xFFFF'FFFF);
+
 		public:
 			MockRentalFeeNotification(
 					const Address& sender,
 					const UnresolvedAddress& recipient,
 					UnresolvedMosaicId mosaicId,
 					catapult::Amount amount)
-					: BalanceTransferNotification(sender, recipient, mosaicId, amount) {
-				// override type
-				Type = Mock_Notification;
-			}
+					: BasicBalanceNotification(sender, mosaicId, amount)
+					, Recipient(recipient)
+			{}
+
+		public:
+			model::ResolvableAddress Recipient;
 		};
 
 		auto CreateMockRentalFeeObserver() {

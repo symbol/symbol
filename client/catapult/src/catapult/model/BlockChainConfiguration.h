@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "HeightDependentAddress.h"
 #include "NetworkInfo.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/FileSize.h"
@@ -116,24 +117,44 @@ namespace catapult { namespace model {
 		/// Percentage of the harvested fee that is collected by the network.
 		uint8_t HarvestNetworkPercentage;
 
-		/// Address of the harvest network fee sink account.
+		/// Address of the harvest network fee sink account (V1).
+		Address HarvestNetworkFeeSinkAddressV1;
+
+		/// Address of the harvest network fee sink account (latest).
 		Address HarvestNetworkFeeSinkAddress;
 
 		/// Maximum number of transactions per block.
 		uint32_t MaxTransactionsPerBlock;
 
-		/// Unparsed map of plugin configuration.
-		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;
+		/// Treasury reissuance block's expected transactions hash (preferred).
+		Hash256 TreasuryReissuanceBlockTransactionsHash;
+
+		/// Treasury reissuance block's expected transactions hash (fallback).
+		Hash256 TreasuryReissuanceFallbackBlockTransactionsHash;
 
 	public:
 		/// Fork heights configuration.
 		struct ForkHeights {
 			/// Height of fork to fix TotalVotingBalance calculation.
 			Height TotalVotingBalanceCalculationFix;
+
+			/// Height of fork at which to reissue the treasury.
+			Height TreasuryReissuance;
 		};
 
 		/// Fork heights.
 		BlockChainConfiguration::ForkHeights ForkHeights;
+
+	public:
+		/// Signatures of transactions allowed in the treasury reissuance block (preferred).
+		/// \note These are allowed to involve the nemesis account after the nemesis block.
+		std::vector<Signature> TreasuryReissuanceTransactionSignatures;
+
+		/// Signatures of transactions allowed in the treasury reissuance block (fallback).
+		std::vector<Signature> TreasuryReissuanceFallbackTransactionSignatures;
+
+		/// Unparsed map of plugin configuration.
+		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;
 
 	private:
 		BlockChainConfiguration() = default;
@@ -148,6 +169,9 @@ namespace catapult { namespace model {
 
 	/// Gets the unresolved currency mosaic id from \a config.
 	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config);
+
+	/// Gets the harvest network fee sink address from \a config.
+	HeightDependentAddress GetHarvestNetworkFeeSinkAddress(const BlockChainConfiguration& config);
 
 	/// Calculates the duration of time that expired transactions should be cached for the block chain described by \a config.
 	utils::TimeSpan CalculateTransactionCacheDuration(const BlockChainConfiguration& config);

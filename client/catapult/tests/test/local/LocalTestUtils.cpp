@@ -99,7 +99,7 @@ namespace catapult { namespace test {
 		}
 
 		void SetNetwork(model::NetworkInfo& network) {
-			network.Identifier = model::NetworkIdentifier::Private_Test;
+			network.Identifier = model::NetworkIdentifier::Testnet;
 			network.NemesisSignerPublicKey = crypto::KeyPair::FromString(Test_Network_Nemesis_Private_Key).publicKey();
 			network.GenerationHashSeed = GetNemesisGenerationHashSeed();
 			network.EpochAdjustment = Default_Network_Epoch_Adjustment;
