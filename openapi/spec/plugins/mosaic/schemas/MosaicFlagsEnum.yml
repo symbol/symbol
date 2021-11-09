@@ -4,3 +4,4 @@ description: |
   - 0x01 (supplyMutable) - Mosaic supports supply changes even when mosaic owner owns partial supply.
   - 0x02 (transferable) - Mosaic supports transfers between arbitrary accounts. When not set, mosaic can only be transferred to and from mosaic owner.
   - 0x04 (restrictable) - Mosaic supports custom restrictions configured by mosaic owner.
+  - 0x08 (revokable) - Mosaic allows creator to revoke balances from another user.
