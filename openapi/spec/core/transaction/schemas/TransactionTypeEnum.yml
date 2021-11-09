@@ -8,6 +8,7 @@ enum:
   - 16961
   - 16717
   - 16973
+  - 17229
   - 16718
   - 16974
   - 17230
@@ -34,6 +35,7 @@ description: |
   * 0x4241 (16961 decimal) - AggregateBondedTransaction.
   * 0x414D (16717 decimal) - MosaicDefinitionTransaction.
   * 0x424D (16973 decimal) - MosaicSupplyChangeTransaction.
+  * 0x434D (17229 decimal) - MosaicSupplyRevocationTransaction.
   * 0x414E (16718 decimal) - NamespaceRegistrationTransaction.
   * 0x424E (16974 decimal) - AddressAliasTransaction.
   * 0x434E (17230 decimal) - MosaicAliasTransaction.
