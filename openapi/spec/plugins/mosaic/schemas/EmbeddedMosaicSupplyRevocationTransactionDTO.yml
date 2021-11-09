@@ -1,0 +1,4 @@
+type: object
+allOf:
+  - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
+  - $ref: "./MosaicSupplyRevocationTransactionBodyDTO.yml"
