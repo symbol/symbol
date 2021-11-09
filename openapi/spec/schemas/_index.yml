@@ -365,6 +365,8 @@ EmbeddedMosaicDefinitionTransactionDTO:
   "$ref": "../plugins/mosaic/schemas/EmbeddedMosaicDefinitionTransactionDTO.yml"
 EmbeddedMosaicSupplyChangeTransactionDTO:
   "$ref": "../plugins/mosaic/schemas/EmbeddedMosaicSupplyChangeTransactionDTO.yml"
+EmbeddedMosaicSupplyRevocationTransactionDTO:
+  "$ref": "../plugins/mosaic/schemas/EmbeddedMosaicSupplyRevocationTransactionDTO.yml"
 MosaicDefinitionTransactionBodyDTO:
   "$ref": "../plugins/mosaic/schemas/MosaicDefinitionTransactionBodyDTO.yml"
 MosaicDefinitionTransactionDTO:
@@ -381,6 +383,11 @@ MosaicSupplyChangeTransactionBodyDTO:
   "$ref": "../plugins/mosaic/schemas/MosaicSupplyChangeTransactionBodyDTO.yml"
 MosaicSupplyChangeTransactionDTO:
   "$ref": "../plugins/mosaic/schemas/MosaicSupplyChangeTransactionDTO.yml"
+MosaicSupplyRevocationTransactionBodyDTO:
+  "$ref": "../plugins/mosaic/schemas/MosaicSupplyRevocationTransactionBodyDTO.yml"
+MosaicSupplyRevocationTransactionDTO:
+  "$ref": "../plugins/mosaic/schemas/MosaicSupplyRevocationTransactionDTO.yml"
+
 
 # Plugin - Multisig
 EmbeddedMultisigAccountModificationTransactionDTO:

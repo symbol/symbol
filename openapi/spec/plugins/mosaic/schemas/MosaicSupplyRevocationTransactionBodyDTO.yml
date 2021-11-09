@@ -1,0 +1,12 @@
+type: object
+required:
+  - sourceAddress
+  - mosaicId
+  - amount
+properties:
+  sourceAddress:
+    $ref: "../../../schemas/UnresolvedAddress.yml"
+  mosaicId:
+    $ref: "../../../schemas/UnresolvedMosaicId.yml"
+  amount:
+    $ref: "../../../schemas/Amount.yml"
