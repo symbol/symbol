@@ -39,6 +39,8 @@ properties:
       - $ref: "../../../plugins/mosaic/schemas/EmbeddedMosaicDefinitionTransactionDTO.yml"
       - $ref: "../../../plugins/mosaic/schemas/MosaicSupplyChangeTransactionDTO.yml"
       - $ref: "../../../plugins/mosaic/schemas/EmbeddedMosaicSupplyChangeTransactionDTO.yml"
+      - $ref: "../../../plugins/mosaic/schemas/MosaicSupplyRevocationTransactionDTO.yml"
+      - $ref: "../../../plugins/mosaic/schemas/EmbeddedMosaicSupplyRevocationTransactionDTO.yml"
       - $ref: "../../../plugins/namespace/schemas/NamespaceRegistrationTransactionDTO.yml"
       - $ref: "../../../plugins/namespace/schemas/EmbeddedNamespaceRegistrationTransactionDTO.yml"
       - $ref: "../../../plugins/namespace/schemas/AddressAliasTransactionDTO.yml"

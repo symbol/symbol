@@ -23,6 +23,7 @@ properties:
       - $ref: "../../../plugins/metadata/schemas/EmbeddedNamespaceMetadataTransactionDTO.yml"
       - $ref: "../../../plugins/mosaic/schemas/EmbeddedMosaicDefinitionTransactionDTO.yml"
       - $ref: "../../../plugins/mosaic/schemas/EmbeddedMosaicSupplyChangeTransactionDTO.yml"
+      - $ref: "../../../plugins/mosaic/schemas/EmbeddedMosaicSupplyRevocationTransactionDTO.yml"
       - $ref: "../../../plugins/namespace/schemas/EmbeddedNamespaceRegistrationTransactionDTO.yml"
       - $ref: "../../../plugins/namespace/schemas/EmbeddedAddressAliasTransactionDTO.yml"
       - $ref: "../../../plugins/namespace/schemas/EmbeddedMosaicAliasTransactionDTO.yml"
