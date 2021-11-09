@@ -28,7 +28,8 @@ const { expect } = require('chai');
 const constants = {
 	sizes: {
 		mosaicDefinition: 22,
-		mosaicSupplyChange: 17
+		mosaicSupplyChange: 17,
+		mosaicSupplyRevocation: 40
 	}
 };
 
@@ -44,10 +45,11 @@ describe('mosaic plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 4);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 5);
 			expect(modelSchema).to.contain.all.keys(
 				'mosaicDefinition',
 				'mosaicSupplyChange',
+				'mosaicSupplyRevocation',
 				'mosaicDescriptor',
 				'mosaicDescriptor.mosaic'
 			);
@@ -89,10 +91,11 @@ describe('mosaic plugin', () => {
 			const codecs = getCodecs();
 
 			// Assert: codecs were registered
-			expect(Object.keys(codecs).length).to.equal(2);
+			expect(Object.keys(codecs).length).to.equal(3);
 			expect(codecs).to.contain.all.keys([
 				EntityType.mosaicDefinition.toString(),
-				EntityType.mosaicSupplyChange.toString()
+				EntityType.mosaicSupplyChange.toString(),
+				EntityType.mosaicSupplyRevocation.toString()
 			]);
 		});
 
@@ -136,6 +139,26 @@ describe('mosaic plugin', () => {
 			});
 
 			test.binary.test.addAll(getCodec(EntityType.mosaicSupplyChange), constants.sizes.mosaicSupplyChange, generateTransaction);
+		});
+
+		describe('supports mosaic supply revokation', () => {
+			const sourceAddressBuffer = test.random.bytes(test.constants.sizes.addressDecoded);
+			const generateTransaction = () => ({
+				buffer: Buffer.concat([
+					sourceAddressBuffer, // source address
+					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // mosaic id
+					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49) // amount
+				]),
+
+				object: {
+					sourceAddress: sourceAddressBuffer,
+					mosaicId: [0x066C26F2, 0x92B28340],
+					amount: [0x6E8ED0CA, 0x492F21FF]
+				}
+			});
+
+			test.binary.test.addAll(getCodec(EntityType.mosaicSupplyRevocation),
+				constants.sizes.mosaicSupplyRevocation, generateTransaction);
 		});
 	});
 });

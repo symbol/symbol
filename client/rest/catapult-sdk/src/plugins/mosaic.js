@@ -22,7 +22,9 @@
 /** @module plugins/mosaic */
 const EntityType = require('../model/EntityType');
 const ModelType = require('../model/ModelType');
+const sizes = require('../modelBinary/sizes');
 
+const constants = { sizes };
 /**
  * Creates a mosaic plugin.
  * @type {module:plugins/CatapultPlugin}
@@ -41,6 +43,12 @@ const mosaicPlugin = {
 			mosaicId: ModelType.uint64HexIdentifier,
 			delta: ModelType.uint64,
 			action: ModelType.uint8
+		});
+
+		builder.addTransactionSupport(EntityType.mosaicSupplyRevocation, {
+			sourceAddress: ModelType.encodedAddress,
+			mosaicId: ModelType.uint64HexIdentifier,
+			amount: ModelType.uint64
 		});
 
 		builder.addSchema('mosaicDescriptor', {
@@ -95,6 +103,22 @@ const mosaicPlugin = {
 				serializer.writeUint64(transaction.mosaicId);
 				serializer.writeUint64(transaction.delta);
 				serializer.writeUint8(transaction.action);
+			}
+		});
+
+		codecBuilder.addTransactionSupport(EntityType.mosaicSupplyRevocation, {
+			deserialize: parser => {
+				const transaction = {};
+				transaction.sourceAddress = parser.buffer(constants.sizes.addressDecoded);
+				transaction.mosaicId = parser.uint64();
+				transaction.amount = parser.uint64();
+				return transaction;
+			},
+
+			serialize: (transaction, serializer) => {
+				serializer.writeBuffer(transaction.sourceAddress);
+				serializer.writeUint64(transaction.mosaicId);
+				serializer.writeUint64(transaction.amount);
 			}
 		});
 	}

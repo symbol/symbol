@@ -1467,6 +1467,13 @@ cross-env@^5.2.0:
   dependencies:
     cross-spawn "^6.0.5"
 
+cross-fetch@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.4.tgz#9723f3a3a247bf8b89039f3a380a9244e8fa2f39"
+  integrity sha512-1eAtFWdIubi6T4XPy6ei9iUFoKpUkIF971QLN8lIvvvwueI65+Nw5haMNKUwfJxabqlIIDODJKGrQ66gxC0PbQ==
+  dependencies:
+    node-fetch "2.6.1"
+
 cross-spawn@^4:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-4.0.2.tgz#7b9247621c23adfdd3856004a823cbe397424d41"
@@ -2665,12 +2672,7 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-github-from-package@0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/github-from-package/-/github-from-package-0.0.0.tgz#97fb5d96bfde8973313f20e8288ef9a167fa64ce"
-  integrity sha1-l/tdlr/eiXMxPyDoKI75oWf6ZM4=
-
-glob-parent@^5.0.0, glob-parent@^5.1.0, glob-parent@~5.1.0:
+glob-parent@^5.0.0, glob-parent@^5.1.2, glob-parent@~5.1.2:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-5.1.2.tgz#869832c58034fe68a4093c17dc15e8340d8401c4"
   integrity sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==
@@ -4472,6 +4474,11 @@ node-fetch-npm@^2.0.2:
     encoding "^0.1.11"
     json-parse-better-errors "^1.0.0"
     safe-buffer "^5.1.1"
+
+node-fetch@2.6.1:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
+  integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
 
 node-fetch@^2.6.0:
   version "2.6.5"
@@ -6555,16 +6562,17 @@ supports-hyperlinks@^2.1.0:
     has-flag "^4.0.0"
     supports-color "^7.0.0"
 
-symbol-bootstrap@^1.1.0-alpha-202110051739:
-  version "1.1.0-alpha-202110051739"
-  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-1.1.0-alpha-202110051739.tgz#f4bde604286c1b63fd59dae74e2f935f4239d618"
-  integrity sha512-+lvlQM2IDg76HuviUgcOhwtGN8SbO70w2ccmiVOkbsOBPaDir0AUGsqaRctnZU/eZNcszJymHdKHBX9W2KrObQ==
+symbol-bootstrap@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/symbol-bootstrap/-/symbol-bootstrap-1.1.0.tgz#4136fe704fdfe38dc77d33efa6d8d4b7d424e0ad"
+  integrity sha512-av4Znw8TqMjMeS3hEtTDw9pS6v/Hl4aJsWWOw/z9QEBlmL1PLAQh6LuS3M43jJWI8FaKJnUzvaJm5Y/TwQduYQ==
   dependencies:
     "@oclif/command" "^1.7.0"
     "@oclif/config" "^1.16.0"
     "@oclif/plugin-autocomplete" "^0.3.0"
     "@oclif/plugin-help" "^3.1.0"
     archiver "^5.2.0"
+    cross-fetch "^3.1.4"
     figlet "^1.2.4"
     handlebars "^4.7.7"
     inquirer "^7.3.3"
@@ -6577,6 +6585,7 @@ symbol-bootstrap@^1.1.0-alpha-202110051739:
     semver "^7.3.5"
     shx "^0.3.2"
     symbol-sdk "^1.0.1"
+    symbol-statistics-service-typescript-fetch-client "^1.1.1-SNAPSHOT.202110302303"
     tslib "^1.13.0"
     utf8 "^2.1.2"
     winston "^3.3.3"
@@ -6611,6 +6620,11 @@ symbol-sdk@^1.0.1:
     tweetnacl "^1.0.3"
     utf8 "^2.1.2"
     ws "^7.3.1"
+
+symbol-statistics-service-typescript-fetch-client@^1.1.1-SNAPSHOT.202110302303:
+  version "1.1.1-SNAPSHOT.202110302303"
+  resolved "https://registry.yarnpkg.com/symbol-statistics-service-typescript-fetch-client/-/symbol-statistics-service-typescript-fetch-client-1.1.1-SNAPSHOT.202110302303.tgz#586785ec277c16c4c5b27325b3865807d9395714"
+  integrity sha512-rFhjyOzkerFCk5S7enq6ugSf72Pa5ck3Cna6lXOBFFEiIKVkecQKm/anrcNFhs1ijhY53N6cJta/45mMJGXgiw==
 
 table@^5.2.3:
   version "5.4.6"
