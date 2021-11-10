@@ -9,6 +9,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 
 - Added mosaic supply revocation transaction support.
+- Added new catapult 1.0.3.0 new status codes.
 
 ## [v2.3.8] - 1-Nov-2021
 
