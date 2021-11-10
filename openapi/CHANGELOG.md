@@ -4,11 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [1.0.3] - 8-Nov-2021
+## [1.0.3] - 10-Nov-2021
 
 Milestone: Symbol Mainnet
 
 - feat: Added mosaic supply revocation support.
+- fix: Added catapult 1.0.3.0 new status codes.
 
 ## [1.0.2] - 19-Oct-2021
 
