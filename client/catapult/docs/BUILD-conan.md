@@ -62,13 +62,13 @@ While Conan will be building and installing packages, you might want to go for a
 as this will probably take *a bit*.
 
 ```sh
-conan remote add nemtech https://catapult.jfrog.io/artifactory/api/conan/ngl-conan
+conan remote add nemtech https://catapult.jfrog.io/artifactory/api/conan/symbol-conan
 
 git clone https://github.com/symbol/catapult-client.git
 cd catapult-client
 
 mkdir _build && cd _build
-conan install .. --build missing
+CONAN_REVISIONS_ENABLED=1 conan install .. --build missing
 ```
 
 ## Step 2: Build catapult

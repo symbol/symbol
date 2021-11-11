@@ -6,7 +6,7 @@ from BasicBuildManager import BasicBuildManager
 from environment import EnvironmentManager
 from process import ProcessManager
 
-CONAN_NEMTECH_REMOTE = 'https://catapult.jfrog.io/artifactory/api/conan/ngl-conan'
+CONAN_NEMTECH_REMOTE = 'https://catapult.jfrog.io/artifactory/api/conan/symbol-conan'
 
 
 class LinuxEnvironment:
