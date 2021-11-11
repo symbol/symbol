@@ -168,33 +168,4 @@ namespace catapult { namespace harvesting {
 			}
 		};
 	}
-
-	TransactionsInfoSupplier CreateExplicitTransactionsInfoSupplier(
-			const std::vector<Signature>& signatures,
-			const cache::ReadWriteUtCache& utCache) {
-		return [signatures, &utCache](auto& utFacade, auto) {
-			auto utCacheView = utCache.view();
-			auto candidates = GetMatchingTransactionInfoPointers(utCacheView, signatures);
-
-			auto selectedTransactionInfos = decltype(candidates)();
-			for (const auto* pTransactionInfo : candidates) {
-				if (!utFacade.apply(*pTransactionInfo)) {
-					CATAPULT_LOG(warning)
-							<< "explicit transaction with signature "
-							<< pTransactionInfo->pEntity->Signature << " was rejected";
-					continue;
-				}
-
-				selectedTransactionInfos.push_back(pTransactionInfo);
-			}
-
-			if (signatures.size() != selectedTransactionInfos.size()) {
-				CATAPULT_LOG(warning)
-						<< "only " << selectedTransactionInfos.size() << " / " << signatures.size()
-						<< " explicit transactions were selected";
-			}
-
-			return ToTransactionsInfo(selectedTransactionInfos, BlockFeeMultiplier());
-		};
-	}
 }}
