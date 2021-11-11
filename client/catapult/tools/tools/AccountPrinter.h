@@ -43,6 +43,9 @@ namespace catapult { namespace tools {
 
 		/// Prints \a keyPair.
 		virtual void print(const crypto::KeyPair& keyPair) = 0;
+
+		/// Prints \a mnemonic and \a keyPair.
+		virtual void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) = 0;
 	};
 
 	/// Supported account printer formats.

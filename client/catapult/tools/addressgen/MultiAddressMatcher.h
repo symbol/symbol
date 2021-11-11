@@ -40,13 +40,13 @@ namespace catapult { namespace tools { namespace addressgen {
 		/// Adds a new search \a pattern.
 		void addSearchPattern(const std::string& pattern);
 
-		/// Attempts to match \a candidatePrivateKey against a preregistered search pattern.
-		const crypto::KeyPair* accept(crypto::PrivateKey&& candidatePrivateKey);
+		/// Attempts to match \a candidateKeyPair against a preregistered search pattern.
+		std::pair<const crypto::KeyPair*, bool> accept(crypto::KeyPair&& candidateKeyPair);
 
 	private:
 		struct CandidateDescriptor {
 		public:
-			CandidateDescriptor(model::NetworkIdentifier networkIdentifier, crypto::PrivateKey&& privateKey);
+			CandidateDescriptor(model::NetworkIdentifier networkIdentifier, crypto::KeyPair&& keyPair);
 
 		public:
 			crypto::KeyPair KeyPair;
