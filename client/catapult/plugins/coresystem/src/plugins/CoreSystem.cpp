@@ -200,10 +200,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateBalanceTransferValidator())
 				.add(validators::CreateImportanceBlockValidator(
 						config.ForkHeights.TotalVotingBalanceCalculationFix,
-						config.VotingSetGrouping))
-				.add(validators::CreateExplicitBlockTransactionsHashValidator(
-						config.ForkHeights.TreasuryReissuance,
-						config.TreasuryReissuanceBlockTransactionsHash));
+						config.VotingSetGrouping));
 		});
 
 		auto harvestFeeOptions = observers::HarvestFeeOptions{

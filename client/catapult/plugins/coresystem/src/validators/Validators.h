@@ -87,12 +87,6 @@ namespace catapult { namespace validators {
 			Height totalVotingBalanceCalculationFixForkHeight,
 			uint64_t votingSetGrouping);
 
-	/// Validator that applies to all block notifications and validates that:
-	/// - the block at \a height has the specified transactions hash (\a expectedTransactionsHash).
-	DECLARE_STATEFUL_VALIDATOR(ExplicitBlockTransactionsHash, model::BlockNotification)(
-			Height height,
-			const Hash256& expectedTransactionsHash);
-
 	// endregion
 
 	// region Transaction
