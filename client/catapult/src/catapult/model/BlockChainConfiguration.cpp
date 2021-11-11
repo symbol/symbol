@@ -42,7 +42,7 @@ namespace catapult { namespace model {
 		}
 
 		size_t ParseSignaturesSection(const utils::ConfigurationBag& bag, std::vector<Signature>& signatures) {
-			auto sectionName = "additional_nemesis_account_transaction_signatures";
+			auto sectionName = "treasury_reissuance_transaction_signatures";
 			auto signaturesPair = utils::ExtractSectionKeysAsTypedVector<Signature>(bag, sectionName, TryParseSignature);
 			signatures = std::move(signaturesPair.first);
 			return signaturesPair.second;
@@ -50,7 +50,7 @@ namespace catapult { namespace model {
 
 		size_t ParsePluginSections(const utils::ConfigurationBag& bag, std::unordered_map<std::string, utils::ConfigurationBag>& plugins) {
 			std::unordered_set<std::string> otherSections{
-				"network", "chain", "fork_heights", "additional_nemesis_account_transaction_signatures"
+				"network", "chain", "fork_heights", "treasury_reissuance_transaction_signatures"
 			};
 
 			size_t numPluginProperties = 0;
@@ -138,7 +138,7 @@ namespace catapult { namespace model {
 
 #undef LOAD_FORK_HEIGHT_PROPERTY
 
-		auto numAdditionalSignatures = ParseSignaturesSection(bag, config.AdditionalNemesisAccountTransactionSignatures);
+		auto numAdditionalSignatures = ParseSignaturesSection(bag, config.TreasuryReissuanceTransactionSignatures);
 		auto numPluginProperties = ParsePluginSections(bag, config.Plugins);
 
 		utils::VerifyBagSizeExact(bag, 5 + 28 + 2 + numAdditionalSignatures + numPluginProperties);

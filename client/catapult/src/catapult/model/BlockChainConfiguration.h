@@ -140,9 +140,9 @@ namespace catapult { namespace model {
 		BlockChainConfiguration::ForkHeights ForkHeights;
 
 	public:
-		/// Additional nemesis account transaction signatures.
-		/// \note These are allowed to occur after the nemesis block.
-		std::vector<Signature> AdditionalNemesisAccountTransactionSignatures;
+		/// Signatures of transactions allowed in the treasury reissuance block (preferred).
+		/// \note These are allowed to involve the nemesis account after the nemesis block.
+		std::vector<Signature> TreasuryReissuanceTransactionSignatures;
 
 		/// Unparsed map of plugin configuration.
 		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;

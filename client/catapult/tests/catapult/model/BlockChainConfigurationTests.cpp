@@ -115,7 +115,7 @@ namespace catapult { namespace model {
 						}
 					},
 					{
-						"additional_nemesis_account_transaction_signatures",
+						"treasury_reissuance_transaction_signatures",
 						{
 							{ Signature_1, "true" },
 							{ Signature_2, "false" },
@@ -191,7 +191,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Height(0), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(0), config.ForkHeights.TreasuryReissuance);
 
-				EXPECT_TRUE(config.AdditionalNemesisAccountTransactionSignatures.empty());
+				EXPECT_TRUE(config.TreasuryReissuanceTransactionSignatures.empty());
 				EXPECT_TRUE(config.Plugins.empty());
 			}
 
@@ -249,7 +249,7 @@ namespace catapult { namespace model {
 							utils::ParseByteArray<Signature>(Signature_1),
 							utils::ParseByteArray<Signature>(Signature_3)
 						}),
-						config.AdditionalNemesisAccountTransactionSignatures);
+						config.TreasuryReissuanceTransactionSignatures);
 
 				EXPECT_EQ(2u, config.Plugins.size());
 				const auto& pluginAlphaBag = config.Plugins.find("alpha")->second;

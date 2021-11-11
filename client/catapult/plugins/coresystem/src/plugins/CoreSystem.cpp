@@ -194,7 +194,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
 				.add(validators::CreateNemesisSinkValidator(
 						config.ForkHeights.TreasuryReissuance,
-						config.AdditionalNemesisAccountTransactionSignatures))
+						config.TreasuryReissuanceTransactionSignatures))
 				.add(validators::CreateEligibleHarvesterValidator())
 				.add(validators::CreateBalanceDebitValidator())
 				.add(validators::CreateBalanceTransferValidator())
