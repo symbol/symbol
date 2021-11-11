@@ -315,8 +315,7 @@ namespace catapult { namespace sync {
 				m_consumers.push_back(CreateTransactionHashCheckConsumer(
 						m_state.timeSupplier(),
 						extensions::CreateHashCheckOptions(m_nodeConfig.ShortLivedCacheTransactionDuration, m_nodeConfig),
-						m_state.hooks().knownHashPredicate(utCache),
-						m_state.config().BlockChain.AdditionalNemesisAccountTransactionSignatures));
+						m_state.hooks().knownHashPredicate(utCache)));
 			}
 
 			std::shared_ptr<ConsumerDispatcher> build(thread::IoThreadPool& validatorPool, chain::UtUpdater& utUpdater) {
