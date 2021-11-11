@@ -126,11 +126,8 @@ namespace catapult { namespace model {
 		/// Maximum number of transactions per block.
 		uint32_t MaxTransactionsPerBlock;
 
-		/// Treasury reissuance block's expected transactions hash (preferred).
+		/// Treasury reissuance block's expected transactions hash.
 		Hash256 TreasuryReissuanceBlockTransactionsHash;
-
-		/// Treasury reissuance block's expected transactions hash (fallback).
-		Hash256 TreasuryReissuanceFallbackBlockTransactionsHash;
 
 	public:
 		/// Fork heights configuration.
@@ -146,12 +143,9 @@ namespace catapult { namespace model {
 		BlockChainConfiguration::ForkHeights ForkHeights;
 
 	public:
-		/// Signatures of transactions allowed in the treasury reissuance block (preferred).
-		/// \note These are allowed to involve the nemesis account after the nemesis block.
-		std::vector<Signature> TreasuryReissuanceTransactionSignatures;
-
-		/// Signatures of transactions allowed in the treasury reissuance block (fallback).
-		std::vector<Signature> TreasuryReissuanceFallbackTransactionSignatures;
+		/// Additional nemesis account transaction signatures.
+		/// \note These are allowed to occur after the nemesis block.
+		std::vector<Signature> AdditionalNemesisAccountTransactionSignatures;
 
 		/// Unparsed map of plugin configuration.
 		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;

@@ -38,27 +38,18 @@ namespace catapult { namespace model {
 		constexpr auto Harvest_Network_Fee_Sink_Address_V1 = "TBTBPZBJV3U5PU6TNC6GOSB54E5IZA5KQ6KGJXY";
 		constexpr auto Harvest_Network_Fee_Sink_Address = "TCRRSPVMOOPX3QA2JRN432LFODY2KA4EJBEZUKQ";
 		constexpr auto Treasury_Reissuance_Block_Transactions_Hash = "D426477D230C8ACD3F8D307C389230F6A43DACE8144C98BE4175CB55AB1100F6";
-		constexpr auto Treasury_Reissuance_Fallback_Block_Transactions_Hash =
-				"6F56D2445B38C8C02432AC15487940E72413353F2AB55CF78A294E955DAE1283";
 
 		constexpr auto Signature_1 =
 				"395C2B37C7AABBEC3C08BD42DAF52D93D1BF003FF6A731E54F63003383EF1CE0"
 				"302871ADD90DF04638DC617ACF2F5BB759C3DDC060E55A554477543210976C75";
+
 		constexpr auto Signature_2 =
 				"401ECCE607FF9710A00B677A487D36B9B9B3B0DC6DF59DA0A2BD77603E80B82B"
 				"D0A82FE949055C5BB7A00F83AF4FF1242965CBF62C9D083344FF294D157259B2";
+
 		constexpr auto Signature_3 =
 				"3A785A34EA7FAB8AD7ED1B95EC0C0C1CC4097104DD3A47AB06E138D59DC48D75"
 				"300996EDEF0C24641EE5EFFD83A3EFE10CE4CA41DAAF642342E988A0A0EA7FB6";
-		constexpr auto Signature_4 =
-				"D4415B188A2888481D6ABFA084E7F20D24B4893CCC7254556C360E25DAF3A336"
-				"BB272E59A1C49A513723FFCED33CB34D412F4B4418938F58EFCAC243087B2376";
-		constexpr auto Signature_5 =
-				"35BA5D915376E7AE9D208143280C4F797F6CEDD9B735462A990B1514C469E696"
-				"0BDFC20121FA71893577DDFD866CEAD6DD79E9642522277C706782BAC5983E7C";
-		constexpr auto Signature_6 =
-				"D826F6F6E705182AF79DFA9856733CDE9232530BD3CE53A857A43DD92B4D0AC5"
-				"3828206FA1A187EE73B5F55C51851A61A0C3BD6095853D44C9702977F9410825";
 
 		struct BlockChainConfigurationTraits {
 			using ConfigurationType = BlockChainConfiguration;
@@ -116,8 +107,7 @@ namespace catapult { namespace model {
 
 							{ "maxTransactionsPerBlock", "120" },
 
-							{ "treasuryReissuanceBlockTransactionsHash", Treasury_Reissuance_Block_Transactions_Hash },
-							{ "treasuryReissuanceFallbackBlockTransactionsHash", Treasury_Reissuance_Fallback_Block_Transactions_Hash }
+							{ "treasuryReissuanceBlockTransactionsHash", Treasury_Reissuance_Block_Transactions_Hash }
 						}
 					},
 					{
@@ -128,19 +118,11 @@ namespace catapult { namespace model {
 						}
 					},
 					{
-						"treasury_reissuance_transaction_signatures",
+						"additional_nemesis_account_transaction_signatures",
 						{
 							{ Signature_1, "true" },
 							{ Signature_2, "false" },
 							{ Signature_3, "true" }
-						}
-					},
-					{
-						"treasury_reissuance_fallback_transaction_signatures",
-						{
-							{ Signature_4, "true" },
-							{ Signature_5, "false" },
-							{ Signature_6, "true" }
 						}
 					},
 					{
@@ -210,13 +192,11 @@ namespace catapult { namespace model {
 				EXPECT_EQ(0u, config.MaxTransactionsPerBlock);
 
 				EXPECT_EQ(Hash256(), config.TreasuryReissuanceBlockTransactionsHash);
-				EXPECT_EQ(Hash256(), config.TreasuryReissuanceFallbackBlockTransactionsHash);
 
 				EXPECT_EQ(Height(0), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(0), config.ForkHeights.TreasuryReissuance);
 
-				EXPECT_TRUE(config.TreasuryReissuanceTransactionSignatures.empty());
-				EXPECT_TRUE(config.TreasuryReissuanceFallbackTransactionSignatures.empty());
+				EXPECT_TRUE(config.AdditionalNemesisAccountTransactionSignatures.empty());
 				EXPECT_TRUE(config.Plugins.empty());
 			}
 
@@ -269,9 +249,6 @@ namespace catapult { namespace model {
 				EXPECT_EQ(
 						utils::ParseByteArray<Hash256>(Treasury_Reissuance_Block_Transactions_Hash),
 						config.TreasuryReissuanceBlockTransactionsHash);
-				EXPECT_EQ(
-						utils::ParseByteArray<Hash256>(Treasury_Reissuance_Fallback_Block_Transactions_Hash),
-						config.TreasuryReissuanceFallbackBlockTransactionsHash);
 
 				EXPECT_EQ(Height(998877), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(11998877), config.ForkHeights.TreasuryReissuance);
@@ -281,13 +258,7 @@ namespace catapult { namespace model {
 							utils::ParseByteArray<Signature>(Signature_1),
 							utils::ParseByteArray<Signature>(Signature_3)
 						}),
-						config.TreasuryReissuanceTransactionSignatures);
-				EXPECT_EQ(
-						std::vector<Signature>({
-							utils::ParseByteArray<Signature>(Signature_4),
-							utils::ParseByteArray<Signature>(Signature_6)
-						}),
-						config.TreasuryReissuanceFallbackTransactionSignatures);
+						config.AdditionalNemesisAccountTransactionSignatures);
 
 				EXPECT_EQ(2u, config.Plugins.size());
 				const auto& pluginAlphaBag = config.Plugins.find("alpha")->second;

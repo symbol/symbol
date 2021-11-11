@@ -29,7 +29,7 @@ namespace catapult { namespace harvesting {
 	namespace {
 		struct ForkPolicy {
 			catapult::Height Height;
-			std::vector<TransactionsInfoSupplier> Suppliers;
+			TransactionsInfoSupplier Supplier;
 		};
 
 		std::unique_ptr<model::Block> GenerateBlock(
@@ -60,10 +60,7 @@ namespace catapult { namespace harvesting {
 		auto transactionsInfoSupplier = CreateTransactionsInfoSupplier(strategy, countRetriever, utCache);
 		auto treasuryReissuanceForkPolicy = ForkPolicy{
 			config.ForkHeights.TreasuryReissuance,
-			{
-				CreateExplicitTransactionsInfoSupplier(config.TreasuryReissuanceFallbackTransactionSignatures, utCache),
-				CreateExplicitTransactionsInfoSupplier(config.TreasuryReissuanceTransactionSignatures, utCache)
-			}
+			CreateExplicitTransactionsInfoSupplier(config.AdditionalNemesisAccountTransactionSignatures, utCache)
 		};
 		return [utFacadeFactory, transactionsInfoSupplier, treasuryReissuanceForkPolicy](
 				const auto& blockHeader,
@@ -78,16 +75,9 @@ namespace catapult { namespace harvesting {
 			}
 
 			// 2. select transactions
-			TransactionsInfo transactionsInfo;
-			if (treasuryReissuanceForkPolicy.Height == blockHeader.Height) {
-				for (const auto& supplier : treasuryReissuanceForkPolicy.Suppliers) {
-					transactionsInfo = supplier(*pUtFacade, maxTransactionsPerBlock);
-					if (!transactionsInfo.Transactions.empty())
-						break;
-				}
-			} else {
-				transactionsInfo = transactionsInfoSupplier(*pUtFacade, maxTransactionsPerBlock);
-			}
+			auto transactionsInfo = treasuryReissuanceForkPolicy.Height == blockHeader.Height
+					? treasuryReissuanceForkPolicy.Supplier(*pUtFacade, maxTransactionsPerBlock)
+					: transactionsInfoSupplier(*pUtFacade, maxTransactionsPerBlock);
 
 			// 3. build a block
 			auto pBlock = GenerateBlock(*pUtFacade, blockHeader, transactionsInfo);

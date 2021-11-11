@@ -26,21 +26,13 @@ namespace catapult { namespace validators {
 
 	using Notification = model::BlockNotification;
 
-	DECLARE_STATEFUL_VALIDATOR(ExplicitBlockTransactionsHash, Notification)(
-			Height height,
-			const std::vector<Hash256>& expectedTransactionsHashes) {
-		return MAKE_STATEFUL_VALIDATOR(ExplicitBlockTransactionsHash, ([height, expectedTransactionsHashes](
+	DECLARE_STATEFUL_VALIDATOR(ExplicitBlockTransactionsHash, Notification)(Height height, const Hash256& expectedTransactionsHash) {
+		return MAKE_STATEFUL_VALIDATOR(ExplicitBlockTransactionsHash, ([height, expectedTransactionsHash](
 				const Notification& notification,
 				const ValidatorContext& context) {
-			if (height != context.Height)
-				return ValidationResult::Success;
-
-			auto hasExpectedTransactionsHash = expectedTransactionsHashes.cend() != std::find(
-					expectedTransactionsHashes.cbegin(),
-					expectedTransactionsHashes.cend(),
-					notification.TransactionsHash);
-
-			return hasExpectedTransactionsHash ? ValidationResult::Success : Failure_Core_Block_Explicit_Transactions_Hash_Mismatch;
+			return height != context.Height || expectedTransactionsHash == notification.TransactionsHash
+					? ValidationResult::Success
+					: Failure_Core_Block_Explicit_Transactions_Hash_Mismatch;
 		}));
 	}
 }}

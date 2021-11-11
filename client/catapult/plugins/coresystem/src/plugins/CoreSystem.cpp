@@ -194,7 +194,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
 				.add(validators::CreateNemesisSinkValidator(
 						config.ForkHeights.TreasuryReissuance,
-						config.TreasuryReissuanceTransactionSignatures))
+						config.AdditionalNemesisAccountTransactionSignatures))
 				.add(validators::CreateEligibleHarvesterValidator())
 				.add(validators::CreateBalanceDebitValidator())
 				.add(validators::CreateBalanceTransferValidator())
@@ -203,10 +203,7 @@ namespace catapult { namespace plugins {
 						config.VotingSetGrouping))
 				.add(validators::CreateExplicitBlockTransactionsHashValidator(
 						config.ForkHeights.TreasuryReissuance,
-						{
-							config.TreasuryReissuanceBlockTransactionsHash,
-							config.TreasuryReissuanceFallbackBlockTransactionsHash
-						}));
+						config.TreasuryReissuanceBlockTransactionsHash));
 		});
 
 		auto harvestFeeOptions = observers::HarvestFeeOptions{

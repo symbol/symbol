@@ -28,7 +28,7 @@
 
 namespace catapult { namespace validators {
 
-	DEFINE_COMMON_VALIDATOR_TESTS(ExplicitBlockTransactionsHash, Height(), std::vector<Hash256>())
+	DEFINE_COMMON_VALIDATOR_TESTS(ExplicitBlockTransactionsHash, Height(), Hash256())
 
 #define TEST_CLASS ExplicitBlockTransactionsHashTests
 
@@ -45,13 +45,13 @@ namespace catapult { namespace validators {
 			auto cacheView = cache.createView();
 			auto readOnlyCache = cacheView.toReadOnly();
 
-			auto expectedTransactionsHashes = test::GenerateRandomDataVector<Hash256>(3);
-			auto pValidator = CreateExplicitBlockTransactionsHashValidator(Fork_Height, expectedTransactionsHashes);
+			auto expectedTransactionsHash = test::GenerateRandomByteArray<Hash256>();
+			auto pValidator = CreateExplicitBlockTransactionsHashValidator(Fork_Height, expectedTransactionsHash);
 			auto context = test::CreateValidatorContext(height, readOnlyCache);
 
 			auto notification = test::CreateBlockNotification();
 			notification.TransactionsHash = TransactionsHashMatchMode::Enabled == transactionsHashMatchMode
-					? expectedTransactionsHashes[1]
+					? expectedTransactionsHash
 					: test::GenerateRandomByteArray<Hash256>();
 
 			// Act:

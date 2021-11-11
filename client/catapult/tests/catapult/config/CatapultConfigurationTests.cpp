@@ -100,15 +100,11 @@ namespace catapult { namespace config {
 			EXPECT_EQ(
 					utils::ParseByteArray<Hash256>("C30D3BA3FCA89CEBA10CC50EE5F62F19D0694FD80F3680933A1F480E1F2E2932"),
 					config.TreasuryReissuanceBlockTransactionsHash);
-			EXPECT_EQ(
-					utils::ParseByteArray<Hash256>("1951FF44A77E628D7785601805D6A068FE2CE35FF440FF27400F01E4405686C9"),
-					config.TreasuryReissuanceFallbackBlockTransactionsHash);
 
 			EXPECT_EQ(Height(528'000), config.ForkHeights.TotalVotingBalanceCalculationFix);
 			EXPECT_EQ(Height(600'000), config.ForkHeights.TreasuryReissuance);
 
-			EXPECT_TRUE(config.TreasuryReissuanceTransactionSignatures.empty());
-			EXPECT_TRUE(config.TreasuryReissuanceFallbackTransactionSignatures.empty());
+			EXPECT_TRUE(config.AdditionalNemesisAccountTransactionSignatures.empty());
 			EXPECT_FALSE(config.Plugins.empty());
 		}
 
