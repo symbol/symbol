@@ -20,5 +20,8 @@ class ByteArray:
         # pylint: disable=protected-access
         return isinstance(other, ByteArray) and self.bytes == other.bytes and self.__tag == other.__tag
 
+    def __hash__(self):
+        return hash(self.bytes)
+
     def __str__(self):
         return hexlify(self.bytes).decode('utf8').upper()
