@@ -112,12 +112,12 @@ namespace catapult { namespace validators {
 		AssertValidationResult(Failure_Result, signer, Fork_Height + Height(100), ExplicitlyAllowedSignatureMode::Enabled);
 	}
 
-	TEST(TEST_CLASS, SuccessWhenValidatingSignatureFromNemesisAccountAtZeroHeightWithExplicitlyAllowedSignatures) {
+	TEST(TEST_CLASS, FailureWhenValidatingSignatureFromNemesisAccountAtZeroHeightWithExplicitlyAllowedSignatures) {
 		// Arrange:
 		auto signer = GetNemesisAccount().publicKey();
 
-		// Assert: allowed at fork height because of explicit allowance (for UTs)
-		AssertValidationResult(Success_Result, signer, Height(0), ExplicitlyAllowedSignatureMode::Enabled);
+		// Assert:
+		AssertValidationResult(Failure_Result, signer, Height(0), ExplicitlyAllowedSignatureMode::Enabled);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingSignatureFromNemesisAccountAtForkHeightWithExplicitlyAllowedSignatures) {

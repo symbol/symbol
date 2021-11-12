@@ -41,22 +41,16 @@ namespace catapult { namespace model {
 			return utils::TryParseHexStringIntoContainer(str.data(), str.size(), signature);
 		}
 
-		size_t ParseSignaturesSection(
-				const utils::ConfigurationBag& bag,
-				const std::string& sectionName,
-				std::vector<Signature>& signatures) {
-			auto signaturesPair = utils::ExtractSectionKeysAsTypedVector<Signature>(bag, sectionName.c_str(), TryParseSignature);
+		size_t ParseSignaturesSection(const utils::ConfigurationBag& bag, std::vector<Signature>& signatures) {
+			auto sectionName = "treasury_reissuance_transaction_signatures";
+			auto signaturesPair = utils::ExtractSectionKeysAsTypedVector<Signature>(bag, sectionName, TryParseSignature);
 			signatures = std::move(signaturesPair.first);
 			return signaturesPair.second;
 		}
 
 		size_t ParsePluginSections(const utils::ConfigurationBag& bag, std::unordered_map<std::string, utils::ConfigurationBag>& plugins) {
 			std::unordered_set<std::string> otherSections{
-				"network",
-				"chain",
-				"fork_heights",
-				"treasury_reissuance_transaction_signatures",
-				"treasury_reissuance_fallback_transaction_signatures"
+				"network", "chain", "fork_heights", "treasury_reissuance_transaction_signatures"
 			};
 
 			size_t numPluginProperties = 0;
@@ -135,9 +129,6 @@ namespace catapult { namespace model {
 
 		LOAD_CHAIN_PROPERTY(MaxTransactionsPerBlock);
 
-		LOAD_CHAIN_PROPERTY(TreasuryReissuanceBlockTransactionsHash);
-		LOAD_CHAIN_PROPERTY(TreasuryReissuanceFallbackBlockTransactionsHash);
-
 #undef LOAD_CHAIN_PROPERTY
 
 #define LOAD_FORK_HEIGHT_PROPERTY(NAME) utils::LoadIniProperty(bag, "fork_heights", #NAME, config.ForkHeights.NAME)
@@ -147,17 +138,10 @@ namespace catapult { namespace model {
 
 #undef LOAD_FORK_HEIGHT_PROPERTY
 
-		auto numAdditionalSignatures = ParseSignaturesSection(
-				bag,
-				"treasury_reissuance_transaction_signatures",
-				config.TreasuryReissuanceTransactionSignatures);
-		numAdditionalSignatures += ParseSignaturesSection(
-				bag,
-				"treasury_reissuance_fallback_transaction_signatures",
-				config.TreasuryReissuanceFallbackTransactionSignatures);
+		auto numAdditionalSignatures = ParseSignaturesSection(bag, config.TreasuryReissuanceTransactionSignatures);
 		auto numPluginProperties = ParsePluginSections(bag, config.Plugins);
 
-		utils::VerifyBagSizeExact(bag, 5 + 30 + 2 + numAdditionalSignatures + numPluginProperties);
+		utils::VerifyBagSizeExact(bag, 5 + 28 + 2 + numAdditionalSignatures + numPluginProperties);
 		return config;
 	}
 

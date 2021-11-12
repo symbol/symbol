@@ -53,9 +53,4 @@ namespace catapult { namespace cache {
 			const EmbeddedCountRetriever& countRetriever,
 			const predicate<const model::TransactionInfo*, const model::TransactionInfo*>& sortComparer,
 			const predicate<const model::TransactionInfo&>& filter);
-
-	/// Gets the pointers to the transaction infos in \a utCacheView that have a signature in \a signatures.
-	std::vector<const model::TransactionInfo*> GetMatchingTransactionInfoPointers(
-			const MemoryUtCacheView& utCacheView,
-			const std::vector<Signature>& signatures);
 }}

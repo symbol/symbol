@@ -42,39 +42,19 @@ namespace catapult { namespace harvesting {
 
 		class TestContext {
 		public:
-			explicit TestContext(model::TransactionSelectionStrategy strategy) : TestContext(strategy, {})
-			{}
-
-			TestContext(model::TransactionSelectionStrategy strategy, const std::unordered_set<size_t>& explicitTransactionIndexes)
-					: m_config(CreateBlockChainConfiguration(!explicitTransactionIndexes.empty()))
+			explicit TestContext(model::TransactionSelectionStrategy strategy)
+					: m_config(CreateBlockChainConfiguration())
 					, m_catapultCache(test::CreateEmptyCatapultCache(m_config, CreateCacheConfiguration(m_dbDirGuard.name())))
 					, m_transactionRegistry(mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Contains_Embeddings))
 					, m_utFacadeFactory(m_catapultCache, m_config, m_executionConfig.Config, [](auto) { return Hash256(); })
 					, m_pUtCache(test::CreateSeededMemoryUtCache(0))
-					, m_generator(CreateHarvesterBlockGenerator(
-							strategy,
-							m_transactionRegistry,
-							m_utFacadeFactory,
-							m_config,
-							*m_pUtCache)) {
+					, m_generator(CreateHarvesterBlockGenerator(strategy, m_transactionRegistry, m_utFacadeFactory, *m_pUtCache)) {
 				// add 5 transaction infos to UT cache with multipliers alternating between 10 and 20
 				m_transactionInfos = test::CreateTransactionInfosFromSizeMultiplierPairs({
 					{ 201, 200 }, { 202, 100 }, { 203, 200 }, { 204, 100 }, { 205, 200 }
 				});
-
-				size_t i = 0;
-				for (auto& transactionInfo : m_transactionInfos) {
-					auto& transaction = const_cast<model::Transaction&>(*transactionInfo.pEntity);
-					transaction.Type = mocks::MockTransaction::Entity_Type;
-					transaction.Signature = test::GenerateRandomByteArray<Signature>();
-					if (explicitTransactionIndexes.cend() != explicitTransactionIndexes.find(i))
-						transaction.Signature = m_config.TreasuryReissuanceTransactionSignatures[i];
-
-					if (explicitTransactionIndexes.cend() != explicitTransactionIndexes.find(0x80 | i))
-						transaction.Signature = m_config.TreasuryReissuanceFallbackTransactionSignatures[i - 3];
-
-					++i;
-				}
+				for (auto& transactionInfo : m_transactionInfos)
+					const_cast<model::Transaction&>(*transactionInfo.pEntity).Type = mocks::MockTransaction::Entity_Type;
 
 				test::AddAll(*m_pUtCache, m_transactionInfos);
 
@@ -125,19 +105,12 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			static model::BlockChainConfiguration CreateBlockChainConfiguration(bool isTreasuryReissuanceForkHeight) {
+			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
 				auto config = model::BlockChainConfiguration::Uninitialized();
 				config.EnableVerifiableState = true;
 				config.EnableVerifiableReceipts = true;
 				config.CurrencyMosaicId = MosaicId(123);
 				config.ImportanceGrouping = 1;
-
-				if (isTreasuryReissuanceForkHeight) {
-					config.ForkHeights.TreasuryReissuance = Cache_Height + Height(1);
-					config.TreasuryReissuanceTransactionSignatures = test::GenerateRandomDataVector<Signature>(3);
-					config.TreasuryReissuanceFallbackTransactionSignatures = test::GenerateRandomDataVector<Signature>(2);
-				}
-
 				return config;
 			}
 
@@ -221,7 +194,7 @@ namespace catapult { namespace harvesting {
 
 		// Assert: 4 (deterministic) transactions should have been added to the block
 		ASSERT_TRUE(!!pBlock);
-		ASSERT_EQ(4u, model::CalculateBlockTransactionsInfo(*pBlock).Count);
+		EXPECT_EQ(4u, model::CalculateBlockTransactionsInfo(*pBlock).Count);
 
 		auto i = 0u;
 		for (const auto& transaction : pBlock->Transactions()) {
@@ -243,116 +216,6 @@ namespace catapult { namespace harvesting {
 		//   (since MockExecutionConfiguration is used, no observers will cause any additional state changes)
 		std::vector<Amount> expectedSurpluses{ Amount(201 * 10), Amount(0), Amount(203 * 10), Amount(0), Amount(0) };
 		EXPECT_EQ(context.calculateExpectedStateHash(expectedSurpluses), pBlock->StateHash);
-	}
-
-	// endregion
-
-	// region generation success (fork)
-
-	namespace {
-		void AssertForkBlockTransactions(
-				const TestContext& context,
-				const model::Block& block,
-				const std::vector<size_t>& expectedTransactionIds,
-				const std::vector<Amount>& expectedSurpluses) {
-			// Assert:
-			ASSERT_EQ(expectedTransactionIds.size(), model::CalculateBlockTransactionsInfo(block).Count);
-
-			auto i = 0u;
-			for (const auto& transaction : block.Transactions()) {
-				// - transactions are uniquely identified in this test by size
-				EXPECT_EQ(expectedTransactionIds[i], transaction.Size) << "transaction at " << i;
-				++i;
-			}
-
-			// - nonzero because transactions present
-			EXPECT_NE(Hash256(), block.TransactionsHash);
-			EXPECT_EQ(BlockFeeMultiplier(0), block.FeeMultiplier);
-
-			// - state changes but no receipts generated
-			EXPECT_NE(context.initialStateHash(), block.StateHash);
-			EXPECT_EQ(Hash256(), block.ReceiptsHash);
-
-			// - transactions in the block have surpluses that should be explicitly be credited
-			//   (since MockExecutionConfiguration is used, no observers will cause any additional state changes)
-			EXPECT_EQ(context.calculateExpectedStateHash(expectedSurpluses), block.StateHash);
-		}
-	}
-
-	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_AllPreferredAndAllFallbackPicksFallback) {
-		// Arrange:
-		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 1, 2, 0x83, 0x84 });
-
-		// Act:
-		auto pBlock = context.generate(Cache_Height + Height(1), 0);
-
-		// Assert: 2/2 (fallback) transactions should have been added to the block
-		ASSERT_TRUE(!!pBlock);
-
-		std::vector<Amount> expectedSurpluses{ Amount(0), Amount(0), Amount(0), Amount(204 * 10), Amount(205 * 20) };
-		AssertForkBlockTransactions(context, *pBlock, { 204, 205 }, expectedSurpluses);
-	}
-
-	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_AllPreferredAndSomeFallbackPicksFallback) {
-		// Arrange:
-		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 1, 2, 0x84 });
-
-		// Act:
-		auto pBlock = context.generate(Cache_Height + Height(1), 0);
-
-		// Assert: 1/2 (fallback) transactions should have been added to the block
-		ASSERT_TRUE(!!pBlock);
-
-		std::vector<Amount> expectedSurpluses{ Amount(0), Amount(0), Amount(0), Amount(0), Amount(205 * 20) };
-		AssertForkBlockTransactions(context, *pBlock, { 205 }, expectedSurpluses);
-	}
-
-	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_AllPreferredPicksPreferred) {
-		// Arrange:
-		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 1, 2 });
-
-		// Act:
-		auto pBlock = context.generate(Cache_Height + Height(1), 0);
-
-		// Assert: 3/3 (preferred) transactions should have been added to the block
-		ASSERT_TRUE(!!pBlock);
-
-		std::vector<Amount> expectedSurpluses{ Amount(201 * 20), Amount(202 * 10), Amount(203 * 20), Amount(0), Amount(0) };
-		AssertForkBlockTransactions(context, *pBlock, { 201, 202, 203 }, expectedSurpluses);
-	}
-
-	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_SomePreferredPicksPreferred) {
-		// Arrange:
-		TestContext context(model::TransactionSelectionStrategy::Oldest, { 0, 2 });
-
-		// Act:
-		auto pBlock = context.generate(Cache_Height + Height(1), 0);
-
-		// Assert: 3/3 (preferred) transactions should have been added to the block
-		ASSERT_TRUE(!!pBlock);
-
-		std::vector<Amount> expectedSurpluses{ Amount(201 * 20), Amount(0), Amount(203 * 20), Amount(0), Amount(0) };
-		AssertForkBlockTransactions(context, *pBlock, { 201, 203 }, expectedSurpluses);
-	}
-
-	TEST(TEST_CLASS, CanGenerateBlockWithTransactionsAtTreasuryReissuanceFork_NonePicksNone) {
-		// Arrange:
-		TestContext context(model::TransactionSelectionStrategy::Oldest, {});
-
-		// Act:
-		auto pBlock = context.generate(Cache_Height + Height(1), 0);
-
-		// Assert:
-		ASSERT_TRUE(!!pBlock);
-		EXPECT_EQ(0u, model::CalculateBlockTransactionsInfo(*pBlock).Count);
-
-		// - zeroed because no transactions
-		EXPECT_EQ(Hash256(), pBlock->TransactionsHash);
-		EXPECT_EQ(BlockFeeMultiplier(0), pBlock->FeeMultiplier);
-
-		// - no state changes and no receipts generated
-		EXPECT_EQ(context.initialStateHash(), pBlock->StateHash);
-		EXPECT_EQ(Hash256(), pBlock->ReceiptsHash);
 	}
 
 	// endregion
