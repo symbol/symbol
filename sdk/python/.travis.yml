@@ -23,9 +23,7 @@ jobs:
   include:
     - stage: lint
       script:
-        - isort --check-only --line-length 140 symbolchain setup.py tests examples
-        - pycodestyle --config=.pycodestyle -- symbolchain setup.py tests examples
-        - pylint --load-plugins pylint_quotes -- symbolchain setup.py tests examples
+        - sh ./lint.sh
 
     - stage: test
       name: unit tests
