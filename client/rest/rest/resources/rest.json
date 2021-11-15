@@ -12,6 +12,10 @@
     "allowedHosts": ["*"],
     "allowedMethods": ["GET", "POST", "PUT", "OPTIONS"]
   },
+  "uncirculatingAccountPublicKeys": [
+    "A4739036FD7EFED2750A51EE9D1D3113BA3F9849E0889213CED7F221B2AA1A20",
+    "2BF1E1F3072E3BE0CD851E4741E101E33DB19C163895F69AA890E7CF177C878C"
+  ],
   "extensions": [
     "accountLink",
     "aggregate",

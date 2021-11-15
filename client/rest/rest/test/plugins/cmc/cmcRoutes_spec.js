@@ -19,6 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { convertToLong } = require('../../../src/db/dbUtils');
 const cmcRoutes = require('../../../src/plugins/cmc/cmcRoutes');
 const cmcUtils = require('../../../src/plugins/cmc/cmcUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
@@ -27,18 +28,22 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const fs = require('fs');
 
-const { uint64 } = catapult.utils;
-
 describe('cmc routes', () => {
 	describe('network currency supply', () => {
 		const maxSupply = 9000000000000000;
-		const XYMSupply = 8998999998000000;
+		const xymSupply = 8998999998000000;
+
+		const currencyMosaicId = '0x1234\'5678\'ABCD\'EF01';
+		const nemesisSignerPublicKey = 'AF1B9DCF4FAD2CDC2C04B4F9CBDF3C9C884A9F05B40A59E233681E282DC824D9';
+		const uncirculatingAccountPublicKey1 = 'D4912C4CA33F608E95B9C3ABAE59263B99E2DF6E87252D61F8DEFADF7DFFC455';
+		const uncirculatingAccountPublicKey2 = '3BF1E1F3072E3BE0CD851E4741E101E33DB19C163895F69AA890E7CF177C878C';
+		const circulatingAccountPublicKey1 = '346AA758B2ED98923204D7361A5A47C7B569C594C7904461C67459703D7B5874';
 
 		const mosaicsSample = [{
 			id: '',
 			mosaic: {
-				id: '1234567890ABCDEF',
-				supply: XYMSupply,
+				id: convertToLong([0xABCDEF01, 0x12345678]),
+				supply: convertToLong(xymSupply),
 				startHeight: '',
 				ownerAddress: '',
 				revision: 1,
@@ -48,25 +53,34 @@ describe('cmc routes', () => {
 			}
 		}];
 
-		const accountsSample = [{
-			id: 'random1',
-			account: {
-				address: '',
-				addressHeight: '',
-				publicKey: '',
-				publicKeyHeight: '',
-				supplementalPublicKeys: {},
-				importance: '',
-				importanceHeight: '',
-				activityBuckets: [],
-				mosaics: [
-					{ id: 0, amount: uint64.fromUint((1000000)) }
-				]
-			}
-		}];
+		const createAccountSample = (publicKey, currencyAmount, otherAmount) => ({
+			address: '',
+			addressHeight: '',
+			publicKey: catapult.utils.convert.hexToUint8(publicKey),
+			publicKeyHeight: '',
+			supplementalPublicKeys: {},
+			importance: '',
+			importanceHeight: '',
+			activityBuckets: [],
+			mosaics: [
+				{ id: convertToLong([0xABCDEF01, 0x22222222]), amount: convertToLong(otherAmount) },
+				{ id: convertToLong([0xABCDEF01, 0x12345678]), amount: convertToLong(currencyAmount) }
+			]
+		});
+
+		const accountsSample = [
+			{ id: 'random1', account: createAccountSample(nemesisSignerPublicKey, 1000000, 9000000) },
+			{ id: 'random2', account: createAccountSample(uncirculatingAccountPublicKey1, 2000000, 9000000) },
+			{ id: 'random3', account: createAccountSample(circulatingAccountPublicKey1, 4000000, 9000000) },
+			{ id: 'random4', account: createAccountSample(uncirculatingAccountPublicKey2, 8000000, 9000000) }
+		];
 
 		const dbMosaicsFake = sinon.fake(() => Promise.resolve(mosaicsSample));
-		const dbAccountsFake = sinon.fake(() => Promise.resolve(accountsSample));
+		const dbAccountsFake = sinon.fake(accountIds => {
+			const filteredAccountsSample = accountsSample.filter(accountSample =>
+				accountIds.some(accountId => catapult.utils.array.deepEqual(accountId.publicKey, accountSample.account.publicKey)));
+			return Promise.resolve(filteredAccountsSample);
+		});
 
 		const mockServer = new MockServer();
 
@@ -77,69 +91,90 @@ describe('cmc routes', () => {
 			}
 		};
 
-		const services = { config: { apiNode: {} } };
+		const services = {
+			config: {
+				apiNode: {},
+				uncirculatingAccountPublicKeys: [uncirculatingAccountPublicKey1, uncirculatingAccountPublicKey2]
+			}
+		};
 		cmcRoutes.register(mockServer.server, db, services);
 
 		const req = { params: {} };
 
-		beforeEach(() => {
+		afterEach(() => {
 			mockServer.resetStats();
 			dbMosaicsFake.resetHistory();
+			fs.readFile.restore();
 		});
 
 		describe('GET', () => {
-			it('network currency supply circulating', () => {
-				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, `[chain]\nmaxMosaicAtomicUnits = ${maxSupply}\ncurrencyMosaicId = "0x1234567890ABCDEF"`));
-
+			it('network currency supply circulating (without burns)', () => {
+				sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					callback(null, [
+						'[network]',
+						`nemesisSignerPublicKey=${nemesisSignerPublicKey}`,
+						'',
+						'[chain]',
+						'currencyMosaicId = 0x1234\'5678\'ABCD\'EF02'
+					].join('\n')));
 				const route = mockServer.getRoute('/network/currency/supply/circulating').get();
-
-				// Arrange:
-				const totalUncirculated = accountsSample.reduce((a, b) => a + parseInt(b.account.mosaics[0].amount.toString(), 10), 0);
-				const circulatingSupply = XYMSupply - totalUncirculated;
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
-					// Assert
+					// Assert:
 					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0]).to.equal(cmcUtils.convertToRelative(circulatingSupply));
-					readFileStub.restore();
+
+					const expectedSupply = mosaicsSample[0].mosaic.supply - 0;
+					expect(mockServer.send.firstCall.args[0]).to.equal(cmcUtils.convertToRelative(expectedSupply));
+				});
+			});
+
+			it('network currency supply circulating (with burns)', () => {
+				sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					callback(null, [
+						'[network]',
+						`nemesisSignerPublicKey=${nemesisSignerPublicKey}`,
+						'',
+						'[chain]',
+						`currencyMosaicId = ${currencyMosaicId}`
+					].join('\n')));
+				const route = mockServer.getRoute('/network/currency/supply/circulating').get();
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.next.calledOnce).to.equal(true);
+
+					const expectedSupply = mosaicsSample[0].mosaic.supply - 11000000;
+					expect(mockServer.send.firstCall.args[0]).to.equal(cmcUtils.convertToRelative(expectedSupply));
 				});
 			});
 
 			it('network currency supply total', () => {
-				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, '[chain]\ncurrencyMosaicId = 0x1234567890ABCDEF'));
+				sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					callback(null, `[chain]\ncurrencyMosaicId = ${currencyMosaicId}`));
 
 				const route = mockServer.getRoute('/network/currency/supply/total').get();
 
-				// Arrange:
-				const xymSupply = cmcUtils.convertToRelative(mosaicsSample[0].mosaic.supply);
-
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
-					// Assert
+					// Assert:
 					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0]).to.equal(xymSupply);
-					readFileStub.restore();
+					expect(mockServer.send.firstCall.args[0]).to.equal(cmcUtils.convertToRelative(mosaicsSample[0].mosaic.supply));
 				});
 			});
 
 			it('network currency supply max', () => {
-				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+				sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
 					callback(null, `[chain]\nmaxMosaicAtomicUnits = ${maxSupply}`));
 
 				const route = mockServer.getRoute('/network/currency/supply/max').get();
 
-				// Arrange:
-				const mosaicMaxSupply = cmcUtils.convertToRelative(maxSupply);
-
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
-					// Assert
+					// Assert:
 					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0]).to.equal(mosaicMaxSupply);
-					readFileStub.restore();
+					expect(mockServer.send.firstCall.args[0]).to.equal(cmcUtils.convertToRelative(maxSupply));
 				});
 			});
 		});

@@ -20,17 +20,21 @@
  */
 
 const cmcUtils = require('./cmcUtils');
-const uncirculatedAddresses = require('./unCirculatedAccounts');
+const { longToUint64 } = require('../../db/dbUtils');
 const routeUtils = require('../../routes/routeUtils');
-const errors = require('../../server/errors');
 const AccountType = require('../AccountType');
+const catapult = require('catapult-sdk');
 const ini = require('ini');
 const fs = require('fs');
 const util = require('util');
 
+const { convert, uint64 } = catapult.utils;
+
 module.exports = {
 	register: (server, db, services) => {
 		const sender = routeUtils.createSender('cmc');
+
+		const propertyValueToMosaicId = value => uint64.fromHex(value.replace(/'/g, '').replace('0x', ''));
 
 		const readAndParseNetworkPropertiesFile = () => {
 			const readFile = util.promisify(fs.readFile);
@@ -38,48 +42,47 @@ module.exports = {
 				.then(fileData => ini.parse(fileData));
 		};
 
+		const getUncirculatingAccountIds = propertiesObject => {
+			const publicKeys = [propertiesObject.network.nemesisSignerPublicKey].concat(services.config.uncirculatingAccountPublicKeys);
+			return publicKeys.map(publicKey => ({ [AccountType.publicKey]: convert.hexToUint8(publicKey) }));
+		};
+
+		const lookupMosaicAmount = (mosaics, currencyMosaicId) => {
+			const matchingMosaic = mosaics.find(mosaic => {
+				const mosaicId = longToUint64(mosaic.id); // convert Long to uint64
+				return 0 === uint64.compare(currencyMosaicId, mosaicId);
+			});
+
+			return undefined === matchingMosaic ? 0 : matchingMosaic.amount.toNumber();
+		};
+
 		server.get('/network/currency/supply/circulating', (req, res, next) => readAndParseNetworkPropertiesFile()
 			.then(async propertiesObject => {
-				/* eslint-disable global-require */
-				const accountIds = routeUtils.parseArgumentAsArray({ addresses: uncirculatedAddresses }, 'addresses', 'address');
-				const currencyId = propertiesObject.chain.currencyMosaicId.replace(/'/g, '').replace('0x', '');
-				const mosaicId = routeUtils.parseArgument({ mosaicId: currencyId }, 'mosaicId', 'uint64hex');
+				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
+				const mosaics = await db.mosaicsByIds([currencyMosaicId]);
+				const accounts = await db.catapultDb.accountsByIds(getUncirculatingAccountIds(propertiesObject));
 
-				const mosaics = await db.mosaicsByIds([mosaicId]);
-				const accounts = await db.catapultDb.accountsByIds(accountIds.map(accountId => ({ [AccountType.address]: accountId })));
-
-				const totalSupply = parseInt(mosaics[0].mosaic.supply.toString(), 10);
-				const totalUncirculated = accounts.reduce((a, b) => a + parseInt(b.account.mosaics[0].amount.toString(), 10), 0);
-
-				const circulatingSupply = (totalSupply - totalUncirculated).toString();
-
-				sender.sendPlainText(res, next)(cmcUtils.convertToRelative(circulatingSupply));
-			}).catch(() => {
-				res.send(errors.createInvalidArgumentError('there was an error reading the network properties file'));
-				next();
+				const totalSupply = mosaics[0].mosaic.supply.toNumber();
+				const burnedSupply = accounts.reduce(
+					(sum, account) => sum + lookupMosaicAmount(account.account.mosaics, currencyMosaicId),
+					0
+				);
+				sender.sendPlainText(res, next)(cmcUtils.convertToRelative(totalSupply - burnedSupply));
 			}));
 
 		server.get('/network/currency/supply/total', (req, res, next) => readAndParseNetworkPropertiesFile()
 			.then(propertiesObject => {
-				const currencyId = propertiesObject.chain.currencyMosaicId.replace(/'/g, '').replace('0x', '');
-				const mosaicId = routeUtils.parseArgument({ mosaicId: currencyId }, 'mosaicId', 'uint64hex');
-				return db.mosaicsByIds([mosaicId]).then(response => {
-					const supply = response[0].mosaic.supply.toString();
-
+				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
+				return db.mosaicsByIds([currencyMosaicId]).then(response => {
+					const supply = response[0].mosaic.supply.toNumber();
 					sender.sendPlainText(res, next)(cmcUtils.convertToRelative(supply));
-				}).catch(() => {
-					res.send(errors.createInvalidArgumentError('there was an error reading the network properties file'));
-					next();
 				});
 			}));
 
 		server.get('/network/currency/supply/max', (req, res, next) => readAndParseNetworkPropertiesFile()
 			.then(propertiesObject => {
-				const supply = propertiesObject.chain.maxMosaicAtomicUnits.replace(/'/g, '').replace('0x', '');
+				const supply = parseInt(propertiesObject.chain.maxMosaicAtomicUnits.replace(/'/g, ''), 10);
 				sender.sendPlainText(res, next)(cmcUtils.convertToRelative(supply));
-			}).catch(() => {
-				res.send(errors.createInvalidArgumentError('there was an error reading the network properties file'));
-				next();
 			}));
 	}
 };
