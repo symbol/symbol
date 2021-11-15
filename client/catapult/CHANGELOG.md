@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3.1] - 15-Nov-2021
+
+### Added
+ - update addressgen to generate mnemonics too
+
+### Changed
+ - revert Cyprus fork-specific changes
+
 ## [1.0.3.0] - 05-Nov-2021
 
 ### Added
@@ -455,6 +463,7 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
+[1.0.3.1]: https://github.com/nemtech/catapult-server/compare/v1.0.3.0...v1.0.3.1
 [1.0.3.0]: https://github.com/nemtech/catapult-server/compare/v1.0.2.0...v1.0.3.0
 [1.0.2.0]: https://github.com/nemtech/catapult-server/compare/v1.0.1.0...v1.0.2.0
 [1.0.1.0]: https://github.com/nemtech/catapult-server/compare/v1.0.0.0...v1.0.1.0
