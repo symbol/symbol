@@ -52,10 +52,4 @@ namespace catapult { namespace harvesting {
 			model::TransactionSelectionStrategy strategy,
 			const cache::EmbeddedCountRetriever& countRetriever,
 			const cache::ReadWriteUtCache& utCache);
-
-	/// Creates a transactions info supplier around \a utCache that selects the transactions specified by their \a signatures.
-	/// \note Zero fee multiplier is always used.
-	TransactionsInfoSupplier CreateExplicitTransactionsInfoSupplier(
-			const std::vector<Signature>& signatures,
-			const cache::ReadWriteUtCache& utCache);
 }}

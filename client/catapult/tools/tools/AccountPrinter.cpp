@@ -115,6 +115,13 @@ namespace catapult { namespace tools {
 				m_out << "," << crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey());
 			}
 
+			void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override {
+				AutoLineEnding guard(m_out, m_counter);
+
+				print(keyPair);
+				m_out << "," << mnemonic;
+			}
+
 		private:
 			std::ostream& m_out;
 			size_t m_counter;
@@ -169,6 +176,13 @@ namespace catapult { namespace tools {
 						<< crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey()) << std::endl;
 			}
 
+			void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override {
+				AutoLineEnding guard(m_out, m_counter);
+
+				print(keyPair);
+				m_out << std::setw(Label_Width) << "mnemonic: " << mnemonic << std::endl;
+			}
+
 		private:
 			static constexpr int Label_Width = 24;
 
@@ -218,6 +232,11 @@ namespace catapult { namespace tools {
 			void print(const crypto::KeyPair& keyPair) override {
 				for (auto& pPrinter : m_printers)
 					pPrinter->print(keyPair);
+			}
+
+			void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override {
+				for (auto& pPrinter : m_printers)
+					pPrinter->print(mnemonic, keyPair);
 			}
 
 		private:

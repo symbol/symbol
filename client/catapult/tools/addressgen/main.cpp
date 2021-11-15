@@ -24,6 +24,8 @@
 #include "tools/AccountTool.h"
 #include "tools/ToolThreadUtils.h"
 #include "catapult/crypto/SecureRandomGenerator.h"
+#include "catapult/extensions/Bip32.h"
+#include "catapult/extensions/Bip39.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/SpinLock.h"
 #include <boost/asio.hpp>
@@ -32,59 +34,84 @@
 namespace catapult { namespace tools { namespace addressgen {
 
 	namespace {
+		constexpr uint32_t MAX_WALLET_ACCOUNTS = 10;
+
 		// region basic matching
 
-		void RunGenerator(uint32_t numThreads, const predicate<crypto::PrivateKey&&>& acceptPrivateKey) {
-			utils::SpinLock acceptLock;
-			auto pPool = CreateStartedThreadPool(numThreads);
-			for (auto i = 0u; i < pPool->numWorkerThreads(); ++i) {
-				pPool->ioContext().dispatch([acceptPrivateKey, &acceptLock]() {
-					auto randomGenerator = crypto::SecureRandomGenerator();
+		class GeneratorFacade {
+		public:
+			GeneratorFacade(model::NetworkIdentifier networkIdentifier, uint32_t numThreads, AccountPrinter& printer)
+					: m_networkIdentifier(networkIdentifier)
+					, m_numThreads(numThreads)
+					, m_printer(printer)
+			{}
 
-					for (;;) {
-						Key privateKeyBuffer;
-						randomGenerator.fill(privateKeyBuffer.data(), privateKeyBuffer.size());
-						auto privateKey = crypto::PrivateKey::FromBufferSecure(privateKeyBuffer);
-
-						utils::SpinLockGuard guard(acceptLock);
-						if (!acceptPrivateKey(std::move(privateKey)))
-							return;
+		public:
+			void generate(uint32_t count) const {
+				std::atomic<uint32_t> numGenerated(0);
+				runGenerator([count, &numGenerated, &printer = m_printer](const auto& mnemonic, auto&& keyPair) {
+					if (++numGenerated <= count) {
+						printer.print(mnemonic, keyPair);
+						return true;
 					}
+
+					return false;
 				});
 			}
 
-			pPool->join();
-		}
+		void matchAll(MultiAddressMatcher& matcher, bool showProgress) const {
+			runGenerator([&matcher, showProgress, &printer = m_printer](const auto& mnemonic, auto&& keyPair) {
+				auto matchResult = matcher.accept(std::move(keyPair));
+				if (matchResult.second || (showProgress && matchResult.first))
+					printer.print(mnemonic, *matchResult.first);
 
-		void Generate(uint32_t count, uint32_t numThreads, AccountPrinter& printer) {
-			std::atomic<uint32_t> numGenerated(0);
-			RunGenerator(numThreads, [count, &printer, &numGenerated](auto&& privateKey) {
-				auto keyPair = crypto::KeyPair::FromPrivate(std::move(privateKey));
-
-				if (++numGenerated <= count) {
-					printer.print(keyPair);
-					return true;
-				}
-
-				return false;
+				return !matcher.isComplete();
 			});
 		}
+
+		private:
+			void runGenerator(const predicate<const std::string&, crypto::KeyPair&&>& acceptKeyPair) const {
+				auto coinId = static_cast<uint32_t>(model::NetworkIdentifier::Mainnet == m_networkIdentifier ? 4343 : 1);
+
+				utils::SpinLock acceptLock;
+				auto pPool = CreateStartedThreadPool(m_numThreads);
+				for (auto i = 0u; i < pPool->numWorkerThreads(); ++i) {
+					pPool->ioContext().dispatch([acceptKeyPair, coinId, &acceptLock]() {
+						auto randomGenerator = crypto::SecureRandomGenerator();
+
+						for (;;) {
+							std::vector<uint8_t> entropy(32);
+							randomGenerator.fill(entropy.data(), entropy.size());
+
+							auto mnemonic = extensions::Bip39EntropyToMnemonic(entropy);
+							auto seed = extensions::Bip39MnemonicToSeed(mnemonic, "");
+
+							for (uint32_t accountIndex = 0; accountIndex < MAX_WALLET_ACCOUNTS; ++accountIndex) {
+								auto bip32Node = extensions::Bip32Node::FromSeed(seed).derive({ 44, coinId, accountIndex, 0, 0 });
+								auto keyPair = extensions::Bip32Node::ExtractKeyPair(std::move(bip32Node));
+
+								utils::SpinLockGuard guard(acceptLock);
+								if (!acceptKeyPair(mnemonic, std::move(keyPair)))
+									return;
+							}
+						}
+					});
+				}
+
+				pPool->join();
+			}
+
+		private:
+			model::NetworkIdentifier m_networkIdentifier;
+			uint32_t m_numThreads;
+			AccountPrinter& m_printer;
+		};
 
 		void AddSearchPatterns(MultiAddressMatcher& matcher, const std::vector<std::string>& values, uint32_t count) {
 			for (auto i = 0u; i < count; ++i) {
 				for (const auto& value : values)
 					matcher.addSearchPattern(value);
 			}
-		}
-
-		void MatchAll(MultiAddressMatcher& matcher, uint32_t numThreads, AccountPrinter& printer) {
-			RunGenerator(numThreads, [&matcher, &printer](auto&& privateKey) {
-				const auto* pNewKeyPair = matcher.accept(std::move(privateKey));
-				if (pNewKeyPair)
-					printer.print(*pNewKeyPair);
-
-				return !matcher.isComplete();
-			});
 		}
 
 		// endregion
@@ -104,6 +131,9 @@ namespace catapult { namespace tools { namespace addressgen {
 				optionsBuilder("threads,t",
 						OptionsValue<uint32_t>()->default_value(2 * std::thread::hardware_concurrency()),
 						"number of threads to use");
+				optionsBuilder("showProgress",
+						OptionsSwitch(),
+						"true to print partial matches");
 			}
 
 			void process(const Options& options, const std::vector<std::string>& values, AccountPrinter& printer) override {
@@ -113,12 +143,14 @@ namespace catapult { namespace tools { namespace addressgen {
 
 				auto count = options["count"].as<uint32_t>();
 				auto numThreads = options["threads"].as<uint32_t>();
+				GeneratorFacade generatorFacade(networkIdentifier, numThreads, printer);
+
 				if (values.empty() || values[0].empty()) {
-					Generate(count, numThreads, printer);
+					generatorFacade.generate(count);
 				} else {
 					MultiAddressMatcher matcher(networkIdentifier);
 					AddSearchPatterns(matcher, values, count);
-					MatchAll(matcher, numThreads, printer);
+					generatorFacade.matchAll(matcher, options["showProgress"].as<bool>());
 				}
 			}
 		};

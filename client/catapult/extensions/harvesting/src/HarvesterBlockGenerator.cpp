@@ -27,11 +27,6 @@
 namespace catapult { namespace harvesting {
 
 	namespace {
-		struct ForkPolicy {
-			catapult::Height Height;
-			std::vector<TransactionsInfoSupplier> Suppliers;
-		};
-
 		std::unique_ptr<model::Block> GenerateBlock(
 				HarvestingUtFacade& facade,
 				const model::BlockHeader& originalBlockHeader,
@@ -51,23 +46,13 @@ namespace catapult { namespace harvesting {
 			model::TransactionSelectionStrategy strategy,
 			const model::TransactionRegistry& transactionRegistry,
 			const HarvestingUtFacadeFactory& utFacadeFactory,
-			const model::BlockChainConfiguration& config,
 			const cache::ReadWriteUtCache& utCache) {
 		auto countRetriever = [&transactionRegistry](const auto& transaction) {
 			return 1 + transactionRegistry.findPlugin(transaction.Type)->embeddedCount(transaction);
 		};
 
 		auto transactionsInfoSupplier = CreateTransactionsInfoSupplier(strategy, countRetriever, utCache);
-		auto treasuryReissuanceForkPolicy = ForkPolicy{
-			config.ForkHeights.TreasuryReissuance,
-			{
-				CreateExplicitTransactionsInfoSupplier(config.TreasuryReissuanceFallbackTransactionSignatures, utCache),
-				CreateExplicitTransactionsInfoSupplier(config.TreasuryReissuanceTransactionSignatures, utCache)
-			}
-		};
-		return [utFacadeFactory, transactionsInfoSupplier, treasuryReissuanceForkPolicy](
-				const auto& blockHeader,
-				auto maxTransactionsPerBlock) {
+		return [utFacadeFactory, transactionsInfoSupplier](const auto& blockHeader, auto maxTransactionsPerBlock) {
 			// 1. check height consistency
 			auto pUtFacade = utFacadeFactory.create(blockHeader.Timestamp);
 			if (blockHeader.Height != pUtFacade->height()) {
@@ -78,16 +63,7 @@ namespace catapult { namespace harvesting {
 			}
 
 			// 2. select transactions
-			TransactionsInfo transactionsInfo;
-			if (treasuryReissuanceForkPolicy.Height == blockHeader.Height) {
-				for (const auto& supplier : treasuryReissuanceForkPolicy.Suppliers) {
-					transactionsInfo = supplier(*pUtFacade, maxTransactionsPerBlock);
-					if (!transactionsInfo.Transactions.empty())
-						break;
-				}
-			} else {
-				transactionsInfo = transactionsInfoSupplier(*pUtFacade, maxTransactionsPerBlock);
-			}
+			auto transactionsInfo = transactionsInfoSupplier(*pUtFacade, maxTransactionsPerBlock);
 
 			// 3. build a block
 			auto pBlock = GenerateBlock(*pUtFacade, blockHeader, transactionsInfo);

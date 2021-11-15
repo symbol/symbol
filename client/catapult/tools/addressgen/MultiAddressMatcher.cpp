@@ -54,10 +54,11 @@ namespace catapult { namespace tools { namespace addressgen {
 		m_descriptors.push_back(std::move(descriptor));
 	}
 
-	const crypto::KeyPair* MultiAddressMatcher::accept(crypto::PrivateKey&& candidatePrivateKey) {
-		auto candidateDescriptor = CandidateDescriptor(m_networkIdentifier, std::move(candidatePrivateKey));
+	std::pair<const crypto::KeyPair*, bool> MultiAddressMatcher::accept(crypto::KeyPair&& candidateKeyPair) {
+		auto candidateDescriptor = CandidateDescriptor(m_networkIdentifier, std::move(candidateKeyPair));
 		const auto& addressString = candidateDescriptor.AddressString;
 
+		const crypto::KeyPair* pBetterKeyPair = nullptr;
 		for (auto& descriptor : m_descriptors) {
 			auto searchString = descriptor.SearchString;
 			while (!searchString.empty() && (searchString.size() > descriptor.BestMatchSize || !descriptor.pBestKeyPair)) {
@@ -79,7 +80,9 @@ namespace catapult { namespace tools { namespace addressgen {
 					descriptor.pBestKeyPair = std::make_unique<crypto::KeyPair>(std::move(candidateDescriptor.KeyPair));
 
 					if (descriptor.IsComplete())
-						return descriptor.pBestKeyPair.get();
+						return std::make_pair(descriptor.pBestKeyPair.get(), true);
+
+					pBetterKeyPair = descriptor.pBestKeyPair.get();
 				}
 
 				if (descriptor.MatchEnd)
@@ -89,13 +92,11 @@ namespace catapult { namespace tools { namespace addressgen {
 			}
 		}
 
-		return nullptr;
+		return std::make_pair(pBetterKeyPair, false);
 	}
 
-	MultiAddressMatcher::CandidateDescriptor::CandidateDescriptor(
-			model::NetworkIdentifier networkIdentifier,
-			crypto::PrivateKey&& privateKey)
-			: KeyPair(crypto::KeyPair::FromPrivate(std::move(privateKey)))
+	MultiAddressMatcher::CandidateDescriptor::CandidateDescriptor(model::NetworkIdentifier networkIdentifier, crypto::KeyPair&& keyPair)
+			: KeyPair(std::move(keyPair))
 			, AddressString(model::AddressToString(model::PublicKeyToAddress(KeyPair.publicKey(), networkIdentifier)))
 	{}
 

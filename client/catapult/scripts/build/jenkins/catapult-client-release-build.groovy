@@ -146,41 +146,6 @@ pipeline {
                 }
             }
         }
-
-        stage('bump version') {
-            when {
-                expression { is_public_build() && SHOULD_PUBLISH_BUILD_IMAGE.toBoolean() }
-            }
-            steps {
-                script {
-                    sh 'ls -alh ./catapult-src/scripts/build/versions.properties'
-                    new_version = bump_version()
-
-                    dir('catapult-src') {
-                        // NOTE: assuming correct branch is checked out
-                        withCredentials([usernamePassword(
-                                credentialsId: 'nemtechopsbot-git',
-                                passwordVariable: 'GIT_PASSWORD',
-                                usernameVariable: 'GIT_USERNAME')]) {
-                            sh """
-                                git config --global user.email "nemtechopsbot@127.0.0.1"
-                                git config --global user.name "nemtechopsbot"
-
-                                git add ./scripts/build/server.version.yaml
-                                git add ./src/catapult/version/version_inc.h
-                                git commit -m \"bump version to ${new_version}\"
-                                git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/symbol/catapult-client.git
-                            """
-                        }
-
-                        sh """
-                            git status
-                            git log -1
-                        """
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -194,28 +159,6 @@ def is_manual_build() {
 
 def get_branch_name() {
     return is_manual_build() ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
-}
-
-def bump_version() {
-    version_path = './catapult-src/scripts/build/server.version.yaml'
-    data = readYaml(file: version_path)
-    version = data.version
-
-    def (major, minor, patch, build) = version.tokenize('.').collect { it.toInteger() }
-    def bumped_version = "${major}.${minor}.${patch}.${build + 1}"
-
-    data.version = bumped_version
-    writeYaml(file: version_path, data: data, overwrite: true)
-
-    versioninc_contents = readFile(file: './catapult-src/scripts/build/templates/version_inc.h')
-    versioninc_contents = versioninc_contents
-        .replaceAll('\\{\\{MAJOR\\}\\}', "${major}")
-        .replaceAll('\\{\\{MINOR\\}\\}', "${minor}")
-        .replaceAll('\\{\\{REVISION\\}\\}', "${patch}")
-        .replaceAll('\\{\\{BUILD\\}\\}', "${build}")
-    writeFile(file: './catapult-src/src/catapult/version/version_inc.h', text: versioninc_contents)
-
-    return bumped_version
 }
 
 def get_public_version() {

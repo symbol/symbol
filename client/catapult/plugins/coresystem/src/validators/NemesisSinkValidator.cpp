@@ -36,7 +36,7 @@ namespace catapult { namespace validators {
 			if (!isNemesisPublicKey || Height(1) == context.Height)
 				return ValidationResult::Success;
 
-			if (additionalAllowedSignaturesHeight != context.Height && Height() != context.Height)
+			if (additionalAllowedSignaturesHeight != context.Height)
 				return Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;
 
 			auto isExplicitlyAllowed = additionalAllowedSignatures.cend() != std::find(

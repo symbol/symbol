@@ -64,11 +64,9 @@ namespace catapult { namespace consumers {
 			TransactionHashCheckConsumer(
 					const chain::TimeSupplier& timeSupplier,
 					const HashCheckOptions& options,
-					const chain::KnownHashPredicate& knownHashPredicate,
-					const std::vector<Signature>& highPriorityTransactionSignatures)
+					const chain::KnownHashPredicate& knownHashPredicate)
 					: m_recentHashCache(timeSupplier, options)
 					, m_knownHashPredicate(knownHashPredicate)
-					, m_highPriorityTransactionSignatures(highPriorityTransactionSignatures)
 			{}
 
 		public:
@@ -95,31 +93,22 @@ namespace catapult { namespace consumers {
 
 		private:
 			bool shouldSkip(const model::TransactionElement& element) {
-				if (!isHighPriority(element.Transaction.Signature) && !m_recentHashCache.add(element.MerkleComponentHash))
+				if (!m_recentHashCache.add(element.MerkleComponentHash))
 					return true;
 
 				return m_knownHashPredicate(element.Transaction.Deadline, element.EntityHash);
 			}
 
-			bool isHighPriority(const Signature& signature) {
-				return m_highPriorityTransactionSignatures.cend() != std::find(
-						m_highPriorityTransactionSignatures.cbegin(),
-						m_highPriorityTransactionSignatures.cend(),
-						signature);
-			}
-
 		private:
 			RecentHashCache m_recentHashCache;
 			chain::KnownHashPredicate m_knownHashPredicate;
-			std::vector<Signature> m_highPriorityTransactionSignatures;
 		};
 	}
 
 	disruptor::TransactionConsumer CreateTransactionHashCheckConsumer(
 			const chain::TimeSupplier& timeSupplier,
 			const HashCheckOptions& options,
-			const chain::KnownHashPredicate& knownHashPredicate,
-			const std::vector<Signature>& highPriorityTransactionSignatures) {
-		return TransactionHashCheckConsumer(timeSupplier, options, knownHashPredicate, highPriorityTransactionSignatures);
+			const chain::KnownHashPredicate& knownHashPredicate) {
+		return TransactionHashCheckConsumer(timeSupplier, options, knownHashPredicate);
 	}
 }}

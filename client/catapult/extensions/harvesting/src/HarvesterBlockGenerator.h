@@ -26,7 +26,6 @@
 namespace catapult {
 	namespace cache { class ReadWriteUtCache; }
 	namespace harvesting { class HarvestingUtFacadeFactory; }
-	namespace model { struct BlockChainConfiguration; }
 }
 
 namespace catapult { namespace harvesting {
@@ -34,12 +33,11 @@ namespace catapult { namespace harvesting {
 	/// Generates a block from a seed block header given a maximum number of transactions.
 	using BlockGenerator = std::function<std::unique_ptr<model::Block> (const model::BlockHeader&, uint32_t)>;
 
-	/// Creates a default block generator around, \a transactionRegistry, \a utFacadeFactory, \a config and \a utCache
+	/// Creates a default block generator around \a transactionRegistry, \a utFacadeFactory and \a utCache
 	/// for specified transaction \a strategy.
 	BlockGenerator CreateHarvesterBlockGenerator(
 			model::TransactionSelectionStrategy strategy,
 			const model::TransactionRegistry& transactionRegistry,
 			const HarvestingUtFacadeFactory& utFacadeFactory,
-			const model::BlockChainConfiguration& config,
 			const cache::ReadWriteUtCache& utCache);
 }}
