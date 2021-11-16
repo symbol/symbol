@@ -49,8 +49,7 @@ describe('route system', () => {
 			'namespace',
 			'receipts',
 			'restrictions',
-			'transfer',
-			'cmc'
+			'transfer'
 		]);
 	});
 

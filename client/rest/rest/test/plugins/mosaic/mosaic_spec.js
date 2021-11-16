@@ -42,7 +42,10 @@ describe('mosaic plugin', () => {
 			test.assert.assertRoutes(routes, [
 				'/mosaics',
 				'/mosaics/:mosaicId',
-				'/mosaics/:mosaicId/merkle'
+				'/mosaics/:mosaicId/merkle',
+				'/network/currency/supply/circulating',
+				'/network/currency/supply/total',
+				'/network/currency/supply/max'
 			]);
 		});
 

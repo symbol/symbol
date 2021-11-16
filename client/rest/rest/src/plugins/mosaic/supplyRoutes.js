@@ -19,7 +19,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const cmcUtils = require('./cmcUtils');
 const { longToUint64 } = require('../../db/dbUtils');
 const routeUtils = require('../../routes/routeUtils');
 const AccountType = require('../AccountType');
@@ -32,7 +31,9 @@ const { convert, uint64 } = catapult.utils;
 
 module.exports = {
 	register: (server, db, services) => {
-		const sender = routeUtils.createSender('cmc');
+		const sender = routeUtils.createSender('supply');
+
+		const convertToFractionalWholeUnits = (value, divisibility) => (Number(value) / (10 ** divisibility)).toFixed(divisibility);
 
 		const propertyValueToMosaicId = value => uint64.fromHex(value.replace(/'/g, '').replace('0x', ''));
 
@@ -40,6 +41,14 @@ module.exports = {
 			const readFile = util.promisify(fs.readFile);
 			return readFile(services.config.apiNode.networkPropertyFilePath, 'utf8')
 				.then(fileData => ini.parse(fileData));
+		};
+
+		const getMosaicProperties = async currencyMosaicId => {
+			const mosaics = await db.mosaicsByIds([currencyMosaicId]);
+			return {
+				totalSupply: mosaics[0].mosaic.supply.toNumber(),
+				divisibility: mosaics[0].mosaic.divisibility
+			};
 		};
 
 		const getUncirculatingAccountIds = propertiesObject => {
@@ -59,30 +68,37 @@ module.exports = {
 		server.get('/network/currency/supply/circulating', (req, res, next) => readAndParseNetworkPropertiesFile()
 			.then(async propertiesObject => {
 				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
-				const mosaics = await db.mosaicsByIds([currencyMosaicId]);
-				const accounts = await db.catapultDb.accountsByIds(getUncirculatingAccountIds(propertiesObject));
+				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
 
-				const totalSupply = mosaics[0].mosaic.supply.toNumber();
+				const accounts = await db.catapultDb.accountsByIds(getUncirculatingAccountIds(propertiesObject));
 				const burnedSupply = accounts.reduce(
 					(sum, account) => sum + lookupMosaicAmount(account.account.mosaics, currencyMosaicId),
 					0
 				);
-				sender.sendPlainText(res, next)(cmcUtils.convertToRelative(totalSupply - burnedSupply));
+
+				sender.sendPlainText(res, next)(convertToFractionalWholeUnits(
+					currencyMosaicProperties.totalSupply - burnedSupply,
+					currencyMosaicProperties.divisibility
+				));
 			}));
 
 		server.get('/network/currency/supply/total', (req, res, next) => readAndParseNetworkPropertiesFile()
-			.then(propertiesObject => {
+			.then(async propertiesObject => {
 				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
-				return db.mosaicsByIds([currencyMosaicId]).then(response => {
-					const supply = response[0].mosaic.supply.toNumber();
-					sender.sendPlainText(res, next)(cmcUtils.convertToRelative(supply));
-				});
+				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
+				sender.sendPlainText(res, next)(convertToFractionalWholeUnits(
+					currencyMosaicProperties.totalSupply,
+					currencyMosaicProperties.divisibility
+				));
 			}));
 
 		server.get('/network/currency/supply/max', (req, res, next) => readAndParseNetworkPropertiesFile()
-			.then(propertiesObject => {
-				const supply = parseInt(propertiesObject.chain.maxMosaicAtomicUnits.replace(/'/g, ''), 10);
-				sender.sendPlainText(res, next)(cmcUtils.convertToRelative(supply));
+			.then(async propertiesObject => {
+				const currencyMosaicId = propertyValueToMosaicId(propertiesObject.chain.currencyMosaicId);
+				const currencyMosaicProperties = await getMosaicProperties(currencyMosaicId);
+
+				const maxSupply = parseInt(propertiesObject.chain.maxMosaicAtomicUnits.replace(/'/g, ''), 10);
+				sender.sendPlainText(res, next)(convertToFractionalWholeUnits(maxSupply, currencyMosaicProperties.divisibility));
 			}));
 	}
 };

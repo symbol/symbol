@@ -22,6 +22,7 @@
 /** @module plugins/mosaic */
 const MosaicDb = require('./MosaicDb');
 const mosaicRoutes = require('./mosaicRoutes');
+const supplyRoutes = require('./supplyRoutes');
 
 /**
  * Creates a mosaic plugin.
@@ -36,5 +37,6 @@ module.exports = {
 
 	registerRoutes: (...args) => {
 		mosaicRoutes.register(...args);
+		supplyRoutes.register(...args);
 	}
 };

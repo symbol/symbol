@@ -20,7 +20,6 @@
  */
 
 const aggregate = require('./aggregate/aggregate');
-const cmc = require('./cmc/cmc');
 const empty = require('./empty');
 const lockHash = require('./lockHash/lockHash');
 const lockSecret = require('./lockSecret/lockSecret');
@@ -44,8 +43,7 @@ const plugins = {
 	namespace,
 	receipts,
 	restrictions,
-	transfer: empty,
-	cmc
+	transfer: empty
 };
 
 module.exports = {
