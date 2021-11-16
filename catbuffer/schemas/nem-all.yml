@@ -1,0 +1,782 @@
+- comments: ''
+  name: Amount
+  signedness: unsigned
+  size: 8
+  type: byte
+- comments: ''
+  name: Height
+  signedness: unsigned
+  size: 8
+  type: byte
+- comments: ''
+  name: Timestamp
+  signedness: unsigned
+  size: 4
+  type: byte
+- comments: ''
+  name: Address
+  signedness: unsigned
+  size: 40
+  type: byte
+- comments: ''
+  name: Hash256
+  signedness: unsigned
+  size: 32
+  type: byte
+- comments: ''
+  name: PublicKey
+  signedness: unsigned
+  size: 32
+  type: byte
+- comments: ''
+  name: Signature
+  signedness: unsigned
+  size: 64
+  type: byte
+- comments: enumeration of network types
+  name: NetworkType
+  signedness: unsigned
+  size: 1
+  type: enum
+  values:
+  - comments: main network
+    name: MAINNET
+    value: 104
+  - comments: test network
+    name: TESTNET
+    value: 152
+- comments: binary layout for a blockchain entity (block or transaction)
+  layout:
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  name: EntityBody
+  type: struct
+- comments: enumeration of transaction types
+  name: TransactionType
+  signedness: unsigned
+  size: 4
+  type: enum
+  values:
+  - comments: transfer transaction
+    name: TRANSFER
+    value: 257
+  - comments: account key link trasaction alternatively called importance transfer
+      transaction
+    name: ACCOUNT_KEY_LINK
+    value: 2049
+  - comments: multisig account modification transaction alternatively called multisig
+      consignatory modification transaction
+    name: MULTISIG_ACCOUNT_MODIFICATION
+    value: 4097
+  - comments: multisig cosignature transaction alternatively called multisig signature
+      transaction
+    name: MULTISIG_COSIGNATURE
+    value: 4098
+  - comments: multisig transaction
+    name: MULTISIG_TRANSACTION
+    value: 4100
+  - comments: namespace registration transaction alternatively called provision namespace
+      transaction
+    name: NAMESPACE_REGISTRATION
+    value: 8193
+  - comments: mosaic definition transaction alternatively called mosaic definition
+      creation transaction
+    name: MOSAIC_DEFINITION
+    value: 16385
+  - comments: mosaic supply change transaction
+    name: MOSAIC_SUPPLY_CHANGE
+    value: 16386
+- comments: binary layout for a transaction
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: ''
+    disposition: inline
+    type: EntityBody
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  name: Transaction
+  type: struct
+- comments: enumeration of block types
+  name: BlockType
+  signedness: unsigned
+  size: 4
+  type: enum
+  values:
+  - comments: nemesis block
+    name: NEMESIS
+    value: 4294967295
+  - comments: normal block
+    name: NORMAL
+    value: 1
+- comments: binary layout for a block
+  layout:
+  - comments: block type
+    name: type
+    type: BlockType
+  - comments: ''
+    disposition: inline
+    type: EntityBody
+  - comments: previous block hash
+    name: previous_block_hash
+    type: Hash256
+  - comments: block height
+    name: height
+    type: Height
+  - comments: transactions count
+    name: transactions_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: transactions
+    disposition: array
+    name: transactions
+    size: transactions_count
+    type: Transaction
+  name: Block
+  type: struct
+- comments: enumeration of link actions
+  name: LinkAction
+  signedness: unsigned
+  size: 4
+  type: enum
+  values:
+  - comments: unlink account
+    name: LINK
+    value: 1
+  - comments: link account
+    name: UNLINK
+    value: 2
+- comments: binary layout for an account key link transaction
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: ACCOUNT_KEY_LINK
+  - comments: ''
+    disposition: inline
+    type: Transaction
+  - comments: link action
+    name: link_action
+    type: LinkAction
+  - comments: remote account public key size
+    disposition: reserved
+    name: remote_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: public key of remote account to which importance should be transferred
+    name: remote_public_key
+    type: PublicKey
+  name: AccountKeyLinkTransaction
+  type: struct
+- comments: binary layout for a namespace id
+  layout:
+  - comments: name size
+    name: name_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: name
+    disposition: array
+    element_disposition: &id001
+      signedness: signed
+      size: 1
+    name: name
+    size: name_size
+    type: byte
+  name: NamespaceId
+  type: struct
+- comments: binary layout for a mosaic id
+  layout:
+  - comments: namespace id
+    name: namespace_id
+    type: NamespaceId
+  - comments: name size
+    name: name_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: name
+    disposition: array
+    element_disposition: *id001
+    name: name
+    size: name_size
+    type: byte
+  name: MosaicId
+  type: struct
+- comments: binary layout for a mosaic
+  layout:
+  - comments: mosaic id
+    name: mosaic_id
+    type: MosaicId
+  - comments: quantity
+    name: amount
+    type: Amount
+  name: Mosaic
+  type: struct
+- comments: enumeration of mosaic transfer fee types
+  name: MosaicTransferFeeType
+  signedness: unsigned
+  size: 4
+  type: enum
+  values:
+  - comments: fee represents an absolute value
+    name: ABSOLUTE
+    value: 1
+  - comments: fee is proportional to a percentile of the transferred mosaic
+    name: PERCENTILE
+    value: 2
+- comments: binary layout for a mosaic levy
+  layout:
+  - comments: mosaic fee type
+    name: transfer_fee_type
+    type: MosaicTransferFeeType
+  - comments: recipient address size
+    disposition: reserved
+    name: recipient_address_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: recipient address
+    name: recipient_address
+    type: Address
+  - comments: levy mosaic
+    name: mosaic_id
+    type: MosaicId
+  - comments: amount of levy mosaic to transfer
+    name: fee
+    type: Amount
+  name: MosaicLevy
+  type: struct
+- comments: 'binary layout for a mosaic property supported property names are: divisibility,
+    initialSupply, supplyMutable, transferable'
+  layout:
+  - comments: property name size
+    name: name_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: property name
+    disposition: array
+    element_disposition: *id001
+    name: name
+    size: name_size
+    type: byte
+  - comments: property value size
+    name: value_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: property value
+    disposition: array
+    element_disposition: *id001
+    name: value
+    size: value_size
+    type: byte
+  name: MosaicProperty
+  type: struct
+- comments: binary layout for a mosaic definition
+  layout:
+  - comments: owner public key size
+    disposition: reserved
+    name: owner_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: owner public key
+    name: owner_public_key
+    type: PublicKey
+  - comments: mosaic id referenced by this definition
+    name: id
+    type: MosaicId
+  - comments: description size
+    name: description_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: description
+    disposition: array
+    element_disposition: *id001
+    name: description
+    size: description_size
+    type: byte
+  - comments: number of properties
+    name: properties_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: properties
+    disposition: array
+    name: properties
+    size: properties_count
+    type: MosaicProperty
+  - comments: size of the serialized levy
+    name: levy_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: optional levy that is applied to transfers of this mosaic
+    condition: levy_size
+    condition_operation: not equals
+    condition_value: 0
+    name: levy
+    type: MosaicLevy
+  name: MosaicDefinition
+  type: struct
+- comments: binary layout for an importance transfer transaction
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MOSAIC_DEFINITION
+  - comments: ''
+    disposition: inline
+    type: Transaction
+  - comments: mosaic definition
+    name: mosaic_definition
+    type: MosaicDefinition
+  - comments: mosaic rental fee sink public key size
+    disposition: reserved
+    name: rental_fee_sink_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: mosaic rental fee sink public key
+    name: rental_fee_sink
+    type: Address
+  - comments: mosaic rental fee
+    name: rental_fee
+    type: Amount
+  name: MosaicDefinitionTransaction
+  type: struct
+- comments: enumeration of mosaic supply change actions
+  name: MosaicSupplyChangeAction
+  signedness: unsigned
+  size: 4
+  type: enum
+  values:
+  - comments: increases the supply
+    name: INCREASE
+    value: 1
+  - comments: decreases the supply
+    name: DECREASE
+    value: 2
+- comments: binary layout for an mosaic supply change transaction
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MOSAIC_SUPPLY_CHANGE
+  - comments: ''
+    disposition: inline
+    type: Transaction
+  - comments: mosaic id
+    name: mosaic_id
+    type: MosaicId
+  - comments: supply change action
+    name: action
+    type: MosaicSupplyChangeAction
+  - comments: change amount
+    name: delta
+    type: Amount
+  name: MosaicSupplyChangeTransaction
+  type: struct
+- comments: enumeration of multisig account modification types
+  name: MultisigAccountModificationType
+  signedness: unsigned
+  size: 4
+  type: enum
+  values:
+  - comments: add a new cosignatory
+    name: ADD_COSIGNATORY
+    value: 1
+  - comments: delete an existing cosignatory
+    name: DELETE_COSIGNATORY
+    value: 2
+- comments: binary layout for a multisig account modification
+  layout:
+  - comments: modification type
+    name: modification_type
+    type: MultisigAccountModificationType
+  - comments: cosignatory public size
+    disposition: reserved
+    name: cosignatory_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: cosignatory public key
+    name: cosignatory_public_key
+    type: PublicKey
+  name: MultisigAccountModification
+  type: struct
+- comments: binary layout for a multisig account modification transaction (V1)
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MULTISIG_ACCOUNT_MODIFICATION
+  - comments: ''
+    disposition: inline
+    type: Transaction
+  - comments: number of modifications
+    name: modifications_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: multisig account modifications
+    disposition: array
+    name: modifications
+    size: modifications_count
+    type: MultisigAccountModification
+  name: MultisigAccountModificationTransaction
+  type: struct
+- comments: binary layout for a multisig account modification transaction (V2)
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 2
+  - comments: ''
+    disposition: inline
+    type: MultisigAccountModificationTransaction
+  - comments: the size of the min_approval_delta
+    disposition: reserved
+    name: min_approval_delta_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 4
+  - comments: relative change of the minimal number of cosignatories required when
+      approving a transaction
+    name: min_approval_delta
+    signedness: signed
+    size: 4
+    type: byte
+  name: MultisigAccountModificationTransaction2
+  type: struct
+- comments: cosignature attached to an aggregate transaction
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MULTISIG_COSIGNATURE
+  - comments: ''
+    disposition: inline
+    type: Transaction
+  - comments: multisig transaction hash outer size
+    disposition: reserved
+    name: multisig_transaction_hash_outer_size
+    signedness: signed
+    size: 4
+    type: byte
+    value: 36
+  - comments: multisig transaction hash size
+    disposition: reserved
+    name: multisig_transaction_hash_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: multisig transaction hash
+    name: multisig_transaction_hash
+    type: Hash256
+  - comments: multisig account address size
+    disposition: reserved
+    name: multisig_account_address_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: multisig account address
+    name: multisig_account_address
+    type: Address
+  name: Cosignature
+  type: struct
+- comments: binary layout for a multisig transaction
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MULTISIG_TRANSACTION
+  - comments: ''
+    disposition: inline
+    type: Transaction
+  - comments: inner transaction size
+    name: inner_transaction_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: inner transaction
+    name: inner_transaction
+    type: Transaction
+  - comments: number of attached cosignatures
+    name: cosignatures_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: cosignatures
+    disposition: array
+    name: cosignatures
+    size: cosignatures_count
+    type: Cosignature
+  name: MultisigTransaction
+  type: struct
+- comments: binary layout for a namespace registration transaction
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: NAMESPACE_REGISTRATION
+  - comments: ''
+    disposition: inline
+    type: Transaction
+  - comments: mosaic rental fee sink public key size
+    disposition: reserved
+    name: rental_fee_sink_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: mosaic rental fee sink public key
+    name: rental_fee_sink
+    type: Address
+  - comments: mosaic rental fee
+    name: rental_fee
+    type: Amount
+  - comments: new namespace name size
+    name: name_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: new namespace name
+    disposition: array
+    element_disposition: *id001
+    name: name
+    size: name_size
+    type: byte
+  - comments: size of the parent namespace name
+    name: parent_name_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: parent namespace name
+    condition: parent_name_size
+    condition_operation: not equals
+    condition_value: 4294967295
+    disposition: array
+    element_disposition:
+      signedness: signed
+      size: 1
+    name: parent_name
+    size: parent_name_size
+    type: byte
+  name: NamespaceRegistrationTransaction
+  type: struct
+- comments: enumeration of message types this is a hint used by the client but ignored
+    by the server
+  name: MessageType
+  signedness: unsigned
+  size: 4
+  type: enum
+  values:
+  - comments: plain message
+    name: PLAIN
+    value: 1
+  - comments: encrypted message
+    name: ENCRYPTED
+    value: 2
+- comments: binary layout for a message
+  layout:
+  - comments: message type
+    name: message_type
+    type: MessageType
+  - comments: message size
+    name: message_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: message payload
+    disposition: array
+    element_disposition:
+      signedness: unsigned
+      size: 1
+    name: message
+    size: message_size
+    type: byte
+  name: Message
+  type: struct
+- comments: binary layout for a transfer transaction (V1)
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: TRANSFER
+  - comments: ''
+    disposition: inline
+    type: Transaction
+  - comments: recipient address size
+    disposition: reserved
+    name: recipient_address_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: recipient address
+    name: recipient_address
+    type: Address
+  - comments: XEM amount
+    name: amount
+    type: Amount
+  - comments: message envelope size
+    name: message_envelope_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: optional message
+    condition: message_envelope_size
+    condition_operation: not equals
+    condition_value: 0
+    name: message
+    type: Message
+  name: TransferTransaction
+  type: struct
+- comments: binary layout for a transfer transaction (V2)
+  layout:
+  - comments: ''
+    disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 2
+  - comments: ''
+    disposition: inline
+    type: TransferTransaction
+  - comments: number of attached mosaics
+    name: mosaics_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: attached mosaics notice that mosaic amount is multipled by transfer
+      amount to get effective amount
+    disposition: array
+    name: mosaics
+    size: mosaics_count
+    sort_key: mosaic_id
+    type: Mosaic
+  name: TransferTransaction2
+  type: struct
