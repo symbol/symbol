@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.4.0] - 16-Nov-2021
+
+### Fixed
+
+- Fixed total, circulating and max supply.
+- Remove cmc plugin and move `cmcRoutes` into `mosaic:supplyRoutes`.
+
 ## [v2.3.9] - 8-Nov-2021
 
 ### Added
