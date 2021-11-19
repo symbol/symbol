@@ -11,14 +11,6 @@ externalDocs:
 servers:
   - url: http://localhost:3000
     description: Local development
-  - url: http://ngl-dual-101.testnet.symboldev.network:3000
-    description: A TESTNET node run by NEM Group
-  - url: http://ngl-dual-201.testnet.symboldev.network:3000
-    description: A TESTNET node run by NEM Group
-  - url: http://ngl-api-001.symbolblockchain.io:3000
-    description: A MAINNET node run by NEM Group
-  - url: http://ngl-api-301.symbolblockchain.io:3000
-    description: A MAINNET node run by NEM Group
 components:
   parameters:
     "$ref": "./parameters/_index.yml"
