@@ -40,26 +40,26 @@ class BatchOperations:
     def sign_all(self, transactions, private_key_storage, signature_storage):
         """Signs multiple transactions and saves the signatures as multiple qrcodes."""
         for i, transaction in enumerate(transactions):
-            self._sign_one(transaction, private_key_storage, signature_storage, 'sig_{}{}'.format(self.output_file_prefix, i))
+            self._sign_one(transaction, private_key_storage, signature_storage, f'sig_{self.output_file_prefix}{i}')
 
     def prepare_all(self, transactions, signature_storage, output_directory):
         """Prepares multiple transactions by attaching signatures to each and producing files that can be sent to the network."""
         transaction_count = len(transactions)
-        signature_groups = [signature_storage.load('sig_{}{}'.format(self.output_file_prefix, i)) for i in range(0, transaction_count)]
+        signature_groups = [signature_storage.load(f'sig_{self.output_file_prefix}{i}') for i in range(0, transaction_count)]
 
         for i, transaction in enumerate(transactions):
             (signed_transaction_hash, signatures) = signature_groups[i]
 
             transaction_hash = self.facade.hash_transaction(transaction)
             if signed_transaction_hash != transaction_hash:
-                raise self.PrepareError('transaction hash at {} does not match signed transaction hash'.format(i))
+                raise self.PrepareError(f'transaction hash at {i} does not match signed transaction hash')
 
             if not self.facade.verify_transaction(transaction, signatures[0]):
-                raise self.PrepareError('transaction signature at {} does not verify'.format(i))
+                raise self.PrepareError(f'transaction signature at {i} does not verify')
 
         for i, transaction in enumerate(transactions):
             (_, signatures) = signature_groups[i]
 
             prepared_transaction_buffer = self.facade.transaction_factory.attach_signature(transaction, signatures[0])
-            with open(os.path.join(output_directory, 'payload_{}{}.dat'.format(self.output_file_prefix, i)), 'wb') as outfile:
+            with open(os.path.join(output_directory, f'payload_{self.output_file_prefix}{i}.dat'), 'wb') as outfile:
                 outfile.write(prepared_transaction_buffer)

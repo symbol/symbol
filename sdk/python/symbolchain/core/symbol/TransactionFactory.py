@@ -13,12 +13,12 @@ from .Network import Address
 
 
 def get_catbuffer_class(name):
-    return getattr(importlib.import_module('symbol_catbuffer.{}'.format(name)), name)
+    return getattr(importlib.import_module(f'symbol_catbuffer.{name}'), name)
 
 
 def name_to_enum_value(mapping, enum_type, enum_value_name):
     if enum_value_name not in mapping:
-        raise RuntimeError('unknown value {} for type {}'.format(enum_value_name, enum_type))
+        raise RuntimeError(f'unknown value {enum_value_name} for type {enum_type}')
     return mapping[enum_value_name]
 
 
@@ -143,7 +143,8 @@ class TransactionFactory:
         transaction.signature = signature.bytes
 
         transaction_buffer = transaction.serialize()
-        json_payload = '{{"payload": "{}"}}'.format(hexlify(transaction_buffer).decode('utf8').upper())
+        hex_payload = hexlify(transaction_buffer).decode('utf8').upper()
+        json_payload = f'{{"payload": "{hex_payload}"}}'
         return json_payload.encode('utf8')
 
     @staticmethod

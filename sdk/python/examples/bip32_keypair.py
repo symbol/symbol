@@ -16,11 +16,11 @@ def derive_key(root_node, facade, change, index):
     child_node = root_node.derive_path(path)
     child_key_pair = facade.bip32_node_to_key_pair(child_node)
 
-    print(' PATH: {}'.format(path))
-    print(' * private key: {}'.format(child_key_pair.private_key))
-    print(' *  public key: {}'.format(child_key_pair.public_key))
+    print(f' PATH: {path}')
+    print(f' * private key: {child_key_pair.private_key}')
+    print(f' *  public key: {child_key_pair.public_key}')
     address = facade.network.public_key_to_address(child_key_pair.public_key)
-    print(' *     address: {}'.format(address))
+    print(f' *     address: {address}')
     print()
 
 

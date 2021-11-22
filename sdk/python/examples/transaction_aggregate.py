@@ -45,7 +45,7 @@ def add_embedded_transfers(facade, public_key):
 
         embedded_transactions.append(embedded)
 
-        print('----> {} length in bytes: {}'.format(filepath.name, len(embedded.message)))
+        print(f'----> {filepath.name} length in bytes: {len(embedded.message)}')
 
     return embedded_transactions
 

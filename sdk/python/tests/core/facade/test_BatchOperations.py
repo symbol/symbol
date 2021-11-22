@@ -19,15 +19,15 @@ TEST_PRIVATE_KEY = PrivateKey('D9639DC6F49DAD02A42FD8C217F1B1B4F8CE31CCD770388B6
 ALICE_ADDRESS = Address('TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF')
 BOB_ADDRESS = Address('TBZ6JK5YOCU6UPSSZ5D3G27UHAPHTY5HDQCDS5YA')
 
-ACCOUNTS_YAML_INPUT = '''
-- public_key: {test_public_key}
+ACCOUNTS_YAML_INPUT = f'''
+- public_key: {TEST_PUBLIC_KEY}
   name: TEST
 
-- address: {alice_address}
+- address: {ALICE_ADDRESS}
   name: ALICE
-'''.format(test_public_key=TEST_PUBLIC_KEY, alice_address=ALICE_ADDRESS)
+'''
 
-TRANSACTIONS_YAML_INPUT = '''
+TRANSACTIONS_YAML_INPUT = f'''
 - type: transfer
   signer_public_key: TEST
   recipient_address: ALICE
@@ -36,9 +36,9 @@ TRANSACTIONS_YAML_INPUT = '''
 
 - type: transfer
   signer_public_key: TEST
-  recipient_address: {bob_address}
+  recipient_address: {BOB_ADDRESS}
   amount: 1000000
-'''.format(bob_address=BOB_ADDRESS)
+'''
 
 
 class BatchOperationsTest(unittest.TestCase):

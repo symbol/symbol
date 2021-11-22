@@ -15,7 +15,7 @@ class TransactionFactory:
     def _create(self, name):
         transaction_classes = [ImportanceTransferTransaction, TransferTransaction]
         if name not in [transaction_class.NAME for transaction_class in transaction_classes]:
-            raise ValueError('transaction named {} is not supported'.format(name))
+            raise ValueError(f'transaction named {name} is not supported')
 
         return next(transaction_class for transaction_class in transaction_classes if name == transaction_class.NAME)(self.network)
 

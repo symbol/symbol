@@ -93,7 +93,7 @@ def main():
         sample.process_transaction_descriptors(transaction_descriptors)
         total_descriptors_count += len(transaction_descriptors)
 
-    print('finished processing {} descriptors'.format(total_descriptors_count))
+    print(f'finished processing {total_descriptors_count} descriptors')
 
 
 if __name__ == '__main__':

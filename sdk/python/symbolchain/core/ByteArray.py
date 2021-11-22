@@ -11,7 +11,7 @@ class ByteArray:
             raw_bytes = unhexlify(raw_bytes)
 
         if fixed_size != len(raw_bytes):
-            raise ValueError('bytes was size {} but must be {}'.format(len(raw_bytes), fixed_size))
+            raise ValueError(f'bytes was size {len(raw_bytes)} but must be {fixed_size}')
 
         self.bytes = raw_bytes
         self.__tag = tag

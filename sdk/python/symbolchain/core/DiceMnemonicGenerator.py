@@ -19,7 +19,7 @@ class DiceMnemonicGenerator:
             self.rolls.append(value)
             return
 
-        raise ValueError('roll value must be between 1 and {}, inclusive'.format(self.num_die_sides))
+        raise ValueError(f'roll value must be between 1 and {self.num_die_sides}, inclusive')
 
     def frequencies(self):
         """Gets the number of times each number was rolled."""
@@ -44,7 +44,7 @@ class DiceMnemonicGenerator:
 
         total_roll_possibilities = self.num_die_sides ** len(self.rolls)
         if total_roll_possibilities < 2 ** (8 * min_seed_length):
-            raise ValueError('shrink_wrap requires at least 128 bits of entropy but only {} bits provided'.format(total_roll_possibilities))
+            raise ValueError(f'shrink_wrap requires at least 128 bits of entropy but only {total_roll_possibilities} bits provided')
 
         seed_length = min_seed_length
         while 2 ** (8 * (seed_length + 4)) < total_roll_possibilities:

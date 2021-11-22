@@ -345,7 +345,7 @@ class TransactionFactoryTest(unittest.TestCase):
         self.assertEqual(signature.bytes, transaction.signature)
 
         serialized_transaction_hex = hexlify(transaction.serialize()).decode('utf8').upper()
-        expected_buffer = '{{"payload": "{}"}}'.format(serialized_transaction_hex).encode('utf8')
+        expected_buffer = f'{{"payload": "{serialized_transaction_hex}"}}'.encode('utf8')
         self.assertEqual(expected_buffer, signed_transaction_buffer)
 
     # endregion
