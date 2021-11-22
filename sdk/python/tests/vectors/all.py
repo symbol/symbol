@@ -32,7 +32,7 @@ class VectorsTestSuite:
 
     @property
     def filename(self):
-        return '{}.{}'.format(self.identifier, self._filename)
+        return f'{self.identifier}.{self._filename}'
 
 
 class KeyConversionTester(VectorsTestSuite):
@@ -131,7 +131,7 @@ class MosaicIdDerivationTester(VectorsTestSuite):
             mosaic_id = generate_mosaic_id(address, nonce)
 
             # Assert:
-            mosaic_id_pairs.append((expected_mosaic_id, '{:016X}'.format(mosaic_id)))
+            mosaic_id_pairs.append((expected_mosaic_id, f'{mosaic_id:016X}'))
 
         return mosaic_id_pairs
 
@@ -234,10 +234,10 @@ def main():
     num_failed_suites = 0
     for test_suite in test_suites:
         if test_suite.identifier not in args.tests:
-            print('[ SKIPPED ] {} test'.format(test_suite.description))
+            print(f'[ SKIPPED ] {test_suite.description} test')
             continue
 
-        with open(os.path.join(args.vectors, '{}.json'.format(test_suite.filename)), 'r') as infile:
+        with open(os.path.join(args.vectors, f'{test_suite.filename}.json'), 'rt', encoding='utf8') as infile:
             start_time = time.time()
 
             test_case_number = 0
@@ -264,12 +264,12 @@ def main():
 
             elapsed_time = time.time() - start_time
 
-            test_message_prefix = '[{:8.4f}s] {} test:'.format(elapsed_time, test_suite.description)
+            test_message_prefix = f'[{elapsed_time:8.4f}s] {test_suite.description} test:'
             if num_failed:
-                print('{} {} failures out of {}'.format(test_message_prefix, num_failed, test_case_number))
+                print(f'{test_message_prefix} {num_failed} failures out of {test_case_number}')
                 num_failed_suites += 1
             else:
-                print('{} successes {}'.format(test_message_prefix, test_case_number))
+                print(f'{test_message_prefix} successes {test_case_number}')
 
     if num_failed_suites:
         sys.exit(1)

@@ -25,7 +25,7 @@ class QrSignatureStorage:
 
         decoded_buffer_size = len(decoded_buffer)
         if decoded_buffer_size < Hash256.SIZE or 0 != (decoded_buffer_size - Hash256.SIZE) % Signature.SIZE:
-            raise ValueError('decoded buffer from QR code has unexpected size {}'.format(decoded_buffer_size))
+            raise ValueError(f'decoded buffer from QR code has unexpected size {decoded_buffer_size}')
 
         transaction_hash = Hash256(decoded_buffer[0:Hash256.SIZE])
 

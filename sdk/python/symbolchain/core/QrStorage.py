@@ -39,4 +39,4 @@ class QrStorage:
         return base64.b32decode(qrcode_payload.decode('utf8').replace('$', '='))
 
     def _get_file_path(self, name):
-        return os.path.join(self.directory, '{}.png'.format(name))
+        return os.path.join(self.directory, f'{name}.png')

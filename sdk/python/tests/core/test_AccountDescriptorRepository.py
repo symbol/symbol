@@ -13,22 +13,22 @@ ENCODED_ADDRESS_1 = 'TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF'
 ENCODED_ADDRESS_2 = 'TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C'
 PUBLIC_KEY_1 = PublicKey('A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74')
 PUBLIC_KEY_2 = PublicKey('9A755901AA014A4EACAE615523D2B50C27F954CB936927331F1116C8D5B7B2AA')
-YAML_INPUT = '''
-- address: {address_1}
+YAML_INPUT = f'''
+- address: {ENCODED_ADDRESS_1}
   name: alice
   roles: [green, main]
 
-- public_key: {public_key_1}
+- public_key: {PUBLIC_KEY_1}
   name: TEST1
   roles: [red, test]
 
-- public_key: {public_key_2}
+- public_key: {PUBLIC_KEY_2}
   name: BOB
   roles: [BLUE, main]
 
-- address: {address_2}
+- address: {ENCODED_ADDRESS_2}
   name: charlie
-'''.format(address_1=ENCODED_ADDRESS_1, address_2=ENCODED_ADDRESS_2, public_key_1=PUBLIC_KEY_1, public_key_2=PUBLIC_KEY_2)
+'''
 
 
 # nem style address to avoid circular import

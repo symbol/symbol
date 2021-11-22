@@ -5,7 +5,7 @@ from symbolchain.core.CryptoTypes import PublicKey
 
 PUBLIC_KEY_1 = PublicKey('A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74')
 PUBLIC_KEY_2 = PublicKey('9A755901AA014A4EACAE615523D2B50C27F954CB936927331F1116C8D5B7B2AA')
-YAML_INPUT = '''
+YAML_INPUT = f'''
 blockchain: nem
 network: testnet
 
@@ -19,14 +19,14 @@ nodes:
   - host: charlie
 
 accounts:
-  - public_key: {public_key_1}
+  - public_key: {PUBLIC_KEY_1}
     name: bobby
     roles: [green, main]
 
-  - public_key: {public_key_2}
+  - public_key: {PUBLIC_KEY_2}
     name: TEST1
     roles: [red, test]
-'''.format(public_key_1=PUBLIC_KEY_1, public_key_2=PUBLIC_KEY_2)
+'''
 
 
 class BlockchainSettingsTest(unittest.TestCase):

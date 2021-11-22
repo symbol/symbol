@@ -88,7 +88,7 @@ class VotingKeysGeneratorTest(unittest.TestCase):
             child_key_pair = KeyPair(child_private_key)
             signed_payload = child_key_pair.public_key.bytes + (7 + i).to_bytes(8, 'little')
 
-            self.assertTrue(verifier.verify(signed_payload, signature), 'child at {}'.format(i))
+            self.assertTrue(verifier.verify(signed_payload, signature), f'child at {i}')
 
     # endregion
 
@@ -101,12 +101,13 @@ class VotingKeysGeneratorTest(unittest.TestCase):
             part_end_offset = (i + 1) * batch_size
             expected_part = hexlify(expected_buffer[part_start_offset:part_end_offset]).decode('utf8').upper()
             actual_part = hexlify(actual_buffer[part_start_offset:part_end_offset]).decode('utf8').upper()
-            print('E {} {} A {}'.format(expected_part, '==' if expected_part == actual_part else '!=', actual_part))
+            operator = '==' if expected_part == actual_part else '!='
+            print(f'E {expected_part} {operator} A {actual_part}')
 
     def _run_test_vector(self, name, private_key_generator):
         # Arrange:
         test_vectors_filename = os.path.join(os.path.dirname(__file__), 'resources', 'voting_keys_generator_test_vectors.yaml')
-        with open(test_vectors_filename, 'rt') as infile:
+        with open(test_vectors_filename, 'rt', encoding='utf8') as infile:
             test_vectors_yaml = yaml.load(infile.read(), Loader=yaml.SafeLoader)
             test_vector_yaml = next(test_vector_yaml for test_vector_yaml in test_vectors_yaml if name == test_vector_yaml['name'])
             test_vector = namedtuple('TestVector', test_vector_yaml.keys())(*test_vector_yaml.values())

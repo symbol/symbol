@@ -47,7 +47,7 @@ def generate_namespace_path(fully_qualified_name):
     parent_namespace_id = 0
     for name in fully_qualified_name.split('.'):
         if not is_valid_namespace_name(name):
-            raise ValueError('fully qualified name is invalid due to invalid part name ({})'.format(fully_qualified_name))
+            raise ValueError(f'fully qualified name is invalid due to invalid part name ({fully_qualified_name})')
 
         path.append(generate_namespace_id(name, parent_namespace_id))
         parent_namespace_id = path[-1]

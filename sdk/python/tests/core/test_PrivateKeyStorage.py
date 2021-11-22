@@ -21,7 +21,7 @@ class PrivateKeyStorageTest(unittest.TestCase):
             # Assert:
             self.assertEqual(len(private_key_names), len(os.listdir(temp_directory)))
             for name in private_key_names:
-                self.assertTrue(os.path.exists(os.path.join(temp_directory, '{}.pem'.format(name))))
+                self.assertTrue(os.path.exists(os.path.join(temp_directory, f'{name}.pem')))
 
     def test_can_save_single_private_key_without_encryption(self):
         self._assert_can_save_private_keys(['alpha'], None)

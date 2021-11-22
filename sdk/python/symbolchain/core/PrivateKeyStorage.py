@@ -38,4 +38,4 @@ class PrivateKeyStorage:
             return PrivateKey(private_key_bytes)
 
     def _get_file_path(self, name):
-        return os.path.join(self.directory, '{}.pem'.format(name))
+        return os.path.join(self.directory, f'{name}.pem')

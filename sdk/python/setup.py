@@ -1,11 +1,11 @@
 from setuptools import find_packages, setup
 
-with open('README.md', 'r') as readme_file:
+with open('README.md', 'rt', encoding='utf8') as readme_file:
     README = readme_file.read()
 
 NAME = 'symbol-sdk-core-python'
 
-with open('version.txt', 'r') as version_file:
+with open('version.txt', 'rt', encoding='utf8') as version_file:
     VERSION = version_file.read().strip()
 
 REQUIRES = [

@@ -10,7 +10,7 @@ class TransactionDescriptorProcessor:
 
     def _lookup_value_and_apply_type_hints(self, key):
         if key not in self.transaction_descriptor:
-            raise ValueError('transaction descriptor does not have attribute {}'.format(key))
+            raise ValueError(f'transaction descriptor does not have attribute {key}')
 
         value = self.transaction_descriptor[key]
 
@@ -35,7 +35,7 @@ class TransactionDescriptorProcessor:
                 continue
 
             if not hasattr(transaction, key):
-                raise ValueError('transaction does not have attribute {}'.format(key))
+                raise ValueError(f'transaction does not have attribute {key}')
 
             value = self.lookup_value(key)
             if isinstance(value, list):

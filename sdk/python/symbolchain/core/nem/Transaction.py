@@ -60,7 +60,7 @@ class Transaction:
         @staticmethod
         def _format_value(value):
             if isinstance(value, int):
-                return '{0} [0x{0:X}]'.format(value)
+                return f'{value} [0x{value:X}]'
 
             if isinstance(value, bytes):
                 try:
@@ -72,7 +72,11 @@ class Transaction:
 
         def __str__(self):
             max_name_length = max(len(pair[0]) for pair in self.field_pairs)
-            formatted_fields = ['{} = {}'.format(pair[0].rjust(max_name_length, ' '), pair[1]) for pair in self.field_pairs]
+            formatted_fields = [
+                f'{formatted_pair[0]} = {formatted_pair[1]}' for formatted_pair in (
+                    (pair[0].rjust(max_name_length, ' '), pair[1]) for pair in self.field_pairs
+                )
+            ]
             return '\n'.join(formatted_fields)
 
     def __str__(self):
