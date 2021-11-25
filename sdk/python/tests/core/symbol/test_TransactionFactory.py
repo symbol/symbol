@@ -5,7 +5,6 @@ from symbol_catbuffer.AccountRestrictionFlagsDto import AccountRestrictionFlagsD
 from symbol_catbuffer.EntityTypeDto import EntityTypeDto
 from symbol_catbuffer.MosaicRestrictionTypeDto import MosaicRestrictionTypeDto
 from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
-
 from symbolchain.core.ByteArray import ByteArray
 from symbolchain.core.CryptoTypes import PublicKey, Signature
 from symbolchain.core.symbol.IdGenerator import generate_mosaic_id, generate_namespace_id

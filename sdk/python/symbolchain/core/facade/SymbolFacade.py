@@ -1,4 +1,5 @@
 import sha3
+
 from symbol_catbuffer.EntityTypeDto import EntityTypeDto
 
 from ..CryptoTypes import Hash256, PublicKey, Signature
