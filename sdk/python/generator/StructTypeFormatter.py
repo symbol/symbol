@@ -71,7 +71,7 @@ class StructFormatter(AbstractTypeFormatter):
         return f'{field.original_field_name}: {field.printer.get_type()} = {default_value}'
 
     def generate_type_hints(self):
-        body = 'type_hints = {\n'
+        body = 'TYPE_HINTS = {\n'
         hints = []
         for field in self.non_reserved_fields():
             if not field.printer.type_hint:

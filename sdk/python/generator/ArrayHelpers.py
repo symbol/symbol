@@ -124,15 +124,3 @@ class ArrayHelpers:
             aligned_size = ArrayHelpers.align_up(embedded_size)
             binary += bytes(aligned_size - embedded_size)
         return binary
-
-
-class BaseValue:
-    """
-    Tag type used to mark base values (like Amount or Difficulty)
-    """
-
-
-class FixedByteArray:
-    """
-    Tag type used to mark base array types (like Signature or PublicKey)
-    """

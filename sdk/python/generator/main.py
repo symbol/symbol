@@ -194,10 +194,15 @@ from __future__ import annotations
 
 from binascii import hexlify
 from enum import Enum, Flag
-from typing import ByteString, List
+from typing import ByteString, List, TypeVar
 
-from .ArrayHelpers import ArrayHelpers, BaseValue, FixedByteArray
+from .ArrayHelpers import ArrayHelpers
+from ..core.BaseValue import BaseValue
+from ..core.ByteArray import ByteArray
 
+
+# string or bytes
+StrBytes = TypeVar('StrBytes', str, bytes)
 
 '''
         )

@@ -11,10 +11,6 @@ class IntPrinter(Printer):
         self.type_hint = None
 
     @staticmethod
-    def check_argument():
-        return ''
-
-    @staticmethod
     def get_type():
         return 'int'
 
@@ -48,9 +44,6 @@ class TypedArrayPrinter(Printer):
     def __init__(self, descriptor, name=None):
         super().__init__(descriptor, name)
         self.type_hint = f'array[{self.descriptor.element_type.typename}]'
-
-    def check_argument(self):
-        return f'assert len({self.name}) == {self.get_size()}, "required argument bytes({self.get_size()})"\n'
 
     def get_type(self):
         return f'List[{self.descriptor.get_type()}]'
@@ -130,9 +123,6 @@ class ArrayPrinter(Printer):
     def __init__(self, descriptor, name=None):
         super().__init__(descriptor, name)
         self.type_hint = 'bytes_array'
-
-    def check_argument(self):
-        return f'assert len({self.name}) == {self.get_size()}, "required argument bytes({self.get_size()})"\n'
 
     @staticmethod
     def get_type():

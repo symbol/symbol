@@ -3,6 +3,7 @@ from binascii import hexlify
 
 from symbolchain.core.ByteArray import ByteArray
 
+from ..test.ComparisonTestUtils import ComparisonTestDescriptor, ComparisonTestUtils, EqualityTestDescriptor
 from ..test.NemTestUtils import NemTestUtils
 
 FIXED_SIZE = 24
@@ -14,11 +15,29 @@ TEST_BYTES = bytes([
 TEST_HEX = 'C5FB65CB902623D93DF2E682FFB13F99D50FAC24D5FF2A42'
 
 
+DEFAULT_VALUE = 0x12345678_09ABCDEF
+
+
+def int_to_bytes24(value):
+    return value.to_bytes(8, 'little') + bytes(FIXED_SIZE - 8)
+
+
+class FakeByteArray:
+    def __init__(self, value):
+        self.bytes = value
+
+
 def random_hex_string(size):
     return hexlify(NemTestUtils.randbytes(size)).decode('utf8')
 
 
-class ByteArrayTest(unittest.TestCase):
+class ByteArrayTest(ComparisonTestUtils, unittest.TestCase):
+    DESCRIPTOR = ComparisonTestDescriptor(
+        lambda value: ByteArray(FIXED_SIZE, int_to_bytes24(value)),
+        lambda value: ByteArray(FIXED_SIZE, int_to_bytes24(value), str),
+        FakeByteArray,
+    )
+
     def test_can_create_byte_array_with_correct_number_of_bytes(self):
         # Act:
         byte_array = ByteArray(FIXED_SIZE, TEST_BYTES)
@@ -43,21 +62,35 @@ class ByteArrayTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 ByteArray(FIXED_SIZE, random_hex_string(size))
 
-    def test_equality_is_supported(self):
+    def test_equality_and_inequality_are_supported(self):
         # Arrange:
-        byte_array = ByteArray(FIXED_SIZE, TEST_BYTES)
-        byte_array_with_explicit_tag = ByteArray(FIXED_SIZE, TEST_BYTES, str)
+        descriptor = EqualityTestDescriptor(
+            lambda value: ByteArray(FIXED_SIZE, value),
+            lambda value: ByteArray(FIXED_SIZE, value, str),
+            None,
+            FakeByteArray,
+        )
 
         # Act + Assert:
-        self.assertEqual(byte_array, ByteArray(FIXED_SIZE, TEST_BYTES))
-        self.assertEqual(byte_array, ByteArray(FIXED_SIZE, TEST_HEX))
-        self.assertEqual(byte_array_with_explicit_tag, ByteArray(FIXED_SIZE, TEST_BYTES, str))
-        self.assertEqual(byte_array_with_explicit_tag, ByteArray(FIXED_SIZE, TEST_HEX, str))
+        descriptor.random = lambda: NemTestUtils.randbytes(FIXED_SIZE)
+        self.equality_is_supported(descriptor, TEST_BYTES)
+        self.inequality_is_supported(descriptor, TEST_BYTES)
 
-        self.assertNotEqual(byte_array, ByteArray(FIXED_SIZE, NemTestUtils.randbytes(FIXED_SIZE)))
-        self.assertNotEqual(byte_array, ByteArray(FIXED_SIZE, random_hex_string(FIXED_SIZE)))
-        self.assertNotEqual(byte_array, byte_array_with_explicit_tag)
-        self.assertNotEqual(byte_array, None)
+        descriptor.random = lambda: random_hex_string(FIXED_SIZE)
+        self.equality_is_supported(descriptor, TEST_HEX)
+        self.inequality_is_supported(descriptor, TEST_HEX)
+
+    def test_less_than_is_supported(self):
+        self.less_than_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
+
+    def test_less_than_or_equal_is_supported(self):
+        self.less_than_or_equal_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
+
+    def test_greater_than_is_supported(self):
+        self.greater_than_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
+
+    def test_greater_than_or_equal_is_supported(self):
+        self.greater_than_or_equal_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
 
     def test_hash_is_supported(self):
         # Arrange:
