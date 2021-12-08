@@ -31,7 +31,7 @@ jobs:
       name: parse all (catbuffer-schemas)
       script:
         - git clone --depth 1 --branch v2.0.1a https://github.com/nemtech/catbuffer-schemas.git
-        - python3 -m catparser --schema ./catbuffer-schemas/symbol/all.cats --include ./catbuffer-schemas/symbol
+        - python3 -m catparser --schema ./catbuffer-schemas/symbol/all.cats --include ./catbuffer-schemas/symbol --legacy-mode
 
     - stage: alpha / dev package
       name: alpha / dev package
