@@ -1,35 +1,28 @@
-- comments: ''
-  name: Amount
+- name: Amount
   signedness: unsigned
   size: 8
   type: byte
-- comments: ''
-  name: Height
+- name: Height
   signedness: unsigned
   size: 8
   type: byte
-- comments: ''
-  name: Timestamp
+- name: Timestamp
   signedness: unsigned
   size: 4
   type: byte
-- comments: ''
-  name: Address
+- name: Address
   signedness: unsigned
   size: 40
   type: byte
-- comments: ''
-  name: Hash256
+- name: Hash256
   signedness: unsigned
   size: 32
   type: byte
-- comments: ''
-  name: PublicKey
+- name: PublicKey
   signedness: unsigned
   size: 32
   type: byte
-- comments: ''
-  name: Signature
+- name: Signature
   signedness: unsigned
   size: 64
   type: byte
@@ -127,8 +120,7 @@
   - comments: transaction type
     name: type
     type: TransactionType
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EntityBody
   - comments: transaction fee
     name: fee
@@ -155,8 +147,7 @@
   - comments: block type
     name: type
     type: BlockType
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EntityBody
   - comments: previous block hash
     name: previous_block_hash
@@ -190,20 +181,17 @@
     value: 2
 - comments: binary layout for an account key link transaction
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_KEY_LINK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
   - comments: link action
     name: link_action
@@ -378,20 +366,17 @@
   type: struct
 - comments: binary layout for an importance transfer transaction
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_DEFINITION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
   - comments: mosaic definition
     name: mosaic_definition
@@ -425,20 +410,17 @@
     value: 2
 - comments: binary layout for an mosaic supply change transaction
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_SUPPLY_CHANGE
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
   - comments: mosaic id
     name: mosaic_id
@@ -482,20 +464,17 @@
   type: struct
 - comments: binary layout for a multisig account modification transaction (V1)
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_ACCOUNT_MODIFICATION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
   - comments: number of modifications
     name: modifications_count
@@ -511,15 +490,13 @@
   type: struct
 - comments: binary layout for a multisig account modification transaction (V2)
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 2
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MultisigAccountModificationTransaction
   - comments: the size of the min_approval_delta
     disposition: reserved
@@ -538,20 +515,17 @@
   type: struct
 - comments: cosignature attached to an aggregate transaction
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_COSIGNATURE
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
   - comments: multisig transaction hash outer size
     disposition: reserved
@@ -584,20 +558,17 @@
   type: struct
 - comments: binary layout for a multisig transaction
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_TRANSACTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
   - comments: inner transaction size
     name: inner_transaction_size
@@ -621,20 +592,17 @@
   type: struct
 - comments: binary layout for a namespace registration transaction
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: NAMESPACE_REGISTRATION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
   - comments: mosaic rental fee sink public key size
     disposition: reserved
@@ -713,20 +681,17 @@
   type: struct
 - comments: binary layout for a transfer transaction (V1)
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: TRANSFER
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
   - comments: recipient address size
     disposition: reserved
@@ -756,15 +721,13 @@
   type: struct
 - comments: binary layout for a transfer transaction (V2)
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 2
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: TransferTransaction
   - comments: number of attached mosaics
     name: mosaics_count

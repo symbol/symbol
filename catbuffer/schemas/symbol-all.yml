@@ -239,18 +239,15 @@
     type: NetworkType
   name: EntityBody
   type: struct
-- comments: ''
-  name: ProofGamma
+- name: ProofGamma
   signedness: unsigned
   size: 32
   type: byte
-- comments: ''
-  name: ProofVerificationHash
+- name: ProofVerificationHash
   signedness: unsigned
   size: 16
   type: byte
-- comments: ''
-  name: ProofScalar
+- name: ProofScalar
   signedness: unsigned
   size: 32
   type: byte
@@ -284,14 +281,11 @@
   type: struct
 - comments: binary layout for a block header
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: SizePrefixedEntity
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: VerifiableEntity
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EntityBody
   - comments: block type
     name: type
@@ -350,42 +344,35 @@
   type: struct
 - comments: binary layout for a nemesis block header
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: BLOCK_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: BLOCK_TYPE
     type: BlockType
     value: NEMESIS
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: BlockHeader
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: ImportanceBlockFooter
   name: NemesisBlockHeader
   type: struct
 - comments: binary layout for a normal block header
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: BLOCK_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: BLOCK_TYPE
     type: BlockType
     value: NORMAL
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: BlockHeader
   - comments: reserved padding to align end of BlockHeader on 8-byte boundary
     disposition: reserved
@@ -398,23 +385,19 @@
   type: struct
 - comments: binary layout for an importance block header
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: BLOCK_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: BLOCK_TYPE
     type: BlockType
     value: IMPORTANCE
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: BlockHeader
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: ImportanceBlockFooter
   name: ImportanceBlockHeader
   type: struct
@@ -501,8 +484,7 @@
 - comments: Receipts provide proof for every state change not retrievable from the
     block.
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: SizePrefixedEntity
   - comments: Receipt version.
     name: version
@@ -516,8 +498,7 @@
   type: struct
 - comments: An invisible state change triggered a mosaic transfer.
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Receipt
   - comments: Transferred mosaic
     name: mosaic
@@ -532,8 +513,7 @@
   type: struct
 - comments: An invisible state change modified an account's balance.
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Receipt
   - comments: Modified mosaic.
     name: mosaic
@@ -545,8 +525,7 @@
   type: struct
 - comments: Network currency mosaics were created due to [inflation](/concepts/inflation).
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Receipt
   - comments: Created mosaic.
     name: mosaic
@@ -555,16 +534,14 @@
   type: struct
 - comments: An mosaic expired.
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Receipt
   - comments: Expiring mosaic id.
     name: artifact_id
     type: MosaicId
   name: MosaicExpiryReceipt
   type: struct
-- comments: ''
-  name: NamespaceId
+- name: NamespaceId
   signedness: unsigned
   size: 8
   type: byte
@@ -594,8 +571,7 @@
     value: 1
 - comments: Receipt generated when a [namespace](/concepts/namespace.html) expires.
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Receipt
   - comments: Expiring namespace identifier.
     name: artifact_id
@@ -639,8 +615,7 @@
 - comments: A Mosaic resolution statement links a namespace alias used in a transaction
     to the real mosaic id **at the time of the transaction**.
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Receipt
   - comments: Unresolved mosaic.
     name: unresolved
@@ -655,8 +630,7 @@
 - comments: An Address resolution statement links a namespace alias used in a transaction
     to the real address **at the time of the transaction**.
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Receipt
   - comments: Unresolved address.
     name: unresolved
@@ -784,8 +758,7 @@
   type: struct
 - comments: binary layout for non-historical account state
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: StateHeader
   - comments: address of account
     name: address
@@ -874,8 +847,7 @@
     value: 1
 - comments: binary layout for hash lock transaction info
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: StateHeader
   - comments: owner address
     name: owner_address
@@ -894,8 +866,7 @@
     type: Hash256
   name: HashLockInfo
   type: struct
-- comments: ''
-  name: ScopedMetadataKey
+- name: ScopedMetadataKey
   signedness: unsigned
   size: 8
   type: byte
@@ -933,8 +904,7 @@
   type: struct
 - comments: binary layout of a metadata entry
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: StateHeader
   - comments: metadata source address (provider)
     name: source_address
@@ -958,8 +928,7 @@
     type: MetadataValue
   name: MetadataEntry
   type: struct
-- comments: ''
-  name: MosaicNonce
+- name: MosaicNonce
   signedness: unsigned
   size: 4
   type: byte
@@ -1038,8 +1007,7 @@
   type: struct
 - comments: binary layout for mosaic entry
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: StateHeader
   - comments: entry id
     name: mosaic_id
@@ -1054,8 +1022,7 @@
   type: struct
 - comments: binary layout for a multisig entry
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: StateHeader
   - comments: minimum approval for modifications
     name: min_approval
@@ -1155,8 +1122,7 @@
   type: struct
 - comments: binary layout for non-historical root namespace history
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: StateHeader
   - comments: id of the root namespace history
     name: id
@@ -1354,8 +1320,7 @@
   type: struct
 - comments: binary layout for account restrictions
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: StateHeader
   - comments: address on which restrictions are placed
     name: address
@@ -1372,8 +1337,7 @@
     type: AccountRestrictionsInfo
   name: AccountRestrictions
   type: struct
-- comments: ''
-  name: MosaicRestrictionKey
+- name: MosaicRestrictionKey
   signedness: unsigned
   size: 8
   type: byte
@@ -1508,8 +1472,7 @@
   type: struct
 - comments: binary layout for a mosaic restriction
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: StateHeader
   - comments: type of restriction being placed upon the entity
     name: entry_type
@@ -1548,8 +1511,7 @@
     value: 2
 - comments: binary layout for serialized lock transaction
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: StateHeader
   - comments: owner address
     name: owner_address
@@ -1576,14 +1538,11 @@
   type: struct
 - comments: binary layout for a transaction
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: SizePrefixedEntity
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: VerifiableEntity
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EntityBody
   - comments: transaction type
     name: type
@@ -1598,8 +1557,7 @@
   type: struct
 - comments: binary layout for an embedded transaction header
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: SizePrefixedEntity
   - comments: reserved padding to align end of EmbeddedTransactionHeader on 8-byte
       boundary
@@ -1613,11 +1571,9 @@
   type: struct
 - comments: binary layout for an embedded transaction
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransactionHeader
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EntityBody
   - comments: transaction type
     name: type
@@ -1640,45 +1596,37 @@
     Announce an AccountKeyLinkTransaction to delegate the account importance score
     to a proxy account.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_KEY_LINK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountKeyLinkTransactionBody
   name: AccountKeyLinkTransaction
   type: struct
 - comments: Embedded version of AccountKeyLinkTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_KEY_LINK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountKeyLinkTransactionBody
   name: EmbeddedAccountKeyLinkTransaction
   type: struct
@@ -1698,45 +1646,37 @@
     Announce a NodeKeyLinkTransaction to link an account with a public key used by
     TLS to create sessions.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: NODE_KEY_LINK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: NodeKeyLinkTransactionBody
   name: NodeKeyLinkTransaction
   type: struct
 - comments: Embedded version of NodeKeyLinkTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: NODE_KEY_LINK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: NodeKeyLinkTransactionBody
   name: EmbeddedNodeKeyLinkTransaction
   type: struct
@@ -1757,8 +1697,7 @@
   type: struct
 - comments: Cosignature detached from an AggregateCompleteTransaction or AggregateBondedTransaction.
   layout:
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Cosignature
   - comments: Hash of the AggregateBondedTransaction that is signed by this cosignature.
     name: parent_hash
@@ -1809,23 +1748,19 @@
     Use this transaction when all required signatures are available when the transaction
     is created.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: AGGREGATE_COMPLETE
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AggregateTransactionBody
   name: AggregateCompleteTransaction
   type: struct
@@ -1839,23 +1774,19 @@
     To prevent spam attacks, before trying to announce this transaction a HashLockTransaction
     must be successfully announced and confirmed.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: AGGREGATE_BONDED
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AggregateTransactionBody
   name: AggregateBondedTransaction
   type: struct
@@ -1889,45 +1820,37 @@
 
     See more details in [the manual node setup guide](/guides/network/running-a-symbol-node-manually.html#manual-voting-key-renewal).'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: VOTING_KEY_LINK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: VotingKeyLinkTransactionBody
   name: VotingKeyLinkTransaction
   type: struct
 - comments: Embedded version of VotingKeyLinkTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: VOTING_KEY_LINK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: VotingKeyLinkTransactionBody
   name: EmbeddedVotingKeyLinkTransaction
   type: struct
@@ -1948,45 +1871,37 @@
 
     This transaction is required for all accounts wishing to [harvest](/concepts/harvesting.html).'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: VRF_KEY_LINK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: VrfKeyLinkTransactionBody
   name: VrfKeyLinkTransaction
   type: struct
 - comments: Embedded version of VrfKeyLinkTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: VRF_KEY_LINK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: VrfKeyLinkTransactionBody
   name: EmbeddedVrfKeyLinkTransaction
   type: struct
@@ -2026,45 +1941,37 @@
     not have enough funds to announce a HashLockTransaction, he can ask Alice to announce
     the lock transaction for him by sharing the signed AggregateTransaction hash.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: HASH_LOCK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: HashLockTransactionBody
   name: HashLockTransaction
   type: struct
 - comments: Embedded version of HashLockTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: HASH_LOCK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: HashLockTransactionBody
   name: EmbeddedHashLockTransaction
   type: struct
@@ -2096,45 +2003,37 @@
     network property). If the lock expires before a valid SecretProofTransaction is
     announced the locked amount goes back to the initiator of the SecretLockTransaction.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: SECRET_LOCK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: SecretLockTransactionBody
   name: SecretLockTransaction
   type: struct
 - comments: Embedded version of SecretLockTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: SECRET_LOCK
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: SecretLockTransactionBody
   name: EmbeddedSecretLockTransaction
   type: struct
@@ -2170,45 +2069,37 @@
 
     The transaction must prove knowing the *proof* that unlocks the mosaics.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: SECRET_PROOF
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: SecretProofTransactionBody
   name: SecretProofTransaction
   type: struct
 - comments: Embedded version of SecretProofTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: SECRET_PROOF
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: SecretProofTransactionBody
   name: EmbeddedSecretProofTransaction
   type: struct
@@ -2254,45 +2145,37 @@
 
     Compare to MosaicMetadataTransaction and NamespaceMetadataTransaction.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_METADATA
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountMetadataTransactionBody
   name: AccountMetadataTransaction
   type: struct
 - comments: Embedded version of AccountMetadataTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_METADATA
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountMetadataTransactionBody
   name: EmbeddedAccountMetadataTransaction
   type: struct
@@ -2337,45 +2220,37 @@
 
     Compare to AccountMetadataTransaction and NamespaceMetadataTransaction.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_METADATA
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicMetadataTransactionBody
   name: MosaicMetadataTransaction
   type: struct
 - comments: Embedded version of MosaicMetadataTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_METADATA
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicMetadataTransactionBody
   name: EmbeddedMosaicMetadataTransaction
   type: struct
@@ -2420,45 +2295,37 @@
 
     Compare to AccountMetadataTransaction and MosaicMetadataTransaction.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: NAMESPACE_METADATA
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: NamespaceMetadataTransactionBody
   name: NamespaceMetadataTransaction
   type: struct
 - comments: Embedded version of NamespaceMetadataTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: NAMESPACE_METADATA
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: NamespaceMetadataTransactionBody
   name: EmbeddedNamespaceMetadataTransaction
   type: struct
@@ -2488,45 +2355,37 @@
   type: struct
 - comments: Create a new  [mosaic](/concepts/mosaic.html).
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_DEFINITION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicDefinitionTransactionBody
   name: MosaicDefinitionTransaction
   type: struct
 - comments: Embedded version of MosaicDefinitionTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_DEFINITION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicDefinitionTransactionBody
   name: EmbeddedMosaicDefinitionTransaction
   type: struct
@@ -2546,45 +2405,37 @@
   type: struct
 - comments: Change the total supply of a mosaic.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_SUPPLY_CHANGE
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicSupplyChangeTransactionBody
   name: MosaicSupplyChangeTransaction
   type: struct
 - comments: Embedded version of MosaicSupplyChangeTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_SUPPLY_CHANGE
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicSupplyChangeTransactionBody
   name: EmbeddedMosaicSupplyChangeTransaction
   type: struct
@@ -2600,45 +2451,37 @@
   type: struct
 - comments: Revoke mosaic.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_SUPPLY_REVOCATION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicSupplyRevocationTransactionBody
   name: MosaicSupplyRevocationTransaction
   type: struct
 - comments: Embedded version of MosaicSupplyRevocationTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_SUPPLY_REVOCATION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicSupplyRevocationTransactionBody
   name: EmbeddedMosaicSupplyRevocationTransaction
   type: struct
@@ -2707,45 +2550,37 @@
     delete cosignatories from a multisig account (removing all cosignatories turns
     a multisig account into a regular account again).'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_ACCOUNT_MODIFICATION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MultisigAccountModificationTransactionBody
   name: MultisigAccountModificationTransaction
   type: struct
 - comments: Embedded version of MultisigAccountModificationTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_ACCOUNT_MODIFICATION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MultisigAccountModificationTransactionBody
   name: EmbeddedMultisigAccountModificationTransaction
   type: struct
@@ -2769,45 +2604,37 @@
     A namespace can be assigned to any account present in the network (this is, an
     account which has received at least one transaction).'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ADDRESS_ALIAS
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AddressAliasTransactionBody
   name: AddressAliasTransaction
   type: struct
 - comments: Embedded version of AddressAliasTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ADDRESS_ALIAS
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AddressAliasTransactionBody
   name: EmbeddedAddressAliasTransaction
   type: struct
@@ -2830,45 +2657,37 @@
     Setting an alias to a mosaic is only possible if the account announcing this transaction
     has also created the namespace and the mosaic involved.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_ALIAS
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicAliasTransactionBody
   name: MosaicAliasTransaction
   type: struct
 - comments: Embedded version of MosaicAliasTransaction
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_ALIAS
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicAliasTransactionBody
   name: EmbeddedMosaicAliasTransaction
   type: struct
@@ -2912,45 +2731,37 @@
 
     Namespaces help keep assets organized.'
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: NAMESPACE_REGISTRATION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: NamespaceRegistrationTransactionBody
   name: NamespaceRegistrationTransaction
   type: struct
 - comments: Embedded version of NamespaceRegistrationTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: NAMESPACE_REGISTRATION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: NamespaceRegistrationTransactionBody
   name: EmbeddedNamespaceRegistrationTransaction
   type: struct
@@ -2991,45 +2802,37 @@
 - comments: Allow or block incoming and outgoing transactions for a given a set of
     addresses.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_ADDRESS_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountAddressRestrictionTransactionBody
   name: AccountAddressRestrictionTransaction
   type: struct
 - comments: Embedded version of AccountAddressRestrictionTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_ADDRESS_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountAddressRestrictionTransactionBody
   name: EmbeddedAccountAddressRestrictionTransaction
   type: struct
@@ -3069,45 +2872,37 @@
   type: struct
 - comments: Allow or block incoming transactions containing a given set of mosaics.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_MOSAIC_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountMosaicRestrictionTransactionBody
   name: AccountMosaicRestrictionTransaction
   type: struct
 - comments: Embedded version of AccountMosaicRestrictionTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_MOSAIC_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountMosaicRestrictionTransactionBody
   name: EmbeddedAccountMosaicRestrictionTransaction
   type: struct
@@ -3147,45 +2942,37 @@
   type: struct
 - comments: Allow or block outgoing transactions depending on their transaction type.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_OPERATION_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountOperationRestrictionTransactionBody
   name: AccountOperationRestrictionTransaction
   type: struct
 - comments: Embedded version of AccountOperationRestrictionTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_OPERATION_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: AccountOperationRestrictionTransactionBody
   name: EmbeddedAccountOperationRestrictionTransaction
   type: struct
@@ -3218,45 +3005,37 @@
   type: struct
 - comments: Set address specific rules to transfer a restrictable mosaic.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_ADDRESS_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicAddressRestrictionTransactionBody
   name: MosaicAddressRestrictionTransaction
   type: struct
 - comments: Embedded version of MosaicAddressRestrictionTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_ADDRESS_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicAddressRestrictionTransactionBody
   name: EmbeddedMosaicAddressRestrictionTransaction
   type: struct
@@ -3297,45 +3076,37 @@
   type: struct
 - comments: Set global rules to transfer a restrictable mosaic.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_GLOBAL_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicGlobalRestrictionTransactionBody
   name: MosaicGlobalRestrictionTransaction
   type: struct
 - comments: Embedded version of MosaicGlobalRestrictionTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_GLOBAL_RESTRICTION
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: MosaicGlobalRestrictionTransactionBody
   name: EmbeddedMosaicGlobalRestrictionTransaction
   type: struct
@@ -3386,45 +3157,37 @@
   type: struct
 - comments: Send mosaics and messages between two accounts.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: TRANSFER
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: Transaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: TransferTransactionBody
   name: TransferTransaction
   type: struct
 - comments: Embedded version of TransferTransaction.
   layout:
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
     size: 1
     type: byte
     value: 1
-  - comments: ''
-    disposition: const
+  - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
     value: TRANSFER
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: EmbeddedTransaction
-  - comments: ''
-    disposition: inline
+  - disposition: inline
     type: TransferTransactionBody
   name: EmbeddedTransferTransaction
   type: struct
