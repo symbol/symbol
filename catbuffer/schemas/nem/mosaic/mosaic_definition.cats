@@ -40,8 +40,6 @@ struct MosaicProperty
 
 # binary layout for a mosaic definition
 struct MosaicDefinition
-	# public key of the mosaic definition owner
-
 	# [__value__] owner public key
 	#
 	# [size] owner public key size
