@@ -217,7 +217,7 @@
     type: byte
   - comments: name
     disposition: array
-    element_disposition: &id001
+    element_disposition:
       signedness: signed
       size: 1
     name: name
@@ -237,7 +237,9 @@
     type: byte
   - comments: name
     disposition: array
-    element_disposition: *id001
+    element_disposition:
+      signedness: signed
+      size: 1
     name: name
     size: name_size
     type: byte
@@ -298,7 +300,9 @@
     type: byte
   - comments: property name
     disposition: array
-    element_disposition: *id001
+    element_disposition:
+      signedness: signed
+      size: 1
     name: name
     size: name_size
     type: byte
@@ -309,7 +313,9 @@
     type: byte
   - comments: property value
     disposition: array
-    element_disposition: *id001
+    element_disposition:
+      signedness: signed
+      size: 1
     name: value
     size: value_size
     type: byte
@@ -337,7 +343,9 @@
     type: byte
   - comments: description
     disposition: array
-    element_disposition: *id001
+    element_disposition:
+      signedness: signed
+      size: 1
     name: description
     size: description_size
     type: byte
@@ -624,7 +632,9 @@
     type: byte
   - comments: new namespace name
     disposition: array
-    element_disposition: *id001
+    element_disposition:
+      signedness: signed
+      size: 1
     name: name
     size: name_size
     type: byte
