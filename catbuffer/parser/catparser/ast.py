@@ -1,6 +1,11 @@
+import re
 from abc import ABC, abstractmethod
 
 from lark import Token
+
+
+class AstException(Exception):
+    """Exception raised when an AST violation is detected"""
 
 
 def _get_token_value(token):
@@ -20,6 +25,8 @@ class Statement(ABC):
         pass
 
     def to_legacy_descriptor(self):
+        """Produces a dictionary consistent with the original catbuffer type descriptors."""
+
         if not self.comment:
             return self._to_legacy_descriptor()
 
@@ -38,7 +45,7 @@ class Comment:
 
         needs_separator = False
         for comment_line in string.split('\n'):
-            comment_line = comment_line.strip()[1:].strip()  # strip '#' and whitespace
+            comment_line = comment_line.strip('# \t')  # strip '#' and whitespace
 
             if not comment_line:
                 self.parsed += '\n'
@@ -72,6 +79,8 @@ class FixedSizeInteger:
         return 'unsigned' if self.is_unsigned else 'signed'
 
     def to_legacy_descriptor(self):
+        """Produces a dictionary consistent with the original catbuffer type descriptors."""
+
         return {'size': self.size, 'type': 'byte', 'signedness': self.signedness}
 
     def __str__(self):
@@ -85,6 +94,8 @@ class FixedSizeBuffer:
         self.size = size
 
     def to_legacy_descriptor(self):
+        """Produces a dictionary consistent with the original catbuffer type descriptors."""
+
         return {'size': self.size, 'type': 'byte', 'signedness': 'unsigned'}
 
     def __str__(self):
@@ -160,8 +171,32 @@ class Struct(Statement):
 
     def __init__(self, tokens):
         super().__init__()
-        self.name = _get_token_value(tokens[0])
-        self.fields = tokens[1:]
+        self.name = _get_token_value(tokens[1])
+        self.disposition = 'inline' if tokens[0] else None
+        self.fields = tokens[2:]
+
+        self._member_comment_start_regex = None
+
+    @property
+    def is_inline(self):
+        return 'inline' == self.disposition
+
+    def apply_inline_template(self, named_inline_field):
+        """Expands a named inline field using this struct."""
+
+        if not self.is_inline:
+            raise AstException(f'apply_inline_template called for struct {self.name} not marked as inline')
+
+        comment_map = self._build_comment_map(named_inline_field.comment) if named_inline_field.comment else {}
+
+        # copy all fields from this inline struct
+        fields_copy = [(field.name, field.copy(named_inline_field.name)) for field in self.fields]
+
+        for (original_field_name, field) in fields_copy:
+            if original_field_name in comment_map:
+                field.comment = Comment('\n'.join(comment_map[original_field_name]))
+
+        return [tuple[1] for tuple in fields_copy]
 
     def _to_legacy_descriptor(self):
         return {
@@ -173,6 +208,23 @@ class Struct(Statement):
     def __str__(self):
         return f'struct {self.name}  # {len(self.fields)} field(s)'
 
+    def _build_comment_map(self, comment):
+        if not self._member_comment_start_regex:
+            self._member_comment_start_regex = re.compile(r'^\[(?P<comment_key>\S+)\] ')
+
+        comment_map = {}
+        active_comment_key = None
+        for line in comment.parsed.split('\n'):
+            member_comment_start_match = self._member_comment_start_regex.match(line)
+
+            if member_comment_start_match:
+                active_comment_key = member_comment_start_match.group('comment_key')
+                comment_map[active_comment_key] = [line[len(active_comment_key) + 3:]]
+            elif active_comment_key:
+                comment_map[active_comment_key].append(f'\n{line}')
+
+        return comment_map
+
 
 class StructField(Statement):
     """Named field within a user defined structure."""
@@ -183,6 +235,15 @@ class StructField(Statement):
         self.field_type = tokens[1]  # resolve this to reference object
         self.value = _get_token_value(tokens[2]) if len(tokens) > 2 else None
         self.disposition = disposition
+
+    def copy(self, prefix):
+        """Creates a copy of this field and transforms field names using the specified prefix."""
+
+        return StructField([
+                prefix if '__value__' == self.name else f'{prefix}_{self.name}',
+                self.field_type.copy(prefix) if hasattr(self.field_type, 'copy') else self.field_type,
+                self.value.copy(prefix) if hasattr(self.value, 'value') else self.value,
+            ], self.disposition)
 
     def _to_legacy_descriptor(self):
         type_descriptor = {'name': self.name}
@@ -233,7 +294,14 @@ class Conditional:
         self.operation = _get_token_value(tokens[1])
         self.value = _get_token_value(tokens[0])
 
+    def copy(self, prefix):
+        """Creates a copy of this field and transforms field names using the specified prefix."""
+
+        return Conditional([self.value, self.operation, f'{prefix}_{self.linked_field_name}'])
+
     def to_legacy_descriptor(self):
+        """Produces a dictionary consistent with the original catbuffer type descriptors."""
+
         return {
             'condition': self.linked_field_name,
             'condition_operation': self.operation,
@@ -267,7 +335,16 @@ class Array:
         self.sort_key = tokens[1].sort_key
         self.element_type = _get_token_value(tokens[0]) if isinstance(tokens[0], Token) else tokens[0]  # resolve this to reference object
 
+    def copy(self, prefix):
+        """Creates a copy of this field and transforms field names using the specified prefix."""
+
+        size = self.size if not isinstance(self.size, str) else f'{prefix}_{self.size}'
+        sort_key = self.sort_key if not isinstance(self.sort_key, str) else f'{prefix}_{self.sort_key}'
+        return Array([self.element_type, ArraySeed([size, sort_key], self.disposition)])
+
     def to_legacy_descriptor(self):
+        """Produces a dictionary consistent with the original catbuffer type descriptors."""
+
         type_descriptor = {'disposition': self.disposition, 'size': self.size}
 
         if isinstance(self.element_type, FixedSizeInteger):

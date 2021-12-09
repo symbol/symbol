@@ -7,6 +7,7 @@ import yaml
 from lark import Tree
 
 from .ast import Statement
+from .AstPostProcessor import AstPostProcessor
 from .CatsLarkParser import create_cats_lark_parser
 from .CatsParseException import CatsParseException
 from .CatsParser import CatsParser
@@ -106,7 +107,9 @@ def main():
         if args.legacy_mode:
             type_descriptors = list(map(lambda e: {**{'name': e[0]}, **e[1]}, raw_type_descriptors.items()))
         else:
-            type_descriptors = [model.to_legacy_descriptor() for model in raw_type_descriptors]
+            processor = AstPostProcessor(raw_type_descriptors)
+            processor.expand_named_inlines()
+            type_descriptors = [model.to_legacy_descriptor() for model in processor.type_descriptors]
 
     except CatsParseException as ex:
         print('\033[31m{}\033[39m'.format(ex.message))

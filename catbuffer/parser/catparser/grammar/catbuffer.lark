@@ -24,19 +24,20 @@ enum: "enum" USER_TYPE_NAME ":" FIXED_SIZE_INTEGER _NL [_INDENT enum_child* _DED
 enum_child: [comment] enum_value
 enum_value: CONST_PROPERTY_NAME "=" _dec_or_hex_number _NL
 
-struct: ["inline"] "struct" USER_TYPE_NAME _NL _INDENT struct_child* _DEDENT
+struct: [INLINE_STRUCT_TAG] "struct" USER_TYPE_NAME _NL _INDENT struct_child* _DEDENT
 struct_child: [comment] (struct_field | struct_field_const | struct_field_reserved | struct_field_inline | struct_inline)
 struct_field: (VALUE_PROPERTY_NAME_PLACEHOLDER | PROPERTY_NAME) "=" (USER_TYPE_NAME | FIXED_SIZE_INTEGER | array_expression) [conditional_expression] _NL
 struct_field_const: CONST_PROPERTY_NAME "=" "make_const" "(" _integer_or_enum_const ")" _NL
 struct_field_reserved: PROPERTY_NAME "=" "make_reserved" "(" _integer_or_enum_const ")" _NL
 struct_field_inline: PROPERTY_NAME "=" "inline" USER_TYPE_NAME _NL
 struct_inline: "inline" USER_TYPE_NAME _NL
+INLINE_STRUCT_TAG.1: "inline"
 
 array_expression: "array" "(" (FIXED_SIZE_INTEGER | USER_TYPE_NAME) "," _array_size_expression ")"
-_array_size_expression: count_based_array | size_based_array | fill_based_array
+_array_size_expression: count_based_array | size_based_array | FILL_BASED_ARRAY
 count_based_array: PROPERTY_NAME ["," "sort_key" "=" PROPERTY_NAME] | _dec_or_hex_number
 size_based_array: "@size" "=" (PROPERTY_NAME | _dec_or_hex_number)
-fill_based_array: "__FILL__"
+FILL_BASED_ARRAY: "__FILL__"
 
 conditional_expression: "if" (_dec_or_hex_number | CONST_PROPERTY_NAME) CONDITIONAL_OPERATION PROPERTY_NAME
 CONDITIONAL_OPERATION: "not equals" | "equals" | "in" | "not in"

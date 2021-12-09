@@ -1,7 +1,7 @@
 import unittest
 
-from catparser.ast import (Alias, Array, ArraySeed, Comment, Conditional, Enum, EnumValue, FixedSizeBuffer, FixedSizeInteger, Struct,
-                           StructField, StructInlinePlaceholder)
+from catparser.ast import (Alias, Array, ArraySeed, AstException, Comment, Conditional, Enum, EnumValue, FixedSizeBuffer, FixedSizeInteger,
+                           Struct, StructField, StructInlinePlaceholder)
 
 # region Comment
 
@@ -189,13 +189,14 @@ class EnumValueTests(unittest.TestCase):
 # region Struct
 
 class StructTests(unittest.TestCase):
-    def _test_can_create_struct(self, comment, expected_comment_descriptor):
+    def _test_can_create_struct(self, comment, expected_comment_descriptor, disposition=None):
         # Act:
-        model = Struct(['FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        model = Struct([disposition, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
         model.comment = comment
 
         # Assert:
         self.assertEqual('FooBar', model.name)
+        self.assertEqual(disposition, model.disposition)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
         self.assertEqual({
             **expected_comment_descriptor,
@@ -210,6 +211,77 @@ class StructTests(unittest.TestCase):
 
     def test_can_create_struct_with_comment(self):
         self._test_can_create_struct(Comment('# my amazing comment'), {'comments': 'my amazing comment'})
+
+    def test_can_create_inline_struct(self):
+        self._test_can_create_struct(None, {}, 'inline')
+
+    def test_can_create_inline_struct_with_comment(self):
+        self._test_can_create_struct(Comment('# my amazing comment'), {'comments': 'my amazing comment'}, 'inline')
+
+    def test_cannot_apply_inline_template_when_struct_is_not_inline(self):
+        # Arrange:
+        model = Struct([None, 'FooBar', StructField(['__value__', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        named_inline_field = StructField(['foo', 'FooBar'], 'inline')
+
+        # Act:
+        with self.assertRaises(AstException):
+            model.apply_inline_template(named_inline_field)
+
+    def test_can_apply_inline_template_without_comments(self):
+        # Arrange:
+        model = Struct(['inline', 'FooBar', StructField(['__value__', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        named_inline_field = StructField(['foo', 'FooBar'], 'inline')
+
+        # Act:
+        fields = model.apply_inline_template(named_inline_field)
+
+        # Assert:
+        self.assertEqual(2, len(fields))
+
+        self.assertEqual('foo', fields[0].name)
+        self.assertEqual('MyCustomType', fields[0].field_type)
+
+        self.assertEqual('foo_beta', fields[1].name)
+        self.assertEqual('uint16', fields[1].field_type.short_name)
+
+        for field in fields:
+            self.assertEqual(None, field.value)
+            self.assertEqual(None, field.disposition)
+            self.assertEqual(None, field.comment)
+
+    def test_can_apply_inline_template_with_comments(self):
+        # Arrange:
+        model = Struct(['inline', 'FooBar', StructField(['__value__', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        named_inline_field = StructField(['foo', 'FooBar'], 'inline')
+        named_inline_field.comment = Comment('\n'.join([
+            '# ignored text',
+            '#',
+            '# [__value__]',
+            '# something cool',
+            '#',
+            '# something else cool',
+            '#',
+            '# [beta]',
+            '# size of something',
+        ]))
+
+        # Act:
+        fields = model.apply_inline_template(named_inline_field)
+
+        # Assert:
+        self.assertEqual(2, len(fields))
+
+        self.assertEqual('foo', fields[0].name)
+        self.assertEqual('MyCustomType', fields[0].field_type)
+        self.assertEqual('something cool\nsomething else cool', fields[0].comment.parsed)
+
+        self.assertEqual('foo_beta', fields[1].name)
+        self.assertEqual('uint16', fields[1].field_type.short_name)
+        self.assertEqual('size of something', fields[1].comment.parsed)
+
+        for field in fields:
+            self.assertEqual(None, field.value)
+            self.assertEqual(None, field.disposition)
 
 
 class StructFieldTests(unittest.TestCase):
@@ -342,6 +414,80 @@ class StructFieldTests(unittest.TestCase):
     def test_can_create_reserved_struct_field_with_zero_value(self):
         self._test_can_create_const_reserved_struct_field_with_zero_value('reserved_1', 'reserved')
 
+    def test_can_copy_simple_field(self):
+        # Arrange:
+        model = StructField(['foo_field', 'MyCustomType'])
+
+        # Act:
+        model = model.copy('alpha')
+
+        # Assert:
+        self.assertEqual('alpha_foo_field', model.name)
+        self.assertEqual('MyCustomType', model.field_type)
+        self.assertEqual(None, model.value)
+        self.assertEqual(None, model.disposition)
+
+    def test_can_copy_field_with_special_name(self):
+        # Arrange:
+        model = StructField(['__value__', 'MyCustomType'])
+
+        # Act:
+        model = model.copy('alpha')
+
+        # Assert:
+        self.assertEqual('alpha', model.name)
+        self.assertEqual('MyCustomType', model.field_type)
+        self.assertEqual(None, model.value)
+        self.assertEqual(None, model.disposition)
+
+    def test_can_copy_field_with_value(self):
+        # Arrange:
+        model = StructField(['foo_field', FixedSizeInteger('uint8'), 10], 'reserved')
+
+        # Act:
+        model = model.copy('alpha')
+
+        # Assert:
+        self.assertEqual('alpha_foo_field', model.name)
+        self.assertEqual('uint8', model.field_type.short_name)
+        self.assertEqual(10, model.value)
+        self.assertEqual('reserved', model.disposition)
+
+    def test_can_copy_field_with_array_type(self):
+        # Arrange:
+        model = StructField(['foo_field', Array(['ElementType', ArraySeed(['bar_field', 'foo_field'], 'array')])])
+
+        # Act:
+        model = model.copy('alpha')
+
+        # Assert:
+        self.assertEqual('alpha_foo_field', model.name)
+
+        self.assertEqual('alpha_bar_field', model.field_type.size)
+        self.assertEqual('array', model.field_type.disposition)
+        self.assertEqual('ElementType', model.field_type.element_type)
+        self.assertEqual('alpha_foo_field', model.field_type.sort_key)
+
+        self.assertEqual(None, model.value)
+        self.assertEqual(None, model.disposition)
+
+    def test_can_copy_field_with_conditional_value(self):
+        # Arrange:
+        model = StructField(['foo_field', 'MyCustomType', Conditional(['SPECIAL_FLAG', 'not in', 'custom_flags'])])
+
+        # Act:
+        model = model.copy('alpha')
+
+        # Assert:
+        self.assertEqual('alpha_foo_field', model.name)
+        self.assertEqual('MyCustomType', model.field_type)
+
+        self.assertEqual('alpha_custom_flags', model.value.linked_field_name)
+        self.assertEqual('not in', model.value.operation)
+        self.assertEqual('SPECIAL_FLAG', model.value.value)
+
+        self.assertEqual(None, model.disposition)
+
 
 class StructInlinePlaceholderTests(unittest.TestCase):
     def _test_can_create_struct_inline_placeholder(self, comment, expected_comment_descriptor):
@@ -374,6 +520,18 @@ class ConditionalTests(unittest.TestCase):
             {'condition': 'custom_flags', 'condition_operation': 'not in', 'condition_value': 'SPECIAL_FLAG'},
             model.to_legacy_descriptor())
         self.assertEqual('if SPECIAL_FLAG not in custom_flags', str(model))
+
+    def test_can_copy_with_internal_member_references(self):
+        # Arrange:
+        model = Conditional(['SPECIAL_FLAG', 'not in', 'custom_flags'])
+
+        # Act:
+        model = model.copy('alpha')
+
+        # Assert:
+        self.assertEqual('alpha_custom_flags', model.linked_field_name)
+        self.assertEqual('not in', model.operation)
+        self.assertEqual('SPECIAL_FLAG', model.value)
 
 
 # endregion
@@ -447,6 +605,32 @@ class ArrayTests(unittest.TestCase):
             {'disposition': 'array', 'size': 12, 'type': 'byte', 'element_disposition': {'size': 4, 'signedness': 'signed'}},
             model.to_legacy_descriptor())
         self.assertEqual('array(int32, 12)', str(model))
+
+    def test_can_copy_without_internal_member_references(self):
+        # Arrange:
+        model = Array(['ElementType', ArraySeed([12], 'array')])
+
+        # Act:
+        model = model.copy('alpha')
+
+        # Assert:
+        self.assertEqual(12, model.size)
+        self.assertEqual('array', model.disposition)
+        self.assertEqual('ElementType', model.element_type)
+        self.assertEqual(None, model.sort_key)
+
+    def test_can_copy_with_internal_member_references(self):
+        # Arrange:
+        model = Array(['ElementType', ArraySeed(['bar_field', 'foo_field'], 'array')])
+
+        # Act:
+        model = model.copy('alpha')
+
+        # Assert:
+        self.assertEqual('alpha_bar_field', model.size)
+        self.assertEqual('array', model.disposition)
+        self.assertEqual('ElementType', model.element_type)
+        self.assertEqual('alpha_foo_field', model.sort_key)
 
 
 # endregion

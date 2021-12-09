@@ -128,8 +128,8 @@ def create_cats_lark_parser():
             return ArraySeed(tokens, 'array sized')
 
         @staticmethod
-        def fill_based_array(tokens):
-            return ArraySeed(tokens, 'array fill')
+        def FILL_BASED_ARRAY(_):  # pylint: disable=invalid-name
+            return ArraySeed([], 'array fill')
 
         @staticmethod
         def array_expression(tokens):
