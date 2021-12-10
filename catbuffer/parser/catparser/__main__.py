@@ -8,6 +8,7 @@ from lark import Tree
 
 from .ast import Statement
 from .AstPostProcessor import AstPostProcessor
+from .AstValidator import AstValidator
 from .CatsLarkParser import create_cats_lark_parser
 from .CatsParseException import CatsParseException
 from .CatsParser import CatsParser
@@ -109,6 +110,16 @@ def main():
         else:
             processor = AstPostProcessor(raw_type_descriptors)
             processor.expand_named_inlines()
+
+            validator = AstValidator(raw_type_descriptors)
+            validator.validate()
+            if validator.errors:
+                print('\033[31mERRORS DETECTED\033[39m')
+                for error in validator.errors:
+                    print(error)
+
+                sys.exit(1)
+
             type_descriptors = [model.to_legacy_descriptor() for model in processor.type_descriptors]
 
     except CatsParseException as ex:
