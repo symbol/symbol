@@ -334,13 +334,14 @@ class Array:
         self.disposition = tokens[1].disposition
         self.sort_key = tokens[1].sort_key
         self.element_type = _get_token_value(tokens[0]) if isinstance(tokens[0], Token) else tokens[0]  # resolve this to reference object
+        self.alignment = _get_token_value(tokens[2]) if len(tokens) > 2 else None
 
     def copy(self, prefix):
         """Creates a copy of this field and transforms field names using the specified prefix."""
 
         size = self.size if not isinstance(self.size, str) else f'{prefix}_{self.size}'
         sort_key = self.sort_key if not isinstance(self.sort_key, str) else f'{prefix}_{self.sort_key}'
-        return Array([self.element_type, ArraySeed([size, sort_key], self.disposition)])
+        return Array([self.element_type, ArraySeed([size, sort_key], self.disposition), self.alignment])
 
     def to_legacy_descriptor(self):
         """Produces a dictionary consistent with the original catbuffer type descriptors."""
@@ -361,12 +362,28 @@ class Array:
         if self.sort_key:
             type_descriptor['sort_key'] = self.sort_key
 
+        if self.alignment:
+            type_descriptor['alignment'] = self.alignment
+
         return type_descriptor
 
     def __str__(self):
-        if self.sort_key:
-            return f'array({self.element_type}, {self.size}, sort_key={self.sort_key})'
+        formatted = f'array({self.element_type}, '
 
-        return f'array({self.element_type}, {self.size})'
+        if 'array sized' == self.disposition:
+            formatted += f'@size={self.size}'
+        elif 'array fill' == self.disposition:
+            formatted += '__FILL__'
+        else:
+            formatted += str(self.size)
+
+        if self.sort_key:
+            formatted += f', @sort_key={self.sort_key}'
+
+        if self.alignment:
+            formatted += f', @alignment={self.alignment}'
+
+        formatted += ')'
+        return formatted
 
 # endregion

@@ -33,9 +33,9 @@ struct_field_inline: PROPERTY_NAME "=" "inline" USER_TYPE_NAME _NL
 struct_inline: "inline" USER_TYPE_NAME _NL
 INLINE_STRUCT_TAG.1: "inline"
 
-array_expression: "array" "(" (FIXED_SIZE_INTEGER | USER_TYPE_NAME) "," _array_size_expression ")"
+array_expression: "array" "(" (FIXED_SIZE_INTEGER | USER_TYPE_NAME) "," _array_size_expression ["," "@alignment" "=" _dec_or_hex_number] ")"
 _array_size_expression: count_based_array | size_based_array | FILL_BASED_ARRAY
-count_based_array: PROPERTY_NAME ["," "sort_key" "=" PROPERTY_NAME] | _dec_or_hex_number
+count_based_array: PROPERTY_NAME ["," "@sort_key" "=" PROPERTY_NAME] | _dec_or_hex_number
 size_based_array: "@size" "=" (PROPERTY_NAME | _dec_or_hex_number)
 FILL_BASED_ARRAY: "__FILL__"
 

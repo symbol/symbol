@@ -577,8 +577,35 @@ class ArrayTests(unittest.TestCase):
         self.assertEqual('array', model.disposition)
         self.assertEqual('ElementType', model.element_type)
         self.assertEqual(None, model.sort_key)
+        self.assertEqual(None, model.alignment)
         self.assertEqual({'disposition': 'array', 'size': 10, 'type': 'ElementType'}, model.to_legacy_descriptor())
         self.assertEqual('array(ElementType, 10)', str(model))
+
+    def test_can_create_udt_array_sized(self):
+        # Act:
+        model = Array(['ElementType', ArraySeed([10], 'array sized')])
+
+        # Assert:
+        self.assertEqual(10, model.size)
+        self.assertEqual('array sized', model.disposition)
+        self.assertEqual('ElementType', model.element_type)
+        self.assertEqual(None, model.sort_key)
+        self.assertEqual(None, model.alignment)
+        self.assertEqual({'disposition': 'array sized', 'size': 10, 'type': 'ElementType'}, model.to_legacy_descriptor())
+        self.assertEqual('array(ElementType, @size=10)', str(model))
+
+    def test_can_create_udt_array_fill(self):
+        # Act:
+        model = Array(['ElementType', ArraySeed([], 'array fill')])
+
+        # Assert:
+        self.assertEqual(0, model.size)
+        self.assertEqual('array fill', model.disposition)
+        self.assertEqual('ElementType', model.element_type)
+        self.assertEqual(None, model.sort_key)
+        self.assertEqual(None, model.alignment)
+        self.assertEqual({'disposition': 'array fill', 'size': 0, 'type': 'ElementType'}, model.to_legacy_descriptor())
+        self.assertEqual('array(ElementType, __FILL__)', str(model))
 
     def test_can_create_udt_array_with_sort_key(self):
         # Act:
@@ -589,8 +616,22 @@ class ArrayTests(unittest.TestCase):
         self.assertEqual('array', model.disposition)
         self.assertEqual('ElementType', model.element_type)
         self.assertEqual('foo_field', model.sort_key)
+        self.assertEqual(None, model.alignment)
         self.assertEqual({'disposition': 'array', 'size': 10, 'type': 'ElementType', 'sort_key': 'foo_field'}, model.to_legacy_descriptor())
-        self.assertEqual('array(ElementType, 10, sort_key=foo_field)', str(model))
+        self.assertEqual('array(ElementType, 10, @sort_key=foo_field)', str(model))
+
+    def test_can_create_udt_array_with_explicit_alignment(self):
+        # Act:
+        model = Array(['ElementType', ArraySeed([10], 'array'), 4])
+
+        # Assert:
+        self.assertEqual(10, model.size)
+        self.assertEqual('array', model.disposition)
+        self.assertEqual('ElementType', model.element_type)
+        self.assertEqual(None, model.sort_key)
+        self.assertEqual(4, model.alignment)
+        self.assertEqual({'disposition': 'array', 'size': 10, 'type': 'ElementType', 'alignment': 4}, model.to_legacy_descriptor())
+        self.assertEqual('array(ElementType, 10, @alignment=4)', str(model))
 
     def test_can_create_int_array(self):
         # Act:
@@ -601,6 +642,7 @@ class ArrayTests(unittest.TestCase):
         self.assertEqual('array', model.disposition)
         self.assertEqual('int32', model.element_type.short_name)
         self.assertEqual(None, model.sort_key)
+        self.assertEqual(None, model.alignment)
         self.assertEqual(
             {'disposition': 'array', 'size': 12, 'type': 'byte', 'element_disposition': {'size': 4, 'signedness': 'signed'}},
             model.to_legacy_descriptor())
@@ -608,20 +650,21 @@ class ArrayTests(unittest.TestCase):
 
     def test_can_copy_without_internal_member_references(self):
         # Arrange:
-        model = Array(['ElementType', ArraySeed([12], 'array')])
+        model = Array(['ElementType', ArraySeed([8], 'array'), 12])
 
         # Act:
         model = model.copy('alpha')
 
         # Assert:
-        self.assertEqual(12, model.size)
+        self.assertEqual(8, model.size)
         self.assertEqual('array', model.disposition)
         self.assertEqual('ElementType', model.element_type)
         self.assertEqual(None, model.sort_key)
+        self.assertEqual(12, model.alignment)
 
     def test_can_copy_with_internal_member_references(self):
         # Arrange:
-        model = Array(['ElementType', ArraySeed(['bar_field', 'foo_field'], 'array')])
+        model = Array(['ElementType', ArraySeed(['bar_field', 'foo_field'], 'array'), 12])
 
         # Act:
         model = model.copy('alpha')
@@ -631,6 +674,7 @@ class ArrayTests(unittest.TestCase):
         self.assertEqual('array', model.disposition)
         self.assertEqual('ElementType', model.element_type)
         self.assertEqual('alpha_foo_field', model.sort_key)
+        self.assertEqual(12, model.alignment)
 
 
 # endregion
