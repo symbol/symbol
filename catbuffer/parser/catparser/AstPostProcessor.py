@@ -1,4 +1,4 @@
-from .ast import AstException, Struct
+from .ast import AstException, Struct, StructInlinePlaceholder
 
 
 class AstPostProcessor:
@@ -40,3 +40,35 @@ class AstPostProcessor:
     @staticmethod
     def _is_named_inline(field):
         return hasattr(field, 'disposition') and 'inline' == field.disposition and hasattr(field, 'name')
+
+    def expand_unnamed_inlines(self):
+        """Expands unnamed inline fields within all structures."""
+
+        for model in self._structs_with_unnamed_inlines():
+            while self._has_unnamed_inline_field(model):
+                original_fields = model.fields[:]
+                model.fields = []
+
+                for field in original_fields:
+                    if not isinstance(field, StructInlinePlaceholder):
+                        model.fields.append(field)
+                        continue
+
+                    if field.inlined_typename not in self.type_descriptor_map:
+                        raise AstException(f'struct {model.name} contains unnamed inline of unknown type {field.inlined_typename}')
+
+                    referenced_type_model = self.type_descriptor_map[field.inlined_typename]
+                    if 'abstract' == referenced_type_model.disposition:
+                        model.factory_type = referenced_type_model.name
+
+                    model.fields.extend(referenced_type_model.fields)
+
+    def _structs_with_unnamed_inlines(self):
+        return [
+            model for _, model in self.type_descriptor_map.items()
+            if self._has_unnamed_inline_field(model)
+        ]
+
+    @staticmethod
+    def _has_unnamed_inline_field(model):
+        return isinstance(model, Struct) and any(isinstance(field, StructInlinePlaceholder) for field in model.fields)

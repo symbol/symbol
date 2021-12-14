@@ -172,8 +172,9 @@ class Struct(Statement):
     def __init__(self, tokens):
         super().__init__()
         self.name = _get_token_value(tokens[1])
-        self.disposition = 'inline' if tokens[0] else None
+        self.disposition = _get_token_value(tokens[0]) if tokens[0] else None
         self.fields = tokens[2:]
+        self.factory_type = None
 
         self._member_comment_start_regex = None
 
@@ -199,14 +200,26 @@ class Struct(Statement):
         return [tuple[1] for tuple in fields_copy]
 
     def _to_legacy_descriptor(self):
-        return {
+        type_descriptor = {
             'name': self.name,
             'type': 'struct',
             'layout': [field.to_legacy_descriptor() for field in self.fields]
         }
 
+        if self.disposition:
+            type_descriptor['disposition'] = self.disposition
+
+        if self.factory_type:
+            type_descriptor['factory_type'] = self.factory_type
+
+        return type_descriptor
+
     def __str__(self):
-        return f'struct {self.name}  # {len(self.fields)} field(s)'
+        modifiers = ''
+        if self.disposition:
+            modifiers = f'{self.disposition} '
+
+        return f'{modifiers}struct {self.name}  # {len(self.fields)} field(s)'
 
     def _build_comment_map(self, comment):
         if not self._member_comment_start_regex:

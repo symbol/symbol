@@ -77,8 +77,8 @@ class AstValidator:
         if not self._is_known_type(field.inlined_typename):
             self.errors.append(create_error_descriptor(f'reference to unknown inlined type {field.inlined_typename}'))
         else:
-            if 'inline' == self.type_descriptor_map[field.inlined_typename].disposition:
-                self.errors.append(create_error_descriptor(f'unnamed inline referencing inline struct {field.inlined_typename}'))
+            # all dispositions are allowed as unnamed inline
+            pass
 
     def _validate_array(self, field_type, field_map, create_error_descriptor):
         element_type = field_type.element_type

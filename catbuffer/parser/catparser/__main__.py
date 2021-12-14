@@ -84,6 +84,7 @@ def main():
 
     processor = AstPostProcessor(raw_type_descriptors)
     processor.expand_named_inlines()
+    processor.expand_unnamed_inlines()
 
     type_descriptors = [model.to_legacy_descriptor() for model in processor.type_descriptors]
 

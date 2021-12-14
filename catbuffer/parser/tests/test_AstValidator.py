@@ -152,10 +152,10 @@ class AstValidatorTests(unittest.TestCase):
         # Act + Assert:
         self._asssert_validate(validator, [])
 
-    def test_cannot_validate_struct_containing_named_inline_field_referencing_non_inline_type(self):
+    def _test_cannot_validate_struct_containing_named_inline_field_referencing_type_with_disposition(self, reference_disposition):
         # Arrange:
         validator = AstValidator([
-            Struct([None, 'MyCustomType', StructField(['beta', FixedSizeInteger('uint16')])]),
+            Struct([reference_disposition, 'MyCustomType', StructField(['beta', FixedSizeInteger('uint16')])]),
             Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType'], 'inline')])
         ])
 
@@ -164,27 +164,30 @@ class AstValidatorTests(unittest.TestCase):
             ErrorDescriptor('named inline field referencing non inline struct MyCustomType', 'FooBar', 'alpha')
         ])
 
-    def test_can_validate_struct_containing_unnamed_inline_field_referencing_non_inline_type(self):
+    def test_cannot_validate_struct_containing_named_inline_field_referencing_plain_type(self):
+        self._test_cannot_validate_struct_containing_named_inline_field_referencing_type_with_disposition(None)
+
+    def test_cannot_validate_struct_containing_named_inline_field_referencing_abstract_type(self):
+        self._test_cannot_validate_struct_containing_named_inline_field_referencing_type_with_disposition('abstract')
+
+    def _test_can_validate_struct_containing_unnamed_inline_field_referencing_type_with_disposition(self, reference_disposition):
         # Arrange:
         validator = AstValidator([
-            Struct([None, 'MyCustomType', StructField(['beta', FixedSizeInteger('uint16')])]),
+            Struct([reference_disposition, 'MyCustomType', StructField(['beta', FixedSizeInteger('uint16')])]),
             Struct([None, 'FooBar', StructInlinePlaceholder(['MyCustomType'])])
         ])
 
         # Act + Assert:
         self._asssert_validate(validator, [])
 
-    def test_cannot_validate_struct_containing_unnamed_inline_field_referencing_inline_type(self):
-        # Arrange:
-        validator = AstValidator([
-            Struct(['inline', 'MyCustomType', StructField(['beta', FixedSizeInteger('uint16')])]),
-            Struct([None, 'FooBar', StructInlinePlaceholder(['MyCustomType'])])
-        ])
+    def test_can_validate_struct_containing_unnamed_inline_field_referencing_plain_type(self):
+        self._test_can_validate_struct_containing_unnamed_inline_field_referencing_type_with_disposition(None)
 
-        # Act + Assert:
-        self._asssert_validate(validator, [
-            ErrorDescriptor('unnamed inline referencing inline struct MyCustomType', 'FooBar')
-        ])
+    def test_can_validate_struct_containing_unnamed_inline_field_referencing_inline_type(self):
+        self._test_can_validate_struct_containing_unnamed_inline_field_referencing_type_with_disposition('inline')
+
+    def test_can_validate_struct_containing_unnamed_inline_field_referencing_abstract_type(self):
+        self._test_can_validate_struct_containing_unnamed_inline_field_referencing_type_with_disposition('abstract')
 
     # endregion
 

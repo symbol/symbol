@@ -189,15 +189,16 @@ class EnumValueTests(unittest.TestCase):
 # region Struct
 
 class StructTests(unittest.TestCase):
-    def _test_can_create_struct(self, comment, expected_comment_descriptor, disposition=None):
+    def _test_can_create_struct(self, comment, expected_comment_descriptor):
         # Act:
-        model = Struct([disposition, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
         model.comment = comment
 
         # Assert:
         self.assertEqual('FooBar', model.name)
-        self.assertEqual(disposition, model.disposition)
+        self.assertEqual(None, model.disposition)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
+        self.assertEqual(False, model.is_inline)
         self.assertEqual({
             **expected_comment_descriptor,
             'name': 'FooBar',
@@ -206,6 +207,25 @@ class StructTests(unittest.TestCase):
         }, model.to_legacy_descriptor())
         self.assertEqual('struct FooBar  # 2 field(s)', str(model))
 
+    def _test_can_create_struct_with_modifier(self, comment, expected_comment_descriptor, disposition, is_inline=False):
+        # Act:
+        model = Struct([disposition, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        model.comment = comment
+
+        # Assert:
+        self.assertEqual('FooBar', model.name)
+        self.assertEqual(disposition, model.disposition)
+        self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
+        self.assertEqual(is_inline, model.is_inline)
+        self.assertEqual({
+            **expected_comment_descriptor,
+            'name': 'FooBar',
+            'type': 'struct',
+            'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
+            'disposition': disposition
+        }, model.to_legacy_descriptor())
+        self.assertEqual(f'{disposition} struct FooBar  # 2 field(s)', str(model))
+
     def test_can_create_struct(self):
         self._test_can_create_struct(None, {})
 
@@ -213,10 +233,34 @@ class StructTests(unittest.TestCase):
         self._test_can_create_struct(Comment('# my amazing comment'), {'comments': 'my amazing comment'})
 
     def test_can_create_inline_struct(self):
-        self._test_can_create_struct(None, {}, 'inline')
+        self._test_can_create_struct_with_modifier(None, {}, 'inline', True)
 
     def test_can_create_inline_struct_with_comment(self):
-        self._test_can_create_struct(Comment('# my amazing comment'), {'comments': 'my amazing comment'}, 'inline')
+        self._test_can_create_struct_with_modifier(Comment('# my amazing comment'), {'comments': 'my amazing comment'}, 'inline', True)
+
+    def test_can_create_const_struct(self):
+        self._test_can_create_struct_with_modifier(None, {}, 'const')
+
+    def test_can_create_const_struct_with_comment(self):
+        self._test_can_create_struct_with_modifier(Comment('# my amazing comment'), {'comments': 'my amazing comment'}, 'const')
+
+    def test_can_create_struct_with_factory_type(self):
+        # Act:
+        model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        model.factory_type = 'Dust'
+
+        # Assert:
+        self.assertEqual('FooBar', model.name)
+        self.assertEqual(None, model.disposition)
+        self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
+        self.assertEqual(False, model.is_inline)
+        self.assertEqual({
+            'name': 'FooBar',
+            'type': 'struct',
+            'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
+            'factory_type': 'Dust'
+        }, model.to_legacy_descriptor())
+        self.assertEqual('struct FooBar  # 2 field(s)', str(model))
 
     def test_cannot_apply_inline_template_when_struct_is_not_inline(self):
         # Arrange:
