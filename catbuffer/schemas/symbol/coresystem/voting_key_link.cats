@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between VotingKeyLinkTransaction and EmbeddedVotingKeyLinkTransaction.
-struct VotingKeyLinkTransactionBody
+inline struct VotingKeyLinkTransactionBody
 	# Linked voting public key.
 	linked_public_key = VotingPublicKey
 

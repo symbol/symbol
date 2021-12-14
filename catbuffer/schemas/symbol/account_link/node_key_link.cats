@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between NodeKeyLinkTransaction and EmbeddedNodeKeyLinkTransaction.
-struct NodeKeyLinkTransactionBody
+inline struct NodeKeyLinkTransactionBody
 	# Linked public key.
 	linked_public_key = PublicKey
 

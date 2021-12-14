@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between TransferTransaction and EmbeddedTransferTransaction.
-struct TransferTransactionBody
+inline struct TransferTransactionBody
 	# recipient address
 	recipient_address = UnresolvedAddress
 

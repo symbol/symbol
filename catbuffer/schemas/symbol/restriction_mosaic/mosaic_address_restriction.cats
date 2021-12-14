@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between MosaicAddressRestrictionTransaction and EmbeddedMosaicAddressRestrictionTransaction.
-struct MosaicAddressRestrictionTransactionBody
+inline struct MosaicAddressRestrictionTransactionBody
 	# Identifier of the mosaic to which the restriction applies.
 	mosaic_id = UnresolvedMosaicId
 

@@ -27,7 +27,7 @@ struct VrfProof
 	scalar = ProofScalar
 
 # binary layout for a block header
-struct BlockHeader
+abstract struct BlockHeader
 	inline SizePrefixedEntity
 	inline VerifiableEntity
 	inline EntityBody
@@ -66,7 +66,7 @@ struct BlockHeader
 	fee_multiplier = BlockFeeMultiplier
 
 # binary layout for an importance block footer
-struct ImportanceBlockFooter
+inline struct ImportanceBlockFooter
 	# number of voting eligible accounts
 	voting_eligible_accounts_count = uint32
 

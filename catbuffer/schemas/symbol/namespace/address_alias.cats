@@ -2,7 +2,7 @@ import "namespace/namespace_types.cats"
 import "transaction.cats"
 
 # Shared content between AddressAliasTransaction and EmbeddedAddressAliasTransaction.
-struct AddressAliasTransactionBody
+inline struct AddressAliasTransactionBody
 	# Identifier of the namespace that will become (or stop being) an alias for the address.
 	namespace_id = NamespaceId
 

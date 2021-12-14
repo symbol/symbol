@@ -2,7 +2,7 @@ import "namespace/namespace_types.cats"
 import "transaction.cats"
 
 # Shared content between NamespaceRegistrationTransaction and EmbeddedNamespaceRegistrationTransaction.
-struct NamespaceRegistrationTransactionBody
+inline struct NamespaceRegistrationTransactionBody
 	# Number of confirmed blocks you would like to rent the namespace for. Required for root namespaces.
 	duration = BlockDuration if ROOT equals registration_type
 

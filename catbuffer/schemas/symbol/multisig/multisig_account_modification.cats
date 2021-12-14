@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between MultisigAccountModificationTransaction and EmbeddedMultisigAccountModificationTransaction.
-struct MultisigAccountModificationTransactionBody
+inline struct MultisigAccountModificationTransactionBody
 	# Relative change to the **minimum** number of cosignatures required when **removing a cosignatory**.
 	#
 	# E.g., when moving from 0 to 2 cosignatures this number would be **2**.

@@ -1,4 +1,4 @@
 # header common to all serialized states
-struct StateHeader
+inline struct StateHeader
 	# serialization version
 	version = uint16

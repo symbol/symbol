@@ -2,7 +2,7 @@ import "mosaic/mosaic_types.cats"
 import "transaction.cats"
 
 # Shared content between MosaicDefinitionTransaction and Embedded MosaicDefinitionTransaction.
-struct MosaicDefinitionTransactionBody
+inline struct MosaicDefinitionTransactionBody
 	# Unique mosaic identifier obtained from the generator account's public key and the `nonce`.
 	#
 	# The SDK's can take care of generating this ID for you.

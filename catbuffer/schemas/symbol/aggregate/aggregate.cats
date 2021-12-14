@@ -2,7 +2,7 @@ import "aggregate/cosignature.cats"
 import "transaction.cats"
 
 # Shared content between AggregateCompleteTransaction and AggregateBondedTransaction.
-struct AggregateTransactionBody
+inline struct AggregateTransactionBody
 	# Hash of the aggregate's transaction.
 	transactions_hash = Hash256
 

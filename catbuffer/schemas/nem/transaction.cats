@@ -2,7 +2,7 @@ import "entity.cats"
 import "transaction_type.cats"
 
 # binary layout for a transaction
-struct Transaction
+abstract struct Transaction
 	# transaction type
 	type = TransactionType
 

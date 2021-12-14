@@ -2,7 +2,7 @@ import "mosaic/mosaic_types.cats"
 import "transaction.cats"
 
 # Shared content between MosaicSupplyChangeTransaction and EmbeddedMosaicSupplyChangeTransaction.
-struct MosaicSupplyChangeTransactionBody
+inline struct MosaicSupplyChangeTransactionBody
 	# Affected mosaic identifier.
 	mosaic_id = UnresolvedMosaicId
 

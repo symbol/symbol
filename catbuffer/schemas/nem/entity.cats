@@ -9,7 +9,7 @@ enum NetworkType : uint8
 	TESTNET = 0x98
 
 # binary layout for a blockchain entity (block or transaction)
-struct EntityBody
+inline struct EntityBody
 	# entity version
 	version = uint8
 

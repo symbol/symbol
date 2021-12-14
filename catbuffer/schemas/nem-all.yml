@@ -38,8 +38,47 @@
   - comments: test network
     name: TESTNET
     value: 152
-- comments: binary layout for a blockchain entity (block or transaction)
+- comments: enumeration of transaction types
+  name: TransactionType
+  signedness: unsigned
+  size: 4
+  type: enum
+  values:
+  - comments: transfer transaction
+    name: TRANSFER
+    value: 257
+  - comments: account key link trasaction alternatively called importance transfer
+      transaction
+    name: ACCOUNT_KEY_LINK
+    value: 2049
+  - comments: multisig account modification transaction alternatively called multisig
+      consignatory modification transaction
+    name: MULTISIG_ACCOUNT_MODIFICATION
+    value: 4097
+  - comments: multisig cosignature transaction alternatively called multisig signature
+      transaction
+    name: MULTISIG_COSIGNATURE
+    value: 4098
+  - comments: multisig transaction
+    name: MULTISIG_TRANSACTION
+    value: 4100
+  - comments: namespace registration transaction alternatively called provision namespace
+      transaction
+    name: NAMESPACE_REGISTRATION
+    value: 8193
+  - comments: mosaic definition transaction alternatively called mosaic definition
+      creation transaction
+    name: MOSAIC_DEFINITION
+    value: 16385
+  - comments: mosaic supply change transaction
+    name: MOSAIC_SUPPLY_CHANGE
+    value: 16386
+- comments: binary layout for a transaction
+  disposition: abstract
   layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
   - comments: entity version
     name: version
     signedness: unsigned
@@ -78,50 +117,6 @@
   - comments: entity signature
     name: signature
     type: Signature
-  name: EntityBody
-  type: struct
-- comments: enumeration of transaction types
-  name: TransactionType
-  signedness: unsigned
-  size: 4
-  type: enum
-  values:
-  - comments: transfer transaction
-    name: TRANSFER
-    value: 257
-  - comments: account key link trasaction alternatively called importance transfer
-      transaction
-    name: ACCOUNT_KEY_LINK
-    value: 2049
-  - comments: multisig account modification transaction alternatively called multisig
-      consignatory modification transaction
-    name: MULTISIG_ACCOUNT_MODIFICATION
-    value: 4097
-  - comments: multisig cosignature transaction alternatively called multisig signature
-      transaction
-    name: MULTISIG_COSIGNATURE
-    value: 4098
-  - comments: multisig transaction
-    name: MULTISIG_TRANSACTION
-    value: 4100
-  - comments: namespace registration transaction alternatively called provision namespace
-      transaction
-    name: NAMESPACE_REGISTRATION
-    value: 8193
-  - comments: mosaic definition transaction alternatively called mosaic definition
-      creation transaction
-    name: MOSAIC_DEFINITION
-    value: 16385
-  - comments: mosaic supply change transaction
-    name: MOSAIC_SUPPLY_CHANGE
-    value: 16386
-- comments: binary layout for a transaction
-  layout:
-  - comments: transaction type
-    name: type
-    type: TransactionType
-  - disposition: inline
-    type: EntityBody
   - comments: transaction fee
     name: fee
     type: Amount
@@ -147,8 +142,44 @@
   - comments: block type
     name: type
     type: BlockType
-  - disposition: inline
-    type: EntityBody
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
   - comments: previous block hash
     name: previous_block_hash
     type: Hash256
@@ -180,6 +211,7 @@
     name: UNLINK
     value: 2
 - comments: binary layout for an account key link transaction
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -191,8 +223,53 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: ACCOUNT_KEY_LINK
-  - disposition: inline
-    type: Transaction
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
   - comments: link action
     name: link_action
     type: LinkAction
@@ -373,6 +450,7 @@
   name: MosaicDefinition
   type: struct
 - comments: binary layout for an importance transfer transaction
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -384,8 +462,53 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_DEFINITION
-  - disposition: inline
-    type: Transaction
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
   - comments: mosaic definition
     name: mosaic_definition
     type: MosaicDefinition
@@ -417,6 +540,7 @@
     name: DECREASE
     value: 2
 - comments: binary layout for an mosaic supply change transaction
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -428,8 +552,53 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_SUPPLY_CHANGE
-  - disposition: inline
-    type: Transaction
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
   - comments: mosaic id
     name: mosaic_id
     type: MosaicId
@@ -471,6 +640,7 @@
   name: MultisigAccountModification
   type: struct
 - comments: binary layout for a multisig account modification transaction (V1)
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -482,8 +652,53 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_ACCOUNT_MODIFICATION
-  - disposition: inline
-    type: Transaction
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
   - comments: number of modifications
     name: modifications_count
     signedness: unsigned
@@ -504,8 +719,73 @@
     size: 1
     type: byte
     value: 2
-  - disposition: inline
-    type: MultisigAccountModificationTransaction
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MULTISIG_ACCOUNT_MODIFICATION
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - comments: number of modifications
+    name: modifications_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: multisig account modifications
+    disposition: array
+    name: modifications
+    size: modifications_count
+    type: MultisigAccountModification
   - comments: the size of the min_approval_delta
     disposition: reserved
     name: min_approval_delta_size
@@ -522,6 +802,7 @@
   name: MultisigAccountModificationTransaction2
   type: struct
 - comments: cosignature attached to an aggregate transaction
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -533,8 +814,53 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_COSIGNATURE
-  - disposition: inline
-    type: Transaction
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
   - comments: multisig transaction hash outer size
     disposition: reserved
     name: multisig_transaction_hash_outer_size
@@ -565,6 +891,7 @@
   name: Cosignature
   type: struct
 - comments: binary layout for a multisig transaction
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -576,8 +903,53 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_TRANSACTION
-  - disposition: inline
-    type: Transaction
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
   - comments: inner transaction size
     name: inner_transaction_size
     signedness: unsigned
@@ -599,6 +971,7 @@
   name: MultisigTransaction
   type: struct
 - comments: binary layout for a namespace registration transaction
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -610,8 +983,53 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: NAMESPACE_REGISTRATION
-  - disposition: inline
-    type: Transaction
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
   - comments: mosaic rental fee sink public key size
     disposition: reserved
     name: rental_fee_sink_size
@@ -690,6 +1108,7 @@
   name: Message
   type: struct
 - comments: binary layout for a transfer transaction (V1)
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -701,8 +1120,53 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: TRANSFER
-  - disposition: inline
-    type: Transaction
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
   - comments: recipient address size
     disposition: reserved
     name: recipient_address_size
@@ -737,8 +1201,87 @@
     size: 1
     type: byte
     value: 2
-  - disposition: inline
-    type: TransferTransaction
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: TRANSFER
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - comments: recipient address size
+    disposition: reserved
+    name: recipient_address_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: recipient address
+    name: recipient_address
+    type: Address
+  - comments: XEM amount
+    name: amount
+    type: Amount
+  - comments: message envelope size
+    name: message_envelope_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: optional message
+    condition: message_envelope_size
+    condition_operation: not equals
+    condition_value: 0
+    name: message
+    type: Message
   - comments: number of attached mosaics
     name: mosaics_count
     signedness: unsigned

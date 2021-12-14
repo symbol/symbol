@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between AccountMetadataTransaction and EmbeddedAccountMetadataTransaction.
-struct AccountMetadataTransactionBody
+inline struct AccountMetadataTransactionBody
 	# Account whose metadata should be modified.
 	target_address = UnresolvedAddress
 

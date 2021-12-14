@@ -9,7 +9,7 @@ enum NetworkType : uint8
 	TESTNET = 0x98
 
 # Serialization of an entity that has its size stated as a prefix (header).
-struct SizePrefixedEntity
+inline struct SizePrefixedEntity
 	# Entity size in bytes.
 	#
 	# This size includes the header and the full payload of the entity.
@@ -18,7 +18,7 @@ struct SizePrefixedEntity
 	size = uint32
 
 # Serialization of an entity that should be signed by an account.
-struct VerifiableEntity
+inline struct VerifiableEntity
 	# Reserved padding to align Signature to an 8-byte boundary.
 	verifiable_entity_header_reserved_1 = make_reserved(uint32, 0)
 
@@ -29,7 +29,7 @@ struct VerifiableEntity
 #
 # An entity could be a [Block](/concepts/block.html) or a
 # [Transaction](/concepts/transaction.html).
-struct EntityBody
+inline struct EntityBody
 	# Public key of the signer of the entity.
 	signer_public_key = PublicKey
 

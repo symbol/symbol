@@ -2,7 +2,7 @@ import "lock_secret/lock_secret_types.cats"
 import "transaction.cats"
 
 # Shared content between SecretProofTransaction and EmbeddedSecretProofTransaction.
-struct SecretProofTransactionBody
+inline struct SecretProofTransactionBody
 	# Address that receives the funds once unlocked.
 	recipient_address = UnresolvedAddress
 
