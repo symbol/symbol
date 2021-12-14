@@ -21,4 +21,4 @@ struct RootNamespaceHistory
 	children_count = uint64
 
 	# save child sub-namespace paths
-	paths = array(NamespacePath, children_count, sort_key=path)
+	paths = array(NamespacePath, children_count, @sort_key=path)

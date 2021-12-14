@@ -1725,7 +1725,8 @@
     size: 4
     type: byte
     value: 0
-  - comments: 'Embedded transaction data.
+  - alignment: 8
+    comments: 'Embedded transaction data.
 
       Transactions are variable-sized and the total payload size is in bytes.
 

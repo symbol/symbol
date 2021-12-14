@@ -53,4 +53,4 @@ struct TransferTransaction2
 
 	# attached mosaics
 	# notice that mosaic amount is multipled by transfer amount to get effective amount
-	mosaics = array(Mosaic, mosaics_count, sort_key=mosaic_id)
+	mosaics = array(Mosaic, mosaics_count, @sort_key=mosaic_id)
