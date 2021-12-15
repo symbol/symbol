@@ -60,6 +60,8 @@ class AstPostProcessor:
                     referenced_type_model = self.type_descriptor_map[field.inlined_typename]
                     if 'abstract' == referenced_type_model.disposition:
                         model.factory_type = referenced_type_model.name
+                    elif referenced_type_model.factory_type:
+                        model.factory_type = referenced_type_model.factory_type
 
                     model.fields.extend(referenced_type_model.fields)
 

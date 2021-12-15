@@ -5,6 +5,8 @@ from catparser.AstPostProcessor import AstPostProcessor
 
 
 class AstPostProcessorTests(unittest.TestCase):
+    # region expand_named_inlines
+
     @staticmethod
     def _create_type_descriptors_for_named_inline_tests():
         return [
@@ -52,6 +54,10 @@ class AstPostProcessorTests(unittest.TestCase):
         self.assertEqual(['counter', 'iso', 'iso_beta', 'alpha'], [field.name for field in type_descriptors[1].fields])  # iso was expanded
         self.assertEqual(['weight'], [field.name for field in type_descriptors[2].fields])  # nothing was expanded
 
+    # endregion
+
+    # region expand_unnamed_inlines
+
     @staticmethod
     def _create_type_descriptors_for_unnamed_inline_tests():
         return [
@@ -92,3 +98,46 @@ class AstPostProcessorTests(unittest.TestCase):
 
         self.assertEqual(['counter', 'weight', 'height'], [field.name for field in type_descriptors[1].fields])  # Abstract2 was expanded
         self.assertEqual('Abstract2', type_descriptors[1].factory_type)
+
+    def test_expand_unnamed_inlines_expands_unnamed_inlines_with_transitive_factory_type(self):
+        # Arrange:
+        processor = AstPostProcessor([
+            Struct(['abstract', 'Abstract1', StructField(['counter', FixedSizeInteger('uint8')])]),
+            Struct(['inline', 'Inline2', StructInlinePlaceholder(['Abstract1']), StructField(['weight', FixedSizeInteger('uint32')])]),
+            Struct([None, 'Plain3', StructInlinePlaceholder(['Inline2']), StructField(['height', FixedSizeInteger('uint16')])])
+        ])
+
+        # Act:
+        processor.expand_unnamed_inlines()
+        type_descriptors = processor.type_descriptors
+
+        # Assert:
+        self.assertEqual(['counter'], [field.name for field in type_descriptors[0].fields])
+        self.assertEqual(None, type_descriptors[0].factory_type)
+
+        self.assertEqual(['counter', 'weight', 'height'], [field.name for field in type_descriptors[1].fields])  # Inline2 was expanded
+        self.assertEqual('Abstract1', type_descriptors[1].factory_type)  # factory_type is set to abstract grandparent
+
+    def test_expand_unnamed_inlines_expands_unnamed_inlines_with_closest_factory_type(self):
+        # Arrange:
+        processor = AstPostProcessor([
+            Struct(['abstract', 'Abstract1', StructField(['counter', FixedSizeInteger('uint8')])]),
+            Struct(['abstract', 'Abstract2', StructInlinePlaceholder(['Abstract1']), StructField(['weight', FixedSizeInteger('uint32')])]),
+            Struct([None, 'Plain3', StructInlinePlaceholder(['Abstract2']), StructField(['height', FixedSizeInteger('uint16')])])
+        ])
+
+        # Act:
+        processor.expand_unnamed_inlines()
+        type_descriptors = processor.type_descriptors
+
+        # Assert:
+        self.assertEqual(['counter'], [field.name for field in type_descriptors[0].fields])
+        self.assertEqual(None, type_descriptors[0].factory_type)
+
+        self.assertEqual(['counter', 'weight'], [field.name for field in type_descriptors[1].fields])  # Abstract1 was expanded
+        self.assertEqual('Abstract1', type_descriptors[1].factory_type)
+
+        self.assertEqual(['counter', 'weight', 'height'], [field.name for field in type_descriptors[2].fields])  # Abstract2 was expanded
+        self.assertEqual('Abstract2', type_descriptors[2].factory_type)  # Abstract2 is prefered to Abstract1
+
+    # endregion
