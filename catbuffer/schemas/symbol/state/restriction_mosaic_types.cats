@@ -23,7 +23,8 @@ struct AddressKeyValueSet
 	key_value_count = uint8
 
 	# key value array
-	keys = array(AddressKeyValue, key_value_count, @sort_key=key)
+	@sort_key(key)
+	keys = array(AddressKeyValue, key_value_count)
 
 # binary layout of restriction rule being applied
 struct RestrictionRule
@@ -50,4 +51,5 @@ struct GlobalKeyValueSet
 	key_value_count = uint8
 
 	# key value array
-	keys = array(GlobalKeyValue, key_value_count, @sort_key=key)
+	@sort_key(key)
+	keys = array(GlobalKeyValue, key_value_count)

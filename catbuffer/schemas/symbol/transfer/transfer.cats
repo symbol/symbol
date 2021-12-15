@@ -18,7 +18,8 @@ inline struct TransferTransactionBody
 	transfer_transaction_body_reserved_2 = make_reserved(uint8, 0)
 
 	# attached mosaics
-	mosaics = array(UnresolvedMosaic, mosaics_count, @sort_key=mosaic_id)
+	@sort_key(mosaic_id)
+	mosaics = array(UnresolvedMosaic, mosaics_count)
 
 	# attached message
 	message = array(uint8, message_size)

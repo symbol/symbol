@@ -20,7 +20,9 @@ inline struct AggregateTransactionBody
 	# Transactions are variable-sized and the total payload size is in bytes.
 	#
 	# Embedded transactions cannot be aggregates.
-	transactions = array(EmbeddedTransaction, @size=payload_size, @alignment=8)
+	@is_byte_constrained
+	@alignment(8)
+	transactions = array(EmbeddedTransaction, payload_size)
 
 	# Cosignatures data.
 	#
