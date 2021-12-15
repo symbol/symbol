@@ -18,9 +18,8 @@ struct MultisigAccountModification
 	# [size] cosignatory public size
 	cosignatory_public_key = inline SizePrefixedPublicKey
 
-# binary layout for a multisig account modification transaction (V1)
-struct MultisigAccountModificationTransaction
-	TRANSACTION_VERSION = make_const(uint8, 1)
+# shared content between MultisigAccountModificationTransaction and MultisigAccountModificationTransaction2
+inline struct MultisigAccountModificationTransactionBody
 	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_ACCOUNT_MODIFICATION)
 
 	inline Transaction
@@ -31,11 +30,17 @@ struct MultisigAccountModificationTransaction
 	# multisig account modifications
 	modifications = array(MultisigAccountModification, modifications_count)
 
+# binary layout for a multisig account modification transaction (V1)
+struct MultisigAccountModificationTransaction
+	TRANSACTION_VERSION = make_const(uint8, 1)
+
+	inline MultisigAccountModificationTransactionBody
+
 # binary layout for a multisig account modification transaction (V2)
 struct MultisigAccountModificationTransaction2
 	TRANSACTION_VERSION = make_const(uint8, 2)
 
-	inline MultisigAccountModificationTransaction
+	inline MultisigAccountModificationTransactionBody
 
 	# the size of the min_approval_delta
 	min_approval_delta_size = make_reserved(uint32, 4)

@@ -21,9 +21,8 @@ struct Message
 	# message payload
 	message = array(uint8, message_size)
 
-# binary layout for a transfer transaction (V1)
-struct TransferTransaction
-	TRANSACTION_VERSION = make_const(uint8, 1)
+# shared content between TransferTransaction and TransferTransaction2
+inline struct TransferTransactionBody
 	TRANSACTION_TYPE = make_const(TransactionType, TRANSFER)
 
 	inline Transaction
@@ -42,11 +41,17 @@ struct TransferTransaction
 	# optional message
 	message = Message if 0 not equals message_envelope_size
 
+# binary layout for a transfer transaction (V1)
+struct TransferTransaction
+	TRANSACTION_VERSION = make_const(uint8, 1)
+
+	inline TransferTransactionBody
+
 # binary layout for a transfer transaction (V2)
 struct TransferTransaction2
 	TRANSACTION_VERSION = make_const(uint8, 2)
 
-	inline TransferTransaction
+	inline TransferTransactionBody
 
 	# number of attached mosaics
 	mosaics_count = uint32

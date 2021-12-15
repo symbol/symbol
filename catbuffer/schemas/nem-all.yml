@@ -712,6 +712,7 @@
   name: MultisigAccountModificationTransaction
   type: struct
 - comments: binary layout for a multisig account modification transaction (V2)
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -719,12 +720,6 @@
     size: 1
     type: byte
     value: 2
-  - disposition: const
-    name: TRANSACTION_VERSION
-    signedness: unsigned
-    size: 1
-    type: byte
-    value: 1
   - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
@@ -1194,6 +1189,7 @@
   name: TransferTransaction
   type: struct
 - comments: binary layout for a transfer transaction (V2)
+  factory_type: Transaction
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -1201,12 +1197,6 @@
     size: 1
     type: byte
     value: 2
-  - disposition: const
-    name: TRANSACTION_VERSION
-    signedness: unsigned
-    size: 1
-    type: byte
-    value: 1
   - disposition: const
     name: TRANSACTION_TYPE
     type: TransactionType
