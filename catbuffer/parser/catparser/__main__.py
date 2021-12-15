@@ -88,6 +88,7 @@ def main():
 
     validate(raw_type_descriptors, 'PRE EXPANSION')
 
+    processor.apply_attributes()
     processor.expand_named_inlines()
     processor.expand_unnamed_inlines()
 

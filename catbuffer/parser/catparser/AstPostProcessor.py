@@ -13,6 +13,22 @@ class AstPostProcessor:
         # filter out inline structs
         return [model for model in self.raw_type_descriptors if not hasattr(model, 'disposition') or 'inline' != model.disposition]
 
+    def apply_attributes(self):
+        """Sets properties from attributes within all structures."""
+        for model in self._structs():
+            for field in model.fields:
+                if not hasattr(field, 'attributes') or not field.attributes:
+                    continue
+
+                for attribute in field.attributes:
+                    if not hasattr(field.field_type, attribute.name):
+                        raise AstException(f'field {field.name} ({field.field_type}) does not have property {attribute.name}')
+
+                    setattr(field.field_type, attribute.name, attribute.value)
+
+    def _structs(self):
+        return [model for _, model in self.type_descriptor_map.items() if isinstance(model, Struct)]
+
     def expand_named_inlines(self):
         """Expands named inline fields within all structures."""
 

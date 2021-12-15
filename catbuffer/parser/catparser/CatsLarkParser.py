@@ -2,7 +2,7 @@
 from lark import Lark, Transformer
 from lark.indenter import Indenter
 
-from .ast import (Alias, Array, ArraySeed, Comment, Conditional, Enum, EnumValue, FixedSizeBuffer, FixedSizeInteger, Struct, StructField,
+from .ast import (Alias, Array, Attribute, Comment, Conditional, Enum, EnumValue, FixedSizeBuffer, FixedSizeInteger, Struct, StructField,
                   StructInlinePlaceholder)
 
 
@@ -57,6 +57,18 @@ def create_cats_lark_parser():
 
         # endregion
 
+        # region attribute
+
+        @staticmethod
+        def attribute(tokens):
+            return Attribute(tokens)
+
+        @staticmethod
+        def attributes(tokens):
+            return tokens  # forward array upstream
+
+        # endregion
+
         # region alias
 
         @staticmethod
@@ -89,7 +101,12 @@ def create_cats_lark_parser():
 
         @staticmethod
         def struct_child(tokens):
-            return CatbufferTransformer.statement(tokens)
+            tokens[2].comment = tokens[0]
+
+            if tokens[1]:
+                tokens[2].attributes = tokens[1]
+
+            return tokens[2]
 
         @staticmethod
         def struct_inline(tokens):
@@ -118,18 +135,6 @@ def create_cats_lark_parser():
         # endregion
 
         # region array
-
-        @staticmethod
-        def count_based_array(tokens):
-            return ArraySeed(tokens, 'array')
-
-        @staticmethod
-        def size_based_array(tokens):
-            return ArraySeed(tokens, 'array sized')
-
-        @staticmethod
-        def FILL_BASED_ARRAY(_):  # pylint: disable=invalid-name
-            return ArraySeed([], 'array fill')
 
         @staticmethod
         def array_expression(tokens):

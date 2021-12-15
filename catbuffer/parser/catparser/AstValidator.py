@@ -73,6 +73,11 @@ class AstValidator:
                 else:
                     self._validate_in_range(field.field_type, field.value, create_error_descriptor)
 
+            if field.attributes:
+                for attribute in field.attributes:
+                    if not hasattr(field.field_type, attribute.name):
+                        self.errors.append(create_error_descriptor(f'inapplicable attribute {attribute.name}'))
+
     def _validate_unnamed_inline(self, field, create_error_descriptor):
         if not self._is_known_type(field.inlined_typename):
             self.errors.append(create_error_descriptor(f'reference to unknown inlined type {field.inlined_typename}'))

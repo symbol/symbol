@@ -1,6 +1,6 @@
 import unittest
 
-from catparser.ast import (Alias, Array, ArraySeed, AstException, Comment, Conditional, Enum, EnumValue, FixedSizeBuffer, FixedSizeInteger,
+from catparser.ast import (Alias, Array, AstException, Attribute, Comment, Conditional, Enum, EnumValue, FixedSizeBuffer, FixedSizeInteger,
                            Struct, StructField, StructInlinePlaceholder)
 
 # region Comment
@@ -186,9 +186,39 @@ class EnumValueTests(unittest.TestCase):
 
 # endregion
 
+# region Attribute
+
+class AttributeTests(unittest.TestCase):
+    def test_can_create_attribute_without_value(self):
+        # Act:
+        model = Attribute(['foo', None])
+
+        # Assert:
+        self.assertEqual('foo', model.name)
+        self.assertEqual(True, model.value)
+        self.assertEqual(True, model.is_flag)
+        self.assertEqual('@foo', str(model))
+
+    def test_can_create_attribute_with_value(self):
+        # Act:
+        model = Attribute(['foo', 'something'])
+
+        # Assert:
+        self.assertEqual('foo', model.name)
+        self.assertEqual('something', model.value)
+        self.assertEqual(False, model.is_flag)
+        self.assertEqual('@foo(something)', str(model))
+
+
+# endregion
+
 # region Struct
 
 class StructTests(unittest.TestCase):
+    def _assert_disposition(self, model, disposition=None, is_inline=False):
+        self.assertEqual(disposition, model.disposition)
+        self.assertEqual(is_inline, model.is_inline)
+
     def _test_can_create_struct(self, comment, expected_comment_descriptor):
         # Act:
         model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
@@ -196,9 +226,8 @@ class StructTests(unittest.TestCase):
 
         # Assert:
         self.assertEqual('FooBar', model.name)
-        self.assertEqual(None, model.disposition)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
-        self.assertEqual(False, model.is_inline)
+        self._assert_disposition(model)
         self.assertEqual({
             **expected_comment_descriptor,
             'name': 'FooBar',
@@ -214,9 +243,8 @@ class StructTests(unittest.TestCase):
 
         # Assert:
         self.assertEqual('FooBar', model.name)
-        self.assertEqual(disposition, model.disposition)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
-        self.assertEqual(is_inline, model.is_inline)
+        self._assert_disposition(model, disposition=disposition, is_inline=is_inline)
         self.assertEqual({
             **expected_comment_descriptor,
             'name': 'FooBar',
@@ -251,9 +279,8 @@ class StructTests(unittest.TestCase):
 
         # Assert:
         self.assertEqual('FooBar', model.name)
-        self.assertEqual(None, model.disposition)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
-        self.assertEqual(False, model.is_inline)
+        self._assert_disposition(model)
         self.assertEqual({
             'name': 'FooBar',
             'type': 'struct',
@@ -329,6 +356,10 @@ class StructTests(unittest.TestCase):
 
 
 class StructFieldTests(unittest.TestCase):
+    def _assert_extensions(self, model, comment=None, attributes=None):
+        self.assertEqual(comment, model.comment)
+        self.assertEqual(attributes, model.attributes)
+
     def _test_can_create_struct_field(self, comment, expected_comment_descriptor):
         # Act:
         model = StructField(['foo_field', 'MyCustomType'])
@@ -339,7 +370,7 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('MyCustomType', model.field_type)
         self.assertEqual(None, model.value)
         self.assertEqual(None, model.disposition)
-        self.assertEqual(comment, model.comment)
+        self._assert_extensions(model, comment=comment)
 
         self.assertEqual({**expected_comment_descriptor, 'name': 'foo_field', 'type': 'MyCustomType'}, model.to_legacy_descriptor())
         self.assertEqual('foo_field = MyCustomType', str(model))
@@ -359,7 +390,7 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('MyCustomType', model.field_type)
         self.assertEqual('custom_flags', model.value.linked_field_name)
         self.assertEqual(None, model.disposition)
-        self.assertEqual(None, model.comment)
+        self._assert_extensions(model)
 
         self.assertEqual({
             'name': 'foo_field', 'type': 'MyCustomType',
@@ -377,7 +408,7 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('MyCustomType', model.field_type)
         self.assertEqual(None, model.value)
         self.assertEqual('inline', model.disposition)
-        self.assertEqual(comment, model.comment)
+        self._assert_extensions(model, comment=comment)
 
         self.assertEqual(
             {**expected_comment_descriptor, 'name': 'foo_field', 'type': 'MyCustomType', 'disposition': 'inline'},
@@ -400,7 +431,7 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('ColorShade', model.field_type)
         self.assertEqual('RED', model.value)
         self.assertEqual('const', model.disposition)
-        self.assertEqual(comment, model.comment)
+        self._assert_extensions(model, comment=comment)
 
         self.assertEqual(
             {**expected_comment_descriptor, 'name': 'BACKGROUND_COLOR', 'type': 'ColorShade', 'value': 'RED', 'disposition': 'const'},
@@ -423,7 +454,7 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('ColorShade', model.field_type)
         self.assertEqual('RED', model.value)
         self.assertEqual('reserved', model.disposition)
-        self.assertEqual(comment, model.comment)
+        self._assert_extensions(model, comment=comment)
 
         self.assertEqual(
             {**expected_comment_descriptor, 'name': 'background_color', 'type': 'ColorShade', 'value': 'RED', 'disposition': 'reserved'},
@@ -445,7 +476,7 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('uint8', model.field_type.short_name)
         self.assertEqual(0, model.value)
         self.assertEqual(disposition, model.disposition)
-        self.assertEqual(None, model.comment)
+        self._assert_extensions(model)
 
         self.assertEqual(
             {'name': field_name, 'type': 'byte', 'size': 1, 'signedness': 'unsigned', 'value': 0, 'disposition': disposition},
@@ -457,6 +488,22 @@ class StructFieldTests(unittest.TestCase):
 
     def test_can_create_reserved_struct_field_with_zero_value(self):
         self._test_can_create_const_reserved_struct_field_with_zero_value('reserved_1', 'reserved')
+
+    def test_can_create_struct_field_with_attributes(self):
+        # Act:
+        attributes = [Attribute(['foo', 'alpha']), Attribute(['bar', None]), Attribute(['baz', 'beta'])]
+        model = StructField(['foo_field', 'MyCustomType'])
+        model.attributes = attributes
+
+        # Assert:
+        self.assertEqual('foo_field', model.name)
+        self.assertEqual('MyCustomType', model.field_type)
+        self.assertEqual(None, model.value)
+        self.assertEqual(None, model.disposition)
+        self._assert_extensions(model, attributes=attributes)
+
+        self.assertEqual({'name': 'foo_field', 'type': 'MyCustomType'}, model.to_legacy_descriptor())
+        self.assertEqual('@foo(alpha)\n@bar\n@baz(beta)\nfoo_field = MyCustomType', str(model))
 
     def test_can_copy_simple_field(self):
         # Arrange:
@@ -470,6 +517,7 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('MyCustomType', model.field_type)
         self.assertEqual(None, model.value)
         self.assertEqual(None, model.disposition)
+        self._assert_extensions(model)
 
     def test_can_copy_field_with_special_name(self):
         # Arrange:
@@ -483,6 +531,7 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('MyCustomType', model.field_type)
         self.assertEqual(None, model.value)
         self.assertEqual(None, model.disposition)
+        self._assert_extensions(model)
 
     def test_can_copy_field_with_value(self):
         # Arrange:
@@ -496,10 +545,12 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('uint8', model.field_type.short_name)
         self.assertEqual(10, model.value)
         self.assertEqual('reserved', model.disposition)
+        self._assert_extensions(model)
 
     def test_can_copy_field_with_array_type(self):
         # Arrange:
-        model = StructField(['foo_field', Array(['ElementType', ArraySeed(['bar_field', 'foo_field'], 'array')])])
+        model = StructField(['foo_field', Array(['ElementType', 'bar_field'])])
+        model.field_type.sort_key = 'foo_field'
 
         # Act:
         model = model.copy('alpha')
@@ -514,6 +565,7 @@ class StructFieldTests(unittest.TestCase):
 
         self.assertEqual(None, model.value)
         self.assertEqual(None, model.disposition)
+        self._assert_extensions(model)
 
     def test_can_copy_field_with_conditional_value(self):
         # Arrange:
@@ -531,6 +583,23 @@ class StructFieldTests(unittest.TestCase):
         self.assertEqual('SPECIAL_FLAG', model.value.value)
 
         self.assertEqual(None, model.disposition)
+        self._assert_extensions(model)
+
+    def test_can_copy_simple_field_with_attributes(self):
+        # Arrange:
+        attributes = [Attribute(['foo', 'alpha'])]
+        model = StructField(['foo_field', 'MyCustomType'])
+        model.attributes = attributes
+
+        # Act:
+        model = model.copy('alpha')
+
+        # Assert:
+        self.assertEqual('alpha_foo_field', model.name)
+        self.assertEqual('MyCustomType', model.field_type)
+        self.assertEqual(None, model.value)
+        self.assertEqual(None, model.disposition)
+        self._assert_extensions(model, attributes=attributes)
 
 
 class StructInlinePlaceholderTests(unittest.TestCase):
@@ -582,111 +651,84 @@ class ConditionalTests(unittest.TestCase):
 
 # region Array
 
-class ArraySeedTests(unittest.TestCase):
-    def test_can_create_seed_array(self):
-        # Act:
-        seed = ArraySeed([10, 'foo_field'], 'array')
-
-        # Assert:
-        self.assertEqual(10, seed.size)
-        self.assertEqual('foo_field', seed.sort_key)
-        self.assertEqual('array', seed.disposition)
-
-    def test_can_create_seed_array_sized(self):
-        # Act:
-        seed = ArraySeed([10], 'array sized')
-
-        # Assert:
-        self.assertEqual(10, seed.size)
-        self.assertEqual(None, seed.sort_key)
-        self.assertEqual('array sized', seed.disposition)
-
-    def test_can_create_seed_array_fill(self):
-        # Act:
-        seed = ArraySeed([], 'array fill')
-
-        # Assert:
-        self.assertEqual(0, seed.size)
-        self.assertEqual(None, seed.sort_key)
-        self.assertEqual('array fill', seed.disposition)
-
-
 class ArrayTests(unittest.TestCase):
+    def _assert_attributes(self, model, sort_key=None, alignment=None, is_byte_constrained=False):
+        self.assertEqual(sort_key, model.sort_key)
+        self.assertEqual(alignment, model.alignment)
+        self.assertEqual(is_byte_constrained, model.is_byte_constrained)
+
     def test_can_create_udt_array(self):
         # Act:
-        model = Array(['ElementType', ArraySeed([10], 'array')])
+        model = Array(['ElementType', 10])
 
         # Assert:
         self.assertEqual(10, model.size)
         self.assertEqual('array', model.disposition)
         self.assertEqual('ElementType', model.element_type)
-        self.assertEqual(None, model.sort_key)
-        self.assertEqual(None, model.alignment)
+        self._assert_attributes(model)
         self.assertEqual({'disposition': 'array', 'size': 10, 'type': 'ElementType'}, model.to_legacy_descriptor())
         self.assertEqual('array(ElementType, 10)', str(model))
 
     def test_can_create_udt_array_sized(self):
         # Act:
-        model = Array(['ElementType', ArraySeed([10], 'array sized')])
+        model = Array(['ElementType', 10])
+        model.is_byte_constrained = True
 
         # Assert:
         self.assertEqual(10, model.size)
         self.assertEqual('array sized', model.disposition)
         self.assertEqual('ElementType', model.element_type)
-        self.assertEqual(None, model.sort_key)
-        self.assertEqual(None, model.alignment)
+        self._assert_attributes(model, is_byte_constrained=True)
         self.assertEqual({'disposition': 'array sized', 'size': 10, 'type': 'ElementType'}, model.to_legacy_descriptor())
-        self.assertEqual('array(ElementType, @size=10)', str(model))
+        self.assertEqual('array(ElementType, 10)', str(model))
 
     def test_can_create_udt_array_fill(self):
         # Act:
-        model = Array(['ElementType', ArraySeed([], 'array fill')])
+        model = Array(['ElementType', '__FILL__'])
 
         # Assert:
         self.assertEqual(0, model.size)
         self.assertEqual('array fill', model.disposition)
         self.assertEqual('ElementType', model.element_type)
-        self.assertEqual(None, model.sort_key)
-        self.assertEqual(None, model.alignment)
+        self._assert_attributes(model)
         self.assertEqual({'disposition': 'array fill', 'size': 0, 'type': 'ElementType'}, model.to_legacy_descriptor())
         self.assertEqual('array(ElementType, __FILL__)', str(model))
 
     def test_can_create_udt_array_with_sort_key(self):
         # Act:
-        model = Array(['ElementType', ArraySeed([10, 'foo_field'], 'array')])
+        model = Array(['ElementType', 10])
+        model.sort_key = 'foo_field'
 
         # Assert:
         self.assertEqual(10, model.size)
         self.assertEqual('array', model.disposition)
         self.assertEqual('ElementType', model.element_type)
-        self.assertEqual('foo_field', model.sort_key)
-        self.assertEqual(None, model.alignment)
+        self._assert_attributes(model, sort_key='foo_field')
         self.assertEqual({'disposition': 'array', 'size': 10, 'type': 'ElementType', 'sort_key': 'foo_field'}, model.to_legacy_descriptor())
-        self.assertEqual('array(ElementType, 10, @sort_key=foo_field)', str(model))
+        self.assertEqual('array(ElementType, 10)', str(model))
 
     def test_can_create_udt_array_with_explicit_alignment(self):
         # Act:
-        model = Array(['ElementType', ArraySeed([10], 'array'), 4])
+        model = Array(['ElementType', 10])
+        model.alignment = 4
 
         # Assert:
         self.assertEqual(10, model.size)
         self.assertEqual('array', model.disposition)
         self.assertEqual('ElementType', model.element_type)
-        self.assertEqual(None, model.sort_key)
-        self.assertEqual(4, model.alignment)
+        self._assert_attributes(model, alignment=4)
         self.assertEqual({'disposition': 'array', 'size': 10, 'type': 'ElementType', 'alignment': 4}, model.to_legacy_descriptor())
-        self.assertEqual('array(ElementType, 10, @alignment=4)', str(model))
+        self.assertEqual('array(ElementType, 10)', str(model))
 
     def test_can_create_int_array(self):
         # Act:
-        model = Array([FixedSizeInteger('int32'), ArraySeed([12], 'array')])
+        model = Array([FixedSizeInteger('int32'), 12])
 
         # Assert:
         self.assertEqual(12, model.size)
         self.assertEqual('array', model.disposition)
         self.assertEqual('int32', model.element_type.short_name)
-        self.assertEqual(None, model.sort_key)
-        self.assertEqual(None, model.alignment)
+        self._assert_attributes(model)
         self.assertEqual(
             {'disposition': 'array', 'size': 12, 'type': 'byte', 'element_disposition': {'size': 4, 'signedness': 'signed'}},
             model.to_legacy_descriptor())
@@ -694,7 +736,7 @@ class ArrayTests(unittest.TestCase):
 
     def test_can_copy_without_internal_member_references(self):
         # Arrange:
-        model = Array(['ElementType', ArraySeed([8], 'array'), 12])
+        model = Array(['ElementType', 8])
 
         # Act:
         model = model.copy('alpha')
@@ -703,22 +745,23 @@ class ArrayTests(unittest.TestCase):
         self.assertEqual(8, model.size)
         self.assertEqual('array', model.disposition)
         self.assertEqual('ElementType', model.element_type)
-        self.assertEqual(None, model.sort_key)
-        self.assertEqual(12, model.alignment)
+        self._assert_attributes(model)
 
     def test_can_copy_with_internal_member_references(self):
         # Arrange:
-        model = Array(['ElementType', ArraySeed(['bar_field', 'foo_field'], 'array'), 12])
+        model = Array(['ElementType', 'bar_field'])
+        model.sort_key = 'foo_field'
+        model.alignment = 4
+        model.is_byte_constrained = True
 
         # Act:
         model = model.copy('alpha')
 
         # Assert:
         self.assertEqual('alpha_bar_field', model.size)
-        self.assertEqual('array', model.disposition)
+        self.assertEqual('array sized', model.disposition)
         self.assertEqual('ElementType', model.element_type)
-        self.assertEqual('alpha_foo_field', model.sort_key)
-        self.assertEqual(12, model.alignment)
+        self._assert_attributes(model, sort_key='alpha_foo_field', alignment=4, is_byte_constrained=True)
 
 
 # endregion

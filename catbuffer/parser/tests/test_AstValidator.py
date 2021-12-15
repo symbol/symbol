@@ -1,6 +1,6 @@
 import unittest
 
-from catparser.ast import (Alias, Array, ArraySeed, Conditional, Enum, EnumValue, FixedSizeInteger, Struct, StructField,
+from catparser.ast import (Alias, Array, Attribute, Conditional, Enum, EnumValue, FixedSizeInteger, Struct, StructField,
                            StructInlinePlaceholder)
 from catparser.AstValidator import AstValidator, ErrorDescriptor
 
@@ -197,7 +197,7 @@ class AstValidatorTests(unittest.TestCase):
         # Arrange:
         validator = AstValidator([
             Alias(['ElementType', FixedSizeInteger('uint16')]),
-            Struct([None, 'FooBar', StructField(['alpha', Array(['ElementType', ArraySeed([10], 'array')])])])
+            Struct([None, 'FooBar', StructField(['alpha', Array(['ElementType', 10])])])
         ])
 
         # Act + Assert:
@@ -206,7 +206,7 @@ class AstValidatorTests(unittest.TestCase):
     def test_cannot_validate_struct_containing_array_with_unknown_element_type(self):
         # Arrange:
         validator = AstValidator([
-            Struct([None, 'FooBar', StructField(['alpha', Array(['ElementType', ArraySeed([10], 'array')])])])
+            Struct([None, 'FooBar', StructField(['alpha', Array(['ElementType', 10])])])
         ])
 
         # Act + Assert:
@@ -221,7 +221,7 @@ class AstValidatorTests(unittest.TestCase):
                 None,
                 'FooBar',
                 StructField(['sigma', FixedSizeInteger('uint16')]),
-                StructField(['alpha', Array([FixedSizeInteger('uint16'), ArraySeed(['sigma'], 'array')])])
+                StructField(['alpha', Array([FixedSizeInteger('uint16'), 'sigma'])])
             ])
         ])
 
@@ -231,7 +231,7 @@ class AstValidatorTests(unittest.TestCase):
     def test_cannot_validate_struct_containing_array_with_unknown_size_field(self):
         # Arrange:
         validator = AstValidator([
-            Struct([None, 'FooBar', StructField(['alpha', Array([FixedSizeInteger('uint16'), ArraySeed(['sigma'], 'array')])])])
+            Struct([None, 'FooBar', StructField(['alpha', Array([FixedSizeInteger('uint16'), 'sigma'])])])
         ])
 
         # Act + Assert:
@@ -241,9 +241,12 @@ class AstValidatorTests(unittest.TestCase):
 
     def test_can_validate_struct_containing_array_with_known_sort_key_field(self):
         # Arrange:
+        array_model = Array(['ElementType', 10])
+        array_model.sort_key = 'weight'
+
         validator = AstValidator([
             Struct([None, 'ElementType', StructField(['weight', FixedSizeInteger('uint16')])]),
-            Struct([None, 'FooBar', StructField(['alpha', Array(['ElementType', ArraySeed([10, 'weight'], 'array')])])])
+            Struct([None, 'FooBar', StructField(['alpha', array_model])])
         ])
 
         # Act + Assert:
@@ -251,9 +254,12 @@ class AstValidatorTests(unittest.TestCase):
 
     def test_cannot_validate_struct_containing_array_with_unknown_sort_key_field(self):
         # Arrange:
+        array_model = Array(['ElementType', 10])
+        array_model.sort_key = 'height'
+
         validator = AstValidator([
             Struct([None, 'ElementType', StructField(['weight', FixedSizeInteger('uint16')])]),
-            Struct([None, 'FooBar', StructField(['alpha', Array(['ElementType', ArraySeed([10, 'height'], 'array')])])])
+            Struct([None, 'FooBar', StructField(['alpha', array_model])])
         ])
 
         # Act + Assert:
@@ -263,8 +269,11 @@ class AstValidatorTests(unittest.TestCase):
 
     def test_cannot_validate_struct_containing_array_with_unknown_element_type_and_unknown_sort_key_field(self):
         # Arrange:
+        array_model = Array(['ElementType', 10])
+        array_model.sort_key = 'height'
+
         validator = AstValidator([
-            Struct([None, 'FooBar', StructField(['alpha', Array(['ElementType', ArraySeed([10, 'height'], 'array')])])])
+            Struct([None, 'FooBar', StructField(['alpha', array_model])])
         ])
 
         # Act + Assert:
@@ -434,5 +443,37 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [])
+
+    # endregion
+
+    # region struct - attribute attachment
+
+    def test_can_validate_struct_containing_field_with_attribute_mapping_to_field_type_property(self):
+        # Arrange:
+        field_model = StructField(['alpha', Array(['ElementType', 10])])
+        field_model.attributes = [Attribute(['sort_key', 'weight'])]
+
+        validator = AstValidator([
+            Struct([None, 'ElementType', StructField(['weight', FixedSizeInteger('uint16')])]),
+            Struct([None, 'FooBar', field_model])
+        ])
+
+        # Act + Assert:
+        self._asssert_validate(validator, [])
+
+    def test_cannot_validate_struct_containing_field_with_attribute_mapping_to_nonexistent_property(self):
+        # Arrange:
+        field_model = StructField(['alpha', Array(['ElementType', 10])])
+        field_model.attributes = [Attribute(['sort_direction', True])]
+
+        validator = AstValidator([
+            Struct([None, 'ElementType', StructField(['weight', FixedSizeInteger('uint16')])]),
+            Struct([None, 'FooBar', field_model])
+        ])
+
+        # Act + Assert:
+        self._asssert_validate(validator, [
+            ErrorDescriptor('inapplicable attribute sort_direction', 'FooBar', 'alpha')
+        ])
 
     # endregion

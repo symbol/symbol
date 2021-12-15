@@ -1,10 +1,49 @@
 import unittest
 
-from catparser.ast import Alias, AstException, FixedSizeInteger, Struct, StructField, StructInlinePlaceholder
+from catparser.ast import Alias, Array, AstException, Attribute, FixedSizeInteger, Struct, StructField, StructInlinePlaceholder
 from catparser.AstPostProcessor import AstPostProcessor
 
 
 class AstPostProcessorTests(unittest.TestCase):
+    # region apply_attributes
+
+    @staticmethod
+    def _create_type_descriptors_for_apply_attributes_tests(property_name='sort_key'):
+        field_model = StructField(['alpha', Array(['ElementType', 10])])
+        field_model.attributes = [Attribute([property_name, 'weight'])]
+
+        return [
+            Struct([None, 'ElementType', StructField(['weight', FixedSizeInteger('uint16')])]),
+            Struct([None, 'FooBar', field_model]),
+
+            # add a struct with StructInlinePlaceholder to ensure proper field / attribute filtering
+            Struct(['inline', 'Inline1', StructField(['counter', FixedSizeInteger('uint8')])]),
+            Struct([None, 'Plain2', StructInlinePlaceholder(['Inline1']), StructField(['height', FixedSizeInteger('uint16')])])
+        ]
+
+    def test_apply_attributes_fails_when_attribute_to_property_mapping_is_unknown(self):
+        # Arrange:
+        processor = AstPostProcessor(self._create_type_descriptors_for_apply_attributes_tests('sort_direction'))
+
+        # Act:
+        with self.assertRaises(AstException):
+            processor.apply_attributes()
+
+    def test_apply_attributes_sets_properties_from_attributes(self):
+        # Arrange:
+        processor = AstPostProcessor(self._create_type_descriptors_for_apply_attributes_tests())
+
+        # sanity:
+        self.assertEqual(None, processor.type_descriptors[1].fields[0].field_type.sort_key)
+
+        # Act:
+        processor.apply_attributes()
+
+        # Assert: sort_key was set
+        self.assertEqual('weight', processor.type_descriptors[1].fields[0].field_type.sort_key)
+
+    # endregion
+
     # region expand_named_inlines
 
     @staticmethod

@@ -12,6 +12,12 @@ def _get_token_value(token):
     return token.value if isinstance(token, Token) else token
 
 
+def _set_if(source, type_descriptor, property_name):
+    value = getattr(source, property_name)
+    if value:
+        type_descriptor[property_name] = value
+
+
 # region Statement
 
 class Statement(ABC):
@@ -164,7 +170,27 @@ class EnumValue(Statement):
 
 # endregion
 
-# Struct
+# region Attribute
+
+class Attribute:
+    """Defines a user defined attribute."""
+
+    def __init__(self, tokens):
+        self.name = _get_token_value(tokens[0])
+
+        self.is_flag = None is tokens[1]
+        self.value = True if self.is_flag else _get_token_value(tokens[1])
+
+    def __str__(self):
+        if self.is_flag:
+            return f'@{self.name}'
+
+        return f'@{self.name}({self.value})'
+
+
+# endregion
+
+# region Struct
 
 class Struct(Statement):
     """Defines a user defined data type."""
@@ -206,11 +232,8 @@ class Struct(Statement):
             'layout': [field.to_legacy_descriptor() for field in self.fields]
         }
 
-        if self.disposition:
-            type_descriptor['disposition'] = self.disposition
-
-        if self.factory_type:
-            type_descriptor['factory_type'] = self.factory_type
+        for property_name in ['disposition', 'factory_type']:
+            _set_if(self, type_descriptor, property_name)
 
         return type_descriptor
 
@@ -249,14 +272,18 @@ class StructField(Statement):
         self.value = _get_token_value(tokens[2]) if len(tokens) > 2 else None
         self.disposition = disposition
 
+        self.attributes = None
+
     def copy(self, prefix):
         """Creates a copy of this field and transforms field names using the specified prefix."""
 
-        return StructField([
+        field = StructField([
                 prefix if '__value__' == self.name else f'{prefix}_{self.name}',
                 self.field_type.copy(prefix) if hasattr(self.field_type, 'copy') else self.field_type,
                 self.value.copy(prefix) if hasattr(self.value, 'value') else self.value,
             ], self.disposition)
+        field.attributes = self.attributes
+        return field
 
     def _to_legacy_descriptor(self):
         type_descriptor = {'name': self.name}
@@ -271,18 +298,24 @@ class StructField(Statement):
             else:
                 type_descriptor['value'] = self.value
 
-        if self.disposition:
-            type_descriptor['disposition'] = self.disposition
+        _set_if(self, type_descriptor, 'disposition')
 
         return type_descriptor
 
     def __str__(self):
-        if 'inline' == self.disposition:
-            return f'{self.name} = inline {self.field_type}'
-        if self.disposition in ['const', 'reserved']:
-            return f'{self.name} = make_{self.disposition}({self.field_type}, {self.value})'
+        formatted = ''
+        if self.attributes:
+            formatted = '\n'.join(str(attribute) for attribute in self.attributes)
+            formatted += '\n'
 
-        return f'{self.name} = {self.field_type}' + ('' if not self.value else f' {str(self.value)}')
+        formatted += f'{self.name} = '
+
+        if 'inline' == self.disposition:
+            return formatted + f'inline {self.field_type}'
+        if self.disposition in ['const', 'reserved']:
+            return formatted + f'make_{self.disposition}({self.field_type}, {self.value})'
+
+        return formatted + f'{self.field_type}' + ('' if not self.value else f' {str(self.value)}')
 
 
 class StructInlinePlaceholder(Statement):
@@ -329,32 +362,36 @@ class Conditional:
 
 # region Array
 
-class ArraySeed:
-    """Used to initialize an Array."""
-
-    def __init__(self, tokens, disposition):
-        self.size = _get_token_value(tokens[0]) if len(tokens) > 0 else 0
-        self.sort_key = _get_token_value(tokens[1]) if len(tokens) > 1 else None
-        self.disposition = disposition
-
-
 class Array:
     """Array composed of zero or more elements; can be count-based, size-based or fill."""
 
     def __init__(self, tokens):
-        # tokens[1] is ArraySeed
-        self.size = tokens[1].size
-        self.disposition = tokens[1].disposition
-        self.sort_key = tokens[1].sort_key
-        self.element_type = _get_token_value(tokens[0]) if isinstance(tokens[0], Token) else tokens[0]  # resolve this to reference object
-        self.alignment = _get_token_value(tokens[2]) if len(tokens) > 2 else None
+        self.element_type = _get_token_value(tokens[0]) if isinstance(tokens[0], Token) else tokens[0]
+
+        self._raw_size = _get_token_value(tokens[1])
+        self.size = 0 if '__FILL__' == self._raw_size else self._raw_size
+
+        # attributes
+        self.sort_key = None
+        self.alignment = None
+        self.is_byte_constrained = False
+
+    @property
+    def disposition(self):
+        if '__FILL__' == self._raw_size:
+            return 'array fill'
+
+        return 'array sized' if self.is_byte_constrained else 'array'
 
     def copy(self, prefix):
         """Creates a copy of this field and transforms field names using the specified prefix."""
 
         size = self.size if not isinstance(self.size, str) else f'{prefix}_{self.size}'
-        sort_key = self.sort_key if not isinstance(self.sort_key, str) else f'{prefix}_{self.sort_key}'
-        return Array([self.element_type, ArraySeed([size, sort_key], self.disposition), self.alignment])
+        copy = Array([self.element_type, size])
+        copy.sort_key = self.sort_key if not isinstance(self.sort_key, str) else f'{prefix}_{self.sort_key}'
+        copy.alignment = self.alignment
+        copy.is_byte_constrained = self.is_byte_constrained
+        return copy
 
     def to_legacy_descriptor(self):
         """Produces a dictionary consistent with the original catbuffer type descriptors."""
@@ -372,31 +409,14 @@ class Array:
         else:
             type_descriptor['type'] = self.element_type
 
-        if self.sort_key:
-            type_descriptor['sort_key'] = self.sort_key
-
-        if self.alignment:
-            type_descriptor['alignment'] = self.alignment
+        for property_name in ['sort_key', 'alignment']:
+            _set_if(self, type_descriptor, property_name)
 
         return type_descriptor
 
     def __str__(self):
-        formatted = f'array({self.element_type}, '
+        size = '__FILL__' if 'array fill' == self.disposition else str(self.size)
+        return f'array({self.element_type}, {size})'
 
-        if 'array sized' == self.disposition:
-            formatted += f'@size={self.size}'
-        elif 'array fill' == self.disposition:
-            formatted += '__FILL__'
-        else:
-            formatted += str(self.size)
-
-        if self.sort_key:
-            formatted += f', @sort_key={self.sort_key}'
-
-        if self.alignment:
-            formatted += f', @alignment={self.alignment}'
-
-        formatted += ')'
-        return formatted
 
 # endregion
