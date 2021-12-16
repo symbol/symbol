@@ -48,12 +48,20 @@ class ErrorDescriptorTests(unittest.TestCase):
 class AstValidatorTests(unittest.TestCase):
     # pylint: disable=too-many-public-methods
 
-    def _asssert_validate(self, validator, expected_errors):
-        # Act:
-        validator.validate()
+    def _asssert_validate(self, validator, expected_errors, modes=None):
+        # Arrange:
+        if not modes:
+            modes = [AstValidator.Mode.PRE_EXPANSION, AstValidator.Mode.POST_EXPANSION]
 
-        # Assert:
-        self.assertEqual(expected_errors, validator.errors)
+        for mode in modes:
+            validator.errors = []
+            validator.set_validation_mode(mode)
+
+            # Act:
+            validator.validate()
+
+            # Assert:
+            self.assertEqual(expected_errors, validator.errors)
 
     # region other types
 
@@ -446,7 +454,7 @@ class AstValidatorTests(unittest.TestCase):
 
     # endregion
 
-    # region struct - attribute attachment
+    # region struct - field attributes
 
     def test_can_validate_struct_containing_field_with_attribute_mapping_to_field_type_property(self):
         # Arrange:
@@ -475,5 +483,124 @@ class AstValidatorTests(unittest.TestCase):
         self._asssert_validate(validator, [
             ErrorDescriptor('inapplicable attribute "sort_direction"', 'FooBar', 'alpha')
         ])
+
+    # endregion
+
+    # region struct - struct attributes
+
+    @staticmethod
+    def _create_type_descriptors_for_attribute_link_tests(attributes, disposition=None):
+        struct_model = Struct([
+            disposition,
+            'FooBar',
+            StructField(['KILO', FixedSizeInteger('uint16'), 1024], 'const'),
+            StructField(['weight', FixedSizeInteger('uint16')]),
+            StructField(['height', FixedSizeInteger('int8')]),
+            StructField(['other', 'MyCustomType'])
+        ])
+        struct_model.attributes = attributes
+        return [
+            Alias(['MyCustomType', FixedSizeInteger('uint16')]),
+            struct_model
+        ]
+
+    def test_can_validate_struct_containing_size_attribute_referencing_int_property(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['size', 'height'])]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [])
+
+    def test_cannot_validate_struct_containing_size_attribute_referencing_non_int_property(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['size', 'other'])]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+        self._asssert_validate(validator, [
+            ErrorDescriptor('reference to "size" property "other" has unexpected type', 'FooBar')
+        ], [AstValidator.Mode.POST_EXPANSION])
+
+    def test_cannot_validate_struct_containing_size_attribute_referencing_non_existent_property(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['size', 'blah'])]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+        self._asssert_validate(validator, [
+            ErrorDescriptor('reference to unknown "size" property "blah"', 'FooBar')
+        ], [AstValidator.Mode.POST_EXPANSION])
+
+    def test_can_validate_struct_containing_discriminator_attribute_referencing_property(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['discriminator', 'other'])]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [])
+
+    def test_cannot_validate_struct_containing_discriminator_attribute_referencing_non_existent_property(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['discriminator', 'blah'])]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+        self._asssert_validate(validator, [
+            ErrorDescriptor('reference to unknown "discriminator" property "blah"', 'FooBar')
+        ], [AstValidator.Mode.POST_EXPANSION])
+
+    def test_can_validate_struct_containing_initializes_attribute_referencing_known_property_and_const_with_same_type(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['initializes', 'weight', 'KILO'])]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [])
+
+    def test_cannot_validate_struct_containing_initializes_attribute_referencing_known_property_and_const_with_different_type(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['initializes', 'height', 'KILO'])]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+        self._asssert_validate(validator, [
+            ErrorDescriptor('property "height" has initializer "KILO" of different type', 'FooBar')
+        ], [AstValidator.Mode.POST_EXPANSION])
+
+    def test_cannot_validate_struct_containing_initializes_attribute_referencing_non_existent_property(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['initializes', 'blah', 'KILO'])]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+        self._asssert_validate(validator, [
+            ErrorDescriptor('reference to unknown "intializes" property "blah"', 'FooBar')
+        ], [AstValidator.Mode.POST_EXPANSION])
+
+    def test_cannot_validate_struct_containing_initializes_attribute_referencing_non_existent_const(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['initializes', 'weight', 'TON'])]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+        self._asssert_validate(validator, [
+            ErrorDescriptor('reference to unknown "intializes" property "TON"', 'FooBar')
+        ], [AstValidator.Mode.POST_EXPANSION])
+
+    def test_can_validate_abstract_struct_containing_initializes_attribute_referencing_non_existent_const(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests(
+            [Attribute(['initializes', 'weight', 'TON'])],
+            'abstract'))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [])
+
+    def test_can_validate_inline_struct_containing_initializes_attribute_referencing_non_existent_const(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests(
+            [Attribute(['initializes', 'weight', 'TON'])],
+            'inline'))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [])
 
     # endregion

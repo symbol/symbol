@@ -54,8 +54,9 @@ class LarkMultiFileParser:
         return descriptors + [descriptor for descriptor in parse_result.children if isinstance(descriptor, Statement)]
 
 
-def validate(raw_type_descriptors, stage):
+def validate(raw_type_descriptors, stage, mode):
     validator = AstValidator(raw_type_descriptors)
+    validator.set_validation_mode(mode)
     validator.validate()
     if validator.errors:
         print_error(f'[ERRORS DETECTED AT STAGE {stage}]')
@@ -86,13 +87,13 @@ def main():
 
     processor = AstPostProcessor(raw_type_descriptors)
 
-    validate(raw_type_descriptors, 'PRE EXPANSION')
+    validate(raw_type_descriptors, 'PRE EXPANSION', AstValidator.Mode.PRE_EXPANSION)
 
     processor.apply_attributes()
     processor.expand_named_inlines()
     processor.expand_unnamed_inlines()
 
-    validate(raw_type_descriptors, 'POST EXPANSION')
+    validate(raw_type_descriptors, 'POST EXPANSION', AstValidator.Mode.POST_EXPANSION)
 
     type_descriptors = [model.to_legacy_descriptor() for model in processor.type_descriptors]
 

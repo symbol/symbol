@@ -29,11 +29,11 @@ class AstPostProcessorTests(unittest.TestCase):
         with self.assertRaises(AstException):
             processor.apply_attributes()
 
-    def test_apply_attributes_sets_properties_from_attributes(self):
+    def test_apply_attributes_sets_field_type_properties_from_attributes(self):
         # Arrange:
         processor = AstPostProcessor(self._create_type_descriptors_for_apply_attributes_tests())
 
-        # sanity:
+        # Sanity:
         self.assertEqual(None, processor.type_descriptors[1].fields[0].field_type.sort_key)
 
         # Act:
@@ -178,5 +178,44 @@ class AstPostProcessorTests(unittest.TestCase):
 
         self.assertEqual(['counter', 'weight', 'height'], [field.name for field in type_descriptors[2].fields])  # Abstract2 was expanded
         self.assertEqual('Abstract2', type_descriptors[2].factory_type)  # Abstract2 is prefered to Abstract1
+
+    @staticmethod
+    def _create_type_descriptors_for_transitive_attributes_tests(include_b_attributes):
+        type_descriptors = [
+            Struct(['abstract', 'Abstract1', StructField(['counter', FixedSizeInteger('uint8')])]),
+            Struct(['inline', 'Inline2', StructInlinePlaceholder(['Abstract1']), StructField(['weight', FixedSizeInteger('uint32')])]),
+            Struct([None, 'Plain3', StructInlinePlaceholder(['Inline2']), StructField(['height', FixedSizeInteger('uint16')])])
+        ]
+        type_descriptors[0].attributes = [Attribute(['a1', 'alpha']), Attribute(['a2', 'beta'])]
+
+        if include_b_attributes:
+            type_descriptors[1].attributes = [Attribute(['b1', 'zoo'])]
+
+        type_descriptors[2].attributes = [Attribute(['c1', 'cow'])]
+        return type_descriptors
+
+    def test_expand_unnamed_inlines_expands_unnamed_inlines_with_transitive_attributes(self):
+        # Arrange:
+        processor = AstPostProcessor(self._create_type_descriptors_for_transitive_attributes_tests(True))
+
+        # Act:
+        processor.expand_unnamed_inlines()
+        type_descriptors = processor.type_descriptors
+
+        # Assert:
+        self.assertEqual(['a1', 'a2'], [attribute.name for attribute in type_descriptors[0].attributes])
+        self.assertEqual(['c1', 'b1', 'a1', 'a2'], [attribute.name for attribute in type_descriptors[1].attributes])
+
+    def test_expand_unnamed_inlines_expands_unnamed_inlines_with_transitive_attributes_some_levels_missing_attributes(self):
+        # Arrange:
+        processor = AstPostProcessor(self._create_type_descriptors_for_transitive_attributes_tests(False))
+
+        # Act:
+        processor.expand_unnamed_inlines()
+        type_descriptors = processor.type_descriptors
+
+        # Assert:
+        self.assertEqual(['a1', 'a2'], [attribute.name for attribute in type_descriptors[0].attributes])
+        self.assertEqual(['c1', 'a1', 'a2'], [attribute.name for attribute in type_descriptors[1].attributes])
 
     # endregion

@@ -1,5 +1,6 @@
 import re
 from abc import ABC, abstractmethod
+from collections import namedtuple
 
 from lark import Token
 
@@ -16,6 +17,13 @@ def _set_if(source, type_descriptor, property_name):
     value = getattr(source, property_name)
     if value:
         type_descriptor[property_name] = value
+
+
+def _format_attributes(attributes):
+    if not attributes:
+        return ''
+
+    return '\n'.join(str(attribute) for attribute in attributes) + '\n'
 
 
 # region Statement
@@ -178,14 +186,16 @@ class Attribute:
     def __init__(self, tokens):
         self.name = _get_token_value(tokens[0])
 
-        self.is_flag = None is tokens[1]
+        self.is_flag = 1 == len(tokens)
         self.value = True if self.is_flag else _get_token_value(tokens[1])
+
+        self.values = [] if self.is_flag else [_get_token_value(token) for token in tokens[1:]]
 
     def __str__(self):
         if self.is_flag:
             return f'@{self.name}'
 
-        return f'@{self.name}({self.value})'
+        return f'@{self.name}({", ".join(self.values)})'
 
 
 # endregion
@@ -195,6 +205,8 @@ class Attribute:
 class Struct(Statement):
     """Defines a user defined data type."""
 
+    Initializer = namedtuple('Initializer', ['target_property_name', 'value'])
+
     def __init__(self, tokens):
         super().__init__()
         self.name = _get_token_value(tokens[1])
@@ -202,11 +214,38 @@ class Struct(Statement):
         self.fields = tokens[2:]
         self.factory_type = None
 
+        self.attributes = None
+
         self._member_comment_start_regex = None
 
     @property
     def is_inline(self):
         return 'inline' == self.disposition
+
+    @property
+    def size(self):
+        return self._lookup_attribute_value('size')
+
+    @property
+    def discriminator(self):
+        return self._lookup_attribute_value('discriminator')
+
+    @property
+    def initializers(self):
+        if not self.attributes:
+            return []
+
+        return [
+            self.Initializer(attribute.values[0], attribute.values[1])
+            for attribute in self.attributes if 'initializes' == attribute.name
+        ]
+
+    def _lookup_attribute_value(self, name):
+        if not self.attributes:
+            return None
+
+        attribute = next((attribute for attribute in self.attributes if attribute.name == name), None)
+        return None if not attribute else attribute.value
 
     def apply_inline_template(self, named_inline_field):
         """Expands a named inline field using this struct."""
@@ -232,17 +271,26 @@ class Struct(Statement):
             'layout': [field.to_legacy_descriptor() for field in self.fields]
         }
 
-        for property_name in ['disposition', 'factory_type']:
+        for property_name in ['disposition', 'factory_type', 'size', 'discriminator']:
             _set_if(self, type_descriptor, property_name)
+
+        if self.initializers:
+            type_descriptor['initializers'] = [
+                {
+                    'target_property_name': initializer.target_property_name,
+                    'value': initializer.value
+                } for initializer in self.initializers
+            ]
 
         return type_descriptor
 
     def __str__(self):
-        modifiers = ''
-        if self.disposition:
-            modifiers = f'{self.disposition} '
+        formatted = _format_attributes(self.attributes)
 
-        return f'{modifiers}struct {self.name}  # {len(self.fields)} field(s)'
+        if self.disposition:
+            formatted += f'{self.disposition} '
+
+        return f'{formatted}struct {self.name}  # {len(self.fields)} field(s)'
 
     def _build_comment_map(self, comment):
         if not self._member_comment_start_regex:
@@ -303,11 +351,7 @@ class StructField(Statement):
         return type_descriptor
 
     def __str__(self):
-        formatted = ''
-        if self.attributes:
-            formatted = '\n'.join(str(attribute) for attribute in self.attributes)
-            formatted += '\n'
-
+        formatted = _format_attributes(self.attributes)
         formatted += f'{self.name} = '
 
         if 'inline' == self.disposition:

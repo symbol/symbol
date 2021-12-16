@@ -191,23 +191,36 @@ class EnumValueTests(unittest.TestCase):
 class AttributeTests(unittest.TestCase):
     def test_can_create_attribute_without_value(self):
         # Act:
-        model = Attribute(['foo', None])
+        model = Attribute(['foo'])
 
         # Assert:
         self.assertEqual('foo', model.name)
-        self.assertEqual(True, model.value)
         self.assertEqual(True, model.is_flag)
+        self.assertEqual(True, model.value)
+        self.assertEqual([], model.values)
         self.assertEqual('@foo', str(model))
 
-    def test_can_create_attribute_with_value(self):
+    def test_can_create_attribute_with_single_value(self):
         # Act:
         model = Attribute(['foo', 'something'])
 
         # Assert:
         self.assertEqual('foo', model.name)
-        self.assertEqual('something', model.value)
         self.assertEqual(False, model.is_flag)
+        self.assertEqual('something', model.value)
+        self.assertEqual(['something'], model.values)
         self.assertEqual('@foo(something)', str(model))
+
+    def test_can_create_attribute_with_multiple_values(self):
+        # Act:
+        model = Attribute(['foo', 'something', 'else', 'there'])
+
+        # Assert:
+        self.assertEqual('foo', model.name)
+        self.assertEqual(False, model.is_flag)
+        self.assertEqual('something', model.value)
+        self.assertEqual(['something', 'else', 'there'], model.values)
+        self.assertEqual('@foo(something, else, there)', str(model))
 
 
 # endregion
@@ -219,6 +232,11 @@ class StructTests(unittest.TestCase):
         self.assertEqual(disposition, model.disposition)
         self.assertEqual(is_inline, model.is_inline)
 
+    def _assert_attributes(self, model, size=None, discriminator=None, initializers=None):
+        self.assertEqual(size, model.size)
+        self.assertEqual(discriminator, model.discriminator)
+        self.assertEqual([] if initializers is None else initializers, model.initializers)
+
     def _test_can_create_struct(self, comment, expected_comment_descriptor):
         # Act:
         model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
@@ -228,6 +246,7 @@ class StructTests(unittest.TestCase):
         self.assertEqual('FooBar', model.name)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
         self._assert_disposition(model)
+        self._assert_attributes(model)
         self.assertEqual({
             **expected_comment_descriptor,
             'name': 'FooBar',
@@ -245,6 +264,7 @@ class StructTests(unittest.TestCase):
         self.assertEqual('FooBar', model.name)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
         self._assert_disposition(model, disposition=disposition, is_inline=is_inline)
+        self._assert_attributes(model)
         self.assertEqual({
             **expected_comment_descriptor,
             'name': 'FooBar',
@@ -281,6 +301,7 @@ class StructTests(unittest.TestCase):
         self.assertEqual('FooBar', model.name)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
         self._assert_disposition(model)
+        self._assert_attributes(model)
         self.assertEqual({
             'name': 'FooBar',
             'type': 'struct',
@@ -288,6 +309,75 @@ class StructTests(unittest.TestCase):
             'factory_type': 'Dust'
         }, model.to_legacy_descriptor())
         self.assertEqual('struct FooBar  # 2 field(s)', str(model))
+
+    def test_can_create_struct_with_attribute_size(self):
+        # Act:
+        model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        model.attributes = [Attribute(['size', 'alpha'])]
+
+        # Assert:
+        self.assertEqual('FooBar', model.name)
+        self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
+        self._assert_disposition(model)
+        self._assert_attributes(model, size='alpha')
+        self.assertEqual({
+            'name': 'FooBar',
+            'type': 'struct',
+            'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
+            'size': 'alpha'
+        }, model.to_legacy_descriptor())
+        self.assertEqual('@size(alpha)\nstruct FooBar  # 2 field(s)', str(model))
+
+    def test_can_create_struct_with_attribute_discriminator(self):
+        # Act:
+        model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        model.attributes = [Attribute(['discriminator', 'beta'])]
+
+        # Assert:
+        self.assertEqual('FooBar', model.name)
+        self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
+        self._assert_disposition(model)
+        self._assert_attributes(model, discriminator='beta')
+        self.assertEqual({
+            'name': 'FooBar',
+            'type': 'struct',
+            'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
+            'discriminator': 'beta'
+        }, model.to_legacy_descriptor())
+        self.assertEqual('@discriminator(beta)\nstruct FooBar  # 2 field(s)', str(model))
+
+    def test_can_create_struct_with_attribute_initializes(self):
+        # Act:
+        model = Struct([
+            None,
+            'FooBar',
+            StructField(['ALPHAQ', FixedSizeInteger('int32'), 123], 'const'),
+            StructField(['alpha', FixedSizeInteger('int32')]),
+            StructField(['beta', FixedSizeInteger('uint16')]),
+            StructField(['BETAZ', FixedSizeInteger('uint16'), 222], 'const'),
+        ])
+        model.attributes = [Attribute(['initializes', 'alpha', 'ALPHAQ']), Attribute(['initializes', 'beta', 'BETAZ'])]
+
+        # Assert:
+        self.assertEqual('FooBar', model.name)
+        self.assertEqual(['ALPHAQ', 'alpha', 'beta', 'BETAZ'], [field.name for field in model.fields])
+        self._assert_disposition(model)
+        self._assert_attributes(model, initializers=[Struct.Initializer('alpha', 'ALPHAQ'), Struct.Initializer('beta', 'BETAZ')])
+        self.assertEqual({
+            'name': 'FooBar',
+            'type': 'struct',
+            'layout': [
+                {'name': 'ALPHAQ', 'size': 4, 'type': 'byte', 'signedness': 'signed', 'value': 123, 'disposition': 'const'},
+                {'name': 'alpha', 'size': 4, 'type': 'byte', 'signedness': 'signed'},
+                {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'},
+                {'name': 'BETAZ', 'size': 2, 'type': 'byte', 'signedness': 'unsigned', 'value': 222, 'disposition': 'const'}
+            ],
+            'initializers': [
+                {'target_property_name': 'alpha', 'value': 'ALPHAQ'},
+                {'target_property_name': 'beta', 'value': 'BETAZ'},
+            ]
+        }, model.to_legacy_descriptor())
+        self.assertEqual('@initializes(alpha, ALPHAQ)\n@initializes(beta, BETAZ)\nstruct FooBar  # 4 field(s)', str(model))
 
     def test_cannot_apply_inline_template_when_struct_is_not_inline(self):
         # Arrange:
@@ -491,7 +581,7 @@ class StructFieldTests(unittest.TestCase):
 
     def test_can_create_struct_field_with_attributes(self):
         # Act:
-        attributes = [Attribute(['foo', 'alpha']), Attribute(['bar', None]), Attribute(['baz', 'beta'])]
+        attributes = [Attribute(['foo', 'alpha']), Attribute(['bar']), Attribute(['baz', 'beta'])]
         model = StructField(['foo_field', 'MyCustomType'])
         model.attributes = attributes
 

@@ -80,6 +80,11 @@ class AstPostProcessor:
                         model.factory_type = referenced_type_model.factory_type
 
                     model.fields.extend(referenced_type_model.fields)
+                    if referenced_type_model.attributes:
+                        if not model.attributes:
+                            model.attributes = []
+
+                        model.attributes.extend(referenced_type_model.attributes)
 
     def _structs_with_unnamed_inlines(self):
         return [

@@ -60,11 +60,19 @@ def create_cats_lark_parser():
         # region attribute
 
         @staticmethod
-        def attribute(tokens):
+        def field_attribute(tokens):
             return Attribute(tokens)
 
         @staticmethod
-        def attributes(tokens):
+        def field_attributes(tokens):
+            return tokens  # forward array upstream
+
+        @staticmethod
+        def struct_attribute(tokens):
+            return Attribute(tokens)
+
+        @staticmethod
+        def struct_attributes(tokens):
             return tokens  # forward array upstream
 
         # endregion
@@ -97,16 +105,13 @@ def create_cats_lark_parser():
 
         @staticmethod
         def struct(tokens):
-            return Struct(tokens)
+            struct_model = Struct(tokens[1:])
+            struct_model.attributes = tokens[0]
+            return struct_model
 
         @staticmethod
         def struct_child(tokens):
-            tokens[2].comment = tokens[0]
-
-            if tokens[1]:
-                tokens[2].attributes = tokens[1]
-
-            return tokens[2]
+            return CatbufferTransformer.statement(tokens)
 
         @staticmethod
         def struct_inline(tokens):
@@ -114,7 +119,9 @@ def create_cats_lark_parser():
 
         @staticmethod
         def struct_field(tokens):
-            return StructField(tokens)
+            field_model = StructField(tokens[1:])
+            field_model.attributes = tokens[0]
+            return field_model
 
         @staticmethod
         def struct_field_const(tokens):

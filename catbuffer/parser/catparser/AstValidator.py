@@ -1,4 +1,6 @@
-from .ast import Array, Conditional, Enum, Struct, StructInlinePlaceholder
+from enum import Enum
+
+from .ast import Array, Conditional, Enum, FixedSizeInteger, Struct, StructInlinePlaceholder
 
 
 class ErrorDescriptor:
@@ -23,11 +25,22 @@ class ErrorDescriptor:
 class AstValidator:
     """Validates AST type descriptors."""
 
+    class Mode(Enum):
+        """Validation mode."""
+
+        PRE_EXPANSION = 1
+        POST_EXPANSION = 2
+
     def __init__(self, type_descriptors):
         self.raw_type_descriptors = type_descriptors
         self.type_descriptor_map = {model.name: model for model in self.raw_type_descriptors}
 
+        self.mode = self.Mode.PRE_EXPANSION
         self.errors = []
+
+    def set_validation_mode(self, mode):
+        """Sets the validation mode."""
+        self.mode = mode
 
     def validate(self):
         """Validates all types for correctness."""
@@ -45,6 +58,8 @@ class AstValidator:
             self.errors.append(ErrorDescriptor('duplicate enum values', model.name, duplicate_names))
 
     def _validate_struct(self, model):
+        # pylint: disable=too-many-branches
+
         duplicate_names = self._find_duplicate_names(model.fields)
         if duplicate_names:
             self.errors.append(ErrorDescriptor('duplicate struct fields', model.name, duplicate_names))
@@ -77,6 +92,9 @@ class AstValidator:
                 for attribute in field.attributes:
                     if not hasattr(field.field_type, attribute.name):
                         self.errors.append(create_error_descriptor(f'inapplicable attribute "{attribute.name}"'))
+
+        if self.Mode.PRE_EXPANSION != self.mode:
+            self._check_struct_attributes(model, field_map)
 
     def _validate_unnamed_inline(self, field, create_error_descriptor):
         if not self._is_known_type(field.inlined_typename):
@@ -125,6 +143,47 @@ class AstValidator:
 
         if not isinstance(value, int):
             self.errors.append(create_error_descriptor(f'field value "{value}" is not a valid numeric value'))
+
+    def _check_struct_attributes(self, model, field_map):
+        if self._check_known_field(model, field_map, 'size'):
+            if not isinstance(field_map[model.size].field_type, FixedSizeInteger):
+                self.errors.append(ErrorDescriptor(f'reference to "size" property "{model.size}" has unexpected type', model.name))
+
+        self._check_known_field(model, field_map, 'discriminator')
+
+        if not model.initializers:
+            return
+
+        for initializer in model.initializers:
+            is_valid = True
+            is_concrete = model.disposition not in ('abstract', 'inline')
+            for property_name, raise_error in [(initializer.target_property_name, True), (initializer.value, is_concrete)]:
+                if property_name not in field_map:
+                    is_valid = False
+                    if raise_error:
+                        self.errors.append(ErrorDescriptor(
+                            f'reference to unknown "intializes" property "{property_name}"',
+                            model.name))
+
+            if not is_valid:
+                continue
+
+            # str compare is good enough as it lets us differentiate among subtypes of things like FixedSizeInteger
+            if str(field_map[initializer.target_property_name].field_type) != str(field_map[initializer.value].field_type):
+                self.errors.append(ErrorDescriptor(
+                    f'property "{initializer.target_property_name}" has initializer "{initializer.value}" of different type',
+                    model.name))
+
+    def _check_known_field(self, model, field_map, property_name):
+        value = getattr(model, property_name)
+        if not value:
+            return False
+
+        if value in field_map:
+            return True
+
+        self.errors.append(ErrorDescriptor(f'reference to unknown "{property_name}" property "{value}"', model.name))
+        return False
 
     def _is_known_type(self, typename):
         return not isinstance(typename, str) or typename in self.type_descriptor_map
