@@ -128,7 +128,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('reference to unknown type MyCustomType', 'FooBar', 'alpha')
+            ErrorDescriptor('reference to unknown type "MyCustomType"', 'FooBar', 'alpha')
         ])
 
     def test_cannot_validate_struct_containing_unnamed_inline_unknown_type(self):
@@ -139,7 +139,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('reference to unknown inlined type MyCustomType', 'FooBar')
+            ErrorDescriptor('reference to unknown inlined type "MyCustomType"', 'FooBar')
         ])
 
     def test_can_validate_struct_containing_named_inline_field_referencing_inline_type(self):
@@ -161,7 +161,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('named inline field referencing non inline struct MyCustomType', 'FooBar', 'alpha')
+            ErrorDescriptor('named inline field referencing non inline struct "MyCustomType"', 'FooBar', 'alpha')
         ])
 
     def test_cannot_validate_struct_containing_named_inline_field_referencing_plain_type(self):
@@ -211,7 +211,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('reference to unknown element type ElementType', 'FooBar', 'alpha')
+            ErrorDescriptor('reference to unknown element type "ElementType"', 'FooBar', 'alpha')
         ])
 
     def test_can_validate_struct_containing_array_with_known_size_field(self):
@@ -236,7 +236,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('reference to unknown size property sigma', 'FooBar', 'alpha')
+            ErrorDescriptor('reference to unknown size property "sigma"', 'FooBar', 'alpha')
         ])
 
     def test_can_validate_struct_containing_array_with_known_sort_key_field(self):
@@ -264,7 +264,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('reference to unknown sort_key property height', 'FooBar', 'alpha')
+            ErrorDescriptor('reference to unknown sort_key property "height"', 'FooBar', 'alpha')
         ])
 
     def test_cannot_validate_struct_containing_array_with_unknown_element_type_and_unknown_sort_key_field(self):
@@ -278,8 +278,8 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('reference to unknown element type ElementType', 'FooBar', 'alpha'),
-            ErrorDescriptor('reference to unknown sort_key property height', 'FooBar', 'alpha')
+            ErrorDescriptor('reference to unknown element type "ElementType"', 'FooBar', 'alpha'),
+            ErrorDescriptor('reference to unknown sort_key property "height"', 'FooBar', 'alpha')
         ])
 
     # endregion
@@ -346,7 +346,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('reference to unknown type ColorShade', 'FooBar', 'r1'),
+            ErrorDescriptor('reference to unknown type "ColorShade"', 'FooBar', 'r1'),
             ErrorDescriptor('field value "RED" is not a valid numeric value', 'FooBar', 'r1')
         ])
 
@@ -393,7 +393,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('reference to unknown condition field trigger', 'FooBar', 'alpha'),
+            ErrorDescriptor('reference to unknown condition field "trigger"', 'FooBar', 'alpha'),
         ])
 
     def test_cannot_validate_struct_containing_conditional_with_unknown_condition_type(self):
@@ -409,7 +409,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('reference to unknown type ColorShade', 'FooBar', 'shade'),
+            ErrorDescriptor('reference to unknown type "ColorShade"', 'FooBar', 'shade'),
             ErrorDescriptor('field value "RED" is not a valid numeric value', 'FooBar', 'alpha')
         ])
 
@@ -473,7 +473,7 @@ class AstValidatorTests(unittest.TestCase):
 
         # Act + Assert:
         self._asssert_validate(validator, [
-            ErrorDescriptor('inapplicable attribute sort_direction', 'FooBar', 'alpha')
+            ErrorDescriptor('inapplicable attribute "sort_direction"', 'FooBar', 'alpha')
         ])
 
     # endregion

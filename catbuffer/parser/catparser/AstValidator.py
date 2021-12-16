@@ -59,10 +59,10 @@ class AstValidator:
                 continue
 
             if not self._is_known_type(field.field_type):
-                self.errors.append(create_error_descriptor(f'reference to unknown type {field.field_type}'))
+                self.errors.append(create_error_descriptor(f'reference to unknown type "{field.field_type}"'))
             else:
                 if 'inline' == field.disposition and 'inline' != self.type_descriptor_map[field.field_type].disposition:
-                    self.errors.append(create_error_descriptor(f'named inline field referencing non inline struct {field.field_type}'))
+                    self.errors.append(create_error_descriptor(f'named inline field referencing non inline struct "{field.field_type}"'))
 
             if isinstance(field.field_type, Array):
                 self._validate_array(field.field_type, field_map, create_error_descriptor)
@@ -76,11 +76,11 @@ class AstValidator:
             if field.attributes:
                 for attribute in field.attributes:
                     if not hasattr(field.field_type, attribute.name):
-                        self.errors.append(create_error_descriptor(f'inapplicable attribute {attribute.name}'))
+                        self.errors.append(create_error_descriptor(f'inapplicable attribute "{attribute.name}"'))
 
     def _validate_unnamed_inline(self, field, create_error_descriptor):
         if not self._is_known_type(field.inlined_typename):
-            self.errors.append(create_error_descriptor(f'reference to unknown inlined type {field.inlined_typename}'))
+            self.errors.append(create_error_descriptor(f'reference to unknown inlined type "{field.inlined_typename}"'))
         else:
             # all dispositions are allowed as unnamed inline
             pass
@@ -90,7 +90,7 @@ class AstValidator:
         is_sort_key_valid = True
         sort_key = field_type.sort_key
         if not self._is_known_type(element_type):
-            self.errors.append(create_error_descriptor(f'reference to unknown element type {element_type}'))
+            self.errors.append(create_error_descriptor(f'reference to unknown element type "{element_type}"'))
             is_sort_key_valid = not sort_key
         else:
             is_sort_key_valid = not sort_key or any(
@@ -98,17 +98,17 @@ class AstValidator:
             )
 
         if not is_sort_key_valid:
-            self.errors.append(create_error_descriptor(f'reference to unknown sort_key property {sort_key}'))
+            self.errors.append(create_error_descriptor(f'reference to unknown sort_key property "{sort_key}"'))
 
         size = field_type.size
         if isinstance(size, str) and size not in field_map:
-            self.errors.append(create_error_descriptor(f'reference to unknown size property {size}'))
+            self.errors.append(create_error_descriptor(f'reference to unknown size property "{size}"'))
 
     def _validate_conditional(self, field, field_map, create_error_descriptor):
         linked_field_name = field.value.linked_field_name
 
         if linked_field_name not in field_map:
-            self.errors.append(create_error_descriptor(f'reference to unknown condition field {linked_field_name}'))
+            self.errors.append(create_error_descriptor(f'reference to unknown condition field "{linked_field_name}"'))
         else:
             self._validate_in_range(field_map[linked_field_name].field_type, field.value.value, create_error_descriptor)
 
