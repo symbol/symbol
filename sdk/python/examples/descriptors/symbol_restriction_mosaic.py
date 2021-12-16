@@ -1,13 +1,10 @@
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
-
-
 def descriptor_factory():
-    sample_address = SymbolFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
+    sample_address = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y'
     sample_mosaic_id = 0x7EDCBA90FEDCBA90
 
     return [
         {
-            'type': 'mosaicGlobalRestriction',
+            'type': 'mosaic_global_restriction',
             'mosaic_id': sample_mosaic_id,
             'reference_mosaic_id': 0,
             'restriction_key': 0x0A0D474E5089,
@@ -18,7 +15,7 @@ def descriptor_factory():
         },
 
         {
-            'type': 'mosaicAddressRestriction',
+            'type': 'mosaic_address_restriction',
             'mosaic_id': sample_mosaic_id,
             'restriction_key': 0x0A0D474E5089,
             'previous_restriction_value': 0,

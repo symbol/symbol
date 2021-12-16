@@ -1,16 +1,11 @@
 import unittest
 from binascii import hexlify
 
-from symbol_catbuffer.AccountRestrictionFlagsDto import AccountRestrictionFlagsDto
-from symbol_catbuffer.EntityTypeDto import EntityTypeDto
-from symbol_catbuffer.MosaicRestrictionTypeDto import MosaicRestrictionTypeDto
-from symbol_catbuffer.NetworkTypeDto import NetworkTypeDto
-
-from symbolchain.core.ByteArray import ByteArray
 from symbolchain.core.CryptoTypes import PublicKey, Signature
 from symbolchain.core.symbol.IdGenerator import generate_mosaic_id, generate_namespace_id
 from symbolchain.core.symbol.Network import Address, Network
 from symbolchain.core.symbol.TransactionFactory import TransactionFactory
+from symbolchain.sc import AccountRestrictionFlags, MosaicRestrictionType, NetworkType, TransactionType, UnresolvedAddress
 
 from ...test.NemTestUtils import NemTestUtils
 
@@ -32,9 +27,10 @@ class TransactionFactoryTest(unittest.TestCase):
     # region create
 
     def _assert_transfer(self, transaction):
-        self.assertEqual(0x4154, transaction.type)
+        self.assertEqual(TransactionType.TRANSFER, transaction.type_)
+        self.assertEqual(0x4154, transaction.type_.value)
         self.assertEqual(1, transaction.version)
-        self.assertEqual(NetworkTypeDto.PUBLIC_TEST, transaction.network)
+        self.assertEqual(NetworkType.TESTNET, transaction.network)
 
     def _assert_can_create_known_transaction_from_descriptor(self, public_key, create_function_accessor):
         # Arrange:
@@ -48,25 +44,16 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Assert:
         self._assert_transfer(transaction)
-        self.assertEqual(TEST_SIGNER_PUBLIC_KEY.bytes, transaction.signer_public_key)
+        self.assertEqual(TEST_SIGNER_PUBLIC_KEY.bytes, transaction.signer_public_key.bytes)
 
     def _assert_can_create_known_transaction_from_descriptor_public_key(self, create_function_accessor):
         self._assert_can_create_known_transaction_from_descriptor(TEST_SIGNER_PUBLIC_KEY, create_function_accessor)
-
-    def _assert_can_create_known_transaction_from_descriptor_bytes(self, create_function_accessor):
-        self._assert_can_create_known_transaction_from_descriptor(TEST_SIGNER_PUBLIC_KEY.bytes, create_function_accessor)
 
     def test_can_create_known_transaction_from_descriptor(self):
         self._assert_can_create_known_transaction_from_descriptor_public_key(self.create)
 
     def test_can_create_known_transaction_from_descriptor_embedded(self):
         self._assert_can_create_known_transaction_from_descriptor_public_key(self.create_embedded)
-
-    def test_can_create_known_transaction_from_descriptor_bytes(self):
-        self._assert_can_create_known_transaction_from_descriptor_bytes(self.create)
-
-    def test_can_create_known_transaction_from_descriptor_bytes_embedded(self):
-        self._assert_can_create_known_transaction_from_descriptor_bytes(self.create_embedded)
 
     def _assert_cannot_create_unknown_transaction_from_descriptor(self, create_function_accessor):
         # Arrange:
@@ -87,59 +74,44 @@ class TransactionFactoryTest(unittest.TestCase):
 
     def _assert_can_create_known_transaction_with_multiple_overrides(self, create_function_accessor):
         # Arrange:
+        # there's subtle difference between the two:
+        #  * hint on `hash` is pod:Hash256,
+        #    type parsing rule that is getting created is for STRING 'Hash256'
+        #  * same goes for `BlockDuration`
+        #  * signer_public_key is handled differently in Transaction factory, via hint:
+        #    {'signer_public_key': PublicKey} which maps it to SDK type CryptoTypes.PublicKey
         factory = TransactionFactory(Network.TESTNET, {
-            Address: lambda address: address + ' ADDRESS',
+            'Hash256': lambda x: x + ' a hash',
+            'BlockDuration': lambda _: 654321,
             PublicKey: lambda address: address + ' PUBLICKEY'
         })
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': 'transfer',
+            'type': 'hash_lock',
             'signer_public_key': 'signer_name',
-            'recipient_address': 'recipient_name',
-            'message': 'hello world',
-            'mosaics': [(0x12345678ABCDEF, 12345)]
+            'hash': 'not really',
+            'duration': 'fake duration',
+            'mosaic': {'mosaic_id': 0x12345678ABCDEF, 'amount': 12345}
         })
 
         # Assert:
-        self._assert_transfer(transaction)
+        self.assertEqual(TransactionType.HASH_LOCK, transaction.type_)
+        self.assertEqual(0x4148, transaction.type_.value)
+        self.assertEqual(1, transaction.version)
+        self.assertEqual(NetworkType.TESTNET, transaction.network)
         self.assertEqual('signer_name PUBLICKEY', transaction.signer_public_key)
 
-        self.assertEqual('recipient_name ADDRESS', transaction.recipient_address)
-        self.assertEqual(b'hello world', transaction.message)
-        self.assertEqual([(0x12345678ABCDEF, 12345)], transaction.mosaics)
+        self.assertEqual(654321, transaction.duration)
+        self.assertEqual('not really a hash', transaction.hash)
+        self.assertEqual(0x12345678ABCDEF, transaction.mosaic.mosaic_id.value)
+        self.assertEqual(12345, transaction.mosaic.amount.value)
 
     def test_can_create_known_transaction_with_multiple_overrides(self):
         self._assert_can_create_known_transaction_with_multiple_overrides(self.create)
 
     def test_can_create_known_transaction_with_multiple_overrides_embedded(self):
         self._assert_can_create_known_transaction_with_multiple_overrides(self.create_embedded)
-
-    def _assert_can_create_transaction_with_voting_key_link_overrides(self, create_function_accessor):
-        # Arrange: VotingKeyDto is translated into PublicKey
-        factory = TransactionFactory(Network.TESTNET, {
-            PublicKey: lambda address: address + ' PUBLICKEY'
-        })
-
-        # Act:
-        transaction = create_function_accessor(factory)({
-            'type': 'votingKeyLink',
-            'signer_public_key': 'signer_name',
-            'linked_public_key': 'linked_name'
-        })
-
-        # Assert:
-        self.assertEqual(0x4143, transaction.type)
-        self.assertEqual(1, transaction.version)
-        self.assertEqual(NetworkTypeDto.PUBLIC_TEST, transaction.network)
-        self.assertEqual('signer_name PUBLICKEY', transaction.signer_public_key)
-        self.assertEqual('linked_name PUBLICKEY', transaction.linked_public_key)
-
-    def test_can_create_transaction_with_voting_key_link_overrides(self):
-        self._assert_can_create_transaction_with_voting_key_link_overrides(self.create)
-
-    def test_can_create_transaction_with_voting_key_link_overrides_embedded(self):
-        self._assert_can_create_transaction_with_voting_key_link_overrides(self.create_embedded)
 
     # endregion
 
@@ -151,15 +123,15 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': 'accountAddressRestriction',
+            'type': 'account_address_restriction',
             'signer_public_key': 'signer_name',
             'restriction_flags': 'address mosaic_id transaction_type outgoing block'
         })
 
         # Assert:
-        Flags = AccountRestrictionFlagsDto
+        Flags = AccountRestrictionFlags
         self.assertEqual(
-            [Flags.ADDRESS, Flags.MOSAIC_ID, Flags.TRANSACTION_TYPE, Flags.OUTGOING, Flags.BLOCK],
+            Flags.ADDRESS | Flags.MOSAIC_ID | Flags.TRANSACTION_TYPE | Flags.OUTGOING | Flags.BLOCK,
             transaction.restriction_flags)
 
     def test_can_create_transaction_with_default_flags_handling(self):
@@ -174,7 +146,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': 'mosaicGlobalRestriction',
+            'type': 'mosaic_global_restriction',
             'signer_public_key': 'signer_name',
             'mosaic_id': 0x12345,
             'previous_restriction_type': 'le',
@@ -182,8 +154,8 @@ class TransactionFactoryTest(unittest.TestCase):
         })
 
         # Assert:
-        self.assertEqual(MosaicRestrictionTypeDto.LE, transaction.previous_restriction_type)
-        self.assertEqual(MosaicRestrictionTypeDto.GT, transaction.new_restriction_type)
+        self.assertEqual(MosaicRestrictionType.LE, transaction.previous_restriction_type)
+        self.assertEqual(MosaicRestrictionType.GT, transaction.new_restriction_type)
 
     def test_can_create_transaction_with_default_enum_handling(self):
         self._assert_can_create_transaction_with_default_enum_handling(self.create)
@@ -197,22 +169,22 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': 'accountOperationRestriction',
+            'type': 'account_operation_restriction',
             'signer_public_key': 'signer_name',
             'restriction_additions': [
-                'transfer_transaction',
-                'account_key_link_transaction'
+                'transfer',
+                'account_key_link'
             ],
             'restriction_deletions': [
-                'vrf_key_link_transaction',
-                'voting_key_link_transaction'
+                'vrf_key_link',
+                'voting_key_link'
             ]
         })
 
         # Assert:
-        expected_additions = [EntityTypeDto.TRANSFER_TRANSACTION, EntityTypeDto.ACCOUNT_KEY_LINK_TRANSACTION]
+        expected_additions = [TransactionType.TRANSFER, TransactionType.ACCOUNT_KEY_LINK]
         self.assertEqual(expected_additions, transaction.restriction_additions)
-        expected_deletions = [EntityTypeDto.VRF_KEY_LINK_TRANSACTION, EntityTypeDto.VOTING_KEY_LINK_TRANSACTION]
+        expected_deletions = [TransactionType.VRF_KEY_LINK, TransactionType.VOTING_KEY_LINK]
         self.assertEqual(expected_deletions, transaction.restriction_deletions)
 
     def test_can_create_transaction_with_default_enum_array_handling(self):
@@ -231,13 +203,18 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': 'accountAddressRestriction',
+            'type': 'account_address_restriction',
             'signer_public_key': 'signer_name',
-            'restriction_additions': [ByteArray(5, 'CCAABB9900'), Signature.zero()]
+            'restriction_additions': [
+                Address('AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA'),
+                Address('DINRYHI6D4QCCIRDEQSSMJZIFEVCWLBNFYXTAMI')
+            ]
         })
 
-        # Assert: ByteArrays are converted to bytes()
-        self.assertEqual([b'\xCC\xAA\xBB\x99\x00', Signature.zero().bytes], transaction.restriction_additions)
+        # Assert:
+        self.assertEqual(
+            [UnresolvedAddress(bytes(range(1, 25))), UnresolvedAddress(bytes(range(26, 50)))],
+            transaction.restriction_additions)
 
     def test_can_create_transaction_with_type_conversion(self):
         self._assert_can_create_transaction_with_type_conversion(self.create)
@@ -255,7 +232,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': 'namespaceRegistration',
+            'type': 'namespace_registration',
             'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
             'registration_type': 'root',
             'duration': 123,
@@ -264,7 +241,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Assert:
         expected_id = generate_namespace_id('roger')
-        self.assertEqual(expected_id, transaction.id)
+        self.assertEqual(expected_id, transaction.id.value)
 
     def test_can_autogenerate_namespace_registration_root_id(self):
         self._assert_can_autogenerate_namespace_registration_root_id(self.create)
@@ -278,7 +255,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': 'namespaceRegistration',
+            'type': 'namespace_registration',
             'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
             'registration_type': 'child',
             'parent_id': generate_namespace_id('roger'),
@@ -287,7 +264,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Assert:
         expected_id = generate_namespace_id('charlie', generate_namespace_id('roger'))
-        self.assertEqual(expected_id, transaction.id)
+        self.assertEqual(expected_id, transaction.id.value)
 
     def test_can_autogenerate_namespace_registration_child_id(self):
         self._assert_can_autogenerate_namespace_registration_child_id(self.create)
@@ -301,7 +278,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Act:
         transaction = create_function_accessor(factory)({
-            'type': 'mosaicDefinition',
+            'type': 'mosaic_definition',
             'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
             'duration': 1,
             'nonce': 123,
@@ -311,7 +288,7 @@ class TransactionFactoryTest(unittest.TestCase):
 
         # Assert:
         expected_id = generate_mosaic_id(factory.network.public_key_to_address(PublicKey(TEST_SIGNER_PUBLIC_KEY)), 123)
-        self.assertEqual(expected_id, transaction.id)
+        self.assertEqual(expected_id, transaction.id.value)
 
     def test_can_autogenerate_mosaic_definition_id(self):
         self._assert_can_autogenerate_mosaic_definition_id(self.create)
@@ -333,16 +310,16 @@ class TransactionFactoryTest(unittest.TestCase):
         signature = NemTestUtils.randcryptotype(Signature)
 
         # Sanity:
-        self.assertEqual(Signature.zero().bytes, transaction.signature)
+        self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
         # Act:
         signed_transaction_buffer = factory.attach_signature(transaction, signature)
 
         # Assert:
         self._assert_transfer(transaction)
-        self.assertEqual(TEST_SIGNER_PUBLIC_KEY.bytes, transaction.signer_public_key)
+        self.assertEqual(TEST_SIGNER_PUBLIC_KEY.bytes, transaction.signer_public_key.bytes)
 
-        self.assertEqual(signature.bytes, transaction.signature)
+        self.assertEqual(signature.bytes, transaction.signature.bytes)
 
         serialized_transaction_hex = hexlify(transaction.serialize()).decode('utf8').upper()
         expected_buffer = f'{{"payload": "{serialized_transaction_hex}"}}'.encode('utf8')

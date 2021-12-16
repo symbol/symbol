@@ -6,19 +6,19 @@ def descriptor_factory():
 
     return [
         {
-            'type': 'accountKeyLink',
+            'type': 'account_key_link',
             'linked_public_key': sample_public_key,
             'link_action': 'link'
         },
 
         {
-            'type': 'nodeKeyLink',
+            'type': 'node_key_link',
             'linked_public_key': sample_public_key,
             'link_action': 'link'
         },
 
         {
-            'type': 'votingKeyLink',
+            'type': 'voting_key_link',
             'linked_public_key': sample_public_key,
             'link_action': 'link',
             'start_epoch': 10,
@@ -26,7 +26,7 @@ def descriptor_factory():
         },
 
         {
-            'type': 'vrfKeyLink',
+            'type': 'vrf_key_link',
             'linked_public_key': sample_public_key,
             'link_action': 'link'
         }

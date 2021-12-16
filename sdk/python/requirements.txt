@@ -1,4 +1,3 @@
-catbuffer==1.0.0
 cryptography==3.4.6
 mnemonic==0.20
 Pillow==8.4.0

@@ -1,26 +1,25 @@
 from binascii import unhexlify
 
 from symbolchain.core.CryptoTypes import Hash256
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
 
 
 def descriptor_factory():
-    sample_address = SymbolFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
+    sample_address = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y'
     sample_mosaic_id = 0x7EDCBA90FEDCBA90
     secret = unhexlify('C849C5A5F6BCA84EF1829B2A84C0BAC9D765383D000000000000000000000000')
 
     return [
         # note: only network currency can be used as a mosaic in hash lock
         {
-            'type': 'hashLock',
-            'mosaic': (sample_mosaic_id, 123_000000),
+            'type': 'hash_lock',
+            'mosaic': {'mosaic_id': sample_mosaic_id, 'amount': 123_000000},
             'duration': 123,
             'hash': Hash256.zero()
         },
 
         {
-            'type': 'secretLock',
-            'mosaic': (sample_mosaic_id, 123_000000),
+            'type': 'secret_lock',
+            'mosaic': {'mosaic_id': sample_mosaic_id, 'amount': 123_000000},
             'duration': 123,
             'recipient_address': sample_address,
             'secret': secret,
@@ -28,7 +27,7 @@ def descriptor_factory():
         },
 
         {
-            'type': 'secretProof',
+            'type': 'secret_proof',
             'recipient_address': sample_address,
             'secret': secret,
             'hash_algorithm': 'hash_160',

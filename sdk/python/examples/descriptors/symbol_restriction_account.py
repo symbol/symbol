@@ -1,14 +1,11 @@
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
-
-
 def descriptor_factory():
-    sample_address = SymbolFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y')
+    sample_address = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y'
     sample_mosaic_id = 0x7EDCBA90FEDCBA90
 
     return [
         # allow incoming transactions only from address below
         {
-            'type': 'accountAddressRestriction',
+            'type': 'account_address_restriction',
             'restriction_flags': 'address',
             'restriction_additions': [sample_address]
         },
@@ -17,27 +14,27 @@ def descriptor_factory():
         # note: block and allow restrictions are mutually exclusive, documentation
         # https://docs.symbolplatform.com/concepts/account-restriction.html#account-restriction
         {
-            'type': 'accountAddressRestriction',
+            'type': 'account_address_restriction',
             'restriction_flags': 'address outgoing block',
             'restriction_additions': [sample_address]
         },
 
         {
-            'type': 'accountMosaicRestriction',
+            'type': 'account_mosaic_restriction',
             'restriction_flags': 'mosaic_id',
             'restriction_additions': [sample_mosaic_id]
         },
 
         # allow only specific transaction types
         {
-            'type': 'accountOperationRestriction',
+            'type': 'account_operation_restriction',
             'restriction_flags': 'outgoing',
             'restriction_additions': [
-                'transfer_transaction',
-                'account_key_link_transaction',
-                'vrf_key_link_transaction',
-                'voting_key_link_transaction',
-                'node_key_link_transaction'
+                'transfer',
+                'account_key_link',
+                'vrf_key_link',
+                'voting_key_link',
+                'node_key_link'
             ]
         }
     ]

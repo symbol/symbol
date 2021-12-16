@@ -1,7 +1,9 @@
 from binascii import hexlify, unhexlify
 
+from .Ordered import Ordered
 
-class ByteArray:
+
+class ByteArray(Ordered):
     """Represents a fixed size byte array."""
 
     def __init__(self, fixed_size, array_input, tag=None):
@@ -16,9 +18,19 @@ class ByteArray:
         self.bytes = raw_bytes
         self.__tag = tag
 
+    def _cmp(self, other, operation):
+        if not isinstance(other, ByteArray):
+            return NotImplemented
+
+        # pylint: disable=protected-access
+        return operation(self.bytes, other.bytes) and self.__tag == other.__tag
+
     def __eq__(self, other):
         # pylint: disable=protected-access
         return isinstance(other, ByteArray) and self.bytes == other.bytes and self.__tag == other.__tag
+
+    def __ne__(self, other):
+        return not self == other
 
     def __hash__(self):
         return hash(self.bytes)
