@@ -146,7 +146,7 @@ class StructFormatter(AbstractTypeFormatter):
         if is_reserved(field):
             additional_statements = f'assert {field.printer.name} == {field.yaml_descriptor["value"]}, "Invalid value of reserved field"\n'
 
-        if 'size_' == field.printer.name and self.struct.has_inlines:
+        if self.struct.dynamic_size == field.printer.name:
             additional_statements += f'{buffer_name} = {buffer_name}[:size_ - {field.printer.advancement_size()}]\n'
             additional_statements += 'del size_\n'
 
@@ -235,7 +235,7 @@ class StructFormatter(AbstractTypeFormatter):
         # if first field is size replace serializer with custom one (to access builder .size() instead)
         fields_iter = self.non_const_fields()
         first_field = next(fields_iter)
-        if 'size' == first_field.original_field_name and self.struct.has_inlines:
+        if self.struct.dynamic_size == first_field.printer.name:
             body += f'buffer_ += self.size().to_bytes({first_field.get_type().get_size()}, byteorder="little", signed=False)\n'
         else:
             body += self.generate_serialize_field(first_field)

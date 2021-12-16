@@ -24,7 +24,7 @@ class FactoryClassFormatter(ClassFormatter):
         method_descriptor = self.provider.get_create_by_name_descriptor()
         method_descriptor.method_name = 'create_by_name'
         method_descriptor.arguments = [
-            'transaction_type: str'
+            'entity_name: str'
         ]
         method_descriptor.annotations = ['@classmethod']
         return self.generate_method(method_descriptor)
@@ -88,11 +88,11 @@ class FactoryFormatter(AbstractTypeFormatter):
         )
         body += '}\n'
 
-        body += '''
-if transaction_type not in mapping:
-    raise ValueError('unknown transaction type')
+        body += f'''
+if entity_name not in mapping:
+    raise ValueError('unknown {self.printer.get_type()} type')
 
-return mapping[transaction_type]()
+return mapping[entity_name]()
 '''
         return MethodDescriptor(body=body, result=self.abstract.typename)
 

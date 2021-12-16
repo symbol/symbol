@@ -13,9 +13,12 @@ class AbstractImplMap:
 
     def add(self, parent_type: StructObject, child_type: StructObject):
         if parent_type.typename not in self.mapping:
+            discriminator_name = parent_type.yaml_descriptor['discriminator']
+            initializers = parent_type.yaml_descriptor['initializers']
+            discriminator_value = [init['value'] for init in initializers if init['target_property_name'] == discriminator_name][0]
             self.mapping[parent_type.typename] = {
-                'discriminator_name': 'type_',
-                'discriminator_value': 'TRANSACTION_TYPE',
+                'discriminator_name': discriminator_name,
+                'discriminator_value': discriminator_value,
                 'children': [],
             }
 

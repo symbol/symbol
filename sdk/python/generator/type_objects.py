@@ -67,9 +67,9 @@ class StructObject(BaseObject):
     def __init__(self, yaml_descritor):
         super().__init__('struct', yaml_descritor)
         self.layout = []
-        self.has_inlines = False
+        self.dynamic_size = self.yaml_descriptor.get('size', None)
         self.name_to_index = {}
-        self.is_abstract = self.typename in ['Transaction', 'EmbeddedTransaction']
+        self.is_abstract = 'abstract' == self.yaml_descriptor.get('disposition', None)
 
     def add_field(self, field):
         self.name_to_index[field.original_field_name] = len(self.layout)
