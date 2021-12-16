@@ -34,7 +34,7 @@ jobs:
 
     - name: catbuffer test vectors
       script:
-        - git clone --depth=1 --branch=test-vectors https://github.com/symbol/catbuffer-schemas.git $CATBUFFER_SCHEMAS
+        - git clone --depth=1 https://github.com/symbol/catbuffer-schemas.git $CATBUFFER_SCHEMAS
         - PYTHONPATH=. pytest generator
 
     - name: test vectors
