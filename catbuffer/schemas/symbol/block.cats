@@ -27,6 +27,10 @@ struct VrfProof
 	scalar = ProofScalar
 
 # binary layout for a block header
+@size(size)
+@initializes(version, BLOCK_VERSION)
+@initializes(type, BLOCK_TYPE)
+@discriminator(type)
 abstract struct BlockHeader
 	inline SizePrefixedEntity
 	inline VerifiableEntity

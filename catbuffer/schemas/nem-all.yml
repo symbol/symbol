@@ -74,7 +74,13 @@
     name: MOSAIC_SUPPLY_CHANGE
     value: 16386
 - comments: binary layout for a transaction
+  discriminator: type
   disposition: abstract
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - comments: transaction type
     name: type
@@ -211,7 +217,13 @@
     name: UNLINK
     value: 2
 - comments: binary layout for an account key link transaction
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -450,7 +462,13 @@
   name: MosaicDefinition
   type: struct
 - comments: binary layout for an importance transfer transaction
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -540,7 +558,13 @@
     name: DECREASE
     value: 2
 - comments: binary layout for an mosaic supply change transaction
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -640,7 +664,13 @@
   name: MultisigAccountModification
   type: struct
 - comments: binary layout for a multisig account modification transaction (V1)
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -712,7 +742,13 @@
   name: MultisigAccountModificationTransaction
   type: struct
 - comments: binary layout for a multisig account modification transaction (V2)
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -797,7 +833,13 @@
   name: MultisigAccountModificationTransaction2
   type: struct
 - comments: cosignature attached to an aggregate transaction
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -886,7 +928,13 @@
   name: Cosignature
   type: struct
 - comments: binary layout for a multisig transaction
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -966,7 +1014,13 @@
   name: MultisigTransaction
   type: struct
 - comments: binary layout for a namespace registration transaction
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -1103,7 +1157,13 @@
   name: Message
   type: struct
 - comments: binary layout for a transfer transaction (V1)
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -1189,7 +1249,13 @@
   name: TransferTransaction
   type: struct
 - comments: binary layout for a transfer transaction (V2)
+  discriminator: type
   factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
   layout:
   - disposition: const
     name: TRANSACTION_VERSION

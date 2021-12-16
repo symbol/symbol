@@ -54,6 +54,8 @@ enum ReceiptType : uint16
 	MOSAIC_ALIAS_RESOLUTION = 0xF243
 
 # Receipts provide proof for every state change not retrievable from the block.
+@size(size)
+@discriminator(type)
 abstract struct Receipt
 	inline SizePrefixedEntity
 
