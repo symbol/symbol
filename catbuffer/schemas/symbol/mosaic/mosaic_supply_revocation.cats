@@ -2,7 +2,7 @@ import "mosaic/mosaic_types.cats"
 import "transaction.cats"
 
 # Shared content between MosaicSupplyRevocationTransaction and EmbeddedMosaicSupplyRevocationTransaction.
-struct MosaicSupplyRevocationTransactionBody
+inline struct MosaicSupplyRevocationTransactionBody
 	# Address from which tokens should be revoked.
 	source_address = UnresolvedAddress
 

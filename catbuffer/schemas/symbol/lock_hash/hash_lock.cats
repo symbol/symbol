@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between HashLockTransaction and EmbeddedHashLockTransaction.
-struct HashLockTransactionBody
+inline struct HashLockTransactionBody
 	# Locked mosaic.
 	mosaic = UnresolvedMosaic
 

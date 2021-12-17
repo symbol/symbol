@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between AccountKeyLinkTransactionBody and EmbeddedAccountKeyLinkTransaction.
-struct AccountKeyLinkTransactionBody
+inline struct AccountKeyLinkTransactionBody
 	# Linked public key.
 	linked_public_key = PublicKey
 

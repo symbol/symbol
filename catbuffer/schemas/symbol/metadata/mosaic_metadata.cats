@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between MosaicMetadataTransaction and EmbeddedMosaicMetadataTransaction.
-struct MosaicMetadataTransactionBody
+inline struct MosaicMetadataTransactionBody
 	# Account owning the mosaic whose metadata should be modified.
 	target_address = UnresolvedAddress
 

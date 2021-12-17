@@ -2,7 +2,7 @@ import "namespace/namespace_types.cats"
 import "transaction.cats"
 
 # Shared content between NamespaceMetadataTransaction and EmbeddedNamespaceMetadataTransaction.
-struct NamespaceMetadataTransactionBody
+inline struct NamespaceMetadataTransactionBody
 	# Account owning the namespace whose metadata should be modified.
 	target_address = UnresolvedAddress
 

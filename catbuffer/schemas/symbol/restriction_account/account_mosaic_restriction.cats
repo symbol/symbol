@@ -2,7 +2,7 @@ import "restriction_account/restriction_account_types.cats"
 import "transaction.cats"
 
 # Shared content between AccountMosaicRestrictionTransaction and EmbeddedAccountMosaicRestrictionTransaction.
-struct AccountMosaicRestrictionTransactionBody
+inline struct AccountMosaicRestrictionTransactionBody
 	# Type of restriction being applied to the listed mosaics.
 	restriction_flags = AccountRestrictionFlags
 

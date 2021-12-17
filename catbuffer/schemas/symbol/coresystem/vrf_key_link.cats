@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # Shared content between VrfKeyLinkTransaction and EmbeddedVrfKeyLinkTransaction.
-struct VrfKeyLinkTransactionBody
+inline struct VrfKeyLinkTransactionBody
 	# Linked VRF public key.
 	linked_public_key = PublicKey
 

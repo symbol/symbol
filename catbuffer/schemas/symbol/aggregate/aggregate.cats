@@ -2,7 +2,7 @@ import "aggregate/cosignature.cats"
 import "transaction.cats"
 
 # Shared content between AggregateCompleteTransaction and AggregateBondedTransaction.
-struct AggregateTransactionBody
+inline struct AggregateTransactionBody
 	# Hash of the aggregate's transaction.
 	transactions_hash = Hash256
 
@@ -20,7 +20,9 @@ struct AggregateTransactionBody
 	# Transactions are variable-sized and the total payload size is in bytes.
 	#
 	# Embedded transactions cannot be aggregates.
-	transactions = array(EmbeddedTransaction, size=payload_size)
+	@is_byte_constrained
+	@alignment(8)
+	transactions = array(EmbeddedTransaction, payload_size)
 
 	# Cosignatures data.
 	#

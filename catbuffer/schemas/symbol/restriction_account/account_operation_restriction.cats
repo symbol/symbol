@@ -2,7 +2,7 @@ import "restriction_account/restriction_account_types.cats"
 import "transaction.cats"
 
 # Shared content between AccountOperationRestrictionTransaction and EmbeddedAccountOperationRestrictionTransaction.
-struct AccountOperationRestrictionTransactionBody
+inline struct AccountOperationRestrictionTransactionBody
 	# Type of restriction being applied to the listed transaction types.
 	restriction_flags = AccountRestrictionFlags
 

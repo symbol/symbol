@@ -7,6 +7,9 @@ import "finalization/finalized_block_header.cats"
 
 # receipt
 import "receipts.cats"
+import "lock_hash/lock_hash_receipts.cats"
+import "lock_secret/lock_secret_receipts.cats"
+import "mosaic/mosaic_receipts.cats"
 import "namespace/namespace_receipts.cats"
 import "resolution_statement/resolution_statements.cats"
 

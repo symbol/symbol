@@ -2,7 +2,7 @@ import "restriction_mosaic/restriction_mosaic_types.cats"
 import "transaction.cats"
 
 # Shared content between MosaicGlobalRestrictionTransaction and EmbeddedMosaicGlobalRestrictionTransaction.
-struct MosaicGlobalRestrictionTransactionBody
+inline struct MosaicGlobalRestrictionTransactionBody
 	# Identifier of the mosaic being restricted. The mosaic creator must be the signer of the transaction.
 	mosaic_id = UnresolvedMosaicId
 

@@ -2,7 +2,7 @@ import "namespace/namespace_types.cats"
 import "transaction.cats"
 
 # Shared content between MosaicAliasTransaction and EmbeddedMosaicAliasTransaction
-struct MosaicAliasTransactionBody
+inline struct MosaicAliasTransactionBody
 	# Identifier of the namespace that will become (or stop being) an alias for the Mosaic.
 	namespace_id = NamespaceId
 

@@ -1,4 +1,4 @@
-import "entity.cats"
+import "transaction.cats"
 
 using ProofGamma = binary_fixed(32)
 using ProofVerificationHash = binary_fixed(16)
@@ -27,7 +27,7 @@ struct VrfProof
 	scalar = ProofScalar
 
 # binary layout for a block header
-struct BlockHeader
+inline struct BlockHeader
 	inline SizePrefixedEntity
 	inline VerifiableEntity
 	inline EntityBody
@@ -66,7 +66,7 @@ struct BlockHeader
 	fee_multiplier = BlockFeeMultiplier
 
 # binary layout for an importance block footer
-struct ImportanceBlockFooter
+inline struct ImportanceBlockFooter
 	# number of voting eligible accounts
 	voting_eligible_accounts_count = uint32
 
@@ -79,28 +79,45 @@ struct ImportanceBlockFooter
 	# previous importance block hash
 	previous_importance_block_hash = Hash256
 
+# binary layout for a block
+@size(size)
+@initializes(version, BLOCK_VERSION)
+@initializes(type, BLOCK_TYPE)
+@discriminator(type)
+abstract struct Block
+	inline BlockHeader
+
 # binary layout for a nemesis block header
-struct NemesisBlockHeader
+struct NemesisBlock
 	BLOCK_VERSION = make_const(uint8, 1)
 	BLOCK_TYPE = make_const(BlockType, NEMESIS)
 
-	inline BlockHeader
+	inline Block
 	inline ImportanceBlockFooter
 
+	# variable sized transaction data
+	transactions = array(Transaction, __FILL__)
+
 # binary layout for a normal block header
-struct NormalBlockHeader
+struct NormalBlock
 	BLOCK_VERSION = make_const(uint8, 1)
 	BLOCK_TYPE = make_const(BlockType, NORMAL)
 
-	inline BlockHeader
+	inline Block
 
 	# reserved padding to align end of BlockHeader on 8-byte boundary
 	block_header_reserved_1 = make_reserved(uint32, 0)
 
+	# variable sized transaction data
+	transactions = array(Transaction, __FILL__)
+
 # binary layout for an importance block header
-struct ImportanceBlockHeader
+struct ImportanceBlock
 	BLOCK_VERSION = make_const(uint8, 1)
 	BLOCK_TYPE = make_const(BlockType, IMPORTANCE)
 
-	inline BlockHeader
+	inline Block
 	inline ImportanceBlockFooter
+
+	# variable sized transaction data
+	transactions = array(Transaction, __FILL__)
