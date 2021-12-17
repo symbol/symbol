@@ -1,0 +1,67 @@
+%import common.DIGIT
+%import common.ESCAPED_STRING
+%import common.LCASE_LETTER
+%import common.UCASE_LETTER
+
+%import common.WS_INLINE
+%ignore WS_INLINE
+
+%declare _INDENT _DEDENT
+
+?start: statement+
+
+?declaration: alias | enum | struct
+?statement: [comment] declaration | import | comment
+
+import: "import" ESCAPED_STRING _NL
+
+comment: MULTILINE_SH_COMMENT _NL
+MULTILINE_SH_COMMENT: /#[^\n]*(\r?\n[\t ]*#[^\n]*)*/
+
+alias: "using" USER_TYPE_NAME "=" (FIXED_SIZE_INTEGER | fixed_size_buffer) _NL
+
+enum: "enum" USER_TYPE_NAME ":" FIXED_SIZE_INTEGER _NL [_INDENT enum_child* _DEDENT]
+enum_child: [comment] enum_value
+enum_value: CONST_PROPERTY_NAME "=" _dec_or_hex_number _NL
+
+field_attributes: field_attribute+
+field_attribute: "@" (FIELD_ATTRIBUTE_NAME_ZERO_PARAMS | FIELD_ATTRIBUTE_NAME_SINGLE_PARAM_NUMERIC "(" _dec_or_hex_number ")" | FIELD_ATTRIBUTE_NAME_SINGLE_PARAM_PROPERTY "(" PROPERTY_NAME ")") _NL
+FIELD_ATTRIBUTE_NAME_ZERO_PARAMS.1: "is_byte_constrained"
+FIELD_ATTRIBUTE_NAME_SINGLE_PARAM_NUMERIC.1: "alignment"
+FIELD_ATTRIBUTE_NAME_SINGLE_PARAM_PROPERTY.1: "sort_key"
+
+struct_attributes: struct_attribute+
+struct_attribute: "@" (STRUCT_ATTRIBUTE_NAME_SINGLE_PARAM "(" PROPERTY_NAME ")" | STRUCT_ATTRIBUTE_NAME_TWO_PARAM "(" PROPERTY_NAME "," CONST_PROPERTY_NAME ")") _NL
+STRUCT_ATTRIBUTE_NAME_SINGLE_PARAM.1: "size" | "discriminator"
+STRUCT_ATTRIBUTE_NAME_TWO_PARAM.1: "initializes"
+
+struct: [struct_attributes] [STRUCT_MODIFIER] "struct" USER_TYPE_NAME _NL _INDENT struct_child* _DEDENT
+struct_child: [comment] (struct_field | struct_field_const | struct_field_reserved | struct_field_inline | struct_inline)
+struct_field: [field_attributes] (VALUE_PROPERTY_NAME_PLACEHOLDER | PROPERTY_NAME) "=" (USER_TYPE_NAME | FIXED_SIZE_INTEGER | array_expression) [conditional_expression] _NL
+struct_field_const: CONST_PROPERTY_NAME "=" "make_const" "(" _integer_or_enum_const ")" _NL
+struct_field_reserved: PROPERTY_NAME "=" "make_reserved" "(" _integer_or_enum_const ")" _NL
+struct_field_inline: PROPERTY_NAME "=" "inline" USER_TYPE_NAME _NL
+struct_inline: "inline" USER_TYPE_NAME _NL
+STRUCT_MODIFIER.1: "inline" | "abstract"
+
+array_expression: "array" "(" (FIXED_SIZE_INTEGER | USER_TYPE_NAME) "," (PROPERTY_NAME | _dec_or_hex_number | ARRAY_SIZE_FILL_PLACEHOLDER) ")"
+ARRAY_SIZE_FILL_PLACEHOLDER: "__FILL__"
+
+conditional_expression: "if" (_dec_or_hex_number | CONST_PROPERTY_NAME) CONDITIONAL_OPERATION PROPERTY_NAME
+CONDITIONAL_OPERATION: "not equals" | "equals" | "in" | "not in"
+
+_integer_or_enum_const: (FIXED_SIZE_INTEGER "," _dec_or_hex_number | USER_TYPE_NAME "," CONST_PROPERTY_NAME)
+
+_dec_or_hex_number: DEC_NUMBER | HEX_NUMBER
+DEC_NUMBER: DIGIT+
+HEX_NUMBER: "0x" ("A".."F" | DIGIT)+
+
+FIXED_SIZE_INTEGER.1: ["u"] "int" ("8" | "16" | "32" | "64")
+fixed_size_buffer: "binary_fixed" "(" _dec_or_hex_number ")"
+
+CONST_PROPERTY_NAME: UCASE_LETTER (UCASE_LETTER | DIGIT | "_")+
+PROPERTY_NAME: LCASE_LETTER (LCASE_LETTER | DIGIT | "_")+
+USER_TYPE_NAME: UCASE_LETTER LCASE_LETTER (UCASE_LETTER | LCASE_LETTER | DIGIT)*
+VALUE_PROPERTY_NAME_PLACEHOLDER: "__value__"
+
+_NL: /(\r?\n[\t ]*)+/ // must include continuation characters
