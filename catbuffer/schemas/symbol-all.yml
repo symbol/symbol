@@ -654,9 +654,6 @@
   size: 2
   type: enum
   values:
-  - comments: Reserved.
-    name: RESERVED
-    value: 0
   - comments: Mosaic rental fee receipt.
     name: MOSAIC_RENTAL_FEE
     value: 4685
@@ -709,6 +706,9 @@
     block.
   discriminator: type
   disposition: abstract
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
   layout:
   - comments: 'Entity size in bytes.
 
@@ -730,10 +730,344 @@
   name: Receipt
   size: size
   type: struct
-- comments: An invisible state change triggered a mosaic transfer.
+- comments: Receipt generated when transaction fees are credited to a block harvester.
   discriminator: type
   factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
   layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: HARVEST_FEE
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Modified mosaic.
+    name: mosaic
+    type: Mosaic
+  - comments: Address of the affected account.
+    name: target_address
+    type: Address
+  name: HarvestFeeReceipt
+  size: size
+  type: struct
+- comments: Network currency mosaics were created due to [inflation](/concepts/inflation).
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: INFLATION
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Created mosaic.
+    name: mosaic
+    type: Mosaic
+  name: InflationReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when hash lock is created.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: LOCK_HASH_CREATED
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Modified mosaic.
+    name: mosaic
+    type: Mosaic
+  - comments: Address of the affected account.
+    name: target_address
+    type: Address
+  name: LockHashCreatedFeeReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when hash lock is completed.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: LOCK_HASH_COMPLETED
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Modified mosaic.
+    name: mosaic
+    type: Mosaic
+  - comments: Address of the affected account.
+    name: target_address
+    type: Address
+  name: LockHashCompletedFeeReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when hash lock is expired.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: LOCK_HASH_EXPIRED
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Modified mosaic.
+    name: mosaic
+    type: Mosaic
+  - comments: Address of the affected account.
+    name: target_address
+    type: Address
+  name: LockHashExpiredFeeReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when secret lock is created.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: LOCK_SECRET_CREATED
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Modified mosaic.
+    name: mosaic
+    type: Mosaic
+  - comments: Address of the affected account.
+    name: target_address
+    type: Address
+  name: LockSecretCreatedFeeReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when secret lock is completed.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: LOCK_SECRET_COMPLETED
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Modified mosaic.
+    name: mosaic
+    type: Mosaic
+  - comments: Address of the affected account.
+    name: target_address
+    type: Address
+  name: LockSecretCompletedFeeReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when secret lock is expired.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: LOCK_SECRET_EXPIRED
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Modified mosaic.
+    name: mosaic
+    type: Mosaic
+  - comments: Address of the affected account.
+    name: target_address
+    type: Address
+  name: LockSecretExpiredFeeReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when a mosaic expires.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: MOSAIC_EXPIRED
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Expiring mosaic id.
+    name: artifact_id
+    type: MosaicId
+  name: MosaicExpiredReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when a mosaic rental fee is paid.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: MOSAIC_RENTAL_FEE
   - comments: 'Entity size in bytes.
 
       This size includes the header and the full payload of the entity. I.e, the size
@@ -760,91 +1094,7 @@
   - comments: Address of the recipient account.
     name: recipient_address
     type: Address
-  name: BalanceTransferReceipt
-  size: size
-  type: struct
-- comments: An invisible state change modified an account's balance.
-  discriminator: type
-  factory_type: Receipt
-  layout:
-  - comments: 'Entity size in bytes.
-
-      This size includes the header and the full payload of the entity. I.e, the size
-      field matches the size reported in the structure documentation (plus the variable
-      part, if there is any).'
-    name: size
-    signedness: unsigned
-    size: 4
-    type: byte
-  - comments: Receipt version.
-    name: version
-    signedness: unsigned
-    size: 2
-    type: byte
-  - comments: Type of receipt.
-    name: type
-    type: ReceiptType
-  - comments: Modified mosaic.
-    name: mosaic
-    type: Mosaic
-  - comments: Address of the affected account.
-    name: target_address
-    type: Address
-  name: BalanceChangeReceipt
-  size: size
-  type: struct
-- comments: Network currency mosaics were created due to [inflation](/concepts/inflation).
-  discriminator: type
-  factory_type: Receipt
-  layout:
-  - comments: 'Entity size in bytes.
-
-      This size includes the header and the full payload of the entity. I.e, the size
-      field matches the size reported in the structure documentation (plus the variable
-      part, if there is any).'
-    name: size
-    signedness: unsigned
-    size: 4
-    type: byte
-  - comments: Receipt version.
-    name: version
-    signedness: unsigned
-    size: 2
-    type: byte
-  - comments: Type of receipt.
-    name: type
-    type: ReceiptType
-  - comments: Created mosaic.
-    name: mosaic
-    type: Mosaic
-  name: InflationReceipt
-  size: size
-  type: struct
-- comments: An mosaic expired.
-  discriminator: type
-  factory_type: Receipt
-  layout:
-  - comments: 'Entity size in bytes.
-
-      This size includes the header and the full payload of the entity. I.e, the size
-      field matches the size reported in the structure documentation (plus the variable
-      part, if there is any).'
-    name: size
-    signedness: unsigned
-    size: 4
-    type: byte
-  - comments: Receipt version.
-    name: version
-    signedness: unsigned
-    size: 2
-    type: byte
-  - comments: Type of receipt.
-    name: type
-    type: ReceiptType
-  - comments: Expiring mosaic id.
-    name: artifact_id
-    type: MosaicId
-  name: MosaicExpiryReceipt
+  name: MosaicRentalFeeReceipt
   size: size
   type: struct
 - name: NamespaceId
@@ -878,7 +1128,14 @@
 - comments: Receipt generated when a [namespace](/concepts/namespace.html) expires.
   discriminator: type
   factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
   layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: NAMESPACE_EXPIRED
   - comments: 'Entity size in bytes.
 
       This size includes the header and the full payload of the entity. I.e, the size
@@ -896,10 +1153,84 @@
   - comments: Type of receipt.
     name: type
     type: ReceiptType
-  - comments: Expiring namespace identifier.
+  - comments: Expired namespace identifier.
     name: artifact_id
     type: NamespaceId
-  name: NamespaceExpiryReceipt
+  name: NamespaceExpiredReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when a [namespace](/concepts/namespace.html) is deleted.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: NAMESPACE_DELETED
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Deleted namespace identifier.
+    name: artifact_id
+    type: NamespaceId
+  name: NamespaceDeletedReceipt
+  size: size
+  type: struct
+- comments: Receipt generated when a namespace rental fee is paid.
+  discriminator: type
+  factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
+  layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: NAMESPACE_RENTAL_FEE
+  - comments: 'Entity size in bytes.
+
+      This size includes the header and the full payload of the entity. I.e, the size
+      field matches the size reported in the structure documentation (plus the variable
+      part, if there is any).'
+    name: size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipt version.
+    name: version
+    signedness: unsigned
+    size: 2
+    type: byte
+  - comments: Type of receipt.
+    name: type
+    type: ReceiptType
+  - comments: Transferred mosaic
+    name: mosaic
+    type: Mosaic
+  - comments: Address of the sender account.
+    name: sender_address
+    type: Address
+  - comments: Address of the recipient account.
+    name: recipient_address
+    type: Address
+  name: NamespaceRentalFeeReceipt
   size: size
   type: struct
 - comments: The transaction inside the block that triggered the receipt.
@@ -940,7 +1271,14 @@
     to the real mosaic id **at the time of the transaction**.
   discriminator: type
   factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
   layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: MOSAIC_ALIAS_RESOLUTION
   - comments: 'Entity size in bytes.
 
       This size includes the header and the full payload of the entity. I.e, the size
@@ -973,7 +1311,14 @@
     to the real address **at the time of the transaction**.
   discriminator: type
   factory_type: Receipt
+  initializers:
+  - target_property_name: type
+    value: RECEIPT_TYPE
   layout:
+  - disposition: const
+    name: RECEIPT_TYPE
+    type: ReceiptType
+    value: ADDRESS_ALIAS_RESOLUTION
   - comments: 'Entity size in bytes.
 
       This size includes the header and the full payload of the entity. I.e, the size
