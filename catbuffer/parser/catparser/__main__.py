@@ -1,53 +1,74 @@
 import argparse
-import os
 import sys
+from pathlib import Path
 
 import yaml
+from lark import Tree
 
-from .CatsParseException import CatsParseException
-from .CatsParser import CatsParser
+from .ast import AstException, Statement
+from .AstPostProcessor import AstPostProcessor
+from .AstValidator import AstValidator
+from .CatsLarkParser import create_cats_lark_parser
 
 
-class MultiFileParser:
-    """CATS parser that resolves imports in global namespace"""
+def print_error(message):
+    print(f'\033[31m{message}\033[39m')
+
+
+class LarkMultiFileParser:
+    """Multifile CATS parser implementation using Lark."""
+
     def __init__(self):
-        self.cats_parser = CatsParser(self._process_import_file)
+        self.parser = create_cats_lark_parser()
         self.dirname = None
-        self.imported_filenames = []
+
+        self.type_descriptors = []
+        self.processed_filepaths = []
 
     def set_include_path(self, include_path):
-        self.dirname = include_path
+        self.dirname = Path(include_path)
 
-    def parse(self, schema_filename):
-        self._process_file(schema_filename)
+    def parse(self, filepath):
+        if filepath in self.processed_filepaths:
+            return []
 
-    def _process_import_file(self, filename):
-        if filename in self.imported_filenames:
-            return
+        print(f'processing \033[33m{filepath}\033[39m...')
+        self.processed_filepaths.append(filepath)
 
-        self.imported_filenames.append(filename)
-        filename = os.path.join(self.dirname, filename)
-        self._process_file(filename)
+        with open(filepath, 'rt', encoding='utf8') as infile:
+            contents = infile.read()
 
-    def _process_file(self, filename):
-        self.cats_parser.push_scope(filename)
+        parse_result = self.parser.parse(contents)
+        if isinstance(parse_result, Statement):
+            return [parse_result]
 
-        with open(filename) as input_file:
-            lines = input_file.readlines()
-            for line in lines:
-                self.cats_parser.process_line(line)
+        descriptors = []
+        unprocessed_trees = [child for child in parse_result.children if isinstance(child, Tree)]
+        for unprocessed_tree in unprocessed_trees:
+            if 'import' == unprocessed_tree.data:
+                descriptors += self.parse(self.dirname / unprocessed_tree.children[0])
+            else:
+                raise AstException(f'found unexpected unprocessed tree "{unprocessed_tree.data}"')
 
-        self.cats_parser.commit()
-        self.cats_parser.pop_scope()
+        # filter out trees and unattached comments
+        return descriptors + [descriptor for descriptor in parse_result.children if isinstance(descriptor, Statement)]
 
 
-def _dump_type_descriptors(type_descriptors, out):
-    yaml.dump(list(map(lambda e: {**{'name': e[0]}, **e[1]}, type_descriptors.items())), out)
+def validate(raw_type_descriptors, stage, mode):
+    validator = AstValidator(raw_type_descriptors)
+    validator.set_validation_mode(mode)
+    validator.validate()
+    if validator.errors:
+        print_error(f'[ERRORS DETECTED AT STAGE {stage}]')
+        for error in validator.errors:
+            print(f' + {error}')
+
+        sys.exit(2)
 
 
 def main():
     parser = argparse.ArgumentParser(
-        prog=None if globals().get('__spec__') is None else 'python -m {}'.format(__spec__.name.partition('.')[0]),
+        prog=None if globals().get('__spec__') is None else f'python -m {__spec__.name.partition(".")[0]}',
         description='CATS code generator'
     )
     parser.add_argument('-s', '--schema', help='input CATS file', required=True)
@@ -55,26 +76,33 @@ def main():
     parser.add_argument('-o', '--output', help='yaml output file')
     args = parser.parse_args()
 
-    file_parser = MultiFileParser()
+    file_parser = LarkMultiFileParser()
     file_parser.set_include_path(args.include)
 
     try:
-        file_parser.parse(args.schema)
-        type_descriptors = file_parser.cats_parser.type_descriptors()
-    except CatsParseException as ex:
-        print('\033[31m{}\033[39m'.format(ex.message))
-        print('\033[33m{}\033[39m'.format(ex.scope[0]))
-        for location in ex.scope[1:]:
-            print(' + {}'.format(location))
-
+        raw_type_descriptors = file_parser.parse(args.schema)
+    except (AstException, OSError) as ex:
+        print_error(str(ex))
         sys.exit(1)
 
+    processor = AstPostProcessor(raw_type_descriptors)
+
+    validate(raw_type_descriptors, 'PRE EXPANSION', AstValidator.Mode.PRE_EXPANSION)
+
+    processor.apply_attributes()
+    processor.expand_named_inlines()
+    processor.expand_unnamed_inlines()
+
+    validate(raw_type_descriptors, 'POST EXPANSION', AstValidator.Mode.POST_EXPANSION)
+
+    type_descriptors = [model.to_legacy_descriptor() for model in processor.type_descriptors]
+
     # dump parsed type descriptors
-    _dump_type_descriptors(type_descriptors, sys.stdout)
+    yaml.dump(type_descriptors, sys.stdout)
 
     if args.output:
-        with open(args.output, 'wt') as out:
-            _dump_type_descriptors(type_descriptors, out)
+        with open(args.output, 'wt', encoding='utf8') as out:
+            yaml.dump(type_descriptors, out)
 
 
 if '__main__' == __name__:
