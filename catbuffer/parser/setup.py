@@ -21,6 +21,7 @@ setup(
     keywords=['symbol', 'catbuffer', 'catparser', 'parser', 'catbuffer-parser'],
     install_requires=REQUIRES,
     packages=find_packages(exclude=('tests', 'tests/*')),
+    data_files=[('grammar', ['catparser/grammar/catbuffer.lark'])],
     include_package_data=True,
     obsoletes=['catbuffer_parser'],
     license='MIT',
