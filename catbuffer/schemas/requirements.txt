@@ -1,2 +1,3 @@
-catparser==2.0.1
+catparser==3.0.1
+lark==1.0.0
 PyYAML==5.4.1
