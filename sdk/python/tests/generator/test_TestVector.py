@@ -15,9 +15,10 @@ def read_test_vectors_file(filepath):
 
 def prepare_test_cases():
     cases = []
-    base_path = os.environ.get('HOME', '.')
-    for filepath in Path(base_path + '/catbuffer-schemas/test-vectors/symbol').glob('*.yml'):
+    schemas_path = os.environ.get('SCHEMAS_PATH', '.')
+    for filepath in Path(schemas_path).glob('*.yml'):
         cases += read_test_vectors_file(filepath)
+
     return cases
 
 
