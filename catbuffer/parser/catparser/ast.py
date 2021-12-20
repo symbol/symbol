@@ -15,7 +15,7 @@ def _get_token_value(token):
 
 def _set_if(source, type_descriptor, property_name):
     value = getattr(source, property_name)
-    if value:
+    if value is not None:
         type_descriptor[property_name] = value
 
 
@@ -223,6 +223,10 @@ class Struct(Statement):
         return 'inline' == self.disposition
 
     @property
+    def implicit_size(self):
+        return self._lookup_attribute_value('implicit_size')
+
+    @property
     def size(self):
         return self._lookup_attribute_value('size')
 
@@ -271,7 +275,7 @@ class Struct(Statement):
             'layout': [field.to_legacy_descriptor() for field in self.fields]
         }
 
-        for property_name in ['disposition', 'factory_type', 'size', 'discriminator']:
+        for property_name in ['disposition', 'factory_type', 'implicit_size', 'size', 'discriminator']:
             _set_if(self, type_descriptor, property_name)
 
         if self.initializers:

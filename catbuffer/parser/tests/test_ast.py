@@ -232,10 +232,11 @@ class StructTests(unittest.TestCase):
         self.assertEqual(disposition, model.disposition)
         self.assertEqual(is_inline, model.is_inline)
 
-    def _assert_attributes(self, model, size=None, discriminator=None, initializers=None):
-        self.assertEqual(size, model.size)
-        self.assertEqual(discriminator, model.discriminator)
-        self.assertEqual([] if initializers is None else initializers, model.initializers)
+    def _assert_attributes(self, model, **kwargs):
+        self.assertEqual(kwargs.get('implicit_size', None), model.implicit_size)
+        self.assertEqual(kwargs.get('size', None), model.size)
+        self.assertEqual(kwargs.get('discriminator', None), model.discriminator)
+        self.assertEqual(kwargs.get('initializers', []), model.initializers)
 
     def _test_can_create_struct(self, comment, expected_comment_descriptor):
         # Act:
@@ -309,6 +310,24 @@ class StructTests(unittest.TestCase):
             'factory_type': 'Dust'
         }, model.to_legacy_descriptor())
         self.assertEqual('struct FooBar  # 2 field(s)', str(model))
+
+    def test_can_create_struct_with_attribute_implicit_size(self):
+        # Act:
+        model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        model.attributes = [Attribute(['implicit_size'])]
+
+        # Assert:
+        self.assertEqual('FooBar', model.name)
+        self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
+        self._assert_disposition(model)
+        self._assert_attributes(model, implicit_size=True)
+        self.assertEqual({
+            'name': 'FooBar',
+            'type': 'struct',
+            'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
+            'implicit_size': True
+        }, model.to_legacy_descriptor())
+        self.assertEqual('@implicit_size\nstruct FooBar  # 2 field(s)', str(model))
 
     def test_can_create_struct_with_attribute_size(self):
         # Act:
