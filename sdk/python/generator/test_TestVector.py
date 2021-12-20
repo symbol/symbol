@@ -26,9 +26,9 @@ def to_hex_string(binary: bytes):
 
 
 def generate_pretty_id(val):
-    generate_pretty_id.ids[val['builder']] += 1
-    test_id = generate_pretty_id.ids[val['builder']]
-    return f'{val["builder"]}_{test_id}'
+    generate_pretty_id.ids[val['schema_name']] += 1
+    test_id = generate_pretty_id.ids[val['schema_name']]
+    return f'{val["schema_name"]}_{test_id}'
 
 
 generate_pretty_id.ids = defaultdict(int)  # type: ignore
@@ -41,16 +41,16 @@ def prepare_payload(payload):
 
 @pytest.mark.parametrize('item', prepare_test_cases(), ids=generate_pretty_id)
 def test_serialize(item):
-    builder_name = item['builder']
+    schema_name = item['schema_name']
     comment = item.get('comment', '')
     payload = item['payload']
 
-    builder_module = importlib.import_module('symbolchain.sc')
+    module = importlib.import_module('symbolchain.sc')
 
-    if builder_name == 'Key':
-        builder_name = 'PublicKey'
+    if schema_name == 'Key':
+        schema_name = 'PublicKey'
 
-    builder_class = getattr(builder_module, builder_name)
+    builder_class = getattr(module, schema_name)
     builder = builder_class.deserialize(prepare_payload(item['payload']))
 
     serialized = builder.serialize()
