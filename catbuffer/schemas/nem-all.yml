@@ -76,6 +76,7 @@
 - comments: binary layout for a transaction
   discriminator:
   - type
+  - version
   disposition: abstract
   initializers:
   - target_property_name: version
@@ -131,6 +132,57 @@
     name: deadline
     type: Timestamp
   name: Transaction
+  type: struct
+- comments: binary layout for a non-verifiable transaction
+  discriminator:
+  - type
+  - version
+  disposition: abstract
+  implicit_size: true
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  name: NonVerifiableTransaction
   type: struct
 - comments: enumeration of block types
   name: BlockType
@@ -220,6 +272,7 @@
 - comments: binary layout for an account key link transaction
   discriminator:
   - type
+  - version
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -227,16 +280,6 @@
   - target_property_name: type
     value: TRANSACTION_TYPE
   layout:
-  - disposition: const
-    name: TRANSACTION_VERSION
-    signedness: unsigned
-    size: 1
-    type: byte
-    value: 1
-  - disposition: const
-    name: TRANSACTION_TYPE
-    type: TransactionType
-    value: ACCOUNT_KEY_LINK
   - comments: transaction type
     name: type
     type: TransactionType
@@ -284,6 +327,16 @@
   - comments: transaction deadline
     name: deadline
     type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: ACCOUNT_KEY_LINK
   - comments: link action
     name: link_action
     type: LinkAction
@@ -298,6 +351,80 @@
     name: remote_public_key
     type: PublicKey
   name: AccountKeyLinkTransaction
+  type: struct
+- comments: binary layout for a non-verifiable account key link transaction
+  discriminator:
+  - type
+  - version
+  factory_type: NonVerifiableTransaction
+  implicit_size: true
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: ACCOUNT_KEY_LINK
+  - comments: link action
+    name: link_action
+    type: LinkAction
+  - comments: remote account public key size
+    disposition: reserved
+    name: remote_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: public key of remote account to which importance should be transferred
+    name: remote_public_key
+    type: PublicKey
+  name: NonVerifiableAccountKeyLinkTransaction
   type: struct
 - comments: binary layout for a namespace id
   layout:
@@ -317,6 +444,7 @@
   name: NamespaceId
   type: struct
 - comments: binary layout for a mosaic id
+  implicit_size: true
   layout:
   - comments: namespace id
     name: namespace_id
@@ -337,7 +465,15 @@
   name: MosaicId
   type: struct
 - comments: binary layout for a mosaic
+  implicit_size: true
   layout:
+  - comments: mosaic id size
+    disposition: sizeof
+    name: mosaic_id_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: mosaic_id
   - comments: mosaic id
     name: mosaic_id
     type: MosaicId
@@ -345,6 +481,20 @@
     name: amount
     type: Amount
   name: Mosaic
+  type: struct
+- comments: binary layout for a mosaic with a size prefixed size
+  layout:
+  - comments: mosaic size
+    disposition: sizeof
+    name: mosaic_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: mosaic
+  - comments: mosaic
+    name: mosaic
+    type: Mosaic
+  name: SizePrefixedMosaic
   type: struct
 - comments: enumeration of mosaic transfer fee types
   name: MosaicTransferFeeType
@@ -373,7 +523,14 @@
   - comments: recipient address
     name: recipient_address
     type: Address
-  - comments: levy mosaic
+  - comments: levy mosaic id size
+    disposition: sizeof
+    name: mosaic_id_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: mosaic_id
+  - comments: levy mosaic id
     name: mosaic_id
     type: MosaicId
   - comments: amount of levy mosaic to transfer
@@ -383,6 +540,7 @@
   type: struct
 - comments: 'binary layout for a mosaic property supported property names are: divisibility,
     initialSupply, supplyMutable, transferable'
+  implicit_size: true
   layout:
   - comments: property name size
     name: name_size
@@ -412,7 +570,22 @@
     type: byte
   name: MosaicProperty
   type: struct
+- comments: binary layout for a size prefixed mosaic property
+  layout:
+  - comments: property size
+    disposition: sizeof
+    name: property_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: property
+  - comments: property value
+    name: property
+    type: MosaicProperty
+  name: SizePrefixedMosaicProperty
+  type: struct
 - comments: binary layout for a mosaic definition
+  implicit_size: true
   layout:
   - comments: owner public key size
     disposition: reserved
@@ -424,6 +597,13 @@
   - comments: owner public key
     name: owner_public_key
     type: PublicKey
+  - comments: mosaic id size
+    disposition: sizeof
+    name: id_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: id
   - comments: mosaic id referenced by this definition
     name: id
     type: MosaicId
@@ -449,7 +629,7 @@
     disposition: array
     name: properties
     size: properties_count
-    type: MosaicProperty
+    type: SizePrefixedMosaicProperty
   - comments: size of the serialized levy
     name: levy_size
     signedness: unsigned
@@ -463,15 +643,8 @@
     type: MosaicLevy
   name: MosaicDefinition
   type: struct
-- comments: binary layout for an importance transfer transaction
-  discriminator:
-  - type
-  factory_type: Transaction
-  initializers:
-  - target_property_name: version
-    value: TRANSACTION_VERSION
-  - target_property_name: type
-    value: TRANSACTION_TYPE
+- comments: shared content between verifiable and non-verifiable mosaic definition
+    transactions
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -483,6 +656,42 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_DEFINITION
+  - comments: mosaic definition size
+    disposition: sizeof
+    name: mosaic_definition_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: mosaic_definition
+  - comments: mosaic definition
+    name: mosaic_definition
+    type: MosaicDefinition
+  - comments: mosaic rental fee sink public key size
+    disposition: reserved
+    name: rental_fee_sink_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: mosaic rental fee sink public key
+    name: rental_fee_sink
+    type: Address
+  - comments: mosaic rental fee
+    name: rental_fee
+    type: Amount
+  name: MosaicDefinitionTransactionBody
+  type: struct
+- comments: binary layout for a mosaic definition transaction
+  discriminator:
+  - type
+  - version
+  factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
   - comments: transaction type
     name: type
     type: TransactionType
@@ -530,6 +739,23 @@
   - comments: transaction deadline
     name: deadline
     type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MOSAIC_DEFINITION
+  - comments: mosaic definition size
+    disposition: sizeof
+    name: mosaic_definition_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: mosaic_definition
   - comments: mosaic definition
     name: mosaic_definition
     type: MosaicDefinition
@@ -548,6 +774,90 @@
     type: Amount
   name: MosaicDefinitionTransaction
   type: struct
+- comments: binary layout for a non-verifiable mosaic definition transaction
+  discriminator:
+  - type
+  - version
+  factory_type: NonVerifiableTransaction
+  implicit_size: true
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MOSAIC_DEFINITION
+  - comments: mosaic definition size
+    disposition: sizeof
+    name: mosaic_definition_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: mosaic_definition
+  - comments: mosaic definition
+    name: mosaic_definition
+    type: MosaicDefinition
+  - comments: mosaic rental fee sink public key size
+    disposition: reserved
+    name: rental_fee_sink_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: mosaic rental fee sink public key
+    name: rental_fee_sink
+    type: Address
+  - comments: mosaic rental fee
+    name: rental_fee
+    type: Amount
+  name: NonVerfiableMosaicDefinitionTransaction
+  type: struct
 - comments: enumeration of mosaic supply change actions
   name: MosaicSupplyChangeAction
   signedness: unsigned
@@ -560,15 +870,8 @@
   - comments: decreases the supply
     name: DECREASE
     value: 2
-- comments: binary layout for an mosaic supply change transaction
-  discriminator:
-  - type
-  factory_type: Transaction
-  initializers:
-  - target_property_name: version
-    value: TRANSACTION_VERSION
-  - target_property_name: type
-    value: TRANSACTION_TYPE
+- comments: shared content between verifiable and non-verifiable mosaic supply change
+    transactions
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -580,6 +883,35 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MOSAIC_SUPPLY_CHANGE
+  - comments: mosaic id size
+    disposition: sizeof
+    name: mosaic_id_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: mosaic_id
+  - comments: mosaic id
+    name: mosaic_id
+    type: MosaicId
+  - comments: supply change action
+    name: action
+    type: MosaicSupplyChangeAction
+  - comments: change amount
+    name: delta
+    type: Amount
+  name: MosaicSupplyChangeTransactionBody
+  type: struct
+- comments: binary layout for a mosaic supply change transaction
+  discriminator:
+  - type
+  - version
+  factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
   - comments: transaction type
     name: type
     type: TransactionType
@@ -627,6 +959,23 @@
   - comments: transaction deadline
     name: deadline
     type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MOSAIC_SUPPLY_CHANGE
+  - comments: mosaic id size
+    disposition: sizeof
+    name: mosaic_id_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: mosaic_id
   - comments: mosaic id
     name: mosaic_id
     type: MosaicId
@@ -637,6 +986,83 @@
     name: delta
     type: Amount
   name: MosaicSupplyChangeTransaction
+  type: struct
+- comments: binary layout for a non-verifiable mosaic supply change transaction
+  discriminator:
+  - type
+  - version
+  factory_type: NonVerifiableTransaction
+  implicit_size: true
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MOSAIC_SUPPLY_CHANGE
+  - comments: mosaic id size
+    disposition: sizeof
+    name: mosaic_id_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: mosaic_id
+  - comments: mosaic id
+    name: mosaic_id
+    type: MosaicId
+  - comments: supply change action
+    name: action
+    type: MosaicSupplyChangeAction
+  - comments: change amount
+    name: delta
+    type: Amount
+  name: NonVerifiableMosaicSupplyChangeTransaction
   type: struct
 - comments: enumeration of multisig account modification types
   name: MultisigAccountModificationType
@@ -651,6 +1077,7 @@
     name: DELETE_COSIGNATORY
     value: 2
 - comments: binary layout for a multisig account modification
+  implicit_size: true
   layout:
   - comments: modification type
     name: modification_type
@@ -667,9 +1094,24 @@
     type: PublicKey
   name: MultisigAccountModification
   type: struct
+- comments: binary layout for a multisig account modification prefixed with size
+  layout:
+  - comments: modification size
+    disposition: sizeof
+    name: modification_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: modification
+  - comments: modification
+    name: modification
+    type: MultisigAccountModification
+  name: SizePrefixedMultisigAccountModification
+  type: struct
 - comments: binary layout for a multisig account modification transaction (V1)
   discriminator:
   - type
+  - version
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -677,6 +1119,53 @@
   - target_property_name: type
     value: TRANSACTION_TYPE
   layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: entity signature size
+    disposition: reserved
+    name: signature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 64
+  - comments: entity signature
+    name: signature
+    type: Signature
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
   - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
@@ -687,6 +1176,101 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_ACCOUNT_MODIFICATION
+  - comments: number of modifications
+    name: modifications_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: multisig account modifications
+    disposition: array
+    name: modifications
+    size: modifications_count
+    type: SizePrefixedMultisigAccountModification
+  name: MultisigAccountModificationTransaction
+  type: struct
+- comments: binary layout for a non-verifiable multisig account modification transaction
+    (V1)
+  discriminator:
+  - type
+  - version
+  factory_type: NonVerifiableTransaction
+  implicit_size: true
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MULTISIG_ACCOUNT_MODIFICATION
+  - comments: number of modifications
+    name: modifications_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: multisig account modifications
+    disposition: array
+    name: modifications
+    size: modifications_count
+    type: SizePrefixedMultisigAccountModification
+  name: NonVerifiableMultisigAccountModificationTransaction
+  type: struct
+- comments: binary layout for a multisig account modification transaction (V2)
+  discriminator:
+  - type
+  - version
+  factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
   - comments: transaction type
     name: type
     type: TransactionType
@@ -734,28 +1318,6 @@
   - comments: transaction deadline
     name: deadline
     type: Timestamp
-  - comments: number of modifications
-    name: modifications_count
-    signedness: unsigned
-    size: 4
-    type: byte
-  - comments: multisig account modifications
-    disposition: array
-    name: modifications
-    size: modifications_count
-    type: MultisigAccountModification
-  name: MultisigAccountModificationTransaction
-  type: struct
-- comments: binary layout for a multisig account modification transaction (V2)
-  discriminator:
-  - type
-  factory_type: Transaction
-  initializers:
-  - target_property_name: version
-    value: TRANSACTION_VERSION
-  - target_property_name: type
-    value: TRANSACTION_TYPE
-  layout:
   - disposition: const
     name: TRANSACTION_VERSION
     signedness: unsigned
@@ -766,53 +1328,6 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: MULTISIG_ACCOUNT_MODIFICATION
-  - comments: transaction type
-    name: type
-    type: TransactionType
-  - comments: entity version
-    name: version
-    signedness: unsigned
-    size: 1
-    type: byte
-  - comments: reserved padding between version and network type
-    disposition: reserved
-    name: entity_body_reserved_1
-    signedness: unsigned
-    size: 2
-    type: byte
-    value: 0
-  - comments: entity network
-    name: network
-    type: NetworkType
-  - comments: entity timestamp
-    name: timestamp
-    type: Timestamp
-  - comments: entity signer public key size
-    disposition: reserved
-    name: signer_public_key_size
-    signedness: unsigned
-    size: 4
-    type: byte
-    value: 32
-  - comments: entity signer public key
-    name: signer_public_key
-    type: PublicKey
-  - comments: entity signature size
-    disposition: reserved
-    name: signature_size
-    signedness: unsigned
-    size: 4
-    type: byte
-    value: 64
-  - comments: entity signature
-    name: signature
-    type: Signature
-  - comments: transaction fee
-    name: fee
-    type: Amount
-  - comments: transaction deadline
-    name: deadline
-    type: Timestamp
   - comments: number of modifications
     name: modifications_count
     signedness: unsigned
@@ -822,7 +1337,7 @@
     disposition: array
     name: modifications
     size: modifications_count
-    type: MultisigAccountModification
+    type: SizePrefixedMultisigAccountModification
   - comments: the size of the min_approval_delta
     disposition: reserved
     name: min_approval_delta_size
@@ -836,12 +1351,99 @@
     signedness: signed
     size: 4
     type: byte
-  name: MultisigAccountModificationTransaction2
+  name: MultisigAccountModificationTransactionV2
+  type: struct
+- comments: binary layout for a non-verifiable multisig account modification transaction
+    (V2)
+  discriminator:
+  - type
+  - version
+  factory_type: NonVerifiableTransaction
+  implicit_size: true
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 2
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: MULTISIG_ACCOUNT_MODIFICATION
+  - comments: number of modifications
+    name: modifications_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: multisig account modifications
+    disposition: array
+    name: modifications
+    size: modifications_count
+    type: SizePrefixedMultisigAccountModification
+  - comments: the size of the min_approval_delta
+    disposition: reserved
+    name: min_approval_delta_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 4
+  - comments: relative change of the minimal number of cosignatories required when
+      approving a transaction
+    name: min_approval_delta
+    signedness: signed
+    size: 4
+    type: byte
+  name: NonVerifiableMultisigAccountModificationTransactionV2
   type: struct
 - comments: cosignature attached to an aggregate transaction
   discriminator:
   - type
+  - version
   factory_type: Transaction
+  implicit_size: true
   initializers:
   - target_property_name: version
     value: TRANSACTION_VERSION
@@ -934,9 +1536,24 @@
     type: Address
   name: Cosignature
   type: struct
+- comments: cosignature attached to an aggregate transaction with prefixed size
+  layout:
+  - comments: cosignature size
+    disposition: sizeof
+    name: cosignature_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: cosignature
+  - comments: cosignature
+    name: cosignature
+    type: Cosignature
+  name: SizePrefixedCosignature
+  type: struct
 - comments: binary layout for a multisig transaction
   discriminator:
   - type
+  - version
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -1002,13 +1619,15 @@
     name: deadline
     type: Timestamp
   - comments: inner transaction size
+    disposition: sizeof
     name: inner_transaction_size
     signedness: unsigned
     size: 4
     type: byte
+    value: inner_transaction
   - comments: inner transaction
     name: inner_transaction
-    type: Transaction
+    type: NonVerifiableTransaction
   - comments: number of attached cosignatures
     name: cosignatures_count
     signedness: unsigned
@@ -1018,18 +1637,11 @@
     disposition: array
     name: cosignatures
     size: cosignatures_count
-    type: Cosignature
+    type: SizePrefixedCosignature
   name: MultisigTransaction
   type: struct
-- comments: binary layout for a namespace registration transaction
-  discriminator:
-  - type
-  factory_type: Transaction
-  initializers:
-  - target_property_name: version
-    value: TRANSACTION_VERSION
-  - target_property_name: type
-    value: TRANSACTION_TYPE
+- comments: shared content between all verifiable and non-verifiable namespace registration
+    transactions
   layout:
   - disposition: const
     name: TRANSACTION_VERSION
@@ -1041,6 +1653,61 @@
     name: TRANSACTION_TYPE
     type: TransactionType
     value: NAMESPACE_REGISTRATION
+  - comments: mosaic rental fee sink public key size
+    disposition: reserved
+    name: rental_fee_sink_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: mosaic rental fee sink public key
+    name: rental_fee_sink
+    type: Address
+  - comments: mosaic rental fee
+    name: rental_fee
+    type: Amount
+  - comments: new namespace name size
+    name: name_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: new namespace name
+    disposition: array
+    element_disposition:
+      signedness: signed
+      size: 1
+    name: name
+    size: name_size
+    type: byte
+  - comments: size of the parent namespace name
+    name: parent_name_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: parent namespace name
+    condition: parent_name_size
+    condition_operation: not equals
+    condition_value: 4294967295
+    disposition: array
+    element_disposition:
+      signedness: signed
+      size: 1
+    name: parent_name
+    size: parent_name_size
+    type: byte
+  name: NamespaceRegistrationTransactionBody
+  type: struct
+- comments: binary layout for a namespace registration transaction
+  discriminator:
+  - type
+  - version
+  factory_type: Transaction
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
   - comments: transaction type
     name: type
     type: TransactionType
@@ -1088,6 +1755,16 @@
   - comments: transaction deadline
     name: deadline
     type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: NAMESPACE_REGISTRATION
   - comments: mosaic rental fee sink public key size
     disposition: reserved
     name: rental_fee_sink_size
@@ -1132,6 +1809,109 @@
     type: byte
   name: NamespaceRegistrationTransaction
   type: struct
+- comments: binary layout for a non-verifiable namespace registration transaction
+  discriminator:
+  - type
+  - version
+  factory_type: NonVerifiableTransaction
+  implicit_size: true
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: NAMESPACE_REGISTRATION
+  - comments: mosaic rental fee sink public key size
+    disposition: reserved
+    name: rental_fee_sink_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: mosaic rental fee sink public key
+    name: rental_fee_sink
+    type: Address
+  - comments: mosaic rental fee
+    name: rental_fee
+    type: Amount
+  - comments: new namespace name size
+    name: name_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: new namespace name
+    disposition: array
+    element_disposition:
+      signedness: signed
+      size: 1
+    name: name
+    size: name_size
+    type: byte
+  - comments: size of the parent namespace name
+    name: parent_name_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: parent namespace name
+    condition: parent_name_size
+    condition_operation: not equals
+    condition_value: 4294967295
+    disposition: array
+    element_disposition:
+      signedness: signed
+      size: 1
+    name: parent_name
+    size: parent_name_size
+    type: byte
+  name: NonVerifiableNamespaceRegistrationTransaction
+  type: struct
 - comments: enumeration of message types this is a hint used by the client but ignored
     by the server
   name: MessageType
@@ -1168,6 +1948,7 @@
 - comments: binary layout for a transfer transaction (V1)
   discriminator:
   - type
+  - version
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -1175,16 +1956,6 @@
   - target_property_name: type
     value: TRANSACTION_TYPE
   layout:
-  - disposition: const
-    name: TRANSACTION_VERSION
-    signedness: unsigned
-    size: 1
-    type: byte
-    value: 1
-  - disposition: const
-    name: TRANSACTION_TYPE
-    type: TransactionType
-    value: TRANSFER
   - comments: transaction type
     name: type
     type: TransactionType
@@ -1232,6 +2003,16 @@
   - comments: transaction deadline
     name: deadline
     type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: TRANSFER
   - comments: recipient address size
     disposition: reserved
     name: recipient_address_size
@@ -1258,9 +2039,95 @@
     type: Message
   name: TransferTransaction
   type: struct
+- comments: binary layout for a non-verifiable transfer transaction (V1)
+  discriminator:
+  - type
+  - version
+  factory_type: NonVerifiableTransaction
+  implicit_size: true
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 1
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: TRANSFER
+  - comments: recipient address size
+    disposition: reserved
+    name: recipient_address_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: recipient address
+    name: recipient_address
+    type: Address
+  - comments: XEM amount
+    name: amount
+    type: Amount
+  - comments: message envelope size
+    name: message_envelope_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: optional message
+    condition: message_envelope_size
+    condition_operation: not equals
+    condition_value: 0
+    name: message
+    type: Message
+  name: NonVerifiableTransferTransaction
+  type: struct
 - comments: binary layout for a transfer transaction (V2)
   discriminator:
   - type
+  - version
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -1268,16 +2135,6 @@
   - target_property_name: type
     value: TRANSACTION_TYPE
   layout:
-  - disposition: const
-    name: TRANSACTION_VERSION
-    signedness: unsigned
-    size: 1
-    type: byte
-    value: 2
-  - disposition: const
-    name: TRANSACTION_TYPE
-    type: TransactionType
-    value: TRANSFER
   - comments: transaction type
     name: type
     type: TransactionType
@@ -1325,6 +2182,16 @@
   - comments: transaction deadline
     name: deadline
     type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 2
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: TRANSFER
   - comments: recipient address size
     disposition: reserved
     name: recipient_address_size
@@ -1359,7 +2226,102 @@
     disposition: array
     name: mosaics
     size: mosaics_count
-    sort_key: mosaic_id
-    type: Mosaic
-  name: TransferTransaction2
+    type: SizePrefixedMosaic
+  name: TransferTransactionV2
+  type: struct
+- comments: binary layout for a non-verifiable transfer transaction (V2)
+  discriminator:
+  - type
+  - version
+  factory_type: NonVerifiableTransaction
+  implicit_size: true
+  initializers:
+  - target_property_name: version
+    value: TRANSACTION_VERSION
+  - target_property_name: type
+    value: TRANSACTION_TYPE
+  layout:
+  - comments: transaction type
+    name: type
+    type: TransactionType
+  - comments: entity version
+    name: version
+    signedness: unsigned
+    size: 1
+    type: byte
+  - comments: reserved padding between version and network type
+    disposition: reserved
+    name: entity_body_reserved_1
+    signedness: unsigned
+    size: 2
+    type: byte
+    value: 0
+  - comments: entity network
+    name: network
+    type: NetworkType
+  - comments: entity timestamp
+    name: timestamp
+    type: Timestamp
+  - comments: entity signer public key size
+    disposition: reserved
+    name: signer_public_key_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 32
+  - comments: entity signer public key
+    name: signer_public_key
+    type: PublicKey
+  - comments: transaction fee
+    name: fee
+    type: Amount
+  - comments: transaction deadline
+    name: deadline
+    type: Timestamp
+  - disposition: const
+    name: TRANSACTION_VERSION
+    signedness: unsigned
+    size: 1
+    type: byte
+    value: 2
+  - disposition: const
+    name: TRANSACTION_TYPE
+    type: TransactionType
+    value: TRANSFER
+  - comments: recipient address size
+    disposition: reserved
+    name: recipient_address_size
+    signedness: unsigned
+    size: 4
+    type: byte
+    value: 40
+  - comments: recipient address
+    name: recipient_address
+    type: Address
+  - comments: XEM amount
+    name: amount
+    type: Amount
+  - comments: message envelope size
+    name: message_envelope_size
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: optional message
+    condition: message_envelope_size
+    condition_operation: not equals
+    condition_value: 0
+    name: message
+    type: Message
+  - comments: number of attached mosaics
+    name: mosaics_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: attached mosaics notice that mosaic amount is multipled by transfer
+      amount to get effective amount
+    disposition: array
+    name: mosaics
+    size: mosaics_count
+    type: SizePrefixedMosaic
+  name: NonVerifiableTransferTransactionV2
   type: struct

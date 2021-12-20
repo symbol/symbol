@@ -9,6 +9,7 @@ enum MultisigAccountModificationType : uint32
 	DELETE_COSIGNATORY = 2
 
 # binary layout for a multisig account modification
+@implicit_size
 struct MultisigAccountModification
 	# modification type
 	modification_type = MultisigAccountModificationType
@@ -18,26 +19,32 @@ struct MultisigAccountModification
 	# [size] cosignatory public size
 	cosignatory_public_key = inline SizePrefixedPublicKey
 
-# shared content between MultisigAccountModificationTransaction and MultisigAccountModificationTransaction2
+# binary layout for a multisig account modification prefixed with size
+struct SizePrefixedMultisigAccountModification
+	# modification size
+	modification_size = sizeof(uint32, modification)
+
+	# modification
+	modification = MultisigAccountModification
+
+# shared content between all verifiable and non-verifiable multisig account transactions
 inline struct MultisigAccountModificationTransactionBody
 	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_ACCOUNT_MODIFICATION)
-
-	inline Transaction
 
 	# number of modifications
 	modifications_count = uint32
 
 	# multisig account modifications
-	modifications = array(MultisigAccountModification, modifications_count)
+	modifications = array(SizePrefixedMultisigAccountModification, modifications_count)
 
-# binary layout for a multisig account modification transaction (V1)
-struct MultisigAccountModificationTransaction
+# shared content between V1 verifiable and non-verifiable multisig account transactions
+inline struct MultisigAccountModificationTransactionV1Body
 	TRANSACTION_VERSION = make_const(uint8, 1)
 
 	inline MultisigAccountModificationTransactionBody
 
-# binary layout for a multisig account modification transaction (V2)
-struct MultisigAccountModificationTransaction2
+# shared content between V2 verifiable and non-verifiable multisig account transactions
+inline struct MultisigAccountModificationTransactionV2Body
 	TRANSACTION_VERSION = make_const(uint8, 2)
 
 	inline MultisigAccountModificationTransactionBody
@@ -47,3 +54,23 @@ struct MultisigAccountModificationTransaction2
 
 	# relative change of the minimal number of cosignatories required when approving a transaction
 	min_approval_delta = int32
+
+# binary layout for a multisig account modification transaction (V1)
+struct MultisigAccountModificationTransaction
+	inline Transaction
+	inline MultisigAccountModificationTransactionV1Body
+
+# binary layout for a non-verifiable multisig account modification transaction (V1)
+struct NonVerifiableMultisigAccountModificationTransaction
+	inline NonVerifiableTransaction
+	inline MultisigAccountModificationTransactionV1Body
+
+# binary layout for a multisig account modification transaction (V2)
+struct MultisigAccountModificationTransactionV2
+	inline Transaction
+	inline MultisigAccountModificationTransactionV2Body
+
+# binary layout for a non-verifiable multisig account modification transaction (V2)
+struct NonVerifiableMultisigAccountModificationTransactionV2
+	inline NonVerifiableTransaction
+	inline MultisigAccountModificationTransactionV2Body

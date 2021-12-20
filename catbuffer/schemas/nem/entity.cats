@@ -8,8 +8,8 @@ enum NetworkType : uint8
 	# test network
 	TESTNET = 0x98
 
-# binary layout for a blockchain entity (block or transaction)
-inline struct EntityBody
+# binary layout for a non-verifiable blockchain entity (block or transaction)
+inline struct NonVerifiableEntityBody
 	# entity version
 	version = uint8
 
@@ -26,6 +26,10 @@ inline struct EntityBody
 	#
 	# [size] entity signer public key size
 	signer_public_key = inline SizePrefixedPublicKey
+
+# binary layout for a blockchain entity (block or transaction)
+inline struct EntityBody
+	inline NonVerifiableEntityBody
 
 	# [__value__] entity signature
 	#

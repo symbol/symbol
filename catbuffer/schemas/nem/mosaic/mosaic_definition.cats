@@ -19,7 +19,10 @@ struct MosaicLevy
 	# [size] recipient address size
 	recipient_address = inline SizePrefixedAddress
 
-	# levy mosaic
+	# levy mosaic id size
+	mosaic_id_size = sizeof(uint32, mosaic_id)
+
+	# levy mosaic id
 	mosaic_id = MosaicId
 
 	# amount of levy mosaic to transfer
@@ -27,6 +30,7 @@ struct MosaicLevy
 
 # binary layout for a mosaic property
 # supported property names are: divisibility, initialSupply, supplyMutable, transferable
+@implicit_size
 struct MosaicProperty
 	# [__value__] property name
 	#
@@ -38,12 +42,24 @@ struct MosaicProperty
 	# [size] property value size
 	value = inline SizePrefixedString
 
+# binary layout for a size prefixed mosaic property
+struct SizePrefixedMosaicProperty
+	# property size
+	property_size = sizeof(uint32, property)
+
+	# property value
+	property = MosaicProperty
+
 # binary layout for a mosaic definition
+@implicit_size
 struct MosaicDefinition
 	# [__value__] owner public key
 	#
 	# [size] owner public key size
 	owner_public_key = inline SizePrefixedPublicKey
+
+	# mosaic id size
+	id_size = sizeof(uint32, id)
 
 	# mosaic id referenced by this definition
 	id = MosaicId
@@ -57,7 +73,7 @@ struct MosaicDefinition
 	properties_count = uint32
 
 	# properties
-	properties = array(MosaicProperty, properties_count)
+	properties = array(SizePrefixedMosaicProperty, properties_count)
 
 	# size of the serialized levy
 	levy_size = uint32
@@ -65,12 +81,13 @@ struct MosaicDefinition
 	# optional levy that is applied to transfers of this mosaic
 	levy = MosaicLevy if 0x00000000 not equals levy_size
 
-# binary layout for an importance transfer transaction
-struct MosaicDefinitionTransaction
+# shared content between verifiable and non-verifiable mosaic definition transactions
+struct MosaicDefinitionTransactionBody
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_DEFINITION)
 
-	inline Transaction
+	# mosaic definition size
+	mosaic_definition_size = sizeof(uint32, mosaic_definition)
 
 	# mosaic definition
 	mosaic_definition = MosaicDefinition
@@ -82,3 +99,13 @@ struct MosaicDefinitionTransaction
 
 	# mosaic rental fee
 	rental_fee = Amount
+
+# binary layout for a mosaic definition transaction
+struct MosaicDefinitionTransaction
+	inline Transaction
+	inline MosaicDefinitionTransactionBody
+
+# binary layout for a non-verifiable mosaic definition transaction
+struct NonVerfiableMosaicDefinitionTransaction
+	inline NonVerifiableTransaction
+	inline MosaicDefinitionTransactionBody

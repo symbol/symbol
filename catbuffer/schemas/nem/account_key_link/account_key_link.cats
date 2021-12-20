@@ -8,12 +8,10 @@ enum LinkAction : uint32
 	# link account
 	UNLINK = 0x02
 
-# binary layout for an account key link transaction
-struct AccountKeyLinkTransaction
+# shared content between verifiable and non-verifiable account key link transactions
+inline struct AccountKeyLinkTransactionBody
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, ACCOUNT_KEY_LINK)
-
-	inline Transaction
 
 	# link action
 	link_action = LinkAction
@@ -22,3 +20,13 @@ struct AccountKeyLinkTransaction
 	#
 	# [size] remote account public key size
 	remote_public_key = inline SizePrefixedPublicKey
+
+# binary layout for an account key link transaction
+struct AccountKeyLinkTransaction
+	inline Transaction
+	inline AccountKeyLinkTransactionBody
+
+# binary layout for a non-verifiable account key link transaction
+struct NonVerifiableAccountKeyLinkTransaction
+	inline NonVerifiableTransaction
+	inline AccountKeyLinkTransactionBody
