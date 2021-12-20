@@ -58,8 +58,6 @@ class AstValidator:
             self.errors.append(ErrorDescriptor('duplicate enum values', model.name, duplicate_names))
 
     def _validate_struct(self, model):
-        # pylint: disable=too-many-branches
-
         duplicate_names = self._find_duplicate_names(model.fields)
         if duplicate_names:
             self.errors.append(ErrorDescriptor('duplicate struct fields', model.name, duplicate_names))
@@ -71,27 +69,8 @@ class AstValidator:
 
             if isinstance(field, StructInlinePlaceholder):
                 self._validate_unnamed_inline(field, lambda message: ErrorDescriptor(message, model.name))
-                continue
-
-            if not self._is_known_type(field.field_type):
-                self.errors.append(create_error_descriptor(f'reference to unknown type "{field.field_type}"'))
             else:
-                if 'inline' == field.disposition and 'inline' != self.type_descriptor_map[field.field_type].disposition:
-                    self.errors.append(create_error_descriptor(f'named inline field referencing non inline struct "{field.field_type}"'))
-
-            if isinstance(field.field_type, Array):
-                self._validate_array(field.field_type, field_map, create_error_descriptor)
-
-            if field.value is not None:
-                if isinstance(field.value, Conditional):
-                    self._validate_conditional(field, field_map, create_error_descriptor)
-                else:
-                    self._validate_in_range(field.field_type, field.value, create_error_descriptor)
-
-            if field.attributes:
-                for attribute in field.attributes:
-                    if not hasattr(field.field_type, attribute.name):
-                        self.errors.append(create_error_descriptor(f'inapplicable attribute "{attribute.name}"'))
+                self._validate_struct_field(field, field_map, create_error_descriptor)
 
         if self.Mode.PRE_EXPANSION != self.mode:
             self._check_struct_attributes(model, field_map)
@@ -102,6 +81,30 @@ class AstValidator:
         else:
             # all dispositions are allowed as unnamed inline
             pass
+
+    def _validate_struct_field(self, field, field_map, create_error_descriptor):
+        if not self._is_known_type(field.field_type):
+            self.errors.append(create_error_descriptor(f'reference to unknown type "{field.field_type}"'))
+        else:
+            if 'inline' == field.disposition and 'inline' != self.type_descriptor_map[field.field_type].disposition:
+                self.errors.append(create_error_descriptor(f'named inline field referencing non inline struct "{field.field_type}"'))
+
+        if isinstance(field.field_type, Array):
+            self._validate_array(field.field_type, field_map, create_error_descriptor)
+
+        if field.value is not None:
+            if 'sizeof' == field.disposition:
+                if field.value not in field_map:
+                    self.errors.append(create_error_descriptor(f'reference to unknown sizeof property "{field.value}"'))
+            elif isinstance(field.value, Conditional):
+                self._validate_conditional(field, field_map, create_error_descriptor)
+            else:
+                self._validate_in_range(field.field_type, field.value, create_error_descriptor)
+
+        if field.attributes:
+            for attribute in field.attributes:
+                if not hasattr(field.field_type, attribute.name):
+                    self.errors.append(create_error_descriptor(f'inapplicable attribute "{attribute.name}"'))
 
     def _validate_array(self, field_type, field_map, create_error_descriptor):
         element_type = field_type.element_type

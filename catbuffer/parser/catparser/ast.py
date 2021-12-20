@@ -356,10 +356,14 @@ class StructField(Statement):
 
         if 'inline' == self.disposition:
             return formatted + f'inline {self.field_type}'
-        if self.disposition in ['const', 'reserved']:
-            return formatted + f'make_{self.disposition}({self.field_type}, {self.value})'
 
-        return formatted + f'{self.field_type}' + ('' if not self.value else f' {str(self.value)}')
+        if not self.disposition:
+            return formatted + f'{self.field_type}' + ('' if not self.value else f' {str(self.value)}')
+
+        if self.disposition in ['const', 'reserved']:
+            formatted += 'make_'
+
+        return formatted + f'{self.disposition}({self.field_type}, {self.value})'
 
 
 class StructInlinePlaceholder(Statement):

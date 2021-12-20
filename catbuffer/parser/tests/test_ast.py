@@ -579,6 +579,35 @@ class StructFieldTests(unittest.TestCase):
     def test_can_create_reserved_struct_field_with_zero_value(self):
         self._test_can_create_const_reserved_struct_field_with_zero_value('reserved_1', 'reserved')
 
+    def _test_can_create_sizeof_struct_field(self, comment, expected_comment_descriptor):
+        # Act:
+        model = StructField(['background_color_size', FixedSizeInteger('uint16'), 'other_property'], 'sizeof')
+        model.comment = comment
+
+        # Assert:
+        self.assertEqual('background_color_size', model.name)
+        self.assertEqual('uint16', model.field_type.short_name)
+        self.assertEqual('other_property', model.value)
+        self.assertEqual('sizeof', model.disposition)
+        self._assert_extensions(model, comment=comment)
+
+        self.assertEqual({
+            **expected_comment_descriptor,
+            'name': 'background_color_size',
+            'type': 'byte',
+            'size': 2,
+            'signedness': 'unsigned',
+            'value': 'other_property',
+            'disposition': 'sizeof'
+        }, model.to_legacy_descriptor())
+        self.assertEqual('background_color_size = sizeof(uint16, other_property)', str(model))
+
+    def test_can_create_sizeof_struct_field(self):
+        self._test_can_create_sizeof_struct_field(None, {})
+
+    def test_can_create_sizeof_struct_field_with_comment(self):
+        self._test_can_create_sizeof_struct_field(Comment('# my amazing comment'), {'comments': 'my amazing comment'})
+
     def test_can_create_struct_field_with_attributes(self):
         # Act:
         attributes = [Attribute(['foo', 'alpha']), Attribute(['bar']), Attribute(['baz', 'beta'])]

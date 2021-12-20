@@ -47,6 +47,7 @@ struct_child: [comment] ( \
 	struct_field \
 	| struct_field_const \
 	| struct_field_reserved \
+	| struct_field_sizeof \
 	| struct_field_inline \
 	| struct_inline \
 )
@@ -55,6 +56,7 @@ struct_field: [field_attributes] \
 	[conditional_expression] _NL
 struct_field_const: CONST_PROPERTY_NAME "=" "make_const" "(" _integer_or_enum_const ")" _NL
 struct_field_reserved: PROPERTY_NAME "=" "make_reserved" "(" _integer_or_enum_const ")" _NL
+struct_field_sizeof: PROPERTY_NAME "=" "sizeof" "(" FIXED_SIZE_INTEGER "," PROPERTY_NAME ")" _NL
 struct_field_inline: PROPERTY_NAME "=" "inline" USER_TYPE_NAME _NL
 struct_inline: "inline" USER_TYPE_NAME _NL
 STRUCT_MODIFIER.1: "inline" | "abstract"

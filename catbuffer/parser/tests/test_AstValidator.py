@@ -292,6 +292,40 @@ class AstValidatorTests(unittest.TestCase):
 
     # endregion
 
+    # region struct - sizeof reference
+
+    def test_can_validate_struct_containing_sizeof_field_with_valid_property_reference(self):
+        # Arrange:
+        validator = AstValidator([
+            Struct([
+                None,
+                'FooBar',
+                StructField(['r1_size', FixedSizeInteger('uint8'), 'r1'], 'sizeof'),
+                StructField(['r1', FixedSizeInteger('uint8')])
+            ])
+        ])
+
+        # Act + Assert:
+        self._asssert_validate(validator, [])
+
+    def test_cannot_validate_struct_containing_sizeof_field_with_unknown_property_reference(self):
+        # Arrange:
+        validator = AstValidator([
+            Struct([
+                None,
+                'FooBar',
+                StructField(['r1_size', FixedSizeInteger('uint8'), 'r2'], 'sizeof'),
+                StructField(['r1', FixedSizeInteger('uint8')])
+            ])
+        ])
+
+        # Act + Assert:
+        self._asssert_validate(validator, [
+            ErrorDescriptor('reference to unknown sizeof property "r2"', 'FooBar', 'r1_size')
+        ])
+
+    # endregion
+
     # region struct - value consistency
 
     def test_can_validate_struct_containing_numeric_field_value_for_numeric_type(self):
