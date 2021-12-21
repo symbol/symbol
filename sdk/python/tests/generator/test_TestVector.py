@@ -1,7 +1,6 @@
 import importlib
 import os
 from binascii import hexlify, unhexlify
-from collections import defaultdict
 from pathlib import Path
 
 import pytest
@@ -13,10 +12,14 @@ def read_test_vectors_file(filepath):
         return yaml.safe_load(input_file)
 
 
-def prepare_test_cases():
+def prepare_test_cases(network_name):
     cases = []
-    schemas_path = os.environ.get('SCHEMAS_PATH', '.')
-    for filepath in Path(schemas_path).glob('*.yml'):
+    schemas_path = Path(os.environ.get('SCHEMAS_PATH', '.')) / network_name
+
+    if not schemas_path.exists():
+        return cases
+
+    for filepath in schemas_path.glob('*.yml'):
         cases += read_test_vectors_file(filepath)
 
     return cases
@@ -27,12 +30,10 @@ def to_hex_string(binary: bytes):
 
 
 def generate_pretty_id(val):
-    generate_pretty_id.ids[val['schema_name']] += 1
-    test_id = generate_pretty_id.ids[val['schema_name']]
-    return f'{val["schema_name"]}_{test_id}'
+    if dict != type(val):
+        return None
 
-
-generate_pretty_id.ids = defaultdict(int)  # type: ignore
+    return val['test_name']
 
 
 def prepare_payload(payload):
@@ -40,8 +41,8 @@ def prepare_payload(payload):
     return unhexlify(payload.replace('\'', ''))
 
 
-@pytest.mark.parametrize('item', prepare_test_cases(), ids=generate_pretty_id)
-def test_serialize(item):
+@pytest.mark.parametrize('item', prepare_test_cases('symbol'), ids=generate_pretty_id)
+def test_serialize_symbol(item):
     schema_name = item['schema_name']
     comment = item.get('comment', '')
     payload = item['payload']
@@ -56,3 +57,21 @@ def test_serialize(item):
 
     serialized = builder.serialize()
     assert to_hex_string(serialized) == payload.upper(), comment
+
+
+@pytest.mark.parametrize('item', prepare_test_cases('nem'), ids=generate_pretty_id)
+def test_serialize_nem(item):
+    schema_name = item['schema_name']
+    comment = item.get('comment', '')
+    payload = item['payload']
+
+    try:
+        module = importlib.import_module('symbolchain.nem_catbuffer')
+
+        builder_class = getattr(module, schema_name)
+        builder = builder_class.deserialize(prepare_payload(item['payload']))
+
+        serialized = builder.serialize()
+        assert to_hex_string(serialized) == payload.upper(), comment
+    except ModuleNotFoundError:
+        pass
