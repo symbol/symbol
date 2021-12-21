@@ -232,7 +232,7 @@ class Struct(Statement):
 
     @property
     def discriminator(self):
-        return self._lookup_attribute_value('discriminator')
+        return self._lookup_attribute_value('discriminator', True)
 
     @property
     def initializers(self):
@@ -244,12 +244,15 @@ class Struct(Statement):
             for attribute in self.attributes if 'initializes' == attribute.name
         ]
 
-    def _lookup_attribute_value(self, name):
+    def _lookup_attribute_value(self, name, multi_value=False):
         if not self.attributes:
             return None
 
         attribute = next((attribute for attribute in self.attributes if attribute.name == name), None)
-        return None if not attribute else attribute.value
+        if not attribute:
+            return None
+
+        return attribute.values if multi_value else attribute.value
 
     def apply_inline_template(self, named_inline_field):
         """Expands a named inline field using this struct."""

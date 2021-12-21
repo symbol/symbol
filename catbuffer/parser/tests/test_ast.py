@@ -350,20 +350,20 @@ class StructTests(unittest.TestCase):
     def test_can_create_struct_with_attribute_discriminator(self):
         # Act:
         model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
-        model.attributes = [Attribute(['discriminator', 'beta'])]
+        model.attributes = [Attribute(['discriminator', 'beta', 'alpha'])]
 
         # Assert:
         self.assertEqual('FooBar', model.name)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
         self._assert_disposition(model)
-        self._assert_attributes(model, discriminator='beta')
+        self._assert_attributes(model, discriminator=['beta', 'alpha'])
         self.assertEqual({
             'name': 'FooBar',
             'type': 'struct',
             'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
-            'discriminator': 'beta'
+            'discriminator': ['beta', 'alpha']
         }, model.to_legacy_descriptor())
-        self.assertEqual('@discriminator(beta)\nstruct FooBar  # 2 field(s)', str(model))
+        self.assertEqual('@discriminator(beta, alpha)\nstruct FooBar  # 2 field(s)', str(model))
 
     def test_can_create_struct_with_attribute_initializes(self):
         # Act:

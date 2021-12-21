@@ -582,6 +582,19 @@ class AstValidatorTests(unittest.TestCase):
             ErrorDescriptor('reference to unknown "discriminator" property "blah"', 'FooBar')
         ], [AstValidator.Mode.POST_EXPANSION])
 
+    def test_cannot_validate_struct_containing_discriminator_attribute_referencing_some_existent_properties(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([
+            Attribute(['discriminator', 'weight', 'blah', 'other', 'alpha'])
+        ]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+        self._asssert_validate(validator, [
+            ErrorDescriptor('reference to unknown "discriminator" property "blah"', 'FooBar'),
+            ErrorDescriptor('reference to unknown "discriminator" property "alpha"', 'FooBar')
+        ], [AstValidator.Mode.POST_EXPANSION])
+
     def test_can_validate_struct_containing_initializes_attribute_referencing_known_property_and_const_with_same_type(self):
         # Arrange:
         validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['initializes', 'weight', 'KILO'])]))

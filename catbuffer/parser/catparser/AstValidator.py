@@ -152,7 +152,7 @@ class AstValidator:
             if not isinstance(field_map[model.size].field_type, FixedSizeInteger):
                 self.errors.append(ErrorDescriptor(f'reference to "size" property "{model.size}" has unexpected type', model.name))
 
-        self._check_known_field(model, field_map, 'discriminator')
+        self._check_known_field(model, field_map, 'discriminator', True)
 
         if not model.initializers:
             return
@@ -177,16 +177,21 @@ class AstValidator:
                     f'property "{initializer.target_property_name}" has initializer "{initializer.value}" of different type',
                     model.name))
 
-    def _check_known_field(self, model, field_map, property_name):
-        value = getattr(model, property_name)
-        if not value:
+    def _check_known_field(self, model, field_map, property_name, multi_value=False):
+        values = getattr(model, property_name)
+        if not values:
             return False
 
-        if value in field_map:
-            return True
+        if not multi_value:
+            values = [values]
 
-        self.errors.append(ErrorDescriptor(f'reference to unknown "{property_name}" property "{value}"', model.name))
-        return False
+        has_error = False
+        for value in values:
+            if value not in field_map:
+                self.errors.append(ErrorDescriptor(f'reference to unknown "{property_name}" property "{value}"', model.name))
+                has_error = True
+
+        return not has_error
 
     def _is_known_type(self, typename):
         return not isinstance(typename, str) or typename in self.type_descriptor_map
