@@ -20,7 +20,7 @@ MULTILINE_SH_COMMENT: /#[^\n]*(\r?\n[\t ]*#[^\n]*)*/
 
 alias: "using" USER_TYPE_NAME "=" (FIXED_SIZE_INTEGER | fixed_size_buffer) _NL
 
-enum: "enum" USER_TYPE_NAME ":" FIXED_SIZE_INTEGER _NL [_INDENT enum_child* _DEDENT]
+enum: "enum" USER_TYPE_NAME ":" FIXED_SIZE_INTEGER _NL [_INDENT (comment | enum_child)* _DEDENT]
 enum_child: [comment] enum_value
 enum_value: CONST_PROPERTY_NAME "=" _dec_or_hex_number _NL
 
@@ -42,7 +42,7 @@ struct_attribute: "@" ( \
 STRUCT_ATTRIBUTE_NAME_SINGLE_PARAM.1: "size" | "discriminator"
 STRUCT_ATTRIBUTE_NAME_TWO_PARAM.1: "initializes"
 
-struct: [struct_attributes] [STRUCT_MODIFIER] "struct" USER_TYPE_NAME _NL _INDENT struct_child* _DEDENT
+struct: [struct_attributes] [STRUCT_MODIFIER] "struct" USER_TYPE_NAME _NL _INDENT (comment | struct_child)* _DEDENT
 struct_child: [comment] ( \
 	struct_field \
 	| struct_field_const \
