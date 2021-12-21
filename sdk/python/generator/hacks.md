@@ -15,4 +15,4 @@ Py specific things:
 TODO:
  * ~~yml is missing information how to assign types to resolution statements~~ - done by @Jaguar0625 via catparser-lark changes, along with Receipt changes
  * ~~remove transaction 'Body'-ies  (they are already inlined within proper txes)~~ - done by @Jaguar0625 via catparser changes
- * version handling inside FactoryFormatter
+ * ~~version handling inside FactoryFormatter~~

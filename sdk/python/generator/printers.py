@@ -190,6 +190,12 @@ class BuiltinPrinter(Printer):
         return f'self.{self.name}.size()'
 
     def load(self, buffer_name='buffer_'):
+        if self.descriptor.is_struct and self.descriptor.is_abstract:
+            # HACK: factories use this printers as well, ignore them
+            if 'parent' != self.name:
+                factory_name = self.get_type() + 'Factory'
+                return f'{factory_name}.deserialize({buffer_name})'
+
         return f'{self.get_type()}.deserialize({buffer_name})'
 
     def advancement_size(self):

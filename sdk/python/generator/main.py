@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import argparse
-import shutil
 from pathlib import Path
 
 import yaml
@@ -35,6 +34,7 @@ class Field:
         self.type_instance = type_instance
         self.printer = printer
         self.bound_field = None
+        self.size_fields = []
 
     def get_type(self):
         return self.type_instance
@@ -47,6 +47,9 @@ class Field:
 
     def is_bound(self):
         return self.bound_field is not None
+
+    def add_sizeof_field(self, other_field):
+        self.size_fields.append(other_field)
 
     def is_const(self):
         return 'disposition' in self.yaml_descriptor and 'const' == self.yaml_descriptor['disposition']
@@ -91,16 +94,45 @@ def create_printer(type_instance, name):
     return create_pod_printer(type_instance, name)
 
 
+def process_concrete_struct(type_map, struct_type, abstract_impl_map):
+    factory_type = type_map[struct_type.yaml_descriptor['factory_type']]
+
+    discriminators = factory_type.yaml_descriptor.get('discriminator', [])
+    for i, discriminator in enumerate(discriminators):
+        discriminators[i] = fix_name(discriminator)
+
+    for init in factory_type.yaml_descriptor['initializers']:
+        fix_item(init, 'target_property_name')
+
+    abstract_impl_map.add(factory_type, struct_type)
+
+
+def bind_size_fields(struct_type):
+    # go through structs and bind size fields to arrays
+    for field in struct_type.get_layout():
+        if field.type_instance.is_array and isinstance(field.get_type().get_size(), str):
+            size_name = field.get_type().get_size()
+            # 'unfix' name when searching for associated 'size' field:
+            #  * fields are added using 'original' name,
+            #  * but 'size' property of given array type is already fixed
+            #
+            # (currently this only happens for metadata value)
+            if 'size_' == size_name:
+                size_name = 'size'
+
+            size_field = struct_type.get_field_by_name(size_name)
+            size_field.set_bound_field(field)
+
+        if field.type_instance.sizeof_value:
+            struct_field = struct_type.get_field_by_name(field.yaml_descriptor['value'])
+            field.set_bound_field(struct_field)
+
+            struct_field.add_sizeof_field(field)
+
+
 def process_struct(type_map, struct_type: StructObject, abstract_impl_map: AbstractImplMap):
     if 'factory_type' in struct_type.yaml_descriptor:
-        factory_type = type_map[struct_type.yaml_descriptor['factory_type']]
-        fix_item(factory_type.yaml_descriptor, 'discriminator')
-
-        initializers = factory_type.yaml_descriptor.get('initializers', None)
-        for init in initializers:
-            fix_item(init, 'target_property_name')
-
-        abstract_impl_map.add(factory_type, struct_type)
+        process_concrete_struct(type_map, struct_type, abstract_impl_map)
 
     for field_yaml_descriptor in struct_type.yaml_descriptor['layout']:
         fix_item(field_yaml_descriptor, 'size')
@@ -130,20 +162,7 @@ def process_struct(type_map, struct_type: StructObject, abstract_impl_map: Abstr
                 )
             )
 
-    # go through structs and bind size fields to arrays
-    for field in struct_type.get_layout():
-        if field.type_instance.is_array and isinstance(field.get_type().get_size(), str):
-            size_name = field.get_type().get_size()
-            # 'unfix' name when searching for associated 'size' field:
-            #  * fields are added using 'original' name,
-            #  * but 'size' property of given array type is already fixed
-            #
-            # (currently this only happens for metadata value)
-            if 'size_' == size_name:
-                size_name = 'size'
-
-            size_field = struct_type.get_field_by_name(size_name)
-            size_field.set_bound_field(field)
+    bind_size_fields(struct_type)
 
 
 def generate_files(yaml_descriptors, output_directory: Path):
@@ -170,9 +189,6 @@ def generate_files(yaml_descriptors, output_directory: Path):
 
     output_directory.mkdir(exist_ok=True)
 
-    array_helpers = Path('ArrayHelpers.py')
-    shutil.copy(str(array_helpers), str(output_directory / array_helpers))
-
     with open(output_directory / '__init__.py', 'w', encoding='utf8') as output_file:
         output_file.write(
             '''#!/usr/bin/python
@@ -185,7 +201,7 @@ from binascii import hexlify
 from enum import Enum, Flag
 from typing import ByteString, List, TypeVar
 
-from .ArrayHelpers import ArrayHelpers
+from ..core.ArrayHelpers import ArrayHelpers
 from ..core.BaseValue import BaseValue
 from ..core.ByteArray import ByteArray
 

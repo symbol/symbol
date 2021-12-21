@@ -6,15 +6,17 @@ class BaseObject:
 
     CAMEL_CASE_PATTERN = re.compile(r'(?<!^)(?=[A-Z])')
 
-    def __init__(self, base_typename, yaml_descritor):
+    def __init__(self, base_typename, yaml_descriptor):
         self.base_typename = base_typename
         self.is_struct = 'struct' == base_typename
         self.is_array = 'array' == base_typename
         self.is_int = 'int' == base_typename
         self.is_enum = 'enum' == base_typename
-        self.is_builtin = True
 
-        self.yaml_descriptor = yaml_descritor
+        self.is_builtin = True
+        self.sizeof_value = yaml_descriptor['value'] if 'sizeof' == yaml_descriptor.get('disposition', None) else None
+
+        self.yaml_descriptor = yaml_descriptor
         self.field_name = BaseObject.CAMEL_CASE_PATTERN.sub('_', self.yaml_descriptor['name']).lower()
 
         self.printer = None

@@ -7,7 +7,7 @@ from type_objects import StructObject
 
 def is_reserved(field):
     disposition = field.yaml_descriptor.get('disposition', None)
-    return disposition and disposition == 'reserved'
+    return 'reserved' == disposition
 
 
 def is_bound_size(field):
@@ -130,25 +130,45 @@ class StructFormatter(AbstractTypeFormatter):
             'in': 'in',
         }
         condition_operator = condition_to_operator_map[field.yaml_descriptor['condition_operation']]
-        yoda_value = f'{condition_field.get_type().typename}.{field.yaml_descriptor["condition_value"]}'
+
+        value = f'{field.yaml_descriptor["condition_value"]}'
+        yoda_value = value if condition_field.get_type().is_int else f'{condition_field.get_type().typename}.{value}'
         field_prefix = 'self.' if prefix_field else ''
+
+        # HACK: instead of handling dumb magic value in namespace parent_name, generate slightly simpler condition
+        # note: is_array is too wide as it also covers builtin arrays
+        if prefix_field and field.yaml_descriptor.get('disposition', '').startswith('array'):
+            return f'if {field_prefix}{field.original_field_name}:\n'
+
         return f'if {yoda_value} {condition_operator} {field_prefix}{condition_field_name}:\n'
 
     def generate_deserialize_field(self, field, arg_buffer_name=None):
         condition = self.generate_condition(field)
 
         buffer_name = arg_buffer_name or 'buffer_'
-        load = field.printer.load(buffer_name) if arg_buffer_name else field.printer.load()
+
+        # half-hack: limit buffer to amount specified in size field
+        buffer_load_name = buffer_name
+        if field.size_fields:
+            assert len(field.size_fields) == 1, f'unexpected number of size_fields associated with {field.original_field_name}'
+            buffer_load_name = f'buffer_[:{field.size_fields[0].original_field_name}]'
+
+        use_custom_buffer_name = arg_buffer_name or field.size_fields
+        load = field.printer.load(buffer_load_name) if use_custom_buffer_name else field.printer.load()
         deserialize = f'{field.printer.name} = {load}'
         adjust = f'{buffer_name} = {buffer_name}[{field.printer.advancement_size()}:]'
 
         additional_statements = ''
         if is_reserved(field):
-            additional_statements = f'assert {field.printer.name} == {field.yaml_descriptor["value"]}, "Invalid value of reserved field"\n'
+            assert_message = f'f"Invalid value of reserved field ({{{field.printer.name}}})"'
+            additional_statements = f'assert {field.printer.name} == {field.yaml_descriptor["value"]}, {assert_message}\n'
 
         if self.struct.dynamic_size == field.printer.name:
             additional_statements += f'{buffer_name} = {buffer_name}[:size_ - {field.printer.advancement_size()}]\n'
             additional_statements += 'del size_\n'
+
+        if field.is_bound and field.get_type().sizeof_value:
+            additional_statements += '# marking sizeof field\n'
 
         deserialize_field = deserialize + '\n' + adjust + '\n' + additional_statements
 
@@ -214,13 +234,28 @@ class StructFormatter(AbstractTypeFormatter):
 
         field_value = ''
         field_comment = ''
+
+        # bound fields are the size / count / sizeof fields that are bound to either object or array
         if field.is_bound():
-            array_field = field.bound_field
-            array_name = self.field_name(array_field)
+            bound_field = field.bound_field
+            bound_field_name = self.field_name(bound_field)
             field_comment = f'  # {field.original_field_name}'
-            if field.original_field_name.endswith('_count') or not array_field.get_type().is_sized:
-                field_value = f'len({array_name})'
-            else:
+
+            if bound_field.get_type().is_array:
+                if field.original_field_name.endswith('_count') or not bound_field.get_type().is_sized:
+                    field_value = f'len({bound_field_name})'
+
+                    bound_condition = self.generate_condition(bound_field, True)
+                    if condition and bound_condition:
+                        raise RuntimeError('do not know yet how to generate both conditions')
+
+                    # HACK: create inline if condition (for NEM namespace purposes)
+                    if bound_condition:
+                        condition_value = bound_field.yaml_descriptor['condition_value']
+                        field_value = f'({field_value} if {bound_field_name} is not None else {condition_value})'
+                else:
+                    field_value = field.bound_field.printer.get_size()
+            elif field.get_type().sizeof_value:
                 field_value = field.bound_field.printer.get_size()
         else:
             field_value = self.field_name(field)
