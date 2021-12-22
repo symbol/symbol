@@ -59,21 +59,21 @@ inline struct TransferTransactionV2Body
 	mosaics = array(SizePrefixedMosaic, mosaics_count)
 
 # binary layout for a transfer transaction (V1)
-struct TransferTransaction
+struct TransferTransactionV1
 	inline Transaction
 	inline TransferTransactionV1Body
 
 # binary layout for a non-verifiable transfer transaction (V1)
-struct NonVerifiableTransferTransaction
+struct NonVerifiableTransferTransactionV1
 	inline NonVerifiableTransaction
 	inline TransferTransactionV1Body
 
-# binary layout for a transfer transaction (V2)
-struct TransferTransactionV2
+# binary layout for a transfer transaction (V2, latest)
+struct TransferTransaction
 	inline Transaction
 	inline TransferTransactionV2Body
 
-# binary layout for a non-verifiable transfer transaction (V2)
-struct NonVerifiableTransferTransactionV2
+# binary layout for a non-verifiable transfer transaction (V2, latest)
+struct NonVerifiableTransferTransaction
 	inline NonVerifiableTransaction
 	inline TransferTransactionV2Body

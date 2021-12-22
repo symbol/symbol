@@ -1186,7 +1186,7 @@
     name: modifications
     size: modifications_count
     type: SizePrefixedMultisigAccountModification
-  name: MultisigAccountModificationTransaction
+  name: MultisigAccountModificationTransactionV1
   type: struct
 - comments: binary layout for a non-verifiable multisig account modification transaction
     (V1)
@@ -1258,9 +1258,9 @@
     name: modifications
     size: modifications_count
     type: SizePrefixedMultisigAccountModification
-  name: NonVerifiableMultisigAccountModificationTransaction
+  name: NonVerifiableMultisigAccountModificationTransactionV1
   type: struct
-- comments: binary layout for a multisig account modification transaction (V2)
+- comments: binary layout for a multisig account modification transaction (V2, latest)
   discriminator:
   - type
   - version
@@ -1351,10 +1351,10 @@
     signedness: signed
     size: 4
     type: byte
-  name: MultisigAccountModificationTransactionV2
+  name: MultisigAccountModificationTransaction
   type: struct
 - comments: binary layout for a non-verifiable multisig account modification transaction
-    (V2)
+    (V2, latest)
   discriminator:
   - type
   - version
@@ -1436,7 +1436,7 @@
     signedness: signed
     size: 4
     type: byte
-  name: NonVerifiableMultisigAccountModificationTransactionV2
+  name: NonVerifiableMultisigAccountModificationTransaction
   type: struct
 - comments: cosignature attached to an aggregate transaction
   discriminator:
@@ -2037,7 +2037,7 @@
     condition_value: 0
     name: message
     type: Message
-  name: TransferTransaction
+  name: TransferTransactionV1
   type: struct
 - comments: binary layout for a non-verifiable transfer transaction (V1)
   discriminator:
@@ -2122,9 +2122,9 @@
     condition_value: 0
     name: message
     type: Message
-  name: NonVerifiableTransferTransaction
+  name: NonVerifiableTransferTransactionV1
   type: struct
-- comments: binary layout for a transfer transaction (V2)
+- comments: binary layout for a transfer transaction (V2, latest)
   discriminator:
   - type
   - version
@@ -2227,9 +2227,9 @@
     name: mosaics
     size: mosaics_count
     type: SizePrefixedMosaic
-  name: TransferTransactionV2
+  name: TransferTransaction
   type: struct
-- comments: binary layout for a non-verifiable transfer transaction (V2)
+- comments: binary layout for a non-verifiable transfer transaction (V2, latest)
   discriminator:
   - type
   - version
@@ -2323,5 +2323,5 @@
     name: mosaics
     size: mosaics_count
     type: SizePrefixedMosaic
-  name: NonVerifiableTransferTransactionV2
+  name: NonVerifiableTransferTransaction
   type: struct

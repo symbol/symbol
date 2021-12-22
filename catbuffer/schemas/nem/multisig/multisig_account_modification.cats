@@ -56,21 +56,21 @@ inline struct MultisigAccountModificationTransactionV2Body
 	min_approval_delta = int32
 
 # binary layout for a multisig account modification transaction (V1)
-struct MultisigAccountModificationTransaction
+struct MultisigAccountModificationTransactionV1
 	inline Transaction
 	inline MultisigAccountModificationTransactionV1Body
 
 # binary layout for a non-verifiable multisig account modification transaction (V1)
-struct NonVerifiableMultisigAccountModificationTransaction
+struct NonVerifiableMultisigAccountModificationTransactionV1
 	inline NonVerifiableTransaction
 	inline MultisigAccountModificationTransactionV1Body
 
-# binary layout for a multisig account modification transaction (V2)
-struct MultisigAccountModificationTransactionV2
+# binary layout for a multisig account modification transaction (V2, latest)
+struct MultisigAccountModificationTransaction
 	inline Transaction
 	inline MultisigAccountModificationTransactionV2Body
 
-# binary layout for a non-verifiable multisig account modification transaction (V2)
-struct NonVerifiableMultisigAccountModificationTransactionV2
+# binary layout for a non-verifiable multisig account modification transaction (V2, latest)
+struct NonVerifiableMultisigAccountModificationTransaction
 	inline NonVerifiableTransaction
 	inline MultisigAccountModificationTransactionV2Body
