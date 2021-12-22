@@ -1477,9 +1477,27 @@
     name: source
     type: ReceiptSource
   - comments: Resolved Address.
-    name: resolved
+    name: resolved_value
     type: Address
   name: AddressResolutionEntry
+  type: struct
+- comments: An Address resolution statement links a namespace alias used in a transaction
+    to the real address **at the time of the transaction**.
+  layout:
+  - comments: Unresolved address.
+    name: unresolved
+    type: UnresolvedAddress
+  - comments: Number of resolution entries.
+    name: resolution_entries_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Resolution entries.
+    disposition: array
+    name: resolution_entries
+    size: resolution_entries_count
+    type: AddressResolutionEntry
+  name: AddressResolutionStatement
   type: struct
 - comments: Actual MosaicId behind a NamespaceId at the time a transaction was confirmed.
   layout:
@@ -1487,91 +1505,85 @@
     name: source
     type: ReceiptSource
   - comments: Resolved MosaicId.
-    name: resolved
+    name: resolved_value
     type: MosaicId
   name: MosaicResolutionEntry
   type: struct
 - comments: A Mosaic resolution statement links a namespace alias used in a transaction
     to the real mosaic id **at the time of the transaction**.
-  discriminator:
-  - type
-  factory_type: Receipt
-  initializers:
-  - target_property_name: type
-    value: RECEIPT_TYPE
   layout:
-  - disposition: const
-    name: RECEIPT_TYPE
-    type: ReceiptType
-    value: MOSAIC_ALIAS_RESOLUTION
-  - comments: 'Entity size in bytes.
-
-      This size includes the header and the full payload of the entity. I.e, the size
-      field matches the size reported in the structure documentation (plus the variable
-      part, if there is any).'
-    name: size
-    signedness: unsigned
-    size: 4
-    type: byte
-  - comments: Receipt version.
-    name: version
-    signedness: unsigned
-    size: 2
-    type: byte
-  - comments: Type of receipt.
-    name: type
-    type: ReceiptType
   - comments: Unresolved mosaic.
     name: unresolved
     type: UnresolvedMosaicId
-  - comments: Resolution entries.
-    disposition: array fill
-    name: resolution_entries
-    size: 0
-    type: MosaicResolutionEntry
-  name: MosaicResolutionStatement
-  size: size
-  type: struct
-- comments: An Address resolution statement links a namespace alias used in a transaction
-    to the real address **at the time of the transaction**.
-  discriminator:
-  - type
-  factory_type: Receipt
-  initializers:
-  - target_property_name: type
-    value: RECEIPT_TYPE
-  layout:
-  - disposition: const
-    name: RECEIPT_TYPE
-    type: ReceiptType
-    value: ADDRESS_ALIAS_RESOLUTION
-  - comments: 'Entity size in bytes.
-
-      This size includes the header and the full payload of the entity. I.e, the size
-      field matches the size reported in the structure documentation (plus the variable
-      part, if there is any).'
-    name: size
+  - comments: Number of resolution entries.
+    name: resolution_entries_count
     signedness: unsigned
     size: 4
     type: byte
-  - comments: Receipt version.
-    name: version
-    signedness: unsigned
-    size: 2
-    type: byte
-  - comments: Type of receipt.
-    name: type
-    type: ReceiptType
-  - comments: Unresolved address.
-    name: unresolved
-    type: UnresolvedAddress
   - comments: Resolution entries.
-    disposition: array fill
+    disposition: array
     name: resolution_entries
-    size: 0
-    type: AddressResolutionEntry
-  name: AddressResolutionStatement
-  size: size
+    size: resolution_entries_count
+    type: MosaicResolutionEntry
+  name: MosaicResolutionStatement
+  type: struct
+- comments: Collection of receipts scoped to a single source (transaction or block).
+  layout:
+  - comments: Transaction primary source (e.g. index within the block).
+    name: primary_id
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Transaction secondary source (e.g. index within aggregate).
+    name: secondary_id
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Number of receipts.
+    name: receipt_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Receipts.
+    disposition: array
+    name: receipts
+    size: receipt_count
+    type: Receipt
+  name: TransactionStatement
+  type: struct
+- comments: Collection of statements scoped to a block.
+  layout:
+  - comments: Number of transaction statements.
+    name: transaction_statement_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Transaction statements.
+    disposition: array
+    name: transaction_statements
+    size: transaction_statement_count
+    type: TransactionStatement
+  - comments: Number of address resolution statements.
+    name: address_resolution_statement_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Address resolution statements.
+    disposition: array
+    name: address_resolution_statements
+    size: address_resolution_statement_count
+    type: AddressResolutionStatement
+  - comments: Number of mosaic resolution statements.
+    name: mosaic_resolution_statement_count
+    signedness: unsigned
+    size: 4
+    type: byte
+  - comments: Mosaic resolution statements.
+    disposition: array
+    name: mosaic_resolution_statements
+    size: mosaic_resolution_statement_count
+    type: MosaicResolutionStatement
+  name: BlockStatement
   type: struct
 - comments: enumeration of account types
   name: AccountType
