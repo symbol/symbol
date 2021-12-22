@@ -94,6 +94,15 @@ inline struct Car
 	wheel_count = make_reserved(uint8, 4)
 ```
 
+`sizeof` can be used to define a field that is filled with the size of another field.
+For example, to define a 2 byte unsigned `car_size` that is filled with the size of the `car` field:
+```cpp
+inline struct SingleCarGarage
+	car_size = sizeof(uint16, car)
+
+	car = Car
+```
+
 ### conditionals
 
 Fields can be made conditional on the values of other fields.

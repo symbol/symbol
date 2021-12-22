@@ -136,6 +136,10 @@ def create_cats_lark_parser():
             return StructField(tokens, 'reserved')
 
         @staticmethod
+        def struct_field_sizeof(tokens):
+            return StructField(tokens, 'sizeof')
+
+        @staticmethod
         def struct_field_inline(tokens):
             return StructField(tokens, 'inline')
 

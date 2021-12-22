@@ -232,10 +232,11 @@ class StructTests(unittest.TestCase):
         self.assertEqual(disposition, model.disposition)
         self.assertEqual(is_inline, model.is_inline)
 
-    def _assert_attributes(self, model, size=None, discriminator=None, initializers=None):
-        self.assertEqual(size, model.size)
-        self.assertEqual(discriminator, model.discriminator)
-        self.assertEqual([] if initializers is None else initializers, model.initializers)
+    def _assert_attributes(self, model, **kwargs):
+        self.assertEqual(kwargs.get('implicit_size', None), model.implicit_size)
+        self.assertEqual(kwargs.get('size', None), model.size)
+        self.assertEqual(kwargs.get('discriminator', None), model.discriminator)
+        self.assertEqual(kwargs.get('initializers', []), model.initializers)
 
     def _test_can_create_struct(self, comment, expected_comment_descriptor):
         # Act:
@@ -310,6 +311,24 @@ class StructTests(unittest.TestCase):
         }, model.to_legacy_descriptor())
         self.assertEqual('struct FooBar  # 2 field(s)', str(model))
 
+    def test_can_create_struct_with_attribute_implicit_size(self):
+        # Act:
+        model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+        model.attributes = [Attribute(['implicit_size'])]
+
+        # Assert:
+        self.assertEqual('FooBar', model.name)
+        self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
+        self._assert_disposition(model)
+        self._assert_attributes(model, implicit_size=True)
+        self.assertEqual({
+            'name': 'FooBar',
+            'type': 'struct',
+            'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
+            'implicit_size': True
+        }, model.to_legacy_descriptor())
+        self.assertEqual('@implicit_size\nstruct FooBar  # 2 field(s)', str(model))
+
     def test_can_create_struct_with_attribute_size(self):
         # Act:
         model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
@@ -331,20 +350,20 @@ class StructTests(unittest.TestCase):
     def test_can_create_struct_with_attribute_discriminator(self):
         # Act:
         model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
-        model.attributes = [Attribute(['discriminator', 'beta'])]
+        model.attributes = [Attribute(['discriminator', 'beta', 'alpha'])]
 
         # Assert:
         self.assertEqual('FooBar', model.name)
         self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
         self._assert_disposition(model)
-        self._assert_attributes(model, discriminator='beta')
+        self._assert_attributes(model, discriminator=['beta', 'alpha'])
         self.assertEqual({
             'name': 'FooBar',
             'type': 'struct',
             'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
-            'discriminator': 'beta'
+            'discriminator': ['beta', 'alpha']
         }, model.to_legacy_descriptor())
-        self.assertEqual('@discriminator(beta)\nstruct FooBar  # 2 field(s)', str(model))
+        self.assertEqual('@discriminator(beta, alpha)\nstruct FooBar  # 2 field(s)', str(model))
 
     def test_can_create_struct_with_attribute_initializes(self):
         # Act:
@@ -578,6 +597,35 @@ class StructFieldTests(unittest.TestCase):
 
     def test_can_create_reserved_struct_field_with_zero_value(self):
         self._test_can_create_const_reserved_struct_field_with_zero_value('reserved_1', 'reserved')
+
+    def _test_can_create_sizeof_struct_field(self, comment, expected_comment_descriptor):
+        # Act:
+        model = StructField(['background_color_size', FixedSizeInteger('uint16'), 'other_property'], 'sizeof')
+        model.comment = comment
+
+        # Assert:
+        self.assertEqual('background_color_size', model.name)
+        self.assertEqual('uint16', model.field_type.short_name)
+        self.assertEqual('other_property', model.value)
+        self.assertEqual('sizeof', model.disposition)
+        self._assert_extensions(model, comment=comment)
+
+        self.assertEqual({
+            **expected_comment_descriptor,
+            'name': 'background_color_size',
+            'type': 'byte',
+            'size': 2,
+            'signedness': 'unsigned',
+            'value': 'other_property',
+            'disposition': 'sizeof'
+        }, model.to_legacy_descriptor())
+        self.assertEqual('background_color_size = sizeof(uint16, other_property)', str(model))
+
+    def test_can_create_sizeof_struct_field(self):
+        self._test_can_create_sizeof_struct_field(None, {})
+
+    def test_can_create_sizeof_struct_field_with_comment(self):
+        self._test_can_create_sizeof_struct_field(Comment('# my amazing comment'), {'comments': 'my amazing comment'})
 
     def test_can_create_struct_field_with_attributes(self):
         # Act:

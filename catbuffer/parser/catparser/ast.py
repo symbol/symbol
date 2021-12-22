@@ -15,7 +15,7 @@ def _get_token_value(token):
 
 def _set_if(source, type_descriptor, property_name):
     value = getattr(source, property_name)
-    if value:
+    if value is not None:
         type_descriptor[property_name] = value
 
 
@@ -223,12 +223,16 @@ class Struct(Statement):
         return 'inline' == self.disposition
 
     @property
+    def implicit_size(self):
+        return self._lookup_attribute_value('implicit_size')
+
+    @property
     def size(self):
         return self._lookup_attribute_value('size')
 
     @property
     def discriminator(self):
-        return self._lookup_attribute_value('discriminator')
+        return self._lookup_attribute_value('discriminator', True)
 
     @property
     def initializers(self):
@@ -240,12 +244,15 @@ class Struct(Statement):
             for attribute in self.attributes if 'initializes' == attribute.name
         ]
 
-    def _lookup_attribute_value(self, name):
+    def _lookup_attribute_value(self, name, multi_value=False):
         if not self.attributes:
             return None
 
         attribute = next((attribute for attribute in self.attributes if attribute.name == name), None)
-        return None if not attribute else attribute.value
+        if not attribute:
+            return None
+
+        return attribute.values if multi_value else attribute.value
 
     def apply_inline_template(self, named_inline_field):
         """Expands a named inline field using this struct."""
@@ -271,7 +278,7 @@ class Struct(Statement):
             'layout': [field.to_legacy_descriptor() for field in self.fields]
         }
 
-        for property_name in ['disposition', 'factory_type', 'size', 'discriminator']:
+        for property_name in ['disposition', 'factory_type', 'implicit_size', 'size', 'discriminator']:
             _set_if(self, type_descriptor, property_name)
 
         if self.initializers:
@@ -356,10 +363,14 @@ class StructField(Statement):
 
         if 'inline' == self.disposition:
             return formatted + f'inline {self.field_type}'
-        if self.disposition in ['const', 'reserved']:
-            return formatted + f'make_{self.disposition}({self.field_type}, {self.value})'
 
-        return formatted + f'{self.field_type}' + ('' if not self.value else f' {str(self.value)}')
+        if not self.disposition:
+            return formatted + f'{self.field_type}' + ('' if not self.value else f' {str(self.value)}')
+
+        if self.disposition in ['const', 'reserved']:
+            formatted += 'make_'
+
+        return formatted + f'{self.disposition}({self.field_type}, {self.value})'
 
 
 class StructInlinePlaceholder(Statement):

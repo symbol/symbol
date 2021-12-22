@@ -292,6 +292,76 @@ class AstValidatorTests(unittest.TestCase):
 
     # endregion
 
+    # region struct - sizeof reference
+
+    def test_can_validate_struct_containing_sizeof_field_with_valid_property_reference_to_struct_type_with_implicit_size(self):
+        # Arrange:
+        other_type_descriptor = Struct([None, 'Other', StructField(['baz', FixedSizeInteger('uint8')])])
+        other_type_descriptor.attributes = [Attribute(['implicit_size'])]
+        validator = AstValidator([
+            other_type_descriptor,
+            Struct([
+                None,
+                'FooBar',
+                StructField(['r1_size', FixedSizeInteger('uint8'), 'r1'], 'sizeof'),
+                StructField(['r1', 'Other'])
+            ])
+        ])
+
+        # Act + Assert:
+        self._asssert_validate(validator, [])
+
+    def test_cannot_validate_struct_containing_sizeof_field_with_valid_property_reference_to_struct_type_without_implicit_size(self):
+        # Arrange:
+        validator = AstValidator([
+            Struct([None, 'Other', StructField(['baz', FixedSizeInteger('uint8')])]),
+            Struct([
+                None,
+                'FooBar',
+                StructField(['r1_size', FixedSizeInteger('uint8'), 'r1'], 'sizeof'),
+                StructField(['r1', 'Other'])
+            ])
+        ])
+
+        # Act + Assert:
+        self._asssert_validate(validator, [
+            ErrorDescriptor('sizeof property references type "Other" without implicit_size attribute', 'FooBar', 'r1_size')
+        ])
+
+    def test_cannot_validate_struct_containing_sizeof_field_with_valid_property_reference_to_fixed_size_type(self):
+        # Arrange:
+        validator = AstValidator([
+            Struct([
+                None,
+                'FooBar',
+                StructField(['r1_size', FixedSizeInteger('uint8'), 'r1'], 'sizeof'),
+                StructField(['r1', FixedSizeInteger('uint8')])
+            ])
+        ])
+
+        # Act + Assert:
+        self._asssert_validate(validator, [
+            ErrorDescriptor('sizeof property references fixed size type "uint8"', 'FooBar', 'r1_size')
+        ])
+
+    def test_cannot_validate_struct_containing_sizeof_field_with_unknown_property_reference(self):
+        # Arrange:
+        validator = AstValidator([
+            Struct([
+                None,
+                'FooBar',
+                StructField(['r1_size', FixedSizeInteger('uint8'), 'r2'], 'sizeof'),
+                StructField(['r1', FixedSizeInteger('uint8')])
+            ])
+        ])
+
+        # Act + Assert:
+        self._asssert_validate(validator, [
+            ErrorDescriptor('reference to unknown sizeof property "r2"', 'FooBar', 'r1_size')
+        ])
+
+    # endregion
+
     # region struct - value consistency
 
     def test_can_validate_struct_containing_numeric_field_value_for_numeric_type(self):
@@ -546,6 +616,19 @@ class AstValidatorTests(unittest.TestCase):
         self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
         self._asssert_validate(validator, [
             ErrorDescriptor('reference to unknown "discriminator" property "blah"', 'FooBar')
+        ], [AstValidator.Mode.POST_EXPANSION])
+
+    def test_cannot_validate_struct_containing_discriminator_attribute_referencing_some_existent_properties(self):
+        # Arrange:
+        validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([
+            Attribute(['discriminator', 'weight', 'blah', 'other', 'alpha'])
+        ]))
+
+        # Act + Assert:
+        self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+        self._asssert_validate(validator, [
+            ErrorDescriptor('reference to unknown "discriminator" property "blah"', 'FooBar'),
+            ErrorDescriptor('reference to unknown "discriminator" property "alpha"', 'FooBar')
         ], [AstValidator.Mode.POST_EXPANSION])
 
     def test_can_validate_struct_containing_initializes_attribute_referencing_known_property_and_const_with_same_type(self):

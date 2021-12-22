@@ -36,17 +36,22 @@ FIELD_ATTRIBUTE_NAME_SINGLE_PARAM_PROPERTY.1: "sort_key"
 
 struct_attributes: struct_attribute+
 struct_attribute: "@" ( \
-	STRUCT_ATTRIBUTE_NAME_SINGLE_PARAM "(" PROPERTY_NAME ")" \
-	| STRUCT_ATTRIBUTE_NAME_TWO_PARAM "(" PROPERTY_NAME "," CONST_PROPERTY_NAME ")" \
+	STRUCT_ATTRIBUTE_NAME_ZERO_PARAMS \
+	| STRUCT_ATTRIBUTE_NAME_SINGLE_PARAM "(" PROPERTY_NAME ")" \
+	| STRUCT_ATTRIBUTE_NAME_TWO_PARAMS "(" PROPERTY_NAME "," CONST_PROPERTY_NAME ")" \
+	| STRUCT_ATTRIBUTE_NAME_MULTI_PARAM "(" PROPERTY_NAME ("," PROPERTY_NAME)* ")" \
 ) _NL
-STRUCT_ATTRIBUTE_NAME_SINGLE_PARAM.1: "size" | "discriminator"
-STRUCT_ATTRIBUTE_NAME_TWO_PARAM.1: "initializes"
+STRUCT_ATTRIBUTE_NAME_ZERO_PARAMS.1: "implicit_size"
+STRUCT_ATTRIBUTE_NAME_SINGLE_PARAM.1: "size"
+STRUCT_ATTRIBUTE_NAME_TWO_PARAMS.1: "initializes"
+STRUCT_ATTRIBUTE_NAME_MULTI_PARAM.1: "discriminator"
 
 struct: [struct_attributes] [STRUCT_MODIFIER] "struct" USER_TYPE_NAME _NL _INDENT (comment | struct_child)* _DEDENT
 struct_child: [comment] ( \
 	struct_field \
 	| struct_field_const \
 	| struct_field_reserved \
+	| struct_field_sizeof \
 	| struct_field_inline \
 	| struct_inline \
 )
@@ -55,6 +60,7 @@ struct_field: [field_attributes] \
 	[conditional_expression] _NL
 struct_field_const: CONST_PROPERTY_NAME "=" "make_const" "(" _integer_or_enum_const ")" _NL
 struct_field_reserved: PROPERTY_NAME "=" "make_reserved" "(" _integer_or_enum_const ")" _NL
+struct_field_sizeof: PROPERTY_NAME "=" "sizeof" "(" FIXED_SIZE_INTEGER "," PROPERTY_NAME ")" _NL
 struct_field_inline: PROPERTY_NAME "=" "inline" USER_TYPE_NAME _NL
 struct_inline: "inline" USER_TYPE_NAME _NL
 STRUCT_MODIFIER.1: "inline" | "abstract"
