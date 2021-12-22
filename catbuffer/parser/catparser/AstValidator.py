@@ -94,8 +94,7 @@ class AstValidator:
 
         if field.value is not None:
             if 'sizeof' == field.disposition:
-                if field.value not in field_map:
-                    self.errors.append(create_error_descriptor(f'reference to unknown sizeof property "{field.value}"'))
+                self._validate_sizeof(field, field_map, create_error_descriptor)
             elif isinstance(field.value, Conditional):
                 self._validate_conditional(field, field_map, create_error_descriptor)
             else:
@@ -124,6 +123,19 @@ class AstValidator:
         size = field_type.size
         if isinstance(size, str) and size not in field_map:
             self.errors.append(create_error_descriptor(f'reference to unknown size property "{size}"'))
+
+    def _validate_sizeof(self, field, field_map, create_error_descriptor):
+        if field.value not in field_map:
+            self.errors.append(create_error_descriptor(f'reference to unknown sizeof property "{field.value}"'))
+            return
+
+        reference_typename = field_map[field.value].field_type
+        reference_type = None if not isinstance(reference_typename, str) else self.type_descriptor_map[reference_typename]
+        if not isinstance(reference_type, Struct):
+            self.errors.append(create_error_descriptor(f'sizeof property references fixed size type "{reference_typename}"'))
+        elif not reference_type.implicit_size:
+            message = f'sizeof property references type "{reference_typename}" without implicit_size attribute'
+            self.errors.append(create_error_descriptor(message))
 
     def _validate_conditional(self, field, field_map, create_error_descriptor):
         linked_field_name = field.value.linked_field_name
