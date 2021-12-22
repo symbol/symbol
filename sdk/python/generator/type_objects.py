@@ -25,10 +25,12 @@ class BaseObject:
     def set_printer(self, printer):
         self.printer = printer
 
-    def get_underlined_name(self):
+    @property
+    def underlined_name(self):
         return self.field_name
 
-    def get_size(self):
+    @property
+    def size(self):
         return self.yaml_descriptor['size']
 
 
@@ -50,6 +52,10 @@ class ArrayObject(BaseObject):
     def is_fill(self):
         return 'array fill' == self.yaml_descriptor['disposition']
 
+    @property
+    def alignment(self):
+        return self.yaml_descriptor['alignment']
+
     def get_type(self):
         return self.yaml_descriptor['type']
 
@@ -58,10 +64,12 @@ class EnumObject(BaseObject):
     def __init__(self, yaml_descritor):
         super().__init__('enum', yaml_descritor)
 
-    def get_underlined_name(self):
+    @property
+    def underlined_name(self):
         return 'value'
 
-    def get_values(self):
+    @property
+    def values(self):
         return self.yaml_descriptor['values']
 
 
@@ -76,9 +84,6 @@ class StructObject(BaseObject):
     def add_field(self, field):
         self.name_to_index[field.original_field_name] = len(self.layout)
         self.layout.append(field)
-
-    def get_layout(self):
-        return self.layout
 
     def get_field_by_name(self, field_name):
         index = self.name_to_index[field_name]

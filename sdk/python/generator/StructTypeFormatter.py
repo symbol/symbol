@@ -46,10 +46,10 @@ class StructFormatter(AbstractTypeFormatter):
         self.struct = type_instance
 
     def non_const_fields(self):
-        return filterfalse(is_const, self.struct.get_layout())
+        return filterfalse(is_const, self.struct.layout)
 
     def const_fields(self):
-        return filter(is_const, self.struct.get_layout())
+        return filter(is_const, self.struct.layout)
 
     def non_reserved_fields(self):
         return filter_size_if_first(filterfalse(is_bound_size, filterfalse(is_reserved, self.non_const_fields())))
@@ -271,7 +271,7 @@ class StructFormatter(AbstractTypeFormatter):
         fields_iter = self.non_const_fields()
         first_field = next(fields_iter)
         if self.struct.dynamic_size == first_field.printer.name:
-            body += f'buffer_ += self.size().to_bytes({first_field.get_type().get_size()}, byteorder="little", signed=False)\n'
+            body += f'buffer_ += self.size().to_bytes({first_field.get_type().size}, byteorder="little", signed=False)\n'
         else:
             body += self.generate_serialize_field(first_field)
 

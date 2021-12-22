@@ -110,18 +110,18 @@ def process_concrete_struct(type_map, struct_type, abstract_impl_map):
 
 def bind_size_fields(struct_type):
     # go through structs and bind size fields to arrays
-    for field in struct_type.get_layout():
-        if field.type_instance.is_array and isinstance(field.get_type().get_size(), str):
-            size_name = field.get_type().get_size()
+    for field in struct_type.layout:
+        if field.type_instance.is_array and isinstance(field.get_type().size, str):
+            size_field_name = field.get_type().size
             # 'unfix' name when searching for associated 'size' field:
             #  * fields are added using 'original' name,
             #  * but 'size' property of given array type is already fixed
             #
             # (currently this only happens for metadata value)
-            if 'size_' == size_name:
-                size_name = 'size'
+            if 'size_' == size_field_name:
+                size_field_name = 'size'
 
-            size_field = struct_type.get_field_by_name(size_name)
+            size_field = struct_type.get_field_by_name(size_field_name)
             size_field.set_bound_field(field)
 
         if field.type_instance.sizeof_value:
