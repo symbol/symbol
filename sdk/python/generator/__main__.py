@@ -16,7 +16,7 @@ from .TypeFormatter import TypeFormatter
 
 
 def fix_name(field_name):
-    if field_name in ['size', 'type']:
+    if field_name in ['size', 'type', 'property']:
         return f'{field_name}_'
     return field_name
 

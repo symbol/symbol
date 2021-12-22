@@ -1547,24 +1547,24 @@ class MosaicProperty:
 
 class SizePrefixedMosaicProperty:
     TYPE_HINTS = {
-        "property": "struct:MosaicProperty"
+        "property_": "struct:MosaicProperty"
     }
 
     def __init__(self):
-        self._property = MosaicProperty()
+        self._property_ = MosaicProperty()
 
     @property
-    def property(self) -> MosaicProperty:
-        return self._property
+    def property_(self) -> MosaicProperty:
+        return self._property_
 
-    @property.setter
-    def property(self, value: MosaicProperty):
-        self._property = value
+    @property_.setter
+    def property_(self, value: MosaicProperty):
+        self._property_ = value
 
     def size(self) -> int:
         size = 0
         size += 4
-        size += self.property.size()
+        size += self.property_.size()
         return size
 
     @classmethod
@@ -1573,22 +1573,22 @@ class SizePrefixedMosaicProperty:
         property_size = int.from_bytes(buffer_[:4], byteorder="little")
         buffer_ = buffer_[4:]
         # marking sizeof field
-        property = MosaicProperty.deserialize(buffer_[:property_size])
-        buffer_ = buffer_[property.size():]
+        property_ = MosaicProperty.deserialize(buffer_[:property_size])
+        buffer_ = buffer_[property_.size():]
 
         instance = SizePrefixedMosaicProperty()
-        instance._property = property
+        instance._property_ = property_
         return instance
 
     def serialize(self) -> bytes:
         buffer_ = bytes()
-        buffer_ += self.property.size().to_bytes(4, byteorder="little", signed=False)  # property_size
-        buffer_ += self._property.serialize()
+        buffer_ += self.property_.size().to_bytes(4, byteorder="little", signed=False)  # property_size
+        buffer_ += self._property_.serialize()
         return buffer_
 
     def __str__(self) -> str:
         result = "("
-        result += "property: {}, ".format(self._property.__str__())
+        result += "property_: {}, ".format(self._property_.__str__())
         result += ")"
         return result
 
