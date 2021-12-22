@@ -65,13 +65,10 @@ def test_serialize_nem(item):
     comment = item.get('comment', '')
     payload = item['payload']
 
-    try:
-        module = importlib.import_module('symbolchain.nem_catbuffer')
+    module = importlib.import_module('symbolchain.nc')
 
-        builder_class = getattr(module, schema_name)
-        builder = builder_class.deserialize(prepare_payload(item['payload']))
+    builder_class = getattr(module, schema_name)
+    builder = builder_class.deserialize(prepare_payload(item['payload']))
 
-        serialized = builder.serialize()
-        assert to_hex_string(serialized) == payload.upper(), comment
-    except ModuleNotFoundError:
-        pass
+    serialized = builder.serialize()
+    assert to_hex_string(serialized) == payload.upper(), comment
