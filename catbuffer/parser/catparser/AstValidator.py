@@ -58,8 +58,6 @@ class AstValidator:
             self.errors.append(ErrorDescriptor('duplicate enum values', model.name, duplicate_names))
 
     def _validate_struct(self, model):
-        # pylint: disable=too-many-branches
-
         duplicate_names = self._find_duplicate_names(model.fields)
         if duplicate_names:
             self.errors.append(ErrorDescriptor('duplicate struct fields', model.name, duplicate_names))
@@ -71,27 +69,8 @@ class AstValidator:
 
             if isinstance(field, StructInlinePlaceholder):
                 self._validate_unnamed_inline(field, lambda message: ErrorDescriptor(message, model.name))
-                continue
-
-            if not self._is_known_type(field.field_type):
-                self.errors.append(create_error_descriptor(f'reference to unknown type "{field.field_type}"'))
             else:
-                if 'inline' == field.disposition and 'inline' != self.type_descriptor_map[field.field_type].disposition:
-                    self.errors.append(create_error_descriptor(f'named inline field referencing non inline struct "{field.field_type}"'))
-
-            if isinstance(field.field_type, Array):
-                self._validate_array(field.field_type, field_map, create_error_descriptor)
-
-            if field.value is not None:
-                if isinstance(field.value, Conditional):
-                    self._validate_conditional(field, field_map, create_error_descriptor)
-                else:
-                    self._validate_in_range(field.field_type, field.value, create_error_descriptor)
-
-            if field.attributes:
-                for attribute in field.attributes:
-                    if not hasattr(field.field_type, attribute.name):
-                        self.errors.append(create_error_descriptor(f'inapplicable attribute "{attribute.name}"'))
+                self._validate_struct_field(field, field_map, create_error_descriptor)
 
         if self.Mode.PRE_EXPANSION != self.mode:
             self._check_struct_attributes(model, field_map)
@@ -102,6 +81,29 @@ class AstValidator:
         else:
             # all dispositions are allowed as unnamed inline
             pass
+
+    def _validate_struct_field(self, field, field_map, create_error_descriptor):
+        if not self._is_known_type(field.field_type):
+            self.errors.append(create_error_descriptor(f'reference to unknown type "{field.field_type}"'))
+        else:
+            if 'inline' == field.disposition and 'inline' != self.type_descriptor_map[field.field_type].disposition:
+                self.errors.append(create_error_descriptor(f'named inline field referencing non inline struct "{field.field_type}"'))
+
+        if isinstance(field.field_type, Array):
+            self._validate_array(field.field_type, field_map, create_error_descriptor)
+
+        if field.value is not None:
+            if 'sizeof' == field.disposition:
+                self._validate_sizeof(field, field_map, create_error_descriptor)
+            elif isinstance(field.value, Conditional):
+                self._validate_conditional(field, field_map, create_error_descriptor)
+            else:
+                self._validate_in_range(field.field_type, field.value, create_error_descriptor)
+
+        if field.attributes:
+            for attribute in field.attributes:
+                if not hasattr(field.field_type, attribute.name):
+                    self.errors.append(create_error_descriptor(f'inapplicable attribute "{attribute.name}"'))
 
     def _validate_array(self, field_type, field_map, create_error_descriptor):
         element_type = field_type.element_type
@@ -121,6 +123,19 @@ class AstValidator:
         size = field_type.size
         if isinstance(size, str) and size not in field_map:
             self.errors.append(create_error_descriptor(f'reference to unknown size property "{size}"'))
+
+    def _validate_sizeof(self, field, field_map, create_error_descriptor):
+        if field.value not in field_map:
+            self.errors.append(create_error_descriptor(f'reference to unknown sizeof property "{field.value}"'))
+            return
+
+        reference_typename = field_map[field.value].field_type
+        reference_type = None if not isinstance(reference_typename, str) else self.type_descriptor_map[reference_typename]
+        if not isinstance(reference_type, Struct):
+            self.errors.append(create_error_descriptor(f'sizeof property references fixed size type "{reference_typename}"'))
+        elif not reference_type.implicit_size:
+            message = f'sizeof property references type "{reference_typename}" without implicit_size attribute'
+            self.errors.append(create_error_descriptor(message))
 
     def _validate_conditional(self, field, field_map, create_error_descriptor):
         linked_field_name = field.value.linked_field_name
@@ -149,7 +164,7 @@ class AstValidator:
             if not isinstance(field_map[model.size].field_type, FixedSizeInteger):
                 self.errors.append(ErrorDescriptor(f'reference to "size" property "{model.size}" has unexpected type', model.name))
 
-        self._check_known_field(model, field_map, 'discriminator')
+        self._check_known_field(model, field_map, 'discriminator', True)
 
         if not model.initializers:
             return
@@ -174,16 +189,21 @@ class AstValidator:
                     f'property "{initializer.target_property_name}" has initializer "{initializer.value}" of different type',
                     model.name))
 
-    def _check_known_field(self, model, field_map, property_name):
-        value = getattr(model, property_name)
-        if not value:
+    def _check_known_field(self, model, field_map, property_name, multi_value=False):
+        values = getattr(model, property_name)
+        if not values:
             return False
 
-        if value in field_map:
-            return True
+        if not multi_value:
+            values = [values]
 
-        self.errors.append(ErrorDescriptor(f'reference to unknown "{property_name}" property "{value}"', model.name))
-        return False
+        has_error = False
+        for value in values:
+            if value not in field_map:
+                self.errors.append(ErrorDescriptor(f'reference to unknown "{property_name}" property "{value}"', model.name))
+                has_error = True
+
+        return not has_error
 
     def _is_known_type(self, typename):
         return not isinstance(typename, str) or typename in self.type_descriptor_map

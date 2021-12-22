@@ -55,6 +55,10 @@ def create_cats_lark_parser():
             tokens[1].comment = tokens[0]
             return tokens[1]
 
+        @staticmethod
+        def _remove_comments(tokens):
+            return [token for token in tokens if not isinstance(token, Comment)]
+
         # endregion
 
         # region attribute
@@ -89,7 +93,7 @@ def create_cats_lark_parser():
 
         @staticmethod
         def enum(tokens):
-            return Enum(tokens)
+            return Enum(CatbufferTransformer._remove_comments(tokens))
 
         @staticmethod
         def enum_child(tokens):
@@ -105,7 +109,7 @@ def create_cats_lark_parser():
 
         @staticmethod
         def struct(tokens):
-            struct_model = Struct(tokens[1:])
+            struct_model = Struct(CatbufferTransformer._remove_comments(tokens[1:]))
             struct_model.attributes = tokens[0]
             return struct_model
 
@@ -130,6 +134,10 @@ def create_cats_lark_parser():
         @staticmethod
         def struct_field_reserved(tokens):
             return StructField(tokens, 'reserved')
+
+        @staticmethod
+        def struct_field_sizeof(tokens):
+            return StructField(tokens, 'sizeof')
 
         @staticmethod
         def struct_field_inline(tokens):

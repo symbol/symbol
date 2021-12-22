@@ -94,6 +94,15 @@ inline struct Car
 	wheel_count = make_reserved(uint8, 4)
 ```
 
+`sizeof` can be used to define a field that is filled with the size of another field.
+For example, to define a 2 byte unsigned `car_size` that is filled with the size of the `car` field:
+```cpp
+inline struct SingleCarGarage
+	car_size = sizeof(uint16, car)
+
+	car = Car
+```
+
 ### conditionals
 
 Fields can be made conditional on the values of other fields.
@@ -194,9 +203,10 @@ So, `__value__` becomes `friendly_name` and `size` becomes  `friendly_name ` + `
 Hints can be attached to structures using attributes.
 
 Structures support the following attributes:
+1. `implicit_size`: indicates that the structure could be referenced in a `sizeof(x)` statement and must support a size calculation.
 1. `size(x)`: indicates that the `x` field contains the full size of the (variable sized) structure.
-2. `initializes(x, Y)`: indicates that the `x` field should be initialized with the `Y` constant.
-3. `discriminator(x)`: indicates the `x` property should be used as the discriminator when generating a factory (only has meaning for abstract structures).
+1. `initializes(x, Y)`: indicates that the `x` field should be initialized with the `Y` constant.
+1. `discriminator(x [, y]+)`: indicates that the (`x`, ...`y`) properties should be used as the discriminator when generating a factory (only has meaning for abstract structures).
 
 For example, to link the `transport_mode` field with the `TRANSPORT_MODE` constant:
 ```cpp

@@ -66,6 +66,11 @@ def validate(raw_type_descriptors, stage, mode):
         sys.exit(2)
 
 
+class NoAliasDumper(yaml.SafeDumper):
+    def ignore_aliases(self, data):
+        return True
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog=None if globals().get('__spec__') is None else f'python -m {__spec__.name.partition(".")[0]}',
@@ -102,7 +107,7 @@ def main():
 
     if args.output:
         with open(args.output, 'wt', encoding='utf8') as out:
-            yaml.dump(type_descriptors, out)
+            yaml.dump(type_descriptors, out, Dumper=NoAliasDumper)
 
 
 if '__main__' == __name__:
