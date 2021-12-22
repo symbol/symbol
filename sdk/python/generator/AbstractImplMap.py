@@ -1,4 +1,4 @@
-from type_objects import StructObject
+from .type_objects import StructObject
 
 
 class AbstractImplMap:

@@ -1,5 +1,5 @@
-from AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
-from printers import create_pod_printer
+from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
+from .printers import create_pod_printer
 
 
 class PodTypeFormatter(AbstractTypeFormatter):

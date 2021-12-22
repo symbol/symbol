@@ -1,5 +1,5 @@
-from AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
-from printers import IntPrinter
+from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
+from .printers import IntPrinter
 
 
 class EnumTypeFormatter(AbstractTypeFormatter):

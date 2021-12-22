@@ -4,14 +4,15 @@ import argparse
 from pathlib import Path
 
 import yaml
-from AbstractImplMap import AbstractImplMap
-from EnumTypeFormatter import EnumTypeFormatter
-from FactoryFormatter import FactoryClassFormatter, FactoryFormatter
-from PodTypeFormatter import PodTypeFormatter
-from printers import BuiltinPrinter, create_pod_printer
-from StructTypeFormatter import StructFormatter
-from type_objects import ArrayObject, EnumObject, IntObject, StructObject
-from TypeFormatter import TypeFormatter
+
+from .AbstractImplMap import AbstractImplMap
+from .EnumTypeFormatter import EnumTypeFormatter
+from .FactoryFormatter import FactoryClassFormatter, FactoryFormatter
+from .PodTypeFormatter import PodTypeFormatter
+from .printers import BuiltinPrinter, create_pod_printer
+from .StructTypeFormatter import StructFormatter
+from .type_objects import ArrayObject, EnumObject, IntObject, StructObject
+from .TypeFormatter import TypeFormatter
 
 
 def fix_name(field_name):

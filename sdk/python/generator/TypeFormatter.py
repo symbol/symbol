@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from format import indent
+from .format import indent
 
 
 class ClassFormatter(ABC):

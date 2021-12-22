@@ -1,8 +1,8 @@
 from itertools import filterfalse
 
-from AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
-from format import indent
-from type_objects import StructObject
+from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
+from .format import indent
+from .type_objects import StructObject
 
 
 def is_reserved(field):

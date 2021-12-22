@@ -1,7 +1,7 @@
-from AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
-from format import indent
-from printers import BuiltinPrinter
-from TypeFormatter import ClassFormatter
+from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
+from .format import indent
+from .printers import BuiltinPrinter
+from .TypeFormatter import ClassFormatter
 
 
 # hack: skip embedded from names
