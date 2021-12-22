@@ -270,7 +270,8 @@
     name: TRANSFER
     value: 16724
 - comments: binary layout for a transaction
-  discriminator: type
+  discriminator:
+  - type
   disposition: abstract
   initializers:
   - target_property_name: version
@@ -328,7 +329,8 @@
   size: size
   type: struct
 - comments: binary layout for an embedded transaction
-  discriminator: type
+  discriminator:
+  - type
   disposition: abstract
   initializers:
   - target_property_name: version
@@ -418,7 +420,8 @@
   name: VrfProof
   type: struct
 - comments: binary layout for a block
-  discriminator: type
+  discriminator:
+  - type
   disposition: abstract
   initializers:
   - target_property_name: version
@@ -500,7 +503,8 @@
   size: size
   type: struct
 - comments: binary layout for a nemesis block header
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Block
   initializers:
   - target_property_name: version
@@ -613,7 +617,8 @@
   size: size
   type: struct
 - comments: binary layout for a normal block header
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Block
   initializers:
   - target_property_name: version
@@ -717,7 +722,8 @@
   size: size
   type: struct
 - comments: binary layout for an importance block header
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Block
   initializers:
   - target_property_name: version
@@ -908,7 +914,8 @@
     value: 62019
 - comments: Receipts provide proof for every state change not retrievable from the
     block.
-  discriminator: type
+  discriminator:
+  - type
   disposition: abstract
   initializers:
   - target_property_name: type
@@ -935,7 +942,8 @@
   size: size
   type: struct
 - comments: Receipt generated when transaction fees are credited to a block harvester.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -972,7 +980,8 @@
   size: size
   type: struct
 - comments: Network currency mosaics were created due to [inflation](/concepts/inflation).
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1006,7 +1015,8 @@
   size: size
   type: struct
 - comments: Receipt generated when hash lock is created.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1043,7 +1053,8 @@
   size: size
   type: struct
 - comments: Receipt generated when hash lock is completed.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1080,7 +1091,8 @@
   size: size
   type: struct
 - comments: Receipt generated when hash lock is expired.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1117,7 +1129,8 @@
   size: size
   type: struct
 - comments: Receipt generated when secret lock is created.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1154,7 +1167,8 @@
   size: size
   type: struct
 - comments: Receipt generated when secret lock is completed.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1191,7 +1205,8 @@
   size: size
   type: struct
 - comments: Receipt generated when secret lock is expired.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1228,7 +1243,8 @@
   size: size
   type: struct
 - comments: Receipt generated when a mosaic expires.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1262,7 +1278,8 @@
   size: size
   type: struct
 - comments: Receipt generated when a mosaic rental fee is paid.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1330,7 +1347,8 @@
     name: LINK
     value: 1
 - comments: Receipt generated when a [namespace](/concepts/namespace.html) expires.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1364,7 +1382,8 @@
   size: size
   type: struct
 - comments: Receipt generated when a [namespace](/concepts/namespace.html) is deleted.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1398,7 +1417,8 @@
   size: size
   type: struct
 - comments: Receipt generated when a namespace rental fee is paid.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1473,7 +1493,8 @@
   type: struct
 - comments: A Mosaic resolution statement links a namespace alias used in a transaction
     to the real mosaic id **at the time of the transaction**.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -1513,7 +1534,8 @@
   type: struct
 - comments: An Address resolution statement links a namespace alias used in a transaction
     to the real address **at the time of the transaction**.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Receipt
   initializers:
   - target_property_name: type
@@ -2387,7 +2409,8 @@
 
     Announce an AccountKeyLinkTransaction to delegate the account importance score
     to a proxy account.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -2461,7 +2484,8 @@
   size: size
   type: struct
 - comments: Embedded version of AccountKeyLinkTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -2531,7 +2555,8 @@
 
     Announce a NodeKeyLinkTransaction to link an account with a public key used by
     TLS to create sessions.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -2605,7 +2630,8 @@
   size: size
   type: struct
 - comments: Embedded version of NodeKeyLinkTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -2707,7 +2733,8 @@
 
     Use this transaction when all required signatures are available when the transaction
     is created.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -2819,7 +2846,8 @@
 
     To prevent spam attacks, before trying to announce this transaction a HashLockTransaction
     must be successfully announced and confirmed.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -2935,7 +2963,8 @@
     one expires.
 
     See more details in [the manual node setup guide](/guides/network/running-a-symbol-node-manually.html#manual-voting-key-renewal).'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -3015,7 +3044,8 @@
   size: size
   type: struct
 - comments: Embedded version of VotingKeyLinkTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -3092,7 +3122,8 @@
     linked key is used to randomize block production and leader/participant selection.
 
     This transaction is required for all accounts wishing to [harvest](/concepts/harvesting.html).'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -3166,7 +3197,8 @@
   size: size
   type: struct
 - comments: Embedded version of VrfKeyLinkTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -3250,7 +3282,8 @@
     the same account. For example, if Bob wants to announce an aggregate and does
     not have enough funds to announce a HashLockTransaction, he can ask Alice to announce
     the lock transaction for him by sharing the signed AggregateTransaction hash.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -3330,7 +3363,8 @@
   size: size
   type: struct
 - comments: Embedded version of HashLockTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -3409,7 +3443,8 @@
     The default expiration date is **365 days** after announcement (See the `maxSecretLockDuration`
     network property). If the lock expires before a valid SecretProofTransaction is
     announced the locked amount goes back to the initiator of the SecretLockTransaction.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -3492,7 +3527,8 @@
   size: size
   type: struct
 - comments: Embedded version of SecretLockTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -3571,7 +3607,8 @@
     Use a SecretProofTransaction to unlock the funds locked by a SecretLockTransaction.
 
     The transaction must prove knowing the *proof* that unlocks the mosaics.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -3661,7 +3698,8 @@
   size: size
   type: struct
 - comments: Embedded version of SecretProofTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -3750,7 +3788,8 @@
     the transaction is invalid.
 
     Compare to MosaicMetadataTransaction and NamespaceMetadataTransaction.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -3847,7 +3886,8 @@
   size: size
   type: struct
 - comments: Embedded version of AccountMetadataTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -3939,7 +3979,8 @@
     a **mosaic**.
 
     Compare to AccountMetadataTransaction and NamespaceMetadataTransaction.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -4039,7 +4080,8 @@
   size: size
   type: struct
 - comments: Embedded version of MosaicMetadataTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -4134,7 +4176,8 @@
     a **namespace**.
 
     Compare to AccountMetadataTransaction and MosaicMetadataTransaction.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -4234,7 +4277,8 @@
   size: size
   type: struct
 - comments: Embedded version of NamespaceMetadataTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -4326,7 +4370,8 @@
   size: size
   type: struct
 - comments: Create a new  [mosaic](/concepts/mosaic.html).
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -4414,7 +4459,8 @@
   size: size
   type: struct
 - comments: Embedded version of MosaicDefinitionTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -4494,7 +4540,8 @@
   size: size
   type: struct
 - comments: Change the total supply of a mosaic.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -4572,7 +4619,8 @@
   size: size
   type: struct
 - comments: Embedded version of MosaicSupplyChangeTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -4642,7 +4690,8 @@
   size: size
   type: struct
 - comments: Revoke mosaic.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -4716,7 +4765,8 @@
   size: size
   type: struct
 - comments: Embedded version of MosaicSupplyRevocationTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -4788,7 +4838,8 @@
     account. - Change the configurable properties of a multisig account. - Add or
     delete cosignatories from a multisig account (removing all cosignatories turns
     a multisig account into a regular account again).'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -4909,7 +4960,8 @@
   size: size
   type: struct
 - comments: Embedded version of MultisigAccountModificationTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -5026,7 +5078,8 @@
 
     A namespace can be assigned to any account present in the network (this is, an
     account which has received at least one transaction).'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -5104,7 +5157,8 @@
   size: size
   type: struct
 - comments: Embedded version of AddressAliasTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -5177,7 +5231,8 @@
 
     Setting an alias to a mosaic is only possible if the account announcing this transaction
     has also created the namespace and the mosaic involved.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -5255,7 +5310,8 @@
   size: size
   type: struct
 - comments: Embedded version of MosaicAliasTransaction
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -5327,7 +5383,8 @@
 - comments: 'Register (or renew a registration for) a [namespace](/concepts/namespace.html).
 
     Namespaces help keep assets organized.'
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -5427,7 +5484,8 @@
   size: size
   type: struct
 - comments: Embedded version of NamespaceRegistrationTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -5520,7 +5578,8 @@
   type: struct
 - comments: Allow or block incoming and outgoing transactions for a given a set of
     addresses.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -5618,7 +5677,8 @@
   size: size
   type: struct
 - comments: Embedded version of AccountAddressRestrictionTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -5708,7 +5768,8 @@
   size: size
   type: struct
 - comments: Allow or block incoming transactions containing a given set of mosaics.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -5806,7 +5867,8 @@
   size: size
   type: struct
 - comments: Embedded version of AccountMosaicRestrictionTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -5896,7 +5958,8 @@
   size: size
   type: struct
 - comments: Allow or block outgoing transactions depending on their transaction type.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -5994,7 +6057,8 @@
   size: size
   type: struct
 - comments: Embedded version of AccountOperationRestrictionTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -6084,7 +6148,8 @@
   size: size
   type: struct
 - comments: Set address specific rules to transfer a restrictable mosaic.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -6175,7 +6240,8 @@
   size: size
   type: struct
 - comments: Embedded version of MosaicAddressRestrictionTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -6258,7 +6324,8 @@
   size: size
   type: struct
 - comments: Set global rules to transfer a restrictable mosaic.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -6357,7 +6424,8 @@
   size: size
   type: struct
 - comments: Embedded version of MosaicGlobalRestrictionTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version
@@ -6448,7 +6516,8 @@
   size: size
   type: struct
 - comments: Send mosaics and messages between two accounts.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -6557,7 +6626,8 @@
   size: size
   type: struct
 - comments: Embedded version of TransferTransaction.
-  discriminator: type
+  discriminator:
+  - type
   factory_type: EmbeddedTransaction
   initializers:
   - target_property_name: version

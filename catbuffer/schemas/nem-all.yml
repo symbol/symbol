@@ -74,7 +74,8 @@
     name: MOSAIC_SUPPLY_CHANGE
     value: 16386
 - comments: binary layout for a transaction
-  discriminator: type
+  discriminator:
+  - type
   disposition: abstract
   initializers:
   - target_property_name: version
@@ -217,7 +218,8 @@
     name: UNLINK
     value: 2
 - comments: binary layout for an account key link transaction
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -462,7 +464,8 @@
   name: MosaicDefinition
   type: struct
 - comments: binary layout for an importance transfer transaction
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -558,7 +561,8 @@
     name: DECREASE
     value: 2
 - comments: binary layout for an mosaic supply change transaction
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -664,7 +668,8 @@
   name: MultisigAccountModification
   type: struct
 - comments: binary layout for a multisig account modification transaction (V1)
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -742,7 +747,8 @@
   name: MultisigAccountModificationTransaction
   type: struct
 - comments: binary layout for a multisig account modification transaction (V2)
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -833,7 +839,8 @@
   name: MultisigAccountModificationTransaction2
   type: struct
 - comments: cosignature attached to an aggregate transaction
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -928,7 +935,8 @@
   name: Cosignature
   type: struct
 - comments: binary layout for a multisig transaction
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -1014,7 +1022,8 @@
   name: MultisigTransaction
   type: struct
 - comments: binary layout for a namespace registration transaction
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -1157,7 +1166,8 @@
   name: Message
   type: struct
 - comments: binary layout for a transfer transaction (V1)
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
@@ -1249,7 +1259,8 @@
   name: TransferTransaction
   type: struct
 - comments: binary layout for a transfer transaction (V2)
-  discriminator: type
+  discriminator:
+  - type
   factory_type: Transaction
   initializers:
   - target_property_name: version
