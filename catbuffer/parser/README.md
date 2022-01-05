@@ -34,6 +34,9 @@ optional arguments:
                         schema root directory
   -o OUTPUT, --output OUTPUT
                         yaml output file
+  -g GENERATOR, --generator GENERATOR
+                        generator class to use to produce output files (defaults to YAML output)
+  -q, --quiet           do not print type descriptors to console
 ```
 
 ## Examples

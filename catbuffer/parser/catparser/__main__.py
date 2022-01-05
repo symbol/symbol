@@ -1,4 +1,5 @@
 import argparse
+import importlib
 import sys
 from pathlib import Path
 
@@ -54,7 +55,7 @@ class LarkMultiFileParser:
 		return descriptors + [descriptor for descriptor in parse_result.children if isinstance(descriptor, Statement)]
 
 
-def validate(raw_type_descriptors, stage, mode):
+def _validate(raw_type_descriptors, stage, mode):
 	validator = AstValidator(raw_type_descriptors)
 	validator.set_validation_mode(mode)
 	validator.validate()
@@ -64,6 +65,21 @@ def validate(raw_type_descriptors, stage, mode):
 			print(f' + {error}')
 
 		sys.exit(2)
+
+
+def _load_generator_class(generator_full_name):
+	generator_class_name = Path(generator_full_name).suffix[1:]
+
+	print()
+	print(f'loading generator {generator_class_name} from {generator_full_name}')
+
+	generator_module = importlib.import_module(generator_full_name)
+	generator_class = getattr(generator_module, generator_class_name)
+
+	print(f'loaded generator: {generator_class}')
+	print()
+
+	return generator_class
 
 
 class NoAliasDumper(yaml.SafeDumper):
@@ -79,6 +95,8 @@ def main():
 	parser.add_argument('-s', '--schema', help='input CATS file', required=True)
 	parser.add_argument('-i', '--include', help='schema root directory', required=True)
 	parser.add_argument('-o', '--output', help='yaml output file')
+	parser.add_argument('-g', '--generator', help='generator class to use to produce output files (defaults to YAML output)')
+	parser.add_argument('-q', '--quiet', help='do not print type descriptors to console', action='store_true')
 	args = parser.parse_args()
 
 	file_parser = LarkMultiFileParser()
@@ -92,22 +110,28 @@ def main():
 
 	processor = AstPostProcessor(raw_type_descriptors)
 
-	validate(raw_type_descriptors, 'PRE EXPANSION', AstValidator.Mode.PRE_EXPANSION)
+	_validate(raw_type_descriptors, 'PRE EXPANSION', AstValidator.Mode.PRE_EXPANSION)
 
 	processor.apply_attributes()
 	processor.expand_named_inlines()
 	processor.expand_unnamed_inlines()
 
-	validate(raw_type_descriptors, 'POST EXPANSION', AstValidator.Mode.POST_EXPANSION)
+	_validate(raw_type_descriptors, 'POST EXPANSION', AstValidator.Mode.POST_EXPANSION)
 
 	type_descriptors = [model.to_legacy_descriptor() for model in processor.type_descriptors]
 
-	# dump parsed type descriptors
-	yaml.dump(type_descriptors, sys.stdout)
+	if not args.quiet:
+		# dump parsed type descriptors to console
+		yaml.dump(type_descriptors, sys.stdout, Dumper=NoAliasDumper)
 
 	if args.output:
-		with open(args.output, 'wt', encoding='utf8') as out:
-			yaml.dump(type_descriptors, out, Dumper=NoAliasDumper)
+		if args.generator:
+			generator_class = _load_generator_class(args.generator)
+			generator_class.generate(processor.type_descriptors, args.output)
+		else:
+			# save YAML to file
+			with open(args.output, 'wt', encoding='utf8') as out:
+				yaml.dump(type_descriptors, out, Dumper=NoAliasDumper)
 
 
 if '__main__' == __name__:
