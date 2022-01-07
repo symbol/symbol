@@ -6,13 +6,13 @@ from symbolchain.core.Network import Network, NetworkLocator
 class NetworkTest(unittest.TestCase):
     def test_equality_is_supported(self):
         # Arrange:
-        foo_network = Network('foo', 0x55)
+        network = Network('foo', 0x55)
 
         # Act + Assert:
-        self.assertEqual(foo_network, Network('foo', 0x55))
-        self.assertNotEqual(foo_network, Network('Foo', 0x55))
-        self.assertNotEqual(foo_network, Network('foo', 0x54))
-        self.assertNotEqual(foo_network, None)
+        self.assertEqual(network, Network('foo', 0x55))
+        self.assertNotEqual(network, Network('Foo', 0x55))
+        self.assertNotEqual(network, Network('foo', 0x54))
+        self.assertNotEqual(network, None)
 
     def test_string_is_supported(self):
         self.assertEqual('foo', str(Network('foo', 0x55)))

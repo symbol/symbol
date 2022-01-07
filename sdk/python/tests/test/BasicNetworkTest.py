@@ -65,17 +65,17 @@ class BasicNetworkTest:
     def test_validate_valid_testnet_address(self):
         self._test_validate_valid_address('testnet_network')
 
-    def test_validate_invalid_mainnet_address_end(self):
-        return self._test_validate_invalid_address('mainnet_network', -1)
-
-    def test_validate_invalid_testnet_address_end(self):
-        return self._test_validate_invalid_address('testnet_network', -1)
-
     def test_validate_invalid_mainnet_address_begin(self):
         return self._test_validate_invalid_address('mainnet_network', 1)
 
     def test_validate_invalid_testnet_address_begin(self):
         return self._test_validate_invalid_address('testnet_network', 1)
+
+    def test_validate_invalid_mainnet_address_end(self):
+        return self._test_validate_invalid_address('mainnet_network', -1)
+
+    def test_validate_invalid_testnet_address_end(self):
+        return self._test_validate_invalid_address('testnet_network', -1)
 
     def _test_validate_valid_address(self, field_name):
         # Arrange:

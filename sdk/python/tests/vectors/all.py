@@ -24,6 +24,8 @@ class ClassLocator:
         return Bip32(self.facade_class.BIP32_CURVE_NAME)
 
 
+# region TestSuites
+
 class VectorsTestSuite:
     def __init__(self, identifier, filename, description):
         self.identifier = identifier
@@ -124,8 +126,8 @@ class MosaicIdDerivationTester(VectorsTestSuite):
 
         mosaic_id_pairs = []
         for network_tag in ['Public', 'PublicTest', 'Private', 'PrivateTest']:
-            address = self.class_locator.address_class(test_vector['address_' + network_tag])
-            expected_mosaic_id = test_vector['mosaicId_' + network_tag]
+            address = self.class_locator.address_class(test_vector[f'address_{network_tag}'])
+            expected_mosaic_id = test_vector[f'mosaicId_{network_tag}']
 
             # Act:
             mosaic_id = generate_mosaic_id(address, nonce)
@@ -189,6 +191,8 @@ class Bip39DerivationTester(VectorsTestSuite):
         return [(expected_root_public_key, root_public_key)]
 
 
+# endregion
+
 def load_class_locator(blockchain):
     # pylint: disable=import-outside-toplevel
 
@@ -202,23 +206,8 @@ def load_class_locator(blockchain):
     return ClassLocator(NemFacade, Network)
 
 
-def main():
-    # pylint: disable=too-many-locals
-
-    test_identifiers = range(0, 7)
-    parser = argparse.ArgumentParser(description='nem test vectors harness')
-    parser.add_argument('--vectors', help='path to test-vectors directory', required=True)
-    parser.add_argument('--blockchain', choices=['nem', 'symbol'], default='symbol')
-    parser.add_argument(
-        '--tests',
-        help='identifiers of tests to include',
-        type=int,
-        nargs='+',
-        choices=test_identifiers,
-        default=test_identifiers)
-    args = parser.parse_args()
-
-    class_locator = load_class_locator(args.blockchain)
+def load_test_suites(blockchain):
+    class_locator = load_class_locator(blockchain)
     test_suites = [
         KeyConversionTester(class_locator),
         AddressConversionTester(class_locator),
@@ -228,10 +217,32 @@ def main():
         Bip39DerivationTester(class_locator),
     ]
 
-    if 'symbol' == args.blockchain:
+    if 'symbol' == blockchain:
         test_suites += [MosaicIdDerivationTester(class_locator)]
 
+    return test_suites
+
+
+def main():
+    # pylint: disable=too-many-locals
+
+    test_identifiers = range(0, 7)
+    parser = argparse.ArgumentParser(description='nem test vectors harness')
+    parser.add_argument('--vectors', help='path to test-vectors directory', required=True)
+    parser.add_argument('--blockchain', help='blockchain to run vectors against', choices=['nem', 'symbol'], default='symbol')
+    parser.add_argument(
+        '--tests',
+        help='identifiers of tests to include',
+        type=int,
+        nargs='+',
+        choices=test_identifiers,
+        default=test_identifiers)
+    args = parser.parse_args()
+
+    print(f'running tests for {args.blockchain} blockchain with vectors from {args.vectors}')
+
     num_failed_suites = 0
+    test_suites = load_test_suites(args.blockchain)
     for test_suite in test_suites:
         if test_suite.identifier not in args.tests:
             print(f'[ SKIPPED ] {test_suite.description} test')
@@ -244,16 +255,16 @@ def main():
             num_failed = 0
 
             parsed_json = json.loads(infile.read())
-            for test_vectors in parsed_json:
-                if isinstance(test_vectors, str):
-                    test_group_name = test_vectors
-                    test_vectors = parsed_json[test_group_name]
+            for test_cases in parsed_json:
+                if isinstance(test_cases, str):
+                    test_group_name = test_cases
+                    test_cases = parsed_json[test_group_name]
                 else:
                     test_group_name = None
-                    test_vectors = [test_vectors]
+                    test_cases = [test_cases]
 
-                for test_vector in test_vectors:
-                    processed_pairs = test_suite.process(test_vector, test_group_name)
+                for test_case in test_cases:
+                    processed_pairs = test_suite.process(test_case, test_group_name)
                     if None is processed_pairs:
                         continue
 

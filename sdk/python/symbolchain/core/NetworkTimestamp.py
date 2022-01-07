@@ -10,7 +10,7 @@ class NetworkTimestamp:
         self.timestamp = timestamp
 
     @property
-    def epochal(self):
+    def is_epochal(self):
         """Determines if this is the epochal timestamp."""
         return 0 == self.timestamp
 
@@ -46,7 +46,7 @@ class NetworkTimestampDatetimeConverter:
         return self.epoch + datetime.timedelta(**{self.time_units: raw_timestamp})
 
     def to_difference(self, reference_datetime):
-        """Creates a network timestamp from a datetime."""
+        """Subtracts the network epoch from the reference date."""
         if reference_datetime < self.epoch:
             raise ValueError('timestamp cannot be before epoch')
 

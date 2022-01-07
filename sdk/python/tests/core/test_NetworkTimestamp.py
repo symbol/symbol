@@ -16,7 +16,7 @@ class NetworkTimestampTest(unittest.TestCase):
         timestamp = ConcreteNetworkTimestamp(0)
 
         # Assert:
-        self.assertTrue(timestamp.epochal)
+        self.assertTrue(timestamp.is_epochal)
         self.assertEqual(0, timestamp.timestamp)
 
     def test_can_create_non_epochal_timestamp(self):
@@ -24,7 +24,7 @@ class NetworkTimestampTest(unittest.TestCase):
         timestamp = ConcreteNetworkTimestamp(123)
 
         # Assert:
-        self.assertFalse(timestamp.epochal)
+        self.assertFalse(timestamp.is_epochal)
         self.assertEqual(123, timestamp.timestamp)
 
     def test_can_add_minutes(self):

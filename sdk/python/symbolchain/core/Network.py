@@ -29,7 +29,7 @@ class Network:
         return self.create_address(version, checksum)
 
     def is_valid_address(self, address):
-        """Validates the address."""
+        """Checks if an address is valid and belongs to this network."""
         if address.bytes[0] != self.identifier:
             return False
 

@@ -8,7 +8,7 @@ from ..Network import Network as BasicNetwork
 
 
 class Address(ByteArray):
-    """Represents a symbol address."""
+    """Represents a Symbol address."""
 
     SIZE = 24
 
@@ -27,7 +27,7 @@ class Address(ByteArray):
 
 
 class Network(BasicNetwork):
-    """Represents a symbol network."""
+    """Represents a Symbol network."""
 
     def __init__(self, name, identifier, generation_hash_seed=None):
         """Creates a new network with the specified name, identifier byte and generation hash seed."""

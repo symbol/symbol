@@ -9,7 +9,7 @@ from ...test.NemTestUtils import NemTestUtils
 TEST_VECTORS = {
     'uppercase': ['CAT.token', 'CAT.TOKEN', 'cat.TOKEN', 'cAt.ToKeN', 'CaT.tOkEn'],
     'improper_part': ['alpha.bet@.zeta', 'a!pha.beta.zeta', 'alpha.beta.ze^a'],
-    'improper_qualified': ['.', '..', '...', '.a', 'b.', 'a..b', '.a.b', 'b.a.'],
+    'improper_qualified': ['.', '..', '...', '.a', 'b.', 'a..b', '.a.b', 'b.a.']
 }
 
 

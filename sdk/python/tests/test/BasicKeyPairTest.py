@@ -43,7 +43,7 @@ class BasicKeyPairTest:
         signature = key_pair.sign(message)
 
         # Assert:
-        self.assertNotEqual(bytes(), signature.bytes)
+        self.assertNotEqual(Signature.zero(), signature)
 
     def test_signatures_generated_for_same_data_by_same_key_pairs_are_equal(self):
         # Arrange:

@@ -68,7 +68,7 @@ class BasicNetworkTimestampTest:
         timestamp = test_descriptor.network_timestamp_class.from_datetime(test_descriptor.epoch)
 
         # Assert:
-        self.assertTrue(timestamp.epochal)
+        self.assertTrue(timestamp.is_epochal)
         self.assertEqual(0, timestamp.timestamp)
 
     def test_can_convert_datetime_to_non_epochal_timestamp(self):
@@ -79,7 +79,7 @@ class BasicNetworkTimestampTest:
         timestamp = test_descriptor.network_timestamp_class.from_datetime(test_descriptor.epoch + self._get_time_delta(123))
 
         # Assert:
-        self.assertFalse(timestamp.epochal)
+        self.assertFalse(timestamp.is_epochal)
         self.assertEqual(123, timestamp.timestamp)
 
     def test_can_convert_datetime_to_epochal_timestamp_custom_epoch(self):
@@ -90,7 +90,7 @@ class BasicNetworkTimestampTest:
         timestamp = test_descriptor.network_timestamp_class.from_datetime(CUSTOM_EPOCH_TIME, CUSTOM_EPOCH_TIME)
 
         # Assert:
-        self.assertTrue(timestamp.epochal)
+        self.assertTrue(timestamp.is_epochal)
         self.assertEqual(0, timestamp.timestamp)
 
     def test_can_convert_datetime_to_non_epochal_timestamp_custom_epoch(self):
@@ -101,7 +101,7 @@ class BasicNetworkTimestampTest:
         timestamp = test_descriptor.network_timestamp_class.from_datetime(CUSTOM_EPOCH_TIME + self._get_time_delta(123), CUSTOM_EPOCH_TIME)
 
         # Assert:
-        self.assertFalse(timestamp.epochal)
+        self.assertFalse(timestamp.is_epochal)
         self.assertEqual(123, timestamp.timestamp)
 
     # endregion
