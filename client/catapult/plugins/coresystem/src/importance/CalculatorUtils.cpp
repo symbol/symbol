@@ -20,7 +20,7 @@
 **/
 
 #include "CalculatorUtils.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/state/AccountActivityBuckets.h"
 #include "catapult/state/AccountState.h"
 #include <boost/multiprecision/cpp_int.hpp>
@@ -97,7 +97,7 @@ namespace catapult { namespace importance {
 	void CalculateImportances(
 			AccountSummary& accountSummary,
 			const ImportanceCalculationContext& context,
-			const model::BlockChainConfiguration& config) {
+			const model::BlockchainConfiguration& config) {
 		// note that at least one compiler is known to produce invalid code if you alter calculations in incorrect way
 		auto totalChainImportance = config.TotalChainImportance;
 		auto mosaicId = config.HarvestingMosaicId;

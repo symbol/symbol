@@ -35,16 +35,16 @@ namespace catapult { namespace test {
 	/// Cache factory for creating a catapult cache composed of all core sub caches.
 	struct CoreSystemCacheFactory {
 		/// Creates an empty catapult cache around \a config.
-		static cache::CatapultCache Create(const model::BlockChainConfiguration& config);
+		static cache::CatapultCache Create(const model::BlockchainConfiguration& config);
 
 		/// Adds all core sub caches initialized with \a config to \a subCaches.
 		static void CreateSubCaches(
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
 
 		/// Adds all core sub caches initialized with \a config and \a cacheConfig to \a subCaches.
 		static void CreateSubCaches(
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const cache::CacheConfiguration& cacheConfig,
 				std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
 	};
@@ -82,16 +82,16 @@ namespace catapult { namespace test {
 	cache::CatapultCache CreateEmptyCatapultCache();
 
 	/// Creates an empty catapult cache around \a config.
-	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockChainConfiguration& config);
+	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockchainConfiguration& config);
 
 	/// Creates an empty catapult cache around \a config and \a cacheConfig.
 	cache::CatapultCache CreateEmptyCatapultCache(
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const cache::CacheConfiguration& cacheConfig);
 
 	/// Creates an empty catapult cache around \a config.
 	template<typename TCacheFactory>
-	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockChainConfiguration& config) {
+	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockchainConfiguration& config) {
 		return TCacheFactory::Create(config);
 	}
 

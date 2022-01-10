@@ -93,8 +93,8 @@ namespace catapult { namespace nodediscovery {
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
 				auto networkFingerprint = model::UniqueNetworkFingerprint(
-						state.config().BlockChain.Network.Identifier,
-						state.config().BlockChain.Network.GenerationHashSeed);
+						state.config().Blockchain.Network.Identifier,
+						state.config().Blockchain.Network.GenerationHashSeed);
 
 				// create callbacks
 				auto pushNodeConsumer = CreatePushNodeConsumer(state);

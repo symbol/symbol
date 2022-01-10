@@ -115,7 +115,7 @@ namespace catapult { namespace observers {
 			const auto& capturedParams = pCalculator->params();
 			auto pObserver = TTraits::CreateObserver(std::move(pCalculator));
 
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.ImportanceGrouping = Importance_Grouping;
 			auto cache = test::CoreSystemCacheFactory::Create(config);
 
@@ -209,7 +209,7 @@ namespace catapult { namespace observers {
 
 	namespace {
 		auto CreateEmptyCatapultCache() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.ImportanceGrouping = Importance_Grouping;
 			return test::CreateEmptyCatapultCache(config);
 		}

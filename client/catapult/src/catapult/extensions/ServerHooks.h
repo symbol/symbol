@@ -48,7 +48,7 @@ namespace catapult { namespace extensions {
 	using BannedNodeIdentitySink = consumer<const model::NodeIdentity&>;
 
 	/// Handler that is called when the confirmed state of transactions changes.
-	using TransactionsChangeHandler = consumers::BlockChainSyncHandlers::TransactionsChangeFunc;
+	using TransactionsChangeHandler = consumers::BlockchainSyncHandlers::TransactionsChangeFunc;
 
 	/// Function signature for delivering a block range to a consumer.
 	using BlockRangeConsumerFunc = handlers::BlockRangeHandler;
@@ -208,13 +208,13 @@ namespace catapult { namespace extensions {
 		}
 
 		/// Gets the local finalized height hash pair supplier.
-		/// \note This height hash pair must be in the local block chain.
+		/// \note This height hash pair must be in the local blockchain.
 		auto localFinalizedHeightHashPairSupplier() const {
 			return Require(m_localFinalizedHeightHashPairSupplier);
 		}
 
 		/// Gets the network finalized height hash pair supplier.
-		/// \note This height hash pair might not be in the local block chain.
+		/// \note This height hash pair might not be in the local blockchain.
 		auto networkFinalizedHeightHashPairSupplier() const {
 			return Require(m_networkFinalizedHeightHashPairSupplier);
 		}

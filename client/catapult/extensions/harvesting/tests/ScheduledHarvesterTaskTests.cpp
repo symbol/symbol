@@ -37,8 +37,8 @@ namespace catapult { namespace harvesting {
 	namespace {
 		constexpr Timestamp Max_Time(std::numeric_limits<int64_t>::max());
 
-		model::BlockChainConfiguration CreateConfiguration() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateConfiguration() {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
 			config.BlockTimeSmoothingFactor = 0;
 			config.MaxDifficultyBlocks = 60;
@@ -126,7 +126,7 @@ namespace catapult { namespace harvesting {
 				AddStatistic(Cache, lastBlock);
 			}
 
-			model::BlockChainConfiguration Config;
+			model::BlockchainConfiguration Config;
 			cache::CatapultCache Cache;
 			UnlockedAccounts Accounts;
 		};

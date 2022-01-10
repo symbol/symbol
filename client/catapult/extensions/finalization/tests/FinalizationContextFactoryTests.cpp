@@ -37,12 +37,12 @@ namespace catapult { namespace finalization {
 			config.Size = 9876;
 			config.VotingSetGrouping = 50;
 
-			auto blockChainConfig = test::CreatePrototypicalBlockChainConfiguration();
-			blockChainConfig.MinVoterBalance = Amount(2'000'000);
-			blockChainConfig.VotingSetGrouping = config.VotingSetGrouping;
+			auto blockchainConfig = test::CreatePrototypicalBlockchainConfiguration();
+			blockchainConfig.MinVoterBalance = Amount(2'000'000);
+			blockchainConfig.VotingSetGrouping = config.VotingSetGrouping;
 
 			// - create a cache
-			auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+			auto catapultCache = test::CoreSystemCacheFactory::Create(blockchainConfig);
 
 			test::ServiceTestState testState(std::move(catapultCache));
 
@@ -57,20 +57,20 @@ namespace catapult { namespace finalization {
 			config.Size = 9876;
 			config.VotingSetGrouping = 50;
 
-			auto blockChainConfig = test::CreatePrototypicalBlockChainConfiguration();
-			blockChainConfig.MinVoterBalance = Amount(2'000'000);
-			blockChainConfig.VotingSetGrouping = config.VotingSetGrouping;
+			auto blockchainConfig = test::CreatePrototypicalBlockchainConfiguration();
+			blockchainConfig.MinVoterBalance = Amount(2'000'000);
+			blockchainConfig.VotingSetGrouping = config.VotingSetGrouping;
 
 			// - create a cache and seed accounts at groupedHeight (15M) and height (11M)
-			auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+			auto catapultCache = test::CoreSystemCacheFactory::Create(blockchainConfig);
 			{
 				auto catapultCacheDelta = catapultCache.createDelta();
 				auto& accountStateCacheDelta = catapultCacheDelta.sub<cache::AccountStateCache>();
 
-				test::AddAccountsWithBalances(accountStateCacheDelta, groupedHeight, blockChainConfig.HarvestingMosaicId, {
+				test::AddAccountsWithBalances(accountStateCacheDelta, groupedHeight, blockchainConfig.HarvestingMosaicId, {
 					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000), Amount(4'000'000)
 				});
-				test::AddAccountsWithBalances(accountStateCacheDelta, groupedHeight + Height(1), blockChainConfig.HarvestingMosaicId, {
+				test::AddAccountsWithBalances(accountStateCacheDelta, groupedHeight + Height(1), blockchainConfig.HarvestingMosaicId, {
 					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000)
 				});
 

@@ -27,8 +27,8 @@
 
 namespace catapult { namespace test {
 
-	/// Helpers for creating a block chain with variable sized blocks.
-	struct VariableSizedBlockChain {
+	/// Helpers for creating a blockchain with variable sized blocks.
+	struct VariableSizedBlockchain {
 		/// Gets the block size at \a height.
 		static constexpr uint32_t GetBlockSizeAtHeight(Height height) {
 			return SizeOf32<model::BlockHeader>() + SizeOf32<model::PaddedBlockFooter>() + static_cast<uint32_t>(height.unwrap() * 100);
@@ -63,7 +63,7 @@ namespace catapult { namespace test {
 	struct HeightRequestHandlerTests {
 	private:
 		static std::unique_ptr<io::BlockStorageCache> CreateStorage(size_t numBlocks) {
-			return VariableSizedBlockChain::CreateStorage(numBlocks);
+			return VariableSizedBlockchain::CreateStorage(numBlocks);
 		}
 
 	private:

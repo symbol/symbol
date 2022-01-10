@@ -25,7 +25,7 @@
 #include <unordered_set>
 
 namespace catapult {
-	namespace model { struct BlockChainConfiguration; }
+	namespace model { struct BlockchainConfiguration; }
 	namespace utils { class ConfigurationBag; }
 }
 
@@ -63,8 +63,8 @@ namespace catapult { namespace config {
 		static MosaicConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
 
-	/// Gets the mosaic rental fee sink address from \a config and \a blockChainConfig.
+	/// Gets the mosaic rental fee sink address from \a config and \a blockchainConfig.
 	model::HeightDependentAddress GetMosaicRentalFeeSinkAddress(
 			const MosaicConfiguration& config,
-			const model::BlockChainConfiguration& blockChainConfig);
+			const model::BlockchainConfiguration& blockchainConfig);
 }}

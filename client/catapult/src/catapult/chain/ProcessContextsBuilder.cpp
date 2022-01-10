@@ -22,7 +22,7 @@
 #include "ProcessContextsBuilder.h"
 #include "catapult/cache/CatapultCacheDelta.h"
 #include "catapult/cache/CatapultCacheView.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/observers/ObserverContext.h"
 #include "catapult/validators/ValidatorContext.h"
 

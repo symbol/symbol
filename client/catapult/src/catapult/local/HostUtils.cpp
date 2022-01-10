@@ -44,7 +44,7 @@ namespace catapult { namespace local {
 				for (const auto& pluginName : m_extensionManager.systemPluginNames())
 					loadOne(pluginName);
 
-				for (const auto& pair : m_config.BlockChain.Plugins)
+				for (const auto& pair : m_config.Blockchain.Plugins)
 					loadOne(pair.first);
 			}
 

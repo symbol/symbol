@@ -20,7 +20,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -82,7 +82,7 @@ namespace catapult { namespace validators {
 			auto owner = test::CreateRandomOwner();
 			auto notification = model::MosaicSupplyChangeNotification(owner, test::UnresolveXor(MosaicId(123)), action, Amount(100));
 
-			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			AddMosaic(cache, MosaicId(123), Amount(500), owner, Amount(500), model::MosaicFlags::None);
 
 			// Assert:
@@ -104,7 +104,7 @@ namespace catapult { namespace validators {
 			auto owner = test::CreateRandomOwner();
 			auto notification = model::MosaicSupplyChangeNotification(owner, test::UnresolveXor(MosaicId(123)), action, Amount(100));
 
-			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			AddMosaic(cache, MosaicId(123), Amount(500), owner, Amount(499), model::MosaicFlags::None);
 
 			// Assert:
@@ -131,7 +131,7 @@ namespace catapult { namespace validators {
 			auto action = model::MosaicSupplyChangeAction::Decrease;
 			auto notification = model::MosaicSupplyChangeNotification(owner, test::UnresolveXor(MosaicId(123)), action, delta);
 
-			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			AddMosaic(cache, MosaicId(123), mosaicSupply, owner, ownerSupply);
 
 			// Assert:
@@ -164,7 +164,7 @@ namespace catapult { namespace validators {
 			auto action = model::MosaicSupplyChangeAction::Increase;
 			auto notification = model::MosaicSupplyChangeNotification(owner, test::UnresolveXor(MosaicId(123)), action, delta);
 
-			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			AddMosaic(cache, MosaicId(123), mosaicSupply, owner, Amount(111));
 
 			// Assert:

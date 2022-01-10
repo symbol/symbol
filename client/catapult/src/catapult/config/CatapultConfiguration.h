@@ -26,7 +26,7 @@
 #include "NodeConfiguration.h"
 #include "PeersConfiguration.h"
 #include "UserConfiguration.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include <filesystem>
 
 namespace catapult { namespace config {
@@ -34,10 +34,10 @@ namespace catapult { namespace config {
 	/// Comprehensive configuration for a catapult process.
 	class CatapultConfiguration {
 	public:
-		/// Creates a catapult configuration around \a blockChainConfig, \a nodeConfig, \a loggingConfig, \a userConfig,
+		/// Creates a catapult configuration around \a blockchainConfig, \a nodeConfig, \a loggingConfig, \a userConfig,
 		/// \a extensionsConfig and \a inflationConfig.
 		CatapultConfiguration(
-				model::BlockChainConfiguration&& blockChainConfig,
+				model::BlockchainConfiguration&& blockchainConfig,
 				NodeConfiguration&& nodeConfig,
 				LoggingConfiguration&& loggingConfig,
 				UserConfiguration&& userConfig,
@@ -45,8 +45,8 @@ namespace catapult { namespace config {
 				InflationConfiguration&& inflationConfig);
 
 	public:
-		/// Block chain configuration.
-		const model::BlockChainConfiguration BlockChain;
+		/// Blockchain configuration.
+		const model::BlockchainConfiguration Blockchain;
 
 		/// Node configuration.
 		const NodeConfiguration Node;

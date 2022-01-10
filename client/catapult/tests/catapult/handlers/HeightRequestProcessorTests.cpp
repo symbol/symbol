@@ -29,7 +29,7 @@ namespace catapult { namespace handlers {
 #define TEST_CLASS HeightRequestProcessorTests
 
 	namespace {
-		constexpr auto CreateStorage = test::VariableSizedBlockChain::CreateStorage;
+		constexpr auto CreateStorage = test::VariableSizedBlockchain::CreateStorage;
 
 		using HeightRequestPacket = api::HeightPacket<static_cast<ionet::PacketType>(1234)>;
 		using Processor = HeightRequestProcessor<HeightRequestPacket>;

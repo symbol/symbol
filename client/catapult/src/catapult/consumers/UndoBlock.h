@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "BlockChainSyncHandlers.h"
+#include "BlockchainSyncHandlers.h"
 
 namespace catapult { namespace chain { struct BlockExecutionContext; } }
 

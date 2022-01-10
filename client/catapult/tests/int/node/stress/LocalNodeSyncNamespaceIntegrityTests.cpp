@@ -28,8 +28,8 @@ namespace catapult { namespace local {
 #define TEST_CLASS LocalNodeSyncNamespaceIntegrityTests
 
 	namespace {
-		using BlockChainBuilder = test::BlockChainBuilder;
-		using Blocks = BlockChainBuilder::Blocks;
+		using BlockchainBuilder = test::BlockchainBuilder;
+		using Blocks = BlockchainBuilder::Blocks;
 
 		// region utils
 
@@ -48,7 +48,7 @@ namespace catapult { namespace local {
 		}
 
 		template<typename TTestContext>
-		std::pair<BlockChainBuilder, std::shared_ptr<model::Block>> PrepareTwoRootNamespaces(
+		std::pair<BlockchainBuilder, std::shared_ptr<model::Block>> PrepareTwoRootNamespaces(
 				TTestContext& context,
 				const test::Accounts& accounts,
 				test::StateHashCalculator& stateHashCalculator,
@@ -65,7 +65,7 @@ namespace catapult { namespace local {
 			transactionsBuilder.addNamespace(0, "foo", BlockDuration(12));
 			transactionsBuilder.addNamespace(0, "bar", BlockDuration(12));
 
-			BlockChainBuilder builder(accounts, stateHashCalculator);
+			BlockchainBuilder builder(accounts, stateHashCalculator);
 			auto pNamespaceBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 
 			// Act:
@@ -125,7 +125,7 @@ namespace catapult { namespace local {
 
 				m_allBlocks.emplace_back(builderBlockPair.second);
 				m_allBlocks.insert(m_allBlocks.end(), transferBlocksResult.AllBlocks.cbegin(), transferBlocksResult.AllBlocks.cend());
-				m_pActiveBuilder = std::make_unique<BlockChainBuilder>(builder2);
+				m_pActiveBuilder = std::make_unique<BlockchainBuilder>(builder2);
 			}
 
 			Blocks createTailBlocks(utils::TimeSpan blockInterval, const consumer<test::TransactionsBuilder&>& addToBuilder) {
@@ -137,7 +137,7 @@ namespace catapult { namespace local {
 
 				auto builder = m_pActiveBuilder->createChainedBuilder(stateHashCalculator);
 				builder.setBlockTimeInterval(blockInterval);
-				return builder.asBlockChain(transactionsBuilder);
+				return builder.asBlockchain(transactionsBuilder);
 			}
 
 		private:
@@ -145,7 +145,7 @@ namespace catapult { namespace local {
 
 			test::Accounts m_accounts;
 			NamespaceStateHashes m_stateHashes;
-			std::unique_ptr<BlockChainBuilder> m_pActiveBuilder;
+			std::unique_ptr<BlockchainBuilder> m_pActiveBuilder;
 			std::vector<std::shared_ptr<model::Block>> m_allBlocks;
 			uint32_t m_numAliveChains;
 		};
@@ -283,7 +283,7 @@ namespace catapult { namespace local {
 		constexpr auto Blocks_Before_Namespace_Prune = static_cast<uint32_t>(12 + (utils::TimeSpan::FromHours(1).seconds() / 20) + 10);
 
 		void SetMaxRollbackBlocks(const config::CatapultConfiguration& config) {
-			const_cast<uint32_t&>(config.BlockChain.MaxRollbackBlocks) = 10;
+			const_cast<uint32_t&>(config.Blockchain.MaxRollbackBlocks) = 10;
 		}
 
 		template<typename TTestContext>
@@ -473,8 +473,8 @@ namespace catapult { namespace local {
 				transactionsBuilder.addTransfer(0, 1, Amount(1));
 
 			// - send chain
-			BlockChainBuilder builder(accounts, stateHashCalculator);
-			auto blocks = builder.asBlockChain(transactionsBuilder);
+			BlockchainBuilder builder(accounts, stateHashCalculator);
+			auto blocks = builder.asBlockchain(transactionsBuilder);
 
 			test::ExternalSourceConnection connection(context.publicKey());
 			test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);

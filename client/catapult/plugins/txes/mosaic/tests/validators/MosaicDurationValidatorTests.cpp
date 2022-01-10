@@ -21,7 +21,7 @@
 
 #include "src/validators/Validators.h"
 #include "src/cache/MosaicCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -77,7 +77,7 @@ namespace catapult { namespace validators {
 		auto notification = CreateNotification(owner, properties);
 
 		// - seed the cache
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		AddMosaic(cache, owner, BlockDuration(123));
 
 		// Assert:
@@ -91,7 +91,7 @@ namespace catapult { namespace validators {
 		auto notification = CreateNotification(owner, properties);
 
 		// - seed the cache
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		AddEternalMosaic(cache, owner);
 
 		// Assert:
@@ -105,7 +105,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, SuccessWhenMosaicIsUnknownAndNotificationDurationDoesNotExceedMaxDuration) {
 		// Arrange: create an empty cache
 		auto owner = test::CreateRandomOwner();
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 
 		// Assert: max duration is 123
 		for (auto duration : { 1u, 70u, 123u }) {
@@ -117,7 +117,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenMosaicIsUnknownAndNotificationDurationExceedsMaxDuration) {
 		// Arrange: create an empty cache
 		auto owner = test::CreateRandomOwner();
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 
 		// Assert: max duration is 123
 		for (auto duration : { 124u, 999u }) {
@@ -137,7 +137,7 @@ namespace catapult { namespace validators {
 		auto notification = CreateNotification(owner, properties);
 
 		// - seed the cache
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		AddEternalMosaic(cache, owner);
 
 		// Assert:
@@ -149,7 +149,7 @@ namespace catapult { namespace validators {
 		auto owner = test::CreateRandomOwner();
 
 		// - seed the cache
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		AddMosaic(cache, owner, BlockDuration(100));
 
 		// Assert: max duration is 123
@@ -166,7 +166,7 @@ namespace catapult { namespace validators {
 		auto notification = CreateNotification(owner, properties);
 
 		// - seed the cache
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		AddMosaic(cache, owner, BlockDuration(100));
 
 		// Assert:
@@ -178,7 +178,7 @@ namespace catapult { namespace validators {
 		auto owner = test::CreateRandomOwner();
 
 		// - seed the cache
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		AddMosaic(cache, owner, BlockDuration(100));
 
 		// Assert:

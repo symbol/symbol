@@ -102,10 +102,10 @@ namespace catapult { namespace test {
 			const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = true;
 
 		if (HasFlag(NodeFlag::Verify_Receipts, nodeFlag))
-			const_cast<model::BlockChainConfiguration&>(config.BlockChain).EnableVerifiableReceipts = true;
+			const_cast<model::BlockchainConfiguration&>(config.Blockchain).EnableVerifiableReceipts = true;
 
 		if (HasFlag(NodeFlag::Verify_State, nodeFlag))
-			const_cast<model::BlockChainConfiguration&>(config.BlockChain).EnableVerifiableState = true;
+			const_cast<model::BlockchainConfiguration&>(config.Blockchain).EnableVerifiableState = true;
 
 		if (HasFlag(NodeFlag::Auto_Sync_Cleanup, nodeFlag))
 			const_cast<config::NodeConfiguration&>(config.Node).EnableAutoSyncCleanup = true;

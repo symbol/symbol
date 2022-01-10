@@ -151,7 +151,7 @@ namespace catapult { namespace tools { namespace linker {
 				validateOptions(options);
 
 				// 1. create transaction
-				auto networkIdentifier = config.BlockChain.Network.Identifier;
+				auto networkIdentifier = config.Blockchain.Network.Identifier;
 				auto signer = crypto::KeyPair::FromString(options["secret"].as<std::string>());
 				auto linkedPublicKey = options["linkedPublicKey"].as<std::string>();
 				auto keyType = ParseKeyType(options["type"].as<std::string>());
@@ -163,7 +163,7 @@ namespace catapult { namespace tools { namespace linker {
 
 				// 2. sign it
 				pTransaction->Deadline = Timestamp(1);
-				auto transactionExtensions = extensions::TransactionExtensions(config.BlockChain.Network.GenerationHashSeed);
+				auto transactionExtensions = extensions::TransactionExtensions(config.Blockchain.Network.GenerationHashSeed);
 				transactionExtensions.sign(signer, *pTransaction);
 				auto transactionHash = transactionExtensions.hash(*pTransaction);
 

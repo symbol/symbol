@@ -20,7 +20,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
@@ -69,7 +69,7 @@ namespace catapult { namespace validators {
 			model::MosaicRequiredNotification notification(notificationOwner, affectedMosaicId);
 
 			// - create the validator context
-			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			auto delta = cache.createDelta();
 			test::AddMosaic(delta, ResolvedMosaicTraits::Default_Id, Height(50), BlockDuration(100), artifactOwner);
 
@@ -134,7 +134,7 @@ namespace catapult { namespace validators {
 
 			// - create the validator context
 			auto height = Height(50);
-			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			auto delta = cache.createDelta();
 
 			{

@@ -188,7 +188,7 @@ namespace catapult { namespace local {
 				test::AddRecoveryPluginExtensions(const_cast<config::ExtensionsConfiguration&>(config.Extensions));
 
 				if (CacheDatabaseMode::Enabled == cacheDatabaseMode) {
-					const_cast<model::BlockChainConfiguration&>(config.BlockChain).EnableVerifiableState = true;
+					const_cast<model::BlockchainConfiguration&>(config.Blockchain).EnableVerifiableState = true;
 					const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = true;
 
 					test::ModifyNemesis(m_dataDirectory.rootDir().str(), [&config](auto& nemesisBlock, const auto& nemesisBlockElement) {

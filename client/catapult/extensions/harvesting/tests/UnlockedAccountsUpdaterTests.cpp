@@ -24,7 +24,7 @@
 #include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include "catapult/io/FileQueue.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
@@ -53,7 +53,7 @@ namespace catapult { namespace harvesting {
 		private:
 			TestContext(crypto::KeyPair&& mainKeyPair, crypto::KeyPair&& remoteKeyPair, SeedOptions seedOptions)
 					: m_dataDirectory(config::CatapultDataDirectory(m_directoryGuard.name()))
-					, m_config(CreateBlockChainConfiguration())
+					, m_config(CreateBlockchainConfiguration())
 					, m_cache(test::CreateEmptyCatapultCache(m_config))
 					, m_unlockedAccounts(10, [](const auto&) { return 0; })
 					, m_primaryMainAccountPublicKey(mainKeyPair.publicKey())
@@ -236,8 +236,8 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
-				auto config = model::BlockChainConfiguration::Uninitialized();
+			static model::BlockchainConfiguration CreateBlockchainConfiguration() {
+				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.Network.Identifier = model::NetworkIdentifier::Testnet;
 				config.EnableVerifiableState = false;
 				config.EnableVerifiableReceipts = false;
@@ -251,7 +251,7 @@ namespace catapult { namespace harvesting {
 		private:
 			test::TempDirectoryGuard m_directoryGuard;
 			config::CatapultDataDirectory m_dataDirectory;
-			model::BlockChainConfiguration m_config;
+			model::BlockchainConfiguration m_config;
 			cache::CatapultCache m_cache;
 			UnlockedAccounts m_unlockedAccounts;
 			Key m_primaryMainAccountPublicKey;

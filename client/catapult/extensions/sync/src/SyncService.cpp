@@ -51,7 +51,7 @@ namespace catapult { namespace sync {
 			chainSynchronizerConfig.MaxHashesPerSyncAttempt = config.Node.MaxHashesPerSyncAttempt;
 			chainSynchronizerConfig.MaxBlocksPerSyncAttempt = config.Node.MaxBlocksPerSyncAttempt;
 			chainSynchronizerConfig.MaxChainBytesPerSyncAttempt = config.Node.MaxChainBytesPerSyncAttempt.bytes32();
-			chainSynchronizerConfig.MaxRollbackBlocks = config.BlockChain.MaxRollbackBlocks;
+			chainSynchronizerConfig.MaxRollbackBlocks = config.Blockchain.MaxRollbackBlocks;
 			return chainSynchronizerConfig;
 		}
 

@@ -29,8 +29,8 @@ namespace catapult { namespace local {
 #define TEST_CLASS LocalNodeSyncAliasIntegrityTests
 
 	namespace {
-		using BlockChainBuilder = test::BlockChainBuilder;
-		using Blocks = BlockChainBuilder::Blocks;
+		using BlockchainBuilder = test::BlockchainBuilder;
+		using Blocks = BlockchainBuilder::Blocks;
 	}
 
 	// region alias application
@@ -67,7 +67,7 @@ namespace catapult { namespace local {
 			transactionsBuilder.addTransfer(0, "bar", Amount(400'000));
 
 			auto stateHashCalculator = context.createStateHashCalculator();
-			BlockChainBuilder builder(accounts, stateHashCalculator);
+			BlockchainBuilder builder(accounts, stateHashCalculator);
 			auto pBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 
 			// Act:
@@ -127,7 +127,7 @@ namespace catapult { namespace local {
 		std::shared_ptr<model::Block> CreateBlockWithTwoAliasesAndTransfers(
 				const TTestContext& context,
 				const test::Accounts& accounts,
-				const BlockChainBuilder& builder,
+				const BlockchainBuilder& builder,
 				const Blocks& seedBlocks,
 				utils::TimeSpan blockTimeInterval,
 				size_t aliasId1,
@@ -156,7 +156,7 @@ namespace catapult { namespace local {
 			test::Accounts accounts(4);
 
 			// - make transfers to the accounts to be aliased so that they're in the account state cache
-			std::unique_ptr<BlockChainBuilder> pBuilder1;
+			std::unique_ptr<BlockchainBuilder> pBuilder1;
 			Blocks seedBlocks;
 			{
 				test::TransactionsBuilder transactionsBuilder(accounts);
@@ -165,7 +165,7 @@ namespace catapult { namespace local {
 				transactionsBuilder.addTransfer(0, 3, Amount(1));
 
 				auto stateHashCalculator = context.createStateHashCalculator();
-				BlockChainBuilder builder(accounts, stateHashCalculator);
+				BlockchainBuilder builder(accounts, stateHashCalculator);
 				auto pBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 
 				test::ExternalSourceConnection connection(context.publicKey());
@@ -175,7 +175,7 @@ namespace catapult { namespace local {
 				test::WaitForHeightAndElements(context, Height(2), 1, 1);
 				stateHashes.emplace_back(test::GetStateHash(context));
 
-				pBuilder1 = std::make_unique<BlockChainBuilder>(builder);
+				pBuilder1 = std::make_unique<BlockchainBuilder>(builder);
 				seedBlocks = { pBlock };
 			}
 

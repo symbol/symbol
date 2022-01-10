@@ -29,7 +29,7 @@ namespace catapult { namespace handlers {
 #define TEST_CLASS MerkleHandlersTests
 
 	namespace {
-		constexpr auto CreateStorage = test::VariableSizedBlockChain::CreateStorage;
+		constexpr auto CreateStorage = test::VariableSizedBlockchain::CreateStorage;
 	}
 
 	// region SubCacheMerkleRootsHandler

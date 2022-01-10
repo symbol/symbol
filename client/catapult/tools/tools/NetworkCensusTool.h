@@ -47,7 +47,7 @@ namespace catapult { namespace tools {
 
 	public:
 		std::string name() const override final {
-			return "Catapult Block Chain " + m_censusName + " Tool";
+			return "Catapult Blockchain " + m_censusName + " Tool";
 		}
 
 		void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional& positional) override final {
@@ -60,8 +60,8 @@ namespace catapult { namespace tools {
 			auto resourcesPath = GetResourcesOptionValue(options);
 			auto config = LoadConfiguration(resourcesPath);
 			auto networkFingerprint = model::UniqueNetworkFingerprint(
-					config.BlockChain.Network.Identifier,
-					config.BlockChain.Network.GenerationHashSeed);
+					config.Blockchain.Network.Identifier,
+					config.Blockchain.Network.GenerationHashSeed);
 			auto p2pNodes = LoadPeers(resourcesPath, networkFingerprint);
 			auto apiNodes = LoadOptionalApiPeers(resourcesPath, networkFingerprint);
 

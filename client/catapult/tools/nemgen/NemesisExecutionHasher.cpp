@@ -43,11 +43,11 @@ namespace catapult { namespace tools { namespace nemgen {
 			const model::BlockElement& blockElement,
 			const config::CatapultConfiguration& config,
 			plugins::PluginManager& pluginManager) {
-		if (!config.Node.EnableCacheDatabaseStorage || !config.BlockChain.EnableVerifiableState)
+		if (!config.Node.EnableCacheDatabaseStorage || !config.Blockchain.EnableVerifiableState)
 			CATAPULT_LOG(warning) << "cache database storage and verifiable state must both be enabled to calculate state hash";
 
 		CATAPULT_LOG(info) << "calculating nemesis state hash";
-		auto blockExecutionHashesInfo = CalculateNemesisBlockExecutionHashes(blockElement, config.BlockChain, pluginManager);
+		auto blockExecutionHashesInfo = CalculateNemesisBlockExecutionHashes(blockElement, config.Blockchain, pluginManager);
 		std::ostringstream out;
 		out
 				<< "           Height: " << blockElement.Block.Height << std::endl

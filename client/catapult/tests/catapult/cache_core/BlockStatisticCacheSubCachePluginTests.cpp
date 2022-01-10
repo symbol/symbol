@@ -20,7 +20,7 @@
 **/
 
 #include "catapult/cache_core/BlockStatisticCacheSubCachePlugin.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
@@ -34,7 +34,7 @@ namespace catapult { namespace cache {
 	namespace {
 		void RunSaveConsistencyTest(size_t numValues) {
 			// Arrange:
-			auto catapultCache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto catapultCache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			{
 				auto cacheDelta = catapultCache.createDelta();
 				auto& delta = cacheDelta.sub<BlockStatisticCache>();

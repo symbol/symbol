@@ -54,7 +54,7 @@ namespace catapult { namespace local {
 			auto pCurrentBlock = test::GenerateBlockWithTransactions(0, currentBlockHeight, currentBlockTime);
 
 			// - create configuration
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(2);
 			config.MaxDifficultyBlocks = 100;
 			config.MaxTransactionLifetime = utils::TimeSpan::FromSeconds(utils::TimeSpan::FromHours(1).seconds() + 44);
@@ -130,7 +130,7 @@ namespace catapult { namespace local {
 
 	// endregion
 
-	// region LoadBlockChain
+	// region LoadBlockchain
 
 	namespace {
 		void AddXorResolvers(plugins::PluginManager& pluginManager) {
@@ -144,9 +144,9 @@ namespace catapult { namespace local {
 			});
 		}
 
-		class LoadBlockChainTestContext {
+		class LoadBlockchainTestContext {
 		public:
-			LoadBlockChainTestContext() : m_pluginManager(test::CreatePluginManager()) {
+			LoadBlockchainTestContext() : m_pluginManager(test::CreatePluginManager()) {
 				AddXorResolvers(m_pluginManager);
 			}
 
@@ -182,7 +182,7 @@ namespace catapult { namespace local {
 					return std::make_unique<mocks::MockBlockHeightCapturingNotificationObserver>(this->m_observerBlockHeights);
 				};
 
-				auto score = LoadBlockChain(observerFactory, m_pluginManager, m_state.ref(), startHeight, [this](const auto& status) {
+				auto score = LoadBlockchain(observerFactory, m_pluginManager, m_state.ref(), startHeight, [this](const auto& status) {
 					// check status for internal consistency
 					auto newComputedScore = m_statusScore;
 					newComputedScore += status.StateChangeInfo.ScoreDelta;
@@ -222,9 +222,9 @@ namespace catapult { namespace local {
 		}
 	}
 
-	TEST(TEST_CLASS, LoadBlockChainLoadsZeroBlocksWhenStorageHeightIsOne) {
+	TEST(TEST_CLASS, LoadBlockchainLoadsZeroBlocksWhenStorageHeightIsOne) {
 		// Arrange:
-		LoadBlockChainTestContext context;
+		LoadBlockchainTestContext context;
 
 		// Act:
 		auto score = context.load(Height(2));
@@ -236,9 +236,9 @@ namespace catapult { namespace local {
 		EXPECT_EQ(0u, context.statusHeights().size());
 	}
 
-	TEST(TEST_CLASS, LoadBlockChainLoadsSingleBlockWhenStorageHeightIsTwo) {
+	TEST(TEST_CLASS, LoadBlockchainLoadsSingleBlockWhenStorageHeightIsTwo) {
 		// Arrange:
-		LoadBlockChainTestContext context;
+		LoadBlockchainTestContext context;
 		context.setStorageChainHeight(Height(2));
 
 		// Act:
@@ -253,9 +253,9 @@ namespace catapult { namespace local {
 		EXPECT_EQ(expectedHeights, context.statusHeights());
 	}
 
-	TEST(TEST_CLASS, LoadBlockChainLoadsMultipleBlocksWhenStorageHeightIsGreaterThanTwo) {
+	TEST(TEST_CLASS, LoadBlockchainLoadsMultipleBlocksWhenStorageHeightIsGreaterThanTwo) {
 		// Arrange:
-		LoadBlockChainTestContext context;
+		LoadBlockchainTestContext context;
 		context.setStorageChainHeight(Height(7));
 
 		// Act:
@@ -270,9 +270,9 @@ namespace catapult { namespace local {
 		EXPECT_EQ(expectedHeights, context.statusHeights());
 	}
 
-	TEST(TEST_CLASS, LoadBlockChainLoadsMultipleBlocksStartingAtArbitraryHeight) {
+	TEST(TEST_CLASS, LoadBlockchainLoadsMultipleBlocksStartingAtArbitraryHeight) {
 		// Arrange: create a storage with 7 blocks
-		LoadBlockChainTestContext context;
+		LoadBlockchainTestContext context;
 		context.setStorageChainHeight(Height(7));
 
 		// Act: load blocks 4-7
@@ -289,7 +289,7 @@ namespace catapult { namespace local {
 
 	// endregion
 
-	// region LoadBlockChain - state enabled
+	// region LoadBlockchain - state enabled
 
 	namespace {
 		std::vector<Address> GenerateDeterministicAddresses(size_t count) {
@@ -323,7 +323,7 @@ namespace catapult { namespace local {
 			loader.executeAndCommit(stateRef, extensions::StateHashVerification::Disabled);
 		}
 
-		void SetBlockChainConfiguration(model::BlockChainConfiguration& config) {
+		void SetBlockchainConfiguration(model::BlockchainConfiguration& config) {
 			config.Plugins.emplace("catapult.plugins.hashcache", utils::ConfigurationBag({ { "", { {} } } }));
 
 			// set the number of rollback blocks to zero to avoid unnecessarily influencing height-dominant tests
@@ -332,10 +332,10 @@ namespace catapult { namespace local {
 
 		config::CatapultConfiguration CreateStateHashEnabledCatapultConfiguration(const std::string& dataDirectory) {
 			auto config = test::CreateCatapultConfigurationWithNemesisPluginExtensions(dataDirectory);
-			SetBlockChainConfiguration(const_cast<model::BlockChainConfiguration&>(config.BlockChain));
+			SetBlockchainConfiguration(const_cast<model::BlockchainConfiguration&>(config.Blockchain));
 
 			const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = true;
-			const_cast<model::BlockChainConfiguration&>(config.BlockChain).EnableVerifiableState = true;
+			const_cast<model::BlockchainConfiguration&>(config.Blockchain).EnableVerifiableState = true;
 			return config;
 		}
 
@@ -349,8 +349,8 @@ namespace catapult { namespace local {
 			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
 			auto observerFactory = [&pluginManager = *pPluginManager](const auto&) { return pluginManager.createObserver(); };
 
-			auto blockChainConfig = pPluginManager->config();
-			auto localNodeConfig = test::CreatePrototypicalCatapultConfiguration(std::move(blockChainConfig), tempDataDirectory.name());
+			auto blockchainConfig = pPluginManager->config();
+			auto localNodeConfig = test::CreatePrototypicalCatapultConfiguration(std::move(blockchainConfig), tempDataDirectory.name());
 
 			auto cache = pPluginManager->createCache();
 			extensions::LocalNodeChainScore score;
@@ -358,12 +358,12 @@ namespace catapult { namespace local {
 			ExecuteNemesis(stateRef, *pPluginManager);
 
 			// Act:
-			LoadBlockChain(observerFactory, *pPluginManager, stateRef, Height(2));
+			LoadBlockchain(observerFactory, *pPluginManager, stateRef, Height(2));
 
 			action(stateRef.Cache, *pPluginManager);
 		}
 
-		void RunLoadBlockChainTest(io::BlockStorageCache& storage, size_t maxHeight) {
+		void RunLoadBlockchainTest(io::BlockStorageCache& storage, size_t maxHeight) {
 			// Arrange: create one additional block to simplify test, blocks[0].height = 2
 			auto blocks = CreateBlocks(maxHeight + 1);
 
@@ -409,14 +409,14 @@ namespace catapult { namespace local {
 		}
 	}
 
-	TEST(TEST_CLASS, LoadBlockChainLoadsMultipleBlocks_StateHashEnabled) {
+	TEST(TEST_CLASS, LoadBlockchainLoadsMultipleBlocks_StateHashEnabled) {
 		// Arrange:
 		io::BlockStorageCache storage(
 				std::make_unique<mocks::MockMemoryBlockStorage>(),
 				std::make_unique<mocks::MockMemoryBlockStorage>());
 
 		// Act + Assert:
-		RunLoadBlockChainTest(storage, 7);
+		RunLoadBlockchainTest(storage, 7);
 	}
 
 	// endregion

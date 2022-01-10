@@ -68,7 +68,7 @@ namespace catapult { namespace extensions {
 		mocks::MockTransactionStatusSubscriber transactionStatusSubscriber;
 
 		std::vector<utils::DiagnosticCounter> counters;
-		auto pluginManager = test::CreatePluginManager(config.BlockChain);
+		auto pluginManager = test::CreatePluginManager(config.Blockchain);
 		thread::MultiServicePool pool("test", 1);
 
 		// Act:
@@ -179,7 +179,7 @@ namespace catapult { namespace extensions {
 			test::ServiceTestState testState;
 
 			auto lastFinalizedHash = test::GenerateRandomByteArray<Hash256>();
-			const_cast<uint32_t&>(testState.state().config().BlockChain.MaxRollbackBlocks) = maxRollbackBlocks;
+			const_cast<uint32_t&>(testState.state().config().Blockchain.MaxRollbackBlocks) = maxRollbackBlocks;
 
 			mocks::SeedStorageWithFixedSizeBlocks(testState.state().storage(), numBlocks);
 			TTraits::SetSupplier(testState.state().hooks(), { Height(7), lastFinalizedHash });

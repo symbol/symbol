@@ -63,7 +63,7 @@ namespace catapult { namespace observers {
 		class TestContext : public test::AccountObserverTestContext {
 		public:
 			explicit TestContext(NotifyMode notifyMode)
-					: test::AccountObserverTestContext(notifyMode, Height(123), CreateBlockChainConfiguration())
+					: test::AccountObserverTestContext(notifyMode, Height(123), CreateBlockchainConfiguration())
 			{}
 
 		public:
@@ -81,8 +81,8 @@ namespace catapult { namespace observers {
 			}
 
 		private:
-			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
-				auto config = model::BlockChainConfiguration::Uninitialized();
+			static model::BlockchainConfiguration CreateBlockchainConfiguration() {
+				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 				config.MinHarvesterBalance = Min_Harvester_Balance;
 				return config;

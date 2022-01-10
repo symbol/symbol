@@ -26,7 +26,7 @@
 
 namespace catapult {
 	namespace cache { class BlockStatisticCache; }
-	namespace model { struct BlockChainConfiguration; }
+	namespace model { struct BlockchainConfiguration; }
 }
 
 namespace catapult { namespace chain {
@@ -35,12 +35,12 @@ namespace catapult { namespace chain {
 	bool IsChainLink(const model::Block& parent, const Hash256& parentHash, const model::Block& child);
 
 	/// Checks if the difficulties in \a blocks are consistent with the difficulties stored in \a cache
-	/// for the block chain described by \a config. If there is an inconsistency, the index of the first
+	/// for the blockchain described by \a config. If there is an inconsistency, the index of the first
 	/// difference is returned. Otherwise, the size of \a blocks is returned.
 	size_t CheckDifficulties(
 			const cache::BlockStatisticCache& cache,
 			const std::vector<const model::Block*>& blocks,
-			const model::BlockChainConfiguration& config);
+			const model::BlockchainConfiguration& config);
 
 	/// Calculates the partial chain score of \a blocks starting at \a parent.
 	model::ChainScore CalculatePartialChainScore(const model::Block& parent, const std::vector<const model::Block*>& blocks);

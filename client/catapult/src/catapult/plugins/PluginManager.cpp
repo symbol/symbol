@@ -25,7 +25,7 @@
 namespace catapult { namespace plugins {
 
 	PluginManager::PluginManager(
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const StorageConfiguration& storageConfig,
 			const config::UserConfiguration& userConfig,
 			const config::InflationConfiguration& inflationConfig)
@@ -37,7 +37,7 @@ namespace catapult { namespace plugins {
 
 	// region config
 
-	const model::BlockChainConfiguration& PluginManager::config() const {
+	const model::BlockchainConfiguration& PluginManager::config() const {
 		return m_config;
 	}
 

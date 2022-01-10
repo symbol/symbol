@@ -40,8 +40,8 @@ namespace catapult { namespace chain {
 
 		enum class FailureMode { Default, Suppress };
 
-		model::BlockChainConfiguration CreateConfiguration() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateConfiguration() {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.Network.Identifier = Network_Identifier;
 			return config;
 		}

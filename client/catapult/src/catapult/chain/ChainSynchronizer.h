@@ -30,7 +30,7 @@ namespace catapult {
 		class ChainApi;
 		class RemoteChainApi;
 	}
-	namespace model { struct BlockChainConfiguration; }
+	namespace model { struct BlockchainConfiguration; }
 }
 
 namespace catapult { namespace chain {
@@ -58,7 +58,7 @@ namespace catapult { namespace chain {
 		uint32_t MaxRollbackBlocks;
 	};
 
-	/// Creates a chain synchronizer around the specified local chain api (\a pLocalChainApi), block chain \a config,
+	/// Creates a chain synchronizer around the specified local chain api (\a pLocalChainApi), blockchain \a config,
 	/// local finalized height supplier (\a localFinalizedHeightSupplier) and block range consumer (\a blockRangeConsumer).
 	RemoteNodeSynchronizer<api::RemoteChainApi> CreateChainSynchronizer(
 			const std::shared_ptr<const api::ChainApi>& pLocalChainApi,

@@ -20,7 +20,7 @@
 **/
 
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/cache/SummaryAwareCacheStoragePluginTests.h"
@@ -37,11 +37,11 @@ namespace catapult { namespace cache {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 
 		auto CreateConfigurationFromOptions(const AccountStateCacheTypes::Options& options) {
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.MinHarvesterBalance = options.MinHarvesterBalance;
-			blockChainConfig.MinVoterBalance = options.MinVoterBalance;
-			blockChainConfig.HarvestingMosaicId = options.HarvestingMosaicId;
-			return blockChainConfig;
+			auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+			blockchainConfig.MinHarvesterBalance = options.MinHarvesterBalance;
+			blockchainConfig.MinVoterBalance = options.MinVoterBalance;
+			blockchainConfig.HarvestingMosaicId = options.HarvestingMosaicId;
+			return blockchainConfig;
 		}
 
 		std::vector<Address> AddAccountsWithBalances(

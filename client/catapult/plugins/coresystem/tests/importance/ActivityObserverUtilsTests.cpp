@@ -38,7 +38,7 @@ namespace catapult { namespace importance {
 		class TestContext : public test::AccountObserverTestContext {
 		public:
 			TestContext(observers::NotifyMode notifyMode, Amount minHarvesterBalance)
-					: test::AccountObserverTestContext(notifyMode, Notification_Height, CreateBlockChainConfiguration(minHarvesterBalance))
+					: test::AccountObserverTestContext(notifyMode, Notification_Height, CreateBlockchainConfiguration(minHarvesterBalance))
 			{}
 
 		public:
@@ -64,8 +64,8 @@ namespace catapult { namespace importance {
 			}
 
 		private:
-			static model::BlockChainConfiguration CreateBlockChainConfiguration(Amount minHarvesterBalance) {
-				auto config = model::BlockChainConfiguration::Uninitialized();
+			static model::BlockchainConfiguration CreateBlockchainConfiguration(Amount minHarvesterBalance) {
+				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 				config.ImportanceGrouping = 2;
 				config.MinHarvesterBalance = minHarvesterBalance;

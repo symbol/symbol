@@ -21,7 +21,7 @@
 
 #include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -51,7 +51,7 @@ namespace catapult { namespace validators {
 				state::AccountType accountType,
 				const Address& notificationAddress) {
 			// Arrange:
-			auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			AddAccount(cache, address, accountType);
 
 			auto pValidator = CreateRemoteSenderValidator();

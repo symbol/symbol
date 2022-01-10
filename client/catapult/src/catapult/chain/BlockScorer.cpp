@@ -109,7 +109,7 @@ namespace catapult { namespace chain {
 	}
 
 	namespace {
-		BlockTarget GetMultiplier(uint64_t timeDiff, const model::BlockChainConfiguration& config) {
+		BlockTarget GetMultiplier(uint64_t timeDiff, const model::BlockchainConfiguration& config) {
 			using boost::multiprecision::int128_t;
 			using boost::multiprecision::uint128_t;
 
@@ -145,7 +145,7 @@ namespace catapult { namespace chain {
 			const utils::TimeSpan& timeSpan,
 			Difficulty difficulty,
 			Importance signerImportance,
-			const model::BlockChainConfiguration& config) {
+			const model::BlockchainConfiguration& config) {
 		BlockTarget target = timeSpan.seconds();
 		target *= signerImportance.unwrap();
 		target *= GetMultiplier(timeSpan.seconds(), config);
@@ -159,7 +159,7 @@ namespace catapult { namespace chain {
 			const model::Block& parentBlock,
 			const model::Block& currentBlock,
 			Importance signerImportance,
-			const model::BlockChainConfiguration& config) {
+			const model::BlockchainConfiguration& config) {
 		if (currentBlock.Timestamp <= parentBlock.Timestamp)
 			return BlockTarget(0);
 
@@ -167,7 +167,7 @@ namespace catapult { namespace chain {
 		return CalculateTarget(timeDiff, currentBlock.Difficulty, signerImportance, config);
 	}
 
-	BlockHitPredicate::BlockHitPredicate(const model::BlockChainConfiguration& config, const ImportanceLookupFunc& importanceLookup)
+	BlockHitPredicate::BlockHitPredicate(const model::BlockchainConfiguration& config, const ImportanceLookupFunc& importanceLookup)
 			: m_config(config)
 			, m_importanceLookup(importanceLookup)
 	{}

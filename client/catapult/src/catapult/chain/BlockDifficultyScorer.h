@@ -21,24 +21,24 @@
 
 #pragma once
 #include "catapult/cache_core/BlockStatisticCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace chain {
 
 	/// Calculates the block difficulty given the past difficulties and timestamps (\a statistics) for the
-	/// block chain described by \a config.
-	Difficulty CalculateDifficulty(const cache::BlockStatisticRange& statistics, const model::BlockChainConfiguration& config);
+	/// blockchain described by \a config.
+	Difficulty CalculateDifficulty(const cache::BlockStatisticRange& statistics, const model::BlockchainConfiguration& config);
 
-	/// Calculates the block difficulty at \a height for the block chain described by \a config
+	/// Calculates the block difficulty at \a height for the blockchain described by \a config
 	/// given the block statistic \a cache.
-	Difficulty CalculateDifficulty(const cache::BlockStatisticCache& cache, Height height, const model::BlockChainConfiguration& config);
+	Difficulty CalculateDifficulty(const cache::BlockStatisticCache& cache, Height height, const model::BlockchainConfiguration& config);
 
-	/// Calculates the block difficulty at \a height into \a difficulty for the block chain described by
+	/// Calculates the block difficulty at \a height into \a difficulty for the blockchain described by
 	/// \a config given the block statistic \a cache.
 	bool TryCalculateDifficulty(
 			const cache::BlockStatisticCache& cache,
 			Height height,
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			Difficulty& difficulty);
 }}

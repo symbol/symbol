@@ -21,7 +21,7 @@
 
 #include "src/config/MosaicConfiguration.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
@@ -92,15 +92,15 @@ namespace catapult { namespace config {
 
 	TEST(TEST_CLASS, CanGetMosaicRentalFeeSinkAddressWithoutFork) {
 		// Arrange:
-		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-		blockChainConfig.ForkHeights.TreasuryReissuance = Height();
+		auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+		blockchainConfig.ForkHeights.TreasuryReissuance = Height();
 
 		auto config = MosaicConfiguration::Uninitialized();
 		config.MosaicRentalFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
 		config.MosaicRentalFeeSinkAddress = test::GenerateRandomByteArray<Address>();
 
 		// Act:
-		auto sinkAddress = GetMosaicRentalFeeSinkAddress(config, blockChainConfig);
+		auto sinkAddress = GetMosaicRentalFeeSinkAddress(config, blockchainConfig);
 
 		// Assert:
 		EXPECT_EQ(config.MosaicRentalFeeSinkAddress, sinkAddress.get(Height(0)));
@@ -109,15 +109,15 @@ namespace catapult { namespace config {
 
 	TEST(TEST_CLASS, CanGetMosaicRentalFeeSinkAddressWithFork) {
 		// Arrange:
-		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-		blockChainConfig.ForkHeights.TreasuryReissuance = Height(1234);
+		auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+		blockchainConfig.ForkHeights.TreasuryReissuance = Height(1234);
 
 		auto config = MosaicConfiguration::Uninitialized();
 		config.MosaicRentalFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
 		config.MosaicRentalFeeSinkAddress = test::GenerateRandomByteArray<Address>();
 
 		// Act:
-		auto sinkAddress = GetMosaicRentalFeeSinkAddress(config, blockChainConfig);
+		auto sinkAddress = GetMosaicRentalFeeSinkAddress(config, blockchainConfig);
 
 		// Assert:
 		EXPECT_EQ(config.MosaicRentalFeeSinkAddress, sinkAddress.get(Height(0)));

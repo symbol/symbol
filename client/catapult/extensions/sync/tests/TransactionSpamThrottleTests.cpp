@@ -24,7 +24,7 @@
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/HeightGrouping.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
@@ -39,9 +39,9 @@ namespace catapult { namespace sync {
 		using TransactionSource = chain::UtUpdater::TransactionSource;
 
 		cache::CatapultCache CreateCatapultCacheWithImportanceGrouping(uint64_t importanceGrouping) {
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.ImportanceGrouping = importanceGrouping;
-			return test::CreateEmptyCatapultCache(blockChainConfig);
+			auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+			blockchainConfig.ImportanceGrouping = importanceGrouping;
+			return test::CreateEmptyCatapultCache(blockchainConfig);
 		}
 
 		Key AddAccount(cache::AccountStateCacheDelta& delta, Importance importance) {

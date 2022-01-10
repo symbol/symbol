@@ -44,8 +44,8 @@ namespace catapult { namespace observers {
 			{}
 
 		private:
-			static model::BlockChainConfiguration CreateConfiguration() {
-				auto config = model::BlockChainConfiguration::Uninitialized();
+			static model::BlockchainConfiguration CreateConfiguration() {
+				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.Plugins.emplace("namespace::ex", utils::ConfigurationBag({
 					{
 						"",

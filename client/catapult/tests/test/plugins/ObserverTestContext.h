@@ -21,7 +21,7 @@
 
 #pragma once
 #include "catapult/cache/CatapultCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/observers/ObserverContext.h"
 #include "catapult/state/AccountState.h"
 #include "tests/test/cache/CacheTestUtils.h"
@@ -39,11 +39,11 @@ namespace catapult { namespace test {
 
 		/// Creates a test context around \a mode and \a height.
 		ObserverTestContextT(observers::NotifyMode mode, Height height)
-				: ObserverTestContextT(mode, height, model::BlockChainConfiguration::Uninitialized())
+				: ObserverTestContextT(mode, height, model::BlockchainConfiguration::Uninitialized())
 		{}
 
 		/// Creates a test context around \a mode, \a height and \a config.
-		ObserverTestContextT(observers::NotifyMode mode, Height height, const model::BlockChainConfiguration& config)
+		ObserverTestContextT(observers::NotifyMode mode, Height height, const model::BlockchainConfiguration& config)
 				: m_cache(TCacheFactory::Create(config))
 				, m_cacheDelta(m_cache.createDelta())
 				, m_context(

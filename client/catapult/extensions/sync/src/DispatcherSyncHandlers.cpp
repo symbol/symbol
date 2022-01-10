@@ -29,7 +29,7 @@
 namespace catapult { namespace sync {
 
 	void AddSupplementalDataResiliency(
-			consumers::BlockChainSyncHandlers& syncHandlers,
+			consumers::BlockchainSyncHandlers& syncHandlers,
 			const config::CatapultDataDirectory& dataDirectory,
 			const cache::CatapultCache& cache,
 			const extensions::LocalNodeChainScore& score) {

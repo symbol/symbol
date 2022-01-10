@@ -78,13 +78,13 @@ namespace catapult { namespace chain {
 
 		private:
 			static std::shared_ptr<plugins::PluginManager> CreatePluginManager() {
-				auto config = test::CreatePrototypicalBlockChainConfiguration();
+				auto config = test::CreatePrototypicalBlockchainConfiguration();
 				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
 				return test::CreatePluginManagerWithRealPlugins(config);
 			}
 
 			static cache::CatapultCache CreateCatapultCache() {
-				auto cache = test::CoreSystemCacheFactory::Create(test::CreatePrototypicalBlockChainConfiguration());
+				auto cache = test::CoreSystemCacheFactory::Create(test::CreatePrototypicalBlockchainConfiguration());
 				test::AddMarkerAccount(cache);
 				return cache;
 			}

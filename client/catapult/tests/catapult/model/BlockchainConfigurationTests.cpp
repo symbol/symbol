@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/ConfigurationUtils.h"
 #include "catapult/utils/HexParser.h"
@@ -28,9 +28,9 @@
 
 namespace catapult { namespace model {
 
-#define TEST_CLASS BlockChainConfigurationTests
+#define TEST_CLASS BlockchainConfigurationTests
 
-	// region BlockChainConfiguration
+	// region BlockchainConfiguration
 
 	namespace {
 		constexpr auto Nemesis_Signer_Public_Key = "C738E237C98760FA72726BA13DC2A1E3C13FA67DE26AF09742E972EE4EE45E1C";
@@ -50,8 +50,8 @@ namespace catapult { namespace model {
 				"3A785A34EA7FAB8AD7ED1B95EC0C0C1CC4097104DD3A47AB06E138D59DC48D75"
 				"300996EDEF0C24641EE5EFFD83A3EFE10CE4CA41DAAF642342E988A0A0EA7FB6";
 
-		struct BlockChainConfigurationTraits {
-			using ConfigurationType = BlockChainConfiguration;
+		struct BlockchainConfigurationTraits {
+			using ConfigurationType = BlockchainConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
 				return {
@@ -142,7 +142,7 @@ namespace catapult { namespace model {
 				return "network" != section && "chain" != section;
 			}
 
-			static void AssertZero(const BlockChainConfiguration& config) {
+			static void AssertZero(const BlockchainConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(NetworkIdentifier::Zero, config.Network.Identifier);
 				EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0), config.Network.NodeEqualityStrategy);
@@ -195,7 +195,7 @@ namespace catapult { namespace model {
 				EXPECT_TRUE(config.Plugins.empty());
 			}
 
-			static void AssertCustom(const BlockChainConfiguration& config) {
+			static void AssertCustom(const BlockchainConfiguration& config) {
 				// Assert: notice that ParseKey also works for Hash256 because it is the same type as Key
 				EXPECT_EQ(NetworkIdentifier::Testnet, config.Network.Identifier);
 				EXPECT_EQ(NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
@@ -264,11 +264,11 @@ namespace catapult { namespace model {
 		};
 	}
 
-	DEFINE_CONFIGURATION_TESTS(TEST_CLASS, BlockChain)
+	DEFINE_CONFIGURATION_TESTS(TEST_CLASS, Blockchain)
 
-	TEST(TEST_CLASS, CannotLoadBlockChainConfigurationWithInvalidNetwork) {
+	TEST(TEST_CLASS, CannotLoadBlockchainConfigurationWithInvalidNetwork) {
 		// Arrange: set an unknown network in the container
-		using Traits = BlockChainConfigurationTraits;
+		using Traits = BlockchainConfigurationTraits;
 		auto container = Traits::CreateProperties();
 		auto& networkProperties = container["network"];
 		auto hasIdentifierKey = [](const auto& pair) { return "identifier" == pair.first; };
@@ -281,7 +281,7 @@ namespace catapult { namespace model {
 	namespace {
 		void AssertCannotLoadWithSection(const std::string& section) {
 			// Arrange:
-			using Traits = BlockChainConfigurationTraits;
+			using Traits = BlockchainConfigurationTraits;
 			CATAPULT_LOG(debug) << "attempting to load configuration with extra section '" << section << "'";
 
 			// - create the properties and add the desired section
@@ -309,7 +309,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, ParseSucceedsWhenPluginSectionNameContainsValidPluginName) {
 		// Arrange:
-		using Traits = BlockChainConfigurationTraits;
+		using Traits = BlockchainConfigurationTraits;
 		auto validPluginNames = { "a", "j", "z", ".", "zeta", "some.long.name" };
 		for (const auto& pluginName : validPluginNames) {
 			CATAPULT_LOG(debug) << "attempting to load configuration with plugin named " << pluginName;
@@ -334,7 +334,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanGetUnresolvedCurrencyMosaicId) {
 		// Arrange:
-		auto config = BlockChainConfiguration::Uninitialized();
+		auto config = BlockchainConfiguration::Uninitialized();
 		config.CurrencyMosaicId = MosaicId(1234);
 
 		// Act + Assert:
@@ -343,7 +343,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanGetHarvestNetworkFeeSinkAddressWithoutFork) {
 		// Arrange:
-		auto config = BlockChainConfiguration::Uninitialized();
+		auto config = BlockchainConfiguration::Uninitialized();
 		config.HarvestNetworkFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
 		config.HarvestNetworkFeeSinkAddress = test::GenerateRandomByteArray<Address>();
 		config.ForkHeights.TreasuryReissuance = Height();
@@ -358,7 +358,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanGetHarvestNetworkFeeSinkAddressWithFork) {
 		// Arrange:
-		auto config = BlockChainConfiguration::Uninitialized();
+		auto config = BlockchainConfiguration::Uninitialized();
 		config.HarvestNetworkFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
 		config.HarvestNetworkFeeSinkAddress = test::GenerateRandomByteArray<Address>();
 		config.ForkHeights.TreasuryReissuance = Height(1234);
@@ -383,9 +383,9 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(TEST_CLASS, CanCalculateDependentSettingsFromCustomBlockChainConfiguration) {
+	TEST(TEST_CLASS, CanCalculateDependentSettingsFromCustomBlockchainConfiguration) {
 		// Arrange:
-		auto config = BlockChainConfiguration::Uninitialized();
+		auto config = BlockchainConfiguration::Uninitialized();
 		config.BlockGenerationTargetTime = TimeSpanFromMillis(30'001);
 		config.MaxTransactionLifetime = TimeSpanFromMillis(One_Hour_Ms - 1);
 		config.MaxRollbackBlocks = 600;
@@ -394,9 +394,9 @@ namespace catapult { namespace model {
 		EXPECT_EQ(TimeSpanFromMillis(30'001 * (600 + 150)), CalculateTransactionCacheDuration(config));
 	}
 
-	TEST(TEST_CLASS, CanCalculateDependentSettingsFromCustomBlockChainConfiguration_MaxRollbackBlocksZero) {
+	TEST(TEST_CLASS, CanCalculateDependentSettingsFromCustomBlockchainConfiguration_MaxRollbackBlocksZero) {
 		// Arrange:
-		auto config = BlockChainConfiguration::Uninitialized();
+		auto config = BlockchainConfiguration::Uninitialized();
 		config.BlockGenerationTargetTime = TimeSpanFromMillis(30'001);
 		config.MaxTransactionLifetime = TimeSpanFromMillis(One_Hour_Ms - 1);
 		config.MaxRollbackBlocks = 0;
@@ -407,7 +407,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, TransactionCacheDurationIncludesBufferTimeOfAtLeastOneHour) {
 		// Arrange:
-		auto config = BlockChainConfiguration::Uninitialized();
+		auto config = BlockchainConfiguration::Uninitialized();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(15);
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(2);
 		config.MaxRollbackBlocks = 20;
@@ -439,7 +439,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, LoadPluginConfigurationSucceedsWhenPluginConfigurationIsPresent) {
 		// Arrange:
-		using Traits = BlockChainConfigurationTraits;
+		using Traits = BlockchainConfigurationTraits;
 		auto config = Traits::ConfigurationType::LoadFromBag(Traits::CreateProperties());
 
 		// Act:
@@ -452,7 +452,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, LoadPluginConfigurationFailsWhenPluginConfigurationIsNotPresent) {
 		// Arrange:
-		using Traits = BlockChainConfigurationTraits;
+		using Traits = BlockchainConfigurationTraits;
 		auto config = Traits::ConfigurationType::LoadFromBag(Traits::CreateProperties());
 
 		// Act + Assert:

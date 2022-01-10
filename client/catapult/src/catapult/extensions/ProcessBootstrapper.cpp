@@ -50,7 +50,7 @@ namespace catapult { namespace extensions {
 							? thread::MultiServicePool::IsolatedPoolMode::Disabled
 							: thread::MultiServicePool::IsolatedPoolMode::Enabled))
 			, m_subscriptionManager(config)
-			, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(config), m_config.User, m_config.Inflation) {
+			, m_pluginManager(m_config.Blockchain, CreateStorageConfiguration(config), m_config.User, m_config.Inflation) {
 #ifdef STRICT_SYMBOL_VISIBILITY
 			// need to forcibly inject typeinfos into containing exe so that they are properly resolved across modules
 			ForceSymbolInjection<model::EmbeddedTransactionPlugin>();
@@ -128,7 +128,7 @@ namespace catapult { namespace extensions {
 	}
 
 	void AddStaticNodesFromPath(ProcessBootstrapper& bootstrapper, const std::string& path) {
-		const auto& networkInfo = bootstrapper.config().BlockChain.Network;
+		const auto& networkInfo = bootstrapper.config().Blockchain.Network;
 		auto networkFingerprint = model::UniqueNetworkFingerprint(networkInfo.Identifier, networkInfo.GenerationHashSeed);
 		auto nodes = config::LoadPeersFromPath(path, networkFingerprint);
 		bootstrapper.addStaticNodes(nodes);

@@ -293,7 +293,7 @@ class TypoChecker(SimpleValidator):
             re.compile(r'ile_?Name|ile [nN]ame'): 'Filename not FileName or File_Name or File Name',
             re.compile(r'o[nt]Zero|[nN]o[nt] [zZ]ero'): 'Nonzero not NonZero or Non Zero or NotZero or Not Zero',
             re.compile(r'hreadpool'): 'ThreadPool not Threadpool',
-            re.compile(r'lockchain'): 'BlockChain not Blockchain',
+            re.compile(r'lockChain|lock [cC]hain'): 'Blockchain not BlockChain or Block Chain',
             re.compile(r'onEmpty|on-empty'): 'NotEmpty not NonEmpty or non-empty',
             re.compile(r'oundTrip|ound [tT]rip'): 'Roundtrip not RoundTrip or Round Trip',
             re.compile(r'alidatorResult'): 'ValidationResult not ValidatorResult',

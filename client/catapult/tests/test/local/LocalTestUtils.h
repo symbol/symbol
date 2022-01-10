@@ -52,8 +52,8 @@ namespace catapult { namespace test {
 	/// Creates a default network time supplier for use in local tests.
 	supplier<Timestamp> CreateDefaultNetworkTimeSupplier();
 
-	/// Creates a prototypical block chain configuration that is safe to use in local tests.
-	model::BlockChainConfiguration CreatePrototypicalBlockChainConfiguration();
+	/// Creates a prototypical blockchain configuration that is safe to use in local tests.
+	model::BlockchainConfiguration CreatePrototypicalBlockchainConfiguration();
 
 	/// Creates an uninitialized catapult configuration.
 	config::CatapultConfiguration CreateUninitializedCatapultConfiguration();
@@ -64,10 +64,10 @@ namespace catapult { namespace test {
 	/// Creates a test catapult configuration with a storage in the specified directory (\a dataDirectory).
 	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(const std::string& dataDirectory);
 
-	/// Creates a test catapult configuration according to the supplied configuration (\a blockChainConfig)
+	/// Creates a test catapult configuration according to the supplied configuration (\a blockchainConfig)
 	/// with a storage in the specified directory (\a dataDirectory).
 	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(
-			model::BlockChainConfiguration&& blockChainConfig,
+			model::BlockchainConfiguration&& blockchainConfig,
 			const std::string& dataDirectory);
 
 	/// Creates a default unconfirmed transactions cache.
@@ -80,7 +80,7 @@ namespace catapult { namespace test {
 	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManagerWithRealPlugins();
 
 	/// Creates a plugin manager around \a config.
-	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const model::BlockChainConfiguration& config);
+	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const model::BlockchainConfiguration& config);
 
 	/// Creates a plugin manager around \a config.
 	/// \note This overload is the only overload that allows state verification.

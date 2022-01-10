@@ -37,7 +37,7 @@ namespace catapult { namespace observers {
 		class TestContext : public test::AccountObserverTestContext {
 		public:
 			explicit TestContext(NotifyMode notifyMode)
-					: test::AccountObserverTestContext(notifyMode, Notification_Height, CreateBlockChainConfiguration())
+					: test::AccountObserverTestContext(notifyMode, Notification_Height, CreateBlockchainConfiguration())
 			{}
 
 		public:
@@ -56,8 +56,8 @@ namespace catapult { namespace observers {
 			}
 
 		private:
-			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
-				auto config = model::BlockChainConfiguration::Uninitialized();
+			static model::BlockchainConfiguration CreateBlockchainConfiguration() {
+				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.ImportanceGrouping = 2;
 				return config;
 			}

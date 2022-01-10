@@ -21,7 +21,7 @@
 
 #include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -43,7 +43,7 @@ namespace catapult { namespace validators {
 		template<typename TNotificationModifier>
 		void AssertValidationResult(ValidationResult expectedResult, Height height, TNotificationModifier modifier) {
 			// Arrange:
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = 234;
 			config.MinHarvesterBalance = Amount(1'000'000);

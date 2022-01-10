@@ -61,7 +61,7 @@ namespace catapult { namespace extensions {
 			config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
 
 			auto config = test::CreatePrototypicalCatapultConfiguration(tempDir.name());
-			test::AddNemesisPluginExtensions(const_cast<model::BlockChainConfiguration&>(config.BlockChain));
+			test::AddNemesisPluginExtensions(const_cast<model::BlockchainConfiguration&>(config.Blockchain));
 
 			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
 			test::LocalNodeTestState localNodeState(pPluginManager->config(), tempDir.name(), pPluginManager->createCache());

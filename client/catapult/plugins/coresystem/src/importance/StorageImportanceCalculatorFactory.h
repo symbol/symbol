@@ -23,7 +23,7 @@
 #include "ImportanceCalculator.h"
 #include "catapult/config/CatapultDataDirectory.h"
 
-namespace catatpult { namespace model { struct BlockChainConfiguration; } }
+namespace catatpult { namespace model { struct BlockchainConfiguration; } }
 
 namespace catapult { namespace importance {
 
@@ -31,7 +31,7 @@ namespace catapult { namespace importance {
 	class StorageImportanceCalculatorFactory {
 	public:
 		/// Creates a factory around \a config.
-		explicit StorageImportanceCalculatorFactory(const model::BlockChainConfiguration& config);
+		explicit StorageImportanceCalculatorFactory(const model::BlockchainConfiguration& config);
 
 	public:
 		/// Decorates \a pCalculator by writing its results to \a directory.
@@ -45,6 +45,6 @@ namespace catapult { namespace importance {
 				const config::CatapultDirectory& directory) const;
 
 	private:
-		const model::BlockChainConfiguration& m_config;
+		const model::BlockchainConfiguration& m_config;
 	};
 }}

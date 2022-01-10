@@ -48,7 +48,7 @@ namespace catapult { namespace harvesting {
 			catapult::Difficulty Difficulty;
 
 		public:
-			bool tryCalculateDifficulty(const cache::BlockStatisticCache& cache, const model::BlockChainConfiguration& config) {
+			bool tryCalculateDifficulty(const cache::BlockStatisticCache& cache, const model::BlockchainConfiguration& config) {
 				return chain::TryCalculateDifficulty(cache, ParentBlock.Height, config, Difficulty);
 			}
 		};
@@ -75,7 +75,7 @@ namespace catapult { namespace harvesting {
 
 	Harvester::Harvester(
 			const cache::CatapultCache& cache,
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const Address& beneficiary,
 			const UnlockedAccounts& unlockedAccounts,
 			const BlockGenerator& blockGenerator)

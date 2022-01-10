@@ -31,7 +31,7 @@ namespace catapult { namespace syncsource {
 			auto& extensionManager = bootstrapper.extensionManager();
 			extensionManager.addServiceRegistrar(CreateSyncSourceServiceRegistrar());
 
-			if (bootstrapper.config().BlockChain.EnableVerifiableState)
+			if (bootstrapper.config().Blockchain.EnableVerifiableState)
 				extensionManager.addServiceRegistrar(CreateVerifiableStateServiceRegistrar());
 		}
 	}

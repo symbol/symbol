@@ -26,7 +26,7 @@
 
 namespace catapult { namespace consumers {
 
-	disruptor::ConstDisruptorConsumer CreateBlockChainSyncCleanupConsumer(const std::string& dataDirectory) {
+	disruptor::ConstDisruptorConsumer CreateBlockchainSyncCleanupConsumer(const std::string& dataDirectory) {
 		auto stateChangeDirectory = config::CatapultDataDirectory(dataDirectory).spoolDir("state_change").str();
 		return [stateChangeDirectory](const auto&) {
 			// skip next *two* messages because subscriber creates two files during sync (score change and state change)

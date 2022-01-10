@@ -22,7 +22,7 @@
 #include "catapult/consumers/UndoBlock.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/chain/BlockExecutor.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
@@ -128,7 +128,7 @@ namespace catapult { namespace consumers {
 		void RunStateHashEnabledTest(TAction action) {
 			// Arrange:
 			test::TempDirectoryGuard dbDirGuard;
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Enabled);
 			auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
 

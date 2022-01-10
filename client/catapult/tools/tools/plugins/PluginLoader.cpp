@@ -56,7 +56,7 @@ namespace catapult { namespace tools { namespace plugins {
 	public:
 		Impl(const config::CatapultConfiguration& config, CacheDatabaseCleanupMode databaseCleanupMode)
 				: m_config(config)
-				, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(m_config), m_config.User, m_config.Inflation) {
+				, m_pluginManager(m_config.Blockchain, CreateStorageConfiguration(m_config), m_config.User, m_config.Inflation) {
 			// in purge mode, clean up the data directory after each execution
 			// (cache database is hardcoded to "statedb" so entire data directory must be temporary)
 			if (CacheDatabaseCleanupMode::Purge != databaseCleanupMode)
@@ -81,7 +81,7 @@ namespace catapult { namespace tools { namespace plugins {
 				loadPlugin(pluginName);
 
 			// custom plugins
-			for (const auto& pair : m_config.BlockChain.Plugins)
+			for (const auto& pair : m_config.Blockchain.Plugins)
 				loadPlugin(pair.first);
 		}
 

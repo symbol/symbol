@@ -34,8 +34,8 @@ namespace catapult { namespace local {
 #define TEST_CLASS LocalNodeSyncSecretLockIntegrityTests
 
 	namespace {
-		using BlockChainBuilder = test::BlockChainBuilder;
-		using Blocks = BlockChainBuilder::Blocks;
+		using BlockchainBuilder = test::BlockchainBuilder;
+		using Blocks = BlockchainBuilder::Blocks;
 
 		constexpr auto Lock_Duration = BlockDuration(10);
 
@@ -53,7 +53,7 @@ namespace catapult { namespace local {
 		}
 
 		struct SecretLockTuple {
-			BlockChainBuilder Builder;
+			BlockchainBuilder Builder;
 			std::shared_ptr<model::Block> pSecretLockBlock;
 			std::vector<uint8_t> Proof;
 		};
@@ -74,7 +74,7 @@ namespace catapult { namespace local {
 			transactionsBuilder.addTransfer(0, 3, Amount(1'000'000));
 			auto secretProof = transactionsBuilder.addSecretLock(2, 3, Amount(100'000), Lock_Duration);
 
-			BlockChainBuilder builder(accounts, stateHashCalculator, context.createConfig().BlockChain);
+			BlockchainBuilder builder(accounts, stateHashCalculator, context.createConfig().Blockchain);
 			auto pSecretLockBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 
 			// Act:
@@ -157,7 +157,7 @@ namespace catapult { namespace local {
 
 				m_allBlocks.emplace_back(secretLockTuple.pSecretLockBlock);
 				m_allBlocks.insert(m_allBlocks.end(), transferBlocksResult.AllBlocks.cbegin(), transferBlocksResult.AllBlocks.cend());
-				m_pActiveBuilder = std::make_unique<BlockChainBuilder>(builder2);
+				m_pActiveBuilder = std::make_unique<BlockchainBuilder>(builder2);
 				return secretLockTuple.Proof;
 			}
 
@@ -170,7 +170,7 @@ namespace catapult { namespace local {
 
 				auto builder = m_pActiveBuilder->createChainedBuilder(stateHashCalculator);
 				builder.setBlockTimeInterval(blockInterval);
-				return builder.asBlockChain(transactionsBuilder);
+				return builder.asBlockchain(transactionsBuilder);
 			}
 
 		private:
@@ -178,7 +178,7 @@ namespace catapult { namespace local {
 
 			test::Accounts m_accounts;
 			SecretLockStateHashes m_stateHashes;
-			std::unique_ptr<BlockChainBuilder> m_pActiveBuilder;
+			std::unique_ptr<BlockchainBuilder> m_pActiveBuilder;
 			std::vector<std::shared_ptr<model::Block>> m_allBlocks;
 			uint32_t m_numAliveChains;
 		};
@@ -503,7 +503,7 @@ namespace catapult { namespace local {
 			SecretLockStateHashes runRegisterLockAndRollbackAndReregisterLockSecretLockTest() {
 				// Arrange:
 				SecretLockStateHashes stateHashes;
-				BlockChainBuilder::Blocks allBlocks;
+				BlockchainBuilder::Blocks allBlocks;
 
 				// - wait for boot
 				test::WaitForBoot(m_context);
@@ -545,7 +545,7 @@ namespace catapult { namespace local {
 
 				test::SecretLockTransactionsBuilder transactionsBuilder3(m_accounts);
 				transactionsBuilder3.addSecretLock(2, 3, Amount(100'000), Lock_Duration, secretProof);
-				auto blocks2 = builder3.asBlockChain(transactionsBuilder3);
+				auto blocks2 = builder3.asBlockchain(transactionsBuilder3);
 				test::PushEntities(m_connection, ionet::PacketType::Push_Block, blocks2);
 				test::WaitForHeightAndElements(m_context, Height(6), 5, 1);
 
@@ -569,7 +569,7 @@ namespace catapult { namespace local {
 		private:
 			static void ConfigTransform(config::CatapultConfiguration& config) {
 				// with importance grouping 1 the account state cache would change with every block, which is unwanted in the test
-				const_cast<model::BlockChainConfiguration&>(config.BlockChain).ImportanceGrouping = 100;
+				const_cast<model::BlockchainConfiguration&>(config.Blockchain).ImportanceGrouping = 100;
 			}
 
 		private:
@@ -591,10 +591,10 @@ namespace catapult { namespace local {
 				}
 			};
 
-			BlockChainBuilder seedCache(BlockChainBuilder::Blocks& allBlocks) {
+			BlockchainBuilder seedCache(BlockchainBuilder::Blocks& allBlocks) {
 				CacheSeedingTransactionsBuilder transactionsBuilder;
 				auto stateHashCalculator = m_context.createStateHashCalculator();
-				BlockChainBuilder builder(m_accounts, stateHashCalculator, m_context.createConfig().BlockChain);
+				BlockchainBuilder builder(m_accounts, stateHashCalculator, m_context.createConfig().Blockchain);
 				auto pBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 				allBlocks.push_back(pBlock);
 
@@ -604,7 +604,7 @@ namespace catapult { namespace local {
 				return builder;
 			}
 
-			BlockChainBuilder fundAccounts(BlockChainBuilder& builder, BlockChainBuilder::Blocks& allBlocks) {
+			BlockchainBuilder fundAccounts(BlockchainBuilder& builder, BlockchainBuilder::Blocks& allBlocks) {
 				// - fund accounts
 				test::SecretLockTransactionsBuilder transactionsBuilder(m_accounts);
 				transactionsBuilder.addTransfer(0, 2, Amount(1'000'000));
@@ -614,7 +614,7 @@ namespace catapult { namespace local {
 				auto stateHashCalculator = m_context.createStateHashCalculator();
 				test::SeedStateHashCalculator(stateHashCalculator, allBlocks);
 				auto chainedBuilder = builder.createChainedBuilder(stateHashCalculator);
-				auto blocks = chainedBuilder.asBlockChain(transactionsBuilder);
+				auto blocks = chainedBuilder.asBlockchain(transactionsBuilder);
 				allBlocks.insert(allBlocks.cend(), blocks.cbegin(), blocks.cend());
 
 				test::PushEntities(m_connection, ionet::PacketType::Push_Block, blocks);
@@ -629,19 +629,19 @@ namespace catapult { namespace local {
 				return chainedBuilder;
 			}
 
-			BlockChainBuilder::Blocks createBlocks(
+			BlockchainBuilder::Blocks createBlocks(
 					test::SecretLockTransactionsBuilder& transactionGenerator,
-					BlockChainBuilder& builder,
-					BlockChainBuilder::Blocks& allBlocks,
+					BlockchainBuilder& builder,
+					BlockchainBuilder::Blocks& allBlocks,
 					utils::TimeSpan blockTimeInterval = utils::TimeSpan::FromSeconds(60)) {
 				auto stateHashCalculator = m_context.createStateHashCalculator();
 				test::SeedStateHashCalculator(stateHashCalculator, allBlocks);
 				auto tempBuilder = builder.createChainedBuilder(stateHashCalculator);
 				tempBuilder.setBlockTimeInterval(blockTimeInterval);
-				return tempBuilder.asBlockChain(transactionGenerator);
+				return tempBuilder.asBlockchain(transactionGenerator);
 			}
 
-			std::shared_ptr<model::Block> pushBlockAndWait(BlockChainBuilder& builder, Height height) {
+			std::shared_ptr<model::Block> pushBlockAndWait(BlockchainBuilder& builder, Height height) {
 				test::SecretLockTransactionsBuilder transactionsBuilder(m_accounts);
 				auto pBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 				test::PushEntity(m_connection, ionet::PacketType::Push_Block, pBlock);
@@ -715,8 +715,8 @@ namespace catapult { namespace local {
 			transactionsBuilder.addSecretProof(2, 3, secretProof);
 
 			// - send chain
-			BlockChainBuilder builder(accounts, stateHashCalculator, context.createConfig().BlockChain);
-			auto blocks = builder.asBlockChain(transactionsBuilder);
+			BlockchainBuilder builder(accounts, stateHashCalculator, context.createConfig().Blockchain);
+			auto blocks = builder.asBlockchain(transactionsBuilder);
 
 			test::ExternalSourceConnection connection(context.publicKey());
 			test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);

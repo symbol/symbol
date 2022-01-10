@@ -29,11 +29,11 @@
 
 namespace catapult { namespace consumers {
 
-#define TEST_CLASS BlockChainCheckConsumerTests
+#define TEST_CLASS BlockchainCheckConsumerTests
 
 	namespace {
-		disruptor::ConstBlockConsumer CreateDefaultBlockChainCheckConsumer() {
-			return CreateBlockChainCheckConsumer(utils::TimeSpan::FromHours(1), []() {
+		disruptor::ConstBlockConsumer CreateDefaultBlockchainCheckConsumer() {
+			return CreateBlockchainCheckConsumer(utils::TimeSpan::FromHours(1), []() {
 				return Timestamp(100);
 			});
 		}
@@ -42,7 +42,7 @@ namespace catapult { namespace consumers {
 	// region basic
 
 	TEST(TEST_CLASS, CanProcessZeroEntities) {
-		test::AssertPassthroughForEmptyInput(CreateDefaultBlockChainCheckConsumer());
+		test::AssertPassthroughForEmptyInput(CreateDefaultBlockchainCheckConsumer());
 	}
 
 	// endregion
@@ -58,7 +58,7 @@ namespace catapult { namespace consumers {
 			// Arrange:
 			auto elements = test::CreateBlockElements(chainSize);
 			test::LinkBlocks(Height(12), elements);
-			auto consumer = CreateBlockChainCheckConsumer(maxBlockFutureTime, [currentTime]() {
+			auto consumer = CreateBlockchainCheckConsumer(maxBlockFutureTime, [currentTime]() {
 				return currentTime;
 			});
 
@@ -115,7 +115,7 @@ namespace catapult { namespace consumers {
 		auto pBlock2 = CreateBlockFromTransactions(transactions, { 3, 4, 3 });
 		auto pBlock3 = CreateBlockFromTransactions(transactions, { 6, 7, 8 });
 		auto elements = test::CreateBlockElements({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
-		auto consumer = CreateDefaultBlockChainCheckConsumer();
+		auto consumer = CreateDefaultBlockchainCheckConsumer();
 
 		// Act:
 		auto result = consumer(elements);
@@ -131,7 +131,7 @@ namespace catapult { namespace consumers {
 		auto pBlock2 = CreateBlockFromTransactions(transactions, { 3, 4, 5 });
 		auto pBlock3 = CreateBlockFromTransactions(transactions, { 6, 1, 8 });
 		auto elements = test::CreateBlockElements({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
-		auto consumer = CreateDefaultBlockChainCheckConsumer();
+		auto consumer = CreateDefaultBlockchainCheckConsumer();
 
 		// Act:
 		auto result = consumer(elements);
@@ -147,7 +147,7 @@ namespace catapult { namespace consumers {
 		auto pBlock2 = CreateBlockFromTransactions(transactions, { 3, 4, 5 });
 		auto pBlock3 = CreateBlockFromTransactions(transactions, { 6, 7, 8 });
 		auto elements = test::CreateBlockElements({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
-		auto consumer = CreateDefaultBlockChainCheckConsumer();
+		auto consumer = CreateDefaultBlockchainCheckConsumer();
 
 		// Act:
 		auto result = consumer(elements);
@@ -166,7 +166,7 @@ namespace catapult { namespace consumers {
 			auto elements = test::CreateBlockElements(4);
 			test::LinkBlocks(Height(12), elements);
 			unlink(const_cast<model::Block&>(elements[2].Block));
-			auto consumer = CreateDefaultBlockChainCheckConsumer();
+			auto consumer = CreateDefaultBlockchainCheckConsumer();
 
 			// Act:
 			auto result = consumer(elements);
@@ -190,7 +190,7 @@ namespace catapult { namespace consumers {
 		test::LinkBlocks(Height(12), elements);
 		const_cast<model::Block&>(elements[1].Block).Height = Height(12 + 2);
 		const_cast<model::Block&>(elements[2].Block).Height = Height(12 + 1);
-		auto consumer = CreateDefaultBlockChainCheckConsumer();
+		auto consumer = CreateDefaultBlockchainCheckConsumer();
 
 		// Act:
 		auto result = consumer(elements);
@@ -223,7 +223,7 @@ namespace catapult { namespace consumers {
 			GetBlockFooterAt(elements, 4).PreviousImportanceBlockHash = elements[2].EntityHash;
 			unlink(GetBlockFooterAt(elements, 2));
 
-			auto consumer = CreateDefaultBlockChainCheckConsumer();
+			auto consumer = CreateDefaultBlockchainCheckConsumer();
 
 			// Act:
 			auto result = consumer(elements);

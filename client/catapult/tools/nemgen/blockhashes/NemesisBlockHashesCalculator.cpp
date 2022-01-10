@@ -31,7 +31,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	BlockExecutionHashesInfo CalculateNemesisBlockExecutionHashes(
 			const model::BlockElement& blockElement,
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			plugins::PluginManager& pluginManager) {
 		// 1. prepare observer
 		auto publisherOptions = model::ExtractNemesisNotificationPublisherOptions(config);

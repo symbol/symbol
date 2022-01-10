@@ -99,9 +99,9 @@ namespace catapult { namespace sync {
 
 		config::CatapultConfiguration CreateCatapultConfigurationFromSettings(const ThrottleTestSettings& settings) {
 			test::MutableCatapultConfiguration config;
-			config.BlockChain.TotalChainImportance = Importance(1'000'000'000);
-			config.BlockChain.MaxTransactionsPerBlock = settings.MaxBlockSize;
-			config.BlockChain.ImportanceGrouping = 1;
+			config.Blockchain.TotalChainImportance = Importance(1'000'000'000);
+			config.Blockchain.MaxTransactionsPerBlock = settings.MaxBlockSize;
+			config.Blockchain.ImportanceGrouping = 1;
 
 			config.Node.EnableTransactionSpamThrottling = settings.EnableTransactionSpamThrottling;
 			config.Node.TransactionSpamThrottlingMaxBoostFee = Amount(10'000'000);
@@ -124,7 +124,7 @@ namespace catapult { namespace sync {
 			auto config = CreateCatapultConfigurationFromSettings(settings);
 
 			// - create a read only catapult cache (importance grouping needs to be nonzero)
-			auto catapultCache = test::CreateEmptyCatapultCache(config.BlockChain);
+			auto catapultCache = test::CreateEmptyCatapultCache(config.Blockchain);
 			auto catapultCacheView = catapultCache.createView();
 			auto readOnlyCatapultCache = catapultCacheView.toReadOnly();
 

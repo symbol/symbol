@@ -66,7 +66,7 @@ namespace catapult { namespace test {
 		return context.localNode().cache().createView().calculateStateHash().StateHash;
 	}
 
-	void SeedStateHashCalculator(StateHashCalculator& stateHashCalculator, const BlockChainBuilder::Blocks& blocks) {
+	void SeedStateHashCalculator(StateHashCalculator& stateHashCalculator, const BlockchainBuilder::Blocks& blocks) {
 		// can load nemesis from memory because it is only used for execution, so state hash can be wrong
 		mocks::MockMemoryBlockStorage storage;
 		auto pNemesisBlockElement = storage.loadBlockElement(Height(1));

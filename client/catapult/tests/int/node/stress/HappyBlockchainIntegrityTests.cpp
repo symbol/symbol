@@ -24,7 +24,7 @@
 #include "catapult/config/ValidateConfiguration.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/ChainScore.h"
-#include "tests/int/node/stress/test/BlockChainBuilder.h"
+#include "tests/int/node/stress/test/BlockchainBuilder.h"
 #include "tests/int/node/stress/test/TransactionsBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/int/node/test/LocalNodeTestContext.h"
@@ -38,7 +38,7 @@
 
 namespace catapult { namespace local {
 
-#define TEST_CLASS HappyBlockChainIntegrityTests
+#define TEST_CLASS HappyBlockchainIntegrityTests
 
 	namespace {
 		constexpr size_t Default_Network_Size = 10;
@@ -73,11 +73,11 @@ namespace catapult { namespace local {
 			return nodes;
 		}
 
-		void UpdateBlockChainConfiguration(model::BlockChainConfiguration& blockChainConfig) {
-			blockChainConfig.ImportanceGrouping = Max_Rollback_Blocks / 2 + 1;
-			blockChainConfig.VotingSetGrouping = blockChainConfig.ImportanceGrouping;
-			blockChainConfig.MaxRollbackBlocks = Max_Rollback_Blocks;
-			blockChainConfig.MaxDifficultyBlocks = Max_Rollback_Blocks - 1;
+		void UpdateBlockchainConfiguration(model::BlockchainConfiguration& blockchainConfig) {
+			blockchainConfig.ImportanceGrouping = Max_Rollback_Blocks / 2 + 1;
+			blockchainConfig.VotingSetGrouping = blockchainConfig.ImportanceGrouping;
+			blockchainConfig.MaxRollbackBlocks = Max_Rollback_Blocks;
+			blockchainConfig.MaxDifficultyBlocks = Max_Rollback_Blocks - 1;
 		}
 
 		void UpdateConfigurationForNode(config::CatapultConfiguration& config, uint32_t id) {
@@ -87,7 +87,7 @@ namespace catapult { namespace local {
 			nodeConfig.Port = port;
 
 			// 2. specify custom network settings
-			UpdateBlockChainConfiguration(const_cast<model::BlockChainConfiguration&>(config.BlockChain));
+			UpdateBlockchainConfiguration(const_cast<model::BlockchainConfiguration&>(config.Blockchain));
 
 			// 3. ensure configuration is valid
 			ValidateConfiguration(config);
@@ -125,11 +125,11 @@ namespace catapult { namespace local {
 			catapult::Height Height;
 		};
 
-		ChainStatistics PushRandomBlockChainToNode(
+		ChainStatistics PushRandomBlockchainToNode(
 				const ionet::Node& node,
 				test::StateHashCalculator& stateHashCalculator,
 				const std::string& resourcesPath,
-				const test::BlockChainBuilder::BlockReceiptsHashCalculator& blockReceiptsHashCalculator,
+				const test::BlockchainBuilder::BlockReceiptsHashCalculator& blockReceiptsHashCalculator,
 				size_t numBlocks,
 				utils::TimeSpan blockTimeInterval) {
 			constexpr uint32_t Num_Accounts = 11;
@@ -142,13 +142,13 @@ namespace catapult { namespace local {
 				transactionsBuilder.addTransfer(0, recipientId, Amount(1'000'000));
 			}
 
-			auto blockChainConfig = test::CreatePrototypicalBlockChainConfiguration();
-			UpdateBlockChainConfiguration(blockChainConfig);
+			auto blockchainConfig = test::CreatePrototypicalBlockchainConfiguration();
+			UpdateBlockchainConfiguration(blockchainConfig);
 
-			test::BlockChainBuilder builder(accounts, stateHashCalculator, blockChainConfig, resourcesPath);
+			test::BlockchainBuilder builder(accounts, stateHashCalculator, blockchainConfig, resourcesPath);
 			builder.setBlockTimeInterval(blockTimeInterval);
 			builder.setBlockReceiptsHashCalculator(blockReceiptsHashCalculator);
-			auto blocks = builder.asBlockChain(transactionsBuilder);
+			auto blocks = builder.asBlockchain(transactionsBuilder);
 
 			test::ExternalSourceConnection connection(node);
 			test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);
@@ -233,7 +233,7 @@ namespace catapult { namespace local {
 		class BlockReceiptsEnabledTraits {
 		public:
 			Hash256 calculateReceiptsHash(const model::Block& block) const {
-				// happy block chain tests send transfers, so only harvest fee receipt needs to be added
+				// happy blockchain tests send transfers, so only harvest fee receipt needs to be added
 				auto totalFee = model::CalculateBlockTransactionsInfo(block).TotalFee;
 
 				model::BlockStatementBuilder blockStatementBuilder;
@@ -341,7 +341,7 @@ namespace catapult { namespace local {
 				// - when stateHashCalculator data directory is empty, there is no cache lock so node resources can be used directly
 				CATAPULT_LOG(debug) << "pushing initial chain to node " << i;
 				auto stateHashCalculator = verifyTraits.createStateHashCalculator(context, i);
-				auto chainStats = PushRandomBlockChainToNode(
+				auto chainStats = PushRandomBlockchainToNode(
 						networkNodes[i],
 						stateHashCalculator,
 						stateHashCalculator.dataDirectory().empty() ? context.dataDirectory() : stateHashCalculator.dataDirectory(),
@@ -381,7 +381,7 @@ namespace catapult { namespace local {
 				LogStatistics(node, GetStatistics(context));
 
 				try {
-					// - block chain sync consumer updates score and then cache, so need to wait for both to avoid race condition
+					// - blockchain sync consumer updates score and then cache, so need to wait for both to avoid race condition
 					const auto& cache = context.localNode().cache();
 					WAIT_FOR_VALUE_EXPR_SECONDS(bestChainStats.Score, context.localNode().score(), 45);
 					WAIT_FOR_VALUE_EXPR_SECONDS(bestChainStats.Height, cache.createView().height(), 10);

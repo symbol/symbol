@@ -20,12 +20,12 @@
 **/
 
 #pragma once
-#include "catapult/consumers/BlockChainSyncHandlers.h"
+#include "catapult/consumers/BlockchainSyncHandlers.h"
 
 namespace catapult { namespace config { class CatapultDataDirectory; } }
 
 namespace catapult { namespace extensions {
 
 	/// Creates a commit step handler around \a dataDirectory.
-	consumers::BlockChainSyncHandlers::CommitStepFunc CreateCommitStepHandler(const config::CatapultDataDirectory& dataDirectory);
+	consumers::BlockchainSyncHandlers::CommitStepFunc CreateCommitStepHandler(const config::CatapultDataDirectory& dataDirectory);
 }}

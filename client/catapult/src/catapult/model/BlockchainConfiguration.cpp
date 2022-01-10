@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "BlockChainConfiguration.h"
+#include "BlockchainConfiguration.h"
 #include "Address.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
@@ -29,7 +29,7 @@ DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT
 
 namespace catapult { namespace model {
 
-	// region BlockChainConfiguration
+	// region BlockchainConfiguration
 
 	namespace {
 		void CheckPluginName(const std::string& pluginName) {
@@ -72,12 +72,12 @@ namespace catapult { namespace model {
 		}
 	}
 
-	BlockChainConfiguration BlockChainConfiguration::Uninitialized() {
-		return BlockChainConfiguration();
+	BlockchainConfiguration BlockchainConfiguration::Uninitialized() {
+		return BlockchainConfiguration();
 	}
 
-	BlockChainConfiguration BlockChainConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
-		BlockChainConfiguration config;
+	BlockchainConfiguration BlockchainConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
+		BlockchainConfiguration config;
 
 #define LOAD_NETWORK_PROPERTY(NAME) utils::LoadIniProperty(bag, "network", #NAME, config.Network.NAME)
 
@@ -149,22 +149,22 @@ namespace catapult { namespace model {
 
 	// region calculated properties
 
-	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config) {
+	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockchainConfiguration& config) {
 		return UnresolvedMosaicId(config.CurrencyMosaicId.unwrap());
 	}
 
-	HeightDependentAddress GetHarvestNetworkFeeSinkAddress(const BlockChainConfiguration& config) {
+	HeightDependentAddress GetHarvestNetworkFeeSinkAddress(const BlockchainConfiguration& config) {
 		HeightDependentAddress sinkAddress(config.HarvestNetworkFeeSinkAddress);
 		sinkAddress.trySet(config.HarvestNetworkFeeSinkAddressV1, config.ForkHeights.TreasuryReissuance);
 		return sinkAddress;
 	}
 
 	namespace {
-		utils::TimeSpan CalculateFullRollbackDuration(const BlockChainConfiguration& config) {
+		utils::TimeSpan CalculateFullRollbackDuration(const BlockchainConfiguration& config) {
 			return utils::TimeSpan::FromMilliseconds(config.BlockGenerationTargetTime.millis() * config.MaxRollbackBlocks);
 		}
 
-		utils::TimeSpan CalculateRollbackVariabilityBufferDuration(const BlockChainConfiguration& config) {
+		utils::TimeSpan CalculateRollbackVariabilityBufferDuration(const BlockchainConfiguration& config) {
 			// use the greater of 25% of the rollback time or one hour as a buffer against block time variability
 			return utils::TimeSpan::FromHours(4).millis() > CalculateFullRollbackDuration(config).millis()
 					? utils::TimeSpan::FromHours(1)
@@ -172,7 +172,7 @@ namespace catapult { namespace model {
 		}
 	}
 
-	utils::TimeSpan CalculateTransactionCacheDuration(const BlockChainConfiguration& config) {
+	utils::TimeSpan CalculateTransactionCacheDuration(const BlockchainConfiguration& config) {
 		if (0 == config.MaxRollbackBlocks)
 			return config.MaxTransactionLifetime;
 

@@ -22,7 +22,7 @@
 #include "ChainSynchronizer.h"
 #include "CompareChains.h"
 #include "catapult/api/RemoteChainApi.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/thread/FutureUtils.h"
 #include "catapult/utils/SpinLock.h"
 #include <queue>

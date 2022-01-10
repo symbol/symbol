@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include "BlockChainProcessor.h"
-#include "BlockChainSyncHandlers.h"
+#include "BlockchainProcessor.h"
+#include "BlockchainSyncHandlers.h"
 #include "HashCheckOptions.h"
 #include "InputUtils.h"
 #include "catapult/chain/ChainFunctions.h"
@@ -48,9 +48,9 @@ namespace catapult { namespace consumers {
 	/// \a timeSupplier is used for generating timestamps and \a options specifies additional cache options.
 	disruptor::ConstBlockConsumer CreateBlockHashCheckConsumer(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options);
 
-	/// Creates a consumer that checks a block chain for internal integrity.
+	/// Creates a consumer that checks a blockchain for internal integrity.
 	/// Valid chain must end no more than \a maxBlockFutureTime past the current time supplied by \a timeSupplier.
-	disruptor::ConstBlockConsumer CreateBlockChainCheckConsumer(
+	disruptor::ConstBlockConsumer CreateBlockchainCheckConsumer(
 			const utils::TimeSpan& maxBlockFutureTime,
 			const chain::TimeSupplier& timeSupplier);
 
@@ -78,14 +78,14 @@ namespace catapult { namespace consumers {
 	/// state (in \a cache) and blocks (in \a storage) with \a importanceGrouping.
 	/// \a handlers are used to customize the sync process.
 	/// \note This consumer is non-const because it updates the element generation hashes.
-	disruptor::DisruptorConsumer CreateBlockChainSyncConsumer(
+	disruptor::DisruptorConsumer CreateBlockchainSyncConsumer(
 			uint64_t importanceGrouping,
 			cache::CatapultCache& cache,
 			io::BlockStorageCache& storage,
-			const BlockChainSyncHandlers& handlers);
+			const BlockchainSyncHandlers& handlers);
 
-	/// Creates a consumer that cleans up temporary state produced by the block chain sync consumer given \a dataDirectory.
-	disruptor::ConstDisruptorConsumer CreateBlockChainSyncCleanupConsumer(const std::string& dataDirectory);
+	/// Creates a consumer that cleans up temporary state produced by the blockchain sync consumer given \a dataDirectory.
+	disruptor::ConstDisruptorConsumer CreateBlockchainSyncCleanupConsumer(const std::string& dataDirectory);
 
 	/// Prototype for a function that is called with a new block.
 	using NewBlockSink = consumer<const std::shared_ptr<const model::Block>&>;

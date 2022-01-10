@@ -21,7 +21,7 @@
 
 #include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -37,7 +37,7 @@ namespace catapult { namespace validators {
 		constexpr auto Currency_Mosaic_Id = UnresolvedMosaicId(2345);
 
 		auto CreateCache() {
-			return test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			return test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		}
 
 		model::MosaicProperties CreateMosaicProperties(model::MosaicFlags flags) {

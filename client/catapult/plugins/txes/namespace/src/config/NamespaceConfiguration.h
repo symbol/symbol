@@ -25,7 +25,7 @@
 #include <unordered_set>
 
 namespace catapult {
-	namespace model { struct BlockChainConfiguration; }
+	namespace model { struct BlockchainConfiguration; }
 	namespace utils { class ConfigurationBag; }
 }
 
@@ -78,8 +78,8 @@ namespace catapult { namespace config {
 		static NamespaceConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
 
-	/// Gets the namespace rental fee sink address from \a config and \a blockChainConfig.
+	/// Gets the namespace rental fee sink address from \a config and \a blockchainConfig.
 	model::HeightDependentAddress GetNamespaceRentalFeeSinkAddress(
 			const NamespaceConfiguration& config,
-			const model::BlockChainConfiguration& blockChainConfig);
+			const model::BlockchainConfiguration& blockchainConfig);
 }}

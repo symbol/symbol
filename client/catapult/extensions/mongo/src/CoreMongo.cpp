@@ -24,7 +24,7 @@
 #include "mappers/KeyLinkTransactionMapper.h"
 #include "storages/MongoAccountStateCacheStorage.h"
 #include "mongo/src/MongoReceiptPluginFactory.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 
 namespace catapult { namespace mongo {
 

@@ -25,7 +25,7 @@
 
 namespace catapult {
 	namespace model {
-		struct BlockChainConfiguration;
+		struct BlockchainConfiguration;
 		struct BlockElement;
 		struct BlockStatement;
 	}
@@ -62,6 +62,6 @@ namespace catapult { namespace tools { namespace nemgen {
 	/// and \a pluginManager.
 	BlockExecutionHashesInfo CalculateNemesisBlockExecutionHashes(
 			const model::BlockElement& blockElement,
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			plugins::PluginManager& pluginManager);
 }}}

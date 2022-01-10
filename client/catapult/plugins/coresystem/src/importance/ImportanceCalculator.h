@@ -26,7 +26,7 @@
 
 namespace catapult {
 	namespace cache { class AccountStateCacheDelta; }
-	namespace model { struct BlockChainConfiguration; }
+	namespace model { struct BlockchainConfiguration; }
 }
 
 namespace catapult { namespace importance {
@@ -56,8 +56,8 @@ namespace catapult { namespace importance {
 				cache::AccountStateCacheDelta& cache) const = 0;
 	};
 
-	/// Creates an importance calculator for the block chain described by \a config.
-	std::unique_ptr<ImportanceCalculator> CreateImportanceCalculator(const model::BlockChainConfiguration& config);
+	/// Creates an importance calculator for the blockchain described by \a config.
+	std::unique_ptr<ImportanceCalculator> CreateImportanceCalculator(const model::BlockchainConfiguration& config);
 
 	/// Creates a restore importance calculator.
 	std::unique_ptr<ImportanceCalculator> CreateRestoreImportanceCalculator();

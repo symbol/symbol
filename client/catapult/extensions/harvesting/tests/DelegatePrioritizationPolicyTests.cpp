@@ -21,7 +21,7 @@
 
 #include "harvesting/src/DelegatePrioritizationPolicy.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
@@ -43,9 +43,9 @@ namespace catapult { namespace harvesting {
 
 	namespace {
 		auto CreateCatapultCacheWithImportantAccount(const Key& importantAccountPublicKey, Height cacheHeight = Height(100)) {
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.ImportanceGrouping = 1;
-			auto cache = test::CreateEmptyCatapultCache(blockChainConfig);
+			auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+			blockchainConfig.ImportanceGrouping = 1;
+			auto cache = test::CreateEmptyCatapultCache(blockchainConfig);
 
 			auto cacheDelta = cache.createDelta();
 			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();

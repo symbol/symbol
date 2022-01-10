@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "BlockChainBuilder.h"
+#include "BlockchainBuilder.h"
 #include "StateHashCalculator.h"
 #include "tests/int/node/test/PeerLocalNodeTestContext.h"
 #include "tests/test/nodeps/Filesystem.h"
@@ -66,7 +66,7 @@ namespace catapult { namespace test {
 	Hash256 GetStateHash(const PeerLocalNodeTestContext& context);
 
 	/// Seeds \a stateHashCalculator with \a blocks.
-	void SeedStateHashCalculator(StateHashCalculator& stateHashCalculator, const BlockChainBuilder::Blocks& blocks);
+	void SeedStateHashCalculator(StateHashCalculator& stateHashCalculator, const BlockchainBuilder::Blocks& blocks);
 
 	/// Waits for the local node wrapped by \a context to reach \a height with \a numExpectedBlockElements block elements
 	/// and \a numTerminalReaders terminal readers.

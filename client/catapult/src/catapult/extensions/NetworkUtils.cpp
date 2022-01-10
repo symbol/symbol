@@ -44,8 +44,8 @@ namespace catapult { namespace extensions {
 
 	net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config) {
 		net::ConnectionSettings settings;
-		settings.NetworkIdentifier = config.BlockChain.Network.Identifier;
-		settings.NodeIdentityEqualityStrategy = config.BlockChain.Network.NodeEqualityStrategy;
+		settings.NetworkIdentifier = config.Blockchain.Network.Identifier;
+		settings.NodeIdentityEqualityStrategy = config.Blockchain.Network.NodeEqualityStrategy;
 
 		settings.Timeout = config.Node.ConnectTimeout;
 		settings.SocketWorkingBufferSize = config.Node.SocketWorkingBufferSize;

@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 
 		void AssertCanLoadPlugins(
 				const std::string& directory,
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				bool isDynamicModule,
 				const std::vector<std::string>& pluginNames) {
 			// Arrange: ensure module is destroyed after manager
@@ -59,7 +59,7 @@ namespace catapult { namespace plugins {
 
 		void AssertCanLoadKnownDynamicallyLinkedPlugins(const std::string& directory) {
 			// Arrange:
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.Plugins.emplace(Known_Plugin_Name, utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
 
 			// Assert:
@@ -97,7 +97,7 @@ namespace catapult { namespace plugins {
 		bool isExceptionHandled = false;
 		try {
 			// - prepare insufficient configuration
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.Plugins.emplace(Known_Plugin_Name, utils::ConfigurationBag({{ "", { { "maxMessageSizeX", "0" } } }}));
 
 			// - create the manager

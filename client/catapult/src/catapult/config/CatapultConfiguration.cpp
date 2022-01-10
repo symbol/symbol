@@ -45,13 +45,13 @@ namespace catapult { namespace config {
 	}
 
 	CatapultConfiguration::CatapultConfiguration(
-			model::BlockChainConfiguration&& blockChainConfig,
+			model::BlockchainConfiguration&& blockchainConfig,
 			NodeConfiguration&& nodeConfig,
 			LoggingConfiguration&& loggingConfig,
 			UserConfiguration&& userConfig,
 			ExtensionsConfiguration&& extensionsConfig,
 			InflationConfiguration&& inflationConfig)
-			: BlockChain(std::move(blockChainConfig))
+			: Blockchain(std::move(blockchainConfig))
 			, Node(std::move(nodeConfig))
 			, Logging(std::move(loggingConfig))
 			, User(std::move(userConfig))
@@ -63,7 +63,7 @@ namespace catapult { namespace config {
 			const std::filesystem::path& resourcesPath,
 			const std::string& extensionsHost) {
 		return CatapultConfiguration(
-				LoadIniConfiguration<model::BlockChainConfiguration>(resourcesPath / Qualify("network")),
+				LoadIniConfiguration<model::BlockchainConfiguration>(resourcesPath / Qualify("network")),
 				LoadIniConfiguration<NodeConfiguration>(resourcesPath / Qualify("node")),
 				LoadIniConfiguration<LoggingConfiguration>(resourcesPath / HostQualify("logging", extensionsHost)),
 				LoadIniConfiguration<UserConfiguration>(resourcesPath / Qualify("user")),
@@ -83,8 +83,8 @@ namespace catapult { namespace config {
 		endpoint.Port = config.Node.Port;
 
 		auto networkFingerprint = model::UniqueNetworkFingerprint(
-				config.BlockChain.Network.Identifier,
-				config.BlockChain.Network.GenerationHashSeed);
+				config.Blockchain.Network.Identifier,
+				config.Blockchain.Network.GenerationHashSeed);
 		auto metadata = ionet::NodeMetadata(networkFingerprint);
 		metadata.Name = localNodeConfig.FriendlyName;
 		metadata.Version = ionet::NodeVersion(localNodeConfig.Version);

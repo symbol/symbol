@@ -78,7 +78,7 @@ namespace catapult { namespace sync {
 
 		cache::CatapultCache CreateCatapultCacheForDispatcherTests() {
 			// importance grouping must be non-zero
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.ImportanceGrouping = 1;
 			config.VotingSetGrouping = 1;
 
@@ -460,8 +460,8 @@ namespace catapult { namespace sync {
 		void AssertCanConsumeBlockRange(bool enableVerifiableReceipts, model::AnnotatedBlockRange&& range, THandler handler) {
 			// Arrange:
 			TestContext context;
-			const auto& blockChainConfig = context.testState().config().BlockChain;
-			const_cast<model::BlockChainConfiguration&>(blockChainConfig).EnableVerifiableReceipts = enableVerifiableReceipts;
+			const auto& blockchainConfig = context.testState().config().Blockchain;
+			const_cast<model::BlockchainConfiguration&>(blockchainConfig).EnableVerifiableReceipts = enableVerifiableReceipts;
 
 			context.boot();
 			auto factory = context.testState().state().hooks().blockRangeConsumerFactory()(disruptor::InputSource::Local);
@@ -1375,7 +1375,7 @@ namespace catapult { namespace sync {
 			nodeConfig.EnableTransactionSpamThrottling = enableFiltering;
 			nodeConfig.TransactionSpamThrottlingMaxBoostFee = Amount(10'000'000);
 			nodeConfig.UnconfirmedTransactionsCacheMaxSize = utils::FileSize::FromBytes(maxTransactionsInCache * defaultTransactionSize);
-			const_cast<uint32_t&>(config.BlockChain.MaxTransactionsPerBlock) = maxTransactionsInCache / 2;
+			const_cast<uint32_t&>(config.Blockchain.MaxTransactionsPerBlock) = maxTransactionsInCache / 2;
 
 			// - boot the service
 			context.boot();

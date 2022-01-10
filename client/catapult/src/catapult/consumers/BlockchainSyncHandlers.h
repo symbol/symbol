@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "BlockChainProcessor.h"
+#include "BlockchainProcessor.h"
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/subscribers/StateChangeInfo.h"
 #include "catapult/utils/ArraySet.h"
@@ -72,8 +72,8 @@ namespace catapult { namespace consumers {
 		All_Updated
 	};
 
-	/// Handlers used by the block chain sync consumer.
-	struct BlockChainSyncHandlers {
+	/// Handlers used by the blockchain sync consumer.
+	struct BlockchainSyncHandlers {
 	public:
 		/// Prototype for checking block difficulties.
 		using DifficultyCheckerFunc = predicate<const std::vector<const model::Block*>&, const cache::CatapultCache&>;
@@ -98,7 +98,7 @@ namespace catapult { namespace consumers {
 		using CommitStepFunc = consumer<CommitOperationStep>;
 
 	public:
-		/// Checks all difficulties in a block chain for correctness.
+		/// Checks all difficulties in a blockchain for correctness.
 		DifficultyCheckerFunc DifficultyChecker;
 
 		/// Supplies the local finalized height hash pair.
@@ -107,8 +107,8 @@ namespace catapult { namespace consumers {
 		/// Supplies the network finalized height hash pair.
 		FinalizedHeightHashPairSupplierFunc NetworkFinalizedHeightHashPairSupplier;
 
-		/// Processes (validates and executes) a block chain.
-		BlockChainProcessor Processor;
+		/// Processes (validates and executes) a blockchain.
+		BlockchainProcessor Processor;
 
 		/// Undoes a block and updates a cache.
 		UndoBlockFunc UndoBlock;

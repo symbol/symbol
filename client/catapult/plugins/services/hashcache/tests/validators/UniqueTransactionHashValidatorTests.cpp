@@ -72,7 +72,7 @@ namespace catapult { namespace validators {
 		}
 
 		CatapultCache CreateCache(const TimestampedHashes& timestampedHashes) {
-			auto cache = test::CreateEmptyCatapultCache<test::HashCacheFactory>(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::CreateEmptyCatapultCache<test::HashCacheFactory>(model::BlockchainConfiguration::Uninitialized());
 			auto delta = cache.createDelta();
 			auto& hashCache = delta.sub<cache::HashCache>();
 			for (const auto& timestampedHash : timestampedHashes)

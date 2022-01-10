@@ -21,7 +21,7 @@
 
 #include "src/config/NamespaceConfiguration.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
@@ -110,15 +110,15 @@ namespace catapult { namespace config {
 
 	TEST(TEST_CLASS, CanGetNamespaceRentalFeeSinkAddressWithoutFork) {
 		// Arrange:
-		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-		blockChainConfig.ForkHeights.TreasuryReissuance = Height();
+		auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+		blockchainConfig.ForkHeights.TreasuryReissuance = Height();
 
 		auto config = NamespaceConfiguration::Uninitialized();
 		config.NamespaceRentalFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
 		config.NamespaceRentalFeeSinkAddress = test::GenerateRandomByteArray<Address>();
 
 		// Act:
-		auto sinkAddress = GetNamespaceRentalFeeSinkAddress(config, blockChainConfig);
+		auto sinkAddress = GetNamespaceRentalFeeSinkAddress(config, blockchainConfig);
 
 		// Assert:
 		EXPECT_EQ(config.NamespaceRentalFeeSinkAddress, sinkAddress.get(Height(0)));
@@ -127,15 +127,15 @@ namespace catapult { namespace config {
 
 	TEST(TEST_CLASS, CanGetNamespaceRentalFeeSinkAddressWithFork) {
 		// Arrange:
-		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-		blockChainConfig.ForkHeights.TreasuryReissuance = Height(1234);
+		auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+		blockchainConfig.ForkHeights.TreasuryReissuance = Height(1234);
 
 		auto config = NamespaceConfiguration::Uninitialized();
 		config.NamespaceRentalFeeSinkAddressV1 = test::GenerateRandomByteArray<Address>();
 		config.NamespaceRentalFeeSinkAddress = test::GenerateRandomByteArray<Address>();
 
 		// Act:
-		auto sinkAddress = GetNamespaceRentalFeeSinkAddress(config, blockChainConfig);
+		auto sinkAddress = GetNamespaceRentalFeeSinkAddress(config, blockchainConfig);
 
 		// Assert:
 		EXPECT_EQ(config.NamespaceRentalFeeSinkAddress, sinkAddress.get(Height(0)));

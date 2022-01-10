@@ -23,7 +23,7 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/io/BlockStorageCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/ChainScore.h"
 #include "tests/catapult/consumers/test/ConsumerInputFactory.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
@@ -42,7 +42,7 @@ using catapult::validators::ValidationResult;
 
 namespace catapult { namespace consumers {
 
-#define TEST_CLASS BlockChainSyncConsumerTests
+#define TEST_CLASS BlockchainSyncConsumerTests
 
 	namespace {
 		constexpr auto Base_Difficulty = Difficulty().unwrap();
@@ -374,7 +374,7 @@ namespace catapult { namespace consumers {
 
 		public:
 			static cache::CatapultCache Create(PruneIdentifiers& pruneIdentifiers) {
-				auto config = model::BlockChainConfiguration::Uninitialized();
+				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.VotingSetGrouping = 1;
 
 				std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(3);
@@ -454,7 +454,7 @@ namespace catapult { namespace consumers {
 					Cache.commit(Height(1));
 				}
 
-				BlockChainSyncHandlers handlers;
+				BlockchainSyncHandlers handlers;
 				handlers.DifficultyChecker = [this](const auto& blocks, const auto& cache) {
 					return DifficultyChecker(blocks, cache);
 				};
@@ -483,7 +483,7 @@ namespace catapult { namespace consumers {
 					return CommitStep(step);
 				};
 
-				Consumer = CreateBlockChainSyncConsumer(3, Cache, Storage, handlers);
+				Consumer = CreateBlockchainSyncConsumer(3, Cache, Storage, handlers);
 			}
 
 		public:
@@ -1486,7 +1486,7 @@ namespace catapult { namespace consumers {
 			auto pBlock5 = test::GenerateImportanceBlockWithTransactions(1);
 
 			// - notice that only *first* importance block needs to be linked
-			//   internal links are checked by different (BlockChainCheck) consumer
+			//   internal links are checked by different (BlockchainCheck) consumer
 			if (shouldCreateLink) {
 				// 3 == ImportanceGrouping
 				auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock2);

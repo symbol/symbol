@@ -47,8 +47,8 @@ namespace catapult { namespace extensions {
 			test::MutableCatapultConfiguration config;
 			config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
 
-			config.BlockChain.Network.Identifier = static_cast<model::NetworkIdentifier>(7);
-			config.BlockChain.Network.NodeEqualityStrategy = static_cast<model::NodeIdentityEqualityStrategy>(11);
+			config.Blockchain.Network.Identifier = static_cast<model::NetworkIdentifier>(7);
+			config.Blockchain.Network.NodeEqualityStrategy = static_cast<model::NodeIdentityEqualityStrategy>(11);
 
 			config.Node.EnableAddressReuse = true;
 			config.Node.ConnectTimeout = utils::TimeSpan::FromSeconds(11);

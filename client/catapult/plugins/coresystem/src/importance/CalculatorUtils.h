@@ -23,7 +23,7 @@
 #include "catapult/model/HeightGrouping.h"
 
 namespace catapult {
-	namespace model { struct BlockChainConfiguration; }
+	namespace model { struct BlockchainConfiguration; }
 	namespace state {
 		class AccountActivityBuckets;
 		struct AccountState;
@@ -97,5 +97,5 @@ namespace catapult { namespace importance {
 	void CalculateImportances(
 			AccountSummary& accountSummary,
 			const ImportanceCalculationContext& context,
-			const model::BlockChainConfiguration& config);
+			const model::BlockchainConfiguration& config);
 }}

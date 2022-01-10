@@ -20,7 +20,7 @@
 **/
 
 #include "catapult/chain/ProcessContextsBuilder.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/observers/ObserverContext.h"
 #include "catapult/validators/ValidatorContext.h"
 #include "tests/test/cache/CacheTestUtils.h"

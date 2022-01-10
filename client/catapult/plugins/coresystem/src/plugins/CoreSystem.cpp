@@ -35,7 +35,7 @@
 #include "catapult/keylink/KeyLinkValidator.h"
 #include "catapult/keylink/MultiKeyLinkObserver.h"
 #include "catapult/keylink/MultiKeyLinkValidator.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
@@ -44,7 +44,7 @@ namespace catapult { namespace plugins {
 	namespace {
 		// region caches
 
-		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockChainConfiguration& config) {
+		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockchainConfiguration& config) {
 			return {
 				config.Network.Identifier,
 				config.ImportanceGrouping,
@@ -57,7 +57,7 @@ namespace catapult { namespace plugins {
 			};
 		}
 
-		void AddAccountStateCache(PluginManager& manager, const model::BlockChainConfiguration& config) {
+		void AddAccountStateCache(PluginManager& manager, const model::BlockchainConfiguration& config) {
 			using namespace catapult::cache;
 
 			auto cacheConfig = manager.cacheConfig(AccountStateCache::Name);
@@ -77,7 +77,7 @@ namespace catapult { namespace plugins {
 			});
 		}
 
-		void AddBlockStatisticCache(PluginManager& manager, const model::BlockChainConfiguration& config) {
+		void AddBlockStatisticCache(PluginManager& manager, const model::BlockchainConfiguration& config) {
 			using namespace catapult::cache;
 
 			manager.addCacheSupport(std::make_unique<BlockStatisticCacheSubCachePlugin>(config.MaxDifficultyBlocks));
@@ -94,7 +94,7 @@ namespace catapult { namespace plugins {
 		// region observers
 
 		auto CreateRecalculateImportancesObserver(
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const config::CatapultDirectory& directory) {
 			auto pCommitCalculator = importance::CreateImportanceCalculator(config);
 			auto pRollbackCalculator = importance::CreateRestoreImportanceCalculator();

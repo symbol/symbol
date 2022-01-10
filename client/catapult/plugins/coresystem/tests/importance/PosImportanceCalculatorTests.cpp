@@ -21,7 +21,7 @@
 
 #include "src/importance/ImportanceCalculator.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/state/AccountActivityBuckets.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
@@ -37,8 +37,8 @@ namespace catapult { namespace importance {
 		constexpr model::ImportanceHeight Recalculation_Height(360);
 		constexpr uint8_t Num_Account_States = 10;
 
-		model::BlockChainConfiguration CreateBlockChainConfiguration(uint8_t importanceActivityPercentage) {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateBlockchainConfiguration(uint8_t importanceActivityPercentage) {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = 1;
 			config.TotalChainImportance = Importance(9'000);
@@ -186,8 +186,8 @@ namespace catapult { namespace importance {
 	}
 
 	struct ActivityTraits {
-		static model::BlockChainConfiguration CreateConfiguration() {
-			return CreateBlockChainConfiguration(10);
+		static model::BlockchainConfiguration CreateConfiguration() {
+			return CreateBlockchainConfiguration(10);
 		}
 
 		static void IncreaseImportance(state::AccountState& accountState) {
@@ -199,8 +199,8 @@ namespace catapult { namespace importance {
 	};
 
 	struct NoActivityTraits {
-		static model::BlockChainConfiguration CreateConfiguration() {
-			return CreateBlockChainConfiguration(0);
+		static model::BlockchainConfiguration CreateConfiguration() {
+			return CreateBlockchainConfiguration(0);
 		}
 
 		static void IncreaseImportance(state::AccountState& accountState) {
@@ -376,7 +376,7 @@ namespace catapult { namespace importance {
 
 	TEST(TEST_CLASS, PosGivesAccountsImportanceProportionalToBalance) {
 		// Arrange:
-		auto config = CreateBlockChainConfiguration(0);
+		auto config = CreateBlockchainConfiguration(0);
 
 		std::vector<AccountSeed> accountSeeds;
 		for (auto i = 1u; i <= Num_Account_States; ++i)
@@ -411,7 +411,7 @@ namespace catapult { namespace importance {
 		template<typename TCreateBucket>
 		void AssertActivityIncreasesImportance(TCreateBucket createBucket) {
 			// Arrange:
-			auto config = CreateBlockChainConfiguration(10);
+			auto config = CreateBlockchainConfiguration(10);
 
 			std::vector<AccountSeed> accountSeeds;
 			auto amount = Amount(config.MinHarvesterBalance.unwrap());
@@ -454,7 +454,7 @@ namespace catapult { namespace importance {
 
 	TEST(TEST_CLASS, FeeActivityIncreasesImportanceMoreThanBeneficiaryActivity) {
 		// Arrange:
-		auto config = CreateBlockChainConfiguration(10);
+		auto config = CreateBlockchainConfiguration(10);
 
 		std::vector<AccountSeed> accountSeeds;
 		std::vector<state::AccountActivityBuckets::ActivityBucket> buckets1;
@@ -480,7 +480,7 @@ namespace catapult { namespace importance {
 
 	TEST(TEST_CLASS, ActivityBasedImportanceDecreasesWithIncreasingStake) {
 		// Arrange:
-		auto config = CreateBlockChainConfiguration(10);
+		auto config = CreateBlockchainConfiguration(10);
 
 		std::vector<AccountSeed> accountSeeds;
 		for (auto i = 1u; i <= 2; ++i) {
@@ -518,7 +518,7 @@ namespace catapult { namespace importance {
 		template<typename TAction>
 		void RunActivityBucketCreationRemovalTest(TAction action) {
 			// Arrange:
-			auto config = CreateBlockChainConfiguration(0);
+			auto config = CreateBlockchainConfiguration(0);
 
 			std::vector<AccountSeed> accountSeeds;
 			for (auto i = 1u; i <= Num_Account_States; ++i) {

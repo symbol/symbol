@@ -22,7 +22,7 @@
 #pragma once
 #include "src/cache/MosaicRestrictionCache.h"
 #include "src/cache/MosaicRestrictionCacheStorage.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {
@@ -40,7 +40,7 @@ namespace catapult { namespace test {
 		}
 
 		/// Creates an empty catapult cache around \a config.
-		static cache::CatapultCache Create(const model::BlockChainConfiguration& config) {
+		static cache::CatapultCache Create(const model::BlockchainConfiguration& config) {
 			return Create(config.Network.Identifier);
 		}
 	};

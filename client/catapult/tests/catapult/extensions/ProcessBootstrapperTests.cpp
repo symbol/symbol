@@ -37,7 +37,7 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, CanCreateBootstrapper) {
 		// Arrange:
 		test::MutableCatapultConfiguration config;
-		config.BlockChain.BlockTimeSmoothingFactor = 15;
+		config.Blockchain.BlockTimeSmoothingFactor = 15;
 		config.Node.EnableCacheDatabaseStorage = true;
 		config.Node.FileDatabaseBatchSize = test::File_Database_Batch_Size;
 		config.User.DataDirectory = "base_data_dir";
@@ -46,7 +46,7 @@ namespace catapult { namespace extensions {
 		ProcessBootstrapper bootstrapper(config.ToConst(), "resources path", ProcessDisposition::Recovery, "bootstrapper");
 
 		// Assert: compare BlockTimeSmoothingFactor as a sentinel value because the bootstrapper copies the config
-		EXPECT_EQ(15u, bootstrapper.config().BlockChain.BlockTimeSmoothingFactor);
+		EXPECT_EQ(15u, bootstrapper.config().Blockchain.BlockTimeSmoothingFactor);
 
 		const auto& pluginManager = bootstrapper.pluginManager();
 		EXPECT_EQ(15u, pluginManager.config().BlockTimeSmoothingFactor);
@@ -157,8 +157,8 @@ namespace catapult { namespace extensions {
 
 		auto CreateCatapultConfigurationWithCustomNetworkFingerprint() {
 			test::MutableCatapultConfiguration config;
-			config.BlockChain.Network.Identifier = model::NetworkIdentifier::Testnet;
-			config.BlockChain.Network.GenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
+			config.Blockchain.Network.Identifier = model::NetworkIdentifier::Testnet;
+			config.Blockchain.Network.GenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
 			config.Node.FileDatabaseBatchSize = test::File_Database_Batch_Size;
 			return config.ToConst();
 		}

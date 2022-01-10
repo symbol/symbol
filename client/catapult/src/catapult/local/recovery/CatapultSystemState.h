@@ -21,7 +21,7 @@
 
 #pragma once
 #include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/consumers/BlockChainSyncHandlers.h"
+#include "catapult/consumers/BlockchainSyncHandlers.h"
 
 namespace catapult { namespace local {
 

@@ -27,7 +27,7 @@
 
 namespace catapult { namespace model {
 
-	/// Score of a block chain.
+	/// Score of a blockchain.
 	/// \note This is a 128-bit value.
 	class ChainScore {
 	private:

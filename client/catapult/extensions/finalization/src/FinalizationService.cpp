@@ -105,8 +105,8 @@ namespace catapult { namespace finalization {
 				net::PacketWriters& packetWriters) {
 			FinalizationContextFactory finalizationContextFactory(config, state);
 			auto finalizationProofSynchronizer = chain::CreateFinalizationProofSynchronizer(
-					state.config().BlockChain.VotingSetGrouping,
-					config.UnfinalizedBlocksDuration.blocks(state.config().BlockChain.BlockGenerationTargetTime),
+					state.config().Blockchain.VotingSetGrouping,
+					config.UnfinalizedBlocksDuration.blocks(state.config().Blockchain.BlockGenerationTargetTime),
 					state.storage(),
 					GetProofStorageCache(locator),
 					[finalizationContextFactory](const auto& proof) {

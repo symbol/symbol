@@ -158,7 +158,7 @@ namespace catapult { namespace extensions {
 		auto pNemesisBlockElement = storageView.loadBlockElement(Height(1));
 
 		// 2. execute the nemesis block
-		execute(stateRef.Config.BlockChain, *pNemesisBlockElement, stateHashVerification, Verbosity::On);
+		execute(stateRef.Config.Blockchain, *pNemesisBlockElement, stateHashVerification, Verbosity::On);
 	}
 
 	void NemesisBlockLoader::executeAndCommit(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification) {
@@ -169,7 +169,7 @@ namespace catapult { namespace extensions {
 		stateRef.Cache.commit(Height(1));
 	}
 
-	void NemesisBlockLoader::execute(const model::BlockChainConfiguration& config, const model::BlockElement& nemesisBlockElement) {
+	void NemesisBlockLoader::execute(const model::BlockchainConfiguration& config, const model::BlockElement& nemesisBlockElement) {
 		execute(config, nemesisBlockElement, StateHashVerification::Enabled, Verbosity::Off);
 	}
 
@@ -219,7 +219,7 @@ namespace catapult { namespace extensions {
 	}
 
 	void NemesisBlockLoader::execute(
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const model::BlockElement& nemesisBlockElement,
 			StateHashVerification stateHashVerification,
 			Verbosity verbosity) {

@@ -32,8 +32,8 @@ namespace catapult { namespace chain {
 	namespace {
 		constexpr auto Max_Smoothing = 100u;
 
-		model::BlockChainConfiguration CreateConfiguration() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateConfiguration() {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
 			config.BlockTimeSmoothingFactor = 0;
 			config.TotalChainImportance = test::Default_Total_Chain_Importance;
@@ -202,7 +202,7 @@ namespace catapult { namespace chain {
 				uint64_t currentTime,
 				uint64_t importance,
 				uint64_t difficulty = 60,
-				const model::BlockChainConfiguration& config = CreateConfiguration()) {
+				const model::BlockchainConfiguration& config = CreateConfiguration()) {
 			// Arrange:
 			auto timeDiff = utils::TimeSpan::FromSeconds(currentTime - parentTime);
 			auto realDifficulty = Difficulty(difficulty * 1'000'000'000'000);
@@ -216,7 +216,7 @@ namespace catapult { namespace chain {
 				uint64_t currentTime,
 				uint64_t importance,
 				uint64_t difficulty = 60,
-				const model::BlockChainConfiguration& config = CreateConfiguration()) {
+				const model::BlockchainConfiguration& config = CreateConfiguration()) {
 			// Arrange:
 			model::Block parent;
 			SetTimestampSeconds(parent, parentTime);
@@ -499,7 +499,7 @@ namespace catapult { namespace chain {
 					})
 			{}
 
-			model::BlockChainConfiguration Config;
+			model::BlockchainConfiguration Config;
 			BlockHitPredicate Predicate;
 			std::vector<std::pair<Key, Height>> ImportanceLookupParams;
 		};

@@ -52,7 +52,7 @@
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/NodeInteractionResult.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/subscribers/NodeSubscriber.h"
 #include "catapult/subscribers/StateChangeSubscriber.h"
@@ -144,32 +144,32 @@ namespace catapult { namespace sync {
 
 		// region block
 
-		ReceiptValidationMode GetReceiptValidationMode(const model::BlockChainConfiguration& blockChainConfig) {
-			return blockChainConfig.EnableVerifiableReceipts ? ReceiptValidationMode::Enabled : ReceiptValidationMode::Disabled;
+		ReceiptValidationMode GetReceiptValidationMode(const model::BlockchainConfiguration& blockchainConfig) {
+			return blockchainConfig.EnableVerifiableReceipts ? ReceiptValidationMode::Enabled : ReceiptValidationMode::Disabled;
 		}
 
-		BlockChainProcessor CreateSyncProcessor(
-				const model::BlockChainConfiguration& blockChainConfig,
+		BlockchainProcessor CreateSyncProcessor(
+				const model::BlockchainConfiguration& blockchainConfig,
 				const chain::ExecutionConfiguration& executionConfig) {
-			BlockHitPredicateFactory blockHitPredicateFactory = [&blockChainConfig](const cache::ReadOnlyCatapultCache& cache) {
+			BlockHitPredicateFactory blockHitPredicateFactory = [&blockchainConfig](const cache::ReadOnlyCatapultCache& cache) {
 				cache::ImportanceView view(cache.sub<cache::AccountStateCache>());
-				return chain::BlockHitPredicate(blockChainConfig, [view](const auto& publicKey, auto height) {
+				return chain::BlockHitPredicate(blockchainConfig, [view](const auto& publicKey, auto height) {
 					return view.getAccountImportanceOrDefault(publicKey, height);
 				});
 			};
-			return CreateBlockChainProcessor(
+			return CreateBlockchainProcessor(
 					blockHitPredicateFactory,
 					chain::CreateBatchEntityProcessor(executionConfig),
-					GetReceiptValidationMode(blockChainConfig));
+					GetReceiptValidationMode(blockchainConfig));
 		}
 
-		BlockChainSyncHandlers CreateBlockChainSyncHandlers(extensions::ServiceState& state, RollbackInfo& rollbackInfo) {
-			const auto& blockChainConfig = state.config().BlockChain;
+		BlockchainSyncHandlers CreateBlockchainSyncHandlers(extensions::ServiceState& state, RollbackInfo& rollbackInfo) {
+			const auto& blockchainConfig = state.config().Blockchain;
 			const auto& pluginManager = state.pluginManager();
 
-			BlockChainSyncHandlers syncHandlers;
-			syncHandlers.DifficultyChecker = [&rollbackInfo, blockChainConfig](const auto& blocks, const cache::CatapultCache& cache) {
-				auto result = chain::CheckDifficulties(cache.sub<cache::BlockStatisticCache>(), blocks, blockChainConfig);
+			BlockchainSyncHandlers syncHandlers;
+			syncHandlers.DifficultyChecker = [&rollbackInfo, blockchainConfig](const auto& blocks, const cache::CatapultCache& cache) {
+				auto result = chain::CheckDifficulties(cache.sub<cache::BlockStatisticCache>(), blocks, blockchainConfig);
 				rollbackInfo.modifier().reset();
 				return blocks.size() == result;
 			};
@@ -187,7 +187,7 @@ namespace catapult { namespace sync {
 				auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
 				UndoBlock(blockElement, { *pUndoObserver, resolverContext, observerState }, undoBlockType);
 			};
-			syncHandlers.Processor = CreateSyncProcessor(blockChainConfig, extensions::CreateExecutionConfiguration(pluginManager));
+			syncHandlers.Processor = CreateSyncProcessor(blockchainConfig, extensions::CreateExecutionConfiguration(pluginManager));
 
 			syncHandlers.StateChange = [&rollbackInfo, &localScore = state.score(), &subscriber = state.stateChangeSubscriber()](
 					const auto& changeInfo) {
@@ -221,7 +221,7 @@ namespace catapult { namespace sync {
 		public:
 			void addHashConsumers() {
 				m_consumers.push_back(CreateBlockHashCalculatorConsumer(
-						m_state.config().BlockChain.Network.GenerationHashSeed,
+						m_state.config().Blockchain.Network.GenerationHashSeed,
 						m_state.pluginManager().transactionRegistry()));
 				m_consumers.push_back(CreateBlockHashCheckConsumer(
 						m_state.timeSupplier(),
@@ -231,28 +231,28 @@ namespace catapult { namespace sync {
 			std::shared_ptr<ConsumerDispatcher> build(thread::IoThreadPool& validatorPool, RollbackInfo& rollbackInfo) {
 				const auto& utCache = const_cast<const extensions::ServiceState&>(m_state).utCache();
 				auto requiresValidationPredicate = ToRequiresValidationPredicate(m_state.hooks().knownHashPredicate(utCache));
-				m_consumers.push_back(CreateBlockChainCheckConsumer(
-						m_state.config().BlockChain.MaxBlockFutureTime,
+				m_consumers.push_back(CreateBlockchainCheckConsumer(
+						m_state.config().Blockchain.MaxBlockFutureTime,
 						m_state.timeSupplier()));
 				m_consumers.push_back(CreateBlockStatelessValidationConsumer(
 						CreateParallelValidationPolicy(validatorPool, m_state.pluginManager()),
 						requiresValidationPredicate));
 				m_consumers.push_back(CreateBlockBatchSignatureConsumer(
-						m_state.config().BlockChain.Network.GenerationHashSeed,
+						m_state.config().Blockchain.Network.GenerationHashSeed,
 						CreateRandomFiller(),
 						m_state.pluginManager().createNotificationPublisher(),
 						validatorPool,
 						requiresValidationPredicate));
 
 				auto disruptorConsumers = DisruptorConsumersFromBlockConsumers(m_consumers);
-				disruptorConsumers.push_back(CreateBlockChainSyncConsumer(
-						m_state.config().BlockChain.ImportanceGrouping,
+				disruptorConsumers.push_back(CreateBlockchainSyncConsumer(
+						m_state.config().Blockchain.ImportanceGrouping,
 						m_state.cache(),
 						m_state.storage(),
-						CreateBlockChainSyncHandlers(m_state, rollbackInfo)));
+						CreateBlockchainSyncHandlers(m_state, rollbackInfo)));
 
 				if (m_state.config().Node.EnableAutoSyncCleanup)
-					disruptorConsumers.push_back(CreateBlockChainSyncCleanupConsumer(m_state.config().User.DataDirectory));
+					disruptorConsumers.push_back(CreateBlockchainSyncCleanupConsumer(m_state.config().User.DataDirectory));
 
 				// forward locally harvested blocks and blocks pushed by partners
 				auto newBlockSinkSourceMask = static_cast<InputSource>(
@@ -310,7 +310,7 @@ namespace catapult { namespace sync {
 			void addHashConsumers() {
 				const auto& utCache = const_cast<const extensions::ServiceState&>(m_state).utCache();
 				m_consumers.push_back(CreateTransactionHashCalculatorConsumer(
-						m_state.config().BlockChain.Network.GenerationHashSeed,
+						m_state.config().Blockchain.Network.GenerationHashSeed,
 						m_state.pluginManager().transactionRegistry()));
 				m_consumers.push_back(CreateTransactionHashCheckConsumer(
 						m_state.timeSupplier(),
@@ -324,7 +324,7 @@ namespace catapult { namespace sync {
 						CreateParallelValidationPolicy(validatorPool, m_state.pluginManager()),
 						failedTransactionSink));
 				m_consumers.push_back(CreateTransactionBatchSignatureConsumer(
-						m_state.config().BlockChain.Network.GenerationHashSeed,
+						m_state.config().Blockchain.Network.GenerationHashSeed,
 						CreateRandomFiller(),
 						m_state.pluginManager().createNotificationPublisher(),
 						validatorPool,
@@ -364,7 +364,7 @@ namespace catapult { namespace sync {
 
 			auto pBatchRangeDispatcher = std::make_shared<extensions::TransactionBatchRangeDispatcher>(
 					*pDispatcher,
-					state.config().BlockChain.Network.NodeEqualityStrategy);
+					state.config().Blockchain.Network.NodeEqualityStrategy);
 			locator.registerRootedService("dispatcher.transaction.batch", pBatchRangeDispatcher);
 
 			auto shouldProcessTransactions = extensions::CreateShouldProcessTransactionsPredicate(state);
@@ -413,7 +413,7 @@ namespace catapult { namespace sync {
 		auto CreateAndRegisterRollbackService(
 				extensions::ServiceLocator& locator,
 				const chain::TimeSupplier& timeSupplier,
-				const model::BlockChainConfiguration& config) {
+				const model::BlockchainConfiguration& config) {
 			auto rollbackDurationFull = CalculateTransactionCacheDuration(config);
 			auto rollbackDurationHalf = utils::TimeSpan::FromMilliseconds(rollbackDurationFull.millis() / 2);
 			auto pRollbackInfo = std::make_shared<RollbackInfo>(timeSupplier, rollbackDurationHalf);
@@ -463,7 +463,7 @@ namespace catapult { namespace sync {
 				TransactionDispatcherBuilder transactionDispatcherBuilder(state);
 				transactionDispatcherBuilder.addHashConsumers();
 
-				auto pRollbackInfo = CreateAndRegisterRollbackService(locator, state.timeSupplier(), state.config().BlockChain);
+				auto pRollbackInfo = CreateAndRegisterRollbackService(locator, state.timeSupplier(), state.config().Blockchain);
 				auto pBlockDispatcher = blockDispatcherBuilder.build(*pValidatorPool, *pRollbackInfo);
 				RegisterBlockDispatcherService(pBlockDispatcher, *pServiceGroup, locator, state);
 

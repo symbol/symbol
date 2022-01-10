@@ -29,7 +29,7 @@ namespace catapult { namespace config {
 #define CATAPULT_THROW_VALIDATION_ERROR(MESSAGE) CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, MESSAGE)
 
 	namespace {
-		void ValidateConfiguration(const model::BlockChainConfiguration& config) {
+		void ValidateConfiguration(const model::BlockchainConfiguration& config) {
 			if (2 * config.ImportanceGrouping <= config.MaxRollbackBlocks) {
 				std::ostringstream out;
 				out
@@ -65,19 +65,19 @@ namespace catapult { namespace config {
 		}
 
 		void ValidateConfiguration(
-				const model::BlockChainConfiguration& blockChainConfig,
+				const model::BlockchainConfiguration& blockchainConfig,
 				const config::InflationConfiguration& inflationConfig) {
 			auto totalInflation = inflationConfig.InflationCalculator.sumAll();
 			if (!totalInflation.second)
 				CATAPULT_THROW_VALIDATION_ERROR("total currency inflation could not be calculated");
 
-			auto totalCurrency = blockChainConfig.InitialCurrencyAtomicUnits + totalInflation.first;
-			if (blockChainConfig.InitialCurrencyAtomicUnits > totalCurrency || totalCurrency > blockChainConfig.MaxMosaicAtomicUnits) {
+			auto totalCurrency = blockchainConfig.InitialCurrencyAtomicUnits + totalInflation.first;
+			if (blockchainConfig.InitialCurrencyAtomicUnits > totalCurrency || totalCurrency > blockchainConfig.MaxMosaicAtomicUnits) {
 				std::ostringstream out;
 				out
-						<< "sum of InitialCurrencyAtomicUnits (" << blockChainConfig.InitialCurrencyAtomicUnits << ") and inflation ("
+						<< "sum of InitialCurrencyAtomicUnits (" << blockchainConfig.InitialCurrencyAtomicUnits << ") and inflation ("
 						<< totalInflation.first << ") must not exceed MaxMosaicAtomicUnits ("
-						<< blockChainConfig.MaxMosaicAtomicUnits << ")";
+						<< blockchainConfig.MaxMosaicAtomicUnits << ")";
 				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
 			}
 		}
@@ -93,8 +93,8 @@ namespace catapult { namespace config {
 	}
 
 	void ValidateConfiguration(const CatapultConfiguration& config) {
-		ValidateConfiguration(config.BlockChain);
-		ValidateConfiguration(config.BlockChain, config.Inflation);
+		ValidateConfiguration(config.Blockchain);
+		ValidateConfiguration(config.Blockchain, config.Inflation);
 		ValidateConfiguration(config.Node);
 	}
 

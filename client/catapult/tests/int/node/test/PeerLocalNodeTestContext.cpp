@@ -27,7 +27,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		void AddAdditionalPlugins(config::CatapultConfiguration& config, NonNemesisTransactionPlugins additionalPlugins) {
-			auto& plugins = const_cast<model::BlockChainConfiguration&>(config.BlockChain).Plugins;
+			auto& plugins = const_cast<model::BlockchainConfiguration&>(config.Blockchain).Plugins;
 			if (NonNemesisTransactionPlugins::Lock_Secret == additionalPlugins) {
 				plugins.emplace("catapult.plugins.locksecret", utils::ConfigurationBag({{
 					"",

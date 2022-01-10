@@ -110,8 +110,8 @@ namespace catapult { namespace test {
 		return []() { return utils::NetworkTime(Default_Network_Epoch_Adjustment).now(); };
 	}
 
-	model::BlockChainConfiguration CreatePrototypicalBlockChainConfiguration() {
-		auto config = model::BlockChainConfiguration::Uninitialized();
+	model::BlockchainConfiguration CreatePrototypicalBlockchainConfiguration() {
+		auto config = model::BlockchainConfiguration::Uninitialized();
 		SetNetwork(config.Network);
 
 		config.CurrencyMosaicId = Default_Currency_Mosaic_Id;
@@ -141,8 +141,8 @@ namespace catapult { namespace test {
 
 	config::CatapultConfiguration CreateUninitializedCatapultConfiguration() {
 		MutableCatapultConfiguration config;
-		config.BlockChain.ImportanceGrouping = 1;
-		config.BlockChain.MaxRollbackBlocks = 0;
+		config.Blockchain.ImportanceGrouping = 1;
+		config.Blockchain.MaxRollbackBlocks = 0;
 		return config.ToConst();
 	}
 
@@ -151,14 +151,14 @@ namespace catapult { namespace test {
 	}
 
 	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(const std::string& dataDirectory) {
-		return CreatePrototypicalCatapultConfiguration(CreatePrototypicalBlockChainConfiguration(), dataDirectory);
+		return CreatePrototypicalCatapultConfiguration(CreatePrototypicalBlockchainConfiguration(), dataDirectory);
 	}
 
 	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(
-			model::BlockChainConfiguration&& blockChainConfig,
+			model::BlockchainConfiguration&& blockchainConfig,
 			const std::string& dataDirectory) {
 		MutableCatapultConfiguration config;
-		config.BlockChain = std::move(blockChainConfig);
+		config.Blockchain = std::move(blockchainConfig);
 		config.Node = CreateNodeConfiguration();
 
 		config.User.SeedDirectory = (std::filesystem::path(dataDirectory) / "seed").generic_string();
@@ -180,7 +180,7 @@ namespace catapult { namespace test {
 	}
 
 	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManagerWithRealPlugins() {
-		auto config = model::BlockChainConfiguration::Uninitialized();
+		auto config = model::BlockchainConfiguration::Uninitialized();
 		SetNetwork(config.Network);
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(1);
 		config.ImportanceGrouping = 123;
@@ -191,7 +191,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		std::shared_ptr<plugins::PluginManager> CreatePluginManager(
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const plugins::StorageConfiguration& storageConfig,
 				const config::UserConfiguration& userConfig,
 				const config::InflationConfiguration& inflationConfig) {
@@ -211,7 +211,7 @@ namespace catapult { namespace test {
 		}
 	}
 
-	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const model::BlockChainConfiguration& config) {
+	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const model::BlockchainConfiguration& config) {
 		return CreatePluginManager(
 				config,
 				plugins::StorageConfiguration(),
@@ -220,6 +220,6 @@ namespace catapult { namespace test {
 	}
 
 	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const config::CatapultConfiguration& config) {
-		return CreatePluginManager(config.BlockChain, extensions::CreateStorageConfiguration(config), config.User, config.Inflation);
+		return CreatePluginManager(config.Blockchain, extensions::CreateStorageConfiguration(config), config.User, config.Inflation);
 	}
 }}

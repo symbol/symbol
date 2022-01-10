@@ -35,7 +35,7 @@ namespace catapult { namespace finalization {
 		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			const auto& resourcesPath = bootstrapper.resourcesPath();
 			auto config = FinalizationConfiguration::LoadFromPath(resourcesPath);
-			config.VotingSetGrouping = bootstrapper.config().BlockChain.VotingSetGrouping;
+			config.VotingSetGrouping = bootstrapper.config().Blockchain.VotingSetGrouping;
 
 			auto pProofStorage = std::make_unique<io::FileProofStorage>(
 					bootstrapper.config().User.DataDirectory,

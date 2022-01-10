@@ -23,7 +23,7 @@
 #include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "tests/test/cache/CacheTestUtils.h"
@@ -49,7 +49,7 @@ namespace catapult { namespace mongo { namespace storages {
 			static constexpr auto CreateCacheStorage = CreateMongoAccountStateCacheStorage;
 
 			static cache::CatapultCache CreateCache() {
-				auto chainConfig = model::BlockChainConfiguration::Uninitialized();
+				auto chainConfig = model::BlockchainConfiguration::Uninitialized();
 				chainConfig.Network.Identifier = model::NetworkIdentifier::Testnet;
 				return test::CreateEmptyCatapultCache(chainConfig);
 			}

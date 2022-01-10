@@ -25,7 +25,7 @@
 #include "catapult/config/InflationConfiguration.h"
 #include "catapult/config/UserConfiguration.h"
 #include "catapult/ionet/PacketHandlers.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "catapult/observers/DemuxObserverBuilder.h"
@@ -85,7 +85,7 @@ namespace catapult { namespace plugins {
 	public:
 		/// Creates a new plugin manager around \a config, \a storageConfig \a userConfig and \a inflationConfig.
 		PluginManager(
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const StorageConfiguration& storageConfig,
 				const config::UserConfiguration& userConfig,
 				const config::InflationConfiguration& inflationConfig);
@@ -93,8 +93,8 @@ namespace catapult { namespace plugins {
 	public:
 		// region config
 
-		/// Gets the block chain configuration.
-		const model::BlockChainConfiguration& config() const;
+		/// Gets the blockchain configuration.
+		const model::BlockchainConfiguration& config() const;
 
 		/// Gets the storage configuration.
 		const StorageConfiguration& storageConfig() const;
@@ -221,7 +221,7 @@ namespace catapult { namespace plugins {
 		// endregion
 
 	private:
-		model::BlockChainConfiguration m_config;
+		model::BlockchainConfiguration m_config;
 		StorageConfiguration m_storageConfig;
 		config::UserConfiguration m_userConfig;
 		config::InflationConfiguration m_inflationConfig;

@@ -87,9 +87,9 @@ SPECIAL_INCLUDES = (
 CORE_FIRSTINCLUDES = {
     # src
     'src/catapult/consumers/BatchSignatureConsumer.cpp': 'BlockConsumers.h',
-    'src/catapult/consumers/BlockChainCheckConsumer.cpp': 'BlockConsumers.h',
-    'src/catapult/consumers/BlockChainSyncCleanupConsumer.cpp': 'BlockConsumers.h',
-    'src/catapult/consumers/BlockChainSyncConsumer.cpp': 'BlockConsumers.h',
+    'src/catapult/consumers/BlockchainCheckConsumer.cpp': 'BlockConsumers.h',
+    'src/catapult/consumers/BlockchainSyncCleanupConsumer.cpp': 'BlockConsumers.h',
+    'src/catapult/consumers/BlockchainSyncConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/HashCalculatorConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/HashCheckConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/NewBlockConsumer.cpp': 'BlockConsumers.h',
@@ -108,9 +108,9 @@ CORE_FIRSTINCLUDES = {
     'tests/test/nodeps/TestMain.cpp': 'catapult/utils/ConfigurationValueParsers.h',
 
     'tests/catapult/consumers/BatchSignatureConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-    'tests/catapult/consumers/BlockChainCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-    'tests/catapult/consumers/BlockChainSyncCleanupConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
-    'tests/catapult/consumers/BlockChainSyncConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
+    'tests/catapult/consumers/BlockchainCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
+    'tests/catapult/consumers/BlockchainSyncCleanupConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
+    'tests/catapult/consumers/BlockchainSyncConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/HashCalculatorConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/HashCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/NewBlockConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',

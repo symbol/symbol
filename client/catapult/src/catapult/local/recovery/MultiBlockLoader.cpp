@@ -27,7 +27,7 @@
 #include "catapult/extensions/LocalNodeStateRef.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/Block.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/Elements.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/plugins/PluginManager.h"
@@ -41,7 +41,7 @@ namespace catapult { namespace local {
 	namespace {
 		class SkipTransientStatePredicate {
 		public:
-			SkipTransientStatePredicate(const model::Block& lastBlock, const model::BlockChainConfiguration& config)
+			SkipTransientStatePredicate(const model::Block& lastBlock, const model::BlockchainConfiguration& config)
 					: m_inflectionTime(DifferenceOrZero(
 							lastBlock.Timestamp.unwrap(),
 							model::CalculateTransactionCacheDuration(config).millis()))
@@ -67,7 +67,7 @@ namespace catapult { namespace local {
 
 	BlockDependentNotificationObserverFactory CreateBlockDependentNotificationObserverFactory(
 			const model::Block& lastBlock,
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const NotificationObserverFactory& transientObserverFactory,
 			const NotificationObserverFactory& permanentObserverFactory) {
 		auto predicate = SkipTransientStatePredicate(lastBlock, config);
@@ -78,7 +78,7 @@ namespace catapult { namespace local {
 
 	// endregion
 
-	// region LoadBlockChain
+	// region LoadBlockchain
 
 	namespace {
 		class AnalyzeProgressLogger {
@@ -105,12 +105,12 @@ namespace catapult { namespace local {
 		};
 	}
 
-	class BlockChainLoader {
+	class BlockchainLoader {
 	private:
 		using NotifyProgressFunc = consumer<Height, Height>;
 
 	public:
-		BlockChainLoader(
+		BlockchainLoader(
 				const BlockDependentNotificationObserverFactory& observerFactory,
 				const plugins::PluginManager& pluginManager,
 				const extensions::LocalNodeStateRef& stateRef,
@@ -193,15 +193,15 @@ namespace catapult { namespace local {
 		consumer<LoadedBlockStatus&&> m_statusConsumer;
 	};
 
-	model::ChainScore LoadBlockChain(
+	model::ChainScore LoadBlockchain(
 			const BlockDependentNotificationObserverFactory& observerFactory,
 			const plugins::PluginManager& pluginManager,
 			const extensions::LocalNodeStateRef& stateRef,
 			Height startHeight,
 			const consumer<LoadedBlockStatus&&>& statusConsumer) {
-		BlockChainLoader loader(observerFactory, pluginManager, stateRef, startHeight, statusConsumer);
+		BlockchainLoader loader(observerFactory, pluginManager, stateRef, startHeight, statusConsumer);
 
-		utils::StackLogger logger("load block chain", utils::LogLevel::important);
+		utils::StackLogger logger("load blockchain", utils::LogLevel::important);
 		utils::StackTimer stopwatch;
 		return loader.loadAll(AnalyzeProgressLogger(stopwatch));
 	}

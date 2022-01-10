@@ -139,7 +139,7 @@ namespace catapult { namespace test {
 		PrepareCatapultConfiguration(config, nodeFlag);
 
 		// in order for the nemesis block to be processed, at least the transfer plugin needs to be loaded
-		AddNemesisPluginExtensions(const_cast<model::BlockChainConfiguration&>(config.BlockChain));
+		AddNemesisPluginExtensions(const_cast<model::BlockchainConfiguration&>(config.Blockchain));
 		addNodeExtensions(const_cast<config::ExtensionsConfiguration&>(config.Extensions));
 	}
 

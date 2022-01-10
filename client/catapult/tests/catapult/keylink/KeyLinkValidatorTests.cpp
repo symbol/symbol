@@ -20,7 +20,7 @@
 **/
 
 #include "catapult/keylink/KeyLinkValidator.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/catapult/keylink/test/KeyLinkTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -55,7 +55,7 @@ namespace catapult { namespace keylink {
 				model::LinkAction linkAction) {
 			// Arrange:
 			Key mainAccountPublicKey;
-			auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			{
 				auto cacheDelta = cache.createDelta();
 				mainAccountPublicKey = test::AddAccountWithLink(cacheDelta, cacheLinkedPublicKey);

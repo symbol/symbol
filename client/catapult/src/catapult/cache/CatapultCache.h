@@ -32,7 +32,7 @@ namespace catapult {
 		class CacheStorage;
 		class SubCachePlugin;
 	}
-	namespace model { struct BlockChainConfiguration; }
+	namespace model { struct BlockchainConfiguration; }
 }
 
 namespace catapult { namespace cache {

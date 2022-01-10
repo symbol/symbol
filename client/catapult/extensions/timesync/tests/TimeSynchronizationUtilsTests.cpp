@@ -133,8 +133,8 @@ namespace catapult { namespace timesync {
 					, NetworkTimeSupplier(ExtractCommunicationTimestampsContainer(samples, NodeType::Local)) {
 				TimeSyncConfig.MaxNodes = 5;
 
-				auto& mutableBlockChainConfig = const_cast<model::BlockChainConfiguration&>(ServiceTestState.config().BlockChain);
-				mutableBlockChainConfig.TotalChainImportance = Total_Chain_Importance;
+				auto& mutableBlockchainConfig = const_cast<model::BlockchainConfiguration&>(ServiceTestState.config().Blockchain);
+				mutableBlockchainConfig.TotalChainImportance = Total_Chain_Importance;
 			}
 
 		public:
@@ -147,10 +147,10 @@ namespace catapult { namespace timesync {
 
 		private:
 			static cache::CatapultCache CreateCache(Importance totalChainImportance) {
-				auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-				blockChainConfig.ImportanceGrouping = 123;
-				blockChainConfig.TotalChainImportance = totalChainImportance;
-				return test::CoreSystemCacheFactory::Create(blockChainConfig);
+				auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+				blockchainConfig.ImportanceGrouping = 123;
+				blockchainConfig.TotalChainImportance = totalChainImportance;
+				return test::CoreSystemCacheFactory::Create(blockchainConfig);
 			}
 
 			static cache::CatapultCache CreateCache() {

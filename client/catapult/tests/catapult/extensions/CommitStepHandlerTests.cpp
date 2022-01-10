@@ -70,7 +70,7 @@ namespace catapult { namespace extensions {
 		private:
 			test::TempDirectoryGuard m_tempDir;
 			config::CatapultDataDirectory m_dataDirectory;
-			consumers::BlockChainSyncHandlers::CommitStepFunc m_commitStep;
+			consumers::BlockchainSyncHandlers::CommitStepFunc m_commitStep;
 		};
 	}
 

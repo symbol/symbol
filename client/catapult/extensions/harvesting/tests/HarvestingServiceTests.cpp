@@ -74,7 +74,7 @@ namespace catapult { namespace harvesting {
 			{}
 
 			explicit TestContext(const HarvestingConfiguration& config)
-					: BaseType(test::CreateEmptyCatapultCache(test::CreatePrototypicalBlockChainConfiguration()))
+					: BaseType(test::CreateEmptyCatapultCache(test::CreatePrototypicalBlockchainConfiguration()))
 					, m_config(config) {
 				setHooks();
 			}
@@ -104,7 +104,7 @@ namespace catapult { namespace harvesting {
 			void enableVerifiableState() {
 				auto& config = testState().state().config();
 				const_cast<bool&>(config.Node.EnableCacheDatabaseStorage) = true;
-				const_cast<bool&>(config.BlockChain.EnableVerifiableState) = true;
+				const_cast<bool&>(config.Blockchain.EnableVerifiableState) = true;
 			}
 
 			void enableDiagnosticExtension() {
@@ -459,7 +459,7 @@ namespace catapult { namespace harvesting {
 				Amount balance,
 				model::ImportanceHeight importanceHeight) {
 			// Arrange:
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = Importance_Grouping;
 			config.MinHarvesterBalance = Account_Balance;

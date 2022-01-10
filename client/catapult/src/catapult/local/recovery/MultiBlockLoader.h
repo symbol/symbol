@@ -28,7 +28,7 @@ namespace catapult {
 	namespace extensions { struct LocalNodeStateRef; }
 	namespace model {
 		struct Block;
-		struct BlockChainConfiguration;
+		struct BlockchainConfiguration;
 		struct BlockElement;
 	}
 	namespace plugins { class PluginManager; }
@@ -49,7 +49,7 @@ namespace catapult { namespace local {
 	/// At and after the inflection point, an observer created by \a transientObserverFactory is returned.
 	BlockDependentNotificationObserverFactory CreateBlockDependentNotificationObserverFactory(
 			const model::Block& lastBlock,
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const NotificationObserverFactory& transientObserverFactory,
 			const NotificationObserverFactory& permanentObserverFactory);
 
@@ -65,10 +65,10 @@ namespace catapult { namespace local {
 		const subscribers::StateChangeInfo& StateChangeInfo;
 	};
 
-	/// Loads a block chain from storage using the supplied observer factory (\a observerFactory) and plugin manager (\a pluginManager)
+	/// Loads a blockchain from storage using the supplied observer factory (\a observerFactory) and plugin manager (\a pluginManager)
 	/// and updating \a stateRef starting with the block at \a startHeight.
 	/// Each loaded block and supporting information is passed to \a statusConsumer.
-	model::ChainScore LoadBlockChain(
+	model::ChainScore LoadBlockchain(
 			const BlockDependentNotificationObserverFactory& observerFactory,
 			const plugins::PluginManager& pluginManager,
 			const extensions::LocalNodeStateRef& stateRef,

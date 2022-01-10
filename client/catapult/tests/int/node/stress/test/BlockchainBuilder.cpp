@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "BlockChainBuilder.h"
+#include "BlockchainBuilder.h"
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
@@ -39,29 +39,29 @@ namespace catapult { namespace test {
 		constexpr auto Network_Identifier = model::NetworkIdentifier::Testnet;
 	}
 
-	BlockChainBuilder::BlockChainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator)
-			: BlockChainBuilder(accounts, stateHashCalculator, CreatePrototypicalBlockChainConfiguration())
+	BlockchainBuilder::BlockchainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator)
+			: BlockchainBuilder(accounts, stateHashCalculator, CreatePrototypicalBlockchainConfiguration())
 	{}
 
-	BlockChainBuilder::BlockChainBuilder(
+	BlockchainBuilder::BlockchainBuilder(
 			const Accounts& accounts,
 			StateHashCalculator& stateHashCalculator,
-			const model::BlockChainConfiguration& config)
-			: BlockChainBuilder(accounts, stateHashCalculator, config, stateHashCalculator.dataDirectory())
+			const model::BlockchainConfiguration& config)
+			: BlockchainBuilder(accounts, stateHashCalculator, config, stateHashCalculator.dataDirectory())
 	{}
 
-	BlockChainBuilder::BlockChainBuilder(
+	BlockchainBuilder::BlockchainBuilder(
 			const Accounts& accounts,
 			StateHashCalculator& stateHashCalculator,
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const std::string& resourcesPath)
-			: BlockChainBuilder(accounts, stateHashCalculator, config, resourcesPath, false)
+			: BlockchainBuilder(accounts, stateHashCalculator, config, resourcesPath, false)
 	{}
 
-	BlockChainBuilder::BlockChainBuilder(
+	BlockchainBuilder::BlockchainBuilder(
 			const Accounts& accounts,
 			StateHashCalculator& stateHashCalculator,
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const std::string& resourcesPath,
 			bool isChained)
 			: m_pAccounts(&accounts)
@@ -74,7 +74,7 @@ namespace catapult { namespace test {
 
 		// seed the state hash calculator with the nemesis state
 		if (resourcesPath.empty()) {
-			CATAPULT_LOG(debug) << "initializing BlockChainBuilder from memory";
+			CATAPULT_LOG(debug) << "initializing BlockchainBuilder from memory";
 			mocks::MockMemoryBlockStorage storage;
 			m_pParentBlockElement = storage.loadBlockElement(Height(1));
 
@@ -82,7 +82,7 @@ namespace catapult { namespace test {
 			// (FileBlockStorage automatically extends block lifetime)
 			m_pNemesisBlock = storage.loadBlock(Height(1));
 		} else {
-			CATAPULT_LOG(debug) << "initializing BlockChainBuilder from resources path: " << resourcesPath;
+			CATAPULT_LOG(debug) << "initializing BlockchainBuilder from resources path: " << resourcesPath;
 			io::FileBlockStorage storage(resourcesPath, File_Database_Batch_Size);
 			m_pParentBlockElement = storage.loadBlockElement(Height(1));
 		}
@@ -91,21 +91,21 @@ namespace catapult { namespace test {
 		m_pStateHashCalculator->execute(m_pParentBlockElement->Block);
 	}
 
-	void BlockChainBuilder::setBlockTimeInterval(utils::TimeSpan blockTimeInterval) {
+	void BlockchainBuilder::setBlockTimeInterval(utils::TimeSpan blockTimeInterval) {
 		m_blockTimeInterval = blockTimeInterval;
 	}
 
-	void BlockChainBuilder::setBlockReceiptsHashCalculator(const BlockReceiptsHashCalculator& blockReceiptsHashCalculator) {
+	void BlockchainBuilder::setBlockReceiptsHashCalculator(const BlockReceiptsHashCalculator& blockReceiptsHashCalculator) {
 		m_blockReceiptsHashCalculator = blockReceiptsHashCalculator;
 	}
 
-	BlockChainBuilder BlockChainBuilder::createChainedBuilder() {
+	BlockchainBuilder BlockchainBuilder::createChainedBuilder() {
 		return createChainedBuilder(*m_pStateHashCalculator);
 	}
 
-	BlockChainBuilder BlockChainBuilder::createChainedBuilder(StateHashCalculator& stateHashCalculator) const {
+	BlockchainBuilder BlockchainBuilder::createChainedBuilder(StateHashCalculator& stateHashCalculator) const {
 		// resources directory is not used when creating chained builder
-		auto builder = BlockChainBuilder(*m_pAccounts, stateHashCalculator, m_config, "", true);
+		auto builder = BlockchainBuilder(*m_pAccounts, stateHashCalculator, m_config, "", true);
 		builder.m_pTailBlockElement = m_pTailBlockElement;
 		builder.m_pParentBlockElement = m_pTailBlockElement;
 		builder.m_statistics = m_statistics;
@@ -113,9 +113,9 @@ namespace catapult { namespace test {
 		return builder;
 	}
 
-	BlockChainBuilder BlockChainBuilder::createChainedBuilder(StateHashCalculator& stateHashCalculator, const model::Block& block) const {
+	BlockchainBuilder BlockchainBuilder::createChainedBuilder(StateHashCalculator& stateHashCalculator, const model::Block& block) const {
 		// resources directory is not used when creating chained builder
-		auto builder = BlockChainBuilder(*m_pAccounts, stateHashCalculator, m_config, "", true);
+		auto builder = BlockchainBuilder(*m_pAccounts, stateHashCalculator, m_config, "", true);
 		builder.m_pTailBlockElement = ToSharedBlockElement(block);
 		builder.m_pParentBlockElement = builder.m_pTailBlockElement;
 		builder.m_statistics = m_statistics;
@@ -123,7 +123,7 @@ namespace catapult { namespace test {
 		return builder;
 	}
 
-	std::unique_ptr<model::Block> BlockChainBuilder::asSingleBlock(const TransactionsGenerator& transactionsGenerator) {
+	std::unique_ptr<model::Block> BlockchainBuilder::asSingleBlock(const TransactionsGenerator& transactionsGenerator) {
 		model::PreviousBlockContext context(*m_pParentBlockElement);
 		pushDifficulty(m_pParentBlockElement->Block);
 
@@ -138,7 +138,7 @@ namespace catapult { namespace test {
 		return pBlock;
 	}
 
-	BlockChainBuilder::Blocks BlockChainBuilder::asBlockChain(const TransactionsGenerator& transactionsGenerator) {
+	BlockchainBuilder::Blocks BlockchainBuilder::asBlockchain(const TransactionsGenerator& transactionsGenerator) {
 		Blocks blocks;
 		for (auto i = 0u; i < transactionsGenerator.size(); ++i) {
 			model::PreviousBlockContext context(*m_pParentBlockElement);
@@ -154,14 +154,14 @@ namespace catapult { namespace test {
 		return blocks;
 	}
 
-	void BlockChainBuilder::pushDifficulty(const model::Block& block) {
+	void BlockchainBuilder::pushDifficulty(const model::Block& block) {
 		m_statistics.insert(state::BlockStatistic(block));
 
 		if (m_statistics.size() > m_config.MaxDifficultyBlocks)
 			m_statistics.erase(m_statistics.cbegin());
 	}
 
-	std::unique_ptr<model::Block> BlockChainBuilder::createBlock(
+	std::unique_ptr<model::Block> BlockchainBuilder::createBlock(
 			const model::PreviousBlockContext& context,
 			Timestamp timestamp,
 			const model::Transactions& transactions) {
@@ -199,7 +199,7 @@ namespace catapult { namespace test {
 		return pBlock;
 	}
 
-	crypto::KeyPair BlockChainBuilder::findBlockSigner(
+	crypto::KeyPair BlockchainBuilder::findBlockSigner(
 			const model::PreviousBlockContext& context,
 			Timestamp timestamp,
 			Difficulty difficulty) {
@@ -232,7 +232,7 @@ namespace catapult { namespace test {
 		CATAPULT_THROW_RUNTIME_ERROR("no eligible harvesting accounts were found");
 	}
 
-	std::shared_ptr<const model::BlockElement> BlockChainBuilder::ToSharedBlockElement(const model::Block& block) {
+	std::shared_ptr<const model::BlockElement> BlockchainBuilder::ToSharedBlockElement(const model::Block& block) {
 		return std::make_shared<model::BlockElement>(BlockToBlockElement(block, GenerationHashSeed()));
 	}
 }}

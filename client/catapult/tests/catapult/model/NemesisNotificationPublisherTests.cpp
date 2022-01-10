@@ -20,7 +20,7 @@
 **/
 
 #include "catapult/model/NemesisNotificationPublisher.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/core/mocks/MockNotificationPublisher.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/TestHarness.h"
@@ -33,7 +33,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, ExtractNemesisNotificationPublisherOptions_CanExtractWhenHarvestNetworkFeesAreDisabled) {
 		// Arrange:
-		auto config = BlockChainConfiguration::Uninitialized();
+		auto config = BlockchainConfiguration::Uninitialized();
 		test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
 
 		// Act:
@@ -45,7 +45,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, ExtractNemesisNotificationPublisherOptions_CanExtractWhenHarvestNetworkFeesAreEnabled) {
 		// Arrange:
-		auto config = BlockChainConfiguration::Uninitialized();
+		auto config = BlockchainConfiguration::Uninitialized();
 		config.HarvestNetworkPercentage = 15;
 		config.ForkHeights.TreasuryReissuance = Height(100);
 		test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);

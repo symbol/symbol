@@ -29,7 +29,7 @@ namespace catapult {
 	namespace cache { class CatapultCacheDelta; }
 	namespace extensions { struct LocalNodeStateRef; }
 	namespace model {
-		struct BlockChainConfiguration;
+		struct BlockchainConfiguration;
 		struct BlockElement;
 	}
 	namespace plugins { class PluginManager; }
@@ -68,7 +68,7 @@ namespace catapult { namespace extensions {
 		/// Executes the nemesis block (\a nemesisBlockElement), applies all changes to cache delta and checks consistency
 		/// against \a config.
 		/// \note Execution uses a default catapult state.
-		void execute(const model::BlockChainConfiguration& config, const model::BlockElement& nemesisBlockElement);
+		void execute(const model::BlockchainConfiguration& config, const model::BlockElement& nemesisBlockElement);
 
 	private:
 		enum class Verbosity { Off, On };
@@ -81,7 +81,7 @@ namespace catapult { namespace extensions {
 				observers::ObserverState& observerState) const;
 
 		void execute(
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const model::BlockElement& nemesisBlockElement,
 				StateHashVerification stateHashVerification,
 				Verbosity verbosity);

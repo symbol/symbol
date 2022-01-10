@@ -51,7 +51,7 @@ namespace catapult { namespace extensions {
 		template<typename TFactory>
 		void AssertCanCreateStatelessEntityValidator(validators::ValidationResult expectedValidationResult, TFactory factory) {
 			// Arrange:
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
 			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
 

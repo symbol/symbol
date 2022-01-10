@@ -24,7 +24,7 @@
 #include <memory>
 #include <string>
 
-namespace catapult { namespace model { struct BlockChainConfiguration; } }
+namespace catapult { namespace model { struct BlockchainConfiguration; } }
 
 namespace catapult { namespace test {
 
@@ -35,14 +35,14 @@ namespace catapult { namespace test {
 		LocalNodeTestState();
 
 		/// Creates default state around \a config.
-		explicit LocalNodeTestState(const model::BlockChainConfiguration& config);
+		explicit LocalNodeTestState(const model::BlockchainConfiguration& config);
 
 		/// Creates default state around \a cache.
 		explicit LocalNodeTestState(cache::CatapultCache&& cache);
 
 		/// Creates default state around \a config, \a userDataDirectory and \a cache.
 		LocalNodeTestState(
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const std::string& userDataDirectory,
 				cache::CatapultCache&& cache);
 

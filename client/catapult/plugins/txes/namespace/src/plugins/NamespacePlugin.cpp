@@ -70,15 +70,15 @@ namespace catapult { namespace plugins {
 		// region namespace
 
 		NamespaceRentalFeeConfiguration ToNamespaceRentalFeeConfiguration(
-				const model::BlockChainConfiguration& blockChainConfig,
+				const model::BlockchainConfiguration& blockchainConfig,
 				UnresolvedMosaicId currencyMosaicId,
 				const config::NamespaceConfiguration& config) {
 			NamespaceRentalFeeConfiguration rentalFeeConfig;
 			rentalFeeConfig.CurrencyMosaicId = currencyMosaicId;
 			rentalFeeConfig.RootFeePerBlock = config.RootNamespaceRentalFeePerBlock;
 			rentalFeeConfig.ChildFee = config.ChildNamespaceRentalFee;
-			rentalFeeConfig.NemesisSignerPublicKey = blockChainConfig.Network.NemesisSignerPublicKey;
-			rentalFeeConfig.SinkAddress = config::GetNamespaceRentalFeeSinkAddress(config, blockChainConfig);
+			rentalFeeConfig.NemesisSignerPublicKey = blockchainConfig.Network.NemesisSignerPublicKey;
+			rentalFeeConfig.SinkAddress = config::GetNamespaceRentalFeeSinkAddress(config, blockchainConfig);
 			return rentalFeeConfig;
 		}
 

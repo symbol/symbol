@@ -24,7 +24,7 @@
 #include "catapult/cache_core/AccountStateCacheDelta.h"
 #include "catapult/io/FileStream.h"
 #include "catapult/io/IndexFile.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/state/AccountStateSerializer.h"
 
 namespace catapult { namespace importance {
@@ -72,7 +72,7 @@ namespace catapult { namespace importance {
 		class WriteDecorator final : public ImportanceCalculator {
 		public:
 			WriteDecorator(
-					const model::BlockChainConfiguration& config,
+					const model::BlockchainConfiguration& config,
 					const config::CatapultDirectory& directory,
 					std::unique_ptr<ImportanceCalculator>&& pCalculator)
 					: m_config(config)
@@ -144,7 +144,7 @@ namespace catapult { namespace importance {
 			}
 
 		private:
-			const model::BlockChainConfiguration& m_config;
+			const model::BlockchainConfiguration& m_config;
 			config::CatapultDirectory m_directory;
 			std::unique_ptr<ImportanceCalculator> m_pCalculator;
 		};
@@ -156,7 +156,7 @@ namespace catapult { namespace importance {
 		class ReadDecorator final : public ImportanceCalculator {
 		public:
 			ReadDecorator(
-					const model::BlockChainConfiguration& config,
+					const model::BlockchainConfiguration& config,
 					const config::CatapultDirectory& directory,
 					std::unique_ptr<ImportanceCalculator>&& pCalculator)
 					: m_config(config)
@@ -280,7 +280,7 @@ namespace catapult { namespace importance {
 			}
 
 		private:
-			const model::BlockChainConfiguration& m_config;
+			const model::BlockchainConfiguration& m_config;
 			config::CatapultDirectory m_directory;
 			std::unique_ptr<ImportanceCalculator> m_pCalculator;
 		};
@@ -290,7 +290,7 @@ namespace catapult { namespace importance {
 
 	// region StorageImportanceCalculatorFactory
 
-	StorageImportanceCalculatorFactory::StorageImportanceCalculatorFactory(const model::BlockChainConfiguration& config) : m_config(config)
+	StorageImportanceCalculatorFactory::StorageImportanceCalculatorFactory(const model::BlockchainConfiguration& config) : m_config(config)
 	{}
 
 	std::unique_ptr<ImportanceCalculator> StorageImportanceCalculatorFactory::createWriteCalculator(

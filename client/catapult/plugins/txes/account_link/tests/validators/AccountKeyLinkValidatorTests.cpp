@@ -21,7 +21,7 @@
 
 #include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -58,7 +58,7 @@ namespace catapult { namespace validators {
 			auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
 			auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 
-			auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			AddLink(cache, mainAccountPublicKey, linkedPublicKey, accountType);
 
 			auto pValidator = CreateAccountKeyLinkValidator();
@@ -125,7 +125,7 @@ namespace catapult { namespace validators {
 		auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
 		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 
-		auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		AddLink(cache, mainAccountPublicKey, linkedPublicKey, state::AccountType::Main);
 
 		// - the notification linked public key does not match the state linked public key

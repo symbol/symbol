@@ -26,7 +26,7 @@
 namespace catapult { namespace extensions {
 
 	supplier<model::HeightHashPair> CreateLocalFinalizedHeightHashPairSupplier(const ServiceState& state) {
-		auto maxRollbackBlocks = state.config().BlockChain.MaxRollbackBlocks;
+		auto maxRollbackBlocks = state.config().Blockchain.MaxRollbackBlocks;
 		if (0 == maxRollbackBlocks)
 			return state.hooks().localFinalizedHeightHashPairSupplier();
 
@@ -48,7 +48,7 @@ namespace catapult { namespace extensions {
 	}
 
 	supplier<model::HeightHashPair> CreateNetworkFinalizedHeightHashPairSupplier(const ServiceState& state) {
-		auto maxRollbackBlocks = state.config().BlockChain.MaxRollbackBlocks;
+		auto maxRollbackBlocks = state.config().Blockchain.MaxRollbackBlocks;
 		return 0 == maxRollbackBlocks
 				? state.hooks().networkFinalizedHeightHashPairSupplier()
 				: CreateLocalFinalizedHeightHashPairSupplier(state);
@@ -60,7 +60,7 @@ namespace catapult { namespace extensions {
 			ionet::NodeRoles requiredRole) {
 		return SelectorSettings(
 				state.cache(),
-				state.config().BlockChain.TotalChainImportance,
+				state.config().Blockchain.TotalChainImportance,
 				state.nodes(),
 				serviceId,
 				MapNodeRolesToIpProtocols(state.config().Node.Local.Roles),
@@ -71,7 +71,7 @@ namespace catapult { namespace extensions {
 	SelectorSettings CreateIncomingSelectorSettings(const ServiceState& state, ionet::ServiceIdentifier serviceId) {
 		return SelectorSettings(
 				state.cache(),
-				state.config().BlockChain.TotalChainImportance,
+				state.config().Blockchain.TotalChainImportance,
 				state.nodes(),
 				serviceId,
 				state.config().Node.IncomingConnections);

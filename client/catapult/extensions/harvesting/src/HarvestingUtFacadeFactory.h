@@ -23,7 +23,7 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/chain/ExecutionConfiguration.h"
 #include "catapult/model/Block.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 
 namespace catapult { namespace harvesting {
 
@@ -33,11 +33,11 @@ namespace catapult { namespace harvesting {
 	/// Facade around unconfirmed transactions cache and updater.
 	class HarvestingUtFacade {
 	public:
-		/// Creates a facade around \a blockTime, \a cache, \a blockChainConfig, \a executionConfig and \a importanceBlockHashSupplier.
+		/// Creates a facade around \a blockTime, \a cache, \a blockchainConfig, \a executionConfig and \a importanceBlockHashSupplier.
 		HarvestingUtFacade(
 				Timestamp blockTime,
 				const cache::CatapultCache& cache,
-				const model::BlockChainConfiguration& blockChainConfig,
+				const model::BlockchainConfiguration& blockchainConfig,
 				const chain::ExecutionConfiguration& executionConfig,
 				const ImportanceBlockHashSupplier& importanceBlockHashSupplier);
 
@@ -75,10 +75,10 @@ namespace catapult { namespace harvesting {
 	/// Factory for creating unconfirmed transactions facades.
 	class HarvestingUtFacadeFactory {
 	public:
-		/// Creates a factory around \a cache, \a blockChainConfig, \a executionConfig and \a importanceBlockHashSupplier.
+		/// Creates a factory around \a cache, \a blockchainConfig, \a executionConfig and \a importanceBlockHashSupplier.
 		HarvestingUtFacadeFactory(
 				const cache::CatapultCache& cache,
-				const model::BlockChainConfiguration& blockChainConfig,
+				const model::BlockchainConfiguration& blockchainConfig,
 				const chain::ExecutionConfiguration& executionConfig,
 				const ImportanceBlockHashSupplier& importanceBlockHashSupplier);
 
@@ -88,7 +88,7 @@ namespace catapult { namespace harvesting {
 
 	private:
 		const cache::CatapultCache& m_cache;
-		model::BlockChainConfiguration m_blockChainConfig;
+		model::BlockchainConfiguration m_blockchainConfig;
 		chain::ExecutionConfiguration m_executionConfig;
 		ImportanceBlockHashSupplier m_importanceBlockHashSupplier;
 	};

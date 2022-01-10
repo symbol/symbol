@@ -23,7 +23,7 @@
 #include "HarvesterBlockGenerator.h"
 #include "UnlockedAccounts.h"
 #include "catapult/cache/CatapultCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/EntityInfo.h"
 
@@ -34,11 +34,11 @@ namespace catapult { namespace harvesting {
 	/// Harvests new blocks.
 	class Harvester {
 	public:
-		/// Creates a harvester around catapult \a cache, block chain \a config, \a beneficiary,
+		/// Creates a harvester around catapult \a cache, blockchain \a config, \a beneficiary,
 		/// unlocked accounts set (\a unlockedAccounts) and \a blockGenerator used to customize block generation.
 		Harvester(
 				const cache::CatapultCache& cache,
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const Address& beneficiary,
 				const UnlockedAccounts& unlockedAccounts,
 				const BlockGenerator& blockGenerator);
@@ -50,7 +50,7 @@ namespace catapult { namespace harvesting {
 
 	private:
 		const cache::CatapultCache& m_cache;
-		const model::BlockChainConfiguration m_config;
+		const model::BlockchainConfiguration m_config;
 		const Address m_beneficiary;
 		const UnlockedAccounts& m_unlockedAccounts;
 		BlockGenerator m_blockGenerator;

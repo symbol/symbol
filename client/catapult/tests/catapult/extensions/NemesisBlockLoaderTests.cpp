@@ -157,8 +157,8 @@ namespace catapult { namespace extensions {
 			return MakeHarvestingMosaic(Amount(amount));
 		}
 
-		model::BlockChainConfiguration CreateDefaultConfiguration(const model::Block& nemesisBlock, const NemesisOptions& nemesisOptions) {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateDefaultConfiguration(const model::Block& nemesisBlock, const NemesisOptions& nemesisOptions) {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.Network.Identifier = Network_Identifier;
 			config.Network.NemesisSignerPublicKey = nemesisBlock.SignerPublicKey;
 			test::FillWithRandomData(config.Network.GenerationHashSeed);
@@ -173,7 +173,7 @@ namespace catapult { namespace extensions {
 		plugins::PluginManager CreatePluginManager() {
 			// enable Publish_Transfers (MockTransaction Publish XORs recipient address, so XOR address resolver is required
 			// for proper roundtripping or else test will fail)
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.Network.Identifier = Network_Identifier;
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			auto manager = test::CreatePluginManager(config);
@@ -383,7 +383,7 @@ namespace catapult { namespace extensions {
 		struct ExecuteDefaultStateTraits {
 			static void Execute(NemesisBlockLoader& loader, const LocalNodeStateRef& stateRef, StateHashVerification) {
 				auto pNemesisBlockElement = stateRef.Storage.view().loadBlockElement(Height(1));
-				loader.execute(stateRef.Config.BlockChain, *pNemesisBlockElement);
+				loader.execute(stateRef.Config.Blockchain, *pNemesisBlockElement);
 			}
 
 			template<typename TAssertAccountStateCache>

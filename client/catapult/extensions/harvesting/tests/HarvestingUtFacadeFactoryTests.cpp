@@ -49,7 +49,7 @@ namespace catapult { namespace harvesting {
 
 		// endregion
 
-		// region CreateBlockChainConfiguration
+		// region CreateBlockchainConfiguration
 
 		enum class StateVerifyOptions { None = 0, State = 1, Receipts = 2, All = 3 };
 
@@ -57,8 +57,8 @@ namespace catapult { namespace harvesting {
 			return utils::to_underlying_type(testedFlag) == (utils::to_underlying_type(testedFlag) & utils::to_underlying_type(value));
 		}
 
-		auto CreateBlockChainConfiguration(StateVerifyOptions verifyOptions = StateVerifyOptions::None) {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		auto CreateBlockchainConfiguration(StateVerifyOptions verifyOptions = StateVerifyOptions::None) {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.Network.Identifier = Network_Identifier;
 			config.EnableVerifiableState = HasFlag(StateVerifyOptions::State, verifyOptions);
 			config.EnableVerifiableReceipts = HasFlag(StateVerifyOptions::Receipts, verifyOptions);
@@ -106,7 +106,7 @@ namespace catapult { namespace harvesting {
 			SetDependentState(catapultCache);
 
 			test::MockExecutionConfiguration executionConfig;
-			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockChainConfiguration(), executionConfig.Config, EmptyHashSupplier);
+			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockchainConfiguration(), executionConfig.Config, EmptyHashSupplier);
 
 			auto pFacade = factory.create(Default_Time);
 			ASSERT_TRUE(!!pFacade);
@@ -130,7 +130,7 @@ namespace catapult { namespace harvesting {
 			SetDependentState(catapultCache);
 
 			test::MockExecutionConfiguration executionConfig;
-			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockChainConfiguration(), executionConfig.Config, EmptyHashSupplier);
+			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockchainConfiguration(), executionConfig.Config, EmptyHashSupplier);
 
 			auto pFacade = factory.create(Default_Time);
 			ASSERT_TRUE(!!pFacade);
@@ -464,7 +464,7 @@ namespace catapult { namespace harvesting {
 
 		auto RunCommitSetsImportanceHeaderFields(
 				Height blockHeight,
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const std::vector<Amount>& balances) {
 			// Arrange:
 			auto importanceMultipleHeight = model::CalculateGroupedHeight<Height>(blockHeight, config.ImportanceGrouping);
@@ -490,7 +490,7 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, CommitSetsImportanceHeaderFields_SomeHarvesters_BeforeFork) {
 		// Arrange: 1985, 1990, 1995, | 2000 | 2005, 2010, 2015
-		auto config = CreateBlockChainConfiguration();
+		auto config = CreateBlockchainConfiguration();
 		config.MinHarvesterBalance = Amount(2000);
 		config.MinVoterBalance = Amount(2005);
 		auto harvestingBalances = CreateBalances(Amount(1985), 7);
@@ -509,7 +509,7 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, CommitSetsImportanceHeaderFields_AllHarvesters_BeforeFork) {
 		// Arrange: | 1985, 1990, 1995 | 2000, 2005, 2010, 2015
-		auto config = CreateBlockChainConfiguration();
+		auto config = CreateBlockchainConfiguration();
 		config.MinHarvesterBalance = Amount(1000);
 		config.MinVoterBalance = Amount(2000);
 		auto harvestingBalances = CreateBalances(Amount(1985), 7);
@@ -529,7 +529,7 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, CommitSetsImportanceHeaderFields_AllHarvesters_AtFork) {
 		// Arrange: | 1985, 1990, 1995 | 2000, 2005, 2010, 2015
 		// epoch 41:    *     *    *      *
-		auto config = CreateBlockChainConfiguration();
+		auto config = CreateBlockchainConfiguration();
 		config.MinHarvesterBalance = Amount(1000);
 		config.MinVoterBalance = Amount(2000);
 		auto harvestingBalances = CreateBalances(Amount(1985), 7);
@@ -549,7 +549,7 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, CommitSetsImportanceHeaderFields_AllHarvesters_AfterFork) {
 		// Arrange: | 1985, 1990, 1995 | 2000, 2005, 2010, 2015
 		// epoch 51:    *    *      *      *     *
-		auto config = CreateBlockChainConfiguration();
+		auto config = CreateBlockchainConfiguration();
 		config.MinHarvesterBalance = Amount(1000);
 		config.MinVoterBalance = Amount(2000);
 		auto harvestingBalances = CreateBalances(Amount(1985), 7);
@@ -635,7 +635,7 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, CommitUpdatesHighValueAccounts) {
 		// Arrange:
-		auto config = CreateBlockChainConfiguration();
+		auto config = CreateBlockchainConfiguration();
 		auto importanceMultipleHeight = model::CalculateGroupedHeight<Height>(Default_Height, config.ImportanceGrouping);
 		auto harvestingBalances = CreateBalances(Amount(1990), 5);
 
@@ -841,7 +841,7 @@ namespace catapult { namespace harvesting {
 		struct FacadeTestContext {
 		public:
 			FacadeTestContext(
-					const model::BlockChainConfiguration& config,
+					const model::BlockchainConfiguration& config,
 					const chain::ExecutionConfiguration& executionConfig,
 					Height height)
 					: m_config(config)
@@ -921,7 +921,7 @@ namespace catapult { namespace harvesting {
 
 		private:
 			test::TempDirectoryGuard m_dbDirGuard;
-			model::BlockChainConfiguration m_config;
+			model::BlockchainConfiguration m_config;
 			chain::ExecutionConfiguration m_executionConfig;
 			Height m_height;
 			cache::CatapultCache m_cache;
@@ -1009,7 +1009,7 @@ namespace catapult { namespace harvesting {
 			// Arrange: prepare context
 			test::MockExecutionConfiguration executionConfig;
 			executionConfig.pObserver->enableReceiptGeneration();
-			FacadeTestContext context(CreateBlockChainConfiguration(verifyOptions), executionConfig.Config, Default_Height + Height(1));
+			FacadeTestContext context(CreateBlockchainConfiguration(verifyOptions), executionConfig.Config, Default_Height + Height(1));
 
 			auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
 			pBlockHeader->FeeMultiplier = BlockFeeMultiplier(1);
@@ -1102,7 +1102,7 @@ namespace catapult { namespace harvesting {
 			executionConfig.pObserver->enableRollbackEmulation();
 			executionConfig.pNotificationPublisher->emulatePublicKeyNotifications();
 			FacadeTestContext context(
-					CreateBlockChainConfiguration(StateVerifyOptions::All),
+					CreateBlockchainConfiguration(StateVerifyOptions::All),
 					executionConfig.Config,
 					Default_Height + Height(1));
 
@@ -1156,7 +1156,7 @@ namespace catapult { namespace harvesting {
 		executionConfig.pObserver->enableRollbackEmulation();
 		executionConfig.pNotificationPublisher->emulatePublicKeyNotifications();
 		FacadeTestContext context(
-				CreateBlockChainConfiguration(StateVerifyOptions::All),
+				CreateBlockchainConfiguration(StateVerifyOptions::All),
 				executionConfig.Config,
 				Default_Height + Height(1));
 
@@ -1238,7 +1238,7 @@ namespace catapult { namespace harvesting {
 			executionConfig.pNotificationPublisher = std::make_shared<AccountAwareMockNotificationPublisher>();
 			executionConfig.Config.pNotificationPublisher = executionConfig.pNotificationPublisher;
 			FacadeTestContext context(
-					CreateBlockChainConfiguration(StateVerifyOptions::All),
+					CreateBlockchainConfiguration(StateVerifyOptions::All),
 					executionConfig.Config,
 					Default_Height + Height(1));
 
@@ -1329,9 +1329,9 @@ namespace catapult { namespace harvesting {
 
 	// region commit - deadlock
 
-	TEST(TEST_CLASS, CommitAcquiresResourcesInCorrectOrderSoAsToNotDeadlockWithBlockChainSyncConsumer) {
+	TEST(TEST_CLASS, CommitAcquiresResourcesInCorrectOrderSoAsToNotDeadlockWithBlockchainSyncConsumer) {
 		// Arrange: create factory and facade
-		auto config = CreateBlockChainConfiguration();
+		auto config = CreateBlockchainConfiguration();
 		auto importanceMultipleHeight = model::CalculateGroupedHeight<Height>(Default_Height, config.ImportanceGrouping);
 		auto catapultCache = test::CreateEmptyCatapultCache(config);
 		{

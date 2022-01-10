@@ -38,14 +38,14 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		MosaicRentalFeeConfiguration ToMosaicRentalFeeConfiguration(
-				const model::BlockChainConfiguration& blockChainConfig,
+				const model::BlockchainConfiguration& blockchainConfig,
 				UnresolvedMosaicId currencyMosaicId,
 				const config::MosaicConfiguration& config) {
 			MosaicRentalFeeConfiguration rentalFeeConfig;
 			rentalFeeConfig.CurrencyMosaicId = currencyMosaicId;
 			rentalFeeConfig.Fee = config.MosaicRentalFee;
-			rentalFeeConfig.NemesisSignerPublicKey = blockChainConfig.Network.NemesisSignerPublicKey;
-			rentalFeeConfig.SinkAddress = config::GetMosaicRentalFeeSinkAddress(config, blockChainConfig);
+			rentalFeeConfig.NemesisSignerPublicKey = blockchainConfig.Network.NemesisSignerPublicKey;
+			rentalFeeConfig.SinkAddress = config::GetMosaicRentalFeeSinkAddress(config, blockchainConfig);
 			return rentalFeeConfig;
 		}
 

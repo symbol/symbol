@@ -21,7 +21,7 @@
 
 #pragma once
 #include "Accounts.h"
-#include "BlockChainBuilder.h"
+#include "BlockchainBuilder.h"
 #include "TransactionsBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 
@@ -42,10 +42,10 @@ namespace catapult { namespace test {
 	/// Result of PushTransferBlocks.
 	struct TransferBlocksResult {
 		/// Terminal builder.
-		BlockChainBuilder Builder;
+		BlockchainBuilder Builder;
 
 		/// All pushed blocks.
-		BlockChainBuilder::Blocks AllBlocks;
+		BlockchainBuilder::Blocks AllBlocks;
 
 		/// Number of pushed chain parts.
 		uint32_t NumAliveChains;
@@ -57,9 +57,9 @@ namespace catapult { namespace test {
 			TTestContext& context,
 			ExternalSourceConnection& connection,
 			const Accounts& accounts,
-			BlockChainBuilder& builder,
+			BlockchainBuilder& builder,
 			size_t numTotalBlocks) {
-		BlockChainBuilder::Blocks allBlocks;
+		BlockchainBuilder::Blocks allBlocks;
 		auto numAliveChains = 0u;
 		auto numRemainingBlocks = numTotalBlocks;
 		for (;;) {
@@ -68,7 +68,7 @@ namespace catapult { namespace test {
 			for (auto i = 0u; i < numBlocks; ++i)
 				transactionsBuilder.addTransfer(0, 1, Amount(1));
 
-			auto blocks = builder.asBlockChain(transactionsBuilder);
+			auto blocks = builder.asBlockchain(transactionsBuilder);
 			auto pIo = PushEntities(connection, ionet::PacketType::Push_Block, blocks);
 
 			numRemainingBlocks -= numBlocks;

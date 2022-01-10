@@ -31,16 +31,16 @@
 
 namespace catapult { namespace model {
 
-	/// Block chain configuration settings.
-	struct BlockChainConfiguration {
+	/// Blockchain configuration settings.
+	struct BlockchainConfiguration {
 	public:
-		/// Block chain network.
+		/// Blockchain network.
 		NetworkInfo Network;
 
-		/// \c true if block chain should calculate state hashes so that state is fully verifiable at each block.
+		/// \c true if blockchain should calculate state hashes so that state is fully verifiable at each block.
 		bool EnableVerifiableState;
 
-		/// \c true if block chain should calculate receipts so that state changes are fully verifiable at each block.
+		/// \c true if blockchain should calculate receipts so that state changes are fully verifiable at each block.
 		bool EnableVerifiableReceipts;
 
 		/// Mosaic id used as primary chain currency.
@@ -137,7 +137,7 @@ namespace catapult { namespace model {
 		};
 
 		/// Fork heights.
-		BlockChainConfiguration::ForkHeights ForkHeights;
+		BlockchainConfiguration::ForkHeights ForkHeights;
 
 	public:
 		/// Signatures of transactions allowed in the treasury reissuance block (preferred).
@@ -148,28 +148,28 @@ namespace catapult { namespace model {
 		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;
 
 	private:
-		BlockChainConfiguration() = default;
+		BlockchainConfiguration() = default;
 
 	public:
-		/// Creates an uninitialized block chain configuration.
-		static BlockChainConfiguration Uninitialized();
+		/// Creates an uninitialized blockchain configuration.
+		static BlockchainConfiguration Uninitialized();
 
-		/// Loads a block chain configuration from \a bag.
-		static BlockChainConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+		/// Loads a blockchain configuration from \a bag.
+		static BlockchainConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
 
 	/// Gets the unresolved currency mosaic id from \a config.
-	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config);
+	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockchainConfiguration& config);
 
 	/// Gets the harvest network fee sink address from \a config.
-	HeightDependentAddress GetHarvestNetworkFeeSinkAddress(const BlockChainConfiguration& config);
+	HeightDependentAddress GetHarvestNetworkFeeSinkAddress(const BlockchainConfiguration& config);
 
-	/// Calculates the duration of time that expired transactions should be cached for the block chain described by \a config.
-	utils::TimeSpan CalculateTransactionCacheDuration(const BlockChainConfiguration& config);
+	/// Calculates the duration of time that expired transactions should be cached for the blockchain described by \a config.
+	utils::TimeSpan CalculateTransactionCacheDuration(const BlockchainConfiguration& config);
 
 	/// Loads plugin configuration for plugin named \a pluginName from \a config.
 	template<typename T>
-	T LoadPluginConfiguration(const BlockChainConfiguration& config, const std::string& pluginName) {
+	T LoadPluginConfiguration(const BlockchainConfiguration& config, const std::string& pluginName) {
 		auto iter = config.Plugins.find(pluginName);
 		if (config.Plugins.cend() == iter)
 			CATAPULT_THROW_AND_LOG_1(utils::property_not_found_error, "plugin configuration not found", pluginName);

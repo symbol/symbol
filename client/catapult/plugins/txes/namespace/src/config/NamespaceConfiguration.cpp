@@ -21,7 +21,7 @@
 
 #include "NamespaceConfiguration.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
 
@@ -60,9 +60,9 @@ namespace catapult { namespace config {
 
 	model::HeightDependentAddress GetNamespaceRentalFeeSinkAddress(
 			const NamespaceConfiguration& config,
-			const model::BlockChainConfiguration& blockChainConfig) {
+			const model::BlockchainConfiguration& blockchainConfig) {
 		model::HeightDependentAddress sinkAddress(config.NamespaceRentalFeeSinkAddress);
-		sinkAddress.trySet(config.NamespaceRentalFeeSinkAddressV1, blockChainConfig.ForkHeights.TreasuryReissuance);
+		sinkAddress.trySet(config.NamespaceRentalFeeSinkAddressV1, blockchainConfig.ForkHeights.TreasuryReissuance);
 		return sinkAddress;
 	}
 }}

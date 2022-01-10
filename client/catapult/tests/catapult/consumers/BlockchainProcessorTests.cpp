@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/BlockChainProcessor.h"
+#include "catapult/consumers/BlockchainProcessor.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
@@ -38,7 +38,7 @@ using catapult::disruptor::BlockElements;
 
 namespace catapult { namespace consumers {
 
-#define TEST_CLASS BlockChainProcessorTests
+#define TEST_CLASS BlockchainProcessorTests
 
 	namespace {
 		// region MockBlockHitPredicate
@@ -207,7 +207,7 @@ namespace catapult { namespace consumers {
 		public:
 			explicit ProcessorTestContext(ReceiptValidationMode receiptValidationMode = ReceiptValidationMode::Disabled)
 					: BlockHitPredicateFactory(BlockHitPredicate) {
-				Processor = CreateBlockChainProcessor(
+				Processor = CreateBlockchainProcessor(
 						[this](const auto& cache) {
 							return BlockHitPredicateFactory(cache);
 						},
@@ -221,7 +221,7 @@ namespace catapult { namespace consumers {
 			MockBlockHitPredicate BlockHitPredicate;
 			MockBlockHitPredicateFactory BlockHitPredicateFactory;
 			MockBatchEntityProcessor BatchEntityProcessor;
-			BlockChainProcessor Processor;
+			BlockchainProcessor Processor;
 
 		public:
 			ValidationResult Process(
@@ -522,7 +522,7 @@ namespace catapult { namespace consumers {
 		AssertCanProcessValidBlocksWithRemoteHarvester(1, 0);
 	}
 
-	TEST(TEST_CLASS, CanProcessBlockChainWithRemoteHarvester) {
+	TEST(TEST_CLASS, CanProcessBlockchainWithRemoteHarvester) {
 		AssertCanProcessValidBlocksWithRemoteHarvester(3, 1); // block 2/3 has remote harvester
 	}
 

@@ -22,7 +22,7 @@
 #include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/ionet/NodeInteractionResult.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
@@ -142,9 +142,9 @@ namespace catapult { namespace extensions {
 			auto knownKey = test::GenerateRandomByteArray<Key>();
 
 			// -  create and initialize a cache
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.ImportanceGrouping = 1;
-			auto cache = test::CreateEmptyCatapultCache(blockChainConfig);
+			auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+			blockchainConfig.ImportanceGrouping = 1;
+			auto cache = test::CreateEmptyCatapultCache(blockchainConfig);
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();

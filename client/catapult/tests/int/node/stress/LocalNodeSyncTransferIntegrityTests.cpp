@@ -32,27 +32,27 @@ namespace catapult { namespace local {
 #define TEST_CLASS LocalNodeSyncTransferIntegrityTests
 
 	namespace {
-		using BlockChainBuilder = test::BlockChainBuilder;
-		using Blocks = BlockChainBuilder::Blocks;
+		using BlockchainBuilder = test::BlockchainBuilder;
+		using Blocks = BlockchainBuilder::Blocks;
 
 		// region traits
 
 		struct SingleBlockTraits {
-			static auto GetBlocks(BlockChainBuilder& builder, const test::TransactionsGenerator& transactionsGenerator) {
+			static auto GetBlocks(BlockchainBuilder& builder, const test::TransactionsGenerator& transactionsGenerator) {
 				return Blocks{ utils::UniqueToShared(builder.asSingleBlock(transactionsGenerator)) };
 			}
 		};
 
 		struct MultiBlockTraits {
-			static auto GetBlocks(BlockChainBuilder& builder, const test::TransactionsGenerator& transactionsGenerator) {
-				return builder.asBlockChain(transactionsGenerator);
+			static auto GetBlocks(BlockchainBuilder& builder, const test::TransactionsGenerator& transactionsGenerator) {
+				return builder.asBlockchain(transactionsGenerator);
 			}
 		};
 
 #define SINGLE_MULTI_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_SingleBlock) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SingleBlockTraits>(); } \
-	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_BlockChain) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultiBlockTraits>(); } \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_Blockchain) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultiBlockTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 		// endregion
@@ -97,7 +97,7 @@ namespace catapult { namespace local {
 			transactionsBuilder.addTransfer(4, 5, Amount(50'000));
 
 			auto stateHashCalculator = context.createStateHashCalculator();
-			BlockChainBuilder builder(accounts, stateHashCalculator);
+			BlockchainBuilder builder(accounts, stateHashCalculator);
 			auto blocks = TTraits::GetBlocks(builder, transactionsBuilder);
 
 			// Act:
@@ -150,7 +150,7 @@ namespace catapult { namespace local {
 
 	namespace {
 		template<typename TTraits, typename TTestContext>
-		std::pair<BlockChainBuilder, Blocks> PrepareFiveChainedTransfers(
+		std::pair<BlockchainBuilder, Blocks> PrepareFiveChainedTransfers(
 				TTestContext& context,
 				const test::Accounts& accounts,
 				test::StateHashCalculator& stateHashCalculator) {
@@ -168,7 +168,7 @@ namespace catapult { namespace local {
 			transactionsBuilder.addTransfer(3, 4, Amount(400'000));
 			transactionsBuilder.addTransfer(4, 5, Amount(50'000));
 
-			BlockChainBuilder builder(accounts, stateHashCalculator);
+			BlockchainBuilder builder(accounts, stateHashCalculator);
 			auto blocks = TTraits::GetBlocks(builder, transactionsBuilder);
 
 			// Act:
@@ -201,7 +201,7 @@ namespace catapult { namespace local {
 			transactionsBuilder1.addTransfer(0, 5, Amount(50'000));
 
 			auto stateHashCalculator = context.createStateHashCalculator();
-			BlockChainBuilder builder1(accounts, stateHashCalculator);
+			BlockchainBuilder builder1(accounts, stateHashCalculator);
 			builder1.setBlockTimeInterval(utils::TimeSpan::FromSeconds(58)); // better block time will yield better chain
 			auto blocks = TTraits::GetBlocks(builder1, transactionsBuilder1);
 
@@ -267,13 +267,13 @@ namespace catapult { namespace local {
 			// Arrange:
 			std::vector<Hash256> stateHashes;
 			test::Accounts accounts(6);
-			std::unique_ptr<BlockChainBuilder> pBuilder1;
+			std::unique_ptr<BlockchainBuilder> pBuilder1;
 			Blocks seedBlocks;
 			{
 				// - seed the chain with initial blocks
 				auto stateHashCalculator = context.createStateHashCalculator();
 				auto builderBlocksPair = PrepareFiveChainedTransfers<TTraits>(context, accounts, stateHashCalculator);
-				pBuilder1 = std::make_unique<BlockChainBuilder>(builderBlocksPair.first);
+				pBuilder1 = std::make_unique<BlockchainBuilder>(builderBlocksPair.first);
 				seedBlocks = builderBlocksPair.second;
 				stateHashes.emplace_back(GetStateHash(context));
 			}
@@ -416,14 +416,14 @@ namespace catapult { namespace local {
 			// Arrange:
 			std::vector<Hash256> stateHashes;
 			test::Accounts accounts(6);
-			std::unique_ptr<BlockChainBuilder> pBuilder1;
+			std::unique_ptr<BlockchainBuilder> pBuilder1;
 			Blocks seedBlocks;
 			{
 				// - seed the chain with initial blocks
 				// - always use SingleBlockTraits because a push can rollback at most one block
 				auto stateHashCalculator = context.createStateHashCalculator();
 				auto builderBlocksPair = PrepareFiveChainedTransfers<SingleBlockTraits>(context, accounts, stateHashCalculator);
-				pBuilder1 = std::make_unique<BlockChainBuilder>(builderBlocksPair.first);
+				pBuilder1 = std::make_unique<BlockchainBuilder>(builderBlocksPair.first);
 				seedBlocks = builderBlocksPair.second;
 				stateHashes.emplace_back(GetStateHash(context));
 			}
@@ -431,7 +431,7 @@ namespace catapult { namespace local {
 			Blocks invalidBlocks;
 			{
 				auto stateHashCalculator = context.createStateHashCalculator();
-				BlockChainBuilder builder2(accounts, stateHashCalculator);
+				BlockchainBuilder builder2(accounts, stateHashCalculator);
 
 				// - prepare invalid blocks
 				builder2.setBlockTimeInterval(utils::TimeSpan::FromSeconds(58)); // better block time will yield better chain

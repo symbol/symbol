@@ -177,7 +177,7 @@ namespace catapult { namespace test {
 		}
 
 		/// Regenerates (primary) certificates with specified \a caKeyPair.
-		/// \note This is required for happy block chain tests, which require high-balance nemesis accounts.
+		/// \note This is required for happy blockchain tests, which require high-balance nemesis accounts.
 		void regenerateCertificates(const crypto::KeyPair& caKeyPair) {
 			auto certificateDirectory = findCertificateSubdirectory(dataDirectory());
 			GenerateCertificateDirectory(certificateDirectory, PemCertificate(caKeyPair, GenerateKeyPair()));

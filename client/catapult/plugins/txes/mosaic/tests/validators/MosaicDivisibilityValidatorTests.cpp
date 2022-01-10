@@ -55,7 +55,7 @@ namespace catapult { namespace validators {
 			auto properties = model::MosaicProperties(model::MosaicFlags::None, notificationDivisibility, BlockDuration());
 			auto notification = model::MosaicDefinitionNotification(owner, mosaicId, properties);
 
-			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::MosaicCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			if (0 < initialDivisibility)
 				AddMosaic(cache, owner, mosaicId, initialDivisibility);
 

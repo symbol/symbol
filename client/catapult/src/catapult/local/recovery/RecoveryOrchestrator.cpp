@@ -163,7 +163,7 @@ namespace catapult { namespace local {
 				else if (StateRecoveryMode::Reseed == stateRecoveryMode)
 					CATAPULT_THROW_INVALID_ARGUMENT("reseed operation detected - please use the importer tool");
 
-				CATAPULT_LOG(info) << "loaded block chain (height = " << heights.Storage << ", score = " << m_score.get() << ")";
+				CATAPULT_LOG(info) << "loaded blockchain (height = " << heights.Storage << ", score = " << m_score.get() << ")";
 
 				CATAPULT_LOG(info) << "repairing state";
 				repairState(systemState.commitStep());
@@ -194,7 +194,7 @@ namespace catapult { namespace local {
 				// discontinuities in block analysis (e.g. statistic cache expects consecutive blocks)
 				CATAPULT_LOG(info) << "loading state - block loading required";
 				auto observerFactory = [&pluginManager = m_pluginManager](const auto&) { return pluginManager.createObserver(); };
-				auto partialScore = LoadBlockChain(observerFactory, m_pluginManager, stateRef(), heights.Cache + Height(1));
+				auto partialScore = LoadBlockchain(observerFactory, m_pluginManager, stateRef(), heights.Cache + Height(1));
 				m_score += partialScore;
 			}
 
@@ -228,7 +228,7 @@ namespace catapult { namespace local {
 						m_config.Node.FileDatabaseBatchSize);
 
 				// when verifiable state is enabled, forcibly regenerate all patricia trees because cache changes are coalesced
-				if (stateRef().Config.BlockChain.EnableVerifiableState && startHeight > Height(0)) {
+				if (stateRef().Config.Blockchain.EnableVerifiableState && startHeight > Height(0)) {
 					CATAPULT_LOG(debug) << "- reloading supplemental state";
 					extensions::LoadDependentStateFromDirectory(m_dataDirectory.dir("state"), stateRef().Cache);
 					reapplyBlocks(startHeight);

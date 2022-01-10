@@ -140,13 +140,13 @@ namespace catapult { namespace consumers {
 			TransactionInfos m_removedTransactionInfos;
 		};
 
-		class BlockChainSyncConsumer {
+		class BlockchainSyncConsumer {
 		public:
-			BlockChainSyncConsumer(
+			BlockchainSyncConsumer(
 					uint64_t importanceGrouping,
 					cache::CatapultCache& cache,
 					io::BlockStorageCache& storage,
-					const BlockChainSyncHandlers& handlers)
+					const BlockchainSyncHandlers& handlers)
 					: m_importanceGrouping(importanceGrouping)
 					, m_cache(cache)
 					, m_storage(storage)
@@ -293,7 +293,7 @@ namespace catapult { namespace consumers {
 			}
 
 			void commitAll(const BlockElements& elements, SyncState& syncState) const {
-				utils::SlowOperationLogger logger("BlockChainSyncConsumer::commitAll", utils::LogLevel::warning);
+				utils::SlowOperationLogger logger("BlockchainSyncConsumer::commitAll", utils::LogLevel::warning);
 
 				// 1. save the peer chain into storage
 				logger.addSubOperation("save the peer chain into storage");
@@ -317,11 +317,11 @@ namespace catapult { namespace consumers {
 				// - both blocks and state have been written out to disk and can be fully restored
 				// - broker process is not yet able to consume changes (all changes are consumable after step 3)
 
-				// 4. commit changes to the in-memory cache and primary block chain storage
+				// 4. commit changes to the in-memory cache and primary blockchain storage
 				logger.addSubOperation("commit changes to the in-memory cache");
 				syncState.commit(newHeight);
 
-				logger.addSubOperation("commit changes to the primary block chain storage");
+				logger.addSubOperation("commit changes to the primary blockchain storage");
 				storageModifier.commit();
 				m_handlers.CommitStep(CommitOperationStep::All_Updated);
 
@@ -367,15 +367,15 @@ namespace catapult { namespace consumers {
 			uint64_t m_importanceGrouping;
 			cache::CatapultCache& m_cache;
 			io::BlockStorageCache& m_storage;
-			BlockChainSyncHandlers m_handlers;
+			BlockchainSyncHandlers m_handlers;
 		};
 	}
 
-	disruptor::DisruptorConsumer CreateBlockChainSyncConsumer(
+	disruptor::DisruptorConsumer CreateBlockchainSyncConsumer(
 			uint64_t importanceGrouping,
 			cache::CatapultCache& cache,
 			io::BlockStorageCache& storage,
-			const BlockChainSyncHandlers& handlers) {
-		return BlockChainSyncConsumer(importanceGrouping, cache, storage, handlers);
+			const BlockchainSyncHandlers& handlers) {
+		return BlockchainSyncConsumer(importanceGrouping, cache, storage, handlers);
 	}
 }}

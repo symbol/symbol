@@ -29,11 +29,11 @@
 namespace catapult { namespace test {
 
 	cache::CatapultCache FinalizationBootstrapperServiceTestUtils::CreateCache() {
-		return CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		return CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 	}
 
 	cache::CatapultCache FinalizationBootstrapperServiceTestUtils::CreateCache(std::vector<AccountKeyPairDescriptor>& keyPairDescriptors) {
-		auto config = model::BlockChainConfiguration::Uninitialized();
+		auto config = model::BlockchainConfiguration::Uninitialized();
 		config.HarvestingMosaicId = Default_Harvesting_Mosaic_Id;
 		config.MinVoterBalance = Amount(2'000'000);
 

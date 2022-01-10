@@ -52,7 +52,7 @@ namespace catapult { namespace test {
 	LocalNodeTestState::LocalNodeTestState() : LocalNodeTestState(CreateEmptyCatapultCache())
 	{}
 
-	LocalNodeTestState::LocalNodeTestState(const model::BlockChainConfiguration& config)
+	LocalNodeTestState::LocalNodeTestState(const model::BlockchainConfiguration& config)
 			: LocalNodeTestState(config, "", CreateEmptyCatapultCache(config))
 	{}
 
@@ -61,11 +61,11 @@ namespace catapult { namespace test {
 	{}
 
 	LocalNodeTestState::LocalNodeTestState(
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const std::string& userDataDirectory,
 			cache::CatapultCache&& cache)
 			: m_pImpl(std::make_unique<Impl>(
-					CreatePrototypicalCatapultConfiguration(model::BlockChainConfiguration(config), userDataDirectory),
+					CreatePrototypicalCatapultConfiguration(model::BlockchainConfiguration(config), userDataDirectory),
 					std::move(cache)))
 	{}
 

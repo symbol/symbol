@@ -58,7 +58,7 @@ namespace catapult { namespace extensions {
 		public:
 			explicit TestContext(uint32_t numAccounts)
 					: m_pPluginManager(test::CreatePluginManagerWithRealPlugins(test::CreatePrototypicalCatapultConfiguration(
-							CreateBlockChainConfiguration(numAccounts),
+							CreateBlockchainConfiguration(numAccounts),
 							m_tempDataDir.name())))
 					, m_cache(m_pPluginManager->createCache())
 					, m_specialAccountPublicKey(test::GenerateRandomByteArray<Key>()) {
@@ -259,8 +259,8 @@ namespace catapult { namespace extensions {
 			}
 
 		private:
-			static model::BlockChainConfiguration CreateBlockChainConfiguration(uint32_t numAccounts) {
-				auto config = model::BlockChainConfiguration::Uninitialized();
+			static model::BlockchainConfiguration CreateBlockchainConfiguration(uint32_t numAccounts) {
+				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.Network.Identifier = Network_Identifier;
 				config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 				config.ImportanceGrouping = 123;

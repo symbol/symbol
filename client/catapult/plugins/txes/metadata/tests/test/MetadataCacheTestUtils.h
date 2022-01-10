@@ -22,7 +22,7 @@
 #pragma once
 #include "src/cache/MetadataCache.h"
 #include "src/cache/MetadataCacheStorage.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {
@@ -39,7 +39,7 @@ namespace catapult { namespace test {
 		}
 
 		/// Creates an empty catapult cache around \a config.
-		static cache::CatapultCache Create(const model::BlockChainConfiguration&) {
+		static cache::CatapultCache Create(const model::BlockchainConfiguration&) {
 			return Create();
 		}
 	};

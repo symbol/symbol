@@ -56,7 +56,7 @@ namespace catapult { namespace tools { namespace nemgen {
 	/// Nemesis configuration.
 	struct NemesisConfiguration {
 	public:
-		/// Block chain network identifier.
+		/// Blockchain network identifier.
 		model::NetworkIdentifier NetworkIdentifier;
 
 		/// Nemesis generation hash seed.

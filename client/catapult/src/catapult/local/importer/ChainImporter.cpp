@@ -108,7 +108,7 @@ namespace catapult { namespace local {
 					CATAPULT_THROW_INVALID_ARGUMENT("import failed because serialized state is detected");
 
 				// nemesis notification
-				NemesisBlockNotifier notifier(m_config.BlockChain, m_catapultCache, m_storage, m_pluginManager);
+				NemesisBlockNotifier notifier(m_config.Blockchain, m_catapultCache, m_storage, m_pluginManager);
 
 				if (m_pBlockChangeSubscriber)
 					notifier.raise(*m_pBlockChangeSubscriber);
@@ -145,7 +145,7 @@ namespace catapult { namespace local {
 				// disable load optimizations (loading from the saved state is optimization enough) in order to prevent
 				// discontinuities in block analysis (e.g. statistic cache expects consecutive blocks)
 				auto observerFactory = [&pluginManager = m_pluginManager](const auto&) { return pluginManager.createObserver(); };
-				auto partialScore = LoadBlockChain(observerFactory, m_pluginManager, stateRef(), Height(2), statusConsumer);
+				auto partialScore = LoadBlockchain(observerFactory, m_pluginManager, stateRef(), Height(2), statusConsumer);
 				m_score += partialScore;
 			}
 

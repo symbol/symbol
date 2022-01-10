@@ -31,8 +31,8 @@ namespace catapult { namespace handlers {
 #define TEST_CLASS ChainHandlersTests
 
 	namespace {
-		constexpr auto GetBlockSizeAtHeight = test::VariableSizedBlockChain::GetBlockSizeAtHeight;
-		constexpr auto CreateStorage = test::VariableSizedBlockChain::CreateStorage;
+		constexpr auto GetBlockSizeAtHeight = test::VariableSizedBlockchain::GetBlockSizeAtHeight;
+		constexpr auto CreateStorage = test::VariableSizedBlockchain::CreateStorage;
 
 		uint32_t GetSumBlockSizesAtHeights(const std::vector<Height>& heights) {
 			uint32_t size = 0;

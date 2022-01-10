@@ -22,7 +22,7 @@
 #include "src/importance/StorageImportanceCalculatorFactory.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/io/IndexFile.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
@@ -264,7 +264,7 @@ namespace catapult { namespace importance {
 
 		class TestContext {
 		public:
-			TestContext() : m_config(CreateBlockChainConfiguration())
+			TestContext() : m_config(CreateBlockchainConfiguration())
 			{}
 
 		public:
@@ -328,8 +328,8 @@ namespace catapult { namespace importance {
 			}
 
 		private:
-			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
-				auto config = model::BlockChainConfiguration::Uninitialized();
+			static model::BlockchainConfiguration CreateBlockchainConfiguration() {
+				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 				config.ImportanceGrouping = Importance_Grouping;
 				return config;
@@ -337,7 +337,7 @@ namespace catapult { namespace importance {
 
 		private:
 			test::TempDirectoryGuard m_tempDir;
-			model::BlockChainConfiguration m_config;
+			model::BlockchainConfiguration m_config;
 		};
 
 		// endregion

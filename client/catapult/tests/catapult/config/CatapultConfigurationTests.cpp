@@ -48,7 +48,7 @@ namespace catapult { namespace config {
 			"config-user.properties"
 		};
 
-		void AssertDefaultBlockChainConfiguration(const model::BlockChainConfiguration& config) {
+		void AssertDefaultBlockchainConfiguration(const model::BlockchainConfiguration& config) {
 			// Assert:
 			EXPECT_EQ(model::NetworkIdentifier::Testnet, config.Network.Identifier);
 			EXPECT_EQ(model::NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
@@ -298,7 +298,7 @@ namespace catapult { namespace config {
 		auto config = CatapultConfiguration::LoadFromPath(Resources_Path, "server");
 
 		// Assert:
-		AssertDefaultBlockChainConfiguration(config.BlockChain);
+		AssertDefaultBlockchainConfiguration(config.Blockchain);
 		AssertDefaultNodeConfiguration(config.Node);
 		AssertDefaultLoggingConfiguration(config.Logging, "catapult_server%4N.log");
 		AssertDefaultUserConfiguration(config.User);
@@ -316,7 +316,7 @@ namespace catapult { namespace config {
 		auto config = CatapultConfiguration::LoadFromPath(Resources_Path, "broker");
 
 		// Assert:
-		AssertDefaultBlockChainConfiguration(config.BlockChain);
+		AssertDefaultBlockchainConfiguration(config.Blockchain);
 		AssertDefaultNodeConfiguration(config.Node);
 		AssertDefaultLoggingConfiguration(config.Logging, "catapult_broker%4N.log");
 		AssertDefaultUserConfiguration(config.User);
@@ -332,7 +332,7 @@ namespace catapult { namespace config {
 		auto config = CatapultConfiguration::LoadFromPath(Resources_Path, "recovery");
 
 		// Assert:
-		AssertDefaultBlockChainConfiguration(config.BlockChain);
+		AssertDefaultBlockchainConfiguration(config.Blockchain);
 		AssertDefaultNodeConfiguration(config.Node);
 		AssertDefaultLoggingConfiguration(config.Logging, "catapult_recovery%4N.log", utils::LogLevel::debug);
 		AssertDefaultUserConfiguration(config.User);
@@ -349,8 +349,8 @@ namespace catapult { namespace config {
 
 		auto CreateCatapultConfiguration() {
 			test::MutableCatapultConfiguration config;
-			config.BlockChain.Network.Identifier = model::NetworkIdentifier::Testnet;
-			config.BlockChain.Network.GenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
+			config.Blockchain.Network.Identifier = model::NetworkIdentifier::Testnet;
+			config.Blockchain.Network.GenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
 
 			config.Node.Port = 9876;
 			config.Node.Local.Host = "alice.com";

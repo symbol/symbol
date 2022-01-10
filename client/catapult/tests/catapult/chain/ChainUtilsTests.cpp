@@ -22,7 +22,7 @@
 #include "catapult/chain/ChainUtils.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/EntityHasher.h"
 #include "catapult/utils/TimeSpan.h"
 #include "tests/test/core/BlockTestUtils.h"
@@ -170,8 +170,8 @@ namespace catapult { namespace chain {
 			return blockPointers;
 		}
 
-		model::BlockChainConfiguration CreateConfiguration() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateConfiguration() {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
 			config.MaxDifficultyBlocks = 60;
 			return config;
@@ -337,7 +337,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(model::ChainScore(0), score);
 	}
 
-	TEST(TEST_CLASS, CanCalculatePartialChainScoreForSingleBlockChain) {
+	TEST(TEST_CLASS, CanCalculatePartialChainScoreForSingleBlockchain) {
 		// Arrange:
 		auto pParentBlock = CreateBlock(Timestamp(100'000), Difficulty());
 		std::vector<std::unique_ptr<model::Block>> blocks;
@@ -350,7 +350,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(model::ChainScore(Base_Difficulty + 111 - (150 - 100)), score);
 	}
 
-	TEST(TEST_CLASS, CanCalculatePartialChainScoreForMultiBlockChain) {
+	TEST(TEST_CLASS, CanCalculatePartialChainScoreForMultiBlockchain) {
 		// Arrange:
 		auto pParentBlock = CreateBlock(Timestamp(100'000), Difficulty());
 		std::vector<std::unique_ptr<model::Block>> blocks;

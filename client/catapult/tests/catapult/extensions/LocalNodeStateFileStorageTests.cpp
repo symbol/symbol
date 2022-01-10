@@ -27,11 +27,11 @@
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/cache_core/BlockStatisticCacheSubCachePlugin.h"
 #include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/consumers/BlockChainSyncHandlers.h"
+#include "catapult/consumers/BlockchainSyncHandlers.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/io/IndexFile.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/StateTestUtils.h"
@@ -176,14 +176,14 @@ namespace catapult { namespace extensions {
 		// Arrange: seed and save the cache state with rocks disabled
 		test::TempDirectoryGuard tempDir;
 		auto stateDirectory = config::CatapultDirectory(tempDir.name() + "/zstate");
-		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-		auto originalCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+		auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+		auto originalCache = test::CoreSystemCacheFactory::Create(blockchainConfig);
 
 		// - save the state
 		PrepareAndSaveCompleteState(stateDirectory, originalCache);
 
 		// Sanity:
-		auto cache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+		auto cache = test::CoreSystemCacheFactory::Create(blockchainConfig);
 		test::AssertEqual(state::CatapultState(), cache.createView().dependentState());
 
 		// Act: load the state
@@ -218,7 +218,7 @@ namespace catapult { namespace extensions {
 
 		// Act: load the state
 		auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
-		test::LocalNodeTestState loadedState(config.BlockChain, stateDirectory.str(), pPluginManager->createCache());
+		test::LocalNodeTestState loadedState(config.Blockchain, stateDirectory.str(), pPluginManager->createCache());
 		auto heights = LoadStateFromDirectory(stateDirectory, loadedState.ref(), *pPluginManager);
 
 		// Assert:
@@ -276,8 +276,8 @@ namespace catapult { namespace extensions {
 			// Arrange: seed and save the cache state with rocks disabled
 			test::TempDirectoryGuard tempDir;
 			auto stateDirectory = config::CatapultDirectory(tempDir.name() + "/zstate");
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			auto originalCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+			auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+			auto originalCache = test::CoreSystemCacheFactory::Create(blockchainConfig);
 
 			// - run additional preparation
 			prepare(stateDirectory);
@@ -287,9 +287,9 @@ namespace catapult { namespace extensions {
 
 			// Act: load the state
 			test::LocalNodeTestState loadedState(
-					blockChainConfig,
+					blockchainConfig,
 					stateDirectory.str(),
-					test::CoreSystemCacheFactory::Create(blockChainConfig));
+					test::CoreSystemCacheFactory::Create(blockchainConfig));
 			auto pluginManager = test::CreatePluginManager();
 			auto heights = LoadStateFromDirectory(stateDirectory, loadedState.ref(), pluginManager);
 
@@ -339,7 +339,7 @@ namespace catapult { namespace extensions {
 			// Arrange: seed and save the cache state with rocks enabled
 			test::TempDirectoryGuard tempDir;
 			auto stateDirectory = config::CatapultDirectory(tempDir.name() + "/zstate");
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+			auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
 			auto originalCache = CreateCacheWithRealCoreSystemPlugins(tempDir.name() + "/db");
 
 			// - run additional preparation
@@ -350,7 +350,7 @@ namespace catapult { namespace extensions {
 
 			// Act: load the state
 			test::LocalNodeTestState loadedState(
-					blockChainConfig,
+					blockchainConfig,
 					stateDirectory.str(),
 					CreateCacheWithRealCoreSystemPlugins(tempDir.name() + "/db2"));
 			auto pluginManager = test::CreatePluginManager();
@@ -442,8 +442,8 @@ namespace catapult { namespace extensions {
 		nodeConfig.EnableCacheDatabaseStorage = true;
 
 		// - seed the cache state with rocks disabled
-		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-		auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+		auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+		auto catapultCache = test::CoreSystemCacheFactory::Create(blockchainConfig);
 		auto supplementalData = CreateDeterministicSupplementalData();
 		RandomSeedCache(catapultCache, supplementalData.State);
 
@@ -463,8 +463,8 @@ namespace catapult { namespace extensions {
 		nodeConfig.EnableCacheDatabaseStorage = false;
 
 		// - seed the cache state with rocks disabled
-		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-		auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+		auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+		auto catapultCache = test::CoreSystemCacheFactory::Create(blockchainConfig);
 		auto supplementalData = CreateDeterministicSupplementalData();
 		RandomSeedCache(catapultCache, supplementalData.State);
 
@@ -487,8 +487,8 @@ namespace catapult { namespace extensions {
 		nodeConfig.EnableCacheDatabaseStorage = false;
 
 		// - seed the cache state with rocks disabled
-		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-		auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+		auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+		auto catapultCache = test::CoreSystemCacheFactory::Create(blockchainConfig);
 		auto supplementalData = CreateDeterministicSupplementalData();
 		RandomSeedCache(catapultCache, supplementalData.State);
 

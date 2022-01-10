@@ -24,7 +24,7 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/chain/BlockScorer.h"
-#include "catapult/consumers/BlockChainSyncHandlers.h"
+#include "catapult/consumers/BlockchainSyncHandlers.h"
 #include "catapult/extensions/LocalNodeStateFileStorage.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
@@ -230,9 +230,9 @@ namespace catapult { namespace local {
 			config::CatapultConfiguration createConfig() const {
 				auto config = test::CreateCatapultConfigurationWithNemesisPluginExtensions(dataDirectory().rootDir().str());
 				if (m_useCacheDatabaseStorage) {
-					const_cast<model::BlockChainConfiguration&>(config.BlockChain).EnableVerifiableState = true;
+					const_cast<model::BlockchainConfiguration&>(config.Blockchain).EnableVerifiableState = true;
 					if (0 != m_importanceGrouping)
-						const_cast<model::BlockChainConfiguration&>(config.BlockChain).ImportanceGrouping = m_importanceGrouping;
+						const_cast<model::BlockchainConfiguration&>(config.Blockchain).ImportanceGrouping = m_importanceGrouping;
 
 					const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = true;
 				}

@@ -29,7 +29,7 @@ namespace catapult {
 		class CatapultCacheView;
 	}
 	namespace model {
-		struct BlockChainConfiguration;
+		struct BlockchainConfiguration;
 		class BlockStatementBuilder;
 	}
 	namespace observers { struct ObserverState; }

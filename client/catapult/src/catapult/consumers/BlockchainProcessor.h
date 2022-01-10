@@ -55,9 +55,9 @@ namespace catapult { namespace consumers {
 			const GenerationHash* m_pGenerationHash;
 	};
 
-	/// Function signature for validating, executing and updating a partial block chain given a parent block info
+	/// Function signature for validating, executing and updating a partial blockchain given a parent block info
 	/// and updating a cache.
-	using BlockChainProcessor = std::function<validators::ValidationResult (
+	using BlockchainProcessor = std::function<validators::ValidationResult (
 			const WeakBlockInfo&,
 			disruptor::BlockElements&,
 			observers::ObserverState&)>;
@@ -77,9 +77,9 @@ namespace catapult { namespace consumers {
 		Enabled
 	};
 
-	/// Creates a block chain processor around the specified block hit predicate factory (\a blockHitPredicateFactory)
+	/// Creates a blockchain processor around the specified block hit predicate factory (\a blockHitPredicateFactory)
 	/// and batch entity processor (\a batchEntityProcessor) with \a receiptValidationMode.
-	BlockChainProcessor CreateBlockChainProcessor(
+	BlockchainProcessor CreateBlockchainProcessor(
 			const BlockHitPredicateFactory& blockHitPredicateFactory,
 			const chain::BatchEntityProcessor& batchEntityProcessor,
 			ReceiptValidationMode receiptValidationMode);

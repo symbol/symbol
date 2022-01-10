@@ -86,7 +86,7 @@ namespace catapult { namespace test {
 		}
 
 		/// Creates an empty catapult cache around \a config.
-		static cache::CatapultCache Create(const model::BlockChainConfiguration& config) {
+		static cache::CatapultCache Create(const model::BlockchainConfiguration& config) {
 			auto subCaches = CreateSubCachesWithLockHashCache();
 			CoreSystemCacheFactory::CreateSubCaches(config, subCaches);
 			return cache::CatapultCache(std::move(subCaches));

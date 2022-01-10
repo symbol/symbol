@@ -23,8 +23,8 @@
 #include "BlockDifficultyScorer.h"
 #include "BlockScorer.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/BlockUtils.h"
+#include "catapult/model/BlockchainConfiguration.h"
 
 namespace catapult { namespace chain {
 
@@ -41,7 +41,7 @@ namespace catapult { namespace chain {
 		StatisticSet LoadDifficulties(
 				const cache::BlockStatisticCache& cache,
 				Height height,
-				const model::BlockChainConfiguration& config) {
+				const model::BlockchainConfiguration& config) {
 			auto view = cache.createView();
 			auto range = view->statistics(height, config.MaxDifficultyBlocks);
 
@@ -50,7 +50,7 @@ namespace catapult { namespace chain {
 			return set;
 		}
 
-		Difficulty CalculateDifficulty(const StatisticSet& statistics, const model::BlockChainConfiguration& config) {
+		Difficulty CalculateDifficulty(const StatisticSet& statistics, const model::BlockchainConfiguration& config) {
 			return chain::CalculateDifficulty(cache::BlockStatisticRange(statistics.cbegin(), statistics.cend()), config);
 		}
 	}
@@ -58,7 +58,7 @@ namespace catapult { namespace chain {
 	size_t CheckDifficulties(
 			const cache::BlockStatisticCache& cache,
 			const std::vector<const model::Block*>& blocks,
-			const model::BlockChainConfiguration& config) {
+			const model::BlockchainConfiguration& config) {
 		if (blocks.empty())
 			return 0;
 

@@ -34,9 +34,9 @@ namespace catapult { namespace config {
 		auto CreateMutableCatapultConfiguration() {
 			test::MutableCatapultConfiguration config;
 
-			auto& blockChainConfig = config.BlockChain;
-			blockChainConfig.ImportanceGrouping = 1;
-			blockChainConfig.MaxMosaicAtomicUnits = Amount(1000);
+			auto& blockchainConfig = config.Blockchain;
+			blockchainConfig.ImportanceGrouping = 1;
+			blockchainConfig.MaxMosaicAtomicUnits = Amount(1000);
 
 			auto& inflationConfig = config.Inflation;
 			inflationConfig.InflationCalculator.add(Height(1), Amount(1));
@@ -50,8 +50,8 @@ namespace catapult { namespace config {
 	namespace {
 		auto CreateCatapultConfigurationWithImportanceGrouping(uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
 			auto mutableConfig = CreateMutableCatapultConfiguration();
-			mutableConfig.BlockChain.ImportanceGrouping = importanceGrouping;
-			mutableConfig.BlockChain.MaxRollbackBlocks = maxRollbackBlocks;
+			mutableConfig.Blockchain.ImportanceGrouping = importanceGrouping;
+			mutableConfig.Blockchain.MaxRollbackBlocks = maxRollbackBlocks;
 			return mutableConfig.ToConst();
 		}
 	}
@@ -87,8 +87,8 @@ namespace catapult { namespace config {
 	namespace {
 		auto CreateCatapultConfigurationWithHarvestPercentages(uint8_t harvestBeneficiaryPercentage, uint8_t harvestNetworkPercentage) {
 			auto mutableConfig = CreateMutableCatapultConfiguration();
-			mutableConfig.BlockChain.HarvestBeneficiaryPercentage = harvestBeneficiaryPercentage;
-			mutableConfig.BlockChain.HarvestNetworkPercentage = harvestNetworkPercentage;
+			mutableConfig.Blockchain.HarvestBeneficiaryPercentage = harvestBeneficiaryPercentage;
+			mutableConfig.Blockchain.HarvestNetworkPercentage = harvestNetworkPercentage;
 			return mutableConfig.ToConst();
 		}
 	}
@@ -132,7 +132,7 @@ namespace catapult { namespace config {
 	namespace {
 		auto CreateCatapultConfigurationWithImportanceActivityPercentage(uint8_t importanceActivityPercentage) {
 			auto mutableConfig = CreateMutableCatapultConfiguration();
-			mutableConfig.BlockChain.ImportanceActivityPercentage = importanceActivityPercentage;
+			mutableConfig.Blockchain.ImportanceActivityPercentage = importanceActivityPercentage;
 			return mutableConfig.ToConst();
 		}
 	}
@@ -166,8 +166,8 @@ namespace catapult { namespace config {
 	namespace {
 		auto CreateCatapultConfigurationWithGroupings(uint32_t importanceGrouping, uint32_t votingSetGrouping) {
 			auto mutableConfig = CreateMutableCatapultConfiguration();
-			mutableConfig.BlockChain.ImportanceGrouping = importanceGrouping;
-			mutableConfig.BlockChain.VotingSetGrouping = votingSetGrouping;
+			mutableConfig.Blockchain.ImportanceGrouping = importanceGrouping;
+			mutableConfig.Blockchain.VotingSetGrouping = votingSetGrouping;
 			return mutableConfig.ToConst();
 		}
 	}
@@ -212,7 +212,7 @@ namespace catapult { namespace config {
 		namespace {
 			auto CreateCatapultConfiguration(uint64_t initialCurrencyAtomicUnits, const std::vector<InflationEntry>& inflationEntries) {
 				auto mutableConfig = CreateMutableCatapultConfiguration();
-				mutableConfig.BlockChain.InitialCurrencyAtomicUnits = Amount(initialCurrencyAtomicUnits);
+				mutableConfig.Blockchain.InitialCurrencyAtomicUnits = Amount(initialCurrencyAtomicUnits);
 
 				model::InflationCalculator calculator;
 				for (const auto& inflationEntry : inflationEntries)

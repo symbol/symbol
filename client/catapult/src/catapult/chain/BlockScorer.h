@@ -20,7 +20,7 @@
 **/
 
 #pragma once
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/types.h"
 #include <boost/multiprecision/cpp_int.hpp>
 #include <functional>
@@ -38,20 +38,20 @@ namespace catapult { namespace chain {
 	uint64_t CalculateScore(const model::Block& parentBlock, const model::Block& currentBlock);
 
 	/// Calculates the target from specified time span (\a timeSpan), \a difficulty and effective signer importance
-	/// (\a signerImportance) for the block chain described by \a config.
+	/// (\a signerImportance) for the blockchain described by \a config.
 	BlockTarget CalculateTarget(
 			const utils::TimeSpan& timeSpan,
 			Difficulty difficulty,
 			Importance signerImportance,
-			const model::BlockChainConfiguration& config);
+			const model::BlockchainConfiguration& config);
 
 	/// Calculates the target of \a currentBlock with parent \a parentBlock and effective signer importance
-	/// of \a signerImportance for the block chain described by \a config.
+	/// of \a signerImportance for the blockchain described by \a config.
 	BlockTarget CalculateTarget(
 			const model::Block& parentBlock,
 			const model::Block& currentBlock,
 			Importance signerImportance,
-			const model::BlockChainConfiguration& config);
+			const model::BlockchainConfiguration& config);
 
 	/// Contextual information for calculating a block hit.
 	struct BlockHitContext {
@@ -83,9 +83,9 @@ namespace catapult { namespace chain {
 		using ImportanceLookupFunc = std::function<Importance (const Key&, Height)>;
 
 	public:
-		/// Creates a predicate around a block chain configuration (\a config) and an importance lookup function
+		/// Creates a predicate around a blockchain configuration (\a config) and an importance lookup function
 		/// (\a importanceLookup).
-		BlockHitPredicate(const model::BlockChainConfiguration& config, const ImportanceLookupFunc& importanceLookup);
+		BlockHitPredicate(const model::BlockchainConfiguration& config, const ImportanceLookupFunc& importanceLookup);
 
 	public:
 		/// Determines if the \a block is a hit given its parent (\a parentBlock) and generation hash (\a generationHash).
@@ -95,7 +95,7 @@ namespace catapult { namespace chain {
 		bool operator()(const BlockHitContext& context) const;
 
 	private:
-		model::BlockChainConfiguration m_config;
+		model::BlockchainConfiguration m_config;
 		ImportanceLookupFunc m_importanceLookup;
 	};
 }}

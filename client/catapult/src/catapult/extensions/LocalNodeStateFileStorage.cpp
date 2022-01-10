@@ -28,7 +28,7 @@
 #include "catapult/cache/SupplementalDataStorage.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/config/NodeConfiguration.h"
-#include "catapult/consumers/BlockChainSyncHandlers.h"
+#include "catapult/consumers/BlockchainSyncHandlers.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/io/BufferedFileStream.h"
 #include "catapult/io/FilesystemUtils.h"

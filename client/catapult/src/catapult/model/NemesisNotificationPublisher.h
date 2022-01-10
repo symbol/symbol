@@ -23,7 +23,7 @@
 #include "ContainerTypes.h"
 #include "NotificationPublisher.h"
 
-namespace catapult { namespace model { struct BlockChainConfiguration; } }
+namespace catapult { namespace model { struct BlockchainConfiguration; } }
 
 namespace catapult { namespace model {
 
@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 	};
 
 	/// Extracts nemesis notification publisher options from \a config.
-	NemesisNotificationPublisherOptions ExtractNemesisNotificationPublisherOptions(const BlockChainConfiguration& config);
+	NemesisNotificationPublisherOptions ExtractNemesisNotificationPublisherOptions(const BlockchainConfiguration& config);
 
 	/// Creates a nemesis notification publisher around a base notification publisher (\a pPublisher)
 	/// by raising additional notifications based on \a options (held by reference).

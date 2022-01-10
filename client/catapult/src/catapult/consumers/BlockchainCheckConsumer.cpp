@@ -36,9 +36,9 @@ namespace catapult { namespace consumers {
 			}
 		}
 
-		class BlockChainCheckConsumer {
+		class BlockchainCheckConsumer {
 		public:
-			BlockChainCheckConsumer(const utils::TimeSpan& maxBlockFutureTime, const chain::TimeSupplier& timeSupplier)
+			BlockchainCheckConsumer(const utils::TimeSpan& maxBlockFutureTime, const chain::TimeSupplier& timeSupplier)
 					: m_maxBlockFutureTime(maxBlockFutureTime)
 					, m_timeSupplier(timeSupplier)
 			{}
@@ -96,9 +96,9 @@ namespace catapult { namespace consumers {
 		};
 	}
 
-	disruptor::ConstBlockConsumer CreateBlockChainCheckConsumer(
+	disruptor::ConstBlockConsumer CreateBlockchainCheckConsumer(
 			const utils::TimeSpan& maxBlockFutureTime,
 			const chain::TimeSupplier& timeSupplier) {
-		return BlockChainCheckConsumer(maxBlockFutureTime, timeSupplier);
+		return BlockchainCheckConsumer(maxBlockFutureTime, timeSupplier);
 	}
 }}

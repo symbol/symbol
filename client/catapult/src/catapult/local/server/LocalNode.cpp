@@ -198,9 +198,9 @@ namespace catapult { namespace local {
 					, m_dataDirectory(PrepareDataDirectory(m_config))
 					, m_nodes(
 							m_config.Node.MaxTrackedNodes,
-							m_config.BlockChain.Network.NodeEqualityStrategy,
+							m_config.Blockchain.Network.NodeEqualityStrategy,
 							GetBanSettings(m_config.Node.Banning),
-							m_pBootstrapper->extensionManager().networkTimeSupplier(m_config.BlockChain.Network.EpochAdjustment),
+							m_pBootstrapper->extensionManager().networkTimeSupplier(m_config.Blockchain.Network.EpochAdjustment),
 							ionet::CreateRangeNodeVersionPredicate(
 									m_config.Node.MinPartnerNodeVersion,
 									m_config.Node.MaxPartnerNodeVersion))
@@ -255,7 +255,7 @@ namespace catapult { namespace local {
 						m_storage,
 						m_score,
 						*m_pUtCache,
-						extensionManager.networkTimeSupplier(m_config.BlockChain.Network.EpochAdjustment),
+						extensionManager.networkTimeSupplier(m_config.Blockchain.Network.EpochAdjustment),
 						*m_pFinalizationSubscriber,
 						*m_pNodeSubscriber,
 						*m_pStateChangeSubscriber,
@@ -302,7 +302,7 @@ namespace catapult { namespace local {
 				if (extensions::HasSerializedState(m_dataDirectory.dir("state")))
 					return false;
 
-				NemesisBlockNotifier notifier(m_config.BlockChain, m_catapultCache, m_storage, m_pluginManager);
+				NemesisBlockNotifier notifier(m_config.Blockchain, m_catapultCache, m_storage, m_pluginManager);
 
 				if (m_pBlockChangeSubscriber)
 					notifier.raise(*m_pBlockChangeSubscriber);
@@ -331,7 +331,7 @@ namespace catapult { namespace local {
 					CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 				}
 
-				CATAPULT_LOG(info) << "loaded block chain (height = " << heights.Cache << ", score = " << m_score.get() << ")";
+				CATAPULT_LOG(info) << "loaded blockchain (height = " << heights.Cache << ", score = " << m_score.get() << ")";
 			}
 
 		public:

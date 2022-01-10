@@ -41,8 +41,8 @@ namespace catapult { namespace chain {
 			return cache::BlockStatisticRange(set.cbegin(), set.cend());
 		}
 
-		model::BlockChainConfiguration CreateConfiguration() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateConfiguration() {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
 			config.MaxDifficultyBlocks = 60;
 			return config;
@@ -261,14 +261,14 @@ namespace catapult { namespace chain {
 			static Difficulty CalculateDifficulty(
 					const cache::BlockStatisticCache& cache,
 					Height height,
-					const model::BlockChainConfiguration& config) {
+					const model::BlockchainConfiguration& config) {
 				return chain::CalculateDifficulty(cache, height, config);
 			}
 
 			static void AssertDifficultyCalculationFailure(
 					const cache::BlockStatisticCache& cache,
 					Height height,
-					const model::BlockChainConfiguration& config) {
+					const model::BlockchainConfiguration& config) {
 				// Act + Assert:
 				EXPECT_THROW(chain::CalculateDifficulty(cache, height, config), catapult_invalid_argument);
 			}
@@ -278,7 +278,7 @@ namespace catapult { namespace chain {
 			static Difficulty CalculateDifficulty(
 					const cache::BlockStatisticCache& cache,
 					Height height,
-					const model::BlockChainConfiguration& config) {
+					const model::BlockchainConfiguration& config) {
 				Difficulty difficulty;
 				EXPECT_TRUE(TryCalculateDifficulty(cache, height, config, difficulty));
 				return difficulty;
@@ -287,7 +287,7 @@ namespace catapult { namespace chain {
 			static void AssertDifficultyCalculationFailure(
 					const cache::BlockStatisticCache& cache,
 					Height height,
-					const model::BlockChainConfiguration& config) {
+					const model::BlockchainConfiguration& config) {
 				Difficulty difficulty;
 				EXPECT_FALSE(TryCalculateDifficulty(cache, height, config, difficulty));
 			}

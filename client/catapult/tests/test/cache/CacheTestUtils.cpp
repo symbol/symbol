@@ -25,7 +25,7 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"
 #include "catapult/cache_core/BlockStatisticCacheStorage.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {
@@ -35,7 +35,7 @@ namespace catapult { namespace test {
 			return { { 0xFF, 0xFF, 0xFF, 0xFF } };
 		}
 
-		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockChainConfiguration& config) {
+		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockchainConfiguration& config) {
 			return {
 				config.Network.Identifier,
 				config.ImportanceGrouping,
@@ -51,20 +51,20 @@ namespace catapult { namespace test {
 
 	// region CoreSystemCacheFactory
 
-	cache::CatapultCache CoreSystemCacheFactory::Create(const model::BlockChainConfiguration& config) {
+	cache::CatapultCache CoreSystemCacheFactory::Create(const model::BlockchainConfiguration& config) {
 		std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(2);
 		CreateSubCaches(config, subCaches);
 		return cache::CatapultCache(std::move(subCaches));
 	}
 
 	void CoreSystemCacheFactory::CreateSubCaches(
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches) {
 		CreateSubCaches(config, cache::CacheConfiguration(), subCaches);
 	}
 
 	void CoreSystemCacheFactory::CreateSubCaches(
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const cache::CacheConfiguration& cacheConfig,
 			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches) {
 		using namespace cache;
@@ -82,17 +82,17 @@ namespace catapult { namespace test {
 	// region CreateEmptyCatapultCache
 
 	cache::CatapultCache CreateEmptyCatapultCache() {
-		auto config = model::BlockChainConfiguration::Uninitialized();
+		auto config = model::BlockchainConfiguration::Uninitialized();
 		config.VotingSetGrouping = 1;
 		return CreateEmptyCatapultCache(config);
 	}
 
-	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockChainConfiguration& config) {
+	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockchainConfiguration& config) {
 		return CreateEmptyCatapultCache<CoreSystemCacheFactory>(config);
 	}
 
 	cache::CatapultCache CreateEmptyCatapultCache(
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const cache::CacheConfiguration& cacheConfig) {
 		std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(2);
 		CoreSystemCacheFactory::CreateSubCaches(config, cacheConfig, subCaches);

@@ -43,7 +43,7 @@ namespace catapult { namespace harvesting {
 		class TestContext {
 		public:
 			explicit TestContext(model::TransactionSelectionStrategy strategy)
-					: m_config(CreateBlockChainConfiguration())
+					: m_config(CreateBlockchainConfiguration())
 					, m_catapultCache(test::CreateEmptyCatapultCache(m_config, CreateCacheConfiguration(m_dbDirGuard.name())))
 					, m_transactionRegistry(mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Contains_Embeddings))
 					, m_utFacadeFactory(m_catapultCache, m_config, m_executionConfig.Config, [](auto) { return Hash256(); })
@@ -105,8 +105,8 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
-				auto config = model::BlockChainConfiguration::Uninitialized();
+			static model::BlockchainConfiguration CreateBlockchainConfiguration() {
+				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.EnableVerifiableState = true;
 				config.EnableVerifiableReceipts = true;
 				config.CurrencyMosaicId = MosaicId(123);
@@ -120,7 +120,7 @@ namespace catapult { namespace harvesting {
 
 		private:
 			test::TempDirectoryGuard m_dbDirGuard;
-			model::BlockChainConfiguration m_config;
+			model::BlockchainConfiguration m_config;
 			cache::CatapultCache m_catapultCache;
 			test::MockExecutionConfiguration m_executionConfig;
 			model::TransactionRegistry m_transactionRegistry;

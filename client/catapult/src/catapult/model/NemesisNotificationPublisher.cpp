@@ -20,12 +20,12 @@
 **/
 
 #include "NemesisNotificationPublisher.h"
-#include "BlockChainConfiguration.h"
+#include "BlockchainConfiguration.h"
 #include "NotificationSubscriber.h"
 
 namespace catapult { namespace model {
 
-	NemesisNotificationPublisherOptions ExtractNemesisNotificationPublisherOptions(const BlockChainConfiguration& config) {
+	NemesisNotificationPublisherOptions ExtractNemesisNotificationPublisherOptions(const BlockchainConfiguration& config) {
 		NemesisNotificationPublisherOptions options;
 
 		if (0 < config.HarvestNetworkPercentage)

@@ -59,8 +59,8 @@ namespace catapult { namespace chain {
 			size_t MaxAverageDeviation;
 		};
 
-		model::BlockChainConfiguration CreateConfiguration() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateConfiguration() {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
 			config.BlockTimeSmoothingFactor = 0;
 			config.TotalChainImportance = test::Default_Total_Chain_Importance;
@@ -216,7 +216,7 @@ namespace catapult { namespace chain {
 			return averageDeviation;
 		}
 
-		uint64_t CalculateLinearlyCorrelatedHitCountAndImportanceAverageDeviation(const model::BlockChainConfiguration& config) {
+		uint64_t CalculateLinearlyCorrelatedHitCountAndImportanceAverageDeviation(const model::BlockchainConfiguration& config) {
 			// Arrange: set up test importances
 			auto importances = CreateDoublingImportances();
 
@@ -259,7 +259,7 @@ namespace catapult { namespace chain {
 			return CalculateLinearlyCorrelatedHitCountAndImportanceAverageDeviation(importances);
 		}
 
-		void AssertHitProbabilityIsLinearlyCorrelatedWithImportance(const model::BlockChainConfiguration& config) {
+		void AssertHitProbabilityIsLinearlyCorrelatedWithImportance(const model::BlockchainConfiguration& config) {
 			// Arrange: non-deterministic because operation is probabilistic
 			test::RunNonDeterministicTest("hit probability and importance correlation", [&config]() {
 				// Assert:

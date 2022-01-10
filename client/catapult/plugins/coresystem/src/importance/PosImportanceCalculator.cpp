@@ -22,7 +22,7 @@
 #include "ImportanceCalculator.h"
 #include "CalculatorUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/HeightGrouping.h"
 #include "catapult/state/AccountImportanceSnapshots.h"
 #include "catapult/utils/StackLogger.h"
@@ -35,7 +35,7 @@ namespace catapult { namespace importance {
 	namespace {
 		class PosImportanceCalculator final : public ImportanceCalculator {
 		public:
-			explicit PosImportanceCalculator(const model::BlockChainConfiguration& config) : m_config(config)
+			explicit PosImportanceCalculator(const model::BlockchainConfiguration& config) : m_config(config)
 			{}
 
 		public:
@@ -109,11 +109,11 @@ namespace catapult { namespace importance {
 			}
 
 		private:
-			const model::BlockChainConfiguration m_config;
+			const model::BlockchainConfiguration m_config;
 		};
 	}
 
-	std::unique_ptr<ImportanceCalculator> CreateImportanceCalculator(const model::BlockChainConfiguration& config) {
+	std::unique_ptr<ImportanceCalculator> CreateImportanceCalculator(const model::BlockchainConfiguration& config) {
 		return std::make_unique<PosImportanceCalculator>(config);
 	}
 }}

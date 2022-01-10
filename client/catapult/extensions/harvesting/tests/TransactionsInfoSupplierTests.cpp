@@ -36,8 +36,8 @@ namespace catapult { namespace harvesting {
 
 		// region test context
 
-		auto CreateBlockChainConfiguration() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		auto CreateBlockchainConfiguration() {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.ImportanceGrouping = 1;
 			return config;
 		}
@@ -66,7 +66,7 @@ namespace catapult { namespace harvesting {
 		public:
 			explicit TestContext(TransactionSelectionStrategy strategy, uint32_t utCacheSize = 0)
 					: m_catapultCache(test::CreateCatapultCacheWithMarkerAccount(Height(7)))
-					, m_utFacadeFactory(m_catapultCache, CreateBlockChainConfiguration(), m_executionConfig.Config, EmptyHashSupplier)
+					, m_utFacadeFactory(m_catapultCache, CreateBlockchainConfiguration(), m_executionConfig.Config, EmptyHashSupplier)
 					, m_pUtCache(test::CreateSeededMemoryUtCache(utCacheSize))
 					, m_supplier(CreateTransactionsInfoSupplier(strategy, [](const auto&) { return Multiplier; }, *m_pUtCache))
 			{}

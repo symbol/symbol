@@ -29,7 +29,7 @@
 
 namespace catapult { namespace consumers {
 
-#define TEST_CLASS BlockChainSyncCleanupConsumerTests
+#define TEST_CLASS BlockchainSyncCleanupConsumerTests
 
 	namespace {
 		static constexpr auto Index_Writer_Filename = "index_server.dat";
@@ -63,7 +63,7 @@ namespace catapult { namespace consumers {
 		auto dataDirectory = config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
 
 		// Act:
-		auto result = CreateBlockChainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
+		auto result = CreateBlockchainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
 
 		// Assert:
 		test::AssertContinued(result);
@@ -77,7 +77,7 @@ namespace catapult { namespace consumers {
 		ProduceThreeStateChangeMessages(stateChangeDirectory);
 
 		// Act:
-		auto result = CreateBlockChainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
+		auto result = CreateBlockchainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
 
 		// Assert:
 		test::AssertContinued(result);
@@ -106,7 +106,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(3u, ReadIndexFileValue(stateChangeDirectory / Index_Reader_Filename));
 
 		// Act:
-		auto result = CreateBlockChainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
+		auto result = CreateBlockchainSyncCleanupConsumer(tempDir.name())(disruptor::ConsumerInput());
 
 		// Assert:
 		test::AssertContinued(result);

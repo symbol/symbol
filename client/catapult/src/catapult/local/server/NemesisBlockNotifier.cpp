@@ -47,7 +47,7 @@ namespace catapult { namespace local {
 	}
 
 	NemesisBlockNotifier::NemesisBlockNotifier(
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			const cache::CatapultCache& cache,
 			const io::BlockStorageCache& storage,
 			const plugins::PluginManager& pluginManager)

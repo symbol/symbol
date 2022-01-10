@@ -85,7 +85,7 @@ namespace catapult { namespace sync {
 			cache::CatapultCache m_cache;
 			extensions::LocalNodeChainScore m_score;
 			Counters m_counters;
-			consumers::BlockChainSyncHandlers m_syncHandlers;
+			consumers::BlockchainSyncHandlers m_syncHandlers;
 		};
 	}
 

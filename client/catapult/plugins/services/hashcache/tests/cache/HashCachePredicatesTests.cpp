@@ -51,7 +51,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, HashCacheContains_ReturnsTrueWhenElementIsContainedInHashCache) {
 		// Arrange:
-		auto cache = test::HashCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::HashCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		auto hash = PopulateHashCache(cache);
 
 		// Act + Assert:
@@ -60,7 +60,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, HashCacheContains_ReturnsFalseWhenElementIsNotContainedInHashCache) {
 		// Arrange:
-		auto cache = test::HashCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::HashCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 		auto hash = PopulateHashCache(cache);
 
 		// Act + Assert:

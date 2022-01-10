@@ -21,7 +21,7 @@
 
 #include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -34,7 +34,7 @@ namespace catapult { namespace validators {
 
 	namespace {
 		cache::CatapultCache CreateCache(const Key& publicKey, state::AccountType accountType) {
-			auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+			auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 			auto cacheDelta = cache.createDelta();
 			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 			accountStateCacheDelta.addAccount(publicKey, Height(1));
@@ -80,7 +80,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, SucceedsWhenAccountDoesNotExist) {
 		// Arrange:
 		auto publicKey = test::GenerateRandomByteArray<Key>();
-		auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		auto cache = test::CoreSystemCacheFactory::Create(model::BlockchainConfiguration::Uninitialized());
 
 		// Act + Assert:
 		AssertValidation(ValidationResult::Success, cache, publicKey);

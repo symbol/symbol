@@ -218,7 +218,7 @@ namespace catapult { namespace tools { namespace verify {
 			BlockAnalyzer(
 					const io::BlockStorage& blockStorage,
 					const model::TransactionRegistry& transactionRegistry,
-					const model::BlockChainConfiguration& config)
+					const model::BlockchainConfiguration& config)
 					: m_blockStorage(blockStorage)
 					, m_transactionRegistry(transactionRegistry)
 					, m_config(config)
@@ -284,7 +284,7 @@ namespace catapult { namespace tools { namespace verify {
 		private:
 			const io::BlockStorage& m_blockStorage;
 			const model::TransactionRegistry& m_transactionRegistry;
-			const model::BlockChainConfiguration& m_config;
+			const model::BlockchainConfiguration& m_config;
 		};
 
 		// endregion
@@ -355,10 +355,10 @@ namespace catapult { namespace tools { namespace verify {
 						<< " and " << proofStorage.statistics().Round.Epoch << " proof(s) "
 						<< " from " << dataDirectory;
 
-				if (!RunAnalyzer<ChainLinkAnalyzer>("chain link", blockStorage, config.BlockChain.ImportanceGrouping))
+				if (!RunAnalyzer<ChainLinkAnalyzer>("chain link", blockStorage, config.Blockchain.ImportanceGrouping))
 					return 1;
 
-				if (!RunAnalyzer<BlockAnalyzer>("block", blockStorage, pluginLoader.transactionRegistry(), config.BlockChain))
+				if (!RunAnalyzer<BlockAnalyzer>("block", blockStorage, pluginLoader.transactionRegistry(), config.Blockchain))
 					return 2;
 
 				if (!RunAnalyzer<ProofAnalyzer>("proof", blockStorage, proofStorage))

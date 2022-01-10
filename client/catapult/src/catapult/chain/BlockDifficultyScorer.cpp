@@ -24,7 +24,7 @@
 
 namespace catapult { namespace chain {
 
-	Difficulty CalculateDifficulty(const cache::BlockStatisticRange& statistics, const model::BlockChainConfiguration& config) {
+	Difficulty CalculateDifficulty(const cache::BlockStatisticRange& statistics, const model::BlockchainConfiguration& config) {
 		// note that statistics is sorted by both heights and timestamps, so the first info has the smallest
 		// height and earliest timestamp and the last info has the largest height and latest timestamp
 		size_t historySize = 0;
@@ -65,13 +65,13 @@ namespace catapult { namespace chain {
 		Difficulty CalculateDifficulty(
 				const cache::BlockStatisticCacheView& view,
 				Height height,
-				const model::BlockChainConfiguration& config) {
+				const model::BlockchainConfiguration& config) {
 			auto statistics = view.statistics(height, config.MaxDifficultyBlocks);
 			return chain::CalculateDifficulty(statistics, config);
 		}
 	}
 
-	Difficulty CalculateDifficulty(const cache::BlockStatisticCache& cache, Height height, const model::BlockChainConfiguration& config) {
+	Difficulty CalculateDifficulty(const cache::BlockStatisticCache& cache, Height height, const model::BlockchainConfiguration& config) {
 		auto view = cache.createView();
 		return CalculateDifficulty(*view, height, config);
 	}
@@ -79,7 +79,7 @@ namespace catapult { namespace chain {
 	bool TryCalculateDifficulty(
 			const cache::BlockStatisticCache& cache,
 			Height height,
-			const model::BlockChainConfiguration& config,
+			const model::BlockchainConfiguration& config,
 			Difficulty& difficulty) {
 		auto view = cache.createView();
 		if (!view->contains(state::BlockStatistic(height)))

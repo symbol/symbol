@@ -59,10 +59,10 @@ namespace catapult { namespace timesync {
 		constexpr uint64_t Default_Threshold = 85;
 
 		cache::CatapultCache CreateCache(Importance totalChainImportance) {
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.ImportanceGrouping = 123;
-			blockChainConfig.TotalChainImportance = totalChainImportance;
-			return test::CoreSystemCacheFactory::Create(blockChainConfig);
+			auto blockchainConfig = model::BlockchainConfiguration::Uninitialized();
+			blockchainConfig.ImportanceGrouping = 123;
+			blockchainConfig.TotalChainImportance = totalChainImportance;
+			return test::CoreSystemCacheFactory::Create(blockchainConfig);
 		}
 
 		cache::CatapultCache CreateCache() {
@@ -228,8 +228,8 @@ namespace catapult { namespace timesync {
 
 			// - prepare context
 			TestContext context(std::move(cache), timeSupplier);
-			auto& blockChainConfig = const_cast<model::BlockChainConfiguration&>(context.testState().config().BlockChain);
-			blockChainConfig.TotalChainImportance = Total_Chain_Importance;
+			auto& blockchainConfig = const_cast<model::BlockchainConfiguration&>(context.testState().config().Blockchain);
+			blockchainConfig.TotalChainImportance = Total_Chain_Importance;
 			test::AddNode(context.testState().state().nodes(), serverPublicKey, "alice");
 			auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(Default_Epoch_Adjustment, Default_Threshold);
 			context.boot(pTimeSyncState);

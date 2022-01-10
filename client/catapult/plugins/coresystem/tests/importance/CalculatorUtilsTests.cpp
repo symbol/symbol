@@ -20,7 +20,7 @@
 **/
 
 #include "src/importance/CalculatorUtils.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/state/AccountActivityBuckets.h"
 #include "catapult/state/AccountState.h"
 #include "tests/TestHarness.h"
@@ -288,8 +288,8 @@ namespace catapult { namespace importance {
 	namespace {
 		constexpr MosaicId Harvesting_Mosaic_Id(9876);
 
-		model::BlockChainConfiguration CreateBlockChainConfiguration(uint8_t importanceActivityPercentage) {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateBlockchainConfiguration(uint8_t importanceActivityPercentage) {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.TotalChainImportance = Importance(9'000);
 			config.ImportanceActivityPercentage = importanceActivityPercentage;
@@ -305,7 +305,7 @@ namespace catapult { namespace importance {
 		AccountSummary accountSummary(AccountActivitySummary(), accountState);
 		ImportanceCalculationContext importanceContext;
 		importanceContext.ActiveHarvestingMosaics = Amount(1'000);
-		auto config = CreateBlockChainConfiguration(25);
+		auto config = CreateBlockchainConfiguration(25);
 
 		// Act:
 		CalculateImportances(accountSummary, importanceContext, config);
@@ -324,7 +324,7 @@ namespace catapult { namespace importance {
 		ImportanceCalculationContext importanceContext;
 		importanceContext.ActiveHarvestingMosaics = Amount(1'000);
 		importanceContext.TotalFeesPaid = Amount(600);
-		auto config = CreateBlockChainConfiguration(25);
+		auto config = CreateBlockchainConfiguration(25);
 
 		// Act:
 		CalculateImportances(accountSummary, importanceContext, config);
@@ -344,7 +344,7 @@ namespace catapult { namespace importance {
 		ImportanceCalculationContext importanceContext;
 		importanceContext.ActiveHarvestingMosaics = Amount(1'000);
 		importanceContext.TotalBeneficiaryCount = 600;
-		auto config = CreateBlockChainConfiguration(25);
+		auto config = CreateBlockchainConfiguration(25);
 
 		// Act:
 		CalculateImportances(accountSummary, importanceContext, config);
@@ -370,7 +370,7 @@ namespace catapult { namespace importance {
 			importanceContext.ActiveHarvestingMosaics = Amount(1'000);
 			importanceContext.TotalFeesPaid = Amount(600);
 			importanceContext.TotalBeneficiaryCount = 300;
-			auto config = CreateBlockChainConfiguration(activityImportancePercentage);
+			auto config = CreateBlockchainConfiguration(activityImportancePercentage);
 
 			// Act:
 			CalculateImportances(accountSummary, importanceContext, config);

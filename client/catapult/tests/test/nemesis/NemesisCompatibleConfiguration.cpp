@@ -26,14 +26,14 @@
 namespace catapult { namespace test {
 
 	namespace {
-		model::BlockChainConfiguration CreateBlockChainConfiguration() {
-			auto config = CreatePrototypicalBlockChainConfiguration();
+		model::BlockchainConfiguration CreateBlockchainConfiguration() {
+			auto config = CreatePrototypicalBlockchainConfiguration();
 			AddNemesisPluginExtensions(config);
 			return config;
 		}
 	}
 
-	void AddNemesisPluginExtensions(model::BlockChainConfiguration& config) {
+	void AddNemesisPluginExtensions(model::BlockchainConfiguration& config) {
 		config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
 		config.Plugins.emplace("catapult.plugins.mosaic", utils::ConfigurationBag({{
 			"",
@@ -97,6 +97,6 @@ namespace catapult { namespace test {
 	}
 
 	config::CatapultConfiguration CreateCatapultConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory) {
-		return CreatePrototypicalCatapultConfiguration(CreateBlockChainConfiguration(), dataDirectory);
+		return CreatePrototypicalCatapultConfiguration(CreateBlockchainConfiguration(), dataDirectory);
 	}
 }}

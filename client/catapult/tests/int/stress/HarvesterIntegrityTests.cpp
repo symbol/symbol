@@ -61,7 +61,7 @@ namespace catapult { namespace harvesting {
 		}
 
 		auto CreateConfiguration() {
-			auto config = test::CreatePrototypicalBlockChainConfiguration();
+			auto config = test::CreatePrototypicalBlockchainConfiguration();
 			config.EnableVerifiableState = true;
 			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
 			return config;
@@ -103,7 +103,7 @@ namespace catapult { namespace harvesting {
 						m_pPluginManager->transactionRegistry(),
 						utFacadeFactory,
 						m_transactionsCache);
-				m_pHarvester = std::make_unique<Harvester>(m_cache, m_config.BlockChain, Address(), m_unlockedAccounts, blockGenerator);
+				m_pHarvester = std::make_unique<Harvester>(m_cache, m_config.Blockchain, Address(), m_unlockedAccounts, blockGenerator);
 			}
 
 		public:

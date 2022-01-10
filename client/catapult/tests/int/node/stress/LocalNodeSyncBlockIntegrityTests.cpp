@@ -29,7 +29,7 @@ namespace catapult { namespace local {
 #define TEST_CLASS LocalNodeSyncBlockIntegrityTests
 
 	namespace {
-		using BlockChainBuilder = test::BlockChainBuilder;
+		using BlockchainBuilder = test::BlockchainBuilder;
 	}
 
 	// region signature
@@ -48,7 +48,7 @@ namespace catapult { namespace local {
 				transactionsBuilder.addTransfer(0, 1, Amount(1'000'000));
 
 				auto stateHashCalculator = context.createStateHashCalculator();
-				BlockChainBuilder builder(accounts, stateHashCalculator);
+				BlockchainBuilder builder(accounts, stateHashCalculator);
 				builder.setBlockTimeInterval(utils::TimeSpan::FromSeconds(58)); // better block time will yield better chain
 				pUnsignedBlock = builder.asSingleBlock(transactionsBuilder);
 				test::FillWithRandomData(pUnsignedBlock->Signature);
@@ -61,7 +61,7 @@ namespace catapult { namespace local {
 				transactionsBuilder.addTransfer(0, 2, Amount(550'000));
 
 				auto stateHashCalculator = context.createStateHashCalculator();
-				BlockChainBuilder builder(accounts, stateHashCalculator);
+				BlockchainBuilder builder(accounts, stateHashCalculator);
 				pSignedBlock = builder.asSingleBlock(transactionsBuilder);
 			}
 

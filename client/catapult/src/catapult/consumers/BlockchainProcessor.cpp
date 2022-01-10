@@ -19,7 +19,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "BlockChainProcessor.h"
+#include "BlockchainProcessor.h"
 #include "InputUtils.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
@@ -92,9 +92,9 @@ namespace catapult { namespace consumers {
 
 		// endregion
 
-		class DefaultBlockChainProcessor {
+		class DefaultBlockchainProcessor {
 		public:
-			DefaultBlockChainProcessor(
+			DefaultBlockchainProcessor(
 					const BlockHitPredicateFactory& blockHitPredicateFactory,
 					const chain::BatchEntityProcessor& batchEntityProcessor,
 					ReceiptValidationMode receiptValidationMode)
@@ -267,10 +267,10 @@ namespace catapult { namespace consumers {
 		};
 	}
 
-	BlockChainProcessor CreateBlockChainProcessor(
+	BlockchainProcessor CreateBlockchainProcessor(
 			const BlockHitPredicateFactory& blockHitPredicateFactory,
 			const chain::BatchEntityProcessor& batchEntityProcessor,
 			ReceiptValidationMode receiptValidationMode) {
-		return DefaultBlockChainProcessor(blockHitPredicateFactory, batchEntityProcessor, receiptValidationMode);
+		return DefaultBlockchainProcessor(blockHitPredicateFactory, batchEntityProcessor, receiptValidationMode);
 	}
 }}

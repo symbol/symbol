@@ -26,7 +26,7 @@
 namespace catapult { namespace test {
 
 	/// Adds configuration for all plugins required by the default nemesis block to \a config.
-	void AddNemesisPluginExtensions(model::BlockChainConfiguration& config);
+	void AddNemesisPluginExtensions(model::BlockchainConfiguration& config);
 
 	/// Adds configuration for all extensions required by api nodes to \a config.
 	void AddApiPluginExtensions(config::ExtensionsConfiguration& config);

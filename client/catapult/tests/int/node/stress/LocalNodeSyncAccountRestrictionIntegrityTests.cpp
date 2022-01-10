@@ -29,8 +29,8 @@ namespace catapult { namespace local {
 #define TEST_CLASS LocalNodeSyncAccountRestrictionIntegrityTests
 
 	namespace {
-		using BlockChainBuilder = test::BlockChainBuilder;
-		using Blocks = BlockChainBuilder::Blocks;
+		using BlockchainBuilder = test::BlockchainBuilder;
+		using Blocks = BlockchainBuilder::Blocks;
 
 		// region utils
 
@@ -49,7 +49,7 @@ namespace catapult { namespace local {
 		}
 
 		template<typename TTestContext>
-		std::pair<BlockChainBuilder, std::shared_ptr<model::Block>> PrepareAccountRestriction(
+		std::pair<BlockchainBuilder, std::shared_ptr<model::Block>> PrepareAccountRestriction(
 				TTestContext& context,
 				const test::Accounts& accounts,
 				test::StateHashCalculator& stateHashCalculator,
@@ -64,7 +64,7 @@ namespace catapult { namespace local {
 			transactionsBuilder.addTransfer(0, 3, Amount(1'000'000));
 			transactionsBuilder.addAccountAddressRestrictionBlock(2, 3);
 
-			BlockChainBuilder builder(accounts, stateHashCalculator);
+			BlockchainBuilder builder(accounts, stateHashCalculator);
 			auto pAccountRestrictionBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 
 			// Act:
@@ -112,7 +112,7 @@ namespace catapult { namespace local {
 				AssertAccountRestrictionCount(m_context.localNode(), 1);
 
 				m_allBlocks.emplace_back(builderBlockPair.second);
-				m_pActiveBuilder = std::make_unique<BlockChainBuilder>(builderBlockPair.first);
+				m_pActiveBuilder = std::make_unique<BlockchainBuilder>(builderBlockPair.first);
 			}
 
 			Blocks createTailBlocks(
@@ -126,7 +126,7 @@ namespace catapult { namespace local {
 
 				auto builder = m_pActiveBuilder->createChainedBuilder(stateHashCalculator);
 				builder.setBlockTimeInterval(blockInterval);
-				return builder.asBlockChain(transactionsBuilder);
+				return builder.asBlockchain(transactionsBuilder);
 			}
 
 		private:
@@ -134,7 +134,7 @@ namespace catapult { namespace local {
 
 			test::Accounts m_accounts;
 			AccountRestrictionStateHashes m_stateHashes;
-			std::unique_ptr<BlockChainBuilder> m_pActiveBuilder;
+			std::unique_ptr<BlockchainBuilder> m_pActiveBuilder;
 			std::vector<std::shared_ptr<model::Block>> m_allBlocks;
 		};
 
@@ -275,8 +275,8 @@ namespace catapult { namespace local {
 			transactionsBuilder.delAccountAddressRestrictionBlock(2, 3);
 
 			// - send chain
-			BlockChainBuilder builder(accounts, stateHashCalculator);
-			auto blocks = builder.asBlockChain(transactionsBuilder);
+			BlockchainBuilder builder(accounts, stateHashCalculator);
+			auto blocks = builder.asBlockchain(transactionsBuilder);
 
 			test::ExternalSourceConnection connection(context.publicKey());
 			test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);

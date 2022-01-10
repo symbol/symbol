@@ -30,34 +30,34 @@
 
 namespace catapult { namespace test {
 
-	/// Single use builder used to build a single block or block chain from transactions.
-	class BlockChainBuilder {
+	/// Single use builder used to build a single block or blockchain from transactions.
+	class BlockchainBuilder {
 	public:
 		using Blocks = std::vector<std::shared_ptr<model::Block>>;
 		using BlockReceiptsHashCalculator = std::function<Hash256 (const model::Block&)>;
 
 	public:
 		/// Creates a builder around \a accounts and \a stateHashCalculator.
-		BlockChainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator);
+		BlockchainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator);
 
 		/// Creates a builder around \a accounts, \a stateHashCalculator and \a config.
-		BlockChainBuilder(
+		BlockchainBuilder(
 				const Accounts& accounts,
 				StateHashCalculator& stateHashCalculator,
-				const model::BlockChainConfiguration& config);
+				const model::BlockchainConfiguration& config);
 
 		/// Creates a builder around \a accounts, \a stateHashCalculator, \a config and explicit \a resourcesPath.
-		BlockChainBuilder(
+		BlockchainBuilder(
 				const Accounts& accounts,
 				StateHashCalculator& stateHashCalculator,
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const std::string& resourcesPath);
 
 	private:
-		BlockChainBuilder(
+		BlockchainBuilder(
 				const Accounts& accounts,
 				StateHashCalculator& stateHashCalculator,
-				const model::BlockChainConfiguration& config,
+				const model::BlockchainConfiguration& config,
 				const std::string& resourcesPath,
 				bool isChained);
 
@@ -69,21 +69,21 @@ namespace catapult { namespace test {
 		void setBlockReceiptsHashCalculator(const BlockReceiptsHashCalculator& blockReceiptsHashCalculator);
 
 		/// Creates a new builder starting at this builder's terminal block.
-		BlockChainBuilder createChainedBuilder();
+		BlockchainBuilder createChainedBuilder();
 
 		/// Creates a new builder starting at this builder's terminal block with a different
 		/// state hash calculator (\a stateHashCalculator).
-		BlockChainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator) const;
+		BlockchainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator) const;
 
 		/// Creates a new builder with a different state hash calculator (\a stateHashCalculator) starting at the supplied \a block.
-		BlockChainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator, const model::Block& block) const;
+		BlockchainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator, const model::Block& block) const;
 
 	public:
 		/// Builds a single block with transactions from \a transactionsGenerator.
 		std::unique_ptr<model::Block> asSingleBlock(const TransactionsGenerator& transactionsGenerator);
 
-		/// Builds a block chain with transactions from \a transactionsGenerator.
-		Blocks asBlockChain(const TransactionsGenerator& transactionsGenerator);
+		/// Builds a blockchain with transactions from \a transactionsGenerator.
+		Blocks asBlockchain(const TransactionsGenerator& transactionsGenerator);
 
 	private:
 		void pushDifficulty(const model::Block& block);
@@ -111,6 +111,6 @@ namespace catapult { namespace test {
 
 		utils::TimeSpan m_blockTimeInterval;
 		BlockReceiptsHashCalculator m_blockReceiptsHashCalculator;
-		model::BlockChainConfiguration m_config;
+		model::BlockchainConfiguration m_config;
 	};
 }}

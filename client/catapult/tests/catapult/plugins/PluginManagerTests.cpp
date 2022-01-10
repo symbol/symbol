@@ -48,7 +48,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanCreateManager) {
 		// Arrange:
-		auto config = model::BlockChainConfiguration::Uninitialized();
+		auto config = model::BlockchainConfiguration::Uninitialized();
 		config.BlockTimeSmoothingFactor = 15;
 
 		auto storageConfig = StorageConfiguration();
@@ -90,7 +90,7 @@ namespace catapult { namespace plugins {
 
 		// Act:
 		PluginManager manager(
-				model::BlockChainConfiguration::Uninitialized(),
+				model::BlockchainConfiguration::Uninitialized(),
 				storageConfig,
 				config::UserConfiguration::Uninitialized(),
 				config::InflationConfiguration::Uninitialized());
@@ -637,7 +637,7 @@ namespace catapult { namespace plugins {
 		template<typename TPublisherFactory>
 		void AssertCanCreateNotificationPublisher(size_t expectedNumNotifications, TPublisherFactory publisherFactory) {
 			// Arrange:
-			auto config = model::BlockChainConfiguration::Uninitialized();
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.CurrencyMosaicId = Currency_Mosaic_Id;
 			PluginManager manager = test::CreatePluginManager(config);
 			manager.addTransactionSupport(mocks::CreateMockTransactionPlugin());

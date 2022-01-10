@@ -73,8 +73,8 @@ namespace catapult { namespace harvesting {
 			return pBlock;
 		}
 
-		model::BlockChainConfiguration CreateConfiguration() {
-			auto config = model::BlockChainConfiguration::Uninitialized();
+		model::BlockchainConfiguration CreateConfiguration() {
+			auto config = model::BlockchainConfiguration::Uninitialized();
 			config.Network.Identifier = Network_Identifier;
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
@@ -130,7 +130,7 @@ namespace catapult { namespace harvesting {
 				return CreateHarvester(CreateConfiguration());
 			}
 
-			std::unique_ptr<Harvester> CreateHarvester(const model::BlockChainConfiguration& config) {
+			std::unique_ptr<Harvester> CreateHarvester(const model::BlockchainConfiguration& config) {
 				return CreateHarvester(config, [](const auto& blockHeader, auto) {
 					auto size = model::GetBlockHeaderSize(blockHeader.Type);
 					auto pBlock = utils::MakeUniqueWithSize<model::Block>(size);
@@ -140,7 +140,7 @@ namespace catapult { namespace harvesting {
 			}
 
 			std::unique_ptr<Harvester> CreateHarvester(
-					const model::BlockChainConfiguration& config,
+					const model::BlockchainConfiguration& config,
 					const BlockGenerator& blockGenerator) {
 				return std::make_unique<Harvester>(Cache, config, Beneficiary, *pUnlockedAccounts, blockGenerator);
 			}
@@ -186,7 +186,7 @@ namespace catapult { namespace harvesting {
 					model::EntityType expectedType,
 					Height height,
 					Timestamp timestamp,
-					const model::BlockChainConfiguration& config,
+					const model::BlockchainConfiguration& config,
 					const model::Block& block) const {
 				const auto& statisticCache = Cache.sub<cache::BlockStatisticCache>();
 				EXPECT_EQ(harvester.SigningPublicKey, block.SignerPublicKey) << height;
@@ -515,7 +515,7 @@ namespace catapult { namespace harvesting {
 			AssertHarvestedBlockHasExpectedType(model::Entity_Type_Block_Importance, Height(height));
 	}
 
-	TEST(TEST_CLASS, HarvesterRespectsCustomBlockChainConfiguration) {
+	TEST(TEST_CLASS, HarvesterRespectsCustomBlockchainConfiguration) {
 		// Arrange: the custom configuration has a much higher target time and uses smoothing. After 24 hours
 		//          the harvester using the default configuration is most likely able to harvest a block
 		//          while with the custom configuration it is very unlikely to have a hit.
