@@ -9,7 +9,6 @@ with open('version.txt', 'rt', encoding='utf8') as version_file:
     VERSION = version_file.read().strip()
 
 REQUIRES = [
-    'catbuffer==1.0.0',
     'cryptography==3.4.6',
     'mnemonic==0.19',
     'Pillow==8.1.1',
