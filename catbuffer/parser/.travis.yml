@@ -1,0 +1,62 @@
+language: python
+
+python:
+  - 3.6
+
+env:
+  global:
+    RELEASE_BRANCH=main
+    DEV_BRANCH=dev
+
+cache: pip
+
+install:
+  - pip install -r lint_requirements.txt
+  - pip install -r requirements.txt
+
+jobs:
+  include:
+    - stage: lint
+      script:
+        - isort --check-only --line-length 140 catparser setup.py tests
+        - pycodestyle --config=.pycodestyle -- catparser setup.py tests
+        - pylint --load-plugins pylint_quotes -- catparser setup.py tests
+
+    - stage: test
+      name: unit tests
+      script:
+        - python3 -m unittest discover -v
+
+    - stage: parse
+      name: parse all (catbuffer-schemas)
+      script:
+        - git clone --depth 1 --branch v3.1.0 https://github.com/nemtech/catbuffer-schemas.git
+        - python3 -m catparser --schema ./catbuffer-schemas/symbol/all.cats --include ./catbuffer-schemas/symbol
+
+    - stage: alpha / dev package
+      name: alpha / dev package
+      if: branch = env(DEV_BRANCH)
+      script: echo deployment
+      before_deploy:
+        - sed -i "s/^\([0-9]\+.[0-9]\+.[0-9]\+\).*/\1a${TRAVIS_BUILD_NUMBER}/" version.txt
+        - git add version.txt
+        - git commit -m "automatic travis version bump"
+      deploy:
+        on:
+          branch: $DEV_BRANCH
+        provider: pypi
+        username: $PYPI_USER
+        password: $PYPI_PASS
+        distributions: sdist bdist_wheel
+
+    - stage: release package
+      name: release package
+      if: branch = env(RELEASE_BRANCH) AND type = api
+      script: echo deployment
+      deploy:
+        on:
+          branch: $RELEASE_BRANCH
+        provider: pypi
+        username: $PYPI_USER
+        password: $PYPI_PASS
+        distributions: sdist bdist_wheel
