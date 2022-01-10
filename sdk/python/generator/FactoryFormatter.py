@@ -1,7 +1,7 @@
-from AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
-from format import indent
-from printers import BuiltinPrinter
-from TypeFormatter import ClassFormatter
+from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
+from .format import indent
+from .printers import BuiltinPrinter
+from .TypeFormatter import ClassFormatter
 
 
 # hack: skip embedded from names
@@ -24,7 +24,7 @@ class FactoryClassFormatter(ClassFormatter):
         method_descriptor = self.provider.get_create_by_name_descriptor()
         method_descriptor.method_name = 'create_by_name'
         method_descriptor.arguments = [
-            'transaction_type: str'
+            'entity_name: str'
         ]
         method_descriptor.annotations = ['@classmethod']
         return self.generate_method(method_descriptor)
@@ -52,25 +52,26 @@ class FactoryFormatter(AbstractTypeFormatter):
     def typename(self):
         return self.abstract.typename + 'Factory'
 
+    def create_discriminator(self, name):
+        field_names = self.factory_descriptor['discriminator_values']
+        values = ', '.join(map(lambda value: f'{name}.{value}', field_names))
+        return f'({values}): {name}'
+
     def get_deserialize_descriptor(self):
         body = 'buffer_ = bytes(payload)\n'
         body += f'{self.printer.name} = {self.printer.load()}\n'
 
-        body += f'assert {self.printer.name}.version == 1\n'
-
         body += 'mapping = {\n'
         names = [f'{concrete.typename}' for concrete in self.factory_descriptor['children']]
         body += indent(
-            ',\n'.join(
-                map(
-                    lambda name: f'{name}.{self.factory_descriptor["discriminator_value"]}: {name}',
-                    names,
-                )
-            )
+            ',\n'.join(map(self.create_discriminator, names))
         )
         body += '}\n'
-        discriminator = self.factory_descriptor['discriminator_name']
-        body += f'factory_class = mapping[{self.printer.name}.{discriminator}]\n'
+
+        discriminators = self.factory_descriptor['discriminator_names']
+        values = ', '.join(map(lambda discriminator: f'{self.printer.name}.{discriminator}', discriminators))
+        body += f'discriminator = ({values})\n'
+        body += 'factory_class = mapping[discriminator]\n'
         body += 'return factory_class.deserialize(buffer_)'
 
         return MethodDescriptor(body=body, result=self.abstract.typename)
@@ -81,18 +82,18 @@ class FactoryFormatter(AbstractTypeFormatter):
         body += indent(
             ',\n'.join(
                 map(
-                    lambda name: f'"{skip_embedded(name.get_underlined_name())}": {name.typename}',
+                    lambda name: f'"{skip_embedded(name.underlined_name)}": {name.typename}',
                     self.factory_descriptor['children'],
                 )
             )
         )
         body += '}\n'
 
-        body += '''
-if transaction_type not in mapping:
-    raise ValueError('unknown transaction type')
+        body += f'''
+if entity_name not in mapping:
+    raise ValueError('unknown {self.printer.get_type()} type')
 
-return mapping[transaction_type]()
+return mapping[entity_name]()
 '''
         return MethodDescriptor(body=body, result=self.abstract.typename)
 

@@ -1,5 +1,5 @@
-from AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
-from printers import create_pod_printer
+from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
+from .printers import create_pod_printer
 
 
 class PodTypeFormatter(AbstractTypeFormatter):
@@ -19,7 +19,7 @@ class PodTypeFormatter(AbstractTypeFormatter):
         return f'self._{self.printer.name}'
 
     def get_fields(self):
-        return [f'SIZE = {self.pod.get_size()}']
+        return [f'SIZE = {self.pod.size}']
 
     def get_base_class(self):
         return '(ByteArray)' if self.pod.is_array else '(BaseValue)'
@@ -46,7 +46,7 @@ class PodTypeFormatter(AbstractTypeFormatter):
         return MethodDescriptor(body=f'return {self.printer.store("self.value")}')
 
     def get_size_descriptor(self):
-        body = f'return {self.pod.get_size()}\n'
+        body = f'return {self.pod.size}\n'
         return MethodDescriptor(body=body)
 
     def get_getter_descriptors(self):

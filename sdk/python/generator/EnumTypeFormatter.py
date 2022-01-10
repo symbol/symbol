@@ -1,5 +1,5 @@
-from AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
-from printers import IntPrinter
+from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
+from .printers import IntPrinter
 
 
 class EnumTypeFormatter(AbstractTypeFormatter):
@@ -22,7 +22,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
         return list(
             map(
                 lambda e: f'{e["name"]} = {e["value"]}\n',
-                self.enum_type.get_values(),
+                self.enum_type.values,
             )
         )
 
@@ -42,7 +42,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
         return MethodDescriptor(body=body)
 
     def get_size_descriptor(self):
-        body = f'return {self.enum_type.get_size()}\n'
+        body = f'return {self.enum_type.size}\n'
         return MethodDescriptor(body=body)
 
     @staticmethod

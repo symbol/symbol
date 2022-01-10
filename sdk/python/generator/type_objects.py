@@ -6,15 +6,17 @@ class BaseObject:
 
     CAMEL_CASE_PATTERN = re.compile(r'(?<!^)(?=[A-Z])')
 
-    def __init__(self, base_typename, yaml_descritor):
+    def __init__(self, base_typename, yaml_descriptor):
         self.base_typename = base_typename
         self.is_struct = 'struct' == base_typename
         self.is_array = 'array' == base_typename
         self.is_int = 'int' == base_typename
         self.is_enum = 'enum' == base_typename
-        self.is_builtin = True
 
-        self.yaml_descriptor = yaml_descritor
+        self.is_builtin = True
+        self.sizeof_value = yaml_descriptor['value'] if 'sizeof' == yaml_descriptor.get('disposition', None) else None
+
+        self.yaml_descriptor = yaml_descriptor
         self.field_name = BaseObject.CAMEL_CASE_PATTERN.sub('_', self.yaml_descriptor['name']).lower()
 
         self.printer = None
@@ -23,10 +25,12 @@ class BaseObject:
     def set_printer(self, printer):
         self.printer = printer
 
-    def get_underlined_name(self):
+    @property
+    def underlined_name(self):
         return self.field_name
 
-    def get_size(self):
+    @property
+    def size(self):
         return self.yaml_descriptor['size']
 
 
@@ -48,6 +52,10 @@ class ArrayObject(BaseObject):
     def is_fill(self):
         return 'array fill' == self.yaml_descriptor['disposition']
 
+    @property
+    def alignment(self):
+        return self.yaml_descriptor['alignment']
+
     def get_type(self):
         return self.yaml_descriptor['type']
 
@@ -56,10 +64,12 @@ class EnumObject(BaseObject):
     def __init__(self, yaml_descritor):
         super().__init__('enum', yaml_descritor)
 
-    def get_underlined_name(self):
+    @property
+    def underlined_name(self):
         return 'value'
 
-    def get_values(self):
+    @property
+    def values(self):
         return self.yaml_descriptor['values']
 
 
@@ -67,16 +77,13 @@ class StructObject(BaseObject):
     def __init__(self, yaml_descritor):
         super().__init__('struct', yaml_descritor)
         self.layout = []
-        self.has_inlines = False
+        self.dynamic_size = self.yaml_descriptor.get('size', None)
         self.name_to_index = {}
-        self.is_abstract = self.typename in ['Transaction', 'EmbeddedTransaction']
+        self.is_abstract = 'abstract' == self.yaml_descriptor.get('disposition', None)
 
     def add_field(self, field):
         self.name_to_index[field.original_field_name] = len(self.layout)
         self.layout.append(field)
-
-    def get_layout(self):
-        return self.layout
 
     def get_field_by_name(self, field_name):
         index = self.name_to_index[field_name]

@@ -97,11 +97,11 @@ class ArrayHelpers:
         return binary
 
     @staticmethod
-    def align_up(size: int) -> int:
-        return (size + 7) // 8 * 8
+    def align_up(size: int, alignment: int) -> int:
+        return (size + alignment - 1) // alignment * alignment
 
     @staticmethod
-    def read_variable_size_elements(binary: memoryview, factory_type: Serializable) -> List[Serializable]:
+    def read_variable_size_elements(binary: memoryview, factory_type: Serializable, alignment: int) -> List[Serializable]:
         elements = []
         while len(binary) > 0:
             element = factory_type.deserialize(binary)
@@ -109,18 +109,18 @@ class ArrayHelpers:
             embedded_size = element.size()
             assert embedded_size > 0
 
-            aligned_size = ArrayHelpers.align_up(embedded_size)
+            aligned_size = ArrayHelpers.align_up(embedded_size, alignment)
             binary = binary[aligned_size:]
 
         return elements
 
     @staticmethod
-    def write_variable_size_elements(elements: Sequence[Serializable]) -> bytes:
+    def write_variable_size_elements(elements: Sequence[Serializable], alignment: int) -> bytes:
         binary = bytes()
         for element in elements:
             binary += element.serialize()
 
             embedded_size = element.size()
-            aligned_size = ArrayHelpers.align_up(embedded_size)
+            aligned_size = ArrayHelpers.align_up(embedded_size, alignment)
             binary += bytes(aligned_size - embedded_size)
         return binary

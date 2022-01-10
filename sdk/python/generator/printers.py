@@ -2,7 +2,7 @@ class Printer:
     def __init__(self, descriptor, name):
         self.descriptor = descriptor
         # printer.name is 'fixed' field name
-        self.name = name or self.descriptor.get_underlined_name()
+        self.name = name or self.descriptor.underlined_name
 
 
 class IntPrinter(Printer):
@@ -19,7 +19,7 @@ class IntPrinter(Printer):
         return '0'
 
     def get_size(self):
-        return self.descriptor.get_size()
+        return self.descriptor.size
 
     def load(self):
         data_size = self.get_size()
@@ -55,7 +55,7 @@ class TypedArrayPrinter(Printer):
     def get_size(self):
         if self.descriptor.is_sized:
             # note: use actual `.size` field
-            return f'sum(map(lambda e: ArrayHelpers.align_up(e.size()), self.{self.name}))'
+            return f'sum(map(lambda e: ArrayHelpers.align_up(e.size(), {self.descriptor.alignment}), self.{self.name}))'
 
         return f'sum(map(lambda e: e.size(), self.{self.name}))'
 
@@ -66,8 +66,9 @@ class TypedArrayPrinter(Printer):
             if self.descriptor.element_type and self.descriptor.element_type.is_abstract:
                 factory_name = self.descriptor.get_type() + 'Factory'
 
-            data_size = self.descriptor.get_size()
-            return f'ArrayHelpers.read_variable_size_elements(buffer_[:{data_size}], {factory_name})'
+            data_size = self.descriptor.size
+            alignment = self.descriptor.alignment
+            return f'ArrayHelpers.read_variable_size_elements(buffer_[:{data_size}], {factory_name}, {alignment})'
 
         if self.descriptor.is_fill:
             return f'ArrayHelpers.read_array(buffer_, {self.descriptor.get_type()})'
@@ -75,7 +76,7 @@ class TypedArrayPrinter(Printer):
         args = [
             'buffer_',
             self.descriptor.get_type(),
-            str(self.descriptor.get_size()),
+            str(self.descriptor.size),
         ]
         if 'sort_key' in self.descriptor.yaml_descriptor:
             sort_key = self.descriptor.yaml_descriptor['sort_key']
@@ -87,19 +88,19 @@ class TypedArrayPrinter(Printer):
 
     def advancement_size(self):
         if self.descriptor.is_sized:
-            return str(self.descriptor.get_size())
+            return str(self.descriptor.size)
 
         return f'sum(map(lambda e: e.size(), {self.name}))'
 
     def store(self, field_name):
         if self.descriptor.is_sized:
-            return f'ArrayHelpers.write_variable_size_elements({field_name})'
+            return f'ArrayHelpers.write_variable_size_elements({field_name}, {self.descriptor.alignment})'
 
         if self.descriptor.is_fill:
             return f'ArrayHelpers.write_array({field_name})'
 
         args = [field_name]
-        size = self.descriptor.get_size()
+        size = self.descriptor.size
         if not isinstance(size, str):
             args.append(str(size))
 
@@ -129,14 +130,14 @@ class ArrayPrinter(Printer):
         return 'bytes'
 
     def get_default_value(self):
-        size = self.descriptor.get_size()
+        size = self.descriptor.size
         if isinstance(size, str):
             return 'bytes()'
 
         return f'bytes({self.get_size()})'
 
     def get_size(self):
-        size = self.descriptor.get_size()
+        size = self.descriptor.size
         if isinstance(size, str):
             return f'len(self._{self.name})'
 
@@ -147,7 +148,7 @@ class ArrayPrinter(Printer):
 
     def advancement_size(self):
         # like get_size() but without self prefix, as this refers to local method field
-        size = self.descriptor.get_size()
+        size = self.descriptor.size
         if isinstance(size, str):
             return str(size)
 
@@ -181,7 +182,7 @@ class BuiltinPrinter(Printer):
 
     def get_default_value(self):
         if 'enum' == self.descriptor.base_typename:
-            first_enum_value_name = self.descriptor.get_values()[0]['name']
+            first_enum_value_name = self.descriptor.values[0]['name']
             return f'{self.get_type()}.{first_enum_value_name}'
 
         return f'{self.get_type()}()'
@@ -190,6 +191,12 @@ class BuiltinPrinter(Printer):
         return f'self.{self.name}.size()'
 
     def load(self, buffer_name='buffer_'):
+        if self.descriptor.is_struct and self.descriptor.is_abstract:
+            # HACK: factories use this printers as well, ignore them
+            if 'parent' != self.name:
+                factory_name = self.get_type() + 'Factory'
+                return f'{factory_name}.deserialize({buffer_name})'
+
         return f'{self.get_type()}.deserialize({buffer_name})'
 
     def advancement_size(self):
@@ -208,10 +215,10 @@ class BuiltinPrinter(Printer):
 
 
 def create_pod_printer(descriptor, name=None):
-    size = descriptor.get_size()
+    size = descriptor.size
 
     if descriptor.yaml_descriptor['type'] == 'byte':
-        PrinterType = ArrayPrinter if isinstance(size, str) or descriptor.get_size() > 8 else IntPrinter
+        PrinterType = ArrayPrinter if isinstance(size, str) or size > 8 else IntPrinter
     else:
         PrinterType = TypedArrayPrinter
 
