@@ -1,0 +1,6 @@
+---
+extends: ../../../linters/test.eslintrc
+
+rules:
+  no-console:
+  - off
