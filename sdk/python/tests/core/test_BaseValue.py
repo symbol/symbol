@@ -108,17 +108,17 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
         self.less_than_is_supported(self.DESCRIPTOR_UNSIGNED, DEFAULT_VALUE)
         self.less_than_is_supported(self.DESCRIPTOR_UNSIGNED, ORDER_TESTS_MAX_UNSIGNED)
 
-    def test_less_than_or_equal_is_supported_unsigned(self):
-        self.less_than_or_equal_is_supported(self.DESCRIPTOR_UNSIGNED, DEFAULT_VALUE)
-        self.less_than_or_equal_is_supported(self.DESCRIPTOR_UNSIGNED, ORDER_TESTS_MAX_UNSIGNED)
+    def test_less_than_equal_is_supported_unsigned(self):
+        self.less_than_equal_is_supported(self.DESCRIPTOR_UNSIGNED, DEFAULT_VALUE)
+        self.less_than_equal_is_supported(self.DESCRIPTOR_UNSIGNED, ORDER_TESTS_MAX_UNSIGNED)
 
     def test_greater_than_is_supported_unsigned(self):
         self.greater_than_is_supported(self.DESCRIPTOR_UNSIGNED, DEFAULT_VALUE)
         self.greater_than_is_supported(self.DESCRIPTOR_UNSIGNED, ORDER_TESTS_MAX_UNSIGNED)
 
-    def test_greater_than_or_equal_is_supported_unsigned(self):
-        self.greater_than_or_equal_is_supported(self.DESCRIPTOR_UNSIGNED, DEFAULT_VALUE)
-        self.greater_than_or_equal_is_supported(self.DESCRIPTOR_UNSIGNED, ORDER_TESTS_MAX_UNSIGNED)
+    def test_greater_than_equal_is_supported_unsigned(self):
+        self.greater_than_equal_is_supported(self.DESCRIPTOR_UNSIGNED, DEFAULT_VALUE)
+        self.greater_than_equal_is_supported(self.DESCRIPTOR_UNSIGNED, ORDER_TESTS_MAX_UNSIGNED)
 
     # endregion
 
@@ -132,9 +132,9 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
         self.less_than_is_supported(self.DESCRIPTOR_SIGNED, -DEFAULT_VALUE)
         self.assertLess(self.DESCRIPTOR_SIGNED.untagged(-3), self.DESCRIPTOR_SIGNED.untagged(5))
 
-    def test_less_than_or_equal_is_supported_signed(self):
-        self.less_than_or_equal_is_supported(self.DESCRIPTOR_SIGNED, DEFAULT_VALUE)
-        self.less_than_or_equal_is_supported(self.DESCRIPTOR_SIGNED, -DEFAULT_VALUE)
+    def test_less_than_equal_is_supported_signed(self):
+        self.less_than_equal_is_supported(self.DESCRIPTOR_SIGNED, DEFAULT_VALUE)
+        self.less_than_equal_is_supported(self.DESCRIPTOR_SIGNED, -DEFAULT_VALUE)
         self.assertLessEqual(self.DESCRIPTOR_SIGNED.untagged(-3), self.DESCRIPTOR_SIGNED.untagged(5))
 
     def test_greater_than_is_supported_signed(self):
@@ -142,9 +142,9 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
         self.greater_than_is_supported(self.DESCRIPTOR_SIGNED, -DEFAULT_VALUE)
         self.assertGreater(self.DESCRIPTOR_SIGNED.untagged(5), self.DESCRIPTOR_SIGNED.untagged(-3))
 
-    def test_greater_than_or_equal_is_supported_signed(self):
-        self.greater_than_or_equal_is_supported(self.DESCRIPTOR_SIGNED, DEFAULT_VALUE)
-        self.greater_than_or_equal_is_supported(self.DESCRIPTOR_SIGNED, -DEFAULT_VALUE)
+    def test_greater_than_equal_is_supported_signed(self):
+        self.greater_than_equal_is_supported(self.DESCRIPTOR_SIGNED, DEFAULT_VALUE)
+        self.greater_than_equal_is_supported(self.DESCRIPTOR_SIGNED, -DEFAULT_VALUE)
         self.assertGreaterEqual(self.DESCRIPTOR_SIGNED.untagged(5), self.DESCRIPTOR_SIGNED.untagged(-3))
 
     # endregion

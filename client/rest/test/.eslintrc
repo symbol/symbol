@@ -1,5 +1,5 @@
 ---
-extends: ../../../linters/test.eslintrc
+extends: ../../../linters/javascript/test.eslintrc
 
 rules:
   no-underscore-dangle:

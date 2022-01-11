@@ -1,2 +1,1 @@
-[pycodestyle]
-max-line-length = 140
+../../linters/python/.pycodestyle
