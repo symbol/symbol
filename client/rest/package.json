@@ -1,7 +1,7 @@
 {
-  "name": "catapult-api-rest",
+  "name": "symbol-api-rest",
   "version": "0.0.0",
-  "description": "Catapult API REST",
+  "description": "Symbol API REST",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
