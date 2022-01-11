@@ -1,0 +1,10 @@
+---
+extends: ../../../linters/test.eslintrc
+
+rules:
+  no-underscore-dangle:
+  - error
+  - allow:
+    - _id # mongodb identifier
+    - high_ # MongoDb.Timestamp
+    - low_ # MongoDb.Timestamp
