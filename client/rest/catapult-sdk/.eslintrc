@@ -1,4 +1,0 @@
----
-extends:
-  - airbnb
-  - ../../../linters/default.eslintrc
