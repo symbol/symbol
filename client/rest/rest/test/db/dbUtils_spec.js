@@ -174,21 +174,10 @@ describe('db utils', () => {
 			const object = Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex');
 
 			// Act:
-			const result = dbUtils.bufferToUnresolvedAddress(object, true);
-
-			// Assert:
-			expect(result).to.equal('TDQNCOHK6KWDILABL7YLMMPMGYRORL72AS74YVQ');
-		});
-
-		it('can convert from Buffer to decoded address', () => {
-			// Arrange
-			const object = Buffer.from('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56', 'hex');
-
-			// Act:
 			const result = dbUtils.bufferToUnresolvedAddress(object);
 
 			// Assert:
-			expect(result).to.equal('98E0D138EAF2AC342C015FF0B631EC3622E8AFFA04BFCC56');
+			expect(result).to.equal('TDQNCOHK6KWDILABL7YLMMPMGYRORL72AS74YVQ');
 		});
 
 		it('can convert from undefined to undefined address', () => {
