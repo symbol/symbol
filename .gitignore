@@ -1,0 +1,24 @@
+# editors
+*~
+*.sln
+*.vcxproj
+*.vcxproj.filters
+.vscode/
+.idea/
+
+# MacOS
+.DS_Store
+
+# cpp
+_build/
+_temp/
+
+# js
+node_modules/
+npm-*.log*
+
+# python
+__pycache__/
+*.egg-info/
+build/
+dist/
