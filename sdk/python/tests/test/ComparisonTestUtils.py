@@ -75,7 +75,7 @@ class ComparisonTestUtils:
         ordered_values = [reference_value - 1, reference_value, reference_value + 1]
         self.__order_helper(descriptor, ordered_values, operator.lt)
 
-    def less_than_or_equal_is_supported(self, descriptor, reference_value):
+    def less_than_equal_is_supported(self, descriptor, reference_value):
         ordered_values = [reference_value - 1, reference_value, reference_value + 1]
         self.__order_helper(descriptor, ordered_values, operator.le, True)
 
@@ -83,6 +83,6 @@ class ComparisonTestUtils:
         ordered_values = [reference_value + 1, reference_value, reference_value - 1]
         self.__order_helper(descriptor, ordered_values, operator.gt)
 
-    def greater_than_or_equal_is_supported(self, descriptor, reference_value):
+    def greater_than_equal_is_supported(self, descriptor, reference_value):
         ordered_values = [reference_value + 1, reference_value, reference_value - 1]
         self.__order_helper(descriptor, ordered_values, operator.ge, True)

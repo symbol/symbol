@@ -1,4 +1,4 @@
 ---
 extends:
   - airbnb
-  - ../../linters/default.eslintrc
+  - ../../linters/javascript/default.eslintrc

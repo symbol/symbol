@@ -1,4 +1,1 @@
-isort==5.10.1
-pycodestyle==2.8.0
-pylint==2.11.1
-pylint-quotes==0.2.3
+../../linters/python/lint_requirements.txt

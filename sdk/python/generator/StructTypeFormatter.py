@@ -177,15 +177,6 @@ class StructFormatter(AbstractTypeFormatter):
 
         return indent_if_conditional(condition, deserialize_field)
 
-    @staticmethod
-    def generate_deserialize_to_temporary_buffer(field):
-        comment = '# deserialize to temporary buffer for further processing'
-        deserialize = f'{field.printer.name}_temporary = {field.printer.load()}'
-        temporary_buffer = create_temporary_buffer_name(field.yaml_descriptor['condition'])
-        temporary = f'{temporary_buffer} = buffer_[:{field.printer.name}_temporary.size()]'
-        adjust = f'buffer_ = buffer_[{field.printer.name}_temporary.size():]'
-        return comment + '\n' + deserialize + '\n' + temporary + '\n' + adjust + '\n\n'
-
     def get_deserialize_descriptor(self):
         body = 'buffer_ = memoryview(payload)\n'
 
@@ -201,7 +192,12 @@ class StructFormatter(AbstractTypeFormatter):
                         queued_fields[condition_field_name] = []
 
                         # assume same size and generate single dummy access
-                        body += self.generate_deserialize_to_temporary_buffer(field)
+                        comment = '# deserialize to temporary buffer for further processing'
+                        deserialize = f'{field.printer.name}_temporary = {field.printer.load()}'
+                        temporary_buffer = create_temporary_buffer_name(field.yaml_descriptor['condition'])
+                        temporary = f'{temporary_buffer} = buffer_[:{field.printer.name}_temporary.size()]'
+                        adjust = f'buffer_ = buffer_[{field.printer.name}_temporary.size():]'
+                        body += comment + '\n' + deserialize + '\n' + temporary + '\n' + adjust + '\n\n'
 
                     # queue field for re-reading it from temporary buffer
                     queued_fields[condition_field_name].append({'field': field})

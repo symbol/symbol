@@ -83,14 +83,14 @@ class ByteArrayTest(ComparisonTestUtils, unittest.TestCase):
     def test_less_than_is_supported(self):
         self.less_than_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
 
-    def test_less_than_or_equal_is_supported(self):
-        self.less_than_or_equal_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
+    def test_less_than_equal_is_supported(self):
+        self.less_than_equal_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
 
     def test_greater_than_is_supported(self):
         self.greater_than_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
 
-    def test_greater_than_or_equal_is_supported(self):
-        self.greater_than_or_equal_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
+    def test_greater_than_equal_is_supported(self):
+        self.greater_than_equal_is_supported(self.DESCRIPTOR, DEFAULT_VALUE)
 
     def test_hash_is_supported(self):
         # Arrange:
