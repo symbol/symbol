@@ -455,9 +455,7 @@ class CatapultDb {
 	async addBlockMetaToEntityList(list, fields, getHeight) {
 		const isValidHeight = height => height && 0 !== height.toInt();
 
-		const blockHeights = uniqueLongList(
-			list.map(item => getHeight(item)).filter(isValidHeight)
-		);
+		const blockHeights = uniqueLongList(list.map(item => getHeight(item)).filter(isValidHeight));
 
 		const projection = {
 			'block.height': 1,
@@ -472,24 +470,14 @@ class CatapultDb {
 			const height = getHeight(item);
 			if (!isValidHeight(height))
 				return item;
-			const block = blocks.find(
-				blockInfo => blockInfo.block.height.equals(
-					height
-				)
-			);
-			if (!block) {
-				throw new Error(
-					`Cannot find block with height ${height.toString()}`
-				);
-			}
+			const block = blocks.find(blockInfo => blockInfo.block.height.equals(height));
+			if (!block)
+				throw new Error(`Cannot find block with height ${height.toString()}`);
 			item.meta = item.meta || {};
 			fields.forEach(field => {
 				const value = block.block[field];
-				if (value === undefined) {
-					throw new Error(
-						`Cannot find ${field} in block with height ${height.toString()}`
-					);
-				}
+				if (value === undefined)
+					throw new Error(`Cannot find ${field} in block with height ${height.toString()}`);
 				item.meta[field] = value;
 			});
 			return item;
@@ -581,8 +569,7 @@ class CatapultDb {
 					const newConditions = { _id: { $in: accountIds } };
 					// repeat the response with the found and sorted account ids, so that the result can be complete with all the mosaics
 					// Second query set pageIndex to 0;
-					return this.queryPagedDocuments(newConditions, [], {}, 'accounts',
-						{ pageSize, pageNumber: 1 })
+					return this.queryPagedDocuments(newConditions, [], {}, 'accounts', { pageSize, pageNumber: 1 })
 						.then(fullAccountsPage => {
 							// $in results do not preserve query order
 							fullAccountsPage.data.sort((account1, account2) =>

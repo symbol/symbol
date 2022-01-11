@@ -91,8 +91,14 @@ class NamespaceDb {
 			conditions['namespace.registrationType'] = registrationType;
 
 		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
-		return this.catapultDb.queryPagedDocuments({ $and: [activeConditions, conditions] }, [],
-			sortConditions, 'namespaces', options, n => addActiveFlag(n, height));
+		return this.catapultDb.queryPagedDocuments(
+			{ $and: [activeConditions, conditions] },
+			[],
+			sortConditions,
+			'namespaces',
+			options,
+			n => addActiveFlag(n, height)
+		);
 	}
 
 	/**

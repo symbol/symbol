@@ -331,7 +331,8 @@ describe('aggregate plugin', () => {
 							// - increase reported payload size
 							const data = addTransaction(addTransaction(addTransaction(generateAggregate)))();
 							data.buffer.writeUInt32LE(
-								data.buffer.readUInt32LE(constants.sizes.transactionsHash) + delta, constants.sizes.transactionsHash
+								data.buffer.readUInt32LE(constants.sizes.transactionsHash) + delta,
+								constants.sizes.transactionsHash
 							);
 
 							// Assert:

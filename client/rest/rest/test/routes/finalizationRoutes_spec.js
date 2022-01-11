@@ -42,7 +42,7 @@ describe('finalization routes', () => {
 					resolve({
 						pushPull: packet => {
 							assertSentPacket(packet);
-							return new Promise(innerResolve => innerResolve(resultPacket));
+							return new Promise(innerResolve => { innerResolve(resultPacket); });
 						}
 					});
 				})

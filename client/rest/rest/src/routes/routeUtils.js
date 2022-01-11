@@ -352,10 +352,9 @@ const routeUtils = {
 				}
 
 				const block = result.payload;
+				const errorMessage = `hash '${req.params.hash}' not included in block height '${uint64.toString(height)}'`;
 				if (!block.meta[blockMetaCountField]) {
-					res.send(errors.createInvalidArgumentError(
-						`hash '${req.params.hash}' not included in block height '${uint64.toString(height)}'`
-					));
+					res.send(errors.createInvalidArgumentError(errorMessage));
 					return next();
 				}
 
@@ -365,9 +364,7 @@ const routeUtils = {
 				};
 
 				if (0 > indexOfLeafWithHash(hash, merkleTree)) {
-					res.send(errors.createInvalidArgumentError(
-						`hash '${req.params.hash}' not included in block height '${uint64.toString(height)}'`
-					));
+					res.send(errors.createInvalidArgumentError(errorMessage));
 					return next();
 				}
 

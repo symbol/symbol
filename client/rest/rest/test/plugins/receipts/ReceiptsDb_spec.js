@@ -103,9 +103,7 @@ describe('receipts db', () => {
 				page => {
 					const expected_keys = ['id', 'meta', 'statement'];
 					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
-					expect(Object.keys(sampleReceipt).sort()).to.deep.equal(
-						Object.keys(page.data[0].statement.receipts[0]).sort()
-					);
+					expect(Object.keys(sampleReceipt).sort()).to.deep.equal(Object.keys(page.data[0].statement.receipts[0]).sort());
 				}
 			);
 		});

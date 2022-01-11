@@ -90,21 +90,16 @@ const catapultRestifyPlugins = {
 };
 
 const readSSLFileSync = (path, fileType, pathProperty) => {
-	if (!path) {
-		throw new Error(
-			`No SSL ${fileType} found, '${pathProperty}' property in the configuration must be provided.`
-		);
-	}
+	if (!path)
+		throw new Error(`No SSL ${fileType} found, '${pathProperty}' property in the configuration must be provided.`);
+
 	try {
 		return fs.readFileSync(path);
 	} catch (err) {
-		if ('ENOENT' === err.code) {
-			throw new Error(
-				`SSL ${fileType} file cannot be found at the path: ${path}`
-			);
-		} else {
-			throw err;
-		}
+		if ('ENOENT' === err.code)
+			throw new Error(`SSL ${fileType} file cannot be found at the path: ${path}`);
+
+		throw err;
 	}
 };
 
@@ -122,11 +117,8 @@ module.exports = {
 		if (!config)
 			throw new Error('Config must be provided!');
 
-		if (!config.protocol) {
-			winston.warn(
-				'Protocol(HTTPS|HTTP) is not configured explicitly in the configuration, defaulting to HTTPS.'
-			);
-		}
+		if (!config.protocol)
+			winston.warn('Protocol(HTTPS|HTTP) is not configured explicitly in the configuration, defaulting to HTTPS.');
 
 		const protocol = config.protocol || 'HTTPS';
 		winston.info(`Using protocol: ${protocol}`);
@@ -158,9 +150,7 @@ module.exports = {
 		if (!config.crossDomain)
 			winston.warn('CORS was not enabled - configuration incomplete');
 
-		const addCrossDomainHeaders = createCrossDomainHeaderAdder(
-			config.crossDomain || {}
-		);
+		const addCrossDomainHeaders = createCrossDomainHeaderAdder(config.crossDomain || {});
 
 		server.use(catapultRestifyPlugins.crossDomain(addCrossDomainHeaders));
 		server.use(restify.plugins.acceptParser('application/json'));

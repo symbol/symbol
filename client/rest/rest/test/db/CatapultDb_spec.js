@@ -453,12 +453,8 @@ describe('catapult db', () => {
 			// Assert:
 			return runBlockAtHeightDbTest(
 				{ blocks: [seedBlock1], transactions: blockTransactions },
-				db => db.blocksAtHeights(
-					[]
-				),
-				blocks => expect(blocks).to.deep.equal(
-					[]
-				)
+				db => db.blocksAtHeights([]),
+				blocks => expect(blocks).to.deep.equal([])
 			);
 		});
 
@@ -472,12 +468,10 @@ describe('catapult db', () => {
 			// Assert:
 			return runBlockAtHeightDbTest(
 				{ blocks: [seedBlock1, seedBlock2, seedBlock3], transactions: blockTransactions },
-				db => db.blocksAtHeights(
-					[Long.fromNumber(Default_Height), Long.fromNumber(Default_Height + 1)]
-				),
-				blocks => expect(blocks).to.deep.equal(
-					[stripExtraneousBlockInformation(renameId(seedBlock1)), stripExtraneousBlockInformation(renameId(seedBlock2))]
-				)
+				db => db.blocksAtHeights([Long.fromNumber(Default_Height), Long.fromNumber(Default_Height + 1)]),
+				blocks => expect(blocks).to.deep.equal([
+					stripExtraneousBlockInformation(renameId(seedBlock1)), stripExtraneousBlockInformation(renameId(seedBlock2))
+				])
 			);
 		});
 
@@ -503,9 +497,7 @@ describe('catapult db', () => {
 					[Long.fromNumber(Default_Height), Long.fromNumber(Default_Height + 1)],
 					{ 'block.timestamp': 1, 'block.height': 1, 'block.feeMultiplier': 1 }
 				),
-				blocks => expect(blocks).to.deep.equal(
-					[projectBlock(seedBlock1), projectBlock(seedBlock2)]
-				)
+				blocks => expect(blocks).to.deep.equal([projectBlock(seedBlock1), projectBlock(seedBlock2)])
 			);
 		});
 	});
@@ -1544,15 +1536,15 @@ describe('catapult db', () => {
 				createTransaction(30, [account1.address], 1, account1.publicKey),
 				createTransaction(40, [account1.address], 1, account1.publicKey, account1.address),
 				createTransaction(50, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer),
-				createTransaction(
-					60, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [{ id: 10, amount: 100 }]
-				),
-				createTransaction(
-					70, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [{ id: 10, amount: 200 }]
-				),
-				createTransaction(
-					80, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [{ id: 10, amount: 300 }]
-				)
+				createTransaction(60, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [
+					{ id: 10, amount: 100 }
+				]),
+				createTransaction(70, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [
+					{ id: 10, amount: 200 }
+				]),
+				createTransaction(80, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [
+					{ id: 10, amount: 300 }
+				])
 			];
 
 			const filters = {

@@ -117,7 +117,7 @@ describe('model formatter builder', () => {
 
 			// Act:
 			const result = formatter.blockHeaderWithMetadata.format({
-				id: 0x5E3CD1498E18164DD5536133,
+				id: 0x5E3CD149,
 				meta: {
 					hash: 0,
 					generationHash: 0,

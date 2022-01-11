@@ -58,8 +58,7 @@ module.exports = {
 		server.get('/lock/secret/:compositeHash/merkle', (req, res, next) => {
 			const compositeHash = routeUtils.parseArgument(req.params, 'compositeHash', 'hash256');
 			const state = PacketType.secretLockStatePath;
-			return merkleUtils.requestTree(services, state,
-				compositeHash).then(response => {
+			return merkleUtils.requestTree(services, state, compositeHash).then(response => {
 				res.send(response);
 				next();
 			});

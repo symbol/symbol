@@ -55,9 +55,8 @@ module.exports = {
 				return next(new NotFoundError());
 
 			if (params.address && (params.signerPublicKey || params.recipientAddress)) {
-				return next(new InvalidArgumentError(
-					'can\'t filter by address if signerPublicKey or recipientAddress are already provided'
-				));
+				const errorMessage = 'can\'t filter by address if signerPublicKey or recipientAddress are already provided';
+				return next(new InvalidArgumentError(errorMessage));
 			}
 
 			if ((params.fromTransferAmount || params.toTransferAmount) && !params.transferMosaicId)

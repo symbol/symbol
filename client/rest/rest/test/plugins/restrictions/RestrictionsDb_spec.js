@@ -38,9 +38,9 @@ describe('restrictions db', () => {
 		it('returns undefined for unknown account', () => {
 			// Arrange:
 			const { address } = test.random.account();
-			const accountRestrictions1 = test.accountDb.createAccountRestrictions(
-				address, { numAddresses: 3, numMosaics: 3, numOperations: 3 }
-			);
+			const accountRestrictions1 = test.accountDb.createAccountRestrictions(address, {
+				numAddresses: 3, numMosaics: 3, numOperations: 3
+			});
 
 			// Assert:
 			return test.accountDb.runDbTest(
@@ -331,7 +331,9 @@ describe('restrictions db', () => {
 
 				// Act + Assert:
 				return runTestAndVerifyIds(
-					dbMosaicRestrictions(), db => db.mosaicRestrictions(undefined, undefined, undefined, options), [30]
+					dbMosaicRestrictions(),
+					db => db.mosaicRestrictions(undefined, undefined, undefined, options),
+					[30]
 				);
 			});
 
@@ -340,7 +342,9 @@ describe('restrictions db', () => {
 
 				// Act + Assert:
 				return runTestAndVerifyIds(
-					dbMosaicRestrictions(), db => db.mosaicRestrictions(undefined, undefined, undefined, options), [10]
+					dbMosaicRestrictions(),
+					db => db.mosaicRestrictions(undefined, undefined, undefined, options),
+					[10]
 				);
 			});
 		});
