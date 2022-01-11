@@ -56,9 +56,7 @@ describe('mosaic plugin', () => {
 
 			// - mosaic definition
 			expect(Object.keys(modelSchema.mosaicDefinition).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
-			expect(modelSchema.mosaicDefinition).to.contain.all.keys(
-				['id', 'duration', 'nonce', 'flags', 'divisibility']
-			);
+			expect(modelSchema.mosaicDefinition).to.contain.all.keys(['id', 'duration', 'nonce', 'flags', 'divisibility']);
 
 			// - mosaic supply change
 			expect(Object.keys(modelSchema.mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
@@ -157,8 +155,10 @@ describe('mosaic plugin', () => {
 				}
 			});
 
-			test.binary.test.addAll(getCodec(EntityType.mosaicSupplyRevocation),
-				constants.sizes.mosaicSupplyRevocation, generateTransaction);
+			test.binary.test.addAll(
+				getCodec(EntityType.mosaicSupplyRevocation),
+				constants.sizes.mosaicSupplyRevocation, generateTransaction
+			);
 		});
 	});
 });

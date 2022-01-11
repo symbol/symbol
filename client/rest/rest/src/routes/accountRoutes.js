@@ -74,8 +74,7 @@ module.exports = {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
 			const encodedAddress = 'publicKey' === type ? catapult.model.address.publicKeyToAddress(accountId, db.networkId) : accountId;
 			const state = PacketType.accountStatePath;
-			return merkleUtils.requestTree(services, state,
-				encodedAddress).then(response => {
+			return merkleUtils.requestTree(services, state, encodedAddress).then(response => {
 				res.send(response);
 				next();
 			});

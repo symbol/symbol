@@ -57,8 +57,7 @@ module.exports = {
 		server.get('/lock/hash/:hash/merkle', (req, res, next) => {
 			const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
 			const state = PacketType.hashLockStatePath;
-			return merkleUtils.requestTree(services, state,
-				hash).then(response => {
+			return merkleUtils.requestTree(services, state, hash).then(response => {
 				res.send(response);
 				next();
 			});

@@ -66,8 +66,12 @@ module.exports = {
 			});
 
 			// Check database status
-			const dbStatusPromise = new Promise((resolve, reject) =>
-				(db.database.serverConfig.isConnected() ? resolve() : reject()));
+			const dbStatusPromise = new Promise((resolve, reject) => {
+				if (db.database.serverConfig.isConnected())
+					resolve();
+				else
+					reject();
+			});
 
 			// Check apiNode status
 			const packetBuffer = packetHeader.createBuffer(
@@ -80,31 +84,22 @@ module.exports = {
 					connection.pushPull(packetBuffer, services.config.apiNode.timeout))
 				.then(packet => parseNodeInfoPacket(packet));
 
-			return Promise.allSettled([dbStatusPromise, apiNodeStatusPromise]).then(
-				results => {
-					const statusCode = results.some(
-						result => 'fulfilled' !== result.status
-					)
-						? 503
-						: 200;
-					const checkResult = result =>
-						('fulfilled' === result.status
-							? ServiceStatus.up
-							: ServiceStatus.down);
+			return Promise.allSettled([dbStatusPromise, apiNodeStatusPromise]).then(results => {
+				const statusCode = results.some(result => 'fulfilled' !== result.status) ? 503 : 200;
+				const checkResult = result => ('fulfilled' === result.status ? ServiceStatus.up : ServiceStatus.down);
 
-					res.status(statusCode);
-					res.send({
-						payload: {
-							status: {
-								apiNode: checkResult(results[1]),
-								db: checkResult(results[0])
-							}
-						},
-						type: routeResultTypes.nodeHealth
-					});
-					next();
-				}
-			);
+				res.status(statusCode);
+				res.send({
+					payload: {
+						status: {
+							apiNode: checkResult(results[1]),
+							db: checkResult(results[0])
+						}
+					},
+					type: routeResultTypes.nodeHealth
+				});
+				next();
+			});
 		});
 
 		server.get('/node/info', (req, res, next) => {
@@ -118,9 +113,7 @@ module.exports = {
 				.then(packet => {
 					const response = buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo);
 					response.payload.nodePublicKey = services.config.apiNode.nodePublicKey;
-					res.send(
-						response
-					);
+					res.send(response);
 					next();
 				});
 		});
@@ -134,9 +127,7 @@ module.exports = {
 				.singleUse()
 				.then(connection => connection.pushPull(packetBuffer, timeout))
 				.then(packet => {
-					res.send(
-						buildResponse(packet, nodePeersCodec, routeResultTypes.nodeInfo)
-					);
+					res.send(buildResponse(packet, nodePeersCodec, routeResultTypes.nodeInfo));
 					next();
 				});
 		});
@@ -151,7 +142,8 @@ module.exports = {
 						deployment: {
 							deploymentTool: deployment && deployment.deploymentTool ? deployment.deploymentTool : 'N/A',
 							deploymentToolVersion: deployment && deployment.deploymentToolVersion
-								? deployment.deploymentToolVersion : 'N/A',
+								? deployment.deploymentToolVersion
+								: 'N/A',
 							lastUpdatedDate: deployment && deployment.lastUpdatedDate ? deployment.lastUpdatedDate : 'N/A'
 						}
 					}
@@ -176,9 +168,7 @@ module.exports = {
 				.singleUse()
 				.then(connection => connection.pushPull(packetBuffer, timeout))
 				.then(packet => {
-					res.send(
-						buildResponse(packet, nodeTimeCodec, routeResultTypes.nodeTime)
-					);
+					res.send(buildResponse(packet, nodeTimeCodec, routeResultTypes.nodeTime));
 					next();
 				});
 		});

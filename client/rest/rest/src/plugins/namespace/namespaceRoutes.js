@@ -114,8 +114,7 @@ module.exports = {
 		server.get('/namespaces/:namespaceId/merkle', (req, res, next) => {
 			const namespaceId = routeUtils.parseArgument(req.params, 'namespaceId', 'uint64hex');
 			const state = PacketType.namespaceStatePath;
-			return merkleUtils.requestTree(services, state,
-				uint64.toBytes(namespaceId)).then(response => {
+			return merkleUtils.requestTree(services, state, uint64.toBytes(namespaceId)).then(response => {
 				res.send(response);
 				next();
 			});

@@ -36,7 +36,7 @@ class MerkleTree {
 	 * @param {number} mask bitmask
 	 * @returns {string[]} array of the indices of bits
 	 */
-	getBitsFromMask(mask) {
+	static getBitsFromMask(mask) {
 		const intValue = parseInt(`0x${convert.uint8ToHex(mask.reverse())}`, 16);
 		let index = 0;
 		const bits = [];
@@ -55,7 +55,7 @@ class MerkleTree {
 	 * @param {number} nibbleCount Nibbles count
 	 * @returns {number} the length of the path
 	 */
-	getPathLength(nibbleCount) {
+	static getPathLength(nibbleCount) {
 		// 1 nibble = 0.5 bytes.
 		// Round up to the whole bytes
 		return Math.ceil(parseFloat(nibbleCount) / 2);
@@ -66,7 +66,7 @@ class MerkleTree {
 	 * @param {number} marker node marker
 	 * @returns {boolean} if tree node is branch
 	 */
-	isBranch(marker) {
+	static isBranch(marker) {
 		return 0 === marker;
 	}
 
@@ -75,7 +75,7 @@ class MerkleTree {
 	 * @param {number} marker node marker
 	 * @returns {boolean} if tree node is leaf
 	 */
-	isLeaf(marker) {
+	static isLeaf(marker) {
 		return 255 === marker;
 	}
 
@@ -90,13 +90,13 @@ class MerkleTree {
 
 		const marker = raw[0];
 		const nibbleCount = raw[1];
-		const pathLength = this.getPathLength(nibbleCount);
+		const pathLength = MerkleTree.getPathLength(nibbleCount);
 		const path = raw.slice(2, 2 + pathLength);
-		if (this.isBranch(marker)) {
+		if (MerkleTree.isBranch(marker)) {
 			const lessBranch = this.parseBranch(raw.slice(2 + pathLength), path, nibbleCount);
 			return this.parseMerkleTreeFromRaw(lessBranch);
 		}
-		if (this.isLeaf(marker)) {
+		if (MerkleTree.isLeaf(marker)) {
 			const lessLeaf = this.parseLeaf(raw.slice(2 + pathLength), path, nibbleCount);
 			return this.parseMerkleTreeFromRaw(lessLeaf);
 		}
@@ -112,7 +112,7 @@ class MerkleTree {
 	 */
 	parseBranch(offsetRaw, path, nibbleCount) {
 		const linkMask = offsetRaw.slice(0, 2); // little endian
-		const bits = this.getBitsFromMask(linkMask);
+		const bits = MerkleTree.getBitsFromMask(linkMask);
 		const linksRaw = offsetRaw.slice(2, 2 + (32 * bits.length));
 		const links = [];
 		for (let i = 0; i < bits.length; i++) {
@@ -121,7 +121,7 @@ class MerkleTree {
 				link: convert.uint8ToHex(linksRaw.slice(i * 32, (i * 32) + 32))
 			});
 		}
-		const encodedPath = convert.uint8ToHex(this.encodePath(path, nibbleCount, false));
+		const encodedPath = convert.uint8ToHex(MerkleTree.encodePath(path, nibbleCount, false));
 		this.tree.push({
 			type: 0,
 			path: convert.uint8ToHex(path),
@@ -129,7 +129,7 @@ class MerkleTree {
 			nibbleCount,
 			linkMask: convert.uint8ToHex(linkMask),
 			links,
-			branchHash: this.getBranchHash(encodedPath, links)
+			branchHash: MerkleTree.getBranchHash(encodedPath, links)
 		});
 		return offsetRaw.slice(2 + (32 * bits.length));
 	}
@@ -143,14 +143,14 @@ class MerkleTree {
 	 */
 	parseLeaf(offsetRaw, path, nibbleCount) {
 		const value = convert.uint8ToHex(offsetRaw.slice(0, 32));
-		const encodedPath = convert.uint8ToHex(this.encodePath(path, nibbleCount, true));
+		const encodedPath = convert.uint8ToHex(MerkleTree.encodePath(path, nibbleCount, true));
 		this.tree.push({
 			type: 255,
 			path: convert.uint8ToHex(path),
 			encodedPath,
 			nibbleCount,
 			value,
-			leafHash: this.getLeafHash(encodedPath, value)
+			leafHash: MerkleTree.getLeafHash(encodedPath, value)
 		});
 		return offsetRaw.slice(32);
 	}
@@ -162,18 +162,18 @@ class MerkleTree {
 	 * @param {boolean} isLeaf is leaf node
 	 * @returns {Uint8Array} encoded path
 	 */
-	encodePath(path, nibbleCount, isLeaf) {
+	static encodePath(path, nibbleCount, isLeaf) {
 		const encodedKey = new Uint8Array(Math.floor(nibbleCount / 2) + 1);
 		encodedKey[0] = isLeaf ? 0x20 : 0; // set leaf flag
 		let i = 0;
 		if (1 === nibbleCount % 2) {
 			// set odd flag and merge in first nibble
-			encodedKey[0] = encodedKey[0] | 0x10 | this.nibbleAt(path, 0);
+			encodedKey[0] = encodedKey[0] | 0x10 | MerkleTree.nibbleAt(path, 0);
 			++i;
 		}
 
 		for (; i < nibbleCount; i += 2)
-			encodedKey[Math.floor(i / 2) + 1] = (this.nibbleAt(path, i) << 4) + this.nibbleAt(path, i + 1);
+			encodedKey[Math.floor(i / 2) + 1] = (MerkleTree.nibbleAt(path, i) << 4) + MerkleTree.nibbleAt(path, i + 1);
 
 		return encodedKey;
 	}
@@ -184,7 +184,7 @@ class MerkleTree {
 	 * @param {number} index nibble index
 	 * @returns {number} byte
 	 */
-	nibbleAt(path, index) {
+	static nibbleAt(path, index) {
 		const byte = path[Math.floor((index / 2))];
 		return 0 === index % 2 ? (byte & 0xf0) >> 4 : byte & 0x0f;
 	}
@@ -195,14 +195,12 @@ class MerkleTree {
 	 * @param {Array} links branch links array
 	 * @returns {string} branch hash (Hash(encodedPath + links))
 	 */
-	getBranchHash(encodedPath, links) {
+	static getBranchHash(encodedPath, links) {
 		const branchLinks = Array(16).fill(catapult.utils.convert.uint8ToHex(new Uint8Array(32)));
 		links.forEach(link => {
 			branchLinks[parseInt(`0x${link.bit}`, 16)] = link.link;
 		});
-		return catapult.crypto.sha3Hasher.getHasher(32).update(
-			catapult.utils.convert.hexToUint8(encodedPath + branchLinks.join(''))
-		)
+		return catapult.crypto.sha3Hasher.getHasher(32).update(catapult.utils.convert.hexToUint8(encodedPath + branchLinks.join('')))
 			.hex()
 			.toUpperCase();
 	}
@@ -213,10 +211,8 @@ class MerkleTree {
 	 * @param {Array} leafValue leaf value
 	 * @returns {string} leaf hash (Hash(encodedPath + leaf value))
 	 */
-	getLeafHash(encodedPath, leafValue) {
-		return catapult.crypto.sha3Hasher.getHasher(32).update(
-			catapult.utils.convert.hexToUint8(encodedPath + leafValue)
-		)
+	static getLeafHash(encodedPath, leafValue) {
+		return catapult.crypto.sha3Hasher.getHasher(32).update(catapult.utils.convert.hexToUint8(encodedPath + leafValue))
 			.hex()
 			.toUpperCase();
 	}

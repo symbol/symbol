@@ -38,8 +38,7 @@ module.exports = {
 		server.get('/account/:address/multisig/merkle', (req, res, next) => {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const state = PacketType.multisigStatePath;
-			return merkleUtils.requestTree(services, state,
-				accountAddress).then(response => {
+			return merkleUtils.requestTree(services, state, accountAddress).then(response => {
 				res.send(response);
 				next();
 			});

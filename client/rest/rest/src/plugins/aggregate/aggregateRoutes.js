@@ -41,11 +41,9 @@ module.exports = {
 			server,
 			services.connections,
 			{ routeName: '/transactions/cosignature', packetType: PacketType.pushDetachedCosignatures },
-			params => Buffer.concat(
-				[parseUint64StringToUint8Buffer(params.version)].concat(
-					['signerPublicKey', 'signature', 'parentHash'].map(key => parseHexParam(params, key))
-				)
-			)
+			params => Buffer.concat([parseUint64StringToUint8Buffer(params.version)].concat([
+				'signerPublicKey', 'signature', 'parentHash'
+			].map(key => parseHexParam(params, key))))
 		);
 	}
 };

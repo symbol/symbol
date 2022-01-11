@@ -53,8 +53,7 @@ module.exports = {
 		server.get('/restrictions/account/:address/merkle', (req, res, next) => {
 			const encodedAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const state = PacketType.accountRestrictionsStatePath;
-			return merkleUtils.requestTree(services, state,
-				encodedAddress).then(response => {
+			return merkleUtils.requestTree(services, state, encodedAddress).then(response => {
 				res.send(response);
 				next();
 			});
@@ -87,8 +86,7 @@ module.exports = {
 		server.get('/restrictions/mosaic/:compositeHash/merkle', (req, res, next) => {
 			const compositeHash = routeUtils.parseArgument(req.params, 'compositeHash', 'hash256');
 			const state = PacketType.mosaicRestrictionsStatePath;
-			return merkleUtils.requestTree(services, state,
-				compositeHash).then(response => {
+			return merkleUtils.requestTree(services, state, compositeHash).then(response => {
 				res.send(response);
 				next();
 			});

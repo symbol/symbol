@@ -1,9 +1,19 @@
 ---
-extends: airbnb
+env:
+  es6: true
+  es2020: true
 parserOptions:
   sourceType: module
 
 rules:
+  function-paren-newline:
+  - error
+  - multiline
+  function-call-argument-newline:
+  - off
+
+  no-console:
+  - 2
   indent:
   - error
   - tab
@@ -27,6 +37,11 @@ rules:
   - error
   - code: 140
 
+  max-classes-per-file:
+  - off
+  prefer-object-spread:
+  - off
+
   nonblock-statement-body-position:
   - error
   - below
@@ -47,8 +62,7 @@ rules:
   - props: false
   no-underscore-dangle:
   - error
-  - allow:
-    - _id # mongodb identifier
+  - allowAfterThis: true
 
   camelcase:
   - off # for consts, e.g. Foo_Bar

@@ -37,7 +37,7 @@ describe('node routes', () => {
 			connections: {
 				singleUse: () => new Promise(resolve => {
 					resolve({
-						pushPull: () => new Promise(innerResolve => innerResolve(packet))
+						pushPull: () => new Promise(innerResolve => { innerResolve(packet); })
 					});
 				})
 			},

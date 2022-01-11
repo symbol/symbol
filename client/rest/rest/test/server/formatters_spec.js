@@ -98,7 +98,9 @@ describe('formatters', () => {
 
 			// Assert: formatter doubles high part
 			assertJsonFormat(
-				object, '{"data":[{"current":{"height":[1,4],"scoreLow":[112233,17798],"scoreHigh":[4,6]}}],"pagination":{}}', undefined
+				object,
+				'{"data":[{"current":{"height":[1,4],"scoreLow":[112233,17798],"scoreHigh":[4,6]}}],"pagination":{}}',
+				undefined
 			);
 		});
 

@@ -260,7 +260,9 @@ describe('metadata db', () => {
 
 				// Act + Assert:
 				return runTestAndVerifyIds(
-					dbMetadata(), db => db.metadata(undefined, undefined, undefined, undefined, undefined, options), [30]
+					dbMetadata(),
+					db => db.metadata(undefined, undefined, undefined, undefined, undefined, options),
+					[30]
 				);
 			});
 
@@ -269,7 +271,9 @@ describe('metadata db', () => {
 
 				// Act + Assert:
 				return runTestAndVerifyIds(
-					dbMetadata(), db => db.metadata(undefined, undefined, undefined, undefined, undefined, options), [10]
+					dbMetadata(),
+					db => db.metadata(undefined, undefined, undefined, undefined, undefined, options),
+					[10]
 				);
 			});
 		});

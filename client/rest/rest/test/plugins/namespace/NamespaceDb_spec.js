@@ -54,8 +54,15 @@ describe('namespace db', () => {
 			sortDirection: -1
 		};
 
-		const createNamespace = (objectId, aliasType, level0, ownerAddress, registrationType,
-			latest = true, expirationHeight = { start: 1, end: 1000 }) => ({
+		const createNamespace = (
+			objectId,
+			aliasType,
+			level0,
+			ownerAddress,
+			registrationType,
+			latest = true,
+			expirationHeight = { start: 1, end: 1000 }
+		) => ({
 			_id: createObjectId(objectId),
 			meta: { latest },
 			namespace: {
@@ -285,16 +292,22 @@ describe('namespace db', () => {
 				options.sortDirection = 1;
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbNamespaces(),
-					db => db.namespaces(undefined, undefined, undefined, undefined, options), [[30, true]]);
+				return runTestAndVerifyIds(
+					dbNamespaces(),
+					db => db.namespaces(undefined, undefined, undefined, undefined, options),
+					[[30, true]]
+				);
 			});
 
 			it('lt', () => {
 				options.sortDirection = -1;
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbNamespaces(),
-					db => db.namespaces(undefined, undefined, undefined, undefined, options), [[10, true]]);
+				return runTestAndVerifyIds(
+					dbNamespaces(),
+					db => db.namespaces(undefined, undefined, undefined, undefined, options),
+					[[10, true]]
+				);
 			});
 		});
 	});
