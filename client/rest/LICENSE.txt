@@ -1,0 +1,3 @@
+Source code in this repository is variously licensed under the LGPL v3 license, or the Tech Bureau Commercial License. 
+Source code in a given file is licensed under the LGPL v3 license, unless otherwise noted at the beginning of the file or a
+LICENSE file present in the directory subtree declares a separate license.  The LGPL v3 license details are located under the COPYING.LESSER file.

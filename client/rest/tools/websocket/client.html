@@ -1,0 +1,226 @@
+<!--
+  ~ Copyright (c) 2016-present,
+  ~ Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+  ~
+  ~ This file is part of Catapult.
+  ~
+  ~ Catapult is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Catapult is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<html>
+	<head>
+		<title>WebSocket Test Harness</title>
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+		<style>
+			.web-socket-control {
+				margin: .5em;
+				padding: .375rem .75rem;;
+				border: 1px solid #ced4da;
+				border-radius: .25rem;
+			}
+
+			.flex-container, .host-input div {
+				display: flex;
+				align-items: top;
+			}
+			.form-header {
+				margin-bottom: 0;
+			}
+
+			.variable-header-column, .host-input div input {
+				flex-grow: 1;
+			}
+			.fixed-header-column, .host-input div select {
+				width: 115px;
+			}
+
+			.connected-badges {
+				float: left;
+			}
+			.connected-badges .badge {
+				display: block;
+			}
+
+			.channel-buttons {
+				display: flex;
+				flex-flow: row wrap;
+			}
+
+			.channel-buttons label {
+				flex-grow: 1;
+				flex-basis: 150px;
+			}
+
+			.list-group-sm .list-group-item {
+				padding: 3px 20px;
+				border-bottom: 0px;
+				border-left: 0px;
+				border-right: 0px;
+			}
+
+			.status-panel {
+				max-height: 400px;
+				width: 100%;
+				overflow-y: auto;
+			}
+			.status-panel th, .status-panel td {
+				font-size: small;
+			}
+
+			.table-fixed tbody td, .table-fixed thead tr th {
+				float: left;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" class="container-fluid">
+			<web-socket-control name="Connection 1"></web-socket-control>
+			<web-socket-control name="Connection 2"></web-socket-control>
+			<web-socket-control name="Connection 3"></web-socket-control>
+		</div>
+
+		<script type="text/x-template" id="web-socket-control-template">
+			<div class="web-socket-control">
+				<div class="row">
+					<div class="col">
+						<h5>{{ name }}</h5>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col">
+						<web-socket-connection-control @message="addMessage"></web-socket-connection-control>
+					</div>
+					<div class="col">
+						<status-messages-panel :messages="messages"></status-messages-panel>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script type="text/x-template" id="status-messages-panel-template">
+			<div class="status-panel">
+				<table class="table table-sm table-fixed status-container">
+					<thead>
+						<tr>
+							<th class="col-2">Timestamp</th>
+							<th class="col-2">Type</th>
+							<th class="col-8">Message</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="message in messages" :class="'table-' + message.level">
+							<td class="col-2">{{ message.timestamp }}</td>
+							<td class="col-2">{{ message.type }}</td>
+							<td class="col-8">
+								{{ message.message }}
+								<div v-if="'websocket' === message.type">{{ message.host }}</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</script>
+
+		<script type="text/x-template" id="web-socket-connection-control-template">
+			<div>
+				<template v-if="canConnect">
+					<form @submit.prevent="connect" class="form-header flex-container">
+						<div class="variable-header-column host-input">
+							<text-or-select-control v-model="host" :options="wellKnownHosts"></text-or-select-control>
+						</div>
+						<input type="submit" class="btn btn-primary mb-2 fixed-header-column" value="Connect"></input>
+					</form>
+				</template>
+				<template v-else>
+					<div class="flex-container">
+						<div class="connected-badges variable-header-column">
+							<div class="badge badge-info mb-2 mr-sm-2">HOST: {{host}}</div>
+							<div class="badge badge-success mb-2 mr-sm-2">UID: {{uid}}</div>
+						</div>
+
+						<form @submit.prevent="disconnect" class="form-header">
+							<input type="submit" class="btn btn-primary fixed-header-column" value="Disconnect"></input>
+						</form>
+					</div>
+
+					<subscription-selection-control v-if="uid" @message="sendMessage"></subscription-selection-control>
+				</template>
+			</div>
+		</script>
+
+		<script type="text/x-template" id="subscription-selection-control-template">
+			<div>
+				<form @submit.prevent="subscribe" class="form">
+					<text-or-select-control v-model="address" :options="wellKnownAddresses" ></text-or-select-control>
+
+					<div class="btn-group-toggle channel-buttons" data-toggle="buttons">
+						<label
+							v-for="channelInfo in channelInfos"
+							class="btn btn-outline-secondary btn-sm mb-2 ml-sm-2 mr-sm-2 btn-channel"
+							:class="{ active: channelInfo.active, disabled: channelInfo.disabled }">
+							<input type="checkbox"
+								autocomplete="=off"
+								:value="channelInfo.name"
+								:disabled="channelInfo.disabled"
+								v-model="selectedChannels" />
+							{{ channelInfo.name }}
+						</label>
+					</div>
+
+					<input
+						type="submit"
+						class="btn btn-primary"
+						:disabled="0 == selectedChannels.length"
+						value="Subscribe" />
+				</form>
+
+				<subscription-groups-control :groups="subscriptionGroups" @remove="unsubscribe"></subscription-groups-control>
+			</div>
+		</script>
+
+		<script type="text/x-template" id="text-or-select-control-template">
+			<div>
+				<select :value="value" @input="updateValue($event.target.value)" class="form-control mb-2 mr-sm-2">
+					<option v-for="option in options" :value="option.value">
+						{{ option.name }}
+					</option>
+				</select>
+
+				<input :value="value" @input="updateValue($event.target.value)" class="form-control mb-2 mr-sm-2" />
+			</div>
+		</script>
+
+		<script type="text/x-template" id="subscription-groups-control-template">
+			<ul class="list-group">
+				<li v-for="group in groups" class="list-group-item">
+					<span>{{ group.name }}</span>
+					<subscription-group-item :group="group" @remove="remove"></subscription-group-item>
+				</li>
+			</ul>
+		</script>
+
+		<script type="text/x-template" id="subscription-group-item-template">
+			<ul class="list-group list-group-sm">
+				<li v-for="subscription in group.subscriptions" class="list-group-item">
+					<button @click="remove(subscription)" class="btn btn-danger btn-sm mr-sm-2">Unsubscribe</button>
+					{{subscription.channel}}
+				</li>
+			</ul>
+		</script>
+
+		<script src="https://unpkg.com/vue"></script>
+		<script src="https://unpkg.com/big-integer"></script>
+		<script src="client.js"></script>
+	</body>
+</html>
