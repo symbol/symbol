@@ -53,7 +53,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanRegisterMultiplePlugin) {
 		// Act:
 		TransactionRegistry registry;
-		for (auto i : {123, 7, 222})
+		for (auto i : { 123, 7, 222 })
 			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
 		// Assert:
@@ -78,7 +78,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanFindRegistedPlugin) {
 		// Arrange:
 		TransactionRegistry registry;
-		for (auto i : {123, 7, 222})
+		for (auto i : { 123, 7, 222 })
 			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
 		// Act:
@@ -92,7 +92,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CannotFindUnregistedPlugin) {
 		// Arrange:
 		TransactionRegistry registry;
-		for (auto i : {123, 7, 222})
+		for (auto i : { 123, 7, 222 })
 			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
 		// Act:

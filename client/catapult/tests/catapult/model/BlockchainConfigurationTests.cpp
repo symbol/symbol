@@ -51,55 +51,55 @@ namespace catapult { namespace model {
 			using ConfigurationType = BlockchainConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {{"network",
-						 {{"identifier", "testnet"},
-						  {"nodeEqualityStrategy", "host"},
-						  {"nemesisSignerPublicKey", Nemesis_Signer_Public_Key},
-						  {"generationHashSeed", Nemesis_Generation_Hash_Seed},
-						  {"epochAdjustment", "1234567h"}}},
-						{"chain",
-						 {{"enableVerifiableState", "true"},
-						  {"enableVerifiableReceipts", "true"},
+				return { { "network",
+						   { { "identifier", "testnet" },
+							 { "nodeEqualityStrategy", "host" },
+							 { "nemesisSignerPublicKey", Nemesis_Signer_Public_Key },
+							 { "generationHashSeed", Nemesis_Generation_Hash_Seed },
+							 { "epochAdjustment", "1234567h" } } },
+						 { "chain",
+						   { { "enableVerifiableState", "true" },
+							 { "enableVerifiableReceipts", "true" },
 
-						  {"currencyMosaicId", "0x1234'AAAA"},
-						  {"harvestingMosaicId", "0x9876'BBBB"},
+							 { "currencyMosaicId", "0x1234'AAAA" },
+							 { "harvestingMosaicId", "0x9876'BBBB" },
 
-						  {"blockGenerationTargetTime", "10m"},
-						  {"blockTimeSmoothingFactor", "765"},
+							 { "blockGenerationTargetTime", "10m" },
+							 { "blockTimeSmoothingFactor", "765" },
 
-						  {"importanceGrouping", "444"},
-						  {"importanceActivityPercentage", "15"},
-						  {"maxRollbackBlocks", "720"},
-						  {"maxDifficultyBlocks", "15"},
-						  {"defaultDynamicFeeMultiplier", "9876"},
+							 { "importanceGrouping", "444" },
+							 { "importanceActivityPercentage", "15" },
+							 { "maxRollbackBlocks", "720" },
+							 { "maxDifficultyBlocks", "15" },
+							 { "defaultDynamicFeeMultiplier", "9876" },
 
-						  {"maxTransactionLifetime", "30m"},
-						  {"maxBlockFutureTime", "21m"},
+							 { "maxTransactionLifetime", "30m" },
+							 { "maxBlockFutureTime", "21m" },
 
-						  {"initialCurrencyAtomicUnits", "77'000'000'000"},
-						  {"maxMosaicAtomicUnits", "66'000'000'000"},
+							 { "initialCurrencyAtomicUnits", "77'000'000'000" },
+							 { "maxMosaicAtomicUnits", "66'000'000'000" },
 
-						  {"totalChainImportance", "88'000'000'000"},
-						  {"minHarvesterBalance", "4'000'000'000"},
-						  {"maxHarvesterBalance", "9'000'000'000"},
-						  {"minVoterBalance", "2'000'000'000"},
+							 { "totalChainImportance", "88'000'000'000" },
+							 { "minHarvesterBalance", "4'000'000'000" },
+							 { "maxHarvesterBalance", "9'000'000'000" },
+							 { "minVoterBalance", "2'000'000'000" },
 
-						  {"votingSetGrouping", "234"},
-						  {"maxVotingKeysPerAccount", "36"},
-						  {"minVotingKeyLifetime", "21"},
-						  {"maxVotingKeyLifetime", "123"},
+							 { "votingSetGrouping", "234" },
+							 { "maxVotingKeysPerAccount", "36" },
+							 { "minVotingKeyLifetime", "21" },
+							 { "maxVotingKeyLifetime", "123" },
 
-						  {"harvestBeneficiaryPercentage", "56"},
-						  {"harvestNetworkPercentage", "21"},
-						  {"harvestNetworkFeeSinkAddressV1", Harvest_Network_Fee_Sink_Address_V1},
-						  {"harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address},
+							 { "harvestBeneficiaryPercentage", "56" },
+							 { "harvestNetworkPercentage", "21" },
+							 { "harvestNetworkFeeSinkAddressV1", Harvest_Network_Fee_Sink_Address_V1 },
+							 { "harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address },
 
-						  {"maxTransactionsPerBlock", "120"}}},
-						{"fork_heights", {{"totalVotingBalanceCalculationFix", "998877"}, {"treasuryReissuance", "11998877"}}},
-						{"treasury_reissuance_transaction_signatures",
-						 {{Signature_1, "true"}, {Signature_2, "false"}, {Signature_3, "true"}}},
-						{"plugin:alpha", {{"foo", "alpha"}}},
-						{"plugin:beta", {{"bar", "11"}, {"baz", "zeta"}}}};
+							 { "maxTransactionsPerBlock", "120" } } },
+						 { "fork_heights", { { "totalVotingBalanceCalculationFix", "998877" }, { "treasuryReissuance", "11998877" } } },
+						 { "treasury_reissuance_transaction_signatures",
+						   { { Signature_1, "true" }, { Signature_2, "false" }, { Signature_3, "true" } } },
+						 { "plugin:alpha", { { "foo", "alpha" } } },
+						 { "plugin:beta", { { "bar", "11" }, { "baz", "zeta" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string& section) {
@@ -210,18 +210,18 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(
 						std::vector<Signature>(
-								{utils::ParseByteArray<Signature>(Signature_1), utils::ParseByteArray<Signature>(Signature_3)}),
+								{ utils::ParseByteArray<Signature>(Signature_1), utils::ParseByteArray<Signature>(Signature_3) }),
 						config.TreasuryReissuanceTransactionSignatures);
 
 				EXPECT_EQ(2u, config.Plugins.size());
 				const auto& pluginAlphaBag = config.Plugins.find("alpha")->second;
 				EXPECT_EQ(1u, pluginAlphaBag.size());
-				EXPECT_EQ("alpha", pluginAlphaBag.get<std::string>({"", "foo"}));
+				EXPECT_EQ("alpha", pluginAlphaBag.get<std::string>({ "", "foo" }));
 
 				const auto& pluginBetaBag = config.Plugins.find("beta")->second;
 				EXPECT_EQ(2u, pluginBetaBag.size());
-				EXPECT_EQ(11u, pluginBetaBag.get<uint64_t>({"", "bar"}));
-				EXPECT_EQ("zeta", pluginBetaBag.get<std::string>({"", "baz"}));
+				EXPECT_EQ(11u, pluginBetaBag.get<uint64_t>({ "", "bar" }));
+				EXPECT_EQ("zeta", pluginBetaBag.get<std::string>({ "", "baz" }));
 			}
 		};
 	}
@@ -248,7 +248,7 @@ namespace catapult { namespace model {
 
 			// - create the properties and add the desired section
 			auto properties = Traits::CreateProperties();
-			properties.insert({section, {{"foo", "1234"}}});
+			properties.insert({ section, { { "foo", "1234" } } });
 
 			// Act + Assert: the load failed
 			EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(properties)), catapult_invalid_argument);
@@ -257,14 +257,14 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, ParseFailsWhenPluginSectionNameIsNotWellFormed) {
 		// Arrange: section name must start with 'plugin:' and have a name
-		auto invalidSectionNames = {"", "plug", "plugina", "plug:a", "plugina:a", "a plugin:", "a plugin:b", "plugin:", " plugin:a"};
+		auto invalidSectionNames = { "", "plug", "plugina", "plug:a", "plugina:a", "a plugin:", "a plugin:b", "plugin:", " plugin:a" };
 		for (const auto& section : invalidSectionNames)
 			AssertCannotLoadWithSection(section);
 	}
 
 	TEST(TEST_CLASS, ParseFailsWhenPluginSectionNameContainsInvalidPluginName) {
 		// Arrange:
-		auto invalidPluginNames = {" ", "$$$", "some long name", "Zeta", "ZETA"};
+		auto invalidPluginNames = { " ", "$$$", "some long name", "Zeta", "ZETA" };
 		for (const auto& pluginName : invalidPluginNames)
 			AssertCannotLoadWithSection(std::string("plugin:") + pluginName);
 	}
@@ -272,13 +272,13 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, ParseSucceedsWhenPluginSectionNameContainsValidPluginName) {
 		// Arrange:
 		using Traits = BlockchainConfigurationTraits;
-		auto validPluginNames = {"a", "j", "z", ".", "zeta", "some.long.name"};
+		auto validPluginNames = { "a", "j", "z", ".", "zeta", "some.long.name" };
 		for (const auto& pluginName : validPluginNames) {
 			CATAPULT_LOG(debug) << "attempting to load configuration with plugin named " << pluginName;
 
 			// Act: create the properties and add the desired section
 			auto properties = Traits::CreateProperties();
-			properties.insert({std::string("plugin:") + pluginName, {{"foo", "1234"}}});
+			properties.insert({ std::string("plugin:") + pluginName, { { "foo", "1234" } } });
 			auto config = Traits::ConfigurationType::LoadFromBag(std::move(properties));
 
 			// Assert:
@@ -286,7 +286,7 @@ namespace catapult { namespace model {
 
 			const auto& pluginBag = config.Plugins.find(pluginName)->second;
 			EXPECT_EQ(1u, pluginBag.size());
-			EXPECT_EQ(1234u, pluginBag.get<uint64_t>({"", "foo"}));
+			EXPECT_EQ(1234u, pluginBag.get<uint64_t>({ "", "foo" }));
 		}
 	}
 

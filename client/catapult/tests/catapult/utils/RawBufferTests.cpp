@@ -171,8 +171,8 @@ namespace catapult { namespace utils {
 
 		// Act:
 		using ValueType = typename TTraits::ValueType;
-		auto result1 = Foo<ValueType>({input.data(), input.size()}); // should call BasicRawBuffer overload
-		auto result2 = Foo<ValueType>({{input}, {input.data(), input.size()}}); // should call initializer_list overload
+		auto result1 = Foo<ValueType>({ input.data(), input.size() }); // should call BasicRawBuffer overload
+		auto result2 = Foo<ValueType>({ { input }, { input.data(), input.size() } }); // should call initializer_list overload
 
 		// Assert:
 		EXPECT_EQ(1u, result1);

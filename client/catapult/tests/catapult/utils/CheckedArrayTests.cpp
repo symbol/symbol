@@ -217,7 +217,7 @@ namespace catapult { namespace utils {
 		}
 
 		std::unordered_set<std::string> GetEqualTags() {
-			return {Default_Key, "copy"};
+			return { Default_Key, "copy" };
 		}
 	}
 

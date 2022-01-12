@@ -79,7 +79,7 @@ namespace catapult { namespace model {
 
 		// step 4: concatenate (3) and the checksum of (3)
 		Hash256 step3Hash;
-		crypto::Sha3_256(RawBuffer{decoded.data(), Hash160::Size + 1}, step3Hash);
+		crypto::Sha3_256(RawBuffer{ decoded.data(), Hash160::Size + 1 }, step3Hash);
 		std::copy(step3Hash.cbegin(), step3Hash.cbegin() + Checksum_Size, decoded.begin() + Hash160::Size + 1);
 
 		return decoded;
@@ -91,7 +91,7 @@ namespace catapult { namespace model {
 
 		Hash256 hash;
 		auto checksumBegin = Address::Size - Checksum_Size;
-		crypto::Sha3_256(RawBuffer{address.data(), checksumBegin}, hash);
+		crypto::Sha3_256(RawBuffer{ address.data(), checksumBegin }, hash);
 
 		return std::equal(hash.begin(), hash.begin() + Checksum_Size, address.begin() + checksumBegin);
 	}

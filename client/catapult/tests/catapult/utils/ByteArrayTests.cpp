@@ -108,15 +108,15 @@ namespace catapult { namespace utils {
 		TestArray array;
 
 		// Assert:
-		AssertContents({{0, 0, 0, 0, 0, 0, 0, 0}}, array);
+		AssertContents({ { 0, 0, 0, 0, 0, 0, 0, 0 } }, array);
 	}
 
 	TEST(TEST_CLASS, CanStoreArray) {
 		// Arrange:
-		TestArray array{{1, 2, 8, 7, 6, 2, 9, 0}};
+		TestArray array{ { 1, 2, 8, 7, 6, 2, 9, 0 } };
 
 		// Act + Assert:
-		AssertContents({{1, 2, 8, 7, 6, 2, 9, 0}}, array);
+		AssertContents({ { 1, 2, 8, 7, 6, 2, 9, 0 } }, array);
 	}
 
 	// endregion
@@ -125,26 +125,26 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanCopyAssign) {
 		// Arrange:
-		TestArray array{{1, 2, 8, 7, 6, 2, 9, 0}};
-		TestArray newArray{{5, 6, 7, 8, 0, 1, 2, 9}};
+		TestArray array{ { 1, 2, 8, 7, 6, 2, 9, 0 } };
+		TestArray newArray{ { 5, 6, 7, 8, 0, 1, 2, 9 } };
 
 		// Act:
 		const auto& assignResult = (array = newArray);
 
 		// Assert:
-		AssertContents({{5, 6, 7, 8, 0, 1, 2, 9}}, newArray);
-		AssertContents({{5, 6, 7, 8, 0, 1, 2, 9}}, array);
+		AssertContents({ { 5, 6, 7, 8, 0, 1, 2, 9 } }, newArray);
+		AssertContents({ { 5, 6, 7, 8, 0, 1, 2, 9 } }, array);
 		EXPECT_EQ(&array, &assignResult);
 	}
 
 	TEST(TEST_CLASS, CanCopyConstruct) {
 		// Act:
-		TestArray array{{1, 2, 8, 7, 6, 2, 9, 0}};
+		TestArray array{ { 1, 2, 8, 7, 6, 2, 9, 0 } };
 		TestArray newArray(array);
 
 		// Assert:
-		AssertContents({{1, 2, 8, 7, 6, 2, 9, 0}}, newArray);
-		AssertContents({{1, 2, 8, 7, 6, 2, 9, 0}}, array);
+		AssertContents({ { 1, 2, 8, 7, 6, 2, 9, 0 } }, newArray);
+		AssertContents({ { 1, 2, 8, 7, 6, 2, 9, 0 } }, array);
 	}
 
 	// endregion
@@ -153,7 +153,9 @@ namespace catapult { namespace utils {
 
 	namespace {
 		std::vector<TestArray> GenerateIncreasingArrays() {
-			return {TestArray{{1, 1, 1, 1, 1, 1, 1, 1}}, TestArray{{2, 2, 2, 2, 1, 1, 1, 1}}, TestArray{{2, 2, 2, 2, 1, 1, 1, 2}}};
+			return { TestArray{ { 1, 1, 1, 1, 1, 1, 1, 1 } },
+					 TestArray{ { 2, 2, 2, 2, 1, 1, 1, 1 } },
+					 TestArray{ { 2, 2, 2, 2, 1, 1, 1, 2 } } };
 		}
 	}
 
@@ -165,7 +167,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanOutputByteArray) {
 		// Arrange:
-		TestArray array{{1, 2, 8, 7, 6, 2, 9, 0}};
+		TestArray array{ { 1, 2, 8, 7, 6, 2, 9, 0 } };
 
 		// Act:
 		auto str = test::ToString(array);

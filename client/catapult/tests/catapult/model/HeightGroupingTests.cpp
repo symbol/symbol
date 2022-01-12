@@ -38,7 +38,7 @@ namespace catapult { namespace model {
 			static constexpr uint64_t Grouping = 1;
 
 			static RawHeightToRawHeightMap GetHeightToGroupedHeightMap() {
-				return {{1, 1}, {2, 1}, {358, 357}, {359, 358}, {360, 359}, {361, 360}, {1074, 1073}, {1095, 1094}};
+				return { { 1, 1 }, { 2, 1 }, { 358, 357 }, { 359, 358 }, { 360, 359 }, { 361, 360 }, { 1074, 1073 }, { 1095, 1094 } };
 			}
 		};
 
@@ -46,7 +46,8 @@ namespace catapult { namespace model {
 			static constexpr uint64_t Grouping = 2;
 
 			static RawHeightToRawHeightMap GetHeightToGroupedHeightMap() {
-				return {{1, 1}, {2, 1}, {3, 2}, {4, 2}, {5, 4}, {358, 356}, {359, 358}, {360, 358}, {361, 360}, {1074, 1072}, {1095, 1094}};
+				return { { 1, 1 },	   { 2, 1 },	 { 3, 2 },	   { 4, 2 },	   { 5, 4 },	  { 358, 356 },
+						 { 359, 358 }, { 360, 358 }, { 361, 360 }, { 1074, 1072 }, { 1095, 1094 } };
 			}
 		};
 
@@ -54,7 +55,7 @@ namespace catapult { namespace model {
 			static constexpr uint64_t Grouping = 359;
 
 			static RawHeightToRawHeightMap GetHeightToGroupedHeightMap() {
-				return {{1, 1}, {2, 1}, {358, 1}, {359, 1}, {360, 359}, {361, 359}, {1074, 718}, {1095, 1077}};
+				return { { 1, 1 }, { 2, 1 }, { 358, 1 }, { 359, 1 }, { 360, 359 }, { 361, 359 }, { 1074, 718 }, { 1095, 1077 } };
 			}
 		};
 
@@ -62,7 +63,7 @@ namespace catapult { namespace model {
 			static constexpr uint64_t Grouping = 123;
 
 			static RawHeightToRawHeightMap GetHeightToGroupedHeightMap() {
-				return {{1, 1}, {2, 1}, {122, 1}, {123, 1}, {124, 123}, {125, 123}, {365, 246}, {400, 369}};
+				return { { 1, 1 }, { 2, 1 }, { 122, 1 }, { 123, 1 }, { 124, 123 }, { 125, 123 }, { 365, 246 }, { 400, 369 } };
 			}
 		};
 
@@ -122,12 +123,12 @@ namespace catapult { namespace model {
 	// region HeightGroupingFacade
 
 	TEST(TEST_CLASS, HeightGroupingFacade_CannotCreateAroundInvalidGroupedHeight) {
-		for (auto rawHeight : std::initializer_list<Height::ValueType>{0, 2, 99, 101, 150})
+		for (auto rawHeight : std::initializer_list<Height::ValueType>{ 0, 2, 99, 101, 150 })
 			EXPECT_THROW(HeightGroupingFacade<GroupedHeight>(GroupedHeight(rawHeight), 100), catapult_invalid_argument);
 	}
 
 	TEST(TEST_CLASS, HeightGroupingFacade_CannotCreateAroundZeroGrouping) {
-		for (auto rawHeight : std::initializer_list<Height::ValueType>{1, 100, 200})
+		for (auto rawHeight : std::initializer_list<Height::ValueType>{ 1, 100, 200 })
 			EXPECT_THROW(HeightGroupingFacade<GroupedHeight>(GroupedHeight(rawHeight), 0), catapult_invalid_argument);
 	}
 

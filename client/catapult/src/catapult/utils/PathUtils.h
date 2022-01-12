@@ -86,6 +86,6 @@ namespace catapult { namespace utils {
 				break;
 		}
 
-		return {pDirectoryName, static_cast<size_t>(pCh - pDirectoryName)};
+		return { pDirectoryName, static_cast<size_t>(pCh - pDirectoryName) };
 	}
 }}

@@ -66,7 +66,7 @@ namespace catapult { namespace model {
 		auto encoded = std::string(Encoded_Address);
 
 		// Act + Assert: set invalid chars
-		for (auto ch : {'(', '1', '?'}) {
+		for (auto ch : { '(', '1', '?' }) {
 			encoded[4] = ch;
 			AssertCannotCreateAddress(encoded);
 		}

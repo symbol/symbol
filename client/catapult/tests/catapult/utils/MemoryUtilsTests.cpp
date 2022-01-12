@@ -115,14 +115,14 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, ConditionalMemcpyProcessesNonzeroSizeOperation) {
 		// Arrange:
-		std::array<uint8_t, 4> src{{9, 5, 7, 6}};
-		std::array<uint8_t, 4> dest{{1, 2, 3, 4}};
+		std::array<uint8_t, 4> src{ { 9, 5, 7, 6 } };
+		std::array<uint8_t, 4> dest{ { 1, 2, 3, 4 } };
 
 		// Act:
 		memcpy_cond(&dest[0], &src[0], 2);
 
 		// Assert:
-		std::array<uint8_t, 4> expected{{9, 5, 3, 4}};
+		std::array<uint8_t, 4> expected{ { 9, 5, 3, 4 } };
 		EXPECT_EQ(expected, dest);
 	}
 

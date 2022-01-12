@@ -31,7 +31,7 @@ namespace catapult { namespace model {
 		auto heightDependentAddress = HeightDependentAddress();
 
 		// Act + Assert:
-		for (auto height : std::initializer_list<Height::ValueType>{0, 1, 99, 100, 101, 140, 141, 142})
+		for (auto height : std::initializer_list<Height::ValueType>{ 0, 1, 99, 100, 101, 140, 141, 142 })
 			EXPECT_EQ(Address(), heightDependentAddress.get(Height(height))) << "height " << height;
 	}
 
@@ -41,7 +41,7 @@ namespace catapult { namespace model {
 		auto heightDependentAddress = HeightDependentAddress(addresses[0]);
 
 		// Act + Assert:
-		for (auto height : std::initializer_list<Height::ValueType>{0, 1, 99, 100, 101, 140, 141, 142})
+		for (auto height : std::initializer_list<Height::ValueType>{ 0, 1, 99, 100, 101, 140, 141, 142 })
 			EXPECT_EQ(addresses[0], heightDependentAddress.get(Height(height))) << "height " << height;
 	}
 
@@ -55,16 +55,16 @@ namespace catapult { namespace model {
 		trySetResults[1] = heightDependentAddress.trySet(addresses[2], Height(141));
 
 		// Sanity:
-		EXPECT_EQ(std::vector<bool>({true, true}), trySetResults);
+		EXPECT_EQ(std::vector<bool>({ true, true }), trySetResults);
 
 		// Act + Assert:
-		for (auto height : std::initializer_list<Height::ValueType>{1, 99})
+		for (auto height : std::initializer_list<Height::ValueType>{ 1, 99 })
 			EXPECT_EQ(addresses[1], heightDependentAddress.get(Height(height))) << "height " << height;
 
-		for (auto height : std::initializer_list<Height::ValueType>{100, 101, 140})
+		for (auto height : std::initializer_list<Height::ValueType>{ 100, 101, 140 })
 			EXPECT_EQ(addresses[2], heightDependentAddress.get(Height(height))) << "height " << height;
 
-		for (auto height : std::initializer_list<Height::ValueType>{0, 141, 142})
+		for (auto height : std::initializer_list<Height::ValueType>{ 0, 141, 142 })
 			EXPECT_EQ(addresses[0], heightDependentAddress.get(Height(height))) << "height " << height;
 	}
 
@@ -80,16 +80,16 @@ namespace catapult { namespace model {
 		trySetResults[3] = heightDependentAddress.trySet(addresses[4], Height(141));
 
 		// Sanity:
-		EXPECT_EQ(std::vector<bool>({false, true, false, true}), trySetResults);
+		EXPECT_EQ(std::vector<bool>({ false, true, false, true }), trySetResults);
 
 		// Act + Assert:
-		for (auto height : std::initializer_list<Height::ValueType>{1, 99})
+		for (auto height : std::initializer_list<Height::ValueType>{ 1, 99 })
 			EXPECT_EQ(addresses[2], heightDependentAddress.get(Height(height))) << "height " << height;
 
-		for (auto height : std::initializer_list<Height::ValueType>{100, 101, 140})
+		for (auto height : std::initializer_list<Height::ValueType>{ 100, 101, 140 })
 			EXPECT_EQ(addresses[4], heightDependentAddress.get(Height(height))) << "height " << height;
 
-		for (auto height : std::initializer_list<Height::ValueType>{0, 141, 142})
+		for (auto height : std::initializer_list<Height::ValueType>{ 0, 141, 142 })
 			EXPECT_EQ(addresses[0], heightDependentAddress.get(Height(height))) << "height " << height;
 	}
 

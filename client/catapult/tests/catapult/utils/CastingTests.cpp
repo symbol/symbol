@@ -138,7 +138,7 @@ namespace catapult { namespace utils {
 
 			// Act: convert all values in TestEnum
 			TUnderlyingType expected = 0;
-			for (auto value : {TestEnum::Zero, TestEnum::Two, TestEnum::Four}) {
+			for (auto value : { TestEnum::Zero, TestEnum::Two, TestEnum::Four }) {
 				auto rawValue = to_underlying_type(value);
 
 				// Assert: the values are the same

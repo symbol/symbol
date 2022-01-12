@@ -49,19 +49,13 @@ namespace catapult { namespace model {
 #pragma pack(pop)
 
 		std::vector<uint8_t> CreateExpectedSerializedDataForHashTests(const std::vector<uint8_t>& receiptsData) {
-			std::vector<uint8_t> allData{
-					0x01,
-					0x00, // version
-					0x43,
-					0xE1, // type
-					0x22,
-					0x02,
-					0x00,
-					0x00, // source
-					0x33,
-					0x03,
-					0x00,
-					0x00};
+			std::vector<uint8_t> allData{ 0x01,
+										  0x00, // version
+										  0x43,
+										  0xE1, // type
+										  0x22, 0x02, 0x00,
+										  0x00, // source
+										  0x33, 0x03, 0x00, 0x00 };
 
 			if (!receiptsData.empty()) {
 				auto headerSize = allData.size();
@@ -79,7 +73,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateWithZeroAttachedReceipts) {
 		// Act:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
 
 		// Assert: source
 		EXPECT_EQ(0x222u, transactionStatement.source().PrimaryId);
@@ -91,7 +85,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateHashWithZeroAttachedReceipts) {
 		// Arrange:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
 
 		// Act:
 		auto hash = transactionStatement.hash();
@@ -110,10 +104,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateWithSingleAttachedReceipt) {
 		// Arrange:
-		CustomReceipt<4> receipt(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}});
+		CustomReceipt<4> receipt(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } });
 
 		// Act:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
 		transactionStatement.addReceipt(receipt);
 
 		// Assert: source
@@ -127,15 +121,15 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateHashWithSingleAttachedReceipt) {
 		// Arrange:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
-		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}}));
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
+		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } }));
 
 		// Act:
 		auto hash = transactionStatement.hash();
 
 		// Assert:
 		Hash256 expectedHash;
-		auto expectedSerializedData = CreateExpectedSerializedDataForHashTests({0x02, 0x00, 0x04, 0x00, 0xAB, 0xFA, 0xCE, 0x55});
+		auto expectedSerializedData = CreateExpectedSerializedDataForHashTests({ 0x02, 0x00, 0x04, 0x00, 0xAB, 0xFA, 0xCE, 0x55 });
 		crypto::Sha3_256(expectedSerializedData, expectedHash);
 
 		EXPECT_EQ(expectedHash, hash);
@@ -147,10 +141,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateWithMultipleDuplicateAttachedReceipts) {
 		// Arrange:
-		CustomReceipt<4> receipt(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}});
+		CustomReceipt<4> receipt(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } });
 
 		// Act:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
 		transactionStatement.addReceipt(receipt);
 		transactionStatement.addReceipt(receipt);
 		transactionStatement.addReceipt(receipt);
@@ -168,10 +162,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateHashWithMultipleDuplicateAttachedReceipts) {
 		// Arrange:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
-		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}}));
-		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}}));
-		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}}));
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
+		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } }));
+		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } }));
+		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } }));
 
 		// Act:
 		auto hash = transactionStatement.hash();
@@ -179,8 +173,8 @@ namespace catapult { namespace model {
 		// Assert:
 		Hash256 expectedHash;
 		auto expectedSerializedData =
-				CreateExpectedSerializedDataForHashTests({0x02, 0x00, 0x04, 0x00, 0xAB, 0xFA, 0xCE, 0x55, 0x02, 0x00, 0x04, 0x00,
-														  0xAB, 0xFA, 0xCE, 0x55, 0x02, 0x00, 0x04, 0x00, 0xAB, 0xFA, 0xCE, 0x55});
+				CreateExpectedSerializedDataForHashTests({ 0x02, 0x00, 0x04, 0x00, 0xAB, 0xFA, 0xCE, 0x55, 0x02, 0x00, 0x04, 0x00,
+														   0xAB, 0xFA, 0xCE, 0x55, 0x02, 0x00, 0x04, 0x00, 0xAB, 0xFA, 0xCE, 0x55 });
 		crypto::Sha3_256(expectedSerializedData, expectedHash);
 
 		EXPECT_EQ(expectedHash, hash);
@@ -192,12 +186,12 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateWithMultipleAttachedReceipts_InOrder) {
 		// Arrange:
-		CustomReceipt<3> receipt1(std::array<uint8_t, 3>{{0x39, 0x62, 0x19}});
-		CustomReceipt<4> receipt2(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}});
-		CustomReceipt<5> receipt3(std::array<uint8_t, 5>{{0x23, 0x03, 0x82, 0x94, 0x70}});
+		CustomReceipt<3> receipt1(std::array<uint8_t, 3>{ { 0x39, 0x62, 0x19 } });
+		CustomReceipt<4> receipt2(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } });
+		CustomReceipt<5> receipt3(std::array<uint8_t, 5>{ { 0x23, 0x03, 0x82, 0x94, 0x70 } });
 
 		// Act:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
 		transactionStatement.addReceipt(receipt1);
 		transactionStatement.addReceipt(receipt2);
 		transactionStatement.addReceipt(receipt3);
@@ -215,10 +209,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateHashWithMultipleAttachedReceipts_InOrder) {
 		// Arrange:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
-		transactionStatement.addReceipt(CustomReceipt<3>(std::array<uint8_t, 3>{{0x39, 0x62, 0x19}}));
-		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}}));
-		transactionStatement.addReceipt(CustomReceipt<5>(std::array<uint8_t, 5>{{0x23, 0x03, 0x82, 0x94, 0x70}}));
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
+		transactionStatement.addReceipt(CustomReceipt<3>(std::array<uint8_t, 3>{ { 0x39, 0x62, 0x19 } }));
+		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } }));
+		transactionStatement.addReceipt(CustomReceipt<5>(std::array<uint8_t, 5>{ { 0x23, 0x03, 0x82, 0x94, 0x70 } }));
 
 		// Act:
 		auto hash = transactionStatement.hash();
@@ -226,8 +220,8 @@ namespace catapult { namespace model {
 		// Assert:
 		Hash256 expectedHash;
 		auto expectedSerializedData =
-				CreateExpectedSerializedDataForHashTests({0x02, 0x00, 0x03, 0x00, 0x39, 0x62, 0x19, 0x02, 0x00, 0x04, 0x00, 0xAB,
-														  0xFA, 0xCE, 0x55, 0x02, 0x00, 0x05, 0x00, 0x23, 0x03, 0x82, 0x94, 0x70});
+				CreateExpectedSerializedDataForHashTests({ 0x02, 0x00, 0x03, 0x00, 0x39, 0x62, 0x19, 0x02, 0x00, 0x04, 0x00, 0xAB,
+														   0xFA, 0xCE, 0x55, 0x02, 0x00, 0x05, 0x00, 0x23, 0x03, 0x82, 0x94, 0x70 });
 		crypto::Sha3_256(expectedSerializedData, expectedHash);
 
 		EXPECT_EQ(expectedHash, hash);
@@ -239,15 +233,15 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateWithMultipleAttachedReceipts_OutOfOrder) {
 		// Arrange:
-		CustomReceipt<3> receipt1(std::array<uint8_t, 3>{{0x39, 0x62, 0x19}});
-		CustomReceipt<5> receipt2(std::array<uint8_t, 5>{{0x23, 0x03, 0x82, 0x94, 0x70}});
-		CustomReceipt<4> receipt3(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}});
-		CustomReceipt<3> receipt4(std::array<uint8_t, 3>{{0x00, 0xDD, 0xDD}});
-		CustomReceipt<4> receipt5(std::array<uint8_t, 4>{{0x00, 0xCC, 0xCC, 0xCC}});
-		CustomReceipt<3> receipt6(std::array<uint8_t, 3>{{0x00, 0xBB, 0xBB}});
+		CustomReceipt<3> receipt1(std::array<uint8_t, 3>{ { 0x39, 0x62, 0x19 } });
+		CustomReceipt<5> receipt2(std::array<uint8_t, 5>{ { 0x23, 0x03, 0x82, 0x94, 0x70 } });
+		CustomReceipt<4> receipt3(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } });
+		CustomReceipt<3> receipt4(std::array<uint8_t, 3>{ { 0x00, 0xDD, 0xDD } });
+		CustomReceipt<4> receipt5(std::array<uint8_t, 4>{ { 0x00, 0xCC, 0xCC, 0xCC } });
+		CustomReceipt<3> receipt6(std::array<uint8_t, 3>{ { 0x00, 0xBB, 0xBB } });
 
 		// Act:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
 		transactionStatement.addReceipt(receipt1);
 		transactionStatement.addReceipt(receipt2);
 		transactionStatement.addReceipt(receipt3);
@@ -271,13 +265,13 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateHashWithMultipleAttachedReceipts_OutOfOrder) {
 		// Arrange:
-		auto transactionStatement = TransactionStatement({0x222, 0x333});
-		transactionStatement.addReceipt(CustomReceipt<3>(std::array<uint8_t, 3>{{0x39, 0x62, 0x19}}));
-		transactionStatement.addReceipt(CustomReceipt<5>(std::array<uint8_t, 5>{{0x23, 0x03, 0x82, 0x94, 0x70}}));
-		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{{0xAB, 0xFA, 0xCE, 0x55}}));
-		transactionStatement.addReceipt(CustomReceipt<3>(std::array<uint8_t, 3>{{0x00, 0xDD, 0xDD}}));
-		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{{0x00, 0xCC, 0xCC, 0xCC}}));
-		transactionStatement.addReceipt(CustomReceipt<3>(std::array<uint8_t, 3>{{0x00, 0xBB, 0xBB}}));
+		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
+		transactionStatement.addReceipt(CustomReceipt<3>(std::array<uint8_t, 3>{ { 0x39, 0x62, 0x19 } }));
+		transactionStatement.addReceipt(CustomReceipt<5>(std::array<uint8_t, 5>{ { 0x23, 0x03, 0x82, 0x94, 0x70 } }));
+		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{ { 0xAB, 0xFA, 0xCE, 0x55 } }));
+		transactionStatement.addReceipt(CustomReceipt<3>(std::array<uint8_t, 3>{ { 0x00, 0xDD, 0xDD } }));
+		transactionStatement.addReceipt(CustomReceipt<4>(std::array<uint8_t, 4>{ { 0x00, 0xCC, 0xCC, 0xCC } }));
+		transactionStatement.addReceipt(CustomReceipt<3>(std::array<uint8_t, 3>{ { 0x00, 0xBB, 0xBB } }));
 
 		// Act:
 		auto hash = transactionStatement.hash();
@@ -285,9 +279,9 @@ namespace catapult { namespace model {
 		// Assert: receipts are sorted (by type followed by add order) prior to hashing
 		Hash256 expectedHash;
 		auto expectedSerializedData = CreateExpectedSerializedDataForHashTests(
-				{0x02, 0x00, 0x03, 0x00, 0x39, 0x62, 0x19, 0x02, 0x00, 0x03, 0x00, 0x00, 0xDD, 0xDD, 0x02, 0x00,
-				 0x03, 0x00, 0x00, 0xBB, 0xBB, 0x02, 0x00, 0x04, 0x00, 0xAB, 0xFA, 0xCE, 0x55, 0x02, 0x00, 0x04,
-				 0x00, 0x00, 0xCC, 0xCC, 0xCC, 0x02, 0x00, 0x05, 0x00, 0x23, 0x03, 0x82, 0x94, 0x70});
+				{ 0x02, 0x00, 0x03, 0x00, 0x39, 0x62, 0x19, 0x02, 0x00, 0x03, 0x00, 0x00, 0xDD, 0xDD, 0x02, 0x00,
+				  0x03, 0x00, 0x00, 0xBB, 0xBB, 0x02, 0x00, 0x04, 0x00, 0xAB, 0xFA, 0xCE, 0x55, 0x02, 0x00, 0x04,
+				  0x00, 0x00, 0xCC, 0xCC, 0xCC, 0x02, 0x00, 0x05, 0x00, 0x23, 0x03, 0x82, 0x94, 0x70 });
 		crypto::Sha3_256(expectedSerializedData, expectedHash);
 
 		EXPECT_EQ(expectedHash, hash);

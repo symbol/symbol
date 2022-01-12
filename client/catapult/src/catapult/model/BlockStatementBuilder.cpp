@@ -24,7 +24,7 @@
 namespace catapult { namespace model {
 
 	BlockStatementBuilder::BlockStatementBuilder()
-			: m_activeSource({0, 0})
+			: m_activeSource({ 0, 0 })
 			, m_pStatement(std::make_unique<BlockStatement>()) {
 	}
 
@@ -40,7 +40,7 @@ namespace catapult { namespace model {
 		if (0 == m_activeSource.PrimaryId)
 			return;
 
-		setSource({m_activeSource.PrimaryId - 1, 0});
+		setSource({ m_activeSource.PrimaryId - 1, 0 });
 		auto pTruncatedStatement = std::make_unique<BlockStatement>();
 		DeepCopyTo(*pTruncatedStatement, *m_pStatement, m_activeSource.PrimaryId);
 		m_pStatement = std::move(pTruncatedStatement);

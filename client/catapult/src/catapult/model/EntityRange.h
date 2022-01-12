@@ -211,7 +211,7 @@ namespace catapult { namespace model {
 			}
 
 			SingleBufferRange copy() const {
-				return SingleBufferRange(reinterpret_cast<const uint8_t*>(m_pSingleEntity.get()), SubRange::totalSize(), {0}, 1);
+				return SingleBufferRange(reinterpret_cast<const uint8_t*>(m_pSingleEntity.get()), SubRange::totalSize(), { 0 }, 1);
 			}
 
 		private:

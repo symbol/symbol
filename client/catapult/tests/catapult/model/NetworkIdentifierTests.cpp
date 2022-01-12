@@ -81,11 +81,11 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, UniqueNetworkFingerprint_CanCreateAroundNetworkIdentifierAndNetworkGenerationHashSeed) {
 		// Act:
-		auto fingerprint = UniqueNetworkFingerprint(static_cast<NetworkIdentifier>(17), GenerationHashSeed{{1, 4, 9}});
+		auto fingerprint = UniqueNetworkFingerprint(static_cast<NetworkIdentifier>(17), GenerationHashSeed{ { 1, 4, 9 } });
 
 		// Assert:
 		EXPECT_EQ(static_cast<NetworkIdentifier>(17), fingerprint.Identifier);
-		EXPECT_EQ((GenerationHashSeed{{1, 4, 9}}), fingerprint.GenerationHashSeed);
+		EXPECT_EQ((GenerationHashSeed{ { 1, 4, 9 } }), fingerprint.GenerationHashSeed);
 	}
 
 	// endregion
@@ -94,15 +94,15 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::unordered_set<std::string> GetEqualTags() {
-			return {"default", "copy"};
+			return { "default", "copy" };
 		}
 
 		std::unordered_map<std::string, UniqueNetworkFingerprint> GenerateEqualityInstanceMap() {
-			return {{"default", {NetworkIdentifier::Testnet, GenerationHashSeed{{1, 2, 3}}}},
-					{"copy", {NetworkIdentifier::Testnet, GenerationHashSeed{{1, 2, 3}}}},
+			return { { "default", { NetworkIdentifier::Testnet, GenerationHashSeed{ { 1, 2, 3 } } } },
+					 { "copy", { NetworkIdentifier::Testnet, GenerationHashSeed{ { 1, 2, 3 } } } },
 
-					{"diff-identifier", {NetworkIdentifier::Mainnet, GenerationHashSeed{{1, 2, 3}}}},
-					{"diff-hash", {NetworkIdentifier::Testnet, GenerationHashSeed{{1, 2, 4}}}}};
+					 { "diff-identifier", { NetworkIdentifier::Mainnet, GenerationHashSeed{ { 1, 2, 3 } } } },
+					 { "diff-hash", { NetworkIdentifier::Testnet, GenerationHashSeed{ { 1, 2, 4 } } } } };
 		}
 	}
 

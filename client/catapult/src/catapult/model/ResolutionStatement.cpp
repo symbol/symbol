@@ -53,12 +53,12 @@ namespace catapult { namespace model {
 		auto type = ResolutionReceiptType;
 
 		crypto::Sha3_256_Builder hashBuilder;
-		hashBuilder.update({reinterpret_cast<const uint8_t*>(&version), sizeof(uint16_t)});
-		hashBuilder.update({reinterpret_cast<const uint8_t*>(&type), sizeof(ReceiptType)});
-		hashBuilder.update({reinterpret_cast<const uint8_t*>(&m_unresolved), sizeof(TUnresolved)});
+		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&version), sizeof(uint16_t) });
+		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&type), sizeof(ReceiptType) });
+		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&m_unresolved), sizeof(TUnresolved) });
 
 		for (const auto& entry : m_entries)
-			hashBuilder.update({reinterpret_cast<const uint8_t*>(&entry), sizeof(ResolutionEntry)});
+			hashBuilder.update({ reinterpret_cast<const uint8_t*>(&entry), sizeof(ResolutionEntry) });
 
 		Hash256 hash;
 		hashBuilder.final(hash);

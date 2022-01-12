@@ -81,10 +81,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, OperatorLessThanReturnsTrueForSmallerValuesAndFalseOtherwise) {
 		// Arrange:
-		std::vector<ReceiptSource> sources{{11, 15}, {11, 16}, {12, 0}, {77, 77}, {88, 99}};
+		std::vector<ReceiptSource> sources{ { 11, 15 }, { 11, 16 }, { 12, 0 }, { 77, 77 }, { 88, 99 } };
 
 		// Assert:
-		test::AssertLessThanOperatorForEqualValues<ReceiptSource>({11, 15}, {11, 15});
+		test::AssertLessThanOperatorForEqualValues<ReceiptSource>({ 11, 15 }, { 11, 15 });
 		test::AssertOperatorBehaviorForIncreasingValues(sources, std::less<>(), [](const auto& source) {
 			std::ostringstream out;
 			out << "(" << source.PrimaryId << "," << source.SecondaryId << ")";

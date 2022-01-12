@@ -49,7 +49,10 @@ namespace catapult { namespace model {
 		}
 
 		size_t ParsePluginSections(const utils::ConfigurationBag& bag, std::unordered_map<std::string, utils::ConfigurationBag>& plugins) {
-			std::unordered_set<std::string> otherSections{"network", "chain", "fork_heights", "treasury_reissuance_transaction_signatures"};
+			std::unordered_set<std::string> otherSections{ "network",
+														   "chain",
+														   "fork_heights",
+														   "treasury_reissuance_transaction_signatures" };
 
 			size_t numPluginProperties = 0;
 			for (const auto& section : bag.sections()) {

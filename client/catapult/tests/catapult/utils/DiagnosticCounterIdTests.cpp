@@ -102,12 +102,12 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanCreateAroundSingleCharStrings) {
 		for (auto ch = 'A'; ch <= 'Z'; ++ch)
-			AssertCanCreateIdFromString(std::string{ch}, static_cast<uint8_t>(ch - 'A') + 1);
+			AssertCanCreateIdFromString(std::string{ ch }, static_cast<uint8_t>(ch - 'A') + 1);
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundSingleCharValues) {
 		for (auto ch = 'A'; ch <= 'Z'; ++ch)
-			AssertCanCreateIdFromValue(static_cast<uint8_t>(ch - 'A') + 1, std::string{ch});
+			AssertCanCreateIdFromValue(static_cast<uint8_t>(ch - 'A') + 1, std::string{ ch });
 	}
 
 	// endregion
@@ -126,7 +126,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanRoundtripArbitraryStrings) {
 		// Arrange: try to roundtrip some candidate strings
-		for (const auto& name : {"W SPC", "X", "DD  SPC", "ACT RDR", "WOSPC", "ABC", "ZY BA", "CAT", "ABCDEFGH", "MAXLENAA"})
+		for (const auto& name : { "W SPC", "X", "DD  SPC", "ACT RDR", "WOSPC", "ABC", "ZY BA", "CAT", "ABCDEFGH", "MAXLENAA" })
 			AssertCanRoundtripName(name);
 	}
 
@@ -147,7 +147,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotCreateAroundStringTooLong) {
-		for (const auto& name : {"ABCDEFGHIJKLMN", "ABC EFG IJKLMN", "ABCD    IJKLMN", "ABCDEFGHIJKLMNOP"})
+		for (const auto& name : { "ABCDEFGHIJKLMN", "ABC EFG IJKLMN", "ABCD    IJKLMN", "ABCDEFGHIJKLMNOP" })
 			AssertInvalidName(name);
 
 		AssertInvalidName(std::string(DiagnosticCounterId::Max_Counter_Name_Size + 1, ' '));
@@ -155,7 +155,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotCreateAroundStringWithInvalidChars) {
-		for (const auto& name : {"-", "T@SK", "ABCDEFG!", "$ABC", "ABC$"})
+		for (const auto& name : { "-", "T@SK", "ABCDEFG!", "$ABC", "ABC$" })
 			AssertInvalidName(name);
 	}
 
@@ -164,7 +164,7 @@ namespace catapult { namespace utils {
 	// region invalid strings - whitespace
 
 	TEST(TEST_CLASS, CannotCreateAroundWhitespaceString) {
-		for (auto size : {1u, 4u, DiagnosticCounterId::Max_Counter_Name_Size})
+		for (auto size : { 1u, 4u, DiagnosticCounterId::Max_Counter_Name_Size })
 			AssertInvalidName(std::string(size, ' '));
 	}
 

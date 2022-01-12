@@ -80,10 +80,10 @@ namespace {
 	template<typename TException, typename TTraits>
 	void AssertExceptionInformation(const TException& ex, const ExpectedDiagnostics<TTraits>& expected) {
 		// Arrange:
-		std::vector<std::string> expectedDiagLines{
-				"Throw in function " + expected.FunctionName,
-				"Dynamic exception type: " CLASSPREFIX "boost::wrapexcept<" + std::string(TTraits::Exception_Fqn) + " >",
-				"std::exception::what: " + expected.What};
+		std::vector<std::string> expectedDiagLines{ "Throw in function " + expected.FunctionName,
+													"Dynamic exception type: " CLASSPREFIX "boost::wrapexcept<"
+															+ std::string(TTraits::Exception_Fqn) + " >",
+													"std::exception::what: " + expected.What };
 
 		std::set<std::string> expectedTagLines;
 		for (const auto& pair : expected.TagPairs)
@@ -262,7 +262,7 @@ EXCEPTION_TRAITS_BASED_TEST(CanThrowExceptionWithCustomMessageAndCustomStringPay
 EXCEPTION_TRAITS_BASED_TEST(CanThrowExceptionWithCustomMessageAndCustomHexFormattedPayload) {
 	try {
 		// Act:
-		std::vector<uint8_t> buffer{0x68, 0x65, 0x6C, 0x6C, 0x6F};
+		std::vector<uint8_t> buffer{ 0x68, 0x65, 0x6C, 0x6C, 0x6F };
 		auto customInfo = exception_detail::Make<ErrorParam1>::From(utils::HexFormat(buffer));
 		CATAPULT_THROW_EXCEPTION(typename TTraits::ExceptionType("custom error message") << customInfo);
 	} catch (const typename TTraits::ExceptionType& ex) {
@@ -496,7 +496,7 @@ TEST(TEST_CLASS, CanMakeErrorInfoFrom_HexContainer) {
 	// Act: force payload to go out of scope
 	std::unique_ptr<ErrorInfoType> pErrorInfo;
 	{
-		std::vector<uint8_t> buffer{0xA4, 0xB5, 0x8C, 0x9A, 0xED};
+		std::vector<uint8_t> buffer{ 0xA4, 0xB5, 0x8C, 0x9A, 0xED };
 		pErrorInfo = std::make_unique<ErrorInfoType>(MakeCustomTestTag1::From(utils::HexFormat(buffer)));
 	}
 

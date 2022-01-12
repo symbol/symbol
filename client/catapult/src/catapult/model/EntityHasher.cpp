@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 	namespace {
 		RawBuffer EntityDataBuffer(const VerifiableEntity& entity, size_t totalSize) {
 			auto headerSize = VerifiableEntity::Header_Size;
-			return {reinterpret_cast<const uint8_t*>(&entity) + headerSize, totalSize - headerSize};
+			return { reinterpret_cast<const uint8_t*>(&entity) + headerSize, totalSize - headerSize };
 		}
 
 		Hash256 CalculateHash(const VerifiableEntity& entity, const RawBuffer& buffer, const GenerationHashSeed* pGenerationHashSeed) {

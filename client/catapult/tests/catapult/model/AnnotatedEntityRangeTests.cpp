@@ -58,7 +58,7 @@ namespace catapult { namespace model {
 		const auto* pRangeData = range.data();
 
 		// Act:
-		auto annotatedRange = AnnotatedEntityRange<Block>(std::move(range), {sourcePublicKey, "11.22.33.44"});
+		auto annotatedRange = AnnotatedEntityRange<Block>(std::move(range), { sourcePublicKey, "11.22.33.44" });
 
 		// Assert:
 		EXPECT_EQ(pRangeData, annotatedRange.Range.data());

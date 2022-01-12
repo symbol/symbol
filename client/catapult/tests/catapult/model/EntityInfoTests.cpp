@@ -136,7 +136,7 @@ namespace catapult { namespace model {
 		test::AssertEqualReturnsTrueForEqualObjects<EntityInfo<Block>>(
 				"default",
 				map,
-				{"default", "copy", "diff-block"},
+				{ "default", "copy", "diff-block" },
 				EntityInfoComparer<Block>());
 	}
 

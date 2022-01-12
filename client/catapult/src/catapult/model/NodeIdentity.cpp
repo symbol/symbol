@@ -43,7 +43,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		const std::array<std::pair<const char*, NodeIdentityEqualityStrategy>, 2> String_To_Node_Identity_Equality_Strategy_Pairs{
-				{{"public-key", NodeIdentityEqualityStrategy::Key}, {"host", NodeIdentityEqualityStrategy::Host}}};
+			{ { "public-key", NodeIdentityEqualityStrategy::Key }, { "host", NodeIdentityEqualityStrategy::Host } }
+		};
 	}
 
 	bool TryParseValue(const std::string& strategyName, NodeIdentityEqualityStrategy& strategy) {

@@ -47,13 +47,14 @@ namespace catapult { namespace model {
 		auto type = Receipt_Type_Transaction_Group;
 
 		crypto::Sha3_256_Builder hashBuilder;
-		hashBuilder.update({reinterpret_cast<const uint8_t*>(&version), sizeof(uint16_t)});
-		hashBuilder.update({reinterpret_cast<const uint8_t*>(&type), sizeof(ReceiptType)});
-		hashBuilder.update({reinterpret_cast<const uint8_t*>(&m_source), sizeof(ReceiptSource)});
+		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&version), sizeof(uint16_t) });
+		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&type), sizeof(ReceiptType) });
+		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&m_source), sizeof(ReceiptSource) });
 
 		auto receiptHeaderSize = sizeof(Receipt::Size);
 		for (const auto& pReceipt : m_receipts) {
-			hashBuilder.update({reinterpret_cast<const uint8_t*>(pReceipt.get()) + receiptHeaderSize, pReceipt->Size - receiptHeaderSize});
+			hashBuilder.update(
+					{ reinterpret_cast<const uint8_t*>(pReceipt.get()) + receiptHeaderSize, pReceipt->Size - receiptHeaderSize });
 		}
 
 		Hash256 hash;

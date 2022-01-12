@@ -47,7 +47,7 @@ namespace catapult { namespace utils {
 	// region LogLevel
 
 	namespace {
-		constexpr const char* Level_To_Name_Mapping[] = {"trace", "debug", "info", "important", "warning", "error", "fatal"};
+		constexpr const char* Level_To_Name_Mapping[] = { "trace", "debug", "info", "important", "warning", "error", "fatal" };
 	}
 
 	std::ostream& operator<<(std::ostream& out, LogLevel level) {
@@ -97,13 +97,14 @@ namespace catapult { namespace utils {
 		};
 
 		constexpr Colors Color_Mapping_Flags[] = {
-				/* trace     */ Colors::Fg_Cyan,
-				/* debug     */ Colors::Fg_Cyan,
-				/* info      */ Colors::None,
-				/* important */ Colors::Fg_Magenta,
-				/* warning   */ Colors::Fg_Yellow,
-				/* error     */ Colors::Fg_Red,
-				/* fatal     */ Colors::Fg_Red};
+			/* trace     */ Colors::Fg_Cyan,
+			/* debug     */ Colors::Fg_Cyan,
+			/* info      */ Colors::None,
+			/* important */ Colors::Fg_Magenta,
+			/* warning   */ Colors::Fg_Yellow,
+			/* error     */ Colors::Fg_Red,
+			/* fatal     */ Colors::Fg_Red
+		};
 
 		template<LogColorMode Mode>
 		struct severity_color {

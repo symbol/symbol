@@ -39,7 +39,7 @@ namespace catapult { namespace model {
 		std::vector<EntityHeader> CreateFixedSizedEntities(const std::vector<uint32_t>& values) {
 			std::vector<EntityHeader> entities;
 			for (auto value : values)
-				entities.push_back({sizeof(EntityHeader), value});
+				entities.push_back({ sizeof(EntityHeader), value });
 
 			return entities;
 		}
@@ -106,7 +106,7 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(CanIterateOverSingleEntityWithPostfixOperator) {
 		// Arrange:
-		auto entities = CreateFixedSizedEntities({17, 25, 14});
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		auto container = TContainerTraits::MakeContainer(&entities[0], 1);
 
 		// Act + Assert:
@@ -118,7 +118,7 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(CanIterateOverSingleEntityWithPrefixOperator) {
 		// Arrange:
-		auto entities = CreateFixedSizedEntities({17, 25, 14});
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		auto container = TContainerTraits::MakeContainer(&entities[0], 1);
 
 		// Act + Assert:
@@ -133,7 +133,7 @@ namespace catapult { namespace model {
 		template<typename TTraits, typename TContainerTraits, typename TEntity>
 		void AssertCanIterateOverMultipleEntitiesWithPostfixOperator() {
 			// Arrange:
-			auto entities = CreateFixedSizedEntities({17, 25, 14});
+			auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 			auto container = TContainerTraits::template MakeContainer<TEntity>(&entities[0], 3);
 
 			// Act + Assert:
@@ -148,7 +148,7 @@ namespace catapult { namespace model {
 		template<typename TTraits, typename TContainerTraits, typename TEntity>
 		void AssertCanIterateOverMultipleEntitiesWithPrefixOperator() {
 			// Arrange:
-			auto entities = CreateFixedSizedEntities({17, 25, 14});
+			auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 			auto container = TContainerTraits::template MakeContainer<TEntity>(&entities[0], 3);
 
 			// Act + Assert:
@@ -183,9 +183,9 @@ namespace catapult { namespace model {
 	TRAITS_BASED_TEST(CanIterateOverMultipleVariableSizedEntitiesWithPostfixOperator) {
 		// Arrange: entities must be aligned on 8-byte boundaries
 		std::vector<uint8_t> buffer(100);
-		reinterpret_cast<EntityHeader&>(*&buffer[0]) = {20, 17};
-		reinterpret_cast<EntityHeader&>(*&buffer[24]) = {30, 25};
-		reinterpret_cast<EntityHeader&>(*&buffer[56]) = {10, 14};
+		reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+		reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+		reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
 		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 56 + 10);
 
 		// Act + Assert:
@@ -200,9 +200,9 @@ namespace catapult { namespace model {
 	TRAITS_BASED_TEST(CanIterateOverMultipleVariableSizedEntitiesWithPrefixOperator) {
 		// Arrange: entities must be aligned on 8-byte boundaries
 		std::vector<uint8_t> buffer(100);
-		reinterpret_cast<EntityHeader&>(*&buffer[0]) = {20, 17};
-		reinterpret_cast<EntityHeader&>(*&buffer[24]) = {30, 25};
-		reinterpret_cast<EntityHeader&>(*&buffer[56]) = {10, 14};
+		reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+		reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+		reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
 		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 56 + 10);
 
 		// Act + Assert:
@@ -219,7 +219,7 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(CannotIterateBeyondEndWithPostfixOperator) {
 		// Arrange:
-		auto entities = CreateFixedSizedEntities({17, 25, 14});
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
 
 		// Act + Assert:
@@ -231,7 +231,7 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(CannotIterateBeyondEndWithPrefixOperator) {
 		// Arrange:
-		auto entities = CreateFixedSizedEntities({17, 25, 14});
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
 
 		// Act + Assert:
@@ -243,7 +243,7 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(CannotDereferenceAtEnd) {
 		// Arrange:
-		auto entities = CreateFixedSizedEntities({17, 25, 14});
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
 
 		// Act + Assert:
@@ -255,7 +255,7 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(BeginEndIteratorsBasedOnSameContainerAreEqual) {
 		// Arrange:
-		auto entities = CreateFixedSizedEntities({17, 25, 14});
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
 
 		// Act + Assert:
@@ -267,7 +267,7 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(BeginEndIteratorsBasedOnSameUnderlyingDataAreEqual) {
 		// Arrange:
-		auto entities = CreateFixedSizedEntities({17, 25, 14});
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		auto container1 = TContainerTraits::MakeContainer(&entities[0], 3);
 		auto container2 = TContainerTraits::MakeContainer(&entities[0], 3);
 
@@ -280,10 +280,10 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(BeginEndIteratorsBasedOnDifferentUnderlyingDataAreNotEqual) {
 		// Arrange:
-		auto entities1 = CreateFixedSizedEntities({17, 25, 14});
+		auto entities1 = CreateFixedSizedEntities({ 17, 25, 14 });
 		auto container1 = TContainerTraits::MakeContainer(&entities1[0], 3);
 
-		auto entities2 = CreateFixedSizedEntities({17, 25, 14});
+		auto entities2 = CreateFixedSizedEntities({ 17, 25, 14 });
 		auto container2 = TContainerTraits::MakeContainer(&entities2[0], 3);
 
 		// Act + Assert:
@@ -295,7 +295,7 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(CanMutateDataUsingMutableIterator) {
 		// Arrange:
-		auto entities = CreateFixedSizedEntities({17, 25, 14});
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 
 		// Act: increment all entity values
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
@@ -327,9 +327,9 @@ namespace catapult { namespace model {
 	TRAITS_BASED_TEST(CanProcessFewerElementsThanInBuffer) {
 		// Arrange: buffer contains 3 entities, but container only wraps two of them
 		std::vector<uint8_t> buffer(100);
-		reinterpret_cast<EntityHeader&>(*&buffer[0]) = {20, 17};
-		reinterpret_cast<EntityHeader&>(*&buffer[24]) = {30, 25};
-		reinterpret_cast<EntityHeader&>(*&buffer[56]) = {10, 14};
+		reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+		reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+		reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
 		auto pEntities = reinterpret_cast<EntityHeader*>(&buffer[0]);
 		auto container = TContainerTraits::MakeContainer(pEntities, 0, 24 + 30);
 
@@ -337,7 +337,7 @@ namespace catapult { namespace model {
 		auto values = IterateValues(container);
 
 		// Assert:
-		EXPECT_EQ(std::vector<uint32_t>({17, 25}), values);
+		EXPECT_EQ(std::vector<uint32_t>({ 17, 25 }), values);
 		EXPECT_FALSE(container.hasError());
 	}
 
@@ -345,9 +345,9 @@ namespace catapult { namespace model {
 		struct FirstElementTraits {
 			static std::vector<uint8_t> PrepareBuffer(uint32_t size) {
 				std::vector<uint8_t> buffer(100);
-				reinterpret_cast<EntityHeader&>(*&buffer[0]) = {size, 17};
-				reinterpret_cast<EntityHeader&>(*&buffer[24]) = {30, 25};
-				reinterpret_cast<EntityHeader&>(*&buffer[56]) = {10, 14};
+				reinterpret_cast<EntityHeader&>(*&buffer[0]) = { size, 17 };
+				reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+				reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
 				return buffer;
 			}
 
@@ -359,28 +359,28 @@ namespace catapult { namespace model {
 		struct MiddleElementTraits {
 			static std::vector<uint8_t> PrepareBuffer(uint32_t size) {
 				std::vector<uint8_t> buffer(100);
-				reinterpret_cast<EntityHeader&>(*&buffer[0]) = {20, 17};
-				reinterpret_cast<EntityHeader&>(*&buffer[24]) = {size, 25};
-				reinterpret_cast<EntityHeader&>(*&buffer[56]) = {10, 14};
+				reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+				reinterpret_cast<EntityHeader&>(*&buffer[24]) = { size, 25 };
+				reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
 				return buffer;
 			}
 
 			static std::vector<uint32_t> ExpectedValues() {
-				return {17};
+				return { 17 };
 			}
 		};
 
 		struct LastElementTraits {
 			static std::vector<uint8_t> PrepareBuffer(uint32_t size) {
 				std::vector<uint8_t> buffer(100);
-				reinterpret_cast<EntityHeader&>(*&buffer[0]) = {20, 17};
-				reinterpret_cast<EntityHeader&>(*&buffer[24]) = {30, 25};
-				reinterpret_cast<EntityHeader&>(*&buffer[56]) = {size, 14};
+				reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+				reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+				reinterpret_cast<EntityHeader&>(*&buffer[56]) = { size, 14 };
 				return buffer;
 			}
 
 			static std::vector<uint32_t> ExpectedValues() {
-				return {17, 25};
+				return { 17, 25 };
 			}
 		};
 
@@ -448,7 +448,7 @@ namespace catapult { namespace model {
 		template<typename TTraits, typename TContainerTraits, typename TIteratorTraits>
 		void AssertCannotAdvanceIteratorAfterError() {
 			// Arrange: trigger an error by setting the size of the second element to zero
-			auto entities = CreateFixedSizedEntities({17, 25, 14});
+			auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 			entities[1].Size = 0;
 			auto container = TContainerTraits::MakeContainer(&entities[0], 3);
 
@@ -471,7 +471,7 @@ namespace catapult { namespace model {
 		template<typename TTraits, typename TContainerTraits, typename TIteratorTraits>
 		void AssertCannotAdvanceIteratorAfterErrorAtEnd() {
 			// Arrange: trigger an error by indicating the container size is one byte too large
-			auto entities = CreateFixedSizedEntities({17, 14});
+			auto entities = CreateFixedSizedEntities({ 17, 14 });
 			auto container = TContainerTraits::MakeContainer(&entities[0], 0, 2 * sizeof(EntityHeader) + 1);
 
 			// Act + Assert:
@@ -514,7 +514,7 @@ namespace catapult { namespace model {
 
 	TRAITS_BASED_TEST(BeginAbortsWhenFirstElementHasInvalidSize) {
 		// Arrange: trigger an error by setting the size of the first element to zero
-		auto entities = CreateFixedSizedEntities({17, 25, 14});
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		entities[0].Size = 0;
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
 

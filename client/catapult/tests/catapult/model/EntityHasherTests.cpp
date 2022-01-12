@@ -74,9 +74,8 @@ namespace catapult { namespace model {
 		struct TransactionCustomPayloadTraits : public TransactionTraits {
 			static Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed) {
 				// hash full transaction header body in traits-based tests
-				auto transactionBuffer = RawBuffer{
-						reinterpret_cast<const uint8_t*>(&transaction) + Transaction::Header_Size,
-						sizeof(Transaction) - Transaction::Header_Size};
+				auto transactionBuffer = RawBuffer{ reinterpret_cast<const uint8_t*>(&transaction) + Transaction::Header_Size,
+													sizeof(Transaction) - Transaction::Header_Size };
 				return model::CalculateHash(transaction, generationHashSeed, transactionBuffer);
 			}
 		};
@@ -250,7 +249,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, TransactionCustomPayloadHashChangesWhenGenerationHashChanges) {
 		// Arrange:
 		auto pTransaction = TransactionCustomPayloadTraits::Generate();
-		auto transactionBuffer = RawBuffer{reinterpret_cast<uint8_t*>(pTransaction.get()), sizeof(Transaction) - 1};
+		auto transactionBuffer = RawBuffer{ reinterpret_cast<uint8_t*>(pTransaction.get()), sizeof(Transaction) - 1 };
 		auto originalHash = CalculateHash(*pTransaction, test::GenerateRandomByteArray<GenerationHashSeed>(), transactionBuffer);
 
 		// Act:
@@ -265,10 +264,10 @@ namespace catapult { namespace model {
 		auto pTransaction = TransactionCustomPayloadTraits::Generate();
 		const auto* pTransactionData = reinterpret_cast<uint8_t*>(pTransaction.get());
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
-		auto originalHash = CalculateHash(*pTransaction, generationHashSeed, {pTransactionData, sizeof(Transaction) - 1});
+		auto originalHash = CalculateHash(*pTransaction, generationHashSeed, { pTransactionData, sizeof(Transaction) - 1 });
 
 		// Act:
-		auto modifiedHash = CalculateHash(*pTransaction, generationHashSeed, {pTransactionData + 1, sizeof(Transaction) - 1});
+		auto modifiedHash = CalculateHash(*pTransaction, generationHashSeed, { pTransactionData + 1, sizeof(Transaction) - 1 });
 
 		// Assert:
 		EXPECT_NE(originalHash, modifiedHash);
@@ -279,10 +278,10 @@ namespace catapult { namespace model {
 		auto pTransaction = TransactionCustomPayloadTraits::Generate();
 		const auto* pTransactionData = reinterpret_cast<uint8_t*>(pTransaction.get());
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
-		auto originalHash = CalculateHash(*pTransaction, generationHashSeed, {pTransactionData, sizeof(Transaction)});
+		auto originalHash = CalculateHash(*pTransaction, generationHashSeed, { pTransactionData, sizeof(Transaction) });
 
 		// Act:
-		auto modifiedHash = CalculateHash(*pTransaction, generationHashSeed, {pTransactionData, sizeof(Transaction) - 1});
+		auto modifiedHash = CalculateHash(*pTransaction, generationHashSeed, { pTransactionData, sizeof(Transaction) - 1 });
 
 		// Assert:
 		EXPECT_NE(originalHash, modifiedHash);
@@ -294,7 +293,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CalculateMerkleComponentHash_ReturnsTransactionHashWhenThereAreNoSupplementaryBuffers) {
 		// Arrange:
-		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(mocks::OffsetRange{5, 15}, {});
+		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(mocks::OffsetRange{ 5, 15 }, {});
 		auto registry = TransactionRegistry();
 		registry.registerPlugin(std::move(pPlugin));
 
@@ -312,8 +311,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CalculateMerkleComponentHash_IsDependentOnMerkleSupplementaryBuffers) {
 		// Arrange:
 		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(
-				mocks::OffsetRange{6, 10},
-				std::vector<mocks::OffsetRange>{{7, 11}, {4, 7}, {12, 20}});
+				mocks::OffsetRange{ 6, 10 },
+				std::vector<mocks::OffsetRange>{ { 7, 11 }, { 4, 7 }, { 12, 20 } });
 		auto registry = TransactionRegistry();
 		registry.registerPlugin(std::move(pPlugin));
 
@@ -324,9 +323,9 @@ namespace catapult { namespace model {
 		Hash256 expectedMerkleComponentHash;
 		crypto::Sha3_256_Builder sha3;
 		sha3.update(transactionHash);
-		sha3.update(mocks::ExtractBuffer({7, 11}, &transaction));
-		sha3.update(mocks::ExtractBuffer({4, 7}, &transaction));
-		sha3.update(mocks::ExtractBuffer({12, 20}, &transaction));
+		sha3.update(mocks::ExtractBuffer({ 7, 11 }, &transaction));
+		sha3.update(mocks::ExtractBuffer({ 4, 7 }, &transaction));
+		sha3.update(mocks::ExtractBuffer({ 12, 20 }, &transaction));
 		sha3.final(expectedMerkleComponentHash);
 
 		// Act:
@@ -392,7 +391,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, UpdateHashes_TransactionEntityHashIsDependentOnDataBuffer) {
 		// Arrange:
-		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(mocks::OffsetRange{5, 15}, {});
+		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(mocks::OffsetRange{ 5, 15 }, {});
 		auto registry = TransactionRegistry();
 		registry.registerPlugin(std::move(pPlugin));
 
@@ -402,7 +401,7 @@ namespace catapult { namespace model {
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
 
 		// - since there are no supplementary buffers, the transaction hash is equal to the merkle hash
-		auto expectedEntityHash = CalculateHash(transaction, generationHashSeed, mocks::ExtractBuffer({5, 15}, &transaction));
+		auto expectedEntityHash = CalculateHash(transaction, generationHashSeed, mocks::ExtractBuffer({ 5, 15 }, &transaction));
 
 		// Act:
 		UpdateHashes(registry, generationHashSeed, transactionElement);
@@ -416,8 +415,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, UpdateHashes_TransactionMerkleComponentHashIsDependentOnMerkleSupplementaryBuffers) {
 		// Arrange:
 		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(
-				mocks::OffsetRange{6, 10},
-				std::vector<mocks::OffsetRange>{{7, 11}, {4, 7}, {12, 20}});
+				mocks::OffsetRange{ 6, 10 },
+				std::vector<mocks::OffsetRange>{ { 7, 11 }, { 4, 7 }, { 12, 20 } });
 		auto registry = TransactionRegistry();
 		registry.registerPlugin(std::move(pPlugin));
 
@@ -426,14 +425,14 @@ namespace catapult { namespace model {
 		const auto& transaction = *pTransaction;
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
 
-		auto expectedEntityHash = CalculateHash(transaction, generationHashSeed, mocks::ExtractBuffer({6, 10}, &transaction));
+		auto expectedEntityHash = CalculateHash(transaction, generationHashSeed, mocks::ExtractBuffer({ 6, 10 }, &transaction));
 
 		Hash256 expectedMerkleComponentHash;
 		crypto::Sha3_256_Builder sha3;
 		sha3.update(expectedEntityHash);
-		sha3.update(mocks::ExtractBuffer({7, 11}, &transaction));
-		sha3.update(mocks::ExtractBuffer({4, 7}, &transaction));
-		sha3.update(mocks::ExtractBuffer({12, 20}, &transaction));
+		sha3.update(mocks::ExtractBuffer({ 7, 11 }, &transaction));
+		sha3.update(mocks::ExtractBuffer({ 4, 7 }, &transaction));
+		sha3.update(mocks::ExtractBuffer({ 12, 20 }, &transaction));
 		sha3.final(expectedMerkleComponentHash);
 
 		// Act:

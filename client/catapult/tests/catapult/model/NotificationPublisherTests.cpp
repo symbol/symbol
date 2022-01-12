@@ -263,7 +263,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanPublishBlockNotifications_BlockWithTransactions) {
 		// Arrange:
-		auto pBlock = GenerateBlockWithTransactionSizes({211, 225, 217});
+		auto pBlock = GenerateBlockWithTransactionSizes({ 211, 225, 217 });
 		pBlock->Timestamp = Timestamp(432);
 		pBlock->Difficulty = Difficulty(575);
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);

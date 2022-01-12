@@ -37,7 +37,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		const std::array<std::pair<const char*, NetworkIdentifier>, 2> String_To_Network_Identifier_Pairs{
-				{{"mainnet", NetworkIdentifier::Mainnet}, {"testnet", NetworkIdentifier::Testnet}}};
+			{ { "mainnet", NetworkIdentifier::Mainnet }, { "testnet", NetworkIdentifier::Testnet } }
+		};
 	}
 
 	bool TryParseValue(const std::string& networkName, NetworkIdentifier& networkIdentifier) {

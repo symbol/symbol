@@ -65,20 +65,20 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, ClampedValueCannotBeSetBelowMin) {
-		std::vector<int64_t> deltas{1, 1000};
+		std::vector<int64_t> deltas{ 1, 1000 };
 		for (auto delta : deltas)
 			AssertClampedValue(TestValueRange::Min_Value - delta, TestValueRange::Min_Value);
 	}
 
 	TEST(TEST_CLASS, ClampedValueCannotBeSetAboveMax) {
-		std::vector<int64_t> deltas{1, 1000};
+		std::vector<int64_t> deltas{ 1, 1000 };
 		for (auto delta : deltas)
 			AssertClampedValue(TestValueRange::Max_Value + delta, TestValueRange::Max_Value);
 	}
 
 	TEST(TEST_CLASS, ClampedValueCanBeSetInAllowableRange) {
 		// Assert: none of the values get clamped
-		std::vector<int64_t> values{TestValueRange::Min_Value, -16, -8, 0, 50, 99, TestValueRange::Max_Value};
+		std::vector<int64_t> values{ TestValueRange::Min_Value, -16, -8, 0, 50, 99, TestValueRange::Max_Value };
 		for (auto value : values)
 			AssertClampedValue(value, value);
 	}

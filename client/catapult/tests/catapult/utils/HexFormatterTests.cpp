@@ -253,16 +253,16 @@ namespace catapult { namespace utils {
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatArrayByteIntegralType) {
 		TTraits::AssertHexString("", std::array<uint8_t, 0>());
-		TTraits::AssertHexString("24", std::array<uint8_t, 1>{{0x24}});
-		TTraits::AssertHexString("02", std::array<uint8_t, 1>{{0x02}});
-		TTraits::AssertHexString("28027A", std::array<uint8_t, 3>{{0x28, 0x02, 0x7A}});
+		TTraits::AssertHexString("24", std::array<uint8_t, 1>{ { 0x24 } });
+		TTraits::AssertHexString("02", std::array<uint8_t, 1>{ { 0x02 } });
+		TTraits::AssertHexString("28027A", std::array<uint8_t, 3>{ { 0x28, 0x02, 0x7A } });
 	}
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatVectorShortIntegralType) {
 		TTraits::AssertHexString("", std::vector<short>());
-		TTraits::AssertHexString("2468", std::vector<short>{0x2468});
-		TTraits::AssertHexString("0024", std::vector<short>{0x0024});
-		TTraits::AssertHexString("24680024765A", std::vector<short>{0x2468, 0x0024, 0x765A});
+		TTraits::AssertHexString("2468", std::vector<short>{ 0x2468 });
+		TTraits::AssertHexString("0024", std::vector<short>{ 0x0024 });
+		TTraits::AssertHexString("24680024765A", std::vector<short>{ 0x2468, 0x0024, 0x765A });
 	}
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatVectorBaseValueType) {
@@ -273,16 +273,16 @@ namespace catapult { namespace utils {
 
 		// Assert:
 		TTraits::AssertHexString("", ByteVector());
-		TTraits::AssertHexString("2468", ByteVector{Byte(0x24), Byte(0x68)});
-		TTraits::AssertHexString("0024", ByteVector{Byte(0x00), Byte(0x24)});
-		TTraits::AssertHexString("24680024760A", ByteVector{Byte(0x24), Byte(0x68), Byte(0x00), Byte(0x24), Byte(0x76), Byte(0x0A)});
+		TTraits::AssertHexString("2468", ByteVector{ Byte(0x24), Byte(0x68) });
+		TTraits::AssertHexString("0024", ByteVector{ Byte(0x00), Byte(0x24) });
+		TTraits::AssertHexString("24680024760A", ByteVector{ Byte(0x24), Byte(0x68), Byte(0x00), Byte(0x24), Byte(0x76), Byte(0x0A) });
 	}
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatContainerIntegralTypeWithSeparator) {
 		TTraits::AssertHexString("", std::vector<short>(), ',');
-		TTraits::AssertHexString("2468", std::vector<short>{0x2468}, ',');
-		TTraits::AssertHexString("0024", std::vector<short>{0x0024}, ',');
-		TTraits::AssertHexString("2468,0024,765A", std::vector<short>{0x2468, 0x0024, 0x765A}, ',');
+		TTraits::AssertHexString("2468", std::vector<short>{ 0x2468 }, ',');
+		TTraits::AssertHexString("0024", std::vector<short>{ 0x0024 }, ',');
+		TTraits::AssertHexString("2468,0024,765A", std::vector<short>{ 0x2468, 0x0024, 0x765A }, ',');
 	}
 
 	CONTAINER_TRAITS_BASED_TEST(ContainerIntegralFormattingChangesDoNotLeak) {
@@ -292,7 +292,7 @@ namespace catapult { namespace utils {
 		out.fill('~');
 
 		// Act:
-		auto container = std::vector<short>{0x2468, 0x0024, 0x765A};
+		auto container = std::vector<short>{ 0x2468, 0x0024, 0x765A };
 		out << std::setw(4) << 121 << " " << TTraits::Format(container) << " " << std::setw(4) << 625;
 		auto actual = out.str();
 

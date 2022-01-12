@@ -69,7 +69,7 @@ namespace catapult { namespace model {
 
 			TransactionAttributes attributes() const override {
 				auto version = TDerivedTransaction::Current_Version;
-				return {version, version, utils::TimeSpan()};
+				return { version, version, utils::TimeSpan() };
 			}
 
 			bool isSizeValid(const TTransaction& transaction) const override {
@@ -140,7 +140,7 @@ namespace catapult { namespace model {
 
 			RawBuffer dataBuffer(const Transaction& transaction) const override {
 				auto headerSize = VerifiableEntity::Header_Size;
-				return {reinterpret_cast<const uint8_t*>(&transaction) + headerSize, transaction.Size - headerSize};
+				return { reinterpret_cast<const uint8_t*>(&transaction) + headerSize, transaction.Size - headerSize };
 			}
 
 			std::vector<RawBuffer> merkleSupplementaryBuffers(const Transaction&) const override {

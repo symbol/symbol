@@ -98,13 +98,13 @@ namespace catapult { namespace utils {
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(
 				records,
-				{"<trace> (utils::LoggingTests.cpp@35) alice trace message",
-				 "<info> (utils::LoggingTests.cpp@36) foo info",
-				 "<debug> (utils::LoggingTests.cpp@37) bob debug message",
-				 "<warning> (utils::LoggingTests.cpp@38) bar warning",
-				 "<important> (utils::LoggingTests.cpp@39) charlie important message!",
-				 "<fatal> (utils::LoggingTests.cpp@40) fatal termination",
-				 "<error> (utils::LoggingTests.cpp@41) baz error"});
+				{ "<trace> (utils::LoggingTests.cpp@35) alice trace message",
+				  "<info> (utils::LoggingTests.cpp@36) foo info",
+				  "<debug> (utils::LoggingTests.cpp@37) bob debug message",
+				  "<warning> (utils::LoggingTests.cpp@38) bar warning",
+				  "<important> (utils::LoggingTests.cpp@39) charlie important message!",
+				  "<fatal> (utils::LoggingTests.cpp@40) fatal termination",
+				  "<error> (utils::LoggingTests.cpp@41) baz error" });
 	}
 
 	TEST(TEST_CLASS, CanWriteLogMessagesWithCatapultLogLevelMacro) {
@@ -125,13 +125,13 @@ namespace catapult { namespace utils {
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(
 				records,
-				{"<trace> (utils::LoggingTests.cpp@45) alice trace message",
-				 "<info> (utils::LoggingTests.cpp@46) foo info",
-				 "<debug> (utils::LoggingTests.cpp@47) bob debug message",
-				 "<warning> (utils::LoggingTests.cpp@48) bar warning",
-				 "<important> (utils::LoggingTests.cpp@49) charlie important message!",
-				 "<fatal> (utils::LoggingTests.cpp@50) fatal termination",
-				 "<error> (utils::LoggingTests.cpp@51) baz error"});
+				{ "<trace> (utils::LoggingTests.cpp@45) alice trace message",
+				  "<info> (utils::LoggingTests.cpp@46) foo info",
+				  "<debug> (utils::LoggingTests.cpp@47) bob debug message",
+				  "<warning> (utils::LoggingTests.cpp@48) bar warning",
+				  "<important> (utils::LoggingTests.cpp@49) charlie important message!",
+				  "<fatal> (utils::LoggingTests.cpp@50) fatal termination",
+				  "<error> (utils::LoggingTests.cpp@51) baz error" });
 	}
 
 	TEST(TEST_CLASS, CanWriteLogMessagesWithCustomComponentTags) {
@@ -153,12 +153,12 @@ namespace catapult { namespace utils {
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(
 				records,
-				{"<trace> (foo::LoggingTests.cpp@61) alice trace message",
-				 "<info> (foo::LoggingTests.cpp@62) foo info",
-				 "<error> (foo::LoggingTests.cpp@63) baz error",
-				 "<trace> (bar::LoggingTests.cpp@61) alice trace message",
-				 "<info> (bar::LoggingTests.cpp@62) foo info",
-				 "<error> (bar::LoggingTests.cpp@63) baz error"});
+				{ "<trace> (foo::LoggingTests.cpp@61) alice trace message",
+				  "<info> (foo::LoggingTests.cpp@62) foo info",
+				  "<error> (foo::LoggingTests.cpp@63) baz error",
+				  "<trace> (bar::LoggingTests.cpp@61) alice trace message",
+				  "<info> (bar::LoggingTests.cpp@62) foo info",
+				  "<error> (bar::LoggingTests.cpp@63) baz error" });
 	}
 
 	TEST(TEST_CLASS, CanFilterMessagesBySettingGlobalLevel) {
@@ -179,11 +179,11 @@ namespace catapult { namespace utils {
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(
 				records,
-				{"<info> (utils::LoggingTests.cpp@36) foo info",
-				 "<warning> (utils::LoggingTests.cpp@38) bar warning",
-				 "<important> (utils::LoggingTests.cpp@39) charlie important message!",
-				 "<fatal> (utils::LoggingTests.cpp@40) fatal termination",
-				 "<error> (utils::LoggingTests.cpp@41) baz error"});
+				{ "<info> (utils::LoggingTests.cpp@36) foo info",
+				  "<warning> (utils::LoggingTests.cpp@38) bar warning",
+				  "<important> (utils::LoggingTests.cpp@39) charlie important message!",
+				  "<fatal> (utils::LoggingTests.cpp@40) fatal termination",
+				  "<error> (utils::LoggingTests.cpp@41) baz error" });
 	}
 
 	TEST(TEST_CLASS, CanFilterMessagesBySettingComponentFilterLevelAboveGlobalLevel) {
@@ -208,9 +208,9 @@ namespace catapult { namespace utils {
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(
 				records,
-				{"<error> (foo::LoggingTests.cpp@63) baz error",
-				 "<info> (bar::LoggingTests.cpp@62) foo info",
-				 "<error> (bar::LoggingTests.cpp@63) baz error"});
+				{ "<error> (foo::LoggingTests.cpp@63) baz error",
+				  "<info> (bar::LoggingTests.cpp@62) foo info",
+				  "<error> (bar::LoggingTests.cpp@63) baz error" });
 	}
 
 	TEST(TEST_CLASS, CanFilterMessagesBySettingComponentFilterLevelBelowGlobalLevel) {
@@ -235,11 +235,11 @@ namespace catapult { namespace utils {
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(
 				records,
-				{"<trace> (foo::LoggingTests.cpp@61) alice trace message",
-				 "<info> (foo::LoggingTests.cpp@62) foo info",
-				 "<error> (foo::LoggingTests.cpp@63) baz error",
-				 "<info> (bar::LoggingTests.cpp@62) foo info",
-				 "<error> (bar::LoggingTests.cpp@63) baz error"});
+				{ "<trace> (foo::LoggingTests.cpp@61) alice trace message",
+				  "<info> (foo::LoggingTests.cpp@62) foo info",
+				  "<error> (foo::LoggingTests.cpp@63) baz error",
+				  "<info> (bar::LoggingTests.cpp@62) foo info",
+				  "<error> (bar::LoggingTests.cpp@63) baz error" });
 	}
 
 	TEST(TEST_CLASS, CanFilterMessagesFromRealComponents) {
@@ -266,9 +266,9 @@ namespace catapult { namespace utils {
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(
 				records,
-				{"<trace> (bar::LoggingTests.cpp@61) alice trace message",
-				 "<info> (bar::LoggingTests.cpp@62) foo info",
-				 "<error> (bar::LoggingTests.cpp@63) baz error"});
+				{ "<trace> (bar::LoggingTests.cpp@61) alice trace message",
+				  "<info> (bar::LoggingTests.cpp@62) foo info",
+				  "<error> (bar::LoggingTests.cpp@63) baz error" });
 	}
 
 	TEST(TEST_CLASS, CanLogAndFilterMessagesFromMultipleThreads) {
@@ -315,8 +315,8 @@ namespace catapult { namespace utils {
 			test::AssertTimestampsAreIncreasing(pair.second);
 			AssertMessages(
 					pair.second,
-					{"<info> (" + subcomponent + "::LoggingTests.cpp@62) foo info",
-					 "<error> (" + subcomponent + "::LoggingTests.cpp@63) baz error"});
+					{ "<info> (" + subcomponent + "::LoggingTests.cpp@62) foo info",
+					  "<error> (" + subcomponent + "::LoggingTests.cpp@63) baz error" });
 			subcomponents.insert(subcomponent);
 		}
 
@@ -355,10 +355,10 @@ namespace catapult { namespace utils {
 			test::AssertNumUniqueThreadIds(primaryRecords, 1);
 			test::AssertMessages(
 					primaryRecords,
-					{"<info> (foo::LoggingTests.cpp@62) foo info",
-					 "<error> (foo::LoggingTests.cpp@63) baz error",
-					 "<info> (bar::LoggingTests.cpp@62) foo info",
-					 "<error> (bar::LoggingTests.cpp@63) baz error"});
+					{ "<info> (foo::LoggingTests.cpp@62) foo info",
+					  "<error> (foo::LoggingTests.cpp@63) baz error",
+					  "<info> (bar::LoggingTests.cpp@62) foo info",
+					  "<error> (bar::LoggingTests.cpp@63) baz error" });
 		}
 
 		// - secondary log is composed of foo messages but not bar messages
@@ -369,9 +369,9 @@ namespace catapult { namespace utils {
 			test::AssertNumUniqueThreadIds(secondaryRecords, 1);
 			test::AssertMessages(
 					secondaryRecords,
-					{"<trace> (foo::LoggingTests.cpp@61) alice trace message",
-					 "<info> (foo::LoggingTests.cpp@62) foo info",
-					 "<error> (foo::LoggingTests.cpp@63) baz error"});
+					{ "<trace> (foo::LoggingTests.cpp@61) alice trace message",
+					  "<info> (foo::LoggingTests.cpp@62) foo info",
+					  "<error> (foo::LoggingTests.cpp@63) baz error" });
 		}
 	}
 }}

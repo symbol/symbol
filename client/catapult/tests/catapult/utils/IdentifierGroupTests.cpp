@@ -70,13 +70,13 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(TestKey(123), container.key());
 		EXPECT_FALSE(container.empty());
 		EXPECT_EQ(1u, container.size());
-		AssertIdentifiers(container.identifiers(), {234});
+		AssertIdentifiers(container.identifiers(), { 234 });
 	}
 
 	TEST(TEST_CLASS, CanAddMultipleIdentifiers) {
 		// Arrange:
 		TestIdentifierGroup container(TestKey(123));
-		std::vector<Height::ValueType> expectedIds{135, 246, 357};
+		std::vector<Height::ValueType> expectedIds{ 135, 246, 357 };
 
 		// Act:
 		for (auto id : expectedIds)
@@ -110,7 +110,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, RemoveUnknownIdentifierIsNoOp) {
 		// Arrange:
-		auto container = CreateTestIdentifierGroup(TestKey(123), {234, 345, 456});
+		auto container = CreateTestIdentifierGroup(TestKey(123), { 234, 345, 456 });
 
 		// Act:
 		container.remove(Height(678));
@@ -120,12 +120,12 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(TestKey(123), container.key());
 		EXPECT_FALSE(container.empty());
 		EXPECT_EQ(3u, container.size());
-		AssertIdentifiers(container.identifiers(), {234, 345, 456});
+		AssertIdentifiers(container.identifiers(), { 234, 345, 456 });
 	}
 
 	TEST(TEST_CLASS, CanRemoveSingleIdentifier) {
 		// Arrange:
-		auto container = CreateTestIdentifierGroup(TestKey(123), {234, 345, 456});
+		auto container = CreateTestIdentifierGroup(TestKey(123), { 234, 345, 456 });
 
 		// Act:
 		container.remove(Height(345));
@@ -134,12 +134,12 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(TestKey(123), container.key());
 		EXPECT_FALSE(container.empty());
 		EXPECT_EQ(2u, container.size());
-		AssertIdentifiers(container.identifiers(), {234, 456});
+		AssertIdentifiers(container.identifiers(), { 234, 456 });
 	}
 
 	TEST(TEST_CLASS, CanRemoveMultipleIdentifiers) {
 		// Arrange:
-		auto container = CreateTestIdentifierGroup(TestKey(123), {234, 345, 456, 567, 678});
+		auto container = CreateTestIdentifierGroup(TestKey(123), { 234, 345, 456, 567, 678 });
 
 		// Act:
 		container.remove(Height(345));
@@ -150,12 +150,12 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(TestKey(123), container.key());
 		EXPECT_FALSE(container.empty());
 		EXPECT_EQ(2u, container.size());
-		AssertIdentifiers(container.identifiers(), {234, 567});
+		AssertIdentifiers(container.identifiers(), { 234, 567 });
 	}
 
 	TEST(TEST_CLASS, CanRemoveAllIdentifiers) {
 		// Arrange:
-		auto container = CreateTestIdentifierGroup(TestKey(123), {234, 345, 456});
+		auto container = CreateTestIdentifierGroup(TestKey(123), { 234, 345, 456 });
 
 		// Act:
 		container.remove(Height(234));

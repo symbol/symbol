@@ -116,18 +116,15 @@ namespace catapult { namespace utils {
 
 	namespace {
 		std::unordered_set<std::string> GetEqualTags() {
-			return {"10240 B", "10 KB", "10240 B (2)"};
+			return { "10240 B", "10 KB", "10240 B (2)" };
 		}
 
 		std::unordered_map<std::string, FileSize> GenerateEqualityInstanceMap() {
-			return {{"10240 B", FileSize::FromBytes(10240)},
-					{"10 KB", FileSize::FromKilobytes(10)},
-					{"10240 B (2)", FileSize::FromBytes(10240)},
+			return { { "10240 B", FileSize::FromBytes(10240) },		 { "10 KB", FileSize::FromKilobytes(10) },
+					 { "10240 B (2)", FileSize::FromBytes(10240) },
 
-					{"10239 B", FileSize::FromBytes(10239)},
-					{"10241 B", FileSize::FromBytes(10241)},
-					{"10240 KB", FileSize::FromKilobytes(10240)},
-					{"10 MB", FileSize::FromMegabytes(10)}};
+					 { "10239 B", FileSize::FromBytes(10239) },		 { "10241 B", FileSize::FromBytes(10241) },
+					 { "10240 KB", FileSize::FromKilobytes(10240) }, { "10 MB", FileSize::FromMegabytes(10) } };
 		}
 	}
 
@@ -145,11 +142,11 @@ namespace catapult { namespace utils {
 
 	namespace {
 		std::vector<FileSize> GenerateIncreasingValues() {
-			return {FileSize::FromBytes(10239),
-					FileSize::FromKilobytes(10),
-					FileSize::FromBytes(10241),
-					FileSize::FromMegabytes(10),
-					FileSize::FromKilobytes(10241)};
+			return { FileSize::FromBytes(10239),
+					 FileSize::FromKilobytes(10),
+					 FileSize::FromBytes(10241),
+					 FileSize::FromMegabytes(10),
+					 FileSize::FromKilobytes(10241) };
 		}
 	}
 

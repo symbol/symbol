@@ -57,7 +57,7 @@ namespace catapult { namespace utils {
 		utils::map_erase_if(map, [](const auto&) { return false; });
 
 		// Assert:
-		AssertMapContents(map, {0u, 1u, 2u, 3u, 4u});
+		AssertMapContents(map, { 0u, 1u, 2u, 3u, 4u });
 	}
 
 	TEST(TEST_CLASS, ElementsAreRemovedOnlyWhenPredicateReturnsTrue) {
@@ -68,7 +68,7 @@ namespace catapult { namespace utils {
 		utils::map_erase_if(map, [](const auto& pair) { return 0 == pair.first % 2; });
 
 		// Assert:
-		AssertMapContents(map, {1u, 3u});
+		AssertMapContents(map, { 1u, 3u });
 	}
 
 	TEST(TEST_CLASS, AllElementsAreRemovedWhenPredicateAlwaysReturnsTrue) {

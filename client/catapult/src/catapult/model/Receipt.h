@@ -54,7 +54,7 @@ namespace catapult { namespace model {
 				const Address& recipientAddress,
 				catapult::MosaicId mosaicId,
 				catapult::Amount amount)
-				: Mosaic({mosaicId, amount})
+				: Mosaic({ mosaicId, amount })
 				, SenderAddress(senderAddress)
 				, RecipientAddress(recipientAddress) {
 			Size = sizeof(BalanceTransferReceipt);
@@ -82,7 +82,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a receipt around \a receiptType, \a targetAddress, \a mosaicId and \a amount.
 		BalanceChangeReceipt(ReceiptType receiptType, const Address& targetAddress, catapult::MosaicId mosaicId, catapult::Amount amount)
-				: Mosaic({mosaicId, amount})
+				: Mosaic({ mosaicId, amount })
 				, TargetAddress(targetAddress) {
 			Size = sizeof(BalanceChangeReceipt);
 			Version = 1;
@@ -106,7 +106,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a receipt around \a receiptType, \a mosaicId and \a amount.
 		InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount)
-				: Mosaic({mosaicId, amount}) {
+				: Mosaic({ mosaicId, amount }) {
 			Size = sizeof(InflationReceipt);
 			Version = 1;
 			Type = receiptType;

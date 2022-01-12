@@ -31,26 +31,29 @@ namespace catapult { namespace utils {
 
 	namespace {
 		const std::array<std::pair<const char*, LogLevel>, 9> String_To_LogLevel_Pairs{
-				{{std::make_pair("Trace", LogLevel::trace)},
-				 {std::make_pair("Debug", LogLevel::debug)},
-				 {std::make_pair("Info", LogLevel::info)},
-				 {std::make_pair("Important", LogLevel::important)},
-				 {std::make_pair("Warning", LogLevel::warning)},
-				 {std::make_pair("Error", LogLevel::error)},
-				 {std::make_pair("Fatal", LogLevel::fatal)},
-				 {std::make_pair("Min", LogLevel::min)},
-				 {std::make_pair("Max", LogLevel::max)}}};
+			{ { std::make_pair("Trace", LogLevel::trace) },
+			  { std::make_pair("Debug", LogLevel::debug) },
+			  { std::make_pair("Info", LogLevel::info) },
+			  { std::make_pair("Important", LogLevel::important) },
+			  { std::make_pair("Warning", LogLevel::warning) },
+			  { std::make_pair("Error", LogLevel::error) },
+			  { std::make_pair("Fatal", LogLevel::fatal) },
+			  { std::make_pair("Min", LogLevel::min) },
+			  { std::make_pair("Max", LogLevel::max) } }
+		};
 
 		const std::array<std::pair<const char*, LogSinkType>, 2> String_To_LogSinkType_Pairs{
-				{{std::make_pair("Sync", LogSinkType::Sync)}, {std::make_pair("Async", LogSinkType::Async)}}};
+			{ { std::make_pair("Sync", LogSinkType::Sync) }, { std::make_pair("Async", LogSinkType::Async) } }
+		};
 
 		const std::array<std::pair<const char*, LogColorMode>, 3> String_To_LogColorMode_Pairs{
-				{{std::make_pair("Ansi", LogColorMode::Ansi)},
-				 {std::make_pair("AnsiBold", LogColorMode::AnsiBold)},
-				 {std::make_pair("None", LogColorMode::None)}}};
+			{ { std::make_pair("Ansi", LogColorMode::Ansi) },
+			  { std::make_pair("AnsiBold", LogColorMode::AnsiBold) },
+			  { std::make_pair("None", LogColorMode::None) } }
+		};
 
-		const std::array<std::pair<const char*, bool>, 2> String_To_Boolean_Pairs{
-				{{std::make_pair("true", true)}, {std::make_pair("false", false)}}};
+		const std::array<std::pair<const char*, bool>, 2> String_To_Boolean_Pairs{ { { std::make_pair("true", true) },
+																					 { std::make_pair("false", false) } } };
 	}
 
 	bool TryParseValue(const std::string& str, LogLevel& parsedValue) {

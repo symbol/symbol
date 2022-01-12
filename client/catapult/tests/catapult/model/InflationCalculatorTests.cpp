@@ -96,7 +96,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CannotAddInflationEntryWhenHeightIsEqualToLastEntryHeight) {
 		// Arrange:
-		auto calculator = CreateInflationCalculator({{Height(5), Amount(345)}, {Height(15), Amount(123)}});
+		auto calculator = CreateInflationCalculator({ { Height(5), Amount(345) }, { Height(15), Amount(123) } });
 
 		// Assert:
 		EXPECT_THROW(calculator.add(Height(15), Amount(234)), catapult_invalid_argument);
@@ -104,7 +104,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CannotAddInflationEntryWhenHeightIsLessThanLastEntryHeight) {
 		// Arrange:
-		auto calculator = CreateInflationCalculator({{Height(5), Amount(345)}, {Height(15), Amount(123)}});
+		auto calculator = CreateInflationCalculator({ { Height(5), Amount(345) }, { Height(15), Amount(123) } });
 
 		// Assert:
 		EXPECT_THROW(calculator.add(Height(5), Amount(456)), catapult_invalid_argument);
@@ -125,13 +125,13 @@ namespace catapult { namespace model {
 		InflationCalculator calculator;
 
 		// Act + Assert:
-		for (auto rawHeight : {0u, 1u, 10u, 123456u})
+		for (auto rawHeight : { 0u, 1u, 10u, 123456u })
 			EXPECT_EQ(Amount(), calculator.getSpotAmount(Height(rawHeight))) << Height_Message << rawHeight;
 	}
 
 	TEST(TEST_CLASS, GetSpotAmountReturnsExpectedAmount_HeightExistsInMap) {
 		// Arrange:
-		std::vector<InflationEntry> entries{{Height(1), Amount(345)}, {Height(15), Amount(234)}, {Height(25), Amount(123)}};
+		std::vector<InflationEntry> entries{ { Height(1), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
 		auto calculator = CreateInflationCalculator(entries);
 
 		// Act + Assert:
@@ -142,7 +142,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, GetSpotAmountReturnsExpectedAmount_HeightDoesNotExistInMap) {
 		// Arrange:
-		std::vector<InflationEntry> entries{{Height(5), Amount(345)}, {Height(15), Amount(234)}, {Height(25), Amount(123)}};
+		std::vector<InflationEntry> entries{ { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
 		auto calculator = CreateInflationCalculator(entries);
 
 		// Act + Assert:
@@ -161,13 +161,13 @@ namespace catapult { namespace model {
 		InflationCalculator calculator;
 
 		// Act + Assert:
-		for (auto rawHeight : {1u, 5u, 10u, 123456u})
+		for (auto rawHeight : { 1u, 5u, 10u, 123456u })
 			EXPECT_EQ(Amount(), calculator.getCumulativeAmount(Height(rawHeight))) << Height_Message << rawHeight;
 	}
 
 	TEST(TEST_CLASS, GetCumulativeAmountReturnsAmountZeroAtHeightZero) {
 		// Arrange:
-		std::vector<InflationEntry> entries{{Height(1), Amount(345)}, {Height(15), Amount(234)}, {Height(25), Amount(123)}};
+		std::vector<InflationEntry> entries{ { Height(1), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
 		auto calculator = CreateInflationCalculator(entries);
 
 		// Act + Assert:
@@ -176,7 +176,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, GetCumulativeAmountReturnsExpectedAmount_HeightExistsInMap) {
 		// Arrange:
-		std::vector<InflationEntry> entries{{Height(5), Amount(345)}, {Height(15), Amount(86)}, {Height(25), Amount(123)}};
+		std::vector<InflationEntry> entries{ { Height(5), Amount(345) }, { Height(15), Amount(86) }, { Height(25), Amount(123) } };
 		auto calculator = CreateInflationCalculator(entries);
 
 		// Act + Assert: total inflation does not include the height provided in the call to getTotalAmount
@@ -187,7 +187,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, GetCumulativeAmountReturnsExpectedAmount_HeightDoesNotExistInMap) {
 		// Arrange:
-		std::vector<InflationEntry> entries{{Height(5), Amount(345)}, {Height(15), Amount(234)}, {Height(25), Amount(123)}};
+		std::vector<InflationEntry> entries{ { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(123) } };
 		auto calculator = CreateInflationCalculator(entries);
 
 		// Act + Assert: total inflation does not include the height provided in the call to getTotalAmount
@@ -206,7 +206,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, SumAllReturnsTotalInflationWhenNotEncounteringOverflow) {
 		// Arrange:
-		auto calculator = CreateInflationCalculator({{Height(3), Amount(345)}, {Height(9), Amount(234)}, {Height(45), Amount(0)}});
+		auto calculator = CreateInflationCalculator({ { Height(3), Amount(345) }, { Height(9), Amount(234) }, { Height(45), Amount(0) } });
 
 		// Act:
 		auto totalInflation = calculator.sumAll();
@@ -219,7 +219,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, SumAllReturnsFalseWhenInflationSummandCausesOverflow) {
 		// Arrange:
 		auto numBlocks = std::numeric_limits<uint64_t>::max() / 2 + 2;
-		auto calculator = CreateInflationCalculator({{Height(1), Amount(2)}, {Height(numBlocks), Amount(0)}});
+		auto calculator = CreateInflationCalculator({ { Height(1), Amount(2) }, { Height(numBlocks), Amount(0) } });
 
 		// Act:
 		auto totalInflation = calculator.sumAll();
@@ -232,8 +232,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, SumAllReturnsFalseWhenCurrentTotalInflationPlusSummandCausesOverflow) {
 		// Arrange:
 		auto numBlocks = std::numeric_limits<uint64_t>::max() / 2;
-		auto calculator =
-				CreateInflationCalculator({{Height(1), Amount(2)}, {Height(numBlocks), Amount(2)}, {Height(numBlocks + 2), Amount(0)}});
+		auto calculator = CreateInflationCalculator(
+				{ { Height(1), Amount(2) }, { Height(numBlocks), Amount(2) }, { Height(numBlocks + 2), Amount(0) } });
 
 		// Act:
 		auto totalInflation = calculator.sumAll();
@@ -245,7 +245,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, SumAllReturnsFalseWhenLastInflationEntryIsNonzero) {
 		// Arrange:
-		std::vector<InflationEntry> entries{{Height(5), Amount(345)}, {Height(15), Amount(234)}, {Height(25), Amount(3)}};
+		std::vector<InflationEntry> entries{ { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(3) } };
 		auto calculator = CreateInflationCalculator(entries);
 
 		// Act:

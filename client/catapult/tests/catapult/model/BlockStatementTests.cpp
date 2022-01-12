@@ -94,7 +94,7 @@ namespace catapult { namespace model {
 		auto result = TTraits::Calculate(statement);
 
 		// Assert:
-		TTraits::AssertResult({Hash256()}, result);
+		TTraits::AssertResult({ Hash256() }, result);
 	}
 
 	// endregion
@@ -114,16 +114,16 @@ namespace catapult { namespace model {
 			auto result = TTraits::Calculate(statement);
 
 			// Assert:
-			TTraits::AssertResult({componentStatementHash}, result);
+			TTraits::AssertResult({ componentStatementHash }, result);
 		}
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleTransactionStatement) {
-		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(TransactionStatement({11, 12}));
+		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(TransactionStatement({ 11, 12 }));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleAddressResolutionStatement) {
-		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(AddressResolutionStatement(UnresolvedAddress{{88}}));
+		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(AddressResolutionStatement(UnresolvedAddress{ { 88 } }));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleMosaicResolutionStatement) {
@@ -151,10 +151,9 @@ namespace catapult { namespace model {
 				TComponentStatement2&& componentStatement2,
 				TComponentStatement3&& componentStatement3) {
 			// Arrange:
-			std::vector<Hash256> componentStatementHashes{
-					componentStatement1.hash(),
-					componentStatement2.hash(),
-					componentStatement3.hash()};
+			std::vector<Hash256> componentStatementHashes{ componentStatement1.hash(),
+														   componentStatement2.hash(),
+														   componentStatement3.hash() };
 
 			BlockStatement statement;
 			Add(statement, std::move(componentStatement1));
@@ -171,16 +170,16 @@ namespace catapult { namespace model {
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleTransactionStatements) {
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
-				TransactionStatement({10, 10}),
-				TransactionStatement({11, 12}),
-				TransactionStatement({24, 11}));
+				TransactionStatement({ 10, 10 }),
+				TransactionStatement({ 11, 12 }),
+				TransactionStatement({ 24, 11 }));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleAddressResolutionStatements) {
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
-				AddressResolutionStatement(UnresolvedAddress{{88}}),
-				AddressResolutionStatement(UnresolvedAddress{{92}}),
-				AddressResolutionStatement(UnresolvedAddress{{94}}));
+				AddressResolutionStatement(UnresolvedAddress{ { 88 } }),
+				AddressResolutionStatement(UnresolvedAddress{ { 92 } }),
+				AddressResolutionStatement(UnresolvedAddress{ { 94 } }));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleMosaicResolutionStatements) {
@@ -196,29 +195,24 @@ namespace catapult { namespace model {
 
 	MERKLE_TEST(CanCalculateMerkleForHeterogenousComponentStatementsOneEach) {
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
-				TransactionStatement({10, 10}),
-				AddressResolutionStatement(UnresolvedAddress{{92}}),
+				TransactionStatement({ 10, 10 }),
+				AddressResolutionStatement(UnresolvedAddress{ { 92 } }),
 				MosaicResolutionStatement(UnresolvedMosaicId(300)));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForHeterogenousComponentStatementsMultipleEach) {
 		// Arrange:
-		auto componentStatement1 = TransactionStatement({10, 10});
-		auto componentStatement2 = TransactionStatement({24, 11});
-		auto componentStatement3 = AddressResolutionStatement(UnresolvedAddress{{88}});
-		auto componentStatement4 = AddressResolutionStatement(UnresolvedAddress{{92}});
-		auto componentStatement5 = AddressResolutionStatement(UnresolvedAddress{{94}});
+		auto componentStatement1 = TransactionStatement({ 10, 10 });
+		auto componentStatement2 = TransactionStatement({ 24, 11 });
+		auto componentStatement3 = AddressResolutionStatement(UnresolvedAddress{ { 88 } });
+		auto componentStatement4 = AddressResolutionStatement(UnresolvedAddress{ { 92 } });
+		auto componentStatement5 = AddressResolutionStatement(UnresolvedAddress{ { 94 } });
 		auto componentStatement6 = MosaicResolutionStatement(UnresolvedMosaicId(100));
 		auto componentStatement7 = MosaicResolutionStatement(UnresolvedMosaicId(200));
 
-		std::vector<Hash256> componentStatementHashes{
-				componentStatement1.hash(),
-				componentStatement2.hash(),
-				componentStatement3.hash(),
-				componentStatement4.hash(),
-				componentStatement5.hash(),
-				componentStatement6.hash(),
-				componentStatement7.hash()};
+		std::vector<Hash256> componentStatementHashes{ componentStatement1.hash(), componentStatement2.hash(), componentStatement3.hash(),
+													   componentStatement4.hash(), componentStatement5.hash(), componentStatement6.hash(),
+													   componentStatement7.hash() };
 
 		BlockStatement statement;
 		Add(statement, std::move(componentStatement1));
@@ -248,7 +242,7 @@ namespace catapult { namespace model {
 					uint32_t numMosaicStatements,
 					uint32_t numTotalStatements) {
 				// Arrange:
-				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
+				std::vector<size_t> numStatements{ numTransactionStatements, numAddressStatements, numMosaicStatements };
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements);
 
 				// Act:
@@ -266,7 +260,7 @@ namespace catapult { namespace model {
 					uint32_t numMosaicStatements,
 					uint32_t) {
 				// Arrange:
-				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
+				std::vector<size_t> numStatements{ numTransactionStatements, numAddressStatements, numMosaicStatements };
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements);
 
 				// Act:
@@ -286,7 +280,7 @@ namespace catapult { namespace model {
 					uint32_t numMosaicStatements,
 					uint32_t) {
 				// Arrange:
-				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
+				std::vector<size_t> numStatements{ numTransactionStatements, numAddressStatements, numMosaicStatements };
 				auto maxStatements = *std::max_element(numStatements.cbegin(), numStatements.cend());
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements, test::RandomStatementsConstraints::Order);
 

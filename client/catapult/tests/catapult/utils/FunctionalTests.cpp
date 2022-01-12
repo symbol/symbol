@@ -47,7 +47,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, RunningReduceOnContainerExecutesCallbackOnAllElements) {
 		// Arrange:
-		std::vector<int> vec{8, 13, 21, 34, 55};
+		std::vector<int> vec{ 8, 13, 21, 34, 55 };
 
 		// Act:
 		std::vector<std::pair<int, int>> collected;
@@ -57,7 +57,7 @@ namespace catapult { namespace utils {
 		});
 
 		// Assert:
-		std::vector<std::pair<int, int>> expected{{12345, 8}, {8, 13}, {13, 21}, {21, 34}, {34, 55}};
+		std::vector<std::pair<int, int>> expected{ { 12345, 8 }, { 8, 13 }, { 13, 21 }, { 21, 34 }, { 34, 55 } };
 		EXPECT_EQ(result, 55);
 		EXPECT_EQ(expected, collected);
 	}
@@ -90,7 +90,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, ReturnedValueIsOfInitType) {
 		// Arrange:
-		std::map<std::string, int> container{{"alpha", 21}, {"bravo", 22}, {"charlie", 23}, {"delta", 24}, {"echo", 25}};
+		std::map<std::string, int> container{ { "alpha", 21 }, { "bravo", 22 }, { "charlie", 23 }, { "delta", 24 }, { "echo", 25 } };
 
 		// Act:
 		size_t len = 0;
@@ -113,7 +113,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, SumCallbackIsCalledOnEveryElement) {
 		// Arrange:
-		std::vector<int> data{8, 13, 21, 34, 55};
+		std::vector<int> data{ 8, 13, 21, 34, 55 };
 
 		// Act:
 		std::vector<int> collected;
@@ -128,7 +128,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, SumReturnsProperValue_SingleElement) {
 		// Arrange:
-		std::vector<int> data{8};
+		std::vector<int> data{ 8 };
 
 		// Act:
 		auto result = Sum(data, [](auto value) { return value; });
@@ -139,7 +139,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, SumReturnsProperValue_MultipleElements) {
 		// Arrange:
-		std::vector<int> data{8, 13, 21, 34, 55};
+		std::vector<int> data{ 8, 13, 21, 34, 55 };
 
 		// Act:
 		auto result = Sum(data, [](auto value) { return value; });
@@ -150,7 +150,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, SumReturnsProperValue_MultipleBaseValueElements) {
 		// Arrange:
-		std::vector<Height> data{Height(8), Height(13), Height(21), Height(34), Height(55)};
+		std::vector<Height> data{ Height(8), Height(13), Height(21), Height(34), Height(55) };
 
 		// Act:
 		auto result = Sum(data, [](auto value) { return value; });

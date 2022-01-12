@@ -56,7 +56,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(1u, options.SpecialAccountAddresses.size());
-		EXPECT_EQ(AddressSet{config.HarvestNetworkFeeSinkAddressV1}, options.SpecialAccountAddresses);
+		EXPECT_EQ(AddressSet{ config.HarvestNetworkFeeSinkAddressV1 }, options.SpecialAccountAddresses);
 	}
 
 	// endregion
@@ -97,14 +97,13 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithSingleSpecialAccount) {
-		RunNemesisNotificationPublisherTest({test::GenerateRandomByteArray<Address>()});
+		RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Address>() });
 	}
 
 	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithMultipleSpecialAccounts) {
-		RunNemesisNotificationPublisherTest(
-				{test::GenerateRandomByteArray<Address>(),
-				 test::GenerateRandomByteArray<Address>(),
-				 test::GenerateRandomByteArray<Address>()});
+		RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Address>(),
+											  test::GenerateRandomByteArray<Address>(),
+											  test::GenerateRandomByteArray<Address>() });
 	}
 
 	// endregion
