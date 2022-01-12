@@ -99,8 +99,9 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TransactionInfo
-	MakeTransactionInfo(const std::shared_ptr<const Transaction>& pTransaction, const TransactionElement& transactionElement) {
+	TransactionInfo MakeTransactionInfo(
+			const std::shared_ptr<const Transaction>& pTransaction,
+			const TransactionElement& transactionElement) {
 		TransactionInfo transactionInfo(pTransaction, transactionElement.EntityHash);
 		transactionInfo.MerkleComponentHash = transactionElement.MerkleComponentHash;
 		transactionInfo.OptionalExtractedAddresses = transactionElement.OptionalExtractedAddresses;

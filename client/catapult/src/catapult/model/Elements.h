@@ -99,6 +99,7 @@ namespace catapult { namespace model {
 	void ExtractTransactionInfos(std::vector<TransactionInfo>& transactionInfos, const std::shared_ptr<const BlockElement>& pBlockElement);
 
 	/// Makes a transaction info by merging \a pTransaction and \a transactionElement.
-	TransactionInfo
-	MakeTransactionInfo(const std::shared_ptr<const Transaction>& pTransaction, const TransactionElement& transactionElement);
+	TransactionInfo MakeTransactionInfo(
+			const std::shared_ptr<const Transaction>& pTransaction,
+			const TransactionElement& transactionElement);
 }}

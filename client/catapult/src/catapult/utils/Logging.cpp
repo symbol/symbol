@@ -121,8 +121,9 @@ namespace catapult { namespace utils {
 
 		// operator used when putting the LogLevel to log with a severity_color manipulator
 		template<LogColorMode Mode>
-		boost::log::formatting_ostream&
-		operator<<(boost::log::formatting_ostream& stream, const boost::log::to_log_manip<LogLevel, severity_color<Mode>>& manipulator) {
+		boost::log::formatting_ostream& operator<<(
+				boost::log::formatting_ostream& stream,
+				const boost::log::to_log_manip<LogLevel, severity_color<Mode>>& manipulator) {
 			auto level = static_cast<std::size_t>(manipulator.get());
 			if (level < CountOf(Color_Mapping_Flags) && Colors::None != Color_Mapping_Flags[level])
 				OutputAnsiCode<Mode>(stream, Color_Mapping_Flags[level]);
