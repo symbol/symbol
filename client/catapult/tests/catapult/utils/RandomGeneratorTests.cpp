@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/utils/RandomGenerator.h"
-#include "tests/test/nodeps/RandomnessTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/RandomnessTestUtils.h"
 
 namespace catapult { namespace utils {
 
@@ -30,8 +30,9 @@ namespace catapult { namespace utils {
 	namespace {
 		class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
 		public:
-			HighEntropyRandomGeneratorCustomToken() : HighEntropyRandomGenerator("/dev/urandom")
-			{}
+			HighEntropyRandomGeneratorCustomToken()
+					: HighEntropyRandomGenerator("/dev/urandom") {
+			}
 		};
 	}
 

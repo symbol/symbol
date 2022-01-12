@@ -25,13 +25,11 @@
 #include <array>
 #include <unordered_set>
 
-namespace catapult {
-	namespace utils {
-		class BlockSpan;
-		class FileSize;
-		class TimeSpan;
-	}
-}
+namespace catapult { namespace utils {
+	class BlockSpan;
+	class FileSize;
+	class TimeSpan;
+}}
 
 namespace catapult { namespace utils {
 
@@ -106,9 +104,8 @@ namespace catapult { namespace utils {
 	/// Tries to parse \a str into an enum value (\a parsedValue) given a mapping of strings to values (\a stringToValueMapping).
 	template<typename T, size_t N>
 	bool TryParseEnumValue(const std::array<std::pair<const char*, T>, N>& stringToValueMapping, const std::string& str, T& parsedValue) {
-		auto iter = std::find_if(stringToValueMapping.cbegin(), stringToValueMapping.cend(), [&str](const auto& pair) {
-			return pair.first == str;
-		});
+		auto iter = std::find_if(
+				stringToValueMapping.cbegin(), stringToValueMapping.cend(), [&str](const auto& pair) { return pair.first == str; });
 
 		if (stringToValueMapping.cend() == iter)
 			return false;
@@ -120,9 +117,7 @@ namespace catapult { namespace utils {
 	/// Tries to parse \a str into a bitwise enum value (\a parsedValue) given a mapping of strings to values (\a stringToValueMapping).
 	template<typename T, size_t N>
 	bool TryParseBitwiseEnumValue(
-			const std::array<std::pair<const char*, T>, N>& stringToValueMapping,
-			const std::string& str,
-			T& parsedValues) {
+			const std::array<std::pair<const char*, T>, N>& stringToValueMapping, const std::string& str, T& parsedValues) {
 		std::unordered_set<std::string> parts;
 		if (!TryParseValue(str, parts))
 			return false;

@@ -79,7 +79,7 @@ namespace catapult { namespace utils {
 		// Assert:
 		EXPECT_EQ(1u, bag.size());
 		EXPECT_TRUE(bag.contains(Foo_Alpha_Key));
-		EXPECT_EQ(MakeSectionsSet({ "foo" }), bag.sections());
+		EXPECT_EQ(MakeSectionsSet({"foo"}), bag.sections());
 	}
 
 	TEST(TEST_CLASS, CanLoadBagFromIniFileWithMultipleValues) {
@@ -94,7 +94,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(2u, bag.size());
 		EXPECT_TRUE(bag.contains(Foo_Alpha_Key));
 		EXPECT_TRUE(bag.contains(Foo_Beta_Key));
-		EXPECT_EQ(MakeSectionsSet({ "foo" }), bag.sections());
+		EXPECT_EQ(MakeSectionsSet({"foo"}), bag.sections());
 	}
 
 	TEST(TEST_CLASS, CanLoadBagFromIniFileWithMultipleValuesInMultipleSections) {
@@ -112,7 +112,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(bag.contains(Foo_Alpha_Key));
 		EXPECT_TRUE(bag.contains(Bar_Alpha_Key));
 		EXPECT_TRUE(bag.contains(Bar_Beta_Key));
-		EXPECT_EQ(MakeSectionsSet({ "foo", "bar" }), bag.sections());
+		EXPECT_EQ(MakeSectionsSet({"foo", "bar"}), bag.sections());
 	}
 
 	// endregion
@@ -285,10 +285,16 @@ namespace catapult { namespace utils {
 	}
 
 #define GET_ALL_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Unordered) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllUnorderedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Ordered) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllOrderedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Unordered) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllUnorderedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Ordered) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllOrderedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	GET_ALL_TRAITS_BASED_TEST(GetAllRetrievesAllPropertiesForKnownSection) {
 		// Arrange:
@@ -300,8 +306,8 @@ namespace catapult { namespace utils {
 
 		// Act + Assert:
 		using KeyValueMap = typename TTraits::template KeyValueMapType<std::string>;
-		KeyValueMap expectedFooProperties{ { "alpha", "123" } };
-		KeyValueMap expectedBarProperties{ { "alpha", "7" }, { "beta", "99" } };
+		KeyValueMap expectedFooProperties{{"alpha", "123"}};
+		KeyValueMap expectedBarProperties{{"alpha", "7"}, {"beta", "99"}};
 		EXPECT_EQ(expectedFooProperties, fooProperties);
 		EXPECT_EQ(expectedBarProperties, barProperties);
 	}
@@ -326,7 +332,7 @@ namespace catapult { namespace utils {
 
 		// Act + Assert:
 		using KeyValueMap = typename TTraits::template KeyValueMapType<uint32_t>;
-		KeyValueMap expectedProperties{ { "alpha", 7 }, { "beta", 99 } };
+		KeyValueMap expectedProperties{{"alpha", 7}, {"beta", 99}};
 		EXPECT_EQ(expectedProperties, properties);
 	}
 

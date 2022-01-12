@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/BaseValue.h"
 #include "catapult/types.h"
+#include "catapult/utils/BaseValue.h"
+#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Convertibility.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {
 
@@ -136,7 +136,7 @@ namespace catapult { namespace utils {
 
 	namespace {
 		std::vector<TestValue> GenerateIncreasingValues() {
-			return { TestValue(123), TestValue(642), TestValue(989) };
+			return {TestValue(123), TestValue(642), TestValue(989)};
 		}
 	}
 

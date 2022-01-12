@@ -28,10 +28,12 @@ namespace catapult { namespace utils {
 		constexpr auto Counter_Name_Alphabet_Size = 27u; // ' ' [0] and A-Z [1-26]
 	}
 
-	DiagnosticCounterId::DiagnosticCounterId() : DiagnosticCounterId(0)
-	{}
+	DiagnosticCounterId::DiagnosticCounterId()
+			: DiagnosticCounterId(0) {
+	}
 
-	DiagnosticCounterId::DiagnosticCounterId(const std::string& name) : m_name(name) {
+	DiagnosticCounterId::DiagnosticCounterId(const std::string& name)
+			: m_name(name) {
 		if (Max_Counter_Name_Size < m_name.size())
 			CATAPULT_THROW_INVALID_ARGUMENT_1("counter name is too long", m_name);
 
@@ -48,7 +50,8 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	DiagnosticCounterId::DiagnosticCounterId(uint64_t value) : m_value(value) {
+	DiagnosticCounterId::DiagnosticCounterId(uint64_t value)
+			: m_value(value) {
 		for (auto i = 0u; i < Max_Counter_Name_Size; ++i) {
 			if (0 == value)
 				break;

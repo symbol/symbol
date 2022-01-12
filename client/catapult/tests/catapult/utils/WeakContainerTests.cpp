@@ -51,7 +51,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanAddItemsToContainer) {
 		// Arrange:
-		auto vec = GenerateVector({ 7, 3, 8 });
+		auto vec = GenerateVector({7, 3, 8});
 
 		// Act:
 		WeakContainer<int> container;
@@ -63,7 +63,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, AlreadyDestroyedItemsAreRemoveByInsert) {
 		// Arrange:
-		auto vec = GenerateVector({ 7, 3, 8, 5 });
+		auto vec = GenerateVector({7, 3, 8, 5});
 		WeakContainer<int> container;
 		InitializeFromVector(container, vec);
 
@@ -82,7 +82,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, AlreadyDestroyedItemsAreRemoveBySize) {
 		// Arrange:
-		auto vec = GenerateVector({ 7, 3, 8, 5 });
+		auto vec = GenerateVector({7, 3, 8, 5});
 		WeakContainer<int> container;
 		InitializeFromVector(container, vec);
 
@@ -98,7 +98,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, ClearRemovesAllItems) {
 		// Arrange: create a container around 2 valid and 1 invalid element
-		auto vec = GenerateVector({ 7, 3, 8 });
+		auto vec = GenerateVector({7, 3, 8});
 		WeakContainer<int> container;
 		InitializeFromVector(container, vec);
 		vec[1].reset();
@@ -112,7 +112,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, ClearCallsCustomCloseFunctionForAllValidItems) {
 		// Arrange: create a container around 2 valid and 1 invalid element
-		auto vec = GenerateVector({ 7, 3, 8 });
+		auto vec = GenerateVector({7, 3, 8});
 		std::vector<int> closeIds;
 		WeakContainer<int> container([&closeIds](const auto& id) { closeIds.push_back(id); });
 		InitializeFromVector(container, vec);
@@ -122,7 +122,7 @@ namespace catapult { namespace utils {
 		container.clear();
 
 		// Assert: both valid and invalid pointers were removed but close was only called for valid ones
-		std::vector<int> expectedCloseIds{ 7, 8 };
+		std::vector<int> expectedCloseIds{7, 8};
 		EXPECT_EQ(0u, container.size());
 		EXPECT_EQ(expectedCloseIds, closeIds);
 	}

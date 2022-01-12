@@ -57,29 +57,27 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanExtractNamesFromSingleObject) {
 		// Arrange:
-		NamedObjectPointers objects{ std::make_shared<NamedObjectMixin>("alpha") };
+		NamedObjectPointers objects{std::make_shared<NamedObjectMixin>("alpha")};
 
 		// Act:
 		auto names = ExtractNames(objects);
 
 		// Assert:
-		auto expectedNames = std::vector<std::string>{ "alpha" };
+		auto expectedNames = std::vector<std::string>{"alpha"};
 		EXPECT_EQ(expectedNames, names);
 	}
 
 	TEST(TEST_CLASS, CanExtractNamesFromMultipleObjects) {
 		// Arrange:
-		NamedObjectPointers objects{
-			std::make_shared<NamedObjectMixin>("alpha"),
-			std::make_shared<NamedObjectMixin>("OMEGA"),
-			std::make_shared<NamedObjectMixin>("zEtA")
-		};
+		NamedObjectPointers objects{std::make_shared<NamedObjectMixin>("alpha"),
+				std::make_shared<NamedObjectMixin>("OMEGA"),
+				std::make_shared<NamedObjectMixin>("zEtA")};
 
 		// Act:
 		auto names = ExtractNames(objects);
 
 		// Assert:
-		auto expectedNames = std::vector<std::string>{ "alpha", "OMEGA", "zEtA" };
+		auto expectedNames = std::vector<std::string>{"alpha", "OMEGA", "zEtA"};
 		EXPECT_EQ(expectedNames, names);
 	}
 
@@ -97,7 +95,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanReduceSingleName) {
 		// Act:
-		auto name = ReduceNames({ "alpha" });
+		auto name = ReduceNames({"alpha"});
 
 		// Assert:
 		EXPECT_EQ("{ alpha }", name);
@@ -105,7 +103,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanReduceMultipleNames) {
 		// Act:
-		auto name = ReduceNames({ "alpha", "OMEGA", "zEtA" });
+		auto name = ReduceNames({"alpha", "OMEGA", "zEtA"});
 
 		// Assert:
 		EXPECT_EQ("{ alpha, OMEGA, zEtA }", name);

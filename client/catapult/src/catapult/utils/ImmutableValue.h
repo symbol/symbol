@@ -31,8 +31,9 @@ namespace catapult { namespace utils {
 	class ImmutableValue : public utils::MoveOnly {
 	public:
 		/// Creates an immutable value around \a value.
-		constexpr explicit ImmutableValue(TValue value) : m_value(value)
-		{}
+		constexpr explicit ImmutableValue(TValue value)
+				: m_value(value) {
+		}
 
 	public:
 		/// Casts this immutable value to a mutable value.

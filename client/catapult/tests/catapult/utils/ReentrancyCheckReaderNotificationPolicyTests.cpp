@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/ReentrancyCheckReaderNotificationPolicy.h"
 #include "catapult/thread/ThreadGroup.h"
+#include "catapult/utils/ReentrancyCheckReaderNotificationPolicy.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {

@@ -34,16 +34,19 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Creates a zero-initialized byte array.
-		constexpr ByteArray() : m_array()
-		{}
+		constexpr ByteArray()
+				: m_array() {
+		}
 
 		/// Creates a byte array around \a array.
-		constexpr ByteArray(const std::array<uint8_t, TTag::Size>& array) : m_array(array)
-		{}
+		constexpr ByteArray(const std::array<uint8_t, TTag::Size>& array)
+				: m_array(array) {
+		}
 
 		/// Creates a copy of \a rhs.
-		constexpr ByteArray(const ByteArray& rhs) : m_array(rhs.m_array)
-		{}
+		constexpr ByteArray(const ByteArray& rhs)
+				: m_array(rhs.m_array) {
+		}
 
 	public:
 		/// Assigns \a rhs to this.

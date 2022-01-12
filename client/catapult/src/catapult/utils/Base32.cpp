@@ -68,11 +68,7 @@ namespace catapult { namespace utils {
 			return true;
 		}
 
-		enum class EncodeResult {
-			Success,
-			OutputBufferTooSmall,
-			InvalidSize
-		};
+		enum class EncodeResult { Success, OutputBufferTooSmall, InvalidSize };
 
 		EncodeResult TryBase32EncodeInternal(const RawBuffer& data, const MutableRawString& encodedData) {
 			if (encodedData.Size < GetEncodedDataSize(data.Size))
@@ -87,12 +83,7 @@ namespace catapult { namespace utils {
 			return EncodeResult::Success;
 		}
 
-		enum class DecodeResult {
-			Success,
-			IllegalCharacter,
-			OutputBufferTooSmall,
-			InvalidSize
-		};
+		enum class DecodeResult { Success, IllegalCharacter, OutputBufferTooSmall, InvalidSize };
 
 		DecodeResult TryBase32DecodeInternal(const RawString& encodedData, const MutableRawBuffer& data) {
 			if (data.Size < GetDecodedDataSize(encodedData.Size))

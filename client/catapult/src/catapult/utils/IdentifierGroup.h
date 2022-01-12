@@ -20,8 +20,8 @@
 **/
 
 #pragma once
-#include <unordered_set>
 #include <stddef.h>
+#include <unordered_set>
 
 namespace catapult { namespace utils {
 
@@ -37,8 +37,9 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Creates a group around a given \a key.
-		explicit IdentifierGroup(const TGroupingKey& key) : m_key(key)
-		{}
+		explicit IdentifierGroup(const TGroupingKey& key)
+				: m_key(key) {
+		}
 
 	public:
 		/// Gets the grouping key.

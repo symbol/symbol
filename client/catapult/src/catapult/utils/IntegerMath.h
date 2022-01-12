@@ -21,15 +21,13 @@
 
 #pragma once
 #include <limits>
-#include <type_traits>
 #include <stdint.h>
+#include <type_traits>
 
-namespace catapult {
-	namespace utils {
-		template<typename TValue, typename TTag>
-		class BaseValue;
-	}
-}
+namespace catapult { namespace utils {
+	template<typename TValue, typename TTag>
+	class BaseValue;
+}}
 
 namespace catapult { namespace utils {
 

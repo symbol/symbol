@@ -28,7 +28,8 @@ namespace catapult { namespace utils {
 	template<typename T>
 	class AtomicIncrementDecrementGuard {
 	public:
-		explicit AtomicIncrementDecrementGuard(std::atomic<T>& value) : m_value(value) {
+		explicit AtomicIncrementDecrementGuard(std::atomic<T>& value)
+				: m_value(value) {
 			++m_value;
 		}
 

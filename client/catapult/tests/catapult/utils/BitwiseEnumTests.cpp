@@ -20,23 +20,16 @@
 **/
 
 #include "catapult/utils/BitwiseEnum.h"
+#include "tests/TestHarness.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Equality.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {
 
 #define TEST_CLASS BitwiseEnumTests
 
 	namespace {
-		enum class TestEnum {
-			None = 0x00,
-			Alpha = 0x01,
-			Beta = 0x02,
-			Gamma = 0x04,
-			Delta = 0x20,
-			All = 0xFF
-		};
+		enum class TestEnum { None = 0x00, Alpha = 0x01, Beta = 0x02, Gamma = 0x04, Delta = 0x20, All = 0xFF };
 
 		MAKE_BITWISE_ENUM(TestEnum)
 	}
@@ -56,7 +49,7 @@ namespace catapult { namespace utils {
 		auto combinedFlags = TestEnum::None;
 
 		// Act: alpha and beta flags duplicated on purpose
-		for (auto flag : { TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::Alpha, TestEnum::Beta })
+		for (auto flag : {TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::Alpha, TestEnum::Beta})
 			combinedFlags |= flag;
 
 		// Assert:
@@ -80,17 +73,17 @@ namespace catapult { namespace utils {
 	// region has flag
 
 	TEST(TEST_CLASS, HasFlagReturnsTrueWhenAllFlagsAreSet) {
-		for (auto flag : { TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::All })
+		for (auto flag : {TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::All})
 			EXPECT_TRUE(HasFlag(flag, TestEnum::All)) << "flag " << utils::to_underlying_type(flag);
 	}
 
 	TEST(TEST_CLASS, HasFlagReturnsFalseWhenAllFlagsAreUnset) {
-		for (auto flag : { TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::All })
+		for (auto flag : {TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::All})
 			EXPECT_FALSE(HasFlag(flag, TestEnum::None)) << "flag " << utils::to_underlying_type(flag);
 	}
 
 	TEST(TEST_CLASS, HasFlagAlwaysReturnsTrueWhenTestedFlagIsZero) {
-		for (auto flags : { TestEnum::None, TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::All })
+		for (auto flags : {TestEnum::None, TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::All})
 			EXPECT_TRUE(HasFlag(TestEnum::None, flags)) << "flags " << utils::to_underlying_type(flags);
 	}
 
@@ -114,16 +107,15 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, HasSingleFlagReturnsTrueWhenSingleBitIsSet) {
-		for (auto flag : { TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta })
+		for (auto flag : {TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta})
 			EXPECT_TRUE(HasSingleFlag(flag)) << "flag " << utils::to_underlying_type(flag);
 	}
 
 	TEST(TEST_CLASS, HasSingleFlagReturnsFalseWhenMultipleBitsAreSet) {
-		for (auto flag1 : { TestEnum::Alpha, TestEnum::Beta }) {
-			for (auto flag2 : { TestEnum::Gamma, TestEnum::Delta }) {
+		for (auto flag1 : {TestEnum::Alpha, TestEnum::Beta}) {
+			for (auto flag2 : {TestEnum::Gamma, TestEnum::Delta}) {
 				EXPECT_FALSE(HasSingleFlag(flag1 | flag2))
-						<< "flag1 " << utils::to_underlying_type(flag1)
-						<< ", flag2 " << utils::to_underlying_type(flag2);
+						<< "flag1 " << utils::to_underlying_type(flag1) << ", flag2 " << utils::to_underlying_type(flag2);
 			}
 		}
 	}

@@ -47,15 +47,7 @@ namespace catapult { namespace utils {
 	// region LogLevel
 
 	namespace {
-		constexpr const char* Level_To_Name_Mapping[] = {
-			"trace",
-			"debug",
-			"info",
-			"important",
-			"warning",
-			"error",
-			"fatal"
-		};
+		constexpr const char* Level_To_Name_Mapping[] = {"trace", "debug", "info", "important", "warning", "error", "fatal"};
 	}
 
 	std::ostream& operator<<(std::ostream& out, LogLevel level) {
@@ -71,8 +63,7 @@ namespace catapult { namespace utils {
 		template<typename TTraits>
 		void AddGlobalAttributeFromTraits(const typename TTraits::Type& defaultValue) {
 			boost::log::core::get()->add_global_attribute(
-					TTraits::Name,
-					boost::log::attributes::constant<typename TTraits::Type>(defaultValue));
+					TTraits::Name, boost::log::attributes::constant<typename TTraits::Type>(defaultValue));
 		}
 
 		void InitializeGlobalLogAttributes() {
@@ -105,14 +96,13 @@ namespace catapult { namespace utils {
 		};
 
 		constexpr Colors Color_Mapping_Flags[] = {
-			/* trace     */ Colors::Fg_Cyan,
-			/* debug     */ Colors::Fg_Cyan,
-			/* info      */ Colors::None,
-			/* important */ Colors::Fg_Magenta,
-			/* warning   */ Colors::Fg_Yellow,
-			/* error     */ Colors::Fg_Red,
-			/* fatal     */ Colors::Fg_Red
-		};
+				/* trace     */ Colors::Fg_Cyan,
+				/* debug     */ Colors::Fg_Cyan,
+				/* info      */ Colors::None,
+				/* important */ Colors::Fg_Magenta,
+				/* warning   */ Colors::Fg_Yellow,
+				/* error     */ Colors::Fg_Red,
+				/* fatal     */ Colors::Fg_Red};
 
 		template<LogColorMode Mode>
 		struct severity_color {
@@ -132,8 +122,7 @@ namespace catapult { namespace utils {
 		// operator used when putting the LogLevel to log with a severity_color manipulator
 		template<LogColorMode Mode>
 		boost::log::formatting_ostream& operator<<(
-				boost::log::formatting_ostream& stream,
-				const boost::log::to_log_manip<LogLevel, severity_color<Mode>>& manipulator) {
+				boost::log::formatting_ostream& stream, const boost::log::to_log_manip<LogLevel, severity_color<Mode>>& manipulator) {
 			auto level = static_cast<std::size_t>(manipulator.get());
 			if (level < CountOf(Color_Mapping_Flags) && Colors::None != Color_Mapping_Flags[level])
 				OutputAnsiCode<Mode>(stream, Color_Mapping_Flags[level]);
@@ -159,23 +148,18 @@ namespace catapult { namespace utils {
 		std::string GetFormatSequence(LogColorMode colorMode) {
 			// 2016-04-24 12:22:06.358231 0x00007FFF774EB000: <info> (boot::Logging.cpp@106) msg
 			std::string format("%1% %2%: <%3%> (%4%::%5%@%6%) %7%");
-			return LogColorMode::None == colorMode
-					? format
-					: "%8%" + format + " \033[0m";
+			return LogColorMode::None == colorMode ? format : "%8%" + format + " \033[0m";
 		}
 
 		boost::log::formatter CreateLogFormatter(LogColorMode colorMode) {
 			namespace expr = boost::log::expressions;
 			namespace names = boost::log::aux::default_attribute_names;
 
-			auto formatter = expr::format(GetFormatSequence(colorMode))
-					% expr::format_date_time<boost::posix_time::ptime>(names::timestamp(), "%Y-%m-%d %H:%M:%S.%f")
-					% expr::attr<boost::log::attributes::current_thread_id::value_type>(names::thread_id())
-					% ExpressionFromTraits<log::LogLevelTraits>()
-					% ExpressionFromTraits<log::SubcomponentTraits>()
-					% ExpressionFromTraits<log::FilenameTraits>()
-					% ExpressionFromTraits<log::LineNumberTraits>()
-					% expr::smessage;
+			auto formatter = expr::format(GetFormatSequence(colorMode)) %
+							 expr::format_date_time<boost::posix_time::ptime>(names::timestamp(), "%Y-%m-%d %H:%M:%S.%f") %
+							 expr::attr<boost::log::attributes::current_thread_id::value_type>(names::thread_id()) %
+							 ExpressionFromTraits<log::LogLevelTraits>() % ExpressionFromTraits<log::SubcomponentTraits>() %
+							 ExpressionFromTraits<log::FilenameTraits>() % ExpressionFromTraits<log::LineNumberTraits>() % expr::smessage;
 
 			if (LogColorMode::Ansi == colorMode)
 				return formatter % expr::attr<LogLevel, severity_color<LogColorMode::Ansi>>(log::LogLevelTraits::Name);
@@ -184,16 +168,19 @@ namespace catapult { namespace utils {
 		}
 
 		boost::log::filter CreateLogFilter(LogLevel defaultLevel, const OverrideLevelsMap& overrideLevels) {
-			return boost::phoenix::bind([defaultLevel, overrideLevels](const auto& levelRef, const auto& subcomponentRef) {
-				for (const auto& pair : overrideLevels) {
-					// override level is set for this tag, so use it
-					if (0 == strncmp(pair.first, subcomponentRef->pData, subcomponentRef->Size))
-						return *levelRef >= pair.second;
-				}
+			return boost::phoenix::bind(
+					[defaultLevel, overrideLevels](const auto& levelRef, const auto& subcomponentRef) {
+						for (const auto& pair : overrideLevels) {
+							// override level is set for this tag, so use it
+							if (0 == strncmp(pair.first, subcomponentRef->pData, subcomponentRef->Size))
+								return *levelRef >= pair.second;
+						}
 
-				// no overrides set for this tag, so use the default level
-				return *levelRef >= defaultLevel;
-			}, loglevel_tag.or_throw(), subcomponent_tag.or_throw());
+						// no overrides set for this tag, so use the default level
+						return *levelRef >= defaultLevel;
+					},
+					loglevel_tag.or_throw(),
+					subcomponent_tag.or_throw());
 		}
 
 		// endregion
@@ -225,7 +212,8 @@ namespace catapult { namespace utils {
 
 	// region LogFilter
 
-	LogFilter::LogFilter(LogLevel level) : m_pImpl(std::make_unique<Impl>()) {
+	LogFilter::LogFilter(LogLevel level)
+			: m_pImpl(std::make_unique<Impl>()) {
 		m_pImpl->setLevel(level);
 	}
 
@@ -285,7 +273,8 @@ namespace catapult { namespace utils {
 
 	// region LoggingBootstrapper
 
-	LoggingBootstrapper::LoggingBootstrapper() : m_pImpl(std::make_unique<Impl>()) {
+	LoggingBootstrapper::LoggingBootstrapper()
+			: m_pImpl(std::make_unique<Impl>()) {
 		InitializeGlobalLogAttributes();
 	}
 
@@ -304,13 +293,11 @@ namespace catapult { namespace utils {
 	void LoggingBootstrapper::addFileLogger(const FileLoggerOptions& options, const LogFilter& filter) {
 		namespace keywords = boost::log::keywords;
 		using backend_t = boost::log::sinks::text_file_backend;
-		auto pBackend = boost::make_shared<backend_t>(
-				keywords::file_name = options.FilePattern,
+		auto pBackend = boost::make_shared<backend_t>(keywords::file_name = options.FilePattern,
 				keywords::rotation_size = options.RotationSize,
 				keywords::open_mode = std::ios_base::app);
 
-		auto pCollector = boost::log::sinks::file::make_collector(
-				keywords::target = options.Directory,
+		auto pCollector = boost::log::sinks::file::make_collector(keywords::target = options.Directory,
 				keywords::max_size = options.MaxTotalSize,
 				keywords::min_free_space = options.MinFreeSpace);
 		pBackend->set_file_collector(pCollector);

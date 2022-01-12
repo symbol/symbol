@@ -28,10 +28,10 @@ namespace catapult { namespace utils {
 	namespace {
 		class OutputWriter {
 		public:
-			OutputWriter(std::ostream& out) :
-				m_out(out),
-				m_hasOutput(false)
-			{}
+			OutputWriter(std::ostream& out)
+					: m_out(out)
+					, m_hasOutput(false) {
+			}
 
 		public:
 			void write(uint64_t value, const char* postfix) {

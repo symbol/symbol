@@ -36,8 +36,8 @@ namespace catapult { namespace utils {
 		/// Creates a formatter guard around \a out.
 		explicit IntegralHexFormatterGuard(std::ostream& out)
 				: StreamFormatGuard(out, std::ios::hex | std::ios::uppercase, '0')
-				, m_out(out)
-		{}
+				, m_out(out) {
+		}
 
 	public:
 		/// Outputs \a value to the underlying stream.
@@ -71,8 +71,9 @@ namespace catapult { namespace utils {
 	template<typename T, size_t N = sizeof(T)>
 	class IntegralHexFormatter {
 	public:
-		explicit IntegralHexFormatter(T value) : m_value(value)
-		{}
+		explicit IntegralHexFormatter(T value)
+				: m_value(value) {
+		}
 
 	public:
 		friend std::ostream& operator<<(std::ostream& out, const IntegralHexFormatter& formatter) {
@@ -89,11 +90,11 @@ namespace catapult { namespace utils {
 	template<typename TInputIterator>
 	class ContainerHexFormatter {
 	public:
-		ContainerHexFormatter(TInputIterator begin, TInputIterator end, char separator) :
-				m_begin(begin),
-				m_end(end),
-				m_separator(separator)
-		{}
+		ContainerHexFormatter(TInputIterator begin, TInputIterator end, char separator)
+				: m_begin(begin)
+				, m_end(end)
+				, m_separator(separator) {
+		}
 
 	public:
 		friend std::ostream& operator<<(std::ostream& out, const ContainerHexFormatter<TInputIterator>& formatter) {

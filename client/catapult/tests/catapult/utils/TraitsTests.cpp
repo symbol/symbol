@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/traits/Traits.h"
 #include "catapult/types.h"
+#include "catapult/utils/traits/Traits.h"
 #include "tests/TestHarness.h"
 #include <array>
 
@@ -125,7 +125,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT>::value)); \
 		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&>::value)); \
 		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&&>::value)); \
-		\
+\
 		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT>)); \
 		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&>)); \
 		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&&>)); \
@@ -190,7 +190,9 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, IsTypeExpressionCanBeUsedToConditionallySelectTypeBasedOnPresenceOfSubTypeAlias) {
 		// Arrange:
-		struct FooContainer { using Foo = int; };
+		struct FooContainer {
+			using Foo = int;
+		};
 		struct OtherContainer {};
 
 		// Assert: FooTagger::Tag is 2u iff T contains a `Foo` type alias

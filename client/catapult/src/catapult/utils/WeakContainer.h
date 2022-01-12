@@ -32,12 +32,14 @@ namespace catapult { namespace utils {
 	class WeakContainer {
 	public:
 		/// Creates an empty container.
-		WeakContainer() : WeakContainer([](const auto&) {})
-		{}
+		WeakContainer()
+				: WeakContainer([](const auto&) {}) {
+		}
 
 		/// Creates an empty container with a custom close function (\a close).
-		WeakContainer(const consumer<T&>& close) : m_close(close)
-		{}
+		WeakContainer(const consumer<T&>& close)
+				: m_close(close) {
+		}
 
 	public:
 		/// Gets the number of items in the container and removes all previously deleted items.

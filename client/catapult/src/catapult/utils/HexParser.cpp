@@ -42,7 +42,7 @@ namespace catapult { namespace utils {
 	uint8_t ParseByte(char ch1, char ch2) {
 		uint8_t by;
 		if (!TryParseByte(ch1, ch2, by)) {
-			auto byteString = std::string{ ch1, ch2 };
+			auto byteString = std::string{ch1, ch2};
 			CATAPULT_THROW_INVALID_ARGUMENT_1("unknown hex character in string", byteString);
 		}
 

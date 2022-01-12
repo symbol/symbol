@@ -35,12 +35,14 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Creates a basic base value from a raw \a value.
-		constexpr explicit BasicBaseValue(TValue value) : m_value(value)
-		{}
+		constexpr explicit BasicBaseValue(TValue value)
+				: m_value(value) {
+		}
 
 		/// Creates a copy of \a rhs.
-		constexpr BasicBaseValue(const BasicBaseValue& rhs) : m_value(static_cast<TValue>(rhs.m_value))
-		{}
+		constexpr BasicBaseValue(const BasicBaseValue& rhs)
+				: m_value(static_cast<TValue>(rhs.m_value)) {
+		}
 
 	public:
 		/// Assigns \a rhs to this.
@@ -102,8 +104,8 @@ namespace catapult { namespace utils {
 	public:
 		/// Creates a base value from a raw \a value.
 		constexpr explicit BaseValue(TValue value = 0)
-				: BasicBaseValue<TValue, TTag, BaseValue<TValue, TTag>>(value)
-		{}
+				: BasicBaseValue<TValue, TTag, BaseValue<TValue, TTag>>(value) {
+		}
 
 	public:
 		/// Adds \a rhs and this value and returns a new value.

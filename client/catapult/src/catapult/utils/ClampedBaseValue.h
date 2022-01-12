@@ -58,18 +58,18 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Creates a clamped base value from a default value.
-		constexpr ClampedBaseValue() : ClampedBaseValue(TRange::Default_Value)
-		{}
+		constexpr ClampedBaseValue()
+				: ClampedBaseValue(TRange::Default_Value) {
+		}
 
 		/// Creates a clamped base value from a raw \a value.
-		constexpr explicit ClampedBaseValue(TValue value) : Traits::ClampedBaseType(Clamp(value))
-		{}
+		constexpr explicit ClampedBaseValue(TValue value)
+				: Traits::ClampedBaseType(Clamp(value)) {
+		}
 
 	private:
 		static constexpr TValue Clamp(TValue value) {
-			return value < TRange::Min_Value
-					? TRange::Min_Value
-					: value > TRange::Max_Value ? TRange::Max_Value : value;
+			return value < TRange::Min_Value ? TRange::Min_Value : value > TRange::Max_Value ? TRange::Max_Value : value;
 		}
 
 	public:
