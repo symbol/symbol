@@ -180,9 +180,9 @@ def scalarmult_B(e):
 def encodeint(y):
 	bits = [(y >> i) & 1 for i in range(b)]
 	return b''.join([
-						int2byte(sum([bits[i * 8 + j] << j for j in range(8)]))
-						for i in range(b // 8)
-						])
+		int2byte(sum([bits[i * 8 + j] << j for j in range(8)]))
+		for i in range(b // 8)
+	])
 
 
 def encodepoint(P):
@@ -192,9 +192,9 @@ def encodepoint(P):
 	y = (y * zi) % q
 	bits = [(y >> i) & 1 for i in range(b - 1)] + [x & 1]
 	return b''.join([
-						int2byte(sum([bits[i * 8 + j] << j for j in range(8)]))
-						for i in range(b // 8)
-						])
+		int2byte(sum([bits[i * 8 + j] << j for j in range(8)]))
+		for i in range(b // 8)
+	])
 
 
 def bit(h, i):
@@ -237,9 +237,7 @@ def signature_hash_unsafe(m, sk, pk, hashobj=hashlib.sha512):
 
 def isoncurve(P):
 	(x, y, z, t) = P
-	return (z % q != 0 and
-			x * y % q == z * t % q and
-			(y * y - x * x - z * z - d * t * t) % q == 0)
+	return z % q != 0 and x * y % q == z * t % q and (y * y - x * x - z * z - d * t * t) % q == 0
 
 
 def decodeint(s):
@@ -282,6 +280,5 @@ def checkvalid_hash(s, m, pk, hashobj=hashlib.sha512):
 	(x1, y1, z1, t1) = P = scalarmult_B(S)
 	(x2, y2, z2, t2) = Q = edwards_add(R, scalarmult(A, h))
 
-	if (not isoncurve(P) or not isoncurve(Q) or
-			(x1 * z2 - x2 * z1) % q != 0 or (y1 * z2 - y2 * z1) % q != 0):
+	if (not isoncurve(P) or not isoncurve(Q) or (x1 * z2 - x2 * z1) % q != 0 or (y1 * z2 - y2 * z1) % q != 0):
 		raise SignatureMismatch('signature does not pass verification')

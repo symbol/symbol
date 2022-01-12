@@ -814,7 +814,7 @@ class Cpp17TraitsValidator(SimpleValidator):
 
 
 def rindex(lst, searched):
-	return next(idx for idx, value in zip(range(len(lst)-1, -1, -1), reversed(lst)) if value == searched)
+	return next(idx for idx, value in zip(range(len(lst) - 1, -1, -1), reversed(lst)) if value == searched)
 
 
 class UtilsSubdirValidator(SimpleValidator):
@@ -1215,9 +1215,13 @@ class DocumentationVerticalSpacingValidator(SimpleValidator):
 		stripped_line = line.strip('\n\r\t')  # also strip tabs
 
 		if stripped_line.startswith('///'):
-			if (self.previous_stripped_line
-					and all(not self.previous_stripped_line.startswith(postfix) for postfix in ['///', '#'])
-					and all(not self.previous_stripped_line.endswith(postfix) for postfix in [':', '{'])):
+			if (
+				self.previous_stripped_line and all(
+					not self.previous_stripped_line.startswith(postfix) for postfix in ['///', '#']
+				) and all(
+					not self.previous_stripped_line.endswith(postfix) for postfix in [':', '{']
+				)
+			):
 				self.report_error(line_number, line, 'documentation has unexpected previous line')
 
 		self.previous_stripped_line = stripped_line
@@ -1240,8 +1244,11 @@ class InsertionOperatorFormattingValidator(SimpleValidator):
 		stripped_line = line.strip('\n\r\t;')  # also strip tabs and semicolons
 
 		if stripped_line.startswith('<<'):
-			if (any(stripped_line.endswith(postfix) for postfix in ['open_array', 'open_document'])
-					and self.previous_stripped_line.endswith('"')):
+			if (
+				any(
+					stripped_line.endswith(postfix) for postfix in ['open_array', 'open_document']
+				) and self.previous_stripped_line.endswith('"')
+			):
 				self.report_error(line_number, stripped_line, '<< should be on previous line')
 
 			if self.previous_stripped_line.startswith('<<'):

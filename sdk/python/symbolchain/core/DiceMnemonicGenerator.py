@@ -33,7 +33,7 @@ class DiceMnemonicGenerator:
 		"""Generates a mnemonic by hashing the roll input. Disabling `shrink_wrap` is the same method used by coldcard wallet."""
 		seed = hashlib.sha256(''.join(map(str, self.rolls)).encode('utf8')).digest()
 		if not shrink_wrap:
-			return (self._seed_to_mnemonic(seed), min(256, len(self.rolls) * -math.log2(1/self.num_die_sides)))
+			return (self._seed_to_mnemonic(seed), min(256, len(self.rolls) * -math.log2(1 / self.num_die_sides)))
 
 		seed_length = self._calculate_shrink_wrap_seed_length()
 		return (self._seed_to_mnemonic(seed[0:seed_length]), 8 * seed_length)

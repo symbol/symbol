@@ -10,22 +10,22 @@ blockchain: nem
 network: testnet
 
 nodes:
-  - host: alice
-	roles: [historical, XXL]
+	- host: alice
+		roles: [historical, XXL]
 
-  - host: bob
-	roles: [backup, super]
+	- host: bob
+		roles: [backup, super]
 
-  - host: charlie
+	- host: charlie
 
 accounts:
-  - public_key: {PUBLIC_KEY_1}
-	name: bobby
-	roles: [green, main]
+	- public_key: {PUBLIC_KEY_1}
+		name: bobby
+		roles: [green, main]
 
-  - public_key: {PUBLIC_KEY_2}
-	name: TEST1
-	roles: [red, test]
+	- public_key: {PUBLIC_KEY_2}
+		name: TEST1
+		roles: [red, test]
 '''
 
 

@@ -143,7 +143,7 @@ class DiceMnemonicGeneratorTest(unittest.TestCase):
 
 		# Assert:
 		self.assertEqual(24, len(mnemonic.split()))
-		self.assertEqual(-math.log2(1/6) * 6, entropy_bits)
+		self.assertEqual(-math.log2(1 / 6) * 6, entropy_bits)
 		self.assertEqual(unhexlify('8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92'), seed)
 
 	def test_mnemonic_returns_correct_mnemonic_for_known_rolls_custom_die(self):
@@ -159,7 +159,7 @@ class DiceMnemonicGeneratorTest(unittest.TestCase):
 
 		# Assert:
 		self.assertEqual(24, len(mnemonic.split()))
-		self.assertEqual(-math.log2(1/8) * 8, entropy_bits)
+		self.assertEqual(-math.log2(1 / 8) * 8, entropy_bits)
 		self.assertEqual(unhexlify('EF797C8118F02DFB649607DD5D3F8C7623048C9C063D532CC95C5ED7A898A64F'), seed)
 
 	def test_mnemonic_has_no_min_entropy(self):

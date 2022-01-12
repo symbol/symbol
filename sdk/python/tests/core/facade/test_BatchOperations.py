@@ -21,23 +21,23 @@ BOB_ADDRESS = Address('TBZ6JK5YOCU6UPSSZ5D3G27UHAPHTY5HDQCDS5YA')
 
 ACCOUNTS_YAML_INPUT = f'''
 - public_key: {TEST_PUBLIC_KEY}
-  name: TEST
+	name: TEST
 
 - address: {ALICE_ADDRESS}
-  name: ALICE
+	name: ALICE
 '''
 
 TRANSACTIONS_YAML_INPUT = f'''
 - type: transfer
-  signer_public_key: TEST
-  recipient_address: ALICE
-  amount: 3000000
-  message: Hello world!
+	signer_public_key: TEST
+	recipient_address: ALICE
+	amount: 3000000
+	message: Hello world!
 
 - type: transfer
-  signer_public_key: TEST
-  recipient_address: {BOB_ADDRESS}
-  amount: 1000000
+	signer_public_key: TEST
+	recipient_address: {BOB_ADDRESS}
+	amount: 1000000
 '''
 
 

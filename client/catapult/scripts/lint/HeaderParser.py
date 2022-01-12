@@ -77,7 +77,7 @@ def fix_tabs(line, count):
 	if count < 0:
 		line = re.sub(r'\t', '', line, -count)
 	else:
-		line = '\t'*count + line
+		line = '\t' * count + line
 	return line
 
 

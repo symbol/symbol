@@ -1,7 +1,12 @@
 import unittest
 
-from symbolchain.core.symbol.IdGenerator import (generate_mosaic_alias_id, generate_mosaic_id, generate_namespace_id,
-												generate_namespace_path, is_valid_namespace_name)
+from symbolchain.core.symbol.IdGenerator import (
+	generate_mosaic_alias_id,
+	generate_mosaic_id,
+	generate_namespace_id,
+	generate_namespace_path,
+	is_valid_namespace_name
+)
 from symbolchain.core.symbol.Network import Address
 
 from ...test.NemTestUtils import NemTestUtils

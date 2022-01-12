@@ -1,7 +1,17 @@
 import unittest
 
-from catparser.ast import (Alias, Array, Attribute, Conditional, Enum, EnumValue, FixedSizeInteger, Struct, StructField,
-						   StructInlinePlaceholder)
+from catparser.ast import (
+	Alias,
+	Array,
+	Attribute,
+	Conditional,
+	Enum,
+	EnumValue,
+	FixedSizeInteger,
+	Struct,
+	StructField,
+	StructInlinePlaceholder
+)
 from catparser.AstValidator import AstValidator, ErrorDescriptor
 
 # region ErrorDescriptorTests

@@ -6,15 +6,15 @@ from symbolchain.core.NodeDescriptorRepository import NodeDescriptorRepository
 
 YAML_INPUT = '''
 - host: ALICE
-  roles: [historical, XXL]
+	roles: [historical, XXL]
 
 - host: bob
-  roles: [backup, super]
+	roles: [backup, super]
 
 - host: charlie
 
 - host: mercury
-  roles: [super]
+	roles: [super]
 '''
 
 

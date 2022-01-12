@@ -1,7 +1,20 @@
 import unittest
 
-from catparser.ast import (Alias, Array, AstException, Attribute, Comment, Conditional, Enum, EnumValue, FixedSizeBuffer, FixedSizeInteger,
-						   Struct, StructField, StructInlinePlaceholder)
+from catparser.ast import (
+	Alias,
+	Array,
+	AstException,
+	Attribute,
+	Comment,
+	Conditional,
+	Enum,
+	EnumValue,
+	FixedSizeBuffer,
+	FixedSizeInteger,
+	Struct,
+	StructField,
+	StructInlinePlaceholder
+)
 
 # region Comment
 

@@ -98,15 +98,11 @@ class NamespaceInfo:  # pylint: disable=too-few-public-methods
 		return self
 
 	def empty(self):
-		return not (self.had_forward or
-					self.had_class or
-					self.had_enum or
-					self.had_func_or_var or
-					self.had_using or
-					self.had_test or
-					self.had_constant or
-					self.had_include or
-					self.had_define_macro)
+		return not (
+			self.had_forward or self.had_class or self.had_enum or self.had_func_or_var or self.had_using or (
+				self.had_test or self.had_constant or self.had_include or self.had_define_macro
+			)
+		)
 
 	def __eq__(self, other):
 		return self.name == other.name
@@ -194,7 +190,7 @@ class NamespacesParser:
 			self.collect_template(tok)
 			self.mode = Mode.COLLECT_TEMPLATE
 			debug('Collect Template')
-		elif tok.value == 'class' or tok.value == 'struct':
+		elif tok.value in ('class', 'struct'):
 			self.mode = Mode.COLLECT_CLASS
 			self.name_stack.append(tok)
 			debug('Collect ' + tok.value)
@@ -282,7 +278,7 @@ class NamespacesParser:
 
 	def _operator_plus(self, next_token):
 		# operator+= operator++
-		if next_token.type == 'EQUALS' or next_token.type == 'PLUS':
+		if next_token.type in ('EQUALS', 'PLUS'):
 			self.name_stack.append(next_token)
 			return NextTokenBehavior.PICK
 
@@ -292,7 +288,7 @@ class NamespacesParser:
 
 	def _operator_minus(self, next_token):
 		# operator-= operator-- operator->
-		if next_token.type == 'EQUALS' or next_token.type == 'MINUS' or next_token.type == 'CLOSE_BRACKET':
+		if next_token.type in ('EQUALS', 'MINUS', 'CLOSE_BRACKET'):
 			self.name_stack.append(next_token)
 			return NextTokenBehavior.PICK
 
@@ -302,7 +298,7 @@ class NamespacesParser:
 
 	def _operator_less_than(self, next_token):
 		# operator <<, <=
-		if next_token.type == 'OPEN_BRACKET' or next_token.type == 'EQUALS':
+		if next_token.type in ('OPEN_BRACKET', 'EQUALS'):
 			self.name_stack.append(next_token)
 			return NextTokenBehavior.PICK
 
@@ -497,7 +493,7 @@ class NamespacesParser:
 					self.switch_to_normal()
 
 		# template instantiation
-		elif tok.type == 'NAME' and (tok.value == 'class' or tok.value == 'struct'):
+		elif tok.type == 'NAME' and (tok.value in ('class', 'struct')):
 			if self.template_bracket_level > 0:
 				self.template_had_class = True
 			if self.inside_template_callback:

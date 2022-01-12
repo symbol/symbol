@@ -2,8 +2,20 @@
 from lark import Lark, Transformer
 from lark.indenter import Indenter
 
-from .ast import (Alias, Array, Attribute, Comment, Conditional, Enum, EnumValue, FixedSizeBuffer, FixedSizeInteger, Struct, StructField,
-				  StructInlinePlaceholder)
+from .ast import (
+	Alias,
+	Array,
+	Attribute,
+	Comment,
+	Conditional,
+	Enum,
+	EnumValue,
+	FixedSizeBuffer,
+	FixedSizeInteger,
+	Struct,
+	StructField,
+	StructInlinePlaceholder
+)
 
 
 def create_cats_lark_parser():

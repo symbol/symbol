@@ -31,10 +31,12 @@ class SimpleNsTokenizer:
 		tok = self.lex.token()
 		if not tok:
 			raise StopIteration()
-		if tok.type in ['NAME', 'OPEN_BRACE', 'CLOSE_BRACE', 'SEMI_COLON', 'OPEN_BRACKET', 'CLOSE_BRACKET',
-						'COLON', 'EQUALS', 'OPEN_PAREN', 'CLOSE_PAREN', 'AMPERSTAND', 'COMMA', 'MINUS',
-						'ASTERISK', 'EXCLAMATION', 'OPEN_SQUARE_BRACKET', 'CLOSE_SQUARE_BRACKET', 'NUMBER',
-						'PRECOMP_MACRO', 'BACKSLASH']:
+		if tok.type in [
+			'NAME', 'OPEN_BRACE', 'CLOSE_BRACE', 'SEMI_COLON', 'OPEN_BRACKET', 'CLOSE_BRACKET',
+			'COLON', 'EQUALS', 'OPEN_PAREN', 'CLOSE_PAREN', 'AMPERSTAND', 'COMMA', 'MINUS',
+			'ASTERISK', 'EXCLAMATION', 'OPEN_SQUARE_BRACKET', 'CLOSE_SQUARE_BRACKET', 'NUMBER',
+			'PRECOMP_MACRO', 'BACKSLASH'
+		]:
 			return (tok.lexpos, tok.value)
 		raise RuntimeError('unknown token {}'.format(tok))
 
@@ -141,7 +143,7 @@ class ForwardsValidator(SimpleValidator):
 			self.namespace_type = NamespaceType.NORMAL
 		elif self.tok == 'inline':
 			self.mode = Mode.COLLECT_NAMESPACE_KEYWORD
-		elif self.tok == 'class' or self.tok == 'struct':
+		elif self.tok in ('class', 'struct'):
 			self.mode = Mode.COLLECT_TYPE_NAME
 			self.type_type = self.tok
 		elif self.tok == 'enum':

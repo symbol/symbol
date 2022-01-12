@@ -15,19 +15,19 @@ PUBLIC_KEY_1 = PublicKey('A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6
 PUBLIC_KEY_2 = PublicKey('9A755901AA014A4EACAE615523D2B50C27F954CB936927331F1116C8D5B7B2AA')
 YAML_INPUT = f'''
 - address: {ENCODED_ADDRESS_1}
-  name: alice
-  roles: [green, main]
+	name: alice
+	roles: [green, main]
 
 - public_key: {PUBLIC_KEY_1}
-  name: TEST1
-  roles: [red, test]
+	name: TEST1
+	roles: [red, test]
 
 - public_key: {PUBLIC_KEY_2}
-  name: BOB
-  roles: [BLUE, main]
+	name: BOB
+	roles: [BLUE, main]
 
 - address: {ENCODED_ADDRESS_2}
-  name: charlie
+	name: charlie
 '''
 
 

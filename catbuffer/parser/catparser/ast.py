@@ -333,10 +333,10 @@ class StructField(Statement):
 		"""Creates a copy of this field and transforms field names using the specified prefix."""
 
 		field = StructField([
-				prefix if '__value__' == self.name else f'{prefix}_{self.name}',
-				self.field_type.copy(prefix) if hasattr(self.field_type, 'copy') else self.field_type,
-				self.value.copy(prefix) if hasattr(self.value, 'value') else self.value,
-			], self.disposition)
+			prefix if '__value__' == self.name else f'{prefix}_{self.name}',
+			self.field_type.copy(prefix) if hasattr(self.field_type, 'copy') else self.field_type,
+			self.value.copy(prefix) if hasattr(self.value, 'value') else self.value,
+		], self.disposition)
 		field.attributes = self.attributes
 		return field
 

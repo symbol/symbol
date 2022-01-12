@@ -3,11 +3,11 @@ from abc import abstractmethod
 
 class NetworkTestDescriptor:
 	def __init__(
-			self,
-			network_class,
-			deterministic_public_key,
-			expected_mainnet_address_network_pair,
-			expected_testnet_address_network_pair):
+		self,
+		network_class,
+		deterministic_public_key,
+		expected_mainnet_address_network_pair,
+		expected_testnet_address_network_pair):
 		# pylint: disable=too-many-function-args
 
 		self.network_class = network_class
@@ -27,8 +27,9 @@ def testnet_accessor(descriptor):
 def split_at(buffer, position):
 	if position < 0:
 		position = len(buffer) + position
+
 	assert 0 <= position < len(buffer)
-	return [buffer[0:position], buffer[position:position+1], buffer[position+1:]]
+	return [buffer[0:position], buffer[position:position + 1], buffer[position + 1:]]
 
 
 def mutate_byte(buffer, position):

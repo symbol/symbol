@@ -324,8 +324,11 @@ class ExtensionRules:
 			# extensions/mongo/plugins/<name> -> plugins/txes/<name>
 			mongo_sub_component = get_major_component_name(path_elements[3])
 			include_component = get_major_component_name(include_path_elements[2])
-			if (component == 'mongo' and path_elements[2] == 'plugins'
-					and include_path_elements[0] == 'plugins' and include_path_elements[1] == 'txes'):
+			if (
+				component == 'mongo' and path_elements[2] == 'plugins' and (
+					include_path_elements[0] == 'plugins' and include_path_elements[1] == 'txes'
+				)
+			):
 				if mongo_sub_component == include_component:
 					continue
 
@@ -375,7 +378,7 @@ class ToolsRules:
 	def first_test_include_check(sorted_includes, path_elements):
 		del sorted_includes
 		del path_elements
-		raise 'first_test_include_check called for a tool'
+		raise Exception('first_test_include_check called for a tool')
 
 
 RULE_ID_TO_CLASS_MAP = {

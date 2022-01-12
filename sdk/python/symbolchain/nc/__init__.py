@@ -12,7 +12,6 @@ from ..core.ArrayHelpers import ArrayHelpers
 from ..core.BaseValue import BaseValue
 from ..core.ByteArray import ByteArray
 
-
 # string or bytes
 StrBytes = TypeVar('StrBytes', str, bytes)
 

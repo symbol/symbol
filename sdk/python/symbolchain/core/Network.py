@@ -36,7 +36,7 @@ class Network:
 		hash_builder = self.address_hasher()
 		hash_builder.update(address.bytes[0:1 + 20])
 
-		checksum_from_address = address.bytes[1+20:]
+		checksum_from_address = address.bytes[1 + 20:]
 		calculated_checksum = hash_builder.digest()[0:len(checksum_from_address)]
 		return checksum_from_address == calculated_checksum
 

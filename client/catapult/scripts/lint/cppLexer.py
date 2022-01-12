@@ -1,4 +1,4 @@
-import ply.lex as lex  # pylint: disable=unused-import,useless-import-alias
+from ply import lex  # pylint: disable=unused-import
 
 tokens = [  # pylint: disable=invalid-name
 	'NUMBER',

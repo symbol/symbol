@@ -16,8 +16,18 @@ import HeaderParser
 import Parser
 import validation
 from DepsChecker import DepsChecker
-from exclusions import (CORE_FIRSTINCLUDES, EMPTYLINES_FALSEPOSITIVES, EXTENSION_FIRSTINCLUDES, FILTER_NAMESPACES, LONGLINES_FALSEPOSITIVES,
-						NAMESPACES_FALSEPOSITIVES, PLUGINS_FIRSTINCLUDES, SKIP_FILES, SPECIAL_INCLUDES, TOOLS_FIRSTINCLUDES)
+from exclusions import (
+	CORE_FIRSTINCLUDES,
+	EMPTYLINES_FALSEPOSITIVES,
+	EXTENSION_FIRSTINCLUDES,
+	FILTER_NAMESPACES,
+	LONGLINES_FALSEPOSITIVES,
+	NAMESPACES_FALSEPOSITIVES,
+	PLUGINS_FIRSTINCLUDES,
+	SKIP_FILES,
+	SPECIAL_INCLUDES,
+	TOOLS_FIRSTINCLUDES
+)
 from Rules import RULE_ID_TO_CLASS_MAP, Rules
 
 EXCLUSIONS = {
@@ -105,8 +115,9 @@ def check_cpp_include(inc_a, inc_b):
 	return None
 
 
-INCLUDE_PRIORITIES_1LVL = {'"src': 100, '"mongo': 125, '"zeromq': 125, '"plugins': 150,
-						   '"catapult': 200, '"symbol': 200, '"tests': 500, '"test': 500}
+INCLUDE_PRIORITIES_1LVL = {
+	'"src': 100, '"mongo': 125, '"zeromq': 125, '"plugins': 150, '"catapult': 200, '"symbol': 200, '"tests': 500, '"test': 500
+}
 
 INCLUDE_PRIORITIES_2LVL = {'extended': -100, 'txes': -50}
 
@@ -119,11 +130,11 @@ def check_local_include(path_a, path_b):
 
 	if part_a == '"symbol' and len(path_a) > 1:
 		part_a = path_a[1]
-		val_a = val_a+INCLUDE_PRIORITIES_2LVL[part_a] if part_a in INCLUDE_PRIORITIES_2LVL else val_a
+		val_a = val_a + INCLUDE_PRIORITIES_2LVL[part_a] if part_a in INCLUDE_PRIORITIES_2LVL else val_a
 
 	if part_b == '"symbol' and len(path_b) > 1:
 		part_b = path_b[1]
-		val_b = val_b+INCLUDE_PRIORITIES_2LVL[part_b] if part_b in INCLUDE_PRIORITIES_2LVL else val_b
+		val_b = val_b + INCLUDE_PRIORITIES_2LVL[part_b] if part_b in INCLUDE_PRIORITIES_2LVL else val_b
 
 	if 'tests' in path_a:
 		val_a += 250
@@ -798,10 +809,11 @@ def parse_args():
 	help_msg = 'console only dependency printer, shows dependency and file(s) that caused it. ' + \
 		'Using deps printer disables analysis of test files'
 	deps = sub.add_parser('deps', help=help_msg)
-	deps.add_argument('-s', '--src-only', help='causes to analyze only files under src',
-					  action='store_true', dest='deps_src_only')
-	deps.add_argument('-n', '--non-catapult', help='show only `.* -> non-catapult` dependencies',
-					  action='store_true', dest='deps_non_catapult')
+	deps.add_argument('-s', '--src-only', help='causes to analyze only files under src', action='store_true', dest='deps_src_only')
+	deps.add_argument(
+		'-n', '--non-catapult', help='show only `.* -> non-catapult` dependencies',
+		action='store_true', dest='deps_non_catapult'
+	)
 
 	return parser.parse_args()
 

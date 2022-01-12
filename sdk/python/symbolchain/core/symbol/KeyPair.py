@@ -21,9 +21,9 @@ class KeyPair:
 	def private_key(self):
 		"""Gets the private key."""
 		return PrivateKey(self._sk.private_bytes(
-				encoding=serialization.Encoding.Raw,
-				format=serialization.PrivateFormat.Raw,
-				encryption_algorithm=serialization.NoEncryption()))
+			encoding=serialization.Encoding.Raw,
+			format=serialization.PrivateFormat.Raw,
+			encryption_algorithm=serialization.NoEncryption()))
 
 	def sign(self, message):
 		"""Signs a message with the private key."""
