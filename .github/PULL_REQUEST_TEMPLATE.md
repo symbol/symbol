@@ -23,7 +23,7 @@
 
 > In order to be accepted, your pull request must pass these requirements. You can delete this section upon submitting your pull request. 
 
-* [ ] The pull-request title is prefix'd with the directory and subdirectory it effects. 
+* [ ] The pull-request title is prefix'd with the directory and subdirectory it affects. 
 * [ ] My pull-request contains a single change or feature. 
 * [ ] My commits are clearly labelled with one of the following: **feat | bug | fix | build | perf | task**
 * [ ] I have written and supplied test cases (either unit tests or end-to-end where relevant). 
