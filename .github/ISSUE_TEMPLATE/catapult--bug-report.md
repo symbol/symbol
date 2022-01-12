@@ -13,7 +13,7 @@ assignees: Jaguar0625, gimre-xymcity, Wayonb, 0x6861746366574
 - **REST Version:** 0.0.0
 - **Operating System:** Windows | MacOS | Linux | Other
 - **Installed With:** Bootstrap | Binaries | From Source
-- **VPS Provider:** AllNodes | Stir Network | Vultur | AWS | Other | None
+- **VPS Provider:** AllNodes | Stir Network | Vultr | AWS | Other | None
 - **Are you fully synchronized?** No | Yes
 - **Did you try to restart your node?** No | Yes
 
@@ -33,8 +33,9 @@ assignees: Jaguar0625, gimre-xymcity, Wayonb, 0x6861746366574
 
 > Please attach your logs as text - not as screenshots. You can upload them to [Pastebin](https://pastebin.com/) or as a [Gist](https://gist.github.com/).
 
-> **Client** logfiles can be found in `target/nodes/nodes/logs`.
-> **REST** logfiles can be found in `target/gateways/rest-gateway/logs`.
-> **MongoDB** logfiles can be found in `docker logs db` > `mongodb.txt`.
+> *If using Bootstrap:* 
+> **Client** logfiles can be found in `target/nodes/nodes/logs`
+> **REST** logfiles can be found in `target/gateways/rest-gateway/logs`
+> **MongoDB** logfiles can be found in `docker logs db` > `mongodb.txt`
 
 *Feel free to include any other useful information, such as machine or instance specifications.*
