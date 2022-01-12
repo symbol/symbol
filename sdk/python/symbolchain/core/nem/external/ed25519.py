@@ -48,28 +48,28 @@ l_ = 2 ** 252 + 27742317777372353535851937790883648493
 
 
 def pow2(x, p):
-    """== pow(x, 2**p, q)"""
-    while p > 0:
-        x = x * x % q
-        p -= 1
-    return x
+	"""== pow(x, 2**p, q)"""
+	while p > 0:
+		x = x * x % q
+		p -= 1
+	return x
 
 
 def inv(z):
-    """$= z^{-1} \\mod q$, for z != 0"""
-    # Adapted from curve25519_athlon.c in djb's Curve25519.
-    z2 = z * z % q  # 2
-    z9 = pow2(z2, 2) * z % q  # 9
-    z11 = z9 * z2 % q  # 11
-    z2_5_0 = (z11 * z11) % q * z9 % q  # 31 == 2^5 - 2^0
-    z2_10_0 = pow2(z2_5_0, 5) * z2_5_0 % q  # 2^10 - 2^0
-    z2_20_0 = pow2(z2_10_0, 10) * z2_10_0 % q  # ...
-    z2_40_0 = pow2(z2_20_0, 20) * z2_20_0 % q
-    z2_50_0 = pow2(z2_40_0, 10) * z2_10_0 % q
-    z2_100_0 = pow2(z2_50_0, 50) * z2_50_0 % q
-    z2_200_0 = pow2(z2_100_0, 100) * z2_100_0 % q
-    z2_250_0 = pow2(z2_200_0, 50) * z2_50_0 % q  # 2^250 - 2^0
-    return pow2(z2_250_0, 5) * z11 % q  # 2^255 - 2^5 + 11 = q - 2
+	"""$= z^{-1} \\mod q$, for z != 0"""
+	# Adapted from curve25519_athlon.c in djb's Curve25519.
+	z2 = z * z % q  # 2
+	z9 = pow2(z2, 2) * z % q  # 9
+	z11 = z9 * z2 % q  # 11
+	z2_5_0 = (z11 * z11) % q * z9 % q  # 31 == 2^5 - 2^0
+	z2_10_0 = pow2(z2_5_0, 5) * z2_5_0 % q  # 2^10 - 2^0
+	z2_20_0 = pow2(z2_10_0, 10) * z2_10_0 % q  # ...
+	z2_40_0 = pow2(z2_20_0, 20) * z2_20_0 % q
+	z2_50_0 = pow2(z2_40_0, 10) * z2_10_0 % q
+	z2_100_0 = pow2(z2_50_0, 50) * z2_50_0 % q
+	z2_200_0 = pow2(z2_100_0, 100) * z2_100_0 % q
+	z2_250_0 = pow2(z2_200_0, 50) * z2_50_0 % q  # 2^250 - 2^0
+	return pow2(z2_250_0, 5) * z11 % q  # 2^255 - 2^5 + 11 = q - 2
 
 
 d = -121665 * inv(121666) % q
@@ -77,16 +77,16 @@ I_ = pow(2, (q - 1) // 4, q)
 
 
 def xrecover(y):
-    xx = (y * y - 1) * inv(d * y * y + 1)
-    x = pow(xx, (q + 3) // 8, q)
+	xx = (y * y - 1) * inv(d * y * y + 1)
+	x = pow(xx, (q + 3) // 8, q)
 
-    if (x * x - xx) % q != 0:
-        x = (x * I_) % q
+	if (x * x - xx) % q != 0:
+		x = (x * I_) % q
 
-    if x % 2 != 0:
-        x = q - x
+	if x % 2 != 0:
+		x = q - x
 
-    return x
+	return x
 
 
 By = 4 * inv(5)
@@ -96,56 +96,56 @@ ident = (0, 1, 1, 0)
 
 
 def edwards_add(P, Q):
-    # This is formula sequence 'addition-add-2008-hwcd-3' from
-    # http://www.hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html
-    (x1, y1, z1, t1) = P
-    (x2, y2, z2, t2) = Q
+	# This is formula sequence 'addition-add-2008-hwcd-3' from
+	# http://www.hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html
+	(x1, y1, z1, t1) = P
+	(x2, y2, z2, t2) = Q
 
-    a = (y1 - x1) * (y2 - x2) % q
-    b_ = (y1 + x1) * (y2 + x2) % q
-    c = t1 * 2 * d * t2 % q
-    dd = z1 * 2 * z2 % q
-    e = b_ - a
-    f = dd - c
-    g = dd + c
-    h = b_ + a
-    x3 = e * f
-    y3 = g * h
-    t3 = e * h
-    z3 = f * g
+	a = (y1 - x1) * (y2 - x2) % q
+	b_ = (y1 + x1) * (y2 + x2) % q
+	c = t1 * 2 * d * t2 % q
+	dd = z1 * 2 * z2 % q
+	e = b_ - a
+	f = dd - c
+	g = dd + c
+	h = b_ + a
+	x3 = e * f
+	y3 = g * h
+	t3 = e * h
+	z3 = f * g
 
-    return (x3 % q, y3 % q, z3 % q, t3 % q)
+	return (x3 % q, y3 % q, z3 % q, t3 % q)
 
 
 def edwards_double(P):
-    # This is formula sequence 'dbl-2008-hwcd' from
-    # http://www.hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html
-    (x1, y1, z1, t1) = P
+	# This is formula sequence 'dbl-2008-hwcd' from
+	# http://www.hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html
+	(x1, y1, z1, t1) = P
 
-    a = x1 * x1 % q
-    b_ = y1 * y1 % q
-    c = 2 * z1 * z1 % q
-    # dd = -a
-    e = ((x1 + y1) * (x1 + y1) - a - b_) % q
-    g = -a + b_  # dd + b
-    f = g - c
-    h = -a - b_  # dd - b
-    x3 = e * f
-    y3 = g * h
-    t3 = e * h
-    z3 = f * g
+	a = x1 * x1 % q
+	b_ = y1 * y1 % q
+	c = 2 * z1 * z1 % q
+	# dd = -a
+	e = ((x1 + y1) * (x1 + y1) - a - b_) % q
+	g = -a + b_  # dd + b
+	f = g - c
+	h = -a - b_  # dd - b
+	x3 = e * f
+	y3 = g * h
+	t3 = e * h
+	z3 = f * g
 
-    return (x3 % q, y3 % q, z3 % q, t3 % q)
+	return (x3 % q, y3 % q, z3 % q, t3 % q)
 
 
 def scalarmult(P, e):
-    if e == 0:
-        return ident
-    Q = scalarmult(P, e // 2)
-    Q = edwards_double(Q)
-    if e & 1:
-        Q = edwards_add(Q, P)
-    return Q
+	if e == 0:
+		return ident
+	Q = scalarmult(P, e // 2)
+	Q = edwards_double(Q)
+	if e & 1:
+		Q = edwards_add(Q, P)
+	return Q
 
 
 # Bpow[i] == scalarmult(B, 2**i)
@@ -153,135 +153,135 @@ Bpow = []
 
 
 def make_Bpow():
-    P = B
-    for _ in range(253):
-        Bpow.append(P)
-        P = edwards_double(P)
+	P = B
+	for _ in range(253):
+		Bpow.append(P)
+		P = edwards_double(P)
 
 
 make_Bpow()
 
 
 def scalarmult_B(e):
-    """
-    Implements scalarmult(B, e) more efficiently.
-    """
-    # scalarmult(B, l) is the identity
-    e = e % l_
-    P = ident
-    for i in range(253):
-        if e & 1:
-            P = edwards_add(P, Bpow[i])
-        e = e // 2
-    assert e == 0, e
-    return P
+	"""
+	Implements scalarmult(B, e) more efficiently.
+	"""
+	# scalarmult(B, l) is the identity
+	e = e % l_
+	P = ident
+	for i in range(253):
+		if e & 1:
+			P = edwards_add(P, Bpow[i])
+		e = e // 2
+	assert e == 0, e
+	return P
 
 
 def encodeint(y):
-    bits = [(y >> i) & 1 for i in range(b)]
-    return b''.join([
-                        int2byte(sum([bits[i * 8 + j] << j for j in range(8)]))
-                        for i in range(b // 8)
-                        ])
+	bits = [(y >> i) & 1 for i in range(b)]
+	return b''.join([
+						int2byte(sum([bits[i * 8 + j] << j for j in range(8)]))
+						for i in range(b // 8)
+						])
 
 
 def encodepoint(P):
-    (x, y, z, t) = P
-    zi = inv(z)
-    x = (x * zi) % q
-    y = (y * zi) % q
-    bits = [(y >> i) & 1 for i in range(b - 1)] + [x & 1]
-    return b''.join([
-                        int2byte(sum([bits[i * 8 + j] << j for j in range(8)]))
-                        for i in range(b // 8)
-                        ])
+	(x, y, z, t) = P
+	zi = inv(z)
+	x = (x * zi) % q
+	y = (y * zi) % q
+	bits = [(y >> i) & 1 for i in range(b - 1)] + [x & 1]
+	return b''.join([
+						int2byte(sum([bits[i * 8 + j] << j for j in range(8)]))
+						for i in range(b // 8)
+						])
 
 
 def bit(h, i):
-    return (indexbytes(h, i // 8) >> (i % 8)) & 1
+	return (indexbytes(h, i // 8) >> (i % 8)) & 1
 
 
 def publickey_hash_unsafe(sk, hashobj=hashlib.sha512):
-    """
-    Not safe to use with secret keys or secret data.
+	"""
+	Not safe to use with secret keys or secret data.
 
-    See module docstring.  This function should be used for testing only.
-    """
-    h = hashobj(sk).digest()
-    a = 2 ** (b - 2) + sum(2 ** i * bit(h, i) for i in range(3, b - 2))
-    A = scalarmult_B(a)
-    return encodepoint(A)
+	See module docstring.  This function should be used for testing only.
+	"""
+	h = hashobj(sk).digest()
+	a = 2 ** (b - 2) + sum(2 ** i * bit(h, i) for i in range(3, b - 2))
+	A = scalarmult_B(a)
+	return encodepoint(A)
 
 
 def Hint_hash(m, hashobj):
-    h = hashobj(m).digest()
-    return sum(2 ** i * bit(h, i) for i in range(2 * b))
+	h = hashobj(m).digest()
+	return sum(2 ** i * bit(h, i) for i in range(2 * b))
 
 
 def signature_hash_unsafe(m, sk, pk, hashobj=hashlib.sha512):
-    """
-    Not safe to use with secret keys or secret data.
+	"""
+	Not safe to use with secret keys or secret data.
 
-    See module docstring.  This function should be used for testing only.
-    """
-    h = hashobj(sk).digest()
-    a = 2 ** (b - 2) + sum(2 ** i * bit(h, i) for i in range(3, b - 2))
-    r = Hint_hash(
-        intlist2bytes([indexbytes(h, j) for j in range(b // 8, b // 4)]) + m,
-        hashobj
-    )
-    R = scalarmult_B(r)
-    S = (r + Hint_hash(encodepoint(R) + pk + m, hashobj) * a) % l_
-    return encodepoint(R) + encodeint(S)
+	See module docstring.  This function should be used for testing only.
+	"""
+	h = hashobj(sk).digest()
+	a = 2 ** (b - 2) + sum(2 ** i * bit(h, i) for i in range(3, b - 2))
+	r = Hint_hash(
+		intlist2bytes([indexbytes(h, j) for j in range(b // 8, b // 4)]) + m,
+		hashobj
+	)
+	R = scalarmult_B(r)
+	S = (r + Hint_hash(encodepoint(R) + pk + m, hashobj) * a) % l_
+	return encodepoint(R) + encodeint(S)
 
 
 def isoncurve(P):
-    (x, y, z, t) = P
-    return (z % q != 0 and
-            x * y % q == z * t % q and
-            (y * y - x * x - z * z - d * t * t) % q == 0)
+	(x, y, z, t) = P
+	return (z % q != 0 and
+			x * y % q == z * t % q and
+			(y * y - x * x - z * z - d * t * t) % q == 0)
 
 
 def decodeint(s):
-    return sum(2 ** i * bit(s, i) for i in range(0, b))
+	return sum(2 ** i * bit(s, i) for i in range(0, b))
 
 
 def decodepoint(s):
-    y = sum(2 ** i * bit(s, i) for i in range(0, b - 1))
-    x = xrecover(y)
-    if x & 1 != bit(s, b - 1):
-        x = q - x
-    P = (x, y, 1, (x * y) % q)
-    if not isoncurve(P):
-        raise ValueError('decoding point that is not on curve')
-    return P
+	y = sum(2 ** i * bit(s, i) for i in range(0, b - 1))
+	x = xrecover(y)
+	if x & 1 != bit(s, b - 1):
+		x = q - x
+	P = (x, y, 1, (x * y) % q)
+	if not isoncurve(P):
+		raise ValueError('decoding point that is not on curve')
+	return P
 
 
 class SignatureMismatch(Exception):
-    pass
+	pass
 
 
 def checkvalid_hash(s, m, pk, hashobj=hashlib.sha512):
-    """
-    Not safe to use when any argument is secret.
+	"""
+	Not safe to use when any argument is secret.
 
-    See module docstring.  This function should be used only for
-    verifying public signatures of public messages.
-    """
-    if len(s) != b // 4:
-        raise ValueError('signature length is wrong')
+	See module docstring.  This function should be used only for
+	verifying public signatures of public messages.
+	"""
+	if len(s) != b // 4:
+		raise ValueError('signature length is wrong')
 
-    if len(pk) != b // 8:
-        raise ValueError('public-key length is wrong')
+	if len(pk) != b // 8:
+		raise ValueError('public-key length is wrong')
 
-    R = decodepoint(s[:b // 8])
-    A = decodepoint(pk)
-    S = decodeint(s[b // 8:b // 4])
-    h = Hint_hash(encodepoint(R) + pk + m, hashobj)
+	R = decodepoint(s[:b // 8])
+	A = decodepoint(pk)
+	S = decodeint(s[b // 8:b // 4])
+	h = Hint_hash(encodepoint(R) + pk + m, hashobj)
 
-    (x1, y1, z1, t1) = P = scalarmult_B(S)
-    (x2, y2, z2, t2) = Q = edwards_add(R, scalarmult(A, h))
+	(x1, y1, z1, t1) = P = scalarmult_B(S)
+	(x2, y2, z2, t2) = Q = edwards_add(R, scalarmult(A, h))
 
-    if (not isoncurve(P) or not isoncurve(Q) or
-            (x1 * z2 - x2 * z1) % q != 0 or (y1 * z2 - y2 * z1) % q != 0):
-        raise SignatureMismatch('signature does not pass verification')
+	if (not isoncurve(P) or not isoncurve(Q) or
+			(x1 * z2 - x2 * z1) % q != 0 or (y1 * z2 - y2 * z1) % q != 0):
+		raise SignatureMismatch('signature does not pass verification')

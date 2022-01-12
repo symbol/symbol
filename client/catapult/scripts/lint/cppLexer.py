@@ -1,39 +1,39 @@
 import ply.lex as lex  # pylint: disable=unused-import,useless-import-alias
 
 tokens = [  # pylint: disable=invalid-name
-    'NUMBER',
-    'FLOAT_NUMBER',
-    'TEMPLATE_NAME',
-    'NAME',
-    'OPEN_PAREN',
-    'CLOSE_PAREN',
-    'OPEN_BRACKET',
-    'CLOSE_BRACKET',
-    'OPEN_BRACE',
-    'CLOSE_BRACE',
-    'OPEN_SQUARE_BRACKET',
-    'CLOSE_SQUARE_BRACKET',
-    'COLON',
-    'SEMI_COLON',
-    'COMMA',
-    'BACKSLASH',
-    'PIPE',
-    'PERCENT',
-    'EXCLAMATION',
-    'CARET',
-    'COMMENT_SINGLELINE',
-    'COMMENT_MULTILINE',
-    'PRECOMP_MACRO',
-    'ASTERISK',
-    'AMPERSTAND',
-    'EQUALS',
-    'MINUS',
-    'PLUS',
-    'DIVIDE',
-    'CHAR_LITERAL',
-    'STRING_LITERAL',
-    'NEWLINE',
-    'SQUOTE'
+	'NUMBER',
+	'FLOAT_NUMBER',
+	'TEMPLATE_NAME',
+	'NAME',
+	'OPEN_PAREN',
+	'CLOSE_PAREN',
+	'OPEN_BRACKET',
+	'CLOSE_BRACKET',
+	'OPEN_BRACE',
+	'CLOSE_BRACE',
+	'OPEN_SQUARE_BRACKET',
+	'CLOSE_SQUARE_BRACKET',
+	'COLON',
+	'SEMI_COLON',
+	'COMMA',
+	'BACKSLASH',
+	'PIPE',
+	'PERCENT',
+	'EXCLAMATION',
+	'CARET',
+	'COMMENT_SINGLELINE',
+	'COMMENT_MULTILINE',
+	'PRECOMP_MACRO',
+	'ASTERISK',
+	'AMPERSTAND',
+	'EQUALS',
+	'MINUS',
+	'PLUS',
+	'DIVIDE',
+	'CHAR_LITERAL',
+	'STRING_LITERAL',
+	'NEWLINE',
+	'SQUOTE'
 ]
 
 
@@ -61,8 +61,8 @@ t_PRECOMP_MACRO = r'\#(.*?\\\n|.*)*'  # gimre: regex to handle multiline #define
 
 
 def t_COMMENT_SINGLELINE(tok):  # pylint: disable=invalid-name
-    r'\/\/.*\n'
-    tok.lexer.lineno += len([a for a in tok.value if a == '\n'])
+	r'\/\/.*\n'
+	tok.lexer.lineno += len([a for a in tok.value if a == '\n'])
 
 
 t_ASTERISK = r'\*'
@@ -77,14 +77,14 @@ t_STRING_LITERAL = r'"([^"\\]|\\.)*"'
 
 
 def t_COMMENT_MULTILINE(tok):  # pylint: disable=invalid-name
-    r'/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/'
-    tok.lexer.lineno += len([a for a in tok.value if a == '\n'])
+	r'/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/'
+	tok.lexer.lineno += len([a for a in tok.value if a == '\n'])
 
 
 def t__n_e_w_l_i_n_e(tok):
-    r'\n+'
-    tok.lexer.lineno += len(tok.value)
+	r'\n+'
+	tok.lexer.lineno += len(tok.value)
 
 
 def t_error(err):
-    print(('Lex error: ', err))
+	print(('Lex error: ', err))

@@ -11,36 +11,36 @@ network: testnet
 
 nodes:
   - host: alice
-    roles: [historical, XXL]
+	roles: [historical, XXL]
 
   - host: bob
-    roles: [backup, super]
+	roles: [backup, super]
 
   - host: charlie
 
 accounts:
   - public_key: {PUBLIC_KEY_1}
-    name: bobby
-    roles: [green, main]
+	name: bobby
+	roles: [green, main]
 
   - public_key: {PUBLIC_KEY_2}
-    name: TEST1
-    roles: [red, test]
+	name: TEST1
+	roles: [red, test]
 '''
 
 
 class BlockchainSettingsTest(unittest.TestCase):
-    def test_can_load_settings_file(self):
-        # Arrange:
-        settings = BlockchainSettings.load_from_yaml(YAML_INPUT)
+	def test_can_load_settings_file(self):
+		# Arrange:
+		settings = BlockchainSettings.load_from_yaml(YAML_INPUT)
 
-        # Assert:
-        self.assertEqual('nem', settings.blockchain)
-        self.assertEqual('testnet', settings.network)
+		# Assert:
+		self.assertEqual('nem', settings.blockchain)
+		self.assertEqual('testnet', settings.network)
 
-        self.assertEqual(3, len(settings.nodes.descriptors))
-        self.assertEqual(['alice', 'bob', 'charlie'], [descriptor.host for descriptor in settings.nodes.descriptors])
+		self.assertEqual(3, len(settings.nodes.descriptors))
+		self.assertEqual(['alice', 'bob', 'charlie'], [descriptor.host for descriptor in settings.nodes.descriptors])
 
-        self.assertEqual(2, len(settings.accounts.descriptors))
-        self.assertEqual(PUBLIC_KEY_1, settings.accounts.try_find_by_name('bobby').public_key)
-        self.assertEqual(PUBLIC_KEY_2, settings.accounts.try_find_by_name('TEST1').public_key)
+		self.assertEqual(2, len(settings.accounts.descriptors))
+		self.assertEqual(PUBLIC_KEY_1, settings.accounts.try_find_by_name('bobby').public_key)
+		self.assertEqual(PUBLIC_KEY_2, settings.accounts.try_find_by_name('TEST1').public_key)
