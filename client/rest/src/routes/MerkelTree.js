@@ -20,6 +20,7 @@
  */
 
 const catapult = require('../catapult-sdk/index');
+const { sha3_256 } = require('js-sha3');
 
 const { convert } = catapult.utils;
 
@@ -200,7 +201,7 @@ class MerkleTree {
 		links.forEach(link => {
 			branchLinks[parseInt(`0x${link.bit}`, 16)] = link.link;
 		});
-		return catapult.crypto.sha3Hasher.getHasher(32).update(catapult.utils.convert.hexToUint8(encodedPath + branchLinks.join('')))
+		return sha3_256.update(catapult.utils.convert.hexToUint8(encodedPath + branchLinks.join('')))
 			.hex()
 			.toUpperCase();
 	}
@@ -212,7 +213,7 @@ class MerkleTree {
 	 * @returns {string} leaf hash (Hash(encodedPath + leaf value))
 	 */
 	static getLeafHash(encodedPath, leafValue) {
-		return catapult.crypto.sha3Hasher.getHasher(32).update(catapult.utils.convert.hexToUint8(encodedPath + leafValue))
+		return sha3_256.update(catapult.utils.convert.hexToUint8(encodedPath + leafValue))
 			.hex()
 			.toUpperCase();
 	}

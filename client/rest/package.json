@@ -29,7 +29,6 @@
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
     "sshpk": "^1.17.0",
-    "tweetnacl": "^1.0.3",
     "winston": "^3.4.0",
     "ws": "^8.4.0",
     "zeromq": "^5.2.8"

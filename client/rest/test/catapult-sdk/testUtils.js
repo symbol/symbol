@@ -19,9 +19,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { createKeyPairFromPrivateKeyString } = require('../../src/catapult-sdk/crypto/keyPair');
 const sizes = require('../../src/catapult-sdk/modelBinary/sizes');
-const convert = require('../../src/catapult-sdk/utils/convert');
 const crypto = require('crypto');
 
 module.exports = {
@@ -29,8 +27,7 @@ module.exports = {
 
 	random: {
 		bytes: size => crypto.randomBytes(size),
-		publicKey: () => crypto.randomBytes(sizes.signerPublicKey),
-		keyPair: () => createKeyPairFromPrivateKeyString(convert.uint8ToHex(crypto.randomBytes(sizes.signerPublicKey)))
+		publicKey: () => crypto.randomBytes(sizes.signerPublicKey)
 	},
 
 	buffer: {
