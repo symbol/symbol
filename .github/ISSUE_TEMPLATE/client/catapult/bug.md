@@ -1,8 +1,8 @@
 ---
-name: 'Catapult: Bug Report'
+name: '[client/catapult] Bug Report'
 about: Got a bug with the client? Fill out this form!
-title: "[CATAPULT BUG]"
-labels: 'Status: WIP, Type: Bug'
+title: "[client/catapult] Bug Report"
+labels: 'Status: WIP, Type: Bug, catapult'
 assignees: Jaguar0625, gimre-xymcity, Wayonb, 0x6861746366574
 
 ---
