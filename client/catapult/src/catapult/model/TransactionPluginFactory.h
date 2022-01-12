@@ -98,8 +98,8 @@ namespace catapult { namespace model {
 			}
 
 		public:
-			void
-			publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) const override {
+			void publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+					const override {
 				BaseType::publishImpl(transaction, context, sub);
 			}
 
@@ -169,7 +169,8 @@ namespace catapult { namespace model {
 	std::unique_ptr<TransactionPlugin> Create##NAME##TransactionPlugin() { \
 		using Factory = TransactionPluginFactory<TransactionPluginFactoryOptions::OPTIONS>; \
 		return Factory::Create<NAME##Transaction, Embedded##NAME##Transaction>( \
-				PUBLISH<NAME##Transaction>, PUBLISH<Embedded##NAME##Transaction>); \
+				PUBLISH<NAME##Transaction>, \
+				PUBLISH<Embedded##NAME##Transaction>); \
 	}
 
 /// Defines a transaction plugin factory for \a NAME transaction with \a OPTIONS using \a PUBLISH accepting \a CONFIG_TYPE configuration.
@@ -177,6 +178,7 @@ namespace catapult { namespace model {
 	std::unique_ptr<TransactionPlugin> Create##NAME##TransactionPlugin(const CONFIG_TYPE& config) { \
 		using Factory = TransactionPluginFactory<TransactionPluginFactoryOptions::OPTIONS>; \
 		return Factory::Create<NAME##Transaction, Embedded##NAME##Transaction>( \
-				PUBLISH<NAME##Transaction>(config), PUBLISH<Embedded##NAME##Transaction>(config)); \
+				PUBLISH<NAME##Transaction>(config), \
+				PUBLISH<Embedded##NAME##Transaction>(config)); \
 	}
 }}

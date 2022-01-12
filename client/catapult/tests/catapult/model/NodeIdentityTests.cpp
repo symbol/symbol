@@ -45,7 +45,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanOutputNodeWithHost) {
 		auto identityKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 		AssertOutputOperator(
-				{identityKey, "11.22.33.44"}, "1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751 @ 11.22.33.44");
+				{identityKey, "11.22.33.44"},
+				"1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751 @ 11.22.33.44");
 	}
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutHost) {
@@ -79,9 +80,10 @@ namespace catapult { namespace model {
 
 		void RunNodeIdentityEqualityTest(NodeIdentityEqualityStrategy strategy, const std::unordered_set<std::string>& equalityTags) {
 			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>(
-					"default", GenerateEqualityInstanceMap(), equalityTags, [strategy](const auto& lhs, const auto& rhs) {
-						return NodeIdentityEquality(strategy)(lhs, rhs);
-					});
+					"default",
+					GenerateEqualityInstanceMap(),
+					equalityTags,
+					[strategy](const auto& lhs, const auto& rhs) { return NodeIdentityEquality(strategy)(lhs, rhs); });
 		}
 	}
 
@@ -104,7 +106,10 @@ namespace catapult { namespace model {
 	namespace {
 		void RunNodeIdentityHasherTest(NodeIdentityEqualityStrategy strategy, const std::unordered_set<std::string>& equalityTags) {
 			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>(
-					"default", GenerateEqualityInstanceMap(), equalityTags, [strategy](const auto& lhs, const auto& rhs) {
+					"default",
+					GenerateEqualityInstanceMap(),
+					equalityTags,
+					[strategy](const auto& lhs, const auto& rhs) {
 						auto hasher = NodeIdentityHasher(strategy);
 						return hasher(lhs) == hasher(rhs);
 					});

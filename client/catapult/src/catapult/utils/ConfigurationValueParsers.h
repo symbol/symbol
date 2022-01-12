@@ -104,8 +104,9 @@ namespace catapult { namespace utils {
 	/// Tries to parse \a str into an enum value (\a parsedValue) given a mapping of strings to values (\a stringToValueMapping).
 	template<typename T, size_t N>
 	bool TryParseEnumValue(const std::array<std::pair<const char*, T>, N>& stringToValueMapping, const std::string& str, T& parsedValue) {
-		auto iter = std::find_if(
-				stringToValueMapping.cbegin(), stringToValueMapping.cend(), [&str](const auto& pair) { return pair.first == str; });
+		auto iter = std::find_if(stringToValueMapping.cbegin(), stringToValueMapping.cend(), [&str](const auto& pair) {
+			return pair.first == str;
+		});
 
 		if (stringToValueMapping.cend() == iter)
 			return false;

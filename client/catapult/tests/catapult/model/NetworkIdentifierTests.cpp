@@ -34,8 +34,9 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanParseValidNetworkIdentifierValue) {
 		// Arrange:
 		auto assertSuccessfulParse = [](const auto& input, const auto& expectedParsedValue) {
-			test::AssertParse(
-					input, expectedParsedValue, [](const auto& str, auto& parsedValue) { return TryParseValue(str, parsedValue); });
+			test::AssertParse(input, expectedParsedValue, [](const auto& str, auto& parsedValue) {
+				return TryParseValue(str, parsedValue);
+			});
 		};
 
 		// Assert:
@@ -48,10 +49,12 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidNetworkIdentifierValue) {
-		test::AssertEnumParseFailure(
-				"private", NetworkIdentifier::Mainnet, [](const auto& str, auto& parsedValue) { return TryParseValue(str, parsedValue); });
-		test::AssertFailedParse(
-				"256", NetworkIdentifier::Mainnet, [](const auto& str, auto& parsedValue) { return TryParseValue(str, parsedValue); });
+		test::AssertEnumParseFailure("private", NetworkIdentifier::Mainnet, [](const auto& str, auto& parsedValue) {
+			return TryParseValue(str, parsedValue);
+		});
+		test::AssertFailedParse("256", NetworkIdentifier::Mainnet, [](const auto& str, auto& parsedValue) {
+			return TryParseValue(str, parsedValue);
+		});
 	}
 
 	// endregion
@@ -119,7 +122,8 @@ namespace catapult { namespace model {
 		// Arrange:
 		constexpr auto Generation_Hash_Seed_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
 		auto fingerprint = UniqueNetworkFingerprint(
-				NetworkIdentifier::Testnet, utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String));
+				NetworkIdentifier::Testnet,
+				utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String));
 
 		// Act:
 		auto str = test::ToString(fingerprint);

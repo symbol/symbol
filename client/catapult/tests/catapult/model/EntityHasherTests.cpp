@@ -312,7 +312,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CalculateMerkleComponentHash_IsDependentOnMerkleSupplementaryBuffers) {
 		// Arrange:
 		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(
-				mocks::OffsetRange{6, 10}, std::vector<mocks::OffsetRange>{{7, 11}, {4, 7}, {12, 20}});
+				mocks::OffsetRange{6, 10},
+				std::vector<mocks::OffsetRange>{{7, 11}, {4, 7}, {12, 20}});
 		auto registry = TransactionRegistry();
 		registry.registerPlugin(std::move(pPlugin));
 
@@ -415,7 +416,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, UpdateHashes_TransactionMerkleComponentHashIsDependentOnMerkleSupplementaryBuffers) {
 		// Arrange:
 		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(
-				mocks::OffsetRange{6, 10}, std::vector<mocks::OffsetRange>{{7, 11}, {4, 7}, {12, 20}});
+				mocks::OffsetRange{6, 10},
+				std::vector<mocks::OffsetRange>{{7, 11}, {4, 7}, {12, 20}});
 		auto registry = TransactionRegistry();
 		registry.registerPlugin(std::move(pPlugin));
 

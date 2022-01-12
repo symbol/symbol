@@ -127,8 +127,10 @@ namespace catapult { namespace model {
 			EXPECT_EQ(&*range.begin(), range.data());
 		}
 
-		void
-		AssertRangeWithNonContiguousData(const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
+		void AssertRangeWithNonContiguousData(
+				const EntityRange<uint32_t>& range,
+				const std::vector<uint32_t>& expected,
+				size_t excessSize = 0) {
 			// Assert:
 			AssertBasicRange(range, expected, excessSize);
 
@@ -386,7 +388,10 @@ namespace catapult { namespace model {
 	namespace {
 		EntityRange<uint32_t> CreateRangeAroundMultipleEntityBufferWithCustomAlignment() {
 			return EntityRange<uint32_t>::CopyVariable(
-					Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), {1, 6, 12}, 8);
+					Multi_Entity_Overlay_Buffer.data(),
+					Multi_Entity_Overlay_Buffer.size(),
+					{1, 6, 12},
+					8);
 		}
 
 		std::vector<uint32_t> GetExpectedMultiEntityCustomAlignmentBufferValues() {

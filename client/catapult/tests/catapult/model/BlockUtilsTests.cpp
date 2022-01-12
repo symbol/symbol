@@ -102,8 +102,9 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, BlockTransactionsHashChangesWhenTransactionOrderChanges) {
-		AssertSignificantChange(
-				5, [](auto& context) { std::swap(context.TransactionInfoPointers[1], context.TransactionInfoPointers[2]); });
+		AssertSignificantChange(5, [](auto& context) {
+			std::swap(context.TransactionInfoPointers[1], context.TransactionInfoPointers[2]);
+		});
 	}
 
 	namespace {

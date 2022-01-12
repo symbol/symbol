@@ -11,8 +11,8 @@ AlignConsecutiveDeclarations: None
 AlignEscapedNewlines: DontAlign
 AlignOperands:   Align
 AlignTrailingComments: false
-AllowAllArgumentsOnNextLine: true
-AllowAllConstructorInitializersOnNextLine: true
+AllowAllArgumentsOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortEnumsOnASingleLine: true
 AllowShortBlocksOnASingleLine: Never

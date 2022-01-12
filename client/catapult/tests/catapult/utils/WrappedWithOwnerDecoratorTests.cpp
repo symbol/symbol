@@ -159,8 +159,9 @@ namespace catapult { namespace utils {
 		// Arrange: wrap a decorator around a lambda that depends on pOwner
 		auto pOwner = std::make_shared<uint32_t>(7);
 		auto counter = 0u;
-		auto decorator = Decorate<ResettableTraits>(
-				pOwner, consumer<uint32_t>([pOwner, &counter](uint32_t multiple) { counter += *pOwner * multiple; }));
+		auto decorator = Decorate<ResettableTraits>(pOwner, consumer<uint32_t>([pOwner, &counter](uint32_t multiple) {
+														counter += *pOwner * multiple;
+													}));
 
 		// Sanity: local, captured owner in lambda, captured owner in decorator
 		EXPECT_EQ(3, pOwner.use_count());

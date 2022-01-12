@@ -63,7 +63,8 @@ namespace catapult { namespace utils {
 		template<typename TTraits>
 		void AddGlobalAttributeFromTraits(const typename TTraits::Type& defaultValue) {
 			boost::log::core::get()->add_global_attribute(
-					TTraits::Name, boost::log::attributes::constant<typename TTraits::Type>(defaultValue));
+					TTraits::Name,
+					boost::log::attributes::constant<typename TTraits::Type>(defaultValue));
 		}
 
 		void InitializeGlobalLogAttributes() {

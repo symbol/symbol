@@ -88,8 +88,10 @@ namespace catapult { namespace model {
 	class PLUGIN_API_DEPENDENCY TransactionPlugin : public TransactionPluginT<Transaction> {
 	public:
 		/// Sends all notifications from \a transactionInfo with \a context to \a sub.
-		virtual void
-		publish(const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub) const = 0;
+		virtual void publish(
+				const WeakEntityInfoT<Transaction>& transactionInfo,
+				const PublishContext& context,
+				NotificationSubscriber& sub) const = 0;
 
 		/// Gets the number of embedded transactions in \a transaction.
 		virtual uint32_t embeddedCount(const Transaction& transaction) const = 0;

@@ -63,7 +63,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanOutputHeightHashPair) {
 		// Arrange:
 		auto heightHashPair = HeightHashPair{
-				Height(123), utils::ParseByteArray<Hash256>("7FC169546CB19DD9C71918D66BD4A251CEF0956B1C9CC022E4127400E8FA7AFF")};
+				Height(123),
+				utils::ParseByteArray<Hash256>("7FC169546CB19DD9C71918D66BD4A251CEF0956B1C9CC022E4127400E8FA7AFF")};
 
 		// Act:
 		auto str = test::ToString(heightHashPair);

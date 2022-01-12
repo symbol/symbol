@@ -175,8 +175,9 @@ namespace catapult { namespace utils {
 				return nullptr;
 
 			const auto& sectionValues = sectionIter->second;
-			auto itemIter = std::find_if(
-					sectionValues.cbegin(), sectionValues.cend(), [&name = key.Name](const auto& pair) { return name == pair.first; });
+			auto itemIter = std::find_if(sectionValues.cbegin(), sectionValues.cend(), [&name = key.Name](const auto& pair) {
+				return name == pair.first;
+			});
 
 			if (sectionValues.cend() == itemIter)
 				return nullptr;

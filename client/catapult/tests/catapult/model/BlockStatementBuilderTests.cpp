@@ -379,12 +379,14 @@ namespace catapult { namespace model {
 		auto transactionStatementHash3 = CalculateTransactionStatementHash({14, 1}, {&receipt3});
 
 		auto addressResolutionStatementHash1 = CalculateResolutionStatementHash<AddressResolutionTraits>(
-				unresolvedAddress1, {{{12, 11}, resolvedAddress1}, {{14, 0}, resolvedAddress3}});
+				unresolvedAddress1,
+				{{{12, 11}, resolvedAddress1}, {{14, 0}, resolvedAddress3}});
 		auto addressResolutionStatementHash2 =
 				CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress2, {{{12, 11}, resolvedAddress2}});
 
 		auto mosaicResolutionStatementHash1 = CalculateResolutionStatementHash<MosaicResolutionTraits>(
-				unresolvedMosaicId1, {{{12, 11}, resolvedMosaicId3}, {{14, 1}, resolvedMosaicId1}});
+				unresolvedMosaicId1,
+				{{{12, 11}, resolvedMosaicId3}, {{14, 1}, resolvedMosaicId1}});
 		auto mosaicResolutionStatementHash2 =
 				CalculateResolutionStatementHash<MosaicResolutionTraits>(unresolvedMosaicId2, {{{14, 1}, resolvedMosaicId2}});
 

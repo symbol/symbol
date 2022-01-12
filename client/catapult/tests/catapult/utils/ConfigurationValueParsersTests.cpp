@@ -75,8 +75,9 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidEnumValue) {
-		test::AssertEnumParseFailure(
-				"two", 7, [](const auto& str, auto& parsedValue) { return TryParseEnumValue(String_To_Square_Mapping, str, parsedValue); });
+		test::AssertEnumParseFailure("two", 7, [](const auto& str, auto& parsedValue) {
+			return TryParseEnumValue(String_To_Square_Mapping, str, parsedValue);
+		});
 	}
 
 	// endregion
@@ -364,8 +365,9 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanParseValidMosaicId) {
-		AssertUnsignedIntHexParseSuccess<MosaicId::ValueType>(
-				0xFFFF'FFFF'FFFF'FFFF, "", [](auto value) { return MosaicId(static_cast<MosaicId::ValueType>(value)); });
+		AssertUnsignedIntHexParseSuccess<MosaicId::ValueType>(0xFFFF'FFFF'FFFF'FFFF, "", [](auto value) {
+			return MosaicId(static_cast<MosaicId::ValueType>(value));
+		});
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidMosaicId) {

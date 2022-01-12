@@ -548,8 +548,9 @@ namespace catapult { namespace model {
 			EXPECT_EQ(mocks::Mock_Hash_Notification, notificationTypes[startIndex + 8]);
 		}
 
-		std::vector<NotificationType>
-		AssertCanPublishCustomTransactionNotificationsAtHeight(Height height, size_t expectedCustomStartIndex) {
+		std::vector<NotificationType> AssertCanPublishCustomTransactionNotificationsAtHeight(
+				Height height,
+				size_t expectedCustomStartIndex) {
 			// Arrange:
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			auto pTransaction = mocks::CreateMockTransaction(12);

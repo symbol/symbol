@@ -119,7 +119,8 @@ namespace catapult { namespace utils {
 		// - multiple directories
 		EXPECT_STREQ("bar" SEPARATOR "foo.cpp", ExtractDirectoryAndFilename("cat" SEPARATOR "baz" SEPARATOR "bar" SEPARATOR "foo.cpp"));
 		EXPECT_STREQ(
-				"bar" SEPARATOR_3 "foo.cpp", ExtractDirectoryAndFilename("cat" SEPARATOR_3 "baz" SEPARATOR_3 "bar" SEPARATOR_3 "foo.cpp"));
+				"bar" SEPARATOR_3 "foo.cpp",
+				ExtractDirectoryAndFilename("cat" SEPARATOR_3 "baz" SEPARATOR_3 "bar" SEPARATOR_3 "foo.cpp"));
 	}
 
 	namespace {

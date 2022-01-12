@@ -47,7 +47,8 @@ namespace catapult { namespace model {
 
 			static auto CreatePlugin() {
 				return TransactionPluginFactory<Options>::template Create<mocks::MockTransaction, mocks::EmbeddedMockTransaction>(
-						Publish<mocks::MockTransaction>, Publish<mocks::EmbeddedMockTransaction>);
+						Publish<mocks::MockTransaction>,
+						Publish<mocks::EmbeddedMockTransaction>);
 			}
 		};
 
@@ -141,7 +142,9 @@ namespace catapult { namespace model {
 
 		// Assert: cosignatories are forwarded from ExtractAdditionalRequiredCosignatories
 		UnresolvedAddressSet expectedAdditionalCosignatories{
-				UnresolvedAddress{{1}}, UnresolvedAddress{{2}}, mocks::GetRecipientAddress(transaction).copyTo<UnresolvedAddress>()};
+				UnresolvedAddress{{1}},
+				UnresolvedAddress{{2}},
+				mocks::GetRecipientAddress(transaction).copyTo<UnresolvedAddress>()};
 		EXPECT_EQ(expectedAdditionalCosignatories, additionalCosignatories);
 	}
 }}

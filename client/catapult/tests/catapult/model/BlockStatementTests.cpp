@@ -152,7 +152,9 @@ namespace catapult { namespace model {
 				TComponentStatement3&& componentStatement3) {
 			// Arrange:
 			std::vector<Hash256> componentStatementHashes{
-					componentStatement1.hash(), componentStatement2.hash(), componentStatement3.hash()};
+					componentStatement1.hash(),
+					componentStatement2.hash(),
+					componentStatement3.hash()};
 
 			BlockStatement statement;
 			Add(statement, std::move(componentStatement1));
@@ -169,7 +171,9 @@ namespace catapult { namespace model {
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleTransactionStatements) {
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
-				TransactionStatement({10, 10}), TransactionStatement({11, 12}), TransactionStatement({24, 11}));
+				TransactionStatement({10, 10}),
+				TransactionStatement({11, 12}),
+				TransactionStatement({24, 11}));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleAddressResolutionStatements) {
@@ -256,8 +260,11 @@ namespace catapult { namespace model {
 		};
 
 		struct DeepCopyTraits {
-			static void
-			RunStatementTest(uint32_t numTransactionStatements, uint32_t numAddressStatements, uint32_t numMosaicStatements, uint32_t) {
+			static void RunStatementTest(
+					uint32_t numTransactionStatements,
+					uint32_t numAddressStatements,
+					uint32_t numMosaicStatements,
+					uint32_t) {
 				// Arrange:
 				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements);
@@ -273,8 +280,11 @@ namespace catapult { namespace model {
 
 		struct DeepCopyTruncationTraits {
 		public:
-			static void
-			RunStatementTest(uint32_t numTransactionStatements, uint32_t numAddressStatements, uint32_t numMosaicStatements, uint32_t) {
+			static void RunStatementTest(
+					uint32_t numTransactionStatements,
+					uint32_t numAddressStatements,
+					uint32_t numMosaicStatements,
+					uint32_t) {
 				// Arrange:
 				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
 				auto maxStatements = *std::max_element(numStatements.cbegin(), numStatements.cend());

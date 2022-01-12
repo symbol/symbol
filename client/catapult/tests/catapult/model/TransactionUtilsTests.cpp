@@ -62,7 +62,8 @@ namespace catapult { namespace model {
 		void RunExtractAddressesTest(MockNotificationPublisher::Mode mode) {
 			// Arrange:
 			auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
-					test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Key>());
+					test::GenerateRandomByteArray<Key>(),
+					test::GenerateRandomByteArray<Key>());
 			auto senderAddress = extensions::CopyToUnresolvedAddress(GetSignerAddress(*pTransaction));
 			auto recipientAddress = extensions::CopyToUnresolvedAddress(mocks::GetRecipientAddress(*pTransaction));
 			MockNotificationPublisher notificationPublisher(mode);
@@ -88,7 +89,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, ExtractAddressesDoesNotExtractAddressesFromOtherNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
-				test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Key>());
+				test::GenerateRandomByteArray<Key>(),
+				test::GenerateRandomByteArray<Key>());
 
 		MockNotificationPublisher notificationPublisher(MockNotificationPublisher::Mode::Other);
 
