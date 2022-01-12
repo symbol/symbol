@@ -150,7 +150,8 @@ namespace catapult { namespace model {
 	// region add + remove
 
 	namespace {
-		void SeedTracker(TransactionChangeTracker& tracker,
+		void SeedTracker(
+				TransactionChangeTracker& tracker,
 				const std::vector<TransactionInfo>& addedInfos,
 				const std::vector<TransactionInfo>& removedInfos) {
 			for (const auto& info : addedInfos)

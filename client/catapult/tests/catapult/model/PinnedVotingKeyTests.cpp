@@ -77,9 +77,10 @@ namespace catapult { namespace model {
 
 	namespace {
 		VotingKey RunFindVotingPublicKeyForEpoch(FinalizationEpoch::ValueType epoch) {
-			return FindVotingPublicKeyForEpoch({{{{1}}, FinalizationEpoch(125), FinalizationEpoch(130)},
-													   {{{2}}, FinalizationEpoch(150), FinalizationEpoch(170)},
-													   {{{3}}, FinalizationEpoch(171), FinalizationEpoch(180)}},
+			return FindVotingPublicKeyForEpoch(
+					{{{{1}}, FinalizationEpoch(125), FinalizationEpoch(130)},
+					 {{{2}}, FinalizationEpoch(150), FinalizationEpoch(170)},
+					 {{{3}}, FinalizationEpoch(171), FinalizationEpoch(180)}},
 					FinalizationEpoch(epoch));
 		}
 	}

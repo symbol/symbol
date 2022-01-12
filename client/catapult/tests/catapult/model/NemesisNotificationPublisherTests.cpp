@@ -83,7 +83,8 @@ namespace catapult { namespace model {
 
 			// - one notification was added for each special account
 			EXPECT_EQ(specialAccountAddresses.size(), pMockSubscriber->numNotifications());
-			EXPECT_EQ(std::vector<NotificationType>(specialAccountAddresses.size(), Core_Register_Account_Address_Notification),
+			EXPECT_EQ(
+					std::vector<NotificationType>(specialAccountAddresses.size(), Core_Register_Account_Address_Notification),
 					pMockSubscriber->notificationTypes());
 
 			for (const auto& address : specialAccountAddresses)
@@ -100,9 +101,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithMultipleSpecialAccounts) {
-		RunNemesisNotificationPublisherTest({test::GenerateRandomByteArray<Address>(),
-				test::GenerateRandomByteArray<Address>(),
-				test::GenerateRandomByteArray<Address>()});
+		RunNemesisNotificationPublisherTest(
+				{test::GenerateRandomByteArray<Address>(),
+				 test::GenerateRandomByteArray<Address>(),
+				 test::GenerateRandomByteArray<Address>()});
 	}
 
 	// endregion

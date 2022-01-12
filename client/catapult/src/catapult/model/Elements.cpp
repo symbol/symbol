@@ -78,7 +78,9 @@ namespace catapult { namespace model {
 	}
 
 	void ExtractMatchingEntityInfos(
-			const std::vector<BlockElement>& elements, WeakEntityInfos& entityInfos, const MatchingEntityPredicate& predicate) {
+			const std::vector<BlockElement>& elements,
+			WeakEntityInfos& entityInfos,
+			const MatchingEntityPredicate& predicate) {
 		ConditionalEntityInfosBuilder builder(entityInfos, predicate);
 		for (const auto& element : elements)
 			AddBlockElement(builder, element);
@@ -97,8 +99,8 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TransactionInfo MakeTransactionInfo(
-			const std::shared_ptr<const Transaction>& pTransaction, const TransactionElement& transactionElement) {
+	TransactionInfo
+	MakeTransactionInfo(const std::shared_ptr<const Transaction>& pTransaction, const TransactionElement& transactionElement) {
 		TransactionInfo transactionInfo(pTransaction, transactionElement.EntityHash);
 		transactionInfo.MerkleComponentHash = transactionElement.MerkleComponentHash;
 		transactionInfo.OptionalExtractedAddresses = transactionElement.OptionalExtractedAddresses;

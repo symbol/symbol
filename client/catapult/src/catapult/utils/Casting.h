@@ -66,7 +66,8 @@ namespace catapult { namespace utils {
 	TDest checked_cast(TSource value) {
 		using dest_limits = std::numeric_limits<TDest>;
 		using source_limits = std::numeric_limits<TSource>;
-		static_assert(source_limits::min() < dest_limits::min() || source_limits::max() > dest_limits::max(),
+		static_assert(
+				source_limits::min() < dest_limits::min() || source_limits::max() > dest_limits::max(),
 				"checked_cast can only be used when data truncation is possible");
 
 		if (value < dest_limits::min() || value > dest_limits::max())

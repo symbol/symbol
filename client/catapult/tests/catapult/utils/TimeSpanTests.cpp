@@ -151,7 +151,11 @@ namespace catapult { namespace utils {
 
 	namespace {
 		void AssertStringRepresentation(
-				const std::string& expected, uint64_t numHours, uint64_t numMinutes, uint64_t numSeconds, uint64_t numMillis) {
+				const std::string& expected,
+				uint64_t numHours,
+				uint64_t numMinutes,
+				uint64_t numSeconds,
+				uint64_t numMillis) {
 			// Arrange:
 			auto timeSpan = TimeSpan::FromMilliseconds(((((numHours * 60) + numMinutes) * 60 + numSeconds) * 1000) + numMillis);
 
@@ -209,7 +213,8 @@ namespace catapult { namespace utils {
 		Timestamp initial(12345678);
 
 		// Act:
-		Timestamp results[] = {initial + TimeSpan::FromHours(3),
+		Timestamp results[] = {
+				initial + TimeSpan::FromHours(3),
 				initial + TimeSpan::FromMinutes(5),
 				initial + TimeSpan::FromSeconds(7),
 				initial + TimeSpan::FromMilliseconds(1234)};
@@ -226,7 +231,8 @@ namespace catapult { namespace utils {
 		Timestamp initial(12345678);
 
 		// Act:
-		Timestamp results[] = {SubtractNonNegative(initial, TimeSpan::FromHours(3)),
+		Timestamp results[] = {
+				SubtractNonNegative(initial, TimeSpan::FromHours(3)),
 				SubtractNonNegative(initial, TimeSpan::FromMinutes(5)),
 				SubtractNonNegative(initial, TimeSpan::FromSeconds(7)),
 				SubtractNonNegative(initial, TimeSpan::FromMilliseconds(1234)),

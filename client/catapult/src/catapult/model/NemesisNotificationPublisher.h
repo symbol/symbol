@@ -41,5 +41,6 @@ namespace catapult { namespace model {
 	/// Creates a nemesis notification publisher around a base notification publisher (\a pPublisher)
 	/// by raising additional notifications based on \a options (held by reference).
 	std::unique_ptr<const NotificationPublisher> CreateNemesisNotificationPublisher(
-			std::unique_ptr<const NotificationPublisher>&& pPublisher, const NemesisNotificationPublisherOptions& options);
+			std::unique_ptr<const NotificationPublisher>&& pPublisher,
+			const NemesisNotificationPublisherOptions& options);
 }}

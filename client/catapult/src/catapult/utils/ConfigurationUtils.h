@@ -55,7 +55,9 @@ namespace catapult { namespace utils {
 	/// \note All section properties are expected to be boolean and only ones with \c true values will be included.
 	template<typename TValue>
 	std::pair<std::vector<TValue>, size_t> ExtractSectionKeysAsTypedVector(
-			const ConfigurationBag& bag, const char* section, const predicate<const std::string&, TValue&>& valueParser) {
+			const ConfigurationBag& bag,
+			const char* section,
+			const predicate<const std::string&, TValue&>& valueParser) {
 		auto valuesPair = ExtractSectionAsOrderedVector(bag, section);
 
 		std::vector<TValue> values;

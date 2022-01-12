@@ -38,7 +38,8 @@ namespace catapult { namespace utils {
 		}
 
 		/// Creates a buffer around the entire contents of \a container.
-		template<typename TContainer,
+		template<
+				typename TContainer,
 				// disable when copy/move constructors should be used
 				typename X = std::enable_if_t<!traits::is_base_of_ignore_reference_v<BasicRawBuffer, TContainer>>,
 				// disable when other constructors are better match

@@ -136,7 +136,8 @@ namespace catapult { namespace model {
 		}
 
 		template<typename TContainer>
-		std::unique_ptr<Block> CreateBlockT(EntityType blockType,
+		std::unique_ptr<Block> CreateBlockT(
+				EntityType blockType,
 				const PreviousBlockContext& context,
 				NetworkIdentifier networkIdentifier,
 				const Key& signerPublicKey,
@@ -166,7 +167,8 @@ namespace catapult { namespace model {
 		}
 	}
 
-	std::unique_ptr<Block> CreateBlock(EntityType blockType,
+	std::unique_ptr<Block> CreateBlock(
+			EntityType blockType,
 			const PreviousBlockContext& context,
 			NetworkIdentifier networkIdentifier,
 			const Key& signerPublicKey,

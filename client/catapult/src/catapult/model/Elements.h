@@ -87,7 +87,9 @@ namespace catapult { namespace model {
 
 	/// Extracts all entity infos for which \a predicate returns \c true from \a elements into \a entityInfos.
 	void ExtractMatchingEntityInfos(
-			const std::vector<BlockElement>& elements, WeakEntityInfos& entityInfos, const MatchingEntityPredicate& predicate);
+			const std::vector<BlockElement>& elements,
+			WeakEntityInfos& entityInfos,
+			const MatchingEntityPredicate& predicate);
 
 	/// Extracts all entity infos from \a element into \a entityInfos.
 	void ExtractEntityInfos(const BlockElement& element, WeakEntityInfos& entityInfos);
@@ -97,6 +99,6 @@ namespace catapult { namespace model {
 	void ExtractTransactionInfos(std::vector<TransactionInfo>& transactionInfos, const std::shared_ptr<const BlockElement>& pBlockElement);
 
 	/// Makes a transaction info by merging \a pTransaction and \a transactionElement.
-	TransactionInfo MakeTransactionInfo(
-			const std::shared_ptr<const Transaction>& pTransaction, const TransactionElement& transactionElement);
+	TransactionInfo
+	MakeTransactionInfo(const std::shared_ptr<const Transaction>& pTransaction, const TransactionElement& transactionElement);
 }}

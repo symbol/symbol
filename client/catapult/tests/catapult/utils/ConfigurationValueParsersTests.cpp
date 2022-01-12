@@ -258,8 +258,9 @@ namespace catapult { namespace utils {
 			AssertFailedParse("0", initialValue); // too short
 			AssertFailedParse("1234", initialValue); // missing prefix
 			AssertFailedParse("01234", initialValue); // invalid prefix
-			AssertFailedParse("0"
-							  "X1234",
+			AssertFailedParse(
+					"0"
+					"X1234",
 					initialValue);
 			AssertFailedParse("2x1234", initialValue);
 
@@ -431,72 +432,14 @@ namespace catapult { namespace utils {
 		template<typename TByteArray>
 		void AssertCanParseValidByteArray() {
 			// Assert:
-			AssertSuccessfulParse("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C",
-					TByteArray{{0x03,
-							0x17,
-							0x29,
-							0xD1,
-							0x0D,
-							0xB5,
-							0x2E,
-							0xCF,
-							0x0A,
-							0xD3,
-							0x68,
-							0x45,
-							0x58,
-							0xDB,
-							0x31,
-							0x89,
-							0x5D,
-							0xDF,
-							0xA5,
-							0xCD,
-							0x7F,
-							0x41,
-							0x43,
-							0xAF,
-							0x6E,
-							0x82,
-							0x2E,
-							0x11,
-							0x4E,
-							0x16,
-							0xE3,
-							0x1C}});
-			AssertSuccessfulParse("AB1729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E300",
-					TByteArray{{0xAB,
-							0x17,
-							0x29,
-							0xD1,
-							0x0D,
-							0xB5,
-							0x2E,
-							0xCF,
-							0x0A,
-							0xD3,
-							0x68,
-							0x45,
-							0x58,
-							0xDB,
-							0x31,
-							0x89,
-							0x5D,
-							0xDF,
-							0xA5,
-							0xCD,
-							0x7F,
-							0x41,
-							0x43,
-							0xAF,
-							0x6E,
-							0x82,
-							0x2E,
-							0x11,
-							0x4E,
-							0x16,
-							0xE3,
-							0x00}});
+			AssertSuccessfulParse(
+					"031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C",
+					TByteArray{{0x03, 0x17, 0x29, 0xD1, 0x0D, 0xB5, 0x2E, 0xCF, 0x0A, 0xD3, 0x68, 0x45, 0x58, 0xDB, 0x31, 0x89,
+								0x5D, 0xDF, 0xA5, 0xCD, 0x7F, 0x41, 0x43, 0xAF, 0x6E, 0x82, 0x2E, 0x11, 0x4E, 0x16, 0xE3, 0x1C}});
+			AssertSuccessfulParse(
+					"AB1729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E300",
+					TByteArray{{0xAB, 0x17, 0x29, 0xD1, 0x0D, 0xB5, 0x2E, 0xCF, 0x0A, 0xD3, 0x68, 0x45, 0x58, 0xDB, 0x31, 0x89,
+								0x5D, 0xDF, 0xA5, 0xCD, 0x7F, 0x41, 0x43, 0xAF, 0x6E, 0x82, 0x2E, 0x11, 0x4E, 0x16, 0xE3, 0x00}});
 		}
 
 		template<typename TByteArray>
@@ -558,8 +501,9 @@ namespace catapult { namespace utils {
 		AssertSuccessfulParse("", Container()); // no values
 		AssertSuccessfulParse("alpha", Container{"alpha"});
 		AssertSuccessfulParse("alpha,bEta,gammA", Container{"alpha", "bEta", "gammA"});
-		AssertSuccessfulParse("\talpha\t,  bEta  "
-							  ", gammA,zeta ",
+		AssertSuccessfulParse(
+				"\talpha\t,  bEta  "
+				", gammA,zeta ",
 				Container{"alpha", "bEta", "gammA", "zeta"});
 		AssertSuccessfulParse("Foo BAR,Ac$D*a98p124!", Container{"Foo BAR", "Ac$D*a98p124!"});
 	}

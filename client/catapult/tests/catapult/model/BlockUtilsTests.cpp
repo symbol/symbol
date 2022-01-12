@@ -132,7 +132,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateBlockTransactionsHash_Deterministic) {
 		// Arrange:
-		auto seedHashes = {utils::ParseByteArray<Hash256>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
+		auto seedHashes = {
+				utils::ParseByteArray<Hash256>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
 				utils::ParseByteArray<Hash256>("8A316E48F35CDADD3F827663F7535E840289A16A43E7134B053A86773E474C28"),
 				utils::ParseByteArray<Hash256>("6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7"),
 				utils::ParseByteArray<Hash256>("2AE2CA59B5BB29721BFB79FE113929B6E52891CAA29CBF562EBEDC46903FF681"),
@@ -703,7 +704,8 @@ namespace catapult { namespace model {
 
 			// - check header (excluding Size field)
 			const auto* pBlockData = reinterpret_cast<const uint8_t*>(pBlock.get());
-			EXPECT_EQ_MEMORY(reinterpret_cast<const uint8_t*>(&blockHeaderTemplate) + sizeof(BlockHeader::Size),
+			EXPECT_EQ_MEMORY(
+					reinterpret_cast<const uint8_t*>(&blockHeaderTemplate) + sizeof(BlockHeader::Size),
 					pBlockData + sizeof(BlockHeader::Size),
 					sizeof(BlockHeader) - sizeof(BlockHeader::Size));
 

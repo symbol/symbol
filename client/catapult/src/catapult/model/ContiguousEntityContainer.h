@@ -223,7 +223,9 @@ namespace catapult { namespace model {
 	/// desired error policy (\a errorPolicy).
 	template<typename TEntity>
 	constexpr BasicContiguousEntityContainer<TEntity> MakeContiguousEntityContainer(
-			TEntity* pEntity, size_t size, EntityContainerErrorPolicy errorPolicy = EntityContainerErrorPolicy::Throw) {
+			TEntity* pEntity,
+			size_t size,
+			EntityContainerErrorPolicy errorPolicy = EntityContainerErrorPolicy::Throw) {
 		return BasicContiguousEntityContainer<TEntity>(pEntity, size, errorPolicy);
 	}
 }}

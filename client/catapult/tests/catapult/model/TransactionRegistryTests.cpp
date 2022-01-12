@@ -66,7 +66,8 @@ namespace catapult { namespace model {
 		registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124)));
 
 		// Act + Assert:
-		EXPECT_THROW(registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124))),
+		EXPECT_THROW(
+				registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124))),
 				catapult_invalid_argument);
 	}
 

@@ -196,7 +196,8 @@ namespace catapult { namespace utils {
 		const char* Default_Key = "default";
 
 		auto CreateUintCheckedArray(
-				size_t numElements, const std::function<size_t(size_t value)>& createElement = [](auto value) { return value * value; }) {
+				size_t numElements,
+				const std::function<size_t(size_t value)>& createElement = [](auto value) { return value * value; }) {
 			UintCheckedArray array;
 			for (auto i = 0u; i < numElements; ++i)
 				array.push_back(createElement(i));

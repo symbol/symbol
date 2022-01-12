@@ -42,14 +42,17 @@ namespace catapult { namespace model {
 	/// Calculates the merkle component hash for the given \a transaction with \a transactionHash
 	/// using transaction information from \a transactionRegistry.
 	Hash256 CalculateMerkleComponentHash(
-			const Transaction& transaction, const Hash256& transactionHash, const TransactionRegistry& transactionRegistry);
+			const Transaction& transaction,
+			const Hash256& transactionHash,
+			const TransactionRegistry& transactionRegistry);
 
 	/// Calculates the merkle tree from \a transactionElements.
 	std::vector<Hash256> CalculateMerkleTree(const std::vector<TransactionElement>& transactionElements);
 
 	/// Calculates the hashes for \a transactionElement in place for the network with the specified
 	/// generation hash seed (\a generationHashSeed) using transaction information from \a transactionRegistry.
-	void UpdateHashes(const TransactionRegistry& transactionRegistry,
+	void UpdateHashes(
+			const TransactionRegistry& transactionRegistry,
 			const GenerationHashSeed& generationHashSeed,
 			TransactionElement& transactionElement);
 }}

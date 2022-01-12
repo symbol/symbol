@@ -25,7 +25,8 @@
 namespace catapult { namespace model {
 
 	ResolverContext::ResolverContext()
-			: ResolverContext([](auto mosaicId) { return MosaicId(mosaicId.unwrap()); },
+			: ResolverContext(
+					  [](auto mosaicId) { return MosaicId(mosaicId.unwrap()); },
 					  [](const auto& address) { return address.template copyTo<Address>(); }) {
 	}
 

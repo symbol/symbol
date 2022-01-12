@@ -189,9 +189,10 @@ namespace catapult { namespace utils {
 	CONTAINER_BASED_TEST(ExtractSectionAsContainerCanExtractKnownSectionAsContainer) {
 		// Arrange:
 		using ContainerType = typename TTraits::ContainerType;
-		auto bag = ConfigurationBag({{"none", {{"zeta", "false"}, {"beta", "false"}, {"gamma", "false"}}},
-				{"some", {{"zeta", "true"}, {"beta", "false"}, {"gamma", "true"}}},
-				{"all", {{"zeta", "true"}, {"beta", "true"}, {"gamma", "true"}}}});
+		auto bag = ConfigurationBag(
+				{{"none", {{"zeta", "false"}, {"beta", "false"}, {"gamma", "false"}}},
+				 {"some", {{"zeta", "true"}, {"beta", "false"}, {"gamma", "true"}}},
+				 {"all", {{"zeta", "true"}, {"beta", "true"}, {"gamma", "true"}}}});
 
 		// Act:
 		auto noneResultPair = TTraits::ExtractSectionAsContainer(bag, "none");
@@ -258,9 +259,10 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, ExtractSectionKeysAsTypedVectorCanExtractTypedValues) {
 		// Arrange:
 		auto hashStrings = GetHashStrings();
-		auto bag = ConfigurationBag({{"none", {{hashStrings[0], "false"}, {hashStrings[1], "false"}, {hashStrings[2], "false"}}},
-				{"some", {{hashStrings[0], "true"}, {hashStrings[1], "false"}, {hashStrings[2], "true"}}},
-				{"all", {{hashStrings[0], "true"}, {hashStrings[1], "true"}, {hashStrings[2], "true"}}}});
+		auto bag = ConfigurationBag(
+				{{"none", {{hashStrings[0], "false"}, {hashStrings[1], "false"}, {hashStrings[2], "false"}}},
+				 {"some", {{hashStrings[0], "true"}, {hashStrings[1], "false"}, {hashStrings[2], "true"}}},
+				 {"all", {{hashStrings[0], "true"}, {hashStrings[1], "true"}, {hashStrings[2], "true"}}}});
 
 		// Act:
 		auto noneResultPair = ExtractSectionKeysAsTypedVector<Hash256>(bag, "none", HashParser);

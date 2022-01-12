@@ -117,7 +117,9 @@ namespace catapult { namespace utils {
 	/// Tries to parse \a str into a bitwise enum value (\a parsedValue) given a mapping of strings to values (\a stringToValueMapping).
 	template<typename T, size_t N>
 	bool TryParseBitwiseEnumValue(
-			const std::array<std::pair<const char*, T>, N>& stringToValueMapping, const std::string& str, T& parsedValues) {
+			const std::array<std::pair<const char*, T>, N>& stringToValueMapping,
+			const std::string& str,
+			T& parsedValues) {
 		std::unordered_set<std::string> parts;
 		if (!TryParseValue(str, parts))
 			return false;

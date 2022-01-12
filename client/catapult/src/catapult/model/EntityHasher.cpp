@@ -63,7 +63,9 @@ namespace catapult { namespace model {
 	}
 
 	Hash256 CalculateMerkleComponentHash(
-			const Transaction& transaction, const Hash256& transactionHash, const TransactionRegistry& transactionRegistry) {
+			const Transaction& transaction,
+			const Hash256& transactionHash,
+			const TransactionRegistry& transactionRegistry) {
 		const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
 
 		auto supplementaryBuffers = plugin.merkleSupplementaryBuffers(transaction);
@@ -90,7 +92,8 @@ namespace catapult { namespace model {
 		return merkleTree;
 	}
 
-	void UpdateHashes(const TransactionRegistry& transactionRegistry,
+	void UpdateHashes(
+			const TransactionRegistry& transactionRegistry,
 			const GenerationHashSeed& generationHashSeed,
 			TransactionElement& transactionElement) {
 		const auto& transaction = transactionElement.Transaction;

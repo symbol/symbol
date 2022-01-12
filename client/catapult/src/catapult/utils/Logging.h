@@ -246,7 +246,8 @@ namespace catapult { namespace utils {
 
 		public:
 			// choose the most restrictive lock
-			using open_record_lock = typename boost::log::strictest_lock<boost::lock_guard<threading_model>,
+			using open_record_lock = typename boost::log::strictest_lock<
+					boost::lock_guard<threading_model>,
 					typename TBase::open_record_lock,
 					typename TBase::add_attribute_lock,
 					typename TBase::remove_attribute_lock>::type;
@@ -318,10 +319,12 @@ namespace catapult { namespace utils {
 
 		/// Catapult logger type.
 		class catapult_logger
-				: public boost::log::sources::basic_composite_logger<char,
+				: public boost::log::sources::basic_composite_logger<
+						  char,
 						  catapult_logger,
 						  boost::log::sources::multi_thread_model<boost::log::aux::light_rw_mutex>,
-						  boost::log::sources::features<custom_info_tagger<LogLevelTraits>,
+						  boost::log::sources::features<
+								  custom_info_tagger<LogLevelTraits>,
 								  custom_info_tagger<LineNumberTraits>,
 								  custom_info_tagger<FilenameTraits>,
 								  custom_info_tagger<SubcomponentTraits>>> {
@@ -337,10 +340,11 @@ namespace catapult { namespace utils {
 }}
 
 #define CATAPULT_LOG_WITH_LOGGER_LEVEL_TAG(LOGGER, LEVEL, TAG) \
-	BOOST_LOG_STREAM_WITH_PARAMS((LOGGER), \
+	BOOST_LOG_STREAM_WITH_PARAMS( \
+			(LOGGER), \
 			(::catapult::utils::log::keywords::file = (::catapult::utils::ExtractFilename(__FILE__)))( \
-					::catapult::utils::log::keywords::line = (static_cast<unsigned int>(__LINE__)))( \
-					::catapult::utils::log::keywords::subcomponent = (TAG))( \
+					::catapult::utils::log::keywords::line = \
+							(static_cast<unsigned int>(__LINE__)))(::catapult::utils::log::keywords::subcomponent = (TAG))( \
 					::catapult::utils::log::keywords::loglevel = (static_cast<::catapult::utils::LogLevel>(LEVEL))))
 
 /// Writes a log entry to \a LOGGER with \a LEVEL severity.

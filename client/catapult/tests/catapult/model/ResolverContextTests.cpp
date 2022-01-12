@@ -61,7 +61,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanResolveAddress_CustomResolver) {
 		// Arrange:
-		ResolverContext context([](const auto&) { return MosaicId(); },
+		ResolverContext context(
+				[](const auto&) { return MosaicId(); },
 				[](const auto& address) { return Address{{static_cast<uint8_t>(address[0] + 1)}}; });
 
 		// Act:

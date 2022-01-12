@@ -25,14 +25,16 @@
 namespace catapult { namespace model {
 
 	NetworkInfo::NetworkInfo()
-			: NetworkInfo(NetworkIdentifier::Zero,
+			: NetworkInfo(
+					  NetworkIdentifier::Zero,
 					  NodeIdentityEqualityStrategy::Key,
 					  Key(),
 					  catapult::GenerationHashSeed(),
 					  utils::TimeSpan()) {
 	}
 
-	NetworkInfo::NetworkInfo(NetworkIdentifier identifier,
+	NetworkInfo::NetworkInfo(
+			NetworkIdentifier identifier,
 			NodeIdentityEqualityStrategy nodeEqualityStrategy,
 			const Key& nemesisSignerPublicKey,
 			const catapult::GenerationHashSeed& generationHashSeed,

@@ -121,8 +121,8 @@ namespace catapult { namespace utils {
 
 		// operator used when putting the LogLevel to log with a severity_color manipulator
 		template<LogColorMode Mode>
-		boost::log::formatting_ostream& operator<<(
-				boost::log::formatting_ostream& stream, const boost::log::to_log_manip<LogLevel, severity_color<Mode>>& manipulator) {
+		boost::log::formatting_ostream&
+		operator<<(boost::log::formatting_ostream& stream, const boost::log::to_log_manip<LogLevel, severity_color<Mode>>& manipulator) {
 			auto level = static_cast<std::size_t>(manipulator.get());
 			if (level < CountOf(Color_Mapping_Flags) && Colors::None != Color_Mapping_Flags[level])
 				OutputAnsiCode<Mode>(stream, Color_Mapping_Flags[level]);
@@ -293,11 +293,13 @@ namespace catapult { namespace utils {
 	void LoggingBootstrapper::addFileLogger(const FileLoggerOptions& options, const LogFilter& filter) {
 		namespace keywords = boost::log::keywords;
 		using backend_t = boost::log::sinks::text_file_backend;
-		auto pBackend = boost::make_shared<backend_t>(keywords::file_name = options.FilePattern,
+		auto pBackend = boost::make_shared<backend_t>(
+				keywords::file_name = options.FilePattern,
 				keywords::rotation_size = options.RotationSize,
 				keywords::open_mode = std::ios_base::app);
 
-		auto pCollector = boost::log::sinks::file::make_collector(keywords::target = options.Directory,
+		auto pCollector = boost::log::sinks::file::make_collector(
+				keywords::target = options.Directory,
 				keywords::max_size = options.MaxTotalSize,
 				keywords::min_free_space = options.MinFreeSpace);
 		pBackend->set_file_collector(pCollector);

@@ -63,8 +63,9 @@ namespace catapult { namespace model {
 	public:
 		/// Gets an array representing the underlying score.
 		ArrayType toArray() const {
-			return {{static_cast<uint64_t>(m_score >> Bits_Per_Value),
-					static_cast<uint64_t>(m_score & std::numeric_limits<uint64_t>::max())}};
+			return {
+					{static_cast<uint64_t>(m_score >> Bits_Per_Value),
+					 static_cast<uint64_t>(m_score & std::numeric_limits<uint64_t>::max())}};
 		}
 
 	public:

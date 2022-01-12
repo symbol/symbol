@@ -28,7 +28,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		ResolverContext CreateResolverContext() {
-			return ResolverContext([](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
+			return ResolverContext(
+					[](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
 					[](const auto& unresolved) { return Address{{unresolved[0]}}; });
 		}
 	}

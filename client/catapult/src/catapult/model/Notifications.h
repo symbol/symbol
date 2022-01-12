@@ -133,7 +133,8 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount
 		/// with optional amount type (\a transferAmountType) indicating interpretation of transfer amount.
-		BalanceTransferNotification(const ResolvableAddress& sender,
+		BalanceTransferNotification(
+				const ResolvableAddress& sender,
 				const ResolvableAddress& recipient,
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount,
@@ -208,7 +209,8 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a block notification around \a blockType, \a harvester, \a beneficiary, \a timestamp, \a difficulty
 		/// and \a feeMultiplier.
-		BlockNotification(EntityType blockType,
+		BlockNotification(
+				EntityType blockType,
 				const Address& harvester,
 				const Address& beneficiary,
 				Timestamp timestamp,
@@ -281,7 +283,8 @@ namespace catapult { namespace model {
 	public:
 		/// Creates an importance block notification around \a votingEligibleAccountsCount, \a harvestingEligibleAccountsCount,
 		/// \a totalVotingBalance and \a previousImportanceBlockHash.
-		ImportanceBlockNotification(uint32_t votingEligibleAccountsCount,
+		ImportanceBlockNotification(
+				uint32_t votingEligibleAccountsCount,
 				uint64_t harvestingEligibleAccountsCount,
 				Amount totalVotingBalance,
 				const Hash256& previousImportanceBlockHash)
@@ -410,7 +413,8 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a signature notification around \a signerPublicKey, \a signature and \a data with optional replay protection mode
 		/// (\a dataReplayProtectionMode) applied to data.
-		SignatureNotification(const Key& signerPublicKey,
+		SignatureNotification(
+				const Key& signerPublicKey,
 				const Signature& signature,
 				const RawBuffer& data,
 				ReplayProtectionMode dataReplayProtectionMode = ReplayProtectionMode::Disabled)
@@ -513,7 +517,10 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a notification around \a primaryChangeType, \a primaryId, \a secondaryChangeType and \a secondaryId.
 		SourceChangeNotification(
-				SourceChangeType primaryChangeType, uint32_t primaryId, SourceChangeType secondaryChangeType, uint32_t secondaryId)
+				SourceChangeType primaryChangeType,
+				uint32_t primaryId,
+				SourceChangeType secondaryChangeType,
+				uint32_t secondaryId)
 				: Notification(Notification_Type, sizeof(SourceChangeNotification))
 				, PrimaryChangeType(primaryChangeType)
 				, PrimaryId(primaryId)

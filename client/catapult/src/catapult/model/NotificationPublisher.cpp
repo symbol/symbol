@@ -70,7 +70,8 @@ namespace catapult { namespace model {
 
 		class BasicNotificationPublisher : public NotificationPublisher {
 		public:
-			BasicNotificationPublisher(const TransactionRegistry& transactionRegistry,
+			BasicNotificationPublisher(
+					const TransactionRegistry& transactionRegistry,
 					UnresolvedMosaicId feeMosaicId,
 					Height feeDebitAppliedLastForkHeight,
 					bool includeCustomNotifications)
@@ -149,7 +150,8 @@ namespace catapult { namespace model {
 				if (IsImportanceBlock(block.Type)) {
 					// raise an importance block notification only for importance blocks
 					const auto& blockFooter = GetBlockFooter<ImportanceBlockFooter>(block);
-					sub.notify(ImportanceBlockNotification(blockFooter.VotingEligibleAccountsCount,
+					sub.notify(ImportanceBlockNotification(
+							blockFooter.VotingEligibleAccountsCount,
 							blockFooter.HarvestingEligibleAccountsCount,
 							blockFooter.TotalVotingBalance,
 							blockFooter.PreviousImportanceBlockHash));
@@ -190,7 +192,8 @@ namespace catapult { namespace model {
 					publishTransactionCustom(entityInfo, sub);
 			}
 
-			void publishTransactionPreCustom(const Transaction& transaction,
+			void publishTransactionPreCustom(
+					const Transaction& transaction,
 					const Hash256& hash,
 					Amount fee,
 					const model::TransactionPlugin& plugin,
@@ -212,13 +215,17 @@ namespace catapult { namespace model {
 			}
 
 			void publishTransactionPostCustom(
-					const Transaction& transaction, Amount fee, const model::TransactionPlugin& plugin, NotificationSubscriber& sub) const {
+					const Transaction& transaction,
+					Amount fee,
+					const model::TransactionPlugin& plugin,
+					NotificationSubscriber& sub) const {
 				// raise a debit notification
 				auto signerAddress = GetSignerAddress(transaction);
 				sub.notify(BalanceDebitNotification(signerAddress, m_feeMosaicId, fee));
 
 				// raise a signature notification
-				sub.notify(SignatureNotification(transaction.SignerPublicKey,
+				sub.notify(SignatureNotification(
+						transaction.SignerPublicKey,
 						transaction.Signature,
 						plugin.dataBuffer(transaction),
 						SignatureNotification::ReplayProtectionMode::Enabled));
@@ -232,7 +239,8 @@ namespace catapult { namespace model {
 		};
 	}
 
-	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(const TransactionRegistry& transactionRegistry,
+	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
+			const TransactionRegistry& transactionRegistry,
 			UnresolvedMosaicId feeMosaicId,
 			Height feeDebitAppliedLastForkHeight,
 			PublicationMode mode) {

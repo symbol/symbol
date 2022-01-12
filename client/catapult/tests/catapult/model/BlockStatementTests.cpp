@@ -146,7 +146,8 @@ namespace catapult { namespace model {
 		}
 
 		template<typename TTraits, typename TComponentStatement1, typename TComponentStatement2, typename TComponentStatement3>
-		void AssertCanCalculateMerkleForMultipleComponentStatements(TComponentStatement1&& componentStatement1,
+		void AssertCanCalculateMerkleForMultipleComponentStatements(
+				TComponentStatement1&& componentStatement1,
 				TComponentStatement2&& componentStatement2,
 				TComponentStatement3&& componentStatement3) {
 			// Arrange:
@@ -172,13 +173,15 @@ namespace catapult { namespace model {
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleAddressResolutionStatements) {
-		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(AddressResolutionStatement(UnresolvedAddress{{88}}),
+		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
+				AddressResolutionStatement(UnresolvedAddress{{88}}),
 				AddressResolutionStatement(UnresolvedAddress{{92}}),
 				AddressResolutionStatement(UnresolvedAddress{{94}}));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleMosaicResolutionStatements) {
-		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(MosaicResolutionStatement(UnresolvedMosaicId(100)),
+		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
+				MosaicResolutionStatement(UnresolvedMosaicId(100)),
 				MosaicResolutionStatement(UnresolvedMosaicId(200)),
 				MosaicResolutionStatement(UnresolvedMosaicId(300)));
 	}
@@ -188,7 +191,8 @@ namespace catapult { namespace model {
 	// region multiple statements (heterogenous)
 
 	MERKLE_TEST(CanCalculateMerkleForHeterogenousComponentStatementsOneEach) {
-		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(TransactionStatement({10, 10}),
+		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
+				TransactionStatement({10, 10}),
 				AddressResolutionStatement(UnresolvedAddress{{92}}),
 				MosaicResolutionStatement(UnresolvedMosaicId(300)));
 	}
@@ -203,7 +207,8 @@ namespace catapult { namespace model {
 		auto componentStatement6 = MosaicResolutionStatement(UnresolvedMosaicId(100));
 		auto componentStatement7 = MosaicResolutionStatement(UnresolvedMosaicId(200));
 
-		std::vector<Hash256> componentStatementHashes{componentStatement1.hash(),
+		std::vector<Hash256> componentStatementHashes{
+				componentStatement1.hash(),
 				componentStatement2.hash(),
 				componentStatement3.hash(),
 				componentStatement4.hash(),
@@ -233,7 +238,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		struct CountTraits {
-			static void RunStatementTest(uint32_t numTransactionStatements,
+			static void RunStatementTest(
+					uint32_t numTransactionStatements,
 					uint32_t numAddressStatements,
 					uint32_t numMosaicStatements,
 					uint32_t numTotalStatements) {
@@ -250,8 +256,8 @@ namespace catapult { namespace model {
 		};
 
 		struct DeepCopyTraits {
-			static void RunStatementTest(
-					uint32_t numTransactionStatements, uint32_t numAddressStatements, uint32_t numMosaicStatements, uint32_t) {
+			static void
+			RunStatementTest(uint32_t numTransactionStatements, uint32_t numAddressStatements, uint32_t numMosaicStatements, uint32_t) {
 				// Arrange:
 				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements);
@@ -267,8 +273,8 @@ namespace catapult { namespace model {
 
 		struct DeepCopyTruncationTraits {
 		public:
-			static void RunStatementTest(
-					uint32_t numTransactionStatements, uint32_t numAddressStatements, uint32_t numMosaicStatements, uint32_t) {
+			static void
+			RunStatementTest(uint32_t numTransactionStatements, uint32_t numAddressStatements, uint32_t numMosaicStatements, uint32_t) {
 				// Arrange:
 				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
 				auto maxStatements = *std::max_element(numStatements.cbegin(), numStatements.cend());
@@ -292,15 +298,18 @@ namespace catapult { namespace model {
 						test::AssertEqual(*pBlockStatement, blockStatementCopy);
 					} else {
 						// - high primary source ids should be truncated
-						AssertTransactionStatementSources(std::min(i, numTransactionStatements),
+						AssertTransactionStatementSources(
+								std::min(i, numTransactionStatements),
 								2 * numTransactionStatements,
 								blockStatementCopy.TransactionStatements,
 								message + " (transaction statements)");
-						AssertResolutionStatementSources(numAddressStatements,
+						AssertResolutionStatementSources(
+								numAddressStatements,
 								2 * std::min(i, numAddressStatements),
 								blockStatementCopy.AddressResolutionStatements,
 								message + " (address resolution statements)");
-						AssertResolutionStatementSources(numMosaicStatements,
+						AssertResolutionStatementSources(
+								numMosaicStatements,
 								2 * std::min(i, numMosaicStatements),
 								blockStatementCopy.MosaicResolutionStatements,
 								message + " (mosaic resolution statements)");
@@ -309,7 +318,8 @@ namespace catapult { namespace model {
 			}
 
 		private:
-			static void AssertTransactionStatementSources(size_t numExpectedStatements,
+			static void AssertTransactionStatementSources(
+					size_t numExpectedStatements,
 					size_t numExpectedReceipts,
 					const std::map<ReceiptSource, TransactionStatement>& statements,
 					const std::string& message) {
@@ -324,7 +334,8 @@ namespace catapult { namespace model {
 			}
 
 			template<typename TStatementKey, typename TStatementValue>
-			static void AssertResolutionStatementSources(size_t numExpectedStatements,
+			static void AssertResolutionStatementSources(
+					size_t numExpectedStatements,
 					size_t numExpectedResolutions,
 					std::map<TStatementKey, TStatementValue>& statements,
 					const std::string& message) {

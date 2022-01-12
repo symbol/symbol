@@ -98,8 +98,8 @@ namespace catapult { namespace model {
 			}
 
 		public:
-			void publish(
-					const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) const override {
+			void
+			publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) const override {
 				BaseType::publishImpl(transaction, context, sub);
 			}
 
@@ -129,9 +129,8 @@ namespace catapult { namespace model {
 			}
 
 		public:
-			void publish(const WeakEntityInfoT<Transaction>& transactionInfo,
-					const PublishContext& context,
-					NotificationSubscriber& sub) const override {
+			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub)
+					const override {
 				BaseType::publishImpl(transactionInfo.entity(), context, sub);
 			}
 

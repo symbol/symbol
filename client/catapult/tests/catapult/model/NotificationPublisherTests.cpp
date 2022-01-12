@@ -35,10 +35,10 @@ namespace catapult { namespace model {
 		constexpr auto Currency_Mosaic_Id = UnresolvedMosaicId(1234);
 		constexpr auto Fork_Height = Height(1000);
 
-		constexpr auto Plugin_Option_Flags =
-				static_cast<mocks::PluginOptionFlags>(utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers) |
-													  utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications) |
-													  utils::to_underlying_type(mocks::PluginOptionFlags::Contains_Embeddings));
+		constexpr auto Plugin_Option_Flags = static_cast<mocks::PluginOptionFlags>(
+				utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers) |
+				utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications) |
+				utils::to_underlying_type(mocks::PluginOptionFlags::Contains_Embeddings));
 
 		template<typename TAssertSubFunc>
 		void PublishAll(const WeakEntityInfo& entityInfo, PublicationMode mode, TAssertSubFunc assertSub) {
@@ -548,8 +548,8 @@ namespace catapult { namespace model {
 			EXPECT_EQ(mocks::Mock_Hash_Notification, notificationTypes[startIndex + 8]);
 		}
 
-		std::vector<NotificationType> AssertCanPublishCustomTransactionNotificationsAtHeight(
-				Height height, size_t expectedCustomStartIndex) {
+		std::vector<NotificationType>
+		AssertCanPublishCustomTransactionNotificationsAtHeight(Height height, size_t expectedCustomStartIndex) {
 			// Arrange:
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			auto pTransaction = mocks::CreateMockTransaction(12);

@@ -74,7 +74,8 @@ namespace catapult { namespace model {
 		struct TransactionCustomPayloadTraits : public TransactionTraits {
 			static Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed) {
 				// hash full transaction header body in traits-based tests
-				auto transactionBuffer = RawBuffer{reinterpret_cast<const uint8_t*>(&transaction) + Transaction::Header_Size,
+				auto transactionBuffer = RawBuffer{
+						reinterpret_cast<const uint8_t*>(&transaction) + Transaction::Header_Size,
 						sizeof(Transaction) - Transaction::Header_Size};
 				return model::CalculateHash(transaction, generationHashSeed, transactionBuffer);
 			}

@@ -80,7 +80,8 @@ namespace {
 	template<typename TException, typename TTraits>
 	void AssertExceptionInformation(const TException& ex, const ExpectedDiagnostics<TTraits>& expected) {
 		// Arrange:
-		std::vector<std::string> expectedDiagLines{"Throw in function " + expected.FunctionName,
+		std::vector<std::string> expectedDiagLines{
+				"Throw in function " + expected.FunctionName,
 				"Dynamic exception type: " CLASSPREFIX "boost::wrapexcept<" + std::string(TTraits::Exception_Fqn) + " >",
 				"std::exception::what: " + expected.What};
 

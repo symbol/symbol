@@ -48,7 +48,8 @@ namespace catapult { namespace model {
 	struct BalanceTransferReceipt : public Receipt {
 	public:
 		/// Creates a receipt around \a receiptType, \a senderAddress, \a recipientAddress, \a mosaicId and \a amount.
-		BalanceTransferReceipt(ReceiptType receiptType,
+		BalanceTransferReceipt(
+				ReceiptType receiptType,
 				const Address& senderAddress,
 				const Address& recipientAddress,
 				catapult::MosaicId mosaicId,

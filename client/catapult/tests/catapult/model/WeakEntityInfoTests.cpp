@@ -45,7 +45,8 @@ namespace catapult { namespace model {
 		}
 
 		template<typename TEntity>
-		void AssertAreEqual(const WeakEntityInfoT<TEntity>& info,
+		void AssertAreEqual(
+				const WeakEntityInfoT<TEntity>& info,
 				const VerifiableEntity& entity,
 				const Hash256& hash,
 				const BlockHeader& blockHeader,

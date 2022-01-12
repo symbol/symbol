@@ -245,7 +245,8 @@ namespace catapult { namespace model {
 		}
 
 		template<typename TTraits>
-		Hash256 CalculateResolutionStatementHash(const typename TTraits::UnresolvedType& unresolved,
+		Hash256 CalculateResolutionStatementHash(
+				const typename TTraits::UnresolvedType& unresolved,
 				const std::vector<std::pair<ReceiptSource, typename TTraits::ResolvedType>>& resolutionPairs) {
 			typename TTraits::StatementType resolutionStatement(unresolved);
 			for (const auto& pair : resolutionPairs)

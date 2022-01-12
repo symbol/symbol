@@ -127,8 +127,8 @@ namespace catapult { namespace model {
 			EXPECT_EQ(&*range.begin(), range.data());
 		}
 
-		void AssertRangeWithNonContiguousData(
-				const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
+		void
+		AssertRangeWithNonContiguousData(const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
 			// Assert:
 			AssertBasicRange(range, expected, excessSize);
 

@@ -62,7 +62,10 @@ namespace catapult { namespace model {
 	namespace {
 		template<typename TResolutionStatements, typename TUnresolved, typename TResolved>
 		void AddResolution(
-				TResolutionStatements& statements, const ReceiptSource& source, const TUnresolved& unresolved, const TResolved& resolved) {
+				TResolutionStatements& statements,
+				const ReceiptSource& source,
+				const TUnresolved& unresolved,
+				const TResolved& resolved) {
 			auto iter = statements.find(unresolved);
 			if (statements.end() == iter) {
 				typename TResolutionStatements::value_type::second_type statement(unresolved);

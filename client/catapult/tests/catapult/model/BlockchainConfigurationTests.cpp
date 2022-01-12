@@ -52,52 +52,52 @@ namespace catapult { namespace model {
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
 				return {{"network",
-								{{"identifier", "testnet"},
-										{"nodeEqualityStrategy", "host"},
-										{"nemesisSignerPublicKey", Nemesis_Signer_Public_Key},
-										{"generationHashSeed", Nemesis_Generation_Hash_Seed},
-										{"epochAdjustment", "1234567h"}}},
+						 {{"identifier", "testnet"},
+						  {"nodeEqualityStrategy", "host"},
+						  {"nemesisSignerPublicKey", Nemesis_Signer_Public_Key},
+						  {"generationHashSeed", Nemesis_Generation_Hash_Seed},
+						  {"epochAdjustment", "1234567h"}}},
 						{"chain",
-								{{"enableVerifiableState", "true"},
-										{"enableVerifiableReceipts", "true"},
+						 {{"enableVerifiableState", "true"},
+						  {"enableVerifiableReceipts", "true"},
 
-										{"currencyMosaicId", "0x1234'AAAA"},
-										{"harvestingMosaicId", "0x9876'BBBB"},
+						  {"currencyMosaicId", "0x1234'AAAA"},
+						  {"harvestingMosaicId", "0x9876'BBBB"},
 
-										{"blockGenerationTargetTime", "10m"},
-										{"blockTimeSmoothingFactor", "765"},
+						  {"blockGenerationTargetTime", "10m"},
+						  {"blockTimeSmoothingFactor", "765"},
 
-										{"importanceGrouping", "444"},
-										{"importanceActivityPercentage", "15"},
-										{"maxRollbackBlocks", "720"},
-										{"maxDifficultyBlocks", "15"},
-										{"defaultDynamicFeeMultiplier", "9876"},
+						  {"importanceGrouping", "444"},
+						  {"importanceActivityPercentage", "15"},
+						  {"maxRollbackBlocks", "720"},
+						  {"maxDifficultyBlocks", "15"},
+						  {"defaultDynamicFeeMultiplier", "9876"},
 
-										{"maxTransactionLifetime", "30m"},
-										{"maxBlockFutureTime", "21m"},
+						  {"maxTransactionLifetime", "30m"},
+						  {"maxBlockFutureTime", "21m"},
 
-										{"initialCurrencyAtomicUnits", "77'000'000'000"},
-										{"maxMosaicAtomicUnits", "66'000'000'000"},
+						  {"initialCurrencyAtomicUnits", "77'000'000'000"},
+						  {"maxMosaicAtomicUnits", "66'000'000'000"},
 
-										{"totalChainImportance", "88'000'000'000"},
-										{"minHarvesterBalance", "4'000'000'000"},
-										{"maxHarvesterBalance", "9'000'000'000"},
-										{"minVoterBalance", "2'000'000'000"},
+						  {"totalChainImportance", "88'000'000'000"},
+						  {"minHarvesterBalance", "4'000'000'000"},
+						  {"maxHarvesterBalance", "9'000'000'000"},
+						  {"minVoterBalance", "2'000'000'000"},
 
-										{"votingSetGrouping", "234"},
-										{"maxVotingKeysPerAccount", "36"},
-										{"minVotingKeyLifetime", "21"},
-										{"maxVotingKeyLifetime", "123"},
+						  {"votingSetGrouping", "234"},
+						  {"maxVotingKeysPerAccount", "36"},
+						  {"minVotingKeyLifetime", "21"},
+						  {"maxVotingKeyLifetime", "123"},
 
-										{"harvestBeneficiaryPercentage", "56"},
-										{"harvestNetworkPercentage", "21"},
-										{"harvestNetworkFeeSinkAddressV1", Harvest_Network_Fee_Sink_Address_V1},
-										{"harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address},
+						  {"harvestBeneficiaryPercentage", "56"},
+						  {"harvestNetworkPercentage", "21"},
+						  {"harvestNetworkFeeSinkAddressV1", Harvest_Network_Fee_Sink_Address_V1},
+						  {"harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address},
 
-										{"maxTransactionsPerBlock", "120"}}},
+						  {"maxTransactionsPerBlock", "120"}}},
 						{"fork_heights", {{"totalVotingBalanceCalculationFix", "998877"}, {"treasuryReissuance", "11998877"}}},
 						{"treasury_reissuance_transaction_signatures",
-								{{Signature_1, "true"}, {Signature_2, "false"}, {Signature_3, "true"}}},
+						 {{Signature_1, "true"}, {Signature_2, "false"}, {Signature_3, "true"}}},
 						{"plugin:alpha", {{"foo", "alpha"}}},
 						{"plugin:beta", {{"bar", "11"}, {"baz", "zeta"}}}};
 			}
@@ -208,8 +208,9 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Height(998877), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(11998877), config.ForkHeights.TreasuryReissuance);
 
-				EXPECT_EQ(std::vector<Signature>(
-								  {utils::ParseByteArray<Signature>(Signature_1), utils::ParseByteArray<Signature>(Signature_3)}),
+				EXPECT_EQ(
+						std::vector<Signature>(
+								{utils::ParseByteArray<Signature>(Signature_1), utils::ParseByteArray<Signature>(Signature_3)}),
 						config.TreasuryReissuanceTransactionSignatures);
 
 				EXPECT_EQ(2u, config.Plugins.size());

@@ -244,7 +244,8 @@ namespace catapult { namespace model {
 
 				for (auto& range : m_ranges) {
 					auto rangeEntities = range.detachSubRangeEntities();
-					allEntities.insert(allEntities.end(),
+					allEntities.insert(
+							allEntities.end(),
 							std::make_move_iterator(rangeEntities.begin()),
 							std::make_move_iterator(rangeEntities.end()));
 				}

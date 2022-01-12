@@ -84,7 +84,11 @@ namespace catapult { namespace model {
 		}
 
 		void AssertTransactionsFromBlock(
-				const BlockElement& expected, size_t numExpected, WeakEntityInfos& entityInfos, size_t startIndex, const char* shortTag) {
+				const BlockElement& expected,
+				size_t numExpected,
+				WeakEntityInfos& entityInfos,
+				size_t startIndex,
+				const char* shortTag) {
 			ASSERT_GE(entityInfos.size(), startIndex + numExpected);
 
 			for (auto i = 0u; i < numExpected; ++i) {

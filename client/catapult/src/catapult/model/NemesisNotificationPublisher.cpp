@@ -38,7 +38,8 @@ namespace catapult { namespace model {
 		class NemesisNotificationPublisherDecorator : public NotificationPublisher {
 		public:
 			NemesisNotificationPublisherDecorator(
-					std::unique_ptr<const NotificationPublisher>&& pPublisher, const NemesisNotificationPublisherOptions& options)
+					std::unique_ptr<const NotificationPublisher>&& pPublisher,
+					const NemesisNotificationPublisherOptions& options)
 					: m_pPublisher(std::move(pPublisher))
 					, m_options(options) {
 			}
@@ -58,7 +59,8 @@ namespace catapult { namespace model {
 	}
 
 	std::unique_ptr<const NotificationPublisher> CreateNemesisNotificationPublisher(
-			std::unique_ptr<const NotificationPublisher>&& pPublisher, const NemesisNotificationPublisherOptions& options) {
+			std::unique_ptr<const NotificationPublisher>&& pPublisher,
+			const NemesisNotificationPublisherOptions& options) {
 		return std::make_unique<NemesisNotificationPublisherDecorator>(std::move(pPublisher), options);
 	}
 }}

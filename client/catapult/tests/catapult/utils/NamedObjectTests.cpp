@@ -69,7 +69,8 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanExtractNamesFromMultipleObjects) {
 		// Arrange:
-		NamedObjectPointers objects{std::make_shared<NamedObjectMixin>("alpha"),
+		NamedObjectPointers objects{
+				std::make_shared<NamedObjectMixin>("alpha"),
 				std::make_shared<NamedObjectMixin>("OMEGA"),
 				std::make_shared<NamedObjectMixin>("zEtA")};
 

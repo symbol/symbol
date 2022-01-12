@@ -45,9 +45,10 @@ namespace catapult { namespace model {
 
 	/// Makes a notification type given \a channel, \a facility and \a code.
 	constexpr NotificationType MakeNotificationType(NotificationChannel channel, FacilityCode facility, uint16_t code) {
-		return static_cast<NotificationType>(static_cast<uint32_t>(channel) << 24 //    01..08: channel
-											 | static_cast<uint32_t>(facility) << 16 // 09..16: facility
-											 | code); //                                16..32: code
+		return static_cast<NotificationType>(
+				static_cast<uint32_t>(channel) << 24 //    01..08: channel
+				| static_cast<uint32_t>(facility) << 16 // 09..16: facility
+				| code); //                                16..32: code
 	}
 
 /// Defines a notification type given \a CHANNEL, \a FACILITY, \a DESCRIPTION and \a CODE.
