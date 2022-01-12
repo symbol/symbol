@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/NetworkInfo.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/NetworkInfo.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
@@ -45,8 +45,7 @@ namespace catapult { namespace model {
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
 
 		// Act:
-		NetworkInfo networkInfo(
-				static_cast<NetworkIdentifier>(0xB9),
+		NetworkInfo networkInfo(static_cast<NetworkIdentifier>(0xB9),
 				static_cast<NodeIdentityEqualityStrategy>(0xA7),
 				nemesisSignerPublicKey,
 				generationHashSeed,
@@ -63,8 +62,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanGetNemesisSignerAddressForNetwork) {
 		// Arrange:
 		auto nemesisSignerPublicKey = test::GenerateRandomByteArray<Key>();
-		NetworkInfo networkInfo(
-				static_cast<NetworkIdentifier>(0xB9),
+		NetworkInfo networkInfo(static_cast<NetworkIdentifier>(0xB9),
 				static_cast<NodeIdentityEqualityStrategy>(0xA7),
 				nemesisSignerPublicKey,
 				test::GenerateRandomByteArray<GenerationHashSeed>(),
@@ -79,8 +77,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanGetUniqueNetworkFingerprintForNetwork) {
 		// Arrange:
-		NetworkInfo networkInfo(
-				static_cast<NetworkIdentifier>(0xB9),
+		NetworkInfo networkInfo(static_cast<NetworkIdentifier>(0xB9),
 				static_cast<NodeIdentityEqualityStrategy>(0xA7),
 				test::GenerateRandomByteArray<Key>(),
 				test::GenerateRandomByteArray<GenerationHashSeed>(),

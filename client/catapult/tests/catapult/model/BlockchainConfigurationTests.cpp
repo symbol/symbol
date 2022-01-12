@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/utils/ConfigurationUtils.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 
 namespace catapult { namespace model {
 
@@ -38,104 +38,68 @@ namespace catapult { namespace model {
 		constexpr auto Harvest_Network_Fee_Sink_Address_V1 = "TBTBPZBJV3U5PU6TNC6GOSB54E5IZA5KQ6KGJXY";
 		constexpr auto Harvest_Network_Fee_Sink_Address = "TCRRSPVMOOPX3QA2JRN432LFODY2KA4EJBEZUKQ";
 
-		constexpr auto Signature_1 =
-				"395C2B37C7AABBEC3C08BD42DAF52D93D1BF003FF6A731E54F63003383EF1CE0"
-				"302871ADD90DF04638DC617ACF2F5BB759C3DDC060E55A554477543210976C75";
+		constexpr auto Signature_1 = "395C2B37C7AABBEC3C08BD42DAF52D93D1BF003FF6A731E54F63003383EF1CE0"
+									 "302871ADD90DF04638DC617ACF2F5BB759C3DDC060E55A554477543210976C75";
 
-		constexpr auto Signature_2 =
-				"401ECCE607FF9710A00B677A487D36B9B9B3B0DC6DF59DA0A2BD77603E80B82B"
-				"D0A82FE949055C5BB7A00F83AF4FF1242965CBF62C9D083344FF294D157259B2";
+		constexpr auto Signature_2 = "401ECCE607FF9710A00B677A487D36B9B9B3B0DC6DF59DA0A2BD77603E80B82B"
+									 "D0A82FE949055C5BB7A00F83AF4FF1242965CBF62C9D083344FF294D157259B2";
 
-		constexpr auto Signature_3 =
-				"3A785A34EA7FAB8AD7ED1B95EC0C0C1CC4097104DD3A47AB06E138D59DC48D75"
-				"300996EDEF0C24641EE5EFFD83A3EFE10CE4CA41DAAF642342E988A0A0EA7FB6";
+		constexpr auto Signature_3 = "3A785A34EA7FAB8AD7ED1B95EC0C0C1CC4097104DD3A47AB06E138D59DC48D75"
+									 "300996EDEF0C24641EE5EFFD83A3EFE10CE4CA41DAAF642342E988A0A0EA7FB6";
 
 		struct BlockchainConfigurationTraits {
 			using ConfigurationType = BlockchainConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"network",
-						{
-							{ "identifier", "testnet" },
-							{ "nodeEqualityStrategy", "host" },
-							{ "nemesisSignerPublicKey", Nemesis_Signer_Public_Key },
-							{ "generationHashSeed", Nemesis_Generation_Hash_Seed },
-							{ "epochAdjustment", "1234567h" }
-						}
-					},
-					{
-						"chain",
-						{
-							{ "enableVerifiableState", "true" },
-							{ "enableVerifiableReceipts", "true" },
+				return {{"network",
+								{{"identifier", "testnet"},
+										{"nodeEqualityStrategy", "host"},
+										{"nemesisSignerPublicKey", Nemesis_Signer_Public_Key},
+										{"generationHashSeed", Nemesis_Generation_Hash_Seed},
+										{"epochAdjustment", "1234567h"}}},
+						{"chain",
+								{{"enableVerifiableState", "true"},
+										{"enableVerifiableReceipts", "true"},
 
-							{ "currencyMosaicId", "0x1234'AAAA" },
-							{ "harvestingMosaicId", "0x9876'BBBB" },
+										{"currencyMosaicId", "0x1234'AAAA"},
+										{"harvestingMosaicId", "0x9876'BBBB"},
 
-							{ "blockGenerationTargetTime", "10m" },
-							{ "blockTimeSmoothingFactor", "765" },
+										{"blockGenerationTargetTime", "10m"},
+										{"blockTimeSmoothingFactor", "765"},
 
-							{ "importanceGrouping", "444" },
-							{ "importanceActivityPercentage", "15" },
-							{ "maxRollbackBlocks", "720" },
-							{ "maxDifficultyBlocks", "15" },
-							{ "defaultDynamicFeeMultiplier", "9876" },
+										{"importanceGrouping", "444"},
+										{"importanceActivityPercentage", "15"},
+										{"maxRollbackBlocks", "720"},
+										{"maxDifficultyBlocks", "15"},
+										{"defaultDynamicFeeMultiplier", "9876"},
 
-							{ "maxTransactionLifetime", "30m" },
-							{ "maxBlockFutureTime", "21m" },
+										{"maxTransactionLifetime", "30m"},
+										{"maxBlockFutureTime", "21m"},
 
-							{ "initialCurrencyAtomicUnits", "77'000'000'000" },
-							{ "maxMosaicAtomicUnits", "66'000'000'000" },
+										{"initialCurrencyAtomicUnits", "77'000'000'000"},
+										{"maxMosaicAtomicUnits", "66'000'000'000"},
 
-							{ "totalChainImportance", "88'000'000'000" },
-							{ "minHarvesterBalance", "4'000'000'000" },
-							{ "maxHarvesterBalance", "9'000'000'000" },
-							{ "minVoterBalance", "2'000'000'000" },
+										{"totalChainImportance", "88'000'000'000"},
+										{"minHarvesterBalance", "4'000'000'000"},
+										{"maxHarvesterBalance", "9'000'000'000"},
+										{"minVoterBalance", "2'000'000'000"},
 
-							{ "votingSetGrouping", "234" },
-							{ "maxVotingKeysPerAccount", "36" },
-							{ "minVotingKeyLifetime", "21" },
-							{ "maxVotingKeyLifetime", "123" },
+										{"votingSetGrouping", "234"},
+										{"maxVotingKeysPerAccount", "36"},
+										{"minVotingKeyLifetime", "21"},
+										{"maxVotingKeyLifetime", "123"},
 
-							{ "harvestBeneficiaryPercentage", "56" },
-							{ "harvestNetworkPercentage", "21" },
-							{ "harvestNetworkFeeSinkAddressV1", Harvest_Network_Fee_Sink_Address_V1 },
-							{ "harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address },
+										{"harvestBeneficiaryPercentage", "56"},
+										{"harvestNetworkPercentage", "21"},
+										{"harvestNetworkFeeSinkAddressV1", Harvest_Network_Fee_Sink_Address_V1},
+										{"harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address},
 
-							{ "maxTransactionsPerBlock", "120" }
-						}
-					},
-					{
-						"fork_heights",
-						{
-							{ "totalVotingBalanceCalculationFix", "998877" },
-							{ "treasuryReissuance", "11998877" }
-						}
-					},
-					{
-						"treasury_reissuance_transaction_signatures",
-						{
-							{ Signature_1, "true" },
-							{ Signature_2, "false" },
-							{ Signature_3, "true" }
-						}
-					},
-					{
-						"plugin:alpha",
-						{
-							{ "foo", "alpha" }
-						}
-					},
-					{
-						"plugin:beta",
-						{
-							{ "bar", "11" },
-							{ "baz", "zeta" }
-						}
-					}
-				};
+										{"maxTransactionsPerBlock", "120"}}},
+						{"fork_heights", {{"totalVotingBalanceCalculationFix", "998877"}, {"treasuryReissuance", "11998877"}}},
+						{"treasury_reissuance_transaction_signatures",
+								{{Signature_1, "true"}, {Signature_2, "false"}, {Signature_3, "true"}}},
+						{"plugin:alpha", {{"foo", "alpha"}}},
+						{"plugin:beta", {{"bar", "11"}, {"baz", "zeta"}}}};
 			}
 
 			static bool IsSectionOptional(const std::string& section) {
@@ -244,22 +208,19 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Height(998877), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(11998877), config.ForkHeights.TreasuryReissuance);
 
-				EXPECT_EQ(
-						std::vector<Signature>({
-							utils::ParseByteArray<Signature>(Signature_1),
-							utils::ParseByteArray<Signature>(Signature_3)
-						}),
+				EXPECT_EQ(std::vector<Signature>(
+								  {utils::ParseByteArray<Signature>(Signature_1), utils::ParseByteArray<Signature>(Signature_3)}),
 						config.TreasuryReissuanceTransactionSignatures);
 
 				EXPECT_EQ(2u, config.Plugins.size());
 				const auto& pluginAlphaBag = config.Plugins.find("alpha")->second;
 				EXPECT_EQ(1u, pluginAlphaBag.size());
-				EXPECT_EQ("alpha", pluginAlphaBag.get<std::string>({ "", "foo" }));
+				EXPECT_EQ("alpha", pluginAlphaBag.get<std::string>({"", "foo"}));
 
 				const auto& pluginBetaBag = config.Plugins.find("beta")->second;
 				EXPECT_EQ(2u, pluginBetaBag.size());
-				EXPECT_EQ(11u, pluginBetaBag.get<uint64_t>({ "", "bar" }));
-				EXPECT_EQ("zeta", pluginBetaBag.get<std::string>({ "", "baz" }));
+				EXPECT_EQ(11u, pluginBetaBag.get<uint64_t>({"", "bar"}));
+				EXPECT_EQ("zeta", pluginBetaBag.get<std::string>({"", "baz"}));
 			}
 		};
 	}
@@ -286,7 +247,7 @@ namespace catapult { namespace model {
 
 			// - create the properties and add the desired section
 			auto properties = Traits::CreateProperties();
-			properties.insert({ section, { { "foo", "1234" } } });
+			properties.insert({section, {{"foo", "1234"}}});
 
 			// Act + Assert: the load failed
 			EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(properties)), catapult_invalid_argument);
@@ -295,14 +256,14 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, ParseFailsWhenPluginSectionNameIsNotWellFormed) {
 		// Arrange: section name must start with 'plugin:' and have a name
-		auto invalidSectionNames = { "", "plug", "plugina", "plug:a", "plugina:a", "a plugin:", "a plugin:b", "plugin:", " plugin:a" };
+		auto invalidSectionNames = {"", "plug", "plugina", "plug:a", "plugina:a", "a plugin:", "a plugin:b", "plugin:", " plugin:a"};
 		for (const auto& section : invalidSectionNames)
 			AssertCannotLoadWithSection(section);
 	}
 
 	TEST(TEST_CLASS, ParseFailsWhenPluginSectionNameContainsInvalidPluginName) {
 		// Arrange:
-		auto invalidPluginNames = { " ", "$$$", "some long name", "Zeta", "ZETA" };
+		auto invalidPluginNames = {" ", "$$$", "some long name", "Zeta", "ZETA"};
 		for (const auto& pluginName : invalidPluginNames)
 			AssertCannotLoadWithSection(std::string("plugin:") + pluginName);
 	}
@@ -310,13 +271,13 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, ParseSucceedsWhenPluginSectionNameContainsValidPluginName) {
 		// Arrange:
 		using Traits = BlockchainConfigurationTraits;
-		auto validPluginNames = { "a", "j", "z", ".", "zeta", "some.long.name" };
+		auto validPluginNames = {"a", "j", "z", ".", "zeta", "some.long.name"};
 		for (const auto& pluginName : validPluginNames) {
 			CATAPULT_LOG(debug) << "attempting to load configuration with plugin named " << pluginName;
 
 			// Act: create the properties and add the desired section
 			auto properties = Traits::CreateProperties();
-			properties.insert({ std::string("plugin:") + pluginName, { { "foo", "1234" } } });
+			properties.insert({std::string("plugin:") + pluginName, {{"foo", "1234"}}});
 			auto config = Traits::ConfigurationType::LoadFromBag(std::move(properties));
 
 			// Assert:
@@ -324,7 +285,7 @@ namespace catapult { namespace model {
 
 			const auto& pluginBag = config.Plugins.find(pluginName)->second;
 			EXPECT_EQ(1u, pluginBag.size());
-			EXPECT_EQ(1234u, pluginBag.get<uint64_t>({ "", "foo" }));
+			EXPECT_EQ(1234u, pluginBag.get<uint64_t>({"", "foo"}));
 		}
 	}
 

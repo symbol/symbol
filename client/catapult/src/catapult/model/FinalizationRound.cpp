@@ -48,11 +48,11 @@ namespace catapult { namespace model {
 	}
 
 	FinalizationRound FinalizationRound::operator+(FinalizationPoint point) const {
-		return { Epoch, Point + point };
+		return {Epoch, Point + point};
 	}
 
 	FinalizationRound FinalizationRound::operator-(FinalizationPoint point) const {
-		return { Epoch, Point - point };
+		return {Epoch, Point - point};
 	}
 
 	std::ostream& operator<<(std::ostream& out, const FinalizationRound& round) {

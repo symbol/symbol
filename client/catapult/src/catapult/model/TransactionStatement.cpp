@@ -25,8 +25,9 @@
 
 namespace catapult { namespace model {
 
-	TransactionStatement::TransactionStatement(const ReceiptSource& source) : m_source(source)
-	{}
+	TransactionStatement::TransactionStatement(const ReceiptSource& source)
+			: m_source(source) {
+	}
 
 	const ReceiptSource& TransactionStatement::source() const {
 		return m_source;
@@ -46,16 +47,13 @@ namespace catapult { namespace model {
 		auto type = Receipt_Type_Transaction_Group;
 
 		crypto::Sha3_256_Builder hashBuilder;
-		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&version), sizeof(uint16_t) });
-		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&type), sizeof(ReceiptType) });
-		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&m_source), sizeof(ReceiptSource) });
+		hashBuilder.update({reinterpret_cast<const uint8_t*>(&version), sizeof(uint16_t)});
+		hashBuilder.update({reinterpret_cast<const uint8_t*>(&type), sizeof(ReceiptType)});
+		hashBuilder.update({reinterpret_cast<const uint8_t*>(&m_source), sizeof(ReceiptSource)});
 
 		auto receiptHeaderSize = sizeof(Receipt::Size);
 		for (const auto& pReceipt : m_receipts) {
-			hashBuilder.update({
-				reinterpret_cast<const uint8_t*>(pReceipt.get()) + receiptHeaderSize,
-				pReceipt->Size - receiptHeaderSize
-			});
+			hashBuilder.update({reinterpret_cast<const uint8_t*>(pReceipt.get()) + receiptHeaderSize, pReceipt->Size - receiptHeaderSize});
 		}
 
 		Hash256 hash;
@@ -69,9 +67,8 @@ namespace catapult { namespace model {
 		std::memcpy(static_cast<void*>(pReceiptCopy.get()), &receipt, receipt.Size);
 
 		// insertion sort by receipt type
-		auto iter = std::find_if(m_receipts.cbegin(), m_receipts.cend(), [&receipt](const auto& pReceipt) {
-			return pReceipt->Type > receipt.Type;
-		});
+		auto iter = std::find_if(
+				m_receipts.cbegin(), m_receipts.cend(), [&receipt](const auto& pReceipt) { return pReceipt->Type > receipt.Type; });
 
 		m_receipts.insert(iter, std::move(pReceiptCopy));
 	}

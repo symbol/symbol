@@ -22,8 +22,8 @@
 #include "catapult/model/SizePrefixedEntityContainer.h"
 #include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 
 namespace catapult { namespace model {
 
@@ -80,8 +80,7 @@ namespace catapult { namespace model {
 		// emulates AggregateTransaction
 		struct ContainerWithPayloadSize : public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent> {};
 		struct ExpandedHeaderContainerWithPayloadSize
-				: public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent, ExpandedHeaderProperties>
-		{};
+				: public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent, ExpandedHeaderProperties> {};
 
 		size_t GetTransactionPayloadSize(const ContainerWithPayloadSizeHeader& header) {
 			return header.PayloadSize;
@@ -157,20 +156,29 @@ namespace catapult { namespace model {
 	// region traits
 
 #define IMPLICIT_DATA_POINTER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<Container>>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<Container>>(); } \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<Container>>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<Container>>(); \
+	} \
 	TEST(TEST_CLASS, TEST_NAME##_Const_ExpandedHeader) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ExpandedHeaderContainer>>(); \
 	} \
 	TEST(TEST_CLASS, TEST_NAME##_NonConst_ExpandedHeader) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ExpandedHeaderContainer>>(); \
 	} \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define EXPLICIT_DATA_POINTER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ContainerWithPayloadSize>>(); } \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ContainerWithPayloadSize>>(); \
+	} \
 	TEST(TEST_CLASS, TEST_NAME##_NonConst) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ContainerWithPayloadSize>>(); \
 	} \
@@ -180,7 +188,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, TEST_NAME##_NonConst_ExpandedHeader) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ExpandedHeaderContainerWithPayloadSize>>(); \
 	} \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -200,7 +209,7 @@ namespace catapult { namespace model {
 	IMPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ImplicitSize) {
 		// Arrange:
 		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		auto pContainer = CreateContainer<ContainerType>({100, 50, 75});
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
 		auto headerSize = CalculateHeaderSize<ContainerType>();
@@ -214,7 +223,7 @@ namespace catapult { namespace model {
 	IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ImplicitSize) {
 		// Arrange:
 		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		auto pContainer = CreateContainer<ContainerType>({100, 50, 75});
 		pContainer->Size = CalculateHeaderSize<ContainerType>() - 1;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -226,7 +235,7 @@ namespace catapult { namespace model {
 	IMPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ImplicitSize) {
 		// Arrange:
 		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		auto pContainer = CreateContainer<ContainerType>({100, 50, 75});
 		--pContainer->Size;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -243,7 +252,7 @@ namespace catapult { namespace model {
 	EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions_ExplicitSize) {
 		// Arrange:
 		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		auto pContainer = CreateContainer<ContainerType>({100, 50, 75});
 		pContainer->PayloadSize = 0;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -258,7 +267,7 @@ namespace catapult { namespace model {
 	EXPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ExplicitSize) {
 		// Arrange: padding is applied to 2-byte header and data size
 		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		auto pContainer = CreateContainer<ContainerType>({100, 50, 75});
 		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -273,7 +282,7 @@ namespace catapult { namespace model {
 	EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ExplicitSize) {
 		// Arrange: padding is applied to 2-byte header and data size
 		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		auto pContainer = CreateContainer<ContainerType>({100, 50, 75});
 		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
 		pContainer->Size = CalculateHeaderSize<ContainerType>() - 1;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
@@ -286,7 +295,7 @@ namespace catapult { namespace model {
 	EXPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ExplicitSize) {
 		// Arrange: padding is applied to 2-byte header and data size
 		using ContainerType = std::remove_const_t<typename TTraits::SourceType>;
-		auto pContainer = CreateContainer<ContainerType>({ 100, 50, 75 });
+		auto pContainer = CreateContainer<ContainerType>({100, 50, 75});
 		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
 		--pContainer->PayloadSize;
 		auto& accessor = TTraits::GetAccessor(*pContainer);

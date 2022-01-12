@@ -21,8 +21,8 @@
 
 #include "catapult/model/PinnedVotingKey.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Equality.h"
 
 namespace catapult { namespace model {
 
@@ -34,18 +34,16 @@ namespace catapult { namespace model {
 		std::unordered_map<std::string, PinnedVotingKey> GenerateEqualityInstanceMap() {
 			auto key1 = test::GenerateRandomByteArray<VotingKey>();
 			auto key2 = test::GenerateRandomByteArray<VotingKey>();
-			return {
-				{ "default", { key1, FinalizationEpoch(0), FinalizationEpoch(50) } },
-				{ "copy", { key1, FinalizationEpoch(0), FinalizationEpoch(50) } },
-				{ "diff-key", { key2, FinalizationEpoch(0), FinalizationEpoch(50) } },
-				{ "diff-start", { key1, FinalizationEpoch(21), FinalizationEpoch(50) } },
-				{ "diff-end", { key1, FinalizationEpoch(0), FinalizationEpoch(43) } },
-				{ "diff-start-end", { key1, FinalizationEpoch(21), FinalizationEpoch(42) } }
-			};
+			return {{"default", {key1, FinalizationEpoch(0), FinalizationEpoch(50)}},
+					{"copy", {key1, FinalizationEpoch(0), FinalizationEpoch(50)}},
+					{"diff-key", {key2, FinalizationEpoch(0), FinalizationEpoch(50)}},
+					{"diff-start", {key1, FinalizationEpoch(21), FinalizationEpoch(50)}},
+					{"diff-end", {key1, FinalizationEpoch(0), FinalizationEpoch(43)}},
+					{"diff-start-end", {key1, FinalizationEpoch(21), FinalizationEpoch(42)}}};
 		}
 
 		std::unordered_set<std::string> GetEqualTags() {
-			return { "default", "copy" };
+			return {"default", "copy"};
 		}
 	}
 
@@ -64,11 +62,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanOutputPinnedVotingKey) {
 		// Arrange:
 		constexpr auto Pub_Key_String = "7F280CFB82753B5CB0EAF9253087FDBBBB06E298F8045D2874C3D83E33AE27C4";
-		PinnedVotingKey pinnedVotingKey{
-			utils::ParseByteArray<VotingKey>(Pub_Key_String),
-			FinalizationEpoch(100),
-			FinalizationEpoch(321)
-		};
+		PinnedVotingKey pinnedVotingKey{utils::ParseByteArray<VotingKey>(Pub_Key_String), FinalizationEpoch(100), FinalizationEpoch(321)};
 
 		// Act:
 		auto str = test::ToString(pinnedVotingKey);
@@ -83,11 +77,10 @@ namespace catapult { namespace model {
 
 	namespace {
 		VotingKey RunFindVotingPublicKeyForEpoch(FinalizationEpoch::ValueType epoch) {
-			return FindVotingPublicKeyForEpoch({
-				{ { { 1 } }, FinalizationEpoch(125), FinalizationEpoch(130) },
-				{ { { 2 } }, FinalizationEpoch(150), FinalizationEpoch(170) },
-				{ { { 3 } }, FinalizationEpoch(171), FinalizationEpoch(180) }
-			}, FinalizationEpoch(epoch));
+			return FindVotingPublicKeyForEpoch({{{{1}}, FinalizationEpoch(125), FinalizationEpoch(130)},
+													   {{{2}}, FinalizationEpoch(150), FinalizationEpoch(170)},
+													   {{{3}}, FinalizationEpoch(171), FinalizationEpoch(180)}},
+					FinalizationEpoch(epoch));
 		}
 	}
 
@@ -96,15 +89,15 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, FindVotingPublicKeyForEpoch_ReturnsVotingKeyWhenRegisteredForEpoch) {
-		EXPECT_EQ(VotingKey{ { 1 } }, RunFindVotingPublicKeyForEpoch(125));
-		EXPECT_EQ(VotingKey{ { 2 } }, RunFindVotingPublicKeyForEpoch(150));
-		EXPECT_EQ(VotingKey{ { 2 } }, RunFindVotingPublicKeyForEpoch(160));
-		EXPECT_EQ(VotingKey{ { 2 } }, RunFindVotingPublicKeyForEpoch(170));
-		EXPECT_EQ(VotingKey{ { 3 } }, RunFindVotingPublicKeyForEpoch(180));
+		EXPECT_EQ(VotingKey{{1}}, RunFindVotingPublicKeyForEpoch(125));
+		EXPECT_EQ(VotingKey{{2}}, RunFindVotingPublicKeyForEpoch(150));
+		EXPECT_EQ(VotingKey{{2}}, RunFindVotingPublicKeyForEpoch(160));
+		EXPECT_EQ(VotingKey{{2}}, RunFindVotingPublicKeyForEpoch(170));
+		EXPECT_EQ(VotingKey{{3}}, RunFindVotingPublicKeyForEpoch(180));
 	}
 
 	TEST(TEST_CLASS, FindVotingPublicKeyForEpoch_ReturnsZeroKeyWhenNotRegisteredForEpoch) {
-		for (auto epoch : std::initializer_list<FinalizationEpoch::ValueType>{ 70, 124, 131, 140, 149, 181, 300 })
+		for (auto epoch : std::initializer_list<FinalizationEpoch::ValueType>{70, 124, 131, 140, 149, 181, 300})
 			EXPECT_EQ(VotingKey(), RunFindVotingPublicKeyForEpoch(epoch)) << "epoch " << epoch;
 	}
 

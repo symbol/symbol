@@ -24,16 +24,14 @@
 #include "ResolverContext.h"
 #include "TransactionRegistry.h"
 #include "WeakEntityInfo.h"
-#include "catapult/utils/TimeSpan.h"
 #include "catapult/plugins.h"
+#include "catapult/utils/TimeSpan.h"
 
-namespace catapult {
-	namespace model {
-		struct EmbeddedTransaction;
-		class NotificationSubscriber;
-		struct Transaction;
-	}
-}
+namespace catapult { namespace model {
+	struct EmbeddedTransaction;
+	class NotificationSubscriber;
+	struct Transaction;
+}}
 
 namespace catapult { namespace model {
 
@@ -91,9 +89,7 @@ namespace catapult { namespace model {
 	public:
 		/// Sends all notifications from \a transactionInfo with \a context to \a sub.
 		virtual void publish(
-				const WeakEntityInfoT<Transaction>& transactionInfo,
-				const PublishContext& context,
-				NotificationSubscriber& sub) const = 0;
+				const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub) const = 0;
 
 		/// Gets the number of embedded transactions in \a transaction.
 		virtual uint32_t embeddedCount(const Transaction& transaction) const = 0;

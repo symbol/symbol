@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/model/ContainerTypes.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/AddressTestUtils.h"
 
 namespace catapult { namespace model {
 

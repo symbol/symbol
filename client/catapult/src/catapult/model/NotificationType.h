@@ -45,18 +45,15 @@ namespace catapult { namespace model {
 
 	/// Makes a notification type given \a channel, \a facility and \a code.
 	constexpr NotificationType MakeNotificationType(NotificationChannel channel, FacilityCode facility, uint16_t code) {
-		return static_cast<NotificationType>(
-				static_cast<uint32_t>(channel) << 24 //    01..08: channel
-				| static_cast<uint32_t>(facility) << 16 // 09..16: facility
-				| code); //                                16..32: code
+		return static_cast<NotificationType>(static_cast<uint32_t>(channel) << 24 //    01..08: channel
+											 | static_cast<uint32_t>(facility) << 16 // 09..16: facility
+											 | code); //                                16..32: code
 	}
 
 /// Defines a notification type given \a CHANNEL, \a FACILITY, \a DESCRIPTION and \a CODE.
 #define DEFINE_NOTIFICATION_TYPE(CHANNEL, FACILITY, DESCRIPTION, CODE) \
-	constexpr auto FACILITY##_##DESCRIPTION##_Notification = model::MakeNotificationType( \
-			(model::NotificationChannel::CHANNEL), \
-			(model::FacilityCode::FACILITY), \
-			CODE)
+	constexpr auto FACILITY##_##DESCRIPTION##_Notification = \
+			model::MakeNotificationType((model::NotificationChannel::CHANNEL), (model::FacilityCode::FACILITY), CODE)
 
 	/// Checks if \a type has \a channel set.
 	constexpr bool IsSet(NotificationType type, NotificationChannel channel) {
@@ -71,8 +68,7 @@ namespace catapult { namespace model {
 	/// Sets the notification channel in \a type to \a channel.
 	constexpr void SetNotificationChannel(NotificationType& type, NotificationChannel channel) {
 		type = static_cast<NotificationType>(
-				static_cast<uint32_t>(utils::to_underlying_type(channel) << 24)
-				| (0x00FFFFFFu & utils::to_underlying_type(type)));
+				static_cast<uint32_t>(utils::to_underlying_type(channel) << 24) | (0x00FFFFFFu & utils::to_underlying_type(type)));
 	}
 
 	/// Returns \c true if \a lhs and \a rhs have the same source (facility and code).

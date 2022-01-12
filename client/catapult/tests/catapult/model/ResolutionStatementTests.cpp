@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/ResolutionStatement.h"
 #include "catapult/crypto/Hashes.h"
-#include "tests/test/core/AddressTestUtils.h"
+#include "catapult/model/ResolutionStatement.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/AddressTestUtils.h"
 
 namespace catapult { namespace model {
 
@@ -46,7 +46,7 @@ namespace catapult { namespace model {
 
 			template<typename TAddress>
 			static RawBuffer ToBuffer(const TAddress& address) {
-				return { reinterpret_cast<const uint8_t*>(address.data()), address.size() };
+				return {reinterpret_cast<const uint8_t*>(address.data()), address.size()};
 			}
 		};
 
@@ -65,16 +65,22 @@ namespace catapult { namespace model {
 
 			template<typename TMosaicId>
 			static RawBuffer ToBuffer(const TMosaicId& mosaicId) {
-				return { reinterpret_cast<const uint8_t*>(&mosaicId), sizeof(TMosaicId) };
+				return {reinterpret_cast<const uint8_t*>(&mosaicId), sizeof(TMosaicId)};
 			}
 		};
 	}
 
 #define RESOLUTION_STATEMENT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -123,7 +129,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		Hash256 expectedHash;
-		std::vector<uint8_t> expectedSerializedData{ 0x01, 0x00, 0x43, 0xF0 | TTraits::Statement_Type_Code };
+		std::vector<uint8_t> expectedSerializedData{0x01, 0x00, 0x43, 0xF0 | TTraits::Statement_Type_Code};
 		Append(expectedSerializedData, TTraits::ToBuffer(unresolvedValue));
 		crypto::Sha3_256(expectedSerializedData, expectedHash);
 
@@ -141,14 +147,14 @@ namespace catapult { namespace model {
 		// Act:
 		auto unresolvedValue = TTraits::CreateRandomUnresolved();
 		auto resolutionStatement = typename TTraits::ResolutionStatementType(unresolvedValue);
-		resolutionStatement.addResolution(resolvedValue, { 11, 12 });
+		resolutionStatement.addResolution(resolvedValue, {11, 12});
 
 		// Assert: header
 		EXPECT_EQ(unresolvedValue, resolutionStatement.unresolved());
 
 		// - entries
 		ASSERT_EQ(1u, resolutionStatement.size());
-		AssertEqualEntry({ { 11, 12 }, resolvedValue }, resolutionStatement.entryAt(0), 0);
+		AssertEqualEntry({{11, 12}, resolvedValue}, resolutionStatement.entryAt(0), 0);
 	}
 
 	RESOLUTION_STATEMENT_TEST(CanCalculateHashWithSingleAttachedResolutionEntry) {
@@ -158,14 +164,14 @@ namespace catapult { namespace model {
 		// Act:
 		auto unresolvedValue = TTraits::CreateRandomUnresolved();
 		auto resolutionStatement = typename TTraits::ResolutionStatementType(unresolvedValue);
-		resolutionStatement.addResolution(resolvedValue, { 11, 12 });
+		resolutionStatement.addResolution(resolvedValue, {11, 12});
 		auto hash = resolutionStatement.hash();
 
 		// Assert:
 		Hash256 expectedHash;
-		std::vector<uint8_t> expectedSerializedData{ 0x01, 0x00, 0x43, 0xF0 | TTraits::Statement_Type_Code };
+		std::vector<uint8_t> expectedSerializedData{0x01, 0x00, 0x43, 0xF0 | TTraits::Statement_Type_Code};
 		Append(expectedSerializedData, TTraits::ToBuffer(unresolvedValue));
-		Append(expectedSerializedData, std::vector<uint8_t>{ 0x0B, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00 });
+		Append(expectedSerializedData, std::vector<uint8_t>{0x0B, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00});
 		Append(expectedSerializedData, TTraits::ToBuffer(resolvedValue));
 		crypto::Sha3_256(expectedSerializedData, expectedHash);
 
@@ -185,19 +191,18 @@ namespace catapult { namespace model {
 		// Act:
 		auto unresolvedValue = TTraits::CreateRandomUnresolved();
 		auto resolutionStatement = typename TTraits::ResolutionStatementType(unresolvedValue);
-		resolutionStatement.addResolution(resolvedValue1, { 11, 12 });
-		resolutionStatement.addResolution(resolvedValue2, { 16, 00 });
-		resolutionStatement.addResolution(resolvedValue3, { 16, 01 });
+		resolutionStatement.addResolution(resolvedValue1, {11, 12});
+		resolutionStatement.addResolution(resolvedValue2, {16, 00});
+		resolutionStatement.addResolution(resolvedValue3, {16, 01});
 
 		// Assert: header
 		EXPECT_EQ(unresolvedValue, resolutionStatement.unresolved());
 
 		// - entries
 		ASSERT_EQ(3u, resolutionStatement.size());
-		AssertEqualEntry({ { 11, 12 }, resolvedValue1 }, resolutionStatement.entryAt(0), 0);
-		AssertEqualEntry({ { 16, 00 }, resolvedValue2 }, resolutionStatement.entryAt(1), 1);
-		AssertEqualEntry({ { 16, 01 }, resolvedValue3 }, resolutionStatement.entryAt(2), 2);
-
+		AssertEqualEntry({{11, 12}, resolvedValue1}, resolutionStatement.entryAt(0), 0);
+		AssertEqualEntry({{16, 00}, resolvedValue2}, resolutionStatement.entryAt(1), 1);
+		AssertEqualEntry({{16, 01}, resolvedValue3}, resolutionStatement.entryAt(2), 2);
 	}
 
 	RESOLUTION_STATEMENT_TEST(CanCalculateHashWithMultipleAttachedResolutionEntries) {
@@ -209,20 +214,20 @@ namespace catapult { namespace model {
 		// Act:
 		auto unresolvedValue = TTraits::CreateRandomUnresolved();
 		auto resolutionStatement = typename TTraits::ResolutionStatementType(unresolvedValue);
-		resolutionStatement.addResolution(resolvedValue1, { 11, 12 });
-		resolutionStatement.addResolution(resolvedValue2, { 16, 00 });
-		resolutionStatement.addResolution(resolvedValue3, { 16, 01 });
+		resolutionStatement.addResolution(resolvedValue1, {11, 12});
+		resolutionStatement.addResolution(resolvedValue2, {16, 00});
+		resolutionStatement.addResolution(resolvedValue3, {16, 01});
 		auto hash = resolutionStatement.hash();
 
 		// Assert:
 		Hash256 expectedHash;
-		std::vector<uint8_t> expectedSerializedData{ 0x01, 0x00, 0x43, 0xF0 | TTraits::Statement_Type_Code };
+		std::vector<uint8_t> expectedSerializedData{0x01, 0x00, 0x43, 0xF0 | TTraits::Statement_Type_Code};
 		Append(expectedSerializedData, TTraits::ToBuffer(unresolvedValue));
-		Append(expectedSerializedData, std::vector<uint8_t>{ 0x0B, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00 });
+		Append(expectedSerializedData, std::vector<uint8_t>{0x0B, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00});
 		Append(expectedSerializedData, TTraits::ToBuffer(resolvedValue1));
-		Append(expectedSerializedData, std::vector<uint8_t>{ 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+		Append(expectedSerializedData, std::vector<uint8_t>{0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
 		Append(expectedSerializedData, TTraits::ToBuffer(resolvedValue2));
-		Append(expectedSerializedData, std::vector<uint8_t>{ 0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00 });
+		Append(expectedSerializedData, std::vector<uint8_t>{0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00});
 		Append(expectedSerializedData, TTraits::ToBuffer(resolvedValue3));
 		crypto::Sha3_256(expectedSerializedData, expectedHash);
 
@@ -241,23 +246,23 @@ namespace catapult { namespace model {
 		// Act:
 		auto unresolvedValue = TTraits::CreateRandomUnresolved();
 		auto resolutionStatement = typename TTraits::ResolutionStatementType(unresolvedValue);
-		resolutionStatement.addResolution(resolvedValue1, { 11, 12 });
-		resolutionStatement.addResolution(resolvedValue1, { 11, 12 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue1, { 11, 13 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue1, { 12, 12 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue1, { 15, 16 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue2, { 16, 00 });
-		resolutionStatement.addResolution(resolvedValue2, { 18, 00 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue1, { 19, 00 });
+		resolutionStatement.addResolution(resolvedValue1, {11, 12});
+		resolutionStatement.addResolution(resolvedValue1, {11, 12}); // collapsed
+		resolutionStatement.addResolution(resolvedValue1, {11, 13}); // collapsed
+		resolutionStatement.addResolution(resolvedValue1, {12, 12}); // collapsed
+		resolutionStatement.addResolution(resolvedValue1, {15, 16}); // collapsed
+		resolutionStatement.addResolution(resolvedValue2, {16, 00});
+		resolutionStatement.addResolution(resolvedValue2, {18, 00}); // collapsed
+		resolutionStatement.addResolution(resolvedValue1, {19, 00});
 
 		// Assert: header
 		EXPECT_EQ(unresolvedValue, resolutionStatement.unresolved());
 
 		// - entries
 		ASSERT_EQ(3u, resolutionStatement.size());
-		AssertEqualEntry({ { 11, 12 }, resolvedValue1 }, resolutionStatement.entryAt(0), 0);
-		AssertEqualEntry({ { 16, 00 }, resolvedValue2 }, resolutionStatement.entryAt(1), 1);
-		AssertEqualEntry({ { 19, 00 }, resolvedValue1 }, resolutionStatement.entryAt(2), 2);
+		AssertEqualEntry({{11, 12}, resolvedValue1}, resolutionStatement.entryAt(0), 0);
+		AssertEqualEntry({{16, 00}, resolvedValue2}, resolutionStatement.entryAt(1), 1);
+		AssertEqualEntry({{19, 00}, resolvedValue1}, resolutionStatement.entryAt(2), 2);
 	}
 
 	RESOLUTION_STATEMENT_TEST(CanCalculateHashWithMultipleDuplicateAttachedResolutionEntries) {
@@ -268,25 +273,25 @@ namespace catapult { namespace model {
 		// Act:
 		auto unresolvedValue = TTraits::CreateRandomUnresolved();
 		auto resolutionStatement = typename TTraits::ResolutionStatementType(unresolvedValue);
-		resolutionStatement.addResolution(resolvedValue1, { 11, 12 });
-		resolutionStatement.addResolution(resolvedValue1, { 11, 12 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue1, { 11, 13 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue1, { 12, 12 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue1, { 15, 16 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue2, { 16, 00 });
-		resolutionStatement.addResolution(resolvedValue2, { 18, 00 }); // collapsed
-		resolutionStatement.addResolution(resolvedValue1, { 19, 00 });
+		resolutionStatement.addResolution(resolvedValue1, {11, 12});
+		resolutionStatement.addResolution(resolvedValue1, {11, 12}); // collapsed
+		resolutionStatement.addResolution(resolvedValue1, {11, 13}); // collapsed
+		resolutionStatement.addResolution(resolvedValue1, {12, 12}); // collapsed
+		resolutionStatement.addResolution(resolvedValue1, {15, 16}); // collapsed
+		resolutionStatement.addResolution(resolvedValue2, {16, 00});
+		resolutionStatement.addResolution(resolvedValue2, {18, 00}); // collapsed
+		resolutionStatement.addResolution(resolvedValue1, {19, 00});
 		auto hash = resolutionStatement.hash();
 
 		// Assert:
 		Hash256 expectedHash;
-		std::vector<uint8_t> expectedSerializedData{ 0x01, 0x00, 0x43, 0xF0 | TTraits::Statement_Type_Code };
+		std::vector<uint8_t> expectedSerializedData{0x01, 0x00, 0x43, 0xF0 | TTraits::Statement_Type_Code};
 		Append(expectedSerializedData, TTraits::ToBuffer(unresolvedValue));
-		Append(expectedSerializedData, std::vector<uint8_t>{ 0x0B, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00 });
+		Append(expectedSerializedData, std::vector<uint8_t>{0x0B, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00});
 		Append(expectedSerializedData, TTraits::ToBuffer(resolvedValue1));
-		Append(expectedSerializedData, std::vector<uint8_t>{ 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+		Append(expectedSerializedData, std::vector<uint8_t>{0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
 		Append(expectedSerializedData, TTraits::ToBuffer(resolvedValue2));
-		Append(expectedSerializedData, std::vector<uint8_t>{ 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+		Append(expectedSerializedData, std::vector<uint8_t>{0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
 		Append(expectedSerializedData, TTraits::ToBuffer(resolvedValue1));
 		crypto::Sha3_256(expectedSerializedData, expectedHash);
 
@@ -301,11 +306,11 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto unresolvedValue = TTraits::CreateRandomUnresolved();
 		auto resolutionStatement = typename TTraits::ResolutionStatementType(unresolvedValue);
-		resolutionStatement.addResolution(TTraits::CreateRandomResolved(), { 11, 12 });
+		resolutionStatement.addResolution(TTraits::CreateRandomResolved(), {11, 12});
 
 		// Act + Assert:
-		EXPECT_THROW(resolutionStatement.addResolution(TTraits::CreateRandomResolved(), { 11, 11 }), catapult_invalid_argument);
-		EXPECT_THROW(resolutionStatement.addResolution(TTraits::CreateRandomResolved(), { 10, 12 }), catapult_invalid_argument);
+		EXPECT_THROW(resolutionStatement.addResolution(TTraits::CreateRandomResolved(), {11, 11}), catapult_invalid_argument);
+		EXPECT_THROW(resolutionStatement.addResolution(TTraits::CreateRandomResolved(), {10, 12}), catapult_invalid_argument);
 	}
 
 	// endregion

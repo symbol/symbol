@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/WeakEntityInfo.h"
 #include "catapult/model/Block.h"
+#include "catapult/model/WeakEntityInfo.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Equality.h"
 
 namespace catapult { namespace model {
 
@@ -45,8 +45,7 @@ namespace catapult { namespace model {
 		}
 
 		template<typename TEntity>
-		void AssertAreEqual(
-				const WeakEntityInfoT<TEntity>& info,
+		void AssertAreEqual(const WeakEntityInfoT<TEntity>& info,
 				const VerifiableEntity& entity,
 				const Hash256& hash,
 				const BlockHeader& blockHeader,
@@ -203,7 +202,7 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::unordered_set<std::string> GetEqualTags() {
-			return { "default", "copy", "diff-block-header" };
+			return {"default", "copy", "diff-block-header"};
 		}
 
 		std::unordered_map<std::string, WeakEntityInfo> GenerateEqualityInstanceMap() {
@@ -213,16 +212,14 @@ namespace catapult { namespace model {
 			Hash256 hash2;
 			BlockHeader blockHeader;
 
-			return {
-				{ "default", WeakEntityInfo(entity1, hash1) },
-				{ "copy", WeakEntityInfo(entity1, hash1) },
-				{ "diff-block-header", WeakEntityInfo(entity1, hash1, blockHeader) },
+			return {{"default", WeakEntityInfo(entity1, hash1)},
+					{"copy", WeakEntityInfo(entity1, hash1)},
+					{"diff-block-header", WeakEntityInfo(entity1, hash1, blockHeader)},
 
-				{ "diff-entity", WeakEntityInfo(entity2, hash1) },
-				{ "diff-hash", WeakEntityInfo(entity1, hash2) },
-				{ "diff-both", WeakEntityInfo(entity2, hash2) },
-				{ "unset", WeakEntityInfo() }
-			};
+					{"diff-entity", WeakEntityInfo(entity2, hash1)},
+					{"diff-hash", WeakEntityInfo(entity1, hash2)},
+					{"diff-both", WeakEntityInfo(entity2, hash2)},
+					{"unset", WeakEntityInfo()}};
 		}
 	}
 

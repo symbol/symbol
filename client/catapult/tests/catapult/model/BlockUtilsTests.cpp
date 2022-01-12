@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/BlockUtils.h"
-#include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
+#include "catapult/model/BlockUtils.h"
 #include "catapult/utils/HexParser.h"
+#include "sdk/src/extensions/BlockExtensions.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
@@ -102,9 +102,8 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, BlockTransactionsHashChangesWhenTransactionOrderChanges) {
-		AssertSignificantChange(5, [](auto& context) {
-			std::swap(context.TransactionInfoPointers[1], context.TransactionInfoPointers[2]);
-		});
+		AssertSignificantChange(
+				5, [](auto& context) { std::swap(context.TransactionInfoPointers[1], context.TransactionInfoPointers[2]); });
 	}
 
 	namespace {
@@ -133,13 +132,11 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateBlockTransactionsHash_Deterministic) {
 		// Arrange:
-		auto seedHashes = {
-			utils::ParseByteArray<Hash256>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
-			utils::ParseByteArray<Hash256>("8A316E48F35CDADD3F827663F7535E840289A16A43E7134B053A86773E474C28"),
-			utils::ParseByteArray<Hash256>("6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7"),
-			utils::ParseByteArray<Hash256>("2AE2CA59B5BB29721BFB79FE113929B6E52891CAA29CBF562EBEDC46903FF681"),
-			utils::ParseByteArray<Hash256>("421D6B68A6DF8BB1D5C9ACF7ED44515E77945D42A491BECE68DA009B551EE6CE")
-		};
+		auto seedHashes = {utils::ParseByteArray<Hash256>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
+				utils::ParseByteArray<Hash256>("8A316E48F35CDADD3F827663F7535E840289A16A43E7134B053A86773E474C28"),
+				utils::ParseByteArray<Hash256>("6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7"),
+				utils::ParseByteArray<Hash256>("2AE2CA59B5BB29721BFB79FE113929B6E52891CAA29CBF562EBEDC46903FF681"),
+				utils::ParseByteArray<Hash256>("421D6B68A6DF8BB1D5C9ACF7ED44515E77945D42A491BECE68DA009B551EE6CE")};
 
 		std::vector<TransactionInfo> transactionInfos;
 		transactionInfos.reserve(seedHashes.size());
@@ -222,8 +219,8 @@ namespace catapult { namespace model {
 				return CalculateBlockTransactionsInfo(block);
 			}
 
-			static void AssertDeepCount(uint32_t, const BlockTransactionsInfo&)
-			{}
+			static void AssertDeepCount(uint32_t, const BlockTransactionsInfo&) {
+			}
 		};
 
 		struct ExtendedBlockTransactionsInfoTraits {
@@ -239,10 +236,16 @@ namespace catapult { namespace model {
 	}
 
 #define BLOCK_TRANSACTIONS_INFO_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BasicBlockTransactionsInfoTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Extended) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtendedBlockTransactionsInfoTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BasicBlockTransactionsInfoTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Extended) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtendedBlockTransactionsInfoTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		test::MutableTransactions GenerateTransactionsWithSizes(std::initializer_list<uint32_t> sizes) {
@@ -273,7 +276,7 @@ namespace catapult { namespace model {
 
 	BLOCK_TRANSACTIONS_INFO_TEST(CanCalculateBlockTransactionsInfoForBlockWithSingleTransaction) {
 		// Arrange:
-		auto pBlock = test::GenerateBlockWithTransactions(GenerateTransactionsWithSizes({ 132 }));
+		auto pBlock = test::GenerateBlockWithTransactions(GenerateTransactionsWithSizes({132}));
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
 
 		// Act:
@@ -287,7 +290,7 @@ namespace catapult { namespace model {
 
 	BLOCK_TRANSACTIONS_INFO_TEST(CanCalculateBlockTransactionsInfoForBlockWithMultipleTransactions) {
 		// Arrange:
-		auto pBlock = test::GenerateBlockWithTransactions(GenerateTransactionsWithSizes({ 132, 222, 552 }));
+		auto pBlock = test::GenerateBlockWithTransactions(GenerateTransactionsWithSizes({132, 222, 552}));
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
 
 		// Act:
@@ -301,7 +304,7 @@ namespace catapult { namespace model {
 
 	BLOCK_TRANSACTIONS_INFO_TEST(CanCalculateBlockTransactionsInfoForBlockWithMultipleTransactions_32BitOverflow) {
 		// Arrange:
-		auto pBlock = test::GenerateBlockWithTransactions(GenerateTransactionsWithSizes({ 132, 222, 552 }));
+		auto pBlock = test::GenerateBlockWithTransactions(GenerateTransactionsWithSizes({132, 222, 552}));
 		pBlock->FeeMultiplier = BlockFeeMultiplier(15134406);
 
 		// Act:
@@ -315,7 +318,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CalculateBlockTransactionsInfoIncludesEmbeddedTransactionsInDeepCount_Extended) {
 		// Arrange:
-		auto transactions = GenerateTransactionsWithSizes({ 132, 222, 552 });
+		auto transactions = GenerateTransactionsWithSizes({132, 222, 552});
 		auto pBlock = test::GenerateBlockWithTransactions(transactions);
 
 		auto transactionRegistry = mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Contains_Embeddings);
@@ -330,7 +333,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CalculateBlockTransactionsInfoExcludesUnknownTransactionsFromDeepCount_Extended) {
 		// Arrange:
-		auto transactions = GenerateTransactionsWithSizes({ 132, 222, 552 });
+		auto transactions = GenerateTransactionsWithSizes({132, 222, 552});
 		transactions[1]->Type = static_cast<EntityType>(0);
 		auto pBlock = test::GenerateBlockWithTransactions(transactions);
 
@@ -384,10 +387,16 @@ namespace catapult { namespace model {
 	}
 
 #define BLOCK_TRAITS_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Normal) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Importance) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Normal) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Importance) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -680,7 +689,7 @@ namespace catapult { namespace model {
 
 			// - stitching only copies BlockHeader (and zeros header footer)
 			BlockHeader blockHeaderTemplate;
-			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&blockHeaderTemplate), sizeof(BlockHeader) });
+			test::FillWithRandomData({reinterpret_cast<uint8_t*>(&blockHeaderTemplate), sizeof(BlockHeader)});
 			blockHeaderTemplate.Type = TTraits::Entity_Type;
 
 			auto randomTransactions = test::GenerateRandomTransactions(numTransactions);
@@ -694,8 +703,7 @@ namespace catapult { namespace model {
 
 			// - check header (excluding Size field)
 			const auto* pBlockData = reinterpret_cast<const uint8_t*>(pBlock.get());
-			EXPECT_EQ_MEMORY(
-					reinterpret_cast<const uint8_t*>(&blockHeaderTemplate) + sizeof(BlockHeader::Size),
+			EXPECT_EQ_MEMORY(reinterpret_cast<const uint8_t*>(&blockHeaderTemplate) + sizeof(BlockHeader::Size),
 					pBlockData + sizeof(BlockHeader::Size),
 					sizeof(BlockHeader) - sizeof(BlockHeader::Size));
 

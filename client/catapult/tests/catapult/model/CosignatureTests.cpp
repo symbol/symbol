@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/model/Cosignature.h"
-#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/TransactionTestUtils.h"
 
 namespace catapult { namespace model {
 

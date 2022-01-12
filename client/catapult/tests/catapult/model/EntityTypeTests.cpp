@@ -99,15 +99,15 @@ namespace catapult { namespace model {
 
 		// Assert:
 		// - no special bits are set or multiple special bits are set
-		for (auto type : { 0x000A, 0x3000, 0x3FFF, 0xC000, 0xFFFF })
+		for (auto type : {0x000A, 0x3000, 0x3FFF, 0xC000, 0xFFFF})
 			EXPECT_EQ(BasicEntityType::Other, ToBasicEntityType(static_cast<EntityType>(type))) << utils::HexFormat(type);
 
 		// - block bit is set
-		for (auto type : { 0x8000, 0x8FFF })
+		for (auto type : {0x8000, 0x8FFF})
 			EXPECT_EQ(BasicEntityType::Block, ToBasicEntityType(static_cast<EntityType>(type))) << utils::HexFormat(type);
 
 		// - transaction bit is set
-		for (auto type : { 0x4000, 0x4FFF })
+		for (auto type : {0x4000, 0x4FFF})
 			EXPECT_EQ(BasicEntityType::Transaction, ToBasicEntityType(static_cast<EntityType>(type))) << utils::HexFormat(type);
 
 		EXPECT_EQ(BasicEntityType::Transaction, ToBasicEntityType(BitwiseOr(Entity_Type_Dummy_Transfer, Entity_Type_Dummy_Multisig)));

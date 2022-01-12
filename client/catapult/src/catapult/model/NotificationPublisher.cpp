@@ -35,14 +35,14 @@ namespace catapult { namespace model {
 		}
 
 		BlockNotification CreateBlockNotification(const Block& block, const Address& blockSignerAddress) {
-			return { block.Type, blockSignerAddress, block.BeneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier };
+			return {block.Type, blockSignerAddress, block.BeneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier};
 		}
 
 		class CustomNotificationPublisher : public NotificationPublisher {
 		public:
 			explicit CustomNotificationPublisher(const TransactionRegistry& transactionRegistry)
-					: m_transactionRegistry(transactionRegistry)
-			{}
+					: m_transactionRegistry(transactionRegistry) {
+			}
 
 		public:
 			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
@@ -70,16 +70,15 @@ namespace catapult { namespace model {
 
 		class BasicNotificationPublisher : public NotificationPublisher {
 		public:
-			BasicNotificationPublisher(
-					const TransactionRegistry& transactionRegistry,
+			BasicNotificationPublisher(const TransactionRegistry& transactionRegistry,
 					UnresolvedMosaicId feeMosaicId,
 					Height feeDebitAppliedLastForkHeight,
 					bool includeCustomNotifications)
 					: m_transactionRegistry(transactionRegistry)
 					, m_feeMosaicId(feeMosaicId)
 					, m_feeDebitAppliedLastForkHeight(feeDebitAppliedLastForkHeight)
-					, m_includeCustomNotifications(includeCustomNotifications)
-			{}
+					, m_includeCustomNotifications(includeCustomNotifications) {
+			}
 
 		public:
 			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
@@ -150,8 +149,7 @@ namespace catapult { namespace model {
 				if (IsImportanceBlock(block.Type)) {
 					// raise an importance block notification only for importance blocks
 					const auto& blockFooter = GetBlockFooter<ImportanceBlockFooter>(block);
-					sub.notify(ImportanceBlockNotification(
-							blockFooter.VotingEligibleAccountsCount,
+					sub.notify(ImportanceBlockNotification(blockFooter.VotingEligibleAccountsCount,
 							blockFooter.HarvestingEligibleAccountsCount,
 							blockFooter.TotalVotingBalance,
 							blockFooter.PreviousImportanceBlockHash));
@@ -167,17 +165,17 @@ namespace catapult { namespace model {
 
 				// when VerifiableEntityHeader_Reserved1 is set (currently by HarvestingUtFacade), MaxFee should be used
 				auto fee = pBlockHeader && 0 == pBlockHeader->VerifiableEntityHeader_Reserved1
-						? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction)
-						: transaction.MaxFee;
+								   ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction)
+								   : transaction.MaxFee;
 
-				CATAPULT_LOG(trace)
-						<< "[Transaction Fee Info]" << std::endl
-						<< "+       pBlockHeader: " << !!pBlockHeader << std::endl
-						<< "+      FeeMultiplier: " << (pBlockHeader ? pBlockHeader->FeeMultiplier : BlockFeeMultiplier()) << std::endl
-						<< "+ transaction.MaxFee: " << transaction.MaxFee << std::endl
-						<< "+                fee: " << fee << std::endl
-						<< "+   transaction.Size: " << transaction.Size << std::endl
-						<< "+   transaction.Type: " << transaction.Type;
+				CATAPULT_LOG(trace) << "[Transaction Fee Info]" << std::endl
+									<< "+       pBlockHeader: " << !!pBlockHeader << std::endl
+									<< "+      FeeMultiplier: " << (pBlockHeader ? pBlockHeader->FeeMultiplier : BlockFeeMultiplier())
+									<< std::endl
+									<< "+ transaction.MaxFee: " << transaction.MaxFee << std::endl
+									<< "+                fee: " << fee << std::endl
+									<< "+   transaction.Size: " << transaction.Size << std::endl
+									<< "+   transaction.Type: " << transaction.Type;
 
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
 				publishTransactionPreCustom(transaction, entityInfo.hash(), fee, plugin, sub);
@@ -192,8 +190,7 @@ namespace catapult { namespace model {
 					publishTransactionCustom(entityInfo, sub);
 			}
 
-			void publishTransactionPreCustom(
-					const Transaction& transaction,
+			void publishTransactionPreCustom(const Transaction& transaction,
 					const Hash256& hash,
 					Amount fee,
 					const model::TransactionPlugin& plugin,
@@ -215,17 +212,13 @@ namespace catapult { namespace model {
 			}
 
 			void publishTransactionPostCustom(
-					const Transaction& transaction,
-					Amount fee,
-					const model::TransactionPlugin& plugin,
-					NotificationSubscriber& sub) const {
+					const Transaction& transaction, Amount fee, const model::TransactionPlugin& plugin, NotificationSubscriber& sub) const {
 				// raise a debit notification
 				auto signerAddress = GetSignerAddress(transaction);
 				sub.notify(BalanceDebitNotification(signerAddress, m_feeMosaicId, fee));
 
 				// raise a signature notification
-				sub.notify(SignatureNotification(
-						transaction.SignerPublicKey,
+				sub.notify(SignatureNotification(transaction.SignerPublicKey,
 						transaction.Signature,
 						plugin.dataBuffer(transaction),
 						SignatureNotification::ReplayProtectionMode::Enabled));
@@ -239,8 +232,7 @@ namespace catapult { namespace model {
 		};
 	}
 
-	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
-			const TransactionRegistry& transactionRegistry,
+	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(const TransactionRegistry& transactionRegistry,
 			UnresolvedMosaicId feeMosaicId,
 			Height feeDebitAppliedLastForkHeight,
 			PublicationMode mode) {

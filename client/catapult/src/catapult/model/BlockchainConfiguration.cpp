@@ -49,9 +49,7 @@ namespace catapult { namespace model {
 		}
 
 		size_t ParsePluginSections(const utils::ConfigurationBag& bag, std::unordered_map<std::string, utils::ConfigurationBag>& plugins) {
-			std::unordered_set<std::string> otherSections{
-				"network", "chain", "fork_heights", "treasury_reissuance_transaction_signatures"
-			};
+			std::unordered_set<std::string> otherSections{"network", "chain", "fork_heights", "treasury_reissuance_transaction_signatures"};
 
 			size_t numPluginProperties = 0;
 			for (const auto& section : bag.sections()) {
@@ -167,8 +165,8 @@ namespace catapult { namespace model {
 		utils::TimeSpan CalculateRollbackVariabilityBufferDuration(const BlockchainConfiguration& config) {
 			// use the greater of 25% of the rollback time or one hour as a buffer against block time variability
 			return utils::TimeSpan::FromHours(4).millis() > CalculateFullRollbackDuration(config).millis()
-					? utils::TimeSpan::FromHours(1)
-					: utils::TimeSpan::FromMilliseconds(CalculateFullRollbackDuration(config).millis() / 4);
+						   ? utils::TimeSpan::FromHours(1)
+						   : utils::TimeSpan::FromMilliseconds(CalculateFullRollbackDuration(config).millis() / 4);
 		}
 	}
 
@@ -177,8 +175,7 @@ namespace catapult { namespace model {
 			return config.MaxTransactionLifetime;
 
 		return utils::TimeSpan::FromMilliseconds(
-				CalculateFullRollbackDuration(config).millis()
-				+ CalculateRollbackVariabilityBufferDuration(config).millis());
+				CalculateFullRollbackDuration(config).millis() + CalculateRollbackVariabilityBufferDuration(config).millis());
 	}
 
 	// endregion

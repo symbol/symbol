@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/NotificationPublisher.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
@@ -35,10 +35,10 @@ namespace catapult { namespace model {
 		constexpr auto Currency_Mosaic_Id = UnresolvedMosaicId(1234);
 		constexpr auto Fork_Height = Height(1000);
 
-		constexpr auto Plugin_Option_Flags = static_cast<mocks::PluginOptionFlags>(
-				utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers)
-				| utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications)
-				| utils::to_underlying_type(mocks::PluginOptionFlags::Contains_Embeddings));
+		constexpr auto Plugin_Option_Flags =
+				static_cast<mocks::PluginOptionFlags>(utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers) |
+													  utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications) |
+													  utils::to_underlying_type(mocks::PluginOptionFlags::Contains_Embeddings));
 
 		template<typename TAssertSubFunc>
 		void PublishAll(const WeakEntityInfo& entityInfo, PublicationMode mode, TAssertSubFunc assertSub) {
@@ -263,7 +263,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanPublishBlockNotifications_BlockWithTransactions) {
 		// Arrange:
-		auto pBlock = GenerateBlockWithTransactionSizes({ 211, 225, 217 });
+		auto pBlock = GenerateBlockWithTransactionSizes({211, 225, 217});
 		pBlock->Timestamp = Timestamp(432);
 		pBlock->Difficulty = Difficulty(575);
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
@@ -549,8 +549,7 @@ namespace catapult { namespace model {
 		}
 
 		std::vector<NotificationType> AssertCanPublishCustomTransactionNotificationsAtHeight(
-				Height height,
-				size_t expectedCustomStartIndex) {
+				Height height, size_t expectedCustomStartIndex) {
 			// Arrange:
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			auto pTransaction = mocks::CreateMockTransaction(12);

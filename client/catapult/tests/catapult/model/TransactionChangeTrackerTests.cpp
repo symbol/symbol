@@ -21,8 +21,8 @@
 
 #include "catapult/model/TransactionChangeTracker.h"
 #include "catapult/utils/ArraySet.h"
-#include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/TransactionInfoTestUtils.h"
 
 namespace catapult { namespace model {
 
@@ -150,8 +150,7 @@ namespace catapult { namespace model {
 	// region add + remove
 
 	namespace {
-		void SeedTracker(
-				TransactionChangeTracker& tracker,
+		void SeedTracker(TransactionChangeTracker& tracker,
 				const std::vector<TransactionInfo>& addedInfos,
 				const std::vector<TransactionInfo>& removedInfos) {
 			for (const auto& info : addedInfos)

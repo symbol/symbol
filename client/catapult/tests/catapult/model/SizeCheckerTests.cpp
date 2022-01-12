@@ -31,8 +31,9 @@ namespace catapult { namespace model {
 
 		struct VariableSizedEntity {
 		public:
-			explicit VariableSizedEntity(uint8_t extraSize) : ExtraSize(extraSize)
-			{}
+			explicit VariableSizedEntity(uint8_t extraSize)
+					: ExtraSize(extraSize) {
+			}
 
 		public:
 			uint32_t Size;

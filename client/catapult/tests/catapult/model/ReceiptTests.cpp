@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/model/Receipt.h"
-#include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Alignment.h"
 
 namespace catapult { namespace model {
 

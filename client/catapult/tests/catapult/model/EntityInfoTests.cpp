@@ -21,9 +21,9 @@
 
 #include "catapult/model/EntityInfo.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
@@ -134,10 +134,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		test::AssertEqualReturnsTrueForEqualObjects<EntityInfo<Block>>(
-				"default",
-				map,
-				{ "default", "copy", "diff-block" },
-				EntityInfoComparer<Block>());
+				"default", map, {"default", "copy", "diff-block"}, EntityInfoComparer<Block>());
 	}
 
 	// endregion
@@ -164,10 +161,16 @@ namespace catapult { namespace model {
 	}
 
 #define TRANSACTION_INFO_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Detached) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DetachedTransactionInfoTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionInfoTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Detached) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DetachedTransactionInfoTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionInfoTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRANSACTION_INFO_TEST(CanCreateDefaultTransactionInfo) {
 		// Act:

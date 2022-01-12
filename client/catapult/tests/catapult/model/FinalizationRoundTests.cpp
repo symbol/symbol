@@ -60,12 +60,10 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::vector<FinalizationRound> GenerateIncreasingFinalizationRoundValues() {
-			return {
-				{ FinalizationEpoch(7), FinalizationPoint(5) },
-				{ FinalizationEpoch(7), FinalizationPoint(10) },
-				{ FinalizationEpoch(7), FinalizationPoint(11) },
-				{ FinalizationEpoch(8), FinalizationPoint(11) }
-			};
+			return {{FinalizationEpoch(7), FinalizationPoint(5)},
+					{FinalizationEpoch(7), FinalizationPoint(10)},
+					{FinalizationEpoch(7), FinalizationPoint(11)},
+					{FinalizationEpoch(8), FinalizationPoint(11)}};
 		}
 	}
 
@@ -77,20 +75,20 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanAddPointToRound) {
 		// Arrange:
-		auto round = model::FinalizationRound{ FinalizationEpoch(21), FinalizationPoint(10) };
+		auto round = model::FinalizationRound{FinalizationEpoch(21), FinalizationPoint(10)};
 
 		// Act + Assert:
-		EXPECT_EQ(FinalizationRound({ FinalizationEpoch(21), FinalizationPoint(11) }), round + FinalizationPoint(1));
-		EXPECT_EQ(FinalizationRound({ FinalizationEpoch(21), FinalizationPoint(19) }), round + FinalizationPoint(9));
+		EXPECT_EQ(FinalizationRound({FinalizationEpoch(21), FinalizationPoint(11)}), round + FinalizationPoint(1));
+		EXPECT_EQ(FinalizationRound({FinalizationEpoch(21), FinalizationPoint(19)}), round + FinalizationPoint(9));
 	}
 
 	TEST(TEST_CLASS, CanSubtractPointFromRound) {
 		// Arrange:
-		auto round = model::FinalizationRound{ FinalizationEpoch(21), FinalizationPoint(10) };
+		auto round = model::FinalizationRound{FinalizationEpoch(21), FinalizationPoint(10)};
 
 		// Act + Assert:
-		EXPECT_EQ(FinalizationRound({ FinalizationEpoch(21), FinalizationPoint(9) }), round - FinalizationPoint(1));
-		EXPECT_EQ(FinalizationRound({ FinalizationEpoch(21), FinalizationPoint(1) }), round - FinalizationPoint(9));
+		EXPECT_EQ(FinalizationRound({FinalizationEpoch(21), FinalizationPoint(9)}), round - FinalizationPoint(1));
+		EXPECT_EQ(FinalizationRound({FinalizationEpoch(21), FinalizationPoint(1)}), round - FinalizationPoint(9));
 	}
 
 	// endregion
@@ -99,7 +97,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanOutput) {
 		// Arrange:
-		auto round = FinalizationRound{ FinalizationEpoch(7), FinalizationPoint(11) };
+		auto round = FinalizationRound{FinalizationEpoch(7), FinalizationPoint(11)};
 
 		// Act:
 		auto str = test::ToString(round);

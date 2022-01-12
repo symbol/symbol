@@ -20,22 +20,20 @@
 **/
 
 #pragma once
+#include "catapult/exceptions.h"
 #include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "catapult/utils/NonCopyable.h"
-#include "catapult/exceptions.h"
 #include <memory>
 #include <vector>
 
-namespace catapult {
-	namespace model {
-		template<typename TEntity>
-		class EntityRange;
+namespace catapult { namespace model {
+	template<typename TEntity>
+	class EntityRange;
 
-		template<typename TEntity>
-		class EntityRangeFactoryMixin;
-	}
-}
+	template<typename TEntity>
+	class EntityRangeFactoryMixin;
+}}
 
 namespace catapult { namespace model {
 
@@ -47,11 +45,13 @@ namespace catapult { namespace model {
 
 		class SubRange {
 		public:
-			SubRange() : SubRange(0)
-			{}
+			SubRange()
+					: SubRange(0) {
+			}
 
-			explicit SubRange(size_t numBytes) : m_numBytes(numBytes)
-			{}
+			explicit SubRange(size_t numBytes)
+					: m_numBytes(numBytes) {
+			}
 
 			SubRange(SubRange&& rhs)
 					: m_numBytes(rhs.m_numBytes)
@@ -105,12 +105,13 @@ namespace catapult { namespace model {
 
 		class SingleBufferRange : public SubRange {
 		public:
-			SingleBufferRange() : SubRange()
-			{}
+			SingleBufferRange()
+					: SubRange() {
+			}
 
 			SingleBufferRange(size_t dataSize, const std::vector<size_t>& offsets, uint8_t alignment)
-					: SingleBufferRange(nullptr, dataSize, offsets, alignment)
-			{}
+					: SingleBufferRange(nullptr, dataSize, offsets, alignment) {
+			}
 
 			SingleBufferRange(const uint8_t* pData, size_t dataSize, const std::vector<size_t>& offsets, uint8_t alignment)
 					: SubRange(CalculateTotalSize(dataSize, offsets, alignment))
@@ -192,8 +193,9 @@ namespace catapult { namespace model {
 
 		class SingleEntityRange : public SubRange {
 		public:
-			SingleEntityRange() : SubRange()
-			{}
+			SingleEntityRange()
+					: SubRange() {
+			}
 
 			explicit SingleEntityRange(std::unique_ptr<TEntity>&& pEntity)
 					: SubRange(pEntity->Size)
@@ -209,7 +211,7 @@ namespace catapult { namespace model {
 			}
 
 			SingleBufferRange copy() const {
-				return SingleBufferRange(reinterpret_cast<const uint8_t*>(m_pSingleEntity.get()), SubRange::totalSize(), { 0 }, 1);
+				return SingleBufferRange(reinterpret_cast<const uint8_t*>(m_pSingleEntity.get()), SubRange::totalSize(), {0}, 1);
 			}
 
 		private:
@@ -222,8 +224,9 @@ namespace catapult { namespace model {
 
 		class MultiBufferRange : public SubRange {
 		public:
-			MultiBufferRange() : SubRange()
-			{}
+			MultiBufferRange()
+					: SubRange() {
+			}
 
 			explicit MultiBufferRange(std::vector<EntityRangeStorage>&& ranges)
 					: SubRange(CalculateTotalSize(ranges))
@@ -241,8 +244,7 @@ namespace catapult { namespace model {
 
 				for (auto& range : m_ranges) {
 					auto rangeEntities = range.detachSubRangeEntities();
-					allEntities.insert(
-							allEntities.end(),
+					allEntities.insert(allEntities.end(),
 							std::make_move_iterator(rangeEntities.begin()),
 							std::make_move_iterator(rangeEntities.end()));
 				}
@@ -278,20 +280,23 @@ namespace catapult { namespace model {
 		// region constructors
 
 		/// Creates empty storage.
-		EntityRangeStorage()
-		{}
+		EntityRangeStorage() {
+		}
 
 		/// Creates storage around \a subRange.
-		explicit EntityRangeStorage(SingleBufferRange&& subRange) : m_singleBufferRange(std::move(subRange))
-		{}
+		explicit EntityRangeStorage(SingleBufferRange&& subRange)
+				: m_singleBufferRange(std::move(subRange)) {
+		}
 
 		/// Creates storage around \a subRange.
-		explicit EntityRangeStorage(SingleEntityRange&& subRange) : m_singleEntityRange(std::move(subRange))
-		{}
+		explicit EntityRangeStorage(SingleEntityRange&& subRange)
+				: m_singleEntityRange(std::move(subRange)) {
+		}
 
 		/// Creates storage around \a subRange.
-		explicit EntityRangeStorage(MultiBufferRange&& subRange) : m_multiBufferRange(std::move(subRange))
-		{}
+		explicit EntityRangeStorage(MultiBufferRange&& subRange)
+				: m_multiBufferRange(std::move(subRange)) {
+		}
 
 		// endregion
 
@@ -443,8 +448,9 @@ namespace catapult { namespace model {
 
 		public:
 			/// Creates an iterator around \a current.
-			explicit iterator(TIterator current) : m_current(current)
-			{}
+			explicit iterator(TIterator current)
+					: m_current(current) {
+			}
 
 		public:
 			/// Returns \c true if this iterator and \a rhs are equal.
@@ -537,12 +543,13 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates an empty entity range.
-		EntityRange()
-		{}
+		EntityRange() {
+		}
 
 	private:
-		explicit EntityRange(EntityRangeStorage<TEntity>&& storage) : m_storage(std::move(storage))
-		{}
+		explicit EntityRange(EntityRangeStorage<TEntity>&& storage)
+				: m_storage(std::move(storage)) {
+		}
 
 	public:
 		/// Gets a value indicating whether or not this range is empty.

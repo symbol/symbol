@@ -35,14 +35,15 @@ namespace catapult { namespace model {
 		AnnotatedEntityRange() = default;
 
 		/// Creates an annotated entity range around \a range without context.
-		AnnotatedEntityRange(EntityRange<TEntity>&& range) : AnnotatedEntityRange(std::move(range), NodeIdentity())
-		{}
+		AnnotatedEntityRange(EntityRange<TEntity>&& range)
+				: AnnotatedEntityRange(std::move(range), NodeIdentity()) {
+		}
 
 		/// Creates an annotated entity range around \a range and a source identity (\a sourceIdentity).
 		AnnotatedEntityRange(EntityRange<TEntity>&& range, const NodeIdentity& sourceIdentity)
 				: Range(std::move(range))
-				, SourceIdentity(sourceIdentity)
-		{}
+				, SourceIdentity(sourceIdentity) {
+		}
 
 	public:
 		/// Entity range.

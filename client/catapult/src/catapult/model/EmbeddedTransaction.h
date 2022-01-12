@@ -24,12 +24,10 @@
 #include "SizePrefixedEntity.h"
 #include <iosfwd>
 
-namespace catapult {
-	namespace model {
-		class NotificationSubscriber;
-		class TransactionRegistry;
-	}
-}
+namespace catapult { namespace model {
+	class NotificationSubscriber;
+	class TransactionRegistry;
+}}
 
 namespace catapult { namespace model {
 

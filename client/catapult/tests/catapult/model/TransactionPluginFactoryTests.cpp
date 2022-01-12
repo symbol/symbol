@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/model/TransactionPluginFactory.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
@@ -47,8 +47,7 @@ namespace catapult { namespace model {
 
 			static auto CreatePlugin() {
 				return TransactionPluginFactory<Options>::template Create<mocks::MockTransaction, mocks::EmbeddedMockTransaction>(
-						Publish<mocks::MockTransaction>,
-						Publish<mocks::EmbeddedMockTransaction>);
+						Publish<mocks::MockTransaction>, Publish<mocks::EmbeddedMockTransaction>);
 			}
 		};
 
@@ -142,10 +141,7 @@ namespace catapult { namespace model {
 
 		// Assert: cosignatories are forwarded from ExtractAdditionalRequiredCosignatories
 		UnresolvedAddressSet expectedAdditionalCosignatories{
-			UnresolvedAddress{ { 1 } },
-			UnresolvedAddress{ { 2 } },
-			mocks::GetRecipientAddress(transaction).copyTo<UnresolvedAddress>()
-		};
+				UnresolvedAddress{{1}}, UnresolvedAddress{{2}}, mocks::GetRecipientAddress(transaction).copyTo<UnresolvedAddress>()};
 		EXPECT_EQ(expectedAdditionalCosignatories, additionalCosignatories);
 	}
 }}

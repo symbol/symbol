@@ -44,16 +44,12 @@ namespace catapult { namespace model {
 
 	Height CalculateVotingSetStartHeight(FinalizationEpoch epoch, uint64_t grouping) {
 		CheckParameters(epoch, grouping);
-		return epoch <= FinalizationEpoch(2)
-				? Height(epoch.unwrap())
-				: Height((epoch.unwrap() - 2) * grouping + 1);
+		return epoch <= FinalizationEpoch(2) ? Height(epoch.unwrap()) : Height((epoch.unwrap() - 2) * grouping + 1);
 	}
 
 	Height CalculateVotingSetEndHeight(FinalizationEpoch epoch, uint64_t grouping) {
 		CheckParameters(epoch, grouping);
-		return FinalizationEpoch(1) == epoch
-				? Height(1)
-				: Height((epoch.unwrap() - 1) * grouping);
+		return FinalizationEpoch(1) == epoch ? Height(1) : Height((epoch.unwrap() - 1) * grouping);
 	}
 
 	FinalizationEpoch CalculateFinalizationEpochForHeight(Height height, uint64_t grouping) {

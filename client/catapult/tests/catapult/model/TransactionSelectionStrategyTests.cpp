@@ -20,8 +20,8 @@
 **/
 
 #include "catapult/model/TransactionSelectionStrategy.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 
 namespace catapult { namespace model {
 
@@ -30,9 +30,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanParseValidStrategyValue) {
 		// Arrange:
 		auto assertSuccessfulParse = [](const auto& input, const auto& expectedParsedValue) {
-			test::AssertParse(input, expectedParsedValue, [](const auto& str, auto& parsedValue) {
-				return TryParseValue(str, parsedValue);
-			});
+			test::AssertParse(
+					input, expectedParsedValue, [](const auto& str, auto& parsedValue) { return TryParseValue(str, parsedValue); });
 		};
 
 		// Assert:

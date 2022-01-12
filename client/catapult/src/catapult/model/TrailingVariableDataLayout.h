@@ -71,7 +71,7 @@ namespace catapult { namespace model {
 	const auto* NAME##Ptr() const { \
 		return NAME##SIZE_POSTFIX ? ToTypedPointer(PayloadStart(*this)) : nullptr; \
 	} \
-	\
+\
 	/* Returns a pointer to the typed data contained in this entity. */ \
 	auto* NAME##Ptr() { \
 		return NAME##SIZE_POSTFIX ? ToTypedPointer(PayloadStart(*this)) : nullptr; \

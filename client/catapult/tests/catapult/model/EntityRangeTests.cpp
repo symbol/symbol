@@ -20,10 +20,10 @@
 **/
 
 #include "catapult/model/EntityRange.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
@@ -32,20 +32,16 @@ namespace catapult { namespace model {
 	namespace {
 		// region Test Buffers
 
-		constexpr std::array<uint8_t, 4> Single_Entity_Buffer{ { 0x00, 0x11, 0x22, 0x33 } };
+		constexpr std::array<uint8_t, 4> Single_Entity_Buffer{{0x00, 0x11, 0x22, 0x33}};
 
 		std::vector<uint32_t> GetExpectedSingleEntityBufferValues() {
-			return { 0x33221100 };
+			return {0x33221100};
 		}
 
-		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer{{
-			0x00, 0x11, 0x22, 0x33,
-			0xFF, 0xDD, 0xBB, 0x99,
-			0x76, 0x98, 0x12, 0x34
-		}};
+		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer{{0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34}};
 
 		std::vector<uint32_t> GetExpectedMultiEntityBufferValues() {
-			return { 0x33221100, 0x99BBDDFF, 0x34129876 };
+			return {0x33221100, 0x99BBDDFF, 0x34129876};
 		}
 
 		// endregion
@@ -132,9 +128,7 @@ namespace catapult { namespace model {
 		}
 
 		void AssertRangeWithNonContiguousData(
-				const EntityRange<uint32_t>& range,
-				const std::vector<uint32_t>& expected,
-				size_t excessSize = 0) {
+				const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
 			// Assert:
 			AssertBasicRange(range, expected, excessSize);
 
@@ -267,14 +261,20 @@ namespace catapult { namespace model {
 	}
 
 #define VARIABLE_OR_FIXED_FACTORY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Fixed) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FixedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Variable) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VariableTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Fixed) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FixedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Variable) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VariableTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanCreateRangeAroundSingleEntityBuffer) {
 		// Act:
-		auto range = TTraits::CreateRange(Single_Entity_Buffer, { 0 });
+		auto range = TTraits::CreateRange(Single_Entity_Buffer, {0});
 
 		// Assert:
 		AssertRange(range, GetExpectedSingleEntityBufferValues());
@@ -282,7 +282,7 @@ namespace catapult { namespace model {
 
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanCopyRangeAroundSingleEntityBuffer) {
 		// Act:
-		auto original = TTraits::CreateRange(Single_Entity_Buffer, { 0 });
+		auto original = TTraits::CreateRange(Single_Entity_Buffer, {0});
 		auto range = EntityRange<uint32_t>::CopyRange(original);
 
 		// Assert:
@@ -293,7 +293,7 @@ namespace catapult { namespace model {
 
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanCreateRangeAroundMultipleEntityBuffer) {
 		// Act:
-		auto range = TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = TTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 
 		// Assert:
 		AssertRange(range, GetExpectedMultiEntityBufferValues());
@@ -301,7 +301,7 @@ namespace catapult { namespace model {
 
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanCopyRangeAroundMultipleEntityBuffer) {
 		// Act:
-		auto original = TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto original = TTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 		auto range = EntityRange<uint32_t>::CopyRange(original);
 
 		// Assert:
@@ -321,7 +321,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanExtractEntitiesFromMultipleEntityBufferRange) {
 		// Act:
-		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Buffer.data(), Multi_Entity_Buffer.size(), { 0, 4, 8 });
+		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Buffer.data(), Multi_Entity_Buffer.size(), {0, 4, 8});
 		auto entities = EntityRange<uint32_t>::ExtractEntitiesFromRange(std::move(range));
 
 		// Sanity:
@@ -336,22 +336,17 @@ namespace catapult { namespace model {
 	// region overlay (variable) buffer
 
 	namespace {
-		constexpr std::array<uint8_t, 17> Multi_Entity_Overlay_Buffer{{
-			0x00, 0x11, 0x22, 0x33,
-			0xFF, 0xDD, 0xBB, 0x99,
-			0x76, 0x98, 0x12, 0x34,
-			0xAA, 0xBB, 0xCC, 0xDD,
-			0xEE
-		}};
+		constexpr std::array<uint8_t, 17> Multi_Entity_Overlay_Buffer{
+				{0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE}};
 
 		std::vector<uint32_t> GetExpectedMultiEntityOverlayBufferValues() {
-			return { 0xDDFF3322, 0x987699BB };
+			return {0xDDFF3322, 0x987699BB};
 		}
 	}
 
 	TEST(TEST_CLASS, CanCreateOverlayRangeAroundPartOfMultipleEntityBuffer) {
 		// Act:
-		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), { 2, 6 });
+		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), {2, 6});
 
 		// Assert: the range is 7 bytes larger than expected (alignment 1)
 		//         01 2345 6789 ABCDEF0 (head padding truncated, tail padding preserved)
@@ -361,10 +356,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCopyOverlayRangeAroundPartOfMultipleEntityBuffer) {
 		// Act:
-		auto original = EntityRange<uint32_t>::CopyVariable(
-				Multi_Entity_Overlay_Buffer.data(),
-				Multi_Entity_Overlay_Buffer.size(),
-				{ 2, 6 });
+		auto original = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), {2, 6});
 		auto range = EntityRange<uint32_t>::CopyRange(original);
 
 		// Assert: the range is 7 bytes larger than expected (alignment 1)
@@ -377,7 +369,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanExtractEntitiesFromOverlayRangeAroundPartOfMultipleEntityBuffer) {
 		// Act:
-		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), { 2, 6 });
+		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), {2, 6});
 		auto entities = EntityRange<uint32_t>::ExtractEntitiesFromRange(std::move(range));
 
 		// Sanity:
@@ -394,14 +386,11 @@ namespace catapult { namespace model {
 	namespace {
 		EntityRange<uint32_t> CreateRangeAroundMultipleEntityBufferWithCustomAlignment() {
 			return EntityRange<uint32_t>::CopyVariable(
-				Multi_Entity_Overlay_Buffer.data(),
-				Multi_Entity_Overlay_Buffer.size(),
-				{ 1, 6, 12 },
-				8);
+					Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), {1, 6, 12}, 8);
 		}
 
 		std::vector<uint32_t> GetExpectedMultiEntityCustomAlignmentBufferValues() {
-			return { 0xFF332211, 0x987699BB, 0xDDCCBBAA };
+			return {0xFF332211, 0x987699BB, 0xDDCCBBAA};
 		}
 	}
 
@@ -558,7 +547,7 @@ namespace catapult { namespace model {
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeSingleEntityRange) {
 		// Arrange
 		std::vector<EntityRange<uint32_t>> ranges;
-		auto range = TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = TTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 		ranges.push_back(std::move(range));
 
 		// Act:
@@ -569,23 +558,19 @@ namespace catapult { namespace model {
 	}
 
 	namespace {
-		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer_2{{
-			0x23, 0x34, 0x45, 0x56,
-			0x19, 0x28, 0x37, 0x46,
-			0x24, 0x35, 0x46, 0x57
-		}};
+		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer_2{{0x23, 0x34, 0x45, 0x56, 0x19, 0x28, 0x37, 0x46, 0x24, 0x35, 0x46, 0x57}};
 
 		std::vector<uint32_t> GetExpectedMultiEntityBuffer2Values() {
-			return { 0x56453423, 0x46372819, 0x57463524 };
+			return {0x56453423, 0x46372819, 0x57463524};
 		}
 	}
 
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeMultipleEntityRanges) {
 		// Arrange
 		std::vector<EntityRange<uint32_t>> ranges;
-		auto range1 = TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
-		auto range2 = TTraits::CreateRange(Single_Entity_Buffer, { 0 });
-		auto range3 = TTraits::CreateRange(Multi_Entity_Buffer_2, { 0, 4, 8 });
+		auto range1 = TTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
+		auto range2 = TTraits::CreateRange(Single_Entity_Buffer, {0});
+		auto range3 = TTraits::CreateRange(Multi_Entity_Buffer_2, {0, 4, 8});
 		ranges.push_back(std::move(range1));
 		ranges.push_back(std::move(range2));
 		ranges.push_back(std::move(range3));
@@ -606,11 +591,11 @@ namespace catapult { namespace model {
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeMultipleEntityRangesWithEmptyEntityRanges) {
 		// Arrange
 		std::vector<EntityRange<uint32_t>> ranges;
-		ranges.push_back(TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 }));
+		ranges.push_back(TTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8}));
 		for (auto i = 0u; i < 5; ++i)
 			ranges.push_back(EntityRange<uint32_t>());
 
-		ranges.push_back(TTraits::CreateRange(Single_Entity_Buffer, { 0 }));
+		ranges.push_back(TTraits::CreateRange(Single_Entity_Buffer, {0}));
 
 		// Act:
 		auto mergedRange = EntityRange<uint32_t>::MergeRanges(std::move(ranges));
@@ -645,12 +630,12 @@ namespace catapult { namespace model {
 				blocks.push_back(test::GenerateEmptyRandomBlock());
 
 			std::vector<BlockRange> ranges;
-			ranges.push_back(test::CreateEntityRange({ blocks[0].get() })); // single-buffer
+			ranges.push_back(test::CreateEntityRange({blocks[0].get()})); // single-buffer
 			ranges.push_back(BlockRange::FromEntity(test::CopyEntity(*blocks[1]))); // single-entity
-			ranges.push_back(test::CreateEntityRange(std::vector<const Block*>{ blocks[2].get(), blocks[3].get() })); // single-buffer
+			ranges.push_back(test::CreateEntityRange(std::vector<const Block*>{blocks[2].get(), blocks[3].get()})); // single-buffer
 
 			std::vector<BlockRange> subRanges;
-			subRanges.push_back(test::CreateEntityRange({ blocks[4].get() })); // single-buffer
+			subRanges.push_back(test::CreateEntityRange({blocks[4].get()})); // single-buffer
 			subRanges.push_back(BlockRange::FromEntity(test::CopyEntity(*blocks[5]))); // single-entity
 			ranges.push_back(BlockRange::MergeRanges(std::move(subRanges))); // multi-buffer
 
@@ -702,15 +687,23 @@ namespace catapult { namespace model {
 	// region iterators
 
 #define ITERATOR_BASED_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_BeginEnd) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_BeginEndConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_CBeginCEnd) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_BeginEnd) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_BeginEndConst) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_CBeginCEnd) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ITERATOR_BASED_BASED_TEST(CanIterateOverMultipleEntitiesWithPostfixOperator) {
 		// Arrange:
-		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 
 		// Act + Assert:
 		auto iter = TTraits::begin(range);
@@ -722,7 +715,7 @@ namespace catapult { namespace model {
 
 	ITERATOR_BASED_BASED_TEST(CanIterateOverMultipleEntitiesWithPrefixOperator) {
 		// Arrange:
-		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 
 		// Act + Assert:
 		auto iter = TTraits::begin(range);
@@ -737,7 +730,7 @@ namespace catapult { namespace model {
 
 	ITERATOR_BASED_BASED_TEST(CanReverseIterateOverMultipleEntitiesWithPrefixOperator) {
 		// Arrange:
-		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 
 		// Act + Assert:
 		auto iter = TTraits::end(range);
@@ -749,7 +742,7 @@ namespace catapult { namespace model {
 
 	ITERATOR_BASED_BASED_TEST(CanReverseIterateOverMultipleEntitiesWithPostfixOperator) {
 		// Arrange:
-		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 
 		// Act + Assert:
 		auto iter = TTraits::end(range);
@@ -764,7 +757,7 @@ namespace catapult { namespace model {
 
 	ITERATOR_BASED_BASED_TEST(CanDereferenceIterator) {
 		// Arrange:
-		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 		auto iter = TTraits::begin(range);
 		++iter;
 
@@ -779,7 +772,7 @@ namespace catapult { namespace model {
 
 	ITERATOR_BASED_BASED_TEST(BeginEndIteratorsBasedOnSameContainerAreEqual) {
 		// Arrange:
-		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 
 		// Act + Assert:
 		EXPECT_EQ(TTraits::begin(range), TTraits::begin(range));
@@ -789,7 +782,7 @@ namespace catapult { namespace model {
 
 	ITERATOR_BASED_BASED_TEST(CanCheckArbitraryIteratorsForEquality) {
 		// Arrange:
-		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 		auto iter = TTraits::begin(range);
 		++iter;
 
@@ -809,7 +802,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IteratorConstnessIsCorrect) {
 		// Arrange:
-		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
+		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, {0, 4, 8});
 		const auto& crange = range;
 
 		// Assert:
@@ -844,7 +837,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, FindFirstDifferenceIndexCanCompareSameRangeInstance) {
 		// Arrange:
-		constexpr uint8_t Data[] = { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34 };
+		constexpr uint8_t Data[] = {0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34};
 		auto range = EntityRange<uint16_t>::CopyFixed(Data, 6);
 
 		// Assert:
@@ -853,7 +846,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, FindFirstDifferenceIndexCanCompareIdenticalRanges) {
 		// Arrange:
-		constexpr uint8_t Data[] = { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34 };
+		constexpr uint8_t Data[] = {0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34};
 		auto range1 = EntityRange<uint16_t>::CopyFixed(Data, 6);
 		auto range2 = EntityRange<uint16_t>::CopyFixed(Data, 6);
 
@@ -863,7 +856,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, FindFirstDifferenceIndexCanCompareRangesWithDifferentSizes) {
 		// Arrange:
-		constexpr uint8_t Data[] = { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34 };
+		constexpr uint8_t Data[] = {0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34};
 		auto range1 = EntityRange<uint16_t>::CopyFixed(Data, 6);
 		auto range2 = EntityRange<uint16_t>::CopyFixed(Data, 4);
 
@@ -873,8 +866,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, FindFirstDifferenceIndexCanCompareRangesWithDifferentContents) {
 		// Arrange:
-		constexpr uint8_t Data1[] = { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34 };
-		constexpr uint8_t Data2[] = { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBC, 0x99, 0x76, 0x98, 0x12, 0x34 };
+		constexpr uint8_t Data1[] = {0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34};
+		constexpr uint8_t Data2[] = {0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBC, 0x99, 0x76, 0x98, 0x12, 0x34};
 		auto range1 = EntityRange<uint16_t>::CopyFixed(Data1, 6);
 		auto range2 = EntityRange<uint16_t>::CopyFixed(Data2, 6);
 

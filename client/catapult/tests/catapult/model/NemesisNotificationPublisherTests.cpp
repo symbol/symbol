@@ -19,11 +19,11 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/NemesisNotificationPublisher.h"
 #include "catapult/model/BlockchainConfiguration.h"
+#include "catapult/model/NemesisNotificationPublisher.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/mocks/MockNotificationPublisher.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
@@ -56,7 +56,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(1u, options.SpecialAccountAddresses.size());
-		EXPECT_EQ(AddressSet{ config.HarvestNetworkFeeSinkAddressV1 }, options.SpecialAccountAddresses);
+		EXPECT_EQ(AddressSet{config.HarvestNetworkFeeSinkAddressV1}, options.SpecialAccountAddresses);
 	}
 
 	// endregion
@@ -83,8 +83,7 @@ namespace catapult { namespace model {
 
 			// - one notification was added for each special account
 			EXPECT_EQ(specialAccountAddresses.size(), pMockSubscriber->numNotifications());
-			EXPECT_EQ(
-					std::vector<NotificationType>(specialAccountAddresses.size(), Core_Register_Account_Address_Notification),
+			EXPECT_EQ(std::vector<NotificationType>(specialAccountAddresses.size(), Core_Register_Account_Address_Notification),
 					pMockSubscriber->notificationTypes());
 
 			for (const auto& address : specialAccountAddresses)
@@ -97,15 +96,13 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithSingleSpecialAccount) {
-		RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Address>() });
+		RunNemesisNotificationPublisherTest({test::GenerateRandomByteArray<Address>()});
 	}
 
 	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithMultipleSpecialAccounts) {
-		RunNemesisNotificationPublisherTest({
-			test::GenerateRandomByteArray<Address>(),
-			test::GenerateRandomByteArray<Address>(),
-			test::GenerateRandomByteArray<Address>()
-		});
+		RunNemesisNotificationPublisherTest({test::GenerateRandomByteArray<Address>(),
+				test::GenerateRandomByteArray<Address>(),
+				test::GenerateRandomByteArray<Address>()});
 	}
 
 	// endregion

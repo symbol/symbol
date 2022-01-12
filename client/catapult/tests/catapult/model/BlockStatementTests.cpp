@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/BlockStatement.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
-#include "tests/test/core/BlockStatementTestUtils.h"
+#include "catapult/model/BlockStatement.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/BlockStatementTestUtils.h"
 
 namespace catapult { namespace model {
 
@@ -50,10 +50,16 @@ namespace catapult { namespace model {
 	}
 
 #define MERKLE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_MerkleHash) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MerkleHashTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MerkleTree) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MerkleTreeTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_MerkleHash) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MerkleHashTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MerkleTree) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MerkleTreeTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -88,7 +94,7 @@ namespace catapult { namespace model {
 		auto result = TTraits::Calculate(statement);
 
 		// Assert:
-		TTraits::AssertResult({ Hash256() }, result);
+		TTraits::AssertResult({Hash256()}, result);
 	}
 
 	// endregion
@@ -108,16 +114,16 @@ namespace catapult { namespace model {
 			auto result = TTraits::Calculate(statement);
 
 			// Assert:
-			TTraits::AssertResult({ componentStatementHash }, result);
+			TTraits::AssertResult({componentStatementHash}, result);
 		}
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleTransactionStatement) {
-		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(TransactionStatement({ 11, 12 }));
+		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(TransactionStatement({11, 12}));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleAddressResolutionStatement) {
-		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(AddressResolutionStatement(UnresolvedAddress{ { 88 } }));
+		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(AddressResolutionStatement(UnresolvedAddress{{88}}));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleMosaicResolutionStatement) {
@@ -140,14 +146,12 @@ namespace catapult { namespace model {
 		}
 
 		template<typename TTraits, typename TComponentStatement1, typename TComponentStatement2, typename TComponentStatement3>
-		void AssertCanCalculateMerkleForMultipleComponentStatements(
-				TComponentStatement1&& componentStatement1,
+		void AssertCanCalculateMerkleForMultipleComponentStatements(TComponentStatement1&& componentStatement1,
 				TComponentStatement2&& componentStatement2,
 				TComponentStatement3&& componentStatement3) {
 			// Arrange:
 			std::vector<Hash256> componentStatementHashes{
-				componentStatement1.hash(), componentStatement2.hash(), componentStatement3.hash()
-			};
+					componentStatement1.hash(), componentStatement2.hash(), componentStatement3.hash()};
 
 			BlockStatement statement;
 			Add(statement, std::move(componentStatement1));
@@ -164,21 +168,17 @@ namespace catapult { namespace model {
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleTransactionStatements) {
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
-				TransactionStatement({ 10, 10 }),
-				TransactionStatement({ 11, 12 }),
-				TransactionStatement({ 24, 11 }));
+				TransactionStatement({10, 10}), TransactionStatement({11, 12}), TransactionStatement({24, 11}));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleAddressResolutionStatements) {
-		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
-				AddressResolutionStatement(UnresolvedAddress{ { 88 } }),
-				AddressResolutionStatement(UnresolvedAddress{ { 92 } }),
-				AddressResolutionStatement(UnresolvedAddress{ { 94 } }));
+		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(AddressResolutionStatement(UnresolvedAddress{{88}}),
+				AddressResolutionStatement(UnresolvedAddress{{92}}),
+				AddressResolutionStatement(UnresolvedAddress{{94}}));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleMosaicResolutionStatements) {
-		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
-				MosaicResolutionStatement(UnresolvedMosaicId(100)),
+		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(MosaicResolutionStatement(UnresolvedMosaicId(100)),
 				MosaicResolutionStatement(UnresolvedMosaicId(200)),
 				MosaicResolutionStatement(UnresolvedMosaicId(300)));
 	}
@@ -188,26 +188,28 @@ namespace catapult { namespace model {
 	// region multiple statements (heterogenous)
 
 	MERKLE_TEST(CanCalculateMerkleForHeterogenousComponentStatementsOneEach) {
-		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
-				TransactionStatement({ 10, 10 }),
-				AddressResolutionStatement(UnresolvedAddress{ { 92 } }),
+		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(TransactionStatement({10, 10}),
+				AddressResolutionStatement(UnresolvedAddress{{92}}),
 				MosaicResolutionStatement(UnresolvedMosaicId(300)));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForHeterogenousComponentStatementsMultipleEach) {
 		// Arrange:
-		auto componentStatement1 = TransactionStatement({ 10, 10 });
-		auto componentStatement2 = TransactionStatement({ 24, 11 });
-		auto componentStatement3 = AddressResolutionStatement(UnresolvedAddress{ { 88 } });
-		auto componentStatement4 = AddressResolutionStatement(UnresolvedAddress{ { 92 } });
-		auto componentStatement5 = AddressResolutionStatement(UnresolvedAddress{ { 94 } });
+		auto componentStatement1 = TransactionStatement({10, 10});
+		auto componentStatement2 = TransactionStatement({24, 11});
+		auto componentStatement3 = AddressResolutionStatement(UnresolvedAddress{{88}});
+		auto componentStatement4 = AddressResolutionStatement(UnresolvedAddress{{92}});
+		auto componentStatement5 = AddressResolutionStatement(UnresolvedAddress{{94}});
 		auto componentStatement6 = MosaicResolutionStatement(UnresolvedMosaicId(100));
 		auto componentStatement7 = MosaicResolutionStatement(UnresolvedMosaicId(200));
 
-		std::vector<Hash256> componentStatementHashes{
-			componentStatement1.hash(), componentStatement2.hash(), componentStatement3.hash(), componentStatement4.hash(),
-			componentStatement5.hash(), componentStatement6.hash(), componentStatement7.hash()
-		};
+		std::vector<Hash256> componentStatementHashes{componentStatement1.hash(),
+				componentStatement2.hash(),
+				componentStatement3.hash(),
+				componentStatement4.hash(),
+				componentStatement5.hash(),
+				componentStatement6.hash(),
+				componentStatement7.hash()};
 
 		BlockStatement statement;
 		Add(statement, std::move(componentStatement1));
@@ -231,13 +233,12 @@ namespace catapult { namespace model {
 
 	namespace {
 		struct CountTraits {
-			static void RunStatementTest(
-					uint32_t numTransactionStatements,
+			static void RunStatementTest(uint32_t numTransactionStatements,
 					uint32_t numAddressStatements,
 					uint32_t numMosaicStatements,
 					uint32_t numTotalStatements) {
 				// Arrange:
-				std::vector<size_t> numStatements{ numTransactionStatements, numAddressStatements, numMosaicStatements };
+				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements);
 
 				// Act:
@@ -250,12 +251,9 @@ namespace catapult { namespace model {
 
 		struct DeepCopyTraits {
 			static void RunStatementTest(
-					uint32_t numTransactionStatements,
-					uint32_t numAddressStatements,
-					uint32_t numMosaicStatements,
-					uint32_t) {
+					uint32_t numTransactionStatements, uint32_t numAddressStatements, uint32_t numMosaicStatements, uint32_t) {
 				// Arrange:
-				std::vector<size_t> numStatements{ numTransactionStatements, numAddressStatements, numMosaicStatements };
+				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements);
 
 				// Act:
@@ -270,12 +268,9 @@ namespace catapult { namespace model {
 		struct DeepCopyTruncationTraits {
 		public:
 			static void RunStatementTest(
-					uint32_t numTransactionStatements,
-					uint32_t numAddressStatements,
-					uint32_t numMosaicStatements,
-					uint32_t) {
+					uint32_t numTransactionStatements, uint32_t numAddressStatements, uint32_t numMosaicStatements, uint32_t) {
 				// Arrange:
-				std::vector<size_t> numStatements{ numTransactionStatements, numAddressStatements, numMosaicStatements };
+				std::vector<size_t> numStatements{numTransactionStatements, numAddressStatements, numMosaicStatements};
 				auto maxStatements = *std::max_element(numStatements.cbegin(), numStatements.cend());
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements, test::RandomStatementsConstraints::Order);
 
@@ -297,18 +292,15 @@ namespace catapult { namespace model {
 						test::AssertEqual(*pBlockStatement, blockStatementCopy);
 					} else {
 						// - high primary source ids should be truncated
-						AssertTransactionStatementSources(
-								std::min(i, numTransactionStatements),
+						AssertTransactionStatementSources(std::min(i, numTransactionStatements),
 								2 * numTransactionStatements,
 								blockStatementCopy.TransactionStatements,
 								message + " (transaction statements)");
-						AssertResolutionStatementSources(
-								numAddressStatements,
+						AssertResolutionStatementSources(numAddressStatements,
 								2 * std::min(i, numAddressStatements),
 								blockStatementCopy.AddressResolutionStatements,
 								message + " (address resolution statements)");
-						AssertResolutionStatementSources(
-								numMosaicStatements,
+						AssertResolutionStatementSources(numMosaicStatements,
 								2 * std::min(i, numMosaicStatements),
 								blockStatementCopy.MosaicResolutionStatements,
 								message + " (mosaic resolution statements)");
@@ -317,8 +309,7 @@ namespace catapult { namespace model {
 			}
 
 		private:
-			static void AssertTransactionStatementSources(
-					size_t numExpectedStatements,
+			static void AssertTransactionStatementSources(size_t numExpectedStatements,
 					size_t numExpectedReceipts,
 					const std::map<ReceiptSource, TransactionStatement>& statements,
 					const std::string& message) {
@@ -333,8 +324,7 @@ namespace catapult { namespace model {
 			}
 
 			template<typename TStatementKey, typename TStatementValue>
-			static void AssertResolutionStatementSources(
-					size_t numExpectedStatements,
+			static void AssertResolutionStatementSources(size_t numExpectedStatements,
 					size_t numExpectedResolutions,
 					std::map<TStatementKey, TStatementValue>& statements,
 					const std::string& message) {
@@ -357,11 +347,19 @@ namespace catapult { namespace model {
 	}
 
 #define SUB_STATEMENT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, CanCount##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CountTraits>(); } \
-	TEST(TEST_CLASS, CanDeepCopy##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTraits>(); } \
-	TEST(TEST_CLASS, CanDeepCopyTruncation##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTruncationTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, CanCount##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CountTraits>(); \
+	} \
+	TEST(TEST_CLASS, CanDeepCopy##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTraits>(); \
+	} \
+	TEST(TEST_CLASS, CanDeepCopyTruncation##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTruncationTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SUB_STATEMENT_TEST(EmptyBlockStatement) {
 		TTraits::RunStatementTest(0, 0, 0, 0);

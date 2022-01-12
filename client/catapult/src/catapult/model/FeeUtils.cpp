@@ -31,8 +31,7 @@ namespace catapult { namespace model {
 	BlockFeeMultiplier CalculateTransactionMaxFeeMultiplier(const Transaction& transaction) {
 		auto rawMultiplier = transaction.MaxFee.unwrap() / transaction.Size;
 		auto maxRawMultiplier = std::numeric_limits<BlockFeeMultiplier::ValueType>::max();
-		return BlockFeeMultiplier(rawMultiplier < maxRawMultiplier
-				? static_cast<BlockFeeMultiplier::ValueType>(rawMultiplier)
-				: maxRawMultiplier);
+		return BlockFeeMultiplier(
+				rawMultiplier < maxRawMultiplier ? static_cast<BlockFeeMultiplier::ValueType>(rawMultiplier) : maxRawMultiplier);
 	}
 }}

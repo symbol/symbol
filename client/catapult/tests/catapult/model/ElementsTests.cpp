@@ -21,10 +21,10 @@
 
 #include "catapult/model/Elements.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
@@ -60,8 +60,8 @@ namespace catapult { namespace model {
 			PredicateParams(BasicEntityType entityType, Timestamp timestamp, const Hash256& hash)
 					: EntityType(entityType)
 					, Timestamp(timestamp)
-					, Hash(hash)
-			{}
+					, Hash(hash) {
+			}
 
 		public:
 			BasicEntityType EntityType;
@@ -84,11 +84,7 @@ namespace catapult { namespace model {
 		}
 
 		void AssertTransactionsFromBlock(
-				const BlockElement& expected,
-				size_t numExpected,
-				WeakEntityInfos& entityInfos,
-				size_t startIndex,
-				const char* shortTag) {
+				const BlockElement& expected, size_t numExpected, WeakEntityInfos& entityInfos, size_t startIndex, const char* shortTag) {
 			ASSERT_GE(entityInfos.size(), startIndex + numExpected);
 
 			for (auto i = 0u; i < numExpected; ++i) {
@@ -246,10 +242,10 @@ namespace catapult { namespace model {
 			for (const auto& transaction : block.Transactions()) {
 				++i;
 				auto transactionElement = TransactionElement(transaction);
-				transactionElement.EntityHash = { { static_cast<uint8_t>(i * 2) } };
-				transactionElement.MerkleComponentHash = { { static_cast<uint8_t>(i * 3) } };
+				transactionElement.EntityHash = {{static_cast<uint8_t>(i * 2)}};
+				transactionElement.MerkleComponentHash = {{static_cast<uint8_t>(i * 3)}};
 				auto pAddresses = std::make_shared<UnresolvedAddressSet>();
-				pAddresses->emplace(UnresolvedAddress{ { { static_cast<uint8_t>(i * 4) } } });
+				pAddresses->emplace(UnresolvedAddress{{{static_cast<uint8_t>(i * 4)}}});
 				transactionElement.OptionalExtractedAddresses = pAddresses;
 				pElement->Transactions.push_back(transactionElement);
 			}

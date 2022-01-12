@@ -21,10 +21,10 @@
 
 #include "catapult/model/CacheEntryInfo.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
@@ -137,12 +137,12 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, IsTooLargeReturnsFalseWhenDataSizeIsLessThanMax) {
-		for (auto dataSize : { 0u, 100u, 10000u, Max_Data_Size - 1u })
+		for (auto dataSize : {0u, 100u, 10000u, Max_Data_Size - 1u})
 			EXPECT_FALSE(IsTooLarge(dataSize)) << "for data size " << dataSize;
 	}
 
 	TEST(TEST_CLASS, IsTooLargeReturnsTrueWhenDataSizeIsGreaterOrEqualToMax) {
-		for (auto dataSize : { Max_Data_Size, Max_Data_Size + 1, Max_Data_Size + 1000 })
+		for (auto dataSize : {Max_Data_Size, Max_Data_Size + 1, Max_Data_Size + 1000})
 			EXPECT_TRUE(IsTooLarge(dataSize)) << "for data size " << dataSize;
 	}
 

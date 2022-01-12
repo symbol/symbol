@@ -24,9 +24,9 @@
 namespace catapult { namespace model {
 
 	BlockStatementBuilder::BlockStatementBuilder()
-			: m_activeSource({ 0, 0 })
-			, m_pStatement(std::make_unique<BlockStatement>())
-	{}
+			: m_activeSource({0, 0})
+			, m_pStatement(std::make_unique<BlockStatement>()) {
+	}
 
 	const ReceiptSource& BlockStatementBuilder::source() const {
 		return m_activeSource;
@@ -40,7 +40,7 @@ namespace catapult { namespace model {
 		if (0 == m_activeSource.PrimaryId)
 			return;
 
-		setSource({ m_activeSource.PrimaryId - 1, 0 });
+		setSource({m_activeSource.PrimaryId - 1, 0});
 		auto pTruncatedStatement = std::make_unique<BlockStatement>();
 		DeepCopyTo(*pTruncatedStatement, *m_pStatement, m_activeSource.PrimaryId);
 		m_pStatement = std::move(pTruncatedStatement);
@@ -62,10 +62,7 @@ namespace catapult { namespace model {
 	namespace {
 		template<typename TResolutionStatements, typename TUnresolved, typename TResolved>
 		void AddResolution(
-				TResolutionStatements& statements,
-				const ReceiptSource& source,
-				const TUnresolved& unresolved,
-				const TResolved& resolved) {
+				TResolutionStatements& statements, const ReceiptSource& source, const TUnresolved& unresolved, const TResolved& resolved) {
 			auto iter = statements.find(unresolved);
 			if (statements.end() == iter) {
 				typename TResolutionStatements::value_type::second_type statement(unresolved);

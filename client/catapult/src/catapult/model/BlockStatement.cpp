@@ -42,8 +42,7 @@ namespace catapult { namespace model {
 			builder.final(output);
 		}
 
-		void CopyTransactionStatements(
-				std::map<ReceiptSource, TransactionStatement>& destination,
+		void CopyTransactionStatements(std::map<ReceiptSource, TransactionStatement>& destination,
 				const std::map<ReceiptSource, TransactionStatement>& source,
 				uint32_t maxSourcePrimaryId) {
 			for (const auto& pair : source) {
@@ -59,8 +58,7 @@ namespace catapult { namespace model {
 		}
 
 		template<typename TStatementKey, typename TStatementValue>
-		void CopyResolutionStatements(
-				std::map<TStatementKey, TStatementValue>& destination,
+		void CopyResolutionStatements(std::map<TStatementKey, TStatementValue>& destination,
 				const std::map<TStatementKey, TStatementValue>& source,
 				uint32_t maxSourcePrimaryId) {
 			for (const auto& pair : source) {
@@ -94,9 +92,8 @@ namespace catapult { namespace model {
 	}
 
 	size_t CountTotalStatements(const BlockStatement& statement) {
-		return statement.TransactionStatements.size()
-				+ statement.AddressResolutionStatements.size()
-				+ statement.MosaicResolutionStatements.size();
+		return statement.TransactionStatements.size() + statement.AddressResolutionStatements.size() +
+			   statement.MosaicResolutionStatements.size();
 	}
 
 	void DeepCopyTo(BlockStatement& destination, const BlockStatement& source) {

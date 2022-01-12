@@ -91,16 +91,16 @@ namespace catapult { namespace model {
 				: BlockHash()
 				, GenerationHash()
 				, BlockHeight(0)
-				, Timestamp(0)
-		{}
+				, Timestamp(0) {
+		}
 
 		/// Creates a context with \a blockElement as the previous block.
 		explicit PreviousBlockContext(const BlockElement& blockElement)
 				: BlockHash(blockElement.EntityHash)
 				, GenerationHash(blockElement.GenerationHash)
 				, BlockHeight(blockElement.Block.Height)
-				, Timestamp(blockElement.Block.Timestamp)
-		{}
+				, Timestamp(blockElement.Block.Timestamp) {
+		}
 
 		/// Hash of previous block.
 		Hash256 BlockHash;
@@ -117,8 +117,7 @@ namespace catapult { namespace model {
 
 	/// Creates an unsigned Block with \a blockType given \a context, signer public key (\a signerPublicKey) and \a transactions
 	/// for a network with identifier \a networkIdentifier.
-	std::unique_ptr<Block> CreateBlock(
-			EntityType blockType,
+	std::unique_ptr<Block> CreateBlock(EntityType blockType,
 			const PreviousBlockContext& context,
 			NetworkIdentifier networkIdentifier,
 			const Key& signerPublicKey,

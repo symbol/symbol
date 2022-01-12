@@ -48,13 +48,12 @@ namespace catapult { namespace model {
 	struct BalanceTransferReceipt : public Receipt {
 	public:
 		/// Creates a receipt around \a receiptType, \a senderAddress, \a recipientAddress, \a mosaicId and \a amount.
-		BalanceTransferReceipt(
-				ReceiptType receiptType,
+		BalanceTransferReceipt(ReceiptType receiptType,
 				const Address& senderAddress,
 				const Address& recipientAddress,
 				catapult::MosaicId mosaicId,
 				catapult::Amount amount)
-				: Mosaic({ mosaicId, amount })
+				: Mosaic({mosaicId, amount})
 				, SenderAddress(senderAddress)
 				, RecipientAddress(recipientAddress) {
 			Size = sizeof(BalanceTransferReceipt);
@@ -82,7 +81,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a receipt around \a receiptType, \a targetAddress, \a mosaicId and \a amount.
 		BalanceChangeReceipt(ReceiptType receiptType, const Address& targetAddress, catapult::MosaicId mosaicId, catapult::Amount amount)
-				: Mosaic({ mosaicId, amount })
+				: Mosaic({mosaicId, amount})
 				, TargetAddress(targetAddress) {
 			Size = sizeof(BalanceChangeReceipt);
 			Version = 1;
@@ -105,7 +104,8 @@ namespace catapult { namespace model {
 	struct InflationReceipt : public Receipt {
 	public:
 		/// Creates a receipt around \a receiptType, \a mosaicId and \a amount.
-		InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount) : Mosaic({ mosaicId, amount }) {
+		InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount)
+				: Mosaic({mosaicId, amount}) {
 			Size = sizeof(InflationReceipt);
 			Version = 1;
 			Type = receiptType;
@@ -125,7 +125,8 @@ namespace catapult { namespace model {
 	struct ArtifactExpiryReceipt : public Receipt {
 	public:
 		/// Creates a receipt around \a receiptType and \a artifactId.
-		ArtifactExpiryReceipt(ReceiptType receiptType, TArtifactId artifactId) : ArtifactId(artifactId) {
+		ArtifactExpiryReceipt(ReceiptType receiptType, TArtifactId artifactId)
+				: ArtifactId(artifactId) {
 			Size = sizeof(ArtifactExpiryReceipt);
 			Version = 1;
 			Type = receiptType;

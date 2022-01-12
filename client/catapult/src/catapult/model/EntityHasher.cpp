@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 	namespace {
 		RawBuffer EntityDataBuffer(const VerifiableEntity& entity, size_t totalSize) {
 			auto headerSize = VerifiableEntity::Header_Size;
-			return { reinterpret_cast<const uint8_t*>(&entity) + headerSize, totalSize - headerSize };
+			return {reinterpret_cast<const uint8_t*>(&entity) + headerSize, totalSize - headerSize};
 		}
 
 		Hash256 CalculateHash(const VerifiableEntity& entity, const RawBuffer& buffer, const GenerationHashSeed* pGenerationHashSeed) {
@@ -63,9 +63,7 @@ namespace catapult { namespace model {
 	}
 
 	Hash256 CalculateMerkleComponentHash(
-			const Transaction& transaction,
-			const Hash256& transactionHash,
-			const TransactionRegistry& transactionRegistry) {
+			const Transaction& transaction, const Hash256& transactionHash, const TransactionRegistry& transactionRegistry) {
 		const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
 
 		auto supplementaryBuffers = plugin.merkleSupplementaryBuffers(transaction);
@@ -92,17 +90,14 @@ namespace catapult { namespace model {
 		return merkleTree;
 	}
 
-	void UpdateHashes(
-			const TransactionRegistry& transactionRegistry,
+	void UpdateHashes(const TransactionRegistry& transactionRegistry,
 			const GenerationHashSeed& generationHashSeed,
 			TransactionElement& transactionElement) {
 		const auto& transaction = transactionElement.Transaction;
 		const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
 
 		transactionElement.EntityHash = CalculateHash(transaction, generationHashSeed, plugin.dataBuffer(transaction));
-		transactionElement.MerkleComponentHash = CalculateMerkleComponentHash(
-				transaction,
-				transactionElement.EntityHash,
-				transactionRegistry);
+		transactionElement.MerkleComponentHash =
+				CalculateMerkleComponentHash(transaction, transactionElement.EntityHash, transactionRegistry);
 	}
 }}

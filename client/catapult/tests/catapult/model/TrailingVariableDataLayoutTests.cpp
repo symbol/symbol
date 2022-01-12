@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/TrailingVariableDataLayout.h"
 #include "catapult/model/Mosaic.h"
+#include "catapult/model/TrailingVariableDataLayout.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "tests/TestHarness.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 

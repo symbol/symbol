@@ -29,8 +29,8 @@ namespace catapult { namespace model {
 			ConditionalEntityInfosBuilder(WeakEntityInfos& entityInfos, const MatchingEntityPredicate& predicate)
 					: m_entityInfos(entityInfos)
 					, m_predicate(predicate)
-					, m_pActiveBlockHeader(nullptr)
-			{}
+					, m_pActiveBlockHeader(nullptr) {
+			}
 
 		public:
 			void setActiveBlockHeader(const BlockHeader& blockHeader) {
@@ -78,9 +78,7 @@ namespace catapult { namespace model {
 	}
 
 	void ExtractMatchingEntityInfos(
-			const std::vector<BlockElement>& elements,
-			WeakEntityInfos& entityInfos,
-			const MatchingEntityPredicate& predicate) {
+			const std::vector<BlockElement>& elements, WeakEntityInfos& entityInfos, const MatchingEntityPredicate& predicate) {
 		ConditionalEntityInfosBuilder builder(entityInfos, predicate);
 		for (const auto& element : elements)
 			AddBlockElement(builder, element);
@@ -91,9 +89,7 @@ namespace catapult { namespace model {
 		AddBlockElement(builder, element);
 	}
 
-	void ExtractTransactionInfos(
-			std::vector<TransactionInfo>& transactionInfos,
-			const std::shared_ptr<const BlockElement>& pBlockElement) {
+	void ExtractTransactionInfos(std::vector<TransactionInfo>& transactionInfos, const std::shared_ptr<const BlockElement>& pBlockElement) {
 		for (const auto& transactionElement : pBlockElement->Transactions) {
 			// tie the lifetime of the transaction to the block element
 			auto pTransaction = std::shared_ptr<const Transaction>(&transactionElement.Transaction, [pBlockElement](const auto*) {});
@@ -102,8 +98,7 @@ namespace catapult { namespace model {
 	}
 
 	TransactionInfo MakeTransactionInfo(
-			const std::shared_ptr<const Transaction>& pTransaction,
-			const TransactionElement& transactionElement) {
+			const std::shared_ptr<const Transaction>& pTransaction, const TransactionElement& transactionElement) {
 		TransactionInfo transactionInfo(pTransaction, transactionElement.EntityHash);
 		transactionInfo.MerkleComponentHash = transactionElement.MerkleComponentHash;
 		transactionInfo.OptionalExtractedAddresses = transactionElement.OptionalExtractedAddresses;

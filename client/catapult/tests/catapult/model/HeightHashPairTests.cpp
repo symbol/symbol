@@ -21,8 +21,8 @@
 
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/utils/HexParser.h"
-#include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
+#include "tests/test/nodeps/Equality.h"
 
 namespace catapult { namespace model {
 
@@ -32,21 +32,19 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::unordered_set<std::string> GetEqualTags() {
-			return { "default", "copy" };
+			return {"default", "copy"};
 		}
 
 		std::unordered_map<std::string, HeightHashPair> GenerateEqualityInstanceMap() {
 			auto hash1 = test::GenerateRandomByteArray<Hash256>();
 			auto hash2 = test::GenerateRandomByteArray<Hash256>();
 
-			return {
-				{ "default", { Height(123), hash1 } },
-				{ "copy", { Height(123), hash1 } },
+			return {{"default", {Height(123), hash1}},
+					{"copy", {Height(123), hash1}},
 
-				{ "diff-height", { Height(345), hash1 } },
-				{ "diff-hash", { Height(123), hash2 } },
-				{ "diff-height-hash", { Height(345), hash2 } }
-			};
+					{"diff-height", {Height(345), hash1}},
+					{"diff-hash", {Height(123), hash2}},
+					{"diff-height-hash", {Height(345), hash2}}};
 		}
 	}
 
@@ -65,9 +63,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanOutputHeightHashPair) {
 		// Arrange:
 		auto heightHashPair = HeightHashPair{
-			Height(123),
-			utils::ParseByteArray<Hash256>("7FC169546CB19DD9C71918D66BD4A251CEF0956B1C9CC022E4127400E8FA7AFF")
-		};
+				Height(123), utils::ParseByteArray<Hash256>("7FC169546CB19DD9C71918D66BD4A251CEF0956B1C9CC022E4127400E8FA7AFF")};
 
 		// Act:
 		auto str = test::ToString(heightHashPair);

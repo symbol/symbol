@@ -27,8 +27,9 @@ namespace catapult { namespace model {
 #define RESOLUTION_STATEMENT_T ResolutionStatement<TUnresolved, TResolved, ResolutionReceiptType>
 
 	template<typename TUnresolved, typename TResolved, ReceiptType ResolutionReceiptType>
-	RESOLUTION_STATEMENT_T::ResolutionStatement(const TUnresolved& unresolved) : m_unresolved(unresolved)
-	{}
+	RESOLUTION_STATEMENT_T::ResolutionStatement(const TUnresolved& unresolved)
+			: m_unresolved(unresolved) {
+	}
 
 	template<typename TUnresolved, typename TResolved, ReceiptType ResolutionReceiptType>
 	const TUnresolved& RESOLUTION_STATEMENT_T::unresolved() const {
@@ -52,12 +53,12 @@ namespace catapult { namespace model {
 		auto type = ResolutionReceiptType;
 
 		crypto::Sha3_256_Builder hashBuilder;
-		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&version), sizeof(uint16_t) });
-		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&type), sizeof(ReceiptType) });
-		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&m_unresolved), sizeof(TUnresolved) });
+		hashBuilder.update({reinterpret_cast<const uint8_t*>(&version), sizeof(uint16_t)});
+		hashBuilder.update({reinterpret_cast<const uint8_t*>(&type), sizeof(ReceiptType)});
+		hashBuilder.update({reinterpret_cast<const uint8_t*>(&m_unresolved), sizeof(TUnresolved)});
 
 		for (const auto& entry : m_entries)
-			hashBuilder.update({ reinterpret_cast<const uint8_t*>(&entry), sizeof(ResolutionEntry) });
+			hashBuilder.update({reinterpret_cast<const uint8_t*>(&entry), sizeof(ResolutionEntry)});
 
 		Hash256 hash;
 		hashBuilder.final(hash);
@@ -70,10 +71,9 @@ namespace catapult { namespace model {
 			const auto& lastSource = m_entries.back().Source;
 			if (source < lastSource) {
 				std::ostringstream out;
-				out
-						<< "detected out of order resolution - "
-						<< "last (" << lastSource.PrimaryId << ", " << lastSource.SecondaryId << ") "
-						<< "next (" << source.PrimaryId << ", " << source.SecondaryId << ")";
+				out << "detected out of order resolution - "
+					<< "last (" << lastSource.PrimaryId << ", " << lastSource.SecondaryId << ") "
+					<< "next (" << source.PrimaryId << ", " << source.SecondaryId << ")";
 				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 			}
 

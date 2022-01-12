@@ -19,12 +19,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/TransactionUtils.h"
-#include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/NotificationSubscriber.h"
-#include "tests/test/core/mocks/MockTransaction.h"
+#include "catapult/model/TransactionUtils.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "tests/TestHarness.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 
 namespace catapult { namespace model {
 
@@ -36,8 +36,9 @@ namespace catapult { namespace model {
 			enum class Mode { Address, Public_Key, Other };
 
 		public:
-			explicit MockNotificationPublisher(Mode mode) : m_mode(mode)
-			{}
+			explicit MockNotificationPublisher(Mode mode)
+					: m_mode(mode) {
+			}
 
 		public:
 			void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const override {
@@ -61,8 +62,7 @@ namespace catapult { namespace model {
 		void RunExtractAddressesTest(MockNotificationPublisher::Mode mode) {
 			// Arrange:
 			auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
-					test::GenerateRandomByteArray<Key>(),
-					test::GenerateRandomByteArray<Key>());
+					test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Key>());
 			auto senderAddress = extensions::CopyToUnresolvedAddress(GetSignerAddress(*pTransaction));
 			auto recipientAddress = extensions::CopyToUnresolvedAddress(mocks::GetRecipientAddress(*pTransaction));
 			MockNotificationPublisher notificationPublisher(mode);
@@ -88,8 +88,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, ExtractAddressesDoesNotExtractAddressesFromOtherNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
-				test::GenerateRandomByteArray<Key>(),
-				test::GenerateRandomByteArray<Key>());
+				test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Key>());
 
 		MockNotificationPublisher notificationPublisher(MockNotificationPublisher::Mode::Other);
 

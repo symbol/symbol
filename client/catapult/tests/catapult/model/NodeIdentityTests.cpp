@@ -21,9 +21,9 @@
 
 #include "catapult/model/NodeIdentity.h"
 #include "catapult/utils/HexParser.h"
+#include "tests/TestHarness.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
-#include "tests/TestHarness.h"
 #include <unordered_map>
 
 namespace catapult { namespace model {
@@ -45,13 +45,12 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanOutputNodeWithHost) {
 		auto identityKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 		AssertOutputOperator(
-				{ identityKey, "11.22.33.44" },
-				"1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751 @ 11.22.33.44");
+				{identityKey, "11.22.33.44"}, "1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751 @ 11.22.33.44");
 	}
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutHost) {
 		auto identityKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
-		AssertOutputOperator({ identityKey, "" }, "1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
+		AssertOutputOperator({identityKey, ""}, "1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 	}
 
 	// endregion
@@ -71,34 +70,31 @@ namespace catapult { namespace model {
 		std::unordered_map<std::string, NodeIdentity> GenerateEqualityInstanceMap() {
 			auto key1 = test::GenerateRandomByteArray<Key>();
 			auto key2 = test::GenerateRandomByteArray<Key>();
-			return {
-				{ "default", { key1, "alice.com" } },
-				{ "copy", { key1, "alice.com" } },
-				{ "diff-key", { key2, "alice.com" } },
-				{ "diff-host", { key1, "bob.com" } },
-				{ "diff-key-host", { key2, "bob.com" } }
-			};
+			return {{"default", {key1, "alice.com"}},
+					{"copy", {key1, "alice.com"}},
+					{"diff-key", {key2, "alice.com"}},
+					{"diff-host", {key1, "bob.com"}},
+					{"diff-key-host", {key2, "bob.com"}}};
 		}
 
 		void RunNodeIdentityEqualityTest(NodeIdentityEqualityStrategy strategy, const std::unordered_set<std::string>& equalityTags) {
-			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>("default", GenerateEqualityInstanceMap(), equalityTags, [strategy](
-					const auto& lhs,
-					const auto& rhs) {
-				return NodeIdentityEquality(strategy)(lhs, rhs);
-			});
+			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>(
+					"default", GenerateEqualityInstanceMap(), equalityTags, [strategy](const auto& lhs, const auto& rhs) {
+						return NodeIdentityEquality(strategy)(lhs, rhs);
+					});
 		}
 	}
 
 	TEST(TEST_CLASS, NodeIdentityEquality_OperatorEqualReturnsTrueForEqualObjects_Key) {
-		RunNodeIdentityEqualityTest(NodeIdentityEqualityStrategy::Key, { "default", "copy", "diff-host" });
+		RunNodeIdentityEqualityTest(NodeIdentityEqualityStrategy::Key, {"default", "copy", "diff-host"});
 	}
 
 	TEST(TEST_CLASS, NodeIdentityEquality_OperatorEqualReturnsTrueForEqualObjects_Host) {
-		RunNodeIdentityEqualityTest(NodeIdentityEqualityStrategy::Host, { "default", "copy", "diff-key" });
+		RunNodeIdentityEqualityTest(NodeIdentityEqualityStrategy::Host, {"default", "copy", "diff-key"});
 	}
 
 	TEST(TEST_CLASS, NodeIdentityEquality_OperatorEqualReturnsTrueForEqualObjects_KeyAndHost) {
-		RunNodeIdentityEqualityTest(NodeIdentityEqualityStrategy::Key_And_Host, { "default", "copy" });
+		RunNodeIdentityEqualityTest(NodeIdentityEqualityStrategy::Key_And_Host, {"default", "copy"});
 	}
 
 	// endregion
@@ -107,25 +103,24 @@ namespace catapult { namespace model {
 
 	namespace {
 		void RunNodeIdentityHasherTest(NodeIdentityEqualityStrategy strategy, const std::unordered_set<std::string>& equalityTags) {
-			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>("default", GenerateEqualityInstanceMap(), equalityTags, [strategy](
-					const auto& lhs,
-					const auto& rhs) {
-				auto hasher = NodeIdentityHasher(strategy);
-				return hasher(lhs) == hasher(rhs);
-			});
+			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>(
+					"default", GenerateEqualityInstanceMap(), equalityTags, [strategy](const auto& lhs, const auto& rhs) {
+						auto hasher = NodeIdentityHasher(strategy);
+						return hasher(lhs) == hasher(rhs);
+					});
 		}
 	}
 
 	TEST(TEST_CLASS, NodeIdentityHasher_OperatorEqualReturnsTrueForEqualObjects_Key) {
-		RunNodeIdentityHasherTest(NodeIdentityEqualityStrategy::Key, { "default", "copy", "diff-host" });
+		RunNodeIdentityHasherTest(NodeIdentityEqualityStrategy::Key, {"default", "copy", "diff-host"});
 	}
 
 	TEST(TEST_CLASS, NodeIdentityHasher_OperatorEqualReturnsTrueForEqualObjects_Host) {
-		RunNodeIdentityHasherTest(NodeIdentityEqualityStrategy::Host, { "default", "copy", "diff-key" });
+		RunNodeIdentityHasherTest(NodeIdentityEqualityStrategy::Host, {"default", "copy", "diff-key"});
 	}
 
 	TEST(TEST_CLASS, NodeIdentityHasher_OperatorEqualReturnsTrueForEqualObjects_KeyAndHost) {
-		RunNodeIdentityHasherTest(NodeIdentityEqualityStrategy::Key_And_Host, { "default", "copy" });
+		RunNodeIdentityHasherTest(NodeIdentityEqualityStrategy::Key_And_Host, {"default", "copy"});
 	}
 
 	// endregion
@@ -138,12 +133,7 @@ namespace catapult { namespace model {
 			// Arrange:
 			auto key1 = test::GenerateRandomByteArray<Key>();
 			auto key2 = test::GenerateRandomByteArray<Key>();
-			auto seedIdentities = std::vector<NodeIdentity>{
-				{ key1, "alice.com" },
-				{ key2, "alice.com" },
-				{ key1, "bob.com" },
-				{ key2, "bob.com" }
-			};
+			auto seedIdentities = std::vector<NodeIdentity>{{key1, "alice.com"}, {key2, "alice.com"}, {key1, "bob.com"}, {key2, "bob.com"}};
 
 			// Act: create a set and seed it
 			auto identities = TSetTraits::CreateSet(strategy);
@@ -179,23 +169,21 @@ namespace catapult { namespace model {
 
 			static std::pair<NodeIdentity, bool> TryFind(const NodeIdentitySet& set, const model::NodeIdentity& identity) {
 				auto iter = set.find(identity);
-				return set.cend() == iter
-						? std::make_pair(model::NodeIdentity(), false)
-						: std::make_pair(*iter, true);
+				return set.cend() == iter ? std::make_pair(model::NodeIdentity(), false) : std::make_pair(*iter, true);
 			}
 		};
 	}
 
 	TEST(TEST_CLASS, CanCreateNodeIdentitySetWithStrategy_Key) {
-		RunNodeIdentitySetTest<SetTraits>(NodeIdentityEqualityStrategy::Key, { 0, 1 });
+		RunNodeIdentitySetTest<SetTraits>(NodeIdentityEqualityStrategy::Key, {0, 1});
 	}
 
 	TEST(TEST_CLASS, CanCreateNodeIdentitySetWithStrategy_Host) {
-		RunNodeIdentitySetTest<SetTraits>(NodeIdentityEqualityStrategy::Host, { 0, 2 });
+		RunNodeIdentitySetTest<SetTraits>(NodeIdentityEqualityStrategy::Host, {0, 2});
 	}
 
 	TEST(TEST_CLASS, CanCreateNodeIdentitySetWithStrategy_KeyAndHost) {
-		RunNodeIdentitySetTest<SetTraits>(NodeIdentityEqualityStrategy::Key_And_Host, { 0, 1, 2, 3 });
+		RunNodeIdentitySetTest<SetTraits>(NodeIdentityEqualityStrategy::Key_And_Host, {0, 1, 2, 3});
 	}
 
 	// endregion
@@ -214,23 +202,21 @@ namespace catapult { namespace model {
 
 			static std::pair<NodeIdentity, bool> TryFind(const NodeIdentityMap<size_t>& map, const model::NodeIdentity& identity) {
 				auto iter = map.find(identity);
-				return map.cend() == iter
-						? std::make_pair(model::NodeIdentity(), false)
-						: std::make_pair(iter->first, true);
+				return map.cend() == iter ? std::make_pair(model::NodeIdentity(), false) : std::make_pair(iter->first, true);
 			}
 		};
 	}
 
 	TEST(TEST_CLASS, CanCreateNodeIdentityMapWithStrategy_Key) {
-		RunNodeIdentitySetTest<MapTraits>(NodeIdentityEqualityStrategy::Key, { 0, 1 });
+		RunNodeIdentitySetTest<MapTraits>(NodeIdentityEqualityStrategy::Key, {0, 1});
 	}
 
 	TEST(TEST_CLASS, CanCreateNodeIdentityMapWithStrategy_Host) {
-		RunNodeIdentitySetTest<MapTraits>(NodeIdentityEqualityStrategy::Host, { 0, 2 });
+		RunNodeIdentitySetTest<MapTraits>(NodeIdentityEqualityStrategy::Host, {0, 2});
 	}
 
 	TEST(TEST_CLASS, CanCreateNodeIdentityMapWithStrategy_KeyAndHost) {
-		RunNodeIdentitySetTest<MapTraits>(NodeIdentityEqualityStrategy::Key_And_Host, { 0, 1, 2, 3 });
+		RunNodeIdentitySetTest<MapTraits>(NodeIdentityEqualityStrategy::Key_And_Host, {0, 1, 2, 3});
 	}
 
 	// endregion

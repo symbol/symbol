@@ -22,12 +22,10 @@
 #pragma once
 #include "WeakEntityInfo.h"
 
-namespace catapult {
-	namespace model {
-		class NotificationSubscriber;
-		class TransactionRegistry;
-	}
-}
+namespace catapult { namespace model {
+	class NotificationSubscriber;
+	class TransactionRegistry;
+}}
 
 namespace catapult { namespace model {
 
@@ -57,8 +55,7 @@ namespace catapult { namespace model {
 	/// fee mosaic id (\a feeMosaicId).
 	/// For blocks with heights at or after \a feeDebitAppliedLastForkHeight, fee debit notification
 	/// will be raised after custom notifications.
-	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
-			const TransactionRegistry& transactionRegistry,
+	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(const TransactionRegistry& transactionRegistry,
 			UnresolvedMosaicId feeMosaicId,
 			Height feeDebitAppliedLastForkHeight,
 			PublicationMode mode = PublicationMode::All);
