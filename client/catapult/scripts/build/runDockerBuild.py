@@ -127,7 +127,7 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 	])
 
 	if not container_id:
-		with open(cid_filepath, 'rt') as cid_infile:
+		with open(cid_filepath, 'rt', encoding='utf8') as cid_infile:
 			container_id = cid_infile.read()
 
 	process_manager.dispatch_subprocess(['docker', 'commit', container_id, destination_image_name])

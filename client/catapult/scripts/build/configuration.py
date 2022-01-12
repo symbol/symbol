@@ -6,7 +6,7 @@ import yaml
 
 def load_versions_map(filepath):
 	versions = {}
-	with (open(filepath, 'rt')) as infile:
+	with open(filepath, 'rt', encoding='utf8') as infile:
 		for line in infile.readlines():
 			line_parts = line.strip().split(' = ')
 			if 2 == len(line_parts):
@@ -16,9 +16,9 @@ def load_versions_map(filepath):
 
 
 def load_compiler_configuration(filepath):
-	with open(filepath, 'rt') as configuration_infile:
+	with open(filepath, 'rt', encoding='utf8') as configuration_infile:
 		configuration_yaml = yaml.load(configuration_infile, Loader=yaml.SafeLoader)
-		with open(Path(filepath).parent / configuration_yaml['compiler']) as compiler_infile:
+		with open(Path(filepath).parent / configuration_yaml['compiler'], 'rt', encoding='utf8') as compiler_infile:
 			compiler_yaml = yaml.load(compiler_infile, Loader=yaml.SafeLoader)
 
 			compiler_keys = ['c', 'cpp', 'version', 'deps']
@@ -37,7 +37,7 @@ def load_compiler_configuration(filepath):
 
 
 def load_build_configuration(filepath):
-	with open(filepath, 'rt') as configuration_infile:
+	with open(filepath, 'rt', encoding='utf8') as configuration_infile:
 		configuration_yaml = yaml.load(configuration_infile, Loader=yaml.SafeLoader)
 
 		configuration_keys = ['disposition', 'use_conan', 'enable_diagnostics']

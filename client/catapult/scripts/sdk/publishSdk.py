@@ -96,7 +96,7 @@ class Publisher:
 
 	def publish_merged_file(self, filename):
 		merged_path = os.path.join(self.publish_catapult_directory, filename)
-		with open(merged_path, 'w') as merged_file:
+		with open(merged_path, 'w', encoding='utf8') as merged_file:
 			self.headers.append(os.path.join('catapult', filename))
 
 			for source_directory in self.source_directories:
@@ -117,7 +117,7 @@ class Publisher:
 
 	def flush_master_header(self, exclusions=None):
 		master_header_path = os.path.join(self.publish_catapult_directory, 'catapult.h')
-		with open(master_header_path, 'w') as master_header_file:
+		with open(master_header_path, 'w', encoding='utf8') as master_header_file:
 			master_header_file.writelines(['#pragma once', '\n'])
 			for header in self.headers:
 				path_parts = os.path.split(header)

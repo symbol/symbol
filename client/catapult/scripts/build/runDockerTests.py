@@ -36,7 +36,7 @@ def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
 		('{{VERBOSITY}}', prepare_replacements['verbosity'])
 	]
 
-	with open(input_filepath, 'rt') as infile:
+	with open(input_filepath, 'rt', encoding='utf8') as infile:
 		contents = infile.read()
 		for replacement in replacements:
 			contents = contents.replace(replacement[0], replacement[1])
@@ -68,7 +68,7 @@ def main():
 	prepare_docker_compose_file(compose_template_filepath, prepare_replacements, sys.stdout)
 
 	if not args.dry_run:
-		with open('docker-compose.yaml', 'wt') as outfile:
+		with open('docker-compose.yaml', 'wt', encoding='utf8') as outfile:
 			prepare_docker_compose_file(compose_template_filepath, prepare_replacements, outfile)
 
 	environment_manager = EnvironmentManager(args.dry_run)

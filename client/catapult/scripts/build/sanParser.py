@@ -9,7 +9,7 @@ from xml.sax.saxutils import quoteattr
 
 def _read_lines(filename):
 	data = []
-	with open(filename) as fin:
+	with open(filename, encoding='utf8') as fin:
 		for line in fin:
 			data.append(line.rstrip())
 
@@ -40,7 +40,7 @@ def _output_xml_to_file(parsed, sanitizer_name, outfile):
 
 
 def _output_xml(parsed, sanitizer_name, filename):
-	with open(filename, 'w') as outfile:
+	with open(filename, 'w', encoding='utf8') as outfile:
 		_output_xml_to_file(parsed, sanitizer_name, outfile)
 
 

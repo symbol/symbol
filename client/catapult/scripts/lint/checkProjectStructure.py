@@ -563,7 +563,7 @@ class Analyzer:
 			self.print_formatting_out(self.con_reporter)
 			return
 
-		with open(self.options.dest_dir + '/tests.formatting2.xml', 'w') as output_file:
+		with open(self.options.dest_dir + '/tests.formatting2.xml', 'w', encoding='utf8') as output_file:
 			reporter = XmlReporter(output_file)
 			self.print_formatting_out(reporter)
 
@@ -654,7 +654,7 @@ class Analyzer:
 			self.print_dependencies_out(self.con_reporter)
 			return
 
-		with open(self.options.dest_dir + '/tests.dependencies.xml', 'w') as output_file:
+		with open(self.options.dest_dir + '/tests.dependencies.xml', 'w', encoding='utf8') as output_file:
 			reporter = XmlReporter(output_file)
 			self.print_dependencies_out(reporter)
 
@@ -696,7 +696,7 @@ class Analyzer:
 		if self.options.text_output:
 			self.print_namespace_errors_out(self.con_reporter)
 		else:
-			with open(self.options.dest_dir + '/tests.namespaces.xml', 'w') as output_file:
+			with open(self.options.dest_dir + '/tests.namespaces.xml', 'w', encoding='utf8') as output_file:
 				reporter = XmlReporter(output_file)
 				self.print_namespace_errors_out(reporter)
 
@@ -719,7 +719,7 @@ class Analyzer:
 		if self.options.text_output:
 			self.print_template_errors_out(self.con_reporter)
 		else:
-			with open(self.options.dest_dir + '/tests.templates.xml', 'w') as output_file:
+			with open(self.options.dest_dir + '/tests.templates.xml', 'w', encoding='utf8') as output_file:
 				reporter = XmlReporter(output_file)
 				self.print_template_errors_out(reporter)
 

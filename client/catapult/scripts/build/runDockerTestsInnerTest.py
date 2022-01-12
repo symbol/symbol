@@ -43,7 +43,7 @@ class SanitizerEnvironment:
 		print('{} options: {}'.format(name, options_string))
 
 	def prepare_thread_sanitizer(self):
-		with open(TSAN_SUPPRESSIONS_PATH, 'wt') as outfile:
+		with open(TSAN_SUPPRESSIONS_PATH, 'wt', encoding='utf8') as outfile:
 			outfile.write('race:~weak_ptr\n')
 			outfile.write('race:~executor\n')
 			outfile.write('race:global_logger::get()')
@@ -123,10 +123,10 @@ def handle_core_file(process_manager, core_path, test_exe_filepath, base_output_
 		core_path
 	], redirect_filename=gdb_output_filepath)
 
-	with open(gdb_output_filepath, 'rt') as infile:
+	with open(gdb_output_filepath, 'rt', encoding='utf8') as infile:
 		contents = infile.read()
 
-	with open('{}.core.xml'.format(base_output_filepath), 'wt') as outfile:
+	with open('{}.core.xml'.format(base_output_filepath), 'wt', encoding='utf8') as outfile:
 		outfile.write(SEGV_RESULT_TEMPLATE.format(contents))
 
 

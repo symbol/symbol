@@ -51,10 +51,10 @@ class LinterRunner:
 		if self.dry_run:
 			return
 
-		with open(self.output_filepath, 'rt') as infile:
+		with open(self.output_filepath, 'rt', encoding='utf8') as infile:
 			contents = infile.read()
 
-		with open(self.output_filepath, 'wt') as outfile:
+		with open(self.output_filepath, 'wt', encoding='utf8') as outfile:
 			for line in contents.split('\n'):
 				line = modifier(line)
 				outfile.write('{}\n'.format(line))

@@ -148,7 +148,9 @@ class NamespacesParser:
 
 		self.tok = None
 		info(self.path)
-		self.parse_file(open(self.path, 'r'))
+
+		with open(self.path, 'r', encoding='utf8') as input_file:
+			self.parse_file(input_file)
 
 	def _quit_if_no_namestack(self, token):
 		if not self.name_stack:
@@ -429,7 +431,7 @@ class NamespacesParser:
 
 	def quit(self, tok):
 		if not TEXT_OUTPUT:
-			with open(DEST_DIR + '/tests.fatalerror.xml', 'w') as output_stream:
+			with open(DEST_DIR + '/tests.fatalerror.xml', 'w', encoding='utf8') as output_stream:
 				output_stream.write('<?xml version="1.0" encoding="UTF-8"?>\n')
 				output_stream.write('<testsuites tests="0" failures="0" disabled="0" errors="1" time="0" name="AllTests">\n')
 				output_stream.write('  <testsuite name="Parser" tests="0" failures="0" disabled="0" errors="1" time="0">\n')

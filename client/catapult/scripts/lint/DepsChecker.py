@@ -26,7 +26,7 @@ class DepsChecker:
 	def read_config(self):
 		own_dir = os.path.dirname(os.path.realpath(__file__))
 		config_path = os.path.join(own_dir, self.config_path)
-		with open(config_path, 'r') as fin:
+		with open(config_path, 'r', encoding='utf8') as fin:
 			self.parse(fin)
 
 	def parse(self, fin):

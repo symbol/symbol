@@ -28,7 +28,7 @@ class ProcessManager:
 			process.wait()
 
 			if redirect_filename:
-				with open(redirect_filename, 'wt') as outfile:
+				with open(redirect_filename, 'wt', encoding='utf8') as outfile:
 					for line in process_lines:
 						outfile.write(line)
 

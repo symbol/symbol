@@ -99,10 +99,15 @@ class HeaderParser:
 
 		self.fixes = []
 		# need to open as binary so that python can see '\r\n'
-		self.parse_file(open(self.path, 'rb'))
+		with open(self.path, 'rb') as input_file:
+			self.parse_file(input_file)
+
 		if self.fixes:
 			if fix_indentsInFiles:
-				self.fix_indents(open(self.path, 'r'), open(self.path + '.tmp', 'wb'))
+				with open(self.path, 'r', encoding='utf8') as input_file:
+					with open(self.path + '.tmp', 'w', encoding='utf8') as output_file:
+						self.fix_indents(input_file, output_file)
+
 				os.remove(self.path)
 				shutil.move(self.path + '.tmp', self.path)
 			self.report_indents()
