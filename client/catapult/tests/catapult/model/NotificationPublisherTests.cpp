@@ -36,9 +36,9 @@ namespace catapult { namespace model {
 		constexpr auto Fork_Height = Height(1000);
 
 		constexpr auto Plugin_Option_Flags = static_cast<mocks::PluginOptionFlags>(
-				utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers) |
-				utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications) |
-				utils::to_underlying_type(mocks::PluginOptionFlags::Contains_Embeddings));
+				utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers)
+				| utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications)
+				| utils::to_underlying_type(mocks::PluginOptionFlags::Contains_Embeddings));
 
 		template<typename TAssertSubFunc>
 		void PublishAll(const WeakEntityInfo& entityInfo, PublicationMode mode, TAssertSubFunc assertSub) {

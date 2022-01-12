@@ -157,11 +157,11 @@ namespace catapult { namespace utils {
 			namespace expr = boost::log::expressions;
 			namespace names = boost::log::aux::default_attribute_names;
 
-			auto formatter = expr::format(GetFormatSequence(colorMode)) %
-							 expr::format_date_time<boost::posix_time::ptime>(names::timestamp(), "%Y-%m-%d %H:%M:%S.%f") %
-							 expr::attr<boost::log::attributes::current_thread_id::value_type>(names::thread_id()) %
-							 ExpressionFromTraits<log::LogLevelTraits>() % ExpressionFromTraits<log::SubcomponentTraits>() %
-							 ExpressionFromTraits<log::FilenameTraits>() % ExpressionFromTraits<log::LineNumberTraits>() % expr::smessage;
+			auto formatter = expr::format(GetFormatSequence(colorMode))
+							 % expr::format_date_time<boost::posix_time::ptime>(names::timestamp(), "%Y-%m-%d %H:%M:%S.%f")
+							 % expr::attr<boost::log::attributes::current_thread_id::value_type>(names::thread_id())
+							 % ExpressionFromTraits<log::LogLevelTraits>() % ExpressionFromTraits<log::SubcomponentTraits>()
+							 % ExpressionFromTraits<log::FilenameTraits>() % ExpressionFromTraits<log::LineNumberTraits>() % expr::smessage;
 
 			if (LogColorMode::Ansi == colorMode)
 				return formatter % expr::attr<LogLevel, severity_color<LogColorMode::Ansi>>(log::LogLevelTraits::Name);

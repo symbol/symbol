@@ -148,8 +148,8 @@ namespace catapult { namespace model {
 
 		private:
 			constexpr bool isEntityInBuffer(value_type* pEntity) const noexcept {
-				return ToBytePointer(pEntity) <= endBytePointer() &&
-					   ToBytePointer(pEntity) + sizeof(pEntity->Size) <= endBytePointer() && // ensure Size is readable
+				return ToBytePointer(pEntity) <= endBytePointer() && ToBytePointer(pEntity) + sizeof(pEntity->Size) <= endBytePointer()
+					   && // ensure Size is readable
 					   ToBytePointer(pEntity) + pEntity->Size <= endBytePointer();
 			}
 
