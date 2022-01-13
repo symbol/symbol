@@ -15,7 +15,7 @@ YAML_INPUT = '''
 
 - host: mercury
 	roles: [super]
-'''
+'''.replace('\t', '  ')
 
 
 class NodeDescriptorRepositoryTest(unittest.TestCase):

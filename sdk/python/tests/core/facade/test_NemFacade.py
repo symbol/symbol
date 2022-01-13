@@ -10,7 +10,7 @@ from ...test.NemTestUtils import NemTestUtils
 YAML_INPUT = '''
 - public_key: A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74
 	name: TEST
-'''
+'''.replace('\t', '  ')
 
 
 class NemFacadeTest(unittest.TestCase):

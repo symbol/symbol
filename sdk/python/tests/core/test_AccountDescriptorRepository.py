@@ -28,7 +28,7 @@ YAML_INPUT = f'''
 
 - address: {ENCODED_ADDRESS_2}
 	name: charlie
-'''
+'''.replace('\t', '  ')
 
 
 # nem style address to avoid circular import

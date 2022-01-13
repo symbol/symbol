@@ -26,7 +26,7 @@ accounts:
 	- public_key: {PUBLIC_KEY_2}
 		name: TEST1
 		roles: [red, test]
-'''
+'''.replace('\t', '  ')
 
 
 class BlockchainSettingsTest(unittest.TestCase):

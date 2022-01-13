@@ -11,7 +11,7 @@ from ...test.NemTestUtils import NemTestUtils
 YAML_INPUT = '''
 - public_key: 87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8
 	name: TEST
-'''
+'''.replace('\t', '  ')
 
 
 class SymbolFacadeTest(unittest.TestCase):

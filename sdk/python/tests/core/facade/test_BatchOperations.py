@@ -25,7 +25,7 @@ ACCOUNTS_YAML_INPUT = f'''
 
 - address: {ALICE_ADDRESS}
 	name: ALICE
-'''
+'''.replace('\t', '  ')
 
 TRANSACTIONS_YAML_INPUT = f'''
 - type: transfer
@@ -38,7 +38,7 @@ TRANSACTIONS_YAML_INPUT = f'''
 	signer_public_key: TEST
 	recipient_address: {BOB_ADDRESS}
 	amount: 1000000
-'''
+'''.replace('\t', '  ')
 
 
 class BatchOperationsTest(unittest.TestCase):
