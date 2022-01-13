@@ -100,9 +100,7 @@ namespace catapult { namespace model {
 		const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
 
 		transactionElement.EntityHash = CalculateHash(transaction, generationHashSeed, plugin.dataBuffer(transaction));
-		transactionElement.MerkleComponentHash = CalculateMerkleComponentHash(
-				transaction,
-				transactionElement.EntityHash,
-				transactionRegistry);
+		transactionElement.MerkleComponentHash =
+				CalculateMerkleComponentHash(transaction, transactionElement.EntityHash, transactionRegistry);
 	}
 }}

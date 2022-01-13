@@ -91,16 +91,16 @@ namespace catapult { namespace model {
 				: BlockHash()
 				, GenerationHash()
 				, BlockHeight(0)
-				, Timestamp(0)
-		{}
+				, Timestamp(0) {
+		}
 
 		/// Creates a context with \a blockElement as the previous block.
 		explicit PreviousBlockContext(const BlockElement& blockElement)
 				: BlockHash(blockElement.EntityHash)
 				, GenerationHash(blockElement.GenerationHash)
 				, BlockHeight(blockElement.Block.Height)
-				, Timestamp(blockElement.Block.Timestamp)
-		{}
+				, Timestamp(blockElement.Block.Timestamp) {
+		}
 
 		/// Hash of previous block.
 		Hash256 BlockHash;

@@ -30,14 +30,15 @@ namespace catapult { namespace model {
 	struct ReceiptSource {
 	public:
 		/// Creates a default receipt source.
-		ReceiptSource() : ReceiptSource(0, 0)
-		{}
+		ReceiptSource()
+				: ReceiptSource(0, 0) {
+		}
 
 		/// Creates a receipt source around \a primaryId and \a secondaryId.
 		ReceiptSource(uint32_t primaryId, uint32_t secondaryId)
 				: PrimaryId(primaryId)
-				, SecondaryId(secondaryId)
-		{}
+				, SecondaryId(secondaryId) {
+		}
 
 	public:
 		/// Transaction primary source (e.g. index within block).

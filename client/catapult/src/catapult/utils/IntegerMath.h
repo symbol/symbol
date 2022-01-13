@@ -24,12 +24,10 @@
 #include <type_traits>
 #include <stdint.h>
 
-namespace catapult {
-	namespace utils {
-		template<typename TValue, typename TTag>
-		class BaseValue;
-	}
-}
+namespace catapult { namespace utils {
+	template<typename TValue, typename TTag>
+	class BaseValue;
+}}
 
 namespace catapult { namespace utils {
 

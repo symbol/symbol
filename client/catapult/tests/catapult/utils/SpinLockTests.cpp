@@ -34,5 +34,5 @@ namespace catapult { namespace utils {
 		};
 	}
 
-	DEFINE_BASIC_LOCK_TESTS(SpinLockTests,)
+	DEFINE_BASIC_LOCK_TESTS(SpinLockTests, )
 }}

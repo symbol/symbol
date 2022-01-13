@@ -228,11 +228,13 @@ namespace catapult { namespace utils {
 			}
 
 			std::ostringstream expectedMessage;
-			expectedMessage
-					<< "<warning> (utils::StackLogger.h@77) slow operation detected: 'test' (" << elapsedMillis << "ms)"
-					<< std::endl << " + " << subOperationTimes[0] << "ms: 'zeta' (" << subOperationTimes[1] - subOperationTimes[0] << "ms)"
-					<< std::endl << " + " << subOperationTimes[1] << "ms: 'beta' (" << subOperationTimes[2] - subOperationTimes[1] << "ms)"
-					<< std::endl << " + " << subOperationTimes[2] << "ms: 'gamma' (" << elapsedMillis - subOperationTimes[2] << "ms)";
+			expectedMessage << "<warning> (utils::StackLogger.h@77) slow operation detected: 'test' (" << elapsedMillis << "ms)"
+							<< std::endl
+							<< " + " << subOperationTimes[0] << "ms: 'zeta' (" << subOperationTimes[1] - subOperationTimes[0] << "ms)"
+							<< std::endl
+							<< " + " << subOperationTimes[1] << "ms: 'beta' (" << subOperationTimes[2] - subOperationTimes[1] << "ms)"
+							<< std::endl
+							<< " + " << subOperationTimes[2] << "ms: 'gamma' (" << elapsedMillis - subOperationTimes[2] << "ms)";
 			EXPECT_EQ(expectedMessage.str(), records[0].Message);
 			return true;
 		});

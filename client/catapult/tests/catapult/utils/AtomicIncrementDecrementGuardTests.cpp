@@ -53,9 +53,7 @@ namespace catapult { namespace utils {
 		std::atomic<int> value(7);
 
 		// Act:
-		{
-			AtomicIncrementDecrementGuard<int> guard(value);
-		}
+		{ AtomicIncrementDecrementGuard<int> guard(value); }
 
 		// Assert:
 		EXPECT_EQ(7, value);

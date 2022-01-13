@@ -37,8 +37,9 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Creates a group around a given \a key.
-		explicit IdentifierGroup(const TGroupingKey& key) : m_key(key)
-		{}
+		explicit IdentifierGroup(const TGroupingKey& key)
+				: m_key(key) {
+		}
 
 	public:
 		/// Gets the grouping key.

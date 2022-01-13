@@ -135,17 +135,11 @@ namespace catapult { namespace utils {
 		}
 
 		std::unordered_map<std::string, BlockSpan> GenerateEqualityInstanceMap() {
-			return {
-				{ "96 h", BlockSpan::FromHours(96) },
-				{ "4 d", BlockSpan::FromDays(4) },
-				{ "96 h (2)", BlockSpan::FromHours(96) },
-				{ "5760 m", BlockSpan::FromMinutes(5760) },
+			return { { "96 h", BlockSpan::FromHours(96) },	   { "4 d", BlockSpan::FromDays(4) },
+					 { "96 h (2)", BlockSpan::FromHours(96) }, { "5760 m", BlockSpan::FromMinutes(5760) },
 
-				{ "95 h", BlockSpan::FromHours(95) },
-				{ "97 h", BlockSpan::FromHours(97) },
-				{ "96 d", BlockSpan::FromDays(96) },
-				{ "5761 m", BlockSpan::FromMinutes(5761) }
-			};
+					 { "95 h", BlockSpan::FromHours(95) },	   { "97 h", BlockSpan::FromHours(97) },
+					 { "96 d", BlockSpan::FromDays(96) },	   { "5761 m", BlockSpan::FromMinutes(5761) } };
 		}
 	}
 
@@ -163,13 +157,11 @@ namespace catapult { namespace utils {
 
 	namespace {
 		std::vector<BlockSpan> GenerateIncreasingValues() {
-			return {
-				BlockSpan::FromHours(95),
-				BlockSpan::FromDays(4),
-				BlockSpan::FromMinutes(96 * 60 + 30),
-				BlockSpan::FromHours(97),
-				BlockSpan::FromDays(96)
-			};
+			return { BlockSpan::FromHours(95),
+					 BlockSpan::FromDays(4),
+					 BlockSpan::FromMinutes(96 * 60 + 30),
+					 BlockSpan::FromHours(97),
+					 BlockSpan::FromDays(96) };
 		}
 	}
 

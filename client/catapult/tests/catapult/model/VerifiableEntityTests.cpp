@@ -125,11 +125,19 @@ namespace catapult { namespace model {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Transaction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_EmptyBlock) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmptyBlockTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_BlockWithTransactions) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockWithTransactionsTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Transaction) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_EmptyBlock) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmptyBlockTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_BlockWithTransactions) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockWithTransactionsTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

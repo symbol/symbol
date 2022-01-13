@@ -108,24 +108,41 @@ namespace catapult { namespace utils {
 	}
 
 #define PARSE_BYTE_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ParseByteTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Try) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryParseByteTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ParseByteTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Try) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryParseByteTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define PARSE_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ParseTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ByteArray) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ParseByteArrayTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Try) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryParseTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ParseTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ByteArray) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ParseByteArrayTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Try) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryParseTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	PARSE_BYTE_TRAITS_BASED_TEST(CanConvertAllValidHexCharCombinationsToByte) {
 		// Arrange:
 		std::vector<std::pair<char, uint8_t>> charToValueMappings;
-		for (char ch = '0'; ch <= '9'; ++ch) charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - '0')));
-		for (char ch = 'a'; ch <= 'f'; ++ch) charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - 'a' + 10)));
-		for (char ch = 'A'; ch <= 'F'; ++ch) charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - 'A' + 10)));
+		for (char ch = '0'; ch <= '9'; ++ch)
+			charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - '0')));
+		for (char ch = 'a'; ch <= 'f'; ++ch)
+			charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - 'a' + 10)));
+		for (char ch = 'A'; ch <= 'F'; ++ch)
+			charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - 'A' + 10)));
 
 		// Act:
 		auto numTests = 0;

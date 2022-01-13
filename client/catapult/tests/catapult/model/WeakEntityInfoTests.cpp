@@ -213,16 +213,14 @@ namespace catapult { namespace model {
 			Hash256 hash2;
 			BlockHeader blockHeader;
 
-			return {
-				{ "default", WeakEntityInfo(entity1, hash1) },
-				{ "copy", WeakEntityInfo(entity1, hash1) },
-				{ "diff-block-header", WeakEntityInfo(entity1, hash1, blockHeader) },
+			return { { "default", WeakEntityInfo(entity1, hash1) },
+					 { "copy", WeakEntityInfo(entity1, hash1) },
+					 { "diff-block-header", WeakEntityInfo(entity1, hash1, blockHeader) },
 
-				{ "diff-entity", WeakEntityInfo(entity2, hash1) },
-				{ "diff-hash", WeakEntityInfo(entity1, hash2) },
-				{ "diff-both", WeakEntityInfo(entity2, hash2) },
-				{ "unset", WeakEntityInfo() }
-			};
+					 { "diff-entity", WeakEntityInfo(entity2, hash1) },
+					 { "diff-hash", WeakEntityInfo(entity1, hash2) },
+					 { "diff-both", WeakEntityInfo(entity2, hash2) },
+					 { "unset", WeakEntityInfo() } };
 		}
 	}
 

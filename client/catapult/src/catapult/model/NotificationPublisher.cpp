@@ -41,8 +41,8 @@ namespace catapult { namespace model {
 		class CustomNotificationPublisher : public NotificationPublisher {
 		public:
 			explicit CustomNotificationPublisher(const TransactionRegistry& transactionRegistry)
-					: m_transactionRegistry(transactionRegistry)
-			{}
+					: m_transactionRegistry(transactionRegistry) {
+			}
 
 		public:
 			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
@@ -78,8 +78,8 @@ namespace catapult { namespace model {
 					: m_transactionRegistry(transactionRegistry)
 					, m_feeMosaicId(feeMosaicId)
 					, m_feeDebitAppliedLastForkHeight(feeDebitAppliedLastForkHeight)
-					, m_includeCustomNotifications(includeCustomNotifications)
-			{}
+					, m_includeCustomNotifications(includeCustomNotifications) {
+			}
 
 		public:
 			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
@@ -167,17 +167,17 @@ namespace catapult { namespace model {
 
 				// when VerifiableEntityHeader_Reserved1 is set (currently by HarvestingUtFacade), MaxFee should be used
 				auto fee = pBlockHeader && 0 == pBlockHeader->VerifiableEntityHeader_Reserved1
-						? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction)
-						: transaction.MaxFee;
+								   ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction)
+								   : transaction.MaxFee;
 
-				CATAPULT_LOG(trace)
-						<< "[Transaction Fee Info]" << std::endl
-						<< "+       pBlockHeader: " << !!pBlockHeader << std::endl
-						<< "+      FeeMultiplier: " << (pBlockHeader ? pBlockHeader->FeeMultiplier : BlockFeeMultiplier()) << std::endl
-						<< "+ transaction.MaxFee: " << transaction.MaxFee << std::endl
-						<< "+                fee: " << fee << std::endl
-						<< "+   transaction.Size: " << transaction.Size << std::endl
-						<< "+   transaction.Type: " << transaction.Type;
+				CATAPULT_LOG(trace) << "[Transaction Fee Info]" << std::endl
+									<< "+       pBlockHeader: " << !!pBlockHeader << std::endl
+									<< "+      FeeMultiplier: " << (pBlockHeader ? pBlockHeader->FeeMultiplier : BlockFeeMultiplier())
+									<< std::endl
+									<< "+ transaction.MaxFee: " << transaction.MaxFee << std::endl
+									<< "+                fee: " << fee << std::endl
+									<< "+   transaction.Size: " << transaction.Size << std::endl
+									<< "+   transaction.Type: " << transaction.Type;
 
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
 				publishTransactionPreCustom(transaction, entityInfo.hash(), fee, plugin, sub);

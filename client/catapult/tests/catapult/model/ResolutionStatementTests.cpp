@@ -71,10 +71,16 @@ namespace catapult { namespace model {
 	}
 
 #define RESOLUTION_STATEMENT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -197,7 +203,6 @@ namespace catapult { namespace model {
 		AssertEqualEntry({ { 11, 12 }, resolvedValue1 }, resolutionStatement.entryAt(0), 0);
 		AssertEqualEntry({ { 16, 00 }, resolvedValue2 }, resolutionStatement.entryAt(1), 1);
 		AssertEqualEntry({ { 16, 01 }, resolvedValue3 }, resolutionStatement.entryAt(2), 2);
-
 	}
 
 	RESOLUTION_STATEMENT_TEST(CanCalculateHashWithMultipleAttachedResolutionEntries) {

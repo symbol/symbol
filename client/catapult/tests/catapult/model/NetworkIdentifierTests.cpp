@@ -98,13 +98,11 @@ namespace catapult { namespace model {
 		}
 
 		std::unordered_map<std::string, UniqueNetworkFingerprint> GenerateEqualityInstanceMap() {
-			return {
-				{ "default", { NetworkIdentifier::Testnet, GenerationHashSeed{ { 1, 2, 3 } } } },
-				{ "copy", { NetworkIdentifier::Testnet, GenerationHashSeed{ { 1, 2, 3 } } } },
+			return { { "default", { NetworkIdentifier::Testnet, GenerationHashSeed{ { 1, 2, 3 } } } },
+					 { "copy", { NetworkIdentifier::Testnet, GenerationHashSeed{ { 1, 2, 3 } } } },
 
-				{ "diff-identifier", { NetworkIdentifier::Mainnet, GenerationHashSeed{ { 1, 2, 3 } } } },
-				{ "diff-hash", { NetworkIdentifier::Testnet, GenerationHashSeed{ { 1, 2, 4 } } } }
-			};
+					 { "diff-identifier", { NetworkIdentifier::Mainnet, GenerationHashSeed{ { 1, 2, 3 } } } },
+					 { "diff-hash", { NetworkIdentifier::Testnet, GenerationHashSeed{ { 1, 2, 4 } } } } };
 		}
 	}
 

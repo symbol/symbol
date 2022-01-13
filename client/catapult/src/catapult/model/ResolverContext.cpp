@@ -27,13 +27,13 @@ namespace catapult { namespace model {
 	ResolverContext::ResolverContext()
 			: ResolverContext(
 					[](auto mosaicId) { return MosaicId(mosaicId.unwrap()); },
-					[](const auto& address) { return address.template copyTo<Address>(); })
-	{}
+					[](const auto& address) { return address.template copyTo<Address>(); }) {
+	}
 
 	ResolverContext::ResolverContext(const MosaicResolver& mosaicResolver, const AddressResolver& addressResolver)
 			: m_mosaicResolver(mosaicResolver)
-			, m_addressResolver(addressResolver)
-	{}
+			, m_addressResolver(addressResolver) {
+	}
 
 	MosaicId ResolverContext::resolve(UnresolvedMosaicId mosaicId) const {
 		return m_mosaicResolver(mosaicId);

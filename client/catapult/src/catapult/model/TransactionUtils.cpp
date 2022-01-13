@@ -31,8 +31,9 @@ namespace catapult { namespace model {
 	namespace {
 		class AddressCollector : public NotificationSubscriber {
 		public:
-			explicit AddressCollector(NetworkIdentifier networkIdentifier) : m_networkIdentifier(networkIdentifier)
-			{}
+			explicit AddressCollector(NetworkIdentifier networkIdentifier)
+					: m_networkIdentifier(networkIdentifier) {
+			}
 
 		public:
 			void notify(const Notification& notification) override {

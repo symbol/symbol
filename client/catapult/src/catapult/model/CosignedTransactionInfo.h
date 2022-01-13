@@ -39,4 +39,3 @@ namespace catapult { namespace model {
 		std::vector<Cosignature> Cosignatures;
 	};
 }}
-

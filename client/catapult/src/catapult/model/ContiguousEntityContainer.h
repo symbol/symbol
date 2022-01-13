@@ -47,8 +47,8 @@ namespace catapult { namespace model {
 		/// error policy (\a errorPolicy).
 		constexpr BasicContiguousEntityContainer(TEntity* pEntity, size_t entitiesSize, EntityContainerErrorPolicy errorPolicy)
 				: m_pStart(pEntity)
-				, m_state(entitiesSize, EntityContainerErrorPolicy::Throw == errorPolicy)
-		{}
+				, m_state(entitiesSize, EntityContainerErrorPolicy::Throw == errorPolicy) {
+		}
 
 	private:
 		struct State {
@@ -61,8 +61,8 @@ namespace catapult { namespace model {
 			constexpr State(size_t size, bool throwOnError)
 					: Size(size)
 					, ThrowOnError(throwOnError)
-					, HasError(false)
-			{}
+					, HasError(false) {
+			}
 		};
 
 	public:
@@ -148,10 +148,9 @@ namespace catapult { namespace model {
 
 		private:
 			constexpr bool isEntityInBuffer(value_type* pEntity) const noexcept {
-				return
-						ToBytePointer(pEntity) <= endBytePointer() &&
-						ToBytePointer(pEntity) + sizeof(pEntity->Size) <= endBytePointer() && // ensure Size is readable
-						ToBytePointer(pEntity) + pEntity->Size <= endBytePointer();
+				return ToBytePointer(pEntity) <= endBytePointer() && ToBytePointer(pEntity) + sizeof(pEntity->Size) <= endBytePointer()
+					   && // ensure Size is readable
+					   ToBytePointer(pEntity) + pEntity->Size <= endBytePointer();
 			}
 
 			constexpr bool isEnd(value_type* pEntity) const noexcept {

@@ -60,8 +60,8 @@ namespace catapult { namespace model {
 			PredicateParams(BasicEntityType entityType, Timestamp timestamp, const Hash256& hash)
 					: EntityType(entityType)
 					, Timestamp(timestamp)
-					, Hash(hash)
-			{}
+					, Hash(hash) {
+			}
 
 		public:
 			BasicEntityType EntityType;

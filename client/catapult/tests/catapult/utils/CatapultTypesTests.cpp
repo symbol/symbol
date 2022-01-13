@@ -26,15 +26,15 @@ namespace catapult {
 
 #define TEST_CLASS CatapultTypesTests
 
-	TEST(TEST_CLASS, AddressHasExpectedSize) {
-		EXPECT_EQ(Address::Size, sizeof(Address));
-	}
+TEST(TEST_CLASS, AddressHasExpectedSize) {
+	EXPECT_EQ(Address::Size, sizeof(Address));
+}
 
-	TEST(TEST_CLASS, KeyHasExpectedSize) {
-		EXPECT_EQ(Key::Size, sizeof(Key));
-	}
+TEST(TEST_CLASS, KeyHasExpectedSize) {
+	EXPECT_EQ(Key::Size, sizeof(Key));
+}
 
-	TEST(TEST_CLASS, SignatureHasExpectedSize) {
-		EXPECT_EQ(Signature::Size, sizeof(Signature));
-	}
+TEST(TEST_CLASS, SignatureHasExpectedSize) {
+	EXPECT_EQ(Signature::Size, sizeof(Signature));
+}
 }

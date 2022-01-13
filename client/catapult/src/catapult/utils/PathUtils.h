@@ -36,7 +36,8 @@ namespace catapult { namespace utils {
 	/// Advances \a str to its end (the \c NUL terminator).
 	constexpr const char* AdvanceToEnd(const char* str) {
 		const auto* pEnd = str;
-		while (*pEnd != '\0') ++pEnd;
+		while (*pEnd != '\0')
+			++pEnd;
 		return pEnd;
 	}
 

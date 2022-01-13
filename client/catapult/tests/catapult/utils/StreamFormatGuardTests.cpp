@@ -47,9 +47,7 @@ namespace catapult { namespace utils {
 		out.fill('~');
 
 		// Act:
-		{
-			StreamFormatGuard guard(out, std::ios::oct | std::ios::right, 'X');
-		}
+		{ StreamFormatGuard guard(out, std::ios::oct | std::ios::right, 'X'); }
 
 		// Assert:
 		EXPECT_EQ(std::ios::hex | std::ios::fixed, out.flags());

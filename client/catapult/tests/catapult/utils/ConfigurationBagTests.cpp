@@ -285,10 +285,16 @@ namespace catapult { namespace utils {
 	}
 
 #define GET_ALL_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Unordered) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllUnorderedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Ordered) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllOrderedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Unordered) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllUnorderedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Ordered) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllOrderedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	GET_ALL_TRAITS_BASED_TEST(GetAllRetrievesAllPropertiesForKnownSection) {
 		// Arrange:

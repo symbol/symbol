@@ -53,10 +53,8 @@ namespace catapult { namespace model {
 
 /// Defines entity type given \a BASIC_TYPE, \a FACILITY, \a DESCRIPTION and \a CODE.
 #define DEFINE_ENTITY_TYPE(BASIC_TYPE, FACILITY, DESCRIPTION, CODE) \
-	constexpr auto Entity_Type_##DESCRIPTION = model::MakeEntityType( \
-			(model::BasicEntityType::BASIC_TYPE), \
-			(model::FacilityCode::FACILITY), \
-			CODE)
+	constexpr auto Entity_Type_##DESCRIPTION = \
+			model::MakeEntityType((model::BasicEntityType::BASIC_TYPE), (model::FacilityCode::FACILITY), CODE)
 
 	/// Nemesis block.
 	DEFINE_ENTITY_TYPE(Block, Core, Block_Nemesis, 0);
@@ -80,9 +78,9 @@ namespace catapult { namespace model {
 	constexpr BasicEntityType ToBasicEntityType(EntityType type) {
 		// - 0x8000: block bit
 		// - 0x4000: transaction bit
-		return 0x8000 == (utils::to_underlying_type(type) & 0xC000)
-				? BasicEntityType::Block
-				: 0x4000 == (utils::to_underlying_type(type) & 0xC000) ? BasicEntityType::Transaction : BasicEntityType::Other;
+		return 0x8000 == (utils::to_underlying_type(type) & 0xC000)	  ? BasicEntityType::Block
+			   : 0x4000 == (utils::to_underlying_type(type) & 0xC000) ? BasicEntityType::Transaction
+																	  : BasicEntityType::Other;
 	}
 
 	/// Insertion operator for outputting \a entityType to \a out.

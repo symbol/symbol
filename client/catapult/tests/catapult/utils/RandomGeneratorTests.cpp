@@ -30,8 +30,9 @@ namespace catapult { namespace utils {
 	namespace {
 		class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
 		public:
-			HighEntropyRandomGeneratorCustomToken() : HighEntropyRandomGenerator("/dev/urandom")
-			{}
+			HighEntropyRandomGeneratorCustomToken()
+					: HighEntropyRandomGenerator("/dev/urandom") {
+			}
 		};
 	}
 

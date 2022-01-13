@@ -34,8 +34,9 @@ namespace catapult { namespace model {
 	struct TransactionElement {
 	public:
 		/// Creates a transaction element around \a transaction.
-		explicit TransactionElement(const model::Transaction& transaction) : Transaction(transaction)
-		{}
+		explicit TransactionElement(const model::Transaction& transaction)
+				: Transaction(transaction) {
+		}
 
 	public:
 		/// Transaction entity.
@@ -56,8 +57,9 @@ namespace catapult { namespace model {
 	struct BlockElement {
 	public:
 		/// Creates a block element around \a block.
-		explicit BlockElement(const model::Block& block) : Block(block)
-		{}
+		explicit BlockElement(const model::Block& block)
+				: Block(block) {
+		}
 
 	public:
 		/// Block entity.

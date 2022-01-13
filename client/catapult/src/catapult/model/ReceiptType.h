@@ -68,10 +68,8 @@ namespace catapult { namespace model {
 
 /// Defines receipt type given \a BASIC_TYPE, \a FACILITY, \a DESCRIPTION and \a CODE.
 #define DEFINE_RECEIPT_TYPE(BASIC_TYPE, FACILITY, DESCRIPTION, CODE) \
-	constexpr auto Receipt_Type_##DESCRIPTION = model::MakeReceiptType( \
-			(model::BasicReceiptType::BASIC_TYPE), \
-			(model::FacilityCode::FACILITY), \
-			CODE)
+	constexpr auto Receipt_Type_##DESCRIPTION = \
+			model::MakeReceiptType((model::BasicReceiptType::BASIC_TYPE), (model::FacilityCode::FACILITY), CODE)
 
 	/// Harvest fee credit.
 	DEFINE_RECEIPT_TYPE(BalanceCredit, Core, Harvest_Fee, 1);

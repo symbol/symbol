@@ -71,21 +71,19 @@ namespace catapult { namespace model {
 		std::unordered_map<std::string, NodeIdentity> GenerateEqualityInstanceMap() {
 			auto key1 = test::GenerateRandomByteArray<Key>();
 			auto key2 = test::GenerateRandomByteArray<Key>();
-			return {
-				{ "default", { key1, "alice.com" } },
-				{ "copy", { key1, "alice.com" } },
-				{ "diff-key", { key2, "alice.com" } },
-				{ "diff-host", { key1, "bob.com" } },
-				{ "diff-key-host", { key2, "bob.com" } }
-			};
+			return { { "default", { key1, "alice.com" } },
+					 { "copy", { key1, "alice.com" } },
+					 { "diff-key", { key2, "alice.com" } },
+					 { "diff-host", { key1, "bob.com" } },
+					 { "diff-key-host", { key2, "bob.com" } } };
 		}
 
 		void RunNodeIdentityEqualityTest(NodeIdentityEqualityStrategy strategy, const std::unordered_set<std::string>& equalityTags) {
-			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>("default", GenerateEqualityInstanceMap(), equalityTags, [strategy](
-					const auto& lhs,
-					const auto& rhs) {
-				return NodeIdentityEquality(strategy)(lhs, rhs);
-			});
+			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>(
+					"default",
+					GenerateEqualityInstanceMap(),
+					equalityTags,
+					[strategy](const auto& lhs, const auto& rhs) { return NodeIdentityEquality(strategy)(lhs, rhs); });
 		}
 	}
 
@@ -107,12 +105,14 @@ namespace catapult { namespace model {
 
 	namespace {
 		void RunNodeIdentityHasherTest(NodeIdentityEqualityStrategy strategy, const std::unordered_set<std::string>& equalityTags) {
-			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>("default", GenerateEqualityInstanceMap(), equalityTags, [strategy](
-					const auto& lhs,
-					const auto& rhs) {
-				auto hasher = NodeIdentityHasher(strategy);
-				return hasher(lhs) == hasher(rhs);
-			});
+			test::AssertEqualReturnsTrueForEqualObjects<NodeIdentity>(
+					"default",
+					GenerateEqualityInstanceMap(),
+					equalityTags,
+					[strategy](const auto& lhs, const auto& rhs) {
+						auto hasher = NodeIdentityHasher(strategy);
+						return hasher(lhs) == hasher(rhs);
+					});
 		}
 	}
 
@@ -138,12 +138,8 @@ namespace catapult { namespace model {
 			// Arrange:
 			auto key1 = test::GenerateRandomByteArray<Key>();
 			auto key2 = test::GenerateRandomByteArray<Key>();
-			auto seedIdentities = std::vector<NodeIdentity>{
-				{ key1, "alice.com" },
-				{ key2, "alice.com" },
-				{ key1, "bob.com" },
-				{ key2, "bob.com" }
-			};
+			auto seedIdentities =
+					std::vector<NodeIdentity>{ { key1, "alice.com" }, { key2, "alice.com" }, { key1, "bob.com" }, { key2, "bob.com" } };
 
 			// Act: create a set and seed it
 			auto identities = TSetTraits::CreateSet(strategy);
@@ -179,9 +175,7 @@ namespace catapult { namespace model {
 
 			static std::pair<NodeIdentity, bool> TryFind(const NodeIdentitySet& set, const model::NodeIdentity& identity) {
 				auto iter = set.find(identity);
-				return set.cend() == iter
-						? std::make_pair(model::NodeIdentity(), false)
-						: std::make_pair(*iter, true);
+				return set.cend() == iter ? std::make_pair(model::NodeIdentity(), false) : std::make_pair(*iter, true);
 			}
 		};
 	}
@@ -214,9 +208,7 @@ namespace catapult { namespace model {
 
 			static std::pair<NodeIdentity, bool> TryFind(const NodeIdentityMap<size_t>& map, const model::NodeIdentity& identity) {
 				auto iter = map.find(identity);
-				return map.cend() == iter
-						? std::make_pair(model::NodeIdentity(), false)
-						: std::make_pair(iter->first, true);
+				return map.cend() == iter ? std::make_pair(model::NodeIdentity(), false) : std::make_pair(iter->first, true);
 			}
 		};
 	}

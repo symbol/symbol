@@ -62,9 +62,7 @@ namespace catapult { namespace model {
 		TGroupedHeight next(size_t count) const {
 			auto heightAdjustment = TGroupedHeight(m_grouping * count);
 			auto nextHeight = m_groupedHeight + heightAdjustment;
-			return TGroupedHeight(1) == m_groupedHeight && 1 != m_grouping && 0 != count
-					? nextHeight - TGroupedHeight(1)
-					: nextHeight;
+			return TGroupedHeight(1) == m_groupedHeight && 1 != m_grouping && 0 != count ? nextHeight - TGroupedHeight(1) : nextHeight;
 		}
 
 	protected:

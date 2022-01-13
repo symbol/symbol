@@ -29,8 +29,9 @@ namespace catapult { namespace utils {
 	class NamedObjectMixin {
 	public:
 		/// Creates a mixin with \a name.
-		explicit NamedObjectMixin(const std::string& name) : m_name(name)
-		{}
+		explicit NamedObjectMixin(const std::string& name)
+				: m_name(name) {
+		}
 
 	public:
 		/// Gets the name.

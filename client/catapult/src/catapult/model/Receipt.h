@@ -105,7 +105,8 @@ namespace catapult { namespace model {
 	struct InflationReceipt : public Receipt {
 	public:
 		/// Creates a receipt around \a receiptType, \a mosaicId and \a amount.
-		InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount) : Mosaic({ mosaicId, amount }) {
+		InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount)
+				: Mosaic({ mosaicId, amount }) {
 			Size = sizeof(InflationReceipt);
 			Version = 1;
 			Type = receiptType;
@@ -125,7 +126,8 @@ namespace catapult { namespace model {
 	struct ArtifactExpiryReceipt : public Receipt {
 	public:
 		/// Creates a receipt around \a receiptType and \a artifactId.
-		ArtifactExpiryReceipt(ReceiptType receiptType, TArtifactId artifactId) : ArtifactId(artifactId) {
+		ArtifactExpiryReceipt(ReceiptType receiptType, TArtifactId artifactId)
+				: ArtifactId(artifactId) {
 			Size = sizeof(ArtifactExpiryReceipt);
 			Version = 1;
 			Type = receiptType;

@@ -33,8 +33,9 @@ namespace catapult { namespace utils {
 	class BasicRawBuffer {
 	public:
 		/// Creates an empty buffer.
-		constexpr BasicRawBuffer() : BasicRawBuffer(nullptr, 0)
-		{}
+		constexpr BasicRawBuffer()
+				: BasicRawBuffer(nullptr, 0) {
+		}
 
 		/// Creates a buffer around the entire contents of \a container.
 		template<
@@ -42,14 +43,16 @@ namespace catapult { namespace utils {
 				// disable when copy/move constructors should be used
 				typename X = std::enable_if_t<!traits::is_base_of_ignore_reference_v<BasicRawBuffer, TContainer>>,
 				// disable when other constructors are better match
-				typename Y = std::enable_if_t<!std::is_scalar_v<TContainer>>
-		>
-		BasicRawBuffer(TContainer&& container) : BasicRawBuffer(container.data(), container.size())
-		{}
+				typename Y = std::enable_if_t<!std::is_scalar_v<TContainer>>>
+		BasicRawBuffer(TContainer&& container)
+				: BasicRawBuffer(container.data(), container.size()) {
+		}
 
 		/// Creates buffer around \a pRawBuffer pointer and \a size.
-		constexpr BasicRawBuffer(T* pRawBuffer, size_t size) : pData(pRawBuffer), Size(size)
-		{}
+		constexpr BasicRawBuffer(T* pRawBuffer, size_t size)
+				: pData(pRawBuffer)
+				, Size(size) {
+		}
 
 	public:
 		/// Data pointer.
@@ -72,8 +75,9 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Creates an empty string buffer.
-		constexpr RawString() : BasicRawBuffer()
-		{}
+		constexpr RawString()
+				: BasicRawBuffer() {
+		}
 
 		/// Creates a string buffer around a NUL-terminated string (\a str).
 		RawString(const char* str);
@@ -86,17 +90,16 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Creates an empty mutable string buffer.
-		constexpr MutableRawString() : BasicRawBuffer()
-		{}
+		constexpr MutableRawString()
+				: BasicRawBuffer() {
+		}
 
 		/// Creates a mutable string buffer around \a str.
 		MutableRawString(std::string& str);
 	};
 
 	/// Insertion operator for outputting \a str to \a out.
-	template<
-			typename T,
-			typename X = std::enable_if_t<std::is_same_v<char, typename std::remove_const_t<T>>>>
+	template<typename T, typename X = std::enable_if_t<std::is_same_v<char, typename std::remove_const_t<T>>>>
 	std::ostream& operator<<(std::ostream& out, const BasicRawBuffer<T>& str) {
 		out.write(str.pData, static_cast<std::streamsize>(str.Size));
 		return out;

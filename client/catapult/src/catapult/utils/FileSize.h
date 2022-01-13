@@ -29,13 +29,15 @@ namespace catapult { namespace utils {
 	/// Represents a file size.
 	class FileSize final {
 	private:
-		constexpr explicit FileSize(uint64_t bytes) : m_bytes(bytes)
-		{}
+		constexpr explicit FileSize(uint64_t bytes)
+				: m_bytes(bytes) {
+		}
 
 	public:
 		/// Creates a default (zero) file size.
-		constexpr FileSize() : FileSize(0)
-		{}
+		constexpr FileSize()
+				: FileSize(0) {
+		}
 
 	public:
 		/// Creates a file size from the given number of \a megabytes.

@@ -31,8 +31,8 @@ namespace catapult { namespace utils {
 		/// Creates a counter around \a id and \a supplier.
 		DiagnosticCounter(const DiagnosticCounterId& id, const supplier<uint64_t>& supplier)
 				: m_id(id)
-				, m_supplier(supplier)
-		{}
+				, m_supplier(supplier) {
+		}
 
 	public:
 		/// Gets the id.

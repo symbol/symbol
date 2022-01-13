@@ -29,9 +29,8 @@ namespace catapult { namespace model {
 		bool IsSizeValidInternal(const Transaction& transaction, const TransactionRegistry& registry) {
 			const auto* pPlugin = registry.findPlugin(transaction.Type);
 			if (!pPlugin || !pPlugin->supportsTopLevel()) {
-				CATAPULT_LOG(warning)
-						<< "rejected transaction with type: " << transaction.Type
-						<< (pPlugin ? " (top level not supported)" : "");
+				CATAPULT_LOG(warning) << "rejected transaction with type: " << transaction.Type
+									  << (pPlugin ? " (top level not supported)" : "");
 				return false;
 			}
 

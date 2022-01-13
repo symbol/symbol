@@ -40,8 +40,9 @@ namespace catapult { namespace utils {
 
 	HighEntropyRandomGenerator::HighEntropyRandomGenerator() = default;
 
-	HighEntropyRandomGenerator::HighEntropyRandomGenerator(const std::string& token) : m_rd(token)
-	{}
+	HighEntropyRandomGenerator::HighEntropyRandomGenerator(const std::string& token)
+			: m_rd(token) {
+	}
 
 	HighEntropyRandomGenerator::result_type HighEntropyRandomGenerator::operator()() {
 		return (static_cast<uint64_t>(m_rd()) << 32) | m_rd();
@@ -62,8 +63,9 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	LowEntropyRandomGenerator::LowEntropyRandomGenerator() : m_gen(GetThreadLocalLowEntropyRandomGenerator())
-	{}
+	LowEntropyRandomGenerator::LowEntropyRandomGenerator()
+			: m_gen(GetThreadLocalLowEntropyRandomGenerator()) {
+	}
 
 	LowEntropyRandomGenerator::result_type LowEntropyRandomGenerator::operator()() {
 		return m_gen();

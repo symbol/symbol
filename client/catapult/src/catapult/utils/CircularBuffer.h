@@ -33,8 +33,8 @@ namespace catapult { namespace utils {
 		explicit CircularBuffer(size_t size)
 				: m_capacity(size)
 				, m_buffer(size)
-				, m_next(0)
-		{}
+				, m_next(0) {
+		}
 
 	public:
 		/// Appends \a element to the end of the buffer, possibly overwriting existing elements.

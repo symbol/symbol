@@ -274,10 +274,8 @@ namespace catapult { namespace model {
 			auto pStatement = builder.build();
 
 			// Assert:
-			auto resolutionStatementHash = CalculateResolutionStatementHash<TTraits>(unresolved, {
-				{ { 12, 11 }, resolved1 },
-				{ { 14, 2 }, resolved2 }
-			});
+			auto resolutionStatementHash =
+					CalculateResolutionStatementHash<TTraits>(unresolved, { { { 12, 11 }, resolved1 }, { { 14, 2 }, resolved2 } });
 
 			ASSERT_EQ(1u, TTraits::GetStatements(*pStatement).size());
 			EXPECT_EQ(resolutionStatementHash, GetResolutionStatementHash<TTraits>(*pStatement, unresolved));
@@ -307,10 +305,8 @@ namespace catapult { namespace model {
 			auto pStatement = builder.build();
 
 			// Assert:
-			auto resolutionStatementHash1 = CalculateResolutionStatementHash<TTraits>(unresolved1, {
-				{ { 12, 11 }, resolved1 },
-				{ { 14, 2 }, resolved3 }
-			});
+			auto resolutionStatementHash1 =
+					CalculateResolutionStatementHash<TTraits>(unresolved1, { { { 12, 11 }, resolved1 }, { { 14, 2 }, resolved3 } });
 			auto resolutionStatementHash2 = CalculateResolutionStatementHash<TTraits>(unresolved2, { { { 14, 0 }, resolved2 } });
 
 			ASSERT_EQ(2u, TTraits::GetStatements(*pStatement).size());
@@ -382,21 +378,17 @@ namespace catapult { namespace model {
 		auto transactionStatementHash2 = CalculateTransactionStatementHash({ 14, 0 }, { &receipt2 });
 		auto transactionStatementHash3 = CalculateTransactionStatementHash({ 14, 1 }, { &receipt3 });
 
-		auto addressResolutionStatementHash1 = CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress1, {
-			{ { 12, 11 }, resolvedAddress1 },
-			{ { 14, 0 }, resolvedAddress3 }
-		});
-		auto addressResolutionStatementHash2 = CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress2, {
-			{ { 12, 11 }, resolvedAddress2 }
-		});
+		auto addressResolutionStatementHash1 = CalculateResolutionStatementHash<AddressResolutionTraits>(
+				unresolvedAddress1,
+				{ { { 12, 11 }, resolvedAddress1 }, { { 14, 0 }, resolvedAddress3 } });
+		auto addressResolutionStatementHash2 =
+				CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress2, { { { 12, 11 }, resolvedAddress2 } });
 
-		auto mosaicResolutionStatementHash1 = CalculateResolutionStatementHash<MosaicResolutionTraits>(unresolvedMosaicId1, {
-			{ { 12, 11 }, resolvedMosaicId3 },
-			{ { 14, 1 }, resolvedMosaicId1 }
-		});
-		auto mosaicResolutionStatementHash2 = CalculateResolutionStatementHash<MosaicResolutionTraits>(unresolvedMosaicId2, {
-			{ { 14, 1 }, resolvedMosaicId2 }
-		});
+		auto mosaicResolutionStatementHash1 = CalculateResolutionStatementHash<MosaicResolutionTraits>(
+				unresolvedMosaicId1,
+				{ { { 12, 11 }, resolvedMosaicId3 }, { { 14, 1 }, resolvedMosaicId1 } });
+		auto mosaicResolutionStatementHash2 =
+				CalculateResolutionStatementHash<MosaicResolutionTraits>(unresolvedMosaicId2, { { { 14, 1 }, resolvedMosaicId2 } });
 
 		ASSERT_EQ(3u, pStatement->TransactionStatements.size());
 		EXPECT_EQ(transactionStatementHash1, GetTransactionStatementHash(*pStatement, { 12, 11 }));
@@ -451,16 +443,13 @@ namespace catapult { namespace model {
 		// Assert:
 		auto transactionStatementHash1 = CalculateTransactionStatementHash({ 12, 11 }, { &receipt1 });
 
-		auto addressResolutionStatementHash1 = CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress1, {
-			{ { 12, 11 }, resolvedAddress1 }
-		});
-		auto addressResolutionStatementHash2 = CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress2, {
-			{ { 12, 11 }, resolvedAddress2 }
-		});
+		auto addressResolutionStatementHash1 =
+				CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress1, { { { 12, 11 }, resolvedAddress1 } });
+		auto addressResolutionStatementHash2 =
+				CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress2, { { { 12, 11 }, resolvedAddress2 } });
 
-		auto mosaicResolutionStatementHash1 = CalculateResolutionStatementHash<MosaicResolutionTraits>(unresolvedMosaicId1, {
-			{ { 12, 11 }, resolvedMosaicId3 }
-		});
+		auto mosaicResolutionStatementHash1 =
+				CalculateResolutionStatementHash<MosaicResolutionTraits>(unresolvedMosaicId1, { { { 12, 11 }, resolvedMosaicId3 } });
 
 		ASSERT_EQ(1u, pStatement->TransactionStatements.size());
 		EXPECT_EQ(transactionStatementHash1, GetTransactionStatementHash(*pStatement, { 12, 11 }));

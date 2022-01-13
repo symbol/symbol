@@ -38,11 +38,7 @@ namespace catapult { namespace model {
 			return { 0x33221100 };
 		}
 
-		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer{{
-			0x00, 0x11, 0x22, 0x33,
-			0xFF, 0xDD, 0xBB, 0x99,
-			0x76, 0x98, 0x12, 0x34
-		}};
+		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer{ { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34 } };
 
 		std::vector<uint32_t> GetExpectedMultiEntityBufferValues() {
 			return { 0x33221100, 0x99BBDDFF, 0x34129876 };
@@ -267,10 +263,16 @@ namespace catapult { namespace model {
 	}
 
 #define VARIABLE_OR_FIXED_FACTORY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Fixed) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FixedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Variable) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VariableTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Fixed) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FixedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Variable) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VariableTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanCreateRangeAroundSingleEntityBuffer) {
 		// Act:
@@ -336,13 +338,9 @@ namespace catapult { namespace model {
 	// region overlay (variable) buffer
 
 	namespace {
-		constexpr std::array<uint8_t, 17> Multi_Entity_Overlay_Buffer{{
-			0x00, 0x11, 0x22, 0x33,
-			0xFF, 0xDD, 0xBB, 0x99,
-			0x76, 0x98, 0x12, 0x34,
-			0xAA, 0xBB, 0xCC, 0xDD,
-			0xEE
-		}};
+		constexpr std::array<uint8_t, 17> Multi_Entity_Overlay_Buffer{
+			{ 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE }
+		};
 
 		std::vector<uint32_t> GetExpectedMultiEntityOverlayBufferValues() {
 			return { 0xDDFF3322, 0x987699BB };
@@ -361,10 +359,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCopyOverlayRangeAroundPartOfMultipleEntityBuffer) {
 		// Act:
-		auto original = EntityRange<uint32_t>::CopyVariable(
-				Multi_Entity_Overlay_Buffer.data(),
-				Multi_Entity_Overlay_Buffer.size(),
-				{ 2, 6 });
+		auto original =
+				EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), { 2, 6 });
 		auto range = EntityRange<uint32_t>::CopyRange(original);
 
 		// Assert: the range is 7 bytes larger than expected (alignment 1)
@@ -394,10 +390,10 @@ namespace catapult { namespace model {
 	namespace {
 		EntityRange<uint32_t> CreateRangeAroundMultipleEntityBufferWithCustomAlignment() {
 			return EntityRange<uint32_t>::CopyVariable(
-				Multi_Entity_Overlay_Buffer.data(),
-				Multi_Entity_Overlay_Buffer.size(),
-				{ 1, 6, 12 },
-				8);
+					Multi_Entity_Overlay_Buffer.data(),
+					Multi_Entity_Overlay_Buffer.size(),
+					{ 1, 6, 12 },
+					8);
 		}
 
 		std::vector<uint32_t> GetExpectedMultiEntityCustomAlignmentBufferValues() {
@@ -569,11 +565,9 @@ namespace catapult { namespace model {
 	}
 
 	namespace {
-		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer_2{{
-			0x23, 0x34, 0x45, 0x56,
-			0x19, 0x28, 0x37, 0x46,
-			0x24, 0x35, 0x46, 0x57
-		}};
+		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer_2{
+			{ 0x23, 0x34, 0x45, 0x56, 0x19, 0x28, 0x37, 0x46, 0x24, 0x35, 0x46, 0x57 }
+		};
 
 		std::vector<uint32_t> GetExpectedMultiEntityBuffer2Values() {
 			return { 0x56453423, 0x46372819, 0x57463524 };
@@ -702,11 +696,19 @@ namespace catapult { namespace model {
 	// region iterators
 
 #define ITERATOR_BASED_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_BeginEnd) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_BeginEndConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_CBeginCEnd) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_BeginEnd) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_BeginEndConst) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_CBeginCEnd) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ITERATOR_BASED_BASED_TEST(CanIterateOverMultipleEntitiesWithPostfixOperator) {
 		// Arrange:

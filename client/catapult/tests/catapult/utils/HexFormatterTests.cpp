@@ -240,10 +240,16 @@ namespace catapult { namespace utils {
 	}
 
 #define CONTAINER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Iterator) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<IteratorTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Container) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ContainerTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Iterator) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<IteratorTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Container) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ContainerTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatArrayByteIntegralType) {
 		TTraits::AssertHexString("", std::array<uint8_t, 0>());

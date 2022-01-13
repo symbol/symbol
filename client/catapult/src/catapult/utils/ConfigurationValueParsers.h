@@ -25,13 +25,11 @@
 #include <array>
 #include <unordered_set>
 
-namespace catapult {
-	namespace utils {
-		class BlockSpan;
-		class FileSize;
-		class TimeSpan;
-	}
-}
+namespace catapult { namespace utils {
+	class BlockSpan;
+	class FileSize;
+	class TimeSpan;
+}}
 
 namespace catapult { namespace utils {
 

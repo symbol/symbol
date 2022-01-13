@@ -25,8 +25,9 @@
 
 namespace catapult { namespace utils {
 
-	NetworkTime::NetworkTime(const utils::TimeSpan& epochAdjustment) : m_epochAdjustment(epochAdjustment)
-	{}
+	NetworkTime::NetworkTime(const utils::TimeSpan& epochAdjustment)
+			: m_epochAdjustment(epochAdjustment) {
+	}
 
 	Timestamp NetworkTime::now() const {
 		auto nowMillis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());

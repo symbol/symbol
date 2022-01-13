@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/cache/MultisigCache.h"
+#include "src/validators/Validators.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"

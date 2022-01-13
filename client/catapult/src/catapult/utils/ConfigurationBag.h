@@ -44,8 +44,10 @@ namespace catapult { namespace utils {
 	/// Configuration key.
 	struct ConfigurationKey {
 		/// Creates a configuration key for a key with \a name in \a section.
-		constexpr ConfigurationKey(const char* section, const char* name) : Section(section), Name(name)
-		{}
+		constexpr ConfigurationKey(const char* section, const char* name)
+				: Section(section)
+				, Name(name) {
+		}
 
 		/// Section containing the key.
 		const char* Section;
@@ -70,8 +72,9 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Creates a new configuration bag around \a values.
-		ConfigurationBag(ValuesContainer&& values) : m_values(values)
-		{}
+		ConfigurationBag(ValuesContainer&& values)
+				: m_values(values) {
+		}
 
 	public:
 		/// Loads a configuration bag from the specified stream (\a input).

@@ -77,13 +77,11 @@ namespace catapult { namespace model {
 		std::unordered_map<std::string, TransactionStatus> GenerateEqualityInstanceMap() {
 			auto hash1 = test::GenerateRandomByteArray<Hash256>();
 			auto hash2 = test::GenerateRandomByteArray<Hash256>();
-			return {
-				{ "default", TransactionStatus(hash1, Timestamp(234), 123) },
-				{ "copy", TransactionStatus(hash1, Timestamp(234), 123) },
-				{ "diff-hash", TransactionStatus(hash2, Timestamp(234), 123) },
-				{ "diff-deadline", TransactionStatus(hash1, Timestamp(345), 123) },
-				{ "diff-status", TransactionStatus(hash1, Timestamp(234), 234) }
-			};
+			return { { "default", TransactionStatus(hash1, Timestamp(234), 123) },
+					 { "copy", TransactionStatus(hash1, Timestamp(234), 123) },
+					 { "diff-hash", TransactionStatus(hash2, Timestamp(234), 123) },
+					 { "diff-deadline", TransactionStatus(hash1, Timestamp(345), 123) },
+					 { "diff-status", TransactionStatus(hash1, Timestamp(234), 234) } };
 		}
 
 		std::unordered_set<std::string> GetEqualTags() {

@@ -101,11 +101,9 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithMultipleSpecialAccounts) {
-		RunNemesisNotificationPublisherTest({
-			test::GenerateRandomByteArray<Address>(),
-			test::GenerateRandomByteArray<Address>(),
-			test::GenerateRandomByteArray<Address>()
-		});
+		RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Address>(),
+											  test::GenerateRandomByteArray<Address>(),
+											  test::GenerateRandomByteArray<Address>() });
 	}
 
 	// endregion

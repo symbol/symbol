@@ -44,32 +44,32 @@ namespace catapult { namespace model {
 		auto PROPERTY_NAME(EntityContainerErrorPolicy errorPolicy = EntityContainerErrorPolicy::Throw) { \
 			return MakeContiguousEntityContainer(PROPERTY_NAME##Ptr(), Get##CLASS_PREFIX##PayloadSize(*this), errorPolicy); \
 		} \
-		\
+\
 		/* Gets a container wrapping the const entities contained in this container with the desired error policy (\a errorPolicy). */ \
 		auto PROPERTY_NAME(EntityContainerErrorPolicy errorPolicy = EntityContainerErrorPolicy::Throw) const { \
 			return MakeContiguousEntityContainer(PROPERTY_NAME##Ptr(), Get##CLASS_PREFIX##PayloadSize(*this), errorPolicy); \
 		} \
-		\
+\
 		/* Gets a pointer to entities contained in this container. */ \
 		TComponentEntity* PROPERTY_NAME##Ptr() { \
 			auto headerSize = TEntityHeaderProperties::HeaderSize(*this); \
 			return TEntityHeader::Size <= headerSize || 0 == Get##CLASS_PREFIX##PayloadSize(*this) \
-					? nullptr \
-					: reinterpret_cast<TComponentEntity*>(reinterpret_cast<uint8_t*>(this) + headerSize); \
+						   ? nullptr \
+						   : reinterpret_cast<TComponentEntity*>(reinterpret_cast<uint8_t*>(this) + headerSize); \
 		} \
-		\
+\
 		/* Gets a const pointer to entities contained in this container. */ \
 		const TComponentEntity* PROPERTY_NAME##Ptr() const { \
 			auto headerSize = TEntityHeaderProperties::HeaderSize(*this); \
 			return TEntityHeader::Size <= headerSize || 0 == Get##CLASS_PREFIX##PayloadSize(*this) \
-					? nullptr \
-					: reinterpret_cast<const TComponentEntity*>(reinterpret_cast<const uint8_t*>(this) + headerSize); \
+						   ? nullptr \
+						   : reinterpret_cast<const TComponentEntity*>(reinterpret_cast<const uint8_t*>(this) + headerSize); \
 		} \
 	};
 
 #pragma pack(push, 1)
 
-DEFINE_SIZE_PREFIXED_ENTITY_CONTAINER(Transaction, Transactions)
+	DEFINE_SIZE_PREFIXED_ENTITY_CONTAINER(Transaction, Transactions)
 
 #pragma pack(pop)
 }}

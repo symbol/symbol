@@ -33,8 +33,8 @@ namespace catapult { namespace utils {
 		StreamFormatGuard(std::ostream& out, std::ios_base::fmtflags flags, char fill)
 				: m_out(out)
 				, m_flags(m_out.flags(flags))
-				, m_fill(m_out.fill(fill))
-		{}
+				, m_fill(m_out.fill(fill)) {
+		}
 
 		/// Destroys the guard and restores original stream formatting settings.
 		~StreamFormatGuard() {

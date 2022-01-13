@@ -164,10 +164,16 @@ namespace catapult { namespace model {
 	}
 
 #define TRANSACTION_INFO_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Detached) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DetachedTransactionInfoTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionInfoTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Detached) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DetachedTransactionInfoTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionInfoTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRANSACTION_INFO_TEST(CanCreateDefaultTransactionInfo) {
 		// Act:

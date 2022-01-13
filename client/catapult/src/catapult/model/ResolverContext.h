@@ -29,7 +29,7 @@ namespace catapult { namespace model {
 	class ResolverContext {
 	private:
 		template<typename TUnresolved, typename TResolved>
-		using Resolver = std::function<TResolved (const TUnresolved&)>;
+		using Resolver = std::function<TResolved(const TUnresolved&)>;
 		using MosaicResolver = Resolver<UnresolvedMosaicId, MosaicId>;
 		using AddressResolver = Resolver<UnresolvedAddress, Address>;
 

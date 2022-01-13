@@ -29,7 +29,9 @@ namespace catapult { namespace utils {
 	// region ArrayHasher
 
 	namespace {
-		struct TestArray_tag { static constexpr size_t Size = 4 + sizeof(size_t); };
+		struct TestArray_tag {
+			static constexpr size_t Size = 4 + sizeof(size_t);
+		};
 		using TestArray = ByteArray<TestArray_tag>;
 	}
 

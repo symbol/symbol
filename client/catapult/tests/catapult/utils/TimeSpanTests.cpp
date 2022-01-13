@@ -108,17 +108,15 @@ namespace catapult { namespace utils {
 		}
 
 		std::unordered_map<std::string, TimeSpan> GenerateEqualityInstanceMap() {
-			return {
-				{ "123000 ms", TimeSpan::FromMilliseconds(123000) },
-				{ "123 s", TimeSpan::FromSeconds(123) },
-				{ "123000 ms (2)", TimeSpan::FromMilliseconds(123000) },
+			return { { "123000 ms", TimeSpan::FromMilliseconds(123000) },
+					 { "123 s", TimeSpan::FromSeconds(123) },
+					 { "123000 ms (2)", TimeSpan::FromMilliseconds(123000) },
 
-				{ "122999 ms", TimeSpan::FromMilliseconds(122999) },
-				{ "123001 ms", TimeSpan::FromMilliseconds(123001) },
-				{ "123000 s", TimeSpan::FromSeconds(123000) },
-				{ "123 m", TimeSpan::FromMinutes(123) },
-				{ "123 h", TimeSpan::FromHours(123) }
-			};
+					 { "122999 ms", TimeSpan::FromMilliseconds(122999) },
+					 { "123001 ms", TimeSpan::FromMilliseconds(123001) },
+					 { "123000 s", TimeSpan::FromSeconds(123000) },
+					 { "123 m", TimeSpan::FromMinutes(123) },
+					 { "123 h", TimeSpan::FromHours(123) } };
 		}
 	}
 
@@ -136,14 +134,8 @@ namespace catapult { namespace utils {
 
 	namespace {
 		std::vector<TimeSpan> GenerateIncreasingValues() {
-			return {
-				TimeSpan::FromMilliseconds(122999),
-				TimeSpan::FromSeconds(123),
-				TimeSpan::FromMilliseconds(123001),
-				TimeSpan::FromMinutes(123),
-				TimeSpan::FromSeconds(123000),
-				TimeSpan::FromHours(123)
-			};
+			return { TimeSpan::FromMilliseconds(122999), TimeSpan::FromSeconds(123),	TimeSpan::FromMilliseconds(123001),
+					 TimeSpan::FromMinutes(123),		 TimeSpan::FromSeconds(123000), TimeSpan::FromHours(123) };
 		}
 	}
 
@@ -217,12 +209,10 @@ namespace catapult { namespace utils {
 		Timestamp initial(12345678);
 
 		// Act:
-		Timestamp results[] = {
-			initial + TimeSpan::FromHours(3),
-			initial + TimeSpan::FromMinutes(5),
-			initial + TimeSpan::FromSeconds(7),
-			initial + TimeSpan::FromMilliseconds(1234)
-		};
+		Timestamp results[] = { initial + TimeSpan::FromHours(3),
+								initial + TimeSpan::FromMinutes(5),
+								initial + TimeSpan::FromSeconds(7),
+								initial + TimeSpan::FromMilliseconds(1234) };
 
 		// Assert:
 		EXPECT_EQ(initial + Timestamp(3 * 60 * 60 * 1000), results[0]);
@@ -236,16 +226,14 @@ namespace catapult { namespace utils {
 		Timestamp initial(12345678);
 
 		// Act:
-		Timestamp results[] = {
-			SubtractNonNegative(initial, TimeSpan::FromHours(3)),
-			SubtractNonNegative(initial, TimeSpan::FromMinutes(5)),
-			SubtractNonNegative(initial, TimeSpan::FromSeconds(7)),
-			SubtractNonNegative(initial, TimeSpan::FromMilliseconds(1234)),
+		Timestamp results[] = { SubtractNonNegative(initial, TimeSpan::FromHours(3)),
+								SubtractNonNegative(initial, TimeSpan::FromMinutes(5)),
+								SubtractNonNegative(initial, TimeSpan::FromSeconds(7)),
+								SubtractNonNegative(initial, TimeSpan::FromMilliseconds(1234)),
 
-			SubtractNonNegative(initial, TimeSpan::FromMilliseconds(12345678)),
-			SubtractNonNegative(initial, TimeSpan::FromMilliseconds(12345679)),
-			SubtractNonNegative(initial, TimeSpan::FromMilliseconds(99999999))
-		};
+								SubtractNonNegative(initial, TimeSpan::FromMilliseconds(12345678)),
+								SubtractNonNegative(initial, TimeSpan::FromMilliseconds(12345679)),
+								SubtractNonNegative(initial, TimeSpan::FromMilliseconds(99999999)) };
 
 		// Assert:
 		EXPECT_EQ(initial - Timestamp(3 * 60 * 60 * 1000), results[0]);

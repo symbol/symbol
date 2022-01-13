@@ -24,11 +24,13 @@
 
 namespace catapult { namespace model {
 
-	HeightDependentAddress::HeightDependentAddress() : HeightDependentAddress(Address())
-	{}
+	HeightDependentAddress::HeightDependentAddress()
+			: HeightDependentAddress(Address()) {
+	}
 
-	HeightDependentAddress::HeightDependentAddress(const Address& address) : m_defaultAddress(address)
-	{}
+	HeightDependentAddress::HeightDependentAddress(const Address& address)
+			: m_defaultAddress(address) {
+	}
 
 	bool HeightDependentAddress::trySet(const Address& address, Height endHeight) {
 		if (Height() == endHeight)

@@ -76,12 +76,14 @@ namespace catapult { namespace model {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits, typename TContainerTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits, typename TContainerTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Throw_Mutable, test::BeginEndTraits, EntityContainerThrowBasedTraits) \
 	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Throw_Const, test::CBeginCEndTraits, EntityContainerThrowBasedTraits) \
 	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Suppress_Mutable, test::BeginEndTraits, EntityContainerSuppressBasedTraits) \
 	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Suppress_Const, test::CBeginCEndTraits, EntityContainerSuppressBasedTraits) \
-	template<typename TTraits, typename TContainerTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits, typename TContainerTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 // if TContainerTraits::ThrowsOnError is set, then expect an exception; otherwise, do not
 #define EXPECT_ITERATION_ERROR(STATEMENT) \
@@ -386,9 +388,15 @@ namespace catapult { namespace model {
 #define POSITIONAL_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits, typename TContainerTraits, typename TPositionalTraits> \
 	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TRAITS_BASED_TEST(TEST_NAME##_First) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, FirstElementTraits>(); } \
-	TRAITS_BASED_TEST(TEST_NAME##_Middle) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, MiddleElementTraits>(); } \
-	TRAITS_BASED_TEST(TEST_NAME##_Last) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, LastElementTraits>(); } \
+	TRAITS_BASED_TEST(TEST_NAME##_First) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, FirstElementTraits>(); \
+	} \
+	TRAITS_BASED_TEST(TEST_NAME##_Middle) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, MiddleElementTraits>(); \
+	} \
+	TRAITS_BASED_TEST(TEST_NAME##_Last) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, LastElementTraits>(); \
+	} \
 	template<typename TTraits, typename TContainerTraits, typename TPositionalTraits> \
 	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 

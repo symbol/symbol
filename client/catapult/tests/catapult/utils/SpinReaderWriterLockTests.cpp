@@ -57,9 +57,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, CanReleaseReaderLock) {
 		// Act:
 		SpinReaderWriterLock lock;
-		{
-			auto readLock = lock.acquireReader();
-		}
+		{ auto readLock = lock.acquireReader(); }
 
 		// Assert:
 		EXPECT_FALSE(lock.isWriterPending());
@@ -99,9 +97,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, CanReleaseWriterLock) {
 		// Act:
 		SpinReaderWriterLock lock;
-		{
-			auto writeLock = lock.acquireWriter();
-		}
+		{ auto writeLock = lock.acquireWriter(); }
 
 		// Assert:
 		EXPECT_FALSE(lock.isWriterPending());
@@ -143,9 +139,7 @@ namespace catapult { namespace utils {
 		// Act:
 		SpinReaderWriterLock lock;
 		auto readLock = lock.acquireReader();
-		{
-			auto writeLock = readLock.promoteToWriter();
-		}
+		{ auto writeLock = readLock.promoteToWriter(); }
 
 		// Assert:
 		EXPECT_FALSE(lock.isWriterPending());
@@ -196,9 +190,7 @@ namespace catapult { namespace utils {
 		// Act: acquire a reader and then promote, demote, promote
 		SpinReaderWriterLock lock;
 		auto readLock = lock.acquireReader();
-		{
-			auto writeLock = readLock.promoteToWriter();
-		}
+		{ auto writeLock = readLock.promoteToWriter(); }
 
 		auto writeLock = readLock.promoteToWriter();
 
@@ -218,8 +210,8 @@ namespace catapult { namespace utils {
 			public:
 				explicit LockGuard(SpinReaderWriterLock& lock)
 						: m_readLock(lock.acquireReader())
-						, m_writeLock(m_readLock.promoteToWriter())
-				{}
+						, m_writeLock(m_readLock.promoteToWriter()) {
+				}
 
 			private:
 				SpinReaderWriterLock::ReaderLockGuard m_readLock;
@@ -230,8 +222,9 @@ namespace catapult { namespace utils {
 		struct WriterAcquireTraits {
 			class LockGuard {
 			public:
-				explicit LockGuard(SpinReaderWriterLock& lock) : m_writeLock(lock.acquireWriter())
-				{}
+				explicit LockGuard(SpinReaderWriterLock& lock)
+						: m_writeLock(lock.acquireWriter()) {
+				}
 
 			private:
 				SpinReaderWriterLock::WriterLockGuard m_writeLock;
@@ -240,10 +233,16 @@ namespace catapult { namespace utils {
 	}
 
 #define WRITER_LOCK_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Promotion) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<WriterPromotionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Acquire) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<WriterAcquireTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Promotion) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<WriterPromotionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Acquire) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<WriterAcquireTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -388,8 +387,11 @@ namespace catapult { namespace utils {
 			std::atomic<uint32_t> NumReaderThreads;
 
 		public:
-			ReaderWriterRaceState() : ReleasedThreadId('\0'), NumWaitingThreads(0), NumReaderThreads(0)
-			{}
+			ReaderWriterRaceState()
+					: ReleasedThreadId('\0')
+					, NumWaitingThreads(0)
+					, NumReaderThreads(0) {
+			}
 
 		public:
 			auto acquireReader() {
@@ -449,9 +451,7 @@ namespace catapult { namespace utils {
 			auto readLock = state.Lock.acquireReader();
 
 			// - spawn a thread that will acquire a writer lock
-			levelTwoThreads.spawn([&] {
-				state.doWriterWork();
-			});
+			levelTwoThreads.spawn([&] { state.doWriterWork(); });
 
 			// - spawn a thread that will acquire a reader lock after a writer is pending
 			levelTwoThreads.spawn([&] {

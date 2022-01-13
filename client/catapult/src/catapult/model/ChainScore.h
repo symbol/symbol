@@ -40,12 +40,14 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a default chain score.
-		ChainScore() : ChainScore(0)
-		{}
+		ChainScore()
+				: ChainScore(0) {
+		}
 
 		/// Creates a chain score from a 64-bit value (\a score).
-		explicit ChainScore(uint64_t score) : m_score(score)
-		{}
+		explicit ChainScore(uint64_t score)
+				: m_score(score) {
+		}
 
 		/// Creates a chain score from a 128-bit value composed of two 64-bit values (\a scoreHigh and \a scoreLow).
 		ChainScore(uint64_t scoreHigh, uint64_t scoreLow) {
@@ -61,10 +63,8 @@ namespace catapult { namespace model {
 	public:
 		/// Gets an array representing the underlying score.
 		ArrayType toArray() const {
-			return {{
-				static_cast<uint64_t>(m_score >> Bits_Per_Value),
-				static_cast<uint64_t>(m_score & std::numeric_limits<uint64_t>::max())
-			}};
+			return { { static_cast<uint64_t>(m_score >> Bits_Per_Value),
+					   static_cast<uint64_t>(m_score & std::numeric_limits<uint64_t>::max()) } };
 		}
 
 	public:
@@ -86,16 +86,12 @@ namespace catapult { namespace model {
 
 		/// Subtracts \a rhs from this chain score.
 		Delta operator-(const ChainScore& rhs) {
-			boost::multiprecision::checked_uint128_t result = rhs < *this
-					? m_score - rhs.m_score
-					: rhs.m_score - m_score;
+			boost::multiprecision::checked_uint128_t result = rhs < *this ? m_score - rhs.m_score : rhs.m_score - m_score;
 
 			if (result > std::numeric_limits<int64_t>::max())
 				throw std::range_error("subtraction failed because chain scores are too far apart");
 
-			return rhs < *this
-					? Delta(static_cast<int64_t>(result))
-					: Delta(-static_cast<int64_t>(result));
+			return rhs < *this ? Delta(static_cast<int64_t>(result)) : Delta(-static_cast<int64_t>(result));
 		}
 
 	public:

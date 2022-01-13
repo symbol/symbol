@@ -40,10 +40,8 @@ namespace catapult { namespace model {
 	}
 
 	RawBuffer GetBlockHeaderDataBuffer(const BlockHeader& header) {
-		return {
-			reinterpret_cast<const uint8_t*>(&header) + VerifiableEntity::Header_Size,
-			GetBlockHeaderSize(header.Type) - VerifiableEntity::Header_Size - GetBlockFooterSize(header.Type)
-		};
+		return { reinterpret_cast<const uint8_t*>(&header) + VerifiableEntity::Header_Size,
+				 GetBlockHeaderSize(header.Type) - VerifiableEntity::Header_Size - GetBlockFooterSize(header.Type) };
 	}
 
 	size_t GetTransactionPayloadSize(const BlockHeader& header) {
@@ -64,9 +62,8 @@ namespace catapult { namespace model {
 		if (areAllTransactionsValid && !transactions.hasError())
 			return true;
 
-		CATAPULT_LOG(warning)
-				<< "block transactions failed size validation (valid sizes? " << areAllTransactionsValid
-				<< ", errors? " << transactions.hasError() << ")";
+		CATAPULT_LOG(warning) << "block transactions failed size validation (valid sizes? " << areAllTransactionsValid << ", errors? "
+							  << transactions.hasError() << ")";
 		return false;
 	}
 }}

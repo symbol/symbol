@@ -57,13 +57,7 @@ namespace catapult { namespace utils {
 		});
 
 		// Assert:
-		std::vector<std::pair<int, int>> expected{
-			{ 12345, 8 },
-			{ 8, 13 },
-			{ 13, 21 },
-			{ 21, 34 },
-			{ 34, 55 }
-		};
+		std::vector<std::pair<int, int>> expected{ { 12345, 8 }, { 8, 13 }, { 13, 21 }, { 21, 34 }, { 34, 55 } };
 		EXPECT_EQ(result, 55);
 		EXPECT_EQ(expected, collected);
 	}
@@ -78,7 +72,7 @@ namespace catapult { namespace utils {
 
 			// Act:
 			auto largest = std::numeric_limits<typename Container::value_type>::max();
-			uint64_t const & (*fun) (uint64_t const &, uint64_t const &) = std::min<uint64_t>;
+			uint64_t const& (*fun)(uint64_t const&, uint64_t const&) = std::min<uint64_t>;
 			auto result = Reduce(container, largest, fun);
 
 			// Assert:
@@ -96,21 +90,11 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, ReturnedValueIsOfInitType) {
 		// Arrange:
-		std::map<std::string, int> container{
-			{ "alpha", 21 },
-			{ "bravo", 22 },
-			{ "charlie", 23 },
-			{ "delta", 24 },
-			{ "echo", 25 }
-		};
+		std::map<std::string, int> container{ { "alpha", 21 }, { "bravo", 22 }, { "charlie", 23 }, { "delta", 24 }, { "echo", 25 } };
 
 		// Act:
 		size_t len = 0;
-		auto result = Reduce(container, len, [](auto a, const auto& b) {
-			return 1 == b.second % 2
-				? a + b.first.size()
-				: a;
-		});
+		auto result = Reduce(container, len, [](auto a, const auto& b) { return 1 == b.second % 2 ? a + b.first.size() : a; });
 
 		// Assert:
 		EXPECT_EQ(5u + 7 + 4, result);

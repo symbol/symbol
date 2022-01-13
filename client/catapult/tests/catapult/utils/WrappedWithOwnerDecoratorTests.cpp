@@ -44,18 +44,22 @@ namespace catapult { namespace utils {
 	}
 
 #define DECORATOR_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BasicTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Resettable) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ResettableTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BasicTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Resettable) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ResettableTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	DECORATOR_BASED_TEST(DecoratorForwardsToCallable) {
 		// Arrange: wrap a decorator around a lambda that depends on pOwner
 		auto pOwner = std::make_shared<uint32_t>(7);
 		auto counter = 0u;
-		auto decorator = Decorate<TTraits>(pOwner, [owner = *pOwner, &counter](uint32_t multiple) {
-			counter += owner * multiple;
-		});
+		auto decorator = Decorate<TTraits>(pOwner, [owner = *pOwner, &counter](uint32_t multiple) { counter += owner * multiple; });
 
 		// Act: invoke the lambda
 		decorator(static_cast<uint32_t>(3));
@@ -69,9 +73,7 @@ namespace catapult { namespace utils {
 	DECORATOR_BASED_TEST(DecoratorForwardsResultsFromCallabale) {
 		// Arrange: wrap a decorator around a lambda that depends on pOwner
 		auto pOwner = std::make_shared<uint32_t>(7);
-		auto decorator = Decorate<TTraits>(pOwner, [owner = *pOwner](uint32_t multiple) {
-			return owner * multiple;
-		});
+		auto decorator = Decorate<TTraits>(pOwner, [owner = *pOwner](uint32_t multiple) { return owner * multiple; });
 
 		// Act: invoke the lambda
 		auto result1 = decorator(static_cast<uint32_t>(3));
@@ -87,9 +89,7 @@ namespace catapult { namespace utils {
 		// Arrange: wrap a decorator around a lambda that depends on pOwner
 		auto pOwner = std::make_shared<uint32_t>(7);
 		auto counter = 0u;
-		auto decorator = Decorate<TTraits>(pOwner, [owner = *pOwner, &counter](uint32_t multiple) {
-			counter += owner * multiple;
-		});
+		auto decorator = Decorate<TTraits>(pOwner, [owner = *pOwner, &counter](uint32_t multiple) { counter += owner * multiple; });
 
 		// Act: reset the local owner pointer
 		EXPECT_EQ(2, decorator.owner().use_count());
@@ -110,8 +110,8 @@ namespace catapult { namespace utils {
 			DestructingCounterUpdater(uint32_t& owner, uint32_t& counter)
 					: m_owner(owner)
 					, m_counter(counter)
-					, m_multiple(0)
-			{}
+					, m_multiple(0) {
+			}
 
 			~DestructingCounterUpdater() {
 				// updating the counter in the destructor implies that both the counter and owner must still be valid
@@ -136,9 +136,8 @@ namespace catapult { namespace utils {
 		{
 			auto pOwner = std::make_shared<uint32_t>(7);
 			auto pUpdater = std::make_shared<DestructingCounterUpdater>(*pOwner, counter);
-			auto decorator = Decorate<TTraits>(pOwner, [pUpdater = std::move(pUpdater)](uint32_t multiple) {
-				pUpdater->setMultiple(multiple);
-			});
+			auto decorator =
+					Decorate<TTraits>(pOwner, [pUpdater = std::move(pUpdater)](uint32_t multiple) { pUpdater->setMultiple(multiple); });
 
 			// Act: make the decorator hold the last reference to the owner
 			pOwner.reset();
@@ -161,8 +160,8 @@ namespace catapult { namespace utils {
 		auto pOwner = std::make_shared<uint32_t>(7);
 		auto counter = 0u;
 		auto decorator = Decorate<ResettableTraits>(pOwner, consumer<uint32_t>([pOwner, &counter](uint32_t multiple) {
-			counter += *pOwner * multiple;
-		}));
+														counter += *pOwner * multiple;
+													}));
 
 		// Sanity: local, captured owner in lambda, captured owner in decorator
 		EXPECT_EQ(3, pOwner.use_count());

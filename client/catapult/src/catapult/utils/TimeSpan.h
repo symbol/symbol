@@ -32,13 +32,14 @@ namespace catapult { namespace utils {
 	private:
 		template<typename TRep, typename TPeriod>
 		constexpr explicit TimeSpan(const std::chrono::duration<TRep, TPeriod>& duration)
-				: m_millis(std::chrono::duration_cast<std::chrono::milliseconds>(duration))
-		{}
+				: m_millis(std::chrono::duration_cast<std::chrono::milliseconds>(duration)) {
+		}
 
 	public:
 		/// Creates a default (zero) time span.
-		constexpr TimeSpan() : TimeSpan(std::chrono::milliseconds(0))
-		{}
+		constexpr TimeSpan()
+				: TimeSpan(std::chrono::milliseconds(0)) {
+		}
 
 	private:
 		template<typename TDuration>

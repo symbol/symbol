@@ -80,8 +80,7 @@ namespace catapult { namespace model {
 		// emulates AggregateTransaction
 		struct ContainerWithPayloadSize : public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent> {};
 		struct ExpandedHeaderContainerWithPayloadSize
-				: public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent, ExpandedHeaderProperties>
-		{};
+				: public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent, ExpandedHeaderProperties> {};
 
 		size_t GetTransactionPayloadSize(const ContainerWithPayloadSizeHeader& header) {
 			return header.PayloadSize;
@@ -157,20 +156,29 @@ namespace catapult { namespace model {
 	// region traits
 
 #define IMPLICIT_DATA_POINTER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<Container>>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<Container>>(); } \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<Container>>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<Container>>(); \
+	} \
 	TEST(TEST_CLASS, TEST_NAME##_Const_ExpandedHeader) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ExpandedHeaderContainer>>(); \
 	} \
 	TEST(TEST_CLASS, TEST_NAME##_NonConst_ExpandedHeader) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ExpandedHeaderContainer>>(); \
 	} \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define EXPLICIT_DATA_POINTER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ContainerWithPayloadSize>>(); } \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ContainerWithPayloadSize>>(); \
+	} \
 	TEST(TEST_CLASS, TEST_NAME##_NonConst) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ContainerWithPayloadSize>>(); \
 	} \
@@ -180,7 +188,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, TEST_NAME##_NonConst_ExpandedHeader) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ExpandedHeaderContainerWithPayloadSize>>(); \
 	} \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
