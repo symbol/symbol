@@ -11,7 +11,7 @@ with open('version.txt', 'rt', encoding='utf8') as version_file:
 REQUIRES = [
 	'cryptography==3.4.6',
 	'mnemonic==0.20',
-	'Pillow==8.4.0',
+	'Pillow==9.0.0',
 	'pysha3==1.0.2',
 	'PyYAML==5.4.1',
 	'pyzbar==0.1.8',
