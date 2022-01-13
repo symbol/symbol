@@ -56,8 +56,8 @@ namespace catapult { namespace config {
 			, Logging(std::move(loggingConfig))
 			, User(std::move(userConfig))
 			, Extensions(std::move(extensionsConfig))
-			, Inflation(std::move(inflationConfig))
-	{}
+			, Inflation(std::move(inflationConfig)) {
+	}
 
 	CatapultConfiguration CatapultConfiguration::LoadFromPath(
 			const std::filesystem::path& resourcesPath,
@@ -82,9 +82,8 @@ namespace catapult { namespace config {
 		endpoint.Host = localNodeConfig.Host;
 		endpoint.Port = config.Node.Port;
 
-		auto networkFingerprint = model::UniqueNetworkFingerprint(
-				config.Blockchain.Network.Identifier,
-				config.Blockchain.Network.GenerationHashSeed);
+		auto networkFingerprint =
+				model::UniqueNetworkFingerprint(config.Blockchain.Network.Identifier, config.Blockchain.Network.GenerationHashSeed);
 		auto metadata = ionet::NodeMetadata(networkFingerprint);
 		metadata.Name = localNodeConfig.FriendlyName;
 		metadata.Version = ionet::NodeVersion(localNodeConfig.Version);

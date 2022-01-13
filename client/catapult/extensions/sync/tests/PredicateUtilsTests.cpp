@@ -42,9 +42,8 @@ namespace catapult { namespace sync {
 		auto entityType = model::BasicEntityType::Transaction;
 		auto knownHash = test::GenerateRandomByteArray<Hash256>();
 		auto otherHash = test::GenerateRandomByteArray<Hash256>();
-		auto predicate = ToRequiresValidationPredicate([&knownHash](auto timestamp, const auto& hash) {
-			return Timestamp(123) == timestamp && knownHash == hash;
-		});
+		auto predicate = ToRequiresValidationPredicate(
+				[&knownHash](auto timestamp, const auto& hash) { return Timestamp(123) == timestamp && knownHash == hash; });
 
 		// Act + Assert:
 		EXPECT_FALSE(predicate(entityType, Timestamp(123), knownHash)); // match
@@ -58,9 +57,8 @@ namespace catapult { namespace sync {
 			// Arrange:
 			auto knownHash = test::GenerateRandomByteArray<Hash256>();
 			auto otherHash = test::GenerateRandomByteArray<Hash256>();
-			auto predicate = ToRequiresValidationPredicate([&knownHash](auto timestamp, const auto& hash) {
-				return Timestamp(123) == timestamp && knownHash == hash;
-			});
+			auto predicate = ToRequiresValidationPredicate(
+					[&knownHash](auto timestamp, const auto& hash) { return Timestamp(123) == timestamp && knownHash == hash; });
 
 			// Act + Assert:
 			EXPECT_TRUE(predicate(entityType, Timestamp(123), knownHash)); // match
@@ -144,10 +142,8 @@ namespace catapult { namespace sync {
 			auto isThrottled = CreateUtUpdaterThrottle(config)(model::TransactionInfo(pTransaction), throttleContext);
 
 			// Assert:
-			EXPECT_EQ(expectedIsThrottled, isThrottled)
-					<< "cacheSize = " << cacheSize
-					<< ", maxCacheSize = " << settings.MaxCacheSize
-					<< ", maxBlockSize = " << settings.MaxBlockSize;
+			EXPECT_EQ(expectedIsThrottled, isThrottled) << "cacheSize = " << cacheSize << ", maxCacheSize = " << settings.MaxCacheSize
+														<< ", maxBlockSize = " << settings.MaxBlockSize;
 		}
 
 		ThrottleTestSettings SpamThrottleDisabledTestSettings() {

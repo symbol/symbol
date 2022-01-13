@@ -72,39 +72,40 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DECLARE_STATELESS_VALIDATOR(AggregateTransactionsHash, Notification)(
-			const std::unordered_map<Hash256, Hash256, utils::ArrayHasher<Hash256>>& knownCorruptedHashes) {
-		return MAKE_STATELESS_VALIDATOR(AggregateTransactionsHash, ([knownCorruptedHashes](const Notification& notification) {
-			// calculate the expected transactions hash correctly
-			if (CheckTransactionsHash<crypto::MerkleHashBuilder>(notification, HashEmbeddedTransaction))
-				return ValidationResult::Success;
+	DECLARE_STATELESS_VALIDATOR(AggregateTransactionsHash, Notification)
+	(const std::unordered_map<Hash256, Hash256, utils::ArrayHasher<Hash256>>& knownCorruptedHashes) {
+		return MAKE_STATELESS_VALIDATOR(
+				AggregateTransactionsHash,
+				([knownCorruptedHashes](const Notification& notification) {
+					// calculate the expected transactions hash correctly
+					if (CheckTransactionsHash<crypto::MerkleHashBuilder>(notification, HashEmbeddedTransaction))
+						return ValidationResult::Success;
 
-			// if this is a newer aggregate, only the correct calculation is allowed
-			static constexpr auto Failure_Result = Failure_Aggregate_Transactions_Hash_Mismatch;
-			if (notification.AggregateVersion > 1)
-				return Failure_Result;
+					// if this is a newer aggregate, only the correct calculation is allowed
+					static constexpr auto Failure_Result = Failure_Aggregate_Transactions_Hash_Mismatch;
+					if (notification.AggregateVersion > 1)
+						return Failure_Result;
 
-			// check other combinations of known (mis) transactions hash calculations
-			auto anyTransactionHashMatches =
-					CheckTransactionsHash<crypto::MerkleHashBuilder>(notification, HashEmbeddedTransactionWithPadding)
-					|| CheckTransactionsHash<crypto::InvalidMerkleHashBuilder>(notification, HashEmbeddedTransaction)
-					|| CheckTransactionsHash<crypto::InvalidMerkleHashBuilder>(notification, HashEmbeddedTransactionWithPadding);
-			if (anyTransactionHashMatches)
-				return ValidationResult::Success;
+					// check other combinations of known (mis) transactions hash calculations
+					auto anyTransactionHashMatches =
+							CheckTransactionsHash<crypto::MerkleHashBuilder>(notification, HashEmbeddedTransactionWithPadding)
+							|| CheckTransactionsHash<crypto::InvalidMerkleHashBuilder>(notification, HashEmbeddedTransaction)
+							|| CheckTransactionsHash<crypto::InvalidMerkleHashBuilder>(notification, HashEmbeddedTransactionWithPadding);
+					if (anyTransactionHashMatches)
+						return ValidationResult::Success;
 
-			// finally, check if any known corrupted hash matches
-			auto knownCorruptedHashesIter = knownCorruptedHashes.find(notification.AggregateTransactionHash);
-			if (knownCorruptedHashes.cend() != knownCorruptedHashesIter) {
-				if (notification.TransactionsHash == knownCorruptedHashesIter->second) {
-					CATAPULT_LOG(debug)
-							<< "detected aggregate " << knownCorruptedHashesIter->first
-							<< " with corrupted hash " << knownCorruptedHashesIter->second;
-					return ValidationResult::Success;
-				}
-			}
+					// finally, check if any known corrupted hash matches
+					auto knownCorruptedHashesIter = knownCorruptedHashes.find(notification.AggregateTransactionHash);
+					if (knownCorruptedHashes.cend() != knownCorruptedHashesIter) {
+						if (notification.TransactionsHash == knownCorruptedHashesIter->second) {
+							CATAPULT_LOG(debug) << "detected aggregate " << knownCorruptedHashesIter->first << " with corrupted hash "
+												<< knownCorruptedHashesIter->second;
+							return ValidationResult::Success;
+						}
+					}
 
-			// nothing matched, even reject for V1!
-			return Failure_Result;
-		}));
+					// nothing matched, even reject for V1!
+					return Failure_Result;
+				}));
 	}
 }}

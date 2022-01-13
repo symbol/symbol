@@ -40,8 +40,8 @@ namespace catapult { namespace test {
 					: pIo(std::make_shared<mocks::MockPacketIo>())
 					, RequestRangeSupplierCalls(0)
 					, RequestRange(RequestRangeType::CopyRange(localRequestRange))
-					, ResponseContainerConsumerCalls(0)
-			{}
+					, ResponseContainerConsumerCalls(0) {
+			}
 
 			std::shared_ptr<mocks::MockPacketIo> pIo;
 
@@ -55,7 +55,7 @@ namespace catapult { namespace test {
 		};
 
 	private:
-		template<typename ...TArgs>
+		template<typename... TArgs>
 		static auto CreateSynchronizer(TestContext& context, TArgs... args) {
 			auto& requestRangeSupplierCalls = context.RequestRangeSupplierCalls;
 			const auto& requestRange = context.RequestRange;
@@ -206,10 +206,8 @@ namespace catapult { namespace test {
 			EXPECT_EQ(2u, context.RequestRangeSupplierCalls);
 			EXPECT_EQ(1u, context.ResponseContainerConsumerCalls);
 
-			std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
-				ionet::NodeInteractionResultCode::Failure,
-				ionet::NodeInteractionResultCode::Success
-			};
+			std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{ ionet::NodeInteractionResultCode::Failure,
+																						  ionet::NodeInteractionResultCode::Success };
 			EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
 		}
 
@@ -239,7 +237,9 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_ENTITIES_SYNCHRONIZER_TEST(TEST_CLASS, TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::EntitiesSynchronizerTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::EntitiesSynchronizerTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_ENTITIES_SYNCHRONIZER_TESTS(SYNCHRONIZER_NAME) \
 	MAKE_ENTITIES_SYNCHRONIZER_TEST(SYNCHRONIZER_NAME##Tests, SYNCHRONIZER_NAME##Traits, SuccessInteractionWhenNewDataIsPulled) \

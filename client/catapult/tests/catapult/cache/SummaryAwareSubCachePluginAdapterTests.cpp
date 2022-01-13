@@ -49,9 +49,9 @@ namespace catapult { namespace cache {
 		void AssertCanCreateStorageViaPlugin(test::SimpleCacheViewMode mode, const std::string& expectedStorageName) {
 			// Arrange:
 			using PluginType = SummaryAwareSubCachePluginAdapter<
-				test::SimpleCacheT<3>,
-				test::SimpleCacheStorageTraits,
-				SimpleCacheSummaryCacheStorage>;
+					test::SimpleCacheT<3>,
+					test::SimpleCacheStorageTraits,
+					SimpleCacheSummaryCacheStorage>;
 			PluginType plugin(std::make_unique<test::SimpleCacheT<3>>(mode));
 
 			// Act:

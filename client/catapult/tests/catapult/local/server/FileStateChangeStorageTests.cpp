@@ -37,8 +37,9 @@ namespace catapult { namespace local {
 		// simulate CacheChangesStorage by writing uint32_t value and CacheChanges pointer in saveAll
 		class MockCacheChangesStorageWriter : public cache::CacheChangesStorage {
 		public:
-			explicit MockCacheChangesStorageWriter(uint32_t value) : m_value(value)
-			{}
+			explicit MockCacheChangesStorageWriter(uint32_t value)
+					: m_value(value) {
+			}
 
 		public:
 			size_t id() const override {

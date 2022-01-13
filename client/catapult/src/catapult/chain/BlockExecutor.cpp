@@ -31,10 +31,7 @@ namespace catapult { namespace chain {
 				const BlockExecutionContext& executionContext,
 				Height height,
 				observers::NotifyMode mode) {
-			return observers::ObserverContext(
-					model::NotificationContext(height, executionContext.Resolvers),
-					executionContext.State,
-					mode);
+			return observers::ObserverContext(model::NotificationContext(height, executionContext.Resolvers), executionContext.State, mode);
 		}
 
 		void ObserveAll(

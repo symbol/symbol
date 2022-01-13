@@ -25,12 +25,16 @@
 #include "catapult/validators/ValidationResult.h"
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace model {
-		struct Transaction;
-		class WeakCosignedTransactionInfo;
-	}
-	namespace plugins { class PluginManager; }
+namespace cache {
+	class CatapultCache;
+}
+namespace model {
+	struct Transaction;
+	class WeakCosignedTransactionInfo;
+}
+namespace plugins {
+	class PluginManager;
+}
 }
 
 namespace catapult { namespace chain {

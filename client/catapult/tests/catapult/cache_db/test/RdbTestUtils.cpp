@@ -36,14 +36,15 @@ namespace catapult { namespace test {
 	}
 
 	DbSeeder CreateEvenDbSeeder(size_t numKeys) {
-		return [numKeys] (auto& db, const auto& columns) {
+		return [numKeys](auto& db, const auto& columns) {
 			for (auto i = 0u; i < numKeys; ++i)
 				PutValue(db, columns[0], i * 2);
 		};
 	}
 
-	DbInitializer::DbInitializer(const ColumnNames& columns, const DbSeeder& seeder) : DbInitializer(columns, seeder, nullptr)
-	{}
+	DbInitializer::DbInitializer(const ColumnNames& columns, const DbSeeder& seeder)
+			: DbInitializer(columns, seeder, nullptr) {
+	}
 
 	DbInitializer::DbInitializer(const ColumnNames& columns, const DbSeeder& seeder, const rocksdb::CompactionFilter* compactionFilter) {
 		seedDb(m_dbDirGuard.name(), columns, seeder, compactionFilter);
@@ -74,9 +75,7 @@ namespace catapult { namespace test {
 		std::unique_ptr<rocksdb::DB> pDbGuard(pDb);
 		std::vector<std::shared_ptr<rocksdb::ColumnFamilyHandle>> handleGuards;
 		for (auto* pHandle : handles) {
-			handleGuards.emplace_back(pHandle, [&db = *pDb](auto* pColumnHandle) {
-				db.DestroyColumnFamilyHandle(pColumnHandle);
-			});
+			handleGuards.emplace_back(pHandle, [&db = *pDb](auto* pColumnHandle) { db.DestroyColumnFamilyHandle(pColumnHandle); });
 		}
 
 		seeder(*pDbGuard, handles);
@@ -85,8 +84,8 @@ namespace catapult { namespace test {
 
 	RdbTestContext::RdbTestContext(const cache::RocksDatabaseSettings& settings, const DbSeeder& seeder)
 			: DbInitializer(settings.ColumnFamilyNames, seeder)
-			, m_database(settings)
-	{}
+			, m_database(settings) {
+	}
 
 	cache::RocksDatabase& RdbTestContext::database() {
 		return m_database;

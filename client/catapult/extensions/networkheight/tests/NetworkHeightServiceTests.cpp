@@ -45,10 +45,12 @@ namespace catapult { namespace networkheight {
 
 		class TestContext : public test::ServiceLocatorTestContext<NetworkHeightServiceTraits> {
 		public:
-			TestContext() : TestContext(std::vector<Height>{})
-			{}
+			TestContext()
+					: TestContext(std::vector<Height>{}) {
+			}
 
-			explicit TestContext(std::vector<Height>&& heights) : NumPeers(0) {
+			explicit TestContext(std::vector<Height>&& heights)
+					: NumPeers(0) {
 				// set up hooks
 				testState().state().hooks().setRemoteChainHeightsRetriever([this, heights = std::move(heights)](auto numPeers) mutable {
 					NumPeers = numPeers;
@@ -183,8 +185,22 @@ namespace catapult { namespace networkheight {
 		// Assert: odd number of elements
 		AssertMedian(std::vector<Height>{ Height(1) }, 1);
 		AssertMedian(std::vector<Height>{ Height(4) }, 4);
-		AssertMedian(std::vector<Height>{ Height(9), Height(4), Height(16), }, 9);
-		AssertMedian(std::vector<Height>{ Height(17), Height(9), Height(18), Height(4), Height(16), }, 16);
+		AssertMedian(
+				std::vector<Height>{
+						Height(9),
+						Height(4),
+						Height(16),
+				},
+				9);
+		AssertMedian(
+				std::vector<Height>{
+						Height(17),
+						Height(9),
+						Height(18),
+						Height(4),
+						Height(16),
+				},
+				16);
 
 		// - even number of elements
 		AssertMedian(std::vector<Height>{ Height(2), Height(2) }, 2);

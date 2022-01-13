@@ -133,9 +133,7 @@ namespace catapult { namespace test {
 	// need custom PruneBaseSet for unordered_set, which does not support lower_bound
 	void PruneBaseSet(MemorySetType& elements, const deltaset::PruningBoundary<MemorySetType::value_type>& pruningBoundary);
 	void PruneBaseSet(MemorySetType& elements, const deltaset::PruningBoundary<MemorySetType::value_type>& pruningBoundary) {
-		utils::map_erase_if(elements, [pruningBoundary](const auto& element) {
-			return element < pruningBoundary.value();
-		});
+		utils::map_erase_if(elements, [pruningBoundary](const auto& element) { return element < pruningBoundary.value(); });
 	}
 }}
 
@@ -144,15 +142,29 @@ namespace catapult { namespace deltaset {
 	// region traits based tests
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<ConditionalContainerMode Mode, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_StorageMap) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StorageMode, MapTraits::SameUnderlying>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MemoryMap) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MemoryMode, MapTraits::SameUnderlying>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_StorageMapDiff) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StorageMode, MapTraits::DiffUnderlying>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MemoryMapDiff) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MemoryMode, MapTraits::DiffUnderlying>(); } \
-	\
-	TEST(TEST_CLASS, TEST_NAME##_StorageSet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StorageMode, SetTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MemorySet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MemoryMode, SetTraits>(); } \
-	template<ConditionalContainerMode Mode, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<ConditionalContainerMode Mode, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_StorageMap) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StorageMode, MapTraits::SameUnderlying>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MemoryMap) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MemoryMode, MapTraits::SameUnderlying>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_StorageMapDiff) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StorageMode, MapTraits::DiffUnderlying>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MemoryMapDiff) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MemoryMode, MapTraits::DiffUnderlying>(); \
+	} \
+\
+	TEST(TEST_CLASS, TEST_NAME##_StorageSet) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StorageMode, SetTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MemorySet) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MemoryMode, SetTraits>(); \
+	} \
+	template<ConditionalContainerMode Mode, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(CanCreateContainer) {
 		// Act:
@@ -274,10 +286,16 @@ namespace catapult { namespace deltaset {
 	// region set traits based pruning test
 
 #define TRAITS_BASED_SET_TEST(TEST_NAME) \
-	template<ConditionalContainerMode Mode, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_StorageSet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StorageMode, SetTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MemorySet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MemoryMode, SetTraits>(); } \
-	template<ConditionalContainerMode Mode, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<ConditionalContainerMode Mode, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_StorageSet) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StorageMode, SetTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MemorySet) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MemoryMode, SetTraits>(); \
+	} \
+	template<ConditionalContainerMode Mode, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		template<ConditionalContainerMode Mode, typename TTraits>

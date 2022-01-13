@@ -55,8 +55,8 @@ namespace catapult { namespace cache {
 			, MosaicCacheDeltaMixins::Touch(*mosaicSets.pPrimary, *mosaicSets.pHeightGrouping)
 			, MosaicCacheDeltaMixins::DeltaElements(*mosaicSets.pPrimary)
 			, m_pEntryById(mosaicSets.pPrimary)
-			, m_pMosaicIdsByExpiryHeight(mosaicSets.pHeightGrouping)
-	{}
+			, m_pMosaicIdsByExpiryHeight(mosaicSets.pHeightGrouping) {
+	}
 
 	void BasicMosaicCacheDelta::insert(const state::MosaicEntry& entry) {
 		MosaicCacheDeltaMixins::BasicInsertRemove::insert(entry);

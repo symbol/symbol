@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/model/AccountOperationRestrictionTransaction.h"
+#include "src/validators/Validators.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AccountOperationRestrictionNoSelfBlockingTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionNoSelfBlocking,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionNoSelfBlocking, )
 
 	namespace {
 		using Notification = model::ModifyAccountOperationRestrictionValueNotification;
@@ -72,7 +72,7 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(expectedResult, result);
 		}
 
-		enum class CacheSeed { No, Empty_Restrictions, Random_Value, Relevant_Value};
+		enum class CacheSeed { No, Empty_Restrictions, Random_Value, Relevant_Value };
 
 		template<typename TOperationTraits>
 		void AssertValidationResult(

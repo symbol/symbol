@@ -34,9 +34,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			if (restriction.values().empty())
 				return;
 
-			auto keyContext = context
-					<< bson_stream::open_document
-					<< "restrictionFlags" << static_cast<int32_t>(restriction.descriptor().raw());
+			auto keyContext = context << bson_stream::open_document << "restrictionFlags"
+									  << static_cast<int32_t>(restriction.descriptor().raw());
 
 			auto valueArray = keyContext << "values" << bson_stream::open_array;
 			for (const auto& value : restriction.values())
@@ -49,10 +48,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	bsoncxx::document::value ToDbModel(const state::AccountRestrictions& restrictions) {
 		bson_stream::document builder;
-		auto doc = builder
-				<< "accountRestrictions" << bson_stream::open_document
-					<< "version" << 1
-					<< "address" << ToBinary(restrictions.address());
+		auto doc = builder << "accountRestrictions" << bson_stream::open_document << "version" << 1 << "address"
+						   << ToBinary(restrictions.address());
 
 		auto restrictionArray = builder << "restrictions" << bson_stream::open_array;
 		for (const auto& pair : restrictions)
@@ -60,9 +57,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		restrictionArray << bson_stream::close_array;
 
-		return doc
-				<< bson_stream::close_document
-				<< bson_stream::finalize;
+		return doc << bson_stream::close_document << bson_stream::finalize;
 	}
 
 	// endregion

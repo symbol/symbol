@@ -42,8 +42,8 @@ namespace catapult { namespace validators {
 	/// Validator that applies to namespace name notifications and validates that:
 	/// - for root namespaces, name is not in \a reservedRootNamespaceNames
 	/// - for child namespaces, the parent id is not an id that can be generated from \a reservedRootNamespaceNames
-	DECLARE_STATEFUL_VALIDATOR(NamespaceReservedName, model::NamespaceNameNotification)(
-			const std::unordered_set<std::string>& reservedRootNamespaceNames);
+	DECLARE_STATEFUL_VALIDATOR(NamespaceReservedName, model::NamespaceNameNotification)
+	(const std::unordered_set<std::string>& reservedRootNamespaceNames);
 
 	/// Validator that applies to root namespace notifications and validates that:
 	/// - namespace duration is between \a minDuration and \a maxDuration, inclusive, for root namespace

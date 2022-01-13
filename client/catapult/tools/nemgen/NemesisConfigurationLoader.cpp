@@ -44,7 +44,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				CATAPULT_LOG(debug) << " - End Height: " << root.lifetime().End;
 				if (!root.empty()) {
 					CATAPULT_LOG(debug) << " - Children:";
-					for (const auto & childPair : root.children()) {
+					for (const auto& childPair : root.children()) {
 						const auto& childName = config.NamespaceNames.at(childPair.first);
 						CATAPULT_LOG(debug) << " - - " << childName << " (" << utils::HexFormat(childPair.first) << ")";
 					}
@@ -64,15 +64,14 @@ namespace catapult { namespace tools { namespace nemgen {
 				const auto& definition = mosaicEntry.definition();
 				const auto& properties = definition.properties();
 				OutputName(name, id);
-				CATAPULT_LOG(debug)
-						<< " - Owner: " << definition.ownerAddress() << std::endl
-						<< " - Supply: " << mosaicEntry.supply() << std::endl
-						<< " - Divisibility: " << static_cast<uint32_t>(properties.divisibility()) << std::endl
-						<< " - Duration: " << properties.duration() << " blocks (0 = eternal)" << std::endl
-						<< " - IsTransferable: " << properties.is(model::MosaicFlags::Transferable) << std::endl
-						<< " - IsSupplyMutable: " << properties.is(model::MosaicFlags::Supply_Mutable) << std::endl
-						<< " - IsRestrictable: " << properties.is(model::MosaicFlags::Restrictable) << std::endl
-						<< std::endl;
+				CATAPULT_LOG(debug) << " - Owner: " << definition.ownerAddress() << std::endl
+									<< " - Supply: " << mosaicEntry.supply() << std::endl
+									<< " - Divisibility: " << static_cast<uint32_t>(properties.divisibility()) << std::endl
+									<< " - Duration: " << properties.duration() << " blocks (0 = eternal)" << std::endl
+									<< " - IsTransferable: " << properties.is(model::MosaicFlags::Transferable) << std::endl
+									<< " - IsSupplyMutable: " << properties.is(model::MosaicFlags::Supply_Mutable) << std::endl
+									<< " - IsRestrictable: " << properties.is(model::MosaicFlags::Restrictable) << std::endl
+									<< std::endl;
 
 				if (!mosaicIds.insert(id).second) {
 					CATAPULT_LOG(warning) << "mosaic " << name << " does not have a unique id";

@@ -35,8 +35,9 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a cache around \a args.
 		template<typename... TArgs>
-		explicit MockTransactionsCache(TArgs&&... args) : m_pModifier(std::make_unique<TCacheModifier>(std::forward<TArgs>(args)...))
-		{}
+		explicit MockTransactionsCache(TArgs&&... args)
+				: m_pModifier(std::make_unique<TCacheModifier>(std::forward<TArgs>(args)...)) {
+		}
 
 	public:
 		TCacheModifierProxy modifier() override {
@@ -111,8 +112,8 @@ namespace catapult { namespace test {
 				: m_cache(std::forward<TArgs>(args)...)
 				, m_pSubscriber(std::make_unique<ChangeSubscriberType>())
 				, m_pSubscriberRaw(m_pSubscriber.get())
-				, m_pAggregate(TCacheTraits::CreateAggregateCache(m_cache, std::move(m_pSubscriber)))
-		{}
+				, m_pAggregate(TCacheTraits::CreateAggregateCache(m_cache, std::move(m_pSubscriber))) {
+		}
 
 	public:
 		/// Gets the subscriber.
@@ -149,8 +150,9 @@ namespace catapult { namespace test {
 
 		class MockSizeCacheModifier : public UnsupportedCacheModifierType {
 		public:
-			explicit MockSizeCacheModifier(size_t size) : m_size(size)
-			{}
+			explicit MockSizeCacheModifier(size_t size)
+					: m_size(size) {
+			}
 
 		public:
 			size_t size() const override {
@@ -163,8 +165,9 @@ namespace catapult { namespace test {
 
 		class MockMemorySizeCacheModifier : public UnsupportedCacheModifierType {
 		public:
-			explicit MockMemorySizeCacheModifier(size_t size) : m_size(size)
-			{}
+			explicit MockMemorySizeCacheModifier(size_t size)
+					: m_size(size) {
+			}
 
 		public:
 			utils::FileSize memorySize() const override {
@@ -178,8 +181,9 @@ namespace catapult { namespace test {
 		template<bool AddResult>
 		class MockAddCacheModifier : public UnsupportedCacheModifierType {
 		public:
-			explicit MockAddCacheModifier(std::vector<TransactionInfoType>& transactionInfos) : m_transactionInfos(transactionInfos)
-			{}
+			explicit MockAddCacheModifier(std::vector<TransactionInfoType>& transactionInfos)
+					: m_transactionInfos(transactionInfos) {
+			}
 
 		public:
 			bool add(const TransactionInfoType& info) override {
@@ -195,8 +199,8 @@ namespace catapult { namespace test {
 		public:
 			MockRemoveCacheModifier(std::vector<Hash256>& hashes, const TransactionInfoType& info)
 					: m_hashes(hashes)
-					, m_info(TTraits::Copy(info))
-			{}
+					, m_info(TTraits::Copy(info)) {
+			}
 
 		public:
 			TransactionInfoType remove(const Hash256& hash) override {
@@ -215,8 +219,8 @@ namespace catapult { namespace test {
 
 		public:
 			explicit MockAddRemoveCacheModifier(const HashTransactionInfoMap& hashTransactionInfoMap)
-					: m_hashTransactionInfoMap(hashTransactionInfoMap)
-			{}
+					: m_hashTransactionInfoMap(hashTransactionInfoMap) {
+			}
 
 		public:
 			bool add(const TransactionInfoType&) override {
@@ -583,10 +587,12 @@ namespace catapult { namespace test {
 			auto pAggregate = CacheTraits::CreateAggregateCache(cache, std::make_unique<TSubscriber>());
 
 			// Act:
-			ASSERT_DEATH({
-				auto modifier = pAggregate->modifier();
-				action(modifier, addRemoveInfos);
-			}, "");
+			ASSERT_DEATH(
+					{
+						auto modifier = pAggregate->modifier();
+						action(modifier, addRemoveInfos);
+					},
+					"");
 		}
 
 #ifdef __clang__
@@ -597,17 +603,15 @@ namespace catapult { namespace test {
 		/// Asserts that an add exception crashes the process.
 		static void AssertAddExceptionTerminatesProcess() {
 			// Assert:
-			RunExceptionTest<FlushOnlyChangeSubscriberType>([](auto& modifier, const auto&) {
-				modifier.add(test::CreateRandomTransactionInfo());
-			});
+			RunExceptionTest<FlushOnlyChangeSubscriberType>(
+					[](auto& modifier, const auto&) { modifier.add(test::CreateRandomTransactionInfo()); });
 		}
 
 		/// Asserts that a remove exception crashes the process.
 		static void AssertRemoveExceptionTerminatesProcess() {
 			// Assert:
-			RunExceptionTest<FlushOnlyChangeSubscriberType>([](auto& modifier, const auto& addRemoveInfos) {
-				modifier.remove(addRemoveInfos.RemovedInfosMap.cbegin()->first);
-			});
+			RunExceptionTest<FlushOnlyChangeSubscriberType>(
+					[](auto& modifier, const auto& addRemoveInfos) { modifier.remove(addRemoveInfos.RemovedInfosMap.cbegin()->first); });
 		}
 
 		/// Asserts that a flush exception crashes the process.
@@ -622,26 +626,28 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BasicAggregateTransactionsCacheTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BasicAggregateTransactionsCacheTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_AGGREGATE_TRANSACTIONS_CACHE_TESTS(TEST_CLASS, TRAITS_NAME) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, SizeDelegatesToCache) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, MemorySizeDelegatesToCache) \
-	\
+\
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, AddDelegatesToCacheAndSubscriberAfterSuccessfulCacheAdd) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, SingleNotifificationForRedundantAdds) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, AddDelegatesToOnlyCacheAfterFailedCacheAdd) \
-	\
+\
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, RemoveDelegatesToCacheAndSubscriberAfterSuccessfulCacheRemove) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, SingleNotifificationForRedundantRemoves) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, RemoveDelegatesToOnlyCacheAfterFailedCacheRemove) \
-	\
+\
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, ModifierDestructorDelegatesToFlush) \
-	\
+\
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, CanAddAndRemoveMultipleTransactions) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, CanAddRemovedTransaction) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, CanRemoveAddedTransaction) \
-	\
+\
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, AddExceptionTerminatesProcess) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, RemoveExceptionTerminatesProcess) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, FlushExceptionTerminatesProcess)

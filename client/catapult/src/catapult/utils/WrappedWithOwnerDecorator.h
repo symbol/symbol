@@ -33,13 +33,13 @@ namespace catapult { namespace utils {
 		template<typename TOwner>
 		WrappedWithOwnerDecorator(const std::shared_ptr<TOwner>& pOwner, THandler handler)
 				: m_pOwner(pOwner)
-				, m_handler(std::move(handler))
-		{}
+				, m_handler(std::move(handler)) {
+		}
 
 	public:
 		/// Forwards \a args to the wrapped handler.
 		template<typename... TArgs>
-		auto operator()(TArgs&& ...args) const {
+		auto operator()(TArgs&&... args) const {
 			return m_handler(std::forward<TArgs>(args)...);
 		}
 
@@ -61,8 +61,8 @@ namespace catapult { namespace utils {
 		/// Wraps \a handler and keeps \a pOwner alive.
 		template<typename TOwner>
 		ResettableWrappedWithOwnerDecorator(const std::shared_ptr<TOwner>& pOwner, THandler handler)
-				: WrappedWithOwnerDecorator<THandler>(pOwner, std::move(handler))
-		{}
+				: WrappedWithOwnerDecorator<THandler>(pOwner, std::move(handler)) {
+		}
 
 	public:
 		/// Releases all resources associated with this object.

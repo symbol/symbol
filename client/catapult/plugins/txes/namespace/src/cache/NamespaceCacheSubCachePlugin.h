@@ -40,7 +40,7 @@ namespace catapult { namespace cache {
 	};
 
 	using BaseNamespaceCacheSubCachePlugin =
-		SummaryAwareSubCachePluginAdapter<NamespaceCache, NamespaceCacheStorage, NamespaceCacheSummaryCacheStorage>;
+			SummaryAwareSubCachePluginAdapter<NamespaceCache, NamespaceCacheStorage, NamespaceCacheSummaryCacheStorage>;
 
 	/// Specialized namespace cache sub cache plugin.
 	class NamespaceCacheSubCachePlugin : public BaseNamespaceCacheSubCachePlugin {

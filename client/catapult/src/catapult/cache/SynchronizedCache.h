@@ -37,8 +37,8 @@ namespace catapult { namespace cache {
 			/// Creates a pair around \a cacheView and \a readLock.
 			CacheViewReadLockPair(TCacheView&& cacheView, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 					: CacheView(std::move(cacheView))
-					, ReadLock(std::move(readLock))
-			{}
+					, ReadLock(std::move(readLock)) {
+			}
 
 		public:
 			/// Cache view.
@@ -57,8 +57,9 @@ namespace catapult { namespace cache {
 		class CacheViewAccessor {
 		public:
 			/// Creates an accessor around \a pCacheView;
-			explicit CacheViewAccessor(TCacheView* pCacheView) : m_pCacheView(pCacheView)
-			{}
+			explicit CacheViewAccessor(TCacheView* pCacheView)
+					: m_pCacheView(pCacheView) {
+			}
 
 		public:
 			/// Returns \c true if the underlying cache view is valid.
@@ -105,16 +106,16 @@ namespace catapult { namespace cache {
 		LockedCacheView(TCacheView&& cacheView, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 				: detail::CacheViewAccessor<TCacheView>(&m_cacheView)
 				, m_cacheView(std::move(cacheView))
-				, m_readLock(std::move(readLock))
-		{}
+				, m_readLock(std::move(readLock)) {
+		}
 
 		/// Move constructs a view from \a rhs.
 		/// \note Default move constructor will not work because pointer in CacheViewAccessor needs to be updated.
 		LockedCacheView(LockedCacheView&& rhs)
 				: detail::CacheViewAccessor<TCacheView>(&m_cacheView)
 				, m_cacheView(std::move(rhs.m_cacheView))
-				, m_readLock(std::move(rhs.m_readLock))
-		{}
+				, m_readLock(std::move(rhs.m_readLock)) {
+		}
 
 	private:
 		TCacheView m_cacheView;
@@ -132,8 +133,8 @@ namespace catapult { namespace cache {
 		/// Creates a view around \a pPair.
 		explicit LockedCacheDelta(const std::shared_ptr<detail::CacheViewReadLockPair<TCacheView>>& pPair)
 				: detail::CacheViewAccessor<TCacheView>(&pPair->CacheView)
-				, m_pPair(pPair)
-		{}
+				, m_pPair(pPair) {
+		}
 
 	private:
 		std::shared_ptr<detail::CacheViewReadLockPair<TCacheView>> m_pPair;
@@ -148,14 +149,15 @@ namespace catapult { namespace cache {
 	class OptionalLockedCacheDelta : public detail::CacheViewAccessor<TCacheView> {
 	public:
 		/// Creates a empty view.
-		OptionalLockedCacheDelta() : detail::CacheViewAccessor<TCacheView>(nullptr)
-		{}
+		OptionalLockedCacheDelta()
+				: detail::CacheViewAccessor<TCacheView>(nullptr) {
+		}
 
 		/// Creates a view around \a cacheView and \a pReadLock.
 		OptionalLockedCacheDelta(TCacheView& cacheView, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 				: detail::CacheViewAccessor<TCacheView>(&cacheView)
-				, m_readLock(std::move(readLock))
-		{}
+				, m_readLock(std::move(readLock)) {
+		}
 
 	private:
 		boost::optional<utils::SpinReaderWriterLock::ReaderLockGuard> m_readLock;
@@ -174,17 +176,16 @@ namespace catapult { namespace cache {
 				: m_cacheDelta(std::move(cacheDelta))
 				, m_initialCommitCount(commitCounter)
 				, m_commitCounter(commitCounter)
-				, m_lock(lock)
-		{}
+				, m_lock(lock) {
+		}
 
 	public:
 		/// Locks the cache delta.
 		/// \note Returns a falsy structure if the lockable delta is no longer valid.
 		OptionalLockedCacheDelta<TCacheDelta> tryLock() {
 			auto readLock = m_lock.acquireReader();
-			return m_initialCommitCount != m_commitCounter
-					? OptionalLockedCacheDelta<TCacheDelta>()
-					: OptionalLockedCacheDelta<TCacheDelta>(m_cacheDelta, std::move(readLock));
+			return m_initialCommitCount != m_commitCounter ? OptionalLockedCacheDelta<TCacheDelta>()
+														   : OptionalLockedCacheDelta<TCacheDelta>(m_cacheDelta, std::move(readLock));
 		}
 
 	private:
@@ -211,8 +212,8 @@ namespace catapult { namespace cache {
 		/// Creates a synchronized decorator around \a cache.
 		explicit SynchronizedCache(TCache&& cache)
 				: m_cache(std::move(cache))
-				, m_commitCounter(0)
-		{}
+				, m_commitCounter(0) {
+		}
 
 	public:
 		/// Gets a locked cache view based on this cache.
@@ -280,8 +281,8 @@ namespace catapult { namespace cache {
 		/// Creates a synchronized decorator around \a cache.
 		explicit SynchronizedCacheWithInit(TCache&& cache)
 				: SynchronizedCache<TCache>(std::move(cache))
-				, m_isInitCalled(false)
-		{}
+				, m_isInitCalled(false) {
+		}
 
 	public:
 		/// Initializes the underlying cache with \a args.

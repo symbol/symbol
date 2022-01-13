@@ -67,15 +67,16 @@ namespace catapult { namespace disruptor {
 	struct ConsumerResult {
 	public:
 		/// Creates a default result.
-		constexpr ConsumerResult() : ConsumerResult(disruptor::CompletionStatus::Normal, 0, ConsumerResultSeverity::Success)
-		{}
+		constexpr ConsumerResult()
+				: ConsumerResult(disruptor::CompletionStatus::Normal, 0, ConsumerResultSeverity::Success) {
+		}
 
 	private:
 		constexpr ConsumerResult(disruptor::CompletionStatus status, disruptor::CompletionCode code, ConsumerResultSeverity severity)
 				: CompletionStatus(status)
 				, CompletionCode(code)
-				, ResultSeverity(severity)
-		{}
+				, ResultSeverity(severity) {
+		}
 
 	public:
 		/// Completion status.
@@ -113,8 +114,9 @@ namespace catapult { namespace disruptor {
 	struct ConsumerCompletionResult : public ConsumerResult {
 	public:
 		/// Creates a default result.
-		constexpr ConsumerCompletionResult() : FinalConsumerPosition(std::numeric_limits<PositionType>::max())
-		{}
+		constexpr ConsumerCompletionResult()
+				: FinalConsumerPosition(std::numeric_limits<PositionType>::max()) {
+		}
 
 	public:
 		/// Position of the final consumer processing the entity.
@@ -129,8 +131,8 @@ namespace catapult { namespace disruptor {
 		/// Creates a transaction element around \a transaction.
 		explicit FreeTransactionElement(const model::Transaction& transaction)
 				: model::TransactionElement(transaction)
-				, ResultSeverity(ConsumerResultSeverity::Success)
-		{}
+				, ResultSeverity(ConsumerResultSeverity::Success) {
+		}
 
 		/// Consumer result severity.
 		ConsumerResultSeverity ResultSeverity;

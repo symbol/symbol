@@ -51,10 +51,16 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 #define RESOLUTION_STATEMENT_MAPPER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::AddressResolutionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicResolutionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::AddressResolutionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicResolutionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_NoResolutions) {
 		AssertCanMapResolutionStatement<TTraits>(0);

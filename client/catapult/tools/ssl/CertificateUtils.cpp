@@ -61,7 +61,8 @@ namespace catapult { namespace tools { namespace ssl {
 
 		struct BioWrapper {
 		public:
-			BioWrapper() : m_pBio(std::shared_ptr<BIO>(BIO_new(BIO_s_mem()), BIO_free)) {
+			BioWrapper()
+					: m_pBio(std::shared_ptr<BIO>(BIO_new(BIO_s_mem()), BIO_free)) {
 				if (!m_pBio)
 					throw std::bad_alloc();
 			}
@@ -131,14 +132,16 @@ namespace catapult { namespace tools { namespace ssl {
 		}
 
 		void SetTextEntries(X509_NAME& name, const std::string& country, const std::string& organization, const std::string& commonName) {
-			while (DeleteEntry(name)) {}
+			while (DeleteEntry(name)) {
+			}
 			AddTextEntry(name, "C", country);
 			AddTextEntry(name, "O", organization);
 			AddTextEntry(name, "CN", commonName);
 		}
 	}
 
-	CertificateBuilder::CertificateBuilder() : m_pCertificate(std::shared_ptr<X509>(X509_new(), X509_free)) {
+	CertificateBuilder::CertificateBuilder()
+			: m_pCertificate(std::shared_ptr<X509>(X509_new(), X509_free)) {
 		if (!m_pCertificate)
 			throw std::bad_alloc();
 

@@ -35,8 +35,8 @@ namespace catapult { namespace nodediscovery {
 
 		public:
 			explicit RequestorTestContext(const utils::TimeSpan& timeout = utils::TimeSpan::FromMinutes(1))
-					: BaseType(timeout, NodePingResponseCompatibilityChecker(test::CreateNodeDiscoveryNetworkFingerprint()))
-			{}
+					: BaseType(timeout, NodePingResponseCompatibilityChecker(test::CreateNodeDiscoveryNetworkFingerprint())) {
+			}
 
 		public:
 			std::shared_ptr<ionet::Packet> createNodePingResponsePacket(ionet::NodeVersion version, const std::string& name) const {

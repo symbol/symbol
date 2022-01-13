@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace cache { class ReadOnlyAccountStateCache; } }
+namespace catapult { namespace cache {
+	class ReadOnlyAccountStateCache;
+}}
 
 namespace catapult { namespace cache {
 

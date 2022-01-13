@@ -85,10 +85,9 @@ namespace catapult { namespace observers {
 		// Act:
 		auto pContext = std::make_unique<TestContext>();
 		AggregateObserverBuilder<test::TaggedNotification> builder;
-		builder
-			.add(mocks::CreateTaggedBreadcrumbObserver(2, pContext->Breadcrumbs))
-			.add(mocks::CreateTaggedBreadcrumbObserver(3, pContext->Breadcrumbs))
-			.add(mocks::CreateTaggedBreadcrumbObserver(4, pContext->Breadcrumbs));
+		builder.add(mocks::CreateTaggedBreadcrumbObserver(2, pContext->Breadcrumbs))
+				.add(mocks::CreateTaggedBreadcrumbObserver(3, pContext->Breadcrumbs))
+				.add(mocks::CreateTaggedBreadcrumbObserver(4, pContext->Breadcrumbs));
 		pContext->pAggregateObserver = builder.build();
 
 		// Act:
@@ -135,12 +134,8 @@ namespace catapult { namespace observers {
 		pContext->notify(1, NotifyMode::Commit);
 
 		// Assert:
-		std::vector<uint16_t> expectedBreadcrumbs{
-			0x0201, 0x0202, 0x0203,
-			0x0703, 0x0702, 0x0701,
-			0x0503, 0x0502, 0x0501,
-			0x0101, 0x0102, 0x0103
-		};
+		std::vector<uint16_t> expectedBreadcrumbs{ 0x0201, 0x0202, 0x0203, 0x0703, 0x0702, 0x0701,
+												   0x0503, 0x0502, 0x0501, 0x0101, 0x0102, 0x0103 };
 		EXPECT_EQ(12u, pContext->Breadcrumbs.size());
 		EXPECT_EQ(expectedBreadcrumbs, pContext->Breadcrumbs);
 	}
@@ -150,19 +145,15 @@ namespace catapult { namespace observers {
 	// region forwarding
 
 	TEST(TEST_CLASS, NotificationsAreForwardedToChildObservers) {
-		test::AssertNotificationsAreForwardedToChildObservers(AggregateObserverBuilder<model::Notification>(), [](
-				auto& builder,
-				auto&& pObserver) {
-			builder.add(std::move(pObserver));
-		});
+		test::AssertNotificationsAreForwardedToChildObservers(
+				AggregateObserverBuilder<model::Notification>(),
+				[](auto& builder, auto&& pObserver) { builder.add(std::move(pObserver)); });
 	}
 
 	TEST(TEST_CLASS, ContextsAreForwardedToChildObservers) {
-		test::AssertContextsAreForwardedToChildObservers(AggregateObserverBuilder<model::Notification>(), [](
-				auto& builder,
-				auto&& pObserver) {
-			builder.add(std::move(pObserver));
-		});
+		test::AssertContextsAreForwardedToChildObservers(
+				AggregateObserverBuilder<model::Notification>(),
+				[](auto& builder, auto&& pObserver) { builder.add(std::move(pObserver)); });
 	}
 
 	// endregion

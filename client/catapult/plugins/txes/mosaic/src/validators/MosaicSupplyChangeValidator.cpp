@@ -35,8 +35,6 @@ namespace catapult { namespace validators {
 		if (!IsValidAction(notification.Action))
 			return Failure_Mosaic_Invalid_Supply_Change_Action;
 
-		return Amount() == notification.Delta
-				? Failure_Mosaic_Invalid_Supply_Change_Amount
-				: ValidationResult::Success;
+		return Amount() == notification.Delta ? Failure_Mosaic_Invalid_Supply_Change_Amount : ValidationResult::Success;
 	})
 }}

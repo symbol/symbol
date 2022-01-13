@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/restriction_mosaic/src/model/MosaicRestrictionEntityType.h"
+#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {
@@ -31,10 +31,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {
-					model::Entity_Type_Mosaic_Address_Restriction,
-					model::Entity_Type_Mosaic_Global_Restriction
-				};
+				return { model::Entity_Type_Mosaic_Address_Restriction, model::Entity_Type_Mosaic_Global_Restriction };
 			}
 
 			static std::vector<model::ReceiptType> GetReceiptTypes() {

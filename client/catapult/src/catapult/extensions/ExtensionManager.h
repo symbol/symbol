@@ -27,8 +27,12 @@
 #include <vector>
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace utils { class TimeSpan; }
+namespace cache {
+	class CatapultCache;
+}
+namespace utils {
+	class TimeSpan;
+}
 }
 
 namespace catapult { namespace extensions {

@@ -23,7 +23,9 @@
 #include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Logging.h"
 
-namespace catapult { namespace thread { class IoThreadPool; } }
+namespace catapult { namespace thread {
+	class IoThreadPool;
+}}
 
 namespace catapult { namespace tools {
 

@@ -34,8 +34,8 @@ namespace catapult { namespace io {
 		public:
 			InputStreamSlice(std::unique_ptr<SeekableStream>&& pStream, size_t endPosition)
 					: m_pStream(std::move(pStream))
-					, m_endPosition(endPosition)
-			{}
+					, m_endPosition(endPosition) {
+			}
 
 		public:
 			bool eof() const override {
@@ -45,10 +45,8 @@ namespace catapult { namespace io {
 			void read(const MutableRawBuffer& buffer) override {
 				if (buffer.Size + m_pStream->position() > m_endPosition) {
 					std::ostringstream out;
-					out
-							<< "InputStreamSlice invalid read (read-size = " << buffer.Size
-							<< ", stream-position = " << m_pStream->position()
-							<< ", stream-size = " << m_endPosition << ")";
+					out << "InputStreamSlice invalid read (read-size = " << buffer.Size << ", stream-position = " << m_pStream->position()
+						<< ", stream-size = " << m_endPosition << ")";
 					CATAPULT_THROW_FILE_IO_ERROR(out.str().c_str());
 				}
 

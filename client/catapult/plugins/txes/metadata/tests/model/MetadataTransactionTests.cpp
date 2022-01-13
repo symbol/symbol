@@ -54,11 +54,19 @@ namespace catapult { namespace model {
 	}
 
 #define METADATA_TYPE_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(AccountMetadataTransactionTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountTraits>(); } \
-	TEST(MosaicMetadataTransactionTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicTraits>(); } \
-	TEST(NamespaceMetadataTransactionTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(AccountMetadataTransactionTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountTraits>(); \
+	} \
+	TEST(MosaicMetadataTransactionTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicTraits>(); \
+	} \
+	TEST(NamespaceMetadataTransactionTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -89,18 +97,12 @@ namespace catapult { namespace model {
 		struct MetadataTypeAccessor : public AccountMetadataFlag {};
 
 		template<typename T>
-		struct MetadataTypeAccessor<
-				T,
-				utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(1)->TargetMosaicId)>>
-				: public MosaicMetadataFlag
-		{};
+		struct MetadataTypeAccessor<T, utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(1)->TargetMosaicId)>>
+				: public MosaicMetadataFlag {};
 
 		template<typename T>
-		struct MetadataTypeAccessor<
-				T,
-				utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(1)->TargetNamespaceId)>>
-				: public NamespaceMetadataFlag
-		{};
+		struct MetadataTypeAccessor<T, utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(1)->TargetNamespaceId)>>
+				: public NamespaceMetadataFlag {};
 
 		template<typename T>
 		void AssertTransactionHasProperAlignment() {

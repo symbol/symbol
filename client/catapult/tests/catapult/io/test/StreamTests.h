@@ -361,25 +361,25 @@ namespace catapult { namespace test {
 	MAKE_STREAM_TEST(TRAITS_NAME, StreamWithDataIsInitiallyNotAtEof) \
 	MAKE_STREAM_TEST(TRAITS_NAME, StreamWithDataCanAdvanceToEof) \
 	MAKE_STREAM_TEST(TRAITS_NAME, ReadSmallerThanBufferSizeDoesNotMoveToEof) \
-	\
+\
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, SingleWritePolicy, SingleReadPolicy) \
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, SingleWritePolicy, ChunkedReadPolicy) \
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, ChunkedWritePolicy, SingleReadPolicy) \
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, ChunkedWritePolicy, ChunkedReadPolicy) \
-	\
+\
 	MAKE_STREAM_TEST(TRAITS_NAME, CannotReadMoreThanWritten)
 
 /// Adds all seekable stream tests for the specified stream traits (\a TRAITS_NAME).
 #define DEFINE_SEEKABLE_STREAM_TESTS(TRAITS_NAME) \
 	DEFINE_STREAM_TESTS(TRAITS_NAME) \
-	\
+\
 	MAKE_STREAM_TEST(TRAITS_NAME, PositionIsInitiallyZero) \
 	MAKE_STREAM_TEST(TRAITS_NAME, CanSeekToArbitraryLocation) \
 	MAKE_STREAM_TEST(TRAITS_NAME, CanSeekToEof) \
 	MAKE_STREAM_TEST(TRAITS_NAME, CannotSeekPastEof) \
 	MAKE_STREAM_TEST(TRAITS_NAME, WriteAdvancesPosition) \
 	MAKE_STREAM_TEST(TRAITS_NAME, ReadAdvancesPosition) \
-	\
+\
 	MAKE_STREAM_TEST(TRAITS_NAME, CanReadAfterSeek) \
 	MAKE_STREAM_TEST(TRAITS_NAME, CanWriteAfterSeek)
 }}

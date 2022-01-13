@@ -42,24 +42,15 @@ namespace catapult { namespace mongo {
 
 		auto CreateAppendDocument(const std::vector<model::Cosignature>& cosignatures) {
 			document doc{};
-			auto array = doc
-					<< "$push" << open_document
-						<< "transaction.cosignatures" << open_document
-							<< "$each" << open_array;
+			auto array = doc << "$push" << open_document << "transaction.cosignatures" << open_document << "$each" << open_array;
 
 			for (const model::Cosignature& cosignature : cosignatures) {
-				array
-						<< open_document
-							<< "version" << static_cast<int64_t>(cosignature.Version)
-							<< "signerPublicKey" << mappers::ToBinary(cosignature.SignerPublicKey)
-							<< "signature" << mappers::ToBinary(cosignature.Signature)
-						<< close_document;
+				array << open_document << "version" << static_cast<int64_t>(cosignature.Version) << "signerPublicKey"
+					  << mappers::ToBinary(cosignature.SignerPublicKey) << "signature" << mappers::ToBinary(cosignature.Signature)
+					  << close_document;
 			}
 
-			array
-					<< close_array
-					<< close_document
-					<< close_document;
+			array << close_array << close_document << close_document;
 			return doc << finalize;
 		}
 
@@ -74,17 +65,15 @@ namespace catapult { namespace mongo {
 		public:
 			DefaultMongoPtStorage(MongoStorageContext& context, const MongoTransactionRegistry& transactionRegistry)
 					: m_pTransactionStorage(CreateMongoTransactionStorage(context, transactionRegistry, Pt_Collection_Name))
-					, m_database(context.createDatabaseConnection())
-			{}
+					, m_database(context.createDatabaseConnection()) {
+			}
 
 		public:
 			void notifyAddPartials(const TransactionInfos& transactionInfos) override {
 				m_pTransactionStorage->notifyAdds(transactionInfos);
 			}
 
-			void notifyAddCosignature(
-					const model::TransactionInfo& parentTransactionInfo,
-					const model::Cosignature& cosignature) override {
+			void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override {
 				// this function is only called by the pt cache modifier if parentInfo corresponds to a known partial transaction
 				auto& cosignatures = m_cosignaturesMap[parentTransactionInfo.EntityHash];
 				cosignatures.push_back(cosignature);

@@ -24,12 +24,16 @@
 #include "catapult/types.h"
 
 namespace catapult {
-	namespace api { class RemoteProofApi; }
-	namespace io {
-		class BlockStorageCache;
-		class ProofStorageCache;
-	}
-	namespace model { struct FinalizationProof; }
+namespace api {
+	class RemoteProofApi;
+}
+namespace io {
+	class BlockStorageCache;
+	class ProofStorageCache;
+}
+namespace model {
+	struct FinalizationProof;
+}
 }
 
 namespace catapult { namespace chain {

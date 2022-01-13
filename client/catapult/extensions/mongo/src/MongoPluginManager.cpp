@@ -25,8 +25,8 @@ namespace catapult { namespace mongo {
 
 	MongoPluginManager::MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier)
 			: m_mongoContext(mongoContext)
-			, m_networkIdentifier(networkIdentifier)
-	{}
+			, m_networkIdentifier(networkIdentifier) {
+	}
 
 	MongoStorageContext& MongoPluginManager::mongoContext() const {
 		return m_mongoContext;

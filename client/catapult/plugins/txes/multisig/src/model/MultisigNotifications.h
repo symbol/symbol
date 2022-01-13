@@ -65,8 +65,8 @@ namespace catapult { namespace model {
 				, AddressAdditionsCount(addressAdditionsCount)
 				, AddressAdditionsPtr(pAddressAdditions)
 				, AddressDeletionsCount(addressDeletionsCount)
-				, AddressDeletionsPtr(pAddressDeletions)
-		{}
+				, AddressDeletionsPtr(pAddressDeletions) {
+		}
 
 	public:
 		/// Multisig account.
@@ -100,8 +100,8 @@ namespace catapult { namespace model {
 		MultisigNewCosignatoryNotification(const Address& multisig, const UnresolvedAddress& cosignatory)
 				: Notification(Notification_Type, sizeof(MultisigNewCosignatoryNotification))
 				, Multisig(multisig)
-				, Cosignatory(cosignatory)
-		{}
+				, Cosignatory(cosignatory) {
+		}
 
 	public:
 		/// Multisig account.
@@ -127,8 +127,8 @@ namespace catapult { namespace model {
 				: Notification(Notification_Type, sizeof(MultisigSettingsNotification))
 				, Multisig(multisig)
 				, MinRemovalDelta(minRemovalDelta)
-				, MinApprovalDelta(minApprovalDelta)
-		{}
+				, MinApprovalDelta(minApprovalDelta) {
+		}
 
 	public:
 		/// Multisig account.

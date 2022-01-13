@@ -27,11 +27,13 @@
 #include <vector>
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace net {
-		class ConnectionContainer;
-		class PacketWriters;
-	}
+namespace cache {
+	class CatapultCache;
+}
+namespace net {
+	class ConnectionContainer;
+	class PacketWriters;
+}
 }
 
 namespace catapult { namespace extensions {

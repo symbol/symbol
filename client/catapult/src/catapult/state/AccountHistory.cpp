@@ -37,9 +37,7 @@ namespace catapult { namespace state {
 	}
 
 	bool AccountHistory::anyAtLeast(Amount minAmount) const {
-		return m_heightBalanceMap.anyOf([minAmount](auto amount) {
-			return minAmount <= amount;
-		});
+		return m_heightBalanceMap.anyOf([minAmount](auto amount) { return minAmount <= amount; });
 	}
 
 	void AccountHistory::add(Height height, Amount balance) {

@@ -42,7 +42,8 @@ namespace catapult { namespace crypto {
 
 		class MemoryStream {
 		public:
-			MemoryStream() : m_pImpl(std::shared_ptr<BIO>(BIO_new(BIO_s_mem()), BIO_free)) {
+			MemoryStream()
+					: m_pImpl(std::shared_ptr<BIO>(BIO_new(BIO_s_mem()), BIO_free)) {
 				if (!m_pImpl)
 					throw std::bad_alloc();
 			}

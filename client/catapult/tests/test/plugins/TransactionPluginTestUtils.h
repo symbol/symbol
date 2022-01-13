@@ -37,7 +37,7 @@ namespace catapult { namespace test {
 		static void AssertNotificationTypes(
 				const TransactionType& transaction,
 				const std::vector<model::NotificationType>& expectedNotificationTypes,
-				TArgs&& ...args) {
+				TArgs&&... args) {
 			// Arrange:
 			mocks::MockNotificationSubscriber sub;
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
@@ -72,18 +72,18 @@ namespace catapult { namespace test {
 
 		public:
 			template<typename TTransactionProxy, typename... TArgs>
-			void runTest(const TTransactionProxy& transaction, TArgs&& ...args) const {
+			void runTest(const TTransactionProxy& transaction, TArgs&&... args) const {
 				runTestHelper(transaction, std::forward<TArgs>(args)...);
 			}
 
 			template<typename... TArgs>
-			void runTestWithHash(const TransactionType& transaction, const Hash256& transactionHash, TArgs&& ...args) const {
+			void runTestWithHash(const TransactionType& transaction, const Hash256& transactionHash, TArgs&&... args) const {
 				runTestHelper(model::WeakEntityInfoT<model::Transaction>(transaction, transactionHash), std::forward<TArgs>(args)...);
 			}
 
 		private:
 			template<typename TTransactionProxy, typename... TArgs>
-			void runTestHelper(const TTransactionProxy& transaction, TArgs&& ...args) const {
+			void runTestHelper(const TTransactionProxy& transaction, TArgs&&... args) const {
 				auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
 				for (const auto& pSubscriber : m_subscribers)

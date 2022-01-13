@@ -34,16 +34,16 @@ namespace catapult { namespace validators {
 	}
 
 	DECLARE_STATEFUL_VALIDATOR(AggregateTransactionVersion, Notification)(Height v2ForkHeight) {
-		return MAKE_STATEFUL_VALIDATOR(AggregateTransactionVersion, ([v2ForkHeight](
-				const Notification& notification,
-				const ValidatorContext& context) {
-			if (!IsAggregate(notification.EntityType))
-				return ValidationResult::Success;
+		return MAKE_STATEFUL_VALIDATOR(
+				AggregateTransactionVersion,
+				([v2ForkHeight](const Notification& notification, const ValidatorContext& context) {
+					if (!IsAggregate(notification.EntityType))
+						return ValidationResult::Success;
 
-			if (context.Height < v2ForkHeight)
-				return 1 == notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V2_Prohibited;
-			else
-				return 2 <= notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V1_Prohibited;
-		}));
+					if (context.Height < v2ForkHeight)
+						return 1 == notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V2_Prohibited;
+					else
+						return 2 <= notification.EntityVersion ? ValidationResult::Success : Failure_Aggregate_V1_Prohibited;
+				}));
 	}
 }}

@@ -38,8 +38,8 @@ namespace catapult { namespace chain {
 			class RemoteApiWrapper {
 			public:
 				explicit RemoteApiWrapper(const ResponseContainerType& transactionInfos)
-						: m_pTransactionApi(std::make_unique<MockRemoteApi>(transactionInfos))
-				{}
+						: m_pTransactionApi(std::make_unique<MockRemoteApi>(transactionInfos)) {
+				}
 
 			public:
 				const auto& api() const {
@@ -55,9 +55,7 @@ namespace catapult { namespace chain {
 				}
 
 				void setError(bool setError = true) {
-					auto entryPoint = setError
-							? MockRemoteApi::EntryPoint::Partial_Transaction_Infos
-							: MockRemoteApi::EntryPoint::None;
+					auto entryPoint = setError ? MockRemoteApi::EntryPoint::Partial_Transaction_Infos : MockRemoteApi::EntryPoint::None;
 					m_pTransactionApi->setError(entryPoint);
 				}
 

@@ -68,11 +68,21 @@ namespace catapult { namespace extensions {
 	}
 
 #define ADD_BASIC_TESTS(PREFIX, GENERATOR) \
-	TEST(TEST_CLASS, PREFIX##_DifferentNamesProduceDifferentResults) { AssertDifferentNamesProduceDifferentResults(GENERATOR); } \
-	TEST(TEST_CLASS, PREFIX##_RejectsNamesWithUppercaseCharacters) { AssertNamesWithUppercaseCharactersAreRejected(GENERATOR); } \
-	TEST(TEST_CLASS, PREFIX##_RejectsImproperQualifiedNames) { AssertImproperQualifiedNamesAreRejected(GENERATOR); } \
-	TEST(TEST_CLASS, PREFIX##_RejectsImproperPartNames) { AssertImproperPartNamesAreRejected(GENERATOR); } \
-	TEST(TEST_CLASS, PREFIX##_RejectsEmptyString) { AssertEmptyStringIsRejected(GENERATOR); }
+	TEST(TEST_CLASS, PREFIX##_DifferentNamesProduceDifferentResults) { \
+		AssertDifferentNamesProduceDifferentResults(GENERATOR); \
+	} \
+	TEST(TEST_CLASS, PREFIX##_RejectsNamesWithUppercaseCharacters) { \
+		AssertNamesWithUppercaseCharactersAreRejected(GENERATOR); \
+	} \
+	TEST(TEST_CLASS, PREFIX##_RejectsImproperQualifiedNames) { \
+		AssertImproperQualifiedNamesAreRejected(GENERATOR); \
+	} \
+	TEST(TEST_CLASS, PREFIX##_RejectsImproperPartNames) { \
+		AssertImproperPartNamesAreRejected(GENERATOR); \
+	} \
+	TEST(TEST_CLASS, PREFIX##_RejectsEmptyString) { \
+		AssertEmptyStringIsRejected(GENERATOR); \
+	}
 
 	// endregion
 

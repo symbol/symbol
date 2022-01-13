@@ -48,8 +48,8 @@ namespace catapult { namespace handlers {
 		public:
 			Producer(ViewType&& view, const model::EntityRange<KeyType>& keys)
 					: BasicProducer<model::EntityRange<KeyType>>(keys)
-					, m_pView(std::make_shared<ViewType>(std::move(view)))
-			{}
+					, m_pView(std::make_shared<ViewType>(std::move(view))) {
+			}
 
 		public:
 			auto operator()() {
@@ -78,8 +78,8 @@ namespace catapult { namespace handlers {
 				pInfo->Id = key;
 
 				pInfo->DataSize = model::CacheEntryInfo<KeyType>::Max_Data_Size <= value.size()
-						? model::CacheEntryInfo<KeyType>::Max_Data_Size
-						: static_cast<uint32_t>(value.size());
+										  ? model::CacheEntryInfo<KeyType>::Max_Data_Size
+										  : static_cast<uint32_t>(value.size());
 				pInfo->Size = static_cast<uint32_t>(model::CacheEntryInfo<KeyType>::CalculateRealSize(*pInfo));
 				std::memcpy(pInfo->DataPtr(), value.data(), value.size());
 				return pInfo;
@@ -91,8 +91,8 @@ namespace catapult { namespace handlers {
 
 	private:
 		CacheEntryInfosProducerFactory(const CacheType& cache)
-				: m_cache(cache)
-		{}
+				: m_cache(cache) {
+		}
 
 	public:
 		/// Creates a cache entry infos producer factory around \a cache.

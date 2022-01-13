@@ -35,8 +35,9 @@ namespace catapult { namespace cache {
 		struct MosaicRestrictionCacheMixinTraits {
 			class CacheType : public MosaicRestrictionCache {
 			public:
-				CacheType() : MosaicRestrictionCache(CacheConfiguration(), model::NetworkIdentifier::Zero)
-				{}
+				CacheType()
+						: MosaicRestrictionCache(CacheConfiguration(), model::NetworkIdentifier::Zero) {
+				}
 			};
 
 			using IdType = Hash256;
@@ -59,7 +60,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		struct MosaicRestrictionCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
+		struct MosaicRestrictionCacheDeltaModificationPolicy : public test::DeltaInsertModificationPolicy {
 			static void Modify(MosaicRestrictionCacheDelta& delta, const state::MosaicRestrictionEntry& entry) {
 				auto& entryFromCache = delta.find(entry.uniqueKey()).get();
 				auto& restriction = entryFromCache.asAddressRestriction();
@@ -82,7 +83,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MosaicRestrictionCacheMixinTraits, MosaicRestrictionCacheDeltaModificationPolicy, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(MosaicRestrictionCacheMixinTraits,)
+	DEFINE_CACHE_BASIC_TESTS(MosaicRestrictionCacheMixinTraits, )
 
 	// endregion
 

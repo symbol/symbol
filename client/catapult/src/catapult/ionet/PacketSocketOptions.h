@@ -25,14 +25,10 @@
 #include "catapult/functions.h"
 #include <filesystem>
 
-namespace boost {
-	namespace asio {
-		namespace ssl {
-			class context;
-			class verify_context;
-		}
-	}
-}
+namespace boost { namespace asio { namespace ssl {
+	class context;
+	class verify_context;
+}}}
 
 namespace catapult { namespace ionet {
 

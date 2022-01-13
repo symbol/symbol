@@ -23,7 +23,9 @@
 #include "catapult/extensions/ServiceRegistrar.h"
 #include <vector>
 
-namespace catapult { namespace ionet { class Node; } }
+namespace catapult { namespace ionet {
+	class Node;
+}}
 
 namespace catapult { namespace local {
 

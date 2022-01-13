@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicRestrictionTypeValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionType,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionType, )
 
 	namespace {
 		struct MosaicRestrictionTypeTraits {

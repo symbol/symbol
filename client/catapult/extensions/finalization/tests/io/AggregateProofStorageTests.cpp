@@ -68,8 +68,8 @@ namespace catapult { namespace io {
 					, m_pStorageRaw(m_pStorage.get())
 					, m_pSubscriber(std::make_unique<TFinalizationSubscriber>())
 					, m_pSubscriberRaw(m_pSubscriber.get())
-					, m_pAggregate(CreateAggregateProofStorage(std::move(m_pStorage), std::move(m_pSubscriber)))
-			{}
+					, m_pAggregate(CreateAggregateProofStorage(std::move(m_pStorage), std::move(m_pSubscriber))) {
+			}
 
 		public:
 			auto& storage() {
@@ -132,8 +132,9 @@ namespace catapult { namespace io {
 			std::shared_ptr<const model::FinalizationProof> pProof;
 
 		public:
-			MockProofStorageProofLoader() : pProof(std::make_unique<model::FinalizationProof>())
-			{}
+			MockProofStorageProofLoader()
+					: pProof(std::make_unique<model::FinalizationProof>()) {
+			}
 
 		public:
 			std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const override {

@@ -52,13 +52,11 @@ namespace catapult { namespace plugins {
 		});
 
 		auto v2ForkHeight = manager.config().ForkHeights.StrictAggregateTransactionHash;
-		manager.addStatefulValidatorHook([v2ForkHeight](auto& builder) {
-			builder.add(validators::CreateAggregateTransactionVersionValidator(v2ForkHeight));
-		});
+		manager.addStatefulValidatorHook(
+				[v2ForkHeight](auto& builder) { builder.add(validators::CreateAggregateTransactionVersionValidator(v2ForkHeight)); });
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterAggregateSubsystem(manager);
 }

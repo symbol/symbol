@@ -46,8 +46,8 @@ namespace catapult { namespace test {
 				: EntityInfo(entityInfo)
 				, EntityType(entityInfo.type())
 				, HashCopy(entityInfo.hash())
-				, BlockHeight(entityInfo.isAssociatedBlockHeaderSet() ? entityInfo.associatedBlockHeader().Height : Height())
-		{}
+				, BlockHeight(entityInfo.isAssociatedBlockHeaderSet() ? entityInfo.associatedBlockHeader().Height : Height()) {
+		}
 
 	public:
 		const model::WeakEntityInfo EntityInfo;
@@ -64,18 +64,21 @@ namespace catapult { namespace test {
 		MockNotification(const Hash256& hash, uint64_t id)
 				: Notification(Notification_Type, sizeof(MockNotification))
 				, Hash(hash)
-				, Id(id)
-		{}
+				, Id(id) {
+		}
 
 	public:
 		const Hash256 Hash;
 		uint64_t Id;
 	};
 
-	class MockNotificationPublisher : public model::NotificationPublisher, public ParamsCapture<PublisherParams> {
+	class MockNotificationPublisher
+			: public model::NotificationPublisher
+			, public ParamsCapture<PublisherParams> {
 	public:
-		MockNotificationPublisher() : m_emulatePublicKeyNotifications(false)
-		{}
+		MockNotificationPublisher()
+				: m_emulatePublicKeyNotifications(false) {
+		}
 
 	public:
 		void publish(const model::WeakEntityInfo& entityInfo, model::NotificationSubscriber& subscriber) const override {
@@ -111,7 +114,8 @@ namespace catapult { namespace test {
 				, IsPassedMarkedCache(IsMarkedCache(context.Cache))
 				, NumStatistics(context.Cache.sub<cache::BlockStatisticCache>().size())
 				, StateCopy(context.Cache.dependentState()) // make a copy of the state
-		{}
+		{
+		}
 
 	public:
 		const Hash256 HashCopy;
@@ -122,13 +126,15 @@ namespace catapult { namespace test {
 		const state::CatapultState StateCopy;
 	};
 
-	class MockAggregateNotificationObserver : public observers::AggregateNotificationObserver, public ParamsCapture<ObserverParams> {
+	class MockAggregateNotificationObserver
+			: public observers::AggregateNotificationObserver
+			, public ParamsCapture<ObserverParams> {
 	public:
 		MockAggregateNotificationObserver()
 				: m_name("MockAggregateNotificationObserver")
 				, m_enableRollbackEmulation(false)
-				, m_enableReceiptGeneration(false)
-		{}
+				, m_enableReceiptGeneration(false) {
+		}
 
 	public:
 		const std::string& name() const override {
@@ -227,8 +233,8 @@ namespace catapult { namespace test {
 				, SequenceId(notification.Id)
 				, Context(context)
 				, IsPassedMarkedCache(IsMarkedCache(context.Cache))
-				, NumStatistics(context.Cache.sub<cache::BlockStatisticCache>().size())
-		{}
+				, NumStatistics(context.Cache.sub<cache::BlockStatisticCache>().size()) {
+		}
 
 	public:
 		const Hash256 HashCopy;
@@ -246,8 +252,8 @@ namespace catapult { namespace test {
 				: m_name("MockAggregateNotificationValidator")
 				, m_result(validators::ValidationResult::Success)
 				, m_numValidateCalls(0)
-				, m_validateTrigger(0)
-		{}
+				, m_validateTrigger(0) {
+		}
 
 	public:
 		const std::string& name() const override {
@@ -258,9 +264,8 @@ namespace catapult { namespace test {
 			return { name() };
 		}
 
-		validators::ValidationResult validate(
-				const model::Notification& notification,
-				const validators::ValidatorContext& context) const override {
+		validators::ValidationResult validate(const model::Notification& notification, const validators::ValidatorContext& context)
+				const override {
 			if (MockNotification::Notification_Type != notification.Type)
 				return validators::ValidationResult::Success;
 

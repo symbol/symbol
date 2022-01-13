@@ -58,8 +58,8 @@ namespace catapult { namespace extensions {
 		public:
 			explicit TestContext(uint32_t numAccounts)
 					: m_pPluginManager(test::CreatePluginManagerWithRealPlugins(test::CreatePrototypicalCatapultConfiguration(
-							CreateBlockchainConfiguration(numAccounts),
-							m_tempDataDir.name())))
+							  CreateBlockchainConfiguration(numAccounts),
+							  m_tempDataDir.name())))
 					, m_cache(m_pPluginManager->createCache())
 					, m_specialAccountPublicKey(test::GenerateRandomByteArray<Key>()) {
 				config::CatapultDataDirectoryPreparer::Prepare(m_tempDataDir.name());
@@ -86,9 +86,9 @@ namespace catapult { namespace extensions {
 
 				for (uint8_t i = startAccountShortId; i < startAccountShortId + numAccounts; ++i) {
 					auto multiplier = static_cast<uint8_t>(i - startAccountShortId + 1);
-					auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
-						{ test::UnresolveXor(Harvesting_Mosaic_Id), Amount(multiplier * baseUnit * 1'000'000) }
-					});
+					auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(
+							Amount(),
+							{ { test::UnresolveXor(Harvesting_Mosaic_Id), Amount(multiplier * baseUnit * 1'000'000) } });
 					pTransaction->SignerPublicKey = m_specialAccountPublicKey;
 					pTransaction->RecipientPublicKey = Key{ { i } };
 					pTransaction->Network = Network_Identifier;
@@ -103,9 +103,9 @@ namespace catapult { namespace extensions {
 				auto accountStateCacheView = m_cache.sub<cache::AccountStateCache>().createView();
 				for (uint8_t i = startAccountShortId; i < startAccountShortId + numAccounts; ++i) {
 					const auto& accountState = accountStateCacheView->find(Key{ { i } }).get();
-					auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
-						{ test::UnresolveXor(Harvesting_Mosaic_Id), accountState.Balances.get(Harvesting_Mosaic_Id) }
-					});
+					auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(
+							Amount(),
+							{ { test::UnresolveXor(Harvesting_Mosaic_Id), accountState.Balances.get(Harvesting_Mosaic_Id) } });
 					pTransaction->SignerPublicKey = Key{ { i } };
 					pTransaction->RecipientPublicKey = m_specialAccountPublicKey;
 					pTransaction->Network = Network_Identifier;
@@ -119,9 +119,9 @@ namespace catapult { namespace extensions {
 
 				auto accountStateCacheView = m_cache.sub<cache::AccountStateCache>().createView();
 				const auto& accountState1 = accountStateCacheView->find(Key{ { accountShortId1 } }).get();
-				auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
-					{ test::UnresolveXor(Harvesting_Mosaic_Id), accountState1.Balances.get(Harvesting_Mosaic_Id) }
-				});
+				auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(
+						Amount(),
+						{ { test::UnresolveXor(Harvesting_Mosaic_Id), accountState1.Balances.get(Harvesting_Mosaic_Id) } });
 				pTransaction->SignerPublicKey = accountState1.PublicKey;
 				pTransaction->RecipientPublicKey = Key{ { accountShortId2 } };
 				pTransaction->Network = Network_Identifier;
@@ -183,8 +183,8 @@ namespace catapult { namespace extensions {
 						: StartAccountShortId(startAccountShortId)
 						, NumAccounts(numAccounts)
 						, ImportanceHeight(importanceHeight)
-						, StartAdjustment(startAdjustment)
-				{}
+						, StartAdjustment(startAdjustment) {
+				}
 
 			public:
 				uint8_t StartAccountShortId;
@@ -207,15 +207,11 @@ namespace catapult { namespace extensions {
 			}
 
 			void assertLinearImportances(const AssertOptions& options) {
-				assertImportances(options, [](auto multiplier) {
-					return Importance(multiplier);
-				});
+				assertImportances(options, [](auto multiplier) { return Importance(multiplier); });
 			}
 
 			void assertZeroedImportances(const AssertOptions& options) {
-				assertImportances(options, [](auto) {
-					return Importance(0);
-				});
+				assertImportances(options, [](auto) { return Importance(0); });
 			}
 
 			void assertRemovedAccounts(uint8_t startAccountShortId, uint8_t numAccounts) {
@@ -235,8 +231,8 @@ namespace catapult { namespace extensions {
 				// if there are transactions, add them to the block
 				auto transactionsIter = m_heightToTransactions.find(height);
 				auto pBlock = m_heightToTransactions.end() == transactionsIter
-						? test::GenerateEmptyRandomBlock()
-						: test::GenerateBlockWithTransactions(transactionsIter->second);
+									  ? test::GenerateEmptyRandomBlock()
+									  : test::GenerateBlockWithTransactions(transactionsIter->second);
 				pBlock->Height = height;
 				pBlock->FeeMultiplier = BlockFeeMultiplier(0);
 				pBlock->BeneficiaryAddress = Address();
@@ -251,7 +247,7 @@ namespace catapult { namespace extensions {
 				return pBlock;
 			}
 
-			void assertImportances(const AssertOptions& options, const std::function<Importance (uint8_t)>& getImportanceFromMultiplier) {
+			void assertImportances(const AssertOptions& options, const std::function<Importance(uint8_t)>& getImportanceFromMultiplier) {
 				for (uint8_t i = options.StartAccountShortId; i < options.StartAccountShortId + options.NumAccounts; ++i) {
 					auto multiplier = static_cast<uint8_t>(options.StartAdjustment + i - options.StartAccountShortId + 1);
 					assertSingleImportance(i, options.ImportanceHeight, getImportanceFromMultiplier(multiplier));
@@ -289,10 +285,16 @@ namespace catapult { namespace extensions {
 	// region traits
 
 #define ROLLBACK_TEST(TEST_NAME) \
-	template<typename TTestContext> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_InfiniteRollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestContext<0>>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_FiniteRollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestContext<124>>(); } \
-	template<typename TTestContext> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTestContext> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_InfiniteRollback) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestContext<0>>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_FiniteRollback) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestContext<124>>(); \
+	} \
+	template<typename TTestContext> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

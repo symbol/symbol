@@ -23,15 +23,16 @@
 
 namespace catapult { namespace io {
 
-	FileStream::FileStream(RawFile&& rawFile) : m_rawFile(std::move(rawFile))
-	{}
+	FileStream::FileStream(RawFile&& rawFile)
+			: m_rawFile(std::move(rawFile)) {
+	}
 
 	void FileStream::write(const RawBuffer& buffer) {
 		m_rawFile.write(buffer);
 	}
 
-	void FileStream::flush()
-	{}
+	void FileStream::flush() {
+	}
 
 	bool FileStream::eof() const {
 		return m_rawFile.position() == m_rawFile.size();

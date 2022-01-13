@@ -146,8 +146,9 @@ namespace catapult { namespace extensions {
 			using FutureType = thread::future<typename TTraits::ResultType>;
 
 		public:
-			explicit DefaultRemoteDiagnosticApi(ionet::PacketIo& io) : m_impl(io)
-			{}
+			explicit DefaultRemoteDiagnosticApi(ionet::PacketIo& io)
+					: m_impl(io) {
+			}
 
 		public:
 			FutureType<ConfirmTimestampedHashesTraits> confirmTimestampedHashes(

@@ -25,20 +25,18 @@
 #include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/utils/Hashers.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicMosaicRestrictionCacheDelta;
-		class BasicMosaicRestrictionCacheView;
-		struct MosaicRestrictionBaseSetDeltaPointers;
-		struct MosaicRestrictionBaseSets;
-		class MosaicRestrictionCache;
-		class MosaicRestrictionCacheDelta;
-		class MosaicRestrictionCacheView;
-		struct MosaicRestrictionEntryPrimarySerializer;
-		class MosaicRestrictionPatriciaTree;
-		class ReadOnlyMosaicRestrictionCache;
-	}
-}
+namespace catapult { namespace cache {
+	class BasicMosaicRestrictionCacheDelta;
+	class BasicMosaicRestrictionCacheView;
+	struct MosaicRestrictionBaseSetDeltaPointers;
+	struct MosaicRestrictionBaseSets;
+	class MosaicRestrictionCache;
+	class MosaicRestrictionCacheDelta;
+	class MosaicRestrictionCacheView;
+	struct MosaicRestrictionEntryPrimarySerializer;
+	class MosaicRestrictionPatriciaTree;
+	class ReadOnlyMosaicRestrictionCache;
+}}
 
 namespace catapult { namespace cache {
 

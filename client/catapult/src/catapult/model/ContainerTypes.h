@@ -24,17 +24,15 @@
 #include "catapult/types.h"
 #include <unordered_set>
 
-namespace catapult {
-	namespace model {
-		template<typename TEntity>
-		struct EntityInfoComparer;
+namespace catapult { namespace model {
+	template<typename TEntity>
+	struct EntityInfoComparer;
 
-		template<typename TEntity>
-		struct EntityInfoHasher;
-		struct Transaction;
-		struct TransactionInfo;
-	}
-}
+	template<typename TEntity>
+	struct EntityInfoHasher;
+	struct Transaction;
+	struct TransactionInfo;
+}}
 
 namespace catapult { namespace model {
 
@@ -45,9 +43,6 @@ namespace catapult { namespace model {
 	using UnresolvedAddressSet = std::unordered_set<UnresolvedAddress, utils::ArrayHasher<UnresolvedAddress>>;
 
 	/// Unordered set of transaction infos.
-	using TransactionInfosSet = std::unordered_set<
-		TransactionInfo,
-		EntityInfoHasher<const Transaction>,
-		EntityInfoComparer<const Transaction>>;
+	using TransactionInfosSet =
+			std::unordered_set<TransactionInfo, EntityInfoHasher<const Transaction>, EntityInfoComparer<const Transaction>>;
 }}
-

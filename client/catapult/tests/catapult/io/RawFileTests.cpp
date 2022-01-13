@@ -34,7 +34,7 @@ namespace catapult { namespace io {
 
 		// region utils
 
-		auto WriteRandomVectorToFile(const TempFileGuard &guard, size_t size = Default_Bytes_Written) {
+		auto WriteRandomVectorToFile(const TempFileGuard& guard, size_t size = Default_Bytes_Written) {
 			auto inputData = test::GenerateRandomVector(size);
 			RawFile file(guard.name(), OpenMode::Read_Write);
 			file.write(inputData);
@@ -65,10 +65,16 @@ namespace catapult { namespace io {
 	}
 
 #define WRITING_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Write) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<WriteTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Append) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AppendTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Write) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<WriteTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Append) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AppendTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region ctor (open)
 
@@ -267,9 +273,7 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, WriteOnReadOnlyFileThrowsException) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
-		{
-			RawFile rawFile(guard.name(), OpenMode::Read_Write);
-		}
+		{ RawFile rawFile(guard.name(), OpenMode::Read_Write); }
 
 		RawFile rawFile(guard.name(), OpenMode::Read_Only);
 		auto buffer = test::GenerateRandomVector(Default_Bytes_Written);
@@ -284,9 +288,7 @@ namespace catapult { namespace io {
 		auto inputData = WriteRandomVectorToFile(guard);
 
 		// Act:
-		{
-			RawFile rawFile(guard.name(), OpenMode::Read_Write);
-		}
+		{ RawFile rawFile(guard.name(), OpenMode::Read_Write); }
 
 		// Assert:
 		RawFile rawFile(guard.name(), OpenMode::Read_Only);
@@ -413,9 +415,7 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, OobSeekInRoFileThrows) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
-		{
-			RawFile rawFile(guard.name(), OpenMode::Read_Write);
-		}
+		{ RawFile rawFile(guard.name(), OpenMode::Read_Write); }
 
 		RawFile rawFile(guard.name(), OpenMode::Read_Only);
 

@@ -73,10 +73,8 @@ namespace catapult { namespace test {
 
 			// - check nodes
 			EXPECT_EQ(2u, nodes.size());
-			auto expectedContents = BasicNodeDataContainer{
-				{ context.publicKey(), "LOCAL", ionet::NodeSource::Local },
-				{ context.partnerPublicKey(), "PARTNER", ionet::NodeSource::Static }
-			};
+			auto expectedContents = BasicNodeDataContainer{ { context.publicKey(), "LOCAL", ionet::NodeSource::Local },
+															{ context.partnerPublicKey(), "PARTNER", ionet::NodeSource::Static } };
 			EXPECT_EQ(expectedContents, CollectAll(nodes));
 		}
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
 #include "AccountRestrictionView.h"
+#include "Validators.h"
 #include "src/cache/AccountRestrictionCache.h"
 #include "src/model/AccountOperationRestrictionTransaction.h"
 #include "catapult/model/Address.h"
@@ -58,9 +58,9 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATEFUL_VALIDATOR(AccountOperationRestrictionNoSelfBlocking, [](
-			const Notification& notification,
-			const ValidatorContext& context) {
-		return Validate(notification, context) ? ValidationResult::Success : Failure_RestrictionAccount_Invalid_Modification;
-	})
+	DEFINE_STATEFUL_VALIDATOR(
+			AccountOperationRestrictionNoSelfBlocking,
+			[](const Notification& notification, const ValidatorContext& context) {
+				return Validate(notification, context) ? ValidationResult::Success : Failure_RestrictionAccount_Invalid_Modification;
+			})
 }}

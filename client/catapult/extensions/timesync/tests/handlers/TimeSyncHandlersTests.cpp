@@ -40,9 +40,7 @@ namespace catapult { namespace handlers {
 			auto count = 0u;
 			extensions::ExtensionManager::NetworkTimeSupplier networkTimeSupplier = [&count, &communicationTimestamps]() {
 				// handler will use the networkTimeSupplier twice, first for the receive timestamp and then for the send timestamp
-				return 0 == count++
-						? communicationTimestamps.ReceiveTimestamp
-						: communicationTimestamps.SendTimestamp;
+				return 0 == count++ ? communicationTimestamps.ReceiveTimestamp : communicationTimestamps.SendTimestamp;
 			};
 			ionet::ServerPacketHandlers handlers;
 			RegisterTimeSyncNetworkTimeHandler(handlers, networkTimeSupplier);

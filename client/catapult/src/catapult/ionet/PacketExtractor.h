@@ -29,18 +29,16 @@ namespace catapult { namespace ionet {
 #define PACKET_EXTRACT_RESULT_LIST \
 	/* Packet was succesfully extracted. */ \
 	ENUM_VALUE(Success) \
-	\
+\
 	/* Packet was not extracted due to insufficient data. */ \
 	ENUM_VALUE(Insufficient_Data) \
-	\
+\
 	/* Packet was not extracted due to a packet error. */ \
 	ENUM_VALUE(Packet_Error)
 
 #define ENUM_VALUE(LABEL) LABEL,
 	/// Possible results from PacketExtractor::tryExtractNextPacket.
-	enum class PacketExtractResult {
-		PACKET_EXTRACT_RESULT_LIST
-	};
+	enum class PacketExtractResult { PACKET_EXTRACT_RESULT_LIST };
 #undef ENUM_VALUE
 
 	/// Insertion operator for outputting \a value to \a out.

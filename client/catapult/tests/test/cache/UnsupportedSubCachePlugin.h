@@ -89,8 +89,9 @@ namespace catapult { namespace test {
 	class UnsupportedSubCachePlugin : public cache::SubCachePlugin {
 	public:
 		/// Creates an unsupported sub cache plugin.
-		UnsupportedSubCachePlugin() : m_name(TCache::Name)
-		{}
+		UnsupportedSubCachePlugin()
+				: m_name(TCache::Name) {
+		}
 
 	public:
 		const std::string& name() const override {

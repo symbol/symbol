@@ -22,12 +22,10 @@
 #pragma once
 #include "catapult/ionet/NodeSet.h"
 
-namespace catapult {
-	namespace ionet {
-		class NodeContainerView;
-		struct Packet;
-	}
-}
+namespace catapult { namespace ionet {
+	class NodeContainerView;
+	struct Packet;
+}}
 
 namespace catapult { namespace nodediscovery {
 

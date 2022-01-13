@@ -27,17 +27,19 @@
 
 namespace catapult { namespace cache {
 
-	struct TransactionData : public model::TransactionInfo, public utils::NonCopyable {
+	struct TransactionData
+			: public model::TransactionInfo
+			, public utils::NonCopyable {
 	public:
 		explicit TransactionData(size_t id)
 				: model::TransactionInfo()
-				, Id(id)
-		{}
+				, Id(id) {
+		}
 
 		TransactionData(const model::TransactionInfo& transactionInfo, size_t id)
 				: model::TransactionInfo(transactionInfo.copy())
-				, Id(id)
-		{}
+				, Id(id) {
+		}
 
 	public:
 		bool operator<(const TransactionData& rhs) const {
@@ -60,8 +62,8 @@ namespace catapult { namespace cache {
 			, m_cacheSize(cacheSize)
 			, m_transactionDataContainer(transactionDataContainer)
 			, m_idLookup(idLookup)
-			, m_readLock(std::move(readLock))
-	{}
+			, m_readLock(std::move(readLock)) {
+	}
 
 	size_t MemoryUtCacheView::size() const {
 		return m_transactionDataContainer.size();
@@ -143,8 +145,8 @@ namespace catapult { namespace cache {
 					, m_transactionDataContainer(transactionDataContainer)
 					, m_idLookup(idLookup)
 					, m_weights(weights)
-					, m_writeLock(std::move(writeLock))
-			{}
+					, m_writeLock(std::move(writeLock)) {
+			}
 
 		public:
 			size_t size() const override {
@@ -239,8 +241,8 @@ namespace catapult { namespace cache {
 	MemoryUtCache::MemoryUtCache(const MemoryCacheOptions& options)
 			: m_options(options)
 			, m_idSequence(0)
-			, m_pImpl(std::make_unique<Impl>())
-	{}
+			, m_pImpl(std::make_unique<Impl>()) {
+	}
 
 	MemoryUtCache::~MemoryUtCache() = default;
 

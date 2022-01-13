@@ -149,9 +149,9 @@ namespace catapult { namespace extensions {
 				auto cacheDelta = cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 				accountStateCacheDelta.addAccount(knownKeyWrongHeight, Height(1));
-				accountStateCacheDelta.find(knownKeyWrongHeight).get().ImportanceSnapshots.set(
-						Importance(222),
-						model::ImportanceHeight(100));
+				accountStateCacheDelta.find(knownKeyWrongHeight)
+						.get()
+						.ImportanceSnapshots.set(Importance(222), model::ImportanceHeight(100));
 
 				accountStateCacheDelta.addAccount(knownKey, Height(1));
 				accountStateCacheDelta.find(knownKey).get().ImportanceSnapshots.set(Importance(111), model::ImportanceHeight(999));
@@ -175,25 +175,28 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, CanCreateSelectorSettingsWithRole) {
-		AssertCanCreateSelectorSettings(ionet::IpProtocol::IPv6, ionet::NodeRoles::Api, [](
-				const auto& cache,
-				auto totalChainImportance,
-				auto& nodes,
-				auto serviceId,
-				const auto& config) {
-			return SelectorSettings(cache, totalChainImportance, nodes, serviceId, ionet::IpProtocol::IPv6, ionet::NodeRoles::Api, config);
-		});
+		AssertCanCreateSelectorSettings(
+				ionet::IpProtocol::IPv6,
+				ionet::NodeRoles::Api,
+				[](const auto& cache, auto totalChainImportance, auto& nodes, auto serviceId, const auto& config) {
+					return SelectorSettings(
+							cache,
+							totalChainImportance,
+							nodes,
+							serviceId,
+							ionet::IpProtocol::IPv6,
+							ionet::NodeRoles::Api,
+							config);
+				});
 	}
 
 	TEST(TEST_CLASS, CanCreateSelectorSettingsWithoutRole) {
-		AssertCanCreateSelectorSettings(ionet::IpProtocol::All, ionet::NodeRoles::None, [](
-				const auto& cache,
-				auto totalChainImportance,
-				auto& nodes,
-				auto serviceId,
-				const auto& config) {
-			return SelectorSettings(cache, totalChainImportance, nodes, serviceId, config);
-		});
+		AssertCanCreateSelectorSettings(
+				ionet::IpProtocol::All,
+				ionet::NodeRoles::None,
+				[](const auto& cache, auto totalChainImportance, auto& nodes, auto serviceId, const auto& config) {
+					return SelectorSettings(cache, totalChainImportance, nodes, serviceId, config);
+				});
 	}
 
 	// endregion
@@ -294,9 +297,8 @@ namespace catapult { namespace extensions {
 			// Act:
 			auto cache = test::CreateEmptyCatapultCache();
 			auto settings = CreateDefaultSelectorSettings(cache, container, serviceId, ionet::IpProtocol::IPv4, ionet::NodeRoles::Api);
-			auto task = selector
-					? CreateConnectPeersTask(settings, packetWriters, selector)
-					: CreateConnectPeersTask(settings, packetWriters);
+			auto task =
+					selector ? CreateConnectPeersTask(settings, packetWriters, selector) : CreateConnectPeersTask(settings, packetWriters);
 			auto result = task.Callback().get();
 
 			// Assert:
@@ -346,9 +348,8 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, ConnectPeersTask_MatchingServiceNodesAreAged) {
-		AssertMatchingServiceNodesAreAged([](auto& container, auto& writers, auto serviceId) {
-			RunConnectPeersTask(container, writers, serviceId);
-		});
+		AssertMatchingServiceNodesAreAged(
+				[](auto& container, auto& writers, auto serviceId) { RunConnectPeersTask(container, writers, serviceId); });
 	}
 
 	// endregion
@@ -581,9 +582,7 @@ namespace catapult { namespace extensions {
 			// Act:
 			auto cache = test::CreateEmptyCatapultCache();
 			auto settings = SelectorSettings(cache, Importance(100), container, serviceId, CreateConfiguration());
-			auto task = selector
-					? CreateAgePeersTask(settings, packetWriters, selector)
-					: CreateAgePeersTask(settings, packetWriters);
+			auto task = selector ? CreateAgePeersTask(settings, packetWriters, selector) : CreateAgePeersTask(settings, packetWriters);
 			auto result = task.Callback().get();
 
 			// Assert:
@@ -593,16 +592,13 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, AgePeersTask_MatchingServiceNodesAreAged) {
-		AssertMatchingServiceNodesAreAged([](auto& container, auto& writers, auto serviceId) {
-			RunAgePeersTask(container, writers, serviceId);
-		});
+		AssertMatchingServiceNodesAreAged(
+				[](auto& container, auto& writers, auto serviceId) { RunAgePeersTask(container, writers, serviceId); });
 	}
 
 	TEST(TEST_CLASS, AgePeersTask_RemoveCandidatesAreClosedInWriters) {
 		AssertRemoveCandidatesAreClosedInWriters([](auto& container, auto& writers, auto serviceId, const auto& removeCandidates) {
-			RunAgePeersTask(container, writers, serviceId, [&removeCandidates]() {
-				return removeCandidates;
-			});
+			RunAgePeersTask(container, writers, serviceId, [&removeCandidates]() { return removeCandidates; });
 		});
 	}
 

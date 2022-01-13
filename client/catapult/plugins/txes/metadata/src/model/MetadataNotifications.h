@@ -53,8 +53,8 @@ namespace catapult { namespace model {
 		MetadataSizesNotification(int16_t valueSizeDelta, uint16_t valueSize)
 				: Notification(Notification_Type, sizeof(MetadataSizesNotification))
 				, ValueSizeDelta(valueSizeDelta)
-				, ValueSize(valueSize)
-		{}
+				, ValueSize(valueSize) {
+		}
 
 	public:
 		/// Change in value size in bytes.
@@ -87,8 +87,8 @@ namespace catapult { namespace model {
 				, MetadataTarget(metadataTarget)
 				, ValueSizeDelta(valueSizeDelta)
 				, ValueSize(valueSize)
-				, ValuePtr(pValue)
-		{}
+				, ValuePtr(pValue) {
+		}
 
 	public:
 		/// Partial metadata key.

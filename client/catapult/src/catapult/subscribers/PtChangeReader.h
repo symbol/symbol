@@ -22,8 +22,12 @@
 #pragma once
 
 namespace catapult {
-	namespace cache { class PtChangeSubscriber; }
-	namespace io { class InputStream; }
+namespace cache {
+	class PtChangeSubscriber;
+}
+namespace io {
+	class InputStream;
+}
 }
 
 namespace catapult { namespace subscribers {

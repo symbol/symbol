@@ -106,8 +106,8 @@ namespace catapult { namespace chain {
 					, TransactionSource(context.TransactionSource)
 					, CacheHeight(context.CacheHeight)
 					, IsPassedMarkedCache(test::IsMarkedCache(context.UnconfirmedCatapultCache))
-					, UtCacheSize(context.TransactionsCache.size())
-			{}
+					, UtCacheSize(context.TransactionsCache.size()) {
+			}
 
 		public:
 			model::TransactionInfo TransactionInfo;
@@ -128,24 +128,24 @@ namespace catapult { namespace chain {
 					, m_pUtChangeSubscriber(std::make_unique<mocks::MockUtChangeSubscriber>())
 					, m_utChangeSubscriber(*m_pUtChangeSubscriber)
 					, m_transactionsCache(
-							cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(2)),
-							cache::CreateAggregateUtCache,
-							std::move(m_pUtChangeSubscriber))
+							  cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromKilobytes(2)),
+							  cache::CreateAggregateUtCache,
+							  std::move(m_pUtChangeSubscriber))
 					, m_updater(
-							m_transactionsCache,
-							m_cache,
-							minFeeMultiplier,
-							m_executionConfig.Config,
-							[]() { return Default_Time; },
-							[this](const auto& transaction, const auto& hash, auto result) {
-								// notice that transaction.Deadline is used as transaction marker
-								m_failedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
-							},
-							[this, throttleMode](const auto& transactionInfo, const auto& context) {
-								m_throttleParams.emplace_back(transactionInfo, context);
-								return ThrottleMode::Even == throttleMode && (0 == transactionInfo.pEntity->Deadline.unwrap() % 2);
-							})
-			{}
+							  m_transactionsCache,
+							  m_cache,
+							  minFeeMultiplier,
+							  m_executionConfig.Config,
+							  []() { return Default_Time; },
+							  [this](const auto& transaction, const auto& hash, auto result) {
+								  // notice that transaction.Deadline is used as transaction marker
+								  m_failedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
+							  },
+							  [this, throttleMode](const auto& transactionInfo, const auto& context) {
+								  m_throttleParams.emplace_back(transactionInfo, context);
+								  return ThrottleMode::Even == throttleMode && (0 == transactionInfo.pEntity->Deadline.unwrap() % 2);
+							  }) {
+			}
 
 		public:
 			cache::MemoryUtCacheProxy& transactionsCache() {
@@ -256,9 +256,8 @@ namespace catapult { namespace chain {
 				assertObserverContexts(0);
 			}
 
-			void assertContexts(
-					UtUpdater::TransactionSource expectedTransactionSource,
-					const std::vector<size_t>& expectedNumStatistics) const {
+			void assertContexts(UtUpdater::TransactionSource expectedTransactionSource, const std::vector<size_t>& expectedNumStatistics)
+					const {
 				// Assert:
 				assertContexts({ m_throttleParams.size(), expectedTransactionSource }, expectedNumStatistics);
 			}
@@ -506,10 +505,16 @@ namespace catapult { namespace chain {
 	// region traits
 
 #define NON_SUCCESS_VALIDATION_TRAITS_BASED_TEST(TEST_NAME) \
-	template<ValidationResult TResult> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Neutral) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationResult::Neutral>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Failure) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationResult::Failure>(); } \
-	template<ValidationResult TResult> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<ValidationResult TResult> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Neutral) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationResult::Neutral>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Failure) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationResult::Failure>(); \
+	} \
+	template<ValidationResult TResult> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		constexpr auto New = UtUpdateResult::UpdateType::New;
@@ -538,20 +543,30 @@ namespace catapult { namespace chain {
 				return std::vector<UtUpdateResult>();
 			}
 
-			static void CheckResults(const std::vector<UtUpdateResult>&, const std::vector<UtUpdateResult::UpdateType>&)
-			{}
+			static void CheckResults(const std::vector<UtUpdateResult>&, const std::vector<UtUpdateResult::UpdateType>&) {
+			}
 		};
 	}
 
 #define NEW_TRANSACTIONS_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_NewTransactions) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NewTransactionsTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_RevertedTransactions) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RevertedTransactionsTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_NewTransactions) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NewTransactionsTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_RevertedTransactions) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RevertedTransactionsTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define NEW_TRANSACTIONS_NON_SUCCESS_VALIDATION_TRAITS_BASED_TEST(TEST_NAME) \
-	NEW_TRANSACTIONS_TRAITS_BASED_TEST(TEST_NAME##_Neutral) { Assert##TEST_NAME<TTraits>(ValidationResult::Neutral); } \
-	NEW_TRANSACTIONS_TRAITS_BASED_TEST(TEST_NAME##_Failure) { Assert##TEST_NAME<TTraits>(ValidationResult::Failure); }
+	NEW_TRANSACTIONS_TRAITS_BASED_TEST(TEST_NAME##_Neutral) { \
+		Assert##TEST_NAME<TTraits>(ValidationResult::Neutral); \
+	} \
+	NEW_TRANSACTIONS_TRAITS_BASED_TEST(TEST_NAME##_Failure) { \
+		Assert##TEST_NAME<TTraits>(ValidationResult::Failure); \
+	}
 
 	// endregion
 
@@ -793,14 +808,12 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, CanUpdateCacheWithMultipleRevertedTransactions) {
-		AssertCanUpdateCacheWithMultipleTransactions<RevertedTransactionsTraits>([](
-				const auto& context,
-				const auto& originalEntityInfos,
-				const auto& entityInfos) {
-			// Assert: both new and original entities were executed
-			context.assertContexts(CreateRevertedAndExistingSources(4, 3));
-			context.assertEntityInfos(ConcatContainers(entityInfos, originalEntityInfos));
-		});
+		AssertCanUpdateCacheWithMultipleTransactions<RevertedTransactionsTraits>(
+				[](const auto& context, const auto& originalEntityInfos, const auto& entityInfos) {
+					// Assert: both new and original entities were executed
+					context.assertContexts(CreateRevertedAndExistingSources(4, 3));
+					context.assertEntityInfos(ConcatContainers(entityInfos, originalEntityInfos));
+				});
 	}
 
 	namespace {
@@ -846,24 +859,21 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, NewTransactionsThatAreAlreadyInCacheDoNotGetExecuted) {
-		AssertTransactionsAlreadyInCacheDoNotGetExecuted<NewTransactionsTraits>([](
-				const auto& context,
-				const auto&,
-				const auto& entityInfos) {
-			// Assert: observer only gets called for (unique) entities that were added
-			//   E[0] V0,O1,V1,O2; E[1]; E[2] V2,O3,V3,O4; E[3]; E[4] V4,O5,V5,O6
-			context.assertContexts(UtUpdater::TransactionSource::New, { 0, 1, 2, 3, 4, 5 });
+		AssertTransactionsAlreadyInCacheDoNotGetExecuted<NewTransactionsTraits>(
+				[](const auto& context, const auto&, const auto& entityInfos) {
+					// Assert: observer only gets called for (unique) entities that were added
+					//   E[0] V0,O1,V1,O2; E[1]; E[2] V2,O3,V3,O4; E[3]; E[4] V4,O5,V5,O6
+					context.assertContexts(UtUpdater::TransactionSource::New, { 0, 1, 2, 3, 4, 5 });
 
-			// - notice that cache check is FIRST so even publishing is short-circuited
-			context.assertEntityInfosWithDuplicates(entityInfos, { 0, 2, 4 });
-		});
+					// - notice that cache check is FIRST so even publishing is short-circuited
+					context.assertEntityInfosWithDuplicates(entityInfos, { 0, 2, 4 });
+				});
 	}
 
 	TEST(TEST_CLASS, RevertedTransactionsThatAreAlreadyInCacheDoNotGetExecuted) {
-		AssertTransactionsAlreadyInCacheDoNotGetExecuted<RevertedTransactionsTraits>([](
-				const auto& context,
-				const auto& originalEntityInfos,
-				const auto& entityInfos) {
+		AssertTransactionsAlreadyInCacheDoNotGetExecuted<RevertedTransactionsTraits>([](const auto& context,
+																						const auto& originalEntityInfos,
+																						const auto& entityInfos) {
 			// Assert: observer only gets called for (unique) entities that were added
 			//   new: E[0] V0,O1,V1,O2; E[1] V2,O3,V3,O4; E[2] V4,O5,V5,O6; E[3] V6,O7,V7,O8; E[4] V8,O9,V9,O10
 			//   old: E[0]; E[1] V0,O1,V1,O2; E[2]
@@ -1089,9 +1099,8 @@ namespace catapult { namespace chain {
 		context.assertContexts(CreateRevertedAndExistingSources(3, 4));
 
 		// - validator and observer only get called for entities that pass the filter
-		auto unconfirmedEntityInfos = ConcatContainers(
-				transactionData.EntityInfos,
-				Select(originalTransactionData.EntityInfos, { 0, 1, 3, 5 }));
+		auto unconfirmedEntityInfos =
+				ConcatContainers(transactionData.EntityInfos, Select(originalTransactionData.EntityInfos, { 0, 1, 3, 5 }));
 		context.assertEntityInfos(unconfirmedEntityInfos);
 
 		context.assertSubscriberCalls({ 0, 1, 4 }, { 25, 49 });

@@ -34,8 +34,8 @@ namespace catapult { namespace builders {
 		/// Creates a transaction builder with \a networkIdentifier and \a signerPublicKey.
 		TransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signerPublicKey)
 				: m_networkIdentifier(networkIdentifier)
-				, m_signerPublicKey(signerPublicKey)
-		{}
+				, m_signerPublicKey(signerPublicKey) {
+		}
 
 	public:
 		/// Gets the signer public key.
@@ -55,8 +55,8 @@ namespace catapult { namespace builders {
 		}
 
 	private:
-		void setAdditionalFields(model::EmbeddedTransaction&) const
-		{}
+		void setAdditionalFields(model::EmbeddedTransaction&) const {
+		}
 
 		void setAdditionalFields(model::Transaction& transaction) const {
 			transaction.Deadline = m_deadline;

@@ -29,8 +29,8 @@ namespace catapult { namespace builders {
 			, m_secret()
 			, m_mosaic()
 			, m_duration()
-			, m_hashAlgorithm()
-	{}
+			, m_hashAlgorithm() {
+	}
 
 	void SecretLockBuilder::setRecipientAddress(const UnresolvedAddress& recipientAddress) {
 		m_recipientAddress = recipientAddress;

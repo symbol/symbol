@@ -55,5 +55,5 @@ namespace catapult { namespace mongo { namespace plugins {
 		};
 	}
 
-	DEFINE_FLAT_CACHE_STORAGE_TESTS(MongoLockInfoCacheStorageTestTraits<HashLockCacheTraits>,)
+	DEFINE_FLAT_CACHE_STORAGE_TESTS(MongoLockInfoCacheStorageTestTraits<HashLockCacheTraits>, )
 }}}

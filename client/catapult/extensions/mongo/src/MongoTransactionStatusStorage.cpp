@@ -36,11 +36,8 @@ namespace catapult { namespace mongo {
 
 		auto CreateFilter(const std::string& fieldName) {
 			return [fieldName](const auto& status) {
-				auto filter = document()
-						<< fieldName << open_document
-							<< "$eq" << mongo::mappers::ToBinary(status.Hash)
-						<< close_document
-						<< finalize;
+				auto filter = document() << fieldName << open_document << "$eq" << mongo::mappers::ToBinary(status.Hash) << close_document
+										 << finalize;
 				return filter;
 			};
 		}
@@ -50,8 +47,8 @@ namespace catapult { namespace mongo {
 			MongoTransactionStatusStorage(MongoStorageContext& context)
 					: m_context(context)
 					, m_database(m_context.createDatabaseConnection())
-					, m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name))
-			{}
+					, m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name)) {
+			}
 
 		public:
 			void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) override {
@@ -70,11 +67,13 @@ namespace catapult { namespace mongo {
 					return;
 
 				// upsert into transaction statuses collection
-				auto results = m_context.bulkWriter().bulkUpsert(
-						Collection_Name,
-						transactionStatuses,
-						[](const auto& status, auto) { return mappers::ToDbModel(status); },
-						CreateFilter("status.hash")).get();
+				auto results = m_context.bulkWriter()
+									   .bulkUpsert(
+											   Collection_Name,
+											   transactionStatuses,
+											   [](const auto& status, auto) { return mappers::ToDbModel(status); },
+											   CreateFilter("status.hash"))
+									   .get();
 				auto aggregateUpsert = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 				m_errorPolicy.checkUpserted(transactionStatuses.size(), aggregateUpsert, "transaction statuses");
 			}

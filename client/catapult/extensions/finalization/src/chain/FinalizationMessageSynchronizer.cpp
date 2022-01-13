@@ -37,8 +37,8 @@ namespace catapult { namespace chain {
 					const FinalizationMessageSynchronizerFilterSupplier& messageFilterSupplier,
 					const handlers::MessageRangeHandler& messageRangeConsumer)
 					: m_messageFilterSupplier(messageFilterSupplier)
-					, m_messageRangeConsumer(messageRangeConsumer)
-			{}
+					, m_messageRangeConsumer(messageRangeConsumer) {
+			}
 
 		public:
 			thread::future<model::FinalizationMessageRange> apiCall(const RemoteApiType& api) const {

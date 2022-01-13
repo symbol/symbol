@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/model/Elements.h"
 
-namespace catapult { namespace model { class TransactionRegistry; } }
+namespace catapult { namespace model {
+	class TransactionRegistry;
+}}
 
 namespace catapult { namespace extensions {
 
@@ -73,7 +75,7 @@ namespace catapult { namespace extensions {
 
 	private:
 		GenerationHashSeed m_generationHashSeed;
-		std::function<Hash256 (const model::Transaction&)> m_calculateTransactionEntityHash;
-		std::function<Hash256 (const model::Transaction&, const Hash256&)> m_calculateTransactionMerkleComponentHash;
+		std::function<Hash256(const model::Transaction&)> m_calculateTransactionEntityHash;
+		std::function<Hash256(const model::Transaction&, const Hash256&)> m_calculateTransactionMerkleComponentHash;
 	};
 }}

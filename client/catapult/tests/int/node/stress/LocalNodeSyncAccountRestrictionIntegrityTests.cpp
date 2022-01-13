@@ -90,8 +90,8 @@ namespace catapult { namespace local {
 		public:
 			explicit TestFacade(TTestContext& context)
 					: m_context(context)
-					, m_accounts(4)
-			{}
+					, m_accounts(4) {
+			}
 
 		public:
 			const auto& accounts() const {

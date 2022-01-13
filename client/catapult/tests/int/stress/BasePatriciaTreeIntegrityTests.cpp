@@ -182,13 +182,9 @@ namespace catapult { namespace cache {
 				});
 
 				// Act: calculate the delta state hash
-				RunTimedStressAction("calculating state hash", [&delta]() {
-					delta->updateMerkleRoot(Height(123));
-				});
+				RunTimedStressAction("calculating state hash", [&delta]() { delta->updateMerkleRoot(Height(123)); });
 
-				RunTimedStressAction("committing all changes", [&cache]() {
-					cache.commit();
-				});
+				RunTimedStressAction("committing all changes", [&cache]() { cache.commit(); });
 			}
 
 			// Assert:

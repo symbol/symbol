@@ -29,8 +29,12 @@
 #include "tests/TestHarness.h"
 
 namespace catapult {
-	namespace cache { class CatapultCacheDelta; }
-	namespace state { class MultisigEntry; }
+namespace cache {
+	class CatapultCacheDelta;
+}
+namespace state {
+	class MultisigEntry;
+}
 }
 
 namespace catapult { namespace test {

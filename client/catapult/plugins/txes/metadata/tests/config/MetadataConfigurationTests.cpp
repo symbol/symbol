@@ -30,14 +30,7 @@ namespace catapult { namespace config {
 			using ConfigurationType = MetadataConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "maxValueSize", "234" }
-						}
-					}
-				};
+				return { { "", { { "maxValueSize", "234" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

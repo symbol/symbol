@@ -38,7 +38,8 @@ namespace catapult { namespace test {
 	namespace {
 		void EntityDump(const TransferTransaction& tx) {
 			CATAPULT_LOG(debug) << "  Recipient: " << AddressToString(extensions::CopyToAddress(tx.RecipientAddress));
-			CATAPULT_LOG(debug) << "    Message: " << "size:" << VALANDHEX(tx.MessageSize);
+			CATAPULT_LOG(debug) << "    Message: "
+								<< "size:" << VALANDHEX(tx.MessageSize);
 			if (tx.MessageSize)
 				CATAPULT_LOG(debug) << "  Message D: " << utils::HexFormat(tx.MessagePtr(), tx.MessagePtr() + tx.MessageSize);
 

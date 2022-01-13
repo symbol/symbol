@@ -40,8 +40,8 @@ namespace catapult { namespace consumers {
 		public:
 			BlockchainCheckConsumer(const utils::TimeSpan& maxBlockFutureTime, const chain::TimeSupplier& timeSupplier)
 					: m_maxBlockFutureTime(maxBlockFutureTime)
-					, m_timeSupplier(timeSupplier)
-			{}
+					, m_timeSupplier(timeSupplier) {
+			}
 
 		public:
 			ConsumerResult operator()(const BlockElements& elements) const {
@@ -63,10 +63,9 @@ namespace catapult { namespace consumers {
 					if (model::IsImportanceBlock(element.Block.Type)) {
 						const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(element.Block);
 						if (pPreviousImportanceBlockHash && *pPreviousImportanceBlockHash != blockFooter.PreviousImportanceBlockHash) {
-							CATAPULT_LOG(warning)
-									<< "block at height " << element.Block.Height << " has PreviousImportanceBlockHash "
-									<< blockFooter.PreviousImportanceBlockHash << " but " << *pPreviousImportanceBlockHash
-									<< " is expected";
+							CATAPULT_LOG(warning) << "block at height " << element.Block.Height << " has PreviousImportanceBlockHash "
+												  << blockFooter.PreviousImportanceBlockHash << " but " << *pPreviousImportanceBlockHash
+												  << " is expected";
 							return Abort(Failure_Consumer_Remote_Chain_Improper_Importance_Link);
 						}
 

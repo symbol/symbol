@@ -48,9 +48,7 @@ namespace catapult { namespace state {
 	private:
 		template<typename TKeyValuePairs>
 		static auto Find(TKeyValuePairs& keyValuePairs, uint64_t key) {
-			return std::find_if(keyValuePairs.begin(), keyValuePairs.end(), [key](const auto& pair) {
-				return key == pair.first;
-			});
+			return std::find_if(keyValuePairs.begin(), keyValuePairs.end(), [key](const auto& pair) { return key == pair.first; });
 		}
 
 	public:

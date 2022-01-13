@@ -108,7 +108,7 @@ namespace catapult { namespace test {
 #define ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS_WITH_ARGS(NAME, ...) \
 	ADD_BASIC_TRANSACTION_PROPERTY_TESTS_WITH_ARGS(NAME, __VA_ARGS__) \
 	ADD_BASIC_TRANSACTION_ALIGNMENT_TESTS(NAME) \
-	\
+\
 	TEST(NAME##TransactionTests, TransactionHasExpectedSize) { \
 		AssertTransactionHasExpectedSize<NAME##Transaction>(sizeof(Transaction), __VA_ARGS__); \
 	} \
@@ -118,9 +118,9 @@ namespace catapult { namespace test {
 
 /// Adds basic transaction size and property tests for \a NAME transaction.
 #define ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(NAME) \
-	ADD_BASIC_TRANSACTION_PROPERTY_TESTS_WITH_ARGS(NAME,) \
+	ADD_BASIC_TRANSACTION_PROPERTY_TESTS_WITH_ARGS(NAME, ) \
 	ADD_BASIC_TRANSACTION_ALIGNMENT_TESTS(NAME) \
-	\
+\
 	TEST(NAME##TransactionTests, TransactionHasExpectedSize) { \
 		AssertTransactionHasExpectedSize<NAME##Transaction>(sizeof(Transaction)); \
 	} \

@@ -36,16 +36,8 @@ namespace catapult { namespace test {
 		}
 
 		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockchainConfiguration& config) {
-			return {
-				config.Network.Identifier,
-				config.ImportanceGrouping,
-				config.VotingSetGrouping,
-				config.MinHarvesterBalance,
-				config.MaxHarvesterBalance,
-				config.MinVoterBalance,
-				config.CurrencyMosaicId,
-				config.HarvestingMosaicId
-			};
+			return { config.Network.Identifier,	 config.ImportanceGrouping, config.VotingSetGrouping, config.MinHarvesterBalance,
+					 config.MaxHarvesterBalance, config.MinVoterBalance,	config.CurrencyMosaicId,  config.HarvestingMosaicId };
 		}
 	}
 
@@ -73,8 +65,8 @@ namespace catapult { namespace test {
 				cacheConfig,
 				CreateAccountStateCacheOptions(config));
 
-		subCaches[BlockStatisticCache::Id] = MakeConfigurationFreeSubCachePlugin<BlockStatisticCache, BlockStatisticCacheStorage>(
-				config.MaxDifficultyBlocks);
+		subCaches[BlockStatisticCache::Id] =
+				MakeConfigurationFreeSubCachePlugin<BlockStatisticCache, BlockStatisticCacheStorage>(config.MaxDifficultyBlocks);
 	}
 
 	// endregion

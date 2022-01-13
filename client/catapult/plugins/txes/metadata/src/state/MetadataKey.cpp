@@ -31,22 +31,22 @@ namespace catapult { namespace state {
 			: m_partialKey(partialKey)
 			, m_targetId(0)
 			, m_metadataType(model::MetadataType::Account)
-			, m_uniqueKey(generateUniqueKey())
-	{}
+			, m_uniqueKey(generateUniqueKey()) {
+	}
 
 	MetadataKey::MetadataKey(const model::PartialMetadataKey& partialKey, MosaicId mosaicId)
 			: m_partialKey(partialKey)
 			, m_targetId(mosaicId.unwrap())
 			, m_metadataType(model::MetadataType::Mosaic)
-			, m_uniqueKey(generateUniqueKey())
-	{}
+			, m_uniqueKey(generateUniqueKey()) {
+	}
 
 	MetadataKey::MetadataKey(const model::PartialMetadataKey& partialKey, NamespaceId namespaceId)
 			: m_partialKey(partialKey)
 			, m_targetId(namespaceId.unwrap())
 			, m_metadataType(model::MetadataType::Namespace)
-			, m_uniqueKey(generateUniqueKey())
-	{}
+			, m_uniqueKey(generateUniqueKey()) {
+	}
 
 	const Hash256& MetadataKey::uniqueKey() const {
 		return m_uniqueKey;
@@ -87,9 +87,8 @@ namespace catapult { namespace state {
 			return;
 
 		std::ostringstream out;
-		out
-				<< "function \"" << name << "\" requires metadata type " << static_cast<uint16_t>(metadataType)
-				<< " but was " << static_cast<uint16_t>(m_metadataType);
+		out << "function \"" << name << "\" requires metadata type " << static_cast<uint16_t>(metadataType) << " but was "
+			<< static_cast<uint16_t>(m_metadataType);
 		CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 	}
 
@@ -113,7 +112,7 @@ namespace catapult { namespace state {
 		MetadataKey ResolveMetadataKey(
 				const model::PartialMetadataKey& partialKey,
 				const model::MetadataTarget& target,
-				const std::function<MosaicId (uint64_t)>& idToMosaicIdResolver) {
+				const std::function<MosaicId(uint64_t)>& idToMosaicIdResolver) {
 			switch (target.Type) {
 			case model::MetadataType::Account:
 				return MetadataKey(partialKey);
@@ -130,22 +129,16 @@ namespace catapult { namespace state {
 	}
 
 	MetadataKey CreateMetadataKey(const model::PartialMetadataKey& partialKey, const model::MetadataTarget& target) {
-		return ResolveMetadataKey(partialKey, target, [](auto id) {
-			return MosaicId(id);
-		});
+		return ResolveMetadataKey(partialKey, target, [](auto id) { return MosaicId(id); });
 	}
 
 	MetadataKey ResolveMetadataKey(
 			const model::UnresolvedPartialMetadataKey& partialKey,
 			const model::MetadataTarget& target,
 			const model::ResolverContext& resolvers) {
-		auto resolvedPartialKey = model::PartialMetadataKey{
-			partialKey.SourceAddress,
-			resolvers.resolve(partialKey.TargetAddress),
-			partialKey.ScopedMetadataKey
-		};
-		return ResolveMetadataKey(resolvedPartialKey, target, [&resolvers](auto id) {
-			return resolvers.resolve(UnresolvedMosaicId(id));
-		});
+		auto resolvedPartialKey = model::PartialMetadataKey{ partialKey.SourceAddress,
+															 resolvers.resolve(partialKey.TargetAddress),
+															 partialKey.ScopedMetadataKey };
+		return ResolveMetadataKey(resolvedPartialKey, target, [&resolvers](auto id) { return resolvers.resolve(UnresolvedMosaicId(id)); });
 	}
 }}

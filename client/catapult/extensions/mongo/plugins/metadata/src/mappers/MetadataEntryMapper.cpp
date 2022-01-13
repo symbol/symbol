@@ -34,23 +34,17 @@ namespace catapult { namespace mongo { namespace plugins {
 		const auto& key = metadataEntry.key();
 		const auto& value = metadataEntry.value();
 		bson_stream::document builder;
-		auto doc = builder
-				<< "metadataEntry" << bson_stream::open_document
-					<< "version" << 1
-					<< "compositeHash" << ToBinary(key.uniqueKey())
-					<< "sourceAddress" << ToBinary(key.sourceAddress())
-					<< "targetAddress" << ToBinary(key.targetAddress())
-					<< "scopedMetadataKey" << static_cast<int64_t>(key.scopedMetadataKey())
-					<< "targetId" << static_cast<int64_t>(key.targetId())
-					<< "metadataType" << utils::to_underlying_type(metadataEntry.key().metadataType())
-					<< "valueSize" << static_cast<int32_t>(value.size());
+		auto doc = builder << "metadataEntry" << bson_stream::open_document << "version" << 1 << "compositeHash"
+						   << ToBinary(key.uniqueKey()) << "sourceAddress" << ToBinary(key.sourceAddress()) << "targetAddress"
+						   << ToBinary(key.targetAddress()) << "scopedMetadataKey" << static_cast<int64_t>(key.scopedMetadataKey())
+						   << "targetId" << static_cast<int64_t>(key.targetId()) << "metadataType"
+						   << utils::to_underlying_type(metadataEntry.key().metadataType()) << "valueSize"
+						   << static_cast<int32_t>(value.size());
 
 		if (!value.empty())
 			builder << "value" << ToBinary(value.data(), value.size());
 
-		return doc
-				<< bson_stream::close_document
-				<< bson_stream::finalize;
+		return doc << bson_stream::close_document << bson_stream::finalize;
 	}
 
 	// endregion

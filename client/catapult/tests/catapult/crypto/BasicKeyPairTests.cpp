@@ -34,10 +34,14 @@ namespace catapult { namespace crypto {
 		constexpr auto Default_Private_Key_String = "CBD84EF8F5F38A25C01308785EA99627DE897D151AFDFCDA";
 		constexpr auto Default_Public_Key_String = "CCD94FF9F6F48B26C11409795FAA9728DF8A7E161BFEFDDBA0A1A2A3A4A5A6A7";
 
-		struct ConcretePrivateKey_tag { static constexpr size_t Size = 24; };
+		struct ConcretePrivateKey_tag {
+			static constexpr size_t Size = 24;
+		};
 		using ConcretePrivateKey = SecureByteArray<ConcretePrivateKey_tag>;
 
-		struct ConcretePublicKey_tag { static constexpr size_t Size = 32; };
+		struct ConcretePublicKey_tag {
+			static constexpr size_t Size = 32;
+		};
 		using ConcretePublicKey = utils::ByteArray<ConcretePublicKey_tag>;
 
 		struct ConcreteKeyPairTraits {

@@ -39,8 +39,8 @@ namespace catapult { namespace chain {
 			class RemoteApiWrapper {
 			public:
 				explicit RemoteApiWrapper(const model::TransactionRange& transactionRange)
-						: m_pTransactionApi(std::make_unique<MockRemoteApi>(transactionRange))
-				{}
+						: m_pTransactionApi(std::make_unique<MockRemoteApi>(transactionRange)) {
+				}
 
 			public:
 				const auto& api() const {
@@ -56,9 +56,7 @@ namespace catapult { namespace chain {
 				}
 
 				void setError(bool setError = true) {
-					auto entryPoint = setError
-							? MockRemoteApi::EntryPoint::Unconfirmed_Transactions
-							: MockRemoteApi::EntryPoint::None;
+					auto entryPoint = setError ? MockRemoteApi::EntryPoint::Unconfirmed_Transactions : MockRemoteApi::EntryPoint::None;
 					m_pTransactionApi->setError(entryPoint);
 				}
 

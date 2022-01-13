@@ -63,10 +63,8 @@ namespace catapult { namespace partialtransaction {
 			}
 
 			for (const auto& cosignature : transactionInfo.Cosignatures) {
-				cosignatureConsumer(model::DetachedCosignature(
-						cosignature.SignerPublicKey,
-						cosignature.Signature,
-						transactionInfo.EntityHash));
+				cosignatureConsumer(
+						model::DetachedCosignature(cosignature.SignerPublicKey, cosignature.Signature, transactionInfo.EntityHash));
 			}
 		}
 

@@ -47,8 +47,8 @@ namespace catapult { namespace local {
 				CATAPULT_THROW_RUNTIME_ERROR("Load() unsupported in mock storage");
 			}
 
-			static void LoadInto(uint64_t, DestinationType&)
-			{}
+			static void LoadInto(uint64_t, DestinationType&) {
+			}
 
 			// let every purge operation modify cache delta id
 			static void Purge(uint64_t value, DestinationType& cacheDelta) {
@@ -56,9 +56,8 @@ namespace catapult { namespace local {
 			}
 		};
 
-		using SimpleCacheStorageTraits = MockSimpleCacheExtensionStorageTraits<
-			test::SimpleCacheDefaultViewExtension,
-			test::SimpleCacheDefaultDeltaExtension>;
+		using SimpleCacheStorageTraits =
+				MockSimpleCacheExtensionStorageTraits<test::SimpleCacheDefaultViewExtension, test::SimpleCacheDefaultDeltaExtension>;
 
 		// endregion
 

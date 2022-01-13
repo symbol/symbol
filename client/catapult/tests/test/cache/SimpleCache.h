@@ -31,23 +31,21 @@
 #include <numeric>
 #include <unordered_set>
 
-namespace catapult {
-	namespace test {
-		template<typename TViewExtension, typename TDeltaExtension>
-		class BasicSimpleCacheDeltaExtension;
+namespace catapult { namespace test {
+	template<typename TViewExtension, typename TDeltaExtension>
+	class BasicSimpleCacheDeltaExtension;
 
-		template<typename TViewExtension, typename TDeltaExtension>
-		class BasicSimpleCacheViewExtension;
-	}
-}
+	template<typename TViewExtension, typename TDeltaExtension>
+	class BasicSimpleCacheViewExtension;
+}}
 
 namespace catapult { namespace test {
 
 	template<typename TViewExtension, typename TDeltaExtension>
 	using SimpleCacheReadOnlyType = cache::ReadOnlySimpleCache<
-		BasicSimpleCacheViewExtension<TViewExtension, TDeltaExtension>,
-		BasicSimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>,
-		uint64_t>;
+			BasicSimpleCacheViewExtension<TViewExtension, TDeltaExtension>,
+			BasicSimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>,
+			uint64_t>;
 
 	/// Possible simple cache view modes.
 	enum class SimpleCacheViewMode {
@@ -72,8 +70,8 @@ namespace catapult { namespace test {
 		/// Creates an iterator around \a value and \a isValid.
 		SimpleCacheFindIterator(uint64_t value, bool isValid)
 				: m_value(value)
-				, m_isValid(isValid)
-		{}
+				, m_isValid(isValid) {
+		}
 
 	public:
 		/// Gets a value.
@@ -101,8 +99,8 @@ namespace catapult { namespace test {
 		/// Creates default state.
 		SimpleCacheState()
 				: Id(0)
-				, MerkleRoot(GenerateRandomByteArray<Hash256>())
-		{}
+				, MerkleRoot(GenerateRandomByteArray<Hash256>()) {
+		}
 
 	public:
 		/// Current cache identifier / value.
@@ -118,8 +116,8 @@ namespace catapult { namespace test {
 	class SimpleCacheDisabledMerkleRootViewExtension {
 	public:
 		/// Creates a view extension.
-		SimpleCacheDisabledMerkleRootViewExtension(SimpleCacheViewMode, const SimpleCacheState&)
-		{}
+		SimpleCacheDisabledMerkleRootViewExtension(SimpleCacheViewMode, const SimpleCacheState&) {
+		}
 	};
 
 	/// View extension that represents a default cache that supports optional features (merkle roots).
@@ -127,14 +125,14 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a view extension around \a mode and \a state.
 		SimpleCacheDefaultViewExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
-				: SimpleCacheDefaultViewExtension(mode, state.MerkleRoot)
-		{}
+				: SimpleCacheDefaultViewExtension(mode, state.MerkleRoot) {
+		}
 
 		/// Creates a view extension around \a mode and \a merkleRoot.
 		SimpleCacheDefaultViewExtension(SimpleCacheViewMode mode, const Hash256& merkleRoot)
 				: m_mode(mode)
-				, m_merkleRoot(merkleRoot)
-		{}
+				, m_merkleRoot(merkleRoot) {
+		}
 
 	public:
 		/// Returns \c true if merkle root is supported.
@@ -163,14 +161,14 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a delta extension around \a mode and \a state.
 		SimpleCacheDefaultDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
-				: SimpleCacheDefaultDeltaExtension(mode, std::make_unique<Hash256>(state.MerkleRoot))
-		{}
+				: SimpleCacheDefaultDeltaExtension(mode, std::make_unique<Hash256>(state.MerkleRoot)) {
+		}
 
 	private:
 		SimpleCacheDefaultDeltaExtension(SimpleCacheViewMode mode, std::unique_ptr<Hash256>&& pMerkleRoot)
 				: SimpleCacheDefaultViewExtension(mode, *pMerkleRoot)
-				, m_pMerkleRoot(std::move(pMerkleRoot))
-		{}
+				, m_pMerkleRoot(std::move(pMerkleRoot)) {
+		}
 
 	public:
 		/// Recalculates the merkle root given the specified chain \a height if supported.
@@ -291,8 +289,8 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a view around \a mode and \a state.
 		SimpleCacheViewExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
-				: cache::ReadOnlyViewSupplier<BasicSimpleCacheViewExtension<TViewExtension, TDeltaExtension>>(mode, state)
-		{}
+				: cache::ReadOnlyViewSupplier<BasicSimpleCacheViewExtension<TViewExtension, TDeltaExtension>>(mode, state) {
+		}
 	};
 
 	using BasicSimpleCacheView = BasicSimpleCacheViewExtension<SimpleCacheDefaultViewExtension, SimpleCacheDefaultDeltaExtension>;
@@ -318,8 +316,8 @@ namespace catapult { namespace test {
 		/// Creates a view around \a mode and \a state.
 		BasicSimpleCacheDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
 				: TDeltaExtension(mode, state)
-				, m_id(state.Id)
-		{}
+				, m_id(state.Id) {
+		}
 
 	public:
 		/// Gets the id.
@@ -398,8 +396,8 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a delta around \a mode and \a state.
 		SimpleCacheDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
-				: cache::ReadOnlyViewSupplier<BasicSimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>>(mode, state)
-		{}
+				: cache::ReadOnlyViewSupplier<BasicSimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>>(mode, state) {
+		}
 	};
 
 	using BasicSimpleCacheDelta = BasicSimpleCacheDeltaExtension<SimpleCacheDefaultViewExtension, SimpleCacheDefaultDeltaExtension>;
@@ -424,8 +422,8 @@ namespace catapult { namespace test {
 				const std::shared_ptr<const AutoSetFlag::State>& pFlag = nullptr,
 				SimpleCacheViewMode mode = SimpleCacheViewMode::Iterable)
 				: m_pFlag(pFlag)
-				, m_mode(mode)
-		{}
+				, m_mode(mode) {
+		}
 
 	public:
 		/// Gets a locked view based on this cache.
@@ -473,13 +471,13 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a cache around \a config.
 		explicit SimpleCacheExtension(const cache::CacheConfiguration& = cache::CacheConfiguration())
-				: BaseType(BasicSimpleCacheExtension<TViewExtension, TDeltaExtension>())
-		{}
+				: BaseType(BasicSimpleCacheExtension<TViewExtension, TDeltaExtension>()) {
+		}
 
 		/// Creates a cache with \a mode.
 		explicit SimpleCacheExtension(SimpleCacheViewMode mode)
-				: BaseType(BasicSimpleCacheExtension<TViewExtension, TDeltaExtension>(nullptr, mode))
-		{}
+				: BaseType(BasicSimpleCacheExtension<TViewExtension, TDeltaExtension>(nullptr, mode)) {
+		}
 
 		/// Creates a cache with an auto set \a flag.
 		explicit SimpleCacheExtension(const AutoSetFlag& flag)
@@ -493,10 +491,9 @@ namespace catapult { namespace test {
 
 	/// Synchronized cache composed of simple data with a specific id.
 	template<
-		uint64_t CacheId,
-		typename TViewExtension = SimpleCacheDefaultViewExtension,
-		typename TDeltaExtension = SimpleCacheDefaultDeltaExtension
-	>
+			uint64_t CacheId,
+			typename TViewExtension = SimpleCacheDefaultViewExtension,
+			typename TDeltaExtension = SimpleCacheDefaultDeltaExtension>
 	class SimpleCacheT : public SimpleCacheExtension<TViewExtension, TDeltaExtension> {
 	public:
 		/// Unique cache identifier.

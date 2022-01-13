@@ -77,11 +77,13 @@ namespace catapult { namespace partialtransaction {
 	}
 
 #define CONSUMER_HOOK_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	CONSUMER_HOOK_TEST_ENTRY(TEST_NAME, CosignedTransactionInfosConsumer) \
 	CONSUMER_HOOK_TEST_ENTRY(TEST_NAME, PtRangeConsumer) \
 	CONSUMER_HOOK_TEST_ENTRY(TEST_NAME, CosignatureRangeConsumer) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CONSUMER_HOOK_TEST(CannotAccessWhenUnset) {
 		// Arrange:
@@ -99,9 +101,7 @@ namespace catapult { namespace partialtransaction {
 		const auto* pSeedParam = &seedParam;
 		std::vector<decltype(pSeedParam)> consumedParams;
 
-		TTraits::Set(hooks, [&consumedParams](auto&& param) {
-			consumedParams.push_back(&param);
-		});
+		TTraits::Set(hooks, [&consumedParams](auto&& param) { consumedParams.push_back(&param); });
 
 		// Act:
 		auto factory = TTraits::Get(hooks);
@@ -195,11 +195,9 @@ namespace catapult { namespace partialtransaction {
 
 		// Act: trigger deletions of three infos
 		auto handler = context.testState().state().hooks().transactionsChangeHandler();
-		utils::HashPointerSet addedTransactionHashes{
-				&transactionInfos[1].EntityHash,
-				&transactionInfos[2].EntityHash,
-				&transactionInfos[4].EntityHash
-		};
+		utils::HashPointerSet addedTransactionHashes{ &transactionInfos[1].EntityHash,
+													  &transactionInfos[2].EntityHash,
+													  &transactionInfos[4].EntityHash };
 		std::vector<model::TransactionInfo> revertedTransactionInfos;
 		handler(consumers::TransactionsChangeInfo(addedTransactionHashes, revertedTransactionInfos));
 
@@ -222,9 +220,8 @@ namespace catapult { namespace partialtransaction {
 
 		// - seed the cache (deadlines t[+1.5]..t[-3.5])
 		auto transactionInfos = test::CreateTransactionInfos(6, [](auto i) {
-			return SubtractNonNegative(
-					test::CreateDefaultNetworkTimeSupplier()(),
-					utils::TimeSpan::FromHours(i)) + utils::TimeSpan::FromMinutes(90);
+			return SubtractNonNegative(test::CreateDefaultNetworkTimeSupplier()(), utils::TimeSpan::FromHours(i))
+				   + utils::TimeSpan::FromMinutes(90);
 		});
 		auto& ptCache = GetMemoryPtCache(context.locator());
 		for (const auto& transactionInfo : transactionInfos)

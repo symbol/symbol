@@ -58,8 +58,9 @@ namespace catapult { namespace model {
 			using PublishFunc = consumer<const TDerivedTransaction&, const PublishContext&, NotificationSubscriber&>;
 
 		public:
-			explicit BasicTransactionPluginT(const PublishFunc& publishFunc) : m_publishFunc(publishFunc)
-			{}
+			explicit BasicTransactionPluginT(const PublishFunc& publishFunc)
+					: m_publishFunc(publishFunc) {
+			}
 
 		public:
 			EntityType type() const override {
@@ -92,14 +93,13 @@ namespace catapult { namespace model {
 
 		public:
 			template<typename TPublishEmbeddedFunc>
-			explicit EmbeddedTransactionPluginT(TPublishEmbeddedFunc publishEmbeddedFunc) : BaseType(publishEmbeddedFunc)
-			{}
+			explicit EmbeddedTransactionPluginT(TPublishEmbeddedFunc publishEmbeddedFunc)
+					: BaseType(publishEmbeddedFunc) {
+			}
 
 		public:
-			void publish(
-					const EmbeddedTransaction& transaction,
-					const PublishContext& context,
-					NotificationSubscriber& sub) const override {
+			void publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+					const override {
 				BaseType::publishImpl(transaction, context, sub);
 			}
 
@@ -125,14 +125,12 @@ namespace catapult { namespace model {
 			template<typename TPublishFunc, typename TPublishEmbeddedFunc>
 			TransactionPluginT(TPublishFunc publishFunc, TPublishEmbeddedFunc publishEmbeddedFunc)
 					: BaseType(publishFunc)
-					, m_pEmbeddedTransactionPlugin(CreateEmbedded<TEmbeddedTransaction>(publishEmbeddedFunc))
-			{}
+					, m_pEmbeddedTransactionPlugin(CreateEmbedded<TEmbeddedTransaction>(publishEmbeddedFunc)) {
+			}
 
 		public:
-			void publish(
-					const WeakEntityInfoT<Transaction>& transactionInfo,
-					const PublishContext& context,
-					NotificationSubscriber& sub) const override {
+			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub)
+					const override {
 				BaseType::publishImpl(transactionInfo.entity(), context, sub);
 			}
 

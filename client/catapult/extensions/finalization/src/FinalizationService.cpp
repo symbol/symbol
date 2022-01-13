@@ -112,9 +112,8 @@ namespace catapult { namespace finalization {
 					[finalizationContextFactory](const auto& proof) {
 						auto result = chain::VerifyFinalizationProof(proof, finalizationContextFactory.create(proof.Round.Epoch));
 						if (chain::VerifyFinalizationProofResult::Success != result) {
-							CATAPULT_LOG(warning)
-									<< "proof for round " << proof.Round << " at height " << proof.Height
-									<< " failed verification with " << result;
+							CATAPULT_LOG(warning) << "proof for round " << proof.Round << " at height " << proof.Height
+												  << " failed verification with " << result;
 							return false;
 						}
 
@@ -136,8 +135,9 @@ namespace catapult { namespace finalization {
 
 		class FinalizationServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit FinalizationServiceRegistrar(const FinalizationConfiguration& config) : m_config(config)
-			{}
+			explicit FinalizationServiceRegistrar(const FinalizationConfiguration& config)
+					: m_config(config) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {

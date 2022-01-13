@@ -22,13 +22,11 @@
 #pragma once
 #include <bsoncxx/builder/stream/document.hpp>
 
-namespace catapult {
-	namespace state {
-		class MosaicAddressRestriction;
-		class MosaicGlobalRestriction;
-		class MosaicRestrictionEntry;
-	}
-}
+namespace catapult { namespace state {
+	class MosaicAddressRestriction;
+	class MosaicGlobalRestriction;
+	class MosaicRestrictionEntry;
+}}
 
 namespace catapult { namespace test {
 

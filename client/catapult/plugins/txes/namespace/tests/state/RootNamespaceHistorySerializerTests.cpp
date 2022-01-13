@@ -28,9 +28,9 @@ namespace catapult { namespace state {
 
 #define TEST_CLASS RootNamespaceHistorySerializerTests
 
-	using test::RootNamespaceHeader;
 	using test::NamespaceData;
 	using test::NamespaceDataWithAliasPayload;
+	using test::RootNamespaceHeader;
 
 	// region traits
 
@@ -93,10 +93,16 @@ namespace catapult { namespace state {
 	}
 
 #define SERIALIZER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FullTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonHistoricalTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FullTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_NonHistorical) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonHistoricalTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -310,11 +316,9 @@ namespace catapult { namespace state {
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthOneWithChildren) {
 		// Arrange:
-		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{
-			{ NamespaceId(124), NamespaceId() },
-			{ NamespaceId(124), NamespaceId(125) },
-			{ NamespaceId(126), NamespaceId() }
-		};
+		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{ { NamespaceId(124), NamespaceId() },
+																			   { NamespaceId(124), NamespaceId(125) },
+																			   { NamespaceId(126), NamespaceId() } };
 
 		// Assert:
 		AssertCanSaveHistoryWithDepthOneWithChildren<TTraits>(expectedChildNamespaceData, 0, [](const auto&) {});
@@ -342,17 +346,9 @@ namespace catapult { namespace state {
 	namespace {
 		void SeedRootNamespaceWithOutOfOrderChildren(RootNamespace& root) {
 			// add more 3 element paths, to increase chance one of them will be first in unordered map
-			std::vector<std::vector<NamespaceId::ValueType>> paths{
-				{ 123, 753 },
-				{ 123, 753, 129 },
-				{ 123, 753, 127 },
-				{ 123, 753, 128 },
-				{ 123, 753, 125 },
-				{ 123, 753, 126 },
-				{ 123, 124 },
-				{ 123, 124, 122 },
-				{ 123, 124, 121 }
-			};
+			std::vector<std::vector<NamespaceId::ValueType>> paths{ { 123, 753 },	   { 123, 753, 129 }, { 123, 753, 127 },
+																	{ 123, 753, 128 }, { 123, 753, 125 }, { 123, 753, 126 },
+																	{ 123, 124 },	   { 123, 124, 122 }, { 123, 124, 121 } };
 
 			for (const auto& rawPath : paths)
 				root.add(Namespace(test::CreatePath(rawPath)));
@@ -382,17 +378,24 @@ namespace catapult { namespace state {
 		AssertRootHeader(buffer, sizeof(typename TTraits::NamespaceHistoryHeader), owner, Height(222), Height(333), 9);
 
 		auto offset = sizeof(typename TTraits::NamespaceHistoryHeader) + sizeof(RootNamespaceHeader);
-		AssertOrderedNamespaceData(buffer, offset, {
-			{ NamespaceId(124), NamespaceId() },
-			{ NamespaceId(124), NamespaceId(121), },
-			{ NamespaceId(124), NamespaceId(122), },
-			{ NamespaceId(753), NamespaceId() },
-			{ NamespaceId(753), NamespaceId(125) },
-			{ NamespaceId(753), NamespaceId(126) },
-			{ NamespaceId(753), NamespaceId(127) },
-			{ NamespaceId(753), NamespaceId(128) },
-			{ NamespaceId(753), NamespaceId(129) }
-		});
+		AssertOrderedNamespaceData(
+				buffer,
+				offset,
+				{ { NamespaceId(124), NamespaceId() },
+				  {
+						  NamespaceId(124),
+						  NamespaceId(121),
+				  },
+				  {
+						  NamespaceId(124),
+						  NamespaceId(122),
+				  },
+				  { NamespaceId(753), NamespaceId() },
+				  { NamespaceId(753), NamespaceId(125) },
+				  { NamespaceId(753), NamespaceId(126) },
+				  { NamespaceId(753), NamespaceId(127) },
+				  { NamespaceId(753), NamespaceId(128) },
+				  { NamespaceId(753), NamespaceId(129) } });
 	}
 
 	namespace {
@@ -447,12 +450,10 @@ namespace catapult { namespace state {
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthGreaterThanOneSameOwner) {
 		// Arrange:
-		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{
-			{ NamespaceId(124), NamespaceId() },
-			{ NamespaceId(124), NamespaceId(125) },
-			{ NamespaceId(126), NamespaceId() },
-			{ NamespaceId(126), NamespaceId(129) }
-		};
+		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{ { NamespaceId(124), NamespaceId() },
+																			   { NamespaceId(124), NamespaceId(125) },
+																			   { NamespaceId(126), NamespaceId() },
+																			   { NamespaceId(126), NamespaceId(129) } };
 
 		// Assert:
 		AssertCanSaveHistoryWithDepthGreaterThanOneSameOwner<TTraits>(expectedChildNamespaceData, 0, [](const auto&) {});
@@ -470,13 +471,15 @@ namespace catapult { namespace state {
 
 		// Assert:
 		auto aliasDataSize = 2 * sizeof(MosaicId) + Address::Size;
-		AssertCanSaveHistoryWithDepthGreaterThanOneSameOwner<TTraits>(expectedChildNamespaceData, aliasDataSize, [&aliasedAddress](
-				auto& history) {
-			// Arrange: aliases are set on the middle history entry
-			history.back().setAlias(NamespaceId(124), NamespaceAlias(MosaicId(444)));
-			history.back().setAlias(NamespaceId(125), NamespaceAlias(aliasedAddress));
-			history.back().setAlias(NamespaceId(126), NamespaceAlias(MosaicId(987)));
-		});
+		AssertCanSaveHistoryWithDepthGreaterThanOneSameOwner<TTraits>(
+				expectedChildNamespaceData,
+				aliasDataSize,
+				[&aliasedAddress](auto& history) {
+					// Arrange: aliases are set on the middle history entry
+					history.back().setAlias(NamespaceId(124), NamespaceAlias(MosaicId(444)));
+					history.back().setAlias(NamespaceId(125), NamespaceAlias(aliasedAddress));
+					history.back().setAlias(NamespaceId(126), NamespaceAlias(MosaicId(987)));
+				});
 	}
 
 	namespace {
@@ -530,31 +533,20 @@ namespace catapult { namespace state {
 			AssertRootHeader(buffer, offset, owner3, renewHeight2, Height(555), 1);
 			offset += sizeof(RootNamespaceHeader);
 
-			AssertNamespaceData(buffer, offset, {
-				{ NamespaceId(126), NamespaceId() }
-			});
+			AssertNamespaceData(buffer, offset, { { NamespaceId(126), NamespaceId() } });
 		}
 	}
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthGreaterThanOneSameOwnerInactive) {
 		// Arrange:
-		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{
-			{ NamespaceId(124), NamespaceId() },
-			{ NamespaceId(124), NamespaceId(125) },
-			{ NamespaceId(126), NamespaceId() }
-		};
+		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{ { NamespaceId(124), NamespaceId() },
+																			   { NamespaceId(124), NamespaceId(125) },
+																			   { NamespaceId(126), NamespaceId() } };
 
 		// Assert:
 		auto owner = test::CreateRandomOwner();
-		AssertCanSaveHistoryWithDepthGreaterThanOneUnlinked<TTraits>(
-				expectedChildNamespaceData,
-				0,
-				owner,
-				owner,
-				owner,
-				Height(111),
-				Height(350),
-				[](const auto&) {});
+		AssertCanSaveHistoryWithDepthGreaterThanOneUnlinked<
+				TTraits>(expectedChildNamespaceData, 0, owner, owner, owner, Height(111), Height(350), [](const auto&) {});
 	}
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthGreaterThanOneSameOwnerInactive_WithAliases) {
@@ -576,24 +568,15 @@ namespace catapult { namespace state {
 		// Assert:
 		auto owner = test::CreateRandomOwner();
 		auto aliasDataSize = 2 * sizeof(MosaicId) + Address::Size;
-		AssertCanSaveHistoryWithDepthGreaterThanOneUnlinked<TTraits>(
-				expectedChildNamespaceData,
-				aliasDataSize,
-				owner,
-				owner,
-				owner,
-				Height(111),
-				Height(350),
-				prepareAliases);
+		AssertCanSaveHistoryWithDepthGreaterThanOneUnlinked<
+				TTraits>(expectedChildNamespaceData, aliasDataSize, owner, owner, owner, Height(111), Height(350), prepareAliases);
 	}
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthGreaterThanOneDifferentOwner) {
 		// Arrange:
-		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{
-			{ NamespaceId(124), NamespaceId() },
-			{ NamespaceId(124), NamespaceId(125) },
-			{ NamespaceId(126), NamespaceId() }
-		};
+		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{ { NamespaceId(124), NamespaceId() },
+																			   { NamespaceId(124), NamespaceId(125) },
+																			   { NamespaceId(126), NamespaceId() } };
 
 		// Assert:
 		AssertCanSaveHistoryWithDepthGreaterThanOneUnlinked<TTraits>(
@@ -786,7 +769,7 @@ namespace catapult { namespace state {
 		};
 	}
 
-	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_TESTS(LoadTraits<FullTraits>,)
+	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_TESTS(LoadTraits<FullTraits>, )
 	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_NON_EMPTY_TESTS(LoadTraits<NonHistoricalTraits>, _NonHistorical)
 
 	// endregion

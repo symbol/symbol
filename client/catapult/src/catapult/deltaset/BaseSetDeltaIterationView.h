@@ -39,8 +39,8 @@ namespace catapult { namespace deltaset {
 		BaseSetDeltaIterationView(const SetType& originalElements, const DeltaElements<SetType>& deltas, size_t size)
 				: m_originalElements(originalElements)
 				, m_deltas(deltas)
-				, m_size(size)
-		{}
+				, m_size(size) {
+		}
 
 	public:
 		/// Iterator used for iterating over the view.

@@ -99,13 +99,14 @@ namespace catapult { namespace state {
 }}
 
 #define MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockInfoTests<LOCK_INFO_TYPE, LOCK_INFO_TYPE##Traits>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		LockInfoTests<LOCK_INFO_TYPE, LOCK_INFO_TYPE##Traits>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_LOCK_INFO_TESTS(LOCK_INFO_TYPE) \
 	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsTrueWhenHeightIsLessThanUnusedLockInfoHeight) \
 	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUnusedLockInfoHeight) \
 	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsLessThanUsedLockInfoHeight) \
 	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUsedLockInfoHeight) \
-	\
+\
 	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, GetLockIdentifierReturnsExpectedIdentifier)
-

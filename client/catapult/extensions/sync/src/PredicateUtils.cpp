@@ -39,9 +39,7 @@ namespace catapult { namespace sync {
 		}
 
 		chain::UtUpdater::Throttle CreateDefaultUtUpdaterThrottle(utils::FileSize maxCacheSize) {
-			return [maxCacheSize](const auto&, const auto& context) {
-				return context.TransactionsCache.memorySize() >= maxCacheSize;
-			};
+			return [maxCacheSize](const auto&, const auto& context) { return context.TransactionsCache.memorySize() >= maxCacheSize; };
 		}
 	}
 
@@ -52,8 +50,7 @@ namespace catapult { namespace sync {
 				config.Node.UnconfirmedTransactionsCacheMaxSize,
 				config.Blockchain.MaxTransactionsPerBlock);
 
-		return config.Node.EnableTransactionSpamThrottling
-				? CreateTransactionSpamThrottle(throttleConfig, IsBondedTransaction)
-				: CreateDefaultUtUpdaterThrottle(throttleConfig.MaxCacheSize);
+		return config.Node.EnableTransactionSpamThrottling ? CreateTransactionSpamThrottle(throttleConfig, IsBondedTransaction)
+														   : CreateDefaultUtUpdaterThrottle(throttleConfig.MaxCacheSize);
 	}
 }}

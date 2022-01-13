@@ -47,8 +47,9 @@ namespace catapult { namespace crypto {
 
 		class TestContext {
 		public:
-			TestContext() : TestContext({ Default_Options })
-			{}
+			TestContext()
+					: TestContext({ Default_Options }) {
+			}
 
 			explicit TestContext(const std::vector<BmOptions>& options)
 					: m_nextStorageIndex(0)
@@ -59,14 +60,12 @@ namespace catapult { namespace crypto {
 
 						auto keyPair = GenerateKeyPair();
 						m_publicKeys.push_back(keyPair.publicKey());
-						auto tree = BmPrivateKeyTree::Create(
-								std::move(keyPair),
-								m_storages[m_nextStorageIndex],
-								options[m_nextStorageIndex]);
+						auto tree =
+								BmPrivateKeyTree::Create(std::move(keyPair), m_storages[m_nextStorageIndex], options[m_nextStorageIndex]);
 						++m_nextStorageIndex;
 						return std::make_unique<BmPrivateKeyTree>(std::move(tree));
-					})
-			{}
+					}) {
+			}
 
 		public:
 			const auto& publicKey(size_t index) {
@@ -186,12 +185,7 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, CanSignWithMultipleIncreasingValidKeys) {
 		// Arrange:
 		TestContext context;
-		std::initializer_list<BmKeyIdentifier> keyIdentifiers{
-			{ 71 },
-			{ 73 },
-			{ 74 },
-			{ 78 }
-		};
+		std::initializer_list<BmKeyIdentifier> keyIdentifiers{ { 71 }, { 73 }, { 74 }, { 78 } };
 
 		// Act:
 		for (const auto& keyIdentifier : keyIdentifiers)
@@ -245,11 +239,7 @@ namespace catapult { namespace crypto {
 		template<typename TAction>
 		void RunMultiTreeFactoryTest(TAction action) {
 			// Arrange:
-			TestContext context({
-				{ { 12 }, { 18 } },
-				{ { 19 }, { 30 } },
-				{ { 45 }, { 60 } }
-			});
+			TestContext context({ { { 12 }, { 18 } }, { { 19 }, { 30 } }, { { 45 }, { 60 } } });
 
 			// Act + Assert:
 			action(context);

@@ -24,11 +24,13 @@
 #include <vector>
 
 namespace catapult {
-	namespace model { struct Transaction; }
-	namespace mongo {
-		struct MongoTransactionMetadata;
-		class MongoTransactionRegistry;
-	}
+namespace model {
+	struct Transaction;
+}
+namespace mongo {
+	struct MongoTransactionMetadata;
+	class MongoTransactionRegistry;
+}
 }
 
 namespace catapult { namespace mongo { namespace mappers {

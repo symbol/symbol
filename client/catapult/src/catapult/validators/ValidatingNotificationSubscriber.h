@@ -32,8 +32,8 @@ namespace catapult { namespace validators {
 		/// Creates a validating notification subscriber around \a validator.
 		explicit ValidatingNotificationSubscriber(const stateless::NotificationValidator& validator)
 				: m_validator(validator)
-				, m_result(ValidationResult::Success)
-		{}
+				, m_result(ValidationResult::Success) {
+		}
 
 	public:
 		/// Gets the aggregate validation result.

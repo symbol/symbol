@@ -49,16 +49,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			template<typename TTransaction>
 			static void Stream(bson_stream::document& builder, const TTransaction& transaction) {
 				builder << "restrictionFlags" << static_cast<int32_t>(transaction.RestrictionFlags);
-				StreamValues(
-						builder,
-						"restrictionAdditions",
-						transaction.RestrictionAdditionsPtr(),
-						transaction.RestrictionAdditionsCount);
-				StreamValues(
-						builder,
-						"restrictionDeletions",
-						transaction.RestrictionDeletionsPtr(),
-						transaction.RestrictionDeletionsCount);
+				StreamValues(builder, "restrictionAdditions", transaction.RestrictionAdditionsPtr(), transaction.RestrictionAdditionsCount);
+				StreamValues(builder, "restrictionDeletions", transaction.RestrictionDeletionsPtr(), transaction.RestrictionDeletionsCount);
 			}
 		};
 	}

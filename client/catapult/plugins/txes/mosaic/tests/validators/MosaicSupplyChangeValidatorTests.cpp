@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicSupplyChangeValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicSupplyChange,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicSupplyChange, )
 
 	namespace {
 		void AssertValidationResult(ValidationResult expectedResult, model::MosaicSupplyChangeAction action, Amount delta) {

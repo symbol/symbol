@@ -63,8 +63,8 @@ namespace catapult { namespace observers {
 		class TestContext : public test::AccountObserverTestContext {
 		public:
 			explicit TestContext(NotifyMode notifyMode)
-					: test::AccountObserverTestContext(notifyMode, Height(123), CreateBlockchainConfiguration())
-			{}
+					: test::AccountObserverTestContext(notifyMode, Height(123), CreateBlockchainConfiguration()) {
+			}
 
 		public:
 			const auto& highValueAddresses() {

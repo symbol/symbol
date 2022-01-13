@@ -28,8 +28,8 @@ namespace catapult { namespace builders {
 			, m_recipientAddress()
 			, m_secret()
 			, m_hashAlgorithm()
-			, m_proof()
-	{}
+			, m_proof() {
+	}
 
 	void SecretProofBuilder::setRecipientAddress(const UnresolvedAddress& recipientAddress) {
 		m_recipientAddress = recipientAddress;

@@ -58,7 +58,7 @@ namespace catapult { namespace extensions {
 
 	/// Factory for creating a range consumer function bound to an input source.
 	template<typename TConsumer>
-	using RangeConsumerFactoryFunc = std::function<TConsumer (disruptor::InputSource)>;
+	using RangeConsumerFactoryFunc = std::function<TConsumer(disruptor::InputSource)>;
 
 	/// Factory for creating a BlockRangeConsumerFunc bound to an input source.
 	using BlockRangeConsumerFactoryFunc = RangeConsumerFactoryFunc<BlockRangeConsumerFunc>;
@@ -70,7 +70,7 @@ namespace catapult { namespace extensions {
 	using TransactionRangeConsumerFactoryFunc = RangeConsumerFactoryFunc<TransactionRangeConsumerFunc>;
 
 	/// Retriever that returns the network chain heights for a number of peers.
-	using RemoteChainHeightsRetriever = std::function<thread::future<std::vector<Height>> (size_t)>;
+	using RemoteChainHeightsRetriever = std::function<thread::future<std::vector<Height>>(size_t)>;
 
 	/// Supplier for retrieving a finalized height hash pair.
 	using FinalizedHeightHashPairSupplier = supplier<model::HeightHashPair>;

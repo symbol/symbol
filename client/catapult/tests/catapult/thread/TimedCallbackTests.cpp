@@ -32,15 +32,13 @@ namespace catapult { namespace thread {
 	namespace {
 #define TIMED_CALLBACK_RESULT_CODE \
 	ENUM_VALUE(Undefined) \
-	\
+\
 	ENUM_VALUE(Timed_Out) \
-	\
+\
 	ENUM_VALUE(Completed)
 
 #define ENUM_VALUE(LABEL) LABEL,
-		enum class TimedCallbackResultCode {
-			TIMED_CALLBACK_RESULT_CODE
-		};
+		enum class TimedCallbackResultCode { TIMED_CALLBACK_RESULT_CODE };
 #undef ENUM_VALUE
 
 #define ENUM_LIST TIMED_CALLBACK_RESULT_CODE
@@ -57,8 +55,8 @@ namespace catapult { namespace thread {
 			TimedCallbackResult()
 					: Code(TimedCallbackResultCode::Undefined)
 					, NumCallbackCalls(0)
-					, NumTimeoutHandlerCalls(0)
-			{}
+					, NumTimeoutHandlerCalls(0) {
+			}
 		};
 
 		class TestContext {
@@ -315,10 +313,16 @@ namespace catapult { namespace thread {
 		};
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Timeout) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TimeoutTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonTimeout) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonTimeoutTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Timeout) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TimeoutTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_NonTimeout) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonTimeoutTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 	}
 
 	TRAITS_BASED_TEST(TimeoutHandlerDestroysCallbacksAfterInvocation) {

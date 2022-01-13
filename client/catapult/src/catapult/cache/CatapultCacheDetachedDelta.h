@@ -23,7 +23,9 @@
 #include "CatapultCacheDelta.h"
 #include <vector>
 
-namespace catapult { namespace cache { class DetachedSubCacheView; } }
+namespace catapult { namespace cache {
+	class DetachedSubCacheView;
+}}
 
 namespace catapult { namespace cache {
 

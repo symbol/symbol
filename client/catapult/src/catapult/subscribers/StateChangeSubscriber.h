@@ -23,8 +23,12 @@
 #include "catapult/plugins.h"
 
 namespace catapult {
-	namespace model { class ChainScore; }
-	namespace subscribers { struct StateChangeInfo; }
+namespace model {
+	class ChainScore;
+}
+namespace subscribers {
+	struct StateChangeInfo;
+}
 }
 
 namespace catapult { namespace subscribers {

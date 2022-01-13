@@ -203,8 +203,8 @@ namespace catapult { namespace extensions {
 		public:
 			BreadcrumbService(const std::string& name, std::vector<std::string>& breadcrumbs)
 					: m_name(name)
-					, m_breadcrumbs(breadcrumbs)
-			{}
+					, m_breadcrumbs(breadcrumbs) {
+			}
 
 			~BreadcrumbService() {
 				m_breadcrumbs.push_back(m_name);

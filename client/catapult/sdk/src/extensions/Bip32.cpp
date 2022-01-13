@@ -33,8 +33,9 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	Bip32Node::Bip32Node(const RawBuffer& key, const RawBuffer& data) : Bip32Node(Hmac_Sha512(key, data))
-	{}
+	Bip32Node::Bip32Node(const RawBuffer& key, const RawBuffer& data)
+			: Bip32Node(Hmac_Sha512(key, data)) {
+	}
 
 	Bip32Node::Bip32Node(Hash512&& hmacResult)
 			: m_keyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromBufferSecure({ &hmacResult[0], crypto::PrivateKey::Size }))) {
@@ -73,7 +74,7 @@ namespace catapult { namespace extensions {
 	Bip32Node Bip32Node::derive(const std::vector<uint32_t>& path) {
 		auto iter = path.begin();
 		auto nextNode = derive(*iter++);
-		for (; path.end() != iter ; ++iter)
+		for (; path.end() != iter; ++iter)
 			nextNode = nextNode.derive(*iter);
 
 		return nextNode;

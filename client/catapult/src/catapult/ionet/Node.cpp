@@ -37,9 +37,8 @@ namespace catapult { namespace ionet {
 				return;
 
 			std::ostringstream out;
-			out
-					<< "cannot create node with " << propertyName << " greater than max size"
-					<< std::endl << str << " (size " << str.size() << ")";
+			out << "cannot create node with " << propertyName << " greater than max size" << std::endl
+				<< str << " (size " << str.size() << ")";
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
@@ -57,11 +56,13 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	Node::Node() : Node(model::NodeIdentity())
-	{}
+	Node::Node()
+			: Node(model::NodeIdentity()) {
+	}
 
-	Node::Node(const model::NodeIdentity& identity) : Node(identity, NodeEndpoint(), NodeMetadata())
-	{}
+	Node::Node(const model::NodeIdentity& identity)
+			: Node(identity, NodeEndpoint(), NodeMetadata()) {
+	}
 
 	Node::Node(const model::NodeIdentity& identity, const NodeEndpoint& endpoint, const NodeMetadata& metadata)
 			: m_identity(identity)

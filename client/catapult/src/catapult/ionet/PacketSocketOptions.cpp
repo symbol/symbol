@@ -29,8 +29,8 @@ namespace catapult { namespace ionet {
 	PacketSocketSslVerifyContext::PacketSocketSslVerifyContext()
 			: m_preverified(false)
 			, m_pVerifyContext(nullptr)
-			, m_pPublicKey(&m_publicKeyBacking)
-	{}
+			, m_pPublicKey(&m_publicKeyBacking) {
+	}
 
 	PacketSocketSslVerifyContext::PacketSocketSslVerifyContext(
 			bool preverified,
@@ -38,8 +38,8 @@ namespace catapult { namespace ionet {
 			Key& publicKey)
 			: m_preverified(preverified)
 			, m_pVerifyContext(&verifyContext)
-			, m_pPublicKey(&publicKey)
-	{}
+			, m_pPublicKey(&publicKey) {
+	}
 
 	bool PacketSocketSslVerifyContext::preverified() const {
 		return m_preverified;
@@ -60,12 +60,8 @@ namespace catapult { namespace ionet {
 	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const std::filesystem::path& certificateDirectory) {
 		auto pSslContext = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::tlsv13);
 		pSslContext->set_options(
-				boost::asio::ssl::context::no_sslv2
-				| boost::asio::ssl::context::no_sslv3
-				| boost::asio::ssl::context::no_tlsv1
-				| boost::asio::ssl::context::no_tlsv1_1
-				| boost::asio::ssl::context::no_tlsv1_2
-				| SSL_OP_CIPHER_SERVER_PREFERENCE);
+				boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3 | boost::asio::ssl::context::no_tlsv1
+				| boost::asio::ssl::context::no_tlsv1_1 | boost::asio::ssl::context::no_tlsv1_2 | SSL_OP_CIPHER_SERVER_PREFERENCE);
 
 		if (!SSL_CTX_set_num_tickets(pSslContext->native_handle(), 0))
 			CATAPULT_THROW_RUNTIME_ERROR("failed to set the number of server tickets");
@@ -76,9 +72,7 @@ namespace catapult { namespace ionet {
 		std::array<int, 1> curves{ NID_X25519 };
 		SSL_CTX_set1_groups(pSslContext->native_handle(), curves.data(), static_cast<long>(curves.size()));
 
-		return [pSslContext]() -> boost::asio::ssl::context& {
-			return *pSslContext;
-		};
+		return [pSslContext]() -> boost::asio::ssl::context& { return *pSslContext; };
 	}
 
 	supplier<predicate<PacketSocketSslVerifyContext&>> CreateSslVerifyCallbackSupplier() {

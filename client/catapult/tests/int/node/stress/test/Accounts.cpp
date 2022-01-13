@@ -47,4 +47,3 @@ namespace catapult { namespace test {
 		return m_keyPairs[id];
 	}
 }}
-

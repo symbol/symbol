@@ -30,18 +30,19 @@ namespace catapult { namespace state {
 	struct BlockStatistic {
 	public:
 		/// Creates a default block statistic.
-		constexpr BlockStatistic() : BlockStatistic(catapult::Height(0))
-		{}
+		constexpr BlockStatistic()
+				: BlockStatistic(catapult::Height(0)) {
+		}
 
 		/// Creates a block statistic from \a height.
 		constexpr explicit BlockStatistic(catapult::Height height)
-				: BlockStatistic(height, catapult::Timestamp(0), catapult::Difficulty(0), BlockFeeMultiplier(0))
-		{}
+				: BlockStatistic(height, catapult::Timestamp(0), catapult::Difficulty(0), BlockFeeMultiplier(0)) {
+		}
 
 		/// Creates a block statistic from \a block.
 		constexpr explicit BlockStatistic(const model::Block& block)
-				: BlockStatistic(block.Height, block.Timestamp, block.Difficulty, block.FeeMultiplier)
-		{}
+				: BlockStatistic(block.Height, block.Timestamp, block.Difficulty, block.FeeMultiplier) {
+		}
 
 		/// Creates a block statistic from \a height, \a timestamp, \a difficulty and \a feeMultiplier.
 		constexpr BlockStatistic(
@@ -52,8 +53,8 @@ namespace catapult { namespace state {
 				: Height(height)
 				, Timestamp(timestamp)
 				, Difficulty(difficulty)
-				, FeeMultiplier(feeMultiplier)
-		{}
+				, FeeMultiplier(feeMultiplier) {
+		}
 
 	public:
 		/// Block height.

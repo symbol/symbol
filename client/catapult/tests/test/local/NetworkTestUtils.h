@@ -25,9 +25,13 @@
 #include "catapult/types.h"
 #include <memory>
 
-namespace boost { namespace asio { class io_context; } }
+namespace boost { namespace asio {
+	class io_context;
+}}
 
-namespace catapult { namespace net { class PacketWriters; } }
+namespace catapult { namespace net {
+	class PacketWriters;
+}}
 
 namespace catapult { namespace test {
 

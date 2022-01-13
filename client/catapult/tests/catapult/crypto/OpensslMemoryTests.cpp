@@ -138,11 +138,19 @@ namespace catapult { namespace crypto {
 	}
 
 #define TRAIT_BASED_ALLOCATOR_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Size1) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Allocator::Pool1>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Size2) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Allocator::Pool2>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Size3) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Allocator::Pool3>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Size1) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Allocator::Pool1>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Size2) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Allocator::Pool2>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Size3) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Allocator::Pool3>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAIT_BASED_ALLOCATOR_TEST(SpecializedOpensslPoolAllocator_CanAllocateSingleElement) {
 		// Arrange:
@@ -363,9 +371,9 @@ namespace catapult { namespace crypto {
 		const auto* pPrevious = pointers[0];
 		for (auto i = 1u; i < pointers.size(); ++i) {
 			const auto* pCurrent = pointers[i];
-			auto previousSize = i <= Pool2_Start
-					? Allocator::Pool1::Element_Size
-					: i <= Pool3_Start ? Allocator::Pool2::Element_Size : Allocator::Pool3::Element_Size;
+			auto previousSize = i <= Pool2_Start   ? Allocator::Pool1::Element_Size
+								: i <= Pool3_Start ? Allocator::Pool2::Element_Size
+												   : Allocator::Pool3::Element_Size;
 
 			EXPECT_LT(pPrevious, pCurrent) << i;
 			EXPECT_EQ(pPrevious + previousSize, pCurrent) << i;

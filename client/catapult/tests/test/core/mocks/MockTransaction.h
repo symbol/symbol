@@ -72,8 +72,8 @@ namespace catapult { namespace mocks {
 		/// Creates a hash notification around \a hash.
 		explicit MockHashNotification(const Hash256& hash)
 				: model::Notification(Notification_Type, sizeof(MockHashNotification))
-				, Hash(hash)
-		{}
+				, Hash(hash) {
+		}
 
 	public:
 		/// Hash.
@@ -92,8 +92,8 @@ namespace catapult { namespace mocks {
 		MockPublisherContextNotification(const Address& signerAddress, Height blockHeight)
 				: model::Notification(Notification_Type, sizeof(MockPublisherContextNotification))
 				, SignerAddress(signerAddress)
-				, BlockHeight(blockHeight)
-		{}
+				, BlockHeight(blockHeight) {
+		}
 
 	public:
 		/// Address of the published transaction signer.

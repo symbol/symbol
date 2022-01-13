@@ -31,8 +31,8 @@ namespace catapult { namespace subscribers {
 	public:
 		/// Creates an aggregate subscriber around \a subscribers.
 		explicit BasicAggregateSubscriber(std::vector<std::unique_ptr<TSubscriber>>&& subscribers)
-				: m_subscribers(std::move(subscribers))
-		{}
+				: m_subscribers(std::move(subscribers)) {
+		}
 
 	protected:
 		template<typename TAction>

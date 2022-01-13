@@ -23,7 +23,9 @@
 #include "catapult/model/EntityInfo.h"
 #include "catapult/utils/ArraySet.h"
 
-namespace catapult { namespace model { class NotificationPublisher; } }
+namespace catapult { namespace model {
+	class NotificationPublisher;
+}}
 
 namespace catapult { namespace unbondedpruning {
 

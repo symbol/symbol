@@ -105,11 +105,19 @@ namespace catapult { namespace tree {
 	}
 
 #define PTSERIALIZER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TPathTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_OddPath) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OddPathTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_EvenPath) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EvenPathTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_EmptyPath) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmptyPathTraits>(); } \
-	template<typename TPathTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TPathTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_OddPath) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OddPathTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_EvenPath) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EvenPathTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_EmptyPath) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmptyPathTraits>(); \
+	} \
+	template<typename TPathTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

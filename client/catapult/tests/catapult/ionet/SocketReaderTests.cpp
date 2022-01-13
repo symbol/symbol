@@ -43,19 +43,18 @@ namespace catapult { namespace ionet {
 
 		class ReaderFactory {
 		public:
-			ReaderFactory() : ReaderFactory(test::GenerateRandomByteArray<Key>(), std::string())
-			{}
+			ReaderFactory()
+					: ReaderFactory(test::GenerateRandomByteArray<Key>(), std::string()) {
+			}
 
 			ReaderFactory(const Key& clientPublicKey, const std::string& clientHost)
 					: m_pPool(test::CreateStartedIoThreadPool())
 					, m_clientPublicKey(clientPublicKey)
-					, m_clientHost(clientHost)
-			{}
+					, m_clientHost(clientHost) {
+			}
 
 		public:
-			std::unique_ptr<SocketReader> createReader(
-					const std::shared_ptr<PacketSocket>& pSocket,
-					const ServerPacketHandlers& handlers) {
+			std::unique_ptr<SocketReader> createReader(const std::shared_ptr<PacketSocket>& pSocket, const ServerPacketHandlers& handlers) {
 				auto pBufferedIo = pSocket->buffered();
 				return ionet::CreateSocketReader(pSocket, pBufferedIo, handlers, { m_clientPublicKey, m_clientHost });
 			}
@@ -92,9 +91,7 @@ namespace catapult { namespace ionet {
 			void startReader(SocketReader& reader, const std::shared_ptr<PacketSocket>& pSocket, SocketReadResult& readResult) {
 				reader.read([pSocket, &readResult](auto result) {
 					readResult.CompletionCodes.push_back(result);
-					pSocket->stats([&readResult](const auto& stats) {
-						readResult.NumUnconsumedBytes = stats.NumUnprocessedBytes;
-					});
+					pSocket->stats([&readResult](const auto& stats) { readResult.NumUnconsumedBytes = stats.NumUnprocessedBytes; });
 				});
 			}
 
@@ -132,9 +129,7 @@ namespace catapult { namespace ionet {
 			//      "client" - writes sendBuffers to the socket
 			SocketReadResult readResult;
 			std::unique_ptr<SocketReader> pReader;
-			factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
-				pReader = std::move(pStartedReader);
-			});
+			factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) { pReader = std::move(pStartedReader); });
 			auto pClientSocket = test::AddClientWriteBuffersTask(factory.ioContext(), sendBuffers);
 
 			// - wait for the test to complete
@@ -265,14 +260,10 @@ namespace catapult { namespace ionet {
 		SocketReadResult readResult;
 		std::vector<uint8_t> responseBytes(3 * sizeof(Packet) + 9);
 		std::unique_ptr<SocketReader> pReader;
-		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
-			pReader = std::move(pStartedReader);
-		});
+		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) { pReader = std::move(pStartedReader); });
 		test::CreateClientSocket(factory.ioContext())->connect().then([&sendBuffers, &responseBytes](auto&& socketFuture) {
 			auto* pClientSocket = socketFuture.get();
-			pClientSocket->write(sendBuffers).then([pClientSocket, &responseBytes](auto) {
-				pClientSocket->read(responseBytes);
-			});
+			pClientSocket->write(sendBuffers).then([pClientSocket, &responseBytes](auto) { pClientSocket->read(responseBytes); });
 		});
 
 		// - wait for the test to complete
@@ -282,17 +273,41 @@ namespace catapult { namespace ionet {
 		AssertSocketReadSuccess(readResult, 3, 13);
 		auto expectedClientBytes = std::vector<uint8_t>{
 			// packet 1
-			0x0A, 0x00, 0x00, 0x00, // size
-			0x00, 0x00, 0x00, 0x00, // type
-			0x01, 0x14, // payload
+			0x0A,
+			0x00,
+			0x00,
+			0x00, // size
+			0x00,
+			0x00,
+			0x00,
+			0x00, // type
+			0x01,
+			0x14, // payload
 			// packet 2
-			0x0B, 0x00, 0x00, 0x00, // size
-			0x00, 0x00, 0x00, 0x00, // type
-			0x02, 0x14, 0x11, // payload
+			0x0B,
+			0x00,
+			0x00,
+			0x00, // size
+			0x00,
+			0x00,
+			0x00,
+			0x00, // type
+			0x02,
+			0x14,
+			0x11, // payload
 			// packet 3
-			0x0C, 0x00, 0x00, 0x00, // size
-			0x00, 0x00, 0x00, 0x00, // type
-			0x03, 0x14, 0x11, 0x32 // payload
+			0x0C,
+			0x00,
+			0x00,
+			0x00, // size
+			0x00,
+			0x00,
+			0x00,
+			0x00, // type
+			0x03,
+			0x14,
+			0x11,
+			0x32 // payload
 		};
 		EXPECT_EQ(expectedClientBytes, responseBytes);
 	}
@@ -335,9 +350,7 @@ namespace catapult { namespace ionet {
 		//      "client" - writes sendBuffers to the socket
 		SocketReadResult readResult;
 		std::unique_ptr<SocketReader> pReader;
-		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
-			pReader = std::move(pStartedReader);
-		});
+		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) { pReader = std::move(pStartedReader); });
 		auto pClientSocket = test::AddClientWriteBuffersTask(factory.ioContext(), sendBuffers);
 
 		// - wait for the test to complete
@@ -472,9 +485,7 @@ namespace catapult { namespace ionet {
 		std::unique_ptr<SocketReader> pReader;
 		test::SpawnPacketServerWork(factory.ioContext(), [&](const auto& pServerSocket) {
 			pReader = factory.createReader(pServerSocket, handlers);
-			pReader->read([&readCode](auto code) {
-				readCode = code;
-			});
+			pReader->read([&readCode](auto code) { readCode = code; });
 			pServerSocket->close();
 		});
 		auto pClientSocket = test::AddClientConnectionTask(factory.ioContext());
@@ -492,9 +503,7 @@ namespace catapult { namespace ionet {
 		auto pAllReadsAttempted = allReadsAttempted.state();
 		ReaderFactory factory;
 		ServerPacketHandlers handlers;
-		handlers.registerHandler(test::Default_Packet_Type, [pAllReadsAttempted](const auto&, const auto&) {
-			pAllReadsAttempted->wait();
-		});
+		handlers.registerHandler(test::Default_Packet_Type, [pAllReadsAttempted](const auto&, const auto&) { pAllReadsAttempted->wait(); });
 
 		auto sendBuffers = test::GenerateRandomPacketBuffers({ 100 });
 
@@ -535,9 +544,7 @@ namespace catapult { namespace ionet {
 		//      "client" - writes sendBuffers to the socket
 		SocketReadResult readResult;
 		std::unique_ptr<SocketReader> pReader;
-		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
-			pReader = std::move(pStartedReader);
-		});
+		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) { pReader = std::move(pStartedReader); });
 		auto pClientSocket = test::AddClientWriteBuffersTask(factory.ioContext(), sendBuffers);
 
 		// - wait for the test to complete

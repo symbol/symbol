@@ -27,10 +27,7 @@ namespace catapult { namespace model {
 	MosaicId GenerateMosaicId(const Address& owner, MosaicNonce nonce) noexcept {
 		Hash256 result;
 		crypto::Sha3_256_Builder sha3;
-		sha3.update({
-			{ reinterpret_cast<const uint8_t*>(&nonce), sizeof(MosaicNonce) },
-			owner
-		});
+		sha3.update({ { reinterpret_cast<const uint8_t*>(&nonce), sizeof(MosaicNonce) }, owner });
 		sha3.final(result);
 
 		// clear high bit

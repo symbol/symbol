@@ -31,15 +31,15 @@ namespace catapult { namespace test {
 #define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NAME, TRAITS_PREFIX) \
 	struct TRAITS_PREFIX##RegularTraits { \
 		using TransactionType = model::NAME##Transaction; \
-		\
+\
 		static auto CreatePlugin() { \
 			return Create##NAME##TransactionMongoPlugin(); \
 		} \
 	}; \
-	\
+\
 	struct TRAITS_PREFIX##EmbeddedTraits { \
 		using TransactionType = model::Embedded##NAME##Transaction; \
-		\
+\
 		static auto CreatePlugin() { \
 			return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin()); \
 		} \
@@ -49,24 +49,24 @@ namespace catapult { namespace test {
 #define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(NAME) \
 	struct RegularTraits { \
 		using TransactionType = model::NAME##Transaction; \
-		\
+\
 		static auto CreatePlugin() { \
 			return Create##NAME##TransactionMongoPlugin(); \
 		} \
-		\
+\
 		template<typename TBuilder> \
 		static auto Adapt(const TBuilder& builder) { \
 			return builder.build(); \
 		} \
 	}; \
-	\
+\
 	struct EmbeddedTraits { \
 		using TransactionType = model::Embedded##NAME##Transaction; \
-		\
+\
 		static auto CreatePlugin() { \
 			return test::ExtractEmbeddedPlugin(RegularTraits::CreatePlugin()); \
 		} \
-		\
+\
 		template<typename TBuilder> \
 		static auto Adapt(const TBuilder& builder) { \
 			return builder.buildEmbedded(); \
@@ -104,7 +104,7 @@ namespace catapult { namespace test {
 /// - uncovered (regular and embedded): { streamTransaction }
 #define DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, TYPE) \
 	DEFINE_SHARED_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, TYPE) \
-	\
+\
 	TEST(TEST_CLASS, DependentDocumentsAreNotSupported##TEST_POSTFIX) { \
 		test::MongoTransactionPluginTests<TRAITS_PREFIX##RegularTraits>::AssertDependentDocumentsAreNotSupported(); \
 	}

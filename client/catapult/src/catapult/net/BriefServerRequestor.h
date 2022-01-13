@@ -67,34 +67,27 @@ namespace catapult { namespace net {
 					: m_ioContext(ioContext)
 					, m_requestNode(requestNode)
 					, m_compatibilityChecker(compatibilityChecker)
-					, m_callback(callback)
-			{}
+					, m_callback(callback) {
+			}
 
 		public:
 			void setTimeout(const utils::TimeSpan& timeout, const std::shared_ptr<ionet::PacketSocket>& pSocket) {
-				auto pTimedCallback = thread::MakeTimedCallback(
-						m_ioContext,
-						m_callback,
-						NodeRequestResult::Failure_Timeout,
-						ResponseType());
+				auto pTimedCallback =
+						thread::MakeTimedCallback(m_ioContext, m_callback, NodeRequestResult::Failure_Timeout, ResponseType());
 				pTimedCallback->setTimeout(timeout);
 				pTimedCallback->setTimeoutHandler([pSocket, requestNode = m_requestNode]() {
 					pSocket->close();
 					CATAPULT_LOG(debug) << TRequestPolicy::Friendly_Name << " request connection to '" << requestNode << "' timed out";
 				});
-				m_callback = [pTimedCallback](auto result, const auto& response) {
-					pTimedCallback->callback(result, response);
-				};
+				m_callback = [pTimedCallback](auto result, const auto& response) { pTimedCallback->callback(result, response); };
 			}
 
 		public:
 			void complete(PeerConnectCode connectCode) {
-				CATAPULT_LOG(debug)
-						<< TRequestPolicy::Friendly_Name << " request connection to '" << m_requestNode
-						<< "' failed: " << connectCode;
-				auto result = PeerConnectCode::Timed_Out == connectCode
-						? NodeRequestResult::Failure_Timeout
-						: NodeRequestResult::Failure_Connection;
+				CATAPULT_LOG(debug) << TRequestPolicy::Friendly_Name << " request connection to '" << m_requestNode
+									<< "' failed: " << connectCode;
+				auto result = PeerConnectCode::Timed_Out == connectCode ? NodeRequestResult::Failure_Timeout
+																		: NodeRequestResult::Failure_Connection;
 				complete(result);
 			}
 
@@ -106,9 +99,8 @@ namespace catapult { namespace net {
 
 					complete(response);
 				} catch (const catapult_runtime_error& e) {
-					CATAPULT_LOG(warning)
-							<< "exception thrown during " << TRequestPolicy::Friendly_Name << " request to '"
-							<< m_requestNode << "': " << e.what();
+					CATAPULT_LOG(warning) << "exception thrown during " << TRequestPolicy::Friendly_Name << " request to '" << m_requestNode
+										  << "': " << e.what();
 					complete(NodeRequestResult::Failure_Interaction);
 				}
 			}
@@ -144,8 +136,8 @@ namespace catapult { namespace net {
 				, m_requestTimeout(settings.Timeout)
 				, m_pConnector(CreateServerConnector(pool, serverPublicKey, settings, TRequestPolicy::Friendly_Name))
 				, m_numTotalRequests(0)
-				, m_numSuccessfulRequests(0)
-		{}
+				, m_numSuccessfulRequests(0) {
+		}
 
 	public:
 		/// Gets the number of active connections.

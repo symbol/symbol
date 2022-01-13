@@ -61,9 +61,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static auto GetFindFilter(const ModelType& restrictionEntry) {
-				return document()
-						<< std::string(Primary_Document_Name) + ".compositeHash" << mappers::ToBinary(restrictionEntry.uniqueKey())
-						<< finalize;
+				return document() << std::string(Primary_Document_Name) + ".compositeHash"
+								  << mappers::ToBinary(restrictionEntry.uniqueKey()) << finalize;
 			}
 		};
 

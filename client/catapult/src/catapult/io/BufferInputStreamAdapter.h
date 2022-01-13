@@ -34,8 +34,8 @@ namespace catapult { namespace io {
 		/// Creates an input stream around \a input.
 		explicit BufferInputStreamAdapter(const TContainer& input)
 				: m_input(input)
-				, m_position(0)
-		{}
+				, m_position(0) {
+		}
 
 	public:
 		/// Gets the read position.
@@ -53,10 +53,8 @@ namespace catapult { namespace io {
 			RawBuffer input(m_input);
 			if (buffer.Size + m_position > input.Size) {
 				std::ostringstream out;
-				out
-						<< "BufferInputStreamAdapter invalid read (buffer-size = " << buffer.Size
-						<< ", position = " << m_position
-						<< ", input-size = " << input.Size << ")";
+				out << "BufferInputStreamAdapter invalid read (buffer-size = " << buffer.Size << ", position = " << m_position
+					<< ", input-size = " << input.Size << ")";
 				CATAPULT_THROW_FILE_IO_ERROR(out.str().c_str());
 			}
 

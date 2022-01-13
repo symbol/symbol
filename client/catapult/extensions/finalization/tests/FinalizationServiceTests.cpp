@@ -99,11 +99,9 @@ namespace catapult { namespace finalization {
 		context.boot(true);
 
 		// Act + Assert:
-		test::AssertRegisteredTasksPostBoot(context, {
-			"connect peers task for service Finalization",
-			"pull finalization proof task",
-			"pull finalization messages task"
-		});
+		test::AssertRegisteredTasksPostBoot(
+				context,
+				{ "connect peers task for service Finalization", "pull finalization proof task", "pull finalization messages task" });
 	}
 
 	TEST(TEST_CLASS, TasksAreRegistered_WithVotingDisabled) {
@@ -112,10 +110,7 @@ namespace catapult { namespace finalization {
 		context.boot(false);
 
 		// Act + Assert:
-		test::AssertRegisteredTasksPostBoot(context, {
-			"connect peers task for service Finalization",
-			"pull finalization proof task"
-		});
+		test::AssertRegisteredTasksPostBoot(context, { "connect peers task for service Finalization", "pull finalization proof task" });
 	}
 
 	// endregion

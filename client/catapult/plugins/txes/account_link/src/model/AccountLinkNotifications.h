@@ -63,8 +63,8 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a linkedPublicKey.
 		explicit NewRemoteAccountNotification(const Key& linkedPublicKey)
 				: Notification(Notification_Type, sizeof(NewRemoteAccountNotification))
-				, LinkedPublicKey(linkedPublicKey)
-		{}
+				, LinkedPublicKey(linkedPublicKey) {
+		}
 
 	public:
 		/// Linked public key.

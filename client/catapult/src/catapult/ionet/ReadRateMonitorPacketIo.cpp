@@ -30,8 +30,8 @@ namespace catapult { namespace ionet {
 		public:
 			ReadRateMonitorReadCallback(const consumer<uint32_t>& readSizeConsumer, PacketIo::ReadCallback callback)
 					: m_readSizeConsumer(readSizeConsumer)
-					, m_callback(callback)
-			{}
+					, m_callback(callback) {
+			}
 
 		public:
 			void operator()(SocketOperationCode code, const Packet* pPacket) {
@@ -50,8 +50,8 @@ namespace catapult { namespace ionet {
 		public:
 			ReadRateMonitorPacketIo(const std::shared_ptr<PacketIo>& pIo, const consumer<uint32_t>& readSizeConsumer)
 					: m_pIo(pIo)
-					, m_readSizeConsumer(readSizeConsumer)
-			{}
+					, m_readSizeConsumer(readSizeConsumer) {
+			}
 
 		public:
 			void write(const PacketPayload& payload, const WriteCallback& callback) override {
@@ -80,8 +80,8 @@ namespace catapult { namespace ionet {
 		public:
 			ReadRateMonitorBatchPacketReader(const std::shared_ptr<BatchPacketReader>& pReader, const consumer<uint32_t>& readSizeConsumer)
 					: m_pReader(pReader)
-					, m_readSizeConsumer(readSizeConsumer)
-			{}
+					, m_readSizeConsumer(readSizeConsumer) {
+			}
 
 		public:
 			void readMultiple(const PacketIo::ReadCallback& callback) override {

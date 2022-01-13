@@ -33,32 +33,31 @@ namespace catapult { namespace handlers {
 			ionet::ServerPacketHandlers& handlers,
 			const model::UniqueNetworkFingerprint& networkFingerprint,
 			const NodeConsumer& nodeConsumer) {
-		handlers.registerHandler(ionet::PacketType::Node_Discovery_Push_Ping, [networkFingerprint, nodeConsumer](
-				const auto& packet,
-				const auto& context) {
-			ionet::Node node;
-			if (!nodediscovery::TryParseNodePacket(packet, node))
-				return;
+		handlers.registerHandler(
+				ionet::PacketType::Node_Discovery_Push_Ping,
+				[networkFingerprint, nodeConsumer](const auto& packet, const auto& context) {
+					ionet::Node node;
+					if (!nodediscovery::TryParseNodePacket(packet, node))
+						return;
 
-			if (!nodediscovery::IsNodeCompatible(node, networkFingerprint, context.key())) {
-				CATAPULT_LOG(warning)
-						<< "ignoring ping packet for incompatible node (identity = "
-						<< node.identity() << ", network = " << node.metadata().NetworkFingerprint << ")";
-				return;
-			}
+					if (!nodediscovery::IsNodeCompatible(node, networkFingerprint, context.key())) {
+						CATAPULT_LOG(warning) << "ignoring ping packet for incompatible node (identity = " << node.identity()
+											  << ", network = " << node.metadata().NetworkFingerprint << ")";
+						return;
+					}
 
-			auto identity = model::NodeIdentity{ node.identity().PublicKey, context.host() };
-			auto endpoint = node.endpoint();
+					auto identity = model::NodeIdentity{ node.identity().PublicKey, context.host() };
+					auto endpoint = node.endpoint();
 
-			if (endpoint.Host.empty()) {
-				endpoint.Host = identity.Host;
-				CATAPULT_LOG(debug) << "auto detected host '" << endpoint.Host << "' for " << identity;
-			}
+					if (endpoint.Host.empty()) {
+						endpoint.Host = identity.Host;
+						CATAPULT_LOG(debug) << "auto detected host '" << endpoint.Host << "' for " << identity;
+					}
 
-			node = ionet::Node(identity, endpoint, node.metadata());
-			CATAPULT_LOG(debug) << "processing ping from " << node;
-			nodeConsumer(node);
-		});
+					node = ionet::Node(identity, endpoint, node.metadata());
+					CATAPULT_LOG(debug) << "processing ping from " << node;
+					nodeConsumer(node);
+				});
 	}
 
 	void RegisterNodeDiscoveryPullPingHandler(
@@ -90,13 +89,12 @@ namespace catapult { namespace handlers {
 
 			class Producer : BasicProducer<ionet::NodeSet> {
 			public:
-				explicit Producer(const ionet::NodeSet& nodes) : BasicProducer<ionet::NodeSet>(nodes)
-				{}
+				explicit Producer(const ionet::NodeSet& nodes)
+						: BasicProducer<ionet::NodeSet>(nodes) {
+				}
 
 				auto operator()() {
-					return next([](const auto& node) {
-						return utils::UniqueToShared(ionet::PackNode(node));
-					});
+					return next([](const auto& node) { return utils::UniqueToShared(ionet::PackNode(node)); });
 				}
 			};
 		};
@@ -106,9 +104,7 @@ namespace catapult { namespace handlers {
 		handlers::BatchHandlerFactory<NodeDiscoveryPullPeersTraits>::RegisterZero(handlers, [nodesSupplier]() {
 			auto pNodes = std::make_unique<ionet::NodeSet>(nodesSupplier()); // used by producer by reference
 			auto producer = NodeDiscoveryPullPeersTraits::Producer(*pNodes);
-			return [pNodes = std::move(pNodes), producer]() mutable {
-				return producer();
-			};
+			return [pNodes = std::move(pNodes), producer]() mutable { return producer(); };
 		});
 	}
 }}

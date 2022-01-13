@@ -51,10 +51,8 @@ namespace catapult { namespace state {
 
 		struct VotingPublicKeysTraits {
 			static std::vector<model::PinnedVotingKey> ToValue(uint8_t seed) {
-				return {
-					{ { { seed } }, FinalizationEpoch(seed + 100), FinalizationEpoch(seed + 150) },
-					{ { { static_cast<uint8_t>(seed * seed) } }, FinalizationEpoch(seed + 151), FinalizationEpoch(seed + 175) }
-				};
+				return { { { { seed } }, FinalizationEpoch(seed + 100), FinalizationEpoch(seed + 150) },
+						 { { { static_cast<uint8_t>(seed * seed) } }, FinalizationEpoch(seed + 151), FinalizationEpoch(seed + 175) } };
 			}
 
 			static const auto& GetValueHistory(const AccountHistory& history) {
@@ -64,11 +62,19 @@ namespace catapult { namespace state {
 	}
 
 #define HISTORY_VALUE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Balance) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BalanceTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_VrfPublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfPublicKeyTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_VotingPublicKeys) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingPublicKeysTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Balance) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BalanceTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_VrfPublicKey) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfPublicKeyTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_VotingPublicKeys) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingPublicKeysTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

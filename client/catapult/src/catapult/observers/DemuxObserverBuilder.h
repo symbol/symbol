@@ -54,8 +54,8 @@ namespace catapult { namespace observers {
 		public:
 			ConditionalObserver(NotificationObserverPointerT<TNotification>&& pObserver, const NotificationObserverPredicate& predicate)
 					: m_pObserver(std::move(pObserver))
-					, m_predicate(predicate)
-			{}
+					, m_predicate(predicate) {
+			}
 
 		public:
 			const std::string& name() const override {

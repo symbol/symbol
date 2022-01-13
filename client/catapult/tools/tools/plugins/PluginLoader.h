@@ -25,8 +25,12 @@
 #include <memory>
 
 namespace catapult {
-	namespace config { class CatapultConfiguration; }
-	namespace plugins { class PluginManager; }
+namespace config {
+	class CatapultConfiguration;
+}
+namespace plugins {
+	class PluginManager;
+}
 }
 
 namespace catapult { namespace tools { namespace plugins {

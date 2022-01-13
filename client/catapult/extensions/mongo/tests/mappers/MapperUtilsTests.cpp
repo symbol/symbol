@@ -113,10 +113,16 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 #define TRAIT_BASED_TO_INT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ToInt64) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Uint64Traits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ToInt32) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Uint32Traits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ToInt64) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Uint64Traits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ToInt32) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Uint32Traits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAIT_BASED_TO_INT_TEST(CanConvertBaseValueInSignedRange) {
 		// Arrange:

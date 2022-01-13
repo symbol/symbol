@@ -26,12 +26,12 @@ namespace catapult { namespace model {
 
 	NetworkInfo::NetworkInfo()
 			: NetworkInfo(
-					NetworkIdentifier::Zero,
-					NodeIdentityEqualityStrategy::Key,
-					Key(),
-					catapult::GenerationHashSeed(),
-					utils::TimeSpan())
-	{}
+					  NetworkIdentifier::Zero,
+					  NodeIdentityEqualityStrategy::Key,
+					  Key(),
+					  catapult::GenerationHashSeed(),
+					  utils::TimeSpan()) {
+	}
 
 	NetworkInfo::NetworkInfo(
 			NetworkIdentifier identifier,
@@ -43,8 +43,8 @@ namespace catapult { namespace model {
 			, NodeEqualityStrategy(nodeEqualityStrategy)
 			, NemesisSignerPublicKey(nemesisSignerPublicKey)
 			, GenerationHashSeed(generationHashSeed)
-			, EpochAdjustment(epochAdjustment)
-	{}
+			, EpochAdjustment(epochAdjustment) {
+	}
 
 	Address GetNemesisSignerAddress(const NetworkInfo& networkInfo) {
 		return PublicKeyToAddress(networkInfo.NemesisSignerPublicKey, networkInfo.Identifier);

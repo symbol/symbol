@@ -370,11 +370,9 @@ namespace catapult { namespace state {
 				auto size = sizeof(AccountStateHeader) + sizeof(MosaicHeader) + accountState.Balances.size() * sizeof(model::Mosaic);
 
 				auto accountPublicKeysMask = accountState.SupplementalPublicKeys.mask();
-				std::vector<std::pair<AccountPublicKeys::KeyType, size_t>> keySizes{
-					{ AccountPublicKeys::KeyType::Linked, Key::Size },
-					{ AccountPublicKeys::KeyType::Node, Key::Size },
-					{ AccountPublicKeys::KeyType::VRF, Key::Size }
-				};
+				std::vector<std::pair<AccountPublicKeys::KeyType, size_t>> keySizes{ { AccountPublicKeys::KeyType::Linked, Key::Size },
+																					 { AccountPublicKeys::KeyType::Node, Key::Size },
+																					 { AccountPublicKeys::KeyType::VRF, Key::Size } };
 
 				for (const auto& keySizePair : keySizes) {
 					if (HasFlag(keySizePair.first, accountPublicKeysMask))
@@ -410,9 +408,8 @@ namespace catapult { namespace state {
 			using Serializer = AccountStateSerializer;
 
 			static size_t CalculatePackedSize(const AccountState& accountState) {
-				return RegularNonHistoricalTraits::CalculatePackedSize(accountState)
-						+ 3 * sizeof(PackedImportanceSnapshot)
-						+ 7 * sizeof(PackedActivityBucket);
+				return RegularNonHistoricalTraits::CalculatePackedSize(accountState) + 3 * sizeof(PackedImportanceSnapshot)
+					   + 7 * sizeof(PackedActivityBucket);
 			}
 
 			static AccountState DeserializeFromBuffer(const uint8_t* pData) {
@@ -464,8 +461,8 @@ namespace catapult { namespace state {
 		struct BasicHighValueTraits {
 			static constexpr size_t Mosaic_Header_Offset = sizeof(AccountStateHeader) + sizeof(HighValueImportanceHeader);
 
-			static void CoerceToDesiredFormat(const AccountState&)
-			{}
+			static void CoerceToDesiredFormat(const AccountState&) {
+			}
 		};
 
 		struct HighValueNonHistoricalTraits : public BasicHighValueTraits {
@@ -567,33 +564,41 @@ namespace catapult { namespace state {
 	}
 
 #define SERIALIZER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_RegularNonHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularNonHistoricalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_RegularHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularHistoricalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_HighValueNonHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HighValueNonHistoricalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_HighValueHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HighValueHistoricalTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_RegularNonHistorical) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularNonHistoricalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_RegularHistorical) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularHistoricalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_HighValueNonHistorical) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HighValueNonHistoricalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_HighValueHistorical) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HighValueHistoricalTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region Save
 
 	namespace {
 		void ForEachRandomSeed(const consumer<const RandomSeed&>& action) {
-			auto accountPublicKeysMasks = std::initializer_list<AccountPublicKeys::KeyType>{
-				AccountPublicKeys::KeyType::Unset,
-				AccountPublicKeys::KeyType::Linked,
-				AccountPublicKeys::KeyType::Node,
-				AccountPublicKeys::KeyType::VRF,
-				AccountPublicKeys::KeyType::Linked | AccountPublicKeys::KeyType::Node,
-				AccountPublicKeys::KeyType::All
-			};
+			auto accountPublicKeysMasks = std::initializer_list<AccountPublicKeys::KeyType>{ AccountPublicKeys::KeyType::Unset,
+																							 AccountPublicKeys::KeyType::Linked,
+																							 AccountPublicKeys::KeyType::Node,
+																							 AccountPublicKeys::KeyType::VRF,
+																							 AccountPublicKeys::KeyType::Linked
+																									 | AccountPublicKeys::KeyType::Node,
+																							 AccountPublicKeys::KeyType::All };
 
 			for (auto keyType : accountPublicKeysMasks) {
 				for (auto numVotingKeys : std::initializer_list<uint8_t>{ 0, 3 }) {
 					for (auto optimizedMosaicIdConstraint : { true, false }) {
-						CATAPULT_LOG(debug)
-								<< "key type mask: " << static_cast<uint16_t>(keyType)
-								<< ", num voting keys: " << static_cast<uint16_t>(numVotingKeys)
-								<< ", should constrain optimized mosaic id: " << optimizedMosaicIdConstraint;
+						CATAPULT_LOG(debug) << "key type mask: " << static_cast<uint16_t>(keyType)
+											<< ", num voting keys: " << static_cast<uint16_t>(numVotingKeys)
+											<< ", should constrain optimized mosaic id: " << optimizedMosaicIdConstraint;
 
 						action({ keyType, numVotingKeys, optimizedMosaicIdConstraint });
 					}
@@ -644,14 +649,15 @@ namespace catapult { namespace state {
 		void AssertCanSaveValueWithMosaics(size_t numMosaics) {
 			ForEachRandomSeed([numMosaics](const auto& seed) {
 				// Act + Assert:
-				AssertCanSaveValueWithMosaics<TTraits>(numMosaics, seed, [numMosaics, &seed](
-						const auto& originalAccountState,
-						const auto& buffer) {
-					// Assert:
-					auto savedAccountState = TTraits::DeserializeFromBuffer(buffer.data());
-					EXPECT_EQ(numMosaics, savedAccountState.Balances.size());
-					AssertEqual<TTraits>(seed, originalAccountState, std::move(savedAccountState));
-				});
+				AssertCanSaveValueWithMosaics<TTraits>(
+						numMosaics,
+						seed,
+						[numMosaics, &seed](const auto& originalAccountState, const auto& buffer) {
+							// Assert:
+							auto savedAccountState = TTraits::DeserializeFromBuffer(buffer.data());
+							EXPECT_EQ(numMosaics, savedAccountState.Balances.size());
+							AssertEqual<TTraits>(seed, originalAccountState, std::move(savedAccountState));
+						});
 			});
 		}
 	}

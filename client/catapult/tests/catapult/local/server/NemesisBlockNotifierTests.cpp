@@ -48,8 +48,8 @@ namespace catapult { namespace local {
 					: m_pPluginManager(test::CreatePluginManagerWithRealPlugins(CreateBlockchainConfiguration()))
 					, m_cache(m_pPluginManager->createCache())
 					, m_pStorage(mocks::CreateMemoryBlockStorageCache(numBlocks))
-					, m_notifier(m_pPluginManager->config(), m_cache, *m_pStorage, *m_pPluginManager)
-			{}
+					, m_notifier(m_pPluginManager->config(), m_cache, *m_pStorage, *m_pPluginManager) {
+			}
 
 		public:
 			auto& notifier() {
@@ -226,9 +226,8 @@ namespace catapult { namespace local {
 
 		// - register consumer because CatapultCacheDelta wrapped by CacheChanges is temporary and will be out of scope below
 		model::AddressSet addedAddresses;
-		subscriber.setCacheChangesConsumer([&addedAddresses](const auto& cacheChanges) {
-			addedAddresses = GetAddedAccountAddresses(cacheChanges);
-		});
+		subscriber.setCacheChangesConsumer(
+				[&addedAddresses](const auto& cacheChanges) { addedAddresses = GetAddedAccountAddresses(cacheChanges); });
 
 		// Act:
 		context.notifier().raise(subscriber);

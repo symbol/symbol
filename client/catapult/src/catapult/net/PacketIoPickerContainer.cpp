@@ -28,9 +28,8 @@ namespace catapult { namespace net {
 		m_pickers.emplace_back(roles, &picker);
 	}
 
-	std::vector<ionet::NodePacketIoPair> PacketIoPickerContainer::pickMatching(
-			const utils::TimeSpan& ioDuration,
-			ionet::NodeRoles roles) const {
+	std::vector<ionet::NodePacketIoPair> PacketIoPickerContainer::pickMatching(const utils::TimeSpan& ioDuration, ionet::NodeRoles roles)
+			const {
 		std::vector<ionet::NodePacketIoPair> ioPairs;
 		for (const auto& pickerPair : m_pickers) {
 			if (!HasFlag(roles, pickerPair.first))

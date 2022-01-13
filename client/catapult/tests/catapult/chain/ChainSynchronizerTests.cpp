@@ -32,8 +32,8 @@
 #include "tests/TestHarness.h"
 
 using namespace catapult::model;
-using catapult::mocks::MockPacketIo;
 using catapult::mocks::MockChainApi;
+using catapult::mocks::MockPacketIo;
 
 namespace catapult { namespace chain {
 
@@ -48,12 +48,12 @@ namespace catapult { namespace chain {
 		struct TestContext {
 		public:
 			TestContext(const ChainScore& localScore, const ChainScore& remoteScore)
-					: TestContext(localScore, remoteScore, {}, {}, test::GenerateBlockWithTransactions(0, Default_Height))
-			{}
+					: TestContext(localScore, remoteScore, {}, {}, test::GenerateBlockWithTransactions(0, Default_Height)) {
+			}
 
 			TestContext(const ChainScore& localScore, const ChainScore& remoteScore, std::unique_ptr<Block>&& pRemoteLastBlock)
-					: TestContext(localScore, remoteScore, {}, {}, std::move(pRemoteLastBlock))
-			{}
+					: TestContext(localScore, remoteScore, {}, {}, std::move(pRemoteLastBlock)) {
+			}
 
 			TestContext(
 					const ChainScore& localScore,
@@ -306,11 +306,9 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(ionet::NodeInteractionResultCode::Success, code);
 		AssertSync(context, 1);
-		AssertDefaultMultiplePullRequest(*context.pChainApi, {
-			Common_Block_Height + Height(1),
-			Common_Block_Height + Height(3),
-			Common_Block_Height + Height(5)
-		});
+		AssertDefaultMultiplePullRequest(
+				*context.pChainApi,
+				{ Common_Block_Height + Height(1), Common_Block_Height + Height(3), Common_Block_Height + Height(5) });
 	}
 
 	TEST(TEST_CLASS, NeutralInteractionWhenRemoteDoesNotHaveBlocksAtRequestedHeight) {
@@ -345,11 +343,9 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(ionet::NodeInteractionResultCode::Success, code);
 		AssertSync(context, 1);
-		AssertDefaultMultiplePullRequest(*context.pChainApi, {
-			Common_Block_Height + Height(1),
-			Common_Block_Height + Height(3),
-			Common_Block_Height + Height(5)
-		});
+		AssertDefaultMultiplePullRequest(
+				*context.pChainApi,
+				{ Common_Block_Height + Height(1), Common_Block_Height + Height(3), Common_Block_Height + Height(5) });
 	}
 
 	TEST(TEST_CLASS, FailedInteractionWhenBlocksFromReturnsException) {
@@ -388,10 +384,7 @@ namespace catapult { namespace chain {
 	// region unprocessed elements
 
 	namespace {
-		enum class ChainScoreRelation {
-			RemoteBetter,
-			Equal
-		};
+		enum class ChainScoreRelation { RemoteBetter, Equal };
 
 		auto CreateTestContextForUnprocessedElementTests(ChainScoreRelation relation = ChainScoreRelation::RemoteBetter) {
 			auto remoteHashes = test::GenerateRandomHashes(10);
@@ -407,8 +400,7 @@ namespace catapult { namespace chain {
 		}
 
 		void AssertRequestHeight(const TestContext& context, size_t index, Height expectedHeight) {
-			EXPECT_EQ(expectedHeight, context.pChainApi->blocksFromRequests()[index].first)
-					<< "height for request " << (index + 1);
+			EXPECT_EQ(expectedHeight, context.pChainApi->blocksFromRequests()[index].first) << "height for request " << (index + 1);
 		}
 
 		void AssertRequestHeights(const TestContext& context, const std::vector<Height>& expectedHeights) {
@@ -482,12 +474,10 @@ namespace catapult { namespace chain {
 		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// Assert:
-		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
-			ionet::NodeInteractionResultCode::Success,
-			ionet::NodeInteractionResultCode::Success,
-			ionet::NodeInteractionResultCode::Neutral,
-			ionet::NodeInteractionResultCode::Success
-		};
+		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{ ionet::NodeInteractionResultCode::Success,
+																					  ionet::NodeInteractionResultCode::Success,
+																					  ionet::NodeInteractionResultCode::Neutral,
+																					  ionet::NodeInteractionResultCode::Success };
 
 		AssertSync(context, 3);
 		EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
@@ -511,12 +501,10 @@ namespace catapult { namespace chain {
 		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// Assert:
-		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
-			ionet::NodeInteractionResultCode::Success,
-			ionet::NodeInteractionResultCode::Success,
-			ionet::NodeInteractionResultCode::Neutral,
-			ionet::NodeInteractionResultCode::Neutral
-		};
+		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{ ionet::NodeInteractionResultCode::Success,
+																					  ionet::NodeInteractionResultCode::Success,
+																					  ionet::NodeInteractionResultCode::Neutral,
+																					  ionet::NodeInteractionResultCode::Neutral };
 
 		AssertSync(context, 2);
 		EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
@@ -545,12 +533,10 @@ namespace catapult { namespace chain {
 		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// Assert:
-		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
-			ionet::NodeInteractionResultCode::Success,
-			ionet::NodeInteractionResultCode::Success,
-			ionet::NodeInteractionResultCode::Neutral,
-			ionet::NodeInteractionResultCode::Success
-		};
+		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{ ionet::NodeInteractionResultCode::Success,
+																					  ionet::NodeInteractionResultCode::Success,
+																					  ionet::NodeInteractionResultCode::Neutral,
+																					  ionet::NodeInteractionResultCode::Success };
 
 		AssertSync(context, 3);
 		EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
@@ -584,10 +570,8 @@ namespace catapult { namespace chain {
 			interactionResultCodes.push_back(syncFuture.get());
 
 			// Assert:
-			std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
-				ionet::NodeInteractionResultCode::Success,
-				ionet::NodeInteractionResultCode::Neutral
-			};
+			std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{ ionet::NodeInteractionResultCode::Success,
+																						  ionet::NodeInteractionResultCode::Neutral };
 
 			// - only one range was forwarded to the consumer because the second was rejected
 			AssertSync(context, 1);
@@ -614,10 +598,8 @@ namespace catapult { namespace chain {
 		interactionResultCodes.push_back(syncFuture2.get());
 
 		// Assert: only one outstanding sync is allowed at a time
-		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
-			ionet::NodeInteractionResultCode::Success,
-			ionet::NodeInteractionResultCode::Neutral
-		};
+		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{ ionet::NodeInteractionResultCode::Success,
+																					  ionet::NodeInteractionResultCode::Neutral };
 
 		// - only one range was forwarded to the consumer because the second was bypassed
 		AssertSync(context, 1);
@@ -659,10 +641,8 @@ namespace catapult { namespace chain {
 			interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 			// Assert: the first sync failed but the second succeeded
-			std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
-				ionet::NodeInteractionResultCode::Failure,
-				ionet::NodeInteractionResultCode::Success
-			};
+			std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{ ionet::NodeInteractionResultCode::Failure,
+																						  ionet::NodeInteractionResultCode::Success };
 
 			AssertSync(context, 1);
 			EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);

@@ -25,8 +25,12 @@
 #include <memory>
 
 namespace catapult {
-	namespace cache { class AccountStateCacheDelta; }
-	namespace model { struct BlockchainConfiguration; }
+namespace cache {
+	class AccountStateCacheDelta;
+}
+namespace model {
+	struct BlockchainConfiguration;
+}
 }
 
 namespace catapult { namespace importance {

@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 
 		constexpr auto Max_Raw_Block_Fee_Multiplier = static_cast<uint64_t>(std::numeric_limits<BlockFeeMultiplier::ValueType>::max());
 		return notification.MaxFee.unwrap() > Max_Raw_Block_Fee_Multiplier * notification.TransactionSize
-				? Failure_Core_Invalid_Transaction_Fee
-				: ValidationResult::Success;
+					   ? Failure_Core_Invalid_Transaction_Fee
+					   : ValidationResult::Success;
 	})
 }}

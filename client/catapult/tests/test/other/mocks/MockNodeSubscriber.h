@@ -32,8 +32,8 @@ namespace catapult { namespace mocks {
 		/// Creates params around \a node.
 		explicit NodeSubscriberNodeParams(const ionet::Node& node)
 				: Node(node)
-				, NodeCopy(node)
-		{}
+				, NodeCopy(node) {
+		}
 
 	public:
 		/// Reference to the node.
@@ -49,8 +49,8 @@ namespace catapult { namespace mocks {
 		/// Creates params around \a identity and \a serviceId.
 		NodeSubscriberIncomingNodeParams(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId)
 				: Identity(identity)
-				, ServiceId(serviceId)
-		{}
+				, ServiceId(serviceId) {
+		}
 
 	public:
 		/// Incoming node identity.
@@ -66,8 +66,8 @@ namespace catapult { namespace mocks {
 		/// Creates params around \a identity and \a reason.
 		NodeSubscriberBanParams(const model::NodeIdentity& identity, uint32_t reason)
 				: Identity(identity)
-				, Reason(reason)
-		{}
+				, Reason(reason) {
+		}
 
 	public:
 		/// Banned node identity.
@@ -81,20 +81,22 @@ namespace catapult { namespace mocks {
 	class MockNodeSubscriber : public subscribers::NodeSubscriber {
 	public:
 		/// Creates a mock subscriber.
-		MockNodeSubscriber() : MockNodeSubscriber(nullptr)
-		{}
+		MockNodeSubscriber()
+				: MockNodeSubscriber(nullptr) {
+		}
 
 		/// Creates a mock subscriber around \a nodes.
-		explicit MockNodeSubscriber(ionet::NodeContainer& nodes) : MockNodeSubscriber(&nodes)
-		{}
+		explicit MockNodeSubscriber(ionet::NodeContainer& nodes)
+				: MockNodeSubscriber(&nodes) {
+		}
 
 	private:
 		MockNodeSubscriber(ionet::NodeContainer* pNodes)
 				: m_pNodes(pNodes)
 				, m_numNodesNotified(0)
 				, m_enableBanSimulation(false)
-				, m_notifyIncomingNodeResult(true)
-		{}
+				, m_notifyIncomingNodeResult(true) {
+		}
 
 	public:
 		/// Gets the number of times notifyNode was called (in a threadsafe manner).

@@ -34,14 +34,7 @@ namespace catapult { namespace mocks {
 	/// and throw exceptions at specified entry points.
 	class MockChainApi : public api::RemoteChainApi {
 	public:
-		enum class EntryPoint {
-			Chain_Statistics,
-			Hashes_From,
-			Last_Block,
-			Block_At,
-			Blocks_From,
-			None
-		};
+		enum class EntryPoint { Chain_Statistics, Hashes_From, Last_Block, Block_At, Blocks_From, None };
 
 	public:
 		/// Creates a mock chain api around a chain \a score and last block (\a pLastBlock).
@@ -54,8 +47,9 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Creates a mock chain api around a chain \a score and chain \a height.
-		MockChainApi(const model::ChainScore& score, Height height) : MockChainApi(score, test::GenerateBlockWithTransactions(0, height))
-		{}
+		MockChainApi(const model::ChainScore& score, Height height)
+				: MockChainApi(score, test::GenerateBlockWithTransactions(0, height)) {
+		}
 
 	public:
 		/// Sets the entry point where an exception should occur to \a entryPoint.
@@ -153,7 +147,7 @@ namespace catapult { namespace mocks {
 
 		/// Gets a range of the configured blocks and throws if the error entry point is set to Blocks_From.
 		/// \note The \a height and the blocks-from-options (\a options) parameters are captured.
-		thread::future<model::BlockRange> blocksFrom (Height height, const api::BlocksFromOptions& options) const override {
+		thread::future<model::BlockRange> blocksFrom(Height height, const api::BlocksFromOptions& options) const override {
 			m_blocksFromRequests.push_back(std::make_pair(height, options));
 			if (shouldRaiseException(EntryPoint::Blocks_From))
 				return CreateFutureException<model::BlockRange>("blocks from error has been set");

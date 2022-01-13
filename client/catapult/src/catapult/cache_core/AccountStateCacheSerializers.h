@@ -32,8 +32,7 @@ namespace catapult { namespace cache {
 	/// Primary serializer for account state cache for patricia tree hashes.
 	/// \note This serializer excludes historical importances.
 	struct AccountStatePatriciaTreeSerializer
-			: public CacheSerializerAdapter<state::AccountStateNonHistoricalSerializer, AccountStateCacheDescriptor>
-	{};
+			: public CacheSerializerAdapter<state::AccountStateNonHistoricalSerializer, AccountStateCacheDescriptor> {};
 
 	/// Serializer for key address lookup sub cache.
 	struct KeyAddressPairSerializer {

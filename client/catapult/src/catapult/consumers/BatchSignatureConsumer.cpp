@@ -35,8 +35,8 @@ namespace catapult { namespace consumers {
 		public:
 			explicit SignatureCapturingNotificationSubscriber(const GenerationHashSeed& generationHashSeed)
 					: m_generationHashSeed(generationHashSeed)
-					, m_entityIndex(0)
-			{}
+					, m_entityIndex(0) {
+			}
 
 		public:
 			const auto& notificationToEntityIndexMap() const {
@@ -112,22 +112,23 @@ namespace catapult { namespace consumers {
 			const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
 			thread::IoThreadPool& pool,
 			const RequiresValidationPredicate& requiresValidationPredicate) {
-		return MakeBlockValidationConsumer(requiresValidationPredicate, [&pool, generationHashSeed, randomFiller, pPublisher](
-				const auto& entityInfos) {
-			// find all signature notifications
-			auto inputs = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos)->inputs();
+		return MakeBlockValidationConsumer(
+				requiresValidationPredicate,
+				[&pool, generationHashSeed, randomFiller, pPublisher](const auto& entityInfos) {
+					// find all signature notifications
+					auto inputs = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos)->inputs();
 
-			// process signatures in batches
-			std::atomic<validators::ValidationResult> aggregateResult(validators::ValidationResult::Success);
-			auto partitionCallback = [&randomFiller, &aggregateResult](auto itBegin, auto itEnd, auto, auto) {
-				auto count = static_cast<size_t>(std::distance(itBegin, itEnd));
-				if (!VerifyMultiShortCircuit(randomFiller, &*itBegin, count))
-					validators::AggregateValidationResult(aggregateResult, Failure_Consumer_Batch_Signature_Not_Verifiable);
-			};
+					// process signatures in batches
+					std::atomic<validators::ValidationResult> aggregateResult(validators::ValidationResult::Success);
+					auto partitionCallback = [&randomFiller, &aggregateResult](auto itBegin, auto itEnd, auto, auto) {
+						auto count = static_cast<size_t>(std::distance(itBegin, itEnd));
+						if (!VerifyMultiShortCircuit(randomFiller, &*itBegin, count))
+							validators::AggregateValidationResult(aggregateResult, Failure_Consumer_Batch_Signature_Not_Verifiable);
+					};
 
-			thread::ParallelForPartition(pool.ioContext(), inputs, pool.numWorkerThreads(), partitionCallback).get();
-			return aggregateResult.load();
-		});
+					thread::ParallelForPartition(pool.ioContext(), inputs, pool.numWorkerThreads(), partitionCallback).get();
+					return aggregateResult.load();
+				});
 	}
 
 	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
@@ -136,33 +137,39 @@ namespace catapult { namespace consumers {
 			const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
 			thread::IoThreadPool& pool,
 			const chain::FailedTransactionSink& failedTransactionSink) {
-		return MakeTransactionValidationConsumer(failedTransactionSink, [&pool, generationHashSeed, randomFiller, pPublisher](
-				const auto& entityInfos) {
-			// find all signature notifications
-			auto pSub = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos);
+		return MakeTransactionValidationConsumer(
+				failedTransactionSink,
+				[&pool, generationHashSeed, randomFiller, pPublisher](const auto& entityInfos) {
+					// find all signature notifications
+					auto pSub = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos);
 
-			// process signatures in batches
-			// note: store notification (not entity) results because it's possible for an entity to be split across partitions,
-			//       which would lead to a write data race (of same data) from multiple threads
-			std::vector<validators::ValidationResult> notificationResults(pSub->inputs().size(), validators::ValidationResult::Success);
-			auto partitionCallback = [&randomFiller, &notificationResults](auto itBegin, auto itEnd, auto startIndex, auto) {
-				auto count = static_cast<size_t>(std::distance(itBegin, itEnd));
-				auto partitionResultsPair = VerifyMulti(randomFiller, &*itBegin, count);
-				if (partitionResultsPair.second)
-					return;
+					// process signatures in batches
+					// note: store notification (not entity) results because it's possible for an entity to be split across partitions,
+					//       which would lead to a write data race (of same data) from multiple threads
+					std::vector<validators::ValidationResult> notificationResults(
+							pSub->inputs().size(),
+							validators::ValidationResult::Success);
+					auto partitionCallback = [&randomFiller, &notificationResults](auto itBegin, auto itEnd, auto startIndex, auto) {
+						auto count = static_cast<size_t>(std::distance(itBegin, itEnd));
+						auto partitionResultsPair = VerifyMulti(randomFiller, &*itBegin, count);
+						if (partitionResultsPair.second)
+							return;
 
-				auto index = startIndex;
-				for (auto result : partitionResultsPair.first) {
-					if (!result)
-						notificationResults[index] = Failure_Consumer_Batch_Signature_Not_Verifiable;
+						auto index = startIndex;
+						for (auto result : partitionResultsPair.first) {
+							if (!result)
+								notificationResults[index] = Failure_Consumer_Batch_Signature_Not_Verifiable;
 
-					++index;
-				}
-			};
+							++index;
+						}
+					};
 
-			thread::ParallelForPartition(pool.ioContext(), pSub->inputs(), pool.numWorkerThreads(), partitionCallback).get();
+					thread::ParallelForPartition(pool.ioContext(), pSub->inputs(), pool.numWorkerThreads(), partitionCallback).get();
 
-			return MapNotificationResultsToEntityResults(entityInfos.size(), pSub->notificationToEntityIndexMap(), notificationResults);
-		});
+					return MapNotificationResultsToEntityResults(
+							entityInfos.size(),
+							pSub->notificationToEntityIndexMap(),
+							notificationResults);
+				});
 	}
 }}

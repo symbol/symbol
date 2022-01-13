@@ -33,8 +33,8 @@ namespace catapult { namespace mongo {
 				, NumMatched(0)
 				, NumModified(0)
 				, NumDeleted(0)
-				, NumUpserted(0)
-		{}
+				, NumUpserted(0) {
+		}
 
 		/// Creates a bulk result from a mongo \a result.
 		explicit BulkWriteResult(const mongocxx::result::bulk_write& result)
@@ -42,8 +42,8 @@ namespace catapult { namespace mongo {
 				, NumMatched(result.matched_count())
 				, NumModified(result.modified_count())
 				, NumDeleted(result.deleted_count())
-				, NumUpserted(result.upserted_count())
-		{}
+				, NumUpserted(result.upserted_count()) {
+		}
 
 	public:
 		/// Aggregates all bulk write results in \a results into a single result.

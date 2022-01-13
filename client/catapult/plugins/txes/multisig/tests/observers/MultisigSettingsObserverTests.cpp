@@ -29,7 +29,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS MultisigSettingsObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(MultisigSettings,)
+	DEFINE_COMMON_OBSERVER_TESTS(MultisigSettings, )
 
 	namespace {
 		using ObserverTestContext = test::ObserverTestContextT<test::MultisigCacheFactory>;
@@ -91,8 +91,7 @@ namespace catapult { namespace observers {
 				auto notification = CreateNotification(multisig, removal.Delta, approval.Delta);
 
 				// Act + Assert:
-				RunTest(
-						ObserverTestContext(Mode, Height(777)),
+				RunTest(ObserverTestContext(Mode, Height(777)),
 						multisig,
 						{ removal.Current, approval.Current },
 						notification,
@@ -110,8 +109,7 @@ namespace catapult { namespace observers {
 				auto notification = CreateNotification(multisig, removal.Delta, approval.Delta);
 
 				// Act + Assert:
-				RunTest(
-						ObserverTestContext(Mode, Height(777)),
+				RunTest(ObserverTestContext(Mode, Height(777)),
 						multisig,
 						{ removal.Expected, approval.Expected },
 						notification,
@@ -123,10 +121,16 @@ namespace catapult { namespace observers {
 	// region traits based tests
 
 #define NOTIFY_MODE_BASED_TRAITS(TEST_NAME) \
-	template<typename TTraits> void TEST_NAME(); \
-	TEST(TEST_CLASS, TEST_NAME##_Commit) { TEST_NAME<CommitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Rollback) { TEST_NAME<RollbackTraits>(); } \
-	template<typename TTraits> void TEST_NAME()
+	template<typename TTraits> \
+	void TEST_NAME(); \
+	TEST(TEST_CLASS, TEST_NAME##_Commit) { \
+		TEST_NAME<CommitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Rollback) { \
+		TEST_NAME<RollbackTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TEST_NAME()
 
 	NOTIFY_MODE_BASED_TRAITS(ZeroDeltaDoesNotChangeSettings) {
 		// Assert:
@@ -135,7 +139,13 @@ namespace catapult { namespace observers {
 
 	NOTIFY_MODE_BASED_TRAITS(PositiveDeltaIncreasesSettings) {
 		// Assert:
-		TTraits::AssertTestWithSettings({ 22, 10, 12, }, { 157, 123, 34 });
+		TTraits::AssertTestWithSettings(
+				{
+						22,
+						10,
+						12,
+				},
+				{ 157, 123, 34 });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(NegativeDeltaDecreasesSettings) {

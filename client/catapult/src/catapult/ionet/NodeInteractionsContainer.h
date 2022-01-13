@@ -30,14 +30,15 @@ namespace catapult { namespace ionet {
 	struct NodeInteractions {
 	public:
 		/// Default constructor for node interactions.
-		NodeInteractions() : NodeInteractions(0, 0)
-		{}
+		NodeInteractions()
+				: NodeInteractions(0, 0) {
+		}
 
 		/// Constructs node interactions around \a numSuccesses and \a numFailures.
 		NodeInteractions(uint32_t numSuccesses, uint32_t numFailures)
 				: NumSuccesses(numSuccesses)
-				, NumFailures(numFailures)
-		{}
+				, NumFailures(numFailures) {
+		}
 
 	public:
 		/// Number of successful interactions.
@@ -56,8 +57,8 @@ namespace catapult { namespace ionet {
 			explicit NodeInteractionsBucket(Timestamp timestamp)
 					: CreationTime(timestamp)
 					, NumSuccesses(0)
-					, NumFailures(0)
-			{}
+					, NumFailures(0) {
+			}
 
 		public:
 			/// Time at which the bucket was created.

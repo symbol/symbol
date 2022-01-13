@@ -31,8 +31,8 @@ namespace catapult { namespace chain {
 			const consumer<model::BlockRange&&>& blockRangeConsumer)
 			: m_prevoteChainStorage(prevoteChainStorage)
 			, m_blockStorage(blockStorage)
-			, m_blockRangeConsumer(blockRangeConsumer)
-	{}
+			, m_blockRangeConsumer(blockRangeConsumer) {
+	}
 
 	namespace {
 		bool Contains(const io::BlockStorageCache& blockStorage, Height height, const Hash256& hash) {

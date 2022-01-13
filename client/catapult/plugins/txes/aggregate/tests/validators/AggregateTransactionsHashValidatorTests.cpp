@@ -44,12 +44,8 @@ namespace catapult { namespace validators {
 				const Hash256& transactionsHash) {
 			// Arrange:
 			auto aggregateTransactionHash = test::GenerateRandomByteArray<Hash256>();
-			model::AggregateEmbeddedTransactionsNotification notification(
-					aggregateTransactionHash,
-					aggregateVersion,
-					transactionsHash,
-					0,
-					nullptr);
+			model::AggregateEmbeddedTransactionsNotification
+					notification(aggregateTransactionHash, aggregateVersion, transactionsHash, 0, nullptr);
 			auto pValidator = CreateAggregateTransactionsHashValidator({});
 
 			// Act:
@@ -140,7 +136,7 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				uint8_t aggregateVersion,
 				const consumer<const model::EmbeddedTransaction&, Hash256&>& transactionHasher,
-				const std::function<Hash256 (const std::vector<Hash256>&)>& aggregateTransactionsHashCalculator,
+				const std::function<Hash256(const std::vector<Hash256>&)>& aggregateTransactionsHashCalculator,
 				const consumer<Hash256&>& transactionsHashMutator = [](const auto&) {}) {
 			// Arrange: generate random data for three variable sized transactions
 			static constexpr auto Num_Transactions = 3u;
@@ -162,12 +158,8 @@ namespace catapult { namespace validators {
 			// - create notification and validator
 			auto aggregateTransactionHash = test::GenerateRandomByteArray<Hash256>();
 			auto* pTransactions = reinterpret_cast<const model::EmbeddedTransaction*>(txBuffer.data());
-			model::AggregateEmbeddedTransactionsNotification notification(
-					aggregateTransactionHash,
-					aggregateVersion,
-					transactionsHash,
-					Num_Transactions,
-					pTransactions);
+			model::AggregateEmbeddedTransactionsNotification
+					notification(aggregateTransactionHash, aggregateVersion, transactionsHash, Num_Transactions, pTransactions);
 			auto pValidator = CreateAggregateTransactionsHashValidator({});
 
 			// Act:
@@ -194,17 +186,12 @@ namespace catapult { namespace validators {
 			// - create notification and validator
 			auto aggregateTransactionHash = test::GenerateRandomByteArray<Hash256>();
 			auto* pTransactions = reinterpret_cast<const model::EmbeddedTransaction*>(txBuffer.data());
-			model::AggregateEmbeddedTransactionsNotification notification(
-					aggregateTransactionHash,
-					aggregateVersion,
-					transactionsHash,
-					Num_Transactions,
-					pTransactions);
-			auto pValidator = CreateAggregateTransactionsHashValidator({
-				{ test::GenerateRandomByteArray<Hash256>(), test::GenerateRandomByteArray<Hash256>() },
-				{ aggregateTransactionHash, knownCorruptTransactionsHash },
-				{ test::GenerateRandomByteArray<Hash256>(), test::GenerateRandomByteArray<Hash256>() }
-			});
+			model::AggregateEmbeddedTransactionsNotification
+					notification(aggregateTransactionHash, aggregateVersion, transactionsHash, Num_Transactions, pTransactions);
+			auto pValidator = CreateAggregateTransactionsHashValidator(
+					{ { test::GenerateRandomByteArray<Hash256>(), test::GenerateRandomByteArray<Hash256>() },
+					  { aggregateTransactionHash, knownCorruptTransactionsHash },
+					  { test::GenerateRandomByteArray<Hash256>(), test::GenerateRandomByteArray<Hash256>() } });
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);
@@ -232,9 +219,7 @@ namespace catapult { namespace validators {
 				2,
 				HashEmbeddedTransaction,
 				CalculateAggregateTransactionsHash<crypto::MerkleHashBuilder>,
-				[](auto& transactionsHash) {
-					transactionsHash[Hash256::Size / 2] ^= 0xFF;
-				});
+				[](auto& transactionsHash) { transactionsHash[Hash256::Size / 2] ^= 0xFF; });
 	}
 
 	TEST(TEST_CLASS, FailureWhenAggregateHasValidMerklePaddedHash_EmbeddedTransactions_V2) {
@@ -283,9 +268,7 @@ namespace catapult { namespace validators {
 				1,
 				HashEmbeddedTransaction,
 				CalculateAggregateTransactionsHash<crypto::MerkleHashBuilder>,
-				[](auto& transactionsHash) {
-					transactionsHash[Hash256::Size / 2] ^= 0xFF;
-				});
+				[](auto& transactionsHash) { transactionsHash[Hash256::Size / 2] ^= 0xFF; });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenAggregateHasValidMerklePaddedHash_EmbeddedTransactions_V1) {

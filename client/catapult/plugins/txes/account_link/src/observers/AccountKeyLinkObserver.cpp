@@ -37,23 +37,24 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(AccountKeyLink, model::RemoteAccountKeyLinkNotification, [](
-			const model::RemoteAccountKeyLinkNotification& notification,
-			const ObserverContext& context) {
-		auto& cache = context.Cache.sub<cache::AccountStateCache>();
+	DEFINE_OBSERVER(
+			AccountKeyLink,
+			model::RemoteAccountKeyLinkNotification,
+			[](const model::RemoteAccountKeyLinkNotification& notification, const ObserverContext& context) {
+				auto& cache = context.Cache.sub<cache::AccountStateCache>();
 
-		auto mainAccountStateIter = cache.find(notification.MainAccountPublicKey);
-		auto& mainAccountState = mainAccountStateIter.get();
+				auto mainAccountStateIter = cache.find(notification.MainAccountPublicKey);
+				auto& mainAccountState = mainAccountStateIter.get();
 
-		auto remoteAccountStateIter = cache.find(notification.LinkedPublicKey);
-		auto& remoteAccountState = remoteAccountStateIter.get();
+				auto remoteAccountStateIter = cache.find(notification.LinkedPublicKey);
+				auto& remoteAccountState = remoteAccountStateIter.get();
 
-		if (ShouldLink(notification.LinkAction, context.Mode)) {
-			SetLink(mainAccountState, notification.LinkedPublicKey, state::AccountType::Main);
-			SetLink(remoteAccountState, notification.MainAccountPublicKey, state::AccountType::Remote);
-		} else {
-			ClearLink(mainAccountState, state::AccountType::Unlinked);
-			ClearLink(remoteAccountState, state::AccountType::Remote_Unlinked);
-		}
-	})
+				if (ShouldLink(notification.LinkAction, context.Mode)) {
+					SetLink(mainAccountState, notification.LinkedPublicKey, state::AccountType::Main);
+					SetLink(remoteAccountState, notification.MainAccountPublicKey, state::AccountType::Remote);
+				} else {
+					ClearLink(mainAccountState, state::AccountType::Unlinked);
+					ClearLink(remoteAccountState, state::AccountType::Remote_Unlinked);
+				}
+			})
 }}

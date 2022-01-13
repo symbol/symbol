@@ -33,10 +33,8 @@ namespace catapult { namespace mongo {
 		constexpr auto Collection_Name = "finalizedBlocks";
 
 		auto CreateFilter(const model::FinalizationRound& round) {
-			auto filter = document()
-					<< "block.finalizationEpoch" << mongo::mappers::ToInt32(round.Epoch)
-					<< "block.finalizationPoint" << mongo::mappers::ToInt32(round.Point)
-					<< finalize;
+			auto filter = document() << "block.finalizationEpoch" << mongo::mappers::ToInt32(round.Epoch) << "block.finalizationPoint"
+									 << mongo::mappers::ToInt32(round.Point) << finalize;
 			return filter;
 		}
 
@@ -45,8 +43,8 @@ namespace catapult { namespace mongo {
 			MongoFinalizationStorage(MongoStorageContext& context)
 					: m_context(context)
 					, m_database(m_context.createDatabaseConnection())
-					, m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name))
-			{}
+					, m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name)) {
+			}
 
 		public:
 			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {

@@ -29,11 +29,11 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS MosaicRestrictionModificationObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(MosaicGlobalRestrictionCommitModification,)
-	DEFINE_COMMON_OBSERVER_TESTS(MosaicGlobalRestrictionRollbackModification,)
+	DEFINE_COMMON_OBSERVER_TESTS(MosaicGlobalRestrictionCommitModification, )
+	DEFINE_COMMON_OBSERVER_TESTS(MosaicGlobalRestrictionRollbackModification, )
 
-	DEFINE_COMMON_OBSERVER_TESTS(MosaicAddressRestrictionCommitModification,)
-	DEFINE_COMMON_OBSERVER_TESTS(MosaicAddressRestrictionRollbackModification,)
+	DEFINE_COMMON_OBSERVER_TESTS(MosaicAddressRestrictionCommitModification, )
+	DEFINE_COMMON_OBSERVER_TESTS(MosaicAddressRestrictionRollbackModification, )
 
 	// region traits
 
@@ -99,7 +99,8 @@ namespace catapult { namespace observers {
 	}
 
 #define RESTRICTION_TYPE_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(MosaicGlobalRestrictionCommitModificationObserverTests, TEST_NAME) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalCommitTraits>(); \
 	} \
@@ -112,7 +113,8 @@ namespace catapult { namespace observers {
 	TEST(MosaicAddressRestrictionRollbackModificationObserverTests, TEST_NAME) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressRollbackTraits>(); \
 	} \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/ionet/PacketSocket.h"
 
-namespace catapult { namespace thread { class IoThreadPool; } }
+namespace catapult { namespace thread {
+	class IoThreadPool;
+}}
 
 namespace catapult { namespace net {
 

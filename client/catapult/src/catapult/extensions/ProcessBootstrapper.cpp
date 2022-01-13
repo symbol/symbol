@@ -44,17 +44,16 @@ namespace catapult { namespace extensions {
 			, m_resourcesPath(resourcesPath)
 			, m_disposition(disposition)
 			, m_pMultiServicePool(std::make_unique<thread::MultiServicePool>(
-					servicePoolName,
-					thread::MultiServicePool::DefaultPoolConcurrency(),
-					m_config.Node.EnableSingleThreadPool
-							? thread::MultiServicePool::IsolatedPoolMode::Disabled
-							: thread::MultiServicePool::IsolatedPoolMode::Enabled))
+					  servicePoolName,
+					  thread::MultiServicePool::DefaultPoolConcurrency(),
+					  m_config.Node.EnableSingleThreadPool ? thread::MultiServicePool::IsolatedPoolMode::Disabled
+														   : thread::MultiServicePool::IsolatedPoolMode::Enabled))
 			, m_subscriptionManager(config)
 			, m_pluginManager(m_config.Blockchain, CreateStorageConfiguration(config), m_config.User, m_config.Inflation) {
 #ifdef STRICT_SYMBOL_VISIBILITY
-			// need to forcibly inject typeinfos into containing exe so that they are properly resolved across modules
-			ForceSymbolInjection<model::EmbeddedTransactionPlugin>();
-			ForceSymbolInjection<net::PacketIoPicker>();
+		// need to forcibly inject typeinfos into containing exe so that they are properly resolved across modules
+		ForceSymbolInjection<model::EmbeddedTransactionPlugin>();
+		ForceSymbolInjection<net::PacketIoPicker>();
 #endif
 	}
 

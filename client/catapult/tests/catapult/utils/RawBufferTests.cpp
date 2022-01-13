@@ -64,12 +64,22 @@ namespace catapult { namespace utils {
 	// region all: (immutable + mutable) x (buffer + string)
 
 #define ALL_BUFFER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_RawBuffer) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RawBufferTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MutableBuffer) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableBufferTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_RawString) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RawStringTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MutableRawString) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableRawStringTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_RawBuffer) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RawBufferTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MutableBuffer) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableBufferTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_RawString) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RawStringTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MutableRawString) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableRawStringTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanCreateEmptyRawBuffer) {
 		// Act:
@@ -174,10 +184,16 @@ namespace catapult { namespace utils {
 	// region mutable: (mutable) x (buffer + string)
 
 #define MUTABLE_BUFFER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_MutableBuffer) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableBufferTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MutableRawString) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableRawStringTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_MutableBuffer) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableBufferTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MutableRawString) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableRawStringTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	MUTABLE_BUFFER_TRAITS_BASED_TEST(CanCreateMutableRawBufferAroundEntireContainer) {
 		// Arrange:
@@ -214,10 +230,16 @@ namespace catapult { namespace utils {
 	// region string: (immutable + mutable) x (string)
 
 #define STRING_BUFFER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_RawString) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RawStringTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MutableRawString) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableRawStringTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_RawString) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RawStringTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MutableRawString) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableRawStringTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	STRING_BUFFER_TRAITS_BASED_TEST(CanOutputEmptyRawString) {
 		// Arrange:

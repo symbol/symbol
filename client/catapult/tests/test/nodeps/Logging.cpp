@@ -31,9 +31,7 @@ namespace catapult { namespace test {
 	}
 
 	GlobalLogFilter::GlobalLogFilter(utils::LogLevel level) {
-		auto filter = boost::phoenix::bind([level](const auto& levelRef) {
-			return *levelRef >= level;
-		}, loglevel_tag.or_throw());
+		auto filter = boost::phoenix::bind([level](const auto& levelRef) { return *levelRef >= level; }, loglevel_tag.or_throw());
 
 		auto pCore = boost::log::core::get();
 		pCore->set_filter(filter);

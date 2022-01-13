@@ -27,7 +27,9 @@
 #include "tests/test/nodeps/Random.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace state { class MetadataEntry; } }
+namespace catapult { namespace state {
+	class MetadataEntry;
+}}
 
 namespace catapult { namespace test {
 
@@ -40,8 +42,8 @@ namespace catapult { namespace test {
 
 		/// Asserts additional data using \a transaction and \a view.
 		template<typename TTransaction>
-		static void AssertAdditionalData(const TTransaction&, const bsoncxx::document::view&)
-		{}
+		static void AssertAdditionalData(const TTransaction&, const bsoncxx::document::view&) {
+		}
 	};
 
 	/// Mosaic metadata traits for tests.

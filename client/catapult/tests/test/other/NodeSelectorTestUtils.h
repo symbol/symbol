@@ -51,11 +51,9 @@ namespace catapult { namespace test {
 					auto absoluteDeviation = static_cast<uint64_t>(std::abs(deviation));
 					auto percentageDeviation = absoluteDeviation * 100u / expectedSelectionCount;
 					if (Max_Percentage_Deviation < percentageDeviation) {
-						CATAPULT_LOG(debug)
-								<< "Max_Percentage_Deviation < percentageDeviation ("
-								<< Max_Percentage_Deviation << " <= "
-								<< percentageDeviation << ") "
-								<< "for raw weight " << rawWeights[index];
+						CATAPULT_LOG(debug) << "Max_Percentage_Deviation < percentageDeviation (" << Max_Percentage_Deviation
+											<< " <= " << percentageDeviation << ") "
+											<< "for raw weight " << rawWeights[index];
 						return false;
 					}
 
@@ -69,7 +67,9 @@ namespace catapult { namespace test {
 }}
 
 #define MAKE_NODE_SELECTOR_PROBABILITY_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::NodeSelectorProbabilityTests<TRAITS_NAME##Traits>::AssertSelectsCandidatesBasedOnWeight(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::NodeSelectorProbabilityTests<TRAITS_NAME##Traits>::AssertSelectsCandidatesBasedOnWeight(); \
+	}
 
 #define DEFINE_NODE_SELECTOR_PROBABILITY_TESTS(TRAITS_NAME) \
 	MAKE_NODE_SELECTOR_PROBABILITY_TEST(TRAITS_NAME, SelectsCandidatesBasedOnWeight_##TRAITS_NAME)

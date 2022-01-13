@@ -53,8 +53,8 @@ namespace catapult { namespace io {
 			explicit TestContext(Height storageHeight)
 					: m_pStorage(std::make_unique<TTransactionStorage>(storageHeight))
 					, m_pStorageRaw(m_pStorage.get())
-					, m_pSubscriber(CreateBlockStorageChangeSubscriber(std::move(m_pStorage)))
-			{}
+					, m_pSubscriber(CreateBlockStorageChangeSubscriber(std::move(m_pStorage))) {
+			}
 
 		public:
 			auto& storage() {

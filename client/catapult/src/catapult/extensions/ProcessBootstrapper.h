@@ -100,5 +100,4 @@ namespace catapult { namespace extensions {
 }}
 
 /// Entry point for registering a dynamic extension module with \a bootstrapper.
-extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper);
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper);

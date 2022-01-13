@@ -27,42 +27,44 @@ namespace catapult { namespace validators {
 
 #define DEFINE_CASE(RESULT) case utils::to_underlying_type(RESULT)
 
-#define CASE_WELL_KNOWN_RESULT(CODE) DEFINE_CASE(ValidationResult::CODE): return #CODE
+#define CASE_WELL_KNOWN_RESULT(CODE) \
+	DEFINE_CASE(ValidationResult::CODE) \
+			: return #CODE
 
 #define CUSTOM_RESULT_DEFINITION 1
 #undef DEFINE_VALIDATION_RESULT
 
 #define STR(SYMBOL) #SYMBOL
 #define DEFINE_VALIDATION_RESULT(SEVERITY, FACILITY, DESCRIPTION, CODE, FLAGS) \
-		DEFINE_CASE(MakeValidationResult((ResultSeverity::SEVERITY), (FacilityCode::FACILITY), CODE, (ResultFlags::FLAGS))): \
-			return STR(SEVERITY##_##FACILITY##_##DESCRIPTION)
+	DEFINE_CASE(MakeValidationResult((ResultSeverity::SEVERITY), (FacilityCode::FACILITY), CODE, (ResultFlags::FLAGS))) \
+			: return STR(SEVERITY##_##FACILITY##_##DESCRIPTION)
 
 	namespace {
 		const char* ToString(ValidationResult result) {
 			switch (utils::to_underlying_type(result)) {
-			// well known results (defined in enum)
-			CASE_WELL_KNOWN_RESULT(Success);
-			CASE_WELL_KNOWN_RESULT(Neutral);
-			CASE_WELL_KNOWN_RESULT(Failure);
+				// well known results (defined in enum)
+				CASE_WELL_KNOWN_RESULT(Success);
+				CASE_WELL_KNOWN_RESULT(Neutral);
+				CASE_WELL_KNOWN_RESULT(Failure);
 
-			// custom plugin results
-			#include "plugins/coresystem/src/validators/Results.h"
-			#include "plugins/services/hashcache/src/validators/Results.h"
-			#include "plugins/services/signature/src/validators/Results.h"
-			#include "plugins/txes/account_link/src/validators/Results.h"
-			#include "plugins/txes/aggregate/src/validators/Results.h"
-			#include "plugins/txes/lock_hash/src/validators/Results.h"
-			#include "plugins/txes/lock_secret/src/validators/Results.h"
-			#include "plugins/txes/metadata/src/validators/Results.h"
-			#include "plugins/txes/mosaic/src/validators/Results.h"
-			#include "plugins/txes/multisig/src/validators/Results.h"
-			#include "plugins/txes/namespace/src/validators/Results.h"
-			#include "plugins/txes/restriction_account/src/validators/Results.h"
-			#include "plugins/txes/restriction_mosaic/src/validators/Results.h"
-			#include "plugins/txes/transfer/src/validators/Results.h"
-			#include "src/catapult/chain/ChainResults.h"
-			#include "src/catapult/consumers/ConsumerResults.h"
-			#include "src/catapult/extensions/Results.h"
+// custom plugin results
+#include "plugins/coresystem/src/validators/Results.h"
+#include "plugins/services/hashcache/src/validators/Results.h"
+#include "plugins/services/signature/src/validators/Results.h"
+#include "plugins/txes/account_link/src/validators/Results.h"
+#include "plugins/txes/aggregate/src/validators/Results.h"
+#include "plugins/txes/lock_hash/src/validators/Results.h"
+#include "plugins/txes/lock_secret/src/validators/Results.h"
+#include "plugins/txes/metadata/src/validators/Results.h"
+#include "plugins/txes/mosaic/src/validators/Results.h"
+#include "plugins/txes/multisig/src/validators/Results.h"
+#include "plugins/txes/namespace/src/validators/Results.h"
+#include "plugins/txes/restriction_account/src/validators/Results.h"
+#include "plugins/txes/restriction_mosaic/src/validators/Results.h"
+#include "plugins/txes/transfer/src/validators/Results.h"
+#include "src/catapult/chain/ChainResults.h"
+#include "src/catapult/consumers/ConsumerResults.h"
+#include "src/catapult/extensions/Results.h"
 			}
 
 			return nullptr;

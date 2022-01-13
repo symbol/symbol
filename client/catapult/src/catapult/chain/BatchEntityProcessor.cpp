@@ -31,8 +31,9 @@ namespace catapult { namespace chain {
 	namespace {
 		class DefaultBatchEntityProcessor {
 		public:
-			explicit DefaultBatchEntityProcessor(const ExecutionConfiguration& config) : m_config(config)
-			{}
+			explicit DefaultBatchEntityProcessor(const ExecutionConfiguration& config)
+					: m_config(config) {
+			}
 
 		public:
 			ValidationResult operator()(

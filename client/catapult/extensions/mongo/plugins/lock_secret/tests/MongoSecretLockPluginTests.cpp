@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/lock_secret/src/model/SecretLockEntityType.h"
 #include "plugins/txes/lock_secret/src/model/SecretLockReceiptType.h"
+#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {
@@ -36,11 +36,9 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return {
-					model::Receipt_Type_LockSecret_Created,
-					model::Receipt_Type_LockSecret_Completed,
-					model::Receipt_Type_LockSecret_Expired
-				};
+				return { model::Receipt_Type_LockSecret_Created,
+						 model::Receipt_Type_LockSecret_Completed,
+						 model::Receipt_Type_LockSecret_Expired };
 			}
 
 			static std::string GetStorageName() {

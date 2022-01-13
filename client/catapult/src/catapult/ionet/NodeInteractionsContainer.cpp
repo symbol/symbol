@@ -30,7 +30,7 @@ namespace catapult { namespace ionet {
 	namespace {
 		constexpr bool IsBucketTooOld(Timestamp currentTime, Timestamp creationTime) {
 			return currentTime > creationTime
-					&& NodeInteractionsContainer::InteractionDuration() <= utils::TimeSpan::FromDifference(currentTime, creationTime);
+				   && NodeInteractionsContainer::InteractionDuration() <= utils::TimeSpan::FromDifference(currentTime, creationTime);
 		}
 	}
 

@@ -27,8 +27,8 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_mosaic()
 			, m_duration()
-			, m_hash()
-	{}
+			, m_hash() {
+	}
 
 	void HashLockBuilder::setMosaic(const model::UnresolvedMosaic& mosaic) {
 		m_mosaic = mosaic;

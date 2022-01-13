@@ -31,20 +31,22 @@ namespace catapult { namespace validators {
 	/* - there is no redundant restriction modification */ \
 	DECLARE_STATEFUL_VALIDATOR( \
 			Account##VALUE_NAME##RestrictionRedundantModification, \
-			model::ModifyAccount##VALUE_NAME##RestrictionsNotification)(); \
-	\
+			model::ModifyAccount##VALUE_NAME##RestrictionsNotification) \
+	(); \
+\
 	/* Validator that applies to account restriction value notifications and validates that: */ \
 	/* - add modification does not add a known value */ \
 	/* - delete modification does not delete an unknown value */ \
 	DECLARE_STATEFUL_VALIDATOR( \
 			Account##VALUE_NAME##RestrictionValueModification, \
-			model::ModifyAccount##VALUE_NAME##RestrictionValueNotification)(); \
-	\
+			model::ModifyAccount##VALUE_NAME##RestrictionValueNotification) \
+	(); \
+\
 	/* Validator that applies to account restriction notifications and validates that: */ \
 	/* - the maximum number of modifications (\a maxAccountRestrictionValues) is not exceeded */ \
 	/* - the maximum number of account restriction values (\a maxAccountRestrictionValues) is not exeeded */ \
-	DECLARE_STATEFUL_VALIDATOR(MaxAccount##VALUE_NAME##RestrictionValues, model::ModifyAccount##VALUE_NAME##RestrictionsNotification)( \
-			uint16_t maxAccountRestrictionValues);
+	DECLARE_STATEFUL_VALIDATOR(MaxAccount##VALUE_NAME##RestrictionValues, model::ModifyAccount##VALUE_NAME##RestrictionsNotification) \
+	(uint16_t maxAccountRestrictionValues);
 
 	DECLARE_SHARED_VALIDATORS(Address)
 	DECLARE_SHARED_VALIDATORS(Mosaic)

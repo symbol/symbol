@@ -34,7 +34,9 @@ namespace catapult { namespace model {
 		// notice that Base32 implementation only supports decoded data that is a multiple of Base32_Decoded_Block_Size
 		// so there is some (ugly) handling of forcing address to/from proper size multiple
 
-		struct PaddedAddress_tag { static constexpr size_t Size = 25; };
+		struct PaddedAddress_tag {
+			static constexpr size_t Size = 25;
+		};
 		using PaddedAddress = utils::ByteArray<PaddedAddress_tag>;
 
 		std::string PadAddressString(const std::string& str) {
@@ -95,16 +97,14 @@ namespace catapult { namespace model {
 	}
 
 	namespace {
-		bool IsValidEncodedAddress(
-				const std::string& encoded,
-				const std::function<NetworkIdentifier (uint8_t)>& networkIdentifierAccessor) {
+		bool IsValidEncodedAddress(const std::string& encoded, const std::function<NetworkIdentifier(uint8_t)>& networkIdentifierAccessor) {
 			if (Address_Encoded_Size != encoded.size())
 				return false;
 
 			PaddedAddress decoded;
 			return utils::TryBase32Decode(PadAddressString(encoded), decoded)
-					&& IsValidAddress(decoded.copyTo<Address>(), networkIdentifierAccessor(decoded[0]))
-					&& 0 == decoded[PaddedAddress::Size - 1];
+				   && IsValidAddress(decoded.copyTo<Address>(), networkIdentifierAccessor(decoded[0]))
+				   && 0 == decoded[PaddedAddress::Size - 1];
 		}
 	}
 

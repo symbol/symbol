@@ -50,11 +50,13 @@ namespace catapult { namespace crypto {
 			static constexpr auto Entry_Size = sizeof(BmPrivateKey) + BmSignature::Size;
 
 		private:
-			explicit SignedPrivateKey(BmPrivateKey&& privateKey) : m_keyPair(BmKeyPair::FromPrivate(std::move(privateKey)))
-			{}
+			explicit SignedPrivateKey(BmPrivateKey&& privateKey)
+					: m_keyPair(BmKeyPair::FromPrivate(std::move(privateKey))) {
+			}
 
 		public:
-			SignedPrivateKey(BmPrivateKey&& privateKey, const BmSignature& signature) : SignedPrivateKey(std::move(privateKey)) {
+			SignedPrivateKey(BmPrivateKey&& privateKey, const BmSignature& signature)
+					: SignedPrivateKey(std::move(privateKey)) {
 				m_signature = signature;
 			}
 
@@ -108,16 +110,15 @@ namespace catapult { namespace crypto {
 
 	class BmPrivateKeyTree::Level {
 	private:
-		Level(
-				const BmPublicKey& parentPublicKey,
-				uint64_t startIdentifier,
-				uint64_t endIdentifier,
-				std::vector<SignedPrivateKey>&& signedPrivateKeys)
+		Level(const BmPublicKey& parentPublicKey,
+			  uint64_t startIdentifier,
+			  uint64_t endIdentifier,
+			  std::vector<SignedPrivateKey>&& signedPrivateKeys)
 				: m_parentPublicKey(parentPublicKey)
 				, m_startIdentifier(startIdentifier)
 				, m_endIdentifier(endIdentifier)
-				, m_levelSignedPrivateKeys(std::move(signedPrivateKeys))
-		{}
+				, m_levelSignedPrivateKeys(std::move(signedPrivateKeys)) {
+		}
 
 	public:
 		static Level FromStream(io::InputStream& input) {
@@ -236,8 +237,8 @@ namespace catapult { namespace crypto {
 			: m_storage(storage)
 			, m_options(options)
 			, m_lastKeyIdentifier({ BmKeyIdentifier::Invalid_Id })
-			, m_lastWipeKeyIdentifier({ BmKeyIdentifier::Invalid_Id })
-	{}
+			, m_lastWipeKeyIdentifier({ BmKeyIdentifier::Invalid_Id }) {
+	}
 
 	BmPrivateKeyTree::BmPrivateKeyTree(BmPrivateKeyTree&&) = default;
 
@@ -291,10 +292,7 @@ namespace catapult { namespace crypto {
 		m_storage.seek(sizeof(BmOptions));
 		SaveKeyIdentifier(m_storage, m_lastKeyIdentifier);
 
-		return {
-			m_levels[Layer_Low]->publicKeySignature(keyIdentifier.KeyId),
-			{ subKeyPair.publicKey(), msgSignature }
-		};
+		return { m_levels[Layer_Low]->publicKeySignature(keyIdentifier.KeyId), { subKeyPair.publicKey(), msgSignature } };
 	}
 
 	void BmPrivateKeyTree::wipe(const BmKeyIdentifier& keyIdentifier) {
@@ -322,9 +320,8 @@ namespace catapult { namespace crypto {
 		}
 
 		if (keyIdentifier < m_options.StartKeyIdentifier || keyIdentifier > m_options.EndKeyIdentifier) {
-			CATAPULT_LOG(warning)
-					<< "rejecting out of range key identifier " << keyIdentifier
-					<< "(start " << m_options.StartKeyIdentifier << ", end " << m_options.EndKeyIdentifier << ")";
+			CATAPULT_LOG(warning) << "rejecting out of range key identifier " << keyIdentifier << "(start " << m_options.StartKeyIdentifier
+								  << ", end " << m_options.EndKeyIdentifier << ")";
 			return false;
 		}
 

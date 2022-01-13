@@ -29,7 +29,8 @@ namespace catapult { namespace cache {
 	/// Interface for modifying an unconfirmed transactions cache.
 	class PLUGIN_API_DEPENDENCY UtCacheModifier {
 	public:
-		virtual ~UtCacheModifier() noexcept(false) {}
+		virtual ~UtCacheModifier() noexcept(false) {
+		}
 
 	public:
 		/// Gets the number of transactions in the cache.

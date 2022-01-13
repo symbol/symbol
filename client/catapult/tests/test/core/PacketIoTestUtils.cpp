@@ -51,16 +51,12 @@ namespace catapult { namespace test {
 			mockIo.queueWrite(ionet::SocketOperationCode::Success);
 
 			// Act: write a payload
-			auto entities = std::vector<std::shared_ptr<model::VerifiableEntity>>{
-				CreateRandomEntityWithSize<>(126),
-				CreateRandomEntityWithSize<>(212)
-			};
+			auto entities = std::vector<std::shared_ptr<model::VerifiableEntity>>{ CreateRandomEntityWithSize<>(126),
+																				   CreateRandomEntityWithSize<>(212) };
 			auto payload = ionet::PacketPayloadFactory::FromEntities(ionet::PacketType::Push_Transactions, entities);
 
 			ionet::SocketOperationCode writeCode;
-			ioTraits.write(payload, [&writeCode](auto code) {
-				writeCode = code;
-			});
+			ioTraits.write(payload, [&writeCode](auto code) { writeCode = code; });
 
 			// Assert: write succeeded
 			ASSERT_EQ(ionet::SocketOperationCode::Success, writeCode);
@@ -96,8 +92,9 @@ namespace catapult { namespace test {
 
 		struct BasicIoTraits {
 		public:
-			explicit BasicIoTraits(ionet::PacketIo& io) : m_io(io)
-			{}
+			explicit BasicIoTraits(ionet::PacketIo& io)
+					: m_io(io) {
+			}
 
 		public:
 			void write(const ionet::PacketPayload& payload, const ionet::PacketIo::WriteCallback& callback) {
@@ -116,8 +113,8 @@ namespace catapult { namespace test {
 		public:
 			ReaderIoTraits(ionet::PacketIo& io, ionet::BatchPacketReader& reader)
 					: BasicIoTraits(io)
-					, m_reader(reader)
-			{}
+					, m_reader(reader) {
+			}
 
 		public:
 			void read(const ionet::PacketIo::ReadCallback& callback) {

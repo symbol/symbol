@@ -40,8 +40,9 @@ namespace catapult { namespace extensions {
 	struct NemesisFundingState {
 	public:
 		/// Creates a default nemesis funding state.
-		NemesisFundingState() : FundingType(NemesisFundingType::Unknown)
-		{}
+		NemesisFundingState()
+				: FundingType(NemesisFundingType::Unknown) {
+		}
 
 	public:
 		/// Total sums of mosaics credited in nemesis block.

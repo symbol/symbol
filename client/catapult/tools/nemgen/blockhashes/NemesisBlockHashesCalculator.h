@@ -25,12 +25,14 @@
 #include <vector>
 
 namespace catapult {
-	namespace model {
-		struct BlockchainConfiguration;
-		struct BlockElement;
-		struct BlockStatement;
-	}
-	namespace plugins { class PluginManager; }
+namespace model {
+	struct BlockchainConfiguration;
+	struct BlockElement;
+	struct BlockStatement;
+}
+namespace plugins {
+	class PluginManager;
+}
 }
 
 namespace catapult { namespace tools { namespace nemgen {

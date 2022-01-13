@@ -22,17 +22,13 @@
 #include "src/UnbondedPruningService.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 
-namespace catapult { namespace unbondedpruning {
-
-	namespace {
-		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-			// register service(s)
-			bootstrapper.extensionManager().addServiceRegistrar(CreateUnbondedPruningServiceRegistrar());
-		}
+namespace catapult { namespace unbondedpruning { namespace {
+	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+		// register service(s)
+		bootstrapper.extensionManager().addServiceRegistrar(CreateUnbondedPruningServiceRegistrar());
 	}
-}}
+}}}
 
-extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::unbondedpruning::RegisterExtension(bootstrapper);
 }

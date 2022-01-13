@@ -47,8 +47,8 @@ namespace catapult { namespace timesync {
 		public:
 			explicit SamplesResult(size_t count)
 					: Samples(count)
-					, NumValidSamples(0)
-			{}
+					, NumValidSamples(0) {
+			}
 
 		public:
 			std::vector<TimeSynchronizationSample> Samples;
@@ -82,23 +82,21 @@ namespace catapult { namespace timesync {
 		for (const auto& node : nodes) {
 			auto pLocalTimestamps = std::make_shared<CommunicationTimestamps>();
 			pLocalTimestamps->SendTimestamp = networkTimeSupplier();
-			auto future = requestResultFutureSupplier(node)
-				.then([pSamplesResult, node, pLocalTimestamps, networkTimeSupplier](auto&& resultFuture) {
-					pLocalTimestamps->ReceiveTimestamp = networkTimeSupplier();
-					auto pair = resultFuture.get();
-					auto& samples = pSamplesResult->Samples;
-					if (net::NodeRequestResult::Success == pair.first) {
-						auto index = (pSamplesResult->NumValidSamples)++;
-						samples[index] = TimeSynchronizationSample(node.identity().PublicKey, *pLocalTimestamps, pair.second);
-						CATAPULT_LOG(info) << "'" << node << "': time offset is " << samples[index].timeOffsetToRemote();
-						return true;
-					}
+			auto future = requestResultFutureSupplier(node).then([pSamplesResult, node, pLocalTimestamps, networkTimeSupplier](
+																		 auto&& resultFuture) {
+				pLocalTimestamps->ReceiveTimestamp = networkTimeSupplier();
+				auto pair = resultFuture.get();
+				auto& samples = pSamplesResult->Samples;
+				if (net::NodeRequestResult::Success == pair.first) {
+					auto index = (pSamplesResult->NumValidSamples)++;
+					samples[index] = TimeSynchronizationSample(node.identity().PublicKey, *pLocalTimestamps, pair.second);
+					CATAPULT_LOG(info) << "'" << node << "': time offset is " << samples[index].timeOffsetToRemote();
+					return true;
+				}
 
-					CATAPULT_LOG(warning)
-							<< "unable to retrieve network time from node '" << node
-							<< "', request result: " << pair.first;
-					return false;
-				});
+				CATAPULT_LOG(warning) << "unable to retrieve network time from node '" << node << "', request result: " << pair.first;
+				return false;
+			});
 			futures.push_back(std::move(future));
 		}
 

@@ -50,13 +50,11 @@ namespace catapult { namespace state {
 				const model::PartialMetadataKey& partialKey,
 				model::MetadataType metadataType,
 				uint64_t targetId) {
-			auto packedUniqueKey = PackedUniqueKey{
-				partialKey.SourceAddress,
-				partialKey.TargetAddress,
-				partialKey.ScopedMetadataKey,
-				targetId,
-				metadataType
-			};
+			auto packedUniqueKey = PackedUniqueKey{ partialKey.SourceAddress,
+													partialKey.TargetAddress,
+													partialKey.ScopedMetadataKey,
+													targetId,
+													metadataType };
 
 			Hash256 uniqueKey;
 			crypto::Sha3_256({ reinterpret_cast<const uint8_t*>(&packedUniqueKey), sizeof(PackedUniqueKey) }, uniqueKey);
@@ -157,9 +155,7 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, CreateMetadataKey_CanCreateFromAccountTarget) {
-		AssertCanCreateMetadataKey(model::MetadataType::Account, [](auto, auto keyTargetId) {
-			EXPECT_EQ(0u, keyTargetId);
-		});
+		AssertCanCreateMetadataKey(model::MetadataType::Account, [](auto, auto keyTargetId) { EXPECT_EQ(0u, keyTargetId); });
 	}
 
 	TEST(TEST_CLASS, CreateMetadataKey_CanCreateFromMosaicTarget) {
@@ -212,9 +208,7 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, ResolveMetadataKey_CanResolveFromAccountTarget) {
-		AssertCanResolveMetadataKey(model::MetadataType::Account, [](auto, auto keyTargetId) {
-			EXPECT_EQ(0u, keyTargetId);
-		});
+		AssertCanResolveMetadataKey(model::MetadataType::Account, [](auto, auto keyTargetId) { EXPECT_EQ(0u, keyTargetId); });
 	}
 
 	TEST(TEST_CLASS, ResolveMetadataKey_CanResolveFromMosaicTarget) {

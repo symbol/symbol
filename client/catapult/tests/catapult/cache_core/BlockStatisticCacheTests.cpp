@@ -41,8 +41,9 @@ namespace catapult { namespace cache {
 		struct BlockStatisticCacheMixinTraits {
 			class CacheType : public BlockStatisticCache {
 			public:
-				CacheType() : BlockStatisticCache(300)
-				{}
+				CacheType()
+						: BlockStatisticCache(300) {
+				}
 			};
 
 			using IdType = state::BlockStatistic;
@@ -80,7 +81,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(BlockStatisticCacheMixinTraits, BlockStatisticCacheDeltaModificationPolicy, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(BlockStatisticCacheMixinTraits,)
+	DEFINE_CACHE_BASIC_TESTS(BlockStatisticCacheMixinTraits, )
 
 	// endregion
 
@@ -336,10 +337,16 @@ namespace catapult { namespace cache {
 	}
 
 #define VIEW_OR_DELTA_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_View) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ViewTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Delta) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeltaTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_View) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ViewTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Delta) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeltaTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	VIEW_OR_DELTA_TEST(StatisticsReturnsExpectedRange_NotIncludingLargestHeight) {
 		// Arrange:

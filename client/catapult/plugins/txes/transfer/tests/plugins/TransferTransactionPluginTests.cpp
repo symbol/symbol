@@ -37,7 +37,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(Transfer, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(Transfer, 1, 1, )
 
 		template<typename TTraits>
 		auto CreateTransactionWithMosaics(uint8_t numMosaics, uint16_t messageSize = 0) {
@@ -89,11 +89,11 @@ namespace catapult { namespace plugins {
 		transaction.MosaicsCount = 0;
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			InternalPaddingNotification::Notification_Type,
-			AccountAddressNotification::Notification_Type,
-			AddressInteractionNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ InternalPaddingNotification::Notification_Type,
+				  AccountAddressNotification::Notification_Type,
+				  AddressInteractionNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNeitherMessageNorMosaicsArePresent) {
@@ -130,12 +130,12 @@ namespace catapult { namespace plugins {
 		PrepareMessageOnlyTransaction(*pTransaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			InternalPaddingNotification::Notification_Type,
-			AccountAddressNotification::Notification_Type,
-			AddressInteractionNotification::Notification_Type,
-			TransferMessageNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ InternalPaddingNotification::Notification_Type,
+				  AccountAddressNotification::Notification_Type,
+				  AddressInteractionNotification::Notification_Type,
+				  TransferMessageNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenMessageOnlyIsPresent) {
@@ -177,14 +177,14 @@ namespace catapult { namespace plugins {
 		PrepareMosaicsOnlyTransaction(*pTransaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			InternalPaddingNotification::Notification_Type,
-			AccountAddressNotification::Notification_Type,
-			AddressInteractionNotification::Notification_Type,
-			BalanceTransferNotification::Notification_Type,
-			BalanceTransferNotification::Notification_Type,
-			TransferMosaicsNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ InternalPaddingNotification::Notification_Type,
+				  AccountAddressNotification::Notification_Type,
+				  AddressInteractionNotification::Notification_Type,
+				  BalanceTransferNotification::Notification_Type,
+				  BalanceTransferNotification::Notification_Type,
+				  TransferMosaicsNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenMosaicsOnlyArePresent) {
@@ -237,16 +237,16 @@ namespace catapult { namespace plugins {
 		PrepareMessageAndMosaicsTransaction(*pTransaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			InternalPaddingNotification::Notification_Type,
-			AccountAddressNotification::Notification_Type,
-			AddressInteractionNotification::Notification_Type,
-			BalanceTransferNotification::Notification_Type,
-			BalanceTransferNotification::Notification_Type,
-			BalanceTransferNotification::Notification_Type,
-			TransferMessageNotification::Notification_Type,
-			TransferMosaicsNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ InternalPaddingNotification::Notification_Type,
+				  AccountAddressNotification::Notification_Type,
+				  AddressInteractionNotification::Notification_Type,
+				  BalanceTransferNotification::Notification_Type,
+				  BalanceTransferNotification::Notification_Type,
+				  BalanceTransferNotification::Notification_Type,
+				  TransferMessageNotification::Notification_Type,
+				  TransferMosaicsNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenMessageAndMosaicsArePresent) {

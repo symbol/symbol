@@ -123,9 +123,8 @@ namespace catapult { namespace state {
 		auto iter = std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [epoch](const auto& key) {
 			return key.StartEpoch <= epoch && epoch <= key.EndEpoch;
 		});
-		return m_pKeys->cend() == iter
-				? std::make_pair(std::numeric_limits<size_t>::max(), false)
-				: std::make_pair(static_cast<size_t>(std::distance(m_pKeys->cbegin(), iter)), true);
+		return m_pKeys->cend() == iter ? std::make_pair(std::numeric_limits<size_t>::max(), false)
+									   : std::make_pair(static_cast<size_t>(std::distance(m_pKeys->cbegin(), iter)), true);
 	}
 
 	template<typename TPinnedAccountPublicKey>
@@ -152,18 +151,15 @@ namespace catapult { namespace state {
 		template<typename TPinnedAccountPublicKey>
 		void EnsureNoOverlap(const std::vector<TPinnedAccountPublicKey>& keys, const TPinnedAccountPublicKey& key) {
 			auto anyOverlap = std::any_of(keys.cbegin(), keys.cend(), [&key](const auto& existingKey) {
-				return ContainsEpoch(key, existingKey.StartEpoch)
-						|| ContainsEpoch(key, existingKey.EndEpoch)
-						|| ContainsEpoch(existingKey, key.StartEpoch);
+				return ContainsEpoch(key, existingKey.StartEpoch) || ContainsEpoch(key, existingKey.EndEpoch)
+					   || ContainsEpoch(existingKey, key.StartEpoch);
 			});
 
 			if (!anyOverlap)
 				return;
 
 			std::ostringstream out;
-			out
-				<< "cannot add key with overlapping epoch " << key << std::endl
-				<< "existing keys:" << std::endl;
+			out << "cannot add key with overlapping epoch " << key << std::endl << "existing keys:" << std::endl;
 			for (const auto& existingKey : keys)
 				out << " - " << existingKey << std::endl;
 
@@ -204,9 +200,8 @@ namespace catapult { namespace state {
 	template<typename TPinnedAccountPublicKey>
 	typename PUBLIC_KEYS_ACCESSOR_T::const_iterator PUBLIC_KEYS_ACCESSOR_T::findExact(const TPinnedAccountPublicKey& key) const {
 		return std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [&key](const auto& existingKey) {
-			return key.VotingKey == existingKey.VotingKey
-					&& key.StartEpoch == existingKey.StartEpoch
-					&& key.EndEpoch == existingKey.EndEpoch;
+			return key.VotingKey == existingKey.VotingKey && key.StartEpoch == existingKey.StartEpoch
+				   && key.EndEpoch == existingKey.EndEpoch;
 		});
 	}
 

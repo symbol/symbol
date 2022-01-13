@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "src/validators/Validators.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -29,9 +29,9 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AccountRestrictionValueModificationValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionValueModification,)
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountMosaicRestrictionValueModification,)
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionValueModification,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionValueModification, )
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountMosaicRestrictionValueModification, )
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionValueModification, )
 
 	namespace {
 		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
@@ -84,7 +84,8 @@ namespace catapult { namespace validators {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TRestrictionValueTraits, typename TOperationTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TRestrictionValueTraits, typename TOperationTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Address_Allow) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits, test::AllowTraits>(); \
 	} \
@@ -103,7 +104,8 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, TEST_NAME##_Operation_Block) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits, test::BlockTraits>(); \
 	} \
-	template<typename TRestrictionValueTraits, typename TOperationTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TRestrictionValueTraits, typename TOperationTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		template<typename TRestrictionValueTraits, typename TOperationTraits>

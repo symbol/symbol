@@ -99,15 +99,15 @@ namespace catapult { namespace handlers {
 			using ResponseType = CosignedTransactionInfos;
 			using RetrieverParamType = cache::ShortHashPairMap;
 
-			using TransactionInfosRetrieverAdapter = std::function<CosignedTransactionInfos (const cache::ShortHashPairMap&)>;
+			using TransactionInfosRetrieverAdapter = std::function<CosignedTransactionInfos(const cache::ShortHashPairMap&)>;
 			static void RegisterHandler(
 					ionet::ServerPacketHandlers& handlers,
 					const TransactionInfosRetrieverAdapter& transactionInfosRetriever) {
-				handlers::RegisterPullPartialTransactionInfosHandler(handlers, [transactionInfosRetriever](
-						auto,
-						const auto& knownShortHashPairs) {
-					return transactionInfosRetriever(knownShortHashPairs);
-				});
+				handlers::RegisterPullPartialTransactionInfosHandler(
+						handlers,
+						[transactionInfosRetriever](auto, const auto& knownShortHashPairs) {
+							return transactionInfosRetriever(knownShortHashPairs);
+						});
 			}
 		};
 	}
@@ -153,11 +153,9 @@ namespace catapult { namespace handlers {
 				explicit PullResponseContext(size_t numResponseTransactions) {
 					// note: 0th element will have 0 cosignatures
 					for (uint16_t i = 0u; i < numResponseTransactions; ++i) {
-						m_transactionInfos.push_back({
-							test::GenerateRandomByteArray<Hash256>(),
-							i % 2 ? nullptr : mocks::CreateMockTransaction(static_cast<uint16_t>(i)),
-							test::GenerateRandomDataVector<model::Cosignature>(i)
-						});
+						m_transactionInfos.push_back({ test::GenerateRandomByteArray<Hash256>(),
+													   i % 2 ? nullptr : mocks::CreateMockTransaction(static_cast<uint16_t>(i)),
+													   test::GenerateRandomDataVector<model::Cosignature>(i) });
 					}
 				}
 
@@ -170,8 +168,8 @@ namespace catapult { namespace handlers {
 					return utils::Sum(m_transactionInfos, [](const auto& transactionInfo) {
 						size_t size = sizeof(uint64_t);
 						size += transactionInfo.pTransaction
-								? transactionInfo.pTransaction->Size + utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8)
-								: Hash256::Size;
+										? transactionInfo.pTransaction->Size + utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8)
+										: Hash256::Size;
 						size += transactionInfo.Cosignatures.size() * sizeof(model::Cosignature);
 						return size;
 					});

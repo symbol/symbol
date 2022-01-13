@@ -54,8 +54,8 @@ namespace catapult { namespace handlers {
 
 			static auto LoadProof(const io::ProofStorageView& proofStorageView, const RequestType& request) {
 				return FinalizationEpoch() == request.Epoch || request.Epoch > proofStorageView.statistics().Round.Epoch
-						? nullptr
-						: proofStorageView.loadProof(request.Epoch);
+							   ? nullptr
+							   : proofStorageView.loadProof(request.Epoch);
 			}
 		};
 
@@ -64,8 +64,8 @@ namespace catapult { namespace handlers {
 
 			static auto LoadProof(const io::ProofStorageView& proofStorageView, const RequestType& request) {
 				return Height() == request.Height || request.Height > proofStorageView.statistics().Height
-						? nullptr
-						: proofStorageView.loadProof(request.Height);
+							   ? nullptr
+							   : proofStorageView.loadProof(request.Height);
 			}
 		};
 

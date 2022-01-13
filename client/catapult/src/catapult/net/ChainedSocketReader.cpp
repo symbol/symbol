@@ -44,8 +44,8 @@ namespace catapult { namespace net {
 					: m_pPacketSocket(pPacketSocket)
 					, m_identity(identity)
 					, m_completionHandler(completionHandler)
-					, m_pReader(CreateSocketReader(m_pPacketSocket, m_pPacketSocket->buffered(), serverHandlers, identity))
-			{}
+					, m_pReader(CreateSocketReader(m_pPacketSocket, m_pPacketSocket->buffered(), serverHandlers, identity)) {
+			}
 
 		public:
 			void start() override {

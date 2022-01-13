@@ -35,8 +35,8 @@ namespace catapult { namespace mongo {
 				std::unique_ptr<ChainScoreProvider>&& pChainScoreProvider,
 				std::unique_ptr<ExternalCacheStorage>&& pCacheStorage)
 				: m_pChainScoreProvider(std::move(pChainScoreProvider))
-				, m_pCacheStorage(std::move(pCacheStorage))
-		{}
+				, m_pCacheStorage(std::move(pCacheStorage)) {
+		}
 
 	public:
 		void notifyScoreChange(const model::ChainScore& chainScore) override {

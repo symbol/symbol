@@ -24,8 +24,12 @@
 #include "catapult/validators/ValidatorTypes.h"
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace plugins { class PluginManager; }
+namespace cache {
+	class CatapultCache;
+}
+namespace plugins {
+	class PluginManager;
+}
 }
 
 namespace catapult { namespace chain {

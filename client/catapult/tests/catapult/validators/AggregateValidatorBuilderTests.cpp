@@ -55,9 +55,8 @@ namespace catapult { namespace validators {
 			for (auto i = 0u; i < results.size(); ++i)
 				builder.add(mocks::CreateTaggedBreadcrumbValidator(static_cast<uint8_t>(i + 1), pContext->Breadcrumbs, results[i]));
 
-			pContext->pAggregateValidator = builder.build([failures = suppressedFailures](auto result) {
-				return failures.cend() != failures.find(result);
-			});
+			pContext->pAggregateValidator =
+					builder.build([failures = suppressedFailures](auto result) { return failures.cend() != failures.find(result); });
 			return pContext;
 		}
 
@@ -100,10 +99,9 @@ namespace catapult { namespace validators {
 		// Act:
 		auto pContext = std::make_unique<TestContext>();
 		AggregateValidatorBuilder<test::TaggedNotification, const ValidatorContext&> builder;
-		builder
-			.add(mocks::CreateTaggedBreadcrumbValidator(2, pContext->Breadcrumbs))
-			.add(mocks::CreateTaggedBreadcrumbValidator(3, pContext->Breadcrumbs))
-			.add(mocks::CreateTaggedBreadcrumbValidator(4, pContext->Breadcrumbs));
+		builder.add(mocks::CreateTaggedBreadcrumbValidator(2, pContext->Breadcrumbs))
+				.add(mocks::CreateTaggedBreadcrumbValidator(3, pContext->Breadcrumbs))
+				.add(mocks::CreateTaggedBreadcrumbValidator(4, pContext->Breadcrumbs));
 		pContext->pAggregateValidator = builder.build([](auto) { return false; });
 
 		// Act:
@@ -143,12 +141,8 @@ namespace catapult { namespace validators {
 		pContext->validate(1);
 
 		// Assert:
-		std::vector<uint16_t> expectedBreadcrumbs{
-			0x0201, 0x0202, 0x0203,
-			0x0701, 0x0702, 0x0703,
-			0x0501, 0x0502, 0x0503,
-			0x0101, 0x0102, 0x0103
-		};
+		std::vector<uint16_t> expectedBreadcrumbs{ 0x0201, 0x0202, 0x0203, 0x0701, 0x0702, 0x0703,
+												   0x0501, 0x0502, 0x0503, 0x0101, 0x0102, 0x0103 };
 		EXPECT_EQ(12u, pContext->Breadcrumbs.size());
 		EXPECT_EQ(expectedBreadcrumbs, pContext->Breadcrumbs);
 	}

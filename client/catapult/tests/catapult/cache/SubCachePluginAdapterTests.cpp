@@ -36,13 +36,12 @@ namespace catapult { namespace cache {
 
 		template<typename TViewExtension, typename TDeltaExtension>
 		using SimpleCachePluginAdapterT = SubCachePluginAdapter<
-			SimpleCacheT<TViewExtension, TDeltaExtension>,
-			test::SimpleCacheExtensionStorageTraits<TViewExtension, TDeltaExtension>>;
+				SimpleCacheT<TViewExtension, TDeltaExtension>,
+				test::SimpleCacheExtensionStorageTraits<TViewExtension, TDeltaExtension>>;
 
 		using SimpleCache = SimpleCacheT<test::SimpleCacheDefaultViewExtension, test::SimpleCacheDefaultDeltaExtension>;
-		using SimpleCachePluginAdapter = SimpleCachePluginAdapterT<
-			test::SimpleCacheDefaultViewExtension,
-			test::SimpleCacheDefaultDeltaExtension>;
+		using SimpleCachePluginAdapter =
+				SimpleCachePluginAdapterT<test::SimpleCacheDefaultViewExtension, test::SimpleCacheDefaultDeltaExtension>;
 
 		template<typename TViewExtension, typename TDeltaExtension>
 		std::unique_ptr<SimpleCacheT<TViewExtension, TDeltaExtension>> CreateSimpleCacheWithValueT(
@@ -70,9 +69,8 @@ namespace catapult { namespace cache {
 			EXPECT_EQ(expectedValue, static_cast<const TRawView*>(view.get())->id());
 
 			// - read only view is correct
-			using ReadOnlyViewType = test::SimpleCacheReadOnlyType<
-				test::SimpleCacheDefaultViewExtension,
-				test::SimpleCacheDefaultDeltaExtension>;
+			using ReadOnlyViewType =
+					test::SimpleCacheReadOnlyType<test::SimpleCacheDefaultViewExtension, test::SimpleCacheDefaultDeltaExtension>;
 			const auto* pReadOnlyView = static_cast<const ReadOnlyViewType*>(view.asReadOnly());
 			ASSERT_TRUE(!!pReadOnlyView);
 			EXPECT_EQ(expectedValue, pReadOnlyView->size());
@@ -432,10 +430,16 @@ namespace catapult { namespace cache {
 	}
 
 #define PRUNE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Height) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PruneHeightTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Timestamp) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PruneTimestampTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Height) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PruneHeightTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Timestamp) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PruneTimestampTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	PRUNE_TEST(CanPruneWhenSupportedAndDelta) {
 		// Arrange:
@@ -729,8 +733,9 @@ namespace catapult { namespace cache {
 	namespace {
 		class SubCachePluginAdapterProxy {
 		public:
-			SubCachePluginAdapterProxy() : m_cache(CreateSimpleCacheWithValue(0))
-			{}
+			SubCachePluginAdapterProxy()
+					: m_cache(CreateSimpleCacheWithValue(0)) {
+			}
 
 		public:
 			auto createView() const {
@@ -753,8 +758,9 @@ namespace catapult { namespace cache {
 			template<typename TView, typename TRawView>
 			class ViewProxy {
 			public:
-				explicit ViewProxy(std::unique_ptr<TView>&& pView) : m_pView(std::move(pView))
-				{}
+				explicit ViewProxy(std::unique_ptr<TView>&& pView)
+						: m_pView(std::move(pView)) {
+				}
 
 			public:
 				const auto& operator*() const {
@@ -775,8 +781,9 @@ namespace catapult { namespace cache {
 
 			class DetachedDeltaProxy {
 			public:
-				explicit DetachedDeltaProxy(std::unique_ptr<DetachedSubCacheView>&& pView) : m_pView(std::move(pView))
-				{}
+				explicit DetachedDeltaProxy(std::unique_ptr<DetachedSubCacheView>&& pView)
+						: m_pView(std::move(pView)) {
+				}
 
 			public:
 				auto tryLock() {
@@ -806,7 +813,7 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	DEFINE_CACHE_SYNC_TESTS(SubCachePluginAdapterTraits,)
+	DEFINE_CACHE_SYNC_TESTS(SubCachePluginAdapterTraits, )
 
 	// endregion
 }}

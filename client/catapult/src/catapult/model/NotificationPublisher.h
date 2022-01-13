@@ -22,12 +22,10 @@
 #pragma once
 #include "WeakEntityInfo.h"
 
-namespace catapult {
-	namespace model {
-		class NotificationSubscriber;
-		class TransactionRegistry;
-	}
-}
+namespace catapult { namespace model {
+	class NotificationSubscriber;
+	class TransactionRegistry;
+}}
 
 namespace catapult { namespace model {
 

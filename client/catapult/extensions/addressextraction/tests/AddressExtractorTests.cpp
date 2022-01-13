@@ -39,8 +39,8 @@ namespace catapult { namespace addressextraction {
 			TestContext()
 					: m_pNotificationPublisher(std::make_unique<mocks::MockNotificationPublisher>())
 					, m_notificationPublisher(*m_pNotificationPublisher)
-					, m_extractor(std::move(m_pNotificationPublisher))
-			{}
+					, m_extractor(std::move(m_pNotificationPublisher)) {
+			}
 
 		public:
 			const auto& publisher() const {
@@ -201,9 +201,7 @@ namespace catapult { namespace addressextraction {
 	}
 
 	namespace {
-		std::vector<UnresolvedAddress> SeedTransactionsWithExtractedAddresses(
-				model::BlockElement& blockElement,
-				uint32_t numTransactions) {
+		std::vector<UnresolvedAddress> SeedTransactionsWithExtractedAddresses(model::BlockElement& blockElement, uint32_t numTransactions) {
 			auto i = 0u;
 			auto transactions = test::GenerateRandomTransactions(numTransactions);
 			auto seedAddresses = test::GenerateRandomDataVector<UnresolvedAddress>(2 * numTransactions);
@@ -290,18 +288,20 @@ namespace catapult { namespace addressextraction {
 		// - add some address resolution statements
 		auto seedResolvedAddresses = test::GenerateRandomDataVector<Address>(8);
 		auto pBlockStatement = std::make_shared<model::BlockStatement>();
-		AddAddressResolutionStatement(*pBlockStatement, seedAddresses[2], {
-			{ { 1, 0 }, seedResolvedAddresses[0] },
-			{ { 2, 0 }, seedResolvedAddresses[1] },
-			{ { 2, 9 }, seedResolvedAddresses[2] },
-			{ { 3, 0 }, seedResolvedAddresses[3] }
-		});
-		AddAddressResolutionStatement(*pBlockStatement, seedAddresses[6], {
-			{ { 3, 0 }, seedResolvedAddresses[4] },
-			{ { 3, 9 }, seedResolvedAddresses[5] },
-			{ { 4, 9 }, seedResolvedAddresses[6] },
-			{ { 5, 0 }, seedResolvedAddresses[7] }
-		});
+		AddAddressResolutionStatement(
+				*pBlockStatement,
+				seedAddresses[2],
+				{ { { 1, 0 }, seedResolvedAddresses[0] },
+				  { { 2, 0 }, seedResolvedAddresses[1] },
+				  { { 2, 9 }, seedResolvedAddresses[2] },
+				  { { 3, 0 }, seedResolvedAddresses[3] } });
+		AddAddressResolutionStatement(
+				*pBlockStatement,
+				seedAddresses[6],
+				{ { { 3, 0 }, seedResolvedAddresses[4] },
+				  { { 3, 9 }, seedResolvedAddresses[5] },
+				  { { 4, 9 }, seedResolvedAddresses[6] },
+				  { { 5, 0 }, seedResolvedAddresses[7] } });
 		blockElement.OptionalStatement = std::move(pBlockStatement);
 
 		// Act:
@@ -343,10 +343,10 @@ namespace catapult { namespace addressextraction {
 		// - add one address resolution statement
 		auto seedResolvedAddresses = test::GenerateRandomDataVector<Address>(2);
 		auto pBlockStatement = std::make_shared<model::BlockStatement>();
-		AddAddressResolutionStatement(*pBlockStatement, seedAddresses[1], {
-			{ { 1, 0 }, seedResolvedAddresses[0] },
-			{ { 3, 0 }, seedResolvedAddresses[1] }
-		});
+		AddAddressResolutionStatement(
+				*pBlockStatement,
+				seedAddresses[1],
+				{ { { 1, 0 }, seedResolvedAddresses[0] }, { { 3, 0 }, seedResolvedAddresses[1] } });
 		blockElement.OptionalStatement = std::move(pBlockStatement);
 
 		// Act:
@@ -357,14 +357,14 @@ namespace catapult { namespace addressextraction {
 
 		// - all have all expected addresses
 		EXPECT_EQ(
-			ToAddressSet(seedAddresses, { 0, 1 }, seedResolvedAddresses, { 0 }),
-			*blockElement.Transactions[0].OptionalExtractedAddresses);
+				ToAddressSet(seedAddresses, { 0, 1 }, seedResolvedAddresses, { 0 }),
+				*blockElement.Transactions[0].OptionalExtractedAddresses);
 		EXPECT_EQ(
-			ToAddressSet(seedAddresses, { 0, 1 }, seedResolvedAddresses, { 0 }),
-			*blockElement.Transactions[1].OptionalExtractedAddresses);
+				ToAddressSet(seedAddresses, { 0, 1 }, seedResolvedAddresses, { 0 }),
+				*blockElement.Transactions[1].OptionalExtractedAddresses);
 		EXPECT_EQ(
-			ToAddressSet(seedAddresses, { 0, 1 }, seedResolvedAddresses, { 1 }),
-			*blockElement.Transactions[2].OptionalExtractedAddresses);
+				ToAddressSet(seedAddresses, { 0, 1 }, seedResolvedAddresses, { 1 }),
+				*blockElement.Transactions[2].OptionalExtractedAddresses);
 	}
 
 	// endregion

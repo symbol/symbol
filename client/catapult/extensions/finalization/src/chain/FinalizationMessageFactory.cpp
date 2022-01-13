@@ -57,8 +57,8 @@ namespace catapult { namespace chain {
 					, m_blockStorage(blockStorage)
 					, m_proofStorage(proofStorage)
 					, m_prevoteChainDescriptorConsumer(prevoteChainDescriptorConsumer)
-					, m_bmPrivateKeyTree(std::move(bmPrivateKeyTree))
-			{}
+					, m_bmPrivateKeyTree(std::move(bmPrivateKeyTree)) {
+			}
 
 		public:
 			std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) override {
@@ -94,9 +94,7 @@ namespace catapult { namespace chain {
 
 				auto clampedChainHeight = Height(Clamp(maxPrevoteHashHeight.unwrap(), m_config.PrevoteBlocksMultiple, 0));
 
-				auto numHashes = clampedChainHeight > startHeight
-						? (clampedChainHeight - startHeight).unwrap() + 1
-						: 1;
+				auto numHashes = clampedChainHeight > startHeight ? (clampedChainHeight - startHeight).unwrap() + 1 : 1;
 
 				if (numHashes > m_config.MaxHashesPerPoint)
 					numHashes -= Clamp(numHashes - m_config.MaxHashesPerPoint, m_config.PrevoteBlocksMultiple, 1);

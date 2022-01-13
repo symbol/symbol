@@ -199,18 +199,40 @@ namespace catapult { namespace subscribers {
 	// region single aggregate creation
 
 #define SINGLE_AGGREGATE_CREATION_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_PtChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_UtChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Finalization) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FinalizationTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Node) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_StateChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_BlockStorage) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockStorageTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_PtCache) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtCacheTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_UtCache) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtCacheTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_PtChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_UtChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Finalization) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FinalizationTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Node) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_StateChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_BlockStorage) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockStorageTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_PtCache) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtCacheTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_UtCache) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtCacheTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SINGLE_AGGREGATE_CREATION_TEST(CannotCreateAggregateMultipleTimes) {
 		// Arrange:
@@ -242,15 +264,31 @@ namespace catapult { namespace subscribers {
 	// region create - subscriber
 
 #define BASIC_SUBSCRIPTION_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_PtChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_UtChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Finalization) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FinalizationTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Node) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_StateChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_PtChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_UtChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Finalization) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FinalizationTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Node) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_StateChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	BASIC_SUBSCRIPTION_TEST(CanCreateAggregateWithoutSubscriptions) {
 		// Arrange:
@@ -347,8 +385,9 @@ namespace catapult { namespace subscribers {
 			static void AddSubscriberWithAddCounter(SubscriptionManager& manager, size_t& counter) {
 				class PtChangeSubscriberWithAddCounter : public UnsupportedPtChangeSubscriber {
 				public:
-					explicit PtChangeSubscriberWithAddCounter(size_t& addCounter) : m_addCounter(addCounter)
-					{}
+					explicit PtChangeSubscriberWithAddCounter(size_t& addCounter)
+							: m_addCounter(addCounter) {
+					}
 
 				public:
 					void notifyAddPartials(const TransactionInfos&) override {
@@ -371,8 +410,9 @@ namespace catapult { namespace subscribers {
 			static void AddSubscriberWithAddCounter(SubscriptionManager& manager, size_t& counter) {
 				class UtChangeSubscriberWithAddCounter : public UnsupportedUtChangeSubscriber {
 				public:
-					explicit UtChangeSubscriberWithAddCounter(size_t& addCounter) : m_addCounter(addCounter)
-					{}
+					explicit UtChangeSubscriberWithAddCounter(size_t& addCounter)
+							: m_addCounter(addCounter) {
+					}
 
 				public:
 					void notifyAdds(const TransactionInfos&) override {
@@ -389,10 +429,16 @@ namespace catapult { namespace subscribers {
 	}
 
 #define CACHE_SUBSCRIPTION_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Pt) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Ut) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Pt) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Ut) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CACHE_SUBSCRIPTION_TEST(CanCreateCacheWithoutSubscriptions) {
 		// Arrange:

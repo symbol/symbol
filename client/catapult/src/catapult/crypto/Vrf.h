@@ -27,15 +27,21 @@
 namespace catapult { namespace crypto {
 
 	/// VRF proof gamma.
-	struct ProofGamma_tag { static constexpr size_t Size = 32; };
+	struct ProofGamma_tag {
+		static constexpr size_t Size = 32;
+	};
 	using ProofGamma = utils::ByteArray<ProofGamma_tag>;
 
 	/// VRF proof verification hash.
-	struct ProofVerificationHash_tag { static constexpr size_t Size = 16; };
+	struct ProofVerificationHash_tag {
+		static constexpr size_t Size = 16;
+	};
 	using ProofVerificationHash = utils::ByteArray<ProofVerificationHash_tag>;
 
 	/// VRF proof scalar.
-	struct ProofScalar_tag { static constexpr size_t Size = 32; };
+	struct ProofScalar_tag {
+		static constexpr size_t Size = 32;
+	};
 	using ProofScalar = utils::ByteArray<ProofScalar_tag>;
 
 #pragma pack(push, 1)

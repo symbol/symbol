@@ -33,7 +33,8 @@ namespace catapult { namespace cache {
 	class SubCachePluginAdapter : public SubCachePlugin {
 	public:
 		/// Creates an adapter around \a pCache.
-		explicit SubCachePluginAdapter(std::unique_ptr<TCache>&& pCache) : m_pCache(std::move(pCache)) {
+		explicit SubCachePluginAdapter(std::unique_ptr<TCache>&& pCache)
+				: m_pCache(std::move(pCache)) {
 			std::ostringstream out;
 			out << TCache::Name << " (id = " << TCache::Id << ")";
 			m_name = out.str();
@@ -78,9 +79,7 @@ namespace catapult { namespace cache {
 
 	public:
 		std::unique_ptr<CacheStorage> createStorage() override {
-			return IsCacheStorageSupported(*m_pCache)
-					? std::make_unique<CacheStorageAdapter<TCache, TStorageTraits>>(*m_pCache)
-					: nullptr;
+			return IsCacheStorageSupported(*m_pCache) ? std::make_unique<CacheStorageAdapter<TCache, TStorageTraits>>(*m_pCache) : nullptr;
 		}
 
 		std::unique_ptr<CacheChangesStorage> createChangesStorage() const override {
@@ -115,8 +114,8 @@ namespace catapult { namespace cache {
 		public:
 			SubCacheViewAdapter(TView&& view, const SubCacheViewIdentifier& id)
 					: m_view(std::move(view))
-					, m_id(id)
-			{}
+					, m_id(id) {
+			}
 
 		private:
 			auto merkleRootAccessor() const {
@@ -188,21 +187,15 @@ namespace catapult { namespace cache {
 			struct MerkleRootAccessor : public UnsupportedFeatureFlag {};
 
 			template<typename T>
-			struct MerkleRootAccessor<
-					T,
-					utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(1)->tryGetMerkleRoot())>>
-					: public SupportedFeatureFlag
-			{};
+			struct MerkleRootAccessor<T, utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(1)->tryGetMerkleRoot())>>
+					: public SupportedFeatureFlag {};
 
 			template<typename T, typename = void>
 			struct MerkleRootMutator : public UnsupportedFeatureFlag {};
 
 			template<typename T>
-			struct MerkleRootMutator<
-					T,
-					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(1)->setMerkleRoot(Hash256()))>>
-					: public SupportedFeatureFlag
-			{};
+			struct MerkleRootMutator<T, utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(1)->setMerkleRoot(Hash256()))>>
+					: public SupportedFeatureFlag {};
 
 			template<typename TPruneValue, typename T, typename = void>
 			struct PruneMutator : public UnsupportedFeatureFlag {};
@@ -212,8 +205,7 @@ namespace catapult { namespace cache {
 					TPruneValue,
 					T,
 					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(1)->prune(TPruneValue()))>>
-					: public SupportedFeatureFlag
-			{};
+					: public SupportedFeatureFlag {};
 
 			static bool SupportsMerkleRoot(const TView&, UnsupportedFeatureFlag) {
 				return false;
@@ -245,16 +237,16 @@ namespace catapult { namespace cache {
 				return true;
 			}
 
-			static void UpdateMerkleRoot(TView&, Height, UnsupportedFeatureFlag)
-			{}
+			static void UpdateMerkleRoot(TView&, Height, UnsupportedFeatureFlag) {
+			}
 
 			static void UpdateMerkleRoot(TView& view, Height height, SupportedFeatureFlag) {
 				view->updateMerkleRoot(height);
 			}
 
 			template<typename TPruneValue>
-			static void Prune(TView&, TPruneValue, UnsupportedFeatureFlag)
-			{}
+			static void Prune(TView&, TPruneValue, UnsupportedFeatureFlag) {
+			}
 
 			template<typename TPruneValue>
 			static void Prune(TView& view, TPruneValue value, SupportedFeatureFlag) {
@@ -275,8 +267,8 @@ namespace catapult { namespace cache {
 		public:
 			DetachedSubCacheViewAdapter(TLockableCacheDelta&& lockableCacheDelta, const SubCacheViewIdentifier& id)
 					: m_lockableCacheDelta(std::move(lockableCacheDelta))
-					, m_id(id)
-			{}
+					, m_id(id) {
+			}
 
 		public:
 			std::unique_ptr<SubCacheView> tryLock() override {

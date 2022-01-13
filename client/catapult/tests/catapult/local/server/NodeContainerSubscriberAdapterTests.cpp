@@ -52,7 +52,7 @@ namespace catapult { namespace local {
 				CATAPULT_THROW_INVALID_ARGUMENT_1("expected container to only have single node", nodesView.size());
 
 			const ionet::Node* pLastNode = nullptr;
-			const ionet::NodeInfo *pLastNodeInfo = nullptr;
+			const ionet::NodeInfo* pLastNodeInfo = nullptr;
 			nodesView.forEach([&pLastNode, &pLastNodeInfo](const auto& node, const auto& nodeInfo) {
 				pLastNode = &node;
 				pLastNodeInfo = &nodeInfo;

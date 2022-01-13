@@ -57,11 +57,10 @@ namespace catapult { namespace tools { namespace nemgen {
 				cppRawFile.write(headerBuffer);
 			}
 
-			auto header =
-					"#pragma once\n"
-					"#include <stdint.h>\n\n"
-					"namespace catapult { namespace test {\n\n"
-					"\tconstexpr inline uint8_t MemoryBlockStorage_NemesisBlockData[] = {\n";
+			auto header = "#pragma once\n"
+						  "#include <stdint.h>\n\n"
+						  "namespace catapult { namespace test {\n\n"
+						  "\tconstexpr inline uint8_t MemoryBlockStorage_NemesisBlockData[] = {\n";
 			cppRawFile.write(RawBuffer(reinterpret_cast<const uint8_t*>(header), strlen(header)));
 
 			auto pCurrent = reinterpret_cast<const uint8_t*>(&block);

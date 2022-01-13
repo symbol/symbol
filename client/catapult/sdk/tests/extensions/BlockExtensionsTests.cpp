@@ -122,10 +122,16 @@ namespace catapult { namespace extensions {
 	}
 
 #define REGISTRY_DEPENDENT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_WithoutRegistry) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BasicTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_WithRegistry) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegistryTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_WithoutRegistry) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BasicTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_WithRegistry) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegistryTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		constexpr auto Default_Num_Transactions = 5u;
@@ -141,9 +147,7 @@ namespace catapult { namespace extensions {
 
 			// create block and sign it using the specified extensions
 			auto pBlock = test::GenerateBlockWithTransactions(signer, transactions);
-			TTraits::RunExtensionsTest([&signer, &block = *pBlock](const auto& extensions) {
-				extensions.signFullBlock(signer, block);
-			});
+			TTraits::RunExtensionsTest([&signer, &block = *pBlock](const auto& extensions) { extensions.signFullBlock(signer, block); });
 
 			return pBlock;
 		}

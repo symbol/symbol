@@ -24,7 +24,9 @@
 #include "MapperUtils.h"
 #include "catapult/model/Receipt.h"
 
-namespace catapult { namespace mongo { class MongoReceiptRegistry; } }
+namespace catapult { namespace mongo {
+	class MongoReceiptRegistry;
+}}
 
 namespace catapult { namespace mongo { namespace mappers {
 

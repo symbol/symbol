@@ -29,8 +29,9 @@ namespace catapult { namespace cache {
 	class BlockStatisticRangeMixin {
 	public:
 		/// Creates a mixin around \a set.
-		explicit BlockStatisticRangeMixin(const TSet& set) : m_set(set)
-		{}
+		explicit BlockStatisticRangeMixin(const TSet& set)
+				: m_set(set) {
+		}
 
 	private:
 		enum class FindIteratorScheme { Search, Lookup };
@@ -44,8 +45,7 @@ namespace catapult { namespace cache {
 		struct FindIteratorSchemeAccessor<
 				T,
 				utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(1)->findIterator(state::BlockStatistic()))>>
-				: LookupFindIteratorFlag
-		{};
+				: LookupFindIteratorFlag {};
 
 	private:
 		template<typename TIterableView>
@@ -88,8 +88,8 @@ namespace catapult { namespace cache {
 
 			const auto& firstSetElement = *iterableStatistics.begin();
 			const auto first = height.unwrap() - firstSetElement.Height.unwrap() < count - 1
-					? state::BlockStatistic(firstSetElement.Height)
-					: state::BlockStatistic(height - Height(count - 1));
+									   ? state::BlockStatistic(firstSetElement.Height)
+									   : state::BlockStatistic(height - Height(count - 1));
 			auto firstIter = FindIterator(iterableStatistics, first);
 
 			return BlockStatisticRangeT<decltype(firstIter)>(firstIter, ++lastIter);

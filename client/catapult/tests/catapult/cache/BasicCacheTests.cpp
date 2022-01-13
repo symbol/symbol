@@ -38,8 +38,8 @@ namespace catapult { namespace cache {
 			using IsOrderedSet = std::false_type;
 
 		public:
-			explicit BaseSetTypeUnorderedExplicit(const CacheConfiguration&)
-			{}
+			explicit BaseSetTypeUnorderedExplicit(const CacheConfiguration&) {
+			}
 		};
 
 		class OrderedSetType : public deltaset::OrderedSet<deltaset::MutableTypeTraits<std::string>> {
@@ -47,8 +47,8 @@ namespace catapult { namespace cache {
 			using IsOrderedSet = std::true_type;
 
 		public:
-			explicit OrderedSetType(const CacheConfiguration&)
-			{}
+			explicit OrderedSetType(const CacheConfiguration&) {
+			}
 		};
 
 		// create a cache descriptor around BaseSetType with view and delta types that simply capture parameters
@@ -62,13 +62,14 @@ namespace catapult { namespace cache {
 				using ReadOnlyView = void;
 
 			public:
-				explicit CacheViewType(const TBaseSet& set) : Set(set)
-				{}
+				explicit CacheViewType(const TBaseSet& set)
+						: Set(set) {
+				}
 
 				CacheViewType(const TBaseSet& set, int tag)
 						: Set(set)
-						, Tag(tag)
-				{}
+						, Tag(tag) {
+				}
 
 			public:
 				const TBaseSet& Set;
@@ -80,13 +81,14 @@ namespace catapult { namespace cache {
 				using DeltaPointerType = std::shared_ptr<typename TBaseSet::DeltaType>;
 
 			public:
-				explicit CacheDeltaType(const DeltaPointerType& pDeltaParam) : pDelta(pDeltaParam)
-				{}
+				explicit CacheDeltaType(const DeltaPointerType& pDeltaParam)
+						: pDelta(pDeltaParam) {
+				}
 
 				CacheDeltaType(const DeltaPointerType& pDeltaParam, int tag)
 						: pDelta(pDeltaParam)
-						, Tag(tag)
-				{}
+						, Tag(tag) {
+				}
 
 			public:
 				// required by TestCacheOrderedExplicit
@@ -103,16 +105,18 @@ namespace catapult { namespace cache {
 		// define the test caches using BasicCache
 		class TestCache : public BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit> {
 		public:
-			TestCache() : BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit>(CacheConfiguration())
-			{}
+			TestCache()
+					: BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit>(CacheConfiguration()) {
+			}
 		};
 
 		using TestCacheWithOptions = BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit, int>;
 
 		class TestCacheOrderedExplicit : public BasicCache<TestCacheDescriptor<OrderedSetType>, OrderedSetType> {
 		public:
-			TestCacheOrderedExplicit() : BasicCache<TestCacheDescriptor<OrderedSetType>, OrderedSetType>(CacheConfiguration())
-			{}
+			TestCacheOrderedExplicit()
+					: BasicCache<TestCacheDescriptor<OrderedSetType>, OrderedSetType>(CacheConfiguration()) {
+			}
 		};
 	}
 
@@ -209,10 +213,16 @@ namespace catapult { namespace cache {
 	// region commit
 
 #define COMMIT_TEST(TEST_NAME) \
-	template<typename TCache> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCache>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_OrderedExplicit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCacheOrderedExplicit>(); } \
-	template<typename TCache> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TCache> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCache>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_OrderedExplicit) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCacheOrderedExplicit>(); \
+	} \
+	template<typename TCache> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	COMMIT_TEST(CanCommitDelta) {
 		// Arrange:

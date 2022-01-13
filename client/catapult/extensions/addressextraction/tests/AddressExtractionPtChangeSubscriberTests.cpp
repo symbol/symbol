@@ -31,15 +31,15 @@ namespace catapult { namespace addressextraction {
 	namespace {
 		class TestContext : public test::AddressExtractionSubscriberTestContext<cache::PtChangeSubscriber> {
 		public:
-			TestContext() : AddressExtractionSubscriberTestContext(CreateAddressExtractionPtChangeSubscriber)
-			{}
+			TestContext()
+					: AddressExtractionSubscriberTestContext(CreateAddressExtractionPtChangeSubscriber) {
+			}
 		};
 	}
 
 	TEST(TEST_CLASS, NotifyAddPartialsExtractsTransactionAddresses) {
-		TestContext().assertTransactionInfosExtractions([](auto& subscriber, const auto& transactionInfos) {
-			subscriber.notifyAddPartials(transactionInfos);
-		});
+		TestContext().assertTransactionInfosExtractions(
+				[](auto& subscriber, const auto& transactionInfos) { subscriber.notifyAddPartials(transactionInfos); });
 	}
 
 	TEST(TEST_CLASS, NotifyAddCosignatureExtractsTransactionAddresses) {
@@ -49,14 +49,11 @@ namespace catapult { namespace addressextraction {
 	}
 
 	TEST(TEST_CLASS, NotifyRemovePartialsExtractsTransactionAddresses) {
-		TestContext().assertTransactionInfosExtractions([](auto& subscriber, const auto& transactionInfos) {
-			subscriber.notifyRemovePartials(transactionInfos);
-		});
+		TestContext().assertTransactionInfosExtractions(
+				[](auto& subscriber, const auto& transactionInfos) { subscriber.notifyRemovePartials(transactionInfos); });
 	}
 
 	TEST(TEST_CLASS, FlushDoesNotExtractTransactionAddresses) {
-		TestContext().assertNoExtractions([](auto& subscriber) {
-			subscriber.flush();
-		});
+		TestContext().assertNoExtractions([](auto& subscriber) { subscriber.flush(); });
 	}
 }}

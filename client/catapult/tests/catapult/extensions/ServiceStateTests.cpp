@@ -50,9 +50,7 @@ namespace catapult { namespace extensions {
 
 		ionet::NodeContainer nodes;
 		auto catapultCache = cache::CatapultCache({});
-		io::BlockStorageCache storage(
-				std::make_unique<mocks::MockMemoryBlockStorage>(),
-				std::make_unique<mocks::MockMemoryBlockStorage>());
+		io::BlockStorageCache storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>());
 		LocalNodeChainScore score;
 		auto pUtCache = test::CreateUtCacheProxy();
 
@@ -160,7 +158,8 @@ namespace catapult { namespace extensions {
 	}
 
 #define HEIGHT_HASH_PAIR_SUPPLIER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, CreateLocalFinalizedHeightHashPairSupplier_##TEST_NAME) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LocalFinalizedHeightHashPairSupplierTraits>(); \
 	} \
@@ -170,7 +169,8 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, CreateNetworkFinalizedHeightHashPairSupplier_##TEST_NAME) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NetworkFinalizedHeightHashPairSupplierTraits>(); \
 	} \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		template<typename TTraits>
@@ -184,9 +184,8 @@ namespace catapult { namespace extensions {
 			mocks::SeedStorageWithFixedSizeBlocks(testState.state().storage(), numBlocks);
 			TTraits::SetSupplier(testState.state().hooks(), { Height(7), lastFinalizedHash });
 
-			auto expectedHash = 0 == maxRollbackBlocks
-					? lastFinalizedHash
-					: testState.state().storage().view().loadBlockElement(expectedHeight)->EntityHash;
+			auto expectedHash = 0 == maxRollbackBlocks ? lastFinalizedHash
+													   : testState.state().storage().view().loadBlockElement(expectedHeight)->EntityHash;
 
 			// Act:
 			auto supplier = TTraits::CreateSupplier(testState.state());

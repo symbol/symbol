@@ -26,8 +26,6 @@
 namespace catapult { namespace timesync { namespace filters {
 
 	SynchronizationFilter CreateResponseDelayDetectionFilter() {
-		return [](const auto& sample, auto) {
-			return Tolerated_Duration_Maximum < sample.duration().millis();
-		};
+		return [](const auto& sample, auto) { return Tolerated_Duration_Maximum < sample.duration().millis(); };
 	}
 }}}

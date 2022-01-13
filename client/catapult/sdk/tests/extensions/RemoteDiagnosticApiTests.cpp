@@ -54,11 +54,9 @@ namespace catapult { namespace extensions {
 			}
 
 			static std::vector<state::TimestampedHash> RequestParamValues() {
-				return {
-					state::TimestampedHash(Timestamp(12), { { 123 } }),
-					state::TimestampedHash(Timestamp(23), { { 234 } }),
-					state::TimestampedHash(Timestamp(34), { { 213 } })
-				};
+				return { state::TimestampedHash(Timestamp(12), { { 123 } }),
+						 state::TimestampedHash(Timestamp(23), { { 234 } }),
+						 state::TimestampedHash(Timestamp(34), { { 213 } }) };
 			}
 
 			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
@@ -384,9 +382,7 @@ namespace catapult { namespace extensions {
 			static constexpr uint32_t Request_Data_Size = Num_Entities * TTraits::Request_Entity_Size;
 
 			static auto CreateRequestParam() {
-				return TTraits::RequestParamType::CopyFixed(
-						reinterpret_cast<uint8_t*>(TTraits::RequestParamValues().data()),
-						Num_Entities);
+				return TTraits::RequestParamType::CopyFixed(reinterpret_cast<uint8_t*>(TTraits::RequestParamValues().data()), Num_Entities);
 			}
 
 			static auto Invoke(const RemoteDiagnosticApi& api) {

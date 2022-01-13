@@ -31,8 +31,8 @@ namespace catapult { namespace timesync {
 		TimeSynchronizationResult(catapult::Timestamp timestamp, int64_t currentOffset, int64_t change)
 				: Timestamp(timestamp)
 				, CurrentOffset(currentOffset)
-				, Change(change)
-		{}
+				, Change(change) {
+		}
 
 	public:
 		/// Time when the synchronization happened.

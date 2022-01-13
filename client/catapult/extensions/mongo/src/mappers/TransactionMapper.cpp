@@ -42,12 +42,9 @@ namespace catapult { namespace mongo { namespace mappers {
 			// transaction metadata
 			bson_stream::document builder;
 			builder << "_id" << metadata.ObjectId;
-			builder
-					<< "meta" << bson_stream::open_document
-						<< "height" << ToInt64(metadata.Height)
-						<< "hash" << ToBinary(metadata.EntityHash)
-						<< "merkleComponentHash" << ToBinary(metadata.MerkleComponentHash)
-						<< "index" << static_cast<int32_t>(metadata.Index);
+			builder << "meta" << bson_stream::open_document << "height" << ToInt64(metadata.Height) << "hash"
+					<< ToBinary(metadata.EntityHash) << "merkleComponentHash" << ToBinary(metadata.MerkleComponentHash) << "index"
+					<< static_cast<int32_t>(metadata.Index);
 
 			StreamAddresses(builder, metadata.Addresses);
 			builder << bson_stream::close_document;
@@ -55,8 +52,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			// transaction data
 			builder << "transaction" << bson_stream::open_document;
 			StreamVerifiableEntity(builder, transaction)
-					<< "maxFee" << ToInt64(transaction.MaxFee)
-					<< "deadline" << ToInt64(transaction.Deadline);
+					<< "maxFee" << ToInt64(transaction.MaxFee) << "deadline" << ToInt64(transaction.Deadline);
 
 			if (pPlugin) {
 				pPlugin->streamTransaction(builder, transaction);

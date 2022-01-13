@@ -30,8 +30,8 @@ namespace catapult { namespace io {
 
 	FileProofStorage::FinalizationIndexFile::FinalizationIndexFile(const std::string& filename, LockMode lockMode)
 			: m_filename(filename)
-			, m_lockMode(lockMode)
-	{}
+			, m_lockMode(lockMode) {
+	}
 
 	bool FileProofStorage::FinalizationIndexFile::exists() const {
 		return std::filesystem::is_regular_file(m_filename);
@@ -63,8 +63,8 @@ namespace catapult { namespace io {
 
 	FileProofStorage::FileProofStorage(const std::string& dataDirectory, uint32_t fileDatabaseBatchSize)
 			: m_database(config::CatapultDirectory(dataDirectory), { fileDatabaseBatchSize, ".proof" })
-			, m_indexFile((std::filesystem::path(dataDirectory) / "proof.index.dat").generic_string())
-	{}
+			, m_indexFile((std::filesystem::path(dataDirectory) / "proof.index.dat").generic_string()) {
+	}
 
 	model::FinalizationStatistics FileProofStorage::statistics() const {
 		if (!m_indexFile.exists())

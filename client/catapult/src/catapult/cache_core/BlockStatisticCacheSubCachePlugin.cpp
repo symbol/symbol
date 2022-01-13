@@ -43,8 +43,8 @@ namespace catapult { namespace cache {
 	}
 
 	BlockStatisticCacheSubCachePlugin::BlockStatisticCacheSubCachePlugin(uint64_t historySize)
-			: SubCachePluginAdapter<BlockStatisticCache, BlockStatisticCacheStorage>(std::make_unique<BlockStatisticCache>(historySize))
-	{}
+			: SubCachePluginAdapter<BlockStatisticCache, BlockStatisticCacheStorage>(std::make_unique<BlockStatisticCache>(historySize)) {
+	}
 
 	std::unique_ptr<CacheStorage> BlockStatisticCacheSubCachePlugin::createStorage() {
 		return std::make_unique<BlockStatisticCacheSummaryCacheStorage>(cache());

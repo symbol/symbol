@@ -35,10 +35,9 @@ namespace catapult { namespace tools {
 	}
 
 	AccountPrinterFormat ParseAccountPrinterFormat(const std::string& str) {
-		static const std::array<std::pair<const char*, AccountPrinterFormat>, 2> String_To_Account_Printer_Format_Pairs{{
-			{ "pretty", AccountPrinterFormat::Pretty },
-			{ "csv", AccountPrinterFormat::Csv }
-		}};
+		static const std::array<std::pair<const char*, AccountPrinterFormat>, 2> String_To_Account_Printer_Format_Pairs{
+			{ { "pretty", AccountPrinterFormat::Pretty }, { "csv", AccountPrinterFormat::Csv } }
+		};
 
 		AccountPrinterFormat format;
 		if (!utils::TryParseEnumValue(String_To_Account_Printer_Format_Pairs, str, format))
@@ -62,8 +61,8 @@ namespace catapult { namespace tools {
 		public:
 			AutoLineEnding(std::ostream& out, size_t& counter)
 					: m_out(out)
-					, m_counter(++counter)
-			{}
+					, m_counter(++counter) {
+			}
 
 			~AutoLineEnding() {
 				if (0 == --m_counter)
@@ -83,8 +82,8 @@ namespace catapult { namespace tools {
 		public:
 			explicit CsvAccountPrinter(std::ostream& out)
 					: m_out(out)
-					, m_counter(0)
-			{}
+					, m_counter(0) {
+			}
 
 		public:
 			void setNetwork(const std::string& networkName) override {
@@ -95,10 +94,8 @@ namespace catapult { namespace tools {
 			void print(const Address& address) override {
 				AutoLineEnding guard(m_out, m_counter);
 
-				m_out
-						<< (!model::IsValidAddress(address, m_networkIdentifier) ? "INVALID" : "")
-						<< "," << model::AddressToString(address)
-						<< "," << address;
+				m_out << (!model::IsValidAddress(address, m_networkIdentifier) ? "INVALID" : "") << "," << model::AddressToString(address)
+					  << "," << address;
 			}
 
 			void print(const Key& publicKey) override {
@@ -137,8 +134,8 @@ namespace catapult { namespace tools {
 		public:
 			explicit PrettyAccountPrinter(std::ostream& out)
 					: m_out(out)
-					, m_counter(0)
-			{}
+					, m_counter(0) {
+			}
 
 		public:
 			void setNetwork(const std::string& networkName) override {
@@ -154,10 +151,9 @@ namespace catapult { namespace tools {
 				if (!model::IsValidAddress(address, m_networkIdentifier))
 					qualifier = "[INVALID] ";
 
-				m_out
-						<< std::setw(Label_Width - static_cast<int>(m_networkName.size()) - 3)
-								<< "address (" << m_networkName << "): " << qualifier << model::AddressToString(address) << std::endl
-						<< std::setw(Label_Width) << "address decoded: " << address << std::endl;
+				m_out << std::setw(Label_Width - static_cast<int>(m_networkName.size()) - 3) << "address (" << m_networkName
+					  << "): " << qualifier << model::AddressToString(address) << std::endl
+					  << std::setw(Label_Width) << "address decoded: " << address << std::endl;
 			}
 
 			void print(const Key& publicKey) override {
@@ -171,9 +167,8 @@ namespace catapult { namespace tools {
 				AutoLineEnding guard(m_out, m_counter);
 
 				print(keyPair.publicKey());
-				m_out
-						<< std::setw(Label_Width) << "private key: "
-						<< crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey()) << std::endl;
+				m_out << std::setw(Label_Width) << "private key: " << crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey())
+					  << std::endl;
 			}
 
 			void print(const std::string& mnemonic, const crypto::KeyPair& keyPair) override {
@@ -209,8 +204,9 @@ namespace catapult { namespace tools {
 
 		class AggregateAccountPrinter : public AccountPrinter {
 		public:
-			explicit AggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers) : m_printers(std::move(printers))
-			{}
+			explicit AggregateAccountPrinter(std::vector<std::unique_ptr<AccountPrinter>>&& printers)
+					: m_printers(std::move(printers)) {
+			}
 
 		public:
 			void setNetwork(const std::string& networkName) override {

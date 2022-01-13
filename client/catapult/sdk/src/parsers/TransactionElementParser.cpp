@@ -52,9 +52,8 @@ namespace catapult { namespace parsers {
 		auto entitiesSize = packet.Size - Header_Size - hashesSize;
 		auto transactionOffsets = ionet::ExtractEntityOffsets<model::Transaction>({ pEntitiesStart, entitiesSize }, isValid);
 		if (2 * transactionOffsets.size() != numHashes) {
-			CATAPULT_LOG(debug)
-					<< "packet has an unexpected number of entities (" << transactionOffsets.size()
-					<< ") and hashes (" << numHashes << ")";
+			CATAPULT_LOG(debug) << "packet has an unexpected number of entities (" << transactionOffsets.size() << ") and hashes ("
+								<< numHashes << ")";
 			return false;
 		}
 

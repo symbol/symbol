@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS NamespaceRegistrationTypeValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(NamespaceRegistrationType,)
+	DEFINE_COMMON_VALIDATOR_TESTS(NamespaceRegistrationType, )
 
 	namespace {
 		struct NamespaceRegistrationTypeTraits {

@@ -19,7 +19,6 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h"
 #include "tests/test/HashLockNotificationsTestUtils.h"
 
@@ -27,7 +26,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS HashLockCacheUniqueValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(HashLockCacheUnique,)
+	DEFINE_COMMON_VALIDATOR_TESTS(HashLockCacheUnique, )
 
 	namespace {
 		struct HashCacheTraits {

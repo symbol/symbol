@@ -44,8 +44,8 @@ namespace catapult { namespace validators {
 				return Failure_Namespace_Alias_Inconsistent_Unlink_Type;
 
 			return TValidatorTraits::GetAliased(entry.root().alias(notification.NamespaceId)) != notification.AliasedData
-					? Failure_Namespace_Alias_Inconsistent_Unlink_Data
-					: ValidationResult::Success;
+						   ? Failure_Namespace_Alias_Inconsistent_Unlink_Data
+						   : ValidationResult::Success;
 		}
 	}
 

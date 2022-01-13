@@ -42,8 +42,9 @@ namespace catapult { namespace tools {
 
 	public:
 		/// Creates a census tool with census name (\a censusName).
-		explicit NetworkCensusTool(const std::string& censusName) : m_censusName(censusName)
-		{}
+		explicit NetworkCensusTool(const std::string& censusName)
+				: m_censusName(censusName) {
+		}
 
 	public:
 		std::string name() const override final {
@@ -59,9 +60,8 @@ namespace catapult { namespace tools {
 		int run(const Options& options) override final {
 			auto resourcesPath = GetResourcesOptionValue(options);
 			auto config = LoadConfiguration(resourcesPath);
-			auto networkFingerprint = model::UniqueNetworkFingerprint(
-					config.Blockchain.Network.Identifier,
-					config.Blockchain.Network.GenerationHashSeed);
+			auto networkFingerprint =
+					model::UniqueNetworkFingerprint(config.Blockchain.Network.Identifier, config.Blockchain.Network.GenerationHashSeed);
 			auto p2pNodes = LoadPeers(resourcesPath, networkFingerprint);
 			auto apiNodes = LoadOptionalApiPeers(resourcesPath, networkFingerprint);
 
@@ -100,9 +100,7 @@ namespace catapult { namespace tools {
 					auto infoFutures = this->getNodeInfoFutures(options, connector.pool(), *pIo, nodeIdentity, *pNodeInfo);
 
 					// capture pIo so that it stays alive until all dependent futures are complete
-					return thread::when_all(std::move(infoFutures)).then([pIo, pNodeInfo](auto&&) {
-						return pNodeInfo;
-					});
+					return thread::when_all(std::move(infoFutures)).then([pIo, pNodeInfo](auto&&) { return pNodeInfo; });
 				} catch (...) {
 					// suppress
 					CATAPULT_LOG(error) << node << " appears to be offline";

@@ -23,7 +23,9 @@
 #include "ChainApi.h"
 #include "catapult/functions.h"
 
-namespace catapult { namespace io { class BlockStorageCache; } }
+namespace catapult { namespace io {
+	class BlockStorageCache;
+}}
 
 namespace catapult { namespace api {
 

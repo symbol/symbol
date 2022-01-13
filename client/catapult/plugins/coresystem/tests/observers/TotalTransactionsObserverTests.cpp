@@ -28,7 +28,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS TotalTransactionsObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(TotalTransactions,)
+	DEFINE_COMMON_OBSERVER_TESTS(TotalTransactions, )
 
 	namespace {
 		constexpr size_t Current_Height = 10;

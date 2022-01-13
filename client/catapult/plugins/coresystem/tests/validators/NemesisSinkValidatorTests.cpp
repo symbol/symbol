@@ -61,8 +61,8 @@ namespace catapult { namespace validators {
 			auto context = test::CreateValidatorContext(height, networkInfo, readOnlyCache);
 
 			auto signature = ExplicitlyAllowedSignatureMode::Enabled == explicitlyAllowedSignatureMode
-					? signatures[1]
-					: test::GenerateRandomByteArray<Signature>();
+									 ? signatures[1]
+									 : test::GenerateRandomByteArray<Signature>();
 			model::SignatureNotification notification(signer, signature, {});
 
 			// Act:

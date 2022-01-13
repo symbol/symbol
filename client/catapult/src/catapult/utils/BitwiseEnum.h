@@ -28,12 +28,12 @@
 	constexpr ENUM_TYPE operator|(ENUM_TYPE lhs, ENUM_TYPE rhs) { \
 		return static_cast<ENUM_TYPE>(utils::to_underlying_type(lhs) | utils::to_underlying_type(rhs)); \
 	} \
-	\
+\
 	/* Bitwise-ORs \a lhs and \a rhs and assigns the result to \a lhs. */ \
 	constexpr ENUM_TYPE& operator|=(ENUM_TYPE& lhs, ENUM_TYPE rhs) { \
 		return lhs = lhs | rhs; \
 	} \
-	\
+\
 	/* Returns \c true if all bits in \a testedFlag are also set in \a value. */ \
 	constexpr bool HasFlag(ENUM_TYPE testedFlag, ENUM_TYPE value) { \
 		return utils::to_underlying_type(testedFlag) == (utils::to_underlying_type(testedFlag) & utils::to_underlying_type(value)); \

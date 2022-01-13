@@ -28,26 +28,26 @@ namespace catapult { namespace validators {
 
 	DECLARE_STATELESS_VALIDATOR(BasicAggregateCosignatures, Notification)(uint32_t maxTransactions, uint8_t maxCosignatures) {
 		return MAKE_STATELESS_VALIDATOR(BasicAggregateCosignatures, ([maxTransactions, maxCosignatures](const Notification& notification) {
-			if (0 == notification.TransactionsCount)
-				return Failure_Aggregate_No_Transactions;
+											if (0 == notification.TransactionsCount)
+												return Failure_Aggregate_No_Transactions;
 
-			if (maxTransactions < notification.TransactionsCount)
-				return Failure_Aggregate_Too_Many_Transactions;
+											if (maxTransactions < notification.TransactionsCount)
+												return Failure_Aggregate_Too_Many_Transactions;
 
-			if (maxCosignatures < notification.CosignaturesCount + 1)
-				return Failure_Aggregate_Too_Many_Cosignatures;
+											if (maxCosignatures < notification.CosignaturesCount + 1)
+												return Failure_Aggregate_Too_Many_Cosignatures;
 
-			utils::KeyPointerSet cosignatories;
-			cosignatories.insert(&notification.SignerPublicKey);
-			const auto* pCosignature = notification.CosignaturesPtr;
-			for (auto i = 0u; i < notification.CosignaturesCount; ++i) {
-				if (!cosignatories.insert(&pCosignature->SignerPublicKey).second)
-					return Failure_Aggregate_Redundant_Cosignatures;
+											utils::KeyPointerSet cosignatories;
+											cosignatories.insert(&notification.SignerPublicKey);
+											const auto* pCosignature = notification.CosignaturesPtr;
+											for (auto i = 0u; i < notification.CosignaturesCount; ++i) {
+												if (!cosignatories.insert(&pCosignature->SignerPublicKey).second)
+													return Failure_Aggregate_Redundant_Cosignatures;
 
-				++pCosignature;
-			}
+												++pCosignature;
+											}
 
-			return ValidationResult::Success;
-		}));
+											return ValidationResult::Success;
+										}));
 	}
 }}

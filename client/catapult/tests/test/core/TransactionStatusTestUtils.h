@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/model/Transaction.h"
 
-namespace catapult { namespace io { class OutputStream; } }
+namespace catapult { namespace io {
+	class OutputStream;
+}}
 
 namespace catapult { namespace test {
 

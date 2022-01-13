@@ -20,9 +20,9 @@
 **/
 
 #include "src/builders/NamespaceRegistrationBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
 #include "catapult/constants.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
 
@@ -42,13 +42,14 @@ namespace catapult { namespace builders {
 					, Duration(duration)
 					, NamespaceName(test::GenerateRandomString(10))
 
-			{}
+			{
+			}
 
 			explicit TransactionProperties(NamespaceId parentId)
 					: RegistrationType(model::NamespaceRegistrationType::Child)
 					, ParentId(parentId)
-					, NamespaceName(test::GenerateRandomString(10))
-			{}
+					, NamespaceName(test::GenerateRandomString(10)) {
+			}
 
 		public:
 			model::NamespaceRegistrationType RegistrationType;
@@ -110,10 +111,16 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
 
@@ -159,9 +166,7 @@ namespace catapult { namespace builders {
 		auto expectedProperties = TransactionProperties(BlockDuration(1234));
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
-			builder.setDuration(BlockDuration(1234));
-		});
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) { builder.setDuration(BlockDuration(1234)); });
 	}
 
 	TRAITS_BASED_TEST(CanSetParentId) {
@@ -169,9 +174,7 @@ namespace catapult { namespace builders {
 		auto expectedProperties = TransactionProperties(NamespaceId(1234));
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
-			builder.setParentId(NamespaceId(1234));
-		});
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) { builder.setParentId(NamespaceId(1234)); });
 	}
 
 	TRAITS_BASED_TEST(LastOfParentIdAndDurationTakesPrecedence) {

@@ -26,11 +26,21 @@
 #include <vector>
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace config { class CatapultKeys; }
-	namespace extensions { class ProcessBootstrapper; }
-	namespace ionet { class NodeContainerView; }
-	namespace model { class ChainScore; }
+namespace cache {
+	class CatapultCache;
+}
+namespace config {
+	class CatapultKeys;
+}
+namespace extensions {
+	class ProcessBootstrapper;
+}
+namespace ionet {
+	class NodeContainerView;
+}
+namespace model {
+	class ChainScore;
+}
 }
 
 namespace catapult { namespace local {
@@ -44,8 +54,8 @@ namespace catapult { namespace local {
 		/// Creates a counter value from \a counter.
 		explicit LocalNodeCounterValue(const utils::DiagnosticCounter& counter)
 				: m_id(counter.id())
-				, m_value(counter.value())
-		{}
+				, m_value(counter.value()) {
+		}
 
 	public:
 		/// Gets the counter id.

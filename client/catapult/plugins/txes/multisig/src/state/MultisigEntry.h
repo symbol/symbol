@@ -33,8 +33,8 @@ namespace catapult { namespace state {
 		/// Creates multisig cosignatories mixin.
 		MultisigCosignatoriesMixin()
 				: m_minApproval(0)
-				, m_minRemoval(0)
-		{}
+				, m_minRemoval(0) {
+		}
 
 	public:
 		/// Gets the (const) cosignatory addresses.
@@ -96,11 +96,14 @@ namespace catapult { namespace state {
 	};
 
 	/// Multisig entry.
-	class PLUGIN_API_DEPENDENCY MultisigEntry : public MultisigCosignatoriesMixin, public MultisigCosignatoryOfMixin {
+	class PLUGIN_API_DEPENDENCY MultisigEntry
+			: public MultisigCosignatoriesMixin
+			, public MultisigCosignatoryOfMixin {
 	public:
 		/// Creates a multisig entry around \a address.
-		explicit MultisigEntry(const Address& address) : m_address(address)
-		{}
+		explicit MultisigEntry(const Address& address)
+				: m_address(address) {
+		}
 
 	public:
 		/// Gets the account address.

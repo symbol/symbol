@@ -59,8 +59,8 @@ namespace catapult { namespace model {
 				, SenderPublicKey(senderPublicKey)
 				, Recipient(recipient)
 				, MessageSize(messageSize)
-				, MessagePtr(pMessage)
-		{}
+				, MessagePtr(pMessage) {
+		}
 
 	public:
 		/// Message sender public key.
@@ -91,8 +91,8 @@ namespace catapult { namespace model {
 		TransferMosaicsNotification(uint8_t mosaicsCount, const UnresolvedMosaic* pMosaics)
 				: Notification(Notification_Type, sizeof(TransferMosaicsNotification))
 				, MosaicsCount(mosaicsCount)
-				, MosaicsPtr(pMosaics)
-		{}
+				, MosaicsPtr(pMosaics) {
+		}
 
 	public:
 		/// Number of mosaics.

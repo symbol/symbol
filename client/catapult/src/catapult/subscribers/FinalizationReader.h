@@ -22,8 +22,12 @@
 #pragma once
 
 namespace catapult {
-	namespace io { class InputStream; }
-	namespace subscribers { class FinalizationSubscriber; }
+namespace io {
+	class InputStream;
+}
+namespace subscribers {
+	class FinalizationSubscriber;
+}
 }
 
 namespace catapult { namespace subscribers {

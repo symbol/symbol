@@ -111,7 +111,9 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_PUSH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, HANDLER_NAME##_##TEST_NAME) { test::PushHandlerTests<HANDLER_NAME##Traits>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, HANDLER_NAME##_##TEST_NAME) { \
+		test::PushHandlerTests<HANDLER_NAME##Traits>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_PUSH_HANDLER_TESTS(TEST_CLASS, HANDLER_NAME) \
 	MAKE_PUSH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, MalformedPacketIsRejected) \

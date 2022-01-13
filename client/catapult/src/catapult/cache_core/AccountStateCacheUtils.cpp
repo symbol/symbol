@@ -45,10 +45,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	void ProcessForwardedAccountState(
-			AccountStateCacheDelta& cache,
-			const Address& address,
-			const consumer<state::AccountState&>& action) {
+	void ProcessForwardedAccountState(AccountStateCacheDelta& cache, const Address& address, const consumer<state::AccountState&>& action) {
 		ProcessForwardedAccountStateT(cache, address, action);
 	}
 

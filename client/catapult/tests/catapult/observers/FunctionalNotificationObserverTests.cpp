@@ -43,8 +43,8 @@ namespace catapult { namespace observers {
 		public:
 			NotifyParams(const NotificationType& notification, const ObserverContext& context)
 					: pNotification(&notification)
-					, pContext(&context)
-			{}
+					, pContext(&context) {
+			}
 
 		public:
 			const NotificationType* pNotification;

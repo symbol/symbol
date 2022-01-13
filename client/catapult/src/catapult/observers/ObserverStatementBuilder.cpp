@@ -23,12 +23,13 @@
 
 namespace catapult { namespace observers {
 
-	ObserverStatementBuilder::ObserverStatementBuilder() : m_pStatementBuilder(nullptr)
-	{}
+	ObserverStatementBuilder::ObserverStatementBuilder()
+			: m_pStatementBuilder(nullptr) {
+	}
 
 	ObserverStatementBuilder::ObserverStatementBuilder(model::BlockStatementBuilder& statementBuilder)
-			: m_pStatementBuilder(&statementBuilder)
-	{}
+			: m_pStatementBuilder(&statementBuilder) {
+	}
 
 	model::ReceiptSource ObserverStatementBuilder::source() const {
 		return m_pStatementBuilder ? m_pStatementBuilder->source() : model::ReceiptSource();

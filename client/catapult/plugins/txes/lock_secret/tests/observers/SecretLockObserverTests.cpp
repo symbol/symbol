@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
 #include "src/model/SecretLockReceiptType.h"
+#include "src/observers/Observers.h"
 #include "plugins/txes/lock_shared/tests/observers/LockObserverTests.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 #include "tests/test/SecretLockNotificationsTestUtils.h"
@@ -29,7 +29,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS SecretLockObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(SecretLock,)
+	DEFINE_COMMON_OBSERVER_TESTS(SecretLock, )
 
 	namespace {
 		struct SecretObserverTraits : public test::BasicSecretLockInfoTestTraits {

@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace cache { class CatapultCacheView; } }
+namespace catapult { namespace cache {
+	class CatapultCacheView;
+}}
 
 namespace catapult { namespace test {
 

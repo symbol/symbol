@@ -24,15 +24,17 @@
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 
 namespace catapult {
-	namespace cache {
-		class CatapultCacheDelta;
-		class CatapultCacheView;
-	}
-	namespace model {
-		struct BlockchainConfiguration;
-		class BlockStatementBuilder;
-	}
-	namespace observers { struct ObserverState; }
+namespace cache {
+	class CatapultCacheDelta;
+	class CatapultCacheView;
+}
+namespace model {
+	struct BlockchainConfiguration;
+	class BlockStatementBuilder;
+}
+namespace observers {
+	struct ObserverState;
+}
 }
 
 namespace catapult { namespace chain {

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/metadata/src/model/MetadataEntityType.h"
+#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {
@@ -31,11 +31,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {
-					model::Entity_Type_Account_Metadata,
-					model::Entity_Type_Mosaic_Metadata,
-					model::Entity_Type_Namespace_Metadata
-				};
+				return { model::Entity_Type_Account_Metadata, model::Entity_Type_Mosaic_Metadata, model::Entity_Type_Namespace_Metadata };
 			}
 
 			static std::vector<model::ReceiptType> GetReceiptTypes() {

@@ -91,9 +91,8 @@ namespace catapult { namespace extensions {
 		std::vector<const int*> breadcrumbs;
 
 		// Act:
-		auto consumer = AggregateConsumers<catapult::consumer<const int&>>({
-			[&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back(&sentinel); }
-		});
+		auto consumer = AggregateConsumers<catapult::consumer<const int&>>(
+				{ [&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back(&sentinel); } });
 
 		ASSERT_TRUE(!!consumer);
 
@@ -108,14 +107,16 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanAggregateMultipleConsumers) {
 		// Arrange:
-		struct Breadcrumb { const int* pData; size_t Id; };
+		struct Breadcrumb {
+			const int* pData;
+			size_t Id;
+		};
 		std::vector<Breadcrumb> breadcrumbs;
 
 		// Act:
-		auto consumer = AggregateConsumers<catapult::consumer<const int&>>({
-			[&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 1 }); },
-			[&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 2 }); }
-		});
+		auto consumer = AggregateConsumers<catapult::consumer<const int&>>(
+				{ [&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 1 }); },
+				  [&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 2 }); } });
 
 		ASSERT_TRUE(!!consumer);
 

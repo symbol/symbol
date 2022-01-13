@@ -42,9 +42,7 @@ namespace catapult { namespace net {
 				const ionet::ServerPacketHandlers& handlers,
 				const model::NodeIdentity& identity,
 				ChainedReaderCompletionCode& completionCode) {
-			return CreateChainedSocketReader(pSocket, handlers, identity, [&completionCode](auto code) {
-				completionCode = code;
-			});
+			return CreateChainedSocketReader(pSocket, handlers, identity, [&completionCode](auto code) { completionCode = code; });
 		}
 
 		// options for configuring SendBuffers
@@ -52,8 +50,8 @@ namespace catapult { namespace net {
 		public:
 			SendBuffersOptions()
 					: NumReadsToConfirm(0)
-					, HookPacketReceived([](const auto&) {})
-			{}
+					, HookPacketReceived([](const auto&) {}) {
+			}
 
 		public:
 			// number of reads to confirm
@@ -67,8 +65,8 @@ namespace catapult { namespace net {
 		public:
 			WriteHandshakeContext(std::atomic<size_t>& numReceivedBuffers, size_t numReadsToConfirm)
 					: m_numReceivedBuffers(numReceivedBuffers)
-					, m_numReadsToConfirm(numReadsToConfirm)
-			{}
+					, m_numReadsToConfirm(numReadsToConfirm) {
+			}
 
 		public:
 			void start(test::ClientSocket& socket, const std::vector<ionet::ByteBuffer>& sendBuffers) {
@@ -145,9 +143,7 @@ namespace catapult { namespace net {
 
 			auto pWriteContext = std::make_shared<WriteHandshakeContext>(numReceivedBuffers, options.NumReadsToConfirm);
 			auto pClientSocket = test::CreateClientSocket(pPool->ioContext());
-			pClientSocket->connect().then([&](auto&& socketFuture) {
-				pWriteContext->start(*socketFuture.get(), sendBuffers);
-			});
+			pClientSocket->connect().then([&](auto&& socketFuture) { pWriteContext->start(*socketFuture.get(), sendBuffers); });
 
 			// - wait for the test to complete (indicated by the destruction of the reader)
 			WAIT_FOR_EXPR(!pReader.lock());
@@ -162,9 +158,7 @@ namespace catapult { namespace net {
 		std::atomic<uint32_t> numReads(0);
 		auto clientIdentity = CreateDefaultClientIdentity();
 		ionet::ServerPacketHandlers handlers;
-		test::RegisterDefaultHandler(handlers, [&numReads](const auto&, const auto&) {
-			++numReads;
-		});
+		test::RegisterDefaultHandler(handlers, [&numReads](const auto&, const auto&) { ++numReads; });
 
 		// Act: "server" - creates a chained reader but does not start it
 		//      "client" - sends a packet to the server
@@ -297,10 +291,8 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, ReadsAreChained) {
 		// Arrange: send two multi-packet buffers
-		std::vector<ionet::ByteBuffer> sendBuffers{
-			test::GenerateRandomPacketBuffer(87, { 20, 17, 50 }),
-			test::GenerateRandomPacketBuffer(3072, { 1024, 2048 })
-		};
+		std::vector<ionet::ByteBuffer> sendBuffers{ test::GenerateRandomPacketBuffer(87, { 20, 17, 50 }),
+													test::GenerateRandomPacketBuffer(3072, { 1024, 2048 }) };
 
 		// Act:
 		auto resultPair = SendBuffers(sendBuffers);

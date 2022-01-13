@@ -23,12 +23,10 @@
 #include "catapult/model/Elements.h"
 #include <memory>
 
-namespace catapult {
-	namespace io {
-		class InputStream;
-		class OutputStream;
-	}
-}
+namespace catapult { namespace io {
+	class InputStream;
+	class OutputStream;
+}}
 
 namespace catapult { namespace io {
 

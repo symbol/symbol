@@ -58,10 +58,8 @@ namespace catapult { namespace extensions {
 		auto transactionInfo = test::CreateRandomTransactionInfo();
 
 		// Act:
-		SubscriberToSink(subscriber)(
-				*transactionInfo.pEntity,
-				transactionInfo.EntityHash,
-				static_cast<validators::ValidationResult>(97531));
+		SubscriberToSink(
+				subscriber)(*transactionInfo.pEntity, transactionInfo.EntityHash, static_cast<validators::ValidationResult>(97531));
 
 		// Assert:
 		ASSERT_EQ(1u, subscriber.params().size());
@@ -75,9 +73,9 @@ namespace catapult { namespace extensions {
 	namespace {
 		auto CreateDispatcher() {
 			auto options = disruptor::ConsumerDispatcherOptions{ "ConsumerDispatcherTests", 16u * 1024 };
-			return std::make_shared<disruptor::ConsumerDispatcher>(options, std::vector<disruptor::DisruptorConsumer>{
-				[](const auto&) { return disruptor::ConsumerResult::Continue(); }
-			});
+			return std::make_shared<disruptor::ConsumerDispatcher>(options, std::vector<disruptor::DisruptorConsumer>{ [](const auto&) {
+																	   return disruptor::ConsumerResult::Continue();
+																   } });
 		}
 	}
 

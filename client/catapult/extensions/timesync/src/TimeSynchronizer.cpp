@@ -46,8 +46,8 @@ namespace catapult { namespace timesync {
 			int64_t warningThresholdMillis)
 			: m_filter(filter)
 			, m_totalChainImportance(totalChainImportance)
-			, m_warningThresholdMillis(warningThresholdMillis)
-	{}
+			, m_warningThresholdMillis(warningThresholdMillis) {
+	}
 
 	TimeOffset TimeSynchronizer::calculateTimeOffset(
 			const cache::AccountStateCacheView& accountStateCacheView,

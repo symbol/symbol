@@ -25,9 +25,15 @@
 #include "catapult/model/FinalizationRound.h"
 
 namespace catapult {
-	namespace cache { class AccountStateCache; }
-	namespace extensions { class ServiceState; }
-	namespace io { class BlockStorageCache; }
+namespace cache {
+	class AccountStateCache;
+}
+namespace extensions {
+	class ServiceState;
+}
+namespace io {
+	class BlockStorageCache;
+}
 }
 
 namespace catapult { namespace finalization {

@@ -23,8 +23,12 @@
 #include "catapult/consumers/BlockchainSyncHandlers.h"
 
 namespace catapult {
-	namespace config { class CatapultDataDirectory; }
-	namespace extensions { class LocalNodeChainScore; }
+namespace config {
+	class CatapultDataDirectory;
+}
+namespace extensions {
+	class LocalNodeChainScore;
+}
 }
 
 namespace catapult { namespace sync {

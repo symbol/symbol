@@ -42,8 +42,8 @@ namespace catapult { namespace net {
 				, MaxPacketDataSize(utils::FileSize::FromBytes(Default_Max_Packet_Data_Size))
 				, OutgoingProtocols(ionet::IpProtocol::IPv4)
 				, AllowIncomingSelfConnections(true)
-				, AllowOutgoingSelfConnections(false)
-		{}
+				, AllowOutgoingSelfConnections(false) {
+		}
 
 	public:
 		/// Network identifier.

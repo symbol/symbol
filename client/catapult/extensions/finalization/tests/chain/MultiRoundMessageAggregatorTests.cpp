@@ -49,11 +49,13 @@ namespace catapult { namespace chain {
 			using RoundMessageAggregatorInitializer = consumer<mocks::MockRoundMessageAggregator&>;
 
 		public:
-			TestContext() : TestContext(Default_Min_Round)
-			{}
+			TestContext()
+					: TestContext(Default_Min_Round) {
+			}
 
-			explicit TestContext(const model::FinalizationRound& round) : TestContext(round, TestContextOptions())
-			{}
+			explicit TestContext(const model::FinalizationRound& round)
+					: TestContext(round, TestContextOptions()) {
+			}
 
 			TestContext(const model::FinalizationRound& round, const TestContextOptions& options)
 					: m_lastFinalizedHash(test::GenerateRandomByteArray<Hash256>()) {
@@ -113,10 +115,8 @@ namespace catapult { namespace chain {
 
 		void AddRoundMessageAggregators(TestContext& context, const std::vector<FinalizationEpoch>& epochDeltas) {
 			// Arrange:
-			context.aggregator().modifier().setMaxFinalizationRound({
-				Default_Min_Round.Epoch + epochDeltas.back(),
-				Default_Min_Round.Point
-			});
+			context.aggregator().modifier().setMaxFinalizationRound(
+					{ Default_Min_Round.Epoch + epochDeltas.back(), Default_Min_Round.Point });
 
 			auto i = 1u;
 			for (auto epochDelta : epochDeltas) {
@@ -230,9 +230,8 @@ namespace catapult { namespace chain {
 			// Arrange:
 			TestContext context;
 			context.aggregator().modifier().setMaxFinalizationRound(Default_Max_Round);
-			context.setRoundMessageAggregatorInitializer([expectedAddResult](auto& roundMessageAggregator) {
-				roundMessageAggregator.setAddResult(expectedAddResult);
-			});
+			context.setRoundMessageAggregatorInitializer(
+					[expectedAddResult](auto& roundMessageAggregator) { roundMessageAggregator.setAddResult(expectedAddResult); });
 
 			// Act:
 			auto result = context.aggregator().modifier().add(CreateMessage(round, Height(222)));
@@ -400,10 +399,8 @@ namespace catapult { namespace chain {
 
 		// Act:
 		auto aggregatorView = context.aggregator().view();
-		const auto* pRoundContext = aggregatorView.tryGetRoundContext({
-			Default_Min_Round.Epoch + FinalizationEpoch(20),
-			Default_Min_Round.Point
-		});
+		const auto* pRoundContext =
+				aggregatorView.tryGetRoundContext({ Default_Min_Round.Epoch + FinalizationEpoch(20), Default_Min_Round.Point });
 
 		// Assert:
 		ASSERT_TRUE(!!pRoundContext);
@@ -710,9 +707,9 @@ namespace catapult { namespace chain {
 		TestContext context;
 
 		auto seededShortHashes = SeedUnknownMessages(context);
-		AddRoundMessageAggregators(context, {
-			FinalizationPoint(0), FinalizationPoint(3), FinalizationPoint(5), FinalizationPoint(7), FinalizationPoint(10)
-		});
+		AddRoundMessageAggregators(
+				context,
+				{ FinalizationPoint(0), FinalizationPoint(3), FinalizationPoint(5), FinalizationPoint(7), FinalizationPoint(10) });
 
 		// Sanity:
 		EXPECT_EQ(15u, seededShortHashes.size());
@@ -731,9 +728,9 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.unknownMessages(Default_Round_Range, {
-				seededShortHashes[0], seededShortHashes[1], seededShortHashes[4], seededShortHashes[6], seededShortHashes[7]
-			});
+			auto unknownMessages = aggregator.unknownMessages(
+					Default_Round_Range,
+					{ seededShortHashes[0], seededShortHashes[1], seededShortHashes[4], seededShortHashes[6], seededShortHashes[7] });
 
 			// Assert:
 			EXPECT_EQ(4u, unknownMessages.size());

@@ -24,8 +24,12 @@
 #include <memory>
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace extensions { class LocalNodeChainScore; }
+namespace cache {
+	class CatapultCache;
+}
+namespace extensions {
+	class LocalNodeChainScore;
+}
 }
 
 namespace catapult { namespace local {

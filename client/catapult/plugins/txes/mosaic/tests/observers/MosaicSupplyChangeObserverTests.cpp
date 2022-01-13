@@ -32,7 +32,7 @@ namespace catapult { namespace observers {
 
 	using ObserverTestContext = test::ObserverTestContextT<test::MosaicCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(MosaicSupplyChange,)
+	DEFINE_COMMON_OBSERVER_TESTS(MosaicSupplyChange, )
 
 	namespace {
 		constexpr MosaicId Default_Mosaic_Id(345);

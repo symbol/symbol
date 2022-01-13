@@ -34,8 +34,8 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a transactions cache modifier around \a pModifier.
 		explicit BasicTransactionsCacheModifierProxy(std::unique_ptr<TTransactionsCacheModifier>&& pModifier)
-				: m_pModifier(std::move(pModifier))
-		{}
+				: m_pModifier(std::move(pModifier)) {
+		}
 
 	public:
 		/// Gets the number of transactions in the cache.

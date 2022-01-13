@@ -24,20 +24,18 @@
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/model/NetworkIdentifier.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicMosaicRestrictionCacheDelta;
-		class BasicMosaicRestrictionCacheView;
-	}
-}
+namespace catapult { namespace cache {
+	class BasicMosaicRestrictionCacheDelta;
+	class BasicMosaicRestrictionCacheView;
+}}
 
 namespace catapult { namespace cache {
 
 	using ReadOnlyMosaicRestrictionArtifactCache = ReadOnlyArtifactCache<
-		BasicMosaicRestrictionCacheView,
-		BasicMosaicRestrictionCacheDelta,
-		Hash256,
-		state::MosaicRestrictionEntry>;
+			BasicMosaicRestrictionCacheView,
+			BasicMosaicRestrictionCacheDelta,
+			Hash256,
+			state::MosaicRestrictionEntry>;
 
 	/// Read-only overlay on top of a mosaic restriction cache.
 	class ReadOnlyMosaicRestrictionCache : public ReadOnlyMosaicRestrictionArtifactCache {

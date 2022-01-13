@@ -35,7 +35,8 @@ namespace catapult { namespace cache {
 		explicit PtData(const model::DetachedTransactionInfo& transactionInfo)
 				: m_transactionInfo(transactionInfo.copy())
 				, m_cosignaturesHash() // zero-initialize
-		{}
+		{
+		}
 
 	public:
 		model::DetachedTransactionInfo transactionInfo() const {
@@ -105,8 +106,8 @@ namespace catapult { namespace cache {
 			: m_maxResponseSize(maxResponseSize)
 			, m_cacheSize(cacheSize)
 			, m_transactionDataContainer(transactionDataContainer)
-			, m_readLock(std::move(readLock))
-	{}
+			, m_readLock(std::move(readLock)) {
+	}
 
 	size_t MemoryPtCacheView::size() const {
 		return m_transactionDataContainer.size();
@@ -118,9 +119,8 @@ namespace catapult { namespace cache {
 
 	model::WeakCosignedTransactionInfo MemoryPtCacheView::find(const Hash256& hash) const {
 		auto iter = m_transactionDataContainer.find(hash);
-		return m_transactionDataContainer.cend() == iter
-				? model::WeakCosignedTransactionInfo()
-				: iter->second.weakCosignedTransactionInfo();
+		return m_transactionDataContainer.cend() == iter ? model::WeakCosignedTransactionInfo()
+														 : iter->second.weakCosignedTransactionInfo();
 	}
 
 	ShortHashPairRange MemoryPtCacheView::shortHashPairs() const {
@@ -195,8 +195,8 @@ namespace catapult { namespace cache {
 					, m_cacheSize(cacheSize)
 					, m_transactionDataContainer(transactionDataContainer)
 					, m_timestampedHashes(timestampedHashes)
-					, m_writeLock(std::move(writeLock))
-			{}
+					, m_writeLock(std::move(writeLock)) {
+			}
 
 		public:
 			size_t size() const override {
@@ -305,8 +305,8 @@ namespace catapult { namespace cache {
 
 	MemoryPtCache::MemoryPtCache(const MemoryCacheOptions& options)
 			: m_options(options)
-			, m_pImpl(std::make_unique<Impl>())
-	{}
+			, m_pImpl(std::make_unique<Impl>()) {
+	}
 
 	MemoryPtCache::~MemoryPtCache() = default;
 

@@ -33,7 +33,7 @@ namespace catapult { namespace handlers {
 	using UnconfirmedTransactions = std::vector<std::shared_ptr<const model::Transaction>>;
 
 	/// Prototype for a function that retrieves unconfirmed transactions given a filter and a set of short hashes.
-	using UtRetriever = std::function<UnconfirmedTransactions (Timestamp, BlockFeeMultiplier, const utils::ShortHashesSet&)>;
+	using UtRetriever = std::function<UnconfirmedTransactions(Timestamp, BlockFeeMultiplier, const utils::ShortHashesSet&)>;
 
 	/// Registers a push transactions handler in \a handlers that forwards transactions to \a transactionRangeHandler
 	/// given a transaction \a registry composed of known transactions.

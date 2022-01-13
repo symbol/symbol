@@ -23,13 +23,19 @@
 #include "catapult/types.h"
 
 namespace catapult {
-	namespace cache { class CatapultCacheDelta; }
-	namespace config { class CatapultConfiguration; }
-	namespace model {
-		struct Block;
-		struct BlockElement;
-	}
-	namespace plugins { class PluginManager; }
+namespace cache {
+	class CatapultCacheDelta;
+}
+namespace config {
+	class CatapultConfiguration;
+}
+namespace model {
+	struct Block;
+	struct BlockElement;
+}
+namespace plugins {
+	class PluginManager;
+}
 }
 
 namespace catapult { namespace test {

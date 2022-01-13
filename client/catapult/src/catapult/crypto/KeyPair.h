@@ -25,7 +25,9 @@
 
 namespace catapult { namespace crypto {
 
-	struct PrivateKey_tag { static constexpr size_t Size = 32; };
+	struct PrivateKey_tag {
+		static constexpr size_t Size = 32;
+	};
 	using PrivateKey = SecureByteArray<PrivateKey_tag>;
 
 	/// ED25519 key pair traits.

@@ -30,8 +30,8 @@ namespace catapult { namespace io {
 					std::unique_ptr<ProofStorage>&& pStorage,
 					std::unique_ptr<subscribers::FinalizationSubscriber>&& pSubscriber)
 					: m_pStorage(std::move(pStorage))
-					, m_pSubscriber(std::move(pSubscriber))
-			{}
+					, m_pSubscriber(std::move(pSubscriber)) {
+			}
 
 		public:
 			model::FinalizationStatistics statistics() const override {
@@ -49,15 +49,13 @@ namespace catapult { namespace io {
 			void saveProof(const model::FinalizationProof& proof) override {
 				auto currentStatistics = statistics();
 				if (currentStatistics.Round > proof.Round) {
-					CATAPULT_LOG(debug)
-							<< "skipping save of older proof with round " << proof.Round
-							<< " when last saved proof is " << currentStatistics.Round;
+					CATAPULT_LOG(debug) << "skipping save of older proof with round " << proof.Round << " when last saved proof is "
+										<< currentStatistics.Round;
 					return;
 				}
 
-				CATAPULT_LOG(info)
-						<< "saving proof for round " << proof.Round << " at height " << proof.Height
-						<< " with hash " << proof.Hash;
+				CATAPULT_LOG(info) << "saving proof for round " << proof.Round << " at height " << proof.Height << " with hash "
+								   << proof.Hash;
 				m_pStorage->saveProof(proof);
 				m_pSubscriber->notifyFinalizedBlock(proof.Round, proof.Height, proof.Hash);
 			}
@@ -74,4 +72,3 @@ namespace catapult { namespace io {
 		return std::make_unique<AggregateProofStorage>(std::move(pStorage), std::move(pSubscriber));
 	}
 }}
-

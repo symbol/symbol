@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MultisigPermittedOperationValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MultisigPermittedOperation,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MultisigPermittedOperation, )
 
 	namespace {
 		void AssertValidationResult(ValidationResult expectedResult, const cache::CatapultCache& cache, const Address& sender) {

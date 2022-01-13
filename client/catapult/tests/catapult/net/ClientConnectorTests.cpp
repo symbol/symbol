@@ -40,8 +40,8 @@ namespace catapult { namespace net {
 					, ClientPublicKey(test::GenerateRandomByteArray<Key>())
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
-					, pConnector(CreateClientConnector(*pPool, ServerPublicKey, settings))
-			{}
+					, pConnector(CreateClientConnector(*pPool, ServerPublicKey, settings)) {
+			}
 
 			~ConnectorTestContext() {
 				pConnector->shutdown();
@@ -103,8 +103,9 @@ namespace catapult { namespace net {
 
 		struct AcceptCallbackParams {
 		public:
-			AcceptCallbackParams() : NumCallbacks(0)
-			{}
+			AcceptCallbackParams()
+					: NumCallbacks(0) {
+			}
 
 		public:
 			PeerConnectCode Code;
@@ -117,15 +118,14 @@ namespace catapult { namespace net {
 				ClientConnector& connector,
 				const std::shared_ptr<ionet::PacketSocket>& pSocket,
 				AcceptCallbackParams& capture) {
-			connector.accept(test::CreatePacketSocketInfo(pSocket), [&capture](
-					auto acceptConnectCode,
-					const auto& pVerifiedSocket,
-					const auto& publicKey) {
-				capture.Code = acceptConnectCode;
-				capture.pClientSocket = pVerifiedSocket;
-				capture.ClientPublicKey = publicKey;
-				++capture.NumCallbacks;
-			});
+			connector.accept(
+					test::CreatePacketSocketInfo(pSocket),
+					[&capture](auto acceptConnectCode, const auto& pVerifiedSocket, const auto& publicKey) {
+						capture.Code = acceptConnectCode;
+						capture.pClientSocket = pVerifiedSocket;
+						capture.ClientPublicKey = publicKey;
+						++capture.NumCallbacks;
+					});
 		}
 
 		// endregion
@@ -217,11 +217,8 @@ namespace catapult { namespace net {
 	// region connected socket
 
 	namespace {
-		using ConnectedSocketHandler = consumer<
-				PeerConnectCode,
-				const Key&,
-				std::shared_ptr<ionet::PacketSocket>&,
-				std::shared_ptr<ionet::PacketSocket>&>;
+		using ConnectedSocketHandler =
+				consumer<PeerConnectCode, const Key&, std::shared_ptr<ionet::PacketSocket>&, std::shared_ptr<ionet::PacketSocket>&>;
 
 		void RunConnectedSocketTest(const ConnectorTestContext& context, const ConnectedSocketHandler& handler) {
 			// Act: establish a single connection

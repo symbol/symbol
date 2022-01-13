@@ -30,9 +30,9 @@
 namespace catapult { namespace cache {
 
 	using BasicAccountRestrictionPatriciaTree = tree::BasePatriciaTree<
-		SerializerHashedKeyEncoder<AccountRestrictionCacheDescriptor::Serializer>,
-		PatriciaTreeRdbDataSource,
-		utils::ArrayHasher<Address>>;
+			SerializerHashedKeyEncoder<AccountRestrictionCacheDescriptor::Serializer>,
+			PatriciaTreeRdbDataSource,
+			utils::ArrayHasher<Address>>;
 
 	class AccountRestrictionPatriciaTree : public BasicAccountRestrictionPatriciaTree {
 	public:
@@ -41,7 +41,7 @@ namespace catapult { namespace cache {
 	};
 
 	using AccountRestrictionSingleSetCacheTypesAdapter =
-		SingleSetAndPatriciaTreeCacheTypesAdapter<AccountRestrictionCacheTypes::PrimaryTypes, AccountRestrictionPatriciaTree>;
+			SingleSetAndPatriciaTreeCacheTypesAdapter<AccountRestrictionCacheTypes::PrimaryTypes, AccountRestrictionPatriciaTree>;
 
 	struct AccountRestrictionBaseSetDeltaPointers : public AccountRestrictionSingleSetCacheTypesAdapter::BaseSetDeltaPointers {};
 

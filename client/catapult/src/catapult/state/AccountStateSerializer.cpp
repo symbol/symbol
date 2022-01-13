@@ -43,8 +43,8 @@ namespace catapult { namespace state {
 		public:
 			ImportanceReader()
 					: m_snapshotsIndex(0)
-					, m_bucketsIndex(0)
-			{}
+					, m_bucketsIndex(0) {
+			}
 
 		public:
 			bool hasSnapshots() const {
@@ -53,7 +53,7 @@ namespace catapult { namespace state {
 
 		public:
 			void readSnapshots(io::InputStream& input, size_t count) {
-				for (auto i = 0u ; i < count; ++i) {
+				for (auto i = 0u; i < count; ++i) {
 					auto& snapshot = m_snapshots[Importance_History_Size - 1 - m_snapshotsIndex];
 					snapshot.Importance = io::Read<Importance>(input);
 					snapshot.Height = io::Read<model::ImportanceHeight>(input);
@@ -62,7 +62,7 @@ namespace catapult { namespace state {
 			}
 
 			void readBuckets(io::InputStream& input, size_t count) {
-				for (auto i = 0u ; i < count; ++i) {
+				for (auto i = 0u; i < count; ++i) {
 					auto& bucket = m_buckets[Activity_Bucket_History_Size - 1 - m_bucketsIndex];
 					bucket.StartHeight = io::Read<model::ImportanceHeight>(input);
 					bucket.TotalFeesPaid = io::Read<Amount>(input);

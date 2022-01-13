@@ -47,8 +47,9 @@ namespace catapult { namespace mongo {
 
 		class MockExternalCacheStorage : public ExternalCacheStorage {
 		public:
-			MockExternalCacheStorage() : ExternalCacheStorage("MockExternalCacheStorage", std::numeric_limits<size_t>::max())
-			{}
+			MockExternalCacheStorage()
+					: ExternalCacheStorage("MockExternalCacheStorage", std::numeric_limits<size_t>::max()) {
+			}
 
 		public:
 			const auto& capturedChanges() const {
@@ -75,8 +76,8 @@ namespace catapult { namespace mongo {
 					, m_pChainScoreProviderRaw(m_pChainScoreProvider.get())
 					, m_pExternalCacheStorage(std::make_unique<MockExternalCacheStorage>())
 					, m_pExternalCacheStorageRaw(m_pExternalCacheStorage.get())
-					, m_subscriber(std::move(m_pChainScoreProvider), std::move(m_pExternalCacheStorage))
-			{}
+					, m_subscriber(std::move(m_pChainScoreProvider), std::move(m_pExternalCacheStorage)) {
+			}
 
 		public:
 			auto& chainScoreProvider() {

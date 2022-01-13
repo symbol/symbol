@@ -38,8 +38,11 @@ namespace catapult { namespace importance {
 		class TestContext : public test::AccountObserverTestContext {
 		public:
 			TestContext(observers::NotifyMode notifyMode, Amount minHarvesterBalance)
-					: test::AccountObserverTestContext(notifyMode, Notification_Height, CreateBlockchainConfiguration(minHarvesterBalance))
-			{}
+					: test::AccountObserverTestContext(
+							  notifyMode,
+							  Notification_Height,
+							  CreateBlockchainConfiguration(minHarvesterBalance)) {
+			}
 
 		public:
 			auto addAccount(const Address& address, Amount harvestingBalance) {
@@ -53,12 +56,8 @@ namespace catapult { namespace importance {
 
 		public:
 			void update(const Address& address) {
-				auto commitAction = [](auto& bucket) {
-					bucket.BeneficiaryCount += 2;
-				};
-				auto rollbackAction = [](auto& bucket) {
-					bucket.BeneficiaryCount -= 2;
-				};
+				auto commitAction = [](auto& bucket) { bucket.BeneficiaryCount += 2; };
+				auto rollbackAction = [](auto& bucket) { bucket.BeneficiaryCount -= 2; };
 
 				UpdateActivity(address, observerContext(), commitAction, rollbackAction);
 			}
@@ -112,9 +111,7 @@ namespace catapult { namespace importance {
 			TestContext context(notifyMode, Amount(1000));
 			auto sender = test::GenerateRandomByteArray<Address>();
 			auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
-			senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [](auto& bucket) {
-				bucket.BeneficiaryCount = 100;
-			});
+			senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [](auto& bucket) { bucket.BeneficiaryCount = 100; });
 
 			// Act:
 			context.update(sender);
@@ -168,9 +165,8 @@ namespace catapult { namespace importance {
 
 	namespace {
 		size_t CountNonzeroFields(const state::AccountActivityBuckets::ActivityBucket& activityBucket) {
-			return (Amount() != activityBucket.TotalFeesPaid ? 1 : 0)
-					+ (0u != activityBucket.BeneficiaryCount ? 1 : 0)
-					+ (0u != activityBucket.RawScore ? 1 : 0);
+			return (Amount() != activityBucket.TotalFeesPaid ? 1 : 0) + (0u != activityBucket.BeneficiaryCount ? 1 : 0)
+				   + (0u != activityBucket.RawScore ? 1 : 0);
 		}
 
 		void AssertUpdateActivityDoesNotRemoveZeroBucket(observers::NotifyMode notifyMode, uint32_t initialBeneficiaryCount) {

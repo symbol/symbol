@@ -54,8 +54,6 @@ namespace catapult { namespace extensions {
 
 	/// Creates a sink that closes the propagated node identity in \a container.
 	inline BannedNodeIdentitySink CreateCloseConnectionSink(net::ConnectionContainer& container) {
-		return [&container](const auto& identity) {
-			container.closeOne(identity);
-		};
+		return [&container](const auto& identity) { container.closeOne(identity); };
 	}
 }}

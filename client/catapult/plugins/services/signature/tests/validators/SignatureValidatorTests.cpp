@@ -70,10 +70,16 @@ namespace catapult { namespace validators {
 	}
 
 #define ALL_REPLAY_PROTECTION_MODES_TEST(TEST_NAME) \
-	template<ReplayProtectionMode Mode> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ReplayProtectionEnabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReplayProtectionMode::Enabled>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ReplayProtectionDisabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReplayProtectionMode::Disabled>(); } \
-	template<ReplayProtectionMode Mode> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<ReplayProtectionMode Mode> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ReplayProtectionEnabled) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReplayProtectionMode::Enabled>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ReplayProtectionDisabled) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReplayProtectionMode::Disabled>(); \
+	} \
+	template<ReplayProtectionMode Mode> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ALL_REPLAY_PROTECTION_MODES_TEST(SuccessWhenValidatingValidSignature) {
 		// Arrange:

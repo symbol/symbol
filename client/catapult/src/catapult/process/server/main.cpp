@@ -24,7 +24,7 @@
 #include "catapult/process/ProcessMain.h"
 
 namespace {
-	constexpr auto Process_Name = "server";
+constexpr auto Process_Name = "server";
 }
 
 int main(int argc, const char** argv) {

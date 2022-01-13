@@ -32,8 +32,9 @@ namespace catapult { namespace cache {
 			using StorageType = MultisigCacheStorage;
 			class CacheType : public MultisigCache {
 			public:
-				CacheType() : MultisigCache(CacheConfiguration())
-				{}
+				CacheType()
+						: MultisigCache(CacheConfiguration()) {
+				}
 			};
 
 			static auto CreateId(uint8_t id) {

@@ -242,11 +242,9 @@ namespace catapult { namespace chain {
 			auto ancestorKeys = tree.findAncestors({ Height(9), hashes1[2] });
 
 			// Assert:
-			std::vector<model::HeightHashPair> expectedAncestorKeys{
-				{ Height(9), hashes1[2] },
-				{ Height(8), hashes1[1] },
-				{ Height(7), hashes1[0] }
-			};
+			std::vector<model::HeightHashPair> expectedAncestorKeys{ { Height(9), hashes1[2] },
+																	 { Height(8), hashes1[1] },
+																	 { Height(7), hashes1[0] } };
 			EXPECT_EQ(expectedAncestorKeys, ancestorKeys);
 		});
 	}
@@ -258,13 +256,11 @@ namespace catapult { namespace chain {
 			auto ancestorKeys = tree.findAncestors({ Height(11), hashes2[3] });
 
 			// Assert:
-			std::vector<model::HeightHashPair> expectedAncestorKeys{
-				{ Height(11), hashes2[3] },
-				{ Height(10), hashes2[2] },
-				{ Height(9), hashes1[2] },
-				{ Height(8), hashes1[1] },
-				{ Height(7), hashes1[0] }
-			};
+			std::vector<model::HeightHashPair> expectedAncestorKeys{ { Height(11), hashes2[3] },
+																	 { Height(10), hashes2[2] },
+																	 { Height(9), hashes1[2] },
+																	 { Height(8), hashes1[1] },
+																	 { Height(7), hashes1[0] } };
 			EXPECT_EQ(expectedAncestorKeys, ancestorKeys);
 		});
 	}

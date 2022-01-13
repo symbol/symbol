@@ -102,10 +102,8 @@ namespace catapult { namespace mocks {
 		bool contains(const Address& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount) const {
 			auto targetTransfer = Transfer(sender, recipient, mosaicId, amount);
 			return std::any_of(m_transfers.cbegin(), m_transfers.cend(), [&targetTransfer](const auto& transfer) {
-				return targetTransfer.Sender == transfer.Sender
-						&& targetTransfer.Recipient == transfer.Recipient
-						&& targetTransfer.MosaicId == transfer.MosaicId
-						&& targetTransfer.Amount == transfer.Amount;
+				return targetTransfer.Sender == transfer.Sender && targetTransfer.Recipient == transfer.Recipient
+					   && targetTransfer.MosaicId == transfer.MosaicId && targetTransfer.Amount == transfer.Amount;
 			});
 		}
 
@@ -114,18 +112,18 @@ namespace catapult { namespace mocks {
 		public:
 			explicit Transfer(const model::BalanceTransferNotification& notification)
 					: Transfer(
-							notification.Sender.resolved(test::CreateResolverContextXor()),
-							notification.Recipient.unresolved(),
-							notification.MosaicId,
-							notification.Amount)
-			{}
+							  notification.Sender.resolved(test::CreateResolverContextXor()),
+							  notification.Recipient.unresolved(),
+							  notification.MosaicId,
+							  notification.Amount) {
+			}
 
 			Transfer(const Address& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount)
 					: Sender(sender)
 					, Recipient(recipient)
 					, MosaicId(mosaicId)
-					, Amount(amount)
-			{}
+					, Amount(amount) {
+			}
 
 		public:
 			Address Sender;
@@ -152,12 +150,13 @@ namespace catapult { namespace mocks {
 		/// Creates a new notification subscriber for capturing notifications of \a type.
 		explicit MockTypedNotificationSubscriber(model::NotificationType type)
 				: m_type(type)
-				, m_numNotifications(0)
-		{}
+				, m_numNotifications(0) {
+		}
 
 		/// Creates a new notification subscriber.
-		MockTypedNotificationSubscriber() : MockTypedNotificationSubscriber(TNotification::Notification_Type)
-		{}
+		MockTypedNotificationSubscriber()
+				: MockTypedNotificationSubscriber(TNotification::Notification_Type) {
+		}
 
 	public:
 		void notify(const model::Notification& notification) override {

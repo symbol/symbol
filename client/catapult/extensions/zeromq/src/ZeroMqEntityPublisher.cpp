@@ -36,8 +36,9 @@ namespace catapult { namespace zeromq {
 
 	class MessageGroup {
 	public:
-		explicit MessageGroup(const supplier<std::string>& errorMessageGenerator) : m_errorMessageGenerator(errorMessageGenerator)
-		{}
+		explicit MessageGroup(const supplier<std::string>& errorMessageGenerator)
+				: m_errorMessageGenerator(errorMessageGenerator) {
+		}
 
 	public:
 		void add(zmq::multipart_t&& message) {
@@ -86,7 +87,7 @@ namespace catapult { namespace zeromq {
 		void queue(std::unique_ptr<MessageGroup>&& pMessageGroup) {
 			// dispatch function needs to be copyable
 			auto pMessageGroupShared = std::shared_ptr<MessageGroup>(std::move(pMessageGroup));
-			boost::asio::dispatch(m_pPool->ioContext(), [&zmqSocket = m_zmqSocket, pMessageGroup{std::move(pMessageGroupShared)}]() {
+			boost::asio::dispatch(m_pPool->ioContext(), [&zmqSocket = m_zmqSocket, pMessageGroup{ std::move(pMessageGroupShared) }]() {
 				pMessageGroup->flush(zmqSocket);
 			});
 		}
@@ -103,22 +104,22 @@ namespace catapult { namespace zeromq {
 				: Transaction(*transactionInfo.pEntity)
 				, EntityHash(transactionInfo.EntityHash)
 				, MerkleComponentHash(transactionInfo.MerkleComponentHash)
-				, OptionalAddresses(transactionInfo.OptionalExtractedAddresses.get())
-		{}
+				, OptionalAddresses(transactionInfo.OptionalExtractedAddresses.get()) {
+		}
 
 		explicit WeakTransactionInfo(const model::TransactionElement& element)
 				: Transaction(element.Transaction)
 				, EntityHash(element.EntityHash)
 				, MerkleComponentHash(element.MerkleComponentHash)
-				, OptionalAddresses(element.OptionalExtractedAddresses.get())
-		{}
+				, OptionalAddresses(element.OptionalExtractedAddresses.get()) {
+		}
 
 		WeakTransactionInfo(const model::Transaction& transaction, const Hash256& hash)
 				: Transaction(transaction)
 				, EntityHash(hash)
 				, MerkleComponentHash(hash)
-				, OptionalAddresses(nullptr)
-		{}
+				, OptionalAddresses(nullptr) {
+		}
 
 	public:
 		const model::Transaction& Transaction;
@@ -132,8 +133,8 @@ namespace catapult { namespace zeromq {
 			unsigned short port,
 			std::unique_ptr<const model::NotificationPublisher>&& pNotificationPublisher)
 			: m_pNotificationPublisher(std::move(pNotificationPublisher))
-			, m_pSynchronizedPublisher(std::make_unique<SynchronizedPublisher>(listenInterface, port))
-	{}
+			, m_pSynchronizedPublisher(std::make_unique<SynchronizedPublisher>(listenInterface, port)) {
+	}
 
 	ZeroMqEntityPublisher::~ZeroMqEntityPublisher() = default;
 
@@ -252,8 +253,8 @@ namespace catapult { namespace zeromq {
 		auto pMessageGroup = std::make_unique<MessageGroup>(CreateHashMessageGenerator(topicName, transactionInfo.EntityHash));
 
 		const auto& addresses = transactionInfo.OptionalAddresses
-				? *transactionInfo.OptionalAddresses
-				: model::ExtractAddresses(transactionInfo.Transaction, *m_pNotificationPublisher);
+										? *transactionInfo.OptionalAddresses
+										: model::ExtractAddresses(transactionInfo.Transaction, *m_pNotificationPublisher);
 
 		if (addresses.empty())
 			CATAPULT_LOG(warning) << "no addresses are associated with transaction " << transactionInfo.EntityHash;

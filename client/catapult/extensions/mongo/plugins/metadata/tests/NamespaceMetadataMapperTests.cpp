@@ -30,7 +30,7 @@ namespace catapult { namespace mongo { namespace plugins {
 #define TEST_CLASS NamespaceMetadataMapperTests
 
 	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NamespaceMetadata,)
+		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NamespaceMetadata, )
 	}
 
 	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Namespace_Metadata)

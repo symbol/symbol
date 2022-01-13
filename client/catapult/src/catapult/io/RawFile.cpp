@@ -22,17 +22,17 @@
 #include "RawFile.h"
 #include "catapult/exceptions.h"
 #include <memory>
-#include <fcntl.h>
-#include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <fcntl.h>
+#include <stdio.h>
 
 #ifdef _MSC_VER
-#include <io.h>
 #include <windows.h>
+#include <io.h>
 #else
-#include <unistd.h>
 #include <sys/file.h>
+#include <unistd.h>
 #endif
 
 namespace catapult { namespace io {
@@ -64,8 +64,8 @@ namespace catapult { namespace io {
 		public:
 			FileOperationResult(bool isSuccess, T value)
 					: IsSuccess(isSuccess)
-					, Value(value)
-			{}
+					, Value(value) {
+			}
 
 		public:
 			bool IsSuccess;
@@ -236,12 +236,10 @@ namespace catapult { namespace io {
 
 		FileOperationResult<int> nemOpen(int& fd, const char* name, OpenMode mode, LockMode lockMode) {
 			int flags = mode == OpenMode::Read_Only ? Flag_Read_Only : Flag_Read_Write;
-			int createFlag = mode == OpenMode::Read_Write
-					? New_File_Create_Truncate_Flags
-					: (mode == OpenMode::Read_Append ? New_File_Create_Flags : 0);
-			int lockingFlags = LockMode::File == lockMode
-					? ((flags & Flag_Read_Write) ? File_Locking_Exclusive : File_Locking_Shared_Read)
-					: File_Locking_None;
+			int createFlag = mode == OpenMode::Read_Write ? New_File_Create_Truncate_Flags
+														  : (mode == OpenMode::Read_Append ? New_File_Create_Flags : 0);
+			int lockingFlags = LockMode::File == lockMode ? ((flags & Flag_Read_Write) ? File_Locking_Exclusive : File_Locking_Shared_Read)
+														  : File_Locking_None;
 
 			return open(fd, name, Open_Flags | flags | createFlag, lockingFlags, New_File_Permissions);
 		}
@@ -251,10 +249,12 @@ namespace catapult { namespace io {
 
 	// region RawFile::FileDescriptorHolder
 
-	RawFile::FileDescriptorHolder::FileDescriptorHolder(int fd) : m_fd(fd)
-	{}
+	RawFile::FileDescriptorHolder::FileDescriptorHolder(int fd)
+			: m_fd(fd) {
+	}
 
-	RawFile::FileDescriptorHolder::FileDescriptorHolder(FileDescriptorHolder&& rhs) : m_fd(rhs.m_fd) {
+	RawFile::FileDescriptorHolder::FileDescriptorHolder(FileDescriptorHolder&& rhs)
+			: m_fd(rhs.m_fd) {
 		rhs.m_fd = Invalid_Descriptor;
 	}
 
@@ -268,9 +268,7 @@ namespace catapult { namespace io {
 			return;
 		}
 
-		CATAPULT_LOG(error)
-				<< Error_Close << " " << m_fd << ": "
-				<< closeResult.Message << " (" << closeResult.ErrorCode << ")";
+		CATAPULT_LOG(error) << Error_Close << " " << m_fd << ": " << closeResult.Message << " (" << closeResult.ErrorCode << ")";
 	}
 
 	bool RawFile::FileDescriptorHolder::isValid() const {
@@ -296,9 +294,8 @@ namespace catapult { namespace io {
 #define CATAPULT_CHECK_FILE_OPERATION_RESULT(MESSAGE, OPERATION_RESULT) \
 	do { \
 		if (!OPERATION_RESULT.IsSuccess) { \
-			CATAPULT_LOG(error) \
-					<< MESSAGE << " " << m_pathname << ": " \
-					<< OPERATION_RESULT.Message << " (" << OPERATION_RESULT.ErrorCode << ")"; \
+			CATAPULT_LOG(error) << MESSAGE << " " << m_pathname << ": " << OPERATION_RESULT.Message << " (" << OPERATION_RESULT.ErrorCode \
+								<< ")"; \
 			CATAPULT_THROW_FILE_IO_ERROR(MESSAGE); \
 		} \
 	} while (false)

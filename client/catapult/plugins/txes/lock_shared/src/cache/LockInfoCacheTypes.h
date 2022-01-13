@@ -35,7 +35,7 @@ namespace catapult { namespace cache {
 	private:
 		using IdentifierType = typename TDescriptor::KeyType;
 
-	// region secondary descriptors
+		// region secondary descriptors
 
 	public:
 		struct HeightGroupingTypesDescriptor {
@@ -50,7 +50,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-	// endregion
+		// endregion
 
 	public:
 		using PrimaryTypes = MutableUnorderedMapAdapter<TDescriptor, utils::ArrayHasher<IdentifierType>>;
@@ -62,16 +62,13 @@ namespace catapult { namespace cache {
 #define DEFINE_LOCK_INFO_CACHE_SERIALIZERS(LOCK_INFO) \
 	/* Primary serializer for lock info cache. */ \
 	struct LOCK_INFO##PrimarySerializer \
-			: public CacheSerializerAdapter<state::LOCK_INFO##HistorySerializer, LOCK_INFO##CacheDescriptor> \
-	{}; \
-	\
+			: public CacheSerializerAdapter<state::LOCK_INFO##HistorySerializer, LOCK_INFO##CacheDescriptor> {}; \
+\
 	/* Serializer for lock info cache height grouped elements. */ \
 	struct LOCK_INFO##HeightGroupingSerializer \
-			: public IdentifierGroupSerializer<LOCK_INFO##CacheTypes::HeightGroupingTypesDescriptor> \
-	{}; \
-	\
+			: public IdentifierGroupSerializer<LOCK_INFO##CacheTypes::HeightGroupingTypesDescriptor> {}; \
+\
 	/* Primary serializer for lock info cache for patricia tree hashes. */ \
 	/* \note This serializer excludes historical lock infos. */ \
 	struct LOCK_INFO##PatriciaTreeSerializer \
-			: public CacheSerializerAdapter<state::LOCK_INFO##HistoryNonHistoricalSerializer, LOCK_INFO##CacheDescriptor> \
-	{};
+			: public CacheSerializerAdapter<state::LOCK_INFO##HistoryNonHistoricalSerializer, LOCK_INFO##CacheDescriptor> {};

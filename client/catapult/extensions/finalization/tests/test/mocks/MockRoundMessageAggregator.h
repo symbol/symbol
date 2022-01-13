@@ -34,8 +34,8 @@ namespace catapult { namespace mocks {
 				: m_round(round)
 				, m_numAddCalls(0)
 				, m_roundContext(1000, 700)
-				, m_addResult(static_cast<chain::RoundMessageAggregatorAddResult>(-1))
-		{}
+				, m_addResult(static_cast<chain::RoundMessageAggregatorAddResult>(-1)) {
+		}
 
 	public:
 		/// Gets the finalization round.

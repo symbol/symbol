@@ -32,8 +32,9 @@ namespace catapult { namespace cache {
 			using StorageType = MosaicCacheStorage;
 			class CacheType : public MosaicCache {
 			public:
-				CacheType() : MosaicCache(CacheConfiguration())
-				{}
+				CacheType()
+						: MosaicCache(CacheConfiguration()) {
+				}
 			};
 
 			static auto CreateId(uint8_t id) {

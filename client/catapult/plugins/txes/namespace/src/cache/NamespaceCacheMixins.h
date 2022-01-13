@@ -40,8 +40,9 @@ namespace catapult { namespace cache {
 	class NamespaceDeepSizeMixin {
 	public:
 		/// Creates a mixin around \a sizes.
-		explicit NamespaceDeepSizeMixin(const NamespaceSizes& sizes) : m_sizes(sizes)
-		{}
+		explicit NamespaceDeepSizeMixin(const NamespaceSizes& sizes)
+				: m_sizes(sizes) {
+		}
 
 	public:
 		/// Gets the number of unique active namespaces in the cache.
@@ -88,22 +89,23 @@ namespace catapult { namespace cache {
 		class const_iterator {
 		public:
 			/// Creates an uninitialized iterator.
-			const_iterator() : m_isValid(false)
-			{}
+			const_iterator()
+					: m_isValid(false) {
+			}
 
 			/// Creates an uninitialized iterator around \a id.
 			explicit const_iterator(NamespaceId id)
 					: m_isValid(false)
-					, m_id(id)
-			{}
+					, m_id(id) {
+			}
 
 			/// Creates an iterator around a namespace iterator (\a namespaceIter) and a root iterator (\a rootIter).
 			const_iterator(typename TFlatMap::FindConstIterator&& namespaceIter, typename TPrimarySet::FindConstIterator&& rootIter)
 					: m_isValid(true)
 					, m_namespaceIter(std::move(namespaceIter))
 					, m_rootIter(std::move(rootIter))
-					, m_entry(*m_namespaceIter.get(), m_rootIter.get()->back())
-			{}
+					, m_entry(*m_namespaceIter.get(), m_rootIter.get()->back()) {
+			}
 
 		public:
 			/// Gets a const value.
@@ -137,8 +139,8 @@ namespace catapult { namespace cache {
 		/// Creates a mixin around (history by id) \a set and \a flatMap.
 		NamespaceLookupMixin(const TPrimarySet& set, const TFlatMap& flatMap)
 				: m_set(set)
-				, m_flatMap(flatMap)
-		{}
+				, m_flatMap(flatMap) {
+		}
 
 	public:
 		/// Finds the cache value identified by \a id.

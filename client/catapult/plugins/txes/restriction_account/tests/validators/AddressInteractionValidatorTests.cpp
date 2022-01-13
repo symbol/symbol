@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AddressInteractionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AddressInteraction,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AddressInteraction, )
 
 	namespace {
 		using CacheContents = std::unordered_map<Address, std::vector<Address>, utils::ArrayHasher<Address>>;
@@ -107,10 +107,16 @@ namespace catapult { namespace validators {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TDirectionTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address_Incoming) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<IncomingTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Address_Outgoing) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OutgoingTraits>(); } \
-	template<typename TDirectionTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TDirectionTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address_Incoming) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<IncomingTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Address_Outgoing) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OutgoingTraits>(); \
+	} \
+	template<typename TDirectionTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region failure
 

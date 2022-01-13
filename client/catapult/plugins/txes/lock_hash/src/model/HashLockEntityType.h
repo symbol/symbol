@@ -23,7 +23,8 @@
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 #include "catapult/model/EntityType.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #endif
 
@@ -31,5 +32,6 @@ namespace catapult { namespace model {
 	DEFINE_TRANSACTION_TYPE(LockHash, Hash_Lock, 0x1);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
-}}
+}
+}
 #endif

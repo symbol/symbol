@@ -51,45 +51,41 @@ namespace catapult { namespace plugins {
 		});
 
 		manager.addStatelessValidatorHook([](auto& builder) {
-			builder
-				.add(validators::CreateAccountRestrictionFlagsValidator())
+			builder.add(validators::CreateAccountRestrictionFlagsValidator())
 
-				.add(validators::CreateAccountOperationRestrictionModificationValuesValidator());
+					.add(validators::CreateAccountOperationRestrictionModificationValuesValidator());
 		});
 
 		auto config = model::LoadPluginConfiguration<config::AccountRestrictionConfiguration>(
 				manager.config(),
 				"catapult.plugins.restrictionaccount");
 		manager.addStatefulValidatorHook([maxAccountRestrictionValues = config.MaxAccountRestrictionValues](auto& builder) {
-			builder
-				.add(validators::CreateAccountAddressRestrictionRedundantModificationValidator())
-				.add(validators::CreateAccountAddressRestrictionValueModificationValidator())
-				.add(validators::CreateMaxAccountAddressRestrictionValuesValidator(maxAccountRestrictionValues))
-				.add(validators::CreateAddressInteractionValidator())
-				.add(validators::CreateAccountAddressRestrictionNoSelfModificationValidator())
+			builder.add(validators::CreateAccountAddressRestrictionRedundantModificationValidator())
+					.add(validators::CreateAccountAddressRestrictionValueModificationValidator())
+					.add(validators::CreateMaxAccountAddressRestrictionValuesValidator(maxAccountRestrictionValues))
+					.add(validators::CreateAddressInteractionValidator())
+					.add(validators::CreateAccountAddressRestrictionNoSelfModificationValidator())
 
-				.add(validators::CreateAccountMosaicRestrictionRedundantModificationValidator())
-				.add(validators::CreateAccountMosaicRestrictionValueModificationValidator())
-				.add(validators::CreateMaxAccountMosaicRestrictionValuesValidator(maxAccountRestrictionValues))
-				.add(validators::CreateMosaicRecipientValidator())
+					.add(validators::CreateAccountMosaicRestrictionRedundantModificationValidator())
+					.add(validators::CreateAccountMosaicRestrictionValueModificationValidator())
+					.add(validators::CreateMaxAccountMosaicRestrictionValuesValidator(maxAccountRestrictionValues))
+					.add(validators::CreateMosaicRecipientValidator())
 
-				.add(validators::CreateAccountOperationRestrictionRedundantModificationValidator())
-				.add(validators::CreateAccountOperationRestrictionValueModificationValidator())
-				.add(validators::CreateMaxAccountOperationRestrictionValuesValidator(maxAccountRestrictionValues))
-				.add(validators::CreateOperationRestrictionValidator())
-				.add(validators::CreateAccountOperationRestrictionNoSelfBlockingValidator());
+					.add(validators::CreateAccountOperationRestrictionRedundantModificationValidator())
+					.add(validators::CreateAccountOperationRestrictionValueModificationValidator())
+					.add(validators::CreateMaxAccountOperationRestrictionValuesValidator(maxAccountRestrictionValues))
+					.add(validators::CreateOperationRestrictionValidator())
+					.add(validators::CreateAccountOperationRestrictionNoSelfBlockingValidator());
 		});
 
 		manager.addObserverHook([](auto& builder) {
-			builder
-				.add(observers::CreateAccountAddressRestrictionValueModificationObserver())
-				.add(observers::CreateAccountMosaicRestrictionValueModificationObserver())
-				.add(observers::CreateAccountOperationRestrictionValueModificationObserver());
+			builder.add(observers::CreateAccountAddressRestrictionValueModificationObserver())
+					.add(observers::CreateAccountMosaicRestrictionValueModificationObserver())
+					.add(observers::CreateAccountOperationRestrictionValueModificationObserver());
 		});
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterAccountRestrictionSubsystem(manager);
 }

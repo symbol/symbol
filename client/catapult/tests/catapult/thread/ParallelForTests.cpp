@@ -69,10 +69,16 @@ namespace catapult { namespace thread {
 	}
 
 #define CONTAINER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Vector) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VectorTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_List) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ListTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Vector) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VectorTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_List) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ListTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region ParallelForPartition basic
 
@@ -97,8 +103,8 @@ namespace catapult { namespace thread {
 			PartitionAggregateCapture(size_t numItems, size_t numPartitions)
 					: Sum(0)
 					, IndexFlags(numItems, 0)
-					, BatchIndexFlags(numPartitions, 0)
-			{}
+					, BatchIndexFlags(numPartitions, 0) {
+			}
 
 		public:
 			std::atomic<size_t> Sum;
@@ -363,20 +369,21 @@ namespace catapult { namespace thread {
 					size_t numThreads,
 					MultiThreadedState& state) {
 				std::atomic<size_t> numItemsProcessed(0);
-				ParallelForPartition(ioContext, items, numThreads, [&state, &numItemsProcessed, numThreads](
-						auto itBegin,
-						auto itEnd,
-						auto,
-						auto) {
-					// - process the values
-					for (auto iter = itBegin; itEnd != iter; ++iter)
-						state.process(*iter);
+				ParallelForPartition(
+						ioContext,
+						items,
+						numThreads,
+						[&state, &numItemsProcessed, numThreads](auto itBegin, auto itEnd, auto, auto) {
+							// - process the values
+							for (auto iter = itBegin; itEnd != iter; ++iter)
+								state.process(*iter);
 
-					// - wait for all threads to spawn before continuing
-					++numItemsProcessed;
-					WAIT_FOR_EXPR(numItemsProcessed >= numThreads);
-					return true;
-				}).get();
+							// - wait for all threads to spawn before continuing
+							++numItemsProcessed;
+							WAIT_FOR_EXPR(numItemsProcessed >= numThreads);
+							return true;
+						})
+						.get();
 			}
 		};
 
@@ -411,10 +418,16 @@ namespace catapult { namespace thread {
 		}
 
 #define DISTRIBUTE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DistributeParallelForTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Partition) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DistributeParallelForPartitionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DistributeParallelForTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Partition) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DistributeParallelForPartitionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 	}
 
 	DISTRIBUTE_TEST(CanDistributeWorkEvenlyWhenItemsAreMultipleOfThreads) {

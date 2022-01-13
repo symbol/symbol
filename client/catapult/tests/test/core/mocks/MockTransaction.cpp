@@ -47,44 +47,42 @@ namespace catapult { namespace mocks {
 	}
 
 	std::vector<model::NotificationType> GetExpectedMockTransactionObserverNotificationTypes() {
-		return {
-			// basic transaction notifications
-			model::Core_Source_Change_Notification,
-			model::Core_Register_Account_Public_Key_Notification,
-			model::Core_Transaction_Notification,
-			model::Core_Transaction_Fee_Notification,
+		return { // basic transaction notifications
+				 model::Core_Source_Change_Notification,
+				 model::Core_Register_Account_Public_Key_Notification,
+				 model::Core_Transaction_Notification,
+				 model::Core_Transaction_Fee_Notification,
 
-			// mock transaction notifications
-			model::Core_Register_Account_Public_Key_Notification,
-			mocks::Mock_Observer_1_Notification,
-			mocks::Mock_All_1_Notification,
-			mocks::Mock_Observer_2_Notification,
-			mocks::Mock_All_2_Notification,
+				 // mock transaction notifications
+				 model::Core_Register_Account_Public_Key_Notification,
+				 mocks::Mock_Observer_1_Notification,
+				 mocks::Mock_All_1_Notification,
+				 mocks::Mock_Observer_2_Notification,
+				 mocks::Mock_All_2_Notification,
 
-			// basic transaction notifications
-			model::Core_Balance_Debit_Notification
+				 // basic transaction notifications
+				 model::Core_Balance_Debit_Notification
 		};
 	}
 
 	std::vector<model::NotificationType> GetExpectedMockTransactionValidatorNotificationTypes() {
-		return {
-			// basic transaction notifications
-			model::Core_Register_Account_Public_Key_Notification,
-			model::Core_Entity_Notification,
-			model::Core_Transaction_Notification,
-			model::Core_Transaction_Deadline_Notification,
-			model::Core_Transaction_Fee_Notification,
+		return { // basic transaction notifications
+				 model::Core_Register_Account_Public_Key_Notification,
+				 model::Core_Entity_Notification,
+				 model::Core_Transaction_Notification,
+				 model::Core_Transaction_Deadline_Notification,
+				 model::Core_Transaction_Fee_Notification,
 
-			// mock transaction notifications
-			model::Core_Register_Account_Public_Key_Notification,
-			mocks::Mock_Validator_1_Notification,
-			mocks::Mock_All_1_Notification,
-			mocks::Mock_Validator_2_Notification,
-			mocks::Mock_All_2_Notification,
+				 // mock transaction notifications
+				 model::Core_Register_Account_Public_Key_Notification,
+				 mocks::Mock_Validator_1_Notification,
+				 mocks::Mock_All_1_Notification,
+				 mocks::Mock_Validator_2_Notification,
+				 mocks::Mock_All_2_Notification,
 
-			// basic transaction notifications
-			model::Core_Balance_Debit_Notification,
-			model::Core_Signature_Notification
+				 // basic transaction notifications
+				 model::Core_Balance_Debit_Notification,
+				 model::Core_Signature_Notification
 		};
 	}
 
@@ -177,8 +175,8 @@ namespace catapult { namespace mocks {
 		public:
 			MockTransactionPluginT(EntityType type, PluginOptionFlags options)
 					: m_type(type)
-					, m_options(options)
-			{}
+					, m_options(options) {
+			}
 
 		public:
 			EntityType type() const override {
@@ -203,14 +201,12 @@ namespace catapult { namespace mocks {
 		public:
 			EmbeddedMockTransactionPlugin(EntityType type, PluginOptionFlags options)
 					: MockTransactionPluginT<EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedTransactionPlugin>(type, options)
-					, m_options(options)
-			{}
+					, m_options(options) {
+			}
 
 		public:
-			void publish(
-					const EmbeddedTransaction& transaction,
-					const PublishContext& context,
-					NotificationSubscriber& sub) const override {
+			void publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub)
+					const override {
 				Publish(static_cast<const EmbeddedMockTransaction&>(transaction), context, m_options, sub);
 			}
 
@@ -234,10 +230,8 @@ namespace catapult { namespace mocks {
 			}
 
 		public:
-			void publish(
-					const WeakEntityInfoT<Transaction>& transactionInfo,
-					const PublishContext& context,
-					NotificationSubscriber& sub) const override {
+			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub)
+					const override {
 				Publish(static_cast<const MockTransaction&>(transactionInfo.entity()), context, m_options, sub);
 
 				// raise a custom notification that includes the provided hash

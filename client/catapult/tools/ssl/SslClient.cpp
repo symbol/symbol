@@ -36,11 +36,8 @@ namespace catapult { namespace tools { namespace ssl {
 		GenerateCertificateDirectory(std::move(caKeyPair), certificateDirectory, scenarioId);
 
 		m_pSslContext->set_options(
-				boost::asio::ssl::context::no_sslv2
-				| boost::asio::ssl::context::no_sslv3
-				| boost::asio::ssl::context::no_tlsv1
-				| boost::asio::ssl::context::no_tlsv1_1
-				| boost::asio::ssl::context::no_tlsv1_2);
+				boost::asio::ssl::context::no_sslv2 | boost::asio::ssl::context::no_sslv3 | boost::asio::ssl::context::no_tlsv1
+				| boost::asio::ssl::context::no_tlsv1_1 | boost::asio::ssl::context::no_tlsv1_2);
 
 		if (ScenarioId::No_Peer_Certificate != scenarioId) {
 			m_pSslContext->use_certificate_chain_file(certificateDirectory + "/node.full.crt.pem");
@@ -58,11 +55,7 @@ namespace catapult { namespace tools { namespace ssl {
 		connectionSettings.SslOptions.ContextSupplier = [pSslContext = m_pSslContext]() -> boost::asio::ssl::context& {
 			return *pSslContext;
 		};
-		connectionSettings.SslOptions.VerifyCallbackSupplier = []() {
-			return [](const auto&) {
-				return true;
-			};
-		};
+		connectionSettings.SslOptions.VerifyCallbackSupplier = []() { return [](const auto&) { return true; }; };
 
 		model::NodeIdentity nodeIdentity;
 		ionet::NodeMetadata nodeMetadata;

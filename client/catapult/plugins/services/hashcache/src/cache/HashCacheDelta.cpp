@@ -29,8 +29,8 @@ namespace catapult { namespace cache {
 			, HashCacheDeltaMixins::BasicInsertRemove(*hashSets.pPrimary)
 			, HashCacheDeltaMixins::DeltaElements(*hashSets.pPrimary)
 			, m_pOrderedDelta(hashSets.pPrimary)
-			, m_retentionTime(options.RetentionTime)
-	{}
+			, m_retentionTime(options.RetentionTime) {
+	}
 
 	utils::TimeSpan BasicHashCacheDelta::retentionTime() const {
 		return m_retentionTime;

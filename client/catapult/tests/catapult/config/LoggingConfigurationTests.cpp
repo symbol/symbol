@@ -33,43 +33,17 @@ namespace catapult { namespace config {
 			using ComponentLevelsMap = utils::ConfigurationBag::UnorderedKeyValueMap<utils::LogLevel>;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"console",
-						{
-							{ "sinkType", "Async" },
-							{ "level", "Warning" },
-							{ "colorMode", "AnsiBold" }
-						}
-					},
-					{
-						"console.component.levels",
-						{
-							{ "net", "Trace" },
-							{ "random", "Fatal" }
-						}
-					},
-					{
-						"file",
-						{
-							{ "sinkType", "Sync" },
-							{ "level", "Fatal" },
-							{ "directory", "foo" },
-							{ "filePattern", "bar%4N.log" },
-							{ "rotationSize", "123KB" },
-							{ "maxTotalSize", "10MB" },
-							{ "minFreeSpace", "987KB" }
-						}
-					},
-					{
-						"file.component.levels",
-						{
-							{ "io", "Info" },
-							{ "net", "Warning" },
-							{ "?", "Info" }
-						}
-					}
-				};
+				return { { "console", { { "sinkType", "Async" }, { "level", "Warning" }, { "colorMode", "AnsiBold" } } },
+						 { "console.component.levels", { { "net", "Trace" }, { "random", "Fatal" } } },
+						 { "file",
+						   { { "sinkType", "Sync" },
+							 { "level", "Fatal" },
+							 { "directory", "foo" },
+							 { "filePattern", "bar%4N.log" },
+							 { "rotationSize", "123KB" },
+							 { "maxTotalSize", "10MB" },
+							 { "minFreeSpace", "987KB" } } },
+						 { "file.component.levels", { { "io", "Info" }, { "net", "Warning" }, { "?", "Info" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string& section) {
@@ -100,16 +74,12 @@ namespace catapult { namespace config {
 
 			static void AssertCustom(const LoggingConfiguration& config) {
 				// Arrange:
-				ComponentLevelsMap expectedConsoleComponentLevels{
-					{ "net", utils::LogLevel::trace },
-					{ "random", utils::LogLevel::fatal }
-				};
+				ComponentLevelsMap expectedConsoleComponentLevels{ { "net", utils::LogLevel::trace },
+																   { "random", utils::LogLevel::fatal } };
 
-				ComponentLevelsMap expectedFileComponentLevels{
-					{ "io", utils::LogLevel::info },
-					{ "net", utils::LogLevel::warning },
-					{ "?", utils::LogLevel::info }
-				};
+				ComponentLevelsMap expectedFileComponentLevels{ { "io", utils::LogLevel::info },
+																{ "net", utils::LogLevel::warning },
+																{ "?", utils::LogLevel::info } };
 
 				// Assert:
 				// - console (basic)

@@ -132,8 +132,9 @@ namespace catapult { namespace sync {
 
 		class MockReceiptBlockObserver : public observers::NotificationObserverT<model::BlockNotification> {
 		public:
-			MockReceiptBlockObserver() : m_name("MockReceiptBlockObserver")
-			{}
+			MockReceiptBlockObserver()
+					: m_name("MockReceiptBlockObserver") {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -161,13 +162,14 @@ namespace catapult { namespace sync {
 
 		struct ValidationResults {
 		public:
-			ValidationResults() : ValidationResults(ValidationResult::Success, ValidationResult::Success)
-			{}
+			ValidationResults()
+					: ValidationResults(ValidationResult::Success, ValidationResult::Success) {
+			}
 
 			ValidationResults(ValidationResult statelessResult, ValidationResult statefulResult)
 					: Stateless(statelessResult)
-					, Stateful(statefulResult)
-			{}
+					, Stateful(statefulResult) {
+			}
 
 		public:
 			ValidationResult Stateless;
@@ -179,8 +181,9 @@ namespace catapult { namespace sync {
 			using BaseType = test::ServiceLocatorTestContext<DispatcherServiceTraits>;
 
 		public:
-			TestContext() : TestContext(test::CreateDefaultNetworkTimeSupplier())
-			{}
+			TestContext()
+					: TestContext(test::CreateDefaultNetworkTimeSupplier()) {
+			}
 
 			explicit TestContext(const supplier<Timestamp>& timeSupplier)
 					: BaseType(CreateCatapultCacheForDispatcherTests(), timeSupplier)
@@ -248,8 +251,8 @@ namespace catapult { namespace sync {
 			std::pair<consumers::CommitOperationStep, bool> tryReadCommitStep() const {
 				auto indexFile = io::IndexFile((tempPath() / "commit_step.dat").generic_string());
 				return indexFile.exists()
-						? std::make_pair(static_cast<consumers::CommitOperationStep>(indexFile.get()), true)
-						: std::make_pair(static_cast<consumers::CommitOperationStep>(std::numeric_limits<uint16_t>::max()), false);
+							   ? std::make_pair(static_cast<consumers::CommitOperationStep>(indexFile.get()), true)
+							   : std::make_pair(static_cast<consumers::CommitOperationStep>(std::numeric_limits<uint16_t>::max()), false);
 			}
 
 		public:
@@ -315,9 +318,8 @@ namespace catapult { namespace sync {
 		};
 
 		DispatcherStatus GetDispatcherStatus(const std::shared_ptr<disruptor::ConsumerDispatcher>& pDispatcher) {
-			return !pDispatcher
-					? DispatcherStatus()
-					: DispatcherStatus{ pDispatcher->name(), pDispatcher->size(), pDispatcher->isRunning() };
+			return !pDispatcher ? DispatcherStatus()
+								: DispatcherStatus{ pDispatcher->name(), pDispatcher->size(), pDispatcher->isRunning() };
 		}
 
 		DispatcherStatus GetBlockDispatcherStatus(const extensions::ServiceLocator& locator) {
@@ -857,10 +859,16 @@ namespace catapult { namespace sync {
 	}
 
 #define CONSUMER_FACTORY_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_CompletionAware) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CompletionAwareTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_CompletionUnaware) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CompletionUnawareTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_CompletionAware) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CompletionAwareTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_CompletionUnaware) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CompletionUnawareTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		supplier<Timestamp> CreateTimeSupplier(const std::vector<uint32_t>& rawTimestamps) {

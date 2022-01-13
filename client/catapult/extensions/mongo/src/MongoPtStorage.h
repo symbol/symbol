@@ -23,7 +23,9 @@
 #include "MongoStorageContext.h"
 #include "catapult/cache_tx/PtChangeSubscriber.h"
 
-namespace catapult { namespace mongo { class MongoTransactionRegistry; } }
+namespace catapult { namespace mongo {
+	class MongoTransactionRegistry;
+}}
 
 namespace catapult { namespace mongo {
 

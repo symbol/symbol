@@ -50,8 +50,9 @@ namespace catapult { namespace cache {
 
 		class ViewAdapter {
 		public:
-			explicit ViewAdapter(const std::vector<TestEntry>& entries) : m_entries(entries)
-			{}
+			explicit ViewAdapter(const std::vector<TestEntry>& entries)
+					: m_entries(entries) {
+			}
 
 		public:
 			size_t size() const {
@@ -75,8 +76,9 @@ namespace catapult { namespace cache {
 			static constexpr auto Name = "TestEntry Cache!";
 
 		public:
-			explicit VectorToCacheAdapter(std::vector<TestEntry>& entries) : m_entries(entries)
-			{}
+			explicit VectorToCacheAdapter(std::vector<TestEntry>& entries)
+					: m_entries(entries) {
+			}
 
 		public:
 			struct CallCounts {
@@ -128,8 +130,9 @@ namespace catapult { namespace cache {
 
 		class VectorToCacheAdapterSubCachePlugin : public test::UnsupportedSubCachePlugin<VectorToCacheAdapter> {
 		public:
-			explicit VectorToCacheAdapterSubCachePlugin(std::vector<TestEntry>& entries) : m_cache(entries)
-			{}
+			explicit VectorToCacheAdapterSubCachePlugin(std::vector<TestEntry>& entries)
+					: m_cache(entries) {
+			}
 
 		public:
 			auto& cache() {
@@ -144,8 +147,9 @@ namespace catapult { namespace cache {
 		private:
 			class VectorToCacheAdapterSubCacheView : public test::UnsupportedSubCacheView {
 			public:
-				explicit VectorToCacheAdapterSubCacheView(const ViewAdapter& view) : m_view(view)
-				{}
+				explicit VectorToCacheAdapterSubCacheView(const ViewAdapter& view)
+						: m_view(view) {
+				}
 
 			public:
 				const void* get() const override {

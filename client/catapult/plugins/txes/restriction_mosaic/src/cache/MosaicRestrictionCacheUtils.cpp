@@ -46,12 +46,10 @@ namespace catapult { namespace cache {
 			if (mosaicId == rule.ReferenceMosaicId)
 				return MosaicGlobalRestrictionRuleResolutionResult::Invalid_Rule;
 
-			resolvedRules.push_back(MosaicRestrictionResolvedRule{
-				MosaicId() == rule.ReferenceMosaicId ? mosaicId : rule.ReferenceMosaicId,
-				key,
-				rule.RestrictionValue,
-				rule.RestrictionType
-			});
+			resolvedRules.push_back(MosaicRestrictionResolvedRule{ MosaicId() == rule.ReferenceMosaicId ? mosaicId : rule.ReferenceMosaicId,
+																   key,
+																   rule.RestrictionValue,
+																   rule.RestrictionType });
 		}
 
 		return MosaicGlobalRestrictionRuleResolutionResult::Success;
@@ -71,9 +69,8 @@ namespace catapult { namespace cache {
 			auto restrictionIter = restrictionCacheSet.find(mosaicId);
 			if (restrictionCacheSet.cend() == restrictionIter) {
 				auto entryIter = restrictionCache.find(state::CreateMosaicRestrictionEntryKey(mosaicId, address));
-				auto restriction = entryIter.tryGet()
-						? entryIter.get().asAddressRestriction()
-						: state::MosaicAddressRestriction(mosaicId, address);
+				auto restriction =
+						entryIter.tryGet() ? entryIter.get().asAddressRestriction() : state::MosaicAddressRestriction(mosaicId, address);
 				restrictionIter = restrictionCacheSet.emplace(mosaicId, restriction).first;
 			}
 

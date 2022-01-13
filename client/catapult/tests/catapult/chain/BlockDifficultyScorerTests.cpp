@@ -295,10 +295,16 @@ namespace catapult { namespace chain {
 	}
 
 #define CACHE_OVERLOAD_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Cache) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CacheTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_TryCache) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryCacheTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Cache) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CacheTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_TryCache) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryCacheTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CACHE_OVERLOAD_TRAITS_BASED_TEST(DifferentOverloadsYieldSameResult) {
 		// Arrange:

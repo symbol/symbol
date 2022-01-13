@@ -30,16 +30,7 @@ namespace catapult { namespace config {
 			using ConfigurationType = SecretLockConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "maxSecretLockDuration", "23'456d" },
-							{ "minProofSize", "42" },
-							{ "maxProofSize", "1234" }
-						}
-					}
-				};
+				return { { "", { { "maxSecretLockDuration", "23'456d" }, { "minProofSize", "42" }, { "maxProofSize", "1234" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

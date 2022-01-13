@@ -31,14 +31,15 @@ namespace catapult { namespace deltaset {
 		class BaseSetSingleIteratorWrapper {
 		public:
 			/// Creates an unset iterator.
-			BaseSetSingleIteratorWrapper() : m_isSet(false)
-			{}
+			BaseSetSingleIteratorWrapper()
+					: m_isSet(false) {
+			}
 
 			/// Creates an iterator around a storage iterator (\a storageIter).
 			explicit BaseSetSingleIteratorWrapper(TStorageIterator&& storageIter)
 					: m_isSet(true)
-					, m_storageIter(std::move(storageIter))
-			{}
+					, m_storageIter(std::move(storageIter)) {
+			}
 
 		public:
 			/// Gets the underlying value.
@@ -57,20 +58,21 @@ namespace catapult { namespace deltaset {
 		class BaseSetDualIteratorWrapper {
 		public:
 			/// Creates an unset iterator.
-			BaseSetDualIteratorWrapper() : m_iteratorType(IteratorType::Unset)
-			{}
+			BaseSetDualIteratorWrapper()
+					: m_iteratorType(IteratorType::Unset) {
+			}
 
 			/// Creates an iterator around a storage iterator (\a storageIter).
 			explicit BaseSetDualIteratorWrapper(TStorageIterator&& storageIter)
 					: m_iteratorType(IteratorType::Storage)
-					, m_storageIter(std::move(storageIter))
-			{}
+					, m_storageIter(std::move(storageIter)) {
+			}
 
 			/// Creates an iterator around a memory iterator (\a memoryIter).
 			explicit BaseSetDualIteratorWrapper(TMemoryIterator&& memoryIter)
 					: m_iteratorType(IteratorType::Memory)
-					, m_memoryIter(std::move(memoryIter))
-			{}
+					, m_memoryIter(std::move(memoryIter)) {
+			}
 
 		public:
 			/// Gets the underlying value.
@@ -97,37 +99,33 @@ namespace catapult { namespace deltaset {
 		/// Iterator that represents a find result from a base set that supports either one or two types of container iterators.
 		template<typename TFindTraits, typename TSetTraits, typename TStorageIterator, typename TMemoryIterator, typename TFindResult>
 		using BaseSetConditionalIteratorWrapper = std::conditional_t<
-			std::is_same_v<TStorageIterator, TMemoryIterator>,
-			BaseSetSingleIteratorWrapper<TFindTraits, TSetTraits, TStorageIterator, TFindResult>,
-			BaseSetDualIteratorWrapper<TFindTraits, TSetTraits, TStorageIterator, TMemoryIterator, TFindResult>
-		>;
+				std::is_same_v<TStorageIterator, TMemoryIterator>,
+				BaseSetSingleIteratorWrapper<TFindTraits, TSetTraits, TStorageIterator, TFindResult>,
+				BaseSetDualIteratorWrapper<TFindTraits, TSetTraits, TStorageIterator, TMemoryIterator, TFindResult>>;
 	}
 
 	/// Iterator that returns a find result from a base set.
 	template<typename TFindTraits, typename TSetTraits>
 	using BaseSetFindIterator = detail::BaseSetSingleIteratorWrapper<
-		TFindTraits,
-		TSetTraits,
-		typename TSetTraits::SetType::const_iterator,
-		typename TFindTraits::ConstResultType
-	>;
+			TFindTraits,
+			TSetTraits,
+			typename TSetTraits::SetType::const_iterator,
+			typename TFindTraits::ConstResultType>;
 
 	/// Iterator that returns a find result from a base set delta.
 	template<typename TFindTraits, typename TSetTraits>
 	using BaseSetDeltaFindIterator = detail::BaseSetSingleIteratorWrapper<
-		TFindTraits,
-		TSetTraits,
-		typename TSetTraits::MemorySetType::iterator,
-		typename TFindTraits::ResultType
-	>;
+			TFindTraits,
+			TSetTraits,
+			typename TSetTraits::MemorySetType::iterator,
+			typename TFindTraits::ResultType>;
 
 	/// Iterator that returns a find (const) result from a base set delta.
 	template<typename TFindTraits, typename TSetTraits>
 	using BaseSetDeltaFindConstIterator = detail::BaseSetConditionalIteratorWrapper<
-		TFindTraits,
-		TSetTraits,
-		typename TSetTraits::SetType::const_iterator,
-		typename TSetTraits::MemorySetType::const_iterator,
-		typename TFindTraits::ConstResultType
-	>;
+			TFindTraits,
+			TSetTraits,
+			typename TSetTraits::SetType::const_iterator,
+			typename TSetTraits::MemorySetType::const_iterator,
+			typename TFindTraits::ConstResultType>;
 }}

@@ -189,10 +189,7 @@ namespace catapult { namespace handlers {
 		// Arrange:
 		RunPullPingHandlerTest(0, [](const auto& networkNode, const auto& handlerContext) {
 			// Assert: network node is written
-			test::AssertPacketHeader(
-					handlerContext,
-					sizeof(ionet::Packet) + networkNode.Size,
-					ionet::PacketType::Node_Discovery_Pull_Ping);
+			test::AssertPacketHeader(handlerContext, sizeof(ionet::Packet) + networkNode.Size, ionet::PacketType::Node_Discovery_Pull_Ping);
 
 			const auto* pResponse = test::GetSingleBufferData(handlerContext);
 			EXPECT_EQ_MEMORY(pResponse, &networkNode, networkNode.Size);
@@ -266,11 +263,9 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PushPeersHandler_ForwardsMultipleEntityPayloadToConsumer) {
 		// Arrange:
-		std::vector<ionet::Node> nodes{
-			test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "a"),
-			test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "bc"),
-			test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "def")
-		};
+		std::vector<ionet::Node> nodes{ test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "a"),
+										test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "bc"),
+										test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "def") };
 
 		// Act:
 		auto result = RegisterAndExecutePushPeersHandler(nodes);
@@ -346,11 +341,9 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PullPeersHandler_RespondsWhenMultipleNodesAreAvailable) {
 		// Arrange:
-		ionet::NodeSet nodes{
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a"),
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "bc"),
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "def")
-		};
+		ionet::NodeSet nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a"),
+							  test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "bc"),
+							  test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "def") };
 		auto networkNodes = test::PackAllNodes(nodes);
 
 		// Act:
@@ -366,10 +359,10 @@ namespace catapult { namespace handlers {
 			// - each node in the (unordered) response corresponds to an original node
 			for (auto i = 0u; i < 3; ++i) {
 				const auto& responseNetworkNode = reinterpret_cast<const ionet::NetworkNode&>(*buffers[i].pData);
-				auto networkNodeIter = std::find_if(networkNodes.cbegin(), networkNodes.cend(), [&responseNetworkNode](
-						const auto& pNetworkNode) {
-					return responseNetworkNode.IdentityKey == pNetworkNode->IdentityKey;
-				});
+				auto networkNodeIter =
+						std::find_if(networkNodes.cbegin(), networkNodes.cend(), [&responseNetworkNode](const auto& pNetworkNode) {
+							return responseNetworkNode.IdentityKey == pNetworkNode->IdentityKey;
+						});
 
 				if (networkNodes.cend() != networkNodeIter) {
 					const auto& networkNode = **networkNodeIter;

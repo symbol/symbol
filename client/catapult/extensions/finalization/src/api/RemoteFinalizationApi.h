@@ -27,7 +27,9 @@
 #include "catapult/model/RangeTypes.h"
 #include "catapult/thread/Future.h"
 
-namespace catapult { namespace ionet { class PacketIo; } }
+namespace catapult { namespace ionet {
+	class PacketIo;
+}}
 
 namespace catapult { namespace api {
 
@@ -35,8 +37,9 @@ namespace catapult { namespace api {
 	class RemoteFinalizationApi : public RemoteApi {
 	protected:
 		/// Creates a remote api for the node with specified \a remoteIdentity.
-		explicit RemoteFinalizationApi(const model::NodeIdentity& remoteIdentity) : RemoteApi(remoteIdentity)
-		{}
+		explicit RemoteFinalizationApi(const model::NodeIdentity& remoteIdentity)
+				: RemoteApi(remoteIdentity) {
+		}
 
 	public:
 		/// Gets all finalization messages from the remote with a finalization round in \a roundRange

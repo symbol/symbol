@@ -38,7 +38,8 @@ namespace catapult { namespace cache {
 	class ChunkedDataLoader {
 	public:
 		/// Creates a chunked loader around \a input.
-		explicit ChunkedDataLoader(io::InputStream& input) : m_input(input) {
+		explicit ChunkedDataLoader(io::InputStream& input)
+				: m_input(input) {
 			m_numRemainingEntries = io::Read64(input);
 		}
 

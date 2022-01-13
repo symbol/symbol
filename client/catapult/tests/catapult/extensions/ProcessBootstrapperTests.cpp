@@ -178,16 +178,12 @@ namespace catapult { namespace extensions {
 		auto bootstrapper = CreateBootstrapper(CreateCatapultConfigurationWithCustomNetworkFingerprint());
 
 		// - add five nodes
-		std::vector<ionet::Node> nodes1{
-			test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()),
-			test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>())
-		};
+		std::vector<ionet::Node> nodes1{ test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()),
+										 test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()) };
 
-		std::vector<ionet::Node> nodes2{
-			test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()),
-			test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()),
-			test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>())
-		};
+		std::vector<ionet::Node> nodes2{ test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()),
+										 test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()),
+										 test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()) };
 
 		// Act:
 		bootstrapper.addStaticNodes(nodes1);

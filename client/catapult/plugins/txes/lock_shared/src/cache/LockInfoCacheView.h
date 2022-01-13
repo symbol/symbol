@@ -50,8 +50,8 @@ namespace catapult { namespace cache {
 				, LockInfoCacheViewMixins<TDescriptor, TCacheTypes>::Iteration(lockInfoSets.Primary)
 				, LockInfoCacheViewMixins<TDescriptor, TCacheTypes>::ConstAccessor(lockInfoSets.Primary)
 				, LockInfoCacheViewMixins<TDescriptor, TCacheTypes>::PatriciaTreeView(lockInfoSets.PatriciaTree.get())
-				, LockInfoCacheViewMixins<TDescriptor, TCacheTypes>::ActivePredicate(lockInfoSets.Primary)
-		{}
+				, LockInfoCacheViewMixins<TDescriptor, TCacheTypes>::ActivePredicate(lockInfoSets.Primary) {
+		}
 	};
 
 	/// View on top of the lock info cache.
@@ -60,7 +60,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a view around \a lockInfoSets.
 		explicit LockInfoCacheView(const typename TCacheTypes::BaseSets& lockInfoSets)
-				: ReadOnlyViewSupplier<TBasicView>(lockInfoSets)
-		{}
+				: ReadOnlyViewSupplier<TBasicView>(lockInfoSets) {
+		}
 	};
 }}

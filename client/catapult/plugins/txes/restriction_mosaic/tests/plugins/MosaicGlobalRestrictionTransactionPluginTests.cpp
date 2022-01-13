@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicGlobalRestriction, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicGlobalRestriction, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Mosaic_Global_Restriction)
@@ -50,9 +50,8 @@ namespace catapult { namespace plugins {
 		void AddCommonExpectations(
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const typename TTraits::TransactionType& transaction) {
-			builder.template addExpectation<MosaicRestrictionTypeNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.NewRestrictionType, notification.RestrictionType);
-			});
+			builder.template addExpectation<MosaicRestrictionTypeNotification>(
+					[&transaction](const auto& notification) { EXPECT_EQ(transaction.NewRestrictionType, notification.RestrictionType); });
 			builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
 				EXPECT_TRUE(notification.Owner.isResolved());
 				EXPECT_FALSE(notification.MosaicId.isResolved());
@@ -61,22 +60,22 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.MosaicId, notification.MosaicId.unresolved());
 				EXPECT_EQ(0x04u, notification.PropertyFlagMask);
 			});
-			builder.template addExpectation<MosaicGlobalRestrictionModificationPreviousValueNotification>([&transaction](
-					const auto& notification) {
-				EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
-				EXPECT_EQ(transaction.ReferenceMosaicId, notification.ReferenceMosaicId);
-				EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
-				EXPECT_EQ(transaction.PreviousRestrictionValue, notification.RestrictionValue);
-				EXPECT_EQ(transaction.PreviousRestrictionType, notification.RestrictionType);
-			});
-			builder.template addExpectation<MosaicGlobalRestrictionModificationNewValueNotification>([&transaction](
-					const auto& notification) {
-				EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
-				EXPECT_EQ(transaction.ReferenceMosaicId, notification.ReferenceMosaicId);
-				EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
-				EXPECT_EQ(transaction.NewRestrictionValue, notification.RestrictionValue);
-				EXPECT_EQ(transaction.NewRestrictionType, notification.RestrictionType);
-			});
+			builder.template addExpectation<MosaicGlobalRestrictionModificationPreviousValueNotification>(
+					[&transaction](const auto& notification) {
+						EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+						EXPECT_EQ(transaction.ReferenceMosaicId, notification.ReferenceMosaicId);
+						EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
+						EXPECT_EQ(transaction.PreviousRestrictionValue, notification.RestrictionValue);
+						EXPECT_EQ(transaction.PreviousRestrictionType, notification.RestrictionType);
+					});
+			builder.template addExpectation<MosaicGlobalRestrictionModificationNewValueNotification>(
+					[&transaction](const auto& notification) {
+						EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+						EXPECT_EQ(transaction.ReferenceMosaicId, notification.ReferenceMosaicId);
+						EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
+						EXPECT_EQ(transaction.NewRestrictionValue, notification.RestrictionValue);
+						EXPECT_EQ(transaction.NewRestrictionType, notification.RestrictionType);
+					});
 		}
 	}
 
@@ -87,13 +86,13 @@ namespace catapult { namespace plugins {
 		transaction.ReferenceMosaicId = UnresolvedMosaicId(test::Random() | 1);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			MosaicRestrictionTypeNotification::Notification_Type,
-			MosaicRequiredNotification::Notification_Type,
-			MosaicRestrictionRequiredNotification::Notification_Type,
-			MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type,
-			MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ MosaicRestrictionTypeNotification::Notification_Type,
+				  MosaicRequiredNotification::Notification_Type,
+				  MosaicRestrictionRequiredNotification::Notification_Type,
+				  MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type,
+				  MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenReferenceMosaicIdIsProvided) {
@@ -124,12 +123,12 @@ namespace catapult { namespace plugins {
 		transaction.ReferenceMosaicId = UnresolvedMosaicId();
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			MosaicRestrictionTypeNotification::Notification_Type,
-			MosaicRequiredNotification::Notification_Type,
-			MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type,
-			MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ MosaicRestrictionTypeNotification::Notification_Type,
+				  MosaicRequiredNotification::Notification_Type,
+				  MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type,
+				  MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenReferenceMosaicIdIsNotProvided) {

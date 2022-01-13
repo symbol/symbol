@@ -26,11 +26,13 @@
 #include <vector>
 
 namespace catapult {
-	namespace chain { class RoundContext; }
-	namespace model {
-		class FinalizationContext;
-		struct FinalizationMessage;
-	}
+namespace chain {
+	class RoundContext;
+}
+namespace model {
+	class FinalizationContext;
+	struct FinalizationMessage;
+}
 }
 
 namespace catapult { namespace chain {

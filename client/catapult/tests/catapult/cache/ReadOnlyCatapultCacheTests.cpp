@@ -34,11 +34,7 @@ namespace catapult { namespace cache {
 
 		test::SimpleCacheT<0> cache0;
 		test::SimpleCacheT<2> cache2;
-		std::vector<const void*> subViews{
-			&cache0.createView()->asReadOnly(),
-			nullptr,
-			&cache2.createView()->asReadOnly()
-		};
+		std::vector<const void*> subViews{ &cache0.createView()->asReadOnly(), nullptr, &cache2.createView()->asReadOnly() };
 
 		// Act:
 		ReadOnlyCatapultCache readOnlyCache(dependentState, subViews);

@@ -50,16 +50,17 @@ namespace catapult { namespace consumers {
 
 		class BufferedOutputStream : public io::OutputStream {
 		public:
-			explicit BufferedOutputStream(std::vector<uint8_t>& buffer) : m_buffer(buffer)
-			{}
+			explicit BufferedOutputStream(std::vector<uint8_t>& buffer)
+					: m_buffer(buffer) {
+			}
 
 		public:
 			void write(const RawBuffer& buffer) override {
 				m_buffer.insert(m_buffer.end(), buffer.pData, buffer.pData + buffer.Size);
 			}
 
-			void flush() override
-			{}
+			void flush() override {
+			}
 
 		private:
 			std::vector<uint8_t>& m_buffer;
@@ -67,9 +68,8 @@ namespace catapult { namespace consumers {
 
 		std::string FormatCacheStateLog(Height height, const cache::StateHashInfo& stateHashInfo) {
 			std::ostringstream out;
-			out
-					<< "cache state hash (" << stateHashInfo.SubCacheMerkleRoots.size() << " components) at height " << height
-					<< std::endl << stateHashInfo.StateHash;
+			out << "cache state hash (" << stateHashInfo.SubCacheMerkleRoots.size() << " components) at height " << height << std::endl
+				<< stateHashInfo.StateHash;
 
 			for (const auto& subCacheMerkleRoot : stateHashInfo.SubCacheMerkleRoots)
 				out << std::endl << " + " << subCacheMerkleRoot;
@@ -100,14 +100,12 @@ namespace catapult { namespace consumers {
 					ReceiptValidationMode receiptValidationMode)
 					: m_blockHitPredicateFactory(blockHitPredicateFactory)
 					, m_batchEntityProcessor(batchEntityProcessor)
-					, m_receiptValidationMode(receiptValidationMode)
-			{}
+					, m_receiptValidationMode(receiptValidationMode) {
+			}
 
 		public:
-			ValidationResult operator()(
-					const WeakBlockInfo& parentBlockInfo,
-					BlockElements& elements,
-					observers::ObserverState& state) const {
+			ValidationResult operator()(const WeakBlockInfo& parentBlockInfo, BlockElements& elements, observers::ObserverState& state)
+					const {
 				if (elements.empty())
 					return ValidationResult::Neutral;
 
@@ -162,8 +160,8 @@ namespace catapult { namespace consumers {
 					observers::ObserverState& state,
 					model::BlockStatementBuilder& blockStatementBuilder) const {
 				return ReceiptValidationMode::Disabled == m_receiptValidationMode
-						? state
-						: observers::ObserverState(state.Cache, blockStatementBuilder);
+							   ? state
+							   : observers::ObserverState(state.Cache, blockStatementBuilder);
 			}
 
 		private:
@@ -186,9 +184,8 @@ namespace catapult { namespace consumers {
 
 				auto accountStateIter = accountStateCache.find(block.SignerPublicKey);
 				if (!accountStateIter.tryGet()) {
-					CATAPULT_LOG(warning)
-							<< "block signer at height " << block.Height
-							<< " is not present in account state cache " << block.SignerPublicKey;
+					CATAPULT_LOG(warning) << "block signer at height " << block.Height << " is not present in account state cache "
+										  << block.SignerPublicKey;
 					return chain::Failure_Chain_Block_Unknown_Signer;
 				}
 
@@ -218,10 +215,9 @@ namespace catapult { namespace consumers {
 				cacheStateLogs.push_back(FormatCacheStateLog(block.Height, cacheStateHashInfo));
 
 				if (block.StateHash != cacheStateHashInfo.StateHash) {
-					CATAPULT_LOG(warning)
-							<< "block state hash (" << block.StateHash << ") does not match "
-							<< "cache state hash (" << cacheStateHashInfo.StateHash << ") "
-							<< "at height " << block.Height;
+					CATAPULT_LOG(warning) << "block state hash (" << block.StateHash << ") does not match "
+										  << "cache state hash (" << cacheStateHashInfo.StateHash << ") "
+										  << "at height " << block.Height;
 
 					for (const auto& log : cacheStateLogs)
 						CATAPULT_LOG(info) << log;
@@ -246,10 +242,9 @@ namespace catapult { namespace consumers {
 				}
 
 				if (block.ReceiptsHash != calculatedReceiptsHash) {
-					CATAPULT_LOG(warning)
-							<< "block receipts hash (" << block.ReceiptsHash << ") does not match "
-							<< "calculated receipts hash (" << calculatedReceiptsHash << ") "
-							<< "at height " << block.Height;
+					CATAPULT_LOG(warning) << "block receipts hash (" << block.ReceiptsHash << ") does not match "
+										  << "calculated receipts hash (" << calculatedReceiptsHash << ") "
+										  << "at height " << block.Height;
 
 					if (element.OptionalStatement)
 						CATAPULT_LOG(info) << FormatBlockStatementLog(*element.OptionalStatement);

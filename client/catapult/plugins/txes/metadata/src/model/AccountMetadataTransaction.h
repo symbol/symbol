@@ -32,8 +32,7 @@ namespace catapult { namespace model {
 	/// Binary layout for an account metadata transaction body.
 	template<typename THeader>
 	struct AccountMetadataTransactionBody
-			: public BasicMetadataTransactionBody<MetadataTransactionHeader<THeader>, Entity_Type_Account_Metadata>
-	{};
+			: public BasicMetadataTransactionBody<MetadataTransactionHeader<THeader>, Entity_Type_Account_Metadata> {};
 
 	DEFINE_EMBEDDABLE_TRANSACTION(AccountMetadata)
 
@@ -44,4 +43,3 @@ namespace catapult { namespace model {
 		return { transaction.TargetAddress };
 	}
 }}
-

@@ -36,8 +36,8 @@ namespace catapult { namespace mongo {
 		/// Creates an aggregate around \a storages.
 		explicit AggregateExternalCacheStorage(StorageContainer&& storages)
 				: ExternalCacheStorage(utils::ReduceNames(utils::ExtractNames(storages)), 0)
-				, m_storages(std::move(storages))
-		{}
+				, m_storages(std::move(storages)) {
+		}
 
 	public:
 		void saveDelta(const cache::CacheChanges& changes) override {

@@ -31,8 +31,9 @@ namespace catapult { namespace io {
 	namespace {
 		class FileStreamContext {
 		public:
-			explicit FileStreamContext(const char* name) : m_guard(name)
-			{}
+			explicit FileStreamContext(const char* name)
+					: m_guard(name) {
+			}
 
 			auto outputStream() const {
 				return MakeStream(OpenMode::Read_Write);

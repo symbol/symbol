@@ -30,20 +30,14 @@ namespace catapult { namespace config {
 			using ConfigurationType = AggregateConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "maxTransactionsPerAggregate", "674" },
-							{ "maxCosignaturesPerAggregate", "52" },
+				return { { "",
+						   { { "maxTransactionsPerAggregate", "674" },
+							 { "maxCosignaturesPerAggregate", "52" },
 
-							{ "enableStrictCosignatureCheck", "true" },
-							{ "enableBondedAggregateSupport", "true" },
+							 { "enableStrictCosignatureCheck", "true" },
+							 { "enableBondedAggregateSupport", "true" },
 
-							{ "maxBondedTransactionLifetime", "14m" }
-						}
-					}
-				};
+							 { "maxBondedTransactionLifetime", "14m" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

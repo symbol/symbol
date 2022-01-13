@@ -35,8 +35,8 @@ namespace catapult { namespace io {
 
 		class BufferContext {
 		public:
-			explicit BufferContext(const char*)
-			{}
+			explicit BufferContext(const char*) {
+			}
 
 			auto outputStream() {
 				return std::make_unique<mocks::MockMemoryStream>(m_buffer);

@@ -26,8 +26,9 @@ namespace catapult { namespace local {
 	namespace {
 		struct ReadOnlyStorageAdapter : public io::BlockStorage {
 		public:
-			explicit ReadOnlyStorageAdapter(const io::BlockStorage& storage) : m_storage(storage)
-			{}
+			explicit ReadOnlyStorageAdapter(const io::BlockStorage& storage)
+					: m_storage(storage) {
+			}
 
 		public:
 			Height chainHeight() const override {

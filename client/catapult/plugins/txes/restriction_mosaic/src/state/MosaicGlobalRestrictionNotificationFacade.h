@@ -37,8 +37,8 @@ namespace catapult { namespace state {
 		/// Creates a facade around \a notification and \a resolvers.
 		MosaicGlobalRestrictionNotificationFacade(const NotificationType& notification, const model::ResolverContext& resolvers)
 				: m_notification(notification)
-				, m_resolvers(resolvers)
-		{}
+				, m_resolvers(resolvers) {
+		}
 
 	public:
 		/// Gets the unique key referenced by the notification.
@@ -73,17 +73,15 @@ namespace catapult { namespace state {
 		bool isMatch(const RuleType& rule) const {
 			auto notificationRule = toRule();
 			return rule.ReferenceMosaicId == notificationRule.ReferenceMosaicId
-					&& rule.RestrictionValue == notificationRule.RestrictionValue
-					&& rule.RestrictionType == notificationRule.RestrictionType;
+				   && rule.RestrictionValue == notificationRule.RestrictionValue
+				   && rule.RestrictionType == notificationRule.RestrictionType;
 		}
 
 		/// Gets the rule described by the notification.
 		RuleType toRule() const {
-			return {
-				m_resolvers.resolve(m_notification.ReferenceMosaicId),
-				m_notification.RestrictionValue,
-				m_notification.RestrictionType
-			};
+			return { m_resolvers.resolve(m_notification.ReferenceMosaicId),
+					 m_notification.RestrictionValue,
+					 m_notification.RestrictionType };
 		}
 
 		/// Gets the restriction described by the notification.

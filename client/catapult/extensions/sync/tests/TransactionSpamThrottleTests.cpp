@@ -76,8 +76,8 @@ namespace catapult { namespace sync {
 					, m_readOnlyCatapultCache(m_catapultCacheView.toReadOnly())
 					, m_height(height)
 					, m_transactionsCache(cache::MemoryCacheOptions(utils::FileSize(), utils::FileSize::FromMegabytes(1)))
-					, m_transactionsCacheModifier(m_transactionsCache.modifier())
-			{}
+					, m_transactionsCacheModifier(m_transactionsCache.modifier()) {
+			}
 
 		public:
 			cache::UtCacheModifierProxy& transactionsCacheModifier() {
@@ -107,12 +107,10 @@ namespace catapult { namespace sync {
 		enum class TransactionBondPolicy { Unbonded, Bonded };
 
 		struct ThrottleTestSettings {
-			SpamThrottleConfiguration ThrottleConfig{
-				Amount(10'000'000),
-				Importance(1'000'000),
-				utils::FileSize::FromBytes(1200 * test::GetDefaultRandomTransactionSize()),
-				120
-			};
+			SpamThrottleConfiguration ThrottleConfig{ Amount(10'000'000),
+													  Importance(1'000'000),
+													  utils::FileSize::FromBytes(1200 * test::GetDefaultRandomTransactionSize()),
+													  120 };
 			uint32_t CacheSeedCount = 120;
 			Importance DefaultImportance = Importance(1'000);
 			Importance SignerImportance = Importance();
@@ -206,12 +204,10 @@ namespace catapult { namespace sync {
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "for importance " << settings.SignerImportance;
 			auto cacheSize = utils::FileSize::FromBytes(settings.CacheSeedCount * test::GetDefaultRandomTransactionSize());
-			auto isBondedPredicateCalled =
-					settings.CacheSeedCount >= settings.ThrottleConfig.MaxTransactionsPerBlock
-					&& cacheSize < settings.ThrottleConfig.MaxCacheSize;
-			auto expectedTransactions = isBondedPredicateCalled
-					? std::vector<const model::Transaction*>{ transactionInfo.pEntity.get() }
-					: std::vector<const model::Transaction*>();
+			auto isBondedPredicateCalled = settings.CacheSeedCount >= settings.ThrottleConfig.MaxTransactionsPerBlock
+										   && cacheSize < settings.ThrottleConfig.MaxCacheSize;
+			auto expectedTransactions = isBondedPredicateCalled ? std::vector<const model::Transaction*>{ transactionInfo.pEntity.get() }
+																: std::vector<const model::Transaction*>();
 			EXPECT_EQ(expectedTransactions, transactions) << "for importance " << settings.SignerImportance;
 		}
 	}

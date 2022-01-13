@@ -25,8 +25,12 @@
 #include "catapult/types.h"
 
 namespace catapult {
-	namespace cache { class ReadOnlyCatapultCache; }
-	namespace state { class MosaicEntry; }
+namespace cache {
+	class ReadOnlyCatapultCache;
+}
+namespace state {
+	class MosaicEntry;
+}
 }
 
 namespace catapult { namespace validators {
@@ -39,10 +43,8 @@ namespace catapult { namespace validators {
 
 	public:
 		/// Iterator type returned by tryGet.
-		using FindIterator = cache::MosaicCacheTypes::CacheReadOnlyType::ReadOnlyFindIterator<
-			cache::MosaicCacheView::const_iterator,
-			cache::MosaicCacheDelta::const_iterator
-		>;
+		using FindIterator = cache::MosaicCacheTypes::CacheReadOnlyType::
+				ReadOnlyFindIterator<cache::MosaicCacheView::const_iterator, cache::MosaicCacheDelta::const_iterator>;
 
 	public:
 		/// Tries to get an entry iterator (\a iter) for an active mosaic with \a id at \a height.

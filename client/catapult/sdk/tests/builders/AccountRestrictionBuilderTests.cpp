@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "src/builders/AccountAddressRestrictionBuilder.h"
 #include "src/builders/AccountMosaicRestrictionBuilder.h"
 #include "src/builders/AccountOperationRestrictionBuilder.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 
 namespace catapult { namespace builders {
@@ -33,8 +33,9 @@ namespace catapult { namespace builders {
 		template<typename TRestrictionValue>
 		struct TransactionPropertiesT {
 		public:
-			TransactionPropertiesT() : RestrictionFlags(model::AccountRestrictionFlags(0))
-			{}
+			TransactionPropertiesT()
+					: RestrictionFlags(model::AccountRestrictionFlags(0)) {
+			}
 
 		public:
 			model::AccountRestrictionFlags RestrictionFlags;
@@ -147,7 +148,8 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits, typename TRestrictionTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits, typename TRestrictionTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Regular_Address) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<typename AddressTraits::RegularTraits, AddressTraits>(); \
 	} \
@@ -166,7 +168,8 @@ namespace catapult { namespace builders {
 	TEST(TEST_CLASS, TEST_NAME##_Embedded_Operation) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<typename OperationTraits::EmbeddedTraits, OperationTraits>(); \
 	} \
-	template<typename TTraits, typename TRestrictionTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits, typename TRestrictionTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
 

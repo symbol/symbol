@@ -30,13 +30,13 @@ namespace catapult { namespace harvesting {
 	}
 
 	BlockGeneratorAccountDescriptor::BlockGeneratorAccountDescriptor()
-			: BlockGeneratorAccountDescriptor(CreateZeroKeyPair(), CreateZeroKeyPair())
-	{}
+			: BlockGeneratorAccountDescriptor(CreateZeroKeyPair(), CreateZeroKeyPair()) {
+	}
 
 	BlockGeneratorAccountDescriptor::BlockGeneratorAccountDescriptor(crypto::KeyPair&& signingKeyPair, crypto::KeyPair&& vrfKeyPair)
 			: m_signingKeyPair(std::move(signingKeyPair))
-			, m_vrfKeyPair(std::move(vrfKeyPair))
-	{}
+			, m_vrfKeyPair(std::move(vrfKeyPair)) {
+	}
 
 	const crypto::KeyPair& BlockGeneratorAccountDescriptor::signingKeyPair() const {
 		return m_signingKeyPair;
@@ -47,8 +47,7 @@ namespace catapult { namespace harvesting {
 	}
 
 	bool BlockGeneratorAccountDescriptor::operator==(const BlockGeneratorAccountDescriptor& rhs) const {
-		return m_signingKeyPair.publicKey() == rhs.m_signingKeyPair.publicKey()
-				&& m_vrfKeyPair.publicKey() == rhs.m_vrfKeyPair.publicKey();
+		return m_signingKeyPair.publicKey() == rhs.m_signingKeyPair.publicKey() && m_vrfKeyPair.publicKey() == rhs.m_vrfKeyPair.publicKey();
 	}
 
 	bool BlockGeneratorAccountDescriptor::operator!=(const BlockGeneratorAccountDescriptor& rhs) const {

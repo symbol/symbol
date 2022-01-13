@@ -23,7 +23,9 @@
 #include "MongoDatabase.h"
 #include "MongoErrorPolicy.h"
 
-namespace catapult { namespace mongo { class MongoBulkWriter; } }
+namespace catapult { namespace mongo {
+	class MongoBulkWriter;
+}}
 
 namespace catapult { namespace mongo {
 
@@ -43,8 +45,8 @@ namespace catapult { namespace mongo {
 				: m_connectionPool(uri)
 				, m_databaseName(databaseName)
 				, m_pBulkWriter(pBulkWriter)
-				, m_errorPolicyMode(errorPolicyMode)
-		{}
+				, m_errorPolicyMode(errorPolicyMode) {
+		}
 
 	public:
 		/// Creates a mongo database connection.

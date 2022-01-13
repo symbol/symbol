@@ -75,9 +75,8 @@ namespace catapult { namespace nodediscovery {
 		public:
 			TestContext() {
 				// register dependent hooks
-				testState().state().hooks().addPacketPayloadSink([&payloads = m_payloads](const auto& payload) {
-					payloads.push_back(payload);
-				});
+				testState().state().hooks().addPacketPayloadSink(
+						[&payloads = m_payloads](const auto& payload) { payloads.push_back(payload); });
 			}
 
 		public:

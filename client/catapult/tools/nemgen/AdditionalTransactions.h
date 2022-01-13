@@ -23,8 +23,12 @@
 #include "catapult/model/BlockUtils.h"
 
 namespace catapult {
-	namespace model { class NotificationPublisher; }
-	namespace tools { namespace nemgen { struct NemesisConfiguration; } }
+namespace model {
+	class NotificationPublisher;
+}
+namespace tools { namespace nemgen {
+	struct NemesisConfiguration;
+}}
 }
 
 namespace catapult { namespace tools { namespace nemgen {

@@ -23,7 +23,9 @@
 #include "Task.h"
 #include <string>
 
-namespace catapult { namespace thread { class IoThreadPool; } }
+namespace catapult { namespace thread {
+	class IoThreadPool;
+}}
 
 namespace catapult { namespace thread {
 

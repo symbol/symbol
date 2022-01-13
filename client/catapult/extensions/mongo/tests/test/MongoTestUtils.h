@@ -27,9 +27,15 @@
 #include <mongocxx/client.hpp>
 
 namespace catapult {
-	namespace model { struct TransactionInfo; }
-	namespace mongo { class MongoTransactionRegistry; }
-	namespace state { struct AccountState; }
+namespace model {
+	struct TransactionInfo;
+}
+namespace mongo {
+	class MongoTransactionRegistry;
+}
+namespace state {
+	struct AccountState;
+}
 }
 
 namespace catapult { namespace test {
@@ -101,7 +107,7 @@ namespace catapult { namespace test {
 	};
 
 	template<typename TStorage>
-	using StorageFactory = std::function<std::unique_ptr<TStorage> (mongo::MongoStorageContext&, const mongo::MongoTransactionRegistry&)>;
+	using StorageFactory = std::function<std::unique_ptr<TStorage>(mongo::MongoStorageContext&, const mongo::MongoTransactionRegistry&)>;
 
 	/// Creates a mongo storage around \a pTransactionPlugin using \a dbInitializationType for initializing the database,
 	/// the specified error policy mode (\a errorPolicyMode) for inspecting errors and \a storageFactory to create the storage.

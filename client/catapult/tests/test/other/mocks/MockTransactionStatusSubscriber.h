@@ -38,8 +38,8 @@ namespace catapult { namespace mocks {
 				, pTransactionCopy(test::CopyEntity(transaction))
 				, Hash(hash)
 				, HashCopy(hash)
-				, Status(status)
-		{}
+				, Status(status) {
+		}
 
 	public:
 		/// Reference to the transaction.
@@ -66,8 +66,8 @@ namespace catapult { namespace mocks {
 		/// Creates a subscriber.
 		MockTransactionStatusSubscriber()
 				: m_numNotifies(0)
-				, m_numFlushes(0)
-		{}
+				, m_numFlushes(0) {
+		}
 
 	public:
 		/// Gets the number of notifyStatus calls.

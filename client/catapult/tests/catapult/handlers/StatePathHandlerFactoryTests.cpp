@@ -70,8 +70,8 @@ namespace catapult { namespace handlers {
 		public:
 			MockCacheView(bool result, const StatePath& path)
 					: m_result(result)
-					, m_path(path)
-			{}
+					, m_path(path) {
+			}
 
 		public:
 			auto tryLookup(const uint64_t&, StatePath& path) const {
@@ -88,8 +88,9 @@ namespace catapult { namespace handlers {
 
 		class MockCache {
 		public:
-			MockCache() : m_lookupResult(false)
-			{}
+			MockCache()
+					: m_lookupResult(false) {
+			}
 
 		public:
 			auto createView() const {
@@ -169,9 +170,8 @@ namespace catapult { namespace handlers {
 			}
 		};
 
-		using BasicHandlerTests = test::BasicBatchHandlerTests<
-			StatePathHandlerFactoryTraits,
-			CacheHandlerTraits<StatePathHandlerFactoryTraits>>;
+		using BasicHandlerTests =
+				test::BasicBatchHandlerTests<StatePathHandlerFactoryTraits, CacheHandlerTraits<StatePathHandlerFactoryTraits>>;
 
 		// endregion
 
@@ -205,7 +205,10 @@ namespace catapult { namespace handlers {
 		// endregion
 	}
 
-#define MAKE_BASIC_STATE_PATH_HANDLER_TEST(NAME) TEST(TEST_CLASS, NAME) { BasicHandlerTests::Assert##NAME(); }
+#define MAKE_BASIC_STATE_PATH_HANDLER_TEST(NAME) \
+	TEST(TEST_CLASS, NAME) { \
+		BasicHandlerTests::Assert##NAME(); \
+	}
 
 	MAKE_BASIC_STATE_PATH_HANDLER_TEST(TooSmallPacketIsRejected)
 	MAKE_BASIC_STATE_PATH_HANDLER_TEST(PacketWithWrongTypeIsRejected)

@@ -35,10 +35,7 @@ namespace catapult { namespace model {
 #undef DEFINE_ENUM
 
 	std::ostream& operator<<(std::ostream& out, const FinalizationMessage& message) {
-		out
-				<< "message for " << message.StepIdentifier
-				<< " at " << message.Height
-				<< " from " << message.Signature.Root.ParentPublicKey;
+		out << "message for " << message.StepIdentifier << " at " << message.Height << " from " << message.Signature.Root.ParentPublicKey;
 
 		for (auto i = 0u; i < message.HashesCount; ++i)
 			out << std::endl << " + " << message.HashesPtr()[i] << " @ " << message.Height + Height(i);
@@ -48,10 +45,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		RawBuffer ToBuffer(const FinalizationMessage& message) {
-			return {
-				reinterpret_cast<const uint8_t*>(&message) + FinalizationMessage::Header_Size,
-				message.Size - FinalizationMessage::Header_Size
-			};
+			return { reinterpret_cast<const uint8_t*>(&message) + FinalizationMessage::Header_Size,
+					 message.Size - FinalizationMessage::Header_Size };
 		}
 	}
 

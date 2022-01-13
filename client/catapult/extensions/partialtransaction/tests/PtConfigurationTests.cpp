@@ -32,15 +32,7 @@ namespace catapult { namespace partialtransaction {
 			using ConfigurationType = PtConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"partialtransactions",
-						{
-							{ "cacheMaxResponseSize", "234KB" },
-							{ "cacheMaxSize", "98MB" }
-						}
-					}
-				};
+				return { { "partialtransactions", { { "cacheMaxResponseSize", "234KB" }, { "cacheMaxSize", "98MB" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

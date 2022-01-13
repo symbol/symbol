@@ -30,8 +30,9 @@ namespace catapult { namespace handlers {
 	struct HeightRequestInfo {
 	public:
 		/// Creates a height request info.
-		constexpr HeightRequestInfo() : pRequest(nullptr)
-		{}
+		constexpr HeightRequestInfo()
+				: pRequest(nullptr) {
+		}
 
 	public:
 		/// Current chain height.

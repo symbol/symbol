@@ -49,8 +49,8 @@ namespace catapult { namespace cache {
 				: BlockStatisticCacheViewMixins::Size(statisticSets.Primary)
 				, BlockStatisticCacheViewMixins::Contains(statisticSets.Primary)
 				, BlockStatisticCacheViewMixins::Iteration(statisticSets.Primary)
-				, BlockStatisticCacheViewMixins::BlockStatisticRange(statisticSets.Primary)
-		{}
+				, BlockStatisticCacheViewMixins::BlockStatisticRange(statisticSets.Primary) {
+		}
 	};
 
 	/// View on top of the block statistic cache.
@@ -58,7 +58,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a view around \a statisticSets and \a options.
 		BlockStatisticCacheView(const BlockStatisticCacheTypes::BaseSets& statisticSets, const BlockStatisticCacheTypes::Options& options)
-				: ReadOnlyViewSupplier(statisticSets, options)
-		{}
+				: ReadOnlyViewSupplier(statisticSets, options) {
+		}
 	};
 }}

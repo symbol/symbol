@@ -35,8 +35,8 @@ namespace catapult { namespace test {
 		explicit AggregateSubscriberTestContext(size_t numSubscribers = 3)
 				: m_subscribers(test::CreatePointers<TSubscriber>(numSubscribers))
 				, m_rawSubscribers(test::GetRawPointers(m_subscribers))
-				, m_aggregate(std::move(m_subscribers))
-		{}
+				, m_aggregate(std::move(m_subscribers)) {
+		}
 
 	public:
 		/// Gets the (const) subscribers.
@@ -65,7 +65,7 @@ namespace catapult { namespace test {
 	class Mock##SUBSCRIBER_NAME : public Unsupported##SUBSCRIBER_NAME { \
 	public: \
 		std::vector<const TransactionInfos*> CapturedInfos; \
-	\
+\
 	public: \
 		void FUNC_NAME(const TransactionInfos& transactionInfos) override { \
 			CapturedInfos.push_back(&transactionInfos); \
@@ -77,7 +77,7 @@ namespace catapult { namespace test {
 	class Mock##SUBSCRIBER_NAME : public Unsupported##SUBSCRIBER_NAME { \
 	public: \
 		size_t NumFlushes = 0; \
-	\
+\
 	public: \
 		void flush() override { \
 			++NumFlushes; \

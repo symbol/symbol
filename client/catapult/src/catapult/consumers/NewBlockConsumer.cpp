@@ -32,8 +32,8 @@ namespace catapult { namespace consumers {
 		public:
 			NewBlockConsumer(const NewBlockSink& newBlockSink, InputSource sinkSourceMask)
 					: m_newBlockSink(newBlockSink)
-					, m_sinkSourceMask(sinkSourceMask)
-			{}
+					, m_sinkSourceMask(sinkSourceMask) {
+			}
 
 		public:
 			ConsumerResult operator()(disruptor::ConsumerInput& input) const {

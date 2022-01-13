@@ -28,8 +28,8 @@
 
 namespace catapult { namespace consumers {
 
-	using disruptor::ConsumerResult;
 	using disruptor::BlockElements;
+	using disruptor::ConsumerResult;
 	using disruptor::TransactionElements;
 
 	/// Extracts all transaction hashes from \a elements.

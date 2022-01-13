@@ -32,23 +32,21 @@ namespace catapult { namespace utils {
 // declare and define a GreekLetters enumeration composed of some greek letters with an implicit backing type
 #define GREEK_LETTERS_LIST \
 	ENUM_VALUE(Alpha) \
-	\
+\
 	ENUM_VALUE(Beta) \
-	\
+\
 	ENUM_VALUE(Gamma) \
-	\
+\
 	ENUM_VALUE(Delta) \
-	\
+\
 	ENUM_VALUE(Epslion) \
-	\
+\
 	ENUM_VALUE(Zeta) \
-	\
+\
 	ENUM_VALUE(Eta)
 
 #define ENUM_VALUE(LABEL) LABEL,
-		enum class GreekLetters {
-			GREEK_LETTERS_LIST
-		};
+		enum class GreekLetters { GREEK_LETTERS_LIST };
 #undef ENUM_VALUE
 
 #define ENUM_LIST GREEK_LETTERS_LIST
@@ -92,9 +90,7 @@ namespace catapult { namespace utils {
 	namespace {
 // declare and define a GreekLetters enumeration composed of some greek letters with a uint8_t backing type
 #define ENUM_VALUE(LABEL) LABEL,
-		enum class GreekLettersByte : uint8_t {
-			GREEK_LETTERS_LIST
-		};
+		enum class GreekLettersByte : uint8_t { GREEK_LETTERS_LIST };
 #undef ENUM_VALUE
 
 #define ENUM_LIST GREEK_LETTERS_LIST
@@ -133,17 +129,15 @@ namespace catapult { namespace utils {
 // declare and define a VersionParts enumeration composed of version parts
 #define VERSION_PARTS_LIST \
 	ENUM_VALUE(Major) \
-	\
+\
 	ENUM_VALUE(Minor) \
-	\
+\
 	ENUM_VALUE(Build) \
-	\
+\
 	ENUM_VALUE(Revision)
 
 #define ENUM_VALUE(LABEL) LABEL,
-		enum class VersionParts {
-			VERSION_PARTS_LIST
-		};
+		enum class VersionParts { VERSION_PARTS_LIST };
 #undef ENUM_VALUE
 
 #define ENUM_LIST VERSION_PARTS_LIST
@@ -167,23 +161,21 @@ namespace catapult { namespace utils {
 // declare and define a GreekLettersExplicit enumeration composed of some greek letters with explicit values
 #define GREEK_LETTERS_LIST_EXPLICIT \
 	ENUM_VALUE(Alpha, 10) \
-	\
+\
 	ENUM_VALUE(Beta, 4) \
-	\
+\
 	ENUM_VALUE(Gamma, 7) \
-	\
+\
 	ENUM_VALUE(Delta, 18) \
-	\
+\
 	ENUM_VALUE(Epslion, 9) \
-	\
+\
 	ENUM_VALUE(Zeta, 2) \
-	\
+\
 	ENUM_VALUE(Eta, 5)
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
-		enum class GreekLettersExplicit {
-			GREEK_LETTERS_LIST_EXPLICIT
-		};
+		enum class GreekLettersExplicit { GREEK_LETTERS_LIST_EXPLICIT };
 #undef ENUM_VALUE
 
 #define ENUM_LIST GREEK_LETTERS_LIST_EXPLICIT
@@ -215,27 +207,20 @@ namespace catapult { namespace utils {
 
 	namespace {
 // declare and define multiple enums with a single value and varying backing types
-#define SINGLE_VALUE_ENUM_LIST \
-	ENUM_VALUE(Foo)
+#define SINGLE_VALUE_ENUM_LIST ENUM_VALUE(Foo)
 
 #define ENUM_LIST SINGLE_VALUE_ENUM_LIST
 
 #define ENUM_VALUE(LABEL) LABEL,
-		enum class SingleValueEnumUInt8 : uint8_t {
-			ENUM_LIST
-		};
+		enum class SingleValueEnumUInt8 : uint8_t { ENUM_LIST };
 #undef ENUM_VALUE
 
 #define ENUM_VALUE(LABEL) LABEL,
-		enum class SingleValueEnumImplicit {
-			ENUM_LIST
-		};
+		enum class SingleValueEnumImplicit { ENUM_LIST };
 #undef ENUM_VALUE
 
 #define ENUM_VALUE(LABEL) LABEL,
-		enum class SingleValueEnumUInt64 : uint64_t {
-			ENUM_LIST
-		};
+		enum class SingleValueEnumUInt64 : uint64_t { ENUM_LIST };
 #undef ENUM_VALUE
 
 // define and use the operator<< to avoid compiler warnings

@@ -25,19 +25,17 @@
 #include "catapult/state/TimestampedHash.h"
 #include "catapult/utils/TimeSpan.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicHashCacheDelta;
-		class BasicHashCacheView;
-		class HashCache;
-		class HashCacheDelta;
-		struct HashCachePrimarySerializer;
-		class HashCacheView;
+namespace catapult { namespace cache {
+	class BasicHashCacheDelta;
+	class BasicHashCacheView;
+	class HashCache;
+	class HashCacheDelta;
+	struct HashCachePrimarySerializer;
+	class HashCacheView;
 
-		template<typename TCache, typename TCacheDelta, typename TCacheKey>
-		class ReadOnlySimpleCache;
-	}
-}
+	template<typename TCache, typename TCacheDelta, typename TCacheKey>
+	class ReadOnlySimpleCache;
+}}
 
 namespace catapult { namespace cache {
 

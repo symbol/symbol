@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RESULT_DEFINITION
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace extensions {
+namespace catapult {
+namespace extensions {
 
 #endif
 /// Defines an extension validation result with \a DESCRIPTION and \a CODE.
@@ -39,5 +40,6 @@ namespace catapult { namespace extensions {
 	DEFINE_EXTENSION_RESULT(Read_Rate_Limit_Exceeded, 3);
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

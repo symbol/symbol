@@ -58,8 +58,8 @@ namespace catapult { namespace io {
 					, m_pStorageRaw(m_pStorage.get())
 					, m_pSubscriber(std::make_unique<TBlockChangeSubscriber>())
 					, m_pSubscriberRaw(m_pSubscriber.get())
-					, m_pAggregate(CreateAggregateBlockStorage(std::move(m_pStorage), std::move(m_pSubscriber)))
-			{}
+					, m_pAggregate(CreateAggregateBlockStorage(std::move(m_pStorage), std::move(m_pSubscriber))) {
+			}
 
 		public:
 			auto& storage() {
@@ -118,8 +118,9 @@ namespace catapult { namespace io {
 			model::HashRange Hashes;
 
 		public:
-			MockBlockStorage() : Hashes(test::GenerateRandomHashes(7))
-			{}
+			MockBlockStorage()
+					: Hashes(test::GenerateRandomHashes(7)) {
+			}
 
 		public:
 			model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override {
@@ -210,8 +211,8 @@ namespace catapult { namespace io {
 		public:
 			MockBlockStorageBlockLoader()
 					: pBlock(test::GenerateEmptyRandomBlock())
-					, pBlockElement(std::make_shared<model::BlockElement>(*pBlock))
-			{}
+					, pBlockElement(std::make_shared<model::BlockElement>(*pBlock)) {
+			}
 
 		public:
 			std::shared_ptr<const model::Block> loadBlock(Height height) const override {

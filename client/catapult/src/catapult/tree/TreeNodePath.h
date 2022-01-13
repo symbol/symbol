@@ -36,7 +36,8 @@ namespace catapult { namespace tree {
 
 		/// Creates a path from \a key.
 		template<typename TKey>
-		explicit TreeNodePath(TKey key) : m_adjustment(0) {
+		explicit TreeNodePath(TKey key)
+				: m_adjustment(0) {
 			if constexpr (utils::traits::is_scalar_v<TKey>) {
 				m_size = 2 * sizeof(TKey);
 				m_path.resize(sizeof(TKey));

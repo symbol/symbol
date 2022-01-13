@@ -29,12 +29,16 @@ namespace catapult { namespace utils {
 #define TEST_CLASS ByteArrayTests
 
 	namespace {
-		struct TestArray_tag { static constexpr size_t Size = 8; };
+		struct TestArray_tag {
+			static constexpr size_t Size = 8;
+		};
 		using TestArray = ByteArray<TestArray_tag>;
 
 		using AliasedArray = TestArray;
 
-		struct SameSizeArray_tag { static constexpr size_t Size = 8; };
+		struct SameSizeArray_tag {
+			static constexpr size_t Size = 8;
+		};
 		using SameSizeArray = ByteArray<SameSizeArray_tag>;
 
 		// region ReadAll utils
@@ -149,11 +153,9 @@ namespace catapult { namespace utils {
 
 	namespace {
 		std::vector<TestArray> GenerateIncreasingArrays() {
-			return {
-				TestArray{ { 1, 1, 1, 1, 1, 1, 1, 1 } },
-				TestArray{ { 2, 2, 2, 2, 1, 1, 1, 1 } },
-				TestArray{ { 2, 2, 2, 2, 1, 1, 1, 2 } }
-			};
+			return { TestArray{ { 1, 1, 1, 1, 1, 1, 1, 1 } },
+					 TestArray{ { 2, 2, 2, 2, 1, 1, 1, 1 } },
+					 TestArray{ { 2, 2, 2, 2, 1, 1, 1, 2 } } };
 		}
 	}
 

@@ -29,7 +29,9 @@
 #include <set>
 #include <unordered_map>
 
-namespace catapult { namespace cache { struct TransactionData; } }
+namespace catapult { namespace cache {
+	struct TransactionData;
+}}
 
 namespace catapult { namespace cache {
 

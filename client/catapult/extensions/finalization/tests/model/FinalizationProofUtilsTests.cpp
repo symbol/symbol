@@ -36,9 +36,8 @@ namespace catapult { namespace model {
 		}
 
 		size_t CalculateMessageGroupsSize(size_t numMessageGroups, size_t numHashes, size_t numSignatures) {
-			return numMessageGroups * sizeof(FinalizationMessageGroup)
-					+ numHashes * Hash256::Size
-					+ numSignatures * sizeof(crypto::BmTreeSignature);
+			return numMessageGroups * sizeof(FinalizationMessageGroup) + numHashes * Hash256::Size
+				   + numSignatures * sizeof(crypto::BmTreeSignature);
 		}
 
 		void AssertEqualStatistics(const FinalizationStatistics& expectedStatistics, const FinalizationProof& proof) {
@@ -353,27 +352,19 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithDifferentEpochs) {
-		RunFilteredMessageTest([](auto& message, auto id) {
-			message.StepIdentifier.Epoch = FinalizationEpoch(2 + id);
-		});
+		RunFilteredMessageTest([](auto& message, auto id) { message.StepIdentifier.Epoch = FinalizationEpoch(2 + id); });
 	}
 
 	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithDifferentPoints) {
-		RunFilteredMessageTest([](auto& message, auto id) {
-			SetPoint(message.StepIdentifier, FinalizationPoint(8 + id));
-		});
+		RunFilteredMessageTest([](auto& message, auto id) { SetPoint(message.StepIdentifier, FinalizationPoint(8 + id)); });
 	}
 
 	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithDifferentVersions) {
-		RunFilteredMessageTest([](auto& message, auto id) {
-			message.Version = id;
-		});
+		RunFilteredMessageTest([](auto& message, auto id) { message.Version = id; });
 	}
 
 	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithInvalidPadding) {
-		RunFilteredMessageTest([](auto& message, auto id) {
-			message.FinalizationMessage_Reserved1 = 0 == id % 2 ? 1 : 0;
-		});
+		RunFilteredMessageTest([](auto& message, auto id) { message.FinalizationMessage_Reserved1 = 0 == id % 2 ? 1 : 0; });
 	}
 
 	// endregion

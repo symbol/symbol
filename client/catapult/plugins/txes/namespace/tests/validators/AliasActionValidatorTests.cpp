@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AliasActionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AliasAction,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AliasAction, )
 
 	namespace {
 		struct AliasActionTraits {

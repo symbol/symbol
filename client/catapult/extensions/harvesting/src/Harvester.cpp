@@ -36,8 +36,8 @@ namespace catapult { namespace harvesting {
 					, ParentContext(parentBlockElement)
 					, Timestamp(nextTimestamp)
 					, Height(ParentBlock.Height + catapult::Height(1))
-					, BlockTime(utils::TimeSpan::FromDifference(Timestamp, ParentBlock.Timestamp))
-			{}
+					, BlockTime(utils::TimeSpan::FromDifference(Timestamp, ParentBlock.Timestamp)) {
+			}
 
 		public:
 			const model::Block& ParentBlock;
@@ -83,8 +83,8 @@ namespace catapult { namespace harvesting {
 			, m_config(config)
 			, m_beneficiary(beneficiary)
 			, m_unlockedAccounts(unlockedAccounts)
-			, m_blockGenerator(blockGenerator)
-	{}
+			, m_blockGenerator(blockGenerator) {
+	}
 
 	std::unique_ptr<model::Block> Harvester::harvest(const model::BlockElement& lastBlockElement, Timestamp timestamp) {
 		NextBlockContext context(lastBlockElement, timestamp);

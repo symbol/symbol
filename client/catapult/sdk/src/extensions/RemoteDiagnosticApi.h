@@ -29,7 +29,9 @@
 #include "catapult/state/TimestampedHash.h"
 #include "catapult/thread/Future.h"
 
-namespace catapult { namespace ionet { class PacketIo; } }
+namespace catapult { namespace ionet {
+	class PacketIo;
+}}
 
 namespace catapult { namespace extensions {
 
@@ -67,8 +69,7 @@ namespace catapult { namespace extensions {
 				model::EntityRange<NamespaceId>&& namespaceIds) const = 0;
 
 		/// Gets the mosaic infos for all mosaic ids in \a mosaicIds.
-		virtual future<model::EntityRange<model::CacheEntryInfo<MosaicId>>> mosaicInfos(
-				model::EntityRange<MosaicId>&& mosaicIds) const = 0;
+		virtual future<model::EntityRange<model::CacheEntryInfo<MosaicId>>> mosaicInfos(model::EntityRange<MosaicId>&& mosaicIds) const = 0;
 
 		/// Gets the metadata infos for all unique keys in \a uniqueKeys.
 		virtual future<model::EntityRange<model::CacheEntryInfo<Hash256>>> metadataInfos(

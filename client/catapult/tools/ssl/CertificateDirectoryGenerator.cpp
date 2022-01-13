@@ -43,22 +43,18 @@ namespace catapult { namespace tools { namespace ssl {
 			return builder;
 		}
 
-		enum class CertificateFlags {
-			None,
-			Expired,
-			Malformed_Signature
-		};
+		enum class CertificateFlags { None, Expired, Malformed_Signature };
 
 		auto ScenarioIdToFlags(ScenarioId scenarioId) {
 			switch (scenarioId) {
-				case ScenarioId::Expired_Ca_Certificate:
-				case ScenarioId::Expired_Node_Certificate:
-					return CertificateFlags::Expired;
-				case ScenarioId::Malformed_Ca_Certificate_Signature:
-				case ScenarioId::Malformed_Node_Certificate_Signature:
-					return CertificateFlags::Malformed_Signature;
-				default:
-					return CertificateFlags::None;
+			case ScenarioId::Expired_Ca_Certificate:
+			case ScenarioId::Expired_Node_Certificate:
+				return CertificateFlags::Expired;
+			case ScenarioId::Malformed_Ca_Certificate_Signature:
+			case ScenarioId::Malformed_Node_Certificate_Signature:
+				return CertificateFlags::Malformed_Signature;
+			default:
+				return CertificateFlags::None;
 			}
 		}
 

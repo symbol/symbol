@@ -59,8 +59,8 @@ namespace catapult { namespace handlers {
 				Producer(uint16_t seed, uint16_t count)
 						: m_seed(seed)
 						, m_count(count)
-						, m_index(0)
-				{}
+						, m_index(0) {
+				}
 
 			public:
 				std::shared_ptr<SimpleEntity> operator()() {
@@ -225,8 +225,7 @@ namespace catapult { namespace handlers {
 	TEST(TEST_CLASS, RegisterZero_MaxPacketDataSizeIsRespected_AsValues) {
 		// Arrange:
 		uint32_t maxPacketDataSize = sizeof(SimpleEntity) * 3 / 2;
-		RunZeroValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(maxPacketDataSize), [](
-				const auto& handlerContext) {
+		RunZeroValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(maxPacketDataSize), [](const auto& handlerContext) {
 			// Assert: response was aborted because it was too large
 			EXPECT_TRUE(handlerContext.hasResponse());
 			test::AssertPacketPayloadUnset(handlerContext.response());
@@ -241,9 +240,7 @@ namespace catapult { namespace handlers {
 		void AssertOneRequestPacketIsRejected(uint32_t payloadSize, ionet::PacketType type, uint32_t adjustmentSize = 0) {
 			// Assert:
 			AssertRequestPacketIsRejected(payloadSize, type, adjustmentSize, [](auto& handlers, auto action) {
-				BatchHandlerFactory<SimpleEntityTraits>::RegisterOne(handlers, [action](const auto&) {
-					return action();
-				});
+				BatchHandlerFactory<SimpleEntityTraits>::RegisterOne(handlers, [action](const auto&) { return action(); });
 			});
 		}
 	}

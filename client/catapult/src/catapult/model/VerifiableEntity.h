@@ -23,7 +23,9 @@
 #include "EntityBody.h"
 #include "SizePrefixedEntity.h"
 
-namespace catapult { namespace model { class TransactionRegistry; } }
+namespace catapult { namespace model {
+	class TransactionRegistry;
+}}
 
 namespace catapult { namespace model {
 

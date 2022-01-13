@@ -26,7 +26,9 @@
 #include "catapult/model/Elements.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mocks { struct MockReceipt; } }
+namespace catapult { namespace mocks {
+	struct MockReceipt;
+}}
 
 namespace catapult { namespace test {
 
@@ -43,10 +45,7 @@ namespace catapult { namespace test {
 	void AssertEqualSource(const model::ReceiptSource& source, const bsoncxx::document::view& sourceView, const std::string& message = "");
 
 	/// Verifies that model \a receipt is equal to db entity (\a receiptView); \a message is used to output additional information.
-	void AssertEqualReceipt(
-			const mocks::MockReceipt& receipt,
-			const bsoncxx::document::view& receiptView,
-			const std::string& message = "");
+	void AssertEqualReceipt(const mocks::MockReceipt& receipt, const bsoncxx::document::view& receiptView, const std::string& message = "");
 
 	/// Verifies that model transaction \a statement at \a height is equal to db entity (\a statementView) and that the db entity has
 	/// \a expectedFieldCount fields; \a index is used to output additional information.

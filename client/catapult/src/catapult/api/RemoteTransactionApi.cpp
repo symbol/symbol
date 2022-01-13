@@ -70,8 +70,8 @@ namespace catapult { namespace api {
 					const model::TransactionRegistry& registry)
 					: RemoteTransactionApi(remoteIdentity)
 					, m_registry(registry)
-					, m_impl(io)
-			{}
+					, m_impl(io) {
+			}
 
 		public:
 			FutureType<UtTraits> unconfirmedTransactions(

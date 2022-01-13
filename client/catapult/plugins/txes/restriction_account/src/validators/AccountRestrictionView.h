@@ -25,7 +25,9 @@
 #include "catapult/validators/ValidationResult.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace cache { class ReadOnlyCatapultCache; } }
+namespace catapult { namespace cache {
+	class ReadOnlyCatapultCache;
+}}
 
 namespace catapult { namespace validators {
 
@@ -62,9 +64,8 @@ namespace catapult { namespace validators {
 
 	private:
 		using FindIterator = cache::AccountRestrictionCacheTypes::CacheReadOnlyType::ReadOnlyFindIterator<
-			cache::AccountRestrictionCacheView::const_iterator,
-			cache::AccountRestrictionCacheDelta::const_iterator
-		>;
+				cache::AccountRestrictionCacheView::const_iterator,
+				cache::AccountRestrictionCacheDelta::const_iterator>;
 
 		const cache::ReadOnlyCatapultCache& m_cache;
 		FindIterator m_iter;

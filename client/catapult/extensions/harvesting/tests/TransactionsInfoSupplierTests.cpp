@@ -68,8 +68,8 @@ namespace catapult { namespace harvesting {
 					: m_catapultCache(test::CreateCatapultCacheWithMarkerAccount(Height(7)))
 					, m_utFacadeFactory(m_catapultCache, CreateBlockchainConfiguration(), m_executionConfig.Config, EmptyHashSupplier)
 					, m_pUtCache(test::CreateSeededMemoryUtCache(utCacheSize))
-					, m_supplier(CreateTransactionsInfoSupplier(strategy, [](const auto&) { return Multiplier; }, *m_pUtCache))
-			{}
+					, m_supplier(CreateTransactionsInfoSupplier(strategy, [](const auto&) { return Multiplier; }, *m_pUtCache)) {
+			}
 
 		public:
 			auto supply(uint32_t count) {
@@ -85,13 +85,18 @@ namespace catapult { namespace harvesting {
 		public:
 			void seedCacheForSelectionTests() {
 				// add 10 transaction infos to UT cache with varying sizes and multipliers
-				test::AddAll(*m_pUtCache, test::CreateTransactionInfosFromSizeMultiplierPairs({
-					{ 200, 240 }, { 250, 230 },
-					{ 225, 820 }, { 275, 810 },
-					{ 300, 420 }, { 350, 410 },
-					{ 325, 210 }, { 375, 200 },
-					{ 400, 810 }, { 450, 800 }
-				}));
+				test::AddAll(
+						*m_pUtCache,
+						test::CreateTransactionInfosFromSizeMultiplierPairs({ { 200, 240 },
+																			  { 250, 230 },
+																			  { 225, 820 },
+																			  { 275, 810 },
+																			  { 300, 420 },
+																			  { 350, 410 },
+																			  { 325, 210 },
+																			  { 375, 200 },
+																			  { 400, 810 },
+																			  { 450, 800 } }));
 			}
 
 			void setValidationFailureAt(size_t triggerMin, size_t triggerMax = 0) {
@@ -171,11 +176,19 @@ namespace catapult { namespace harvesting {
 	// region basic
 
 #define STRATEGY_BASED_TEST(TEST_NAME) \
-	template<TransactionSelectionStrategy Strategy> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Oldest) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionSelectionStrategy::Oldest>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MinimizeFee) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionSelectionStrategy::Minimize_Fee>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MaximizeFee) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionSelectionStrategy::Maximize_Fee>(); } \
-	template<TransactionSelectionStrategy Strategy> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<TransactionSelectionStrategy Strategy> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Oldest) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionSelectionStrategy::Oldest>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MinimizeFee) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionSelectionStrategy::Minimize_Fee>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MaximizeFee) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionSelectionStrategy::Maximize_Fee>(); \
+	} \
+	template<TransactionSelectionStrategy Strategy> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		void AssertEmptySupplierResults(TransactionSelectionStrategy strategy, uint32_t count, uint32_t numRequested) {

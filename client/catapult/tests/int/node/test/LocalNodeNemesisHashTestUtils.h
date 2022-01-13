@@ -23,7 +23,9 @@
 #include "catapult/types.h"
 #include "tests/test/local/BlockStateHash.h"
 
-namespace catapult { namespace config { class CatapultConfiguration; } }
+namespace catapult { namespace config {
+	class CatapultConfiguration;
+}}
 
 namespace catapult { namespace test {
 

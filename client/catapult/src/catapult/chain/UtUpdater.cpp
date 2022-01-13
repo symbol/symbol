@@ -36,8 +36,8 @@ namespace catapult { namespace chain {
 		struct ApplyState {
 			constexpr ApplyState(cache::UtCacheModifierProxy& modifier, cache::CatapultCacheDelta& unconfirmedCatapultCache)
 					: Modifier(modifier)
-					, UnconfirmedCatapultCache(unconfirmedCatapultCache)
-			{}
+					, UnconfirmedCatapultCache(unconfirmedCatapultCache) {
+			}
 
 			cache::UtCacheModifierProxy& Modifier;
 			cache::CatapultCacheDelta& UnconfirmedCatapultCache;
@@ -45,18 +45,15 @@ namespace catapult { namespace chain {
 
 		class TransactionInfoFormatter {
 		public:
-			explicit TransactionInfoFormatter(const model::TransactionInfo& transactionInfo) : m_transactionInfo(transactionInfo)
-			{}
+			explicit TransactionInfoFormatter(const model::TransactionInfo& transactionInfo)
+					: m_transactionInfo(transactionInfo) {
+			}
 
 		public:
 			friend std::ostream& operator<<(std::ostream& out, const TransactionInfoFormatter& formatter) {
 				const auto& transaction = *formatter.m_transactionInfo.pEntity;
-				out
-						<< "{ EntityHash " << formatter.m_transactionInfo.EntityHash
-						<< ", Type " << transaction.Type
-						<< ", Version " << static_cast<uint16_t>(transaction.Version)
-						<< ", SignerPublicKey " << transaction.SignerPublicKey
-						<< " }";
+				out << "{ EntityHash " << formatter.m_transactionInfo.EntityHash << ", Type " << transaction.Type << ", Version "
+					<< static_cast<uint16_t>(transaction.Version) << ", SignerPublicKey " << transaction.SignerPublicKey << " }";
 				return out;
 			}
 
@@ -67,22 +64,21 @@ namespace catapult { namespace chain {
 
 	class UtUpdater::Impl final {
 	public:
-		Impl(
-				cache::UtCache& transactionsCache,
-				const cache::CatapultCache& confirmedCatapultCache,
-				BlockFeeMultiplier minFeeMultiplier,
-				const ExecutionConfiguration& executionConfig,
-				const TimeSupplier& timeSupplier,
-				const FailedTransactionSink& failedTransactionSink,
-				const Throttle& throttle)
+		Impl(cache::UtCache& transactionsCache,
+			 const cache::CatapultCache& confirmedCatapultCache,
+			 BlockFeeMultiplier minFeeMultiplier,
+			 const ExecutionConfiguration& executionConfig,
+			 const TimeSupplier& timeSupplier,
+			 const FailedTransactionSink& failedTransactionSink,
+			 const Throttle& throttle)
 				: m_transactionsCache(transactionsCache)
 				, m_detachedCatapultCache(confirmedCatapultCache)
 				, m_minFeeMultiplier(minFeeMultiplier)
 				, m_executionConfig(executionConfig)
 				, m_timeSupplier(timeSupplier)
 				, m_failedTransactionSink(failedTransactionSink)
-				, m_throttle(throttle)
-		{}
+				, m_throttle(throttle) {
+		}
 
 	public:
 		std::vector<UtUpdateResult> update(const std::vector<model::TransactionInfo>& utInfos) {
@@ -108,9 +104,8 @@ namespace catapult { namespace chain {
 
 		void update(const utils::HashPointerSet& confirmedTransactionHashes, const std::vector<model::TransactionInfo>& utInfos) {
 			if (!confirmedTransactionHashes.empty() || !utInfos.empty()) {
-				CATAPULT_LOG(debug)
-						<< "confirmed " << confirmedTransactionHashes.size() << " transactions, "
-						<< "reverted " << utInfos.size() << " transactions";
+				CATAPULT_LOG(debug) << "confirmed " << confirmedTransactionHashes.size() << " transactions, "
+									<< "reverted " << utInfos.size() << " transactions";
 			}
 
 			// 1. lock and clear the UT cache - UT cache must be locked before catapult cache to prevent race condition whereby
@@ -169,9 +164,8 @@ namespace catapult { namespace chain {
 				if (entity.MaxFee < minTransactionFee) {
 					// don't log reverted transactions that could have been included by harvester with lower min fee multiplier
 					if (TransactionSource::New == transactionSource) {
-						CATAPULT_LOG(debug)
-								<< "dropping transaction " << TransactionInfoFormatter(utInfo) << " with max fee " << entity.MaxFee
-								<< " because min fee is " << minTransactionFee;
+						CATAPULT_LOG(debug) << "dropping transaction " << TransactionInfoFormatter(utInfo) << " with max fee "
+											<< entity.MaxFee << " because min fee is " << minTransactionFee;
 					}
 
 					updateResults.push_back({ UtUpdateResult::UpdateType::Neutral });
@@ -252,14 +246,14 @@ namespace catapult { namespace chain {
 			const FailedTransactionSink& failedTransactionSink,
 			const Throttle& throttle)
 			: m_pImpl(std::make_unique<Impl>(
-					transactionsCache,
-					confirmedCatapultCache,
-					minFeeMultiplier,
-					executionConfig,
-					timeSupplier,
-					failedTransactionSink,
-					throttle))
-	{}
+					  transactionsCache,
+					  confirmedCatapultCache,
+					  minFeeMultiplier,
+					  executionConfig,
+					  timeSupplier,
+					  failedTransactionSink,
+					  throttle)) {
+	}
 
 	UtUpdater::~UtUpdater() = default;
 

@@ -37,7 +37,8 @@ namespace catapult { namespace syncsource {
 
 		class TestContext : public test::ServiceLocatorTestContext<SyncSourceServiceTraits> {
 		public:
-			explicit TestContext(bool isChainSynced = true) : m_numPushedBlockElements(0) {
+			explicit TestContext(bool isChainSynced = true)
+					: m_numPushedBlockElements(0) {
 				// set up hooks (only increment the counters if the input source is correct)
 				auto& hooks = testState().state().hooks();
 				hooks.setChainSyncedPredicate([isChainSynced]() { return isChainSynced; });

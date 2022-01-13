@@ -35,8 +35,8 @@ namespace catapult { namespace builders {
 			TransactionProperties()
 					: HashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256)
 					, Secret()
-					, Recipient()
-			{}
+					, Recipient() {
+			}
 
 		public:
 			model::LockHashAlgorithm HashAlgorithm;
@@ -80,10 +80,16 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
 
@@ -136,9 +142,7 @@ namespace catapult { namespace builders {
 		expectedProperties.Proof = proof;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(20, expectedProperties, [&proof](auto& builder) {
-			builder.setProof(proof);
-		});
+		AssertCanBuildTransaction<TTraits>(20, expectedProperties, [&proof](auto& builder) { builder.setProof(proof); });
 	}
 
 	// endregion

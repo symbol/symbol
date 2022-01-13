@@ -35,10 +35,10 @@ namespace catapult { namespace ionet {
 			explicit TestContext(const std::vector<uint32_t>& rawTimestamps)
 					: m_numRateExceededTriggers(0)
 					, m_monitor(
-							{ 5, utils::TimeSpan::FromMilliseconds(111), utils::FileSize::FromBytes(5 * 1234) },
-							test::CreateTimeSupplierFromMilliseconds(rawTimestamps),
-							[&numRateExceededTriggers = m_numRateExceededTriggers]() { ++numRateExceededTriggers; })
-			{}
+							  { 5, utils::TimeSpan::FromMilliseconds(111), utils::FileSize::FromBytes(5 * 1234) },
+							  test::CreateTimeSupplierFromMilliseconds(rawTimestamps),
+							  [&numRateExceededTriggers = m_numRateExceededTriggers]() { ++numRateExceededTriggers; }) {
+			}
 
 		public:
 			size_t numRateExceededTriggers() const {

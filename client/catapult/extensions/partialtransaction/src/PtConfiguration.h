@@ -23,7 +23,9 @@
 #include "catapult/utils/FileSize.h"
 #include <filesystem>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace partialtransaction {
 

@@ -32,9 +32,7 @@ namespace catapult { namespace test {
 
 	model::ResolverContext CreateResolverContextXor() {
 		return model::ResolverContext(
-				[](const auto& unresolved) {
-					return MosaicId(unresolved.unwrap() ^ 0xFFFFFFFFFFFFFFFF);
-				},
+				[](const auto& unresolved) { return MosaicId(unresolved.unwrap() ^ 0xFFFFFFFFFFFFFFFF); },
 				[](const auto& unresolved) {
 					auto i = 0u;
 					Address resolved;

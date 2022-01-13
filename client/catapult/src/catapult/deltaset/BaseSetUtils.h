@@ -28,9 +28,7 @@ namespace catapult { namespace deltaset {
 	/// Returns \c true if any element is found or \c false if none is found.
 	template<typename TContainer, typename TElements>
 	bool ContainsAny(const TContainer& container, const TElements& elements) {
-		return std::any_of(elements.cbegin(), elements.cend(), [&container](const auto& pElement) {
-			return container.contains(pElement);
-		});
+		return std::any_of(elements.cbegin(), elements.cend(), [&container](const auto& pElement) { return container.contains(pElement); });
 	}
 
 	/// Inserts all \a elements into the container (\a pContainer).

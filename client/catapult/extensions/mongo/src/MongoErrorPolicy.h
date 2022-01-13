@@ -24,7 +24,9 @@
 #include <string>
 #include <stdint.h>
 
-namespace catapult { namespace mongo { struct BulkWriteResult; } }
+namespace catapult { namespace mongo {
+	struct BulkWriteResult;
+}}
 
 namespace catapult { namespace mongo {
 
@@ -64,11 +66,8 @@ namespace catapult { namespace mongo {
 
 	private:
 		[[noreturn]]
-		void formatMessageAndThrow(
-				const char* operation,
-				uint64_t numExpected,
-				uint64_t numActual,
-				const std::string& itemsDescription) const;
+		void formatMessageAndThrow(const char* operation, uint64_t numExpected, uint64_t numActual, const std::string& itemsDescription)
+				const;
 
 	private:
 		std::string m_collectionName;

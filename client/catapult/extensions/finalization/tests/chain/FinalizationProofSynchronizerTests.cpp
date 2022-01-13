@@ -47,17 +47,17 @@ namespace catapult { namespace chain {
 					, m_pProofStorageRaw(m_pProofStorage.get())
 					, m_proofStorageCache(std::move(m_pProofStorage))
 					, m_synchronizer(CreateFinalizationProofSynchronizer(
-							votingSetGrouping,
-							unfinalizedBlocksDuration,
-							*m_pBlockStorageCache,
-							m_proofStorageCache,
-							[this](const auto&) {
-								++m_numValidationCalls;
-								return m_validationResult;
-							}))
+							  votingSetGrouping,
+							  unfinalizedBlocksDuration,
+							  *m_pBlockStorageCache,
+							  m_proofStorageCache,
+							  [this](const auto&) {
+								  ++m_numValidationCalls;
+								  return m_validationResult;
+							  }))
 					, m_numValidationCalls(0)
-					, m_validationResult(true)
-			{}
+					, m_validationResult(true) {
+			}
 
 		public:
 			auto& api() {

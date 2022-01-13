@@ -24,7 +24,8 @@
 
 namespace catapult { namespace state {
 
-	Namespace::Namespace(const Path& path) : m_path(path) {
+	Namespace::Namespace(const Path& path)
+			: m_path(path) {
 		if (m_path.empty())
 			CATAPULT_THROW_OUT_OF_RANGE("path cannot be empty");
 	}

@@ -46,37 +46,31 @@ namespace catapult { namespace plugins {
 			});
 		});
 
-		manager.addStatelessValidatorHook([](auto& builder) {
-			builder.add(validators::CreateMultisigCosignatoriesValidator());
-		});
+		manager.addStatelessValidatorHook([](auto& builder) { builder.add(validators::CreateMultisigCosignatoriesValidator()); });
 
 		auto config = model::LoadPluginConfiguration<config::MultisigConfiguration>(manager.config(), "catapult.plugins.multisig");
 		manager.addStatefulValidatorHook([config, &transactionRegistry = manager.transactionRegistry()](auto& builder) {
-			builder
-				.add(validators::CreateMultisigPermittedOperationValidator())
-				.add(validators::CreateMultisigMaxCosignedAccountsValidator(config.MaxCosignedAccountsPerAccount))
-				.add(validators::CreateMultisigMaxCosignatoriesValidator(config.MaxCosignatoriesPerAccount))
-				.add(validators::CreateMultisigInvalidCosignatoriesValidator())
-				.add(validators::CreateMultisigInvalidSettingsValidator())
-				// notice that MultisigLoopAndLevelValidator must be called before multisig aggregate validators
-				.add(validators::CreateMultisigLoopAndLevelValidator(config.MaxMultisigDepth))
-				// notice that ineligible cosignatories must dominate missing cosignatures in order for cosignatory aggregation to work
-				.add(validators::CreateMultisigAggregateEligibleCosignatoriesValidator(transactionRegistry))
-				.add(validators::CreateMultisigAggregateSufficientCosignatoriesValidator(transactionRegistry));
+			builder.add(validators::CreateMultisigPermittedOperationValidator())
+					.add(validators::CreateMultisigMaxCosignedAccountsValidator(config.MaxCosignedAccountsPerAccount))
+					.add(validators::CreateMultisigMaxCosignatoriesValidator(config.MaxCosignatoriesPerAccount))
+					.add(validators::CreateMultisigInvalidCosignatoriesValidator())
+					.add(validators::CreateMultisigInvalidSettingsValidator())
+					// notice that MultisigLoopAndLevelValidator must be called before multisig aggregate validators
+					.add(validators::CreateMultisigLoopAndLevelValidator(config.MaxMultisigDepth))
+					// notice that ineligible cosignatories must dominate missing cosignatures in order for cosignatory aggregation to work
+					.add(validators::CreateMultisigAggregateEligibleCosignatoriesValidator(transactionRegistry))
+					.add(validators::CreateMultisigAggregateSufficientCosignatoriesValidator(transactionRegistry));
 		});
 
 		manager.addObserverHook([](auto& builder) {
 			// notice that MultisigCosignatoriesObserver must be called before MultisigSettingsObserver because
 			// the MultisigSettingsObserver interprets a missing entry in the multisig cache for the notification signer
 			// as conversion from a multisig to a normal account done by the MultisigCosignatoriesObserver
-			builder
-				.add(observers::CreateMultisigCosignatoriesObserver())
-				.add(observers::CreateMultisigSettingsObserver());
+			builder.add(observers::CreateMultisigCosignatoriesObserver()).add(observers::CreateMultisigSettingsObserver());
 		});
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterMultisigSubsystem(manager);
 }

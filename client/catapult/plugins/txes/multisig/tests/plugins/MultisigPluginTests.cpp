@@ -34,14 +34,12 @@ namespace catapult { namespace plugins {
 			static void RunTestAfterRegistration(TAction action) {
 				// Arrange:
 				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.Plugins.emplace("catapult.plugins.multisig", utils::ConfigurationBag({{
-					"",
-					{
-						{ "maxMultisigDepth", "0" },
-						{ "maxCosignatoriesPerAccount", "0" },
-						{ "maxCosignedAccountsPerAccount", "0" }
-					}
-				}}));
+				config.Plugins.emplace(
+						"catapult.plugins.multisig",
+						utils::ConfigurationBag({ { "",
+													{ { "maxMultisigDepth", "0" },
+													  { "maxCosignatoriesPerAccount", "0" },
+													  { "maxCosignedAccountsPerAccount", "0" } } } }));
 
 				auto manager = test::CreatePluginManager(config);
 				RegisterMultisigSubsystem(manager);
@@ -76,16 +74,14 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
-				return {
-					"MultisigPermittedOperationValidator",
-					"MultisigMaxCosignedAccountsValidator",
-					"MultisigMaxCosignatoriesValidator",
-					"MultisigInvalidCosignatoriesValidator",
-					"MultisigInvalidSettingsValidator",
-					"MultisigLoopAndLevelValidator",
-					"MultisigAggregateEligibleCosignatoriesValidator",
-					"MultisigAggregateSufficientCosignatoriesValidator"
-				};
+				return { "MultisigPermittedOperationValidator",
+						 "MultisigMaxCosignedAccountsValidator",
+						 "MultisigMaxCosignatoriesValidator",
+						 "MultisigInvalidCosignatoriesValidator",
+						 "MultisigInvalidSettingsValidator",
+						 "MultisigLoopAndLevelValidator",
+						 "MultisigAggregateEligibleCosignatoriesValidator",
+						 "MultisigAggregateSufficientCosignatoriesValidator" };
 			}
 
 			static std::vector<std::string> GetObserverNames() {

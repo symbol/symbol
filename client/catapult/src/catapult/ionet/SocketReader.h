@@ -25,12 +25,10 @@
 #include "catapult/model/NodeIdentity.h"
 #include <memory>
 
-namespace catapult {
-	namespace ionet {
-		class BatchPacketReader;
-		class PacketIo;
-	}
-}
+namespace catapult { namespace ionet {
+	class BatchPacketReader;
+	class PacketIo;
+}}
 
 namespace catapult { namespace ionet {
 

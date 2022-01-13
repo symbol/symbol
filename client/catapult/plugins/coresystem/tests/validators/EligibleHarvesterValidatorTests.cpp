@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS EligibleHarvesterValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(EligibleHarvester,)
+	DEFINE_COMMON_VALIDATOR_TESTS(EligibleHarvester, )
 
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);

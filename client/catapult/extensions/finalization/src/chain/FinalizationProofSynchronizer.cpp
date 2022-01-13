@@ -44,30 +44,28 @@ namespace catapult { namespace chain {
 					, m_unfinalizedBlocksDuration(unfinalizedBlocksDuration)
 					, m_blockStorage(blockStorage)
 					, m_proofStorage(proofStorage)
-					, m_proofValidator(proofValidator)
-			{}
+					, m_proofValidator(proofValidator) {
+			}
 
 		public:
 			NodeInteractionFuture operator()(const api::RemoteProofApi& api) {
 				auto localFinalizedHeight = m_proofStorage.view().statistics().Height;
 				auto requestEpoch = calculateRequestEpoch(localFinalizedHeight);
 				if (FinalizationEpoch() == requestEpoch) {
-					CATAPULT_LOG(trace)
-							<< "skipping proof pull with request epoch " << requestEpoch
-							<< " and local finalized height " << localFinalizedHeight;
+					CATAPULT_LOG(trace) << "skipping proof pull with request epoch " << requestEpoch << " and local finalized height "
+										<< localFinalizedHeight;
 					return thread::make_ready_future(ionet::NodeInteractionResultCode::Neutral);
 				}
 
 				auto startFuture = thread::compose(
-					api.finalizationStatistics(),
-					[&api, localFinalizedHeight, requestEpoch](auto&& finalizationStatisticsFuture) {
-						auto remoteFinalizationStatistics = finalizationStatisticsFuture.get();
-						auto shouldPullProof = requestEpoch <= remoteFinalizationStatistics.Round.Epoch
-								&& localFinalizedHeight < remoteFinalizationStatistics.Height;
-						return shouldPullProof
-								? api.proofAt(requestEpoch)
-								: thread::make_ready_future(std::shared_ptr<const model::FinalizationProof>());
-					});
+						api.finalizationStatistics(),
+						[&api, localFinalizedHeight, requestEpoch](auto&& finalizationStatisticsFuture) {
+							auto remoteFinalizationStatistics = finalizationStatisticsFuture.get();
+							auto shouldPullProof = requestEpoch <= remoteFinalizationStatistics.Round.Epoch
+												   && localFinalizedHeight < remoteFinalizationStatistics.Height;
+							return shouldPullProof ? api.proofAt(requestEpoch)
+												   : thread::make_ready_future(std::shared_ptr<const model::FinalizationProof>());
+						});
 
 				auto& proofStorage = m_proofStorage;
 				auto proofValidator = m_proofValidator;
@@ -75,9 +73,8 @@ namespace catapult { namespace chain {
 					try {
 						auto pProof = proofFuture.get();
 						if (!pProof) {
-							CATAPULT_LOG(debug)
-									<< "could not receive proof with request epoch " << requestEpoch
-									<< " and local finalized height " << localFinalizedHeight;
+							CATAPULT_LOG(debug) << "could not receive proof with request epoch " << requestEpoch
+												<< " and local finalized height " << localFinalizedHeight;
 							return ionet::NodeInteractionResultCode::Neutral;
 						}
 
@@ -95,15 +92,12 @@ namespace catapult { namespace chain {
 							return ionet::NodeInteractionResultCode::Failure;
 						}
 
-						CATAPULT_LOG(debug)
-								<< "saving proof for round " << pProof->Round << " at height " << pProof->Height
-								<< " with hash " << pProof->Hash;
+						CATAPULT_LOG(debug) << "saving proof for round " << pProof->Round << " at height " << pProof->Height
+											<< " with hash " << pProof->Hash;
 						proofStorage.modifier().saveProof(*pProof);
 						return ionet::NodeInteractionResultCode::Success;
 					} catch (const catapult_runtime_error& e) {
-						CATAPULT_LOG(warning)
-								<< "exception thrown while requesting proof for epoch " << requestEpoch
-								<< ": " << e.what();
+						CATAPULT_LOG(warning) << "exception thrown while requesting proof for epoch " << requestEpoch << ": " << e.what();
 						return ionet::NodeInteractionResultCode::Failure;
 					}
 				});
@@ -123,8 +117,8 @@ namespace catapult { namespace chain {
 				if (BlockDuration() != m_unfinalizedBlocksDuration && unfinalizedBlocksDuration >= m_unfinalizedBlocksDuration) {
 					auto epoch = model::CalculateFinalizationEpochForHeight(localFinalizedHeight, m_votingSetGrouping);
 					return model::CalculateVotingSetEndHeight(epoch, m_votingSetGrouping) != localFinalizedHeight
-							? epoch
-							: epoch + FinalizationEpoch(1);
+								   ? epoch
+								   : epoch + FinalizationEpoch(1);
 				}
 
 				return FinalizationEpoch();

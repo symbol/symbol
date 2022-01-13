@@ -24,7 +24,8 @@
 
 namespace catapult { namespace state {
 
-	AccountRestrictions::AccountRestrictions(const Address& address) : m_address(address) {
+	AccountRestrictions::AccountRestrictions(const Address& address)
+			: m_address(address) {
 		constexpr auto Outgoing = model::AccountRestrictionFlags::Outgoing;
 
 		addRestriction(model::AccountRestrictionFlags::Address, Address::Size);
@@ -42,9 +43,7 @@ namespace catapult { namespace state {
 	}
 
 	bool AccountRestrictions::isEmpty() const {
-		return std::all_of(begin(), end(), [](const auto& pair) {
-			return pair.second.values().empty();
-		});
+		return std::all_of(begin(), end(), [](const auto& pair) { return pair.second.values().empty(); });
 	}
 
 	const AccountRestriction& AccountRestrictions::restriction(model::AccountRestrictionFlags restrictionFlags) const {

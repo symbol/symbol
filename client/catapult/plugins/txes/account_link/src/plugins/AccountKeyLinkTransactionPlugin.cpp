@@ -40,9 +40,10 @@ namespace catapult { namespace plugins {
 			}
 
 			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
-			sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, {
-				PublicKeyToAddress(transaction.LinkedPublicKey, transaction.Network).template copyTo<UnresolvedAddress>()
-			}));
+			sub.notify(AddressInteractionNotification(
+					context.SignerAddress,
+					transaction.Type,
+					{ PublicKeyToAddress(transaction.LinkedPublicKey, transaction.Network).template copyTo<UnresolvedAddress>() }));
 			sub.notify(RemoteAccountKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
 		}
 	}

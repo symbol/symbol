@@ -29,8 +29,9 @@ namespace catapult { namespace api {
 	namespace {
 		class CustomRemoteApi : public RemoteApi {
 		public:
-			explicit CustomRemoteApi(const model::NodeIdentity& remoteIdentity) : RemoteApi(remoteIdentity)
-			{}
+			explicit CustomRemoteApi(const model::NodeIdentity& remoteIdentity)
+					: RemoteApi(remoteIdentity) {
+			}
 		};
 	}
 

@@ -63,17 +63,13 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a nameSize and \a pName given \a namespaceId and \a parentId.
-		NamespaceNameNotification(
-				catapult::NamespaceId namespaceId,
-				catapult::NamespaceId parentId,
-				uint8_t nameSize,
-				const uint8_t* pName)
+		NamespaceNameNotification(catapult::NamespaceId namespaceId, catapult::NamespaceId parentId, uint8_t nameSize, const uint8_t* pName)
 				: Notification(Notification_Type, sizeof(NamespaceNameNotification))
 				, NamespaceId(namespaceId)
 				, ParentId(parentId)
 				, NameSize(nameSize)
-				, NamePtr(pName)
-		{}
+				, NamePtr(pName) {
+		}
 
 	public:
 		/// Id of the namespace.
@@ -103,8 +99,8 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a registrationType.
 		explicit NamespaceRegistrationNotification(NamespaceRegistrationType registrationType)
 				: Notification(Notification_Type, sizeof(NamespaceRegistrationNotification))
-				, RegistrationType(registrationType)
-		{}
+				, RegistrationType(registrationType) {
+		}
 
 	public:
 		/// Type of the registered namespace.
@@ -127,8 +123,8 @@ namespace catapult { namespace model {
 				: Notification(Notification_Type, sizeof(RootNamespaceNotification))
 				, Owner(owner)
 				, NamespaceId(namespaceId)
-				, Duration(duration)
-		{}
+				, Duration(duration) {
+		}
 
 	public:
 		/// Namespace owner.
@@ -157,8 +153,8 @@ namespace catapult { namespace model {
 				: Notification(Notification_Type, sizeof(ChildNamespaceNotification))
 				, Owner(owner)
 				, NamespaceId(namespaceId)
-				, ParentId(parentId)
-		{}
+				, ParentId(parentId) {
+		}
 
 	public:
 		/// Namespace owner.
@@ -189,8 +185,8 @@ namespace catapult { namespace model {
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount)
 				: BasicBalanceNotification(sender, mosaicId, amount)
-				, Recipient(recipient)
-		{}
+				, Recipient(recipient) {
+		}
 
 	public:
 		/// Recipient.
@@ -212,8 +208,8 @@ namespace catapult { namespace model {
 		NamespaceRequiredNotification(const ResolvableAddress& owner, NamespaceId namespaceId)
 				: Notification(Notification_Type, sizeof(NamespaceRequiredNotification))
 				, Owner(owner)
-				, NamespaceId(namespaceId)
-		{}
+				, NamespaceId(namespaceId) {
+		}
 
 	public:
 		/// Namespace owner (resolvable).

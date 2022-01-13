@@ -26,7 +26,9 @@
 namespace catapult { namespace mocks {
 
 	/// Mock packet socket for use in decorator tests.
-	class MockPacketSocket : public ionet::PacketSocket, public MockPacketIo {
+	class MockPacketSocket
+			: public ionet::PacketSocket
+			, public MockPacketIo {
 	public:
 		/// Creates a socket.
 		MockPacketSocket()
@@ -34,8 +36,8 @@ namespace catapult { namespace mocks {
 				, m_numCloseCalls(0)
 				, m_numAbortCalls(0)
 				, m_numBufferedCalls(0)
-				, m_pBufferedIo(std::make_shared<MockPacketIo>())
-		{}
+				, m_pBufferedIo(std::make_shared<MockPacketIo>()) {
+		}
 
 	public:
 		/// Number of times stats was called.
@@ -97,11 +99,11 @@ namespace catapult { namespace mocks {
 			callback();
 		}
 
-		void close() override{
+		void close() override {
 			++m_numCloseCalls;
 		}
 
-		void abort() override{
+		void abort() override {
 			++m_numAbortCalls;
 		}
 

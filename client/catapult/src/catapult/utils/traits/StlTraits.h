@@ -33,16 +33,16 @@ namespace catapult { namespace utils { namespace traits {
 	template<typename T>
 	struct is_map : std::false_type {};
 
-	template<typename ...TArgs>
+	template<typename... TArgs>
 	struct is_map<std::map<TArgs...>> : std::true_type {};
 
-	template<typename ...TArgs>
+	template<typename... TArgs>
 	struct is_map<const std::map<TArgs...>> : std::true_type {};
 
-	template<typename ...TArgs>
+	template<typename... TArgs>
 	struct is_map<std::unordered_map<TArgs...>> : std::true_type {};
 
-	template<typename ...TArgs>
+	template<typename... TArgs>
 	struct is_map<const std::unordered_map<TArgs...>> : std::true_type {};
 
 	/// \c true if T is a standard map type, \c false otherwise.
@@ -58,16 +58,16 @@ namespace catapult { namespace utils { namespace traits {
 	template<typename T>
 	struct is_ordered : std::false_type {};
 
-	template<typename ...TArgs>
+	template<typename... TArgs>
 	struct is_ordered<std::set<TArgs...>> : std::true_type {};
 
-	template<typename ...TArgs>
+	template<typename... TArgs>
 	struct is_ordered<const std::set<TArgs...>> : std::true_type {};
 
-	template<typename ...TArgs>
+	template<typename... TArgs>
 	struct is_ordered<std::map<TArgs...>> : std::true_type {};
 
-	template<typename ...TArgs>
+	template<typename... TArgs>
 	struct is_ordered<const std::map<TArgs...>> : std::true_type {};
 
 	/// \c true if T is a standard ordered set or map type, \c false otherwise.

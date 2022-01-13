@@ -38,8 +38,8 @@ namespace catapult { namespace test {
 			CacheStorageWrapper()
 					: m_pPool(CreateStartedIoThreadPool(Num_Default_Mongo_Test_Pool_Threads))
 					, m_pMongoContext(CreateDefaultMongoStorageContext(DatabaseName(), *m_pPool))
-					, m_pCacheStorage(TTraits::CreateCacheStorage(*m_pMongoContext, TTraits::Network_Id))
-			{}
+					, m_pCacheStorage(TTraits::CreateCacheStorage(*m_pMongoContext, TTraits::Network_Id)) {
+			}
 
 		public:
 			mongo::ExternalCacheStorage& get() {

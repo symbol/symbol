@@ -116,11 +116,9 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, DiagnosticCountersHandler_WritesCountsInResponseToValidRequest_MultipleCounters) {
 		// Arrange:
-		auto counters = CountersVector{
-			utils::DiagnosticCounter(utils::DiagnosticCounterId(123), []() { return 7; }),
-			utils::DiagnosticCounter(utils::DiagnosticCounterId(777), []() { return 88; }),
-			utils::DiagnosticCounter(utils::DiagnosticCounterId(225), []() { return 222; })
-		};
+		auto counters = CountersVector{ utils::DiagnosticCounter(utils::DiagnosticCounterId(123), []() { return 7; }),
+										utils::DiagnosticCounter(utils::DiagnosticCounterId(777), []() { return 88; }),
+										utils::DiagnosticCounter(utils::DiagnosticCounterId(225), []() { return 222; }) };
 
 		// Asssert:
 		AssertDiagnosticCountersHandlerWritesCountsInResponseToValidRequest(counters, [](const auto& handlerContext) {
@@ -273,19 +271,21 @@ namespace catapult { namespace handlers {
 
 		// Assert:
 		auto expectedPacketSize = sizeof(ionet::PackedNodeInfo) + 2 * sizeof(ionet::PackedConnectionState);
-		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, expectedPacketSize, [&keys](
-				const auto& handlerContext) {
-			ASSERT_EQ(1u, handlerContext.response().buffers().size());
+		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(
+				nodeContainer,
+				expectedPacketSize,
+				[&keys](const auto& handlerContext) {
+					ASSERT_EQ(1u, handlerContext.response().buffers().size());
 
-			const auto& nodeInfo = reinterpret_cast<const ionet::PackedNodeInfo&>(*handlerContext.response().buffers()[0].pData);
-			EXPECT_EQ(keys[1], nodeInfo.IdentityKey);
-			EXPECT_EQ(ionet::NodeSource::Dynamic, nodeInfo.Source);
-			EXPECT_EQ(2u, nodeInfo.Interactions.NumSuccesses);
-			EXPECT_EQ(1u, nodeInfo.Interactions.NumFailures);
-			ASSERT_EQ(2u, nodeInfo.ConnectionStatesCount);
-			AssertConnectionState(nodeInfo, ionet::ServiceIdentifier(123), 0, 5, 6);
-			AssertConnectionState(nodeInfo, ionet::ServiceIdentifier(987), 49, 16, 9);
-		});
+					const auto& nodeInfo = reinterpret_cast<const ionet::PackedNodeInfo&>(*handlerContext.response().buffers()[0].pData);
+					EXPECT_EQ(keys[1], nodeInfo.IdentityKey);
+					EXPECT_EQ(ionet::NodeSource::Dynamic, nodeInfo.Source);
+					EXPECT_EQ(2u, nodeInfo.Interactions.NumSuccesses);
+					EXPECT_EQ(1u, nodeInfo.Interactions.NumFailures);
+					ASSERT_EQ(2u, nodeInfo.ConnectionStatesCount);
+					AssertConnectionState(nodeInfo, ionet::ServiceIdentifier(123), 0, 5, 6);
+					AssertConnectionState(nodeInfo, ionet::ServiceIdentifier(987), 49, 16, 9);
+				});
 	}
 
 	namespace {
@@ -330,44 +330,46 @@ namespace catapult { namespace handlers {
 
 		// Assert:
 		auto expectedPacketSize = 3 * sizeof(ionet::PackedNodeInfo) + 6 * sizeof(ionet::PackedConnectionState);
-		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, expectedPacketSize, [&keys](
-				const auto& handlerContext) {
-			// - there are three buffers
-			const auto& buffers = handlerContext.response().buffers();
-			ASSERT_EQ(3u, buffers.size());
+		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(
+				nodeContainer,
+				expectedPacketSize,
+				[&keys](const auto& handlerContext) {
+					// - there are three buffers
+					const auto& buffers = handlerContext.response().buffers();
+					ASSERT_EQ(3u, buffers.size());
 
-			std::vector<const ionet::PackedNodeInfo*> nodeInfos;
-			for (const auto& buffer : buffers)
-				nodeInfos.push_back(reinterpret_cast<const ionet::PackedNodeInfo*>(buffer.pData));
+					std::vector<const ionet::PackedNodeInfo*> nodeInfos;
+					for (const auto& buffer : buffers)
+						nodeInfos.push_back(reinterpret_cast<const ionet::PackedNodeInfo*>(buffer.pData));
 
-			// - the buffers have correct data in any order
-			const auto& nodeInfo1 = FindByKey(nodeInfos, keys[0]);
-			EXPECT_EQ(keys[0], nodeInfo1.IdentityKey);
-			EXPECT_EQ(ionet::NodeSource::Static, nodeInfo1.Source);
-			EXPECT_EQ(1u, nodeInfo1.Interactions.NumSuccesses);
-			EXPECT_EQ(0u, nodeInfo1.Interactions.NumFailures);
-			ASSERT_EQ(3u, nodeInfo1.ConnectionStatesCount);
-			AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(123), 7, 3, 2);
-			AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(888), 0, 2, 1);
-			AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(222), 5, 1, 0);
+					// - the buffers have correct data in any order
+					const auto& nodeInfo1 = FindByKey(nodeInfos, keys[0]);
+					EXPECT_EQ(keys[0], nodeInfo1.IdentityKey);
+					EXPECT_EQ(ionet::NodeSource::Static, nodeInfo1.Source);
+					EXPECT_EQ(1u, nodeInfo1.Interactions.NumSuccesses);
+					EXPECT_EQ(0u, nodeInfo1.Interactions.NumFailures);
+					ASSERT_EQ(3u, nodeInfo1.ConnectionStatesCount);
+					AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(123), 7, 3, 2);
+					AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(888), 0, 2, 1);
+					AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(222), 5, 1, 0);
 
-			const auto& nodeInfo2 = FindByKey(nodeInfos, keys[1]);
-			EXPECT_EQ(keys[1], nodeInfo2.IdentityKey);
-			EXPECT_EQ(ionet::NodeSource::Dynamic, nodeInfo2.Source);
-			EXPECT_EQ(1u, nodeInfo2.Interactions.NumSuccesses);
-			EXPECT_EQ(1u, nodeInfo2.Interactions.NumFailures);
-			ASSERT_EQ(2u, nodeInfo2.ConnectionStatesCount);
-			AssertConnectionState(nodeInfo2, ionet::ServiceIdentifier(123), 1, 5, 6);
-			AssertConnectionState(nodeInfo2, ionet::ServiceIdentifier(987), 49, 16, 9);
+					const auto& nodeInfo2 = FindByKey(nodeInfos, keys[1]);
+					EXPECT_EQ(keys[1], nodeInfo2.IdentityKey);
+					EXPECT_EQ(ionet::NodeSource::Dynamic, nodeInfo2.Source);
+					EXPECT_EQ(1u, nodeInfo2.Interactions.NumSuccesses);
+					EXPECT_EQ(1u, nodeInfo2.Interactions.NumFailures);
+					ASSERT_EQ(2u, nodeInfo2.ConnectionStatesCount);
+					AssertConnectionState(nodeInfo2, ionet::ServiceIdentifier(123), 1, 5, 6);
+					AssertConnectionState(nodeInfo2, ionet::ServiceIdentifier(987), 49, 16, 9);
 
-			const auto& nodeInfo3 = FindByKey(nodeInfos, keys[2]);
-			EXPECT_EQ(keys[2], nodeInfo3.IdentityKey);
-			EXPECT_EQ(ionet::NodeSource::Local, nodeInfo3.Source);
-			EXPECT_EQ(0u, nodeInfo3.Interactions.NumSuccesses);
-			EXPECT_EQ(1u, nodeInfo3.Interactions.NumFailures);
-			ASSERT_EQ(1u, nodeInfo3.ConnectionStatesCount);
-			AssertConnectionState(nodeInfo3, ionet::ServiceIdentifier(111), 9, 5, 4);
-		});
+					const auto& nodeInfo3 = FindByKey(nodeInfos, keys[2]);
+					EXPECT_EQ(keys[2], nodeInfo3.IdentityKey);
+					EXPECT_EQ(ionet::NodeSource::Local, nodeInfo3.Source);
+					EXPECT_EQ(0u, nodeInfo3.Interactions.NumSuccesses);
+					EXPECT_EQ(1u, nodeInfo3.Interactions.NumFailures);
+					ASSERT_EQ(1u, nodeInfo3.ConnectionStatesCount);
+					AssertConnectionState(nodeInfo3, ionet::ServiceIdentifier(111), 9, 5, 4);
+				});
 	}
 
 	// endregion
@@ -441,12 +443,14 @@ namespace catapult { namespace handlers {
 
 			// Act + Assert:
 			auto expectedData = test::SerializeBlockStatement(*blockElement.OptionalStatement);
-			AssertBlockStatementHandlerWritesStatementDataInResponseToValidRequest(storage, expectedData.size(), [&expectedData](
-					const auto& buffers) {
-				const auto& blockStatementData = buffers[0];
-				ASSERT_EQ(expectedData.size(), blockStatementData.Size);
-				EXPECT_EQ_MEMORY(expectedData.data(), blockStatementData.pData, expectedData.size());
-			});
+			AssertBlockStatementHandlerWritesStatementDataInResponseToValidRequest(
+					storage,
+					expectedData.size(),
+					[&expectedData](const auto& buffers) {
+						const auto& blockStatementData = buffers[0];
+						ASSERT_EQ(expectedData.size(), blockStatementData.Size);
+						EXPECT_EQ_MEMORY(expectedData.data(), blockStatementData.pData, expectedData.size());
+					});
 		}
 	}
 

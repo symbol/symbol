@@ -83,7 +83,7 @@ namespace catapult { namespace handlers {
 			using ResponseType = UnconfirmedTransactions;
 			using RetrieverParamType = utils::ShortHashesSet;
 
-			using UtRetrieverAdapter = std::function<UnconfirmedTransactions (const utils::ShortHashesSet&)>;
+			using UtRetrieverAdapter = std::function<UnconfirmedTransactions(const utils::ShortHashesSet&)>;
 			static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever) {
 				handlers::RegisterPullTransactionsHandler(handlers, [utRetriever](auto, auto, const auto& knownShortHashes) {
 					return utRetriever(knownShortHashes);
@@ -118,14 +118,18 @@ namespace catapult { namespace handlers {
 
 #pragma pack(pop)
 
-			using UtRetrieverAdapter = std::function<UnconfirmedTransactions (const FilterType&, const utils::ShortHashesSet&)>;
+			using UtRetrieverAdapter = std::function<UnconfirmedTransactions(const FilterType&, const utils::ShortHashesSet&)>;
 			static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever) {
-				handlers::RegisterPullTransactionsHandler(handlers, [utRetriever](
-						auto minDeadline,
-						auto minFeeMultiplier,
-						const auto& knownShortHashes) {
-					return utRetriever({ minDeadline, minFeeMultiplier, }, knownShortHashes);
-				});
+				handlers::RegisterPullTransactionsHandler(
+						handlers,
+						[utRetriever](auto minDeadline, auto minFeeMultiplier, const auto& knownShortHashes) {
+							return utRetriever(
+									{
+											minDeadline,
+											minFeeMultiplier,
+									},
+									knownShortHashes);
+						});
 			}
 
 		public:

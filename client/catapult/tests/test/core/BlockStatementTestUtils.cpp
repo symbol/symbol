@@ -29,8 +29,8 @@ namespace catapult { namespace test {
 
 	namespace {
 		template<typename T>
-		void SetSourcePrimaryId(const T&, uint32_t)
-		{}
+		void SetSourcePrimaryId(const T&, uint32_t) {
+		}
 
 		void SetSourcePrimaryId(model::ReceiptSource& source, uint32_t id) {
 			source.PrimaryId = id;

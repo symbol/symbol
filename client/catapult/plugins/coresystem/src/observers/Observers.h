@@ -25,8 +25,12 @@
 #include "catapult/observers/ObserverTypes.h"
 
 namespace catapult {
-	namespace importance { class ImportanceCalculator; }
-	namespace model { class InflationCalculator; }
+namespace importance {
+	class ImportanceCalculator;
+}
+namespace model {
+	class InflationCalculator;
+}
 }
 
 namespace catapult { namespace observers {
@@ -60,9 +64,9 @@ namespace catapult { namespace observers {
 
 	/// Observes block notifications and triggers importance recalculations using either \a pCommitCalculator (for commits)
 	/// or \a pRollbackCalculator (for rollbacks).
-	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)(
-			std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
-			std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator);
+	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)
+	(std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
+	 std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator);
 
 	/// Observes block notifications and credits the harvester and, optionally, additional accounts specified in \a options
 	/// with the currency mosaic given the specified inflation \a calculator.
@@ -72,9 +76,8 @@ namespace catapult { namespace observers {
 	DECLARE_OBSERVER(Beneficiary, model::BlockNotification)();
 
 	/// Observes block statistics and updates dynamic fee multiplier given \a maxDifficultyBlocks and \a defaultDynamicFeeMultiplier.
-	DECLARE_OBSERVER(BlockStatistic, model::BlockNotification)(
-			uint32_t maxDifficultyBlocks,
-			BlockFeeMultiplier defaultDynamicFeeMultiplier);
+	DECLARE_OBSERVER(BlockStatistic, model::BlockNotification)
+	(uint32_t maxDifficultyBlocks, BlockFeeMultiplier defaultDynamicFeeMultiplier);
 
 	/// Observes block notifications and counts transactions.
 	DECLARE_OBSERVER(TotalTransactions, model::BlockNotification)();

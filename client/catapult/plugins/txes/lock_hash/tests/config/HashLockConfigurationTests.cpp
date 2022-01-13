@@ -30,15 +30,7 @@ namespace catapult { namespace config {
 			using ConfigurationType = HashLockConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "lockedFundsPerAggregate", "123'000'000" },
-							{ "maxHashLockDuration", "12'345d" }
-						}
-					}
-				};
+				return { { "", { { "lockedFundsPerAggregate", "123'000'000" }, { "maxHashLockDuration", "12'345d" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

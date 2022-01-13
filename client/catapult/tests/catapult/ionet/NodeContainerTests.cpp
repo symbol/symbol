@@ -307,11 +307,9 @@ namespace catapult { namespace ionet {
 		const auto& view = container.view();
 		EXPECT_EQ(3u, view.size());
 
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "bob", NodeSource::Dynamic },
-			{ keys[1], "alice", NodeSource::Local },
-			{ keys[2], "charlie", NodeSource::Dynamic }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[0], "bob", NodeSource::Dynamic },
+														{ keys[1], "alice", NodeSource::Local },
+														{ keys[2], "charlie", NodeSource::Dynamic } };
 		EXPECT_EQ(expectedContents, test::CollectAll(view));
 	}
 
@@ -374,10 +372,8 @@ namespace catapult { namespace ionet {
 		const auto& view = container.view();
 		EXPECT_EQ(2u, view.size());
 
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "bob", NodeSource::Dynamic },
-			{ keys[2], "charlie", NodeSource::Dynamic }
-		};
+		auto expectedContents =
+				BasicNodeDataContainer{ { keys[0], "bob", NodeSource::Dynamic }, { keys[2], "charlie", NodeSource::Dynamic } };
 		EXPECT_EQ(expectedContents, test::CollectAll(view));
 	}
 
@@ -633,11 +629,9 @@ namespace catapult { namespace ionet {
 		const auto& view = container.view();
 		EXPECT_EQ(3u, view.size());
 
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[1], "alice", NodeSource::Dynamic },
-			{ keys[2], "charlie", NodeSource::Dynamic },
-			{ keys[3], "doris", NodeSource::Dynamic }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[1], "alice", NodeSource::Dynamic },
+														{ keys[2], "charlie", NodeSource::Dynamic },
+														{ keys[3], "doris", NodeSource::Dynamic } };
 		EXPECT_EQ(expectedContents, test::CollectAll(view));
 	}
 
@@ -656,11 +650,9 @@ namespace catapult { namespace ionet {
 		const auto& view = container.view();
 		EXPECT_EQ(3u, view.size());
 
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "bob", NodeSource::Dynamic },
-			{ keys[1], "alice", NodeSource::Static },
-			{ keys[2], "charlie", NodeSource::Dynamic }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[0], "bob", NodeSource::Dynamic },
+														{ keys[1], "alice", NodeSource::Static },
+														{ keys[2], "charlie", NodeSource::Dynamic } };
 		EXPECT_EQ(expectedContents, test::CollectAll(view));
 	}
 
@@ -681,11 +673,9 @@ namespace catapult { namespace ionet {
 		const auto& view = container.view();
 		EXPECT_EQ(3u, view.size());
 
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "bob", NodeSource::Static },
-			{ keys[1], "alice", NodeSource::Static },
-			{ keys[2], "charlie", NodeSource::Static }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[0], "bob", NodeSource::Static },
+														{ keys[1], "alice", NodeSource::Static },
+														{ keys[2], "charlie", NodeSource::Static } };
 		EXPECT_EQ(expectedContents, test::CollectAll(view));
 	}
 
@@ -1239,9 +1229,7 @@ namespace catapult { namespace ionet {
 		}
 
 		// Act:
-		{
-			container.modifier().pruneBannedNodes();
-		}
+		{ container.modifier().pruneBannedNodes(); }
 
 		// Assert:
 		auto view = container.view();
@@ -1363,9 +1351,7 @@ namespace catapult { namespace ionet {
 		auto identities = test::ExtractNodeIdentities(nodes);
 
 		// Assert:
-		test::AssertEqualIdentities(
-				test::ToIdentitiesSet({ ToIdentity(keys[0]), ToIdentity(keys[2]), ToIdentity(keys[4]) }),
-				identities);
+		test::AssertEqualIdentities(test::ToIdentitiesSet({ ToIdentity(keys[0]), ToIdentity(keys[2]), ToIdentity(keys[4]) }), identities);
 	}
 
 	TEST(TEST_CLASS, FindAllActiveNodesReturnsAllNodesWithAnyActiveConnectionThatPassSourceFilter) {

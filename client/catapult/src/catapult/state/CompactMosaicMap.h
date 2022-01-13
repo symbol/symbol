@@ -42,11 +42,13 @@ namespace catapult { namespace state {
 		// gcc strict aliasing workaround because pair<X, Y> and pair<const X, Y> are two different types
 		struct MosaicUnion {
 		public:
-			MosaicUnion() : Mosaic()
-			{}
+			MosaicUnion()
+					: Mosaic() {
+			}
 
-			MosaicUnion(MosaicUnion&& rhs) : Mosaic(std::move(rhs.Mosaic))
-			{}
+			MosaicUnion(MosaicUnion&& rhs)
+					: Mosaic(std::move(rhs.Mosaic)) {
+			}
 
 		public:
 			MosaicUnion& operator=(MosaicUnion&& rhs) {
@@ -99,8 +101,8 @@ namespace catapult { namespace state {
 			MosaicLocation()
 					: Source(static_cast<MosaicSource>(-1))
 					, ArrayIndex(0)
-					, MapIterator()
-			{}
+					, MapIterator() {
+			}
 
 		public:
 			MosaicSource Source;

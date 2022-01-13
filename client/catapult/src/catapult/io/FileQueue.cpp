@@ -51,14 +51,15 @@ namespace catapult { namespace io {
 
 	// region FileQueueWriter
 
-	FileQueueWriter::FileQueueWriter(const std::string& directory) : FileQueueWriter(directory, "index.dat")
-	{}
+	FileQueueWriter::FileQueueWriter(const std::string& directory)
+			: FileQueueWriter(directory, "index.dat") {
+	}
 
 	FileQueueWriter::FileQueueWriter(const std::string& directory, const std::string& indexFilename)
 			: m_directory(CreateDirectory(directory))
 			, m_indexFile((m_directory / indexFilename).generic_string(), LockMode::None)
-			, m_indexValue(CreateIfNotExists(m_indexFile) ? 0 : m_indexFile.get())
-	{}
+			, m_indexValue(CreateIfNotExists(m_indexFile) ? 0 : m_indexFile.get()) {
+	}
 
 	void FileQueueWriter::write(const RawBuffer& buffer) {
 		if (!m_pOutputStream) {
@@ -92,8 +93,9 @@ namespace catapult { namespace io {
 		}
 	}
 
-	FileQueueReader::FileQueueReader(const std::string& directory) : FileQueueReader(directory, "index_reader.dat", "index.dat")
-	{}
+	FileQueueReader::FileQueueReader(const std::string& directory)
+			: FileQueueReader(directory, "index_reader.dat", "index.dat") {
+	}
 
 	FileQueueReader::FileQueueReader(
 			const std::string& directory,
@@ -127,9 +129,7 @@ namespace catapult { namespace io {
 
 	void FileQueueReader::skip(uint32_t count) {
 		for (auto i = 0u; i < count; ++i) {
-			process([](const auto&) {
-				return true;
-			});
+			process([](const auto&) { return true; });
 		}
 	}
 

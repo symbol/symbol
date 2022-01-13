@@ -59,14 +59,12 @@ namespace catapult { namespace chain {
 		}
 
 		std::unordered_map<std::string, BatchUpdateResult> GenerateEqualityInstanceMap() {
-			return {
-				{ "default", { 77, 12, 98 } },
-				{ "copy", { 77, 12, 98 } },
+			return { { "default", { 77, 12, 98 } },
+					 { "copy", { 77, 12, 98 } },
 
-				{ "diff success", { 78, 12, 98 } },
-				{ "diff neutral", { 77, 11, 98 } },
-				{ "diff failure", { 77, 12, 90 } }
-			};
+					 { "diff success", { 78, 12, 98 } },
+					 { "diff neutral", { 77, 11, 98 } },
+					 { "diff failure", { 77, 12, 90 } } };
 		}
 	}
 

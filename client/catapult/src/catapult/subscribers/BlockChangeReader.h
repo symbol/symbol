@@ -21,12 +21,10 @@
 
 #pragma once
 
-namespace catapult {
-	namespace io {
-		class BlockChangeSubscriber;
-		class InputStream;
-	}
-}
+namespace catapult { namespace io {
+	class BlockChangeSubscriber;
+	class InputStream;
+}}
 
 namespace catapult { namespace subscribers {
 

@@ -41,11 +41,13 @@ namespace catapult { namespace plugins {
 		struct ExplicitScopeTraits {
 			class Module : public PluginModule {
 			public:
-				Module() : PluginModule()
-				{}
+				Module()
+						: PluginModule() {
+				}
 
-				Module(const std::string& directory, const std::string& name) : PluginModule(directory, name, PluginModuleScope)
-				{}
+				Module(const std::string& directory, const std::string& name)
+						: PluginModule(directory, name, PluginModuleScope) {
+				}
 			};
 		};
 
@@ -53,15 +55,19 @@ namespace catapult { namespace plugins {
 	}
 
 #define SCOPE_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ImplicitScope) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ImplicitScopeTraits>(); } \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ImplicitScope) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ImplicitScopeTraits>(); \
+	} \
 	TEST(TEST_CLASS, TEST_NAME##_ExplicitLocalScope) { \
-			TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExplicitScopeTraits<PluginModule::Scope::Local>>(); \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExplicitScopeTraits<PluginModule::Scope::Local>>(); \
 	} \
 	TEST(TEST_CLASS, TEST_NAME##_ExplicitGlobalScope) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExplicitScopeTraits<PluginModule::Scope::Global>>(); \
 	} \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region module load failure
 

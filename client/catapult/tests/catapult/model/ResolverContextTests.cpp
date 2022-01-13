@@ -42,7 +42,7 @@ namespace catapult { namespace model {
 		ResolverContext context;
 
 		// Act:
-		auto result = context.resolve(UnresolvedAddress{ { { 123 } }});
+		auto result = context.resolve(UnresolvedAddress{ { { 123 } } });
 
 		// Assert:
 		EXPECT_EQ(Address{ { 123 } }, result);
@@ -50,9 +50,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanResolveMosaic_CustomResolver) {
 		// Arrange:
-		ResolverContext context(
-				[](auto mosaicId) { return MosaicId(mosaicId.unwrap() + 1); },
-				[](const auto&) { return Address(); });
+		ResolverContext context([](auto mosaicId) { return MosaicId(mosaicId.unwrap() + 1); }, [](const auto&) { return Address(); });
 
 		// Act:
 		auto result = context.resolve(UnresolvedMosaicId(123));

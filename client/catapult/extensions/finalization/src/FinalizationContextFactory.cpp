@@ -31,8 +31,8 @@ namespace catapult { namespace finalization {
 	FinalizationContextFactory::FinalizationContextFactory(const FinalizationConfiguration& config, const extensions::ServiceState& state)
 			: m_config(config)
 			, m_accountStateCache(state.cache().sub<cache::AccountStateCache>())
-			, m_blockStorage(state.storage())
-	{}
+			, m_blockStorage(state.storage()) {
+	}
 
 	model::FinalizationContext FinalizationContextFactory::create(FinalizationEpoch epoch) const {
 		if (FinalizationEpoch() == epoch)

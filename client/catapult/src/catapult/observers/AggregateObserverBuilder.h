@@ -50,8 +50,8 @@ namespace catapult { namespace observers {
 		public:
 			explicit DefaultAggregateNotificationObserver(NotificationObserverPointerVector&& observers)
 					: m_observers(std::move(observers))
-					, m_name(utils::ReduceNames(utils::ExtractNames(m_observers)))
-			{}
+					, m_name(utils::ReduceNames(utils::ExtractNames(m_observers))) {
+			}
 
 		public:
 			const std::string& name() const override {

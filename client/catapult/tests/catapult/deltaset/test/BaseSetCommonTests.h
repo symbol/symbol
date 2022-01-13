@@ -43,21 +43,19 @@ namespace catapult { namespace test {
 
 		static void AssertCanCreateBaseSetWithForwardedArguments() {
 			// Arrange: create an underlying set with three elements
-			typename BaseSetType::SetType underlyingSet{
-				TTraits::ToStorage(TTraits::CreateElement("alpha", 1)),
-				TTraits::ToStorage(TTraits::CreateElement("beta", 4)),
-				TTraits::ToStorage(TTraits::CreateElement("gamma", 9))
-			};
+			typename BaseSetType::SetType underlyingSet{ TTraits::ToStorage(TTraits::CreateElement("alpha", 1)),
+														 TTraits::ToStorage(TTraits::CreateElement("beta", 4)),
+														 TTraits::ToStorage(TTraits::CreateElement("gamma", 9)) };
 
 			// Act: create a base set around it
 			auto pSet = TTraits::Create(underlyingSet);
 
 			// Assert:
-			TTraits::AssertContents(*pSet, typename TTraits::ElementVector{
-				TTraits::CreateElement("alpha", 1),
-				TTraits::CreateElement("beta", 4),
-				TTraits::CreateElement("gamma", 9)
-			});
+			TTraits::AssertContents(
+					*pSet,
+					typename TTraits::ElementVector{ TTraits::CreateElement("alpha", 1),
+													 TTraits::CreateElement("beta", 4),
+													 TTraits::CreateElement("gamma", 9) });
 		}
 
 		// endregion
@@ -167,18 +165,20 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BaseSetCommonTests<TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BaseSetCommonTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_COMMON_BASE_SET_TESTS(TEST_CLASS, TRAITS) \
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CanCreateBaseSet) \
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CanCreateBaseSetWithForwardedArguments) \
-	\
+\
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, EmptyReturnsTrueForEmptySet) \
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, EmptyReturnsFalseForSetWithValues) \
-	\
+\
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, ContainsReturnsTrueForExistingElement) \
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, ContainsReturnsFalseForNonexistentElement) \
-	\
+\
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CanFindExistingElement) \
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CanFindExistingElementMultipleTimes) \
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CannotFindNonexistentElement)

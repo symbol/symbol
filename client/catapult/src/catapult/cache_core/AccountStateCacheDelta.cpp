@@ -32,13 +32,13 @@ namespace catapult { namespace cache {
 			const AccountStateCacheTypes::Options& options,
 			const HighValueAccounts& highValueAccounts)
 			: BasicAccountStateCacheDelta(
-					accountStateSets,
-					options,
-					highValueAccounts,
-					std::make_unique<AccountStateCacheDeltaMixins::KeyLookupAdapter>(
-							*accountStateSets.pKeyLookupMap,
-							*accountStateSets.pPrimary))
-	{}
+					  accountStateSets,
+					  options,
+					  highValueAccounts,
+					  std::make_unique<AccountStateCacheDeltaMixins::KeyLookupAdapter>(
+							  *accountStateSets.pKeyLookupMap,
+							  *accountStateSets.pPrimary)) {
+	}
 
 	BasicAccountStateCacheDelta::BasicAccountStateCacheDelta(
 			const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
@@ -56,8 +56,8 @@ namespace catapult { namespace cache {
 			, m_pKeyToAddress(accountStateSets.pKeyLookupMap)
 			, m_options(options)
 			, m_pKeyLookupAdapter(std::move(pKeyLookupAdapter))
-			, m_highValueAccountsUpdater(m_options, highValueAccounts)
-	{}
+			, m_highValueAccountsUpdater(m_options, highValueAccounts) {
+	}
 
 	model::NetworkIdentifier BasicAccountStateCacheDelta::networkIdentifier() const {
 		return m_options.NetworkIdentifier;

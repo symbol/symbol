@@ -23,7 +23,9 @@
 #include "catapult/plugins/PluginModule.h"
 #include <vector>
 
-namespace catapult { namespace mongo { class MongoPluginManager; } }
+namespace catapult { namespace mongo {
+	class MongoPluginManager;
+}}
 
 namespace catapult { namespace mongo {
 

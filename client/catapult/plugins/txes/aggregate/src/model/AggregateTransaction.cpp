@@ -29,11 +29,10 @@ namespace catapult { namespace model {
 
 	namespace {
 		constexpr bool IsPayloadSizeValid(const AggregateTransaction& aggregate) {
-			return
-					aggregate.Size >= sizeof(AggregateTransaction) &&
-					0 == aggregate.PayloadSize % 8 && // require 8-byte alignment of Cosignatures
-					aggregate.Size - sizeof(AggregateTransaction) >= aggregate.PayloadSize &&
-					0 == (aggregate.Size - sizeof(AggregateTransaction) - aggregate.PayloadSize) % sizeof(Cosignature);
+			return aggregate.Size >= sizeof(AggregateTransaction) && 0 == aggregate.PayloadSize % 8
+				   && // require 8-byte alignment of Cosignatures
+				   aggregate.Size - sizeof(AggregateTransaction) >= aggregate.PayloadSize
+				   && 0 == (aggregate.Size - sizeof(AggregateTransaction) - aggregate.PayloadSize) % sizeof(Cosignature);
 		}
 	}
 
@@ -51,9 +50,8 @@ namespace catapult { namespace model {
 		if (areAllTransactionsValid && !transactions.hasError())
 			return true;
 
-		CATAPULT_LOG(warning)
-				<< "aggregate transactions failed size validation (valid sizes? " << areAllTransactionsValid
-				<< ", errors? " << transactions.hasError() << ")";
+		CATAPULT_LOG(warning) << "aggregate transactions failed size validation (valid sizes? " << areAllTransactionsValid << ", errors? "
+							  << transactions.hasError() << ")";
 		return false;
 	}
 }}

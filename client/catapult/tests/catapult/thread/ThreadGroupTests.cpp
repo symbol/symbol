@@ -33,9 +33,7 @@ namespace catapult { namespace thread {
 				value += 1;
 			});
 
-			threads.spawn([&value]() {
-				value += 2;
-			});
+			threads.spawn([&value]() { value += 2; });
 
 			threads.spawn([&value]() {
 				test::Pause();

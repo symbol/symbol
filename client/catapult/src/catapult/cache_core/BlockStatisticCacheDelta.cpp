@@ -35,8 +35,8 @@ namespace catapult { namespace cache {
 			, m_historySize(options.HistorySize)
 			// note: empty indicates initial cache seeding;
 			//       it cannot happen due to a rollback because the nemesis block cannot be rolled back
-			, m_startHeight(m_pOrderedDelta->empty() ? Height(1) : MakeIterableView(*m_pOrderedDelta).begin()->Height)
-	{}
+			, m_startHeight(m_pOrderedDelta->empty() ? Height(1) : MakeIterableView(*m_pOrderedDelta).begin()->Height) {
+	}
 
 	deltaset::PruningBoundary<BasicBlockStatisticCacheDelta::ValueType> BasicBlockStatisticCacheDelta::pruningBoundary() const {
 		return m_pruningBoundary;
@@ -71,9 +71,8 @@ namespace catapult { namespace cache {
 		[[noreturn]]
 		void ThrowInvalidHeightError(const char* operation, Height nextCacheHeight, Height elementHeight) {
 			std::ostringstream out;
-			out
-					<< "cannot " << operation << " element with height " << elementHeight
-					<< " when cache height is " << (nextCacheHeight - Height(1));
+			out << "cannot " << operation << " element with height " << elementHeight << " when cache height is "
+				<< (nextCacheHeight - Height(1));
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 	}

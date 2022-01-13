@@ -32,8 +32,8 @@ namespace catapult { namespace test {
 		explicit ImportanceViewWrapper(const cache::AccountStateCache& cache)
 				: m_cacheView(cache.createView())
 				, m_readOnlyCache(*m_cacheView)
-				, m_view(m_readOnlyCache)
-		{}
+				, m_view(m_readOnlyCache) {
+		}
 
 	public:
 		/// Gets a const reference to the underlying importance view.

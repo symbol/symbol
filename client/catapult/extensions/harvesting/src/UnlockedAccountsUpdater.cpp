@@ -66,8 +66,8 @@ namespace catapult { namespace harvesting {
 					, m_cache(cache)
 					, m_unlockedAccounts(unlockedAccounts)
 					, m_storage(storage)
-					, m_hasAnyRemoval(false)
-			{}
+					, m_hasAnyRemoval(false) {
+			}
 
 		public:
 			bool hasAnyRemoval() const {
@@ -196,8 +196,8 @@ namespace catapult { namespace harvesting {
 			, m_encryptionKeyPair(encryptionKeyPair)
 			, m_dataDirectory(dataDirectory)
 			, m_harvestersFilename(m_dataDirectory.rootDir().file("harvesters.dat"))
-			, m_unlockedAccountsStorage(m_harvestersFilename)
-	{}
+			, m_unlockedAccountsStorage(m_harvestersFilename) {
+	}
 
 	void UnlockedAccountsUpdater::load() {
 		// load account descriptors
@@ -208,12 +208,8 @@ namespace catapult { namespace harvesting {
 
 	void UnlockedAccountsUpdater::update() {
 		// 1. process queued accounts
-		DescriptorProcessor processor(
-				m_signingPublicKey,
-				m_encryptionKeyPair.publicKey(),
-				m_cache,
-				m_unlockedAccounts,
-				m_unlockedAccountsStorage);
+		DescriptorProcessor
+				processor(m_signingPublicKey, m_encryptionKeyPair.publicKey(), m_cache, m_unlockedAccounts, m_unlockedAccountsStorage);
 
 		auto cacheHeight = m_cache.createView().height();
 		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), cacheHeight, m_encryptionKeyPair, std::ref(processor));
@@ -224,9 +220,8 @@ namespace catapult { namespace harvesting {
 		// 3. save accounts
 		if (numPrunedAccounts > 0 || processor.hasAnyRemoval()) {
 			auto view = m_unlockedAccounts.view();
-			m_unlockedAccountsStorage.save([&view](const auto& harvesterSigningPublicKey) {
-				return view.contains(harvesterSigningPublicKey);
-			});
+			m_unlockedAccountsStorage.save(
+					[&view](const auto& harvesterSigningPublicKey) { return view.contains(harvesterSigningPublicKey); });
 		}
 	}
 }}

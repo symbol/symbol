@@ -24,8 +24,8 @@
 #include "catapult/process/ProcessMain.h"
 
 namespace {
-	// reuse recovery configuration, which contains all extensions needed for importer
-	constexpr auto Process_Name = "recovery";
+// reuse recovery configuration, which contains all extensions needed for importer
+constexpr auto Process_Name = "recovery";
 }
 
 int main(int argc, const char** argv) {

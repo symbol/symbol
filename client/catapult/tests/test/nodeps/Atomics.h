@@ -32,8 +32,10 @@ namespace catapult { namespace test {
 		class State {
 		public:
 			/// Creates a flag.
-			State() : m_flag(false), m_numWaiters(0)
-			{}
+			State()
+					: m_flag(false)
+					, m_numWaiters(0) {
+			}
 
 		public:
 			/// Sets the flag.
@@ -69,8 +71,9 @@ namespace catapult { namespace test {
 
 	public:
 		/// Creates a flag.
-		AutoSetFlag() : m_pState(std::make_shared<State>())
-		{}
+		AutoSetFlag()
+				: m_pState(std::make_shared<State>()) {
+		}
 
 		/// Destroys the flag.
 		~AutoSetFlag() {

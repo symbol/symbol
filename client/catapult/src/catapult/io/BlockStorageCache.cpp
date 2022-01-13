@@ -76,8 +76,8 @@ namespace catapult { namespace io {
 			const CachedData& cachedData)
 			: m_storage(storage)
 			, m_readLock(std::move(readLock))
-			, m_cachedData(cachedData)
-	{}
+			, m_cachedData(cachedData) {
+	}
 
 	Height BlockStorageView::chainHeight() const {
 		return m_cachedData.height();

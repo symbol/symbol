@@ -23,12 +23,10 @@
 #include "MongoStorageContext.h"
 #include "catapult/io/BlockStorage.h"
 
-namespace catapult {
-	namespace mongo {
-		class MongoReceiptRegistry;
-		class MongoTransactionRegistry;
-	}
-}
+namespace catapult { namespace mongo {
+	class MongoReceiptRegistry;
+	class MongoTransactionRegistry;
+}}
 
 namespace catapult { namespace mongo {
 

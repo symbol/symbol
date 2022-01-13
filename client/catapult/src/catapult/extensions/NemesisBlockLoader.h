@@ -26,13 +26,19 @@
 #include "catapult/functions.h"
 
 namespace catapult {
-	namespace cache { class CatapultCacheDelta; }
-	namespace extensions { struct LocalNodeStateRef; }
-	namespace model {
-		struct BlockchainConfiguration;
-		struct BlockElement;
-	}
-	namespace plugins { class PluginManager; }
+namespace cache {
+	class CatapultCacheDelta;
+}
+namespace extensions {
+	struct LocalNodeStateRef;
+}
+namespace model {
+	struct BlockchainConfiguration;
+	struct BlockElement;
+}
+namespace plugins {
+	class PluginManager;
+}
 }
 
 namespace catapult { namespace extensions {

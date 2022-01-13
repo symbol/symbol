@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RESULT_DEFINITION
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #endif
 /// Defines a namespace validation result with \a DESCRIPTION and \a CODE.
@@ -101,5 +102,6 @@ namespace catapult { namespace validators {
 	// endregion
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

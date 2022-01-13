@@ -57,7 +57,9 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_DISCRETE_INTEGER_VALIDATOR_TEST(TEST_CLASS, TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::DiscreteIntegerValidatorTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::DiscreteIntegerValidatorTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, TRAITS_NAME) \
 	MAKE_DISCRETE_INTEGER_VALIDATOR_TEST(TEST_CLASS, TRAITS_NAME, SuccessWhenProcessingValidValue) \

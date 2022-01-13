@@ -154,8 +154,7 @@ namespace catapult { namespace thread {
 		promise<std::unique_ptr<int>> promise;
 		promise.set_value(std::move(pInt));
 		auto future = promise.get_future();
-		auto finalFuture = future
-			.then([&pIntRawFromContinuation](auto&& f) { pIntRawFromContinuation = f.get(); });
+		auto finalFuture = future.then([&pIntRawFromContinuation](auto&& f) { pIntRawFromContinuation = f.get(); });
 
 		// Act:
 		finalFuture.get();
@@ -176,11 +175,10 @@ namespace catapult { namespace thread {
 		promise.set_value(6);
 		auto future = promise.get_future();
 
-		auto finalFuture = future
-			.then([](auto&& f) { return f.get() * 2; })
-			.then([](auto&& f) { return f.get() + 1; })
-			.then([](auto&& f) { return f.get() - 3; })
-			.then([](auto&& f) { return f.get() * 8; });
+		auto finalFuture = future.then([](auto&& f) { return f.get() * 2; })
+								   .then([](auto&& f) { return f.get() + 1; })
+								   .then([](auto&& f) { return f.get() - 3; })
+								   .then([](auto&& f) { return f.get() * 8; });
 
 		// Act:
 		auto value = finalFuture.get();
@@ -197,8 +195,7 @@ namespace catapult { namespace thread {
 		promise.set_value(6);
 		auto future = promise.get_future();
 
-		auto finalFuture = future
-			.then([](auto&& f) { return f.get() / 4.; });
+		auto finalFuture = future.then([](auto&& f) { return f.get() / 4.; });
 
 		// Act:
 		auto value = finalFuture.get();
@@ -216,8 +213,7 @@ namespace catapult { namespace thread {
 		auto future = promise.get_future();
 
 		int continuationValue = 0;
-		auto finalFuture = future
-			.then([&continuationValue](auto&& f) { continuationValue = f.get(); });
+		auto finalFuture = future.then([&continuationValue](auto&& f) { continuationValue = f.get(); });
 
 		// Act:
 		finalFuture.get();
@@ -236,13 +232,12 @@ namespace catapult { namespace thread {
 
 		// note: following future always throws, `if` condition is added to avoid
 		// VS false-positive warning that `return` statement done inside then() is unreachable
-		auto finalFuture = future
-			.then([](auto&& f) {
-				if (0 != f.get())
-					throw std::runtime_error("future exception");
+		auto finalFuture = future.then([](auto&& f) {
+			if (0 != f.get())
+				throw std::runtime_error("future exception");
 
-				return std::move(f);
-			});
+			return std::move(f);
+		});
 
 		// Assert: both futures should be ready and the outer future has the correct exception
 		EXPECT_TRUE(future.is_ready());
@@ -335,12 +330,22 @@ namespace catapult { namespace thread {
 #define PROMISE_FUTURE_TEST(TEST_NAME) TEST(TEST_CLASS, PromiseFuture_##TEST_NAME)
 
 #define PROMISE_FUTURE_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	PROMISE_FUTURE_TEST(TEST_NAME##_Value) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); } \
-	PROMISE_FUTURE_TEST(TEST_NAME##_Value_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyValueTraits>(); } \
-	PROMISE_FUTURE_TEST(TEST_NAME##_Exception) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExceptionTraits>(); } \
-	PROMISE_FUTURE_TEST(TEST_NAME##_Exception_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyExceptionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	PROMISE_FUTURE_TEST(TEST_NAME##_Value) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); \
+	} \
+	PROMISE_FUTURE_TEST(TEST_NAME##_Value_MoveOnly) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyValueTraits>(); \
+	} \
+	PROMISE_FUTURE_TEST(TEST_NAME##_Exception) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExceptionTraits>(); \
+	} \
+	PROMISE_FUTURE_TEST(TEST_NAME##_Exception_MoveOnly) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyExceptionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	PROMISE_FUTURE_TRAITS_BASED_TEST(CanGetValueAfterValueIsSet) {
 		// Arrange: create a promise and set a value on it

@@ -41,20 +41,20 @@ namespace catapult { namespace mongo {
 			explicit PtStorageContext(
 					size_t numTransactionInfos,
 					test::DbInitializationType dbInitializationType = test::DbInitializationType::Reset)
-					: PtStorageContext(numTransactionInfos, mocks::CreateMockTransactionMongoPlugin(), dbInitializationType)
-			{}
+					: PtStorageContext(numTransactionInfos, mocks::CreateMockTransactionMongoPlugin(), dbInitializationType) {
+			}
 
 			PtStorageContext(
 					size_t numTransactionInfos,
 					std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin,
 					test::DbInitializationType dbInitializationType = test::DbInitializationType::Reset)
 					: m_pStorage(test::CreateMongoStorage<cache::PtChangeSubscriber>(
-							std::move(pTransactionPlugin),
-							dbInitializationType,
-							MongoErrorPolicy::Mode::Strict,
-							CreateMongoPtStorage))
-					, m_transactionInfos(test::CreateTransactionInfos(numTransactionInfos))
-			{}
+							  std::move(pTransactionPlugin),
+							  dbInitializationType,
+							  MongoErrorPolicy::Mode::Strict,
+							  CreateMongoPtStorage))
+					, m_transactionInfos(test::CreateTransactionInfos(numTransactionInfos)) {
+			}
 
 		public:
 			std::string collectionName() {
@@ -215,11 +215,9 @@ namespace catapult { namespace mongo {
 		for (const auto& transactionInfo : transactionInfos)
 			context.saveTransaction(transactionInfo);
 
-		std::vector<std::vector<model::Cosignature>> cosignaturesGroups{
-			test::GenerateRandomDataVector<model::Cosignature>(2),
-			test::GenerateRandomDataVector<model::Cosignature>(4),
-			test::GenerateRandomDataVector<model::Cosignature>(3)
-		};
+		std::vector<std::vector<model::Cosignature>> cosignaturesGroups{ test::GenerateRandomDataVector<model::Cosignature>(2),
+																		 test::GenerateRandomDataVector<model::Cosignature>(4),
+																		 test::GenerateRandomDataVector<model::Cosignature>(3) };
 
 		// Act:
 		for (auto i = 0u; i < numAdditionalTransactions; ++i)

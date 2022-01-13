@@ -42,21 +42,23 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(MetadataValue, model::MetadataValueNotification, [](
-			const model::MetadataValueNotification& notification,
-			const ObserverContext& context) {
-		auto& cache = context.Cache.sub<cache::MetadataCache>();
+	DEFINE_OBSERVER(
+			MetadataValue,
+			model::MetadataValueNotification,
+			[](const model::MetadataValueNotification& notification, const ObserverContext& context) {
+				auto& cache = context.Cache.sub<cache::MetadataCache>();
 
-		int32_t valueSize = notification.ValueSize;
-		if (NotifyMode::Commit == context.Mode) {
-			if (notification.ValueSizeDelta < 0)
-				valueSize += notification.ValueSizeDelta;
-		} else {
-			if (notification.ValueSizeDelta > 0)
-				valueSize -= notification.ValueSizeDelta;
-		}
+				int32_t valueSize = notification.ValueSize;
+				if (NotifyMode::Commit == context.Mode) {
+					if (notification.ValueSizeDelta < 0)
+						valueSize += notification.ValueSizeDelta;
+				} else {
+					if (notification.ValueSizeDelta > 0)
+						valueSize -= notification.ValueSizeDelta;
+				}
 
-		auto metadataKey = state::ResolveMetadataKey(notification.PartialMetadataKey, notification.MetadataTarget, context.Resolvers);
-		UpdateCache(cache, metadataKey, { notification.ValuePtr, static_cast<size_t>(valueSize) });
-	})
+				auto metadataKey =
+						state::ResolveMetadataKey(notification.PartialMetadataKey, notification.MetadataTarget, context.Resolvers);
+				UpdateCache(cache, metadataKey, { notification.ValuePtr, static_cast<size_t>(valueSize) });
+			})
 }}

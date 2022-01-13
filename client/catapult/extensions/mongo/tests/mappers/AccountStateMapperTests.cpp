@@ -131,20 +131,19 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	namespace {
 		void ForEachRandomSeed(const consumer<const RandomSeed&>& action) {
-			auto accountPublicKeysMasks = std::initializer_list<state::AccountPublicKeys::KeyType>{
-				state::AccountPublicKeys::KeyType::Unset,
-				state::AccountPublicKeys::KeyType::Linked,
-				state::AccountPublicKeys::KeyType::Node,
-				state::AccountPublicKeys::KeyType::VRF,
-				state::AccountPublicKeys::KeyType::Linked | state::AccountPublicKeys::KeyType::Node,
-				state::AccountPublicKeys::KeyType::All
-			};
+			auto accountPublicKeysMasks =
+					std::initializer_list<state::AccountPublicKeys::KeyType>{ state::AccountPublicKeys::KeyType::Unset,
+																			  state::AccountPublicKeys::KeyType::Linked,
+																			  state::AccountPublicKeys::KeyType::Node,
+																			  state::AccountPublicKeys::KeyType::VRF,
+																			  state::AccountPublicKeys::KeyType::Linked
+																					  | state::AccountPublicKeys::KeyType::Node,
+																			  state::AccountPublicKeys::KeyType::All };
 
 			for (auto keyType : accountPublicKeysMasks) {
 				for (auto numVotingKeys : std::initializer_list<uint8_t>{ 0, 3 }) {
-					CATAPULT_LOG(debug)
-							<< "key type mask: " << static_cast<uint16_t>(keyType)
-							<< ", num voting keys: " << static_cast<uint16_t>(numVotingKeys);
+					CATAPULT_LOG(debug) << "key type mask: " << static_cast<uint16_t>(keyType)
+										<< ", num voting keys: " << static_cast<uint16_t>(numVotingKeys);
 
 					action({ keyType, numVotingKeys });
 				}
@@ -169,8 +168,8 @@ namespace catapult { namespace mongo { namespace mappers {
 			static constexpr auto Num_Expected_Importances = Importance_History_Size - Rollback_Buffer_Size;
 			static constexpr auto Num_Expected_Activity_Buckets = Activity_Bucket_History_Size - Rollback_Buffer_Size;
 
-			static void ConfigureImportanceSnapshots(state::AccountImportanceSnapshots&)
-			{}
+			static void ConfigureImportanceSnapshots(state::AccountImportanceSnapshots&) {
+			}
 		};
 
 		struct InactiveImportanceTraits {

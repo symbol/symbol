@@ -38,11 +38,12 @@ namespace catapult { namespace cache {
 
 	RdbDataIterator::RdbDataIterator(StorageStrategy storageStrategy)
 			: m_pImpl(StorageStrategy::Allocate == storageStrategy ? std::make_shared<Impl>() : nullptr)
-			, m_isFound(false)
-	{}
+			, m_isFound(false) {
+	}
 
-	RdbDataIterator::RdbDataIterator() : RdbDataIterator(StorageStrategy::Allocate)
-	{}
+	RdbDataIterator::RdbDataIterator()
+			: RdbDataIterator(StorageStrategy::Allocate) {
+	}
 
 	RdbDataIterator::~RdbDataIterator() = default;
 
@@ -79,19 +80,19 @@ namespace catapult { namespace cache {
 	// region RocksDatabaseSettings
 
 	RocksDatabaseSettings::RocksDatabaseSettings()
-			: RocksDatabaseSettings(std::string(), std::vector<std::string>(), FilterPruningMode::Disabled)
-	{}
+			: RocksDatabaseSettings(std::string(), std::vector<std::string>(), FilterPruningMode::Disabled) {
+	}
 
 	RocksDatabaseSettings::RocksDatabaseSettings(
 			const std::string& databaseDirectory,
 			const std::vector<std::string>& columnFamilyNames,
 			FilterPruningMode pruningMode)
 			: RocksDatabaseSettings(
-					databaseDirectory,
-					config::NodeConfiguration::CacheDatabaseSubConfiguration(),
-					columnFamilyNames,
-					pruningMode)
-	{}
+					  databaseDirectory,
+					  config::NodeConfiguration::CacheDatabaseSubConfiguration(),
+					  columnFamilyNames,
+					  pruningMode) {
+	}
 
 	RocksDatabaseSettings::RocksDatabaseSettings(
 			const std::string& databaseDirectory,
@@ -101,8 +102,8 @@ namespace catapult { namespace cache {
 			: DatabaseDirectory(databaseDirectory)
 			, DatabaseConfig(databaseConfig)
 			, ColumnFamilyNames(columnFamilyNames)
-			, PruningMode(pruningMode)
-	{}
+			, PruningMode(pruningMode) {
+	}
 
 	// endregion
 

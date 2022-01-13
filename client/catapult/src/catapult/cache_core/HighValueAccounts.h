@@ -42,10 +42,7 @@ namespace catapult { namespace cache {
 				const AddressAccountHistoryMap& accountHistories);
 
 		/// Creates a container around \a addresses, \a removedAddresses and \a accountHistories.
-		HighValueAccounts(
-				model::AddressSet&& addresses,
-				model::AddressSet&& removedAddresses,
-				AddressAccountHistoryMap&& accountHistories);
+		HighValueAccounts(model::AddressSet&& addresses, model::AddressSet&& removedAddresses, AddressAccountHistoryMap&& accountHistories);
 
 	public:
 		/// Gets the high value (harvester eligible) addresses.

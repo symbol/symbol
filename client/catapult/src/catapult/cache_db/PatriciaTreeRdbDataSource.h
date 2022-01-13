@@ -29,8 +29,9 @@ namespace catapult { namespace cache {
 	class PatriciaTreeRdbDataSource {
 	public:
 		/// Creates data source around \a container.
-		explicit PatriciaTreeRdbDataSource(PatriciaTreeContainer& container) : m_container(container)
-		{}
+		explicit PatriciaTreeRdbDataSource(PatriciaTreeContainer& container)
+				: m_container(container) {
+		}
 
 	public:
 		/// Gets the number of saved nodes.

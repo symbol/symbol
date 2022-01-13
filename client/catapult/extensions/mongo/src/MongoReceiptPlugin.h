@@ -26,7 +26,9 @@
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 
-namespace catapult { namespace model { struct Receipt; } }
+namespace catapult { namespace model {
+	struct Receipt;
+}}
 
 namespace catapult { namespace mongo {
 

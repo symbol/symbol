@@ -22,12 +22,10 @@
 #pragma once
 #include "ContainerTypes.h"
 
-namespace catapult {
-	namespace model {
-		class NotificationPublisher;
-		struct Transaction;
-	}
-}
+namespace catapult { namespace model {
+	class NotificationPublisher;
+	struct Transaction;
+}}
 
 namespace catapult { namespace model {
 

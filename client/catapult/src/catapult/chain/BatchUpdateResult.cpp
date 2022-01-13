@@ -25,11 +25,8 @@
 namespace catapult { namespace chain {
 
 	std::ostream& operator<<(std::ostream& out, const BatchUpdateResult& result) {
-		out
-				<< "(success = " << result.SuccessCount
-				<< ", neutral = " << result.NeutralCount
-				<< ", failure = " << result.FailureCount
-				<< ")";
+		out << "(success = " << result.SuccessCount << ", neutral = " << result.NeutralCount << ", failure = " << result.FailureCount
+			<< ")";
 		return out;
 	}
 }}

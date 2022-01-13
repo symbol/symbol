@@ -180,21 +180,28 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, NoPruningWhenAllBucketsAreLessThanOneWeekOld) {
-		AssertPruningBehavior(1, 2, {
-			Timestamp(), // first bucket is added
-			Timestamp(23456),
-			Timestamp(NodeInteractionsContainer::InteractionDuration().millis() - 1), // second bucket is added
-			Timestamp(NodeInteractionsContainer::InteractionDuration().millis() - 1) // interactions retrieved
-		});
+		AssertPruningBehavior(
+				1,
+				2,
+				{
+						Timestamp(), // first bucket is added
+						Timestamp(23456),
+						Timestamp(NodeInteractionsContainer::InteractionDuration().millis() - 1), // second bucket is added
+						Timestamp(NodeInteractionsContainer::InteractionDuration().millis() - 1) // interactions retrieved
+				});
 	}
 
 	TEST(TEST_CLASS, PrunesWhenBucketAreAtLeastOneWeekOld) {
-		AssertPruningBehavior(0, 1, {
-			Timestamp(), // first bucket is added
-			Timestamp(23456),
-			Timestamp(NodeInteractionsContainer::InteractionDuration().millis()), // first bucket is removed, another bucket is added
-			Timestamp(NodeInteractionsContainer::InteractionDuration().millis()) // interactions retrieved
-		});
+		AssertPruningBehavior(
+				0,
+				1,
+				{
+						Timestamp(), // first bucket is added
+						Timestamp(23456),
+						Timestamp(NodeInteractionsContainer::InteractionDuration()
+										  .millis()), // first bucket is removed, another bucket is added
+						Timestamp(NodeInteractionsContainer::InteractionDuration().millis()) // interactions retrieved
+				});
 	}
 
 	// endregion

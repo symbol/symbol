@@ -48,8 +48,8 @@ namespace catapult { namespace mongo {
 		public:
 			ReceiptPluginT(model::ReceiptType type, const StreamFunc& streamFunc)
 					: m_type(type)
-					, m_streamFunc(streamFunc)
-			{}
+					, m_streamFunc(streamFunc) {
+			}
 
 		public:
 			model::ReceiptType type() const override {

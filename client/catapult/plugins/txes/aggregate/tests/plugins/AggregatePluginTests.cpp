@@ -35,18 +35,16 @@ namespace catapult { namespace plugins {
 			static void RunTestAfterRegistration(TAction action) {
 				// Arrange:
 				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.Plugins.emplace("catapult.plugins.aggregate", utils::ConfigurationBag({{
-					"",
-					{
-						{ "maxTransactionsPerAggregate", "0" },
-						{ "maxCosignaturesPerAggregate", "0" },
+				config.Plugins.emplace(
+						"catapult.plugins.aggregate",
+						utils::ConfigurationBag({ { "",
+													{ { "maxTransactionsPerAggregate", "0" },
+													  { "maxCosignaturesPerAggregate", "0" },
 
-						{ "enableStrictCosignatureCheck", EnableStrict ? "true" : "false" },
-						{ "enableBondedAggregateSupport", EnableBonded ? "true" : "false" },
+													  { "enableStrictCosignatureCheck", EnableStrict ? "true" : "false" },
+													  { "enableBondedAggregateSupport", EnableBonded ? "true" : "false" },
 
-						{ "maxBondedTransactionLifetime", "1h" }
-					}
-				}}));
+													  { "maxBondedTransactionLifetime", "1h" } } } }));
 
 				auto manager = test::CreatePluginManager(config);
 				RegisterAggregateSubsystem(manager);
@@ -80,11 +78,9 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
-				return {
-					"AggregateTransactionsHashValidator",
-					"BasicAggregateCosignaturesValidator",
-					"StrictAggregateCosignaturesValidator"
-				};
+				return { "AggregateTransactionsHashValidator",
+						 "BasicAggregateCosignaturesValidator",
+						 "StrictAggregateCosignaturesValidator" };
 			}
 		};
 

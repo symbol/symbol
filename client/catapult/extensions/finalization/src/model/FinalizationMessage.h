@@ -26,8 +26,12 @@
 #include "catapult/model/TrailingVariableDataLayout.h"
 
 namespace catapult {
-	namespace crypto { class AggregateBmPrivateKeyTree; }
-	namespace model { class FinalizationContext; }
+namespace crypto {
+	class AggregateBmPrivateKeyTree;
+}
+namespace model {
+	class FinalizationContext;
+}
 }
 
 namespace catapult { namespace model {
@@ -107,24 +111,22 @@ namespace catapult { namespace model {
 #define PROCESS_MESSAGE_RESULT_LIST \
 	/* Invalid message signature. */ \
 	ENUM_VALUE(Failure_Signature) \
-	\
+\
 	/* Invalid padding. */ \
 	ENUM_VALUE(Failure_Padding) \
-	\
+\
 	/* Invalid version. */ \
 	ENUM_VALUE(Failure_Version) \
-	\
+\
 	/* Invalid voter. */ \
 	ENUM_VALUE(Failure_Voter) \
-	\
+\
 	/* Processing succeeded. */ \
 	ENUM_VALUE(Success)
 
 #define ENUM_VALUE(LABEL) LABEL,
 	/// Process message results.
-	enum class ProcessMessageResult {
-		PROCESS_MESSAGE_RESULT_LIST
-	};
+	enum class ProcessMessageResult { PROCESS_MESSAGE_RESULT_LIST };
 #undef ENUM_VALUE
 
 	/// Insertion operator for outputting \a value to \a out.

@@ -63,10 +63,9 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "initial " << static_cast<uint32_t>(initialDivisibility)
-					<< ", notification " << static_cast<uint32_t>(notificationDivisibility)
-					<< ", max " << static_cast<uint32_t>(maxDivisibility);
+			EXPECT_EQ(expectedResult, result) << "initial " << static_cast<uint32_t>(initialDivisibility) << ", notification "
+											  << static_cast<uint32_t>(notificationDivisibility) << ", max "
+											  << static_cast<uint32_t>(maxDivisibility);
 		}
 
 		void AssertDivisibilityValidationResultRange(const consumer<uint8_t>& assertStep) {
@@ -76,15 +75,13 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityLessThanMax_New) {
-		AssertDivisibilityValidationResultRange([](auto divisibility) {
-			AssertDivisibilityValidationResult(ValidationResult::Success, 0, divisibility, 10);
-		});
+		AssertDivisibilityValidationResultRange(
+				[](auto divisibility) { AssertDivisibilityValidationResult(ValidationResult::Success, 0, divisibility, 10); });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityLessThanMax_Existing) {
-		AssertDivisibilityValidationResultRange([](auto divisibility) {
-			AssertDivisibilityValidationResult(ValidationResult::Success, 3, 3 ^ divisibility, 10);
-		});
+		AssertDivisibilityValidationResultRange(
+				[](auto divisibility) { AssertDivisibilityValidationResult(ValidationResult::Success, 3, 3 ^ divisibility, 10); });
 
 		// following is valid even though notification divisibility is greater than max divisibility because 10 ^ 11 == 1 < 10
 		AssertDivisibilityValidationResult(ValidationResult::Success, 10, 11, 10);

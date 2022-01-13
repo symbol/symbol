@@ -24,22 +24,20 @@
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/utils/Hashers.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicMultisigCacheDelta;
-		class BasicMultisigCacheView;
-		struct MultisigBaseSetDeltaPointers;
-		struct MultisigBaseSets;
-		class MultisigCache;
-		class MultisigCacheDelta;
-		class MultisigCacheView;
-		struct MultisigEntryPrimarySerializer;
-		class MultisigPatriciaTree;
+namespace catapult { namespace cache {
+	class BasicMultisigCacheDelta;
+	class BasicMultisigCacheView;
+	struct MultisigBaseSetDeltaPointers;
+	struct MultisigBaseSets;
+	class MultisigCache;
+	class MultisigCacheDelta;
+	class MultisigCacheView;
+	struct MultisigEntryPrimarySerializer;
+	class MultisigPatriciaTree;
 
-		template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
-		class ReadOnlyArtifactCache;
-	}
-}
+	template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
+	class ReadOnlyArtifactCache;
+}}
 
 namespace catapult { namespace cache {
 

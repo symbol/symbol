@@ -36,8 +36,8 @@ namespace catapult { namespace cache {
 		public:
 			TestContext()
 					: m_cache(CacheConfiguration(), test::CreateDefaultAccountStateCacheOptions())
-					, m_pDelta(m_cache.createDelta())
-			{}
+					, m_pDelta(m_cache.createDelta()) {
+			}
 
 		public:
 			auto& cache() {
@@ -86,10 +86,16 @@ namespace catapult { namespace cache {
 	}
 
 #define CACHE_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Delta) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeltaTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ReadOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadOnlyTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Delta) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeltaTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ReadOnly) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadOnlyTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

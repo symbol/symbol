@@ -25,9 +25,15 @@
 #include "catapult/model/FinalizationRound.h"
 
 namespace catapult {
-	namespace chain { class MultiRoundMessageAggregator; }
-	namespace io { class ProofStorageCache; }
-	namespace subscribers { class FinalizationSubscriber; }
+namespace chain {
+	class MultiRoundMessageAggregator;
+}
+namespace io {
+	class ProofStorageCache;
+}
+namespace subscribers {
+	class FinalizationSubscriber;
+}
 }
 
 namespace catapult { namespace chain {
@@ -48,7 +54,7 @@ namespace catapult { namespace chain {
 	class FinalizationOrchestrator {
 	private:
 		using FinalizationStageAdvancerPointer = std::unique_ptr<FinalizationStageAdvancer>;
-		using StageAdvancerFactory = std::function<FinalizationStageAdvancerPointer (const model::FinalizationRound&, Timestamp)>;
+		using StageAdvancerFactory = std::function<FinalizationStageAdvancerPointer(const model::FinalizationRound&, Timestamp)>;
 		using MessagePredicate = predicate<const model::FinalizationMessage&>;
 		using MessageSink = consumer<std::unique_ptr<model::FinalizationMessage>&&>;
 

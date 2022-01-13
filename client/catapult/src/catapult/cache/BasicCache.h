@@ -41,8 +41,8 @@ namespace catapult { namespace cache {
 		/// Creates an empty cache with \a config and arguments (\a subViewArgs).
 		BasicCache(const CacheConfiguration& config, TSubViewArgs&&... subViewArgs)
 				: m_set(config)
-				, m_subViewArgs(std::forward<TSubViewArgs>(subViewArgs)...)
-		{}
+				, m_subViewArgs(std::forward<TSubViewArgs>(subViewArgs)...) {
+		}
 
 	public:
 		/// Gets a locked view based on this cache.

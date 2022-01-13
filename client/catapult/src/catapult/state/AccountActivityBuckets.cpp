@@ -30,9 +30,7 @@ namespace catapult { namespace state {
 	}
 
 	AccountActivityBuckets::ActivityBucket AccountActivityBuckets::get(model::ImportanceHeight height) const {
-		auto iter = std::find_if(m_buckets.begin(), m_buckets.end(), [height](const auto& bucket) {
-			return bucket.StartHeight == height;
-		});
+		auto iter = std::find_if(m_buckets.begin(), m_buckets.end(), [height](const auto& bucket) { return bucket.StartHeight == height; });
 
 		return m_buckets.end() == iter ? ActivityBucket() : *iter;
 	}

@@ -30,8 +30,8 @@ namespace catapult { namespace harvesting {
 		public:
 			CollectingAccountVisitor(const observers::ObserverContext& context, HarvestingAffectedAccounts& accounts)
 					: m_context(context)
-					, m_accounts(accounts)
-			{}
+					, m_accounts(accounts) {
+			}
 
 		public:
 			void visit(const model::ResolvableAddress& address) {
@@ -52,9 +52,8 @@ namespace catapult { namespace harvesting {
 
 		private:
 			template<typename TAccountIdentifier>
-			void notify(
-					const TAccountIdentifier& accountIdentifier,
-					RefCountedAccountIdentifiers<TAccountIdentifier>& accountIdentifiers) const {
+			void notify(const TAccountIdentifier& accountIdentifier, RefCountedAccountIdentifiers<TAccountIdentifier>& accountIdentifiers)
+					const {
 				auto iter = accountIdentifiers.find(accountIdentifier);
 				if (observers::NotifyMode::Commit == m_context.Mode) {
 					if (accountIdentifiers.cend() == iter)
@@ -77,20 +76,22 @@ namespace catapult { namespace harvesting {
 	}
 
 	DECLARE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification)(HarvestingAffectedAccounts& accounts) {
-		return MAKE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification, ([&accounts](
-				const model::AccountAddressNotification& notification,
-				const observers::ObserverContext& context) {
-			CollectingAccountVisitor visitor(context, accounts);
-			visitor.visit(notification.Address);
-		}));
+		return MAKE_OBSERVER(
+				HarvestingAccountAddress,
+				model::AccountAddressNotification,
+				([&accounts](const model::AccountAddressNotification& notification, const observers::ObserverContext& context) {
+					CollectingAccountVisitor visitor(context, accounts);
+					visitor.visit(notification.Address);
+				}));
 	}
 
 	DECLARE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification)(HarvestingAffectedAccounts& accounts) {
-		return MAKE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification, ([&accounts](
-				const model::AccountPublicKeyNotification& notification,
-				const observers::ObserverContext& context) {
-			CollectingAccountVisitor visitor(context, accounts);
-			visitor.visit(notification.PublicKey);
-		}));
+		return MAKE_OBSERVER(
+				HarvestingAccountPublicKey,
+				model::AccountPublicKeyNotification,
+				([&accounts](const model::AccountPublicKeyNotification& notification, const observers::ObserverContext& context) {
+					CollectingAccountVisitor visitor(context, accounts);
+					visitor.visit(notification.PublicKey);
+				}));
 	}
 }}

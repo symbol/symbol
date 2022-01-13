@@ -30,8 +30,8 @@ namespace catapult { namespace observers {
 		public:
 			ObservingNotificationSubscriber(const NotificationObserver& observer, ObserverContext& context)
 					: m_observer(observer)
-					, m_context(context)
-			{}
+					, m_context(context) {
+			}
 
 		public:
 			void notify(const model::Notification& notification) override {
@@ -51,8 +51,8 @@ namespace catapult { namespace observers {
 			NotificationObserverPointer&& pObserver,
 			NotificationPublisherPointer&& pPublisher)
 			: m_pObserver(std::move(pObserver))
-			, m_pPublisher(std::move(pPublisher))
-	{}
+			, m_pPublisher(std::move(pPublisher)) {
+	}
 
 	const std::string& NotificationObserverAdapter::name() const {
 		return m_pObserver->name();

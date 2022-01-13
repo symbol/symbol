@@ -65,11 +65,13 @@ namespace catapult { namespace chain {
 
 		class ExactMatchPredicate {
 		public:
-			ExactMatchPredicate() : ExactMatchPredicate(0)
-			{}
+			ExactMatchPredicate()
+					: ExactMatchPredicate(0) {
+			}
 
-			explicit ExactMatchPredicate(size_t value) : m_value(value)
-			{}
+			explicit ExactMatchPredicate(size_t value)
+					: m_value(value) {
+			}
 
 		public:
 			bool operator()(size_t value) const {
@@ -88,13 +90,14 @@ namespace catapult { namespace chain {
 
 		class InclusiveRangeMatchPredicate {
 		public:
-			InclusiveRangeMatchPredicate() : InclusiveRangeMatchPredicate(0, 0)
-			{}
+			InclusiveRangeMatchPredicate()
+					: InclusiveRangeMatchPredicate(0, 0) {
+			}
 
 			InclusiveRangeMatchPredicate(size_t minValue, size_t maxValue)
 					: m_minValue(minValue)
-					, m_maxValue(maxValue)
-			{}
+					, m_maxValue(maxValue) {
+			}
 
 		public:
 			bool operator()(size_t value) const {
@@ -114,7 +117,8 @@ namespace catapult { namespace chain {
 
 		class AnyMatchPredicate {
 		public:
-			explicit AnyMatchPredicate(size_t value = 0) : m_isExactMatch(true) {
+			explicit AnyMatchPredicate(size_t value = 0)
+					: m_isExactMatch(true) {
 				setExactMatch(value);
 			}
 
@@ -150,8 +154,8 @@ namespace catapult { namespace chain {
 			ExpectedValidatorCalls(size_t numValidatePartialCalls, size_t numValidateCosignatoriesCalls, size_t numLastCosignatories)
 					: NumValidatePartialCalls(numValidatePartialCalls)
 					, NumValidateCosignatoriesCalls(numValidateCosignatoriesCalls)
-					, NumLastCosignatories(numLastCosignatories)
-			{}
+					, NumLastCosignatories(numLastCosignatories) {
+			}
 
 		public:
 			AnyMatchPredicate NumValidatePartialCalls;
@@ -165,13 +169,14 @@ namespace catapult { namespace chain {
 
 		class ValidateCosignatoriesResultTrigger {
 		public:
-			ValidateCosignatoriesResultTrigger(size_t id) : m_idMatch(id)
-			{}
+			ValidateCosignatoriesResultTrigger(size_t id)
+					: m_idMatch(id) {
+			}
 
 			ValidateCosignatoriesResultTrigger(Key signer)
 					: m_idMatch(0) // notice that calls are 1-based, so this will never match
-					, m_signer(signer)
-			{}
+					, m_signer(signer) {
+			}
 
 		public:
 			bool operator()(const test::CosignaturesMap& cosignaturesMap, size_t id) const {
@@ -197,8 +202,8 @@ namespace catapult { namespace chain {
 					, m_shouldSleepInValidateCosignatories(false)
 					, m_numValidatePartialCalls(0)
 					, m_numValidateCosignatoriesCalls(0)
-					, m_numLastCosignatories(0)
-			{}
+					, m_numLastCosignatories(0) {
+			}
 
 		public:
 			void setValidatePartialFailure() {
@@ -290,10 +295,9 @@ namespace catapult { namespace chain {
 		private:
 			void assertCallsImpl(const model::AggregateTransaction& aggregateTransaction, const ExpectedValidatorCalls& expected) {
 				// Assert: check calls
-				CATAPULT_LOG(debug)
-						<< "NumValidatePartialCalls = " << m_numValidatePartialCalls
-						<< ", NumValidateCosignatoriesCalls = " << m_numValidateCosignatoriesCalls
-						<< ", NumLastCosignatories = " << m_numLastCosignatories;
+				CATAPULT_LOG(debug) << "NumValidatePartialCalls = " << m_numValidatePartialCalls
+									<< ", NumValidateCosignatoriesCalls = " << m_numValidateCosignatoriesCalls
+									<< ", NumLastCosignatories = " << m_numLastCosignatories;
 				CheckPredicate(expected.NumValidatePartialCalls, m_numValidatePartialCalls, "NumValidatePartialCalls");
 				CheckPredicate(expected.NumValidateCosignatoriesCalls, m_numValidateCosignatoriesCalls, "NumValidateCosignatoriesCalls");
 				CheckPredicate(expected.NumLastCosignatories, m_numLastCosignatories, "NumLastCosignatories");
@@ -309,9 +313,8 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			using ValidateCosignatoriesResultTriggers = std::vector<std::pair<
-				ValidateCosignatoriesResultTrigger,
-				CosignatoriesValidationResult>>;
+			using ValidateCosignatoriesResultTriggers =
+					std::vector<std::pair<ValidateCosignatoriesResultTrigger, CosignatoriesValidationResult>>;
 
 		private:
 			bool m_validatePartialResult;
@@ -338,17 +341,16 @@ namespace catapult { namespace chain {
 					, m_pValidator(m_pUniqueValidator.get())
 					, m_pPool(test::CreateStartedIoThreadPool())
 					, m_pUpdater(std::make_unique<PtUpdater>(
-							m_transactionsCache,
-							std::move(m_pUniqueValidator),
-							PtUpdater::CompletedTransactionSink([this](auto&& pTransaction) {
-								m_completedTransactions.push_back(std::move(pTransaction));
-							}),
-							[this](const auto& transaction, const auto& hash, auto result) {
-								// notice that transaction.Deadline is used as transaction marker
-								m_failedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
-							},
-							*m_pPool))
-			{}
+							  m_transactionsCache,
+							  std::move(m_pUniqueValidator),
+							  PtUpdater::CompletedTransactionSink(
+									  [this](auto&& pTransaction) { m_completedTransactions.push_back(std::move(pTransaction)); }),
+							  [this](const auto& transaction, const auto& hash, auto result) {
+								  // notice that transaction.Deadline is used as transaction marker
+								  m_failedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
+							  },
+							  *m_pPool)) {
+			}
 
 			~UpdaterTestContext() {
 				m_pPool->join();
@@ -444,9 +446,7 @@ namespace catapult { namespace chain {
 
 		public:
 			// asserts that the failed transaction callback was called with \a expectedResult for transaction info (\a transactionInfo)
-			void assertSingleFailedTransaction(
-					const model::TransactionInfo& transactionInfo,
-					validators::ValidationResult expectedResult) {
+			void assertSingleFailedTransaction(const model::TransactionInfo& transactionInfo, validators::ValidationResult expectedResult) {
 				// Assert:
 				ASSERT_EQ(1u, m_failedTransactionStatuses.size());
 
@@ -530,8 +530,8 @@ namespace catapult { namespace chain {
 		UpdaterTestContext context;
 
 		// - fill up the cache
-		while (context.transactionsCache().modifier().add(CreateRandomTransactionInfo(CreateRandomAggregateTransaction(0))))
-		{}
+		while (context.transactionsCache().modifier().add(CreateRandomTransactionInfo(CreateRandomAggregateTransaction(0)))) {
+		}
 
 		auto originalCacheSize = context.transactionsCache().view().size();
 
@@ -641,9 +641,10 @@ namespace catapult { namespace chain {
 
 		const auto* pCosignatures = pTransaction->CosignaturesPtr();
 		ASSERT_EQ(1u, context.completedTransactions().size());
-		test::AssertStitchedTransaction(*context.completedTransactions()[0], *pTransaction, {
-			pCosignatures[0], pCosignatures[1], pCosignatures[2]
-		});
+		test::AssertStitchedTransaction(
+				*context.completedTransactions()[0],
+				*pTransaction,
+				{ pCosignatures[0], pCosignatures[1], pCosignatures[2] });
 		EXPECT_TRUE(context.failedTransactionStatuses().empty());
 		context.validator().assertCalls(*pTransaction, transactionInfo.EntityHash, { 1, 6, 3 });
 	}
@@ -676,10 +677,10 @@ namespace catapult { namespace chain {
 
 			const auto* pCosignatures1 = transaction1.CosignaturesPtr();
 			const auto* pCosignatures2 = pTransaction2->CosignaturesPtr();
-			context.assertSingleTransactionInCache(transactionInfo1.EntityHash, transaction1, {
-				pCosignatures1[0], pCosignatures1[1], pCosignatures1[2],
-				pCosignatures2[0], pCosignatures2[1]
-			});
+			context.assertSingleTransactionInCache(
+					transactionInfo1.EntityHash,
+					transaction1,
+					{ pCosignatures1[0], pCosignatures1[1], pCosignatures1[2], pCosignatures2[0], pCosignatures2[1] });
 			context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo1);
 
 			EXPECT_TRUE(context.completedTransactions().empty());
@@ -703,10 +704,10 @@ namespace catapult { namespace chain {
 
 			const auto* pCosignatures1 = transaction1.CosignaturesPtr();
 			const auto* pCosignatures2 = pTransaction2->CosignaturesPtr();
-			context.assertSingleTransactionInCache(transactionInfo1.EntityHash, transaction1, {
-				pCosignatures1[0], pCosignatures1[1], pCosignatures1[2],
-				pCosignatures2[0], pCosignatures2[2]
-			});
+			context.assertSingleTransactionInCache(
+					transactionInfo1.EntityHash,
+					transaction1,
+					{ pCosignatures1[0], pCosignatures1[1], pCosignatures1[2], pCosignatures2[0], pCosignatures2[2] });
 			context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo1);
 
 			EXPECT_TRUE(context.completedTransactions().empty());
@@ -735,10 +736,10 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(0u, context.transactionsCache().view().size());
 
 			ASSERT_EQ(1u, context.completedTransactions().size());
-			test::AssertStitchedTransaction(*context.completedTransactions()[0], transaction1, {
-				pCosignatures1[0], pCosignatures1[1], pCosignatures1[2],
-				pCosignatures2[0], pCosignatures2[1]
-			});
+			test::AssertStitchedTransaction(
+					*context.completedTransactions()[0],
+					transaction1,
+					{ pCosignatures1[0], pCosignatures1[1], pCosignatures1[2], pCosignatures2[0], pCosignatures2[1] });
 			EXPECT_TRUE(context.failedTransactionStatuses().empty());
 			context.validator().assertCalls(transaction1, { 0, 4, 3 + 2 });
 		});
@@ -878,10 +879,10 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(CosignatureUpdateResult::Added_Incomplete, result);
 
 			const auto* pCosignatures = transaction.CosignaturesPtr();
-			context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, {
-				pCosignatures[0], pCosignatures[1], pCosignatures[2],
-				cosignature
-			});
+			context.assertSingleTransactionInCache(
+					transactionInfo.EntityHash,
+					transaction,
+					{ pCosignatures[0], pCosignatures[1], pCosignatures[2], cosignature });
 			context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo);
 
 			EXPECT_TRUE(context.completedTransactions().empty());
@@ -909,10 +910,10 @@ namespace catapult { namespace chain {
 
 			const auto* pCosignatures = transaction.CosignaturesPtr();
 			ASSERT_EQ(1u, context.completedTransactions().size());
-			test::AssertStitchedTransaction(*context.completedTransactions()[0], transaction, {
-				pCosignatures[0], pCosignatures[1], pCosignatures[2],
-				cosignature
-			});
+			test::AssertStitchedTransaction(
+					*context.completedTransactions()[0],
+					transaction,
+					{ pCosignatures[0], pCosignatures[1], pCosignatures[2], cosignature });
 			EXPECT_TRUE(context.failedTransactionStatuses().empty());
 			context.validator().assertCalls(transaction, { 0, 2, 3 + 1 });
 		});
@@ -967,9 +968,10 @@ namespace catapult { namespace chain {
 				EXPECT_EQ(expectedResult, result);
 
 				const auto* pCosignatures = transaction.CosignaturesPtr();
-				context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, {
-					pCosignatures[0], pCosignatures[1], pCosignatures[2]
-				});
+				context.assertSingleTransactionInCache(
+						transactionInfo.EntityHash,
+						transaction,
+						{ pCosignatures[0], pCosignatures[1], pCosignatures[2] });
 				context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo);
 
 				EXPECT_TRUE(context.completedTransactions().empty());
@@ -984,12 +986,15 @@ namespace catapult { namespace chain {
 		ExpectedValidatorCalls expectedValidatorCalls;
 		expectedValidatorCalls.NumValidateCosignatoriesCalls.setExactMatch(2); // 1 (new cosig) + 1 (ineligible cosig)
 		expectedValidatorCalls.NumLastCosignatories.setExactMatch(1); // ineligible cosig only
-		RunAddingInvalidCosignatureTest(CosignatureUpdateResult::Ineligible, expectedValidatorCalls, [](
-				auto& context,
-				const auto& cosignature) {
-			// - mark the cosignature as ineligible
-			context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Ineligible, cosignature.SignerPublicKey);
-		});
+		RunAddingInvalidCosignatureTest(
+				CosignatureUpdateResult::Ineligible,
+				expectedValidatorCalls,
+				[](auto& context, const auto& cosignature) {
+					// - mark the cosignature as ineligible
+					context.validator().setValidateCosignatoriesResult(
+							CosignatoriesValidationResult::Ineligible,
+							cosignature.SignerPublicKey);
+				});
 	}
 
 	TEST(TEST_CLASS, AddingUnverifiableCosignatureWithMatchingTransactionIsIgnored) {
@@ -1008,19 +1013,19 @@ namespace catapult { namespace chain {
 		RunTestWithTransactionInCache(3, [](auto& context, const auto& transactionInfo, const auto& transaction) {
 			// Act: add an existing cosignature
 			const auto& existingCosignature = transaction.CosignaturesPtr()[1];
-			auto result = context.updater().update({
-				existingCosignature.SignerPublicKey,
-				existingCosignature.Signature,
-				transactionInfo.EntityHash
-			}).get();
+			auto result =
+					context.updater()
+							.update({ existingCosignature.SignerPublicKey, existingCosignature.Signature, transactionInfo.EntityHash })
+							.get();
 
 			// Assert: the duplicate cosignature was ignored
 			EXPECT_EQ(CosignatureUpdateResult::Redundant, result);
 
 			const auto* pCosignatures = transaction.CosignaturesPtr();
-			context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, {
-				pCosignatures[0], pCosignatures[1], pCosignatures[2]
-			});
+			context.assertSingleTransactionInCache(
+					transactionInfo.EntityHash,
+					transaction,
+					{ pCosignatures[0], pCosignatures[1], pCosignatures[2] });
 			context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo);
 
 			EXPECT_TRUE(context.completedTransactions().empty());
@@ -1052,10 +1057,10 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(CosignatureUpdateResult::Added_Incomplete, result);
 
 			const auto* pCosignatures = transaction.CosignaturesPtr();
-			context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, {
-				pCosignatures[0], pCosignatures[2],
-				cosignature
-			});
+			context.assertSingleTransactionInCache(
+					transactionInfo.EntityHash,
+					transaction,
+					{ pCosignatures[0], pCosignatures[2], cosignature });
 			context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo);
 
 			EXPECT_TRUE(context.completedTransactions().empty());
@@ -1091,10 +1096,7 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(CosignatureUpdateResult::Added_Incomplete, result);
 
 			const auto* pCosignatures = transaction.CosignaturesPtr();
-			context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, {
-				pCosignatures[1],
-				cosignature
-			});
+			context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, { pCosignatures[1], cosignature });
 			context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo);
 
 			EXPECT_TRUE(context.completedTransactions().empty());
@@ -1128,9 +1130,7 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(CosignatureUpdateResult::Unverifiable, result);
 
 			const auto* pCosignatures = transaction.CosignaturesPtr();
-			context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, {
-				pCosignatures[0], pCosignatures[2]
-			});
+			context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, { pCosignatures[0], pCosignatures[2] });
 			context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo);
 
 			EXPECT_TRUE(context.completedTransactions().empty());
@@ -1165,9 +1165,10 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(CosignatureUpdateResult::Ineligible, result);
 
 			const auto* pCosignatures = transaction.CosignaturesPtr();
-			context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, {
-				pCosignatures[0], pCosignatures[1], pCosignatures[2]
-			});
+			context.assertSingleTransactionInCache(
+					transactionInfo.EntityHash,
+					transaction,
+					{ pCosignatures[0], pCosignatures[1], pCosignatures[2] });
 			context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo);
 
 			EXPECT_TRUE(context.completedTransactions().empty());
@@ -1206,10 +1207,10 @@ namespace catapult { namespace chain {
 
 			const auto* pCosignatures = transaction.CosignaturesPtr();
 			ASSERT_EQ(1u, context.completedTransactions().size());
-			test::AssertStitchedTransaction(*context.completedTransactions()[0], transaction, {
-				pCosignatures[0], pCosignatures[2],
-				cosignature
-			});
+			test::AssertStitchedTransaction(
+					*context.completedTransactions()[0],
+					transaction,
+					{ pCosignatures[0], pCosignatures[2], cosignature });
 			EXPECT_TRUE(context.failedTransactionStatuses().empty());
 
 			ExpectedValidatorCalls expectedValidatorCalls;
@@ -1259,10 +1260,10 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(numAddAttempts - 1, counts[CosignatureUpdateResult::Redundant]);
 
 			const auto* pCosignatures = transaction.CosignaturesPtr();
-			context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, {
-				pCosignatures[0], pCosignatures[1], pCosignatures[2],
-				cosignature
-			});
+			context.assertSingleTransactionInCache(
+					transactionInfo.EntityHash,
+					transaction,
+					{ pCosignatures[0], pCosignatures[1], pCosignatures[2], cosignature });
 			context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo);
 
 			EXPECT_TRUE(context.completedTransactions().empty());

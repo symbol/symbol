@@ -51,8 +51,8 @@ namespace catapult { namespace local {
 
 			static constexpr auto Num_Tasks = 9u;
 
-			static void AssertBoot(const test::BasicLocalNodeStats&)
-			{}
+			static void AssertBoot(const test::BasicLocalNodeStats&) {
+			}
 		};
 	}
 

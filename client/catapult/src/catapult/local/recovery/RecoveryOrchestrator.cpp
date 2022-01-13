@@ -56,8 +56,8 @@ namespace catapult { namespace local {
 		public:
 			DualStateChangeSubscriber(subscribers::StateChangeSubscriber& subscriber1, subscribers::StateChangeSubscriber& subscriber2)
 					: m_subscriber1(subscriber1)
-					, m_subscriber2(subscriber2)
-			{}
+					, m_subscriber2(subscriber2) {
+			}
 
 		public:
 			void notifyScoreChange(const model::ChainScore& chainScore) override {
@@ -117,14 +117,14 @@ namespace catapult { namespace local {
 					, m_catapultCache({}) // note that sub caches are added in boot
 					, m_pBlockStorage(m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber))
 					, m_storage(
-							CreateReadOnlyStorageAdapter(*m_pBlockStorage),
-							CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
+							  CreateReadOnlyStorageAdapter(*m_pBlockStorage),
+							  CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
 					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
 					, m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
 					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
 					, m_pluginManager(m_pBootstrapper->pluginManager())
-					, m_stateSavingRequired(true)
-			{}
+					, m_stateSavingRequired(true) {
+			}
 
 			~DefaultRecoveryOrchestrator() override {
 				shutdown();
@@ -204,14 +204,12 @@ namespace catapult { namespace local {
 				std::unique_ptr<subscribers::StateChangeSubscriber> pDualStateChangeSubscriber;
 				if (stateRef().Config.Node.EnableCacheDatabaseStorage) {
 					pStateChangeRepairSubscriber = CreateStateChangeRepairingSubscriber(stateRef().Cache, stateRef().Score);
-					pDualStateChangeSubscriber = std::make_unique<DualStateChangeSubscriber>(
-							*pStateChangeRepairSubscriber,
-							*m_pStateChangeSubscriber);
+					pDualStateChangeSubscriber =
+							std::make_unique<DualStateChangeSubscriber>(*pStateChangeRepairSubscriber, *m_pStateChangeSubscriber);
 				}
 
-				auto& repairSubscriber = stateRef().Config.Node.EnableCacheDatabaseStorage
-						? *pDualStateChangeSubscriber
-						: *m_pStateChangeSubscriber;
+				auto& repairSubscriber =
+						stateRef().Config.Node.EnableCacheDatabaseStorage ? *pDualStateChangeSubscriber : *m_pStateChangeSubscriber;
 				RepairState(m_dataDirectory.spoolDir("state_change"), stateRef().Cache, *m_pStateChangeSubscriber, repairSubscriber);
 
 				if (consumers::CommitOperationStep::State_Written != commitStep) {
@@ -222,10 +220,8 @@ namespace catapult { namespace local {
 
 				CATAPULT_LOG(debug) << " - moving supplemental data and block files";
 				MoveSupplementalDataFiles(m_dataDirectory);
-				auto startHeight = MoveBlockFiles(
-						m_dataDirectory.spoolDir("block_sync"),
-						*m_pBlockStorage,
-						m_config.Node.FileDatabaseBatchSize);
+				auto startHeight =
+						MoveBlockFiles(m_dataDirectory.spoolDir("block_sync"), *m_pBlockStorage, m_config.Node.FileDatabaseBatchSize);
 
 				// when verifiable state is enabled, forcibly regenerate all patricia trees because cache changes are coalesced
 				if (stateRef().Config.Blockchain.EnableVerifiableState && startHeight > Height(0)) {

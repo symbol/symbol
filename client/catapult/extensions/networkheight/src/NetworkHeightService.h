@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/extensions/ServiceRegistrar.h"
 
-namespace catapult { namespace networkheight { struct NetworkHeightConfiguration; } }
+namespace catapult { namespace networkheight {
+	struct NetworkHeightConfiguration;
+}}
 
 namespace catapult { namespace networkheight {
 

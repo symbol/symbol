@@ -40,8 +40,8 @@ namespace catapult { namespace cache {
 		/// Creates a proxy around \a options.
 		explicit MemoryCacheProxy(const MemoryCacheOptions& options)
 				: m_memoryCache(options)
-				, m_pCache(&m_memoryCache)
-		{}
+				, m_pCache(&m_memoryCache) {
+		}
 
 		/// Creates a proxy around \a options and the write-only cache created by
 		/// \a factory with \a args arguments.
@@ -49,8 +49,8 @@ namespace catapult { namespace cache {
 		MemoryCacheProxy(const MemoryCacheOptions& options, TMutableCacheFactory factory, TArgs&&... args)
 				: m_memoryCache(options)
 				, m_pMutableCache(factory(m_memoryCache, std::forward<TArgs>(args)...))
-				, m_pCache(m_pMutableCache.get())
-		{}
+				, m_pCache(m_pMutableCache.get()) {
+		}
 
 	public:
 		/// Gets the underlying (const) read write cache.

@@ -32,9 +32,8 @@ namespace catapult { namespace plugins {
 	void RegisterMemoryHashCacheSystem(PluginManager& manager) {
 		const auto& config = manager.config();
 
-		manager.addCacheSupport<cache::HashCacheStorage>(std::make_unique<cache::HashCache>(
-				manager.cacheConfig(cache::HashCache::Name),
-				CalculateTransactionCacheDuration(config)));
+		manager.addCacheSupport<cache::HashCacheStorage>(
+				std::make_unique<cache::HashCache>(manager.cacheConfig(cache::HashCache::Name), CalculateTransactionCacheDuration(config)));
 
 		manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
 			handlers::RegisterConfirmTimestampedHashesHandler(
@@ -48,17 +47,12 @@ namespace catapult { namespace plugins {
 			});
 		});
 
-		manager.addStatefulValidatorHook([](auto& builder) {
-			builder.add(validators::CreateUniqueTransactionHashValidator());
-		});
+		manager.addStatefulValidatorHook([](auto& builder) { builder.add(validators::CreateUniqueTransactionHashValidator()); });
 
-		manager.addTransientObserverHook([](auto& builder) {
-			builder.add(observers::CreateTransactionHashObserver());
-		});
+		manager.addTransientObserverHook([](auto& builder) { builder.add(observers::CreateTransactionHashObserver()); });
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterMemoryHashCacheSystem(manager);
 }

@@ -25,12 +25,10 @@
 #include "IoTypes.h"
 #include "PacketSocketOptions.h"
 
-namespace catapult {
-	namespace ionet {
-		struct NodeEndpoint;
-		struct Packet;
-	}
-}
+namespace catapult { namespace ionet {
+	struct NodeEndpoint;
+	struct Packet;
+}}
 
 namespace catapult { namespace ionet {
 
@@ -38,7 +36,9 @@ namespace catapult { namespace ionet {
 
 	/// Asio socket wrapper that natively supports packets.
 	/// This wrapper is threadsafe but does not prevent interleaving reads or writes.
-	class PacketSocket : public PacketIo, public BatchPacketReader {
+	class PacketSocket
+			: public PacketIo
+			, public BatchPacketReader {
 	public:
 		/// Statistics about a socket.
 		struct Stats {

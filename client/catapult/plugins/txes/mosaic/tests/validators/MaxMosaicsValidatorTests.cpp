@@ -112,10 +112,8 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "maxMosaics " << maxMosaics
-					<< ", mosaicId " << mosaicId
-					<< ", action " << utils::to_underlying_type(action);
+			EXPECT_EQ(expectedResult, result) << "maxMosaics " << maxMosaics << ", mosaicId " << mosaicId << ", action "
+											  << utils::to_underlying_type(action);
 		}
 	}
 

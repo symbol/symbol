@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/model/NamespaceIdGenerator.h"
+#include "src/validators/Validators.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -54,9 +54,8 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "nameSize " << static_cast<uint16_t>(nameSize)
-					<< ", maxNameSize " << static_cast<uint16_t>(maxNameSize);
+			EXPECT_EQ(expectedResult, result) << "nameSize " << static_cast<uint16_t>(nameSize) << ", maxNameSize "
+											  << static_cast<uint16_t>(maxNameSize);
 		}
 	}
 
@@ -85,9 +84,8 @@ namespace catapult { namespace validators {
 		void AssertNameValidationResult(ValidationResult expectedResult, const std::string& name) {
 			// Arrange:
 			auto pValidator = CreateNamespaceNameValidator(static_cast<uint8_t>(name.size()));
-			auto notification = CreateNamespaceNameNotification(
-					static_cast<uint8_t>(name.size()),
-					reinterpret_cast<const uint8_t*>(name.data()));
+			auto notification =
+					CreateNamespaceNameNotification(static_cast<uint8_t>(name.size()), reinterpret_cast<const uint8_t*>(name.data()));
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);
@@ -115,9 +113,8 @@ namespace catapult { namespace validators {
 		// Arrange: note that CreateNamespaceNameNotification creates proper id
 		auto pValidator = CreateNamespaceNameValidator(100);
 		auto name = std::string(10, 'a');
-		auto notification = CreateNamespaceNameNotification(
-				static_cast<uint8_t>(name.size()),
-				reinterpret_cast<const uint8_t*>(name.data()));
+		auto notification =
+				CreateNamespaceNameNotification(static_cast<uint8_t>(name.size()), reinterpret_cast<const uint8_t*>(name.data()));
 
 		// Act:
 		auto result = test::ValidateNotification(*pValidator, notification);
@@ -130,9 +127,8 @@ namespace catapult { namespace validators {
 		// Arrange: corrupt the id
 		auto pValidator = CreateNamespaceNameValidator(100);
 		auto name = std::string(10, 'a');
-		auto notification = CreateNamespaceNameNotification(
-				static_cast<uint8_t>(name.size()),
-				reinterpret_cast<const uint8_t*>(name.data()));
+		auto notification =
+				CreateNamespaceNameNotification(static_cast<uint8_t>(name.size()), reinterpret_cast<const uint8_t*>(name.data()));
 		notification.NamespaceId = notification.NamespaceId + NamespaceId(1);
 
 		// Act:

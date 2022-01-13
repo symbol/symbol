@@ -44,16 +44,15 @@ namespace catapult { namespace nodediscovery {
 		}
 
 		auto CaptureNodes(std::vector<ionet::NodeSet>& nodeSets) {
-			return [&nodeSets](const auto& nodes) {
-				nodeSets.push_back(nodes);
-			};
+			return [&nodeSets](const auto& nodes) { nodeSets.push_back(nodes); };
 		}
 
 		struct TestContext {
 		public:
 			// notice that the container is held by value
-			TestContext() : Requestor(CreatePickerContainer(Writers1, Writers2, Writers3), CaptureNodes(NodeSets))
-			{}
+			TestContext()
+					: Requestor(CreatePickerContainer(Writers1, Writers2, Writers3), CaptureNodes(NodeSets)) {
+			}
 
 		public:
 			mocks::PickOneAwareMockPacketWriters Writers1;
@@ -191,10 +190,8 @@ namespace catapult { namespace nodediscovery {
 		auto result = context.Requestor.findPeersOfPeers(utils::TimeSpan::FromMilliseconds(15)).get();
 
 		// Assert:
-		std::vector<ionet::NodeInteractionResult> expectedResult{
-			{ partnerIdentity1, ionet::NodeInteractionResultCode::Success },
-			{ partnerIdentity2, ionet::NodeInteractionResultCode::Success }
-		};
+		std::vector<ionet::NodeInteractionResult> expectedResult{ { partnerIdentity1, ionet::NodeInteractionResultCode::Success },
+																  { partnerIdentity2, ionet::NodeInteractionResultCode::Success } };
 		AssertEqualRemoteApiResults(expectedResult, result);
 
 		ASSERT_EQ(2u, context.NodeSets.size());
@@ -225,11 +222,9 @@ namespace catapult { namespace nodediscovery {
 		auto result = context.Requestor.findPeersOfPeers(utils::TimeSpan::FromMilliseconds(15)).get();
 
 		// Assert:
-		std::vector<ionet::NodeInteractionResult> expectedResult{
-			{ partnerIdentity1, ionet::NodeInteractionResultCode::Success },
-			{ partnerIdentity2, ionet::NodeInteractionResultCode::Failure },
-			{ partnerIdentity3, ionet::NodeInteractionResultCode::Success }
-		};
+		std::vector<ionet::NodeInteractionResult> expectedResult{ { partnerIdentity1, ionet::NodeInteractionResultCode::Success },
+																  { partnerIdentity2, ionet::NodeInteractionResultCode::Failure },
+																  { partnerIdentity3, ionet::NodeInteractionResultCode::Success } };
 		AssertEqualRemoteApiResults(expectedResult, result);
 
 		ASSERT_EQ(2u, context.NodeSets.size());

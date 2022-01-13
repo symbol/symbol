@@ -37,8 +37,8 @@ namespace catapult { namespace builders {
 		public:
 			explicit TransactionProperties(UnresolvedMosaicId mosaicId)
 					: MosaicId(mosaicId)
-					, Action(model::MosaicSupplyChangeAction::Decrease)
-			{}
+					, Action(model::MosaicSupplyChangeAction::Decrease) {
+			}
 
 		public:
 			UnresolvedMosaicId MosaicId;
@@ -79,10 +79,16 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
 
@@ -93,9 +99,7 @@ namespace catapult { namespace builders {
 		auto expectedProperties = TransactionProperties(mosaicId);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto& builder) {
-			builder.setMosaicId(mosaicId);
-		});
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto& builder) { builder.setMosaicId(mosaicId); });
 	}
 
 	// endregion

@@ -31,8 +31,8 @@ namespace catapult { namespace filespooling {
 #define TEST_CLASS FileBlockChangeStorageTests
 
 	namespace {
-		constexpr auto Empty_Block_Element_Size = sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter)
-				+ 2 * (Hash256::Size + sizeof(uint32_t));
+		constexpr auto Empty_Block_Element_Size =
+				sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter) + 2 * (Hash256::Size + sizeof(uint32_t));
 
 		template<typename TAction>
 		void RunTest(TAction action) {

@@ -24,7 +24,7 @@
 #include "catapult/process/ProcessMain.h"
 
 namespace {
-	constexpr auto Process_Name = "recovery";
+constexpr auto Process_Name = "recovery";
 }
 
 int main(int argc, const char** argv) {

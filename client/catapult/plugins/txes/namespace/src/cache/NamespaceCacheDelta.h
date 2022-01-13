@@ -40,14 +40,14 @@ namespace catapult { namespace cache {
 		using Contains = FlatMapMixins::Contains;
 		using PatriciaTreeDelta = PrimaryMixins::PatriciaTreeDelta;
 		using Touch = HeightBasedTouchMixin<
-			typename NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType,
-			typename NamespaceCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
+				typename NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType,
+				typename NamespaceCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
 		using DeltaElements = PrimaryMixins::DeltaElements;
 
 		using NamespaceDeepSize = NamespaceDeepSizeMixin;
 		using NamespaceLookup = NamespaceLookupMixin<
-			NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType,
-			NamespaceCacheTypes::FlatMapTypes::BaseSetDeltaType>;
+				NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType,
+				NamespaceCacheTypes::FlatMapTypes::BaseSetDeltaType>;
 	};
 
 	/// Basic delta on top of the namespace cache.
@@ -110,7 +110,7 @@ namespace catapult { namespace cache {
 				const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets,
 				const NamespaceCacheTypes::Options& options,
 				const NamespaceSizes& namespaceSizes)
-				: ReadOnlyViewSupplier(namespaceSets, options, namespaceSizes)
-		{}
+				: ReadOnlyViewSupplier(namespaceSets, options, namespaceSizes) {
+		}
 	};
 }}

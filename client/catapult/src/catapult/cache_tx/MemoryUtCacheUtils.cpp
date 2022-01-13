@@ -41,7 +41,7 @@ namespace catapult { namespace cache {
 		if (0 != transactionLimit) {
 			uint32_t totalTransactionsCount = 0;
 			utCacheView.forEach([transactionLimit, countRetriever, filter, &transactionInfoPointers, &totalTransactionsCount](
-					const auto& transactionInfo) {
+										const auto& transactionInfo) {
 				auto currentTransactionsCount = countRetriever(*transactionInfo.pEntity);
 				if (totalTransactionsCount + currentTransactionsCount > transactionLimit)
 					return false;

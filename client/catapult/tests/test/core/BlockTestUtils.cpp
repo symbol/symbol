@@ -37,15 +37,17 @@ namespace catapult { namespace test {
 
 	// region TestBlockTransactions
 
-	TestBlockTransactions::TestBlockTransactions(const ConstTransactions& transactions) : m_transactions(transactions)
-	{}
+	TestBlockTransactions::TestBlockTransactions(const ConstTransactions& transactions)
+			: m_transactions(transactions) {
+	}
 
-	TestBlockTransactions::TestBlockTransactions(const MutableTransactions& transactions) : TestBlockTransactions(MakeConst(transactions))
-	{}
+	TestBlockTransactions::TestBlockTransactions(const MutableTransactions& transactions)
+			: TestBlockTransactions(MakeConst(transactions)) {
+	}
 
 	TestBlockTransactions::TestBlockTransactions(size_t numTransactions)
-			: TestBlockTransactions(GenerateRandomTransactions(numTransactions))
-	{}
+			: TestBlockTransactions(GenerateRandomTransactions(numTransactions)) {
+	}
 
 	const ConstTransactions& TestBlockTransactions::get() const {
 		return m_transactions;
@@ -77,8 +79,8 @@ namespace catapult { namespace test {
 		public:
 			explicit TestBlockOptions(const crypto::KeyPair& signer)
 					: Signer(signer)
-					, EntityType(model::Entity_Type_Block_Normal)
-			{}
+					, EntityType(model::Entity_Type_Block_Normal) {
+			}
 
 		public:
 			const crypto::KeyPair& Signer;
@@ -89,12 +91,8 @@ namespace catapult { namespace test {
 
 		std::unique_ptr<model::Block> GenerateBlock(const TestBlockTransactions& transactions, const TestBlockOptions& options) {
 			model::PreviousBlockContext context;
-			auto pBlock = model::CreateBlock(
-					options.EntityType,
-					context,
-					Network_Identifier,
-					options.Signer.publicKey(),
-					transactions.get());
+			auto pBlock =
+					model::CreateBlock(options.EntityType, context, Network_Identifier, options.Signer.publicKey(), transactions.get());
 			RandomizeBlock(*pBlock);
 
 			if (Height() != options.Height)

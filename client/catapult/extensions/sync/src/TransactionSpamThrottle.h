@@ -31,8 +31,8 @@ namespace catapult { namespace sync {
 		/// Creates a default spam throttle configuration.
 		SpamThrottleConfiguration()
 				: TotalImportance(0)
-				, MaxTransactionsPerBlock(0)
-		{}
+				, MaxTransactionsPerBlock(0) {
+		}
 
 		/// Creates a spam throttle configuration around \a maxBoostFee, \a totalImportance, \a maxCacheSize
 		/// and \a maxTransactionsPerBlock.
@@ -44,8 +44,8 @@ namespace catapult { namespace sync {
 				: MaxBoostFee(maxBoostFee)
 				, TotalImportance(totalImportance)
 				, MaxCacheSize(maxCacheSize)
-				, MaxTransactionsPerBlock(maxTransactionsPerBlock)
-		{}
+				, MaxTransactionsPerBlock(maxTransactionsPerBlock) {
+		}
 
 	public:
 		/// Max fee for boosting importance.

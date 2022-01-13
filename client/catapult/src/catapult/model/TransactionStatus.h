@@ -33,8 +33,8 @@ namespace catapult { namespace model {
 		TransactionStatus(const Hash256& hash, Timestamp deadline, uint32_t status)
 				: Hash(hash)
 				, Deadline(deadline)
-				, Status(status)
-		{}
+				, Status(status) {
+		}
 
 	public:
 		/// Transaction hash.

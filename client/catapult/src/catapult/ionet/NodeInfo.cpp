@@ -34,16 +34,15 @@ namespace catapult { namespace ionet {
 	namespace {
 		template<typename TIterator>
 		auto* FindByIdentifier(TIterator begin, TIterator end, ServiceIdentifier serviceId) {
-			auto iter = std::find_if(begin, end, [serviceId](const auto& pair) {
-				return serviceId == pair.first;
-			});
+			auto iter = std::find_if(begin, end, [serviceId](const auto& pair) { return serviceId == pair.first; });
 
 			return end == iter ? nullptr : &iter->second;
 		}
 	}
 
-	NodeInfo::NodeInfo(NodeSource source) : m_source(source)
-	{}
+	NodeInfo::NodeInfo(NodeSource source)
+			: m_source(source) {
+	}
 
 	NodeSource NodeInfo::source() const {
 		return m_source;
@@ -66,9 +65,7 @@ namespace catapult { namespace ionet {
 	}
 
 	bool NodeInfo::hasActiveConnection() const {
-		return std::any_of(m_connectionStates.cbegin(), m_connectionStates.cend(), [](const auto& pair) {
-			return 0 != pair.second.Age;
-		});
+		return std::any_of(m_connectionStates.cbegin(), m_connectionStates.cend(), [](const auto& pair) { return 0 != pair.second.Age; });
 	}
 
 	const ConnectionState* NodeInfo::getConnectionState(ServiceIdentifier serviceId) const {

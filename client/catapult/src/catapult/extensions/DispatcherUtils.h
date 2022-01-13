@@ -26,9 +26,15 @@
 #include "catapult/thread/Task.h"
 
 namespace catapult {
-	namespace config { struct NodeConfiguration; }
-	namespace extensions { class ServiceLocator; }
-	namespace subscribers { class TransactionStatusSubscriber; }
+namespace config {
+	struct NodeConfiguration;
+}
+namespace extensions {
+	class ServiceLocator;
+}
+namespace subscribers {
+	class TransactionStatusSubscriber;
+}
 }
 
 namespace catapult { namespace extensions {

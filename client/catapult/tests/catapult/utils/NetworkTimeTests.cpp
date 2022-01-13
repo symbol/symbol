@@ -34,9 +34,7 @@ namespace catapult { namespace utils {
 		Timestamp now;
 
 		// Act:
-		auto duration = test::RunDeterministicOperation([&networkTime, &now]() {
-			now = networkTime.now();
-		});
+		auto duration = test::RunDeterministicOperation([&networkTime, &now]() { now = networkTime.now(); });
 
 		// Assert:
 		EXPECT_EQ(Timestamp(static_cast<uint64_t>(duration.count()) - Epoch_Delta_Millis), now);

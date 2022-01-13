@@ -29,13 +29,13 @@ namespace catapult { namespace cache {
 			const AccountStateCacheTypes::Options& options,
 			const HighValueAccounts& highValueAccounts)
 			: BasicAccountStateCacheView(
-					accountStateSets,
-					options,
-					highValueAccounts,
-					std::make_unique<AccountStateCacheViewMixins::KeyLookupAdapter>(
-							accountStateSets.KeyLookupMap,
-							accountStateSets.Primary))
-	{}
+					  accountStateSets,
+					  options,
+					  highValueAccounts,
+					  std::make_unique<AccountStateCacheViewMixins::KeyLookupAdapter>(
+							  accountStateSets.KeyLookupMap,
+							  accountStateSets.Primary)) {
+	}
 
 	BasicAccountStateCacheView::BasicAccountStateCacheView(
 			const AccountStateCacheTypes::BaseSets& accountStateSets,
@@ -51,8 +51,8 @@ namespace catapult { namespace cache {
 			, AccountStateCacheViewMixins::PatriciaTreeView(accountStateSets.PatriciaTree.get())
 			, m_options(options)
 			, m_highValueAccounts(highValueAccounts)
-			, m_pKeyLookupAdapter(std::move(pKeyLookupAdapter))
-	{}
+			, m_pKeyLookupAdapter(std::move(pKeyLookupAdapter)) {
+	}
 
 	model::NetworkIdentifier BasicAccountStateCacheView::networkIdentifier() const {
 		return m_options.NetworkIdentifier;

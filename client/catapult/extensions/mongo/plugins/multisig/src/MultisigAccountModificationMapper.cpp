@@ -39,9 +39,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		template<typename TTransaction>
 		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
-			builder
-					<< "minRemovalDelta" << transaction.MinRemovalDelta
-					<< "minApprovalDelta" << transaction.MinApprovalDelta;
+			builder << "minRemovalDelta" << transaction.MinRemovalDelta << "minApprovalDelta" << transaction.MinApprovalDelta;
 			StreamAddresses(builder, "addressAdditions", transaction.AddressAdditionsPtr(), transaction.AddressAdditionsCount);
 			StreamAddresses(builder, "addressDeletions", transaction.AddressDeletionsPtr(), transaction.AddressDeletionsCount);
 		}

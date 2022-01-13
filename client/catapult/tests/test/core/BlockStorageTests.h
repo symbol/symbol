@@ -625,7 +625,7 @@ namespace catapult { namespace test {
 		// endregion
 	};
 
-// region MAKE/DEFINE TESTs
+	// region MAKE/DEFINE TESTs
 
 #define MAKE_BLOCK_STORAGE_LOAD_TEST(TRAITS_NAME, TEST_NAME, LOAD_TYPE) \
 	TEST(TEST_CLASS, TEST_NAME##_##LOAD_TYPE) { \
@@ -639,14 +639,16 @@ namespace catapult { namespace test {
 	MAKE_BLOCK_STORAGE_LOAD_TEST(TRAITS_NAME, TEST_NAME, BlockStatementData)
 
 #define MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BlockStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BlockStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_BLOCK_STORAGE_TESTS(TRAITS_NAME) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, SavingBlockWithHeightHigherThanChainHeightAltersChainHeight) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanLoadNewlySavedBlock) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanOverwriteBlockWithSameData) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanOverwriteBlockWithDifferentData) \
-	\
+\
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, LoadHashesFrom_LoadsZeroHashesWhenRequestHeightIsZero) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, LoadHashesFrom_LoadsZeroHashesWhenRequestHeightIsLargerThanLocalHeight) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, LoadHashesFrom_CanLoadSingleHash) \
@@ -654,23 +656,23 @@ namespace catapult { namespace test {
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, LoadHashesFrom_LoadsAtMostMaxHashes) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, LoadHashesFrom_LoadsAreBoundedByLastBlock) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, LoadHashesFrom_LoadsCanCrossIndexFileBoundary) \
-	\
+\
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanSaveBlockWithoutStatements) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanSaveBlockWithOnlyTransactionStatements) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanSaveBlockWithOnlyAddressResolutions) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanSaveBlockWithOnlyMosaicResolutions) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanSaveBlockWithAllStatements) \
-	\
+\
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CannotSaveBlockWithHeightLessThanChainHeight) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CannotSaveBlockAtChainHeight) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CannotSaveBlockMoreThanOneHeightBeyondChainHeight) \
-	\
+\
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanDropBlocksAfterHeight) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanDropBlocksAfterHeightAndSaveBlock) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanDropAllBlocks) \
-	\
+\
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, StorageSeedInitiallyContainsNemesisBlock) \
-	\
+\
 	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CanLoadAtHeightLessThanChainHeight) \
 	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CanLoadAtChainHeight) \
 	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CannotLoadAtHeightGreaterThanChainHeight) \
@@ -681,5 +683,5 @@ namespace catapult { namespace test {
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, PurgeDestroysStorage) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanSetHeightAfterPurge)
 
-// endregion
+	// endregion
 }}

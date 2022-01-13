@@ -32,7 +32,7 @@ namespace catapult { namespace cache {
 	// region DeltaElementsMixinTraits
 
 	template<typename TLockInfoTraits>
-	struct LockInfoCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
+	struct LockInfoCacheDeltaModificationPolicy : public test::DeltaInsertModificationPolicy {
 		template<typename TDelta, typename TValue>
 		static void Modify(TDelta& delta, const TValue& value) {
 			delta.find(GetLockIdentifier(value)).get().back().Status = state::LockStatus::Used;
@@ -43,8 +43,9 @@ namespace catapult { namespace cache {
 	struct LockInfoCacheDeltaElementsMixinTraits {
 		class CacheType : public TLockInfoTraits::CacheType {
 		public:
-			CacheType() : TLockInfoTraits::CacheType(CacheConfiguration())
-			{}
+			CacheType()
+					: TLockInfoTraits::CacheType(CacheConfiguration()) {
+			}
 		};
 
 		using LockInfoTraits = TLockInfoTraits;
@@ -85,9 +86,8 @@ namespace catapult { namespace cache {
 	private:
 		using CacheTraits = LockInfoCacheDeltaElementsMixinTraits<TLockInfoTraits>;
 		using LockInfoPointers = std::vector<const typename TLockInfoTraits::LockInfoType*>;
-		using KeySet = typename std::unordered_set<
-			typename TLockInfoTraits::KeyType,
-			utils::ArrayHasher<typename TLockInfoTraits::KeyType>>;
+		using KeySet =
+				typename std::unordered_set<typename TLockInfoTraits::KeyType, utils::ArrayHasher<typename TLockInfoTraits::KeyType>>;
 		using KeyVector = typename std::vector<typename TLockInfoTraits::KeyType>;
 
 		static constexpr size_t Num_Default_Entries = 10;
@@ -104,9 +104,7 @@ namespace catapult { namespace cache {
 
 		static KeyVector CollectUnusedExpiredLockKeys(typename CacheTraits::CacheType::CacheDeltaType& delta, Height height) {
 			KeyVector keys;
-			delta.processUnusedExpiredLocks(height, [&keys](const auto& lockInfo) {
-				keys.push_back(GetLockIdentifier(lockInfo));
-			});
+			delta.processUnusedExpiredLocks(height, [&keys](const auto& lockInfo) { keys.push_back(GetLockIdentifier(lockInfo)); });
 			return keys;
 		}
 
@@ -428,37 +426,39 @@ namespace catapult { namespace cache {
 }}
 
 #define MAKE_LOCK_INFO_CACHE_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockInfoCacheTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		LockInfoCacheTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_LOCK_INFO_CACHE_TESTS(TRAITS, MODIFICATION_TRAITS, SUFFIX) \
 	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, ViewAccessor, _View##SUFFIX) \
 	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX) \
-	\
+\
 	DEFINE_CACHE_ITERATION_TESTS(TRAITS, ViewAccessor, _View##SUFFIX) \
-	\
+\
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, MutableAccessor, _ViewMutable##SUFFIX) \
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, ConstAccessor, _ViewConst##SUFFIX) \
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, MutableAccessor, _DeltaMutable##SUFFIX) \
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, ConstAccessor, _DeltaConst##SUFFIX) \
-	\
+\
 	DEFINE_CACHE_MUTATION_TESTS_SKIP_STRICT_INSERT(TRAITS, DeltaAccessor, _Delta##SUFFIX) \
-	\
+\
 	DEFINE_ACTIVE_PREDICATE_TESTS(TRAITS, ViewAccessor, _View##SUFFIX) \
 	DEFINE_ACTIVE_PREDICATE_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX) \
-	\
+\
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(TRAITS, MODIFICATION_TRAITS, _Delta##SUFFIX) \
-	\
+\
 	DEFINE_CACHE_BASIC_TESTS(TRAITS, SUFFIX) \
-	\
+\
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, CanInsertExistingValueIntoCache) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, CanRemoveHistoryLevelFromCache) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, RemoveRemovesLockFromHeightBasedMap) \
-	\
+\
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsEmptyVectorWhenNoLockExpired) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsEmptyVectorWhenOnlyUsedLocksExpired) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsUnusedExpiredLocks_SingleLock) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsUnusedExpiredLocks_MultipleLocks) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsOnlyUnusedExpiredLocks_MultipleLocks) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksIsHistoryAware) \
-	\
+\
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, PruneDoesNotRemoveLockHistoriesWithSomeExpiredAndSomeUnexpiredLockInfos)

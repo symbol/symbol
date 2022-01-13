@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RESULT_DEFINITION
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #endif
 
@@ -71,5 +72,6 @@ namespace catapult { namespace validators {
 	DEFINE_RESTRICTION_ACCOUNT_RESULT(Operation_Type_Prohibited, 13);
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

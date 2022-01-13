@@ -39,8 +39,8 @@ namespace catapult { namespace io {
 			, m_blockDatabase(config::CatapultDirectory(dataDirectory), { fileDatabaseBatchSize, ".dat" })
 			, m_statementDatabase(config::CatapultDirectory(dataDirectory), { fileDatabaseBatchSize, ".stmt" })
 			, m_hashFile(dataDirectory, "hashes")
-			, m_indexFile((std::filesystem::path(dataDirectory) / "index.dat").generic_string())
-	{}
+			, m_indexFile((std::filesystem::path(dataDirectory) / "index.dat").generic_string()) {
+	}
 
 	// endregion
 

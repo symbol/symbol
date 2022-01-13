@@ -24,74 +24,68 @@
 #include "catapult/model/Address.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
 
-namespace catapult { namespace tools { namespace address {
+namespace catapult { namespace tools { namespace address { namespace {
+	// region Mode
 
-	namespace {
-		// region Mode
+	enum class Mode { Encoded_Address, Decoded_Address, Public_Key, Secret_Key };
 
-		enum class Mode { Encoded_Address, Decoded_Address, Public_Key, Secret_Key };
+	Mode ParseMode(const std::string& str) {
+		static const std::array<std::pair<const char*, Mode>, 4> String_To_Mode_Pairs{ { { "encoded", Mode::Encoded_Address },
+																						 { "decoded", Mode::Decoded_Address },
+																						 { "public", Mode::Public_Key },
+																						 { "secret", Mode::Secret_Key } } };
 
-		Mode ParseMode(const std::string& str) {
-			static const std::array<std::pair<const char*, Mode>, 4> String_To_Mode_Pairs{{
-				{ "encoded", Mode::Encoded_Address },
-				{ "decoded", Mode::Decoded_Address },
-				{ "public", Mode::Public_Key },
-				{ "secret", Mode::Secret_Key }
-			}};
-
-			Mode mode;
-			if (!utils::TryParseEnumValue(String_To_Mode_Pairs, str, mode)) {
-				std::ostringstream out;
-				out << "'" << str << "' is not a valid mode";
-				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-			}
-
-			return mode;
+		Mode mode;
+		if (!utils::TryParseEnumValue(String_To_Mode_Pairs, str, mode)) {
+			std::ostringstream out;
+			out << "'" << str << "' is not a valid mode";
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		// endregion
+		return mode;
+	}
 
-		// region AddressInspectorTool
+	// endregion
 
-		class AddressInspectorTool : public AccountTool {
-		public:
-			AddressInspectorTool() : AccountTool("Address Inspector Tool", AccountTool::InputDisposition::Required)
-			{}
+	// region AddressInspectorTool
 
-		private:
-			void prepareAdditionalOptions(OptionsBuilder& optionsBuilder) override {
-				optionsBuilder("mode,m",
-						OptionsValue<std::string>()->required(),
-						"mode, possible values: encoded, decoded, public, secret");
-			}
+	class AddressInspectorTool : public AccountTool {
+	public:
+		AddressInspectorTool()
+				: AccountTool("Address Inspector Tool", AccountTool::InputDisposition::Required) {
+		}
 
-			void process(const Options& options, const std::vector<std::string>& values, AccountPrinter& printer) override {
-				auto mode = ParseMode(options["mode"].as<std::string>());
-				for (const auto& value : values) {
-					switch (mode) {
-					case Mode::Encoded_Address:
-						printer.print(model::StringToAddress(value));
-						break;
+	private:
+		void prepareAdditionalOptions(OptionsBuilder& optionsBuilder) override {
+			optionsBuilder("mode,m", OptionsValue<std::string>()->required(), "mode, possible values: encoded, decoded, public, secret");
+		}
 
-					case Mode::Decoded_Address:
-						printer.print(utils::ParseByteArray<Address>(value));
-						break;
+		void process(const Options& options, const std::vector<std::string>& values, AccountPrinter& printer) override {
+			auto mode = ParseMode(options["mode"].as<std::string>());
+			for (const auto& value : values) {
+				switch (mode) {
+				case Mode::Encoded_Address:
+					printer.print(model::StringToAddress(value));
+					break;
 
-					case Mode::Public_Key:
-						printer.print(utils::ParseByteArray<Key>(value));
-						break;
+				case Mode::Decoded_Address:
+					printer.print(utils::ParseByteArray<Address>(value));
+					break;
 
-					case Mode::Secret_Key:
-						printer.print(crypto::KeyPair::FromString(value));
-						break;
-					}
+				case Mode::Public_Key:
+					printer.print(utils::ParseByteArray<Key>(value));
+					break;
+
+				case Mode::Secret_Key:
+					printer.print(crypto::KeyPair::FromString(value));
+					break;
 				}
 			}
-		};
+		}
+	};
 
-		// endregion
-	}
-}}}
+	// endregion
+}}}}
 
 int main(int argc, const char** argv) {
 	catapult::tools::address::AddressInspectorTool tool;

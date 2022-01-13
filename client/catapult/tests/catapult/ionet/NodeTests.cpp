@@ -172,9 +172,9 @@ namespace catapult { namespace ionet {
 			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
 			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Testnet, generationHashSeed);
 			return Node(
-				{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
-				{ endpointHost, 1234 },
-				{ networkFingerprint, metadataName, NodeVersion(7), NodeRoles::Peer });
+					{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
+					{ endpointHost, 1234 },
+					{ networkFingerprint, metadataName, NodeVersion(7), NodeRoles::Peer });
 		}
 
 		void AssertCanCreateNodeWithStrings(size_t endpointHostSize, size_t metadataNameSize) {
@@ -191,7 +191,8 @@ namespace catapult { namespace ionet {
 			// Act + Assert:
 			EXPECT_THROW(
 					CreateNodeWithStrings(std::string(endpointHostSize, 'h'), std::string(metadataNameSize, 'n')),
-					catapult_invalid_argument) << MakeMessage(endpointHostSize, metadataNameSize);
+					catapult_invalid_argument)
+					<< MakeMessage(endpointHostSize, metadataNameSize);
 		}
 	}
 

@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AggregateHashPresentValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AggregateHashPresent,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AggregateHashPresent, )
 
 	namespace {
 		auto CreateNotification(const Hash256& transactionHash, model::EntityType transactionType) {

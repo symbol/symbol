@@ -132,8 +132,8 @@ namespace catapult { namespace cache {
 					std::vector<CosignatureInfo>& cosignatureInfos,
 					const model::DetachedTransactionInfo& transactionInfo)
 					: m_cosignatureInfos(cosignatureInfos)
-					, m_transactionInfo(transactionInfo.copy())
-			{}
+					, m_transactionInfo(transactionInfo.copy()) {
+			}
 
 		public:
 			model::DetachedTransactionInfo add(const Hash256& parentHash, const model::Cosignature& cosignature) override {
@@ -214,8 +214,8 @@ namespace catapult { namespace cache {
 					std::vector<Timestamp>& timestamps,
 					std::vector<model::DetachedTransactionInfo>&& transactionInfos)
 					: m_timestamps(timestamps)
-					, m_transactionInfos(std::move(transactionInfos))
-			{}
+					, m_transactionInfos(std::move(transactionInfos)) {
+			}
 
 		public:
 			std::vector<model::DetachedTransactionInfo> prune(Timestamp timestamp) override {
@@ -301,8 +301,8 @@ namespace catapult { namespace cache {
 		class MockPrunePredicatePtCacheModifier : public UnsupportedPtCacheModifier {
 		public:
 			explicit MockPrunePredicatePtCacheModifier(std::vector<model::DetachedTransactionInfo>&& transactionInfos)
-					: m_transactionInfos(std::move(transactionInfos))
-			{}
+					: m_transactionInfos(std::move(transactionInfos)) {
+			}
 
 		public:
 			std::vector<model::DetachedTransactionInfo> prune(const predicate<const Hash256&>& hashPredicate) override {

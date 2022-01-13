@@ -28,17 +28,19 @@ namespace catapult { namespace mocks {
 	class MockProofStorage : public io::ProofStorage {
 	public:
 		/// Creates a proof storage initialized with a nemesis proof.
-		MockProofStorage() : MockProofStorage(FinalizationPoint(1), Height(1))
-		{}
+		MockProofStorage()
+				: MockProofStorage(FinalizationPoint(1), Height(1)) {
+		}
 
 		/// Creates a proof storage initialized with a proof for \a point and \a height.
-		MockProofStorage(FinalizationPoint point, Height height) : MockProofStorage(point, height, Hash256())
-		{}
+		MockProofStorage(FinalizationPoint point, Height height)
+				: MockProofStorage(point, height, Hash256()) {
+		}
 
 		/// Creates a proof storage initialized with a proof for \a point, \a height and \a hash.
 		MockProofStorage(FinalizationPoint point, Height height, const Hash256& hash)
-				: MockProofStorage(FinalizationEpoch(1), point, height, hash)
-		{}
+				: MockProofStorage(FinalizationEpoch(1), point, height, hash) {
+		}
 
 		/// Creates a proof storage initialized with a proof for \a epoch, \a point, \a height and \a hash.
 		MockProofStorage(FinalizationEpoch epoch, FinalizationPoint point, Height height, const Hash256& hash) {
@@ -94,9 +96,8 @@ namespace catapult { namespace mocks {
 			if (Height() == height || height > m_height)
 				CATAPULT_THROW_INVALID_ARGUMENT("height must be nonzero and no greater than finalizedHeight");
 
-			auto iter = std::find_if(m_proofs.crbegin(), m_proofs.crend(), [height](const auto& pProof) {
-				return height == pProof->Height;
-			});
+			auto iter =
+					std::find_if(m_proofs.crbegin(), m_proofs.crend(), [height](const auto& pProof) { return height == pProof->Height; });
 			return m_proofs.crend() == iter ? nullptr : *iter;
 		}
 

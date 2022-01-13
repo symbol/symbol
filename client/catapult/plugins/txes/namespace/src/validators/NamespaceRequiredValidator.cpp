@@ -39,8 +39,7 @@ namespace catapult { namespace validators {
 		if (!root.lifetime().isActiveExcludingGracePeriod(context.Height, cache.gracePeriodDuration()))
 			return Failure_Namespace_Expired;
 
-		return root.ownerAddress() == notification.Owner.resolved(context.Resolvers)
-				? ValidationResult::Success
-				: Failure_Namespace_Owner_Conflict;
+		return root.ownerAddress() == notification.Owner.resolved(context.Resolvers) ? ValidationResult::Success
+																					 : Failure_Namespace_Owner_Conflict;
 	})
 }}

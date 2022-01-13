@@ -25,8 +25,9 @@
 
 namespace catapult { namespace finalization {
 
-	VotingStatusFile::VotingStatusFile(const std::string& filename) : m_filename(filename)
-	{}
+	VotingStatusFile::VotingStatusFile(const std::string& filename)
+			: m_filename(filename) {
+	}
 
 	chain::VotingStatus VotingStatusFile::load() const {
 		chain::VotingStatus status;

@@ -62,7 +62,7 @@ namespace catapult { namespace chain {
 			for (auto i = 0u; i < aggregateTransaction.CosignaturesCount(); ++i) {
 				const auto& cosignatory = pCosignature->SignerPublicKey;
 				auto isNewCosignatory = cosignatories.emplace(cosignatory).second
-						&& (!transactionInfoFromCache || !transactionInfoFromCache.hasCosignatory(cosignatory));
+										&& (!transactionInfoFromCache || !transactionInfoFromCache.hasCosignatory(cosignatory));
 				if (isNewCosignatory)
 					cosignatures.emplace_back(pCosignature->SignerPublicKey, pCosignature->Signature, aggregateHash);
 
@@ -82,13 +82,13 @@ namespace catapult { namespace chain {
 	public:
 		explicit CheckEligibilityResult(CosignatureUpdateResult updateResult)
 				: m_updateResult(updateResult)
-				, m_validationResult(CosignatoriesValidationResult::Ineligible)
-		{}
+				, m_validationResult(CosignatoriesValidationResult::Ineligible) {
+		}
 
 		explicit CheckEligibilityResult(CosignatoriesValidationResult validationResult)
 				: m_updateResult(CosignatureUpdateResult::Ineligible)
-				, m_validationResult(validationResult)
-		{}
+				, m_validationResult(validationResult) {
+		}
 
 	public:
 		CosignatureUpdateResult updateResult() const {
@@ -97,7 +97,7 @@ namespace catapult { namespace chain {
 
 		bool isEligibile() const {
 			return CosignatoriesValidationResult::Missing == m_validationResult
-					|| CosignatoriesValidationResult::Success == m_validationResult;
+				   || CosignatoriesValidationResult::Success == m_validationResult;
 		}
 
 		bool isPurgeRequired() const {
@@ -125,18 +125,17 @@ namespace catapult { namespace chain {
 
 	class PtUpdater::Impl final : public std::enable_shared_from_this<PtUpdater::Impl> {
 	public:
-		Impl(
-				cache::MemoryPtCacheProxy& transactionsCache,
-				std::unique_ptr<const PtValidator>&& pValidator,
-				const CompletedTransactionSink& completedTransactionSink,
-				const FailedTransactionSink& failedTransactionSink,
-				thread::IoThreadPool& pool)
+		Impl(cache::MemoryPtCacheProxy& transactionsCache,
+			 std::unique_ptr<const PtValidator>&& pValidator,
+			 const CompletedTransactionSink& completedTransactionSink,
+			 const FailedTransactionSink& failedTransactionSink,
+			 thread::IoThreadPool& pool)
 				: m_transactionsCache(transactionsCache)
 				, m_pValidator(std::move(pValidator))
 				, m_completedTransactionSink(completedTransactionSink)
 				, m_failedTransactionSink(failedTransactionSink)
-				, m_ioContext(pool.ioContext())
-		{}
+				, m_ioContext(pool.ioContext()) {
+		}
 
 	private:
 		struct TransactionUpdateContext {
@@ -172,10 +171,8 @@ namespace catapult { namespace chain {
 			updateContext.AggregateHash = aggregateHash;
 			updateContext.Cosignatures = std::move(cosignatures);
 			updateContext.pExtractedAddresses = transactionInfo.OptionalExtractedAddresses;
-			boost::asio::post(m_ioContext, [pThis = shared_from_this(), updateContext, pPromise{std::move(pPromise)}]() {
-				pThis->updateImpl(updateContext).then([pPromise](auto&& resultFuture) {
-					pPromise->set_value(resultFuture.get());
-				});
+			boost::asio::post(m_ioContext, [pThis = shared_from_this(), updateContext, pPromise{ std::move(pPromise) }]() {
+				pThis->updateImpl(updateContext).then([pPromise](auto&& resultFuture) { pPromise->set_value(resultFuture.get()); });
 			});
 
 			return updateFuture;
@@ -206,7 +203,7 @@ namespace catapult { namespace chain {
 			auto pPromise = std::make_shared<thread::promise<CosignatureUpdateResult>>(); // needs to be copyable to pass to post
 			auto updateFuture = pPromise->get_future();
 
-			boost::asio::post(m_ioContext, [pThis = shared_from_this(), cosignature, pPromise{std::move(pPromise)}]() {
+			boost::asio::post(m_ioContext, [pThis = shared_from_this(), cosignature, pPromise{ std::move(pPromise) }]() {
 				auto result = pThis->updateImpl(cosignature);
 				pPromise->set_value(std::move(result));
 			});
@@ -230,9 +227,8 @@ namespace catapult { namespace chain {
 			}
 
 			if (!crypto::Verify(cosignature.SignerPublicKey, cosignature.ParentHash, cosignature.Signature)) {
-				CATAPULT_LOG(debug)
-						<< "ignoring unverifiable cosignature (signer = " << cosignature.SignerPublicKey
-						<< ", parentHash = " << cosignature.ParentHash << ")";
+				CATAPULT_LOG(debug) << "ignoring unverifiable cosignature (signer = " << cosignature.SignerPublicKey
+									<< ", parentHash = " << cosignature.ParentHash << ")";
 				return CosignatureUpdateResult::Unverifiable;
 			}
 
@@ -345,9 +341,8 @@ namespace catapult { namespace chain {
 				singleElementCosignatures[0] = existingCosignature;
 				auto validateSingleResult = validateCosignatories(transactionInfoFromCache, singleElementCosignatures);
 				if (CosignatoriesValidationResult::Ineligible == validateSingleResult.Normalized) {
-					CATAPULT_LOG(debug)
-							<< "detected stale cosignature with signer " << cosignature.SignerPublicKey
-							<< " for transaction " << cosignature.ParentHash;
+					CATAPULT_LOG(debug) << "detected stale cosignature with signer " << cosignature.SignerPublicKey << " for transaction "
+										<< cosignature.ParentHash;
 				} else {
 					// cosignature is still valid
 					staleTransactionInfo.EligibleCosignatures.push_back(existingCosignature);
@@ -404,12 +399,12 @@ namespace catapult { namespace chain {
 			const FailedTransactionSink& failedTransactionSink,
 			thread::IoThreadPool& pool)
 			: m_pImpl(std::make_shared<Impl>(
-					transactionsCache,
-					std::move(pValidator),
-					completedTransactionSink,
-					failedTransactionSink,
-					pool))
-	{}
+					  transactionsCache,
+					  std::move(pValidator),
+					  completedTransactionSink,
+					  failedTransactionSink,
+					  pool)) {
+	}
 
 	PtUpdater::~PtUpdater() = default;
 

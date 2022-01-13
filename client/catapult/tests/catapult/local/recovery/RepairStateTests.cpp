@@ -127,10 +127,16 @@ namespace catapult { namespace local {
 		};
 
 #define REPAIR_STATE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Server) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ServerTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Broker) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BrokerTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Server) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ServerTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Broker) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BrokerTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 		// endregion
 	}

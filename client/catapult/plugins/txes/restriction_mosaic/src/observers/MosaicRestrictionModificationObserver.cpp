@@ -60,12 +60,14 @@ namespace catapult { namespace observers {
 	}
 
 #define DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(NAME, MODE) \
-	DEFINE_OBSERVER(Mosaic##NAME##Restriction##MODE##Modification, NAME##MODE##Notification, ([]( \
-			const NAME##MODE##Notification& notification, \
-			const ObserverContext& context) { \
-		using NotificationFacade = state::Mosaic##NAME##RestrictionNotificationFacade<NAME##MODE##Notification::Notification_Type>; \
-		ObserveNotification<NotificationFacade>(NotifyMode::MODE, notification, context); \
-	}))
+	DEFINE_OBSERVER( \
+			Mosaic##NAME##Restriction##MODE##Modification, \
+			NAME##MODE##Notification, \
+			([](const NAME##MODE##Notification& notification, const ObserverContext& context) { \
+				using NotificationFacade = \
+						state::Mosaic##NAME##RestrictionNotificationFacade<NAME##MODE##Notification::Notification_Type>; \
+				ObserveNotification<NotificationFacade>(NotifyMode::MODE, notification, context); \
+			}))
 
 	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Global, Commit)
 	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Global, Rollback)

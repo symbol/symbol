@@ -28,8 +28,8 @@ namespace catapult { namespace builders {
 			, m_linkedPublicKey()
 			, m_startEpoch()
 			, m_endEpoch()
-			, m_linkAction()
-	{}
+			, m_linkAction() {
+	}
 
 	void VotingKeyLinkBuilder::setLinkedPublicKey(const VotingKey& linkedPublicKey) {
 		m_linkedPublicKey = linkedPublicKey;

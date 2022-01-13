@@ -37,7 +37,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(MosaicDefinition, MosaicRentalFeeConfiguration, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(MosaicDefinition, MosaicRentalFeeConfiguration, 1, 1, )
 
 		MosaicRentalFeeConfiguration CreateRentalFeeConfiguration(Amount fee) {
 			HeightDependentAddress sinkAddress(test::GenerateRandomByteArray<Address>());
@@ -48,12 +48,7 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(
-			TEST_CLASS,
-			,
-			,
-			Entity_Type_Mosaic_Definition,
-			CreateRentalFeeConfiguration(Amount(0)))
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Mosaic_Definition, CreateRentalFeeConfiguration(Amount(0)))
 
 	// endregion
 
@@ -126,12 +121,13 @@ namespace catapult { namespace plugins {
 		transaction.SignerPublicKey = config.NemesisSignerPublicKey;
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			AccountAddressNotification::Notification_Type,
-			MosaicNonceNotification::Notification_Type,
-			MosaicPropertiesNotification::Notification_Type,
-			MosaicDefinitionNotification::Notification_Type
-		}, config);
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ AccountAddressNotification::Notification_Type,
+				  MosaicNonceNotification::Notification_Type,
+				  MosaicPropertiesNotification::Notification_Type,
+				  MosaicDefinitionNotification::Notification_Type },
+				config);
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNemesisIsSigner) {
@@ -161,14 +157,15 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			AccountAddressNotification::Notification_Type,
-			BalanceTransferNotification::Notification_Type,
-			MosaicRentalFeeNotification::Notification_Type,
-			MosaicNonceNotification::Notification_Type,
-			MosaicPropertiesNotification::Notification_Type,
-			MosaicDefinitionNotification::Notification_Type
-		}, config);
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ AccountAddressNotification::Notification_Type,
+				  BalanceTransferNotification::Notification_Type,
+				  MosaicRentalFeeNotification::Notification_Type,
+				  MosaicNonceNotification::Notification_Type,
+				  MosaicPropertiesNotification::Notification_Type,
+				  MosaicDefinitionNotification::Notification_Type },
+				config);
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNemesisIsNotSigner) {

@@ -29,8 +29,9 @@ namespace catapult { namespace zeromq {
 	namespace {
 		class ZeroMqTransactionStatusSubscriber : public subscribers::TransactionStatusSubscriber {
 		public:
-			explicit ZeroMqTransactionStatusSubscriber(ZeroMqEntityPublisher& publisher) : m_publisher(publisher)
-			{}
+			explicit ZeroMqTransactionStatusSubscriber(ZeroMqEntityPublisher& publisher)
+					: m_publisher(publisher) {
+			}
 
 		public:
 			void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) override {

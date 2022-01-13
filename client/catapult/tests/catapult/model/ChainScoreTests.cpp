@@ -89,13 +89,11 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::vector<ChainScore> GenerateIncreasingValues() {
-			return {
-				ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6),
-				ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B7),
-				ChainScore(0x8FDE'4267'9C23'D678, 0x8A6B'3481'0235'43B7),
-				ChainScore(0x8FDE'4267'9C23'D679, 0x8A6B'3481'0235'43B7),
-				ChainScore(0x9FDE'4267'9C23'D679, 0x8A6B'3481'0235'43B7)
-			};
+			return { ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6),
+					 ChainScore(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B7),
+					 ChainScore(0x8FDE'4267'9C23'D678, 0x8A6B'3481'0235'43B7),
+					 ChainScore(0x8FDE'4267'9C23'D679, 0x8A6B'3481'0235'43B7),
+					 ChainScore(0x9FDE'4267'9C23'D679, 0x8A6B'3481'0235'43B7) };
 		}
 	}
 

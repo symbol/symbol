@@ -71,11 +71,8 @@ namespace catapult { namespace mongo { namespace mappers {
 	namespace {
 		template<typename TEntity>
 		bson_stream::document& StreamBasicEntity(bson_stream::document& builder, const TEntity& entity) {
-			builder
-					<< "signerPublicKey" << ToBinary(entity.SignerPublicKey)
-					<< "version" << entity.Version
-					<< "network" << utils::to_underlying_type(entity.Network)
-					<< "type" << utils::to_underlying_type(entity.Type);
+			builder << "signerPublicKey" << ToBinary(entity.SignerPublicKey) << "version" << entity.Version << "network"
+					<< utils::to_underlying_type(entity.Network) << "type" << utils::to_underlying_type(entity.Type);
 			return builder;
 		}
 	}
@@ -85,20 +82,14 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 	bson_stream::document& StreamVerifiableEntity(bson_stream::document& builder, const model::VerifiableEntity& entity) {
-		builder
-				<< "size" << static_cast<int32_t>(entity.Size)
-				<< "signature" << ToBinary(entity.Signature);
+		builder << "size" << static_cast<int32_t>(entity.Size) << "signature" << ToBinary(entity.Signature);
 		return StreamBasicEntity(builder, entity);
 	}
 
 	namespace {
 		template<typename TMosaicId>
 		bson_stream::array_context& StreamMosaicT(bson_stream::array_context& context, TMosaicId id, Amount amount) {
-			context
-					<< bson_stream::open_document
-						<< "id" << ToInt64(id)
-						<< "amount" << ToInt64(amount)
-					<< bson_stream::close_document;
+			context << bson_stream::open_document << "id" << ToInt64(id) << "amount" << ToInt64(amount) << bson_stream::close_document;
 			return context;
 		}
 	}
@@ -112,9 +103,7 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 	bson_stream::document& StreamReceipt(bson_stream::document& builder, const model::Receipt& receipt) {
-		builder
-				<< "version" << receipt.Version
-				<< "type" << utils::to_underlying_type(receipt.Type);
+		builder << "version" << receipt.Version << "type" << utils::to_underlying_type(receipt.Type);
 
 		return builder;
 	}

@@ -232,11 +232,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, SumAllReturnsFalseWhenCurrentTotalInflationPlusSummandCausesOverflow) {
 		// Arrange:
 		auto numBlocks = std::numeric_limits<uint64_t>::max() / 2;
-		auto calculator = CreateInflationCalculator({
-			{ Height(1), Amount(2) },
-			{ Height(numBlocks), Amount(2) },
-			{ Height(numBlocks + 2), Amount(0) }
-		});
+		auto calculator = CreateInflationCalculator(
+				{ { Height(1), Amount(2) }, { Height(numBlocks), Amount(2) }, { Height(numBlocks + 2), Amount(0) } });
 
 		// Act:
 		auto totalInflation = calculator.sumAll();

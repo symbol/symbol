@@ -147,16 +147,17 @@ namespace catapult { namespace extensions {
 	namespace {
 		class BufferOutputStream : public io::OutputStream {
 		public:
-			explicit BufferOutputStream(std::vector<uint8_t>& buffer) : m_buffer(buffer)
-			{}
+			explicit BufferOutputStream(std::vector<uint8_t>& buffer)
+					: m_buffer(buffer) {
+			}
 
 		public:
 			void write(const RawBuffer& buffer) override {
 				m_buffer.insert(m_buffer.end(), buffer.pData, buffer.pData + buffer.Size);
 			}
 
-			void flush() override
-			{}
+			void flush() override {
+			}
 
 		private:
 			std::vector<uint8_t>& m_buffer;

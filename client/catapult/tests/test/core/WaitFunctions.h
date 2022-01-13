@@ -23,7 +23,9 @@
 #include "catapult/functions.h"
 #include <stdint.h>
 
-namespace boost { namespace asio { class io_context; } }
+namespace boost { namespace asio {
+	class io_context;
+}}
 
 namespace catapult { namespace test {
 

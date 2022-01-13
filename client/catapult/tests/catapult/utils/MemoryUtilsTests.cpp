@@ -49,10 +49,16 @@ namespace catapult { namespace utils {
 	}
 
 #define POINTER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Unique) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UniqueTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Shared) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Unique) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UniqueTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Shared) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	POINTER_TEST(CannotCreatePointerWithInsufficientSize) {
 		EXPECT_THROW(TTraits::template MakeWithSize<Foo>(sizeof(Foo) - 1), catapult_invalid_argument);

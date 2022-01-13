@@ -24,16 +24,24 @@
 #include "catapult/types.h"
 
 namespace catapult {
-	namespace cache {
-		class CacheStorage;
-		class CatapultCache;
-		class CatapultCacheDelta;
-		struct SupplementalData;
-	}
-	namespace config { struct NodeConfiguration; }
-	namespace extensions { struct LocalNodeStateRef; }
-	namespace model { class ChainScore; }
-	namespace plugins { class PluginManager; }
+namespace cache {
+	class CacheStorage;
+	class CatapultCache;
+	class CatapultCacheDelta;
+	struct SupplementalData;
+}
+namespace config {
+	struct NodeConfiguration;
+}
+namespace extensions {
+	struct LocalNodeStateRef;
+}
+namespace model {
+	class ChainScore;
+}
+namespace plugins {
+	class PluginManager;
+}
 }
 
 namespace catapult { namespace extensions {

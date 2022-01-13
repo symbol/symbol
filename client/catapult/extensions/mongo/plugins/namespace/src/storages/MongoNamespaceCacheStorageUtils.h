@@ -24,8 +24,12 @@
 #include <vector>
 
 namespace catapult {
-	namespace mongo { namespace plugins { struct NamespaceDescriptor; } }
-	namespace state { class RootNamespaceHistory; }
+namespace mongo { namespace plugins {
+	struct NamespaceDescriptor;
+}}
+namespace state {
+	class RootNamespaceHistory;
+}
 }
 
 namespace catapult { namespace mongo { namespace plugins {

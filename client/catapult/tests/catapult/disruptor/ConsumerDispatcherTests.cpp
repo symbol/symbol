@@ -39,9 +39,7 @@ namespace catapult { namespace disruptor {
 		constexpr uint64_t Block_Header_Size = sizeof(model::BlockHeader) + sizeof(model::PaddedBlockFooter);
 
 		auto CreateNoOpConsumer() {
-			return [](const auto&) {
-				return ConsumerResult::Continue();
-			};
+			return [](const auto&) { return ConsumerResult::Continue(); };
 		}
 
 		void ProcessAll(ConsumerDispatcher& dispatcher, std::vector<model::BlockRange>&& ranges) {
@@ -111,12 +109,10 @@ namespace catapult { namespace disruptor {
 		auto ranges = test::PrepareRanges(1);
 		ConsumerDispatcher dispatcher(
 				Test_Dispatcher_Options,
-				{
-					[&numConsumerCalls](const auto&) {
-						++numConsumerCalls;
-						return ConsumerResult::Continue();
-					}
-				},
+				{ [&numConsumerCalls](const auto&) {
+					++numConsumerCalls;
+					return ConsumerResult::Continue();
+				} },
 				[&numInspectorCalls](const auto&, const auto&) { ++numInspectorCalls; });
 
 		// Act:
@@ -256,8 +252,9 @@ namespace catapult { namespace disruptor {
 
 		class CollectedHeights {
 		public:
-			CollectedHeights() : m_size(0)
-			{}
+			CollectedHeights()
+					: m_size(0) {
+			}
 
 		public:
 			size_t size() const {
@@ -281,16 +278,12 @@ namespace catapult { namespace disruptor {
 
 		auto GetExpectedHeights(const std::vector<model::BlockRange>& ranges) {
 			return test::Apply(true, ranges, [](const auto& range) {
-				return test::Apply(true, range, [](const auto& block) {
-					return block.Height;
-				});
+				return test::Apply(true, range, [](const auto& block) { return block.Height; });
 			});
 		}
 
 		auto BlockElementVectorToHeights(BlockElements& entities) {
-			return test::Apply(true, entities, [](const auto& blockElement) {
-				return blockElement.Block.Height;
-			});
+			return test::Apply(true, entities, [](const auto& blockElement) { return blockElement.Block.Height; });
 		}
 
 		auto CreateConsumer(CollectedHeights& collector) {
@@ -331,12 +324,10 @@ namespace catapult { namespace disruptor {
 		auto numInspectorCalls = 0u;
 		ConsumerDispatcher dispatcher(
 				Test_Dispatcher_Options,
-				{
-					[&numConsumerCalls](const auto&) {
-						++numConsumerCalls;
-						return ConsumerResult::Continue();
-					}
-				},
+				{ [&numConsumerCalls](const auto&) {
+					++numConsumerCalls;
+					return ConsumerResult::Continue();
+				} },
 				[&numInspectorCalls](const auto&, const auto&) { ++numInspectorCalls; });
 
 		// Act: push single (empty) element
@@ -450,11 +441,7 @@ namespace catapult { namespace disruptor {
 		// Act:
 		ConsumerDispatcher dispatcher(
 				Test_Dispatcher_Options,
-				{
-					CreateConsumer(collectedHeights[0]),
-					CreateConsumer(collectedHeights[1]),
-					CreateConsumer(collectedHeights[2])
-				},
+				{ CreateConsumer(collectedHeights[0]), CreateConsumer(collectedHeights[1]), CreateConsumer(collectedHeights[2]) },
 				CreateCollectingInspector(inspectedHeights, inspectedStatuses));
 
 		// - push multiple elements
@@ -480,9 +467,7 @@ namespace catapult { namespace disruptor {
 	namespace {
 		auto CreateSkipIfFirstBlockIsEvenConsumer() {
 			return [](auto& consumerInput) {
-				return 0 == consumerInput.blocks()[0].Block.Height.unwrap() % 2
-						? ConsumerResult::Abort()
-						: ConsumerResult::Continue();
+				return 0 == consumerInput.blocks()[0].Block.Height.unwrap() % 2 ? ConsumerResult::Abort() : ConsumerResult::Continue();
 			};
 		}
 	}
@@ -495,15 +480,12 @@ namespace catapult { namespace disruptor {
 		for (auto& range : ranges)
 			range.begin()->Height = Height(++height);
 
-		auto expectedHeights = test::Filter(GetExpectedHeights(ranges), [](const auto& heights) {
-			return 1 == heights[0].unwrap() % 2;
-		});
+		auto expectedHeights = test::Filter(GetExpectedHeights(ranges), [](const auto& heights) { return 1 == heights[0].unwrap() % 2; });
 
 		// Act:
-		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, {
-			CreateSkipIfFirstBlockIsEvenConsumer(),
-			CreateConsumer(collectedHeights)
-		});
+		ConsumerDispatcher dispatcher(
+				Test_Dispatcher_Options,
+				{ CreateSkipIfFirstBlockIsEvenConsumer(), CreateConsumer(collectedHeights) });
 
 		// push multiple elements
 		ProcessAll(dispatcher, std::move(ranges));
@@ -559,25 +541,25 @@ namespace catapult { namespace disruptor {
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable:4702) /* "unreachable code" */
+#pragma warning(disable : 4702) /* "unreachable code" */
 #endif
 
 	TEST(TEST_CLASS, ExceptionThrownFromTheConsumerTerminates) {
-		ASSERT_DEATH({
-			// Arrange:
-			auto ranges = test::PrepareRanges(1);
+		ASSERT_DEATH(
+				{
+					// Arrange:
+					auto ranges = test::PrepareRanges(1);
 
-			ConsumerDispatcher dispatcher(Test_Dispatcher_Options, {
-				[](const auto&) {
-					CATAPULT_THROW_RUNTIME_ERROR("dummy consumer exception");
-					return ConsumerResult::Continue();
-				}
-			});
+					ConsumerDispatcher dispatcher(Test_Dispatcher_Options, { [](const auto&) {
+													  CATAPULT_THROW_RUNTIME_ERROR("dummy consumer exception");
+													  return ConsumerResult::Continue();
+												  } });
 
-			// Act:
-			ProcessAll(dispatcher, std::move(ranges));
-			WAIT_FOR_EXPR(!dispatcher.isRunning());
-		}, "");
+					// Act:
+					ProcessAll(dispatcher, std::move(ranges));
+					WAIT_FOR_EXPR(!dispatcher.isRunning());
+				},
+				"");
 	}
 
 #ifdef _MSC_VER
@@ -604,17 +586,17 @@ namespace catapult { namespace disruptor {
 			std::atomic<size_t> counter(0);
 			std::unique_ptr<ConsumerDispatcher> pDispatcher;
 			test::AutoSetFlag continueFlag;
-			pDispatcher = std::make_unique<ConsumerDispatcher>(options, std::vector<DisruptorConsumer>{
-				[&counter](const auto&) {
-					++counter;
-					CATAPULT_LOG(info) << "consumer is processing element " << counter;
-					return ConsumerResult::Continue();
-				},
-				[pContinueFlag = continueFlag.state()](const auto&) {
-					pContinueFlag->wait();
-					return ConsumerResult::Continue();
-				}
-			});
+			pDispatcher = std::make_unique<ConsumerDispatcher>(
+					options,
+					std::vector<DisruptorConsumer>{ [&counter](const auto&) {
+													   ++counter;
+													   CATAPULT_LOG(info) << "consumer is processing element " << counter;
+													   return ConsumerResult::Continue();
+												   },
+													[pContinueFlag = continueFlag.state()](const auto&) {
+														pContinueFlag->wait();
+														return ConsumerResult::Continue();
+													} });
 
 			// Act: first consumer is processing seedCount elements, second consumer just waits
 			ProcessAll(*pDispatcher, std::move(ranges));

@@ -32,9 +32,9 @@ namespace catapult { namespace harvesting {
 
 	size_t HarvestRequest::EncryptedPayloadSize() {
 		return Key::Size //                       ephemeral public key
-				+ crypto::AesGcm256::Tag::Size // aes gcm tag
-				+ crypto::AesGcm256::IV::Size //  aes gcm initialization vector
-				+ DecryptedPayloadSize(); //      decrypted payload
+			   + crypto::AesGcm256::Tag::Size // aes gcm tag
+			   + crypto::AesGcm256::IV::Size //  aes gcm initialization vector
+			   + DecryptedPayloadSize(); //      decrypted payload
 	}
 
 	HarvestRequestIdentifier GetRequestIdentifier(const HarvestRequest& request) {

@@ -42,16 +42,16 @@ namespace catapult { namespace validators {
 	}
 
 	DEFINE_STATEFUL_VALIDATOR(RemoteInteraction, ([](const Notification& notification, const ValidatorContext& context) {
-		if (model::AccountKeyLinkTransaction::Entity_Type == notification.TransactionType)
-			return ValidationResult::Success;
+								  if (model::AccountKeyLinkTransaction::Entity_Type == notification.TransactionType)
+									  return ValidationResult::Success;
 
-		const auto& cache = context.Cache.sub<cache::AccountStateCache>();
-		const auto& addresses = notification.ParticipantsByAddress;
-		auto predicate = [&cache, &context](const auto& address) {
-			return IsRemote(cache, GetResolvedKey(address, context.Resolvers));
-		};
-		return std::any_of(addresses.cbegin(), addresses.cend(), predicate)
-				? Failure_AccountLink_Remote_Account_Participant_Prohibited
-				: ValidationResult::Success;
-	}))
+								  const auto& cache = context.Cache.sub<cache::AccountStateCache>();
+								  const auto& addresses = notification.ParticipantsByAddress;
+								  auto predicate = [&cache, &context](const auto& address) {
+									  return IsRemote(cache, GetResolvedKey(address, context.Resolvers));
+								  };
+								  return std::any_of(addresses.cbegin(), addresses.cend(), predicate)
+												 ? Failure_AccountLink_Remote_Account_Participant_Prohibited
+												 : ValidationResult::Success;
+							  }))
 }}

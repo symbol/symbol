@@ -36,8 +36,8 @@ namespace catapult { namespace io {
 		class TestContext {
 		public:
 			explicit TestContext(size_t batchSize = Batch_Size)
-					: m_database(config::CatapultDirectory(m_tempDir.name()), { batchSize, ".bin" })
-			{}
+					: m_database(config::CatapultDirectory(m_tempDir.name()), { batchSize, ".bin" }) {
+			}
 
 		public:
 			auto& database() {
@@ -140,9 +140,7 @@ namespace catapult { namespace io {
 		TestContext context;
 
 		// Act:
-		{
-			auto pOutputStream = context.database().outputStream(0);
-		}
+		{ auto pOutputStream = context.database().outputStream(0); }
 
 		// Assert:
 		EXPECT_EQ(1u, context.countDatabaseFiles());
@@ -415,11 +413,19 @@ namespace catapult { namespace io {
 	// region read
 
 #define READ_TEST(TEST_NAME) \
-	template<size_t Payload_Index> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_FirstPayloadInFile) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<0>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MiddlePayloadInFile) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<2>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_LastPayloadInFile) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<4>(); } \
-	template<size_t Payload_Index> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<size_t Payload_Index> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_FirstPayloadInFile) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<0>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MiddlePayloadInFile) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<2>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_LastPayloadInFile) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<4>(); \
+	} \
+	template<size_t Payload_Index> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	READ_TEST(CanReadFullPayloadInFile) {
 		// Arrange:

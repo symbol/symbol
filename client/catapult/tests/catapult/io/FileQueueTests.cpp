@@ -59,10 +59,16 @@ namespace catapult { namespace io {
 		};
 
 #define DIRECTORY_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Default) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DefaultTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Custom) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CustomTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Default) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DefaultTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Custom) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CustomTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 		// endregion
 
@@ -84,12 +90,22 @@ namespace catapult { namespace io {
 		};
 
 #define READER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits, typename TReaderTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Default) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DefaultTraits, UnconditionalReadTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Custom) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CustomTraits, UnconditionalReadTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Default_Cond) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DefaultTraits, ConditionalReadTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Custom_Cond) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CustomTraits, ConditionalReadTraits>(); } \
-	template<typename TTraits, typename TReaderTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits, typename TReaderTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Default) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DefaultTraits, UnconditionalReadTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Custom) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CustomTraits, UnconditionalReadTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Default_Cond) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DefaultTraits, ConditionalReadTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Custom_Cond) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CustomTraits, ConditionalReadTraits>(); \
+	} \
+	template<typename TTraits, typename TReaderTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 		// endregion
 
@@ -100,8 +116,8 @@ namespace catapult { namespace io {
 		public:
 			explicit BasicQueueTestContext(const std::filesystem::path& directory)
 					: m_tempDataDir(directory.generic_string())
-					, m_directory(m_tempDataDir.name())
-			{}
+					, m_directory(m_tempDataDir.name()) {
+			}
 
 		public:
 			const std::filesystem::path& directory() {
@@ -173,13 +189,14 @@ namespace catapult { namespace io {
 		template<typename TTraits>
 		class WriterTestContext : public BasicQueueTestContext<TTraits> {
 		public:
-			WriterTestContext() : WriterTestContext("q")
-			{}
+			WriterTestContext()
+					: WriterTestContext("q") {
+			}
 
 			explicit WriterTestContext(const std::filesystem::path& directory)
 					: BasicQueueTestContext<TTraits>(directory)
-					, m_writer(TTraits::CreateWriter(BasicQueueTestContext<TTraits>::directory().generic_string()))
-			{}
+					, m_writer(TTraits::CreateWriter(BasicQueueTestContext<TTraits>::directory().generic_string())) {
+			}
 
 		public:
 			OutputStream& writer() {
@@ -272,11 +289,9 @@ namespace catapult { namespace io {
 	DIRECTORY_TRAITS_BASED_TEST(CanWriteMultiplePayloadsToSingleFile) {
 		// Arrange:
 		WriterTestContext<TTraits> context;
-		std::vector<std::vector<uint8_t>> buffers{
-			test::GenerateRandomVector(21),
-			test::GenerateRandomVector(80),
-			test::GenerateRandomVector(11)
-		};
+		std::vector<std::vector<uint8_t>> buffers{ test::GenerateRandomVector(21),
+												   test::GenerateRandomVector(80),
+												   test::GenerateRandomVector(11) };
 
 		// Act:
 		for (const auto& buffer : buffers)
@@ -296,11 +311,9 @@ namespace catapult { namespace io {
 	DIRECTORY_TRAITS_BASED_TEST(CanWriteMultiplePayloadsToMultipleFiles) {
 		// Arrange:
 		WriterTestContext<TTraits> context;
-		std::vector<std::vector<uint8_t>> buffers{
-			test::GenerateRandomVector(21),
-			test::GenerateRandomVector(80),
-			test::GenerateRandomVector(11)
-		};
+		std::vector<std::vector<uint8_t>> buffers{ test::GenerateRandomVector(21),
+												   test::GenerateRandomVector(80),
+												   test::GenerateRandomVector(11) };
 
 		// Act:
 		for (const auto& buffer : buffers) {
@@ -364,13 +377,14 @@ namespace catapult { namespace io {
 	template<typename TTraits>
 	class ReaderTestContext : public BasicQueueTestContext<TTraits> {
 	public:
-		ReaderTestContext() : ReaderTestContext("q")
-		{}
+		ReaderTestContext()
+				: ReaderTestContext("q") {
+		}
 
 		explicit ReaderTestContext(const std::filesystem::path& directory)
 				: BasicQueueTestContext<TTraits>(directory)
-				, m_reader(TTraits::CreateReader(BasicQueueTestContext<TTraits>::directory().generic_string()))
-		{}
+				, m_reader(TTraits::CreateReader(BasicQueueTestContext<TTraits>::directory().generic_string())) {
+		}
 
 	public:
 		FileQueueReader& reader() {

@@ -41,8 +41,8 @@ namespace catapult { namespace test {
 #define EXPECT_ALIGNED_WITH_PRAGMAS(STRUCT, FIELD) \
 	do { \
 		_Pragma("GCC diagnostic push") \
-		_Pragma("GCC diagnostic ignored \"-Winvalid-offsetof\"") /* allow offsetof on non-standard layout type */ \
-		EXPECT_ALIGNED_(STRUCT, FIELD); \
+				_Pragma("GCC diagnostic ignored \"-Winvalid-offsetof\"") /* allow offsetof on non-standard layout type */ \
+				EXPECT_ALIGNED_(STRUCT, FIELD); \
 		_Pragma("GCC diagnostic pop") \
 	} while (false)
 

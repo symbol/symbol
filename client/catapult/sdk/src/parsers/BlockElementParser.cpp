@@ -28,8 +28,8 @@ namespace catapult { namespace parsers {
 		public:
 			explicit BufferReader(const RawBuffer& buffer)
 					: m_buffer(buffer)
-					, m_offset(0)
-			{}
+					, m_offset(0) {
+			}
 
 		public:
 			size_t numBytesConsumed() const {

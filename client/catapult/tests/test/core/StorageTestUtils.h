@@ -24,12 +24,10 @@
 #include <string>
 #include <stdint.h>
 
-namespace catapult {
-	namespace model {
-		struct Block;
-		struct BlockElement;
-	}
-}
+namespace catapult { namespace model {
+	struct Block;
+	struct BlockElement;
+}}
 
 namespace catapult { namespace test {
 

@@ -127,12 +127,10 @@ namespace catapult { namespace model {
 	namespace {
 		void AssertStringRepresentation(FinalizationStage stage, const std::string& expectedStageName) {
 			// Arrange:
-			std::vector<std::string> hashStrings{
-				"D14E96D509A0966A7CCBFEE7F3D92AB2AC05C4A42DFB05B3A8C8EFD5C35B9620",
-				"13C519B8A78B0AFC78E15E52EAC9B1208BB9CF961B274A9D138CD161C08F033C",
-				"E5BA68896934C6F2745B528AB636761AFC9BEE8A32B3CD7E9CF4C0E16A00C633",
-				"2E6BD2BBB35EA998677C5A67DAC13F7E6377FA898427ABCB14274E49812FF013"
-			};
+			std::vector<std::string> hashStrings{ "D14E96D509A0966A7CCBFEE7F3D92AB2AC05C4A42DFB05B3A8C8EFD5C35B9620",
+												  "13C519B8A78B0AFC78E15E52EAC9B1208BB9CF961B274A9D138CD161C08F033C",
+												  "E5BA68896934C6F2745B528AB636761AFC9BEE8A32B3CD7E9CF4C0E16A00C633",
+												  "2E6BD2BBB35EA998677C5A67DAC13F7E6377FA898427ABCB14274E49812FF013" };
 
 			auto pMessage = test::CreateMessage(Height(12), 3);
 			pMessage->StepIdentifier = { FinalizationEpoch(101), FinalizationPoint(17), stage };
@@ -144,10 +142,8 @@ namespace catapult { namespace model {
 			auto str = test::ToString(*pMessage);
 
 			// Assert:
-			auto expected = "message for (101, 17) " + expectedStageName + " at 12 from " + hashStrings[0]
-					+ "\n + " + hashStrings[1] + " @ 12"
-					+ "\n + " + hashStrings[2] + " @ 13"
-					+ "\n + " + hashStrings[3] + " @ 14";
+			auto expected = "message for (101, 17) " + expectedStageName + " at 12 from " + hashStrings[0] + "\n + " + hashStrings[1]
+							+ " @ 12" + "\n + " + hashStrings[2] + " @ 13" + "\n + " + hashStrings[3] + " @ 14";
 			EXPECT_EQ(expected, str);
 		}
 	}
@@ -205,9 +201,11 @@ namespace catapult { namespace model {
 		void RunFinalizationContextTest(TAction action) {
 			// Arrange:
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
-			auto finalizationContextPair = test::CreateFinalizationContext(config, FinalizationEpoch(50), Height(123), {
-				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000)
-			});
+			auto finalizationContextPair = test::CreateFinalizationContext(
+					config,
+					FinalizationEpoch(50),
+					Height(123),
+					{ Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000) });
 
 			// Act + Assert:
 			action(finalizationContextPair.first, finalizationContextPair.second);
@@ -227,8 +225,8 @@ namespace catapult { namespace model {
 		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, const StepIdentifier& messageStepIdentifier, TAction action) {
 			// Arrange:
 			RunFinalizationContextTest([voterType, numHashes, messageStepIdentifier, action](
-					const auto& context,
-					const auto& keyPairDescriptors) {
+											   const auto& context,
+											   const auto& keyPairDescriptors) {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				auto numFactoryCalls = 0u;
@@ -372,7 +370,7 @@ namespace catapult { namespace model {
 
 		template<typename TAction>
 		void RunProcessMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
-			RunProcessMessageTest(voterType, numHashes, [](const auto&){}, action);
+			RunProcessMessageTest(voterType, numHashes, [](const auto&) {}, action);
 		}
 	}
 

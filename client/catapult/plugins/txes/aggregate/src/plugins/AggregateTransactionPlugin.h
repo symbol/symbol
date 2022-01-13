@@ -25,11 +25,13 @@
 #include <memory>
 
 namespace catapult {
-	namespace model {
-		class TransactionPlugin;
-		class TransactionRegistry;
-	}
-	namespace utils { class TimeSpan; }
+namespace model {
+	class TransactionPlugin;
+	class TransactionRegistry;
+}
+namespace utils {
+	class TimeSpan;
+}
 }
 
 namespace catapult { namespace plugins {

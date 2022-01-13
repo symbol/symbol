@@ -35,8 +35,8 @@ namespace catapult { namespace builders {
 					: TargetAddress()
 					, ScopedMetadataKey()
 					, RawTargetId()
-					, ValueSizeDelta()
-			{}
+					, ValueSizeDelta() {
+			}
 
 		public:
 			UnresolvedAddress TargetAddress;
@@ -53,12 +53,12 @@ namespace catapult { namespace builders {
 
 			static constexpr auto Entity_Type = model::Entity_Type_Account_Metadata;
 
-			static void SetTargetId(BuilderType&, uint64_t)
-			{}
+			static void SetTargetId(BuilderType&, uint64_t) {
+			}
 
 			template<typename TTransaction>
-			static void AssertAdditionalProperties(const TransactionProperties&, const TTransaction&)
-			{}
+			static void AssertAdditionalProperties(const TransactionProperties&, const TTransaction&) {
+			}
 		};
 
 		template<typename TTraits>
@@ -100,8 +100,8 @@ namespace catapult { namespace builders {
 		using MosaicRegularTraits = MosaicMetadataTraits<test::RegularTransactionTraits<model::MosaicMetadataTransaction>>;
 		using MosaicEmbeddedTraits = MosaicMetadataTraits<test::EmbeddedTransactionTraits<model::EmbeddedMosaicMetadataTransaction>>;
 		using NamespaceRegularTraits = NamespaceMetadataTraits<test::RegularTransactionTraits<model::NamespaceMetadataTransaction>>;
-		using NamespaceEmbeddedTraits = NamespaceMetadataTraits<test::EmbeddedTransactionTraits<
-			model::EmbeddedNamespaceMetadataTransaction>>;
+		using NamespaceEmbeddedTraits =
+				NamespaceMetadataTraits<test::EmbeddedTransactionTraits<model::EmbeddedNamespaceMetadataTransaction>>;
 
 		template<typename TTransaction>
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
@@ -139,14 +139,28 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Account_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Account_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Namespace_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Namespace_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceEmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Account_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountRegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Account_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountEmbeddedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicRegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicEmbeddedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Namespace_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceRegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Namespace_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceEmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
 

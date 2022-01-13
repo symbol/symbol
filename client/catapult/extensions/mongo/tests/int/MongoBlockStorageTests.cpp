@@ -343,7 +343,7 @@ namespace catapult { namespace mongo {
 					m_blocks.push_back(test::GenerateBlockWithTransactions(transactions));
 					m_blocks.back()->Height = Height(i);
 					auto blockElement = test::BlockToBlockElement(*m_blocks.back(), test::GenerateRandomByteArray<Hash256>());
-					AddStatements(blockElement, { 0, 1, 2, 3});
+					AddStatements(blockElement, { 0, 1, 2, 3 });
 					m_blockElements.emplace_back(blockElement);
 				}
 			}
@@ -535,11 +535,8 @@ namespace catapult { namespace mongo {
 		// - set the score
 		auto connection = test::CreateDbConnection();
 		auto database = connection[test::DatabaseName()];
-		auto scoreDocument = document()
-				<< "$set" << open_document
-					<< "current.scoreHigh" << static_cast<int64_t>(12)
-					<< "current.scoreLow" << static_cast<int64_t>(98)
-				<< close_document << finalize;
+		auto scoreDocument = document() << "$set" << open_document << "current.scoreHigh" << static_cast<int64_t>(12) << "current.scoreLow"
+										<< static_cast<int64_t>(98) << close_document << finalize;
 		TrySetChainStatisticDocument(database, scoreDocument.view());
 
 		// Act:
@@ -629,9 +626,7 @@ namespace catapult { namespace mongo {
 	}
 
 	TEST(TEST_CLASS, CanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent) {
-		AssertCanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent([]() {
-			return Multiple_Blocks_Count;
-		});
+		AssertCanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent([]() { return Multiple_Blocks_Count; });
 	}
 
 	TEST(TEST_CLASS, CanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent_OrphanedDocuments) {
@@ -640,11 +635,8 @@ namespace catapult { namespace mongo {
 			auto connection = test::CreateDbConnection();
 			auto database = connection[test::DatabaseName()];
 
-			auto journalHeight = document()
-					<< "$set" << open_document
-						<< "current.height" << static_cast<int64_t>(Multiple_Blocks_Count - 1)
-					<< close_document
-					<< finalize;
+			auto journalHeight = document() << "$set" << open_document << "current.height"
+											<< static_cast<int64_t>(Multiple_Blocks_Count - 1) << close_document << finalize;
 
 			TrySetChainStatisticDocument(database, journalHeight.view());
 			return Multiple_Blocks_Count - 1;

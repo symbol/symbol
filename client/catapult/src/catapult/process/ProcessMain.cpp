@@ -73,9 +73,9 @@ namespace catapult { namespace process {
 		void TerminateHandler() noexcept {
 			// 1. if termination is caused by an exception, log it
 			if (std::current_exception()) {
-				CATAPULT_LOG(fatal)
-						<< std::endl << "thread: " << thread::GetThreadName()
-						<< std::endl << UNHANDLED_EXCEPTION_MESSAGE("running local node");
+				CATAPULT_LOG(fatal) << std::endl
+									<< "thread: " << thread::GetThreadName() << std::endl
+									<< UNHANDLED_EXCEPTION_MESSAGE("running local node");
 			}
 
 			// 2. flush the log and abort
@@ -88,10 +88,9 @@ namespace catapult { namespace process {
 		void Run(config::CatapultConfiguration&& config, ProcessOptions processOptions, const CreateProcessHost& createProcessHost) {
 			auto catapultKeys = config::CatapultKeys(config.User.CertificateDirectory);
 
-			CATAPULT_LOG(important)
-					<< "booting process with keys:"
-					<< std::endl << " -   CA " << catapultKeys.caPublicKey()
-					<< std::endl << " - NODE " << catapultKeys.nodeKeyPair().publicKey();
+			CATAPULT_LOG(important) << "booting process with keys:" << std::endl
+									<< " -   CA " << catapultKeys.caPublicKey() << std::endl
+									<< " - NODE " << catapultKeys.nodeKeyPair().publicKey();
 			auto pProcessHost = createProcessHost(std::move(config), catapultKeys);
 
 			if (ProcessOptions::Exit_After_Termination_Signal == processOptions)

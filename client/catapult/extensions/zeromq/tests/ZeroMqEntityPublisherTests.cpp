@@ -254,9 +254,8 @@ namespace catapult { namespace zeromq {
 	}
 
 	TEST(TEST_CLASS, CanPublishTransaction_TransactionInfo) {
-		AssertCanPublishTransactionInfo([](const auto& transactionInfo) {
-			return test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
-		});
+		AssertCanPublishTransactionInfo(
+				[](const auto& transactionInfo) { return test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity)); });
 	}
 
 	TEST(TEST_CLASS, CanPublishTransactionToCustomAddresses_TransactionInfo) {
@@ -350,9 +349,8 @@ namespace catapult { namespace zeromq {
 	}
 
 	TEST(TEST_CLASS, CanPublishTransactionHash) {
-		AssertCanPublishTransactionHash([](const auto& transactionInfo) {
-			return test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
-		});
+		AssertCanPublishTransactionHash(
+				[](const auto& transactionInfo) { return test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity)); });
 	}
 
 	TEST(TEST_CLASS, CanPublishTransactionHashToCustomAddresses) {

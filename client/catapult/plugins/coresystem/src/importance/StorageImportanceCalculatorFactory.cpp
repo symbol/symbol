@@ -77,14 +77,12 @@ namespace catapult { namespace importance {
 					std::unique_ptr<ImportanceCalculator>&& pCalculator)
 					: m_config(config)
 					, m_directory(directory)
-					, m_pCalculator(std::move(pCalculator))
-			{}
+					, m_pCalculator(std::move(pCalculator)) {
+			}
 
 		public:
-			void recalculate(
-					ImportanceRollbackMode mode,
-					model::ImportanceHeight importanceHeight,
-					cache::AccountStateCacheDelta& cache) const override {
+			void recalculate(ImportanceRollbackMode mode, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache)
+					const override {
 				m_pCalculator->recalculate(mode, importanceHeight, cache);
 
 				if (ImportanceRollbackMode::Disabled == mode)
@@ -161,14 +159,12 @@ namespace catapult { namespace importance {
 					std::unique_ptr<ImportanceCalculator>&& pCalculator)
 					: m_config(config)
 					, m_directory(directory)
-					, m_pCalculator(std::move(pCalculator))
-			{}
+					, m_pCalculator(std::move(pCalculator)) {
+			}
 
 		public:
-			void recalculate(
-					ImportanceRollbackMode mode,
-					model::ImportanceHeight importanceHeight,
-					cache::AccountStateCacheDelta& cache) const override {
+			void recalculate(ImportanceRollbackMode mode, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache)
+					const override {
 				if (ImportanceRollbackMode::Disabled == mode)
 					CATAPULT_THROW_INVALID_ARGUMENT("cannot rollback importances when rollback is disabled");
 
@@ -195,8 +191,8 @@ namespace catapult { namespace importance {
 			public:
 				ReadManager(model::ImportanceHeight startImportanceHeight, model::ImportanceHeight endImportanceHeight, uint64_t grouping)
 						: m_endImportanceHeight(endImportanceHeight)
-						, m_groupingFacade(startImportanceHeight, grouping)
-				{}
+						, m_groupingFacade(startImportanceHeight, grouping) {
+				}
 
 			public:
 				bool shouldProcess(size_t id) const {
@@ -290,8 +286,9 @@ namespace catapult { namespace importance {
 
 	// region StorageImportanceCalculatorFactory
 
-	StorageImportanceCalculatorFactory::StorageImportanceCalculatorFactory(const model::BlockchainConfiguration& config) : m_config(config)
-	{}
+	StorageImportanceCalculatorFactory::StorageImportanceCalculatorFactory(const model::BlockchainConfiguration& config)
+			: m_config(config) {
+	}
 
 	std::unique_ptr<ImportanceCalculator> StorageImportanceCalculatorFactory::createWriteCalculator(
 			std::unique_ptr<ImportanceCalculator>&& pCalculator,

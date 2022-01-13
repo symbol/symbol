@@ -36,15 +36,19 @@ namespace catapult { namespace state {
 
 	public:
 		/// Creates a timestamped hash.
-		constexpr TimestampedHash() : TimestampedHash(Timestamp(0))
-		{}
+		constexpr TimestampedHash()
+				: TimestampedHash(Timestamp(0)) {
+		}
 
 		/// Creates a timestamped hash from \a timestamp.
-		constexpr explicit TimestampedHash(Timestamp timestamp) : Time(timestamp), Hash()
-		{}
+		constexpr explicit TimestampedHash(Timestamp timestamp)
+				: Time(timestamp)
+				, Hash() {
+		}
 
 		/// Creates a timestamped hash from \a timestamp and \a hash.
-		TimestampedHash(Timestamp timestamp, const Hash256& hash) : Time(timestamp) {
+		TimestampedHash(Timestamp timestamp, const Hash256& hash)
+				: Time(timestamp) {
 			std::memcpy(Hash.data(), hash.data(), Hash.size());
 		}
 

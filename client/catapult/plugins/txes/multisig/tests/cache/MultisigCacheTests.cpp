@@ -35,8 +35,9 @@ namespace catapult { namespace cache {
 		struct MultisigCacheMixinTraits {
 			class CacheType : public MultisigCache {
 			public:
-				CacheType() : MultisigCache(CacheConfiguration())
-				{}
+				CacheType()
+						: MultisigCache(CacheConfiguration()) {
+				}
 			};
 
 			using IdType = Address;
@@ -59,7 +60,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		struct MultisigCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
+		struct MultisigCacheDeltaModificationPolicy : public test::DeltaInsertModificationPolicy {
 			static void Modify(MultisigCacheDelta& delta, const state::MultisigEntry& entry) {
 				auto multisigIter = delta.find(entry.address());
 				auto& entryFromCache = multisigIter.get();
@@ -82,7 +83,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MultisigCacheMixinTraits, MultisigCacheDeltaModificationPolicy, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(MultisigCacheMixinTraits,)
+	DEFINE_CACHE_BASIC_TESTS(MultisigCacheMixinTraits, )
 
 	// endregion
 

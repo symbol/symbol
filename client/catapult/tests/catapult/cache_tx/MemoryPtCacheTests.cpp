@@ -683,9 +683,8 @@ namespace catapult { namespace cache {
 		// Assert:
 		const auto& targetEntityHash = transactionInfos[1].EntityHash;
 		auto getExpectedCosignaturesShortHash = [&expectedCosignaturesHash, &targetEntityHash](const auto& transactionShortHash) {
-			return utils::ToShortHash(targetEntityHash) == transactionShortHash
-					? utils::ToShortHash(expectedCosignaturesHash)
-					: utils::ShortHash();
+			return utils::ToShortHash(targetEntityHash) == transactionShortHash ? utils::ToShortHash(expectedCosignaturesHash)
+																				: utils::ShortHash();
 		};
 		ValidateShortHashPairs(transactionInfos, shortHashPairs, getExpectedCosignaturesShortHash);
 	}
@@ -804,10 +803,8 @@ namespace catapult { namespace cache {
 			auto expectedCosignaturesHash = HashCosignatures(cosignatures);
 
 			// Act + Assert:
-			auto shortHashPair = ShortHashPair{
-				utils::ToShortHash(transactionInfos[0].EntityHash),
-				utils::ToShortHash(expectedCosignaturesHash)
-			};
+			auto shortHashPair =
+					ShortHashPair{ utils::ToShortHash(transactionInfos[0].EntityHash), utils::ToShortHash(expectedCosignaturesHash) };
 			action(cache, transactionInfos[0], cosignatures, shortHashPair);
 		}
 	}
@@ -830,9 +827,8 @@ namespace catapult { namespace cache {
 		// Arrange:
 		RunUnknownTransactionWithCosignaturesTest([](const auto& cache, const auto& info, const auto& cosignatures, auto shortHashPair) {
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions(Timestamp(), {
-				{ shortHashPair.TransactionShortHash, utils::ShortHash() }
-			});
+			auto unknownInfos =
+					cache.view().unknownTransactions(Timestamp(), { { shortHashPair.TransactionShortHash, utils::ShortHash() } });
 
 			// Assert:
 			ASSERT_EQ(1u, unknownInfos.size());
@@ -846,9 +842,9 @@ namespace catapult { namespace cache {
 		// Arrange:
 		RunUnknownTransactionWithCosignaturesTest([](const auto& cache, const auto&, const auto&, auto shortHashPair) {
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions(Timestamp(), {
-				{ shortHashPair.TransactionShortHash, shortHashPair.CosignaturesShortHash }
-			});
+			auto unknownInfos = cache.view().unknownTransactions(
+					Timestamp(),
+					{ { shortHashPair.TransactionShortHash, shortHashPair.CosignaturesShortHash } });
 
 			// Assert:
 			EXPECT_TRUE(unknownInfos.empty());

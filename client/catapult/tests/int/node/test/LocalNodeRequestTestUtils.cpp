@@ -122,8 +122,9 @@ namespace catapult { namespace test {
 	Height GetLocalNodeHeightViaApi(ExternalSourceConnection& connection) {
 		struct ChainStatisticsResult {
 		public:
-			ChainStatisticsResult() : IsHeightReceived(false)
-			{}
+			ChainStatisticsResult()
+					: IsHeightReceived(false) {
+			}
 
 		public:
 			catapult::Height Height;

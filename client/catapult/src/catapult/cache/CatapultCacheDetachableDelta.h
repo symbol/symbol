@@ -23,7 +23,9 @@
 #include "CatapultCacheDetachedDelta.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace cache { class CacheHeightView; } }
+namespace catapult { namespace cache {
+	class CacheHeightView;
+}}
 
 namespace catapult { namespace cache {
 

@@ -25,14 +25,18 @@
 #include <memory>
 
 namespace catapult {
-	namespace crypto { class AggregateBmPrivateKeyTree; }
-	namespace finalization { struct FinalizationConfiguration; }
-	namespace io {
-		class BlockStorageCache;
-		class BlockStorageView;
-		struct PrevoteChainDescriptor;
-		class ProofStorageCache;
-	}
+namespace crypto {
+	class AggregateBmPrivateKeyTree;
+}
+namespace finalization {
+	struct FinalizationConfiguration;
+}
+namespace io {
+	class BlockStorageCache;
+	class BlockStorageView;
+	struct PrevoteChainDescriptor;
+	class ProofStorageCache;
+}
 }
 
 namespace catapult { namespace chain {

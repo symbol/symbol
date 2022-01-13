@@ -71,10 +71,16 @@ namespace catapult { namespace consumers {
 		};
 
 #define ENTITY_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Block) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Transaction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Block) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Transaction) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanProcessSingleEntity) {

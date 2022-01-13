@@ -53,10 +53,12 @@ namespace catapult { namespace finalization {
 
 		class TestContext : public test::VoterSeededCacheDependentServiceLocatorTestContext<FinalizationMessageProcessingServiceTraits> {
 		public:
-			TestContext() : TestContext(FinalizationPoint(1))
-			{}
+			TestContext()
+					: TestContext(FinalizationPoint(1)) {
+			}
 
-			explicit TestContext(FinalizationPoint point) : m_pWriters(std::make_shared<mocks::BroadcastAwareMockPacketWriters>()) {
+			explicit TestContext(FinalizationPoint point)
+					: m_pWriters(std::make_shared<mocks::BroadcastAwareMockPacketWriters>()) {
 				// VotingSetGrouping is set to 500 when registering FinalizationBootstrapperService, so (4 - 2) * 500 blocks are needed
 				mocks::SeedStorageWithFixedSizeBlocks(testState().state().storage(), 1000);
 

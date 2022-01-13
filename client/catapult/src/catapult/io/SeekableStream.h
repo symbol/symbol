@@ -25,7 +25,9 @@
 namespace catapult { namespace io {
 
 	/// Seekable stream.
-	class SeekableStream : public InputStream, public OutputStream {
+	class SeekableStream
+			: public InputStream
+			, public OutputStream {
 	public:
 		/// Seeks to \a position.
 		virtual void seek(uint64_t position) = 0;

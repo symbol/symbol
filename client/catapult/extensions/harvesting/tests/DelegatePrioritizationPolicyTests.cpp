@@ -50,9 +50,9 @@ namespace catapult { namespace harvesting {
 			auto cacheDelta = cache.createDelta();
 			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 			accountStateCacheDelta.addAccount(importantAccountPublicKey, Height(100));
-			accountStateCacheDelta.find(importantAccountPublicKey).get().ImportanceSnapshots.set(
-					Importance(1234),
-					model::ImportanceHeight(100));
+			accountStateCacheDelta.find(importantAccountPublicKey)
+					.get()
+					.ImportanceSnapshots.set(Importance(1234), model::ImportanceHeight(100));
 			cache.commit(cacheHeight);
 
 			return cache;

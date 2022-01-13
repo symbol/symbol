@@ -27,18 +27,18 @@
 namespace catapult { namespace cache {
 
 	using AccountStateBasicCache = BasicCache<
-		AccountStateCacheDescriptor,
-		AccountStateCacheTypes::BaseSets,
-		AccountStateCacheTypes::Options,
-		const HighValueAccounts&>;
+			AccountStateCacheDescriptor,
+			AccountStateCacheTypes::BaseSets,
+			AccountStateCacheTypes::Options,
+			const HighValueAccounts&>;
 
 	/// Cache composed of stateful account information.
 	class BasicAccountStateCache : public AccountStateBasicCache {
 	public:
 		/// Creates a cache around \a config and \a options.
 		BasicAccountStateCache(const CacheConfiguration& config, const AccountStateCacheTypes::Options& options)
-				: BasicAccountStateCache(config, options, std::make_unique<HighValueAccounts>())
-		{}
+				: BasicAccountStateCache(config, options, std::make_unique<HighValueAccounts>()) {
+		}
 
 	private:
 		BasicAccountStateCache(
@@ -46,8 +46,8 @@ namespace catapult { namespace cache {
 				const AccountStateCacheTypes::Options& options,
 				std::unique_ptr<HighValueAccounts>&& pHighValueAccounts)
 				: AccountStateBasicCache(config, AccountStateCacheTypes::Options(options), *pHighValueAccounts)
-				, m_pHighValueAccounts(std::move(pHighValueAccounts))
-		{}
+				, m_pHighValueAccounts(std::move(pHighValueAccounts)) {
+		}
 
 	public:
 		/// Initializes the cache with \a highValueAccounts.
@@ -78,8 +78,8 @@ namespace catapult { namespace cache {
 		AccountStateCache(const CacheConfiguration& config, const AccountStateCacheTypes::Options& options)
 				: SynchronizedCacheWithInit<BasicAccountStateCache>(BasicAccountStateCache(config, options))
 				, m_networkIdentifier(options.NetworkIdentifier)
-				, m_importanceGrouping(options.ImportanceGrouping)
-		{}
+				, m_importanceGrouping(options.ImportanceGrouping) {
+		}
 
 	public:
 		/// Gets the network identifier.

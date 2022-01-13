@@ -79,13 +79,11 @@ namespace catapult { namespace thread {
 			delays.push_back(delayGenerator());
 
 		// Assert:
-		std::vector<TimeSpan> expectedDelays{
-			TimeSpan::FromMilliseconds(1000 + 333),
-			TimeSpan::FromMilliseconds(1000 + 666),
-			TimeSpan::FromMilliseconds(1000 + 1000),
-			TimeSpan::FromMilliseconds(1000 + 1333),
-			TimeSpan::FromMilliseconds(1000 + 1666)
-		};
+		std::vector<TimeSpan> expectedDelays{ TimeSpan::FromMilliseconds(1000 + 333),
+											  TimeSpan::FromMilliseconds(1000 + 666),
+											  TimeSpan::FromMilliseconds(1000 + 1000),
+											  TimeSpan::FromMilliseconds(1000 + 1333),
+											  TimeSpan::FromMilliseconds(1000 + 1666) };
 		EXPECT_EQ(expectedDelays, delays);
 	}
 

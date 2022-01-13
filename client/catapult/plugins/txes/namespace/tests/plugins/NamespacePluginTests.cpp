@@ -42,24 +42,22 @@ namespace catapult { namespace plugins {
 				// Arrange:
 				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(1);
-				config.Plugins.emplace("catapult.plugins.namespace", utils::ConfigurationBag({{
-					"",
-					{
-						{ "maxNameSize", "0" },
-						{ "maxChildNamespaces", "0" },
-						{ "maxNamespaceDepth", "0" },
+				config.Plugins.emplace(
+						"catapult.plugins.namespace",
+						utils::ConfigurationBag({ { "",
+													{ { "maxNameSize", "0" },
+													  { "maxChildNamespaces", "0" },
+													  { "maxNamespaceDepth", "0" },
 
-						{ "minNamespaceDuration", "0h" },
-						{ "maxNamespaceDuration", "0h" },
-						{ "namespaceGracePeriodDuration", "0h" },
-						{ "reservedRootNamespaceNames", "reserved" },
+													  { "minNamespaceDuration", "0h" },
+													  { "maxNamespaceDuration", "0h" },
+													  { "namespaceGracePeriodDuration", "0h" },
+													  { "reservedRootNamespaceNames", "reserved" },
 
-						{ "namespaceRentalFeeSinkAddressV1", "TCIFYLAXUNZHPA2LXTMYE2WZWENKS3QCFUBPAKI" },
-						{ "namespaceRentalFeeSinkAddress", "TAB4TRHW5M3VRMXOVSNEPT33LYNB3IPJ2HGH2WI" },
-						{ "rootNamespaceRentalFeePerBlock", "0" },
-						{ "childNamespaceRentalFee", "0" }
-					}
-				}}));
+													  { "namespaceRentalFeeSinkAddressV1", "TCIFYLAXUNZHPA2LXTMYE2WZWENKS3QCFUBPAKI" },
+													  { "namespaceRentalFeeSinkAddress", "TAB4TRHW5M3VRMXOVSNEPT33LYNB3IPJ2HGH2WI" },
+													  { "rootNamespaceRentalFeePerBlock", "0" },
+													  { "childNamespaceRentalFee", "0" } } } }));
 
 				auto manager = test::CreatePluginManager(config);
 				RegisterNamespaceSubsystem(manager);
@@ -70,11 +68,7 @@ namespace catapult { namespace plugins {
 
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {
-					model::Entity_Type_Namespace_Registration,
-					model::Entity_Type_Alias_Address,
-					model::Entity_Type_Alias_Mosaic
-				};
+				return { model::Entity_Type_Namespace_Registration, model::Entity_Type_Alias_Address, model::Entity_Type_Alias_Mosaic };
 			}
 
 			static std::vector<std::string> GetCacheNames() {
@@ -94,39 +88,27 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
-				return {
-					"NamespaceRegistrationTypeValidator",
-					"NamespaceNameValidator",
-					"RootNamespaceValidator",
-					"AliasActionValidator"
-				};
+				return { "NamespaceRegistrationTypeValidator", "NamespaceNameValidator", "RootNamespaceValidator", "AliasActionValidator" };
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
-				return {
-					"NamespaceReservedNameValidator",
-					"RootNamespaceAvailabilityValidator",
-					"NamespaceDurationOverflowValidator",
-					"ChildNamespaceAvailabilityValidator",
-					"RootNamespaceMaxChildrenValidator",
-					"RequiredNamespaceValidator",
-					"AliasAvailabilityValidator",
-					"UnlinkAliasedAddressConsistencyValidator",
-					"UnlinkAliasedMosaicIdConsistencyValidator",
-					"AddressAliasValidator"
-				};
+				return { "NamespaceReservedNameValidator",
+						 "RootNamespaceAvailabilityValidator",
+						 "NamespaceDurationOverflowValidator",
+						 "ChildNamespaceAvailabilityValidator",
+						 "RootNamespaceMaxChildrenValidator",
+						 "RequiredNamespaceValidator",
+						 "AliasAvailabilityValidator",
+						 "UnlinkAliasedAddressConsistencyValidator",
+						 "UnlinkAliasedMosaicIdConsistencyValidator",
+						 "AddressAliasValidator" };
 			}
 
 			static std::vector<std::string> GetObserverNames() {
-				return {
-					"RootNamespaceObserver",
-					"ChildNamespaceObserver",
-					"NamespaceRentalFeeObserver",
-					"NamespaceGracePeriodTouchObserver",
-					"NamespaceTouchObserver",
-					"AliasedAddressObserver",
-					"AliasedMosaicIdObserver"
-				};
+				return { "RootNamespaceObserver",	   "ChildNamespaceObserver",
+						 "NamespaceRentalFeeObserver", "NamespaceGracePeriodTouchObserver",
+						 "NamespaceTouchObserver",	   "AliasedAddressObserver",
+						 "AliasedMosaicIdObserver" };
 			}
 
 			static std::vector<std::string> GetPermanentObserverNames() {

@@ -27,9 +27,7 @@ namespace catapult { namespace test {
 	namespace {
 		template<typename T>
 		void RandomFill(T& container) {
-			std::generate_n(container.begin(), container.size(), []() {
-				return static_cast<typename T::value_type>(RandomByte());
-			});
+			std::generate_n(container.begin(), container.size(), []() { return static_cast<typename T::value_type>(RandomByte()); });
 		}
 
 		template<typename T>

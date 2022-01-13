@@ -78,8 +78,8 @@ namespace catapult { namespace chain {
 			explicit DefaultRoundMessageAggregator(const model::FinalizationContext& finalizationContext)
 					: m_finalizationContext(finalizationContext)
 					, m_maxResponseSize(m_finalizationContext.config().MessageSynchronizationMaxResponseSize.bytes())
-					, m_roundContext(m_finalizationContext.weight().unwrap(), CalculateWeightedThreshold(m_finalizationContext))
-			{}
+					, m_roundContext(m_finalizationContext.weight().unwrap(), CalculateWeightedThreshold(m_finalizationContext)) {
+			}
 
 		public:
 			size_t size() const override {
@@ -124,9 +124,8 @@ namespace catapult { namespace chain {
 		public:
 			RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage) override {
 				auto maxHashesPerPoint = m_finalizationContext.config().MaxHashesPerPoint;
-				CATAPULT_LOG(trace)
-						<< "received message at " << pMessage->StepIdentifier
-						<< " with " << pMessage->HashesCount << " hashes (max " << maxHashesPerPoint << ")";
+				CATAPULT_LOG(trace) << "received message at " << pMessage->StepIdentifier << " with " << pMessage->HashesCount
+									<< " hashes (max " << maxHashesPerPoint << ")";
 
 				if (0 == pMessage->HashesCount || pMessage->HashesCount > maxHashesPerPoint)
 					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
@@ -155,8 +154,8 @@ namespace catapult { namespace chain {
 				auto messageIter = m_messages.find(messageKey);
 				if (m_messages.cend() != messageIter) {
 					return messageIter->second.Hash == model::CalculateMessageHash(*pMessage)
-							? RoundMessageAggregatorAddResult::Neutral_Redundant
-							: RoundMessageAggregatorAddResult::Failure_Conflicting;
+								   ? RoundMessageAggregatorAddResult::Neutral_Redundant
+								   : RoundMessageAggregatorAddResult::Failure_Conflicting;
 				}
 
 				auto processResultPair = model::ProcessMessage(*pMessage, m_finalizationContext);
@@ -165,9 +164,9 @@ namespace catapult { namespace chain {
 					return RoundMessageAggregatorAddResult::Failure_Processing;
 				}
 
-				CATAPULT_LOG(trace)
-						<< "processing message for epoch " << m_finalizationContext.epoch() << " with weight " << processResultPair.second
-						<< std::endl << *pMessage;
+				CATAPULT_LOG(trace) << "processing message for epoch " << m_finalizationContext.epoch() << " with weight "
+									<< processResultPair.second << std::endl
+									<< *pMessage;
 
 				m_messages.emplace(messageKey, CreateMessageDescriptor(pMessage));
 

@@ -33,7 +33,8 @@ namespace catapult { namespace local {
 
 		if (heights.Cache > heights.Storage) {
 			std::ostringstream out;
-			out << "cache height (" << heights.Cache << ")" << " is greater than storage height (" << heights.Storage << ")";
+			out << "cache height (" << heights.Cache << ")"
+				<< " is greater than storage height (" << heights.Storage << ")";
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 

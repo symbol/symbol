@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretProof, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretProof, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Secret_Proof)
@@ -50,11 +50,11 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			SecretLockHashAlgorithmNotification::Notification_Type,
-			ProofSecretNotification::Notification_Type,
-			ProofPublicationNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ SecretLockHashAlgorithmNotification::Notification_Type,
+				  ProofSecretNotification::Notification_Type,
+				  ProofPublicationNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotifications) {
@@ -63,9 +63,8 @@ namespace catapult { namespace plugins {
 
 		const auto& transaction = *pTransaction;
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
-		builder.template addExpectation<SecretLockHashAlgorithmNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
-		});
+		builder.template addExpectation<SecretLockHashAlgorithmNotification>(
+				[&transaction](const auto& notification) { EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm); });
 		builder.template addExpectation<ProofSecretNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
 			EXPECT_EQ(transaction.Secret, notification.Secret);

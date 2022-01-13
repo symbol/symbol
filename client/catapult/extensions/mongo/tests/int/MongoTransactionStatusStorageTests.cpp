@@ -90,8 +90,8 @@ namespace catapult { namespace mongo {
 					: m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads))
 					, m_pMongoContext(PrepareDatabaseAndCreateMongoContext(*m_pPool))
 					, m_pSubscriber(CreateMongoTransactionStatusStorage(*m_pMongoContext))
-					, m_statuses(CreateTransactionStatuses(numTransactionStatuses))
-			{}
+					, m_statuses(CreateTransactionStatuses(numTransactionStatuses)) {
+			}
 
 		public:
 			subscribers::TransactionStatusSubscriber& subscriber() {

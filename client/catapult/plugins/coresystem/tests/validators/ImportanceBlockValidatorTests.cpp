@@ -54,9 +54,10 @@ namespace catapult { namespace validators {
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-				test::AddAccountsWithBalancesAndOverlappingVotingKeyLifetimes(accountStateCacheDelta, Harvesting_Mosaic_Id, {
-					Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000)
-				});
+				test::AddAccountsWithBalancesAndOverlappingVotingKeyLifetimes(
+						accountStateCacheDelta,
+						Harvesting_Mosaic_Id,
+						{ Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000) });
 				accountStateCacheDelta.updateHighValueAccounts(Height(1));
 				cache.commit(Height(1));
 			}

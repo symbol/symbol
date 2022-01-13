@@ -27,7 +27,9 @@ namespace catapult { namespace subscribers {
 
 	/// Aggregate block change subscriber.
 	template<typename TBlockChangeSubscriber = io::BlockChangeSubscriber>
-	class AggregateBlockChangeSubscriber : public BasicAggregateSubscriber<TBlockChangeSubscriber>, public io::BlockChangeSubscriber {
+	class AggregateBlockChangeSubscriber
+			: public BasicAggregateSubscriber<TBlockChangeSubscriber>
+			, public io::BlockChangeSubscriber {
 	public:
 		using BasicAggregateSubscriber<TBlockChangeSubscriber>::BasicAggregateSubscriber;
 

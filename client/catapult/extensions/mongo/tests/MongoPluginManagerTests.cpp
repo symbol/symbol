@@ -49,9 +49,7 @@ namespace catapult { namespace mongo {
 
 		template<typename TAction>
 		void RunPluginManagerTest(TAction action) {
-			RunPluginManagerTest(model::NetworkIdentifier::Zero, [action](auto& manager, const auto&) {
-				action(manager);
-			});
+			RunPluginManagerTest(model::NetworkIdentifier::Zero, [action](auto& manager, const auto&) { action(manager); });
 		}
 	}
 

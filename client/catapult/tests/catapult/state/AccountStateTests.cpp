@@ -238,9 +238,7 @@ namespace catapult { namespace state {
 		// Arrange:
 		AccountState accountState(test::GenerateRandomAddress(), Height(1));
 		accountState.Balances.credit(MosaicId(123), Amount(1000));
-		accountState.ActivityBuckets.update(model::ImportanceHeight(100), [](auto& bucket) {
-			bucket.TotalFeesPaid = Amount(333);
-		});
+		accountState.ActivityBuckets.update(model::ImportanceHeight(100), [](auto& bucket) { bucket.TotalFeesPaid = Amount(333); });
 
 		// Act:
 		ApplyFeeSurplus(accountState, { MosaicId(123), Amount(111) }, model::ImportanceHeight(100));

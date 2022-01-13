@@ -33,15 +33,15 @@
 #define PLUGIN_API_DEPENDENCY
 
 #else
-#define PLUGIN_API __attribute__ ((visibility ("default")))
+#define PLUGIN_API __attribute__((visibility("default")))
 
 #if defined(__GNUC__) && defined(__clang__)
-#define PLUGIN_API_EXCEPTION __attribute__ ((type_visibility ("default")))
-#define PLUGIN_API_DEPENDENCY __attribute__ ((type_visibility ("default")))
+#define PLUGIN_API_EXCEPTION __attribute__((type_visibility("default")))
+#define PLUGIN_API_DEPENDENCY __attribute__((type_visibility("default")))
 #else
 // GCC doesn't support type_visibility attribute
-#define PLUGIN_API_EXCEPTION __attribute__ ((visibility ("default")))
-#define PLUGIN_API_DEPENDENCY __attribute__ ((visibility ("default")))
+#define PLUGIN_API_EXCEPTION __attribute__((visibility("default")))
+#define PLUGIN_API_DEPENDENCY __attribute__((visibility("default")))
 #endif
 
 #endif

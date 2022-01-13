@@ -41,8 +41,8 @@ namespace catapult { namespace mongo {
 					, m_transactionRegistry(transactionRegistry)
 					, m_collectionName(collectionName)
 					, m_database(m_context.createDatabaseConnection())
-					, m_errorPolicy(m_context.createCollectionErrorPolicy(collectionName))
-			{}
+					, m_errorPolicy(m_context.createCollectionErrorPolicy(collectionName)) {
+			}
 
 		public:
 			void notifyAdds(const TransactionInfos& transactionInfos) override {
@@ -75,12 +75,9 @@ namespace catapult { namespace mongo {
 
 			void commitDeletes(const TransactionInfos& removedTransactionInfos) {
 				auto createFilter = [](const auto& info) {
-					return document()
-							<< "$or" << open_array
-								<< open_document << "meta.hash" << mappers::ToBinary(info.EntityHash) << close_document
-								<< open_document << "meta.aggregateHash" << mappers::ToBinary(info.EntityHash) << close_document
-							<< close_array
-							<< finalize;
+					return document() << "$or" << open_array << open_document << "meta.hash" << mappers::ToBinary(info.EntityHash)
+									  << close_document << open_document << "meta.aggregateHash" << mappers::ToBinary(info.EntityHash)
+									  << close_document << close_array << finalize;
 				};
 				auto results = m_context.bulkWriter().bulkDelete(m_collectionName, removedTransactionInfos, createFilter).get();
 				auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));

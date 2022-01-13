@@ -326,18 +326,15 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, ChainedInterleavingDebitsAndCreditsYieldCorrectState) {
 		// Arrange:
 		AccountBalances balances;
-		balances
-			.credit(Test_Mosaic_Id1, Amount(12345))
-			.credit(Test_Mosaic_Id2, Amount(3456));
+		balances.credit(Test_Mosaic_Id1, Amount(12345)).credit(Test_Mosaic_Id2, Amount(3456));
 
 		// Act:
-		balances
-			.debit(Test_Mosaic_Id2, Amount(1111))
-			.credit(Test_Mosaic_Id1, Amount(1111))
-			.credit(Test_Mosaic_Id3, Amount(0)) // no op
-			.debit(Test_Mosaic_Id1, Amount(2345))
-			.debit(Test_Mosaic_Id3, Amount(0)) // no op
-			.credit(Test_Mosaic_Id2, Amount(5432));
+		balances.debit(Test_Mosaic_Id2, Amount(1111))
+				.credit(Test_Mosaic_Id1, Amount(1111))
+				.credit(Test_Mosaic_Id3, Amount(0)) // no op
+				.debit(Test_Mosaic_Id1, Amount(2345))
+				.debit(Test_Mosaic_Id3, Amount(0)) // no op
+				.credit(Test_Mosaic_Id2, Amount(5432));
 
 		// Assert:
 		EXPECT_EQ(2u, balances.size());
@@ -352,10 +349,7 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, CanOptimizeMosaicStorage) {
 		// Arrange:
 		AccountBalances balances;
-		balances
-			.credit(Test_Mosaic_Id1, Amount(12345))
-			.credit(Test_Mosaic_Id3, Amount(2244))
-			.credit(Test_Mosaic_Id2, Amount(3456));
+		balances.credit(Test_Mosaic_Id1, Amount(12345)).credit(Test_Mosaic_Id3, Amount(2244)).credit(Test_Mosaic_Id2, Amount(3456));
 
 		// Sanity:
 		EXPECT_EQ(Test_Mosaic_Id1, balances.begin()->first);
@@ -375,10 +369,7 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, CanIterateOverAllBalances) {
 		// Arrange:
 		AccountBalances balances;
-		balances
-			.credit(Test_Mosaic_Id1, Amount(12345))
-			.credit(Test_Mosaic_Id3, Amount(0))
-			.credit(Test_Mosaic_Id2, Amount(3456));
+		balances.credit(Test_Mosaic_Id1, Amount(12345)).credit(Test_Mosaic_Id3, Amount(0)).credit(Test_Mosaic_Id2, Amount(3456));
 
 		// Act:
 		auto numBalances = 0u;

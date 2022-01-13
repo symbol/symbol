@@ -49,15 +49,16 @@ namespace catapult { namespace cache {
 				, MetadataCacheViewMixins::Contains(metadataSets.Primary)
 				, MetadataCacheViewMixins::Iteration(metadataSets.Primary)
 				, MetadataCacheViewMixins::ConstAccessor(metadataSets.Primary)
-				, MetadataCacheViewMixins::PatriciaTreeView(metadataSets.PatriciaTree.get())
-		{}
+				, MetadataCacheViewMixins::PatriciaTreeView(metadataSets.PatriciaTree.get()) {
+		}
 	};
 
 	/// View on top of the metadata cache.
 	class MetadataCacheView : public ReadOnlyViewSupplier<BasicMetadataCacheView> {
 	public:
 		/// Creates a view around \a metadataSets.
-		explicit MetadataCacheView(const MetadataCacheTypes::BaseSets& metadataSets) : ReadOnlyViewSupplier(metadataSets)
-		{}
+		explicit MetadataCacheView(const MetadataCacheTypes::BaseSets& metadataSets)
+				: ReadOnlyViewSupplier(metadataSets) {
+		}
 	};
 }}

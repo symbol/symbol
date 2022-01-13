@@ -24,7 +24,9 @@
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/model/RangeTypes.h"
 
-namespace catapult { namespace io { class BlockStorageView; } }
+namespace catapult { namespace io {
+	class BlockStorageView;
+}}
 
 namespace catapult { namespace io {
 

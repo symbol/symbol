@@ -41,7 +41,6 @@ namespace catapult { namespace cache {
 		public:
 			struct Serializer {
 			public:
-
 				static std::string SerializeValue(const ValueType& value) {
 					std::ostringstream out;
 					out << value.Integer << " " << std::fixed << std::setprecision(2) << value.FloatingPoint;
@@ -62,8 +61,8 @@ namespace catapult { namespace cache {
 		public:
 			InsertParamsType(const RawBuffer& key, const std::string& value)
 					: Key(key)
-					, Value(value)
-			{}
+					, Value(value) {
+			}
 
 		public:
 			RawBuffer Key;
@@ -74,8 +73,8 @@ namespace catapult { namespace cache {
 		public:
 			FindParamsType(const RawBuffer& key, RdbDataIterator& iterator)
 					: Key(key)
-					, pIterator(&iterator)
-			{}
+					, pIterator(&iterator) {
+			}
 
 		public:
 			RawBuffer Key;
@@ -84,8 +83,9 @@ namespace catapult { namespace cache {
 
 		struct PruneParamsType {
 		public:
-			explicit PruneParamsType(uint64_t boundary) : Boundary(boundary)
-			{}
+			explicit PruneParamsType(uint64_t boundary)
+					: Boundary(boundary) {
+			}
 
 		public:
 			uint64_t Boundary;
@@ -93,8 +93,9 @@ namespace catapult { namespace cache {
 
 		struct RemoveParamsType {
 		public:
-			explicit RemoveParamsType(const RawBuffer& key) : Key(key)
-			{}
+			explicit RemoveParamsType(const RawBuffer& key)
+					: Key(key) {
+			}
 
 		public:
 			RawBuffer Key;
@@ -102,8 +103,9 @@ namespace catapult { namespace cache {
 
 		struct MockDb {
 		public:
-			explicit MockDb(bool isKeyFound = false) : IsKeyFound(isKeyFound)
-			{}
+			explicit MockDb(bool isKeyFound = false)
+					: IsKeyFound(isKeyFound) {
+			}
 
 		public:
 			auto size() const {
@@ -136,8 +138,9 @@ namespace catapult { namespace cache {
 		// mock replacing RdbColumnContainer
 		struct MockContainer {
 		public:
-			MockContainer(MockDb& db, size_t) : m_db(db)
-			{}
+			MockContainer(MockDb& db, size_t)
+					: m_db(db) {
+			}
 
 		public:
 			auto size() const {

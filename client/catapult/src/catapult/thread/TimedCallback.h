@@ -31,8 +31,7 @@ namespace catapult { namespace thread {
 	/// Wraps a callback with a timer using an explicit strand and ensures deterministic shutdown by using
 	/// enable_shared_from_this.
 	template<typename TCallback, typename... TCallbackArgs>
-	class StrandedTimedCallback
-			: public std::enable_shared_from_this<StrandedTimedCallback<TCallback, TCallbackArgs...>> {
+	class StrandedTimedCallback : public std::enable_shared_from_this<StrandedTimedCallback<TCallback, TCallbackArgs...>> {
 	private:
 		using TimeoutHandlerType = action;
 
@@ -51,15 +50,13 @@ namespace catapult { namespace thread {
 					, m_timeoutArgs(std::forward<TCallbackArgs>(timeoutArgs)...)
 					, m_timer(ioContext)
 					, m_isCallbackInvoked(false)
-					, m_isTimedOut(false)
-			{}
+					, m_isTimedOut(false) {
+			}
 
 		public:
 			void setTimeout(const utils::TimeSpan& timeout) {
 				m_timer.expires_from_now(std::chrono::milliseconds(timeout.millis()));
-				m_timer.async_wait(m_wrapper.wrap([this](const auto&) {
-					this->handleTimedOut();
-				}));
+				m_timer.async_wait(m_wrapper.wrap([this](const auto&) { this->handleTimedOut(); }));
 			}
 
 			void setTimeoutHandler(const TimeoutHandlerType& handler) {
@@ -120,8 +117,8 @@ namespace catapult { namespace thread {
 		StrandedTimedCallback(boost::asio::io_context& ioContext, const TCallback& callback, TCallbackArgs&&... timeoutArgs)
 				: m_impl(*this, ioContext, callback, std::forward<TCallbackArgs>(timeoutArgs)...)
 				, m_strand(ioContext)
-				, m_strandWrapper(m_strand)
-		{}
+				, m_strandWrapper(m_strand) {
+		}
 
 	public:
 		/// Sets the timeout to \a timeout (starting from now).
@@ -140,9 +137,7 @@ namespace catapult { namespace thread {
 			// note that this function needs to be TArgs instead of TCallbackArgs so that it can be called
 			// with different qualifiers - e.g. when constructing, a timeoutArg might be passed by value
 			// but here it might be passed by (const) reference
-			post([args = std::make_tuple(std::forward<TArgs>(args)...)](auto& impl) {
-				impl.callback(args);
-			});
+			post([args = std::make_tuple(std::forward<TArgs>(args)...)](auto& impl) { impl.callback(args); });
 		}
 
 	public:
@@ -154,9 +149,7 @@ namespace catapult { namespace thread {
 	private:
 		template<typename THandler>
 		void post(THandler handler) {
-			return m_strandWrapper.post(this->shared_from_this(), [handler](const auto& pThis) {
-				handler(pThis->m_impl);
-			});
+			return m_strandWrapper.post(this->shared_from_this(), [handler](const auto& pThis) { handler(pThis->m_impl); });
 		}
 
 	private:

@@ -37,7 +37,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MultisigAccountModification, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MultisigAccountModification, 1, 1, )
 
 		template<typename TTraits>
 		auto CreateTransactionWithModifications(uint8_t numAdditions, uint8_t numDeletions) {
@@ -81,10 +81,9 @@ namespace catapult { namespace plugins {
 		auto pTransaction = CreateTransactionWithModifications<TTraits>(0, 0);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			InternalPaddingNotification::Notification_Type,
-			MultisigSettingsNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ InternalPaddingNotification::Notification_Type, MultisigSettingsNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNoModifications) {
@@ -108,16 +107,16 @@ namespace catapult { namespace plugins {
 		auto pTransaction = CreateTransactionWithModifications<TTraits>(2, 0);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			InternalPaddingNotification::Notification_Type,
-			AccountAddressNotification::Notification_Type,
-			MultisigNewCosignatoryNotification::Notification_Type,
-			AccountAddressNotification::Notification_Type,
-			MultisigNewCosignatoryNotification::Notification_Type,
-			MultisigCosignatoriesNotification::Notification_Type,
-			AddressInteractionNotification::Notification_Type,
-			MultisigSettingsNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ InternalPaddingNotification::Notification_Type,
+				  AccountAddressNotification::Notification_Type,
+				  MultisigNewCosignatoryNotification::Notification_Type,
+				  AccountAddressNotification::Notification_Type,
+				  MultisigNewCosignatoryNotification::Notification_Type,
+				  MultisigCosignatoriesNotification::Notification_Type,
+				  AddressInteractionNotification::Notification_Type,
+				  MultisigSettingsNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenAddModifications) {
@@ -152,10 +151,8 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(GetSignerAddress(transaction), notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 
-			UnresolvedAddressSet expectedParticipantsByAddress{
-				transaction.AddressAdditionsPtr()[0],
-				transaction.AddressAdditionsPtr()[1]
-			};
+			UnresolvedAddressSet expectedParticipantsByAddress{ transaction.AddressAdditionsPtr()[0],
+																transaction.AddressAdditionsPtr()[1] };
 			EXPECT_EQ(expectedParticipantsByAddress, notification.ParticipantsByAddress);
 		});
 
@@ -172,11 +169,11 @@ namespace catapult { namespace plugins {
 		auto pTransaction = CreateTransactionWithModifications<TTraits>(0, 2);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			InternalPaddingNotification::Notification_Type,
-			MultisigCosignatoriesNotification::Notification_Type,
-			MultisigSettingsNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ InternalPaddingNotification::Notification_Type,
+				  MultisigCosignatoriesNotification::Notification_Type,
+				  MultisigSettingsNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenDelModifications) {
@@ -208,16 +205,16 @@ namespace catapult { namespace plugins {
 		auto pTransaction = CreateTransactionWithModifications<TTraits>(2, 2);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			InternalPaddingNotification::Notification_Type,
-			AccountAddressNotification::Notification_Type,
-			MultisigNewCosignatoryNotification::Notification_Type,
-			AccountAddressNotification::Notification_Type,
-			MultisigNewCosignatoryNotification::Notification_Type,
-			MultisigCosignatoriesNotification::Notification_Type,
-			AddressInteractionNotification::Notification_Type,
-			MultisigSettingsNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ InternalPaddingNotification::Notification_Type,
+				  AccountAddressNotification::Notification_Type,
+				  MultisigNewCosignatoryNotification::Notification_Type,
+				  AccountAddressNotification::Notification_Type,
+				  MultisigNewCosignatoryNotification::Notification_Type,
+				  MultisigCosignatoriesNotification::Notification_Type,
+				  AddressInteractionNotification::Notification_Type,
+				  MultisigSettingsNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenAddAndDelModifications) {
@@ -252,10 +249,8 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(GetSignerAddress(transaction), notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 
-			UnresolvedAddressSet expectedParticipantsByAddress{
-				transaction.AddressAdditionsPtr()[0],
-				transaction.AddressAdditionsPtr()[1]
-			};
+			UnresolvedAddressSet expectedParticipantsByAddress{ transaction.AddressAdditionsPtr()[0],
+																transaction.AddressAdditionsPtr()[1] };
 			EXPECT_EQ(expectedParticipantsByAddress, notification.ParticipantsByAddress);
 		});
 

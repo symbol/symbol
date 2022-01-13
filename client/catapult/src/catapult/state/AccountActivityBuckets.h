@@ -80,10 +80,7 @@ namespace catapult { namespace state {
 		ActivityBucketStack::const_iterator end() const;
 
 	private:
-		bool tryUpdate(
-				model::ImportanceHeight height,
-				const consumer<HeightDetachedActivityBucket&>& consumer,
-				bool shouldCreateNewBucket);
+		bool tryUpdate(model::ImportanceHeight height, const consumer<HeightDetachedActivityBucket&>& consumer, bool shouldCreateNewBucket);
 
 	private:
 		ActivityBucketStack m_buckets;

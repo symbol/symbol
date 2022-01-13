@@ -23,7 +23,9 @@
 #include "catapult/types.h"
 #include <bsoncxx/json.hpp>
 
-namespace catapult { namespace state { class MosaicEntry; } }
+namespace catapult { namespace state {
+	class MosaicEntry;
+}}
 
 namespace catapult { namespace test {
 

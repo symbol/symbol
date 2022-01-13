@@ -63,8 +63,9 @@ namespace catapult { namespace api {
 			static constexpr auto Packet_Type = GenericResponse::Packet_Type;
 
 		public:
-			explicit BaseGenericApiTraits(uint8_t multiplier = 1) : m_multiplier(multiplier)
-			{}
+			explicit BaseGenericApiTraits(uint8_t multiplier = 1)
+					: m_multiplier(multiplier) {
+			}
 
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
 				// intentionally do not use ionet::CoercePacket in order to test the type check in the dispatcher

@@ -232,12 +232,14 @@ namespace catapult { namespace observers {
 }}
 
 #define MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockObserverTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		LockObserverTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_LOCK_OBSERVER_TESTS(TRAITS_NAME) \
 	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverAddsInfoOnCommit) \
 	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverCanAddToHistoryWhenInfoIsInactive) \
 	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverCanAddToHistoryWhenInfoIsActive) \
-	\
+\
 	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverRemovesInfoOnRollbackWhenHistoryDepthIsOne) \
 	MAKE_LOCK_OBSERVER_TEST(TRAITS_NAME, ObserverRemovesInfoOnRollbackWhenHistoryDepthIsGreaterThanOne)

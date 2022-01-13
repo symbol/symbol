@@ -33,14 +33,14 @@ namespace catapult { namespace tools { namespace plugins {
 
 		class TempDirectoryGuard {
 		public:
-			explicit TempDirectoryGuard(const std::string& directoryPath) : m_directoryPath(directoryPath)
-			{}
+			explicit TempDirectoryGuard(const std::string& directoryPath)
+					: m_directoryPath(directoryPath) {
+			}
 
 			~TempDirectoryGuard() {
 				auto numRemovedFiles = std::filesystem::remove_all(m_directoryPath);
-				CATAPULT_LOG(info)
-						<< "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles
-						<< " files (exists? " << std::filesystem::exists(m_directoryPath) << ")";
+				CATAPULT_LOG(info) << "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles << " files (exists? "
+								   << std::filesystem::exists(m_directoryPath) << ")";
 			}
 
 		private:
@@ -111,8 +111,8 @@ namespace catapult { namespace tools { namespace plugins {
 	// region PluginLoader
 
 	PluginLoader::PluginLoader(const config::CatapultConfiguration& config, CacheDatabaseCleanupMode databaseCleanupMode)
-			: m_pImpl(std::make_unique<Impl>(config, databaseCleanupMode))
-	{}
+			: m_pImpl(std::make_unique<Impl>(config, databaseCleanupMode)) {
+	}
 
 	PluginLoader::~PluginLoader() = default;
 

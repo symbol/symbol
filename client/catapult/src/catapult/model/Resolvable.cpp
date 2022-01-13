@@ -36,20 +36,21 @@ namespace catapult { namespace model {
 	}
 
 	template<typename TUnresolved, typename TResolved>
-	Resolvable<TUnresolved, TResolved>::Resolvable() : m_type(Type::Resolved)
-	{}
+	Resolvable<TUnresolved, TResolved>::Resolvable()
+			: m_type(Type::Resolved) {
+	}
 
 	template<typename TUnresolved, typename TResolved>
 	Resolvable<TUnresolved, TResolved>::Resolvable(const TUnresolved& unresolved)
 			: m_unresolved(unresolved)
-			, m_type(Type::Unresolved)
-	{}
+			, m_type(Type::Unresolved) {
+	}
 
 	template<typename TUnresolved, typename TResolved>
 	Resolvable<TUnresolved, TResolved>::Resolvable(const TResolved& resolved)
 			: m_resolved(resolved)
-			, m_type(Type::Resolved)
-	{}
+			, m_type(Type::Resolved) {
+	}
 
 	template<typename TUnresolved, typename TResolved>
 	bool Resolvable<TUnresolved, TResolved>::isResolved() const {

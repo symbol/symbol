@@ -28,7 +28,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS TransactionFeeActivityObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(TransactionFeeActivity,)
+	DEFINE_COMMON_OBSERVER_TESTS(TransactionFeeActivity, )
 
 	namespace {
 		constexpr auto Notification_Height = Height(100);
@@ -37,8 +37,8 @@ namespace catapult { namespace observers {
 		class TestContext : public test::AccountObserverTestContext {
 		public:
 			explicit TestContext(NotifyMode notifyMode)
-					: test::AccountObserverTestContext(notifyMode, Notification_Height, CreateBlockchainConfiguration())
-			{}
+					: test::AccountObserverTestContext(notifyMode, Notification_Height, CreateBlockchainConfiguration()) {
+			}
 
 		public:
 			auto addAccount(const Address& address, Amount totalFeesPaid) {

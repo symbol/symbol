@@ -28,8 +28,8 @@ namespace catapult { namespace builders {
 			, m_minRemovalDelta()
 			, m_minApprovalDelta()
 			, m_addressAdditions()
-			, m_addressDeletions()
-	{}
+			, m_addressDeletions() {
+	}
 
 	void MultisigAccountModificationBuilder::setMinRemovalDelta(int8_t minRemovalDelta) {
 		m_minRemovalDelta = minRemovalDelta;

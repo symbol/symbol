@@ -28,8 +28,8 @@ namespace catapult { namespace mocks {
 
 	MockMemoryStream::MockMemoryStream(std::vector<uint8_t>& buffer)
 			: MemoryStream(buffer)
-			, m_flushCount(0)
-	{}
+			, m_flushCount(0) {
+	}
 
 	void MockMemoryStream::flush() {
 		++m_flushCount;
@@ -43,7 +43,8 @@ namespace catapult { namespace mocks {
 
 	// region MockSeekableMemoryStream
 
-	MockSeekableMemoryStream::MockSeekableMemoryStream() : extensions::MemoryStream(m_buffer) {
+	MockSeekableMemoryStream::MockSeekableMemoryStream()
+			: extensions::MemoryStream(m_buffer) {
 		m_buffer.reserve(1024);
 	}
 

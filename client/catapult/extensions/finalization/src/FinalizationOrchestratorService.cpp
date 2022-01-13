@@ -47,11 +47,8 @@ namespace catapult { namespace finalization {
 			votesEpochDirectory.createAll();
 
 			std::ostringstream messageFilename;
-			messageFilename
-					<< message.StepIdentifier.Round().Point
-					<< "_"
-					<< (model::FinalizationStage::Precommit == message.StepIdentifier.Stage() ? "precommit" : "prevote")
-					<< ".dat";
+			messageFilename << message.StepIdentifier.Round().Point << "_"
+							<< (model::FinalizationStage::Precommit == message.StepIdentifier.Stage() ? "precommit" : "prevote") << ".dat";
 			io::RawFile messageFile(votesEpochDirectory.file(messageFilename.str()), io::OpenMode::Read_Write);
 			messageFile.write({ reinterpret_cast<const uint8_t*>(&message), message.Size });
 		}
@@ -73,31 +70,31 @@ namespace catapult { namespace finalization {
 					, m_dataDirectory(state.config().User.DataDirectory)
 					, m_votingStatusFile(m_dataDirectory.file("voting_status.dat"))
 					, m_orchestrator(
-							config.EnableRevoteOnBoot ? LoadVotingStatusFromStorage(m_proofStorage) : m_votingStatusFile.load(),
-							[stepDuration = config.StepDuration, &messageAggregator = m_messageAggregator](auto point, auto time) {
-								return chain::CreateFinalizationStageAdvancer(point, time, stepDuration, messageAggregator);
-							},
-							[factory = FinalizationContextFactory(config, state)](const auto& message) {
-								const auto& votingPublicKey = message.Signature.Root.ParentPublicKey;
-								return factory.create(message.StepIdentifier.Epoch).isEligibleVoter(votingPublicKey);
-							},
-							[&hooks = m_hooks, dataDirectory = m_dataDirectory](auto&& pMessage) {
-								SaveMessageToDisk(dataDirectory, *pMessage);
-								hooks.messageRangeConsumer()(model::FinalizationMessageRange::FromEntity(std::move(pMessage)));
-							},
-							chain::CreateFinalizationMessageFactory(
-									config,
-									state.storage(),
-									m_proofStorage,
-									[dataDirectory = state.config().User.DataDirectory](
-											const auto& blockStorageView,
-											const auto& prevoteChainDescriptor) {
-										io::FilePrevoteChainStorage prevoteChainStorage(dataDirectory);
-										prevoteChainStorage.save(blockStorageView, prevoteChainDescriptor);
-									},
-									CreateVotingPrivateKeyTree(state.config().User)))
-					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage))
-			{}
+							  config.EnableRevoteOnBoot ? LoadVotingStatusFromStorage(m_proofStorage) : m_votingStatusFile.load(),
+							  [stepDuration = config.StepDuration, &messageAggregator = m_messageAggregator](auto point, auto time) {
+								  return chain::CreateFinalizationStageAdvancer(point, time, stepDuration, messageAggregator);
+							  },
+							  [factory = FinalizationContextFactory(config, state)](const auto& message) {
+								  const auto& votingPublicKey = message.Signature.Root.ParentPublicKey;
+								  return factory.create(message.StepIdentifier.Epoch).isEligibleVoter(votingPublicKey);
+							  },
+							  [&hooks = m_hooks, dataDirectory = m_dataDirectory](auto&& pMessage) {
+								  SaveMessageToDisk(dataDirectory, *pMessage);
+								  hooks.messageRangeConsumer()(model::FinalizationMessageRange::FromEntity(std::move(pMessage)));
+							  },
+							  chain::CreateFinalizationMessageFactory(
+									  config,
+									  state.storage(),
+									  m_proofStorage,
+									  [dataDirectory = state.config().User.DataDirectory](
+											  const auto& blockStorageView,
+											  const auto& prevoteChainDescriptor) {
+										  io::FilePrevoteChainStorage prevoteChainStorage(dataDirectory);
+										  prevoteChainStorage.save(blockStorageView, prevoteChainDescriptor);
+									  },
+									  CreateVotingPrivateKeyTree(state.config().User)))
+					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage)) {
+			}
 
 		public:
 			void poll(Timestamp time) {
@@ -128,9 +125,8 @@ namespace catapult { namespace finalization {
 
 				auto isStorageEpochAhead = finalizationStatistics.Round.Epoch > epoch;
 				if (isStorageEpochAhead) {
-					CATAPULT_LOG(info)
-							<< "proof storage epoch " << finalizationStatistics.Round.Epoch
-							<< " is out of sync with current epoch " << epoch;
+					CATAPULT_LOG(info) << "proof storage epoch " << finalizationStatistics.Round.Epoch
+									   << " is out of sync with current epoch " << epoch;
 				}
 
 				auto votingSetEndHeight = model::CalculateVotingSetEndHeight(epoch, m_votingSetGrouping);
@@ -140,19 +136,15 @@ namespace catapult { namespace finalization {
 				auto blockStorageView = m_blockStorage.view();
 				auto localChainHeight = blockStorageView.chainHeight();
 				if (localChainHeight < finalizationStatistics.Height) {
-					CATAPULT_LOG(warning)
-							<< "waiting for sync before transitioning from epoch " << epoch
-							<< " (height " << localChainHeight
-							<< " < finalized height " << finalizationStatistics.Height << ")";
+					CATAPULT_LOG(warning) << "waiting for sync before transitioning from epoch " << epoch << " (height " << localChainHeight
+										  << " < finalized height " << finalizationStatistics.Height << ")";
 					return std::make_pair(EpochStatus::Wait, FinalizationEpoch());
 				}
 
 				auto localBlockHash = *blockStorageView.loadHashesFrom(finalizationStatistics.Height, 1).cbegin();
 				if (localBlockHash != finalizationStatistics.Hash) {
-					CATAPULT_LOG(warning)
-							<< "waiting for sync before transitioning from epoch " << epoch
-							<< " (hash " << localBlockHash
-							<< " != finalized hash " << finalizationStatistics.Hash << ")";
+					CATAPULT_LOG(warning) << "waiting for sync before transitioning from epoch " << epoch << " (hash " << localBlockHash
+										  << " != finalized hash " << finalizationStatistics.Hash << ")";
 					return std::make_pair(EpochStatus::Wait, FinalizationEpoch());
 				}
 
@@ -227,8 +219,9 @@ namespace catapult { namespace finalization {
 
 		class FinalizationOrchestratorServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit FinalizationOrchestratorServiceRegistrar(const FinalizationConfiguration& config) : m_config(config)
-			{}
+			explicit FinalizationOrchestratorServiceRegistrar(const FinalizationConfiguration& config)
+					: m_config(config) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {

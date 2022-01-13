@@ -61,16 +61,14 @@ namespace catapult { namespace state {
 		auto evaluateResult = Evaluate(rule, value, isValidRule);
 
 		if (!isValidRule) {
-			CATAPULT_LOG(error)
-					<< "cannot evaluate mosaic restriction rule with unsupported type "
-					<< static_cast<uint16_t>(rule.RestrictionType);
+			CATAPULT_LOG(error) << "cannot evaluate mosaic restriction rule with unsupported type "
+								<< static_cast<uint16_t>(rule.RestrictionType);
 			return false;
 		}
 
 		// if unset value, only NE should match
 		// otherwise, use result of evaluation
-		return MosaicAddressRestriction::Sentinel_Removal_Value == value
-				? model::MosaicRestrictionType::NE == rule.RestrictionType
-				: evaluateResult;
+		return MosaicAddressRestriction::Sentinel_Removal_Value == value ? model::MosaicRestrictionType::NE == rule.RestrictionType
+																		 : evaluateResult;
 	}
 }}

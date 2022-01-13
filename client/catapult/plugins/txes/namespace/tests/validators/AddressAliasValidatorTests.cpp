@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AddressAliasValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AddressAlias,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AddressAlias, )
 
 	namespace {
 		template<typename TAccountIdentifier>

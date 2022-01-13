@@ -76,8 +76,9 @@ namespace catapult { namespace test {
 
 		public:
 			/// Creates mixin.
-			GenerationalChangeMixin() : m_generationId(1)
-			{}
+			GenerationalChangeMixin()
+					: m_generationId(1) {
+			}
 
 		public:
 			/// Gets the current generation id.
@@ -111,7 +112,6 @@ namespace catapult { namespace test {
 		template<typename TSet>
 		struct WrapperWithGenerationalSupport
 				: public Wrapper<TSet>
-				, public GenerationalChangeMixin<TSet>
-		{};
+				, public GenerationalChangeMixin<TSet> {};
 	};
 }}

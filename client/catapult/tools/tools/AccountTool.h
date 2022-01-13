@@ -42,8 +42,8 @@ namespace catapult { namespace tools {
 		/// Creates a tool with \a name and input disposition (\a inputDisposition).
 		AccountTool(const std::string& name, InputDisposition inputDisposition)
 				: m_name(name)
-				, m_inputDisposition(inputDisposition)
-		{}
+				, m_inputDisposition(inputDisposition) {
+		}
 
 	public:
 		std::string name() const override final {
@@ -51,25 +51,23 @@ namespace catapult { namespace tools {
 		}
 
 		void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override final {
-			optionsBuilder("network,n",
+			optionsBuilder(
+					"network,n",
 					OptionsValue<std::string>()->default_value("testnet"),
 					"network, possible values: testnet (default), mainnet");
 
-			optionsBuilder("input,i",
-					InputDisposition::Required == m_inputDisposition
-							? OptionsValue<std::string>()->required()
-							: OptionsValue<std::string>()->default_value(""),
+			optionsBuilder(
+					"input,i",
+					InputDisposition::Required == m_inputDisposition ? OptionsValue<std::string>()->required()
+																	 : OptionsValue<std::string>()->default_value(""),
 					"input value (comma-delimited) or file");
-			optionsBuilder("output,o",
-					OptionsValue<std::string>(),
-					"(optional) output file");
-			optionsBuilder("format,f",
+			optionsBuilder("output,o", OptionsValue<std::string>(), "(optional) output file");
+			optionsBuilder(
+					"format,f",
 					OptionsValue<std::string>()->default_value("pretty"),
 					"output format, possible values: pretty (default), csv");
 
-			optionsBuilder("suppressConsole",
-					OptionsSwitch(),
-					"true to suppress console output");
+			optionsBuilder("suppressConsole", OptionsSwitch(), "true to suppress console output");
 
 			prepareAdditionalOptions(optionsBuilder);
 		}

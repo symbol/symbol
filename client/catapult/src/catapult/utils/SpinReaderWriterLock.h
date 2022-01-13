@@ -58,8 +58,8 @@ namespace catapult { namespace utils {
 		public:
 			YieldStepper()
 					: m_waitMillis(MIN_WAIT)
-					, m_numRemaining(NUM_ATTEMPTS_PER_WAIT)
-			{}
+					, m_numRemaining(NUM_ATTEMPTS_PER_WAIT) {
+			}
 
 		public:
 			void yield() {
@@ -96,8 +96,8 @@ namespace catapult { namespace utils {
 		protected:
 			explicit LockGuard(const action& resetFunc)
 					: m_resetFunc(resetFunc)
-					, m_isMoved(false)
-			{}
+					, m_isMoved(false) {
+			}
 
 			~LockGuard() {
 				if (m_isMoved)
@@ -107,7 +107,9 @@ namespace catapult { namespace utils {
 			}
 
 		public:
-			LockGuard(LockGuard&& rhs) : m_resetFunc(rhs.m_resetFunc), m_isMoved(false) {
+			LockGuard(LockGuard&& rhs)
+					: m_resetFunc(rhs.m_resetFunc)
+					, m_isMoved(false) {
 				rhs.m_isMoved = true;
 			}
 
@@ -129,8 +131,8 @@ namespace catapult { namespace utils {
 					: LockGuard([&value]() {
 						// unset the active writer flag
 						value.fetch_sub(Active_Writer_Flag + Pending_Writer_Increment);
-					})
-			{}
+					}) {
+			}
 
 			/// Creates a guard around \a value and \a isActive.
 			/// \note This constructor is used when writer is created by promotion.
@@ -139,8 +141,8 @@ namespace catapult { namespace utils {
 						// unset the active writer flag and change the writer to a reader
 						value.fetch_sub(Active_Writer_Flag + Pending_Writer_Increment - Active_Reader_Increment);
 						isActive = false;
-					})
-			{}
+					}) {
+			}
 
 			/// Default move constructor.
 			WriterLockGuard(WriterLockGuard&&) = default;
@@ -200,8 +202,9 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Creates an unlocked lock.
-		BasicSpinReaderWriterLock() : m_value(0)
-		{}
+		BasicSpinReaderWriterLock()
+				: m_value(0) {
+		}
 
 	public:
 		/// Returns \c true if there is a pending (or active) writer.
@@ -278,12 +281,12 @@ namespace catapult { namespace utils {
 	/// No-op reader notification policy.
 	struct NoOpReaderNotificationPolicy {
 		/// Reader was acquried by the current thread.
-		constexpr void readerAcquired()
-		{}
+		constexpr void readerAcquired() {
+		}
 
 		/// Reader was released by the current thread.
-		constexpr void readerReleased()
-		{}
+		constexpr void readerReleased() {
+		}
 	};
 }}
 

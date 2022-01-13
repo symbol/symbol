@@ -31,7 +31,7 @@ namespace catapult { namespace cache {
 
 	/// Mixins used by the account restriction cache delta.
 	using AccountRestrictionCacheDeltaMixins =
-		PatriciaTreeCacheMixins<AccountRestrictionCacheTypes::PrimaryTypes::BaseSetDeltaType, AccountRestrictionCacheDescriptor>;
+			PatriciaTreeCacheMixins<AccountRestrictionCacheTypes::PrimaryTypes::BaseSetDeltaType, AccountRestrictionCacheDescriptor>;
 
 	/// Basic delta on top of the account restriction cache.
 	class BasicAccountRestrictionCacheDelta
@@ -59,8 +59,8 @@ namespace catapult { namespace cache {
 				, AccountRestrictionCacheDeltaMixins::BasicInsertRemove(*restrictionSets.pPrimary)
 				, AccountRestrictionCacheDeltaMixins::DeltaElements(*restrictionSets.pPrimary)
 				, m_pAccountRestrictionEntries(restrictionSets.pPrimary)
-				, m_networkIdentifier(networkIdentifier)
-		{}
+				, m_networkIdentifier(networkIdentifier) {
+		}
 
 	public:
 		using AccountRestrictionCacheDeltaMixins::ConstAccessor::find;
@@ -84,7 +84,7 @@ namespace catapult { namespace cache {
 		AccountRestrictionCacheDelta(
 				const AccountRestrictionCacheTypes::BaseSetDeltaPointers& restrictionSets,
 				model::NetworkIdentifier networkIdentifier)
-				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier)
-		{}
+				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier) {
+		}
 	};
 }}

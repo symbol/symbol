@@ -64,11 +64,15 @@ namespace catapult { namespace state {
 
 		void AssertEmpty(const AccountActivityBuckets& buckets) {
 			EXPECT_TRUE(buckets.empty());
-			AssertHistoricalValues(buckets, {{
-				std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-				std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-				std::make_tuple(0, 0, 0, 0)
-			}});
+			AssertHistoricalValues(
+					buckets,
+					{ { std::make_tuple(0, 0, 0, 0),
+						std::make_tuple(0, 0, 0, 0),
+						std::make_tuple(0, 0, 0, 0),
+						std::make_tuple(0, 0, 0, 0),
+						std::make_tuple(0, 0, 0, 0),
+						std::make_tuple(0, 0, 0, 0),
+						std::make_tuple(0, 0, 0, 0) } });
 		}
 
 		// endregion
@@ -138,11 +142,15 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(234, 18, 11, 14), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(234, 18, 11, 14),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0) } });
 	}
 
 	TEST(TEST_CLASS, CanUpdateBucketAtHigherHeight) {
@@ -155,11 +163,15 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(235, 18, 11, 14), std::make_tuple(234, 20, 10, 15), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(235, 18, 11, 14),
+					std::make_tuple(234, 20, 10, 15),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0) } });
 	}
 
 	TEST(TEST_CLASS, CanSetMaxHistoricalBuckets) {
@@ -177,11 +189,15 @@ namespace catapult { namespace state {
 
 		// Assert: roll over after max (8) is set
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(999, 26, 11, 95), std::make_tuple(888, 27, 22, 80), std::make_tuple(777, 28, 33, 75),
-			std::make_tuple(666, 29, 44, 60), std::make_tuple(555, 25, 55, 55), std::make_tuple(444, 24, 66, 40),
-			std::make_tuple(333, 23, 77, 35)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(999, 26, 11, 95),
+					std::make_tuple(888, 27, 22, 80),
+					std::make_tuple(777, 28, 33, 75),
+					std::make_tuple(666, 29, 44, 60),
+					std::make_tuple(555, 25, 55, 55),
+					std::make_tuple(444, 24, 66, 40),
+					std::make_tuple(333, 23, 77, 35) } });
 	}
 
 	TEST(TEST_CLASS, CanUpdateAfterPush) {
@@ -195,11 +211,15 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(235, 18, 11, 14), std::make_tuple(0, 0, 0, 0), std::make_tuple(234, 20, 10, 15),
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(235, 18, 11, 14),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(234, 20, 10, 15),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0) } });
 	}
 
 	// endregion
@@ -227,11 +247,15 @@ namespace catapult { namespace state {
 		// Assert:
 		EXPECT_TRUE(tryResult);
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(234, 18, 11, 14), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(234, 18, 11, 14),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0) } });
 	}
 
 	TEST(TEST_CLASS, CannotUpdateBucketAtHigherHeight_TryUpdate) {
@@ -245,11 +269,15 @@ namespace catapult { namespace state {
 		// Assert:
 		EXPECT_FALSE(tryResult);
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(234, 20, 10, 15), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(234, 20, 10, 15),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0) } });
 	}
 
 	TEST(TEST_CLASS, CannotUpdateAfterPush_TryUpdate) {
@@ -264,11 +292,15 @@ namespace catapult { namespace state {
 		// Assert:
 		EXPECT_FALSE(tryResult);
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(234, 20, 10, 15), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(234, 20, 10, 15),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0) } });
 	}
 
 	// endregion
@@ -306,11 +338,15 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(999, 26, 11, 20), std::make_tuple(888, 27, 22, 15),
-			std::make_tuple(777, 28, 33, 10), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(999, 26, 11, 20),
+					std::make_tuple(888, 27, 22, 15),
+					std::make_tuple(777, 28, 33, 10),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0) } });
 	}
 
 	TEST(TEST_CLASS, CanPushAllBuckets) {
@@ -336,11 +372,15 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(888, 27, 22, 15), std::make_tuple(777, 28, 33, 10), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(888, 27, 22, 15),
+					std::make_tuple(777, 28, 33, 10),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0) } });
 	}
 
 	TEST(TEST_CLASS, CanPopAllBuckets) {
@@ -367,11 +407,15 @@ namespace catapult { namespace state {
 
 		// Sanity:
 		EXPECT_FALSE(buckets.empty());
-		AssertHistoricalValues(buckets, {{
-			std::make_tuple(234, 20, 10, 15), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0), std::make_tuple(0, 0, 0, 0),
-			std::make_tuple(0, 0, 0, 0)
-		}});
+		AssertHistoricalValues(
+				buckets,
+				{ { std::make_tuple(234, 20, 10, 15),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0),
+					std::make_tuple(0, 0, 0, 0) } });
 
 		// Act + Assert:
 		EXPECT_EQ(model::ImportanceHeight(), buckets.get(model::ImportanceHeight()).StartHeight);
@@ -381,4 +425,3 @@ namespace catapult { namespace state {
 
 	// endregion
 }}
-

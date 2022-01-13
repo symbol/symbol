@@ -25,8 +25,12 @@
 #include <memory>
 
 namespace catapult {
-	namespace cache { class ReadOnlyCatapultCache; }
-	namespace state { struct CatapultState; }
+namespace cache {
+	class ReadOnlyCatapultCache;
+}
+namespace state {
+	struct CatapultState;
+}
 }
 
 namespace catapult { namespace cache {

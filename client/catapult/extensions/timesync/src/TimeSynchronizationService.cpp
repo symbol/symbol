@@ -48,8 +48,8 @@ namespace catapult { namespace timesync {
 					const TimeSynchronizationConfiguration& timeSyncConfig,
 					const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState)
 					: m_timeSyncConfig(timeSyncConfig)
-					, m_pTimeSyncState(pTimeSyncState)
-			{}
+					, m_pTimeSyncState(pTimeSyncState) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
@@ -67,24 +67,20 @@ namespace catapult { namespace timesync {
 				auto addRequestorCounter = [&locator](const auto& counterName, auto supplier) {
 					locator.registerServiceCounter<NodeNetworkTimeRequestor>(Requestor_Service_Name, counterName, supplier);
 				};
-				addRequestorCounter("TS TOTAL REQ", [](const auto& requestor) { return requestor.numTotalRequests();});
+				addRequestorCounter("TS TOTAL REQ", [](const auto& requestor) { return requestor.numTotalRequests(); });
 			}
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
 				// create filters
-				std::vector<filters::SynchronizationFilter> filters{
-					filters::CreateReversedTimestampsFilter(),
-					filters::CreateResponseDelayDetectionFilter(),
-					filters::CreateClampingFilter()
-				};
+				std::vector<filters::SynchronizationFilter> filters{ filters::CreateReversedTimestampsFilter(),
+																	 filters::CreateResponseDelayDetectionFilter(),
+																	 filters::CreateClampingFilter() };
 
 				// register services
 				auto connectionSettings = extensions::GetConnectionSettings(state.config());
 				auto pServiceGroup = state.pool().pushServiceGroup(Service_Group);
-				auto pNodeNetworkTimeRequestor = pServiceGroup->pushService(
-						CreateNodeNetworkTimeRequestor,
-						locator.keys().caPublicKey(),
-						connectionSettings);
+				auto pNodeNetworkTimeRequestor =
+						pServiceGroup->pushService(CreateNodeNetworkTimeRequestor, locator.keys().caPublicKey(), connectionSettings);
 
 				locator.registerService(Requestor_Service_Name, pNodeNetworkTimeRequestor);
 
@@ -117,9 +113,8 @@ namespace catapult { namespace timesync {
 		};
 	}
 
-	DECLARE_SERVICE_REGISTRAR(TimeSynchronization)(
-			const TimeSynchronizationConfiguration& timeSyncConfig,
-			const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState) {
+	DECLARE_SERVICE_REGISTRAR(TimeSynchronization)
+	(const TimeSynchronizationConfiguration& timeSyncConfig, const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState) {
 		return std::make_unique<TimeSynchronizationServiceRegistrar>(timeSyncConfig, pTimeSyncState);
 	}
 }}

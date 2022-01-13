@@ -21,12 +21,10 @@
 
 #pragma once
 
-namespace catapult {
-	namespace model {
-		class NotificationSubscriber;
-		class WeakCosignedTransactionInfo;
-	}
-}
+namespace catapult { namespace model {
+	class NotificationSubscriber;
+	class WeakCosignedTransactionInfo;
+}}
 
 namespace catapult { namespace chain {
 

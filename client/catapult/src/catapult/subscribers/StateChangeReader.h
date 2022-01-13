@@ -24,9 +24,15 @@
 #include <vector>
 
 namespace catapult {
-	namespace cache { class CacheChangesStorage; }
-	namespace io { class InputStream; }
-	namespace subscribers { class StateChangeSubscriber; }
+namespace cache {
+	class CacheChangesStorage;
+}
+namespace io {
+	class InputStream;
+}
+namespace subscribers {
+	class StateChangeSubscriber;
+}
 }
 
 namespace catapult { namespace subscribers {

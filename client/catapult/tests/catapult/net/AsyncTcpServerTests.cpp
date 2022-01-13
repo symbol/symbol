@@ -79,10 +79,8 @@ namespace catapult { namespace net {
 
 		private:
 			void logState(const char* message) {
-				CATAPULT_LOG(debug)
-						<< message
-						<< "(numWorkerThreads: " << m_pPool->numWorkerThreads()
-						<< ", numPendingAccepts: " << m_pServer->numPendingAccepts() << ")";
+				CATAPULT_LOG(debug) << message << "(numWorkerThreads: " << m_pPool->numWorkerThreads()
+									<< ", numPendingAccepts: " << m_pServer->numPendingAccepts() << ")";
 			}
 
 		public:
@@ -162,10 +160,8 @@ namespace catapult { namespace net {
 			}
 
 			void shutdown() {
-				CATAPULT_LOG(debug)
-						<< "Shutting down ClientService: "
-						<< "connects " << m_numConnects
-						<< ", failures " << m_numConnectFailures;
+				CATAPULT_LOG(debug) << "Shutting down ClientService: "
+									<< "connects " << m_numConnects << ", failures " << m_numConnectFailures;
 
 				for (const auto& pConnection : m_connections)
 					pConnection->abort();
@@ -188,8 +184,8 @@ namespace catapult { namespace net {
 						, m_connectOptions(connectOptions)
 						, m_id(id)
 						, m_deadline(ioContext)
-						, m_status(ConnectionStatus::Unset)
-				{}
+						, m_status(ConnectionStatus::Unset) {
+				}
 
 			public:
 				void abort() {
@@ -199,9 +195,7 @@ namespace catapult { namespace net {
 			public:
 				void setDeadline(size_t millis, const ConnectionHandler& handler) {
 					m_deadline.expires_from_now(std::chrono::milliseconds(millis));
-					m_deadline.async_wait([pThis = shared_from_this(), handler](const auto& ec) {
-						pThis->handleTimeout(ec, handler);
-					});
+					m_deadline.async_wait([pThis = shared_from_this(), handler](const auto& ec) { pThis->handleTimeout(ec, handler); });
 				}
 
 			private:
@@ -263,7 +257,7 @@ namespace catapult { namespace net {
 				for (auto i = 0u; i < numAttempts; ++i) {
 					auto pContext = std::make_shared<SpawnContext>(m_ioContext, connectOptions, i);
 					m_connections.push_back(pContext);
-					boost::asio::post(m_ioContext, [this, timeoutMillis, pContext{std::move(pContext)}]() {
+					boost::asio::post(m_ioContext, [this, timeoutMillis, pContext{ std::move(pContext) }]() {
 						auto connectionHandler = [this](auto status) {
 							switch (status) {
 							case ConnectionStatus::Success:
@@ -351,14 +345,16 @@ namespace catapult { namespace net {
 
 		class BlockingAcceptServer : public AcceptServer {
 		public:
-			BlockingAcceptServer() : AcceptServer(test::CreateSyncWaitFunction(Wait_Duration_Millis))
-			{}
+			BlockingAcceptServer()
+					: AcceptServer(test::CreateSyncWaitFunction(Wait_Duration_Millis)) {
+			}
 		};
 
 		class NonBlockingAcceptServer : public AcceptServer {
 		public:
-			NonBlockingAcceptServer() : AcceptServer(test::CreateAsyncWaitFunction(Wait_Duration_Millis))
-			{}
+			NonBlockingAcceptServer()
+					: AcceptServer(test::CreateAsyncWaitFunction(Wait_Duration_Millis)) {
+			}
 		};
 
 		// endregion
@@ -427,9 +423,7 @@ namespace catapult { namespace net {
 		boost::system::error_code connectEc;
 		boost::asio::io_context ioContext;
 		ionet::NetworkSocket socket(ioContext);
-		socket.async_connect(test::CreateLocalHostEndpoint(), [&connectEc](const auto& ec) {
-			connectEc = ec;
-		});
+		socket.async_connect(test::CreateLocalHostEndpoint(), [&connectEc](const auto& ec) { connectEc = ec; });
 		ioContext.run();
 
 		// Assert: a connection error was returned
@@ -460,10 +454,7 @@ namespace catapult { namespace net {
 		pServer.stopAll();
 
 		// Assert: the entire strand was allowed to complete and was not aborted
-		CATAPULT_LOG(debug)
-				<< "preShutdownWaits " << preShutdownWaits
-				<< " numWaits " << numWaits
-				<< " maxWaits " << maxWaits;
+		CATAPULT_LOG(debug) << "preShutdownWaits " << preShutdownWaits << " numWaits " << numWaits << " maxWaits " << maxWaits;
 		EXPECT_LE(10u, maxWaits - preShutdownWaits);
 		EXPECT_EQ(maxWaits, numWaits);
 	}

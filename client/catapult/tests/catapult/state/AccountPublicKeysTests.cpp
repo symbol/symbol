@@ -277,34 +277,23 @@ namespace catapult { namespace state {
 
 		void AssertCopied(const PublicKeysAccessor& accessor, const PublicKeysAccessor& accessorCopy) {
 			// Assert: the original values are copied into the copy
-			AssertSet(accessor, {
-				{ { { 0x44 } }, Epoch(100), Epoch(149) }
-			});
+			AssertSet(accessor, { { { { 0x44 } }, Epoch(100), Epoch(149) } });
 
-			AssertSet(accessorCopy, {
-				{ { { 0x44 } }, Epoch(100), Epoch(149) }
-			});
+			AssertSet(accessorCopy, { { { { 0x44 } }, Epoch(100), Epoch(149) } });
 		}
 
 		void AssertDeepCopied(const PublicKeysAccessor& accessor, const PublicKeysAccessor& accessorCopy) {
 			// Assert: the copy is detached from the original
-			AssertSet(accessor, {
-				{ { { 0x44 } }, Epoch(100), Epoch(149) }
-			});
+			AssertSet(accessor, { { { { 0x44 } }, Epoch(100), Epoch(149) } });
 
-			AssertSet(accessorCopy, {
-				{ { { 0x44 } }, Epoch(100), Epoch(149) },
-				{ { { 0x32 } }, Epoch(200), Epoch(299) }
-			});
+			AssertSet(accessorCopy, { { { { 0x44 } }, Epoch(100), Epoch(149) }, { { { 0x32 } }, Epoch(200), Epoch(299) } });
 		}
 
 		void AssertMoved(const PublicKeysAccessor& accessor, const PublicKeysAccessor& accessorMoved) {
 			// Assert: the original values are moved into the copy
 			AssertUnset(accessor);
 
-			AssertSet(accessorMoved, {
-				{ { { 0x44 } }, Epoch(100), Epoch(149) }
-			});
+			AssertSet(accessorMoved, { { { { 0x44 } }, Epoch(100), Epoch(149) } });
 		}
 	}
 
@@ -570,10 +559,8 @@ namespace catapult { namespace state {
 		auto pinnedPublicKeys = accessor.getAll();
 
 		// Assert:
-		std::vector<model::PinnedVotingKey> expectedPinnedPublicKeys{
-			{ { { 0x44 } }, Epoch(100), Epoch(149) },
-			{ { { 0x32 } }, Epoch(200), Epoch(299) }
-		};
+		std::vector<model::PinnedVotingKey> expectedPinnedPublicKeys{ { { { 0x44 } }, Epoch(100), Epoch(149) },
+																	  { { { 0x32 } }, Epoch(200), Epoch(299) } };
 		EXPECT_EQ(expectedPinnedPublicKeys, pinnedPublicKeys);
 	}
 

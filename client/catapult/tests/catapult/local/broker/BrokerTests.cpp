@@ -130,14 +130,28 @@ namespace catapult { namespace local {
 	}
 
 #define SUBSCRIBER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_UtChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_PtChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Finalization) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FinalizationTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_StateChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_UtChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_PtChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Finalization) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FinalizationTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_StateChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -186,22 +200,22 @@ namespace catapult { namespace local {
 	SUBSCRIBER_TRAITS_BASED_TEST(CannotIngestCorruptMessage) {
 		// Arrange:
 		BrokerTestContext context;
-		ASSERT_DEATH({
-			// - write some messages
-			test::WriteMessages<TTraits>(context, 3);
+		ASSERT_DEATH(
+				{
+					// - write some messages
+					test::WriteMessages<TTraits>(context, 3);
 
-			// - write poison message
-			context.writeMessages(TTraits::Queue_Directory_Name, 1, [](auto& outputStream) {
-				io::Write8(outputStream, 123);
-			});
+					// - write poison message
+					context.writeMessages(TTraits::Queue_Directory_Name, 1, [](auto& outputStream) { io::Write8(outputStream, 123); });
 
-			// Sanity:
-			EXPECT_EQ(4u, context.countMessageFiles(TTraits::Queue_Directory_Name));
+					// Sanity:
+					EXPECT_EQ(4u, context.countMessageFiles(TTraits::Queue_Directory_Name));
 
-			// Act: wait for them to be processed
-			context.boot();
-			WAIT_FOR_ZERO_EXPR(context.countMessageFiles(TTraits::Queue_Directory_Name));
-		}, "");
+					// Act: wait for them to be processed
+					context.boot();
+					WAIT_FOR_ZERO_EXPR(context.countMessageFiles(TTraits::Queue_Directory_Name));
+				},
+				"");
 
 		// Assert: only poison message remains
 		WAIT_FOR_ONE_EXPR(context.countMessageFiles(TTraits::Queue_Directory_Name));

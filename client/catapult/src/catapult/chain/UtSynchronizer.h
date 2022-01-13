@@ -25,7 +25,9 @@
 #include "catapult/handlers/HandlerTypes.h"
 #include "catapult/model/RangeTypes.h"
 
-namespace catapult { namespace api { class RemoteTransactionApi; } }
+namespace catapult { namespace api {
+	class RemoteTransactionApi;
+}}
 
 namespace catapult { namespace chain {
 

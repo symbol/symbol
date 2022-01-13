@@ -20,11 +20,11 @@
 **/
 
 #include "src/builders/AggregateTransactionBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/EntityHasher.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
@@ -138,10 +138,8 @@ namespace catapult { namespace builders {
 		}
 
 		RawBuffer TransactionDataBuffer(const model::AggregateTransaction& transaction) {
-			return {
-				reinterpret_cast<const uint8_t*>(&transaction) + model::Transaction::Header_Size,
-				sizeof(model::AggregateTransaction) - model::Transaction::Header_Size - model::AggregateTransaction::Footer_Size
-			};
+			return { reinterpret_cast<const uint8_t*>(&transaction) + model::Transaction::Header_Size,
+					 sizeof(model::AggregateTransaction) - model::Transaction::Header_Size - model::AggregateTransaction::Footer_Size };
 		}
 
 		void AssertAggregateCosignaturesTransaction(size_t numCosignatures) {

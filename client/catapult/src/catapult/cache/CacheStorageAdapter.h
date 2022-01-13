@@ -34,8 +34,8 @@ namespace catapult { namespace cache {
 		/// Creates an adapter around \a cache.
 		explicit CacheStorageAdapter(TCache& cache)
 				: m_cache(cache)
-				, m_name(TCache::Name)
-		{}
+				, m_name(TCache::Name) {
+		}
 
 	public:
 		const std::string& name() const override {

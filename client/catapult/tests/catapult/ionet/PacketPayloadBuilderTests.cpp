@@ -159,8 +159,8 @@ namespace catapult { namespace ionet {
 			public:
 				DataType()
 						: Index(0)
-						, Entities(MultipleEntitiesTraits::CreateAppendData())
-				{}
+						, Entities(MultipleEntitiesTraits::CreateAppendData()) {
+				}
 
 			public:
 				auto operator()() {
@@ -304,8 +304,8 @@ namespace catapult { namespace ionet {
 			public:
 				DataType()
 						: Index(0)
-						, Values(ValuesTraits::CreateAppendData())
-				{}
+						, Values(ValuesTraits::CreateAppendData()) {
+				}
 
 			public:
 				auto operator()() {
@@ -345,22 +345,46 @@ namespace catapult { namespace ionet {
 	// endregion
 
 #define DEFINE_BASIC_APPEND_TESTS(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_SingleEntity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SingleEntityTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MultipleEntities) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultipleEntitiesTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_EntitiesGenerator) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EntitiesGeneratorTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_EntityRange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EntityRangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Value) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Values) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValuesTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ValuesGenerator) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValuesGeneratorTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_SingleEntity) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SingleEntityTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MultipleEntities) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultipleEntitiesTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_EntitiesGenerator) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EntitiesGeneratorTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_EntityRange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EntityRangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Value) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Values) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValuesTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ValuesGenerator) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValuesGeneratorTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define DEFINE_OVERFLOW_APPEND_TESTS(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_SingleEntity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SingleEntityTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MultipleEntities) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultipleEntitiesTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_EntitiesGenerator) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EntitiesGeneratorTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_SingleEntity) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SingleEntityTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MultipleEntities) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultipleEntitiesTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_EntitiesGenerator) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EntitiesGeneratorTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region basic append tests
 
@@ -614,13 +638,10 @@ namespace catapult { namespace ionet {
 		auto pEntity = MakeEntityWithSize(124);
 
 		// Act:
-		auto isAppendSuccess = true
-				&& builder.appendValue<uint32_t>(0x03981204)
-				&& builder.appendEntity(pEntity)
-				&& builder.appendValues(valuesBuffer)
-				&& builder.appendValue<uint32_t>(0x11111111)
-				&& builder.appendRange(model::EntityRange<uint32_t>::CopyFixed(rangeBuffer.data(), 2))
-				&& builder.appendValue<uint32_t>(0x00003322);
+		auto isAppendSuccess = true && builder.appendValue<uint32_t>(0x03981204) && builder.appendEntity(pEntity)
+							   && builder.appendValues(valuesBuffer) && builder.appendValue<uint32_t>(0x11111111)
+							   && builder.appendRange(model::EntityRange<uint32_t>::CopyFixed(rangeBuffer.data(), 2))
+							   && builder.appendValue<uint32_t>(0x00003322);
 		auto payload = builder.build();
 
 		// Assert:

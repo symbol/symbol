@@ -41,8 +41,8 @@ namespace catapult { namespace nodediscovery {
 			explicit MockNodePingRequestInitiator(
 					model::NodeIdentityEqualityStrategy equalityStrategy = model::NodeIdentityEqualityStrategy::Key_And_Host)
 					: m_pingedIdentities(model::CreateNodeIdentitySet(equalityStrategy))
-					, m_pingResponses(model::CreateNodeIdentityMap<ionet::Node>(equalityStrategy))
-			{}
+					, m_pingResponses(model::CreateNodeIdentityMap<ionet::Node>(equalityStrategy)) {
+			}
 
 		public:
 			const auto& pingedIdentities() const {
@@ -66,9 +66,7 @@ namespace catapult { namespace nodediscovery {
 
 		public:
 			consumer<const ionet::Node&, const OperationCallback&> ref() {
-				return [this](const auto& node, const auto& callback) {
-					return (*this)(node, callback);
-				};
+				return [this](const auto& node, const auto& callback) { return (*this)(node, callback); };
 			}
 
 		private:
@@ -79,9 +77,7 @@ namespace catapult { namespace nodediscovery {
 		// endregion
 
 		auto CaptureNode(std::vector<ionet::Node>& nodes) {
-			return [&nodes](const auto& node) {
-				nodes.push_back(node);
-			};
+			return [&nodes](const auto& node) { nodes.push_back(node); };
 		}
 
 		struct TestContext {
@@ -89,12 +85,12 @@ namespace catapult { namespace nodediscovery {
 			TestContext()
 					: ServerPublicKey(test::GenerateRandomByteArray<Key>())
 					, Processor(
-							ServerPublicKey,
-							NodeContainer,
-							PingRequestInitiator.ref(),
-							test::CreateNodeDiscoveryNetworkFingerprint(),
-							CaptureNode(ResponseNodes))
-			{}
+							  ServerPublicKey,
+							  NodeContainer,
+							  PingRequestInitiator.ref(),
+							  test::CreateNodeDiscoveryNetworkFingerprint(),
+							  CaptureNode(ResponseNodes)) {
+			}
 
 		public:
 			Key ServerPublicKey;
@@ -135,11 +131,9 @@ namespace catapult { namespace nodediscovery {
 		TestContext context;
 
 		// - add nodes to the node container
-		auto identities = std::vector<model::NodeIdentity>{
-			{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
-			{ test::GenerateRandomByteArray<Key>(), "22.33.44.55" },
-			{ test::GenerateRandomByteArray<Key>(), "33.44.55.66" }
-		};
+		auto identities = std::vector<model::NodeIdentity>{ { test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
+															{ test::GenerateRandomByteArray<Key>(), "22.33.44.55" },
+															{ test::GenerateRandomByteArray<Key>(), "33.44.55.66" } };
 		auto nodes = ToNodes(identities);
 		for (const auto& node : nodes)
 			context.NodeContainer.modifier().add(node, ionet::NodeSource::Dynamic);
@@ -156,9 +150,7 @@ namespace catapult { namespace nodediscovery {
 		// Arrange:
 		TestContext context;
 
-		auto identities = std::vector<model::NodeIdentity>{
-			{ context.ServerPublicKey, "22.33.44.55" }
-		};
+		auto identities = std::vector<model::NodeIdentity>{ { context.ServerPublicKey, "22.33.44.55" } };
 		auto nodes = ToNodes(identities);
 
 		// Act: process local node
@@ -173,11 +165,9 @@ namespace catapult { namespace nodediscovery {
 		// Arrange:
 		TestContext context;
 
-		auto identities = std::vector<model::NodeIdentity>{
-			{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
-			{ test::GenerateRandomByteArray<Key>(), "22.33.44.55" },
-			{ test::GenerateRandomByteArray<Key>(), "33.44.55.66" }
-		};
+		auto identities = std::vector<model::NodeIdentity>{ { test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
+															{ test::GenerateRandomByteArray<Key>(), "22.33.44.55" },
+															{ test::GenerateRandomByteArray<Key>(), "33.44.55.66" } };
 		auto nodes = ToNodes(identities);
 
 		// Act: process unknown nodes (ping requestor returns failure for unconfigured nodes)
@@ -280,12 +270,9 @@ namespace catapult { namespace nodediscovery {
 
 		// - add 2/5 nodes to the node container
 		auto identities = std::vector<model::NodeIdentity>{
-			{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
-			{ test::GenerateRandomByteArray<Key>(), "22.33.44.55" },
-			{ test::GenerateRandomByteArray<Key>(), "33.44.55.66" },
-			{ context.ServerPublicKey, "44.55.66.77" },
-			{ test::GenerateRandomByteArray<Key>(), "55.66.77.88" },
-			{ test::GenerateRandomByteArray<Key>(), "66.77.88.99" }
+			{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" }, { test::GenerateRandomByteArray<Key>(), "22.33.44.55" },
+			{ test::GenerateRandomByteArray<Key>(), "33.44.55.66" }, { context.ServerPublicKey, "44.55.66.77" },
+			{ test::GenerateRandomByteArray<Key>(), "55.66.77.88" }, { test::GenerateRandomByteArray<Key>(), "66.77.88.99" }
 		};
 		auto nodes = ToNodes(identities);
 		context.NodeContainer.modifier().add(nodes[2], ionet::NodeSource::Dynamic);

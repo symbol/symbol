@@ -81,12 +81,22 @@ namespace catapult { namespace state {
 	}
 
 #define ACCOUNT_RESTRICTION_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_AddressOutgoing) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressOutgoingRestrictionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountMosaicRestrictionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Operation) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_AddressOutgoing) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressOutgoingRestrictionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountMosaicRestrictionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Operation) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TEST(TEST_CLASS, CanCreateAccountRestrictions) {
 		// Arrange:

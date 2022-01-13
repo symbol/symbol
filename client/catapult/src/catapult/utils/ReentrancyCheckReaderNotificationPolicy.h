@@ -48,9 +48,7 @@ namespace catapult { namespace utils {
 
 		/// Reader was released by the current thread.
 		void readerReleased() {
-			executeSynchronized([this](auto id) {
-				m_threadIds.erase(id);
-			});
+			executeSynchronized([this](auto id) { m_threadIds.erase(id); });
 		}
 
 	private:

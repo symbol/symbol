@@ -51,7 +51,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(4u + 12, sizeof(CacheEntryInfo<uint64_t>));
 	}
 
-	TEST(TEST_CLASS, CacheEntryInfoHasProperAlignment) {
+	TEST(TEST_CLASS, CacheEntryInfoHasProperAlignment){
 #define FIELD(X) EXPECT_ALIGNED(CacheEntryInfo<uint64_t>, X);
 		CACHE_ENTRY_INFO_FIELDS
 #undef FIELD

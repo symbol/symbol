@@ -31,8 +31,7 @@ namespace catapult { namespace mongo { namespace mappers {
 	namespace {
 		using PublicKeyType = state::AccountPublicKeys::KeyType;
 		using bson_subdocument = bsoncxx::v_noabi::builder::stream::key_context<
-			bsoncxx::v_noabi::builder::stream::key_context<bsoncxx::v_noabi::builder::stream::closed_context>
-		>;
+				bsoncxx::v_noabi::builder::stream::key_context<bsoncxx::v_noabi::builder::stream::closed_context>>;
 
 		void StreamPublicKey(
 				bson_subdocument& builder,
@@ -43,9 +42,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			if (!HasFlag(keyType, mask))
 				return;
 
-			builder
-					<< name << bson_stream::open_document
-						<< "publicKey" << ToBinary(publicKeyAccessor.get())
+			builder << name << bson_stream::open_document << "publicKey" << ToBinary(publicKeyAccessor.get())
 					<< bson_stream::close_document;
 		}
 
@@ -61,12 +58,9 @@ namespace catapult { namespace mongo { namespace mappers {
 
 			for (auto i = 0u; i < publicKeysAccessor.size(); ++i) {
 				const auto& pinnedPublicKey = publicKeysAccessor.get(i);
-				publicKeysArray
-						<< bson_stream::open_document
-							<< "publicKey" << ToBinary(pinnedPublicKey.VotingKey)
-							<< "startEpoch" << ToInt32(pinnedPublicKey.StartEpoch)
-							<< "endEpoch" << ToInt32(pinnedPublicKey.EndEpoch)
-						<< bson_stream::close_document;
+				publicKeysArray << bson_stream::open_document << "publicKey" << ToBinary(pinnedPublicKey.VotingKey) << "startEpoch"
+								<< ToInt32(pinnedPublicKey.StartEpoch) << "endEpoch" << ToInt32(pinnedPublicKey.EndEpoch)
+								<< bson_stream::close_document;
 			}
 
 			publicKeysArray << bson_stream::close_array;
@@ -97,11 +91,8 @@ namespace catapult { namespace mongo { namespace mappers {
 					if (i++ >= Importance_History_Size - Rollback_Buffer_Size)
 						break;
 
-					importancesArray
-							<< bson_stream::open_document
-								<< "value" << ToInt64(snapshot.Importance)
-								<< "height" << ToInt64(snapshot.Height)
-							<< bson_stream::close_document;
+					importancesArray << bson_stream::open_document << "value" << ToInt64(snapshot.Importance) << "height"
+									 << ToInt64(snapshot.Height) << bson_stream::close_document;
 				}
 			}
 
@@ -115,13 +106,10 @@ namespace catapult { namespace mongo { namespace mappers {
 					if (i++ >= Activity_Bucket_History_Size - Rollback_Buffer_Size)
 						break;
 
-					activityBucketsArray
-							<< bson_stream::open_document
-								<< "startHeight" << ToInt64(bucket.StartHeight)
-								<< "totalFeesPaid" << ToInt64(bucket.TotalFeesPaid)
-								<< "beneficiaryCount" << static_cast<int32_t>(bucket.BeneficiaryCount)
-								<< "rawScore" << static_cast<int64_t>(bucket.RawScore)
-							<< bson_stream::close_document;
+					activityBucketsArray << bson_stream::open_document << "startHeight" << ToInt64(bucket.StartHeight) << "totalFeesPaid"
+										 << ToInt64(bucket.TotalFeesPaid) << "beneficiaryCount"
+										 << static_cast<int32_t>(bucket.BeneficiaryCount) << "rawScore"
+										 << static_cast<int64_t>(bucket.RawScore) << bson_stream::close_document;
 				}
 			}
 
@@ -139,14 +127,10 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	bsoncxx::document::value ToDbModel(const state::AccountState& accountState) {
 		bson_stream::document builder;
-		builder
-				<< "account" << bson_stream::open_document
-					<< "version" << 1
-					<< "address" << ToBinary(accountState.Address)
-					<< "addressHeight" << ToInt64(accountState.AddressHeight)
-					<< "publicKey" << ToBinary(accountState.PublicKey)
-					<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight)
-					<< "accountType" << utils::to_underlying_type(accountState.AccountType);
+		builder << "account" << bson_stream::open_document << "version" << 1 << "address" << ToBinary(accountState.Address)
+				<< "addressHeight" << ToInt64(accountState.AddressHeight) << "publicKey" << ToBinary(accountState.PublicKey)
+				<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight) << "accountType"
+				<< utils::to_underlying_type(accountState.AccountType);
 
 		StreamAccountPublicKeys(builder, accountState.SupplementalPublicKeys);
 		StreamAccountImportanceInformation(builder, accountState.ImportanceSnapshots, accountState.ActivityBuckets);

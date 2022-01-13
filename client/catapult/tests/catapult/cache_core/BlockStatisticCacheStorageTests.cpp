@@ -36,8 +36,9 @@ namespace catapult { namespace cache {
 			using StorageType = BlockStatisticCacheStorage;
 			class CacheType : public BlockStatisticCache {
 			public:
-				CacheType() : BlockStatisticCache(845)
-				{}
+				CacheType()
+						: BlockStatisticCache(845) {
+				}
 			};
 
 			static auto CreateValue(uint8_t id) {

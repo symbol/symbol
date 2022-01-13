@@ -32,16 +32,16 @@ namespace catapult { namespace disruptor {
 		DisruptorElement()
 				: m_id(static_cast<uint64_t>(-1))
 				, m_processingComplete([](auto, auto) {})
-				, m_pSpinLock(std::make_unique<utils::SpinLock>())
-		{}
+				, m_pSpinLock(std::make_unique<utils::SpinLock>()) {
+		}
 
 		/// Creates a disruptor element around \a input with \a id and a completion handler \a processingComplete.
 		DisruptorElement(ConsumerInput&& input, DisruptorElementId id, const ProcessingCompleteFunc& processingComplete)
 				: m_input(std::move(input))
 				, m_id(id)
 				, m_processingComplete(processingComplete)
-				, m_pSpinLock(std::make_unique<utils::SpinLock>())
-		{}
+				, m_pSpinLock(std::make_unique<utils::SpinLock>()) {
+		}
 
 	public:
 		/// Gets the consumer input.

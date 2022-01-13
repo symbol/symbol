@@ -23,7 +23,9 @@
 #include "ObserverTypes.h"
 #include "catapult/model/NotificationPublisher.h"
 
-namespace catapult { namespace model { class TransactionRegistry; } }
+namespace catapult { namespace model {
+	class TransactionRegistry;
+}}
 
 namespace catapult { namespace observers {
 

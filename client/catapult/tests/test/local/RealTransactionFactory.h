@@ -25,7 +25,9 @@
 #include <memory>
 #include <vector>
 
-namespace catapult { namespace model { struct Transaction; } }
+namespace catapult { namespace model {
+	struct Transaction;
+}}
 
 namespace catapult { namespace test {
 

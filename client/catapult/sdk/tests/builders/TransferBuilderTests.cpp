@@ -20,10 +20,10 @@
 **/
 
 #include "src/builders/TransferBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "src/extensions/ConversionExtensions.h"
 #include "src/extensions/IdGenerator.h"
 #include "catapult/crypto/Hashes.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include <map>
 
 namespace catapult { namespace builders {
@@ -39,8 +39,9 @@ namespace catapult { namespace builders {
 
 		struct TransactionProperties {
 		public:
-			TransactionProperties() : Recipient(extensions::CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>()))
-			{}
+			TransactionProperties()
+					: Recipient(extensions::CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>())) {
+			}
 
 		public:
 			UnresolvedAddress Recipient;
@@ -101,10 +102,16 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region basic
 
@@ -127,10 +134,16 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_MESSAGE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular_Binary) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded_Binary) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular_Binary) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded_Binary) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_MESSAGE_TEST(CanCreateTransferWithMessage) {
 		// Arrange:
@@ -158,9 +171,7 @@ namespace catapult { namespace builders {
 			BinaryMessageTraits::SetMessage(builder, BinaryMessageTraits::GenerateRandomMessage(212));
 
 			// Act + Assert:
-			EXPECT_THROW(
-					BinaryMessageTraits::SetMessage(builder, BinaryMessageTraits::GenerateRandomMessage(212)),
-					catapult_runtime_error);
+			EXPECT_THROW(BinaryMessageTraits::SetMessage(builder, BinaryMessageTraits::GenerateRandomMessage(212)), catapult_runtime_error);
 		});
 	}
 
@@ -173,16 +184,12 @@ namespace catapult { namespace builders {
 			static std::vector<model::UnresolvedMosaic> GenerateMosaics(size_t count) {
 				std::vector<model::UnresolvedMosaic> mosaics;
 				for (auto i = 0u; i < count; ++i) {
-					auto mosaic = model::UnresolvedMosaic{
-						test::GenerateRandomValue<UnresolvedMosaicId>(),
-						test::GenerateRandomValue<Amount>()
-					};
+					auto mosaic =
+							model::UnresolvedMosaic{ test::GenerateRandomValue<UnresolvedMosaicId>(), test::GenerateRandomValue<Amount>() };
 					mosaics.push_back(mosaic);
 				}
 
-				std::sort(mosaics.begin(), mosaics.end(), [](const auto& lhs, const auto& rhs) {
-					return lhs.MosaicId < rhs.MosaicId;
-				});
+				std::sort(mosaics.begin(), mosaics.end(), [](const auto& lhs, const auto& rhs) { return lhs.MosaicId < rhs.MosaicId; });
 
 				return mosaics;
 			}
@@ -208,10 +215,16 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_MOSAICS_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular_Id) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded_Id) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular_Id) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded_Id) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_MOSAICS_TEST(CanCreateTransferWithSingleMosaic) {
 		AssertCanCreateTransferWithMosaics<TTraits>(1);
@@ -237,12 +250,10 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(MultipleMosaicsAreSortedByMosaicId) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.Mosaics = {
-			{ UnresolvedMosaicId(12), Amount(4'321) },
-			{ UnresolvedMosaicId(23), Amount(3'321) },
-			{ UnresolvedMosaicId(75), Amount(1'321) },
-			{ UnresolvedMosaicId(99), Amount(7'321) }
-		};
+		expectedProperties.Mosaics = { { UnresolvedMosaicId(12), Amount(4'321) },
+									   { UnresolvedMosaicId(23), Amount(3'321) },
+									   { UnresolvedMosaicId(75), Amount(1'321) },
+									   { UnresolvedMosaicId(99), Amount(7'321) } };
 
 		auto additionalSize = 4 * sizeof(model::UnresolvedMosaic);
 		AssertCanBuildTransfer<TTraits>(additionalSize, expectedProperties, [](auto& builder) {
@@ -270,10 +281,7 @@ namespace catapult { namespace builders {
 		auto expectedProperties = TransactionProperties();
 		expectedProperties.Message.resize(message.size());
 		std::memcpy(&expectedProperties.Message[0], message.data(), message.size());
-		expectedProperties.Mosaics = {
-			{ UnresolvedMosaicId(0), Amount(4'321) },
-			{ UnresolvedMosaicId(1234), Amount(1'000'000) }
-		};
+		expectedProperties.Mosaics = { { UnresolvedMosaicId(0), Amount(4'321) }, { UnresolvedMosaicId(1234), Amount(1'000'000) } };
 
 		// Act:
 		auto additionalSize = message.size() + 2 * sizeof(model::UnresolvedMosaic);

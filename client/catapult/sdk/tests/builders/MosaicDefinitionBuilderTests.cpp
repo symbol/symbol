@@ -20,9 +20,9 @@
 **/
 
 #include "src/builders/MosaicDefinitionBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
 #include "catapult/constants.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
 
@@ -36,8 +36,8 @@ namespace catapult { namespace builders {
 		public:
 			TransactionProperties()
 					: Flags(model::MosaicFlags::None)
-					, Divisibility(0)
-			{}
+					, Divisibility(0) {
+			}
 
 		public:
 			model::MosaicFlags Flags;
@@ -89,10 +89,16 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
 
@@ -123,9 +129,7 @@ namespace catapult { namespace builders {
 	}
 
 	TRAITS_BASED_TEST(CanSetFlags_All) {
-		AssertCanSetFlags<TTraits>(model::MosaicFlags::All, [](auto& builder) {
-			builder.setFlags(model::MosaicFlags::All);
-		});
+		AssertCanSetFlags<TTraits>(model::MosaicFlags::All, [](auto& builder) { builder.setFlags(model::MosaicFlags::All); });
 	}
 
 	TRAITS_BASED_TEST(CanSetDivisibility) {
@@ -134,9 +138,7 @@ namespace catapult { namespace builders {
 		expectedProperties.Divisibility = 0xA5;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) {
-			builder.setDivisibility(0xA5);
-		});
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) { builder.setDivisibility(0xA5); });
 	}
 
 	TRAITS_BASED_TEST(CanSetDuration) {
@@ -145,9 +147,7 @@ namespace catapult { namespace builders {
 		expectedProperties.Duration = BlockDuration(1234);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) {
-			builder.setDuration(BlockDuration(1234));
-		});
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) { builder.setDuration(BlockDuration(1234)); });
 	}
 
 	// endregion

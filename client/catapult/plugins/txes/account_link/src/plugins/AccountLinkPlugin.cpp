@@ -47,23 +47,20 @@ namespace catapult { namespace plugins {
 		manager.addTransactionSupport(CreateNodeKeyLinkTransactionPlugin());
 
 		manager.addStatefulValidatorHook([](auto& builder) {
-			builder
-				.add(validators::CreateAccountKeyLinkValidator())
-				.add(validators::CreateNewRemoteAccountAvailabilityValidator())
-				.add(validators::CreateRemoteSenderValidator())
-				.add(validators::CreateRemoteInteractionValidator())
-				.add(keylink::CreateKeyLinkValidator<model::NodeKeyLinkNotification, NodeKeyAccessor>("Node"));
+			builder.add(validators::CreateAccountKeyLinkValidator())
+					.add(validators::CreateNewRemoteAccountAvailabilityValidator())
+					.add(validators::CreateRemoteSenderValidator())
+					.add(validators::CreateRemoteInteractionValidator())
+					.add(keylink::CreateKeyLinkValidator<model::NodeKeyLinkNotification, NodeKeyAccessor>("Node"));
 		});
 
 		manager.addObserverHook([](auto& builder) {
-			builder
-				.add(observers::CreateAccountKeyLinkObserver())
-				.add(keylink::CreateKeyLinkObserver<model::NodeKeyLinkNotification, NodeKeyAccessor>("Node"));
+			builder.add(observers::CreateAccountKeyLinkObserver())
+					.add(keylink::CreateKeyLinkObserver<model::NodeKeyLinkNotification, NodeKeyAccessor>("Node"));
 		});
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterAccountLinkSubsystem(manager);
 }

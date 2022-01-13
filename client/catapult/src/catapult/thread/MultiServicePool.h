@@ -61,8 +61,8 @@ namespace catapult { namespace thread {
 			/// Creates a group around \a pool and \a name.
 			ServiceGroup(thread::IoThreadPool& pool, const std::string& name)
 					: m_pool(pool)
-					, m_name(name)
-			{}
+					, m_name(name) {
+			}
 
 		public:
 			/// Gets the number of services.
@@ -126,8 +126,8 @@ namespace catapult { namespace thread {
 				, m_isolatedPoolMode(isolatedPoolMode)
 				, m_numTotalIsolatedPoolThreads(0)
 				, m_numServiceGroups(0)
-				, m_pPool(CreateThreadPool(numWorkerThreads, name))
-		{}
+				, m_pPool(CreateThreadPool(numWorkerThreads, name)) {
+		}
 
 		/// Destroys the pool.
 		~MultiServicePool() {
@@ -190,8 +190,9 @@ namespace catapult { namespace thread {
 		thread::IoThreadPool* pushIsolatedPool(const std::string& name, size_t numWorkerThreads) {
 			class PoolServiceAdapter {
 			public:
-				explicit PoolServiceAdapter(std::unique_ptr<thread::IoThreadPool>&& pPool) : m_pPool(std::move(pPool))
-				{}
+				explicit PoolServiceAdapter(std::unique_ptr<thread::IoThreadPool>&& pPool)
+						: m_pPool(std::move(pPool)) {
+				}
 
 			public:
 				void shutdown() {

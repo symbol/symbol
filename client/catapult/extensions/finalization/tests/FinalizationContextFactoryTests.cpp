@@ -67,12 +67,21 @@ namespace catapult { namespace finalization {
 				auto catapultCacheDelta = catapultCache.createDelta();
 				auto& accountStateCacheDelta = catapultCacheDelta.sub<cache::AccountStateCache>();
 
-				test::AddAccountsWithBalances(accountStateCacheDelta, groupedHeight, blockchainConfig.HarvestingMosaicId, {
-					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000), Amount(4'000'000)
-				});
-				test::AddAccountsWithBalances(accountStateCacheDelta, groupedHeight + Height(1), blockchainConfig.HarvestingMosaicId, {
-					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000)
-				});
+				test::AddAccountsWithBalances(
+						accountStateCacheDelta,
+						groupedHeight,
+						blockchainConfig.HarvestingMosaicId,
+						{ Amount(4'000'000),
+						  Amount(2'000'000),
+						  Amount(1'000'000),
+						  Amount(2'000'000),
+						  Amount(3'000'000),
+						  Amount(4'000'000) });
+				test::AddAccountsWithBalances(
+						accountStateCacheDelta,
+						groupedHeight + Height(1),
+						blockchainConfig.HarvestingMosaicId,
+						{ Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000) });
 
 				catapultCache.commit(groupedHeight + Height(1));
 			}

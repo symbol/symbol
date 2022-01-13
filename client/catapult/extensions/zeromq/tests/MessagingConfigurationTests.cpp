@@ -32,15 +32,7 @@ namespace catapult { namespace zeromq {
 			using ConfigurationType = MessagingConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"messaging",
-						{
-							{ "listenInterface", "2.4.8.16" },
-							{ "subscriberPort", "9753" }
-						}
-					}
-				};
+				return { { "messaging", { { "listenInterface", "2.4.8.16" }, { "subscriberPort", "9753" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

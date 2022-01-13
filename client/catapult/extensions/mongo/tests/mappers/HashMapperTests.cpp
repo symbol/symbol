@@ -30,11 +30,8 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	namespace {
 		auto CreateDbHash(const Hash256& hash) {
-			return bson_stream::document()
-					<< "meta" << bson_stream::open_document
-						<< "hash" << ToBinary(hash)
-					<< bson_stream::close_document
-					<< bson_stream::finalize;
+			return bson_stream::document() << "meta" << bson_stream::open_document << "hash" << ToBinary(hash)
+										   << bson_stream::close_document << bson_stream::finalize;
 		}
 
 		auto CreateViews(const std::vector<bsoncxx::document::value>& values) {

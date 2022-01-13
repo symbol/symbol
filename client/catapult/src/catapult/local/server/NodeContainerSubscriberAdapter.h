@@ -24,7 +24,9 @@
 #include "catapult/subscribers/NodeSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace ionet { class NodeContainer; } }
+namespace catapult { namespace ionet {
+	class NodeContainer;
+}}
 
 namespace catapult { namespace local {
 

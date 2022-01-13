@@ -33,8 +33,8 @@ namespace catapult { namespace ionet {
 					const RateMonitorSettings& settings,
 					const supplier<Timestamp>& timeSupplier,
 					const action& rateExceededHandler)
-					: m_pMonitor(std::make_shared<RateMonitor>(settings, timeSupplier, rateExceededHandler))
-			{}
+					: m_pMonitor(std::make_shared<RateMonitor>(settings, timeSupplier, rateExceededHandler)) {
+			}
 
 		public:
 			auto wrapIo(const std::shared_ptr<PacketIo>& pIo) const {
@@ -47,9 +47,7 @@ namespace catapult { namespace ionet {
 
 		private:
 			consumer<uint32_t> readSizeConsumer() const {
-				return [pMonitor = m_pMonitor](auto size) {
-					pMonitor->accept(size);
-				};
+				return [pMonitor = m_pMonitor](auto size) { pMonitor->accept(size); };
 			}
 
 		private:

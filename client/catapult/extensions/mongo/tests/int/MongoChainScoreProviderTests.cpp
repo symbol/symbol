@@ -40,8 +40,8 @@ namespace catapult { namespace mongo {
 			explicit TestContext(MongoErrorPolicy::Mode errorPolicyMode = MongoErrorPolicy::Mode::Strict)
 					: m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads))
 					, m_pMongoContext(test::CreateDefaultMongoStorageContext(test::DatabaseName(), *m_pPool, errorPolicyMode))
-					, m_pScoreProvider(CreateMongoChainScoreProvider(*m_pMongoContext))
-			{}
+					, m_pScoreProvider(CreateMongoChainScoreProvider(*m_pMongoContext)) {
+			}
 
 		public:
 			ChainScoreProvider& chainScoreProvider() {
@@ -117,11 +117,8 @@ namespace catapult { namespace mongo {
 		// - set the height
 		auto connection = test::CreateDbConnection();
 		auto database = connection[test::DatabaseName()];
-		auto heightDocument = document()
-				<< "$set" << open_document
-					<< "current.height" << static_cast<int64_t>(123)
-				<< close_document
-				<< finalize;
+		auto heightDocument = document() << "$set" << open_document << "current.height" << static_cast<int64_t>(123) << close_document
+										 << finalize;
 		TrySetChainStatisticDocument(database, heightDocument.view());
 
 		// Act:

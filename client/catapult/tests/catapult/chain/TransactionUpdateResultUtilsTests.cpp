@@ -31,12 +31,7 @@ namespace catapult { namespace chain {
 
 	namespace {
 		struct UpdateResult {
-			enum class UpdateType {
-				New_Alpha,
-				New_Beta,
-				Invalid,
-				Neutral
-			};
+			enum class UpdateType { New_Alpha, New_Beta, Invalid, Neutral };
 
 			UpdateType Type;
 		};
@@ -53,17 +48,8 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, AggregateUpdateResults_AggregatesByCount) {
 		// Arrange:
-		auto updateResults = std::vector<UpdateResult>{
-			{ New_Alpha },
-			{ Invalid },
-			{ Neutral },
-			{ Neutral },
-			{ New_Beta },
-			{ Invalid },
-			{ New_Beta },
-			{ Neutral },
-			{ New_Alpha }
-		};
+		auto updateResults = std::vector<UpdateResult>{ { New_Alpha }, { Invalid },	 { Neutral }, { Neutral },	{ New_Beta },
+														{ Invalid },   { New_Beta }, { Neutral }, { New_Alpha } };
 
 		// Act:
 		auto aggregateResult = AggregateUpdateResults(updateResults);
@@ -79,11 +65,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, SelectValid_FailsWhenFewerTransactionInfosThanUpdateResults) {
 		// Arrange:
 		auto transactionInfos = test::CreateTransactionInfos(2);
-		auto updateResults = std::vector<UpdateResult>{
-			{ New_Alpha },
-			{ New_Alpha },
-			{ New_Alpha }
-		};
+		auto updateResults = std::vector<UpdateResult>{ { New_Alpha }, { New_Alpha }, { New_Alpha } };
 
 		// Act + Assert:
 		EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
@@ -92,11 +74,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, SelectValid_FailsWhenMoreTransactionInfosThanUpdateResults) {
 		// Arrange:
 		auto transactionInfos = test::CreateTransactionInfos(4);
-		auto updateResults = std::vector<UpdateResult>{
-			{ New_Alpha },
-			{ New_Alpha },
-			{ New_Alpha }
-		};
+		auto updateResults = std::vector<UpdateResult>{ { New_Alpha }, { New_Alpha }, { New_Alpha } };
 
 		// Act + Assert:
 		EXPECT_THROW(SelectValid(std::move(transactionInfos), updateResults), catapult_invalid_argument);
@@ -105,17 +83,8 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, SelectValid_FiltersOutInvalidTransactions) {
 		// Arrange:
 		auto transactionInfos = test::CreateTransactionInfos(9);
-		auto updateResults = std::vector<UpdateResult>{
-			{ New_Alpha },
-			{ Invalid },
-			{ Neutral },
-			{ Neutral },
-			{ New_Beta },
-			{ Invalid },
-			{ New_Beta },
-			{ Neutral },
-			{ New_Alpha }
-		};
+		auto updateResults = std::vector<UpdateResult>{ { New_Alpha }, { Invalid },	 { Neutral }, { Neutral },	{ New_Beta },
+														{ Invalid },   { New_Beta }, { Neutral }, { New_Alpha } };
 
 		// Act:
 		auto filteredTransactionInfos = SelectValid(test::CopyTransactionInfos(transactionInfos), updateResults);

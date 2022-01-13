@@ -63,8 +63,8 @@ namespace catapult { namespace observers {
 		public:
 			explicit TouchableCacheDelta(std::vector<Height>& touchHeights)
 					: test::SimpleCacheDelta(test::SimpleCacheViewMode::Basic, test::SimpleCacheState())
-					, m_touchHeights(touchHeights)
-			{}
+					, m_touchHeights(touchHeights) {
+			}
 
 		public:
 			std::vector<Timestamp> touch(Height height) {
@@ -93,8 +93,8 @@ namespace catapult { namespace observers {
 		public:
 			explicit BasicTouchableCache(std::vector<Height>& touchHeights)
 					: test::BasicSimpleCache(nullptr)
-					, m_touchHeights(touchHeights)
-			{}
+					, m_touchHeights(touchHeights) {
+			}
 
 		public:
 			CacheDeltaType createDelta() {
@@ -117,8 +117,9 @@ namespace catapult { namespace observers {
 			static constexpr auto Name = "TouchableCache";
 
 		public:
-			TouchableCache() : SynchronizedCache(BasicTouchableCache(m_touchHeights))
-			{}
+			TouchableCache()
+					: SynchronizedCache(BasicTouchableCache(m_touchHeights)) {
+			}
 
 		public:
 			std::vector<Height> touchHeights() const {

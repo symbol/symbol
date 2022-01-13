@@ -36,7 +36,8 @@ namespace catapult { namespace test {
 		}
 
 		/// Creates secret lock notification builder with \a lockHashAlgorithm.
-		explicit SecretLockNotificationBuilder(model::LockHashAlgorithm lockHashAlgorithm) : SecretLockNotificationBuilder() {
+		explicit SecretLockNotificationBuilder(model::LockHashAlgorithm lockHashAlgorithm)
+				: SecretLockNotificationBuilder() {
 			m_hashAlgorithm = lockHashAlgorithm;
 		}
 
@@ -65,8 +66,8 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a proof notification builder.
 		ProofNotificationBuilder()
-				: ProofNotificationBuilder(test::GenerateRandomValue<Height>())
-		{}
+				: ProofNotificationBuilder(test::GenerateRandomValue<Height>()) {
+		}
 
 		/// Creates a proof notification builder around \a notificationHeight.
 		explicit ProofNotificationBuilder(Height notificationHeight)

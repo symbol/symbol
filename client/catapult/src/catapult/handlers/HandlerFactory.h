@@ -100,8 +100,8 @@ namespace catapult { namespace handlers {
 		public:
 			explicit PacketInfo(TRange&& range)
 					: Range(std::move(range))
-					, IsValid(!Range.empty())
-			{}
+					, IsValid(!Range.empty()) {
+			}
 
 		public:
 			TRange Range;
@@ -114,8 +114,8 @@ namespace catapult { namespace handlers {
 			using RequestRangeType = model::EntityRange<RequestStructureType>;
 
 			return TRequestTraits::Packet_Type != packet.Type
-					? PacketInfo<RequestRangeType>(RequestRangeType())
-					: PacketInfo<RequestRangeType>(ionet::ExtractFixedSizeStructuresFromPacket<RequestStructureType>(packet));
+						   ? PacketInfo<RequestRangeType>(RequestRangeType())
+						   : PacketInfo<RequestRangeType>(ionet::ExtractFixedSizeStructuresFromPacket<RequestStructureType>(packet));
 		}
 	};
 }}

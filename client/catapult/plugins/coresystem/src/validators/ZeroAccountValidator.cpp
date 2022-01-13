@@ -32,14 +32,15 @@ namespace catapult { namespace validators {
 		return MAKE_STATELESS_VALIDATOR_WITH_TYPE(ZeroAddress, Notification, [zeroAddress](const Notification& notification) {
 			// copy Address from unresolved to resolved in order to check it against (resolved) zeroAddress
 			// if it needs to be resolved, it will never match (due to different resolved bit flag)
-			return zeroAddress == notification.Address.resolved(model::ResolverContext())
-					? Failure_Core_Zero_Address
-					: ValidationResult::Success;
+			return zeroAddress == notification.Address.resolved(model::ResolverContext()) ? Failure_Core_Zero_Address
+																						  : ValidationResult::Success;
 		});
 	}
 
-	DEFINE_STATELESS_VALIDATOR_WITH_TYPE(ZeroPublicKey, model::AccountPublicKeyNotification, [](
-			const model::AccountPublicKeyNotification& notification) {
-		return Key() == notification.PublicKey ? Failure_Core_Zero_Public_Key : ValidationResult::Success;
-	})
+	DEFINE_STATELESS_VALIDATOR_WITH_TYPE(
+			ZeroPublicKey,
+			model::AccountPublicKeyNotification,
+			[](const model::AccountPublicKeyNotification& notification) {
+				return Key() == notification.PublicKey ? Failure_Core_Zero_Public_Key : ValidationResult::Success;
+			})
 }}

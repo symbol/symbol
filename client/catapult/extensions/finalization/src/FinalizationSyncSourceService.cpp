@@ -31,8 +31,9 @@ namespace catapult { namespace finalization {
 	namespace {
 		class FinalizationSyncSourceServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit FinalizationSyncSourceServiceRegistrar(bool enableVoting) : m_enableVoting(enableVoting)
-			{}
+			explicit FinalizationSyncSourceServiceRegistrar(bool enableVoting)
+					: m_enableVoting(enableVoting) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
@@ -56,11 +57,11 @@ namespace catapult { namespace finalization {
 
 				if (m_enableVoting) {
 					handlers::RegisterPushMessagesHandler(packetHandlers, hooks.messageRangeConsumer());
-					handlers::RegisterPullMessagesHandler(packetHandlers, [&messageAggregator](
-							const auto& roundRange,
-							const auto& shortHashes) {
-						return messageAggregator.view().unknownMessages(roundRange, shortHashes);
-					});
+					handlers::RegisterPullMessagesHandler(
+							packetHandlers,
+							[&messageAggregator](const auto& roundRange, const auto& shortHashes) {
+								return messageAggregator.view().unknownMessages(roundRange, shortHashes);
+							});
 				}
 			}
 

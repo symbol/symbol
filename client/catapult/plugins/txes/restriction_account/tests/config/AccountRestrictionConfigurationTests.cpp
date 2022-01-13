@@ -30,14 +30,7 @@ namespace catapult { namespace config {
 			using ConfigurationType = AccountRestrictionConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "maxAccountRestrictionValues", "1234" }
-						}
-					}
-				};
+				return { { "", { { "maxAccountRestrictionValues", "1234" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

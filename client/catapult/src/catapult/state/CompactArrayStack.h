@@ -47,8 +47,8 @@ namespace catapult { namespace state {
 			/// Creates an iterator around \a pArray with \a index current position.
 			const_iterator(const std::array<T, N>* pArray, size_t index)
 					: m_pArray(pArray)
-					, m_index(index)
-			{}
+					, m_index(index) {
+			}
 
 		public:
 			/// Returns \c true if this iterator and \a rhs are equal.
@@ -107,8 +107,9 @@ namespace catapult { namespace state {
 
 	public:
 		/// Creates an empty stack.
-		CompactArrayStack() : m_size(0)
-		{}
+		CompactArrayStack()
+				: m_size(0) {
+		}
 
 		/// Copy constructor that makes a deep copy of \a stack.
 		CompactArrayStack(const CompactArrayStack& stack) {

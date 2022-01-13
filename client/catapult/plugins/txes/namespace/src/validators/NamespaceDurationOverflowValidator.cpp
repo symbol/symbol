@@ -43,33 +43,33 @@ namespace catapult { namespace validators {
 	}
 
 	DECLARE_STATEFUL_VALIDATOR(NamespaceDurationOverflow, Notification)(BlockDuration maxNamespaceDuration) {
-		return MAKE_STATEFUL_VALIDATOR(NamespaceDurationOverflow, [maxNamespaceDuration](
-				const Notification& notification,
-				const ValidatorContext& context) {
-			const auto& cache = context.Cache.sub<cache::NamespaceCache>();
-			auto height = context.Height;
+		return MAKE_STATEFUL_VALIDATOR(
+				NamespaceDurationOverflow,
+				[maxNamespaceDuration](const Notification& notification, const ValidatorContext& context) {
+					const auto& cache = context.Cache.sub<cache::NamespaceCache>();
+					auto height = context.Height;
 
-			if (AddOverflows(height, notification.Duration))
-				return Failure_Namespace_Invalid_Duration;
+					if (AddOverflows(height, notification.Duration))
+						return Failure_Namespace_Invalid_Duration;
 
-			auto namespaceIter = cache.find(notification.NamespaceId);
-			if (!namespaceIter.tryGet())
-				return ValidationResult::Success;
+					auto namespaceIter = cache.find(notification.NamespaceId);
+					if (!namespaceIter.tryGet())
+						return ValidationResult::Success;
 
-			// if grace period after expiration has passed, overflow check above is sufficient
-			const auto& root = namespaceIter.get().root();
-			if (!root.lifetime().isActive(height))
-				return ValidationResult::Success;
+					// if grace period after expiration has passed, overflow check above is sufficient
+					const auto& root = namespaceIter.get().root();
+					if (!root.lifetime().isActive(height))
+						return ValidationResult::Success;
 
-			if (AddOverflows(root.lifetime().End, notification.Duration))
-				return Failure_Namespace_Invalid_Duration;
+					if (AddOverflows(root.lifetime().End, notification.Duration))
+						return Failure_Namespace_Invalid_Duration;
 
-			auto newLifetimeEnd = root.lifetime().End + ToHeight(notification.Duration);
-			auto maxLifetimeEnd = CalculateMaxLifetimeEnd(height, maxNamespaceDuration);
-			if (newLifetimeEnd > maxLifetimeEnd)
-				return Failure_Namespace_Invalid_Duration;
+					auto newLifetimeEnd = root.lifetime().End + ToHeight(notification.Duration);
+					auto maxLifetimeEnd = CalculateMaxLifetimeEnd(height, maxNamespaceDuration);
+					if (newLifetimeEnd > maxLifetimeEnd)
+						return Failure_Namespace_Invalid_Duration;
 
-			return ValidationResult::Success;
-		});
+					return ValidationResult::Success;
+				});
 	}
 }}

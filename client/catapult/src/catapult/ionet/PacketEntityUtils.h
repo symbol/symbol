@@ -45,9 +45,8 @@ namespace catapult { namespace ionet {
 	model::EntityRange<TEntity> ExtractEntitiesFromPacket(const Packet& packet, TIsValidPredicate isValid) {
 		auto dataSize = CalculatePacketDataSize(packet);
 		auto offsets = ExtractEntityOffsets<TEntity>({ packet.Data(), dataSize }, isValid);
-		return offsets.empty()
-				? model::EntityRange<TEntity>()
-				: model::EntityRange<TEntity>::CopyVariable(packet.Data(), dataSize, offsets, sizeof(uint64_t));
+		return offsets.empty() ? model::EntityRange<TEntity>()
+							   : model::EntityRange<TEntity>::CopyVariable(packet.Data(), dataSize, offsets, sizeof(uint64_t));
 	}
 
 	/// Extracts a single entity from \a packet with a validity check (\a isValid).
@@ -69,8 +68,7 @@ namespace catapult { namespace ionet {
 	model::EntityRange<TStructure> ExtractFixedSizeStructuresFromPacket(const Packet& packet) {
 		auto dataSize = CalculatePacketDataSize(packet);
 		auto numStructures = CountFixedSizeStructures<TStructure>({ packet.Data(), dataSize });
-		return 0 == numStructures
-				? model::EntityRange<TStructure>()
-				: model::EntityRange<TStructure>::CopyFixed(packet.Data(), numStructures);
+		return 0 == numStructures ? model::EntityRange<TStructure>()
+								  : model::EntityRange<TStructure>::CopyFixed(packet.Data(), numStructures);
 	}
 }}

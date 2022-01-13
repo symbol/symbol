@@ -57,8 +57,8 @@ namespace catapult { namespace cache {
 		public:
 			MockMutableCache(MemoryCache& memoryCache, size_t& numModifyCalls)
 					: m_memoryCache(memoryCache)
-					, m_numModifierCalls(numModifyCalls)
-			{}
+					, m_numModifierCalls(numModifyCalls) {
+			}
 
 		public:
 			MemoryCache::CacheModifierProxy modifier() override {

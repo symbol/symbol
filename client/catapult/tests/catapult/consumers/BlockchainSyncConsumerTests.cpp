@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/BlockConsumers.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
+#include "catapult/consumers/BlockConsumers.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/ChainScore.h"
@@ -59,8 +59,9 @@ namespace catapult { namespace consumers {
 
 		class RaisableErrorSource {
 		public:
-			RaisableErrorSource() : m_shouldRaiseError(false)
-			{}
+			RaisableErrorSource()
+					: m_shouldRaiseError(false) {
+			}
 
 		public:
 			void setError() {
@@ -85,8 +86,8 @@ namespace catapult { namespace consumers {
 		public:
 			DifficultyCheckerParams(const std::vector<const model::Block*>& blocks, const cache::CatapultCache& cache)
 					: Blocks(blocks)
-					, Cache(cache)
-			{}
+					, Cache(cache) {
+			}
 
 		public:
 			const std::vector<const model::Block*> Blocks;
@@ -95,8 +96,9 @@ namespace catapult { namespace consumers {
 
 		class MockDifficultyChecker : public test::ParamsCapture<DifficultyCheckerParams> {
 		public:
-			MockDifficultyChecker() : m_result(true)
-			{}
+			MockDifficultyChecker()
+					: m_result(true) {
+			}
 
 		public:
 			bool operator()(const std::vector<const model::Block*>& blocks, const cache::CatapultCache& cache) const {
@@ -124,8 +126,8 @@ namespace catapult { namespace consumers {
 					, UndoBlockType(undoBlockType)
 					, LastRecalculationHeight(state.Cache.dependentState().LastRecalculationHeight)
 					, IsPassedMarkedCache(test::IsMarkedCache(state.Cache))
-					, NumStatistics(state.Cache.sub<cache::BlockStatisticCache>().size())
-			{}
+					, NumStatistics(state.Cache.sub<cache::BlockStatisticCache>().size()) {
+			}
 
 		public:
 			std::shared_ptr<const model::Block> pBlock;
@@ -165,8 +167,8 @@ namespace catapult { namespace consumers {
 					, pElements(&elements)
 					, LastRecalculationHeight(state.Cache.dependentState().LastRecalculationHeight)
 					, IsPassedMarkedCache(test::IsMarkedCache(state.Cache))
-					, NumStatistics(state.Cache.sub<cache::BlockStatisticCache>().size())
-			{}
+					, NumStatistics(state.Cache.sub<cache::BlockStatisticCache>().size()) {
+			}
 
 		public:
 			std::shared_ptr<const model::Block> pParentBlock;
@@ -179,14 +181,13 @@ namespace catapult { namespace consumers {
 
 		class MockProcessor : public test::ParamsCapture<ProcessorParams> {
 		public:
-			MockProcessor() : m_result(ValidationResult::Success)
-			{}
+			MockProcessor()
+					: m_result(ValidationResult::Success) {
+			}
 
 		public:
-			ValidationResult operator()(
-					const WeakBlockInfo& parentBlockInfo,
-					BlockElements& elements,
-					observers::ObserverState& state) const {
+			ValidationResult operator()(const WeakBlockInfo& parentBlockInfo, BlockElements& elements, observers::ObserverState& state)
+					const {
 				const_cast<MockProcessor*>(this)->push(parentBlockInfo, elements, state);
 
 				// mark the state by modifying it
@@ -220,8 +221,8 @@ namespace catapult { namespace consumers {
 					// all processing should have occurred before the state change notification,
 					// so the sentinel account should have been added
 					, IsPassedProcessedCache(HasMarkedChanges(changeInfo.CacheChanges))
-					, Height(changeInfo.Height)
-			{}
+					, Height(changeInfo.Height) {
+			}
 
 		public:
 			model::ChainScore::Delta ScoreDelta;
@@ -237,7 +238,9 @@ namespace catapult { namespace consumers {
 			}
 		};
 
-		class MockStateChange : public test::ParamsCapture<StateChangeParams>, public RaisableErrorSource {
+		class MockStateChange
+				: public test::ParamsCapture<StateChangeParams>
+				, public RaisableErrorSource {
 		public:
 			void operator()(const subscribers::StateChangeInfo& changeInfo) const {
 				raise("MockStateChange");
@@ -257,8 +260,8 @@ namespace catapult { namespace consumers {
 					: IsPassedProcessedCache(cacheDelta.sub<cache::AccountStateCache>().contains(Sentinel_Processor_Public_Key))
 					, BlockStatisticCachePruningBoundary(cacheDelta.sub<cache::BlockStatisticCache>().pruningBoundary())
 					, LastRecalculationHeight(cacheDelta.dependentState().LastRecalculationHeight)
-					, Height(height)
-			{}
+					, Height(height) {
+			}
 
 		public:
 			bool IsPassedProcessedCache;
@@ -267,7 +270,9 @@ namespace catapult { namespace consumers {
 			catapult::Height Height;
 		};
 
-		class MockPreStateWritten : public test::ParamsCapture<PreStateWrittenParams>, public RaisableErrorSource {
+		class MockPreStateWritten
+				: public test::ParamsCapture<PreStateWrittenParams>
+				, public RaisableErrorSource {
 		public:
 			void operator()(const cache::CatapultCacheDelta& cacheDelta, Height height) const {
 				raise("MockPreStateWritten");
@@ -283,8 +288,8 @@ namespace catapult { namespace consumers {
 		public:
 			TransactionsChangeParams(const HashSet& addedTransactionHashes, const std::vector<Hash256>& revertedTransactionHashes)
 					: AddedTransactionHashes(addedTransactionHashes)
-					, RevertedTransactionHashes(revertedTransactionHashes)
-			{}
+					, RevertedTransactionHashes(revertedTransactionHashes) {
+			}
 
 		public:
 			const HashSet AddedTransactionHashes;
@@ -389,8 +394,9 @@ namespace catapult { namespace consumers {
 		private:
 			class PruneAwareSubCacheView : public test::UnsupportedSubCacheView {
 			public:
-				explicit PruneAwareSubCacheView(PruneIdentifiers& pruneIdentifiers) : m_pruneIdentifiers(pruneIdentifiers)
-				{}
+				explicit PruneAwareSubCacheView(PruneIdentifiers& pruneIdentifiers)
+						: m_pruneIdentifiers(pruneIdentifiers) {
+				}
 
 			public:
 				void prune(Height height) override {
@@ -411,8 +417,9 @@ namespace catapult { namespace consumers {
 				static constexpr auto Name = "PruneAwareCache";
 
 			public:
-				explicit PruneAwareCacheSubCachePlugin(PruneIdentifiers& pruneIdentifiers) : m_pruneIdentifiers(pruneIdentifiers)
-				{}
+				explicit PruneAwareCacheSubCachePlugin(PruneIdentifiers& pruneIdentifiers)
+						: m_pruneIdentifiers(pruneIdentifiers) {
+				}
 
 			public:
 				std::unique_ptr<const cache::SubCacheView> createView() const override {
@@ -423,8 +430,8 @@ namespace catapult { namespace consumers {
 					return std::make_unique<PruneAwareSubCacheView>(m_pruneIdentifiers);
 				}
 
-				void commit() override
-				{}
+				void commit() override {
+				}
 
 			private:
 				PruneIdentifiers& m_pruneIdentifiers;
@@ -439,9 +446,9 @@ namespace catapult { namespace consumers {
 		public:
 			ConsumerTestContext()
 					: ConsumerTestContext(
-							std::make_unique<mocks::MockMemoryBlockStorage>(),
-							std::make_unique<mocks::MockMemoryBlockStorage>())
-			{}
+							  std::make_unique<mocks::MockMemoryBlockStorage>(),
+							  std::make_unique<mocks::MockMemoryBlockStorage>()) {
+			}
 
 			ConsumerTestContext(std::unique_ptr<io::BlockStorage>&& pStorage, std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
 					: Cache(CatapultCacheFactory::Create(CachePruneIdentifiers))
@@ -455,33 +462,19 @@ namespace catapult { namespace consumers {
 				}
 
 				BlockchainSyncHandlers handlers;
-				handlers.DifficultyChecker = [this](const auto& blocks, const auto& cache) {
-					return DifficultyChecker(blocks, cache);
-				};
-				handlers.LocalFinalizedHeightHashPairSupplier = [this]() {
-					return LocalFinalizedHeightHashPair;
-				};
-				handlers.NetworkFinalizedHeightHashPairSupplier = [this]() {
-					return NetworkFinalizedHeightHashPair;
-				};
+				handlers.DifficultyChecker = [this](const auto& blocks, const auto& cache) { return DifficultyChecker(blocks, cache); };
+				handlers.LocalFinalizedHeightHashPairSupplier = [this]() { return LocalFinalizedHeightHashPair; };
+				handlers.NetworkFinalizedHeightHashPairSupplier = [this]() { return NetworkFinalizedHeightHashPair; };
 				handlers.UndoBlock = [this](const auto& block, auto& state, auto undoBlockType) {
 					return UndoBlock(block, state, undoBlockType);
 				};
 				handlers.Processor = [this](const auto& parentBlockInfo, auto& elements, auto& state) {
 					return Processor(parentBlockInfo, elements, state);
 				};
-				handlers.StateChange = [this](const auto& changeInfo) {
-					return StateChange(changeInfo);
-				};
-				handlers.PreStateWritten = [this](const auto& cacheDelta, auto height) {
-					return PreStateWritten(cacheDelta, height);
-				};
-				handlers.TransactionsChange = [this](const auto& changeInfo) {
-					return TransactionsChange(changeInfo);
-				};
-				handlers.CommitStep = [this](auto step) {
-					return CommitStep(step);
-				};
+				handlers.StateChange = [this](const auto& changeInfo) { return StateChange(changeInfo); };
+				handlers.PreStateWritten = [this](const auto& cacheDelta, auto height) { return PreStateWritten(cacheDelta, height); };
+				handlers.TransactionsChange = [this](const auto& changeInfo) { return TransactionsChange(changeInfo); };
+				handlers.CommitStep = [this](auto step) { return CommitStep(step); };
 
 				Consumer = CreateBlockchainSyncConsumer(3, Cache, Storage, handlers);
 			}
@@ -1154,8 +1147,9 @@ namespace catapult { namespace consumers {
 
 		class InputTransactionBuilder {
 		public:
-			explicit InputTransactionBuilder(ConsumerInput& input) : m_input(input)
-			{}
+			explicit InputTransactionBuilder(ConsumerInput& input)
+					: m_input(input) {
+			}
 
 		public:
 			const std::vector<Hash256>& hashes() const {
@@ -1355,7 +1349,9 @@ namespace catapult { namespace consumers {
 	// region step notification
 
 	namespace {
-		class ErrorAwareBlockStorage : public mocks::MockMemoryBlockStorage, public RaisableErrorSource {
+		class ErrorAwareBlockStorage
+				: public mocks::MockMemoryBlockStorage
+				, public RaisableErrorSource {
 		public:
 			void dropBlocksAfter(Height height) override {
 				MockMemoryBlockStorage::dropBlocksAfter(height);
@@ -1493,9 +1489,7 @@ namespace catapult { namespace consumers {
 				blockFooter.PreviousImportanceBlockHash = context.Storage.view().loadBlockElement(Height(6))->EntityHash;
 			}
 
-			auto input = test::CreateConsumerInputFromBlocks({
-				pBlock1.get(), pBlock2.get(), pBlock3.get(), pBlock4.get(), pBlock5.get()
-			});
+			auto input = test::CreateConsumerInputFromBlocks({ pBlock1.get(), pBlock2.get(), pBlock3.get(), pBlock4.get(), pBlock5.get() });
 			PrepareInput(Height(8), input);
 
 			// Act:

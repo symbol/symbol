@@ -22,7 +22,9 @@
 #pragma once
 #include "MapperInclude.h"
 
-namespace catapult { namespace model { struct TransactionStatus; } }
+namespace catapult { namespace model {
+	struct TransactionStatus;
+}}
 
 namespace catapult { namespace mongo { namespace mappers {
 

@@ -233,9 +233,8 @@ namespace catapult { namespace harvesting {
 			test::AssertEquivalent(transactionInfos, facade.transactionInfos());
 
 			// - check entity infos (hashes): validator and observer should be called for all notifications (2 per transaction)
-			std::vector<std::pair<size_t, size_t>> expectedIndexIdPairs{
-				{ 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 }
-			};
+			std::vector<std::pair<size_t, size_t>> expectedIndexIdPairs{ { 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 },
+																		 { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 } };
 			AssertEntityInfos("validator", executionConfig.pValidator->params(), transactionHashes, expectedIndexIdPairs);
 			AssertEntityInfos("observer", executionConfig.pObserver->params(), transactionHashes, expectedIndexIdPairs);
 
@@ -266,9 +265,11 @@ namespace catapult { namespace harvesting {
 			AssertEmpty(facade);
 
 			// - check entity infos (hashes): validator should be called for first notifications; observer should never be called
-			AssertEntityInfos("validator", executionConfig.pValidator->params(), transactionHashes, {
-				{ 0, 1 }, { 1, 1 }, { 2, 1 }, { 3, 1 }
-			});
+			AssertEntityInfos(
+					"validator",
+					executionConfig.pValidator->params(),
+					transactionHashes,
+					{ { 0, 1 }, { 1, 1 }, { 2, 1 }, { 3, 1 } });
 			AssertEntityInfos("observer", executionConfig.pObserver->params(), transactionHashes, {});
 
 			// - check contexts
@@ -316,12 +317,16 @@ namespace catapult { namespace harvesting {
 		// Act:
 		AssertCanApplyTransactionsSomeSuccess(1, [](const auto& transactionHashes, const auto& executionConfig) {
 			// Assert: check entity infos (hashes): since first notifications failed, no undos are necessary
-			AssertEntityInfos("validator", executionConfig.pValidator->params(), transactionHashes, {
-				{ 0, 1 }, { 0, 2 }, { 1, 1 }, { 2, 1 }, { 2, 2 }, { 3, 1 }
-			});
-			AssertEntityInfos("observer", executionConfig.pObserver->params(), transactionHashes, {
-				{ 0, 1 }, { 0, 2 }, { 2, 1 }, { 2, 2 }
-			});
+			AssertEntityInfos(
+					"validator",
+					executionConfig.pValidator->params(),
+					transactionHashes,
+					{ { 0, 1 }, { 0, 2 }, { 1, 1 }, { 2, 1 }, { 2, 2 }, { 3, 1 } });
+			AssertEntityInfos(
+					"observer",
+					executionConfig.pObserver->params(),
+					transactionHashes,
+					{ { 0, 1 }, { 0, 2 }, { 2, 1 }, { 2, 2 } });
 
 			AssertValidatorContexts(executionConfig, { 0, 1, 2, 2, 3, 4 });
 			AssertObserverContexts(executionConfig, 4);
@@ -332,12 +337,16 @@ namespace catapult { namespace harvesting {
 		// Act:
 		AssertCanApplyTransactionsSomeSuccess(2, [](const auto& transactionHashes, const auto& executionConfig) {
 			// Assert: check entity infos (hashes): since second notifications failed, undos are necessary
-			AssertEntityInfos("validator", executionConfig.pValidator->params(), transactionHashes, {
-				{ 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 }
-			});
-			AssertEntityInfos("observer", executionConfig.pObserver->params(), transactionHashes, {
-				{ 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 1 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 1 }
-			});
+			AssertEntityInfos(
+					"validator",
+					executionConfig.pValidator->params(),
+					transactionHashes,
+					{ { 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 } });
+			AssertEntityInfos(
+					"observer",
+					executionConfig.pObserver->params(),
+					transactionHashes,
+					{ { 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 1 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 1 } });
 
 			AssertValidatorContexts(executionConfig, { 0, 1, 2, 3, 4, 5, 6, 7 });
 			AssertObserverContexts(executionConfig, 8, { 3, 7 });
@@ -374,13 +383,29 @@ namespace catapult { namespace harvesting {
 
 			// - check entity infos (hashes): validator should be called for all notifications (2 per transaction),
 			//   observer should be called additionally for last three transactions
-			AssertEntityInfos("validator", executionConfig.pValidator->params(), transactionHashes, {
-				{ 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 }
-			});
-			AssertEntityInfos("observer", executionConfig.pObserver->params(), transactionHashes, {
-				{ 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 },
-				{ 3, 2 }, { 3, 1 }, { 2, 2 }, { 2, 1 }, { 1, 2 }, { 1, 1 }
-			});
+			AssertEntityInfos(
+					"validator",
+					executionConfig.pValidator->params(),
+					transactionHashes,
+					{ { 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 } });
+			AssertEntityInfos(
+					"observer",
+					executionConfig.pObserver->params(),
+					transactionHashes,
+					{ { 0, 1 },
+					  { 0, 2 },
+					  { 1, 1 },
+					  { 1, 2 },
+					  { 2, 1 },
+					  { 2, 2 },
+					  { 3, 1 },
+					  { 3, 2 },
+					  { 3, 2 },
+					  { 3, 1 },
+					  { 2, 2 },
+					  { 2, 1 },
+					  { 1, 2 },
+					  { 1, 1 } });
 
 			// - check contexts
 			AssertValidatorContexts(executionConfig, { 0, 1, 2, 3, 4, 5, 6, 7 });
@@ -451,11 +476,9 @@ namespace catapult { namespace harvesting {
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 				accountState.ImportanceSnapshots.set(Default_Importance, model::ImportanceHeight(1));
 
-				accountState.SupplementalPublicKeys.voting().add({
-					votingKeyPairs[i].publicKey().copyTo<VotingKey>(),
-					FinalizationEpoch((i + 1) * 10),
-					FinalizationEpoch((i + 6) * 10)
-				});
+				accountState.SupplementalPublicKeys.voting().add({ votingKeyPairs[i].publicKey().copyTo<VotingKey>(),
+																   FinalizationEpoch((i + 1) * 10),
+																   FinalizationEpoch((i + 6) * 10) });
 			}
 
 			cache.updateHighValueAccounts(height);
@@ -734,13 +757,16 @@ namespace catapult { namespace harvesting {
 			AssertEmpty(facade);
 
 			// - check entity infos (hashes): validator fails on first block part
-			AssertEntityInfos("validator", executionConfig.pValidator->params(), transactionHashes, {
-				{ 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 },
-				{ 4, 1 }
-			});
-			AssertEntityInfos("observer", executionConfig.pObserver->params(), transactionHashes, {
-				{ 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 }
-			});
+			AssertEntityInfos(
+					"validator",
+					executionConfig.pValidator->params(),
+					transactionHashes,
+					{ { 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 }, { 4, 1 } });
+			AssertEntityInfos(
+					"observer",
+					executionConfig.pObserver->params(),
+					transactionHashes,
+					{ { 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 } });
 
 			// - check contexts
 			AssertValidatorContexts(executionConfig, { 0, 1, 2, 3, 4, 5, 6, 7, 8 });
@@ -797,10 +823,8 @@ namespace catapult { namespace harvesting {
 			AssertEmpty(facade);
 
 			// - check entity infos (hashes): validator and observer should be called for all notifications (2 per transaction and block)
-			std::vector<std::pair<size_t, size_t>> expectedIndexIdPairs{
-				{ 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 2 },
-				{ 4, 1 }, { 4, 2 }
-			};
+			std::vector<std::pair<size_t, size_t>> expectedIndexIdPairs{ { 0, 1 }, { 0, 2 }, { 1, 1 }, { 1, 2 }, { 2, 1 },
+																		 { 2, 2 }, { 3, 1 }, { 3, 2 }, { 4, 1 }, { 4, 2 } };
 			AssertEntityInfos("validator", executionConfig.pValidator->params(), transactionHashes, expectedIndexIdPairs);
 			AssertEntityInfos("observer", executionConfig.pObserver->params(), transactionHashes, expectedIndexIdPairs);
 
@@ -963,8 +987,8 @@ namespace catapult { namespace harvesting {
 			explicit TestStateHashCalculator(const cache::CatapultCache& cache)
 					: m_cacheDetachableDelta(cache.createDetachableDelta())
 					, m_cacheDetachedDelta(m_cacheDetachableDelta.detach())
-					, m_pCacheDelta(m_cacheDetachedDelta.tryLock())
-			{}
+					, m_pCacheDelta(m_cacheDetachedDelta.tryLock()) {
+			}
 
 		public:
 			void creditSurpluses(
@@ -1184,11 +1208,13 @@ namespace catapult { namespace harvesting {
 		auto expectedReceiptsHash = CalculateEnabledTestReceiptsHash(2 * (3 + 1));
 
 		TestStateHashCalculator calculator(context.cache());
-		calculator.creditSurpluses(expectedTransactionInfos, {
-			// multipliers are configured as `index + 1`, but there are gaps because transactions at indexes 1 and 3 were dropped
-			// remaining transactions have initial indexes of { 0, 2, 4 }, which implies multipliers of { 1, 3, 5 }
-			1, 3, 5
-		});
+		calculator.creditSurpluses(
+				expectedTransactionInfos,
+				{ // multipliers are configured as `index + 1`, but there are gaps because transactions at indexes 1 and 3 were dropped
+				  // remaining transactions have initial indexes of { 0, 2, 4 }, which implies multipliers of { 1, 3, 5 }
+				  1,
+				  3,
+				  5 });
 		calculator.addNewRecipientAccounts(ExtractDependentPublicKeys(expectedTransactionInfos), Default_Height + Height(1));
 		auto expectedStateHash = calculator.calculate();
 

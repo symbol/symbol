@@ -24,7 +24,9 @@
 #include "src/storages/MongoSecretLockInfoCacheStorage.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 
-namespace catapult { namespace mongo { class MongoStorageContext; } }
+namespace catapult { namespace mongo {
+	class MongoStorageContext;
+}}
 
 namespace catapult { namespace test {
 

@@ -22,7 +22,9 @@
 #pragma once
 #include <memory>
 
-namespace rocksdb { class CompactionFilter; }
+namespace rocksdb {
+class CompactionFilter;
+}
 
 namespace catapult { namespace cache {
 

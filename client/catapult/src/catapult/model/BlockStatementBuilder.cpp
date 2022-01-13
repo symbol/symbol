@@ -25,8 +25,8 @@ namespace catapult { namespace model {
 
 	BlockStatementBuilder::BlockStatementBuilder()
 			: m_activeSource({ 0, 0 })
-			, m_pStatement(std::make_unique<BlockStatement>())
-	{}
+			, m_pStatement(std::make_unique<BlockStatement>()) {
+	}
 
 	const ReceiptSource& BlockStatementBuilder::source() const {
 		return m_activeSource;

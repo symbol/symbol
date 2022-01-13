@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AliasAvailabilityValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AliasAvailability,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AliasAvailability, )
 
 	// region basic tests
 
@@ -75,16 +75,13 @@ namespace catapult { namespace validators {
 	// region alias existence tests
 
 	namespace {
-		enum class LinkState {
-			Unset,
-			Set
-		};
+		enum class LinkState { Unset, Set };
 
 		struct RootTraits {
 			static constexpr auto Notification_Namespace_Id = Default_Namespace_Id;
 
-			static void Prepare(const cache::NamespaceCacheDelta&)
-			{}
+			static void Prepare(const cache::NamespaceCacheDelta&) {
+			}
 		};
 
 		constexpr auto Child_Namespace_Id = NamespaceId(234);
@@ -119,10 +116,16 @@ namespace catapult { namespace validators {
 	}
 
 #define MAKE_ALIAS_AVAILABILITY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Root) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RootTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Child) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ChildTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Root) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RootTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Child) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ChildTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	MAKE_ALIAS_AVAILABILITY_TEST(SuccessWhenActionLinkAndLinkDoesNotExist) {
 		RunTest<TTraits>(ValidationResult::Success, AliasAction::Link, LinkState::Unset);

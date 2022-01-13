@@ -26,8 +26,8 @@ namespace catapult { namespace cache {
 
 	// region HighValueAccounts
 
-	HighValueAccounts::HighValueAccounts()
-	{}
+	HighValueAccounts::HighValueAccounts() {
+	}
 
 	HighValueAccounts::HighValueAccounts(
 			const model::AddressSet& addresses,
@@ -35,8 +35,8 @@ namespace catapult { namespace cache {
 			const AddressAccountHistoryMap& accountHistories)
 			: m_addresses(addresses)
 			, m_removedAddresses(removedAddresses)
-			, m_accountHistories(accountHistories)
-	{}
+			, m_accountHistories(accountHistories) {
+	}
 
 	HighValueAccounts::HighValueAccounts(
 			model::AddressSet&& addresses,
@@ -44,8 +44,8 @@ namespace catapult { namespace cache {
 			AddressAccountHistoryMap&& accountHistories)
 			: m_addresses(std::move(addresses))
 			, m_removedAddresses(removedAddresses)
-			, m_accountHistories(std::move(accountHistories))
-	{}
+			, m_accountHistories(std::move(accountHistories)) {
+	}
 
 	const model::AddressSet& HighValueAccounts::addresses() const {
 		return m_addresses;
@@ -69,7 +69,7 @@ namespace catapult { namespace cache {
 			bool HasHistoricalInformation;
 		};
 
-		using HighValueAccountDescriptorCalculator = std::function<HighValueAccountDescriptor (const state::AccountState&)>;
+		using HighValueAccountDescriptorCalculator = std::function<HighValueAccountDescriptor(const state::AccountState&)>;
 
 		class HighValueAddressesUpdater {
 		private:
@@ -82,8 +82,8 @@ namespace catapult { namespace cache {
 					model::AddressSet& removedAddresses)
 					: m_original(originalAddresses)
 					, m_current(currentAddresses)
-					, m_removed(removedAddresses)
-			{}
+					, m_removed(removedAddresses) {
+			}
 
 		public:
 			void update(const MemorySetType& source, const HighValueAccountDescriptorCalculator& highValueAccountDescriptorCalculator) {
@@ -117,7 +117,7 @@ namespace catapult { namespace cache {
 	// region HighValueBalancesUpdater
 
 	namespace {
-		using EffectiveBalanceCalculator = std::function<std::pair<Amount, bool> (const state::AccountState&)>;
+		using EffectiveBalanceCalculator = std::function<std::pair<Amount, bool>(const state::AccountState&)>;
 
 		class HighValueBalancesUpdater {
 		private:
@@ -126,8 +126,8 @@ namespace catapult { namespace cache {
 		public:
 			HighValueBalancesUpdater(AddressAccountHistoryMap& accountHistories, Height height)
 					: m_accountHistories(accountHistories)
-					, m_height(height)
-			{}
+					, m_height(height) {
+			}
 
 		public:
 			void update(const MemorySetType& source, const EffectiveBalanceCalculator& effectiveBalanceCalculator) {
@@ -141,9 +141,7 @@ namespace catapult { namespace cache {
 			}
 
 			void prune(Amount minBalance) {
-				utils::map_erase_if(m_accountHistories, [minBalance](const auto& pair) {
-					return !pair.second.anyAtLeast(minBalance);
-				});
+				utils::map_erase_if(m_accountHistories, [minBalance](const auto& pair) { return !pair.second.anyAtLeast(minBalance); });
 			}
 
 		private:
@@ -178,8 +176,8 @@ namespace catapult { namespace cache {
 			, m_current(accounts.addresses())
 			, m_removed(accounts.removedAddresses())
 			, m_accountHistories(accounts.accountHistories())
-			, m_height(Height(1))
-	{}
+			, m_height(Height(1)) {
+	}
 
 	Height HighValueAccountsUpdater::height() const {
 		return m_height;

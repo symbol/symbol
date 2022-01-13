@@ -69,7 +69,8 @@ namespace catapult { namespace test {
 		using TestUtils = FinalizationBootstrapperServiceTestUtils;
 
 	public:
-		MessageRangeConsumerDependentServiceLocatorTestContext() : BaseTestContext(TestUtils::CreateCache()) {
+		MessageRangeConsumerDependentServiceLocatorTestContext()
+				: BaseTestContext(TestUtils::CreateCache()) {
 			// Arrange: register service dependencies
 			TestUtils::Register(BaseTestContext::locator(), BaseTestContext::testState().state());
 
@@ -93,14 +94,14 @@ namespace catapult { namespace test {
 	public:
 		/// Creates the test context.
 		VoterSeededCacheDependentServiceLocatorTestContext()
-				: VoterSeededCacheDependentServiceLocatorTestContext(std::make_unique<KeyPairDescriptors>())
-		{}
+				: VoterSeededCacheDependentServiceLocatorTestContext(std::make_unique<KeyPairDescriptors>()) {
+		}
 
 	private:
 		VoterSeededCacheDependentServiceLocatorTestContext(std::unique_ptr<KeyPairDescriptors>&& pKeyPairDescriptors)
 				: ServiceLocatorTestContext<TTraits>(TestUtils::CreateCache(*pKeyPairDescriptors))
-				, m_keyPairDescriptors(std::move(*pKeyPairDescriptors))
-		{}
+				, m_keyPairDescriptors(std::move(*pKeyPairDescriptors)) {
+		}
 
 	protected:
 		/// Gets the key pair descriptor for the account specified by \a voterType.

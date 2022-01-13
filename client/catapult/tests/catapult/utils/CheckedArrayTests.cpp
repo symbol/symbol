@@ -159,10 +159,16 @@ namespace catapult { namespace utils {
 		}
 
 #define ITERATOR_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_BeginEnd) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_CBeginCEnd) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_BeginEnd) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_CBeginCEnd) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 	}
 
 	ITERATOR_BASED_TEST(IteratorsReturnProperRepresentation_EmptyArray) {
@@ -191,7 +197,7 @@ namespace catapult { namespace utils {
 
 		auto CreateUintCheckedArray(
 				size_t numElements,
-				const std::function<size_t (size_t value)>& createElement = [](auto value) { return value * value; }) {
+				const std::function<size_t(size_t value)>& createElement = [](auto value) { return value * value; }) {
 			UintCheckedArray array;
 			for (auto i = 0u; i < numElements; ++i)
 				array.push_back(createElement(i));

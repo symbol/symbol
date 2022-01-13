@@ -78,8 +78,8 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, FlatMapTypesSerializer_CannotDeserializeWithInvalidVersion) {
 		// Arrange:
 		std::vector<uint8_t> buffer{
-			2, 0, // invalid version
-			1, 0, 0, 0, 0, 0, 0, 0, // path elements
+			2,	0, // invalid version
+			1,	0, 0, 0, 0, 0, 0, 0, // path elements
 			11, 0, 0, 0, 0, 0, 0, 0 // id
 		};
 
@@ -90,8 +90,8 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, FlatMapTypesSerializer_CanDeserializePartialValue) {
 		// Arrange:
 		std::vector<uint8_t> buffer{
-			1, 0, // version
-			1, 0, 0, 0, 0, 0, 0, 0, // path elements
+			1,	0, // version
+			1,	0, 0, 0, 0, 0, 0, 0, // path elements
 			11, 0, 0, 0, 0, 0, 0, 0 // id
 		};
 
@@ -106,10 +106,10 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, FlatMapTypesSerializer_CanDeserializeFullValue) {
 		// Arrange:
 		std::vector<uint8_t> buffer{
-			1, 0, // version
-			3, 0, 0, 0, 0, 0, 0, 0, // path elements
+			1,	0, // version
+			3,	0, 0, 0, 0, 0, 0, 0, // path elements
 			11, 0, 0, 0, 0, 0, 0, 0, // id
-			7, 0, 0, 0, 0, 0, 0, 0, // id
+			7,	0, 0, 0, 0, 0, 0, 0, // id
 			21, 0, 0, 0, 0, 0, 0, 0, // id
 		};
 

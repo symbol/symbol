@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RESULT_DEFINITION
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace chain {
+namespace catapult {
+namespace chain {
 
 #endif
 /// Defines a chain validation result with \a DESCRIPTION and \a CODE.
@@ -51,5 +52,6 @@ namespace catapult { namespace chain {
 	DEFINE_CHAIN_RESULT(Unconfirmed_Cache_Too_Full, 7);
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

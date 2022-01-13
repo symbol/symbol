@@ -30,14 +30,7 @@ namespace catapult { namespace config {
 			using ConfigurationType = MosaicRestrictionConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "maxMosaicRestrictionValues", "234" }
-						}
-					}
-				};
+				return { { "", { { "maxMosaicRestrictionValues", "234" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

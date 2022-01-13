@@ -28,13 +28,15 @@ namespace catapult { namespace utils {
 	/// Represents a block duration.
 	class BlockSpan final {
 	private:
-		constexpr explicit BlockSpan(uint64_t minutes) : m_minutes(minutes)
-		{}
+		constexpr explicit BlockSpan(uint64_t minutes)
+				: m_minutes(minutes) {
+		}
 
 	public:
 		/// Creates a default (zero) block span.
-		constexpr BlockSpan() : BlockSpan(0)
-		{}
+		constexpr BlockSpan()
+				: BlockSpan(0) {
+		}
 
 	public:
 		/// Creates a block span from the given number of \a minutes.

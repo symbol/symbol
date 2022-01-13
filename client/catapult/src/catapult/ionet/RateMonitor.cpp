@@ -29,8 +29,8 @@ namespace catapult { namespace ionet {
 			const action& rateExceededHandler)
 			: m_settings(settings)
 			, m_timeSupplier(timeSupplier)
-			, m_rateExceededHandler(rateExceededHandler)
-	{}
+			, m_rateExceededHandler(rateExceededHandler) {
+	}
 
 	size_t RateMonitor::bucketsSize() const {
 		return m_buckets.size();

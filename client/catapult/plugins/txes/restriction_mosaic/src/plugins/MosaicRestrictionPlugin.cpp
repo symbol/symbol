@@ -50,35 +50,30 @@ namespace catapult { namespace plugins {
 			});
 		});
 
-		manager.addStatelessValidatorHook([](auto& builder) {
-			builder.add(validators::CreateMosaicRestrictionTypeValidator());
-		});
+		manager.addStatelessValidatorHook([](auto& builder) { builder.add(validators::CreateMosaicRestrictionTypeValidator()); });
 
 		auto config = model::LoadPluginConfiguration<config::MosaicRestrictionConfiguration>(
 				manager.config(),
 				"catapult.plugins.restrictionmosaic");
 		manager.addStatefulValidatorHook([maxMosaicRestrictionValues = config.MaxMosaicRestrictionValues](auto& builder) {
-			builder
-				.add(validators::CreateMosaicRestrictionBalanceDebitValidator())
-				.add(validators::CreateMosaicRestrictionBalanceTransferValidator())
-				.add(validators::CreateMosaicRestrictionRequiredValidator())
-				.add(validators::CreateMosaicGlobalRestrictionMaxValuesValidator(maxMosaicRestrictionValues))
-				.add(validators::CreateMosaicGlobalRestrictionModificationValidator())
-				.add(validators::CreateMosaicAddressRestrictionMaxValuesValidator(maxMosaicRestrictionValues))
-				.add(validators::CreateMosaicAddressRestrictionModificationValidator());
+			builder.add(validators::CreateMosaicRestrictionBalanceDebitValidator())
+					.add(validators::CreateMosaicRestrictionBalanceTransferValidator())
+					.add(validators::CreateMosaicRestrictionRequiredValidator())
+					.add(validators::CreateMosaicGlobalRestrictionMaxValuesValidator(maxMosaicRestrictionValues))
+					.add(validators::CreateMosaicGlobalRestrictionModificationValidator())
+					.add(validators::CreateMosaicAddressRestrictionMaxValuesValidator(maxMosaicRestrictionValues))
+					.add(validators::CreateMosaicAddressRestrictionModificationValidator());
 		});
 
 		manager.addObserverHook([](auto& builder) {
-			builder
-				.add(observers::CreateMosaicGlobalRestrictionCommitModificationObserver())
-				.add(observers::CreateMosaicGlobalRestrictionRollbackModificationObserver())
-				.add(observers::CreateMosaicAddressRestrictionCommitModificationObserver())
-				.add(observers::CreateMosaicAddressRestrictionRollbackModificationObserver());
+			builder.add(observers::CreateMosaicGlobalRestrictionCommitModificationObserver())
+					.add(observers::CreateMosaicGlobalRestrictionRollbackModificationObserver())
+					.add(observers::CreateMosaicAddressRestrictionCommitModificationObserver())
+					.add(observers::CreateMosaicAddressRestrictionRollbackModificationObserver());
 		});
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterMosaicRestrictionSubsystem(manager);
 }

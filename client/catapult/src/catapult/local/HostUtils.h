@@ -26,7 +26,9 @@
 #include <memory>
 #include <vector>
 
-namespace catapult { namespace extensions { class ProcessBootstrapper; } }
+namespace catapult { namespace extensions {
+	class ProcessBootstrapper;
+}}
 
 namespace catapult { namespace local {
 

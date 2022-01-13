@@ -86,9 +86,8 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "cosignatures " << static_cast<uint16_t>(numCosignatures)
-					<< ", max " << static_cast<uint16_t>(maxCosignatures);
+			EXPECT_EQ(expectedResult, result) << "cosignatures " << static_cast<uint16_t>(numCosignatures) << ", max "
+											  << static_cast<uint16_t>(maxCosignatures);
 		}
 	}
 
@@ -122,9 +121,8 @@ namespace catapult { namespace validators {
 				const std::vector<model::Cosignature>& cosignatures) {
 			// Arrange:
 			model::AggregateCosignaturesNotification notification(signer, 3, nullptr, cosignatures.size(), cosignatures.data());
-			auto pValidator = CreateBasicAggregateCosignaturesValidator(
-					std::numeric_limits<uint32_t>::max(),
-					std::numeric_limits<uint8_t>::max());
+			auto pValidator =
+					CreateBasicAggregateCosignaturesValidator(std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint8_t>::max());
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);

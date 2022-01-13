@@ -9,9 +9,8 @@
  * In:  b =   2^5 - 2^0
  * Out: b = 2^250 - 2^0
  */
-static void
-curve25519_pow_two5mtwo0_two250mtwo0(bignum25519 b) {
-	bignum25519 ALIGN(16) t0,c;
+static void curve25519_pow_two5mtwo0_two250mtwo0(bignum25519 b) {
+	bignum25519 ALIGN(16) t0, c;
 
 	/* 2^5  - 2^0 */ /* b */
 	/* 2^10 - 2^5 */ curve25519_square_times(t0, b, 5);
@@ -33,9 +32,8 @@ curve25519_pow_two5mtwo0_two250mtwo0(bignum25519 b) {
 /*
  * z^(p - 2) = z(2^255 - 21)
  */
-static void
-curve25519_recip(bignum25519 out, const bignum25519 z) {
-	bignum25519 ALIGN(16) a,t0,b;
+static void curve25519_recip(bignum25519 out, const bignum25519 z) {
+	bignum25519 ALIGN(16) a, t0, b;
 
 	/* 2 */ curve25519_square_times(a, z, 1); /* a = 2 */
 	/* 8 */ curve25519_square_times(t0, a, 2);
@@ -51,9 +49,8 @@ curve25519_recip(bignum25519 out, const bignum25519 z) {
 /*
  * z^((p-5)/8) = z^(2^252 - 3)
  */
-static void
-curve25519_pow_two252m3(bignum25519 two252m3, const bignum25519 z) {
-	bignum25519 ALIGN(16) b,c,t0;
+static void curve25519_pow_two252m3(bignum25519 two252m3, const bignum25519 z) {
+	bignum25519 ALIGN(16) b, c, t0;
 
 	/* 2 */ curve25519_square_times(c, z, 1); /* c = 2 */
 	/* 8 */ curve25519_square_times(t0, c, 2); /* t0 = 8 */

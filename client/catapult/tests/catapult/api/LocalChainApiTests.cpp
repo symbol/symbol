@@ -88,9 +88,13 @@ namespace catapult { namespace api {
 	}
 
 #define CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_HashesFrom) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HashesFromTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_HashesFrom) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HashesFromTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(RequestAtHeightZeroFails) {
 		AssertApiErrorForHeight<TTraits>(12, Height(0));

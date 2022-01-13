@@ -21,12 +21,10 @@
 
 #pragma once
 
-namespace catapult {
-	namespace ionet {
-		class NodeContainer;
-		struct NodeInteractionResult;
-	}
-}
+namespace catapult { namespace ionet {
+	class NodeContainer;
+	struct NodeInteractionResult;
+}}
 
 namespace catapult { namespace extensions {
 

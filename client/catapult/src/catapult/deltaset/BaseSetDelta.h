@@ -86,18 +86,17 @@ namespace catapult { namespace deltaset {
 		using SetTraits = TSetTraits;
 
 		using FindIterator = std::conditional_t<
-			std::is_same_v<ElementMutabilityTag, ImmutableTypeTag>,
-			BaseSetDeltaFindConstIterator<FindTraits, TSetTraits>,
-			BaseSetDeltaFindIterator<FindTraits, TSetTraits>
-		>;
+				std::is_same_v<ElementMutabilityTag, ImmutableTypeTag>,
+				BaseSetDeltaFindConstIterator<FindTraits, TSetTraits>,
+				BaseSetDeltaFindIterator<FindTraits, TSetTraits>>;
 		using FindConstIterator = BaseSetDeltaFindConstIterator<FindTraits, TSetTraits>;
 
 	public:
 		/// Creates a delta around \a originalElements.
 		explicit BaseSetDelta(const SetType& originalElements)
 				: m_originalElements(originalElements)
-				, m_generationId(1)
-		{}
+				, m_generationId(1) {
+		}
 
 	public:
 		/// Gets a value indicating whether or not the set is empty.
@@ -157,9 +156,7 @@ namespace catapult { namespace deltaset {
 
 		FindConstIterator find(const KeyType& key, MutableTypeTag) const {
 			auto copiedIter = m_copiedElements.find(key);
-			return m_copiedElements.cend() != copiedIter
-					? FindConstIterator(std::move(copiedIter))
-					: find(key, ImmutableTypeTag());
+			return m_copiedElements.cend() != copiedIter ? FindConstIterator(std::move(copiedIter)) : find(key, ImmutableTypeTag());
 		}
 
 		FindConstIterator find(const KeyType& key, ImmutableTypeTag) const {

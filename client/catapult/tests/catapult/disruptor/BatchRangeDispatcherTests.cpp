@@ -39,8 +39,9 @@ namespace catapult { namespace disruptor {
 			using MapType = std::map<std::tuple<InputSource, Key, std::string>, model::BlockRange>;
 
 		public:
-			SourceToRangeMap() : m_size(0)
-			{}
+			SourceToRangeMap()
+					: m_size(0) {
+			}
 
 		public:
 			size_t size() const {
@@ -164,10 +165,8 @@ namespace catapult { namespace disruptor {
 				const std::string& expectedSourceHost = std::string()) {
 			// Arrange:
 			auto iter = inputs.get().find(std::make_tuple(expectedSource, expectedSourcePublicKey, expectedSourceHost));
-			ASSERT_NE(inputs.get().cend(), iter)
-					<< "no entry for (source = " << expectedSource
-					<< ", publicKey = " << expectedSourcePublicKey
-					<< ", host = " << expectedSourceHost << ")";
+			ASSERT_NE(inputs.get().cend(), iter) << "no entry for (source = " << expectedSource
+												 << ", publicKey = " << expectedSourcePublicKey << ", host = " << expectedSourceHost << ")";
 			const auto& entry = *iter;
 
 			std::vector<Height::ValueType> heights;

@@ -40,9 +40,8 @@ namespace catapult { namespace harvesting {
 		auto PrepareEncryptedPayloads(const Key& recipientPublicKey, const std::vector<BlockGeneratorAccountDescriptor>& descriptors) {
 			test::HarvestRequestEncryptedPayloads encryptedPayloads;
 			for (const auto& descriptor : descriptors) {
-				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(
-						recipientPublicKey,
-						test::ToClearTextBuffer(descriptor));
+				auto encryptedPayload =
+						test::PrepareHarvestRequestEncryptedPayload(recipientPublicKey, test::ToClearTextBuffer(descriptor));
 				encryptedPayloads.emplace(encryptedPayload);
 			}
 
@@ -250,7 +249,7 @@ namespace catapult { namespace harvesting {
 
 		// Sanity:
 		auto requestIdentifier2 = test::GetRequestIdentifier(*++encryptedPayloads.cbegin());
-		auto requestIdentifier3 = test::GetRequestIdentifier(*++++encryptedPayloads.cbegin());
+		auto requestIdentifier3 = test::GetRequestIdentifier(*++ ++encryptedPayloads.cbegin());
 		EXPECT_TRUE(storage.contains(requestIdentifier2));
 		EXPECT_TRUE(storage.contains(requestIdentifier3));
 		AssertFileSize(guard.name(), 3 * sizeof(test::HarvestRequestEncryptedPayload));
@@ -425,11 +424,14 @@ namespace catapult { namespace harvesting {
 		EXPECT_TRUE(std::filesystem::exists(guard.name()));
 		test::HarvestRequestEncryptedPayloads expectedEncryptedPayloads;
 		auto inserter = std::inserter(expectedEncryptedPayloads, expectedEncryptedPayloads.end());
-		std::copy_if(encryptedPayloads.cbegin(), encryptedPayloads.cend(), inserter, [&identifierToHarvester](
-				const auto& encryptedPayload) {
-			const auto& harvesterPublicKey = identifierToHarvester[test::GetRequestIdentifier(encryptedPayload)];
-			return harvesterPublicKey[0] & 1;
-		});
+		std::copy_if(
+				encryptedPayloads.cbegin(),
+				encryptedPayloads.cend(),
+				inserter,
+				[&identifierToHarvester](const auto& encryptedPayload) {
+					const auto& harvesterPublicKey = identifierToHarvester[test::GetRequestIdentifier(encryptedPayload)];
+					return harvesterPublicKey[0] & 1;
+				});
 
 		// - every odd encryptedPayload should be in expected set
 		EXPECT_EQ(3u, expectedEncryptedPayloads.size());
@@ -543,7 +545,7 @@ namespace catapult { namespace harvesting {
 		};
 
 		using BlockGeneratorAccountDescriptorUnorderedSet =
-			std::unordered_set<BlockGeneratorAccountDescriptor, BlockGeneratorAccountDescriptorHasher>;
+				std::unordered_set<BlockGeneratorAccountDescriptor, BlockGeneratorAccountDescriptorHasher>;
 
 		auto AppendEncryptedPayloadToFile(const std::string& filename, const test::HarvestRequestEncryptedPayload& encryptedPayload) {
 			io::RawFile output(filename, io::OpenMode::Read_Append);
@@ -572,9 +574,7 @@ namespace catapult { namespace harvesting {
 		// Act:
 		UnlockedAccountsStorage storage(guard.name());
 		BlockGeneratorAccountDescriptorUnorderedSet collectedDescriptors;
-		storage.load(keyPair, [&collectedDescriptors](auto&& descriptor) {
-			collectedDescriptors.insert(std::move(descriptor));
-		});
+		storage.load(keyPair, [&collectedDescriptors](auto&& descriptor) { collectedDescriptors.insert(std::move(descriptor)); });
 
 		// Assert: remove the file, save and check if it matches initial data
 		std::filesystem::remove(guard.name());

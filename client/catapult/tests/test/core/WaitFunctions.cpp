@@ -40,15 +40,11 @@ namespace catapult { namespace test {
 
 			auto pTimer = std::make_shared<boost::asio::steady_timer>(ioContext);
 			pTimer->expires_from_now(std::chrono::milliseconds(waitMillis));
-			pTimer->async_wait([&ioContext, shouldWait, waitMillis](const auto&) {
-				WaitAsync(ioContext, shouldWait, waitMillis);
-			});
+			pTimer->async_wait([&ioContext, shouldWait, waitMillis](const auto&) { WaitAsync(ioContext, shouldWait, waitMillis); });
 		}
 	}
 
 	WaitFunction CreateAsyncWaitFunction(uint32_t waitMillis) {
-		return [waitMillis](auto& ioContext, const auto& shouldWait) {
-			WaitAsync(ioContext, shouldWait, waitMillis);
-		};
+		return [waitMillis](auto& ioContext, const auto& shouldWait) { WaitAsync(ioContext, shouldWait, waitMillis); };
 	}
 }}

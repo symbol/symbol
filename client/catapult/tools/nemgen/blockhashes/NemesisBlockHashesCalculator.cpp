@@ -55,19 +55,15 @@ namespace catapult { namespace tools { namespace nemgen {
 		chain::ExecuteBlock(blockElement, { entityObserver, resolverContext, observerState });
 		auto pBlockStatement = blockStatementBuilder.build();
 		auto cacheStateHashInfo = pCacheDelta->calculateStateHash(blockElement.Block.Height);
-		auto blockReceiptsHash = config.EnableVerifiableReceipts
-				? model::CalculateMerkleHash(*pBlockStatement)
-				: Hash256();
+		auto blockReceiptsHash = config.EnableVerifiableReceipts ? model::CalculateMerkleHash(*pBlockStatement) : Hash256();
 
 		auto highValueAccountStatistics = readOnlyCache.sub<cache::AccountStateCache>().highValueAccountStatistics(FinalizationEpoch(0));
-		return {
-			highValueAccountStatistics.VotingEligibleAccountsCount,
-			highValueAccountStatistics.HarvestingEligibleAccountsCount,
-			highValueAccountStatistics.TotalVotingBalance,
-			blockReceiptsHash,
-			cacheStateHashInfo.StateHash,
-			cacheStateHashInfo.SubCacheMerkleRoots,
-			std::move(pBlockStatement)
-		};
+		return { highValueAccountStatistics.VotingEligibleAccountsCount,
+				 highValueAccountStatistics.HarvestingEligibleAccountsCount,
+				 highValueAccountStatistics.TotalVotingBalance,
+				 blockReceiptsHash,
+				 cacheStateHashInfo.StateHash,
+				 cacheStateHashInfo.SubCacheMerkleRoots,
+				 std::move(pBlockStatement) };
 	}
 }}}

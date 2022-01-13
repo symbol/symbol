@@ -74,10 +74,8 @@ namespace catapult { namespace model {
 		struct TransactionCustomPayloadTraits : public TransactionTraits {
 			static Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed) {
 				// hash full transaction header body in traits-based tests
-				auto transactionBuffer = RawBuffer{
-					reinterpret_cast<const uint8_t*>(&transaction) + Transaction::Header_Size,
-					sizeof(Transaction) - Transaction::Header_Size
-				};
+				auto transactionBuffer = RawBuffer{ reinterpret_cast<const uint8_t*>(&transaction) + Transaction::Header_Size,
+													sizeof(Transaction) - Transaction::Header_Size };
 				return model::CalculateHash(transaction, generationHashSeed, transactionBuffer);
 			}
 		};
@@ -86,12 +84,22 @@ namespace catapult { namespace model {
 	// region CalculateHash - basic
 
 #define BASIC_HASH_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_BlockNormal) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_BlockImportance) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Transaction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_TransactionCustomPayload) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionCustomPayloadTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_BlockNormal) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_BlockImportance) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Transaction) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_TransactionCustomPayload) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionCustomPayloadTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	BASIC_HASH_TEST(HashChangesWhenRPartOfSignatureChanges) {
 		// Arrange:

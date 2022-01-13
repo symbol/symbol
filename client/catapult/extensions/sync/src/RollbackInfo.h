@@ -27,7 +27,9 @@
 #include "catapult/types.h"
 #include <vector>
 
-namespace catapult { namespace sync { struct RollbackInfoState; } }
+namespace catapult { namespace sync {
+	struct RollbackInfoState;
+}}
 
 namespace catapult { namespace sync {
 

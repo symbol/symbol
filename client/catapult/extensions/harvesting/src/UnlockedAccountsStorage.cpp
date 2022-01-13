@@ -76,9 +76,8 @@ namespace catapult { namespace harvesting {
 			HarvestRequestIdentifier requestIdentifier;
 			auto encryptedPayloadStartPosition = ReadLastRequestIdentifier(filename, requestIdentifier);
 			if (expectedRequestIdentifier != requestIdentifier) {
-				CATAPULT_LOG(warning)
-						<< "last request identifier (" << requestIdentifier << ") "
-						<< "does not match expected request identifier (" << expectedRequestIdentifier << ")";
+				CATAPULT_LOG(warning) << "last request identifier (" << requestIdentifier << ") "
+									  << "does not match expected request identifier (" << expectedRequestIdentifier << ")";
 				return;
 			}
 
@@ -86,8 +85,9 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	UnlockedAccountsStorage::UnlockedAccountsStorage(const std::string& filename) : m_filename(filename)
-	{}
+	UnlockedAccountsStorage::UnlockedAccountsStorage(const std::string& filename)
+			: m_filename(filename) {
+	}
 
 	bool UnlockedAccountsStorage::contains(const HarvestRequestIdentifier& requestIdentifier) {
 		return m_identityToEncryptedPayloadMap.cend() != m_identityToEncryptedPayloadMap.find(requestIdentifier);

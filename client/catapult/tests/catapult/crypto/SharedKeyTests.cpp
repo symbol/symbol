@@ -91,22 +91,18 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, Hkdf_Hmac_Sha256_Test_Vector_2) {
 		// Arrange:
-		auto salt = test::HexStringToVector(
-				"606162636465666768696A6B6C6D6E6F707172737475767778797A7B7C7D7E7F"
-				"808182838485868788898A8B8C8D8E8F909192939495969798999A9B9C9D9E9F"
-				"A0A1A2A3A4A5A6A7A8A9AAABACADAEAF");
-		auto sharedSecret = test::HexStringToVector(
-				"000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F"
-				"202122232425262728292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F"
-				"404142434445464748494A4B4C4D4E4F");
-		auto label = test::HexStringToVector(
-				"B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBFC0C1C2C3C4C5C6C7C8C9CACBCCCDCECF"
-				"D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDFE0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF"
-				"F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF");
-		auto expected = test::HexStringToVector(
-				"B11E398DC80327A1C8E7F78C596A49344F012EDA2D4EFAD8A050CC4C19AFA97C"
-				"59045A99CAC7827271CB41C65E590E09DA3275600C2F09B8367793A9ACA3DB71"
-				"CC30C58179EC3E87C14C01D5C1F3434F1D87");
+		auto salt = test::HexStringToVector("606162636465666768696A6B6C6D6E6F707172737475767778797A7B7C7D7E7F"
+											"808182838485868788898A8B8C8D8E8F909192939495969798999A9B9C9D9E9F"
+											"A0A1A2A3A4A5A6A7A8A9AAABACADAEAF");
+		auto sharedSecret = test::HexStringToVector("000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F"
+													"202122232425262728292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F"
+													"404142434445464748494A4B4C4D4E4F");
+		auto label = test::HexStringToVector("B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBFC0C1C2C3C4C5C6C7C8C9CACBCCCDCECF"
+											 "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDFE0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF"
+											 "F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF");
+		auto expected = test::HexStringToVector("B11E398DC80327A1C8E7F78C596A49344F012EDA2D4EFAD8A050CC4C19AFA97C"
+												"59045A99CAC7827271CB41C65E590E09DA3275600C2F09B8367793A9ACA3DB71"
+												"CC30C58179EC3E87C14C01D5C1F3434F1D87");
 
 		// Act:
 		std::vector<uint8_t> output(expected.size());
@@ -212,25 +208,27 @@ namespace catapult { namespace crypto {
 	}
 
 #define SHARED_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(SharedKeyTests, TEST_NAME##_SharedSecret) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedSecretTraits>(); } \
-	TEST(SharedKeyTests, TEST_NAME##_SharedKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedKeyTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(SharedKeyTests, TEST_NAME##_SharedSecret) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedSecretTraits>(); \
+	} \
+	TEST(SharedKeyTests, TEST_NAME##_SharedKey) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedKeyTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SHARED_BASED_TEST(SharedResultsGeneratedWithSameInputsAreEqual) {
-		AssertDerivedSharedResultsAreEqual<TTraits>([] (const auto&, const auto&) {});
+		AssertDerivedSharedResultsAreEqual<TTraits>([](const auto&, const auto&) {});
 	}
 
 	SHARED_BASED_TEST(SharedResultsGeneratedForDifferentKeyPairsAreDifferent) {
-		AssertDerivedSharedResultsAreDifferent<TTraits>([] (auto& privateKey, const auto&) {
-			privateKey[0] ^= 0xFF;
-		});
+		AssertDerivedSharedResultsAreDifferent<TTraits>([](auto& privateKey, const auto&) { privateKey[0] ^= 0xFF; });
 	}
 
 	SHARED_BASED_TEST(SharedResultsGeneratedForDifferentOtherPublicKeysAreDifferent) {
-		AssertDerivedSharedResultsAreDifferent<TTraits>([] (const auto&, auto& otherPublicKey) {
-			otherPublicKey[0] ^= 0xFF;
-		});
+		AssertDerivedSharedResultsAreDifferent<TTraits>([](const auto&, auto& otherPublicKey) { otherPublicKey[0] ^= 0xFF; });
 	}
 
 	SHARED_BASED_TEST(MutualSharedResultsAreEqual) {

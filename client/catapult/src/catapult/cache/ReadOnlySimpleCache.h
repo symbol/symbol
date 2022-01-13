@@ -31,14 +31,14 @@ namespace catapult { namespace cache {
 		/// Creates a read-only overlay on top of \a cache.
 		explicit ReadOnlySimpleCache(const TCache& cache)
 				: m_pCache(&cache)
-				, m_pCacheDelta(nullptr)
-		{}
+				, m_pCacheDelta(nullptr) {
+		}
 
 		/// Creates a read-only overlay on top of \a cache.
 		explicit ReadOnlySimpleCache(const TCacheDelta& cache)
 				: m_pCache(nullptr)
-				, m_pCacheDelta(&cache)
-		{}
+				, m_pCacheDelta(&cache) {
+		}
 
 	public:
 		/// Gets the number of elements in the cache.

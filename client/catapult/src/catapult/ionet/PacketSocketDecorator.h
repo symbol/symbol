@@ -34,8 +34,8 @@ namespace catapult { namespace ionet {
 				: m_pSocket(pSocket)
 				, m_wrapFactory(wrapFactory)
 				, m_pIo(m_wrapFactory.wrapIo(m_pSocket))
-				, m_pReader(m_wrapFactory.wrapReader(m_pSocket))
-		{}
+				, m_pReader(m_wrapFactory.wrapReader(m_pSocket)) {
+		}
 
 	public:
 		void write(const PacketPayload& payload, const WriteCallback& callback) override {

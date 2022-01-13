@@ -106,12 +106,12 @@ namespace catapult { namespace state {
 /// Defines lock info history serializers for \a LOCK_INFO with state \a VERSION.
 #define DEFINE_LOCK_INFO_HISTORY_SERIALIZERS(LOCK_INFO, VERSION) \
 	using LOCK_INFO##Serializer = LockInfoSerializer<LOCK_INFO, LOCK_INFO##ExtendedDataSerializer>; \
-	\
+\
 	struct LOCK_INFO##HistoryNonHistoricalSerializer \
 			: public LockInfoHistoryNonHistoricalSerializer<LOCK_INFO##History, LOCK_INFO##Serializer> { \
 		static constexpr uint16_t State_Version = VERSION; \
 	}; \
-	\
+\
 	struct LOCK_INFO##HistorySerializer : public LockInfoHistorySerializer<LOCK_INFO##History, LOCK_INFO##Serializer> { \
 		static constexpr uint16_t State_Version = VERSION; \
 	};

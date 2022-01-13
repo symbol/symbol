@@ -31,8 +31,9 @@ namespace catapult { namespace cache {
 	class PatriciaTreeMixin {
 	public:
 		/// Creates a mixin around \a pTree.
-		explicit PatriciaTreeMixin(const TTree* pTree) : m_pTree(pTree)
-		{}
+		explicit PatriciaTreeMixin(const TTree* pTree)
+				: m_pTree(pTree) {
+		}
 
 	public:
 		/// Returns \c true if merkle root is supported.
@@ -42,16 +43,12 @@ namespace catapult { namespace cache {
 
 		/// Tries to get the merkle root if supported.
 		std::pair<Hash256, bool> tryGetMerkleRoot() const {
-			return m_pTree
-					? std::make_pair(m_pTree->root(), true)
-					: std::make_pair(Hash256(), false);
+			return m_pTree ? std::make_pair(m_pTree->root(), true) : std::make_pair(Hash256(), false);
 		}
 
 		/// Tries to find the value associated with \a key in the tree and stores proof of existence or not in \a nodePath.
 		std::pair<Hash256, bool> tryLookup(const typename TTree::KeyType& key, std::vector<tree::TreeNode>& nodePath) const {
-			return m_pTree
-					? m_pTree->lookup(key, nodePath)
-					: std::make_pair(Hash256(), false);
+			return m_pTree ? m_pTree->lookup(key, nodePath) : std::make_pair(Hash256(), false);
 		}
 
 	private:
@@ -66,8 +63,8 @@ namespace catapult { namespace cache {
 		PatriciaTreeDeltaMixin(TSet& set, const std::shared_ptr<TTree>& pTree)
 				: m_set(set)
 				, m_pTree(pTree)
-				, m_nextGenerationId(m_set.generationId())
-		{}
+				, m_nextGenerationId(m_set.generationId()) {
+		}
 
 	public:
 		/// Returns \c true if merkle root is supported.
@@ -77,9 +74,7 @@ namespace catapult { namespace cache {
 
 		/// Tries to get the merkle root if supported.
 		std::pair<Hash256, bool> tryGetMerkleRoot() const {
-			return m_pTree
-					? std::make_pair(m_pTree->root(), true)
-					: std::make_pair(Hash256(), false);
+			return m_pTree ? std::make_pair(m_pTree->root(), true) : std::make_pair(Hash256(), false);
 		}
 
 		/// Recalculates the merkle root given the specified chain \a height if supported.

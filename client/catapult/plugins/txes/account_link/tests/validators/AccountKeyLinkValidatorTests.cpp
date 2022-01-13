@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AccountKeyLinkValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountKeyLink,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountKeyLink, )
 
 	// region test utils
 

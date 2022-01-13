@@ -334,10 +334,8 @@ namespace catapult { namespace test {
 		static void AssertCanInsertWithSuppliedParameters() {
 			// Arrange:
 			auto pDelta = TTraits::Create();
-			auto expectedElements = typename TTraits::ElementVector{
-				TTraits::CreateElement("MyTestElement", 0),
-				TTraits::CreateElement("AnotherTestElement", 123)
-			};
+			auto expectedElements = typename TTraits::ElementVector{ TTraits::CreateElement("MyTestElement", 0),
+																	 TTraits::CreateElement("AnotherTestElement", 123) };
 
 			pDelta->incrementGenerationId();
 
@@ -663,10 +661,8 @@ namespace catapult { namespace test {
 			auto pDelta = TTraits::CreateWithElements(3);
 			pDelta.commit();
 			auto element = TTraits::CreateElement("TestElement", 1);
-			auto expectedElements = typename TTraits::ElementVector{
-				TTraits::CreateElement("TestElement", 0),
-				TTraits::CreateElement("TestElement", 2)
-			};
+			auto expectedElements =
+					typename TTraits::ElementVector{ TTraits::CreateElement("TestElement", 0), TTraits::CreateElement("TestElement", 2) };
 
 			pDelta->incrementGenerationId();
 
@@ -685,10 +681,8 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pDelta = TTraits::CreateWithElements(5);
 			pDelta.commit();
-			auto expectedElements = typename TTraits::ElementVector{
-				TTraits::CreateElement("TestElement", 0),
-				TTraits::CreateElement("TestElement", 2)
-			};
+			auto expectedElements =
+					typename TTraits::ElementVector{ TTraits::CreateElement("TestElement", 0), TTraits::CreateElement("TestElement", 2) };
 
 			pDelta->incrementGenerationId();
 
@@ -743,10 +737,8 @@ namespace catapult { namespace test {
 			auto pDelta = TTraits::CreateWithElements(3);
 			pDelta.commit();
 			auto pElement = pDelta->find(TTraits::CreateKey("TestElement", 1)).get();
-			auto expectedElements = typename TTraits::ElementVector{
-				TTraits::CreateElement("TestElement", 0),
-				TTraits::CreateElement("TestElement", 2)
-			};
+			auto expectedElements =
+					typename TTraits::ElementVector{ TTraits::CreateElement("TestElement", 0), TTraits::CreateElement("TestElement", 2) };
 
 			pDelta->incrementGenerationId();
 
@@ -788,10 +780,8 @@ namespace catapult { namespace test {
 			auto pDelta = TTraits::CreateWithElements(3);
 			pDelta.commit();
 			auto initialResult = pDelta->remove(TTraits::CreateKey("TestElement", 1));
-			auto expectedElements = typename TTraits::ElementVector{
-				TTraits::CreateElement("TestElement", 0),
-				TTraits::CreateElement("TestElement", 2)
-			};
+			auto expectedElements =
+					typename TTraits::ElementVector{ TTraits::CreateElement("TestElement", 0), TTraits::CreateElement("TestElement", 2) };
 
 			// Sanity:
 			EXPECT_EQ(deltaset::RemoveResult::Removed, initialResult);
@@ -929,32 +919,34 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BaseSetDeltaTests<TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BaseSetDeltaTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_BASE_SET_DELTA_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_COMMON_BASE_SET_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_BASE_SET_DELTA_ITERATION_TESTS(TEST_CLASS, TRAITS) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, EmptyReturnsTrueWhenAllOriginalElementsAreRemoved) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, EmptyReturnsFalseWhenANonOriginalElementWasInserted) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, BaseSetDeltaFindConstReturnsOriginalElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, BaseSetDeltaFindConstReturnsConstCopy) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, BaseSetDeltaCanAccessAllElementsThroughFind) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, BaseSetDeltaCanAccessAllElementsThroughFindConst) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanInsertElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanInsertWithSuppliedParameters) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanRemoveExistingElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanSubsequentlyRemoveExistingElements) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanRemovePreviouslyInsertedElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanRemoveMutatedElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, RemovingNonexistentElementDoesNotRemoveAnyElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, RemoveOfAlreadyRemovedElementIsNullOperation) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, BaseSetDeltaResetClearsAllPendingChanges) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, GenerationIdIsInitiallyOne) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanIncrementGenerationId) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ResetSetsGenerationIdToOne) \
@@ -963,12 +955,12 @@ namespace catapult { namespace test {
 
 #define DEFINE_MUTABLE_BASE_SET_DELTA_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_BASE_SET_DELTA_TESTS(TEST_CLASS, TRAITS) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaFindReturnsCopyForAnOriginalElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaFindReturnsNonConstCopy) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaFindAlwaysUpdatesGenerationForOriginalElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaFindAlwaysUpdatesGenerationForAddedElement) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaInsertUpdatesKnownElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaSupportsReinsertingExistingElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaInsertUpdatesCopiedOriginalElement) \
@@ -976,15 +968,15 @@ namespace catapult { namespace test {
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetInsertOfSameAlreadyInsertedElementIsNullOperation) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetCanInsertRemovedElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaCanAddRemoveAndReinsertElement) \
-	\
-	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetModifiedElementHasLastChangeGenerationId) \
+\
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetModifiedElementHasLastChangeGenerationId)
 
 #define DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_BASE_SET_DELTA_TESTS(TEST_CLASS, TRAITS) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaFindReturnsOriginalElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaFindReturnsConstCopy) \
-	\
+\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaInsertDoesNotUpdateKnownElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaSupportsReinsertingExistingElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaInsertDoesNotUpdateCopiedOriginalElement) \
@@ -992,8 +984,8 @@ namespace catapult { namespace test {
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetInsertOfSameAlreadyInsertedElementIsNullOperation) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetCanInsertRemovedElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaCanAddRemoveAndReinsertElement) \
-	\
-	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetModifiedElementHasFirstChangeGenerationId) \
+\
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetModifiedElementHasFirstChangeGenerationId)
 
 #define DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(NAME) \
 	DEFINE_MUTABLE_BASE_SET_DELTA_TESTS(Delta##NAME##Tests, test::DeltaTraits<deltaset::NAME##Traits>)

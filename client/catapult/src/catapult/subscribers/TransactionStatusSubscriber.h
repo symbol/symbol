@@ -23,7 +23,9 @@
 #include "catapult/plugins.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace model { struct Transaction; } }
+namespace catapult { namespace model {
+	struct Transaction;
+}}
 
 namespace catapult { namespace subscribers {
 

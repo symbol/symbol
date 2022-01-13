@@ -52,8 +52,9 @@ namespace catapult { namespace chain {
 			using StatefulValidatorPointer = std::unique_ptr<mocks::MockCapturingStatefulNotificationValidator>;
 
 		public:
-			TestContext() : TestContext("stateless", "stateful")
-			{}
+			TestContext()
+					: TestContext("stateless", "stateful") {
+			}
 
 			TestContext(const std::string& statelessName, const std::string& statefulName)
 					: m_statelessName(statelessName)
@@ -83,17 +84,15 @@ namespace catapult { namespace chain {
 					return true;
 				});
 
-				m_pluginManager.addStatelessValidatorHook([this](auto& builder) {
-					builder.add(this->createStatelessValidator());
-				});
+				m_pluginManager.addStatelessValidatorHook([this](auto& builder) { builder.add(this->createStatelessValidator()); });
 
-				m_pluginManager.addStatefulValidatorHook([this](auto& builder) {
-					builder.add(this->createStatefulValidator());
-				});
+				m_pluginManager.addStatefulValidatorHook([this](auto& builder) { builder.add(this->createStatefulValidator()); });
 
-				return CreateJointValidator(m_cache, []() { return Default_Block_Time; }, m_pluginManager, [failureMode](auto) {
-					return FailureMode::Suppress == failureMode;
-				});
+				return CreateJointValidator(
+						m_cache,
+						[]() { return Default_Block_Time; },
+						m_pluginManager,
+						[failureMode](auto) { return FailureMode::Suppress == failureMode; });
 			}
 
 		private:

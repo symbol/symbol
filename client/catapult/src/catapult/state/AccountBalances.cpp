@@ -91,9 +91,8 @@ namespace catapult { namespace state {
 		if (hasZeroBalance || amount > iter->second) {
 			auto currentBalance = hasZeroBalance ? Amount(0) : iter->second;
 			std::ostringstream out;
-			out
-					<< "debit amount (" << amount << ") is greater than current balance (" << currentBalance
-					<< ") for mosaic " << utils::HexFormat(mosaicId);
+			out << "debit amount (" << amount << ") is greater than current balance (" << currentBalance << ") for mosaic "
+				<< utils::HexFormat(mosaicId);
 			CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 		}
 

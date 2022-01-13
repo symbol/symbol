@@ -40,8 +40,8 @@ namespace catapult { namespace ionet {
 					: m_pIo(pIo)
 					, m_pMockIo(pMockIo)
 					, Io(*m_pIo)
-					, MockIo(*m_pMockIo)
-			{}
+					, MockIo(*m_pMockIo) {
+			}
 
 		private:
 			std::shared_ptr<PacketIo> m_pIo;
@@ -62,11 +62,11 @@ namespace catapult { namespace ionet {
 					: NumRateExceededTriggers(0)
 					, pMockPacketSocket(std::make_shared<mocks::MockPacketSocket>())
 					, pDecoratedSocket(AddReadRateMonitor(
-							pMockPacketSocket,
-							{ numBuckets, utils::TimeSpan::FromMilliseconds(111), utils::FileSize::FromBytes(1000) },
-							test::CreateTimeSupplierFromMilliseconds({ 1 }),
-							[&numRateExceededTriggers = NumRateExceededTriggers]() { ++numRateExceededTriggers; }))
-			{}
+							  pMockPacketSocket,
+							  { numBuckets, utils::TimeSpan::FromMilliseconds(111), utils::FileSize::FromBytes(1000) },
+							  test::CreateTimeSupplierFromMilliseconds({ 1 }),
+							  [&numRateExceededTriggers = NumRateExceededTriggers]() { ++numRateExceededTriggers; })) {
+			}
 
 		public:
 			IoView normalIoView() {
@@ -91,15 +91,17 @@ namespace catapult { namespace ionet {
 	namespace {
 		struct DisabledTraits {
 			struct TestContextType : public TestContext {
-				TestContextType() : TestContext(0)
-				{}
+				TestContextType()
+						: TestContext(0) {
+				}
 			};
 		};
 
 		struct EnabledTraits {
 			struct TestContextType : public TestContext {
-				TestContextType() : TestContext(1)
-				{}
+				TestContextType()
+						: TestContext(1) {
+				}
 			};
 		};
 	}

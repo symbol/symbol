@@ -31,8 +31,8 @@ namespace catapult { namespace cache {
 		/// Creates a storage around \a cache.
 		explicit SummaryCacheStorage(TCache& cache)
 				: m_cache(cache)
-				, m_name(std::string(TCache::Name) + "_summary")
-		{}
+				, m_name(std::string(TCache::Name) + "_summary") {
+		}
 
 	public:
 		const std::string& name() const override {

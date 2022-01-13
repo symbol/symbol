@@ -43,8 +43,8 @@ namespace catapult { namespace test {
 		static cache::CatapultCache Create(const model::BlockchainConfiguration& config) {
 			auto configIter = config.Plugins.find("namespace::ex");
 			return config.Plugins.cend() != configIter
-					? Create(BlockDuration(configIter->second.get<uint64_t>({ "", "gracePeriodDuration" })))
-					: Create();
+						   ? Create(BlockDuration(configIter->second.get<uint64_t>({ "", "gracePeriodDuration" })))
+						   : Create();
 		}
 	};
 

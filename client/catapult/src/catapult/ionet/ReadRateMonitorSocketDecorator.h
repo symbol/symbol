@@ -24,12 +24,10 @@
 #include "catapult/types.h"
 #include <memory>
 
-namespace catapult {
-	namespace ionet {
-		class PacketSocket;
-		struct RateMonitorSettings;
-	}
-}
+namespace catapult { namespace ionet {
+	class PacketSocket;
+	struct RateMonitorSettings;
+}}
 
 namespace catapult { namespace ionet {
 

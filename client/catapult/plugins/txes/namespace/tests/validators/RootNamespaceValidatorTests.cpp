@@ -46,10 +46,8 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "duration " << duration
-					<< ", minDuration " << minDuration
-					<< ", maxDuration " << maxDuration;
+			EXPECT_EQ(expectedResult, result) << "duration " << duration << ", minDuration " << minDuration << ", maxDuration "
+											  << maxDuration;
 		}
 	}
 

@@ -50,11 +50,11 @@ namespace catapult { namespace partialtransaction {
 						state.pluginManager().transactionRegistry(),
 						hooks.ptRangeConsumer());
 
-				handlers::RegisterPullPartialTransactionInfosHandler(state.packetHandlers(), [&ptCache](
-						auto minDeadline,
-						const auto& shortHashPairs) {
-					return ptCache.view().unknownTransactions(minDeadline, shortHashPairs);
-				});
+				handlers::RegisterPullPartialTransactionInfosHandler(
+						state.packetHandlers(),
+						[&ptCache](auto minDeadline, const auto& shortHashPairs) {
+							return ptCache.view().unknownTransactions(minDeadline, shortHashPairs);
+						});
 
 				handlers::RegisterPushCosignaturesHandler(state.packetHandlers(), hooks.cosignatureRangeConsumer());
 			}

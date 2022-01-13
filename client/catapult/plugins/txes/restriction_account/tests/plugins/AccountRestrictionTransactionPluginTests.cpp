@@ -76,9 +76,8 @@ namespace catapult { namespace plugins {
 		};
 
 		using OperationRegularTraits = OperationTraits<AccountOperationRestrictionTransaction, AccountOperationRestrictionRegularTraits>;
-		using OperationEmbeddedTraits = OperationTraits<
-			EmbeddedAccountOperationRestrictionTransaction,
-			AccountOperationRestrictionEmbeddedTraits>;
+		using OperationEmbeddedTraits =
+				OperationTraits<EmbeddedAccountOperationRestrictionTransaction, AccountOperationRestrictionEmbeddedTraits>;
 	}
 
 	// endregion
@@ -113,15 +112,15 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.RestrictionAdditionsCount, notification.RestrictionAdditionsCount);
 				EXPECT_EQ(transaction.RestrictionDeletionsCount, notification.RestrictionDeletionsCount);
 			});
-			builder.template addExpectation<typename TTraits::ModifyAccountRestrictionsNotification>([&transaction](
-					const auto& notification) {
-				EXPECT_EQ(GetSignerAddress(transaction), notification.Address);
-				EXPECT_EQ(transaction.RestrictionFlags, notification.AccountRestrictionDescriptor.raw());
-				EXPECT_EQ(transaction.RestrictionAdditionsCount, notification.RestrictionAdditionsCount);
-				EXPECT_EQ(transaction.RestrictionAdditionsPtr(), notification.RestrictionAdditionsPtr);
-				EXPECT_EQ(transaction.RestrictionDeletionsCount, notification.RestrictionDeletionsCount);
-				EXPECT_EQ(transaction.RestrictionDeletionsPtr(), notification.RestrictionDeletionsPtr);
-			});
+			builder.template addExpectation<typename TTraits::ModifyAccountRestrictionsNotification>(
+					[&transaction](const auto& notification) {
+						EXPECT_EQ(GetSignerAddress(transaction), notification.Address);
+						EXPECT_EQ(transaction.RestrictionFlags, notification.AccountRestrictionDescriptor.raw());
+						EXPECT_EQ(transaction.RestrictionAdditionsCount, notification.RestrictionAdditionsCount);
+						EXPECT_EQ(transaction.RestrictionAdditionsPtr(), notification.RestrictionAdditionsPtr);
+						EXPECT_EQ(transaction.RestrictionDeletionsCount, notification.RestrictionDeletionsCount);
+						EXPECT_EQ(transaction.RestrictionDeletionsPtr(), notification.RestrictionDeletionsPtr);
+					});
 		}
 
 		// endregion
@@ -134,11 +133,11 @@ namespace catapult { namespace plugins {
 			auto pTransaction = CreateTransactionWithModifications(0, 0);
 
 			// Act + Assert:
-			test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-				InternalPaddingNotification::Notification_Type,
-				AccountRestrictionModificationNotification::Notification_Type,
-				TTraits::ModifyAccountRestrictionsNotification::Notification_Type
-			});
+			test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+					*pTransaction,
+					{ InternalPaddingNotification::Notification_Type,
+					  AccountRestrictionModificationNotification::Notification_Type,
+					  TTraits::ModifyAccountRestrictionsNotification::Notification_Type });
 		}
 
 		static void AssertCanPublishAllNotificationsWhenNoModifications() {
@@ -161,16 +160,16 @@ namespace catapult { namespace plugins {
 			auto pTransaction = CreateTransactionWithModifications(3, 2);
 
 			// Act + Assert:
-			test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-				InternalPaddingNotification::Notification_Type,
-				AccountRestrictionModificationNotification::Notification_Type,
-				TTraits::ModifyAccountRestrictionsNotification::Notification_Type,
-				TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
-				TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
-				TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
-				TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
-				TTraits::ModifyAccountRestrictionValueNotification::Notification_Type
-			});
+			test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+					*pTransaction,
+					{ InternalPaddingNotification::Notification_Type,
+					  AccountRestrictionModificationNotification::Notification_Type,
+					  TTraits::ModifyAccountRestrictionsNotification::Notification_Type,
+					  TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
+					  TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
+					  TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
+					  TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
+					  TTraits::ModifyAccountRestrictionValueNotification::Notification_Type });
 		}
 
 		static void AssertCanPublishAllNotificationsWhenModifications() {
@@ -181,23 +180,25 @@ namespace catapult { namespace plugins {
 			typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 			AddCommonExpectations(builder, transaction);
 			for (auto i = 0u; i < 3; ++i) {
-				builder.template addExpectation<typename TTraits::ModifyAccountRestrictionValueNotification>(i, [&transaction, i](
-						const auto& notification) {
-					EXPECT_EQ(GetSignerAddress(transaction), notification.Address);
-					EXPECT_EQ(transaction.RestrictionFlags, notification.AccountRestrictionDescriptor.raw());
-					EXPECT_EQ(transaction.RestrictionAdditionsPtr()[i], notification.RestrictionValue);
-					EXPECT_EQ(AccountRestrictionModificationAction::Add, notification.Action);
-				});
+				builder.template addExpectation<typename TTraits::ModifyAccountRestrictionValueNotification>(
+						i,
+						[&transaction, i](const auto& notification) {
+							EXPECT_EQ(GetSignerAddress(transaction), notification.Address);
+							EXPECT_EQ(transaction.RestrictionFlags, notification.AccountRestrictionDescriptor.raw());
+							EXPECT_EQ(transaction.RestrictionAdditionsPtr()[i], notification.RestrictionValue);
+							EXPECT_EQ(AccountRestrictionModificationAction::Add, notification.Action);
+						});
 			}
 
 			for (auto i = 0u; i < 2; ++i) {
-				builder.template addExpectation<typename TTraits::ModifyAccountRestrictionValueNotification>(3 + i, [&transaction, i](
-						const auto& notification) {
-					EXPECT_EQ(GetSignerAddress(transaction), notification.Address);
-					EXPECT_EQ(transaction.RestrictionFlags, notification.AccountRestrictionDescriptor.raw());
-					EXPECT_EQ(transaction.RestrictionDeletionsPtr()[i], notification.RestrictionValue);
-					EXPECT_EQ(AccountRestrictionModificationAction::Del, notification.Action);
-				});
+				builder.template addExpectation<typename TTraits::ModifyAccountRestrictionValueNotification>(
+						3 + i,
+						[&transaction, i](const auto& notification) {
+							EXPECT_EQ(GetSignerAddress(transaction), notification.Address);
+							EXPECT_EQ(transaction.RestrictionFlags, notification.AccountRestrictionDescriptor.raw());
+							EXPECT_EQ(transaction.RestrictionDeletionsPtr()[i], notification.RestrictionValue);
+							EXPECT_EQ(AccountRestrictionModificationAction::Del, notification.Action);
+						});
 			}
 
 			// Act + Assert:
@@ -231,7 +232,7 @@ namespace catapult { namespace plugins {
 			TRAITS_PREFIX, \
 			TEST_POSTFIX, \
 			CanPublishAllNotificationsInCorrectOrderWhenModifications) \
-	MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST(TRAITS_PREFIX, TEST_POSTFIX, CanPublishAllNotificationsWhenModifications) \
+	MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST(TRAITS_PREFIX, TEST_POSTFIX, CanPublishAllNotificationsWhenModifications)
 
 	DEFINE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TESTS(Address, _Address)
 	DEFINE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TESTS(Mosaic, _Mosaic)

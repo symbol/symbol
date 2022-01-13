@@ -24,14 +24,10 @@
 #include <vector>
 #include <stdint.h>
 
-namespace boost {
-	namespace asio {
-		namespace ssl {
-			template<typename NextLayer>
-			class stream;
-		}
-	}
-}
+namespace boost { namespace asio { namespace ssl {
+	template<typename NextLayer>
+	class stream;
+}}}
 
 namespace catapult { namespace ionet {
 

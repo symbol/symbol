@@ -23,12 +23,10 @@
 #include "BalanceTransfers.h"
 #include <memory>
 
-namespace catapult {
-	namespace cache {
-		class CatapultCache;
-		class CatapultCacheDelta;
-	}
-}
+namespace catapult { namespace cache {
+	class CatapultCache;
+	class CatapultCacheDelta;
+}}
 
 namespace catapult { namespace test {
 

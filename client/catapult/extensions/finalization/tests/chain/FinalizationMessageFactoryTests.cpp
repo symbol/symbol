@@ -39,22 +39,21 @@ namespace catapult { namespace chain {
 	namespace {
 		class TestContext {
 		public:
-			explicit TestContext(Height height) : TestContext(height, 10, finalization::FinalizationConfiguration::Uninitialized())
-			{}
+			explicit TestContext(Height height)
+					: TestContext(height, 10, finalization::FinalizationConfiguration::Uninitialized()) {
+			}
 
 			TestContext(Height height, uint32_t numBlocks, const finalization::FinalizationConfiguration& config)
 					: m_lastFinalizedHash(test::GenerateRandomByteArray<Hash256>())
 					, m_pBlockStorage(mocks::CreateMemoryBlockStorageCache(numBlocks))
 					, m_proofStorage(std::make_unique<mocks::MockProofStorage>(FinalizationPoint(), height, m_lastFinalizedHash))
 					, m_pFactory(CreateFinalizationMessageFactory(
-							config,
-							*m_pBlockStorage,
-							m_proofStorage,
-							[this](const auto&, const auto& descriptor) {
-								m_capturedDescriptors.push_back(descriptor);
-							},
-							CreateAggregateBmPrivateKeyTree(m_bmPrivateKeyTreeStream)))
-			{}
+							  config,
+							  *m_pBlockStorage,
+							  m_proofStorage,
+							  [this](const auto&, const auto& descriptor) { m_capturedDescriptors.push_back(descriptor); },
+							  CreateAggregateBmPrivateKeyTree(m_bmPrivateKeyTreeStream))) {
+			}
 
 		public:
 			auto& factory() {
@@ -77,17 +76,19 @@ namespace catapult { namespace chain {
 		private:
 			static crypto::AggregateBmPrivateKeyTree CreateAggregateBmPrivateKeyTree(io::SeekableStream& storage) {
 				return crypto::AggregateBmPrivateKeyTree([&storage]() {
-					auto bmOptions = crypto::BmOptions{
-						GetKeyIdentifier(FinalizationEpoch(), model::FinalizationStage::Prevote),
-						GetKeyIdentifier(FinalizationEpoch(20), model::FinalizationStage::Precommit)
-					};
+					auto bmOptions = crypto::BmOptions{ GetKeyIdentifier(FinalizationEpoch(), model::FinalizationStage::Prevote),
+														GetKeyIdentifier(FinalizationEpoch(20), model::FinalizationStage::Precommit) };
 					auto tree = crypto::BmPrivateKeyTree::Create(test::GenerateVotingKeyPair(), storage, bmOptions);
 					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
 				});
 			}
 
 			static crypto::BmKeyIdentifier GetKeyIdentifier(FinalizationEpoch epoch, model::FinalizationStage stage) {
-				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage, });
+				return model::StepIdentifierToBmKeyIdentifier({
+						epoch,
+						FinalizationPoint(),
+						stage,
+				});
 			}
 
 		private:
@@ -102,10 +103,11 @@ namespace catapult { namespace chain {
 
 		bool IsSigned(const model::FinalizationMessage& message) {
 			auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier);
-			return crypto::Verify(message.Signature, keyIdentifier, {
-				reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
-				message.Size - model::FinalizationMessage::Header_Size
-			});
+			return crypto::Verify(
+					message.Signature,
+					keyIdentifier,
+					{ reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
+					  message.Size - model::FinalizationMessage::Header_Size });
 		}
 	}
 

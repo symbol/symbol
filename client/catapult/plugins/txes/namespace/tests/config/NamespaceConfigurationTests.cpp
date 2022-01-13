@@ -40,26 +40,20 @@ namespace catapult { namespace config {
 			using ConfigurationType = NamespaceConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "maxNameSize", "123" },
-							{ "maxChildNamespaces", "1234" },
-							{ "maxNamespaceDepth", "99" },
+				return { { "",
+						   { { "maxNameSize", "123" },
+							 { "maxChildNamespaces", "1234" },
+							 { "maxNamespaceDepth", "99" },
 
-							{ "minNamespaceDuration", "32h" },
-							{ "maxNamespaceDuration", "234h" },
-							{ "namespaceGracePeriodDuration", "20d" },
-							{ "reservedRootNamespaceNames", "alpha,omega" },
+							 { "minNamespaceDuration", "32h" },
+							 { "maxNamespaceDuration", "234h" },
+							 { "namespaceGracePeriodDuration", "20d" },
+							 { "reservedRootNamespaceNames", "alpha,omega" },
 
-							{ "namespaceRentalFeeSinkAddressV1", Namespace_Rental_Fee_Sink_Address_V1 },
-							{ "namespaceRentalFeeSinkAddress", Namespace_Rental_Fee_Sink_Address },
-							{ "rootNamespaceRentalFeePerBlock", "78" },
-							{ "childNamespaceRentalFee", "11223322" }
-						}
-					}
-				};
+							 { "namespaceRentalFeeSinkAddressV1", Namespace_Rental_Fee_Sink_Address_V1 },
+							 { "namespaceRentalFeeSinkAddress", Namespace_Rental_Fee_Sink_Address },
+							 { "rootNamespaceRentalFeePerBlock", "78" },
+							 { "childNamespaceRentalFee", "11223322" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

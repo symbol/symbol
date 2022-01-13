@@ -26,9 +26,8 @@ namespace catapult { namespace test {
 
 	state::MosaicRestrictionEntry GenerateMosaicRestrictionEntry(const Hash256& hash) {
 		// hack to set the mosaic restriction unique key (required for cache tests)
-		auto addressRestriction = state::MosaicAddressRestriction(
-				test::GenerateRandomValue<MosaicId>(),
-				test::GenerateRandomByteArray<Address>());
+		auto addressRestriction =
+				state::MosaicAddressRestriction(test::GenerateRandomValue<MosaicId>(), test::GenerateRandomByteArray<Address>());
 		auto entry = state::MosaicRestrictionEntry(addressRestriction);
 		const_cast<Hash256&>(entry.uniqueKey()) = hash;
 		return entry;

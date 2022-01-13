@@ -25,7 +25,7 @@
 namespace catapult { namespace cache {
 
 	/// Retrieves the number of transactions contained within a top-level transaction.
-	using EmbeddedCountRetriever = std::function<uint32_t (const model::Transaction&)>;
+	using EmbeddedCountRetriever = std::function<uint32_t(const model::Transaction&)>;
 
 	/// Gets the pointers to the first \a transactionLimit transaction infos in \a utCacheView
 	/// where \a countRetriever returns the total number of transactions contained within a top-level transaction.

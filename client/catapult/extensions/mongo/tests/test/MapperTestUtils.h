@@ -28,18 +28,24 @@
 #include <vector>
 
 namespace catapult {
-	namespace mocks { struct MockTransaction; }
-	namespace model {
-		struct Block;
-		struct BlockElement;
-		struct Cosignature;
-		struct EmbeddedTransaction;
-		struct Receipt;
-		struct Transaction;
-		struct VerifiableEntity;
-	}
-	namespace mongo { struct MongoTransactionMetadata; }
-	namespace state { struct AccountState; }
+namespace mocks {
+	struct MockTransaction;
+}
+namespace model {
+	struct Block;
+	struct BlockElement;
+	struct Cosignature;
+	struct EmbeddedTransaction;
+	struct Receipt;
+	struct Transaction;
+	struct VerifiableEntity;
+}
+namespace mongo {
+	struct MongoTransactionMetadata;
+}
+namespace state {
+	struct AccountState;
+}
 }
 
 namespace catapult { namespace test {

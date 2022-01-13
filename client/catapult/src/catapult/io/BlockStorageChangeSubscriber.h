@@ -23,7 +23,9 @@
 #include "BlockChangeSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace io { class LightBlockStorage; } }
+namespace catapult { namespace io {
+	class LightBlockStorage;
+}}
 
 namespace catapult { namespace io {
 

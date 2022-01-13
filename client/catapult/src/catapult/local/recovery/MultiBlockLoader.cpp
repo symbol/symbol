@@ -42,11 +42,10 @@ namespace catapult { namespace local {
 		class SkipTransientStatePredicate {
 		public:
 			SkipTransientStatePredicate(const model::Block& lastBlock, const model::BlockchainConfiguration& config)
-					: m_inflectionTime(DifferenceOrZero(
-							lastBlock.Timestamp.unwrap(),
-							model::CalculateTransactionCacheDuration(config).millis()))
-					, m_inflectionHeight(DifferenceOrZero(lastBlock.Height.unwrap(), config.MaxDifficultyBlocks) + 1)
-			{}
+					: m_inflectionTime(
+							  DifferenceOrZero(lastBlock.Timestamp.unwrap(), model::CalculateTransactionCacheDuration(config).millis()))
+					, m_inflectionHeight(DifferenceOrZero(lastBlock.Height.unwrap(), config.MaxDifficultyBlocks) + 1) {
+			}
 
 		public:
 			bool operator()(const model::Block& block) const {
@@ -86,8 +85,10 @@ namespace catapult { namespace local {
 			static constexpr auto Log_Interval_Millis = 2'000;
 
 		public:
-			explicit AnalyzeProgressLogger(const utils::StackTimer& stopwatch) : m_stopwatch(stopwatch), m_numLogs(0)
-			{}
+			explicit AnalyzeProgressLogger(const utils::StackTimer& stopwatch)
+					: m_stopwatch(stopwatch)
+					, m_numLogs(0) {
+			}
 
 		public:
 			void operator()(Height height, Height chainHeight) {
@@ -120,8 +121,8 @@ namespace catapult { namespace local {
 				, m_pluginManager(pluginManager)
 				, m_stateRef(stateRef)
 				, m_startHeight(startHeight)
-				, m_statusConsumer(statusConsumer)
-		{}
+				, m_statusConsumer(statusConsumer) {
+		}
 
 	public:
 		model::ChainScore loadAll(const NotifyProgressFunc& notifyProgress) const {
@@ -156,9 +157,8 @@ namespace catapult { namespace local {
 			}
 
 			if (chainHeight >= m_startHeight) {
-				CATAPULT_LOG(info)
-						<< "cache state hash at height " << chainHeight << ": " << stateHash
-						<< " (loaded from height " << m_startHeight << ")";
+				CATAPULT_LOG(info) << "cache state hash at height " << chainHeight << ": " << stateHash << " (loaded from height "
+								   << m_startHeight << ")";
 			}
 
 			return score;

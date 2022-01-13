@@ -39,17 +39,15 @@ namespace catapult { namespace chain {
 	RoundContext::RoundContext(uint64_t weight, uint64_t threshold)
 			: m_totalWeight(weight)
 			, m_threshold(threshold)
-			, m_cumulativePrecommitWeight(0)
-	{}
+			, m_cumulativePrecommitWeight(0) {
+	}
 
 	size_t RoundContext::size() const {
 		return m_candidates.size();
 	}
 
 	std::pair<model::HeightHashPair, bool> RoundContext::tryFindBestPrevote() const {
-		return tryFindLastMatch([threshold = m_threshold](const auto&, const auto& weights) {
-			return weights.Prevote >= threshold;
-		});
+		return tryFindLastMatch([threshold = m_threshold](const auto&, const auto& weights) { return weights.Prevote >= threshold; });
 	}
 
 	std::pair<model::HeightHashPair, bool> RoundContext::tryFindBestPrecommit() const {
@@ -86,9 +84,9 @@ namespace catapult { namespace chain {
 
 		// Erv == g(Vrv) is completable if and only if no child of g(Vrv) can have g(Crv)
 		if (canReachPrecommitThreshold(Weights())) {
-			CATAPULT_LOG(debug)
-					<< "not completable - Erv == g(Vrv) and descendant can reach g(Crv)"
-					<< " (total weight " << m_totalWeight << ", cumulative precommit weight " << m_cumulativePrecommitWeight << ")";
+			CATAPULT_LOG(debug) << "not completable - Erv == g(Vrv) and descendant can reach g(Crv)"
+								<< " (total weight " << m_totalWeight << ", cumulative precommit weight " << m_cumulativePrecommitWeight
+								<< ")";
 			return false;
 		}
 
@@ -99,10 +97,10 @@ namespace catapult { namespace chain {
 
 			// if any `best prevote` descendant can reach precommit threshold, round is not yet completable
 			if (m_tree.isDescendant(bestPrevoteResultPair.first, iter->first) && canReachPrecommitThreshold(iter->second)) {
-				CATAPULT_LOG(debug)
-						<< "not completable - Erv == g(Vrv) and descendant can reach g(Crv)"
-						<< " (total weight " << m_totalWeight << ", cumulative precommit weight " << m_cumulativePrecommitWeight
-						<< ", prevote weight " << iter->second.Prevote << ", precommit weight " << iter->second.Precommit << ")";
+				CATAPULT_LOG(debug) << "not completable - Erv == g(Vrv) and descendant can reach g(Crv)"
+									<< " (total weight " << m_totalWeight << ", cumulative precommit weight " << m_cumulativePrecommitWeight
+									<< ", prevote weight " << iter->second.Prevote << ", precommit weight " << iter->second.Precommit
+									<< ")";
 				return false;
 			}
 		}

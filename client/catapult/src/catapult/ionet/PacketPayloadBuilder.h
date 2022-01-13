@@ -31,15 +31,16 @@ namespace catapult { namespace ionet {
 	class PacketPayloadBuilder {
 	public:
 		/// Creates builder for a packet with the specified \a type.
-		explicit PacketPayloadBuilder(PacketType type) : PacketPayloadBuilder(type, Default_Max_Packet_Data_Size)
-		{}
+		explicit PacketPayloadBuilder(PacketType type)
+				: PacketPayloadBuilder(type, Default_Max_Packet_Data_Size) {
+		}
 
 		/// Creates builder for a packet with the specified \a type and max packet data size (\a maxPacketDataSize).
 		PacketPayloadBuilder(PacketType type, uint32_t maxPacketDataSize)
 				: m_maxPacketDataSize(maxPacketDataSize)
 				, m_payload(type)
-				, m_hasError(false)
-		{}
+				, m_hasError(false) {
+		}
 
 	public:
 		/// Appends a single entity (\a pEntity) to the payload.

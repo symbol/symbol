@@ -35,8 +35,8 @@ namespace catapult { namespace chain {
 			, m_observerContext(observerContext)
 			, m_undoNotificationSubscriber(m_observer, m_observerContext)
 			, m_aggregateResult(validators::ValidationResult::Success)
-			, m_isUndoEnabled(false)
-	{}
+			, m_isUndoEnabled(false) {
+	}
 
 	validators::ValidationResult ProcessingNotificationSubscriber::result() const {
 		return m_aggregateResult;

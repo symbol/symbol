@@ -77,11 +77,19 @@ namespace catapult { namespace mongo {
 	}
 
 #define EQUAL_CONSTRAINT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Deleted) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeletedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Inserted) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<InsertedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Upserted) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UpsertedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Deleted) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeletedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Inserted) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<InsertedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Upserted) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UpsertedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -123,9 +131,13 @@ namespace catapult { namespace mongo {
 	}
 
 #define AT_LEAST_CONSTRAINT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Deleted) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeletedAtLeastTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Deleted) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeletedAtLeastTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

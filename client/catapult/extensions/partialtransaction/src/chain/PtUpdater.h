@@ -25,14 +25,20 @@
 #include <memory>
 
 namespace catapult {
-	namespace cache { class MemoryPtCacheProxy; }
-	namespace chain { class PtValidator; }
-	namespace model {
-		struct DetachedCosignature;
-		struct Transaction;
-		struct TransactionInfo;
-	}
-	namespace thread { class IoThreadPool; }
+namespace cache {
+	class MemoryPtCacheProxy;
+}
+namespace chain {
+	class PtValidator;
+}
+namespace model {
+	struct DetachedCosignature;
+	struct Transaction;
+	struct TransactionInfo;
+}
+namespace thread {
+	class IoThreadPool;
+}
 }
 
 namespace catapult { namespace chain {

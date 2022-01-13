@@ -35,8 +35,9 @@ namespace catapult { namespace test {
 
 	// region ctor
 
-	SecretLockTransactionsBuilder::SecretLockTransactionsBuilder(const Accounts& accounts) : BasicTransactionsBuilder(accounts)
-	{}
+	SecretLockTransactionsBuilder::SecretLockTransactionsBuilder(const Accounts& accounts)
+			: BasicTransactionsBuilder(accounts) {
+	}
 
 	// endregion
 

@@ -30,9 +30,9 @@ namespace catapult { namespace observers {
 
 	using ObserverTestContext = test::ObserverTestContextT<test::AccountRestrictionCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(AccountAddressRestrictionValueModification,)
-	DEFINE_COMMON_OBSERVER_TESTS(AccountMosaicRestrictionValueModification,)
-	DEFINE_COMMON_OBSERVER_TESTS(AccountOperationRestrictionValueModification,)
+	DEFINE_COMMON_OBSERVER_TESTS(AccountAddressRestrictionValueModification, )
+	DEFINE_COMMON_OBSERVER_TESTS(AccountMosaicRestrictionValueModification, )
+	DEFINE_COMMON_OBSERVER_TESTS(AccountOperationRestrictionValueModification, )
 
 	namespace {
 		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
@@ -58,9 +58,8 @@ namespace catapult { namespace observers {
 		};
 
 		bool IsInsert(NotifyMode notifyMode, model::AccountRestrictionModificationAction modificationAction) {
-			return
-					(NotifyMode::Commit == notifyMode && Add == modificationAction) ||
-					(NotifyMode::Rollback == notifyMode && Del == modificationAction);
+			return (NotifyMode::Commit == notifyMode && Add == modificationAction)
+				   || (NotifyMode::Rollback == notifyMode && Del == modificationAction);
 		}
 
 		template<typename TRestrictionValueTraits>
@@ -208,7 +207,8 @@ namespace catapult { namespace observers {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TOperationTraits, typename TRestrictionValueTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TOperationTraits, typename TRestrictionValueTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Address_Allow) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::AllowTraits, AccountAddressRestrictionTraits>(); \
 	} \
@@ -227,7 +227,8 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, TEST_NAME##_Operation_Block) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BlockTraits, AccountOperationRestrictionTraits>(); \
 	} \
-	template<typename TOperationTraits, typename TRestrictionValueTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TOperationTraits, typename TRestrictionValueTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region commit
 

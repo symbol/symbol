@@ -37,8 +37,9 @@ namespace catapult { namespace cache {
 		struct MosaicCacheMixinTraits {
 			class CacheType : public MosaicCache {
 			public:
-				CacheType() : MosaicCache(CacheConfiguration())
-				{}
+				CacheType()
+						: MosaicCache(CacheConfiguration()) {
+				}
 			};
 
 			using IdType = MosaicId;
@@ -57,7 +58,7 @@ namespace catapult { namespace cache {
 			}
 
 			static ValueType CreateWithId(uint8_t id) {
-				auto owner = Address{ { static_cast<uint8_t>(id * 2) }};
+				auto owner = Address{ { static_cast<uint8_t>(id * 2) } };
 				auto definition = state::MosaicDefinition(Height(), owner, 3, model::MosaicProperties());
 				return state::MosaicEntry(MakeId(id), definition);
 			}
@@ -70,7 +71,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		struct MosaicCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
+		struct MosaicCacheDeltaModificationPolicy : public test::DeltaInsertModificationPolicy {
 			static void Modify(MosaicCacheDelta& delta, const state::MosaicEntry& entry) {
 				auto mosaicIter = delta.find(entry.mosaicId());
 				auto& entryFromCache = mosaicIter.get();
@@ -98,7 +99,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MosaicCacheMixinTraits, MosaicCacheDeltaModificationPolicy, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(MosaicCacheMixinTraits,)
+	DEFINE_CACHE_BASIC_TESTS(MosaicCacheMixinTraits, )
 
 	// endregion
 

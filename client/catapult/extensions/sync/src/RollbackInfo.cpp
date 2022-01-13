@@ -31,8 +31,8 @@ namespace catapult { namespace sync {
 		RollbackInfoState(const chain::TimeSupplier& timeSupplier, const utils::TimeSpan& recentStatsTimeSpan)
 				: TimeSupplier(timeSupplier)
 				, RecentStatsTimeSpan(recentStatsTimeSpan)
-				, CurrentRollbackSize(0)
-		{}
+				, CurrentRollbackSize(0) {
+		}
 
 	public:
 		chain::TimeSupplier TimeSupplier;
@@ -50,13 +50,11 @@ namespace catapult { namespace sync {
 			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 			: m_committed(committed)
 			, m_ignored(ignored)
-			, m_readLock(std::move(readLock))
-	{}
+			, m_readLock(std::move(readLock)) {
+	}
 
 	size_t RollbackInfoView::counter(RollbackResult rollbackResult, RollbackCounterType rollbackCounterType) const {
-		return RollbackResult::Committed == rollbackResult
-				? m_committed.total(rollbackCounterType)
-				: m_ignored.total(rollbackCounterType);
+		return RollbackResult::Committed == rollbackResult ? m_committed.total(rollbackCounterType) : m_ignored.total(rollbackCounterType);
 	}
 
 	// endregion
@@ -71,8 +69,8 @@ namespace catapult { namespace sync {
 			: m_committed(committed)
 			, m_ignored(ignored)
 			, m_state(state)
-			, m_writeLock(std::move(writeLock))
-	{}
+			, m_writeLock(std::move(writeLock)) {
+	}
 
 	void RollbackInfoModifier::increment() {
 		++m_state.CurrentRollbackSize;
@@ -105,8 +103,8 @@ namespace catapult { namespace sync {
 	// region RollbackInfo
 
 	RollbackInfo::RollbackInfo(const chain::TimeSupplier& timeSupplier, const utils::TimeSpan& recentStatsTimeSpan)
-			: m_pState(std::make_unique<RollbackInfoState>(timeSupplier, recentStatsTimeSpan))
-	{}
+			: m_pState(std::make_unique<RollbackInfoState>(timeSupplier, recentStatsTimeSpan)) {
+	}
 
 	RollbackInfo::~RollbackInfo() = default;
 

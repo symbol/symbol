@@ -57,8 +57,9 @@ namespace catapult { namespace api {
 			using FutureType = thread::future<typename TTraits::ResultType>;
 
 		public:
-			explicit DefaultRemoteTimeSyncApi(ionet::PacketIo& io) : m_impl(io)
-			{}
+			explicit DefaultRemoteTimeSyncApi(ionet::PacketIo& io)
+					: m_impl(io) {
+			}
 
 		public:
 			FutureType<NetworkTimeTraits> networkTime() const override {

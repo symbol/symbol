@@ -31,8 +31,8 @@ namespace catapult { namespace test {
 		/// Creates a reader around \a buffer.
 		explicit BufferReader(const RawBuffer& buffer)
 				: m_buffer(buffer)
-				, m_offset(0)
-		{}
+				, m_offset(0) {
+		}
 
 	public:
 		/// Gets the current offset.

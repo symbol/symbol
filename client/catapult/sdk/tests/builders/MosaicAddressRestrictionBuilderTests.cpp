@@ -35,8 +35,8 @@ namespace catapult { namespace builders {
 			TransactionProperties()
 					: RestrictionKey()
 					, PreviousRestrictionValue()
-					, NewRestrictionValue()
-			{}
+					, NewRestrictionValue() {
+			}
 
 		public:
 			UnresolvedMosaicId MosaicId;
@@ -81,10 +81,16 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
 
@@ -102,9 +108,7 @@ namespace catapult { namespace builders {
 		expectedProperties.MosaicId = UnresolvedMosaicId(123);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
-			builder.setMosaicId(UnresolvedMosaicId(123));
-		});
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) { builder.setMosaicId(UnresolvedMosaicId(123)); });
 	}
 
 	TRAITS_BASED_TEST(CanSetTargetAddress) {

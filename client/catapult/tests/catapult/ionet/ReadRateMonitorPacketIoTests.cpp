@@ -36,13 +36,13 @@ namespace catapult { namespace ionet {
 		public:
 			TestContext()
 					: pMockPacketIo(std::make_shared<mocks::MockPacketIo>())
-					, pReadRateMonitorIo(CreateReadRateMonitorPacketIo(pMockPacketIo, [&sizes = ReadPacketSizes](auto size) {
-						sizes.push_back(size);
-					}))
+					, pReadRateMonitorIo(CreateReadRateMonitorPacketIo(
+							  pMockPacketIo,
+							  [&sizes = ReadPacketSizes](auto size) { sizes.push_back(size); }))
 					, pReadRateMonitorReader(CreateReadRateMonitorBatchPacketReader(pMockPacketIo, [&sizes = ReadPacketSizes](auto size) {
 						sizes.push_back(size);
-					}))
-			{}
+					})) {
+			}
 
 		public:
 			std::shared_ptr<mocks::MockPacketIo> pMockPacketIo;
@@ -64,9 +64,7 @@ namespace catapult { namespace ionet {
 
 		// Act:
 		SocketOperationCode writeCode;
-		context.pReadRateMonitorIo->write(payload, [&writeCode](auto code) {
-			writeCode = code;
-		});
+		context.pReadRateMonitorIo->write(payload, [&writeCode](auto code) { writeCode = code; });
 
 		const auto& writtenPacket = context.pMockPacketIo->writtenPacketAt<Packet>(0);
 
@@ -100,10 +98,16 @@ namespace catapult { namespace ionet {
 	}
 
 #define READ_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PacketIoReadTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_BatchReader) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BatchPacketReaderReadTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PacketIoReadTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_BatchReader) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BatchPacketReaderReadTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	READ_TRAITS_BASED_TEST(ReadErrorDoesNotCallReadSizeConsumer) {
 		// Arrange:
@@ -186,9 +190,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ_MEMORY(pPacket2->Data(), readPacket2.Data(), Data2_Size);
 
 		// - callback was called for each packet
-		EXPECT_EQ(
-				std::vector<uint32_t>({ sizeof(PacketHeader) + Data1_Size, sizeof(PacketHeader) + Data2_Size }),
-				context.ReadPacketSizes);
+		EXPECT_EQ(std::vector<uint32_t>({ sizeof(PacketHeader) + Data1_Size, sizeof(PacketHeader) + Data2_Size }), context.ReadPacketSizes);
 	}
 
 	// endregion

@@ -22,9 +22,15 @@
 #pragma once
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace config { class CatapultDirectory; }
-	namespace subscribers { class StateChangeSubscriber; }
+namespace cache {
+	class CatapultCache;
+}
+namespace config {
+	class CatapultDirectory;
+}
+namespace subscribers {
+	class StateChangeSubscriber;
+}
 }
 
 namespace catapult { namespace local {

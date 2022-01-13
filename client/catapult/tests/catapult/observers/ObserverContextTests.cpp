@@ -111,10 +111,16 @@ namespace catapult { namespace observers {
 	}
 
 #define NOTIFY_MODE_TEST(TEST_NAME) \
-	template<NotifyMode Notify_Mode> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Commit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NotifyMode::Commit>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Rollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NotifyMode::Rollback>(); } \
-	template<NotifyMode Notify_Mode> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<NotifyMode Notify_Mode> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Commit) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NotifyMode::Commit>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Rollback) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NotifyMode::Rollback>(); \
+	} \
+	template<NotifyMode Notify_Mode> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	NOTIFY_MODE_TEST(CanCreateObserverContextWithoutBlockStatementBuilder) {
 		// Act:

@@ -26,13 +26,14 @@ namespace catapult { namespace model {
 
 	// region step identifier
 
-	StepIdentifier::StepIdentifier() : StepIdentifier(FinalizationEpoch(), FinalizationPoint(), FinalizationStage::Prevote)
-	{}
+	StepIdentifier::StepIdentifier()
+			: StepIdentifier(FinalizationEpoch(), FinalizationPoint(), FinalizationStage::Prevote) {
+	}
 
 	StepIdentifier::StepIdentifier(FinalizationEpoch epoch, FinalizationPoint point, FinalizationStage stage)
 			: Epoch(epoch)
-			, PointStage((point.unwrap() << 1) | (utils::to_underlying_type(stage) & 1))
-	{}
+			, PointStage((point.unwrap() << 1) | (utils::to_underlying_type(stage) & 1)) {
+	}
 
 	model::FinalizationRound StepIdentifier::Round() const {
 		return { Epoch, FinalizationPoint(PointStage.unwrap() >> 1) };

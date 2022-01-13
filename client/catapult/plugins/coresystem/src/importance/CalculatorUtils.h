@@ -23,11 +23,13 @@
 #include "catapult/model/HeightGrouping.h"
 
 namespace catapult {
-	namespace model { struct BlockchainConfiguration; }
-	namespace state {
-		class AccountActivityBuckets;
-		struct AccountState;
-	}
+namespace model {
+	struct BlockchainConfiguration;
+}
+namespace state {
+	class AccountActivityBuckets;
+	struct AccountState;
+}
 }
 
 namespace catapult { namespace importance {
@@ -50,8 +52,8 @@ namespace catapult { namespace importance {
 		/// Creates an account summary around \a activitySummary and \a accountState.
 		AccountSummary(const AccountActivitySummary& activitySummary, state::AccountState& accountState)
 				: ActivitySummary(activitySummary)
-				, pAccountState(&accountState)
-		{}
+				, pAccountState(&accountState) {
+		}
 
 	public:
 		/// Account activity summary.

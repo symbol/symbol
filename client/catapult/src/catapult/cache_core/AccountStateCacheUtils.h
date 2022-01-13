@@ -24,11 +24,13 @@
 #include "catapult/types.h"
 
 namespace catapult {
-	namespace cache {
-		class AccountStateCacheDelta;
-		class ReadOnlyAccountStateCache;
-	}
-	namespace state { struct AccountState; }
+namespace cache {
+	class AccountStateCacheDelta;
+	class ReadOnlyAccountStateCache;
+}
+namespace state {
+	struct AccountState;
+}
 }
 
 namespace catapult { namespace cache {

@@ -34,8 +34,9 @@ namespace catapult { namespace io {
 
 		class BufferedFileStreamContext {
 		public:
-			explicit BufferedFileStreamContext(const char* name) : m_guard(name)
-			{}
+			explicit BufferedFileStreamContext(const char* name)
+					: m_guard(name) {
+			}
 
 			auto outputStream() const {
 				return MakeStream<BufferedOutputFileStream>(OpenMode::Read_Write);
@@ -61,8 +62,9 @@ namespace catapult { namespace io {
 
 		class ReadWriteTest : BufferedFileStreamContext {
 		public:
-			ReadWriteTest() : BufferedFileStreamContext("test.dat")
-			{}
+			ReadWriteTest()
+					: BufferedFileStreamContext("test.dat") {
+			}
 
 		public:
 			void write(std::initializer_list<size_t> writeSizes, size_t chunkSize = 0) {
@@ -115,9 +117,7 @@ namespace catapult { namespace io {
 			void writeToOutput(TOutput& output, std::initializer_list<size_t> writeSizes, size_t chunkSize) {
 				for (auto writeSize : writeSizes) {
 					auto randomData = test::GenerateRandomVector(writeSize);
-					CATAPULT_LOG(info)
-							<< "writing " << utils::make_printable(randomData[0])
-							<< " " << utils::make_printable(randomData[1]);
+					CATAPULT_LOG(info) << "writing " << utils::make_printable(randomData[0]) << " " << utils::make_printable(randomData[1]);
 
 					auto currentChunkSize = 0 == chunkSize ? writeSize : chunkSize;
 					for (size_t i = 0u; i < writeSize; i += currentChunkSize)

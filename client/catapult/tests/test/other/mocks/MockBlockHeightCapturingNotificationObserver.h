@@ -32,15 +32,15 @@ namespace catapult { namespace mocks {
 		explicit MockBlockHeightCapturingNotificationObserver(std::vector<Height>& blockHeights)
 				: MockNotificationObserverT("MockBlockHeightCapturingNotificationObserver")
 				, m_pBlockHeights(&blockHeights)
-				, m_pBlockStates(nullptr)
-		{}
+				, m_pBlockStates(nullptr) {
+		}
 
 		/// Creates a mock observer around \a blockHeights and \a blockStates.
 		MockBlockHeightCapturingNotificationObserver(std::vector<Height>& blockHeights, std::vector<state::CatapultState>& blockStates)
 				: MockNotificationObserverT("MockBlockHeightCapturingNotificationObserver")
 				, m_pBlockHeights(&blockHeights)
-				, m_pBlockStates(&blockStates)
-		{}
+				, m_pBlockStates(&blockStates) {
+		}
 
 	public:
 		void notify(const model::Notification& notification, observers::ObserverContext& context) const override {

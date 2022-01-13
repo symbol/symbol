@@ -36,8 +36,9 @@ namespace catapult { namespace test {
 		class TestIdentifierGroup : public utils::IdentifierGroup<int, Height, std::hash<int>> {
 		public:
 #ifdef _MSC_VER
-			TestIdentifierGroup() : TestIdentifierGroup(Height())
-			{}
+			TestIdentifierGroup()
+					: TestIdentifierGroup(Height()) {
+			}
 #endif
 
 			using utils::IdentifierGroup<int, Height, std::hash<int>>::IdentifierGroup;
@@ -63,14 +64,15 @@ namespace catapult { namespace test {
 		class StringHeightPair {
 		public:
 #ifdef _MSC_VER
-			StringHeightPair() : StringHeightPair("", Height())
-			{}
+			StringHeightPair()
+					: StringHeightPair("", Height()) {
+			}
 #endif
 
 			StringHeightPair(const std::string& str, Height deactivateHeight)
 					: m_str(str)
-					, m_deactivateHeight(deactivateHeight)
-			{}
+					, m_deactivateHeight(deactivateHeight) {
+			}
 
 		public:
 			const std::string& str() const {
@@ -126,8 +128,9 @@ namespace catapult { namespace test {
 		template<typename TBaseSet>
 		class BaseSetTypeWrapper : public TBaseSet {
 		public:
-			BaseSetTypeWrapper() : TBaseSet(deltaset::ConditionalContainerMode::Memory, m_database, 0)
-			{}
+			BaseSetTypeWrapper()
+					: TBaseSet(deltaset::ConditionalContainerMode::Memory, m_database, 0) {
+			}
 
 		private:
 			cache::CacheDatabase m_database;

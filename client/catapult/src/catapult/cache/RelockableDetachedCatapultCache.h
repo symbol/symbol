@@ -23,7 +23,9 @@
 #include "CatapultCacheDelta.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace cache { class CatapultCache; } }
+namespace catapult { namespace cache {
+	class CatapultCache;
+}}
 
 namespace catapult { namespace cache {
 

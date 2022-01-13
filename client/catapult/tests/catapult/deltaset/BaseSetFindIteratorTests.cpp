@@ -30,17 +30,19 @@ namespace catapult { namespace deltaset {
 	namespace {
 		template<typename TMutabilityTraits>
 		using UnorderedMapTraits = test::BaseTraits<
-			test::BaseSetTraits<
-				TMutabilityTraits,
-				test::UnorderedMapSetTraits<test::SetElementType<TMutabilityTraits>>>>;
+				test::BaseSetTraits<TMutabilityTraits, test::UnorderedMapSetTraits<test::SetElementType<TMutabilityTraits>>>>;
 
 		using NonPointerTraits = UnorderedMapTraits<test::MutableElementValueTraits>;
 	}
 
 #define FIND_ITERATOR_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_NonPointer) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonPointerTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_NonPointer) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonPointerTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region utils
 
@@ -135,9 +137,8 @@ namespace catapult { namespace deltaset {
 		};
 
 		template<typename TTraits>
-		using BaseSetFindIteratorDualTraits = BaseSetFindIteratorTraits<
-			TTraits,
-			SetTraitsWithDifferentMemorySetType<typename TTraits::BaseSetTraits::SetTraits>>;
+		using BaseSetFindIteratorDualTraits =
+				BaseSetFindIteratorTraits<TTraits, SetTraitsWithDifferentMemorySetType<typename TTraits::BaseSetTraits::SetTraits>>;
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetFindIterator_CanCreateUnset_Single) {
@@ -174,9 +175,8 @@ namespace catapult { namespace deltaset {
 		};
 
 		template<typename TTraits>
-		using BaseSetDeltaFindIteratorDualTraits = BaseSetDeltaFindIteratorTraits<
-			TTraits,
-			SetTraitsWithDifferentMemorySetType<typename TTraits::BaseSetTraits::SetTraits>>;
+		using BaseSetDeltaFindIteratorDualTraits =
+				BaseSetDeltaFindIteratorTraits<TTraits, SetTraitsWithDifferentMemorySetType<typename TTraits::BaseSetTraits::SetTraits>>;
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindIterator_CanCreateUnset_Single) {
@@ -214,8 +214,8 @@ namespace catapult { namespace deltaset {
 
 		template<typename TTraits>
 		using BaseSetDeltaFindConstIteratorDualTraits = BaseSetDeltaFindConstIteratorTraits<
-			TTraits,
-			SetTraitsWithDifferentMemorySetType<typename TTraits::BaseSetTraits::SetTraits>>;
+				TTraits,
+				SetTraitsWithDifferentMemorySetType<typename TTraits::BaseSetTraits::SetTraits>>;
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindConstIterator_CanCreateUnset_Single) {
@@ -244,4 +244,3 @@ namespace catapult { namespace deltaset {
 
 	// endregion
 }}
-

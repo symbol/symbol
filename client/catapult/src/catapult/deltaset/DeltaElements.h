@@ -31,8 +31,8 @@ namespace catapult { namespace deltaset {
 		constexpr DeltaElements(const TSet& addedElements, const TSet& removedElements, const TSet& copiedElements)
 				: Added(addedElements)
 				, Removed(removedElements)
-				, Copied(copiedElements)
-		{}
+				, Copied(copiedElements) {
+		}
 
 	public:
 		/// Returns \c true if there are any pending changes.

@@ -250,33 +250,33 @@ namespace catapult { namespace test {
 			{
 				Signature result;
 				auto partSize = payload.size() / 2;
-				ASSERT_NO_THROW(Sign(keyPair, {
-					{ payload.data(), partSize },
-					{ payload.data() + partSize, payload.size() - partSize }
-				}, result));
+				ASSERT_NO_THROW(
+						Sign(keyPair, { { payload.data(), partSize }, { payload.data() + partSize, payload.size() - partSize } }, result));
 				EXPECT_EQ(properSignature, result);
 			}
 
 			{
 				Signature result;
 				auto partSize = payload.size() / 3;
-				ASSERT_NO_THROW(Sign(keyPair, {
-					{ payload.data(), partSize },
-					{ payload.data() + partSize, partSize },
-					{ payload.data() + 2 * partSize, payload.size() - 2 * partSize }
-				}, result));
+				ASSERT_NO_THROW(
+						Sign(keyPair,
+							 { { payload.data(), partSize },
+							   { payload.data() + partSize, partSize },
+							   { payload.data() + 2 * partSize, payload.size() - 2 * partSize } },
+							 result));
 				EXPECT_EQ(properSignature, result);
 			}
 
 			{
 				Signature result;
 				auto partSize = payload.size() / 4;
-				ASSERT_NO_THROW(Sign(keyPair, {
-					{ payload.data(), partSize },
-					{ payload.data() + partSize, partSize },
-					{ payload.data() + 2 * partSize, partSize },
-					{ payload.data() + 3 * partSize, payload.size() - 3 * partSize }
-				}, result));
+				ASSERT_NO_THROW(
+						Sign(keyPair,
+							 { { payload.data(), partSize },
+							   { payload.data() + partSize, partSize },
+							   { payload.data() + 2 * partSize, partSize },
+							   { payload.data() + 3 * partSize, payload.size() - 3 * partSize } },
+							 result));
 				EXPECT_EQ(properSignature, result);
 			}
 		}
@@ -285,14 +285,16 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::SignVerifyTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::SignVerifyTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 /// Adds all sign and verify tests for the specified traits (\a TRAITS_NAME).
 #define DEFINE_SIGN_VERIFY_TESTS(TRAITS_NAME) \
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignFillsTheSignature) \
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignaturesGeneratedForSameDataBySameKeyPairsAreEqual) \
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignaturesGeneratedForSameDataByDifferentKeyPairsAreDifferent) \
-	\
+\
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignedDataCanBeVerified) \
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignedDataCannotBeVerifiedWithDifferentKeyPair) \
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureDoesNotVerifyWhenRPartOfSignatureIsModified) \
@@ -302,6 +304,6 @@ namespace catapult { namespace test {
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, VerificationFailsWhenPublicKeyDoesNotCorrespondToPrivateKey) \
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, VerifyRejectsZeroPublicKey) \
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, CannotVerifyNonCanonicalSignature) \
-	\
+\
 	MAKE_SIGN_VERIFY_TEST(TRAITS_NAME, SignatureForConsecutiveDataMatchesSignatureForChunkedData)
 }}

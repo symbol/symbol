@@ -31,8 +31,8 @@ namespace catapult { namespace local {
 			explicit BootstrapperPluginLoader(extensions::ProcessBootstrapper& bootstrapper)
 					: m_config(bootstrapper.config())
 					, m_extensionManager(bootstrapper.extensionManager())
-					, m_pluginManager(bootstrapper.pluginManager())
-			{}
+					, m_pluginManager(bootstrapper.pluginManager()) {
+			}
 
 		public:
 			const std::vector<plugins::PluginModule>& modules() {

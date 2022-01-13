@@ -24,8 +24,12 @@
 #include "catapult/config/CatapultDataDirectory.h"
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace harvesting { class UnlockedAccounts; }
+namespace cache {
+	class CatapultCache;
+}
+namespace harvesting {
+	class UnlockedAccounts;
+}
 }
 
 namespace catapult { namespace harvesting {

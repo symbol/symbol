@@ -59,12 +59,22 @@ namespace catapult { namespace extensions {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Normal) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NormalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Large) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LargeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_AggregateBonded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AggregateBondedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_AggregateComplete) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AggregateCompleteTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Normal) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NormalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Large) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LargeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_AggregateBonded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AggregateBondedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_AggregateComplete) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AggregateCompleteTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -150,9 +160,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CannotValidateUnsignedTransaction) {
 		// Act:
-		auto result = RunSignVerifyAction<TTraits>([](auto& transaction) {
-			transaction.Signature = {};
-		});
+		auto result = RunSignVerifyAction<TTraits>([](auto& transaction) { transaction.Signature = {}; });
 
 		// Assert:
 		EXPECT_FALSE(result);
@@ -168,9 +176,8 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CannotValidateAlteredSignedTransaction) {
 		// Act:
-		auto result = RunSignVerifyAction<TTraits>([](auto& transaction) {
-			transaction.Deadline = Timestamp(transaction.Deadline.unwrap() ^ 0xFFFF'FFFF'FFFF'FFFFull);
-		});
+		auto result = RunSignVerifyAction<TTraits>(
+				[](auto& transaction) { transaction.Deadline = Timestamp(transaction.Deadline.unwrap() ^ 0xFFFF'FFFF'FFFF'FFFFull); });
 
 		// Assert:
 		EXPECT_FALSE(result);
@@ -178,9 +185,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CannotValidateSignedTransactionWithAlteredSignature) {
 		// Act:
-		auto result = RunSignVerifyAction<TTraits>([](auto& transaction) {
-			transaction.Signature[0] ^= 0xFFu;
-		});
+		auto result = RunSignVerifyAction<TTraits>([](auto& transaction) { transaction.Signature[0] ^= 0xFFu; });
 
 		// Assert:
 		EXPECT_FALSE(result);

@@ -93,8 +93,8 @@ namespace catapult { namespace partialtransaction {
 		public:
 			explicit TransactionDispatcherBuilder(extensions::ServiceState& state)
 					: m_state(state)
-					, m_nodeConfig(m_state.config().Node)
-			{}
+					, m_nodeConfig(m_state.config().Node) {
+			}
 
 		public:
 			void addHashConsumers(const cache::MemoryPtCacheProxy& ptCache) {
@@ -143,12 +143,10 @@ namespace catapult { namespace partialtransaction {
 		// That's why we need additional wrapper, to tie updater to dispatcher and enforce proper shutdown
 		class DispatcherServiceRegistrar {
 		public:
-			DispatcherServiceRegistrar(
-					const std::shared_ptr<ConsumerDispatcher>& pDispatcher,
-					std::unique_ptr<chain::PtUpdater>&& pUpdater)
+			DispatcherServiceRegistrar(const std::shared_ptr<ConsumerDispatcher>& pDispatcher, std::unique_ptr<chain::PtUpdater>&& pUpdater)
 					: m_pDispatcher(pDispatcher)
-					, m_pUpdater(std::move(pUpdater))
-			{}
+					, m_pUpdater(std::move(pUpdater)) {
+			}
 
 		public:
 			void shutdown() {
@@ -182,25 +180,25 @@ namespace catapult { namespace partialtransaction {
 
 			auto cosignaturesSink = CreateNewCosignaturesSink(locator);
 			auto& hooks = GetPtServerHooks(locator);
-			hooks.setCosignedTransactionInfosConsumer([&batchRangeDispatcher, &ptUpdater, pRecentHashCache, cosignaturesSink](
-					auto&& transactionInfos) {
-				CATAPULT_LOG(debug) << "pushing " << transactionInfos.size() << " transaction infos to pt dispatcher";
-				std::vector<model::DetachedCosignature> newCosignatures;
-				SplitCosignedTransactionInfos(
-						std::move(transactionInfos),
-						[&batchRangeDispatcher](auto&& transactionRange) {
-							batchRangeDispatcher.queue(std::move(transactionRange), InputSource::Remote_Pull);
-						},
-						[&ptUpdater, &newCosignatures, pRecentHashCache](auto&& cosignature) {
-							if (pRecentHashCache->add(ToHash(cosignature))) {
-								ptUpdater.update(cosignature);
-								newCosignatures.push_back(cosignature);
-							}
-						});
+			hooks.setCosignedTransactionInfosConsumer(
+					[&batchRangeDispatcher, &ptUpdater, pRecentHashCache, cosignaturesSink](auto&& transactionInfos) {
+						CATAPULT_LOG(debug) << "pushing " << transactionInfos.size() << " transaction infos to pt dispatcher";
+						std::vector<model::DetachedCosignature> newCosignatures;
+						SplitCosignedTransactionInfos(
+								std::move(transactionInfos),
+								[&batchRangeDispatcher](auto&& transactionRange) {
+									batchRangeDispatcher.queue(std::move(transactionRange), InputSource::Remote_Pull);
+								},
+								[&ptUpdater, &newCosignatures, pRecentHashCache](auto&& cosignature) {
+									if (pRecentHashCache->add(ToHash(cosignature))) {
+										ptUpdater.update(cosignature);
+										newCosignatures.push_back(cosignature);
+									}
+								});
 
-				if (!newCosignatures.empty())
-					cosignaturesSink(newCosignatures);
-			});
+						if (!newCosignatures.empty())
+							cosignaturesSink(newCosignatures);
+					});
 
 			auto shouldProcessTransactions = extensions::CreateShouldProcessTransactionsPredicate(state);
 			hooks.setPtRangeConsumer([shouldProcessTransactions, &batchRangeDispatcher](auto&& transactionRange) {

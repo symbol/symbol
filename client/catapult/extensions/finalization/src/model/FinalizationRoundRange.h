@@ -35,8 +35,8 @@ namespace catapult { namespace model {
 		/// Creates a range from \a min to \a max.
 		constexpr FinalizationRoundRange(const FinalizationRound& min, const FinalizationRound& max)
 				: Min(min)
-				, Max(max)
-		{}
+				, Max(max) {
+		}
 
 	public:
 		/// Minimum round.

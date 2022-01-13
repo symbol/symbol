@@ -76,12 +76,10 @@ namespace catapult { namespace state {
 		Hash256 hash1{ {} };
 		std::array<uint8_t, Hash256::Size> array{ 1 };
 		Hash256 hash2{ array }; // hash1 < hash2
-		std::vector<TimestampedHash> timestampedHashes{
-			TimestampedHash(Timestamp(123), hash1),
-			TimestampedHash(Timestamp(123), hash2),
-			TimestampedHash(Timestamp(234), hash1),
-			TimestampedHash(Timestamp(234), hash2)
-		};
+		std::vector<TimestampedHash> timestampedHashes{ TimestampedHash(Timestamp(123), hash1),
+														TimestampedHash(Timestamp(123), hash2),
+														TimestampedHash(Timestamp(234), hash1),
+														TimestampedHash(Timestamp(234), hash2) };
 
 		// Assert:
 		test::AssertLessThanOperatorForEqualValues(TimestampedHash(Timestamp(123), hash1), TimestampedHash(Timestamp(123), hash1));

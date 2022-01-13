@@ -34,8 +34,8 @@ namespace catapult { namespace mongo {
 
 	MongoErrorPolicy::MongoErrorPolicy(const std::string& collectionName, Mode mode)
 			: m_collectionName(collectionName)
-			, m_mode(mode)
-	{}
+			, m_mode(mode) {
+	}
 
 	MongoErrorPolicy::Mode MongoErrorPolicy::mode() const {
 		return m_mode;
@@ -49,10 +49,8 @@ namespace catapult { namespace mongo {
 		formatMessageAndThrow("deleting", numExpected, numActual, itemsDescription);
 	}
 
-	void MongoErrorPolicy::checkDeletedAtLeast(
-			uint64_t numExpected,
-			const BulkWriteResult& result,
-			const std::string& itemsDescription) const {
+	void MongoErrorPolicy::checkDeletedAtLeast(uint64_t numExpected, const BulkWriteResult& result, const std::string& itemsDescription)
+			const {
 		if (Mode::Idempotent == m_mode)
 			return;
 

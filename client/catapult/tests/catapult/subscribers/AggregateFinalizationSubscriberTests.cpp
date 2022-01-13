@@ -30,9 +30,8 @@ namespace catapult { namespace subscribers {
 
 	namespace {
 		template<typename TFinalizationSubscriber>
-		using TestContext = test::AggregateSubscriberTestContext<
-			TFinalizationSubscriber,
-			AggregateFinalizationSubscriber<TFinalizationSubscriber>>;
+		using TestContext =
+				test::AggregateSubscriberTestContext<TFinalizationSubscriber, AggregateFinalizationSubscriber<TFinalizationSubscriber>>;
 	}
 
 	TEST(TEST_CLASS, NotifyFinalizedBlockForwardsToAllSubscribers) {

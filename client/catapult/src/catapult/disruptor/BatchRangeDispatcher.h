@@ -44,8 +44,9 @@ namespace catapult { namespace disruptor {
 
 		class RangeGroupKeyEquality {
 		public:
-			explicit RangeGroupKeyEquality(model::NodeIdentityEqualityStrategy strategy) : m_equality(strategy)
-			{}
+			explicit RangeGroupKeyEquality(model::NodeIdentityEqualityStrategy strategy)
+					: m_equality(strategy) {
+			}
 
 		public:
 			bool operator()(const RangeGroupKey& lhs, const RangeGroupKey& rhs) const {
@@ -58,8 +59,9 @@ namespace catapult { namespace disruptor {
 
 		class RangeGroupKeyHasher {
 		public:
-			explicit RangeGroupKeyHasher(model::NodeIdentityEqualityStrategy strategy) : m_hasher(strategy)
-			{}
+			explicit RangeGroupKeyHasher(model::NodeIdentityEqualityStrategy strategy)
+					: m_hasher(strategy) {
+			}
 
 		public:
 			size_t operator()(const RangeGroupKey& key) const {
@@ -79,8 +81,8 @@ namespace catapult { namespace disruptor {
 		BatchRangeDispatcher(ConsumerDispatcher& dispatcher, model::NodeIdentityEqualityStrategy equalityStrategy)
 				: m_dispatcher(dispatcher)
 				, m_equalityStrategy(equalityStrategy)
-				, m_rangesMap(CreateGroupedRangesMap(m_equalityStrategy))
-		{}
+				, m_rangesMap(CreateGroupedRangesMap(m_equalityStrategy)) {
+		}
 
 	public:
 		/// Returns \c true if no ranges are currently queued.

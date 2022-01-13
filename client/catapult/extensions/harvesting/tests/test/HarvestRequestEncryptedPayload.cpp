@@ -35,9 +35,7 @@ namespace catapult { namespace test {
 	}
 
 	std::ostream& operator<<(std::ostream& out, const HarvestRequestEncryptedPayload& encryptedPayload) {
-		out
-				<< "identifier:" << GetRequestIdentifier(encryptedPayload)
-				<< ", data:" << utils::HexFormat(encryptedPayload.Data) << std::endl;
+		out << "identifier:" << GetRequestIdentifier(encryptedPayload) << ", data:" << utils::HexFormat(encryptedPayload.Data) << std::endl;
 		return out;
 	}
 

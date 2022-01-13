@@ -31,8 +31,8 @@ namespace catapult { namespace mocks {
 		/// Creates a subscriber.
 		MockStateChangeSubscriber()
 				: m_numScoreChanges(0)
-				, m_numStateChanges(0)
-		{}
+				, m_numStateChanges(0) {
+		}
 
 	public:
 		/// Gets the number of score changes.

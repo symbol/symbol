@@ -38,8 +38,8 @@ namespace catapult { namespace chain {
 					const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer)
 					: m_timeSupplier(timeSupplier)
 					, m_shortHashPairsSupplier(shortHashPairsSupplier)
-					, m_transactionInfosConsumer(transactionInfosConsumer)
-			{}
+					, m_transactionInfosConsumer(transactionInfosConsumer) {
+			}
 
 		public:
 			thread::future<partialtransaction::CosignedTransactionInfos> apiCall(const RemoteApiType& api) const {

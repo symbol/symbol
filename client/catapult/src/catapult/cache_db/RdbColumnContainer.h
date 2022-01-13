@@ -24,12 +24,10 @@
 #include "catapult/functions.h"
 #include "catapult/types.h"
 
-namespace catapult {
-	namespace cache {
-		class RdbDataIterator;
-		class RocksDatabase;
-	}
-}
+namespace catapult { namespace cache {
+	class RdbDataIterator;
+	class RocksDatabase;
+}}
 
 namespace catapult { namespace cache {
 

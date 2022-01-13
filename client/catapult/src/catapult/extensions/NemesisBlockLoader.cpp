@@ -51,10 +51,10 @@ namespace catapult { namespace extensions {
 			auto networkIdentifier = blockElement.Block.Network;
 			const auto& publicKey = blockElement.Block.SignerPublicKey;
 			const auto& generationHash = blockElement.GenerationHash;
-			CATAPULT_LOG(important)
-					<< std::endl << "      nemesis network id: " << networkIdentifier
-					<< std::endl << "      nemesis public key: " << publicKey
-					<< std::endl << " nemesis generation hash: " << generationHash;
+			CATAPULT_LOG(important) << std::endl
+									<< "      nemesis network id: " << networkIdentifier << std::endl
+									<< "      nemesis public key: " << publicKey << std::endl
+									<< " nemesis generation hash: " << generationHash;
 		}
 
 		void OutputNemesisBalance(std::ostream& out, MosaicId mosaicId, Amount amount, char special = ' ') {
@@ -113,9 +113,8 @@ namespace catapult { namespace extensions {
 		void CheckImportanceAndBalanceConsistency(Importance totalChainImportance, Amount totalChainBalance) {
 			if (!utils::IsPowerMultiple<uint64_t>(totalChainImportance.unwrap(), totalChainBalance.unwrap(), 10)) {
 				std::ostringstream out;
-				out
-						<< "harvesting outflows (" << totalChainBalance << ") do not add up to power ten multiple of "
-						<< "expected importance (" << totalChainImportance << ")";
+				out << "harvesting outflows (" << totalChainBalance << ") do not add up to power ten multiple of "
+					<< "expected importance (" << totalChainImportance << ")";
 				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 			}
 		}
@@ -123,9 +122,8 @@ namespace catapult { namespace extensions {
 		void CheckInitialCurrencyAtomicUnits(Amount expectedInitialCurrencyAtomicUnits, Amount initialCurrencyAtomicUnits) {
 			if (expectedInitialCurrencyAtomicUnits != initialCurrencyAtomicUnits) {
 				std::ostringstream out;
-				out
-						<< "currency outflows (" << initialCurrencyAtomicUnits << ") do not equal the "
-						<< "expected initial currency atomic units (" << expectedInitialCurrencyAtomicUnits << ")";
+				out << "currency outflows (" << initialCurrencyAtomicUnits << ") do not equal the "
+					<< "expected initial currency atomic units (" << expectedInitialCurrencyAtomicUnits << ")";
 				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 			}
 		}
@@ -134,9 +132,8 @@ namespace catapult { namespace extensions {
 			for (const auto& pair : totalFundedMosaics) {
 				if (maxMosaicAtomicUnits < pair.second) {
 					std::ostringstream out;
-					out
-							<< "currency outflows (" << pair.second << ") for mosaic id " << pair.first
-							<< " exceed max allowed atomic units (" << maxMosaicAtomicUnits << ")";
+					out << "currency outflows (" << pair.second << ") for mosaic id " << pair.first << " exceed max allowed atomic units ("
+						<< maxMosaicAtomicUnits << ")";
 					CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 				}
 			}
@@ -149,8 +146,8 @@ namespace catapult { namespace extensions {
 			std::unique_ptr<const observers::NotificationObserver>&& pObserver)
 			: m_cacheDelta(cacheDelta)
 			, m_pluginManager(pluginManager)
-			, m_pNotificationObserver(PrependNemesisObservers(m_nemesisAddress, m_nemesisFundingState, std::move(pObserver)))
-	{}
+			, m_pNotificationObserver(PrependNemesisObservers(m_nemesisAddress, m_nemesisFundingState, std::move(pObserver))) {
+	}
 
 	void NemesisBlockLoader::execute(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification) {
 		// 1. load the nemesis block
@@ -188,9 +185,8 @@ namespace catapult { namespace extensions {
 				return;
 
 			std::ostringstream out;
-			out
-					<< "nemesis block " << hashDescription << " hash (" << blockHash << ") does not match "
-					<< "calculated " << hashDescription << " hash (" << calculatedHash << ")";
+			out << "nemesis block " << hashDescription << " hash (" << blockHash << ") does not match "
+				<< "calculated " << hashDescription << " hash (" << calculatedHash << ")";
 			CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 		}
 	}
@@ -209,9 +205,8 @@ namespace catapult { namespace extensions {
 			observers::ObserverState& observerState) const {
 		auto executionConfig = CreateExecutionConfiguration(m_pluginManager);
 		executionConfig.pObserver = m_pNotificationObserver;
-		executionConfig.pNotificationPublisher = model::CreateNemesisNotificationPublisher(
-				m_pluginManager.createNotificationPublisher(),
-				m_publisherOptions);
+		executionConfig.pNotificationPublisher =
+				model::CreateNemesisNotificationPublisher(m_pluginManager.createNotificationPublisher(), m_publisherOptions);
 		auto batchEntityProcessor = chain::CreateBatchEntityProcessor(executionConfig);
 
 		auto validationResult = batchEntityProcessor(Height(1), timestamp, entityInfos, observerState);
@@ -243,9 +238,8 @@ namespace catapult { namespace extensions {
 
 		// 4. stateful validation and observation
 		auto blockStatementBuilder = model::BlockStatementBuilder();
-		auto observerState = config.EnableVerifiableReceipts
-				? observers::ObserverState(m_cacheDelta, blockStatementBuilder)
-				: observers::ObserverState(m_cacheDelta);
+		auto observerState = config.EnableVerifiableReceipts ? observers::ObserverState(m_cacheDelta, blockStatementBuilder)
+															 : observers::ObserverState(m_cacheDelta);
 
 		validateStatefulAndObserve(nemesisBlockElement.Block.Timestamp, entityInfos, observerState);
 		m_cacheDelta.dependentState().LastFinalizedHeight = Height(1);

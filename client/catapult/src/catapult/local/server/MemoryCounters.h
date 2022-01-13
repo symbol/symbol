@@ -22,7 +22,9 @@
 #pragma once
 #include <vector>
 
-namespace catapult { namespace utils { class DiagnosticCounter; } }
+namespace catapult { namespace utils {
+	class DiagnosticCounter;
+}}
 
 namespace catapult { namespace local {
 

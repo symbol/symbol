@@ -23,12 +23,14 @@
 #include "catapult/config/NodeConfiguration.h"
 
 namespace catapult {
-	namespace config { class CatapultConfiguration; }
-	namespace ionet {
-		struct BanSettings;
-		class Node;
-		class NodeContainer;
-	}
+namespace config {
+	class CatapultConfiguration;
+}
+namespace ionet {
+	struct BanSettings;
+	class Node;
+	class NodeContainer;
+}
 }
 
 namespace catapult { namespace local {

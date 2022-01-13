@@ -34,10 +34,9 @@ namespace catapult { namespace validators {
 
 	DECLARE_STATELESS_VALIDATOR(RootNamespace, Notification)(BlockDuration minDuration, BlockDuration maxDuration) {
 		return MAKE_STATELESS_VALIDATOR(RootNamespace, ([minDuration, maxDuration](const Notification& notification) {
-			auto isInRange = minDuration <= notification.Duration && notification.Duration <= maxDuration;
-			return !IsEternal(notification.Duration) && !isInRange
-					? Failure_Namespace_Invalid_Duration
-					: ValidationResult::Success;
-		}));
+											auto isInRange = minDuration <= notification.Duration && notification.Duration <= maxDuration;
+											return !IsEternal(notification.Duration) && !isInRange ? Failure_Namespace_Invalid_Duration
+																								   : ValidationResult::Success;
+										}));
 	}
 }}

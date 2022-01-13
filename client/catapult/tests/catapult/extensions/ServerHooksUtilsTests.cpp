@@ -60,9 +60,7 @@ namespace catapult { namespace extensions {
 			hooks.setChainSyncedPredicate([isChainSynced]() { return isChainSynced; });
 			TTraits::SetConsumerFactory(hooks, [&sources, &ranges](auto source) {
 				sources.push_back(source);
-				return [&ranges](auto&& range) {
-					ranges.push_back(std::move(range.Range));
-				};
+				return [&ranges](auto&& range) { ranges.push_back(std::move(range.Range)); };
 			});
 
 			auto range = TTraits::CreateRange(3);
@@ -83,10 +81,16 @@ namespace catapult { namespace extensions {
 	}
 
 #define PUSH_ENTITY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Block) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Transaction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Block) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Transaction) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	PUSH_ENTITY_TEST(CanPushWhenSynced) {
 		AssertPush<TTraits>(true);

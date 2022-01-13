@@ -30,13 +30,12 @@ namespace catapult { namespace tools { namespace addressgen {
 		}
 	}
 
-	MultiAddressMatcher::MultiAddressMatcher(model::NetworkIdentifier networkIdentifier) : m_networkIdentifier(networkIdentifier)
-	{}
+	MultiAddressMatcher::MultiAddressMatcher(model::NetworkIdentifier networkIdentifier)
+			: m_networkIdentifier(networkIdentifier) {
+	}
 
 	bool MultiAddressMatcher::isComplete() const {
-		return std::all_of(m_descriptors.cbegin(), m_descriptors.cend(), [](const auto& descriptor) {
-			return descriptor.IsComplete();
-		});
+		return std::all_of(m_descriptors.cbegin(), m_descriptors.cend(), [](const auto& descriptor) { return descriptor.IsComplete(); });
 	}
 
 	void MultiAddressMatcher::addSearchPattern(const std::string& pattern) {
@@ -71,9 +70,8 @@ namespace catapult { namespace tools { namespace addressgen {
 
 				if (isMatch) {
 					if (!searchString.empty()) {
-						CATAPULT_LOG(info)
-								<< "searching for '" << descriptor.SearchString << "' found " << addressString
-								<< " (" << searchString.size() << "/" << descriptor.SearchString.size() << ")";
+						CATAPULT_LOG(info) << "searching for '" << descriptor.SearchString << "' found " << addressString << " ("
+										   << searchString.size() << "/" << descriptor.SearchString.size() << ")";
 					}
 
 					descriptor.BestMatchSize = searchString.size();
@@ -97,8 +95,8 @@ namespace catapult { namespace tools { namespace addressgen {
 
 	MultiAddressMatcher::CandidateDescriptor::CandidateDescriptor(model::NetworkIdentifier networkIdentifier, crypto::KeyPair&& keyPair)
 			: KeyPair(std::move(keyPair))
-			, AddressString(model::AddressToString(model::PublicKeyToAddress(KeyPair.publicKey(), networkIdentifier)))
-	{}
+			, AddressString(model::AddressToString(model::PublicKeyToAddress(KeyPair.publicKey(), networkIdentifier))) {
+	}
 
 	bool MultiAddressMatcher::SearchDescriptor::IsComplete() const {
 		return SearchString.size() == BestMatchSize && !!pBestKeyPair;

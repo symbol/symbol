@@ -82,8 +82,8 @@ namespace catapult { namespace extensions {
 					: Port(port)
 					, ServiceId(serviceId)
 					, NodeSubscriber(nodeSubscriber)
-					, Acceptor(acceptor)
-			{}
+					, Acceptor(acceptor) {
+			}
 
 		public:
 			unsigned short Port;
@@ -122,9 +122,8 @@ namespace catapult { namespace extensions {
 
 			bootServerState.Acceptor.accept(decoratedSocketInfo, [bootServerState, pCurrentNodeIdentity](const auto& connectResult) {
 				// on accept failure, only host (not identity key) is known
-				CATAPULT_LOG(info)
-						<< "accept result to local node port " << bootServerState.Port
-						<< " from " << pCurrentNodeIdentity->Host << ": " << connectResult.Code;
+				CATAPULT_LOG(info) << "accept result to local node port " << bootServerState.Port << " from " << pCurrentNodeIdentity->Host
+								   << ": " << connectResult.Code;
 
 				if (net::PeerConnectCode::Accepted != connectResult.Code)
 					return false;

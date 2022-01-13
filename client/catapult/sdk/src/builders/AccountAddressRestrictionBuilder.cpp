@@ -27,8 +27,8 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_restrictionFlags()
 			, m_restrictionAdditions()
-			, m_restrictionDeletions()
-	{}
+			, m_restrictionDeletions() {
+	}
 
 	void AccountAddressRestrictionBuilder::setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
 		m_restrictionFlags = restrictionFlags;

@@ -33,8 +33,9 @@ namespace catapult { namespace chain {
 	namespace {
 		class ProcessorTestContext {
 		public:
-			ProcessorTestContext() : m_processor(CreateBatchEntityProcessor(m_executionConfig.Config))
-			{}
+			ProcessorTestContext()
+					: m_processor(CreateBatchEntityProcessor(m_executionConfig.Config)) {
+			}
 
 		public:
 			const auto& statefulValidatorParams() const {
@@ -55,10 +56,7 @@ namespace catapult { namespace chain {
 
 		public:
 			// Asserts call counters.
-			void assertCounters(
-					size_t numExpectedPublisherCalls,
-					size_t numExpectedValidatorCalls,
-					size_t numExpectedObserverCalls) const {
+			void assertCounters(size_t numExpectedPublisherCalls, size_t numExpectedValidatorCalls, size_t numExpectedObserverCalls) const {
 				// Assert:
 				EXPECT_EQ(numExpectedPublisherCalls, m_executionConfig.pNotificationPublisher->params().size());
 				EXPECT_EQ(numExpectedValidatorCalls, statefulValidatorParams().size());
@@ -246,10 +244,16 @@ namespace catapult { namespace chain {
 	}
 
 #define SHORT_CIRCUIT_TRAITS_BASED_TEST(TEST_NAME) \
-	template<ValidationResult TResult> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Neutral) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationResult::Neutral>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Failure) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationResult::Failure>(); } \
-	template<ValidationResult TResult> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<ValidationResult TResult> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Neutral) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationResult::Neutral>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Failure) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationResult::Failure>(); \
+	} \
+	template<ValidationResult TResult> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SHORT_CIRCUIT_TRAITS_BASED_TEST(ExecuteShortCircuitsOnSingleEntityStatefulValidation) {
 		// Arrange:

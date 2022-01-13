@@ -33,8 +33,9 @@ namespace catapult { namespace deltaset {
 
 	public:
 		/// Creates a view around \a set.
-		explicit BaseSetIterationView(const SetType& set) : m_set(set)
-		{}
+		explicit BaseSetIterationView(const SetType& set)
+				: m_set(set) {
+		}
 
 	public:
 		/// Gets an iterator that points to the element with \a key if it is contained in this set, or end() otherwise.

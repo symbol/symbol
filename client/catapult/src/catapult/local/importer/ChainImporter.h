@@ -23,7 +23,9 @@
 #include "catapult/local/ProcessHost.h"
 #include <memory>
 
-namespace catapult { namespace extensions { class ProcessBootstrapper; } }
+namespace catapult { namespace extensions {
+	class ProcessBootstrapper;
+}}
 
 namespace catapult { namespace local {
 

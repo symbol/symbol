@@ -29,14 +29,14 @@ namespace catapult { namespace validators {
 	template<typename TNotification, typename... TArgs>
 	class FunctionalNotificationValidatorT : public NotificationValidatorT<TNotification, TArgs...> {
 	private:
-		using FunctionType = std::function<ValidationResult (const TNotification&, TArgs&&...)>;
+		using FunctionType = std::function<ValidationResult(const TNotification&, TArgs&&...)>;
 
 	public:
 		/// Creates a functional notification validator around \a func with \a name.
 		FunctionalNotificationValidatorT(const std::string& name, const FunctionType& func)
 				: m_name(name)
-				, m_func(func)
-		{}
+				, m_func(func) {
+		}
 
 	public:
 		const std::string& name() const override {

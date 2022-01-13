@@ -179,8 +179,9 @@ namespace catapult { namespace cache {
 	private:
 		class CacheType : public TTraits::CacheType {
 		public:
-			CacheType() : TTraits::CacheType(CacheConfiguration())
-			{}
+			CacheType()
+					: TTraits::CacheType(CacheConfiguration()) {
+			}
 		};
 
 		static auto CreateId(uint8_t id) {
@@ -196,7 +197,9 @@ namespace catapult { namespace cache {
 }}
 
 #define MAKE_LOCK_INFO_CACHE_STORAGE_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockInfoCacheStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		LockInfoCacheStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_LOCK_INFO_CACHE_STORAGE_TESTS(TRAITS_NAME) \
 	MAKE_LOCK_INFO_CACHE_STORAGE_TEST(TRAITS_NAME, CanLoadValueWithHistoryDepthEqualToOneIntoCache) \

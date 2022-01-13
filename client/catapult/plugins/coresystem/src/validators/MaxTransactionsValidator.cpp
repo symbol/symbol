@@ -29,8 +29,8 @@ namespace catapult { namespace validators {
 		return MAKE_STATELESS_VALIDATOR(MaxTransactions, [maxTransactions](const Notification& notification) {
 			// skip validation for nemesis
 			return model::Entity_Type_Block_Nemesis == notification.BlockType || notification.NumTransactions <= maxTransactions
-					? ValidationResult::Success
-					: Failure_Core_Too_Many_Transactions;
+						   ? ValidationResult::Success
+						   : Failure_Core_Too_Many_Transactions;
 		});
 	}
 }}

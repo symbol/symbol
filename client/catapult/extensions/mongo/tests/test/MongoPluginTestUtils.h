@@ -95,7 +95,9 @@ namespace catapult { namespace test {
 	}
 
 #define MAKE_MONGO_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::Assert##TEST_NAME<TEST_TRAITS>(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::Assert##TEST_NAME<TEST_TRAITS>(); \
+	}
 
 #define DEFINE_MONGO_PLUGIN_TESTS(TEST_CLASS, TEST_TRAITS) \
 	MAKE_MONGO_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateTransactionsAreRegistered) \

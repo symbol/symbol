@@ -26,8 +26,9 @@ namespace catapult { namespace test {
 
 	// region ctor
 
-	TransactionsBuilder::TransactionsBuilder(const Accounts& accounts) : BasicTransactionsBuilder(accounts)
-	{}
+	TransactionsBuilder::TransactionsBuilder(const Accounts& accounts)
+			: BasicTransactionsBuilder(accounts) {
+	}
 
 	// endregion
 
@@ -69,9 +70,8 @@ namespace catapult { namespace test {
 		return SignWithDeadline(std::move(pTransaction), ownerKeyPair, deadline);
 	}
 
-	std::unique_ptr<model::Transaction> TransactionsBuilder::createAddressAlias(
-			const NamespaceDescriptor& descriptor,
-			Timestamp deadline) const {
+	std::unique_ptr<model::Transaction> TransactionsBuilder::createAddressAlias(const NamespaceDescriptor& descriptor, Timestamp deadline)
+			const {
 		const auto& ownerKeyPair = accounts().getKeyPair(descriptor.OwnerId);
 		const auto& aliasedAddress = accounts().getAddress(descriptor.AddressAliasId);
 

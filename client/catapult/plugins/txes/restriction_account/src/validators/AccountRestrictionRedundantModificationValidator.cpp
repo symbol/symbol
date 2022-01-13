@@ -57,17 +57,20 @@ namespace catapult { namespace validators {
 
 			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
 			return modificationsInfo.HasDeleteModification && !cache.contains(notification.Address)
-					? Failure_RestrictionAccount_Invalid_Modification
-					: ValidationResult::Success;
+						   ? Failure_RestrictionAccount_Invalid_Modification
+						   : ValidationResult::Success;
 		}
 	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(RESTRICTION_NAME, RESTRICTION_VALUE_TYPE, HASHER_TYPE) \
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(RESTRICTION_NAME##RedundantModification, model::Modify##RESTRICTION_NAME##sNotification, ([]( \
-			const model::Modify##RESTRICTION_NAME##sNotification& notification, \
-			const ValidatorContext& context) { \
-		return Validate<RESTRICTION_VALUE_TYPE, model::Modify##RESTRICTION_NAME##sNotification, HASHER_TYPE>(notification, context); \
-	}))
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE( \
+			RESTRICTION_NAME##RedundantModification, \
+			model::Modify##RESTRICTION_NAME##sNotification, \
+			([](const model::Modify##RESTRICTION_NAME##sNotification& notification, const ValidatorContext& context) { \
+				return Validate<RESTRICTION_VALUE_TYPE, model::Modify##RESTRICTION_NAME##sNotification, HASHER_TYPE>( \
+						notification, \
+						context); \
+			}))
 
 	DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(
 			AccountAddressRestriction,

@@ -32,15 +32,7 @@ namespace catapult { namespace timesync {
 			using ConfigurationType = TimeSynchronizationConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"timesynchronization",
-						{
-							{ "maxNodes", "123" },
-							{ "minImportance", "987" }
-						}
-					}
-				};
+				return { { "timesynchronization", { { "maxNodes", "123" }, { "minImportance", "987" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

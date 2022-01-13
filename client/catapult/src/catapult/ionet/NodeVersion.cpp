@@ -53,9 +53,8 @@ namespace catapult { namespace ionet {
 		std::vector<std::string> versionParts;
 		while (true) {
 			auto separatorIndex = str.find('.', searchIndex);
-			auto item = std::string::npos == separatorIndex
-					? str.substr(searchIndex)
-					: str.substr(searchIndex, separatorIndex - searchIndex);
+			auto item =
+					std::string::npos == separatorIndex ? str.substr(searchIndex) : str.substr(searchIndex, separatorIndex - searchIndex);
 
 			// don't allow empty values
 			if (item.empty())

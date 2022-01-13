@@ -28,6 +28,5 @@ namespace catapult { namespace cache {
 
 	/// Primary serializer for account restriction cache.
 	struct AccountRestrictionsPrimarySerializer
-			: public CacheSerializerAdapter<state::AccountRestrictionsSerializer, AccountRestrictionCacheDescriptor>
-	{};
+			: public CacheSerializerAdapter<state::AccountRestrictionsSerializer, AccountRestrictionCacheDescriptor> {};
 }}

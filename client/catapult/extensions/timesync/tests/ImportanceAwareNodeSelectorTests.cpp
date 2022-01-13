@@ -67,8 +67,8 @@ namespace catapult { namespace timesync {
 		public:
 			SeedNodeContainerOptions()
 					: IsActive(true)
-					, NodeSource(ionet::NodeSource::Dynamic)
-			{}
+					, NodeSource(ionet::NodeSource::Dynamic) {
+			}
 
 		public:
 			bool IsActive;
@@ -106,8 +106,8 @@ namespace catapult { namespace timesync {
 			Options()
 					: NodeServiceIdentifier(Default_Service_Identifier)
 					, NodeImportance(1234)
-					, NodeImportanceHeight(Default_Importance_Height)
-			{}
+					, NodeImportanceHeight(Default_Importance_Height) {
+			}
 
 		public:
 			ionet::ServiceIdentifier NodeServiceIdentifier;

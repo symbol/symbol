@@ -37,8 +37,9 @@ namespace catapult { namespace state {
 
 	public:
 		/// Creates a history around \a id.
-		explicit LockInfoHistory(const LockIdentifier& id) : m_id(id)
-		{}
+		explicit LockInfoHistory(const LockIdentifier& id)
+				: m_id(id) {
+		}
 
 	public:
 		/// Gets the id of the history.

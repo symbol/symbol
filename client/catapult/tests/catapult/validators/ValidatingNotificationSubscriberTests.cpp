@@ -32,9 +32,7 @@ namespace catapult { namespace validators {
 
 	namespace {
 		model::NotificationType MakeNotificationType(uint16_t code, bool isMatch = true) {
-			auto channel = isMatch
-					? model::NotificationChannel::Validator
-					: model::NotificationChannel::Observer;
+			auto channel = isMatch ? model::NotificationChannel::Validator : model::NotificationChannel::Observer;
 			return model::MakeNotificationType(channel, model::FacilityCode::Core, code);
 		}
 	}

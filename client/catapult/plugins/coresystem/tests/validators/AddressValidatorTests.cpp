@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AddressValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(Address,)
+	DEFINE_COMMON_VALIDATOR_TESTS(Address, )
 
 	namespace {
 		constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(0xC8);
@@ -41,9 +41,7 @@ namespace catapult { namespace validators {
 		model::ResolverContext CreateResolverContextXor() {
 			auto xorResolver = test::CreateResolverContextXor();
 			return model::ResolverContext(
-					[xorResolver](const auto& unresolved) {
-						return xorResolver.resolve(unresolved);
-					},
+					[xorResolver](const auto& unresolved) { return xorResolver.resolve(unresolved); },
 					[xorResolver](const auto& unresolved) {
 						// resolved addresses must have low bit cleared
 						auto resolved = xorResolver.resolve(unresolved);

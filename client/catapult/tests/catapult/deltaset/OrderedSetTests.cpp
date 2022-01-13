@@ -65,11 +65,11 @@ namespace catapult { namespace deltaset {
 		using OrderedSetImmutableTraits = OrderedSetTypeTraits<ImmutableTypeTraits<const test::ImmutableTestElement>>;
 	}
 
-// base (mutable)
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedSetMutable)
+	// base (mutable)
+	DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedSetMutable)
 
-// base (immutable)
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable)
+	// base (immutable)
+	DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable)
 
 #define MAKE_ORDERED_SET_TEST(TEST_NAME, TYPE) \
 	TEST(BaseOrderedSet##TYPE##Tests, TEST_NAME) { \
@@ -77,10 +77,12 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable)
 	}
 
 #define ORDERED_SET_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	MAKE_ORDERED_SET_TEST(TEST_NAME, Mutable) \
 	MAKE_ORDERED_SET_TEST(TEST_NAME, Immutable) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region commit
 
@@ -96,10 +98,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable)
 		CommitWithoutPruning(*pSet);
 
 		// Assert:
-		TTraits::AssertContents(*pSet, {
-			TTraits::CreateElement("TestElement", 1),
-			TTraits::CreateElement("MyTestElement", 123)
-		});
+		TTraits::AssertContents(*pSet, { TTraits::CreateElement("TestElement", 1), TTraits::CreateElement("MyTestElement", 123) });
 	}
 
 	ORDERED_SET_TEST(CommitPrunesElementsPreviousToPruningBoundary) {
@@ -113,10 +112,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable)
 		CommitWithPruning(*pSet, pruningBoundaryElement);
 
 		// Assert:
-		TTraits::AssertContents(*pSet, {
-			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4)
-		});
+		TTraits::AssertContents(*pSet, { TTraits::CreateElement("TestElement", 3), TTraits::CreateElement("TestElement", 4) });
 	}
 
 	ORDERED_SET_TEST(CommitIsNullOperationWhenPruningBoundaryIsEqualToFirstSetElement) {
@@ -137,11 +133,11 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable)
 		CommitWithPruning(*pSet, pruningBoundaryElement);
 
 		// Assert:
-		TTraits::AssertContents(*pSet, {
-			TTraits::CreateElement("TestElement", 2),
-			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4)
-		});
+		TTraits::AssertContents(
+				*pSet,
+				{ TTraits::CreateElement("TestElement", 2),
+				  TTraits::CreateElement("TestElement", 3),
+				  TTraits::CreateElement("TestElement", 4) });
 	}
 
 	ORDERED_SET_TEST(CommitIsNullOperationWhenPruningBoundaryIsSmallerThanFirstSetElement) {
@@ -162,11 +158,11 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable)
 		CommitWithPruning(*pSet, pruningBoundaryElement);
 
 		// Assert:
-		TTraits::AssertContents(*pSet, {
-			TTraits::CreateElement("TestElement", 2),
-			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4)
-		});
+		TTraits::AssertContents(
+				*pSet,
+				{ TTraits::CreateElement("TestElement", 2),
+				  TTraits::CreateElement("TestElement", 3),
+				  TTraits::CreateElement("TestElement", 4) });
 	}
 
 	ORDERED_SET_TEST(CommitPruningBoundaryDoesNotNeedToBeInSet) {
@@ -185,10 +181,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable)
 		CommitWithPruning(*pSet, pruningBoundaryElement);
 
 		// Assert:
-		TTraits::AssertContents(*pSet, {
-			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4)
-		});
+		TTraits::AssertContents(*pSet, { TTraits::CreateElement("TestElement", 3), TTraits::CreateElement("TestElement", 4) });
 	}
 
 	// endregion

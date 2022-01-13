@@ -38,10 +38,9 @@ namespace catapult { namespace harvesting {
 #undef DEFINE_ENUM
 
 	namespace {
-		const std::array<std::pair<const char*, DelegatePrioritizationPolicy>, 2> String_To_Delegate_Prioritization_Policy_Pairs{{
-			{ "Age", DelegatePrioritizationPolicy::Age },
-			{ "Importance", DelegatePrioritizationPolicy::Importance }
-		}};
+		const std::array<std::pair<const char*, DelegatePrioritizationPolicy>, 2> String_To_Delegate_Prioritization_Policy_Pairs{
+			{ { "Age", DelegatePrioritizationPolicy::Age }, { "Importance", DelegatePrioritizationPolicy::Importance } }
+		};
 	}
 
 	bool TryParseValue(const std::string& str, DelegatePrioritizationPolicy& policy) {

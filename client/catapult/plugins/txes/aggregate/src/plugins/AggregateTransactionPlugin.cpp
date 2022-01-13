@@ -46,8 +46,8 @@ namespace catapult { namespace plugins {
 					EntityType transactionType)
 					: m_transactionRegistry(transactionRegistry)
 					, m_maxTransactionLifetime(maxTransactionLifetime)
-					, m_transactionType(transactionType)
-			{}
+					, m_transactionType(transactionType) {
+			}
 
 		public:
 			EntityType type() const override {
@@ -63,10 +63,8 @@ namespace catapult { namespace plugins {
 				return IsSizeValid(CastToDerivedType(transaction), m_transactionRegistry);
 			}
 
-			void publish(
-					const WeakEntityInfoT<Transaction>& transactionInfo,
-					const PublishContext& context,
-					NotificationSubscriber& sub) const override {
+			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, const PublishContext& context, NotificationSubscriber& sub)
+					const override {
 				const auto& aggregate = CastToDerivedType(transactionInfo.entity());
 
 				// publish aggregate notifications
@@ -142,10 +140,8 @@ namespace catapult { namespace plugins {
 				const auto& aggregate = CastToDerivedType(transaction);
 
 				auto headerSize = VerifiableEntity::Header_Size;
-				return {
-					reinterpret_cast<const uint8_t*>(&aggregate) + headerSize,
-					sizeof(AggregateTransaction) - headerSize - AggregateTransaction::Footer_Size
-				};
+				return { reinterpret_cast<const uint8_t*>(&aggregate) + headerSize,
+						 sizeof(AggregateTransaction) - headerSize - AggregateTransaction::Footer_Size };
 			}
 
 			std::vector<RawBuffer> merkleSupplementaryBuffers(const Transaction& transaction) const override {

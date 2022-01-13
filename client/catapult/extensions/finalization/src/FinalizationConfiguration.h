@@ -26,7 +26,9 @@
 #include "catapult/utils/TimeSpan.h"
 #include <filesystem>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace finalization {
 

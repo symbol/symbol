@@ -31,8 +31,8 @@ namespace catapult { namespace io {
 	BufferedOutputFileStream::BufferedOutputFileStream(RawFile&& rawFile, size_t bufferSize)
 			: m_rawFile(std::move(rawFile))
 			, m_buffer(bufferSize)
-			, m_bufferPosition(0)
-	{}
+			, m_bufferPosition(0) {
+	}
 
 	void BufferedOutputFileStream::write(const RawBuffer& buffer) {
 		// bypass caching if write buffer is larger than internal buffer
@@ -75,8 +75,8 @@ namespace catapult { namespace io {
 			: m_rawFile(std::move(rawFile))
 			, m_buffer(bufferSize)
 			, m_bufferPosition(0)
-			, m_numBytesInBuffer(0)
-	{}
+			, m_numBytesInBuffer(0) {
+	}
 
 	bool BufferedInputFileStream::eof() const {
 		return m_rawFile.position() == m_rawFile.size() && m_bufferPosition == m_numBytesInBuffer;

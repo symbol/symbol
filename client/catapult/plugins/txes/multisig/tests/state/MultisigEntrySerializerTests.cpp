@@ -38,8 +38,8 @@ namespace catapult { namespace state {
 		public:
 			explicit TestContext(size_t numAccounts = 10)
 					: m_stream(m_buffer)
-					, m_accountAddresses(test::GenerateRandomDataVector<Address>(numAccounts))
-			{}
+					, m_accountAddresses(test::GenerateRandomDataVector<Address>(numAccounts)) {
+			}
 
 		public:
 			auto& buffer() {
@@ -196,10 +196,16 @@ namespace catapult { namespace state {
 	}
 
 #define ENTRY_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Cosignatories) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CosignatoriesTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MultisigAccounts) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultisigAccountsTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Cosignatories) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CosignatoriesTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MultisigAccounts) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultisigAccountsTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ENTRY_TRAITS_BASED_TEST(SavedAddressesAreOrdered) {
 		test::SerializerOrderingTests<TTraits>::AssertSaveOrdersEntriesByKey();

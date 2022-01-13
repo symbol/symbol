@@ -72,8 +72,8 @@ namespace catapult { namespace handlers {
 			public:
 				Producer(ionet::NodeContainerView&& view, const ionet::NodeSet& nodes)
 						: BasicProducer<ionet::NodeSet>(nodes)
-						, m_view(std::move(view))
-				{}
+						, m_view(std::move(view)) {
+				}
 
 				auto operator()() {
 					return next([&view = m_view](const auto& node) {
@@ -111,9 +111,7 @@ namespace catapult { namespace handlers {
 			auto view = nodeContainer.view();
 			auto pNodes = std::make_unique<ionet::NodeSet>(ionet::FindAllActiveNodes(view)); // used by producer by reference
 			auto producer = DiagnosticNodesTraits::Producer(std::move(view), *pNodes);
-			return [pNodes = std::move(pNodes), producer = std::move(producer)]() mutable {
-				return producer();
-			};
+			return [pNodes = std::move(pNodes), producer = std::move(producer)]() mutable { return producer(); };
 		});
 	}
 

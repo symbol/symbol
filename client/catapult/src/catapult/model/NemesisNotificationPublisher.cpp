@@ -41,8 +41,8 @@ namespace catapult { namespace model {
 					std::unique_ptr<const NotificationPublisher>&& pPublisher,
 					const NemesisNotificationPublisherOptions& options)
 					: m_pPublisher(std::move(pPublisher))
-					, m_options(options)
-			{}
+					, m_options(options) {
+			}
 
 		public:
 			void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const override {

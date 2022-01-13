@@ -55,8 +55,8 @@ namespace catapult { namespace test {
 		}
 
 		template<typename TBuilder>
-		static void CheckBuilderSize(size_t, const TBuilder&)
-		{}
+		static void CheckBuilderSize(size_t, const TBuilder&) {
+		}
 
 		static void CheckFields(size_t additionalSize, const TTransaction& transaction) {
 			ASSERT_EQ(sizeof(TTransaction) + additionalSize, transaction.Size);

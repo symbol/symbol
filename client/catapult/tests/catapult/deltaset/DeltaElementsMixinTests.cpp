@@ -30,14 +30,11 @@ namespace catapult { namespace deltaset {
 
 	namespace {
 		template<typename TMutabilityTraits>
-		using OrderedSetTraits = test::BaseSetTraits<
-			TMutabilityTraits,
-			test::OrderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
+		using OrderedSetTraits = test::BaseSetTraits<TMutabilityTraits, test::OrderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
 
 		template<typename TMutabilityTraits>
-		using UnorderedMapTraits = test::BaseSetTraits<
-			TMutabilityTraits,
-			test::UnorderedMapSetTraits<test::SetElementType<TMutabilityTraits>>>;
+		using UnorderedMapTraits =
+				test::BaseSetTraits<TMutabilityTraits, test::UnorderedMapSetTraits<test::SetElementType<TMutabilityTraits>>>;
 
 		using OrderedSetMutableTraits = OrderedSetTraits<test::MutableElementValueTraits>;
 		using UnorderedMapMutableTraits = UnorderedMapTraits<test::MutableElementValueTraits>;
@@ -52,8 +49,8 @@ namespace catapult { namespace deltaset {
 		public:
 			explicit DeltaProxy(const std::shared_ptr<DeltaType>& pSetDelta)
 					: DeltaElementsMixin<DeltaType>(*pSetDelta)
-					, m_pSetDelta(pSetDelta)
-			{}
+					, m_pSetDelta(pSetDelta) {
+			}
 
 		public:
 			void insert(const typename TTraits::ElementType& element) {

@@ -33,8 +33,9 @@ namespace catapult { namespace tree {
 
 	public:
 		/// Creates a tree around \a dataSource.
-		explicit PatriciaTree(TDataSource& dataSource) : m_dataSource(dataSource)
-		{}
+		explicit PatriciaTree(TDataSource& dataSource)
+				: m_dataSource(dataSource) {
+		}
 
 	public:
 		/// Gets the root hash that uniquely identifies this tree.
@@ -49,7 +50,7 @@ namespace catapult { namespace tree {
 		void set(const KeyType& key, const ValueType& value) {
 			auto keyPath = TreeNodePath(TEncoder::EncodeKey(key));
 			auto encodedValue = TEncoder::EncodeValue(value);
-			m_rootNode = set(m_rootNode, { keyPath, encodedValue});
+			m_rootNode = set(m_rootNode, { keyPath, encodedValue });
 		}
 
 	private:
@@ -188,9 +189,8 @@ namespace catapult { namespace tree {
 
 			// when removing a node, at most a single branch node can be collapsed
 			// subsequently, just update branch links in parent branches
-			updatedNode = canMerge
-					? unsetBranchLink(BranchTreeNode(branchNode), nodeLinkIndex)
-					: updateBranchLink(BranchTreeNode(branchNode), nodeLinkIndex, updatedNextNode);
+			updatedNode = canMerge ? unsetBranchLink(BranchTreeNode(branchNode), nodeLinkIndex)
+								   : updateBranchLink(BranchTreeNode(branchNode), nodeLinkIndex, updatedNextNode);
 
 			canMerge = false;
 			return true;
@@ -342,4 +342,3 @@ namespace catapult { namespace tree {
 		TreeNode m_rootNode;
 	};
 }}
-

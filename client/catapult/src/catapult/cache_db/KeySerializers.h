@@ -25,10 +25,7 @@
 namespace catapult { namespace cache {
 
 	/// Serializes value-based key (\a value).
-	template<
-		typename TValue,
-		typename X = std::enable_if_t<utils::traits::is_scalar_v<TValue>>
-	>
+	template<typename TValue, typename X = std::enable_if_t<utils::traits::is_scalar_v<TValue>>>
 	RawBuffer SerializeKey(const TValue& value) {
 		return { reinterpret_cast<const uint8_t*>(&value), sizeof(value) };
 	}

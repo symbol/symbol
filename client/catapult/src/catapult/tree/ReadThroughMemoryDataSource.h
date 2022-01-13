@@ -33,8 +33,8 @@ namespace catapult { namespace tree {
 				const TBackingDataSource& backingDataSource,
 				DataSourceVerbosity verbosity = DataSourceVerbosity::Off)
 				: m_backingDataSource(backingDataSource)
-				, m_memoryDataSource(verbosity)
-		{}
+				, m_memoryDataSource(verbosity) {
+		}
 
 	public:
 		/// Gets the number of saved nodes in the in memory cache.

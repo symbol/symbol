@@ -53,32 +53,31 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CannotParseInvalidNodeVersion) {
 		// Arrange:
-		std::vector<std::string> invalidStrings{
-			// wrong number of components
-			".",
-			"1.1.1",
-			"1.1.1.1.1",
+		std::vector<std::string> invalidStrings{ // wrong number of components
+												 ".",
+												 "1.1.1",
+												 "1.1.1.1.1",
 
-			// invalid parts
-			"AZ.34.12.222", // 0 => not a number
-			"9.BC.12.222", //  1 => hex
-			"9.34.256.222", // 2 => too big
-			"9.34.12.-222", // 3 => negative
+												 // invalid parts
+												 "AZ.34.12.222", // 0 => not a number
+												 "9.BC.12.222", //  1 => hex
+												 "9.34.256.222", // 2 => too big
+												 "9.34.12.-222", // 3 => negative
 
-			// empty parts
-			"...",
-			"9.34..12.222",
-			"9.34..222",
+												 // empty parts
+												 "...",
+												 "9.34..12.222",
+												 "9.34..222",
 
-			// external whitespace
-			"  9.34.12.222",
-			"9.34.12.222  ",
-			"  9.34.12.222  ",
+												 // external whitespace
+												 "  9.34.12.222",
+												 "9.34.12.222  ",
+												 "  9.34.12.222  ",
 
-			// internal whitespace (using \x20 to get around lint)
-			"9.34. 12.222",
-			"9.34.12\x20.222",
-			"9.34. 12\x20.222"
+												 // internal whitespace (using \x20 to get around lint)
+												 "9.34. 12.222",
+												 "9.34.12\x20.222",
+												 "9.34. 12\x20.222"
 		};
 
 		// Act + Assert:

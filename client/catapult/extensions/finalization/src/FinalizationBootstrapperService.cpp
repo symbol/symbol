@@ -65,8 +65,9 @@ namespace catapult { namespace finalization {
 
 		class FinalizationSubscriberAdapter : public subscribers::FinalizationSubscriber {
 		public:
-			explicit FinalizationSubscriberAdapter(subscribers::FinalizationSubscriber& subscriber) : m_subscriber(subscriber)
-			{}
+			explicit FinalizationSubscriberAdapter(subscribers::FinalizationSubscriber& subscriber)
+					: m_subscriber(subscriber) {
+			}
 
 		public:
 			void setPatchingSubscriber(extensions::ServiceState& state) {
@@ -103,9 +104,8 @@ namespace catapult { namespace finalization {
 					std::shared_ptr<FinalizationSubscriberAdapter>(pSubscriber.get(), [](const auto*) {}));
 
 			// create proof storage cache
-			return std::make_shared<io::ProofStorageCache>(io::CreateAggregateProofStorage(
-					std::move(pProofStorage),
-					std::move(pSubscriber)));
+			return std::make_shared<io::ProofStorageCache>(
+					io::CreateAggregateProofStorage(std::move(pProofStorage), std::move(pSubscriber)));
 		}
 
 		// endregion
@@ -133,8 +133,8 @@ namespace catapult { namespace finalization {
 					const FinalizationConfiguration& config,
 					std::unique_ptr<io::ProofStorage>&& pProofStorage)
 					: m_config(config)
-					, m_pProofStorage(std::move(pProofStorage))
-			{}
+					, m_pProofStorage(std::move(pProofStorage)) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
@@ -229,9 +229,8 @@ namespace catapult { namespace finalization {
 		// endregion
 	}
 
-	DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapper)(
-			const FinalizationConfiguration& config,
-			std::unique_ptr<io::ProofStorage>&& pProofStorage) {
+	DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapper)
+	(const FinalizationConfiguration& config, std::unique_ptr<io::ProofStorage>&& pProofStorage) {
 		return std::make_unique<FinalizationBootstrapperServiceRegistrar>(config, std::move(pProofStorage));
 	}
 

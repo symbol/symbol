@@ -81,9 +81,8 @@ namespace catapult { namespace test {
 	// region ConsumerResult Assertions
 
 	void AssertConsumed(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult) {
-		auto expectedSeverity = validators::ValidationResult::Success == validationResult
-				? disruptor::ConsumerResultSeverity::Success
-				: disruptor::ConsumerResultSeverity::Neutral;
+		auto expectedSeverity = validators::ValidationResult::Success == validationResult ? disruptor::ConsumerResultSeverity::Success
+																						  : disruptor::ConsumerResultSeverity::Neutral;
 		EXPECT_EQ(disruptor::CompletionStatus::Consumed, result.CompletionStatus);
 		EXPECT_EQ(validationResult, static_cast<validators::ValidationResult>(result.CompletionCode));
 		EXPECT_EQ(expectedSeverity, result.ResultSeverity);

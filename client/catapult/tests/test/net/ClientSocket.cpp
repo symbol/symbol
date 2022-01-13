@@ -38,7 +38,7 @@ namespace catapult { namespace test {
 			promise.set_exception(std::make_exception_ptr(boost::system::system_error(ec)));
 		}
 
-		class SocketGuard : public std::enable_shared_from_this<SocketGuard>{
+		class SocketGuard : public std::enable_shared_from_this<SocketGuard> {
 		public:
 			explicit SocketGuard(boost::asio::io_context& ioContext)
 					: m_strand(ioContext)
@@ -58,17 +58,16 @@ namespace catapult { namespace test {
 				closeOnce([this]() {
 					CATAPULT_LOG(debug) << "closing client socket via close";
 					post([this](auto& socket) {
-						socket.async_shutdown(wrap([](const auto& ec) {
-							CATAPULT_LOG(debug) << "async_shutdown completed " << ec.message();
-						}));
+						socket.async_shutdown(
+								wrap([](const auto& ec) { CATAPULT_LOG(debug) << "async_shutdown completed " << ec.message(); }));
 					});
 
 					post([this](auto& socket) {
 						auto asioBuffer = boost::asio::buffer(&m_sentinelByte, 1);
 						boost::asio::async_write(socket, asioBuffer, wrap([this](const auto& ec, auto) {
-							CATAPULT_LOG(debug) << "async_write completed " << ec.message();
-							closeInternal();
-						}));
+													 CATAPULT_LOG(debug) << "async_write completed " << ec.message();
+													 closeInternal();
+												 }));
 					});
 				});
 			}
@@ -104,9 +103,7 @@ namespace catapult { namespace test {
 			template<typename THandler>
 			void post(THandler handler) {
 				// ensure all handlers extend the lifetime of this object and post to a strand
-				return m_strandWrapper.post(shared_from_this(), [handler](const auto& pThis) {
-					handler(pThis->m_socket);
-				});
+				return m_strandWrapper.post(shared_from_this(), [handler](const auto& pThis) { handler(pThis->m_socket); });
 			}
 
 		private:
@@ -117,13 +114,15 @@ namespace catapult { namespace test {
 			std::atomic_flag m_isClosed;
 		};
 
-		class DefaultClientSocket : public ClientSocket, public std::enable_shared_from_this<DefaultClientSocket> {
+		class DefaultClientSocket
+				: public ClientSocket
+				, public std::enable_shared_from_this<DefaultClientSocket> {
 		public:
 			explicit DefaultClientSocket(boost::asio::io_context& ioContext)
 					: m_pSocketGuard(std::make_shared<SocketGuard>(ioContext))
 					, m_socket(m_pSocketGuard->get())
-					, m_timer(ioContext)
-			{}
+					, m_timer(ioContext) {
+			}
 
 			~DefaultClientSocket() override {
 				shutdown();
@@ -194,8 +193,8 @@ namespace catapult { namespace test {
 						: SendBuffers(sendBuffers) // make a copy of the send buffers
 						, DelayMillis(delayMillis)
 						, NextId(0)
-						, NumTotalBytesWritten(0)
-				{}
+						, NumTotalBytesWritten(0) {
+				}
 
 				const std::vector<ionet::ByteBuffer> SendBuffers;
 				size_t DelayMillis;
@@ -234,18 +233,16 @@ namespace catapult { namespace test {
 						m_socket,
 						boost::asio::buffer(sendBuffers[nextId++]),
 						[pThis = shared_from_this(), pWriteContext, pPromise](const auto& ec, auto numBytes) {
-					CATAPULT_LOG(debug) << "client socket wrote " << numBytes << " bytes " << ToMessage(ec);
-					pWriteContext->NumTotalBytesWritten += numBytes;
+							CATAPULT_LOG(debug) << "client socket wrote " << numBytes << " bytes " << ToMessage(ec);
+							pWriteContext->NumTotalBytesWritten += numBytes;
 
-					if (ec)
-						return SetPromiseException(*pPromise, ec);
+							if (ec)
+								return SetPromiseException(*pPromise, ec);
 
-					pThis->delay(
-							[pThis, pWriteContext, pPromise]() {
-								pThis->startWrite(pWriteContext, pPromise);
-							},
-							pWriteContext->DelayMillis);
-				});
+							pThis->delay(
+									[pThis, pWriteContext, pPromise]() { pThis->startWrite(pWriteContext, pPromise); },
+									pWriteContext->DelayMillis);
+						});
 			}
 
 		public:
@@ -292,9 +289,7 @@ namespace catapult { namespace test {
 
 	std::shared_ptr<ClientSocket> AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer) {
 		auto pClientSocket = CreateClientSocket(ioContext);
-		pClientSocket->connect().then([&receiveBuffer](auto&& socketFuture) {
-			socketFuture.get()->read(receiveBuffer);
-		});
+		pClientSocket->connect().then([&receiveBuffer](auto&& socketFuture) { socketFuture.get()->read(receiveBuffer); });
 		return pClientSocket;
 	}
 
@@ -315,9 +310,7 @@ namespace catapult { namespace test {
 			boost::asio::io_context& ioContext,
 			const std::vector<ionet::ByteBuffer>& sendBuffers) {
 		auto pClientSocket = CreateClientSocket(ioContext);
-		pClientSocket->connect().then([sendBuffers](auto&& socketFuture) {
-			socketFuture.get()->write(sendBuffers);
-		});
+		pClientSocket->connect().then([sendBuffers](auto&& socketFuture) { socketFuture.get()->write(sendBuffers); });
 		return pClientSocket;
 	}
 }}

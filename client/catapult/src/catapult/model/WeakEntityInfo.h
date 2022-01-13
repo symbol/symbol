@@ -25,7 +25,9 @@
 #include <iosfwd>
 #include <vector>
 
-namespace catapult { namespace model { struct BlockHeader; } }
+namespace catapult { namespace model {
+	struct BlockHeader;
+}}
 
 namespace catapult { namespace model {
 
@@ -37,30 +39,30 @@ namespace catapult { namespace model {
 		constexpr WeakEntityInfoT()
 				: m_pEntity(nullptr)
 				, m_pHash(nullptr)
-				, m_pAssociatedBlockHeader(nullptr)
-		{}
+				, m_pAssociatedBlockHeader(nullptr) {
+		}
 
 		/// Creates an entity info around \a entity.
 		/// \note This is an implicit constructor in order to facilitate calling TransactionPlugin::publish without hashes.
 		constexpr WeakEntityInfoT(const TEntity& entity)
 				: m_pEntity(&entity)
 				, m_pHash(nullptr)
-				, m_pAssociatedBlockHeader(nullptr)
-		{}
+				, m_pAssociatedBlockHeader(nullptr) {
+		}
 
 		/// Creates an entity info around \a entity and \a hash.
 		constexpr WeakEntityInfoT(const TEntity& entity, const Hash256& hash)
 				: m_pEntity(&entity)
 				, m_pHash(&hash)
-				, m_pAssociatedBlockHeader(nullptr)
-		{}
+				, m_pAssociatedBlockHeader(nullptr) {
+		}
 
 		/// Creates an entity info around \a entity, \a hash and \a associatedBlockHeader.
 		constexpr WeakEntityInfoT(const TEntity& entity, const Hash256& hash, const BlockHeader& associatedBlockHeader)
 				: m_pEntity(&entity)
 				, m_pHash(&hash)
-				, m_pAssociatedBlockHeader(&associatedBlockHeader)
-		{}
+				, m_pAssociatedBlockHeader(&associatedBlockHeader) {
+		}
 
 	public:
 		/// Returns \c true if this info has an associated entity.
@@ -104,9 +106,8 @@ namespace catapult { namespace model {
 		template<typename TEntityResult>
 		WeakEntityInfoT<TEntityResult> cast() const {
 			const auto& typedEntity = static_cast<const TEntityResult&>(entity());
-			return isAssociatedBlockHeaderSet()
-					? WeakEntityInfoT<TEntityResult>(typedEntity, hash(), associatedBlockHeader())
-					: WeakEntityInfoT<TEntityResult>(typedEntity, hash());
+			return isAssociatedBlockHeaderSet() ? WeakEntityInfoT<TEntityResult>(typedEntity, hash(), associatedBlockHeader())
+												: WeakEntityInfoT<TEntityResult>(typedEntity, hash());
 		}
 
 	public:

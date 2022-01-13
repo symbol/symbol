@@ -44,8 +44,8 @@ namespace catapult { namespace chain {
 				: m_packetIoPicker(packetIoPicker)
 				, m_transactionRegistry(transactionRegistry)
 				, m_timeout(timeout)
-				, m_operationName(operationName)
-		{}
+				, m_operationName(operationName) {
+		}
 
 	public:
 		/// Picks a random peer and wraps an api around it using \a apiFactory. Finally, passes the api to \a action.

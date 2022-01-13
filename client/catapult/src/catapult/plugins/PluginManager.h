@@ -44,7 +44,8 @@ namespace catapult { namespace plugins {
 		StorageConfiguration()
 				: PreferCacheDatabase(false)
 				, CacheDatabaseConfig() // default initialize
-		{}
+		{
+		}
 
 	public:
 		/// Prefer using a database for cache storage.
@@ -76,7 +77,7 @@ namespace catapult { namespace plugins {
 		using AddressResolver = Resolver<UnresolvedAddress, Address>;
 
 		template<typename TUnresolved, typename TResolved>
-		using AggregateResolver = std::function<TResolved (const cache::ReadOnlyCatapultCache&, const TUnresolved&)>;
+		using AggregateResolver = std::function<TResolved(const cache::ReadOnlyCatapultCache&, const TUnresolved&)>;
 		using AggregateMosaicResolver = AggregateResolver<UnresolvedMosaicId, MosaicId>;
 		using AggregateAddressResolver = AggregateResolver<UnresolvedAddress, Address>;
 
@@ -242,5 +243,4 @@ namespace catapult { namespace plugins {
 }}
 
 /// Entry point for registering a dynamic module with \a manager.
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager);
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager);

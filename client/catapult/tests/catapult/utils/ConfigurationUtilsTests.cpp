@@ -66,7 +66,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, LoadIniPropertyThrowsWhenCppVariableNameIsInvalid) {
 		// Arrange:
-		auto bag = ConfigurationBag({{ "foo", { { "0baz", "1234" } } }});
+		auto bag = ConfigurationBag({ { "foo", { { "0baz", "1234" } } } });
 
 		// Act + Assert:
 		uint32_t value;
@@ -75,7 +75,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, LoadIniPropertyThrowsWhenBagDoesNotContainKey) {
 		// Arrange:
-		auto bag = ConfigurationBag({{ "foo", { { "baz", "1234" } } }});
+		auto bag = ConfigurationBag({ { "foo", { { "baz", "1234" } } } });
 
 		// Act + Assert:
 		uint32_t value;
@@ -84,7 +84,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, LoadIniPropertyLoadsPropertyGivenValidKey) {
 		// Arrange:
-		auto bag = ConfigurationBag({{ "foo", { { "bar", "1234" } } }});
+		auto bag = ConfigurationBag({ { "foo", { { "bar", "1234" } } } });
 
 		// Act:
 		uint32_t value;
@@ -100,10 +100,8 @@ namespace catapult { namespace utils {
 
 	namespace {
 		ConfigurationBag CreateBagForVerifyBagSizeTests() {
-			return ConfigurationBag({
-				{ "foo", { { "bar", "1234" }, { "baz", "2345" }, { "bax", "2345" } } },
-				{ "greek", { { "zeta", "55" }, { "alpha", "7" } } }
-			});
+			return ConfigurationBag({ { "foo", { { "bar", "1234" }, { "baz", "2345" }, { "bax", "2345" } } },
+									  { "greek", { { "zeta", "55" }, { "alpha", "7" } } } });
 		}
 	}
 
@@ -130,10 +128,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, ExtractSectionAsBagCanExtractKnownSectionAsBag) {
 		// Arrange:
-		auto bag = ConfigurationBag({
-			{ "foo", { { "alpha", "123" } } },
-			{ "bar", { { "alpha", "987" }, { "beta", "abc" } } }
-		});
+		auto bag = ConfigurationBag({ { "foo", { { "alpha", "123" } } }, { "bar", { { "alpha", "987" }, { "beta", "abc" } } } });
 
 		// Act:
 		auto fooBag = ExtractSectionAsBag(bag, "foo");
@@ -180,19 +175,23 @@ namespace catapult { namespace utils {
 	}
 
 #define CONTAINER_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_UnorderedSet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UnorderedSetTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_OrderedVector) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OrderedVectorTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_UnorderedSet) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UnorderedSetTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_OrderedVector) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OrderedVectorTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CONTAINER_BASED_TEST(ExtractSectionAsContainerCanExtractKnownSectionAsContainer) {
 		// Arrange:
 		using ContainerType = typename TTraits::ContainerType;
-		auto bag = ConfigurationBag({
-			{ "none", { { "zeta", "false" }, { "beta", "false" }, { "gamma", "false" } } },
-			{ "some", { { "zeta", "true" }, { "beta", "false" }, { "gamma", "true" } } },
-			{ "all", { { "zeta", "true" }, { "beta", "true" }, { "gamma", "true" } } }
-		});
+		auto bag = ConfigurationBag({ { "none", { { "zeta", "false" }, { "beta", "false" }, { "gamma", "false" } } },
+									  { "some", { { "zeta", "true" }, { "beta", "false" }, { "gamma", "true" } } },
+									  { "all", { { "zeta", "true" }, { "beta", "true" }, { "gamma", "true" } } } });
 
 		// Act:
 		auto noneResultPair = TTraits::ExtractSectionAsContainer(bag, "none");
@@ -212,9 +211,7 @@ namespace catapult { namespace utils {
 
 	CONTAINER_BASED_TEST(ExtractSectionAsContainerFailsWhenAnyValueIsNotBoolean) {
 		// Arrange:
-		auto bag = ConfigurationBag({
-			{ "foo", { { "zeta", "true" }, { "beta", "1" }, { "gamma", "true" } } }
-		});
+		auto bag = ConfigurationBag({ { "foo", { { "zeta", "true" }, { "beta", "1" }, { "gamma", "true" } } } });
 
 		// Act + Assert:
 		EXPECT_THROW(TTraits::ExtractSectionAsContainer(bag, "foo"), property_malformed_error);
@@ -238,11 +235,9 @@ namespace catapult { namespace utils {
 
 	namespace {
 		std::vector<std::string> GetHashStrings() {
-			return {
-				"9B9FADB394D6ABD82D3D50D7349A549929658EDB888E759709E3E5D42BABB2D6",
-				"873475716418283D4A10A62F4247C6B2B821C98573C194B8AB84E096A4EE9783",
-				"7A21C94D3860A78C49A321702F46ABD2CD3B00A59E6F87DA5EC224CEF57CC346"
-			};
+			return { "9B9FADB394D6ABD82D3D50D7349A549929658EDB888E759709E3E5D42BABB2D6",
+					 "873475716418283D4A10A62F4247C6B2B821C98573C194B8AB84E096A4EE9783",
+					 "7A21C94D3860A78C49A321702F46ABD2CD3B00A59E6F87DA5EC224CEF57CC346" };
 		}
 
 		std::vector<Hash256> GetHashes(std::initializer_list<size_t> indexes) {
@@ -263,11 +258,9 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, ExtractSectionKeysAsTypedVectorCanExtractTypedValues) {
 		// Arrange:
 		auto hashStrings = GetHashStrings();
-		auto bag = ConfigurationBag({
-			{ "none", { { hashStrings[0], "false" }, { hashStrings[1], "false" }, { hashStrings[2], "false" } } },
-			{ "some", { { hashStrings[0], "true" }, { hashStrings[1], "false" }, { hashStrings[2], "true" } } },
-			{ "all", { { hashStrings[0], "true" }, { hashStrings[1], "true" }, { hashStrings[2], "true" } } }
-		});
+		auto bag = ConfigurationBag({ { "none", { { hashStrings[0], "false" }, { hashStrings[1], "false" }, { hashStrings[2], "false" } } },
+									  { "some", { { hashStrings[0], "true" }, { hashStrings[1], "false" }, { hashStrings[2], "true" } } },
+									  { "all", { { hashStrings[0], "true" }, { hashStrings[1], "true" }, { hashStrings[2], "true" } } } });
 
 		// Act:
 		auto noneResultPair = ExtractSectionKeysAsTypedVector<Hash256>(bag, "none", HashParser);
@@ -288,9 +281,8 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, ExtractSectionKeysAsTypedVectorFailsWhenAnyKeyIsNotParseable) {
 		// Arrange:
 		auto hashStrings = GetHashStrings();
-		auto bag = ConfigurationBag({
-			{ "foo", { { hashStrings[0], "true" }, { hashStrings[1] + "AA", "true" }, { hashStrings[2], "true" } } }
-		});
+		auto bag = ConfigurationBag(
+				{ { "foo", { { hashStrings[0], "true" }, { hashStrings[1] + "AA", "true" }, { hashStrings[2], "true" } } } });
 
 		// Act + Assert:
 		EXPECT_THROW(ExtractSectionKeysAsTypedVector<Hash256>(bag, "foo", HashParser), property_malformed_error);
@@ -299,9 +291,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, ExtractSectionKeysAsTypedVectorFailsWhenAnyValueIsNotBoolean) {
 		// Arrange:
 		auto hashStrings = GetHashStrings();
-		auto bag = ConfigurationBag({
-			{ "foo", { { hashStrings[0], "true" }, { hashStrings[1], "1" }, { hashStrings[2], "true" } } }
-		});
+		auto bag = ConfigurationBag({ { "foo", { { hashStrings[0], "true" }, { hashStrings[1], "1" }, { hashStrings[2], "true" } } } });
 
 		// Act + Assert:
 		EXPECT_THROW(ExtractSectionKeysAsTypedVector<Hash256>(bag, "foo", HashParser), property_malformed_error);

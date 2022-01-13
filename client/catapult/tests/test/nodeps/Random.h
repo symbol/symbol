@@ -81,9 +81,7 @@ namespace catapult { namespace test {
 	}
 
 	/// Generates random array data.
-	template<
-		typename TArray,
-		typename X = std::enable_if_t<utils::traits::is_template_specialization_v<TArray, utils::ByteArray>>>
+	template<typename TArray, typename X = std::enable_if_t<utils::traits::is_template_specialization_v<TArray, utils::ByteArray>>>
 	TArray GenerateRandomByteArray() {
 		TArray data;
 		FillWithRandomData(data);
@@ -92,9 +90,9 @@ namespace catapult { namespace test {
 
 	/// Generates random struct.
 	template<
-		typename TStruct,
-		typename X = std::enable_if_t<!utils::traits::is_container_v<TStruct>>,
-		typename Y = std::enable_if_t<!utils::traits::is_scalar_v<TStruct>>>
+			typename TStruct,
+			typename X = std::enable_if_t<!utils::traits::is_container_v<TStruct>>,
+			typename Y = std::enable_if_t<!utils::traits::is_scalar_v<TStruct>>>
 	TStruct GenerateRandomPackedStruct() {
 		TStruct data;
 		FillWithRandomData(data);
@@ -129,9 +127,7 @@ namespace catapult { namespace test {
 			T randomValue;
 			FillWithRandomData({ reinterpret_cast<uint8_t*>(&randomValue), sizeof(T) });
 
-			auto isFound = std::any_of(values.cbegin(), values.cend(), [&randomValue](const auto& value) {
-				return value == randomValue;
-			});
+			auto isFound = std::any_of(values.cbegin(), values.cend(), [&randomValue](const auto& value) { return value == randomValue; });
 			if (!isFound)
 				return randomValue;
 		}

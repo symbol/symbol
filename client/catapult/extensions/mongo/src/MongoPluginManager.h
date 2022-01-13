@@ -75,5 +75,4 @@ namespace catapult { namespace mongo {
 }}
 
 /// Entry point for registering a dynamic module with \a manager.
-extern "C" PLUGIN_API
-void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager);
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager);

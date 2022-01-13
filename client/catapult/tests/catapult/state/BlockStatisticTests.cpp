@@ -115,7 +115,7 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
-		test::AssertOperatorEqualReturnsTrueForEqualObjects({ Statistic1, Statistic2, Statistic3, Statistic4 }, { Statistic5 } );
+		test::AssertOperatorEqualReturnsTrueForEqualObjects({ Statistic1, Statistic2, Statistic3, Statistic4 }, { Statistic5 });
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {

@@ -24,7 +24,9 @@
 
 namespace catapult { namespace harvesting {
 
-	struct HarvestRequestIdentifier_tag { static constexpr size_t Size = 32; };
+	struct HarvestRequestIdentifier_tag {
+		static constexpr size_t Size = 32;
+	};
 	using HarvestRequestIdentifier = utils::ByteArray<HarvestRequestIdentifier_tag>;
 
 	/// Harvest request operation.

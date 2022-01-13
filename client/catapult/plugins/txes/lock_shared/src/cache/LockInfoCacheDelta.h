@@ -59,8 +59,8 @@ namespace catapult { namespace cache {
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::ActivePredicate(*lockInfoSets.pPrimary)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::DeltaElements(*lockInfoSets.pPrimary)
 				, m_pDelta(lockInfoSets.pPrimary)
-				, m_pHeightGroupingDelta(lockInfoSets.pHeightGrouping)
-		{}
+				, m_pHeightGroupingDelta(lockInfoSets.pHeightGrouping) {
+		}
 
 	public:
 		using LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::ConstAccessor::find;
@@ -135,7 +135,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a delta around \a lockInfoSets.
 		explicit LockInfoCacheDelta(const typename TCacheTypes::BaseSetDeltaPointers& lockInfoSets)
-				: ReadOnlyViewSupplier<TBasicView>(lockInfoSets)
-		{}
+				: ReadOnlyViewSupplier<TBasicView>(lockInfoSets) {
+		}
 	};
 }}

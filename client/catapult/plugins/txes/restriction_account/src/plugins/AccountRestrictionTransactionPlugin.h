@@ -23,7 +23,9 @@
 #include "catapult/plugins.h"
 #include <memory>
 
-namespace catapult { namespace model { class TransactionPlugin; } }
+namespace catapult { namespace model {
+	class TransactionPlugin;
+}}
 
 namespace catapult { namespace plugins {
 

@@ -33,8 +33,8 @@ namespace catapult { namespace subscribers {
 		StateChangeInfo(cache::CacheChanges&& cacheChanges, model::ChainScore::Delta scoreDelta, Height height)
 				: CacheChanges(std::move(cacheChanges))
 				, ScoreDelta(scoreDelta)
-				, Height(height)
-		{}
+				, Height(height) {
+		}
 
 	public:
 		/// Cache changes.

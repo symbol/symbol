@@ -26,13 +26,11 @@
 #include "catapult/observers/ObserverTypes.h"
 #include "catapult/utils/ArraySet.h"
 
-namespace catapult {
-	namespace cache {
-		class CatapultCache;
-		class UtCache;
-		class UtCacheModifierProxy;
-	}
-}
+namespace catapult { namespace cache {
+	class CatapultCache;
+	class UtCache;
+	class UtCacheModifierProxy;
+}}
 
 namespace catapult { namespace chain {
 

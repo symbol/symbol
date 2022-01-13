@@ -211,7 +211,9 @@ namespace catapult { namespace test {
 	};
 
 #define ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, MIXIN, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::PacketWritersServiceTests<MIXIN>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::PacketWritersServiceTests<MIXIN>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_PACKET_WRITERS_SERVICE_TESTS(TEST_CLASS, MIXIN) \
 	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, MIXIN, CanBootService) \

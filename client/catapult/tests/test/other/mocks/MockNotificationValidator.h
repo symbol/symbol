@@ -33,8 +33,8 @@ namespace catapult { namespace mocks {
 		BasicMockNotificationValidator()
 				: m_result(validators::ValidationResult::Success)
 				, m_triggerOnSpecificType(false)
-				, m_numNotificationTypes(0)
-		{}
+				, m_numNotificationTypes(0) {
+		}
 
 	public:
 		/// Gets the number of collected notification types (in a threadsafe manner).
@@ -53,9 +53,7 @@ namespace catapult { namespace mocks {
 			m_notificationTypes.push_back(notificationType);
 			++m_numNotificationTypes;
 
-			return m_triggerOnSpecificType && m_triggerType != notificationType
-					? validators::ValidationResult::Success
-					: m_result.load();
+			return m_triggerOnSpecificType && m_triggerType != notificationType ? validators::ValidationResult::Success : m_result.load();
 		}
 
 	public:
@@ -86,12 +84,14 @@ namespace catapult { namespace mocks {
 			, public validators::stateless::NotificationValidatorT<TNotification> {
 	public:
 		/// Creates a mock validator with a default name.
-		MockStatelessNotificationValidatorT() : MockStatelessNotificationValidatorT("MockStatelessNotificationValidatorT")
-		{}
+		MockStatelessNotificationValidatorT()
+				: MockStatelessNotificationValidatorT("MockStatelessNotificationValidatorT") {
+		}
 
 		/// Creates a mock validator with \a name.
-		explicit MockStatelessNotificationValidatorT(const std::string& name) : m_name(name)
-		{}
+		explicit MockStatelessNotificationValidatorT(const std::string& name)
+				: m_name(name) {
+		}
 
 	public:
 		const std::string& name() const override {
@@ -116,21 +116,22 @@ namespace catapult { namespace mocks {
 			, public validators::stateful::NotificationValidatorT<TNotification> {
 	public:
 		/// Creates a mock validator with a default name.
-		MockNotificationValidatorT() : MockNotificationValidatorT("MockNotificationValidatorT")
-		{}
+		MockNotificationValidatorT()
+				: MockNotificationValidatorT("MockNotificationValidatorT") {
+		}
 
 		/// Creates a mock validator with \a name.
-		explicit MockNotificationValidatorT(const std::string& name) : m_name(name)
-		{}
+		explicit MockNotificationValidatorT(const std::string& name)
+				: m_name(name) {
+		}
 
 	public:
 		const std::string& name() const override {
 			return m_name;
 		}
 
-		validators::ValidationResult validate(
-				const TNotification& notification,
-				const validators::ValidatorContext& context) const override {
+		validators::ValidationResult validate(const TNotification& notification, const validators::ValidatorContext& context)
+				const override {
 			m_contextPointers.push_back(&context);
 			return getResultForType(notification.Type);
 		}

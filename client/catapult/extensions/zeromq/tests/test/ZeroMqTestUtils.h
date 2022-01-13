@@ -33,14 +33,16 @@
 #include <vector>
 
 namespace catapult {
-	namespace model {
-		struct BlockElement;
-		struct DetachedCosignature;
-		struct TransactionElement;
-		struct TransactionInfo;
-		struct TransactionStatus;
-	}
-	namespace zeromq { class ZeroMqEntityPublisher; }
+namespace model {
+	struct BlockElement;
+	struct DetachedCosignature;
+	struct TransactionElement;
+	struct TransactionInfo;
+	struct TransactionStatus;
+}
+namespace zeromq {
+	class ZeroMqEntityPublisher;
+}
 }
 
 namespace catapult { namespace test {
@@ -128,9 +130,9 @@ namespace catapult { namespace test {
 		MqContext(const std::string& listenInterface, const std::string& connectInterface)
 				: m_registry(mocks::CreateDefaultTransactionRegistry())
 				, m_pZeroMqEntityPublisher(std::make_shared<zeromq::ZeroMqEntityPublisher>(
-						listenInterface,
-						GetDefaultLocalHostZmqPort(),
-						model::CreateNotificationPublisher(m_registry, UnresolvedMosaicId(), Height())))
+						  listenInterface,
+						  GetDefaultLocalHostZmqPort(),
+						  model::CreateNotificationPublisher(m_registry, UnresolvedMosaicId(), Height())))
 				, m_zmqSocket(m_zmqContext, ZMQ_SUB) {
 			m_zmqSocket.set(zmq::sockopt::rcvtimeo, 10);
 			if (std::string::npos != listenInterface.find(':'))
@@ -141,8 +143,9 @@ namespace catapult { namespace test {
 			m_zmqSocket.connect(out.str());
 		}
 
-		explicit MqContext(const std::string& listenInterface = std::string("127.0.0.1")) : MqContext(listenInterface, listenInterface)
-		{}
+		explicit MqContext(const std::string& listenInterface = std::string("127.0.0.1"))
+				: MqContext(listenInterface, listenInterface) {
+		}
 
 	public:
 		/// Subscribes to \a topic.
@@ -228,14 +231,14 @@ namespace catapult { namespace test {
 	template<typename TSubscriber>
 	class MqContextT : public MqContext {
 	private:
-		using SubscriberCreator = std::function<std::unique_ptr<TSubscriber> (zeromq::ZeroMqEntityPublisher&)>;
+		using SubscriberCreator = std::function<std::unique_ptr<TSubscriber>(zeromq::ZeroMqEntityPublisher&)>;
 
 	public:
 		/// Creates a message queue context using the supplied subscriber creator (\a subscriberCreator).
 		explicit MqContextT(const SubscriberCreator& subscriberCreator)
 				: m_pNotificationPublisher(model::CreateNotificationPublisher(registry(), UnresolvedMosaicId(), Height()))
-				, m_pZeroMqSubscriber(subscriberCreator(publisher()))
-		{}
+				, m_pZeroMqSubscriber(subscriberCreator(publisher())) {
+		}
 
 	public:
 		/// Gets the notification publisher.

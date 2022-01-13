@@ -22,12 +22,10 @@
 #pragma once
 #include "catapult/ionet/NodeInteractionResult.h"
 
-namespace catapult {
-	namespace disruptor {
-		struct ConsumerCompletionResult;
-		class ConsumerInput;
-	}
-}
+namespace catapult { namespace disruptor {
+	struct ConsumerCompletionResult;
+	class ConsumerInput;
+}}
 
 namespace catapult { namespace consumers {
 

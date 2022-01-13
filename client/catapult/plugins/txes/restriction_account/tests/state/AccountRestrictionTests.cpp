@@ -62,8 +62,8 @@ namespace catapult { namespace state {
 				OperationType operationType,
 				const CustomAccountRestrictionModifications& modifications) {
 			auto restrictionFlags = OperationType::Allow == operationType
-					? Custom_RestrictionAccount_Flags
-					: Custom_RestrictionAccount_Flags | model::AccountRestrictionFlags::Block;
+											? Custom_RestrictionAccount_Flags
+											: Custom_RestrictionAccount_Flags | model::AccountRestrictionFlags::Block;
 			AccountRestriction restriction(restrictionFlags, Custom_Value_Size);
 			for (const auto& modification : modifications) {
 				if (OperationType::Allow == operationType)
@@ -146,10 +146,16 @@ namespace catapult { namespace state {
 		};
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Allow) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AllowTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Block) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Allow) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AllowTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Block) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 		// endregion
 

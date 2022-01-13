@@ -41,9 +41,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			else
 				builder << "parentId" << ToInt64(transaction.ParentId);
 
-			builder
-					<< "id" << ToInt64(transaction.Id)
-					<< "name" << ToBinary(transaction.NamePtr(), transaction.NameSize);
+			builder << "id" << ToInt64(transaction.Id) << "name" << ToBinary(transaction.NamePtr(), transaction.NameSize);
 		}
 	}
 

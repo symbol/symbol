@@ -112,7 +112,9 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, ImportanceBlockFooterHasProperAlignment) {
-		struct AlignedImportanceBlockHeader : public BlockHeader, public ImportanceBlockFooter {};
+		struct AlignedImportanceBlockHeader
+				: public BlockHeader
+				, public ImportanceBlockFooter {};
 
 #define FIELD(X) EXPECT_ALIGNED(AlignedImportanceBlockHeader, X);
 		IMPORTANCE_BLOCK_FOOTER_FIELDS
@@ -174,9 +176,8 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, GetBlockHeaderDataBuffer_ReturnsCorrectValueBasedOnEntityType) {
-		constexpr uint32_t Importance_Block_Header_Size = sizeof(BlockHeader)
-				+ sizeof(ImportanceBlockFooter)
-				- VerifiableEntity::Header_Size;
+		constexpr uint32_t Importance_Block_Header_Size =
+				sizeof(BlockHeader) + sizeof(ImportanceBlockFooter) - VerifiableEntity::Header_Size;
 		constexpr uint32_t Padded_Block_Header_Size = sizeof(BlockHeader) - VerifiableEntity::Header_Size;
 
 		AssertBlockHeaderDataBuffer(Importance_Block_Header_Size, Entity_Type_Block_Nemesis);
@@ -242,14 +243,22 @@ namespace catapult { namespace model {
 	}
 
 #define DATA_POINTER_TEST(TEST_NAME) \
-	template<typename TAccessTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Normal_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstTraits, BlockNormalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Normal_NonConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonConstTraits, BlockNormalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Importance_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstTraits, BlockImportanceTraits>(); } \
+	template<typename TAccessTraits, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Normal_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstTraits, BlockNormalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Normal_NonConst) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonConstTraits, BlockNormalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Importance_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstTraits, BlockImportanceTraits>(); \
+	} \
 	TEST(TEST_CLASS, TEST_NAME##_Importance_NonConst) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonConstTraits, BlockImportanceTraits>(); \
 	} \
-	template<typename TAccessTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TAccessTraits, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	DATA_POINTER_TEST(TransactionsAreInaccessibleWhenBlockHasNoTransactions) {
 		// Arrange:
@@ -277,10 +286,16 @@ namespace catapult { namespace model {
 	// region IsSizeValid - no transactions
 
 #define IS_SIZE_VALID_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Normal) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Importance) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Normal) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Importance) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		bool IsSizeValid(const Block& block, mocks::PluginOptionFlags options = mocks::PluginOptionFlags::Default) {

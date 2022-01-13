@@ -56,8 +56,8 @@ namespace catapult { namespace thread {
 			FooService(const std::string& threadPoolName, size_t id, ShutdownIds& shutdownIds)
 					: m_threadPoolName(threadPoolName)
 					, m_id(id)
-					, m_shutdownIds(shutdownIds)
-			{}
+					, m_shutdownIds(shutdownIds) {
+			}
 
 		public:
 			std::string threadPoolName() const {
@@ -251,15 +251,11 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, CanAddSingleMergedPoolWithCustomNumberOfThreads) {
-		AssertCanAddSingleMergedPool([](auto& pool, const auto& name) {
-			return pool.pushIsolatedPool(name, 2);
-		});
+		AssertCanAddSingleMergedPool([](auto& pool, const auto& name) { return pool.pushIsolatedPool(name, 2); });
 	}
 
 	TEST(TEST_CLASS, CanAddSingleMergedPoolWithDefaultNumberOfThreads) {
-		AssertCanAddSingleMergedPool([](auto& pool, const auto& name) {
-			return pool.pushIsolatedPool(name);
-		});
+		AssertCanAddSingleMergedPool([](auto& pool, const auto& name) { return pool.pushIsolatedPool(name); });
 	}
 
 	// endregion
@@ -274,7 +270,7 @@ namespace catapult { namespace thread {
 
 		// Act:
 		auto pGroup1 = pool.pushServiceGroup("alpha");
-		auto* pPool1 = pool.pushIsolatedPool("pool 1", 2 );
+		auto* pPool1 = pool.pushIsolatedPool("pool 1", 2);
 		auto pGroup2 = pool.pushServiceGroup("beta");
 		auto* pPool2 = pool.pushIsolatedPool("pool 2", 4);
 

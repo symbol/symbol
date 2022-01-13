@@ -28,10 +28,7 @@
 namespace catapult { namespace config {
 
 	/// Loads configuration from \a path using \a loader.
-	template<
-			typename TConfigurationLoader,
-			typename TConfiguration = std::invoke_result_t<TConfigurationLoader, const std::string&>
-	>
+	template<typename TConfigurationLoader, typename TConfiguration = std::invoke_result_t<TConfigurationLoader, const std::string&>>
 	TConfiguration LoadConfiguration(const std::filesystem::path& path, TConfigurationLoader loader) {
 		if (!std::filesystem::exists(path)) {
 			auto message = "aborting load due to missing configuration file";

@@ -60,8 +60,8 @@ namespace catapult { namespace tools { namespace nemgen {
 					const crypto::KeyPair& signer)
 					: m_networkIdentifier(networkIdentifier)
 					, m_generationHashSeed(generationHashSeed)
-					, m_signer(signer)
-			{}
+					, m_signer(signer) {
+			}
 
 		public:
 			void addNamespaceRegistration(const std::string& namespaceName, BlockDuration duration) {
@@ -102,9 +102,8 @@ namespace catapult { namespace tools { namespace nemgen {
 				auto pTransaction = builder.build();
 				signAndAdd(std::move(pTransaction));
 
-				CATAPULT_LOG(debug)
-						<< "added alias from ns " << utils::HexFormat(namespaceId) << " (" << namespaceName
-						<< ") -> mosaic " << utils::HexFormat(mosaicId);
+				CATAPULT_LOG(debug) << "added alias from ns " << utils::HexFormat(namespaceId) << " (" << namespaceName << ") -> mosaic "
+									<< utils::HexFormat(mosaicId);
 				return UnresolvedMosaicId(namespaceId.unwrap());
 			}
 
@@ -172,8 +171,8 @@ namespace catapult { namespace tools { namespace nemgen {
 			const auto& root = rootPair.second;
 			const auto& rootName = config.NamespaceNames.at(root.id());
 			auto duration = std::numeric_limits<BlockDuration::ValueType>::max() == root.lifetime().End.unwrap()
-					? Eternal_Artifact_Duration
-					: BlockDuration((root.lifetime().End - root.lifetime().Start).unwrap());
+									? Eternal_Artifact_Duration
+									: BlockDuration((root.lifetime().End - root.lifetime().Start).unwrap());
 			transactions.addNamespaceRegistration(rootName, duration);
 
 			// - children

@@ -55,12 +55,10 @@ namespace catapult { namespace timesync {
 		}
 
 		std::unordered_map<std::string, CommunicationTimestamps> GenerateEqualityInstanceMap() {
-			return {
-				{ Default_Key, CommunicationTimestamps(Timestamp(123), Timestamp(234)) },
-				{ "copy", CommunicationTimestamps(Timestamp(123), Timestamp(234)) },
-				{ "diff-send", CommunicationTimestamps(Timestamp(125), Timestamp(234)) },
-				{ "diff-receive", CommunicationTimestamps(Timestamp(123), Timestamp(235)) }
-			};
+			return { { Default_Key, CommunicationTimestamps(Timestamp(123), Timestamp(234)) },
+					 { "copy", CommunicationTimestamps(Timestamp(123), Timestamp(234)) },
+					 { "diff-send", CommunicationTimestamps(Timestamp(125), Timestamp(234)) },
+					 { "diff-receive", CommunicationTimestamps(Timestamp(123), Timestamp(235)) } };
 		}
 	}
 

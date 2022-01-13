@@ -31,8 +31,8 @@ namespace catapult { namespace mongo {
 		/// Creates an external cache storage around \a name and \a id.
 		ExternalCacheStorage(const std::string& name, size_t id)
 				: m_name(name)
-				, m_id(id)
-		{}
+				, m_id(id) {
+		}
 
 	public:
 		virtual ~ExternalCacheStorage() = default;
@@ -62,8 +62,9 @@ namespace catapult { namespace mongo {
 	class ExternalCacheStorageT : public ExternalCacheStorage {
 	public:
 		/// Creates an external cache storage.
-		ExternalCacheStorageT() : ExternalCacheStorage(TCache::Name, TCache::Id)
-		{}
+		ExternalCacheStorageT()
+				: ExternalCacheStorage(TCache::Name, TCache::Id) {
+		}
 
 	public:
 		void saveDelta(const cache::CacheChanges& changes) final override {

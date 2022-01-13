@@ -209,11 +209,9 @@ namespace catapult { namespace ionet {
 		auto collectedData = CollectAll(container);
 
 		// Assert:
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
-			{ keys[1], "22.33.44.55", NodeSource::Static, 9 },
-			{ keys[2], "33.44.55.66", NodeSource::Dynamic, 4 }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
+														{ keys[1], "22.33.44.55", NodeSource::Static, 9 },
+														{ keys[2], "33.44.55.66", NodeSource::Dynamic, 4 } };
 		EXPECT_EQ(expectedContents, collectedData);
 	}
 
@@ -226,11 +224,9 @@ namespace catapult { namespace ionet {
 		auto collectedData = CollectAll(const_cast<const NodeDataContainer&>(container));
 
 		// Assert:
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "11.22.33.44", NodeSource::Dynamic, 0 },
-			{ keys[1], "22.33.44.55", NodeSource::Static, 0 },
-			{ keys[2], "33.44.55.66", NodeSource::Dynamic, 0 }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[0], "11.22.33.44", NodeSource::Dynamic, 0 },
+														{ keys[1], "22.33.44.55", NodeSource::Static, 0 },
+														{ keys[2], "33.44.55.66", NodeSource::Dynamic, 0 } };
 		EXPECT_EQ(expectedContents, collectedData);
 	}
 
@@ -257,10 +253,16 @@ namespace catapult { namespace ionet {
 	}
 
 #define EQUALITY_STRATEGY_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Key) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Host) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HostTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Key) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Host) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HostTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -611,10 +613,8 @@ namespace catapult { namespace ionet {
 
 		// - data associated with key is purged from container
 		EXPECT_EQ(2u, container.size());
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
-			{ keys[1], "22.33.44.55", NodeSource::Static, 9 }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
+														{ keys[1], "22.33.44.55", NodeSource::Static, 9 } };
 		EXPECT_EQ(expectedContents, CollectAll(container));
 	}
 
@@ -721,10 +721,8 @@ namespace catapult { namespace ionet {
 
 		// - data associated with key is purged from container
 		EXPECT_EQ(2u, container.size());
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
-			{ keys[1], "22.33.44.55", NodeSource::Static, 9 }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
+														{ keys[1], "22.33.44.55", NodeSource::Static, 9 } };
 		EXPECT_EQ(expectedContents, CollectAll(container));
 	}
 
@@ -746,7 +744,9 @@ namespace catapult { namespace ionet {
 			// Assert:
 			EXPECT_EQ(1u, container.size());
 
-			auto expectedContents = BasicNodeDataContainer{ { key, "11.22.33.44", NodeSource::Dynamic, 16 }, };
+			auto expectedContents = BasicNodeDataContainer{
+				{ key, "11.22.33.44", NodeSource::Dynamic, 16 },
+			};
 			EXPECT_EQ(expectedContents, CollectAll(container));
 
 			// - check returned values
@@ -778,10 +778,8 @@ namespace catapult { namespace ionet {
 		// Assert:
 		EXPECT_EQ(2u, container.size());
 
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
-			{ keys[1], "22.33.44.55", NodeSource::Local, 9 }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
+														{ keys[1], "22.33.44.55", NodeSource::Local, 9 } };
 		EXPECT_EQ(expectedContents, CollectAll(container));
 
 		// - check returned values
@@ -809,10 +807,8 @@ namespace catapult { namespace ionet {
 		// Assert:
 		EXPECT_EQ(2u, container.size());
 
-		auto expectedContents = BasicNodeDataContainer{
-			{ keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
-			{ keys[2], "33.44.55.66", NodeSource::Dynamic, 4 }
-		};
+		auto expectedContents = BasicNodeDataContainer{ { keys[0], "11.22.33.44", NodeSource::Dynamic, 16 },
+														{ keys[2], "33.44.55.66", NodeSource::Dynamic, 4 } };
 		EXPECT_EQ(expectedContents, CollectAll(container));
 
 		// - should be inaccessible via tryGet too

@@ -41,8 +41,9 @@ namespace catapult { namespace handlers {
 			using ValueType = std::string;
 
 		public:
-			explicit MockCacheView(const CacheDataMap& map) : m_map(map)
-			{}
+			explicit MockCacheView(const CacheDataMap& map)
+					: m_map(map) {
+			}
 
 		public:
 			auto find(KeyType key) const {
@@ -53,13 +54,14 @@ namespace catapult { namespace handlers {
 		public:
 			class MockCacheFindIterator {
 			public:
-				MockCacheFindIterator() : m_isValid(false)
-				{}
+				MockCacheFindIterator()
+						: m_isValid(false) {
+				}
 
 				explicit MockCacheFindIterator(CacheDataMap::const_iterator iter)
 						: m_isValid(true)
-						, m_iter(iter)
-				{}
+						, m_iter(iter) {
+				}
 
 			public:
 				const ValueType* tryGetUnadapted() {
@@ -161,8 +163,8 @@ namespace catapult { namespace handlers {
 		public:
 			MockCacheEntryInfosContext()
 					: pCache(PrepareCache())
-					, ProducerFactory(CacheEntryInfosProducerFactory<MockCacheDescriptor>::Create(*pCache))
-			{}
+					, ProducerFactory(CacheEntryInfosProducerFactory<MockCacheDescriptor>::Create(*pCache)) {
+			}
 
 			std::unique_ptr<MockCache> pCache;
 			MockCacheEntryInfosProducerFactory ProducerFactory;

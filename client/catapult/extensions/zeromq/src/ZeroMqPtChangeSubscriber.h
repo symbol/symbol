@@ -23,7 +23,9 @@
 #include "catapult/cache_tx/PtChangeSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace zeromq { class ZeroMqEntityPublisher; } }
+namespace catapult { namespace zeromq {
+	class ZeroMqEntityPublisher;
+}}
 
 namespace catapult { namespace zeromq {
 

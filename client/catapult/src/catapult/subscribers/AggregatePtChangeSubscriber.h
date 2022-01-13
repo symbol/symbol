@@ -27,7 +27,9 @@ namespace catapult { namespace subscribers {
 
 	/// Aggregate partial transactions change subscriber.
 	template<typename TPtChangeSubscriber = cache::PtChangeSubscriber>
-	class AggregatePtChangeSubscriber : public BasicAggregateSubscriber<TPtChangeSubscriber>, public cache::PtChangeSubscriber {
+	class AggregatePtChangeSubscriber
+			: public BasicAggregateSubscriber<TPtChangeSubscriber>
+			, public cache::PtChangeSubscriber {
 	public:
 		using BasicAggregateSubscriber<TPtChangeSubscriber>::BasicAggregateSubscriber;
 

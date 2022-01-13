@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "TransactionConsumers.h"
 #include "ConsumerResultFactory.h"
+#include "TransactionConsumers.h"
 
 namespace catapult { namespace consumers {
 
@@ -33,8 +33,8 @@ namespace catapult { namespace consumers {
 					const NewTransactionsProcessor& newTransactionsProcessor)
 					: m_minTransactionFailuresCountForBan(minTransactionFailuresCountForBan)
 					, m_minTransactionFailuresPercentForBan(minTransactionFailuresPercentForBan)
-					, m_newTransactionsProcessor(newTransactionsProcessor)
-			{}
+					, m_newTransactionsProcessor(newTransactionsProcessor) {
+			}
 
 		public:
 			ConsumerResult operator()(disruptor::ConsumerInput& input) const {
@@ -74,12 +74,10 @@ namespace catapult { namespace consumers {
 				if (0 == aggregateResult.FailureCount)
 					return aggregateResult.SuccessCount > 0 ? CompleteSuccess() : CompleteNeutral();
 
-				auto shouldBan =
-						aggregateResult.FailureCount >= m_minTransactionFailuresCountForBan
-						&& aggregateResult.FailureCount * 100 / transactions.size() >= m_minTransactionFailuresPercentForBan;
-				return shouldBan
-						? Abort(validators::ValidationResult::Failure, disruptor::ConsumerResultSeverity::Fatal)
-						: Abort(validators::ValidationResult::Failure);
+				auto shouldBan = aggregateResult.FailureCount >= m_minTransactionFailuresCountForBan
+								 && aggregateResult.FailureCount * 100 / transactions.size() >= m_minTransactionFailuresPercentForBan;
+				return shouldBan ? Abort(validators::ValidationResult::Failure, disruptor::ConsumerResultSeverity::Fatal)
+								 : Abort(validators::ValidationResult::Failure);
 			}
 
 		private:

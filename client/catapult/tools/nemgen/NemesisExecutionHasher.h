@@ -23,7 +23,9 @@
 #include "blockhashes/NemesisBlockHashesCalculator.h"
 #include <string>
 
-namespace catapult { namespace config { class CatapultConfiguration; } }
+namespace catapult { namespace config {
+	class CatapultConfiguration;
+}}
 
 namespace catapult { namespace tools { namespace nemgen {
 

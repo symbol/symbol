@@ -34,8 +34,9 @@ namespace catapult { namespace mocks {
 		}
 	}
 
-	MockMemoryBlockStorage::MockMemoryBlockStorage() : MemoryBlockStorage(CreateNemesisBlockElement())
-	{}
+	MockMemoryBlockStorage::MockMemoryBlockStorage()
+			: MemoryBlockStorage(CreateNemesisBlockElement()) {
+	}
 
 	// endregion
 

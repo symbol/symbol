@@ -28,8 +28,8 @@
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/TestHarness.h"
 
-using catapult::model::ImportanceHeight;
 using catapult::model::ConvertToImportanceHeight;
+using catapult::model::ImportanceHeight;
 
 namespace catapult { namespace cache {
 
@@ -118,12 +118,22 @@ namespace catapult { namespace cache {
 	// region tryGetAccountImportance / getAccountImportanceOrDefault
 
 #define KEY_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_PublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MainAccount) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MainAccountTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_RemoteAccount) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RemoteAccountTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_PublicKey) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MainAccount) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MainAccountTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_RemoteAccount) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RemoteAccountTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		void AssertCannotFindImportance(const ImportanceView& view, const Key& key, Height height) {
@@ -203,19 +213,37 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		struct AddressCanHarvestViaMemberTraits : public AddressTraits, public CanHarvestViaMemberTraits {};
-		struct PublicKeyCanHarvestViaMemberTraits : public PublicKeyTraits, public CanHarvestViaMemberTraits {};
-		struct MainAccountCanHarvestViaMemberTraits : public MainAccountTraits, public CanHarvestViaMemberTraits {};
-		struct RemoteAccountCanHarvestViaMemberTraits : public RemoteAccountTraits, public CanHarvestViaMemberTraits {};
+		struct AddressCanHarvestViaMemberTraits
+				: public AddressTraits
+				, public CanHarvestViaMemberTraits {};
+		struct PublicKeyCanHarvestViaMemberTraits
+				: public PublicKeyTraits
+				, public CanHarvestViaMemberTraits {};
+		struct MainAccountCanHarvestViaMemberTraits
+				: public MainAccountTraits
+				, public CanHarvestViaMemberTraits {};
+		struct RemoteAccountCanHarvestViaMemberTraits
+				: public RemoteAccountTraits
+				, public CanHarvestViaMemberTraits {};
 	}
 
 #define CAN_HARVEST_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressCanHarvestViaMemberTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_PublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyCanHarvestViaMemberTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MainAccount) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MainAccountCanHarvestViaMemberTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_RemoteAccount) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RemoteAccountCanHarvestViaMemberTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressCanHarvestViaMemberTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_PublicKey) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyCanHarvestViaMemberTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MainAccount) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MainAccountCanHarvestViaMemberTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_RemoteAccount) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RemoteAccountCanHarvestViaMemberTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenAccountIsUnknown) {
 		// Arrange:
@@ -299,11 +327,19 @@ namespace catapult { namespace cache {
 	}
 
 #define IMPROPER_LINKS_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_TryGet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryGetTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Get) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_CanHarvest) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CanHarvestTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_TryGet) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryGetTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Get) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_CanHarvest) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CanHarvestTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		template<typename TTraits, typename TMutator>

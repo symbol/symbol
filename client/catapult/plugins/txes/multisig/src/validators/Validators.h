@@ -43,8 +43,8 @@ namespace catapult { namespace validators {
 
 	/// Validator that applies to multisig new osignatory notifications and validates that:
 	/// - the cosignatory is cosigning at most \a maxCosignedAccountsPerAccount
-	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, model::MultisigNewCosignatoryNotification)(
-			uint32_t maxCosignedAccountsPerAccount);
+	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, model::MultisigNewCosignatoryNotification)
+	(uint32_t maxCosignedAccountsPerAccount);
 
 	/// Validator that applies to multisig cosignatories notifications and validates that:
 	/// - the multisig account has at most \a maxCosignatoriesPerAccount cosignatories
@@ -62,13 +62,11 @@ namespace catapult { namespace validators {
 
 	/// Validator that applies to aggregate cosignatures notifications and validates that:
 	///  - all cosignatories are eligible counterparties (using \a transactionRegistry to retrieve custom approval requirements)
-	DECLARE_STATEFUL_VALIDATOR(
-			MultisigAggregateEligibleCosignatories,
-			model::AggregateCosignaturesNotification)(const model::TransactionRegistry& transactionRegistry);
+	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosignatories, model::AggregateCosignaturesNotification)
+	(const model::TransactionRegistry& transactionRegistry);
 
 	/// Validator that applies to aggregate embeded transaction notifications and validates that:
 	///  - present cosignatories are sufficient (using \a transactionRegistry to retrieve custom approval requirements)
-	DECLARE_STATEFUL_VALIDATOR(
-			MultisigAggregateSufficientCosignatories,
-			model::AggregateEmbeddedTransactionNotification)(const model::TransactionRegistry& transactionRegistry);
+	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosignatories, model::AggregateEmbeddedTransactionNotification)
+	(const model::TransactionRegistry& transactionRegistry);
 }}

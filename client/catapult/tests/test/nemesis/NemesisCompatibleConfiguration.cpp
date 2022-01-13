@@ -34,37 +34,33 @@ namespace catapult { namespace test {
 	}
 
 	void AddNemesisPluginExtensions(model::BlockchainConfiguration& config) {
-		config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
-		config.Plugins.emplace("catapult.plugins.mosaic", utils::ConfigurationBag({{
-			"",
-			{
-				{ "maxMosaicsPerAccount", "123" },
-				{ "maxMosaicDuration", "456d" },
-				{ "maxMosaicDivisibility", "6" },
+		config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
+		config.Plugins.emplace(
+				"catapult.plugins.mosaic",
+				utils::ConfigurationBag({ { "",
+											{ { "maxMosaicsPerAccount", "123" },
+											  { "maxMosaicDuration", "456d" },
+											  { "maxMosaicDivisibility", "6" },
 
-				{ "mosaicRentalFeeSinkAddressV1", Mosaic_Rental_Fee_Sink_Address },
-				{ "mosaicRentalFeeSinkAddress", Mosaic_Rental_Fee_Sink_Address },
-				{ "mosaicRentalFee", "500" }
-			}
-		}}));
-		config.Plugins.emplace("catapult.plugins.namespace", utils::ConfigurationBag({{
-			"",
-			{
-				{ "maxNameSize", "64" },
-				{ "maxChildNamespaces", "100" },
-				{ "maxNamespaceDepth", "3" },
+											  { "mosaicRentalFeeSinkAddressV1", Mosaic_Rental_Fee_Sink_Address },
+											  { "mosaicRentalFeeSinkAddress", Mosaic_Rental_Fee_Sink_Address },
+											  { "mosaicRentalFee", "500" } } } }));
+		config.Plugins.emplace(
+				"catapult.plugins.namespace",
+				utils::ConfigurationBag({ { "",
+											{ { "maxNameSize", "64" },
+											  { "maxChildNamespaces", "100" },
+											  { "maxNamespaceDepth", "3" },
 
-				{ "minNamespaceDuration", "1m" },
-				{ "maxNamespaceDuration", "365d" },
-				{ "namespaceGracePeriodDuration", "1h" },
-				{ "reservedRootNamespaceNames", "cat" },
+											  { "minNamespaceDuration", "1m" },
+											  { "maxNamespaceDuration", "365d" },
+											  { "namespaceGracePeriodDuration", "1h" },
+											  { "reservedRootNamespaceNames", "cat" },
 
-				{ "namespaceRentalFeeSinkAddressV1", Namespace_Rental_Fee_Sink_Address },
-				{ "namespaceRentalFeeSinkAddress", Namespace_Rental_Fee_Sink_Address },
-				{ "rootNamespaceRentalFeePerBlock", "10" },
-				{ "childNamespaceRentalFee", "10000" }
-			}
-		}}));
+											  { "namespaceRentalFeeSinkAddressV1", Namespace_Rental_Fee_Sink_Address },
+											  { "namespaceRentalFeeSinkAddress", Namespace_Rental_Fee_Sink_Address },
+											  { "rootNamespaceRentalFeePerBlock", "10" },
+											  { "childNamespaceRentalFee", "10000" } } } }));
 	}
 
 	namespace {

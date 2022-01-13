@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AccountAddressRestrictionNoSelfModificationValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionNoSelfModification,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionNoSelfModification, )
 
 	namespace {
 		constexpr auto Add = model::AccountRestrictionModificationAction::Add;

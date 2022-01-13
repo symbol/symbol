@@ -36,8 +36,8 @@ namespace catapult { namespace plugins {
 		manager.addTransactionSupport(CreateMosaicMetadataTransactionPlugin());
 		manager.addTransactionSupport(CreateNamespaceMetadataTransactionPlugin());
 
-		manager.addCacheSupport<cache::MetadataCacheStorage>(std::make_unique<cache::MetadataCache>(
-				manager.cacheConfig(cache::MetadataCache::Name)));
+		manager.addCacheSupport<cache::MetadataCacheStorage>(
+				std::make_unique<cache::MetadataCache>(manager.cacheConfig(cache::MetadataCache::Name)));
 
 		using CacheHandlers = CacheHandlers<cache::MetadataCacheDescriptor>;
 		CacheHandlers::Register<model::FacilityCode::Metadata>(manager);
@@ -53,17 +53,12 @@ namespace catapult { namespace plugins {
 			builder.add(validators::CreateMetadataSizesValidator(maxValueSize));
 		});
 
-		manager.addStatefulValidatorHook([](auto& builder) {
-			builder.add(validators::CreateMetadataValueValidator());
-		});
+		manager.addStatefulValidatorHook([](auto& builder) { builder.add(validators::CreateMetadataValueValidator()); });
 
-		manager.addObserverHook([](auto& builder) {
-			builder.add(observers::CreateMetadataValueObserver());
-		});
+		manager.addObserverHook([](auto& builder) { builder.add(observers::CreateMetadataValueObserver()); });
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterMetadataSubsystem(manager);
 }

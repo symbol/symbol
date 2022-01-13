@@ -99,12 +99,22 @@ namespace catapult { namespace io {
 	}
 
 #define ROUNDTRIP_SIZE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_64) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits64>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_32) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits32>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_16) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits16>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_8) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits8>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_64) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits64>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_32) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits32>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_16) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits16>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_8) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits8>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ROUNDTRIP_SIZE_TEST(CanRoundtripInteger) {
 		AssertCanRoundtripInteger<TTraits>();
@@ -150,10 +160,16 @@ namespace catapult { namespace io {
 	}
 
 #define ROUNDTRIP_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ReadReturnValue) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadReturnValueTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ReadOutParameter) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadOutParameterTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ReadReturnValue) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadReturnValueTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ReadOutParameter) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadOutParameterTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ROUNDTRIP_TEST(CanRoundtripBaseValue) {
 		// Arrange:

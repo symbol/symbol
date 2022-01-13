@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicSupplyChange, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicSupplyChange, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Mosaic_Supply_Change)
@@ -50,10 +50,9 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			MosaicRequiredNotification::Notification_Type,
-			MosaicSupplyChangeNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ MosaicRequiredNotification::Notification_Type, MosaicSupplyChangeNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotifications) {

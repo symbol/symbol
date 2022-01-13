@@ -40,7 +40,8 @@ namespace catapult { namespace net {
 
 		struct ConnectorTestContext {
 		public:
-			explicit ConnectorTestContext(const Key& publicKey) : ConnectorTestContext(test::CreateConnectionSettings(publicKey)) {
+			explicit ConnectorTestContext(const Key& publicKey)
+					: ConnectorTestContext(test::CreateConnectionSettings(publicKey)) {
 				ServerPublicKey = publicKey;
 			}
 
@@ -49,8 +50,8 @@ namespace catapult { namespace net {
 					, ClientPublicKey(test::GenerateRandomByteArray<Key>())
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
-					, pConnector(CreateServerConnector(*pPool, ClientPublicKey, settings))
-			{}
+					, pConnector(CreateServerConnector(*pPool, ClientPublicKey, settings)) {
+			}
 
 			~ConnectorTestContext() {
 				pConnector->shutdown();
@@ -213,10 +214,8 @@ namespace catapult { namespace net {
 	// region connected socket
 
 	namespace {
-		using ResultServerClientHandler = consumer<
-			PeerConnectCode,
-			const std::shared_ptr<ionet::PacketSocket>&,
-			const ionet::PacketSocketInfo&>;
+		using ResultServerClientHandler =
+				consumer<PeerConnectCode, const std::shared_ptr<ionet::PacketSocket>&, const ionet::PacketSocketInfo&>;
 
 		void RunConnectedSocketTest(const ConnectorTestContext& context, const ResultServerClientHandler& handler) {
 			// Act: establish a single connection
@@ -309,11 +308,14 @@ namespace catapult { namespace net {
 			test::TcpAcceptor acceptor(context.IoContext);
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
 			boost::asio::post(acceptor.strand(), [&context, &acceptor = acceptor.get(), &numCallbacks, &pServerSocket]() {
-				ionet::Accept(context.IoContext, acceptor, test::CreatePacketSocketOptions(), [&numCallbacks, &pServerSocket](
-						const auto& socketInfo) {
-					pServerSocket = socketInfo.socket();
-					++numCallbacks;
-				});
+				ionet::Accept(
+						context.IoContext,
+						acceptor,
+						test::CreatePacketSocketOptions(),
+						[&numCallbacks, &pServerSocket](const auto& socketInfo) {
+							pServerSocket = socketInfo.socket();
+							++numCallbacks;
+						});
 			});
 
 			// - client: start a connection to the server
@@ -334,9 +336,7 @@ namespace catapult { namespace net {
 
 					// - cancel all outstanding acceptor operations to allow the server to shutdown
 					CATAPULT_LOG(debug) << "cancelling outstanding acceptor operations";
-					boost::asio::post(acceptor.strand(), [&acceptor = acceptor.get()]() {
-						acceptor.cancel();
-					});
+					boost::asio::post(acceptor.strand(), [&acceptor = acceptor.get()]() { acceptor.cancel(); });
 				}
 			});
 
@@ -345,9 +345,8 @@ namespace catapult { namespace net {
 
 			// Retry: if there are an unexpected number of connections or dummy connections
 			if (numActiveConnections != numDesiredActiveConnections || numDummyConnections == numDesiredActiveConnections) {
-				CATAPULT_LOG(warning)
-						<< "unexpected number of connections " << numActiveConnections
-						<< " or dummy connections " << numDummyConnections;
+				CATAPULT_LOG(warning) << "unexpected number of connections " << numActiveConnections << " or dummy connections "
+									  << numDummyConnections;
 				return false;
 			}
 
@@ -363,9 +362,7 @@ namespace catapult { namespace net {
 		void RunTimeoutTest(const ConnectionSettings& settings, size_t numDesiredActiveConnections) {
 			// Assert: non-deterministic because a socket could connect before it times out and/or timeout in the
 			//         wrong state (connecting vs verifying)
-			test::RunNonDeterministicTest("Timeout", [&]() {
-				return RunTimeoutTestIteration(settings, numDesiredActiveConnections);
-			});
+			test::RunNonDeterministicTest("Timeout", [&]() { return RunTimeoutTestIteration(settings, numDesiredActiveConnections); });
 		}
 	}
 

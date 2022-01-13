@@ -29,8 +29,8 @@ namespace catapult { namespace validators {
 			NotificationValidatorPointer&& pValidator,
 			NotificationPublisherPointer&& pPublisher)
 			: m_pValidator(std::move(pValidator))
-			, m_pPublisher(std::move(pPublisher))
-	{}
+			, m_pPublisher(std::move(pPublisher)) {
+	}
 
 	void NotificationValidatorAdapter::setExclusionFilter(const predicate<model::NotificationType>& filter) {
 		m_exclusionFilter = filter;

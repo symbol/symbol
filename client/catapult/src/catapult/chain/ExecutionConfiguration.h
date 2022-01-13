@@ -30,7 +30,7 @@ namespace catapult { namespace chain {
 	/// Configuration for creating contexts for executing entities.
 	struct ExecutionContextConfiguration {
 	private:
-		using ResolverContextFactoryFunc = std::function<model::ResolverContext (const cache::ReadOnlyCatapultCache&)>;
+		using ResolverContextFactoryFunc = std::function<model::ResolverContext(const cache::ReadOnlyCatapultCache&)>;
 
 	public:
 		/// Network info.
@@ -48,7 +48,6 @@ namespace catapult { namespace chain {
 		using PublisherPointer = std::shared_ptr<const model::NotificationPublisher>;
 
 	public:
-
 		/// Observer.
 		ObserverPointer pObserver;
 

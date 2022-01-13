@@ -46,8 +46,8 @@ namespace catapult { namespace builders {
 		class MockBuilder : public TransactionBuilder {
 		public:
 			MockBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-					: TransactionBuilder(networkIdentifier, signer)
-			{}
+					: TransactionBuilder(networkIdentifier, signer) {
+			}
 
 		public:
 			std::unique_ptr<mocks::MockTransaction> build() const {
@@ -106,9 +106,7 @@ namespace catapult { namespace builders {
 		expectedProperties.MaxFee = Amount(12345);
 
 		// Assert:
-		AssertCanBuildTransaction(expectedProperties, [](auto& builder) {
-			builder.setMaxFee(Amount(12345));
-		});
+		AssertCanBuildTransaction(expectedProperties, [](auto& builder) { builder.setMaxFee(Amount(12345)); });
 	}
 
 	TEST(TEST_CLASS, CanSetDeadline) {
@@ -117,9 +115,7 @@ namespace catapult { namespace builders {
 		expectedProperties.Deadline = Timestamp(54321);
 
 		// Assert:
-		AssertCanBuildTransaction(expectedProperties, [](auto& builder) {
-			builder.setDeadline(Timestamp(54321));
-		});
+		AssertCanBuildTransaction(expectedProperties, [](auto& builder) { builder.setDeadline(Timestamp(54321)); });
 	}
 
 	TEST(TEST_CLASS, CanSetMaxFeeAndDeadline) {

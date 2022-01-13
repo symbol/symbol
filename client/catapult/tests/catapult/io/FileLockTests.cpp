@@ -53,11 +53,13 @@ namespace catapult { namespace io {
 		TempFileGuard guard("test.lock");
 
 		// Act: create a lock, but don't let the process run the dtor
-		ASSERT_DEATH({
-			FileLock lock(guard.name());
-			lock.lock();
-			_exit(1);
-		}, "");
+		ASSERT_DEATH(
+				{
+					FileLock lock(guard.name());
+					lock.lock();
+					_exit(1);
+				},
+				"");
 
 		// Assert:
 		EXPECT_TRUE(std::filesystem::exists(guard.name()));
@@ -68,11 +70,13 @@ namespace catapult { namespace io {
 		TempFileGuard guard("test.lock");
 
 		// - create a lock, but don't let the process run the dtor
-		ASSERT_DEATH({
-			FileLock lock(guard.name());
-			lock.lock();
-			_exit(1);
-		}, "");
+		ASSERT_DEATH(
+				{
+					FileLock lock(guard.name());
+					lock.lock();
+					_exit(1);
+				},
+				"");
 
 		// Sanity:
 		EXPECT_TRUE(std::filesystem::exists(guard.name()));
@@ -95,11 +99,14 @@ namespace catapult { namespace io {
 		ASSERT_TRUE(std::filesystem::exists(guard.name()));
 
 		// Act: create a new process, that tries to acquire same lock
-		ASSERT_EXIT({
-			FileLock descendantLock(guard.name());
-			auto isLockAcquired = descendantLock.try_lock();
-			exit(isLockAcquired ? 123 : 0);
-		}, ::testing::ExitedWithCode(0), "");
+		ASSERT_EXIT(
+				{
+					FileLock descendantLock(guard.name());
+					auto isLockAcquired = descendantLock.try_lock();
+					exit(isLockAcquired ? 123 : 0);
+				},
+				::testing::ExitedWithCode(0),
+				"");
 
 		// Assert:
 		EXPECT_TRUE(std::filesystem::exists(guard.name()));

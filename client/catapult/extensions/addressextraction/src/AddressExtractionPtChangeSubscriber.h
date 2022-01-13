@@ -23,7 +23,9 @@
 #include "catapult/cache_tx/PtChangeSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace addressextraction { class AddressExtractor; } }
+namespace catapult { namespace addressextraction {
+	class AddressExtractor;
+}}
 
 namespace catapult { namespace addressextraction {
 

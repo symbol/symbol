@@ -25,7 +25,9 @@
 #include <bitset>
 #include <memory>
 
-namespace catapult { namespace tree { class TreeNode; } }
+namespace catapult { namespace tree {
+	class TreeNode;
+}}
 
 namespace catapult { namespace tree {
 

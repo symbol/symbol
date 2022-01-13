@@ -22,7 +22,9 @@
 #pragma once
 #include <string>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace config {
 

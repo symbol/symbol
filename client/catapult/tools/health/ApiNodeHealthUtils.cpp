@@ -28,43 +28,41 @@
 #include <regex>
 #include <unordered_map>
 
-namespace catapult { namespace tools { namespace health {
+namespace catapult { namespace tools { namespace health { namespace {
+	// matcher for async_read_until that will match when at least one closing brace has been found
+	// and all opening and closing braces are balanced
+	struct BalancedBraceMatcher {
+	private:
+		using iterator = boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type>;
 
-	namespace {
-		// matcher for async_read_until that will match when at least one closing brace has been found
-		// and all opening and closing braces are balanced
-		struct BalancedBraceMatcher {
-		private:
-			using iterator = boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type>;
+	public:
+		BalancedBraceMatcher()
+				: m_numUnmatchedOpenBraces(0) {
+		}
 
-		public:
-			BalancedBraceMatcher() : m_numUnmatchedOpenBraces(0)
-			{}
+	public:
+		std::pair<iterator, bool> operator()(iterator begin, iterator end) {
+			for (auto iter = begin; end != iter; ++iter) {
+				switch (*iter) {
+				case '{':
+					++m_numUnmatchedOpenBraces;
+					break;
 
-		public:
-			std::pair<iterator, bool> operator()(iterator begin, iterator end) {
-				for (auto iter = begin; end != iter; ++iter) {
-					switch (*iter) {
-					case '{':
-						++m_numUnmatchedOpenBraces;
-						break;
+				case '}':
+					if (0 == --m_numUnmatchedOpenBraces)
+						return std::make_pair(iter, true);
 
-					case '}':
-						if (0 == --m_numUnmatchedOpenBraces)
-							return std::make_pair(iter, true);
-
-						break;
-					}
+					break;
 				}
-
-				return std::make_pair(end, false);
 			}
 
-		private:
-			size_t m_numUnmatchedOpenBraces;
-		};
-	}
-}}}
+			return std::make_pair(end, false);
+		}
+
+	private:
+		size_t m_numUnmatchedOpenBraces;
+	};
+}}}}
 
 namespace boost { namespace asio {
 
@@ -98,8 +96,8 @@ namespace catapult { namespace tools { namespace health {
 					: m_socket(ioContext)
 					, m_resolver(ioContext)
 					, m_host(host + ":" + std::to_string(port))
-					, m_query(host, std::to_string(port))
-			{}
+					, m_query(host, std::to_string(port)) {
+			}
 
 		public:
 			thread::future<ionet::ConnectResult> future() {
@@ -118,11 +116,9 @@ namespace catapult { namespace tools { namespace health {
 			void start() {
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable:4459) /* declaration of 'query' hides global declaration */
+#pragma warning(disable : 4459) /* declaration of 'query' hides global declaration */
 #endif
-				m_resolver.async_resolve(m_query, [this](const auto& ec, auto iterator) {
-					this->handleResolve(ec, iterator);
-				});
+				m_resolver.async_resolve(m_query, [this](const auto& ec, auto iterator) { this->handleResolve(ec, iterator); });
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -134,9 +130,7 @@ namespace catapult { namespace tools { namespace health {
 					return complete(ionet::ConnectResult::Resolve_Error);
 
 				m_endpoint = iterator->endpoint();
-				m_socket.async_connect(m_endpoint, [this](const auto& connectEc) {
-					this->handleConnect(connectEc);
-				});
+				m_socket.async_connect(m_endpoint, [this](const auto& connectEc) { this->handleConnect(connectEc); });
 			}
 
 			void handleConnect(const boost::system::error_code& ec) {
@@ -171,12 +165,7 @@ namespace catapult { namespace tools { namespace health {
 		public:
 			using ResultType = std::unordered_map<std::string, uint64_t>;
 
-			enum class Result {
-				Connection_Error,
-				Read_Error,
-				Write_Error,
-				Success
-			};
+			enum class Result { Connection_Error, Read_Error, Write_Error, Success };
 
 		public:
 			MultiHttpGetRetriever(
@@ -185,8 +174,8 @@ namespace catapult { namespace tools { namespace health {
 					uint16_t port,
 					const std::vector<std::string>& apiUris)
 					: m_connector(ioContext, host, port)
-					, m_apiUris(apiUris)
-			{}
+					, m_apiUris(apiUris) {
+			}
 
 		public:
 			thread::future<ResultType> future() {
@@ -213,10 +202,9 @@ namespace catapult { namespace tools { namespace health {
 
 				// create and send an HTTP GET request
 				std::ostream requestStream(&m_request);
-				requestStream
-						<< "GET " << apiUri << " HTTP/1.1\r\n"
-						<< "Host: " << m_connector.host() << "\r\n"
-						<< "Accept: */*\r\n\r\n";
+				requestStream << "GET " << apiUri << " HTTP/1.1\r\n"
+							  << "Host: " << m_connector.host() << "\r\n"
+							  << "Accept: */*\r\n\r\n";
 
 				boost::asio::async_write(m_connector.socket(), m_request, [this](const auto& ec, auto) {
 					this->handleWriteHttpGetRequest(ec);

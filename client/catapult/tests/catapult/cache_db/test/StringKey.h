@@ -30,12 +30,14 @@ namespace catapult { namespace test {
 	class StringKey {
 	public:
 		/// Creates a string key around \a data.
-		StringKey(const std::string& data) : m_data(data)
-		{}
+		StringKey(const std::string& data)
+				: m_data(data) {
+		}
 
 		/// Creates a string key around \a data.
-		StringKey(const char* data) : m_data(data)
-		{}
+		StringKey(const char* data)
+				: m_data(data) {
+		}
 
 	public:
 		/// Gets a pointer to data.

@@ -25,13 +25,11 @@
 #include <memory>
 #include <string>
 
-namespace catapult {
-	namespace cache {
-		class CacheChangesStorage;
-		class CacheStorage;
-		class CatapultCache;
-	}
-}
+namespace catapult { namespace cache {
+	class CacheChangesStorage;
+	class CacheStorage;
+	class CatapultCache;
+}}
 
 namespace catapult { namespace cache {
 

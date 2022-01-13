@@ -36,8 +36,8 @@ namespace catapult { namespace utils {
 		/// Constructs a logger with the specified throttle in milliseconds (\a throttleMillis).
 		explicit ThrottleLogger(uint64_t throttleMillis)
 				: m_throttleMillis(throttleMillis)
-				, m_counter(0)
-		{}
+				, m_counter(0) {
+		}
 
 	public:
 		/// Gets the total number of log attempts.
@@ -77,5 +77,5 @@ namespace catapult { namespace utils {
 #define CATAPULT_LOG_THROTTLE(LEVEL, THROTTLE_MILLIS) \
 	static utils::ThrottleLogger BOOST_LOG_UNIQUE_IDENTIFIER_NAME_INTERNAL(throttle_logger, __LINE__)(THROTTLE_MILLIS); \
 	if (!BOOST_LOG_UNIQUE_IDENTIFIER_NAME_INTERNAL(throttle_logger, __LINE__).isThrottled()) \
-		CATAPULT_LOG(LEVEL) << "[" << BOOST_LOG_UNIQUE_IDENTIFIER_NAME_INTERNAL(throttle_logger, __LINE__).counter() << " log count] "
+	CATAPULT_LOG(LEVEL) << "[" << BOOST_LOG_UNIQUE_IDENTIFIER_NAME_INTERNAL(throttle_logger, __LINE__).counter() << " log count] "
 }}

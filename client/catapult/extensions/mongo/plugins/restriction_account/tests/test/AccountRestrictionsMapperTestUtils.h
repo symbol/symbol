@@ -22,12 +22,10 @@
 #pragma once
 #include "mongo/src/mappers/MapperInclude.h"
 
-namespace catapult {
-	namespace state {
-		class AccountRestriction;
-		class AccountRestrictions;
-	}
-}
+namespace catapult { namespace state {
+	class AccountRestriction;
+	class AccountRestrictions;
+}}
 
 namespace catapult { namespace test {
 

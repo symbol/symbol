@@ -25,12 +25,10 @@
 #include <memory>
 #include <string>
 
-namespace catapult {
-	namespace extensions {
-		class ServiceLocator;
-		class ServiceState;
-	}
-}
+namespace catapult { namespace extensions {
+	class ServiceLocator;
+	class ServiceState;
+}}
 
 namespace catapult { namespace extensions {
 

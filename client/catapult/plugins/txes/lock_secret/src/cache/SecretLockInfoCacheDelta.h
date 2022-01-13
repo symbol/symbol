@@ -36,9 +36,7 @@ namespace catapult { namespace cache {
 	class SecretLockInfoCacheDelta
 			: public LockInfoCacheDelta<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes, BasicSecretLockInfoCacheDelta> {
 	public:
-		using LockInfoCacheDelta<
-				SecretLockInfoCacheDescriptor,
-				SecretLockInfoCacheTypes,
-				BasicSecretLockInfoCacheDelta>::LockInfoCacheDelta;
+		using LockInfoCacheDelta<SecretLockInfoCacheDescriptor, SecretLockInfoCacheTypes, BasicSecretLockInfoCacheDelta>::
+				LockInfoCacheDelta;
 	};
 }}

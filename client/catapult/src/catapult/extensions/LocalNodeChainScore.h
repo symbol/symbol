@@ -33,8 +33,9 @@ namespace catapult { namespace extensions {
 		LocalNodeChainScore() = default;
 
 		/// Creates a local node chain score around \a score.
-		explicit LocalNodeChainScore(const model::ChainScore& score) : m_score (score)
-		{}
+		explicit LocalNodeChainScore(const model::ChainScore& score)
+				: m_score(score) {
+		}
 
 	public:
 		/// Gets the current chain score.

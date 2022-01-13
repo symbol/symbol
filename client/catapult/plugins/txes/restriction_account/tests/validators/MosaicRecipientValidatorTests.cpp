@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicRecipientValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRecipient,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRecipient, )
 
 	namespace {
 		template<typename TOperationTraits>
@@ -100,10 +100,16 @@ namespace catapult { namespace validators {
 	// region success
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Allow) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::AllowTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Block) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BlockTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Allow) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::AllowTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Block) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BlockTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(SuccessWhenRecipientIsNotKnown) {
 		// Arrange:

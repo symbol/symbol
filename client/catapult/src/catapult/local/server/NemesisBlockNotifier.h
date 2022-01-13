@@ -23,20 +23,24 @@
 #include "catapult/functions.h"
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace io {
-		class BlockChangeSubscriber;
-		class BlockStorageCache;
-	}
-	namespace model {
-		struct BlockchainConfiguration;
-		struct BlockElement;
-	}
-	namespace plugins { class PluginManager; }
-	namespace subscribers {
-		class FinalizationSubscriber;
-		class StateChangeSubscriber;
-	}
+namespace cache {
+	class CatapultCache;
+}
+namespace io {
+	class BlockChangeSubscriber;
+	class BlockStorageCache;
+}
+namespace model {
+	struct BlockchainConfiguration;
+	struct BlockElement;
+}
+namespace plugins {
+	class PluginManager;
+}
+namespace subscribers {
+	class FinalizationSubscriber;
+	class StateChangeSubscriber;
+}
 }
 
 namespace catapult { namespace local {

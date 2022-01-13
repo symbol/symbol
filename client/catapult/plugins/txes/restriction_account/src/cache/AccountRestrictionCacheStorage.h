@@ -29,6 +29,5 @@ namespace catapult { namespace cache {
 	/// Policy for saving and loading account restriction cache data.
 	struct AccountRestrictionCacheStorage
 			: public CacheStorageForBasicInsertRemoveCache<AccountRestrictionCacheDescriptor>
-			, public state::AccountRestrictionsSerializer
-	{};
+			, public state::AccountRestrictionsSerializer {};
 }}

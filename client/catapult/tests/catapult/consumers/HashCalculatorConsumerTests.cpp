@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/BlockConsumers.h"
 #include "sdk/src/extensions/BlockExtensions.h"
+#include "catapult/consumers/BlockConsumers.h"
 #include "catapult/consumers/TransactionConsumers.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/EntityHasher.h"
@@ -212,7 +212,7 @@ namespace catapult { namespace consumers {
 		auto input = CreateBlockConsumerInput(3, 4);
 		auto& blockElements = input.blocks();
 
-		(++++const_cast<model::Block&>(blockElements[1].Block).Transactions().begin())->Size *= 2;
+		(++ ++const_cast<model::Block&>(blockElements[1].Block).Transactions().begin())->Size *= 2;
 
 		// Act + Assert: transaction iteration throws an exception
 		EXPECT_THROW(CreateBlockHashCalculatorConsumer(GetNetworkGenerationHashSeed(), registry)(blockElements), catapult_runtime_error);
@@ -323,55 +323,61 @@ namespace catapult { namespace consumers {
 
 	namespace {
 		struct BlockTraits {
-				static ConsumerInput CreateInput() {
-					return CreateBlockConsumerInput(1, 1);
-				}
+			static ConsumerInput CreateInput() {
+				return CreateBlockConsumerInput(1, 1);
+			}
 
-				static void UpdateWithExpectedMerkleHash(ConsumerInput& input, const Hash256& merkleHash) {
-					// set TransactionsHash so that the consumer completes successfully
-					const_cast<Hash256&>(input.blocks()[0].Block.TransactionsHash) = merkleHash;
-				}
+			static void UpdateWithExpectedMerkleHash(ConsumerInput& input, const Hash256& merkleHash) {
+				// set TransactionsHash so that the consumer completes successfully
+				const_cast<Hash256&>(input.blocks()[0].Block.TransactionsHash) = merkleHash;
+			}
 
-				static auto Consume(const model::TransactionRegistry& registry, ConsumerInput& input) {
-					return CreateBlockHashCalculatorConsumer(GetNetworkGenerationHashSeed(), registry)(input.blocks());
-				}
+			static auto Consume(const model::TransactionRegistry& registry, ConsumerInput& input) {
+				return CreateBlockHashCalculatorConsumer(GetNetworkGenerationHashSeed(), registry)(input.blocks());
+			}
 
-				static const auto& GetTransaction(const ConsumerInput& input) {
-					return *input.blocks()[0].Block.TransactionsPtr();
-				}
+			static const auto& GetTransaction(const ConsumerInput& input) {
+				return *input.blocks()[0].Block.TransactionsPtr();
+			}
 
-				static const auto& GetTransactionElement(const ConsumerInput& input) {
-					return input.blocks()[0].Transactions[0];
-				}
+			static const auto& GetTransactionElement(const ConsumerInput& input) {
+				return input.blocks()[0].Transactions[0];
+			}
 		};
 
 		struct TransactionTraits {
-				static ConsumerInput CreateInput() {
-					return CreateTransactionConsumerInput(1);
-				}
+			static ConsumerInput CreateInput() {
+				return CreateTransactionConsumerInput(1);
+			}
 
-				static void UpdateWithExpectedMerkleHash(ConsumerInput&, const Hash256&)
-				{}
+			static void UpdateWithExpectedMerkleHash(ConsumerInput&, const Hash256&) {
+			}
 
-				static auto Consume(const model::TransactionRegistry& registry, ConsumerInput& input) {
-					return CreateTransactionHashCalculatorConsumer(GetNetworkGenerationHashSeed(), registry)(input.transactions());
-				}
+			static auto Consume(const model::TransactionRegistry& registry, ConsumerInput& input) {
+				return CreateTransactionHashCalculatorConsumer(GetNetworkGenerationHashSeed(), registry)(input.transactions());
+			}
 
-				static const auto& GetTransaction(const ConsumerInput& input) {
-					return input.transactions()[0].Transaction;
-				}
+			static const auto& GetTransaction(const ConsumerInput& input) {
+				return input.transactions()[0].Transaction;
+			}
 
-				static const auto& GetTransactionElement(const ConsumerInput& input) {
-					return input.transactions()[0];
-				}
+			static const auto& GetTransactionElement(const ConsumerInput& input) {
+				return input.transactions()[0];
+			}
 		};
 	}
 
 #define DEPENDENT_HASH_CALCULATION_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(BLOCK_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); } \
-	TEST(TRANSACTION_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(BLOCK_TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); \
+	} \
+	TEST(TRANSACTION_TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	DEPENDENT_HASH_CALCULATION_TEST(TransactionEntityHashIsDependentOnDataBuffer) {
 		// Arrange:

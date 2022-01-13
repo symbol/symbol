@@ -26,13 +26,11 @@
 #include <mongocxx/client.hpp>
 #include <type_traits>
 
-namespace catapult {
-	namespace model {
-		struct EmbeddedTransaction;
-		struct Receipt;
-		struct VerifiableEntity;
-	}
-}
+namespace catapult { namespace model {
+	struct EmbeddedTransaction;
+	struct Receipt;
+	struct VerifiableEntity;
+}}
 
 namespace catapult { namespace mongo { namespace mappers {
 
@@ -40,9 +38,9 @@ namespace catapult { namespace mongo { namespace mappers {
 		using bsoncxx::builder::stream::close_array;
 		using bsoncxx::builder::stream::close_document;
 		using bsoncxx::builder::stream::document;
+		using bsoncxx::builder::stream::finalize;
 		using bsoncxx::builder::stream::open_array;
 		using bsoncxx::builder::stream::open_document;
-		using bsoncxx::builder::stream::finalize;
 
 		using array_context = bsoncxx::builder::stream::array_context<bsoncxx::builder::stream::key_context<>>;
 	}
@@ -62,17 +60,13 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 	/// Converts base \a value to int32_t.
-	template<
-		typename TBaseValue,
-		typename X = std::enable_if_t<std::is_same_v<uint32_t, typename TBaseValue::ValueType>>>
+	template<typename TBaseValue, typename X = std::enable_if_t<std::is_same_v<uint32_t, typename TBaseValue::ValueType>>>
 	int32_t ToInt32(TBaseValue value) {
 		return static_cast<int32_t>(value.unwrap());
 	}
 
 	/// Converts base \a value to int64_t.
-	template<
-		typename TBaseValue,
-		typename X = std::enable_if_t<std::is_same_v<uint64_t, typename TBaseValue::ValueType>>>
+	template<typename TBaseValue, typename X = std::enable_if_t<std::is_same_v<uint64_t, typename TBaseValue::ValueType>>>
 	int64_t ToInt64(TBaseValue value) {
 		return static_cast<int64_t>(value.unwrap());
 	}

@@ -29,7 +29,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS MultisigCosignatoriesObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(MultisigCosignatories,)
+	DEFINE_COMMON_OBSERVER_TESTS(MultisigCosignatories, )
 
 	namespace {
 		using ObserverTestContext = test::ObserverTestContextT<test::MultisigCacheFactory>;
@@ -55,8 +55,9 @@ namespace catapult { namespace observers {
 
 		class MultisigCacheFacade {
 		public:
-			explicit MultisigCacheFacade(cache::MultisigCacheDelta& multisigCache) : m_multisigCache(multisigCache)
-			{}
+			explicit MultisigCacheFacade(cache::MultisigCacheDelta& multisigCache)
+					: m_multisigCache(multisigCache) {
+			}
 
 		public:
 			void linkMultisigEntryWithCosignatories(const Address& multisig, const std::vector<Address>& cosignatories) {
@@ -130,8 +131,8 @@ namespace catapult { namespace observers {
 		public:
 			MultisigDescriptor(size_t accountShortId, const std::vector<size_t>& cosignatories)
 					: MultisigId(accountShortId)
-					, CosignatoryIds(cosignatories)
-			{}
+					, CosignatoryIds(cosignatories) {
+			}
 
 		public:
 			size_t MultisigId;
@@ -223,10 +224,16 @@ namespace catapult { namespace observers {
 	}
 
 #define NOTIFY_MODE_BASED_TRAITS(TEST_NAME) \
-	template<typename TTraits> void TEST_NAME(); \
-	TEST(TEST_CLASS, TEST_NAME##_Commit) { TEST_NAME<CommitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Rollback) { TEST_NAME<RollbackTraits>(); } \
-	template<typename TTraits> void TEST_NAME()
+	template<typename TTraits> \
+	void TEST_NAME(); \
+	TEST(TEST_CLASS, TEST_NAME##_Commit) { \
+		TEST_NAME<CommitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Rollback) { \
+		TEST_NAME<RollbackTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TEST_NAME()
 
 	// region add
 

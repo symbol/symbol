@@ -54,8 +54,8 @@ namespace catapult { namespace chain {
 			class RemoteApiWrapper {
 			public:
 				explicit RemoteApiWrapper(const model::FinalizationMessageRange& messageRange)
-						: m_pFinalizationApi(std::make_unique<MockRemoteApi>(messageRange))
-				{}
+						: m_pFinalizationApi(std::make_unique<MockRemoteApi>(messageRange)) {
+				}
 
 			public:
 				const auto& api() const {

@@ -84,8 +84,9 @@ namespace catapult { namespace harvesting {
 
 		class TestContext {
 		public:
-			TestContext() : m_keyPair(test::GenerateKeyPair())
-			{}
+			TestContext()
+					: m_keyPair(test::GenerateKeyPair()) {
+			}
 
 		public:
 			void write(const std::vector<std::vector<uint8_t>>& messages) {
@@ -105,27 +106,32 @@ namespace catapult { namespace harvesting {
 				config::CatapultDirectory directory(m_directoryGuard.name());
 				std::vector<std::vector<uint8_t>> collectedMessages;
 				std::vector<BlockGeneratorAccountDescriptor> collectedDescriptors;
-				UnlockedFileQueueConsumer(directory, maxHeight, m_keyPair, [&collectedMessages, &collectedDescriptors](
-						const auto& request,
-						auto&& descriptor) {
-					collectedMessages.emplace_back(SerializeHarvestRequest(request));
-					collectedDescriptors.emplace_back(std::move(descriptor));
-				});
+				UnlockedFileQueueConsumer(
+						directory,
+						maxHeight,
+						m_keyPair,
+						[&collectedMessages, &collectedDescriptors](const auto& request, auto&& descriptor) {
+							collectedMessages.emplace_back(SerializeHarvestRequest(request));
+							collectedDescriptors.emplace_back(std::move(descriptor));
+						});
 
 				// Assert:
-				AssertForwarded<std::vector<uint8_t>>(messages, collectedMessages, validIndexes, [](
-						const auto& expected,
-						const auto& actual,
-						auto index) {
-					EXPECT_EQ(expected, actual) << "message at " << index;
-				});
-				AssertForwarded<BlockGeneratorAccountDescriptor>(descriptors, collectedDescriptors, validIndexes, [](
-						const auto& expected,
-						const auto& actual,
-						auto index) {
-					EXPECT_EQ(expected.signingKeyPair().publicKey(), actual.signingKeyPair().publicKey()) << "descriptor at " << index;
-					EXPECT_EQ(expected.vrfKeyPair().publicKey(), actual.vrfKeyPair().publicKey()) << "descriptor at " << index;
-				});
+				AssertForwarded<std::vector<uint8_t>>(
+						messages,
+						collectedMessages,
+						validIndexes,
+						[](const auto& expected, const auto& actual, auto index) {
+							EXPECT_EQ(expected, actual) << "message at " << index;
+						});
+				AssertForwarded<BlockGeneratorAccountDescriptor>(
+						descriptors,
+						collectedDescriptors,
+						validIndexes,
+						[](const auto& expected, const auto& actual, auto index) {
+							EXPECT_EQ(expected.signingKeyPair().publicKey(), actual.signingKeyPair().publicKey())
+									<< "descriptor at " << index;
+							EXPECT_EQ(expected.vrfKeyPair().publicKey(), actual.vrfKeyPair().publicKey()) << "descriptor at " << index;
+						});
 			}
 
 		public:

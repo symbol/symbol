@@ -72,8 +72,7 @@ namespace catapult { namespace io {
 
 			if (0 != expectedAddressSize) {
 				for (const auto& address : *transactionInfo.OptionalExtractedAddresses) {
-					EXPECT_EQ(address, reinterpret_cast<const UnresolvedAddress&>(buffer[offset]))
-							<< "address at offset " << offset;
+					EXPECT_EQ(address, reinterpret_cast<const UnresolvedAddress&>(buffer[offset])) << "address at offset " << offset;
 					offset += Address::Size;
 				}
 			}

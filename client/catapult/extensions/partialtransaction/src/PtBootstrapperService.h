@@ -25,7 +25,9 @@
 #include "catapult/extensions/ServiceRegistrar.h"
 #include "catapult/handlers/HandlerTypes.h"
 
-namespace catapult { namespace cache { class MemoryPtCacheProxy; } }
+namespace catapult { namespace cache {
+	class MemoryPtCacheProxy;
+}}
 
 namespace catapult { namespace partialtransaction {
 

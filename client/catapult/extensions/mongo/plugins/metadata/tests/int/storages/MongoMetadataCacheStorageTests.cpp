@@ -72,9 +72,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static auto GetFindFilter(const ModelType& metadataEntry) {
-				return document()
-						<< std::string(Primary_Document_Name) + ".compositeHash" << mappers::ToBinary(metadataEntry.key().uniqueKey())
-						<< finalize;
+				return document() << std::string(Primary_Document_Name) + ".compositeHash"
+								  << mappers::ToBinary(metadataEntry.key().uniqueKey()) << finalize;
 			}
 
 			static void AssertEqual(const ModelType& metadataEntry, const bsoncxx::document::view& view) {

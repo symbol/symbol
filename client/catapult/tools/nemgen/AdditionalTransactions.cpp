@@ -40,8 +40,8 @@ namespace catapult { namespace tools { namespace nemgen {
 		public:
 			AdditionalTransactionNotificationSubscriber(const NemesisConfiguration& config, std::vector<std::string>& violations)
 					: m_violations(violations)
-					, m_nemesisSignerAddress(GetNemesisSignerAddress(config))
-			{}
+					, m_nemesisSignerAddress(GetNemesisSignerAddress(config)) {
+			}
 
 		public:
 			void notify(const model::Notification& notification) override {

@@ -38,11 +38,12 @@ namespace catapult { namespace tree {
 		/// Creates a tree around \a dataSource.
 		explicit BasePatriciaTree(TDataSource& dataSource)
 				: m_dataSource(dataSource)
-				, m_tree(m_dataSource)
-		{}
+				, m_tree(m_dataSource) {
+		}
 
 		/// Creates a tree around \a dataSource with specified root hash (\a rootHash).
-		BasePatriciaTree(TDataSource& dataSource, const Hash256& rootHash) : BasePatriciaTree(dataSource) {
+		BasePatriciaTree(TDataSource& dataSource, const Hash256& rootHash)
+				: BasePatriciaTree(dataSource) {
 			if (!m_tree.tryLoad(rootHash))
 				CATAPULT_THROW_RUNTIME_ERROR_1("unable to load tree with root hash", rootHash);
 		}

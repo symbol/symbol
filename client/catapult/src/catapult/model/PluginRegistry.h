@@ -37,9 +37,7 @@ namespace catapult { namespace model {
 
 		/// Finds the plugin corresponding to \a type or \c nullptr if none is registered.
 		const TPlugin* findPlugin(TPluginKey type) const {
-			auto iter = std::find_if(m_plugins.cbegin(), m_plugins.cend(), [type](const auto& pPlugin) {
-				return pPlugin->type() == type;
-			});
+			auto iter = std::find_if(m_plugins.cbegin(), m_plugins.cend(), [type](const auto& pPlugin) { return pPlugin->type() == type; });
 
 			return m_plugins.cend() == iter ? nullptr : iter->get();
 		}

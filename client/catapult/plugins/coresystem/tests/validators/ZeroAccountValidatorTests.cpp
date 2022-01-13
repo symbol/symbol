@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "src/validators/Validators.h"
 #include "catapult/model/Address.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -28,7 +28,7 @@
 namespace catapult { namespace validators {
 
 	DEFINE_COMMON_VALIDATOR_TESTS(ZeroAddress, model::NetworkIdentifier::Zero)
-	DEFINE_COMMON_VALIDATOR_TESTS(ZeroPublicKey,)
+	DEFINE_COMMON_VALIDATOR_TESTS(ZeroPublicKey, )
 
 #define ADDRESS_TEST_CLASS ZeroAddressValidatorTests
 #define PUBLIC_KEY_TEST_CLASS ZeroPublicKeyValidatorTests

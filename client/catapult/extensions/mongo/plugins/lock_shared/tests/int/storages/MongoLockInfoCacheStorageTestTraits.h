@@ -57,9 +57,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		/// Gets a filter for finding \a lockInfo.
 		static auto GetFindFilter(const typename TLockInfoTraits::ModelType& lockInfo) {
 			return mappers::bson_stream::document()
-					<< std::string(Primary_Document_Name) + "." + std::string(TLockInfoTraits::Id_Property_Name)
-					<< mappers::ToBinary(TLockInfoTraits::GetId(lockInfo))
-					<< mappers::bson_stream::finalize;
+				   << std::string(Primary_Document_Name) + "." + std::string(TLockInfoTraits::Id_Property_Name)
+				   << mappers::ToBinary(TLockInfoTraits::GetId(lockInfo)) << mappers::bson_stream::finalize;
 		}
 
 		/// Asserts that \a lockInfo and \a view are equal.

@@ -96,8 +96,8 @@ namespace catapult { namespace mongo {
 					: m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads))
 					, m_pMongoContext(ResetDatabaseAndCreateMongoContext(*m_pPool))
 					, m_pSubscriber(CreateMongoFinalizationStorage(*m_pMongoContext))
-					, m_descriptors(CreateFinalizedBlockDescriptors(numFinalizations))
-			{}
+					, m_descriptors(CreateFinalizedBlockDescriptors(numFinalizations)) {
+			}
 
 		public:
 			const std::vector<FinalizedBlockDescriptor>& descriptors() const {

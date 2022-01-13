@@ -61,9 +61,7 @@ namespace catapult { namespace validators {
 				}
 
 				// check if all cosignatories are in fact eligible
-				return std::any_of(m_cosignatories.cbegin(), m_cosignatories.cend(), [](const auto& pair) {
-					return !pair.second;
-				});
+				return std::any_of(m_cosignatories.cbegin(), m_cosignatories.cend(), [](const auto& pair) { return !pair.second; });
 			}
 
 		private:
@@ -110,14 +108,14 @@ namespace catapult { namespace validators {
 		};
 	}
 
-	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosignatories, Notification)(
-			const model::TransactionRegistry& transactionRegistry) {
-		return MAKE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosignatories, [&transactionRegistry](
-				const Notification& notification,
-				const ValidatorContext& context) {
-			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-			AggregateCosignaturesChecker checker(notification, transactionRegistry, multisigCache, context);
-			return checker.hasIneligibleCosignatories() ? Failure_Aggregate_Ineligible_Cosignatories : ValidationResult::Success;
-		});
+	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosignatories, Notification)
+	(const model::TransactionRegistry& transactionRegistry) {
+		return MAKE_STATEFUL_VALIDATOR(
+				MultisigAggregateEligibleCosignatories,
+				[&transactionRegistry](const Notification& notification, const ValidatorContext& context) {
+					const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
+					AggregateCosignaturesChecker checker(notification, transactionRegistry, multisigCache, context);
+					return checker.hasIneligibleCosignatories() ? Failure_Aggregate_Ineligible_Cosignatories : ValidationResult::Success;
+				});
 	}
 }}

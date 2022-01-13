@@ -133,11 +133,14 @@ namespace catapult { namespace crypto {
 	private:
 		class SecureZeroGuard {
 		public:
-			explicit SecureZeroGuard(utils::ByteArray<TTag>& byteArray) : SecureZeroGuard(byteArray.data(), byteArray.size())
-			{}
+			explicit SecureZeroGuard(utils::ByteArray<TTag>& byteArray)
+					: SecureZeroGuard(byteArray.data(), byteArray.size()) {
+			}
 
-			SecureZeroGuard(uint8_t* pData, size_t dataSize) : m_pData(pData), m_dataSize(dataSize)
-			{}
+			SecureZeroGuard(uint8_t* pData, size_t dataSize)
+					: m_pData(pData)
+					, m_dataSize(dataSize) {
+			}
 
 			~SecureZeroGuard() {
 				SecureZero(m_pData, m_dataSize);

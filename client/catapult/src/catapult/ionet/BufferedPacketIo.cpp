@@ -33,8 +33,8 @@ namespace catapult { namespace ionet {
 		public:
 			WriteRequest(PacketIo& io, const PacketPayload& payload)
 					: m_io(io)
-					, m_payload(payload)
-			{}
+					, m_payload(payload) {
+			}
 
 		public:
 			template<typename TCallback>
@@ -53,8 +53,9 @@ namespace catapult { namespace ionet {
 
 		class ReadRequest {
 		public:
-			explicit ReadRequest(PacketIo& io) : m_io(io)
-			{}
+			explicit ReadRequest(PacketIo& io)
+					: m_io(io) {
+			}
 
 		public:
 			template<typename TCallback>
@@ -74,8 +75,9 @@ namespace catapult { namespace ionet {
 		template<typename TRequest, typename TCallback, typename TCallbackWrapper>
 		class RequestQueue {
 		public:
-			explicit RequestQueue(TCallbackWrapper& wrapper) : m_wrapper(wrapper)
-			{}
+			explicit RequestQueue(TCallbackWrapper& wrapper)
+					: m_wrapper(wrapper) {
+			}
 
 		public:
 			void push(const TRequest& request, const TCallback& callback) {
@@ -102,11 +104,11 @@ namespace catapult { namespace ionet {
 			struct WrappedWithRequests {
 				WrappedWithRequests(THandler handler, RequestQueue& queue)
 						: m_handler(std::move(handler))
-						, m_queue(queue)
-				{}
+						, m_queue(queue) {
+				}
 
 				template<typename... TArgs>
-				void operator()(TArgs ...args) {
+				void operator()(TArgs... args) {
 					// pop the current request (the operation has completed)
 					m_queue.m_requests.pop_front();
 
@@ -138,14 +140,12 @@ namespace catapult { namespace ionet {
 		public:
 			explicit QueuedOperation(boost::asio::io_context::strand& strand)
 					: m_strand(strand)
-					, m_requests(m_strand)
-			{}
+					, m_requests(m_strand) {
+			}
 
 		public:
 			void push(const TRequest& request, const TCallback& callback) {
-				boost::asio::post(m_strand, [this, request, callback] {
-					m_requests.push(request, callback);
-				});
+				boost::asio::post(m_strand, [this, request, callback] { m_requests.push(request, callback); });
 			}
 
 		private:
@@ -168,15 +168,13 @@ namespace catapult { namespace ionet {
 					: m_pIo(pIo)
 					, m_strand(strand)
 					, m_pWriteOperation(std::make_unique<QueuedWriteOperation>(m_strand))
-					, m_pReadOperation(std::make_unique<QueuedReadOperation>(m_strand))
-			{}
+					, m_pReadOperation(std::make_unique<QueuedReadOperation>(m_strand)) {
+			}
 
 		public:
 			void write(const PacketPayload& payload, const WriteCallback& callback) override {
 				auto request = WriteRequest(*m_pIo, payload);
-				m_pWriteOperation->push(request, [pThis = shared_from_this(), callback](auto code) {
-					callback(code);
-				});
+				m_pWriteOperation->push(request, [pThis = shared_from_this(), callback](auto code) { callback(code); });
 			}
 
 			void read(const ReadCallback& callback) override {

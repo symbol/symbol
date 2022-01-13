@@ -27,8 +27,9 @@ namespace catapult { namespace addressextraction {
 	namespace {
 		class AddressExtractionPtChangeSubscriber : public cache::PtChangeSubscriber {
 		public:
-			explicit AddressExtractionPtChangeSubscriber(const AddressExtractor& extractor) : m_extractor(extractor)
-			{}
+			explicit AddressExtractionPtChangeSubscriber(const AddressExtractor& extractor)
+					: m_extractor(extractor) {
+			}
 
 		public:
 			void notifyAddPartials(const TransactionInfos& transactionInfos) override {

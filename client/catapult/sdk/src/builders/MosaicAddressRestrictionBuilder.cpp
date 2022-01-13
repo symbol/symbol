@@ -29,8 +29,8 @@ namespace catapult { namespace builders {
 			, m_restrictionKey()
 			, m_previousRestrictionValue()
 			, m_newRestrictionValue()
-			, m_targetAddress()
-	{}
+			, m_targetAddress() {
+	}
 
 	void MosaicAddressRestrictionBuilder::setMosaicId(UnresolvedMosaicId mosaicId) {
 		m_mosaicId = mosaicId;

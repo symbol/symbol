@@ -39,8 +39,8 @@ namespace catapult { namespace harvesting {
 		class NotificationObserverProxy : public observers::NotificationObserver {
 		public:
 			explicit NotificationObserverProxy(const std::shared_ptr<const observers::NotificationObserver>& pObserver)
-					: m_pObserver(pObserver)
-			{}
+					: m_pObserver(pObserver) {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -61,8 +61,9 @@ namespace catapult { namespace harvesting {
 
 		class ImportanceFilteringNotificationSubscriber : public model::NotificationSubscriber {
 		public:
-			explicit ImportanceFilteringNotificationSubscriber(model::NotificationSubscriber& subscriber) : m_subscriber(subscriber)
-			{}
+			explicit ImportanceFilteringNotificationSubscriber(model::NotificationSubscriber& subscriber)
+					: m_subscriber(subscriber) {
+			}
 
 		public:
 			void notify(const model::Notification& notification) override {
@@ -89,8 +90,8 @@ namespace catapult { namespace harvesting {
 			explicit CacheFacade(const cache::CatapultCache& cache)
 					: m_cacheDetachableDelta(cache.createDetachableDelta())
 					, m_cacheDetachedDelta(m_cacheDetachableDelta.detach())
-					, m_pCacheDelta(m_cacheDetachedDelta.tryLock())
-			{}
+					, m_pCacheDelta(m_cacheDetachedDelta.tryLock()) {
+			}
 
 		public:
 			Height height() {
@@ -108,12 +109,11 @@ namespace catapult { namespace harvesting {
 		};
 
 	public:
-		Impl(
-				Timestamp blockTime,
-				const cache::CatapultCache& cache,
-				const model::BlockchainConfiguration& blockchainConfig,
-				const chain::ExecutionConfiguration& executionConfig,
-				const ImportanceBlockHashSupplier& importanceBlockHashSupplier)
+		Impl(Timestamp blockTime,
+			 const cache::CatapultCache& cache,
+			 const model::BlockchainConfiguration& blockchainConfig,
+			 const chain::ExecutionConfiguration& executionConfig,
+			 const ImportanceBlockHashSupplier& importanceBlockHashSupplier)
 				: m_blockTime(blockTime)
 				, m_blockchainConfig(blockchainConfig)
 				, m_executionConfig(executionConfig)
@@ -188,8 +188,8 @@ namespace catapult { namespace harvesting {
 				accountStateCacheDelta.updateHighValueAccounts(pBlock->Height);
 
 				auto epoch = pBlock->Height < m_blockchainConfig.ForkHeights.TotalVotingBalanceCalculationFix
-						? FinalizationEpoch(0)
-						: model::CalculateFinalizationEpochForHeight(pBlock->Height, m_blockchainConfig.VotingSetGrouping);
+									 ? FinalizationEpoch(0)
+									 : model::CalculateFinalizationEpochForHeight(pBlock->Height, m_blockchainConfig.VotingSetGrouping);
 
 				auto statistics = cache::ReadOnlyAccountStateCache(accountStateCacheDelta).highValueAccountStatistics(epoch);
 				auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(*pBlock);
@@ -199,13 +199,11 @@ namespace catapult { namespace harvesting {
 			}
 
 			// 6. update block fields
-			pBlock->StateHash = m_blockchainConfig.EnableVerifiableState
-					? m_pCacheFacade->delta().calculateStateHash(height()).StateHash
-					: Hash256();
+			pBlock->StateHash =
+					m_blockchainConfig.EnableVerifiableState ? m_pCacheFacade->delta().calculateStateHash(height()).StateHash : Hash256();
 
-			pBlock->ReceiptsHash = m_blockchainConfig.EnableVerifiableReceipts
-					? model::CalculateMerkleHash(*m_blockStatementBuilder.build())
-					: Hash256();
+			pBlock->ReceiptsHash =
+					m_blockchainConfig.EnableVerifiableReceipts ? model::CalculateMerkleHash(*m_blockStatementBuilder.build()) : Hash256();
 
 			// 7. update PreviousImportanceBlockHash after releasing cache lock to avoid potential deadlock
 			m_pCacheFacade.reset();
@@ -229,10 +227,10 @@ namespace catapult { namespace harvesting {
 		}
 
 		using Processor = predicate<
-			const validators::stateful::NotificationValidator&,
-			const validators::ValidatorContext&,
-			const observers::NotificationObserver&,
-			observers::ObserverContext&>;
+				const validators::stateful::NotificationValidator&,
+				const validators::ValidatorContext&,
+				const observers::NotificationObserver&,
+				observers::ObserverContext&>;
 
 		bool process(const Processor& processor) {
 			// prepare state and contexts
@@ -251,11 +249,8 @@ namespace catapult { namespace harvesting {
 
 		bool apply(const model::WeakEntityInfo& weakEntityInfo) {
 			const auto& publisher = *m_executionConfig.pNotificationPublisher;
-			return process([&weakEntityInfo, &publisher](
-					const auto& validator,
-					const auto& validatorContext,
-					const auto& observer,
-					auto& observerContext) {
+			return process([&weakEntityInfo,
+							&publisher](const auto& validator, const auto& validatorContext, const auto& observer, auto& observerContext) {
 				chain::ProcessingNotificationSubscriber sub(validator, validatorContext, observer, observerContext);
 				sub.enableUndo();
 
@@ -315,8 +310,8 @@ namespace catapult { namespace harvesting {
 			const model::BlockchainConfiguration& blockchainConfig,
 			const chain::ExecutionConfiguration& executionConfig,
 			const ImportanceBlockHashSupplier& importanceBlockHashSupplier)
-			: m_pImpl(std::make_unique<Impl>(blockTime, cache, blockchainConfig, executionConfig, importanceBlockHashSupplier))
-	{}
+			: m_pImpl(std::make_unique<Impl>(blockTime, cache, blockchainConfig, executionConfig, importanceBlockHashSupplier)) {
+	}
 
 	HarvestingUtFacade::~HarvestingUtFacade() = default;
 
@@ -373,8 +368,8 @@ namespace catapult { namespace harvesting {
 			: m_cache(cache)
 			, m_blockchainConfig(blockchainConfig)
 			, m_executionConfig(executionConfig)
-			, m_importanceBlockHashSupplier(importanceBlockHashSupplier)
-	{}
+			, m_importanceBlockHashSupplier(importanceBlockHashSupplier) {
+	}
 
 	std::unique_ptr<HarvestingUtFacade> HarvestingUtFacadeFactory::create(Timestamp blockTime) const {
 		return std::make_unique<HarvestingUtFacade>(

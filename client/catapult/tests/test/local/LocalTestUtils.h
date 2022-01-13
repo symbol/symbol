@@ -28,14 +28,16 @@
 #include <string>
 
 namespace catapult {
-	namespace cache {
-		class CatapultCache;
-		class MemoryUtCache;
-		class MemoryUtCacheProxy;
-		class MemoryUtCacheView;
-		class UtCache;
-	}
-	namespace chain { class UtUpdater; }
+namespace cache {
+	class CatapultCache;
+	class MemoryUtCache;
+	class MemoryUtCacheProxy;
+	class MemoryUtCacheView;
+	class UtCache;
+}
+namespace chain {
+	class UtUpdater;
+}
 }
 
 namespace catapult { namespace test {

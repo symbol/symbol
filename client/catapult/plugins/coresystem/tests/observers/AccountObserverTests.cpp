@@ -27,8 +27,8 @@
 
 namespace catapult { namespace observers {
 
-	DEFINE_COMMON_OBSERVER_TESTS(AccountAddress,)
-	DEFINE_COMMON_OBSERVER_TESTS(AccountPublicKey,)
+	DEFINE_COMMON_OBSERVER_TESTS(AccountAddress, )
+	DEFINE_COMMON_OBSERVER_TESTS(AccountPublicKey, )
 
 	// region traits
 
@@ -63,10 +63,16 @@ namespace catapult { namespace observers {
 	}
 
 #define ACCOUNT_KEY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(AccountAddressObserverTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
-	TEST(AccountPublicKeyObserverTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(AccountAddressObserverTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); \
+	} \
+	TEST(AccountPublicKeyObserverTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

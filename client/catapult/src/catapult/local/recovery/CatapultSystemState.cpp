@@ -35,8 +35,9 @@ namespace catapult { namespace local {
 		constexpr auto Commit_Step_Filename = "commit_step.dat";
 	}
 
-	CatapultSystemState::CatapultSystemState(const config::CatapultDataDirectory& dataDirectory) : m_dataDirectory(dataDirectory)
-	{}
+	CatapultSystemState::CatapultSystemState(const config::CatapultDataDirectory& dataDirectory)
+			: m_dataDirectory(dataDirectory) {
+	}
 
 	bool CatapultSystemState::shouldRecoverBroker() const {
 		return std::filesystem::exists(qualifyRootFile(Broker_Lock_Filename));
@@ -48,9 +49,8 @@ namespace catapult { namespace local {
 
 	consumers::CommitOperationStep CatapultSystemState::commitStep() const {
 		io::IndexFile indexFile(qualifyRootFile(Commit_Step_Filename));
-		return indexFile.exists()
-				? static_cast<consumers::CommitOperationStep>(indexFile.get())
-				: consumers::CommitOperationStep::All_Updated;
+		return indexFile.exists() ? static_cast<consumers::CommitOperationStep>(indexFile.get())
+								  : consumers::CommitOperationStep::All_Updated;
 	}
 
 	void CatapultSystemState::reset() {

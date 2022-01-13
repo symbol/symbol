@@ -26,14 +26,12 @@
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include <vector>
 
-namespace catapult {
-	namespace cache {
-		class MemoryUtCache;
-		class MemoryUtCacheProxy;
-		class MemoryUtCacheView;
-		class UtCache;
-	}
-}
+namespace catapult { namespace cache {
+	class MemoryUtCache;
+	class MemoryUtCacheProxy;
+	class MemoryUtCacheView;
+	class UtCache;
+}}
 
 namespace catapult { namespace test {
 

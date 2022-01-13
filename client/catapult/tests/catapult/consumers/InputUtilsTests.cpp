@@ -173,12 +173,10 @@ namespace catapult { namespace consumers {
 
 		// Act:
 		auto revertedTransactionsInfos = CollectRevertedTransactionInfos(
-				{
-					&transactionInfos[0].EntityHash,
-					&transactionInfos[1].EntityHash,
-					&transactionInfos[2].EntityHash,
-					&transactionInfos[3].EntityHash
-				},
+				{ &transactionInfos[0].EntityHash,
+				  &transactionInfos[1].EntityHash,
+				  &transactionInfos[2].EntityHash,
+				  &transactionInfos[3].EntityHash },
 				test::CopyTransactionInfos(transactionInfos));
 
 		// Assert:

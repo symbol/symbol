@@ -37,7 +37,8 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a cache around \a config.
-		explicit MultisigCache(const CacheConfiguration& config) : SynchronizedCache<BasicMultisigCache>(BasicMultisigCache(config))
-		{}
+		explicit MultisigCache(const CacheConfiguration& config)
+				: SynchronizedCache<BasicMultisigCache>(BasicMultisigCache(config)) {
+		}
 	};
 }}

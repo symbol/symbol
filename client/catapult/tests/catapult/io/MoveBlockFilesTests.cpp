@@ -37,8 +37,8 @@ namespace catapult { namespace io {
 		public:
 			BlockElementWithBlock(std::unique_ptr<model::Block>&& pSourceBlock, model::BlockElement&& blockElement)
 					: pBlock(std::move(pSourceBlock))
-					, BlockElement(std::move(blockElement))
-			{}
+					, BlockElement(std::move(blockElement)) {
+			}
 
 		public:
 			std::unique_ptr<model::Block> pBlock;
@@ -100,10 +100,16 @@ namespace catapult { namespace io {
 	// region MoveBlockFiles
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_WithoutStatements) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlocksWithoutStatementTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_WithStatements) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlocksWithStatementTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_WithoutStatements) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlocksWithoutStatementTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_WithStatements) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlocksWithStatementTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(CanMoveBlockFilesWhenDestinationHasNormalChain) {
 		// Arrange: destination 0 blocks, source 4 blocks

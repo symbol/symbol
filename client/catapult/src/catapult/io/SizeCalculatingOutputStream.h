@@ -37,8 +37,8 @@ namespace catapult { namespace io {
 			m_size += buffer.Size;
 		}
 
-		void flush() override
-		{}
+		void flush() override {
+		}
 
 	private:
 		size_t m_size = 0;

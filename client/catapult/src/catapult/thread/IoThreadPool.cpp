@@ -33,7 +33,8 @@ namespace catapult { namespace thread {
 		// helper RAII class to simplify a restartable thread pool with limitless work
 		class ThreadPoolContext {
 		public:
-			explicit ThreadPoolContext(boost::asio::io_context& ioContext) : m_work(boost::asio::make_work_guard(ioContext)) {
+			explicit ThreadPoolContext(boost::asio::io_context& ioContext)
+					: m_work(boost::asio::make_work_guard(ioContext)) {
 				ioContext.reset();
 			}
 
@@ -64,8 +65,8 @@ namespace catapult { namespace thread {
 					: m_numConfiguredWorkerThreads(numWorkerThreads)
 					, m_name(name)
 					, m_tag(m_name.empty() ? std::string() : " (" + m_name + ")")
-					, m_numWorkerThreads(0)
-			{}
+					, m_numWorkerThreads(0) {
+			}
 
 			~DefaultIoThreadPool() override {
 				join();
@@ -101,7 +102,8 @@ namespace catapult { namespace thread {
 
 				// wait for the threads to be spawned
 				CATAPULT_LOG(trace) << "waiting for threads to be spawned" << m_tag;
-				while (m_numWorkerThreads < m_numConfiguredWorkerThreads) {}
+				while (m_numWorkerThreads < m_numConfiguredWorkerThreads) {
+				}
 				CATAPULT_LOG(info) << "spawned " << m_pContext->numThreads() << " workers" << m_tag;
 			}
 

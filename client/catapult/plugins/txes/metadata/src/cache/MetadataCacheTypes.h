@@ -25,22 +25,20 @@
 #include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/utils/Hashers.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicMetadataCacheDelta;
-		class BasicMetadataCacheView;
-		struct MetadataBaseSetDeltaPointers;
-		struct MetadataBaseSets;
-		class MetadataCache;
-		class MetadataCacheDelta;
-		class MetadataCacheView;
-		struct MetadataEntryPrimarySerializer;
-		class MetadataPatriciaTree;
+namespace catapult { namespace cache {
+	class BasicMetadataCacheDelta;
+	class BasicMetadataCacheView;
+	struct MetadataBaseSetDeltaPointers;
+	struct MetadataBaseSets;
+	class MetadataCache;
+	class MetadataCacheDelta;
+	class MetadataCacheView;
+	struct MetadataEntryPrimarySerializer;
+	class MetadataPatriciaTree;
 
-		template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
-		class ReadOnlyArtifactCache;
-	}
-}
+	template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
+	class ReadOnlyArtifactCache;
+}}
 
 namespace catapult { namespace cache {
 

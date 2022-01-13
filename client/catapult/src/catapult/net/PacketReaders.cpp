@@ -42,14 +42,14 @@ namespace catapult { namespace net {
 
 		class ReaderContainer {
 		private:
-			using ChainedSocketReaderFactory = std::function<std::shared_ptr<ChainedSocketReader> (const PacketSocketPointer&, uint32_t)>;
+			using ChainedSocketReaderFactory = std::function<std::shared_ptr<ChainedSocketReader>(const PacketSocketPointer&, uint32_t)>;
 
 		public:
 			ReaderContainer(uint32_t maxConnectionsPerIdentity, model::NodeIdentityEqualityStrategy equalityStrategy)
 					: m_maxConnectionsPerIdentity(maxConnectionsPerIdentity)
 					, m_equalityStrategy(equalityStrategy)
-					, m_readers(0, IdentityIdPairHasher(equalityStrategy), IdentityIdPairEquality(equalityStrategy))
-			{}
+					, m_readers(0, IdentityIdPairHasher(equalityStrategy), IdentityIdPairEquality(equalityStrategy)) {
+			}
 
 		public:
 			size_t size() const {
@@ -72,8 +72,8 @@ namespace catapult { namespace net {
 			public:
 				explicit InsertOperation(bool isPending)
 						: IsPending(isPending)
-						, Abort([]() {})
-				{}
+						, Abort([]() {}) {
+				}
 
 			public:
 				bool IsPending;
@@ -115,9 +115,7 @@ namespace catapult { namespace net {
 				insertedReaderIter->second.pReader = pReader;
 
 				InsertOperation operation(true);
-				operation.Commit = [pReader]() {
-					pReader->start();
-				};
+				operation.Commit = [pReader]() { pReader->start(); };
 				operation.Abort = [this, qualifiedReaderId]() {
 					CATAPULT_LOG(warning) << "aborting incoming connection from " << qualifiedReaderId.first;
 
@@ -178,8 +176,9 @@ namespace catapult { namespace net {
 
 			class IdentityIdPairEquality {
 			public:
-				explicit IdentityIdPairEquality(model::NodeIdentityEqualityStrategy strategy) : m_equality(strategy)
-				{}
+				explicit IdentityIdPairEquality(model::NodeIdentityEqualityStrategy strategy)
+						: m_equality(strategy) {
+				}
 
 			public:
 				bool operator()(const IdentityIdPair& lhs, const IdentityIdPair& rhs) const {
@@ -192,8 +191,9 @@ namespace catapult { namespace net {
 
 			class IdentityIdPairHasher {
 			public:
-				explicit IdentityIdPairHasher(model::NodeIdentityEqualityStrategy strategy) : m_hasher(strategy)
-				{}
+				explicit IdentityIdPairHasher(model::NodeIdentityEqualityStrategy strategy)
+						: m_hasher(strategy) {
+				}
 
 			public:
 				size_t operator()(const IdentityIdPair& pair) const {
@@ -213,7 +213,9 @@ namespace catapult { namespace net {
 			mutable utils::SpinLock m_lock;
 		};
 
-		class DefaultPacketReaders : public PacketReaders, public std::enable_shared_from_this<DefaultPacketReaders> {
+		class DefaultPacketReaders
+				: public PacketReaders
+				, public std::enable_shared_from_this<DefaultPacketReaders> {
 		public:
 			DefaultPacketReaders(
 					thread::IoThreadPool& pool,
@@ -223,8 +225,8 @@ namespace catapult { namespace net {
 					uint32_t maxConnectionsPerIdentity)
 					: m_handlers(handlers)
 					, m_pClientConnector(CreateClientConnector(pool, serverPublicKey, settings, "readers"))
-					, m_readers(maxConnectionsPerIdentity, settings.NodeIdentityEqualityStrategy)
-			{}
+					, m_readers(maxConnectionsPerIdentity, settings.NodeIdentityEqualityStrategy) {
+			}
 
 		public:
 			size_t numActiveConnections() const override {
@@ -241,31 +243,33 @@ namespace catapult { namespace net {
 
 		public:
 			void accept(const ionet::PacketSocketInfo& socketInfo, const AcceptCallback& callback) override {
-				m_pClientConnector->accept(socketInfo, [pThis = shared_from_this(), host = socketInfo.host(), callback](
-						auto connectCode,
-						const auto& pVerifiedSocket,
-						const auto& identityKey) {
-					auto connectResult = PeerConnectResult{ connectCode, { identityKey, host } };
-					if (PeerConnectCode::Accepted != connectCode) {
-						callback(connectResult);
-						return;
-					}
+				m_pClientConnector->accept(
+						socketInfo,
+						[pThis = shared_from_this(),
+						 host = socketInfo.host(),
+						 callback](auto connectCode, const auto& pVerifiedSocket, const auto& identityKey) {
+							auto connectResult = PeerConnectResult{ connectCode, { identityKey, host } };
+							if (PeerConnectCode::Accepted != connectCode) {
+								callback(connectResult);
+								return;
+							}
 
-					ionet::PacketSocketInfo verifiedSocketInfo(host, identityKey, pVerifiedSocket);
-					auto operation = pThis->tryAddReader(identityKey, verifiedSocketInfo);
-					if (operation.IsPending) {
-						if (callback(connectResult)) {
-							CATAPULT_LOG(debug) << "accepted connection from '" << verifiedSocketInfo.host() << "' as " << identityKey;
-							operation.Commit();
-							return;
-						}
-					} else {
-						connectResult.Code = PeerConnectCode::Already_Connected;
-						callback(connectResult);
-					}
+							ionet::PacketSocketInfo verifiedSocketInfo(host, identityKey, pVerifiedSocket);
+							auto operation = pThis->tryAddReader(identityKey, verifiedSocketInfo);
+							if (operation.IsPending) {
+								if (callback(connectResult)) {
+									CATAPULT_LOG(debug)
+											<< "accepted connection from '" << verifiedSocketInfo.host() << "' as " << identityKey;
+									operation.Commit();
+									return;
+								}
+							} else {
+								connectResult.Code = PeerConnectCode::Already_Connected;
+								callback(connectResult);
+							}
 
-					operation.Abort();
-				});
+							operation.Abort();
+						});
 			}
 
 			bool closeOne(const model::NodeIdentity& identity) override {

@@ -37,9 +37,8 @@ namespace catapult { namespace cache {
 		constexpr auto Min_Voter_Balance = Amount(2'000'000);
 
 		constexpr Amount RelVoterAmount(int64_t delta) {
-			return 0 < delta
-					? Min_Voter_Balance + Amount(static_cast<uint64_t>(delta))
-					: Min_Voter_Balance - Amount(static_cast<uint64_t>(-delta));
+			return 0 < delta ? Min_Voter_Balance + Amount(static_cast<uint64_t>(delta))
+							 : Min_Voter_Balance - Amount(static_cast<uint64_t>(-delta));
 		}
 
 		AccountStateCacheTypes::Options CreateOptions() {
@@ -63,11 +62,12 @@ namespace catapult { namespace cache {
 		}
 
 		AddressAccountHistoryMap CreateThreeAccountHistories() {
-			return test::GenerateAccountHistories({
-				{ { { 1 } }, { { Height(2), RelVoterAmount(1) }, { Height(4), RelVoterAmount(9) }, { Height(7), RelVoterAmount(-1) } } },
-				{ { { 2 } }, { { Height(2), RelVoterAmount(0) }, { Height(6), RelVoterAmount(-100) } } },
-				{ { { 3 } }, { { Height(3), RelVoterAmount(9) }, { Height(4), RelVoterAmount(-9) }, { Height(7), RelVoterAmount(8) } } }
-			});
+			return test::GenerateAccountHistories(
+					{ { { { 1 } },
+						{ { Height(2), RelVoterAmount(1) }, { Height(4), RelVoterAmount(9) }, { Height(7), RelVoterAmount(-1) } } },
+					  { { { 2 } }, { { Height(2), RelVoterAmount(0) }, { Height(6), RelVoterAmount(-100) } } },
+					  { { { 3 } },
+						{ { Height(3), RelVoterAmount(9) }, { Height(4), RelVoterAmount(-9) }, { Height(7), RelVoterAmount(8) } } } });
 		}
 	}
 
@@ -198,14 +198,12 @@ namespace catapult { namespace cache {
 		using MemorySetType = AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType::SetType::MemorySetType;
 
 		std::vector<Amount> GetHarvesterEligibleTestBalances() {
-			return {
-				Amount(Min_Harvester_Balance),
-				Amount(Min_Harvester_Balance - Amount(1)),
-				Amount(Min_Harvester_Balance + Amount(1)),
-				Amount(Min_Harvester_Balance - Amount(100'000)),
-				Amount(Min_Harvester_Balance + Amount(100'000)),
-				Amount(Min_Voter_Balance)
-			};
+			return { Amount(Min_Harvester_Balance),
+					 Amount(Min_Harvester_Balance - Amount(1)),
+					 Amount(Min_Harvester_Balance + Amount(1)),
+					 Amount(Min_Harvester_Balance - Amount(100'000)),
+					 Amount(Min_Harvester_Balance + Amount(100'000)),
+					 Amount(Min_Voter_Balance) };
 		}
 
 		model::PinnedVotingKey GeneratePinnedVotingKey(uint32_t startEpoch, uint32_t endEpoch) {
@@ -343,9 +341,15 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, Updater_HarvesterEligible_CanProcessMixedViaSingleUpdate) {
 		// Arrange: add seven [5 match {0, 2, 4, 5, 6}]
 		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
-			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000), Amount(1'400'000), Amount(1'300'000)
-		});
+		auto addedAddresses = AddAccountsWithBalances(
+				deltas.Added,
+				{ Amount(1'100'000),
+				  Amount(900'000),
+				  Amount(1'000'000),
+				  Amount(800'000),
+				  Amount(1'200'000),
+				  Amount(1'400'000),
+				  Amount(1'300'000) });
 
 		// - modify four [5 match {0, 1, 3, 4, 5}]
 		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[1])).first->second, Amount(100'000));
@@ -374,9 +378,15 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, Updater_HarvesterEligible_CanProcessMixedViaMultipleUpdates) {
 		// Arrange: add seven [5 match {0, 2, 4, 5, 6}]
 		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
-			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000), Amount(1'400'000), Amount(1'300'000)
-		});
+		auto addedAddresses = AddAccountsWithBalances(
+				deltas.Added,
+				{ Amount(1'100'000),
+				  Amount(900'000),
+				  Amount(1'000'000),
+				  Amount(800'000),
+				  Amount(1'200'000),
+				  Amount(1'400'000),
+				  Amount(1'300'000) });
 
 		auto accounts = CreateAccounts(model::AddressSet(addedAddresses.cbegin(), addedAddresses.cbegin() + 3));
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
@@ -407,9 +417,8 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, Updater_HarvesterEligible_CanProcessMixedViaMultipleUpdates_SingleAccount) {
 		// Arrange: { 0, 1 } are treated as original accounts whereas { 2, 3 } are treated as added accounts
 		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
-			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000)
-		});
+		auto addedAddresses =
+				AddAccountsWithBalances(deltas.Added, { Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000) });
 
 		auto accounts = CreateAccounts(model::AddressSet(addedAddresses.cbegin(), addedAddresses.cbegin() + 2));
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
@@ -458,9 +467,8 @@ namespace catapult { namespace cache {
 
 		// Arrange: { 0, 1 } are treated as original accounts whereas { 2, 3 } are treated as added accounts
 		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
-			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000)
-		});
+		auto addedAddresses =
+				AddAccountsWithBalances(deltas.Added, { Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000) });
 
 		// - add removed addresses at { 4, 5 }
 		addedAddresses.push_back(test::GenerateRandomByteArray<Address>());
@@ -571,12 +579,10 @@ namespace catapult { namespace cache {
 
 	namespace {
 		std::vector<Amount> GetVoterEligibleTestBalances() {
-			return {
-				Amount(Min_Voter_Balance - Amount(1)),
-				Amount(Min_Voter_Balance),
-				Amount(Min_Voter_Balance - Amount(100'000)),
-				Amount(Min_Voter_Balance + Amount(100'000))
-			};
+			return { Amount(Min_Voter_Balance - Amount(1)),
+					 Amount(Min_Voter_Balance),
+					 Amount(Min_Voter_Balance - Amount(100'000)),
+					 Amount(Min_Voter_Balance + Amount(100'000)) };
 		}
 
 		template<typename TSetSelector>
@@ -593,10 +599,9 @@ namespace catapult { namespace cache {
 			updater.update(deltas.deltas());
 
 			// Assert:
-			auto expectedAccountHistories = test::GenerateAccountHistories({
-				{ addedAddresses[1], { { Height(3), Min_Voter_Balance } } },
-				{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) } } }
-			});
+			auto expectedAccountHistories =
+					test::GenerateAccountHistories({ { addedAddresses[1], { { Height(3), Min_Voter_Balance } } },
+													 { addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) } } } });
 
 			test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -624,24 +629,25 @@ namespace catapult { namespace cache {
 			// Act: modify all to be voter eligible
 			{
 				test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-				AddAccountsWithBalances(setSelector(deltas), addedAddresses, {
-					Min_Voter_Balance + Amount(1),
-					Min_Voter_Balance + Amount(2),
-					Min_Voter_Balance + Amount(3),
-					Min_Voter_Balance + Amount(4)
-				});
+				AddAccountsWithBalances(
+						setSelector(deltas),
+						addedAddresses,
+						{ Min_Voter_Balance + Amount(1),
+						  Min_Voter_Balance + Amount(2),
+						  Min_Voter_Balance + Amount(3),
+						  Min_Voter_Balance + Amount(4) });
 
 				updater.setHeight(Height(5));
 				updater.update(deltas.deltas());
 			}
 
 			// Assert:
-			auto expectedAccountHistories = test::GenerateAccountHistories({
-				{ addedAddresses[0], { { Height(5), Min_Voter_Balance + Amount(1) } } },
-				{ addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Min_Voter_Balance + Amount(2) } } },
-				{ addedAddresses[2], { { Height(5), Min_Voter_Balance + Amount(3) } } },
-				{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Min_Voter_Balance + Amount(4) } } }
-			});
+			auto expectedAccountHistories = test::GenerateAccountHistories(
+					{ { addedAddresses[0], { { Height(5), Min_Voter_Balance + Amount(1) } } },
+					  { addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Min_Voter_Balance + Amount(2) } } },
+					  { addedAddresses[2], { { Height(5), Min_Voter_Balance + Amount(3) } } },
+					  { addedAddresses[3],
+						{ { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Min_Voter_Balance + Amount(4) } } } });
 
 			test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -669,22 +675,22 @@ namespace catapult { namespace cache {
 			// Act: modify all to be voter ineligible
 			{
 				test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-				AddAccountsWithBalances(setSelector(deltas), addedAddresses, {
-					Min_Voter_Balance - Amount(1),
-					Min_Voter_Balance - Amount(2),
-					Min_Voter_Balance - Amount(3),
-					Min_Voter_Balance - Amount(4)
-				});
+				AddAccountsWithBalances(
+						setSelector(deltas),
+						addedAddresses,
+						{ Min_Voter_Balance - Amount(1),
+						  Min_Voter_Balance - Amount(2),
+						  Min_Voter_Balance - Amount(3),
+						  Min_Voter_Balance - Amount(4) });
 
 				updater.setHeight(Height(5));
 				updater.update(deltas.deltas());
 			}
 
 			// Assert:
-			auto expectedAccountHistories = test::GenerateAccountHistories({
-				{ addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Amount() } } },
-				{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Amount() } } }
-			});
+			auto expectedAccountHistories = test::GenerateAccountHistories(
+					{ { addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Amount() } } },
+					  { addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Amount() } } } });
 
 			test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -756,22 +762,22 @@ namespace catapult { namespace cache {
 		// Act: modify all to be voter eligible (but removed)
 		{
 			test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-			AddAccountsWithBalances(deltas.Removed, addedAddresses, {
-				Min_Voter_Balance + Amount(1),
-				Min_Voter_Balance + Amount(2),
-				Min_Voter_Balance + Amount(3),
-				Min_Voter_Balance + Amount(4)
-			});
+			AddAccountsWithBalances(
+					deltas.Removed,
+					addedAddresses,
+					{ Min_Voter_Balance + Amount(1),
+					  Min_Voter_Balance + Amount(2),
+					  Min_Voter_Balance + Amount(3),
+					  Min_Voter_Balance + Amount(4) });
 
 			updater.setHeight(Height(5));
 			updater.update(deltas.deltas());
 		}
 
 		// Assert:
-		auto expectedAccountHistories = test::GenerateAccountHistories({
-			{ addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Amount() } } },
-			{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Amount() } } }
-		});
+		auto expectedAccountHistories = test::GenerateAccountHistories(
+				{ { addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Amount() } } },
+				  { addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Amount() } } } });
 
 		test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -783,9 +789,15 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, Updater_VoterEligible_CanProcessMixedViaSingleUpdate) {
 		// Arrange: add seven [5 match {0, 2, 4, 5, 6}]
 		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
-			Amount(2'100'000), Amount(900'000), Amount(2'000'000), Amount(800'000), Amount(2'200'000), Amount(2'400'000), Amount(2'300'000)
-		});
+		auto addedAddresses = AddAccountsWithBalances(
+				deltas.Added,
+				{ Amount(2'100'000),
+				  Amount(900'000),
+				  Amount(2'000'000),
+				  Amount(800'000),
+				  Amount(2'200'000),
+				  Amount(2'400'000),
+				  Amount(2'300'000) });
 
 		// - modify four [5 match {0, 1, 3, 4, 5}]
 		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[1])).first->second, Amount(1'200'000));
@@ -805,11 +817,9 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert:
-		auto expectedAccountHistories = test::GenerateAccountHistories({
-			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
-			{ addedAddresses[3], { { Height(3), Amount(2'050'000) } } },
-			{ addedAddresses[5], { { Height(3), Amount(2'400'000) } } }
-		});
+		auto expectedAccountHistories = test::GenerateAccountHistories({ { addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+																		 { addedAddresses[3], { { Height(3), Amount(2'050'000) } } },
+																		 { addedAddresses[5], { { Height(3), Amount(2'400'000) } } } });
 
 		test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -821,9 +831,15 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, Updater_VoterEligible_CanProcessMixedViaMultipleUpdates) {
 		// Arrange: add seven [5 match {0, 2, 4, 5, 6}]
 		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
-			Amount(2'100'000), Amount(900'000), Amount(2'000'000), Amount(800'000), Amount(2'200'000), Amount(2'400'000), Amount(2'300'000)
-		});
+		auto addedAddresses = AddAccountsWithBalances(
+				deltas.Added,
+				{ Amount(2'100'000),
+				  Amount(900'000),
+				  Amount(2'000'000),
+				  Amount(800'000),
+				  Amount(2'200'000),
+				  Amount(2'400'000),
+				  Amount(2'300'000) });
 
 		auto accounts = CreateAccounts({});
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
@@ -849,15 +865,14 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert:
-		auto expectedAccountHistories = test::GenerateAccountHistories({
-			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
-			{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(5), Amount() } } },
-			{ addedAddresses[2], { { Height(3), Amount(2'000'000) }, { Height(4), Amount() } } },
-			{ addedAddresses[3], { { Height(4), Amount(2'050'000) } } },
-			{ addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(5), Amount() } } },
-			{ addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
-			{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount() } } }
-		});
+		auto expectedAccountHistories =
+				test::GenerateAccountHistories({ { addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+												 { addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(5), Amount() } } },
+												 { addedAddresses[2], { { Height(3), Amount(2'000'000) }, { Height(4), Amount() } } },
+												 { addedAddresses[3], { { Height(4), Amount(2'050'000) } } },
+												 { addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(5), Amount() } } },
+												 { addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
+												 { addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount() } } } });
 
 		test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -869,9 +884,15 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, Updater_VoterEligible_CanProcessMixedViaMultipleUpdates_SimulateRollback) {
 		// Arrange: add seven [5 match {0, 2, 4, 5, 6}]
 		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
-			Amount(2'100'000), Amount(900'000), Amount(2'000'000), Amount(800'000), Amount(2'200'000), Amount(2'400'000), Amount(2'300'000)
-		});
+		auto addedAddresses = AddAccountsWithBalances(
+				deltas.Added,
+				{ Amount(2'100'000),
+				  Amount(900'000),
+				  Amount(2'000'000),
+				  Amount(800'000),
+				  Amount(2'200'000),
+				  Amount(2'400'000),
+				  Amount(2'300'000) });
 
 		auto accounts = CreateAccounts({});
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
@@ -898,14 +919,13 @@ namespace catapult { namespace cache {
 
 		// Assert: since last update was at height 6, no updates from height 9 should be present
 		//         (deltas is cumulative, so copied changes are included in deltas applied at height 6)
-		auto expectedAccountHistories = test::GenerateAccountHistories({
-			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
-			{ addedAddresses[2], { { Height(3), Amount(2'000'000) }, { Height(6), Amount() } } },
-			{ addedAddresses[3], { { Height(6), Amount(2'050'000) } } },
-			{ addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(6), Amount() } } },
-			{ addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
-			{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(6), Amount() } } }
-		});
+		auto expectedAccountHistories =
+				test::GenerateAccountHistories({ { addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+												 { addedAddresses[2], { { Height(3), Amount(2'000'000) }, { Height(6), Amount() } } },
+												 { addedAddresses[3], { { Height(6), Amount(2'050'000) } } },
+												 { addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(6), Amount() } } },
+												 { addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
+												 { addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(6), Amount() } } } });
 
 		test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -942,10 +962,8 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert: second account is not included because it is not configured for voting
-		auto expectedAccountHistories = test::GenerateAccountHistories({
-			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
-			{ addedAddresses[2], { { Height(3), Amount(2'300'000) } } }
-		});
+		auto expectedAccountHistories = test::GenerateAccountHistories({ { addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+																		 { addedAddresses[2], { { Height(3), Amount(2'300'000) } } } });
 
 		test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -983,11 +1001,10 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert: second account is only included when it has voting public key set
-		auto expectedAccountHistories = test::GenerateAccountHistories({
-			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
-			{ addedAddresses[1], { { Height(4), Amount(2'200'000) }, { Height(5), Amount() } } },
-			{ addedAddresses[2], { { Height(3), Amount(2'300'000) } } }
-		});
+		auto expectedAccountHistories =
+				test::GenerateAccountHistories({ { addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+												 { addedAddresses[1], { { Height(4), Amount(2'200'000) }, { Height(5), Amount() } } },
+												 { addedAddresses[2], { { Height(3), Amount(2'300'000) } } } });
 
 		test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -1041,11 +1058,9 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert: second account has vrf public key history
-		auto expectedAccountHistories = test::GenerateAccountHistories({
-			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
-			{ addedAddresses[1], { { Height(3), Amount(2'200'000) } } },
-			{ addedAddresses[2], { { Height(3), Amount(2'300'000) } } }
-		});
+		auto expectedAccountHistories = test::GenerateAccountHistories({ { addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+																		 { addedAddresses[1], { { Height(3), Amount(2'200'000) } } },
+																		 { addedAddresses[2], { { Height(3), Amount(2'300'000) } } } });
 		AugmentWithAddedKeys(expectedAccountHistories, deltas, Height(3));
 		expectedAccountHistories[addedAddresses[1]].add(Height(3), originalVrfPublicKey);
 		expectedAccountHistories[addedAddresses[1]].add(Height(4), newVrfPublicKey);
@@ -1082,11 +1097,9 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert: second account has voting public key history
-		auto expectedAccountHistories = test::GenerateAccountHistories({
-			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
-			{ addedAddresses[1], { { Height(3), Amount(2'200'000) } } },
-			{ addedAddresses[2], { { Height(3), Amount(2'300'000) } } }
-		});
+		auto expectedAccountHistories = test::GenerateAccountHistories({ { addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+																		 { addedAddresses[1], { { Height(3), Amount(2'200'000) } } },
+																		 { addedAddresses[2], { { Height(3), Amount(2'300'000) } } } });
 		AugmentWithAddedKeys(expectedAccountHistories, deltas, Height(3));
 		expectedAccountHistories[addedAddresses[1]].add(Height(3), { originalVotingPublicKey });
 		expectedAccountHistories[addedAddresses[1]].add(Height(4), { originalVotingPublicKey, newVotingPublicKey });
@@ -1107,15 +1120,15 @@ namespace catapult { namespace cache {
 		void RunPruneTest(TAction action) {
 			// Arrange: add seven [5 match {0, 2, 4, 5, 6}]
 			test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
-			auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
-				Amount(2'100'000),
-				Amount(900'000),
-				Amount(2'000'001),
-				Amount(800'000),
-				Amount(2'200'000),
-				Amount(2'400'000),
-				Amount(2'300'000)
-			});
+			auto addedAddresses = AddAccountsWithBalances(
+					deltas.Added,
+					{ Amount(2'100'000),
+					  Amount(900'000),
+					  Amount(2'000'001),
+					  Amount(800'000),
+					  Amount(2'200'000),
+					  Amount(2'400'000),
+					  Amount(2'300'000) });
 
 			auto accounts = CreateAccounts({});
 			HighValueAccountsUpdater updater(CreateOptions(), accounts);
@@ -1157,18 +1170,15 @@ namespace catapult { namespace cache {
 				updater.prune(height);
 
 				// Assert:
-				auto expectedAccountHistories = test::GenerateAccountHistories({
-					{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
-					{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
-					{
-						addedAddresses[2],
-						{ { Height(3), Amount(2'000'001) }, { Height(4), Amount() }, { Height(5), Amount(2'000'000) } }
-					},
-					{ addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount() } } },
-					{ addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(6), Amount() } } },
-					{ addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
-					{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount() } } }
-				});
+				auto expectedAccountHistories = test::GenerateAccountHistories(
+						{ { addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+						  { addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
+						  { addedAddresses[2],
+							{ { Height(3), Amount(2'000'001) }, { Height(4), Amount() }, { Height(5), Amount(2'000'000) } } },
+						  { addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount() } } },
+						  { addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(6), Amount() } } },
+						  { addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
+						  { addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount() } } } });
 
 				test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -1193,14 +1203,13 @@ namespace catapult { namespace cache {
 			updater.prune(Height(4));
 
 			// Assert:
-			auto expectedAccountHistories = test::GenerateAccountHistories({
-				{ addedAddresses[0], { { Height(4), Amount(2'100'000) } } },
-				{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
-				{ addedAddresses[2], { { Height(5), Amount(2'000'000) } } },
-				{ addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount() } } },
-				{ addedAddresses[4], { { Height(4), Amount(2'200'000) }, { Height(6), Amount() } } },
-				{ addedAddresses[5], { { Height(4), Amount(2'400'000) } } }
-			});
+			auto expectedAccountHistories =
+					test::GenerateAccountHistories({ { addedAddresses[0], { { Height(4), Amount(2'100'000) } } },
+													 { addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
+													 { addedAddresses[2], { { Height(5), Amount(2'000'000) } } },
+													 { addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount() } } },
+													 { addedAddresses[4], { { Height(4), Amount(2'200'000) }, { Height(6), Amount() } } },
+													 { addedAddresses[5], { { Height(4), Amount(2'400'000) } } } });
 
 			test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -1216,13 +1225,12 @@ namespace catapult { namespace cache {
 			updater.prune(Height(5));
 
 			// Assert:
-			auto expectedAccountHistories = test::GenerateAccountHistories({
-				{ addedAddresses[0], { { Height(5), Amount(2'100'000) } } },
-				{ addedAddresses[1], { { Height(5), Amount(2'100'000) }, { Height(6), Amount() } } },
-				{ addedAddresses[2], { { Height(5), Amount(2'000'000) } } },
-				{ addedAddresses[4], { { Height(5), Amount(2'200'000) }, { Height(6), Amount() } } },
-				{ addedAddresses[5], { { Height(5), Amount(2'400'000) } } }
-			});
+			auto expectedAccountHistories =
+					test::GenerateAccountHistories({ { addedAddresses[0], { { Height(5), Amount(2'100'000) } } },
+													 { addedAddresses[1], { { Height(5), Amount(2'100'000) }, { Height(6), Amount() } } },
+													 { addedAddresses[2], { { Height(5), Amount(2'000'000) } } },
+													 { addedAddresses[4], { { Height(5), Amount(2'200'000) }, { Height(6), Amount() } } },
+													 { addedAddresses[5], { { Height(5), Amount(2'400'000) } } } });
 
 			test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 
@@ -1239,11 +1247,10 @@ namespace catapult { namespace cache {
 				updater.prune(height);
 
 				// Assert:
-				auto expectedAccountHistories = test::GenerateAccountHistories({
-					{ addedAddresses[0], { { height, Amount(2'100'000) } } },
-					{ addedAddresses[2], { { height, Amount(2'000'000) } } },
-					{ addedAddresses[5], { { height, Amount(2'400'000) } } }
-				});
+				auto expectedAccountHistories =
+						test::GenerateAccountHistories({ { addedAddresses[0], { { height, Amount(2'100'000) } } },
+														 { addedAddresses[2], { { height, Amount(2'000'000) } } },
+														 { addedAddresses[5], { { height, Amount(2'400'000) } } } });
 
 				test::AssertEqualBalanceHistoryOnly(expectedAccountHistories, updater.accountHistories());
 

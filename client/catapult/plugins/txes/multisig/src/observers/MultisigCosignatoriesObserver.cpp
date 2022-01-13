@@ -44,8 +44,8 @@ namespace catapult { namespace observers {
 					, m_multisig(multisig)
 					, m_resolvers(resolvers)
 					, m_multisigIter(GetMultisigEntry(m_multisigCache, m_multisig))
-					, m_multisigEntry(m_multisigIter.get())
-			{}
+					, m_multisigEntry(m_multisigIter.get()) {
+			}
 
 			~MultisigAccountFacade() {
 				removeIfEmpty(m_multisigEntry, m_multisig);

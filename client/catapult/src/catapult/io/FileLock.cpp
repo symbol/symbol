@@ -27,8 +27,8 @@
 #ifdef _MSC_VER
 #include <windows.h>
 #else
-#include <unistd.h>
 #include <sys/file.h>
+#include <unistd.h>
 #endif
 
 namespace catapult { namespace io {
@@ -91,8 +91,8 @@ namespace catapult { namespace io {
 
 	FileLock::FileLock(const std::string& lockFilePath)
 			: m_lockFilePath(lockFilePath)
-			, m_fd(Invalid_Descriptor)
-	{}
+			, m_fd(Invalid_Descriptor) {
+	}
 
 	FileLock::~FileLock() {
 		unlock();

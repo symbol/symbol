@@ -189,26 +189,46 @@ namespace catapult { namespace ionet {
 	}
 
 #define PACKET_HEADER_FAILURE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ExtractEntity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntityTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_FixedSizeStructures) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractFixedSizeStructuresTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ExtractEntity) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntityTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_FixedSizeStructures) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractFixedSizeStructuresTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define PACKET_FAILURE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ExtractEntity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntityTraits>(); } \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ExtractEntity) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntityTraits>(); \
+	} \
 	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities_Single) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesSingleEntityTraits>(); \
 	} \
-	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities_Last) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesMultiEntityTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities_Last) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesMultiEntityTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define PACKET_SINGLE_ENTITY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ExtractEntity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntityTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ExtractEntity) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntityTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	PACKET_HEADER_FAILURE_TEST(CannotExtractFromPacketWithInvalidSize) {
 		AssertCannotExtractFromPacketHeaderWithNoData<TTraits>(sizeof(Packet) - 1);

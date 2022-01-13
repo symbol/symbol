@@ -48,11 +48,10 @@ namespace catapult { namespace chain {
 					, m_network(pluginManager.config().Network)
 					, m_pStatelessValidator(pluginManager.createStatelessValidator(isSuppressedFailure))
 					, m_pStatefulValidator(pluginManager.createStatefulValidator(isSuppressedFailure))
-					, m_resolverContextFactory([&pluginManager](const auto& readOnlyCache) {
-						return pluginManager.createResolverContext(readOnlyCache);
-					})
-					, m_name(CreateJointValidatorName(m_pStatelessValidator->name(), m_pStatefulValidator->name()))
-			{}
+					, m_resolverContextFactory(
+							  [&pluginManager](const auto& readOnlyCache) { return pluginManager.createResolverContext(readOnlyCache); })
+					, m_name(CreateJointValidatorName(m_pStatelessValidator->name(), m_pStatefulValidator->name())) {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -90,7 +89,7 @@ namespace catapult { namespace chain {
 			model::NetworkInfo m_network;
 			std::unique_ptr<const stateless::NotificationValidator> m_pStatelessValidator;
 			std::unique_ptr<const stateful::NotificationValidator> m_pStatefulValidator;
-			std::function<model::ResolverContext (const cache::ReadOnlyCatapultCache&)> m_resolverContextFactory;
+			std::function<model::ResolverContext(const cache::ReadOnlyCatapultCache&)> m_resolverContextFactory;
 			std::string m_name;
 		};
 	}

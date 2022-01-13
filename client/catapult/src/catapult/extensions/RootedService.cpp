@@ -30,8 +30,8 @@ namespace catapult { namespace extensions {
 			RootedServiceRegistrar(const std::shared_ptr<void>& pService, const std::string& serviceName, ServiceRegistrarPhase phase)
 					: m_pService(pService)
 					, m_serviceName(serviceName)
-					, m_phase(phase)
-			{}
+					, m_phase(phase) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {

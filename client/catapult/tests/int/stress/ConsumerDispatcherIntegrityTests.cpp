@@ -53,16 +53,14 @@ namespace catapult { namespace disruptor {
 		options.ElementTraceInterval = numElementsPerInnerIteration * 8;
 		ConsumerDispatcher dispatcher(
 				options,
-				{
-					[&counter1](auto&) {
-						++counter1;
-						return ConsumerResult::Continue();
-					},
-					[&counter2](auto&) {
-						++counter2;
-						return ConsumerResult::Continue();
-					}
-				},
+				{ [&counter1](auto&) {
+					 ++counter1;
+					 return ConsumerResult::Continue();
+				 },
+				  [&counter2](auto&) {
+					  ++counter2;
+					  return ConsumerResult::Continue();
+				  } },
 				[&inspectorCounter](const auto&, const auto&) { ++inspectorCounter; });
 
 		// Act:

@@ -67,7 +67,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a delta around \a hashSets and \a options.
 		HashCacheDelta(const HashCacheTypes::BaseSetDeltaPointers& hashSets, const HashCacheTypes::Options& options)
-				: ReadOnlyViewSupplier(hashSets, options)
-		{}
+				: ReadOnlyViewSupplier(hashSets, options) {
+		}
 	};
 }}

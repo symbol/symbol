@@ -28,8 +28,9 @@ namespace catapult { namespace utils {
 	template<typename T, size_t N>
 	class CheckedArray {
 	public:
-		CheckedArray() : m_size(0)
-		{}
+		CheckedArray()
+				: m_size(0) {
+		}
 
 	public:
 		/// Returns \c true if the array is empty, \c false otherwise.

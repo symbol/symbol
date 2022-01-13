@@ -48,8 +48,7 @@ namespace catapult { namespace test {
 			auto compareResult = equal(defaultValue, value.second);
 
 			// Assert:
-			EXPECT_EQ(isEqualityExpected, compareResult)
-					<< "expected " << isEqualityExpected << " for '" << value.first << "'";
+			EXPECT_EQ(isEqualityExpected, compareResult) << "expected " << isEqualityExpected << " for '" << value.first << "'";
 			CATAPULT_LOG(debug) << defaultKey << "' == '" << value.first << "' ? expected " << isEqualityExpected;
 		}
 	}
@@ -75,11 +74,11 @@ namespace catapult { namespace test {
 			const std::string& defaultKey,
 			const std::unordered_map<std::string, std::unique_ptr<TValue>>& descToValueMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertEqualReturnsTrueForEqualObjects<std::unique_ptr<TValue>>(defaultKey, descToValueMap, equalityTags, [](
-				const auto& pLhs,
-				const auto& pRhs) {
-			return *pLhs == *pRhs;
-		});
+		AssertEqualReturnsTrueForEqualObjects<std::unique_ptr<TValue>>(
+				defaultKey,
+				descToValueMap,
+				equalityTags,
+				[](const auto& pLhs, const auto& pRhs) { return *pLhs == *pRhs; });
 	}
 
 	/// Asserts that operator!= returns the correct results when comparing values in \a descToValueMap against
@@ -101,8 +100,7 @@ namespace catapult { namespace test {
 			auto compareResult = notEqual(defaultValue, value.second);
 
 			// Assert:
-			EXPECT_EQ(!isEqualityExpected, compareResult)
-					<< "expected " << !isEqualityExpected << " for '" << value.first << "'";
+			EXPECT_EQ(!isEqualityExpected, compareResult) << "expected " << !isEqualityExpected << " for '" << value.first << "'";
 			CATAPULT_LOG(debug) << defaultKey << "' != '" << value.first << "' ? expected " << !isEqualityExpected;
 		}
 	}
@@ -128,11 +126,11 @@ namespace catapult { namespace test {
 			const std::string& defaultKey,
 			const std::unordered_map<std::string, std::unique_ptr<TValue>>& descToValueMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertNotEqualReturnsTrueForUnequalObjects<std::unique_ptr<TValue>>(defaultKey, descToValueMap, equalityTags, [](
-				const auto& pLhs,
-				const auto& pRhs) {
-			return *pLhs != *pRhs;
-		});
+		AssertNotEqualReturnsTrueForUnequalObjects<std::unique_ptr<TValue>>(
+				defaultKey,
+				descToValueMap,
+				equalityTags,
+				[](const auto& pLhs, const auto& pRhs) { return *pLhs != *pRhs; });
 	}
 
 	namespace detail {

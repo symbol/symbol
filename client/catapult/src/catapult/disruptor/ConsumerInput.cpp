@@ -27,8 +27,9 @@ namespace catapult { namespace disruptor {
 
 	// region constructors
 
-	ConsumerInput::ConsumerInput() : m_source(InputSource::Unknown)
-	{}
+	ConsumerInput::ConsumerInput()
+			: m_source(InputSource::Unknown) {
+	}
 
 	ConsumerInput::ConsumerInput(model::AnnotatedBlockRange&& range, InputSource source)
 			: m_blockRange(std::move(range.Range))
@@ -148,10 +149,10 @@ namespace catapult { namespace disruptor {
 			out << " (heights " << startHeight << " - " << endHeight << ")";
 		}
 
-		void OutputAdditionalInformation(std::ostream&)
-		{}
+		void OutputAdditionalInformation(std::ostream&) {
+		}
 
-		template<typename TElements, typename ...TArgs>
+		template<typename TElements, typename... TArgs>
 		void OutputElementsInfoT(std::ostream& out, const TElements& elements, const char* tag, TArgs... args) {
 			if (elements.empty())
 				return;

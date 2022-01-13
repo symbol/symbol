@@ -35,8 +35,9 @@ namespace catapult { namespace cache {
 		struct MetadataCacheMixinTraits {
 			class CacheType : public MetadataCache {
 			public:
-				CacheType() : MetadataCache(CacheConfiguration())
-				{}
+				CacheType()
+						: MetadataCache(CacheConfiguration()) {
+				}
 			};
 
 			using IdType = Hash256;
@@ -59,7 +60,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		struct MetadataCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
+		struct MetadataCacheDeltaModificationPolicy : public test::DeltaInsertModificationPolicy {
 			static void Modify(MetadataCacheDelta& delta, const state::MetadataEntry& entry) {
 				auto& entryFromCache = delta.find(entry.key().uniqueKey()).get();
 
@@ -83,7 +84,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MetadataCacheMixinTraits, MetadataCacheDeltaModificationPolicy, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(MetadataCacheMixinTraits,)
+	DEFINE_CACHE_BASIC_TESTS(MetadataCacheMixinTraits, )
 
 	// endregion
 }}

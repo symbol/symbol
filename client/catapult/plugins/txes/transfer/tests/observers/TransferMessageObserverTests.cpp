@@ -47,10 +47,16 @@ namespace catapult { namespace observers {
 	}
 
 #define MESSAGE_OBSERVER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Commit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CommitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Rollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RollbackTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Commit) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CommitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Rollback) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RollbackTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -61,8 +67,8 @@ namespace catapult { namespace observers {
 		public:
 			explicit TransferMessageObserverTestContext(NotifyMode notifyMode, Height height = Height(444))
 					: m_notifyMode(notifyMode)
-					, m_height(height)
-			{}
+					, m_height(height) {
+			}
 
 		public:
 			size_t countFiles() {

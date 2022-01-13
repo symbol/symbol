@@ -54,13 +54,14 @@ namespace catapult { namespace test {
 	class LocalNodeTestContext {
 	public:
 		/// Creates a context around \a nodeFlag.
-		explicit LocalNodeTestContext(NodeFlag nodeFlag) : LocalNodeTestContext(nodeFlag, {})
-		{}
+		explicit LocalNodeTestContext(NodeFlag nodeFlag)
+				: LocalNodeTestContext(nodeFlag, {}) {
+		}
 
 		/// Creates a context around \a nodeFlag with custom \a nodes.
 		LocalNodeTestContext(NodeFlag nodeFlag, const std::vector<ionet::Node>& nodes)
-				: LocalNodeTestContext(nodeFlag, nodes, [](const auto&) {}, "")
-		{}
+				: LocalNodeTestContext(nodeFlag, nodes, [](const auto&) {}, "") {
+		}
 
 		/// Creates a context around \a nodeFlag with custom \a nodes, config transform (\a configTransform)
 		/// and temp directory postfix (\a tempDirPostfix).
@@ -279,8 +280,9 @@ namespace catapult { namespace test {
 		// \note only node subscriber is currently captured
 		class CapturingServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit CapturingServiceRegistrar(CapturedServiceState& state) : m_state(state)
-			{}
+			explicit CapturingServiceRegistrar(CapturedServiceState& state)
+					: m_state(state) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {

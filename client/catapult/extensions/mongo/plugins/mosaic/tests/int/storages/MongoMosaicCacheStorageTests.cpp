@@ -83,5 +83,5 @@ namespace catapult { namespace mongo { namespace plugins {
 		};
 	}
 
-	DEFINE_FLAT_CACHE_STORAGE_TESTS(MosaicCacheTraits,)
+	DEFINE_FLAT_CACHE_STORAGE_TESTS(MosaicCacheTraits, )
 }}}

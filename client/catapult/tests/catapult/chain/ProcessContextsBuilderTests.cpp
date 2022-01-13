@@ -39,17 +39,14 @@ namespace catapult { namespace chain {
 			TestContext()
 					: Cache(test::CreateCatapultCacheWithMarkerAccount())
 					, ResolverCallPairs(0, 0)
-					, Builder(Height(111), Timestamp(222), {
-						CreateNetworkInfo(),
-						[this](const auto& readOnlyCache) {
-							++ResolverCallPairs.first;
-							if (test::IsMarkedCache(readOnlyCache))
-								++ResolverCallPairs.second;
+					, Builder(Height(111), Timestamp(222), { CreateNetworkInfo(), [this](const auto& readOnlyCache) {
+																++ResolverCallPairs.first;
+																if (test::IsMarkedCache(readOnlyCache))
+																	++ResolverCallPairs.second;
 
-							return test::CreateResolverContextXor();
-						}
-					})
-			{}
+																return test::CreateResolverContextXor();
+															} }) {
+			}
 
 		public:
 			cache::CatapultCache Cache;

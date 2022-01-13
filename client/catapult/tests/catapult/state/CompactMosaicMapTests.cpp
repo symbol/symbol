@@ -35,18 +35,9 @@ namespace catapult { namespace state {
 		// region utils
 
 		MosaicMap GetTenExpectedMosaics() {
-			return {
-				{ MosaicId(1), Amount(1) },
-				{ MosaicId(102), Amount(4) },
-				{ MosaicId(3), Amount(9) },
-				{ MosaicId(104), Amount(16) },
-				{ MosaicId(5), Amount(25) },
-				{ MosaicId(106), Amount(36) },
-				{ MosaicId(7), Amount(49) },
-				{ MosaicId(108), Amount(64) },
-				{ MosaicId(9), Amount(81) },
-				{ MosaicId(110), Amount(100) }
-			};
+			return { { MosaicId(1), Amount(1) },  { MosaicId(102), Amount(4) },	 { MosaicId(3), Amount(9) },  { MosaicId(104), Amount(16) },
+					 { MosaicId(5), Amount(25) }, { MosaicId(106), Amount(36) }, { MosaicId(7), Amount(49) }, { MosaicId(108), Amount(64) },
+					 { MosaicId(9), Amount(81) }, { MosaicId(110), Amount(100) } };
 		}
 
 		MosaicId GetMosaicId(size_t index) {
@@ -187,10 +178,7 @@ namespace catapult { namespace state {
 		map.insert(std::make_pair(MosaicId(100), Amount(333)));
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(100), Amount(333) },
-			{ MosaicId(123), Amount(245) }
-		});
+		AssertContents(map, { { MosaicId(100), Amount(333) }, { MosaicId(123), Amount(245) } });
 	}
 
 	TEST(TEST_CLASS, CanInsertMultipleMosaics_ValueAndPartialArray) {
@@ -201,10 +189,7 @@ namespace catapult { namespace state {
 		InsertMany(map, 2);
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(1), Amount(1) },
-			{ MosaicId(102), Amount(4) }
-		});
+		AssertContents(map, { { MosaicId(1), Amount(1) }, { MosaicId(102), Amount(4) } });
 	}
 
 	TEST(TEST_CLASS, CanInsertMultipleMosaics_ValueAndFullArray) {
@@ -215,14 +200,14 @@ namespace catapult { namespace state {
 		InsertMany(map, 6);
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(1), Amount(1) },
-			{ MosaicId(102), Amount(4) },
-			{ MosaicId(3), Amount(9) },
-			{ MosaicId(104), Amount(16) },
-			{ MosaicId(5), Amount(25) },
-			{ MosaicId(106), Amount(36) }
-		});
+		AssertContents(
+				map,
+				{ { MosaicId(1), Amount(1) },
+				  { MosaicId(102), Amount(4) },
+				  { MosaicId(3), Amount(9) },
+				  { MosaicId(104), Amount(16) },
+				  { MosaicId(5), Amount(25) },
+				  { MosaicId(106), Amount(36) } });
 	}
 
 	TEST(TEST_CLASS, CanInsertMultipleMosaics_ValueAndFullArrayAndMap) {
@@ -233,15 +218,15 @@ namespace catapult { namespace state {
 		InsertMany(map, 7);
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(1), Amount(1) },
-			{ MosaicId(102), Amount(4) },
-			{ MosaicId(3), Amount(9) },
-			{ MosaicId(104), Amount(16) },
-			{ MosaicId(5), Amount(25) },
-			{ MosaicId(106), Amount(36) },
-			{ MosaicId(7), Amount(49) }
-		});
+		AssertContents(
+				map,
+				{ { MosaicId(1), Amount(1) },
+				  { MosaicId(102), Amount(4) },
+				  { MosaicId(3), Amount(9) },
+				  { MosaicId(104), Amount(16) },
+				  { MosaicId(5), Amount(25) },
+				  { MosaicId(106), Amount(36) },
+				  { MosaicId(7), Amount(49) } });
 	}
 
 	TEST(TEST_CLASS, CanInsertMultipleMosaics_Many) {
@@ -307,15 +292,9 @@ namespace catapult { namespace state {
 
 	namespace {
 		MosaicMap GetSevenExpectedMosaicsForOptimizeTests() {
-			return {
-				{ MosaicId(29), Amount(876) },
-				{ MosaicId(85), Amount(111) },
-				{ MosaicId(100), Amount(333) },
-				{ MosaicId(101), Amount(10) },
-				{ MosaicId(102), Amount(20) },
-				{ MosaicId(104), Amount(40) },
-				{ MosaicId(303), Amount(30) }
-			};
+			return { { MosaicId(29), Amount(876) }, { MosaicId(85), Amount(111) }, { MosaicId(100), Amount(333) },
+					 { MosaicId(101), Amount(10) }, { MosaicId(102), Amount(20) }, { MosaicId(104), Amount(40) },
+					 { MosaicId(303), Amount(30) } };
 		}
 
 		void InsertSevenForOptimizeTests(CompactMosaicMap& map) {
@@ -448,12 +427,9 @@ namespace catapult { namespace state {
 		map.erase(MosaicId(1));
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(102), Amount(4) },
-			{ MosaicId(3), Amount(9) },
-			{ MosaicId(104), Amount(16) },
-			{ MosaicId(5), Amount(25) }
-		});
+		AssertContents(
+				map,
+				{ { MosaicId(102), Amount(4) }, { MosaicId(3), Amount(9) }, { MosaicId(104), Amount(16) }, { MosaicId(5), Amount(25) } });
 	}
 
 	TEST(TEST_CLASS, CanEraseMosaic_Array) {
@@ -465,12 +441,9 @@ namespace catapult { namespace state {
 		map.erase(MosaicId(3));
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(1), Amount(1) },
-			{ MosaicId(102), Amount(4) },
-			{ MosaicId(104), Amount(16) },
-			{ MosaicId(5), Amount(25) }
-		});
+		AssertContents(
+				map,
+				{ { MosaicId(1), Amount(1) }, { MosaicId(102), Amount(4) }, { MosaicId(104), Amount(16) }, { MosaicId(5), Amount(25) } });
 	}
 
 	TEST(TEST_CLASS, CanEraseMultipleMosaics_Odd) {
@@ -483,13 +456,13 @@ namespace catapult { namespace state {
 			map.erase(GetMosaicId(i));
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(102), Amount(4) },
-			{ MosaicId(104), Amount(16) },
-			{ MosaicId(106), Amount(36) },
-			{ MosaicId(108), Amount(64) },
-			{ MosaicId(110), Amount(100) }
-		});
+		AssertContents(
+				map,
+				{ { MosaicId(102), Amount(4) },
+				  { MosaicId(104), Amount(16) },
+				  { MosaicId(106), Amount(36) },
+				  { MosaicId(108), Amount(64) },
+				  { MosaicId(110), Amount(100) } });
 	}
 
 	TEST(TEST_CLASS, CanEraseMultipleMosaics_Even) {
@@ -502,13 +475,13 @@ namespace catapult { namespace state {
 			map.erase(GetMosaicId(i));
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(1), Amount(1) },
-			{ MosaicId(3), Amount(9) },
-			{ MosaicId(5), Amount(25) },
-			{ MosaicId(7), Amount(49) },
-			{ MosaicId(9), Amount(81) }
-		});
+		AssertContents(
+				map,
+				{ { MosaicId(1), Amount(1) },
+				  { MosaicId(3), Amount(9) },
+				  { MosaicId(5), Amount(25) },
+				  { MosaicId(7), Amount(49) },
+				  { MosaicId(9), Amount(81) } });
 	}
 
 	TEST(TEST_CLASS, CanEraseAllMosaics_Forward) {
@@ -546,13 +519,13 @@ namespace catapult { namespace state {
 		map.erase(MosaicId(123));
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(1), Amount(1) },
-			{ MosaicId(102), Amount(4) },
-			{ MosaicId(3), Amount(9) },
-			{ MosaicId(104), Amount(16) },
-			{ MosaicId(5), Amount(25) }
-		});
+		AssertContents(
+				map,
+				{ { MosaicId(1), Amount(1) },
+				  { MosaicId(102), Amount(4) },
+				  { MosaicId(3), Amount(9) },
+				  { MosaicId(104), Amount(16) },
+				  { MosaicId(5), Amount(25) } });
 	}
 
 	// endregion
@@ -572,16 +545,16 @@ namespace catapult { namespace state {
 			map.insert(std::make_pair(MosaicId(1000 + i), Amount(10 - i)));
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(102), Amount(4) },
-			{ MosaicId(104), Amount(16) },
-			{ MosaicId(106), Amount(36) },
-			{ MosaicId(108), Amount(64) },
-			{ MosaicId(110), Amount(100) },
-			{ MosaicId(1001), Amount(9) },
-			{ MosaicId(1002), Amount(8) },
-			{ MosaicId(1003), Amount(7) }
-		});
+		AssertContents(
+				map,
+				{ { MosaicId(102), Amount(4) },
+				  { MosaicId(104), Amount(16) },
+				  { MosaicId(106), Amount(36) },
+				  { MosaicId(108), Amount(64) },
+				  { MosaicId(110), Amount(100) },
+				  { MosaicId(1001), Amount(9) },
+				  { MosaicId(1002), Amount(8) },
+				  { MosaicId(1003), Amount(7) } });
 	}
 
 	TEST(TEST_CLASS, CanInsertAfterEraseMultipleMosaics_Even) {
@@ -597,16 +570,16 @@ namespace catapult { namespace state {
 			map.insert(std::make_pair(MosaicId(1000 + i), Amount(10 - i)));
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(1), Amount(1) },
-			{ MosaicId(3), Amount(9) },
-			{ MosaicId(5), Amount(25) },
-			{ MosaicId(7), Amount(49) },
-			{ MosaicId(9), Amount(81) },
-			{ MosaicId(1001), Amount(9) },
-			{ MosaicId(1002), Amount(8) },
-			{ MosaicId(1003), Amount(7) }
-		});
+		AssertContents(
+				map,
+				{ { MosaicId(1), Amount(1) },
+				  { MosaicId(3), Amount(9) },
+				  { MosaicId(5), Amount(25) },
+				  { MosaicId(7), Amount(49) },
+				  { MosaicId(9), Amount(81) },
+				  { MosaicId(1001), Amount(9) },
+				  { MosaicId(1002), Amount(8) },
+				  { MosaicId(1003), Amount(7) } });
 	}
 
 	TEST(TEST_CLASS, CanInsertAfterEraseAllMosaics) {
@@ -622,11 +595,7 @@ namespace catapult { namespace state {
 			map.insert(std::make_pair(MosaicId(1000 + i), Amount(10 - i)));
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(1001), Amount(9) },
-			{ MosaicId(1002), Amount(8) },
-			{ MosaicId(1003), Amount(7) }
-		});
+		AssertContents(map, { { MosaicId(1001), Amount(9) }, { MosaicId(1002), Amount(8) }, { MosaicId(1003), Amount(7) } });
 	}
 
 	// endregion
@@ -634,10 +603,16 @@ namespace catapult { namespace state {
 	// region iteration
 
 #define ITERATOR_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_NonConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndConstTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ITERATOR_BASED_TEST(CanAdvanceIteratorsPostfixOperator) {
 		// Arrange:
@@ -713,11 +688,7 @@ namespace catapult { namespace state {
 		iter->second = Amount(999);
 
 		// Assert:
-		AssertContents(map, {
-			{ MosaicId(1), Amount(1) },
-			{ MosaicId(102), Amount(999) },
-			{ MosaicId(3), Amount(9) }
-		});
+		AssertContents(map, { { MosaicId(1), Amount(1) }, { MosaicId(102), Amount(999) }, { MosaicId(3), Amount(9) } });
 	}
 
 	TEST(TEST_CLASS, CanZeroAndEraseAllMosaics_Forward) {

@@ -50,8 +50,8 @@ namespace catapult { namespace chain {
 		public:
 			explicit TreeNode(const model::HeightHashPair& key)
 					: pParent(nullptr)
-					, Key(key)
-			{}
+					, Key(key) {
+			}
 
 		public:
 			constexpr bool operator==(const TreeNode& rhs) const {

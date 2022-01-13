@@ -65,8 +65,8 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a restrictionType.
 		explicit MosaicRestrictionTypeNotification(model::MosaicRestrictionType restrictionType)
 				: Notification(Notification_Type, sizeof(MosaicRestrictionTypeNotification))
-				, RestrictionType(restrictionType)
-		{}
+				, RestrictionType(restrictionType) {
+		}
 
 	public:
 		/// Mosaic restriction type.
@@ -88,8 +88,8 @@ namespace catapult { namespace model {
 		MosaicRestrictionRequiredNotification(UnresolvedMosaicId mosaicId, uint64_t restrictionKey)
 				: Notification(Notification_Type, sizeof(MosaicRestrictionRequiredNotification))
 				, MosaicId(mosaicId)
-				, RestrictionKey(restrictionKey)
-		{}
+				, RestrictionKey(restrictionKey) {
+		}
 
 	public:
 		/// Identifier of the mosaic being restricted.
@@ -123,8 +123,8 @@ namespace catapult { namespace model {
 				, ReferenceMosaicId(referenceMosaicId)
 				, RestrictionKey(restrictionKey)
 				, RestrictionValue(restrictionValue)
-				, RestrictionType(restrictionType)
-		{}
+				, RestrictionType(restrictionType) {
+		}
 
 	public:
 		/// Identifier of the mosaic being restricted.
@@ -145,11 +145,11 @@ namespace catapult { namespace model {
 
 	/// First notification of a mosaic global restriction modification composed of previous values.
 	using MosaicGlobalRestrictionModificationPreviousValueNotification =
-		MosaicGlobalRestrictionModificationNotification<RestrictionMosaic_Global_Restriction_Previous_Notification>;
+			MosaicGlobalRestrictionModificationNotification<RestrictionMosaic_Global_Restriction_Previous_Notification>;
 
 	/// Second notification of a mosaic global restriction modification composed of new values.
 	using MosaicGlobalRestrictionModificationNewValueNotification =
-		MosaicGlobalRestrictionModificationNotification<RestrictionMosaic_Global_Restriction_New_Notification>;
+			MosaicGlobalRestrictionModificationNotification<RestrictionMosaic_Global_Restriction_New_Notification>;
 
 	// endregion
 
@@ -173,8 +173,8 @@ namespace catapult { namespace model {
 				, MosaicId(mosaicId)
 				, RestrictionKey(restrictionKey)
 				, TargetAddress(targetAddress)
-				, RestrictionValue(restrictionValue)
-		{}
+				, RestrictionValue(restrictionValue) {
+		}
 
 	public:
 		/// Identifier of the mosaic to which the restriction applies.
@@ -192,11 +192,11 @@ namespace catapult { namespace model {
 
 	/// First notification of a mosaic address restriction modification composed of previous values.
 	using MosaicAddressRestrictionModificationPreviousValueNotification =
-		MosaicAddressRestrictionModificationNotification<RestrictionMosaic_Address_Restriction_Previous_Notification>;
+			MosaicAddressRestrictionModificationNotification<RestrictionMosaic_Address_Restriction_Previous_Notification>;
 
 	/// Second notification of a mosaic address restriction modification composed of new values.
 	using MosaicAddressRestrictionModificationNewValueNotification =
-		MosaicAddressRestrictionModificationNotification<RestrictionMosaic_Address_Restriction_New_Notification>;
+			MosaicAddressRestrictionModificationNotification<RestrictionMosaic_Address_Restriction_New_Notification>;
 
 	// endregion
 }}

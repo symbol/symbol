@@ -68,15 +68,15 @@ namespace catapult { namespace deltaset {
 		// only ordered sets (not maps) support ordered pointers
 		// [this constraint is inconsequential because ordered maps aren't currently used]
 		using PointerContainer = std::conditional_t<
-			!utils::traits::is_map_v<MemorySetType> && utils::traits::is_ordered_v<MemorySetType>,
-			std::set<const ValueType*, PointerComparer<MemorySetType>>,
-			std::unordered_set<const ValueType*>
-		>;
+				!utils::traits::is_map_v<MemorySetType> && utils::traits::is_ordered_v<MemorySetType>,
+				std::set<const ValueType*, PointerComparer<MemorySetType>>,
+				std::unordered_set<const ValueType*>>;
 
 	public:
 		/// Creates a mixin around \a setDelta.
-		explicit DeltaElementsMixin(const TSetDelta& setDelta) : m_setDelta(setDelta)
-		{}
+		explicit DeltaElementsMixin(const TSetDelta& setDelta)
+				: m_setDelta(setDelta) {
+		}
 
 	public:
 		/// Gets the pointers to all added elements.

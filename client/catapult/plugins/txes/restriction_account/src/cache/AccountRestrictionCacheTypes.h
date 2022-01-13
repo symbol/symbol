@@ -25,22 +25,20 @@
 #include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/utils/Hashers.h"
 
-namespace catapult {
-	namespace cache {
-		struct AccountRestrictionBaseSetDeltaPointers;
-		struct AccountRestrictionBaseSets;
-		class AccountRestrictionCache;
-		class AccountRestrictionCacheDelta;
-		class AccountRestrictionCacheView;
-		class AccountRestrictionPatriciaTree;
-		struct AccountRestrictionsPrimarySerializer;
-		class BasicAccountRestrictionCacheDelta;
-		class BasicAccountRestrictionCacheView;
+namespace catapult { namespace cache {
+	struct AccountRestrictionBaseSetDeltaPointers;
+	struct AccountRestrictionBaseSets;
+	class AccountRestrictionCache;
+	class AccountRestrictionCacheDelta;
+	class AccountRestrictionCacheView;
+	class AccountRestrictionPatriciaTree;
+	struct AccountRestrictionsPrimarySerializer;
+	class BasicAccountRestrictionCacheDelta;
+	class BasicAccountRestrictionCacheView;
 
-		template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
-		class ReadOnlyArtifactCache;
-	}
-}
+	template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
+	class ReadOnlyArtifactCache;
+}}
 
 namespace catapult { namespace cache {
 
@@ -74,10 +72,10 @@ namespace catapult { namespace cache {
 		using PrimaryTypes = MutableUnorderedMapAdapter<AccountRestrictionCacheDescriptor, utils::ArrayHasher<Address>>;
 
 		using CacheReadOnlyType = ReadOnlyArtifactCache<
-			BasicAccountRestrictionCacheView,
-			BasicAccountRestrictionCacheDelta,
-			Address,
-			state::AccountRestrictions>;
+				BasicAccountRestrictionCacheView,
+				BasicAccountRestrictionCacheDelta,
+				Address,
+				state::AccountRestrictions>;
 
 		using BaseSetDeltaPointers = AccountRestrictionBaseSetDeltaPointers;
 		using BaseSets = AccountRestrictionBaseSets;

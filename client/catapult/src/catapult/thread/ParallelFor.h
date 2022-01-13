@@ -37,8 +37,10 @@ namespace catapult { namespace thread {
 
 		class ParallelContext {
 		public:
-			ParallelContext() : m_numOutstandingOperations(1) // note that the work partitioning is the initial operation
-			{}
+			ParallelContext()
+					: m_numOutstandingOperations(1) // note that the work partitioning is the initial operation
+			{
+			}
 
 		public:
 			auto future() {
@@ -68,8 +70,9 @@ namespace catapult { namespace thread {
 
 		class DecrementGuard {
 		public:
-			explicit DecrementGuard(ParallelContext& context) : m_context(context)
-			{}
+			explicit DecrementGuard(ParallelContext& context)
+					: m_context(context) {
+			}
 
 			~DecrementGuard() {
 				m_context.decrementOutstandingOperations();

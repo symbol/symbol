@@ -42,9 +42,9 @@ namespace catapult { namespace cache {
 	}
 
 	BasicNamespaceCacheDelta::BasicNamespaceCacheDelta(
-				const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets,
-				const NamespaceCacheTypes::Options& options,
-				const NamespaceSizes& namespaceSizes)
+			const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets,
+			const NamespaceCacheTypes::Options& options,
+			const NamespaceSizes& namespaceSizes)
 			: NamespaceCacheDeltaMixins::Size(*namespaceSets.pPrimary)
 			, NamespaceCacheDeltaMixins::Contains(*namespaceSets.pFlatMap)
 			, NamespaceCacheDeltaMixins::PatriciaTreeDelta(*namespaceSets.pPrimary, namespaceSets.pPatriciaTree)
@@ -55,8 +55,8 @@ namespace catapult { namespace cache {
 			, m_pHistoryById(namespaceSets.pPrimary)
 			, m_pNamespaceById(namespaceSets.pFlatMap)
 			, m_pRootNamespaceIdsByExpiryHeight(namespaceSets.pHeightGrouping)
-			, m_gracePeriodDuration(options.GracePeriodDuration)
-	{}
+			, m_gracePeriodDuration(options.GracePeriodDuration) {
+	}
 
 	BlockDuration BasicNamespaceCacheDelta::gracePeriodDuration() const {
 		return m_gracePeriodDuration;
@@ -180,10 +180,8 @@ namespace catapult { namespace cache {
 
 	namespace {
 		NamespaceSizes GetNamespaceSizes(const state::RootNamespaceHistory& history) {
-			return {
-				(history.empty() ? 0 : 1) + history.numActiveRootChildren(),
-				history.historyDepth() + history.numAllHistoricalChildren()
-			};
+			return { (history.empty() ? 0 : 1) + history.numActiveRootChildren(),
+					 history.historyDepth() + history.numAllHistoricalChildren() };
 		}
 	}
 

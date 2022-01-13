@@ -34,8 +34,9 @@ namespace catapult { namespace state {
 		}
 	}
 
-	NamespaceLifetime::NamespaceLifetime(Height start, Height end) : NamespaceLifetime(start, end, BlockDuration(0))
-	{}
+	NamespaceLifetime::NamespaceLifetime(Height start, Height end)
+			: NamespaceLifetime(start, end, BlockDuration(0)) {
+	}
 
 	NamespaceLifetime::NamespaceLifetime(Height start, Height end, BlockDuration gracePeriodDuration)
 			: Start(start)

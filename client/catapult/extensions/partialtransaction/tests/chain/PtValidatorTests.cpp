@@ -51,15 +51,15 @@ namespace catapult { namespace chain {
 			ValidationResultOptions(ValidationResult result)
 					: m_result(result)
 					, m_errorType(ValidatorType::Stateful)
-					, m_triggerOnSpecificNotificationType(false)
-			{}
+					, m_triggerOnSpecificNotificationType(false) {
+			}
 
 			ValidationResultOptions(ValidatorType errorType, model::NotificationType triggerType)
 					: m_result(ValidationResult::Failure)
 					, m_errorType(errorType)
 					, m_triggerOnSpecificNotificationType(true)
-					, m_triggerType(triggerType)
-			{}
+					, m_triggerType(triggerType) {
+			}
 
 		public:
 			ValidationResult result() const {
@@ -205,15 +205,13 @@ namespace catapult { namespace chain {
 				if (!expectedResult.IsShortCircuited) {
 					EXPECT_EQ(7u, notificationTypes.size());
 
-					std::vector<model::NotificationType> expectedNotificationTypes{
-						model::Core_Register_Account_Public_Key_Notification,
-						model::Core_Entity_Notification,
-						model::Core_Transaction_Notification,
-						model::Core_Transaction_Deadline_Notification,
-						model::Core_Transaction_Fee_Notification,
-						model::Core_Balance_Debit_Notification,
-						model::Core_Signature_Notification
-					};
+					std::vector<model::NotificationType> expectedNotificationTypes{ model::Core_Register_Account_Public_Key_Notification,
+																					model::Core_Entity_Notification,
+																					model::Core_Transaction_Notification,
+																					model::Core_Transaction_Deadline_Notification,
+																					model::Core_Transaction_Fee_Notification,
+																					model::Core_Balance_Debit_Notification,
+																					model::Core_Signature_Notification };
 					EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 				} else {
 					EXPECT_EQ(1u, notificationTypes.size());
@@ -252,11 +250,9 @@ namespace catapult { namespace chain {
 			// Assert:
 			EXPECT_EQ(3u, notificationTypes.size());
 
-			std::vector<model::NotificationType> expectedNotificationTypes{
-				model::Core_Register_Account_Public_Key_Notification,
-				model::Core_Entity_Notification,
-				model::Core_Transaction_Notification
-			};
+			std::vector<model::NotificationType> expectedNotificationTypes{ model::Core_Register_Account_Public_Key_Notification,
+																			model::Core_Entity_Notification,
+																			model::Core_Transaction_Notification };
 			EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 		});
 	}
@@ -304,11 +300,9 @@ namespace catapult { namespace chain {
 			// Assert:
 			EXPECT_EQ(3u, notificationTypes.size());
 
-			std::vector<model::NotificationType> expectedNotificationTypes{
-				model::Core_Register_Account_Public_Key_Notification,
-				model::Core_Entity_Notification,
-				model::Core_Transaction_Notification
-			};
+			std::vector<model::NotificationType> expectedNotificationTypes{ model::Core_Register_Account_Public_Key_Notification,
+																			model::Core_Entity_Notification,
+																			model::Core_Transaction_Notification };
 			EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 		});
 	}
@@ -319,17 +313,15 @@ namespace catapult { namespace chain {
 			// Assert:
 			EXPECT_EQ(9u, notificationTypes.size());
 
-			std::vector<model::NotificationType> expectedNotificationTypes{
-				model::Core_Register_Account_Public_Key_Notification,
-				model::Core_Entity_Notification,
-				model::Core_Transaction_Notification,
-				model::Core_Transaction_Deadline_Notification,
-				model::Core_Transaction_Fee_Notification,
-				model::Core_Balance_Debit_Notification,
-				model::Core_Signature_Notification,
-				model::Core_Register_Account_Public_Key_Notification,
-				mocks::Mock_Validator_1_Notification
-			};
+			std::vector<model::NotificationType> expectedNotificationTypes{ model::Core_Register_Account_Public_Key_Notification,
+																			model::Core_Entity_Notification,
+																			model::Core_Transaction_Notification,
+																			model::Core_Transaction_Deadline_Notification,
+																			model::Core_Transaction_Fee_Notification,
+																			model::Core_Balance_Debit_Notification,
+																			model::Core_Signature_Notification,
+																			model::Core_Register_Account_Public_Key_Notification,
+																			mocks::Mock_Validator_1_Notification };
 			EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 		});
 	}
@@ -368,11 +360,9 @@ namespace catapult { namespace chain {
 			if (!expectedResult.IsShortCircuited) {
 				EXPECT_EQ(3u, notificationTypes.size());
 
-				std::vector<model::NotificationType> expectedNotificationTypes{
-					model::Aggregate_Cosignatures_Notification,
-					model::Aggregate_Embedded_Transaction_Notification,
-					model::Aggregate_Embedded_Transaction_Notification
-				};
+				std::vector<model::NotificationType> expectedNotificationTypes{ model::Aggregate_Cosignatures_Notification,
+																				model::Aggregate_Embedded_Transaction_Notification,
+																				model::Aggregate_Embedded_Transaction_Notification };
 				EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 			} else {
 				EXPECT_EQ(1u, notificationTypes.size());

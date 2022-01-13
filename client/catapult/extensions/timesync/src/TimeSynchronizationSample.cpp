@@ -32,8 +32,8 @@ namespace catapult { namespace timesync {
 	TimeSynchronizationSample::TimeSynchronizationSample()
 			: m_identityKey()
 			, m_localTimestamps()
-			, m_remoteTimestamps()
-	{}
+			, m_remoteTimestamps() {
+	}
 
 	TimeSynchronizationSample::TimeSynchronizationSample(
 			const Key& identityKey,
@@ -41,8 +41,8 @@ namespace catapult { namespace timesync {
 			const CommunicationTimestamps& remoteTimestamps)
 			: m_identityKey(identityKey)
 			, m_localTimestamps(localTimestamps)
-			, m_remoteTimestamps(remoteTimestamps)
-	{}
+			, m_remoteTimestamps(remoteTimestamps) {
+	}
 
 	const Key& TimeSynchronizationSample::identityKey() const {
 		return m_identityKey;
@@ -92,9 +92,8 @@ namespace catapult { namespace timesync {
 	}
 
 	bool TimeSynchronizationSample::operator==(const TimeSynchronizationSample& rhs) const {
-		return m_identityKey == rhs.m_identityKey
-				&& m_localTimestamps == rhs.m_localTimestamps
-				&& m_remoteTimestamps == rhs.m_remoteTimestamps;
+		return m_identityKey == rhs.m_identityKey && m_localTimestamps == rhs.m_localTimestamps
+			   && m_remoteTimestamps == rhs.m_remoteTimestamps;
 	}
 
 	bool TimeSynchronizationSample::operator!=(const TimeSynchronizationSample& rhs) const {

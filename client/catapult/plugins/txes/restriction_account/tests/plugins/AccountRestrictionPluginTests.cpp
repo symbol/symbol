@@ -34,12 +34,9 @@ namespace catapult { namespace plugins {
 			static void RunTestAfterRegistration(TAction action) {
 				// Arrange:
 				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.Plugins.emplace("catapult.plugins.restrictionaccount", utils::ConfigurationBag({{
-					"",
-					{
-						{ "maxAccountRestrictionValues", "10" }
-					}
-				}}));
+				config.Plugins.emplace(
+						"catapult.plugins.restrictionaccount",
+						utils::ConfigurationBag({ { "", { { "maxAccountRestrictionValues", "10" } } } }));
 
 				auto manager = test::CreatePluginManager(config);
 				RegisterAccountRestrictionSubsystem(manager);
@@ -50,11 +47,9 @@ namespace catapult { namespace plugins {
 
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {
-					model::Entity_Type_Account_Address_Restriction,
-					model::Entity_Type_Account_Mosaic_Restriction,
-					model::Entity_Type_Account_Operation_Restriction
-				};
+				return { model::Entity_Type_Account_Address_Restriction,
+						 model::Entity_Type_Account_Mosaic_Restriction,
+						 model::Entity_Type_Account_Operation_Restriction };
 			}
 
 			static std::vector<std::string> GetCacheNames() {
@@ -74,40 +69,34 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
-				return {
-					"AccountRestrictionFlagsValidator",
+				return { "AccountRestrictionFlagsValidator",
 
-					"AccountOperationRestrictionModificationValuesValidator"
-				};
+						 "AccountOperationRestrictionModificationValuesValidator" };
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
-				return {
-					"AccountAddressRestrictionRedundantModificationValidator",
-					"AccountAddressRestrictionValueModificationValidator",
-					"MaxAccountAddressRestrictionValuesValidator",
-					"AddressInteractionValidator",
-					"AccountAddressRestrictionNoSelfModificationValidator",
+				return { "AccountAddressRestrictionRedundantModificationValidator",
+						 "AccountAddressRestrictionValueModificationValidator",
+						 "MaxAccountAddressRestrictionValuesValidator",
+						 "AddressInteractionValidator",
+						 "AccountAddressRestrictionNoSelfModificationValidator",
 
-					"AccountMosaicRestrictionRedundantModificationValidator",
-					"AccountMosaicRestrictionValueModificationValidator",
-					"MaxAccountMosaicRestrictionValuesValidator",
-					"MosaicRecipientValidator",
+						 "AccountMosaicRestrictionRedundantModificationValidator",
+						 "AccountMosaicRestrictionValueModificationValidator",
+						 "MaxAccountMosaicRestrictionValuesValidator",
+						 "MosaicRecipientValidator",
 
-					"AccountOperationRestrictionRedundantModificationValidator",
-					"AccountOperationRestrictionValueModificationValidator",
-					"MaxAccountOperationRestrictionValuesValidator",
-					"OperationRestrictionValidator",
-					"AccountOperationRestrictionNoSelfBlockingValidator"
-				};
+						 "AccountOperationRestrictionRedundantModificationValidator",
+						 "AccountOperationRestrictionValueModificationValidator",
+						 "MaxAccountOperationRestrictionValuesValidator",
+						 "OperationRestrictionValidator",
+						 "AccountOperationRestrictionNoSelfBlockingValidator" };
 			}
 
 			static std::vector<std::string> GetObserverNames() {
-				return {
-					"AccountAddressRestrictionValueModificationObserver",
-					"AccountMosaicRestrictionValueModificationObserver",
-					"AccountOperationRestrictionValueModificationObserver"
-				};
+				return { "AccountAddressRestrictionValueModificationObserver",
+						 "AccountMosaicRestrictionValueModificationObserver",
+						 "AccountOperationRestrictionValueModificationObserver" };
 			}
 
 			static std::vector<std::string> GetPermanentObserverNames() {

@@ -24,7 +24,9 @@
 #include "NodeInteractionResult.h"
 #include "catapult/utils/HexFormatter.h"
 
-namespace catapult { namespace ionet { struct NodeData; } }
+namespace catapult { namespace ionet {
+	struct NodeData;
+}}
 
 namespace catapult { namespace ionet {
 
@@ -41,8 +43,8 @@ namespace catapult { namespace ionet {
 				, TimeSupplier(timeSupplier)
 				, VersionPredicate(versionPredicate)
 				, NextNodeId(1)
-				, NodeDataContainer(equalityStrategy)
-		{}
+				, NodeDataContainer(equalityStrategy) {
+		}
 
 	public:
 		const size_t MaxNodes;
@@ -64,8 +66,8 @@ namespace catapult { namespace ionet {
 			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 			: m_nodeContainerData(nodeContainerData)
 			, m_bannedNodes(bannedNodes)
-			, m_readLock(std::move(readLock))
-	{}
+			, m_readLock(std::move(readLock)) {
+	}
 
 	size_t NodeContainerView::size() const {
 		return m_nodeContainerData.NodeDataContainer.size();
@@ -116,8 +118,8 @@ namespace catapult { namespace ionet {
 			utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
 			: m_nodeContainerData(nodeContainerData)
 			, m_bannedNodes(bannedNodes)
-			, m_writeLock(std::move(writeLock))
-	{}
+			, m_writeLock(std::move(writeLock)) {
+	}
 
 	bool NodeContainerModifier::add(const Node& node, NodeSource source) {
 		// always allow zero version, which is used as a placeholder in Dynamic_Incoming nodes
@@ -140,10 +142,8 @@ namespace catapult { namespace ionet {
 
 		if (!pNodeData) {
 			if (!ensureAtLeastOneEmptySlot()) {
-				CATAPULT_LOG(warning)
-						<< "node container is full and no nodes are eligible for pruning"
-						<< " (size = " << nodeDataContainer.size()
-						<< ", max = " << m_nodeContainerData.MaxNodes << ")";
+				CATAPULT_LOG(warning) << "node container is full and no nodes are eligible for pruning"
+									  << " (size = " << nodeDataContainer.size() << ", max = " << m_nodeContainerData.MaxNodes << ")";
 				return false;
 			}
 
@@ -177,9 +177,7 @@ namespace catapult { namespace ionet {
 	}
 
 	void NodeContainerModifier::addConnectionStates(ServiceIdentifier serviceId, NodeRoles role) {
-		m_nodeContainerData.NodeDataContainer.forEach([serviceId, role](auto& nodeData) {
-			ProvisionIfMatch(nodeData, serviceId, role);
-		});
+		m_nodeContainerData.NodeDataContainer.forEach([serviceId, role](auto& nodeData) { ProvisionIfMatch(nodeData, serviceId, role); });
 
 		// save mapping to automatically provision connection states for added nodes
 		m_nodeContainerData.ServiceRolesMap.emplace_back(serviceId, role);
@@ -206,10 +204,10 @@ namespace catapult { namespace ionet {
 			ServiceIdentifier serviceId,
 			uint32_t maxConnectionBanAge,
 			uint32_t numConsecutiveFailuresBeforeBanning) {
-		m_nodeContainerData.NodeDataContainer.forEach([serviceId, maxConnectionBanAge, numConsecutiveFailuresBeforeBanning](
-				auto& nodeData) {
-			nodeData.NodeInfo.updateBan(serviceId, maxConnectionBanAge, numConsecutiveFailuresBeforeBanning);
-		});
+		m_nodeContainerData.NodeDataContainer.forEach(
+				[serviceId, maxConnectionBanAge, numConsecutiveFailuresBeforeBanning](auto& nodeData) {
+					nodeData.NodeInfo.updateBan(serviceId, maxConnectionBanAge, numConsecutiveFailuresBeforeBanning);
+				});
 	}
 
 	void NodeContainerModifier::incrementSuccesses(const model::NodeIdentity& identity) {
@@ -263,12 +261,12 @@ namespace catapult { namespace ionet {
 
 	NodeContainer::NodeContainer()
 			: NodeContainer(
-					std::numeric_limits<size_t>::max(),
-					model::NodeIdentityEqualityStrategy::Key_And_Host,
-					BanSettings(),
-					[]() { return Timestamp(0); },
-					[](auto) { return true; })
-	{}
+					  std::numeric_limits<size_t>::max(),
+					  model::NodeIdentityEqualityStrategy::Key_And_Host,
+					  BanSettings(),
+					  []() { return Timestamp(0); },
+					  [](auto) { return true; }) {
+	}
 
 	NodeContainer::NodeContainer(
 			size_t maxNodes,
@@ -277,8 +275,8 @@ namespace catapult { namespace ionet {
 			const supplier<Timestamp>& timeSupplier,
 			const predicate<NodeVersion>& versionPredicate)
 			: m_pImpl(std::make_unique<NodeContainerData>(maxNodes, equalityStrategy, timeSupplier, versionPredicate))
-			, m_bannedNodes(banSettings, timeSupplier, equalityStrategy)
-	{}
+			, m_bannedNodes(banSettings, timeSupplier, equalityStrategy) {
+	}
 
 	NodeContainer::~NodeContainer() = default;
 
@@ -297,9 +295,7 @@ namespace catapult { namespace ionet {
 	// region utils
 
 	predicate<NodeVersion> CreateRangeNodeVersionPredicate(NodeVersion minVersion, NodeVersion maxVersion) {
-		return [minVersion, maxVersion](auto version) {
-			return minVersion <= version && version <= maxVersion;
-		};
+		return [minVersion, maxVersion](auto version) { return minVersion <= version && version <= maxVersion; };
 	}
 
 	NodeSet FindAllActiveNodes(const NodeContainerView& view) {

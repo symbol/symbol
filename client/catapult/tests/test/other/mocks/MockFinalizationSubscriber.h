@@ -32,8 +32,8 @@ namespace catapult { namespace mocks {
 		FinalizationSubscriberFinalizedBlockParams(const model::FinalizationRound& round, catapult::Height height, const Hash256& hash)
 				: Round(round)
 				, Height(height)
-				, Hash(hash)
-		{}
+				, Hash(hash) {
+		}
 
 	public:
 		/// Finalization round.

@@ -45,16 +45,8 @@ namespace catapult { namespace plugins {
 		// region caches
 
 		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockchainConfiguration& config) {
-			return {
-				config.Network.Identifier,
-				config.ImportanceGrouping,
-				config.VotingSetGrouping,
-				config.MinHarvesterBalance,
-				config.MaxHarvesterBalance,
-				config.MinVoterBalance,
-				config.CurrencyMosaicId,
-				config.HarvestingMosaicId
-			};
+			return { config.Network.Identifier,	 config.ImportanceGrouping, config.VotingSetGrouping, config.MinHarvesterBalance,
+					 config.MaxHarvesterBalance, config.MinVoterBalance,	config.CurrencyMosaicId,  config.HarvestingMosaicId };
 		}
 
 		void AddAccountStateCache(PluginManager& manager, const model::BlockchainConfiguration& config) {
@@ -175,52 +167,47 @@ namespace catapult { namespace plugins {
 		AddBlockStatisticCache(manager, config);
 
 		manager.addStatelessValidatorHook([&config](auto& builder) {
-			builder
-				.add(validators::CreateZeroAddressValidator(config.Network.Identifier))
-				.add(validators::CreateZeroPublicKeyValidator())
-				.add(validators::CreateMaxTransactionsValidator(config.MaxTransactionsPerBlock))
-				.add(validators::CreateNetworkValidator(config.Network.Identifier))
-				.add(validators::CreateEntityVersionValidator())
-				.add(validators::CreateTransactionFeeValidator())
-				.add(validators::CreateKeyLinkActionValidator())
-				.add(validators::CreateZeroInternalPaddingValidator())
-				.add(validators::CreateBlockTypeValidator(config.ImportanceGrouping));
+			builder.add(validators::CreateZeroAddressValidator(config.Network.Identifier))
+					.add(validators::CreateZeroPublicKeyValidator())
+					.add(validators::CreateMaxTransactionsValidator(config.MaxTransactionsPerBlock))
+					.add(validators::CreateNetworkValidator(config.Network.Identifier))
+					.add(validators::CreateEntityVersionValidator())
+					.add(validators::CreateTransactionFeeValidator())
+					.add(validators::CreateKeyLinkActionValidator())
+					.add(validators::CreateZeroInternalPaddingValidator())
+					.add(validators::CreateBlockTypeValidator(config.ImportanceGrouping));
 		});
 
 		manager.addStatefulValidatorHook([&config](auto& builder) {
-			builder
-				.add(validators::CreateAddressValidator())
-				.add(validators::CreatePublicKeyValidator())
-				.add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
-				.add(validators::CreateNemesisSinkValidator(
-						config.ForkHeights.TreasuryReissuance,
-						config.TreasuryReissuanceTransactionSignatures))
-				.add(validators::CreateEligibleHarvesterValidator())
-				.add(validators::CreateBalanceDebitValidator())
-				.add(validators::CreateBalanceTransferValidator())
-				.add(validators::CreateImportanceBlockValidator(
-						config.ForkHeights.TotalVotingBalanceCalculationFix,
-						config.VotingSetGrouping));
+			builder.add(validators::CreateAddressValidator())
+					.add(validators::CreatePublicKeyValidator())
+					.add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
+					.add(validators::CreateNemesisSinkValidator(
+							config.ForkHeights.TreasuryReissuance,
+							config.TreasuryReissuanceTransactionSignatures))
+					.add(validators::CreateEligibleHarvesterValidator())
+					.add(validators::CreateBalanceDebitValidator())
+					.add(validators::CreateBalanceTransferValidator())
+					.add(validators::CreateImportanceBlockValidator(
+							config.ForkHeights.TotalVotingBalanceCalculationFix,
+							config.VotingSetGrouping));
 		});
 
-		auto harvestFeeOptions = observers::HarvestFeeOptions{
-			config.CurrencyMosaicId,
-			config.HarvestBeneficiaryPercentage,
-			config.HarvestNetworkPercentage,
-			model::GetHarvestNetworkFeeSinkAddress(config)
-		};
+		auto harvestFeeOptions = observers::HarvestFeeOptions{ config.CurrencyMosaicId,
+															   config.HarvestBeneficiaryPercentage,
+															   config.HarvestNetworkPercentage,
+															   model::GetHarvestNetworkFeeSinkAddress(config) };
 		const auto& calculator = manager.inflationConfig().InflationCalculator;
 		manager.addObserverHook([harvestFeeOptions, &calculator](auto& builder) {
-			builder
-				.add(observers::CreateSourceChangeObserver())
-				.add(observers::CreateAccountAddressObserver())
-				.add(observers::CreateAccountPublicKeyObserver())
-				.add(observers::CreateBalanceDebitObserver())
-				.add(observers::CreateBalanceTransferObserver())
-				.add(observers::CreateBeneficiaryObserver())
-				.add(observers::CreateTransactionFeeActivityObserver())
-				.add(observers::CreateHarvestFeeObserver(harvestFeeOptions, calculator))
-				.add(observers::CreateTotalTransactionsObserver());
+			builder.add(observers::CreateSourceChangeObserver())
+					.add(observers::CreateAccountAddressObserver())
+					.add(observers::CreateAccountPublicKeyObserver())
+					.add(observers::CreateBalanceDebitObserver())
+					.add(observers::CreateBalanceTransferObserver())
+					.add(observers::CreateBeneficiaryObserver())
+					.add(observers::CreateTransactionFeeActivityObserver())
+					.add(observers::CreateHarvestFeeObserver(harvestFeeOptions, calculator))
+					.add(observers::CreateTotalTransactionsObserver());
 		});
 
 		auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
@@ -230,11 +217,10 @@ namespace catapult { namespace plugins {
 			// AFTER all state changes.
 			// Since transient observers are guaranteed to not cause any state changes, the aforementioned observers can be safely
 			// registered as transient observers independent of any transient observers registered by other plugins.
-			builder
-				.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Commit))
-				.add(CreateRecalculateImportancesObserver(config, dataDirectory.dir("importance")))
-				.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Rollback))
-				.add(observers::CreateBlockStatisticObserver(config.MaxDifficultyBlocks, config.DefaultDynamicFeeMultiplier));
+			builder.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Commit))
+					.add(CreateRecalculateImportancesObserver(config, dataDirectory.dir("importance")))
+					.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Rollback))
+					.add(observers::CreateBlockStatisticObserver(config.MaxDifficultyBlocks, config.DefaultDynamicFeeMultiplier));
 		});
 
 		RegisterVrfKeyLinkTransaction(manager);
@@ -242,7 +228,6 @@ namespace catapult { namespace plugins {
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterCoreSystem(manager);
 }

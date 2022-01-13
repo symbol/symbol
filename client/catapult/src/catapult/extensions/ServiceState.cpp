@@ -33,25 +33,20 @@ namespace catapult { namespace extensions {
 		return [&storage = state.storage(), maxRollbackBlocks]() {
 			auto storageView = storage.view();
 			auto chainHeight = storageView.chainHeight();
-			auto finalizedHeight = chainHeight.unwrap() <= maxRollbackBlocks
-					? Height(1)
-					: Height(chainHeight.unwrap() - maxRollbackBlocks);
+			auto finalizedHeight = chainHeight.unwrap() <= maxRollbackBlocks ? Height(1) : Height(chainHeight.unwrap() - maxRollbackBlocks);
 			return model::HeightHashPair{ finalizedHeight, storageView.loadBlockElement(finalizedHeight)->EntityHash };
 		};
 	}
 
 	supplier<Height> CreateLocalFinalizedHeightSupplier(const ServiceState& state) {
 		auto heightHashPairSupplier = CreateLocalFinalizedHeightHashPairSupplier(state);
-		return [heightHashPairSupplier]() {
-			return heightHashPairSupplier().Height;
-		};
+		return [heightHashPairSupplier]() { return heightHashPairSupplier().Height; };
 	}
 
 	supplier<model::HeightHashPair> CreateNetworkFinalizedHeightHashPairSupplier(const ServiceState& state) {
 		auto maxRollbackBlocks = state.config().Blockchain.MaxRollbackBlocks;
-		return 0 == maxRollbackBlocks
-				? state.hooks().networkFinalizedHeightHashPairSupplier()
-				: CreateLocalFinalizedHeightHashPairSupplier(state);
+		return 0 == maxRollbackBlocks ? state.hooks().networkFinalizedHeightHashPairSupplier()
+									  : CreateLocalFinalizedHeightHashPairSupplier(state);
 	}
 
 	SelectorSettings CreateOutgoingSelectorSettings(

@@ -92,11 +92,19 @@ namespace catapult { namespace crypto {
 	}
 
 #define KEY_TYPE_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_PublicPemPublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicPemPublicKeyTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_PrivatePemPublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrivatePemPublicKeyTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_PrivatePemKeyPair) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrivatePemKeyPairTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_PublicPemPublicKey) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicPemPublicKeyTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_PrivatePemPublicKey) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrivatePemPublicKeyTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_PrivatePemKeyPair) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrivatePemKeyPairTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -140,10 +148,9 @@ namespace catapult { namespace crypto {
 		test::TempFileGuard fileGuard("key.pem");
 		{
 			std::ofstream fout(fileGuard.name(), std::ios_base::out);
-			fout
-				<< "-----BEGIN PUBLIC KEY-----" << std::endl
-				<< "MCowBQYDK2VwAyEAtL+kth++Wt/T5fhjXBkyWdQqqAU2ZJ+FJKnP4hatXRo=" << std::endl
-				<< "-----END PUBLIC KEY-----";
+			fout << "-----BEGIN PUBLIC KEY-----" << std::endl
+				 << "MCowBQYDK2VwAyEAtL+kth++Wt/T5fhjXBkyWdQqqAU2ZJ+FJKnP4hatXRo=" << std::endl
+				 << "-----END PUBLIC KEY-----";
 		}
 
 		// Act:

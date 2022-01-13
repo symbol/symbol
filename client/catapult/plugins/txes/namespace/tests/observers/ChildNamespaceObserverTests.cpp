@@ -31,7 +31,7 @@ namespace catapult { namespace observers {
 
 	using ObserverTestContext = test::ObserverTestContextT<test::NamespaceCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(ChildNamespace,)
+	DEFINE_COMMON_OBSERVER_TESTS(ChildNamespace, )
 
 	namespace {
 		model::ChildNamespaceNotification CreateChildNotification(const Address& owner, NamespaceId parentId, NamespaceId id) {

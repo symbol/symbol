@@ -118,10 +118,13 @@ namespace catapult { namespace parsers {
 		// Act:
 		auto numValidCalls = 0u;
 		std::vector<model::TransactionElement> elements;
-		auto result = TryParseTransactionElements(*pPacket, [&numValidCalls](const auto&) {
-			++numValidCalls;
-			return false;
-		}, elements);
+		auto result = TryParseTransactionElements(
+				*pPacket,
+				[&numValidCalls](const auto&) {
+					++numValidCalls;
+					return false;
+				},
+				elements);
 
 		// Assert:
 		EXPECT_EQ(1u, numValidCalls);

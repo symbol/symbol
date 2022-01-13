@@ -29,26 +29,36 @@
 #include "catapult/thread/Task.h"
 
 namespace catapult {
-	namespace cache {
-		class CatapultCache;
-		class ReadWriteUtCache;
-		class UtCache;
-	}
-	namespace extensions {
-		class LocalNodeChainScore;
-		struct SelectorSettings;
-	}
-	namespace io { class BlockStorageCache; }
-	namespace ionet { class NodeContainer; }
-	namespace plugins { class PluginManager; }
-	namespace subscribers {
-		class FinalizationSubscriber;
-		class NodeSubscriber;
-		class StateChangeSubscriber;
-		class TransactionStatusSubscriber;
-	}
-	namespace thread { class MultiServicePool; }
-	namespace utils { class DiagnosticCounter; }
+namespace cache {
+	class CatapultCache;
+	class ReadWriteUtCache;
+	class UtCache;
+}
+namespace extensions {
+	class LocalNodeChainScore;
+	struct SelectorSettings;
+}
+namespace io {
+	class BlockStorageCache;
+}
+namespace ionet {
+	class NodeContainer;
+}
+namespace plugins {
+	class PluginManager;
+}
+namespace subscribers {
+	class FinalizationSubscriber;
+	class NodeSubscriber;
+	class StateChangeSubscriber;
+	class TransactionStatusSubscriber;
+}
+namespace thread {
+	class MultiServicePool;
+}
+namespace utils {
+	class DiagnosticCounter;
+}
 }
 
 namespace catapult { namespace extensions {
@@ -97,8 +107,8 @@ namespace catapult { namespace extensions {
 				, m_counters(counters)
 				, m_pluginManager(pluginManager)
 				, m_pool(pool)
-				, m_packetHandlers(m_config.Node.MaxPacketDataSize.bytes32())
-		{}
+				, m_packetHandlers(m_config.Node.MaxPacketDataSize.bytes32()) {
+		}
 
 	public:
 		/// Gets the config.

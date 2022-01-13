@@ -34,16 +34,13 @@ namespace catapult { namespace thread { namespace detail {
 	private:
 		using ContinuationFunc = consumer<const std::shared_ptr<shared_state<T>>>;
 
-		enum class future_status {
-			pending,
-			completed_success,
-			completed_error
-		};
+		enum class future_status { pending, completed_success, completed_error };
 
 	public:
 		/// Creates an incomplete shared state.
-		shared_state() : m_status(future_status::pending)
-		{}
+		shared_state()
+				: m_status(future_status::pending) {
+		}
 
 	public:
 		/// Returns \c true if this shared state has completed and get will not block.

@@ -36,20 +36,14 @@ namespace catapult { namespace harvesting {
 			using ConfigurationType = HarvestingConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"harvesting",
-						{
-							{ "harvesterSigningPrivateKey", "signing-key" },
-							{ "harvesterVrfPrivateKey", "vrf-key" },
+				return { { "harvesting",
+						   { { "harvesterSigningPrivateKey", "signing-key" },
+							 { "harvesterVrfPrivateKey", "vrf-key" },
 
-							{ "enableAutoHarvesting", "true" },
-							{ "maxUnlockedAccounts", "2" },
-							{ "delegatePrioritizationPolicy", "Importance" },
-							{ "beneficiaryAddress", Beneficiary_Address }
-						}
-					}
-				};
+							 { "enableAutoHarvesting", "true" },
+							 { "maxUnlockedAccounts", "2" },
+							 { "delegatePrioritizationPolicy", "Importance" },
+							 { "beneficiaryAddress", Beneficiary_Address } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

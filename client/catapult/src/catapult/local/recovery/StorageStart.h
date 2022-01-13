@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace io { class BlockStorage; } }
+namespace catapult { namespace io {
+	class BlockStorage;
+}}
 
 namespace catapult { namespace local {
 

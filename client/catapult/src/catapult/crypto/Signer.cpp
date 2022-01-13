@@ -53,8 +53,8 @@ namespace catapult { namespace crypto {
 
 		int ValidateEncodedSPart(const uint8_t* encodedS) {
 			uint8_t encodedBuf[Signature::Size];
-			uint8_t *RESTRICT encodedTempR = encodedBuf;
-			uint8_t *RESTRICT encodedZero = encodedBuf + Encoded_Size;
+			uint8_t* RESTRICT encodedTempR = encodedBuf;
+			uint8_t* RESTRICT encodedZero = encodedBuf + Encoded_Size;
 
 			std::memset(encodedZero, 0, Encoded_Size);
 			if (0 == std::memcmp(encodedS, encodedZero, Encoded_Size))
@@ -82,8 +82,8 @@ namespace catapult { namespace crypto {
 	}
 
 	void Sign(const KeyPair& keyPair, std::initializer_list<const RawBuffer> buffersList, Signature& computedSignature) {
-		uint8_t *RESTRICT encodedR = computedSignature.data();
-		uint8_t *RESTRICT encodedS = computedSignature.data() + Encoded_Size;
+		uint8_t* RESTRICT encodedR = computedSignature.data();
+		uint8_t* RESTRICT encodedS = computedSignature.data() + Encoded_Size;
 
 		// r = H(privHash[256:512] || data)
 		// "EdDSA avoids these issues by generating r = H(h_b, ..., h_2b-1, M), so that
@@ -144,8 +144,8 @@ namespace catapult { namespace crypto {
 	}
 
 	bool Verify(const Key& publicKey, const std::vector<RawBuffer>& buffers, const Signature& signature) {
-		const uint8_t *RESTRICT encodedR = signature.data();
-		const uint8_t *RESTRICT encodedS = signature.data() + Encoded_Size;
+		const uint8_t* RESTRICT encodedR = signature.data();
+		const uint8_t* RESTRICT encodedS = signature.data() + Encoded_Size;
 
 		// reject if not canonical
 		if (!IsCanonicalS(encodedS))
@@ -288,10 +288,7 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	std::pair<std::vector<bool>, bool> VerifyMulti(
-			const RandomFiller& randomFiller,
-			const SignatureInput* pSignatureInputs,
-			size_t count) {
+	std::pair<std::vector<bool>, bool> VerifyMulti(const RandomFiller& randomFiller, const SignatureInput* pSignatureInputs, size_t count) {
 		auto result = CheckForCanonicalFormAndNonzeroKeys(pSignatureInputs, count);
 		VerifyBatches(randomFiller, pSignatureInputs, count, result, [&pSignatureInputs, &result](auto offset, auto batchSize) {
 			result.second &= VerifySingle(pSignatureInputs, offset, batchSize, result.first);
@@ -302,9 +299,7 @@ namespace catapult { namespace crypto {
 
 	bool VerifyMultiShortCircuit(const RandomFiller& randomFiller, const SignatureInput* pSignatureInputs, size_t count) {
 		auto result = CheckForCanonicalFormAndNonzeroKeys(pSignatureInputs, count);
-		return result.second && VerifyBatches(randomFiller, pSignatureInputs, count, result, [](auto, auto) {
-			return false;
-		});
+		return result.second && VerifyBatches(randomFiller, pSignatureInputs, count, result, [](auto, auto) { return false; });
 	}
 
 	// endregion

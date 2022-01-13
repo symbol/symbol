@@ -77,8 +77,8 @@ namespace catapult { namespace chain {
 			explicit ImportanceGroup(catapult::Importance::ValueType importance)
 					: Importance(catapult::Importance(importance))
 					, HitCount(0)
-					, Signer(test::GenerateRandomByteArray<Key>())
-			{}
+					, Signer(test::GenerateRandomByteArray<Key>()) {
+			}
 		};
 
 		using ImportanceGroups = std::vector<std::unique_ptr<ImportanceGroup>>;
@@ -191,10 +191,8 @@ namespace catapult { namespace chain {
 
 				// - allow a max percentage deviation between consecutive groups
 				auto hasSufficientHits = currentHitCount >= IntegrityTestParameters().MinHitsForPercentageDeviation;
-				CATAPULT_LOG(debug)
-						<< previousGroup.Importance << " -> " << currentGroup.Importance
-						<< " deviation: " << percentageDeviation << "%"
-						<< (hasSufficientHits ? "" : " (insufficient hits)");
+				CATAPULT_LOG(debug) << previousGroup.Importance << " -> " << currentGroup.Importance
+									<< " deviation: " << percentageDeviation << "%" << (hasSufficientHits ? "" : " (insufficient hits)");
 
 				if (!hasSufficientHits)
 					continue;

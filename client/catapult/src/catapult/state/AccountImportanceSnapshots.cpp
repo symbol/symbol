@@ -43,9 +43,8 @@ namespace catapult { namespace state {
 	}
 
 	Importance AccountImportanceSnapshots::get(model::ImportanceHeight height) const {
-		auto iter = std::find_if(m_snapshots.begin(), m_snapshots.end(), [height](const auto& snapshot) {
-			return snapshot.Height == height;
-		});
+		auto iter =
+				std::find_if(m_snapshots.begin(), m_snapshots.end(), [height](const auto& snapshot) { return snapshot.Height == height; });
 
 		return m_snapshots.end() == iter ? Importance() : iter->Importance;
 	}

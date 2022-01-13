@@ -31,8 +31,9 @@ namespace catapult { namespace cache {
 	class CacheChangesStorageAdapter : public CacheChangesStorage {
 	public:
 		/// Creates an adapter around \a cache.
-		explicit CacheChangesStorageAdapter(TCache& cache) : m_cache(cache)
-		{}
+		explicit CacheChangesStorageAdapter(TCache& cache)
+				: m_cache(cache) {
+		}
 
 	public:
 		size_t id() const override {

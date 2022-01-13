@@ -75,8 +75,9 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	PluginModule::PluginModule(const std::string& directory, const std::string& name) : PluginModule(directory, name, Scope::Local)
-	{}
+	PluginModule::PluginModule(const std::string& directory, const std::string& name)
+			: PluginModule(directory, name, Scope::Local) {
+	}
 
 	PluginModule::PluginModule(const std::string& directory, const std::string& name, Scope scope) {
 		auto pluginPath = GetPluginPath(directory, name);

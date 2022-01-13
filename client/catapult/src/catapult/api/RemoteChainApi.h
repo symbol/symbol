@@ -24,8 +24,12 @@
 #include "RemoteApi.h"
 
 namespace catapult {
-	namespace ionet { class PacketIo; }
-	namespace model { class TransactionRegistry; }
+namespace ionet {
+	class PacketIo;
+}
+namespace model {
+	class TransactionRegistry;
+}
 }
 
 namespace catapult { namespace api {
@@ -33,15 +37,16 @@ namespace catapult { namespace api {
 	/// Options for a blocks-from request.
 	struct BlocksFromOptions {
 		/// Creates blocks-from options.
-		BlocksFromOptions() : BlocksFromOptions(0, 0)
-		{}
+		BlocksFromOptions()
+				: BlocksFromOptions(0, 0) {
+		}
 
 		/// Creates blocks-from options from a number of requested blocks (\a numBlocks)
 		/// and a number of requested bytes (\a numBytes).
 		BlocksFromOptions(uint32_t numBlocks, uint32_t numBytes)
 				: NumBlocks(numBlocks)
-				, NumBytes(numBytes)
-		{}
+				, NumBytes(numBytes) {
+		}
 
 		/// Requested number of blocks.
 		uint32_t NumBlocks;
@@ -51,11 +56,14 @@ namespace catapult { namespace api {
 	};
 
 	/// Api for retrieving chain statistics from a remote node.
-	class RemoteChainApi : public RemoteApi, public ChainApi {
+	class RemoteChainApi
+			: public RemoteApi
+			, public ChainApi {
 	protected:
 		/// Creates a remote api for the node with specified \a remoteIdentity.
-		explicit RemoteChainApi(const model::NodeIdentity& remoteIdentity) : RemoteApi(remoteIdentity)
-		{}
+		explicit RemoteChainApi(const model::NodeIdentity& remoteIdentity)
+				: RemoteApi(remoteIdentity) {
+		}
 
 	public:
 		/// Gets the last block.

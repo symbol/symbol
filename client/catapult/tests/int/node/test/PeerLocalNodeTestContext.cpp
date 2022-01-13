@@ -29,23 +29,16 @@ namespace catapult { namespace test {
 		void AddAdditionalPlugins(config::CatapultConfiguration& config, NonNemesisTransactionPlugins additionalPlugins) {
 			auto& plugins = const_cast<model::BlockchainConfiguration&>(config.Blockchain).Plugins;
 			if (NonNemesisTransactionPlugins::Lock_Secret == additionalPlugins) {
-				plugins.emplace("catapult.plugins.locksecret", utils::ConfigurationBag({{
-					"",
-					{
-						{ "maxSecretLockDuration", "1h" },
-						{ "minProofSize", "10" },
-						{ "maxProofSize", "1000" }
-					}
-				}}));
+				plugins.emplace(
+						"catapult.plugins.locksecret",
+						utils::ConfigurationBag(
+								{ { "", { { "maxSecretLockDuration", "1h" }, { "minProofSize", "10" }, { "maxProofSize", "1000" } } } }));
 			}
 
 			if (NonNemesisTransactionPlugins::Restriction_Account == additionalPlugins) {
-				plugins.emplace("catapult.plugins.restrictionaccount", utils::ConfigurationBag({{
-					"",
-					{
-						{ "maxAccountRestrictionValues", "10" }
-					}
-				}}));
+				plugins.emplace(
+						"catapult.plugins.restrictionaccount",
+						utils::ConfigurationBag({ { "", { { "maxAccountRestrictionValues", "10" } } } }));
 			}
 		}
 	}
@@ -55,14 +48,14 @@ namespace catapult { namespace test {
 			NonNemesisTransactionPlugins additionalPlugins,
 			const consumer<config::CatapultConfiguration&>& configTransform)
 			: m_context(
-					nodeFlag | NodeFlag::With_Partner,
-					{},
-					[additionalPlugins, configTransform](auto& config) {
-						AddAdditionalPlugins(config, additionalPlugins);
-						configTransform(config);
-					},
-					"")
-	{}
+					  nodeFlag | NodeFlag::With_Partner,
+					  {},
+					  [additionalPlugins, configTransform](auto& config) {
+						  AddAdditionalPlugins(config, additionalPlugins);
+						  configTransform(config);
+					  },
+					  "") {
+	}
 
 	const Key& PeerLocalNodeTestContext::publicKey() const {
 		return m_context.publicKey();

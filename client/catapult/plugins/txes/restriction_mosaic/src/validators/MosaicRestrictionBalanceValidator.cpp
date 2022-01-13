@@ -28,8 +28,8 @@ namespace catapult { namespace validators {
 
 	namespace {
 		using AddressRulesEvaluator = predicate<
-			const cache::MosaicRestrictionCacheTypes::CacheReadOnlyType&,
-			const std::vector<cache::MosaicRestrictionResolvedRule>>;
+				const cache::MosaicRestrictionCacheTypes::CacheReadOnlyType&,
+				const std::vector<cache::MosaicRestrictionResolvedRule>>;
 
 		ValidationResult ProcessMosaicRules(
 				UnresolvedMosaicId unresolvedMosaicId,
@@ -48,38 +48,38 @@ namespace catapult { namespace validators {
 			if (cache::MosaicGlobalRestrictionRuleResolutionResult::Invalid_Rule == result)
 				return Failure_RestrictionMosaic_Invalid_Global_Restriction;
 
-			return addressRulesEvaluator(cache, mosaicRules)
-					? ValidationResult::Success
-					: Failure_RestrictionMosaic_Account_Unauthorized;
+			return addressRulesEvaluator(cache, mosaicRules) ? ValidationResult::Success : Failure_RestrictionMosaic_Account_Unauthorized;
 		}
 
 		ValidationResult CheckTransferAuthorization(
 				const model::BalanceTransferNotification& notification,
 				const ValidatorContext& context) {
-			return ProcessMosaicRules(notification.MosaicId, context, [&notification, &resolvers = context.Resolvers](
-					const auto& cache,
-					const auto& mosaicRules) {
-				auto isSenderAuthorized = cache::EvaluateMosaicRestrictionResolvedRulesForAddress(
-						cache,
-						notification.Sender.resolved(resolvers),
-						mosaicRules);
-				auto isRecipientAuthorized = cache::EvaluateMosaicRestrictionResolvedRulesForAddress(
-						cache,
-						notification.Recipient.resolved(resolvers),
-						mosaicRules);
-				return isSenderAuthorized && isRecipientAuthorized;
-			});
+			return ProcessMosaicRules(
+					notification.MosaicId,
+					context,
+					[&notification, &resolvers = context.Resolvers](const auto& cache, const auto& mosaicRules) {
+						auto isSenderAuthorized = cache::EvaluateMosaicRestrictionResolvedRulesForAddress(
+								cache,
+								notification.Sender.resolved(resolvers),
+								mosaicRules);
+						auto isRecipientAuthorized = cache::EvaluateMosaicRestrictionResolvedRulesForAddress(
+								cache,
+								notification.Recipient.resolved(resolvers),
+								mosaicRules);
+						return isSenderAuthorized && isRecipientAuthorized;
+					});
 		}
 
 		ValidationResult CheckDebitAuthorization(const model::BalanceDebitNotification& notification, const ValidatorContext& context) {
-			return ProcessMosaicRules(notification.MosaicId, context, [&notification, &resolvers = context.Resolvers](
-					const auto& cache,
-					const auto& mosaicRules) {
-				return cache::EvaluateMosaicRestrictionResolvedRulesForAddress(
-						cache,
-						notification.Sender.resolved(resolvers),
-						mosaicRules);
-			});
+			return ProcessMosaicRules(
+					notification.MosaicId,
+					context,
+					[&notification, &resolvers = context.Resolvers](const auto& cache, const auto& mosaicRules) {
+						return cache::EvaluateMosaicRestrictionResolvedRulesForAddress(
+								cache,
+								notification.Sender.resolved(resolvers),
+								mosaicRules);
+					});
 		}
 	}
 

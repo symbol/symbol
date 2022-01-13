@@ -41,8 +41,8 @@ namespace catapult { namespace local {
 					std::unique_ptr<io::OutputStream>&& pOutputStream,
 					const supplier<CacheChangesStorages>& cacheChangesStoragesSupplier)
 					: m_pOutputStream(std::move(pOutputStream))
-					, m_cacheChangesStoragesSupplier(cacheChangesStoragesSupplier)
-			{}
+					, m_cacheChangesStoragesSupplier(cacheChangesStoragesSupplier) {
+			}
 
 		public:
 			void notifyScoreChange(const model::ChainScore& chainScore) override {

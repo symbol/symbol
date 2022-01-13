@@ -102,10 +102,16 @@ namespace catapult { namespace thread {
 	}
 
 #define WHEN_ALL_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Pair) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PairTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Vector) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VectorTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Pair) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PairTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Vector) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VectorTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	WHEN_ALL_TEST(WhenAllDoesNotBlock) {
 		// Arrange:
@@ -229,9 +235,8 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, ComposeDoesNotBlock) {
 		// Arrange:
-		auto composedFuture = compose(CreateSleepValueFuture(25, 7), [](auto&& future) {
-			return CreateSleepContinuationFuture(25, std::move(future));
-		});
+		auto composedFuture =
+				compose(CreateSleepValueFuture(25, 7), [](auto&& future) { return CreateSleepContinuationFuture(25, std::move(future)); });
 
 		// Assert:
 		EXPECT_FALSE(composedFuture.is_ready());
@@ -239,9 +244,8 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, CanComposeNonExceptionalFutures) {
 		// Arrange:
-		auto composedFuture = compose(CreateSleepValueFuture(15, 7), [](auto&& future) {
-			return CreateSleepContinuationFuture(10, std::move(future));
-		});
+		auto composedFuture =
+				compose(CreateSleepValueFuture(15, 7), [](auto&& future) { return CreateSleepContinuationFuture(10, std::move(future)); });
 
 		// Act:
 		auto result = composedFuture.get();
@@ -253,9 +257,8 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, CanComposeFuturesWhenFirstIsExceptional) {
 		// Arrange:
-		auto composedFuture = compose(CreateSleepExceptionFuture(15), [](auto&& future) {
-			return CreateSleepContinuationFuture(10, std::move(future));
-		});
+		auto composedFuture =
+				compose(CreateSleepExceptionFuture(15), [](auto&& future) { return CreateSleepContinuationFuture(10, std::move(future)); });
 
 		// Act + Assert:
 		EXPECT_THROW(composedFuture.get(), catapult_runtime_error);
@@ -278,9 +281,7 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, CanComposeFuturesWhenSecondIsExceptional) {
 		// Arrange:
-		auto composedFuture = compose(CreateSleepValueFuture(15, 7), [](const auto&) {
-			return CreateSleepExceptionFuture(10);
-		});
+		auto composedFuture = compose(CreateSleepValueFuture(15, 7), [](const auto&) { return CreateSleepExceptionFuture(10); });
 
 		// Act + Assert:
 		EXPECT_THROW(composedFuture.get(), catapult_runtime_error);

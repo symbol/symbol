@@ -33,8 +33,8 @@ namespace catapult { namespace validators {
 		public:
 			LoopAndLevelChecker(const cache::MultisigCache::CacheReadOnlyType& multisigCache, uint8_t maxMultisigDepth)
 					: m_multisigCache(multisigCache)
-					, m_maxMultisigDepth(maxMultisigDepth)
-			{}
+					, m_maxMultisigDepth(maxMultisigDepth) {
+			}
 
 		public:
 			ValidationResult validate(const Address& top, const Address& bottom) {
@@ -62,11 +62,11 @@ namespace catapult { namespace validators {
 	}
 
 	DECLARE_STATEFUL_VALIDATOR(MultisigLoopAndLevel, Notification)(uint8_t maxMultisigDepth) {
-		return MAKE_STATEFUL_VALIDATOR(MultisigLoopAndLevel, [maxMultisigDepth](
-					const Notification& notification,
-					const ValidatorContext& context) {
-			auto checker = LoopAndLevelChecker(context.Cache.sub<cache::MultisigCache>(), maxMultisigDepth);
-			return checker.validate(notification.Multisig, context.Resolvers.resolve(notification.Cosignatory));
-		});
+		return MAKE_STATEFUL_VALIDATOR(
+				MultisigLoopAndLevel,
+				[maxMultisigDepth](const Notification& notification, const ValidatorContext& context) {
+					auto checker = LoopAndLevelChecker(context.Cache.sub<cache::MultisigCache>(), maxMultisigDepth);
+					return checker.validate(notification.Multisig, context.Resolvers.resolve(notification.Cosignatory));
+				});
 	}
 }}

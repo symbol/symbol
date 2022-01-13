@@ -30,8 +30,8 @@ namespace catapult { namespace filespooling {
 		class FileUtChangeStorage final : public cache::UtChangeSubscriber {
 		public:
 			explicit FileUtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-					: m_pOutputStream(std::move(pOutputStream))
-			{}
+					: m_pOutputStream(std::move(pOutputStream)) {
+			}
 
 		public:
 			void notifyAdds(const TransactionInfos& transactionInfos) override {

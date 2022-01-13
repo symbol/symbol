@@ -40,23 +40,23 @@ namespace catapult { namespace test {
 	}
 
 	BlockchainBuilder::BlockchainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator)
-			: BlockchainBuilder(accounts, stateHashCalculator, CreatePrototypicalBlockchainConfiguration())
-	{}
+			: BlockchainBuilder(accounts, stateHashCalculator, CreatePrototypicalBlockchainConfiguration()) {
+	}
 
 	BlockchainBuilder::BlockchainBuilder(
 			const Accounts& accounts,
 			StateHashCalculator& stateHashCalculator,
 			const model::BlockchainConfiguration& config)
-			: BlockchainBuilder(accounts, stateHashCalculator, config, stateHashCalculator.dataDirectory())
-	{}
+			: BlockchainBuilder(accounts, stateHashCalculator, config, stateHashCalculator.dataDirectory()) {
+	}
 
 	BlockchainBuilder::BlockchainBuilder(
 			const Accounts& accounts,
 			StateHashCalculator& stateHashCalculator,
 			const model::BlockchainConfiguration& config,
 			const std::string& resourcesPath)
-			: BlockchainBuilder(accounts, stateHashCalculator, config, resourcesPath, false)
-	{}
+			: BlockchainBuilder(accounts, stateHashCalculator, config, resourcesPath, false) {
+	}
 
 	BlockchainBuilder::BlockchainBuilder(
 			const Accounts& accounts,

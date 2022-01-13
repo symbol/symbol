@@ -106,10 +106,9 @@ namespace catapult { namespace extensions {
 
 	namespace {
 		uint32_t CalculateWeightFromAttempts(uint32_t numSuccesses, uint32_t numFailures) {
-			return CalculateWeight(
-					ionet::NodeInteractions(numSuccesses, numFailures),
-					WeightPolicy::Interactions,
-					[]() { return UniformImportanceRetriever(Key()); });
+			return CalculateWeight(ionet::NodeInteractions(numSuccesses, numFailures), WeightPolicy::Interactions, []() {
+				return UniformImportanceRetriever(Key());
+			});
 		}
 	}
 
@@ -155,10 +154,7 @@ namespace catapult { namespace extensions {
 			auto retriever = [rawImportance](const auto&) {
 				return ImportanceDescriptor{ Importance(rawImportance), Default_Total_Importance };
 			};
-			return CalculateWeight(
-					ionet::NodeInteractions(),
-					WeightPolicy::Importance,
-					[retriever]() { return retriever(Key()); });
+			return CalculateWeight(ionet::NodeInteractions(), WeightPolicy::Importance, [retriever]() { return retriever(Key()); });
 		}
 	}
 
@@ -382,9 +378,7 @@ namespace catapult { namespace extensions {
 					map.emplace(nodes[i].identity().PublicKey, ImportanceDescriptor{ Importance(rawImportance), Importance(totalWeight) });
 				}
 
-				return [map](const Key& key) {
-					return map.find(key)->second;
-				};
+				return [map](const Key& key) { return map.find(key)->second; };
 			}
 		};
 	}
@@ -409,10 +403,16 @@ namespace catapult { namespace extensions {
 	}
 
 #define FILTER_TEST(TEST_NAME) \
-	template<uint32_t Age, uint32_t MaxAge> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Add) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<0, 8>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Remove) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<10, 8>(); } \
-	template<uint32_t Age, uint32_t MaxAge> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<uint32_t Age, uint32_t MaxAge> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Add) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<0, 8>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Remove) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<10, 8>(); \
+	} \
+	template<uint32_t Age, uint32_t MaxAge> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	FILTER_TEST(NoCandidatesWhenContainerHasNoMatchingServiceNodes) {
 		// Arrange: seed the container with nodes that support a different service
@@ -616,8 +616,8 @@ namespace catapult { namespace extensions {
 					: Interactions1(interactions1)
 					, Interactions2(interactions2)
 					, Source1(ionet::NodeSource::Dynamic)
-					, Source2(ionet::NodeSource::Dynamic)
-			{}
+					, Source2(ionet::NodeSource::Dynamic) {
+			}
 
 		public:
 			const ionet::NodeInteractions& Interactions1;
@@ -724,9 +724,7 @@ namespace catapult { namespace extensions {
 		nodeInfos.Source2 = ionet::NodeSource::Dynamic;
 
 		// Assert:
-		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) {
-			return counts.first < counts.second;
-		});
+		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) { return counts.first < counts.second; });
 	}
 
 	TEST(TEST_CLASS, BannedStaticNodeHasLowerPriorityThanNonBannedStaticNode) {
@@ -754,9 +752,7 @@ namespace catapult { namespace extensions {
 		nodeInfos.ConnectionState2.BanAge = 1;
 
 		// Assert:
-		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) {
-			return 0 == counts.second;
-		});
+		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) { return 0 == counts.second; });
 	}
 
 	// endregion

@@ -87,8 +87,8 @@ namespace catapult { namespace partialtransaction {
 		public:
 			explicit MockStatelessNotificationValidator(validators::ValidationResult result)
 					: m_result(result)
-					, m_numCosigs(0)
-			{}
+					, m_numCosigs(0) {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -98,14 +98,14 @@ namespace catapult { namespace partialtransaction {
 			validators::ValidationResult validate(const model::Notification& notification) const override {
 				if (notification.Type == model::Aggregate_Cosignatures_Notification) {
 					return HasAllCosignatures(static_cast<const model::AggregateCosignaturesNotification&>(notification))
-							? ValidationResult::Success
-							: validators::Failure_Aggregate_Missing_Cosignatures;
+								   ? ValidationResult::Success
+								   : validators::Failure_Aggregate_Missing_Cosignatures;
 				}
 
 				if (notification.Type == model::Aggregate_Embedded_Transaction_Notification) {
 					return HasAllCosignatures(static_cast<const model::AggregateEmbeddedTransactionNotification&>(notification))
-							? ValidationResult::Success
-							: validators::Failure_Aggregate_Ineligible_Cosignatories;
+								   ? ValidationResult::Success
+								   : validators::Failure_Aggregate_Ineligible_Cosignatories;
 				}
 
 				return m_result;
@@ -127,8 +127,9 @@ namespace catapult { namespace partialtransaction {
 
 		class TestContext : public test::ServiceLocatorTestContext<PtDispatcherServiceTraits> {
 		public:
-			TestContext() : TestContext(ValidationResult::Failure)
-			{}
+			TestContext()
+					: TestContext(ValidationResult::Failure) {
+			}
 
 			explicit TestContext(ValidationResult validationResult)
 					: m_numCompletedTransactions(0)

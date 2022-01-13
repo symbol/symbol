@@ -29,8 +29,9 @@ namespace catapult { namespace api {
 	class RemoteApi {
 	protected:
 		/// Creates a remote api for the node with specified \a remoteIdentity.
-		explicit RemoteApi(const model::NodeIdentity& remoteIdentity) : m_remoteIdentity(remoteIdentity)
-		{}
+		explicit RemoteApi(const model::NodeIdentity& remoteIdentity)
+				: m_remoteIdentity(remoteIdentity) {
+		}
 
 	public:
 		virtual ~RemoteApi() = default;

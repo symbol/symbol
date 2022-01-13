@@ -75,8 +75,8 @@ namespace catapult { namespace model {
 		/// Creates secret lock hash algorithm notification around \a hashAlgorithm.
 		SecretLockHashAlgorithmNotification(LockHashAlgorithm hashAlgorithm)
 				: Notification(Notification_Type, sizeof(SecretLockHashAlgorithmNotification))
-				, HashAlgorithm(hashAlgorithm)
-		{}
+				, HashAlgorithm(hashAlgorithm) {
+		}
 
 	public:
 		/// Hash algorithm.
@@ -105,8 +105,8 @@ namespace catapult { namespace model {
 				: BaseLockNotification(owner, mosaic, duration)
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
-				, Recipient(recipient)
-		{}
+				, Recipient(recipient) {
+		}
 
 	public:
 		/// Hash algorithm.
@@ -135,8 +135,8 @@ namespace catapult { namespace model {
 				: Notification(Notification_Type, sizeof(ProofSecretNotification))
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
-				, Proof(proof)
-		{}
+				, Proof(proof) {
+		}
 
 	public:
 		/// Hash algorithm.
@@ -170,8 +170,8 @@ namespace catapult { namespace model {
 				, Owner(owner)
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
-				, Recipient(recipient)
-		{}
+				, Recipient(recipient) {
+		}
 
 	public:
 		/// Lock owner.

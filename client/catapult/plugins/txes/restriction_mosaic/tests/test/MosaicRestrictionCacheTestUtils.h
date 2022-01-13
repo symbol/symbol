@@ -34,8 +34,7 @@ namespace catapult { namespace test {
 		static cache::CatapultCache Create(model::NetworkIdentifier networkIdentifier = model::NetworkIdentifier::Zero) {
 			auto cacheId = cache::MosaicRestrictionCache::Id;
 			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
-			subCaches[cacheId] = MakeSubCachePlugin<cache::MosaicRestrictionCache, cache::MosaicRestrictionCacheStorage>(
-					networkIdentifier);
+			subCaches[cacheId] = MakeSubCachePlugin<cache::MosaicRestrictionCache, cache::MosaicRestrictionCacheStorage>(networkIdentifier);
 			return cache::CatapultCache(std::move(subCaches));
 		}
 

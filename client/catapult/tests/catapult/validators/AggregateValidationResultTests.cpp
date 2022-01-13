@@ -56,10 +56,16 @@ namespace catapult { namespace validators {
 	}
 
 #define AGGREGATE_RESULT_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Atomic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AtomicResultTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Raw) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RawResultTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Atomic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AtomicResultTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Raw) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RawResultTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	AGGREGATE_RESULT_TRAITS_BASED_TEST(CanAggregateFromTrueSuccess) {
 		EXPECT_EQ(Success_Result, TTraits::AggregateTwo(Success_Result, Success_Result));

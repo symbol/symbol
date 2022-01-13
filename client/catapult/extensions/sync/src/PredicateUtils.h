@@ -24,7 +24,9 @@
 #include "catapult/consumers/TransactionConsumers.h"
 #include "catapult/model/Elements.h"
 
-namespace catapult { namespace config { class CatapultConfiguration; } }
+namespace catapult { namespace config {
+	class CatapultConfiguration;
+}}
 
 namespace catapult { namespace sync {
 

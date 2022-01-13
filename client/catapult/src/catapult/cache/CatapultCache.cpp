@@ -98,8 +98,8 @@ namespace catapult { namespace cache {
 			std::vector<std::unique_ptr<const SubCacheView>>&& subViews)
 			: m_pCacheHeight(std::make_unique<CacheHeightView>(std::move(cacheHeightView)))
 			, m_pDependentState(&dependentState)
-			, m_subViews(std::move(subViews))
-	{}
+			, m_subViews(std::move(subViews)) {
+	}
 
 	CatapultCacheView::~CatapultCacheView() = default;
 
@@ -133,8 +133,8 @@ namespace catapult { namespace cache {
 			std::vector<std::unique_ptr<SubCacheView>>&& subViews)
 			: m_disposition(disposition)
 			, m_pDependentState(&dependentState)
-			, m_subViews(std::move(subViews))
-	{}
+			, m_subViews(std::move(subViews)) {
+	}
 
 	CatapultCacheDelta::~CatapultCacheDelta() = default;
 
@@ -211,8 +211,8 @@ namespace catapult { namespace cache {
 			std::vector<std::unique_ptr<DetachedSubCacheView>>&& detachedSubViews)
 			// note that CacheHeightView is a unique_ptr to allow CatapultCacheDetachableDelta to be declared without it defined
 			: m_pCacheHeightView(std::make_unique<CacheHeightView>(std::move(cacheHeightView)))
-			, m_detachedDelta(dependentState, std::move(detachedSubViews))
-	{}
+			, m_detachedDelta(dependentState, std::move(detachedSubViews)) {
+	}
 
 	CatapultCacheDetachableDelta::~CatapultCacheDetachableDelta() = default;
 
@@ -234,8 +234,8 @@ namespace catapult { namespace cache {
 			const state::CatapultState& dependentState,
 			std::vector<std::unique_ptr<DetachedSubCacheView>>&& detachedSubViews)
 			: m_pDependentState(std::make_unique<state::CatapultState>(dependentState))
-			, m_detachedSubViews(std::move(detachedSubViews))
-	{}
+			, m_detachedSubViews(std::move(detachedSubViews)) {
+	}
 
 	CatapultCacheDetachedDelta::~CatapultCacheDetachedDelta() = default;
 
@@ -285,8 +285,8 @@ namespace catapult { namespace cache {
 			: m_pCacheHeight(std::make_unique<CacheHeight>())
 			, m_pDependentState(std::make_unique<state::CatapultState>())
 			, m_pDependentStateDelta(std::make_unique<state::CatapultState>())
-			, m_subCaches(std::move(subCaches))
-	{}
+			, m_subCaches(std::move(subCaches)) {
+	}
 
 	CatapultCache::~CatapultCache() = default;
 
@@ -314,9 +314,8 @@ namespace catapult { namespace cache {
 	CatapultCacheDetachableDelta CatapultCache::createDetachableDelta() const {
 		// acquire a height reader lock to ensure the delta is composed of consistent sub cache deltas
 		auto pCacheHeightView = m_pCacheHeight->view();
-		auto detachedSubViews = MapSubCaches<DetachedSubCacheView>(m_subCaches, [](const auto& pSubCache) {
-			return pSubCache->createDetachedDelta();
-		});
+		auto detachedSubViews =
+				MapSubCaches<DetachedSubCacheView>(m_subCaches, [](const auto& pSubCache) { return pSubCache->createDetachedDelta(); });
 		return CatapultCacheDetachableDelta(std::move(pCacheHeightView), *m_pDependentState, std::move(detachedSubViews));
 	}
 
@@ -335,17 +334,11 @@ namespace catapult { namespace cache {
 	}
 
 	std::vector<std::unique_ptr<const CacheStorage>> CatapultCache::storages() const {
-		return MapSubCaches<const CacheStorage>(
-				m_subCaches,
-				[](const auto& pSubCache) { return pSubCache->createStorage(); },
-				false);
+		return MapSubCaches<const CacheStorage>(m_subCaches, [](const auto& pSubCache) { return pSubCache->createStorage(); }, false);
 	}
 
 	std::vector<std::unique_ptr<CacheStorage>> CatapultCache::storages() {
-		return MapSubCaches<CacheStorage>(
-				m_subCaches,
-				[](const auto& pSubCache) { return pSubCache->createStorage(); },
-				false);
+		return MapSubCaches<CacheStorage>(m_subCaches, [](const auto& pSubCache) { return pSubCache->createStorage(); }, false);
 	}
 
 	std::vector<std::unique_ptr<const CacheChangesStorage>> CatapultCache::changesStorages() const {

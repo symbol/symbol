@@ -48,8 +48,8 @@ namespace catapult { namespace test {
 
 	template<typename TElement>
 	using UnorderedMapSetTraits = deltaset::MapStorageTraits<
-		std::unordered_map<std::pair<std::string, unsigned int>, TElement, MapKeyHasher>,
-		TestElementToKeyConverter<TElement>>;
+			std::unordered_map<std::pair<std::string, unsigned int>, TElement, MapKeyHasher>,
+			TestElementToKeyConverter<TElement>>;
 
 	// endregion
 
@@ -257,12 +257,8 @@ namespace catapult { namespace test {
 		auto deltas = deltaWrapper->deltas();
 
 		// Assert:
-		CATAPULT_LOG(debug)
-				<< "size: " << deltaWrapper.originalSize()
-				<< " (O " << deltaWrapper.originalSize()
-				<< ", A " << deltas.Added.size()
-				<< ", R " << deltas.Removed.size()
-				<< ", C " << deltas.Copied.size() << ")";
+		CATAPULT_LOG(debug) << "size: " << deltaWrapper.originalSize() << " (O " << deltaWrapper.originalSize() << ", A "
+							<< deltas.Added.size() << ", R " << deltas.Removed.size() << ", C " << deltas.Copied.size() << ")";
 		EXPECT_EQ(expectedOriginal, deltaWrapper.originalSize());
 		EXPECT_EQ(expectedAdded, deltas.Added.size());
 		EXPECT_EQ(expectedRemoved, deltas.Removed.size());
@@ -283,12 +279,8 @@ namespace catapult { namespace test {
 		auto deltas = delta.deltas();
 
 		// Assert:
-		CATAPULT_LOG(debug)
-				<< "size: " << set.size()
-				<< " (O " << set.size()
-				<< ", A " << deltas.Added.size()
-				<< ", R " << deltas.Removed.size()
-				<< ", C " << deltas.Copied.size() << ")";
+		CATAPULT_LOG(debug) << "size: " << set.size() << " (O " << set.size() << ", A " << deltas.Added.size() << ", R "
+							<< deltas.Removed.size() << ", C " << deltas.Copied.size() << ")";
 		EXPECT_EQ(expectedOriginal, set.size());
 		EXPECT_EQ(expectedAdded, deltas.Added.size());
 		EXPECT_EQ(expectedRemoved, deltas.Removed.size());
@@ -329,13 +321,11 @@ namespace catapult { namespace test {
 			// - 4 -> inserted removed
 			// + 5 -> inserted copied
 			// + 7 -> inserted unmodified
-			return {
-				TestElement("TestElement", 0),
-				TestElement("TestElement", 2),
-				TestElement("TestElement", 3),
-				TestElement("TestElement", 5),
-				TestElement("TestElement", 7)
-			};
+			return { TestElement("TestElement", 0),
+					 TestElement("TestElement", 2),
+					 TestElement("TestElement", 3),
+					 TestElement("TestElement", 5),
+					 TestElement("TestElement", 7) };
 		}
 	};
 

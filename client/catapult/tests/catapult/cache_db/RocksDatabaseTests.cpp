@@ -387,10 +387,7 @@ namespace catapult { namespace cache {
 	// region iterators
 
 	namespace {
-		enum class KeyState {
-			Existent,
-			Nonexistent
-		};
+		enum class KeyState { Existent, Nonexistent };
 
 		auto StateToKey(KeyState keyState) {
 			return KeyState::Existent == keyState ? "hello" : "nonexistent";
@@ -499,10 +496,7 @@ namespace catapult { namespace cache {
 	// region batch processing
 
 	namespace {
-		enum class Flush {
-			No,
-			Yes
-		};
+		enum class Flush { No, Yes };
 
 		template<typename TAction>
 		void RunBasicBatchTest(const test::DbSeeder& seeder, Flush enableFlush, KeyState keyState, TAction action) {
@@ -522,18 +516,12 @@ namespace catapult { namespace cache {
 		}
 
 		void RunPutTest(Flush enableFlush, KeyState keyState) {
-			RunBasicBatchTest(test::DbSeeder(), enableFlush, keyState, [](auto& database) {
-				database.put(0, "hello", "amazing");
-			});
+			RunBasicBatchTest(test::DbSeeder(), enableFlush, keyState, [](auto& database) { database.put(0, "hello", "amazing"); });
 		}
 
 		void RunDelTest(Flush enableFlush, KeyState keyState) {
-			auto seeder = [](auto& db, const auto& columns) {
-				db.Put(rocksdb::WriteOptions(), columns[0], "hello", "amazing");
-			};
-			RunBasicBatchTest(seeder, enableFlush, keyState, [](auto& database) {
-				database.del(0, "hello");
-			});
+			auto seeder = [](auto& db, const auto& columns) { db.Put(rocksdb::WriteOptions(), columns[0], "hello", "amazing"); };
+			RunBasicBatchTest(seeder, enableFlush, keyState, [](auto& database) { database.del(0, "hello"); });
 		}
 	}
 

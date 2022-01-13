@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/cache/NamespaceCache.h"
 #include "src/model/NamespaceConstants.h"
 #include "src/model/NamespaceLifetimeConstraints.h"
+#include "src/validators/Validators.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 #define ROOT_TEST_CLASS RootNamespaceAvailabilityValidatorTests
 #define CHILD_TEST_CLASS ChildNamespaceAvailabilityValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceAvailability,)
+	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceAvailability, )
 	DEFINE_COMMON_VALIDATOR_TESTS(ChildNamespaceAvailability, 0)
 
 	namespace {

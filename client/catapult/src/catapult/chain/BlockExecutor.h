@@ -24,7 +24,9 @@
 #include "catapult/observers/ObserverTypes.h"
 #include <memory>
 
-namespace catapult { namespace model { struct Block; } }
+namespace catapult { namespace model {
+	struct Block;
+}}
 
 namespace catapult { namespace chain {
 
@@ -38,8 +40,8 @@ namespace catapult { namespace chain {
 				observers::ObserverState& state)
 				: Observer(observer)
 				, Resolvers(resolvers)
-				, State(state)
-		{}
+				, State(state) {
+		}
 
 	public:
 		/// Observer to execute the block.

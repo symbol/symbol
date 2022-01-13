@@ -25,8 +25,12 @@
 #include <unordered_set>
 
 namespace catapult {
-	namespace model { struct BlockchainConfiguration; }
-	namespace utils { class ConfigurationBag; }
+namespace model {
+	struct BlockchainConfiguration;
+}
+namespace utils {
+	class ConfigurationBag;
+}
 }
 
 namespace catapult { namespace config {

@@ -26,8 +26,8 @@ namespace catapult { namespace crypto {
 
 	AggregateBmPrivateKeyTree::AggregateBmPrivateKeyTree(const PrivateKeyTreeFactory& factory)
 			: m_factory(factory)
-			, m_pTree(m_factory())
-	{}
+			, m_pTree(m_factory()) {
+	}
 
 	const AggregateBmPrivateKeyTree::BmPublicKey& AggregateBmPrivateKeyTree::rootPublicKey() const {
 		return m_pTree->rootPublicKey();
@@ -48,9 +48,8 @@ namespace catapult { namespace crypto {
 			auto newStartKeyIdentifier = m_pTree->options().StartKeyIdentifier;
 			if (oldEndKeyIdentifier >= newStartKeyIdentifier) {
 				std::ostringstream out;
-				out
-						<< "PrivateKeyTreeFactory returned overlapping tree, previous end " << oldEndKeyIdentifier
-						<< ", new start " << newStartKeyIdentifier;
+				out << "PrivateKeyTreeFactory returned overlapping tree, previous end " << oldEndKeyIdentifier << ", new start "
+					<< newStartKeyIdentifier;
 				CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 			}
 		}

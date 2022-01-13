@@ -27,8 +27,8 @@ namespace catapult { namespace io {
 
 	IndexFile::IndexFile(const std::string& filename, LockMode lockMode)
 			: m_filename(filename)
-			, m_lockMode(lockMode)
-	{}
+			, m_lockMode(lockMode) {
+	}
 
 	bool IndexFile::exists() const {
 		return std::filesystem::is_regular_file(m_filename);

@@ -25,7 +25,9 @@
 #include "catapult/model/ChainScore.h"
 #include "catapult/model/RangeTypes.h"
 
-namespace catapult { namespace io { class BlockStorageCache; } }
+namespace catapult { namespace io {
+	class BlockStorageCache;
+}}
 
 namespace catapult { namespace handlers {
 

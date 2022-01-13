@@ -23,7 +23,9 @@
 #include "src/model/MetadataNotifications.h"
 #include "src/state/MetadataKey.h"
 
-namespace catapult { namespace state { class MetadataEntry; } }
+namespace catapult { namespace state {
+	class MetadataEntry;
+}}
 
 namespace catapult { namespace test {
 

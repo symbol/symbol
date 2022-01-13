@@ -91,8 +91,8 @@ namespace catapult { namespace local {
 		public:
 			explicit TestFacade(TTestContext& context)
 					: m_context(context)
-					, m_accounts(2)
-			{}
+					, m_accounts(2) {
+			}
 
 		public:
 			const auto& accounts() const {
@@ -225,9 +225,7 @@ namespace catapult { namespace local {
 			test::WaitForHeightAndElements(context, Height(2 + numAliveBlocks + 1), 1 + facade.numAliveChains() + 1, 1);
 
 			// Assert: the cache has the expected balances and namespaces
-			test::AssertCurrencyBalances(facade.accounts(), context.localNode().cache(), {
-				{ 1, Amount(numAliveBlocks + 1) }
-			});
+			test::AssertCurrencyBalances(facade.accounts(), context.localNode().cache(), { { 1, Amount(numAliveBlocks + 1) } });
 			test::AssertNamespaceCount(context.localNode(), numExpectedNamespaces);
 
 			auto stateHashes = facade.stateHashes();
@@ -353,9 +351,7 @@ namespace catapult { namespace local {
 			test::WaitForHeightAndElements(context, Height(2 + numAliveBlocks + 2), 1 + facade.numAliveChains() + 2, 2);
 
 			// Assert: the cache has the expected balances and namespaces
-			test::AssertCurrencyBalances(facade.accounts(), context.localNode().cache(), {
-				{ 1, Amount(numAliveBlocks + 2) }
-			});
+			test::AssertCurrencyBalances(facade.accounts(), context.localNode().cache(), { { 1, Amount(numAliveBlocks + 2) } });
 			test::AssertNamespaceCount(context.localNode(), numExpectedNamespaces);
 
 			auto stateHashes = facade.stateHashes();
@@ -482,9 +478,7 @@ namespace catapult { namespace local {
 			stateHashes.emplace_back(GetStateHash(context), GetComponentStateHash(context));
 
 			// Assert: the cache has the expected balances and namespaces
-			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 1, Amount(numAliveBlocks + 1) }
-			});
+			test::AssertCurrencyBalances(accounts, context.localNode().cache(), { { 1, Amount(numAliveBlocks + 1) } });
 			test::AssertNamespaceCount(context.localNode(), 3);
 
 			return stateHashes;

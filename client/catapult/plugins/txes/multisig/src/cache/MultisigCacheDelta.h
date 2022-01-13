@@ -54,8 +54,8 @@ namespace catapult { namespace cache {
 				, MultisigCacheDeltaMixins::PatriciaTreeDelta(*multisigSets.pPrimary, multisigSets.pPatriciaTree)
 				, MultisigCacheDeltaMixins::BasicInsertRemove(*multisigSets.pPrimary)
 				, MultisigCacheDeltaMixins::DeltaElements(*multisigSets.pPrimary)
-				, m_pMultisigEntries(multisigSets.pPrimary)
-		{}
+				, m_pMultisigEntries(multisigSets.pPrimary) {
+		}
 
 	public:
 		using MultisigCacheDeltaMixins::ConstAccessor::find;
@@ -70,7 +70,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a delta around \a multisigSets.
 		explicit MultisigCacheDelta(const MultisigCacheTypes::BaseSetDeltaPointers& multisigSets)
-				: ReadOnlyViewSupplier(multisigSets)
-		{}
+				: ReadOnlyViewSupplier(multisigSets) {
+		}
 	};
 }}

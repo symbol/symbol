@@ -40,8 +40,8 @@ namespace catapult { namespace extensions {
 		/// Creates transaction event data around \a transactionHash and \a event.
 		TransactionEventData(const Hash256& transactionHash, TransactionEvent event)
 				: TransactionHash(transactionHash)
-				, Event(event)
-		{}
+				, Event(event) {
+		}
 
 	public:
 		/// Transaction hash.

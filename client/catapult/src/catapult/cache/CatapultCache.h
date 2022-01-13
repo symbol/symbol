@@ -26,13 +26,15 @@
 #include "SubCachePlugin.h"
 
 namespace catapult {
-	namespace cache {
-		class CacheChangesStorage;
-		class CacheHeight;
-		class CacheStorage;
-		class SubCachePlugin;
-	}
-	namespace model { struct BlockchainConfiguration; }
+namespace cache {
+	class CacheChangesStorage;
+	class CacheHeight;
+	class CacheStorage;
+	class SubCachePlugin;
+}
+namespace model {
+	struct BlockchainConfiguration;
+}
 }
 
 namespace catapult { namespace cache {

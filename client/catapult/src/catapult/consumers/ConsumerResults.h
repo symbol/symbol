@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RESULT_DEFINITION
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace consumers {
+namespace catapult {
+namespace consumers {
 
 #endif
 /// Defines a failure consumer validation result with \a DESCRIPTION and \a CODE.
@@ -69,5 +70,6 @@ namespace catapult { namespace consumers {
 	DEFINE_CONSUMER_RESULT(Remote_Chain_Improper_Importance_Link, 12);
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

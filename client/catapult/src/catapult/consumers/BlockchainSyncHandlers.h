@@ -26,8 +26,12 @@
 #include "catapult/utils/ArraySet.h"
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace chain { struct ObserverState; }
+namespace cache {
+	class CatapultCache;
+}
+namespace chain {
+	struct ObserverState;
+}
 }
 
 namespace catapult { namespace consumers {
@@ -40,8 +44,8 @@ namespace catapult { namespace consumers {
 				const utils::HashPointerSet& addedTransactionHashes,
 				const std::vector<model::TransactionInfo>& revertedTransactionInfos)
 				: AddedTransactionHashes(addedTransactionHashes)
-				, RevertedTransactionInfos(revertedTransactionInfos)
-		{}
+				, RevertedTransactionInfos(revertedTransactionInfos) {
+		}
 
 	public:
 		/// Hashes of the transactions that were added (newly confirmed).

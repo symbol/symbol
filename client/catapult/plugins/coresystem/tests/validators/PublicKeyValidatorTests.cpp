@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS PublicKeyValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(PublicKey,)
+	DEFINE_COMMON_VALIDATOR_TESTS(PublicKey, )
 
 	namespace {
 		constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(0xC8);

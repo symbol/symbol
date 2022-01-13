@@ -54,13 +54,11 @@ namespace catapult { namespace local {
 			: m_config(config)
 			, m_cache(cache)
 			, m_storage(storage)
-			, m_pluginManager(pluginManager)
-	{}
+			, m_pluginManager(pluginManager) {
+	}
 
 	void NemesisBlockNotifier::raise(io::BlockChangeSubscriber& subscriber) {
-		raise([&subscriber](const auto& nemesisBlockElement) {
-			subscriber.notifyBlock(nemesisBlockElement);
-		});
+		raise([&subscriber](const auto& nemesisBlockElement) { subscriber.notifyBlock(nemesisBlockElement); });
 	}
 
 	void NemesisBlockNotifier::raise(subscribers::FinalizationSubscriber& subscriber) {
@@ -81,11 +79,8 @@ namespace catapult { namespace local {
 
 			// notify nemesis cache state
 			subscriber.notifyScoreChange(model::ChainScore(Nemesis_Chain_Score));
-			subscriber.notifyStateChange({
-				cache::CacheChanges(*pCacheDelta),
-				model::ChainScore::Delta(Nemesis_Chain_Score),
-				Nemesis_Height
-			});
+			subscriber.notifyStateChange(
+					{ cache::CacheChanges(*pCacheDelta), model::ChainScore::Delta(Nemesis_Chain_Score), Nemesis_Height });
 		});
 	}
 

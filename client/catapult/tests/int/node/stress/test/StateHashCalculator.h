@@ -24,8 +24,12 @@
 #include "catapult/config/CatapultConfiguration.h"
 
 namespace catapult {
-	namespace model { struct Block; }
-	namespace plugins { class PluginManager; }
+namespace model {
+	struct Block;
+}
+namespace plugins {
+	class PluginManager;
+}
 }
 
 namespace catapult { namespace test {

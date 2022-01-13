@@ -23,12 +23,10 @@
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/NotificationPublisher.h"
 
-namespace catapult {
-	namespace model {
-		struct BlockElement;
-		struct TransactionElement;
-	}
-}
+namespace catapult { namespace model {
+	struct BlockElement;
+	struct TransactionElement;
+}}
 
 namespace catapult { namespace addressextraction {
 

@@ -34,9 +34,8 @@ namespace catapult { namespace subscribers {
 		using UnsupportedStateChangeSubscriber = test::UnsupportedStateChangeSubscriber;
 
 		template<typename TStateChangeSubscriber>
-		using TestContext = test::AggregateSubscriberTestContext<
-				TStateChangeSubscriber,
-				AggregateStateChangeSubscriber<TStateChangeSubscriber>>;
+		using TestContext =
+				test::AggregateSubscriberTestContext<TStateChangeSubscriber, AggregateStateChangeSubscriber<TStateChangeSubscriber>>;
 	}
 
 	TEST(TEST_CLASS, NotifyScoreChangeForwardsToAllSubscribers) {

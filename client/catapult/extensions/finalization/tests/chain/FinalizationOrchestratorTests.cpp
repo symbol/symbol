@@ -39,8 +39,9 @@ namespace catapult { namespace chain {
 
 		class MockFinalizationMessageFactory : public FinalizationMessageFactory {
 		public:
-			MockFinalizationMessageFactory() : m_bypass(false)
-			{}
+			MockFinalizationMessageFactory()
+					: m_bypass(false) {
+			}
 
 		public:
 			std::vector<MessageType> messageTypes() const {
@@ -107,8 +108,8 @@ namespace catapult { namespace chain {
 					, m_time(time)
 					, m_canSendPrevote(false)
 					, m_canSendPrecommit(false)
-					, m_canStartNextRound(false)
-			{}
+					, m_canStartNextRound(false) {
+			}
 
 		public:
 			model::FinalizationRound round() const {
@@ -168,35 +169,32 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		public:
-			explicit TestContext(const model::FinalizationRound& round) : TestContext({ round, false, false })
-			{}
+			explicit TestContext(const model::FinalizationRound& round)
+					: TestContext({ round, false, false }) {
+			}
 
 			explicit TestContext(const VotingStatus& votingStatus)
 					: m_pMessageFactory(std::make_unique<MockFinalizationMessageFactory>())
 					, m_pMessageFactoryRaw(m_pMessageFactory.get())
 					, m_orchestrator(
-							votingStatus,
-							[this](auto stageAdvancerPoint, auto time) {
-								auto pStageAdvancer = std::make_unique<MockFinalizationStageAdvancer>(stageAdvancerPoint, time);
-								m_stageAdvancers.push_back(pStageAdvancer.get());
+							  votingStatus,
+							  [this](auto stageAdvancerPoint, auto time) {
+								  auto pStageAdvancer = std::make_unique<MockFinalizationStageAdvancer>(stageAdvancerPoint, time);
+								  m_stageAdvancers.push_back(pStageAdvancer.get());
 
-								if (m_createCompletedStageAdvancer) {
-									pStageAdvancer->setReturnValues(true, true, true);
-									pStageAdvancer->setTarget(m_defaultTarget);
-								}
+								  if (m_createCompletedStageAdvancer) {
+									  pStageAdvancer->setReturnValues(true, true, true);
+									  pStageAdvancer->setTarget(m_defaultTarget);
+								  }
 
-								return pStageAdvancer;
-							},
-							[this](const auto& message) {
-								return m_ineligibleVoterStage != message.StepIdentifier.Stage();
-							},
-							[this](auto&& pMessage) {
-								m_messages.push_back(std::move(pMessage));
-							},
-							std::move(m_pMessageFactory))
+								  return pStageAdvancer;
+							  },
+							  [this](const auto& message) { return m_ineligibleVoterStage != message.StepIdentifier.Stage(); },
+							  [this](auto&& pMessage) { m_messages.push_back(std::move(pMessage)); },
+							  std::move(m_pMessageFactory))
 					, m_createCompletedStageAdvancer(false)
-					, m_ineligibleVoterStage(model::FinalizationStage::Count)
-			{}
+					, m_ineligibleVoterStage(model::FinalizationStage::Count) {
+			}
 
 		public:
 			auto& orchestrator() {
@@ -654,8 +652,9 @@ namespace catapult { namespace chain {
 			using RoundMessageAggregatorInitializer = consumer<mocks::MockRoundMessageAggregator&>;
 
 		public:
-			CreateFinalizerTestContext() : CreateFinalizerTestContext(std::make_unique<mocks::MockProofStorage>())
-			{}
+			CreateFinalizerTestContext()
+					: CreateFinalizerTestContext(std::make_unique<mocks::MockProofStorage>()) {
+			}
 
 			explicit CreateFinalizerTestContext(std::unique_ptr<mocks::MockProofStorage>&& pProofStorage)
 					: m_pProofStorage(std::move(pProofStorage))

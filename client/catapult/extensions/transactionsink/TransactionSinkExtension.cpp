@@ -22,17 +22,13 @@
 #include "src/TransactionSinkService.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 
-namespace catapult { namespace transactionsink {
-
-	namespace {
-		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-			// register service(s)
-			bootstrapper.extensionManager().addServiceRegistrar(CreateTransactionSinkServiceRegistrar());
-		}
+namespace catapult { namespace transactionsink { namespace {
+	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+		// register service(s)
+		bootstrapper.extensionManager().addServiceRegistrar(CreateTransactionSinkServiceRegistrar());
 	}
-}}
+}}}
 
-extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::transactionsink::RegisterExtension(bootstrapper);
 }

@@ -41,8 +41,8 @@ namespace catapult { namespace cache {
 		/// Creates an aggregate transactions cache modifier around \a modifier and \a subscriber.
 		BasicAggregateTransactionsCacheModifier(CacheModifierProxyType&& modifier, ChangeSubscriberType& subscriber)
 				: m_modifier(std::move(modifier))
-				, m_subscriber(subscriber)
-		{}
+				, m_subscriber(subscriber) {
+		}
 
 		/// Destroys the modifier and notifies subscribers of changes.
 		~BasicAggregateTransactionsCacheModifier() noexcept(false) override {
@@ -127,8 +127,8 @@ namespace catapult { namespace cache {
 		/// Creates an aggregate transactions cache that delegates to \a cache and publishes transaction changes to \a pChangeSubscriber.
 		BasicAggregateTransactionsCache(CacheType& cache, std::unique_ptr<ChangeSubscriberType>&& pChangeSubscriber)
 				: m_cache(cache)
-				, m_pChangeSubscriber(std::move(pChangeSubscriber))
-		{}
+				, m_pChangeSubscriber(std::move(pChangeSubscriber)) {
+		}
 
 	public:
 		CacheModifierProxyType modifier() override {

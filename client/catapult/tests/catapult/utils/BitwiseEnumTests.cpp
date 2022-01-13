@@ -29,14 +29,7 @@ namespace catapult { namespace utils {
 #define TEST_CLASS BitwiseEnumTests
 
 	namespace {
-		enum class TestEnum {
-			None = 0x00,
-			Alpha = 0x01,
-			Beta = 0x02,
-			Gamma = 0x04,
-			Delta = 0x20,
-			All = 0xFF
-		};
+		enum class TestEnum { None = 0x00, Alpha = 0x01, Beta = 0x02, Gamma = 0x04, Delta = 0x20, All = 0xFF };
 
 		MAKE_BITWISE_ENUM(TestEnum)
 	}
@@ -122,8 +115,7 @@ namespace catapult { namespace utils {
 		for (auto flag1 : { TestEnum::Alpha, TestEnum::Beta }) {
 			for (auto flag2 : { TestEnum::Gamma, TestEnum::Delta }) {
 				EXPECT_FALSE(HasSingleFlag(flag1 | flag2))
-						<< "flag1 " << utils::to_underlying_type(flag1)
-						<< ", flag2 " << utils::to_underlying_type(flag2);
+						<< "flag1 " << utils::to_underlying_type(flag1) << ", flag2 " << utils::to_underlying_type(flag2);
 			}
 		}
 	}

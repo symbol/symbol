@@ -24,7 +24,7 @@
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable:4702) /* "unreachable code" */
+#pragma warning(disable : 4702) /* "unreachable code" */
 #endif
 #include <boost/math/distributions/binomial.hpp>
 #include <boost/math/policies/policy.hpp>
@@ -48,7 +48,7 @@ namespace catapult { namespace crypto {
 #ifdef _MSC_VER
 #define BSWAP64(VAL) _byteswap_uint64(VAL)
 #else
-#define BSWAP64(VAL) __builtin_bswap64 (VAL)
+#define BSWAP64(VAL) __builtin_bswap64(VAL)
 #endif
 
 	uint64_t Sortition(const Hash512& sortitionVrfHash, uint64_t tau, Amount stake, Amount totalPower) {

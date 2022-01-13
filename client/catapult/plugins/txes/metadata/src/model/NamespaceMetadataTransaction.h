@@ -40,8 +40,7 @@ namespace catapult { namespace model {
 	/// Binary layout for a namespace metadata transaction body.
 	template<typename THeader>
 	struct NamespaceMetadataTransactionBody
-			: public BasicMetadataTransactionBody<NamespaceMetadataTransactionHeader<THeader>, Entity_Type_Namespace_Metadata>
-	{};
+			: public BasicMetadataTransactionBody<NamespaceMetadataTransactionHeader<THeader>, Entity_Type_Namespace_Metadata> {};
 
 	DEFINE_EMBEDDABLE_TRANSACTION(NamespaceMetadata)
 
@@ -52,4 +51,3 @@ namespace catapult { namespace model {
 		return { transaction.TargetAddress };
 	}
 }}
-

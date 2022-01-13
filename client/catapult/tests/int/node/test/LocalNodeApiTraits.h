@@ -94,21 +94,27 @@ namespace catapult { namespace test {
 
 /// Adds an integrity test \a TEST_NAME to \a TEST_CLASS for api \a API_NAME.
 #define CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, API_NAME) \
-	TEST(TEST_CLASS, TEST_NAME##_##API_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::API_NAME##ApiTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_##API_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::API_NAME##ApiTraits>(); \
+	}
 
 /// Adds \a TEST_NAME test for all chain apis.
 #define CHAIN_API_INT_VALID_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TApiTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TApiTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, ChainStatistics) \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, HashesFrom) \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, BlockAt) \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, BlockLast) \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, BlocksFrom) \
-	template<typename TApiTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TApiTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 /// Adds \a TEST_NAME test for all chain apis that can receive invalid input.
 #define CHAIN_API_INT_INVALID_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TApiTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TApiTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, HashesFrom) \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, BlockAt) \
-	template<typename TApiTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TApiTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()

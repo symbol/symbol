@@ -67,16 +67,14 @@ namespace catapult { namespace model {
 		}
 
 		std::unordered_map<std::string, MosaicProperties> GenerateEqualityInstanceMap() {
-			return {
-				{ "default", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
-				{ "copy", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
+			return { { "default", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
+					 { "copy", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
 
-				{ "diff[0]", test::CreateMosaicPropertiesFromValues(1, 7, 5) },
-				{ "diff[1]", test::CreateMosaicPropertiesFromValues(2, 9, 5) },
-				{ "diff[2]", test::CreateMosaicPropertiesFromValues(2, 7, 6) },
-				{ "reverse", test::CreateMosaicPropertiesFromValues(5, 7, 2) },
-				{ "diff-all", test::CreateMosaicPropertiesFromValues(1, 8, 6) }
-			};
+					 { "diff[0]", test::CreateMosaicPropertiesFromValues(1, 7, 5) },
+					 { "diff[1]", test::CreateMosaicPropertiesFromValues(2, 9, 5) },
+					 { "diff[2]", test::CreateMosaicPropertiesFromValues(2, 7, 6) },
+					 { "reverse", test::CreateMosaicPropertiesFromValues(5, 7, 2) },
+					 { "diff-all", test::CreateMosaicPropertiesFromValues(1, 8, 6) } };
 		}
 	}
 

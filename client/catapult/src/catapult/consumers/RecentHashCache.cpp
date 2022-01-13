@@ -30,8 +30,8 @@ namespace catapult { namespace consumers {
 	RecentHashCache::RecentHashCache(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options)
 			: m_timeSupplier(timeSupplier)
 			, m_options(options)
-			, m_lastPruneTime(m_timeSupplier())
-	{}
+			, m_lastPruneTime(m_timeSupplier()) {
+	}
 
 	size_t RecentHashCache::size() const {
 		return m_cache.size();
@@ -87,8 +87,8 @@ namespace catapult { namespace consumers {
 	// region SynchronizedRecentHashCache
 
 	SynchronizedRecentHashCache::SynchronizedRecentHashCache(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options)
-			: m_recentHashCache(timeSupplier, options)
-	{}
+			: m_recentHashCache(timeSupplier, options) {
+	}
 
 	bool SynchronizedRecentHashCache::add(const Hash256& hash) {
 		utils::SpinLockGuard guard(m_lock);

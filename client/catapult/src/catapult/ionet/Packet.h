@@ -31,7 +31,9 @@ namespace catapult { namespace ionet {
 #pragma pack(push, 1)
 
 	/// Packet header with a data payload.
-	struct Packet : public PacketHeader, public utils::NonCopyable {
+	struct Packet
+			: public PacketHeader
+			, public utils::NonCopyable {
 	public:
 		/// Gets a non-const pointer to data contained in this packet.
 		uint8_t* Data() {
@@ -68,9 +70,7 @@ namespace catapult { namespace ionet {
 	/// Coerces \a pPacket to the desired packet type or \c nullptr if it is incompatible.
 	template<typename TPacket>
 	const TPacket* CoercePacket(const Packet* pPacket) {
-		return TPacket::Packet_Type != pPacket->Type || sizeof(TPacket) != pPacket->Size
-			? nullptr
-			: static_cast<const TPacket*>(pPacket);
+		return TPacket::Packet_Type != pPacket->Type || sizeof(TPacket) != pPacket->Size ? nullptr : static_cast<const TPacket*>(pPacket);
 	}
 
 	/// Checks if \a packet is valid with \a type.

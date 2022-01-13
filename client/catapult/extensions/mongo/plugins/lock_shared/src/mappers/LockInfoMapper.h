@@ -39,13 +39,9 @@ namespace catapult { namespace mongo { namespace plugins {
 		static void StreamLockInfo(mappers::bson_stream::document& builder, const state::LockInfo& lockInfo) {
 			using namespace catapult::mongo::mappers;
 
-			builder
-					<< "version" << 1
-					<< "ownerAddress" << ToBinary(lockInfo.OwnerAddress)
-					<< "mosaicId" << ToInt64(lockInfo.MosaicId)
-					<< "amount" << ToInt64(lockInfo.Amount)
-					<< "endHeight" << ToInt64(lockInfo.EndHeight)
-					<< "status" << utils::to_underlying_type(lockInfo.Status);
+			builder << "version" << 1 << "ownerAddress" << ToBinary(lockInfo.OwnerAddress) << "mosaicId" << ToInt64(lockInfo.MosaicId)
+					<< "amount" << ToInt64(lockInfo.Amount) << "endHeight" << ToInt64(lockInfo.EndHeight) << "status"
+					<< utils::to_underlying_type(lockInfo.Status);
 		}
 
 	public:
@@ -55,9 +51,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			auto doc = builder << "lock" << mappers::bson_stream::open_document;
 			StreamLockInfo(builder, lockInfo);
 			TTraits::StreamLockInfo(builder, lockInfo);
-			return doc
-					<< mappers::bson_stream::close_document
-					<< mappers::bson_stream::finalize;
+			return doc << mappers::bson_stream::close_document << mappers::bson_stream::finalize;
 		}
 
 		// endregion

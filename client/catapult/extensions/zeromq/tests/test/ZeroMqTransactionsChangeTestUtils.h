@@ -85,9 +85,7 @@ namespace catapult { namespace test {
 		// Assert:
 		AssertRaiseSingleMessage<TMqSubscriberContext>(
 				marker,
-				[add](auto& context, const auto& transactionInfo) {
-					add(context, transactionInfo);
-				},
+				[add](auto& context, const auto& transactionInfo) { add(context, transactionInfo); },
 				[](const auto& message, const auto& topic, const auto& transactionInfo) {
 					AssertTransactionInfoMessage(message, topic, transactionInfo, Height());
 				});
@@ -100,9 +98,7 @@ namespace catapult { namespace test {
 		AssertRaiseMultipleMessages<TMqSubscriberContext>(
 				marker,
 				numTransactions,
-				[addAll](auto& context, const auto& transactionInfos) {
-					addAll(context, transactionInfos);
-				},
+				[addAll](auto& context, const auto& transactionInfos) { addAll(context, transactionInfos); },
 				[](const auto& message, const auto& topic, const auto& transactionInfo) {
 					AssertTransactionInfoMessage(message, topic, transactionInfo, Height());
 				});
@@ -118,9 +114,7 @@ namespace catapult { namespace test {
 		// Assert:
 		AssertRaiseSingleMessage<TMqSubscriberContext>(
 				marker,
-				[remove](auto& context, const auto& transactionInfo) {
-					remove(context, transactionInfo);
-				},
+				[remove](auto& context, const auto& transactionInfo) { remove(context, transactionInfo); },
 				[](const auto& message, const auto& topic, const auto& transactionInfo) {
 					AssertTransactionHashMessage(message, topic, transactionInfo.EntityHash);
 				});
@@ -133,9 +127,7 @@ namespace catapult { namespace test {
 		AssertRaiseMultipleMessages<TMqSubscriberContext>(
 				marker,
 				numTransactions,
-				[removeAll](auto& context, const auto& transactionInfos) {
-					removeAll(context, transactionInfos);
-				},
+				[removeAll](auto& context, const auto& transactionInfos) { removeAll(context, transactionInfos); },
 				[](const auto& message, const auto& topic, const auto& transactionInfo) {
 					AssertTransactionHashMessage(message, topic, transactionInfo.EntityHash);
 				});

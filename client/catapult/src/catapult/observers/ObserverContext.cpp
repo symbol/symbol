@@ -38,13 +38,13 @@ namespace catapult { namespace observers {
 
 	ObserverState::ObserverState(cache::CatapultCacheDelta& cache)
 			: Cache(cache)
-			, pBlockStatementBuilder(nullptr)
-	{}
+			, pBlockStatementBuilder(nullptr) {
+	}
 
 	ObserverState::ObserverState(cache::CatapultCacheDelta& cache, model::BlockStatementBuilder& blockStatementBuilder)
 			: Cache(cache)
-			, pBlockStatementBuilder(&blockStatementBuilder)
-	{}
+			, pBlockStatementBuilder(&blockStatementBuilder) {
+	}
 
 	// endregion
 
@@ -67,8 +67,8 @@ namespace catapult { namespace observers {
 			, Cache(state.Cache)
 			, Mode(mode)
 			, UndecoratedResolvers(notificationContext.Resolvers)
-			, m_statementBuilder(CreateObserverStatementBuilder(state.pBlockStatementBuilder))
-	{}
+			, m_statementBuilder(CreateObserverStatementBuilder(state.pBlockStatementBuilder)) {
+	}
 
 	ObserverStatementBuilder& ObserverContext::StatementBuilder() {
 		return m_statementBuilder;

@@ -46,11 +46,11 @@ namespace catapult { namespace net {
 
 		const auto Default_Timeout = []() { return utils::TimeSpan::FromMinutes(1); }();
 
-		void EmptyReadCallback(ionet::SocketOperationCode, const ionet::Packet*)
-		{}
+		void EmptyReadCallback(ionet::SocketOperationCode, const ionet::Packet*) {
+		}
 
-		void EmptyWriteCallback(ionet::SocketOperationCode)
-		{}
+		void EmptyWriteCallback(ionet::SocketOperationCode) {
+		}
 
 		// endregion
 
@@ -59,12 +59,12 @@ namespace catapult { namespace net {
 		struct PacketWritersTestContext {
 		public:
 			explicit PacketWritersTestContext(size_t numClientPublicKeys = 1)
-					: PacketWritersTestContext(numClientPublicKeys, test::GenerateRandomByteArray<Key>())
-			{}
+					: PacketWritersTestContext(numClientPublicKeys, test::GenerateRandomByteArray<Key>()) {
+			}
 
 			PacketWritersTestContext(size_t numClientPublicKeys, const Key& serverPublicKey)
-					: PacketWritersTestContext(numClientPublicKeys, serverPublicKey, test::CreateConnectionSettings(serverPublicKey))
-			{}
+					: PacketWritersTestContext(numClientPublicKeys, serverPublicKey, test::CreateConnectionSettings(serverPublicKey)) {
+			}
 
 			PacketWritersTestContext(size_t numClientPublicKeys, const Key& serverPublicKey, const ConnectionSettings& connectionSettings)
 					: ServerPublicKey(serverPublicKey)
@@ -147,8 +147,8 @@ namespace catapult { namespace net {
 		public:
 			MultiConnectionStateGuard(PacketWriters& writers, MultiConnectionState& state)
 					: m_writers(writers)
-					, m_state(state)
-			{}
+					, m_state(state) {
+			}
 
 			~MultiConnectionStateGuard() {
 				m_writers.shutdown(); // release all socket references held by the writers
@@ -357,9 +357,7 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, CanManageMultipleConnectionsViaConnect) {
-		AssertCanManageMultipleConnections([](auto& context) {
-			return SetupMultiConnectionTest(context);
-		});
+		AssertCanManageMultipleConnections([](auto& context) { return SetupMultiConnectionTest(context); });
 	}
 
 	TEST(TEST_CLASS, ShutdownClosesConnectedSocket) {
@@ -433,9 +431,8 @@ namespace catapult { namespace net {
 					EXPECT_EQ(ionet::SocketOperationCode::Success, code);
 
 					auto pPacketData = reinterpret_cast<const uint8_t*>(pPacket);
-					CATAPULT_LOG(debug)
-							<< "read sentinel value " << static_cast<int>(pPacketData[Sentinel_Index])
-							<< " (expected " << static_cast<int>(buffer[Sentinel_Index]) << ")";
+					CATAPULT_LOG(debug) << "read sentinel value " << static_cast<int>(pPacketData[Sentinel_Index]) << " (expected "
+										<< static_cast<int>(buffer[Sentinel_Index]) << ")";
 
 					EXPECT_EQ(buffer[Sentinel_Index], pPacketData[Sentinel_Index]);
 					ASSERT_EQ(buffer.size(), pPacket->Size);
@@ -790,9 +787,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, PickOneReadCanCompleteWithDestroyedWriters) {
 		AssertOperationCanCompleteWithDestroyedWriters(test::AssertSocketClosedDuringRead, [](auto& io, const auto& callback) {
-			io.read([callback](auto code, const auto*) {
-				callback(code);
-			});
+			io.read([callback](auto code, const auto*) { callback(code); });
 		});
 	}
 
@@ -800,9 +795,7 @@ namespace catapult { namespace net {
 		AssertOperationCanCompleteWithDestroyedWriters(test::AssertSocketClosedDuringWrite, [](auto& io, const auto& callback) {
 			// use a large packet to ensure the operation gets cancelled
 			auto pPacket = test::BufferToPacketPayload(test::GenerateRandomPacketBuffer(5 * 1024 * 1024));
-			io.write(std::move(pPacket), [callback](auto code) {
-				callback(code);
-			});
+			io.write(std::move(pPacket), [callback](auto code) { callback(code); });
 		});
 	}
 
@@ -1151,7 +1144,7 @@ namespace catapult { namespace net {
 		void AssertSingleConnection(
 				model::NodeIdentityEqualityStrategy equalityStrategy,
 				const consumer<PacketWritersTestContext&>& prepare,
-				const std::function<model::NodeIdentitySet (const PacketWritersTestContext&)>& extractExpectedIdentities) {
+				const std::function<model::NodeIdentitySet(const PacketWritersTestContext&)>& extractExpectedIdentities) {
 			// Act: establish multiple connections with the same identity
 			constexpr auto Num_Connections = 5u;
 			auto serverPublicKey = test::GenerateRandomByteArray<Key>();
@@ -1196,8 +1189,8 @@ namespace catapult { namespace net {
 	namespace {
 		void AssertCannotConnectToAlreadyConnectedPeer(
 				model::NodeIdentityEqualityStrategy equalityStrategy,
-				const std::function<ionet::Node (const PacketWritersTestContext&)>& createNode,
-				const std::function<model::NodeIdentitySet (const PacketWritersTestContext&)>& extractExpectedIdentities) {
+				const std::function<ionet::Node(const PacketWritersTestContext&)>& createNode,
+				const std::function<model::NodeIdentitySet(const PacketWritersTestContext&)>& extractExpectedIdentities) {
 			// Arrange:
 			auto serverPublicKey = test::GenerateRandomByteArray<Key>();
 			auto settings = test::CreateConnectionSettings(serverPublicKey);
@@ -1214,9 +1207,7 @@ namespace catapult { namespace net {
 				// Act: try to connect to the same node again
 				PeerConnectResult result;
 				auto node = createNode(context);
-				context.pWriters->connect(node, [&result](const auto& connectResult) {
-					result = connectResult;
-				});
+				context.pWriters->connect(node, [&result](const auto& connectResult) { result = connectResult; });
 
 				// Assert: the connection failed
 				EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);

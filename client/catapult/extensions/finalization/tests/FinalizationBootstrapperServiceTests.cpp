@@ -58,9 +58,11 @@ namespace catapult { namespace finalization {
 	}
 
 #define CONSUMER_HOOK_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	CONSUMER_HOOK_TEST_ENTRY(TEST_NAME, MessageRangeConsumer) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CONSUMER_HOOK_TEST(CannotAccessWhenUnset) {
 		// Arrange:
@@ -78,9 +80,7 @@ namespace catapult { namespace finalization {
 		const auto* pSeedParam = &seedParam;
 		std::vector<decltype(pSeedParam)> consumedParams;
 
-		TTraits::Set(hooks, [&consumedParams](auto&& param) {
-			consumedParams.push_back(&param);
-		});
+		TTraits::Set(hooks, [&consumedParams](auto&& param) { consumedParams.push_back(&param); });
 
 		// Act:
 		auto factory = TTraits::Get(hooks);
@@ -231,7 +231,10 @@ namespace catapult { namespace finalization {
 		std::unique_ptr<model::FinalizationProof> CreateProof(uint32_t epoch, uint32_t point, Height height, const Hash256& hash) {
 			auto pProof = std::make_unique<model::FinalizationProof>();
 			pProof->Size = sizeof(model::FinalizationProof);
-			pProof->Round = { FinalizationEpoch(epoch), FinalizationPoint(point), };
+			pProof->Round = {
+				FinalizationEpoch(epoch),
+				FinalizationPoint(point),
+			};
 			pProof->Height = height;
 			pProof->Hash = hash;
 			return pProof;
@@ -244,9 +247,8 @@ namespace catapult { namespace finalization {
 
 			auto proofHashes = test::GenerateRandomDataVector<Hash256>(4);
 			auto loadHash = [&context, &proofHashes, localProofHeight](auto height, size_t index) {
-				return localProofHeight == height
-						? context.testState().state().storage().view().loadBlockElement(height)->EntityHash
-						: proofHashes[index];
+				return localProofHeight == height ? context.testState().state().storage().view().loadBlockElement(height)->EntityHash
+												  : proofHashes[index];
 			};
 
 			auto pProofStorage = std::make_unique<mocks::MockProofStorage>();
@@ -266,8 +268,7 @@ namespace catapult { namespace finalization {
 			// Assert:
 			auto expectedHash = context.testState().state().storage().view().loadBlockElement(localProofHeight)->EntityHash;
 			EXPECT_EQ(model::HeightHashPair({ localProofHeight, expectedHash }), heightHashPair)
-					<< "localProofHeight: " << localProofHeight
-					<< "localChainHeight: " << localChainHeight;
+					<< "localProofHeight: " << localProofHeight << "localChainHeight: " << localChainHeight;
 		}
 	}
 
@@ -443,9 +444,7 @@ namespace catapult { namespace finalization {
 
 				// setup hooks
 				testState().state().hooks().setBlockRangeConsumerFactory([this](auto source) {
-					return [this, source](auto&& blockRange) {
-						m_capturedBlockRanges.emplace_back(source, std::move(blockRange));
-					};
+					return [this, source](auto&& blockRange) { m_capturedBlockRanges.emplace_back(source, std::move(blockRange)); };
 				});
 			}
 

@@ -25,18 +25,19 @@
 
 namespace catapult { namespace config {
 
-	CatapultKeys::CatapultKeys() : m_nodeKeyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey()))
-	{}
+	CatapultKeys::CatapultKeys()
+			: m_nodeKeyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey())) {
+	}
 
 	CatapultKeys::CatapultKeys(const std::string& directory)
 			: m_caPublicKey(crypto::ReadPublicKeyFromPublicKeyPemFile(GetCaPublicKeyPemFilename(directory)))
-			, m_nodeKeyPair(crypto::ReadKeyPairFromPrivateKeyPemFile(GetNodePrivateKeyPemFilename(directory)))
-	{}
+			, m_nodeKeyPair(crypto::ReadKeyPairFromPrivateKeyPemFile(GetNodePrivateKeyPemFilename(directory))) {
+	}
 
 	CatapultKeys::CatapultKeys(Key&& caPublicKey, crypto::KeyPair&& nodeKeyPair)
 			: m_caPublicKey(std::move(caPublicKey))
-			, m_nodeKeyPair(std::move(nodeKeyPair))
-	{}
+			, m_nodeKeyPair(std::move(nodeKeyPair)) {
+	}
 
 	const Key& CatapultKeys::caPublicKey() const {
 		return m_caPublicKey;

@@ -35,40 +35,38 @@ namespace catapult { namespace test {
 
 #define TEST(TEST_FIXTURE, TEST_NAME) \
 	void CATAPULT_TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)(); \
-	\
+\
 	GTEST_TEST(TEST_FIXTURE, TEST_NAME) { \
 		/* if stress is disabled, just call test function */ \
 		if (!test::GetStressIterationCount()) { \
 			CATAPULT_TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)(); \
 			return; \
 		} \
-		\
+\
 		/* if stress is enabled, call in loop with iteration counter */ \
 		for (auto stressCounter = 1u; stressCounter <= test::GetStressIterationCount(); ++stressCounter) { \
 			const auto Test_Fqn = CATAPULT_TEST_FRIENDLY_NAME_(TEST_FIXTURE, TEST_NAME); \
 			CATAPULT_LOG(debug) << "---- iter " << stressCounter << "/" << test::GetStressIterationCount() << " " << Test_Fqn << " ----"; \
-			\
+\
 			try { \
 				CATAPULT_TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)(); \
 			} catch (...) { \
 				/* flatten error information into std::runtime_error for better jenkins reporting */ \
 				std::ostringstream exceptionMessage; \
-				exceptionMessage \
-						<< "unhandled exception during " \
-						<< Test_Fqn << " iteration " << stressCounter << "!" \
-						<< EXCEPTION_DIAGNOSTIC_MESSAGE(); \
+				exceptionMessage << "unhandled exception during " << Test_Fqn << " iteration " << stressCounter << "!" \
+								 << EXCEPTION_DIAGNOSTIC_MESSAGE(); \
 				CATAPULT_LOG(fatal) << exceptionMessage.str(); \
 				throw std::runtime_error(exceptionMessage.str().c_str()); \
 			} \
-			\
+\
 			if (!::testing::Test::HasFailure()) \
 				continue; \
-			\
+\
 			CATAPULT_LOG(error) << Test_Fqn << " failed on iteration " << stressCounter; \
 			return; \
 		} \
 	} \
-	\
+\
 	void CATAPULT_TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)()
 
 // NO_STRESS_TEST should be used by tests that shouldn't be stressed

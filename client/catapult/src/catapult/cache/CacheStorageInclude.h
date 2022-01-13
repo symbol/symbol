@@ -22,12 +22,10 @@
 #pragma once
 #include <utility>
 
-namespace catapult {
-	namespace io {
-		class InputStream;
-		class OutputStream;
-	}
-}
+namespace catapult { namespace io {
+	class InputStream;
+	class OutputStream;
+}}
 
 namespace catapult { namespace cache {
 

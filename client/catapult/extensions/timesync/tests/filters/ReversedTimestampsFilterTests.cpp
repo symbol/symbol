@@ -51,7 +51,7 @@ namespace catapult { namespace timesync { namespace filters {
 		auto filter = CreateReversedTimestampsFilter();
 
 		// Act + Assert:
-		for(auto i = 0; i < 5; ++i) {
+		for (auto i = 0; i < 5; ++i) {
 			EXPECT_FALSE(filter(test::CreateSample(i, i + 1, i, i), NodeAge())) << i;
 			EXPECT_FALSE(filter(test::CreateSample(i, i, i + 1, i), NodeAge())) << i;
 		}

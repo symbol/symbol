@@ -25,7 +25,9 @@
 #include "catapult/cache_tx/ShortHashPair.h"
 #include "catapult/thread/Future.h"
 
-namespace catapult { namespace ionet { class PacketIo; } }
+namespace catapult { namespace ionet {
+	class PacketIo;
+}}
 
 namespace catapult { namespace api {
 
@@ -33,8 +35,9 @@ namespace catapult { namespace api {
 	class RemotePtApi : public RemoteApi {
 	protected:
 		/// Creates a remote api for the node with specified \a remoteIdentity.
-		explicit RemotePtApi(const model::NodeIdentity& remoteIdentity) : RemoteApi(remoteIdentity)
-		{}
+		explicit RemotePtApi(const model::NodeIdentity& remoteIdentity)
+				: RemoteApi(remoteIdentity) {
+		}
 
 	public:
 		/// Gets all partial transaction infos from the remote that have a deadline at least \a minDeadline

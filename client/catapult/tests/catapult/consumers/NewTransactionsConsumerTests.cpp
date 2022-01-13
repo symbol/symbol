@@ -38,8 +38,8 @@ namespace catapult { namespace consumers {
 		struct NewTransactionsProcessorParams {
 		public:
 			explicit NewTransactionsProcessorParams(std::vector<model::TransactionInfo>&& addedTransactionInfos)
-					: AddedTransactionInfos(CopyInfos(addedTransactionInfos))
-			{}
+					: AddedTransactionInfos(CopyInfos(addedTransactionInfos)) {
+			}
 
 		private:
 			static std::vector<model::TransactionInfo> CopyInfos(const std::vector<model::TransactionInfo>& transactionInfos) {
@@ -59,9 +59,8 @@ namespace catapult { namespace consumers {
 		public:
 			chain::BatchUpdateResult operator()(std::vector<model::TransactionInfo>&& addedTransactionInfos) const {
 				const_cast<MockNewTransactionsProcessor*>(this)->push(std::move(addedTransactionInfos));
-				return chain::BatchUpdateResult() == BatchUpdateResult
-						? chain::BatchUpdateResult(addedTransactionInfos.size(), 0, 0)
-						: BatchUpdateResult;
+				return chain::BatchUpdateResult() == BatchUpdateResult ? chain::BatchUpdateResult(addedTransactionInfos.size(), 0, 0)
+																	   : BatchUpdateResult;
 			}
 
 		public:
@@ -70,17 +69,18 @@ namespace catapult { namespace consumers {
 
 		struct ConsumerTestContext {
 		public:
-			ConsumerTestContext() : ConsumerTestContext(0, 101)
-			{}
+			ConsumerTestContext()
+					: ConsumerTestContext(0, 101) {
+			}
 
 			ConsumerTestContext(uint32_t minTransactionFailuresCountForBan, uint32_t minTransactionFailuresPercentForBan)
 					: Consumer(CreateNewTransactionsConsumer(
-							minTransactionFailuresCountForBan,
-							minTransactionFailuresPercentForBan,
-							[&handler = NewTransactionsProcessor](auto&& transactionInfos) {
-								return handler(std::move(transactionInfos));
-							}))
-			{}
+							  minTransactionFailuresCountForBan,
+							  minTransactionFailuresPercentForBan,
+							  [&handler = NewTransactionsProcessor](auto&& transactionInfos) {
+								  return handler(std::move(transactionInfos));
+							  })) {
+			}
 
 		public:
 			MockNewTransactionsProcessor NewTransactionsProcessor;
@@ -225,49 +225,49 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, SuccessResultWhenAtLeastOneResultIsSuccessAndNoResultIsFailure) {
-		AssertAggregateResult(validators::ValidationResult::Success, {
-			disruptor::ConsumerResultSeverity::Success,
-			disruptor::ConsumerResultSeverity::Success,
-			disruptor::ConsumerResultSeverity::Success
-		});
-		AssertAggregateResult(validators::ValidationResult::Success, {
-			disruptor::ConsumerResultSeverity::Success,
-			disruptor::ConsumerResultSeverity::Neutral,
-			disruptor::ConsumerResultSeverity::Success,
-			disruptor::ConsumerResultSeverity::Success,
-			disruptor::ConsumerResultSeverity::Neutral
-		});
+		AssertAggregateResult(
+				validators::ValidationResult::Success,
+				{ disruptor::ConsumerResultSeverity::Success,
+				  disruptor::ConsumerResultSeverity::Success,
+				  disruptor::ConsumerResultSeverity::Success });
+		AssertAggregateResult(
+				validators::ValidationResult::Success,
+				{ disruptor::ConsumerResultSeverity::Success,
+				  disruptor::ConsumerResultSeverity::Neutral,
+				  disruptor::ConsumerResultSeverity::Success,
+				  disruptor::ConsumerResultSeverity::Success,
+				  disruptor::ConsumerResultSeverity::Neutral });
 	}
 
 	TEST(TEST_CLASS, NeutralResultWhenAllResultsAreNeutral) {
-		AssertAggregateResult(validators::ValidationResult::Neutral, {
-			disruptor::ConsumerResultSeverity::Neutral,
-			disruptor::ConsumerResultSeverity::Neutral,
-			disruptor::ConsumerResultSeverity::Neutral
-		});
+		AssertAggregateResult(
+				validators::ValidationResult::Neutral,
+				{ disruptor::ConsumerResultSeverity::Neutral,
+				  disruptor::ConsumerResultSeverity::Neutral,
+				  disruptor::ConsumerResultSeverity::Neutral });
 	}
 
 	TEST(TEST_CLASS, FailureResultWhenAtLeastOneResultIsFailure) {
-		AssertAggregateResult(validators::ValidationResult::Failure, {
-			disruptor::ConsumerResultSeverity::Success,
-			disruptor::ConsumerResultSeverity::Failure,
-			disruptor::ConsumerResultSeverity::Success
-		});
-		AssertAggregateResult(validators::ValidationResult::Failure, {
-			disruptor::ConsumerResultSeverity::Neutral,
-			disruptor::ConsumerResultSeverity::Failure,
-			disruptor::ConsumerResultSeverity::Success
-		});
-		AssertAggregateResult(validators::ValidationResult::Failure, {
-			disruptor::ConsumerResultSeverity::Neutral,
-			disruptor::ConsumerResultSeverity::Failure,
-			disruptor::ConsumerResultSeverity::Neutral
-		});
-		AssertAggregateResult(validators::ValidationResult::Failure, {
-			disruptor::ConsumerResultSeverity::Failure,
-			disruptor::ConsumerResultSeverity::Failure,
-			disruptor::ConsumerResultSeverity::Failure
-		});
+		AssertAggregateResult(
+				validators::ValidationResult::Failure,
+				{ disruptor::ConsumerResultSeverity::Success,
+				  disruptor::ConsumerResultSeverity::Failure,
+				  disruptor::ConsumerResultSeverity::Success });
+		AssertAggregateResult(
+				validators::ValidationResult::Failure,
+				{ disruptor::ConsumerResultSeverity::Neutral,
+				  disruptor::ConsumerResultSeverity::Failure,
+				  disruptor::ConsumerResultSeverity::Success });
+		AssertAggregateResult(
+				validators::ValidationResult::Failure,
+				{ disruptor::ConsumerResultSeverity::Neutral,
+				  disruptor::ConsumerResultSeverity::Failure,
+				  disruptor::ConsumerResultSeverity::Neutral });
+		AssertAggregateResult(
+				validators::ValidationResult::Failure,
+				{ disruptor::ConsumerResultSeverity::Failure,
+				  disruptor::ConsumerResultSeverity::Failure,
+				  disruptor::ConsumerResultSeverity::Failure });
 	}
 
 	// endregion

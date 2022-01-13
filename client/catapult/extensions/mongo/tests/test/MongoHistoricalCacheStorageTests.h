@@ -32,9 +32,9 @@ namespace catapult { namespace test {
 		using ElementType = typename TTraits::ModelType;
 
 		using BaseType = MongoCacheStorageTestUtils<TTraits>;
+		using BaseType::AssertDbContents;
 		using BaseType::GetCollectionSize;
 		using BaseType::GetDelta;
-		using BaseType::AssertDbContents;
 		using CacheStorageWrapper = typename BaseType::CacheStorageWrapper;
 
 	public:
@@ -301,7 +301,9 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME##POSTFIX) { test::MongoHistoricalCacheStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME##POSTFIX) { \
+		test::MongoHistoricalCacheStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_HISTORICAL_CACHE_STORAGE_TESTS(TRAITS_NAME, POSTFIX) \
 	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, SaveHasNoEffectWhenThereAreNoPendingChanges) \
@@ -309,7 +311,7 @@ namespace catapult { namespace test {
 	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, ModifiedElementIsSavedToStorage) \
 	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, DeletedElementIsPartiallyRemovedFromStorage) \
 	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, DeletedElementIsCompletelyRemovedFromStorage) \
-	\
+\
 	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanSaveMultipleElementsWithDistinctHistory) \
 	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanSaveMultipleElementsWithSharedHistory) \
 	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanAddAndModifyAndDeleteMultipleElements) \

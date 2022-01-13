@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS SecretLockHashAlgorithmValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(SecretLockHashAlgorithm,)
+	DEFINE_COMMON_VALIDATOR_TESTS(SecretLockHashAlgorithm, )
 
 	namespace {
 		struct LockHashAlgorithmTraits {

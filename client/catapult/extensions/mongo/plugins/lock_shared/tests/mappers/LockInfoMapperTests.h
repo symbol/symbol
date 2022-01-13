@@ -61,7 +61,8 @@ namespace catapult { namespace mongo { namespace plugins {
 }}}
 
 #define MAKE_LOCK_INFO_MAPPER_TEST(TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockInfoMapperTests<TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		LockInfoMapperTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
-#define DEFINE_LOCK_INFO_MAPPER_TESTS(TRAITS) \
-	MAKE_LOCK_INFO_MAPPER_TEST(TRAITS, CanMapLockInfo_ModelToDbModel)
+#define DEFINE_LOCK_INFO_MAPPER_TESTS(TRAITS) MAKE_LOCK_INFO_MAPPER_TEST(TRAITS, CanMapLockInfo_ModelToDbModel)

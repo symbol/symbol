@@ -51,10 +51,7 @@ namespace catapult { namespace importance {
 			return state::AccountActivityBuckets::ActivityBucket{ { fees, beneficiaryCount, 0 }, importanceHeight };
 		}
 
-		void Recalculate(
-				ImportanceCalculator& calculator,
-				model::ImportanceHeight importanceHeight,
-				cache::AccountStateCacheDelta& delta) {
+		void Recalculate(ImportanceCalculator& calculator, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& delta) {
 			delta.updateHighValueAccounts(Height(1));
 			calculator.recalculate(ImportanceRollbackMode::Disabled, importanceHeight, delta);
 		}
@@ -72,8 +69,8 @@ namespace catapult { namespace importance {
 		public:
 			AccountSeed(catapult::Amount amount, const std::vector<state::AccountActivityBuckets::ActivityBucket>& buckets)
 					: Amount(amount)
-					, Buckets(buckets)
-			{}
+					, Buckets(buckets) {
+			}
 
 		public:
 			catapult::Amount Amount;
@@ -85,7 +82,8 @@ namespace catapult { namespace importance {
 			using LockedAccountStateCacheDelta = cache::LockedCacheDelta<cache::AccountStateCacheDelta>;
 
 		public:
-			explicit CacheHolder(Amount minBalance) : m_cache(cache::CacheConfiguration(), CreateAccountStateCacheOptions(minBalance)) {
+			explicit CacheHolder(Amount minBalance)
+					: m_cache(cache::CacheConfiguration(), CreateAccountStateCacheOptions(minBalance)) {
 				resetDelta();
 			}
 
@@ -107,9 +105,7 @@ namespace catapult { namespace importance {
 					auto& accountState = get(key);
 					accountState.Balances.credit(Harvesting_Mosaic_Id, accountData.Amount);
 					for (const auto& dataBucket : accountData.Buckets) {
-						accountState.ActivityBuckets.update(dataBucket.StartHeight, [&dataBucket](auto& bucket) {
-							bucket = dataBucket;
-						});
+						accountState.ActivityBuckets.update(dataBucket.StartHeight, [&dataBucket](auto& bucket) { bucket = dataBucket; });
 					}
 				}
 			}
@@ -209,10 +205,16 @@ namespace catapult { namespace importance {
 	};
 
 #define ACTIVITY_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_WithActivity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ActivityTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_WithoutActivity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NoActivityTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_WithActivity) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ActivityTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_WithoutActivity) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NoActivityTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ACTIVITY_BASED_TEST(PosImportanceCalculatorRespectsCustomMinBalance) {
 		AssertPosImportanceCalculatorRespectsCustomMinBalance<TTraits>(1'000'000, -1, false);
@@ -440,16 +442,14 @@ namespace catapult { namespace importance {
 
 	TEST(TEST_CLASS, FeeActivityIncreasesImportance) {
 		// Act:
-		AssertActivityIncreasesImportance([](auto i) {
-			return CreateActivityBucket(Amount(i * 1000), 0, Recalculation_Height - model::ImportanceHeight(1));
-		});
+		AssertActivityIncreasesImportance(
+				[](auto i) { return CreateActivityBucket(Amount(i * 1000), 0, Recalculation_Height - model::ImportanceHeight(1)); });
 	}
 
 	TEST(TEST_CLASS, BeneficiaryActivityIncreasesImportance) {
 		// Act:
-		AssertActivityIncreasesImportance([](auto i) {
-			return CreateActivityBucket(Amount(), i * 1000, Recalculation_Height - model::ImportanceHeight(1));
-		});
+		AssertActivityIncreasesImportance(
+				[](auto i) { return CreateActivityBucket(Amount(), i * 1000, Recalculation_Height - model::ImportanceHeight(1)); });
 	}
 
 	TEST(TEST_CLASS, FeeActivityIncreasesImportanceMoreThanBeneficiaryActivity) {
@@ -537,9 +537,7 @@ namespace catapult { namespace importance {
 			for (uint8_t i = 1u; i <= Num_Account_States; ++i) {
 				auto& accountState = holder.get(Key{ { i } });
 				accountState.ImportanceSnapshots.set(Importance(i), model::ImportanceHeight(25));
-				accountState.ActivityBuckets.update(model::ImportanceHeight(25), [i](auto& bucket) {
-					bucket.RawScore = i * i;
-				});
+				accountState.ActivityBuckets.update(model::ImportanceHeight(25), [i](auto& bucket) { bucket.RawScore = i * i; });
 			}
 
 			holder.commit();

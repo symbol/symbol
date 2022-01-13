@@ -36,15 +36,7 @@ namespace catapult { namespace sync {
 			using ConfigurationType = UniformTaskConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "startDelay", "1m" },
-							{ "repeatDelay", "37s" }
-						}
-					}
-				};
+				return { { "", { { "startDelay", "1m" }, { "repeatDelay", "37s" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {
@@ -76,18 +68,12 @@ namespace catapult { namespace sync {
 			using ConfigurationType = DeceleratingTaskConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "startDelay", "2m" },
-							{ "minDelay", "42s" },
-							{ "maxDelay", "14s" },
-							{ "numPhaseOneRounds", "17" },
-							{ "numTransitionRounds", "103" }
-						}
-					}
-				};
+				return { { "",
+						   { { "startDelay", "2m" },
+							 { "minDelay", "42s" },
+							 { "maxDelay", "14s" },
+							 { "numPhaseOneRounds", "17" },
+							 { "numTransitionRounds", "103" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {
@@ -179,24 +165,20 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, Tasks_LoadFromBagCanLoadFromBagWithValues) {
 		// Arrange: mix uniform and decelerating tasks
-		utils::ConfigurationBag bag({
-			{ "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
-			{
-				"beta",
-				{
-					{ "startDelay", "11m" }, { "minDelay", "22m" }, { "maxDelay", "99m" },
-					{ "numPhaseOneRounds", "14" }, { "numTransitionRounds", "123" }
-				}
-			},
-			{ "gamma", { { "startDelay", "10s" }, { "repeatDelay", "2m" } } },
-			{
-				"eta",
-				{
-					{ "startDelay", "27m" }, { "minDelay", "34m" }, { "maxDelay", "35m" },
-					{ "numPhaseOneRounds", "65" }, { "numTransitionRounds", "11" }
-				}
-			}
-		});
+		utils::ConfigurationBag bag({ { "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
+									  { "beta",
+										{ { "startDelay", "11m" },
+										  { "minDelay", "22m" },
+										  { "maxDelay", "99m" },
+										  { "numPhaseOneRounds", "14" },
+										  { "numTransitionRounds", "123" } } },
+									  { "gamma", { { "startDelay", "10s" }, { "repeatDelay", "2m" } } },
+									  { "eta",
+										{ { "startDelay", "27m" },
+										  { "minDelay", "34m" },
+										  { "maxDelay", "35m" },
+										  { "numPhaseOneRounds", "65" },
+										  { "numTransitionRounds", "11" } } } });
 
 		// Act:
 		auto config = TasksConfiguration::LoadFromBag(bag);
@@ -211,11 +193,9 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, Tasks_LoadFromBagFailsWhenAnyTaskHasInvalidValue) {
 		// Arrange:
-		utils::ConfigurationBag bag({
-			{ "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
-			{ "beta", { { "startDelay", "11x" }, { "repeatDelay", "22m" } } },
-			{ "gamma", { { "startDelay", "10s" }, { "repeatDelay", "2m" } } }
-		});
+		utils::ConfigurationBag bag({ { "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
+									  { "beta", { { "startDelay", "11x" }, { "repeatDelay", "22m" } } },
+									  { "gamma", { { "startDelay", "10s" }, { "repeatDelay", "2m" } } } });
 
 		// Act + Assert:
 		EXPECT_THROW(TasksConfiguration::LoadFromBag(bag), utils::property_malformed_error);
@@ -223,11 +203,9 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, Tasks_LoadFromBagFailsWhenAnyTaskHasMissingValue) {
 		// Arrange:
-		utils::ConfigurationBag bag({
-			{ "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
-			{ "beta", { { "startDelay", "11m" } } },
-			{ "gamma", { { "startDelay", "10s" }, { "repeatDelay", "2m" } } }
-		});
+		utils::ConfigurationBag bag({ { "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
+									  { "beta", { { "startDelay", "11m" } } },
+									  { "gamma", { { "startDelay", "10s" }, { "repeatDelay", "2m" } } } });
 
 		// Act + Assert:
 		EXPECT_THROW(TasksConfiguration::LoadFromBag(bag), utils::property_not_found_error);
@@ -235,11 +213,9 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, Tasks_LoadFromBagFailsWhenAnyTaskHasExtraValue) {
 		// Arrange:
-		utils::ConfigurationBag bag({
-			{ "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
-			{ "beta", { { "startDelay", "11m" }, { "minDelay", "15m" }, { "repeatDelay", "22m" } } },
-			{ "gamma", { { "startDelay", "10s" }, { "repeatDelay", "2m" } } }
-		});
+		utils::ConfigurationBag bag({ { "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
+									  { "beta", { { "startDelay", "11m" }, { "minDelay", "15m" }, { "repeatDelay", "22m" } } },
+									  { "gamma", { { "startDelay", "10s" }, { "repeatDelay", "2m" } } } });
 
 		// Act + Assert:
 		EXPECT_THROW(TasksConfiguration::LoadFromBag(bag), catapult_invalid_argument);

@@ -71,14 +71,13 @@ namespace catapult { namespace importance {
 			using RecalculateMap = std::map<std::pair<Address, model::ImportanceHeight>, AccountImportanceSeed>;
 
 		public:
-			explicit MockImportanceCalculator(const RecalculateMap& map) : m_map(map)
-			{}
+			explicit MockImportanceCalculator(const RecalculateMap& map)
+					: m_map(map) {
+			}
 
 		public:
-			void recalculate(
-					ImportanceRollbackMode mode,
-					model::ImportanceHeight importanceHeight,
-					cache::AccountStateCacheDelta& cache) const override {
+			void recalculate(ImportanceRollbackMode mode, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache)
+					const override {
 				for (const auto& address : cache.highValueAccounts().addresses())
 					process(cache.find(address).get(), mode, importanceHeight);
 
@@ -137,8 +136,8 @@ namespace catapult { namespace importance {
 		public:
 			CacheHolder()
 					: m_cache(cache::CacheConfiguration(), CreateCacheOptions())
-					, m_pDelta(std::make_unique<LockedAccountStateCacheDelta>(m_cache.createDelta()))
-			{}
+					, m_pDelta(std::make_unique<LockedAccountStateCacheDelta>(m_cache.createDelta())) {
+			}
 
 		public:
 			auto& get() {
@@ -264,8 +263,9 @@ namespace catapult { namespace importance {
 
 		class TestContext {
 		public:
-			TestContext() : m_config(CreateBlockchainConfiguration())
-			{}
+			TestContext()
+					: m_config(CreateBlockchainConfiguration()) {
+			}
 
 		public:
 			auto createWriteCalculator(const MockImportanceCalculator::RecalculateMap& map) const {
@@ -412,11 +412,10 @@ namespace catapult { namespace importance {
 			}
 
 			// Act:
-			auto pCalculator = context.createWriteCalculator({
-				{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-				{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-				{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
-			});
+			auto pCalculator =
+					context.createWriteCalculator({ { { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+													{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+													{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } } });
 			pCalculator->recalculate(mode, Importance_Height, holder.get());
 
 			// Assert:
@@ -424,18 +423,18 @@ namespace catapult { namespace importance {
 			holder.assertEqualImportances(addresses[1], 1, { { Importance(123) + importanceAdjustment, Importance_Height } });
 			holder.assertEqualImportances(addresses[2], 2, { { Importance(444) + importanceAdjustment, Importance_Height } });
 
-			holder.assertEqualActivityBuckets(addresses[0], 0, {
-				{ { Amount(0), 0, 0 }, Importance_Height },
-				{ { Amount(222), 14, 400 }, Previous_Importance_Height }
-			});
-			holder.assertEqualActivityBuckets(addresses[1], 1, {
-				{ { Amount(0), 0, 0 }, Importance_Height },
-				{ { Amount(432), 22, 200 }, Previous_Importance_Height }
-			});
-			holder.assertEqualActivityBuckets(addresses[2], 2, {
-				{ { Amount(0), 0, 0 }, Importance_Height },
-				{ { Amount(110), 10, 300 }, Previous_Importance_Height }
-			});
+			holder.assertEqualActivityBuckets(
+					addresses[0],
+					0,
+					{ { { Amount(0), 0, 0 }, Importance_Height }, { { Amount(222), 14, 400 }, Previous_Importance_Height } });
+			holder.assertEqualActivityBuckets(
+					addresses[1],
+					1,
+					{ { { Amount(0), 0, 0 }, Importance_Height }, { { Amount(432), 22, 200 }, Previous_Importance_Height } });
+			holder.assertEqualActivityBuckets(
+					addresses[2],
+					2,
+					{ { { Amount(0), 0, 0 }, Importance_Height }, { { Amount(110), 10, 300 }, Previous_Importance_Height } });
 		}
 	}
 
@@ -453,11 +452,10 @@ namespace catapult { namespace importance {
 		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
 
 		// Act:
-		auto pCalculator = context.createWriteCalculator({
-			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
-		});
+		auto pCalculator =
+				context.createWriteCalculator({ { { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+												{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+												{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } } });
 		pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get());
 
 		// Assert:
@@ -486,14 +484,13 @@ namespace catapult { namespace importance {
 		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
 
 		// Act:
-		auto pCalculator = context.createWriteCalculator({
-			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } },
+		auto pCalculator = context.createWriteCalculator(
+				{ { { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+				  { { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+				  { { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } },
 
-			{ { removedAddresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { removedAddresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } }
-		});
+				  { { removedAddresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+				  { { removedAddresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } } });
 		pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get());
 
 		// Assert:
@@ -520,12 +517,11 @@ namespace catapult { namespace importance {
 		auto addresses2 = test::GenerateRandomDataVector<Address>(1);
 
 		// - write file initially
-		auto pCalculator = context.createWriteCalculator({
-			{ { addresses1[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { addresses1[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-			{ { addresses1[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } },
-			{ { addresses2[0], Importance_Height }, { Importance(555), Amount(678), 18, 100 } }
-		});
+		auto pCalculator =
+				context.createWriteCalculator({ { { addresses1[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+												{ { addresses1[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+												{ { addresses1[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } },
+												{ { addresses2[0], Importance_Height }, { Importance(555), Amount(678), 18, 100 } } });
 		pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder1.get());
 
 		// Sanity:
@@ -566,11 +562,10 @@ namespace catapult { namespace importance {
 		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
 
 		// Act:
-		auto pCalculator = context.createWriteCalculator({
-			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
-		});
+		auto pCalculator =
+				context.createWriteCalculator({ { { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+												{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+												{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } } });
 		pCalculator->recalculate(ImportanceRollbackMode::Disabled, Importance_Height, holder.get());
 
 		// Assert:
@@ -590,11 +585,10 @@ namespace catapult { namespace importance {
 		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
 
 		// Act + Assert:
-		auto pCalculator = context.createReadCalculator({
-			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
-		});
+		auto pCalculator =
+				context.createReadCalculator({ { { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+											   { { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+											   { { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } } });
 		EXPECT_THROW(pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get()), catapult_runtime_error);
 	}
 
@@ -609,11 +603,10 @@ namespace catapult { namespace importance {
 		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
 
 		// Act + Assert:
-		auto pCalculator = context.createReadCalculator({
-			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
-		});
+		auto pCalculator =
+				context.createReadCalculator({ { { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+											   { { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+											   { { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } } });
 		EXPECT_THROW(pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get()), catapult_runtime_error);
 	}
 
@@ -629,11 +622,10 @@ namespace catapult { namespace importance {
 		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
 
 		// Act:
-		auto pCalculator = context.createReadCalculator({
-			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
-		});
+		auto pCalculator =
+				context.createReadCalculator({ { { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+											   { { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+											   { { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } } });
 		pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get());
 
 		// Assert: file loading was skipped and importances were set by decorated calculator
@@ -643,18 +635,18 @@ namespace catapult { namespace importance {
 		holder.assertEqualImportances(addresses[1], 1, { { Importance(123), Importance_Height } });
 		holder.assertEqualImportances(addresses[2], 2, { { Importance(444), Importance_Height } });
 
-		holder.assertEqualActivityBuckets(addresses[0], 0, {
-			{ { Amount(0), 0, 0 }, Importance_Height },
-			{ { Amount(222), 14, 400 }, Previous_Importance_Height }
-		});
-		holder.assertEqualActivityBuckets(addresses[1], 1, {
-			{ { Amount(0), 0, 0 }, Importance_Height },
-			{ { Amount(432), 22, 200 }, Previous_Importance_Height }
-		});
-		holder.assertEqualActivityBuckets(addresses[2], 2, {
-			{ { Amount(0), 0, 0 }, Importance_Height },
-			{ { Amount(110), 10, 300 }, Previous_Importance_Height }
-		});
+		holder.assertEqualActivityBuckets(
+				addresses[0],
+				0,
+				{ { { Amount(0), 0, 0 }, Importance_Height }, { { Amount(222), 14, 400 }, Previous_Importance_Height } });
+		holder.assertEqualActivityBuckets(
+				addresses[1],
+				1,
+				{ { { Amount(0), 0, 0 }, Importance_Height }, { { Amount(432), 22, 200 }, Previous_Importance_Height } });
+		holder.assertEqualActivityBuckets(
+				addresses[2],
+				2,
+				{ { { Amount(0), 0, 0 }, Importance_Height }, { { Amount(110), 10, 300 }, Previous_Importance_Height } });
 	}
 
 	// endregion
@@ -672,11 +664,10 @@ namespace catapult { namespace importance {
 		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
 
 		// Act:
-		auto pCalculator = context.createReadCalculator({
-			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
-		});
+		auto pCalculator =
+				context.createReadCalculator({ { { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+											   { { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+											   { { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } } });
 		EXPECT_THROW(
 				pCalculator->recalculate(ImportanceRollbackMode::Disabled, Importance_Height, holder.get()),
 				catapult_invalid_argument);
@@ -823,47 +814,52 @@ namespace catapult { namespace importance {
 
 				// - activity buckets through recalculate point should be restored (only raw score is modified as sentinel)
 				//   important: in order to calculate importances correctly, Activity_Bucket_History_Size buckets need to be restored
-				holder.assertEqualActivityBuckets(addresses[0], 0, {
-					{ { Amount(222), 14, 400 + 738 }, Importance_Height },
-					{ { Amount(222), 14, 400 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
-					{ { Amount(222), 14, 400 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
-					{ { Amount(222), 14, 400 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
-					{ { Amount(222), 14, 400 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) }
-				});
-				holder.assertEqualActivityBuckets(addresses[2], 2, {
-					{ { Amount(432), 22, 200 + 738 }, Importance_Height },
-					{ { Amount(432), 22, 200 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
-					{ { Amount(432), 22, 200 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
-					{ { Amount(432), 22, 200 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
-					{ { Amount(432), 22, 200 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) }
-				});
-				holder.assertEqualActivityBuckets(addresses[4], 4, {
-					{ { Amount(110), 10, 300 + 738 }, Importance_Height },
-					{ { Amount(110), 10, 300 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
-					{ { Amount(110), 10, 300 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
-					{ { Amount(110), 10, 300 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
-					{ { Amount(110), 10, 300 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) }
-				});
+				holder.assertEqualActivityBuckets(
+						addresses[0],
+						0,
+						{ { { Amount(222), 14, 400 + 738 }, Importance_Height },
+						  { { Amount(222), 14, 400 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
+						  { { Amount(222), 14, 400 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
+						  { { Amount(222), 14, 400 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
+						  { { Amount(222), 14, 400 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) } });
+				holder.assertEqualActivityBuckets(
+						addresses[2],
+						2,
+						{ { { Amount(432), 22, 200 + 738 }, Importance_Height },
+						  { { Amount(432), 22, 200 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
+						  { { Amount(432), 22, 200 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
+						  { { Amount(432), 22, 200 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
+						  { { Amount(432), 22, 200 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) } });
+				holder.assertEqualActivityBuckets(
+						addresses[4],
+						4,
+						{ { { Amount(110), 10, 300 + 738 }, Importance_Height },
+						  { { Amount(110), 10, 300 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
+						  { { Amount(110), 10, 300 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
+						  { { Amount(110), 10, 300 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
+						  { { Amount(110), 10, 300 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) } });
 
 				// - check additional accounts when enabled
 				if (TTraits::Should_Seed_Additional_Accounts) {
 					holder.assertEqualImportances(addresses[1], 1, { { Importance(999 * 615), Importance_Height } });
 					holder.assertEqualImportances(addresses[3], 3, { { Importance(0), model::ImportanceHeight(0) } });
 
-					holder.assertEqualActivityBuckets(addresses[1], 1, {
-						{ { Amount(0), 0, 0 }, model::ImportanceHeight(Importance_Height) },
-						{ { Amount(5), 11, 6 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
-						{ { Amount(0), 0, 0 }, model::ImportanceHeight() },
-						{ { Amount(0), 0, 0 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
-						{ { Amount(5), 11, 6 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) }
-					});
-					holder.assertEqualActivityBuckets(addresses[3], 3, {
-						{ { Amount(0), 0, 0 }, model::ImportanceHeight(0) },
-						{ { Amount(0), 0, 0 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
-						{ { Amount(8), 19, 5 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
-						{ { Amount(8), 19, 5 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
-						{ { Amount(0), 0, 0 }, model::ImportanceHeight(0) }
-					});
+					holder.assertEqualActivityBuckets(
+							addresses[1],
+							1,
+							{ { { Amount(0), 0, 0 }, model::ImportanceHeight(Importance_Height) },
+							  { { Amount(5), 11, 6 + 615 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
+							  { { Amount(0), 0, 0 }, model::ImportanceHeight() },
+							  { { Amount(0), 0, 0 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
+							  { { Amount(5), 11, 6 + 246 }, Importance_Height - model::ImportanceHeight(4 * Importance_Grouping) } });
+					holder.assertEqualActivityBuckets(
+							addresses[3],
+							3,
+							{ { { Amount(0), 0, 0 }, model::ImportanceHeight(0) },
+							  { { Amount(0), 0, 0 }, Importance_Height - model::ImportanceHeight(1 * Importance_Grouping) },
+							  { { Amount(8), 19, 5 + 492 }, Importance_Height - model::ImportanceHeight(2 * Importance_Grouping) },
+							  { { Amount(8), 19, 5 + 369 }, Importance_Height - model::ImportanceHeight(3 * Importance_Grouping) },
+							  { { Amount(0), 0, 0 }, model::ImportanceHeight(0) } });
 				}
 			});
 		}

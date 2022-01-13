@@ -36,8 +36,9 @@ namespace catapult { namespace zeromq {
 			using MqContext::subscribeAll;
 
 		public:
-			MqSubscriberContext() : MqContextT(CreateZeroMqUtChangeSubscriber)
-			{}
+			MqSubscriberContext()
+					: MqContextT(CreateZeroMqUtChangeSubscriber) {
+			}
 
 		public:
 			void notifyAdd(const model::TransactionInfo& transactionInfo) {
@@ -118,9 +119,7 @@ namespace catapult { namespace zeromq {
 	}
 
 	TEST(TEST_CLASS, CanAddMultipleTransactions_SingleCall) {
-		AssertCanAddMultipleTransactions([](auto& context, const auto& transactionInfos) {
-			context.notifyAdds(transactionInfos);
-		});
+		AssertCanAddMultipleTransactions([](auto& context, const auto& transactionInfos) { context.notifyAdds(transactionInfos); });
 	}
 
 	TEST(TEST_CLASS, CanAddMultipleTransactions_MultipleCalls) {
@@ -148,9 +147,7 @@ namespace catapult { namespace zeromq {
 	}
 
 	TEST(TEST_CLASS, CanRemoveMultipleTransactions_SingleCall) {
-		AssertCanRemoveMultipleTransactions([](auto& context, const auto& transactionInfos) {
-			context.notifyRemoves(transactionInfos);
-		});
+		AssertCanRemoveMultipleTransactions([](auto& context, const auto& transactionInfos) { context.notifyRemoves(transactionInfos); });
 	}
 
 	TEST(TEST_CLASS, CanRemoveMultipleTransactions_MultipleCalls) {

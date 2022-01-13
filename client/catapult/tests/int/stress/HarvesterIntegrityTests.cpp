@@ -63,7 +63,7 @@ namespace catapult { namespace harvesting {
 		auto CreateConfiguration() {
 			auto config = test::CreatePrototypicalBlockchainConfiguration();
 			config.EnableVerifiableState = true;
-			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
+			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
 			return config;
 		}
 
@@ -89,8 +89,8 @@ namespace catapult { namespace harvesting {
 					: m_config(test::CreatePrototypicalCatapultConfiguration(CreateConfiguration(), m_tempDataDir.name()))
 					, m_pPluginManager(CreatePluginManager(m_config))
 					, m_transactionsCache(cache::MemoryCacheOptions(
-							utils::FileSize::FromKilobytes(1),
-							utils::FileSize::FromBytes(test::GetTransferTransactionSize() * GetNumIterations() * 2)))
+							  utils::FileSize::FromKilobytes(1),
+							  utils::FileSize::FromBytes(test::GetTransferTransactionSize() * GetNumIterations() * 2)))
 					, m_cache(CreateCatapultCache(config::CatapultDataDirectory(m_tempDataDir.name()).dir("db").str()))
 					, m_unlockedAccounts(100, [](const auto&) { return 0; }) {
 				// create the harvester
@@ -182,10 +182,8 @@ namespace catapult { namespace harvesting {
 				observers::NotificationObserverAdapter entityObserver(
 						m_pPluginManager->createObserver(),
 						m_pPluginManager->createNotificationPublisher());
-				auto observerContext = observers::ObserverContext(
-						model::NotificationContext(Height(1), resolverContext),
-						observerState,
-						notifyMode);
+				auto observerContext =
+						observers::ObserverContext(model::NotificationContext(Height(1), resolverContext), observerState, notifyMode);
 				entityObserver.notify(model::WeakEntityInfo(*transactionInfo.pEntity, transactionInfo.EntityHash), observerContext);
 				m_cache.commit(Height(1));
 			}

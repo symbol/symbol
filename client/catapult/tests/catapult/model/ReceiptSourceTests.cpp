@@ -45,7 +45,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(8u, sizeof(ReceiptSource));
 	}
 
-	TEST(TEST_CLASS, ReceiptSourceHasProperAlignment) {
+	TEST(TEST_CLASS, ReceiptSourceHasProperAlignment){
 #define FIELD(X) EXPECT_ALIGNED(ReceiptSource, X);
 		RECEIPT_SOURCE_FIELDS
 #undef FIELD

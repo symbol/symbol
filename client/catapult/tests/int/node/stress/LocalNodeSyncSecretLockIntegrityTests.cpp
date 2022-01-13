@@ -86,10 +86,7 @@ namespace catapult { namespace local {
 			stateHashes.emplace_back(GetStateHash(context), GetComponentStateHash(context));
 
 			// Assert: the cache has expected balances
-			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 2, Amount(900'000) },
-				{ 3, Amount(1'000'000) }
-			});
+			test::AssertCurrencyBalances(accounts, context.localNode().cache(), { { 2, Amount(900'000) }, { 3, Amount(1'000'000) } });
 
 			return { builder, pSecretLockBlock, secretProof };
 		}
@@ -120,8 +117,8 @@ namespace catapult { namespace local {
 		public:
 			explicit TestFacade(TTestContext& context)
 					: m_context(context)
-					, m_accounts(4)
-			{}
+					, m_accounts(4) {
+			}
 
 		public:
 			const auto& accounts() const {
@@ -150,10 +147,10 @@ namespace catapult { namespace local {
 				m_stateHashes.emplace_back(GetStateHash(m_context), GetComponentStateHash(m_context));
 
 				// Sanity: all secret locks are still present
-				test::AssertCurrencyBalances(m_accounts, m_context.localNode().cache(), {
-					{ 2, Amount(900'000) },
-					{ 3, Amount(1'000'000) }
-				});
+				test::AssertCurrencyBalances(
+						m_accounts,
+						m_context.localNode().cache(),
+						{ { 2, Amount(900'000) }, { 3, Amount(1'000'000) } });
 
 				m_allBlocks.emplace_back(secretLockTuple.pSecretLockBlock);
 				m_allBlocks.insert(m_allBlocks.end(), transferBlocksResult.AllBlocks.cbegin(), transferBlocksResult.AllBlocks.cend());
@@ -256,10 +253,10 @@ namespace catapult { namespace local {
 			test::WaitForHeightAndElements(context, Height(2 + numEmptyBlocks + 1), 1 + facade.numAliveChains() + 1, 1);
 
 			// Assert: the cache has the expected balances and the lock has been unlocked
-			test::AssertCurrencyBalances(facade.accounts(), context.localNode().cache(), {
-				{ 2, Amount(900'000) },
-				{ 3, Amount(1'100'000) }
-			});
+			test::AssertCurrencyBalances(
+					facade.accounts(),
+					context.localNode().cache(),
+					{ { 2, Amount(900'000) }, { 3, Amount(1'100'000) } });
 
 			auto stateHashes = facade.stateHashes();
 			stateHashes.emplace_back(GetStateHash(context), GetComponentStateHash(context));
@@ -314,10 +311,10 @@ namespace catapult { namespace local {
 			test::WaitForHeightAndElements(context, Height(2 + numEmptyBlocks + 1), 1 + facade.numAliveChains() + 1, 1);
 
 			// Assert: the cache has the expected balances and the lock has expired
-			test::AssertCurrencyBalances(facade.accounts(), context.localNode().cache(), {
-				{ 2, Amount(1'000'000) },
-				{ 3, Amount(1'000'000) }
-			});
+			test::AssertCurrencyBalances(
+					facade.accounts(),
+					context.localNode().cache(),
+					{ { 2, Amount(1'000'000) }, { 3, Amount(1'000'000) } });
 
 			auto stateHashes = facade.stateHashes();
 			stateHashes.emplace_back(GetStateHash(context), GetComponentStateHash(context));
@@ -377,11 +374,10 @@ namespace catapult { namespace local {
 			test::WaitForHeightAndElements(context, Height(2 + numEmptyBlocks + 2), 1 + facade.numAliveChains() + 2, 2);
 
 			// Assert: the cache has the expected balances and the lock is still set
-			test::AssertCurrencyBalances(facade.accounts(), context.localNode().cache(), {
-				{ 1, Amount(numEmptyBlocks + 2) },
-				{ 2, Amount(900'000) },
-				{ 3, Amount(1'000'000) }
-			});
+			test::AssertCurrencyBalances(
+					facade.accounts(),
+					context.localNode().cache(),
+					{ { 1, Amount(numEmptyBlocks + 2) }, { 2, Amount(900'000) }, { 3, Amount(1'000'000) } });
 
 			auto stateHashes = facade.stateHashes();
 			stateHashes.emplace_back(GetStateHash(context), GetComponentStateHash(context));
@@ -451,11 +447,10 @@ namespace catapult { namespace local {
 			test::WaitForHeightAndElements(context, Height(2 + numEmptyBlocks + 2), 1 + facade.numAliveChains() + 2, 2);
 
 			// Assert: the cache has the expected balances and the lock has expired
-			test::AssertCurrencyBalances(facade.accounts(), context.localNode().cache(), {
-				{ 1, Amount(numEmptyBlocks + 2) },
-				{ 2, Amount(1'000'000) },
-				{ 3, Amount(1'000'000) }
-			});
+			test::AssertCurrencyBalances(
+					facade.accounts(),
+					context.localNode().cache(),
+					{ { 1, Amount(numEmptyBlocks + 2) }, { 2, Amount(1'000'000) }, { 3, Amount(1'000'000) } });
 
 			auto stateHashes = facade.stateHashes();
 			stateHashes.emplace_back(GetStateHash(context), GetComponentStateHash(context));
@@ -496,8 +491,8 @@ namespace catapult { namespace local {
 			SecretLockRollbackTestContext()
 					: m_context(test::NonNemesisTransactionPlugins::Lock_Secret, ConfigTransform)
 					, m_accounts(4)
-					, m_connection(m_context.publicKey())
-			{}
+					, m_connection(m_context.publicKey()) {
+			}
 
 		public:
 			SecretLockStateHashes runRegisterLockAndRollbackAndReregisterLockSecretLockTest() {
@@ -532,11 +527,10 @@ namespace catapult { namespace local {
 				test::WaitForHeightAndElements(m_context, Height(5), 4, 1);
 
 				// Sanity: the cache has expected balances
-				test::AssertCurrencyBalances(m_accounts, m_context.localNode().cache(), {
-					{ 1, Amount(1) },
-					{ 2, Amount(1'000'000) },
-					{ 3, Amount(1'000'000) }
-				});
+				test::AssertCurrencyBalances(
+						m_accounts,
+						m_context.localNode().cache(),
+						{ { 1, Amount(1) }, { 2, Amount(1'000'000) }, { 3, Amount(1'000'000) } });
 
 				// - readd secret lock
 				auto stateHashCalculator = m_context.createStateHashCalculator();
@@ -621,10 +615,10 @@ namespace catapult { namespace local {
 				test::WaitForHeightAndElements(m_context, Height(4), 2, 1);
 
 				// Sanity: the cache has expected balances
-				test::AssertCurrencyBalances(m_accounts, m_context.localNode().cache(), {
-					{ 2, Amount(1'000'000) },
-					{ 3, Amount(1'000'000) }
-				});
+				test::AssertCurrencyBalances(
+						m_accounts,
+						m_context.localNode().cache(),
+						{ { 2, Amount(1'000'000) }, { 3, Amount(1'000'000) } });
 
 				return chainedBuilder;
 			}
@@ -724,10 +718,7 @@ namespace catapult { namespace local {
 			stateHashes.emplace_back(GetStateHash(context), GetComponentStateHash(context));
 
 			// Assert: the cache has expected balances
-			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 2, Amount(900'000) },
-				{ 3, Amount(1'100'000) }
-			});
+			test::AssertCurrencyBalances(accounts, context.localNode().cache(), { { 2, Amount(900'000) }, { 3, Amount(1'100'000) } });
 
 			return stateHashes;
 		}

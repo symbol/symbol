@@ -41,15 +41,14 @@ namespace catapult { namespace disruptor {
 
 			auto minPosition = barriers[barriers.size() - 1].position();
 			auto maxPosition = barriers[0].position();
-			CATAPULT_LOG(info)
-					<< "completing processing of " << element
-					<< ", last consumer is " << (maxPosition - minPosition) << " elements behind";
+			CATAPULT_LOG(info) << "completing processing of " << element << ", last consumer is " << (maxPosition - minPosition)
+							   << " elements behind";
 		}
 	}
 
 	ConsumerDispatcher::ConsumerDispatcher(const ConsumerDispatcherOptions& options, const std::vector<DisruptorConsumer>& consumers)
-			: ConsumerDispatcher(options, consumers, [](const auto&, const auto&) {})
-	{}
+			: ConsumerDispatcher(options, consumers, [](const auto&, const auto&) {}) {
+	}
 
 	ConsumerDispatcher::ConsumerDispatcher(
 			const ConsumerDispatcherOptions& options,
@@ -179,9 +178,8 @@ namespace catapult { namespace disruptor {
 		utils::SpinLockGuard guard(m_addSpinLock);
 		auto isFull = !canProcessNextElement();
 		if (m_options.DisruptorMaxMemorySize.bytes() - m_memorySize < inputMemorySize.bytes()) {
-			CATAPULT_LOG(warning)
-					<< "disruptor memory is full (max = " << m_options.DisruptorMaxMemorySize
-					<< ", current = " << utils::FileSize::FromBytes(m_memorySize) << ")";
+			CATAPULT_LOG(warning) << "disruptor memory is full (max = " << m_options.DisruptorMaxMemorySize
+								  << ", current = " << utils::FileSize::FromBytes(m_memorySize) << ")";
 			isFull = true;
 		}
 

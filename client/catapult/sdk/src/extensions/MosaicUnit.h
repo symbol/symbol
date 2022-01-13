@@ -40,20 +40,24 @@ namespace catapult { namespace extensions {
 
 	public:
 		/// Creates a zeroed mosaic unit.
-		MosaicUnit() : m_value(0)
-		{}
+		MosaicUnit()
+				: m_value(0) {
+		}
 
 		/// Creates a mosaic unit from \a amount atomic units.
-		explicit MosaicUnit(Amount amount) : m_value(amount.unwrap())
-		{}
+		explicit MosaicUnit(Amount amount)
+				: m_value(amount.unwrap()) {
+		}
 
 		/// Creates a mosaic unit from \a amount basic units.
-		explicit MosaicUnit(BasicUnitAmount amount) : m_value(amount.unwrap() * GetAtomicUnitMultiplier())
-		{}
+		explicit MosaicUnit(BasicUnitAmount amount)
+				: m_value(amount.unwrap() * GetAtomicUnitMultiplier()) {
+		}
 
 		/// Creates a copy of \a rhs.
-		MosaicUnit(const MosaicUnit& rhs) : m_value(static_cast<ValueType>(rhs.m_value))
-		{}
+		MosaicUnit(const MosaicUnit& rhs)
+				: m_value(static_cast<ValueType>(rhs.m_value)) {
+		}
 
 	private:
 		static uint64_t GetAtomicUnitMultiplier() {

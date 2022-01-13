@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AccountKeyLink, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AccountKeyLink, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Account_Key_Link)
@@ -50,9 +50,8 @@ namespace catapult { namespace plugins {
 		void AddCommonExpectations(
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const typename TTraits::TransactionType& transaction) {
-			builder.template addExpectation<KeyLinkActionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
-			});
+			builder.template addExpectation<KeyLinkActionNotification>(
+					[&transaction](const auto& notification) { EXPECT_EQ(transaction.LinkAction, notification.LinkAction); });
 			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
 				auto linkedAddress = PublicKeyToAddress(transaction.LinkedPublicKey, transaction.Network);
 				EXPECT_EQ(GetSignerAddress(transaction), notification.Source);
@@ -74,13 +73,13 @@ namespace catapult { namespace plugins {
 		transaction.LinkAction = LinkAction::Link;
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			NewRemoteAccountNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type,
-			KeyLinkActionNotification::Notification_Type,
-			AddressInteractionNotification::Notification_Type,
-			RemoteAccountKeyLinkNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ NewRemoteAccountNotification::Notification_Type,
+				  AccountPublicKeyNotification::Notification_Type,
+				  KeyLinkActionNotification::Notification_Type,
+				  AddressInteractionNotification::Notification_Type,
+				  RemoteAccountKeyLinkNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsLink) {
@@ -91,12 +90,10 @@ namespace catapult { namespace plugins {
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, transaction);
-		builder.template addExpectation<AccountPublicKeyNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.LinkedPublicKey, notification.PublicKey);
-		});
-		builder.template addExpectation<NewRemoteAccountNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.LinkedPublicKey, notification.LinkedPublicKey);
-		});
+		builder.template addExpectation<AccountPublicKeyNotification>(
+				[&transaction](const auto& notification) { EXPECT_EQ(transaction.LinkedPublicKey, notification.PublicKey); });
+		builder.template addExpectation<NewRemoteAccountNotification>(
+				[&transaction](const auto& notification) { EXPECT_EQ(transaction.LinkedPublicKey, notification.LinkedPublicKey); });
 
 		// Act + Assert:
 		builder.runTest(transaction);
@@ -113,11 +110,11 @@ namespace catapult { namespace plugins {
 		transaction.LinkAction = LinkAction::Unlink;
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			KeyLinkActionNotification::Notification_Type,
-			AddressInteractionNotification::Notification_Type,
-			RemoteAccountKeyLinkNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ KeyLinkActionNotification::Notification_Type,
+				  AddressInteractionNotification::Notification_Type,
+				  RemoteAccountKeyLinkNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsUnlink) {

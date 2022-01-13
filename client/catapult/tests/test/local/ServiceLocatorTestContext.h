@@ -43,44 +43,44 @@ namespace catapult { namespace test {
 	class ServiceTestState {
 	public:
 		/// Creates the test state.
-		ServiceTestState() : ServiceTestState(cache::CatapultCache({}))
-		{}
+		ServiceTestState()
+				: ServiceTestState(cache::CatapultCache({})) {
+		}
 
 		/// Creates the test state around \a cache.
-		explicit ServiceTestState(cache::CatapultCache&& cache) : ServiceTestState(std::move(cache), CreateDefaultNetworkTimeSupplier())
-		{}
+		explicit ServiceTestState(cache::CatapultCache&& cache)
+				: ServiceTestState(std::move(cache), CreateDefaultNetworkTimeSupplier()) {
+		}
 
 		/// Creates the test state around \a cache and \a timeSupplier.
 		ServiceTestState(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier)
 				: m_config(CreatePrototypicalCatapultConfiguration())
-				, m_nodes(
-						std::numeric_limits<size_t>::max(),
-						model::NodeIdentityEqualityStrategy::Key_And_Host,
-						GetBanSettings(m_config),
-						timeSupplier,
-						[](auto) { return true; })
+				, m_nodes(std::numeric_limits<size_t>::max(),
+						  model::NodeIdentityEqualityStrategy::Key_And_Host,
+						  GetBanSettings(m_config),
+						  timeSupplier,
+						  [](auto) { return true; })
 				, m_catapultCache(std::move(cache))
 				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>())
 				, m_pUtCache(CreateUtCacheProxy())
 				, m_nodeSubscriber(m_nodes)
 				, m_pluginManager(m_config.Blockchain, plugins::StorageConfiguration(), m_config.User, m_config.Inflation)
 				, m_pool("service locator test context", 2)
-				, m_state(
-						m_config,
-						m_nodes,
-						m_catapultCache,
-						m_storage,
-						m_score,
-						*m_pUtCache,
-						timeSupplier,
-						m_finalizationSubscriber,
-						m_nodeSubscriber,
-						m_stateChangeSubscriber,
-						m_transactionStatusSubscriber,
-						m_counters,
-						m_pluginManager,
-						m_pool)
-		{}
+				, m_state(m_config,
+						  m_nodes,
+						  m_catapultCache,
+						  m_storage,
+						  m_score,
+						  *m_pUtCache,
+						  timeSupplier,
+						  m_finalizationSubscriber,
+						  m_nodeSubscriber,
+						  m_stateChangeSubscriber,
+						  m_transactionStatusSubscriber,
+						  m_counters,
+						  m_pluginManager,
+						  m_pool) {
+		}
 
 	public:
 		/// Gets the service state.
@@ -167,20 +167,20 @@ namespace catapult { namespace test {
 		/// Creates the test context.
 		ServiceLocatorTestContext()
 				: m_keys(test::GenerateRandomByteArray<Key>(), GenerateKeyPair())
-				, m_pLocator(std::make_unique<extensions::ServiceLocator>(m_keys))
-		{}
+				, m_pLocator(std::make_unique<extensions::ServiceLocator>(m_keys)) {
+		}
 
 		/// Creates the test context around \a cache.
 		explicit ServiceLocatorTestContext(cache::CatapultCache&& cache)
-				: ServiceLocatorTestContext(std::move(cache), CreateDefaultNetworkTimeSupplier())
-		{}
+				: ServiceLocatorTestContext(std::move(cache), CreateDefaultNetworkTimeSupplier()) {
+		}
 
 		/// Creates the test context around \a cache and \a timeSupplier.
 		ServiceLocatorTestContext(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier)
 				: m_keys(test::GenerateRandomByteArray<Key>(), GenerateKeyPair())
 				, m_pLocator(std::make_unique<extensions::ServiceLocator>(m_keys))
-				, m_testState(std::move(cache), timeSupplier)
-		{}
+				, m_testState(std::move(cache), timeSupplier) {
+		}
 
 	public:
 		/// Gets the value of the counter named \a counterName.
@@ -262,9 +262,7 @@ namespace catapult { namespace test {
 		EXPECT_EQ(numExpectedTasks, tasks.size());
 
 		// Act: find the desired task
-		auto iter = std::find_if(tasks.cbegin(), tasks.cend(), [&taskName](const auto& task) {
-			return taskName == task.Name;
-		});
+		auto iter = std::find_if(tasks.cbegin(), tasks.cend(), [&taskName](const auto& task) { return taskName == task.Name; });
 
 		if (tasks.cend() == iter)
 			CATAPULT_THROW_RUNTIME_ERROR_1("unable to find task with name", taskName);

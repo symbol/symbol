@@ -41,13 +41,13 @@ namespace catapult { namespace cache {
 		/// Creates a default cache configuration.
 		CacheConfiguration()
 				: ShouldUseCacheDatabase(false)
-				, ShouldStorePatriciaTrees(false)
-		{}
+				, ShouldStorePatriciaTrees(false) {
+		}
 
 		/// Creates a cache configuration around \a databaseDirectory and specified patricia tree storage \a mode.
 		CacheConfiguration(const std::string& databaseDirectory, PatriciaTreeStorageMode mode)
-				: CacheConfiguration(databaseDirectory, config::NodeConfiguration::CacheDatabaseSubConfiguration(), mode)
-		{}
+				: CacheConfiguration(databaseDirectory, config::NodeConfiguration::CacheDatabaseSubConfiguration(), mode) {
+		}
 
 		/// Creates a cache configuration around \a databaseDirectory, \a databaseConfig and specified patricia tree storage \a mode.
 		CacheConfiguration(
@@ -57,8 +57,8 @@ namespace catapult { namespace cache {
 				: ShouldUseCacheDatabase(true)
 				, CacheDatabaseDirectory(databaseDirectory)
 				, CacheDatabaseConfig(databaseConfig)
-				, ShouldStorePatriciaTrees(PatriciaTreeStorageMode::Enabled == mode)
-		{}
+				, ShouldStorePatriciaTrees(PatriciaTreeStorageMode::Enabled == mode) {
+		}
 
 	public:
 		/// \c true if a cache database should be used, \c false otherwise.

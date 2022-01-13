@@ -43,8 +43,8 @@ namespace catapult { namespace observers {
 					UnresolvedMosaicId mosaicId,
 					catapult::Amount amount)
 					: BasicBalanceNotification(sender, mosaicId, amount)
-					, Recipient(recipient)
-			{}
+					, Recipient(recipient) {
+			}
 
 		public:
 			model::ResolvableAddress Recipient;

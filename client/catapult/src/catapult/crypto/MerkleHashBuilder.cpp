@@ -91,9 +91,7 @@ namespace catapult { namespace crypto {
 	size_t MerkleHashBuilder::TreeSize(size_t leafCount) {
 		// the tree is not required to be fully balanced, padding is only done in case of an odd number of nodes to make it even
 		size_t size = 0;
-		auto adjustedLeafCount = 1 == leafCount
-				? 1
-				: 0 == leafCount % 2 ? leafCount : leafCount + 1;
+		auto adjustedLeafCount = 1 == leafCount ? 1 : 0 == leafCount % 2 ? leafCount : leafCount + 1;
 		for (auto i = adjustedLeafCount; i > 1; i = (i + 1) >> 1)
 			size += i;
 

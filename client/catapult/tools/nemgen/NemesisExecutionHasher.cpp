@@ -28,9 +28,8 @@ namespace catapult { namespace tools { namespace nemgen {
 	namespace {
 		std::string Format(const BlockExecutionHashesInfo& blockExecutionHashesInfo) {
 			std::ostringstream out;
-			out
-					<< "       State Hash: " << blockExecutionHashesInfo.StateHash << std::endl
-					<< "--- Components (" << blockExecutionHashesInfo.SubCacheMerkleRoots.size() << ") ---" << std::endl;
+			out << "       State Hash: " << blockExecutionHashesInfo.StateHash << std::endl
+				<< "--- Components (" << blockExecutionHashesInfo.SubCacheMerkleRoots.size() << ") ---" << std::endl;
 
 			for (const auto& subCacheMerkleRoot : blockExecutionHashesInfo.SubCacheMerkleRoots)
 				out << " + " << subCacheMerkleRoot << std::endl;
@@ -49,16 +48,15 @@ namespace catapult { namespace tools { namespace nemgen {
 		CATAPULT_LOG(info) << "calculating nemesis state hash";
 		auto blockExecutionHashesInfo = CalculateNemesisBlockExecutionHashes(blockElement, config.Blockchain, pluginManager);
 		std::ostringstream out;
-		out
-				<< "           Height: " << blockElement.Block.Height << std::endl
-				<< " Harvesting Count: " << blockExecutionHashesInfo.HarvestingEligibleAccountsCount << std::endl
-				<< "     Voting Count: " << blockExecutionHashesInfo.VotingEligibleAccountsCount << std::endl
-				<< "   Voting Balance: " << blockExecutionHashesInfo.TotalVotingBalance << std::endl
-				<< "*" << std::endl
-				<< "  Generation Hash: " << blockElement.GenerationHash << std::endl
-				<< "Transactions Hash: " << blockElement.Block.TransactionsHash << std::endl
-				<< "    Receipts Hash: " << blockExecutionHashesInfo.ReceiptsHash << std::endl
-				<< Format(blockExecutionHashesInfo);
+		out << "           Height: " << blockElement.Block.Height << std::endl
+			<< " Harvesting Count: " << blockExecutionHashesInfo.HarvestingEligibleAccountsCount << std::endl
+			<< "     Voting Count: " << blockExecutionHashesInfo.VotingEligibleAccountsCount << std::endl
+			<< "   Voting Balance: " << blockExecutionHashesInfo.TotalVotingBalance << std::endl
+			<< "*" << std::endl
+			<< "  Generation Hash: " << blockElement.GenerationHash << std::endl
+			<< "Transactions Hash: " << blockElement.Block.TransactionsHash << std::endl
+			<< "    Receipts Hash: " << blockExecutionHashesInfo.ReceiptsHash << std::endl
+			<< Format(blockExecutionHashesInfo);
 
 		NemesisExecutionHashesDescriptor descriptor;
 		descriptor.VotingEligibleAccountsCount = blockExecutionHashesInfo.VotingEligibleAccountsCount;

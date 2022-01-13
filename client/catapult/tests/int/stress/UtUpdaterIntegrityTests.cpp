@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/chain/UtUpdater.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/chain/UtUpdater.h"
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "catapult/thread/ThreadGroup.h"
 #include "tests/test/cache/CacheTestUtils.h"
@@ -50,18 +50,18 @@ namespace catapult { namespace chain {
 			UpdaterTestContext()
 					: m_pPluginManager(CreatePluginManager())
 					, m_transactionsCache(cache::MemoryCacheOptions(
-							utils::FileSize::FromKilobytes(1),
-							utils::FileSize::FromBytes(test::GetTransferTransactionSize() * GetNumIterations() * 2)))
+							  utils::FileSize::FromKilobytes(1),
+							  utils::FileSize::FromBytes(test::GetTransferTransactionSize() * GetNumIterations() * 2)))
 					, m_cache(CreateCatapultCache())
 					, m_updater(
-							m_transactionsCache,
-							m_cache,
-							BlockFeeMultiplier(0),
-							extensions::CreateExecutionConfiguration(*m_pPluginManager),
-							[]() { return Default_Time; },
-							[](const auto&, const auto&, auto) {},
-							[](const auto&, const auto&) { return false; })
-			{}
+							  m_transactionsCache,
+							  m_cache,
+							  BlockFeeMultiplier(0),
+							  extensions::CreateExecutionConfiguration(*m_pPluginManager),
+							  []() { return Default_Time; },
+							  [](const auto&, const auto&, auto) {},
+							  [](const auto&, const auto&) { return false; }) {
+			}
 
 		public:
 			cache::MemoryUtCache& transactionsCache() {
@@ -79,7 +79,7 @@ namespace catapult { namespace chain {
 		private:
 			static std::shared_ptr<plugins::PluginManager> CreatePluginManager() {
 				auto config = test::CreatePrototypicalBlockchainConfiguration();
-				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
+				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
 				return test::CreatePluginManagerWithRealPlugins(config);
 			}
 

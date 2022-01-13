@@ -133,12 +133,12 @@ namespace catapult { namespace local {
 		class CommitImportanceFilesStateChangeSubscriber : public subscribers::StateChangeSubscriber {
 		public:
 			explicit CommitImportanceFilesStateChangeSubscriber(const config::CatapultDataDirectory& dataDirectory)
-					: m_dataDirectory(dataDirectory)
-			{}
+					: m_dataDirectory(dataDirectory) {
+			}
 
 		public:
-			void notifyScoreChange(const model::ChainScore&) override
-			{}
+			void notifyScoreChange(const model::ChainScore&) override {
+			}
 
 			void notifyStateChange(const subscribers::StateChangeInfo&) override {
 				// when state is committed, move importance files from wip to base
@@ -175,16 +175,10 @@ namespace catapult { namespace local {
 		// region utils
 
 		void AddNodeCounters(std::vector<utils::DiagnosticCounter>& counters, const ionet::NodeContainer& nodes) {
-			counters.emplace_back(utils::DiagnosticCounterId("NODES"), [&nodes]() {
-				return nodes.view().size();
-			});
+			counters.emplace_back(utils::DiagnosticCounterId("NODES"), [&nodes]() { return nodes.view().size(); });
 
-			counters.emplace_back(utils::DiagnosticCounterId("BAN ACT"), [&nodes]() {
-				return nodes.view().bannedNodesSize();
-			});
-			counters.emplace_back(utils::DiagnosticCounterId("BAN ALL"), [&nodes]() {
-				return nodes.view().bannedNodesDeepSize();
-			});
+			counters.emplace_back(utils::DiagnosticCounterId("BAN ACT"), [&nodes]() { return nodes.view().bannedNodesSize(); });
+			counters.emplace_back(utils::DiagnosticCounterId("BAN ALL"), [&nodes]() { return nodes.view().bannedNodesDeepSize(); });
 		}
 
 		// endregion
@@ -196,29 +190,26 @@ namespace catapult { namespace local {
 					, m_serviceLocator(keys)
 					, m_config(m_pBootstrapper->config())
 					, m_dataDirectory(PrepareDataDirectory(m_config))
-					, m_nodes(
-							m_config.Node.MaxTrackedNodes,
-							m_config.Blockchain.Network.NodeEqualityStrategy,
-							GetBanSettings(m_config.Node.Banning),
-							m_pBootstrapper->extensionManager().networkTimeSupplier(m_config.Blockchain.Network.EpochAdjustment),
-							ionet::CreateRangeNodeVersionPredicate(
-									m_config.Node.MinPartnerNodeVersion,
-									m_config.Node.MaxPartnerNodeVersion))
+					, m_nodes(m_config.Node.MaxTrackedNodes,
+							  m_config.Blockchain.Network.NodeEqualityStrategy,
+							  GetBanSettings(m_config.Node.Banning),
+							  m_pBootstrapper->extensionManager().networkTimeSupplier(m_config.Blockchain.Network.EpochAdjustment),
+							  ionet::CreateRangeNodeVersionPredicate(
+									  m_config.Node.MinPartnerNodeVersion,
+									  m_config.Node.MaxPartnerNodeVersion))
 					, m_catapultCache({}) // note that sub caches are added in boot
 					, m_storage(
-							m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber),
-							CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
+							  m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber),
+							  CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
 					, m_pUtCache(m_pBootstrapper->subscriptionManager().createUtCache(extensions::GetUtCacheOptions(m_config.Node)))
 					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
 					, m_pNodeSubscriber(CreateNodeSubscriber(
-							m_pBootstrapper->subscriptionManager(),
-							m_nodes,
-							m_config.Node.LocalNetworks,
-							m_bannedNodeIdentitySink))
-					, m_pStateChangeSubscriber(CreateStateChangeSubscriber(
-							m_pBootstrapper->subscriptionManager(),
-							m_catapultCache,
-							m_dataDirectory))
+							  m_pBootstrapper->subscriptionManager(),
+							  m_nodes,
+							  m_config.Node.LocalNetworks,
+							  m_bannedNodeIdentitySink))
+					, m_pStateChangeSubscriber(
+							  CreateStateChangeSubscriber(m_pBootstrapper->subscriptionManager(), m_catapultCache, m_dataDirectory))
 					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
 					, m_pluginManager(m_pBootstrapper->pluginManager())
 					, m_isBooted(false) {
@@ -287,9 +278,7 @@ namespace catapult { namespace local {
 				});
 
 				m_pluginManager.addDiagnosticCounters(m_counters, m_catapultCache); // add cache counters
-				m_counters.emplace_back(utils::DiagnosticCounterId("UT CACHE"), [&source = *m_pUtCache]() {
-					return source.view().size();
-				});
+				m_counters.emplace_back(utils::DiagnosticCounterId("UT CACHE"), [&source = *m_pUtCache]() { return source.view().size(); });
 				m_counters.emplace_back(utils::DiagnosticCounterId("UT CACHE MEM"), [&source = *m_pUtCache]() {
 					return source.view().memorySize().megabytes();
 				});

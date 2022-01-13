@@ -25,13 +25,13 @@
 #include <memory>
 
 namespace catapult {
-	namespace model { class TransactionRegistry; }
-	namespace tools {
-		namespace nemgen {
-			struct NemesisConfiguration;
-			struct NemesisExecutionHashesDescriptor;
-		}
-	}
+namespace model {
+	class TransactionRegistry;
+}
+namespace tools { namespace nemgen {
+	struct NemesisConfiguration;
+	struct NemesisExecutionHashesDescriptor;
+}}
 }
 
 namespace catapult { namespace tools { namespace nemgen {

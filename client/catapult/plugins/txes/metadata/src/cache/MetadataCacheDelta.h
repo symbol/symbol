@@ -54,8 +54,8 @@ namespace catapult { namespace cache {
 				, MetadataCacheDeltaMixins::PatriciaTreeDelta(*metadataSets.pPrimary, metadataSets.pPatriciaTree)
 				, MetadataCacheDeltaMixins::BasicInsertRemove(*metadataSets.pPrimary)
 				, MetadataCacheDeltaMixins::DeltaElements(*metadataSets.pPrimary)
-				, m_pMetadataEntries(metadataSets.pPrimary)
-		{}
+				, m_pMetadataEntries(metadataSets.pPrimary) {
+		}
 
 	public:
 		using MetadataCacheDeltaMixins::ConstAccessor::find;
@@ -69,7 +69,8 @@ namespace catapult { namespace cache {
 	class MetadataCacheDelta : public ReadOnlyViewSupplier<BasicMetadataCacheDelta> {
 	public:
 		/// Creates a delta around \a metadataSets.
-		explicit MetadataCacheDelta(const MetadataCacheTypes::BaseSetDeltaPointers& metadataSets) : ReadOnlyViewSupplier(metadataSets)
-		{}
+		explicit MetadataCacheDelta(const MetadataCacheTypes::BaseSetDeltaPointers& metadataSets)
+				: ReadOnlyViewSupplier(metadataSets) {
+		}
 	};
 }}

@@ -32,26 +32,13 @@ namespace catapult { namespace mongo {
 			using ConfigurationType = DatabaseConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"database",
-						{
-							{ "databaseUri", "mongodb://hostname:port" },
-							{ "databaseName", "foo" },
-							{ "maxWriterThreads", "3" },
-							{ "maxDropBatchSize", "7" },
-							{ "writeTimeout", "22s" }
-						}
-					},
-					{
-						"plugins",
-						{
-							{ "Alpha", "true" },
-							{ "BETA", "false" },
-							{ "gamma", "true" }
-						}
-					}
-				};
+				return { { "database",
+						   { { "databaseUri", "mongodb://hostname:port" },
+							 { "databaseName", "foo" },
+							 { "maxWriterThreads", "3" },
+							 { "maxDropBatchSize", "7" },
+							 { "writeTimeout", "22s" } } },
+						 { "plugins", { { "Alpha", "true" }, { "BETA", "false" }, { "gamma", "true" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string& section) {

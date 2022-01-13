@@ -31,9 +31,7 @@ namespace catapult { namespace extensions {
 		executionConfig.pObserver = pluginManager.createObserver();
 		executionConfig.pValidator = pluginManager.createStatefulValidator();
 		executionConfig.pNotificationPublisher = pluginManager.createNotificationPublisher();
-		executionConfig.ResolverContextFactory = [&pluginManager](const auto& cache) {
-			return pluginManager.createResolverContext(cache);
-		};
+		executionConfig.ResolverContextFactory = [&pluginManager](const auto& cache) { return pluginManager.createResolverContext(cache); };
 		return executionConfig;
 	}
 }}

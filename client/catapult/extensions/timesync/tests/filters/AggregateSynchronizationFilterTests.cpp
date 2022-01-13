@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "timesync/src/filters/SynchronizationFilters.h"
 #include "timesync/src/filters/AggregateSynchronizationFilter.h"
+#include "timesync/src/filters/SynchronizationFilters.h"
 #include "timesync/tests/test/TimeSynchronizationTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -158,9 +158,7 @@ namespace catapult { namespace timesync { namespace filters {
 		// Arrange:
 		std::vector<SynchronizationFilter> filters;
 		for (auto i = 0u; i < 3; ++i) {
-			filters.push_back([](const auto& sample, auto) {
-				return 0 == sample.timeOffsetToRemote();
-			});
+			filters.push_back([](const auto& sample, auto) { return 0 == sample.timeOffsetToRemote(); });
 		}
 
 		AggregateSynchronizationFilter aggregateFilter(filters);

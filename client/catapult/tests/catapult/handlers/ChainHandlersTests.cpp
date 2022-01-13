@@ -344,8 +344,7 @@ namespace catapult { namespace handlers {
 				const auto& block = reinterpret_cast<const model::Block&>(*buffers[i].pData);
 
 				// - compare
-				EXPECT_EQ(*pBlockFromStorage, block)
-						<< "comparing blocks at " << i << " from " << request.Height;
+				EXPECT_EQ(*pBlockFromStorage, block) << "comparing blocks at " << i << " from " << request.Height;
 			}
 		}
 

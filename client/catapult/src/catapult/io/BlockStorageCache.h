@@ -23,7 +23,9 @@
 #include "BlockStorage.h"
 #include "catapult/utils/SpinReaderWriterLock.h"
 
-namespace catapult { namespace io { struct CachedData; } }
+namespace catapult { namespace io {
+	struct CachedData;
+}}
 
 namespace catapult { namespace io {
 

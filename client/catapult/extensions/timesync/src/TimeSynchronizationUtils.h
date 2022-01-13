@@ -28,12 +28,14 @@
 #include "catapult/thread/Task.h"
 
 namespace catapult {
-	namespace extensions { class ServiceState; }
-	namespace timesync {
-		struct TimeSynchronizationConfiguration;
-		class TimeSynchronizationState;
-		class TimeSynchronizer;
-	}
+namespace extensions {
+	class ServiceState;
+}
+namespace timesync {
+	struct TimeSynchronizationConfiguration;
+	class TimeSynchronizationState;
+	class TimeSynchronizer;
+}
 }
 
 namespace catapult { namespace timesync {
@@ -42,7 +44,7 @@ namespace catapult { namespace timesync {
 	using TimeSyncRequestResultPair = std::pair<net::NodeRequestResult, CommunicationTimestamps>;
 
 	/// Prototype for a time synchronization result supplier.
-	using TimeSyncResultSupplier = std::function<thread::future<TimeSyncRequestResultPair> (const ionet::Node&)>;
+	using TimeSyncResultSupplier = std::function<thread::future<TimeSyncRequestResultPair>(const ionet::Node&)>;
 
 	/// Gets the time synchronization samples derived from communication timestamps retrieved from \a nodes using \a resultSupplier
 	/// and \a networkTimeSupplier.

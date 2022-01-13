@@ -26,7 +26,9 @@ namespace catapult { namespace model {
 
 #define DEFINE_CASE(RESULT) case utils::to_underlying_type(RESULT)
 
-#define CASE_WELL_KNOWN_ENTITY_TYPE(NAME) DEFINE_CASE(Entity_Type_##NAME): return #NAME
+#define CASE_WELL_KNOWN_ENTITY_TYPE(NAME) \
+	DEFINE_CASE(Entity_Type_##NAME) \
+			: return #NAME
 
 #define CUSTOM_ENTITY_TYPE_DEFINITION 1
 #undef DEFINE_ENTITY_TYPE
@@ -34,32 +36,32 @@ namespace catapult { namespace model {
 #define STR(SYMBOL) #SYMBOL
 
 #define DEFINE_ENTITY_TYPE(BASIC_TYPE, FACILITY, DESCRIPTION, CODE) \
-	DEFINE_CASE(MakeEntityType((model::BasicEntityType::BASIC_TYPE), (model::FacilityCode::FACILITY), CODE)): \
-		return STR(DESCRIPTION)
+	DEFINE_CASE(MakeEntityType((model::BasicEntityType::BASIC_TYPE), (model::FacilityCode::FACILITY), CODE)) \
+			: return STR(DESCRIPTION)
 
 	namespace {
 		const char* ToString(EntityType entityType) {
 			switch (utils::to_underlying_type(entityType)) {
-			// well known types defined in EntityType.h
-			CASE_WELL_KNOWN_ENTITY_TYPE(Block_Nemesis);
-			CASE_WELL_KNOWN_ENTITY_TYPE(Block_Normal);
-			CASE_WELL_KNOWN_ENTITY_TYPE(Block_Importance);
+				// well known types defined in EntityType.h
+				CASE_WELL_KNOWN_ENTITY_TYPE(Block_Nemesis);
+				CASE_WELL_KNOWN_ENTITY_TYPE(Block_Normal);
+				CASE_WELL_KNOWN_ENTITY_TYPE(Block_Importance);
 
-			CASE_WELL_KNOWN_ENTITY_TYPE(Voting_Key_Link);
-			CASE_WELL_KNOWN_ENTITY_TYPE(Vrf_Key_Link);
+				CASE_WELL_KNOWN_ENTITY_TYPE(Voting_Key_Link);
+				CASE_WELL_KNOWN_ENTITY_TYPE(Vrf_Key_Link);
 
-			// plugin entity types
-			#include "plugins/txes/account_link/src/model/AccountLinkEntityType.h"
-			#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
-			#include "plugins/txes/lock_hash/src/model/HashLockEntityType.h"
-			#include "plugins/txes/lock_secret/src/model/SecretLockEntityType.h"
-			#include "plugins/txes/metadata/src/model/MetadataEntityType.h"
-			#include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
-			#include "plugins/txes/multisig/src/model/MultisigEntityType.h"
-			#include "plugins/txes/namespace/src/model/NamespaceEntityType.h"
-			#include "plugins/txes/restriction_account/src/model/AccountRestrictionEntityType.h"
-			#include "plugins/txes/restriction_mosaic/src/model/MosaicRestrictionEntityType.h"
-			#include "plugins/txes/transfer/src/model/TransferEntityType.h"
+// plugin entity types
+#include "plugins/txes/account_link/src/model/AccountLinkEntityType.h"
+#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
+#include "plugins/txes/lock_hash/src/model/HashLockEntityType.h"
+#include "plugins/txes/lock_secret/src/model/SecretLockEntityType.h"
+#include "plugins/txes/metadata/src/model/MetadataEntityType.h"
+#include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
+#include "plugins/txes/multisig/src/model/MultisigEntityType.h"
+#include "plugins/txes/namespace/src/model/NamespaceEntityType.h"
+#include "plugins/txes/restriction_account/src/model/AccountRestrictionEntityType.h"
+#include "plugins/txes/restriction_mosaic/src/model/MosaicRestrictionEntityType.h"
+#include "plugins/txes/transfer/src/model/TransferEntityType.h"
 			}
 
 			return nullptr;

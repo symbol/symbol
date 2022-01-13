@@ -23,7 +23,9 @@
 #include "catapult/ionet/NodeSet.h"
 #include "catapult/thread/Future.h"
 
-namespace catapult { namespace ionet { class PacketIo; } }
+namespace catapult { namespace ionet {
+	class PacketIo;
+}}
 
 namespace catapult { namespace api {
 

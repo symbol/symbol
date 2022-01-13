@@ -23,7 +23,9 @@
 #include "catapult/ionet/NodePacketIoPair.h"
 #include <memory>
 
-namespace catapult { namespace utils { class TimeSpan; } }
+namespace catapult { namespace utils {
+	class TimeSpan;
+}}
 
 namespace catapult { namespace net {
 

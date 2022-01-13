@@ -30,8 +30,8 @@ namespace catapult { namespace builders {
 			, m_duration()
 			, m_nonce()
 			, m_flags()
-			, m_divisibility()
-	{}
+			, m_divisibility() {
+	}
 
 	void MosaicDefinitionBuilder::setDuration(BlockDuration duration) {
 		m_duration = duration;

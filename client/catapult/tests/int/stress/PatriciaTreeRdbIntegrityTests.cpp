@@ -40,8 +40,8 @@ namespace catapult { namespace tree {
 			explicit RocksPatriciaTreeTraits(tree::DataSourceVerbosity)
 					: m_db(DefaultSettings(m_dbDirGuard.name()))
 					, m_container(m_db, 0)
-					, m_dataSource(m_container)
-			{}
+					, m_dataSource(m_container) {
+			}
 
 		public:
 			DataSourceType& dataSource() {

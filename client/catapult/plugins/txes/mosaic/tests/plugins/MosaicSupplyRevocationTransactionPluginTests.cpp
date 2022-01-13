@@ -39,7 +39,7 @@ namespace catapult { namespace plugins {
 		constexpr auto Nemesis_Address = "00D8D4AB2EF2AB24DC69FBFAA0785393CB2E4FD5674E1F07";
 		constexpr auto Nemesis_Public_Key = "50894E4C928C674A1662781003AF2837E1DE54BFA3832D3B582525B98CCE5811";
 
-		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(MosaicSupplyRevocation, Address, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(MosaicSupplyRevocation, Address, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(
@@ -63,11 +63,12 @@ namespace catapult { namespace plugins {
 			transaction.SignerPublicKey = signerPublicKey;
 
 			// Act + Assert:
-			test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-				MosaicRequiredNotification::Notification_Type,
-				AccountAddressNotification::Notification_Type,
-				BalanceTransferNotification::Notification_Type
-			}, utils::ParseByteArray<Address>(Nemesis_Address));
+			test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+					transaction,
+					{ MosaicRequiredNotification::Notification_Type,
+					  AccountAddressNotification::Notification_Type,
+					  BalanceTransferNotification::Notification_Type },
+					utils::ParseByteArray<Address>(Nemesis_Address));
 		}
 	}
 
@@ -89,8 +90,7 @@ namespace catapult { namespace plugins {
 			transaction.SignerPublicKey = signerPublicKey;
 
 			typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
-			builder.template addExpectation<MosaicRequiredNotification>([&transaction, expectedPropertyFlagMask](
-					const auto& notification) {
+			builder.template addExpectation<MosaicRequiredNotification>([&transaction, expectedPropertyFlagMask](const auto& notification) {
 				EXPECT_TRUE(notification.Owner.isResolved());
 				EXPECT_FALSE(notification.MosaicId.isResolved());
 

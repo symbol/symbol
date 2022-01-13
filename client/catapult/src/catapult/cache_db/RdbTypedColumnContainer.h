@@ -93,8 +93,9 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a container around \a database and \a columnId.
 		template<typename TDatabase = RocksDatabase>
-		RdbTypedColumnContainer(TDatabase& database, size_t columnId) : TContainer(database, columnId)
-		{}
+		RdbTypedColumnContainer(TDatabase& database, size_t columnId)
+				: TContainer(database, columnId) {
+		}
 
 	public:
 		/// Returns \c true if container is empty.
@@ -103,10 +104,9 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-
 #if !defined(NDEBUG) && defined(_MSC_VER)
 #pragma warning(push)
-#pragma warning(disable:4702) /* "unreachable code" */
+#pragma warning(disable : 4702) /* "unreachable code" */
 #endif
 
 		/// Inserts \a element into container.

@@ -23,7 +23,9 @@
 #include <string>
 #include <vector>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace config {
 

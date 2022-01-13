@@ -97,8 +97,9 @@ namespace catapult { namespace cache {
 			using IdType = typename TTraits::Type;
 
 		public:
-			explicit DeltaProxy(LockedCacheDelta<AccountStateCacheDelta>&& delta) : m_delta(std::move(delta))
-			{}
+			explicit DeltaProxy(LockedCacheDelta<AccountStateCacheDelta>&& delta)
+					: m_delta(std::move(delta)) {
+			}
 
 		public:
 			size_t size() const {
@@ -149,8 +150,9 @@ namespace catapult { namespace cache {
 		template<typename TTraits>
 		struct CacheProxy : public AccountStateCache {
 		public:
-			CacheProxy() : AccountStateCache(CacheConfiguration(), Default_Cache_Options)
-			{}
+			CacheProxy()
+					: AccountStateCache(CacheConfiguration(), Default_Cache_Options) {
+			}
 
 		public:
 			auto createDelta() {
@@ -191,7 +193,7 @@ namespace catapult { namespace cache {
 
 		// custom modification policy is needed because double insert can be noop (e.g. double address insert)
 		template<typename TTraits>
-		struct AccountStateCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
+		struct AccountStateCacheDeltaModificationPolicy : public test::DeltaInsertModificationPolicy {
 			static void Modify(DeltaProxy<TTraits>& delta, const state::AccountState& accountState) {
 				auto& accountStateFromCache = delta.find(TTraits::ToKey(accountState)).get();
 				accountStateFromCache.Balances.credit(Harvesting_Mosaic_Id, Amount(1));
@@ -202,12 +204,12 @@ namespace catapult { namespace cache {
 #define DEFINE_ACCOUNT_STATE_CACHE_TESTS(TRAITS, SUFFIX) \
 	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, ViewAccessor, _View##SUFFIX) \
 	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX) \
-	\
+\
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, MutableAccessor, _ViewMutable##SUFFIX) \
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, ConstAccessor, _ViewConst##SUFFIX) \
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, MutableAccessor, _DeltaMutable##SUFFIX) \
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, ConstAccessor, _DeltaConst##SUFFIX) \
-	\
+\
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(TRAITS, AccountStateCacheDeltaModificationPolicy<TRAITS::IdTraits>, _Delta##SUFFIX)
 
 	DEFINE_ACCOUNT_STATE_CACHE_TESTS(AccountStateMixinTraits<AddressTraits>, _Address)
@@ -218,7 +220,7 @@ namespace catapult { namespace cache {
 	DEFINE_ACCOUNT_STATE_CACHE_TESTS(AccountStateMixinTraits<PublicKeyTraits>, _PublicKey)
 
 	// only one set of basic tests are needed
-	DEFINE_CACHE_BASIC_TESTS(AccountStateMixinTraits<AddressTraits>,)
+	DEFINE_CACHE_BASIC_TESTS(AccountStateMixinTraits<AddressTraits>, )
 
 	// endregion
 
@@ -281,10 +283,16 @@ namespace catapult { namespace cache {
 	}
 
 #define ID_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_PublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_PublicKey) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -727,21 +735,17 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, AddAccountViaStateDoesNotOverrideKnownAccounts_Address) {
-		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) {
-			delta.addAccount(accountState.Address, accountState.AddressHeight);
-		});
+		AssertAddAccountViaStateDoesNotOverrideKnownAccounts(
+				[](auto& delta, const auto& accountState) { delta.addAccount(accountState.Address, accountState.AddressHeight); });
 	}
 
 	TEST(TEST_CLASS, AddAccountViaStateDoesNotOverrideKnownAccounts_PublicKey) {
-		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) {
-			delta.addAccount(accountState.PublicKey, accountState.PublicKeyHeight);
-		});
+		AssertAddAccountViaStateDoesNotOverrideKnownAccounts(
+				[](auto& delta, const auto& accountState) { delta.addAccount(accountState.PublicKey, accountState.PublicKeyHeight); });
 	}
 
 	TEST(TEST_CLASS, AddAccountViaStateDoesNotOverrideKnownAccounts_AccountState) {
-		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) {
-			delta.addAccount(accountState);
-		});
+		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) { delta.addAccount(accountState); });
 	}
 
 	TEST(TEST_CLASS, AddAccountAutomaticallyOverridesAnyExistingMosaicIdBalanceOptimization) {
@@ -1191,9 +1195,7 @@ namespace catapult { namespace cache {
 		auto delta = cache.createDelta();
 
 		// Assert:
-		AssertCanAccessAllAccountsThroughFindByAddress(*delta, [](auto& c) {
-			return &const_cast<AccountStateCacheDelta&>(c);
-		});
+		AssertCanAccessAllAccountsThroughFindByAddress(*delta, [](auto& c) { return &const_cast<AccountStateCacheDelta&>(c); });
 	}
 
 	TEST(TEST_CLASS, CanAccessAllAccountsThroughFindConstByAddress) {
@@ -1202,9 +1204,7 @@ namespace catapult { namespace cache {
 		auto delta = cache.createDelta();
 
 		// Assert:
-		AssertCanAccessAllAccountsThroughFindByAddress(*delta, [](auto& c) {
-			return &const_cast<const AccountStateCacheDelta&>(c);
-		});
+		AssertCanAccessAllAccountsThroughFindByAddress(*delta, [](auto& c) { return &const_cast<const AccountStateCacheDelta&>(c); });
 	}
 
 	TEST(TEST_CLASS, CanAccessAllAccountsThroughFindByPublicKey) {
@@ -1213,9 +1213,7 @@ namespace catapult { namespace cache {
 		auto delta = cache.createDelta();
 
 		// Assert:
-		AssertCanAccessAllAccountsThroughFindByPublicKey(*delta, [](auto& c) {
-			return &const_cast<AccountStateCacheDelta&>(c);
-		});
+		AssertCanAccessAllAccountsThroughFindByPublicKey(*delta, [](auto& c) { return &const_cast<AccountStateCacheDelta&>(c); });
 	}
 
 	TEST(TEST_CLASS, CanAccessAllAccountsThroughFindConstByPublicKey) {
@@ -1224,9 +1222,7 @@ namespace catapult { namespace cache {
 		auto delta = cache.createDelta();
 
 		// Assert:
-		AssertCanAccessAllAccountsThroughFindByPublicKey(*delta, [](auto& c) {
-			return &const_cast<const AccountStateCacheDelta&>(c);
-		});
+		AssertCanAccessAllAccountsThroughFindByPublicKey(*delta, [](auto& c) { return &const_cast<const AccountStateCacheDelta&>(c); });
 	}
 
 	// endregion
@@ -1429,9 +1425,9 @@ namespace catapult { namespace cache {
 			{
 				// - add 3/5 accounts with sufficient balance [3 match]
 				auto delta = cache.createDelta();
-				addresses = AddAccountsWithBalances(*delta, {
-					Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000)
-				});
+				addresses = AddAccountsWithBalances(
+						*delta,
+						{ Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000) });
 				delta->updateHighValueAccounts(Height(1));
 				cache.commit();
 			}
@@ -1479,9 +1475,9 @@ namespace catapult { namespace cache {
 			{
 				// - add 3/5 accounts with sufficient balance [3 match]
 				auto delta = cache.createDelta();
-				addresses = AddAccountsWithBalances(*delta, {
-					Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000)
-				});
+				addresses = AddAccountsWithBalances(
+						*delta,
+						{ Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000) });
 				delta->updateHighValueAccounts(Height(1));
 				cache.commit();
 			}
@@ -1562,9 +1558,14 @@ namespace catapult { namespace cache {
 			std::vector<Address> addresses;
 			{
 				auto delta = cache.createDelta();
-				addresses = AddAccountsWithBalances(*delta, {
-					Amount(1'100'000), Amount(1'900'000), Amount(1'000'000), Amount(2'000'000), Amount(1'200'000), Amount(1'500'000)
-				});
+				addresses = AddAccountsWithBalances(
+						*delta,
+						{ Amount(1'100'000),
+						  Amount(1'900'000),
+						  Amount(1'000'000),
+						  Amount(2'000'000),
+						  Amount(1'200'000),
+						  Amount(1'500'000) });
 				delta->updateHighValueAccounts(Height(1));
 				cache.commit();
 			}

@@ -33,9 +33,8 @@ namespace catapult { namespace model {
 		}
 
 		struct GroupFinalizationMessageComparer {
-			bool operator()(
-					const std::shared_ptr<const FinalizationMessage>& pLhs,
-					const std::shared_ptr<const FinalizationMessage>& pRhs) const {
+			bool operator()(const std::shared_ptr<const FinalizationMessage>& pLhs, const std::shared_ptr<const FinalizationMessage>& pRhs)
+					const {
 				if (pLhs->Size != pRhs->Size)
 					return pLhs->Size < pRhs->Size;
 
@@ -44,10 +43,8 @@ namespace catapult { namespace model {
 			}
 		};
 
-		using MessageSignatureGroups = std::map<
-			std::shared_ptr<const FinalizationMessage>,
-			std::vector<crypto::BmTreeSignature>,
-			GroupFinalizationMessageComparer>;
+		using MessageSignatureGroups = std::
+				map<std::shared_ptr<const FinalizationMessage>, std::vector<crypto::BmTreeSignature>, GroupFinalizationMessageComparer>;
 
 		MutableMessageGroups GroupMessages(const model::FinalizationRound& round, const ConstMessages& messages) {
 			MessageSignatureGroups messageSignatureGroups;
@@ -56,17 +53,14 @@ namespace catapult { namespace model {
 					if (expected == actual)
 						return true;
 
-					CATAPULT_LOG(warning)
-							<< "skipping message with unexpected " << description << " " << actual
-							<< " from " << message.Signature.Root.ParentPublicKey
-							<< " when grouping messages at round " << round;
+					CATAPULT_LOG(warning) << "skipping message with unexpected " << description << " " << actual << " from "
+										  << message.Signature.Root.ParentPublicKey << " when grouping messages at round " << round;
 					return false;
 				};
 
-				auto canGroup =
-						checkEqual(round, pMessage->StepIdentifier.Round(), "round")
-						&& checkEqual(0u, pMessage->FinalizationMessage_Reserved1, "padding")
-						&& checkEqual(FinalizationMessage::Current_Version, pMessage->Version, "version");
+				auto canGroup = checkEqual(round, pMessage->StepIdentifier.Round(), "round")
+								&& checkEqual(0u, pMessage->FinalizationMessage_Reserved1, "padding")
+								&& checkEqual(FinalizationMessage::Current_Version, pMessage->Version, "version");
 				if (!canGroup)
 					continue;
 

@@ -25,7 +25,7 @@
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable:4267) /* "conversion from 'size_t' to 'uint32_t', possible loss of data" */
+#pragma warning(disable : 4267) /* "conversion from 'size_t' to 'uint32_t', possible loss of data" */
 #endif
 #include <zmq_addon.hpp>
 #ifdef _MSC_VER
@@ -33,17 +33,19 @@
 #endif
 
 namespace catapult {
-	namespace model {
-		struct BlockElement;
-		struct Cosignature;
-		struct FinalizationRound;
-		struct Transaction;
-		struct TransactionElement;
-		struct TransactionInfo;
-		class TransactionRegistry;
-		struct TransactionStatus;
-	}
-	namespace zeromq { struct PackedFinalizedBlockHeader; }
+namespace model {
+	struct BlockElement;
+	struct Cosignature;
+	struct FinalizationRound;
+	struct Transaction;
+	struct TransactionElement;
+	struct TransactionInfo;
+	class TransactionRegistry;
+	struct TransactionStatus;
+}
+namespace zeromq {
+	struct PackedFinalizedBlockHeader;
+}
 }
 
 namespace catapult { namespace zeromq {

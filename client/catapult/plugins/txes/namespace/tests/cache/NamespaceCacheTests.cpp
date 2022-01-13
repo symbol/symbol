@@ -38,8 +38,9 @@ namespace catapult { namespace cache {
 		struct NamespaceCacheMixinTraits {
 			class CacheType : public NamespaceCache {
 			public:
-				CacheType() : NamespaceCache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(11) })
-				{}
+				CacheType()
+						: NamespaceCache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(11) }) {
+				}
 			};
 
 			using IdType = NamespaceId;
@@ -77,7 +78,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(NamespaceCacheMixinTraits, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(NamespaceCacheMixinTraits,)
+	DEFINE_CACHE_BASIC_TESTS(NamespaceCacheMixinTraits, )
 
 	// (accessors and predicates have custom tests because they're depedent on multiple caches)
 
@@ -300,10 +301,16 @@ namespace catapult { namespace cache {
 	}
 
 #define DELTA_VIEW_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_View) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ViewTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Delta) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeltaTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_View) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ViewTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Delta) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeltaTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -1124,7 +1131,7 @@ namespace catapult { namespace cache {
 
 	// region prune
 
-	DEFINE_CACHE_PRUNE_TESTS(NamespaceCacheMixinTraits,)
+	DEFINE_CACHE_PRUNE_TESTS(NamespaceCacheMixinTraits, )
 
 	namespace {
 		void SetupCacheForPruneTests(NamespaceCache& cache, const Address& rootOwner) {

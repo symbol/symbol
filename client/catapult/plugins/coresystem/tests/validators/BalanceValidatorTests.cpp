@@ -31,8 +31,8 @@
 
 namespace catapult { namespace validators {
 
-	DEFINE_COMMON_VALIDATOR_TESTS(BalanceTransfer,)
-	DEFINE_COMMON_VALIDATOR_TESTS(BalanceDebit,)
+	DEFINE_COMMON_VALIDATOR_TESTS(BalanceTransfer, )
+	DEFINE_COMMON_VALIDATOR_TESTS(BalanceDebit, )
 
 #define TEST_CLASS BalanceValidatorTests // used to generate unique function names in macros
 #define TRANSFER_TEST_CLASS BalanceTransferValidatorTests
@@ -135,11 +135,19 @@ namespace catapult { namespace validators {
 	// region traits
 
 #define TRANSFER_OR_DEBIT_TEST(TEST_NAME) \
-	template<typename TValidatorTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TRANSFER_TEST_CLASS, TEST_NAME##_Static) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferStaticTraits>(); } \
-	TEST(TRANSFER_TEST_CLASS, TEST_NAME##_Dynamic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferDynamicTraits>(); } \
-	TEST(DEBIT_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DebitTraits>(); } \
-	template<typename TValidatorTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TValidatorTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TRANSFER_TEST_CLASS, TEST_NAME##_Static) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferStaticTraits>(); \
+	} \
+	TEST(TRANSFER_TEST_CLASS, TEST_NAME##_Dynamic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferDynamicTraits>(); \
+	} \
+	TEST(DEBIT_TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DebitTraits>(); \
+	} \
+	template<typename TValidatorTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define VARIABLE_BALANCE_TEST_GROUP(GROUP_TEST_CLASS, TEST_NAME, TEST_POSTFIX, TRAITS_NAME) \
 	TEST(GROUP_TEST_CLASS, SuccessWhenBalanceIsGreater_##TEST_NAME##TEST_POSTFIX) { \
@@ -153,11 +161,13 @@ namespace catapult { namespace validators {
 	}
 
 #define VARIABLE_BALANCE_TEST(TEST_NAME) \
-	template<typename TValidatorTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TValidatorTraits, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	VARIABLE_BALANCE_TEST_GROUP(TRANSFER_TEST_CLASS, TEST_NAME, _Static, TransferStaticTraits) \
 	VARIABLE_BALANCE_TEST_GROUP(TRANSFER_TEST_CLASS, TEST_NAME, _Dynamic, TransferDynamicTraits) \
 	VARIABLE_BALANCE_TEST_GROUP(DEBIT_TEST_CLASS, TEST_NAME, , DebitTraits) \
-	template<typename TValidatorTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TValidatorTraits, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

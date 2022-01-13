@@ -31,17 +31,16 @@ namespace catapult { namespace mocks {
 					: m_tag(tag)
 					, m_breadcrumbs(breadcrumbs)
 					, m_result(result)
-					, m_name(std::to_string(m_tag))
-			{}
+					, m_name(std::to_string(m_tag)) {
+			}
 
 		public:
 			const std::string& name() const override {
 				return m_name;
 			}
 
-			validators::ValidationResult validate(
-					const TTaggedNotification& notification,
-					const validators::ValidatorContext&) const override {
+			validators::ValidationResult validate(const TTaggedNotification& notification, const validators::ValidatorContext&)
+					const override {
 				m_breadcrumbs.push_back(static_cast<uint16_t>(notification.Tag << 8 | m_tag));
 				return m_result;
 			}

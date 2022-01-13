@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicRequiredValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(RequiredMosaic,)
+	DEFINE_COMMON_VALIDATOR_TESTS(RequiredMosaic, )
 
 	namespace {
 		constexpr auto Mosaic_Expiry_Height = Height(150);
@@ -47,10 +47,16 @@ namespace catapult { namespace validators {
 	}
 
 #define MOSAIC_ID_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Resolved) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ResolvedMosaicTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Unresolved) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UnresolvedMosaicTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Resolved) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ResolvedMosaicTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Unresolved) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UnresolvedMosaicTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region zero property mask
 
@@ -153,9 +159,8 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification, context);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "notificationPropertyFlagMask " << static_cast<uint16_t>(notificationPropertyFlagMask)
-					<< "mosaicPropertyFlagMask " << static_cast<uint16_t>(mosaicPropertyFlagMask);
+			EXPECT_EQ(expectedResult, result) << "notificationPropertyFlagMask " << static_cast<uint16_t>(notificationPropertyFlagMask)
+											  << "mosaicPropertyFlagMask " << static_cast<uint16_t>(mosaicPropertyFlagMask);
 		}
 	}
 

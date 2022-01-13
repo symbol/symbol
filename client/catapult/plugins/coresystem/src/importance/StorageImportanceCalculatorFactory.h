@@ -23,7 +23,9 @@
 #include "ImportanceCalculator.h"
 #include "catapult/config/CatapultDataDirectory.h"
 
-namespace catatpult { namespace model { struct BlockchainConfiguration; } }
+namespace catatpult { namespace model {
+	struct BlockchainConfiguration;
+}}
 
 namespace catapult { namespace importance {
 

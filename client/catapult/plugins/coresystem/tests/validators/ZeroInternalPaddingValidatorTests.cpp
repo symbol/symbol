@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS ZeroInternalPaddingValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(ZeroInternalPadding,)
+	DEFINE_COMMON_VALIDATOR_TESTS(ZeroInternalPadding, )
 
 	namespace {
 		void AssertValidationResult(ValidationResult expectedResult, uint64_t padding) {

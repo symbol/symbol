@@ -25,8 +25,8 @@ namespace catapult { namespace state {
 
 	AccountRestriction::AccountRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize)
 			: m_restrictionDescriptor(restrictionFlags | model::AccountRestrictionFlags::Block)
-			, m_restrictionValueSize(restrictionValueSize)
-	{}
+			, m_restrictionValueSize(restrictionValueSize) {
+	}
 
 	const AccountRestrictionDescriptor& AccountRestriction::descriptor() const {
 		return m_restrictionDescriptor;
@@ -75,11 +75,11 @@ namespace catapult { namespace state {
 			CATAPULT_THROW_INVALID_ARGUMENT_2("invalid value size (expected / actual)", m_restrictionValueSize, modification.Value.size());
 
 		auto validOperationType = AccountRestrictionOperationType::Allow == operationType
-				? AccountRestrictionOperationType::Allow == m_restrictionDescriptor.operationType()
-				: AccountRestrictionOperationType::Block == m_restrictionDescriptor.operationType();
+										  ? AccountRestrictionOperationType::Allow == m_restrictionDescriptor.operationType()
+										  : AccountRestrictionOperationType::Block == m_restrictionDescriptor.operationType();
 		auto validContainment = model::AccountRestrictionModificationAction::Add == modification.ModificationAction
-				? !contains(modification.Value)
-				: contains(modification.Value);
+										? !contains(modification.Value)
+										: contains(modification.Value);
 		return (m_values.empty() || validOperationType) && validContainment;
 	}
 

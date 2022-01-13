@@ -25,7 +25,9 @@
 #include "catapult/functions.h"
 #include <string>
 
-namespace catapult { namespace config { class CatapultDirectory; } }
+namespace catapult { namespace config {
+	class CatapultDirectory;
+}}
 
 namespace catapult { namespace harvesting {
 

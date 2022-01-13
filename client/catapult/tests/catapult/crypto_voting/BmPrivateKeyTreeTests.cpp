@@ -47,12 +47,13 @@ namespace catapult { namespace crypto {
 
 		class TestContext {
 		public:
-			TestContext() : m_tree(BmPrivateKeyTree::Create(GenerateKeyPair(), m_storage, Default_Options))
-			{}
+			TestContext()
+					: m_tree(BmPrivateKeyTree::Create(GenerateKeyPair(), m_storage, Default_Options)) {
+			}
 
 			TestContext(TestContext& originalContext)
-					: m_tree(BmPrivateKeyTree::FromStream(CopyInto(originalContext.m_storage, m_storage)))
-			{}
+					: m_tree(BmPrivateKeyTree::FromStream(CopyInto(originalContext.m_storage, m_storage))) {
+			}
 
 		public:
 			auto& storage() {
@@ -170,12 +171,7 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, CanSignWithMultipleIncreasingValidKeys) {
 		// Arrange:
 		TestContext context;
-		std::initializer_list<BmKeyIdentifier> keyIdentifiers{
-			{ 71 },
-			{ 73 },
-			{ 74 },
-			{ 78 }
-		};
+		std::initializer_list<BmKeyIdentifier> keyIdentifiers{ { 71 }, { 73 }, { 74 }, { 78 } };
 
 		// Act:
 		for (const auto& keyIdentifier : keyIdentifiers)
@@ -288,7 +284,7 @@ namespace catapult { namespace crypto {
 		context.tree().sign({ 75 }, test::GenerateRandomArray<10>());
 
 		// Act:
-		for (auto i = 0u; i < 5; ++ i)
+		for (auto i = 0u; i < 5; ++i)
 			context.tree().wipe({ 75 });
 
 		// Assert:

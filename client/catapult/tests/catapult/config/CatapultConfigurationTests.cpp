@@ -42,12 +42,8 @@ namespace catapult { namespace config {
 
 		const char* Resources_Path = "../resources";
 		const char* Config_Filenames[] = {
-			"config-extensions-server.properties",
-			"config-inflation.properties",
-			"config-logging-server.properties",
-			"config-network.properties",
-			"config-node.properties",
-			"config-user.properties"
+			"config-extensions-server.properties", "config-inflation.properties", "config-logging-server.properties",
+			"config-network.properties",		   "config-node.properties",	  "config-user.properties"
 		};
 
 		void AssertDefaultBlockchainConfiguration(const model::BlockchainConfiguration& config) {
@@ -311,12 +307,21 @@ namespace catapult { namespace config {
 		AssertDefaultNodeConfiguration(config.Node);
 		AssertDefaultLoggingConfiguration(config.Logging, "catapult_server%4N.log");
 		AssertDefaultUserConfiguration(config.User);
-		AssertDefaultExtensionsConfiguration(config.Extensions, {
-			"extension.harvesting", "extension.syncsource",
-			"extension.diagnostics", "extension.finalization", "extension.hashcache", "extension.networkheight",
-			"extension.nodediscovery", "extension.packetserver", "extension.pluginhandlers", "extension.sync",
-			"extension.timesync", "extension.transactionsink", "extension.unbondedpruning"
-		});
+		AssertDefaultExtensionsConfiguration(
+				config.Extensions,
+				{ "extension.harvesting",
+				  "extension.syncsource",
+				  "extension.diagnostics",
+				  "extension.finalization",
+				  "extension.hashcache",
+				  "extension.networkheight",
+				  "extension.nodediscovery",
+				  "extension.packetserver",
+				  "extension.pluginhandlers",
+				  "extension.sync",
+				  "extension.timesync",
+				  "extension.transactionsink",
+				  "extension.unbondedpruning" });
 		AssertDefaultInflationConfiguration(config.Inflation);
 	}
 
@@ -329,10 +334,9 @@ namespace catapult { namespace config {
 		AssertDefaultNodeConfiguration(config.Node);
 		AssertDefaultLoggingConfiguration(config.Logging, "catapult_broker%4N.log");
 		AssertDefaultUserConfiguration(config.User);
-		AssertDefaultExtensionsConfiguration(config.Extensions, {
-			"extension.addressextraction", "extension.mongo", "extension.zeromq",
-			"extension.hashcache"
-		});
+		AssertDefaultExtensionsConfiguration(
+				config.Extensions,
+				{ "extension.addressextraction", "extension.mongo", "extension.zeromq", "extension.hashcache" });
 		AssertDefaultInflationConfiguration(config.Inflation);
 	}
 

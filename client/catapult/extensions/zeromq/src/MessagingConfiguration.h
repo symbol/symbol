@@ -22,7 +22,9 @@
 #pragma once
 #include <filesystem>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace zeromq {
 

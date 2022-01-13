@@ -51,15 +51,16 @@ namespace catapult { namespace cache {
 				, MosaicCacheViewMixins::Iteration(mosaicSets.Primary)
 				, MosaicCacheViewMixins::ConstAccessor(mosaicSets.Primary)
 				, MosaicCacheViewMixins::PatriciaTreeView(mosaicSets.PatriciaTree.get())
-				, MosaicCacheViewMixins::ActivePredicate(mosaicSets.Primary)
-		{}
+				, MosaicCacheViewMixins::ActivePredicate(mosaicSets.Primary) {
+		}
 	};
 
 	/// View on top of the mosaic cache.
 	class MosaicCacheView : public ReadOnlyViewSupplier<BasicMosaicCacheView> {
 	public:
 		/// Creates a view around \a mosaicSets.
-		explicit MosaicCacheView(const MosaicCacheTypes::BaseSets& mosaicSets) : ReadOnlyViewSupplier(mosaicSets)
-		{}
+		explicit MosaicCacheView(const MosaicCacheTypes::BaseSets& mosaicSets)
+				: ReadOnlyViewSupplier(mosaicSets) {
+		}
 	};
 }}

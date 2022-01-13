@@ -38,37 +38,25 @@ namespace catapult { namespace finalization {
 			using ConfigurationType = FinalizationConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"finalization",
-						{
-							{ "enableVoting", "true" },
-							{ "enableRevoteOnBoot", "true" },
+				return { { "finalization",
+						   { { "enableVoting", "true" },
+							 { "enableRevoteOnBoot", "true" },
 
-							{ "size", "987" },
-							{ "threshold", "579" },
-							{ "stepDuration", "12s" },
+							 { "size", "987" },
+							 { "threshold", "579" },
+							 { "stepDuration", "12s" },
 
-							{ "shortLivedCacheMessageDuration", "53m" },
-							{ "messageSynchronizationMaxResponseSize", "234KB" },
+							 { "shortLivedCacheMessageDuration", "53m" },
+							 { "messageSynchronizationMaxResponseSize", "234KB" },
 
-							{ "maxHashesPerPoint", "123" },
-							{ "prevoteBlocksMultiple", "7" },
+							 { "maxHashesPerPoint", "123" },
+							 { "prevoteBlocksMultiple", "7" },
 
-							{ "unfinalizedBlocksDuration", "7m" },
+							 { "unfinalizedBlocksDuration", "7m" },
 
-							{ "treasuryReissuanceEpoch", "99" }
-						}
-					},
-					{
-						"treasury_reissuance_epoch_ineligible_voter_addresses",
-						{
-							{ Address_1, "true" },
-							{ Address_2, "false" },
-							{ Address_3, "true" }
-						}
-					}
-				};
+							 { "treasuryReissuanceEpoch", "99" } } },
+						 { "treasury_reissuance_epoch_ineligible_voter_addresses",
+						   { { Address_1, "true" }, { Address_2, "false" }, { Address_3, "true" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string& section) {

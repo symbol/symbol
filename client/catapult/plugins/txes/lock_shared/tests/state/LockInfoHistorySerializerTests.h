@@ -39,8 +39,8 @@ namespace catapult { namespace state {
 				, MosaicId(lockInfo.MosaicId)
 				, Amount(lockInfo.Amount)
 				, Height(lockInfo.EndHeight)
-				, Status(lockInfo.Status)
-		{}
+				, Status(lockInfo.Status) {
+		}
 
 	public:
 		Address OwnerAddress;
@@ -202,13 +202,15 @@ namespace catapult { namespace state {
 }}
 
 #define MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockInfoHistorySerializerTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		LockInfoHistorySerializerTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_LOCK_INFO_HISTORY_SERIALIZER_TESTS(TRAITS_NAME) \
 	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CanSaveEmptyLockInfoHistory) \
 	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CanSaveSingleLockInfoHistory) \
 	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CanRoundtripSingleLockInfoHistory) \
-	\
+\
 	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CannotSaveEmptyLockInfoHistoryNonHistorical) \
 	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CanSaveSingleLockInfoHistoryNonHistorical) \
 	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CanRoundtripSingleLockInfoHistoryNonHistorical)

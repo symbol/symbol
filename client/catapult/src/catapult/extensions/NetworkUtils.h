@@ -28,8 +28,12 @@
 #include "catapult/thread/MultiServicePool.h"
 
 namespace catapult {
-	namespace net { class AcceptedConnectionContainer; }
-	namespace subscribers { class NodeSubscriber; }
+namespace net {
+	class AcceptedConnectionContainer;
+}
+namespace subscribers {
+	class NodeSubscriber;
+}
 }
 
 namespace catapult { namespace extensions {

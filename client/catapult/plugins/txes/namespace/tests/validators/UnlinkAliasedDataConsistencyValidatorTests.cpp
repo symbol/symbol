@@ -58,9 +58,9 @@ namespace catapult { namespace validators {
 
 			template<typename TSeedCacheFunc>
 			static void RunUnlinkValidatorTest(
-				validators::ValidationResult expectedResult,
-				const NotificationType& notification,
-				TSeedCacheFunc seedCache) {
+					validators::ValidationResult expectedResult,
+					const NotificationType& notification,
+					TSeedCacheFunc seedCache) {
 				// Arrange:
 				auto cache = CreateAndSeedCache(seedCache);
 				auto pValidator = TTraits::CreateValidator();
@@ -135,7 +135,9 @@ namespace catapult { namespace validators {
 	}
 
 #define MAKE_UNLINK_VALIDATOR_TEST(TEST_CLASS, TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { UnlinkAliasedDataConsistencyValidatorTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		UnlinkAliasedDataConsistencyValidatorTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_ALIAS_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_NAME) \
 	MAKE_UNLINK_VALIDATOR_TEST(TEST_CLASS, TRAITS_NAME, SuccessWhenActionIsNotUnlink) \
@@ -160,7 +162,7 @@ namespace catapult { namespace validators {
 		};
 	}
 
-	DEFINE_COMMON_VALIDATOR_TESTS(UnlinkAliasedAddressConsistency,)
+	DEFINE_COMMON_VALIDATOR_TESTS(UnlinkAliasedAddressConsistency, )
 
 	DEFINE_ALIAS_TRANSACTION_PLUGIN_TESTS(UnlinkAliasedAddressConsistencyValidatorTests, AddressTraits)
 
@@ -181,7 +183,7 @@ namespace catapult { namespace validators {
 		};
 	}
 
-	DEFINE_COMMON_VALIDATOR_TESTS(UnlinkAliasedMosaicIdConsistency,)
+	DEFINE_COMMON_VALIDATOR_TESTS(UnlinkAliasedMosaicIdConsistency, )
 
 	DEFINE_ALIAS_TRANSACTION_PLUGIN_TESTS(UnlinkAliasedMosaicIdConsistencyValidatorTests, MosaicIdTraits)
 

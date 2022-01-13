@@ -83,8 +83,8 @@ namespace catapult { namespace test {
 		using UnresolvedValueType = model::EntityType;
 		using ValueType = model::EntityType;
 
-		static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::TransactionType
-				| model::AccountRestrictionFlags::Outgoing;
+		static constexpr auto Restriction_Flags =
+				model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
 		static constexpr auto Restriction_Value_Size = sizeof(ValueType);
 
 		static auto RandomUnresolvedValue() {

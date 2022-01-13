@@ -35,14 +35,8 @@ namespace catapult { namespace config {
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
 				return {
-					{
-						"inflation",
-						{
-							{ "starting-at-height-12", "567" },
-							{ "starting-at-height-35", "678" },
-							{ "starting-at-height-159", "789" }
-						}
-					}
+					{ "inflation",
+					  { { "starting-at-height-12", "567" }, { "starting-at-height-35", "678" }, { "starting-at-height-159", "789" } } }
 				};
 			}
 

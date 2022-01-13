@@ -23,7 +23,9 @@
 #include "src/model/AccountRestrictionFlags.h"
 #include "src/state/AccountRestrictionDescriptor.h"
 
-namespace catapult { namespace state { class AccountRestrictions; } }
+namespace catapult { namespace state {
+	class AccountRestrictions;
+}}
 
 namespace catapult { namespace test {
 

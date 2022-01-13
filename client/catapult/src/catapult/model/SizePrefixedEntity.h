@@ -63,7 +63,7 @@ namespace catapult { namespace model {
 	const TYPE* NAME##Ptr() const { \
 		return reinterpret_cast<const TYPE*>(NAME##PtrT(*this)); \
 	} \
-	\
+\
 	/* Returns a pointer to the typed data contained in this entity. */ \
 	TYPE* NAME##Ptr() { \
 		return reinterpret_cast<TYPE*>(NAME##PtrT(*this)); \

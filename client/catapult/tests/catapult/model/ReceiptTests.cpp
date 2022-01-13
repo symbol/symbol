@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(4u + 4, sizeof(Receipt));
 	}
 
-	TEST(TEST_CLASS, ReceiptHasProperAlignment) {
+	TEST(TEST_CLASS, ReceiptHasProperAlignment){
 #define FIELD(X) EXPECT_ALIGNED(Receipt, X);
 		RECEIPT_FIELDS
 #undef FIELD
@@ -71,7 +71,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(8u + 64, sizeof(BalanceTransferReceipt));
 	}
 
-	TEST(TEST_CLASS, BalanceTransferReceiptHasProperAlignment) {
+	TEST(TEST_CLASS, BalanceTransferReceiptHasProperAlignment){
 #define FIELD(X) EXPECT_ALIGNED(BalanceTransferReceipt, X);
 		RECEIPT_FIELDS
 #undef FIELD
@@ -116,7 +116,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(8u + 40, sizeof(BalanceChangeReceipt));
 	}
 
-	TEST(TEST_CLASS, BalanceChangeReceiptHasProperAlignment) {
+	TEST(TEST_CLASS, BalanceChangeReceiptHasProperAlignment){
 #define FIELD(X) EXPECT_ALIGNED(BalanceChangeReceipt, X);
 		RECEIPT_FIELDS
 #undef FIELD
@@ -159,7 +159,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(8u + 16, sizeof(InflationReceipt));
 	}
 
-	TEST(TEST_CLASS, InflationReceiptHasProperAlignment) {
+	TEST(TEST_CLASS, InflationReceiptHasProperAlignment){
 #define FIELD(X) EXPECT_ALIGNED(InflationReceipt, X);
 		RECEIPT_FIELDS
 #undef FIELD
@@ -198,7 +198,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(8u + 8, sizeof(ArtifactExpiryReceipt<uint64_t>));
 	}
 
-	TEST(TEST_CLASS, ArtifactExpiryReceiptHasProperAlignment) {
+	TEST(TEST_CLASS, ArtifactExpiryReceiptHasProperAlignment){
 #define FIELD(X) EXPECT_ALIGNED(ArtifactExpiryReceipt<uint64_t>, X);
 		RECEIPT_FIELDS
 #undef FIELD

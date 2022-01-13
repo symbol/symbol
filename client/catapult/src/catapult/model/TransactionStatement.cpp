@@ -25,8 +25,9 @@
 
 namespace catapult { namespace model {
 
-	TransactionStatement::TransactionStatement(const ReceiptSource& source) : m_source(source)
-	{}
+	TransactionStatement::TransactionStatement(const ReceiptSource& source)
+			: m_source(source) {
+	}
 
 	const ReceiptSource& TransactionStatement::source() const {
 		return m_source;
@@ -52,10 +53,8 @@ namespace catapult { namespace model {
 
 		auto receiptHeaderSize = sizeof(Receipt::Size);
 		for (const auto& pReceipt : m_receipts) {
-			hashBuilder.update({
-				reinterpret_cast<const uint8_t*>(pReceipt.get()) + receiptHeaderSize,
-				pReceipt->Size - receiptHeaderSize
-			});
+			hashBuilder.update(
+					{ reinterpret_cast<const uint8_t*>(pReceipt.get()) + receiptHeaderSize, pReceipt->Size - receiptHeaderSize });
 		}
 
 		Hash256 hash;

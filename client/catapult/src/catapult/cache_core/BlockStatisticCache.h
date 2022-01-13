@@ -26,10 +26,8 @@
 
 namespace catapult { namespace cache {
 
-	using BlockStatisticBasicCache = BasicCache<
-		BlockStatisticCacheDescriptor,
-		BlockStatisticCacheTypes::BaseSets,
-		BlockStatisticCacheTypes::Options>;
+	using BlockStatisticBasicCache =
+			BasicCache<BlockStatisticCacheDescriptor, BlockStatisticCacheTypes::BaseSets, BlockStatisticCacheTypes::Options>;
 
 	/// Cache composed of block statistic information.
 	/// \note The ordering of the elements is solely done by comparing the block height contained in the element.
@@ -38,8 +36,8 @@ namespace catapult { namespace cache {
 		/// Creates a cache with the specified history size (\a historySize).
 		explicit BasicBlockStatisticCache(uint64_t historySize)
 				// block statistic cache must always be an in-memory cache
-				: BlockStatisticBasicCache(CacheConfiguration(), BlockStatisticCacheTypes::Options{ historySize })
-		{}
+				: BlockStatisticBasicCache(CacheConfiguration(), BlockStatisticCacheTypes::Options{ historySize }) {
+		}
 	};
 
 	/// Synchronized cache composed of block statistic information.
@@ -50,7 +48,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a cache with the specified history size (\a historySize).
 		explicit BlockStatisticCache(uint64_t historySize)
-				: SynchronizedCache<BasicBlockStatisticCache>(BasicBlockStatisticCache(historySize))
-		{}
+				: SynchronizedCache<BasicBlockStatisticCache>(BasicBlockStatisticCache(historySize)) {
+		}
 	};
 }}

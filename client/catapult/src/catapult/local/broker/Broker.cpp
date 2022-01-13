@@ -49,8 +49,8 @@ namespace catapult { namespace local {
 					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
 					, m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
 					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
-					, m_pluginManager(m_pBootstrapper->pluginManager())
-			{}
+					, m_pluginManager(m_pBootstrapper->pluginManager()) {
+			}
 
 			~DefaultBroker() override {
 				shutdown();
@@ -85,11 +85,12 @@ namespace catapult { namespace local {
 				pScheduler->addTask(createIngestionTask("unconfirmed_transactions_change", *m_pUtChangeSubscriber, ReadNextUtChange));
 				pScheduler->addTask(createIngestionTask("partial_transactions_change", *m_pPtChangeSubscriber, ReadNextPtChange));
 				pScheduler->addTask(createIngestionTask("finalization", *m_pFinalizationSubscriber, ReadNextFinalization));
-				pScheduler->addTask(createIngestionTask("state_change", *m_pStateChangeSubscriber, [&catapultCache = m_catapultCache](
-						auto& inputStream,
-						auto& subscriber) {
-					return ReadNextStateChange(inputStream, catapultCache.changesStorages(), subscriber);
-				}));
+				pScheduler->addTask(createIngestionTask(
+						"state_change",
+						*m_pStateChangeSubscriber,
+						[&catapultCache = m_catapultCache](auto& inputStream, auto& subscriber) {
+							return ReadNextStateChange(inputStream, catapultCache.changesStorages(), subscriber);
+						}));
 				pScheduler->addTask(createIngestionTask("transaction_status", *m_pTransactionStatusSubscriber, ReadNextTransactionStatus));
 			}
 

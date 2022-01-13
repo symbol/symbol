@@ -30,8 +30,8 @@ namespace catapult { namespace extensions {
 	namespace {
 		class MemoryStreamContext {
 		public:
-			explicit MemoryStreamContext(const char*)
-			{}
+			explicit MemoryStreamContext(const char*) {
+			}
 
 			auto outputStream() {
 				return std::make_unique<MemoryStream>(m_buffer);

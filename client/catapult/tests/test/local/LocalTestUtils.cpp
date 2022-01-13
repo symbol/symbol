@@ -60,8 +60,8 @@ namespace catapult { namespace test {
 			config.ShortLivedCacheMaxSize = 10;
 
 			// allow transactions with current time to be included in block two
-			config.MaxTimeBehindPullTransactionsStart = utils::TimeSpan::FromMilliseconds(
-					(CreateDefaultNetworkTimeSupplier()() + utils::TimeSpan::FromHours(1)).unwrap());
+			config.MaxTimeBehindPullTransactionsStart =
+					utils::TimeSpan::FromMilliseconds((CreateDefaultNetworkTimeSupplier()() + utils::TimeSpan::FromHours(1)).unwrap());
 			config.UnconfirmedTransactionsCacheMaxSize = utils::FileSize::FromMegabytes(5);
 
 			config.ConnectTimeout = utils::TimeSpan::FromSeconds(10);
@@ -163,9 +163,8 @@ namespace catapult { namespace test {
 
 		config.User.SeedDirectory = (std::filesystem::path(dataDirectory) / "seed").generic_string();
 		config.User.DataDirectory = dataDirectory;
-		config.User.CertificateDirectory = dataDirectory.empty()
-				? GetDefaultCertificateDirectory()
-				: (std::filesystem::path(dataDirectory) / "cert").generic_string();
+		config.User.CertificateDirectory =
+				dataDirectory.empty() ? GetDefaultCertificateDirectory() : (std::filesystem::path(dataDirectory) / "cert").generic_string();
 		return config.ToConst();
 	}
 
@@ -202,12 +201,13 @@ namespace catapult { namespace test {
 			for (const auto& pair : config.Plugins)
 				LoadPluginByName(*pPluginManager, modules, "", pair.first);
 
-			return std::shared_ptr<plugins::PluginManager>(pPluginManager.get(), [pPluginManager, modules = std::move(modules)](
-					const auto*) mutable {
-				// destroy the modules after the plugin manager
-				pPluginManager.reset();
-				modules.clear();
-			});
+			return std::shared_ptr<plugins::PluginManager>(
+					pPluginManager.get(),
+					[pPluginManager, modules = std::move(modules)](const auto*) mutable {
+						// destroy the modules after the plugin manager
+						pPluginManager.reset();
+						modules.clear();
+					});
 		}
 	}
 

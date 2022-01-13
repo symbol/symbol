@@ -36,8 +36,8 @@ namespace catapult { namespace test {
 	StateHashDisabledTestContext::StateHashDisabledTestContext(
 			NonNemesisTransactionPlugins additionalPlugins,
 			const consumer<config::CatapultConfiguration&>& configTransform)
-			: PeerLocalNodeTestContext(NodeFlag::Regular, additionalPlugins, configTransform)
-	{}
+			: PeerLocalNodeTestContext(NodeFlag::Regular, additionalPlugins, configTransform) {
+	}
 
 	StateHashCalculator StateHashDisabledTestContext::createStateHashCalculator() const {
 		return StateHashCalculator();
@@ -48,12 +48,11 @@ namespace catapult { namespace test {
 			const consumer<config::CatapultConfiguration&>& configTransform)
 			: PeerLocalNodeTestContext(NodeFlag::Verify_State, additionalPlugins, configTransform)
 			, m_stateHashCalculationDir(State_Hash_Directory) // isolated directory used for state hash calculation
-	{}
+	{
+	}
 
 	StateHashCalculator StateHashEnabledTestContext::createStateHashCalculator() const {
-		{
-			TempDirectoryGuard forceCleanResourcesDir(State_Hash_Directory);
-		}
+		{ TempDirectoryGuard forceCleanResourcesDir(State_Hash_Directory); }
 
 		return StateHashCalculator(prepareFreshDataDirectory(m_stateHashCalculationDir.name()));
 	}

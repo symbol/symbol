@@ -32,8 +32,9 @@ namespace catapult { namespace cache {
 			using StorageType = MetadataCacheStorage;
 			class CacheType : public MetadataCache {
 			public:
-				CacheType() : MetadataCache(CacheConfiguration())
-				{}
+				CacheType()
+						: MetadataCache(CacheConfiguration()) {
+				}
 			};
 
 			static auto CreateId(uint8_t id) {

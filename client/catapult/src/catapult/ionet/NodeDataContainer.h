@@ -33,8 +33,8 @@ namespace catapult { namespace ionet {
 				: Node(node)
 				, NodeInfo(source)
 				, NodeId(nodeId)
-				, HasIdentityUpdateInProgress(false)
-		{}
+				, HasIdentityUpdateInProgress(false) {
+		}
 
 	public:
 		/// Global node descriptor.

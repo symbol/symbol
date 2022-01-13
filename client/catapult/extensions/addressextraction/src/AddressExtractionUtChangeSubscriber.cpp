@@ -27,8 +27,9 @@ namespace catapult { namespace addressextraction {
 	namespace {
 		class AddressExtractionUtChangeSubscriber : public cache::UtChangeSubscriber {
 		public:
-			explicit AddressExtractionUtChangeSubscriber(const AddressExtractor& extractor) : m_extractor(extractor)
-			{}
+			explicit AddressExtractionUtChangeSubscriber(const AddressExtractor& extractor)
+					: m_extractor(extractor) {
+			}
 
 		public:
 			void notifyAdds(const TransactionInfos& transactionInfos) override {

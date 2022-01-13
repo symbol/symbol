@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicRestrictionRequiredValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionRequired,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionRequired, )
 
 	// region traits
 
@@ -38,8 +38,9 @@ namespace catapult { namespace validators {
 			using NotificationType = model::MosaicRestrictionRequiredNotification;
 
 		public:
-			TestContext() : m_mosaicId(test::GenerateRandomValue<MosaicId>())
-			{}
+			TestContext()
+					: m_mosaicId(test::GenerateRandomValue<MosaicId>()) {
+			}
 
 		public:
 			NotificationType createNotification(uint64_t key) {

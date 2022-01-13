@@ -36,10 +36,12 @@ namespace catapult { namespace state {
 		}
 	}
 
-	RootNamespaceHistory::RootNamespaceHistory(NamespaceId id) : m_id(id)
-	{}
+	RootNamespaceHistory::RootNamespaceHistory(NamespaceId id)
+			: m_id(id) {
+	}
 
-	RootNamespaceHistory::RootNamespaceHistory(const RootNamespaceHistory& history) : RootNamespaceHistory(history.m_id) {
+	RootNamespaceHistory::RootNamespaceHistory(const RootNamespaceHistory& history)
+			: RootNamespaceHistory(history.m_id) {
 		if (history.empty())
 			return;
 

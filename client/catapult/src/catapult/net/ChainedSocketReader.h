@@ -26,8 +26,12 @@
 #include <memory>
 
 namespace catapult {
-	namespace ionet { class PacketSocket; }
-	namespace model { struct NodeIdentity; }
+namespace ionet {
+	class PacketSocket;
+}
+namespace model {
+	struct NodeIdentity;
+}
 }
 
 namespace catapult { namespace net {

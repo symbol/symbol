@@ -123,9 +123,7 @@ namespace catapult { namespace tree {
 		if (!value.isLeaf() && !value.isBranch())
 			CATAPULT_THROW_INVALID_ARGUMENT("invalid node passed to serializer");
 
-		return value.isLeaf()
-				? SerializeLeaf(value.asLeafNode())
-				: SerializeBranch(value.asBranchNode());
+		return value.isLeaf() ? SerializeLeaf(value.asLeafNode()) : SerializeBranch(value.asBranchNode());
 	}
 
 	TreeNode PatriciaTreeSerializer::DeserializeValue(const RawBuffer& buffer) {

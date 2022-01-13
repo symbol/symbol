@@ -63,16 +63,14 @@ namespace catapult { namespace nodediscovery {
 		}
 
 		handlers::NodeConsumer CreatePushNodeConsumer(extensions::ServiceState& state) {
-			return [&nodeSubscriber = state.nodeSubscriber()](const auto& node) {
-				nodeSubscriber.notifyNode(node);
-			};
+			return [&nodeSubscriber = state.nodeSubscriber()](const auto& node) { nodeSubscriber.notifyNode(node); };
 		}
 
 		class NodeDiscoveryServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
 			explicit NodeDiscoveryServiceRegistrar(const ConstNetworkNodePointer& pLocalNetworkNode)
-					: m_pLocalNetworkNode(pLocalNetworkNode)
-			{}
+					: m_pLocalNetworkNode(pLocalNetworkNode) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
@@ -125,9 +123,7 @@ namespace catapult { namespace nodediscovery {
 						pingRequestInitiator,
 						networkFingerprint,
 						pushNodeConsumer);
-				auto pushPeersHandler = [peersProcessor](const auto& candidateNodes) {
-					peersProcessor.process(candidateNodes);
-				};
+				auto pushPeersHandler = [peersProcessor](const auto& candidateNodes) { peersProcessor.process(candidateNodes); };
 				handlers::RegisterNodeDiscoveryPushPeersHandler(state.packetHandlers(), pushPeersHandler);
 				handlers::RegisterNodeDiscoveryPullPeersHandler(state.packetHandlers(), [&nodeContainer]() {
 					return ionet::FindAllActiveNodes(nodeContainer.view(), [](auto source) {

@@ -40,9 +40,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		template<typename TContainer>
 		auto FindByKey(TContainer& pairContainer, const typename TContainer::value_type::first_type& key) {
-			return std::find_if(pairContainer.begin(), pairContainer.end(), [&key](const auto& pair) {
-				return key == pair.first;
-			});
+			return std::find_if(pairContainer.begin(), pairContainer.end(), [&key](const auto& pair) { return key == pair.first; });
 		}
 
 		void Merge(
@@ -85,9 +83,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				const std::string& mosaicName,
 				MosaicNonce mosaicNonce) {
 			const std::string section = Mosaic_Section_Prefix + mosaicName;
-			auto makeKey = [&section](const auto* name) {
-				return utils::ConfigurationKey(section.c_str(), name);
-			};
+			auto makeKey = [&section](const auto* name) { return utils::ConfigurationKey(section.c_str(), name); };
 
 			auto supply = Amount(bag.get<uint64_t>(makeKey("supply")));
 			auto divisibility = bag.get<uint8_t>(makeKey("divisibility"));

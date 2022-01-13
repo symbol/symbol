@@ -98,9 +98,7 @@ namespace catapult { namespace test {
 			auto pApi = TApiTraits::Create(*pPacketIo);
 
 			// Act:
-			AssertThrowsApiError(
-					[&api = *pApi] { TTraits::Invoke(api).get(); },
-					"remote node returned malformed packet");
+			AssertThrowsApiError([&api = *pApi] { TTraits::Invoke(api).get(); }, "remote node returned malformed packet");
 
 			// Assert:
 			EXPECT_EQ(1u, pPacketIo->numWrites());
@@ -217,8 +215,7 @@ namespace catapult { namespace test {
 	}
 
 /// Adds all remote api tests for the specified api class (\a API_CLASS).
-#define DEFINE_REMOTE_API_TESTS(API_CLASS) \
-	MAKE_REMOTE_API_TEST(API_CLASS, CanCreateApiWithRemotePublicKey)
+#define DEFINE_REMOTE_API_TESTS(API_CLASS) MAKE_REMOTE_API_TEST(API_CLASS, CanCreateApiWithRemotePublicKey)
 
 /// Adds all remote api tests for the specified api class (\a API_CLASS) and function (\a API_FUNCTION).
 #define DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \

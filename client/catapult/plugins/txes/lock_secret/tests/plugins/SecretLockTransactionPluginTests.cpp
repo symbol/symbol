@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretLock, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretLock, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Secret_Lock)
@@ -50,15 +50,15 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			AccountAddressNotification::Notification_Type,
-			SecretLockDurationNotification::Notification_Type,
-			SecretLockHashAlgorithmNotification::Notification_Type,
-			AddressInteractionNotification::Notification_Type,
-			BalanceDebitNotification::Notification_Type,
-			SecretLockNotification::Notification_Type,
-			BalanceTransferNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ AccountAddressNotification::Notification_Type,
+				  SecretLockDurationNotification::Notification_Type,
+				  SecretLockHashAlgorithmNotification::Notification_Type,
+				  AddressInteractionNotification::Notification_Type,
+				  BalanceDebitNotification::Notification_Type,
+				  SecretLockNotification::Notification_Type,
+				  BalanceTransferNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotifications) {
@@ -72,12 +72,10 @@ namespace catapult { namespace plugins {
 
 			EXPECT_EQ(transaction.RecipientAddress, notification.Address.unresolved());
 		});
-		builder.template addExpectation<SecretLockDurationNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.Duration, notification.Duration);
-		});
-		builder.template addExpectation<SecretLockHashAlgorithmNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
-		});
+		builder.template addExpectation<SecretLockDurationNotification>(
+				[&transaction](const auto& notification) { EXPECT_EQ(transaction.Duration, notification.Duration); });
+		builder.template addExpectation<SecretLockHashAlgorithmNotification>(
+				[&transaction](const auto& notification) { EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm); });
 		builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(GetSignerAddress(transaction), notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);

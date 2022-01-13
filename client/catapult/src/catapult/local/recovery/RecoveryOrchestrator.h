@@ -24,8 +24,12 @@
 #include <memory>
 
 namespace catapult {
-	namespace extensions { class ProcessBootstrapper; }
-	namespace model { class ChainScore; }
+namespace extensions {
+	class ProcessBootstrapper;
+}
+namespace model {
+	class ChainScore;
+}
 }
 
 namespace catapult { namespace local {

@@ -22,8 +22,12 @@
 #pragma once
 
 namespace catapult {
-	namespace model { struct BlockElement; }
-	namespace tools { namespace nemgen { struct NemesisConfiguration; } }
+namespace model {
+	struct BlockElement;
+}
+namespace tools { namespace nemgen {
+	struct NemesisConfiguration;
+}}
 }
 
 namespace catapult { namespace tools { namespace nemgen {

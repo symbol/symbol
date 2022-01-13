@@ -29,8 +29,8 @@ namespace catapult { namespace nodediscovery {
 
 	BatchPeersRequestor::BatchPeersRequestor(const net::PacketIoPickerContainer& packetIoPickers, const NodesConsumer& nodesConsumer)
 			: m_packetIoPickers(packetIoPickers)
-			, m_nodesConsumer(nodesConsumer)
-	{}
+			, m_nodesConsumer(nodesConsumer) {
+	}
 
 	thread::future<BatchPeersRequestor::RemoteApiResults> BatchPeersRequestor::findPeersOfPeers(const utils::TimeSpan& timeout) const {
 		auto packetIoPairs = m_packetIoPickers.pickMatching(timeout, ionet::NodeRoles::None);
@@ -57,8 +57,6 @@ namespace catapult { namespace nodediscovery {
 			});
 		}
 
-		return thread::when_all(std::move(futures)).then([](auto&& resultsFuture) {
-			return thread::get_all(resultsFuture.get());
-		});
+		return thread::when_all(std::move(futures)).then([](auto&& resultsFuture) { return thread::get_all(resultsFuture.get()); });
 	}
 }}

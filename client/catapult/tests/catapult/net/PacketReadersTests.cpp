@@ -49,8 +49,8 @@ namespace catapult { namespace net {
 		struct PacketReadersTestContext {
 		public:
 			explicit PacketReadersTestContext(uint32_t numClientPublicKeys = 1, uint32_t maxConnectionsPerIdentity = 1)
-					: PacketReadersTestContext(ionet::ServerPacketHandlers(), numClientPublicKeys, maxConnectionsPerIdentity)
-			{}
+					: PacketReadersTestContext(ionet::ServerPacketHandlers(), numClientPublicKeys, maxConnectionsPerIdentity) {
+			}
 
 			PacketReadersTestContext(
 					const ionet::ServerPacketHandlers& handlers,
@@ -283,7 +283,7 @@ namespace catapult { namespace net {
 		void AssertSingleConnection(
 				model::NodeIdentityEqualityStrategy equalityStrategy,
 				const consumer<PacketReadersTestContext&>& prepare,
-				const std::function<model::NodeIdentitySet (const PacketReadersTestContext&)>& extractExpectedIdentities) {
+				const std::function<model::NodeIdentitySet(const PacketReadersTestContext&)>& extractExpectedIdentities) {
 			// Act: establish multiple connections with the same identity
 			constexpr auto Num_Connections = 5u;
 			auto settings = test::CreateConnectionSettings();
@@ -313,7 +313,7 @@ namespace catapult { namespace net {
 		void AssertMultipleConnections(
 				model::NodeIdentityEqualityStrategy equalityStrategy,
 				const consumer<PacketReadersTestContext&>& prepare,
-				const std::function<model::NodeIdentitySet (const PacketReadersTestContext&)>& extractExpectedIdentities) {
+				const std::function<model::NodeIdentitySet(const PacketReadersTestContext&)>& extractExpectedIdentities) {
 			// Act: establish multiple connections with the same identity
 			constexpr auto Num_Connections = 5u;
 			auto settings = test::CreateConnectionSettings();

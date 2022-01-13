@@ -33,8 +33,9 @@ namespace catapult { namespace tree {
 			using DataSourceType = MemoryDataSource;
 
 		public:
-			explicit MemoryTraits(DataSourceVerbosity verbosity) : m_dataSource(verbosity)
-			{}
+			explicit MemoryTraits(DataSourceVerbosity verbosity)
+					: m_dataSource(verbosity) {
+			}
 
 		public:
 			DataSourceType& dataSource() {

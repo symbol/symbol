@@ -36,13 +36,14 @@ namespace catapult { namespace test {
 		return options;
 	}
 
-	TempLogsDirectoryGuard::TempLogsDirectoryGuard() : TempLogsDirectoryGuard("CatapultLoggingTests")
-	{}
+	TempLogsDirectoryGuard::TempLogsDirectoryGuard()
+			: TempLogsDirectoryGuard("CatapultLoggingTests") {
+	}
 
 	TempLogsDirectoryGuard::TempLogsDirectoryGuard(const std::string& prefix)
 			: m_prefix(prefix)
-			, m_directoryGuard("testlogs")
-	{}
+			, m_directoryGuard("testlogs") {
+	}
 
 	std::string TempLogsDirectoryGuard::name(size_t id) {
 		std::ostringstream logFilename;

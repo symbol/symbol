@@ -81,7 +81,10 @@ namespace catapult { namespace timesync {
 			return test::CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
 		}
 
-		enum class KeyType { Address, PublicKey, };
+		enum class KeyType {
+			Address,
+			PublicKey,
+		};
 
 		class TestContext {
 		public:

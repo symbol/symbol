@@ -30,14 +30,15 @@ namespace catapult { namespace model {
 	class WeakCosignedTransactionInfo {
 	public:
 		/// Creates an empty weak transaction info.
-		WeakCosignedTransactionInfo() : WeakCosignedTransactionInfo(nullptr, nullptr)
-		{}
+		WeakCosignedTransactionInfo()
+				: WeakCosignedTransactionInfo(nullptr, nullptr) {
+		}
 
 		/// Creates a weak transaction info around \a pTransaction and \a pCosignatures.
 		WeakCosignedTransactionInfo(const Transaction* pTransaction, const std::vector<Cosignature>* pCosignatures)
 				: m_pTransaction(pTransaction)
-				, m_pCosignatures(pCosignatures)
-		{}
+				, m_pCosignatures(pCosignatures) {
+		}
 
 	public:
 		/// Gets the transaction.

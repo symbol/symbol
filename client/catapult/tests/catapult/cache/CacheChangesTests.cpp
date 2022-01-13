@@ -153,9 +153,10 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		ASSERT_EQ(4u, result.size());
-		decltype(result) expected{
-			&memoryCacheChanges.Removed[0], &memoryCacheChanges.Removed[1], &memoryCacheChanges.Removed[2], &memoryCacheChanges.Removed[3]
-		};
+		decltype(result) expected{ &memoryCacheChanges.Removed[0],
+								   &memoryCacheChanges.Removed[1],
+								   &memoryCacheChanges.Removed[2],
+								   &memoryCacheChanges.Removed[3] };
 		EXPECT_EQ(expected, result);
 	}
 
@@ -200,9 +201,7 @@ namespace catapult { namespace cache {
 
 	namespace {
 		bool Contains(const std::unordered_set<const std::vector<uint8_t>*>& pointers, const std::vector<uint8_t>& value) {
-			return std::any_of(pointers.cbegin(), pointers.cend(), [&value](const auto* pValue) {
-				return value == *pValue;
-			});
+			return std::any_of(pointers.cbegin(), pointers.cend(), [&value](const auto* pValue) { return value == *pValue; });
 		}
 
 		template<typename TDeltas, typename TUnwrap>
@@ -249,9 +248,7 @@ namespace catapult { namespace cache {
 		CacheChanges cacheChanges(cacheDelta);
 
 		// Act + Assert:
-		AssertCacheChanges<VectorCacheDeltas>(cacheChanges, deltas1, deltas2, [](const auto& pair) {
-			return pair.second;
-		});
+		AssertCacheChanges<VectorCacheDeltas>(cacheChanges, deltas1, deltas2, [](const auto& pair) { return pair.second; });
 	}
 
 	TEST(TEST_CLASS, CacheChangesCanDelegateToMemoryCacheChanges) {
@@ -270,9 +267,7 @@ namespace catapult { namespace cache {
 		CacheChanges cacheChanges(std::move(cacheChangesContainer));
 
 		// Act + Assert:
-		AssertCacheChanges(cacheChanges, memoryCacheChanges1, memoryCacheChanges2, [](const auto& value) {
-			return value;
-		});
+		AssertCacheChanges(cacheChanges, memoryCacheChanges1, memoryCacheChanges2, [](const auto& value) { return value; });
 	}
 
 	// endregion

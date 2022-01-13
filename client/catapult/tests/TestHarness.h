@@ -33,16 +33,16 @@
 
 namespace std {
 
-	// custom formatter for byte std::array
-	template<size_t N>
-	void PrintTo(const array<uint8_t, N>& array, std::ostream* pOut) {
-		*pOut << catapult::utils::HexFormat(array);
-	}
+// custom formatter for byte std::array
+template<size_t N>
+void PrintTo(const array<uint8_t, N>& array, std::ostream* pOut) {
+	*pOut << catapult::utils::HexFormat(array);
+}
 
-	// custom formatter for byte std::vector
-	inline void PrintTo(const vector<uint8_t>& vector, std::ostream* pOut) {
-		*pOut << catapult::utils::HexFormat(vector);
-	}
+// custom formatter for byte std::vector
+inline void PrintTo(const vector<uint8_t>& vector, std::ostream* pOut) {
+	*pOut << catapult::utils::HexFormat(vector);
+}
 }
 
 namespace catapult { namespace utils {
@@ -103,13 +103,13 @@ namespace catapult { namespace test {
 			std::ostringstream ecm_out; \
 			if (!MESSAGE.empty()) \
 				ecm_out << MESSAGE << ":" << std::endl; \
-			\
+\
 			ecm_out << "{ "; \
 			for (const auto& ecm_value : VALUES) { \
 				Printer::Print(ecm_value, &ecm_out); \
 				ecm_out << " "; \
 			} \
-			\
+\
 			ecm_out << "} does not contain: "; \
 			Printer::Print(VALUE, &ecm_out); \
 			EXPECT_TRUE(VALUES.end() != VALUES.find(VALUE)) << ecm_out.str(); \

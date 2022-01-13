@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/plugins/MultisigAccountModificationTransactionPlugin.h"
+#include "src/validators/Validators.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "tests/test/MultisigCacheTestUtils.h"
@@ -122,10 +122,16 @@ namespace catapult { namespace validators {
 	}
 
 #define NON_MULTISIG_TRAITS_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_UnknownAccount) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UnknownAccountTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_CosignatoryAccount) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CosignatoryAccountTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_UnknownAccount) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UnknownAccountTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_CosignatoryAccount) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CosignatoryAccountTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	NON_MULTISIG_TRAITS_TEST(CosignatoryIsEligibleWhenItMatchesEmbeddedTransactionSigner) {
 		// Arrange:

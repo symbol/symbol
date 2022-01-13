@@ -34,7 +34,7 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>, LockInfoCacheDeltaModificationPolicy<SecretTraits>,)
+	DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>, LockInfoCacheDeltaModificationPolicy<SecretTraits>, )
 
-	DEFINE_CACHE_PRUNE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>,)
+	DEFINE_CACHE_PRUNE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>, )
 }}

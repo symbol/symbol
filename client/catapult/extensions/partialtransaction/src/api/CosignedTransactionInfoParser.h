@@ -24,7 +24,9 @@
 #include "catapult/functions.h"
 #include <vector>
 
-namespace catapult { namespace ionet { struct Packet; } }
+namespace catapult { namespace ionet {
+	struct Packet;
+}}
 
 namespace catapult { namespace api {
 

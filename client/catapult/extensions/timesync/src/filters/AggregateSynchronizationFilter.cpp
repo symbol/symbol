@@ -19,15 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "SynchronizationFilters.h"
 #include "AggregateSynchronizationFilter.h"
+#include "SynchronizationFilters.h"
 #include "catapult/utils/ContainerHelpers.h"
 
 namespace catapult { namespace timesync { namespace filters {
 
 	AggregateSynchronizationFilter::AggregateSynchronizationFilter(const std::vector<SynchronizationFilter>& filters)
-			: m_filters(filters)
-	{}
+			: m_filters(filters) {
+	}
 
 	size_t AggregateSynchronizationFilter::size() const {
 		return m_filters.size();

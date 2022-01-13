@@ -35,8 +35,8 @@ namespace catapult { namespace observers {
 		/// Creates a functional notification observer around \a func with \a name.
 		FunctionalNotificationObserverT(const std::string& name, const FunctionType& func)
 				: m_name(name)
-				, m_func(func)
-		{}
+				, m_func(func) {
+		}
 
 	public:
 		const std::string& name() const override {

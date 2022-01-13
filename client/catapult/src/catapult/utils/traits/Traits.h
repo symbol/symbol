@@ -92,7 +92,9 @@ namespace catapult { namespace utils { namespace traits {
 
 	/// Type-based SFINAE helper that evaluates a type expression to a type (if valid) or void (if invalid).
 	template<typename T, typename Enable = void>
-	struct is_type_expression { using type = Enable; };
+	struct is_type_expression {
+		using type = Enable;
+	};
 
 	/// \c true if the expression is valid and evaluates to a type, \c false otherwise.
 	template<typename T, typename Enable = void>

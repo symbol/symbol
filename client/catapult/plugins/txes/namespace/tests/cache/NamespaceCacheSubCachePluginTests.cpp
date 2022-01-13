@@ -124,8 +124,8 @@ namespace catapult { namespace cache {
 			class PluginType : public NamespaceCacheSubCachePlugin {
 			public:
 				explicit PluginType(const CacheConfiguration& config)
-						: NamespaceCacheSubCachePlugin(config, NamespaceCacheTypes::Options())
-				{}
+						: NamespaceCacheSubCachePlugin(config, NamespaceCacheTypes::Options()) {
+				}
 			};
 		};
 	}

@@ -44,8 +44,9 @@ namespace catapult { namespace state {
 		struct ChildNamespaceData {
 		public:
 			/// Creates data around \a path.
-			ChildNamespaceData(const Namespace::Path& path) : Path(path)
-			{}
+			ChildNamespaceData(const Namespace::Path& path)
+					: Path(path) {
+			}
 
 		public:
 			/// Child namespace path.

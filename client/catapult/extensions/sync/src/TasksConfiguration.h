@@ -24,7 +24,9 @@
 #include <filesystem>
 #include <unordered_map>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace sync {
 
@@ -115,8 +117,9 @@ namespace catapult { namespace sync {
 
 		public:
 			/// Creates an empty task configuration.
-			TaskConfiguration() : Uniform(UniformTaskConfiguration::Uninitialized())
-			{}
+			TaskConfiguration()
+					: Uniform(UniformTaskConfiguration::Uninitialized()) {
+			}
 		};
 
 	public:

@@ -44,7 +44,7 @@ namespace catapult { namespace consumers {
 
 	disruptor::ConstBlockConsumer MakeBlockValidationConsumer(
 			const RequiresValidationPredicate& requiresValidationPredicate,
-			const std::function<validators::ValidationResult (const model::WeakEntityInfos&)>& process) {
+			const std::function<validators::ValidationResult(const model::WeakEntityInfos&)>& process) {
 		return MakeValidationConsumer([requiresValidationPredicate, process](const auto& elements) {
 			model::WeakEntityInfos entityInfos;
 			ExtractMatchingEntityInfos(elements, entityInfos, requiresValidationPredicate);
@@ -55,7 +55,7 @@ namespace catapult { namespace consumers {
 
 	disruptor::TransactionConsumer MakeTransactionValidationConsumer(
 			const chain::FailedTransactionSink& failedTransactionSink,
-			const std::function<std::vector<validators::ValidationResult> (model::WeakEntityInfos&)>& process) {
+			const std::function<std::vector<validators::ValidationResult>(model::WeakEntityInfos&)>& process) {
 		return MakeValidationConsumer([failedTransactionSink, process](auto& elements) {
 			model::WeakEntityInfos entityInfos;
 			std::vector<size_t> entityInfoElementIndexes;

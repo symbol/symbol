@@ -37,8 +37,8 @@ namespace catapult { namespace chain {
 			, m_executionContextConfig(executionContextConfig)
 			, m_pCacheView(nullptr)
 			, m_pCacheDelta(nullptr)
-			, m_pBlockStatementBuilder(nullptr)
-	{}
+			, m_pBlockStatementBuilder(nullptr) {
+	}
 
 	void ProcessContextsBuilder::setCache(const cache::CatapultCacheView& view) {
 		m_pCacheView = &view;
@@ -63,9 +63,8 @@ namespace catapult { namespace chain {
 		if (!m_pCacheDelta)
 			CATAPULT_THROW_INVALID_ARGUMENT("buildObserverContext requires CatapultCacheDelta");
 
-		auto observerState = m_pBlockStatementBuilder
-				? observers::ObserverState(*m_pCacheDelta, *m_pBlockStatementBuilder)
-				: observers::ObserverState(*m_pCacheDelta);
+		auto observerState = m_pBlockStatementBuilder ? observers::ObserverState(*m_pCacheDelta, *m_pBlockStatementBuilder)
+													  : observers::ObserverState(*m_pCacheDelta);
 		return observers::ObserverContext(buildNotificationContext(), observerState, observers::NotifyMode::Commit);
 	}
 

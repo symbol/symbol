@@ -24,7 +24,9 @@
 
 namespace catapult { namespace crypto {
 
-	struct SharedKey_tag { static constexpr size_t Size = 32; };
+	struct SharedKey_tag {
+		static constexpr size_t Size = 32;
+	};
 	using SharedKey = utils::ByteArray<SharedKey_tag>;
 
 	/// Generates HKDF of \a sharedSecret using default zeroed salt and constant label "catapult".

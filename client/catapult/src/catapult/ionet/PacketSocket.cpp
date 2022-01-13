@@ -60,8 +60,9 @@ namespace catapult { namespace ionet {
 
 		class AutoConsume {
 		public:
-			explicit AutoConsume(PacketExtractor& packetExtractor) : m_packetExtractor(packetExtractor)
-			{}
+			explicit AutoConsume(PacketExtractor& packetExtractor)
+					: m_packetExtractor(packetExtractor) {
+			}
 
 			~AutoConsume() {
 				m_packetExtractor.consume();
@@ -129,11 +130,11 @@ namespace catapult { namespace ionet {
 				// write must be of non-zero length to avoid asio optimization to no-op
 				auto asioBuffer = boost::asio::buffer(&m_sentinelByte, 1);
 				boost::asio::async_write(m_socket, asioBuffer, wrap([this](const auto& ec, auto) {
-					if (ec && !IsProtocolShutdown(ec))
-						CATAPULT_LOG(warning) << "async_write returned an error: " << ec.message();
+											 if (ec && !IsProtocolShutdown(ec))
+												 CATAPULT_LOG(warning) << "async_write returned an error: " << ec.message();
 
-					abort();
-				}));
+											 abort();
+										 }));
 			}
 
 			void abort() {
@@ -151,7 +152,7 @@ namespace catapult { namespace ionet {
 
 			static bool IsProtocolShutdown(const boost::system::error_code& ec) {
 				return boost::asio::error::get_ssl_category() == ec.category()
-						&& SSL_R_PROTOCOL_IS_SHUTDOWN == OpensslErrorGetReason(static_cast<unsigned long>(ec.value()));
+					   && SSL_R_PROTOCOL_IS_SHUTDOWN == OpensslErrorGetReason(static_cast<unsigned long>(ec.value()));
 			}
 
 		private:
@@ -172,8 +173,8 @@ namespace catapult { namespace ionet {
 			BasicPacketSocketWriter(Socket& socket, TSocketCallbackWrapper& wrapper, size_t maxPacketDataSize)
 					: m_socket(socket)
 					, m_wrapper(wrapper)
-					, m_maxPacketDataSize(maxPacketDataSize)
-			{}
+					, m_maxPacketDataSize(maxPacketDataSize) {
+			}
 
 		public:
 			void write(const PacketPayload& payload, const PacketSocket::WriteCallback& callback) {
@@ -195,8 +196,8 @@ namespace catapult { namespace ionet {
 				WriteContext(const PacketPayload& payload, const PacketSocket::WriteCallback& callback)
 						: m_payload(payload)
 						, m_callback(callback)
-						, m_nextBufferIndex(0)
-				{}
+						, m_nextBufferIndex(0) {
+				}
 
 			public:
 				auto headerBuffer() const {
@@ -252,8 +253,8 @@ namespace catapult { namespace ionet {
 					: m_socket(socket)
 					, m_wrapper(wrapper)
 					, m_buffer(buffer)
-					, m_isReadActive(false)
-			{}
+					, m_isReadActive(false) {
+			}
 
 		public:
 			bool isReadActive() const {
@@ -262,17 +263,20 @@ namespace catapult { namespace ionet {
 
 			void read(const PacketSocket::ReadCallback& callback, bool allowMultiple) {
 				m_isReadActive = true;
-				readInternal([callback, &isReadActive = m_isReadActive](auto code, const auto* pPacket) {
-					callback(code, pPacket);
-					isReadActive = false;
-				}, allowMultiple);
+				readInternal(
+						[callback, &isReadActive = m_isReadActive](auto code, const auto* pPacket) {
+							callback(code, pPacket);
+							isReadActive = false;
+						},
+						allowMultiple);
 			}
 
 		private:
 			struct SharedAppendContext {
 			public:
-				explicit SharedAppendContext(AppendContext&& context) : Context(std::move(context))
-				{}
+				explicit SharedAppendContext(AppendContext&& context)
+						: Context(std::move(context)) {
+				}
 
 			public:
 				AppendContext Context;
@@ -467,8 +471,8 @@ namespace catapult { namespace ionet {
 		public:
 			explicit SocketIdentifier(uint64_t id)
 					: m_id(id)
-					, m_isClosed(false)
-			{}
+					, m_isClosed(false) {
+			}
 
 		public:
 			bool fetchClose() {
@@ -505,8 +509,8 @@ namespace catapult { namespace ionet {
 			StrandedPacketSocket(const std::shared_ptr<SocketGuard>& pSocketGuard, const PacketSocketOptions& options)
 					: m_strandWrapper(pSocketGuard->strand())
 					, m_socket(pSocketGuard, options, *this)
-					, m_id(s_idCounter.fetch_add(1))
-			{}
+					, m_id(s_idCounter.fetch_add(1)) {
+			}
 
 			~StrandedPacketSocket() override {
 				// all async operations posted on the strand must be completed by now because all operations
@@ -544,15 +548,11 @@ namespace catapult { namespace ionet {
 			}
 
 			void close() override {
-				postCloseOnce("close", [](auto& socket) {
-					socket.close();
-				});
+				postCloseOnce("close", [](auto& socket) { socket.close(); });
 			}
 
 			void abort() override {
-				postCloseOnce("abort", [](auto& socket) {
-					socket.abort();
-				});
+				postCloseOnce("abort", [](auto& socket) { socket.abort(); });
 			}
 
 			std::shared_ptr<PacketIo> buffered() override {
@@ -597,9 +597,7 @@ namespace catapult { namespace ionet {
 			template<typename THandler>
 			void post(THandler handler) {
 				// ensure all handlers extend the lifetime of this object and post to a strand
-				return m_strandWrapper.post(shared_from_this(), [handler](const auto& pThis) {
-					handler(pThis->m_socket);
-				});
+				return m_strandWrapper.post(shared_from_this(), [handler](const auto& pThis) { handler(pThis->m_socket); });
 			}
 
 			template<typename THandler>
@@ -629,14 +627,14 @@ namespace catapult { namespace ionet {
 
 	// region PacketSocketInfo
 
-	PacketSocketInfo::PacketSocketInfo()
-	{}
+	PacketSocketInfo::PacketSocketInfo() {
+	}
 
 	PacketSocketInfo::PacketSocketInfo(const std::string& host, const Key& publicKey, const std::shared_ptr<PacketSocket>& pPacketSocket)
 			: m_host(host)
 			, m_publicKey(publicKey)
-			, m_pPacketSocket(pPacketSocket)
-	{}
+			, m_pPacketSocket(pPacketSocket) {
+	}
 
 	const std::string& PacketSocketInfo::host() const {
 		return m_host;
@@ -669,14 +667,13 @@ namespace catapult { namespace ionet {
 					: m_ioContext(ioContext)
 					, m_acceptor(acceptor)
 					, m_accept(accept)
-					, m_options(options)
-			{}
+					, m_options(options) {
+			}
 
 		public:
 			void start() {
-				m_acceptor.async_accept([pThis = shared_from_this()](const auto& ec, auto&& socket) {
-					pThis->handleAccept(ec, std::move(socket));
-				});
+				m_acceptor.async_accept(
+						[pThis = shared_from_this()](const auto& ec, auto&& socket) { pThis->handleAccept(ec, std::move(socket)); });
 			}
 
 		private:
@@ -711,9 +708,7 @@ namespace catapult { namespace ionet {
 					});
 				});
 
-				m_accept = [pTimedCallback](const auto& socketInfo) {
-					pTimedCallback->callback(socketInfo);
-				};
+				m_accept = [pTimedCallback](const auto& socketInfo) { pTimedCallback->callback(socketInfo); };
 
 				m_pSocket->impl().async_handshake(Socket::server, [pThis = shared_from_this()](const auto& handshakeEc) {
 					pThis->handleHandshake(handshakeEc);
@@ -771,20 +766,20 @@ namespace catapult { namespace ionet {
 					: m_callback(callback)
 					, m_wrapper(wrapper)
 					, m_pSocket(std::make_shared<StrandedPacketSocket>(
-							std::make_shared<SocketGuard>(ioContext, options.SslOptions.ContextSupplier()),
-							options))
+							  std::make_shared<SocketGuard>(ioContext, options.SslOptions.ContextSupplier()),
+							  options))
 					, m_resolver(ioContext)
 					, m_host(endpoint.Host)
 					, m_query(m_host, std::to_string(endpoint.Port))
 					, m_protocols(options.OutgoingProtocols)
-					, m_isCancelled(false)
-			{}
+					, m_isCancelled(false) {
+			}
 
 		public:
 			void start() {
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable:4459) /* declaration of 'query' hides global declaration */
+#pragma warning(disable : 4459) /* declaration of 'query' hides global declaration */
 #endif
 				m_resolver.async_resolve(m_query, m_wrapper.wrap([this](const auto& ec, auto iter) {
 					this->handleResolve(ec, std::move(iter));
@@ -863,9 +858,8 @@ namespace catapult { namespace ionet {
 				if (!ec && !m_isCancelled)
 					return false;
 
-				CATAPULT_LOG(error)
-						<< "failed when " << operation << " '" << m_host << "': " << ec.message()
-						<< " (cancelled? " << m_isCancelled << ")";
+				CATAPULT_LOG(error) << "failed when " << operation << " '" << m_host << "': " << ec.message() << " (cancelled? "
+									<< m_isCancelled << ")";
 				return true;
 			}
 
@@ -904,7 +898,8 @@ namespace catapult { namespace ionet {
 					const ConnectCallback& callback)
 					: m_handler(ioContext, options, endpoint, callback, *this)
 					, m_strandWrapper(m_handler.impl().strand()) // use the socket's strand
-			{}
+			{
+			}
 
 		public:
 			void start() {
@@ -924,9 +919,7 @@ namespace catapult { namespace ionet {
 		private:
 			template<typename THandler>
 			void post(THandler handler) {
-				return m_strandWrapper.post(shared_from_this(), [handler](const auto& pThis) {
-					handler(pThis->m_handler);
-				});
+				return m_strandWrapper.post(shared_from_this(), [handler](const auto& pThis) { handler(pThis->m_handler); });
 			}
 
 		private:

@@ -30,8 +30,9 @@ namespace catapult { namespace timesync {
 	namespace {
 		struct WeightedCandidatesInfo {
 		public:
-			WeightedCandidatesInfo() : CumulativeImportance(0)
-			{}
+			WeightedCandidatesInfo()
+					: CumulativeImportance(0) {
+			}
 
 		public:
 			extensions::WeightedCandidates WeightedCandidates;
@@ -53,12 +54,9 @@ namespace catapult { namespace timesync {
 		}
 	}
 
-	ImportanceAwareNodeSelector::ImportanceAwareNodeSelector(
-			ionet::ServiceIdentifier serviceId,
-			uint8_t maxNodes,
-			Importance minImportance)
-			: ImportanceAwareNodeSelector(serviceId, maxNodes, minImportance, extensions::SelectCandidatesBasedOnWeight)
-	{}
+	ImportanceAwareNodeSelector::ImportanceAwareNodeSelector(ionet::ServiceIdentifier serviceId, uint8_t maxNodes, Importance minImportance)
+			: ImportanceAwareNodeSelector(serviceId, maxNodes, minImportance, extensions::SelectCandidatesBasedOnWeight) {
+	}
 
 	ImportanceAwareNodeSelector::ImportanceAwareNodeSelector(
 			ionet::ServiceIdentifier serviceId,
@@ -68,8 +66,8 @@ namespace catapult { namespace timesync {
 			: m_serviceId(serviceId)
 			, m_maxNodes(maxNodes)
 			, m_minImportance(minImportance)
-			, m_selector(selector)
-	{}
+			, m_selector(selector) {
+	}
 
 	ionet::NodeSet ImportanceAwareNodeSelector::selectNodes(
 			const cache::ImportanceView& importanceView,
@@ -88,9 +86,8 @@ namespace catapult { namespace timesync {
 			const ionet::NodeInfo& nodeInfo,
 			Height height) const {
 		auto importance = importanceView.getAccountImportanceOrDefault(node.identity().PublicKey, height);
-		auto isCandidate = importance >= m_minImportance
-				&& !!nodeInfo.getConnectionState(m_serviceId)
-				&& ionet::NodeSource::Local != nodeInfo.source();
+		auto isCandidate = importance >= m_minImportance && !!nodeInfo.getConnectionState(m_serviceId)
+						   && ionet::NodeSource::Local != nodeInfo.source();
 		return std::make_pair(importance, isCandidate);
 	}
 }}

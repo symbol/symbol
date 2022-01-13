@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS TransferMosaicsValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(TransferMosaics,)
+	DEFINE_COMMON_VALIDATOR_TESTS(TransferMosaics, )
 
 	namespace {
 		constexpr auto Success_Result = ValidationResult::Success;
@@ -75,11 +75,9 @@ namespace catapult { namespace validators {
 		// Assert: create a transaction with multiple (in order) transfers for the same mosaic
 		AssertValidationResult(
 				Failure_Transfer_Out_Of_Order_Mosaics,
-				{
-					{ UnresolvedMosaicId(71), Amount(5) },
-					{ UnresolvedMosaicId(182), Amount(4) },
-					{ UnresolvedMosaicId(182), Amount(4) },
-					{ UnresolvedMosaicId(200), Amount(1) }
-				});
+				{ { UnresolvedMosaicId(71), Amount(5) },
+				  { UnresolvedMosaicId(182), Amount(4) },
+				  { UnresolvedMosaicId(182), Amount(4) },
+				  { UnresolvedMosaicId(200), Amount(1) } });
 	}
 }}

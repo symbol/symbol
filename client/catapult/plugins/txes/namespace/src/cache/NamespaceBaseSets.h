@@ -29,9 +29,9 @@
 namespace catapult { namespace cache {
 
 	using BasicNamespacePatriciaTree = tree::BasePatriciaTree<
-		SerializerHashedKeyEncoder<RootNamespaceHistoryPatriciaTreeSerializer>,
-		PatriciaTreeRdbDataSource,
-		utils::BaseValueHasher<NamespaceId>>;
+			SerializerHashedKeyEncoder<RootNamespaceHistoryPatriciaTreeSerializer>,
+			PatriciaTreeRdbDataSource,
+			utils::BaseValueHasher<NamespaceId>>;
 
 	class NamespacePatriciaTree : public BasicNamespacePatriciaTree {
 	public:
@@ -57,8 +57,8 @@ namespace catapult { namespace cache {
 				, Primary(GetContainerMode(config), database(), 0)
 				, FlatMap(GetContainerMode(config), database(), 1)
 				, HeightGrouping(GetContainerMode(config), database(), 2)
-				, PatriciaTree(hasPatriciaTreeSupport(), database(), 3)
-		{}
+				, PatriciaTree(hasPatriciaTreeSupport(), database(), 3) {
+		}
 
 	public:
 		NamespaceCacheTypes::PrimaryTypes::BaseSetType Primary;
@@ -72,12 +72,7 @@ namespace catapult { namespace cache {
 		}
 
 		NamespaceBaseSetDeltaPointers rebaseDetached() const {
-			return {
-				Primary.rebaseDetached(),
-				FlatMap.rebaseDetached(),
-				HeightGrouping.rebaseDetached(),
-				PatriciaTree.rebaseDetached()
-			};
+			return { Primary.rebaseDetached(), FlatMap.rebaseDetached(), HeightGrouping.rebaseDetached(), PatriciaTree.rebaseDetached() };
 		}
 
 		void commit() {

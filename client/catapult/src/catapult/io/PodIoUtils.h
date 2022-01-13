@@ -95,11 +95,7 @@ namespace catapult { namespace io {
 	}
 
 	/// Reads data of type \a TValue from \a input.
-	template<
-		typename TValue,
-		typename TIo,
-		typename X = std::enable_if_t<utils::traits::is_pod_v<TValue>>
-	>
+	template<typename TValue, typename TIo, typename X = std::enable_if_t<utils::traits::is_pod_v<TValue>>>
 	TValue Read(TIo& input) {
 		TValue result;
 		Read(input, result);

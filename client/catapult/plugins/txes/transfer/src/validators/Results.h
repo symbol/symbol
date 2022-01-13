@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RESULT_DEFINITION
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #endif
 /// Defines a transfer validation result with \a DESCRIPTION and \a CODE.
@@ -36,5 +37,6 @@ namespace catapult { namespace validators {
 	DEFINE_TRANSFER_RESULT(Out_Of_Order_Mosaics, 2);
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

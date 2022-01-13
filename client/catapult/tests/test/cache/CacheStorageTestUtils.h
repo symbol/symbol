@@ -167,7 +167,9 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_CONTAINS_ONLY_CACHE_STORAGE_TEST(TEST_CLASS, TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::ContainsOnlyCacheStorageTests<TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::ContainsOnlyCacheStorageTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_CONTAINS_ONLY_CACHE_STORAGE_TESTS(TEST_CLASS, TRAITS) \
 	MAKE_CONTAINS_ONLY_CACHE_STORAGE_TEST(TEST_CLASS, TRAITS, CanSaveValue) \
@@ -266,7 +268,9 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TEST(TEST_CLASS, TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BasicInsertRemoveCacheStorageTests<TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BasicInsertRemoveCacheStorageTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(TEST_CLASS, TRAITS) \
 	MAKE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TEST(TEST_CLASS, TRAITS, CanLoadValueIntoCache) \

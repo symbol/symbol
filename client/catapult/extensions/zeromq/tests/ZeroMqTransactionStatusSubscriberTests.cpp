@@ -40,8 +40,9 @@ namespace catapult { namespace zeromq {
 			using MqContext::subscribeAll;
 
 		public:
-			MqSubscriberContext() : MqContextT(CreateZeroMqTransactionStatusSubscriber)
-			{}
+			MqSubscriberContext()
+					: MqContextT(CreateZeroMqTransactionStatusSubscriber) {
+			}
 
 		public:
 			void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) {

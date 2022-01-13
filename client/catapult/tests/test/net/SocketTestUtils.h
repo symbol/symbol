@@ -29,19 +29,23 @@
 #include <thread>
 
 namespace catapult {
-	namespace ionet {
-		class PacketIo;
-		class PacketSocket;
-		class PacketSocketInfo;
-	}
-	namespace net { struct ConnectionSettings; }
-	namespace thread { class IoThreadPool; }
+namespace ionet {
+	class PacketIo;
+	class PacketSocket;
+	class PacketSocketInfo;
+}
+namespace net {
+	struct ConnectionSettings;
+}
+namespace thread {
+	class IoThreadPool;
+}
 }
 
 namespace catapult { namespace test {
 
 	/// Function representing transforming a PacketIo into a different implementation.
-	using PacketIoTransform = std::function<std::shared_ptr<ionet::PacketIo> (const std::shared_ptr<ionet::PacketSocket>&)>;
+	using PacketIoTransform = std::function<std::shared_ptr<ionet::PacketIo>(const std::shared_ptr<ionet::PacketSocket>&)>;
 
 	/// Function representing custom work that a socket should perform using a packet aware socket.
 	using PacketSocketWork = consumer<const std::shared_ptr<ionet::PacketSocket>&>;

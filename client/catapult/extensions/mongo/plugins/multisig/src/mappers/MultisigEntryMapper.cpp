@@ -39,18 +39,13 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	bsoncxx::document::value ToDbModel(const state::MultisigEntry& entry) {
 		bson_stream::document builder;
-		auto doc = builder
-				<< "multisig" << bson_stream::open_document
-					<< "version" << 1
-					<< "accountAddress" << ToBinary(entry.address())
-					<< "minApproval" << static_cast<int32_t>(entry.minApproval())
-					<< "minRemoval" << static_cast<int32_t>(entry.minRemoval());
+		auto doc = builder << "multisig" << bson_stream::open_document << "version" << 1 << "accountAddress" << ToBinary(entry.address())
+						   << "minApproval" << static_cast<int32_t>(entry.minApproval()) << "minRemoval"
+						   << static_cast<int32_t>(entry.minRemoval());
 
 		StreamAddresses(builder, "cosignatoryAddresses", entry.cosignatoryAddresses());
 		StreamAddresses(builder, "multisigAddresses", entry.multisigAddresses());
 
-		return doc
-				<< bson_stream::close_document
-				<< bson_stream::finalize;
+		return doc << bson_stream::close_document << bson_stream::finalize;
 	}
 }}}

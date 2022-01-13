@@ -40,9 +40,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		bsoncxx::document::value CreateNamespacePathFilter(const Path& path, uint32_t index) {
 			document doc;
-			auto filter = doc
-					<< "$and" << open_array
-						<< open_document << "namespace.level0" << mappers::ToInt64(path[0]) << close_document;
+			auto filter = doc << "$and" << open_array << open_document << "namespace.level0" << mappers::ToInt64(path[0]) << close_document;
 
 			if (1 < path.size())
 				filter << open_document << "namespace.level1" << mappers::ToInt64(path[1]) << close_document;
@@ -50,10 +48,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			if (2 < path.size())
 				filter << open_document << "namespace.level2" << mappers::ToInt64(path[2]) << close_document;
 
-			filter
-					<< open_document << "meta.index" << static_cast<int32_t>(index) << close_document
-					<< open_document << "namespace.depth" << static_cast<int32_t>(path.size()) << close_document
-					<< close_array;
+			filter << open_document << "meta.index" << static_cast<int32_t>(index) << close_document << open_document << "namespace.depth"
+				   << static_cast<int32_t>(path.size()) << close_document << close_array;
 
 			return doc << finalize;
 		}

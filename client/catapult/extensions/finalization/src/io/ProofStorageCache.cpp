@@ -27,8 +27,8 @@ namespace catapult { namespace io {
 
 	ProofStorageView::ProofStorageView(const ProofStorage& storage, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 			: m_storage(storage)
-			, m_readLock(std::move(readLock))
-	{}
+			, m_readLock(std::move(readLock)) {
+	}
 
 	model::FinalizationStatistics ProofStorageView::statistics() const {
 		return m_storage.statistics();
@@ -48,8 +48,8 @@ namespace catapult { namespace io {
 
 	ProofStorageModifier::ProofStorageModifier(ProofStorage& storage, utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
 			: m_storage(storage)
-			, m_writeLock(std::move(writeLock))
-	{}
+			, m_writeLock(std::move(writeLock)) {
+	}
 
 	void ProofStorageModifier::saveProof(const model::FinalizationProof& proof) {
 		m_storage.saveProof(proof);
@@ -59,8 +59,9 @@ namespace catapult { namespace io {
 
 	// region ProofStorageCache
 
-	ProofStorageCache::ProofStorageCache(std::unique_ptr<ProofStorage>&& pStorage) : m_pStorage(std::move(pStorage))
-	{}
+	ProofStorageCache::ProofStorageCache(std::unique_ptr<ProofStorage>&& pStorage)
+			: m_pStorage(std::move(pStorage)) {
+	}
 
 	ProofStorageCache::~ProofStorageCache() = default;
 

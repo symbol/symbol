@@ -99,7 +99,8 @@ namespace catapult { namespace net {
 				tryStartAccept();
 
 				CATAPULT_LOG(trace) << "AsyncTcpServer waiting for threads to enter pending accept state";
-				while (!m_hasPendingAccept) {}
+				while (!m_hasPendingAccept) {
+				}
 				CATAPULT_LOG(info) << "AsyncTcpServer spawned pending accept";
 			}
 
@@ -110,11 +111,10 @@ namespace catapult { namespace net {
 
 				// close the acceptor to prevent new connections and block until the close actually happens
 				CATAPULT_LOG(info) << "AsyncTcpServer stopping";
-				boost::asio::dispatch(m_acceptorStrand, [pThis = shared_from_this()]() {
-					pThis->closeAcceptor();
-				});
+				boost::asio::dispatch(m_acceptorStrand, [pThis = shared_from_this()]() { pThis->closeAcceptor(); });
 
-				while (m_hasPendingAccept) {}
+				while (m_hasPendingAccept) {
+				}
 				CATAPULT_LOG(info) << "AsyncTcpServer stopped";
 			}
 
@@ -150,9 +150,7 @@ namespace catapult { namespace net {
 				tryStartAccept();
 
 				// post the user callback on the thread pool (outside of the strand)
-				boost::asio::post(m_ioContext, [userCallback = m_settings.Accept, socketInfo] {
-					userCallback(socketInfo);
-				});
+				boost::asio::post(m_ioContext, [userCallback = m_settings.Accept, socketInfo] { userCallback(socketInfo); });
 			}
 
 			std::shared_ptr<ionet::PacketSocket> addDestructionHook(const std::shared_ptr<ionet::PacketSocket>& pSocket) {
@@ -163,9 +161,7 @@ namespace catapult { namespace net {
 					pRawSocket->close();
 
 					// if a valid connection was wrapped, decrement the number of current connections and attempt to start a new accept
-					boost::asio::post(pThis->m_acceptorStrand, [pThis] {
-						pThis->handleContextDestructionOnStrand();
-					});
+					boost::asio::post(pThis->m_acceptorStrand, [pThis] { pThis->handleContextDestructionOnStrand(); });
 				});
 			}
 
@@ -196,9 +192,7 @@ namespace catapult { namespace net {
 
 				// start a new accept
 				m_hasPendingAccept = true;
-				auto acceptHandler = [pThis = shared_from_this()](const auto& socketInfo) {
-					pThis->handleAccept(socketInfo);
-				};
+				auto acceptHandler = [pThis = shared_from_this()](const auto& socketInfo) { pThis->handleAccept(socketInfo); };
 				ionet::Accept(m_ioContext, m_acceptor, m_settings.PacketSocketOptions, acceptHandler);
 			}
 
@@ -217,8 +211,8 @@ namespace catapult { namespace net {
 
 	AsyncTcpServerSettings::AsyncTcpServerSettings(const AcceptHandler& accept)
 			: Accept(accept)
-			, PacketSocketOptions(ConnectionSettings().toSocketOptions())
-	{}
+			, PacketSocketOptions(ConnectionSettings().toSocketOptions()) {
+	}
 
 	std::shared_ptr<AsyncTcpServer> CreateAsyncTcpServer(
 			thread::IoThreadPool& pool,

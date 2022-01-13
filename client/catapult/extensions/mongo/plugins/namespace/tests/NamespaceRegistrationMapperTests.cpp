@@ -87,10 +87,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Arrange:
 		std::string namespaceName("jabo38");
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto pTransaction = TTraits::Adapt(CreateNamespaceRegistrationTransactionBuilder(
-				signer,
-				model::NamespaceRegistrationType::Root,
-				namespaceName));
+		auto pTransaction = TTraits::Adapt(
+				CreateNamespaceRegistrationTransactionBuilder(signer, model::NamespaceRegistrationType::Root, namespaceName));
 		auto namespaceId = pTransaction->Id;
 		auto pPlugin = TTraits::CreatePlugin();
 
@@ -109,10 +107,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Arrange:
 		std::string namespaceName("jabo38");
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto pTransaction = TTraits::Adapt(CreateNamespaceRegistrationTransactionBuilder(
-				signer,
-				model::NamespaceRegistrationType::Child,
-				namespaceName));
+		auto pTransaction = TTraits::Adapt(
+				CreateNamespaceRegistrationTransactionBuilder(signer, model::NamespaceRegistrationType::Child, namespaceName));
 		auto namespaceId = pTransaction->Id;
 		auto pPlugin = TTraits::CreatePlugin();
 

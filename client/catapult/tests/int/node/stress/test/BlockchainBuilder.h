@@ -34,17 +34,14 @@ namespace catapult { namespace test {
 	class BlockchainBuilder {
 	public:
 		using Blocks = std::vector<std::shared_ptr<model::Block>>;
-		using BlockReceiptsHashCalculator = std::function<Hash256 (const model::Block&)>;
+		using BlockReceiptsHashCalculator = std::function<Hash256(const model::Block&)>;
 
 	public:
 		/// Creates a builder around \a accounts and \a stateHashCalculator.
 		BlockchainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator);
 
 		/// Creates a builder around \a accounts, \a stateHashCalculator and \a config.
-		BlockchainBuilder(
-				const Accounts& accounts,
-				StateHashCalculator& stateHashCalculator,
-				const model::BlockchainConfiguration& config);
+		BlockchainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator, const model::BlockchainConfiguration& config);
 
 		/// Creates a builder around \a accounts, \a stateHashCalculator, \a config and explicit \a resourcesPath.
 		BlockchainBuilder(

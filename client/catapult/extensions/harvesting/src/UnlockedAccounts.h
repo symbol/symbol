@@ -33,24 +33,22 @@ namespace catapult { namespace harvesting {
 #define UNLOCKED_ACCOUNTS_ADD_RESULT_LIST \
 	/* Account was successfully (newly) unlocked. */ \
 	ENUM_VALUE(Success_New) \
-	\
+\
 	/* Account was (previously) unlocked and successfully updated. */ \
 	ENUM_VALUE(Success_Update) \
-	\
+\
 	/* Account could not be unlocked because it is ineligible for harvesting. */ \
 	ENUM_VALUE(Failure_Harvesting_Ineligible) \
-	\
+\
 	/* Account could not be unlocked because it is blocked from harvesting. */ \
 	ENUM_VALUE(Failure_Harvesting_Blocked) \
-	\
+\
 	/* Account could not be unlocked because limit on the server has been hit. */ \
 	ENUM_VALUE(Failure_Server_Limit)
 
 #define ENUM_VALUE(LABEL) LABEL,
 	/// Possible results of an add (unlock) operation.
-	enum class UnlockedAccountsAddResult {
-		UNLOCKED_ACCOUNTS_ADD_RESULT_LIST
-	};
+	enum class UnlockedAccountsAddResult { UNLOCKED_ACCOUNTS_ADD_RESULT_LIST };
 #undef ENUM_VALUE
 
 	/// Insertion operator for outputting \a value to \a out.

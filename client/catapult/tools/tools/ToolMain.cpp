@@ -75,9 +75,9 @@ namespace catapult { namespace tools {
 		void TerminateHandler() noexcept {
 			// 1. if termination is caused by an exception, log it
 			if (std::current_exception()) {
-				CATAPULT_LOG(fatal)
-						<< std::endl << "thread: " << thread::GetThreadName()
-						<< std::endl << UNHANDLED_EXCEPTION_MESSAGE("running a tool");
+				CATAPULT_LOG(fatal) << std::endl
+									<< "thread: " << thread::GetThreadName() << std::endl
+									<< UNHANDLED_EXCEPTION_MESSAGE("running a tool");
 			}
 
 			// 2. flush the log and abort
@@ -121,7 +121,8 @@ namespace catapult { namespace tools {
 
 			// add options common for all tools
 			optionsBuilder("help,h", "print help message");
-			optionsBuilder("loggingConfigurationPath,l",
+			optionsBuilder(
+					"loggingConfigurationPath,l",
 					OptionsValue<std::string>(options.LoggingConfigurationPath),
 					"path to the logging configuration file");
 

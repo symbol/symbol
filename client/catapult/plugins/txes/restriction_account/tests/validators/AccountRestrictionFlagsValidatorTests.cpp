@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AccountRestrictionFlagsValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountRestrictionFlags,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountRestrictionFlags, )
 
 	namespace {
 		void AssertValidationResult(ValidationResult expectedResult, model::AccountRestrictionFlags restrictionFlags) {
@@ -59,12 +59,10 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithKnownAccountRestrictionFlags) {
-		AssertValidTypes({
-				model::AccountRestrictionFlags::Address,
-				model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing,
-				model::AccountRestrictionFlags::MosaicId,
-				model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing
-		});
+		AssertValidTypes({ model::AccountRestrictionFlags::Address,
+						   model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing,
+						   model::AccountRestrictionFlags::MosaicId,
+						   model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing });
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithUnknownAccountRestrictionFlags) {
@@ -77,14 +75,12 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMultipleFlagsSet) {
-		AssertInvalidTypes({
-			model::AccountRestrictionFlags::MosaicId | model::AccountRestrictionFlags::Outgoing,
-			model::AccountRestrictionFlags::TransactionType,
-			static_cast<model::AccountRestrictionFlags>(3),
-			static_cast<model::AccountRestrictionFlags>(3) | model::AccountRestrictionFlags::Outgoing,
-			static_cast<model::AccountRestrictionFlags>(7),
-			static_cast<model::AccountRestrictionFlags>(7) | model::AccountRestrictionFlags::Outgoing,
-			static_cast<model::AccountRestrictionFlags>(0xFF)
-		});
+		AssertInvalidTypes({ model::AccountRestrictionFlags::MosaicId | model::AccountRestrictionFlags::Outgoing,
+							 model::AccountRestrictionFlags::TransactionType,
+							 static_cast<model::AccountRestrictionFlags>(3),
+							 static_cast<model::AccountRestrictionFlags>(3) | model::AccountRestrictionFlags::Outgoing,
+							 static_cast<model::AccountRestrictionFlags>(7),
+							 static_cast<model::AccountRestrictionFlags>(7) | model::AccountRestrictionFlags::Outgoing,
+							 static_cast<model::AccountRestrictionFlags>(0xFF) });
 	}
 }}

@@ -28,8 +28,7 @@
 #include "plugins/txes/namespace/src/constants.h"
 #include "plugins/txes/namespace/src/model/NamespaceReceiptType.h"
 
-extern "C" PLUGIN_API
-void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	using namespace catapult;
 
 	// transaction support

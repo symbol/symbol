@@ -21,7 +21,9 @@
 
 #pragma once
 
-namespace catapult { namespace mongo { class MongoPluginManager; } }
+namespace catapult { namespace mongo {
+	class MongoPluginManager;
+}}
 
 namespace catapult { namespace mongo {
 

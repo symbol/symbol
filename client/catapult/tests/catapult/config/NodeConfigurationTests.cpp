@@ -33,124 +33,97 @@ namespace catapult { namespace config {
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
 				return {
-					{
-						"node",
-						{
-							{ "port", "1234" },
-							{ "maxIncomingConnectionsPerIdentity", "7" },
+					{ "node",
+					  { { "port", "1234" },
+						{ "maxIncomingConnectionsPerIdentity", "7" },
 
-							{ "enableAddressReuse", "true" },
-							{ "enableSingleThreadPool", "true" },
-							{ "enableCacheDatabaseStorage", "true" },
-							{ "enableAutoSyncCleanup", "true" },
+						{ "enableAddressReuse", "true" },
+						{ "enableSingleThreadPool", "true" },
+						{ "enableCacheDatabaseStorage", "true" },
+						{ "enableAutoSyncCleanup", "true" },
 
-							{ "fileDatabaseBatchSize", "888" },
+						{ "fileDatabaseBatchSize", "888" },
 
-							{ "enableTransactionSpamThrottling", "true" },
-							{ "transactionSpamThrottlingMaxBoostFee", "54'123" },
+						{ "enableTransactionSpamThrottling", "true" },
+						{ "transactionSpamThrottlingMaxBoostFee", "54'123" },
 
-							{ "maxHashesPerSyncAttempt", "74" },
-							{ "maxBlocksPerSyncAttempt", "50" },
-							{ "maxChainBytesPerSyncAttempt", "2MB" },
+						{ "maxHashesPerSyncAttempt", "74" },
+						{ "maxBlocksPerSyncAttempt", "50" },
+						{ "maxChainBytesPerSyncAttempt", "2MB" },
 
-							{ "shortLivedCacheTransactionDuration", "17h" },
-							{ "shortLivedCacheBlockDuration", "23m" },
-							{ "shortLivedCachePruneInterval", "1m" },
-							{ "shortLivedCacheMaxSize", "654'123" },
+						{ "shortLivedCacheTransactionDuration", "17h" },
+						{ "shortLivedCacheBlockDuration", "23m" },
+						{ "shortLivedCachePruneInterval", "1m" },
+						{ "shortLivedCacheMaxSize", "654'123" },
 
-							{ "minFeeMultiplier", "864" },
-							{ "maxTimeBehindPullTransactionsStart", "10s" },
-							{ "transactionSelectionStrategy", "maximize-fee" },
-							{ "unconfirmedTransactionsCacheMaxResponseSize", "234KB" },
-							{ "unconfirmedTransactionsCacheMaxSize", "98MB" },
+						{ "minFeeMultiplier", "864" },
+						{ "maxTimeBehindPullTransactionsStart", "10s" },
+						{ "transactionSelectionStrategy", "maximize-fee" },
+						{ "unconfirmedTransactionsCacheMaxResponseSize", "234KB" },
+						{ "unconfirmedTransactionsCacheMaxSize", "98MB" },
 
-							{ "connectTimeout", "4m" },
-							{ "syncTimeout", "5m" },
+						{ "connectTimeout", "4m" },
+						{ "syncTimeout", "5m" },
 
-							{ "socketWorkingBufferSize", "128KB" },
-							{ "socketWorkingBufferSensitivity", "6225" },
-							{ "maxPacketDataSize", "10MB" },
+						{ "socketWorkingBufferSize", "128KB" },
+						{ "socketWorkingBufferSensitivity", "6225" },
+						{ "maxPacketDataSize", "10MB" },
 
-							{ "blockDisruptorSlotCount", "1000" },
-							{ "blockDisruptorMaxMemorySize", "15MB" },
-							{ "blockElementTraceInterval", "34" },
+						{ "blockDisruptorSlotCount", "1000" },
+						{ "blockDisruptorMaxMemorySize", "15MB" },
+						{ "blockElementTraceInterval", "34" },
 
-							{ "transactionDisruptorSlotCount", "9876" },
-							{ "transactionDisruptorMaxMemorySize", "101KB" },
-							{ "transactionElementTraceInterval", "98" },
+						{ "transactionDisruptorSlotCount", "9876" },
+						{ "transactionDisruptorMaxMemorySize", "101KB" },
+						{ "transactionElementTraceInterval", "98" },
 
-							{ "enableDispatcherAbortWhenFull", "true" },
-							{ "enableDispatcherInputAuditing", "true" },
+						{ "enableDispatcherAbortWhenFull", "true" },
+						{ "enableDispatcherInputAuditing", "true" },
 
-							{ "maxTrackedNodes", "222" },
+						{ "maxTrackedNodes", "222" },
 
-							{ "minPartnerNodeVersion", "3.3.3.3" },
-							{ "maxPartnerNodeVersion", "4.5.6.7" },
+						{ "minPartnerNodeVersion", "3.3.3.3" },
+						{ "maxPartnerNodeVersion", "4.5.6.7" },
 
-							{ "trustedHosts", "foo,BAR" },
-							{ "localNetworks", "1.2.3.4,9.8.7.6" },
-							{ "listenInterface", "2.4.8.16" }
-						}
-					},
-					{
-						"cache_database",
-						{
-							{ "enableStatistics", "true" },
-							{ "maxOpenFiles", "1111" },
-							{ "maxLogFiles", "23" },
-							{ "maxLogFileSize", "12MB" },
-							{ "maxBackgroundThreads", "19" },
-							{ "maxSubcompactionThreads", "11" },
-							{ "blockCacheSize", "111MB" },
-							{ "memtableMemoryBudget", "45MB" },
+						{ "trustedHosts", "foo,BAR" },
+						{ "localNetworks", "1.2.3.4,9.8.7.6" },
+						{ "listenInterface", "2.4.8.16" } } },
+					{ "cache_database",
+					  { { "enableStatistics", "true" },
+						{ "maxOpenFiles", "1111" },
+						{ "maxLogFiles", "23" },
+						{ "maxLogFileSize", "12MB" },
+						{ "maxBackgroundThreads", "19" },
+						{ "maxSubcompactionThreads", "11" },
+						{ "blockCacheSize", "111MB" },
+						{ "memtableMemoryBudget", "45MB" },
 
-							{ "maxWriteBatchSize", "17KB" }
-						}
-					},
-					{
-						"localnode",
-						{
-							{ "host", "alice.com" },
-							{ "friendlyName", "a GREAT node" },
-							{ "version", "4.1.2.3" },
-							{ "roles", "Api,Peer" }
-						}
-					},
-					{
-						"outgoing_connections",
-						{
-							{ "maxConnections", "3" },
-							{ "maxConnectionAge", "5" },
-							{ "maxConnectionBanAge", "7" },
-							{ "numConsecutiveFailuresBeforeBanning", "9" }
-						}
-					},
-					{
-						"incoming_connections",
-						{
-							{ "maxConnections", "8" },
-							{ "maxConnectionAge", "13" },
-							{ "maxConnectionBanAge", "16" },
-							{ "numConsecutiveFailuresBeforeBanning", "19" },
-							{ "backlogSize", "21" }
-						}
-					},
-					{
-						"banning",
-						{
-							{ "defaultBanDuration", "5h" },
-							{ "maxBanDuration", "58h" },
-							{ "keepAliveDuration", "589h" },
-							{ "maxBannedNodes", "1928" },
+						{ "maxWriteBatchSize", "17KB" } } },
+					{ "localnode",
+					  { { "host", "alice.com" }, { "friendlyName", "a GREAT node" }, { "version", "4.1.2.3" }, { "roles", "Api,Peer" } } },
+					{ "outgoing_connections",
+					  { { "maxConnections", "3" },
+						{ "maxConnectionAge", "5" },
+						{ "maxConnectionBanAge", "7" },
+						{ "numConsecutiveFailuresBeforeBanning", "9" } } },
+					{ "incoming_connections",
+					  { { "maxConnections", "8" },
+						{ "maxConnectionAge", "13" },
+						{ "maxConnectionBanAge", "16" },
+						{ "numConsecutiveFailuresBeforeBanning", "19" },
+						{ "backlogSize", "21" } } },
+					{ "banning",
+					  { { "defaultBanDuration", "5h" },
+						{ "maxBanDuration", "58h" },
+						{ "keepAliveDuration", "589h" },
+						{ "maxBannedNodes", "1928" },
 
-							{ "numReadRateMonitoringBuckets", "7" },
-							{ "readRateMonitoringBucketDuration", "9m" },
-							{ "maxReadRateMonitoringTotalSize", "11KB" },
+						{ "numReadRateMonitoringBuckets", "7" },
+						{ "readRateMonitoringBucketDuration", "9m" },
+						{ "maxReadRateMonitoringTotalSize", "11KB" },
 
-							{ "minTransactionFailuresCountForBan", "111" },
-							{ "minTransactionFailuresPercentForBan", "432" }
-						}
-					}
+						{ "minTransactionFailuresCountForBan", "111" },
+						{ "minTransactionFailuresPercentForBan", "432" } } }
 				};
 			}
 

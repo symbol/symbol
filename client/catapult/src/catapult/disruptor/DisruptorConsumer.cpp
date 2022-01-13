@@ -33,9 +33,8 @@ namespace catapult { namespace disruptor {
 
 			std::vector<DisruptorConsumer> consumers;
 			for (const auto& typedConsumer : typedConsumers) {
-				consumers.push_back([typedConsumer, typedConsumerInvoker](auto& input) {
-					return typedConsumerInvoker(typedConsumer, input);
-				});
+				consumers.push_back(
+						[typedConsumer, typedConsumerInvoker](auto& input) { return typedConsumerInvoker(typedConsumer, input); });
 			}
 
 			return consumers;

@@ -62,10 +62,16 @@ namespace catapult { namespace disruptor {
 		};
 
 #define ENTITY_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Block) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Transaction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Block) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Transaction) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 	}
 
 	ENTITY_TRAITS_BASED_TEST(FromTypedConsumers_CannotMapZeroConsumers) {
@@ -81,12 +87,10 @@ namespace catapult { namespace disruptor {
 		void AssertInvalidInput(ConsumerInput&& input) {
 			// Arrange: create a single consumer
 			auto numCalls = 0u;
-			typename TTraits::ConsumersType typedConsumers{
-				[&numCalls](const auto&) {
-					++numCalls;
-					return ConsumerResult::Continue();
-				}
-			};
+			typename TTraits::ConsumersType typedConsumers{ [&numCalls](const auto&) {
+				++numCalls;
+				return ConsumerResult::Continue();
+			} };
 
 			// Act: perform the mapping
 			auto consumers = TTraits::FromTypedConsumers(typedConsumers);
@@ -114,13 +118,11 @@ namespace catapult { namespace disruptor {
 		// Arrange: create a single consumer
 		auto numCalls = 0u;
 		const void* pElementData = nullptr;
-		typename TTraits::ConsumersType typedConsumers{
-			[&numCalls, &pElementData](const auto& elements) {
-				++numCalls;
-				pElementData = elements.data();
-				return ConsumerResult::Continue();
-			}
-		};
+		typename TTraits::ConsumersType typedConsumers{ [&numCalls, &pElementData](const auto& elements) {
+			++numCalls;
+			pElementData = elements.data();
+			return ConsumerResult::Continue();
+		} };
 
 		// Act: perform the mapping
 		auto consumers = TTraits::FromTypedConsumers(typedConsumers);
@@ -139,12 +141,10 @@ namespace catapult { namespace disruptor {
 	ENTITY_TRAITS_BASED_TEST(FromTypedConsumers_TypedConsumerCanModifyInput) {
 		// Arrange: create a single consumer
 		auto hash = test::GenerateRandomByteArray<Hash256>();
-		typename TTraits::ConsumersType typedConsumers{
-			[&hash](auto& elements) {
-				elements[0].EntityHash = hash;
-				return ConsumerResult::Continue();
-			}
-		};
+		typename TTraits::ConsumersType typedConsumers{ [&hash](auto& elements) {
+			elements[0].EntityHash = hash;
+			return ConsumerResult::Continue();
+		} };
 
 		// Act: perform the mapping
 		auto consumers = TTraits::FromTypedConsumers(typedConsumers);

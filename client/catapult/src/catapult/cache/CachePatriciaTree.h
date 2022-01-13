@@ -32,8 +32,8 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a tree around \a database and \a columnId if \a enable is \c true.
 		CachePatriciaTree(bool enable, CacheDatabase& database, size_t columnId)
-				: m_pImpl(enable ? std::make_unique<Impl>(database, columnId) : nullptr)
-		{}
+				: m_pImpl(enable ? std::make_unique<Impl>(database, columnId) : nullptr) {
+		}
 
 	public:
 		/// Gets a pointer to the underlying tree if enabled.

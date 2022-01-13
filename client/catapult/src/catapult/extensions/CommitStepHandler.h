@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/consumers/BlockchainSyncHandlers.h"
 
-namespace catapult { namespace config { class CatapultDataDirectory; } }
+namespace catapult { namespace config {
+	class CatapultDataDirectory;
+}}
 
 namespace catapult { namespace extensions {
 

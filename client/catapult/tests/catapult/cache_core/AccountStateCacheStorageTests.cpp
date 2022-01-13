@@ -41,8 +41,9 @@ namespace catapult { namespace cache {
 			using StorageType = AccountStateCacheStorage;
 			class CacheType : public AccountStateCache {
 			public:
-				CacheType() : AccountStateCache(CacheConfiguration(), Default_Cache_Options)
-				{}
+				CacheType()
+						: AccountStateCache(CacheConfiguration(), Default_Cache_Options) {
+				}
 			};
 
 			static auto CreateId(uint8_t id) {

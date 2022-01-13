@@ -21,7 +21,9 @@
 
 #pragma once
 
-namespace catapult { namespace harvesting { struct HarvestingConfiguration; } }
+namespace catapult { namespace harvesting {
+	struct HarvestingConfiguration;
+}}
 
 namespace catapult { namespace harvesting {
 

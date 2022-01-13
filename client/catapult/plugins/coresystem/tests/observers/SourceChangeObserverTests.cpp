@@ -27,7 +27,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS SourceChangeObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(SourceChange,)
+	DEFINE_COMMON_OBSERVER_TESTS(SourceChange, )
 
 	// region rollback
 

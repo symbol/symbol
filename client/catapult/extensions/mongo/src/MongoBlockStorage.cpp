@@ -37,12 +37,8 @@ namespace catapult { namespace mongo {
 	namespace {
 		model::HashRange LoadHashes(const mongocxx::database& database, Height height, size_t numHashes) {
 			auto blocks = database["blocks"];
-			auto filter = document()
-					<< "block.height" << open_document
-						<< "$gte" << static_cast<int64_t>(height.unwrap())
-						<< "$lt" << static_cast<int64_t>(height.unwrap() + numHashes)
-					<< close_document
-					<< finalize;
+			auto filter = document() << "block.height" << open_document << "$gte" << static_cast<int64_t>(height.unwrap()) << "$lt"
+									 << static_cast<int64_t>(height.unwrap() + numHashes) << close_document << finalize;
 
 			mongocxx::options::find options;
 			options.sort(document() << "block.height" << 1 << finalize);
@@ -52,10 +48,7 @@ namespace catapult { namespace mongo {
 			return mappers::ToModel(cursor, numHashes);
 		}
 
-		void SaveBlockHeader(
-				const mongocxx::database& database,
-				const model::BlockElement& blockElement,
-				uint32_t totalTransactionsCount) {
+		void SaveBlockHeader(const mongocxx::database& database, const model::BlockElement& blockElement, uint32_t totalTransactionsCount) {
 			auto blocks = database["blocks"];
 			auto dbBlock = mappers::ToDbModel(blockElement, totalTransactionsCount);
 
@@ -100,39 +93,36 @@ namespace catapult { namespace mongo {
 
 			// transaction statements
 			numExpectedInserts.emplace_back(blockStatement.TransactionStatements.size());
-			futures.emplace_back(bulkWriter.bulkInsert("transactionStatements", blockStatement.TransactionStatements, [height, &registry](
-					const auto& pair,
-					auto) {
-				return mappers::ToDbModel(height, pair.second, registry);
-			}));
+			futures.emplace_back(bulkWriter.bulkInsert(
+					"transactionStatements",
+					blockStatement.TransactionStatements,
+					[height, &registry](const auto& pair, auto) { return mappers::ToDbModel(height, pair.second, registry); }));
 
 			// address resolution statements
 			numExpectedInserts.emplace_back(blockStatement.AddressResolutionStatements.size());
-			futures.emplace_back(bulkWriter.bulkInsert("addressResolutionStatements", blockStatement.AddressResolutionStatements, [height](
-					const auto& pair,
-					auto) {
-				return mappers::ToDbModel(height, pair.second);
-			}));
+			futures.emplace_back(bulkWriter.bulkInsert(
+					"addressResolutionStatements",
+					blockStatement.AddressResolutionStatements,
+					[height](const auto& pair, auto) { return mappers::ToDbModel(height, pair.second); }));
 
 			// mosaic resolution statements
 			numExpectedInserts.emplace_back(blockStatement.MosaicResolutionStatements.size());
-			futures.emplace_back(bulkWriter.bulkInsert("mosaicResolutionStatements", blockStatement.MosaicResolutionStatements, [height](
-					const auto& pair,
-					auto) {
-				return mappers::ToDbModel(height, pair.second);
-			}));
+			futures.emplace_back(bulkWriter.bulkInsert(
+					"mosaicResolutionStatements",
+					blockStatement.MosaicResolutionStatements,
+					[height](const auto& pair, auto) { return mappers::ToDbModel(height, pair.second); }));
 
-			auto statementsFuture = thread::when_all(std::move(futures)).then([height, numExpectedInserts, &errorPolicy](
-					auto&& resultsFuture) {
-				auto insertResultsContainer = resultsFuture.get();
-				auto i = 0u;
-				auto itemsDescription = "statements at height " + std::to_string(height.unwrap());
-				for (auto& insertResults : insertResultsContainer) {
-					auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(insertResults.get())));
-					errorPolicy.checkInserted(numExpectedInserts[i], aggregateResult, itemsDescription);
-					++i;
-				}
-			});
+			auto statementsFuture =
+					thread::when_all(std::move(futures)).then([height, numExpectedInserts, &errorPolicy](auto&& resultsFuture) {
+						auto insertResultsContainer = resultsFuture.get();
+						auto i = 0u;
+						auto itemsDescription = "statements at height " + std::to_string(height.unwrap());
+						for (auto& insertResults : insertResultsContainer) {
+							auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(insertResults.get())));
+							errorPolicy.checkInserted(numExpectedInserts[i], aggregateResult, itemsDescription);
+							++i;
+						}
+					});
 
 			statementsFuture.get();
 		}
@@ -149,8 +139,8 @@ namespace catapult { namespace mongo {
 					, m_transactionRegistry(transactionRegistry)
 					, m_receiptRegistry(receiptRegistry)
 					, m_database(m_context.createDatabaseConnection())
-					, m_errorPolicy(m_context.createCollectionErrorPolicy(""))
-			{}
+					, m_errorPolicy(m_context.createCollectionErrorPolicy("")) {
+			}
 
 		public:
 			// region LightBlockStorage
@@ -226,11 +216,8 @@ namespace catapult { namespace mongo {
 			}
 
 			void setHeight(Height height) {
-				auto journalHeight = document()
-						<< "$set" << open_document
-							<< "current.height" << static_cast<int64_t>(height.unwrap())
-						<< close_document
-						<< finalize;
+				auto journalHeight = document() << "$set" << open_document << "current.height" << static_cast<int64_t>(height.unwrap())
+												<< close_document << finalize;
 
 				auto result = TrySetChainStatisticDocument(m_database, journalHeight.view());
 				m_errorPolicy.checkUpserted(1, result, "height");
@@ -261,10 +248,8 @@ namespace catapult { namespace mongo {
 
 			void dropDocuments(const std::string& collectionName, const std::string& indexName, Height height) {
 				auto collection = m_database[collectionName];
-				auto filter = document()
-						<< indexName
-						<< open_document << "$gt" << static_cast<int64_t>(height.unwrap()) << close_document
-						<< finalize;
+				auto filter = document() << indexName << open_document << "$gt" << static_cast<int64_t>(height.unwrap()) << close_document
+										 << finalize;
 
 				mongocxx::options::delete_options options;
 				options.write_concern(m_context.bulkWriter().writeOptions());

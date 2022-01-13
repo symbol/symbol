@@ -84,11 +84,8 @@ namespace catapult { namespace keylink {
 	TEST(TEST_CLASS, LinkCommitSetsLink) {
 		// Act:
 		auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
-		auto finalLinkedPublicKey = RunKeyLinkObserverTest(
-				observers::NotifyMode::Commit,
-				model::LinkAction::Link,
-				Key(),
-				notificationLinkedPublicKey);
+		auto finalLinkedPublicKey =
+				RunKeyLinkObserverTest(observers::NotifyMode::Commit, model::LinkAction::Link, Key(), notificationLinkedPublicKey);
 
 		// Assert:
 		EXPECT_EQ(notificationLinkedPublicKey, finalLinkedPublicKey);
@@ -127,11 +124,8 @@ namespace catapult { namespace keylink {
 	TEST(TEST_CLASS, UnlinkRollbackSetsLink) {
 		// Act:
 		auto notificationLinkedPublicKey = test::GenerateRandomByteArray<Key>();
-		auto finalLinkedPublicKey = RunKeyLinkObserverTest(
-				observers::NotifyMode::Rollback,
-				model::LinkAction::Unlink,
-				Key(),
-				notificationLinkedPublicKey);
+		auto finalLinkedPublicKey =
+				RunKeyLinkObserverTest(observers::NotifyMode::Rollback, model::LinkAction::Unlink, Key(), notificationLinkedPublicKey);
 
 		// Assert:
 		EXPECT_EQ(notificationLinkedPublicKey, finalLinkedPublicKey);

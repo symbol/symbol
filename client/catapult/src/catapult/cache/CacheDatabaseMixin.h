@@ -35,16 +35,16 @@ namespace catapult { namespace cache {
 				const CacheConfiguration& config,
 				const std::vector<std::string>& columnFamilyNames,
 				FilterPruningMode pruningMode = FilterPruningMode::Disabled)
-				: m_pDatabase(config.ShouldUseCacheDatabase
-						? std::make_unique<CacheDatabase>(CacheDatabaseSettings(
-								config.CacheDatabaseDirectory,
-								config.CacheDatabaseConfig,
-								GetAdjustedColumnFamilyNames(config, columnFamilyNames),
-								pruningMode))
-						: std::make_unique<CacheDatabase>())
+				: m_pDatabase(
+						  config.ShouldUseCacheDatabase ? std::make_unique<CacheDatabase>(CacheDatabaseSettings(
+																  config.CacheDatabaseDirectory,
+																  config.CacheDatabaseConfig,
+																  GetAdjustedColumnFamilyNames(config, columnFamilyNames),
+																  pruningMode))
+														: std::make_unique<CacheDatabase>())
 				, m_containerMode(GetContainerMode(config))
-				, m_hasPatriciaTreeSupport(config.ShouldStorePatriciaTrees)
-		{}
+				, m_hasPatriciaTreeSupport(config.ShouldStorePatriciaTrees) {
+		}
 
 	protected:
 		/// Returns \c true if patricia tree support is enabled.
@@ -60,9 +60,7 @@ namespace catapult { namespace cache {
 	protected:
 		/// Gets the container mode specified by \a config.
 		static deltaset::ConditionalContainerMode GetContainerMode(const CacheConfiguration& config) {
-			return config.ShouldUseCacheDatabase
-					? deltaset::ConditionalContainerMode::Storage
-					: deltaset::ConditionalContainerMode::Memory;
+			return config.ShouldUseCacheDatabase ? deltaset::ConditionalContainerMode::Storage : deltaset::ConditionalContainerMode::Memory;
 		}
 
 		/// Flushes the database.

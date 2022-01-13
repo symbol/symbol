@@ -29,8 +29,9 @@ namespace catapult { namespace local {
 	namespace {
 		class SpoolingRepairer {
 		public:
-			explicit SpoolingRepairer(const config::CatapultDataDirectory& dataDirectory) : m_dataDirectory(dataDirectory)
-			{}
+			explicit SpoolingRepairer(const config::CatapultDataDirectory& dataDirectory)
+					: m_dataDirectory(dataDirectory) {
+			}
 
 		public:
 			void retain(const std::string& queueName) {

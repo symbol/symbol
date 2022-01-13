@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AddressAlias, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AddressAlias, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Alias_Address)
@@ -50,11 +50,11 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			NamespaceRequiredNotification::Notification_Type,
-			AliasLinkNotification::Notification_Type,
-			AliasedAddressNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ NamespaceRequiredNotification::Notification_Type,
+				  AliasLinkNotification::Notification_Type,
+				  AliasedAddressNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotifications) {

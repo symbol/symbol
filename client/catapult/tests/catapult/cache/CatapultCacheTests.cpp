@@ -138,10 +138,16 @@ namespace catapult { namespace cache {
 	}
 
 #define VIEW_DELTA_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_View) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ViewTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Delta) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeltaTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_View) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ViewTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Delta) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeltaTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	VIEW_DELTA_TEST(StateHashIsZeroWhenStateCalculationIsDisabled) {
 		// Arrange:
@@ -195,11 +201,9 @@ namespace catapult { namespace cache {
 		auto cache = CreateSimpleCatapultCacheForStateHashTests();
 		auto view = TTraits::CreateView(cache);
 
-		std::vector<Hash256> expectedSubCacheMerkleRoots{
-			TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<2>>()),
-			TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<6>>()),
-			TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<10>>())
-		};
+		std::vector<Hash256> expectedSubCacheMerkleRoots{ TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<2>>()),
+														  TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<6>>()),
+														  TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<10>>()) };
 
 		// Act + Assert:
 		EXPECT_EQ(expectedSubCacheMerkleRoots, TTraits::CalculateStateHash(view).SubCacheMerkleRoots);
@@ -699,8 +703,9 @@ namespace catapult { namespace cache {
 	namespace {
 		class CatapultCacheProxy {
 		public:
-			CatapultCacheProxy() : m_cache(CreateSimpleCatapultCache())
-			{}
+			CatapultCacheProxy()
+					: m_cache(CreateSimpleCatapultCache()) {
+			}
 
 		public:
 			auto createView() const {
@@ -726,13 +731,13 @@ namespace catapult { namespace cache {
 			public:
 				ViewProxy()
 						: m_view(CatapultCacheDelta::Disposition::Detached, m_dependentState, {})
-						, m_isValid(false)
-				{}
+						, m_isValid(false) {
+				}
 
 				explicit ViewProxy(TView&& view)
 						: m_view(std::move(view))
-						, m_isValid(true)
-				{}
+						, m_isValid(true) {
+				}
 
 			public:
 				const auto& operator*() const {
@@ -755,15 +760,15 @@ namespace catapult { namespace cache {
 
 			class DetachedDeltaProxy {
 			public:
-				explicit DetachedDeltaProxy(CatapultCacheDetachedDelta&& detachedDelta) : m_detachedDelta(std::move(detachedDelta))
-				{}
+				explicit DetachedDeltaProxy(CatapultCacheDetachedDelta&& detachedDelta)
+						: m_detachedDelta(std::move(detachedDelta)) {
+				}
 
 			public:
 				auto tryLock() {
 					auto pLockedDelta = m_detachedDelta.tryLock();
-					return pLockedDelta
-							? ViewProxy<CatapultCacheDelta, test::SimpleCacheDelta>(std::move(*pLockedDelta))
-							: ViewProxy<CatapultCacheDelta, test::SimpleCacheDelta>();
+					return pLockedDelta ? ViewProxy<CatapultCacheDelta, test::SimpleCacheDelta>(std::move(*pLockedDelta))
+										: ViewProxy<CatapultCacheDelta, test::SimpleCacheDelta>();
 				}
 
 			private:
@@ -789,7 +794,7 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	DEFINE_CACHE_SYNC_TESTS(CatapultCacheTraits,)
+	DEFINE_CACHE_SYNC_TESTS(CatapultCacheTraits, )
 
 	// endregion
 }}

@@ -28,8 +28,9 @@ namespace catapult { namespace zeromq {
 	namespace {
 		class ZeroMqFinalizationSubscriber : public subscribers::FinalizationSubscriber {
 		public:
-			explicit ZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher) : m_publisher(publisher)
-			{}
+			explicit ZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher)
+					: m_publisher(publisher) {
+			}
 
 		public:
 			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {

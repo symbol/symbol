@@ -24,12 +24,10 @@
 #include "catapult/types.h"
 #include <memory>
 
-namespace catapult {
-	namespace ionet {
-		class BatchPacketReader;
-		class PacketIo;
-	}
-}
+namespace catapult { namespace ionet {
+	class BatchPacketReader;
+	class PacketIo;
+}}
 
 namespace catapult { namespace ionet {
 

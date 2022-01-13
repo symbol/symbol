@@ -24,21 +24,22 @@
 
 namespace catapult { namespace observers {
 
-	DEFINE_OBSERVER(ChildNamespace, model::ChildNamespaceNotification, [](
-			const model::ChildNamespaceNotification& notification,
-			const ObserverContext& context) {
-		auto& cache = context.Cache.sub<cache::NamespaceCache>();
+	DEFINE_OBSERVER(
+			ChildNamespace,
+			model::ChildNamespaceNotification,
+			[](const model::ChildNamespaceNotification& notification, const ObserverContext& context) {
+				auto& cache = context.Cache.sub<cache::NamespaceCache>();
 
-		if (NotifyMode::Rollback == context.Mode) {
-			cache.remove(notification.NamespaceId);
-			return;
-		}
+				if (NotifyMode::Rollback == context.Mode) {
+					cache.remove(notification.NamespaceId);
+					return;
+				}
 
-		// make copy of parent path and append child id
-		auto namespaceIter = cache.find(notification.ParentId);
-		const auto& parentEntry = namespaceIter.get();
-		auto childPath = parentEntry.ns().path();
-		childPath.push_back(notification.NamespaceId);
-		cache.insert(state::Namespace(childPath));
-	})
+				// make copy of parent path and append child id
+				auto namespaceIter = cache.find(notification.ParentId);
+				const auto& parentEntry = namespaceIter.get();
+				auto childPath = parentEntry.ns().path();
+				childPath.push_back(notification.NamespaceId);
+				cache.insert(state::Namespace(childPath));
+			})
 }}

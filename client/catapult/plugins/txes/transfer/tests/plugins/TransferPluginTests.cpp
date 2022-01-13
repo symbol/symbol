@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 			static void RunTestAfterRegistration(TAction action) {
 				// Arrange:
 				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
+				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({ { "", { { "maxMessageSize", "0" } } } }));
 
 				auto userConfig = config::UserConfiguration::Uninitialized();
 				userConfig.CertificateDirectory = test::GetDefaultCertificateDirectory();

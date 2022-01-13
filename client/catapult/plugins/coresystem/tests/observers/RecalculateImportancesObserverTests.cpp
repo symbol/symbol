@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
 #include "src/importance/ImportanceCalculator.h"
+#include "src/observers/Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
@@ -48,8 +48,8 @@ namespace catapult { namespace observers {
 					const cache::AccountStateCacheDelta& cache)
 					: Mode(mode)
 					, ImportanceHeight(importanceHeight)
-					, Cache(cache)
-			{}
+					, Cache(cache) {
+			}
 
 		public:
 			const importance::ImportanceRollbackMode Mode;
@@ -277,10 +277,16 @@ namespace catapult { namespace observers {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Commit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CommitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Rollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RollbackTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Commit) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CommitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Rollback) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RollbackTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(RecalculationIsBypassedWhenImportanceHeightEqualsLastCalculationHeight) {
 		// Arrange:

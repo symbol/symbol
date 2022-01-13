@@ -34,12 +34,9 @@ namespace catapult { namespace plugins {
 			static void RunTestAfterRegistration(TAction action) {
 				// Arrange:
 				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.Plugins.emplace("catapult.plugins.restrictionmosaic", utils::ConfigurationBag({{
-					"",
-					{
-						{ "maxMosaicRestrictionValues", "10" }
-					}
-				}}));
+				config.Plugins.emplace(
+						"catapult.plugins.restrictionmosaic",
+						utils::ConfigurationBag({ { "", { { "maxMosaicRestrictionValues", "10" } } } }));
 
 				auto manager = test::CreatePluginManager(config);
 				RegisterMosaicRestrictionSubsystem(manager);
@@ -50,10 +47,7 @@ namespace catapult { namespace plugins {
 
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {
-					model::Entity_Type_Mosaic_Address_Restriction,
-					model::Entity_Type_Mosaic_Global_Restriction
-				};
+				return { model::Entity_Type_Mosaic_Address_Restriction, model::Entity_Type_Mosaic_Global_Restriction };
 			}
 
 			static std::vector<std::string> GetCacheNames() {
@@ -77,24 +71,17 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
-				return {
-					"MosaicRestrictionBalanceDebitValidator",
-					"MosaicRestrictionBalanceTransferValidator",
-					"MosaicRestrictionRequiredValidator",
-					"MosaicGlobalRestrictionMaxValuesValidator",
-					"MosaicGlobalRestrictionModificationValidator",
-					"MosaicAddressRestrictionMaxValuesValidator",
-					"MosaicAddressRestrictionModificationValidator"
-				};
+				return { "MosaicRestrictionBalanceDebitValidator",		 "MosaicRestrictionBalanceTransferValidator",
+						 "MosaicRestrictionRequiredValidator",			 "MosaicGlobalRestrictionMaxValuesValidator",
+						 "MosaicGlobalRestrictionModificationValidator", "MosaicAddressRestrictionMaxValuesValidator",
+						 "MosaicAddressRestrictionModificationValidator" };
 			}
 
 			static std::vector<std::string> GetObserverNames() {
-				return {
-					"MosaicGlobalRestrictionCommitModificationObserver",
-					"MosaicGlobalRestrictionRollbackModificationObserver",
-					"MosaicAddressRestrictionCommitModificationObserver",
-					"MosaicAddressRestrictionRollbackModificationObserver"
-				};
+				return { "MosaicGlobalRestrictionCommitModificationObserver",
+						 "MosaicGlobalRestrictionRollbackModificationObserver",
+						 "MosaicAddressRestrictionCommitModificationObserver",
+						 "MosaicAddressRestrictionRollbackModificationObserver" };
 			}
 
 			static std::vector<std::string> GetPermanentObserverNames() {

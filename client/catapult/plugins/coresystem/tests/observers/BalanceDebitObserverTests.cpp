@@ -29,7 +29,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS BalanceDebitObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(BalanceDebit,)
+	DEFINE_COMMON_OBSERVER_TESTS(BalanceDebit, )
 
 	namespace {
 		template<typename TTraits>
@@ -70,8 +70,12 @@ namespace catapult { namespace observers {
 	}
 
 #define DEFINE_BALANCE_OBSERVATION_TESTS(TEST_NAME) \
-	TEST(TEST_CLASS, CanTransfer##TEST_NAME##_Commit) { AssertCommitObservation<TEST_NAME##Traits>(); } \
-	TEST(TEST_CLASS, CanTransfer##TEST_NAME##_Rollback) { AssertRollbackObservation<TEST_NAME##Traits>(); }
+	TEST(TEST_CLASS, CanTransfer##TEST_NAME##_Commit) { \
+		AssertCommitObservation<TEST_NAME##Traits>(); \
+	} \
+	TEST(TEST_CLASS, CanTransfer##TEST_NAME##_Rollback) { \
+		AssertRollbackObservation<TEST_NAME##Traits>(); \
+	}
 
 	// region single mosaic
 

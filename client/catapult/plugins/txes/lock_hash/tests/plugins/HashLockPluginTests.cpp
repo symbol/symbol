@@ -35,13 +35,10 @@ namespace catapult { namespace plugins {
 				// Arrange:
 				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(1);
-				config.Plugins.emplace("catapult.plugins.lockhash", utils::ConfigurationBag({{
-					"",
-					{
-						{ "lockedFundsPerAggregate", "10'000'000" },
-						{ "maxHashLockDuration", "2d" }
-					}
-				}}));
+				config.Plugins.emplace(
+						"catapult.plugins.lockhash",
+						utils::ConfigurationBag(
+								{ { "", { { "lockedFundsPerAggregate", "10'000'000" }, { "maxHashLockDuration", "2d" } } } }));
 
 				auto manager = test::CreatePluginManager(config);
 				RegisterHashLockSubsystem(manager);
@@ -80,11 +77,7 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetObserverNames() {
-				return {
-					"HashLockObserver",
-					"ExpiredHashLockInfoObserver",
-					"CompletedAggregateObserver"
-				};
+				return { "HashLockObserver", "ExpiredHashLockInfoObserver", "CompletedAggregateObserver" };
 			}
 
 			static std::vector<std::string> GetPermanentObserverNames() {

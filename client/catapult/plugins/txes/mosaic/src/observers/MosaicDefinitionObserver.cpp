@@ -35,9 +35,8 @@ namespace catapult { namespace observers {
 				NotifyMode mode) {
 			auto flags = Xor(currentProperties.flags(), notificationProperties.flags());
 			auto divisibility = static_cast<uint8_t>(currentProperties.divisibility() ^ notificationProperties.divisibility());
-			auto duration = NotifyMode::Commit == mode
-					? currentProperties.duration() + notificationProperties.duration()
-					: currentProperties.duration() - notificationProperties.duration();
+			auto duration = NotifyMode::Commit == mode ? currentProperties.duration() + notificationProperties.duration()
+													   : currentProperties.duration() - notificationProperties.duration();
 			return model::MosaicProperties(flags, divisibility, duration);
 		}
 
@@ -53,25 +52,26 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(MosaicDefinition, model::MosaicDefinitionNotification, [](
-			const model::MosaicDefinitionNotification& notification,
-			const ObserverContext& context) {
-		auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
+	DEFINE_OBSERVER(
+			MosaicDefinition,
+			model::MosaicDefinitionNotification,
+			[](const model::MosaicDefinitionNotification& notification, const ObserverContext& context) {
+				auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
 
-		// mosaic supply will always be zero when a mosaic definition is observed
-		auto mosaicIter = mosaicCache.find(notification.MosaicId);
-		if (mosaicIter.tryGet()) {
-			// copy existing mosaic entry before removing
-			auto mosaicEntry = mosaicIter.get();
-			mosaicCache.remove(notification.MosaicId);
+				// mosaic supply will always be zero when a mosaic definition is observed
+				auto mosaicIter = mosaicCache.find(notification.MosaicId);
+				if (mosaicIter.tryGet()) {
+					// copy existing mosaic entry before removing
+					auto mosaicEntry = mosaicIter.get();
+					mosaicCache.remove(notification.MosaicId);
 
-			if (NotifyMode::Rollback == context.Mode && 1 == mosaicEntry.definition().revision())
-				return;
+					if (NotifyMode::Rollback == context.Mode && 1 == mosaicEntry.definition().revision())
+						return;
 
-			mosaicCache.insert(ApplyNotification(mosaicEntry, notification, context.Mode));
-		} else {
-			auto definition = state::MosaicDefinition(context.Height, notification.Owner, 1, notification.Properties);
-			mosaicCache.insert(state::MosaicEntry(notification.MosaicId, definition));
-		}
-	})
+					mosaicCache.insert(ApplyNotification(mosaicEntry, notification, context.Mode));
+				} else {
+					auto definition = state::MosaicDefinition(context.Height, notification.Owner, 1, notification.Properties);
+					mosaicCache.insert(state::MosaicEntry(notification.MosaicId, definition));
+				}
+			})
 }}

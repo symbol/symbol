@@ -24,7 +24,9 @@
 #include "catapult/crypto/KeyPair.h"
 #include <random>
 
-namespace catapult { namespace model { struct Block; } }
+namespace catapult { namespace model {
+	struct Block;
+}}
 
 namespace catapult { namespace test {
 

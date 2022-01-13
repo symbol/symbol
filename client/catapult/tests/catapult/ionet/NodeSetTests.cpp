@@ -49,20 +49,22 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, NodeEquality_OperatorEqualReturnsTrueForEqualObjects) {
 		std::unordered_set<std::string> equalityTags{ "default", "copy", "diff-endpoint", "diff-metadata" };
-		test::AssertEqualReturnsTrueForEqualObjects<Node>("default", GenerateEqualityInstanceMap(), equalityTags, [](
-				const auto& lhs,
-				const auto& rhs) {
-			return NodeEquality()(lhs, rhs);
-		});
+		test::AssertEqualReturnsTrueForEqualObjects<Node>(
+				"default",
+				GenerateEqualityInstanceMap(),
+				equalityTags,
+				[](const auto& lhs, const auto& rhs) { return NodeEquality()(lhs, rhs); });
 	}
 
 	TEST(TEST_CLASS, NodeHasher_OperatorEqualReturnsTrueForEqualObjects) {
 		std::unordered_set<std::string> equalityTags{ "default", "copy", "diff-endpoint", "diff-metadata" };
-		test::AssertEqualReturnsTrueForEqualObjects<Node>("default", GenerateEqualityInstanceMap(), equalityTags, [](
-				const auto& lhs,
-				const auto& rhs) {
-			auto hasher = NodeHasher();
-			return hasher(lhs) == hasher(rhs);
-		});
+		test::AssertEqualReturnsTrueForEqualObjects<Node>(
+				"default",
+				GenerateEqualityInstanceMap(),
+				equalityTags,
+				[](const auto& lhs, const auto& rhs) {
+					auto hasher = NodeHasher();
+					return hasher(lhs) == hasher(rhs);
+				});
 	}
 }}

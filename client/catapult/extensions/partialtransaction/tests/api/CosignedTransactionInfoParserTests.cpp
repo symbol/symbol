@@ -77,8 +77,8 @@ namespace catapult { namespace api {
 			explicit HashGenerator(uint8_t numCosignatures)
 					: m_numCosignatures(numCosignatures)
 					, m_hash(test::GenerateRandomByteArray<Hash256>())
-					, m_cosignatures(test::GenerateRandomDataVector<model::Cosignature>(numCosignatures))
-			{}
+					, m_cosignatures(test::GenerateRandomDataVector<model::Cosignature>(numCosignatures)) {
+			}
 
 		public:
 			void addData(ionet::PacketPayloadBuilder& builder) const {
@@ -104,8 +104,8 @@ namespace catapult { namespace api {
 			explicit TransactionGenerator(uint8_t numCosignatures)
 					: m_numCosignatures(numCosignatures)
 					, m_pTransaction(test::GenerateRandomTransaction())
-					, m_cosignatures(test::GenerateRandomDataVector<model::Cosignature>(numCosignatures))
-			{}
+					, m_cosignatures(test::GenerateRandomDataVector<model::Cosignature>(numCosignatures)) {
+			}
 
 		public:
 			void addData(ionet::PacketPayloadBuilder& builder) const {
@@ -319,9 +319,7 @@ namespace catapult { namespace api {
 
 		// Act: parse and indicate the second transaction is invalid
 		auto i = 0u;
-		auto extractedInfos = api::ExtractCosignedTransactionInfosFromPacket(*pPacket, [&i](const auto&) {
-			return 2u == ++i;
-		});
+		auto extractedInfos = api::ExtractCosignedTransactionInfosFromPacket(*pPacket, [&i](const auto&) { return 2u == ++i; });
 
 		// Assert:
 		EXPECT_TRUE(extractedInfos.empty());

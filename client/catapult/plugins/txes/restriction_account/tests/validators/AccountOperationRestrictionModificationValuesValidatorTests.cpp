@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AccountOperationRestrictionModificationValuesValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionModificationValues,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionModificationValues, )
 
 	namespace {
 		struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {

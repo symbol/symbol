@@ -26,7 +26,9 @@
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/RandomGenerator.h"
 
-namespace catapult { namespace ionet { class NodeContainer; } }
+namespace catapult { namespace ionet {
+	class NodeContainer;
+}}
 
 namespace catapult { namespace extensions {
 
@@ -42,7 +44,7 @@ namespace catapult { namespace extensions {
 	};
 
 	/// Retrieves an importance descriptor given a specified public key.
-	using ImportanceRetriever = std::function<ImportanceDescriptor (const Key&)>;
+	using ImportanceRetriever = std::function<ImportanceDescriptor(const Key&)>;
 
 	// endregion
 
@@ -54,8 +56,8 @@ namespace catapult { namespace extensions {
 		/// Creates a weighted candidate around \a node and \a weight.
 		WeightedCandidate(const ionet::Node& node, uint64_t weight)
 				: Node(node)
-				, Weight(weight)
-		{}
+				, Weight(weight) {
+		}
 
 	public:
 		/// Node.
@@ -75,8 +77,9 @@ namespace catapult { namespace extensions {
 	struct NodeSelectionResult {
 	public:
 		/// Creates a result.
-		NodeSelectionResult() : RemoveCandidates(model::CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key_And_Host))
-		{}
+		NodeSelectionResult()
+				: RemoveCandidates(model::CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key_And_Host)) {
+		}
 
 	public:
 		/// Nodes that should be activatated.
@@ -137,8 +140,9 @@ namespace catapult { namespace extensions {
 	class WeightPolicyGenerator {
 	public:
 		/// Creates a default weight policy generator.
-		WeightPolicyGenerator() : m_distr(1, 4)
-		{}
+		WeightPolicyGenerator()
+				: m_distr(1, 4) {
+		}
 
 	public:
 		/// Generates the next weight policy.
@@ -161,10 +165,7 @@ namespace catapult { namespace extensions {
 
 	/// Finds at most \a maxCandidates add candidates from container \a candidates given a
 	/// total candidate weight (\a totalCandidateWeight).
-	ionet::NodeSet SelectCandidatesBasedOnWeight(
-			const WeightedCandidates& candidates,
-			uint64_t totalCandidateWeight,
-			size_t maxCandidates);
+	ionet::NodeSet SelectCandidatesBasedOnWeight(const WeightedCandidates& candidates, uint64_t totalCandidateWeight, size_t maxCandidates);
 
 	/// Selects the subset of \a nodes to activate and deactivate according to \a config and \a importanceRetriever.
 	/// \note This function is intended for management of outgoing connections.

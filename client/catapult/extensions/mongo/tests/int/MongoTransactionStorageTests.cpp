@@ -31,7 +31,7 @@ namespace catapult { namespace mongo {
 
 		std::vector<model::TransactionInfo> CreateTransactionInfos(
 				size_t count,
-				const std::function<Timestamp (size_t)>& deadlineGenerator) {
+				const std::function<Timestamp(size_t)>& deadlineGenerator) {
 			std::vector<model::TransactionInfo> transactionInfos;
 			for (auto i = 0u; i < count; ++i) {
 				auto pTransaction = mocks::CreateMockTransaction(10);
@@ -56,22 +56,22 @@ namespace catapult { namespace mongo {
 			explicit TransactionStorageContext(
 					size_t numTransactionInfos,
 					test::DbInitializationType dbInitializationType = test::DbInitializationType::Reset)
-					: TransactionStorageContext(numTransactionInfos, mocks::CreateMockTransactionMongoPlugin(), dbInitializationType)
-			{}
+					: TransactionStorageContext(numTransactionInfos, mocks::CreateMockTransactionMongoPlugin(), dbInitializationType) {
+			}
 
 			TransactionStorageContext(
 					size_t numTransactionInfos,
 					std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin,
 					test::DbInitializationType dbInitializationType = test::DbInitializationType::Reset)
 					: m_pStorage(test::CreateMongoStorage<cache::UtChangeSubscriber>(
-							std::move(pTransactionPlugin),
-							dbInitializationType,
-							MongoErrorPolicy::Mode::Strict,
-							[](auto& context, const auto& registry) {
-								return CreateMongoTransactionStorage(context, registry, Ut_Collection_Name);
-							}))
-					, m_transactionInfos(CreateTransactionInfos(numTransactionInfos, DeadlineGenerator))
-			{}
+							  std::move(pTransactionPlugin),
+							  dbInitializationType,
+							  MongoErrorPolicy::Mode::Strict,
+							  [](auto& context, const auto& registry) {
+								  return CreateMongoTransactionStorage(context, registry, Ut_Collection_Name);
+							  }))
+					, m_transactionInfos(CreateTransactionInfos(numTransactionInfos, DeadlineGenerator)) {
+			}
 
 		public:
 			std::string collectionName() {

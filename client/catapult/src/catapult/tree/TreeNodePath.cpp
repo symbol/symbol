@@ -39,8 +39,8 @@ namespace catapult { namespace tree {
 
 	TreeNodePath::TreeNodePath()
 			: m_size(0)
-			, m_adjustment(0)
-	{}
+			, m_adjustment(0) {
+	}
 
 	TreeNodePath::TreeNodePath(const std::vector<uint8_t>& path, size_t offset, size_t size)
 			: m_size(size)
@@ -89,8 +89,8 @@ namespace catapult { namespace tree {
 		public:
 			explicit JoinBuilder(size_t size)
 					: m_index(0)
-					, m_path(size, 0)
-			{}
+					, m_path(size, 0) {
+			}
 
 		public:
 			const std::vector<uint8_t>& path() {
@@ -142,7 +142,8 @@ namespace catapult { namespace tree {
 
 	size_t FindFirstDifferenceIndex(const TreeNodePath& lhs, const TreeNodePath& rhs) {
 		size_t index = 0;
-		for (; index < lhs.size() && index < rhs.size() && lhs.nibbleAt(index) == rhs.nibbleAt(index); ++index);
+		for (; index < lhs.size() && index < rhs.size() && lhs.nibbleAt(index) == rhs.nibbleAt(index); ++index)
+			;
 		return index;
 	}
 }}

@@ -63,9 +63,10 @@ namespace catapult { namespace test {
 
 #define MAKE_COMPARISON_CUSTOM_FORMATTER_TEST(TEST_CLASS, TEST_NAME, INCREASING_VALUES, OPERATOR, FORMATTER) \
 	TEST(TEST_CLASS, TEST_NAME) { \
-		test::AssertOperatorBehaviorForIncreasingValues(INCREASING_VALUES, [](const auto& lhs, const auto& rhs) { \
-			return lhs OPERATOR rhs; \
-		}, FORMATTER); \
+		test::AssertOperatorBehaviorForIncreasingValues( \
+				INCREASING_VALUES, \
+				[](const auto& lhs, const auto& rhs) { return lhs OPERATOR rhs; }, \
+				FORMATTER); \
 	}
 
 /// Adds all comparison tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES with test name \a PREFIX.
@@ -76,7 +77,7 @@ namespace catapult { namespace test {
 	MAKE_COMPARISON_TEST(TEST_CLASS, PREFIX##OperatorGreaterThanOrEqualReturnsTrueOnlyForLargerOrEqualValues, INCREASING_VALUES, >=)
 
 /// Adds all comparison tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
-#define DEFINE_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES) DEFINE_COMPARISON_TESTS_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES,)
+#define DEFINE_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES) DEFINE_COMPARISON_TESTS_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES, )
 
 /// Adds all equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES with test name \a PREFIX.
 #define DEFINE_EQUALITY_TESTS_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES, PREFIX) \
@@ -84,7 +85,7 @@ namespace catapult { namespace test {
 	MAKE_COMPARISON_TEST(TEST_CLASS, PREFIX##OperatorNotEqualReturnsTrueOnlyForUnequalValues, INCREASING_VALUES, !=)
 
 /// Adds all equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
-#define DEFINE_EQUALITY_TESTS(TEST_CLASS, INCREASING_VALUES) DEFINE_EQUALITY_TESTS_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES,)
+#define DEFINE_EQUALITY_TESTS(TEST_CLASS, INCREASING_VALUES) DEFINE_EQUALITY_TESTS_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES, )
 
 /// Adds all comparison and equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES with test name \a PREFIX.
 #define DEFINE_EQUALITY_AND_COMPARISON_TESTS_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES, PREFIX) \
@@ -93,7 +94,7 @@ namespace catapult { namespace test {
 
 /// Adds all comparison and equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
 #define DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES) \
-	DEFINE_EQUALITY_AND_COMPARISON_TESTS_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES,)
+	DEFINE_EQUALITY_AND_COMPARISON_TESTS_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES, )
 
 /// Adds all equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES and \a FORMATTER
 /// with test name \a PREFIX.
@@ -113,5 +114,5 @@ namespace catapult { namespace test {
 
 /// Adds all equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES and \a FORMATTER.
 #define DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER(TEST_CLASS, INCREASING_VALUES, FORMATTER) \
-	DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES, FORMATTER,)
+	DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER_WITH_PREFIX(TEST_CLASS, INCREASING_VALUES, FORMATTER, )
 }}

@@ -30,8 +30,8 @@ namespace catapult { namespace disruptor {
 		/// Creates an entry with \a level and \a position.
 		explicit ConsumerEntry(size_t level)
 				: m_level(level)
-				, m_position(0)
-		{}
+				, m_position(0) {
+		}
 
 		/// Advances the position
 		PositionType advance() {

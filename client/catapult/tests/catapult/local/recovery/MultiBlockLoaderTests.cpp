@@ -68,9 +68,9 @@ namespace catapult { namespace local {
 			auto pObserver = observerFactory(*pCurrentBlock);
 
 			// Assert:
-			return "transient" == pObserver->name()
-					? ObserverFactoryResult::Transient
-					: "permanent" == pObserver->name() ? ObserverFactoryResult::Permanent : ObserverFactoryResult::Unknown;
+			return "transient" == pObserver->name()	  ? ObserverFactoryResult::Transient
+				   : "permanent" == pObserver->name() ? ObserverFactoryResult::Permanent
+													  : ObserverFactoryResult::Unknown;
 		}
 	}
 
@@ -104,9 +104,7 @@ namespace catapult { namespace local {
 	TEST(TEST_CLASS, ObserverFactoryRespectsTimeInflectionPoint) {
 		// Arrange:
 		auto pLastBlock = test::GenerateBlockWithTransactions(0, Height(1234), Timestamp(utils::TimeSpan::FromHours(2).millis()));
-		auto runTest = [&lastBlock = *pLastBlock](auto time) {
-			return RunObserverFactoryInflectionPointTest(lastBlock, Height(1), time);
-		};
+		auto runTest = [&lastBlock = *pLastBlock](auto time) { return RunObserverFactoryInflectionPointTest(lastBlock, Height(1), time); };
 
 		// Act + Assert: inflection point is `LastBlockTime - TransactionCacheDuration` [2H - (1H + 22 * 2s)]
 		auto inflectionTime = Timestamp(utils::TimeSpan::FromHours(1).millis() - 22 * utils::TimeSpan::FromSeconds(2).millis());
@@ -118,9 +116,7 @@ namespace catapult { namespace local {
 	TEST(TEST_CLASS, ObserverFactoryReturnsTransientObserverWhenThereIsNoTimeInflectionPoint) {
 		// Arrange:
 		auto pLastBlock = test::GenerateBlockWithTransactions(0, Height(1234), Timestamp(utils::TimeSpan::FromHours(1).millis()));
-		auto runTest = [&lastBlock = *pLastBlock](auto time) {
-			return RunObserverFactoryInflectionPointTest(lastBlock, Height(1), time);
-		};
+		auto runTest = [&lastBlock = *pLastBlock](auto time) { return RunObserverFactoryInflectionPointTest(lastBlock, Height(1), time); };
 
 		// Act + Assert: there is no time inflection point because `LastBlockTime < TransactionCacheDuration` [1H < (1H + 22 * 2s)]
 		EXPECT_EQ(ObserverFactoryResult::Transient, runTest(Timestamp(0)));
@@ -146,7 +142,8 @@ namespace catapult { namespace local {
 
 		class LoadBlockchainTestContext {
 		public:
-			LoadBlockchainTestContext() : m_pluginManager(test::CreatePluginManager()) {
+			LoadBlockchainTestContext()
+					: m_pluginManager(test::CreatePluginManager()) {
 				AddXorResolvers(m_pluginManager);
 			}
 
@@ -214,11 +211,10 @@ namespace catapult { namespace local {
 			// - all other blocks have a difficulty of base + height
 			// - blocks at heights 1 and 2 have time difference of 6s
 			// - all other blocks have a time difference of 3s
-			return
-					Difficulty().unwrap() * (height - 1) // sum base difficulties
-					+ height * (height + 1) / 2 // sum difficulty deltas (1..N)
-					- 1 // adjust for range (2..N), first block has height 2
-					- (6 + (height - 2) * 3); // subtract the time differences
+			return Difficulty().unwrap() * (height - 1) // sum base difficulties
+				   + height * (height + 1) / 2 // sum difficulty deltas (1..N)
+				   - 1 // adjust for range (2..N), first block has height 2
+				   - (6 + (height - 2) * 3); // subtract the time differences
 		}
 	}
 
@@ -369,7 +365,7 @@ namespace catapult { namespace local {
 
 			// - calculate expected state hash after loading first two blocks (1, 2)
 			Hash256 expectedHash;
-			ExecuteWithStorage(storage, [&expectedHash, &block = *blocks[0] ](auto& cache, const auto& pluginManager) {
+			ExecuteWithStorage(storage, [&expectedHash, &block = *blocks[0]](auto& cache, const auto& pluginManager) {
 				auto cacheDetachableDelta = cache.createDetachableDelta();
 				auto cacheDetachedDelta = cacheDetachableDelta.detach();
 				auto pCacheDelta = cacheDetachedDelta.tryLock();
@@ -411,9 +407,7 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, LoadBlockchainLoadsMultipleBlocks_StateHashEnabled) {
 		// Arrange:
-		io::BlockStorageCache storage(
-				std::make_unique<mocks::MockMemoryBlockStorage>(),
-				std::make_unique<mocks::MockMemoryBlockStorage>());
+		io::BlockStorageCache storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>());
 
 		// Act + Assert:
 		RunLoadBlockchainTest(storage, 7);

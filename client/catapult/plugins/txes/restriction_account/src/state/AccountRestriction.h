@@ -64,9 +64,8 @@ namespace catapult { namespace state {
 		void block(const model::AccountRestrictionModification& modification);
 
 	private:
-		bool isOperationAllowed(
-				const model::AccountRestrictionModification& modification,
-				AccountRestrictionOperationType operationType) const;
+		bool isOperationAllowed(const model::AccountRestrictionModification& modification, AccountRestrictionOperationType operationType)
+				const;
 
 		void update(const model::AccountRestrictionModification& modification);
 

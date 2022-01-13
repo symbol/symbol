@@ -65,14 +65,14 @@ namespace catapult { namespace cache {
 		/// Creates changes around \a cacheDelta.
 		explicit SingleCacheChangesT(const TCacheDelta& cacheDelta)
 				: m_pCacheDelta(&cacheDelta)
-				, m_pMemoryCacheChanges(nullptr)
-		{}
+				, m_pMemoryCacheChanges(nullptr) {
+		}
 
 		/// Creates changes around \a memoryCacheChanges.
 		explicit SingleCacheChangesT(const MemoryCacheChangesT<TValue>& memoryCacheChanges)
 				: m_pCacheDelta(nullptr)
-				, m_pMemoryCacheChanges(&memoryCacheChanges)
-		{}
+				, m_pMemoryCacheChanges(&memoryCacheChanges) {
+		}
 
 	public:
 		/// Gets the pointers to all added elements.
@@ -116,14 +116,15 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates changes around \a cacheDelta.
-		explicit CacheChanges(const CatapultCacheDelta& cacheDelta) : m_pCacheDelta(&cacheDelta)
-		{}
+		explicit CacheChanges(const CatapultCacheDelta& cacheDelta)
+				: m_pCacheDelta(&cacheDelta) {
+		}
 
 		/// Creates changes around \a memoryCacheChangesContainer.
 		explicit CacheChanges(MemoryCacheChangesContainer&& memoryCacheChangesContainer)
 				: m_pCacheDelta(nullptr)
-				, m_memoryCacheChangesContainer(std::move(memoryCacheChangesContainer))
-		{}
+				, m_memoryCacheChangesContainer(std::move(memoryCacheChangesContainer)) {
+		}
 
 	public:
 		/// Gets a specific sub cache changes view.

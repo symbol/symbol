@@ -41,8 +41,9 @@ namespace catapult { namespace local {
 
 		class TestCatapultDataDirectory {
 		public:
-			explicit TestCatapultDataDirectory(const std::filesystem::path& directory) : m_dataDirectory(directory)
-			{}
+			explicit TestCatapultDataDirectory(const std::filesystem::path& directory)
+					: m_dataDirectory(directory) {
+			}
 
 		public:
 			std::string commitStep() const {

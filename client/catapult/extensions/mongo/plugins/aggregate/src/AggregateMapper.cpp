@@ -35,12 +35,9 @@ namespace catapult { namespace mongo { namespace plugins {
 		void StreamCosignatures(bson_stream::document& builder, const model::Cosignature* pCosignature, size_t numCosignatures) {
 			auto cosignaturesArray = builder << "cosignatures" << bson_stream::open_array;
 			for (auto i = 0u; i < numCosignatures; ++i) {
-				cosignaturesArray
-						<< bson_stream::open_document
-							<< "version" << static_cast<int64_t>(pCosignature->Version)
-							<< "signerPublicKey" << ToBinary(pCosignature->SignerPublicKey)
-							<< "signature" << ToBinary(pCosignature->Signature)
-						<< bson_stream::close_document;
+				cosignaturesArray << bson_stream::open_document << "version" << static_cast<int64_t>(pCosignature->Version)
+								  << "signerPublicKey" << ToBinary(pCosignature->SignerPublicKey) << "signature"
+								  << ToBinary(pCosignature->Signature) << bson_stream::close_document;
 				++pCosignature;
 			}
 
@@ -51,8 +48,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		public:
 			AggregateTransactionPlugin(const MongoTransactionRegistry& transactionRegistry, model::EntityType transactionType)
 					: m_transactionRegistry(transactionRegistry)
-					, m_transactionType(transactionType)
-			{}
+					, m_transactionType(transactionType) {
+			}
 
 		public:
 			model::EntityType type() const override {
@@ -77,12 +74,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 					// transaction metadata
 					bson_stream::document builder;
-					builder
-							<< "meta" << bson_stream::open_document
-								<< "height" << ToInt64(metadata.Height)
-								<< "aggregateHash" << ToBinary(metadata.EntityHash)
-								<< "aggregateId" << metadata.ObjectId
-								<< "index" << static_cast<int32_t>(i++)
+					builder << "meta" << bson_stream::open_document << "height" << ToInt64(metadata.Height) << "aggregateHash"
+							<< ToBinary(metadata.EntityHash) << "aggregateId" << metadata.ObjectId << "index" << static_cast<int32_t>(i++)
 							<< bson_stream::close_document;
 
 					// transaction data

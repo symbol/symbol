@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS EntityVersionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(EntityVersion,)
+	DEFINE_COMMON_VALIDATOR_TESTS(EntityVersion, )
 
 	namespace {
 		constexpr uint8_t Min_Entity_Version = 55;

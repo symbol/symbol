@@ -73,11 +73,11 @@ namespace catapult { namespace crypto {
 	}
 
 	SpecializedOpensslPoolAllocator::SpecializedOpensslPoolAllocator()
-		: m_pool(Pool1::Size + Pool2::Size + Pool3::Size + Alignment)
-		, m_pool1(Align::Pointer(m_pool.data()))
-		, m_pool2(Align::Pointer(m_pool.data()) + Pool1::Size)
-		, m_pool3(Align::Pointer(m_pool.data()) + Pool1::Size + Pool2::Size)
-	{}
+			: m_pool(Pool1::Size + Pool2::Size + Pool3::Size + Alignment)
+			, m_pool1(Align::Pointer(m_pool.data()))
+			, m_pool2(Align::Pointer(m_pool.data()) + Pool1::Size)
+			, m_pool3(Align::Pointer(m_pool.data()) + Pool1::Size + Pool2::Size) {
+	}
 
 	bool SpecializedOpensslPoolAllocator::isFromPool(const void* pointer) const {
 		return pointer >= m_pool1.buffer() && pointer < m_pool3.buffer() + Pool3::Size;
@@ -92,15 +92,15 @@ namespace catapult { namespace crypto {
 	}
 
 	uint8_t* SpecializedOpensslPoolAllocator::allocate(size_t size) {
-		switch(size) {
-			case Pool1::Unaligned_Element_Size:
-				return m_pool1.tryAllocate();
-			case Pool2::Unaligned_Element_Size:
-				return m_pool2.tryAllocate();
-			case Pool3::Unaligned_Element_Size:
-				return m_pool3.tryAllocate();
-			default:
-				return nullptr;
+		switch (size) {
+		case Pool1::Unaligned_Element_Size:
+			return m_pool1.tryAllocate();
+		case Pool2::Unaligned_Element_Size:
+			return m_pool2.tryAllocate();
+		case Pool3::Unaligned_Element_Size:
+			return m_pool3.tryAllocate();
+		default:
+			return nullptr;
 		}
 	}
 

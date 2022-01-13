@@ -46,8 +46,8 @@ namespace catapult { namespace net {
 					, m_settings(settings)
 					, m_name(name)
 					, m_tag(m_name.empty() ? std::string() : " (" + m_name + ")")
-					, m_sockets([](auto& socket) { socket.close(); })
-			{}
+					, m_sockets([](auto& socket) { socket.close(); }) {
+			}
 
 		public:
 			size_t numActiveConnections() const override {

@@ -25,19 +25,19 @@ namespace catapult { namespace sync {
 
 	RollbackStats::RollbackStats()
 			: m_totalRollbacks(0)
-			, m_longestRollback(0)
-	{}
+			, m_longestRollback(0) {
+	}
 
 	uint64_t RollbackStats::total(RollbackCounterType rollbackCounterType) const {
 		switch (rollbackCounterType) {
-			case RollbackCounterType::All:
-				return m_totalRollbacks;
+		case RollbackCounterType::All:
+			return m_totalRollbacks;
 
-			case RollbackCounterType::Recent:
-				return m_rollbackSizes.size();
+		case RollbackCounterType::Recent:
+			return m_rollbackSizes.size();
 
-			case RollbackCounterType::Longest:
-				return m_longestRollback;
+		case RollbackCounterType::Longest:
+			return m_longestRollback;
 		}
 
 		return 0;

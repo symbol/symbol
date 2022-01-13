@@ -24,7 +24,9 @@
 #include "catapult/model/RangeTypes.h"
 #include "catapult/thread/Future.h"
 
-namespace catapult { namespace ionet { class PacketIo; } }
+namespace catapult { namespace ionet {
+	class PacketIo;
+}}
 
 namespace catapult { namespace api {
 
@@ -32,8 +34,9 @@ namespace catapult { namespace api {
 	class RemoteTransactionApi : public RemoteApi {
 	protected:
 		/// Creates a remote api for the node with specified \a remoteIdentity.
-		explicit RemoteTransactionApi(const model::NodeIdentity& remoteIdentity) : RemoteApi(remoteIdentity)
-		{}
+		explicit RemoteTransactionApi(const model::NodeIdentity& remoteIdentity)
+				: RemoteApi(remoteIdentity) {
+		}
 
 	public:
 		/// Gets all unconfirmed transactions from the remote that have a deadline at least \a minDeadline,

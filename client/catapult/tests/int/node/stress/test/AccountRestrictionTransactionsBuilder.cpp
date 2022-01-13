@@ -32,8 +32,8 @@ namespace catapult { namespace test {
 	// region ctor
 
 	AccountRestrictionTransactionsBuilder::AccountRestrictionTransactionsBuilder(const Accounts& accounts)
-			: BasicTransactionsBuilder(accounts)
-	{}
+			: BasicTransactionsBuilder(accounts) {
+	}
 
 	// endregion
 

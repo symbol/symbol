@@ -27,13 +27,19 @@
 #include "tests/test/nodeps/Filesystem.h"
 
 namespace catapult {
-	namespace api { class RemoteChainApi; }
-	namespace ionet {
-		class PacketIo;
-		class PacketSocket;
-	}
-	namespace net { class ServerConnector; }
-	namespace thread { class IoThreadPool; }
+namespace api {
+	class RemoteChainApi;
+}
+namespace ionet {
+	class PacketIo;
+	class PacketSocket;
+}
+namespace net {
+	class ServerConnector;
+}
+namespace thread {
+	class IoThreadPool;
+}
 }
 
 namespace catapult { namespace test {

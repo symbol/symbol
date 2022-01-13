@@ -28,7 +28,9 @@
 #include <unordered_map>
 #include <vector>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace tools { namespace nemgen {
 

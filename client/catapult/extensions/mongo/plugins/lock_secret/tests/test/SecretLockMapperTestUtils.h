@@ -26,7 +26,9 @@
 #include "tests/TestHarness.h"
 #include <mongocxx/client.hpp>
 
-namespace catapult { namespace state { struct SecretLockInfo; } }
+namespace catapult { namespace state {
+	struct SecretLockInfo;
+}}
 
 namespace catapult { namespace test {
 

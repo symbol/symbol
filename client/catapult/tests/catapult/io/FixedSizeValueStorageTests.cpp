@@ -46,8 +46,9 @@ namespace catapult { namespace io {
 
 		class TestContext {
 		public:
-			TestContext() : m_hashFile(m_guard.name(), "test")
-			{}
+			TestContext()
+					: m_hashFile(m_guard.name(), "test") {
+			}
 
 		public:
 			auto filename(const std::string& subDirectoryName) const {

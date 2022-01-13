@@ -143,10 +143,7 @@ namespace catapult { namespace thread {
 		pPool->join();
 
 		// Assert: the posted work was allowed to complete and was not aborted
-		CATAPULT_LOG(debug)
-			<< "preShutdownWaits " << preShutdownWaits
-			<< " numWaits " << numWaits
-			<< " maxWaits " << maxWaits;
+		CATAPULT_LOG(debug) << "preShutdownWaits " << preShutdownWaits << " numWaits " << numWaits << " maxWaits " << maxWaits;
 		EXPECT_LE(10u, maxWaits - preShutdownWaits);
 		EXPECT_EQ(maxWaits, numWaits);
 	}
@@ -176,23 +173,25 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, PoolFailsFastWhenAcceptHandlerExcepts) {
 		// Assert: if an exception bubbles out of thread pool work, program termination is expected
-		ASSERT_DEATH([]() {
-			// Arrange: set up a pool
-			auto pPool = CreateDefaultIoThreadPool();
-			pPool->start();
+		ASSERT_DEATH(
+				[]() {
+					// Arrange: set up a pool
+					auto pPool = CreateDefaultIoThreadPool();
+					pPool->start();
 
-			// - cause one work item to except
-			std::atomic<uint32_t> numHandlerCalls(0);
-			for (auto i = 0u; i < 10; ++i) {
-				boost::asio::post(pPool->ioContext(), [&]() {
-					if (7u == ++numHandlerCalls)
-						CATAPULT_THROW_RUNTIME_ERROR("exception from thread pool thread");
-				});
-			}
+					// - cause one work item to except
+					std::atomic<uint32_t> numHandlerCalls(0);
+					for (auto i = 0u; i < 10; ++i) {
+						boost::asio::post(pPool->ioContext(), [&]() {
+							if (7u == ++numHandlerCalls)
+								CATAPULT_THROW_RUNTIME_ERROR("exception from thread pool thread");
+						});
+					}
 
-			// Act: wait for the pool
-			pPool->join();
-		}(), "");
+					// Act: wait for the pool
+					pPool->join();
+				}(),
+				"");
 	}
 
 #ifdef __clang__
@@ -208,8 +207,8 @@ namespace catapult { namespace thread {
 					: m_pool(pool)
 					, m_wait(wait)
 					, m_shouldWait(true)
-					, m_numHandlerCalls(0)
-			{}
+					, m_numHandlerCalls(0) {
+			}
 
 			virtual ~AbstractBlockingWork() {
 				stop();
@@ -254,15 +253,15 @@ namespace catapult { namespace thread {
 		class BlockingWork : public AbstractBlockingWork {
 		public:
 			explicit BlockingWork(IoThreadPool& pool)
-					: AbstractBlockingWork(pool, test::CreateSyncWaitFunction(Wait_Duration_Millis))
-			{}
+					: AbstractBlockingWork(pool, test::CreateSyncWaitFunction(Wait_Duration_Millis)) {
+			}
 		};
 
 		class NonBlockingWork : public AbstractBlockingWork {
 		public:
 			explicit NonBlockingWork(IoThreadPool& pool)
-					: AbstractBlockingWork(pool, test::CreateAsyncWaitFunction(Wait_Duration_Millis))
-			{}
+					: AbstractBlockingWork(pool, test::CreateAsyncWaitFunction(Wait_Duration_Millis)) {
+			}
 		};
 	}
 

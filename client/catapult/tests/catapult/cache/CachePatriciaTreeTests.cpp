@@ -31,9 +31,8 @@ namespace catapult { namespace cache {
 #define TEST_CLASS CachePatriciaTreeTests
 
 	namespace {
-		using DatabaseBasePatriciaTree = tree::BasePatriciaTree<
-			SerializerPlainKeyEncoder<test::MemoryPatriciaTreeSimpleSerializer>,
-			PatriciaTreeRdbDataSource>;
+		using DatabaseBasePatriciaTree =
+				tree::BasePatriciaTree<SerializerPlainKeyEncoder<test::MemoryPatriciaTreeSimpleSerializer>, PatriciaTreeRdbDataSource>;
 	}
 
 	// region disabled
@@ -88,8 +87,8 @@ namespace catapult { namespace cache {
 		class CacheDatabaseHolder {
 		public:
 			CacheDatabaseHolder()
-					: m_database(CacheDatabaseSettings(m_dbDirGuard.name(), { "default", "patricia_tree" }, FilterPruningMode::Disabled))
-			{}
+					: m_database(CacheDatabaseSettings(m_dbDirGuard.name(), { "default", "patricia_tree" }, FilterPruningMode::Disabled)) {
+			}
 
 		public:
 			CacheDatabase& database() {

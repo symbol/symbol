@@ -55,11 +55,8 @@ namespace catapult { namespace state {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto id = NamespaceId(123);
-		auto expectedChildren = test::CreateChildren({
-			test::CreatePath({ 123, 124 }),
-			test::CreatePath({ 123, 125 }),
-			test::CreatePath({ 123, 124, 126 })
-		});
+		auto expectedChildren = test::CreateChildren(
+				{ test::CreatePath({ 123, 124 }), test::CreatePath({ 123, 125 }), test::CreatePath({ 123, 124, 126 }) });
 
 		// Act:
 		RootNamespace root(id, owner, test::CreateLifetime(234, 321));
@@ -81,11 +78,8 @@ namespace catapult { namespace state {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto id = NamespaceId(123);
-		auto pExpectedChildren = std::make_shared<RootNamespace::Children>(test::CreateChildren({
-			test::CreatePath({ 123, 124 }),
-			test::CreatePath({ 123, 125 }),
-			test::CreatePath({ 123, 124, 126 })
-		}));
+		auto pExpectedChildren = std::make_shared<RootNamespace::Children>(test::CreateChildren(
+				{ test::CreatePath({ 123, 124 }), test::CreatePath({ 123, 125 }), test::CreatePath({ 123, 124, 126 }) }));
 
 		// Act:
 		RootNamespace root(id, owner, test::CreateLifetime(234, 321), pExpectedChildren);
@@ -110,12 +104,10 @@ namespace catapult { namespace state {
 
 		auto CreateDefaultRootWithChildren(const Address& owner) {
 			auto root = CreateDefaultRoot(owner, 123);
-			auto children = test::CreateChildren({
-				test::CreatePath({ 123, 357 }),
-				test::CreatePath({ 123, 124 }),
-				test::CreatePath({ 123, 124, 125 }),
-				test::CreatePath({ 123, 124, 128 })
-			});
+			auto children = test::CreateChildren({ test::CreatePath({ 123, 357 }),
+												   test::CreatePath({ 123, 124 }),
+												   test::CreatePath({ 123, 124, 125 }),
+												   test::CreatePath({ 123, 124, 128 }) });
 
 			test::AddAll(root, children, { 357, 124, 125, 128 });
 
@@ -185,12 +177,10 @@ namespace catapult { namespace state {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRoot(owner, 123);
-		auto children = test::CreateChildren({
-			test::CreatePath({ 123, 357 }),
-			test::CreatePath({ 123, 124 }),
-			test::CreatePath({ 123, 124, 125 }),
-			test::CreatePath({ 123, 124, 128 })
-		});
+		auto children = test::CreateChildren({ test::CreatePath({ 123, 357 }),
+											   test::CreatePath({ 123, 124 }),
+											   test::CreatePath({ 123, 124, 125 }),
+											   test::CreatePath({ 123, 124, 128 }) });
 
 		// Act:
 		test::AddAll(root, children, { 357, 124, 125, 128 });
@@ -246,12 +236,10 @@ namespace catapult { namespace state {
 			// Arrange:
 			auto owner = test::CreateRandomOwner();
 			auto root = CreateDefaultRoot(owner, 123);
-			auto children = test::CreateChildren({
-				test::CreatePath({ 123, 357 }),
-				test::CreatePath({ 123, 124 }),
-				test::CreatePath({ 123, 124, 125 }),
-				test::CreatePath({ 123, 124, 128 })
-			});
+			auto children = test::CreateChildren({ test::CreatePath({ 123, 357 }),
+												   test::CreatePath({ 123, 124 }),
+												   test::CreatePath({ 123, 124, 125 }),
+												   test::CreatePath({ 123, 124, 128 }) });
 
 			test::AddAll(root, children, { 357, 124, 125, 128 });
 
@@ -388,14 +376,8 @@ namespace catapult { namespace state {
 
 	namespace {
 		void SeedWithOutOfOrderChildren(RootNamespace& root) {
-			std::vector<std::vector<NamespaceId::ValueType>> paths{
-				{ 123, 753 },
-				{ 123, 753, 129 },
-				{ 123, 753, 127 },
-				{ 123, 124 },
-				{ 123, 124, 122 },
-				{ 123, 124, 121 }
-			};
+			std::vector<std::vector<NamespaceId::ValueType>> paths{ { 123, 753 }, { 123, 753, 129 }, { 123, 753, 127 },
+																	{ 123, 124 }, { 123, 124, 122 }, { 123, 124, 121 } };
 
 			for (const auto& rawPath : paths)
 				root.add(Namespace(test::CreatePath(rawPath)));

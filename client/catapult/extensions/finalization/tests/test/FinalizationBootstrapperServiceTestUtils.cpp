@@ -40,9 +40,11 @@ namespace catapult { namespace test {
 		auto cache = CoreSystemCacheFactory::Create(config);
 		auto cacheDelta = cache.createDelta();
 		auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-		keyPairDescriptors = AddAccountsWithBalances(accountStateCacheDelta, Height(1), Default_Harvesting_Mosaic_Id, {
-			Amount(2'000'000), Amount(4'000'000'000'000), Amount(1'000'000), Amount(6'000'000'000'000)
-		});
+		keyPairDescriptors = AddAccountsWithBalances(
+				accountStateCacheDelta,
+				Height(1),
+				Default_Harvesting_Mosaic_Id,
+				{ Amount(2'000'000), Amount(4'000'000'000'000), Amount(1'000'000), Amount(6'000'000'000'000) });
 		cache.commit(Height());
 		return cache;
 	}

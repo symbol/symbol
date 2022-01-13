@@ -41,8 +41,8 @@ namespace catapult { namespace harvesting {
 			AccountDescriptorWrapper()
 					: Descriptor(test::GenerateKeyPair(), test::GenerateKeyPair())
 					, SigningPublicKey(Descriptor.signingKeyPair().publicKey())
-					, VrfPublicKey(Descriptor.vrfKeyPair().publicKey())
-			{}
+					, VrfPublicKey(Descriptor.vrfKeyPair().publicKey()) {
+			}
 		};
 
 		AccountDescriptorWrapper GenerateAccountDescriptorWrapper() {
@@ -51,11 +51,12 @@ namespace catapult { namespace harvesting {
 
 		struct TestContext {
 		public:
-			explicit TestContext(size_t maxSize) : Accounts(maxSize, [this](const auto& publicKey) {
-				auto iter = CustomPrioritizationMap.find(publicKey);
-				return CustomPrioritizationMap.cend() != iter ? iter->second : 0;
-			})
-			{}
+			explicit TestContext(size_t maxSize)
+					: Accounts(maxSize, [this](const auto& publicKey) {
+						auto iter = CustomPrioritizationMap.find(publicKey);
+						return CustomPrioritizationMap.cend() != iter ? iter->second : 0;
+					}) {
+			}
 
 		public:
 			UnlockedAccounts Accounts;
@@ -163,12 +164,10 @@ namespace catapult { namespace harvesting {
 		auto& accounts = context.Accounts;
 
 		// Act:
-		auto result1 = accounts.modifier().add(BlockGeneratorAccountDescriptor(
-				test::CopyKeyPair(signingKeyPair),
-				test::CopyKeyPair(vrfKeyPair1)));
-		auto result2 = accounts.modifier().add(BlockGeneratorAccountDescriptor(
-				test::CopyKeyPair(signingKeyPair),
-				test::CopyKeyPair(vrfKeyPair2)));
+		auto result1 =
+				accounts.modifier().add(BlockGeneratorAccountDescriptor(test::CopyKeyPair(signingKeyPair), test::CopyKeyPair(vrfKeyPair1)));
+		auto result2 =
+				accounts.modifier().add(BlockGeneratorAccountDescriptor(test::CopyKeyPair(signingKeyPair), test::CopyKeyPair(vrfKeyPair2)));
 
 		// Assert:
 		auto view = accounts.view();
@@ -199,9 +198,8 @@ namespace catapult { namespace harvesting {
 
 		// Act: lower account 1 priority and update VRF
 		context.CustomPrioritizationMap[signingKeyPair1.publicKey()] = 1;
-		auto result = accounts.modifier().add(BlockGeneratorAccountDescriptor(
-				test::CopyKeyPair(signingKeyPair1),
-				test::CopyKeyPair(vrfKeyPair2)));
+		auto result = accounts.modifier().add(
+				BlockGeneratorAccountDescriptor(test::CopyKeyPair(signingKeyPair1), test::CopyKeyPair(vrfKeyPair2)));
 
 		// - add account 2 with in-between priority
 		context.CustomPrioritizationMap[signingKeyPair2.publicKey()] = 2;
@@ -370,8 +368,7 @@ namespace catapult { namespace harvesting {
 		for (auto i = 0u; i < Num_Accounts; ++i) {
 			auto expectedIndex = (i / 4) + 3 * (i % 4);
 			EXPECT_EQ(expectedPublicKeys[expectedIndex], actualPublicKeys[i].SigningPublicKey)
-					<< "expected index = " << expectedIndex
-					<< ", actual index = " << i;
+					<< "expected index = " << expectedIndex << ", actual index = " << i;
 		}
 	}
 
@@ -417,7 +414,7 @@ namespace catapult { namespace harvesting {
 	}
 
 	namespace {
-		void AssertCannotAddMoreThanMaxAccounts(const std::function<size_t (size_t)>& indexToPriorityMap) {
+		void AssertCannotAddMoreThanMaxAccounts(const std::function<size_t(size_t)>& indexToPriorityMap) {
 			// Arrange:
 			TestContext context(8);
 			const auto& accounts = context.Accounts;
@@ -490,8 +487,7 @@ namespace catapult { namespace harvesting {
 		for (auto i = 0u; i < Num_Accounts; ++i) {
 			auto expectedIndex = expectedIndexes[i];
 			EXPECT_EQ(expectedPublicKeys[expectedIndex], actualPublicKeys[i])
-					<< "expected index = " << expectedIndex
-					<< ", actual index = " << i;
+					<< "expected index = " << expectedIndex << ", actual index = " << i;
 		}
 	}
 
@@ -502,9 +498,11 @@ namespace catapult { namespace harvesting {
 		auto& accounts = context.Accounts;
 
 		// Act:
-		for (auto i = 0u; i < 4; ++i) AddRandomAccount(context);
+		for (auto i = 0u; i < 4; ++i)
+			AddRandomAccount(context);
 		AddAccount(context, std::move(accountDescriptorWrapper.Descriptor));
-		for (auto i = 0u; i < 3; ++i) AddRandomAccount(context);
+		for (auto i = 0u; i < 3; ++i)
+			AddRandomAccount(context);
 
 		// Sanity:
 		auto result = AddRandomAccount(context);

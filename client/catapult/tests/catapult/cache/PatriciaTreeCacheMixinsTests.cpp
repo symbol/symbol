@@ -231,12 +231,8 @@ namespace catapult { namespace cache {
 
 	namespace {
 		Hash256 GetExpectedRootHashAfterChangeApplications() {
-			return test::CalculateRootHash({
-				{ 0x64'6F'00'00, "noun" },
-				{ 0x64'6F'67'00, "puppy" },
-				{ 0x68'6F'72'73, "stallion" },
-				{ 0x26'54'32'10, "alpha" }
-			});
+			return test::CalculateRootHash(
+					{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x68'6F'72'73, "stallion" }, { 0x26'54'32'10, "alpha" } });
 		}
 	}
 

@@ -31,8 +31,8 @@ namespace catapult { namespace subscribers {
 	namespace detail {
 		template<typename TSubscriber, typename = void>
 		struct Flusher {
-			static void Flush(const TSubscriber&)
-			{}
+			static void Flush(const TSubscriber&) {
+			}
 		};
 
 		template<typename TSubscriber>

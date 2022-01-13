@@ -30,4 +30,3 @@ namespace catapult { namespace utils {
 /// Outputs a message for an unhandled exception that occurred during \a ACTION.
 #define UNHANDLED_EXCEPTION_MESSAGE(ACTION) "unhandled exception while " << ACTION << "!" << EXCEPTION_DIAGNOSTIC_MESSAGE()
 }}
-

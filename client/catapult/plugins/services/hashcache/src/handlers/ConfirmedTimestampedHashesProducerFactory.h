@@ -24,7 +24,9 @@
 #include "catapult/state/TimestampedHash.h"
 #include <vector>
 
-namespace catapult { namespace cache { class HashCache; } }
+namespace catapult { namespace cache {
+	class HashCache;
+}}
 
 namespace catapult { namespace handlers {
 

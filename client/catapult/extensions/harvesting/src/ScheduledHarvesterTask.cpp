@@ -30,8 +30,8 @@ namespace catapult { namespace harvesting {
 			, m_timeSupplier(options.TimeSupplier)
 			, m_rangeConsumer(options.RangeConsumer)
 			, m_pHarvester(std::move(pHarvester))
-			, m_pIsAnyHarvestedBlockPending(std::make_shared<std::atomic_bool>(false))
-	{}
+			, m_pIsAnyHarvestedBlockPending(std::make_shared<std::atomic_bool>(false)) {
+	}
 
 	void ScheduledHarvesterTask::harvest() {
 		if (*m_pIsAnyHarvestedBlockPending || !m_harvestingAllowed())
@@ -47,9 +47,7 @@ namespace catapult { namespace harvesting {
 
 		// flag needs to be captured as shared_ptr in order to avoid race condition when harvesting service
 		// is shutdown before dispatcher service and block completes processing in interim period
-		m_rangeConsumer(model::BlockRange::FromEntity(std::move(pBlock)), [pIsAnyBlockPending = m_pIsAnyHarvestedBlockPending](
-				auto,
-				auto) {
+		m_rangeConsumer(model::BlockRange::FromEntity(std::move(pBlock)), [pIsAnyBlockPending = m_pIsAnyHarvestedBlockPending](auto, auto) {
 			*pIsAnyBlockPending = false;
 		});
 	}

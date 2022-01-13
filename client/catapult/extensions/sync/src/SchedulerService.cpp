@@ -33,8 +33,9 @@ namespace catapult { namespace sync {
 
 		class SchedulerServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit SchedulerServiceRegistrar(const TasksConfiguration& config) : m_config(config)
-			{}
+			explicit SchedulerServiceRegistrar(const TasksConfiguration& config)
+					: m_config(config) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {

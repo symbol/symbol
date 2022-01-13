@@ -34,8 +34,8 @@ namespace catapult { namespace mocks {
 		public:
 			MockTransactionPluginWithCustomBuffers(const OffsetRange& dataRange, const std::vector<OffsetRange>& supplementalRanges)
 					: m_dataRange(dataRange)
-					, m_supplementalRanges(supplementalRanges)
-			{}
+					, m_supplementalRanges(supplementalRanges) {
+			}
 
 		public:
 			RawBuffer dataBuffer(const model::Transaction& transaction) const override {

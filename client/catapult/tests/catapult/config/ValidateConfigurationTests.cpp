@@ -97,16 +97,15 @@ namespace catapult { namespace config {
 		// Arrange:
 		auto assertNoThrow = [](uint8_t harvestBeneficiaryPercentage, uint8_t harvestNetworkPercentage) {
 			auto config = CreateCatapultConfigurationWithHarvestPercentages(harvestBeneficiaryPercentage, harvestNetworkPercentage);
-			EXPECT_NO_THROW(ValidateConfiguration(config))
-					<< "HBP " << static_cast<uint16_t>(harvestBeneficiaryPercentage)
-					<< " HNP " << static_cast<uint16_t>(harvestNetworkPercentage);
+			EXPECT_NO_THROW(ValidateConfiguration(config)) << "HBP " << static_cast<uint16_t>(harvestBeneficiaryPercentage) << " HNP "
+														   << static_cast<uint16_t>(harvestNetworkPercentage);
 		};
 
 		auto assertThrow = [](uint8_t harvestBeneficiaryPercentage, uint8_t harvestNetworkPercentage) {
 			auto config = CreateCatapultConfigurationWithHarvestPercentages(harvestBeneficiaryPercentage, harvestNetworkPercentage);
 			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error)
-					<< "HBP " << static_cast<uint16_t>(harvestBeneficiaryPercentage)
-					<< " HNP " << static_cast<uint16_t>(harvestNetworkPercentage);
+					<< "HBP " << static_cast<uint16_t>(harvestBeneficiaryPercentage) << " HNP "
+					<< static_cast<uint16_t>(harvestNetworkPercentage);
 		};
 
 		auto dispatch = [](auto check, uint8_t percentage) {

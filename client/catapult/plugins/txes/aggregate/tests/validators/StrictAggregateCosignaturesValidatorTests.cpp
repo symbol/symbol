@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS StrictAggregateCosignaturesValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(StrictAggregateCosignatures,)
+	DEFINE_COMMON_VALIDATOR_TESTS(StrictAggregateCosignatures, )
 
 	namespace {
 		using Keys = std::vector<Key>;

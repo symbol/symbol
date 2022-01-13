@@ -34,8 +34,8 @@ namespace catapult { namespace disruptor {
 	Disruptor::Disruptor(size_t disruptorSize, size_t elementTraceInterval)
 			: m_elementTraceInterval(elementTraceInterval)
 			, m_container(disruptorSize)
-			, m_allElementsCount(0)
-	{}
+			, m_allElementsCount(0) {
+	}
 
 	DisruptorElementId Disruptor::add(ConsumerInput&& input, const ProcessingCompleteFunc& processingComplete) {
 		auto element = DisruptorElement(std::move(input), ++m_allElementsCount, processingComplete);

@@ -26,11 +26,13 @@
 #include <memory>
 
 namespace catapult {
-	namespace ionet {
-		class PacketSocket;
-		class PacketSocketInfo;
-	}
-	namespace thread { class IoThreadPool; }
+namespace ionet {
+	class PacketSocket;
+	class PacketSocketInfo;
+}
+namespace thread {
+	class IoThreadPool;
+}
 }
 
 namespace catapult { namespace net {

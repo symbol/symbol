@@ -113,10 +113,16 @@ namespace catapult { namespace model {
 	}
 
 #define BYTE_POINTER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonConstTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonConstTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	BYTE_POINTER_TEST(ToBytePointerReturnsPointerToStartOfEntity) {
 		// Arrange:

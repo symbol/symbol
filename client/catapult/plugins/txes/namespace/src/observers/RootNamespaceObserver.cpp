@@ -35,9 +35,8 @@ namespace catapult { namespace observers {
 				const model::RootNamespaceNotification& notification,
 				Height height,
 				BlockDuration gracePeriodDuration) {
-			auto lifetimeEnd = Eternal_Artifact_Duration == notification.Duration
-					? Height(std::numeric_limits<Height::ValueType>::max())
-					: height + Height(notification.Duration.unwrap());
+			auto lifetimeEnd = Eternal_Artifact_Duration == notification.Duration ? Height(std::numeric_limits<Height::ValueType>::max())
+																				  : height + Height(notification.Duration.unwrap());
 			return state::NamespaceLifetime(height, lifetimeEnd, gracePeriodDuration);
 		}
 
@@ -60,18 +59,19 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(RootNamespace, model::RootNamespaceNotification, [](
-			const model::RootNamespaceNotification& notification,
-			const ObserverContext& context) {
-		auto& cache = context.Cache.sub<cache::NamespaceCache>();
+	DEFINE_OBSERVER(
+			RootNamespace,
+			model::RootNamespaceNotification,
+			[](const model::RootNamespaceNotification& notification, const ObserverContext& context) {
+				auto& cache = context.Cache.sub<cache::NamespaceCache>();
 
-		if (NotifyMode::Rollback == context.Mode) {
-			cache.remove(notification.NamespaceId);
-			return;
-		}
+				if (NotifyMode::Rollback == context.Mode) {
+					cache.remove(notification.NamespaceId);
+					return;
+				}
 
-		auto lifetime = CalculateLifetime(cache, notification, context.Height);
-		auto root = state::RootNamespace(notification.NamespaceId, notification.Owner, lifetime);
-		cache.insert(root);
-	})
+				auto lifetime = CalculateLifetime(cache, notification, context.Height);
+				auto root = state::RootNamespace(notification.NamespaceId, notification.Owner, lifetime);
+				cache.insert(root);
+			})
 }}

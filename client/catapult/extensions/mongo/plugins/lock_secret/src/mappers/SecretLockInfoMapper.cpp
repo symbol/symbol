@@ -33,11 +33,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		public:
 			static void StreamLockInfo(bson_stream::document& builder, const state::SecretLockInfo& lockInfo) {
-				builder
-						<< "hashAlgorithm" << utils::to_underlying_type(lockInfo.HashAlgorithm)
-						<< "secret" << ToBinary(lockInfo.Secret)
-						<< "recipientAddress" << ToBinary(lockInfo.RecipientAddress)
-						<< "compositeHash" << ToBinary(lockInfo.CompositeHash);
+				builder << "hashAlgorithm" << utils::to_underlying_type(lockInfo.HashAlgorithm) << "secret" << ToBinary(lockInfo.Secret)
+						<< "recipientAddress" << ToBinary(lockInfo.RecipientAddress) << "compositeHash" << ToBinary(lockInfo.CompositeHash);
 			}
 		};
 	}

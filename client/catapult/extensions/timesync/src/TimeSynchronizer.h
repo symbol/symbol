@@ -24,12 +24,10 @@
 #include "types.h"
 #include "timesync/src/filters/AggregateSynchronizationFilter.h"
 
-namespace catapult {
-	namespace cache {
-		class AccountStateCacheView;
-		class ImportanceView;
-	}
-}
+namespace catapult { namespace cache {
+	class AccountStateCacheView;
+	class ImportanceView;
+}}
 
 namespace catapult { namespace timesync {
 
@@ -61,6 +59,7 @@ namespace catapult { namespace timesync {
 				Height height,
 				const TimeSynchronizationSamples& samples,
 				double scaling);
+
 	private:
 		filters::AggregateSynchronizationFilter m_filter;
 		Importance m_totalChainImportance;

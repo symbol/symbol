@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/model/MosaicIdGenerator.h"
+#include "src/validators/Validators.h"
 #include "catapult/utils/IntegerMath.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicIdValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicId,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicId, )
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidMosaicId) {
 		// Arrange:

@@ -51,9 +51,8 @@ namespace catapult { namespace sync {
 				for (const auto& packetIoPair : packetIoPairs) {
 					auto pPacketIo = packetIoPair.io();
 					auto pChainApi = api::CreateRemoteChainApiWithoutRegistry(*pPacketIo);
-					heightFutures.push_back(pChainApi->chainStatistics().then([pPacketIo](auto&& chainStatisticsFuture) {
-						return chainStatisticsFuture.get().Height;
-					}));
+					heightFutures.push_back(pChainApi->chainStatistics().then(
+							[pPacketIo](auto&& chainStatisticsFuture) { return chainStatisticsFuture.get().Height; }));
 				}
 
 				return thread::when_all(std::move(heightFutures)).then([](auto&& completedFutures) {

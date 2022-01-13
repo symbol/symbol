@@ -39,19 +39,20 @@ namespace catapult { namespace observers {
 		};
 
 		auto& lockInfoCache = context.Cache.template sub<TLockInfoCache>();
-		lockInfoCache.processUnusedExpiredLocks(context.Height, [&context, ownerAccountStateDispatcher, receiptAppender](
-				const auto& lockInfo) {
-			auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-			ownerAccountStateDispatcher(accountStateCache, lockInfo, [&context, &lockInfo, receiptAppender](auto& accountState) {
-				if (NotifyMode::Rollback == context.Mode) {
-					accountState.Balances.debit(lockInfo.MosaicId, lockInfo.Amount);
-					return;
-				}
+		lockInfoCache.processUnusedExpiredLocks(
+				context.Height,
+				[&context, ownerAccountStateDispatcher, receiptAppender](const auto& lockInfo) {
+					auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
+					ownerAccountStateDispatcher(accountStateCache, lockInfo, [&context, &lockInfo, receiptAppender](auto& accountState) {
+						if (NotifyMode::Rollback == context.Mode) {
+							accountState.Balances.debit(lockInfo.MosaicId, lockInfo.Amount);
+							return;
+						}
 
-				accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
-				receiptAppender(accountState.Address, lockInfo.MosaicId, lockInfo.Amount);
-			});
-		});
+						accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
+						receiptAppender(accountState.Address, lockInfo.MosaicId, lockInfo.Amount);
+					});
+				});
 
 		// sort receipts in order to fulfill deterministic ordering requirement
 		std::sort(receipts.begin(), receipts.end(), [](const auto& pLhs, const auto& pRhs) {

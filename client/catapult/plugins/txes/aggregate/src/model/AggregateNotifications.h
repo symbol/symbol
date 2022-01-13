@@ -55,8 +55,8 @@ namespace catapult { namespace model {
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, SignerPublicKey(signerPublicKey)
 				, CosignaturesCount(cosignaturesCount)
-				, CosignaturesPtr(pCosignatures)
-		{}
+				, CosignaturesPtr(pCosignatures) {
+		}
 
 	public:
 		/// Aggregate signer public key.
@@ -87,8 +87,8 @@ namespace catapult { namespace model {
 				size_t cosignaturesCount,
 				const Cosignature* pCosignatures)
 				: BasicAggregateNotification<AggregateEmbeddedTransactionNotification>(signerPublicKey, cosignaturesCount, pCosignatures)
-				, Transaction(transaction)
-		{}
+				, Transaction(transaction) {
+		}
 
 	public:
 		/// Embedded transaction.
@@ -117,8 +117,8 @@ namespace catapult { namespace model {
 				const Cosignature* pCosignatures)
 				: BasicAggregateNotification<AggregateCosignaturesNotification>(signerPublicKey, cosignaturesCount, pCosignatures)
 				, TransactionsCount(transactionsCount)
-				, TransactionsPtr(pTransactions)
-		{}
+				, TransactionsPtr(pTransactions) {
+		}
 
 	public:
 		/// Number of transactions.
@@ -152,8 +152,8 @@ namespace catapult { namespace model {
 				, AggregateVersion(aggregateVersion)
 				, TransactionsHash(transactionsHash)
 				, TransactionsCount(transactionsCount)
-				, TransactionsPtr(pTransactions)
-		{}
+				, TransactionsPtr(pTransactions) {
+		}
 
 	public:
 		/// Aggregate transaction hash.

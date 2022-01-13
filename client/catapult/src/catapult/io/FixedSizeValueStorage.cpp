@@ -33,8 +33,8 @@ namespace catapult { namespace io {
 	FixedSizeValueStorage<TKey, TValue>::FixedSizeValueStorage(const std::string& dataDirectory, const std::string& prefix)
 			: m_dataDirectory(dataDirectory)
 			, m_prefix(prefix)
-			, m_cachedDirectoryId(Unset_Directory_Id)
-	{}
+			, m_cachedDirectoryId(Unset_Directory_Id) {
+	}
 
 	template<typename TKey, typename TValue>
 	model::EntityRange<TValue> FixedSizeValueStorage<TKey, TValue>::loadRangeFrom(TKey key, size_t numValues) const {

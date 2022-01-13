@@ -54,8 +54,8 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a mosaic.
 		explicit HashLockMosaicNotification(UnresolvedMosaic mosaic)
 				: Notification(Notification_Type, sizeof(HashLockMosaicNotification))
-				, Mosaic(mosaic)
-		{}
+				, Mosaic(mosaic) {
+		}
 
 	public:
 		/// Locked mosaic.
@@ -90,8 +90,8 @@ namespace catapult { namespace model {
 		/// Creates hash lock notification around \a owner, \a mosaic, \a duration and \a hash.
 		HashLockNotification(const Address& owner, const UnresolvedMosaic& mosaic, BlockDuration duration, const Hash256& hash)
 				: BaseLockNotification(owner, mosaic, duration)
-				, Hash(hash)
-		{}
+				, Hash(hash) {
+		}
 
 	public:
 		/// Hash.

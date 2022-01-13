@@ -35,8 +35,8 @@ namespace catapult { namespace disruptor {
 		/// Creates a barrier given its \a level and position (\a barrierEndPosition).
 		DisruptorBarrier(size_t level, PositionType position)
 				: m_level(level)
-				, m_position(position)
-		{}
+				, m_position(position) {
+		}
 
 		/// Advances the barrier.
 		inline void advance() {

@@ -46,8 +46,8 @@ namespace catapult { namespace net {
 					, m_settings(settings)
 					, m_name(name)
 					, m_tag(m_name.empty() ? std::string() : " (" + m_name + ")")
-					, m_sockets([](auto& socket) { socket.close(); })
-			{}
+					, m_sockets([](auto& socket) { socket.close(); }) {
+			}
 
 		public:
 			size_t numActiveConnections() const override {
@@ -71,14 +71,16 @@ namespace catapult { namespace net {
 
 				auto socketOptions = m_settings.toSocketOptions();
 				const auto& endpoint = node.endpoint();
-				auto cancel = ionet::Connect(m_ioContext, socketOptions, endpoint, [pThis = shared_from_this(), identityKey, pRequest](
-						auto result,
-						const auto& connectedSocketInfo) {
-					if (ionet::ConnectResult::Connected != result)
-						return pRequest->callback(PeerConnectCode::Socket_Error, ionet::PacketSocketInfo());
+				auto cancel = ionet::Connect(
+						m_ioContext,
+						socketOptions,
+						endpoint,
+						[pThis = shared_from_this(), identityKey, pRequest](auto result, const auto& connectedSocketInfo) {
+							if (ionet::ConnectResult::Connected != result)
+								return pRequest->callback(PeerConnectCode::Socket_Error, ionet::PacketSocketInfo());
 
-					pThis->verify(identityKey, connectedSocketInfo, pRequest);
-				});
+							pThis->verify(identityKey, connectedSocketInfo, pRequest);
+						});
 
 				pRequest->setTimeoutHandler([pThis = shared_from_this(), cancel]() {
 					cancel();
@@ -93,9 +95,8 @@ namespace catapult { namespace net {
 					const ionet::PacketSocketInfo& connectedSocketInfo,
 					const std::shared_ptr<TRequest>& pRequest) {
 				if (expectedIdentityKey != connectedSocketInfo.publicKey()) {
-					CATAPULT_LOG(warning)
-							<< "aborting connection with identity mismatch (expected " << expectedIdentityKey
-							<< ", actual " << connectedSocketInfo.publicKey() << ")" << m_tag;
+					CATAPULT_LOG(warning) << "aborting connection with identity mismatch (expected " << expectedIdentityKey << ", actual "
+										  << connectedSocketInfo.publicKey() << ")" << m_tag;
 					return pRequest->callback(PeerConnectCode::Verify_Error, ionet::PacketSocketInfo());
 				}
 

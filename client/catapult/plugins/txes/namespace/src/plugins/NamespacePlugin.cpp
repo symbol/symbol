@@ -46,22 +46,17 @@ namespace catapult { namespace plugins {
 			manager.addTransactionSupport(CreateAddressAliasTransactionPlugin());
 			manager.addTransactionSupport(CreateMosaicAliasTransactionPlugin());
 
-			manager.addStatelessValidatorHook([](auto& builder) {
-				builder.add(validators::CreateAliasActionValidator());
-			});
+			manager.addStatelessValidatorHook([](auto& builder) { builder.add(validators::CreateAliasActionValidator()); });
 
 			manager.addStatefulValidatorHook([](auto& builder) {
-				builder
-					.add(validators::CreateAliasAvailabilityValidator())
-					.add(validators::CreateUnlinkAliasedAddressConsistencyValidator())
-					.add(validators::CreateUnlinkAliasedMosaicIdConsistencyValidator())
-					.add(validators::CreateAddressAliasValidator());
+				builder.add(validators::CreateAliasAvailabilityValidator())
+						.add(validators::CreateUnlinkAliasedAddressConsistencyValidator())
+						.add(validators::CreateUnlinkAliasedMosaicIdConsistencyValidator())
+						.add(validators::CreateAddressAliasValidator());
 			});
 
 			manager.addObserverHook([](auto& builder) {
-				builder
-					.add(observers::CreateAliasedAddressObserver())
-					.add(observers::CreateAliasedMosaicIdObserver());
+				builder.add(observers::CreateAliasedAddressObserver()).add(observers::CreateAliasedMosaicIdObserver());
 			});
 		}
 
@@ -168,36 +163,33 @@ namespace catapult { namespace plugins {
 			});
 
 			manager.addStatelessValidatorHook([config, minDuration, maxDuration](auto& builder) {
-				builder
-					.add(validators::CreateNamespaceRegistrationTypeValidator())
-					.add(validators::CreateNamespaceNameValidator(config.MaxNameSize))
-					.add(validators::CreateRootNamespaceValidator(minDuration, maxDuration));
+				builder.add(validators::CreateNamespaceRegistrationTypeValidator())
+						.add(validators::CreateNamespaceNameValidator(config.MaxNameSize))
+						.add(validators::CreateRootNamespaceValidator(minDuration, maxDuration));
 			});
 
 			manager.addStatefulValidatorHook([constraints, config](auto& builder) {
-				builder
-					.add(validators::CreateNamespaceReservedNameValidator(config.ReservedRootNamespaceNames))
-					.add(validators::CreateRootNamespaceAvailabilityValidator())
-					.add(validators::CreateNamespaceDurationOverflowValidator(constraints.MaxNamespaceDuration))
-					// note that the following validator needs to run before the RootNamespaceMaxChildrenValidator
-					.add(validators::CreateChildNamespaceAvailabilityValidator(config.MaxNamespaceDepth))
-					.add(validators::CreateRootNamespaceMaxChildrenValidator(config.MaxChildNamespaces))
-					.add(validators::CreateRequiredNamespaceValidator());
+				builder.add(validators::CreateNamespaceReservedNameValidator(config.ReservedRootNamespaceNames))
+						.add(validators::CreateRootNamespaceAvailabilityValidator())
+						.add(validators::CreateNamespaceDurationOverflowValidator(constraints.MaxNamespaceDuration))
+						// note that the following validator needs to run before the RootNamespaceMaxChildrenValidator
+						.add(validators::CreateChildNamespaceAvailabilityValidator(config.MaxNamespaceDepth))
+						.add(validators::CreateRootNamespaceMaxChildrenValidator(config.MaxChildNamespaces))
+						.add(validators::CreateRequiredNamespaceValidator());
 			});
 
 			auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
 			manager.addObserverHook([gracePeriodDuration, maxRollbackBlocks](auto& builder) {
 				auto rentalFeeReceiptType = model::Receipt_Type_Namespace_Rental_Fee;
 				auto expiryReceiptType = model::Receipt_Type_Namespace_Deleted;
-				builder
-					.add(observers::CreateRootNamespaceObserver())
-					.add(observers::CreateChildNamespaceObserver())
-					.add(observers::CreateRentalFeeObserver<model::NamespaceRentalFeeNotification>("Namespace", rentalFeeReceiptType))
-					.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>(
-							"NamespaceGracePeriod",
-							model::Receipt_Type_Namespace_Expired,
-							gracePeriodDuration))
-					.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>("Namespace", expiryReceiptType));
+				builder.add(observers::CreateRootNamespaceObserver())
+						.add(observers::CreateChildNamespaceObserver())
+						.add(observers::CreateRentalFeeObserver<model::NamespaceRentalFeeNotification>("Namespace", rentalFeeReceiptType))
+						.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>(
+								"NamespaceGracePeriod",
+								model::Receipt_Type_Namespace_Expired,
+								gracePeriodDuration))
+						.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>("Namespace", expiryReceiptType));
 			});
 		}
 
@@ -211,7 +203,6 @@ namespace catapult { namespace plugins {
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterNamespaceSubsystem(manager);
 }

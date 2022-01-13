@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 		auto multisigIter = multisigCache.find(notification.Sender);
 
 		return !multisigIter.tryGet() || multisigIter.get().cosignatoryAddresses().empty()
-				? ValidationResult::Success
-				: Failure_Multisig_Operation_Prohibited_By_Account;
+					   ? ValidationResult::Success
+					   : Failure_Multisig_Operation_Prohibited_By_Account;
 	})
 }}

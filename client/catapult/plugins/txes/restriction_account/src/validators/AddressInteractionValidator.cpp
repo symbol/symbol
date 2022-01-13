@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
 #include "AccountRestrictionView.h"
+#include "Validators.h"
 #include "src/cache/AccountRestrictionCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
@@ -47,9 +47,8 @@ namespace catapult { namespace validators {
 		}
 
 		bool IsInteractionAllowed(const cache::ReadOnlyCatapultCache& cache, const Address& source, const Address& participant) {
-			return
-					IsInteractionAllowed(cache, Address_Restriction_Flags, source, participant) &&
-					IsInteractionAllowed(cache, Address_Outgoing_Restriction_Flags, participant, source);
+			return IsInteractionAllowed(cache, Address_Restriction_Flags, source, participant)
+				   && IsInteractionAllowed(cache, Address_Outgoing_Restriction_Flags, participant, source);
 		}
 	}
 

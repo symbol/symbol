@@ -29,15 +29,15 @@ namespace catapult { namespace cache {
 			: AddressBasedCache(cache)
 			, KeyBasedCache(cache)
 			, m_pCache(&cache)
-			, m_pCacheDelta(nullptr)
-	{}
+			, m_pCacheDelta(nullptr) {
+	}
 
 	ReadOnlyAccountStateCache::ReadOnlyAccountStateCache(const BasicAccountStateCacheDelta& cache)
 			: AddressBasedCache(cache)
 			, KeyBasedCache(cache)
 			, m_pCache(nullptr)
-			, m_pCacheDelta(&cache)
-	{}
+			, m_pCacheDelta(&cache) {
+	}
 
 	model::NetworkIdentifier ReadOnlyAccountStateCache::networkIdentifier() const {
 		return m_pCache ? m_pCache->networkIdentifier() : m_pCacheDelta->networkIdentifier();
@@ -87,8 +87,7 @@ namespace catapult { namespace cache {
 	}
 
 	HighValueAccountStatistics ReadOnlyAccountStateCache::highValueAccountStatistics(FinalizationEpoch epoch) const {
-		return m_pCache
-				? ComputeHighValueAccountStatistics(m_pCache->highValueAccounts(), epoch)
-				: ComputeHighValueAccountStatistics(m_pCacheDelta->highValueAccounts(), epoch);
+		return m_pCache ? ComputeHighValueAccountStatistics(m_pCache->highValueAccounts(), epoch)
+						: ComputeHighValueAccountStatistics(m_pCacheDelta->highValueAccounts(), epoch);
 	}
 }}

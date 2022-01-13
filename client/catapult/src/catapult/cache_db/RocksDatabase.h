@@ -29,11 +29,11 @@
 #include <vector>
 
 namespace rocksdb {
-	class ColumnFamilyHandle;
-	class DB;
-	class PinnableSlice;
-	class Slice;
-	class WriteBatch;
+class ColumnFamilyHandle;
+class DB;
+class PinnableSlice;
+class Slice;
+class WriteBatch;
 }
 
 namespace catapult { namespace cache {

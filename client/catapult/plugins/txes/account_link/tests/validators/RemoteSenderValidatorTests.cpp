@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS RemoteSenderValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(RemoteSender,)
+	DEFINE_COMMON_VALIDATOR_TESTS(RemoteSender, )
 
 	namespace {
 		void AddAccount(cache::CatapultCache& cache, const Address& address, state::AccountType accountType) {

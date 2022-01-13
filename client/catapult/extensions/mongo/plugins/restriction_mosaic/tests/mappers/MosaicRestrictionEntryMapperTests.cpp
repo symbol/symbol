@@ -51,10 +51,16 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 #define RESTRICTION_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicAddressRestrictionTestTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Global) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicGlobalRestrictionTestTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicAddressRestrictionTestTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Global) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::MosaicGlobalRestrictionTestTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	RESTRICTION_TRAITS_BASED_TEST(CanMapRestriction_NoValues) {
 		AssertCanMapRestriction<TTraits>(0);

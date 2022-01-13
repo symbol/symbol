@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS RequiredNamespaceValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(RequiredNamespace,)
+	DEFINE_COMMON_VALIDATOR_TESTS(RequiredNamespace, )
 
 	namespace {
 		constexpr auto Default_Namespace_Id = NamespaceId(123);

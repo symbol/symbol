@@ -95,9 +95,8 @@ namespace catapult { namespace mongo { namespace storages {
 	template<typename TCacheTraits>
 	class MongoHistoricalCacheStorage : public ExternalCacheStorageT<typename TCacheTraits::CacheType> {
 	private:
-		using CacheChangesType = cache::SingleCacheChangesT<
-			typename TCacheTraits::CacheDeltaType,
-			typename TCacheTraits::CacheType::CacheValueType>;
+		using CacheChangesType =
+				cache::SingleCacheChangesT<typename TCacheTraits::CacheDeltaType, typename TCacheTraits::CacheType::CacheValueType>;
 		using ElementContainerType = typename TCacheTraits::ElementContainerType;
 		using IdContainerType = typename TCacheTraits::IdContainerType;
 
@@ -107,8 +106,8 @@ namespace catapult { namespace mongo { namespace storages {
 				: m_database(storageContext.createDatabaseConnection())
 				, m_errorPolicy(storageContext.createCollectionErrorPolicy(TCacheTraits::Collection_Name))
 				, m_bulkWriter(storageContext.bulkWriter())
-				, m_networkIdentifier(networkIdentifier)
-		{}
+				, m_networkIdentifier(networkIdentifier) {
+		}
 
 	private:
 		void saveDelta(const CacheChangesType& changes) override {
@@ -156,9 +155,12 @@ namespace catapult { namespace mongo { namespace storages {
 				std::move(models.begin(), models.end(), std::back_inserter(allModels));
 			}
 
-			auto insertResults = m_bulkWriter.bulkInsert(TCacheTraits::Collection_Name, allModels, [](const auto& model, auto) {
-				return TCacheTraits::MapToMongoDocument(model);
-			}).get();
+			auto insertResults = m_bulkWriter
+										 .bulkInsert(
+												 TCacheTraits::Collection_Name,
+												 allModels,
+												 [](const auto& model, auto) { return TCacheTraits::MapToMongoDocument(model); })
+										 .get();
 
 			auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(insertResults)));
 			m_errorPolicy.checkInserted(allModels.size(), aggregateResult, "modified and added elements");
@@ -180,10 +182,7 @@ namespace catapult { namespace mongo { namespace storages {
 				return document() << finalize;
 
 			document doc;
-			auto array = doc
-					<< std::string(TCacheTraits::Id_Property_Name) << open_document
-						<< "$in"
-						<< open_array;
+			auto array = doc << std::string(TCacheTraits::Id_Property_Name) << open_document << "$in" << open_array;
 
 			for (auto id : ids)
 				array << TCacheTraits::MapToMongoId(id);
@@ -215,8 +214,8 @@ namespace catapult { namespace mongo { namespace storages {
 				: m_database(storageContext.createDatabaseConnection())
 				, m_errorPolicy(storageContext.createCollectionErrorPolicy(TCacheTraits::Collection_Name))
 				, m_bulkWriter(storageContext.bulkWriter())
-				, m_networkIdentifier(networkIdentifier)
-		{}
+				, m_networkIdentifier(networkIdentifier) {
+		}
 
 	private:
 		void saveDelta(const CacheChangesType& changes) override {

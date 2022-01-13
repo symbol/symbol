@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/types.h"
 
-namespace catapult { namespace model { class ResolverContext; } }
+namespace catapult { namespace model {
+	class ResolverContext;
+}}
 
 namespace catapult { namespace model {
 

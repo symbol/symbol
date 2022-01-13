@@ -59,8 +59,8 @@ namespace catapult { namespace model {
 				model::AliasAction aliasAction)
 				: Notification(notificationType, notificationSize)
 				, NamespaceId(namespaceId)
-				, AliasAction(aliasAction)
-		{}
+				, AliasAction(aliasAction) {
+		}
 
 	public:
 		/// Namespace id.
@@ -83,8 +83,8 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a notification around \a namespaceId and \a aliasAction.
 		AliasLinkNotification(catapult::NamespaceId namespaceId, model::AliasAction aliasAction)
-				: BaseAliasNotification(Notification_Type, sizeof(AliasLinkNotification), namespaceId, aliasAction)
-		{}
+				: BaseAliasNotification(Notification_Type, sizeof(AliasLinkNotification), namespaceId, aliasAction) {
+		}
 	};
 
 	// endregion
@@ -104,8 +104,8 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a namespaceId, \a aliasAction and \a aliasedData.
 		AliasedDataNotification(catapult::NamespaceId namespaceId, model::AliasAction aliasAction, const TAliasedData& aliasedData)
 				: BaseAliasNotification(Notification_Type, sizeof(AliasedNotification), namespaceId, aliasAction)
-				, AliasedData(aliasedData)
-		{}
+				, AliasedData(aliasedData) {
+		}
 
 	public:
 		/// Aliased data.

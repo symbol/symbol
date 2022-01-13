@@ -56,8 +56,8 @@ namespace catapult { namespace utils {
 		SlowOperationLogger(const char* message, LogLevel level, const TimeSpan& threshold = TimeSpan::FromSeconds(1))
 				: m_message(message)
 				, m_level(level)
-				, m_threshold(threshold)
-		{}
+				, m_threshold(threshold) {
+		}
 
 		/// Destructor.
 		~SlowOperationLogger() {

@@ -29,8 +29,8 @@ namespace catapult { namespace builders {
 			, m_scopedMetadataKey()
 			, m_targetNamespaceId()
 			, m_valueSizeDelta()
-			, m_value()
-	{}
+			, m_value() {
+	}
 
 	void NamespaceMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
 		m_targetAddress = targetAddress;

@@ -23,7 +23,9 @@
 #include "ContainerTypes.h"
 #include "NotificationPublisher.h"
 
-namespace catapult { namespace model { struct BlockchainConfiguration; } }
+namespace catapult { namespace model {
+	struct BlockchainConfiguration;
+}}
 
 namespace catapult { namespace model {
 

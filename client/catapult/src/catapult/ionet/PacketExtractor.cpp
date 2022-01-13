@@ -28,8 +28,8 @@ namespace catapult { namespace ionet {
 	PacketExtractor::PacketExtractor(ByteBuffer& data, size_t maxPacketDataSize)
 			: m_data(data)
 			, m_maxPacketDataSize(maxPacketDataSize)
-			, m_consumedBytes(0)
-	{}
+			, m_consumedBytes(0) {
+	}
 
 	PacketExtractResult PacketExtractor::tryExtractNextPacket(const Packet*& pExtractedPacket) {
 		pExtractedPacket = nullptr;
@@ -39,9 +39,8 @@ namespace catapult { namespace ionet {
 
 		const auto& packet = reinterpret_cast<const Packet&>(m_data[m_consumedBytes]);
 		if (!IsPacketDataSizeValid(packet, m_maxPacketDataSize)) {
-			CATAPULT_LOG(warning)
-					<< "unable to extract " << packet
-					<< " (" << m_data.size() << " bytes, " << remainingDataSize << " remaining, " << m_consumedBytes << " consumed)";
+			CATAPULT_LOG(warning) << "unable to extract " << packet << " (" << m_data.size() << " bytes, " << remainingDataSize
+								  << " remaining, " << m_consumedBytes << " consumed)";
 			return PacketExtractResult::Packet_Error;
 		}
 

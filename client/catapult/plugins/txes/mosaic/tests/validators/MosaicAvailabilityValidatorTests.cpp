@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/cache/MosaicCache.h"
+#include "src/validators/Validators.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/constants.h"
 #include "tests/test/MosaicCacheTestUtils.h"
@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicAvailabilityValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicAvailability,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicAvailability, )
 
 	namespace {
 		model::MosaicDefinitionNotification CreateNotification(

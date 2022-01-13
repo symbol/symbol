@@ -27,8 +27,8 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_mosaicId()
 			, m_delta()
-			, m_action()
-	{}
+			, m_action() {
+	}
 
 	void MosaicSupplyChangeBuilder::setMosaicId(UnresolvedMosaicId mosaicId) {
 		m_mosaicId = mosaicId;

@@ -65,11 +65,9 @@ namespace catapult { namespace api {
 			}
 
 			static auto CreateValidResponsePacket() {
-				auto pPacket = test::CreateNodePushPeersPacket({
-					test::CreateNamedNode(Key{ { 12 } }, "alice"),
-					test::CreateNamedNode(Key{ { 37 } }, "charlie"),
-					test::CreateNamedNode(Key{ { 25 } }, "bob")
-				});
+				auto pPacket = test::CreateNodePushPeersPacket({ test::CreateNamedNode(Key{ { 12 } }, "alice"),
+																 test::CreateNamedNode(Key{ { 37 } }, "charlie"),
+																 test::CreateNamedNode(Key{ { 25 } }, "bob") });
 				pPacket->Type = ionet::PacketType::Node_Discovery_Pull_Peers;
 				return pPacket;
 			}

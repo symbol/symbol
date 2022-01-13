@@ -47,26 +47,29 @@ namespace catapult { namespace validators {
 
 			// note that the AccountRestrictionModificationsValidator will detect underflows
 			auto numValues = restriction.values().size() + notification.RestrictionAdditionsCount - notification.RestrictionDeletionsCount;
-			return maxAccountRestrictionValues < numValues
-					? Failure_RestrictionAccount_Values_Count_Exceeded
-					: ValidationResult::Success;
+			return maxAccountRestrictionValues < numValues ? Failure_RestrictionAccount_Values_Count_Exceeded : ValidationResult::Success;
 		}
 	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE, ACCOUNT_RESTRICTION_VALUE_TYPE) \
 	DECLARE_STATEFUL_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE)(uint16_t maxAccountRestrictionValues) { \
 		using ValidatorType = stateful::FunctionalNotificationValidatorT<NOTIFICATION_TYPE>; \
-		return std::make_unique<ValidatorType>(#VALIDATOR_NAME "Validator", [maxAccountRestrictionValues]( \
-				const NOTIFICATION_TYPE& notification, \
-				const ValidatorContext& context) { \
-			return Validate<ACCOUNT_RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>(maxAccountRestrictionValues, notification, context); \
-		}); \
+		return std::make_unique<ValidatorType>( \
+				#VALIDATOR_NAME "Validator", \
+				[maxAccountRestrictionValues](const NOTIFICATION_TYPE& notification, const ValidatorContext& context) { \
+					return Validate<ACCOUNT_RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>( \
+							maxAccountRestrictionValues, \
+							notification, \
+							context); \
+				}); \
 	}
 
-	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(MaxAccountAddressRestrictionValues,
+	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(
+			MaxAccountAddressRestrictionValues,
 			model::ModifyAccountAddressRestrictionsNotification,
 			UnresolvedAddress)
-	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(MaxAccountMosaicRestrictionValues,
+	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(
+			MaxAccountMosaicRestrictionValues,
 			model::ModifyAccountMosaicRestrictionsNotification,
 			UnresolvedMosaicId)
 	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(

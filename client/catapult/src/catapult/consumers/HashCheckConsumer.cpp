@@ -32,8 +32,8 @@ namespace catapult { namespace consumers {
 		class BlockHashCheckConsumer {
 		public:
 			BlockHashCheckConsumer(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options)
-					: m_recentHashCache(timeSupplier, options)
-			{}
+					: m_recentHashCache(timeSupplier, options) {
+			}
 
 		public:
 			ConsumerResult operator()(const BlockElements& elements) {
@@ -44,9 +44,7 @@ namespace catapult { namespace consumers {
 				if (1 != elements.size())
 					return Continue();
 
-				return m_recentHashCache.add(elements[0].EntityHash)
-						? Continue()
-						: Abort(Neutral_Consumer_Hash_In_Recency_Cache);
+				return m_recentHashCache.add(elements[0].EntityHash) ? Continue() : Abort(Neutral_Consumer_Hash_In_Recency_Cache);
 			}
 
 		private:
@@ -66,8 +64,8 @@ namespace catapult { namespace consumers {
 					const HashCheckOptions& options,
 					const chain::KnownHashPredicate& knownHashPredicate)
 					: m_recentHashCache(timeSupplier, options)
-					, m_knownHashPredicate(knownHashPredicate)
-			{}
+					, m_knownHashPredicate(knownHashPredicate) {
+			}
 
 		public:
 			ConsumerResult operator()(TransactionElements& elements) {

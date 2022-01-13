@@ -219,9 +219,7 @@ namespace catapult { namespace test {
 			// - check contents
 			ASSERT_EQ(ids.size(), idPairs.size());
 			for (const auto& id : ids) {
-				auto idPairsIter = std::find_if(idPairs.cbegin(), idPairs.cend(), [id](const auto& pair) {
-					return id == pair.first;
-				});
+				auto idPairsIter = std::find_if(idPairs.cbegin(), idPairs.cend(), [id](const auto& pair) { return id == pair.first; });
 
 				auto message = "id: " + std::to_string(static_cast<uint16_t>(id));
 				ASSERT_TRUE(idPairs.cend() != idPairsIter) << message;
@@ -613,7 +611,7 @@ namespace catapult { namespace test {
 
 #define DEFINE_CACHE_TOUCH_TESTS(CACHE_TRAITS, SUFFIX) \
 	MAKE_CACHE_TOUCH_TEST(CACHE_TRAITS, SUFFIX, NothingIsTouchedWhenNoValuesAtHeight) \
-	MAKE_CACHE_TOUCH_TEST(CACHE_TRAITS, SUFFIX, AllValuesAtHeightAreTouched) \
+	MAKE_CACHE_TOUCH_TEST(CACHE_TRAITS, SUFFIX, AllValuesAtHeightAreTouched)
 
 	// endregion
 

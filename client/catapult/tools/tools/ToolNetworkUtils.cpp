@@ -84,8 +84,8 @@ namespace catapult { namespace tools {
 
 	MultiNodeConnector::MultiNodeConnector(const std::string& certificateDirectory)
 			: m_certificateDirectory(certificateDirectory)
-			, m_pPool(CreateStartedThreadPool())
-	{}
+			, m_pPool(CreateStartedThreadPool()) {
+	}
 
 	MultiNodeConnector::~MultiNodeConnector() {
 		// wait for all thread pool work to complete in order to prevent a self-join race condition

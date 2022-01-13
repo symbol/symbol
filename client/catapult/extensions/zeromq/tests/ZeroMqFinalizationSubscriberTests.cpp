@@ -31,8 +31,9 @@ namespace catapult { namespace zeromq {
 	namespace {
 		class MqSubscriberContext : public test::MqContextT<subscribers::FinalizationSubscriber> {
 		public:
-			MqSubscriberContext() : MqContextT(CreateZeroMqFinalizationSubscriber)
-			{}
+			MqSubscriberContext()
+					: MqContextT(CreateZeroMqFinalizationSubscriber) {
+			}
 
 		public:
 			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) {

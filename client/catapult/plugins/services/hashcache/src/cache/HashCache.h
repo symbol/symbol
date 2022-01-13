@@ -35,8 +35,8 @@ namespace catapult { namespace cache {
 		/// Creates a cache around \a config with the specified retention time (\a retentionTime).
 		BasicHashCache(const CacheConfiguration& config, const utils::TimeSpan& retentionTime)
 				// hash cache should always be excluded from state hash calculation
-				: HashBasicCache(DisablePatriciaTreeStorage(config), HashCacheTypes::Options{ retentionTime })
-		{}
+				: HashBasicCache(DisablePatriciaTreeStorage(config), HashCacheTypes::Options{ retentionTime }) {
+		}
 
 	private:
 		static CacheConfiguration DisablePatriciaTreeStorage(const CacheConfiguration& config) {
@@ -54,7 +54,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a cache around \a config with the specified retention time (\a retentionTime).
 		HashCache(const CacheConfiguration& config, const utils::TimeSpan& retentionTime)
-				: SynchronizedCache<BasicHashCache>(BasicHashCache(config, retentionTime))
-		{}
+				: SynchronizedCache<BasicHashCache>(BasicHashCache(config, retentionTime)) {
+		}
 	};
 }}

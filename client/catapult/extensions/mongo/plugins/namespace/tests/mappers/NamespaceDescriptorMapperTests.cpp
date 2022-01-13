@@ -55,11 +55,19 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 #define ALIAS_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NoAliasTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MosaicAlias) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicAliasTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_AddressAlias) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressAliasTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NoAliasTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MosaicAlias) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicAliasTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_AddressAlias) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressAliasTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region ToDbModel
 

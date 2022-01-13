@@ -27,33 +27,31 @@ namespace catapult { namespace chain {
 #define ROUND_MESSAGE_AGGREGATOR_ADD_RESULT_LIST \
 	/* Message was rejected because it has an invalid number of hashes. */ \
 	ENUM_VALUE(Failure_Invalid_Hashes) \
-	\
+\
 	/* Message was rejected because it has an invalid point. */ \
 	ENUM_VALUE(Failure_Invalid_Point) \
-	\
+\
 	/* Message was rejected because it has an invalid height. */ \
 	ENUM_VALUE(Failure_Invalid_Height) \
-	\
+\
 	/* Message was rejected because it failed processing. */ \
 	ENUM_VALUE(Failure_Processing) \
-	\
+\
 	/* Message was rejected because it conflicts with a previous message from the same sender. */ \
 	ENUM_VALUE(Failure_Conflicting) \
-	\
+\
 	/* Message was skipped because it has already been received. */ \
 	ENUM_VALUE(Neutral_Redundant) \
-	\
+\
 	/* Message was accepted as a prevote. */ \
 	ENUM_VALUE(Success_Prevote) \
-	\
+\
 	/* Message was accepted as a precommit. */ \
 	ENUM_VALUE(Success_Precommit)
 
 #define ENUM_VALUE(LABEL) LABEL,
 	/// Round message aggregator add results.
-	enum class RoundMessageAggregatorAddResult {
-		ROUND_MESSAGE_AGGREGATOR_ADD_RESULT_LIST
-	};
+	enum class RoundMessageAggregatorAddResult { ROUND_MESSAGE_AGGREGATOR_ADD_RESULT_LIST };
 #undef ENUM_VALUE
 
 	/// Insertion operator for outputting \a value to \a out.

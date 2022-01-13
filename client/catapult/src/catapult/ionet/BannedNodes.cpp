@@ -31,8 +31,8 @@ namespace catapult { namespace ionet {
 			model::NodeIdentityEqualityStrategy equalityStrategy)
 			: m_banSettings(banSettings)
 			, m_timeSupplier(timeSupplier)
-			, m_bannedNodes(model::CreateNodeIdentityMap<BannedNode>(equalityStrategy))
-	{}
+			, m_bannedNodes(model::CreateNodeIdentityMap<BannedNode>(equalityStrategy)) {
+	}
 
 	size_t BannedNodes::size() const {
 		auto size = std::count_if(m_bannedNodes.cbegin(), m_bannedNodes.cend(), [timestamp = m_timeSupplier()](const auto& pair) {
@@ -75,10 +75,8 @@ namespace catapult { namespace ionet {
 			bannedNode.BanDuration = std::min<utils::TimeSpan>(newBanTimeSpan, m_banSettings.MaxBanDuration);
 		}
 
-		CATAPULT_LOG(warning)
-				<< "banning node with identity " << nodeIdentity
-				<< " for " << iter->second.BanDuration
-				<< ", reason: " << utils::HexFormat(iter->second.Reason);
+		CATAPULT_LOG(warning) << "banning node with identity " << nodeIdentity << " for " << iter->second.BanDuration
+							  << ", reason: " << utils::HexFormat(iter->second.Reason);
 	}
 
 	void BannedNodes::prune() {

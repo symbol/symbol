@@ -96,9 +96,7 @@ namespace catapult { namespace mongo { namespace storages {
 			}
 
 			static auto GetFindFilter(const ModelType& accountState) {
-				return document()
-						<< std::string(Primary_Document_Name) + ".address" << mappers::ToBinary(accountState.Address)
-						<< finalize;
+				return document() << std::string(Primary_Document_Name) + ".address" << mappers::ToBinary(accountState.Address) << finalize;
 			}
 
 			static void AssertEqual(const ModelType& accountState, const bsoncxx::document::view& view) {
@@ -107,5 +105,5 @@ namespace catapult { namespace mongo { namespace storages {
 		};
 	}
 
-	DEFINE_FLAT_CACHE_STORAGE_TESTS(AccountStateCacheTraits,)
+	DEFINE_FLAT_CACHE_STORAGE_TESTS(AccountStateCacheTraits, )
 }}}

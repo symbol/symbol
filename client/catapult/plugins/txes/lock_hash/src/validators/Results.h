@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RESULT_DEFINITION
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #endif
 
@@ -49,5 +50,6 @@ namespace catapult { namespace validators {
 	DEFINE_LOCK_HASH_RESULT(Invalid_Duration, 6);
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

@@ -32,15 +32,15 @@ namespace catapult { namespace cache {
 		template<typename... TArgs>
 		ReadOnlyViewSupplier(TArgs&&... args)
 				: TView(std::forward<TArgs>(args)...)
-				, m_readOnlyView(*this)
-		{}
+				, m_readOnlyView(*this) {
+		}
 
 		/// Move constructs a read-only view supplier from \a rhs.
 		/// \note Default move constructor will not work because pointer in m_readOnlyView needs to be updated.
 		ReadOnlyViewSupplier(ReadOnlyViewSupplier&& rhs)
 				: TView(std::move(rhs))
-				, m_readOnlyView(*this)
-		{}
+				, m_readOnlyView(*this) {
+		}
 
 	public:
 		/// Gets a read-only view of this view.

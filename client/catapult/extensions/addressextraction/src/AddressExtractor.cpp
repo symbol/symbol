@@ -26,8 +26,8 @@
 namespace catapult { namespace addressextraction {
 
 	AddressExtractor::AddressExtractor(std::unique_ptr<const model::NotificationPublisher>&& pPublisher)
-			: m_pPublisher(std::move(pPublisher))
-	{}
+			: m_pPublisher(std::move(pPublisher)) {
+	}
 
 	void AddressExtractor::extract(model::TransactionInfo& transactionInfo) const {
 		if (transactionInfo.OptionalExtractedAddresses)

@@ -34,54 +34,50 @@ using namespace catapult::validators;
 
 #define STR(SYMBOL) #SYMBOL
 #define DEFINE_VALIDATION_RESULT(SEVERITY, FACILITY, DESCRIPTION, CODE, FLAGS) \
-		Output( \
-				MakeValidationResult((ResultSeverity::SEVERITY), (FacilityCode::FACILITY), CODE, (ResultFlags::FLAGS)), \
-				STR(SEVERITY##_##FACILITY##_##DESCRIPTION))
+	Output(MakeValidationResult((ResultSeverity::SEVERITY), (FacilityCode::FACILITY), CODE, (ResultFlags::FLAGS)), \
+		   STR(SEVERITY##_##FACILITY##_##DESCRIPTION))
 
-namespace catapult { namespace tools { namespace statusgen {
+namespace catapult { namespace tools { namespace statusgen { namespace {
+	void Output(ValidationResult result, const std::string& friendlyName) {
+		std::cout << "case 0x" << utils::HexFormat(result) << ": return '" << friendlyName << "';" << std::endl;
+	}
 
-	namespace {
-		void Output(ValidationResult result, const std::string& friendlyName) {
-			std::cout << "case 0x" << utils::HexFormat(result) << ": return '" << friendlyName << "';" << std::endl;
+	class StatusTool : public Tool {
+	public:
+		std::string name() const override {
+			return "Status Generator";
 		}
 
-		class StatusTool : public Tool {
-		public:
-			std::string name() const override {
-				return "Status Generator";
-			}
+		void prepareOptions(OptionsBuilder&, OptionsPositional&) override {
+		}
 
-			void prepareOptions(OptionsBuilder&, OptionsPositional&) override {
-			}
+		int run(const Options&) override {
+			DEFINE_WELL_KNOWN_RESULT(Success);
+			DEFINE_WELL_KNOWN_RESULT(Neutral);
+			DEFINE_WELL_KNOWN_RESULT(Failure);
 
-			int run(const Options&) override {
-				DEFINE_WELL_KNOWN_RESULT(Success);
-				DEFINE_WELL_KNOWN_RESULT(Neutral);
-				DEFINE_WELL_KNOWN_RESULT(Failure);
-
-				// allow this tool to reach into src and plugins and not be limited by catapult-sdk
-				#include "../../plugins/coresystem/src/validators/Results.h"
-				#include "../../plugins/services/hashcache/src/validators/Results.h"
-				#include "../../plugins/services/signature/src/validators/Results.h"
-				#include "../../plugins/txes/account_link/src/validators/Results.h"
-				#include "../../plugins/txes/aggregate/src/validators/Results.h"
-				#include "../../plugins/txes/lock_hash/src/validators/Results.h"
-				#include "../../plugins/txes/lock_secret/src/validators/Results.h"
-				#include "../../plugins/txes/metadata/src/validators/Results.h"
-				#include "../../plugins/txes/mosaic/src/validators/Results.h"
-				#include "../../plugins/txes/multisig/src/validators/Results.h"
-				#include "../../plugins/txes/namespace/src/validators/Results.h"
-				#include "../../plugins/txes/restriction_account/src/validators/Results.h"
-				#include "../../plugins/txes/restriction_mosaic/src/validators/Results.h"
-				#include "../../plugins/txes/transfer/src/validators/Results.h"
-				#include "../../src/catapult/chain/ChainResults.h"
-				#include "../../src/catapult/consumers/ConsumerResults.h"
-				#include "../../src/catapult/extensions/Results.h"
-				return 0;
-			}
-		};
-	}
-}}}
+// allow this tool to reach into src and plugins and not be limited by catapult-sdk
+#include "../../plugins/coresystem/src/validators/Results.h"
+#include "../../plugins/services/hashcache/src/validators/Results.h"
+#include "../../plugins/services/signature/src/validators/Results.h"
+#include "../../plugins/txes/account_link/src/validators/Results.h"
+#include "../../plugins/txes/aggregate/src/validators/Results.h"
+#include "../../plugins/txes/lock_hash/src/validators/Results.h"
+#include "../../plugins/txes/lock_secret/src/validators/Results.h"
+#include "../../plugins/txes/metadata/src/validators/Results.h"
+#include "../../plugins/txes/mosaic/src/validators/Results.h"
+#include "../../plugins/txes/multisig/src/validators/Results.h"
+#include "../../plugins/txes/namespace/src/validators/Results.h"
+#include "../../plugins/txes/restriction_account/src/validators/Results.h"
+#include "../../plugins/txes/restriction_mosaic/src/validators/Results.h"
+#include "../../plugins/txes/transfer/src/validators/Results.h"
+#include "../../src/catapult/chain/ChainResults.h"
+#include "../../src/catapult/consumers/ConsumerResults.h"
+#include "../../src/catapult/extensions/Results.h"
+			return 0;
+		}
+	};
+}}}}
 
 int main(int argc, const char** argv) {
 	catapult::tools::statusgen::StatusTool tool;

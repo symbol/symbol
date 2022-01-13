@@ -157,9 +157,7 @@ namespace catapult { namespace cache {
 
 			// Act:
 			auto numActionCalls = 0u;
-			ForEachIdentifierWithGroup(delta, groupedDelta, Height(5), [&numActionCalls](const auto&) {
-				++numActionCalls;
-			});
+			ForEachIdentifierWithGroup(delta, groupedDelta, Height(5), [&numActionCalls](const auto&) { ++numActionCalls; });
 
 			// Assert:
 			EXPECT_EQ(0u, numActionCalls);

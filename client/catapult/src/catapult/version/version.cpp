@@ -25,8 +25,6 @@
 namespace catapult { namespace version {
 
 	void WriteVersionInformation(std::ostream& out) {
-		out
-				<< CATAPULT_COPYRIGHT << std::endl
-				<< "catapult version: " << CATAPULT_VERSION << std::endl;
+		out << CATAPULT_COPYRIGHT << std::endl << "catapult version: " << CATAPULT_VERSION << std::endl;
 	}
 }}

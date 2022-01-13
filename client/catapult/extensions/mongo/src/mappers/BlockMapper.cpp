@@ -59,12 +59,9 @@ namespace catapult { namespace mongo { namespace mappers {
 		// block metadata
 		bson_stream::document builder;
 
-		builder
-				<< "meta" << bson_stream::open_document
-					<< "hash" << ToBinary(blockElement.EntityHash)
-					<< "generationHash" << ToBinary(blockElement.GenerationHash)
-					<< "totalFee" << ToInt64(blockTransactionsInfo.TotalFee)
-					<< "totalTransactionsCount" << static_cast<int32_t>(totalTransactionsCount);
+		builder << "meta" << bson_stream::open_document << "hash" << ToBinary(blockElement.EntityHash) << "generationHash"
+				<< ToBinary(blockElement.GenerationHash) << "totalFee" << ToInt64(blockTransactionsInfo.TotalFee)
+				<< "totalTransactionsCount" << static_cast<int32_t>(totalTransactionsCount);
 		StreamHashArray(builder, "stateHashSubCacheMerkleRoots", blockElement.SubCacheMerkleRoots);
 		StreamBlockMerkleTree(builder, "transactionsCount", blockTransactionsInfo.Count, "transactionMerkleTree", transactionMerkleTree);
 
@@ -80,26 +77,20 @@ namespace catapult { namespace mongo { namespace mappers {
 		// block data
 		builder << "block" << bson_stream::open_document;
 		auto blockDocument = StreamVerifiableEntity(builder, block)
-				<< "height" << ToInt64(block.Height)
-				<< "timestamp" << ToInt64(block.Timestamp)
-				<< "difficulty" << ToInt64(block.Difficulty)
-				<< "proofGamma" << ToBinary(block.GenerationHashProof.Gamma)
-				<< "proofVerificationHash" << ToBinary(block.GenerationHashProof.VerificationHash)
-				<< "proofScalar" << ToBinary(block.GenerationHashProof.Scalar)
-				<< "previousBlockHash" << ToBinary(block.PreviousBlockHash)
-				<< "transactionsHash" << ToBinary(block.TransactionsHash)
-				<< "receiptsHash" << ToBinary(block.ReceiptsHash)
-				<< "stateHash" << ToBinary(block.StateHash)
-				<< "beneficiaryAddress" << ToBinary(block.BeneficiaryAddress)
-				<< "feeMultiplier" << ToInt32(block.FeeMultiplier);
+							 << "height" << ToInt64(block.Height) << "timestamp" << ToInt64(block.Timestamp) << "difficulty"
+							 << ToInt64(block.Difficulty) << "proofGamma" << ToBinary(block.GenerationHashProof.Gamma)
+							 << "proofVerificationHash" << ToBinary(block.GenerationHashProof.VerificationHash) << "proofScalar"
+							 << ToBinary(block.GenerationHashProof.Scalar) << "previousBlockHash" << ToBinary(block.PreviousBlockHash)
+							 << "transactionsHash" << ToBinary(block.TransactionsHash) << "receiptsHash" << ToBinary(block.ReceiptsHash)
+							 << "stateHash" << ToBinary(block.StateHash) << "beneficiaryAddress" << ToBinary(block.BeneficiaryAddress)
+							 << "feeMultiplier" << ToInt32(block.FeeMultiplier);
 
 		if (model::IsImportanceBlock(block.Type)) {
 			const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(block);
-			blockDocument
-					<< "votingEligibleAccountsCount" << static_cast<int32_t>(blockFooter.VotingEligibleAccountsCount)
-					<< "harvestingEligibleAccountsCount" << static_cast<int64_t>(blockFooter.HarvestingEligibleAccountsCount)
-					<< "totalVotingBalance" << ToInt64(blockFooter.TotalVotingBalance)
-					<< "previousImportanceBlockHash" << ToBinary(blockFooter.PreviousImportanceBlockHash);
+			blockDocument << "votingEligibleAccountsCount" << static_cast<int32_t>(blockFooter.VotingEligibleAccountsCount)
+						  << "harvestingEligibleAccountsCount" << static_cast<int64_t>(blockFooter.HarvestingEligibleAccountsCount)
+						  << "totalVotingBalance" << ToInt64(blockFooter.TotalVotingBalance) << "previousImportanceBlockHash"
+						  << ToBinary(blockFooter.PreviousImportanceBlockHash);
 		}
 
 		builder << bson_stream::close_document;
@@ -112,14 +103,9 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	bsoncxx::document::value ToDbModel(const model::FinalizationRound& round, Height height, const Hash256& hash) {
 		bson_stream::document builder;
-		return builder
-				<< "block" << bson_stream::open_document
-					<< "finalizationEpoch" << ToInt32(round.Epoch)
-					<< "finalizationPoint" << ToInt32(round.Point)
-					<< "height" << ToInt64(height)
-					<< "hash" << ToBinary(hash)
-				<< bson_stream::close_document
-				<< bson_stream::finalize;
+		return builder << "block" << bson_stream::open_document << "finalizationEpoch" << ToInt32(round.Epoch) << "finalizationPoint"
+					   << ToInt32(round.Point) << "height" << ToInt64(height) << "hash" << ToBinary(hash) << bson_stream::close_document
+					   << bson_stream::finalize;
 	}
 
 	// endregion

@@ -28,21 +28,23 @@
 
 namespace catapult { namespace observers {
 
-	DEFINE_OBSERVER(ExpiredHashLockInfo, model::BlockNotification, [](
-			const model::BlockNotification& notification,
-			ObserverContext& context) {
-		const auto Expired_Receipt_Type = model::Receipt_Type_LockHash_Expired;
-		ExpiredLockInfoObserver<cache::HashLockInfoCache>(context, Expired_Receipt_Type, [height = context.Height, &notification](
-				auto& accountStateCache,
-				const auto& lockInfo,
-				auto accountStateConsumer) {
-			// only process if last lock in history
-			if (height != lockInfo.EndHeight)
-				return;
+	DEFINE_OBSERVER(
+			ExpiredHashLockInfo,
+			model::BlockNotification,
+			[](const model::BlockNotification& notification, ObserverContext& context) {
+				const auto Expired_Receipt_Type = model::Receipt_Type_LockHash_Expired;
+				ExpiredLockInfoObserver<cache::HashLockInfoCache>(
+						context,
+						Expired_Receipt_Type,
+						[height = context.Height, &notification](auto& accountStateCache, const auto& lockInfo, auto accountStateConsumer) {
+							// only process if last lock in history
+							if (height != lockInfo.EndHeight)
+								return;
 
-			cache::ProcessForwardedAccountState(accountStateCache, notification.Harvester, [accountStateConsumer](auto& accountState) {
-				accountStateConsumer(accountState);
-			});
-		});
-	})
+							cache::ProcessForwardedAccountState(
+									accountStateCache,
+									notification.Harvester,
+									[accountStateConsumer](auto& accountState) { accountStateConsumer(accountState); });
+						});
+			})
 }}

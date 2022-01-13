@@ -29,7 +29,9 @@
 #include "catapult/model/EntityInfo.h"
 #include "catapult/validators/ParallelValidationPolicy.h"
 
-namespace catapult { namespace model { class NotificationPublisher; } }
+namespace catapult { namespace model {
+	class NotificationPublisher;
+}}
 
 namespace catapult { namespace consumers {
 
@@ -63,7 +65,7 @@ namespace catapult { namespace consumers {
 			const chain::FailedTransactionSink& failedTransactionSink);
 
 	/// Prototype for a function that is called with new transactions.
-	using NewTransactionsProcessor = std::function<chain::BatchUpdateResult (TransactionInfos&&)>;
+	using NewTransactionsProcessor = std::function<chain::BatchUpdateResult(TransactionInfos&&)>;
 
 	/// Creates a consumer that calls \a newTransactionsProcessor with all new transactions that will conditionally ban based on
 	/// \a minTransactionFailuresCountForBan and \a minTransactionFailuresPercentForBan.

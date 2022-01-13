@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MultisigCosignatoriesValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MultisigCosignatories,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MultisigCosignatories, )
 
 	namespace {
 		void AssertValidationResult(

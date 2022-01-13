@@ -24,7 +24,9 @@
 #include "plugins/txes/namespace/src/types.h"
 #include <vector>
 
-namespace catapult { namespace model { class ResolverContext; } }
+namespace catapult { namespace model {
+	class ResolverContext;
+}}
 
 namespace catapult { namespace state {
 

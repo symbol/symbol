@@ -32,14 +32,12 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		static void Stream(bson_stream::document& builder, const TTransaction& transaction) {
-			builder
-					<< "mosaicId" << ToInt64(transaction.MosaicId)
-					<< "referenceMosaicId" << ToInt64(transaction.ReferenceMosaicId)
-					<< "restrictionKey" << static_cast<int64_t>(transaction.RestrictionKey)
-					<< "previousRestrictionValue" << static_cast<int64_t>(transaction.PreviousRestrictionValue)
-					<< "previousRestrictionType" << utils::to_underlying_type(transaction.PreviousRestrictionType)
-					<< "newRestrictionValue" << static_cast<int64_t>(transaction.NewRestrictionValue)
-					<< "newRestrictionType" << utils::to_underlying_type(transaction.NewRestrictionType);
+			builder << "mosaicId" << ToInt64(transaction.MosaicId) << "referenceMosaicId" << ToInt64(transaction.ReferenceMosaicId)
+					<< "restrictionKey" << static_cast<int64_t>(transaction.RestrictionKey) << "previousRestrictionValue"
+					<< static_cast<int64_t>(transaction.PreviousRestrictionValue) << "previousRestrictionType"
+					<< utils::to_underlying_type(transaction.PreviousRestrictionType) << "newRestrictionValue"
+					<< static_cast<int64_t>(transaction.NewRestrictionValue) << "newRestrictionType"
+					<< utils::to_underlying_type(transaction.NewRestrictionType);
 		}
 	}
 

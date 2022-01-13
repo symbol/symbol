@@ -30,16 +30,7 @@ namespace catapult { namespace config {
 			using ConfigurationType = ExtensionsConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"extensions",
-						{
-							{ "Alpha", "true" },
-							{ "BETA", "false" },
-							{ "gamma", "true" }
-						}
-					}
-				};
+				return { { "extensions", { { "Alpha", "true" }, { "BETA", "false" }, { "gamma", "true" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

@@ -27,8 +27,9 @@ namespace catapult { namespace observers {
 	namespace {
 		class AccountStateCacheVisitor {
 		public:
-			explicit AccountStateCacheVisitor(const ObserverContext& context) : m_context(context)
-			{}
+			explicit AccountStateCacheVisitor(const ObserverContext& context)
+					: m_context(context) {
+			}
 
 		public:
 			void visit(const model::ResolvableAddress& address) {
@@ -54,17 +55,19 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	DEFINE_OBSERVER(AccountAddress, model::AccountAddressNotification, [](
-			const model::AccountAddressNotification& notification,
-			const ObserverContext& context) {
-		AccountStateCacheVisitor visitor(context);
-		visitor.visit(notification.Address);
-	})
+	DEFINE_OBSERVER(
+			AccountAddress,
+			model::AccountAddressNotification,
+			[](const model::AccountAddressNotification& notification, const ObserverContext& context) {
+				AccountStateCacheVisitor visitor(context);
+				visitor.visit(notification.Address);
+			})
 
-	DEFINE_OBSERVER(AccountPublicKey, model::AccountPublicKeyNotification, [](
-			const model::AccountPublicKeyNotification& notification,
-			const ObserverContext& context) {
-		AccountStateCacheVisitor visitor(context);
-		visitor.visit(notification.PublicKey);
-	})
+	DEFINE_OBSERVER(
+			AccountPublicKey,
+			model::AccountPublicKeyNotification,
+			[](const model::AccountPublicKeyNotification& notification, const ObserverContext& context) {
+				AccountStateCacheVisitor visitor(context);
+				visitor.visit(notification.PublicKey);
+			})
 }}

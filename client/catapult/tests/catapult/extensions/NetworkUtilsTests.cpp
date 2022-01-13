@@ -171,8 +171,8 @@ namespace catapult { namespace extensions {
 					: m_connectCode(connectCode)
 					, m_identity(identity)
 					, m_numAccepts(0)
-					, m_numCloses(0)
-			{}
+					, m_numCloses(0) {
+			}
 
 		public:
 			size_t numAccepts() const {
@@ -236,8 +236,8 @@ namespace catapult { namespace extensions {
 		public:
 			BootServerContext(net::PeerConnectCode connectCode, const Key& identityKey)
 					: m_acceptor(connectCode, { identityKey, "11.22.33.44" })
-					, m_pool("network utils", 1)
-			{}
+					, m_pool("network utils", 1) {
+			}
 
 			~BootServerContext() {
 				// captured PacketSocketInfos need to be released before m_pool can be destroyed

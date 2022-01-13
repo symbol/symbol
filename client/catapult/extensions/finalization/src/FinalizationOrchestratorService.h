@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/extensions/ServiceRegistrar.h"
 
-namespace catapult { namespace finalization { struct FinalizationConfiguration; } }
+namespace catapult { namespace finalization {
+	struct FinalizationConfiguration;
+}}
 
 namespace catapult { namespace finalization {
 

@@ -32,7 +32,7 @@ namespace catapult { namespace mongo { namespace plugins {
 #define TEST_CLASS SecretLockMapperTests
 
 	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(SecretLock,)
+		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(SecretLock, )
 
 		template<typename TTransaction>
 		void AssertSecretLockTransaction(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {

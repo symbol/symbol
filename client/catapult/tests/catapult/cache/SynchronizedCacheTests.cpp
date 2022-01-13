@@ -379,8 +379,8 @@ namespace catapult { namespace cache {
 		public:
 			explicit DetachedDeltaGuard(LockableCacheDelta<test::SimpleCacheDelta>&& lockableDelta)
 					: m_lockableDelta(std::move(lockableDelta))
-					, m_delta(m_lockableDelta.tryLock())
-			{}
+					, m_delta(m_lockableDelta.tryLock()) {
+			}
 
 		private:
 			LockableCacheDelta<test::SimpleCacheDelta> m_lockableDelta;
@@ -432,8 +432,8 @@ namespace catapult { namespace cache {
 		public:
 			CommitLockGuard()
 					: m_cache(m_flag)
-					, m_delta(m_cache.createDelta())
-			{}
+					, m_delta(m_cache.createDelta()) {
+			}
 
 		public:
 			void lock() {
@@ -581,8 +581,9 @@ namespace catapult { namespace cache {
 	namespace {
 		class BasicSimpleCacheWithInit : public test::BasicSimpleCache {
 		public:
-			explicit BasicSimpleCacheWithInit(std::string& initString) : m_initString(initString)
-			{}
+			explicit BasicSimpleCacheWithInit(std::string& initString)
+					: m_initString(initString) {
+			}
 
 		public:
 			void init(const std::string& initString) {
@@ -595,8 +596,9 @@ namespace catapult { namespace cache {
 
 		class SimpleCacheWithInit : public SynchronizedCacheWithInit<BasicSimpleCacheWithInit> {
 		public:
-			SimpleCacheWithInit() : SynchronizedCacheWithInit(BasicSimpleCacheWithInit(m_initString))
-			{}
+			SimpleCacheWithInit()
+					: SynchronizedCacheWithInit(BasicSimpleCacheWithInit(m_initString)) {
+			}
 
 		public:
 			const std::string& initString() const {
@@ -634,13 +636,9 @@ namespace catapult { namespace cache {
 		SimpleCacheWithInit cache;
 
 		// Act + Assert: no exception
-		{
-			auto delta = cache.createDelta();
-		}
+		{ auto delta = cache.createDelta(); }
 
-		{
-			auto view = cache.createView();
-		}
+		{ auto view = cache.createView(); }
 
 		// -  init wasn't called
 		EXPECT_TRUE(cache.initString().empty());

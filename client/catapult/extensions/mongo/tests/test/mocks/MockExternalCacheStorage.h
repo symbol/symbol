@@ -30,8 +30,9 @@ namespace catapult { namespace mocks {
 	class MockExternalCacheStorage final : public mongo::ExternalCacheStorageT<test::SimpleCacheT<CacheId>> {
 	public:
 		/// Creates a mock external cache storage.
-		MockExternalCacheStorage() : m_numSaveDeltaCalls(0)
-		{}
+		MockExternalCacheStorage()
+				: m_numSaveDeltaCalls(0) {
+		}
 
 	private:
 		void saveDelta(const cache::SingleCacheChangesT<test::SimpleCacheDelta, uint64_t>&) override {

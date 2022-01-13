@@ -27,7 +27,9 @@
 #include "catapult/model/Elements.h"
 #include "catapult/model/EntityInfo.h"
 
-namespace catapult { namespace harvesting { struct BlockExecutionHashes; } }
+namespace catapult { namespace harvesting {
+	struct BlockExecutionHashes;
+}}
 
 namespace catapult { namespace harvesting {
 

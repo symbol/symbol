@@ -42,8 +42,8 @@ namespace catapult { namespace test {
 		public:
 			explicit StorageContext(PreparationMode mode)
 					: m_pTempDirectoryGuard(std::make_unique<TempDirectoryGuard>())
-					, m_pStorage(PrepareProofStorage(m_pTempDirectoryGuard->name(), mode))
-			{}
+					, m_pStorage(PrepareProofStorage(m_pTempDirectoryGuard->name(), mode)) {
+			}
 
 		public:
 			io::ProofStorage& operator*() {
@@ -486,26 +486,28 @@ namespace catapult { namespace test {
 // region MAKE/DEFINE TESTs
 
 #define MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::ProofStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::ProofStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_PROOF_STORAGE_TESTS(TRAITS_NAME) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, StatisticsReturnsEmptyStatisticsWhenIndexDoesNotExist) \
-	\
+\
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, SavingProofWithFinalizationEpochHigherThanCurrentFinalizationEpochAltersFinalizationIndexes) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, SavingProofWithFinalizationPointHigherThanCurrentFinalizationPointAltersFinalizationIndexes) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadNewlySavedProof) \
-	\
+\
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationRoundLessThanCurrentFinalizationRound) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithFinalizationRoundWithinOneEpochOfCurrentFinalizationRound) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationRoundGreaterThanOneEpochAboveCurrentFinalizationRound) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithHeightLessThanCurrentHeight) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithHeightGreaterThanOrEqualToCurrentHeight) \
-	\
+\
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizationEpochLessThanCurrentFinalizationEpoch) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtFinalizationEpochZero) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtFinalizationEpochGreaterThanCurrentFinalizationEpoch) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadMultipleSavedProofs) \
-	\
+\
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightZero) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizedHeightWhenSingleProofIsSaved) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizedHeightWhenTwoProofsAreSaved) \
@@ -514,6 +516,6 @@ namespace catapult { namespace test {
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightWithoutProofWhenTwoProofsAreSaved) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightWithoutProofWhenMultipleProofsAreSaved) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtHeightLessThanCurrentFinalizedHeight) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, LoadProofAtHeightLoadsMostRecentProof) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, LoadProofAtHeightLoadsMostRecentProof)
 
 // endregion

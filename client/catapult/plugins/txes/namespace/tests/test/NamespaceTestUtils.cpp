@@ -34,9 +34,7 @@ namespace catapult { namespace test {
 		auto alphabetLength = strlen(Valid_Alphabet);
 
 		std::string name(size, '\0');
-		std::generate(name.begin(), name.end(), [alphabetLength]() {
-			return Valid_Alphabet[Random() % alphabetLength];
-		});
+		std::generate(name.begin(), name.end(), [alphabetLength]() { return Valid_Alphabet[Random() % alphabetLength]; });
 		return name;
 	}
 

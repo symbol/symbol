@@ -27,8 +27,9 @@ namespace catapult { namespace addressextraction {
 	namespace {
 		class AddressExtractionBlockChangeSubscriber : public io::BlockChangeSubscriber {
 		public:
-			explicit AddressExtractionBlockChangeSubscriber(const AddressExtractor& extractor) : m_extractor(extractor)
-			{}
+			explicit AddressExtractionBlockChangeSubscriber(const AddressExtractor& extractor)
+					: m_extractor(extractor) {
+			}
 
 		public:
 			void notifyBlock(const model::BlockElement& blockElement) override {

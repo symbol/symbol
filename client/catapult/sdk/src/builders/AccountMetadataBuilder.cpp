@@ -28,8 +28,8 @@ namespace catapult { namespace builders {
 			, m_targetAddress()
 			, m_scopedMetadataKey()
 			, m_valueSizeDelta()
-			, m_value()
-	{}
+			, m_value() {
+	}
 
 	void AccountMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
 		m_targetAddress = targetAddress;

@@ -66,9 +66,7 @@ namespace catapult { namespace model {
 		template<typename T>
 		static auto* MessagePtrT(T& transaction) {
 			auto* pPayloadStart = THeader::PayloadStart(transaction);
-			return transaction.MessageSize && pPayloadStart
-					? pPayloadStart + transaction.MosaicsCount * sizeof(UnresolvedMosaic)
-					: nullptr;
+			return transaction.MessageSize && pPayloadStart ? pPayloadStart + transaction.MosaicsCount * sizeof(UnresolvedMosaic) : nullptr;
 		}
 
 	public:

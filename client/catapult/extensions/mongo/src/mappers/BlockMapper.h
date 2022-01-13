@@ -22,12 +22,10 @@
 #pragma once
 #include "MapperInclude.h"
 
-namespace catapult {
-	namespace model {
-		struct BlockElement;
-		struct FinalizationRound;
-	}
-}
+namespace catapult { namespace model {
+	struct BlockElement;
+	struct FinalizationRound;
+}}
 
 namespace catapult { namespace mongo { namespace mappers {
 

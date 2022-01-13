@@ -41,8 +41,8 @@ namespace catapult { namespace unbondedpruning {
 
 			void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override {
 				auto eventHandler = state.hooks().transactionEventHandler();
-				auto pNotificationPublisher = utils::UniqueToShared(
-						state.pluginManager().createNotificationPublisher(model::PublicationMode::Custom));
+				auto pNotificationPublisher =
+						utils::UniqueToShared(state.pluginManager().createNotificationPublisher(model::PublicationMode::Custom));
 
 				state.hooks().addTransactionsChangeHandler([eventHandler, pNotificationPublisher](const auto& changeInfo) {
 					for (const auto& transactionInfo : changeInfo.RevertedTransactionInfos) {

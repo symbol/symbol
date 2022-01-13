@@ -34,8 +34,10 @@ namespace catapult { namespace test {
 	struct LockTestState {
 	public:
 		/// Creates state.
-		LockTestState() : ShouldBlock(true), NumValueChanges(0)
-		{}
+		LockTestState()
+				: ShouldBlock(true)
+				, NumValueChanges(0) {
+		}
 
 	public:
 		/// Flag that is used to block threads.
@@ -67,8 +69,8 @@ namespace catapult { namespace test {
 
 		/// Waits for ShouldBlock to be set to \c false.
 		void block() {
-			while (ShouldBlock)
-			{}
+			while (ShouldBlock) {
+			}
 		}
 
 		/// Waits for NumValueChanges to be at least one.
@@ -90,8 +92,9 @@ namespace catapult { namespace test {
 
 	public:
 		/// Creates a guard around \a state.
-		explicit LockTestGuard(LockTestState& state) : m_state(state)
-		{}
+		explicit LockTestGuard(LockTestState& state)
+				: m_state(state) {
+		}
 
 		/// Destroys guard.
 		~LockTestGuard() {
@@ -229,35 +232,37 @@ namespace catapult { namespace test {
 	template<typename TProvider>
 	void AssertModifierIsBlockedByView(TProvider&& provider) {
 		// Assert:
-		AssertExclusiveLocks(
-			[&provider]() { return provider.view(); },
-			[&provider]() { return provider.modifier(); });
+		AssertExclusiveLocks([&provider]() { return provider.view(); }, [&provider]() { return provider.modifier(); });
 	}
 
 	/// Asserts that \a provider modifier blocks a view.
 	template<typename TProvider>
 	void AssertViewIsBlockedByModifier(TProvider&& provider) {
 		// Assert:
-		AssertExclusiveLocks(
-			[&provider]() { return provider.modifier(); },
-			[&provider]() { return provider.view(); });
+		AssertExclusiveLocks([&provider]() { return provider.modifier(); }, [&provider]() { return provider.view(); });
 	}
 
 	/// Asserts that \a provider modifier blocks a modifier.
 	template<typename TProvider>
 	void AssertModifierIsBlockedByModifier(TProvider&& provider) {
 		// Assert:
-		AssertExclusiveLocks(
-			[&provider]() { return provider.modifier(); },
-			[&provider]() { return provider.modifier(); });
+		AssertExclusiveLocks([&provider]() { return provider.modifier(); }, [&provider]() { return provider.modifier(); });
 	}
 
 /// Adds all view/modifier lock provider tests to the specified test class (\a TEST_CLASS).
 #define DEFINE_LOCK_PROVIDER_TESTS(TEST_CLASS) \
-	TEST(TEST_CLASS, MultipleViewsCanBeAcquired) { test::AssertMultipleViewsCanBeAcquired(*CreateLockProvider()); } \
-	TEST(TEST_CLASS, ModifierIsBlockedByView) { test::AssertModifierIsBlockedByView(*CreateLockProvider()); } \
-	TEST(TEST_CLASS, ViewIsBlockedByModifier) { test::AssertViewIsBlockedByModifier(*CreateLockProvider()); } \
-	TEST(TEST_CLASS, ModifierIsBlockedByModifier) { test::AssertModifierIsBlockedByModifier(*CreateLockProvider()); }
+	TEST(TEST_CLASS, MultipleViewsCanBeAcquired) { \
+		test::AssertMultipleViewsCanBeAcquired(*CreateLockProvider()); \
+	} \
+	TEST(TEST_CLASS, ModifierIsBlockedByView) { \
+		test::AssertModifierIsBlockedByView(*CreateLockProvider()); \
+	} \
+	TEST(TEST_CLASS, ViewIsBlockedByModifier) { \
+		test::AssertViewIsBlockedByModifier(*CreateLockProvider()); \
+	} \
+	TEST(TEST_CLASS, ModifierIsBlockedByModifier) { \
+		test::AssertModifierIsBlockedByModifier(*CreateLockProvider()); \
+	}
 
 	// endregion
 }}

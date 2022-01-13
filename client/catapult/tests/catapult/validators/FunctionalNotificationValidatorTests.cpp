@@ -31,9 +31,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, HasCorrectName) {
 		// Act:
-		FunctionalNotificationValidatorT<NotificationType> validator("Foo", [](const auto&) {
-			return ValidationResult::Success;
-		});
+		FunctionalNotificationValidatorT<NotificationType> validator("Foo", [](const auto&) { return ValidationResult::Success; });
 
 		// Assert:
 		EXPECT_EQ("Foo", validator.name());
@@ -44,8 +42,8 @@ namespace catapult { namespace validators {
 		public:
 			ValidateParams(const NotificationType& notification, int context)
 					: pNotification(&notification)
-					, Context(context)
-			{}
+					, Context(context) {
+			}
 
 		public:
 			const NotificationType* pNotification;

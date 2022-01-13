@@ -31,7 +31,8 @@ namespace catapult { namespace mocks {
 	class MockPacketIoPicker : public net::PacketIoPicker {
 	public:
 		/// Creates a mock packet io picker that initially has \a numPacketIos mock packet ios available.
-		explicit MockPacketIoPicker(size_t numPacketIos) : m_nextIndex(0) {
+		explicit MockPacketIoPicker(size_t numPacketIos)
+				: m_nextIndex(0) {
 			for (auto i = 0u; i < numPacketIos; ++i)
 				m_packetIos.push_back(std::make_shared<mocks::MockPacketIo>());
 		}

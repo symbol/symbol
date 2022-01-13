@@ -30,14 +30,14 @@ namespace catapult { namespace ionet {
 			: m_pKey(nullptr)
 			, m_pHost(nullptr)
 			, m_hasResponse(false)
-			, m_defaultKey()
-	{}
+			, m_defaultKey() {
+	}
 
 	ServerPacketHandlerContext::ServerPacketHandlerContext(const Key& key, const std::string& host)
 			: m_pKey(&key)
 			, m_pHost(&host)
-			, m_hasResponse(false)
-	{}
+			, m_hasResponse(false) {
+	}
 
 	const Key& ServerPacketHandlerContext::key() const {
 		return !m_pKey ? m_defaultKey : *m_pKey;
@@ -70,8 +70,9 @@ namespace catapult { namespace ionet {
 
 	// region ServerPacketHandlers
 
-	ServerPacketHandlers::ServerPacketHandlers(uint32_t maxPacketDataSize) : m_maxPacketDataSize(maxPacketDataSize)
-	{}
+	ServerPacketHandlers::ServerPacketHandlers(uint32_t maxPacketDataSize)
+			: m_maxPacketDataSize(maxPacketDataSize) {
+	}
 
 	size_t ServerPacketHandlers::size() const {
 		size_t numHandlers = 0;
@@ -100,9 +101,7 @@ namespace catapult { namespace ionet {
 			if (hosts.empty())
 				return true;
 
-			return std::any_of(hosts.cbegin(), hosts.cend(), [&host](const auto& allowedHost) {
-				return allowedHost == host;
-			});
+			return std::any_of(hosts.cbegin(), hosts.cend(), [&host](const auto& allowedHost) { return allowedHost == host; });
 		}
 	}
 

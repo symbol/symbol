@@ -60,12 +60,10 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::vector<FinalizationRound> GenerateIncreasingFinalizationRoundValues() {
-			return {
-				{ FinalizationEpoch(7), FinalizationPoint(5) },
-				{ FinalizationEpoch(7), FinalizationPoint(10) },
-				{ FinalizationEpoch(7), FinalizationPoint(11) },
-				{ FinalizationEpoch(8), FinalizationPoint(11) }
-			};
+			return { { FinalizationEpoch(7), FinalizationPoint(5) },
+					 { FinalizationEpoch(7), FinalizationPoint(10) },
+					 { FinalizationEpoch(7), FinalizationPoint(11) },
+					 { FinalizationEpoch(8), FinalizationPoint(11) } };
 		}
 	}
 

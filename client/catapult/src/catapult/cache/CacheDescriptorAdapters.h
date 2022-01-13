@@ -72,14 +72,9 @@ namespace catapult { namespace cache {
 
 			// workaround for VS truncation
 			using MapStorageTraits = deltaset::MapStorageTraits<
-				deltaset::ConditionalContainer<
-					deltaset::MapKeyTraits<MemoryMapType>,
-					StorageMapType,
-					MemoryMapType
-				>,
-				Converter,
-				MemoryMapType
-			>;
+					deltaset::ConditionalContainer<deltaset::MapKeyTraits<MemoryMapType>, StorageMapType, MemoryMapType>,
+					Converter,
+					MemoryMapType>;
 
 			struct StorageTraits : public MapStorageTraits {};
 
@@ -97,17 +92,13 @@ namespace catapult { namespace cache {
 
 	/// Defines cache types for an unordered mutable map based cache.
 	template<typename TDescriptor, typename TValueHasher = std::hash<typename TDescriptor::KeyType>>
-	using MutableUnorderedMapAdapter = detail::UnorderedMapAdapter<
-		deltaset::MutableTypeTraits<typename TDescriptor::ValueType>,
-		TDescriptor,
-		TValueHasher>;
+	using MutableUnorderedMapAdapter =
+			detail::UnorderedMapAdapter<deltaset::MutableTypeTraits<typename TDescriptor::ValueType>, TDescriptor, TValueHasher>;
 
 	/// Defines cache types for an unordered immutable map based cache.
 	template<typename TDescriptor, typename TValueHasher = std::hash<typename TDescriptor::KeyType>>
-	using ImmutableUnorderedMapAdapter = detail::UnorderedMapAdapter<
-		deltaset::ImmutableTypeTraits<typename TDescriptor::ValueType>,
-		TDescriptor,
-		TValueHasher>;
+	using ImmutableUnorderedMapAdapter =
+			detail::UnorderedMapAdapter<deltaset::ImmutableTypeTraits<typename TDescriptor::ValueType>, TDescriptor, TValueHasher>;
 
 	namespace detail {
 		/// Defines cache types for an ordered, memory backed set based cache.
@@ -118,21 +109,16 @@ namespace catapult { namespace cache {
 
 			class StorageSetType : public deltaset::detail::OrderedSetType<TElementTraits> {
 			public:
-				StorageSetType(CacheDatabase&, size_t)
-				{}
+				StorageSetType(CacheDatabase&, size_t) {
+				}
 			};
 
 			using MemorySetType = std::set<ElementType>;
 
 			// workaround for VS truncation
 			using SetStorageTraits = deltaset::SetStorageTraits<
-				deltaset::ConditionalContainer<
-					deltaset::SetKeyTraits<MemorySetType>,
-					StorageSetType,
-					MemorySetType
-				>,
-				MemorySetType
-			>;
+					deltaset::ConditionalContainer<deltaset::SetKeyTraits<MemorySetType>, StorageSetType, MemorySetType>,
+					MemorySetType>;
 
 			struct StorageTraits : public SetStorageTraits {};
 
@@ -150,13 +136,12 @@ namespace catapult { namespace cache {
 
 	/// Defines cache types for an ordered, mutable, memory backed set based cache.
 	template<typename TDescriptor>
-	using MutableOrderedMemorySetAdapter = detail::OrderedMemorySetAdapter<
-		deltaset::MutableTypeTraits<typename TDescriptor::ValueType>>;
+	using MutableOrderedMemorySetAdapter = detail::OrderedMemorySetAdapter<deltaset::MutableTypeTraits<typename TDescriptor::ValueType>>;
 
 	/// Defines cache types for an ordered, immutable, memory backed set based cache.
 	template<typename TDescriptor>
-	using ImmutableOrderedMemorySetAdapter = detail::OrderedMemorySetAdapter<
-		deltaset::ImmutableTypeTraits<typename TDescriptor::ValueType>>;
+	using ImmutableOrderedMemorySetAdapter =
+			detail::OrderedMemorySetAdapter<deltaset::ImmutableTypeTraits<typename TDescriptor::ValueType>>;
 
 	namespace detail {
 		/// Defines cache types for an ordered set based cache.
@@ -193,13 +178,8 @@ namespace catapult { namespace cache {
 
 			// workaround for VS truncation
 			using SetStorageTraits = deltaset::SetStorageTraits<
-				deltaset::ConditionalContainer<
-					deltaset::SetKeyTraits<MemorySetType>,
-					StorageSetType,
-					MemorySetType
-				>,
-				MemorySetType
-			>;
+					deltaset::ConditionalContainer<deltaset::SetKeyTraits<MemorySetType>, StorageSetType, MemorySetType>,
+					MemorySetType>;
 
 			struct StorageTraits : public SetStorageTraits {};
 
@@ -217,13 +197,10 @@ namespace catapult { namespace cache {
 
 	/// Defines cache types for an ordered mutable set based cache.
 	template<typename TDescriptor>
-	using MutableOrderedSetAdapter = detail::OrderedSetAdapter<
-		deltaset::MutableTypeTraits<typename TDescriptor::ValueType>,
-		TDescriptor>;
+	using MutableOrderedSetAdapter = detail::OrderedSetAdapter<deltaset::MutableTypeTraits<typename TDescriptor::ValueType>, TDescriptor>;
 
 	/// Defines cache types for an ordered immutable set based cache.
 	template<typename TDescriptor>
-	using ImmutableOrderedSetAdapter = detail::OrderedSetAdapter<
-		deltaset::ImmutableTypeTraits<typename TDescriptor::ValueType>,
-		TDescriptor>;
+	using ImmutableOrderedSetAdapter =
+			detail::OrderedSetAdapter<deltaset::ImmutableTypeTraits<typename TDescriptor::ValueType>, TDescriptor>;
 }}

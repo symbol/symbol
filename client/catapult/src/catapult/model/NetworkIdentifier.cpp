@@ -36,10 +36,9 @@ namespace catapult { namespace model {
 #undef DEFINE_ENUM
 
 	namespace {
-		const std::array<std::pair<const char*, NetworkIdentifier>, 2> String_To_Network_Identifier_Pairs{{
-			{ "mainnet", NetworkIdentifier::Mainnet },
-			{ "testnet", NetworkIdentifier::Testnet }
-		}};
+		const std::array<std::pair<const char*, NetworkIdentifier>, 2> String_To_Network_Identifier_Pairs{
+			{ { "mainnet", NetworkIdentifier::Mainnet }, { "testnet", NetworkIdentifier::Testnet } }
+		};
 	}
 
 	bool TryParseValue(const std::string& networkName, NetworkIdentifier& networkIdentifier) {
@@ -58,19 +57,18 @@ namespace catapult { namespace model {
 
 	// region UniqueNetworkFingerprint
 
-	UniqueNetworkFingerprint::UniqueNetworkFingerprint() : UniqueNetworkFingerprint(NetworkIdentifier::Zero)
-	{}
+	UniqueNetworkFingerprint::UniqueNetworkFingerprint()
+			: UniqueNetworkFingerprint(NetworkIdentifier::Zero) {
+	}
 
 	UniqueNetworkFingerprint::UniqueNetworkFingerprint(NetworkIdentifier identifier)
-			: UniqueNetworkFingerprint(identifier, catapult::GenerationHashSeed())
-	{}
+			: UniqueNetworkFingerprint(identifier, catapult::GenerationHashSeed()) {
+	}
 
-	UniqueNetworkFingerprint::UniqueNetworkFingerprint(
-			NetworkIdentifier identifier,
-			const catapult::GenerationHashSeed& generationHashSeed)
+	UniqueNetworkFingerprint::UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHashSeed& generationHashSeed)
 			: Identifier(identifier)
-			, GenerationHashSeed(generationHashSeed)
-	{}
+			, GenerationHashSeed(generationHashSeed) {
+	}
 
 	bool UniqueNetworkFingerprint::operator==(const UniqueNetworkFingerprint& rhs) const {
 		return Identifier == rhs.Identifier && GenerationHashSeed == rhs.GenerationHashSeed;

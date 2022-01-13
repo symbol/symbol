@@ -89,8 +89,8 @@ namespace catapult { namespace chain {
 					: m_pBlockStorageCache(mocks::CreateMemoryBlockStorageCache(numBlocks))
 					, m_subscriber(m_prevoteChainStorage, *m_pBlockStorageCache, [this](auto&& blockRange) {
 						m_blockRangeSizes.push_back(blockRange.size());
-					})
-			{}
+					}) {
+			}
 
 		public:
 			auto& prevoteChainStorage() {

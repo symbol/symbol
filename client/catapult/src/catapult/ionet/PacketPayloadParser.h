@@ -32,9 +32,7 @@ namespace catapult { namespace ionet {
 			if (isValid(entity))
 				return true;
 
-			CATAPULT_LOG(warning)
-					<< "entity (header size = " << sizeof(TEntity)
-					<< ") has failed validity check with size " << entity.Size;
+			CATAPULT_LOG(warning) << "entity (header size = " << sizeof(TEntity) << ") has failed validity check with size " << entity.Size;
 			return false;
 		}
 	}

@@ -37,7 +37,8 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a cache around \a config.
-		explicit MosaicCache(const CacheConfiguration& config) : SynchronizedCache<BasicMosaicCache>(BasicMosaicCache(config))
-		{}
+		explicit MosaicCache(const CacheConfiguration& config)
+				: SynchronizedCache<BasicMosaicCache>(BasicMosaicCache(config)) {
+		}
 	};
 }}

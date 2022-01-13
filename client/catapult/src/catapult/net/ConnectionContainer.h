@@ -24,8 +24,12 @@
 #include "catapult/functions.h"
 
 namespace catapult {
-	namespace ionet { class PacketSocketInfo; }
-	namespace net { struct PeerConnectResult; }
+namespace ionet {
+	class PacketSocketInfo;
+}
+namespace net {
+	struct PeerConnectResult;
+}
 }
 
 namespace catapult { namespace net {

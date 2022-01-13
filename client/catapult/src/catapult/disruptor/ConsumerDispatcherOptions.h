@@ -33,8 +33,8 @@ namespace catapult { namespace disruptor {
 				, DisruptorSlotCount(disruptorSlotCount)
 				, DisruptorMaxMemorySize(utils::FileSize::FromMegabytes(1024))
 				, ElementTraceInterval(1)
-				, ShouldThrowWhenFull(true)
-		{}
+				, ShouldThrowWhenFull(true) {
+		}
 
 	public:
 		/// Name of the dispatcher.

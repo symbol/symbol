@@ -64,9 +64,7 @@ namespace catapult { namespace test {
 		static void AssertUnknownTransactionsOnlyReturnsTransactionsWithDeadlinesAtLeastMinDeadline() {
 			// Arrange:
 			CacheType cache(CreateDefaultOptions());
-			auto transactionInfos = CreateTransactionInfos(5, [](auto i) {
-				return Timestamp(std::vector<size_t>({ 1, 4, 3, 2, 5 })[i]);
-			});
+			auto transactionInfos = CreateTransactionInfos(5, [](auto i) { return Timestamp(std::vector<size_t>({ 1, 4, 3, 2, 5 })[i]); });
 			TTraits::AddAllToCache(cache, transactionInfos);
 
 			// Act:
@@ -89,11 +87,12 @@ namespace catapult { namespace test {
 			TTraits::AddAllToCache(cache, transactionInfos);
 
 			// Act:
-			auto unknownInfos = TTraits::GetUnknownTransactions(cache.view(), Timestamp(), {
-				TTraits::MapToFilterId(transactionInfos[1]),
-				TTraits::MapToFilterId(transactionInfos[2]),
-				TTraits::MapToFilterId(transactionInfos[4])
-			});
+			auto unknownInfos = TTraits::GetUnknownTransactions(
+					cache.view(),
+					Timestamp(),
+					{ TTraits::MapToFilterId(transactionInfos[1]),
+					  TTraits::MapToFilterId(transactionInfos[2]),
+					  TTraits::MapToFilterId(transactionInfos[4]) });
 
 			// Assert:
 			EXPECT_EQ(2u, unknownInfos.size());
@@ -111,13 +110,14 @@ namespace catapult { namespace test {
 			TTraits::AddAllToCache(cache, transactionInfos);
 
 			// Act:
-			auto unknownInfos = TTraits::GetUnknownTransactions(cache.view(), Timestamp(), {
-				TTraits::MapToFilterId(transactionInfos[0]),
-				TTraits::MapToFilterId(transactionInfos[1]),
-				TTraits::MapToFilterId(transactionInfos[2]),
-				TTraits::MapToFilterId(transactionInfos[3]),
-				TTraits::MapToFilterId(transactionInfos[4])
-			});
+			auto unknownInfos = TTraits::GetUnknownTransactions(
+					cache.view(),
+					Timestamp(),
+					{ TTraits::MapToFilterId(transactionInfos[0]),
+					  TTraits::MapToFilterId(transactionInfos[1]),
+					  TTraits::MapToFilterId(transactionInfos[2]),
+					  TTraits::MapToFilterId(transactionInfos[3]),
+					  TTraits::MapToFilterId(transactionInfos[4]) });
 
 			// Assert:
 			EXPECT_TRUE(unknownInfos.empty());
@@ -130,7 +130,9 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_UNKNOWN_TRANSACTIONS_TEST(TEST_CLASS, TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BasicUnknownTransactionsTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BasicUnknownTransactionsTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_BASIC_UNKNOWN_TRANSACTIONS_TESTS(TEST_CLASS, TRAITS_NAME) \
 	MAKE_UNKNOWN_TRANSACTIONS_TEST(TEST_CLASS, TRAITS_NAME, UnknownTransactionsReturnsNoTransactionsWhenCacheIsEmpty) \

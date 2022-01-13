@@ -44,9 +44,8 @@ namespace catapult { namespace sync {
 
 				// set up hooks
 				auto& hooks = testState().state().hooks();
-				hooks.setCompletionAwareBlockRangeConsumerFactory([](auto) {
-					return [](auto&&, auto) { return disruptor::DisruptorElementId(); };
-				});
+				hooks.setCompletionAwareBlockRangeConsumerFactory(
+						[](auto) { return [](auto&&, auto) { return disruptor::DisruptorElementId(); }; });
 				hooks.setTransactionRangeConsumerFactory([](auto) { return [](auto&&) {}; });
 				hooks.setLocalFinalizedHeightHashPairSupplier([]() { return model::HeightHashPair{ Height(1), Hash256() }; });
 			}
@@ -58,11 +57,9 @@ namespace catapult { namespace sync {
 	// region tasks
 
 	TEST(TEST_CLASS, TasksAreRegistered) {
-		test::AssertRegisteredTasks(TestContext(), {
-			"connect peers task for service Sync",
-			"synchronizer task",
-			"pull unconfirmed transactions task"
-		});
+		test::AssertRegisteredTasks(
+				TestContext(),
+				{ "connect peers task for service Sync", "synchronizer task", "pull unconfirmed transactions task" });
 	}
 
 	// endregion

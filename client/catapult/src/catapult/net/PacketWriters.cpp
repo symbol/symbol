@@ -44,10 +44,12 @@ namespace catapult { namespace net {
 
 		struct WriterStateWithAvailability : public WriterState {
 		public:
-			WriterStateWithAvailability() : IsAvailable(true)
-			{}
+			WriterStateWithAvailability()
+					: IsAvailable(true) {
+			}
 
-			explicit WriterStateWithAvailability(const WriterState& state) : WriterStateWithAvailability() {
+			explicit WriterStateWithAvailability(const WriterState& state)
+					: WriterStateWithAvailability() {
 				Node = state.Node;
 				pSocket = state.pSocket;
 				pBufferedIo = state.pBufferedIo;
@@ -73,8 +75,8 @@ namespace catapult { namespace net {
 			explicit WriterContainer(model::NodeIdentityEqualityStrategy equalityStrategy)
 					: m_equalityStrategy(equalityStrategy)
 					, m_nodeIdentities(CreateNodeIdentitySet(equalityStrategy))
-					, m_outgoingNodeIdentities(CreateNodeIdentitySet(equalityStrategy))
-			{}
+					, m_outgoingNodeIdentities(CreateNodeIdentitySet(equalityStrategy)) {
+			}
 
 		public:
 			size_t size() const {
@@ -236,8 +238,8 @@ namespace catapult { namespace net {
 					const CompletionCallback& completionCallback)
 					: m_pPacketIo(pPacketIo)
 					, m_errorCallback(errorCallback)
-					, m_completionCallback(completionCallback)
-			{}
+					, m_completionCallback(completionCallback) {
+			}
 
 			~ErrorHandlingPacketIo() override {
 				m_completionCallback(true);
@@ -283,8 +285,8 @@ namespace catapult { namespace net {
 					: m_ioContext(pool.ioContext())
 					, m_pClientConnector(CreateClientConnector(pool, serverPublicKey, settings, "writers"))
 					, m_pServerConnector(CreateServerConnector(pool, serverPublicKey, settings, "writers"))
-					, m_writers(settings.NodeIdentityEqualityStrategy)
-			{}
+					, m_writers(settings.NodeIdentityEqualityStrategy) {
+			}
 
 		public:
 			size_t numActiveConnections() const override {
@@ -358,9 +360,7 @@ namespace catapult { namespace net {
 					errorHandler();
 				});
 
-				return [pTimedCompletionHandler](auto isCompleted) {
-					pTimedCompletionHandler->callback(isCompleted);
-				};
+				return [pTimedCompletionHandler](auto isCompleted) { pTimedCompletionHandler->callback(isCompleted); };
 			}
 
 		public:
@@ -368,18 +368,18 @@ namespace catapult { namespace net {
 				if (!m_writers.prepareConnect(node))
 					return callback(PeerConnectCode::Already_Connected);
 
-				m_pServerConnector->connect(node, [pThis = shared_from_this(), node, callback](
-						auto connectCode,
-						const auto& verifiedSocketInfo) {
-					// abort the connection if it failed
-					if (PeerConnectCode::Accepted != connectCode)
-						pThis->m_writers.abortConnect(node);
-					else
-						pThis->addWriter(node, verifiedSocketInfo.socket());
+				m_pServerConnector->connect(
+						node,
+						[pThis = shared_from_this(), node, callback](auto connectCode, const auto& verifiedSocketInfo) {
+							// abort the connection if it failed
+							if (PeerConnectCode::Accepted != connectCode)
+								pThis->m_writers.abortConnect(node);
+							else
+								pThis->addWriter(node, verifiedSocketInfo.socket());
 
-					// PacketWritersTests require socket
-					callback({ connectCode, node.identity(), verifiedSocketInfo.socket() });
-				});
+							// PacketWritersTests require socket
+							callback({ connectCode, node.identity(), verifiedSocketInfo.socket() });
+						});
 			}
 
 		private:

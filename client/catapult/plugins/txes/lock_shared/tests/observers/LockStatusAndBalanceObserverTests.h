@@ -35,33 +35,32 @@ namespace catapult { namespace observers {
 			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit);
 
 			// Act:
-			RunTest(std::move(observerContext), initialAmount, Amount(100), [&](
-					const auto& accountState,
-					const auto& originalLockInfo,
-					const auto& lockInfoHistory,
-					const auto& statement) {
-				// Assert: status and balance
-				EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
-				ASSERT_EQ(1u, lockInfoHistory.historyDepth());
+			RunTest(std::move(observerContext),
+					initialAmount,
+					Amount(100),
+					[&](const auto& accountState, const auto& originalLockInfo, const auto& lockInfoHistory, const auto& statement) {
+						// Assert: status and balance
+						EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
+						ASSERT_EQ(1u, lockInfoHistory.historyDepth());
 
-				const auto& lockInfo = lockInfoHistory.back();
-				EXPECT_EQ(state::LockStatus::Used, lockInfo.Status);
-				EXPECT_EQ(initialAmount + Amount(100), accountState.Balances.get(lockInfo.MosaicId));
+						const auto& lockInfo = lockInfoHistory.back();
+						EXPECT_EQ(state::LockStatus::Used, lockInfo.Status);
+						EXPECT_EQ(initialAmount + Amount(100), accountState.Balances.get(lockInfo.MosaicId));
 
-				// - check receipt
-				ASSERT_EQ(1u, statement.TransactionStatements.size());
+						// - check receipt
+						ASSERT_EQ(1u, statement.TransactionStatements.size());
 
-				const auto& receiptPair = *statement.TransactionStatements.find(model::ReceiptSource());
-				ASSERT_EQ(1u, receiptPair.second.size());
+						const auto& receiptPair = *statement.TransactionStatements.find(model::ReceiptSource());
+						ASSERT_EQ(1u, receiptPair.second.size());
 
-				const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
-				ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
-				EXPECT_EQ(1u, receipt.Version);
-				EXPECT_EQ(TTraits::Receipt_Type, receipt.Type);
-				EXPECT_EQ(originalLockInfo.MosaicId, receipt.Mosaic.MosaicId);
-				EXPECT_EQ(originalLockInfo.Amount, receipt.Mosaic.Amount);
-				EXPECT_EQ(accountState.Address, receipt.TargetAddress);
-			});
+						const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
+						ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
+						EXPECT_EQ(1u, receipt.Version);
+						EXPECT_EQ(TTraits::Receipt_Type, receipt.Type);
+						EXPECT_EQ(originalLockInfo.MosaicId, receipt.Mosaic.MosaicId);
+						EXPECT_EQ(originalLockInfo.Amount, receipt.Mosaic.Amount);
+						EXPECT_EQ(accountState.Address, receipt.TargetAddress);
+					});
 		}
 
 	public:
@@ -78,21 +77,20 @@ namespace catapult { namespace observers {
 			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Rollback);
 
 			// Act:
-			RunTest(std::move(observerContext), Amount(1000), Amount(100), [&](
-					const auto& accountState,
-					const auto& originalLockInfo,
-					const auto& lockInfoHistory,
-					const auto& statement) {
-				// Assert: status and balance
-				EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
-				ASSERT_EQ(1u, lockInfoHistory.historyDepth());
+			RunTest(std::move(observerContext),
+					Amount(1000),
+					Amount(100),
+					[&](const auto& accountState, const auto& originalLockInfo, const auto& lockInfoHistory, const auto& statement) {
+						// Assert: status and balance
+						EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
+						ASSERT_EQ(1u, lockInfoHistory.historyDepth());
 
-				const auto& lockInfo = lockInfoHistory.back();
-				EXPECT_EQ(state::LockStatus::Unused, lockInfo.Status);
-				EXPECT_EQ(Amount(900), accountState.Balances.get(originalLockInfo.MosaicId));
+						const auto& lockInfo = lockInfoHistory.back();
+						EXPECT_EQ(state::LockStatus::Unused, lockInfo.Status);
+						EXPECT_EQ(Amount(900), accountState.Balances.get(originalLockInfo.MosaicId));
 
-				ASSERT_EQ(0u, statement.TransactionStatements.size());
-			});
+						ASSERT_EQ(0u, statement.TransactionStatements.size());
+					});
 		}
 
 	private:
@@ -134,7 +132,9 @@ namespace catapult { namespace observers {
 }}
 
 #define MAKE_LOCK_STATUS_OBSERVER_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockStatusObserverTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		LockStatusObserverTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_LOCK_STATUS_OBSERVER_TESTS(TRAITS_NAME) \
 	MAKE_LOCK_STATUS_OBSERVER_TEST(TRAITS_NAME, ObserverSetsStatusToUsedAndCreditsBalanceOnCommit) \

@@ -24,12 +24,10 @@
 #include "catapult/plugins.h"
 #include <string>
 
-namespace catapult {
-	namespace cache {
-		class CatapultCacheDelta;
-		class CatapultCacheView;
-	}
-}
+namespace catapult { namespace cache {
+	class CatapultCacheDelta;
+	class CatapultCacheView;
+}}
 
 namespace catapult { namespace cache {
 

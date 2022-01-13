@@ -30,8 +30,9 @@ namespace catapult { namespace mocks {
 	namespace {
 		class MockMongoReceiptPlugin : public MongoReceiptPlugin {
 		public:
-			explicit MockMongoReceiptPlugin(model::ReceiptType type) : m_type(type)
-			{}
+			explicit MockMongoReceiptPlugin(model::ReceiptType type)
+					: m_type(type) {
+			}
 
 		public:
 			model::ReceiptType type() const override {

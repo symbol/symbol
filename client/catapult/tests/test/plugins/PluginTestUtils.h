@@ -225,7 +225,9 @@ namespace catapult { namespace test {
 	// endregion
 
 #define MAKE_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::Assert##TEST_NAME<TEST_TRAITS>(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::Assert##TEST_NAME<TEST_TRAITS>(); \
+	}
 
 #define DEFINE_PLUGIN_TESTS(TEST_CLASS, TEST_TRAITS) \
 	MAKE_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateTransactionsAreRegistered) \

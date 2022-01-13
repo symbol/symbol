@@ -63,26 +63,25 @@ namespace catapult { namespace model {
 		static auto* RestrictionDeletionsPtrT(T& transaction) {
 			auto* pPayloadStart = THeader::PayloadStart(transaction);
 			return transaction.RestrictionDeletionsCount && pPayloadStart
-					? pPayloadStart + transaction.RestrictionAdditionsCount * sizeof(TAccountRestrictionValue)
-					: nullptr;
+						   ? pPayloadStart + transaction.RestrictionAdditionsCount * sizeof(TAccountRestrictionValue)
+						   : nullptr;
 		}
 
 	public:
 		/// Calculates the real size of account restriction \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
 			return sizeof(TransactionType)
-					+ (transaction.RestrictionAdditionsCount + transaction.RestrictionDeletionsCount) * sizeof(TAccountRestrictionValue);
+				   + (transaction.RestrictionAdditionsCount + transaction.RestrictionDeletionsCount) * sizeof(TAccountRestrictionValue);
 		}
 	};
 
 #define DEFINE_ACCOUNT_RESTRICTION_TRANSACTION(VALUE_NAME, ENTITY_TYPE_NAME, VALUE_TYPE) \
 	template<typename THeader> \
-	struct Account##VALUE_NAME##RestrictionTransactionBody \
-			: public BasicAccountRestrictionTransactionBody<THeader, VALUE_TYPE> { \
+	struct Account##VALUE_NAME##RestrictionTransactionBody : public BasicAccountRestrictionTransactionBody<THeader, VALUE_TYPE> { \
 	public: \
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Account_##ENTITY_TYPE_NAME##_Restriction, 1) \
 	}; \
-	\
+\
 	DEFINE_EMBEDDABLE_TRANSACTION(Account##VALUE_NAME##Restriction)
 
 #pragma pack(pop)

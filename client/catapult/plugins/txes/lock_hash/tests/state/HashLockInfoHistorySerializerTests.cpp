@@ -37,8 +37,8 @@ namespace catapult { namespace state {
 		public:
 			explicit PackedHashLockInfo(const HashLockInfo& hashLockInfo)
 					: PackedLockInfo(hashLockInfo)
-					, Hash(hashLockInfo.Hash)
-			{}
+					, Hash(hashLockInfo.Hash) {
+			}
 
 		public:
 			Hash256 Hash;

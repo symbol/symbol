@@ -45,10 +45,9 @@ namespace catapult { namespace chain {
 			, m_messagePredicate(messagePredicate)
 			, m_messageSink(messageSink)
 			, m_pMessageFactory(std::move(pMessageFactory)) {
-		CATAPULT_LOG(debug)
-				<< "creating finalization orchestrator starting at round " << m_votingStatus.Round
-				<< " (has sent prevote? " << m_votingStatus.HasSentPrevote << ")"
-				<< " (has sent precommit? " << m_votingStatus.HasSentPrecommit << ")";
+		CATAPULT_LOG(debug) << "creating finalization orchestrator starting at round " << m_votingStatus.Round << " (has sent prevote? "
+							<< m_votingStatus.HasSentPrevote << ")"
+							<< " (has sent precommit? " << m_votingStatus.HasSentPrecommit << ")";
 	}
 
 	VotingStatus FinalizationOrchestrator::votingStatus() const {
@@ -98,15 +97,12 @@ namespace catapult { namespace chain {
 
 	void FinalizationOrchestrator::process(std::unique_ptr<model::FinalizationMessage>&& pMessage, const char* description) {
 		if (!pMessage || !m_messagePredicate(*pMessage)) {
-			CATAPULT_LOG(debug)
-					<< "cannot create " << description << " for " << m_votingStatus.Round << " ("
-					<< (pMessage ? "ineligible" : "factory failed") << ")";
+			CATAPULT_LOG(debug) << "cannot create " << description << " for " << m_votingStatus.Round << " ("
+								<< (pMessage ? "ineligible" : "factory failed") << ")";
 			return;
 		}
 
-		CATAPULT_LOG(info)
-				<< "sending message for " << m_votingStatus.Round
-				<< std::endl << *pMessage;
+		CATAPULT_LOG(info) << "sending message for " << m_votingStatus.Round << std::endl << *pMessage;
 		m_messageSink(std::move(pMessage));
 	}
 
@@ -127,10 +123,9 @@ namespace catapult { namespace chain {
 				return;
 
 			auto statistics = ToFinalizationStatistics(bestPrecommitDescriptor);
-			CATAPULT_LOG(info)
-					<< "finalization round " << statistics.Round
-					<< " reached consensus among "<< bestPrecommitDescriptor.Proof.size() << " messages"
-					<< " for block " << statistics.Hash << " at " << statistics.Height;
+			CATAPULT_LOG(info) << "finalization round " << statistics.Round << " reached consensus among "
+							   << bestPrecommitDescriptor.Proof.size() << " messages"
+							   << " for block " << statistics.Hash << " at " << statistics.Height;
 
 			auto pProof = CreateFinalizationProof(statistics, bestPrecommitDescriptor.Proof);
 			proofStorage.modifier().saveProof(*pProof);

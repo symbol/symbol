@@ -30,8 +30,9 @@ namespace catapult { namespace filespooling {
 	namespace {
 		class FileBlockChangeStorage final : public io::BlockChangeSubscriber {
 		public:
-			explicit FileBlockChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream) : m_pOutputStream(std::move(pOutputStream))
-			{}
+			explicit FileBlockChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
+					: m_pOutputStream(std::move(pOutputStream)) {
+			}
 
 		public:
 			void notifyBlock(const model::BlockElement& blockElement) override {

@@ -43,8 +43,8 @@ namespace catapult { namespace test {
 				, LifetimeStart(lifetimeStart)
 				, LifetimeEnd(lifetimeEnd)
 				, AliasType(state::AliasType::None)
-				, NumChildren(numChildren)
-		{}
+				, NumChildren(numChildren) {
+		}
 
 	public:
 		Address Owner;
@@ -59,14 +59,15 @@ namespace catapult { namespace test {
 	public:
 		NamespaceData() = default;
 
-		NamespaceData(NamespaceId part1, NamespaceId part2) : NamespaceData(part1, part2, state::AliasType::None)
-		{}
+		NamespaceData(NamespaceId part1, NamespaceId part2)
+				: NamespaceData(part1, part2, state::AliasType::None) {
+		}
 
 		NamespaceData(NamespaceId part1, NamespaceId part2, state::AliasType aliasType)
 				: Part1(part1)
 				, Part2(part2)
-				, AliasType(aliasType)
-		{}
+				, AliasType(aliasType) {
+		}
 
 	public:
 		NamespaceId Part1;
@@ -80,14 +81,14 @@ namespace catapult { namespace test {
 	struct NamespaceDataWithAliasPayload {
 	public:
 		NamespaceDataWithAliasPayload(NamespaceId part1, NamespaceId part2)
-				: NamespaceDataWithAliasPayload(part1, part2, state::NamespaceAlias())
-		{}
+				: NamespaceDataWithAliasPayload(part1, part2, state::NamespaceAlias()) {
+		}
 
 		NamespaceDataWithAliasPayload(NamespaceId part1, NamespaceId part2, const state::NamespaceAlias& alias)
 				: Part1(part1)
 				, Part2(part2)
-				, Alias(alias)
-		{}
+				, Alias(alias) {
+		}
 
 	public:
 		NamespaceId Part1;
@@ -253,11 +254,12 @@ namespace catapult { namespace test {
 			auto offset = sizeof(NamespaceHistoryHeader);
 			reinterpret_cast<RootNamespaceHeader&>(buffer[offset]) = { owner, Height(222), Height(333), 3 };
 			offset += sizeof(RootNamespaceHeader);
-			WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(124), NamespaceId(), aliases[0] },
-				{ NamespaceId(124), NamespaceId(125), aliases[1] },
-				{ NamespaceId(126), NamespaceId(), aliases[2] }
-			});
+			WriteNamespaceData(
+					buffer,
+					offset,
+					{ { NamespaceId(124), NamespaceId(), aliases[0] },
+					  { NamespaceId(124), NamespaceId(125), aliases[1] },
+					  { NamespaceId(126), NamespaceId(), aliases[2] } });
 			mocks::MockMemoryStream stream(buffer);
 
 			// Act + Assert:
@@ -267,21 +269,17 @@ namespace catapult { namespace test {
 	public:
 		static void AssertCanLoadHistoryWithDepthOneWithChildren() {
 			// Assert:
-			AssertCanLoadHistoryWithDepthOneWithChildren(0, {
-				state::NamespaceAlias(),
-				state::NamespaceAlias(),
-				state::NamespaceAlias()
-			});
+			AssertCanLoadHistoryWithDepthOneWithChildren(0, { state::NamespaceAlias(), state::NamespaceAlias(), state::NamespaceAlias() });
 		}
 
 		static void AssertCanLoadHistoryWithDepthOneWithChildren_WithAliases() {
 			// Assert:
 			auto aliasDataSize = 2 * sizeof(MosaicId) + Address::Size;
-			AssertCanLoadHistoryWithDepthOneWithChildren(aliasDataSize, {
-				state::NamespaceAlias(MosaicId(555)),
-				state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
-				state::NamespaceAlias(MosaicId(888))
-			});
+			AssertCanLoadHistoryWithDepthOneWithChildren(
+					aliasDataSize,
+					{ state::NamespaceAlias(MosaicId(555)),
+					  state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
+					  state::NamespaceAlias(MosaicId(888)) });
 		}
 
 		static void AssertCannotLoadHistoryWithDepthOneWithOutOfOrderChildren() {
@@ -292,11 +290,10 @@ namespace catapult { namespace test {
 			auto offset = sizeof(NamespaceHistoryHeader);
 			reinterpret_cast<RootNamespaceHeader&>(buffer[offset]) = { owner, Height(222), Height(333), 3 };
 			offset += sizeof(RootNamespaceHeader);
-			WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(124), NamespaceId(125) },
-				{ NamespaceId(124), NamespaceId() },
-				{ NamespaceId(126), NamespaceId() }
-			});
+			WriteNamespaceData(
+					buffer,
+					offset,
+					{ { NamespaceId(124), NamespaceId(125) }, { NamespaceId(124), NamespaceId() }, { NamespaceId(126), NamespaceId() } });
 			mocks::MockMemoryStream stream(buffer);
 
 			// Act + Assert:
@@ -315,12 +312,13 @@ namespace catapult { namespace test {
 			auto offset = sizeof(NamespaceHistoryHeader);
 			reinterpret_cast<RootNamespaceHeader&>(buffer[offset]) = { owner, Height(11), Height(111), 4 };
 			offset += sizeof(RootNamespaceHeader);
-			offset += WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(124), NamespaceId(), aliases[0] },
-				{ NamespaceId(124), NamespaceId(125), aliases[1] },
-				{ NamespaceId(126), NamespaceId(), aliases[2] },
-				{ NamespaceId(126), NamespaceId(129), aliases[3] }
-			});
+			offset += WriteNamespaceData(
+					buffer,
+					offset,
+					{ { NamespaceId(124), NamespaceId(), aliases[0] },
+					  { NamespaceId(124), NamespaceId(125), aliases[1] },
+					  { NamespaceId(126), NamespaceId(), aliases[2] },
+					  { NamespaceId(126), NamespaceId(129), aliases[3] } });
 			offset += 4 * 2 + 6 * sizeof(NamespaceId);
 			reinterpret_cast<RootNamespaceHeader&>(buffer[offset]) = { owner, Height(110), Height(333), 0 };
 			offset += sizeof(RootNamespaceHeader);
@@ -334,23 +332,20 @@ namespace catapult { namespace test {
 	public:
 		static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner() {
 			// Assert:
-			AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(0, {
-				state::NamespaceAlias(),
-				state::NamespaceAlias(),
-				state::NamespaceAlias(),
-				state::NamespaceAlias()
-			});
+			AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(
+					0,
+					{ state::NamespaceAlias(), state::NamespaceAlias(), state::NamespaceAlias(), state::NamespaceAlias() });
 		}
 
 		static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner_WithAliases() {
 			// Assert:
 			auto aliasDataSize = 2 * sizeof(MosaicId) + 2 * Address::Size;
-			AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(aliasDataSize, {
-				state::NamespaceAlias(MosaicId(555)),
-				state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
-				state::NamespaceAlias(MosaicId(888)),
-				state::NamespaceAlias(test::GenerateRandomByteArray<Address>())
-			});
+			AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(
+					aliasDataSize,
+					{ state::NamespaceAlias(MosaicId(555)),
+					  state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
+					  state::NamespaceAlias(MosaicId(888)),
+					  state::NamespaceAlias(test::GenerateRandomByteArray<Address>()) });
 		}
 
 	private:
@@ -371,17 +366,16 @@ namespace catapult { namespace test {
 			offset += sizeof(RootNamespaceHeader);
 			reinterpret_cast<RootNamespaceHeader&>(buffer[offset]) = { owner2, renewHeight1, Height(333), 3 };
 			offset += sizeof(RootNamespaceHeader);
-			offset += WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(124), NamespaceId(), aliases[0] },
-				{ NamespaceId(124), NamespaceId(125), aliases[1] },
-				{ NamespaceId(126), NamespaceId(), aliases[2] }
-			});
+			offset += WriteNamespaceData(
+					buffer,
+					offset,
+					{ { NamespaceId(124), NamespaceId(), aliases[0] },
+					  { NamespaceId(124), NamespaceId(125), aliases[1] },
+					  { NamespaceId(126), NamespaceId(), aliases[2] } });
 			offset += 3 * 2 + 4 * sizeof(NamespaceId);
 			reinterpret_cast<RootNamespaceHeader&>(buffer[offset]) = { owner3, renewHeight2, Height(555), 1 };
 			offset += sizeof(RootNamespaceHeader);
-			WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(126), NamespaceId(), aliases[3] }
-			});
+			WriteNamespaceData(buffer, offset, { { NamespaceId(126), NamespaceId(), aliases[3] } });
 			mocks::MockMemoryStream stream(buffer);
 
 			// Act:
@@ -399,24 +393,31 @@ namespace catapult { namespace test {
 		static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwnerInactive() {
 			// Assert:
 			auto owner = test::CreateRandomOwner();
-			AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(0, owner, owner, owner, Height(111), Height(350), {
-				state::NamespaceAlias(),
-				state::NamespaceAlias(),
-				state::NamespaceAlias(),
-				state::NamespaceAlias()
-			});
+			AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(
+					0,
+					owner,
+					owner,
+					owner,
+					Height(111),
+					Height(350),
+					{ state::NamespaceAlias(), state::NamespaceAlias(), state::NamespaceAlias(), state::NamespaceAlias() });
 		}
 
 		static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwnerInactive_WithAliases() {
 			// Assert:
 			auto owner = test::CreateRandomOwner();
 			auto aliasDataSize = 2 * sizeof(MosaicId) + 2 * Address::Size;
-			AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(aliasDataSize, owner, owner, owner, Height(111), Height(350), {
-				state::NamespaceAlias(MosaicId(555)),
-				state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
-				state::NamespaceAlias(MosaicId(888)),
-				state::NamespaceAlias(test::GenerateRandomByteArray<Address>())
-			});
+			AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(
+					aliasDataSize,
+					owner,
+					owner,
+					owner,
+					Height(111),
+					Height(350),
+					{ state::NamespaceAlias(MosaicId(555)),
+					  state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
+					  state::NamespaceAlias(MosaicId(888)),
+					  state::NamespaceAlias(test::GenerateRandomByteArray<Address>()) });
 		}
 
 		static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner() {
@@ -424,12 +425,14 @@ namespace catapult { namespace test {
 			auto owner1 = test::CreateRandomOwner();
 			auto owner2 = test::CreateRandomOwner();
 			auto owner3 = test::CreateRandomOwner();
-			AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(0, owner1, owner2, owner3, Height(110), Height(332), {
-				state::NamespaceAlias(),
-				state::NamespaceAlias(),
-				state::NamespaceAlias(),
-				state::NamespaceAlias()
-			});
+			AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(
+					0,
+					owner1,
+					owner2,
+					owner3,
+					Height(110),
+					Height(332),
+					{ state::NamespaceAlias(), state::NamespaceAlias(), state::NamespaceAlias(), state::NamespaceAlias() });
 		}
 
 		static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner_WithAliases() {
@@ -438,12 +441,17 @@ namespace catapult { namespace test {
 			auto owner2 = test::CreateRandomOwner();
 			auto owner3 = test::CreateRandomOwner();
 			auto aliasDataSize = 2 * sizeof(MosaicId) + 2 * Address::Size;
-			AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(aliasDataSize, owner1, owner2, owner3, Height(110), Height(332), {
-				state::NamespaceAlias(MosaicId(555)),
-				state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
-				state::NamespaceAlias(MosaicId(888)),
-				state::NamespaceAlias(test::GenerateRandomByteArray<Address>())
-			});
+			AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(
+					aliasDataSize,
+					owner1,
+					owner2,
+					owner3,
+					Height(110),
+					Height(332),
+					{ state::NamespaceAlias(MosaicId(555)),
+					  state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
+					  state::NamespaceAlias(MosaicId(888)),
+					  state::NamespaceAlias(test::GenerateRandomByteArray<Address>()) });
 		}
 
 	private:
@@ -455,10 +463,7 @@ namespace catapult { namespace test {
 			auto offset = sizeof(NamespaceHistoryHeader);
 			reinterpret_cast<RootNamespaceHeader&>(buffer[offset]) = { owner, Height(222), Height(333), 2 };
 			offset += sizeof(RootNamespaceHeader);
-			WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(126), NamespaceId() },
-				{ badData.Part1, badData.Part2 }
-			});
+			WriteNamespaceData(buffer, offset, { { NamespaceId(126), NamespaceId() }, { badData.Part1, badData.Part2 } });
 			mocks::MockMemoryStream stream(buffer);
 
 			// Act + Assert:
@@ -479,7 +484,9 @@ namespace catapult { namespace test {
 }}
 
 #define MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, TEST_NAME, POSTFIX) \
-	TEST(TEST_CLASS, TEST_NAME##POSTFIX) { test::RootNamespaceHistoryLoadTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME##POSTFIX) { \
+		test::RootNamespaceHistoryLoadTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_COMMON_TESTS(TRAITS_NAME, POSTFIX) \
 	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthOneWithoutChildren, POSTFIX) \
@@ -504,4 +511,3 @@ namespace catapult { namespace test {
 #define DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_NON_EMPTY_TESTS(TRAITS_NAME, POSTFIX) \
 	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CannotLoadEmptyHistory, POSTFIX) \
 	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_COMMON_TESTS(TRAITS_NAME, POSTFIX)
-

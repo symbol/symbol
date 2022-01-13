@@ -29,25 +29,23 @@ namespace catapult { namespace state {
 
 	MosaicRestrictionEntry::MosaicRestrictionEntry(const MosaicAddressRestriction& restriction)
 			: m_pAddressRestriction(std::make_shared<MosaicAddressRestriction>(restriction))
-			, m_uniqueKey(generateUniqueKey())
-	{}
+			, m_uniqueKey(generateUniqueKey()) {
+	}
 
 	MosaicRestrictionEntry::MosaicRestrictionEntry(const MosaicGlobalRestriction& restriction)
 			: m_pGlobalRestriction(std::make_shared<MosaicGlobalRestriction>(restriction))
-			, m_uniqueKey(generateUniqueKey())
-	{}
+			, m_uniqueKey(generateUniqueKey()) {
+	}
 
 	MosaicRestrictionEntry::MosaicRestrictionEntry(const MosaicRestrictionEntry& entry) {
 		*this = entry;
 	}
 
 	MosaicRestrictionEntry& MosaicRestrictionEntry::operator=(const MosaicRestrictionEntry& entry) {
-		m_pAddressRestriction = entry.m_pAddressRestriction
-				? std::make_shared<MosaicAddressRestriction>(*entry.m_pAddressRestriction)
-				: nullptr;
-		m_pGlobalRestriction = entry.m_pGlobalRestriction
-				? std::make_shared<MosaicGlobalRestriction>(*entry.m_pGlobalRestriction)
-				: nullptr;
+		m_pAddressRestriction =
+				entry.m_pAddressRestriction ? std::make_shared<MosaicAddressRestriction>(*entry.m_pAddressRestriction) : nullptr;
+		m_pGlobalRestriction =
+				entry.m_pGlobalRestriction ? std::make_shared<MosaicGlobalRestriction>(*entry.m_pGlobalRestriction) : nullptr;
 		m_uniqueKey = entry.m_uniqueKey;
 
 		return *this;
@@ -90,9 +88,8 @@ namespace catapult { namespace state {
 	}
 
 	Hash256 MosaicRestrictionEntry::generateUniqueKey() const {
-		return m_pAddressRestriction
-				? CreateMosaicRestrictionEntryKey(m_pAddressRestriction->mosaicId(), m_pAddressRestriction->address())
-				: CreateMosaicRestrictionEntryKey(m_pGlobalRestriction->mosaicId());
+		return m_pAddressRestriction ? CreateMosaicRestrictionEntryKey(m_pAddressRestriction->mosaicId(), m_pAddressRestriction->address())
+									 : CreateMosaicRestrictionEntryKey(m_pGlobalRestriction->mosaicId());
 	}
 
 	// endregion

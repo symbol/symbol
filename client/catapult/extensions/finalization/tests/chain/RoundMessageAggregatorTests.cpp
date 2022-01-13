@@ -44,8 +44,9 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		public:
-			TestContext(uint32_t size, uint32_t threshold) : TestContext(size, threshold, TestContextOptions())
-			{}
+			TestContext(uint32_t size, uint32_t threshold)
+					: TestContext(size, threshold, TestContextOptions()) {
+			}
 
 			TestContext(uint32_t size, uint32_t threshold, const TestContextOptions& options) {
 				auto config = finalization::FinalizationConfiguration::Uninitialized();
@@ -56,10 +57,20 @@ namespace catapult { namespace chain {
 				config.VotingSetGrouping = options.VotingSetGrouping;
 
 				// 15/20M voting eligible
-				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Epoch, Last_Finalized_Height, {
-					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000), Amount(4'000'000),
-					Amount(1'000'000), Amount(1'000'000), Amount(1'000'000), Amount(1'000'000)
-				});
+				auto finalizationContextPair = test::CreateFinalizationContext(
+						config,
+						Finalization_Epoch,
+						Last_Finalized_Height,
+						{ Amount(4'000'000),
+						  Amount(2'000'000),
+						  Amount(1'000'000),
+						  Amount(2'000'000),
+						  Amount(3'000'000),
+						  Amount(4'000'000),
+						  Amount(1'000'000),
+						  Amount(1'000'000),
+						  Amount(1'000'000),
+						  Amount(1'000'000) });
 
 				m_keyPairDescriptors = std::move(finalizationContextPair.second);
 				m_pAggregator = CreateRoundMessageAggregator(finalizationContextPair.first);
@@ -123,10 +134,16 @@ namespace catapult { namespace chain {
 	}
 
 #define PREVOTE_PRECOMIT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Prevote) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrevoteTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Precommit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrecommitTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Prevote) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrevoteTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Precommit) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrecommitTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -609,9 +626,8 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.unknownMessages({
-				seededShortHashes[0], seededShortHashes[1], seededShortHashes[4], seededShortHashes[6]
-			});
+			auto unknownMessages =
+					aggregator.unknownMessages({ seededShortHashes[0], seededShortHashes[1], seededShortHashes[4], seededShortHashes[6] });
 
 			// Assert:
 			EXPECT_EQ(3u, unknownMessages.size());

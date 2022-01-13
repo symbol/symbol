@@ -23,7 +23,9 @@
 #include <memory>
 #include <string>
 
-namespace boost { namespace asio { class io_context; } }
+namespace boost { namespace asio {
+	class io_context;
+}}
 
 namespace catapult { namespace thread {
 

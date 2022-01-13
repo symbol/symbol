@@ -50,10 +50,16 @@ namespace catapult { namespace local {
 		};
 
 #define SINGLE_MULTI_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_SingleBlock) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SingleBlockTraits>(); } \
-	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_Blockchain) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultiBlockTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_SingleBlock) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SingleBlockTraits>(); \
+	} \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_Blockchain) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultiBlockTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 		// endregion
 
@@ -109,13 +115,14 @@ namespace catapult { namespace local {
 			stateHashes.emplace_back(GetStateHash(context));
 
 			// Assert: the cache has expected balances
-			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 1, Amount(100'000) },
-				{ 2, Amount(200'000) },
-				{ 3, Amount(300'000) },
-				{ 4, Amount(350'000) },
-				{ 5, Amount(50'000) }
-			});
+			test::AssertCurrencyBalances(
+					accounts,
+					context.localNode().cache(),
+					{ { 1, Amount(100'000) },
+					  { 2, Amount(200'000) },
+					  { 3, Amount(300'000) },
+					  { 4, Amount(350'000) },
+					  { 5, Amount(50'000) } });
 
 			return stateHashes;
 		}
@@ -222,13 +229,14 @@ namespace catapult { namespace local {
 			stateHashes.emplace_back(GetStateHash(context));
 
 			// Assert: the cache has expected balances
-			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 1, Amount(1'000'000) },
-				{ 2, Amount(550'000) },
-				{ 3, Amount(700'000) },
-				{ 4, Amount(750'000) },
-				{ 5, Amount(50'000) }
-			});
+			test::AssertCurrencyBalances(
+					accounts,
+					context.localNode().cache(),
+					{ { 1, Amount(1'000'000) },
+					  { 2, Amount(550'000) },
+					  { 3, Amount(700'000) },
+					  { 4, Amount(750'000) },
+					  { 5, Amount(50'000) } });
 
 			return stateHashes;
 		}
@@ -311,13 +319,14 @@ namespace catapult { namespace local {
 			stateHashes.emplace_back(GetStateHash(context));
 
 			// Assert: the cache has expected balances
-			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 1, Amount(9'000) },
-				{ 2, Amount(291'000) },
-				{ 3, Amount(300'000) },
-				{ 4, Amount(350'000) },
-				{ 5, Amount(50'000) }
-			});
+			test::AssertCurrencyBalances(
+					accounts,
+					context.localNode().cache(),
+					{ { 1, Amount(9'000) },
+					  { 2, Amount(291'000) },
+					  { 3, Amount(300'000) },
+					  { 4, Amount(350'000) },
+					  { 5, Amount(50'000) } });
 
 			return stateHashes;
 		}
@@ -461,13 +470,14 @@ namespace catapult { namespace local {
 			stateHashes.emplace_back(GetStateHash(context));
 
 			// Assert: the cache has expected balances
-			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 1, Amount(9'000) },
-				{ 2, Amount(291'000) },
-				{ 3, Amount(300'000) },
-				{ 4, Amount(350'000) },
-				{ 5, Amount(50'000) }
-			});
+			test::AssertCurrencyBalances(
+					accounts,
+					context.localNode().cache(),
+					{ { 1, Amount(9'000) },
+					  { 2, Amount(291'000) },
+					  { 3, Amount(300'000) },
+					  { 4, Amount(350'000) },
+					  { 5, Amount(50'000) } });
 
 			return stateHashes;
 		}

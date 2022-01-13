@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS ProofValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(Proof,)
+	DEFINE_COMMON_VALIDATOR_TESTS(Proof, )
 
 	namespace {
 		constexpr Height Expiration_Height(321);

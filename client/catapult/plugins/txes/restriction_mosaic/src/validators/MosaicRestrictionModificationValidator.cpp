@@ -29,9 +29,9 @@ namespace catapult { namespace validators {
 
 	namespace {
 		using GlobalNotificationFacade = state::MosaicGlobalRestrictionNotificationFacade<
-			model::MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type>;
+				model::MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type>;
 		using AddressNotificationFacade = state::MosaicAddressRestrictionNotificationFacade<
-			model::MosaicAddressRestrictionModificationPreviousValueNotification::Notification_Type>;
+				model::MosaicAddressRestrictionModificationPreviousValueNotification::Notification_Type>;
 
 		template<typename TNotificationFacade>
 		ValidationResult MosaicRestrictionModificationValidator(
@@ -56,11 +56,12 @@ namespace catapult { namespace validators {
 	}
 
 #define DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(NAME) \
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(Mosaic##NAME##RestrictionModification, NAME##NotificationFacade::NotificationType, ([]( \
-			const NAME##NotificationFacade::NotificationType& notification, \
-			const ValidatorContext& context) { \
-		return MosaicRestrictionModificationValidator<NAME##NotificationFacade>(notification, context); \
-	}))
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE( \
+			Mosaic##NAME##RestrictionModification, \
+			NAME##NotificationFacade::NotificationType, \
+			([](const NAME##NotificationFacade::NotificationType& notification, const ValidatorContext& context) { \
+				return MosaicRestrictionModificationValidator<NAME##NotificationFacade>(notification, context); \
+			}))
 
 	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(Global)
 	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(Address)

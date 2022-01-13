@@ -34,12 +34,7 @@ namespace catapult { namespace plugins {
 			static void RunTestAfterRegistration(TAction action) {
 				// Arrange:
 				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.Plugins.emplace("catapult.plugins.metadata", utils::ConfigurationBag({{
-					"",
-					{
-						{ "maxValueSize", "10" }
-					}
-				}}));
+				config.Plugins.emplace("catapult.plugins.metadata", utils::ConfigurationBag({ { "", { { "maxValueSize", "10" } } } }));
 
 				auto manager = test::CreatePluginManager(config);
 				RegisterMetadataSubsystem(manager);

@@ -50,8 +50,9 @@ namespace catapult { namespace finalization {
 
 		class FinalizationMessageProcessingServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit FinalizationMessageProcessingServiceRegistrar(const FinalizationConfiguration& config) : m_config(config)
-			{}
+			explicit FinalizationMessageProcessingServiceRegistrar(const FinalizationConfiguration& config)
+					: m_config(config) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
@@ -74,7 +75,7 @@ namespace catapult { namespace finalization {
 				auto messagesSink = CreateNewMessagesSink(locator);
 				auto& hooks = GetFinalizationServerHooks(locator);
 				hooks.setMessageRangeConsumer([&messageAggregator, &messageProcessingPool, pRecentHashCache, messagesSink](
-						auto&& messages) {
+													  auto&& messages) {
 					auto newMessages = ionet::FinalizationMessages();
 					auto extractedMessages = model::FinalizationMessageRange::ExtractEntitiesFromRange(std::move(messages.Range));
 					CATAPULT_LOG(trace) << "received " << extractedMessages.size() << " messages from peer " << messages.SourceIdentity;
@@ -85,8 +86,8 @@ namespace catapult { namespace finalization {
 						auto messageRound = pMessage->StepIdentifier.Round();
 						if (!model::IsInRange(roundRange, messageRound)) {
 							CATAPULT_LOG_THROTTLE(debug, utils::TimeSpan::FromSeconds(30).millis())
-									<< "skipping message with out of bounds round " << messageRound
-									<< " when current range is " << roundRange;
+									<< "skipping message with out of bounds round " << messageRound << " when current range is "
+									<< roundRange;
 							continue;
 						}
 

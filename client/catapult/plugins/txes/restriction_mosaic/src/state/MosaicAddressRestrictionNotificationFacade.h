@@ -37,8 +37,8 @@ namespace catapult { namespace state {
 		/// Creates a facade around \a notification and \a resolvers.
 		MosaicAddressRestrictionNotificationFacade(const NotificationType& notification, const model::ResolverContext& resolvers)
 				: m_notification(notification)
-				, m_resolvers(resolvers)
-		{}
+				, m_resolvers(resolvers) {
+		}
 
 	public:
 		/// Gets the unique key referenced by the notification.

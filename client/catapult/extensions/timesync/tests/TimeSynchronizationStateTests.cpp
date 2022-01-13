@@ -121,7 +121,7 @@ namespace catapult { namespace timesync {
 		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
 		// Act: threshold is 125, -150 + 350 - 250 = -50
-		for (auto rawOffset : { -150, -50, 100, 350, -250})
+		for (auto rawOffset : { -150, -50, 100, 350, -250 })
 			state.update(TimeOffset(rawOffset));
 
 		// Assert:

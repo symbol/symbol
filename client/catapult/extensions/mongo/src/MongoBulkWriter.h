@@ -31,10 +31,10 @@
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
 #include <boost/asio/io_context.hpp>
-#include <bsoncxx/json.hpp>
-#include <mongocxx/client.hpp>
 #include <mongocxx/config/version.hpp>
 #include <mongocxx/exception/bulk_write_exception.hpp>
+#include <bsoncxx/json.hpp>
+#include <mongocxx/client.hpp>
 #include <mongocxx/pool.hpp>
 #include <unordered_set>
 
@@ -50,8 +50,8 @@ namespace catapult { namespace mongo {
 					: pConnection(bulkWriter.m_connectionPool.acquire())
 					, Database(pConnection->database(bulkWriter.m_dbName))
 					, Collection(Database[collectionName])
-					, Bulk(Collection.create_bulk_write(GetBulkWriteOptions(bulkWriter)))
-		{}
+					, Bulk(Collection.create_bulk_write(GetBulkWriteOptions(bulkWriter))) {
+			}
 
 		public:
 			mongocxx::pool::entry pConnection;
@@ -74,13 +74,13 @@ namespace catapult { namespace mongo {
 		using AppendOperation = consumer<mongocxx::bulk_write&, const TEntity&, uint32_t>;
 
 		template<typename TEntity>
-		using CreateDocument = std::function<bsoncxx::document::value (const TEntity&, uint32_t)>;
+		using CreateDocument = std::function<bsoncxx::document::value(const TEntity&, uint32_t)>;
 
 		template<typename TEntity>
-		using CreateDocuments = std::function<std::vector<bsoncxx::document::value> (const TEntity&, uint32_t)>;
+		using CreateDocuments = std::function<std::vector<bsoncxx::document::value>(const TEntity&, uint32_t)>;
 
 		template<typename TEntity>
-		using CreateFilter = std::function<bsoncxx::document::value (const TEntity&)>;
+		using CreateFilter = std::function<bsoncxx::document::value(const TEntity&)>;
 
 	private:
 		MongoBulkWriter(
@@ -91,8 +91,8 @@ namespace catapult { namespace mongo {
 				: m_dbName(dbName)
 				, m_writeTimeout(writeTimeout)
 				, m_pool(pool)
-				, m_connectionPool(uri)
-		{}
+				, m_connectionPool(uri) {
+		}
 
 	public:
 		/// Creates a mongo bulk writer connected to \a uri that will use database \a dbName for bulk writes with the specified
@@ -190,7 +190,7 @@ namespace catapult { namespace mongo {
 			// note: pBulkWriteParams depends on pThis (pBulkWriteParams.pConnection depends on pThis.m_connectionPool)
 			// it's crucial to move pBulkWriteParams into lambda, otherwise it would be copied while pThis would be moved
 			auto pPromise = std::make_shared<thread::promise<BulkWriteResult>>();
-			auto handler = [pThis = shared_from_this(), collectionName, pBulkWriteParams{std::move(pBulkWriteParams)}, pPromise]() {
+			auto handler = [pThis = shared_from_this(), collectionName, pBulkWriteParams{ std::move(pBulkWriteParams) }, pPromise]() {
 				pThis->bulkWrite(collectionName, *pBulkWriteParams, *pPromise);
 			};
 
@@ -205,10 +205,9 @@ namespace catapult { namespace mongo {
 				promise.set_value(BulkWriteResult(result));
 			} catch (const mongocxx::bulk_write_exception& ex) {
 				std::ostringstream out;
-				out
-						<< "bulk '" << collectionName << "' operation failed"
-						<< std::endl << "code: " << ex.code().message()
-						<< std::endl << "what: " << ex.what();
+				out << "bulk '" << collectionName << "' operation failed" << std::endl
+					<< "code: " << ex.code().message() << std::endl
+					<< "what: " << ex.what();
 
 				if (ex.raw_server_error()) {
 					auto description = bsoncxx::to_json(ex.raw_server_error().value());
@@ -224,8 +223,9 @@ namespace catapult { namespace mongo {
 
 		struct BulkWriteContext {
 		public:
-			explicit BulkWriteContext(size_t numOperations) : m_futures(numOperations)
-			{}
+			explicit BulkWriteContext(size_t numOperations)
+					: m_futures(numOperations) {
+			}
 
 		public:
 			BulkWriteResultFuture aggregateFuture() {
@@ -250,11 +250,11 @@ namespace catapult { namespace mongo {
 
 			auto numThreads = m_pool.numWorkerThreads();
 			auto pContext = std::make_shared<BulkWriteContext>(std::min<size_t>(entities.size(), numThreads));
-			auto workCallback = [pThis = shared_from_this(), entitiesStart = entities.cbegin(), collectionName, appendOperation, pContext](
-					auto itBegin,
-					auto itEnd,
-					auto startIndex,
-					auto batchIndex) {
+			auto workCallback = [pThis = shared_from_this(),
+								 entitiesStart = entities.cbegin(),
+								 collectionName,
+								 appendOperation,
+								 pContext](auto itBegin, auto itEnd, auto startIndex, auto batchIndex) {
 				auto pBulkWriteParams = std::make_unique<BulkWriteParams>(*pThis, collectionName);
 
 				auto index = static_cast<uint32_t>(startIndex);

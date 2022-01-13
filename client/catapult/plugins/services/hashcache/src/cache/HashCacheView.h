@@ -46,8 +46,8 @@ namespace catapult { namespace cache {
 				: HashCacheViewMixins::Size(hashSets.Primary)
 				, HashCacheViewMixins::Contains(hashSets.Primary)
 				, HashCacheViewMixins::Iteration(hashSets.Primary)
-				, m_retentionTime(options.RetentionTime)
-		{}
+				, m_retentionTime(options.RetentionTime) {
+		}
 
 	public:
 		/// Gets the retention time for the cache.
@@ -64,7 +64,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a view around \a hashSets and \a options.
 		HashCacheView(const HashCacheTypes::BaseSets& hashSets, const HashCacheTypes::Options& options)
-				: ReadOnlyViewSupplier(hashSets, options)
-		{}
+				: ReadOnlyViewSupplier(hashSets, options) {
+		}
 	};
 }}

@@ -33,8 +33,9 @@ namespace catapult { namespace thread {
 	namespace {
 		class Owner {
 		public:
-			explicit Owner(BreadcrumbsType& breadcrumbs) : m_breadcrumbs(breadcrumbs)
-			{}
+			explicit Owner(BreadcrumbsType& breadcrumbs)
+					: m_breadcrumbs(breadcrumbs) {
+			}
 
 		public:
 			void addCrumbs(uint8_t id, uint8_t numCrumbs) {
@@ -64,8 +65,8 @@ namespace catapult { namespace thread {
 					: pPool(test::CreateStartedIoThreadPool())
 					, Strand(boost::asio::io_context::strand(pPool->ioContext()))
 					, pOwner(std::make_shared<Owner>(Breadcrumbs))
-					, Extender(Strand)
-			{}
+					, Extender(Strand) {
+			}
 		};
 	}
 

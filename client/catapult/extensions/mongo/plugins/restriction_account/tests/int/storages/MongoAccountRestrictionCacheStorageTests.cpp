@@ -90,9 +90,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static auto GetFindFilter(const ModelType& restrictions) {
-				return document()
-						<< std::string(Primary_Document_Name) + ".address" << mappers::ToBinary(restrictions.address())
-						<< finalize;
+				return document() << std::string(Primary_Document_Name) + ".address" << mappers::ToBinary(restrictions.address())
+								  << finalize;
 			}
 
 			static void AssertEqual(const ModelType& restrictions, const bsoncxx::document::view& view) {
@@ -101,5 +100,5 @@ namespace catapult { namespace mongo { namespace plugins {
 		};
 	}
 
-	DEFINE_FLAT_CACHE_STORAGE_TESTS(AccountRestrictionCacheTraits,)
+	DEFINE_FLAT_CACHE_STORAGE_TESTS(AccountRestrictionCacheTraits, )
 }}}

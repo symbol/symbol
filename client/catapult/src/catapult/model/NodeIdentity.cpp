@@ -42,10 +42,9 @@ namespace catapult { namespace model {
 	// region NodeIdentityEqualityStrategy
 
 	namespace {
-		const std::array<std::pair<const char*, NodeIdentityEqualityStrategy>, 2> String_To_Node_Identity_Equality_Strategy_Pairs{{
-			{ "public-key", NodeIdentityEqualityStrategy::Key },
-			{ "host", NodeIdentityEqualityStrategy::Host }
-		}};
+		const std::array<std::pair<const char*, NodeIdentityEqualityStrategy>, 2> String_To_Node_Identity_Equality_Strategy_Pairs{
+			{ { "public-key", NodeIdentityEqualityStrategy::Key }, { "host", NodeIdentityEqualityStrategy::Host } }
+		};
 	}
 
 	bool TryParseValue(const std::string& strategyName, NodeIdentityEqualityStrategy& strategy) {
@@ -56,8 +55,9 @@ namespace catapult { namespace model {
 
 	// region NodeIdentityEquality
 
-	NodeIdentityEquality::NodeIdentityEquality(NodeIdentityEqualityStrategy strategy) : m_strategy(strategy)
-	{}
+	NodeIdentityEquality::NodeIdentityEquality(NodeIdentityEqualityStrategy strategy)
+			: m_strategy(strategy) {
+	}
 
 	bool NodeIdentityEquality::operator()(const NodeIdentity& lhs, const NodeIdentity& rhs) const {
 		switch (m_strategy) {
@@ -76,8 +76,9 @@ namespace catapult { namespace model {
 
 	// region NodeIdentityHasher
 
-	NodeIdentityHasher::NodeIdentityHasher(NodeIdentityEqualityStrategy strategy) : m_strategy(strategy)
-	{}
+	NodeIdentityHasher::NodeIdentityHasher(NodeIdentityEqualityStrategy strategy)
+			: m_strategy(strategy) {
+	}
 
 	size_t NodeIdentityHasher::operator()(const NodeIdentity& identity) const {
 		switch (m_strategy) {

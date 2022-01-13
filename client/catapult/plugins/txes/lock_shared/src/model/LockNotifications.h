@@ -34,8 +34,8 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a duration.
 		explicit BaseLockDurationNotification(BlockDuration duration)
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
-				, Duration(duration)
-		{}
+				, Duration(duration) {
+		}
 
 	public:
 		/// Lock duration.
@@ -55,8 +55,8 @@ namespace catapult { namespace model {
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, Owner(owner)
 				, Mosaic(mosaic)
-				, Duration(duration)
-		{}
+				, Duration(duration) {
+		}
 
 	public:
 		/// Lock owner.

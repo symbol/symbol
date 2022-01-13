@@ -24,12 +24,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-namespace catapult {
-	namespace io {
-		class InputStream;
-		class OutputStream;
-	}
-}
+namespace catapult { namespace io {
+	class InputStream;
+	class OutputStream;
+}}
 
 namespace catapult { namespace test {
 

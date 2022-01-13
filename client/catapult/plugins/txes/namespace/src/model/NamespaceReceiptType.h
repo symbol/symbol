@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RECEIPT_TYPE_DEFINITION
 #include "catapult/model/ReceiptType.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #endif
 
@@ -37,5 +38,6 @@ namespace catapult { namespace model {
 	DEFINE_RECEIPT_TYPE(BalanceTransfer, Namespace, Namespace_Rental_Fee, 3);
 
 #ifndef CUSTOM_RECEIPT_TYPE_DEFINITION
-}}
+}
+}
 #endif

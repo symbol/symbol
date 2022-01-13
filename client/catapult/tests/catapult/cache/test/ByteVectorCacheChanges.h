@@ -89,8 +89,9 @@ namespace catapult { namespace test {
 	class ByteVectorBufferWriter {
 	public:
 		/// Creates a writer that writes to \a buffer.
-		explicit ByteVectorBufferWriter(std::vector<uint8_t>& buffer) : m_stream(buffer)
-		{}
+		explicit ByteVectorBufferWriter(std::vector<uint8_t>& buffer)
+				: m_stream(buffer) {
+		}
 
 	public:
 		/// Writes a 64-bit integer \a value.
@@ -119,8 +120,9 @@ namespace catapult { namespace test {
 	class ByteVectorBufferReader {
 	public:
 		/// Creates a reader that reads from \a buffer.
-		explicit ByteVectorBufferReader(const std::vector<uint8_t>& buffer) : m_stream(const_cast<std::vector<uint8_t>&>(buffer))
-		{}
+		explicit ByteVectorBufferReader(const std::vector<uint8_t>& buffer)
+				: m_stream(const_cast<std::vector<uint8_t>&>(buffer)) {
+		}
 
 	public:
 		/// Reads a 64-bit integer value.

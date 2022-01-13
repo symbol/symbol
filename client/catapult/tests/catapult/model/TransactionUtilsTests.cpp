@@ -36,8 +36,9 @@ namespace catapult { namespace model {
 			enum class Mode { Address, Public_Key, Other };
 
 		public:
-			explicit MockNotificationPublisher(Mode mode) : m_mode(mode)
-			{}
+			explicit MockNotificationPublisher(Mode mode)
+					: m_mode(mode) {
+			}
 
 		public:
 			void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const override {

@@ -51,8 +51,9 @@ namespace catapult { namespace mongo {
 			using StreamFunc = consumer<bsoncxx::builder::stream::document&, const TDerivedTransaction&>;
 
 		public:
-			explicit BasicTransactionPluginT(const StreamFunc& streamFunc) : m_streamFunc(streamFunc)
-			{}
+			explicit BasicTransactionPluginT(const StreamFunc& streamFunc)
+					: m_streamFunc(streamFunc) {
+			}
 
 		public:
 			model::EntityType type() const override {
@@ -68,10 +69,8 @@ namespace catapult { namespace mongo {
 		};
 
 		template<typename TEmbeddedTransaction>
-		using EmbeddedTransactionPluginT = BasicTransactionPluginT<
-			model::EmbeddedTransaction,
-			TEmbeddedTransaction,
-			EmbeddedTransactionPlugin>;
+		using EmbeddedTransactionPluginT =
+				BasicTransactionPluginT<model::EmbeddedTransaction, TEmbeddedTransaction, EmbeddedTransactionPlugin>;
 
 		template<typename TTransaction, typename TEmbeddedTransaction>
 		class TransactionPluginT : public BasicTransactionPluginT<model::Transaction, TTransaction, TransactionPlugin> {
@@ -79,13 +78,12 @@ namespace catapult { namespace mongo {
 			template<typename TStreamFunc, typename TStreamEmbeddedFunc>
 			TransactionPluginT(TStreamFunc streamFunc, TStreamEmbeddedFunc streamEmbeddedFunc)
 					: BasicTransactionPluginT<model::Transaction, TTransaction, TransactionPlugin>(streamFunc)
-					, m_pEmbeddedTransactionPlugin(CreateEmbedded<TEmbeddedTransaction>(streamEmbeddedFunc))
-			{}
+					, m_pEmbeddedTransactionPlugin(CreateEmbedded<TEmbeddedTransaction>(streamEmbeddedFunc)) {
+			}
 
 		public:
-			std::vector<bsoncxx::document::value> extractDependentDocuments(
-					const model::Transaction&,
-					const MongoTransactionMetadata&) const override {
+			std::vector<bsoncxx::document::value> extractDependentDocuments(const model::Transaction&, const MongoTransactionMetadata&)
+					const override {
 				// don't support any dependent documents by default
 				return {};
 			}

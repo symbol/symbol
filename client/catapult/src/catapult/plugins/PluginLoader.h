@@ -23,7 +23,9 @@
 #include "PluginModule.h"
 #include <vector>
 
-namespace catapult { namespace plugins { class PluginManager; } }
+namespace catapult { namespace plugins {
+	class PluginManager;
+}}
 
 namespace catapult { namespace plugins {
 

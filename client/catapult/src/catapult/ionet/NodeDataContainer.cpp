@@ -25,8 +25,8 @@ namespace catapult { namespace ionet {
 
 	NodeDataContainer::NodeDataContainer(model::NodeIdentityEqualityStrategy equalityStrategy)
 			: m_equalityStrategy(equalityStrategy)
-			, m_nodeMap(model::CreateNodeIdentityMap<NodeData>(m_equalityStrategy))
-	{}
+			, m_nodeMap(model::CreateNodeIdentityMap<NodeData>(m_equalityStrategy)) {
+	}
 
 	size_t NodeDataContainer::size() const {
 		return m_nodeMap.size();
@@ -83,9 +83,8 @@ namespace catapult { namespace ionet {
 			if (canUpdate)
 				return CanUpdateIdentityResult::Allowed;
 
-			CATAPULT_LOG(warning)
-					<< "rejecting new host (" << newIdentity
-					<< ") with in use identity key (" << nodeData.Node.identity() << ")";
+			CATAPULT_LOG(warning) << "rejecting new host (" << newIdentity << ") with in use identity key (" << nodeData.Node.identity()
+								  << ")";
 			return CanUpdateIdentityResult::Disallowed;
 		}
 	}

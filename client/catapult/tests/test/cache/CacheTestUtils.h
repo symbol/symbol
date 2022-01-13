@@ -26,7 +26,9 @@
 #include <memory>
 #include <vector>
 
-namespace catapult { namespace cache { class ReadOnlyCatapultCache; } }
+namespace catapult { namespace cache {
+	class ReadOnlyCatapultCache;
+}}
 
 namespace catapult { namespace test {
 

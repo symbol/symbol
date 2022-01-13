@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "src/builders/AddressAliasBuilder.h"
 #include "src/builders/MosaicAliasBuilder.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
 
@@ -73,8 +73,8 @@ namespace catapult { namespace builders {
 				TransactionProperties(catapult::NamespaceId namespaceId, model::AliasAction aliasAction)
 						: NamespaceId(namespaceId)
 						, AliasAction(aliasAction)
-						, Aliased()
-				{}
+						, Aliased() {
+				}
 
 			public:
 				catapult::NamespaceId NamespaceId;
@@ -124,7 +124,8 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TAliasTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TAliasTraits, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Address_Regular) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressAliasTraits, AddressAliasTraits::RegularTraits>(); \
 	} \
@@ -137,7 +138,8 @@ namespace catapult { namespace builders {
 	TEST(TEST_CLASS, TEST_NAME##_Mosaic_Embedded) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicAliasTraits, MosaicAliasTraits::EmbeddedTraits>(); \
 	} \
-	template<typename TAliasTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TAliasTraits, typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
 

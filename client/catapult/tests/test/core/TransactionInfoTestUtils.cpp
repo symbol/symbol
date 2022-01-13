@@ -64,7 +64,7 @@ namespace catapult { namespace test {
 		return CreateTransactionInfos(count, [](auto i) { return Timestamp(i + 1); });
 	}
 
-	std::vector<model::TransactionInfo> CreateTransactionInfos(size_t count, const std::function<Timestamp (size_t)>& deadlineGenerator) {
+	std::vector<model::TransactionInfo> CreateTransactionInfos(size_t count, const std::function<Timestamp(size_t)>& deadlineGenerator) {
 		std::vector<model::TransactionInfo> transactionInfos;
 		for (auto i = 0u; i < count; ++i)
 			transactionInfos.push_back(CreateTransactionInfoWithDeadline(deadlineGenerator(i).unwrap()));
@@ -75,7 +75,7 @@ namespace catapult { namespace test {
 	std::vector<model::TransactionInfo> CreateTransactionInfosFromSizeMultiplierPairs(
 			const std::vector<std::pair<uint32_t, uint32_t>>& sizeMultiplierPairs) {
 		std::vector<model::TransactionInfo> transactionInfos;
-		for (const auto& pair: sizeMultiplierPairs) {
+		for (const auto& pair : sizeMultiplierPairs) {
 			auto pTransaction = GenerateRandomTransactionWithSize(pair.first);
 			pTransaction->MaxFee = Amount(pair.first * pair.second / 10);
 			transactionInfos.push_back(model::TransactionInfo(std::move(pTransaction)));

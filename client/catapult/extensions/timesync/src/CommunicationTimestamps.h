@@ -35,8 +35,8 @@ namespace catapult { namespace timesync {
 		/// Creates communication timestamps around \a sendTimestamp and \a receiveTimestamp.
 		CommunicationTimestamps(Timestamp sendTimestamp, Timestamp receiveTimestamp)
 				: SendTimestamp(sendTimestamp)
-				, ReceiveTimestamp(receiveTimestamp)
-		{}
+				, ReceiveTimestamp(receiveTimestamp) {
+		}
 
 	public:
 		/// Returns \c true if these communication timestamps are equal to \a rhs.

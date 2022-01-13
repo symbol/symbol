@@ -23,7 +23,9 @@
 #include "timesync/src/CommunicationTimestamps.h"
 #include "catapult/thread/Future.h"
 
-namespace catapult { namespace ionet { class PacketIo; } }
+namespace catapult { namespace ionet {
+	class PacketIo;
+}}
 
 namespace catapult { namespace api {
 

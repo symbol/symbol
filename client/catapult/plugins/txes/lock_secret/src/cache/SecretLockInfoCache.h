@@ -38,7 +38,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a cache around \a config.
 		explicit SecretLockInfoCache(const CacheConfiguration& config)
-				: SynchronizedCache<BasicSecretLockInfoCache>(BasicSecretLockInfoCache(config))
-		{}
+				: SynchronizedCache<BasicSecretLockInfoCache>(BasicSecretLockInfoCache(config)) {
+		}
 	};
 }}

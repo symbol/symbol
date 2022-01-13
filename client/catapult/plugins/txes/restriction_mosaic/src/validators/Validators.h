@@ -37,16 +37,14 @@ namespace catapult { namespace validators {
 	/// Validator that applies to new value notifications of mosaic global restriction modifications and validates that:
 	/// - the requested modification will not cause the number of restrictions to exceed \a maxMosaicRestrictionValues
 	/// - delete only applies to existing values
-	DECLARE_STATEFUL_VALIDATOR(
-			MosaicGlobalRestrictionMaxValues,
-			model::MosaicGlobalRestrictionModificationNewValueNotification)(uint8_t maxMosaicRestrictionValues);
+	DECLARE_STATEFUL_VALIDATOR(MosaicGlobalRestrictionMaxValues, model::MosaicGlobalRestrictionModificationNewValueNotification)
+	(uint8_t maxMosaicRestrictionValues);
 
 	/// Validator that applies to new value notifications of mosaic address restriction modifications and validates that:
 	/// - the requested modification will not cause the number of restrictions to exceed \a maxMosaicRestrictionValues
 	/// - delete only applies to existing values
-	DECLARE_STATEFUL_VALIDATOR(
-			MosaicAddressRestrictionMaxValues,
-			model::MosaicAddressRestrictionModificationNewValueNotification)(uint8_t maxMosaicRestrictionValues);
+	DECLARE_STATEFUL_VALIDATOR(MosaicAddressRestrictionMaxValues, model::MosaicAddressRestrictionModificationNewValueNotification)
+	(uint8_t maxMosaicRestrictionValues);
 
 	/// Validator that applies to previous value notifications of mosaic global restriction modifications and validates that:
 	/// - the specified previous value(s) match the current value(s)
@@ -54,9 +52,8 @@ namespace catapult { namespace validators {
 
 	/// Validator that applies to previous value notifications of mosaic address restriction modifications and validates that:
 	/// - the specified previous value(s) match the current value(s)
-	DECLARE_STATEFUL_VALIDATOR(
-			MosaicAddressRestrictionModification,
-			model::MosaicAddressRestrictionModificationPreviousValueNotification)();
+	DECLARE_STATEFUL_VALIDATOR(MosaicAddressRestrictionModification, model::MosaicAddressRestrictionModificationPreviousValueNotification)
+	();
 
 	/// Validator that applies to balance transfer notifications and validates that:
 	/// - sender is authorized to send mosaic

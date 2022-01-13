@@ -43,9 +43,8 @@ namespace catapult { namespace networkheight {
 
 					std::sort(heights.begin(), heights.end());
 					auto size = heights.size();
-					auto medianHeight = 1 == size % 2
-							? heights[size / 2].unwrap()
-							: (heights[size / 2 - 1] + heights[size / 2]).unwrap() / 2;
+					auto medianHeight =
+							1 == size % 2 ? heights[size / 2].unwrap() : (heights[size / 2 - 1] + heights[size / 2]).unwrap() / 2;
 					auto currentHeight = networkChainHeight.load();
 					if (currentHeight < medianHeight) {
 						networkChainHeight = medianHeight;
@@ -60,8 +59,8 @@ namespace catapult { namespace networkheight {
 		class NetworkHeightServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
 			explicit NetworkHeightServiceRegistrar(const NetworkHeightConfiguration& networkHeightConfig)
-					: m_networkHeightConfig(networkHeightConfig)
-			{}
+					: m_networkHeightConfig(networkHeightConfig) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {

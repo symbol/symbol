@@ -137,9 +137,8 @@ namespace catapult { namespace timesync {
 		test::AssertLessThanOperatorForEqualValues(test::CreateSample(node1, 8, 12, 45, 45), test::CreateSample(node1, 8, 12, 45, 45));
 		test::AssertOperatorBehaviorForIncreasingValues(samples, std::less<>(), [](const auto& sample) {
 			std::ostringstream out;
-			out
-					<< "local (" << sample.localTimestamps().SendTimestamp << "," << sample.localTimestamps().ReceiveTimestamp << ")"
-					<< ", remote (" << sample.remoteTimestamps().SendTimestamp << "," << sample.remoteTimestamps().ReceiveTimestamp << ")";
+			out << "local (" << sample.localTimestamps().SendTimestamp << "," << sample.localTimestamps().ReceiveTimestamp << ")"
+				<< ", remote (" << sample.remoteTimestamps().SendTimestamp << "," << sample.remoteTimestamps().ReceiveTimestamp << ")";
 			return out.str();
 		});
 	}
@@ -157,13 +156,11 @@ namespace catapult { namespace timesync {
 
 		std::unordered_map<std::string, TimeSynchronizationSample> GenerateEqualityInstanceMap() {
 			auto node = test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "alice");
-			return {
-				{ Default_Key, test::CreateSample(node, 37, 43, 15, 13) },
-				{ "copy", test::CreateSample(node, 37, 43, 15, 13) },
-				{ "diff-node", test::CreateSample(37, 43, 15, 13) },
-				{ "diff-local-timestamps", test::CreateSample(node, 27, 43, 15, 13) },
-				{ "diff-remote-timestamps", test::CreateSample(node, 37, 43, 25, 13) }
-			};
+			return { { Default_Key, test::CreateSample(node, 37, 43, 15, 13) },
+					 { "copy", test::CreateSample(node, 37, 43, 15, 13) },
+					 { "diff-node", test::CreateSample(37, 43, 15, 13) },
+					 { "diff-local-timestamps", test::CreateSample(node, 27, 43, 15, 13) },
+					 { "diff-remote-timestamps", test::CreateSample(node, 37, 43, 25, 13) } };
 		}
 	}
 

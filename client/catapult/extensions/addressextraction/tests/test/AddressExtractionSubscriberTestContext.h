@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 	template<typename TSubscriber>
 	class AddressExtractionSubscriberTestContext {
 	private:
-		using SubscriberFactory = std::function<std::unique_ptr<TSubscriber> (const addressextraction::AddressExtractor&)>;
+		using SubscriberFactory = std::function<std::unique_ptr<TSubscriber>(const addressextraction::AddressExtractor&)>;
 
 	public:
 		/// Creates a test context around \a subscriberFactory.
@@ -41,8 +41,8 @@ namespace catapult { namespace test {
 				: m_subscriberFactory(subscriberFactory)
 				, m_pNotificationPublisher(std::make_unique<mocks::MockNotificationPublisher>())
 				, m_notificationPublisher(*m_pNotificationPublisher)
-				, m_extractor(std::move(m_pNotificationPublisher))
-		{}
+				, m_extractor(std::move(m_pNotificationPublisher)) {
+		}
 
 	public:
 		/// Asserts that \a action results in no extracted addresses.

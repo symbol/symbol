@@ -24,7 +24,9 @@
 #include "VerifiableEntity.h"
 #include "catapult/plugins.h"
 
-namespace catapult { namespace model { class TransactionRegistry; } }
+namespace catapult { namespace model {
+	class TransactionRegistry;
+}}
 
 namespace catapult { namespace model {
 

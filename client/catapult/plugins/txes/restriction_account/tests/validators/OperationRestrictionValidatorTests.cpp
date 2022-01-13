@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS OperationRestrictionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(OperationRestriction,)
+	DEFINE_COMMON_VALIDATOR_TESTS(OperationRestriction, )
 
 	namespace {
 		constexpr auto Restriction_Flags = model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
@@ -105,10 +105,16 @@ namespace catapult { namespace validators {
 	// region success
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Allow) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::AllowTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Block) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BlockTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Allow) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::AllowTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Block) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BlockTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(SuccessWhenAccountIsNotKnown) {
 		// Arrange:

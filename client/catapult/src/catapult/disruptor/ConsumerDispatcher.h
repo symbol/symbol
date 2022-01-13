@@ -28,7 +28,9 @@
 #include "catapult/utils/NamedObject.h"
 #include <atomic>
 
-namespace catapult { namespace disruptor { class ConsumerEntry; } }
+namespace catapult { namespace disruptor {
+	class ConsumerEntry;
+}}
 
 namespace catapult { namespace disruptor {
 

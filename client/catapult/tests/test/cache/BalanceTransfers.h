@@ -23,13 +23,11 @@
 #include "catapult/model/Mosaic.h"
 #include <vector>
 
-namespace catapult {
-	namespace cache {
-		class AccountStateCacheDelta;
-		class AccountStateCacheView;
-		class CatapultCacheDelta;
-	}
-}
+namespace catapult { namespace cache {
+	class AccountStateCacheDelta;
+	class AccountStateCacheView;
+	class CatapultCacheDelta;
+}}
 
 namespace catapult { namespace test {
 

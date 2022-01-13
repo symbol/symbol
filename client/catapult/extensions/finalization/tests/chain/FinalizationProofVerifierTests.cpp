@@ -45,10 +45,20 @@ namespace catapult { namespace chain {
 				config.VotingSetGrouping = 500;
 
 				// 15/20M voting eligible
-				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Epoch, Last_Finalized_Height, {
-					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000), Amount(4'000'000),
-					Amount(1'000'000), Amount(1'000'000), Amount(1'000'000), Amount(1'000'000)
-				});
+				auto finalizationContextPair = test::CreateFinalizationContext(
+						config,
+						Finalization_Epoch,
+						Last_Finalized_Height,
+						{ Amount(4'000'000),
+						  Amount(2'000'000),
+						  Amount(1'000'000),
+						  Amount(2'000'000),
+						  Amount(3'000'000),
+						  Amount(4'000'000),
+						  Amount(1'000'000),
+						  Amount(1'000'000),
+						  Amount(1'000'000),
+						  Amount(1'000'000) });
 
 				m_pFinalizationContext = std::make_unique<model::FinalizationContext>(std::move(finalizationContextPair.first));
 				m_keyPairDescriptors = std::move(finalizationContextPair.second);
@@ -134,10 +144,10 @@ namespace catapult { namespace chain {
 		void RunModifiedStatisticsTest(VerifyFinalizationProofResult expectedResult, TModifier modifyStatistics) {
 			// Arrange:
 			RunTest([expectedResult, modifyStatistics](
-					const auto& context,
-					const auto& prevoteHashes,
-					const auto& prevoteMessages,
-					const auto& precommitMessages) {
+							const auto& context,
+							const auto& prevoteHashes,
+							const auto& prevoteMessages,
+							const auto& precommitMessages) {
 				auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);
 				modifyStatistics(statistics);
 				auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
@@ -212,10 +222,10 @@ namespace catapult { namespace chain {
 		void RunModifiedPrevoteMessagesTest(TModifier modifyPrevoteMessages) {
 			// Arrange:
 			RunTest([modifyPrevoteMessages](
-					const auto& context,
-					const auto& prevoteHashes,
-					auto& prevoteMessages,
-					const auto& precommitMessages) {
+							const auto& context,
+							const auto& prevoteHashes,
+							auto& prevoteMessages,
+							const auto& precommitMessages) {
 				modifyPrevoteMessages(prevoteMessages);
 
 				auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);

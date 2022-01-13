@@ -35,8 +35,8 @@ namespace catapult { namespace test {
 		/// Wraps \a pContainer and \a pContainerDelta.
 		ContainerDeltaPair(const std::shared_ptr<Type>& pContainer, const std::shared_ptr<DeltaType>& pContainerDelta)
 				: m_pContainer(pContainer)
-				, m_pContainerDelta(pContainerDelta)
-		{}
+				, m_pContainerDelta(pContainerDelta) {
+		}
 
 	public:
 		/// Gets a pointer to the underlying delta.

@@ -31,7 +31,7 @@ namespace catapult { namespace mongo { namespace plugins {
 #define TEST_CLASS MosaicSupplyRevocationMapperTests
 
 	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicSupplyRevocation,)
+		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicSupplyRevocation, )
 	}
 
 	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Mosaic_Supply_Revocation)

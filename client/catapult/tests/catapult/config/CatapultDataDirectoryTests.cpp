@@ -100,10 +100,16 @@ namespace catapult { namespace config {
 	}
 
 #define CREATE_DIRECTORY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, CatapultDirectoryCreate_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CreateTraits>(); } \
-	TEST(TEST_CLASS, CatapultDirectoryCreateAll_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CreateAllTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, CatapultDirectoryCreate_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CreateTraits>(); \
+	} \
+	TEST(TEST_CLASS, CatapultDirectoryCreateAll_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CreateAllTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CREATE_DIRECTORY_TEST(CanCreateSingleDirectory_Filesystem) {
 		// Arrange:

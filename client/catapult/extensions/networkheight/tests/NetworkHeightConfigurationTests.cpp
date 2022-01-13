@@ -32,14 +32,7 @@ namespace catapult { namespace networkheight {
 			using ConfigurationType = NetworkHeightConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"networkheight",
-						{
-							{ "maxNodes", "123" }
-						}
-					}
-				};
+				return { { "networkheight", { { "maxNodes", "123" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

@@ -26,8 +26,12 @@
 #include "catapult/utils/SpinReaderWriterLock.h"
 
 namespace catapult {
-	namespace chain { struct MultiRoundMessageAggregatorState; }
-	namespace model { struct FinalizationRoundRange; }
+namespace chain {
+	struct MultiRoundMessageAggregatorState;
+}
+namespace model {
+	struct FinalizationRoundRange;
+}
 }
 
 namespace catapult { namespace chain {
@@ -127,7 +131,7 @@ namespace catapult { namespace chain {
 	/// Aggregates finalization messages across multiple finalization points.
 	class MultiRoundMessageAggregator {
 	public:
-		using RoundMessageAggregatorFactory = std::function<std::unique_ptr<RoundMessageAggregator> (const model::FinalizationRound&)>;
+		using RoundMessageAggregatorFactory = std::function<std::unique_ptr<RoundMessageAggregator>(const model::FinalizationRound&)>;
 
 	public:
 		/// Creates an aggregator around \a maxResponseSize, the current finalization \a round,

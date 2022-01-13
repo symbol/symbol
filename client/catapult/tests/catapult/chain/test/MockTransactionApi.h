@@ -29,10 +29,7 @@ namespace catapult { namespace mocks {
 	/// and throw exceptions at specified entry points.
 	class MockTransactionApi : public api::RemoteTransactionApi {
 	public:
-		enum class EntryPoint {
-			None,
-			Unconfirmed_Transactions
-		};
+		enum class EntryPoint { None, Unconfirmed_Transactions };
 
 		struct UtRequest {
 			Timestamp Deadline;
@@ -45,8 +42,8 @@ namespace catapult { namespace mocks {
 		explicit MockTransactionApi(const model::TransactionRange& transactionRange)
 				: api::RemoteTransactionApi({ test::GenerateRandomByteArray<Key>(), "fake-host-from-mock-transaction-api" })
 				, m_transactionRange(model::TransactionRange::CopyRange(transactionRange))
-				, m_errorEntryPoint(EntryPoint::None)
-		{}
+				, m_errorEntryPoint(EntryPoint::None) {
+		}
 
 	public:
 		/// Sets the entry point where the exception should occur to \a entryPoint.

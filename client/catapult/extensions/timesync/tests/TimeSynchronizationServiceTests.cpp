@@ -158,9 +158,7 @@ namespace catapult { namespace timesync {
 		// Arrange:
 		auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(Default_Epoch_Adjustment, 100);
 		pTimeSyncState->update(TimeOffset(500));
-		TestContext context(CreateCache(), [&timeSyncState = *pTimeSyncState]() {
-			return timeSyncState.networkTime();
-		});
+		TestContext context(CreateCache(), [&timeSyncState = *pTimeSyncState]() { return timeSyncState.networkTime(); });
 		context.boot();
 		const auto timeSupplier = context.testState().state().timeSupplier();
 		Timestamp timestamp;

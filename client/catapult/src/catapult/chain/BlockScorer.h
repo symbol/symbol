@@ -25,7 +25,9 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <functional>
 
-namespace catapult { namespace model { struct Block; } }
+namespace catapult { namespace model {
+	struct Block;
+}}
 
 namespace catapult { namespace chain {
 
@@ -57,8 +59,9 @@ namespace catapult { namespace chain {
 	struct BlockHitContext {
 	public:
 		/// Creates a block hit context.
-		BlockHitContext() : ElapsedTime(utils::TimeSpan::FromSeconds(0))
-		{}
+		BlockHitContext()
+				: ElapsedTime(utils::TimeSpan::FromSeconds(0)) {
+		}
 
 	public:
 		/// Generation hash.
@@ -80,7 +83,7 @@ namespace catapult { namespace chain {
 	/// Predicate used to determine if a block is a hit or not.
 	class BlockHitPredicate {
 	private:
-		using ImportanceLookupFunc = std::function<Importance (const Key&, Height)>;
+		using ImportanceLookupFunc = std::function<Importance(const Key&, Height)>;
 
 	public:
 		/// Creates a predicate around a blockchain configuration (\a config) and an importance lookup function

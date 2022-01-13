@@ -22,7 +22,9 @@
 #pragma once
 #include "HarvestingObservers.h"
 
-namespace catapult { namespace cache { class AccountStateCacheDelta; } }
+namespace catapult { namespace cache {
+	class AccountStateCacheDelta;
+}}
 
 namespace catapult { namespace harvesting {
 

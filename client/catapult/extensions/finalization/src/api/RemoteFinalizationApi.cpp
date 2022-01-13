@@ -64,13 +64,12 @@ namespace catapult { namespace api {
 		public:
 			DefaultRemoteFinalizationApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity)
 					: RemoteFinalizationApi(remoteIdentity)
-					, m_impl(io)
-			{}
+					, m_impl(io) {
+			}
 
 		public:
-			FutureType<MessagesTraits> messages(
-					const model::FinalizationRoundRange& roundRange,
-					model::ShortHashRange&& knownShortHashes) const override {
+			FutureType<MessagesTraits> messages(const model::FinalizationRoundRange& roundRange, model::ShortHashRange&& knownShortHashes)
+					const override {
 				return m_impl.dispatch(MessagesTraits(), roundRange, std::move(knownShortHashes));
 			}
 

@@ -29,6 +29,5 @@ namespace catapult { namespace cache {
 	/// Policy for saving and loading metadata cache data.
 	struct MetadataCacheStorage
 			: public CacheStorageForBasicInsertRemoveCache<MetadataCacheDescriptor>
-			, public state::MetadataEntrySerializer
-	{};
+			, public state::MetadataEntrySerializer {};
 }}

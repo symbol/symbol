@@ -187,21 +187,19 @@ namespace catapult { namespace local {
 		}
 
 		void LogStatistics(const ionet::Node& node, const ChainStatistics& stats) {
-			CATAPULT_LOG(debug)
-					<< "*** CHAIN STATISTICS FOR NODE: " << node << " ***" << std::endl
-					<< " ------ score " << stats.Score << std::endl
-					<< " - state hash " << stats.StateHash << std::endl
-					<< " ----- height " << stats.Height;
+			CATAPULT_LOG(debug) << "*** CHAIN STATISTICS FOR NODE: " << node << " ***" << std::endl
+								<< " ------ score " << stats.Score << std::endl
+								<< " - state hash " << stats.StateHash << std::endl
+								<< " ----- height " << stats.Height;
 		}
 
 		void LogStatistics(const ionet::Node& node, const HappyLocalNodeStatistics& stats) {
-			CATAPULT_LOG(debug)
-					<< "*** STATISTICS FOR NODE: " << node << " ***" << std::endl
-					<< " ------ score " << stats.Score << std::endl
-					<< " - state hash " << stats.StateHash << std::endl
-					<< " ----- height " << stats.Height << std::endl
-					<< " ---- readers " << stats.NumActiveReaders << std::endl
-					<< " ---- writers " << stats.NumActiveWriters;
+			CATAPULT_LOG(debug) << "*** STATISTICS FOR NODE: " << node << " ***" << std::endl
+								<< " ------ score " << stats.Score << std::endl
+								<< " - state hash " << stats.StateHash << std::endl
+								<< " ----- height " << stats.Height << std::endl
+								<< " ---- readers " << stats.NumActiveReaders << std::endl
+								<< " ---- writers " << stats.NumActiveWriters;
 		}
 
 		// region network traits
@@ -283,8 +281,9 @@ namespace catapult { namespace local {
 
 		public:
 			// State_Hash_Directory is containing directory of all isolated directories used for state hash calculation
-			StateHashEnabledTraits() : m_stateHashCalculationDir(State_Hash_Directory)
-			{}
+			StateHashEnabledTraits()
+					: m_stateHashCalculationDir(State_Hash_Directory) {
+			}
 
 		public:
 			test::StateHashCalculator createStateHashCalculator(const NodeTestContext& context, size_t id) const {
@@ -406,22 +405,30 @@ namespace catapult { namespace local {
 
 		// region verify traits
 
-		class VerifyNoneTraits : public StateHashDisabledTraits, public BlockReceiptsDisabledTraits {
+		class VerifyNoneTraits
+				: public StateHashDisabledTraits
+				, public BlockReceiptsDisabledTraits {
 		public:
 			static constexpr auto Node_Flag = test::NodeFlag::Regular;
 		};
 
-		class VerifyReceiptsTraits : public StateHashDisabledTraits, public BlockReceiptsEnabledTraits {
+		class VerifyReceiptsTraits
+				: public StateHashDisabledTraits
+				, public BlockReceiptsEnabledTraits {
 		public:
 			static constexpr auto Node_Flag = test::NodeFlag::Verify_Receipts;
 		};
 
-		class VerifyStateTraits : public StateHashEnabledTraits, public BlockReceiptsDisabledTraits {
+		class VerifyStateTraits
+				: public StateHashEnabledTraits
+				, public BlockReceiptsDisabledTraits {
 		public:
 			static constexpr auto Node_Flag = test::NodeFlag::Verify_State;
 		};
 
-		class VerifyAllTraits : public StateHashEnabledTraits, public BlockReceiptsEnabledTraits {
+		class VerifyAllTraits
+				: public StateHashEnabledTraits
+				, public BlockReceiptsEnabledTraits {
 		public:
 			static constexpr auto Node_Flag = test::NodeFlag::Verify_State | test::NodeFlag::Verify_Receipts;
 		};
@@ -430,12 +437,22 @@ namespace catapult { namespace local {
 	}
 
 #define VERIFY_OPTIONS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyNone) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyNoneTraits>(); } \
-	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyReceipts) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyReceiptsTraits>(); } \
-	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyState) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyStateTraits>(); } \
-	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyAll) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyAllTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyNone) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyNoneTraits>(); \
+	} \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyReceipts) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyReceiptsTraits>(); \
+	} \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyState) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyStateTraits>(); \
+	} \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyAll) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyAllTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	VERIFY_OPTIONS_BASED_TEST(MultiNodeDenseNetworkCanReachConsensus) {
 		AssertMultiNodeNetworkCanReachConsensus<DenseNetworkTraits>(TTraits(), TTraits::Dense_Network_Size);

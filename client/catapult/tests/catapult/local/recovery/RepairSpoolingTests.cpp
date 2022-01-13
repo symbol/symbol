@@ -34,10 +34,8 @@ namespace catapult { namespace local {
 
 		std::vector<std::string> GetAllQueueNames() {
 			return {
-				"block_change", "finalization", "transaction_status",
-				"partial_transactions_change", "unconfirmed_transactions_change",
-				"block_recover",
-				"block_sync", "state_change"
+				"block_change",	 "finalization", "transaction_status", "partial_transactions_change", "unconfirmed_transactions_change",
+				"block_recover", "block_sync",	 "state_change"
 			};
 		}
 
@@ -45,7 +43,8 @@ namespace catapult { namespace local {
 
 		class TestContext {
 		public:
-			TestContext(SetupMode mode, uint64_t indexValue) : m_dataDirectory(m_tempDir.name()) {
+			TestContext(SetupMode mode, uint64_t indexValue)
+					: m_dataDirectory(m_tempDir.name()) {
 				if (SetupMode::None == mode)
 					return;
 
@@ -79,9 +78,8 @@ namespace catapult { namespace local {
 			size_t countRootFiles() const {
 				auto begin = std::filesystem::directory_iterator(m_dataDirectory.rootDir().path());
 				auto end = std::filesystem::directory_iterator();
-				return static_cast<size_t>(std::count_if(begin, end, [](const auto& entry) {
-					return std::filesystem::is_regular_file(entry.path());
-				}));
+				return static_cast<size_t>(
+						std::count_if(begin, end, [](const auto& entry) { return std::filesystem::is_regular_file(entry.path()); }));
 			}
 
 			size_t countFiles(const std::string& queueName) const {
@@ -172,11 +170,19 @@ namespace catapult { namespace local {
 		};
 
 #define COMMIT_STEP_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_AllUpdated) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AllUpdatedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_BlocksWritten) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlocksWrittenTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_StateWritten) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateWrittenTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_AllUpdated) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AllUpdatedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_BlocksWritten) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlocksWrittenTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_StateWritten) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateWrittenTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 		// endregion
 	}

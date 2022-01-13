@@ -27,7 +27,9 @@
 #include "tests/test/nodeps/Random.h"
 #include <vector>
 
-namespace catapult { namespace state { class RootNamespaceHistory; } }
+namespace catapult { namespace state {
+	class RootNamespaceHistory;
+}}
 
 namespace catapult { namespace test {
 

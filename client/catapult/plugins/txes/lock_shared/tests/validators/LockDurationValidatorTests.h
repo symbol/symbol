@@ -66,7 +66,9 @@ namespace catapult { namespace validators {
 }}
 
 #define MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockDurationTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		LockDurationTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_DURATION_VALIDATOR_TESTS(TRAITS_NAME) \
 	MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, FailureWhenDurationIsZero) \

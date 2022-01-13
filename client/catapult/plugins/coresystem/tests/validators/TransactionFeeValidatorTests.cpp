@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS TransactionFeeValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(TransactionFee,)
+	DEFINE_COMMON_VALIDATOR_TESTS(TransactionFee, )
 
 	namespace {
 		void AssertValidationResult(ValidationResult expectedResult, uint32_t transactionSize, Amount fee, Amount maxFee) {

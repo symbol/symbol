@@ -38,11 +38,7 @@ namespace catapult { namespace sync {
 			return importance + Importance(attemptedImportanceBoost);
 		}
 
-		size_t GetMaxTransactionsWeight(
-				size_t cacheSize,
-				size_t maxCacheSize,
-				Importance effectiveImportance,
-				Importance totalImportance) {
+		size_t GetMaxTransactionsWeight(size_t cacheSize, size_t maxCacheSize, Importance effectiveImportance, Importance totalImportance) {
 			auto slotsLeft = static_cast<double>(maxCacheSize - cacheSize);
 			auto scaleFactor = std::exp(-3.0 * utils::to_ratio(cacheSize, maxCacheSize));
 			auto importancePercentage = utils::to_ratio(effectiveImportance.unwrap(), totalImportance.unwrap());
@@ -58,8 +54,8 @@ namespace catapult { namespace sync {
 		public:
 			TransactionSpamThrottle(const SpamThrottleConfiguration& config, const predicate<const model::Transaction&>& isBonded)
 					: m_config(config)
-					, m_isBonded(isBonded)
-			{}
+					, m_isBonded(isBonded) {
+			}
 
 		public:
 			bool operator()(const model::TransactionInfo& transactionInfo, const chain::UtUpdater::ThrottleContext& context) const {

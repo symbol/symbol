@@ -73,11 +73,19 @@ namespace catapult { namespace cache {
 	}
 
 #define GET_FIRST_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Ordinal) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetFirstOrdinalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Filtered) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetFirstFilteredTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_SortedFiltered) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetFirstSortedFilteredTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Ordinal) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetFirstOrdinalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Filtered) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetFirstFilteredTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_SortedFiltered) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetFirstSortedFilteredTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -162,9 +170,8 @@ namespace catapult { namespace cache {
 		auto utCacheView = pUtCache->view();
 
 		// Act: apply a reverse sort
-		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, CompareReverseOrder, [](const auto&) {
-			return true;
-		});
+		auto transactionInfos =
+				GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, CompareReverseOrder, [](const auto&) { return true; });
 
 		// Assert: (9, 8, 7) should be returned; if count was applied first, wrong (2, 1, 0) would be returned
 		auto allTransactionInfos = test::ExtractTransactionInfos(utCacheView, 10);
@@ -176,15 +183,12 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, GetFirstTransactionInfoPointersAppliesStableSorting_SortedFiltered) {
 		// Arrange:
 		auto pUtCache = test::CreateSeededMemoryUtCache(10);
-		test::AddAll(*pUtCache, test::CreateTransactionInfos(4, [](auto i) {
-			return 0 == i % 2 ? Timestamp(10) : Timestamp(9);
-		}));
+		test::AddAll(*pUtCache, test::CreateTransactionInfos(4, [](auto i) { return 0 == i % 2 ? Timestamp(10) : Timestamp(9); }));
 		auto utCacheView = pUtCache->view();
 
 		// Act: apply a reverse sort
-		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 4, CountAsOne, CompareReverseOrder, [](const auto&) {
-			return true;
-		});
+		auto transactionInfos =
+				GetFirstTransactionInfoPointers(utCacheView, 4, CountAsOne, CompareReverseOrder, [](const auto&) { return true; });
 
 		// Assert:
 		auto allTransactionInfos = test::ExtractTransactionInfos(utCacheView, 14);
@@ -201,10 +205,10 @@ namespace catapult { namespace cache {
 		auto utCacheView = pUtCache->view();
 
 		// Act: filter odd deadline txes
-		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, CompareNaturalOrder, [](
-				const auto& transactionInfo) {
-			return 0 == transactionInfo.pEntity->Deadline.unwrap() % 2;
-		});
+		auto transactionInfos =
+				GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, CompareNaturalOrder, [](const auto& transactionInfo) {
+					return 0 == transactionInfo.pEntity->Deadline.unwrap() % 2;
+				});
 
 		// Assert: (1, 3, 5) should be returned; if count was applied first, wrong (1) would be returned
 		auto allTransactionInfos = test::ExtractTransactionInfos(utCacheView, 10);
@@ -219,10 +223,10 @@ namespace catapult { namespace cache {
 		auto utCacheView = pUtCache->view();
 
 		// Act: apply a reverse sort AND filter odd deadline txes
-		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, CompareReverseOrder, [](
-				const auto& transactionInfo) {
-			return 0 == transactionInfo.pEntity->Deadline.unwrap() % 2;
-		});
+		auto transactionInfos =
+				GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, CompareReverseOrder, [](const auto& transactionInfo) {
+					return 0 == transactionInfo.pEntity->Deadline.unwrap() % 2;
+				});
 
 		// Assert: (9, 7, 5) should be returned; if count was applied first, wrong (1) would be returned
 		auto allTransactionInfos = test::ExtractTransactionInfos(utCacheView, 10);

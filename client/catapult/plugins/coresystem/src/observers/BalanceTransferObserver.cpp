@@ -31,24 +31,25 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(BalanceTransfer, model::BalanceTransferNotification, [](
-			const model::BalanceTransferNotification& notification,
-			const ObserverContext& context) {
-		auto& cache = context.Cache.sub<cache::AccountStateCache>();
-		auto senderIter = cache.find(notification.Sender.resolved(context.Resolvers));
-		auto recipientIter = cache.find(notification.Recipient.resolved(context.Resolvers));
+	DEFINE_OBSERVER(
+			BalanceTransfer,
+			model::BalanceTransferNotification,
+			[](const model::BalanceTransferNotification& notification, const ObserverContext& context) {
+				auto& cache = context.Cache.sub<cache::AccountStateCache>();
+				auto senderIter = cache.find(notification.Sender.resolved(context.Resolvers));
+				auto recipientIter = cache.find(notification.Recipient.resolved(context.Resolvers));
 
-		auto& senderState = senderIter.get();
-		auto& recipientState = recipientIter.get();
+				auto& senderState = senderIter.get();
+				auto& recipientState = recipientIter.get();
 
-		auto effectiveAmount = notification.Amount;
-		if (model::BalanceTransferNotification::AmountType::Dynamic == notification.TransferAmountType)
-			effectiveAmount = Amount(notification.Amount.unwrap() * context.Cache.dependentState().DynamicFeeMultiplier.unwrap());
+				auto effectiveAmount = notification.Amount;
+				if (model::BalanceTransferNotification::AmountType::Dynamic == notification.TransferAmountType)
+					effectiveAmount = Amount(notification.Amount.unwrap() * context.Cache.dependentState().DynamicFeeMultiplier.unwrap());
 
-		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-		if (NotifyMode::Commit == context.Mode)
-			Transfer(senderState, recipientState, mosaicId, effectiveAmount);
-		else
-			Transfer(recipientState, senderState, mosaicId, effectiveAmount);
-	})
+				auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
+				if (NotifyMode::Commit == context.Mode)
+					Transfer(senderState, recipientState, mosaicId, effectiveAmount);
+				else
+					Transfer(recipientState, senderState, mosaicId, effectiveAmount);
+			})
 }}

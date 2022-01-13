@@ -24,12 +24,10 @@
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/state/AccountState.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicAccountStateCacheDelta;
-		class BasicAccountStateCacheView;
-	}
-}
+namespace catapult { namespace cache {
+	class BasicAccountStateCacheDelta;
+	class BasicAccountStateCacheView;
+}}
 
 namespace catapult { namespace cache {
 
@@ -84,9 +82,9 @@ namespace catapult { namespace cache {
 		HighValueAccountStatistics highValueAccountStatistics(FinalizationEpoch epoch) const;
 
 	public:
-		using AddressBasedCache::size;
 		using AddressBasedCache::contains;
 		using AddressBasedCache::find;
+		using AddressBasedCache::size;
 
 		using KeyBasedCache::contains;
 		using KeyBasedCache::find;

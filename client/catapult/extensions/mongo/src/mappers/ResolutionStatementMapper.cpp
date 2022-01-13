@@ -51,22 +51,16 @@ namespace catapult { namespace mongo { namespace mappers {
 		template<typename TTraits>
 		bsoncxx::document::value StreamResolution(Height height, const typename TTraits::StatementType& statement) {
 			bson_stream::document builder;
-			auto doc = builder
-					<< "statement" << bson_stream::open_document
-						<< "height" << ToInt64(height)
-						<< "unresolved" << TTraits::ToDbValue(statement.unresolved());
+			auto doc = builder << "statement" << bson_stream::open_document << "height" << ToInt64(height) << "unresolved"
+							   << TTraits::ToDbValue(statement.unresolved());
 
 			auto resolutionsArray = builder << "resolutionEntries" << bson_stream::open_array;
 			for (auto i = 0u; i < statement.size(); ++i) {
 				const auto& resolutionEntry = statement.entryAt(i);
-				resolutionsArray
-						<< bson_stream::open_document
-							<< "source" << bson_stream::open_document
-								<< "primaryId" << static_cast<int32_t>(resolutionEntry.Source.PrimaryId)
-								<< "secondaryId" << static_cast<int32_t>(resolutionEntry.Source.SecondaryId)
-							<< bson_stream::close_document
-							<< "resolved" << TTraits::ToDbValue(resolutionEntry.ResolvedValue)
-						<< bson_stream::close_document;
+				resolutionsArray << bson_stream::open_document << "source" << bson_stream::open_document << "primaryId"
+								 << static_cast<int32_t>(resolutionEntry.Source.PrimaryId) << "secondaryId"
+								 << static_cast<int32_t>(resolutionEntry.Source.SecondaryId) << bson_stream::close_document << "resolved"
+								 << TTraits::ToDbValue(resolutionEntry.ResolvedValue) << bson_stream::close_document;
 			}
 
 			resolutionsArray << bson_stream::close_array;

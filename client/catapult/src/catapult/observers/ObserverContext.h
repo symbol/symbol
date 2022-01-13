@@ -33,15 +33,13 @@ namespace catapult { namespace observers {
 #define NOTIFY_MODE_LIST \
 	/* Execute actions. */ \
 	ENUM_VALUE(Commit) \
-	\
+\
 	/* Reverse actions. */ \
 	ENUM_VALUE(Rollback)
 
 #define ENUM_VALUE(LABEL) LABEL,
 	/// Enumeration of possible notification modes.
-	enum class NotifyMode {
-		NOTIFY_MODE_LIST
-	};
+	enum class NotifyMode { NOTIFY_MODE_LIST };
 #undef ENUM_VALUE
 
 	/// Insertion operator for outputting \a value to \a out.

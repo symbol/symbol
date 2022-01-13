@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicAddressRestriction, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicAddressRestriction, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Mosaic_Address_Restriction)
@@ -51,12 +51,12 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			MosaicRequiredNotification::Notification_Type,
-			MosaicRestrictionRequiredNotification::Notification_Type,
-			MosaicAddressRestrictionModificationPreviousValueNotification::Notification_Type,
-			MosaicAddressRestrictionModificationNewValueNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ MosaicRequiredNotification::Notification_Type,
+				  MosaicRestrictionRequiredNotification::Notification_Type,
+				  MosaicAddressRestrictionModificationPreviousValueNotification::Notification_Type,
+				  MosaicAddressRestrictionModificationNewValueNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotifications) {
@@ -77,15 +77,14 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
 			EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
 		});
-		builder.template addExpectation<MosaicAddressRestrictionModificationPreviousValueNotification>([&transaction](
-				const auto& notification) {
-			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
-			EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
-			EXPECT_EQ(transaction.TargetAddress, notification.TargetAddress);
-			EXPECT_EQ(transaction.PreviousRestrictionValue, notification.RestrictionValue);
-		});
-		builder.template addExpectation<MosaicAddressRestrictionModificationNewValueNotification>([&transaction](
-				const auto& notification) {
+		builder.template addExpectation<MosaicAddressRestrictionModificationPreviousValueNotification>(
+				[&transaction](const auto& notification) {
+					EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+					EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
+					EXPECT_EQ(transaction.TargetAddress, notification.TargetAddress);
+					EXPECT_EQ(transaction.PreviousRestrictionValue, notification.RestrictionValue);
+				});
+		builder.template addExpectation<MosaicAddressRestrictionModificationNewValueNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
 			EXPECT_EQ(transaction.RestrictionKey, notification.RestrictionKey);
 			EXPECT_EQ(transaction.TargetAddress, notification.TargetAddress);

@@ -154,14 +154,14 @@ namespace catapult { namespace observers {
 		class TestContext {
 		private:
 			using ObserverTestContext = typename TTraits::ObserverTestContext;
-			using HeightGenerator = std::function<Height (uint32_t)>;
+			using HeightGenerator = std::function<Height(uint32_t)>;
 
 		public:
 			TestContext(Height height, NotifyMode mode)
 					: m_height(height)
 					, m_mode(mode)
-					, m_observerContext(m_mode, m_height)
-			{}
+					, m_observerContext(m_mode, m_height) {
+			}
 
 		public:
 			void addLockInfos(

@@ -66,8 +66,9 @@ namespace catapult { namespace mocks {
 	class MockHeightOnlyBlockStorage : public UnsupportedBlockStorage {
 	public:
 		/// Creates the storage with height \a chainHeight.
-		explicit MockHeightOnlyBlockStorage(Height chainHeight) : m_chainHeight(chainHeight)
-		{}
+		explicit MockHeightOnlyBlockStorage(Height chainHeight)
+				: m_chainHeight(chainHeight) {
+		}
 
 	public:
 		Height chainHeight() const override {

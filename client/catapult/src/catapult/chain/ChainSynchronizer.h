@@ -26,11 +26,13 @@
 #include "catapult/model/RangeTypes.h"
 
 namespace catapult {
-	namespace api {
-		class ChainApi;
-		class RemoteChainApi;
-	}
-	namespace model { struct BlockchainConfiguration; }
+namespace api {
+	class ChainApi;
+	class RemoteChainApi;
+}
+namespace model {
+	struct BlockchainConfiguration;
+}
 }
 
 namespace catapult { namespace chain {
@@ -39,9 +41,8 @@ namespace catapult { namespace chain {
 	using BlockRangeConsumerFunc = consumer<model::BlockRange&&>;
 
 	/// Function signature for delivering a block range to a consumer with an additional completion handler.
-	using CompletionAwareBlockRangeConsumerFunc = std::function<disruptor::DisruptorElementId (
-			model::AnnotatedBlockRange&&,
-			const disruptor::ProcessingCompleteFunc&)>;
+	using CompletionAwareBlockRangeConsumerFunc =
+			std::function<disruptor::DisruptorElementId(model::AnnotatedBlockRange&&, const disruptor::ProcessingCompleteFunc&)>;
 
 	/// Configuration for customizing a chain synchronizer.
 	struct ChainSynchronizerConfiguration {

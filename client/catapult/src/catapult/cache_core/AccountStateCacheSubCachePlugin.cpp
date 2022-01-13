@@ -179,8 +179,8 @@ namespace catapult { namespace cache {
 		public:
 			AccountStateFullCacheStorage(std::unique_ptr<CacheStorage>&& pStorage, AccountStateCache& cache)
 					: m_pStorage(std::move(pStorage))
-					, m_cache(cache)
-			{}
+					, m_cache(cache) {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -215,8 +215,8 @@ namespace catapult { namespace cache {
 	AccountStateCacheSubCachePlugin::AccountStateCacheSubCachePlugin(
 			const CacheConfiguration& config,
 			const AccountStateCacheTypes::Options& options)
-			: BaseType(std::make_unique<AccountStateCache>(config, options))
-	{}
+			: BaseType(std::make_unique<AccountStateCache>(config, options)) {
+	}
 
 	std::unique_ptr<CacheStorage> AccountStateCacheSubCachePlugin::createStorage() {
 		auto pStorage = BaseType::createStorage();

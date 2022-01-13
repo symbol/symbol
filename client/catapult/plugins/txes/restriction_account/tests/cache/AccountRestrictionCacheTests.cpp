@@ -34,8 +34,9 @@ namespace catapult { namespace cache {
 		struct AccountRestrictionCacheMixinTraits {
 			class CacheType : public AccountRestrictionCache {
 			public:
-				CacheType() : AccountRestrictionCache(CacheConfiguration(), model::NetworkIdentifier::Zero)
-				{}
+				CacheType()
+						: AccountRestrictionCache(CacheConfiguration(), model::NetworkIdentifier::Zero) {
+				}
 			};
 
 			using IdType = Address;
@@ -58,7 +59,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		struct AccountRestrictionCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
+		struct AccountRestrictionCacheDeltaModificationPolicy : public test::DeltaInsertModificationPolicy {
 			static void Modify(AccountRestrictionCacheDelta& delta, const state::AccountRestrictions& restrictions) {
 				auto& restrictionsFromCache = delta.find(restrictions.address()).get();
 				auto& restriction = restrictionsFromCache.restriction(model::AccountRestrictionFlags::Address);
@@ -81,7 +82,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(AccountRestrictionCacheMixinTraits, AccountRestrictionCacheDeltaModificationPolicy, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(AccountRestrictionCacheMixinTraits,)
+	DEFINE_CACHE_BASIC_TESTS(AccountRestrictionCacheMixinTraits, )
 
 	// endregion
 

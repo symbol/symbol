@@ -31,14 +31,8 @@ namespace catapult { namespace config {
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
 				return {
-					{
-						"",
-						{
-							{ "maxMultisigDepth", "159" },
-							{ "maxCosignatoriesPerAccount", "23" },
-							{ "maxCosignedAccountsPerAccount", "77" }
-						}
-					}
+					{ "",
+					  { { "maxMultisigDepth", "159" }, { "maxCosignatoriesPerAccount", "23" }, { "maxCosignedAccountsPerAccount", "77" } } }
 				};
 			}
 

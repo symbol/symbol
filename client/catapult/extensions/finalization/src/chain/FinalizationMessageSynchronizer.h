@@ -26,7 +26,9 @@
 #include "catapult/model/FinalizationRound.h"
 #include "catapult/model/RangeTypes.h"
 
-namespace catapult { namespace api { class RemoteFinalizationApi; } }
+namespace catapult { namespace api {
+	class RemoteFinalizationApi;
+}}
 
 namespace catapult { namespace chain {
 

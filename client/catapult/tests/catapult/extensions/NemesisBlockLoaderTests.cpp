@@ -178,9 +178,8 @@ namespace catapult { namespace extensions {
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			auto manager = test::CreatePluginManager(config);
 			manager.addTransactionSupport(mocks::CreateMockTransactionPlugin(mocks::PluginOptionFlags::Publish_Transfers));
-			manager.addTransactionSupport(mocks::CreateMockTransactionPlugin(
-					static_cast<model::EntityType>(0xFFFE),
-					mocks::PluginOptionFlags::Not_Top_Level));
+			manager.addTransactionSupport(
+					mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(0xFFFE), mocks::PluginOptionFlags::Not_Top_Level));
 
 			manager.addMosaicResolver([](const auto&, const auto& unresolved, auto& resolved) {
 				resolved = test::CreateResolverContextXor().resolve(unresolved);
@@ -191,13 +190,9 @@ namespace catapult { namespace extensions {
 				return true;
 			});
 
-			manager.addStatelessValidatorHook([](auto& builder) {
-				builder.add(validators::CreateEntityVersionValidator());
-			});
+			manager.addStatelessValidatorHook([](auto& builder) { builder.add(validators::CreateEntityVersionValidator()); });
 
-			manager.addStatefulValidatorHook([](auto& builder) {
-				builder.add(validators::CreateAddressValidator());
-			});
+			manager.addStatefulValidatorHook([](auto& builder) { builder.add(validators::CreateAddressValidator()); });
 			return manager;
 		}
 
@@ -206,18 +201,15 @@ namespace catapult { namespace extensions {
 				const Address& harvestNetworkFeeSinkAddress) {
 			// use real coresystem observers to create accounts, update balances and add harvest receipt
 			observers::DemuxObserverBuilder builder;
-			builder
-				.add(observers::CreateAccountAddressObserver())
-				.add(observers::CreateAccountPublicKeyObserver())
-				.add(observers::CreateBalanceTransferObserver())
-				.add(observers::CreateHarvestFeeObserver(
-						{
-							Harvesting_Mosaic_Id,
-							20,
-							harvestNetworkPercentage,
-							model::HeightDependentAddress(harvestNetworkFeeSinkAddress)
-						},
-						model::InflationCalculator()));
+			builder.add(observers::CreateAccountAddressObserver())
+					.add(observers::CreateAccountPublicKeyObserver())
+					.add(observers::CreateBalanceTransferObserver())
+					.add(observers::CreateHarvestFeeObserver(
+							{ Harvesting_Mosaic_Id,
+							  20,
+							  harvestNetworkPercentage,
+							  model::HeightDependentAddress(harvestNetworkFeeSinkAddress) },
+							model::InflationCalculator()));
 			return builder.build();
 		}
 
@@ -228,7 +220,8 @@ namespace catapult { namespace extensions {
 		const Key& GetTransactionRecipient(const model::Block& block, size_t index) {
 			auto transactions = block.Transactions();
 			auto iter = transactions.cbegin();
-			for (auto i = 0u; i < index; ++i, ++iter);
+			for (auto i = 0u; i < index; ++i, ++iter)
+				;
 			return static_cast<const mocks::MockTransaction&>(*iter).RecipientPublicKey;
 		}
 
@@ -315,8 +308,8 @@ namespace catapult { namespace extensions {
 
 			// Act + Assert:
 			EXPECT_THROW(TTraits::Execute(loader, state.ref(), StateHashVerification::Enabled), TException)
-					<< "total chain importance " << nemesisOptions.TotalChainImportance
-					<< ", initial currency atomic units " << nemesisOptions.InitialCurrencyAtomicUnits;
+					<< "total chain importance " << nemesisOptions.TotalChainImportance << ", initial currency atomic units "
+					<< nemesisOptions.InitialCurrencyAtomicUnits;
 		}
 
 		template<typename TTraits, typename TException = catapult_invalid_argument>
@@ -402,17 +395,31 @@ namespace catapult { namespace extensions {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ExecuteAndCommit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteAndCommitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Execute) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ExecuteDefaultState) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteDefaultStateTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ExecuteAndCommit) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteAndCommitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Execute) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ExecuteDefaultState) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteDefaultStateTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define TRAITS_BASED_DISABLED_VERIFICATION_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ExecuteAndCommit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteAndCommitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Execute) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ExecuteAndCommit) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteAndCommitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Execute) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -426,14 +433,16 @@ namespace catapult { namespace extensions {
 			const auto& nemesisBlock = *nemesisBlockSignerPair.pBlock;
 
 			// Act:
-			RunLoadNemesisBlockTest<TTraits>(nemesisBlockSignerPair, totalChainImportance, [totalChainBalance, &nemesisBlock](
-					const auto& accountStateCache) {
-				// Assert:
-				EXPECT_EQ(2u, accountStateCache.size());
-				const auto& recipient = GetTransactionRecipient(nemesisBlock, 0);
-				test::AssertBalances(accountStateCache, nemesisBlock.SignerPublicKey, {});
-				test::AssertBalances(accountStateCache, recipient, { MakeHarvestingMosaic(totalChainBalance) });
-			});
+			RunLoadNemesisBlockTest<TTraits>(
+					nemesisBlockSignerPair,
+					totalChainImportance,
+					[totalChainBalance, &nemesisBlock](const auto& accountStateCache) {
+						// Assert:
+						EXPECT_EQ(2u, accountStateCache.size());
+						const auto& recipient = GetTransactionRecipient(nemesisBlock, 0);
+						test::AssertBalances(accountStateCache, nemesisBlock.SignerPublicKey, {});
+						test::AssertBalances(accountStateCache, recipient, { MakeHarvestingMosaic(totalChainBalance) });
+					});
 		}
 	}
 
@@ -443,11 +452,9 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CanLoadValidNemesisBlock_MultipleMosaicTransfers) {
 		// Arrange: create a valid nemesis block with multiple mosaic transactions
-		auto nemesisBlockSignerPair = CreateNemesisBlock({
-			{ MakeHarvestingMosaic(1234) },
-			{ MakeHarvestingMosaic(123), MakeHarvestingMosaic(213) },
-			{ MakeHarvestingMosaic(987) }
-		});
+		auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) },
+														   { MakeHarvestingMosaic(123), MakeHarvestingMosaic(213) },
+														   { MakeHarvestingMosaic(987) } });
 		const auto& nemesisBlock = *nemesisBlockSignerPair.pBlock;
 
 		// Act:
@@ -464,11 +471,10 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CanLoadValidNemesisBlock_MultipleHeterogeneousMosaicTransfersIncludingCurrencyMosaic) {
 		// Arrange: create a valid nemesis block with multiple mosaic transactions
-		auto nemesisBlockSignerPair = CreateNemesisBlock({
-			{ MakeHarvestingMosaic(1234), { MosaicId(123), Amount(111) }, { MosaicId(444), Amount(222) } },
-			{ MakeCurrencyMosaic(987) },
-			{ { MosaicId(333), Amount(213) }, { MosaicId(444), Amount(123) }, { MosaicId(333), Amount(217) } }
-		});
+		auto nemesisBlockSignerPair =
+				CreateNemesisBlock({ { MakeHarvestingMosaic(1234), { MosaicId(123), Amount(111) }, { MosaicId(444), Amount(222) } },
+									 { MakeCurrencyMosaic(987) },
+									 { { MosaicId(333), Amount(213) }, { MosaicId(444), Amount(123) }, { MosaicId(333), Amount(217) } } });
 		const auto& nemesisBlock = *nemesisBlockSignerPair.pBlock;
 
 		// Act:
@@ -477,16 +483,15 @@ namespace catapult { namespace extensions {
 			// Assert:
 			EXPECT_EQ(4u, accountStateCache.size());
 			test::AssertBalances(accountStateCache, nemesisBlock.SignerPublicKey, {});
-			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 0), {
-				MakeHarvestingMosaic(1234),
-				{ MosaicId(123), Amount(111) },
-				{ MosaicId(444), Amount(222) }
-			});
+			test::AssertBalances(
+					accountStateCache,
+					GetTransactionRecipient(nemesisBlock, 0),
+					{ MakeHarvestingMosaic(1234), { MosaicId(123), Amount(111) }, { MosaicId(444), Amount(222) } });
 			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 1), { MakeCurrencyMosaic(987) });
-			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 2), {
-				{ MosaicId(333), Amount(213 + 217) },
-				{ MosaicId(444), Amount(123) }
-			});
+			test::AssertBalances(
+					accountStateCache,
+					GetTransactionRecipient(nemesisBlock, 2),
+					{ { MosaicId(333), Amount(213 + 217) }, { MosaicId(444), Amount(123) } });
 		});
 	}
 
@@ -586,11 +591,8 @@ namespace catapult { namespace extensions {
 			// - harvest receipt added by HarvestFeeObserver
 			auto receiptType = model::Receipt_Type_Harvest_Fee;
 			auto receiptMosaicId = Harvesting_Mosaic_Id;
-			blockStatementBuilder.addReceipt(model::BalanceChangeReceipt(
-					receiptType,
-					model::GetSignerAddress(nemesisBlock),
-					receiptMosaicId,
-					Amount()));
+			blockStatementBuilder.addReceipt(
+					model::BalanceChangeReceipt(receiptType, model::GetSignerAddress(nemesisBlock), receiptMosaicId, Amount()));
 
 			// - resolution receipts due to use of CreateResolverContextXor and interaction with MockTransaction
 			auto recipient = model::PublicKeyToAddress(GetTransactionRecipient(nemesisBlock, 0), model::NetworkIdentifier::Testnet);
@@ -832,11 +834,9 @@ namespace catapult { namespace extensions {
 		void AssertInvalidTransactionType(model::EntityType invalidTransactionType) {
 			// Arrange: create a valid nemesis block with multiple mosaic transactions but make the second transaction type invalid
 			//          so that none of its transfers are processed
-			auto nemesisBlockSignerPair = CreateNemesisBlock({
-				{ MakeHarvestingMosaic(1234) },
-				{ MakeHarvestingMosaic(123), MakeHarvestingMosaic(213) },
-				{ MakeHarvestingMosaic(987) }
-			});
+			auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) },
+															   { MakeHarvestingMosaic(123), MakeHarvestingMosaic(213) },
+															   { MakeHarvestingMosaic(987) } });
 
 			(++nemesisBlockSignerPair.pBlock->Transactions().begin())->Type = invalidTransactionType;
 

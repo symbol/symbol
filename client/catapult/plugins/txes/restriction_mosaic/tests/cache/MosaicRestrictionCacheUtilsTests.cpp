@@ -94,48 +94,57 @@ namespace catapult { namespace cache {
 			// Assert:
 			EXPECT_EQ(MosaicGlobalRestrictionRuleResolutionResult::Success, result);
 
-			auto expectedResolvedRules = std::vector<MosaicRestrictionResolvedRule>{
-				{ MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
-				expectedSecondResolvedRule,
-				{ MosaicId(111), 300, 777, model::MosaicRestrictionType::GE }
-			};
+			auto expectedResolvedRules =
+					std::vector<MosaicRestrictionResolvedRule>{ { MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
+																expectedSecondResolvedRule,
+																{ MosaicId(111), 300, 777, model::MosaicRestrictionType::GE } };
 			AssertResolvedRules(expectedResolvedRules, resolvedRules);
 		}
 	}
 
 	TEST(TEST_CLASS, GetMosaicGlobalRestrictionResolvedRules_CanResolveRuleWithImplicitSelfReference) {
 		// Assert: mosaic restriction entry 111 is in the cache
-		AssertCanResolveMosaicGlobalRestrictionRule(200, MosaicId(), MosaicId(), {
-			MosaicId(111), 200, 888, model::MosaicRestrictionType::EQ
-		});
+		AssertCanResolveMosaicGlobalRestrictionRule(
+				200,
+				MosaicId(),
+				MosaicId(),
+				{ MosaicId(111), 200, 888, model::MosaicRestrictionType::EQ });
 	}
 
 	TEST(TEST_CLASS, GetMosaicGlobalRestrictionResolvedRules_CanResolveRuleWithSingleLevelReference) {
 		// Assert: mosaic restriction entry 222 is in the cache
-		AssertCanResolveMosaicGlobalRestrictionRule(200, MosaicId(222), MosaicId(), {
-			MosaicId(222), 200, 888, model::MosaicRestrictionType::EQ
-		});
+		AssertCanResolveMosaicGlobalRestrictionRule(
+				200,
+				MosaicId(222),
+				MosaicId(),
+				{ MosaicId(222), 200, 888, model::MosaicRestrictionType::EQ });
 	}
 
 	TEST(TEST_CLASS, GetMosaicGlobalRestrictionResolvedRules_CanResolveRuleReferencingNonexistentEntry) {
 		// Assert: mosaic restriction entry 333 is not in the cache
-		AssertCanResolveMosaicGlobalRestrictionRule(200, MosaicId(333), MosaicId(), {
-			MosaicId(333), 200, 888, model::MosaicRestrictionType::EQ
-		});
+		AssertCanResolveMosaicGlobalRestrictionRule(
+				200,
+				MosaicId(333),
+				MosaicId(),
+				{ MosaicId(333), 200, 888, model::MosaicRestrictionType::EQ });
 	}
 
 	TEST(TEST_CLASS, GetMosaicGlobalRestrictionResolvedRules_CanResolveRuleReferencingEntryWithNonexistentKey) {
 		// Assert: mosaic restriction entry 222 is in the cache but it doesn't have a rule with key 201
-		AssertCanResolveMosaicGlobalRestrictionRule(201, MosaicId(222), MosaicId(), {
-			MosaicId(222), 201, 888, model::MosaicRestrictionType::EQ
-		});
+		AssertCanResolveMosaicGlobalRestrictionRule(
+				201,
+				MosaicId(222),
+				MosaicId(),
+				{ MosaicId(222), 201, 888, model::MosaicRestrictionType::EQ });
 	}
 
 	TEST(TEST_CLASS, GetMosaicGlobalRestrictionResolvedRules_CanResolveRuleWithMultiLevelReference) {
 		// Assert: mosaic restriction entry reference loop is ignored supported
-		AssertCanResolveMosaicGlobalRestrictionRule(200, MosaicId(222), MosaicId(111), {
-			MosaicId(222), 200, 888, model::MosaicRestrictionType::EQ
-		});
+		AssertCanResolveMosaicGlobalRestrictionRule(
+				200,
+				MosaicId(222),
+				MosaicId(111),
+				{ MosaicId(222), 200, 888, model::MosaicRestrictionType::EQ });
 	}
 
 	TEST(TEST_CLASS, GetMosaicGlobalRestrictionResolvedRules_CannotResolveRuleWithExplicitSelfReference) {
@@ -191,35 +200,35 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, EvaluateMosaicRestrictionResolvedRulesForAddress_SuccessWhenAllRulesFromSingleEntryPass) {
-		AssertMosaicRestrictionRulesForAddressEvaluation(true, {
-			{ MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
-			{ MosaicId(111), 200, 888, model::MosaicRestrictionType::EQ },
-			{ MosaicId(111), 300, 777, model::MosaicRestrictionType::GE }
-		});
+		AssertMosaicRestrictionRulesForAddressEvaluation(
+				true,
+				{ { MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
+				  { MosaicId(111), 200, 888, model::MosaicRestrictionType::EQ },
+				  { MosaicId(111), 300, 777, model::MosaicRestrictionType::GE } });
 	}
 
 	TEST(TEST_CLASS, EvaluateMosaicRestrictionResolvedRulesForAddress_SuccessWhenAllRulesFromMultipleEntriesPass) {
-		AssertMosaicRestrictionRulesForAddressEvaluation(true, {
-			{ MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
-			{ MosaicId(222), 200, 111, model::MosaicRestrictionType::EQ },
-			{ MosaicId(111), 300, 777, model::MosaicRestrictionType::GE }
-		});
+		AssertMosaicRestrictionRulesForAddressEvaluation(
+				true,
+				{ { MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
+				  { MosaicId(222), 200, 111, model::MosaicRestrictionType::EQ },
+				  { MosaicId(111), 300, 777, model::MosaicRestrictionType::GE } });
 	}
 
 	TEST(TEST_CLASS, EvaluateMosaicRestrictionResolvedRulesForAddress_FailureWhenAnyRuleFails) {
-		AssertMosaicRestrictionRulesForAddressEvaluation(false, {
-			{ MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
-			{ MosaicId(111), 200, 887, model::MosaicRestrictionType::EQ },
-			{ MosaicId(111), 300, 777, model::MosaicRestrictionType::GE }
-		});
+		AssertMosaicRestrictionRulesForAddressEvaluation(
+				false,
+				{ { MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
+				  { MosaicId(111), 200, 887, model::MosaicRestrictionType::EQ },
+				  { MosaicId(111), 300, 777, model::MosaicRestrictionType::GE } });
 	}
 
 	TEST(TEST_CLASS, EvaluateMosaicRestrictionResolvedRulesForAddress_FailureWhenRequiredRuleDoesNotExist) {
-		AssertMosaicRestrictionRulesForAddressEvaluation(false, {
-			{ MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
-			{ MosaicId(111), 201, 888, model::MosaicRestrictionType::EQ },
-			{ MosaicId(111), 300, 777, model::MosaicRestrictionType::GE }
-		});
+		AssertMosaicRestrictionRulesForAddressEvaluation(
+				false,
+				{ { MosaicId(111), 100, 999, model::MosaicRestrictionType::LT },
+				  { MosaicId(111), 201, 888, model::MosaicRestrictionType::EQ },
+				  { MosaicId(111), 300, 777, model::MosaicRestrictionType::GE } });
 	}
 
 	// endregion

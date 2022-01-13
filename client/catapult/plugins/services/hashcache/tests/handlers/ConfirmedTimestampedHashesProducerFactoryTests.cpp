@@ -77,8 +77,8 @@ namespace catapult { namespace handlers {
 			explicit ConfirmedTimestampedHashesContext(size_t count)
 					: TimestampedHashes(CreateTimestampedHashes(count))
 					, pCache(CreateCacheWithAlternatingHashes(TimestampedHashes))
-					, ProducerFactory(CreateConfirmedTimestampedHashesProducerFactory(*pCache))
-			{}
+					, ProducerFactory(CreateConfirmedTimestampedHashesProducerFactory(*pCache)) {
+			}
 
 			handlers::TimestampedHashes TimestampedHashes;
 			std::unique_ptr<cache::HashCache> pCache;

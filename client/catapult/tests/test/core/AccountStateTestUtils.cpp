@@ -128,10 +128,7 @@ namespace catapult { namespace test {
 		return accountStates;
 	}
 
-	void SetRandomSupplementalPublicKeys(
-			state::AccountState& accountState,
-			state::AccountPublicKeys::KeyType mask,
-			uint8_t numVotingKeys) {
+	void SetRandomSupplementalPublicKeys(state::AccountState& accountState, state::AccountPublicKeys::KeyType mask, uint8_t numVotingKeys) {
 		if (HasFlag(state::AccountPublicKeys::KeyType::Linked, mask))
 			accountState.SupplementalPublicKeys.linked().set(test::GenerateRandomByteArray<Key>());
 
@@ -142,11 +139,9 @@ namespace catapult { namespace test {
 			accountState.SupplementalPublicKeys.vrf().set(test::GenerateRandomByteArray<Key>());
 
 		for (auto i = 0u; i < numVotingKeys; ++i) {
-			accountState.SupplementalPublicKeys.voting().add({
-				test::GenerateRandomByteArray<VotingKey>(),
-				FinalizationEpoch((i + 1) * 100),
-				FinalizationEpoch((i + 1) * 100 + 49)
-			});
+			accountState.SupplementalPublicKeys.voting().add({ test::GenerateRandomByteArray<VotingKey>(),
+															   FinalizationEpoch((i + 1) * 100),
+															   FinalizationEpoch((i + 1) * 100 + 49) });
 		}
 	}
 
@@ -165,9 +160,9 @@ namespace catapult { namespace test {
 
 	std::vector<Height::ValueType> GetBucketHeights(const state::AccountActivityBuckets& buckets) {
 		std::vector<Height::ValueType> heights;
-			for (const auto& bucket : buckets)
-				heights.push_back(bucket.StartHeight.unwrap());
+		for (const auto& bucket : buckets)
+			heights.push_back(bucket.StartHeight.unwrap());
 
-			return heights;
+		return heights;
 	}
 }}

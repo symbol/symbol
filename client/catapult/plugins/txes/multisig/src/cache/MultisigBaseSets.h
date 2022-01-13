@@ -30,9 +30,9 @@
 namespace catapult { namespace cache {
 
 	using BasicMultisigPatriciaTree = tree::BasePatriciaTree<
-		SerializerHashedKeyEncoder<MultisigCacheDescriptor::Serializer>,
-		PatriciaTreeRdbDataSource,
-		utils::ArrayHasher<Key>>;
+			SerializerHashedKeyEncoder<MultisigCacheDescriptor::Serializer>,
+			PatriciaTreeRdbDataSource,
+			utils::ArrayHasher<Key>>;
 
 	class MultisigPatriciaTree : public BasicMultisigPatriciaTree {
 	public:
@@ -41,7 +41,7 @@ namespace catapult { namespace cache {
 	};
 
 	using MultisigSingleSetCacheTypesAdapter =
-		SingleSetAndPatriciaTreeCacheTypesAdapter<MultisigCacheTypes::PrimaryTypes, MultisigPatriciaTree>;
+			SingleSetAndPatriciaTreeCacheTypesAdapter<MultisigCacheTypes::PrimaryTypes, MultisigPatriciaTree>;
 
 	struct MultisigBaseSetDeltaPointers : public MultisigSingleSetCacheTypesAdapter::BaseSetDeltaPointers {};
 

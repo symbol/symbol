@@ -28,32 +28,32 @@ namespace catapult { namespace validators {
 	using Notification = model::ChildNamespaceNotification;
 
 	DECLARE_STATEFUL_VALIDATOR(ChildNamespaceAvailability, Notification)(uint8_t maxNamespaceDepth) {
-		return MAKE_STATEFUL_VALIDATOR(ChildNamespaceAvailability, ([maxNamespaceDepth](
-				const Notification& notification,
-				const ValidatorContext& context) {
-			const auto& cache = context.Cache.sub<cache::NamespaceCache>();
-			auto height = context.Height;
+		return MAKE_STATEFUL_VALIDATOR(
+				ChildNamespaceAvailability,
+				([maxNamespaceDepth](const Notification& notification, const ValidatorContext& context) {
+					const auto& cache = context.Cache.sub<cache::NamespaceCache>();
+					auto height = context.Height;
 
-			if (cache.contains(notification.NamespaceId))
-				return Failure_Namespace_Already_Exists;
+					if (cache.contains(notification.NamespaceId))
+						return Failure_Namespace_Already_Exists;
 
-			auto namespaceIter = cache.find(notification.ParentId);
-			if (!namespaceIter.tryGet())
-				return Failure_Namespace_Unknown_Parent;
+					auto namespaceIter = cache.find(notification.ParentId);
+					if (!namespaceIter.tryGet())
+						return Failure_Namespace_Unknown_Parent;
 
-			const auto& parentEntry = namespaceIter.get();
-			const auto& parentPath = parentEntry.ns().path();
-			if (maxNamespaceDepth == parentPath.size())
-				return Failure_Namespace_Too_Deep;
+					const auto& parentEntry = namespaceIter.get();
+					const auto& parentPath = parentEntry.ns().path();
+					if (maxNamespaceDepth == parentPath.size())
+						return Failure_Namespace_Too_Deep;
 
-			const auto& root = parentEntry.root();
-			if (!root.lifetime().isActiveExcludingGracePeriod(height, cache.gracePeriodDuration()))
-				return Failure_Namespace_Expired;
+					const auto& root = parentEntry.root();
+					if (!root.lifetime().isActiveExcludingGracePeriod(height, cache.gracePeriodDuration()))
+						return Failure_Namespace_Expired;
 
-			if (root.ownerAddress() != notification.Owner)
-				return Failure_Namespace_Owner_Conflict;
+					if (root.ownerAddress() != notification.Owner)
+						return Failure_Namespace_Owner_Conflict;
 
-			return ValidationResult::Success;
-		}));
+					return ValidationResult::Success;
+				}));
 	}
 }}

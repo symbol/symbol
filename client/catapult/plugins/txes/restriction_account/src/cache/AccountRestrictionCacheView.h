@@ -30,7 +30,7 @@ namespace catapult { namespace cache {
 
 	/// Mixins used by the account restriction cache view.
 	using AccountRestrictionCacheViewMixins =
-		PatriciaTreeCacheMixins<AccountRestrictionCacheTypes::PrimaryTypes::BaseSetType, AccountRestrictionCacheDescriptor>;
+			PatriciaTreeCacheMixins<AccountRestrictionCacheTypes::PrimaryTypes::BaseSetType, AccountRestrictionCacheDescriptor>;
 
 	/// Basic view on top of the account restriction cache.
 	class BasicAccountRestrictionCacheView
@@ -53,8 +53,8 @@ namespace catapult { namespace cache {
 				, AccountRestrictionCacheViewMixins::Iteration(restrictionSets.Primary)
 				, AccountRestrictionCacheViewMixins::ConstAccessor(restrictionSets.Primary)
 				, AccountRestrictionCacheViewMixins::PatriciaTreeView(restrictionSets.PatriciaTree.get())
-				, m_networkIdentifier(networkIdentifier)
-		{}
+				, m_networkIdentifier(networkIdentifier) {
+		}
 
 	public:
 		/// Gets the network identifier.
@@ -73,7 +73,7 @@ namespace catapult { namespace cache {
 		AccountRestrictionCacheView(
 				const AccountRestrictionCacheTypes::BaseSets& restrictionSets,
 				model::NetworkIdentifier networkIdentifier)
-				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier)
-		{}
+				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier) {
+		}
 	};
 }}

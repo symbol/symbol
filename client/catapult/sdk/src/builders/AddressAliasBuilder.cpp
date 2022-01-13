@@ -27,8 +27,8 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_namespaceId()
 			, m_address()
-			, m_aliasAction()
-	{}
+			, m_aliasAction() {
+	}
 
 	void AddressAliasBuilder::setNamespaceId(NamespaceId namespaceId) {
 		m_namespaceId = namespaceId;

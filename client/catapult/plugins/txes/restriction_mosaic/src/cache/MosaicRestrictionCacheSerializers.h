@@ -28,6 +28,5 @@ namespace catapult { namespace cache {
 
 	/// Primary serializer for mosaic restriction cache.
 	struct MosaicRestrictionEntryPrimarySerializer
-			: public CacheSerializerAdapter<state::MosaicRestrictionEntrySerializer, MosaicRestrictionCacheDescriptor>
-	{};
+			: public CacheSerializerAdapter<state::MosaicRestrictionEntrySerializer, MosaicRestrictionCacheDescriptor> {};
 }}

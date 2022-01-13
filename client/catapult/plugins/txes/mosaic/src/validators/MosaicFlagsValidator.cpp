@@ -33,15 +33,15 @@ namespace catapult { namespace validators {
 	}
 
 	DECLARE_STATEFUL_VALIDATOR(MosaicFlags, Notification)(Height revokableForkHeight) {
-		return MAKE_STATEFUL_VALIDATOR(MosaicFlags, [revokableForkHeight](
-				const Notification& notification,
-				const ValidatorContext& context) {
-			auto allFlags = model::MosaicFlags::All;
+		return MAKE_STATEFUL_VALIDATOR(
+				MosaicFlags,
+				[revokableForkHeight](const Notification& notification, const ValidatorContext& context) {
+					auto allFlags = model::MosaicFlags::All;
 
-			if (context.Height < revokableForkHeight)
-				allFlags = Unset(allFlags, model::MosaicFlags::Revokable);
+					if (context.Height < revokableForkHeight)
+						allFlags = Unset(allFlags, model::MosaicFlags::Revokable);
 
-			return ValidateLessThanOrEqual(notification.Properties.flags(), allFlags, Failure_Mosaic_Invalid_Flags);
-		});
+					return ValidateLessThanOrEqual(notification.Properties.flags(), allFlags, Failure_Mosaic_Invalid_Flags);
+				});
 	}
 }}

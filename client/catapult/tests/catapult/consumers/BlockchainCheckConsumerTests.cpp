@@ -33,9 +33,7 @@ namespace catapult { namespace consumers {
 
 	namespace {
 		disruptor::ConstBlockConsumer CreateDefaultBlockchainCheckConsumer() {
-			return CreateBlockchainCheckConsumer(utils::TimeSpan::FromHours(1), []() {
-				return Timestamp(100);
-			});
+			return CreateBlockchainCheckConsumer(utils::TimeSpan::FromHours(1), []() { return Timestamp(100); });
 		}
 	}
 
@@ -58,9 +56,7 @@ namespace catapult { namespace consumers {
 			// Arrange:
 			auto elements = test::CreateBlockElements(chainSize);
 			test::LinkBlocks(Height(12), elements);
-			auto consumer = CreateBlockchainCheckConsumer(maxBlockFutureTime, [currentTime]() {
-				return currentTime;
-			});
+			auto consumer = CreateBlockchainCheckConsumer(maxBlockFutureTime, [currentTime]() { return currentTime; });
 
 			// Sanity: first block should have timestamp 2 * height but validation is only against *last* block
 			EXPECT_EQ(Timestamp(24), (elements.begin())->Block.Timestamp);
@@ -243,9 +239,7 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, ChainIsInvalidWhenAnyImportanceBlockHasIncorrectPreviousImportanceBlockHash) {
-		RunImportanceBlockLinkTest(false, [](auto& blockFooter) {
-			test::FillWithRandomData(blockFooter.PreviousImportanceBlockHash);
-		});
+		RunImportanceBlockLinkTest(false, [](auto& blockFooter) { test::FillWithRandomData(blockFooter.PreviousImportanceBlockHash); });
 	}
 
 	// endregion

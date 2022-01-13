@@ -76,15 +76,13 @@ namespace catapult { namespace local {
 					, m_catapultCache({}) // note that sub caches are added in boot
 					, m_pBlockStorage(m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber))
 					, m_storage(
-							CreateReadOnlyStorageAdapter(*m_pBlockStorage),
-							CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
+							  CreateReadOnlyStorageAdapter(*m_pBlockStorage),
+							  CreateStagingBlockStorage(m_dataDirectory, m_config.Node.FileDatabaseBatchSize))
 					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
-					, m_pStateChangeSubscriber(CreateStateChangeSubscriber(
-							m_pBootstrapper->subscriptionManager(),
-							m_catapultCache,
-							m_dataDirectory))
-					, m_pluginManager(m_pBootstrapper->pluginManager())
-			{}
+					, m_pStateChangeSubscriber(
+							  CreateStateChangeSubscriber(m_pBootstrapper->subscriptionManager(), m_catapultCache, m_dataDirectory))
+					, m_pluginManager(m_pBootstrapper->pluginManager()) {
+			}
 
 			~DefaultChainImporter() override {
 				shutdown();

@@ -47,9 +47,8 @@ namespace catapult { namespace extensions {
 			const plugins::PluginManager& manager,
 			model::NotificationType excludedNotificationType) {
 		auto pAdapter = MakeAdapter<validators::NotificationValidatorAdapter>(manager, manager.createStatelessValidator());
-		pAdapter->setExclusionFilter([excludedNotificationType](auto notificationType) {
-			return excludedNotificationType == notificationType;
-		});
+		pAdapter->setExclusionFilter(
+				[excludedNotificationType](auto notificationType) { return excludedNotificationType == notificationType; });
 		return PORTABLE_MOVE(pAdapter);
 	}
 

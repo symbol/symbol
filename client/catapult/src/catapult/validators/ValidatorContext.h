@@ -39,8 +39,8 @@ namespace catapult { namespace validators {
 				: NotificationContext(notificationContext.Height, notificationContext.Resolvers)
 				, BlockTime(blockTime)
 				, Network(network)
-				, Cache(cache)
-		{}
+				, Cache(cache) {
+		}
 
 	public:
 		/// Current block time.

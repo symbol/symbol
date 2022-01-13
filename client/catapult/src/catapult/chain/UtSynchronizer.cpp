@@ -41,8 +41,8 @@ namespace catapult { namespace chain {
 					: m_minFeeMultiplier(minFeeMultiplier)
 					, m_timeSupplier(timeSupplier)
 					, m_shortHashesSupplier(shortHashesSupplier)
-					, m_transactionRangeConsumer(transactionRangeConsumer)
-			{}
+					, m_transactionRangeConsumer(transactionRangeConsumer) {
+			}
 
 		public:
 			thread::future<model::TransactionRange> apiCall(const RemoteApiType& api) const {

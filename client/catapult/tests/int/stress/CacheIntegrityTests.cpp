@@ -158,8 +158,8 @@ namespace catapult { namespace cache {
 			Stopwatch(size_t numIterations, const std::string& message)
 					: m_numIterations(numIterations)
 					, m_message(message)
-					, m_start(std::chrono::steady_clock::now())
-			{}
+					, m_start(std::chrono::steady_clock::now()) {
+			}
 
 			~Stopwatch() {
 				CATAPULT_LOG(warning) << m_message << " needs " << nanos() / m_numIterations << "ns";

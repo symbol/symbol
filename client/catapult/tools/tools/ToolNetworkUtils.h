@@ -25,12 +25,14 @@
 #include "catapult/types.h"
 
 namespace catapult {
-	namespace ionet {
-		class Node;
-		class PacketIo;
-		class PacketSocketInfo;
-	}
-	namespace thread { class IoThreadPool; }
+namespace ionet {
+	class Node;
+	class PacketIo;
+	class PacketSocketInfo;
+}
+namespace thread {
+	class IoThreadPool;
+}
 }
 
 namespace catapult { namespace tools {

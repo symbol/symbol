@@ -29,8 +29,8 @@ namespace catapult { namespace state {
 			, AddressHeight(addressHeight)
 			, PublicKey()
 			, PublicKeyHeight(0)
-			, AccountType(AccountType::Unlinked)
-	{}
+			, AccountType(AccountType::Unlinked) {
+	}
 
 	namespace {
 		void RequireAccountType(const AccountState& accountState, AccountType requiredAccountType, const char* requiredAccountTypeName) {
@@ -70,9 +70,8 @@ namespace catapult { namespace state {
 			return;
 
 		std::ostringstream out;
-		out
-				<< "remote " << model::AddressToString(remoteAccountState.Address) << " link to main "
-				<< model::AddressToString(mainAccountState.Address) << " is improper";
+		out << "remote " << model::AddressToString(remoteAccountState.Address) << " link to main "
+			<< model::AddressToString(mainAccountState.Address) << " is improper";
 		CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 	}
 

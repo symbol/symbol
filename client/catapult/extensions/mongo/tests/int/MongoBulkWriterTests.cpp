@@ -141,8 +141,9 @@ namespace catapult { namespace mongo {
 		class PerformanceContext {
 		public:
 			// the service thread pool has 8 threads since tests show that mongo performs best with this arrangement
-			PerformanceContext() : PerformanceContext(static_cast<size_t>(GetDefaultEntityCount()))
-			{}
+			PerformanceContext()
+					: PerformanceContext(static_cast<size_t>(GetDefaultEntityCount())) {
+			}
 
 			explicit PerformanceContext(size_t numEntities, const utils::TimeSpan& writeTimeout = utils::TimeSpan::FromMinutes(10))
 					: m_accountStates(CreateAccountStates(numEntities))
@@ -219,10 +220,12 @@ namespace catapult { namespace mongo {
 
 		// Act:
 		utils::StackLogger stopwatch("InsertOneToOnePerformance", utils::LogLevel::warning);
-		auto results = context.bulkWriter().bulkInsert<std::vector<model::TransactionElement>>(
-				Transactions_Collection_Name,
-				context.transactionElements(),
-				createDocument).get();
+		auto results = context.bulkWriter()
+							   .bulkInsert<std::vector<model::TransactionElement>>(
+									   Transactions_Collection_Name,
+									   context.transactionElements(),
+									   createDocument)
+							   .get();
 
 		// Assert:
 		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
@@ -243,10 +246,12 @@ namespace catapult { namespace mongo {
 
 		// Act:
 		utils::StackLogger stopwatch("InsertOneToManyPerformance", utils::LogLevel::warning);
-		auto results = context.bulkWriter().bulkInsert<std::vector<model::TransactionElement>>(
-				Transactions_Collection_Name,
-				context.transactionElements(),
-				createDocuments).get();
+		auto results = context.bulkWriter()
+							   .bulkInsert<std::vector<model::TransactionElement>>(
+									   Transactions_Collection_Name,
+									   context.transactionElements(),
+									   createDocuments)
+							   .get();
 
 		// Assert: each entity is mapped to three documents
 		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
@@ -262,11 +267,9 @@ namespace catapult { namespace mongo {
 		//   2) half of the accounts not being found and therefore inserted into the db
 		PerformanceContext context;
 		AccountStates extractedAccounts = ExtractEverySecondAccount(context.accountStates());
-		context.bulkWriter().bulkUpsert<AccountStates>(
-				Accounts_Collection_Name,
-				extractedAccounts,
-				CreateAccountDocument,
-				test::CreateFilter).get();
+		context.bulkWriter()
+				.bulkUpsert<AccountStates>(Accounts_Collection_Name, extractedAccounts, CreateAccountDocument, test::CreateFilter)
+				.get();
 
 		// Sanity:
 		test::AssertCollectionSize(Accounts_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount() / 2));
@@ -274,11 +277,13 @@ namespace catapult { namespace mongo {
 		// Act:
 		ModifyAccounts(context.accountStates());
 		utils::StackLogger stopwatch("UpsertPerformance", utils::LogLevel::warning);
-		auto results = context.bulkWriter().bulkUpsert<AccountStates>(
-				Accounts_Collection_Name,
-				context.accountStates(),
-				CreateAccountDocument,
-				test::CreateFilter).get();
+		auto results = context.bulkWriter()
+							   .bulkUpsert<AccountStates>(
+									   Accounts_Collection_Name,
+									   context.accountStates(),
+									   CreateAccountDocument,
+									   test::CreateFilter)
+							   .get();
 
 		// Assert:
 		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
@@ -289,21 +294,17 @@ namespace catapult { namespace mongo {
 	NO_STRESS_TEST(TEST_CLASS, DeleteOneToOnePerformance) {
 		// Arrange:
 		PerformanceContext context;
-		context.bulkWriter().bulkUpsert<AccountStates>(
-				Accounts_Collection_Name,
-				context.accountStates(),
-				CreateAccountDocument,
-				test::CreateFilter).get();
+		context.bulkWriter()
+				.bulkUpsert<AccountStates>(Accounts_Collection_Name, context.accountStates(), CreateAccountDocument, test::CreateFilter)
+				.get();
 
 		// Sanity:
 		test::AssertCollectionSize(Accounts_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount()));
 
 		// Act:
 		utils::StackLogger stopwatch("DeleteOneToOnePerformance", utils::LogLevel::warning);
-		auto results = context.bulkWriter().bulkDelete<AccountStates>(
-				Accounts_Collection_Name,
-				context.accountStates(),
-				test::CreateFilter).get();
+		auto results =
+				context.bulkWriter().bulkDelete<AccountStates>(Accounts_Collection_Name, context.accountStates(), test::CreateFilter).get();
 
 		// Assert:
 		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
@@ -314,11 +315,9 @@ namespace catapult { namespace mongo {
 	NO_STRESS_TEST(TEST_CLASS, DeleteOneToManyPerformance) {
 		// Arrange:
 		PerformanceContext context;
-		context.bulkWriter().bulkUpsert<AccountStates>(
-				Accounts_Collection_Name,
-				context.accountStates(),
-				CreateAccountDocument,
-				test::CreateFilter).get();
+		context.bulkWriter()
+				.bulkUpsert<AccountStates>(Accounts_Collection_Name, context.accountStates(), CreateAccountDocument, test::CreateFilter)
+				.get();
 
 		// Sanity:
 		test::AssertCollectionSize(Accounts_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount()));
@@ -556,12 +555,22 @@ namespace catapult { namespace mongo {
 	}
 
 #define BULK_OPERATION_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_InsertOneToOne) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<InsertOneToOneTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_InsertOneToMany) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<InsertOneToManyTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Upsert) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UpsertTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Delete) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeleteTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_InsertOneToOne) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<InsertOneToOneTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_InsertOneToMany) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<InsertOneToManyTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Upsert) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UpsertTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Delete) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeleteTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -637,20 +646,17 @@ namespace catapult { namespace mongo {
 		// - insert one account into the db, then attempt to insert the same account again
 		// - this will result in a bulk writer exception due to a duplicate key (index on account address)
 		PerformanceContext context(1);
-		context.bulkWriter().bulkUpsert<AccountStates>(
-				Accounts_Collection_Name,
-				context.accountStates(),
-				CreateAccountDocument,
-				test::CreateFilter).get();
+		context.bulkWriter()
+				.bulkUpsert<AccountStates>(Accounts_Collection_Name, context.accountStates(), CreateAccountDocument, test::CreateFilter)
+				.get();
 
 		// Sanity:
 		test::AssertCollectionSize(Accounts_Collection_Name, 1);
 
 		// - note that the statement will not throw since we are only calling get() on the future that holds the bulk write futures
-		auto results = context.bulkWriter().bulkInsert<AccountStates>(
-				Accounts_Collection_Name,
-				context.accountStates(),
-				CreateAccountDocument).get();
+		auto results = context.bulkWriter()
+							   .bulkInsert<AccountStates>(Accounts_Collection_Name, context.accountStates(), CreateAccountDocument)
+							   .get();
 
 		// Act + Assert: the array of futures holds an exceptional future
 		EXPECT_THROW(thread::get_all(std::move(results)), catapult_runtime_error);

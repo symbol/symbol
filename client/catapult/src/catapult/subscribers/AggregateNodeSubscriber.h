@@ -27,7 +27,9 @@ namespace catapult { namespace subscribers {
 
 	/// Aggregate node subscriber.
 	template<typename TNodeSubscriber = NodeSubscriber>
-	class AggregateNodeSubscriber : public BasicAggregateSubscriber<TNodeSubscriber>, public NodeSubscriber {
+	class AggregateNodeSubscriber
+			: public BasicAggregateSubscriber<TNodeSubscriber>
+			, public NodeSubscriber {
 	public:
 		using BasicAggregateSubscriber<TNodeSubscriber>::BasicAggregateSubscriber;
 

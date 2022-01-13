@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS KeyLinkActionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(KeyLinkAction,)
+	DEFINE_COMMON_VALIDATOR_TESTS(KeyLinkAction, )
 
 	namespace {
 		struct KeyLinkActionTraits {

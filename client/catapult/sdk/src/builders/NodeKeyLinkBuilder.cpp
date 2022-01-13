@@ -26,8 +26,8 @@ namespace catapult { namespace builders {
 	NodeKeyLinkBuilder::NodeKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_linkedPublicKey()
-			, m_linkAction()
-	{}
+			, m_linkAction() {
+	}
 
 	void NodeKeyLinkBuilder::setLinkedPublicKey(const Key& linkedPublicKey) {
 		m_linkedPublicKey = linkedPublicKey;

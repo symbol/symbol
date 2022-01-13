@@ -22,7 +22,9 @@
 #pragma once
 #include <string>
 
-namespace catapult { namespace test { class PemCertificate; } }
+namespace catapult { namespace test {
+	class PemCertificate;
+}}
 
 namespace catapult { namespace test {
 

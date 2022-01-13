@@ -125,8 +125,9 @@ namespace catapult { namespace cache {
 
 			class Saver {
 			public:
-				explicit Saver(const CacheStorage& storage) : m_storage(storage)
-				{}
+				explicit Saver(const CacheStorage& storage)
+						: m_storage(storage) {
+				}
 
 			public:
 				bool save(const CatapultCacheDelta&, io::OutputStream&) {
@@ -157,8 +158,9 @@ namespace catapult { namespace cache {
 
 			class Saver {
 			public:
-				explicit Saver(const CacheStorage& storage) : m_storage(storage)
-				{}
+				explicit Saver(const CacheStorage& storage)
+						: m_storage(storage) {
+				}
 
 			public:
 				bool save(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) {
@@ -166,8 +168,8 @@ namespace catapult { namespace cache {
 					return true;
 				}
 
-				void save(const CatapultCacheView&, io::OutputStream&)
-				{}
+				void save(const CatapultCacheView&, io::OutputStream&) {
+				}
 
 			private:
 				const CacheStorage& m_storage;
@@ -176,10 +178,16 @@ namespace catapult { namespace cache {
 	}
 
 #define ROUNDTRIP_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, Full_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FullTraits>(); } \
-	TEST(TEST_CLASS, Summary_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SummaryTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, Full_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FullTraits>(); \
+	} \
+	TEST(TEST_CLASS, Summary_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SummaryTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -199,9 +207,7 @@ namespace catapult { namespace cache {
 					const std::vector<size_t>& expectedRemovedAddressIndexes,
 					const std::vector<std::pair<size_t, std::vector<std::pair<Height, Amount>>>>& expectedAccountHistories)
 					: Balances(balances)
-					, ExpectedAddresses([expectedAddressIndexes](const auto& addresses) {
-						return Pick(addresses, expectedAddressIndexes);
-					})
+					, ExpectedAddresses([expectedAddressIndexes](const auto& addresses) { return Pick(addresses, expectedAddressIndexes); })
 					, ExpectedRemovedAddresses([expectedRemovedAddressIndexes](const auto& addresses) {
 						return Pick(addresses, expectedRemovedAddressIndexes);
 					})
@@ -211,12 +217,12 @@ namespace catapult { namespace cache {
 							seeds.emplace_back(addresses[pair.first], pair.second);
 
 						return test::GenerateAccountHistories(seeds);
-					})
-			{}
+					}) {
+			}
 
 		private:
 			template<typename T>
-			using AddressFilterAndTransform = std::function<T (const std::vector<Address>&)>;
+			using AddressFilterAndTransform = std::function<T(const std::vector<Address>&)>;
 
 		public:
 			std::vector<Amount> Balances;
@@ -348,12 +354,9 @@ namespace catapult { namespace cache {
 		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
 
 		// Act + Assert:
-		RunRoundtripTest<TTraits>(options, {
-			{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
-			{ 0, 3 },
-			{ 2 },
-			{}
-		});
+		RunRoundtripTest<TTraits>(
+				options,
+				{ { Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) }, { 0, 3 }, { 2 }, {} });
 	}
 
 	ROUNDTRIP_TEST(CanRoundtripAccountHistoriesOnly) {
@@ -364,15 +367,13 @@ namespace catapult { namespace cache {
 		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
 
 		// Act + Assert:
-		RunRoundtripTest<TTraits>(options, {
-			{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
-			{},
-			{},
-			{
-				{ 0, { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
-				{ 3, { { Height(3), Amount(1'250'000) } } }
-			}
-		});
+		RunRoundtripTest<TTraits>(
+				options,
+				{ { Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
+				  {},
+				  {},
+				  { { 0, { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
+					{ 3, { { Height(3), Amount(1'250'000) } } } } });
 	}
 
 	ROUNDTRIP_TEST(CanRoundtripHighValueAddressesAndAccountHistories) {
@@ -383,15 +384,13 @@ namespace catapult { namespace cache {
 		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
 
 		// Act + Assert:
-		RunRoundtripTest<TTraits>(options, {
-			{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
-			{ 0, 3 },
-			{ 2 },
-			{
-				{ 0, { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
-				{ 3, { { Height(3), Amount(1'250'000) } } }
-			}
-		});
+		RunRoundtripTest<TTraits>(
+				options,
+				{ { Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
+				  { 0, 3 },
+				  { 2 },
+				  { { 0, { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
+					{ 3, { { Height(3), Amount(1'250'000) } } } } });
 	}
 
 	// endregion
@@ -405,8 +404,8 @@ namespace catapult { namespace cache {
 			class PluginType : public AccountStateCacheSubCachePlugin {
 			public:
 				explicit PluginType(const CacheConfiguration& config)
-						: AccountStateCacheSubCachePlugin(config, AccountStateCacheTypes::Options())
-				{}
+						: AccountStateCacheSubCachePlugin(config, AccountStateCacheTypes::Options()) {
+				}
 			};
 		};
 	}

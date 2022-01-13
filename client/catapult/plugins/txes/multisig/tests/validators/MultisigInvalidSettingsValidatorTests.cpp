@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/cache/MultisigCache.h"
+#include "src/validators/Validators.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MultisigInvalidSettingsValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MultisigInvalidSettings,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MultisigInvalidSettings, )
 
 	namespace {
 		auto CreateNotification(const Address& multisig, int8_t minRemovalDelta, int8_t minApprovalDelta) {
@@ -64,11 +64,9 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenAccountIsUnknownAndAtLeastOneDeltaIsNotSetToMinusOne) {
 		// Arrange:
 		auto multisig = test::GenerateRandomByteArray<Address>();
-		std::vector<model::MultisigSettingsNotification> notifications{
-			CreateNotification(multisig, 0, 1),
-			CreateNotification(multisig, 0, -1),
-			CreateNotification(multisig, -1, 0)
-		};
+		std::vector<model::MultisigSettingsNotification> notifications{ CreateNotification(multisig, 0, 1),
+																		CreateNotification(multisig, 0, -1),
+																		CreateNotification(multisig, -1, 0) };
 		std::vector<ValidationResult> results;
 
 		auto cache = test::MultisigCacheFactory::Create();
@@ -136,50 +134,28 @@ namespace catapult { namespace validators {
 		struct ValidTraits {
 		public:
 			static auto Data() {
-				return std::vector<MultisigSettings>{
-					{ 1, 1 },
-					{ 0, 9 },
-					{ 3, 4 },
-					{ 2, 0 }
-				};
+				return std::vector<MultisigSettings>{ { 1, 1 }, { 0, 9 }, { 3, 4 }, { 2, 0 } };
 			}
 		};
 
 		struct NotPositiveTraits {
 		public:
 			static auto Data() {
-				return std::vector<MultisigSettings>{
-					{ 0, 0 },
-					{ 0, -1 },
-					{ 1, -1 },
-					{ 127, -128 },
-					{ 0, -128 }
-				};
+				return std::vector<MultisigSettings>{ { 0, 0 }, { 0, -1 }, { 1, -1 }, { 127, -128 }, { 0, -128 } };
 			}
 		};
 
 		struct EqualTo15Traits {
 		public:
 			static auto Data() {
-				return std::vector<MultisigSettings>{
-					{ 0, 15 },
-					{ 2, 15 - 2 },
-					{ 15, 0 },
-					{ 20, -5 }
-				};
+				return std::vector<MultisigSettings>{ { 0, 15 }, { 2, 15 - 2 }, { 15, 0 }, { 20, -5 } };
 			}
 		};
 
 		struct GreaterThan15Traits {
 		public:
 			static auto Data() {
-				return std::vector<MultisigSettings>{
-					{ 0, 16 },
-					{ 2, 16 - 2 },
-					{ 16, 0 },
-					{ 20, -1 },
-					{ 20, -4 }
-				};
+				return std::vector<MultisigSettings>{ { 0, 16 }, { 2, 16 - 2 }, { 16, 0 }, { 20, -1 }, { 20, -4 } };
 			}
 		};
 
@@ -200,11 +176,19 @@ namespace catapult { namespace validators {
 	}
 
 #define TRAITS_BASED_SETTINGS_TEST(TEST_NAME, TRAITS_NAME) \
-	template<typename TRemovalTraits, typename TApprovalTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_RemovalInvalid_ApprovalValid) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS_NAME, ValidTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_RemovalValid_ApprovalInvalid) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidTraits, TRAITS_NAME>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_BothInvalid) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS_NAME, TRAITS_NAME>(); } \
-	template<typename TRemovalTraits, typename TApprovalTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TRemovalTraits, typename TApprovalTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_RemovalInvalid_ApprovalValid) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS_NAME, ValidTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_RemovalValid_ApprovalInvalid) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidTraits, TRAITS_NAME>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_BothInvalid) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS_NAME, TRAITS_NAME>(); \
+	} \
+	template<typename TRemovalTraits, typename TApprovalTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TEST(TEST_CLASS, SuccessWhenBothResultingSettingsAreWithinBounds) {
 		RunTest<ValidTraits, ValidTraits>(ValidationResult::Success, 10);

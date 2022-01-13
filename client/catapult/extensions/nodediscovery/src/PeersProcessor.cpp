@@ -35,8 +35,8 @@ namespace catapult { namespace nodediscovery {
 			, m_nodeContainer(nodeContainer)
 			, m_pingRequestInitiator(pingRequestInitiator)
 			, m_networkFingerprint(networkFingerprint)
-			, m_newPartnerNodeConsumer(newPartnerNodeConsumer)
-	{}
+			, m_newPartnerNodeConsumer(newPartnerNodeConsumer) {
+	}
 
 	void PeersProcessor::process(const ionet::NodeSet& candidateNodes) const {
 		for (const auto& candidateNode : SelectUnknownNodes(m_nodeContainer.view(), candidateNodes)) {
@@ -54,23 +54,23 @@ namespace catapult { namespace nodediscovery {
 	void PeersProcessor::process(const ionet::Node& candidateNode) const {
 		auto networkFingerprint = m_networkFingerprint;
 		auto newPartnerNodeConsumer = m_newPartnerNodeConsumer;
-		m_pingRequestInitiator(candidateNode, [candidateNode, networkFingerprint, newPartnerNodeConsumer](
-				auto result,
-				const auto& responseNode) {
-			CATAPULT_LOG(info) << "ping with '" << candidateNode << "' completed with: " << result;
-			if (net::NodeRequestResult::Success != result)
-				return;
+		m_pingRequestInitiator(
+				candidateNode,
+				[candidateNode, networkFingerprint, newPartnerNodeConsumer](auto result, const auto& responseNode) {
+					CATAPULT_LOG(info) << "ping with '" << candidateNode << "' completed with: " << result;
+					if (net::NodeRequestResult::Success != result)
+						return;
 
-			if (!IsNodeCompatible(responseNode, networkFingerprint, candidateNode.identity().PublicKey)) {
-				CATAPULT_LOG(warning) << "ping with '" << candidateNode << "' rejected due to incompatibility";
-				return;
-			}
+					if (!IsNodeCompatible(responseNode, networkFingerprint, candidateNode.identity().PublicKey)) {
+						CATAPULT_LOG(warning) << "ping with '" << candidateNode << "' rejected due to incompatibility";
+						return;
+					}
 
-			// if the node responds without a host, use the endpoint that was used to ping it
-			if (responseNode.endpoint().Host.empty())
-				newPartnerNodeConsumer(ionet::Node(responseNode.identity(), candidateNode.endpoint(), responseNode.metadata()));
-			else
-				newPartnerNodeConsumer(responseNode);
-		});
+					// if the node responds without a host, use the endpoint that was used to ping it
+					if (responseNode.endpoint().Host.empty())
+						newPartnerNodeConsumer(ionet::Node(responseNode.identity(), candidateNode.endpoint(), responseNode.metadata()));
+					else
+						newPartnerNodeConsumer(responseNode);
+				});
 	}
 }}

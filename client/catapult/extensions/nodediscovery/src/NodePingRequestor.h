@@ -31,8 +31,8 @@ namespace catapult { namespace nodediscovery {
 	public:
 		/// Creates a checker around \a networkFingerprint.
 		explicit NodePingResponseCompatibilityChecker(const model::UniqueNetworkFingerprint& networkFingerprint)
-				: m_networkFingerprint(networkFingerprint)
-		{}
+				: m_networkFingerprint(networkFingerprint) {
+		}
 
 	public:
 		/// Returns \c true if \a requestNode and \a responseNode are compatible nodes.

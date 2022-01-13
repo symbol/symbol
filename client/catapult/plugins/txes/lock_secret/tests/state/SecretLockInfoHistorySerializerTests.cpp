@@ -39,8 +39,8 @@ namespace catapult { namespace state {
 					: PackedLockInfo(secretLockInfo)
 					, HashAlgorithm(secretLockInfo.HashAlgorithm)
 					, Secret(secretLockInfo.Secret)
-					, RecipientAddress(secretLockInfo.RecipientAddress)
-			{}
+					, RecipientAddress(secretLockInfo.RecipientAddress) {
+			}
 
 		public:
 			model::LockHashAlgorithm HashAlgorithm;

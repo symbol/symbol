@@ -29,8 +29,7 @@ namespace catapult { namespace test {
 		return HashLockInfoCacheFactory::Create();
 	}
 
-	std::unique_ptr<mongo::ExternalCacheStorage> MongoHashLockInfoTestTraits::CreateMongoCacheStorage(
-			mongo::MongoStorageContext& context) {
+	std::unique_ptr<mongo::ExternalCacheStorage> MongoHashLockInfoTestTraits::CreateMongoCacheStorage(mongo::MongoStorageContext& context) {
 		return mongo::plugins::CreateMongoHashLockInfoCacheStorage(context, model::NetworkIdentifier());
 	}
 }}

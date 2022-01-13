@@ -64,7 +64,7 @@ namespace catapult { namespace validators {
 
 		template<typename TNotification>
 		using FunctionalNotificationValidatorT =
-			catapult::validators::FunctionalNotificationValidatorT<TNotification, const ValidatorContext&>;
+				catapult::validators::FunctionalNotificationValidatorT<TNotification, const ValidatorContext&>;
 
 		using AggregateNotificationValidator = AggregateNotificationValidatorT<model::Notification, const ValidatorContext&>;
 		using DemuxValidatorBuilder = DemuxValidatorBuilderT<const ValidatorContext&>;

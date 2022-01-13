@@ -27,7 +27,7 @@ namespace catapult { namespace disruptor {
 
 	/// Typed disruptor consumer function.
 	template<typename TInput>
-	using DisruptorConsumerT = std::function<ConsumerResult (TInput&)>;
+	using DisruptorConsumerT = std::function<ConsumerResult(TInput&)>;
 
 	/// Disruptor consumer function.
 	using DisruptorConsumer = DisruptorConsumerT<ConsumerInput>;
@@ -51,6 +51,5 @@ namespace catapult { namespace disruptor {
 	std::vector<DisruptorConsumer> DisruptorConsumersFromBlockConsumers(const std::vector<BlockConsumer>& blockConsumers);
 
 	/// Maps \a transactionConsumers to disruptor consumers so that they can be used to create a ConsumerDispatcher.
-	std::vector<DisruptorConsumer> DisruptorConsumersFromTransactionConsumers(
-			const std::vector<TransactionConsumer>& transactionConsumers);
+	std::vector<DisruptorConsumer> DisruptorConsumersFromTransactionConsumers(const std::vector<TransactionConsumer>& transactionConsumers);
 }}

@@ -30,8 +30,8 @@ namespace catapult { namespace timesync {
 			: m_epochAdjustment(epochAdjustment)
 			, m_clockAdjustmentThreshold(clockAdjustmentThreshold)
 			, m_offset(0)
-			, m_nodeAge(0)
-	{}
+			, m_nodeAge(0) {
+	}
 
 	TimeOffset TimeSynchronizationState::offset() const {
 		return TimeOffset(m_offset);

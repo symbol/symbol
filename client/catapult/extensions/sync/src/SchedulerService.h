@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/extensions/ServiceRegistrar.h"
 
-namespace catapult { namespace sync { struct TasksConfiguration; } }
+namespace catapult { namespace sync {
+	struct TasksConfiguration;
+}}
 
 namespace catapult { namespace sync {
 

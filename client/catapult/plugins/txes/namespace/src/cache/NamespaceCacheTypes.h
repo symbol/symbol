@@ -29,22 +29,20 @@
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/IdentifierGroup.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicNamespaceCacheDelta;
-		class BasicNamespaceCacheView;
-		struct NamespaceBaseSetDeltaPointers;
-		struct NamespaceBaseSets;
-		class NamespaceCache;
-		class NamespaceCacheDelta;
-		class NamespaceCacheView;
-		struct NamespaceFlatMapTypesSerializer;
-		struct NamespaceHeightGroupingSerializer;
-		class NamespacePatriciaTree;
-		class ReadOnlyNamespaceCache;
-		struct RootNamespaceHistoryPrimarySerializer;
-	}
-}
+namespace catapult { namespace cache {
+	class BasicNamespaceCacheDelta;
+	class BasicNamespaceCacheView;
+	struct NamespaceBaseSetDeltaPointers;
+	struct NamespaceBaseSets;
+	class NamespaceCache;
+	class NamespaceCacheDelta;
+	class NamespaceCacheView;
+	struct NamespaceFlatMapTypesSerializer;
+	struct NamespaceHeightGroupingSerializer;
+	class NamespacePatriciaTree;
+	class ReadOnlyNamespaceCache;
+	struct RootNamespaceHistoryPrimarySerializer;
+}}
 
 namespace catapult { namespace cache {
 
@@ -84,7 +82,7 @@ namespace catapult { namespace cache {
 			BlockDuration GracePeriodDuration;
 		};
 
-	// region secondary descriptors
+		// region secondary descriptors
 
 	private:
 		struct FlatMapTypesDescriptor {
@@ -112,7 +110,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-	// endregion
+		// endregion
 
 	public:
 		using PrimaryTypes = MutableUnorderedMapAdapter<NamespaceCacheDescriptor, utils::BaseValueHasher<NamespaceId>>;

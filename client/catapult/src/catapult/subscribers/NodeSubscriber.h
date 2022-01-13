@@ -26,8 +26,12 @@
 #include "catapult/types.h"
 
 namespace catapult {
-	namespace ionet { class Node; }
-	namespace model { struct NodeIdentity; }
+namespace ionet {
+	class Node;
+}
+namespace model {
+	struct NodeIdentity;
+}
 }
 
 namespace catapult { namespace subscribers {

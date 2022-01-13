@@ -29,8 +29,9 @@ namespace catapult { namespace state {
 	struct PLUGIN_API_DEPENDENCY HashLockInfo : public LockInfo {
 	public:
 		/// Creates a default hash lock info.
-		HashLockInfo() : LockInfo()
-		{}
+		HashLockInfo()
+				: LockInfo() {
+		}
 
 		/// Creates a hash lock info around \a ownerAddress, \a mosaicId, \a amount, \a endHeight and \a hash.
 		HashLockInfo(
@@ -40,8 +41,8 @@ namespace catapult { namespace state {
 				Height endHeight,
 				const Hash256& hash)
 				: LockInfo(ownerAddress, mosaicId, amount, endHeight)
-				, Hash(hash)
-		{}
+				, Hash(hash) {
+		}
 
 	public:
 		/// Hash.

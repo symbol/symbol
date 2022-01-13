@@ -30,22 +30,25 @@ namespace catapult { namespace test {
 	/// Test element used as the base of both immutable and mutable test elements.
 	struct TestElement {
 	public:
-		TestElement() : TestElement("TestElement", 0)
-		{}
+		TestElement()
+				: TestElement("TestElement", 0) {
+		}
 
-		explicit TestElement(const std::string& name) : TestElement(name, 0)
-		{}
+		explicit TestElement(const std::string& name)
+				: TestElement(name, 0) {
+		}
 
-		explicit TestElement(unsigned int value) : TestElement("TestElement", value)
-		{}
+		explicit TestElement(unsigned int value)
+				: TestElement("TestElement", value) {
+		}
 
 		TestElement(const std::string& name, unsigned int value)
 				: Name(name)
 				, Value(value)
 				, Hash(calculateHash())
 				, Dummy(0)
-				, HasherCallCount(0)
-		{}
+				, HasherCallCount(0) {
+		}
 
 	public:
 		bool operator<(const TestElement& rhs) const {
@@ -89,8 +92,8 @@ namespace catapult { namespace test {
 	struct MutableTestElement : public TestElement {
 		using TestElement::TestElement;
 
-		void mutate()
-		{}
+		void mutate() {
+		}
 	};
 
 	// endregion

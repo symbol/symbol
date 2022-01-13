@@ -37,9 +37,9 @@ namespace catapult { namespace handlers {
 
 	/// Accepts a range and returns a producer that produces specified shared pointer elements.
 	template<typename TIdentifier, typename TEntity>
-	using SharedPointerProducerFactory = std::function<supplier<std::shared_ptr<const TEntity>> (const model::EntityRange<TIdentifier>&)>;
+	using SharedPointerProducerFactory = std::function<supplier<std::shared_ptr<const TEntity>>(const model::EntityRange<TIdentifier>&)>;
 
 	/// Accepts a range and returns a producer that produces specified raw pointer elements.
 	template<typename TIdentifier, typename TEntity>
-	using RawPointerProducerFactory = std::function<supplier<const TEntity*> (const model::EntityRange<TIdentifier>&)>;
+	using RawPointerProducerFactory = std::function<supplier<const TEntity*>(const model::EntityRange<TIdentifier>&)>;
 }}

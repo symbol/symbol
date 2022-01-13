@@ -36,8 +36,9 @@ namespace catapult { namespace chain {
 
 	public:
 		/// Creates an entities synchronizer around \a traits.
-		explicit EntitiesSynchronizer(TSynchronizerTraits&& traits) : m_traits(std::move(traits))
-		{}
+		explicit EntitiesSynchronizer(TSynchronizerTraits&& traits)
+				: m_traits(std::move(traits)) {
+		}
 
 	public:
 		/// Pulls entities from a remote node using \a api.

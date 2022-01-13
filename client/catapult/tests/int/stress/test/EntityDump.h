@@ -21,12 +21,10 @@
 
 #pragma once
 
-namespace catapult {
-	namespace model {
-		struct Block;
-		struct Transaction;
-	}
-}
+namespace catapult { namespace model {
+	struct Block;
+	struct Transaction;
+}}
 
 namespace catapult { namespace test {
 

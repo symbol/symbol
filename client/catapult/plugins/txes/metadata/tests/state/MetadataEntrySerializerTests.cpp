@@ -88,11 +88,19 @@ namespace catapult { namespace state {
 	}
 
 #define METADATA_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Account) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Namespace) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Account) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Namespace) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

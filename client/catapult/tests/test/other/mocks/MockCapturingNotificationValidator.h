@@ -57,8 +57,8 @@ namespace catapult { namespace mocks {
 		/// Creates params around \a notification.
 		explicit StatelessNotificationValidatorParams(const model::Notification& notification)
 				: Notification(notification)
-				, TransactionNotificationInfo(notification)
-		{}
+				, TransactionNotificationInfo(notification) {
+		}
 
 	public:
 		/// Reference to the notification.
@@ -96,8 +96,8 @@ namespace catapult { namespace mocks {
 				, BlockTime(context.BlockTime)
 				, NetworkIdentifier(context.Network.Identifier)
 				, IsMarkedCache(test::IsMarkedCache(context.Cache))
-				, ResolvedMosaicIdOne(context.Resolvers.resolve(UnresolvedMosaicId(1)))
-		{}
+				, ResolvedMosaicIdOne(context.Resolvers.resolve(UnresolvedMosaicId(1))) {
+		}
 
 	public:
 		/// Reference to the notification.
@@ -133,9 +133,8 @@ namespace catapult { namespace mocks {
 		using BaseType::MockNotificationValidatorT;
 
 	public:
-		validators::ValidationResult validate(
-				const model::Notification& notification,
-				const validators::ValidatorContext& context) const override {
+		validators::ValidationResult validate(const model::Notification& notification, const validators::ValidatorContext& context)
+				const override {
 			const_cast<MockCapturingStatefulNotificationValidator*>(this)->push(notification, context);
 			return BaseType::validate(notification, context);
 		}

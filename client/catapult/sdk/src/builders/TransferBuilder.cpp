@@ -27,17 +27,15 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_recipientAddress()
 			, m_mosaics()
-			, m_message()
-	{}
+			, m_message() {
+	}
 
 	void TransferBuilder::setRecipientAddress(const UnresolvedAddress& recipientAddress) {
 		m_recipientAddress = recipientAddress;
 	}
 
 	void TransferBuilder::addMosaic(const model::UnresolvedMosaic& mosaic) {
-		InsertSorted(m_mosaics, mosaic, [](const auto& lhs, const auto& rhs) {
-			return lhs.MosaicId < rhs.MosaicId;
-		});
+		InsertSorted(m_mosaics, mosaic, [](const auto& lhs, const auto& rhs) { return lhs.MosaicId < rhs.MosaicId; });
 	}
 
 	void TransferBuilder::setMessage(const RawBuffer& message) {

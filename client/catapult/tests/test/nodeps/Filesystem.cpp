@@ -63,25 +63,26 @@ namespace catapult { namespace test {
 		}
 	}
 
-	TempDirectoryGuard::TempDirectoryGuard() : TempDirectoryGuard(DefaultName(), true)
-	{}
+	TempDirectoryGuard::TempDirectoryGuard()
+			: TempDirectoryGuard(DefaultName(), true) {
+	}
 
 	TempDirectoryGuard::TempDirectoryGuard(const std::string& directoryName)
-			: TempDirectoryGuard(PathFromDirectoryName(directoryName), true)
-	{}
+			: TempDirectoryGuard(PathFromDirectoryName(directoryName), true) {
+	}
 
 	TempDirectoryGuard::~TempDirectoryGuard() {
 		auto numRemovedFiles = std::filesystem::remove_all(m_directoryPath);
-		CATAPULT_LOG(debug)
-				<< "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles
-				<< " files (exists? " << exists() << ")";
+		CATAPULT_LOG(debug) << "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles << " files (exists? "
+							<< exists() << ")";
 
 		// delete any empty parent directories too
 		DeleteDirectoryIfEmpty(TempDirectoryGuard::DefaultName());
 		DeleteDirectoryIfEmpty(Temp_Directory_Root);
 	}
 
-	TempDirectoryGuard::TempDirectoryGuard(const std::filesystem::path& directoryPath, bool) : m_directoryPath(directoryPath) {
+	TempDirectoryGuard::TempDirectoryGuard(const std::filesystem::path& directoryPath, bool)
+			: m_directoryPath(directoryPath) {
 		if (!StartsWithTempDirectoryRoot(directoryPath.generic_string()))
 			CATAPULT_THROW_INVALID_ARGUMENT_1("temp directory does not start with temp directory root", directoryPath.generic_string());
 
@@ -110,8 +111,9 @@ namespace catapult { namespace test {
 
 	// region file guard
 
-	TempFileGuard::TempFileGuard(const std::string& name) : m_name(name)
-	{}
+	TempFileGuard::TempFileGuard(const std::string& name)
+			: m_name(name) {
+	}
 
 	std::string TempFileGuard::name() const {
 		return (std::filesystem::path(m_directoryGuard.name()) / m_name).generic_string();

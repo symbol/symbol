@@ -100,8 +100,9 @@ namespace catapult { namespace local {
 
 		class AcceptorServer {
 		public:
-			AcceptorServer() : m_pPool(test::CreateStartedIoThreadPool(1))
-			{}
+			AcceptorServer()
+					: m_pPool(test::CreateStartedIoThreadPool(1)) {
+			}
 
 		public:
 			const Key& publicKeyAt(size_t index) {
@@ -166,11 +167,10 @@ namespace catapult { namespace local {
 			auto pAcceptorServer = SpawnAcceptors(3);
 
 			// - set up static nodes
-			auto staticNodes = std::vector<ionet::Node>{
-				CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(0), endpointHost, 0, "alice"),
-				CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(1), endpointHost, 1, "bob"),
-				CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(2), endpointHost, 2, "charlie")
-			};
+			auto staticNodes =
+					std::vector<ionet::Node>{ CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(0), endpointHost, 0, "alice"),
+											  CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(1), endpointHost, 1, "bob"),
+											  CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(2), endpointHost, 2, "charlie") };
 			context.boot(staticNodes);
 
 			const auto& nodes = context.testState().state().nodes();
@@ -183,11 +183,10 @@ namespace catapult { namespace local {
 
 				auto nodesView = nodes.view();
 				EXPECT_EQ(3u, nodesView.size());
-				auto expectedContents = test::BasicNodeDataContainer{
-					{ pAcceptorServer->publicKeyAt(0), "alice", ionet::NodeSource::Static },
-					{ pAcceptorServer->publicKeyAt(1), "bob", ionet::NodeSource::Static },
-					{ pAcceptorServer->publicKeyAt(2), "charlie", ionet::NodeSource::Static }
-				};
+				auto expectedContents =
+						test::BasicNodeDataContainer{ { pAcceptorServer->publicKeyAt(0), "alice", ionet::NodeSource::Static },
+													  { pAcceptorServer->publicKeyAt(1), "bob", ionet::NodeSource::Static },
+													  { pAcceptorServer->publicKeyAt(2), "charlie", ionet::NodeSource::Static } };
 				EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
 
 				// - check that hosts are set correctly (identity host is resolved but endpoint host is not)
@@ -227,9 +226,7 @@ namespace catapult { namespace local {
 
 			auto nodesView = nodes.view();
 			EXPECT_EQ(1u, nodesView.size());
-			auto expectedContents = test::BasicNodeDataContainer{
-				{ pAcceptorServer->publicKeyAt(1), "bob", ionet::NodeSource::Static }
-			};
+			auto expectedContents = test::BasicNodeDataContainer{ { pAcceptorServer->publicKeyAt(1), "bob", ionet::NodeSource::Static } };
 			EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
 
 			// - check that hosts are set correctly
@@ -245,9 +242,7 @@ namespace catapult { namespace local {
 		TestContext context;
 
 		// - set up single node representing local node
-		auto staticNodes = std::vector<ionet::Node>{
-			CreateNamedLocalHostNode(context.publicKey(), "127.0.0.1", 0, "bob")
-		};
+		auto staticNodes = std::vector<ionet::Node>{ CreateNamedLocalHostNode(context.publicKey(), "127.0.0.1", 0, "bob") };
 		context.boot(staticNodes);
 
 		// - set up challenge responses

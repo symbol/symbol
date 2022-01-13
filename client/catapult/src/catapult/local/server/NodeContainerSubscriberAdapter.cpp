@@ -34,8 +34,8 @@ namespace catapult { namespace local {
 					const extensions::BannedNodeIdentitySink* pBannedNodeIdentitySink)
 					: m_nodes(nodes)
 					, m_localNetworks(localNetworks)
-					, m_pBannedNodeIdentitySink(pBannedNodeIdentitySink)
-			{}
+					, m_pBannedNodeIdentitySink(pBannedNodeIdentitySink) {
+			}
 
 		public:
 			void notifyNode(const ionet::Node& node) override {

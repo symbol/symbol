@@ -34,8 +34,8 @@ namespace catapult { namespace test {
 				, Logging(config::LoggingConfiguration::Uninitialized())
 				, User(config::UserConfiguration::Uninitialized())
 				, Extensions(config::ExtensionsConfiguration::Uninitialized())
-				, Inflation(config::InflationConfiguration::Uninitialized())
-		{}
+				, Inflation(config::InflationConfiguration::Uninitialized()) {
+		}
 
 	public:
 		/// Blockchain configuration.

@@ -56,23 +56,20 @@ namespace catapult { namespace plugins {
 		});
 
 		manager.addStatefulValidatorHook([config, currencyMosaicId](auto& builder) {
-			builder
-				.add(validators::CreateAggregateHashPresentValidator())
-				.add(validators::CreateHashLockCacheUniqueValidator())
-				.add(validators::CreateHashLockMosaicValidator(currencyMosaicId, config.LockedFundsPerAggregate));
+			builder.add(validators::CreateAggregateHashPresentValidator())
+					.add(validators::CreateHashLockCacheUniqueValidator())
+					.add(validators::CreateHashLockMosaicValidator(currencyMosaicId, config.LockedFundsPerAggregate));
 		});
 
 		auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
 		manager.addObserverHook([maxRollbackBlocks](auto& builder) {
-			builder
-				.add(observers::CreateHashLockObserver())
-				.add(observers::CreateExpiredHashLockInfoObserver())
-				.add(observers::CreateCompletedAggregateObserver());
+			builder.add(observers::CreateHashLockObserver())
+					.add(observers::CreateExpiredHashLockInfoObserver())
+					.add(observers::CreateCompletedAggregateObserver());
 		});
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterHashLockSubsystem(manager);
 }

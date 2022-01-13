@@ -47,8 +47,7 @@ namespace catapult { namespace validators {
 	}
 
 	DEFINE_STATELESS_VALIDATOR(AccountRestrictionFlags, [](const Notification& notification) {
-		return IsValidAccountRestrictionFlags(notification.RestrictionFlags)
-				? ValidationResult::Success
-				: Failure_RestrictionAccount_Invalid_Restriction_Flags;
+		return IsValidAccountRestrictionFlags(notification.RestrictionFlags) ? ValidationResult::Success
+																			 : Failure_RestrictionAccount_Invalid_Restriction_Flags;
 	})
 }}

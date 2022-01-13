@@ -120,11 +120,9 @@ namespace catapult { namespace nodediscovery {
 
 	TEST(TEST_CLASS, TryParseNodesPacketSucceedsWhenPacketPayloadContainsMultipleUniqueNodes) {
 		// Arrange:
-		std::vector<ionet::Node> nodes{
-			test::CreateNamedNode(GenerateRandomNodeIdentity(), "a"),
-			test::CreateNamedNode(GenerateRandomNodeIdentity(), "bc"),
-			test::CreateNamedNode(GenerateRandomNodeIdentity(), "def")
-		};
+		std::vector<ionet::Node> nodes{ test::CreateNamedNode(GenerateRandomNodeIdentity(), "a"),
+										test::CreateNamedNode(GenerateRandomNodeIdentity(), "bc"),
+										test::CreateNamedNode(GenerateRandomNodeIdentity(), "def") };
 		auto pPacket = test::CreateNodePushPeersPacket(nodes);
 
 		// Act:
@@ -139,11 +137,9 @@ namespace catapult { namespace nodediscovery {
 
 	TEST(TEST_CLASS, TryParseNodesPacketSucceedsWhenPacketPayloadContainsMultipleNodesWithDuplicates) {
 		// Arrange: create a payload with 3 unique nodes and 2 duplicates
-		std::vector<ionet::Node> nodes{
-			test::CreateNamedNode(GenerateRandomNodeIdentity(), "a"),
-			test::CreateNamedNode(GenerateRandomNodeIdentity(), "bc"),
-			test::CreateNamedNode(GenerateRandomNodeIdentity(), "def")
-		};
+		std::vector<ionet::Node> nodes{ test::CreateNamedNode(GenerateRandomNodeIdentity(), "a"),
+										test::CreateNamedNode(GenerateRandomNodeIdentity(), "bc"),
+										test::CreateNamedNode(GenerateRandomNodeIdentity(), "def") };
 		nodes.push_back(nodes[2]);
 		nodes.push_back(nodes[0]);
 		auto pPacket = test::CreateNodePushPeersPacket(nodes);
@@ -230,10 +226,16 @@ namespace catapult { namespace nodediscovery {
 	}
 
 #define SELECT_UNKNOWN_NODES_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, SelectUnknownNodes##TEST_NAME##_KeyAndHost) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyAndHostMatchTraits>(); } \
-	TEST(TEST_CLASS, SelectUnknownNodes##TEST_NAME##_Key) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyMatchTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, SelectUnknownNodes##TEST_NAME##_KeyAndHost) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyAndHostMatchTraits>(); \
+	} \
+	TEST(TEST_CLASS, SelectUnknownNodes##TEST_NAME##_Key) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyMatchTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SELECT_UNKNOWN_NODES_TEST(ReturnsEmptySetWhenAllNodesAreKnown) {
 		// Arrange: add all input nodes to the container

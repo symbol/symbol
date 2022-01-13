@@ -30,8 +30,7 @@ namespace catapult { namespace validators {
 		if (MosaicId() == notification.MosaicId)
 			return Failure_Mosaic_Invalid_Id;
 
-		return notification.MosaicId == model::GenerateMosaicId(notification.Owner, notification.MosaicNonce)
-				? ValidationResult::Success
-				: Failure_Mosaic_Id_Mismatch;
+		return notification.MosaicId == model::GenerateMosaicId(notification.Owner, notification.MosaicNonce) ? ValidationResult::Success
+																											  : Failure_Mosaic_Id_Mismatch;
 	})
 }}

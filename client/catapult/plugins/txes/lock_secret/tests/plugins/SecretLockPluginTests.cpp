@@ -35,14 +35,10 @@ namespace catapult { namespace plugins {
 				// Arrange:
 				auto config = model::BlockchainConfiguration::Uninitialized();
 				config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(1);
-				config.Plugins.emplace("catapult.plugins.locksecret", utils::ConfigurationBag({{
-					"",
-					{
-						{ "maxSecretLockDuration", "30d" },
-						{ "minProofSize", "10" },
-						{ "maxProofSize", "1000" }
-					}
-				}}));
+				config.Plugins.emplace(
+						"catapult.plugins.locksecret",
+						utils::ConfigurationBag(
+								{ { "", { { "maxSecretLockDuration", "30d" }, { "minProofSize", "10" }, { "maxProofSize", "1000" } } } }));
 
 				auto manager = test::CreatePluginManager(config);
 				RegisterSecretLockSubsystem(manager);
@@ -81,11 +77,7 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetObserverNames() {
-				return {
-					"SecretLockObserver",
-					"ExpiredSecretLockInfoObserver",
-					"ProofObserver"
-				};
+				return { "SecretLockObserver", "ExpiredSecretLockInfoObserver", "ProofObserver" };
 			}
 
 			static std::vector<std::string> GetPermanentObserverNames() {

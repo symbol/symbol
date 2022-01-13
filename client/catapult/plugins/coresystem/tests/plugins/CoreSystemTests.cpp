@@ -61,37 +61,33 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
-				return {
-					"ZeroAddressValidator",
-					"ZeroPublicKeyValidator",
-					"MaxTransactionsValidator",
-					"NetworkValidator",
-					"EntityVersionValidator",
-					"TransactionFeeValidator",
-					"KeyLinkActionValidator",
-					"ZeroInternalPaddingValidator",
-					"BlockTypeValidator",
+				return { "ZeroAddressValidator",
+						 "ZeroPublicKeyValidator",
+						 "MaxTransactionsValidator",
+						 "NetworkValidator",
+						 "EntityVersionValidator",
+						 "TransactionFeeValidator",
+						 "KeyLinkActionValidator",
+						 "ZeroInternalPaddingValidator",
+						 "BlockTypeValidator",
 
-					// key link transactions
-					"VotingKeyLinkRangeValidator"
-				};
+						 // key link transactions
+						 "VotingKeyLinkRangeValidator" };
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
-				return {
-					"AddressValidator",
-					"PublicKeyValidator",
-					"DeadlineValidator",
-					"NemesisSinkValidator",
-					"EligibleHarvesterValidator",
-					"BalanceDebitValidator",
-					"BalanceTransferValidator",
-					"ImportanceBlockValidator",
+				return { "AddressValidator",
+						 "PublicKeyValidator",
+						 "DeadlineValidator",
+						 "NemesisSinkValidator",
+						 "EligibleHarvesterValidator",
+						 "BalanceDebitValidator",
+						 "BalanceTransferValidator",
+						 "ImportanceBlockValidator",
 
-					// key link transactions
-					"VrfKeyLinkValidator",
-					"VotingMultiKeyLinkValidator"
-				};
+						 // key link transactions
+						 "VrfKeyLinkValidator",
+						 "VotingMultiKeyLinkValidator" };
 			}
 
 			static std::vector<std::string> GetObserverNames() {
@@ -106,21 +102,19 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetPermanentObserverNames() {
-				return {
-					"SourceChangeObserver",
-					"AccountAddressObserver",
-					"AccountPublicKeyObserver",
-					"BalanceDebitObserver",
-					"BalanceTransferObserver",
-					"BeneficiaryObserver",
-					"TransactionFeeActivityObserver",
-					"HarvestFeeObserver",
-					"TotalTransactionsObserver",
+				return { "SourceChangeObserver",
+						 "AccountAddressObserver",
+						 "AccountPublicKeyObserver",
+						 "BalanceDebitObserver",
+						 "BalanceTransferObserver",
+						 "BeneficiaryObserver",
+						 "TransactionFeeActivityObserver",
+						 "HarvestFeeObserver",
+						 "TotalTransactionsObserver",
 
-					// key link transactions
-					"VrfKeyLinkObserver",
-					"VotingMultiKeyLinkObserver"
-				};
+						 // key link transactions
+						 "VrfKeyLinkObserver",
+						 "VotingMultiKeyLinkObserver" };
 			}
 		};
 	}

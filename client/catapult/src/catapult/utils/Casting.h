@@ -34,10 +34,7 @@ namespace catapult { namespace utils {
 	}
 
 	/// Makes \a value printable.
-	template<
-		typename T,
-		typename X = std::enable_if_t<std::is_integral_v<T>>
-	>
+	template<typename T, typename X = std::enable_if_t<std::is_integral_v<T>>>
 	T make_printable(T value) {
 		return value;
 	}
@@ -70,8 +67,8 @@ namespace catapult { namespace utils {
 		using dest_limits = std::numeric_limits<TDest>;
 		using source_limits = std::numeric_limits<TSource>;
 		static_assert(
-			source_limits::min() < dest_limits::min() || source_limits::max() > dest_limits::max(),
-			"checked_cast can only be used when data truncation is possible");
+				source_limits::min() < dest_limits::min() || source_limits::max() > dest_limits::max(),
+				"checked_cast can only be used when data truncation is possible");
 
 		if (value < dest_limits::min() || value > dest_limits::max())
 			CATAPULT_THROW_RUNTIME_ERROR_1("checked_cast detected data truncation", make_printable(value));

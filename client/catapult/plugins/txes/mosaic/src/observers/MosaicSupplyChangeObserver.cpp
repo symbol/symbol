@@ -29,9 +29,8 @@ namespace catapult { namespace observers {
 
 	namespace {
 		constexpr bool ShouldIncrease(NotifyMode mode, model::MosaicSupplyChangeAction action) {
-			return
-					(NotifyMode::Commit == mode && model::MosaicSupplyChangeAction::Increase == action) ||
-					(NotifyMode::Rollback == mode && model::MosaicSupplyChangeAction::Decrease == action);
+			return (NotifyMode::Commit == mode && model::MosaicSupplyChangeAction::Increase == action)
+				   || (NotifyMode::Rollback == mode && model::MosaicSupplyChangeAction::Decrease == action);
 		}
 	}
 

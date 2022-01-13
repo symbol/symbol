@@ -27,8 +27,9 @@ namespace catapult { namespace model {
 #define RESOLUTION_STATEMENT_T ResolutionStatement<TUnresolved, TResolved, ResolutionReceiptType>
 
 	template<typename TUnresolved, typename TResolved, ReceiptType ResolutionReceiptType>
-	RESOLUTION_STATEMENT_T::ResolutionStatement(const TUnresolved& unresolved) : m_unresolved(unresolved)
-	{}
+	RESOLUTION_STATEMENT_T::ResolutionStatement(const TUnresolved& unresolved)
+			: m_unresolved(unresolved) {
+	}
 
 	template<typename TUnresolved, typename TResolved, ReceiptType ResolutionReceiptType>
 	const TUnresolved& RESOLUTION_STATEMENT_T::unresolved() const {
@@ -70,10 +71,9 @@ namespace catapult { namespace model {
 			const auto& lastSource = m_entries.back().Source;
 			if (source < lastSource) {
 				std::ostringstream out;
-				out
-						<< "detected out of order resolution - "
-						<< "last (" << lastSource.PrimaryId << ", " << lastSource.SecondaryId << ") "
-						<< "next (" << source.PrimaryId << ", " << source.SecondaryId << ")";
+				out << "detected out of order resolution - "
+					<< "last (" << lastSource.PrimaryId << ", " << lastSource.SecondaryId << ") "
+					<< "next (" << source.PrimaryId << ", " << source.SecondaryId << ")";
 				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 			}
 

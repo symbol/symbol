@@ -119,10 +119,16 @@ namespace catapult { namespace cache {
 	}
 
 #define ACCOUNT_KEY_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ByAddress) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountStateCacheByAddressTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ByKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountStateCacheByKeyTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ByAddress) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountStateCacheByAddressTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ByKey) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountStateCacheByKeyTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ACCOUNT_KEY_BASED_TEST(ReadOnlyViewOnlyContainsCommittedElements) {
 		// Arrange:
@@ -309,9 +315,8 @@ namespace catapult { namespace cache {
 		// Arrange:
 		auto deltaAction = [](const auto& addresses, auto& delta) {
 			// - add 3/4 accounts with sufficient balance (uncommitted) [7 match]
-			auto uncommittedAddresses = AddAccountsWithBalances(*delta, {
-				Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(1'500'000)
-			});
+			auto uncommittedAddresses =
+					AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(1'500'000) });
 
 			// - modify two [7 match]
 			delta->find(addresses[1]).get().Balances.credit(Harvesting_Mosaic_Id, Amount(500'000));
@@ -342,9 +347,8 @@ namespace catapult { namespace cache {
 		};
 
 		// - add 4/6 accounts with sufficient balance [4 match]
-		auto balances = std::vector<Amount>{
-			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000), Amount(4'000'000)
-		};
+		auto balances = std::vector<Amount>{ Amount(1'100'000), Amount(900'000),   Amount(1'000'000),
+											 Amount(800'000),	Amount(1'200'000), Amount(4'000'000) };
 		RunHighValueAddressesTest(balances, deltaAction, viewAction);
 	}
 
@@ -356,9 +360,8 @@ namespace catapult { namespace cache {
 		// Arrange:
 		auto deltaAction = [](const auto& addresses, auto& delta) {
 			// - add 3/4 accounts with sufficient balance (uncommitted) [7 match]
-			auto uncommittedAddresses = AddAccountsWithBalances(*delta, {
-				Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(1'500'000)
-			});
+			auto uncommittedAddresses =
+					AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(1'500'000) });
 
 			// - modify two [7 match]
 			delta->find(addresses[1]).get().Balances.credit(Harvesting_Mosaic_Id, Amount(500'000));
@@ -401,9 +404,8 @@ namespace catapult { namespace cache {
 		};
 
 		// - add 4/6 accounts with sufficient balance [4 match]
-		auto balances = std::vector<Amount>{
-			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000), Amount(4'000'000)
-		};
+		auto balances = std::vector<Amount>{ Amount(1'100'000), Amount(900'000),   Amount(1'000'000),
+											 Amount(800'000),	Amount(1'200'000), Amount(4'000'000) };
 		RunHighValueAddressesTest(balances, deltaAction, viewAction);
 	}
 
@@ -417,9 +419,8 @@ namespace catapult { namespace cache {
 			auto deltaAction = [epoch, deltaChecker](const auto& addresses, auto& delta) {
 				// - add 2/4 accounts with sufficient VOTING balance [5 match]
 				// - lifetimes: *10-60*, 20-70, 30-80, *40-90*
-				auto uncommittedAddresses = AddAccountsWithBalances(*delta, {
-					Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(1'500'000)
-				});
+				auto uncommittedAddresses =
+						AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(1'500'000) });
 
 				// - remove a voting key [4 match]
 				// - importantly, the account is NOT pruned because earlier entry is voting eligible
@@ -446,9 +447,8 @@ namespace catapult { namespace cache {
 
 			// - add 3/6 accounts with sufficient VOTING balance [3 match]
 			// - lifetimes: *10-60*, 20-70, 30-80, 40-90, *50-100*, *60-110*
-			auto balances = std::vector<Amount>{
-				Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000), Amount(4'000'000)
-			};
+			auto balances = std::vector<Amount>{ Amount(1'100'000), Amount(900'000),   Amount(1'000'000),
+												 Amount(800'000),	Amount(1'200'000), Amount(4'000'000) };
 			RunHighValueAddressesTest(balances, deltaAction, viewAction);
 		}
 	}

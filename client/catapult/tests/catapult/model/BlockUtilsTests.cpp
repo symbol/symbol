@@ -133,13 +133,11 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateBlockTransactionsHash_Deterministic) {
 		// Arrange:
-		auto seedHashes = {
-			utils::ParseByteArray<Hash256>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
-			utils::ParseByteArray<Hash256>("8A316E48F35CDADD3F827663F7535E840289A16A43E7134B053A86773E474C28"),
-			utils::ParseByteArray<Hash256>("6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7"),
-			utils::ParseByteArray<Hash256>("2AE2CA59B5BB29721BFB79FE113929B6E52891CAA29CBF562EBEDC46903FF681"),
-			utils::ParseByteArray<Hash256>("421D6B68A6DF8BB1D5C9ACF7ED44515E77945D42A491BECE68DA009B551EE6CE")
-		};
+		auto seedHashes = { utils::ParseByteArray<Hash256>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
+							utils::ParseByteArray<Hash256>("8A316E48F35CDADD3F827663F7535E840289A16A43E7134B053A86773E474C28"),
+							utils::ParseByteArray<Hash256>("6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7"),
+							utils::ParseByteArray<Hash256>("2AE2CA59B5BB29721BFB79FE113929B6E52891CAA29CBF562EBEDC46903FF681"),
+							utils::ParseByteArray<Hash256>("421D6B68A6DF8BB1D5C9ACF7ED44515E77945D42A491BECE68DA009B551EE6CE") };
 
 		std::vector<TransactionInfo> transactionInfos;
 		transactionInfos.reserve(seedHashes.size());
@@ -222,8 +220,8 @@ namespace catapult { namespace model {
 				return CalculateBlockTransactionsInfo(block);
 			}
 
-			static void AssertDeepCount(uint32_t, const BlockTransactionsInfo&)
-			{}
+			static void AssertDeepCount(uint32_t, const BlockTransactionsInfo&) {
+			}
 		};
 
 		struct ExtendedBlockTransactionsInfoTraits {
@@ -239,10 +237,16 @@ namespace catapult { namespace model {
 	}
 
 #define BLOCK_TRANSACTIONS_INFO_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BasicBlockTransactionsInfoTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Extended) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtendedBlockTransactionsInfoTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BasicBlockTransactionsInfoTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Extended) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtendedBlockTransactionsInfoTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		test::MutableTransactions GenerateTransactionsWithSizes(std::initializer_list<uint32_t> sizes) {
@@ -384,10 +388,16 @@ namespace catapult { namespace model {
 	}
 
 #define BLOCK_TRAITS_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Normal) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Importance) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Normal) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockNormalTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Importance) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockImportanceTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

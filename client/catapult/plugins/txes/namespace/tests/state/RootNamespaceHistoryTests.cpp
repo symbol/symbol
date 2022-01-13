@@ -32,12 +32,10 @@ namespace catapult { namespace state {
 		using IdSet = std::unordered_set<NamespaceId, utils::BaseValueHasher<NamespaceId>>;
 
 		auto CreateDefaultChildren() {
-			return test::CreateChildren({
-				test::CreatePath({ 123, 357 }),
-				test::CreatePath({ 123, 124 }),
-				test::CreatePath({ 123, 124, 125 }),
-				test::CreatePath({ 123, 124, 128 })
-			});
+			return test::CreateChildren({ test::CreatePath({ 123, 357 }),
+										  test::CreatePath({ 123, 124 }),
+										  test::CreatePath({ 123, 124, 125 }),
+										  test::CreatePath({ 123, 124, 128 }) });
 		}
 
 		void AddDefaultChildren(RootNamespace& root) {
@@ -108,10 +106,16 @@ namespace catapult { namespace state {
 	}
 
 #define CONSTRUCTOR_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_CopyConstructor) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CopyConstructorTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MoveConstructor) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveConstructorTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_CopyConstructor) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CopyConstructorTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MoveConstructor) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveConstructorTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TEST(TEST_CLASS, CanCreateEmptyHistory) {
 		// Act:
@@ -180,9 +184,7 @@ namespace catapult { namespace state {
 	CONSTRUCTOR_TEST(CanConstructHistoryWithSameOwner_WithoutChildren) {
 		AssertCanConstructHistoryWithSameOwnerWithoutChildren<TTraits>(
 				[](auto) { return NamespaceAlias(); },
-				[](const auto& rootAlias, auto, const auto& message) {
-					EXPECT_EQ(AliasType::None, rootAlias.type()) << message;
-				});
+				[](const auto& rootAlias, auto, const auto& message) { EXPECT_EQ(AliasType::None, rootAlias.type()) << message; });
 	}
 
 	CONSTRUCTOR_TEST(CanConstructHistoryWithSameOwner_WithoutChildren_WithAlias) {
@@ -207,11 +209,9 @@ namespace catapult { namespace state {
 		auto history = TTraits::Construct(std::move(original));
 
 		// Assert:
-		std::vector<IdSet> expectedChildIds{
-			{ NamespaceId(100), NamespaceId(101), NamespaceId(102) },
-			{ NamespaceId(100), NamespaceId(101), NamespaceId(102) },
-			{ NamespaceId(100), NamespaceId(101), NamespaceId(102) }
-		};
+		std::vector<IdSet> expectedChildIds{ { NamespaceId(100), NamespaceId(101), NamespaceId(102) },
+											 { NamespaceId(100), NamespaceId(101), NamespaceId(102) },
+											 { NamespaceId(100), NamespaceId(101), NamespaceId(102) } };
 		EXPECT_EQ(NamespaceId(123), history.id());
 		EXPECT_FALSE(history.empty());
 		EXPECT_EQ(3u, history.historyDepth());
@@ -236,11 +236,7 @@ namespace catapult { namespace state {
 		auto history = TTraits::Construct(std::move(original));
 
 		// Assert:
-		std::vector<IdSet> expectedChildIds{
-			{ NamespaceId(100) },
-			{ NamespaceId(101) },
-			{ NamespaceId(102) }
-		};
+		std::vector<IdSet> expectedChildIds{ { NamespaceId(100) }, { NamespaceId(101) }, { NamespaceId(102) } };
 		EXPECT_EQ(NamespaceId(123), history.id());
 		EXPECT_FALSE(history.empty());
 		EXPECT_EQ(3u, history.historyDepth());
@@ -290,12 +286,10 @@ namespace catapult { namespace state {
 		auto history = TTraits::Construct(std::move(original));
 
 		// Assert:
-		std::vector<IdSet> expectedChildIds{
-			{ NamespaceId(99), NamespaceId(100) },
-			{ NamespaceId(99), NamespaceId(100) },
-			{ NamespaceId(101) },
-			{ NamespaceId(102) }
-		};
+		std::vector<IdSet> expectedChildIds{ { NamespaceId(99), NamespaceId(100) },
+											 { NamespaceId(99), NamespaceId(100) },
+											 { NamespaceId(101) },
+											 { NamespaceId(102) } };
 		EXPECT_EQ(NamespaceId(123), history.id());
 		EXPECT_FALSE(history.empty());
 		EXPECT_EQ(4u, history.historyDepth());
@@ -326,7 +320,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(1u, history.activeOwnerHistoryDepth());
 		EXPECT_EQ(0u, history.numActiveRootChildren());
 		EXPECT_EQ(0u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Height> ({ Height(234) }), GetLifetimeStartHeights(history));
+		EXPECT_EQ(std::vector<Height>({ Height(234) }), GetLifetimeStartHeights(history));
 	}
 
 	TEST(TEST_CLASS, CanAddRootNamespaceWithSameOwnerToExistingHistory) {
@@ -346,7 +340,7 @@ namespace catapult { namespace state {
 			EXPECT_EQ(2u, history.activeOwnerHistoryDepth()) << renewStartHeight;
 			EXPECT_EQ(0u, history.numActiveRootChildren()) << renewStartHeight;
 			EXPECT_EQ(0u, history.numAllHistoricalChildren()) << renewStartHeight;
-			EXPECT_EQ(std::vector<Height> ({ Height(234), renewStartHeight }), GetLifetimeStartHeights(history)) << renewStartHeight;
+			EXPECT_EQ(std::vector<Height>({ Height(234), renewStartHeight }), GetLifetimeStartHeights(history)) << renewStartHeight;
 		}
 	}
 
@@ -367,7 +361,7 @@ namespace catapult { namespace state {
 			EXPECT_EQ(1u, history.activeOwnerHistoryDepth()) << renewStartHeight;
 			EXPECT_EQ(0u, history.numActiveRootChildren()) << renewStartHeight;
 			EXPECT_EQ(0u, history.numAllHistoricalChildren()) << renewStartHeight;
-			EXPECT_EQ(std::vector<Height> ({ Height(234), renewStartHeight }), GetLifetimeStartHeights(history)) << renewStartHeight;
+			EXPECT_EQ(std::vector<Height>({ Height(234), renewStartHeight }), GetLifetimeStartHeights(history)) << renewStartHeight;
 		}
 	}
 
@@ -388,7 +382,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(1u, history.activeOwnerHistoryDepth());
 		EXPECT_EQ(0u, history.numActiveRootChildren());
 		EXPECT_EQ(0u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Height> ({ Height(234), Height(355) }), GetLifetimeStartHeights(history));
+		EXPECT_EQ(std::vector<Height>({ Height(234), Height(355) }), GetLifetimeStartHeights(history));
 	}
 
 	TEST(TEST_CLASS, CanAddRootNamespaceWithSameOwnerToExistingHistoryWithAlias) {
@@ -448,7 +442,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(3u, history.activeOwnerHistoryDepth());
 		EXPECT_EQ(4u, history.numActiveRootChildren());
 		EXPECT_EQ(12u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Height> ({ Height(234), Height(320), Height(400) }), GetLifetimeStartHeights(history));
+		EXPECT_EQ(std::vector<Height>({ Height(234), Height(320), Height(400) }), GetLifetimeStartHeights(history));
 
 		// - all roots have the same owner and share children
 		EXPECT_EQ(4u, thirdRoot.children().size());
@@ -482,7 +476,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(1u, history.activeOwnerHistoryDepth());
 		EXPECT_EQ(0u, history.numActiveRootChildren());
 		EXPECT_EQ(4u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Height> ({ Height(234), Height(355) }), GetLifetimeStartHeights(history));
+		EXPECT_EQ(std::vector<Height>({ Height(234), Height(355) }), GetLifetimeStartHeights(history));
 
 		// - all roots have the same owner but do NOT share children
 		EXPECT_EQ(0u, secondRoot.children().size());
@@ -514,7 +508,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(1u, history.activeOwnerHistoryDepth());
 		EXPECT_EQ(0u, history.numActiveRootChildren());
 		EXPECT_EQ(4u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Height> ({ Height(234), Height(355) }), GetLifetimeStartHeights(history));
+		EXPECT_EQ(std::vector<Height>({ Height(234), Height(355) }), GetLifetimeStartHeights(history));
 
 		EXPECT_EQ(0u, secondRoot.children().size());
 		EXPECT_EQ(4u, originalRoot.children().size());
@@ -547,7 +541,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(1u, history.activeOwnerHistoryDepth());
 		EXPECT_EQ(0u, history.numActiveRootChildren());
 		EXPECT_EQ(4u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Height> ({ Height(234), Height(355), Height(579) }), GetLifetimeStartHeights(history));
+		EXPECT_EQ(std::vector<Height>({ Height(234), Height(355), Height(579) }), GetLifetimeStartHeights(history));
 
 		EXPECT_EQ(4u, originalRoot.children().size());
 		test::AssertChildren(CreateDefaultChildren(), originalRoot.children());
@@ -586,7 +580,7 @@ namespace catapult { namespace state {
 
 		EXPECT_EQ(0u, history.numActiveRootChildren());
 		EXPECT_EQ(0u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Height> ({ Height(234), Height(355) }), GetLifetimeStartHeights(history));
+		EXPECT_EQ(std::vector<Height>({ Height(234), Height(355) }), GetLifetimeStartHeights(history));
 	}
 
 	// endregion

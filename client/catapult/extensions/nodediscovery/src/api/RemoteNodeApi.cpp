@@ -68,8 +68,9 @@ namespace catapult { namespace api {
 			using FutureType = thread::future<typename TTraits::ResultType>;
 
 		public:
-			explicit DefaultRemoteNodeApi(ionet::PacketIo& io) : m_impl(io)
-			{}
+			explicit DefaultRemoteNodeApi(ionet::PacketIo& io)
+					: m_impl(io) {
+			}
 
 		public:
 			FutureType<NodeInfoTraits> nodeInfo() const override {

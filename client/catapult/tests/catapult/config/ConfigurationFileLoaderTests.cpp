@@ -38,11 +38,11 @@ namespace catapult { namespace config {
 		void CreateTemporaryDirectory(const std::filesystem::path& directoryPath) {
 			std::filesystem::create_directories(directoryPath);
 
-			std::ofstream((directoryPath / Config_Filename).generic_string().c_str(), std::ios_base::out)
-					<< "[test]" << std::endl << std::endl
-					<< "alpha = 7" << std::endl
-					<< "beta = foo" << std::endl
-					<< "gamma = z" << std::endl;
+			std::ofstream((directoryPath / Config_Filename).generic_string().c_str(), std::ios_base::out) << "[test]" << std::endl
+																										  << std::endl
+																										  << "alpha = 7" << std::endl
+																										  << "beta = foo" << std::endl
+																										  << "gamma = z" << std::endl;
 
 			std::ofstream((directoryPath / Config_Peers_Filename).generic_string().c_str(), std::ios_base::out)
 					<< "{ \"knownPeers\": [] }" << std::endl;
@@ -67,9 +67,9 @@ namespace catapult { namespace config {
 			// Act + Assert:
 			std::vector<std::string> callbackFilePaths;
 			EXPECT_THROW(
-					LoadConfiguration(path / Not_Config_Filename, [&callbackFilePaths](const auto& filePath) {
-						callbackFilePaths.push_back(filePath);
-					}),
+					LoadConfiguration(
+							path / Not_Config_Filename,
+							[&callbackFilePaths](const auto& filePath) { callbackFilePaths.push_back(filePath); }),
 					catapult_runtime_error);
 			EXPECT_TRUE(callbackFilePaths.empty());
 		});

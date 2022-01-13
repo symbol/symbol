@@ -23,7 +23,9 @@
 #include "ValidatorTypes.h"
 #include "catapult/thread/Future.h"
 
-namespace catapult { namespace thread { class IoThreadPool; } }
+namespace catapult { namespace thread {
+	class IoThreadPool;
+}}
 
 namespace catapult { namespace validators {
 

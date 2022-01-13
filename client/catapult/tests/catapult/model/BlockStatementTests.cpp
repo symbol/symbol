@@ -50,10 +50,16 @@ namespace catapult { namespace model {
 	}
 
 #define MERKLE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_MerkleHash) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MerkleHashTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MerkleTree) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MerkleTreeTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_MerkleHash) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MerkleHashTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MerkleTree) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MerkleTreeTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -145,9 +151,9 @@ namespace catapult { namespace model {
 				TComponentStatement2&& componentStatement2,
 				TComponentStatement3&& componentStatement3) {
 			// Arrange:
-			std::vector<Hash256> componentStatementHashes{
-				componentStatement1.hash(), componentStatement2.hash(), componentStatement3.hash()
-			};
+			std::vector<Hash256> componentStatementHashes{ componentStatement1.hash(),
+														   componentStatement2.hash(),
+														   componentStatement3.hash() };
 
 			BlockStatement statement;
 			Add(statement, std::move(componentStatement1));
@@ -204,10 +210,9 @@ namespace catapult { namespace model {
 		auto componentStatement6 = MosaicResolutionStatement(UnresolvedMosaicId(100));
 		auto componentStatement7 = MosaicResolutionStatement(UnresolvedMosaicId(200));
 
-		std::vector<Hash256> componentStatementHashes{
-			componentStatement1.hash(), componentStatement2.hash(), componentStatement3.hash(), componentStatement4.hash(),
-			componentStatement5.hash(), componentStatement6.hash(), componentStatement7.hash()
-		};
+		std::vector<Hash256> componentStatementHashes{ componentStatement1.hash(), componentStatement2.hash(), componentStatement3.hash(),
+													   componentStatement4.hash(), componentStatement5.hash(), componentStatement6.hash(),
+													   componentStatement7.hash() };
 
 		BlockStatement statement;
 		Add(statement, std::move(componentStatement1));
@@ -357,11 +362,19 @@ namespace catapult { namespace model {
 	}
 
 #define SUB_STATEMENT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, CanCount##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CountTraits>(); } \
-	TEST(TEST_CLASS, CanDeepCopy##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTraits>(); } \
-	TEST(TEST_CLASS, CanDeepCopyTruncation##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTruncationTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, CanCount##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CountTraits>(); \
+	} \
+	TEST(TEST_CLASS, CanDeepCopy##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTraits>(); \
+	} \
+	TEST(TEST_CLASS, CanDeepCopyTruncation##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTruncationTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SUB_STATEMENT_TEST(EmptyBlockStatement) {
 		TTraits::RunStatementTest(0, 0, 0, 0);

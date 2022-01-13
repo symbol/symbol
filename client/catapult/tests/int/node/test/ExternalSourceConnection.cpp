@@ -38,16 +38,16 @@
 namespace catapult { namespace test {
 
 	ExternalSourceConnection::ExternalSourceConnection(const Key& key)
-			: ExternalSourceConnection(CreateLocalHostNode(key, GetLocalHostPort()))
-	{}
+			: ExternalSourceConnection(CreateLocalHostNode(key, GetLocalHostPort())) {
+	}
 
 	ExternalSourceConnection::ExternalSourceConnection(const ionet::Node& node)
 			: m_pPool(CreateStartedIoThreadPool(1))
 			, m_caKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
 			, m_tempDirectoryGuard(ToString(m_caKeyPair.publicKey()))
 			, m_pConnector(net::CreateServerConnector(*m_pPool, m_caKeyPair.publicKey(), createConnectionSettings(), "external source"))
-			, m_localNode(node)
-	{}
+			, m_localNode(node) {
+	}
 
 	std::shared_ptr<ionet::PacketIo> ExternalSourceConnection::io() const {
 		return m_pIo;
@@ -64,11 +64,8 @@ namespace catapult { namespace test {
 
 	void ExternalSourceConnection::apiCall(const consumer<const std::shared_ptr<api::RemoteChainApi>&>& onConnect) {
 		connect([onConnect](const auto& pPacketIo) {
-			auto pRemoteApi = CreateLifetimeExtendedApi(
-					api::CreateRemoteChainApi,
-					pPacketIo,
-					model::NodeIdentity(),
-					CreateTransactionRegistry());
+			auto pRemoteApi =
+					CreateLifetimeExtendedApi(api::CreateRemoteChainApi, pPacketIo, model::NodeIdentity(), CreateTransactionRegistry());
 			onConnect(pRemoteApi);
 		});
 	}

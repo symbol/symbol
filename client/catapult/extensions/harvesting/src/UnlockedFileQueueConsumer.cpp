@@ -81,7 +81,7 @@ namespace catapult { namespace harvesting {
 			return true;
 		};
 
-		while (reader.tryReadNextMessageConditional(appendMessage))
-		{}
+		while (reader.tryReadNextMessageConditional(appendMessage)) {
+		}
 	}
 }}

@@ -39,8 +39,8 @@ namespace catapult { namespace state {
 	public:
 		/// Creates an account restriction descriptor around \a restrictionFlags.
 		constexpr explicit AccountRestrictionDescriptor(model::AccountRestrictionFlags restrictionFlags)
-				: m_restrictionFlags(restrictionFlags)
-		{}
+				: m_restrictionFlags(restrictionFlags) {
+		}
 
 	public:
 		/// Gets the value specific part of the restriction flags including the direction.
@@ -55,9 +55,8 @@ namespace catapult { namespace state {
 
 		/// Gets the operation type.
 		constexpr AccountRestrictionOperationType operationType() const {
-			return model::HasFlag(model::AccountRestrictionFlags::Block, m_restrictionFlags)
-					? AccountRestrictionOperationType::Block
-					: AccountRestrictionOperationType::Allow;
+			return model::HasFlag(model::AccountRestrictionFlags::Block, m_restrictionFlags) ? AccountRestrictionOperationType::Block
+																							 : AccountRestrictionOperationType::Allow;
 		}
 
 		/// Gets the raw restriction flags.
@@ -66,9 +65,7 @@ namespace catapult { namespace state {
 		}
 
 	private:
-		static constexpr model::AccountRestrictionFlags StripFlag(
-				model::AccountRestrictionFlags lhs,
-				model::AccountRestrictionFlags flag) {
+		static constexpr model::AccountRestrictionFlags StripFlag(model::AccountRestrictionFlags lhs, model::AccountRestrictionFlags flag) {
 			return static_cast<model::AccountRestrictionFlags>(utils::to_underlying_type(lhs) & ~utils::to_underlying_type(flag));
 		}
 

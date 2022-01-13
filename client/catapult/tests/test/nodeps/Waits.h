@@ -153,9 +153,8 @@ namespace catapult { namespace test {
 	template<typename T1, typename T2>
 	bool ExpectEqualOrRetry(const T1& expected, const T2& actual, const char* expectedName, const char* actualName) {
 		if (expected != actual) {
-			CATAPULT_LOG(debug)
-					<< "value of " << actualName << ": " << actual
-					<< ", expected " << expectedName << " == " << expected << ", retrying...";
+			CATAPULT_LOG(debug) << "value of " << actualName << ": " << actual << ", expected " << expectedName << " == " << expected
+								<< ", retrying...";
 			return false;
 		}
 

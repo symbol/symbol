@@ -36,8 +36,9 @@ namespace catapult { namespace partialtransaction {
 
 		class PtBootstrapperServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit PtBootstrapperServiceRegistrar(const PtCacheSupplier& ptCacheSupplier) : m_ptCacheSupplier(ptCacheSupplier)
-			{}
+			explicit PtBootstrapperServiceRegistrar(const PtCacheSupplier& ptCacheSupplier)
+					: m_ptCacheSupplier(ptCacheSupplier) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {

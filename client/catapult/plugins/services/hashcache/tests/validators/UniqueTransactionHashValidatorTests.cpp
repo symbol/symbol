@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/cache/HashCache.h"
+#include "src/validators/Validators.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/model/EntityHasher.h"
 #include "catapult/validators/ValidatorContext.h"
@@ -39,7 +39,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS UniqueTransactionHashValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(UniqueTransactionHash,)
+	DEFINE_COMMON_VALIDATOR_TESTS(UniqueTransactionHash, )
 
 	namespace {
 		constexpr auto Success_Result = ValidationResult::Success;

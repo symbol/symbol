@@ -62,8 +62,8 @@ namespace catapult { namespace subscribers {
 			struct Param {
 				Param(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature)
 						: ParentTransactionInfo(parentTransactionInfo)
-						, Cosignature(cosignature)
-				{}
+						, Cosignature(cosignature) {
+				}
 
 				const model::TransactionInfo& ParentTransactionInfo;
 				const model::Cosignature& Cosignature;

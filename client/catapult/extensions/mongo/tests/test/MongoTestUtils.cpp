@@ -95,19 +95,13 @@ namespace catapult { namespace test {
 
 		// cap 'transactionStatuses' collection
 		auto transactionStatusesOptions = document()
-				<< "capped" << true
-				<< "size" << std::numeric_limits<int>::max()
-				<< "max" << 25
-				<< finalize;
+										  << "capped" << true << "size" << std::numeric_limits<int>::max() << "max" << 25 << finalize;
 		database.create_collection("transactionStatuses", transactionStatusesOptions.view());
 	}
 
 	bsoncxx::document::value CreateFilter(const std::shared_ptr<state::AccountState>& pAccountState) {
-		auto filter = document()
-				<< "account.address" << open_document
-					<< "$eq" << mongo::mappers::ToBinary(pAccountState->Address)
-				<< close_document
-				<< finalize;
+		auto filter = document() << "account.address" << open_document << "$eq" << mongo::mappers::ToBinary(pAccountState->Address)
+								 << close_document << finalize;
 		return filter;
 	}
 

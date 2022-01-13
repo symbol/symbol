@@ -31,8 +31,8 @@ namespace catapult { namespace filespooling {
 		class FilePtChangeStorage final : public cache::PtChangeSubscriber {
 		public:
 			explicit FilePtChangeStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-					: m_pOutputStream(std::move(pOutputStream))
-			{}
+					: m_pOutputStream(std::move(pOutputStream)) {
+			}
 
 		public:
 			void notifyAddPartials(const TransactionInfos& transactionInfos) override {
@@ -43,9 +43,7 @@ namespace catapult { namespace filespooling {
 				saveInfos(subscribers::PtChangeOperationType::Remove_Partials, transactionInfos);
 			}
 
-			void notifyAddCosignature(
-					const model::TransactionInfo& parentTransactionInfo,
-					const model::Cosignature& cosignature) override {
+			void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override {
 				io::Write8(*m_pOutputStream, utils::to_underlying_type(subscribers::PtChangeOperationType::Add_Cosignature));
 				m_pOutputStream->write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
 				io::WriteTransactionInfo(parentTransactionInfo, *m_pOutputStream);

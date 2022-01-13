@@ -61,8 +61,8 @@ namespace catapult { namespace crypto {
 		/// Creates a pool around \a pBuffer. Pointed memory must be large enough to hold \c Count * \c Element_Size bytes.
 		explicit FixedSizePool(uint8_t* pBuffer)
 				: m_pBuffer(pBuffer)
-				, m_occupied()
-		{}
+				, m_occupied() {
+		}
 
 	public:
 		/// Gets a pointer to buffer.

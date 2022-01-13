@@ -46,8 +46,9 @@ namespace catapult { namespace cache {
 		struct SharedTraits {
 			class CacheType : public NamespaceCache {
 			public:
-				CacheType() : NamespaceCache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(100) })
-				{}
+				CacheType()
+						: NamespaceCache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(100) }) {
+				}
 			};
 
 			using NamespaceHistoryHeader = test::NamespaceHistoryHeader;
@@ -234,7 +235,7 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_TESTS(LoadTraits,)
+	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_TESTS(LoadTraits, )
 
 	// endregion
 

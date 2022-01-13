@@ -40,20 +40,14 @@ namespace catapult { namespace config {
 			using ConfigurationType = MosaicConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"",
-						{
-							{ "maxMosaicsPerAccount", "4321" },
-							{ "maxMosaicDuration", "2340h" },
-							{ "maxMosaicDivisibility", "7" },
+				return { { "",
+						   { { "maxMosaicsPerAccount", "4321" },
+							 { "maxMosaicDuration", "2340h" },
+							 { "maxMosaicDivisibility", "7" },
 
-							{ "mosaicRentalFeeSinkAddressV1", Mosaic_Rental_Fee_Sink_Address_V1 },
-							{ "mosaicRentalFeeSinkAddress", Mosaic_Rental_Fee_Sink_Address },
-							{ "mosaicRentalFee", "773388" }
-						}
-					}
-				};
+							 { "mosaicRentalFeeSinkAddressV1", Mosaic_Rental_Fee_Sink_Address_V1 },
+							 { "mosaicRentalFeeSinkAddress", Mosaic_Rental_Fee_Sink_Address },
+							 { "mosaicRentalFee", "773388" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

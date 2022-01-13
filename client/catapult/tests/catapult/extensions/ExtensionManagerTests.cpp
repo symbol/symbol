@@ -128,8 +128,8 @@ namespace catapult { namespace extensions {
 		public:
 			MockServiceRegistrar(size_t id, std::vector<ServiceRegistrarBreadcrumb>& breadcrumbs)
 					: m_id(id)
-					, m_breadcrumbs(breadcrumbs)
-			{}
+					, m_breadcrumbs(breadcrumbs) {
+			}
 
 		public:
 			ServiceRegistrarInfo info() const override {

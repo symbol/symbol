@@ -32,11 +32,11 @@ namespace catapult { namespace consumers {
 	/// Validation will only be performed for entities for which \a requiresValidationPredicate returns \c true.
 	disruptor::ConstBlockConsumer MakeBlockValidationConsumer(
 			const RequiresValidationPredicate& requiresValidationPredicate,
-			const std::function<validators::ValidationResult (const model::WeakEntityInfos&)>& process);
+			const std::function<validators::ValidationResult(const model::WeakEntityInfos&)>& process);
 
 	/// Makes a transaction validation consumer that forwards all entity infos to \a process for validation.
 	/// Each failure is forwarded to \a failedTransactionSink.
 	disruptor::TransactionConsumer MakeTransactionValidationConsumer(
 			const chain::FailedTransactionSink& failedTransactionSink,
-			const std::function<std::vector<validators::ValidationResult> (model::WeakEntityInfos&)>& process);
+			const std::function<std::vector<validators::ValidationResult>(model::WeakEntityInfos&)>& process);
 }}

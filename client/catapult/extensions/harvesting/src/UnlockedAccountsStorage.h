@@ -26,7 +26,9 @@
 #include "catapult/types.h"
 #include <map>
 
-namespace catapult { namespace harvesting { class BlockGeneratorAccountDescriptor; } }
+namespace catapult { namespace harvesting {
+	class BlockGeneratorAccountDescriptor;
+}}
 
 namespace catapult { namespace harvesting {
 

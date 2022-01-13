@@ -25,8 +25,8 @@ namespace catapult { namespace state {
 
 	MosaicAddressRestriction::MosaicAddressRestriction(MosaicId mosaicId, Address address)
 			: m_mosaicId(mosaicId)
-			, m_address(address)
-	{}
+			, m_address(address) {
+	}
 
 	MosaicId MosaicAddressRestriction::mosaicId() const {
 		return m_mosaicId;

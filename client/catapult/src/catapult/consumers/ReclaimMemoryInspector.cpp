@@ -31,8 +31,7 @@ namespace catapult { namespace consumers {
 				if (disruptor::CompletionStatus::Aborted == completionResult.CompletionStatus) {
 					auto validationResult = static_cast<validators::ValidationResult>(completionResult.CompletionCode);
 					CATAPULT_LOG_LEVEL(MapToLogLevel(validationResult))
-							<< "consumer aborted at position " << completionResult.FinalConsumerPosition
-							<< " while processing " << input
+							<< "consumer aborted at position " << completionResult.FinalConsumerPosition << " while processing " << input
 							<< " due to " << validationResult;
 				}
 

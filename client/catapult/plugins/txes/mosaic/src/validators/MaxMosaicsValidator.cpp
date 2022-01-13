@@ -46,30 +46,30 @@ namespace catapult { namespace validators {
 	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsBalanceTransfer, model::BalanceTransferNotification)(uint16_t maxMosaics) {
 		using ValidatorType = stateful::FunctionalNotificationValidatorT<model::BalanceTransferNotification>;
 		auto name = "MaxMosaicsBalanceTransferValidator";
-		return std::make_unique<ValidatorType>(name, [maxMosaics](
-				const model::BalanceTransferNotification& notification,
-				const ValidatorContext& context) {
-			if (Amount() == notification.Amount)
-				return ValidationResult::Success;
+		return std::make_unique<ValidatorType>(
+				name,
+				[maxMosaics](const model::BalanceTransferNotification& notification, const ValidatorContext& context) {
+					if (Amount() == notification.Amount)
+						return ValidationResult::Success;
 
-			return CheckAccount(
-					maxMosaics,
-					context.Resolvers.resolve(notification.MosaicId),
-					notification.Recipient.resolved(context.Resolvers),
-					context);
-		});
+					return CheckAccount(
+							maxMosaics,
+							context.Resolvers.resolve(notification.MosaicId),
+							notification.Recipient.resolved(context.Resolvers),
+							context);
+				});
 	}
 
 	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsSupplyChange, model::MosaicSupplyChangeNotification)(uint16_t maxMosaics) {
 		using ValidatorType = stateful::FunctionalNotificationValidatorT<model::MosaicSupplyChangeNotification>;
 		auto name = "MaxMosaicsSupplyChangeValidator";
-		return std::make_unique<ValidatorType>(name, [maxMosaics](
-				const model::MosaicSupplyChangeNotification& notification,
-				const ValidatorContext& context) {
-			if (model::MosaicSupplyChangeAction::Decrease == notification.Action)
-				return ValidationResult::Success;
+		return std::make_unique<ValidatorType>(
+				name,
+				[maxMosaics](const model::MosaicSupplyChangeNotification& notification, const ValidatorContext& context) {
+					if (model::MosaicSupplyChangeAction::Decrease == notification.Action)
+						return ValidationResult::Success;
 
-			return CheckAccount(maxMosaics, context.Resolvers.resolve(notification.MosaicId), notification.Owner, context);
-		});
+					return CheckAccount(maxMosaics, context.Resolvers.resolve(notification.MosaicId), notification.Owner, context);
+				});
 	}
 }}

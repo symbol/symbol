@@ -20,6 +20,7 @@
 **/
 
 #pragma once
+#include "src/validators/Validators.h"
 #include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -100,7 +101,9 @@ namespace catapult { namespace validators {
 }}
 
 #define MAKE_CACHE_UNIQUE_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockCacheUniqueValidatorTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		LockCacheUniqueValidatorTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_CACHE_UNIQUE_TESTS(TRAITS_NAME) \
 	MAKE_CACHE_UNIQUE_TEST(TRAITS_NAME, SuccessWhenHashIsNotInCache) \

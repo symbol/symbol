@@ -31,8 +31,9 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Constructs a stack timer.
-		StackTimer() : m_start(Clock::now())
-		{}
+		StackTimer()
+				: m_start(Clock::now()) {
+		}
 
 	public:
 		/// Gets the number of elapsed milliseconds since this logger was created.

@@ -46,8 +46,9 @@ namespace catapult { namespace local {
 
 		class MockBlockChangeSubscriber : public io::BlockChangeSubscriber {
 		public:
-			explicit MockBlockChangeSubscriber(std::vector<Height>& heights) : m_heights(heights)
-			{}
+			explicit MockBlockChangeSubscriber(std::vector<Height>& heights)
+					: m_heights(heights) {
+			}
 
 		public:
 			void notifyBlock(const model::BlockElement& blockElement) override {
@@ -64,12 +65,13 @@ namespace catapult { namespace local {
 
 		class MockStateChangeSubscriber : public subscribers::StateChangeSubscriber {
 		public:
-			explicit MockStateChangeSubscriber(std::vector<Height>& heights) : m_heights(heights)
-			{}
+			explicit MockStateChangeSubscriber(std::vector<Height>& heights)
+					: m_heights(heights) {
+			}
 
 		public:
-			void notifyScoreChange(const model::ChainScore&) override
-			{}
+			void notifyScoreChange(const model::ChainScore&) override {
+			}
 
 			void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override {
 				m_heights.push_back(stateChangeInfo.Height);
@@ -81,8 +83,9 @@ namespace catapult { namespace local {
 
 		class MockFinalizationSubscriber : public subscribers::FinalizationSubscriber {
 		public:
-			explicit MockFinalizationSubscriber(std::vector<Height>& heights) : m_heights(heights)
-			{}
+			explicit MockFinalizationSubscriber(std::vector<Height>& heights)
+					: m_heights(heights) {
+			}
 
 		public:
 			void notifyFinalizedBlock(const model::FinalizationRound&, Height height, const Hash256&) override {
@@ -114,7 +117,8 @@ namespace catapult { namespace local {
 
 		class TestContext {
 		public:
-			TestContext() : m_dataDirectory(m_tempDir.name()) {
+			TestContext()
+					: m_dataDirectory(m_tempDir.name()) {
 				test::PrepareStorage(m_dataDirectory.rootDir().str());
 			}
 
@@ -133,9 +137,8 @@ namespace catapult { namespace local {
 
 		public:
 			Height readSupplementalHeight() const {
-				auto supplementalFileStream = io::FileStream(io::RawFile(
-						m_dataDirectory.dir("state").file("supplemental.dat"),
-						io::OpenMode::Read_Only));
+				auto supplementalFileStream =
+						io::FileStream(io::RawFile(m_dataDirectory.dir("state").file("supplemental.dat"), io::OpenMode::Read_Only));
 
 				cache::SupplementalData supplementalData;
 				Height chainHeight;

@@ -60,8 +60,8 @@ namespace catapult { namespace test {
 				, m_acceptorStrand(m_ioContext)
 				, m_timer(m_ioContext)
 				, m_isClosed(false)
-				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_endpoint))
-		{}
+				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_endpoint)) {
+		}
 
 	public:
 		auto& ioContext() {
@@ -156,12 +156,13 @@ namespace catapult { namespace test {
 
 	bool TcpAcceptor::Impl::Has_Outstanding_Acceptor = false;
 
-	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext) : TcpAcceptor(ioContext, GetLocalHostPort())
-	{}
+	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext)
+			: TcpAcceptor(ioContext, GetLocalHostPort()) {
+	}
 
 	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port)
-			: TcpAcceptor(ioContext, CreateLocalHostEndpoint(port))
-	{}
+			: TcpAcceptor(ioContext, CreateLocalHostEndpoint(port)) {
+	}
 
 	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, const boost::asio::ip::tcp::endpoint& endpoint)
 			: m_pImpl(std::make_shared<Impl>(ioContext, endpoint)) {
@@ -270,19 +271,14 @@ namespace catapult { namespace test {
 		auto pAcceptor = std::make_shared<TcpAcceptor>(ioContext);
 
 		// - post the work to the thread pool and extend the acceptor lifetime
-		SpawnPacketServerWork(*pAcceptor, options, [serverWork, pAcceptor](const auto& pSocket) {
-			serverWork(pSocket);
-		});
+		SpawnPacketServerWork(*pAcceptor, options, [serverWork, pAcceptor](const auto& pSocket) { serverWork(pSocket); });
 	}
 
 	void SpawnPacketServerWork(const TcpAcceptor& acceptor, const PacketSocketWork& serverWork) {
 		SpawnPacketServerWork(acceptor, CreatePacketSocketOptions(), serverWork);
 	}
 
-	void SpawnPacketServerWork(
-			const TcpAcceptor& acceptor,
-			const ionet::PacketSocketOptions& options,
-			const PacketSocketWork& serverWork) {
+	void SpawnPacketServerWork(const TcpAcceptor& acceptor, const ionet::PacketSocketOptions& options, const PacketSocketWork& serverWork) {
 		// Arrange: post the work to the thread pool
 		std::weak_ptr<TcpAcceptor::Impl> pAcceptorImplWeak = acceptor.m_pImpl;
 		boost::asio::post(acceptor.strand(), [options, serverWork, pAcceptorImplWeak]() {
@@ -325,8 +321,9 @@ namespace catapult { namespace test {
 	bool IsSocketOpen(ionet::PacketSocket& socket) {
 		struct Capture {
 		public:
-			Capture() : HasStats(false)
-			{}
+			Capture()
+					: HasStats(false) {
+			}
 
 		public:
 			ionet::PacketSocket::Stats Stats;
@@ -365,8 +362,8 @@ namespace catapult { namespace test {
 		public:
 			explicit LargeWritePayload(uint32_t bufferSize)
 					: Buffer(GenerateRandomPacketBuffer(bufferSize))
-					, pPacket(BufferToPacket(Buffer))
-			{}
+					, pPacket(BufferToPacket(Buffer)) {
+			}
 
 		public:
 			const ionet::ByteBuffer Buffer;
@@ -404,9 +401,7 @@ namespace catapult { namespace test {
 			pIo->write(ionet::PacketPayload(payload1.pPacket), [pIo, &payload1, &payload2](auto writeCode1) {
 				payload1.Code = writeCode1;
 
-				pIo->write(ionet::PacketPayload(payload2.pPacket), [&payload2](auto writeCode2) {
-					payload2.Code = writeCode2;
-				});
+				pIo->write(ionet::PacketPayload(payload2.pPacket), [&payload2](auto writeCode2) { payload2.Code = writeCode2; });
 			});
 
 			waitForReadComplete(readComplete);
@@ -435,12 +430,8 @@ namespace catapult { namespace test {
 		auto pPool = CreateStartedIoThreadPool();
 		SpawnPacketServerWork(pPool->ioContext(), [&](const auto& pServerSocket) {
 			auto pIo = transform(pServerSocket);
-			pIo->write(ionet::PacketPayload(payload1.pPacket), [&payload1](auto writeCode) {
-				payload1.Code = writeCode;
-			});
-			pIo->write(ionet::PacketPayload(payload2.pPacket), [&payload2](auto writeCode) {
-				payload2.Code = writeCode;
-			});
+			pIo->write(ionet::PacketPayload(payload1.pPacket), [&payload1](auto writeCode) { payload1.Code = writeCode; });
+			pIo->write(ionet::PacketPayload(payload2.pPacket), [&payload2](auto writeCode) { payload2.Code = writeCode; });
 
 			waitForReadComplete(readComplete);
 		});
@@ -469,8 +460,9 @@ namespace catapult { namespace test {
 	namespace {
 		struct LargeReadPayload {
 		public:
-			explicit LargeReadPayload(uint32_t bufferSize) : Buffer(GenerateRandomPacketBuffer(bufferSize))
-			{}
+			explicit LargeReadPayload(uint32_t bufferSize)
+					: Buffer(GenerateRandomPacketBuffer(bufferSize)) {
+			}
 
 		public:
 			const ionet::ByteBuffer Buffer;
@@ -512,9 +504,7 @@ namespace catapult { namespace test {
 			pIo->read([pIo, &payload1, &payload2](auto result1, const auto* pPacket1) {
 				payload1.update(result1, pPacket1);
 
-				pIo->read([&payload2](auto result2, const auto* pPacket2) {
-					payload2.update(result2, pPacket2);
-				});
+				pIo->read([&payload2](auto result2, const auto* pPacket2) { payload2.update(result2, pPacket2); });
 			});
 		});
 		auto pClientSocket = AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
@@ -538,12 +528,8 @@ namespace catapult { namespace test {
 		auto pPool = CreateStartedIoThreadPool();
 		SpawnPacketServerWork(pPool->ioContext(), [&](const auto& pServerSocket) {
 			auto pIo = transform(pServerSocket);
-			pIo->read([&payload1](auto result, const auto* pPacket) {
-				payload1.update(result, pPacket);
-			});
-			pIo->read([&payload2](auto result, const auto* pPacket) {
-				payload2.update(result, pPacket);
-			});
+			pIo->read([&payload1](auto result, const auto* pPacket) { payload1.update(result, pPacket); });
+			pIo->read([&payload2](auto result, const auto* pPacket) { payload2.update(result, pPacket); });
 		});
 		auto pClientSocket = AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
 		pPool->join();
@@ -559,10 +545,7 @@ namespace catapult { namespace test {
 	void AssertSocketClosedDuringRead(ionet::SocketOperationCode readCode) {
 		// Assert: the socket was closed
 		//         the underlying socket can either return eof (Closed) or operation cancelled (Read_Error)
-		std::set<ionet::SocketOperationCode> possibleValues{
-			ionet::SocketOperationCode::Closed,
-			ionet::SocketOperationCode::Read_Error
-		};
+		std::set<ionet::SocketOperationCode> possibleValues{ ionet::SocketOperationCode::Closed, ionet::SocketOperationCode::Read_Error };
 		EXPECT_CONTAINS(possibleValues, readCode);
 	}
 

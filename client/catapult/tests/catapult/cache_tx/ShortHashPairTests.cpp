@@ -36,14 +36,13 @@ namespace catapult { namespace cache {
 
 		std::unordered_map<std::string, ShortHashPair> GenerateEqualityInstanceMap() {
 			auto pair = ShortHashPair{ test::GenerateRandomValue<utils::ShortHash>(), test::GenerateRandomValue<utils::ShortHash>() };
-			return {
-				{ "default", pair },
-				{ "copy", { pair.TransactionShortHash, pair.CosignaturesShortHash } },
+			return { { "default", pair },
+					 { "copy", { pair.TransactionShortHash, pair.CosignaturesShortHash } },
 
-				{ "diff tx hash", { test::GenerateRandomValue<utils::ShortHash>(), pair.CosignaturesShortHash } },
-				{ "diff cosigs hash", { pair.TransactionShortHash, test::GenerateRandomValue<utils::ShortHash>() } },
-				{ "diff all hashes", { test::GenerateRandomValue<utils::ShortHash>(), test::GenerateRandomValue<utils::ShortHash>() } }
-			};
+					 { "diff tx hash", { test::GenerateRandomValue<utils::ShortHash>(), pair.CosignaturesShortHash } },
+					 { "diff cosigs hash", { pair.TransactionShortHash, test::GenerateRandomValue<utils::ShortHash>() } },
+					 { "diff all hashes",
+					   { test::GenerateRandomValue<utils::ShortHash>(), test::GenerateRandomValue<utils::ShortHash>() } } };
 		}
 	}
 

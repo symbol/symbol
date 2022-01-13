@@ -31,8 +31,9 @@ namespace catapult { namespace local {
 	namespace {
 		class TestContext {
 		public:
-			TestContext() : m_context(test::NodeFlag::With_Partner | test::NodeFlag::Simulated_Api, {})
-			{}
+			TestContext()
+					: m_context(test::NodeFlag::With_Partner | test::NodeFlag::Simulated_Api, {}) {
+			}
 
 		public:
 			auto publicKey() const {

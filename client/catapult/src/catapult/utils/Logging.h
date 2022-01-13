@@ -134,8 +134,8 @@ namespace catapult { namespace utils {
 		/// Creates default options.
 		BasicLoggerOptions()
 				: SinkType(LogSinkType::Async)
-				, ColorMode(LogColorMode::None)
-		{}
+				, ColorMode(LogColorMode::None) {
+		}
 
 		/// Log sink type.
 		LogSinkType SinkType;
@@ -149,8 +149,8 @@ namespace catapult { namespace utils {
 		/// Creates options that specify the creation of log files with the pattern \a filePattern in the \a directory.
 		FileLoggerOptions(const std::string& directory, const std::string& filePattern)
 				: Directory(directory)
-				, FilePattern(filePattern)
-		{}
+				, FilePattern(filePattern) {
+		}
 
 		/// Log directory.
 		std::string Directory;
@@ -209,8 +209,10 @@ namespace catapult { namespace utils {
 			using IteratorType = typename std::remove_reference_t<TAttributes>::iterator;
 
 		public:
-			EraseOnExit(TAttributes& attrs, IteratorType& iter) : m_attrs(attrs), m_iter(iter)
-			{}
+			EraseOnExit(TAttributes& attrs, IteratorType& iter)
+					: m_attrs(attrs)
+					, m_iter(iter) {
+			}
 
 			~EraseOnExit() {
 				if (m_iter != m_attrs.end())
@@ -230,24 +232,25 @@ namespace catapult { namespace utils {
 			using threading_model = typename TBase::threading_model;
 
 		public:
-			custom_info_tagger_feature()
-			{}
+			custom_info_tagger_feature() {
+			}
 
-			custom_info_tagger_feature(const custom_info_tagger_feature& rhs) : TBase(static_cast<const TBase&>(rhs))
-			{}
+			custom_info_tagger_feature(const custom_info_tagger_feature& rhs)
+					: TBase(static_cast<const TBase&>(rhs)) {
+			}
 
 			template<typename TArgs>
-			custom_info_tagger_feature(const TArgs& args) : TBase(args)
-			{}
+			custom_info_tagger_feature(const TArgs& args)
+					: TBase(args) {
+			}
 
 		public:
 			// choose the most restrictive lock
 			using open_record_lock = typename boost::log::strictest_lock<
-				boost::lock_guard<threading_model>,
-				typename TBase::open_record_lock,
-				typename TBase::add_attribute_lock,
-				typename TBase::remove_attribute_lock
-			>::type;
+					boost::lock_guard<threading_model>,
+					typename TBase::open_record_lock,
+					typename TBase::add_attribute_lock,
+					typename TBase::remove_attribute_lock>::type;
 
 		protected:
 			template<typename TArgs>
@@ -258,9 +261,7 @@ namespace catapult { namespace utils {
 
 				// add as a new attribute
 				auto& attrs = TBase::attributes();
-				auto result = TBase::add_attribute_unlocked(
-						TTraits::Name,
-						boost::log::attributes::constant<typename TTraits::Type>(value));
+				auto result = TBase::add_attribute_unlocked(TTraits::Name, boost::log::attributes::constant<typename TTraits::Type>(value));
 				auto iter = result.second ? result.first : attrs.end();
 
 				// remove attribute upon scope exit
@@ -317,16 +318,16 @@ namespace catapult { namespace utils {
 		};
 
 		/// Catapult logger type.
-		class catapult_logger :
-				public boost::log::sources::basic_composite_logger<
-						char,
-						catapult_logger,
-						boost::log::sources::multi_thread_model<boost::log::aux::light_rw_mutex>,
-						boost::log::sources::features<
-								custom_info_tagger<LogLevelTraits>,
-								custom_info_tagger<LineNumberTraits>,
-								custom_info_tagger<FilenameTraits>,
-								custom_info_tagger<SubcomponentTraits>>> {
+		class catapult_logger
+				: public boost::log::sources::basic_composite_logger<
+						  char,
+						  catapult_logger,
+						  boost::log::sources::multi_thread_model<boost::log::aux::light_rw_mutex>,
+						  boost::log::sources::features<
+								  custom_info_tagger<LogLevelTraits>,
+								  custom_info_tagger<LineNumberTraits>,
+								  custom_info_tagger<FilenameTraits>,
+								  custom_info_tagger<SubcomponentTraits>>> {
 			// generate forwarding constructors
 			BOOST_LOG_FORWARD_LOGGER_MEMBERS_TEMPLATE(catapult_logger)
 		};
@@ -340,22 +341,18 @@ namespace catapult { namespace utils {
 
 #define CATAPULT_LOG_WITH_LOGGER_LEVEL_TAG(LOGGER, LEVEL, TAG) \
 	BOOST_LOG_STREAM_WITH_PARAMS( \
-		(LOGGER), \
-		(::catapult::utils::log::keywords::file = (::catapult::utils::ExtractFilename(__FILE__))) \
-		(::catapult::utils::log::keywords::line = (static_cast<unsigned int>(__LINE__))) \
-		(::catapult::utils::log::keywords::subcomponent = (TAG)) \
-		(::catapult::utils::log::keywords::loglevel = (static_cast<::catapult::utils::LogLevel>(LEVEL))))
+			(LOGGER), \
+			(::catapult::utils::log::keywords::file = (::catapult::utils::ExtractFilename(__FILE__)))( \
+					::catapult::utils::log::keywords::line = \
+							(static_cast<unsigned int>(__LINE__)))(::catapult::utils::log::keywords::subcomponent = (TAG))( \
+					::catapult::utils::log::keywords::loglevel = (static_cast<::catapult::utils::LogLevel>(LEVEL))))
 
 /// Writes a log entry to \a LOGGER with \a LEVEL severity.
 #define CATAPULT_LOG_WITH_LOGGER_LEVEL(LOGGER, LEVEL) \
 	CATAPULT_LOG_WITH_LOGGER_LEVEL_TAG(LOGGER, LEVEL, (::catapult::utils::ExtractDirectoryName(__FILE__)))
 
 /// Writes a log entry to the default logger with \a LEVEL severity.
-#define CATAPULT_LOG_LEVEL(LEVEL) \
-	CATAPULT_LOG_WITH_LOGGER_LEVEL(::catapult::utils::log::global_logger::get(), LEVEL)
+#define CATAPULT_LOG_LEVEL(LEVEL) CATAPULT_LOG_WITH_LOGGER_LEVEL(::catapult::utils::log::global_logger::get(), LEVEL)
 
 /// Writes a log entry to the default logger with \a SEV severity.
-#define CATAPULT_LOG(SEV) \
-	CATAPULT_LOG_WITH_LOGGER_LEVEL( \
-			::catapult::utils::log::global_logger::get(), \
-			(::catapult::utils::LogLevel::SEV))
+#define CATAPULT_LOG(SEV) CATAPULT_LOG_WITH_LOGGER_LEVEL(::catapult::utils::log::global_logger::get(), (::catapult::utils::LogLevel::SEV))

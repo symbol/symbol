@@ -30,15 +30,15 @@ namespace catapult { namespace consumers {
 
 	namespace {
 		void Write(io::RawFile& file, const model::VerifiableEntity& entity) {
-			file.write({ reinterpret_cast<const uint8_t*>(&entity), entity.Size});
+			file.write({ reinterpret_cast<const uint8_t*>(&entity), entity.Size });
 		}
 
 		class AuditConsumer {
 		public:
 			explicit AuditConsumer(const std::string& auditDirectory)
 					: m_auditDirectory(auditDirectory)
-					, m_id(0)
-			{}
+					, m_id(0) {
+			}
 
 		public:
 			ConsumerResult operator()(const disruptor::ConsumerInput& input) const {

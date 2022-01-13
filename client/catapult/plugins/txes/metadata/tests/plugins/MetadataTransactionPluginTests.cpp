@@ -153,14 +153,28 @@ namespace catapult { namespace plugins {
 	// region publish - account
 
 #define METADATA_PLUGIN_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular_Account) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded_Account) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Regular_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Regular_Namespace) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded_Namespace) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceEmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular_Account) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountRegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded_Account) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountEmbeddedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Regular_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicRegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicEmbeddedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Regular_Namespace) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceRegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded_Namespace) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceEmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		template<typename TTraits>
@@ -181,10 +195,10 @@ namespace catapult { namespace plugins {
 		auto pTransaction = CreateTransactionWithValue<TTraits>(11);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, TTraits::AppendExpectedCustomNotificationTypes({
-			MetadataSizesNotification::Notification_Type,
-			MetadataValueNotification::Notification_Type
-		}));
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				TTraits::AppendExpectedCustomNotificationTypes(
+						{ MetadataSizesNotification::Notification_Type, MetadataValueNotification::Notification_Type }));
 	}
 
 	METADATA_PLUGIN_BASED_TEST(CanPublishAllNotifications) {
@@ -224,11 +238,19 @@ namespace catapult { namespace plugins {
 	// region additionalRequiredCosignatories
 
 #define METADATA_EMBEDDED_PLUGIN_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Account) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Namespace) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceEmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Account) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountEmbeddedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicEmbeddedTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Namespace) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NamespaceEmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	METADATA_EMBEDDED_PLUGIN_BASED_TEST(CanExtractAdditionalRequiredCosignatoriesFromEmbedded) {
 		// Arrange:

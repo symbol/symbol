@@ -29,8 +29,9 @@ namespace catapult { namespace zeromq {
 	namespace {
 		class ZeroMqBlockChangeSubscriber : public io::BlockChangeSubscriber {
 		public:
-			explicit ZeroMqBlockChangeSubscriber(ZeroMqEntityPublisher& publisher) : m_publisher(publisher)
-			{}
+			explicit ZeroMqBlockChangeSubscriber(ZeroMqEntityPublisher& publisher)
+					: m_publisher(publisher) {
+			}
 
 		public:
 			void notifyBlock(const model::BlockElement& blockElement) override {

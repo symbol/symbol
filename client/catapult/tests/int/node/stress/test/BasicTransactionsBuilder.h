@@ -66,9 +66,7 @@ namespace catapult { namespace test {
 		/// Adds transaction described by \a descriptor with descriptor type (\a descriptorType).
 		template<typename TDescriptorType, typename TDescriptor>
 		void add(TDescriptorType descriptorType, const TDescriptor& descriptor) {
-			m_transactionDescriptorPairs.emplace_back(
-					utils::to_underlying_type(descriptorType),
-					std::make_shared<TDescriptor>(descriptor));
+			m_transactionDescriptorPairs.emplace_back(utils::to_underlying_type(descriptorType), std::make_shared<TDescriptor>(descriptor));
 		}
 
 	private:

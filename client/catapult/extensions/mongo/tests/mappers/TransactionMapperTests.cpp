@@ -67,8 +67,8 @@ namespace catapult { namespace mongo { namespace mappers {
 		class MongoArbitraryTransactionPlugin : public MongoTransactionPlugin {
 		public:
 			explicit MongoArbitraryTransactionPlugin(DependentDocumentOptions dependentDocumentOptions)
-					: m_dependentDocumentOptions(dependentDocumentOptions)
-			{}
+					: m_dependentDocumentOptions(dependentDocumentOptions) {
+			}
 
 		public:
 			model::EntityType type() const override {
@@ -77,9 +77,8 @@ namespace catapult { namespace mongo { namespace mappers {
 
 			void streamTransaction(bson_stream::document& builder, const model::Transaction& transaction) const override {
 				const auto& arbitraryTransaction = static_cast<const ArbitraryTransaction&>(transaction);
-				builder
-						<< "alpha" << static_cast<int32_t>(arbitraryTransaction.Alpha)
-						<< "zeta" << static_cast<int32_t>(arbitraryTransaction.Zeta);
+				builder << "alpha" << static_cast<int32_t>(arbitraryTransaction.Alpha) << "zeta"
+						<< static_cast<int32_t>(arbitraryTransaction.Zeta);
 			}
 
 			std::vector<bsoncxx::document::value> extractDependentDocuments(
@@ -89,14 +88,12 @@ namespace catapult { namespace mongo { namespace mappers {
 					return {};
 
 				const auto& arbitraryTransaction = static_cast<const ArbitraryTransaction&>(transaction);
-				return {
-					CreateSingleValueDocument("sum", arbitraryTransaction.Alpha + arbitraryTransaction.Zeta),
-					CreateSingleValueDocument("diff", arbitraryTransaction.Zeta - arbitraryTransaction.Alpha),
-					CreateSingleValueDocument("prod", arbitraryTransaction.Alpha * arbitraryTransaction.Zeta)
-				};
+				return { CreateSingleValueDocument("sum", arbitraryTransaction.Alpha + arbitraryTransaction.Zeta),
+						 CreateSingleValueDocument("diff", arbitraryTransaction.Zeta - arbitraryTransaction.Alpha),
+						 CreateSingleValueDocument("prod", arbitraryTransaction.Alpha * arbitraryTransaction.Zeta) };
 			}
 
-			bool supportsEmbedding() const override{
+			bool supportsEmbedding() const override {
 				return false;
 			}
 

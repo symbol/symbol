@@ -25,7 +25,9 @@
 #include "catapult/functions.h"
 #include <vector>
 
-namespace catapult { namespace model { struct Cosignature; } }
+namespace catapult { namespace model {
+	struct Cosignature;
+}}
 
 namespace catapult { namespace cache {
 
@@ -33,7 +35,8 @@ namespace catapult { namespace cache {
 	/// \note Cache assumes that added transactions are stripped of all cosignatures.
 	class PtCacheModifier {
 	public:
-		virtual ~PtCacheModifier() noexcept(false) {}
+		virtual ~PtCacheModifier() noexcept(false) {
+		}
 
 	public:
 		/// Gets the number of transactions in the cache.
@@ -65,8 +68,8 @@ namespace catapult { namespace cache {
 	class PtCacheModifierProxy final : public BasicTransactionsCacheModifierProxy<model::DetachedTransactionInfo, PtCacheModifier> {
 	public:
 		using BaseType = BasicTransactionsCacheModifierProxy<model::DetachedTransactionInfo, PtCacheModifier>;
-		using BaseType::BasicTransactionsCacheModifierProxy;
 		using BaseType::add;
+		using BaseType::BasicTransactionsCacheModifierProxy;
 
 	public:
 		/// Adds \a cosignature for a partial transaction with hash \a parentHash to the cache.

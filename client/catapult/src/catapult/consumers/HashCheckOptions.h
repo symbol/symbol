@@ -28,15 +28,16 @@ namespace catapult { namespace consumers {
 	struct HashCheckOptions {
 	public:
 		/// Creates default options.
-		constexpr HashCheckOptions() : HashCheckOptions(0, 0, 0)
-		{}
+		constexpr HashCheckOptions()
+				: HashCheckOptions(0, 0, 0) {
+		}
 
 		/// Creates options with custom \a cacheDuration, \a pruneInterval and \a maxCacheSize.
 		constexpr HashCheckOptions(uint64_t cacheDuration, uint64_t pruneInterval, uint64_t maxCacheSize)
 				: CacheDuration(cacheDuration)
 				, PruneInterval(pruneInterval)
-				, MaxCacheSize(maxCacheSize)
-		{}
+				, MaxCacheSize(maxCacheSize) {
+		}
 
 	public:
 		/// Amount of time a hash should be cached.

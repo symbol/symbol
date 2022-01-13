@@ -36,8 +36,9 @@ namespace catapult { namespace consumers {
 	namespace {
 		struct NewBlockSinkParams {
 		public:
-			explicit NewBlockSinkParams(const std::shared_ptr<const model::Block>& pBlock) : pNewBlock(pBlock)
-			{}
+			explicit NewBlockSinkParams(const std::shared_ptr<const model::Block>& pBlock)
+					: pNewBlock(pBlock) {
+			}
 
 		public:
 			std::shared_ptr<const model::Block> pNewBlock;
@@ -52,17 +53,14 @@ namespace catapult { namespace consumers {
 
 		InputSource GetRemoteMask() {
 			return static_cast<InputSource>(
-					utils::to_underlying_type(InputSource::Remote_Pull)
-					| utils::to_underlying_type(InputSource::Remote_Push));
+					utils::to_underlying_type(InputSource::Remote_Pull) | utils::to_underlying_type(InputSource::Remote_Push));
 		}
 
 		struct ConsumerTestContext {
 		public:
 			explicit ConsumerTestContext(InputSource sourceMask)
-					: Consumer(CreateNewBlockConsumer(
-							[&handler = NewBlockSink](const auto& pBlock) { handler(pBlock); },
-							sourceMask))
-			{}
+					: Consumer(CreateNewBlockConsumer([&handler = NewBlockSink](const auto& pBlock) { handler(pBlock); }, sourceMask)) {
+			}
 
 		public:
 			MockNewBlockSink NewBlockSink;

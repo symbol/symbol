@@ -37,8 +37,9 @@ namespace catapult { namespace cache {
 	class SizeMixin {
 	public:
 		/// Creates a mixin around \a set.
-		explicit SizeMixin(const TSet& set) : m_set(set)
-		{}
+		explicit SizeMixin(const TSet& set)
+				: m_set(set) {
+		}
 
 	public:
 		/// Gets the number of elements in the cache.
@@ -58,8 +59,9 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a mixin around \a set.
-		explicit ContainsMixin(const TSet& set) : m_set(set)
-		{}
+		explicit ContainsMixin(const TSet& set)
+				: m_set(set) {
+		}
 
 	public:
 		/// Gets a value indicating whether or not the cache contains an element with \a key.
@@ -79,8 +81,9 @@ namespace catapult { namespace cache {
 		struct IterableView {
 		public:
 			/// Creates a view around \a set.
-			explicit IterableView(const TSet& set) : m_set(set)
-			{}
+			explicit IterableView(const TSet& set)
+					: m_set(set) {
+			}
 
 		public:
 			/// Gets a const iterator to the first element of the underlying set.
@@ -99,8 +102,9 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a mixin around \a set.
-		explicit IterationMixin(const TSet& set) : m_set(set)
-		{}
+		explicit IterationMixin(const TSet& set)
+				: m_set(set) {
+		}
 
 	public:
 		/// Creates an iterable view of the cache.
@@ -151,8 +155,8 @@ namespace catapult { namespace cache {
 			/// Creates an iterator around a set iterator (\a iter) for the specified \a key.
 			CacheFindIterator(TBaseSetIterator&& iter, const KeyType& key)
 					: m_iter(std::move(iter))
-					, m_key(key)
-			{}
+					, m_key(key) {
+			}
 
 		public:
 			/// Gets a const value.
@@ -185,9 +189,9 @@ namespace catapult { namespace cache {
 
 	/// Mixin for adding const access support to a cache.
 	template<
-		typename TSet,
-		typename TCacheDescriptor,
-		typename TValueAdapter = detail::NoOpAdapter<const typename TCacheDescriptor::ValueType>>
+			typename TSet,
+			typename TCacheDescriptor,
+			typename TValueAdapter = detail::NoOpAdapter<const typename TCacheDescriptor::ValueType>>
 	class ConstAccessorMixin {
 	private:
 		using KeyType = typename TCacheDescriptor::KeyType;
@@ -200,8 +204,9 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a mixin around \a set.
-		explicit ConstAccessorMixin(const TSet& set) : m_set(set)
-		{}
+		explicit ConstAccessorMixin(const TSet& set)
+				: m_set(set) {
+		}
 
 	public:
 		/// Finds the cache value identified by \a key.
@@ -216,10 +221,7 @@ namespace catapult { namespace cache {
 
 	/// Mixin for adding non-const access support to a cache.
 	/// \note This is not simply a specialization of ConstAccessorMixin due to differences in function constness.
-	template<
-		typename TSet,
-		typename TCacheDescriptor,
-		typename TValueAdapter = detail::NoOpAdapter<typename TCacheDescriptor::ValueType>>
+	template<typename TSet, typename TCacheDescriptor, typename TValueAdapter = detail::NoOpAdapter<typename TCacheDescriptor::ValueType>>
 	class MutableAccessorMixin {
 	private:
 		using KeyType = typename TCacheDescriptor::KeyType;
@@ -232,8 +234,9 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a mixin around \a set.
-		explicit MutableAccessorMixin(TSet& set) : m_set(set)
-		{}
+		explicit MutableAccessorMixin(TSet& set)
+				: m_set(set) {
+		}
 
 	public:
 		/// Finds the cache value identified by \a key.
@@ -254,8 +257,9 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a mixin around \a set.
-		explicit ActivePredicateMixin(const TSet& set) : m_set(set)
-		{}
+		explicit ActivePredicateMixin(const TSet& set)
+				: m_set(set) {
+		}
 
 	public:
 		/// Returns \c true if the value specified by identifier \a key is active at \a height.
@@ -278,8 +282,9 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a mixin around \a set.
-		explicit BasicInsertRemoveMixin(TSet& set) : m_set(set)
-		{}
+		explicit BasicInsertRemoveMixin(TSet& set)
+				: m_set(set) {
+		}
 
 	public:
 		/// Inserts \a value into the cache.
@@ -313,8 +318,8 @@ namespace catapult { namespace cache {
 		/// Creates a mixin around \a set and \a heightGroupedSet.
 		HeightBasedTouchMixin(TSet& set, THeightGroupedSet& heightGroupedSet)
 				: m_set(set)
-				, m_heightGroupedSet(heightGroupedSet)
-		{}
+				, m_heightGroupedSet(heightGroupedSet) {
+		}
 
 	public:
 		/// Touches the cache at \a height and returns identifiers of all deactivating elements.

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
 #include "AccountRestrictionView.h"
+#include "Validators.h"
 #include "src/cache/AccountRestrictionCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"

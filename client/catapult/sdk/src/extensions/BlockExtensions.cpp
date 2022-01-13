@@ -32,13 +32,10 @@ namespace catapult { namespace extensions {
 
 	BlockExtensions::BlockExtensions(const GenerationHashSeed& generationHashSeed)
 			: m_generationHashSeed(generationHashSeed)
-			, m_calculateTransactionEntityHash([generationHashSeed](const auto& transaction) {
-				return model::CalculateHash(transaction, generationHashSeed);
-			})
-			, m_calculateTransactionMerkleComponentHash([](const auto&, const auto& entityHash) {
-				return entityHash;
-			})
-	{}
+			, m_calculateTransactionEntityHash(
+					  [generationHashSeed](const auto& transaction) { return model::CalculateHash(transaction, generationHashSeed); })
+			, m_calculateTransactionMerkleComponentHash([](const auto&, const auto& entityHash) { return entityHash; }) {
+	}
 
 	BlockExtensions::BlockExtensions(const GenerationHashSeed& generationHashSeed, const model::TransactionRegistry& transactionRegistry)
 			: m_generationHashSeed(generationHashSeed)
@@ -48,8 +45,8 @@ namespace catapult { namespace extensions {
 			})
 			, m_calculateTransactionMerkleComponentHash([&transactionRegistry](const auto& transaction, const auto& entityHash) {
 				return model::CalculateMerkleComponentHash(transaction, entityHash, transactionRegistry);
-			})
-	{}
+			}) {
+	}
 
 	void BlockExtensions::updateBlockTransactionsHash(model::Block& block) const {
 		calculateBlockTransactionsHash(block, block.TransactionsHash);
@@ -95,9 +92,7 @@ namespace catapult { namespace extensions {
 		return VerifyFullBlockResult::Success;
 	}
 
-	model::BlockElement BlockExtensions::convertBlockToBlockElement(
-			const model::Block& block,
-			const GenerationHash& generationHash) const {
+	model::BlockElement BlockExtensions::convertBlockToBlockElement(const model::Block& block, const GenerationHash& generationHash) const {
 		model::BlockElement blockElement(block);
 		blockElement.EntityHash = model::CalculateHash(block);
 		blockElement.GenerationHash = generationHash;

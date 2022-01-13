@@ -31,8 +31,8 @@ namespace catapult { namespace cache {
 		class DetachedDeltaWrapper {
 		public:
 			explicit DetachedDeltaWrapper(CatapultCacheDetachedDelta&& detachedDelta)
-					: m_detachedDelta(std::move(detachedDelta))
-			{}
+					: m_detachedDelta(std::move(detachedDelta)) {
+			}
 
 		public:
 			auto tryLock() {
@@ -46,7 +46,8 @@ namespace catapult { namespace cache {
 
 	class RelockableDetachedCatapultCache::Impl final {
 	public:
-		explicit Impl(const CatapultCache& catapultCache) : m_catapultCache(catapultCache) {
+		explicit Impl(const CatapultCache& catapultCache)
+				: m_catapultCache(catapultCache) {
 			rebaseAndLock();
 		}
 
@@ -73,8 +74,8 @@ namespace catapult { namespace cache {
 	};
 
 	RelockableDetachedCatapultCache::RelockableDetachedCatapultCache(const CatapultCache& catapultCache)
-			: m_pImpl(std::make_unique<Impl>(catapultCache))
-	{}
+			: m_pImpl(std::make_unique<Impl>(catapultCache)) {
+	}
 
 	RelockableDetachedCatapultCache::~RelockableDetachedCatapultCache() = default;
 

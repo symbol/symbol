@@ -34,8 +34,8 @@ namespace catapult { namespace mocks {
 		MockPacketWriters()
 				: m_equalityStrategy(model::NodeIdentityEqualityStrategy::Key)
 				, m_closedNodeIdentities(CreateNodeIdentitySet(m_equalityStrategy))
-				, m_nodeConnectCodeMap(model::CreateNodeIdentityMap<net::PeerConnectCode>(m_equalityStrategy))
-		{}
+				, m_nodeConnectCodeMap(model::CreateNodeIdentityMap<net::PeerConnectCode>(m_equalityStrategy)) {
+		}
 
 	public:
 		size_t numActiveWriters() const override {
@@ -91,7 +91,7 @@ namespace catapult { namespace mocks {
 			m_nodes.push_back(node);
 		}
 
-	// region not implemented
+		// region not implemented
 
 	public:
 		size_t numActiveConnections() const override {
@@ -114,16 +114,12 @@ namespace catapult { namespace mocks {
 			CATAPULT_THROW_RUNTIME_ERROR("not implemented in mock");
 		}
 
-	// endregion
+		// endregion
 
 	private:
 		net::PeerConnectResultEx getResult(const model::NodeIdentity& identity) const {
 			auto resultIter = m_nodeConnectCodeMap.find(identity);
-			return {
-				m_nodeConnectCodeMap.cend() == resultIter ? net::PeerConnectCode::Accepted : resultIter->second,
-				identity,
-				nullptr
-			};
+			return { m_nodeConnectCodeMap.cend() == resultIter ? net::PeerConnectCode::Accepted : resultIter->second, identity, nullptr };
 		}
 
 	private:
@@ -149,8 +145,8 @@ namespace catapult { namespace mocks {
 		/// Creates writers with packet io \a reuse policy.
 		explicit PickOneAwareMockPacketWriters(SetPacketIoBehavior setPacketIoBehavior = SetPacketIoBehavior::Use_Forever)
 				: m_setPacketIoBehavior(setPacketIoBehavior)
-				, m_nodeIdentity()
-		{}
+				, m_nodeIdentity() {
+		}
 
 	public:
 		/// Sets the packet io returned by pickOne to \a pPacketIo.
@@ -197,8 +193,9 @@ namespace catapult { namespace mocks {
 	class BroadcastAwareMockPacketWriters : public MockPacketWriters {
 	public:
 		/// Creates writers.
-		BroadcastAwareMockPacketWriters() : m_numBroadcastCalls(0)
-		{}
+		BroadcastAwareMockPacketWriters()
+				: m_numBroadcastCalls(0) {
+		}
 
 	public:
 		/// Gets the number of broadcast calls.

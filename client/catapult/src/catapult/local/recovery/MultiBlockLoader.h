@@ -25,14 +25,20 @@
 #include <functional>
 
 namespace catapult {
-	namespace extensions { struct LocalNodeStateRef; }
-	namespace model {
-		struct Block;
-		struct BlockchainConfiguration;
-		struct BlockElement;
-	}
-	namespace plugins { class PluginManager; }
-	namespace subscribers { struct StateChangeInfo; }
+namespace extensions {
+	struct LocalNodeStateRef;
+}
+namespace model {
+	struct Block;
+	struct BlockchainConfiguration;
+	struct BlockElement;
+}
+namespace plugins {
+	class PluginManager;
+}
+namespace subscribers {
+	struct StateChangeInfo;
+}
 }
 
 namespace catapult { namespace local {
@@ -42,7 +48,7 @@ namespace catapult { namespace local {
 
 	/// Block dependent notification observer factory.
 	using BlockDependentNotificationObserverFactory =
-		std::function<std::unique_ptr<const observers::NotificationObserver> (const model::Block&)>;
+			std::function<std::unique_ptr<const observers::NotificationObserver>(const model::Block&)>;
 
 	/// Creates a block dependent notification observer factory that calculates an inflection point from \a lastBlock and \a config.
 	/// Prior to the inflection point, an observer created by \a permanentObserverFactory is returned.

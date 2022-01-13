@@ -23,7 +23,9 @@
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/EntityInfo.h"
 
-namespace catapult { namespace model { struct Cosignature; } }
+namespace catapult { namespace model {
+	struct Cosignature;
+}}
 
 namespace catapult { namespace cache {
 

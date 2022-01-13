@@ -26,12 +26,10 @@
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 
-namespace catapult {
-	namespace model {
-		struct EmbeddedTransaction;
-		struct Transaction;
-	}
-}
+namespace catapult { namespace model {
+	struct EmbeddedTransaction;
+	struct Transaction;
+}}
 
 namespace catapult { namespace mongo {
 

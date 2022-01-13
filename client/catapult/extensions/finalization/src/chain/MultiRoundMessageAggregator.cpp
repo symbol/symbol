@@ -39,8 +39,8 @@ namespace catapult { namespace chain {
 				, MinFinalizationRound(round)
 				, MaxFinalizationRound(round)
 				, PreviousFinalizedHeightHashPair(previousFinalizedHeightHashPair)
-				, RoundMessageAggregatorFactory(roundMessageAggregatorFactory)
-		{}
+				, RoundMessageAggregatorFactory(roundMessageAggregatorFactory) {
+		}
 
 	public:
 		uint64_t MaxResponseSize;
@@ -59,8 +59,8 @@ namespace catapult { namespace chain {
 			const MultiRoundMessageAggregatorState& state,
 			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 			: m_state(state)
-			, m_readLock(std::move(readLock))
-	{}
+			, m_readLock(std::move(readLock)) {
+	}
 
 	size_t MultiRoundMessageAggregatorView::size() const {
 		return m_state.RoundMessageAggregators.size();
@@ -148,8 +148,8 @@ namespace catapult { namespace chain {
 			MultiRoundMessageAggregatorState& state,
 			utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
 			: m_state(state)
-			, m_writeLock(std::move(writeLock))
-	{}
+			, m_writeLock(std::move(writeLock)) {
+	}
 
 	void MultiRoundMessageAggregatorModifier::setMaxFinalizationRound(const model::FinalizationRound& round) {
 		if (m_state.MinFinalizationRound > round)
@@ -163,10 +163,8 @@ namespace catapult { namespace chain {
 	RoundMessageAggregatorAddResult MultiRoundMessageAggregatorModifier::add(const std::shared_ptr<model::FinalizationMessage>& pMessage) {
 		auto messageRound = pMessage->StepIdentifier.Round();
 		if (m_state.MinFinalizationRound > messageRound || m_state.MaxFinalizationRound < messageRound) {
-			CATAPULT_LOG(warning)
-					<< "rejecting message with round " << messageRound
-					<< ", min round " << m_state.MinFinalizationRound
-					<< ", max round " << m_state.MaxFinalizationRound;
+			CATAPULT_LOG(warning) << "rejecting message with round " << messageRound << ", min round " << m_state.MinFinalizationRound
+								  << ", max round " << m_state.MaxFinalizationRound;
 			return RoundMessageAggregatorAddResult::Failure_Invalid_Point;
 		}
 
@@ -200,10 +198,10 @@ namespace catapult { namespace chain {
 			const model::HeightHashPair& previousFinalizedHeightHashPair,
 			const RoundMessageAggregatorFactory& roundMessageAggregatorFactory)
 			: m_pState(std::make_unique<MultiRoundMessageAggregatorState>(
-					maxResponseSize,
-					round,
-					previousFinalizedHeightHashPair,
-					roundMessageAggregatorFactory)) {
+					  maxResponseSize,
+					  round,
+					  previousFinalizedHeightHashPair,
+					  roundMessageAggregatorFactory)) {
 		CATAPULT_LOG(debug) << "creating multi round message aggregator starting at round " << round;
 	}
 

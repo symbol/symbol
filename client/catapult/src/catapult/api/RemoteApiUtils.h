@@ -22,7 +22,9 @@
 #pragma once
 #include <memory>
 
-namespace catapult { namespace model { class TransactionRegistry; } }
+namespace catapult { namespace model {
+	class TransactionRegistry;
+}}
 
 namespace catapult { namespace api {
 
@@ -32,8 +34,9 @@ namespace catapult { namespace api {
 	struct RegistryDependentTraits {
 	public:
 		/// Creates traits around \a registry.
-		explicit RegistryDependentTraits(const model::TransactionRegistry& registry) : m_registry(registry)
-		{}
+		explicit RegistryDependentTraits(const model::TransactionRegistry& registry)
+				: m_registry(registry) {
+		}
 
 	public:
 		/// Returns \c true if \a entity passes size checks.

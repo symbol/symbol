@@ -71,10 +71,10 @@ namespace catapult { namespace harvesting {
 			if (config.EnableAutoHarvesting) {
 				// unlock configured account if it's eligible to harvest the next block
 				auto unlockResult = pUnlockedAccounts->modifier().add(std::move(blockGeneratorAccountDescriptor));
-				CATAPULT_LOG(important)
-						<< std::endl << "Unlocked harvesting account with result " << unlockResult
-						<< std::endl << "+ Signing " << harvesterSigningPublicKey
-						<< std::endl << "+ VRF     " << harvesterVrfPublicKey;
+				CATAPULT_LOG(important) << std::endl
+										<< "Unlocked harvesting account with result " << unlockResult << std::endl
+										<< "+ Signing " << harvesterSigningPublicKey << std::endl
+										<< "+ VRF     " << harvesterVrfPublicKey;
 			}
 
 			return pUnlockedAccounts;
@@ -185,8 +185,9 @@ namespace catapult { namespace harvesting {
 
 		class HarvestingServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit HarvestingServiceRegistrar(const HarvestingConfiguration& config) : m_config(config)
-			{}
+			explicit HarvestingServiceRegistrar(const HarvestingConfiguration& config)
+					: m_config(config) {
+			}
 
 			extensions::ServiceRegistrarInfo info() const override {
 				return { "Harvesting", extensions::ServiceRegistrarPhase::Post_Range_Consumers };

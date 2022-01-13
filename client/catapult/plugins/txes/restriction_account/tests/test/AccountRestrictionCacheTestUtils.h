@@ -36,8 +36,8 @@ namespace catapult { namespace test {
 		static auto CreateSubCachesWithAccountRestrictionCache(model::NetworkIdentifier networkIdentifier) {
 			auto cacheId = cache::AccountRestrictionCache::Id;
 			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
-			subCaches[cacheId] = MakeSubCachePlugin<cache::AccountRestrictionCache, cache::AccountRestrictionCacheStorage>(
-					networkIdentifier);
+			subCaches[cacheId] =
+					MakeSubCachePlugin<cache::AccountRestrictionCache, cache::AccountRestrictionCacheStorage>(networkIdentifier);
 			return subCaches;
 		}
 

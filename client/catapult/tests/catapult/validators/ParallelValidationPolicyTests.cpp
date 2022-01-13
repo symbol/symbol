@@ -38,8 +38,8 @@ namespace catapult { namespace validators {
 					const std::shared_ptr<const StatelessEntityValidator>& pValidator)
 					: m_pPool(std::move(pPool))
 					, m_pValidationPolicy(CreateParallelValidationPolicy(*m_pPool, pValidator))
-					, m_isReleased(false)
-			{}
+					, m_isReleased(false) {
+			}
 
 			~PoolValidationPolicyPair() {
 				stopAll();
@@ -99,8 +99,8 @@ namespace catapult { namespace validators {
 					: m_results(results)
 					, m_pWait(pWait)
 					, m_name("MockStatelessEntityValidator")
-					, m_counter(0)
-			{}
+					, m_counter(0) {
+			}
 
 		public:
 			size_t numValidateCalls() const {
@@ -172,10 +172,16 @@ namespace catapult { namespace validators {
 	}
 
 #define PARALLEL_POLICY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ShortCircuit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ShortCircuitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_All) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AllTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ShortCircuit) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ShortCircuitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_All) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AllTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -245,13 +251,11 @@ namespace catapult { namespace validators {
 
 	namespace {
 		std::vector<ValidationResult> CreateAlternatingResults() {
-			return {
-				ValidationResult::Success,
-				ValidationResult::Failure,
-				ValidationResult::Neutral,
-				ValidationResult::Failure,
-				ValidationResult::Success
-			};
+			return { ValidationResult::Success,
+					 ValidationResult::Failure,
+					 ValidationResult::Neutral,
+					 ValidationResult::Failure,
+					 ValidationResult::Success };
 		}
 	}
 
@@ -292,8 +296,8 @@ namespace catapult { namespace validators {
 		public:
 			explicit MockEntityCapturingStatelessEntityValidator(size_t numEntities)
 					: m_entityInfos(numEntities)
-					, m_name("MockEntityCapturingStatelessEntityValidator")
-			{}
+					, m_name("MockEntityCapturingStatelessEntityValidator") {
+			}
 
 		public:
 			const auto& entityInfos() const {
@@ -365,9 +369,9 @@ namespace catapult { namespace validators {
 
 		// Act: compose futures to bool so that they are the same type in all template instantiations
 		std::vector<thread::future<bool>> futures;
-		std::vector<test::EntityInfoContainerWrapper> entityInfoGroups{
-			test::CreateEntityInfos(1), test::CreateEntityInfos(2), test::CreateEntityInfos(4)
-		};
+		std::vector<test::EntityInfoContainerWrapper> entityInfoGroups{ test::CreateEntityInfos(1),
+																		test::CreateEntityInfos(2),
+																		test::CreateEntityInfos(4) };
 		for (const auto& entityInfos : entityInfoGroups)
 			futures.push_back(TTraits::Validate(*pPolicy, entityInfos.toVector()).then([](const auto&) { return true; }));
 

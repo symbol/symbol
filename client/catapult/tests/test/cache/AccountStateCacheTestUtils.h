@@ -29,16 +29,14 @@ namespace catapult { namespace test {
 	constexpr cache::AccountStateCacheTypes::Options CreateDefaultAccountStateCacheOptions(
 			MosaicId currencyMosaicId,
 			MosaicId harvestingMosaicId) {
-		return {
-			model::NetworkIdentifier::Testnet,
-			333,
-			222,
-			Amount(),
-			Amount(std::numeric_limits<Amount::ValueType>::max()),
-			Amount(),
-			currencyMosaicId,
-			harvestingMosaicId
-		};
+		return { model::NetworkIdentifier::Testnet,
+				 333,
+				 222,
+				 Amount(),
+				 Amount(std::numeric_limits<Amount::ValueType>::max()),
+				 Amount(),
+				 currencyMosaicId,
+				 harvestingMosaicId };
 	}
 
 	/// Creates default account state cache options for use in tests.

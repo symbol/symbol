@@ -24,20 +24,18 @@
 #include "plugins/txes/lock_shared/src/cache/LockInfoCacheTypes.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicHashLockInfoCacheDelta;
-		class BasicHashLockInfoCacheView;
-		struct HashLockInfoBaseSetDeltaPointers;
-		struct HashLockInfoBaseSets;
-		class HashLockInfoCache;
-		class HashLockInfoCacheDelta;
-		struct HashLockInfoCacheTypes;
-		class HashLockInfoCacheView;
-		class HashLockInfoPatriciaTree;
-		struct HashLockInfoPrimarySerializer;
-	}
-}
+namespace catapult { namespace cache {
+	class BasicHashLockInfoCacheDelta;
+	class BasicHashLockInfoCacheView;
+	struct HashLockInfoBaseSetDeltaPointers;
+	struct HashLockInfoBaseSets;
+	class HashLockInfoCache;
+	class HashLockInfoCacheDelta;
+	struct HashLockInfoCacheTypes;
+	class HashLockInfoCacheView;
+	class HashLockInfoPatriciaTree;
+	struct HashLockInfoPrimarySerializer;
+}}
 
 namespace catapult { namespace cache {
 
@@ -68,11 +66,8 @@ namespace catapult { namespace cache {
 
 	/// Hash lock info cache types.
 	struct HashLockInfoCacheTypes : public LockInfoCacheTypes<HashLockInfoCacheDescriptor> {
-		using CacheReadOnlyType = ReadOnlyArtifactCache<
-			BasicHashLockInfoCacheView,
-			BasicHashLockInfoCacheDelta,
-			Hash256,
-			state::HashLockInfoHistory>;
+		using CacheReadOnlyType =
+				ReadOnlyArtifactCache<BasicHashLockInfoCacheView, BasicHashLockInfoCacheDelta, Hash256, state::HashLockInfoHistory>;
 
 		using BaseSetDeltaPointers = HashLockInfoBaseSetDeltaPointers;
 		using BaseSets = HashLockInfoBaseSets;

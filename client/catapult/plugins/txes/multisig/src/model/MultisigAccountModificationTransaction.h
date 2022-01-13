@@ -68,9 +68,8 @@ namespace catapult { namespace model {
 		template<typename T>
 		static auto* AddressDeletionsPtrT(T& transaction) {
 			auto* pPayloadStart = THeader::PayloadStart(transaction);
-			return transaction.AddressDeletionsCount && pPayloadStart
-					? pPayloadStart + transaction.AddressAdditionsCount * Address::Size
-					: nullptr;
+			return transaction.AddressDeletionsCount && pPayloadStart ? pPayloadStart + transaction.AddressAdditionsCount * Address::Size
+																	  : nullptr;
 		}
 
 	public:

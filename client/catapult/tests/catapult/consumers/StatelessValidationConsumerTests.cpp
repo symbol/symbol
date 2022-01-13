@@ -40,7 +40,8 @@ namespace catapult { namespace consumers {
 
 		struct DispatchParams {
 		public:
-			explicit DispatchParams(const model::WeakEntityInfos& entityInfos) : EntityInfos(entityInfos) {
+			explicit DispatchParams(const model::WeakEntityInfos& entityInfos)
+					: EntityInfos(entityInfos) {
 				for (const auto& entityInfo : EntityInfos)
 					HashCopies.push_back(entityInfo.hash());
 			}
@@ -60,8 +61,8 @@ namespace catapult { namespace consumers {
 		public:
 			BasicMockParallelValidationPolicy()
 					: m_numValidateCalls(0)
-					, m_validateTrigger(std::numeric_limits<size_t>::max())
-			{}
+					, m_validateTrigger(std::numeric_limits<size_t>::max()) {
+			}
 
 		public:
 			void setResult(const ResultType& result, size_t trigger = 0) {
@@ -130,8 +131,8 @@ namespace catapult { namespace consumers {
 		public:
 			explicit BlockTestContext(const RequiresValidationPredicate& requiresValidationPredicate = RequiresAllPredicate)
 					: pPolicy(std::make_shared<MockParallelShortCircuitValidationPolicy>())
-					, Consumer(CreateBlockStatelessValidationConsumer(pPolicy, requiresValidationPredicate))
-			{}
+					, Consumer(CreateBlockStatelessValidationConsumer(pPolicy, requiresValidationPredicate)) {
+			}
 
 		public:
 			std::shared_ptr<MockParallelShortCircuitValidationPolicy> pPolicy;
@@ -281,14 +282,13 @@ namespace catapult { namespace consumers {
 		public:
 			TransactionTestContext()
 					: pPolicy(std::make_shared<MockParallelAllValidationPolicy>())
-					, Consumer(CreateTransactionStatelessValidationConsumer(pPolicy, [this](
-							const auto& transaction,
-							const auto& hash,
-							auto result) {
-						// notice that transaction.Deadline is used as transaction marker
-						FailedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
-					}))
-			{}
+					, Consumer(CreateTransactionStatelessValidationConsumer(
+							  pPolicy,
+							  [this](const auto& transaction, const auto& hash, auto result) {
+								  // notice that transaction.Deadline is used as transaction marker
+								  FailedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
+							  })) {
+			}
 
 		public:
 			std::shared_ptr<MockParallelAllValidationPolicy> pPolicy;
@@ -309,9 +309,8 @@ namespace catapult { namespace consumers {
 				auto pTransaction2 = test::GenerateRandomTransaction();
 				auto pTransaction3 = test::GenerateRandomTransaction();
 				auto pTransaction4 = test::GenerateRandomTransaction();
-				return test::CreateTransactionElements({
-					pTransaction1.get(), pTransaction2.get(), pTransaction3.get(), pTransaction4.get()
-				});
+				return test::CreateTransactionElements(
+						{ pTransaction1.get(), pTransaction2.get(), pTransaction3.get(), pTransaction4.get() });
 			}
 
 			static void AssertEntities(const model::WeakEntityInfos& expectedEntityInfos, const std::vector<DispatchParams>& params) {
@@ -344,8 +343,8 @@ namespace catapult { namespace consumers {
 			auto numUsedIndexes = 0u;
 			for (const auto& element : elements) {
 				auto expectedResultCode = skippedIndexes.cend() != skippedIndexes.find(index)
-						? expectedNonSuccessSeverities[numUsedIndexes++]
-						: disruptor::ConsumerResultSeverity::Success;
+												  ? expectedNonSuccessSeverities[numUsedIndexes++]
+												  : disruptor::ConsumerResultSeverity::Success;
 
 				EXPECT_EQ(expectedResultCode, element.ResultSeverity);
 				++index;
@@ -502,12 +501,13 @@ namespace catapult { namespace consumers {
 		// Assert: notice that the first failure result is used (basic ValidationResult aggregation)
 		test::AssertAborted(result, Failure_Result1, disruptor::ConsumerResultSeverity::Fatal);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
-		AssertSkipped(elements, { 0, 1, 2, 3 }, {
-			disruptor::ConsumerResultSeverity::Neutral,
-			disruptor::ConsumerResultSeverity::Failure,
-			disruptor::ConsumerResultSeverity::Failure,
-			disruptor::ConsumerResultSeverity::Neutral
-		});
+		AssertSkipped(
+				elements,
+				{ 0, 1, 2, 3 },
+				{ disruptor::ConsumerResultSeverity::Neutral,
+				  disruptor::ConsumerResultSeverity::Failure,
+				  disruptor::ConsumerResultSeverity::Failure,
+				  disruptor::ConsumerResultSeverity::Neutral });
 
 		ASSERT_EQ(2u, context.FailedTransactionStatuses.size());
 		EXPECT_EQ_STATUS(elements[1], Failure_Result1, context.FailedTransactionStatuses[0]);

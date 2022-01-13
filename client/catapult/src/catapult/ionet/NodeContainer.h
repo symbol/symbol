@@ -27,13 +27,11 @@
 #include "catapult/utils/SpinReaderWriterLock.h"
 #include <unordered_map>
 
-namespace catapult {
-	namespace ionet {
-		struct NodeContainerData;
-		struct NodeData;
-		struct NodeInteractionResult;
-	}
-}
+namespace catapult { namespace ionet {
+	struct NodeContainerData;
+	struct NodeData;
+	struct NodeInteractionResult;
+}}
 
 namespace catapult { namespace ionet {
 

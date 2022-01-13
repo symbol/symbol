@@ -40,8 +40,8 @@ namespace catapult { namespace mongo { namespace plugins {
 				, pRoot(pRootNamespace)
 				, OwnerAddress(ownerAddress)
 				, Index(index)
-				, IsLatest(isLatest)
-		{}
+				, IsLatest(isLatest) {
+		}
 
 	public:
 		/// Returns \c true if the described namespace is a root namespace.

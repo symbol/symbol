@@ -117,55 +117,55 @@ namespace catapult { namespace cache {
 	// region mixed delta set action types
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_Intermediate_Commit) {
-		RunGenerationIdTest(0, {
-			DeltaSetAction::Insert,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Find,
-			DeltaSetAction::Commit,
-			DeltaSetAction::No_Operation
-		});
+		RunGenerationIdTest(
+				0,
+				{ DeltaSetAction::Insert,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Find,
+				  DeltaSetAction::Commit,
+				  DeltaSetAction::No_Operation });
 	}
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_Intermediate_Increment) {
-		RunGenerationIdTest(2, {
-			DeltaSetAction::No_Operation,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Remove,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Find
-		});
+		RunGenerationIdTest(
+				2,
+				{ DeltaSetAction::No_Operation,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Remove,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Find });
 
-		RunGenerationIdTest(3, {
-			DeltaSetAction::No_Operation,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::No_Operation,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Remove
-		});
+		RunGenerationIdTest(
+				3,
+				{ DeltaSetAction::No_Operation,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::No_Operation,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Remove });
 
-		RunGenerationIdTest(2, {
-			DeltaSetAction::No_Operation,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Commit,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Remove
-		});
+		RunGenerationIdTest(
+				2,
+				{ DeltaSetAction::No_Operation,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Commit,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Remove });
 
-		RunGenerationIdTest(3, {
-			DeltaSetAction::No_Operation,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Find,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Find
-		});
+		RunGenerationIdTest(
+				3,
+				{ DeltaSetAction::No_Operation,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Find,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Find });
 
-		RunGenerationIdTest(1, {
-			DeltaSetAction::No_Operation,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Find_Const,
-			DeltaSetAction::Increment_Generation,
-			DeltaSetAction::Find_Const
-		});
+		RunGenerationIdTest(
+				1,
+				{ DeltaSetAction::No_Operation,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Find_Const,
+				  DeltaSetAction::Increment_Generation,
+				  DeltaSetAction::Find_Const });
 	}
 
 	// endregion

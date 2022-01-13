@@ -30,8 +30,7 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(UniqueTransactionHash, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& hashCache = context.Cache.sub<cache::HashCache>();
-		return hashCache.contains(state::TimestampedHash(notification.Deadline, notification.TransactionHash))
-				? Failure_Hash_Already_Exists
-				: ValidationResult::Success;
+		return hashCache.contains(state::TimestampedHash(notification.Deadline, notification.TransactionHash)) ? Failure_Hash_Already_Exists
+																											   : ValidationResult::Success;
 	})
 }}

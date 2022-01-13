@@ -37,8 +37,8 @@ namespace catapult { namespace io {
 			m_output.append(reinterpret_cast<const char*>(buffer.pData), buffer.Size);
 		}
 
-		void flush() override
-		{}
+		void flush() override {
+		}
 
 	public:
 		/// Gets the underlying string.

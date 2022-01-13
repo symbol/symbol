@@ -34,20 +34,21 @@ namespace catapult { namespace cache {
 		class ReadOnlyFindIterator {
 		public:
 			/// Creates an uninitialized iterator.
-			ReadOnlyFindIterator() : m_hasCacheIter(false)
-			{}
+			ReadOnlyFindIterator()
+					: m_hasCacheIter(false) {
+			}
 
 			/// Creates a find iterator around \a cacheIter.
 			explicit ReadOnlyFindIterator(TCacheIterator&& cacheIter)
 					: m_hasCacheIter(true)
-					, m_cacheIter(std::move(cacheIter))
-			{}
+					, m_cacheIter(std::move(cacheIter)) {
+			}
 
 			/// Creates a find iterator around \a cacheDeltaIter.
 			explicit ReadOnlyFindIterator(TCacheDeltaIterator&& cacheDeltaIter)
 					: m_hasCacheIter(false)
-					, m_cacheDeltaIter(std::move(cacheDeltaIter))
-			{}
+					, m_cacheDeltaIter(std::move(cacheDeltaIter)) {
+			}
 
 		public:
 			/// Gets a const value.
@@ -71,15 +72,15 @@ namespace catapult { namespace cache {
 		explicit ReadOnlyArtifactCache(const TCache& cache)
 				: ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey>(cache)
 				, m_pCache(&cache)
-				, m_pCacheDelta(nullptr)
-		{}
+				, m_pCacheDelta(nullptr) {
+		}
 
 		/// Creates a read-only overlay on top of \a cache.
 		explicit ReadOnlyArtifactCache(const TCacheDelta& cache)
 				: ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey>(cache)
 				, m_pCache(nullptr)
-				, m_pCacheDelta(&cache)
-		{}
+				, m_pCacheDelta(&cache) {
+		}
 
 	public:
 		/// Finds the cache value identified by \a key.

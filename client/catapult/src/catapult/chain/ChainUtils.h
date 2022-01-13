@@ -25,8 +25,12 @@
 #include <vector>
 
 namespace catapult {
-	namespace cache { class BlockStatisticCache; }
-	namespace model { struct BlockchainConfiguration; }
+namespace cache {
+	class BlockStatisticCache;
+}
+namespace model {
+	struct BlockchainConfiguration;
+}
 }
 
 namespace catapult { namespace chain {

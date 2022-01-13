@@ -198,15 +198,19 @@ namespace catapult { namespace extensions {
 	}
 
 #define FACTORY_RETRIEVER_TEST_ENTRY(TEST_NAME, CONSUMER_FACTORY_NAME) \
-	TEST(TEST_CLASS, TEST_NAME##_##CONSUMER_FACTORY_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CONSUMER_FACTORY_NAME##Traits>(); }
+	TEST(TEST_CLASS, TEST_NAME##_##CONSUMER_FACTORY_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CONSUMER_FACTORY_NAME##Traits>(); \
+	}
 
 #define FACTORY_RETRIEVER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	FACTORY_RETRIEVER_TEST_ENTRY(TEST_NAME, BlockRangeConsumerFactory) \
 	FACTORY_RETRIEVER_TEST_ENTRY(TEST_NAME, CompletionAwareBlockRangeConsumerFactory) \
 	FACTORY_RETRIEVER_TEST_ENTRY(TEST_NAME, TransactionRangeConsumerFactory) \
 	FACTORY_RETRIEVER_TEST_ENTRY(TEST_NAME, RemoteChainHeightsRetriever) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	FACTORY_RETRIEVER_TEST(CannotAccessWhenUnset) {
 		// Arrange:
@@ -303,25 +307,33 @@ namespace catapult { namespace extensions {
 	}
 
 #define SUPPLIER_TEST_ENTRY(TEST_NAME, CONSUMER_FACTORY_NAME) \
-	TEST(TEST_CLASS, TEST_NAME##_##CONSUMER_FACTORY_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)<CONSUMER_FACTORY_NAME##Traits>(); }
+	TEST(TEST_CLASS, TEST_NAME##_##CONSUMER_FACTORY_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)<CONSUMER_FACTORY_NAME##Traits>(); \
+	}
 
 #define SUPPLIER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, LocalFinalizedHeightHashPairSupplier) \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, NetworkFinalizedHeightHashPairSupplier) \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, ChainSyncedPredicate) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
 
 #define SUPPLIER_TEST_WITHOUT_DEFAULT(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, LocalFinalizedHeightHashPairSupplier) \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, NetworkFinalizedHeightHashPairSupplier) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
 
 #define SUPPLIER_TEST_WITH_DEFAULT(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
 	SUPPLIER_TEST_ENTRY(TEST_NAME, ChainSyncedPredicate) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
 
 	SUPPLIER_TEST_WITHOUT_DEFAULT(CannotAccessWhenUnset) {
 		// Arrange:
@@ -392,8 +404,7 @@ namespace catapult { namespace extensions {
 		public:
 			void addKnownHashPredicate(const std::vector<model::TransactionInfo>& transactionInfos) {
 				m_hooks.addKnownHashPredicate([&transactionInfos](auto timestamp, const auto& hash) {
-					return std::any_of(transactionInfos.cbegin(), transactionInfos.cend(), [timestamp, &hash](
-							const auto& transactionInfo) {
+					return std::any_of(transactionInfos.cbegin(), transactionInfos.cend(), [timestamp, &hash](const auto& transactionInfo) {
 						return timestamp == transactionInfo.pEntity->Deadline && hash == transactionInfo.EntityHash;
 					});
 				});

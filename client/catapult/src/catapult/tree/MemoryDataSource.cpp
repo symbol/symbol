@@ -25,8 +25,9 @@
 
 namespace catapult { namespace tree {
 
-	MemoryDataSource::MemoryDataSource(DataSourceVerbosity verbosity) : m_isVerbose(DataSourceVerbosity::Verbose == verbosity)
-	{}
+	MemoryDataSource::MemoryDataSource(DataSourceVerbosity verbosity)
+			: m_isVerbose(DataSourceVerbosity::Verbose == verbosity) {
+	}
 
 	size_t MemoryDataSource::size() const {
 		return m_leafNodes.size() + m_branchNodes.size();
@@ -54,9 +55,7 @@ namespace catapult { namespace tree {
 
 	void MemoryDataSource::set(const LeafTreeNode& node) {
 		if (m_isVerbose) {
-			CATAPULT_LOG(debug)
-					<< "saving leaf node: " << node.path() << ", hash = " << node.hash()
-					<< ", value = " << node.value();
+			CATAPULT_LOG(debug) << "saving leaf node: " << node.path() << ", hash = " << node.hash() << ", value = " << node.value();
 		}
 
 		m_leafNodes.emplace(node.hash(), node);
@@ -64,9 +63,7 @@ namespace catapult { namespace tree {
 
 	void MemoryDataSource::set(const BranchTreeNode& node) {
 		if (m_isVerbose) {
-			CATAPULT_LOG(debug)
-					<< "saving branch node: " << node.path() << ", hash = " << node.hash()
-					<< ", #links " << node.numLinks();
+			CATAPULT_LOG(debug) << "saving branch node: " << node.path() << ", hash = " << node.hash() << ", #links " << node.numLinks();
 		}
 
 		m_branchNodes.emplace(node.hash(), node);

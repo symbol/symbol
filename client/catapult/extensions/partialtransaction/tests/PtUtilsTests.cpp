@@ -69,12 +69,8 @@ namespace catapult { namespace partialtransaction {
 			SplitForwardingCapture capture;
 			SplitCosignedTransactionInfos(
 					CosignedTransactionInfos(transactionInfos), // make a copy (because parameter is rvalue)
-					[&capture](auto&& range) {
-						capture.TransactionRanges.push_back(std::move(range));
-					},
-					[&capture](auto&& cosignature) {
-						capture.Cosignatures.push_back(std::move(cosignature));
-					});
+					[&capture](auto&& range) { capture.TransactionRanges.push_back(std::move(range)); },
+					[&capture](auto&& cosignature) { capture.Cosignatures.push_back(std::move(cosignature)); });
 			return capture;
 		}
 
@@ -96,8 +92,7 @@ namespace catapult { namespace partialtransaction {
 				auto i = 0u;
 				for (const auto& transaction : transactionRange) {
 					// notice that stitched transaction is always passed to range
-					const auto& originalTransaction =
-							static_cast<const model::AggregateTransaction&>(*m_transactionInfos[i].pTransaction);
+					const auto& originalTransaction = static_cast<const model::AggregateTransaction&>(*m_transactionInfos[i].pTransaction);
 					test::AssertStitchedTransaction(transaction, originalTransaction, m_transactionInfos[i].Cosignatures);
 					++i;
 				}

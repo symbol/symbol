@@ -30,7 +30,9 @@ namespace catapult { namespace crypto {
 	namespace {
 		// region test utils
 
-		struct ConcreteSecureByteArray_tag { static constexpr size_t Size = 24; };
+		struct ConcreteSecureByteArray_tag {
+			static constexpr size_t Size = 24;
+		};
 		using ConcreteSecureByteArray = SecureByteArray<ConcreteSecureByteArray_tag>;
 
 		using ConcreteByteArray = utils::ByteArray<ConcreteSecureByteArray_tag>;
@@ -312,9 +314,8 @@ namespace catapult { namespace crypto {
 			seedString[ConcreteSecureByteArray::Size] = invalidChar;
 
 			// Act + Assert: array creation should fail but string should still be cleared
-			EXPECT_THROW(
-					ConcreteSecureByteArray::FromStringSecure(seedString),
-					catapult_invalid_argument) << "invalid char: " << invalidChar;
+			EXPECT_THROW(ConcreteSecureByteArray::FromStringSecure(seedString), catapult_invalid_argument)
+					<< "invalid char: " << invalidChar;
 			EXPECT_EQ(std::string(seedString.size(), '\0'), seedString);
 		}
 	}

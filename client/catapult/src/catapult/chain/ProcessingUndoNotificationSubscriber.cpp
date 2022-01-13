@@ -27,13 +27,12 @@ namespace catapult { namespace chain {
 			const observers::NotificationObserver& observer,
 			observers::ObserverContext& observerContext)
 			: m_observer(observer)
-			, m_observerContext(observerContext)
-	{}
+			, m_observerContext(observerContext) {
+	}
 
 	void ProcessingUndoNotificationSubscriber::undo() {
-		auto undoMode = observers::NotifyMode::Commit == m_observerContext.Mode
-				? observers::NotifyMode::Rollback
-				: observers::NotifyMode::Commit;
+		auto undoMode =
+				observers::NotifyMode::Commit == m_observerContext.Mode ? observers::NotifyMode::Rollback : observers::NotifyMode::Commit;
 		auto undoObserverContext = observers::ObserverContext(
 				model::NotificationContext(m_observerContext.Height, m_observerContext.UndecoratedResolvers),
 				observers::ObserverState(m_observerContext.Cache),

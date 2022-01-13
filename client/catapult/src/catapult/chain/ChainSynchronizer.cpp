@@ -47,8 +47,8 @@ namespace catapult { namespace chain {
 					, m_maxSize(maxSize)
 					, m_numBytes(0)
 					, m_hasPendingSync(false)
-					, m_dirty(false)
-			{}
+					, m_dirty(false) {
+			}
 
 		public:
 			bool empty() {
@@ -140,8 +140,8 @@ namespace catapult { namespace chain {
 		public:
 			explicit RangeAggregator(const model::NodeIdentity& sourceIdentity)
 					: m_numBlocks(0)
-					, m_sourceIdentity(sourceIdentity)
-			{}
+					, m_sourceIdentity(sourceIdentity) {
+			}
 
 		public:
 			void add(model::BlockRange&& range) {
@@ -173,15 +173,12 @@ namespace catapult { namespace chain {
 
 		ionet::NodeInteractionResultCode ToNodeInteractionResultCode(ChainComparisonCode code) {
 			// notice that this function is only called when code is not Remote_Is_Not_Synced
-			return IsRemoteOutOfSync(code) || IsRemoteEvil(code)
-					? ionet::NodeInteractionResultCode::Failure
-					: ionet::NodeInteractionResultCode::Neutral;
+			return IsRemoteOutOfSync(code) || IsRemoteEvil(code) ? ionet::NodeInteractionResultCode::Failure
+																 : ionet::NodeInteractionResultCode::Neutral;
 		}
 
 		auto CreateFutureSupplier(const api::RemoteChainApi& remoteChainApi, const api::BlocksFromOptions& options) {
-			return [&remoteChainApi, options](auto height) {
-				return remoteChainApi.blocksFrom(height, options);
-			};
+			return [&remoteChainApi, options](auto height) { return remoteChainApi.blocksFrom(height, options); };
 		}
 
 		NodeInteractionFuture CompleteChainBlocksFrom(RangeAggregator& rangeAggregator, UnprocessedElements& unprocessedElements) {
@@ -189,9 +186,8 @@ namespace catapult { namespace chain {
 				return thread::make_ready_future(ionet::NodeInteractionResultCode::Neutral);
 
 			auto mergedRange = rangeAggregator.merge();
-			auto addResult = unprocessedElements.add(std::move(mergedRange))
-					? ionet::NodeInteractionResultCode::Success
-					: ionet::NodeInteractionResultCode::Neutral;
+			auto addResult = unprocessedElements.add(std::move(mergedRange)) ? ionet::NodeInteractionResultCode::Success
+																			 : ionet::NodeInteractionResultCode::Neutral;
 			return thread::make_ready_future(std::move(addResult));
 		}
 
@@ -201,39 +197,39 @@ namespace catapult { namespace chain {
 				uint64_t forkDepth,
 				const std::shared_ptr<RangeAggregator>& pRangeAggregator,
 				UnprocessedElements& unprocessedElements) {
-			return thread::compose(futureSupplier(height), [futureSupplier, forkDepth, pRangeAggregator, &unprocessedElements](
-					auto&& blocksFuture) {
-				try {
-					auto range = blocksFuture.get();
+			return thread::compose(
+					futureSupplier(height),
+					[futureSupplier, forkDepth, pRangeAggregator, &unprocessedElements](auto&& blocksFuture) {
+						try {
+							auto range = blocksFuture.get();
 
-					// if the range is empty, stop processing
-					if (range.empty()) {
-						CATAPULT_LOG(info) << "peer returned 0 blocks";
-						return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
-					}
+							// if the range is empty, stop processing
+							if (range.empty()) {
+								CATAPULT_LOG(info) << "peer returned 0 blocks";
+								return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
+							}
 
-					// if the range is not empty, continue processing
-					auto endHeight = (--range.cend())->Height;
-					CATAPULT_LOG(info)
-							<< "peer returned " << range.size()
-							<< " blocks (heights " << range.cbegin()->Height << " - " << endHeight << ")";
+							// if the range is not empty, continue processing
+							auto endHeight = (--range.cend())->Height;
+							CATAPULT_LOG(info) << "peer returned " << range.size() << " blocks (heights " << range.cbegin()->Height << " - "
+											   << endHeight << ")";
 
-					pRangeAggregator->add(std::move(range));
-					if (forkDepth <= pRangeAggregator->numBlocks()) {
-						CATAPULT_LOG(debug)
-								<< "completing chain synchronization with " << pRangeAggregator->numBlocks() << " blocks"
-								<< " (fork depth = " << forkDepth << ")";
-						return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
-					}
+							pRangeAggregator->add(std::move(range));
+							if (forkDepth <= pRangeAggregator->numBlocks()) {
+								CATAPULT_LOG(debug)
+										<< "completing chain synchronization with " << pRangeAggregator->numBlocks() << " blocks"
+										<< " (fork depth = " << forkDepth << ")";
+								return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
+							}
 
-					auto nextHeight = endHeight + Height(1);
-					CATAPULT_LOG(debug) << "resuming chain synchronization at " << nextHeight;
-					return ChainBlocksFrom(futureSupplier, nextHeight, forkDepth, pRangeAggregator, unprocessedElements);
-				} catch (const catapult_runtime_error& e) {
-					CATAPULT_LOG(warning) << "exception thrown while requesting blocks: " << e.what();
-					return thread::make_ready_future(ionet::NodeInteractionResultCode::Failure);
-				}
-			});
+							auto nextHeight = endHeight + Height(1);
+							CATAPULT_LOG(debug) << "resuming chain synchronization at " << nextHeight;
+							return ChainBlocksFrom(futureSupplier, nextHeight, forkDepth, pRangeAggregator, unprocessedElements);
+						} catch (const catapult_runtime_error& e) {
+							CATAPULT_LOG(warning) << "exception thrown while requesting blocks: " << e.what();
+							return thread::make_ready_future(ionet::NodeInteractionResultCode::Failure);
+						}
+					});
 		}
 
 		// endregion
@@ -253,10 +249,9 @@ namespace catapult { namespace chain {
 					: m_pLocalChainApi(pLocalChainApi)
 					, m_compareChainOptions{ config.MaxHashesPerSyncAttempt, localFinalizedHeightSupplier }
 					, m_blocksFromOptions(config.MaxBlocksPerSyncAttempt, config.MaxChainBytesPerSyncAttempt)
-					, m_pUnprocessedElements(std::make_shared<UnprocessedElements>(
-							blockRangeConsumer,
-							3 * config.MaxChainBytesPerSyncAttempt))
-			{}
+					, m_pUnprocessedElements(
+							  std::make_shared<UnprocessedElements>(blockRangeConsumer, 3 * config.MaxChainBytesPerSyncAttempt)) {
+			}
 
 		public:
 			NodeInteractionFuture operator()(const RemoteApiType& remoteChainApi) {
@@ -271,12 +266,13 @@ namespace catapult { namespace chain {
 						return thread::make_ready_future(ionet::NodeInteractionResultCode::Failure);
 					}
 				});
-				return thread::compose(std::move(syncFuture), [&unprocessedElements = *m_pUnprocessedElements](
-						auto&& nodeInteractionFuture) {
-					// mark the current sync as completed
-					unprocessedElements.clearPendingSync();
-					return std::move(nodeInteractionFuture);
-				});
+				return thread::compose(
+						std::move(syncFuture),
+						[&unprocessedElements = *m_pUnprocessedElements](auto&& nodeInteractionFuture) {
+							// mark the current sync as completed
+							unprocessedElements.clearPendingSync();
+							return std::move(nodeInteractionFuture);
+						});
 			}
 
 		private:
@@ -306,9 +302,8 @@ namespace catapult { namespace chain {
 					return thread::make_ready_future(std::move(code));
 				}
 
-				CATAPULT_LOG(debug)
-						<< "pulling blocks from remote with common height " << compareResult.CommonBlockHeight
-						<< " (fork depth = " << compareResult.ForkDepth << ") from " << remoteChainApi.remoteIdentity();
+				CATAPULT_LOG(debug) << "pulling blocks from remote with common height " << compareResult.CommonBlockHeight
+									<< " (fork depth = " << compareResult.ForkDepth << ") from " << remoteChainApi.remoteIdentity();
 				return ChainBlocksFrom(
 						CreateFutureSupplier(remoteChainApi, m_blocksFromOptions),
 						compareResult.CommonBlockHeight + Height(1),
@@ -332,11 +327,8 @@ namespace catapult { namespace chain {
 			const ChainSynchronizerConfiguration& config,
 			const supplier<Height>& localFinalizedHeightSupplier,
 			const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer) {
-		auto pSynchronizer = std::make_shared<DefaultChainSynchronizer>(
-				pLocalChainApi,
-				config,
-				localFinalizedHeightSupplier,
-				blockRangeConsumer);
+		auto pSynchronizer =
+				std::make_shared<DefaultChainSynchronizer>(pLocalChainApi, config, localFinalizedHeightSupplier, blockRangeConsumer);
 		return CreateRemoteNodeSynchronizer(pSynchronizer);
 	}
 }}

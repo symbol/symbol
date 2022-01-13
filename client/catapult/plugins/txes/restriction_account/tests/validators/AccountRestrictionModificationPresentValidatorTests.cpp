@@ -27,7 +27,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AccountRestrictionModificationPresentValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountRestrictionModificationPresent,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountRestrictionModificationPresent, )
 
 	namespace {
 		void AssertValidationResult(ValidationResult expectedResult, uint8_t numAdditions, uint8_t numDeletions) {
@@ -40,9 +40,8 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "notification with " << static_cast<uint16_t>(numAdditions) << " addition modifications"
-					<< " and " << static_cast<uint16_t>(numDeletions) << " deletion modifications";
+			EXPECT_EQ(expectedResult, result) << "notification with " << static_cast<uint16_t>(numAdditions) << " addition modifications"
+											  << " and " << static_cast<uint16_t>(numDeletions) << " deletion modifications";
 		}
 	}
 

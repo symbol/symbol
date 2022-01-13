@@ -32,8 +32,8 @@ namespace catapult { namespace model {
 		/// Creates a notification context around \a height and \a resolvers.
 		NotificationContext(catapult::Height height, const model::ResolverContext& resolvers)
 				: Height(height)
-				, Resolvers(resolvers)
-		{}
+				, Resolvers(resolvers) {
+		}
 
 	public:
 		/// Current height.

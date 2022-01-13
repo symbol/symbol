@@ -22,7 +22,9 @@
 #pragma once
 #include <vector>
 
-namespace catapult { namespace state { struct CatapultState; } }
+namespace catapult { namespace state {
+	struct CatapultState;
+}}
 
 namespace catapult { namespace cache {
 

@@ -29,23 +29,22 @@ namespace catapult { namespace validators {
 
 	namespace {
 		constexpr bool SupportedHash(model::LockHashAlgorithm hashAlgorithm) {
-			return ValidationResult::Success == ValidateLessThanOrEqual(
-					hashAlgorithm,
-					model::LockHashAlgorithm::Op_Hash_256,
-					ValidationResult::Failure);
+			return ValidationResult::Success
+				   == ValidateLessThanOrEqual(hashAlgorithm, model::LockHashAlgorithm::Op_Hash_256, ValidationResult::Failure);
 		}
 	}
 
 	DECLARE_STATELESS_VALIDATOR(ProofSecret, Notification)(uint16_t minProofSize, uint16_t maxProofSize) {
 		return MAKE_STATELESS_VALIDATOR(ProofSecret, ([minProofSize, maxProofSize](const Notification& notification) {
-			if (!SupportedHash(notification.HashAlgorithm))
-				return Failure_LockSecret_Invalid_Hash_Algorithm;
+											if (!SupportedHash(notification.HashAlgorithm))
+												return Failure_LockSecret_Invalid_Hash_Algorithm;
 
-			if (notification.Proof.Size < minProofSize || notification.Proof.Size > maxProofSize)
-				return Failure_LockSecret_Proof_Size_Out_Of_Bounds;
+											if (notification.Proof.Size < minProofSize || notification.Proof.Size > maxProofSize)
+												return Failure_LockSecret_Proof_Size_Out_Of_Bounds;
 
-			auto secret = model::CalculateHash(notification.HashAlgorithm, notification.Proof);
-			return notification.Secret == secret ? ValidationResult::Success : Failure_LockSecret_Secret_Mismatch;
-		}));
+											auto secret = model::CalculateHash(notification.HashAlgorithm, notification.Proof);
+											return notification.Secret == secret ? ValidationResult::Success
+																				 : Failure_LockSecret_Secret_Mismatch;
+										}));
 	}
 }}

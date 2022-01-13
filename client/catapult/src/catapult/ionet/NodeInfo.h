@@ -32,22 +32,20 @@ namespace catapult { namespace ionet {
 #define NODE_SOURCE_LIST \
 	/* Incoming connection from another node. */ \
 	ENUM_VALUE(Dynamic_Incoming) \
-	\
+\
 	/* Forwarded from a peer node. */ \
 	ENUM_VALUE(Dynamic) \
-	\
+\
 	/* Loaded from a local peers file. */ \
 	ENUM_VALUE(Static) \
-	\
+\
 	/* Local node. */ \
 	ENUM_VALUE(Local)
 
 #define ENUM_VALUE(LABEL) LABEL,
 	/// Source of a node.
 	/// \note Higher value sources correspond to higher levels of trust.
-	enum class NodeSource : uint32_t {
-		NODE_SOURCE_LIST
-	};
+	enum class NodeSource : uint32_t { NODE_SOURCE_LIST };
 #undef ENUM_VALUE
 
 	/// Insertion operator for outputting \a value to \a out.
@@ -63,8 +61,8 @@ namespace catapult { namespace ionet {
 		ConnectionState()
 				: Age(0)
 				, NumConsecutiveFailures(0)
-				, BanAge(0)
-		{}
+				, BanAge(0) {
+		}
 
 	public:
 		/// Current connection age.

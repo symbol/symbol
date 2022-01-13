@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/validators/ActiveMosaicView.h"
+#include "src/validators/Validators.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
@@ -48,10 +48,16 @@ namespace catapult { namespace validators {
 	}
 
 #define TRY_GET_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryGetTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_WithOwner) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryGetWithOwnerTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryGetTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_WithOwner) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryGetWithOwnerTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region tryGet - active checks
 

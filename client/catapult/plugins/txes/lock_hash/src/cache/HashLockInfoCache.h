@@ -38,7 +38,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a cache around \a config.
 		explicit HashLockInfoCache(const CacheConfiguration& config)
-				: SynchronizedCache<BasicHashLockInfoCache>(BasicHashLockInfoCache(config))
-		{}
+				: SynchronizedCache<BasicHashLockInfoCache>(BasicHashLockInfoCache(config)) {
+		}
 	};
 }}

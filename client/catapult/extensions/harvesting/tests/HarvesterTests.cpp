@@ -98,8 +98,9 @@ namespace catapult { namespace harvesting {
 
 		struct HarvesterContext {
 		public:
-			HarvesterContext() : HarvesterContext(Height(1))
-			{}
+			HarvesterContext()
+					: HarvesterContext(Height(1)) {
+			}
 
 			explicit HarvesterContext(Height height)
 					: Cache(test::CreateEmptyCatapultCache(CreateConfiguration()))
@@ -139,9 +140,7 @@ namespace catapult { namespace harvesting {
 				});
 			}
 
-			std::unique_ptr<Harvester> CreateHarvester(
-					const model::BlockchainConfiguration& config,
-					const BlockGenerator& blockGenerator) {
+			std::unique_ptr<Harvester> CreateHarvester(const model::BlockchainConfiguration& config, const BlockGenerator& blockGenerator) {
 				return std::make_unique<Harvester>(Cache, config, Beneficiary, *pUnlockedAccounts, blockGenerator);
 			}
 
@@ -220,11 +219,8 @@ namespace catapult { namespace harvesting {
 					accountState.Balances.credit(Harvesting_Mosaic_Id, Min_Voter_Balance + Amount(multiplier * (i + 1)));
 					accountState.ImportanceSnapshots.set(importances[i], model::ImportanceHeight(1));
 					accountState.SupplementalPublicKeys.vrf().set(vrfKeyPairs[i].publicKey());
-					accountState.SupplementalPublicKeys.voting().add({
-						votingKeyPairs[i].publicKey().copyTo<VotingKey>(),
-						FinalizationEpoch(1),
-						FinalizationEpoch(100)
-					});
+					accountState.SupplementalPublicKeys.voting().add(
+							{ votingKeyPairs[i].publicKey().copyTo<VotingKey>(), FinalizationEpoch(1), FinalizationEpoch(100) });
 				}
 
 				// the height does not influence the tests
@@ -237,9 +233,7 @@ namespace catapult { namespace harvesting {
 					const std::vector<KeyPair>& vrfKeyPairs) {
 				auto modifier = unlockedAccounts.modifier();
 				for (auto i = 0u; i < Num_Accounts; ++i) {
-					modifier.add(BlockGeneratorAccountDescriptor(
-							test::CopyKeyPair(signingKeyPairs[i]),
-							test::CopyKeyPair(vrfKeyPairs[i])));
+					modifier.add(BlockGeneratorAccountDescriptor(test::CopyKeyPair(signingKeyPairs[i]), test::CopyKeyPair(vrfKeyPairs[i])));
 				}
 			}
 
@@ -437,7 +431,7 @@ namespace catapult { namespace harvesting {
 	namespace {
 		void AssertHarvestedBlockHasExpectedProperties(
 				const Address& beneficiary,
-				const std::function<Address (const Key&)>& expectedBeneficiaryAccessor) {
+				const std::function<Address(const Key&)>& expectedBeneficiaryAccessor) {
 			// Arrange:
 			// - the harvester accepts the first account that has a hit. That means that subsequent accounts might have
 			// - a better (lower) hit but still won't be the signer of the block.
@@ -552,9 +546,7 @@ namespace catapult { namespace harvesting {
 
 	namespace {
 		bool IsAnyKeyPairMatch(const std::vector<KeyPair>& keyPairs, const Key& key) {
-			return std::any_of(keyPairs.cbegin(), keyPairs.cend(), [&key](const auto& keyPair) {
-				return key == keyPair.publicKey();
-			});
+			return std::any_of(keyPairs.cbegin(), keyPairs.cend(), [&key](const auto& keyPair) { return key == keyPair.publicKey(); });
 		}
 	}
 

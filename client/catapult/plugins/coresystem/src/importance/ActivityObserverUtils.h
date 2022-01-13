@@ -23,7 +23,9 @@
 #include "catapult/state/AccountActivityBuckets.h"
 #include "catapult/functions.h"
 
-namespace catapult { namespace observers { struct ObserverContext; } }
+namespace catapult { namespace observers {
+	struct ObserverContext;
+}}
 
 namespace catapult { namespace importance {
 

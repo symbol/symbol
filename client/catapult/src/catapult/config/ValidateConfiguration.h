@@ -21,7 +21,9 @@
 
 #pragma once
 
-namespace catapult { namespace config { class CatapultConfiguration; } }
+namespace catapult { namespace config {
+	class CatapultConfiguration;
+}}
 
 namespace catapult { namespace config {
 

@@ -80,9 +80,8 @@ namespace catapult { namespace chain {
 		}
 
 		if (i != blocks.size()) {
-			CATAPULT_LOG(warning)
-					<< "difficulties diverge at " << i << " of " << blocks.size()
-					<< " (height " << (blocks.front()->Height + Height(i)) << ")";
+			CATAPULT_LOG(warning) << "difficulties diverge at " << i << " of " << blocks.size() << " (height "
+								  << (blocks.front()->Height + Height(i)) << ")";
 		}
 
 		return i;

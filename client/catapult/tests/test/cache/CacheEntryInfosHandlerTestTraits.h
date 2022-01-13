@@ -72,9 +72,7 @@ namespace catapult { namespace test {
 		template<typename X>
 		static TIdentifier ToIdentifier(uint32_t value) {
 			if constexpr (utils::traits::is_pod_v<TIdentifier>)
-				return TIdentifier(value)
-			else
-				return TIdentifier{ { static_cast<uint8_t>(value) } };
+				return TIdentifier(value) else return TIdentifier{ { static_cast<uint8_t>(value) } };
 		}
 	};
 }}

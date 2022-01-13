@@ -34,8 +34,8 @@ namespace catapult { namespace mocks {
 		public:
 			MockMongoTransactionPluginT(model::EntityType type, PluginOptionFlags options)
 					: m_type(type)
-					, m_options(options)
-			{}
+					, m_options(options) {
+			}
 
 		public:
 			model::EntityType type() const override {
@@ -55,8 +55,7 @@ namespace catapult { namespace mocks {
 			PluginOptionFlags m_options;
 		};
 
-		class MockMongoTransactionPlugin
-				: public MockMongoTransactionPluginT<model::Transaction, MockTransaction, MongoTransactionPlugin> {
+		class MockMongoTransactionPlugin : public MockMongoTransactionPluginT<model::Transaction, MockTransaction, MongoTransactionPlugin> {
 		public:
 			MockMongoTransactionPlugin(model::EntityType type, PluginOptionFlags options, size_t numDependentDocuments)
 					: MockMongoTransactionPluginT<model::Transaction, MockTransaction, MongoTransactionPlugin>(type, options)
@@ -64,10 +63,10 @@ namespace catapult { namespace mocks {
 				if (IsPluginOptionFlagSet(options, PluginOptionFlags::Not_Embeddable))
 					return;
 
-				m_pEmbeddedTransactionPlugin = std::make_unique<MockMongoTransactionPluginT<
-						model::EmbeddedTransaction,
-						EmbeddedMockTransaction,
-						EmbeddedMongoTransactionPlugin>>(type, options);
+				m_pEmbeddedTransactionPlugin = std::make_unique<
+						MockMongoTransactionPluginT<model::EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedMongoTransactionPlugin>>(
+						type,
+						options);
 			}
 
 		public:
@@ -76,10 +75,8 @@ namespace catapult { namespace mocks {
 					const mongo::MongoTransactionMetadata&) const override {
 				std::vector<bsoncxx::document::value> documents;
 				for (auto i = 0u; i < m_numDependentDocuments; ++i) {
-					auto document = bson_stream::document()
-							<< "dd_counter" << static_cast<int32_t>(i)
-							<< "aggregate_signer" << ToBinary(transaction.SignerPublicKey)
-							<< bson_stream::finalize;
+					auto document = bson_stream::document() << "dd_counter" << static_cast<int32_t>(i) << "aggregate_signer"
+															<< ToBinary(transaction.SignerPublicKey) << bson_stream::finalize;
 					documents.push_back(document);
 				}
 

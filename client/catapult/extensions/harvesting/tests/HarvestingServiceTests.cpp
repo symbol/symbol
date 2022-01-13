@@ -70,8 +70,8 @@ namespace catapult { namespace harvesting {
 
 		public:
 			explicit TestContext(test::LocalNodeFlags flags = test::LocalNodeFlags::None)
-					: TestContext(CreateHarvestingConfiguration(flags))
-			{}
+					: TestContext(CreateHarvestingConfiguration(flags)) {
+			}
 
 			explicit TestContext(const HarvestingConfiguration& config)
 					: BaseType(test::CreateEmptyCatapultCache(test::CreatePrototypicalBlockchainConfiguration()))
@@ -247,9 +247,9 @@ namespace catapult { namespace harvesting {
 			config.DelegatePrioritizationPolicy = prioritizationPolicy;
 
 			TestContext context(config);
-			auto keyPairs = AddAccountsWithImportances(context, {
-				Importance(100), Importance(200), Importance(50), Importance(150), Importance(250)
-			});
+			auto keyPairs = AddAccountsWithImportances(
+					context,
+					{ Importance(100), Importance(200), Importance(50), Importance(150), Importance(250) });
 
 			RunUnlockedAccountsServiceTest(context, [&expectedIndexes, &context, &keyPairs](auto& unlockedAccounts) {
 				// Act:
@@ -440,8 +440,8 @@ namespace catapult { namespace harvesting {
 			AccountDescriptorWrapper()
 					: Descriptor(test::GenerateKeyPair(), test::GenerateKeyPair())
 					, SigningPublicKey(Descriptor.signingKeyPair().publicKey())
-					, VrfPublicKey(Descriptor.vrfKeyPair().publicKey())
-			{}
+					, VrfPublicKey(Descriptor.vrfKeyPair().publicKey()) {
+			}
 		};
 
 		AccountDescriptorWrapper GenerateAccountDescriptorWrapper() {
@@ -512,18 +512,19 @@ namespace catapult { namespace harvesting {
 		// Sanity:
 		EXPECT_EQ(importanceHeight, ConvertToImportanceHeight(height + Height(1)));
 
-		RunTaskTest(context, Task_Name, [descriptor = std::move(accountDescriptorWrapper.Descriptor)](
-				auto& unlockedAccounts,
-				const auto& task) mutable {
-			unlockedAccounts.modifier().add(std::move(descriptor));
+		RunTaskTest(
+				context,
+				Task_Name,
+				[descriptor = std::move(accountDescriptorWrapper.Descriptor)](auto& unlockedAccounts, const auto& task) mutable {
+					unlockedAccounts.modifier().add(std::move(descriptor));
 
-			// Act:
-			auto result = task.Callback().get();
+					// Act:
+					auto result = task.Callback().get();
 
-			// Assert:
-			EXPECT_EQ(thread::TaskResult::Continue, result);
-			EXPECT_EQ(1u, unlockedAccounts.view().size());
-		});
+					// Assert:
+					EXPECT_EQ(thread::TaskResult::Continue, result);
+					EXPECT_EQ(1u, unlockedAccounts.view().size());
+				});
 	}
 
 	TEST(TEST_CLASS, HarvestingTaskDoesPruneAccountIneligibleDueToImportanceHeight) {
@@ -536,18 +537,19 @@ namespace catapult { namespace harvesting {
 		// Sanity:
 		EXPECT_NE(importanceHeight, ConvertToImportanceHeight(height + Height(1)));
 
-		RunTaskTest(context, Task_Name, [descriptor = std::move(accountDescriptorWrapper.Descriptor)](
-				auto& unlockedAccounts,
-				const auto& task) mutable {
-			unlockedAccounts.modifier().add(std::move(descriptor));
+		RunTaskTest(
+				context,
+				Task_Name,
+				[descriptor = std::move(accountDescriptorWrapper.Descriptor)](auto& unlockedAccounts, const auto& task) mutable {
+					unlockedAccounts.modifier().add(std::move(descriptor));
 
-			// Act:
-			auto result = task.Callback().get();
+					// Act:
+					auto result = task.Callback().get();
 
-			// Assert:
-			EXPECT_EQ(thread::TaskResult::Continue, result);
-			EXPECT_EQ(0u, unlockedAccounts.view().size());
-		});
+					// Assert:
+					EXPECT_EQ(thread::TaskResult::Continue, result);
+					EXPECT_EQ(0u, unlockedAccounts.view().size());
+				});
 	}
 
 	TEST(TEST_CLASS, HarvestingTaskDoesPruneAccountIneligibleDueToBalance) {
@@ -560,18 +562,19 @@ namespace catapult { namespace harvesting {
 		// Sanity:
 		EXPECT_EQ(importanceHeight, ConvertToImportanceHeight(height + Height(1)));
 
-		RunTaskTest(context, Task_Name, [descriptor = std::move(accountDescriptorWrapper.Descriptor)](
-				auto& unlockedAccounts,
-				const auto& task) mutable {
-			unlockedAccounts.modifier().add(std::move(descriptor));
+		RunTaskTest(
+				context,
+				Task_Name,
+				[descriptor = std::move(accountDescriptorWrapper.Descriptor)](auto& unlockedAccounts, const auto& task) mutable {
+					unlockedAccounts.modifier().add(std::move(descriptor));
 
-			// Act:
-			auto result = task.Callback().get();
+					// Act:
+					auto result = task.Callback().get();
 
-			// Assert:
-			EXPECT_EQ(thread::TaskResult::Continue, result);
-			EXPECT_EQ(0u, unlockedAccounts.view().size());
-		});
+					// Assert:
+					EXPECT_EQ(thread::TaskResult::Continue, result);
+					EXPECT_EQ(0u, unlockedAccounts.view().size());
+				});
 	}
 
 	// endregion
@@ -584,36 +587,38 @@ namespace catapult { namespace harvesting {
 			test::TempDirectoryGuard dbDirGuard;
 			auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
 			auto balance = Amount(1'000'000'000'000);
-			auto cacheConfig = enableVerifiableState
-					? cache::CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Enabled)
-					: cache::CacheConfiguration();
+			auto cacheConfig = enableVerifiableState ? cache::CacheConfiguration(dbDirGuard.name(), cache::PatriciaTreeStorageMode::Enabled)
+													 : cache::CacheConfiguration();
 			TestContext context(
 					CreateCacheWithAccount(cacheConfig, Height(1), accountDescriptorWrapper, balance, model::ImportanceHeight(1)),
 					[]() { return Timestamp(std::numeric_limits<int64_t>::max()); });
 			if (enableVerifiableState)
 				context.enableVerifiableState();
 
-			RunTaskTest(context, Task_Name, [descriptor = std::move(accountDescriptorWrapper.Descriptor), &context, &harvestedStateHash](
-					auto& unlockedAccounts,
-					const auto& task) mutable {
-				unlockedAccounts.modifier().add(std::move(descriptor));
+			RunTaskTest(
+					context,
+					Task_Name,
+					[descriptor = std::move(accountDescriptorWrapper.Descriptor),
+					 &context,
+					 &harvestedStateHash](auto& unlockedAccounts, const auto& task) mutable {
+						unlockedAccounts.modifier().add(std::move(descriptor));
 
-				// Act:
-				auto result = task.Callback().get();
+						// Act:
+						auto result = task.Callback().get();
 
-				// Assert: one block should have been harvested
-				ASSERT_EQ(1u, context.capturedStateHashes().size());
-				harvestedStateHash = context.capturedStateHashes()[0];
+						// Assert: one block should have been harvested
+						ASSERT_EQ(1u, context.capturedStateHashes().size());
+						harvestedStateHash = context.capturedStateHashes()[0];
 
-				// - source public key is zero indicating harvester
-				ASSERT_EQ(1u, context.capturedSourceIdentities().size());
-				EXPECT_EQ(Key(), context.capturedSourceIdentities()[0].PublicKey);
-				EXPECT_EQ("", context.capturedSourceIdentities()[0].Host);
+						// - source public key is zero indicating harvester
+						ASSERT_EQ(1u, context.capturedSourceIdentities().size());
+						EXPECT_EQ(Key(), context.capturedSourceIdentities()[0].PublicKey);
+						EXPECT_EQ("", context.capturedSourceIdentities()[0].Host);
 
-				// Sanity:
-				EXPECT_EQ(thread::TaskResult::Continue, result);
-				EXPECT_EQ(1u, unlockedAccounts.view().size());
-			});
+						// Sanity:
+						EXPECT_EQ(thread::TaskResult::Continue, result);
+						EXPECT_EQ(1u, unlockedAccounts.view().size());
+					});
 		}
 	}
 

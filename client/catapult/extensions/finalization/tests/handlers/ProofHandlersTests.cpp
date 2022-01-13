@@ -143,10 +143,16 @@ namespace catapult { namespace handlers {
 	}
 
 #define PROOF_AT_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, FinalizationProofAtEpochHandler_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ProofAtEpochTraits>(); } \
-	TEST(TEST_CLASS, FinalizationProofAtHeightHandler_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ProofAtHeightTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, FinalizationProofAtEpochHandler_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ProofAtEpochTraits>(); \
+	} \
+	TEST(TEST_CLASS, FinalizationProofAtHeightHandler_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ProofAtHeightTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	PROOF_AT_TEST(DoesNotRespondToMalformedRequest) {
 		// Arrange:

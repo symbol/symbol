@@ -42,9 +42,8 @@ namespace catapult { namespace cache {
 		using PatriciaTreeView = PrimaryMixins::PatriciaTreeView;
 
 		using NamespaceDeepSize = NamespaceDeepSizeMixin;
-		using NamespaceLookup = NamespaceLookupMixin<
-			NamespaceCacheTypes::PrimaryTypes::BaseSetType,
-			NamespaceCacheTypes::FlatMapTypes::BaseSetType>;
+		using NamespaceLookup =
+				NamespaceLookupMixin<NamespaceCacheTypes::PrimaryTypes::BaseSetType, NamespaceCacheTypes::FlatMapTypes::BaseSetType>;
 	};
 
 	/// Basic view on top of the namespace cache.
@@ -71,8 +70,8 @@ namespace catapult { namespace cache {
 				, NamespaceCacheViewMixins::PatriciaTreeView(namespaceSets.PatriciaTree.get())
 				, NamespaceCacheViewMixins::NamespaceDeepSize(namespaceSizes)
 				, NamespaceCacheViewMixins::NamespaceLookup(namespaceSets.Primary, namespaceSets.FlatMap)
-				, m_gracePeriodDuration(options.GracePeriodDuration)
-		{}
+				, m_gracePeriodDuration(options.GracePeriodDuration) {
+		}
 
 	public:
 		/// Gets the grace period duration.
@@ -92,7 +91,7 @@ namespace catapult { namespace cache {
 				const NamespaceCacheTypes::BaseSets& namespaceSets,
 				const NamespaceCacheTypes::Options& options,
 				const NamespaceSizes& namespaceSizes)
-				: ReadOnlyViewSupplier(namespaceSets, options, namespaceSizes)
-		{}
+				: ReadOnlyViewSupplier(namespaceSets, options, namespaceSizes) {
+		}
 	};
 }}

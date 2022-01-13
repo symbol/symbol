@@ -24,7 +24,9 @@
 #include "catapult/net/NodeRequestResult.h"
 #include "catapult/functions.h"
 
-namespace catapult { namespace ionet { class NodeContainer; } }
+namespace catapult { namespace ionet {
+	class NodeContainer;
+}}
 
 namespace catapult { namespace nodediscovery {
 

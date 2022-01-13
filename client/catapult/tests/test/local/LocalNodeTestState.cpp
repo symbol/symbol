@@ -34,8 +34,8 @@ namespace catapult { namespace test {
 		Impl(config::CatapultConfiguration&& config, cache::CatapultCache&& cache)
 				: m_config(std::move(config))
 				, m_cache(std::move(cache))
-				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>())
-		{}
+				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>()) {
+		}
 
 	public:
 		extensions::LocalNodeStateRef ref() {
@@ -49,25 +49,26 @@ namespace catapult { namespace test {
 		extensions::LocalNodeChainScore m_score;
 	};
 
-	LocalNodeTestState::LocalNodeTestState() : LocalNodeTestState(CreateEmptyCatapultCache())
-	{}
+	LocalNodeTestState::LocalNodeTestState()
+			: LocalNodeTestState(CreateEmptyCatapultCache()) {
+	}
 
 	LocalNodeTestState::LocalNodeTestState(const model::BlockchainConfiguration& config)
-			: LocalNodeTestState(config, "", CreateEmptyCatapultCache(config))
-	{}
+			: LocalNodeTestState(config, "", CreateEmptyCatapultCache(config)) {
+	}
 
 	LocalNodeTestState::LocalNodeTestState(cache::CatapultCache&& cache)
-			: m_pImpl(std::make_unique<Impl>(CreatePrototypicalCatapultConfiguration(), std::move(cache)))
-	{}
+			: m_pImpl(std::make_unique<Impl>(CreatePrototypicalCatapultConfiguration(), std::move(cache))) {
+	}
 
 	LocalNodeTestState::LocalNodeTestState(
 			const model::BlockchainConfiguration& config,
 			const std::string& userDataDirectory,
 			cache::CatapultCache&& cache)
 			: m_pImpl(std::make_unique<Impl>(
-					CreatePrototypicalCatapultConfiguration(model::BlockchainConfiguration(config), userDataDirectory),
-					std::move(cache)))
-	{}
+					  CreatePrototypicalCatapultConfiguration(model::BlockchainConfiguration(config), userDataDirectory),
+					  std::move(cache))) {
+	}
 
 	LocalNodeTestState::~LocalNodeTestState() = default;
 

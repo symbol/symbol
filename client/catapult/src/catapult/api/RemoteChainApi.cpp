@@ -131,8 +131,8 @@ namespace catapult { namespace api {
 					const model::TransactionRegistry* pRegistry)
 					: RemoteChainApi(remoteIdentity)
 					, m_pRegistry(pRegistry)
-					, m_impl(io)
-			{}
+					, m_impl(io) {
+			}
 
 		public:
 			FutureType<ChainStatisticsTraits> chainStatistics() const override {

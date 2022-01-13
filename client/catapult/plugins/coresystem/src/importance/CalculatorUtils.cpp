@@ -34,8 +34,8 @@ namespace catapult { namespace importance {
 		public:
 			ImportanceHeightFacade(model::ImportanceHeight height, Height::ValueType importanceGrouping)
 					: HeightGroupingFacade(height, importanceGrouping, "importance search")
-					, m_height(height)
-			{}
+					, m_height(height) {
+			}
 
 		public:
 			void checkBucketHeight(model::ImportanceHeight bucketHeight) const {
@@ -43,7 +43,7 @@ namespace catapult { namespace importance {
 
 				if (bucketHeight > m_height) {
 					std::ostringstream out;
-					out << "bucket start height " << bucketHeight<< " cannot be greater than search height " << m_height;
+					out << "bucket start height " << bucketHeight << " cannot be greater than search height " << m_height;
 					CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 				}
 			}
@@ -85,9 +85,7 @@ namespace catapult { namespace importance {
 	// region FinalizeAccountActivity
 
 	void FinalizeAccountActivity(model::ImportanceHeight height, Importance importance, state::AccountActivityBuckets& buckets) {
-		buckets.update(height, [importance](auto& bucket) {
-			bucket.RawScore = importance.unwrap();
-		});
+		buckets.update(height, [importance](auto& bucket) { bucket.RawScore = importance.unwrap(); });
 	}
 
 	// endregion

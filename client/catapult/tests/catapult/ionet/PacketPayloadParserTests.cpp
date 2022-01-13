@@ -135,24 +135,30 @@ namespace catapult { namespace ionet {
 	}
 
 #define BUFFER_SIZE_FAILURE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	MAKE_TEST(TEST_NAME, ContainsSingleEntity, ,) \
-	MAKE_TEST(TEST_NAME, ExtractEntityOffsets, ,) \
-	MAKE_TEST(TEST_NAME, CountFixedSizeStructures, ,) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	MAKE_TEST(TEST_NAME, ContainsSingleEntity, , ) \
+	MAKE_TEST(TEST_NAME, ExtractEntityOffsets, , ) \
+	MAKE_TEST(TEST_NAME, CountFixedSizeStructures, , ) \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define BUFFER_FAILURE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	MAKE_TEST(TEST_NAME, ContainsSingleEntity, ,) \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	MAKE_TEST(TEST_NAME, ContainsSingleEntity, , ) \
 	MAKE_TEST(TEST_NAME, ExtractEntityOffsets, _Single, SingleEntity) \
 	MAKE_TEST(TEST_NAME, ExtractEntityOffsets, _Last, MultiEntity) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define BUFFER_SINGLE_ENTITY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	MAKE_TEST(TEST_NAME, ContainsSingleEntity, ,) \
-	MAKE_TEST(TEST_NAME, ExtractEntityOffsets, ,) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	MAKE_TEST(TEST_NAME, ContainsSingleEntity, , ) \
+	MAKE_TEST(TEST_NAME, ExtractEntityOffsets, , ) \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	BUFFER_SIZE_FAILURE_TEST(CannotExtractFromEmptyBuffer) {
 		// Act:

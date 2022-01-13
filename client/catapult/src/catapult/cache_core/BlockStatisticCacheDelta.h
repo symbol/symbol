@@ -96,7 +96,7 @@ namespace catapult { namespace cache {
 		BlockStatisticCacheDelta(
 				const BlockStatisticCacheTypes::BaseSetDeltaPointers& statisticSets,
 				const BlockStatisticCacheTypes::Options& options)
-				: ReadOnlyViewSupplier(statisticSets, options)
-		{}
+				: ReadOnlyViewSupplier(statisticSets, options) {
+		}
 	};
 }}

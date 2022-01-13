@@ -24,7 +24,9 @@
 #include "catapult/ionet/PacketHandlers.h"
 #include "catapult/model/NetworkIdentifier.h"
 
-namespace catapult { namespace ionet { struct NetworkNode; } }
+namespace catapult { namespace ionet {
+	struct NetworkNode;
+}}
 
 namespace catapult { namespace handlers {
 

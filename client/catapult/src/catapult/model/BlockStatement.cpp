@@ -94,9 +94,8 @@ namespace catapult { namespace model {
 	}
 
 	size_t CountTotalStatements(const BlockStatement& statement) {
-		return statement.TransactionStatements.size()
-				+ statement.AddressResolutionStatements.size()
-				+ statement.MosaicResolutionStatements.size();
+		return statement.TransactionStatements.size() + statement.AddressResolutionStatements.size()
+			   + statement.MosaicResolutionStatements.size();
 	}
 
 	void DeepCopyTo(BlockStatement& destination, const BlockStatement& source) {

@@ -105,8 +105,8 @@ namespace catapult { namespace thread {
 			StrandedTaskWrapper(boost::asio::io_context& ioContext, const Task& task)
 					: m_strand(ioContext)
 					, m_strandWrapper(m_strand)
-					, m_impl(ioContext, task, *this)
-			{}
+					, m_impl(ioContext, task, *this) {
+			}
 
 		public:
 			void start() {
@@ -135,9 +135,7 @@ namespace catapult { namespace thread {
 		private:
 			template<typename THandler>
 			void post(THandler handler) {
-				return m_strandWrapper.post(shared_from_this(), [handler](const auto& pThis) {
-					handler(pThis->m_impl);
-				});
+				return m_strandWrapper.post(shared_from_this(), [handler](const auto& pThis) { handler(pThis->m_impl); });
 			}
 
 		private:
@@ -154,8 +152,8 @@ namespace catapult { namespace thread {
 					: m_ioContext(pool.ioContext())
 					, m_numExecutingTaskCallbacks(0)
 					, m_isStopped(false)
-					, m_tasks([](auto& task) { task.stop(); })
-			{}
+					, m_tasks([](auto& task) { task.stop(); }) {
+			}
 
 			~DefaultScheduler() override {
 				shutdown();

@@ -28,8 +28,8 @@ namespace catapult { namespace extensions {
 
 	MemoryStream::MemoryStream(std::vector<uint8_t>& buffer)
 			: m_buffer(buffer)
-			, m_position(0)
-	{}
+			, m_position(0) {
+	}
 
 	void MemoryStream::write(const RawBuffer& buffer) {
 		m_buffer.resize(std::max<size_t>(m_buffer.size(), m_position + buffer.Size));
@@ -37,8 +37,8 @@ namespace catapult { namespace extensions {
 		m_position += buffer.Size;
 	}
 
-	void MemoryStream::flush()
-	{}
+	void MemoryStream::flush() {
+	}
 
 	bool MemoryStream::eof() const {
 		return m_position == m_buffer.size();
@@ -47,10 +47,8 @@ namespace catapult { namespace extensions {
 	void MemoryStream::read(const MutableRawBuffer& buffer) {
 		if (buffer.Size + m_position > m_buffer.size()) {
 			std::ostringstream out;
-			out
-					<< "MemoryStream invalid read (read-size = " << buffer.Size
-					<< ", stream-position = " << m_position
-					<< ", stream-size = " << m_buffer.size() << ")";
+			out << "MemoryStream invalid read (read-size = " << buffer.Size << ", stream-position = " << m_position
+				<< ", stream-size = " << m_buffer.size() << ")";
 			CATAPULT_THROW_FILE_IO_ERROR(out.str().c_str());
 		}
 

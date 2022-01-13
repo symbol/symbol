@@ -60,8 +60,8 @@ namespace catapult { namespace unbondedpruning {
 		public:
 			explicit MockTransactionPlugin(const utils::HashSet& dependentHashes)
 					: m_dependentHashes(dependentHashes)
-					, m_numPublishes(0)
-			{}
+					, m_numPublishes(0) {
+			}
 
 		public:
 			void publish(
@@ -143,9 +143,10 @@ namespace catapult { namespace unbondedpruning {
 	TEST(TEST_CLASS, TransactionEventsAreRaisedWhenDependentHashesAreFound_SingleTransactionMultipleDependencies) {
 		// Assert: 1 transaction x 3 dependent hash => 3 collected dependent hash
 		auto hashes = test::GenerateRandomDataVector<Hash256>(3);
-		AssertDependencyRemovedTransactionEvents(1, { hashes[0], hashes[1], hashes[2] }, {
-			MutateHash(0, hashes[0]), MutateHash(0, hashes[1]), MutateHash(0, hashes[2])
-		});
+		AssertDependencyRemovedTransactionEvents(
+				1,
+				{ hashes[0], hashes[1], hashes[2] },
+				{ MutateHash(0, hashes[0]), MutateHash(0, hashes[1]), MutateHash(0, hashes[2]) });
 	}
 
 	TEST(TEST_CLASS, NoTransactionEventsAreRaisedWhenNoDependentHashesAreFound_MultipleTransactions) {
@@ -156,18 +157,21 @@ namespace catapult { namespace unbondedpruning {
 	TEST(TEST_CLASS, TransactionEventsAreRaisedWhenDependentHashesAreFound_MultipleTransactionsSingleDependency) {
 		// Assert: 3 transaction x 1 dependent hash => 3 collected dependent hash
 		auto hash = test::GenerateRandomByteArray<Hash256>();
-		AssertDependencyRemovedTransactionEvents(3, { hash }, {
-			MutateHash(0, hash), MutateHash(1, hash), MutateHash(2, hash)
-		});
+		AssertDependencyRemovedTransactionEvents(3, { hash }, { MutateHash(0, hash), MutateHash(1, hash), MutateHash(2, hash) });
 	}
 
 	TEST(TEST_CLASS, TransactionEventsAreRaisedWhenDependentHashesAreFound_MultipleTransactionsMultipleDependencies) {
 		// Assert: 2 transaction x 3 dependent hash => 6 collected dependent hash
 		auto hashes = test::GenerateRandomDataVector<Hash256>(3);
-		AssertDependencyRemovedTransactionEvents(2, { hashes[0], hashes[1], hashes[2] }, {
-			MutateHash(0, hashes[0]), MutateHash(0, hashes[1]), MutateHash(0, hashes[2]),
-			MutateHash(1, hashes[0]), MutateHash(1, hashes[1]), MutateHash(1, hashes[2])
-		});
+		AssertDependencyRemovedTransactionEvents(
+				2,
+				{ hashes[0], hashes[1], hashes[2] },
+				{ MutateHash(0, hashes[0]),
+				  MutateHash(0, hashes[1]),
+				  MutateHash(0, hashes[2]),
+				  MutateHash(1, hashes[0]),
+				  MutateHash(1, hashes[1]),
+				  MutateHash(1, hashes[2]) });
 	}
 
 	// endregion

@@ -32,8 +32,8 @@ namespace catapult { namespace plugins {
 			: m_config(config)
 			, m_storageConfig(storageConfig)
 			, m_userConfig(userConfig)
-			, m_inflationConfig(inflationConfig)
-	{}
+			, m_inflationConfig(inflationConfig) {
+	}
 
 	// region config
 

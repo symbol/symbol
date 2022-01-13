@@ -25,15 +25,13 @@
 #include "BaseSetFindIterator.h"
 #include <memory>
 
-namespace catapult {
-	namespace deltaset {
-		template<typename TElementTraits, typename TSetTraits>
-		class BaseSetDelta;
+namespace catapult { namespace deltaset {
+	template<typename TElementTraits, typename TSetTraits>
+	class BaseSetDelta;
 
-		template<typename TSetTraits>
-		class BaseSetIterationView;
-	}
-}
+	template<typename TSetTraits>
+	class BaseSetIterationView;
+}}
 
 namespace catapult { namespace deltaset {
 
@@ -45,11 +43,7 @@ namespace catapult { namespace deltaset {
 	/// \note: 1) this class is not thread safe.
 	///        2) if TSetTraits::SetType is an unordered set, the element must implement operator ==
 	///        3) if MutableTypeTraits are used, the element must implement a (deep) copy
-	template<
-			typename TElementTraits,
-			typename TSetTraits,
-			typename TCommitPolicy = BaseSetCommitPolicy<TSetTraits>
-	>
+	template<typename TElementTraits, typename TSetTraits, typename TCommitPolicy = BaseSetCommitPolicy<TSetTraits>>
 	class BaseSet : public utils::MoveOnly {
 	public:
 		using ElementType = typename TElementTraits::ElementType;
@@ -64,8 +58,9 @@ namespace catapult { namespace deltaset {
 		/// Creates a base set.
 		/// \a args are forwarded to the underlying container.
 		template<typename... TArgs>
-		explicit BaseSet(TArgs&&... args) : m_elements(std::forward<TArgs>(args)...)
-		{}
+		explicit BaseSet(TArgs&&... args)
+				: m_elements(std::forward<TArgs>(args)...) {
+		}
 
 	public:
 		/// Gets a value indicating whether or not the set is empty.

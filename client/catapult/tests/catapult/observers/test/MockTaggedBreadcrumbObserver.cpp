@@ -30,8 +30,8 @@ namespace catapult { namespace mocks {
 			MockTaggedBreadcrumbObserver(uint8_t tag, std::vector<uint16_t>& breadcrumbs)
 					: m_tag(tag)
 					, m_breadcrumbs(breadcrumbs)
-					, m_name(std::to_string(m_tag))
-			{}
+					, m_name(std::to_string(m_tag)) {
+			}
 
 		public:
 			const std::string& name() const override {

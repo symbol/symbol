@@ -23,20 +23,15 @@
 #include "src/state/NamespaceEntry.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicNamespaceCacheDelta;
-		class BasicNamespaceCacheView;
-	}
-}
+namespace catapult { namespace cache {
+	class BasicNamespaceCacheDelta;
+	class BasicNamespaceCacheView;
+}}
 
 namespace catapult { namespace cache {
 
-	using ReadOnlyNamespaceArtifactCache = ReadOnlyArtifactCache<
-		BasicNamespaceCacheView,
-		BasicNamespaceCacheDelta,
-		NamespaceId,
-		state::NamespaceEntry>;
+	using ReadOnlyNamespaceArtifactCache =
+			ReadOnlyArtifactCache<BasicNamespaceCacheView, BasicNamespaceCacheDelta, NamespaceId, state::NamespaceEntry>;
 
 	/// Read-only overlay on top of a namespace cache.
 	class ReadOnlyNamespaceCache : public ReadOnlyNamespaceArtifactCache {

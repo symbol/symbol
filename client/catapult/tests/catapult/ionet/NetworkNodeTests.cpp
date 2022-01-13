@@ -54,7 +54,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(81u, sizeof(NetworkNode));
 	}
 
-	TEST(TEST_CLASS, NodeHasProperAlignment) {
+	TEST(TEST_CLASS, NodeHasProperAlignment){
 #define FIELD(X) EXPECT_ALIGNED(NetworkNode, X);
 		NODE_FIELDS
 #undef FIELD

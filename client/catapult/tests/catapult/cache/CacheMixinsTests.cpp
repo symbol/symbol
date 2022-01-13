@@ -252,10 +252,16 @@ namespace catapult { namespace cache {
 	}
 
 #define ITERATION_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, IterationMixin_##TEST_NAME##_Map_Iterators) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MapIterationIterators>(); } \
-	TEST(TEST_CLASS, IterationMixin_##TEST_NAME##_Set_Iterators) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SetIterationIterators>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, IterationMixin_##TEST_NAME##_Map_Iterators) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MapIterationIterators>(); \
+	} \
+	TEST(TEST_CLASS, IterationMixin_##TEST_NAME##_Set_Iterators) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SetIterationIterators>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ITERATION_TRAITS_BASED_TEST(CanIterate_ZeroElements) {
 		TTraits::AssertIteration({});
@@ -376,12 +382,22 @@ namespace catapult { namespace cache {
 	}
 
 #define ACCESSOR_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, ConstAccessorMixin_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstNoAdaptAccessor>(); } \
-	TEST(TEST_CLASS, ConstAccessorMixin_##TEST_NAME##_Adapt) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstAdaptAccessor>(); } \
-	TEST(TEST_CLASS, MutableAccessorMixin_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableNoAdaptAccessor>(); } \
-	TEST(TEST_CLASS, MutableAccessorMixin_##TEST_NAME##_Adapt) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableAdaptAccessor>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, ConstAccessorMixin_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstNoAdaptAccessor>(); \
+	} \
+	TEST(TEST_CLASS, ConstAccessorMixin_##TEST_NAME##_Adapt) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstAdaptAccessor>(); \
+	} \
+	TEST(TEST_CLASS, MutableAccessorMixin_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableNoAdaptAccessor>(); \
+	} \
+	TEST(TEST_CLASS, MutableAccessorMixin_##TEST_NAME##_Adapt) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MutableAdaptAccessor>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ACCESSOR_TRAITS_BASED_TEST(GetThrowsForKeysNotInCache) {
 		// Arrange:

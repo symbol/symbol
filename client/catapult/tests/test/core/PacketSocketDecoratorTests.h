@@ -63,9 +63,7 @@ namespace catapult { namespace test {
 
 			// Act:
 			ionet::PacketSocket::Stats capturedStats;
-			context.pDecoratedSocket->stats([&capturedStats](const auto& stats) {
-				capturedStats = stats;
-			});
+			context.pDecoratedSocket->stats([&capturedStats](const auto& stats) { capturedStats = stats; });
 
 			// Assert: NumUnprocessedBytes is set to call count by MockPacketSocket
 			EXPECT_EQ(1u, context.pMockPacketSocket->numStatsCalls());
@@ -78,9 +76,7 @@ namespace catapult { namespace test {
 
 			// Act:
 			auto numCallbackCalls = 0u;
-			context.pDecoratedSocket->waitForData([&numCallbackCalls]() {
-				++numCallbackCalls;
-			});
+			context.pDecoratedSocket->waitForData([&numCallbackCalls]() { ++numCallbackCalls; });
 
 			// Assert:
 			EXPECT_EQ(1u, numCallbackCalls);
@@ -111,7 +107,9 @@ namespace catapult { namespace test {
 }}
 
 #define MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, TEST_NAME) \
-	TEST(TEST_CLASS, PREFIX##TEST_NAME) { test::PacketSocketDecoratorTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, PREFIX##TEST_NAME) { \
+		test::PacketSocketDecoratorTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_PACKET_SOCKET_DECORATOR_TESTS(TRAITS_NAME, PREFIX) \
 	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanRoundtripPackets) \

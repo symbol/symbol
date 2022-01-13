@@ -30,8 +30,8 @@ namespace catapult { namespace observers {
 		model::AccountRestrictionModificationAction InvertModificationAction(
 				model::AccountRestrictionModificationAction modificationAction) {
 			return model::AccountRestrictionModificationAction::Add == modificationAction
-					? model::AccountRestrictionModificationAction::Del
-					: model::AccountRestrictionModificationAction::Add;
+						   ? model::AccountRestrictionModificationAction::Del
+						   : model::AccountRestrictionModificationAction::Add;
 		}
 
 		template<typename TUnresolved>
@@ -56,9 +56,8 @@ namespace catapult { namespace observers {
 
 			auto& restrictions = restrictionsIter.get();
 			auto& restriction = restrictions.restriction(notification.AccountRestrictionDescriptor.directionalRestrictionFlags());
-			auto modificationAction = NotifyMode::Commit == context.Mode
-					? notification.Action
-					: InvertModificationAction(notification.Action);
+			auto modificationAction =
+					NotifyMode::Commit == context.Mode ? notification.Action : InvertModificationAction(notification.Action);
 			auto resolvedRawValue = state::ToVector(Resolve(context.Resolvers, notification.RestrictionValue));
 			model::AccountRestrictionModification rawModification{ modificationAction, resolvedRawValue };
 
@@ -73,11 +72,12 @@ namespace catapult { namespace observers {
 	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(RESTRICTION_VALUE_NAME) \
-	DEFINE_OBSERVER(Account##RESTRICTION_VALUE_NAME##Modification, model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification, []( \
-			const model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification& notification, \
-			const ObserverContext& context) { \
-		ObserveNotification<model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification>(notification, context); \
-	})
+	DEFINE_OBSERVER( \
+			Account##RESTRICTION_VALUE_NAME##Modification, \
+			model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification, \
+			[](const model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification& notification, const ObserverContext& context) { \
+				ObserveNotification<model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification>(notification, context); \
+			})
 
 	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(AddressRestrictionValue)
 	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(MosaicRestrictionValue)

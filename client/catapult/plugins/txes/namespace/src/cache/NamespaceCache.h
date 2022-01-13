@@ -27,19 +27,16 @@
 
 namespace catapult { namespace cache {
 
-	using NamespaceBasicCache = BasicCache<
-		NamespaceCacheDescriptor,
-		NamespaceCacheTypes::BaseSets,
-		NamespaceCacheTypes::Options,
-		const NamespaceSizes&>;
+	using NamespaceBasicCache =
+			BasicCache<NamespaceCacheDescriptor, NamespaceCacheTypes::BaseSets, NamespaceCacheTypes::Options, const NamespaceSizes&>;
 
 	/// Cache composed of namespace information.
 	class BasicNamespaceCache : public NamespaceBasicCache {
 	public:
 		/// Creates a cache around \a config and \a options.
 		BasicNamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
-				: BasicNamespaceCache(config, options, std::make_unique<NamespaceSizes>())
-		{}
+				: BasicNamespaceCache(config, options, std::make_unique<NamespaceSizes>()) {
+		}
 
 	private:
 		BasicNamespaceCache(
@@ -47,8 +44,8 @@ namespace catapult { namespace cache {
 				const NamespaceCacheTypes::Options& options,
 				std::unique_ptr<NamespaceSizes>&& pSizes)
 				: NamespaceBasicCache(config, NamespaceCacheTypes::Options(options), *pSizes)
-				, m_pSizes(std::move(pSizes))
-		{}
+				, m_pSizes(std::move(pSizes)) {
+		}
 
 	public:
 		/// Initializes the cache with \a activeSize and \a deepSize.
@@ -76,7 +73,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a cache around \a config and options.
 		NamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
-				: SynchronizedCacheWithInit<BasicNamespaceCache>(BasicNamespaceCache(config, options))
-		{}
+				: SynchronizedCacheWithInit<BasicNamespaceCache>(BasicNamespaceCache(config, options)) {
+		}
 	};
 }}

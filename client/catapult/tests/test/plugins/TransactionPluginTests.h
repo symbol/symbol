@@ -33,17 +33,17 @@ namespace catapult { namespace test {
 		using TransactionType = model::NAME##Transaction; \
 		static constexpr auto Min_Supported_Version = MIN_VERSION; \
 		static constexpr auto Max_Supported_Version = MAX_VERSION; \
-		\
+\
 		static auto CreatePlugin() { \
 			return Create##NAME##TransactionPlugin(); \
 		} \
 	}; \
-	\
+\
 	struct TRAITS_PREFIX##EmbeddedTraits { \
 		using TransactionType = model::Embedded##NAME##Transaction; \
 		static constexpr auto Min_Supported_Version = MIN_VERSION; \
 		static constexpr auto Max_Supported_Version = MAX_VERSION; \
-		\
+\
 		static auto CreatePlugin() { \
 			return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin()); \
 		} \
@@ -56,17 +56,17 @@ namespace catapult { namespace test {
 		using TransactionType = model::NAME##Transaction; \
 		static constexpr auto Min_Supported_Version = MIN_VERSION; \
 		static constexpr auto Max_Supported_Version = MAX_VERSION; \
-		\
+\
 		static auto CreatePlugin(const CONFIG_TYPE& config) { \
 			return Create##NAME##TransactionPlugin(config); \
 		} \
 	}; \
-	\
+\
 	struct TRAITS_PREFIX##EmbeddedTraits { \
 		using TransactionType = model::Embedded##NAME##Transaction; \
 		static constexpr auto Min_Supported_Version = MIN_VERSION; \
 		static constexpr auto Max_Supported_Version = MAX_VERSION; \
-		\
+\
 		static auto CreatePlugin(const CONFIG_TYPE& config) { \
 			return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin(config)); \
 		} \
@@ -89,7 +89,7 @@ namespace catapult { namespace test {
 	public:
 		/// Asserts that is size valid calculation delegates to static transaction function.
 		template<typename... TArgs>
-		static void AssertIsSizeValidReturnsCorrectValuesWhenTransactionIsComplete(model::EntityType, TArgs&& ...args) {
+		static void AssertIsSizeValidReturnsCorrectValuesWhenTransactionIsComplete(model::EntityType, TArgs&&... args) {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -105,7 +105,7 @@ namespace catapult { namespace test {
 
 		/// Asserts that is size valid calculation delegates to static transaction function.
 		template<typename... TArgs>
-		static void AssertIsSizeValidReturnsCorrectValuesWhenTransactionIsIncomplete(model::EntityType, TArgs&& ...args) {
+		static void AssertIsSizeValidReturnsCorrectValuesWhenTransactionIsIncomplete(model::EntityType, TArgs&&... args) {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -123,7 +123,7 @@ namespace catapult { namespace test {
 
 		/// Asserts that transaction plugin returns correct attributes.
 		template<typename... TArgs>
-		static void AssertAttributesReturnsCorrectValues(model::EntityType, TArgs&& ...args) {
+		static void AssertAttributesReturnsCorrectValues(model::EntityType, TArgs&&... args) {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -140,7 +140,7 @@ namespace catapult { namespace test {
 
 		/// Asserts that transaction plugin returns correct number of embedded transactions.
 		template<typename... TArgs>
-		static void AssertCanCountEmbeddedTransactions(model::EntityType, TArgs&& ...args) {
+		static void AssertCanCountEmbeddedTransactions(model::EntityType, TArgs&&... args) {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -156,7 +156,7 @@ namespace catapult { namespace test {
 
 		/// Asserts that a primary data buffer can be extracted from a transaction plugin.
 		template<typename... TArgs>
-		static void AssertCanExtractPrimaryDataBuffer(model::EntityType, TArgs&& ...args) {
+		static void AssertCanExtractPrimaryDataBuffer(model::EntityType, TArgs&&... args) {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -174,7 +174,7 @@ namespace catapult { namespace test {
 
 		/// Asserts that merkle supplementary buffers are empty for a transaction plugin.
 		template<typename... TArgs>
-		static void AssertMerkleSupplementaryBuffersAreEmpty(model::EntityType, TArgs&& ...args) {
+		static void AssertMerkleSupplementaryBuffersAreEmpty(model::EntityType, TArgs&&... args) {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -190,7 +190,7 @@ namespace catapult { namespace test {
 
 		/// Asserts that top-level block embedding is supported.
 		template<typename... TArgs>
-		static void AssertPluginSupportsTopLevel(model::EntityType, TArgs&& ...args) {
+		static void AssertPluginSupportsTopLevel(model::EntityType, TArgs&&... args) {
 			// Act:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -200,7 +200,7 @@ namespace catapult { namespace test {
 
 		/// Asserts that top-level block embedding is not supported.
 		template<typename... TArgs>
-		static void AssertPluginDoesNotSupportTopLevel(model::EntityType, TArgs&& ...args) {
+		static void AssertPluginDoesNotSupportTopLevel(model::EntityType, TArgs&&... args) {
 			// Act:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -210,7 +210,7 @@ namespace catapult { namespace test {
 
 		/// Asserts that additional required cosignatories are empty for a transaction plugin.
 		template<typename... TArgs>
-		static void AssertAdditionalRequiredCosignatoriesAreEmpty(model::EntityType, TArgs&& ...args) {
+		static void AssertAdditionalRequiredCosignatoriesAreEmpty(model::EntityType, TArgs&&... args) {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -230,7 +230,7 @@ namespace catapult { namespace test {
 /// \note \a TYPE is first __VA_ARGS__ parameter.
 #define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ALL(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \
 	DEFINE_SHARED_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, __VA_ARGS__) \
-	\
+\
 	PLUGIN_TEST_WITH_PREFIXED_TRAITS(IsSizeValidReturnsCorrectValuesWhenTransactionIsComplete, TRAITS_PREFIX, TEST_POSTFIX) { \
 		test::TransactionPluginTests<TTraits>::AssertIsSizeValidReturnsCorrectValuesWhenTransactionIsComplete(__VA_ARGS__); \
 	} \
@@ -262,7 +262,7 @@ namespace catapult { namespace test {
 /// - uncovered (regular and embedded): { publish }
 #define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ALL(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, __VA_ARGS__) \
-	\
+\
 	TEST(TEST_CLASS, PluginSupportsTopLevel##TEST_POSTFIX) { \
 		test::TransactionPluginTests<TRAITS_PREFIX##RegularTraits>::AssertPluginSupportsTopLevel(__VA_ARGS__); \
 	} \
@@ -282,7 +282,7 @@ namespace catapult { namespace test {
 /// - uncovered (embedded): { additionalRequiredCosignatories }
 #define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ONLY_EMBEDDABLE(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ALL(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, __VA_ARGS__) \
-	\
+\
 	TEST(TEST_CLASS, PluginDoesNotSupportTopLevel##TEST_POSTFIX) { \
 		test::TransactionPluginTests<TRAITS_PREFIX##RegularTraits>::AssertPluginDoesNotSupportTopLevel(__VA_ARGS__); \
 	}

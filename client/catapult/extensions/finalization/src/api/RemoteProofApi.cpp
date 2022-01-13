@@ -96,8 +96,8 @@ namespace catapult { namespace api {
 		public:
 			DefaultRemoteProofApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity)
 					: RemoteProofApi(remoteIdentity)
-					, m_impl(io)
-			{}
+					, m_impl(io) {
+			}
 
 		public:
 			FutureType<FinalizationStatisticsTraits> finalizationStatistics() const override {

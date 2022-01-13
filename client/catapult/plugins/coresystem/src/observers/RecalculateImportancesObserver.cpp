@@ -52,9 +52,8 @@ namespace catapult { namespace observers {
 		}
 
 		importance::ImportanceRollbackMode GetImportanceRollbackMode(const cache::CatapultCacheDelta& delta) {
-			return cache::CatapultCacheDelta::Disposition::Attached == delta.disposition()
-					? importance::ImportanceRollbackMode::Enabled
-					: importance::ImportanceRollbackMode::Disabled;
+			return cache::CatapultCacheDelta::Disposition::Attached == delta.disposition() ? importance::ImportanceRollbackMode::Enabled
+																						   : importance::ImportanceRollbackMode::Disabled;
 		}
 
 		class RecalculateImportancesObserver : public NotificationObserverT<model::BlockNotification> {
@@ -64,8 +63,8 @@ namespace catapult { namespace observers {
 					std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator)
 					: m_pCommitCalculator(std::move(pCommitCalculator))
 					, m_pRollbackCalculator(std::move(pRollbackCalculator))
-					, m_name("RecalculateImportancesObserver")
-			{}
+					, m_name("RecalculateImportancesObserver") {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -92,9 +91,9 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)(
-			std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
-			std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator) {
+	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)
+	(std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
+	 std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator) {
 		return std::make_unique<RecalculateImportancesObserver>(std::move(pCommitCalculator), std::move(pRollbackCalculator));
 	}
 }}

@@ -27,8 +27,9 @@ namespace catapult { namespace zeromq {
 	namespace {
 		class ZeroMqPtChangeSubscriber : public cache::PtChangeSubscriber {
 		public:
-			explicit ZeroMqPtChangeSubscriber(ZeroMqEntityPublisher& publisher) : m_publisher(publisher)
-			{}
+			explicit ZeroMqPtChangeSubscriber(ZeroMqEntityPublisher& publisher)
+					: m_publisher(publisher) {
+			}
 
 		public:
 			void notifyAddPartials(const TransactionInfos& transactionInfos) override {
@@ -36,9 +37,7 @@ namespace catapult { namespace zeromq {
 					m_publisher.publishTransaction(TransactionMarker::Partial_Transaction_Add_Marker, transactionInfo, Height());
 			}
 
-			void notifyAddCosignature(
-					const model::TransactionInfo& parentTransactionInfo,
-					const model::Cosignature& cosignature) override {
+			void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override {
 				m_publisher.publishCosignature(parentTransactionInfo, cosignature);
 			}
 

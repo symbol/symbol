@@ -69,9 +69,7 @@ namespace catapult { namespace sync {
 		// region utils
 
 		crypto::RandomFiller CreateRandomFiller() {
-			return [](auto* pOut, auto count) {
-				crypto::SecureRandomGenerator().fill(pOut, count);
-			};
+			return [](auto* pOut, auto count) { crypto::SecureRandomGenerator().fill(pOut, count); };
 		}
 
 		std::shared_ptr<const validators::ParallelValidationPolicy> CreateParallelValidationPolicy(
@@ -107,8 +105,8 @@ namespace catapult { namespace sync {
 			auto reclaimMemoryInspector = CreateReclaimMemoryInspector();
 			const auto& localNetworks = state.config().Node.LocalNetworks;
 			auto inspector = [&nodeSubscriber, &statusSubscriber, &nodes = state.nodes(), &localNetworks, reclaimMemoryInspector](
-					auto& input,
-					const auto& completionResult) {
+									 auto& input,
+									 const auto& completionResult) {
 				statusSubscriber.flush();
 				auto interactionResult = consumers::ToNodeInteractionResult(input.sourceIdentity(), completionResult);
 				extensions::IncrementNodeInteraction(nodes, interactionResult);
@@ -178,27 +176,25 @@ namespace catapult { namespace sync {
 			syncHandlers.NetworkFinalizedHeightHashPairSupplier = extensions::CreateNetworkFinalizedHeightHashPairSupplier(state);
 
 			auto pUndoObserver = utils::UniqueToShared(extensions::CreateUndoEntityObserver(pluginManager));
-			syncHandlers.UndoBlock = [&rollbackInfo, &pluginManager, pUndoObserver](
-					const auto& blockElement,
-					auto& observerState,
-					auto undoBlockType) {
-				rollbackInfo.modifier().increment();
-				auto readOnlyCache = observerState.Cache.toReadOnly();
-				auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
-				UndoBlock(blockElement, { *pUndoObserver, resolverContext, observerState }, undoBlockType);
-			};
+			syncHandlers.UndoBlock =
+					[&rollbackInfo, &pluginManager, pUndoObserver](const auto& blockElement, auto& observerState, auto undoBlockType) {
+						rollbackInfo.modifier().increment();
+						auto readOnlyCache = observerState.Cache.toReadOnly();
+						auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
+						UndoBlock(blockElement, { *pUndoObserver, resolverContext, observerState }, undoBlockType);
+					};
 			syncHandlers.Processor = CreateSyncProcessor(blockchainConfig, extensions::CreateExecutionConfiguration(pluginManager));
 
-			syncHandlers.StateChange = [&rollbackInfo, &localScore = state.score(), &subscriber = state.stateChangeSubscriber()](
-					const auto& changeInfo) {
-				localScore += changeInfo.ScoreDelta;
+			syncHandlers.StateChange =
+					[&rollbackInfo, &localScore = state.score(), &subscriber = state.stateChangeSubscriber()](const auto& changeInfo) {
+						localScore += changeInfo.ScoreDelta;
 
-				// note: changeInfo contains only score delta, subscriber will get both current local score and changeInfo
-				subscriber.notifyScoreChange(localScore.get());
-				subscriber.notifyStateChange(changeInfo);
+						// note: changeInfo contains only score delta, subscriber will get both current local score and changeInfo
+						subscriber.notifyScoreChange(localScore.get());
+						subscriber.notifyStateChange(changeInfo);
 
-				rollbackInfo.modifier().save();
-			};
+						rollbackInfo.modifier().save();
+					};
 
 			auto dataDirectory = config::CatapultDataDirectory(state.config().User.DataDirectory);
 			syncHandlers.PreStateWritten = [](const auto&, auto) {};
@@ -215,8 +211,8 @@ namespace catapult { namespace sync {
 		public:
 			explicit BlockDispatcherBuilder(extensions::ServiceState& state)
 					: m_state(state)
-					, m_nodeConfig(m_state.config().Node)
-			{}
+					, m_nodeConfig(m_state.config().Node) {
+			}
 
 		public:
 			void addHashConsumers() {
@@ -231,9 +227,8 @@ namespace catapult { namespace sync {
 			std::shared_ptr<ConsumerDispatcher> build(thread::IoThreadPool& validatorPool, RollbackInfo& rollbackInfo) {
 				const auto& utCache = const_cast<const extensions::ServiceState&>(m_state).utCache();
 				auto requiresValidationPredicate = ToRequiresValidationPredicate(m_state.hooks().knownHashPredicate(utCache));
-				m_consumers.push_back(CreateBlockchainCheckConsumer(
-						m_state.config().Blockchain.MaxBlockFutureTime,
-						m_state.timeSupplier()));
+				m_consumers.push_back(
+						CreateBlockchainCheckConsumer(m_state.config().Blockchain.MaxBlockFutureTime, m_state.timeSupplier()));
 				m_consumers.push_back(CreateBlockStatelessValidationConsumer(
 						CreateParallelValidationPolicy(validatorPool, m_state.pluginManager()),
 						requiresValidationPredicate));
@@ -256,13 +251,9 @@ namespace catapult { namespace sync {
 
 				// forward locally harvested blocks and blocks pushed by partners
 				auto newBlockSinkSourceMask = static_cast<InputSource>(
-						utils::to_underlying_type(InputSource::Local)
-						| utils::to_underlying_type(InputSource::Remote_Push));
+						utils::to_underlying_type(InputSource::Local) | utils::to_underlying_type(InputSource::Remote_Push));
 				disruptorConsumers.push_back(CreateNewBlockConsumer(m_state.hooks().newBlockSink(), newBlockSinkSourceMask));
-				return CreateConsumerDispatcher(
-						m_state,
-						CreateBlockConsumerDispatcherOptions(m_nodeConfig),
-						std::move(disruptorConsumers));
+				return CreateConsumerDispatcher(m_state, CreateBlockConsumerDispatcherOptions(m_nodeConfig), std::move(disruptorConsumers));
 			}
 
 		private:
@@ -289,8 +280,8 @@ namespace catapult { namespace sync {
 			state.hooks().setCompletionAwareBlockRangeConsumerFactory([&dispatcher = *pDispatcher, &nodes = state.nodes()](auto source) {
 				return [&dispatcher, &nodes, source](auto&& range, const auto& processingComplete) {
 					return disruptor::InputSource::Local == source || !nodes.view().isBanned(range.SourceIdentity)
-							? dispatcher.processElement(ConsumerInput(std::move(range), source), processingComplete)
-							: 0;
+								   ? dispatcher.processElement(ConsumerInput(std::move(range), source), processingComplete)
+								   : 0;
 				};
 			});
 		}
@@ -303,8 +294,8 @@ namespace catapult { namespace sync {
 		public:
 			explicit TransactionDispatcherBuilder(extensions::ServiceState& state)
 					: m_state(state)
-					, m_nodeConfig(m_state.config().Node)
-			{}
+					, m_nodeConfig(m_state.config().Node) {
+			}
 
 		public:
 			void addHashConsumers() {
@@ -426,10 +417,12 @@ namespace catapult { namespace sync {
 				const std::string& counterName,
 				RollbackResult rollbackResult,
 				RollbackCounterType rollbackCounterType) {
-			locator.registerServiceCounter<RollbackInfo>("rollbacks", counterName, [rollbackResult, rollbackCounterType](
-					const auto& rollbackInfo) {
-				return rollbackInfo.view().counter(rollbackResult, rollbackCounterType);
-			});
+			locator.registerServiceCounter<RollbackInfo>(
+					"rollbacks",
+					counterName,
+					[rollbackResult, rollbackCounterType](const auto& rollbackInfo) {
+						return rollbackInfo.view().counter(rollbackResult, rollbackCounterType);
+					});
 		}
 
 		class DispatcherServiceRegistrar : public extensions::ServiceRegistrar {

@@ -47,7 +47,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			blockElement.SubCacheMerkleRoots = test::GenerateRandomDataVector<Hash256>(3);
 
 			auto& transactionElements = blockElement.Transactions;
-			for (const auto& transaction: block.Transactions()) {
+			for (const auto& transaction : block.Transactions()) {
 				transactionElements.push_back(model::TransactionElement(transaction));
 				transactionElements.back().MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 			}
@@ -57,8 +57,8 @@ namespace catapult { namespace mongo { namespace mappers {
 				blockElement.OptionalStatement = test::GenerateRandomOptionalStatement(statementsCount);
 
 			auto statementMerkleTree = blockElement.OptionalStatement
-					? test::CalculateMerkleTreeFromTransactionStatements(*blockElement.OptionalStatement)
-					: std::vector<Hash256>();
+											   ? test::CalculateMerkleTreeFromTransactionStatements(*blockElement.OptionalStatement)
+											   : std::vector<Hash256>();
 
 			// Act:
 			auto dbBlock = ToDbModel(blockElement, totalTransactionsCount);
@@ -82,10 +82,16 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 #define TRAITS_BASED_RECEIPTS_TEST(TEST_NAME) \
-	template<size_t Num_Statements> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_WithoutReceipts) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<0>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_WithReceipts) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<7>(); } \
-	template<size_t Num_Statements> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<size_t Num_Statements> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_WithoutReceipts) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<0>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_WithReceipts) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<7>(); \
+	} \
+	template<size_t Num_Statements> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_RECEIPTS_TEST(CanMapBlockWithoutTransactions) {
 		// Arrange:

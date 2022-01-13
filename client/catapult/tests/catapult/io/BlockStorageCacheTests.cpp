@@ -35,8 +35,8 @@ namespace catapult { namespace io {
 		class BlockStorageCacheToBlockStorageAdapter : public BlockStorage {
 		public:
 			explicit BlockStorageCacheToBlockStorageAdapter(std::unique_ptr<BlockStorage>&& pStorage)
-					: m_cache(std::move(pStorage), mocks::CreateMemoryBlockStorage(0))
-			{}
+					: m_cache(std::move(pStorage), mocks::CreateMemoryBlockStorage(0)) {
+			}
 
 		public: // LightBlockStorage
 			Height chainHeight() const override {

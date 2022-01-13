@@ -56,8 +56,8 @@ namespace catapult { namespace cache {
 		class AggregatePtCacheModifier : public BasicAggregateTransactionsCacheModifier<PtTraits, PtChangeSubscriberTraits> {
 		public:
 			using BaseType = BasicAggregateTransactionsCacheModifier<PtTraits, PtChangeSubscriberTraits>;
-			using BaseType::BasicAggregateTransactionsCacheModifier;
 			using BaseType::add;
+			using BaseType::BasicAggregateTransactionsCacheModifier;
 
 		public:
 			model::DetachedTransactionInfo add(const Hash256& parentHash, const model::Cosignature& cosignature) override {

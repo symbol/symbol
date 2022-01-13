@@ -32,7 +32,9 @@
 #include "catapult/io/FileBlockStorage.h"
 #include "catapult/utils/Casting.h"
 
-namespace catapult { namespace config { class CatapultConfiguration; } }
+namespace catapult { namespace config {
+	class CatapultConfiguration;
+}}
 
 namespace catapult { namespace subscribers {
 

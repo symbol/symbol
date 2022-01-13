@@ -50,8 +50,8 @@ namespace catapult { namespace consumers {
 		public:
 			explicit FileContentsChecker(const std::string& filename)
 					: m_filename(filename)
-					, m_file(m_filename, io::OpenMode::Read_Only, io::LockMode::None)
-			{}
+					, m_file(m_filename, io::OpenMode::Read_Only, io::LockMode::None) {
+			}
 
 		public:
 			void checkHeader(InputSource expectedSource, const Key& expectedSourcePublicKey) {

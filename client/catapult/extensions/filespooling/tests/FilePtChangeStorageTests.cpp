@@ -97,10 +97,8 @@ namespace catapult { namespace filespooling {
 		context.subscriber().notifyRemovePartials(removedTransactionInfos);
 
 		// Assert:
-		context.assertFileContents({
-			{ subscribers::PtChangeOperationType::Add_Partials, std::cref(addedTransactionInfos) },
-			{ subscribers::PtChangeOperationType::Remove_Partials, std::cref(removedTransactionInfos) }
-		});
+		context.assertFileContents({ { subscribers::PtChangeOperationType::Add_Partials, std::cref(addedTransactionInfos) },
+									 { subscribers::PtChangeOperationType::Remove_Partials, std::cref(removedTransactionInfos) } });
 		context.assertNumFlushes(0);
 	}
 

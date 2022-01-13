@@ -162,9 +162,8 @@ namespace catapult { namespace model {
 		auto config = CreateConfigurationWithSize(9876);
 
 		cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
-		auto accountViews = AddAccountsWithBalances(cache, Height(123), {
-			Amount(2'000'000), Amount(4'000'000), Amount(1'000'000), Amount(6'000'000)
-		});
+		auto accountViews =
+				AddAccountsWithBalances(cache, Height(123), { Amount(2'000'000), Amount(4'000'000), Amount(1'000'000), Amount(6'000'000) });
 
 		// Act:
 		FinalizationContext context(Epoch(50), Height(123), generationHash, config, *cache.createView());
@@ -300,9 +299,10 @@ namespace catapult { namespace model {
 			auto config = CreateConfigurationWithSize(9876);
 
 			cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
-			auto accountViews = AddAccountsWithBalances(cache, Height(123), {
-				Amount(7'000'000), Amount(9'000'000), Amount(4'000'000), Amount(5'000'000)
-			});
+			auto accountViews = AddAccountsWithBalances(
+					cache,
+					Height(123),
+					{ Amount(7'000'000), Amount(9'000'000), Amount(4'000'000), Amount(5'000'000) });
 
 			config.TreasuryReissuanceEpoch = treasuryReissuanceEpoch;
 			config.TreasuryReissuanceEpochIneligibleVoterAddresses.insert(accountViews[1].Address);
@@ -319,36 +319,36 @@ namespace catapult { namespace model {
 
 		void AssertTreasuryReissuanceEpochIneligibleVoterAddressesEligibleAtEpoch(FinalizationEpoch treasuryReissuanceEpoch) {
 			// Arrange:
-			RunTreasuryReissuanceEpochTest(FinalizationEpoch(50), treasuryReissuanceEpoch, [](
-					const auto& context,
-					const auto& generationHash,
-					const auto&) {
-				// Assert: no voting accounts are excluded
-				EXPECT_EQ(Epoch(50), context.epoch());
-				EXPECT_EQ(Height(123), context.height());
-				EXPECT_EQ(generationHash, context.generationHash());
-				EXPECT_EQ(9876u, context.config().Size);
-				EXPECT_EQ(Amount(25'000'000), context.weight());
-			});
+			RunTreasuryReissuanceEpochTest(
+					FinalizationEpoch(50),
+					treasuryReissuanceEpoch,
+					[](const auto& context, const auto& generationHash, const auto&) {
+						// Assert: no voting accounts are excluded
+						EXPECT_EQ(Epoch(50), context.epoch());
+						EXPECT_EQ(Height(123), context.height());
+						EXPECT_EQ(generationHash, context.generationHash());
+						EXPECT_EQ(9876u, context.config().Size);
+						EXPECT_EQ(Amount(25'000'000), context.weight());
+					});
 		}
 
 		void AssertTreasuryReissuanceEpochIneligibleVoterAddressesIneligibleAtEpoch(FinalizationEpoch treasuryReissuanceEpoch) {
 			// Arrange:
-			RunTreasuryReissuanceEpochTest(FinalizationEpoch(50), treasuryReissuanceEpoch, [](
-					const auto& context,
-					const auto& generationHash,
-					const auto& accountViews) {
-				// Assert: voting accounts 1 + 3 are excluded
-				EXPECT_EQ(Epoch(50), context.epoch());
-				EXPECT_EQ(Height(123), context.height());
-				EXPECT_EQ(generationHash, context.generationHash());
-				EXPECT_EQ(9876u, context.config().Size);
-				EXPECT_EQ(Amount(11'000'000), context.weight());
+			RunTreasuryReissuanceEpochTest(
+					FinalizationEpoch(50),
+					treasuryReissuanceEpoch,
+					[](const auto& context, const auto& generationHash, const auto& accountViews) {
+						// Assert: voting accounts 1 + 3 are excluded
+						EXPECT_EQ(Epoch(50), context.epoch());
+						EXPECT_EQ(Height(123), context.height());
+						EXPECT_EQ(generationHash, context.generationHash());
+						EXPECT_EQ(9876u, context.config().Size);
+						EXPECT_EQ(Amount(11'000'000), context.weight());
 
-				// Sanity:
-				EXPECT_EQ(Amount(0), context.lookup(accountViews[1].VotingPublicKey1).Weight);
-				EXPECT_EQ(Amount(0), context.lookup(accountViews[3].VotingPublicKey1).Weight);
-			});
+						// Sanity:
+						EXPECT_EQ(Amount(0), context.lookup(accountViews[1].VotingPublicKey1).Weight);
+						EXPECT_EQ(Amount(0), context.lookup(accountViews[3].VotingPublicKey1).Weight);
+					});
 		}
 	}
 
@@ -384,22 +384,18 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IsEligibleVoterReturnsFalseForIneligibleVotingAccounts) {
 		// Arrange:
-		RunNineAccountTest([](
-				const auto& context,
-				const auto&,
-				const auto& accountViews1,
-				const auto& accountViews2,
-				const auto& accountViews3) {
-			// Assert:
-			EXPECT_FALSE(context.isEligibleVoter(accountViews1[2].VotingPublicKey1));
-			EXPECT_FALSE(context.isEligibleVoter(accountViews2[1].VotingPublicKey1));
+		RunNineAccountTest(
+				[](const auto& context, const auto&, const auto& accountViews1, const auto& accountViews2, const auto& accountViews3) {
+					// Assert:
+					EXPECT_FALSE(context.isEligibleVoter(accountViews1[2].VotingPublicKey1));
+					EXPECT_FALSE(context.isEligibleVoter(accountViews2[1].VotingPublicKey1));
 
-			for (const auto& accountView : accountViews3)
-				EXPECT_FALSE(context.isEligibleVoter(accountView.VotingPublicKey1));
+					for (const auto& accountView : accountViews3)
+						EXPECT_FALSE(context.isEligibleVoter(accountView.VotingPublicKey1));
 
-			for (const auto& votingPublicKey : test::GenerateRandomDataVector<VotingKey>(3))
-				EXPECT_FALSE(context.isEligibleVoter(votingPublicKey));
-		});
+					for (const auto& votingPublicKey : test::GenerateRandomDataVector<VotingKey>(3))
+						EXPECT_FALSE(context.isEligibleVoter(votingPublicKey));
+				});
 	}
 
 	// endregion
@@ -430,22 +426,18 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CannotLookupFinalizationAccountViewsForIneligibleVotingAccounts) {
 		// Arrange:
-		RunNineAccountTest([](
-				const auto& context,
-				const auto&,
-				const auto& accountViews1,
-				const auto& accountViews2,
-				const auto& accountViews3) {
-			// Assert:
-			AssertZero(context.lookup(accountViews1[2].VotingPublicKey1));
-			AssertZero(context.lookup(accountViews2[1].VotingPublicKey1));
+		RunNineAccountTest(
+				[](const auto& context, const auto&, const auto& accountViews1, const auto& accountViews2, const auto& accountViews3) {
+					// Assert:
+					AssertZero(context.lookup(accountViews1[2].VotingPublicKey1));
+					AssertZero(context.lookup(accountViews2[1].VotingPublicKey1));
 
-			for (const auto& accountView : accountViews3)
-				AssertZero(context.lookup(accountView.VotingPublicKey1));
+					for (const auto& accountView : accountViews3)
+						AssertZero(context.lookup(accountView.VotingPublicKey1));
 
-			for (const auto& votingPublicKey : test::GenerateRandomDataVector<VotingKey>(3))
-				AssertZero(context.lookup(votingPublicKey));
-		});
+					for (const auto& votingPublicKey : test::GenerateRandomDataVector<VotingKey>(3))
+						AssertZero(context.lookup(votingPublicKey));
+				});
 	}
 
 	namespace {
@@ -473,38 +465,35 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, LookupIsDependentOnFinalizationHeight_NoVotingPublicKeyAtEpoch) {
 		// Act:
-		RunLookupDependentOnFinalizationHeightTest({ Epoch(0), Epoch(101), Epoch(125), Epoch(150), Epoch(201), Epoch(400) }, [](
-				const auto&,
-				const auto& lookupResult1,
-				const auto& lookupResult2) {
-			// Assert:
-			AssertZero(lookupResult1);
-			AssertZero(lookupResult2);
-		});
+		RunLookupDependentOnFinalizationHeightTest(
+				{ Epoch(0), Epoch(101), Epoch(125), Epoch(150), Epoch(201), Epoch(400) },
+				[](const auto&, const auto& lookupResult1, const auto& lookupResult2) {
+					// Assert:
+					AssertZero(lookupResult1);
+					AssertZero(lookupResult2);
+				});
 	}
 
 	TEST(TEST_CLASS, LookupIsDependentOnFinalizationHeight_FirstVotingPublicKeyAtEpoch) {
 		// Act:
-		RunLookupDependentOnFinalizationHeightTest({ Epoch(1), Epoch(50), Epoch(100) }, [](
-				const auto& accountView,
-				const auto& lookupResult1,
-				const auto& lookupResult2) {
-			// Assert:
-			AssertEqual(accountView, lookupResult1);
-			AssertZero(lookupResult2);
-		});
+		RunLookupDependentOnFinalizationHeightTest(
+				{ Epoch(1), Epoch(50), Epoch(100) },
+				[](const auto& accountView, const auto& lookupResult1, const auto& lookupResult2) {
+					// Assert:
+					AssertEqual(accountView, lookupResult1);
+					AssertZero(lookupResult2);
+				});
 	}
 
 	TEST(TEST_CLASS, LookupIsDependentOnFinalizationHeight_LastVotingPublicKeyAtEpoch) {
 		// Act:
-		RunLookupDependentOnFinalizationHeightTest({ Epoch(151), Epoch(175), Epoch(200) }, [](
-				const auto& accountView,
-				const auto& lookupResult1,
-				const auto& lookupResult2) {
-			// Assert:
-			AssertZero(lookupResult1);
-			AssertEqual(accountView, lookupResult2);
-		});
+		RunLookupDependentOnFinalizationHeightTest(
+				{ Epoch(151), Epoch(175), Epoch(200) },
+				[](const auto& accountView, const auto& lookupResult1, const auto& lookupResult2) {
+					// Assert:
+					AssertZero(lookupResult1);
+					AssertEqual(accountView, lookupResult2);
+				});
 	}
 
 	// endregion

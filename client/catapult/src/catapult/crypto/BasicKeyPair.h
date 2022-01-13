@@ -36,7 +36,8 @@ namespace catapult { namespace crypto {
 		using PrivateKey = typename TTraits::PrivateKey;
 
 	private:
-		explicit BasicKeyPair(PrivateKey&& privateKey) : m_privateKey(std::move(privateKey)) {
+		explicit BasicKeyPair(PrivateKey&& privateKey)
+				: m_privateKey(std::move(privateKey)) {
 			TTraits::ExtractPublicKeyFromPrivateKey(m_privateKey, m_publicKey);
 		}
 

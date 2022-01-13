@@ -27,13 +27,11 @@
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/plugins.h"
 
-namespace catapult {
-	namespace model {
-		struct EmbeddedTransaction;
-		class NotificationSubscriber;
-		struct Transaction;
-	}
-}
+namespace catapult { namespace model {
+	struct EmbeddedTransaction;
+	class NotificationSubscriber;
+	struct Transaction;
+}}
 
 namespace catapult { namespace model {
 

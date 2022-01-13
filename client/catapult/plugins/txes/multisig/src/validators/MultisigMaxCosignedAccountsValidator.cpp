@@ -28,19 +28,19 @@ namespace catapult { namespace validators {
 	using Notification = model::MultisigNewCosignatoryNotification;
 
 	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, Notification)(uint32_t maxCosignedAccountsPerAccount) {
-		return MAKE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, [maxCosignedAccountsPerAccount](
-				const Notification& notification,
-				const ValidatorContext& context) {
-			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-			auto multisigIter = multisigCache.find(context.Resolvers.resolve(notification.Cosignatory));
+		return MAKE_STATEFUL_VALIDATOR(
+				MultisigMaxCosignedAccounts,
+				[maxCosignedAccountsPerAccount](const Notification& notification, const ValidatorContext& context) {
+					const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
+					auto multisigIter = multisigCache.find(context.Resolvers.resolve(notification.Cosignatory));
 
-			if (!multisigIter.tryGet())
-				return ValidationResult::Success;
+					if (!multisigIter.tryGet())
+						return ValidationResult::Success;
 
-			const auto& cosignatoryEntry = multisigIter.get();
-			return cosignatoryEntry.multisigAddresses().size() >= maxCosignedAccountsPerAccount
-					? Failure_Multisig_Max_Cosigned_Accounts
-					: ValidationResult::Success;
-		});
+					const auto& cosignatoryEntry = multisigIter.get();
+					return cosignatoryEntry.multisigAddresses().size() >= maxCosignedAccountsPerAccount
+								   ? Failure_Multisig_Max_Cosigned_Accounts
+								   : ValidationResult::Success;
+				});
 	}
 }}

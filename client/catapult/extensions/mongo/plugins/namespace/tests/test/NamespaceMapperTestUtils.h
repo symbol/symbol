@@ -22,7 +22,9 @@
 #pragma once
 #include <bsoncxx/json.hpp>
 
-namespace catapult { namespace mongo { namespace plugins { struct NamespaceDescriptor; } } }
+namespace catapult { namespace mongo { namespace plugins {
+	struct NamespaceDescriptor;
+}}}
 
 namespace catapult { namespace test {
 

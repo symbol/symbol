@@ -59,15 +59,15 @@ namespace catapult { namespace model {
 		template<typename T>
 		static auto* CosignaturesPtrT(T& transaction) {
 			return transaction.Size <= sizeof(T) + transaction.PayloadSize
-					? nullptr
-					: transaction.ToBytePointer() + sizeof(T) + transaction.PayloadSize;
+						   ? nullptr
+						   : transaction.ToBytePointer() + sizeof(T) + transaction.PayloadSize;
 		}
 
 		template<typename T>
 		static size_t CosignaturesCountT(T& transaction) {
 			return transaction.Size <= sizeof(T) + transaction.PayloadSize
-					? 0
-					: (transaction.Size - sizeof(T) - transaction.PayloadSize) / sizeof(Cosignature);
+						   ? 0
+						   : (transaction.Size - sizeof(T) - transaction.PayloadSize) / sizeof(Cosignature);
 		}
 
 	public:

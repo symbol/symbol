@@ -35,8 +35,8 @@ namespace catapult { namespace local {
 		class TestContext : public test::LocalNodeTestContext<test::LocalNodePeerTraits> {
 		public:
 			explicit TestContext(NodeFlag nodeFlag)
-					: test::LocalNodeTestContext<test::LocalNodePeerTraits>(nodeFlag | NodeFlag::With_Partner, {})
-			{}
+					: test::LocalNodeTestContext<test::LocalNodePeerTraits>(nodeFlag | NodeFlag::With_Partner, {}) {
+			}
 		};
 
 		void PushAndWaitForSecondBlock(const TestContext& context) {
@@ -126,9 +126,8 @@ namespace catapult { namespace local {
 
 		// - prepare bad config
 		auto badConfig = context.createConfig();
-		const_cast<model::BlockchainConfiguration&>(badConfig.Blockchain).Plugins.emplace(
-				"catapult.plugins.awesome",
-				utils::ConfigurationBag({}));
+		const_cast<model::BlockchainConfiguration&>(badConfig.Blockchain)
+				.Plugins.emplace("catapult.plugins.awesome", utils::ConfigurationBag({}));
 
 		// Act + Assert: simulate a boot failure by specifying an incorrect plugin
 		EXPECT_THROW(context.boot(std::move(badConfig)), catapult_runtime_error);

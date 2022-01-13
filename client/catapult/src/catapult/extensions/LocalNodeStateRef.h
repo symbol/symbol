@@ -22,10 +22,18 @@
 #pragma once
 
 namespace catapult {
-	namespace cache { class CatapultCache; }
-	namespace config { class CatapultConfiguration; }
-	namespace extensions { class LocalNodeChainScore; }
-	namespace io { class BlockStorageCache; }
+namespace cache {
+	class CatapultCache;
+}
+namespace config {
+	class CatapultConfiguration;
+}
+namespace extensions {
+	class LocalNodeChainScore;
+}
+namespace io {
+	class BlockStorageCache;
+}
 }
 
 namespace catapult { namespace extensions {
@@ -43,8 +51,8 @@ namespace catapult { namespace extensions {
 				: Config(config)
 				, Cache(cache)
 				, Storage(storage)
-				, Score(score)
-		{}
+				, Score(score) {
+		}
 
 	public:
 		/// Catapult configuration.

@@ -32,10 +32,8 @@ namespace catapult { namespace model {
 	NamespaceId GenerateNamespaceId(NamespaceId parentId, const RawString& name) noexcept {
 		Hash256 result;
 		crypto::Sha3_256_Builder sha3;
-		sha3.update({
-			{ reinterpret_cast<const uint8_t*>(&parentId), sizeof(NamespaceId) },
-			{ reinterpret_cast<const uint8_t*>(name.pData), name.Size }
-		});
+		sha3.update({ { reinterpret_cast<const uint8_t*>(&parentId), sizeof(NamespaceId) },
+					  { reinterpret_cast<const uint8_t*>(name.pData), name.Size } });
 		sha3.final(result);
 
 		// set high bit

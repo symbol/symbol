@@ -64,8 +64,7 @@ namespace catapult { namespace validators {
 		};
 
 		using GlobalTestTraits = test::MosaicGlobalRestrictionTestTraits<model::MosaicGlobalRestrictionModificationNewValueNotification>;
-		using AddressTestTraits = test::MosaicAddressRestrictionTestTraits<
-			model::MosaicAddressRestrictionModificationNewValueNotification>;
+		using AddressTestTraits = test::MosaicAddressRestrictionTestTraits<model::MosaicAddressRestrictionModificationNewValueNotification>;
 
 		class GlobalTraits : public BasicTraits<GlobalTestTraits> {
 		public:
@@ -79,10 +78,16 @@ namespace catapult { namespace validators {
 	}
 
 #define RESTRICTION_TYPE_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(MosaicGlobalRestrictionMaxValuesValidatorTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalTraits>(); } \
-	TEST(MosaicAddressRestrictionMaxValuesValidatorTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(MosaicGlobalRestrictionMaxValuesValidatorTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalTraits>(); \
+	} \
+	TEST(MosaicAddressRestrictionMaxValuesValidatorTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

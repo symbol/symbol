@@ -25,7 +25,9 @@
 #include <string>
 #include <unordered_set>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace mongo {
 

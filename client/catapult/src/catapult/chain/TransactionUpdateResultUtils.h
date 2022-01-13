@@ -56,9 +56,8 @@ namespace catapult { namespace chain {
 			const std::vector<TUpdateResult>& updateResults) {
 		if (transactionInfos.size() != updateResults.size()) {
 			std::ostringstream out;
-			out
-					<< "number of transaction infos " << transactionInfos.size()
-					<< " must match number of update results " << updateResults.size();
+			out << "number of transaction infos " << transactionInfos.size() << " must match number of update results "
+				<< updateResults.size();
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 

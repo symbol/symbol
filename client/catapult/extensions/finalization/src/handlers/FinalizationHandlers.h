@@ -27,7 +27,7 @@
 namespace catapult { namespace handlers {
 
 	/// Prototype for a function that retrieves messages given a set of short hashes and filter.
-	using MessagesRetriever = std::function<std::vector<std::shared_ptr<const model::FinalizationMessage>> (
+	using MessagesRetriever = std::function<std::vector<std::shared_ptr<const model::FinalizationMessage>>(
 			const model::FinalizationRoundRange&,
 			const utils::ShortHashesSet&)>;
 

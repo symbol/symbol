@@ -165,14 +165,15 @@ namespace catapult { namespace io {
 			using TwoEntryStatement = TransactionStatementWithTwoReceipts;
 
 			// Act + Assert:
-			PrepareOnlyHomogenousStatementsTest<ZeroEntryStatement, TwoEntryStatement>(shouldOrder, action, [](
-					auto& buffer,
-					auto statementsSize) {
-				reinterpret_cast<uint32_t&>(buffer[0]) = 3;
-				reinterpret_cast<uint32_t&>(buffer[sizeof(uint32_t) + statementsSize]) = 0;
-				reinterpret_cast<uint32_t&>(buffer[2 * sizeof(uint32_t) + statementsSize]) = 0;
-				return sizeof(uint32_t);
-			});
+			PrepareOnlyHomogenousStatementsTest<ZeroEntryStatement, TwoEntryStatement>(
+					shouldOrder,
+					action,
+					[](auto& buffer, auto statementsSize) {
+						reinterpret_cast<uint32_t&>(buffer[0]) = 3;
+						reinterpret_cast<uint32_t&>(buffer[sizeof(uint32_t) + statementsSize]) = 0;
+						reinterpret_cast<uint32_t&>(buffer[2 * sizeof(uint32_t) + statementsSize]) = 0;
+						return sizeof(uint32_t);
+					});
 		}
 
 		template<typename TAction>
@@ -182,14 +183,15 @@ namespace catapult { namespace io {
 			using TwoEntryStatement = ResolutionStatementWithTwoEntries<UnresolvedAddress, Address>;
 
 			// Act + Assert:
-			PrepareOnlyHomogenousStatementsTest<ZeroEntryStatement, TwoEntryStatement>(shouldOrder, action, [](
-					auto& buffer,
-					auto statementsSize) {
-				reinterpret_cast<uint32_t&>(buffer[0]) = 0;
-				reinterpret_cast<uint32_t&>(buffer[sizeof(uint32_t)]) = 3;
-				reinterpret_cast<uint32_t&>(buffer[2 * sizeof(uint32_t) + statementsSize]) = 0;
-				return 2 * sizeof(uint32_t);
-			});
+			PrepareOnlyHomogenousStatementsTest<ZeroEntryStatement, TwoEntryStatement>(
+					shouldOrder,
+					action,
+					[](auto& buffer, auto statementsSize) {
+						reinterpret_cast<uint32_t&>(buffer[0]) = 0;
+						reinterpret_cast<uint32_t&>(buffer[sizeof(uint32_t)]) = 3;
+						reinterpret_cast<uint32_t&>(buffer[2 * sizeof(uint32_t) + statementsSize]) = 0;
+						return 2 * sizeof(uint32_t);
+					});
 		}
 
 		template<typename TAction>

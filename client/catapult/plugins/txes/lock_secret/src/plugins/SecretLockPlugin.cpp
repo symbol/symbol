@@ -62,23 +62,20 @@ namespace catapult { namespace plugins {
 
 		auto skipUniquenessForkHeights = manager.config().ForkHeights.SkipSecretLockUniquenessChecks;
 		manager.addStatefulValidatorHook([skipUniquenessForkHeights](auto& builder) {
-			builder
-				.add(validators::CreateSecretLockCacheUniqueValidator(skipUniquenessForkHeights))
-				.add(validators::CreateProofValidator());
+			builder.add(validators::CreateSecretLockCacheUniqueValidator(skipUniquenessForkHeights))
+					.add(validators::CreateProofValidator());
 		});
 
 		auto skipExpirationForkHeights = manager.config().ForkHeights.SkipSecretLockExpirations;
 		auto forceExpirationForkHeights = manager.config().ForkHeights.ForceSecretLockExpirations;
 		manager.addObserverHook([skipExpirationForkHeights, forceExpirationForkHeights](auto& builder) {
-			builder
-				.add(observers::CreateSecretLockObserver())
-				.add(observers::CreateExpiredSecretLockInfoObserver(skipExpirationForkHeights, forceExpirationForkHeights))
-				.add(observers::CreateProofObserver());
+			builder.add(observers::CreateSecretLockObserver())
+					.add(observers::CreateExpiredSecretLockInfoObserver(skipExpirationForkHeights, forceExpirationForkHeights))
+					.add(observers::CreateProofObserver());
 		});
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterSecretLockSubsystem(manager);
 }

@@ -223,16 +223,13 @@ namespace catapult { namespace ionet {
 		auto pPacket1 = CreatePacketPointerWithData(dataBuffer1);
 
 		constexpr auto Data2_Size = 164u + 212 + 132;
-		auto entities = std::vector<std::shared_ptr<model::VerifiableEntity>>{
-			test::CreateRandomEntityWithSize<>(164),
-			test::CreateRandomEntityWithSize<>(212),
-			test::CreateRandomEntityWithSize<>(132)
-		};
+		auto entities = std::vector<std::shared_ptr<model::VerifiableEntity>>{ test::CreateRandomEntityWithSize<>(164),
+																			   test::CreateRandomEntityWithSize<>(212),
+																			   test::CreateRandomEntityWithSize<>(132) };
 
 		// Act:
-		auto payload = PacketPayload::Merge(
-				std::move(pPacket1),
-				PacketPayloadFactory::FromEntities(static_cast<PacketType>(987), entities));
+		auto payload =
+				PacketPayload::Merge(std::move(pPacket1), PacketPayloadFactory::FromEntities(static_cast<PacketType>(987), entities));
 
 		// Assert:
 		test::AssertPacketHeader(payload, 2 * sizeof(PacketHeader) + Data1_Size + Data2_Size, Test_Packet_Type);

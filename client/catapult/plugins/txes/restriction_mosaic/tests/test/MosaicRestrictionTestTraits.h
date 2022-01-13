@@ -38,8 +38,8 @@ namespace catapult { namespace test {
 		/// Creates default traits.
 		MosaicGlobalRestrictionTestTraits()
 				: m_mosaicId(GenerateRandomValue<MosaicId>())
-				, m_referenceMosaicId(GenerateRandomValue<MosaicId>())
-		{}
+				, m_referenceMosaicId(GenerateRandomValue<MosaicId>()) {
+		}
 
 	public:
 		/// Gets the random (unresolved) reference mosaic id.
@@ -118,8 +118,8 @@ namespace catapult { namespace test {
 		MosaicAddressRestrictionTestTraits()
 				: m_mosaicId(GenerateRandomValue<MosaicId>())
 				, m_address(GenerateRandomByteArray<Address>())
-				, m_unresolvedAddress(UnresolveXor(m_address))
-		{}
+				, m_unresolvedAddress(UnresolveXor(m_address)) {
+		}
 
 	public:
 		/// Gets the unique entry key.

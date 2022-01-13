@@ -30,9 +30,8 @@ namespace catapult { namespace validators {
 	/// - the number of transactions does not exceed \a maxTransactions
 	/// - the number of implicit and explicit cosignatures does not exceed \a maxCosignatures
 	/// - there are no redundant cosignatories
-	DECLARE_STATELESS_VALIDATOR(BasicAggregateCosignatures, model::AggregateCosignaturesNotification)(
-			uint32_t maxTransactions,
-			uint8_t maxCosignatures);
+	DECLARE_STATELESS_VALIDATOR(BasicAggregateCosignatures, model::AggregateCosignaturesNotification)
+	(uint32_t maxTransactions, uint8_t maxCosignatures);
 
 	/// Validator that applies to aggregate cosignatures notifications and validates that:
 	/// - the set of component signers is equal to the set of cosignatories
@@ -41,8 +40,8 @@ namespace catapult { namespace validators {
 	/// Validator that applies to aggregate embedded transactions notifications and validates that:
 	/// - aggregate transactions hash is strictly correct for versions 2+
 	/// - aggregate transactions hash is weakly correct and/or matches entry in \a knownCorruptedHashes for version 1
-	DECLARE_STATELESS_VALIDATOR(AggregateTransactionsHash, model::AggregateEmbeddedTransactionsNotification)(
-			const std::unordered_map<Hash256, Hash256, utils::ArrayHasher<Hash256>>& knownCorruptedHashes);
+	DECLARE_STATELESS_VALIDATOR(AggregateTransactionsHash, model::AggregateEmbeddedTransactionsNotification)
+	(const std::unordered_map<Hash256, Hash256, utils::ArrayHasher<Hash256>>& knownCorruptedHashes);
 
 	/// Validator that applies to entity notifications and validates that:
 	/// - aggregate transactions with version 2+ are rejected before \a v2ForkHeight

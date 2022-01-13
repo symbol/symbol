@@ -24,8 +24,12 @@
 #include "catapult/types.h"
 
 namespace catapult {
-	namespace model { struct Transaction; }
-	namespace validators { enum class ValidationResult : uint32_t; }
+namespace model {
+	struct Transaction;
+}
+namespace validators {
+	enum class ValidationResult : uint32_t;
+}
 }
 
 namespace catapult { namespace chain {

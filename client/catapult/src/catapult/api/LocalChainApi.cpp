@@ -37,8 +37,8 @@ namespace catapult { namespace api {
 					const supplier<Height>& finalizedHeightSupplier)
 					: m_storage(storage)
 					, m_chainScoreSupplier(chainScoreSupplier)
-					, m_finalizedHeightSupplier(finalizedHeightSupplier)
-			{}
+					, m_finalizedHeightSupplier(finalizedHeightSupplier) {
+			}
 
 		public:
 			thread::future<ChainStatistics> chainStatistics() const override {

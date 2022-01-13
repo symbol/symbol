@@ -156,10 +156,8 @@ namespace catapult { namespace test {
 			pDelta->emplace("MyTestElement", static_cast<unsigned int>(123));
 			pDelta->remove(TTraits::CreateKey("TestElement", 0));
 			pDelta->remove(TTraits::CreateKey("TestElement", 2));
-			auto expectedElements = typename TTraits::ElementVector{
-				TTraits::CreateElement("TestElement", 1),
-				TTraits::CreateElement("MyTestElement", 123)
-			};
+			auto expectedElements = typename TTraits::ElementVector{ TTraits::CreateElement("TestElement", 1),
+																	 TTraits::CreateElement("MyTestElement", 123) };
 
 			// Act:
 			TTraits::Commit(*pBaseSet);
@@ -192,10 +190,8 @@ namespace catapult { namespace test {
 			pDelta->emplace("MyTestElement", static_cast<unsigned int>(123));
 			pDelta->remove(TTraits::CreateKey("TestElement", 0));
 			pDelta->remove(TTraits::CreateKey("TestElement", 2));
-			auto expectedElements = typename TTraits::ElementVector{
-				TTraits::CreateElement("TestElement", 1),
-				TTraits::CreateElement("MyTestElement", 123)
-			};
+			auto expectedElements = typename TTraits::ElementVector{ TTraits::CreateElement("TestElement", 1),
+																	 TTraits::CreateElement("MyTestElement", 123) };
 
 			// Act:
 			for (auto i = 0u; i < 5; ++i)
@@ -210,20 +206,22 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BaseSetTests<TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BaseSetTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_BASE_SET_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_COMMON_BASE_SET_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_BASE_SET_ITERATION_TESTS(TEST_CLASS, TRAITS) \
-	\
+\
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, InsertDoesNotChangeOriginalBaseSet) \
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, RemoveDoesNotChangeOriginalBaseSet) \
-	\
+\
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, RebaseCreatesDeltaAroundSuppliedElements) \
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, RebaseAllowsOnlyOneAttachedDeltaAtATime) \
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, RebaseDetachedCreatesDeltaAroundSuppliedElements) \
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, RebaseDetachedAllowsManyDeltas) \
-	\
+\
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, CannotCommitWhenThereAreNoPendingAttachedDeltas) \
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, CommitThrowsWhenOnlyDetachedDeltasAreOutstanding) \
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, CommitCommitsToOriginalElements) \
@@ -231,13 +229,12 @@ namespace catapult { namespace test {
 
 #define DEFINE_MUTABLE_BASE_SET_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_BASE_SET_TESTS(TEST_CLASS, TRAITS) \
-	\
+\
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, CommitReflectsChangesOnOriginalElements)
 
 #define DEFINE_IMMUTABLE_BASE_SET_TESTS DEFINE_BASE_SET_TESTS
 
-#define DEFINE_MUTABLE_BASE_SET_TESTS_FOR(NAME) \
-	DEFINE_MUTABLE_BASE_SET_TESTS(Base##NAME##Tests, test::BaseTraits<deltaset::NAME##Traits>)
+#define DEFINE_MUTABLE_BASE_SET_TESTS_FOR(NAME) DEFINE_MUTABLE_BASE_SET_TESTS(Base##NAME##Tests, test::BaseTraits<deltaset::NAME##Traits>)
 
 #define DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(NAME) \
 	DEFINE_IMMUTABLE_BASE_SET_TESTS(Base##NAME##Tests, test::BaseTraits<deltaset::NAME##Traits>)

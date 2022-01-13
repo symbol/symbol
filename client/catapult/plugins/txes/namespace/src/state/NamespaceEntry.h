@@ -32,8 +32,8 @@ namespace catapult { namespace state {
 		/// Creates an uninitialized entry.
 		NamespaceEntry()
 				: m_pNamespace(nullptr)
-				, m_pRoot(nullptr)
-		{}
+				, m_pRoot(nullptr) {
+		}
 
 		/// Creates an entry around \a ns and \a root.
 		NamespaceEntry(const Namespace& ns, const RootNamespace& root)

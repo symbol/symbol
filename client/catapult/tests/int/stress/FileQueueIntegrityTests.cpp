@@ -42,8 +42,8 @@ namespace catapult { namespace io {
 		public:
 			QueueTestContext()
 					: m_tempDataDir("q")
-					, m_directory(m_tempDataDir.name())
-			{}
+					, m_directory(m_tempDataDir.name()) {
+			}
 
 		public:
 			FileQueueWriter createWriter() {
@@ -98,9 +98,7 @@ namespace catapult { namespace io {
 			while (readBuffers.size() < count) {
 				bool shouldContinue = true;
 				while (shouldContinue) {
-					shouldContinue = reader.tryReadNextMessage([&readBuffers](const auto& buffer) {
-						readBuffers.push_back(buffer);
-					});
+					shouldContinue = reader.tryReadNextMessage([&readBuffers](const auto& buffer) { readBuffers.push_back(buffer); });
 				}
 			}
 
@@ -154,16 +152,12 @@ namespace catapult { namespace io {
 		// Act: writer thread
 		thread::ThreadGroup threads;
 		auto writer = context.createWriter();
-		threads.spawn([&writeBuffers, &writer] {
-			WriteAll(writer, writeBuffers);
-		});
+		threads.spawn([&writeBuffers, &writer] { WriteAll(writer, writeBuffers); });
 
 		// - reader thread
 		BufferVector readBuffers;
 		auto reader = context.createReader();
-		threads.spawn([&readBuffers, &reader] {
-			readBuffers = ReadAll(reader, GetNumIterations());
-		});
+		threads.spawn([&readBuffers, &reader] { readBuffers = ReadAll(reader, GetNumIterations()); });
 
 		// - wait for all threads
 		threads.join();
@@ -194,9 +188,7 @@ namespace catapult { namespace io {
 				bool shouldContinue = true;
 				auto reader = context.createReader();
 				while (shouldContinue) {
-					shouldContinue = reader.tryReadNextMessage([&readBuffers](const auto& buffer) {
-						readBuffers.push_back(buffer);
-					});
+					shouldContinue = reader.tryReadNextMessage([&readBuffers](const auto& buffer) { readBuffers.push_back(buffer); });
 				}
 			}
 
@@ -227,15 +219,11 @@ namespace catapult { namespace io {
 
 		// Act: writer thread
 		thread::ThreadGroup threads;
-		threads.spawn([&context, &writeBuffers] {
-			WriteAll(context, writeBuffers);
-		});
+		threads.spawn([&context, &writeBuffers] { WriteAll(context, writeBuffers); });
 
 		// - reader thread
 		BufferVector readBuffers;
-		threads.spawn([&context, &readBuffers] {
-			readBuffers = ReadAll(context, GetNumIterations());
-		});
+		threads.spawn([&context, &readBuffers] { readBuffers = ReadAll(context, GetNumIterations()); });
 
 		// - wait for all threads
 		threads.join();

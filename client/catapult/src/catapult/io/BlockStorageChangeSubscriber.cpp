@@ -27,8 +27,9 @@ namespace catapult { namespace io {
 	namespace {
 		class BlockStorageChangeSubscriber : public BlockChangeSubscriber {
 		public:
-			explicit BlockStorageChangeSubscriber(std::unique_ptr<LightBlockStorage>&& pStorage) : m_pStorage(std::move(pStorage))
-			{}
+			explicit BlockStorageChangeSubscriber(std::unique_ptr<LightBlockStorage>&& pStorage)
+					: m_pStorage(std::move(pStorage)) {
+			}
 
 		public:
 			void notifyBlock(const model::BlockElement& blockElement) override {

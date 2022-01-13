@@ -33,8 +33,8 @@ namespace catapult { namespace state {
 				: m_startHeight(startHeight)
 				, m_ownerAddress(ownerAddress)
 				, m_revision(revision)
-				, m_properties(properties)
-		{}
+				, m_properties(properties) {
+		}
 
 	public:
 		/// Gets the start height.

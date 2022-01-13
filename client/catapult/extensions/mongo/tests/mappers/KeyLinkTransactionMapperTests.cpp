@@ -42,14 +42,20 @@ namespace catapult { namespace mongo { namespace mappers {
 #undef PLUGIN_TEST
 
 #define PLUGIN_TEST_ENTRY(NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME##_##NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NAME##RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_##NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NAME##EmbeddedTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_##NAME##_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NAME##RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_##NAME##_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NAME##EmbeddedTraits>(); \
+	}
 
 #define PLUGIN_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	PLUGIN_TEST_ENTRY(Voting, TEST_NAME) \
 	PLUGIN_TEST_ENTRY(Vrf, TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region streamTransaction
 

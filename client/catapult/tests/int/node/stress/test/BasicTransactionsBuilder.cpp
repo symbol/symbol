@@ -34,8 +34,9 @@ namespace catapult { namespace test {
 
 	// region ctor
 
-	BasicTransactionsBuilder::BasicTransactionsBuilder(const Accounts& accounts) : m_accounts(accounts)
-	{}
+	BasicTransactionsBuilder::BasicTransactionsBuilder(const Accounts& accounts)
+			: m_accounts(accounts) {
+	}
 
 	// endregion
 
@@ -98,13 +99,12 @@ namespace catapult { namespace test {
 		}
 	}
 
-	std::unique_ptr<model::Transaction> BasicTransactionsBuilder::createTransfer(
-			const TransferDescriptor& descriptor,
-			Timestamp deadline) const {
+	std::unique_ptr<model::Transaction> BasicTransactionsBuilder::createTransfer(const TransferDescriptor& descriptor, Timestamp deadline)
+			const {
 		const auto& senderKeyPair = m_accounts.getKeyPair(descriptor.SenderId);
 		auto recipientAddress = descriptor.RecipientAlias.empty()
-				? extensions::CopyToUnresolvedAddress(m_accounts.getAddress(descriptor.RecipientId))
-				: RootAliasToAddress(descriptor.RecipientAlias);
+										? extensions::CopyToUnresolvedAddress(m_accounts.getAddress(descriptor.RecipientId))
+										: RootAliasToAddress(descriptor.RecipientAlias);
 
 		auto pTransaction = CreateTransferTransaction(senderKeyPair, recipientAddress, descriptor.Amount);
 		return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);

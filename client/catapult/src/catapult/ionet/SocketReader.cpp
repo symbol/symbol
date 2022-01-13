@@ -46,8 +46,8 @@ namespace catapult { namespace ionet {
 					, m_identity(identity)
 					, m_callback(callback)
 					, m_numOutstandingOperations(0)
-					, m_state(operation_state::Unknown)
-			{}
+					, m_state(operation_state::Unknown) {
+			}
 
 		public:
 			bool isComplete() const {
@@ -59,9 +59,8 @@ namespace catapult { namespace ionet {
 				// read one or more packets; this is safe because
 				// (1) the writes are buffered
 				// (2) the read and write callbacks are serialized
-				m_pReader->readMultiple([pThis = shared_from_this()](auto code, const auto* pPacket) {
-					pThis->handleReadCallback(code, pPacket);
-				});
+				m_pReader->readMultiple(
+						[pThis = shared_from_this()](auto code, const auto* pPacket) { pThis->handleReadCallback(code, pPacket); });
 			}
 
 		private:
@@ -84,9 +83,7 @@ namespace catapult { namespace ionet {
 			}
 
 			void write(const ServerPacketHandlerContext& handlerContext) {
-				m_pWriter->write(handlerContext.response(), [pThis = shared_from_this()](auto code) {
-					pThis->handleWriteCallback(code);
-				});
+				m_pWriter->write(handlerContext.response(), [pThis = shared_from_this()](auto code) { pThis->handleWriteCallback(code); });
 			}
 
 			void handleWriteCallback(SocketOperationCode code) {
@@ -143,8 +140,8 @@ namespace catapult { namespace ionet {
 					: m_pReader(pReader)
 					, m_pWriter(pWriter)
 					, m_handlers(handlers)
-					, m_identity(identity)
-			{}
+					, m_identity(identity) {
+			}
 
 		public:
 			void read(const ReadCallback& callback) override {

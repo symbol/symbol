@@ -39,9 +39,8 @@ namespace catapult { namespace model {
 		if (areAllMessageGroupsValid && !messageGroups.hasError())
 			return true;
 
-		CATAPULT_LOG(warning)
-				<< "proof message groups failed size validation (valid sizes? " << areAllMessageGroupsValid
-				<< ", errors? " << messageGroups.hasError() << ")";
+		CATAPULT_LOG(warning) << "proof message groups failed size validation (valid sizes? " << areAllMessageGroupsValid << ", errors? "
+							  << messageGroups.hasError() << ")";
 		return false;
 	}
 }}

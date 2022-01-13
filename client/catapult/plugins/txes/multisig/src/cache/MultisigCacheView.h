@@ -49,8 +49,8 @@ namespace catapult { namespace cache {
 				, MultisigCacheViewMixins::Contains(multisigSets.Primary)
 				, MultisigCacheViewMixins::Iteration(multisigSets.Primary)
 				, MultisigCacheViewMixins::ConstAccessor(multisigSets.Primary)
-				, MultisigCacheViewMixins::PatriciaTreeView(multisigSets.PatriciaTree.get())
-		{}
+				, MultisigCacheViewMixins::PatriciaTreeView(multisigSets.PatriciaTree.get()) {
+		}
 	};
 
 	/// View on top of the multisig cache.
@@ -58,7 +58,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a view around \a multisigSets.
 		explicit MultisigCacheView(const MultisigCacheTypes::BaseSets& multisigSets)
-				: ReadOnlyViewSupplier(multisigSets)
-		{}
+				: ReadOnlyViewSupplier(multisigSets) {
+		}
 	};
 }}

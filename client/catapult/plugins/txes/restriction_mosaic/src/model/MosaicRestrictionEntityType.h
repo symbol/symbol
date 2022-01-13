@@ -23,7 +23,8 @@
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 #include "catapult/model/EntityType.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #endif
 
@@ -34,5 +35,6 @@ namespace catapult { namespace model {
 	DEFINE_TRANSACTION_TYPE(RestrictionMosaic, Mosaic_Address_Restriction, 0x2);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
-}}
+}
+}
 #endif

@@ -37,7 +37,8 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a cache around \a config.
-		explicit MetadataCache(const CacheConfiguration& config) : SynchronizedCache<BasicMetadataCache>(BasicMetadataCache(config))
-		{}
+		explicit MetadataCache(const CacheConfiguration& config)
+				: SynchronizedCache<BasicMetadataCache>(BasicMetadataCache(config)) {
+		}
 	};
 }}

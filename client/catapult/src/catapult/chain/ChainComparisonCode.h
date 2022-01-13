@@ -34,33 +34,31 @@ namespace catapult { namespace chain {
 #define CHAIN_COMPARISON_CODE_LIST \
 	/* Remote and local nodes reported equal chain scores. */ \
 	ENUM_VALUE(Remote_Reported_Equal_Chain_Score, 1) \
-	\
+\
 	/* Remote node reported a lower chain score than the local node. */ \
 	ENUM_VALUE(Remote_Reported_Lower_Chain_Score, 2) \
-	\
+\
 	/* Local score changed during update operation. */ \
 	ENUM_VALUE(Local_Score_Updated, 3) \
-	\
+\
 	/* Remote node is too far behind the local node. */ \
 	ENUM_VALUE(Remote_Is_Too_Far_Behind, Remote_Is_Out_Of_Sync_Flag | 1) \
-	\
+\
 	/* Remote node is not in sync with the local node. */ \
 	ENUM_VALUE(Remote_Is_Not_Synced, Remote_Is_Out_Of_Sync_Flag | 2) \
-	\
+\
 	/* Remote node returned too many hashes. */ \
 	ENUM_VALUE(Remote_Returned_Too_Many_Hashes, Remote_Is_Evil_Flag | 1) \
-	\
+\
 	/* Remote node is on a fork. */ \
 	ENUM_VALUE(Remote_Is_Forked, Remote_Is_Evil_Flag | 2) \
-	\
+\
 	/* Remote node lied about having a higher chain score. */ \
 	ENUM_VALUE(Remote_Lied_About_Chain_Score, Remote_Is_Evil_Flag | 3)
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
 	/// Possible chain comparison end states.
-	enum class ChainComparisonCode : uint32_t {
-		CHAIN_COMPARISON_CODE_LIST
-	};
+	enum class ChainComparisonCode : uint32_t { CHAIN_COMPARISON_CODE_LIST };
 #undef ENUM_VALUE
 
 	/// Insertion operator for outputting \a value to \a out.

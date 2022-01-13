@@ -72,15 +72,11 @@ namespace catapult { namespace test {
 	}
 
 	std::vector<Hash256> CalculateMerkleTree(const std::vector<model::TransactionElement>& transactionElements) {
-		return CreateMerkleTree(transactionElements, [](const auto& transactionElement) {
-			return transactionElement.MerkleComponentHash;
-		});
+		return CreateMerkleTree(transactionElements, [](const auto& transactionElement) { return transactionElement.MerkleComponentHash; });
 	}
 
 	std::vector<Hash256> CalculateMerkleTreeFromTransactionStatements(const model::BlockStatement& blockStatement) {
-		return CreateMerkleTree(blockStatement.TransactionStatements, [](const auto& pair) {
-			return pair.second.hash();
-		});
+		return CreateMerkleTree(blockStatement.TransactionStatements, [](const auto& pair) { return pair.second.hash(); });
 	}
 
 	std::shared_ptr<model::BlockStatement> GenerateRandomOptionalStatement(size_t numStatements) {

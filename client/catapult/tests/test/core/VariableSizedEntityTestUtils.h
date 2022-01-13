@@ -228,8 +228,12 @@ namespace catapult { namespace test {
 }}
 
 #define DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME##_Const) { test::Assert##TEST_NAME<TEST_TRAITS, test::ConstAccessor>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonConst) { test::Assert##TEST_NAME<TEST_TRAITS, test::NonConstAccessor>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { \
+		test::Assert##TEST_NAME<TEST_TRAITS, test::ConstAccessor>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) { \
+		test::Assert##TEST_NAME<TEST_TRAITS, test::NonConstAccessor>(); \
+	}
 
 /// Adds all attachment pointer tests to the specified test class (\a TEST_CLASS) using \a TEST_TRAITS.
 /// \note These tests only support entities with a single pointer.

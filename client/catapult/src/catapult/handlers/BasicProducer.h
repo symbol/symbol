@@ -30,8 +30,8 @@ namespace catapult { namespace handlers {
 		/// Creates a producer around \a container.
 		explicit BasicProducer(const TContainer& container)
 				: m_container(container)
-				, m_iter(m_container.cbegin())
-		{}
+				, m_iter(m_container.cbegin()) {
+		}
 
 	protected:
 		/// Produces the next entity and calls \a convert for any required adaptation.

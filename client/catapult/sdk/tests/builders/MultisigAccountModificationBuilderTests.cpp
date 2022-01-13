@@ -34,8 +34,8 @@ namespace catapult { namespace builders {
 		public:
 			TransactionProperties()
 					: MinRemovalDelta(0)
-					, MinApprovalDelta(0)
-			{}
+					, MinApprovalDelta(0) {
+			}
 
 		public:
 			int8_t MinRemovalDelta;
@@ -44,10 +44,7 @@ namespace catapult { namespace builders {
 			std::vector<UnresolvedAddress> AddressDeletions;
 		};
 
-		void AssertAddresses(
-				const std::vector<UnresolvedAddress>& expectedAddresses,
-				const UnresolvedAddress* pAddresses,
-				uint16_t count) {
+		void AssertAddresses(const std::vector<UnresolvedAddress>& expectedAddresses, const UnresolvedAddress* pAddresses, uint16_t count) {
 			ASSERT_EQ(expectedAddresses.size(), count);
 
 			auto i = 0u;
@@ -93,10 +90,16 @@ namespace catapult { namespace builders {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
 
@@ -114,9 +117,7 @@ namespace catapult { namespace builders {
 		expectedProperties.MinRemovalDelta = 3;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) {
-			builder.setMinRemovalDelta(3);
-		});
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) { builder.setMinRemovalDelta(3); });
 	}
 
 	TRAITS_BASED_TEST(CanSetMinApprovalDelta) {
@@ -125,9 +126,7 @@ namespace catapult { namespace builders {
 		expectedProperties.MinApprovalDelta = 3;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) {
-			builder.setMinApprovalDelta(3);
-		});
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) { builder.setMinApprovalDelta(3); });
 	}
 
 	// endregion
@@ -171,17 +170,19 @@ namespace catapult { namespace builders {
 		const auto& addressDeletions = expectedProperties.AddressDeletions;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(6 * UnresolvedAddress::Size, expectedProperties, [&addressAdditions, addressDeletions](
-				auto& builder) {
-			builder.setMinRemovalDelta(-3);
-			builder.setMinApprovalDelta(3);
+		AssertCanBuildTransaction<TTraits>(
+				6 * UnresolvedAddress::Size,
+				expectedProperties,
+				[&addressAdditions, addressDeletions](auto& builder) {
+					builder.setMinRemovalDelta(-3);
+					builder.setMinApprovalDelta(3);
 
-			for (const auto& address : addressAdditions)
-				builder.addAddressAddition(address);
+					for (const auto& address : addressAdditions)
+						builder.addAddressAddition(address);
 
-			for (const auto& address : addressDeletions)
-				builder.addAddressDeletion(address);
-		});
+					for (const auto& address : addressDeletions)
+						builder.addAddressDeletion(address);
+				});
 	}
 
 	// endregion

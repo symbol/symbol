@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RESULT_DEFINITION
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #endif
 /// Defines a signature validation result with \a DESCRIPTION and \a CODE.
@@ -33,5 +34,6 @@ namespace catapult { namespace validators {
 	DEFINE_SIGNATURE_RESULT(Not_Verifiable, 1);
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

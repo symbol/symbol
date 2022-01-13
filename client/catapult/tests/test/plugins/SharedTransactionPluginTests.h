@@ -46,17 +46,19 @@ namespace catapult { namespace test {
 /// Defines a test named \a TEST_NAME for both transaction and embedded transaction plugins using traits prefixed by \a TRAITS_PREFIX
 /// and test name postfixed by \a TEST_POSTFIX.
 #define PLUGIN_TEST_WITH_PREFIXED_TRAITS(TEST_NAME, TRAITS_PREFIX, TEST_POSTFIX) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)(); \
 	TEST(TEST_CLASS, TransactionPlugin_##TEST_NAME##TEST_POSTFIX) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)<TRAITS_PREFIX##RegularTraits>(); \
 	} \
 	TEST(TEST_CLASS, EmbeddedTransactionPlugin_##TEST_NAME##TEST_POSTFIX) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)<TRAITS_PREFIX##EmbeddedTraits>(); \
 	} \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)()
 
 /// Defines a test named \a TEST_NAME for both transaction and embedded transaction plugins.
-#define PLUGIN_TEST(TEST_NAME) PLUGIN_TEST_WITH_PREFIXED_TRAITS(TEST_NAME, ,)
+#define PLUGIN_TEST(TEST_NAME) PLUGIN_TEST_WITH_PREFIXED_TRAITS(TEST_NAME, , )
 
 	// endregion
 
@@ -68,7 +70,7 @@ namespace catapult { namespace test {
 	public:
 		/// Asserts that a transaction plugin can be created and has the expected \a type.
 		template<typename... TArgs>
-		static void AssertCanCreatePlugin(model::EntityType type, TArgs&& ...args) {
+		static void AssertCanCreatePlugin(model::EntityType type, TArgs&&... args) {
 			// Act:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -78,7 +80,7 @@ namespace catapult { namespace test {
 
 		/// Asserts that a transaction plugin supports embeddings of \a type.
 		template<typename... TArgs>
-		static void AssertPluginSupportsEmbedding(model::EntityType type, TArgs&& ...args) {
+		static void AssertPluginSupportsEmbedding(model::EntityType type, TArgs&&... args) {
 			// Act:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 

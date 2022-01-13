@@ -42,11 +42,9 @@ namespace catapult { namespace chain {
 				return CosignatoriesValidationResult::Success;
 
 			// map failures (not using switch statement to workaround gcc warning)
-			return Failure_Aggregate_Ineligible_Cosignatories == result
-					? CosignatoriesValidationResult::Ineligible
-					: Failure_Aggregate_Missing_Cosignatures == result
-							? CosignatoriesValidationResult::Missing
-							: CosignatoriesValidationResult::Failure;
+			return Failure_Aggregate_Ineligible_Cosignatories == result ? CosignatoriesValidationResult::Ineligible
+				   : Failure_Aggregate_Missing_Cosignatures == result	? CosignatoriesValidationResult::Missing
+																		: CosignatoriesValidationResult::Failure;
 		}
 
 		class DefaultPtValidator : public PtValidator {
@@ -56,13 +54,13 @@ namespace catapult { namespace chain {
 					const TimeSupplier& timeSupplier,
 					const plugins::PluginManager& pluginManager)
 					: m_transactionValidator(
-							CreateJointValidator(cache, timeSupplier, pluginManager, IsMissingCosignaturesResult),
-							pluginManager.createNotificationPublisher(model::PublicationMode::Basic))
+							  CreateJointValidator(cache, timeSupplier, pluginManager, IsMissingCosignaturesResult),
+							  pluginManager.createNotificationPublisher(model::PublicationMode::Basic))
 					, m_statelessTransactionValidator(
-							pluginManager.createStatelessValidator(),
-							pluginManager.createNotificationPublisher(model::PublicationMode::Custom))
-					, m_pCosignatoriesValidator(CreateJointValidator(cache, timeSupplier, pluginManager, [](auto) { return false; }))
-			{}
+							  pluginManager.createStatelessValidator(),
+							  pluginManager.createNotificationPublisher(model::PublicationMode::Custom))
+					, m_pCosignatoriesValidator(CreateJointValidator(cache, timeSupplier, pluginManager, [](auto) { return false; })) {
+			}
 
 		public:
 			Result<bool> validatePartial(const model::WeakEntityInfoT<model::Transaction>& transactionInfo) const override {

@@ -31,11 +31,8 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
-			builder
-					<< "duration" << ToInt64(transaction.Duration)
-					<< "mosaicId" << ToInt64(transaction.Mosaic.MosaicId)
-					<< "amount" << ToInt64(transaction.Mosaic.Amount)
-					<< "hash" << ToBinary(transaction.Hash);
+			builder << "duration" << ToInt64(transaction.Duration) << "mosaicId" << ToInt64(transaction.Mosaic.MosaicId) << "amount"
+					<< ToInt64(transaction.Mosaic.Amount) << "hash" << ToBinary(transaction.Hash);
 		}
 	}
 

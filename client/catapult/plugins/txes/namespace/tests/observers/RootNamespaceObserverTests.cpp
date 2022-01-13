@@ -29,31 +29,25 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS RootNamespaceObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(RootNamespace,)
+	DEFINE_COMMON_OBSERVER_TESTS(RootNamespace, )
 
 	namespace {
 		constexpr auto Grace_Period_Duration = 7u;
 
 		class ObserverTestContext : public test::ObserverTestContextT<test::NamespaceCacheFactory> {
 		public:
-			explicit ObserverTestContext(observers::NotifyMode mode) : ObserverTestContext(mode, Height(444))
-			{}
+			explicit ObserverTestContext(observers::NotifyMode mode)
+					: ObserverTestContext(mode, Height(444)) {
+			}
 
 			ObserverTestContext(observers::NotifyMode mode, Height height)
-					: test::ObserverTestContextT<test::NamespaceCacheFactory>(mode, height, CreateConfiguration())
-			{}
+					: test::ObserverTestContextT<test::NamespaceCacheFactory>(mode, height, CreateConfiguration()) {
+			}
 
 		private:
 			static model::BlockchainConfiguration CreateConfiguration() {
 				auto config = model::BlockchainConfiguration::Uninitialized();
-				config.Plugins.emplace("namespace::ex", utils::ConfigurationBag({
-					{
-						"",
-						{
-							{ "gracePeriodDuration", "7" }
-						}
-					}
-				}));
+				config.Plugins.emplace("namespace::ex", utils::ConfigurationBag({ { "", { { "gracePeriodDuration", "7" } } } }));
 				return config;
 			}
 		};

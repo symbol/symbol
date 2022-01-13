@@ -30,7 +30,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS BeneficiaryObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(Beneficiary,)
+	DEFINE_COMMON_OBSERVER_TESTS(Beneficiary, )
 
 	namespace {
 		constexpr auto Notification_Height = Height(100);
@@ -47,8 +47,8 @@ namespace catapult { namespace observers {
 		class TestContext : public test::AccountObserverTestContext {
 		public:
 			explicit TestContext(NotifyMode notifyMode)
-					: test::AccountObserverTestContext(notifyMode, Notification_Height, CreateBlockchainConfiguration())
-			{}
+					: test::AccountObserverTestContext(notifyMode, Notification_Height, CreateBlockchainConfiguration()) {
+			}
 
 		public:
 			template<typename TAccountIdentifier>
@@ -118,10 +118,16 @@ namespace catapult { namespace observers {
 	}
 
 #define BENEFICIARY_OBSERVER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Commit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CommitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Rollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RollbackTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Commit) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CommitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Rollback) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RollbackTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region unique beneficiary
 

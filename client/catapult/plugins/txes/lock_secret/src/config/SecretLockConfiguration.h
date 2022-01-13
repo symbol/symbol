@@ -24,7 +24,9 @@
 #include "catapult/types.h"
 #include <stdint.h>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace config {
 

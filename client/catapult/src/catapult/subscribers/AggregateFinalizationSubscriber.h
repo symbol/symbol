@@ -27,7 +27,9 @@ namespace catapult { namespace subscribers {
 
 	/// Aggregate finalization subscriber.
 	template<typename TFinalizationSubscriber = FinalizationSubscriber>
-	class AggregateFinalizationSubscriber : public BasicAggregateSubscriber<TFinalizationSubscriber>, public FinalizationSubscriber {
+	class AggregateFinalizationSubscriber
+			: public BasicAggregateSubscriber<TFinalizationSubscriber>
+			, public FinalizationSubscriber {
 	public:
 		using BasicAggregateSubscriber<TFinalizationSubscriber>::BasicAggregateSubscriber;
 

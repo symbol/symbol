@@ -28,8 +28,8 @@ namespace catapult { namespace validators {
 	namespace {
 		auto ValidateEntityVersion(const Notification& notification) {
 			return notification.EntityVersion > notification.MaxVersion || notification.EntityVersion < notification.MinVersion
-					? Failure_Core_Invalid_Version
-					: ValidationResult::Success;
+						   ? Failure_Core_Invalid_Version
+						   : ValidationResult::Success;
 		}
 	}
 

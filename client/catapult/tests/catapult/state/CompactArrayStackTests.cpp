@@ -448,4 +448,3 @@ namespace catapult { namespace state {
 
 	// endregion
 }}
-

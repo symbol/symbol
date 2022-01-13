@@ -38,8 +38,9 @@ namespace catapult { namespace validators {
 			using ResultType = ValidationResult;
 
 		public:
-			explicit ShortCircuitTraits(size_t) : m_aggregateResult(ValidationResult::Success)
-			{}
+			explicit ShortCircuitTraits(size_t)
+					: m_aggregateResult(ValidationResult::Success) {
+			}
 
 		public:
 			bool validateEntity(const StatelessEntityValidator& validator, const model::WeakEntityInfo& entityInfo, size_t) {
@@ -68,8 +69,9 @@ namespace catapult { namespace validators {
 			using ResultType = std::vector<ValidationResult>;
 
 		public:
-			explicit AllTraits(size_t numEntities) : m_results(numEntities, ValidationResult::Success)
-			{}
+			explicit AllTraits(size_t numEntities)
+					: m_results(numEntities, ValidationResult::Success) {
+			}
 
 		public:
 			bool validateEntity(const StatelessEntityValidator& validator, const model::WeakEntityInfo& entityInfo, size_t index) {
@@ -94,8 +96,8 @@ namespace catapult { namespace validators {
 			ValidationWork(const std::shared_ptr<const StatelessEntityValidator>& pValidator, const model::WeakEntityInfos& entityInfos)
 					: m_pValidator(pValidator)
 					, m_entityInfos(entityInfos)
-					, m_impl(m_entityInfos.size())
-			{}
+					, m_impl(m_entityInfos.size()) {
+			}
 
 		public:
 			const auto& entityInfos() const {

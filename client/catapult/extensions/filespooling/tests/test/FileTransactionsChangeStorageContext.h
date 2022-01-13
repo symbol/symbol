@@ -41,8 +41,8 @@ namespace catapult { namespace test {
 		/// Creates test context.
 		FileTransactionsChangeStorageContext()
 				: m_mockStream(m_buffer)
-				, m_pSubscriber(SubscriberTraits::Create(std::make_unique<test::NonOwningOutputStream>(m_mockStream)))
-		{}
+				, m_pSubscriber(SubscriberTraits::Create(std::make_unique<test::NonOwningOutputStream>(m_mockStream))) {
+		}
 
 	public:
 		/// Gets the subscriber.

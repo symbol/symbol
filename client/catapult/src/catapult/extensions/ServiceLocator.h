@@ -26,7 +26,9 @@
 #include <unordered_map>
 #include <vector>
 
-namespace catapult { namespace config { class CatapultKeys; } }
+namespace catapult { namespace config {
+	class CatapultKeys;
+}}
 
 namespace catapult { namespace extensions {
 
@@ -38,8 +40,9 @@ namespace catapult { namespace extensions {
 
 	public:
 		/// Creates a locator around \a keys.
-		explicit ServiceLocator(const config::CatapultKeys& keys) : m_keys(keys)
-		{}
+		explicit ServiceLocator(const config::CatapultKeys& keys)
+				: m_keys(keys) {
+		}
 
 		/// Destroys the locator.
 		~ServiceLocator() {

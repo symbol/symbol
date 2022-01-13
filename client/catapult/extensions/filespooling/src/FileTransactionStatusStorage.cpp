@@ -30,8 +30,8 @@ namespace catapult { namespace filespooling {
 		class FileTransactionStatusStorage final : public subscribers::TransactionStatusSubscriber {
 		public:
 			explicit FileTransactionStatusStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
-					: m_pOutputStream(std::move(pOutputStream))
-			{}
+					: m_pOutputStream(std::move(pOutputStream)) {
+			}
 
 		public:
 			void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) override {

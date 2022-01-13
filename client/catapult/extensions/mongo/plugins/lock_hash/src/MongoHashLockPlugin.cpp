@@ -25,15 +25,13 @@
 #include "mongo/src/MongoReceiptPluginFactory.h"
 #include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
 
-extern "C" PLUGIN_API
-void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	// transaction support
 	manager.addTransactionSupport(catapult::mongo::plugins::CreateHashLockTransactionMongoPlugin());
 
 	// cache storage support
-	manager.addStorageSupport(catapult::mongo::plugins::CreateMongoHashLockInfoCacheStorage(
-			manager.mongoContext(),
-			manager.networkIdentifier()));
+	manager.addStorageSupport(
+			catapult::mongo::plugins::CreateMongoHashLockInfoCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 
 	// receipt support
 	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Created));

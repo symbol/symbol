@@ -27,10 +27,14 @@ namespace catapult { namespace crypto {
 	/// AES 256 GCM decryptor.
 	class AesGcm256 {
 	public:
-		struct IV_tag { static constexpr size_t Size = 12; };
+		struct IV_tag {
+			static constexpr size_t Size = 12;
+		};
 		using IV = utils::ByteArray<IV_tag>;
 
-		struct Tag_tag { static constexpr size_t Size = 16; };
+		struct Tag_tag {
+			static constexpr size_t Size = 16;
+		};
 		using Tag = utils::ByteArray<Tag_tag>;
 
 	public:

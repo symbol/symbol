@@ -22,12 +22,10 @@
 #pragma once
 #include "catapult/model/BlockStatement.h"
 
-namespace catapult {
-	namespace io {
-		class InputStream;
-		class OutputStream;
-	}
-}
+namespace catapult { namespace io {
+	class InputStream;
+	class OutputStream;
+}}
 
 namespace catapult { namespace io {
 

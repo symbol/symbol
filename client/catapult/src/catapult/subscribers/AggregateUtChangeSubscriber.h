@@ -27,7 +27,9 @@ namespace catapult { namespace subscribers {
 
 	/// Aggregate unconfirmed transactions change subscriber.
 	template<typename TUtChangeSubscriber = cache::UtChangeSubscriber>
-	class AggregateUtChangeSubscriber : public BasicAggregateSubscriber<TUtChangeSubscriber>, public cache::UtChangeSubscriber {
+	class AggregateUtChangeSubscriber
+			: public BasicAggregateSubscriber<TUtChangeSubscriber>
+			, public cache::UtChangeSubscriber {
 	public:
 		using BasicAggregateSubscriber<TUtChangeSubscriber>::BasicAggregateSubscriber;
 

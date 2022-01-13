@@ -19,10 +19,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/extensions/NemesisBlockLoader.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
-#include "catapult/extensions/NemesisBlockLoader.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
@@ -48,11 +48,8 @@ namespace catapult { namespace extensions {
 		constexpr auto Num_Nemesis_Harvesting_Accounts = CountOf(test::Test_Network_Vrf_Private_Keys);
 		constexpr auto Num_Nemesis_Namespaces = 3;
 		constexpr auto Num_Nemesis_Mosaics = 2;
-		constexpr auto Num_Nemesis_Transactions = 0
-				+ Num_Nemesis_Namespaces
-				+ 3 * Num_Nemesis_Mosaics
-				+ Num_Nemesis_Accounts
-				+ Num_Nemesis_Harvesting_Accounts;
+		constexpr auto Num_Nemesis_Transactions =
+				0 + Num_Nemesis_Namespaces + 3 * Num_Nemesis_Mosaics + Num_Nemesis_Accounts + Num_Nemesis_Harvesting_Accounts;
 
 		template<typename TAction>
 		void RunNemesisBlockTest(TAction action) {

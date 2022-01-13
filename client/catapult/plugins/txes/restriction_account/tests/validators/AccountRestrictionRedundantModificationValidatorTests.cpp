@@ -29,12 +29,12 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AccountRestrictionRedundantModificationValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionRedundantModification,)
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountMosaicRestrictionRedundantModification,)
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionRedundantModification,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionRedundantModification, )
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountMosaicRestrictionRedundantModification, )
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionRedundantModification, )
 
 	namespace {
-		enum class CacheSeed { No, Yes};
+		enum class CacheSeed { No, Yes };
 
 		struct AccountAddressRestrictionTraits : public test::BaseAccountAddressRestrictionTraits {
 			static constexpr auto CreateValidator = CreateAccountAddressRestrictionRedundantModificationValidator;
@@ -69,10 +69,8 @@ namespace catapult { namespace validators {
 			auto cache = test::AccountRestrictionCacheFactory::Create();
 			if (CacheSeed::Yes == cacheSeed) {
 				auto restrictions = state::AccountRestrictions(notification.Address);
-				restrictions.restriction(TRestrictionValueTraits::Restriction_Flags).allow({
-					model::AccountRestrictionModificationAction::Add,
-					state::ToVector(values[1])
-				});
+				restrictions.restriction(TRestrictionValueTraits::Restriction_Flags)
+						.allow({ model::AccountRestrictionModificationAction::Add, state::ToVector(values[1]) });
 				auto delta = cache.createDelta();
 				auto& restrictionCacheDelta = delta.template sub<cache::AccountRestrictionCache>();
 				restrictionCacheDelta.insert(restrictions);
@@ -95,11 +93,19 @@ namespace catapult { namespace validators {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountMosaicRestrictionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Operation) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountMosaicRestrictionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Operation) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantAdds) {
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Redundant_Modification, [](const auto& values) {
@@ -136,9 +142,7 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(SuccessWhenValidatingNotificationWithUnknownAddressAndNoRedundantOperationAndNoDelete) {
 		AssertValidationResult<TTraits>(ValidationResult::Success, [](const auto& values) {
-			return std::make_pair(
-					typename TTraits::VectorType{ values[2], values[1], values[0] },
-					typename TTraits::VectorType());
+			return std::make_pair(typename TTraits::VectorType{ values[2], values[1], values[0] }, typename TTraits::VectorType());
 		});
 	}
 

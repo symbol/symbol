@@ -87,17 +87,17 @@ namespace catapult { namespace test {
 
 		static void AssertCanIterateThroughMultiValueSetWithConstIterator() {
 			// Assert:
-			std::set<TestElement> expectedElements{
-				TestElement("TestElement", 0),
-				TestElement("TestElement", 1),
-				TestElement("TestElement", 2)
-			};
+			std::set<TestElement> expectedElements{ TestElement("TestElement", 0),
+													TestElement("TestElement", 1),
+													TestElement("TestElement", 2) };
 			AssertIteration(*TTraits::CreateWithElements(3), expectedElements);
 		}
 	};
 
 #define MAKE_COMMON_BASE_SET_ITERATION_TEST(TEST_CLASS, TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BaseSetIterationCommonTests<TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BaseSetIterationCommonTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_COMMON_BASE_SET_ITERATION_TESTS(TEST_CLASS, TRAITS) \
 	MAKE_COMMON_BASE_SET_ITERATION_TEST(TEST_CLASS, TRAITS, CanIterateThroughEmptySetWithConstIterator) \
@@ -141,11 +141,13 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_BASE_SET_ITERATION_TEST(TEST_CLASS, TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BaseSetIterationTests<TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BaseSetIterationTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_BASE_SET_ITERATION_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_COMMON_BASE_SET_ITERATION_TESTS(TEST_CLASS, TRAITS) \
-	\
+\
 	MAKE_BASE_SET_ITERATION_TEST(TEST_CLASS, TRAITS, FindIteratorReturnsIteratorToElementWhenElementExists) \
 	MAKE_BASE_SET_ITERATION_TEST(TEST_CLASS, TRAITS, FindIteratorReturnsCendWhenElementDoesNotExist)
 
@@ -180,11 +182,9 @@ namespace catapult { namespace test {
 			auto actualElements = ExtractElements(*pDelta);
 
 			// Assert:
-			std::set<TestElement> expectedElements{
-				TestElement("TestElement", 0),
-				TestElement("TestElement", 1),
-				TestElement("TestElement", 2)
-			};
+			std::set<TestElement> expectedElements{ TestElement("TestElement", 0),
+													TestElement("TestElement", 1),
+													TestElement("TestElement", 2) };
 			EXPECT_EQ(expectedElements, actualElements);
 			AssertDeltaSizes(pDelta, 3, 0, 0, 0);
 		}
@@ -199,10 +199,7 @@ namespace catapult { namespace test {
 			auto actualElements = ExtractElements(*pDelta);
 
 			// Assert:
-			std::set<TestElement> expectedElements{
-				TestElement("TestElement", 4),
-				TestElement("TestElement", 7)
-			};
+			std::set<TestElement> expectedElements{ TestElement("TestElement", 4), TestElement("TestElement", 7) };
 			EXPECT_EQ(expectedElements, actualElements);
 			AssertDeltaSizes(pDelta, 0, 2, 0, 0);
 		}
@@ -218,13 +215,11 @@ namespace catapult { namespace test {
 			auto actualElements = ExtractElements(*pDelta);
 
 			// Assert:
-			std::set<TestElement> expectedElements{
-				TestElement("TestElement", 0),
-				TestElement("TestElement", 1),
-				TestElement("TestElement", 2),
-				TestElement("TestElement", 4),
-				TestElement("TestElement", 7)
-			};
+			std::set<TestElement> expectedElements{ TestElement("TestElement", 0),
+													TestElement("TestElement", 1),
+													TestElement("TestElement", 2),
+													TestElement("TestElement", 4),
+													TestElement("TestElement", 7) };
 			EXPECT_EQ(expectedElements, actualElements);
 			AssertDeltaSizes(pDelta, 3, 2, 0, 0);
 		}
@@ -242,11 +237,9 @@ namespace catapult { namespace test {
 			auto actualElements = ExtractElements(*pDelta);
 
 			// Assert:
-			std::set<TestElement> expectedElements{
-				TestElement("TestElement", 0),
-				TestElement("TestElement", 2),
-				TestElement("TestElement", 7)
-			};
+			std::set<TestElement> expectedElements{ TestElement("TestElement", 0),
+													TestElement("TestElement", 2),
+													TestElement("TestElement", 7) };
 			EXPECT_EQ(expectedElements, actualElements);
 			AssertDeltaSizes(pDelta, 3, 2, 2, 0);
 		}
@@ -448,28 +441,30 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::BaseSetIterationDeltaTests<TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::BaseSetIterationDeltaTests<TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_BASE_SET_DELTA_ITERATION_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_COMMON_BASE_SET_ITERATION_TESTS(TEST_CLASS, TRAITS) \
-	\
+\
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationIncludesOriginalElements) \
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationCanIterateOnlyInsertedElements) \
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationIncludesInsertedElements) \
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationExcludesRemovedElements) \
-	\
+\
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationIncludesCopiedElements) \
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationCanIterateOnlyCopiedElements) \
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationDoesNotReiterateNewlyCopiedElements) \
-	\
+\
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaCannotDereferenceAtEnd) \
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaCannotAdvancePrefixIteratorBeyondEnd) \
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaCannotAdvancePostfixIteratorBeyondEnd) \
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaBeginEndIteratorsBasedOnSameContainerAreEqual) \
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaBeginEndIteratorsBasedOnDifferentContainerAreNotEqual) \
-	\
+\
 	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationSupportsPostfixIterator) \
-	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationSupportsPrefixIterator) \
+	MAKE_BASE_SET_DELTA_ITERATION_TEST(TEST_CLASS, TRAITS, DeltaIterationSupportsPrefixIterator)
 
 	// endregion
 }}

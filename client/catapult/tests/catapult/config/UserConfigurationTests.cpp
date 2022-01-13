@@ -30,24 +30,13 @@ namespace catapult { namespace config {
 			using ConfigurationType = UserConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {
-					{
-						"account",
-						{
-							{ "enableDelegatedHarvestersAutoDetection", "true" }
-						}
-					},
-					{
-						"storage",
-						{
-							{ "seedDirectory", "./sd" },
-							{ "dataDirectory", "./dd" },
-							{ "certificateDirectory", "./cert" },
-							{ "votingKeysDirectory", "./keys" },
-							{ "pluginsDirectory", "./ext" }
-						}
-					}
-				};
+				return { { "account", { { "enableDelegatedHarvestersAutoDetection", "true" } } },
+						 { "storage",
+						   { { "seedDirectory", "./sd" },
+							 { "dataDirectory", "./dd" },
+							 { "certificateDirectory", "./cert" },
+							 { "votingKeysDirectory", "./keys" },
+							 { "pluginsDirectory", "./ext" } } } };
 			}
 
 			static bool IsSectionOptional(const std::string&) {

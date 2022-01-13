@@ -60,16 +60,16 @@ namespace catapult { namespace local {
 					});
 				}
 
-				return futures.empty()
-						? thread::make_ready_future(thread::TaskResult::Continue)
-						: thread::when_all(std::move(futures)).then([](auto&&) { return thread::TaskResult::Continue; });
+				return futures.empty() ? thread::make_ready_future(thread::TaskResult::Continue)
+									   : thread::when_all(std::move(futures)).then([](auto&&) { return thread::TaskResult::Continue; });
 			});
 		}
 
 		class StaticNodeRefreshServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit StaticNodeRefreshServiceRegistrar(const std::vector<ionet::Node>& staticNodes) : m_staticNodes(staticNodes)
-			{}
+			explicit StaticNodeRefreshServiceRegistrar(const std::vector<ionet::Node>& staticNodes)
+					: m_staticNodes(staticNodes) {
+			}
 
 		public:
 			extensions::ServiceRegistrarInfo info() const override {

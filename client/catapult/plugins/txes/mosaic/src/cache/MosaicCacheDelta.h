@@ -33,8 +33,8 @@ namespace catapult { namespace cache {
 	struct MosaicCacheDeltaMixins
 			: public PatriciaTreeCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicCacheDescriptor> {
 		using Touch = HeightBasedTouchMixin<
-			typename MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType,
-			typename MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
+				typename MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType,
+				typename MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
 	};
 
 	/// Basic delta on top of the mosaic cache.
@@ -76,7 +76,8 @@ namespace catapult { namespace cache {
 	class MosaicCacheDelta : public ReadOnlyViewSupplier<BasicMosaicCacheDelta> {
 	public:
 		/// Creates a delta around \a mosaicSets.
-		explicit MosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets) : ReadOnlyViewSupplier(mosaicSets)
-		{}
+		explicit MosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets)
+				: ReadOnlyViewSupplier(mosaicSets) {
+		}
 	};
 }}

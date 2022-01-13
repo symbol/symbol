@@ -38,7 +38,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(NamespaceRegistration, NamespaceRentalFeeConfiguration, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(NamespaceRegistration, NamespaceRentalFeeConfiguration, 1, 1, )
 
 		NamespaceRentalFeeConfiguration CreateRentalFeeConfiguration(Amount rootFeePerBlock, Amount childFee) {
 			HeightDependentAddress sinkAddress(test::GenerateRandomByteArray<Address>());
@@ -110,9 +110,8 @@ namespace catapult { namespace plugins {
 
 				EXPECT_EQ(config.SinkAddress.get(Run_Test_Height), notification.Address.resolved());
 			});
-			builder.template addExpectation<NamespaceRegistrationNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
-			});
+			builder.template addExpectation<NamespaceRegistrationNotification>(
+					[&transaction](const auto& notification) { EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType); });
 			builder.template addExpectation<RootNamespaceNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
 				EXPECT_EQ(transaction.Id, notification.NamespaceId);
@@ -144,12 +143,13 @@ namespace catapult { namespace plugins {
 		pTransaction->SignerPublicKey = config.NemesisSignerPublicKey;
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountAddressNotification::Notification_Type,
-			NamespaceRegistrationNotification::Notification_Type,
-			RootNamespaceNotification::Notification_Type,
-			NamespaceNameNotification::Notification_Type
-		}, config);
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ AccountAddressNotification::Notification_Type,
+				  NamespaceRegistrationNotification::Notification_Type,
+				  RootNamespaceNotification::Notification_Type,
+				  NamespaceNameNotification::Notification_Type },
+				config);
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNemesisRootRegistration) {
@@ -179,14 +179,15 @@ namespace catapult { namespace plugins {
 		PrepareRootNamespaceFiniteDurationTransaction(*pTransaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountAddressNotification::Notification_Type,
-			BalanceTransferNotification::Notification_Type,
-			NamespaceRentalFeeNotification::Notification_Type,
-			NamespaceRegistrationNotification::Notification_Type,
-			RootNamespaceNotification::Notification_Type,
-			NamespaceNameNotification::Notification_Type
-		}, config);
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ AccountAddressNotification::Notification_Type,
+				  BalanceTransferNotification::Notification_Type,
+				  NamespaceRentalFeeNotification::Notification_Type,
+				  NamespaceRegistrationNotification::Notification_Type,
+				  RootNamespaceNotification::Notification_Type,
+				  NamespaceNameNotification::Notification_Type },
+				config);
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNotNemesisRootRegistrationWithFiniteDuration) {
@@ -236,12 +237,13 @@ namespace catapult { namespace plugins {
 		pTransaction->Duration = BlockDuration();
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountAddressNotification::Notification_Type,
-			NamespaceRegistrationNotification::Notification_Type,
-			RootNamespaceNotification::Notification_Type,
-			NamespaceNameNotification::Notification_Type
-		}, config);
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ AccountAddressNotification::Notification_Type,
+				  NamespaceRegistrationNotification::Notification_Type,
+				  RootNamespaceNotification::Notification_Type,
+				  NamespaceNameNotification::Notification_Type },
+				config);
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNotNemesisRootRegistrationWithEternalDuration) {
@@ -274,9 +276,8 @@ namespace catapult { namespace plugins {
 
 				EXPECT_EQ(config.SinkAddress.get(Run_Test_Height), notification.Address.resolved());
 			});
-			builder.template addExpectation<NamespaceRegistrationNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
-			});
+			builder.template addExpectation<NamespaceRegistrationNotification>(
+					[&transaction](const auto& notification) { EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType); });
 			builder.template addExpectation<ChildNamespaceNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
 				EXPECT_EQ(transaction.Id, notification.NamespaceId);
@@ -308,12 +309,13 @@ namespace catapult { namespace plugins {
 		pTransaction->SignerPublicKey = config.NemesisSignerPublicKey;
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountAddressNotification::Notification_Type,
-			NamespaceRegistrationNotification::Notification_Type,
-			ChildNamespaceNotification::Notification_Type,
-			NamespaceNameNotification::Notification_Type
-		}, config);
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ AccountAddressNotification::Notification_Type,
+				  NamespaceRegistrationNotification::Notification_Type,
+				  ChildNamespaceNotification::Notification_Type,
+				  NamespaceNameNotification::Notification_Type },
+				config);
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNemesisChildRegistration) {
@@ -343,14 +345,15 @@ namespace catapult { namespace plugins {
 		PrepareChildNamespaceTransaction(*pTransaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountAddressNotification::Notification_Type,
-			BalanceTransferNotification::Notification_Type,
-			NamespaceRentalFeeNotification::Notification_Type,
-			NamespaceRegistrationNotification::Notification_Type,
-			ChildNamespaceNotification::Notification_Type,
-			NamespaceNameNotification::Notification_Type
-		}, config);
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				*pTransaction,
+				{ AccountAddressNotification::Notification_Type,
+				  BalanceTransferNotification::Notification_Type,
+				  NamespaceRentalFeeNotification::Notification_Type,
+				  NamespaceRegistrationNotification::Notification_Type,
+				  ChildNamespaceNotification::Notification_Type,
+				  NamespaceNameNotification::Notification_Type },
+				config);
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNotNemesisChildRegistrationWithFiniteDuration) {

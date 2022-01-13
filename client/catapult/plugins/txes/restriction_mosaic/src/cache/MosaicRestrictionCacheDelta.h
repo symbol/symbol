@@ -31,7 +31,7 @@ namespace catapult { namespace cache {
 
 	/// Mixins used by the mosaic restriction cache delta.
 	using MosaicRestrictionCacheDeltaMixins =
-		PatriciaTreeCacheMixins<MosaicRestrictionCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicRestrictionCacheDescriptor>;
+			PatriciaTreeCacheMixins<MosaicRestrictionCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicRestrictionCacheDescriptor>;
 
 	/// Basic delta on top of the mosaic restriction cache.
 	class BasicMosaicRestrictionCacheDelta
@@ -59,8 +59,8 @@ namespace catapult { namespace cache {
 				, MosaicRestrictionCacheDeltaMixins::BasicInsertRemove(*restrictionSets.pPrimary)
 				, MosaicRestrictionCacheDeltaMixins::DeltaElements(*restrictionSets.pPrimary)
 				, m_pMosaicRestrictionEntries(restrictionSets.pPrimary)
-				, m_networkIdentifier(networkIdentifier)
-		{}
+				, m_networkIdentifier(networkIdentifier) {
+		}
 
 	public:
 		using MosaicRestrictionCacheDeltaMixins::ConstAccessor::find;
@@ -84,7 +84,7 @@ namespace catapult { namespace cache {
 		MosaicRestrictionCacheDelta(
 				const MosaicRestrictionCacheTypes::BaseSetDeltaPointers& restrictionSets,
 				model::NetworkIdentifier networkIdentifier)
-				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier)
-		{}
+				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier) {
+		}
 	};
 }}

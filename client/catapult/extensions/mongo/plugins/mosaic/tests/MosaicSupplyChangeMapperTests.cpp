@@ -31,7 +31,7 @@ namespace catapult { namespace mongo { namespace plugins {
 #define TEST_CLASS MosaicSupplyChangeMapperTests
 
 	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicSupplyChange,)
+		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(MosaicSupplyChange, )
 	}
 
 	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Mosaic_Supply_Change)
@@ -55,9 +55,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Assert:
 		EXPECT_EQ(3u, test::GetFieldCount(view));
 		EXPECT_EQ(753u, test::GetUint64(view, "mosaicId"));
-		EXPECT_EQ(
-				model::MosaicSupplyChangeAction::Increase,
-				static_cast<model::MosaicSupplyChangeAction>(test::GetUint32(view, "action")));
+		EXPECT_EQ(model::MosaicSupplyChangeAction::Increase, static_cast<model::MosaicSupplyChangeAction>(test::GetUint32(view, "action")));
 		EXPECT_EQ(12349876u, test::GetUint64(view, "delta"));
 	}
 

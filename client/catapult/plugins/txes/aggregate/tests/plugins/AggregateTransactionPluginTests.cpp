@@ -241,11 +241,12 @@ namespace catapult { namespace plugins {
 		auto wrapper = CreateAggregateTransaction(0, 0);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
-			// aggregate cosignatures notification must be the first raised notification
-			AggregateCosignaturesNotification::Notification_Type,
-			AggregateEmbeddedTransactionsNotification::Notification_Type
-		}, registry);
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(
+				*wrapper.pTransaction,
+				{ // aggregate cosignatures notification must be the first raised notification
+				  AggregateCosignaturesNotification::Notification_Type,
+				  AggregateEmbeddedTransactionsNotification::Notification_Type },
+				registry);
 	}
 
 	TEST(TEST_CLASS, CanPublishAllNotificationsWhenNeitherSubTransactionsNorCosignaturesArePresent) {
@@ -263,14 +264,14 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(0u, notification.CosignaturesCount);
 			EXPECT_FALSE(!!notification.CosignaturesPtr);
 		});
-		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction, &aggregateTransactionHash](
-				const auto& notification) {
-			EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
-			EXPECT_EQ(17u, notification.AggregateVersion);
-			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
-			EXPECT_EQ(0u, notification.TransactionsCount);
-			EXPECT_FALSE(!!notification.TransactionsPtr);
-		});
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>(
+				[&transaction, &aggregateTransactionHash](const auto& notification) {
+					EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
+					EXPECT_EQ(17u, notification.AggregateVersion);
+					EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
+					EXPECT_EQ(0u, notification.TransactionsCount);
+					EXPECT_FALSE(!!notification.TransactionsPtr);
+				});
 
 		// Act + Assert:
 		builder.runTestWithHash(transaction, aggregateTransactionHash, registry);
@@ -313,13 +314,14 @@ namespace catapult { namespace plugins {
 				builder.addExpectation<AccountPublicKeyNotification>(i * 2 + 1, [&wrapper, i](const auto& notification) {
 					EXPECT_EQ(wrapper.SubTransactions[i]->RecipientPublicKey, notification.PublicKey);
 				});
-				builder.addExpectation<mocks::MockPublisherContextNotification>(i, [&wrapper, expectedBlockHeight, i](
-						const auto& notification) {
-					const auto& signerPublicKey = wrapper.SubTransactions[i]->SignerPublicKey;
-					auto signerAddress = PublicKeyToAddress(signerPublicKey, static_cast<NetworkIdentifier>(100 + i));
-					EXPECT_EQ(signerAddress, notification.SignerAddress);
-					EXPECT_EQ(expectedBlockHeight, notification.BlockHeight);
-				});
+				builder.addExpectation<mocks::MockPublisherContextNotification>(
+						i,
+						[&wrapper, expectedBlockHeight, i](const auto& notification) {
+							const auto& signerPublicKey = wrapper.SubTransactions[i]->SignerPublicKey;
+							auto signerAddress = PublicKeyToAddress(signerPublicKey, static_cast<NetworkIdentifier>(100 + i));
+							EXPECT_EQ(signerAddress, notification.SignerAddress);
+							EXPECT_EQ(expectedBlockHeight, notification.BlockHeight);
+						});
 			}
 		}
 	}
@@ -330,26 +332,27 @@ namespace catapult { namespace plugins {
 		auto wrapper = CreateAggregateTransaction(2, 0);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
-			// aggregate cosignatures notification must be the first raised notification
-			AggregateCosignaturesNotification::Notification_Type,
-			AggregateEmbeddedTransactionsNotification::Notification_Type,
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(
+				*wrapper.pTransaction,
+				{ // aggregate cosignatures notification must be the first raised notification
+				  AggregateCosignaturesNotification::Notification_Type,
+				  AggregateEmbeddedTransactionsNotification::Notification_Type,
 
-			// source change notification must be the first raised sub-transaction notification
-			SourceChangeNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type,
-			EntityNotification::Notification_Type,
-			AggregateEmbeddedTransactionNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type,
-			mocks::MockPublisherContextNotification::Notification_Type,
+				  // source change notification must be the first raised sub-transaction notification
+				  SourceChangeNotification::Notification_Type,
+				  AccountPublicKeyNotification::Notification_Type,
+				  EntityNotification::Notification_Type,
+				  AggregateEmbeddedTransactionNotification::Notification_Type,
+				  AccountPublicKeyNotification::Notification_Type,
+				  mocks::MockPublisherContextNotification::Notification_Type,
 
-			SourceChangeNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type,
-			EntityNotification::Notification_Type,
-			AggregateEmbeddedTransactionNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type,
-			mocks::MockPublisherContextNotification::Notification_Type
-		}, registry);
+				  SourceChangeNotification::Notification_Type,
+				  AccountPublicKeyNotification::Notification_Type,
+				  EntityNotification::Notification_Type,
+				  AggregateEmbeddedTransactionNotification::Notification_Type,
+				  AccountPublicKeyNotification::Notification_Type,
+				  mocks::MockPublisherContextNotification::Notification_Type },
+				registry);
 	}
 
 	namespace {
@@ -368,14 +371,14 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(0u, notification.CosignaturesCount);
 				EXPECT_FALSE(!!notification.CosignaturesPtr);
 			});
-			builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction, &aggregateTransactionHash](
-					const auto& notification) {
-				EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
-				EXPECT_EQ(17u, notification.AggregateVersion);
-				EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
-				EXPECT_EQ(2u, notification.TransactionsCount);
-				EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
-			});
+			builder.addExpectation<AggregateEmbeddedTransactionsNotification>(
+					[&transaction, &aggregateTransactionHash](const auto& notification) {
+						EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
+						EXPECT_EQ(17u, notification.AggregateVersion);
+						EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
+						EXPECT_EQ(2u, notification.TransactionsCount);
+						EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
+					});
 
 			AddSubTransactionExpectations(builder, wrapper, 2, blockHeight);
 
@@ -439,19 +442,20 @@ namespace catapult { namespace plugins {
 		auto wrapper = CreateAggregateTransaction(0, 3);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
-			// aggregate cosignatures notification must be the first raised notification
-			AggregateCosignaturesNotification::Notification_Type,
-			AggregateEmbeddedTransactionsNotification::Notification_Type,
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(
+				*wrapper.pTransaction,
+				{ // aggregate cosignatures notification must be the first raised notification
+				  AggregateCosignaturesNotification::Notification_Type,
+				  AggregateEmbeddedTransactionsNotification::Notification_Type,
 
-			// cosignature-derived notifications are raised last (and with wrong source) for performance reasons
-			InternalPaddingNotification::Notification_Type,
-			SignatureNotification::Notification_Type,
-			InternalPaddingNotification::Notification_Type,
-			SignatureNotification::Notification_Type,
-			InternalPaddingNotification::Notification_Type,
-			SignatureNotification::Notification_Type
-		}, registry);
+				  // cosignature-derived notifications are raised last (and with wrong source) for performance reasons
+				  InternalPaddingNotification::Notification_Type,
+				  SignatureNotification::Notification_Type,
+				  InternalPaddingNotification::Notification_Type,
+				  SignatureNotification::Notification_Type,
+				  InternalPaddingNotification::Notification_Type,
+				  SignatureNotification::Notification_Type },
+				registry);
 	}
 
 	TEST(TEST_CLASS, CanPublishAllNotificationsWhenOnlyCosignaturesArePresent) {
@@ -469,14 +473,14 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(3u, notification.CosignaturesCount);
 			EXPECT_EQ(transaction.CosignaturesPtr(), notification.CosignaturesPtr);
 		});
-		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction, &aggregateTransactionHash](
-				const auto& notification) {
-			EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
-			EXPECT_EQ(17u, notification.AggregateVersion);
-			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
-			EXPECT_EQ(0u, notification.TransactionsCount);
-			EXPECT_FALSE(!!notification.TransactionsPtr);
-		});
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>(
+				[&transaction, &aggregateTransactionHash](const auto& notification) {
+					EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
+					EXPECT_EQ(17u, notification.AggregateVersion);
+					EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
+					EXPECT_EQ(0u, notification.TransactionsCount);
+					EXPECT_FALSE(!!notification.TransactionsPtr);
+				});
 
 		AddCosignatureExpectations(builder, wrapper, aggregateTransactionHash, 3);
 
@@ -494,34 +498,35 @@ namespace catapult { namespace plugins {
 		auto wrapper = CreateAggregateTransaction(2, 3);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
-			// aggregate cosignatures notification must be the first raised notification
-			AggregateCosignaturesNotification::Notification_Type,
-			AggregateEmbeddedTransactionsNotification::Notification_Type,
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(
+				*wrapper.pTransaction,
+				{ // aggregate cosignatures notification must be the first raised notification
+				  AggregateCosignaturesNotification::Notification_Type,
+				  AggregateEmbeddedTransactionsNotification::Notification_Type,
 
-			// source change notification must be the first raised sub-transaction notification
-			SourceChangeNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type,
-			EntityNotification::Notification_Type,
-			AggregateEmbeddedTransactionNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type,
-			mocks::MockPublisherContextNotification::Notification_Type,
+				  // source change notification must be the first raised sub-transaction notification
+				  SourceChangeNotification::Notification_Type,
+				  AccountPublicKeyNotification::Notification_Type,
+				  EntityNotification::Notification_Type,
+				  AggregateEmbeddedTransactionNotification::Notification_Type,
+				  AccountPublicKeyNotification::Notification_Type,
+				  mocks::MockPublisherContextNotification::Notification_Type,
 
-			SourceChangeNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type,
-			EntityNotification::Notification_Type,
-			AggregateEmbeddedTransactionNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type,
-			mocks::MockPublisherContextNotification::Notification_Type,
+				  SourceChangeNotification::Notification_Type,
+				  AccountPublicKeyNotification::Notification_Type,
+				  EntityNotification::Notification_Type,
+				  AggregateEmbeddedTransactionNotification::Notification_Type,
+				  AccountPublicKeyNotification::Notification_Type,
+				  mocks::MockPublisherContextNotification::Notification_Type,
 
-			// signature notifications are raised last (and with wrong source) for performance reasons
-			InternalPaddingNotification::Notification_Type,
-			SignatureNotification::Notification_Type,
-			InternalPaddingNotification::Notification_Type,
-			SignatureNotification::Notification_Type,
-			InternalPaddingNotification::Notification_Type,
-			SignatureNotification::Notification_Type
-		}, registry);
+				  // signature notifications are raised last (and with wrong source) for performance reasons
+				  InternalPaddingNotification::Notification_Type,
+				  SignatureNotification::Notification_Type,
+				  InternalPaddingNotification::Notification_Type,
+				  SignatureNotification::Notification_Type,
+				  InternalPaddingNotification::Notification_Type,
+				  SignatureNotification::Notification_Type },
+				registry);
 	}
 
 	TEST(TEST_CLASS, CanPublishAllNotificationsWhenSubTransactionsAndCosignaturesArePresent) {
@@ -539,14 +544,14 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(3u, notification.CosignaturesCount);
 			EXPECT_EQ(transaction.CosignaturesPtr(), notification.CosignaturesPtr);
 		});
-		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction, &aggregateTransactionHash](
-				const auto& notification) {
-			EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
-			EXPECT_EQ(17u, notification.AggregateVersion);
-			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
-			EXPECT_EQ(2u, notification.TransactionsCount);
-			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
-		});
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>(
+				[&transaction, &aggregateTransactionHash](const auto& notification) {
+					EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
+					EXPECT_EQ(17u, notification.AggregateVersion);
+					EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
+					EXPECT_EQ(2u, notification.TransactionsCount);
+					EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
+				});
 
 		AddSubTransactionExpectations(builder, wrapper, 2);
 		AddCosignatureExpectations(builder, wrapper, aggregateTransactionHash, 3);

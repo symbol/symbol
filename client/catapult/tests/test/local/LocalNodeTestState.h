@@ -24,7 +24,9 @@
 #include <memory>
 #include <string>
 
-namespace catapult { namespace model { struct BlockchainConfiguration; } }
+namespace catapult { namespace model {
+	struct BlockchainConfiguration;
+}}
 
 namespace catapult { namespace test {
 

@@ -49,8 +49,8 @@ namespace catapult { namespace timesync {
 			SimpleResultSupplier(std::vector<CommunicationTimestamps>&& communicationTimestampsContainer, size_t numValidNodes)
 					: m_communicationTimestampsContainer(std::move(communicationTimestampsContainer))
 					, m_numValidNodes(numValidNodes)
-					, m_index(0)
-			{}
+					, m_index(0) {
+			}
 
 		public:
 			thread::future<TimeSyncRequestResultPair> operator()(const ionet::Node& node) {
@@ -58,9 +58,7 @@ namespace catapult { namespace timesync {
 					CATAPULT_THROW_RUNTIME_ERROR("out of communication timestamps");
 
 				m_capturedNodes.push_back(node);
-				return m_index < m_numValidNodes
-						? thread::make_ready_future(successResult())
-						: thread::make_ready_future(failureResult());
+				return m_index < m_numValidNodes ? thread::make_ready_future(successResult()) : thread::make_ready_future(failureResult());
 			}
 
 		private:
@@ -83,17 +81,16 @@ namespace catapult { namespace timesync {
 		public:
 			explicit SimpleNetworkTimeSupplier(std::vector<CommunicationTimestamps>&& communicationTimestampsContainer)
 					: m_communicationTimestampsContainer(std::move(communicationTimestampsContainer))
-					, m_index(0)
-			{}
+					, m_index(0) {
+			}
 
 		public:
 			Timestamp operator()() {
 				if (m_index / 2 >= m_communicationTimestampsContainer.size())
 					CATAPULT_THROW_RUNTIME_ERROR("out of network timestamps");
 
-				return 0 == m_index % 2
-						? m_communicationTimestampsContainer[m_index++ / 2].SendTimestamp
-						: m_communicationTimestampsContainer[m_index++ / 2].ReceiveTimestamp;
+				return 0 == m_index % 2 ? m_communicationTimestampsContainer[m_index++ / 2].SendTimestamp
+										: m_communicationTimestampsContainer[m_index++ / 2].ReceiveTimestamp;
 			}
 
 		private:
@@ -108,9 +105,8 @@ namespace catapult { namespace timesync {
 				NodeType nodeType) {
 			std::vector<CommunicationTimestamps> communicationTimestampsContainer;
 			for (const auto& sample : samples) {
-				communicationTimestampsContainer.push_back(NodeType::Local == nodeType
-						? sample.localTimestamps()
-						: sample.remoteTimestamps());
+				communicationTimestampsContainer.push_back(
+						NodeType::Local == nodeType ? sample.localTimestamps() : sample.remoteTimestamps());
 			}
 
 			return communicationTimestampsContainer;
@@ -334,9 +330,7 @@ namespace catapult { namespace timesync {
 
 			// Act:
 			thread::future<TimeSynchronizationSamples> samplesFuture;
-			{
-				samplesFuture = RetrieveSamples(nodes, context.RequestResultFutureSupplier, context.NetworkTimeSupplier);
-			}
+			{ samplesFuture = RetrieveSamples(nodes, context.RequestResultFutureSupplier, context.NetworkTimeSupplier); }
 
 			auto samples = samplesFuture.get();
 

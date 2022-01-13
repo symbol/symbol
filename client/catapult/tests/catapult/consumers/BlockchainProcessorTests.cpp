@@ -47,14 +47,11 @@ namespace catapult { namespace consumers {
 
 		struct BlockHitPredicateParams {
 		public:
-			BlockHitPredicateParams(
-					const model::Block* pParent,
-					const model::Block* pChild,
-					const catapult::GenerationHash& generationHash)
+			BlockHitPredicateParams(const model::Block* pParent, const model::Block* pChild, const catapult::GenerationHash& generationHash)
 					: pParentBlock(pParent)
 					, pChildBlock(pChild)
-					, GenerationHash(generationHash)
-			{}
+					, GenerationHash(generationHash) {
+			}
 
 		public:
 			const model::Block* pParentBlock;
@@ -64,8 +61,10 @@ namespace catapult { namespace consumers {
 
 		class MockBlockHitPredicate : public test::ParamsCapture<BlockHitPredicateParams> {
 		public:
-			MockBlockHitPredicate() : m_numCalls(0), m_trigger(std::numeric_limits<size_t>::max())
-			{}
+			MockBlockHitPredicate()
+					: m_numCalls(0)
+					, m_trigger(std::numeric_limits<size_t>::max()) {
+			}
 
 		public:
 			bool operator()(const model::Block& parent, const model::Block& child, const GenerationHash& generationHash) const {
@@ -91,8 +90,8 @@ namespace catapult { namespace consumers {
 		public:
 			BlockHitPredicateFactoryParams(const cache::ReadOnlyCatapultCache& cache)
 					: IsPassedMarkedCache(test::IsMarkedCache(cache, test::IsMarkedCacheMode::Any))
-					, NumStatistics(cache.sub<cache::BlockStatisticCache>().size())
-			{}
+					, NumStatistics(cache.sub<cache::BlockStatisticCache>().size()) {
+			}
 
 		public:
 			const bool IsPassedMarkedCache;
@@ -102,8 +101,8 @@ namespace catapult { namespace consumers {
 		class MockBlockHitPredicateFactory : public test::ParamsCapture<BlockHitPredicateFactoryParams> {
 		public:
 			MockBlockHitPredicateFactory(const MockBlockHitPredicate& blockHitPredicate)
-					: m_blockHitPredicate(blockHitPredicate)
-			{}
+					: m_blockHitPredicate(blockHitPredicate) {
+			}
 
 		public:
 			BlockHitPredicate operator()(const cache::ReadOnlyCatapultCache& cache) const {
@@ -135,8 +134,8 @@ namespace catapult { namespace consumers {
 					, EntityInfos(entityInfos)
 					, State(state.Cache.dependentState())
 					, IsPassedMarkedCache(test::IsMarkedCache(state.Cache, test::IsMarkedCacheMode::Any))
-					, NumStatistics(state.Cache.sub<cache::BlockStatisticCache>().size())
-			{}
+					, NumStatistics(state.Cache.sub<cache::BlockStatisticCache>().size()) {
+			}
 
 		public:
 			const catapult::Height Height;
@@ -157,8 +156,11 @@ namespace catapult { namespace consumers {
 
 		class MockBatchEntityProcessor : public test::ParamsCapture<BatchEntityProcessorParams> {
 		public:
-			MockBatchEntityProcessor() : m_numCalls(0), m_trigger(0), m_result(ValidationResult::Success)
-			{}
+			MockBatchEntityProcessor()
+					: m_numCalls(0)
+					, m_trigger(0)
+					, m_result(ValidationResult::Success) {
+			}
 
 		public:
 			ValidationResult operator()(
@@ -208,9 +210,7 @@ namespace catapult { namespace consumers {
 			explicit ProcessorTestContext(ReceiptValidationMode receiptValidationMode = ReceiptValidationMode::Disabled)
 					: BlockHitPredicateFactory(BlockHitPredicate) {
 				Processor = CreateBlockchainProcessor(
-						[this](const auto& cache) {
-							return BlockHitPredicateFactory(cache);
-						},
+						[this](const auto& cache) { return BlockHitPredicateFactory(cache); },
 						[this](auto height, auto timestamp, const auto& entities, auto& state) {
 							return BatchEntityProcessor(height, timestamp, entities, state);
 						},
@@ -227,7 +227,7 @@ namespace catapult { namespace consumers {
 			ValidationResult Process(
 					const model::BlockElement& parentBlockElement,
 					BlockElements& elements,
-					const std::function<PrepareAccountMode (Height)>& lookupPrepareAccountMode) {
+					const std::function<PrepareAccountMode(Height)>& lookupPrepareAccountMode) {
 				auto cache = test::CreateCatapultCacheWithMarkerAccount();
 				auto cacheDelta = cache.createDelta();
 
@@ -257,7 +257,7 @@ namespace catapult { namespace consumers {
 			ValidationResult Process(
 					const model::Block& parentBlock,
 					BlockElements& elements,
-					const std::function<PrepareAccountMode (Height)>& lookupPrepareAccountMode) {
+					const std::function<PrepareAccountMode(Height)>& lookupPrepareAccountMode) {
 				// use the real parent block hash to ensure the chain is linked
 				return Process(test::BlockToBlockElement(parentBlock), elements, lookupPrepareAccountMode);
 			}
@@ -294,8 +294,8 @@ namespace catapult { namespace consumers {
 				if (PrepareAccountMode::No_Vrf_Public_Key < prepareAccountMode) {
 					auto accountStateIter = accountStateCacheDelta.find(mainPublicKey);
 					auto vrfPublicKey = PrepareAccountMode::Wrong_Vrf_Public_Key < prepareAccountMode
-							? vrfKeyPair.publicKey()
-							: test::GenerateRandomByteArray<Key>();
+												? vrfKeyPair.publicKey()
+												: test::GenerateRandomByteArray<Key>();
 					accountStateIter.get().SupplementalPublicKeys.vrf().set(vrfPublicKey);
 				}
 
@@ -410,8 +410,8 @@ namespace catapult { namespace consumers {
 		struct ReceiptValidationDisabledTraits {
 			static constexpr auto Mode = ReceiptValidationMode::Disabled;
 
-			static void PrepareReceiptsHashes(BlockElements&)
-			{}
+			static void PrepareReceiptsHashes(BlockElements&) {
+			}
 		};
 
 		struct ReceiptValidationEnabledTraits {
@@ -450,10 +450,16 @@ namespace catapult { namespace consumers {
 	}
 
 #define RECEIPT_VALIDATION_MODE_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_ReceiptDisabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReceiptValidationDisabledTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ReceiptEnabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReceiptValidationEnabledTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ReceiptDisabled) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReceiptValidationDisabledTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_ReceiptEnabled) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReceiptValidationEnabledTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	RECEIPT_VALIDATION_MODE_BASED_TEST(CanProcessSingleBlockWithoutTransactions) {
 		// Arrange:

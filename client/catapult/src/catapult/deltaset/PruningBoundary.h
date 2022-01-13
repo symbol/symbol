@@ -28,12 +28,16 @@ namespace catapult { namespace deltaset {
 	class PruningBoundary {
 	public:
 		/// Creates a null pruning boundary.
-		constexpr PruningBoundary() : m_isSet(false), m_value()
-		{}
+		constexpr PruningBoundary()
+				: m_isSet(false)
+				, m_value() {
+		}
 
 		/// Creates a pruning boundary around \a value.
-		constexpr PruningBoundary(const T& value) : m_isSet(true), m_value(value)
-		{}
+		constexpr PruningBoundary(const T& value)
+				: m_isSet(true)
+				, m_value(value) {
+		}
 
 	public:
 		/// Returns \c true if the pruning boundary value is set.

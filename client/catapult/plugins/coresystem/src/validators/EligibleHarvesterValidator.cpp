@@ -33,8 +33,7 @@ namespace catapult { namespace validators {
 			return ValidationResult::Success;
 
 		cache::ImportanceView view(context.Cache.sub<cache::AccountStateCache>());
-		return view.canHarvest(notification.Harvester, context.Height)
-				? ValidationResult::Success
-				: Failure_Core_Block_Harvester_Ineligible;
+		return view.canHarvest(notification.Harvester, context.Height) ? ValidationResult::Success
+																	   : Failure_Core_Block_Harvester_Ineligible;
 	})
 }}

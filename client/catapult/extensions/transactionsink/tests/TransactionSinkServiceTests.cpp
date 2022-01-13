@@ -37,7 +37,8 @@ namespace catapult { namespace transactionsink {
 
 		class TestContext : public test::ServiceLocatorTestContext<TransactionSinkServiceTraits> {
 		public:
-			explicit TestContext(bool isChainSynced = true) : m_numPushedTransactionElements(0) {
+			explicit TestContext(bool isChainSynced = true)
+					: m_numPushedTransactionElements(0) {
 				// set up hooks (only increment the counters if the input source is correct)
 				auto& hooks = testState().state().hooks();
 				hooks.setChainSyncedPredicate([isChainSynced]() { return isChainSynced; });

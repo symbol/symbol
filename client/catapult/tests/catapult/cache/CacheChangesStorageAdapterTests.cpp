@@ -190,10 +190,12 @@ namespace catapult { namespace cache {
 		{
 			std::set<std::vector<uint8_t>> expectedBuffersSet(subCacheChanges.Added.cbegin(), subCacheChanges.Added.cend());
 			expectedBuffersSet.insert(subCacheChanges.Copied.cbegin(), subCacheChanges.Copied.cend());
-			AssertApplied(expectedBuffersSet, breadcrumbs, 0, 2, {
-				test::BasicDeltasAwareCache::OperationType::Purge,
-				test::BasicDeltasAwareCache::OperationType::Load_Into
-			});
+			AssertApplied(
+					expectedBuffersSet,
+					breadcrumbs,
+					0,
+					2,
+					{ test::BasicDeltasAwareCache::OperationType::Purge, test::BasicDeltasAwareCache::OperationType::Load_Into });
 		}
 
 		// - check removed (breadcrumbs in [3, 5] should be removed)

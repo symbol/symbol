@@ -24,7 +24,9 @@
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
 
-namespace catapult { namespace model { class InflationCalculator; } }
+namespace catapult { namespace model {
+	class InflationCalculator;
+}}
 
 namespace catapult { namespace observers {
 
@@ -38,7 +40,6 @@ namespace catapult { namespace observers {
 
 	/// Observes block notifications and:
 	/// - increases or decreases the supply of the currency mosaic (\a currencyMosaicId) given the inflation \a calculator
-	DECLARE_OBSERVER(MosaicSupplyInflation, model::BlockNotification)(
-			MosaicId currencyMosaicId,
-			const model::InflationCalculator& calculator);
+	DECLARE_OBSERVER(MosaicSupplyInflation, model::BlockNotification)
+	(MosaicId currencyMosaicId, const model::InflationCalculator& calculator);
 }}

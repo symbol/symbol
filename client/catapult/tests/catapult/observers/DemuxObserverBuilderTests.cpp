@@ -92,10 +92,9 @@ namespace catapult { namespace observers {
 		DemuxObserverBuilder builder;
 
 		// Act:
-		builder
-			.add(mocks::CreateTaggedBreadcrumbObserver(2, pContext->Breadcrumbs))
-			.add(mocks::CreateTaggedBreadcrumbObserver2(3, pContext->Breadcrumbs))
-			.add(mocks::CreateTaggedBreadcrumbObserver(4, pContext->Breadcrumbs));
+		builder.add(mocks::CreateTaggedBreadcrumbObserver(2, pContext->Breadcrumbs))
+				.add(mocks::CreateTaggedBreadcrumbObserver2(3, pContext->Breadcrumbs))
+				.add(mocks::CreateTaggedBreadcrumbObserver(4, pContext->Breadcrumbs));
 		pContext->pDemuxObserver = builder.build();
 
 		// Act:
@@ -142,12 +141,7 @@ namespace catapult { namespace observers {
 		pContext->notify(3, NotifyMode::Commit);
 
 		// Assert:
-		std::vector<uint16_t> expectedBreadcrumbs{
-			0x0401, 0x0403,
-			0x0203, 0x0201,
-			0x0503, 0x0501,
-			0x0301, 0x0303
-		};
+		std::vector<uint16_t> expectedBreadcrumbs{ 0x0401, 0x0403, 0x0203, 0x0201, 0x0503, 0x0501, 0x0301, 0x0303 };
 		EXPECT_EQ(8u, pContext->Breadcrumbs.size());
 		EXPECT_EQ(expectedBreadcrumbs, pContext->Breadcrumbs);
 	}
@@ -180,8 +174,8 @@ namespace catapult { namespace observers {
 		public:
 			MockBreadcrumbObserver(const std::string& name, Breadcrumbs& breadcrumbs)
 					: m_name(name)
-					, m_breadcrumbs(breadcrumbs)
-			{}
+					, m_breadcrumbs(breadcrumbs) {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -211,10 +205,9 @@ namespace catapult { namespace observers {
 			auto cacheDelta = cache.createDelta();
 			auto context = test::CreateObserverContext(cacheDelta, Height(123), NotifyMode::Commit);
 
-			builder
-				.add(CreateBreadcrumbObserver<model::AccountPublicKeyNotification>(breadcrumbs, "alpha"))
-				.add(CreateBreadcrumbObserver<model::AccountAddressNotification>(breadcrumbs, "OMEGA"))
-				.add(CreateBreadcrumbObserver(breadcrumbs, "zEtA"));
+			builder.add(CreateBreadcrumbObserver<model::AccountPublicKeyNotification>(breadcrumbs, "alpha"))
+					.add(CreateBreadcrumbObserver<model::AccountAddressNotification>(breadcrumbs, "OMEGA"))
+					.add(CreateBreadcrumbObserver(breadcrumbs, "zEtA"));
 			auto pObserver = builder.build();
 
 			// Act:

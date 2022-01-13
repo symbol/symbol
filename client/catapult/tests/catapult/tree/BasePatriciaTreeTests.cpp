@@ -51,12 +51,8 @@ namespace catapult { namespace tree {
 		}
 
 		Hash256 CalculateRootHashForTreeWithFourNodes() {
-			return CalculateRootHash({
-				{ 0x64'6F'00'00, "verb" },
-				{ 0x64'6F'67'00, "puppy" },
-				{ 0x64'6F'67'65, "coin" },
-				{ 0x68'6F'72'73, "stallion" }
-			});
+			return CalculateRootHash(
+					{ { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "coin" }, { 0x68'6F'72'73, "stallion" } });
 		}
 	}
 
@@ -303,12 +299,8 @@ namespace catapult { namespace tree {
 				tree.commit();
 
 			// Assert:
-			auto expectedRoot = CalculateRootHash({
-				{ 0x64'6F'00'00, "noun" },
-				{ 0x64'6F'67'00, "puppy" },
-				{ 0x68'6F'72'73, "stallion" },
-				{ 0x26'54'32'10, "alpha" }
-			});
+			auto expectedRoot = CalculateRootHash(
+					{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x68'6F'72'73, "stallion" }, { 0x26'54'32'10, "alpha" } });
 
 			EXPECT_EQ(expectedRoot, tree.root());
 			EXPECT_EQ(expectedRoot, pDeltaTree->root());
@@ -338,12 +330,8 @@ namespace catapult { namespace tree {
 		// Assert:
 		auto expectedBaseRoot = CalculateRootHashForTreeWithFourNodes();
 
-		auto expectedDeltaRoot = CalculateRootHash({
-			{ 0x64'6F'00'00, "noun" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x68'6F'72'73, "stallion" },
-			{ 0x26'54'32'10, "alpha" }
-		});
+		auto expectedDeltaRoot = CalculateRootHash(
+				{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x68'6F'72'73, "stallion" }, { 0x26'54'32'10, "alpha" } });
 
 		EXPECT_EQ(expectedBaseRoot, tree.root());
 		EXPECT_EQ(expectedDeltaRoot, pDeltaTree->root());
@@ -563,11 +551,7 @@ namespace catapult { namespace tree {
 		tree.commit();
 
 		// Assert:
-		auto expectedRoot = CalculateRootHash({
-			{ 0x64'6F'00'00, "verb" },
-			{ 0x64'6F'67'65, "coin" },
-			{ 0x68'6F'72'73, "stallion" }
-		});
+		auto expectedRoot = CalculateRootHash({ { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'65, "coin" }, { 0x68'6F'72'73, "stallion" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 		EXPECT_EQ(expectedRoot, pDeltaTree->root());
@@ -586,12 +570,8 @@ namespace catapult { namespace tree {
 		tree.commit();
 
 		// Assert:
-		auto expectedRoot = CalculateRootHash({
-			{ 0x64'6F'00'00, "verb" },
-			{ 0x64'6F'67'00, "kitten" },
-			{ 0x64'6F'67'65, "coin" },
-			{ 0x68'6F'72'73, "stallion" }
-		});
+		auto expectedRoot = CalculateRootHash(
+				{ { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "kitten" }, { 0x64'6F'67'65, "coin" }, { 0x68'6F'72'73, "stallion" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 		EXPECT_EQ(expectedRoot, pDeltaTree->root());
@@ -610,12 +590,8 @@ namespace catapult { namespace tree {
 		tree.commit();
 
 		// Assert:
-		auto expectedRoot = CalculateRootHash({
-			{ 0x64'6F'00'00, "verb" },
-			{ 0x64'6F'67'00, "pony" },
-			{ 0x64'6F'67'65, "coin" },
-			{ 0x68'6F'72'73, "stallion" }
-		});
+		auto expectedRoot = CalculateRootHash(
+				{ { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "pony" }, { 0x64'6F'67'65, "coin" }, { 0x68'6F'72'73, "stallion" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 		EXPECT_EQ(expectedRoot, pDeltaTree->root());
@@ -661,12 +637,8 @@ namespace catapult { namespace tree {
 		tree.commit();
 
 		// Assert:
-		auto expectedRoot = CalculateRootHash({
-			{ 0x64'6F'00'00, "noun" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x68'6F'72'73, "stallion" },
-			{ 0x26'54'32'10, "alpha" }
-		});
+		auto expectedRoot = CalculateRootHash(
+				{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x68'6F'72'73, "stallion" }, { 0x26'54'32'10, "alpha" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 		EXPECT_EQ(expectedRoot, pDeltaTree->root());
@@ -720,12 +692,8 @@ namespace catapult { namespace tree {
 		dataSource.commit();
 
 		// Assert:
-		auto expectedRoot = CalculateRootHash({
-			{ 0x64'6F'00'00, "noun" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x68'6F'72'73, "stallion" },
-			{ 0x26'54'32'10, "alpha" }
-		});
+		auto expectedRoot = CalculateRootHash(
+				{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x68'6F'72'73, "stallion" }, { 0x26'54'32'10, "alpha" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 		EXPECT_EQ(expectedRoot, pDeltaTree->root());

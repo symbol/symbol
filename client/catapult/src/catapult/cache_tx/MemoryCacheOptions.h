@@ -33,8 +33,8 @@ namespace catapult { namespace cache {
 		/// Creates options with custom \a maxResponseSize and \a maxCacheSize.
 		constexpr MemoryCacheOptions(utils::FileSize maxResponseSize, utils::FileSize maxCacheSize)
 				: MaxResponseSize(maxResponseSize)
-				, MaxCacheSize(maxCacheSize)
-		{}
+				, MaxCacheSize(maxCacheSize) {
+		}
 
 	public:
 		/// Maximum response size.

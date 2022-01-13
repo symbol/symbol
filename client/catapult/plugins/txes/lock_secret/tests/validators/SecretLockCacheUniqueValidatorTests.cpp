@@ -19,7 +19,6 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "plugins/txes/lock_shared/tests/validators/LockCacheUniqueValidatorTests.h"
 #include "tests/test/SecretLockNotificationsTestUtils.h"
 
@@ -52,9 +51,7 @@ namespace catapult { namespace validators {
 		struct CustomSecretCacheTraits : public SecretCacheTraits {
 		public:
 			static auto CreateValidator() {
-				return CreateSecretLockCacheUniqueValidator(std::unordered_set<Height, utils::BaseValueHasher<Height>>{
-					Height(10)
-				});
+				return CreateSecretLockCacheUniqueValidator(std::unordered_set<Height, utils::BaseValueHasher<Height>>{ Height(10) });
 			}
 		};
 

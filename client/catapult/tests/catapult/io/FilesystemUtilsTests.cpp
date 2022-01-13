@@ -182,4 +182,3 @@ namespace catapult { namespace io {
 
 	// endregion
 }}
-

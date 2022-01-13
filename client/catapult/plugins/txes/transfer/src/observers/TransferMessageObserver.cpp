@@ -32,25 +32,23 @@ namespace catapult { namespace observers {
 		using Notification = model::TransferMessageNotification;
 	}
 
-	DECLARE_OBSERVER(TransferMessage, Notification)(
-			uint64_t marker,
-			const Address& recipient,
-			const config::CatapultDirectory& directory) {
-		return MAKE_OBSERVER(TransferMessage, Notification, ([marker, recipient, directory](
-				const Notification& notification,
-				ObserverContext& context) {
-			if (notification.MessageSize <= Marker_Size || marker != reinterpret_cast<const uint64_t&>(*notification.MessagePtr))
-				return;
+	DECLARE_OBSERVER(TransferMessage, Notification)(uint64_t marker, const Address& recipient, const config::CatapultDirectory& directory) {
+		return MAKE_OBSERVER(
+				TransferMessage,
+				Notification,
+				([marker, recipient, directory](const Notification& notification, ObserverContext& context) {
+					if (notification.MessageSize <= Marker_Size || marker != reinterpret_cast<const uint64_t&>(*notification.MessagePtr))
+						return;
 
-			if (recipient != context.Resolvers.resolve(notification.Recipient))
-				return;
+					if (recipient != context.Resolvers.resolve(notification.Recipient))
+						return;
 
-			io::FileQueueWriter writer(directory.str());
-			io::Write8(writer, NotifyMode::Commit == context.Mode ? 0 : 1);
-			io::Write(writer, context.Height);
-			writer.write(notification.SenderPublicKey);
-			writer.write({ notification.MessagePtr + Marker_Size, notification.MessageSize - Marker_Size });
-			writer.flush();
-		}));
+					io::FileQueueWriter writer(directory.str());
+					io::Write8(writer, NotifyMode::Commit == context.Mode ? 0 : 1);
+					io::Write(writer, context.Height);
+					writer.write(notification.SenderPublicKey);
+					writer.write({ notification.MessagePtr + Marker_Size, notification.MessageSize - Marker_Size });
+					writer.flush();
+				}));
 	}
 }}

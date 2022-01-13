@@ -52,8 +52,8 @@ namespace catapult { namespace cache {
 			/// Creates base sets around \a config.
 			explicit BaseSets(const CacheConfiguration& config)
 					: CacheDatabaseMixin(config, { "default" }, PruningMode)
-					, Primary(GetContainerMode(config), database(), 0)
-			{}
+					, Primary(GetContainerMode(config), database(), 0) {
+			}
 
 		public:
 			typename TPrimaryTypes::BaseSetType Primary;
@@ -102,8 +102,8 @@ namespace catapult { namespace cache {
 			explicit BaseSets(const CacheConfiguration& config)
 					: CacheDatabaseMixin(config, { "default" })
 					, Primary(GetContainerMode(config), database(), 0)
-					, PatriciaTree(hasPatriciaTreeSupport(), database(), 1)
-			{}
+					, PatriciaTree(hasPatriciaTreeSupport(), database(), 1) {
+			}
 
 		public:
 			typename TPrimaryTypes::BaseSetType Primary;

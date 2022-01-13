@@ -25,9 +25,7 @@
 namespace catapult { namespace tools {
 
 	void AddResourcesOption(OptionsBuilder& optionsBuilder) {
-		optionsBuilder("resources,r",
-				OptionsValue<std::string>()->default_value(".."),
-				"path to the resources directory");
+		optionsBuilder("resources,r", OptionsValue<std::string>()->default_value(".."), "path to the resources directory");
 	}
 
 	std::string GetResourcesOptionValue(const Options& options) {

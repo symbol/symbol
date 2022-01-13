@@ -30,20 +30,18 @@ namespace catapult { namespace addressextraction {
 	namespace {
 		class TestContext : public test::AddressExtractionSubscriberTestContext<io::BlockChangeSubscriber> {
 		public:
-			TestContext() : AddressExtractionSubscriberTestContext(CreateAddressExtractionBlockChangeSubscriber)
-			{}
+			TestContext()
+					: AddressExtractionSubscriberTestContext(CreateAddressExtractionBlockChangeSubscriber) {
+			}
 		};
 	}
 
 	TEST(TEST_CLASS, NotifyBlockExtractsTransactionAddresses) {
-		TestContext().assertBlockElementExtractions([](auto& subscriber, const auto& blockElement) {
-			subscriber.notifyBlock(blockElement);
-		});
+		TestContext().assertBlockElementExtractions(
+				[](auto& subscriber, const auto& blockElement) { subscriber.notifyBlock(blockElement); });
 	}
 
 	TEST(TEST_CLASS, NotifyDropBlocksAfterDoesNotExtractTransactionAddresses) {
-		TestContext().assertNoExtractions([](auto& subscriber) {
-			subscriber.notifyDropBlocksAfter(Height(123));
-		});
+		TestContext().assertNoExtractions([](auto& subscriber) { subscriber.notifyDropBlocksAfter(Height(123)); });
 	}
 }}

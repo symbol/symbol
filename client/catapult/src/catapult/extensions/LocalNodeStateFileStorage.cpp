@@ -166,8 +166,9 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	LocalNodeStateSerializer::LocalNodeStateSerializer(const config::CatapultDirectory& directory) : m_directory(directory)
-	{}
+	LocalNodeStateSerializer::LocalNodeStateSerializer(const config::CatapultDirectory& directory)
+			: m_directory(directory) {
+	}
 
 	void LocalNodeStateSerializer::save(const cache::CatapultCache& cache, const model::ChainScore& score) const {
 		auto cacheStorages = cache.storages();

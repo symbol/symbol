@@ -27,8 +27,9 @@
 
 namespace catapult { namespace test {
 
-	RemoteAcceptServer::RemoteAcceptServer() : RemoteAcceptServer(GenerateKeyPair())
-	{}
+	RemoteAcceptServer::RemoteAcceptServer()
+			: RemoteAcceptServer(GenerateKeyPair()) {
+	}
 
 	RemoteAcceptServer::RemoteAcceptServer(const crypto::KeyPair& caKeyPair)
 			: m_directoryGuard("cert_ras")

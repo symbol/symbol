@@ -66,12 +66,10 @@ namespace catapult { namespace validators {
 		template<typename TNotification>
 		class ConditionalValidator : public NotificationValidatorT<model::Notification, TArgs...> {
 		public:
-			ConditionalValidator(
-					NotificationValidatorPointerT<TNotification>&& pValidator,
-					const NotificationValidatorPredicate& predicate)
+			ConditionalValidator(NotificationValidatorPointerT<TNotification>&& pValidator, const NotificationValidatorPredicate& predicate)
 					: m_pValidator(std::move(pValidator))
-					, m_predicate(predicate)
-			{}
+					, m_predicate(predicate) {
+			}
 
 		public:
 			const std::string& name() const override {

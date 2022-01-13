@@ -25,8 +25,8 @@
 #include "tests/test/core/HashTestUtils.h"
 #include "tests/TestHarness.h"
 
-using catapult::model::ChainScore;
 using catapult::mocks::MockChainApi;
+using catapult::model::ChainScore;
 
 namespace catapult { namespace chain {
 
@@ -46,8 +46,8 @@ namespace catapult { namespace chain {
 					: MockChainApi(score, height)
 					, m_hashes(test::GenerateRandomDataVector<Hash256>(height.unwrap()))
 					, m_maxHashesBatchSize(std::numeric_limits<size_t>::max())
-					, m_nextScoreIndex(0)
-			{}
+					, m_nextScoreIndex(0) {
+			}
 
 		public:
 			void syncHashes(const CompareHashesMockChainApi& source, int32_t commonBlockDepth, uint32_t numAddtionalHashes) {
@@ -270,10 +270,16 @@ namespace catapult { namespace chain {
 	}
 
 #define HASH_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_OneBatch) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OneBatchTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_MultiBatch) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultiBatchTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_OneBatch) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OneBatchTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_MultiBatch) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultiBatchTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -402,21 +408,27 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScore_MultiBatch) {
-		AssertRemoteIsNotSynced(Height(1), 100, {
-			{ Height(1), 20 },
-			{ Height(56), 20 }, // (1 + 112) / 2
-			{ Height(84), 20 }, // (56 + 112) / 2
-			{ Height(98), 20 } // (84 + 112) / 2
-		});
+		AssertRemoteIsNotSynced(
+				Height(1),
+				100,
+				{
+						{ Height(1), 20 },
+						{ Height(56), 20 }, // (1 + 112) / 2
+						{ Height(84), 20 }, // (56 + 112) / 2
+						{ Height(98), 20 } // (84 + 112) / 2
+				});
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScoreAndLastFinalizedBlockIsNotNemesis_MultiBatch) {
-		AssertRemoteIsNotSynced(Height(7), 100, {
-			{ Height(7), 20 },
-			{ Height(62), 20 }, // (7 + 118) / 2
-			{ Height(90), 20 }, // (62 + 118) / 2
-			{ Height(104), 20 } // (90 + 118) / 2
-		});
+		AssertRemoteIsNotSynced(
+				Height(7),
+				100,
+				{
+						{ Height(7), 20 },
+						{ Height(62), 20 }, // (7 + 118) / 2
+						{ Height(90), 20 }, // (62 + 118) / 2
+						{ Height(104), 20 } // (90 + 118) / 2
+				});
 	}
 
 	// endregion
@@ -596,7 +608,7 @@ namespace catapult { namespace chain {
 		auto localHashes = test::GenerateRandomHashes(3);
 		auto remoteHashes = test::GenerateRandomHashes(3);
 		*--remoteHashes.end() = *--localHashes.cend();
-		*----remoteHashes.end() = *----localHashes.cend();
+		*-- --remoteHashes.end() = *-- --localHashes.cend();
 
 		MockChainApi local(ChainScore(10), Height(3));
 		local.setHashes(Height(1), localHashes);
@@ -681,10 +693,9 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(0u, result.ForkDepth);
 
 			// - check requests (an additional request is needed to prove remote has more hashes than local)
-			auto expectedHashesFromRequests = std::vector<std::pair<Height, uint32_t>>{
-				{ Finalized_Height, Batch_Size },
-				{ Finalized_Height + Height(Batch_Size - 2), Batch_Size }
-			};
+			auto expectedHashesFromRequests =
+					std::vector<std::pair<Height, uint32_t>>{ { Finalized_Height, Batch_Size },
+															  { Finalized_Height + Height(Batch_Size - 2), Batch_Size } };
 			EXPECT_EQ(expectedHashesFromRequests, local.hashesFromRequests());
 			EXPECT_EQ(expectedHashesFromRequests, remote.hashesFromRequests());
 		}
@@ -749,37 +760,45 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedDeepForkScenario1_MultiBatch) {
-		AssertRemoteIsNotSyncedDeepFork(90, {
-			{ Height(7), 20 },
-			{ Height(62), 20 }, // (7 + 118) / 2
-			{ Height(90), 20 } // (62 + 118) / 2
-		});
+		AssertRemoteIsNotSyncedDeepFork(
+				90,
+				{
+						{ Height(7), 20 },
+						{ Height(62), 20 }, // (7 + 118) / 2
+						{ Height(90), 20 } // (62 + 118) / 2
+				});
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedDeepForkScenario2_MultiBatch) {
-		AssertRemoteIsNotSyncedDeepFork(89, {
-			{ Height(7), 20 },
-			{ Height(62), 20 }, // (7 + 118) / 2
-			{ Height(90), 20 }, // (62 + 118) / 2
-			{ Height(76), 20 } // (62 + 90) / 2
-		});
+		AssertRemoteIsNotSyncedDeepFork(
+				89,
+				{
+						{ Height(7), 20 },
+						{ Height(62), 20 }, // (7 + 118) / 2
+						{ Height(90), 20 }, // (62 + 118) / 2
+						{ Height(76), 20 } // (62 + 90) / 2
+				});
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedDeepForkScenario3_MultiBatch) {
-		AssertRemoteIsNotSyncedDeepFork(34, {
-			{ Height(7), 20 },
-			{ Height(62), 20 }, // (7 + 118) / 2
-			{ Height(34), 20 } // (7 + 62) / 2
-		});
+		AssertRemoteIsNotSyncedDeepFork(
+				34,
+				{
+						{ Height(7), 20 },
+						{ Height(62), 20 }, // (7 + 118) / 2
+						{ Height(34), 20 } // (7 + 62) / 2
+				});
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedDeepForkScenario4_MultiBatch) {
-		AssertRemoteIsNotSyncedDeepFork(54, {
-			{ Height(7), 20 },
-			{ Height(62), 20 }, // (7 + 118) / 2
-			{ Height(34), 20 }, // (7 + 62) / 2
-			{ Height(48), 20 } // (34 + 62) / 2
-		});
+		AssertRemoteIsNotSyncedDeepFork(
+				54,
+				{
+						{ Height(7), 20 },
+						{ Height(62), 20 }, // (7 + 118) / 2
+						{ Height(34), 20 }, // (7 + 62) / 2
+						{ Height(48), 20 } // (34 + 62) / 2
+				});
 	}
 
 	// endregion
@@ -803,15 +822,10 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(2u, result.ForkDepth);
 
 		// - check requests
-		auto expectedHashesFromRequests = std::vector<std::pair<Height, uint32_t>>{
-			{ Height(1), 1210 },
-			{ Height(2131), 1210 },
-			{ Height(3196), 1210 },
-			{ Height(3728), 1210 },
-			{ Height(3994), 1210 },
-			{ Height(4127), 1210 },
-			{ Height(4194), 1210 }
-		};
+		auto expectedHashesFromRequests =
+				std::vector<std::pair<Height, uint32_t>>{ { Height(1), 1210 },	  { Height(2131), 1210 }, { Height(3196), 1210 },
+														  { Height(3728), 1210 }, { Height(3994), 1210 }, { Height(4127), 1210 },
+														  { Height(4194), 1210 } };
 		EXPECT_EQ(expectedHashesFromRequests, local.hashesFromRequests());
 		EXPECT_EQ(expectedHashesFromRequests, remote.hashesFromRequests());
 	}

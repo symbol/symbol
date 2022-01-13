@@ -28,7 +28,7 @@ namespace catapult { namespace crypto {
 	namespace {
 		void InsertInWindow(std::vector<Hash256>& hashes, Hash256& hash, size_t index, size_t windowSize) {
 			// shift all hashes after index within the window
-			for (auto i = std::min(hashes.size(), windowSize) - 1; i > index ; --i)
+			for (auto i = std::min(hashes.size(), windowSize) - 1; i > index; --i)
 				hashes[i] = hashes[i - 1];
 
 			// update the new hash

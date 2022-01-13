@@ -30,8 +30,8 @@ namespace catapult { namespace chain {
 		public:
 			PollingTimer(Timestamp startTime, const utils::TimeSpan& stepDuration)
 					: m_startTime(startTime)
-					, m_stepDuration(stepDuration)
-			{}
+					, m_stepDuration(stepDuration) {
+			}
 
 		public:
 			bool isElapsed(Timestamp time, uint16_t numSteps) const {
@@ -84,10 +84,9 @@ namespace catapult { namespace chain {
 
 					auto estimate = messageAggregatorView.findEstimate(m_round - FinalizationPoint(1));
 					if (!roundContext.isDescendant(estimate, bestPrevoteResultPair.first)) {
-						CATAPULT_LOG(trace)
-								<< "cannot send precommit - not descendant"
-								<< std::endl << "      estimate: " << estimate
-								<< std::endl << "  best prevote: " << bestPrevoteResultPair.first;
+						CATAPULT_LOG(trace) << "cannot send precommit - not descendant" << std::endl
+											<< "      estimate: " << estimate << std::endl
+											<< "  best prevote: " << bestPrevoteResultPair.first;
 						return false;
 					}
 

@@ -34,8 +34,8 @@ namespace catapult { namespace cache {
 					const CacheConfiguration& config,
 					const std::vector<std::string>& columnFamilyNames,
 					FilterPruningMode pruningMode = FilterPruningMode::Disabled)
-					: CacheDatabaseMixin(config, columnFamilyNames, pruningMode)
-			{}
+					: CacheDatabaseMixin(config, columnFamilyNames, pruningMode) {
+			}
 
 		public:
 			bool hasPatriciaTreeSupport() const {

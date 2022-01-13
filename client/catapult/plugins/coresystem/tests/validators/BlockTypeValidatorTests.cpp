@@ -43,20 +43,16 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "importanceGrouping = " << importanceGrouping
-					<< ", blockType = " << blockType
-					<< ", blockHeight = " << blockHeight;
+			EXPECT_EQ(expectedResult, result) << "importanceGrouping = " << importanceGrouping << ", blockType = " << blockType
+											  << ", blockHeight = " << blockHeight;
 		}
 
 		void AssertValidationResultMultiple(model::EntityType successBlockType, uint64_t importanceGrouping, Height blockHeight) {
 			// Arrange:
-			auto blockTypes = std::initializer_list<model::EntityType>{
-				model::Entity_Type_Block_Nemesis,
-				model::Entity_Type_Block_Normal,
-				model::Entity_Type_Block_Importance,
-				model::Entity_Type_Voting_Key_Link
-			};
+			auto blockTypes = std::initializer_list<model::EntityType>{ model::Entity_Type_Block_Nemesis,
+																		model::Entity_Type_Block_Normal,
+																		model::Entity_Type_Block_Importance,
+																		model::Entity_Type_Voting_Key_Link };
 
 			for (auto blockType : blockTypes) {
 				auto expectedResult = successBlockType == blockType ? ValidationResult::Success : Failure_Core_Unexpected_Block_Type;

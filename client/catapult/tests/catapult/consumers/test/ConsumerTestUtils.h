@@ -37,8 +37,8 @@ namespace catapult { namespace test {
 		template<typename TElementsAccessor>
 		BasicElementsInputFacade(disruptor::ConsumerInput&& input, TElementsAccessor accessor)
 				: m_input(std::move(input))
-				, m_elements(accessor(m_input))
-		{}
+				, m_elements(accessor(m_input)) {
+		}
 
 	public:
 		/// Casts this to the underlying elements.
@@ -84,10 +84,8 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a facade around \a input.
 		explicit BlockElementsInputFacade(disruptor::ConsumerInput&& input)
-				: BaseType(std::move(input), [](auto& movedInput) -> disruptor::BlockElements& {
-					return movedInput.blocks();
-				})
-		{}
+				: BaseType(std::move(input), [](auto& movedInput) -> disruptor::BlockElements& { return movedInput.blocks(); }) {
+		}
 	};
 
 	/// Creates \a numBlocks block elements.
@@ -110,8 +108,8 @@ namespace catapult { namespace test {
 		explicit TransactionElementsInputFacade(disruptor::ConsumerInput&& input)
 				: BaseType(std::move(input), [](auto& movedInput) -> disruptor::TransactionElements& {
 					return movedInput.transactions();
-				})
-		{}
+				}) {
+		}
 	};
 
 	/// Creates \a numTransactions transaction elements.

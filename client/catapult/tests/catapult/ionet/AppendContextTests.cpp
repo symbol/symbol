@@ -37,9 +37,7 @@ namespace catapult { namespace ionet {
 
 			// Assert:
 			EXPECT_EQ(expectedSize, buffer.size())
-					<< "initialSize: " << initialSize
-					<< ", initialCapacity: " << initialCapacity
-					<< ", appendSize: " << appendSize;
+					<< "initialSize: " << initialSize << ", initialCapacity: " << initialCapacity << ", appendSize: " << appendSize;
 		}
 	}
 
@@ -147,9 +145,7 @@ namespace catapult { namespace ionet {
 		ByteBuffer buffer(12);
 
 		// Act:
-		{
-			AppendContext context(buffer, 100);
-		}
+		{ AppendContext context(buffer, 100); }
 
 		// Assert:
 		EXPECT_EQ(12u, buffer.size());

@@ -169,13 +169,11 @@ namespace catapult { namespace chain {
 
 	BlockHitPredicate::BlockHitPredicate(const model::BlockchainConfiguration& config, const ImportanceLookupFunc& importanceLookup)
 			: m_config(config)
-			, m_importanceLookup(importanceLookup)
-	{}
+			, m_importanceLookup(importanceLookup) {
+	}
 
-	bool BlockHitPredicate::operator()(
-			const model::Block& parentBlock,
-			const model::Block& block,
-			const GenerationHash& generationHash) const {
+	bool BlockHitPredicate::operator()(const model::Block& parentBlock, const model::Block& block, const GenerationHash& generationHash)
+			const {
 		auto importance = m_importanceLookup(block.SignerPublicKey, block.Height);
 		auto hit = CalculateHit(generationHash);
 		auto target = CalculateTarget(parentBlock, block, importance, m_config);

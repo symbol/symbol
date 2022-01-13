@@ -32,13 +32,11 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		static void Stream(bson_stream::document& builder, const TTransaction& transaction) {
-			builder
-					<< "mosaicId" << ToInt64(transaction.MosaicId)
-					<< "restrictionKey" << static_cast<int64_t>(transaction.RestrictionKey)
-					<< "targetAddress" << ToBinary(transaction.TargetAddress)
-					<< "previousRestrictionValue" << static_cast<int64_t>(transaction.PreviousRestrictionValue)
-					<< "newRestrictionValue" << static_cast<int64_t>(transaction.NewRestrictionValue);
-			}
+			builder << "mosaicId" << ToInt64(transaction.MosaicId) << "restrictionKey" << static_cast<int64_t>(transaction.RestrictionKey)
+					<< "targetAddress" << ToBinary(transaction.TargetAddress) << "previousRestrictionValue"
+					<< static_cast<int64_t>(transaction.PreviousRestrictionValue) << "newRestrictionValue"
+					<< static_cast<int64_t>(transaction.NewRestrictionValue);
+		}
 	}
 
 	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(MosaicAddressRestriction, Stream)

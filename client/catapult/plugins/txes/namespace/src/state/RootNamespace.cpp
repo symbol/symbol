@@ -25,8 +25,8 @@
 namespace catapult { namespace state {
 
 	RootNamespace::RootNamespace(NamespaceId id, const Address& ownerAddress, const NamespaceLifetime& lifetime)
-			: RootNamespace(id, ownerAddress, lifetime, std::make_shared<Children>())
-	{}
+			: RootNamespace(id, ownerAddress, lifetime, std::make_shared<Children>()) {
+	}
 
 	RootNamespace::RootNamespace(
 			NamespaceId id,
@@ -36,8 +36,8 @@ namespace catapult { namespace state {
 			: m_id(id)
 			, m_ownerAddress(ownerAddress)
 			, m_lifetime(lifetime)
-			, m_pChildren(pChildren)
-	{}
+			, m_pChildren(pChildren) {
+	}
 
 	NamespaceId RootNamespace::id() const {
 		return m_id;

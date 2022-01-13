@@ -29,18 +29,15 @@ namespace catapult { namespace mocks {
 	/// and throw exceptions at specified entry points.
 	class MockFinalizationApi : public api::RemoteFinalizationApi {
 	public:
-		enum class EntryPoint {
-			None,
-			Messages
-		};
+		enum class EntryPoint { None, Messages };
 
 	public:
 		/// Creates a finalization api around a range of messages (\a messageRange).
 		explicit MockFinalizationApi(const model::FinalizationMessageRange& messageRange)
 				: api::RemoteFinalizationApi({ test::GenerateRandomByteArray<Key>(), "fake-host-from-mock-finalization-api" })
 				, m_messageRange(model::FinalizationMessageRange::CopyRange(messageRange))
-				, m_errorEntryPoint(EntryPoint::None)
-		{}
+				, m_errorEntryPoint(EntryPoint::None) {
+		}
 
 	public:
 		/// Sets the entry point where the exception should occur to \a entryPoint.

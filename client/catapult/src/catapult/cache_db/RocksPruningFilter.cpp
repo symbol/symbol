@@ -29,8 +29,8 @@ namespace catapult { namespace cache {
 	public:
 		RocksPruningFilterImpl()
 				: m_compactionBoundary(0)
-				, m_numRemoved(0)
-		{}
+				, m_numRemoved(0) {
+		}
 
 	public:
 		const char* Name() const override {

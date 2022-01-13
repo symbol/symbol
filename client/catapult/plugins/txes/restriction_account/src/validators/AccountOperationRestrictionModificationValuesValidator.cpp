@@ -35,7 +35,7 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATELESS_VALIDATOR(AccountOperationRestrictionModificationValues, [](const Notification& notification) {
 		return AreAllAccountRestrictionValuesValid(notification.RestrictionAdditionsPtr, notification.RestrictionAdditionsCount)
-				? ValidationResult::Success
-				: Failure_RestrictionAccount_Invalid_Value;
+					   ? ValidationResult::Success
+					   : Failure_RestrictionAccount_Invalid_Value;
 	})
 }}

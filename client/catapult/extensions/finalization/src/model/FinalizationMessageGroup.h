@@ -39,9 +39,7 @@ namespace catapult { namespace model {
 		template<typename T>
 		static auto* SignaturesPtrT(T& messageGroup) {
 			auto* pPayloadStart = PayloadStart(messageGroup);
-			return messageGroup.SignaturesCount && pPayloadStart
-					? pPayloadStart + messageGroup.HashesCount * Hash256::Size
-					: nullptr;
+			return messageGroup.SignaturesCount && pPayloadStart ? pPayloadStart + messageGroup.HashesCount * Hash256::Size : nullptr;
 		}
 
 	public:
@@ -66,9 +64,8 @@ namespace catapult { namespace model {
 	public:
 		/// Calculates the real size of finalization message group (\a messageGroup).
 		static constexpr uint64_t CalculateRealSize(const FinalizationMessageGroup& messageGroup) noexcept {
-			return sizeof(FinalizationMessageGroup)
-					+ messageGroup.HashesCount * Hash256::Size
-					+ messageGroup.SignaturesCount * sizeof(crypto::BmTreeSignature);
+			return sizeof(FinalizationMessageGroup) + messageGroup.HashesCount * Hash256::Size
+				   + messageGroup.SignaturesCount * sizeof(crypto::BmTreeSignature);
 		}
 	};
 

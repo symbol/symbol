@@ -56,9 +56,8 @@ namespace catapult { namespace harvesting {
 			// 1. check height consistency
 			auto pUtFacade = utFacadeFactory.create(blockHeader.Timestamp);
 			if (blockHeader.Height != pUtFacade->height()) {
-				CATAPULT_LOG(debug)
-						<< "bypassing state hash calculation because cache height (" << pUtFacade->height() - Height(1)
-						<< ") is inconsistent with block height (" << blockHeader.Height << ")";
+				CATAPULT_LOG(debug) << "bypassing state hash calculation because cache height (" << pUtFacade->height() - Height(1)
+									<< ") is inconsistent with block height (" << blockHeader.Height << ")";
 				return std::unique_ptr<model::Block>();
 			}
 

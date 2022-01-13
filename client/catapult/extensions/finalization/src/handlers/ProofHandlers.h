@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/ionet/PacketHandlers.h"
 
-namespace catapult { namespace io { class ProofStorageCache; } }
+namespace catapult { namespace io {
+	class ProofStorageCache;
+}}
 
 namespace catapult { namespace handlers {
 

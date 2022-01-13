@@ -56,9 +56,7 @@ namespace catapult { namespace thread {
 
 		shared_state<std::unique_ptr<int>> state;
 		state.set_value(std::move(pInt));
-		state.set_continuation([&pIntRawFromContinuation](const auto& pState) {
-			pIntRawFromContinuation = pState->get();
-		});
+		state.set_continuation([&pIntRawFromContinuation](const auto& pState) { pIntRawFromContinuation = pState->get(); });
 
 		// Act:
 		state.get();
@@ -140,12 +138,22 @@ namespace catapult { namespace thread {
 #define SHARED_STATE_TEST(TEST_NAME) TEST(TEST_CLASS, SharedState_##TEST_NAME)
 
 #define SHARED_STATE_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	SHARED_STATE_TEST(TEST_NAME##_Value) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); } \
-	SHARED_STATE_TEST(TEST_NAME##_Value_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyValueTraits>(); } \
-	SHARED_STATE_TEST(TEST_NAME##_Exception) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExceptionTraits>(); } \
-	SHARED_STATE_TEST(TEST_NAME##_Exception_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyExceptionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	SHARED_STATE_TEST(TEST_NAME##_Value) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); \
+	} \
+	SHARED_STATE_TEST(TEST_NAME##_Value_MoveOnly) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyValueTraits>(); \
+	} \
+	SHARED_STATE_TEST(TEST_NAME##_Exception) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExceptionTraits>(); \
+	} \
+	SHARED_STATE_TEST(TEST_NAME##_Exception_MoveOnly) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyExceptionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SHARED_STATE_TRAITS_BASED_TEST(CanGetValueAfterValueIsSet) {
 		// Arrange: create a state and set a value on it

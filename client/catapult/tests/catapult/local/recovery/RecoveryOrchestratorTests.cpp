@@ -151,10 +151,7 @@ namespace catapult { namespace local {
 
 		// region test context
 
-		enum class Flags : uint8_t {
-			Default = 0,
-			Cache_Database_Enabled = 1
-		};
+		enum class Flags : uint8_t { Default = 0, Cache_Database_Enabled = 1 };
 
 		bool HasFlag(Flags testedFlag, Flags value) {
 			return utils::to_underlying_type(testedFlag) == (utils::to_underlying_type(testedFlag) & utils::to_underlying_type(value));
@@ -163,8 +160,8 @@ namespace catapult { namespace local {
 		class RecoveryOrchestratorTestContext : public test::MessageIngestionTestContext {
 		public:
 			RecoveryOrchestratorTestContext()
-					: RecoveryOrchestratorTestContext(Flags::Cache_Database_Enabled, Height(1), Height(0))
-			{}
+					: RecoveryOrchestratorTestContext(Flags::Cache_Database_Enabled, Height(1), Height(0)) {
+			}
 
 			RecoveryOrchestratorTestContext(Flags flags, Height storageHeight, Height cacheHeight)
 					: m_useCacheDatabaseStorage(HasFlag(Flags::Cache_Database_Enabled, flags))
@@ -283,9 +280,8 @@ namespace catapult { namespace local {
 				if (m_enableBlockHeightsObserver) {
 					pBootstrapper->pluginManager().addObserverHook([this](auto& builder) {
 						using ObserverPointer = observers::NotificationObserverPointerT<model::Notification>;
-						ObserverPointer pObserver = std::make_unique<const mocks::MockBlockHeightCapturingNotificationObserver>(
-								m_blockHeights,
-								m_blockStates);
+						ObserverPointer pObserver =
+								std::make_unique<const mocks::MockBlockHeightCapturingNotificationObserver>(m_blockHeights, m_blockStates);
 						builder.add(std::move(pObserver));
 					});
 				}
@@ -471,22 +467,29 @@ namespace catapult { namespace local {
 	}
 
 #define SUBSCRIBER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Finalization) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FinalizationTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_StateChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Finalization) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FinalizationTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_StateChange) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
 	// region subscriber recovery (ingestion) - tests
 
 	namespace {
-		enum class IngestMessagesMode {
-			Broker,
-			Server
-		};
+		enum class IngestMessagesMode { Broker, Server };
 
 		template<typename TTraits>
 		void SetMode(const RecoveryOrchestratorTestContext& context, IngestMessagesMode ingestMessagesMode) {
@@ -545,8 +548,8 @@ namespace catapult { namespace local {
 					, m_transactionSignerKeyPair(crypto::KeyPair::FromString(test::Test_Network_Private_Keys[0]))
 					// m_transactionRecipientAddress and m_beneficiarySinkAddress are fixed accounts for easier debugging
 					, m_transactionRecipientAddress(model::StringToAddress("SDJKL7LWR4EKR3PFRHZJJ5FKSQJNGNO5GQFGJWY"))
-					, m_beneficiarySinkAddress(model::StringToAddress("SDIMYHBW6FKLYUKFALFFDHNQIFXCBZL2VRDBSAQ"))
-			{}
+					, m_beneficiarySinkAddress(model::StringToAddress("SDIMYHBW6FKLYUKFALFFDHNQIFXCBZL2VRDBSAQ")) {
+			}
 
 		public:
 			void prepareBlockStorage(const std::string& directory) {
@@ -667,9 +670,8 @@ namespace catapult { namespace local {
 
 		void PrepareSupplementalDataFile(const config::CatapultDirectory& directory) {
 			std::filesystem::create_directories(directory.path());
-			auto supplementalDataStream = io::BufferedOutputFileStream(io::RawFile(
-					directory.file("supplemental.dat"),
-					io::OpenMode::Read_Write));
+			auto supplementalDataStream =
+					io::BufferedOutputFileStream(io::RawFile(directory.file("supplemental.dat"), io::OpenMode::Read_Write));
 
 			cache::SupplementalData supplementalData;
 			supplementalData.State.LastRecalculationHeight = model::ImportanceHeight(1);
@@ -736,20 +738,14 @@ namespace catapult { namespace local {
 
 		// Assert: nemesis was executed and then all blocks were undone and reapplied
 		//        (this reapplication ensures consistent state trees at every height across all nodes)
-		auto expectedHeights = std::vector<Height>{
-			Height(1),
-			Height(7), Height(6), Height(5), Height(4), Height(3), Height(2),
-			Height(2), Height(3), Height(4), Height(5), Height(6), Height(7)
-		};
+		auto expectedHeights = std::vector<Height>{ Height(1), Height(7), Height(6), Height(5), Height(4), Height(3), Height(2),
+													Height(2), Height(3), Height(4), Height(5), Height(6), Height(7) };
 		EXPECT_EQ(expectedHeights, result.BlockHeights);
 
 		// - first state corresponds to nemesis, which is processed *BEFORE* loading supplemental data
 		// - catapult state is loaded from supplemental data (using NumTotalTransactions as sentinel)
-		auto expectedTransactionCounts = std::vector<uint64_t>{
-			0,
-			998876, 998875, 998874, 998873, 998872, 998871,
-			998871, 998872, 998873, 998874, 998875, 998876
-		};
+		auto expectedTransactionCounts =
+				std::vector<uint64_t>{ 0, 998876, 998875, 998874, 998873, 998872, 998871, 998871, 998872, 998873, 998874, 998875, 998876 };
 		EXPECT_EQ(expectedTransactionCounts, result.TransactionCounts);
 
 		// - check hashes

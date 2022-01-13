@@ -27,8 +27,9 @@ namespace catapult { namespace zeromq {
 	namespace {
 		class ZeroMqUtChangeSubscriber : public cache::UtChangeSubscriber {
 		public:
-			explicit ZeroMqUtChangeSubscriber(ZeroMqEntityPublisher& publisher) : m_publisher(publisher)
-			{}
+			explicit ZeroMqUtChangeSubscriber(ZeroMqEntityPublisher& publisher)
+					: m_publisher(publisher) {
+			}
 
 		public:
 			void notifyAdds(const TransactionInfos& transactionInfos) override {

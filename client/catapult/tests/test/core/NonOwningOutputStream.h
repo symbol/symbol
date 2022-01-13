@@ -28,8 +28,9 @@ namespace catapult { namespace test {
 	class NonOwningOutputStream : public io::OutputStream {
 	public:
 		/// Creates non-owning output stream around \a outputStream.
-		explicit NonOwningOutputStream(io::OutputStream& outputStream) : m_outputStream(outputStream)
-		{}
+		explicit NonOwningOutputStream(io::OutputStream& outputStream)
+				: m_outputStream(outputStream) {
+		}
 
 	public:
 		void write(const RawBuffer& buffer) override {

@@ -27,8 +27,9 @@ namespace catapult { namespace filespooling {
 	namespace {
 		class FileFinalizationStorage final : public subscribers::FinalizationSubscriber {
 		public:
-			explicit FileFinalizationStorage(std::unique_ptr<io::OutputStream>&& pOutputStream) : m_pOutputStream(std::move(pOutputStream))
-			{}
+			explicit FileFinalizationStorage(std::unique_ptr<io::OutputStream>&& pOutputStream)
+					: m_pOutputStream(std::move(pOutputStream)) {
+			}
 
 		public:
 			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {

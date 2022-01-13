@@ -40,9 +40,7 @@ namespace catapult { namespace harvesting {
 		}
 
 		auto CreateContainsPredicate(const Key& publicKey) {
-			return [&publicKey](const auto& prioritizedKeyPair) {
-				return GetPublicKey(prioritizedKeyPair) == publicKey;
-			};
+			return [&publicKey](const auto& prioritizedKeyPair) { return GetPublicKey(prioritizedKeyPair) == publicKey; };
 		}
 	}
 
@@ -52,8 +50,8 @@ namespace catapult { namespace harvesting {
 			const UnlockedAccountsKeyPairContainer& prioritizedKeyPairs,
 			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 			: m_prioritizedKeyPairs(prioritizedKeyPairs)
-			, m_readLock(std::move(readLock))
-	{}
+			, m_readLock(std::move(readLock)) {
+	}
 
 	size_t UnlockedAccountsView::size() const {
 		return m_prioritizedKeyPairs.size();
@@ -82,8 +80,8 @@ namespace catapult { namespace harvesting {
 			: m_maxUnlockedAccounts(maxUnlockedAccounts)
 			, m_prioritizer(prioritizer)
 			, m_prioritizedKeyPairs(prioritizedKeyPairs)
-			, m_writeLock(std::move(writeLock))
-	{}
+			, m_writeLock(std::move(writeLock)) {
+	}
 
 	UnlockedAccountsAddResult UnlockedAccountsModifier::add(BlockGeneratorAccountDescriptor&& descriptor) {
 		const auto& publicKey = descriptor.signingKeyPair().publicKey();
@@ -124,10 +122,10 @@ namespace catapult { namespace harvesting {
 
 	void UnlockedAccountsModifier::removeIf(const predicate<const BlockGeneratorAccountDescriptor&>& predicate) {
 		auto initialSize = m_prioritizedKeyPairs.size();
-		auto newPrioritizedKeyPairsEnd = std::remove_if(m_prioritizedKeyPairs.begin(), m_prioritizedKeyPairs.end(), [predicate](
-				const auto& prioritizedKeyPair) {
-			return predicate(prioritizedKeyPair.first);
-		});
+		auto newPrioritizedKeyPairsEnd =
+				std::remove_if(m_prioritizedKeyPairs.begin(), m_prioritizedKeyPairs.end(), [predicate](const auto& prioritizedKeyPair) {
+					return predicate(prioritizedKeyPair.first);
+				});
 
 		m_prioritizedKeyPairs.erase(newPrioritizedKeyPairsEnd, m_prioritizedKeyPairs.end());
 		if (m_prioritizedKeyPairs.size() != initialSize)
@@ -140,8 +138,8 @@ namespace catapult { namespace harvesting {
 
 	UnlockedAccounts::UnlockedAccounts(size_t maxUnlockedAccounts, const DelegatePrioritizer& prioritizer)
 			: m_maxUnlockedAccounts(maxUnlockedAccounts)
-			, m_prioritizer(prioritizer)
-	{}
+			, m_prioritizer(prioritizer) {
+	}
 
 	UnlockedAccountsView UnlockedAccounts::view() const {
 		auto readLock = m_lock.acquireReader();

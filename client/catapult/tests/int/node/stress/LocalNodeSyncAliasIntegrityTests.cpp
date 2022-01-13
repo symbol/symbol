@@ -82,10 +82,7 @@ namespace catapult { namespace local {
 			test::AssertNamespaceCount(context.localNode(), 3);
 
 			// - the cache has expected balances
-			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 1, Amount(1'700'001) },
-				{ 2, Amount(1'300'001) }
-			});
+			test::AssertCurrencyBalances(accounts, context.localNode().cache(), { { 1, Amount(1'700'001) }, { 2, Amount(1'300'001) } });
 
 			return stateHashes;
 		}
@@ -196,11 +193,10 @@ namespace catapult { namespace local {
 			test::AssertNamespaceCount(context.localNode(), 3);
 
 			// - the cache has expected balances (transfers sent using aliases set up in pTailBlock2)
-			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 1, Amount(1) },
-				{ 2, Amount(700'001) },
-				{ 3, Amount(400'001) }
-			});
+			test::AssertCurrencyBalances(
+					accounts,
+					context.localNode().cache(),
+					{ { 1, Amount(1) }, { 2, Amount(700'001) }, { 3, Amount(400'001) } });
 
 			return stateHashes;
 		}

@@ -40,8 +40,8 @@ namespace catapult { namespace chain {
 			explicit MockHashApi(const model::HashRange& hashes)
 					: RemoteApi({ test::GenerateRandomByteArray<Key>(), "fake-host-from-mock-hash-api" })
 					, m_hashes(model::HashRange::CopyRange(hashes))
-					, m_hasError(false)
-			{}
+					, m_hasError(false) {
+			}
 
 		public:
 			void setError(bool hasError) {
@@ -85,8 +85,8 @@ namespace catapult { namespace chain {
 		public:
 			HashesTraits(const HashesSupplier& hashesSupplier, const HashRangeConsumerFunc& hashRangeConsumer)
 					: m_hashesSupplier(hashesSupplier)
-					, m_hashRangeConsumer(hashRangeConsumer)
-			{}
+					, m_hashRangeConsumer(hashRangeConsumer) {
+			}
 
 		public:
 			thread::future<model::HashRange> apiCall(const RemoteApiType& api) const {
@@ -120,8 +120,9 @@ namespace catapult { namespace chain {
 		public:
 			class RemoteApiWrapper {
 			public:
-				explicit RemoteApiWrapper(const model::HashRange& hashRange) : m_pHashApi(std::make_unique<MockHashApi>(hashRange))
-				{}
+				explicit RemoteApiWrapper(const model::HashRange& hashRange)
+						: m_pHashApi(std::make_unique<MockHashApi>(hashRange)) {
+				}
 
 			public:
 				const auto& api() const {

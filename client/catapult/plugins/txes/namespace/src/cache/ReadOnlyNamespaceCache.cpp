@@ -28,14 +28,14 @@ namespace catapult { namespace cache {
 	ReadOnlyNamespaceCache::ReadOnlyNamespaceCache(const BasicNamespaceCacheView& cache)
 			: ReadOnlyNamespaceArtifactCache(cache)
 			, m_pCache(&cache)
-			, m_pCacheDelta(nullptr)
-	{}
+			, m_pCacheDelta(nullptr) {
+	}
 
 	ReadOnlyNamespaceCache::ReadOnlyNamespaceCache(const BasicNamespaceCacheDelta& cache)
 			: ReadOnlyNamespaceArtifactCache(cache)
 			, m_pCache(nullptr)
-			, m_pCacheDelta(&cache)
-	{}
+			, m_pCacheDelta(&cache) {
+	}
 
 	BlockDuration ReadOnlyNamespaceCache::gracePeriodDuration() const {
 		return m_pCache ? m_pCache->gracePeriodDuration() : m_pCacheDelta->gracePeriodDuration();

@@ -29,9 +29,9 @@
 namespace catapult { namespace cache {
 
 	using BasicMosaicPatriciaTree = tree::BasePatriciaTree<
-		SerializerHashedKeyEncoder<MosaicCacheDescriptor::Serializer>,
-		PatriciaTreeRdbDataSource,
-		utils::BaseValueHasher<MosaicId>>;
+			SerializerHashedKeyEncoder<MosaicCacheDescriptor::Serializer>,
+			PatriciaTreeRdbDataSource,
+			utils::BaseValueHasher<MosaicId>>;
 
 	class MosaicPatriciaTree : public BasicMosaicPatriciaTree {
 	public:
@@ -55,8 +55,8 @@ namespace catapult { namespace cache {
 				: CacheDatabaseMixin(config, { "default", "height_grouping" })
 				, Primary(GetContainerMode(config), database(), 0)
 				, HeightGrouping(GetContainerMode(config), database(), 1)
-				, PatriciaTree(hasPatriciaTreeSupport(), database(), 2)
-		{}
+				, PatriciaTree(hasPatriciaTreeSupport(), database(), 2) {
+		}
 
 	public:
 		MosaicCacheTypes::PrimaryTypes::BaseSetType Primary;
@@ -69,11 +69,7 @@ namespace catapult { namespace cache {
 		}
 
 		MosaicBaseSetDeltaPointers rebaseDetached() const {
-			return {
-				Primary.rebaseDetached(),
-				HeightGrouping.rebaseDetached(),
-				PatriciaTree.rebaseDetached()
-			};
+			return { Primary.rebaseDetached(), HeightGrouping.rebaseDetached(), PatriciaTree.rebaseDetached() };
 		}
 
 		void commit() {

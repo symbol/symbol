@@ -37,11 +37,7 @@ namespace catapult { namespace mongo {
 			using namespace bsoncxx::builder::stream;
 
 			document builder;
-			builder
-					<< "nInserted" << numInserted
-					<< "nMatched" << numMatched
-					<< "nModified" << numModified
-					<< "nRemoved" << numDeleted
+			builder << "nInserted" << numInserted << "nMatched" << numMatched << "nModified" << numModified << "nRemoved" << numDeleted
 					<< "nUpserted" << numUpserted;
 
 			return BulkWriteResult(mongocxx::result::bulk_write(builder << finalize));
@@ -74,11 +70,9 @@ namespace catapult { namespace mongo {
 
 	TEST(TEST_CLASS, CanAggregateMultipleResults) {
 		// Arrange:
-		std::vector<BulkWriteResult> results{
-			CreateBulkWriteResultWithCounts(1, 3, 2, 9, 8),
-			CreateBulkWriteResultWithCounts(5, 4, 3, 2, 1),
-			CreateBulkWriteResultWithCounts(1, 1, 1, 1, 1)
-		};
+		std::vector<BulkWriteResult> results{ CreateBulkWriteResultWithCounts(1, 3, 2, 9, 8),
+											  CreateBulkWriteResultWithCounts(5, 4, 3, 2, 1),
+											  CreateBulkWriteResultWithCounts(1, 1, 1, 1, 1) };
 
 		// Act:
 		auto result = BulkWriteResult::Aggregate(results);

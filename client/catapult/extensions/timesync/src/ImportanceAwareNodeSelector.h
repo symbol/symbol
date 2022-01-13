@@ -25,8 +25,12 @@
 #include "catapult/ionet/NodeInfo.h"
 
 namespace catapult {
-	namespace cache { class ImportanceView; }
-	namespace ionet { class NodeContainerView; }
+namespace cache {
+	class ImportanceView;
+}
+namespace ionet {
+	class NodeContainerView;
+}
 }
 
 namespace catapult { namespace timesync {
@@ -34,7 +38,7 @@ namespace catapult { namespace timesync {
 	/// Node selector that selects nodes according to the importance of the account used to boot the node.
 	class ImportanceAwareNodeSelector {
 	public:
-		using NodeSelector = std::function<ionet::NodeSet (extensions::WeightedCandidates&, uint64_t, size_t)>;
+		using NodeSelector = std::function<ionet::NodeSet(extensions::WeightedCandidates&, uint64_t, size_t)>;
 
 	public:
 		/// Creates a selector that can pick up to \a maxNodes nodes with a minimum importance of \a minImportance

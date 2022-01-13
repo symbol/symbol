@@ -33,8 +33,9 @@ namespace catapult { namespace io {
 		// wraps a ProofStorageCache in a ProofStorage so that it can be tested via the tests in ProofStorageTests.h
 		class ProofStorageCacheToProofStorageAdapter : public ProofStorage {
 		public:
-			explicit ProofStorageCacheToProofStorageAdapter(std::unique_ptr<ProofStorage>&& pStorage) : m_cache(std::move(pStorage))
-			{}
+			explicit ProofStorageCacheToProofStorageAdapter(std::unique_ptr<ProofStorage>&& pStorage)
+					: m_cache(std::move(pStorage)) {
+			}
 
 		public:
 			model::FinalizationStatistics statistics() const override {
@@ -59,9 +60,8 @@ namespace catapult { namespace io {
 
 		struct ProofStorageCacheTraits {
 			static std::unique_ptr<ProofStorage> CreateStorage(const std::string& destination) {
-				return std::make_unique<ProofStorageCacheToProofStorageAdapter>(std::make_unique<FileProofStorage>(
-						destination,
-						test::File_Database_Batch_Size));
+				return std::make_unique<ProofStorageCacheToProofStorageAdapter>(
+						std::make_unique<FileProofStorage>(destination, test::File_Database_Batch_Size));
 			}
 		};
 	}

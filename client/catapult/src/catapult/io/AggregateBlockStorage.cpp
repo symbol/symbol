@@ -26,12 +26,10 @@ namespace catapult { namespace io {
 	namespace {
 		class AggregateBlockStorage : public BlockStorage {
 		public:
-			AggregateBlockStorage(
-					std::unique_ptr<BlockStorage>&& pStorage,
-					std::unique_ptr<BlockChangeSubscriber>&& pBlockChangeSubscriber)
+			AggregateBlockStorage(std::unique_ptr<BlockStorage>&& pStorage, std::unique_ptr<BlockChangeSubscriber>&& pBlockChangeSubscriber)
 					: m_pStorage(std::move(pStorage))
-					, m_pBlockChangeSubscriber(std::move(pBlockChangeSubscriber))
-			{}
+					, m_pBlockChangeSubscriber(std::move(pBlockChangeSubscriber)) {
+			}
 
 		public:
 			// region LightBlockStorage

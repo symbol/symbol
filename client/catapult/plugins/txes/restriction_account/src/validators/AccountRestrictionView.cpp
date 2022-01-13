@@ -19,14 +19,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
 #include "AccountRestrictionView.h"
+#include "Validators.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 
 namespace catapult { namespace validators {
 
-	AccountRestrictionView::AccountRestrictionView(const cache::ReadOnlyCatapultCache& cache) : m_cache(cache)
-	{}
+	AccountRestrictionView::AccountRestrictionView(const cache::ReadOnlyCatapultCache& cache)
+			: m_cache(cache) {
+	}
 
 	bool AccountRestrictionView::initialize(const Address& address) {
 		const auto& restrictionCache = m_cache.sub<cache::AccountRestrictionCache>();

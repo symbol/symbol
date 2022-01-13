@@ -34,8 +34,9 @@ namespace catapult { namespace tree {
 		struct DataSourceTraits {
 			class DataSourceType : public ReadThroughMemoryDataSource<MemoryDataSource> {
 			public:
-				DataSourceType() : ReadThroughMemoryDataSource<MemoryDataSource>(m_backingDataSource)
-				{}
+				DataSourceType()
+						: ReadThroughMemoryDataSource<MemoryDataSource>(m_backingDataSource) {
+				}
 
 			private:
 				MemoryDataSource m_backingDataSource;
@@ -149,4 +150,3 @@ namespace catapult { namespace tree {
 
 	// endregion
 }}
-

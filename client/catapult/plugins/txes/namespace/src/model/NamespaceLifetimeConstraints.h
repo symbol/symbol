@@ -29,8 +29,8 @@ namespace catapult { namespace model {
 	public:
 		/// Creates constraints around \a maxDuration and \a gracePeriodDuration.
 		constexpr NamespaceLifetimeConstraints(BlockDuration maxDuration, BlockDuration gracePeriodDuration)
-				: MaxNamespaceDuration(maxDuration.unwrap() + gracePeriodDuration.unwrap())
-		{}
+				: MaxNamespaceDuration(maxDuration.unwrap() + gracePeriodDuration.unwrap()) {
+		}
 
 	public:
 		/// Maximum lifetime a namespace may have including the grace period.

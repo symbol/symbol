@@ -48,9 +48,8 @@ namespace catapult { namespace partialtransaction {
 		public:
 			TestContext() {
 				// Arrange: register service dependencies
-				auto pBootstrapperRegistrar = CreatePtBootstrapperServiceRegistrar([]() {
-					return std::make_unique<cache::MemoryPtCacheProxy>(cache::MemoryCacheOptions());
-				});
+				auto pBootstrapperRegistrar = CreatePtBootstrapperServiceRegistrar(
+						[]() { return std::make_unique<cache::MemoryPtCacheProxy>(cache::MemoryCacheOptions()); });
 				pBootstrapperRegistrar->registerServices(locator(), testState().state());
 
 				// - register hook dependencies
@@ -96,10 +95,7 @@ namespace catapult { namespace partialtransaction {
 	// region tasks
 
 	TEST(TEST_CLASS, TasksAreRegistered) {
-		test::AssertRegisteredTasks(TestContext(), {
-			"connect peers task for service Pt",
-			"pull partial transactions task"
-		});
+		test::AssertRegisteredTasks(TestContext(), { "connect peers task for service Pt", "pull partial transactions task" });
 	}
 
 	// endregion

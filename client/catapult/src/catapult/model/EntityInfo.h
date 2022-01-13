@@ -39,8 +39,8 @@ namespace catapult { namespace model {
 		/// Creates an entity info around \a pEntityParam and its associated metadata (\a hash).
 		EntityInfo(const std::shared_ptr<TEntity>& pEntityParam, const Hash256& hash)
 				: pEntity(pEntityParam)
-				, EntityHash(hash)
-		{}
+				, EntityHash(hash) {
+		}
 
 		/// Entity pointer.
 		std::shared_ptr<TEntity> pEntity;
@@ -85,8 +85,8 @@ namespace catapult { namespace model {
 
 		/// Creates a transaction info around \a pTransaction without any metadata.
 		explicit DetachedTransactionInfo(const std::shared_ptr<const Transaction>& pTransaction)
-				: DetachedTransactionInfo(pTransaction, Hash256())
-		{}
+				: DetachedTransactionInfo(pTransaction, Hash256()) {
+		}
 
 	public:
 		/// Creates a (shallow) copy of this info.
@@ -109,14 +109,14 @@ namespace catapult { namespace model {
 
 		/// Creates a transaction info around \a pTransaction without any metadata.
 		explicit TransactionInfo(const std::shared_ptr<const Transaction>& pTransaction)
-				: TransactionInfo(pTransaction, Hash256())
-		{}
+				: TransactionInfo(pTransaction, Hash256()) {
+		}
 
 		/// Creates a transaction info around \a pTransaction and its associated metadata (\a hash).
 		TransactionInfo(const std::shared_ptr<const Transaction>& pTransaction, const Hash256& hash)
 				: DetachedTransactionInfo(pTransaction, hash)
-				, MerkleComponentHash()
-		{}
+				, MerkleComponentHash() {
+		}
 
 	public:
 		/// Creates a (shallow) copy of this info.

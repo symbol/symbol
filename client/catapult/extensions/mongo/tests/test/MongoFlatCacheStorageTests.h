@@ -33,9 +33,9 @@ namespace catapult { namespace test {
 		using ElementType = typename TTraits::ModelType;
 
 		using BaseType = MongoCacheStorageTestUtils<TTraits>;
+		using BaseType::AssertDbContents;
 		using BaseType::GetCollectionSize;
 		using BaseType::GetDelta;
-		using BaseType::AssertDbContents;
 		using CacheStorageWrapper = typename BaseType::CacheStorageWrapper;
 
 	public:
@@ -259,14 +259,16 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_FLAT_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME##POSTFIX) { test::MongoFlatCacheStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME##POSTFIX) { \
+		test::MongoFlatCacheStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_FLAT_CACHE_STORAGE_TESTS(TRAITS_NAME, POSTFIX) \
 	MAKE_FLAT_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, SaveHasNoEffectWhenThereAreNoPendingChanges) \
 	MAKE_FLAT_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, AddedElementIsSavedToStorage) \
 	MAKE_FLAT_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, ModifiedElementIsSavedToStorage) \
 	MAKE_FLAT_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, DeletedElementIsRemovedFromStorage) \
-	\
+\
 	MAKE_FLAT_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanSaveMultipleElements) \
 	MAKE_FLAT_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanAddAndModifyAndDeleteMultipleElements) \
 	MAKE_FLAT_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, ElementsBothAddedAndRemovedAreIgnored)

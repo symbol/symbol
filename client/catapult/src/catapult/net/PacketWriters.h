@@ -27,18 +27,24 @@
 #include <memory>
 
 namespace catapult {
-	namespace ionet {
-		class Node;
-		class PacketSocket;
-	}
-	namespace net { struct Packet; }
-	namespace thread { class IoThreadPool; }
+namespace ionet {
+	class Node;
+	class PacketSocket;
+}
+namespace net {
+	struct Packet;
+}
+namespace thread {
+	class IoThreadPool;
+}
 }
 
 namespace catapult { namespace net {
 
 	/// Manages a collection of connections that send data to external nodes.
-	class PacketWriters : public ConnectionContainer, public PacketIoPicker {
+	class PacketWriters
+			: public ConnectionContainer
+			, public PacketIoPicker {
 	public:
 		using ConnectCallback = consumer<const PeerConnectResultEx&>;
 

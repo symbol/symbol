@@ -40,8 +40,8 @@ namespace catapult { namespace test {
 				: pPool(CreateStartedIoThreadPool())
 				, ServerPublicKey(GenerateRandomByteArray<Key>())
 				, ClientPublicKey(GenerateRandomByteArray<Key>())
-				, pRequestor(std::make_shared<TRequestor>(*pPool, ClientPublicKey, createSettingsWithTimeout(timeout), requestorParam))
-		{}
+				, pRequestor(std::make_shared<TRequestor>(*pPool, ClientPublicKey, createSettingsWithTimeout(timeout), requestorParam)) {
+		}
 
 		/// Destroys the test context.
 		~BriefServerRequestorTestContext() {
@@ -91,12 +91,13 @@ namespace catapult { namespace test {
 		std::atomic<size_t> numCallbacks(0);
 		std::vector<std::pair<net::NodeRequestResult, ResponseType>> resultPairs;
 		auto requestNode = CreateLocalHostNode(context.ServerPublicKey);
-		TBeginRequestPolicy::BeginRequest(*context.pRequestor, requestNode, [&numCallbacks, &resultPairs](
-				auto result,
-				const auto& response) {
-			resultPairs.emplace_back(result, response);
-			++numCallbacks;
-		});
+		TBeginRequestPolicy::BeginRequest(
+				*context.pRequestor,
+				requestNode,
+				[&numCallbacks, &resultPairs](auto result, const auto& response) {
+					resultPairs.emplace_back(result, response);
+					++numCallbacks;
+				});
 		WAIT_FOR_ONE(numCallbacks);
 
 		// Assert:
@@ -133,12 +134,13 @@ namespace catapult { namespace test {
 		std::atomic<size_t> numCallbacks(0);
 		std::vector<std::pair<net::NodeRequestResult, ResponseType>> resultPairs;
 		auto requestNode = CreateLocalHostNode(context.ServerPublicKey);
-		TBeginRequestPolicy::BeginRequest(*context.pRequestor, requestNode, [&numCallbacks, &resultPairs](
-				auto result,
-				const auto& response) {
-			resultPairs.emplace_back(result, response);
-			++numCallbacks;
-		});
+		TBeginRequestPolicy::BeginRequest(
+				*context.pRequestor,
+				requestNode,
+				[&numCallbacks, &resultPairs](auto result, const auto& response) {
+					resultPairs.emplace_back(result, response);
+					++numCallbacks;
+				});
 		WAIT_FOR_ONE(numCallbacks);
 
 		// Assert:
@@ -174,8 +176,9 @@ namespace catapult { namespace test {
 	class RemotePullServer : public RemoteAcceptServer {
 	public:
 		/// Creates a remote pull server.
-		RemotePullServer() : m_acceptor(ioContext())
-		{}
+		RemotePullServer()
+				: m_acceptor(ioContext()) {
+		}
 
 	public:
 		/// Returns \c true if the server is connected.
@@ -196,9 +199,7 @@ namespace catapult { namespace test {
 	public:
 		/// Spawns server work but does not respond to any request.
 		void prepareNoResponse() {
-			start(m_acceptor, [this](const auto& pSocket) {
-				this->setServerSocket(pSocket);
-			});
+			start(m_acceptor, [this](const auto& pSocket) { this->setServerSocket(pSocket); });
 		}
 
 		/// Closes the socket.

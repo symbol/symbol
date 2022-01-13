@@ -50,11 +50,7 @@ namespace catapult { namespace cache {
 		}
 
 		template<typename TAction>
-		bool FindAccountStateWithImportance(
-				const ReadOnlyAccountStateCache& cache,
-				const Address& address,
-				Height height,
-				TAction action) {
+		bool FindAccountStateWithImportance(const ReadOnlyAccountStateCache& cache, const Address& address, Height height, TAction action) {
 			auto accountStateAddressIter = cache.find(address);
 			if (accountStateAddressIter.tryGet())
 				return ForwardIfAccountHasImportanceAtHeight(accountStateAddressIter.get(), cache, height, action);
@@ -74,8 +70,9 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	ImportanceView::ImportanceView(const ReadOnlyAccountStateCache& cache) : m_cache(cache)
-	{}
+	ImportanceView::ImportanceView(const ReadOnlyAccountStateCache& cache)
+			: m_cache(cache) {
+	}
 
 	bool ImportanceView::tryGetAccountImportance(const Key& publicKey, Height height, Importance& importance) const {
 		return FindAccountStateWithImportance(m_cache, publicKey, height, [&importance](const auto& accountState) {
@@ -93,14 +90,17 @@ namespace catapult { namespace cache {
 		auto mosaicId = m_cache.harvestingMosaicId();
 		auto minHarvesterBalance = m_cache.minHarvesterBalance();
 		auto maxHarvesterBalance = m_cache.maxHarvesterBalance();
-		return FindAccountStateWithImportance(m_cache, address, height, [mosaicId, minHarvesterBalance, maxHarvesterBalance](
-				const auto& accountState) {
-			auto currentImportance = accountState.ImportanceSnapshots.current();
-			if (Importance(0) == currentImportance)
-				return false;
+		return FindAccountStateWithImportance(
+				m_cache,
+				address,
+				height,
+				[mosaicId, minHarvesterBalance, maxHarvesterBalance](const auto& accountState) {
+					auto currentImportance = accountState.ImportanceSnapshots.current();
+					if (Importance(0) == currentImportance)
+						return false;
 
-			auto balance = accountState.Balances.get(mosaicId);
-			return minHarvesterBalance <= balance && balance <= maxHarvesterBalance;
-		});
+					auto balance = accountState.Balances.get(mosaicId);
+					return minHarvesterBalance <= balance && balance <= maxHarvesterBalance;
+				});
 	}
 }}

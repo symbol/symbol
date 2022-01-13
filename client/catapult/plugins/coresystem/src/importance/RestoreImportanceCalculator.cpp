@@ -27,10 +27,8 @@ namespace catapult { namespace importance {
 	namespace {
 		class RestoreImportanceCalculator final : public ImportanceCalculator {
 		public:
-			void recalculate(
-					ImportanceRollbackMode,
-					model::ImportanceHeight importanceHeight,
-					cache::AccountStateCacheDelta& cache) const override {
+			void recalculate(ImportanceRollbackMode, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache)
+					const override {
 				const auto& highValueAccounts = cache.highValueAccounts();
 
 				PopAll(cache, highValueAccounts.addresses());

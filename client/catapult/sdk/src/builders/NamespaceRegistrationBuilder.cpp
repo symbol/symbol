@@ -30,8 +30,8 @@ namespace catapult { namespace builders {
 			, m_parentId()
 			, m_id()
 			, m_registrationType()
-			, m_name()
-	{}
+			, m_name() {
+	}
 
 	void NamespaceRegistrationBuilder::setDuration(BlockDuration duration) {
 		m_duration = duration;

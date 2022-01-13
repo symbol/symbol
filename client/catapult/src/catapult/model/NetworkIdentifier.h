@@ -31,18 +31,16 @@ namespace catapult { namespace model {
 #define NETWORK_IDENTIFIER_LIST \
 	/* Default (zero) identifier that does not identify any known network. */ \
 	ENUM_VALUE(Zero, 0) \
-	\
+\
 	/* Main network identifier. */ \
 	ENUM_VALUE(Mainnet, 0x68) \
-	\
+\
 	/* Test network identifier. */ \
 	ENUM_VALUE(Testnet, 0x98)
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
 	/// Possible network identifiers.
-	enum class NetworkIdentifier : uint8_t {
-		NETWORK_IDENTIFIER_LIST
-	};
+	enum class NetworkIdentifier : uint8_t { NETWORK_IDENTIFIER_LIST };
 #undef ENUM_VALUE
 
 	/// Insertion operator for outputting \a value to \a out.

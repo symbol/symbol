@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(HashLock, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(HashLock, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Hash_Lock)
@@ -50,12 +50,12 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction);
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			HashLockDurationNotification::Notification_Type,
-			HashLockMosaicNotification::Notification_Type,
-			BalanceDebitNotification::Notification_Type,
-			HashLockNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ HashLockDurationNotification::Notification_Type,
+				  HashLockMosaicNotification::Notification_Type,
+				  BalanceDebitNotification::Notification_Type,
+				  HashLockNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotifications) {
@@ -64,9 +64,8 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction);
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
-		builder.template addExpectation<HashLockDurationNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.Duration, notification.Duration);
-		});
+		builder.template addExpectation<HashLockDurationNotification>(
+				[&transaction](const auto& notification) { EXPECT_EQ(transaction.Duration, notification.Duration); });
 		builder.template addExpectation<HashLockMosaicNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.Mosaic.MosaicId, notification.Mosaic.MosaicId);
 			EXPECT_EQ(transaction.Mosaic.Amount, notification.Mosaic.Amount);

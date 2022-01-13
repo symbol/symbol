@@ -23,13 +23,11 @@
 #include "storages/MongoMultisigCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
 
-extern "C" PLUGIN_API
-void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
+extern "C" PLUGIN_API void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	// transaction support
 	manager.addTransactionSupport(catapult::mongo::plugins::CreateMultisigAccountModificationTransactionMongoPlugin());
 
 	// cache storage support
-	manager.addStorageSupport(catapult::mongo::plugins::CreateMongoMultisigCacheStorage(
-			manager.mongoContext(),
-			manager.networkIdentifier()));
+	manager.addStorageSupport(
+			catapult::mongo::plugins::CreateMongoMultisigCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 }

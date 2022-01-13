@@ -66,12 +66,10 @@ namespace catapult { namespace extensions {
 				const auto& accountStateCache = cacheView.sub<cache::AccountStateCache>();
 				cache::ReadOnlyAccountStateCache readOnlyAccountStateCache(accountStateCache);
 				cache::ImportanceView importanceView(readOnlyAccountStateCache);
-				return ImportanceDescriptor{
-					importanceView.getAccountImportanceOrDefault(publicKey, cacheView.height()),
-					totalChainImportance
-				};
-			})
-	{}
+				return ImportanceDescriptor{ importanceView.getAccountImportanceOrDefault(publicKey, cacheView.height()),
+											 totalChainImportance };
+			}) {
+	}
 
 	SelectorSettings::SelectorSettings(
 			const cache::CatapultCache& cache,
@@ -79,8 +77,8 @@ namespace catapult { namespace extensions {
 			ionet::NodeContainer& nodes,
 			ionet::ServiceIdentifier serviceId,
 			const config::NodeConfiguration::ConnectionsSubConfiguration& config)
-			: SelectorSettings(cache, totalChainImportance, nodes, serviceId, ionet::IpProtocol::All, ionet::NodeRoles::None, config)
-	{}
+			: SelectorSettings(cache, totalChainImportance, nodes, serviceId, ionet::IpProtocol::All, ionet::NodeRoles::None, config) {
+	}
 
 	// endregion
 
@@ -110,8 +108,9 @@ namespace catapult { namespace extensions {
 			};
 
 		public:
-			AddCandidateProcessor(const AddState& state) : m_state(state)
-			{}
+			AddCandidateProcessor(const AddState& state)
+					: m_state(state) {
+			}
 
 		public:
 			thread::future<thread::TaskResult> process(const ionet::NodeSet& addCandidates) {
@@ -176,13 +175,11 @@ namespace catapult { namespace extensions {
 		settings.Nodes.modifier().addConnectionStates(settings.ServiceId, settings.RequiredRole);
 
 		// 2. create a selector around the nodes and configuration
-		extensions::NodeSelectionConfiguration selectionConfig{
-			settings.ServiceId,
-			settings.SupportedProtocols,
-			settings.RequiredRole,
-			settings.Config.MaxConnections,
-			settings.Config.MaxConnectionAge
-		};
+		extensions::NodeSelectionConfiguration selectionConfig{ settings.ServiceId,
+																settings.SupportedProtocols,
+																settings.RequiredRole,
+																settings.Config.MaxConnections,
+																settings.Config.MaxConnectionAge };
 		return [&nodes = settings.Nodes, importanceRetriever = settings.ImportanceRetriever, selectionConfig]() {
 			return SelectNodes(nodes, selectionConfig, importanceRetriever);
 		};
@@ -193,10 +190,7 @@ namespace catapult { namespace extensions {
 		return CreateConnectPeersTask(settings, packetWriters, selector);
 	}
 
-	thread::Task CreateConnectPeersTask(
-			const SelectorSettings& settings,
-			net::PacketWriters& packetWriters,
-			const NodeSelector& selector) {
+	thread::Task CreateConnectPeersTask(const SelectorSettings& settings, net::PacketWriters& packetWriters, const NodeSelector& selector) {
 		auto serviceId = settings.ServiceId;
 		auto ager = CreateNodeAger(serviceId, settings.Config, settings.Nodes);
 		return thread::CreateNamedTask("connect peers task", [serviceId, ager, selector, &nodes = settings.Nodes, &packetWriters]() {
@@ -226,11 +220,9 @@ namespace catapult { namespace extensions {
 
 	RemoveOnlyNodeSelector CreateRemoveOnlyNodeSelector(const SelectorSettings& settings) {
 		// create a selector around the nodes and configuration
-		extensions::NodeAgingConfiguration selectionConfig{
-			settings.ServiceId,
-			settings.Config.MaxConnections,
-			settings.Config.MaxConnectionAge
-		};
+		extensions::NodeAgingConfiguration selectionConfig{ settings.ServiceId,
+															settings.Config.MaxConnections,
+															settings.Config.MaxConnectionAge };
 		return [&nodes = settings.Nodes, importanceRetriever = settings.ImportanceRetriever, selectionConfig]() {
 			return SelectNodesForRemoval(nodes, selectionConfig, importanceRetriever);
 		};

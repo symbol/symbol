@@ -23,7 +23,8 @@
 #ifndef CUSTOM_RESULT_DEFINITION
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #endif
 /// Defines an account link validation result with \a DESCRIPTION and \a CODE.
@@ -48,5 +49,6 @@ namespace catapult { namespace validators {
 	DEFINE_ACCOUNT_LINK_RESULT(Remote_Account_Participant_Prohibited, 6);
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

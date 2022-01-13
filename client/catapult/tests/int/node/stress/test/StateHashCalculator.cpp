@@ -30,16 +30,16 @@ namespace catapult { namespace test {
 			: m_stateVerificationMode(StateVerificationMode::Disabled)
 			, m_config(CreateUninitializedCatapultConfiguration())
 			, m_catapultCache({})
-			, m_isDirty(false)
-	{}
+			, m_isDirty(false) {
+	}
 
 	StateHashCalculator::StateHashCalculator(const config::CatapultConfiguration& config)
 			: m_stateVerificationMode(StateVerificationMode::Enabled)
 			, m_config(config)
 			, m_pPluginManager(CreatePluginManagerWithRealPlugins(m_config))
 			, m_catapultCache(m_pPluginManager->createCache())
-			, m_isDirty(false)
-	{}
+			, m_isDirty(false) {
+	}
 
 	const std::string& StateHashCalculator::dataDirectory() const {
 		return m_config.User.DataDirectory;
@@ -59,9 +59,8 @@ namespace catapult { namespace test {
 			blockStateHash = CalculateBlockStateHash(block, cacheDelta, *m_pPluginManager);
 		} catch (const catapult_runtime_error&) {
 			// if state is invalid (e.g. negative balance), zero out state hash and bypass subsequent state hash calculations
-			CATAPULT_LOG(debug)
-					<< "block state hash calculation failed at height " << block.Height
-					<< ", marking block and remaining chain as dirty";
+			CATAPULT_LOG(debug) << "block state hash calculation failed at height " << block.Height
+								<< ", marking block and remaining chain as dirty";
 			blockStateHash = Hash256();
 			m_isDirty = true;
 		}

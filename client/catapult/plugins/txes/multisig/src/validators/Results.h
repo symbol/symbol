@@ -24,7 +24,8 @@
 #include "plugins/txes/aggregate/src/validators/Results.h"
 #include "catapult/validators/ValidationResult.h"
 
-namespace catapult { namespace validators {
+namespace catapult {
+namespace validators {
 
 #endif
 /// Defines a multisig validation result with \a DESCRIPTION and \a CODE.
@@ -73,5 +74,6 @@ namespace catapult { namespace validators {
 	DEFINE_MULTISIG_RESULT(Operation_Prohibited_By_Account, 14);
 
 #ifndef CUSTOM_RESULT_DEFINITION
-}}
+}
+}
 #endif

@@ -34,9 +34,8 @@ namespace catapult { namespace subscribers {
 		using UnsupportedBlockChangeSubscriber = test::UnsupportedBlockChangeSubscriber;
 
 		template<typename TBlockChangeSubscriber>
-		using TestContext = test::AggregateSubscriberTestContext<
-				TBlockChangeSubscriber,
-				AggregateBlockChangeSubscriber<TBlockChangeSubscriber>>;
+		using TestContext =
+				test::AggregateSubscriberTestContext<TBlockChangeSubscriber, AggregateBlockChangeSubscriber<TBlockChangeSubscriber>>;
 	}
 
 	TEST(TEST_CLASS, NotifyBlockForwardsToAllSubscribers) {

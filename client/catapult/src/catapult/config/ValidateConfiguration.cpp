@@ -32,34 +32,30 @@ namespace catapult { namespace config {
 		void ValidateConfiguration(const model::BlockchainConfiguration& config) {
 			if (2 * config.ImportanceGrouping <= config.MaxRollbackBlocks) {
 				std::ostringstream out;
-				out
-						<< "ImportanceGrouping (" << config.ImportanceGrouping << ") must be greater than MaxRollbackBlocks ("
-						<< config.MaxRollbackBlocks << ") / 2";
+				out << "ImportanceGrouping (" << config.ImportanceGrouping << ") must be greater than MaxRollbackBlocks ("
+					<< config.MaxRollbackBlocks << ") / 2";
 				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
 			}
 
 			if (100u < config.HarvestBeneficiaryPercentage + config.HarvestNetworkPercentage) {
 				std::ostringstream out;
-				out
-						<< "HarvestBeneficiaryPercentage (" << utils::make_printable(config.HarvestBeneficiaryPercentage)
-						<< ") plus HarvestNetworkPercentage (" << utils::make_printable(config.HarvestNetworkPercentage)
-						<< ") must not be greater than 100";
+				out << "HarvestBeneficiaryPercentage (" << utils::make_printable(config.HarvestBeneficiaryPercentage)
+					<< ") plus HarvestNetworkPercentage (" << utils::make_printable(config.HarvestNetworkPercentage)
+					<< ") must not be greater than 100";
 				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
 			}
 
 			if (99u < config.ImportanceActivityPercentage) {
 				std::ostringstream out;
-				out
-						<< "ImportanceActivityPercentage (" << utils::make_printable(config.ImportanceActivityPercentage)
-						<< ") must not be greater than 99";
+				out << "ImportanceActivityPercentage (" << utils::make_printable(config.ImportanceActivityPercentage)
+					<< ") must not be greater than 99";
 				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
 			}
 
 			if (0 != config.VotingSetGrouping % config.ImportanceGrouping) {
 				std::ostringstream out;
-				out
-						<< "VotingSetGrouping (" << config.VotingSetGrouping << ") must be multiple of ImportanceGrouping ("
-						<< config.ImportanceGrouping << ")";
+				out << "VotingSetGrouping (" << config.VotingSetGrouping << ") must be multiple of ImportanceGrouping ("
+					<< config.ImportanceGrouping << ")";
 				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
 			}
 		}
@@ -74,10 +70,8 @@ namespace catapult { namespace config {
 			auto totalCurrency = blockchainConfig.InitialCurrencyAtomicUnits + totalInflation.first;
 			if (blockchainConfig.InitialCurrencyAtomicUnits > totalCurrency || totalCurrency > blockchainConfig.MaxMosaicAtomicUnits) {
 				std::ostringstream out;
-				out
-						<< "sum of InitialCurrencyAtomicUnits (" << blockchainConfig.InitialCurrencyAtomicUnits << ") and inflation ("
-						<< totalInflation.first << ") must not exceed MaxMosaicAtomicUnits ("
-						<< blockchainConfig.MaxMosaicAtomicUnits << ")";
+				out << "sum of InitialCurrencyAtomicUnits (" << blockchainConfig.InitialCurrencyAtomicUnits << ") and inflation ("
+					<< totalInflation.first << ") must not exceed MaxMosaicAtomicUnits (" << blockchainConfig.MaxMosaicAtomicUnits << ")";
 				CATAPULT_THROW_VALIDATION_ERROR(out.str().c_str());
 			}
 		}

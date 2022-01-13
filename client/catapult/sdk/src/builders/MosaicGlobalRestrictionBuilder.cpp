@@ -31,8 +31,8 @@ namespace catapult { namespace builders {
 			, m_previousRestrictionValue()
 			, m_newRestrictionValue()
 			, m_previousRestrictionType()
-			, m_newRestrictionType()
-	{}
+			, m_newRestrictionType() {
+	}
 
 	void MosaicGlobalRestrictionBuilder::setMosaicId(UnresolvedMosaicId mosaicId) {
 		m_mosaicId = mosaicId;

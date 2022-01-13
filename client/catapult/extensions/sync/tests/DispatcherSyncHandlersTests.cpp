@@ -45,12 +45,8 @@ namespace catapult { namespace sync {
 			AddSupplementalDataResiliencyTestContext()
 					: m_dataDirectory(m_tempDir.name())
 					, m_cache({}) {
-				m_syncHandlers.PreStateWritten = [&counters = m_counters](const auto&, auto) {
-					++counters.NumPreStateWrittenCalls;
-				};
-				m_syncHandlers.CommitStep = [&counters = m_counters](auto) {
-					++counters.NumCommitStepCalls;
-				};
+				m_syncHandlers.PreStateWritten = [&counters = m_counters](const auto&, auto) { ++counters.NumPreStateWrittenCalls; };
+				m_syncHandlers.CommitStep = [&counters = m_counters](auto) { ++counters.NumCommitStepCalls; };
 
 				AddSupplementalDataResiliency(m_syncHandlers, m_dataDirectory, m_cache, m_score);
 			}

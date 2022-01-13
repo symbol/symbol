@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(NodeKeyLink, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(NodeKeyLink, 1, 1, )
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Node_Key_Link)
@@ -49,9 +49,8 @@ namespace catapult { namespace plugins {
 		void AddCommonExpectations(
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const typename TTraits::TransactionType& transaction) {
-			builder.template addExpectation<KeyLinkActionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
-			});
+			builder.template addExpectation<KeyLinkActionNotification>(
+					[&transaction](const auto& notification) { EXPECT_EQ(transaction.LinkAction, notification.LinkAction); });
 			builder.template addExpectation<NodeKeyLinkNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.SignerPublicKey, notification.MainAccountPublicKey);
 				EXPECT_EQ(transaction.LinkedPublicKey, notification.LinkedPublicKey);
@@ -67,10 +66,9 @@ namespace catapult { namespace plugins {
 		transaction.LinkAction = LinkAction::Link;
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			KeyLinkActionNotification::Notification_Type,
-			NodeKeyLinkNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ KeyLinkActionNotification::Notification_Type, NodeKeyLinkNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsLink) {
@@ -97,10 +95,9 @@ namespace catapult { namespace plugins {
 		transaction.LinkAction = LinkAction::Unlink;
 
 		// Act + Assert:
-		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			KeyLinkActionNotification::Notification_Type,
-			NodeKeyLinkNotification::Notification_Type
-		});
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(
+				transaction,
+				{ KeyLinkActionNotification::Notification_Type, NodeKeyLinkNotification::Notification_Type });
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsUnlink) {

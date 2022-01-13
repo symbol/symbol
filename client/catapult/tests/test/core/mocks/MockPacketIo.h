@@ -31,29 +31,27 @@
 namespace catapult { namespace mocks {
 
 	/// Mock PacketIo that can be configured to pass specific values to read and write callbacks.
-	class MockPacketIo : public ionet::PacketIo, public ionet::BatchPacketReader {
+	class MockPacketIo
+			: public ionet::PacketIo
+			, public ionet::BatchPacketReader {
 	public:
 		/// Generates a read packet from the previously written packet or \c nullptr if no packets have been read.
-		using GenerateReadPacket = std::function<std::shared_ptr<ionet::Packet> (const ionet::Packet*)>;
+		using GenerateReadPacket = std::function<std::shared_ptr<ionet::Packet>(const ionet::Packet*)>;
 
 	public:
 		/// Creates a new mock packet io.
 		MockPacketIo()
 				: m_numReads(0)
-				, m_numWrites(0)
-		{}
+				, m_numWrites(0) {
+		}
 
 	public:
 		void write(const ionet::PacketPayload& payload, const WriteCallback& callback) override {
-			runDelayedAction([this, payload, callback]() {
-				this->writeImpl(payload, callback);
-			});
+			runDelayedAction([this, payload, callback]() { this->writeImpl(payload, callback); });
 		}
 
 		void read(const ReadCallback& callback) override {
-			runDelayedAction([this, callback]() {
-				this->readImpl(callback);
-			});
+			runDelayedAction([this, callback]() { this->readImpl(callback); });
 		}
 
 	public:

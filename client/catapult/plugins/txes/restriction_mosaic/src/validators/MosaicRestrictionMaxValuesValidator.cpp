@@ -29,14 +29,13 @@ namespace catapult { namespace validators {
 
 	namespace {
 		using GlobalNotificationFacade = state::MosaicGlobalRestrictionNotificationFacade<
-			model::MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type>;
+				model::MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type>;
 		using AddressNotificationFacade = state::MosaicAddressRestrictionNotificationFacade<
-			model::MosaicAddressRestrictionModificationNewValueNotification::Notification_Type>;
+				model::MosaicAddressRestrictionModificationNewValueNotification::Notification_Type>;
 
 		size_t GetRestrictionCount(const state::MosaicRestrictionEntry& entry) {
-			return state::MosaicRestrictionEntry::EntryType::Global == entry.entryType()
-					? entry.asGlobalRestriction().size()
-					: entry.asAddressRestriction().size();
+			return state::MosaicRestrictionEntry::EntryType::Global == entry.entryType() ? entry.asGlobalRestriction().size()
+																						 : entry.asAddressRestriction().size();
 		}
 
 		template<typename TNotificationFacade>
@@ -58,20 +57,25 @@ namespace catapult { namespace validators {
 				return Failure_RestrictionMosaic_Cannot_Delete_Nonexistent_Restriction;
 
 			return isDeleteAction || !isNewRule || GetRestrictionCount(entryIter.get()) < maxMosaicRestrictionValues
-					? ValidationResult::Success
-					: Failure_RestrictionMosaic_Max_Restrictions_Exceeded;
+						   ? ValidationResult::Success
+						   : Failure_RestrictionMosaic_Max_Restrictions_Exceeded;
 		}
 	}
 
 #define DEFINE_MOSAIC_RESTRICTION_MAX_VALUES_VALIDATOR(NAME) \
-	DECLARE_STATEFUL_VALIDATOR(Mosaic##NAME##RestrictionMaxValues, NAME##NotificationFacade::NotificationType)( \
-			uint8_t maxMosaicRestrictionValues) { \
+	DECLARE_STATEFUL_VALIDATOR(Mosaic##NAME##RestrictionMaxValues, NAME##NotificationFacade::NotificationType) \
+	(uint8_t maxMosaicRestrictionValues) { \
 		using ValidatorType = stateful::FunctionalNotificationValidatorT<NAME##NotificationFacade::NotificationType>; \
-		return std::make_unique<ValidatorType>("Mosaic" #NAME "RestrictionMaxValuesValidator", [maxMosaicRestrictionValues]( \
-				const NAME##NotificationFacade::NotificationType& notification, \
-				const ValidatorContext& context) { \
-			return MosaicRestrictionMaxValuesValidator<NAME##NotificationFacade>(maxMosaicRestrictionValues, notification, context); \
-		}); \
+		return std::make_unique<ValidatorType>( \
+				"Mosaic" #NAME "RestrictionMaxValuesValidator", \
+				[maxMosaicRestrictionValues]( \
+						const NAME##NotificationFacade::NotificationType& notification, \
+						const ValidatorContext& context) { \
+					return MosaicRestrictionMaxValuesValidator<NAME##NotificationFacade>( \
+							maxMosaicRestrictionValues, \
+							notification, \
+							context); \
+				}); \
 	}
 
 	DEFINE_MOSAIC_RESTRICTION_MAX_VALUES_VALIDATOR(Global)

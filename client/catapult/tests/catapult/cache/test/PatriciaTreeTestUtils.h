@@ -38,14 +38,12 @@ namespace catapult { namespace test {
 	};
 
 	/// Memory patricia tree used in cache tests.
-	using MemoryPatriciaTree = tree::PatriciaTree<
-		cache::SerializerPlainKeyEncoder<MemoryPatriciaTreeSimpleSerializer>,
-		tree::MemoryDataSource>;
+	using MemoryPatriciaTree =
+			tree::PatriciaTree<cache::SerializerPlainKeyEncoder<MemoryPatriciaTreeSimpleSerializer>, tree::MemoryDataSource>;
 
 	/// Memory base patricia tree used in cache tests.
-	using MemoryBasePatriciaTree = tree::BasePatriciaTree<
-		cache::SerializerPlainKeyEncoder<MemoryPatriciaTreeSimpleSerializer>,
-		tree::MemoryDataSource>;
+	using MemoryBasePatriciaTree =
+			tree::BasePatriciaTree<cache::SerializerPlainKeyEncoder<MemoryPatriciaTreeSimpleSerializer>, tree::MemoryDataSource>;
 
 	/// Seeds \a tree with four nodes.
 	void SeedTreeWithFourNodes(MemoryPatriciaTree& tree);

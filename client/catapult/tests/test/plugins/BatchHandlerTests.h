@@ -117,23 +117,21 @@ namespace catapult { namespace test {
 
 		public:
 			auto operator()() {
-				return this->next([](const typename TResponse::value_type& pValue) {
-					return pValue;
-				});
+				return this->next([](const typename TResponse::value_type& pValue) { return pValue; });
 			}
 		};
 
 		return [action](const auto& inputs) {
 			auto pResponseValues = std::make_shared<TResponse>(action(inputs)); // used by producer by reference
 			auto producer = Producer(*pResponseValues);
-			return [pResponseValues, producer]() mutable {
-				return producer();
-			};
+			return [pResponseValues, producer]() mutable { return producer(); };
 		};
 	}
 
 #define MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, HANDLER_NAME##_##TEST_NAME) { test::BatchHandlerTests<HANDLER_NAME##Traits>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, HANDLER_NAME##_##TEST_NAME) { \
+		test::BatchHandlerTests<HANDLER_NAME##Traits>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_BATCH_HANDLER_TESTS(TEST_CLASS, HANDLER_NAME) \
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, TooSmallPacketIsRejected) \
@@ -141,7 +139,7 @@ namespace catapult { namespace test {
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, PacketWithInvalidPayloadIsRejected) \
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, PacketWithTooSmallPayloadIsRejected) \
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, PacketWithNoPayloadIsRejected) \
-	\
+\
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithPayloadIsAccepted) \
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, ResponseIsSetWhenPacketIsValid)
 }}

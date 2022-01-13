@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/utils/TimeSpan.h"
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace config {
 

@@ -33,8 +33,9 @@ namespace catapult { namespace unbondedpruning {
 	namespace {
 		class MockNotificationPublisher : public model::NotificationPublisher {
 		public:
-			explicit MockNotificationPublisher(const utils::HashSet& dependentHashes) : m_dependentHashes(dependentHashes)
-			{}
+			explicit MockNotificationPublisher(const utils::HashSet& dependentHashes)
+					: m_dependentHashes(dependentHashes) {
+			}
 
 		public:
 			const auto& entityInfos() const {
@@ -57,9 +58,7 @@ namespace catapult { namespace unbondedpruning {
 			mutable std::vector<model::WeakEntityInfo> m_entityInfos;
 		};
 
-		void AssertDependentTransactionHashesExtraction(
-				size_t numExpectedDependentHashes,
-				const utils::HashSet& publishedDependentHashes) {
+		void AssertDependentTransactionHashesExtraction(size_t numExpectedDependentHashes, const utils::HashSet& publishedDependentHashes) {
 			// Arrange:
 			auto transactionInfo = test::CreateRandomTransactionInfo();
 			MockNotificationPublisher publisher(publishedDependentHashes);
@@ -82,11 +81,11 @@ namespace catapult { namespace unbondedpruning {
 	}
 
 	TEST(TEST_CLASS, MultipleDependentHashesCanBeExtractedFromSingleTransaction) {
-		AssertDependentTransactionHashesExtraction(3, {
-			test::GenerateRandomByteArray<Hash256>(),
-			test::GenerateRandomByteArray<Hash256>(),
-			test::GenerateRandomByteArray<Hash256>()
-		});
+		AssertDependentTransactionHashesExtraction(
+				3,
+				{ test::GenerateRandomByteArray<Hash256>(),
+				  test::GenerateRandomByteArray<Hash256>(),
+				  test::GenerateRandomByteArray<Hash256>() });
 	}
 
 	TEST(TEST_CLASS, NoDependentHashesAreExtractedFromOtherNotifications) {

@@ -24,8 +24,12 @@
 #include "catapult/thread/Future.h"
 
 namespace catapult {
-	namespace ionet { class Node; }
-	namespace thread { class IoThreadPool; }
+namespace ionet {
+	class Node;
+}
+namespace thread {
+	class IoThreadPool;
+}
 }
 
 namespace catapult { namespace tools { namespace health {

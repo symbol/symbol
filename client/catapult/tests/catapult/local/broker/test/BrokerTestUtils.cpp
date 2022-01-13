@@ -50,9 +50,7 @@ namespace catapult { namespace test {
 	}
 
 	void WriteRandomUtChange(io::OutputStream& outputStream) {
-		auto operationType = 0 == RandomByte() % 2
-				? subscribers::UtChangeOperationType::Add
-				: subscribers::UtChangeOperationType::Remove;
+		auto operationType = 0 == RandomByte() % 2 ? subscribers::UtChangeOperationType::Add : subscribers::UtChangeOperationType::Remove;
 		WriteTransactionInfos(outputStream, utils::to_underlying_type(operationType));
 	}
 
@@ -63,9 +61,8 @@ namespace catapult { namespace test {
 			return;
 		}
 
-		auto operationType = 0 == value % 2
-				? subscribers::PtChangeOperationType::Add_Partials
-				: subscribers::PtChangeOperationType::Remove_Partials;
+		auto operationType =
+				0 == value % 2 ? subscribers::PtChangeOperationType::Add_Partials : subscribers::PtChangeOperationType::Remove_Partials;
 		WriteTransactionInfos(outputStream, utils::to_underlying_type(operationType));
 	}
 

@@ -5,8 +5,8 @@
 #ifndef ED25519_DONNA_BATCHVERIFY_H
 #define ED25519_DONNA_BATCHVERIFY_H
 
-#include "ed25519-donna.h"
 #include "ed25519.h"
+#include "ed25519-donna.h"
 
 #define max_batch_size 64
 #define heap_batch_size ((max_batch_size * 2) + 1)
@@ -25,8 +25,7 @@ typedef struct batch_heap_t {
 } batch_heap;
 
 /* swap two values in the heap */
-static void
-heap_swap(heap_index_t *heap, size_t a, size_t b) {
+static void heap_swap(heap_index_t* heap, size_t a, size_t b) {
 	heap_index_t temp;
 	temp = heap[a];
 	heap[a] = heap[b];
@@ -34,11 +33,10 @@ heap_swap(heap_index_t *heap, size_t a, size_t b) {
 }
 
 /* add the scalar at the end of the list to the heap */
-static void
-heap_insert_next(batch_heap *heap) {
+static void heap_insert_next(batch_heap* heap) {
 	size_t node = heap->size, parent;
-	heap_index_t *pheap = heap->heap;
-	bignum256modm *scalars = heap->scalars;
+	heap_index_t* pheap = heap->heap;
+	bignum256modm* scalars = heap->scalars;
 
 	/* insert at the bottom */
 	pheap[node] = (heap_index_t)node;
@@ -54,11 +52,10 @@ heap_insert_next(batch_heap *heap) {
 }
 
 /* update the heap when the root element is updated */
-static void
-heap_updated_root(batch_heap *heap, size_t limbsize) {
+static void heap_updated_root(batch_heap* heap, size_t limbsize) {
 	size_t node, parent, childr, childl;
-	heap_index_t *pheap = heap->heap;
-	bignum256modm *scalars = heap->scalars;
+	heap_index_t* pheap = heap->heap;
+	bignum256modm* scalars = heap->scalars;
 
 	/* sift root to the bottom */
 	parent = 0;
@@ -83,8 +80,7 @@ heap_updated_root(batch_heap *heap, size_t limbsize) {
 }
 
 /* build the heap with count elements, count must be >= 3 */
-static void
-heap_build(batch_heap *heap, size_t count) {
+static void heap_build(batch_heap* heap, size_t count) {
 	heap->heap[0] = 0;
 	heap->size = 0;
 	while (heap->size < count)
@@ -92,15 +88,13 @@ heap_build(batch_heap *heap, size_t count) {
 }
 
 /* extend the heap to contain new_count elements */
-static void
-heap_extend(batch_heap *heap, size_t new_count) {
+static void heap_extend(batch_heap* heap, size_t new_count) {
 	while (heap->size < new_count)
 		heap_insert_next(heap);
 }
 
 /* get the top 2 elements of the heap */
-static void
-heap_get_top2(batch_heap *heap, heap_index_t *max1, heap_index_t *max2, size_t limbsize) {
+static void heap_get_top2(batch_heap* heap, heap_index_t* max1, heap_index_t* max2, size_t limbsize) {
 	heap_index_t h0 = heap->heap[0], h1 = heap->heap[1], h2 = heap->heap[2];
 	if (lt256_modm_batch(heap->scalars[h1], heap->scalars[h2], limbsize))
 		h1 = h2;
@@ -109,8 +103,7 @@ heap_get_top2(batch_heap *heap, heap_index_t *max1, heap_index_t *max2, size_t l
 }
 
 /* */
-static void
-ge25519_multi_scalarmult_vartime_final(ge25519 *r, ge25519 *point, bignum256modm scalar) {
+static void ge25519_multi_scalarmult_vartime_final(ge25519* r, ge25519* point, bignum256modm scalar) {
 	const bignum256modm_element_t topbit = ((bignum256modm_element_t)1 << (bignum256modm_bits_per_limb - 1));
 	size_t limb = limb128bits;
 	bignum256modm_element_t flag;
@@ -154,8 +147,7 @@ ge25519_multi_scalarmult_vartime_final(ge25519 *r, ge25519 *point, bignum256modm
 }
 
 /* count must be >= 5 */
-static void
-ge25519_multi_scalarmult_vartime(ge25519 *r, batch_heap *heap, size_t count) {
+static void ge25519_multi_scalarmult_vartime(ge25519* r, batch_heap* heap, size_t count) {
 	heap_index_t max1, max2;
 
 	/* start with the full limb size */
@@ -193,9 +185,8 @@ ge25519_multi_scalarmult_vartime(ge25519 *r, batch_heap *heap, size_t count) {
 	ge25519_multi_scalarmult_vartime_final(r, &heap->points[max1], heap->scalars[max1]);
 }
 
-static int
-ge25519_is_neutral_vartime(const ge25519 *p) {
-	static const unsigned char zero[32] = {0};
+static int ge25519_is_neutral_vartime(const ge25519* p) {
+	static const unsigned char zero[32] = { 0 };
 
 	unsigned char point_buffer[3][32];
 	curve25519_contract(point_buffer[0], p->x);

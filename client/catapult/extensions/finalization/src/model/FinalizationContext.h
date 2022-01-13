@@ -25,7 +25,9 @@
 #include "catapult/types.h"
 #include <unordered_map>
 
-namespace catapult { namespace cache { class AccountStateCacheView; } }
+namespace catapult { namespace cache {
+	class AccountStateCacheView;
+}}
 
 namespace catapult { namespace model {
 

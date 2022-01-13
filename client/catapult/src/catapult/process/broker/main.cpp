@@ -24,14 +24,14 @@
 #include "catapult/process/ProcessMain.h"
 
 namespace {
-	constexpr auto Process_Name = "broker";
+constexpr auto Process_Name = "broker";
 
-	void OptimizeConfigurationForBroker(catapult::config::CatapultConfiguration& config) {
-		// fixup config for broker-specific optimizations
-		const_cast<bool&>(config.Blockchain.EnableVerifiableState) = false;
+void OptimizeConfigurationForBroker(catapult::config::CatapultConfiguration& config) {
+	// fixup config for broker-specific optimizations
+	const_cast<bool&>(config.Blockchain.EnableVerifiableState) = false;
 
-		const_cast<bool&>(config.Node.EnableCacheDatabaseStorage) = false;
-	}
+	const_cast<bool&>(config.Node.EnableCacheDatabaseStorage) = false;
+}
 }
 
 int main(int argc, const char** argv) {

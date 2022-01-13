@@ -35,12 +35,8 @@ namespace catapult { namespace validators {
 
 		void AssertValidationResult(ValidationResult expectedResult, uint8_t networkIdentifier) {
 			// Arrange:
-			model::EntityNotification notification(
-					static_cast<model::NetworkIdentifier>(networkIdentifier),
-					static_cast<model::EntityType>(123),
-					0,
-					0,
-					0);
+			model::EntityNotification
+					notification(static_cast<model::NetworkIdentifier>(networkIdentifier), static_cast<model::EntityType>(123), 0, 0, 0);
 			auto pValidator = CreateNetworkValidator(Network_Identifier);
 
 			// Act:

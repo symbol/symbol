@@ -30,9 +30,9 @@
 namespace catapult { namespace cache {
 
 	using BasicMetadataPatriciaTree = tree::BasePatriciaTree<
-		SerializerHashedKeyEncoder<MetadataCacheDescriptor::Serializer>,
-		PatriciaTreeRdbDataSource,
-		utils::ArrayHasher<Hash256>>;
+			SerializerHashedKeyEncoder<MetadataCacheDescriptor::Serializer>,
+			PatriciaTreeRdbDataSource,
+			utils::ArrayHasher<Hash256>>;
 
 	class MetadataPatriciaTree : public BasicMetadataPatriciaTree {
 	public:
@@ -41,7 +41,7 @@ namespace catapult { namespace cache {
 	};
 
 	using MetadataSingleSetCacheTypesAdapter =
-		SingleSetAndPatriciaTreeCacheTypesAdapter<MetadataCacheTypes::PrimaryTypes, MetadataPatriciaTree>;
+			SingleSetAndPatriciaTreeCacheTypesAdapter<MetadataCacheTypes::PrimaryTypes, MetadataPatriciaTree>;
 
 	struct MetadataBaseSetDeltaPointers : public MetadataSingleSetCacheTypesAdapter::BaseSetDeltaPointers {};
 

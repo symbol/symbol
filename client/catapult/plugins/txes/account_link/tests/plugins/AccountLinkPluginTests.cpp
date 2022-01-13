@@ -50,13 +50,11 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
-				return {
-					"AccountKeyLinkValidator",
-					"NewRemoteAccountAvailabilityValidator",
-					"RemoteSenderValidator",
-					"RemoteInteractionValidator",
-					"NodeKeyLinkValidator"
-				};
+				return { "AccountKeyLinkValidator",
+						 "NewRemoteAccountAvailabilityValidator",
+						 "RemoteSenderValidator",
+						 "RemoteInteractionValidator",
+						 "NodeKeyLinkValidator" };
 			}
 
 			static std::vector<std::string> GetObserverNames() {

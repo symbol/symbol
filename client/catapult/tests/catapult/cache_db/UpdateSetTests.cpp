@@ -96,9 +96,9 @@ namespace catapult { namespace cache {
 			public:
 				TestContext()
 						: Context(RocksDatabaseSettings(
-								test::TempDirectoryGuard::DefaultName(),
-								{ "default" },
-								FilterPruningMode::Disabled))
+								  test::TempDirectoryGuard::DefaultName(),
+								  { "default" },
+								  FilterPruningMode::Disabled))
 						, Set(Context.database(), 0) {
 					// seed the set with a few elements
 					AddElement(Set, "aaa", 1);
@@ -149,18 +149,14 @@ namespace catapult { namespace cache {
 			};
 		};
 
-		enum class EntryPoint {
-			Size,
-			Prune,
-			SetSize
-		};
+		enum class EntryPoint { Size, Prune, SetSize };
 
 		struct MockDb {
 		public:
 			MockDb(size_t size, size_t numPruned)
 					: Size(size)
-					, NumPruned(numPruned)
-			{}
+					, NumPruned(numPruned) {
+			}
 
 		public:
 			auto size() const {
@@ -190,8 +186,9 @@ namespace catapult { namespace cache {
 		// pass-through into db
 		struct MockContainer {
 		public:
-			MockContainer(MockDb& db, size_t) : m_db(db)
-			{}
+			MockContainer(MockDb& db, size_t)
+					: m_db(db) {
+			}
 
 		public:
 			auto size() const {

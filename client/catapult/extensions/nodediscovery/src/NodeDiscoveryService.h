@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/extensions/ServiceRegistrar.h"
 
-namespace catapult { namespace ionet { struct NetworkNode; } }
+namespace catapult { namespace ionet {
+	struct NetworkNode;
+}}
 
 namespace catapult { namespace nodediscovery {
 

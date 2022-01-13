@@ -71,8 +71,8 @@ namespace catapult { namespace net {
 
 		public:
 			explicit RequestorTestContext(const utils::TimeSpan& timeout = utils::TimeSpan::FromMinutes(1))
-					: BaseType(timeout, TResponseCompatibilityChecker())
-			{}
+					: BaseType(timeout, TResponseCompatibilityChecker()) {
+			}
 
 		public:
 			std::shared_ptr<ionet::Packet> createResponsePacket(Height height) const {
@@ -115,14 +115,13 @@ namespace catapult { namespace net {
 		auto pPacket = context.createResponsePacket(Height(1234));
 
 		// Act:
-		test::RunBriefServerRequestorDisconnectedTest<MemberBeginRequestPolicy>(context, [](
-				const auto& requestor,
-				auto result,
-				const auto& response) {
-			// Assert:
-			EXPECT_EQ(NodeRequestResult::Failure_Connection, result);
-			AssertFailedConnection(requestor, response);
-		});
+		test::RunBriefServerRequestorDisconnectedTest<MemberBeginRequestPolicy>(
+				context,
+				[](const auto& requestor, auto result, const auto& response) {
+					// Assert:
+					EXPECT_EQ(NodeRequestResult::Failure_Connection, result);
+					AssertFailedConnection(requestor, response);
+				});
 	}
 
 	TEST(TEST_CLASS, BeginRequestFailsWhenConnectionInteractionFails) {
@@ -210,9 +209,7 @@ namespace catapult { namespace net {
 			// - set up a server but don't respond to verify in order to trigger a timeout error
 			test::TcpAcceptor acceptor(context.pPool->ioContext());
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(acceptor, [&pServerSocket](const auto& pSocket) {
-				pServerSocket = pSocket;
-			});
+			test::SpawnPacketServerWork(acceptor, [&pServerSocket](const auto& pSocket) { pServerSocket = pSocket; });
 
 			// - initiate a request
 			std::atomic<size_t> numCallbacks(0);

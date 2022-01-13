@@ -26,7 +26,9 @@
 #include <memory>
 #include <vector>
 
-namespace catapult { namespace cache { class CacheChangesStorage; } }
+namespace catapult { namespace cache {
+	class CacheChangesStorage;
+}}
 
 namespace catapult { namespace local {
 

@@ -121,11 +121,7 @@ namespace catapult { namespace validators {
 	}
 
 	namespace {
-		enum : uint8_t {
-			None = 0x00,
-			Owner_Is_Sender = 0x01,
-			Owner_Is_Recipient = 0x02
-		};
+		enum : uint8_t { None = 0x00, Owner_Is_Sender = 0x01, Owner_Is_Recipient = 0x02 };
 
 		void AssertNonTransferableMosaicsTest(ValidationResult expectedResult, uint8_t notificationFlags) {
 			// Arrange:

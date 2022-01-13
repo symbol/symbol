@@ -55,8 +55,8 @@ namespace catapult { namespace validators {
 					const ValidationResultPredicate& isSuppressedFailure)
 					: m_validators(std::move(validators))
 					, m_isSuppressedFailure(isSuppressedFailure)
-					, m_name(utils::ReduceNames(utils::ExtractNames(m_validators)))
-			{}
+					, m_name(utils::ReduceNames(utils::ExtractNames(m_validators))) {
+			}
 
 		public:
 			const std::string& name() const override {

@@ -33,8 +33,9 @@ namespace catapult { namespace cache {
 			using StorageType = HashCacheStorage;
 			class CacheType : public HashCache {
 			public:
-				CacheType() : HashCache(CacheConfiguration(), utils::TimeSpan::FromHours(32))
-				{}
+				CacheType()
+						: HashCache(CacheConfiguration(), utils::TimeSpan::FromHours(32)) {
+				}
 			};
 
 			static auto CreateValue(uint8_t id) {

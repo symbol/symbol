@@ -29,15 +29,16 @@ namespace catapult { namespace model {
 	class MosaicProperties {
 	public:
 		/// Creates zeroed mosaic properties.
-		MosaicProperties() : MosaicProperties(MosaicFlags::None, 0, BlockDuration())
-		{}
+		MosaicProperties()
+				: MosaicProperties(MosaicFlags::None, 0, BlockDuration()) {
+		}
 
 		/// Creates mosaic properties around \a flags, \a divisibility and \a duration.
 		MosaicProperties(MosaicFlags flags, uint8_t divisibility, BlockDuration duration)
 				: m_flags(flags)
 				, m_divisibility(divisibility)
-				, m_duration(duration)
-		{}
+				, m_duration(duration) {
+		}
 
 	public:
 		/// Gets the mosaic flags.
@@ -63,9 +64,7 @@ namespace catapult { namespace model {
 	public:
 		/// Returns \c true if this properties bag is equal to \a rhs.
 		bool operator==(const MosaicProperties& rhs) const {
-			return m_flags == rhs.m_flags
-					&& m_divisibility == rhs.m_divisibility
-					&& m_duration == rhs.m_duration;
+			return m_flags == rhs.m_flags && m_divisibility == rhs.m_divisibility && m_duration == rhs.m_duration;
 		}
 
 		/// Returns \c true if this properties bag is not equal to \a rhs.

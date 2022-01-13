@@ -28,7 +28,7 @@
 namespace catapult { namespace harvesting {
 
 	/// Importance block hash supplier.
-	using ImportanceBlockHashSupplier = std::function<Hash256 (Height)>;
+	using ImportanceBlockHashSupplier = std::function<Hash256(Height)>;
 
 	/// Facade around unconfirmed transactions cache and updater.
 	class HarvestingUtFacade {

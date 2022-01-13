@@ -30,12 +30,14 @@ namespace catapult { namespace mocks {
 	class MockEntityObserver : public observers::EntityObserver {
 	public:
 		/// Creates a mock observer with a default name,
-		MockEntityObserver() : MockEntityObserver("MockObserverT")
-		{}
+		MockEntityObserver()
+				: MockEntityObserver("MockObserverT") {
+		}
 
 		/// Creates a mock observer with \a name.
-		explicit MockEntityObserver(const std::string& name) : m_name(name)
-		{}
+		explicit MockEntityObserver(const std::string& name)
+				: m_name(name) {
+		}
 
 	public:
 		const std::string& name() const override {

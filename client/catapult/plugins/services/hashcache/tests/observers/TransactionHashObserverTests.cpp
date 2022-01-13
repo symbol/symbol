@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/observers/Observers.h"
 #include "src/cache/HashCache.h"
+#include "src/observers/Observers.h"
 #include "catapult/model/EntityHasher.h"
 #include "tests/test/HashCacheTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
@@ -33,7 +33,7 @@ namespace catapult { namespace observers {
 
 	using ObserverTestContext = test::ObserverTestContextT<test::HashCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(TransactionHash,)
+	DEFINE_COMMON_OBSERVER_TESTS(TransactionHash, )
 
 	namespace {
 		constexpr size_t Num_Hashes = 10;

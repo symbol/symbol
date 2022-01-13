@@ -35,7 +35,7 @@ namespace catapult { namespace tree {
 			buffer[0] = isLeaf ? 0x20 : 0; // set leaf flag
 			if (1 == numPathNibbles % 2) {
 				// set odd flag and merge in first nibble
-				buffer[0] = static_cast<uint8_t>(buffer[0] |0x10 | path.nibbleAt(0));
+				buffer[0] = static_cast<uint8_t>(buffer[0] | 0x10 | path.nibbleAt(0));
 				++i;
 			}
 
@@ -72,8 +72,8 @@ namespace catapult { namespace tree {
 	LeafTreeNode::LeafTreeNode(const TreeNodePath& path, const Hash256& value)
 			: m_path(path)
 			, m_value(value)
-			, m_hash(CalculateLeafTreeNodeHash(m_path, m_value))
-	{}
+			, m_hash(CalculateLeafTreeNodeHash(m_path, m_value)) {
+	}
 
 	LeafTreeNode::LeafTreeNode() = default;
 
@@ -96,8 +96,8 @@ namespace catapult { namespace tree {
 	BranchTreeNode::BranchTreeNode(const TreeNodePath& path)
 			: m_path(path)
 			, m_links() // zero initialize
-			, m_isDirty(true)
-	{}
+			, m_isDirty(true) {
+	}
 
 	BranchTreeNode::BranchTreeNode() = default;
 
@@ -189,18 +189,18 @@ namespace catapult { namespace tree {
 
 	TreeNode::TreeNode()
 			: m_treeNodeType(TreeNodeType::Empty)
-			, m_emptyHash()
-	{}
+			, m_emptyHash() {
+	}
 
 	TreeNode::TreeNode(const LeafTreeNode& node)
 			: m_leafNode(node)
-			, m_treeNodeType(TreeNodeType::Leaf)
-	{}
+			, m_treeNodeType(TreeNodeType::Leaf) {
+	}
 
 	TreeNode::TreeNode(const BranchTreeNode& node)
 			: m_branchNode(node)
-			, m_treeNodeType(TreeNodeType::Branch)
-	{}
+			, m_treeNodeType(TreeNodeType::Branch) {
+	}
 
 	bool TreeNode::empty() const {
 		return TreeNodeType::Empty == m_treeNodeType;

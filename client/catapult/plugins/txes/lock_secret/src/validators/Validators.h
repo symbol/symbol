@@ -37,8 +37,8 @@ namespace catapult { namespace validators {
 	/// Validator that applies to secret lock notifications and validates that:
 	/// - attached hash is not present in secret lock info cache
 	/// - validation is skipped at heights specified by \a skipHeights
-	DECLARE_STATEFUL_VALIDATOR(SecretLockCacheUnique, model::SecretLockNotification)(
-			const std::unordered_set<Height, utils::BaseValueHasher<Height>>& skipHeights);
+	DECLARE_STATEFUL_VALIDATOR(SecretLockCacheUnique, model::SecretLockNotification)
+	(const std::unordered_set<Height, utils::BaseValueHasher<Height>>& skipHeights);
 
 	/// Validator that applies to proof notifications and validates that:
 	/// - hash algorithm is supported

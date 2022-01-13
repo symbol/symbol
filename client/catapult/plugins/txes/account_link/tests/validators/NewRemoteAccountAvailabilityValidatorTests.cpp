@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS NewRemoteAccountAvailabilityValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(NewRemoteAccountAvailability,)
+	DEFINE_COMMON_VALIDATOR_TESTS(NewRemoteAccountAvailability, )
 
 	namespace {
 		cache::CatapultCache CreateCache(const Key& publicKey, state::AccountType accountType) {

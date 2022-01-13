@@ -22,17 +22,13 @@
 #include "src/DiagnosticsService.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 
-namespace catapult { namespace diagnostics {
-
-	namespace {
-		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-			// register service(s)
-			bootstrapper.extensionManager().addServiceRegistrar(CreateDiagnosticsServiceRegistrar());
-		}
+namespace catapult { namespace diagnostics { namespace {
+	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+		// register service(s)
+		bootstrapper.extensionManager().addServiceRegistrar(CreateDiagnosticsServiceRegistrar());
 	}
-}}
+}}}
 
-extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::diagnostics::RegisterExtension(bootstrapper);
 }

@@ -23,8 +23,12 @@
 #include "catapult/model/HeightGrouping.h"
 
 namespace catapult {
-	namespace cache { class AccountStateCacheDelta; }
-	namespace ionet { class NodeContainer; }
+namespace cache {
+	class AccountStateCacheDelta;
+}
+namespace ionet {
+	class NodeContainer;
+}
 }
 
 namespace catapult { namespace test {

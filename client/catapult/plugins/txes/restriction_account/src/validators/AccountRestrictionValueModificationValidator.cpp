@@ -50,26 +50,24 @@ namespace catapult { namespace validators {
 			const auto& restriction = restrictions.restriction(restrictionFlags);
 			auto operationType = notification.AccountRestrictionDescriptor.operationType();
 
-			auto modification = model::AccountRestrictionModification{
-				notification.Action,
-				state::ToVector(Resolve(context.Resolvers, notification.RestrictionValue))
-			};
+			auto modification =
+					model::AccountRestrictionModification{ notification.Action,
+														   state::ToVector(Resolve(context.Resolvers, notification.RestrictionValue)) };
 
 			using OperationType = state::AccountRestrictionOperationType;
 			auto isAllowAndForbidden = OperationType::Allow == operationType && !restriction.canAllow(modification);
 			auto isBlockAndForbidden = OperationType::Block == operationType && !restriction.canBlock(modification);
-			return isAllowAndForbidden || isBlockAndForbidden
-					? Failure_RestrictionAccount_Invalid_Modification
-					: ValidationResult::Success;
+			return isAllowAndForbidden || isBlockAndForbidden ? Failure_RestrictionAccount_Invalid_Modification : ValidationResult::Success;
 		}
 	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE, RESTRICTION_VALUE_TYPE) \
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, NOTIFICATION_TYPE, ([]( \
-			const NOTIFICATION_TYPE& notification, \
-			const ValidatorContext& context) { \
-		return Validate<RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>(notification, context); \
-	}))
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE( \
+			VALIDATOR_NAME, \
+			NOTIFICATION_TYPE, \
+			([](const NOTIFICATION_TYPE& notification, const ValidatorContext& context) { \
+				return Validate<RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>(notification, context); \
+			}))
 
 	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(
 			AccountAddressRestrictionValueModification,

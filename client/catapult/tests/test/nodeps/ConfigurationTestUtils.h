@@ -23,7 +23,9 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace model { struct BlockchainConfiguration; } }
+namespace catapult { namespace model {
+	struct BlockchainConfiguration;
+}}
 
 namespace catapult { namespace test {
 
@@ -61,9 +63,7 @@ namespace catapult { namespace test {
 	template<typename T, typename TTryParseValueFunc>
 	void AssertEnumParseFailure(const std::string& seed, const T& initialValue, TTryParseValueFunc tryParseValueFunc) {
 		// Arrange:
-		auto toggleCase = [](auto ch) {
-			return static_cast<char>(ch >= 'a' && ch <= 'z' ? 'A' + ch - 'a' : 'a' + ch - 'A');
-		};
+		auto toggleCase = [](auto ch) { return static_cast<char>(ch >= 'a' && ch <= 'z' ? 'A' + ch - 'a' : 'a' + ch - 'A'); };
 		auto assertFailedParse = [initialValue, tryParseValueFunc](const auto& input) {
 			AssertFailedParse(input, initialValue, tryParseValueFunc);
 		};

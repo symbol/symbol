@@ -36,9 +36,13 @@ namespace catapult { namespace deltaset {
 	}
 
 #define SET_UTILS_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_NonPointer) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonPointerTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_NonPointer) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonPointerTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SET_UTILS_TRAITS_BASED_TEST(ContainsAnyReturnsTrueWhenAtLeastOneElementExists) {
 		// Arrange:
@@ -96,15 +100,11 @@ namespace catapult { namespace deltaset {
 		auto pSet = TTraits::Create();
 		auto pDelta = pSet->rebase();
 		InsertAll(*pDelta, TTraits::CreateElements(5));
-		auto elements = typename TTraits::ElementVector{
-			TTraits::CreateElement("TestElement", 0),
-			TTraits::CreateElement("TestElement", 2),
-			TTraits::CreateElement("TestElement", 4)
-		};
-		auto expectedElements = typename TTraits::ElementVector{
-			TTraits::CreateElement("TestElement", 1),
-			TTraits::CreateElement("TestElement", 3)
-		};
+		auto elements = typename TTraits::ElementVector{ TTraits::CreateElement("TestElement", 0),
+														 TTraits::CreateElement("TestElement", 2),
+														 TTraits::CreateElement("TestElement", 4) };
+		auto expectedElements =
+				typename TTraits::ElementVector{ TTraits::CreateElement("TestElement", 1), TTraits::CreateElement("TestElement", 3) };
 
 		// Act:
 		RemoveAll(*pDelta, elements);

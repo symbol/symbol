@@ -29,15 +29,16 @@ namespace catapult { namespace chain {
 	struct BatchUpdateResult {
 	public:
 		/// Creates a default result.
-		constexpr BatchUpdateResult() : BatchUpdateResult(0, 0, 0)
-		{}
+		constexpr BatchUpdateResult()
+				: BatchUpdateResult(0, 0, 0) {
+		}
 
 		/// Creates a result with initial values \a successCount, \a neutralCount and \a failureCount.
 		constexpr BatchUpdateResult(size_t successCount, size_t neutralCount, size_t failureCount)
 				: SuccessCount(successCount)
 				, NeutralCount(neutralCount)
-				, FailureCount(failureCount)
-		{}
+				, FailureCount(failureCount) {
+		}
 
 	public:
 		/// Number of successful sub operations.

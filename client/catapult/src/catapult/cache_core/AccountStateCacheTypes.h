@@ -28,21 +28,19 @@
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/Hashers.h"
 
-namespace catapult {
-	namespace cache {
-		struct AccountStateBaseSetDeltaPointers;
-		struct AccountStateBaseSets;
-		class AccountStateCache;
-		class AccountStateCacheDelta;
-		class AccountStateCacheView;
-		class AccountStatePatriciaTree;
-		struct AccountStatePrimarySerializer;
-		class BasicAccountStateCacheDelta;
-		class BasicAccountStateCacheView;
-		struct KeyAddressPairSerializer;
-		class ReadOnlyAccountStateCache;
-	}
-}
+namespace catapult { namespace cache {
+	struct AccountStateBaseSetDeltaPointers;
+	struct AccountStateBaseSets;
+	class AccountStateCache;
+	class AccountStateCacheDelta;
+	class AccountStateCacheView;
+	class AccountStatePatriciaTree;
+	struct AccountStatePrimarySerializer;
+	class BasicAccountStateCacheDelta;
+	class BasicAccountStateCacheView;
+	struct KeyAddressPairSerializer;
+	class ReadOnlyAccountStateCache;
+}}
 
 namespace catapult { namespace cache {
 
@@ -105,7 +103,7 @@ namespace catapult { namespace cache {
 			MosaicId HarvestingMosaicId;
 		};
 
-	// region secondary descriptors
+		// region secondary descriptors
 
 	public:
 		/// Describes a key-based interface on top of an account state cache.
@@ -121,9 +119,9 @@ namespace catapult { namespace cache {
 			}
 		};
 
-	// endregion
+		// endregion
 
-	// region other adapters
+		// region other adapters
 
 	public:
 		/// Adapter for a dual lookup.
@@ -144,8 +142,8 @@ namespace catapult { namespace cache {
 		public:
 			ComposedLookupAdapter(const SetOneType& set1, SetTwoType& set2)
 					: m_set1(set1)
-					, m_set2(set2)
-			{}
+					, m_set2(set2) {
+			}
 
 		public:
 			using FindIterator = typename TSets::FindIterator;
@@ -169,7 +167,7 @@ namespace catapult { namespace cache {
 			SetTwoType& m_set2;
 		};
 
-	// endregion
+		// endregion
 
 	public:
 		using PrimaryTypes = MutableUnorderedMapAdapter<AccountStateCacheDescriptor, utils::ArrayHasher<Address>>;

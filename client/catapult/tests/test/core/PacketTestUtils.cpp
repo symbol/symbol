@@ -94,7 +94,9 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		struct AlignedBlockHeader : public model::BlockHeader, public model::PaddedBlockFooter {};
+		struct AlignedBlockHeader
+				: public model::BlockHeader
+				, public model::PaddedBlockFooter {};
 
 		template<typename TEntity>
 		void SetVerifiableEntityAt(ionet::ByteBuffer& buffer, size_t offset, size_t size, model::EntityType entityType) {
@@ -116,9 +118,7 @@ namespace catapult { namespace test {
 		auto& transaction = reinterpret_cast<mocks::MockTransaction&>(buffer[offset]);
 
 		// assume extra size is part of data
-		transaction.Data.Size = size >= sizeof(mocks::MockTransaction)
-				? static_cast<uint16_t>(size - sizeof(mocks::MockTransaction))
-				: 0;
+		transaction.Data.Size = size >= sizeof(mocks::MockTransaction) ? static_cast<uint16_t>(size - sizeof(mocks::MockTransaction)) : 0;
 	}
 
 	void SetBlockAt(ionet::ByteBuffer& buffer, size_t offset) {

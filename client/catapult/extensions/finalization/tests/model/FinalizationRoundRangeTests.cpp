@@ -97,12 +97,10 @@ namespace catapult { namespace model {
 		}
 
 		std::unordered_map<std::string, FinalizationRoundRange> GenerateEqualityInstanceMap() {
-			return {
-				{ "default", CreateRange(7, 6, 11, 3) },
-				{ "copy", CreateRange(7, 6, 11, 3) },
-				{ "diff min", CreateRange(7, 7, 11, 3) },
-				{ "diff max", CreateRange(7, 6, 10, 3) }
-			};
+			return { { "default", CreateRange(7, 6, 11, 3) },
+					 { "copy", CreateRange(7, 6, 11, 3) },
+					 { "diff min", CreateRange(7, 7, 11, 3) },
+					 { "diff max", CreateRange(7, 6, 10, 3) } };
 		}
 	}
 

@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/model/AccountKeyLinkTransaction.h"
+#include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockchainConfiguration.h"
@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS RemoteInteractionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(RemoteInteraction,)
+	DEFINE_COMMON_VALIDATOR_TESTS(RemoteInteraction, )
 
 	namespace {
 		void AddAccount(cache::CatapultCache& cache, const Address& address, state::AccountType accountType) {
@@ -88,9 +88,12 @@ namespace catapult { namespace validators {
 		auto address = test::GenerateRandomByteArray<Address>();
 
 		// Assert:
-		AssertValidation(Failure, address, state::AccountType::Remote, static_cast<model::EntityType>(0x4123), {
-			test::UnresolveXor(address)
-		});
+		AssertValidation(
+				Failure,
+				address,
+				state::AccountType::Remote,
+				static_cast<model::EntityType>(0x4123),
+				{ test::UnresolveXor(address) });
 	}
 
 	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByAddress_MultipleParticipants) {
@@ -101,11 +104,15 @@ namespace catapult { namespace validators {
 		auto additionalParticipants = test::GenerateRandomDataVector<Address>(2);
 
 		// Assert:
-		AssertValidation(Failure, address, state::AccountType::Remote, additionalParticipants, static_cast<model::EntityType>(0x4123), {
-			test::UnresolveXor(additionalParticipants[0]),
-			test::UnresolveXor(address),
-			test::UnresolveXor(additionalParticipants[1])
-		});
+		AssertValidation(
+				Failure,
+				address,
+				state::AccountType::Remote,
+				additionalParticipants,
+				static_cast<model::EntityType>(0x4123),
+				{ test::UnresolveXor(additionalParticipants[0]),
+				  test::UnresolveXor(address),
+				  test::UnresolveXor(additionalParticipants[1]) });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenAccountIsRemoteAndTransactionHasTypeAccountLink) {

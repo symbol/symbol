@@ -129,22 +129,22 @@ namespace catapult { namespace handlers {
 		void RunCreatePullEntitiesHandlerTest(const ionet::Packet& packet, size_t numExpectedRetrieverCalls, TCheckContext checkContext) {
 			// Arrange:
 			auto numRetrieverCalls = 0u;
-			auto handler = PullEntitiesHandler<Height>::Create(Test_Pull_Packet_Type, [&numRetrieverCalls](
-					auto filterHeight,
-					const auto& shortHashes) {
-				++numRetrieverCalls;
+			auto handler = PullEntitiesHandler<Height>::Create(
+					Test_Pull_Packet_Type,
+					[&numRetrieverCalls](auto filterHeight, const auto& shortHashes) {
+						++numRetrieverCalls;
 
-				std::vector<std::shared_ptr<const model::SizePrefixedEntity>> entities;
-				for (const auto& shortHash : shortHashes) {
-					auto pEntity = std::make_shared<TestPullEntity>();
-					pEntity->Size = sizeof(TestPullEntity);
-					pEntity->FilterHeight = filterHeight;
-					pEntity->ShortHash = shortHash;
-					entities.push_back(pEntity);
-				}
+						std::vector<std::shared_ptr<const model::SizePrefixedEntity>> entities;
+						for (const auto& shortHash : shortHashes) {
+							auto pEntity = std::make_shared<TestPullEntity>();
+							pEntity->Size = sizeof(TestPullEntity);
+							pEntity->FilterHeight = filterHeight;
+							pEntity->ShortHash = shortHash;
+							entities.push_back(pEntity);
+						}
 
-				return entities;
-			});
+						return entities;
+					});
 
 			// Act:
 			auto sourcePublicKey = test::GenerateRandomByteArray<Key>();

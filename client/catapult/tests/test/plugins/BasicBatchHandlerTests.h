@@ -31,8 +31,9 @@ namespace catapult { namespace test {
 	struct FunctionalHandlerTraits {
 		struct HandlerContext {
 		public:
-			HandlerContext() : m_counter(0)
-			{}
+			HandlerContext()
+					: m_counter(0) {
+			}
 
 		public:
 			void incrementCounter() {

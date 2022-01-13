@@ -25,8 +25,9 @@
 
 namespace catapult { namespace cache {
 
-	AccountWeights::AccountWeights() : m_totalWeight(0)
-	{}
+	AccountWeights::AccountWeights()
+			: m_totalWeight(0) {
+	}
 
 	size_t AccountWeights::size() const {
 		return m_accountWeights.size();

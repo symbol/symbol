@@ -75,8 +75,8 @@ namespace catapult { namespace model {
 				: Notification(Notification_Type, sizeof(AccountRestrictionModificationNotification))
 				, RestrictionFlags(restrictionFlags)
 				, RestrictionAdditionsCount(restrictionAdditionsCount)
-				, RestrictionDeletionsCount(restrictionDeletionsCount)
-		{}
+				, RestrictionDeletionsCount(restrictionDeletionsCount) {
+		}
 
 	public:
 		/// Account restriction flags.
@@ -111,8 +111,8 @@ namespace catapult { namespace model {
 				, Address(address)
 				, AccountRestrictionDescriptor(restrictionFlags)
 				, RestrictionValue(restrictionValue)
-				, Action(action)
-		{}
+				, Action(action) {
+		}
 
 	public:
 		/// Account's address.
@@ -129,11 +129,11 @@ namespace catapult { namespace model {
 	};
 
 	using ModifyAccountAddressRestrictionValueNotification =
-		ModifyAccountRestrictionValueNotification<UnresolvedAddress, RestrictionAccount_Address_Modification_Notification>;
+			ModifyAccountRestrictionValueNotification<UnresolvedAddress, RestrictionAccount_Address_Modification_Notification>;
 	using ModifyAccountMosaicRestrictionValueNotification =
-		ModifyAccountRestrictionValueNotification<UnresolvedMosaicId, RestrictionAccount_Mosaic_Modification_Notification>;
+			ModifyAccountRestrictionValueNotification<UnresolvedMosaicId, RestrictionAccount_Mosaic_Modification_Notification>;
 	using ModifyAccountOperationRestrictionValueNotification =
-		ModifyAccountRestrictionValueNotification<EntityType, RestrictionAccount_Operation_Modification_Notification>;
+			ModifyAccountRestrictionValueNotification<EntityType, RestrictionAccount_Operation_Modification_Notification>;
 
 	// endregion
 
@@ -162,8 +162,8 @@ namespace catapult { namespace model {
 				, RestrictionAdditionsCount(restrictionAdditionsCount)
 				, RestrictionAdditionsPtr(pRestrictionAdditions)
 				, RestrictionDeletionsCount(restrictionDeletionsCount)
-				, RestrictionDeletionsPtr(pRestrictionDeletions)
-		{}
+				, RestrictionDeletionsPtr(pRestrictionDeletions) {
+		}
 
 	public:
 		/// Account's address.
@@ -185,15 +185,12 @@ namespace catapult { namespace model {
 		const TRestrictionValue* RestrictionDeletionsPtr;
 	};
 
-	using ModifyAccountAddressRestrictionsNotification = ModifyAccountRestrictionsNotification<
-		UnresolvedAddress,
-		RestrictionAccount_Address_Modifications_Notification>;
-	using ModifyAccountMosaicRestrictionsNotification = ModifyAccountRestrictionsNotification<
-		UnresolvedMosaicId,
-		RestrictionAccount_Mosaic_Modifications_Notification>;
-	using ModifyAccountOperationRestrictionsNotification = ModifyAccountRestrictionsNotification<
-		EntityType,
-		RestrictionAccount_Operation_Modifications_Notification>;
+	using ModifyAccountAddressRestrictionsNotification =
+			ModifyAccountRestrictionsNotification<UnresolvedAddress, RestrictionAccount_Address_Modifications_Notification>;
+	using ModifyAccountMosaicRestrictionsNotification =
+			ModifyAccountRestrictionsNotification<UnresolvedMosaicId, RestrictionAccount_Mosaic_Modifications_Notification>;
+	using ModifyAccountOperationRestrictionsNotification =
+			ModifyAccountRestrictionsNotification<EntityType, RestrictionAccount_Operation_Modifications_Notification>;
 
 	// endregion
 }}

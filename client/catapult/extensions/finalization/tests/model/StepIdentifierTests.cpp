@@ -102,14 +102,12 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::vector<StepIdentifier> GenerateIncreasingStepIdentifierValues() {
-			return {
-				{ FinalizationEpoch(7), FinalizationPoint(5), FinalizationStage::Prevote },
-				{ FinalizationEpoch(7), FinalizationPoint(10), FinalizationStage::Prevote },
-				{ FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Prevote },
-				{ FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Precommit },
-				{ FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Prevote },
-				{ FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Precommit}
-			};
+			return { { FinalizationEpoch(7), FinalizationPoint(5), FinalizationStage::Prevote },
+					 { FinalizationEpoch(7), FinalizationPoint(10), FinalizationStage::Prevote },
+					 { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Prevote },
+					 { FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Precommit },
+					 { FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Prevote },
+					 { FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Precommit } };
 		}
 	}
 
@@ -143,27 +141,22 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::vector<StepIdentifier> GenerateValidStepIdentifierValues() {
-			return {
-				{ FinalizationEpoch(10), FinalizationPoint(1), FinalizationStage::Prevote },
-				{ FinalizationEpoch(20), FinalizationPoint(2), FinalizationStage::Prevote },
-				{ FinalizationEpoch(21), FinalizationPoint(3), FinalizationStage::Precommit },
-				{ FinalizationEpoch(22), FinalizationPoint(4), FinalizationStage::Prevote },
-				{ FinalizationEpoch(23), FinalizationPoint(5), FinalizationStage::Precommit }
-			};
+			return { { FinalizationEpoch(10), FinalizationPoint(1), FinalizationStage::Prevote },
+					 { FinalizationEpoch(20), FinalizationPoint(2), FinalizationStage::Prevote },
+					 { FinalizationEpoch(21), FinalizationPoint(3), FinalizationStage::Precommit },
+					 { FinalizationEpoch(22), FinalizationPoint(4), FinalizationStage::Prevote },
+					 { FinalizationEpoch(23), FinalizationPoint(5), FinalizationStage::Precommit } };
 		}
 	}
 
 	TEST(TEST_CLASS, StepIdentifierToBmKeyIdentifierProducesCorrectValues) {
 		// Arrange:
 		auto identifiers = GenerateValidStepIdentifierValues();
-		auto expectedKeyIdentifiers = std::vector<crypto::BmKeyIdentifier>{
-			{ 10 }, { 20 }, { 21 }, { 22 }, { 23 }
-		};
+		auto expectedKeyIdentifiers = std::vector<crypto::BmKeyIdentifier>{ { 10 }, { 20 }, { 21 }, { 22 }, { 23 } };
 
 		// Act:
-		auto keyIdentifiers = test::Apply(true, identifiers, [](const auto& stepIdentifier) {
-			return StepIdentifierToBmKeyIdentifier(stepIdentifier);
-		});
+		auto keyIdentifiers =
+				test::Apply(true, identifiers, [](const auto& stepIdentifier) { return StepIdentifierToBmKeyIdentifier(stepIdentifier); });
 
 		// Assert:
 		EXPECT_EQ(expectedKeyIdentifiers, keyIdentifiers);

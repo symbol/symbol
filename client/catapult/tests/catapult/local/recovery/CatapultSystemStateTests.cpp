@@ -101,9 +101,8 @@ namespace catapult { namespace local {
 			EXPECT_EQ(0 != (Flag_Broker & options.FileFlags), systemState.shouldRecoverBroker());
 			EXPECT_EQ(0 != (Flag_Server & options.FileFlags), systemState.shouldRecoverServer());
 
-			auto expectedOperationStep = Flag_Commit_Step & options.FileFlags
-					? options.OperationStep
-					: consumers::CommitOperationStep::All_Updated;
+			auto expectedOperationStep =
+					Flag_Commit_Step & options.FileFlags ? options.OperationStep : consumers::CommitOperationStep::All_Updated;
 			EXPECT_EQ(expectedOperationStep, systemState.commitStep());
 		}
 	}

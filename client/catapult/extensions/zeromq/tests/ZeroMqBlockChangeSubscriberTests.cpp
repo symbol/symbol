@@ -36,8 +36,9 @@ namespace catapult { namespace zeromq {
 	namespace {
 		class MqSubscriberContext : public test::MqContextT<io::BlockChangeSubscriber> {
 		public:
-			MqSubscriberContext() : MqContextT(CreateZeroMqBlockChangeSubscriber)
-			{}
+			MqSubscriberContext()
+					: MqContextT(CreateZeroMqBlockChangeSubscriber) {
+			}
 
 		public:
 			void notifyBlock(const model::BlockElement& blockElement) {
@@ -148,11 +149,7 @@ namespace catapult { namespace zeromq {
 		auto keys = test::GenerateRandomDataVector<Key>(6);
 
 		// Assert:
-		AssertCanNotifyBlockWithTransactions(keys, {
-			{ keys[0], keys[1] },
-			{ keys[2], keys[3] },
-			{ keys[4], keys[5] }
-		});
+		AssertCanNotifyBlockWithTransactions(keys, { { keys[0], keys[1] }, { keys[2], keys[3] }, { keys[4], keys[5] } });
 	}
 
 	TEST(TEST_CLASS, CanNotifyBlockWithMultipleTransactions_SameSigners_DiffRecipients) {
@@ -160,11 +157,7 @@ namespace catapult { namespace zeromq {
 		auto keys = test::GenerateRandomDataVector<Key>(4);
 
 		// Assert:
-		AssertCanNotifyBlockWithTransactions(keys, {
-			{ keys[1], keys[0] },
-			{ keys[1], keys[2] },
-			{ keys[1], keys[3] }
-		});
+		AssertCanNotifyBlockWithTransactions(keys, { { keys[1], keys[0] }, { keys[1], keys[2] }, { keys[1], keys[3] } });
 	}
 
 	TEST(TEST_CLASS, CanNotifyBlockWithMultipleTransactions_DiffSigners_SameRecipients) {
@@ -172,11 +165,7 @@ namespace catapult { namespace zeromq {
 		auto keys = test::GenerateRandomDataVector<Key>(4);
 
 		// Assert:
-		AssertCanNotifyBlockWithTransactions(keys, {
-			{ keys[0], keys[1] },
-			{ keys[2], keys[1] },
-			{ keys[3], keys[1] }
-		});
+		AssertCanNotifyBlockWithTransactions(keys, { { keys[0], keys[1] }, { keys[2], keys[1] }, { keys[3], keys[1] } });
 	}
 
 	TEST(TEST_CLASS, CanNotifyBlockWithMultipleTransactions_OneAccountOnly) {
@@ -184,11 +173,7 @@ namespace catapult { namespace zeromq {
 		auto keys = test::GenerateRandomDataVector<Key>(1);
 
 		// Assert:
-		AssertCanNotifyBlockWithTransactions(keys, {
-			{ keys[0], keys[0] },
-			{ keys[0], keys[0] },
-			{ keys[0], keys[0] }
-		});
+		AssertCanNotifyBlockWithTransactions(keys, { { keys[0], keys[0] }, { keys[0], keys[0] }, { keys[0], keys[0] } });
 	}
 
 	// endregion

@@ -60,8 +60,8 @@ namespace catapult { namespace plugins {
 		auto rentalFeeConfig = ToMosaicRentalFeeConfiguration(manager.config(), unresolvedCurrencyMosaicId, config);
 		manager.addTransactionSupport(CreateMosaicDefinitionTransactionPlugin(rentalFeeConfig));
 		manager.addTransactionSupport(CreateMosaicSupplyChangeTransactionPlugin());
-		manager.addTransactionSupport(CreateMosaicSupplyRevocationTransactionPlugin(
-				model::GetNemesisSignerAddress(manager.config().Network)));
+		manager.addTransactionSupport(
+				CreateMosaicSupplyRevocationTransactionPlugin(model::GetNemesisSignerAddress(manager.config().Network)));
 
 		manager.addCacheSupport<cache::MosaicCacheStorage>(
 				std::make_unique<cache::MosaicCache>(manager.cacheConfig(cache::MosaicCache::Name)));
@@ -74,23 +74,21 @@ namespace catapult { namespace plugins {
 		});
 
 		manager.addStatelessValidatorHook([](auto& builder) {
-			builder
-				.add(validators::CreateMosaicIdValidator())
-				.add(validators::CreateMosaicSupplyChangeValidator());
+			builder.add(validators::CreateMosaicIdValidator()).add(validators::CreateMosaicSupplyChangeValidator());
 		});
 
 		manager.addStatefulValidatorHook([config, unresolvedCurrencyMosaicId, &networkConfig = manager.config()](auto& builder) {
-			builder
-				.add(validators::CreateMosaicFlagsValidator(networkConfig.ForkHeights.TreasuryReissuance))
-				.add(validators::CreateRequiredMosaicValidator())
-				.add(validators::CreateMosaicAvailabilityValidator())
-				.add(validators::CreateMosaicDivisibilityValidator(config.MaxMosaicDivisibility))
-				.add(validators::CreateMosaicDurationValidator(config.MaxMosaicDuration.blocks(networkConfig.BlockGenerationTargetTime)))
-				.add(validators::CreateMosaicTransferValidator(unresolvedCurrencyMosaicId))
-				.add(validators::CreateMaxMosaicsBalanceTransferValidator(config.MaxMosaicsPerAccount))
-				.add(validators::CreateMaxMosaicsSupplyChangeValidator(config.MaxMosaicsPerAccount))
-				// note that the following validator depends on RequiredMosaicValidator
-				.add(validators::CreateMosaicSupplyChangeAllowedValidator(networkConfig.MaxMosaicAtomicUnits));
+			builder.add(validators::CreateMosaicFlagsValidator(networkConfig.ForkHeights.TreasuryReissuance))
+					.add(validators::CreateRequiredMosaicValidator())
+					.add(validators::CreateMosaicAvailabilityValidator())
+					.add(validators::CreateMosaicDivisibilityValidator(config.MaxMosaicDivisibility))
+					.add(validators::CreateMosaicDurationValidator(
+							config.MaxMosaicDuration.blocks(networkConfig.BlockGenerationTargetTime)))
+					.add(validators::CreateMosaicTransferValidator(unresolvedCurrencyMosaicId))
+					.add(validators::CreateMaxMosaicsBalanceTransferValidator(config.MaxMosaicsPerAccount))
+					.add(validators::CreateMaxMosaicsSupplyChangeValidator(config.MaxMosaicsPerAccount))
+					// note that the following validator depends on RequiredMosaicValidator
+					.add(validators::CreateMosaicSupplyChangeAllowedValidator(networkConfig.MaxMosaicAtomicUnits));
 		});
 
 		auto currencyMosaicId = manager.config().CurrencyMosaicId;
@@ -99,17 +97,15 @@ namespace catapult { namespace plugins {
 		manager.addObserverHook([currencyMosaicId, calculator, maxRollbackBlocks](auto& builder) {
 			auto rentalFeeReceiptType = model::Receipt_Type_Mosaic_Rental_Fee;
 			auto expiryReceiptType = model::Receipt_Type_Mosaic_Expired;
-			builder
-				.add(observers::CreateMosaicDefinitionObserver())
-				.add(observers::CreateMosaicSupplyChangeObserver())
-				.add(observers::CreateMosaicSupplyInflationObserver(currencyMosaicId, calculator))
-				.add(observers::CreateRentalFeeObserver<model::MosaicRentalFeeNotification>("Mosaic", rentalFeeReceiptType))
-				.add(observers::CreateCacheBlockTouchObserver<cache::MosaicCache>("Mosaic", expiryReceiptType));
+			builder.add(observers::CreateMosaicDefinitionObserver())
+					.add(observers::CreateMosaicSupplyChangeObserver())
+					.add(observers::CreateMosaicSupplyInflationObserver(currencyMosaicId, calculator))
+					.add(observers::CreateRentalFeeObserver<model::MosaicRentalFeeNotification>("Mosaic", rentalFeeReceiptType))
+					.add(observers::CreateCacheBlockTouchObserver<cache::MosaicCache>("Mosaic", expiryReceiptType));
 		});
 	}
 }}
 
-extern "C" PLUGIN_API
-void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+extern "C" PLUGIN_API void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
 	catapult::plugins::RegisterMosaicSubsystem(manager);
 }

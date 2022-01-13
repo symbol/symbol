@@ -132,14 +132,17 @@ namespace catapult { namespace harvesting {
 		};
 
 		auto CreateHarvester(HarvesterContext& context) {
-			return std::make_unique<Harvester>(context.Cache, context.Config, Address(), context.Accounts, [](
-					const auto& blockHeader,
-					auto) {
-				auto size = model::GetBlockHeaderSize(blockHeader.Type);
-				auto pBlock = utils::MakeUniqueWithSize<model::Block>(size);
-				std::memcpy(static_cast<void*>(pBlock.get()), &blockHeader, size);
-				return pBlock;
-			});
+			return std::make_unique<Harvester>(
+					context.Cache,
+					context.Config,
+					Address(),
+					context.Accounts,
+					[](const auto& blockHeader, auto) {
+						auto size = model::GetBlockHeaderSize(blockHeader.Type);
+						auto pBlock = utils::MakeUniqueWithSize<model::Block>(size);
+						std::memcpy(static_cast<void*>(pBlock.get()), &blockHeader, size);
+						return pBlock;
+					});
 		}
 	}
 

@@ -22,7 +22,9 @@
 #pragma once
 #include "catapult/extensions/LocalNodeStateFileStorage.h"
 
-namespace catapult { namespace config { struct NodeConfiguration; } }
+namespace catapult { namespace config {
+	struct NodeConfiguration;
+}}
 
 namespace catapult { namespace local {
 

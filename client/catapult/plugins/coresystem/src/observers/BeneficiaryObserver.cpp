@@ -31,15 +31,15 @@ namespace catapult { namespace observers {
 			auto& cache = context.Cache.sub<cache::AccountStateCache>();
 			cache::ProcessForwardedAccountState(cache, address, [&context](auto& accountState) {
 				importance::UpdateActivity(
-					accountState.Address,
-					context,
-					[](auto& bucket) { ++bucket.BeneficiaryCount; },
-					[](auto& bucket) { --bucket.BeneficiaryCount; });
+						accountState.Address,
+						context,
+						[](auto& bucket) { ++bucket.BeneficiaryCount; },
+						[](auto& bucket) { --bucket.BeneficiaryCount; });
 			});
 		}
 	}
 
 	DEFINE_OBSERVER(Beneficiary, model::BlockNotification, ([](const model::BlockNotification& notification, ObserverContext& context) {
-		UpdateBeneficiaryActivity(notification.Beneficiary, context);
-	}))
+						UpdateBeneficiaryActivity(notification.Beneficiary, context);
+					}))
 }}

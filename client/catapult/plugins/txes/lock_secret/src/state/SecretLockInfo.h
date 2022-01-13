@@ -31,8 +31,9 @@ namespace catapult { namespace state {
 	struct PLUGIN_API_DEPENDENCY SecretLockInfo : public LockInfo {
 	public:
 		/// Creates a default secret lock info.
-		SecretLockInfo() : LockInfo()
-		{}
+		SecretLockInfo()
+				: LockInfo() {
+		}
 
 		/// Creates a secret lock info around \a ownerAddress, \a mosaicId, \a amount, \a endHeight, \a hashAlgorithm, \a secret
 		/// and \a recipientAddress.
@@ -48,8 +49,8 @@ namespace catapult { namespace state {
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
 				, RecipientAddress(recipientAddress)
-				, CompositeHash()
-		{}
+				, CompositeHash() {
+		}
 
 	public:
 		/// Hash algorithm.

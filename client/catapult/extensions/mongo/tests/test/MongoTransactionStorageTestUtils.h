@@ -87,9 +87,8 @@ namespace catapult { namespace test {
 	public:
 		static void CanSaveMultipleTransactions_SingleCall() {
 			// Assert:
-			CanSaveMultipleTransactions([](auto& context) {
-				context.saveTransactions(test::CopyTransactionInfosToSet(context.transactionInfos()));
-			});
+			CanSaveMultipleTransactions(
+					[](auto& context) { context.saveTransactions(test::CopyTransactionInfosToSet(context.transactionInfos())); });
 		}
 
 		static void CanSaveMultipleTransactions_MultipleCalls() {
@@ -134,9 +133,8 @@ namespace catapult { namespace test {
 
 				for (auto i = 0; i < 3; ++i) {
 					auto dependentDocument = document()
-							<< "meta" << open_document << "aggregateHash" << mongo::mappers::ToBinary(hash) << close_document
-							<< "transaction" << open_document << "i" << i << close_document
-							<< finalize;
+											 << "meta" << open_document << "aggregateHash" << mongo::mappers::ToBinary(hash)
+											 << close_document << "transaction" << open_document << "i" << i << close_document << finalize;
 
 					collection.insert_one(dependentDocument.view());
 				}
@@ -233,7 +231,7 @@ namespace catapult { namespace test {
 #define MAKE_MONGO_TRANSACTION_STORAGE_TEST(TRANSACTION_STORAGE_CLASS, TEST_NAME) \
 	TEST(Mongo##TRANSACTION_STORAGE_CLASS##Tests, TEST_NAME) { \
 		test::MongoTransactionStorageTests<TRANSACTION_STORAGE_CLASS##Context>::TEST_NAME(); \
-	} \
+	}
 
 #define DEFINE_MONGO_TRANSACTION_STORAGE_SAVE_TESTS(TRANSACTION_STORAGE_CLASS) \
 	MAKE_MONGO_TRANSACTION_STORAGE_TEST(TRANSACTION_STORAGE_CLASS, CanSaveSingleTransaction) \

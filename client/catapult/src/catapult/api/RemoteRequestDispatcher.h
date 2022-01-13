@@ -30,8 +30,9 @@ namespace catapult { namespace api {
 	class RemoteRequestDispatcher {
 	public:
 		/// Creates a remote request dispatcher around \a io.
-		explicit RemoteRequestDispatcher(ionet::PacketIo& io) : m_io(io)
-		{}
+		explicit RemoteRequestDispatcher(ionet::PacketIo& io)
+				: m_io(io) {
+		}
 
 	public:
 		/// Dispatches \a args to the underlying io.
@@ -67,17 +68,15 @@ namespace catapult { namespace api {
 						return callback(RemoteChainResult::Read_Error, ResultType());
 
 					if (TFuncTraits::Packet_Type != pResponsePacket->Type) {
-						CATAPULT_LOG(warning)
-								<< "received packet of type " << pResponsePacket->Type
-								<< " but expected type " << TFuncTraits::Packet_Type;
+						CATAPULT_LOG(warning) << "received packet of type " << pResponsePacket->Type << " but expected type "
+											  << TFuncTraits::Packet_Type;
 						return callback(RemoteChainResult::Malformed_Packet, ResultType());
 					}
 
 					ResultType result;
 					if (!traits.tryParseResult(*pResponsePacket, result)) {
-						CATAPULT_LOG(warning)
-								<< "unable to parse " << pResponsePacket->Type
-								<< " packet (size = " << pResponsePacket->Size << ")";
+						CATAPULT_LOG(warning) << "unable to parse " << pResponsePacket->Type << " packet (size = " << pResponsePacket->Size
+											  << ")";
 						return callback(RemoteChainResult::Malformed_Packet, ResultType());
 					}
 
@@ -87,12 +86,7 @@ namespace catapult { namespace api {
 		}
 
 	private:
-		enum class RemoteChainResult {
-			Success,
-			Write_Error,
-			Read_Error,
-			Malformed_Packet
-		};
+		enum class RemoteChainResult { Success, Write_Error, Read_Error, Malformed_Packet };
 
 		static constexpr const char* GetErrorMessage(RemoteChainResult result) {
 			switch (result) {

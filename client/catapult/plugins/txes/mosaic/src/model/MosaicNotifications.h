@@ -63,8 +63,8 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a properties.
 		explicit MosaicPropertiesNotification(const MosaicProperties& properties)
 				: Notification(Notification_Type, sizeof(MosaicPropertiesNotification))
-				, Properties(properties)
-		{}
+				, Properties(properties) {
+		}
 
 	public:
 		/// Mosaic properties.
@@ -87,8 +87,8 @@ namespace catapult { namespace model {
 				: Notification(Notification_Type, sizeof(MosaicDefinitionNotification))
 				, Owner(owner)
 				, MosaicId(mosaicId)
-				, Properties(properties)
-		{}
+				, Properties(properties) {
+		}
 
 	public:
 		/// Mosaic owner.
@@ -117,8 +117,8 @@ namespace catapult { namespace model {
 				: Notification(Notification_Type, sizeof(MosaicNonceNotification))
 				, Owner(owner)
 				, MosaicNonce(mosaicNonce)
-				, MosaicId(mosaicId)
-		{}
+				, MosaicId(mosaicId) {
+		}
 
 	public:
 		/// Mosaic owner.
@@ -148,8 +148,8 @@ namespace catapult { namespace model {
 				, Owner(owner)
 				, MosaicId(mosaicId)
 				, Action(action)
-				, Delta(delta)
-		{}
+				, Delta(delta) {
+		}
 
 	public:
 		/// Mosaic owner.
@@ -183,8 +183,8 @@ namespace catapult { namespace model {
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount)
 				: BasicBalanceNotification(sender, mosaicId, amount)
-				, Recipient(recipient)
-		{}
+				, Recipient(recipient) {
+		}
 
 	public:
 		/// Recipient.

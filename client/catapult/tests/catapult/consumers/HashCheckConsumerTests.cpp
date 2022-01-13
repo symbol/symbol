@@ -83,10 +83,16 @@ namespace catapult { namespace consumers {
 
 #define TEST_PREFIX HashCheckConsumerTests
 #define SINGLE_ENTITY_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)(); \
-	TEST(BlockHashCheckConsumerTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)<BlockTraits>(); } \
-	TEST(TransactionHashCheckConsumerTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)<TransactionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)(); \
+	TEST(BlockHashCheckConsumerTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)<BlockTraits>(); \
+	} \
+	TEST(TransactionHashCheckConsumerTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)<TransactionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)()
 
 	// region shared tests
 
@@ -509,8 +515,8 @@ namespace catapult { namespace consumers {
 		public:
 			KnownHashPredicateParams(Timestamp timestamp, const Hash256& hash)
 					: Time(timestamp)
-					, Hash(hash)
-			{}
+					, Hash(hash) {
+			}
 
 		public:
 			const Timestamp Time;
@@ -673,7 +679,7 @@ namespace catapult { namespace consumers {
 
 		// Assert: only (1, 3) elements with matching merkle component hashes were skipped
 		test::AssertContinued(result);
-		for (auto i : { 1u, 3u})
+		for (auto i : { 1u, 3u })
 			EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, elements[i].ResultSeverity) << "element at " << i;
 
 		for (auto i : { 0u, 2u, 4u, 5u })

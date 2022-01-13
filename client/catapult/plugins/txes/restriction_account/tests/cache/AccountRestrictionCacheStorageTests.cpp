@@ -33,8 +33,9 @@ namespace catapult { namespace cache {
 			using StorageType = AccountRestrictionCacheStorage;
 			class CacheType : public AccountRestrictionCache {
 			public:
-				CacheType() : AccountRestrictionCache(CacheConfiguration(), static_cast<model::NetworkIdentifier>(12))
-				{}
+				CacheType()
+						: AccountRestrictionCache(CacheConfiguration(), static_cast<model::NetworkIdentifier>(12)) {
+				}
 			};
 
 			static auto CreateId(uint8_t id) {

@@ -42,9 +42,8 @@ namespace catapult { namespace cache {
 	public:
 		using Size = AddressMixins::Size;
 		using ContainsAddress = AddressMixins::Contains;
-		using ContainsKey = ContainsMixin<
-			AccountStateCacheTypes::KeyLookupMapTypes::BaseSetType,
-			AccountStateCacheTypes::KeyLookupMapTypesDescriptor>;
+		using ContainsKey =
+				ContainsMixin<AccountStateCacheTypes::KeyLookupMapTypes::BaseSetType, AccountStateCacheTypes::KeyLookupMapTypesDescriptor>;
 		using Iteration = AddressMixins::Iteration;
 		using ConstAccessorAddress = AddressMixins::ConstAccessor;
 		using ConstAccessorKey = KeyMixins::ConstAccessor;
@@ -119,7 +118,7 @@ namespace catapult { namespace cache {
 				const AccountStateCacheTypes::BaseSets& accountStateSets,
 				const AccountStateCacheTypes::Options& options,
 				const HighValueAccounts& highValueAccounts)
-				: ReadOnlyViewSupplier(accountStateSets, options, highValueAccounts)
-		{}
+				: ReadOnlyViewSupplier(accountStateSets, options, highValueAccounts) {
+		}
 	};
 }}

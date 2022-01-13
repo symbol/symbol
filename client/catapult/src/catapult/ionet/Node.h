@@ -48,17 +48,19 @@ namespace catapult { namespace ionet {
 	struct NodeMetadata {
 	public:
 		/// Creates default metadata.
-		NodeMetadata() : NodeMetadata(model::UniqueNetworkFingerprint())
-		{}
+		NodeMetadata()
+				: NodeMetadata(model::UniqueNetworkFingerprint()) {
+		}
 
 		/// Creates metadata for a node in the network identified by \a networkFingerprint.
-		explicit NodeMetadata(const model::UniqueNetworkFingerprint& networkFingerprint) : NodeMetadata(networkFingerprint, "")
-		{}
+		explicit NodeMetadata(const model::UniqueNetworkFingerprint& networkFingerprint)
+				: NodeMetadata(networkFingerprint, "") {
+		}
 
 		/// Creates metadata for a node with \a name in the network identified by \a networkFingerprint.
 		NodeMetadata(const model::UniqueNetworkFingerprint& networkFingerprint, const std::string& name)
-				: NodeMetadata(networkFingerprint, name, NodeVersion(), NodeRoles::None)
-		{}
+				: NodeMetadata(networkFingerprint, name, NodeVersion(), NodeRoles::None) {
+		}
 
 		/// Creates metadata for a node with \a name, \a version and \a roles in the network identified by \a networkFingerprint.
 		NodeMetadata(
@@ -69,8 +71,8 @@ namespace catapult { namespace ionet {
 				: NetworkFingerprint(networkFingerprint)
 				, Name(name)
 				, Version(version)
-				, Roles(roles)
-		{}
+				, Roles(roles) {
+		}
 
 	public:
 		/// Network fingerprint.

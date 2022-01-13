@@ -39,21 +39,17 @@ namespace catapult { namespace thread {
 		constexpr int Wait_Duration_Millis = 5;
 
 		Task CreateContinuousTask(uint64_t startDelayMs = 10) {
-			return {
-				utils::TimeSpan::FromMilliseconds(startDelayMs),
-				CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(10)),
-				[]() { return make_ready_future(TaskResult::Continue); },
-				"continuous task"
-			};
+			return { utils::TimeSpan::FromMilliseconds(startDelayMs),
+					 CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(10)),
+					 []() { return make_ready_future(TaskResult::Continue); },
+					 "continuous task" };
 		}
 
 		Task CreateImmediateTask(const TaskCallback& callback) {
-			return {
-				utils::TimeSpan::FromMilliseconds(0),
-				CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(0)),
-				callback,
-				"immediate task"
-			};
+			return { utils::TimeSpan::FromMilliseconds(0),
+					 CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(0)),
+					 callback,
+					 "immediate task" };
 		}
 
 		void WaitForScheduled(Scheduler& scheduler, uint32_t numScheduledTasks) {
@@ -68,8 +64,8 @@ namespace catapult { namespace thread {
 		public:
 			explicit PoolSchedulerPair(std::unique_ptr<IoThreadPool>&& pPool)
 					: m_pPool(std::move(pPool))
-					, m_pScheduler(CreateScheduler(*m_pPool))
-			{}
+					, m_pScheduler(CreateScheduler(*m_pPool)) {
+			}
 
 			~PoolSchedulerPair() {
 				stopAll();
@@ -116,8 +112,8 @@ namespace catapult { namespace thread {
 						, m_waitStrategy(waitStrategy)
 						, m_ioContext(ioContext)
 						, m_isPostingWork(false)
-						, m_shouldWait(true)
-				{}
+						, m_shouldWait(true) {
+				}
 
 			public:
 				void isPostingWork(bool value) {
@@ -158,8 +154,8 @@ namespace catapult { namespace thread {
 		public:
 			SchedulerWork(const test::WaitFunction& wait, WaitStrategy waitStrategy)
 					: m_pPool(test::CreateStartedIoThreadPool(1))
-					, m_pState(std::make_shared<State>(wait, waitStrategy, m_pPool->ioContext()))
-			{}
+					, m_pState(std::make_shared<State>(wait, waitStrategy, m_pPool->ioContext())) {
+			}
 
 			~SchedulerWork() {
 				// unblock all tasks and wait for them to drain
@@ -184,9 +180,7 @@ namespace catapult { namespace thread {
 			}
 
 			void postOne(Scheduler& scheduler) {
-				auto task = CreateImmediateTask([pState = m_pState]() {
-					return pState->wait();
-				});
+				auto task = CreateImmediateTask([pState = m_pState]() { return pState->wait(); });
 
 				scheduler.addTask(task);
 			}
@@ -198,14 +192,16 @@ namespace catapult { namespace thread {
 
 		class BlockingWork : public SchedulerWork {
 		public:
-			BlockingWork() : SchedulerWork(test::CreateSyncWaitFunction(Wait_Duration_Millis), WaitStrategy::NoWaitDuringPost)
-			{}
+			BlockingWork()
+					: SchedulerWork(test::CreateSyncWaitFunction(Wait_Duration_Millis), WaitStrategy::NoWaitDuringPost) {
+			}
 		};
 
 		class NonBlockingWork : public SchedulerWork {
 		public:
-			NonBlockingWork() : SchedulerWork(test::CreateAsyncWaitFunction(Wait_Duration_Millis), WaitStrategy::WaitDuringPost)
-			{}
+			NonBlockingWork()
+					: SchedulerWork(test::CreateAsyncWaitFunction(Wait_Duration_Millis), WaitStrategy::WaitDuringPost) {
+			}
 		};
 
 		// endregion
@@ -319,10 +315,7 @@ namespace catapult { namespace thread {
 			pScheduler.stopAll();
 
 			// Assert: the callback was allowed to complete and was not aborted
-			CATAPULT_LOG(debug)
-				<< "preShutdownWaits " << preShutdownWaits
-				<< " numWaits " << numWaits
-				<< " maxWaits " << maxWaits;
+			CATAPULT_LOG(debug) << "preShutdownWaits " << preShutdownWaits << " numWaits " << numWaits << " maxWaits " << maxWaits;
 			EXPECT_LE(10u, maxWaits - preShutdownWaits);
 			EXPECT_EQ(maxWaits, numWaits);
 		}
@@ -426,9 +419,8 @@ namespace catapult { namespace thread {
 
 		// Act: add a single task with a break
 		std::atomic<uint32_t> numCallbacks(0);
-		pScheduler->addTask(CreateImmediateTask([&numCallbacks]() {
-			return make_ready_future(5 == ++numCallbacks ? TaskResult::Break : TaskResult::Continue);
-		}));
+		pScheduler->addTask(CreateImmediateTask(
+				[&numCallbacks]() { return make_ready_future(5 == ++numCallbacks ? TaskResult::Break : TaskResult::Continue); }));
 
 		// wait for the task to run to completion
 		WAIT_FOR_VALUE(5u, numCallbacks);
@@ -457,17 +449,15 @@ namespace catapult { namespace thread {
 				uint32_t repeatDelayMs,
 				const CounterPointer& pCounter,
 				TSleep sleep) {
-			return {
-				utils::TimeSpan::FromMilliseconds(startDelayMs),
-				CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(repeatDelayMs)),
-				[pCounter, sleep]() {
-					// counter needs to be shared because tests are non-deterministic and it's possible that a failed iteration
-					// has sufficient delay to unwind the counter before the increment below.
-					++*pCounter;
-					return sleep();
-				},
-				"task with counter"
-			};
+			return { utils::TimeSpan::FromMilliseconds(startDelayMs),
+					 CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(repeatDelayMs)),
+					 [pCounter, sleep]() {
+						 // counter needs to be shared because tests are non-deterministic and it's possible that a failed iteration
+						 // has sufficient delay to unwind the counter before the increment below.
+						 ++*pCounter;
+						 return sleep();
+					 },
+					 "task with counter" };
 		}
 
 		Task CreateContinuousTaskWithCounter(
@@ -491,9 +481,7 @@ namespace catapult { namespace thread {
 			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, repeatDelayMs, pCounter, [callbackDelayMs, pTimer]() {
 				auto pPromise = std::make_shared<promise<TaskResult>>();
 				pTimer->expires_from_now(std::chrono::milliseconds(callbackDelayMs));
-				pTimer->async_wait([pPromise](const auto&) {
-					pPromise->set_value(TaskResult::Continue);
-				});
+				pTimer->async_wait([pPromise](const auto&) { pPromise->set_value(TaskResult::Continue); });
 
 				return pPromise->get_future();
 			});

@@ -43,6 +43,6 @@ namespace catapult { namespace cache {
 	NamespaceCacheSubCachePlugin::NamespaceCacheSubCachePlugin(
 			const CacheConfiguration& config,
 			const NamespaceCacheTypes::Options& options)
-			: BaseNamespaceCacheSubCachePlugin(std::make_unique<NamespaceCache>(config, options))
-	{}
+			: BaseNamespaceCacheSubCachePlugin(std::make_unique<NamespaceCache>(config, options)) {
+	}
 }}

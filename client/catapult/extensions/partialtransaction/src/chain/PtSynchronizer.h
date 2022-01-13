@@ -25,7 +25,9 @@
 #include "catapult/chain/RemoteNodeSynchronizer.h"
 #include "catapult/model/CosignedTransactionInfo.h"
 
-namespace catapult { namespace api { class RemotePtApi; } }
+namespace catapult { namespace api {
+	class RemotePtApi;
+}}
 
 namespace catapult { namespace chain {
 

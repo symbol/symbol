@@ -26,8 +26,12 @@
 #include <memory>
 
 namespace catapult {
-	namespace cache { class AccountStateCacheDelta; }
-	namespace test { struct AccountKeyPairDescriptor; }
+namespace cache {
+	class AccountStateCacheDelta;
+}
+namespace test {
+	struct AccountKeyPairDescriptor;
+}
 }
 
 namespace catapult { namespace test {
@@ -122,8 +126,8 @@ namespace catapult { namespace test {
 		/// Creates a descriptor around \a votingKeyPair.
 		explicit AccountKeyPairDescriptor(crypto::VotingKeyPair&& votingKeyPair)
 				: VotingKeyPair(std::move(votingKeyPair))
-				, VotingPublicKey(VotingKeyPair.publicKey().copyTo<VotingKey>())
-		{}
+				, VotingPublicKey(VotingKeyPair.publicKey().copyTo<VotingKey>()) {
+		}
 
 	public:
 		/// Voting key pair.

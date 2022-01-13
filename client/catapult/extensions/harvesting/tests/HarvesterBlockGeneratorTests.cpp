@@ -50,9 +50,8 @@ namespace catapult { namespace harvesting {
 					, m_pUtCache(test::CreateSeededMemoryUtCache(0))
 					, m_generator(CreateHarvesterBlockGenerator(strategy, m_transactionRegistry, m_utFacadeFactory, *m_pUtCache)) {
 				// add 5 transaction infos to UT cache with multipliers alternating between 10 and 20
-				m_transactionInfos = test::CreateTransactionInfosFromSizeMultiplierPairs({
-					{ 201, 200 }, { 202, 100 }, { 203, 200 }, { 204, 100 }, { 205, 200 }
-				});
+				m_transactionInfos = test::CreateTransactionInfosFromSizeMultiplierPairs(
+						{ { 201, 200 }, { 202, 100 }, { 203, 200 }, { 204, 100 }, { 205, 200 } });
 				for (auto& transactionInfo : m_transactionInfos)
 					const_cast<model::Transaction&>(*transactionInfo.pEntity).Type = mocks::MockTransaction::Entity_Type;
 

@@ -65,11 +65,9 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "initial " << static_cast<uint32_t>(numInitialCosignatories)
-					<< ", numAdditions " << numAdditions
-					<< ", numDeletions " << numDeletions
-					<< ", max " << static_cast<uint32_t>(maxCosignatoriesPerAccount);
+			EXPECT_EQ(expectedResult, result) << "initial " << static_cast<uint32_t>(numInitialCosignatories) << ", numAdditions "
+											  << numAdditions << ", numDeletions " << numDeletions << ", max "
+											  << static_cast<uint32_t>(maxCosignatoriesPerAccount);
 		}
 	}
 

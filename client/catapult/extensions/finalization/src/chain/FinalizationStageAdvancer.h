@@ -24,7 +24,9 @@
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/utils/TimeSpan.h"
 
-namespace catapult { namespace chain { class MultiRoundMessageAggregator; } }
+namespace catapult { namespace chain {
+	class MultiRoundMessageAggregator;
+}}
 
 namespace catapult { namespace chain {
 

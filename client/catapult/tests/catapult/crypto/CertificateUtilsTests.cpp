@@ -111,13 +111,8 @@ namespace catapult { namespace crypto {
 
 		// - only partial subject is extracted
 		std::ostringstream expectedSubjectStream;
-		expectedSubjectStream
-				<< "CN=" << std::string(64, 'f')
-				<< ",O=" << std::string(64, 'e')
-				<< ",C=CA"
-				<< ",CN=" << std::string(64, 'c')
-				<< ",O=" << std::string(64, 'b')
-				<< ",C=JP";
+		expectedSubjectStream << "CN=" << std::string(64, 'f') << ",O=" << std::string(64, 'e') << ",C=CA"
+							  << ",CN=" << std::string(64, 'c') << ",O=" << std::string(64, 'b') << ",C=JP";
 
 		EXPECT_EQ(expectedSubjectStream.str(), certificateInfo.Subject);
 		EXPECT_EQ(keyPair.publicKey(), certificateInfo.PublicKey);

@@ -63,7 +63,9 @@ namespace catapult { namespace crypto {
 	namespace {
 		class AesCbc256 {
 		public:
-			struct IV_tag { static constexpr size_t Size = 16; };
+			struct IV_tag {
+				static constexpr size_t Size = 16;
+			};
 			using IV = utils::ByteArray<IV_tag>;
 		};
 	}

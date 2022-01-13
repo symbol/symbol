@@ -76,7 +76,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(8u, sizeof(PackedNodeInteractions));
 	}
 
-	TEST(TEST_CLASS, PackedNodeInteractionsHasProperAlignment) {
+	TEST(TEST_CLASS, PackedNodeInteractionsHasProperAlignment){
 #define FIELD(X) EXPECT_ALIGNED(PackedNodeInteractions, X);
 		PACKED_NODE_INTERACTIONS_FIELDS
 #undef FIELD

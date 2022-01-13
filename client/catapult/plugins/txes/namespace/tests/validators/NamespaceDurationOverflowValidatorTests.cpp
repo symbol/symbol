@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/model/NamespaceConstants.h"
 #include "src/model/NamespaceLifetimeConstraints.h"
+#include "src/validators/Validators.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -70,11 +70,9 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification, cache, options.Height);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "MaxDuration " << options.MaxDuration
-					<< ", GracePeriodDuration " << options.GracePeriodDuration
-					<< ", Height " << options.Height
-					<< ", duration " << notification.Duration;
+			EXPECT_EQ(expectedResult, result) << "MaxDuration " << options.MaxDuration << ", GracePeriodDuration "
+											  << options.GracePeriodDuration << ", Height " << options.Height << ", duration "
+											  << notification.Duration;
 		}
 
 		// endregion

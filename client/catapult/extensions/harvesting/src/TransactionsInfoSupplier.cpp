@@ -36,9 +36,8 @@ namespace catapult { namespace harvesting {
 			bool operator()(const model::TransactionInfo* pLhs, const model::TransactionInfo* pRhs) const {
 				auto lhsMaxFeeMultiplier = model::CalculateTransactionMaxFeeMultiplier(*pLhs->pEntity);
 				auto rhsMaxFeeMultiplier = model::CalculateTransactionMaxFeeMultiplier(*pRhs->pEntity);
-				return SortDirection::Ascending == Direction
-						? lhsMaxFeeMultiplier < rhsMaxFeeMultiplier
-						: lhsMaxFeeMultiplier > rhsMaxFeeMultiplier;
+				return SortDirection::Ascending == Direction ? lhsMaxFeeMultiplier < rhsMaxFeeMultiplier
+															 : lhsMaxFeeMultiplier > rhsMaxFeeMultiplier;
 			}
 		};
 
@@ -67,8 +66,8 @@ namespace catapult { namespace harvesting {
 					: UtCacheView(utCacheView)
 					, EmbeddedCountRetriever(embeddedCountRetriever)
 					, UtFacade(utFacade)
-					, TransactionLimit(transactionLimit)
-			{}
+					, TransactionLimit(transactionLimit) {
+			}
 
 		public:
 			const cache::MemoryUtCacheView& UtCacheView;
@@ -129,14 +128,14 @@ namespace catapult { namespace harvesting {
 			// 1. get all transactions from the ut cache
 			auto comparer = MaxFeeMultiplierComparer<SortDirection::Descending>();
 			auto maximizer = TransactionFeeMaximizer();
-			auto candidates = GetFirstTransactionInfoPointers(input, comparer, [&utFacade = input.UtFacade, &maximizer](
-					const auto& transactionInfo) {
-				if (!utFacade.apply(transactionInfo))
-					return false;
+			auto candidates =
+					GetFirstTransactionInfoPointers(input, comparer, [&utFacade = input.UtFacade, &maximizer](const auto& transactionInfo) {
+						if (!utFacade.apply(transactionInfo))
+							return false;
 
-				maximizer.apply(transactionInfo);
-				return true;
-			});
+						maximizer.apply(transactionInfo);
+						return true;
+					});
 
 			// 2. pick the best fee policy and truncate the transactions and facade
 			const auto& bestFeePolicy = maximizer.best();

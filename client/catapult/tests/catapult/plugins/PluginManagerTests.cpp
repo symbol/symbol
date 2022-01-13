@@ -266,9 +266,7 @@ namespace catapult { namespace plugins {
 			counters.push_back(MakeDiagnosticCounter(7));
 			counters.push_back(MakeDiagnosticCounter(9));
 		});
-		manager.addDiagnosticCounterHook([](auto& counters, const auto&) {
-			counters.push_back(MakeDiagnosticCounter(4));
-		});
+		manager.addDiagnosticCounterHook([](auto& counters, const auto&) { counters.push_back(MakeDiagnosticCounter(4)); });
 
 		std::vector<utils::DiagnosticCounter> counters;
 		manager.addDiagnosticCounters(counters, manager.createCache());
@@ -288,8 +286,9 @@ namespace catapult { namespace plugins {
 		template<typename TNotification, typename... TArgs>
 		class NamedValidatorT : public validators::NotificationValidatorT<TNotification, TArgs...> {
 		public:
-			explicit NamedValidatorT(const std::string& name) : m_name(name)
-			{}
+			explicit NamedValidatorT(const std::string& name)
+					: m_name(name) {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -324,9 +323,7 @@ namespace catapult { namespace plugins {
 			builder.add(CreateNamedStatelessValidator("alpha"));
 			builder.add(CreateNamedStatelessValidator("beta"));
 		});
-		manager.addStatelessValidatorHook([](auto& builder) {
-			builder.add(CreateNamedStatelessValidator("gamma"));
-		});
+		manager.addStatelessValidatorHook([](auto& builder) { builder.add(CreateNamedStatelessValidator("gamma")); });
 
 		// Act:
 		auto pValidator = manager.createStatelessValidator();
@@ -338,9 +335,7 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		validators::ValidationResult ValidateStateless(const PluginManager& manager, bool suppress) {
-			auto pValidator = suppress
-					? manager.createStatelessValidator([](auto) { return true; })
-					: manager.createStatelessValidator();
+			auto pValidator = suppress ? manager.createStatelessValidator([](auto) { return true; }) : manager.createStatelessValidator();
 			auto notification = model::AccountPublicKeyNotification(test::GenerateRandomByteArray<Key>());
 			return pValidator->validate(notification);
 		}
@@ -349,9 +344,7 @@ namespace catapult { namespace plugins {
 	TEST(TEST_CLASS, CanCreateStatelessValidatorWithNoSuppressedFailureFiltering) {
 		// Arrange:
 		auto manager = test::CreatePluginManager();
-		manager.addStatelessValidatorHook([](auto& builder) {
-			builder.add(CreateNamedStatelessValidator("alpha"));
-		});
+		manager.addStatelessValidatorHook([](auto& builder) { builder.add(CreateNamedStatelessValidator("alpha")); });
 
 		// Act: no suppression
 		auto result = ValidateStateless(manager, false);
@@ -363,9 +356,7 @@ namespace catapult { namespace plugins {
 	TEST(TEST_CLASS, CanCreateStatelessValidatorWithCustomSuppressedFailureFiltering) {
 		// Arrange:
 		auto manager = test::CreatePluginManager();
-		manager.addStatelessValidatorHook([](auto& builder) {
-			builder.add(CreateNamedStatelessValidator("alpha"));
-		});
+		manager.addStatelessValidatorHook([](auto& builder) { builder.add(CreateNamedStatelessValidator("alpha")); });
 
 		// Act: suppress everything
 		auto result = ValidateStateless(manager, true);
@@ -385,9 +376,7 @@ namespace catapult { namespace plugins {
 			builder.add(CreateNamedStatefulValidator("alpha"));
 			builder.add(CreateNamedStatefulValidator("beta"));
 		});
-		manager.addStatefulValidatorHook([](auto& builder) {
-			builder.add(CreateNamedStatefulValidator("gamma"));
-		});
+		manager.addStatefulValidatorHook([](auto& builder) { builder.add(CreateNamedStatefulValidator("gamma")); });
 
 		// Act:
 		auto pValidator = manager.createStatefulValidator();
@@ -399,9 +388,7 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		validators::ValidationResult ValidateStateful(const PluginManager& manager, bool suppress) {
-			auto pValidator = suppress
-					? manager.createStatefulValidator([](auto) { return true; })
-					: manager.createStatefulValidator();
+			auto pValidator = suppress ? manager.createStatefulValidator([](auto) { return true; }) : manager.createStatefulValidator();
 			auto notification = model::AccountPublicKeyNotification(test::GenerateRandomByteArray<Key>());
 			auto cache = cache::CatapultCache({});
 			auto context = test::CreateValidatorContext(Height(123), cache.createView().toReadOnly());
@@ -412,9 +399,7 @@ namespace catapult { namespace plugins {
 	TEST(TEST_CLASS, CanCreateStatefulValidatorWithNoSuppressedFailureFiltering) {
 		// Arrange:
 		auto manager = test::CreatePluginManager();
-		manager.addStatefulValidatorHook([](auto& builder) {
-			builder.add(CreateNamedStatefulValidator("alpha"));
-		});
+		manager.addStatefulValidatorHook([](auto& builder) { builder.add(CreateNamedStatefulValidator("alpha")); });
 
 		// Act: no suppression
 		auto result = ValidateStateful(manager, false);
@@ -426,9 +411,7 @@ namespace catapult { namespace plugins {
 	TEST(TEST_CLASS, CanCreateStatefulValidatorWithCustomSuppressedFailureFiltering) {
 		// Arrange:
 		auto manager = test::CreatePluginManager();
-		manager.addStatefulValidatorHook([](auto& builder) {
-			builder.add(CreateNamedStatefulValidator("alpha"));
-		});
+		manager.addStatefulValidatorHook([](auto& builder) { builder.add(CreateNamedStatefulValidator("alpha")); });
 
 		// Act: suppress everything
 		auto result = ValidateStateful(manager, true);
@@ -444,8 +427,9 @@ namespace catapult { namespace plugins {
 	namespace {
 		class NamedObserver : public observers::NotificationObserverT<model::Notification> {
 		public:
-			explicit NamedObserver(const std::string& name) : m_name(name)
-			{}
+			explicit NamedObserver(const std::string& name)
+					: m_name(name) {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -472,15 +456,9 @@ namespace catapult { namespace plugins {
 				builder.add(CreateNamedObserver("alpha"));
 				builder.add(CreateNamedObserver("beta"));
 			});
-			manager.addTransientObserverHook([](auto& builder) {
-				builder.add(CreateNamedObserver("zeta"));
-			});
-			manager.addObserverHook([](auto& builder) {
-				builder.add(CreateNamedObserver("gamma"));
-			});
-			manager.addTransientObserverHook([](auto& builder) {
-				builder.add(CreateNamedObserver("omega"));
-			});
+			manager.addTransientObserverHook([](auto& builder) { builder.add(CreateNamedObserver("zeta")); });
+			manager.addObserverHook([](auto& builder) { builder.add(CreateNamedObserver("gamma")); });
+			manager.addTransientObserverHook([](auto& builder) { builder.add(CreateNamedObserver("omega")); });
 
 			// Act:
 			action(manager);
@@ -556,10 +534,16 @@ namespace catapult { namespace plugins {
 	}
 
 #define RESOLVER_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicResolverTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressResolverTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicResolverTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressResolverTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	namespace {
 		template<typename TUnresolved>
@@ -665,9 +649,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanCreateDefaultNotificationPublisher) {
 		// Assert: 8 basic and 2 custom notifications should be raised
-		AssertCanCreateNotificationPublisher(8u + 2, [](const auto& manager) {
-			return manager.createNotificationPublisher();
-		});
+		AssertCanCreateNotificationPublisher(8u + 2, [](const auto& manager) { return manager.createNotificationPublisher(); });
 	}
 
 	TEST(TEST_CLASS, CanCreateCustomNotificationPublisher) {

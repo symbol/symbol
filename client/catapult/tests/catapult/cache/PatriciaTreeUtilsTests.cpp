@@ -33,12 +33,8 @@ namespace catapult { namespace cache {
 		using DeltasWrapper = test::DeltaElementsTestUtils::WrapperWithGenerationalSupport<std::unordered_map<uint32_t, std::string>>;
 
 		Hash256 CalculateRootHashForTreeWithFourNodes() {
-			return test::CalculateRootHash({
-				{ 0x64'6F'00'00, "verb" },
-				{ 0x64'6F'67'00, "puppy" },
-				{ 0x64'6F'67'65, "coin" },
-				{ 0x68'6F'72'73, "stallion" }
-			});
+			return test::CalculateRootHash(
+					{ { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "coin" }, { 0x68'6F'72'73, "stallion" } });
 		}
 	}
 
@@ -79,14 +75,12 @@ namespace catapult { namespace cache {
 		ApplyDeltasToTree(tree, deltaset, 1, Height(1));
 
 		// Assert:
-		auto expectedRoot = test::CalculateRootHash({
-			{ 0x64'6F'00'00, "verb" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x64'6F'67'65, "coin" },
-			{ 0x68'6F'72'73, "stallion" },
-			{ 0x26'54'32'10, "alpha" },
-			{ 0x46'54'32'10, "beta" }
-		});
+		auto expectedRoot = test::CalculateRootHash({ { 0x64'6F'00'00, "verb" },
+													  { 0x64'6F'67'00, "puppy" },
+													  { 0x64'6F'67'65, "coin" },
+													  { 0x68'6F'72'73, "stallion" },
+													  { 0x26'54'32'10, "alpha" },
+													  { 0x46'54'32'10, "beta" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 	}
@@ -105,10 +99,7 @@ namespace catapult { namespace cache {
 		ApplyDeltasToTree(tree, deltaset, 1, Height(1));
 
 		// Assert:
-		auto expectedRoot = test::CalculateRootHash({
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x68'6F'72'73, "stallion" }
-		});
+		auto expectedRoot = test::CalculateRootHash({ { 0x64'6F'67'00, "puppy" }, { 0x68'6F'72'73, "stallion" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 	}
@@ -127,12 +118,8 @@ namespace catapult { namespace cache {
 		ApplyDeltasToTree(tree, deltaset, 1, Height(1));
 
 		// Assert:
-		auto expectedRoot = test::CalculateRootHash({
-			{ 0x64'6F'00'00, "noun" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x64'6F'67'65, "bill" },
-			{ 0x68'6F'72'73, "stallion" }
-		});
+		auto expectedRoot = test::CalculateRootHash(
+				{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "bill" }, { 0x68'6F'72'73, "stallion" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 	}
@@ -156,12 +143,8 @@ namespace catapult { namespace cache {
 		ApplyDeltasToTree(tree, deltaset, 1, Height(1));
 
 		// Assert:
-		auto expectedRoot = test::CalculateRootHash({
-			{ 0x64'6F'00'00, "noun" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x68'6F'72'73, "stallion" },
-			{ 0x26'54'32'10, "alpha" }
-		});
+		auto expectedRoot = test::CalculateRootHash(
+				{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x68'6F'72'73, "stallion" }, { 0x26'54'32'10, "alpha" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 	}
@@ -189,13 +172,11 @@ namespace catapult { namespace cache {
 		ApplyDeltasToTree(tree, deltaset, 1, Height(1));
 
 		// Assert:
-		auto expectedRoot = test::CalculateRootHash({
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x64'6F'67'65, "coin" },
-			{ 0x68'6F'72'73, "stallion" },
-			{ 0x46'54'32'10, "tiger" },
-			{ 0x46'98'21'44, "bison" }
-		});
+		auto expectedRoot = test::CalculateRootHash({ { 0x64'6F'67'00, "puppy" },
+													  { 0x64'6F'67'65, "coin" },
+													  { 0x68'6F'72'73, "stallion" },
+													  { 0x46'54'32'10, "tiger" },
+													  { 0x46'98'21'44, "bison" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 	}
@@ -227,17 +208,15 @@ namespace catapult { namespace cache {
 		ApplyDeltasToTree(tree, deltaset, 2, Height(1));
 
 		// Assert:
-		auto expectedRoot = test::CalculateRootHash({
-			{ 0x64'6F'00'00, "verb" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x64'6F'67'65, "coin" },
-			{ 0x68'6F'72'73, "stallion" },
+		auto expectedRoot = test::CalculateRootHash({ { 0x64'6F'00'00, "verb" },
+													  { 0x64'6F'67'00, "puppy" },
+													  { 0x64'6F'67'65, "coin" },
+													  { 0x68'6F'72'73, "stallion" },
 
-			{ 0x26'54'32'01, "two" },
-			{ 0x26'54'32'02, "three" },
-			{ 0x26'54'32'05, "six" },
-			{ 0x26'54'32'06, "seven" }
-		});
+													  { 0x26'54'32'01, "two" },
+													  { 0x26'54'32'02, "three" },
+													  { 0x26'54'32'05, "six" },
+													  { 0x26'54'32'06, "seven" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 	}
@@ -266,12 +245,8 @@ namespace catapult { namespace cache {
 		ApplyDeltasToTree(tree, deltaset, 2, Height(1));
 
 		// Assert:
-		auto expectedRoot = test::CalculateRootHash({
-			{ 0x64'6F'00'00, "verb" },
-			{ 0x64'6F'67'00, "kitten" },
-			{ 0x64'6F'67'65, "bill" },
-			{ 0x68'6F'72'73, "stallion" }
-		});
+		auto expectedRoot = test::CalculateRootHash(
+				{ { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "kitten" }, { 0x64'6F'67'65, "bill" }, { 0x68'6F'72'73, "stallion" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 	}
@@ -300,10 +275,7 @@ namespace catapult { namespace cache {
 		ApplyDeltasToTree(tree, deltaset, 2, Height(1));
 
 		// Assert:
-		auto expectedRoot = test::CalculateRootHash({
-			{ 0x64'6F'00'00, "verb" },
-			{ 0x68'6F'72'73, "stallion" }
-		});
+		auto expectedRoot = test::CalculateRootHash({ { 0x64'6F'00'00, "verb" }, { 0x68'6F'72'73, "stallion" } });
 
 		EXPECT_EQ(expectedRoot, tree.root());
 	}
@@ -321,8 +293,8 @@ namespace catapult { namespace cache {
 		public:
 			HeightDependentValue(const std::string& value, Height height)
 					: m_value(value)
-					, m_height(height)
-			{}
+					, m_height(height) {
+			}
 
 		public:
 			const std::string& str() const {
@@ -350,12 +322,12 @@ namespace catapult { namespace cache {
 
 		template<bool IsDeactivationDestructive>
 		using HeightDependentDeltasWrapper = test::DeltaElementsTestUtils::WrapperWithGenerationalSupport<
-			std::unordered_map<uint32_t, HeightDependentValue<IsDeactivationDestructive>>>;
+				std::unordered_map<uint32_t, HeightDependentValue<IsDeactivationDestructive>>>;
 
 		template<bool IsDeactivationDestructive>
 		using HeightDependentMemoryPatriciaTree = tree::PatriciaTree<
-			SerializerPlainKeyEncoder<HeightDependentValueSimpleSerializer<IsDeactivationDestructive>>,
-			tree::MemoryDataSource>;
+				SerializerPlainKeyEncoder<HeightDependentValueSimpleSerializer<IsDeactivationDestructive>>,
+				tree::MemoryDataSource>;
 
 		template<bool IsDeactivationDestructive>
 		void SeedTreeWithFourNodes(HeightDependentMemoryPatriciaTree<IsDeactivationDestructive>& tree) {
@@ -382,14 +354,12 @@ namespace catapult { namespace cache {
 			ApplyDeltasToTree(tree, deltaset, 1, Height(20));
 
 			// Assert:
-			auto expectedRoot = test::CalculateRootHash({
-				{ 0x64'6F'00'00, "verb" },
-				{ 0x64'6F'67'00, "puppy" },
-				{ 0x64'6F'67'65, "coin" },
-				{ 0x68'6F'72'73, "stallion" },
-				{ 0x26'54'32'10, "alpha" },
-				{ 0x46'54'32'10, "beta" }
-			});
+			auto expectedRoot = test::CalculateRootHash({ { 0x64'6F'00'00, "verb" },
+														  { 0x64'6F'67'00, "puppy" },
+														  { 0x64'6F'67'65, "coin" },
+														  { 0x68'6F'72'73, "stallion" },
+														  { 0x26'54'32'10, "alpha" },
+														  { 0x46'54'32'10, "beta" } });
 
 			EXPECT_EQ(expectedRoot, tree.root());
 		}
@@ -438,14 +408,12 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, DeltaAdditionsCanBeAppliedToTree_Inactive_DeactivationNotDestructive) {
-		AssertDeltaAdditionsCanBeAppliedToTreeInactive<false>(test::CalculateRootHash({
-			{ 0x64'6F'00'00, "verb" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x64'6F'67'65, "coin" },
-			{ 0x68'6F'72'73, "stallion" },
-			{ 0x26'54'32'10, "alpha" },
-			{ 0x46'54'32'10, "beta" }
-		}));
+		AssertDeltaAdditionsCanBeAppliedToTreeInactive<false>(test::CalculateRootHash({ { 0x64'6F'00'00, "verb" },
+																						{ 0x64'6F'67'00, "puppy" },
+																						{ 0x64'6F'67'65, "coin" },
+																						{ 0x68'6F'72'73, "stallion" },
+																						{ 0x26'54'32'10, "alpha" },
+																						{ 0x46'54'32'10, "beta" } }));
 	}
 
 	namespace {
@@ -464,12 +432,8 @@ namespace catapult { namespace cache {
 			ApplyDeltasToTree(tree, deltaset, 1, Height(20));
 
 			// Assert:
-			auto expectedRoot = test::CalculateRootHash({
-				{ 0x64'6F'00'00, "noun" },
-				{ 0x64'6F'67'00, "puppy" },
-				{ 0x64'6F'67'65, "bill" },
-				{ 0x68'6F'72'73, "stallion" }
-			});
+			auto expectedRoot = test::CalculateRootHash(
+					{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "bill" }, { 0x68'6F'72'73, "stallion" } });
 
 			EXPECT_EQ(expectedRoot, tree.root());
 		}
@@ -504,19 +468,13 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, DeltaCopiesCanBeAppliedToTree_Inactive_DeactivationDestructive) {
-		AssertDeltaCopiesCanBeAppliedToTreeInactive<true>(test::CalculateRootHash({
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x68'6F'72'73, "stallion" }
-		}));
+		AssertDeltaCopiesCanBeAppliedToTreeInactive<true>(
+				test::CalculateRootHash({ { 0x64'6F'67'00, "puppy" }, { 0x68'6F'72'73, "stallion" } }));
 	}
 
 	TEST(TEST_CLASS, DeltaCopiesCanBeAppliedToTree_Inactive_DeactivationNotDestructive) {
-		AssertDeltaCopiesCanBeAppliedToTreeInactive<false>(test::CalculateRootHash({
-			{ 0x64'6F'00'00, "noun" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x64'6F'67'65, "bill" },
-			{ 0x68'6F'72'73, "stallion" }
-		}));
+		AssertDeltaCopiesCanBeAppliedToTreeInactive<false>(test::CalculateRootHash(
+				{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "bill" }, { 0x68'6F'72'73, "stallion" } }));
 	}
 
 	namespace {
@@ -540,20 +498,13 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, DeltaCopiesCanBeAppliedToTree_MixedActiveInactive_DeactivationDestructive) {
-		AssertDeltaCopiesCanBeAppliedToTreeMixedActiveInactive<true>(test::CalculateRootHash({
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x64'6F'67'65, "bill" },
-			{ 0x68'6F'72'73, "stallion" }
-		}));
+		AssertDeltaCopiesCanBeAppliedToTreeMixedActiveInactive<true>(
+				test::CalculateRootHash({ { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "bill" }, { 0x68'6F'72'73, "stallion" } }));
 	}
 
 	TEST(TEST_CLASS, DeltaCopiesCanBeAppliedToTree_MixedActiveInactive_DeactivationNotDestructive) {
-		AssertDeltaCopiesCanBeAppliedToTreeMixedActiveInactive<false>(test::CalculateRootHash({
-			{ 0x64'6F'00'00, "noun" },
-			{ 0x64'6F'67'00, "puppy" },
-			{ 0x64'6F'67'65, "bill" },
-			{ 0x68'6F'72'73, "stallion" }
-		}));
+		AssertDeltaCopiesCanBeAppliedToTreeMixedActiveInactive<false>(test::CalculateRootHash(
+				{ { 0x64'6F'00'00, "noun" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "bill" }, { 0x68'6F'72'73, "stallion" } }));
 	}
 
 	// endregion

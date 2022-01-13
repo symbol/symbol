@@ -79,11 +79,9 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(Height height, const Hash256& hash) {
-		auto stepIdentifier = model::StepIdentifier{
-			FinalizationEpoch(static_cast<uint32_t>(Random())),
-			FinalizationPoint(static_cast<uint32_t>(Random())),
-			static_cast<model::FinalizationStage>(Random())
-		};
+		auto stepIdentifier = model::StepIdentifier{ FinalizationEpoch(static_cast<uint32_t>(Random())),
+													 FinalizationPoint(static_cast<uint32_t>(Random())),
+													 static_cast<model::FinalizationStage>(Random()) };
 		auto pMessage = CreateMessage(stepIdentifier, hash);
 		pMessage->Height = height;
 		return pMessage;
@@ -165,10 +163,10 @@ namespace catapult { namespace test {
 		auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
 
 		auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier);
-		message.Signature = bmPrivateKeyTree.sign(keyIdentifier, {
-			reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
-			message.Size - model::FinalizationMessage::Header_Size
-		});
+		message.Signature = bmPrivateKeyTree.sign(
+				keyIdentifier,
+				{ reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
+				  message.Size - model::FinalizationMessage::Header_Size });
 	}
 
 	void AssertEqualMessage(
@@ -195,11 +193,8 @@ namespace catapult { namespace test {
 			auto address = GenerateRandomByteArray<Address>();
 			accountStateCacheDelta.addAccount(address, height);
 			auto& accountState = accountStateCacheDelta.find(address).get();
-			accountState.SupplementalPublicKeys.voting().add({
-				keyPairDescriptors.back().VotingPublicKey,
-				FinalizationEpoch(1),
-				FinalizationEpoch(100)
-			});
+			accountState.SupplementalPublicKeys.voting().add(
+					{ keyPairDescriptors.back().VotingPublicKey, FinalizationEpoch(1), FinalizationEpoch(100) });
 			accountState.Balances.credit(mosaicId, balance);
 		}
 

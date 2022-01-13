@@ -23,8 +23,9 @@
 
 namespace catapult { namespace state {
 
-	MosaicGlobalRestriction::MosaicGlobalRestriction(MosaicId mosaicId) : m_mosaicId(mosaicId)
-	{}
+	MosaicGlobalRestriction::MosaicGlobalRestriction(MosaicId mosaicId)
+			: m_mosaicId(mosaicId) {
+	}
 
 	MosaicId MosaicGlobalRestriction::mosaicId() const {
 		return m_mosaicId;

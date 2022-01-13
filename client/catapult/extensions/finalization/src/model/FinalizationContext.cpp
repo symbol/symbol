@@ -53,9 +53,8 @@ namespace catapult { namespace model {
 
 			const auto& address = accountHistoryPair.first;
 			if (config.TreasuryReissuanceEpoch <= epoch && Contains(config.TreasuryReissuanceEpochIneligibleVoterAddresses, address)) {
-				CATAPULT_LOG(info)
-						<< "excluding voting account " << address
-						<< " from voting set at epoch " << config.TreasuryReissuanceEpoch;
+				CATAPULT_LOG(info) << "excluding voting account " << address << " from voting set at epoch "
+								   << config.TreasuryReissuanceEpoch;
 				continue;
 			}
 

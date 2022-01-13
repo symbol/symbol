@@ -32,8 +32,8 @@ namespace catapult { namespace local {
 		public:
 			StateChangeRepairingSubscriber(cache::CatapultCache& cache, extensions::LocalNodeChainScore& localNodeScore)
 					: m_cache(cache)
-					, m_localNodeScore(localNodeScore)
-			{}
+					, m_localNodeScore(localNodeScore) {
+			}
 
 		public:
 			void notifyScoreChange(const model::ChainScore& chainScore) override {

@@ -29,8 +29,8 @@ namespace catapult { namespace disruptor {
 #define TEST_CLASS DisruptorElementTests
 
 	namespace {
-		void EmptyProcessingCompleteFunc(DisruptorElementId, ConsumerResult)
-		{}
+		void EmptyProcessingCompleteFunc(DisruptorElementId, ConsumerResult) {
+		}
 
 		ConsumerResult CreateConsumerResult(uint32_t code, uint8_t severity) {
 			ConsumerResult result;

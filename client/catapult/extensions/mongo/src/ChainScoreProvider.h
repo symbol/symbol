@@ -25,15 +25,17 @@
 #include <memory>
 #include <unordered_set>
 
-namespace catapult { namespace model { class ChainScore; } }
+namespace catapult { namespace model {
+	class ChainScore;
+}}
 
 namespace catapult { namespace mongo {
 
 	/// Interface for saving api chain score.
 	class ChainScoreProvider {
 	public:
-		virtual ~ChainScoreProvider()
-		{}
+		virtual ~ChainScoreProvider() {
+		}
 
 	public:
 		/// Save score (\a chainScore).

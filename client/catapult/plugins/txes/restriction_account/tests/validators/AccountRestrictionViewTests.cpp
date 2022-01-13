@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/validators/AccountRestrictionView.h"
+#include "src/validators/Validators.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/TestHarness.h"
@@ -34,8 +34,8 @@ namespace catapult { namespace validators {
 		public:
 			PopulateOptions(size_t numRestrictions)
 					: NumRestrictions(numRestrictions)
-					, ShouldBlock(false)
-			{}
+					, ShouldBlock(false) {
+			}
 
 		public:
 			size_t NumRestrictions;
@@ -49,10 +49,8 @@ namespace catapult { namespace validators {
 			auto restrictions = state::AccountRestrictions(address);
 			auto& restriction = restrictions.restriction(model::AccountRestrictionFlags::MosaicId);
 			for (auto i = 0u; i < options.NumRestrictions; ++i) {
-				auto modification = model::AccountRestrictionModification{
-					model::AccountRestrictionModificationAction::Add,
-					state::ToVector(MosaicId(i))
-				};
+				auto modification = model::AccountRestrictionModification{ model::AccountRestrictionModificationAction::Add,
+																		   state::ToVector(MosaicId(i)) };
 				if (options.ShouldBlock)
 					restriction.block(modification);
 				else

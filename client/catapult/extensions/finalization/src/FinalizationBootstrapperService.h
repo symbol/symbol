@@ -27,9 +27,15 @@
 #include "catapult/handlers/HandlerTypes.h"
 
 namespace catapult {
-	namespace chain { class MultiRoundMessageAggregator; }
-	namespace finalization { struct FinalizationConfiguration; }
-	namespace io { class ProofStorageCache; }
+namespace chain {
+	class MultiRoundMessageAggregator;
+}
+namespace finalization {
+	struct FinalizationConfiguration;
+}
+namespace io {
+	class ProofStorageCache;
+}
 }
 
 namespace catapult { namespace finalization {
@@ -58,9 +64,8 @@ namespace catapult { namespace finalization {
 
 	/// Creates a registrar for a finalization bootstrapper service around \a config and \a pProofStorage.
 	/// \note This service is responsible for registering root finalization services.
-	DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapper)(
-			const FinalizationConfiguration& config,
-			std::unique_ptr<io::ProofStorage>&& pProofStorage);
+	DECLARE_SERVICE_REGISTRAR(FinalizationBootstrapper)
+	(const FinalizationConfiguration& config, std::unique_ptr<io::ProofStorage>&& pProofStorage);
 
 	/// Creates a registrar for a finalization bootstrapper (phase two) service.
 	/// \note This service is required to prevent a circular service dependency.

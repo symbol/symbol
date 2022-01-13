@@ -36,8 +36,9 @@ namespace catapult { namespace test {
 	class NodeReachabilityChecker {
 	public:
 		/// Creates reachability checker around \a dataSource.
-		explicit NodeReachabilityChecker(const TDataSource& dataSource) : m_dataSource(dataSource)
-		{}
+		explicit NodeReachabilityChecker(const TDataSource& dataSource)
+				: m_dataSource(dataSource) {
+		}
 
 	public:
 		/// Gets the hash registered with \a name.
@@ -196,8 +197,8 @@ namespace catapult { namespace test {
 		public:
 			explicit TestContextT(tree::DataSourceVerbosity verbosity = tree::DataSourceVerbosity::Verbose)
 					: m_dataSourceWrapper(verbosity)
-					, m_tree(m_dataSourceWrapper.dataSource())
-			{}
+					, m_tree(m_dataSourceWrapper.dataSource()) {
+			}
 
 		public:
 			auto& dataSource() {
@@ -476,7 +477,7 @@ namespace catapult { namespace test {
 			// tree 1
 			auto alphaHash = checker.addLeaf({ 0x30 }, "alpha");
 			auto betaHash = checker.addLeaf({ 0x35 }, "beta");
-			checker.addBranch({ 0x00, 0x64, 0x6F, 0x67 }, { { 0, alphaHash }, { 8, betaHash} }, "root");
+			checker.addBranch({ 0x00, 0x64, 0x6F, 0x67 }, { { 0, alphaHash }, { 8, betaHash } }, "root");
 			return checker;
 		}
 
@@ -533,7 +534,7 @@ namespace catapult { namespace test {
 			// tree 1
 			auto alphaHash = checker.addLeaf({ 0x36, 0x54, 0x32, 0x10 }, "alpha");
 			auto betaHash = checker.addLeaf({ 0x36, 0x54, 0x32, 0x10 }, "beta");
-			checker.addBranch({ 0x00 }, { { 2, alphaHash }, { 4, betaHash} }, "root");
+			checker.addBranch({ 0x00 }, { { 2, alphaHash }, { 4, betaHash } }, "root");
 			return checker;
 		}
 
@@ -694,7 +695,7 @@ namespace catapult { namespace test {
 			checker.addBranch({ 0x00, 0x65, 0x43 }, { { 2, alphaHash }, { 4, betaHash } }, "root0");
 
 			// tree 1
-			auto alphaBetaBranchHash = checker.addBranch({ 0x15, 0x43 }, { { 2, alphaHash }, { 4, betaHash} }, "alpha-beta");
+			auto alphaBetaBranchHash = checker.addBranch({ 0x15, 0x43 }, { { 2, alphaHash }, { 4, betaHash } }, "alpha-beta");
 			auto gammaHash = checker.addLeaf({ 0x37, 0x95, 0x92, 0x10 }, "gamma");
 			checker.addBranch({ 0x00 }, { { 6, alphaBetaBranchHash }, { 4, gammaHash } }, "root");
 			return checker;
@@ -859,7 +860,7 @@ namespace catapult { namespace test {
 			checker.addBranch({ 0x00, 0x65, 0x43 }, { { 2, alphaHash }, { 6, betaHash } }, "root0");
 
 			// tree 1
-			auto alphaBetaBranchHash = checker.addBranch({ 0x13 }, { { 2, alphaHash }, { 6, betaHash} }, "alpha-beta");
+			auto alphaBetaBranchHash = checker.addBranch({ 0x13 }, { { 2, alphaHash }, { 6, betaHash } }, "alpha-beta");
 			auto gammaHash = checker.addLeaf({ 0x35, 0x92, 0x10 }, "gamma");
 			checker.addBranch({ 0x00, 0x65 }, { { 4, alphaBetaBranchHash }, { 9, gammaHash } }, "root");
 			return checker;
@@ -928,7 +929,7 @@ namespace catapult { namespace test {
 			// tree 1
 			auto puppyHash = checker.addLeaf({ 0x30 }, "puppy");
 			auto coinHash = checker.addLeaf({ 0x35 }, "coin");
-			auto puppyCoinBranchHash = checker.addBranch({ 0x17 }, { { 0, puppyHash }, { 6, coinHash} }, "puppy-coin");
+			auto puppyCoinBranchHash = checker.addBranch({ 0x17 }, { { 0, puppyHash }, { 6, coinHash } }, "puppy-coin");
 			checker.addBranch({ 0x00, 0x64, 0x6F }, { { 0, verbHash }, { 6, puppyCoinBranchHash } }, "root");
 			return checker;
 		}
@@ -986,14 +987,12 @@ namespace catapult { namespace test {
 			auto verbHash = checker.addLeaf({ 0x30, 0x00 }, "verb");
 			auto puppyHash = checker.addLeaf({ 0x30 }, "puppy");
 			auto coinHash = checker.addLeaf({ 0x35 }, "coin");
-			auto puppyCoinBranchHash = checker.addBranch({ 0x17 }, { { 0, puppyHash }, { 6, coinHash} }, "puppy-coin");
+			auto puppyCoinBranchHash = checker.addBranch({ 0x17 }, { { 0, puppyHash }, { 6, coinHash } }, "puppy-coin");
 			checker.addBranch({ 0x00, 0x64, 0x6F }, { { 0, verbHash }, { 6, puppyCoinBranchHash } }, "root0");
 
 			// tree 1
-			auto verbPuppyCoinBranchHash = checker.addBranch(
-					{ 0x14, 0x6F },
-					{ { 0, verbHash }, { 6, puppyCoinBranchHash } },
-					"verb-puppy-coin");
+			auto verbPuppyCoinBranchHash =
+					checker.addBranch({ 0x14, 0x6F }, { { 0, verbHash }, { 6, puppyCoinBranchHash } }, "verb-puppy-coin");
 			auto stallionHash = checker.addLeaf({ 0x3A, 0x6F, 0x72, 0x73 }, "stallion");
 			checker.addBranch({ 0x00 }, { { 6, verbPuppyCoinBranchHash }, { 7, stallionHash } }, "root");
 			return checker;
@@ -1019,13 +1018,11 @@ namespace catapult { namespace test {
 			// Assert:
 			EXPECT_EQ(checker.get("root"), context.tree().root());
 			context.verifyDataSourceSize(5 + 3);
-			checker.checkReachable(context.tree().root(), {
-				"verb", "puppy", "coin", "puppy-coin", "verb-puppy-coin", "stallion", "root"
-			});
+			checker.checkReachable(context.tree().root(), { "verb", "puppy", "coin", "puppy-coin", "verb-puppy-coin", "stallion", "root" });
 
-			AssertLeaves(context.tree(), {
-				{ 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "coin" }, { 0x7A'6F'72'73, "stallion" }
-			});
+			AssertLeaves(
+					context.tree(),
+					{ { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "coin" }, { 0x7A'6F'72'73, "stallion" } });
 		}
 
 		static void AssertCanUndoCreatePuppyTreeWithRootBranchNode() {
@@ -1058,14 +1055,12 @@ namespace catapult { namespace test {
 			auto verbHash = checker.addLeaf({ 0x30, 0x00 }, "verb");
 			auto puppyHash = checker.addLeaf({ 0x30 }, "puppy");
 			auto coinHash = checker.addLeaf({ 0x35 }, "coin");
-			auto puppyCoinBranchHash = checker.addBranch({ 0x17 }, { { 0, puppyHash }, { 6, coinHash} }, "puppy-coin");
+			auto puppyCoinBranchHash = checker.addBranch({ 0x17 }, { { 0, puppyHash }, { 6, coinHash } }, "puppy-coin");
 			checker.addBranch({ 0x00, 0x64, 0x6F }, { { 0, verbHash }, { 6, puppyCoinBranchHash } }, "root0");
 
 			// tree 1
-			auto verbPuppyCoinBranchHash = checker.addBranch(
-					{ 0x00, 0x6F },
-					{ { 0, verbHash }, { 6, puppyCoinBranchHash } },
-					"verb-puppy-coin");
+			auto verbPuppyCoinBranchHash =
+					checker.addBranch({ 0x00, 0x6F }, { { 0, verbHash }, { 6, puppyCoinBranchHash } }, "verb-puppy-coin");
 			auto stallionHash = checker.addLeaf({ 0x20, 0x6F, 0x72, 0x73 }, "stallion");
 			checker.addBranch({ 0x16 }, { { 4, verbPuppyCoinBranchHash }, { 8, stallionHash } }, "root");
 			return checker;
@@ -1091,13 +1086,11 @@ namespace catapult { namespace test {
 			// Assert:
 			EXPECT_EQ(checker.get("root"), context.tree().root());
 			context.verifyDataSourceSize(5 + 3);
-			checker.checkReachable(context.tree().root(), {
-				"verb", "puppy", "coin", "puppy-coin", "verb-puppy-coin", "stallion", "root"
-			});
+			checker.checkReachable(context.tree().root(), { "verb", "puppy", "coin", "puppy-coin", "verb-puppy-coin", "stallion", "root" });
 
-			AssertLeaves(context.tree(), {
-				{ 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "coin" }, { 0x68'6F'72'73, "stallion" }
-			});
+			AssertLeaves(
+					context.tree(),
+					{ { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "coin" }, { 0x68'6F'72'73, "stallion" } });
 		}
 
 		static void AssertCanUndoCreatePuppyTreeWithRootExtensionNode() {
@@ -1173,9 +1166,7 @@ namespace catapult { namespace test {
 			auto checker = CreateCheckerForCanCreatePuppyTreeWithRootBranchNode(context.dataSource());
 			EXPECT_EQ(checker.get("root"), context.tree().root());
 			context.verifyDataSourceSize(7);
-			checker.checkReachable(context.tree().root(), {
-				"verb", "puppy", "coin", "puppy-coin", "verb-puppy-coin", "stallion", "root"
-			});
+			checker.checkReachable(context.tree().root(), { "verb", "puppy", "coin", "puppy-coin", "verb-puppy-coin", "stallion", "root" });
 		}
 
 		static void AssertUnsetHasNoEffectWhenRemovingKeyNotInTreeWithRootExtensionNode() {
@@ -1196,9 +1187,7 @@ namespace catapult { namespace test {
 			auto checker = CreateCheckerForCanCreatePuppyTreeWithRootExtensionNode(context.dataSource());
 			EXPECT_EQ(checker.get("root"), context.tree().root());
 			context.verifyDataSourceSize(7);
-			checker.checkReachable(context.tree().root(), {
-				"verb", "puppy", "coin", "puppy-coin", "verb-puppy-coin", "stallion", "root"
-			});
+			checker.checkReachable(context.tree().root(), { "verb", "puppy", "coin", "puppy-coin", "verb-puppy-coin", "stallion", "root" });
 		}
 
 		// endregion
@@ -1404,12 +1393,7 @@ namespace catapult { namespace test {
 	private:
 		static std::vector<std::pair<uint32_t, std::string>> GetPuppyTreeWithRootExtensionNodePairs() {
 			// pairs must be ordered by key for next_permutation
-			return {
-				{ 0x64'6F'00'00, "verb" },
-				{ 0x64'6F'67'00, "puppy" },
-				{ 0x64'6F'67'65, "coin" },
-				{ 0x68'6F'72'73, "stallion" }
-			};
+			return { { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "coin" }, { 0x68'6F'72'73, "stallion" } };
 		}
 
 	public:
@@ -1525,9 +1509,9 @@ namespace catapult { namespace test {
 			EXPECT_EQ(checker.get("root"), tree.root());
 			checker.checkReachable(tree.root(), { "verb", "puppy", "coin", "puppy-coin", "verb-puppy-coin", "stallion", "root" });
 
-			AssertLeaves(tree, {
-				{ 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "coin" }, { 0x7A'6F'72'73, "stallion" }
-			});
+			AssertLeaves(
+					tree,
+					{ { 0x64'6F'00'00, "verb" }, { 0x64'6F'67'00, "puppy" }, { 0x64'6F'67'65, "coin" }, { 0x7A'6F'72'73, "stallion" } });
 		}
 
 	public:
@@ -1648,69 +1632,71 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::PatriciaTreeTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::PatriciaTreeTests<TRAITS_NAME>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_PATRICIA_TREE_TESTS(TRAITS_NAME) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, TreeHashIsInitiallyZero) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanInsertSingleValue) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoInsertSingleValue) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUpdateSingleValue) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanInsertSingleValueWithCustomEncoding) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoInsertSingleValueWithCustomEncoding) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanInsertMultipleValuesWithSamePrefix) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoInsertMultipleValuesWithSamePrefix) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanInsertMultipleValuesWithNoCommonPrefix) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoInsertMultipleValuesWithNoCommonPrefix) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanInsertNewValueIntoBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoInsertNewValueIntoBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUpdateValueInBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanSplitExtensionBranchNodeIntoBranchNodeWithLeafAndBranch) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoSplitExtensionBranchNodeIntoBranchNodeWithLeafAndBranch) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanInsertNewValueIntoExtensionBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoInsertNewValueIntoExtensionBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUpdateValueInExtensionBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanSplitExtensionBranchNodeIntoExtensionBranchNodeWithLeafAndBranch) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoSplitExtensionBranchNodeIntoExtensionBranchNodeWithLeafAndBranch) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanSplitLeafIntoBranchWithTwoLeaves) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoSplitLeafIntoBranchWithTwoLeaves) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanCreatePuppyTreeWithRootBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoCreatePuppyTreeWithRootBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanCreatePuppyTreeWithRootExtensionNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoCreatePuppyTreeWithRootExtensionNode) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, UnsetHasNoEffectWhenTreeIsEmpty) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, UnsetHasNoEffectWhenRemovingKeyNotInTreeWithRootLeafNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, UnsetHasNoEffectWhenRemovingKeyNotInTreeWithRootBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, UnsetHasNoEffectWhenRemovingKeyNotInTreeWithRootExtensionNode) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, UnsetCanCreatePreviouslyUnseenRootLeaf) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, UnsetCanCreatePreviouslyUnseenRootBranch) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, UnsetCanCreatePreviouslyUnseenTree) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, LookupFailsWhenTreeIsEmpty) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, LookupFailsWhenKeyIsNotInTreeWithRootLeafNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, LookupFailsWhenKeyIsNotInTreeWithRootBranchNode) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, LookupFailsWhenKeyIsNotInTreeWithRootExtensionNode) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, LookupSucceedsWhenKeyIsTreeRoot) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, LookupSucceedsWhenKeyIsInTree) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanCreatePuppyTreeWithRootExtensionNode_AnyOrder) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanUndoPuppyTreeWithRootExtensionNode_AnyOrder) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanLoadTreeAroundLatestRootHash) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanLoadTreeAroundPreviousRootHash) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanLoadTreeAroundNonRootHash) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanLoadTreeMultipleTimes) \
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CannotLoadTreeAroundUnknownHash) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanSetArbitraryRoot) \
-	\
+\
 	MAKE_PATRICIA_TREE_TEST(TRAITS_NAME, CanClearTree)
 }}

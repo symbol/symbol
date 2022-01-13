@@ -29,9 +29,9 @@
 namespace catapult { namespace cache {
 
 	using BasicAccountStatePatriciaTree = tree::BasePatriciaTree<
-		SerializerHashedKeyEncoder<AccountStatePatriciaTreeSerializer>,
-		PatriciaTreeRdbDataSource,
-		utils::ArrayHasher<Address>>;
+			SerializerHashedKeyEncoder<AccountStatePatriciaTreeSerializer>,
+			PatriciaTreeRdbDataSource,
+			utils::ArrayHasher<Address>>;
 
 	class AccountStatePatriciaTree : public BasicAccountStatePatriciaTree {
 	public:
@@ -55,8 +55,8 @@ namespace catapult { namespace cache {
 				: CacheDatabaseMixin(config, { "default", "key_lookup" })
 				, Primary(GetContainerMode(config), database(), 0)
 				, KeyLookupMap(GetContainerMode(config), database(), 1)
-				, PatriciaTree(hasPatriciaTreeSupport(), database(), 2)
-		{}
+				, PatriciaTree(hasPatriciaTreeSupport(), database(), 2) {
+		}
 
 	public:
 		AccountStateCacheTypes::PrimaryTypes::BaseSetType Primary;

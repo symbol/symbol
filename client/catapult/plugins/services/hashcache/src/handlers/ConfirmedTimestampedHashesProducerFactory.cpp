@@ -33,8 +33,8 @@ namespace catapult { namespace handlers {
 		public:
 			Producer(ViewType&& view, const state::TimestampedHashRange& timestampedHashes)
 					: BasicProducer<state::TimestampedHashRange>(timestampedHashes)
-					, m_pView(std::make_shared<ViewType>(std::move(view)))
-			{}
+					, m_pView(std::make_shared<ViewType>(std::move(view))) {
+			}
 
 		public:
 			auto operator()() {
@@ -62,8 +62,6 @@ namespace catapult { namespace handlers {
 	}
 
 	ConfirmedTimestampedHashesProducerFactory CreateConfirmedTimestampedHashesProducerFactory(const cache::HashCache& hashCache) {
-		return [&hashCache](const auto& timestampedHashes) {
-			return Producer(hashCache.createView(), timestampedHashes);
-		};
+		return [&hashCache](const auto& timestampedHashes) { return Producer(hashCache.createView(), timestampedHashes); };
 	}
 }}

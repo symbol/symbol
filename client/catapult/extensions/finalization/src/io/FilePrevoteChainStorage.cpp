@@ -71,8 +71,9 @@ namespace catapult { namespace io {
 		}
 	}
 
-	FilePrevoteChainStorage::FilePrevoteChainStorage(const std::string& dataDirectory) : m_dataDirectory(dataDirectory)
-	{}
+	FilePrevoteChainStorage::FilePrevoteChainStorage(const std::string& dataDirectory)
+			: m_dataDirectory(dataDirectory) {
+	}
 
 	bool FilePrevoteChainStorage::contains(const model::FinalizationRound& round, const model::HeightHashPair& heightHashPair) const {
 		auto roundDirectory = GetRoundDirectory(m_dataDirectory, round);

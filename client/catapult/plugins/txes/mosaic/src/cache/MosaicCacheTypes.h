@@ -26,23 +26,21 @@
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/IdentifierGroup.h"
 
-namespace catapult {
-	namespace cache {
-		class BasicMosaicCacheDelta;
-		class BasicMosaicCacheView;
-		struct MosaicBaseSetDeltaPointers;
-		struct MosaicBaseSets;
-		class MosaicCache;
-		class MosaicCacheDelta;
-		class MosaicCacheView;
-		struct MosaicEntryPrimarySerializer;
-		struct MosaicHeightGroupingSerializer;
-		class MosaicPatriciaTree;
+namespace catapult { namespace cache {
+	class BasicMosaicCacheDelta;
+	class BasicMosaicCacheView;
+	struct MosaicBaseSetDeltaPointers;
+	struct MosaicBaseSets;
+	class MosaicCache;
+	class MosaicCacheDelta;
+	class MosaicCacheView;
+	struct MosaicEntryPrimarySerializer;
+	struct MosaicHeightGroupingSerializer;
+	class MosaicPatriciaTree;
 
-		template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
-		class ReadOnlyArtifactCache;
-	}
-}
+	template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
+	class ReadOnlyArtifactCache;
+}}
 
 namespace catapult { namespace cache {
 
@@ -76,7 +74,7 @@ namespace catapult { namespace cache {
 	public:
 		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMosaicCacheView, BasicMosaicCacheDelta, MosaicId, state::MosaicEntry>;
 
-	// region secondary descriptors
+		// region secondary descriptors
 
 	public:
 		struct HeightGroupingTypesDescriptor {
@@ -91,7 +89,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-	// endregion
+		// endregion
 
 	public:
 		using PrimaryTypes = MutableUnorderedMapAdapter<MosaicCacheDescriptor, utils::BaseValueHasher<MosaicId>>;

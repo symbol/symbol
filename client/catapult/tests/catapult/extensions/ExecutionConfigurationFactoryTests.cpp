@@ -40,39 +40,28 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(!!config.ResolverContextFactory);
 
 		// - notice that only observers and validators registered in CreateDefaultPluginManagerWithRealPlugins are present
-		std::vector<std::string> expectedObserverNames{
-			"SourceChangeObserver",
-			"AccountAddressObserver",
-			"AccountPublicKeyObserver",
-			"BalanceDebitObserver",
-			"BalanceTransferObserver",
-			"BeneficiaryObserver",
-			"TransactionFeeActivityObserver",
-			"HarvestFeeObserver",
-			"TotalTransactionsObserver",
-			"VrfKeyLinkObserver",
-			"VotingMultiKeyLinkObserver",
-			"HighValueAccountCommitObserver",
-			"RecalculateImportancesObserver",
-			"HighValueAccountRollbackObserver",
-			"BlockStatisticObserver"
-		};
+		std::vector<std::string> expectedObserverNames{ "SourceChangeObserver",			  "AccountAddressObserver",
+														"AccountPublicKeyObserver",		  "BalanceDebitObserver",
+														"BalanceTransferObserver",		  "BeneficiaryObserver",
+														"TransactionFeeActivityObserver", "HarvestFeeObserver",
+														"TotalTransactionsObserver",	  "VrfKeyLinkObserver",
+														"VotingMultiKeyLinkObserver",	  "HighValueAccountCommitObserver",
+														"RecalculateImportancesObserver", "HighValueAccountRollbackObserver",
+														"BlockStatisticObserver" };
 		EXPECT_EQ(expectedObserverNames, config.pObserver->names());
 
-		std::vector<std::string> expectedValidatorNames{
-			"AddressValidator",
-			"PublicKeyValidator",
-			"DeadlineValidator",
-			"NemesisSinkValidator",
-			"EligibleHarvesterValidator",
-			"BalanceDebitValidator",
-			"BalanceTransferValidator",
-			"ImportanceBlockValidator",
+		std::vector<std::string> expectedValidatorNames{ "AddressValidator",
+														 "PublicKeyValidator",
+														 "DeadlineValidator",
+														 "NemesisSinkValidator",
+														 "EligibleHarvesterValidator",
+														 "BalanceDebitValidator",
+														 "BalanceTransferValidator",
+														 "ImportanceBlockValidator",
 
-			// key link transactions
-			"VrfKeyLinkValidator",
-			"VotingMultiKeyLinkValidator"
-		};
+														 // key link transactions
+														 "VrfKeyLinkValidator",
+														 "VotingMultiKeyLinkValidator" };
 		EXPECT_EQ(expectedValidatorNames, config.pValidator->names());
 	}
 }}

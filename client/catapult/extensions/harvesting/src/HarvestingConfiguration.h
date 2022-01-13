@@ -24,7 +24,9 @@
 #include <filesystem>
 #include <string>
 
-namespace catapult { namespace utils { class ConfigurationBag; } }
+namespace catapult { namespace utils {
+	class ConfigurationBag;
+}}
 
 namespace catapult { namespace harvesting {
 

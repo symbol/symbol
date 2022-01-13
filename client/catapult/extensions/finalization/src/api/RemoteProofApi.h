@@ -25,7 +25,9 @@
 #include "catapult/api/RemoteApi.h"
 #include "catapult/thread/Future.h"
 
-namespace catapult { namespace ionet { class PacketIo; } }
+namespace catapult { namespace ionet {
+	class PacketIo;
+}}
 
 namespace catapult { namespace api {
 
@@ -33,8 +35,9 @@ namespace catapult { namespace api {
 	class RemoteProofApi : public RemoteApi {
 	protected:
 		/// Creates a remote api for the node with specified \a remoteIdentity.
-		explicit RemoteProofApi(const model::NodeIdentity& remoteIdentity) : RemoteApi(remoteIdentity)
-		{}
+		explicit RemoteProofApi(const model::NodeIdentity& remoteIdentity)
+				: RemoteApi(remoteIdentity) {
+		}
 
 	public:
 		/// Gets the finalization statistics.

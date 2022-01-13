@@ -53,9 +53,7 @@ namespace catapult { namespace test {
 
 			// Act + Assert:
 			auto createView = [&cache](const auto&) { return cache.createView(); };
-			test::CanCreateSubObjectOnMultipleThreads(cache, createView, [](const auto& view) {
-				AssertDefaultCacheContents(*view);
-			});
+			test::CanCreateSubObjectOnMultipleThreads(cache, createView, [](const auto& view) { AssertDefaultCacheContents(*view); });
 		}
 
 		static void AssertCommitIsBlockedByView() {
@@ -153,8 +151,8 @@ namespace catapult { namespace test {
 			public:
 				explicit DetachedDeltaGuard(LockableCacheDeltaType&& lockableDelta)
 						: m_lockableDelta(std::move(lockableDelta))
-						, m_delta(m_lockableDelta.tryLock())
-				{}
+						, m_delta(m_lockableDelta.tryLock()) {
+				}
 
 			private:
 				LockableCacheDeltaType m_lockableDelta;
@@ -313,30 +311,32 @@ namespace catapult { namespace test {
 	};
 
 #define MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME##SUFFIX) { test::CacheBasicTests<CACHE_TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME##SUFFIX) { \
+		test::CacheBasicTests<CACHE_TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_CACHE_SYNC_TESTS(CACHE_TRAITS, SUFFIX) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanCreateView) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanCreateMultipleViews) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitIsBlockedByView) \
-	\
+\
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanCreateSingleDelta) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CannotCreateMultipleDeltas) \
-	\
+\
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanCreateDetachedDelta) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanCreateMultipleDetachedDeltas) \
-	\
+\
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitIsBlockedByLockedDetachedDelta) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitIsNotBlockedByDetachedDelta)
 
 #define DEFINE_CACHE_BASIC_TESTS(CACHE_TRAITS, SUFFIX) \
 	DEFINE_CACHE_SYNC_TESTS(CACHE_TRAITS, SUFFIX) \
-	\
+\
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanCommitToUnderlyingCache) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitIsIdempotent) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitWithNoPendingChangesHasNoEffect) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitThrowsWhenOnlyDetachedDeltasAreOutstanding) \
-	\
+\
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanOverlayReadOnlyViewOnView) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanOverlayReadOnlyViewOnDelta)
 }}

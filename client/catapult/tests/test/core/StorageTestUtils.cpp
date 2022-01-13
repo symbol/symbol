@@ -117,9 +117,8 @@ namespace catapult { namespace test {
 			// modify nemesis block and resign it
 			auto& nemesisBlock = const_cast<model::Block&>(pNemesisBlockElement->Block);
 			modify(nemesisBlock, *pNemesisBlockElement);
-			extensions::BlockExtensions(GetNemesisGenerationHashSeed()).signFullBlock(
-					crypto::KeyPair::FromString(Test_Network_Nemesis_Private_Key),
-					nemesisBlock);
+			extensions::BlockExtensions(GetNemesisGenerationHashSeed())
+					.signFullBlock(crypto::KeyPair::FromString(Test_Network_Nemesis_Private_Key), nemesisBlock);
 
 			// overwrite the nemesis file in destination
 			// (only the block and entity hash need to be rewritten; this works because block size does not change)

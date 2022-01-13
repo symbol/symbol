@@ -39,8 +39,7 @@ namespace catapult { namespace model {
 	/// Binary layout for a mosaic metadata transaction body.
 	template<typename THeader>
 	struct MosaicMetadataTransactionBody
-			: public BasicMetadataTransactionBody<MosaicMetadataTransactionHeader<THeader>, Entity_Type_Mosaic_Metadata>
-	{};
+			: public BasicMetadataTransactionBody<MosaicMetadataTransactionHeader<THeader>, Entity_Type_Mosaic_Metadata> {};
 
 	DEFINE_EMBEDDABLE_TRANSACTION(MosaicMetadata)
 
@@ -51,4 +50,3 @@ namespace catapult { namespace model {
 		return { transaction.TargetAddress };
 	}
 }}
-

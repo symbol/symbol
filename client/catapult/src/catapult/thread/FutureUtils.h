@@ -33,7 +33,7 @@ namespace catapult { namespace thread {
 // workaround gcc bug by explicitly specifying inner struct visibility when inner struct contains lambda
 // https://www.mail-archive.com/gcc-bugs@gcc.gnu.org/msg534746.html
 #ifdef __GNUC__
-#define INNER_STRUCT_VISIBILILTY __attribute__ ((visibility ("hidden")))
+#define INNER_STRUCT_VISIBILILTY __attribute__((visibility("hidden")))
 #else
 #define INNER_STRUCT_VISIBILILTY
 #endif
@@ -43,8 +43,10 @@ namespace catapult { namespace thread {
 
 		struct INNER_STRUCT_VISIBILILTY ContinuationContext : public std::enable_shared_from_this<ContinuationContext> {
 		public:
-			explicit ContinuationContext(size_t numFutures) : m_futures(numFutures), m_counter(0)
-			{}
+			explicit ContinuationContext(size_t numFutures)
+					: m_futures(numFutures)
+					, m_counter(0) {
+			}
 
 		public:
 			auto future() {

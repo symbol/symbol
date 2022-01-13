@@ -36,9 +36,9 @@ namespace catapult { namespace process {
 
 		// check group and other mask
 		if (Required_Umask != previousUmask) {
-			CATAPULT_LOG(warning)
-					<< std::endl << "\tCurrent user umask settings are too wide '" << std::oct << previousUmask << "'."
-					<< std::endl << "\tIt's strongly suggested to use umask value '077' when starting symbol software.";
+			CATAPULT_LOG(warning) << std::endl
+								  << "\tCurrent user umask settings are too wide '" << std::oct << previousUmask << "'." << std::endl
+								  << "\tIt's strongly suggested to use umask value '077' when starting symbol software.";
 		}
 #endif
 	}

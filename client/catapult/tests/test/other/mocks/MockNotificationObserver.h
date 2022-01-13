@@ -31,12 +31,14 @@ namespace catapult { namespace mocks {
 	class MockNotificationObserverT : public observers::NotificationObserverT<TNotification> {
 	public:
 		/// Creates a mock observer with a default name.
-		MockNotificationObserverT() : MockNotificationObserverT("MockNotificationObserverT")
-		{}
+		MockNotificationObserverT()
+				: MockNotificationObserverT("MockNotificationObserverT") {
+		}
 
 		/// Creates a mock observer with \a name.
-		explicit MockNotificationObserverT(const std::string& name) : m_name(name)
-		{}
+		explicit MockNotificationObserverT(const std::string& name)
+				: m_name(name) {
+		}
 
 	public:
 		const std::string& name() const override {

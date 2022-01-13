@@ -24,7 +24,9 @@
 #include "catapult/model/NodeIdentity.h"
 #include <memory>
 
-namespace catapult { namespace ionet { class PacketSocket; } }
+namespace catapult { namespace ionet {
+	class PacketSocket;
+}}
 
 namespace catapult { namespace net {
 
@@ -32,18 +34,20 @@ namespace catapult { namespace net {
 	struct PeerConnectResult {
 	public:
 		/// Creates a default result.
-		PeerConnectResult() : PeerConnectResult(static_cast<PeerConnectCode>(-1))
-		{}
+		PeerConnectResult()
+				: PeerConnectResult(static_cast<PeerConnectCode>(-1)) {
+		}
 
 		/// Creates a result around \a code.
-		PeerConnectResult(PeerConnectCode code) : PeerConnectResult(code, model::NodeIdentity())
-		{}
+		PeerConnectResult(PeerConnectCode code)
+				: PeerConnectResult(code, model::NodeIdentity()) {
+		}
 
 		/// Creates a result around \a code and \a identity.
 		PeerConnectResult(PeerConnectCode code, const model::NodeIdentity& identity)
 				: Code(code)
-				, Identity(PeerConnectCode::Accepted == code ? identity : model::NodeIdentity())
-		{}
+				, Identity(PeerConnectCode::Accepted == code ? identity : model::NodeIdentity()) {
+		}
 
 	public:
 		/// Connection result code.
@@ -59,18 +63,20 @@ namespace catapult { namespace net {
 	struct PeerConnectResultEx : public PeerConnectResult {
 	public:
 		/// Creates a default result.
-		PeerConnectResultEx() : PeerConnectResult()
-		{}
+		PeerConnectResultEx()
+				: PeerConnectResult() {
+		}
 
 		/// Creates a result around \a code.
-		PeerConnectResultEx(PeerConnectCode code) : PeerConnectResult(code)
-		{}
+		PeerConnectResultEx(PeerConnectCode code)
+				: PeerConnectResult(code) {
+		}
 
 		/// Creates a result around \a code, \a identity and \a pSocket.
 		PeerConnectResultEx(PeerConnectCode code, const model::NodeIdentity& identity, const std::shared_ptr<ionet::PacketSocket>& pSocket)
 				: PeerConnectResult(code, identity)
-				, pPeerSocket(PeerConnectCode::Accepted == code ? pSocket : nullptr)
-		{}
+				, pPeerSocket(PeerConnectCode::Accepted == code ? pSocket : nullptr) {
+		}
 
 	public:
 		/// Peer socket.

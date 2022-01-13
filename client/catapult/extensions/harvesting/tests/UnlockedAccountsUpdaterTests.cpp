@@ -47,8 +47,8 @@ namespace catapult { namespace harvesting {
 
 		public:
 			explicit TestContext(SeedOptions seedOptions = SeedOptions::Public_Key)
-					: TestContext(test::GenerateKeyPair(), test::GenerateKeyPair(), seedOptions)
-			{}
+					: TestContext(test::GenerateKeyPair(), test::GenerateKeyPair(), seedOptions) {
+			}
 
 		private:
 			TestContext(crypto::KeyPair&& mainKeyPair, crypto::KeyPair&& remoteKeyPair, SeedOptions seedOptions)
@@ -165,9 +165,8 @@ namespace catapult { namespace harvesting {
 				io::RawFile file(harvestersFilename(), io::OpenMode::Read_Append);
 				file.seek(file.size());
 
-				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(
-						m_encryptionKeyPair.publicKey(),
-						test::ToClearTextBuffer(descriptor));
+				auto encryptedPayload =
+						test::PrepareHarvestRequestEncryptedPayload(m_encryptionKeyPair.publicKey(), test::ToClearTextBuffer(descriptor));
 				file.write({ reinterpret_cast<const uint8_t*>(&encryptedPayload), sizeof(encryptedPayload) });
 			}
 
@@ -357,21 +356,15 @@ namespace catapult { namespace harvesting {
 	}
 
 	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedLinkedPublicKey) {
-		AssertUpdateBypasses([](auto& accountState) {
-			SetRandom(accountState.SupplementalPublicKeys.linked());
-		});
+		AssertUpdateBypasses([](auto& accountState) { SetRandom(accountState.SupplementalPublicKeys.linked()); });
 	}
 
 	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedNodePublicKey) {
-		AssertUpdateBypasses([](auto& accountState) {
-			SetRandom(accountState.SupplementalPublicKeys.node());
-		});
+		AssertUpdateBypasses([](auto& accountState) { SetRandom(accountState.SupplementalPublicKeys.node()); });
 	}
 
 	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedVrfPublicKey) {
-		AssertUpdateBypasses([](auto& accountState) {
-			SetRandom(accountState.SupplementalPublicKeys.vrf());
-		});
+		AssertUpdateBypasses([](auto& accountState) { SetRandom(accountState.SupplementalPublicKeys.vrf()); });
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotSaveAccountWithHeightGreaterThanCacheHeight) {
@@ -519,21 +512,17 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, UpdatePrunesMismatchedLinkedPublicKeyAccounts) {
 		// Assert: linkedPublicKey mismatch is fatal error raised by RequireLinkedRemoteAndMainAccounts indicating state corruption
-		EXPECT_THROW(AssertPruned([](auto& accountState) {
-			SetRandom(accountState.SupplementalPublicKeys.linked());
-		}), catapult_runtime_error);
+		EXPECT_THROW(
+				AssertPruned([](auto& accountState) { SetRandom(accountState.SupplementalPublicKeys.linked()); }),
+				catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, UpdatePrunesMismatchedNodePublicKeyAccounts) {
-		AssertPruned([](auto& accountState) {
-			SetRandom(accountState.SupplementalPublicKeys.node());
-		});
+		AssertPruned([](auto& accountState) { SetRandom(accountState.SupplementalPublicKeys.node()); });
 	}
 
 	TEST(TEST_CLASS, UpdatePrunesMismatchedVrfPublicKeyAccounts) {
-		AssertPruned([](auto& accountState) {
-			SetRandom(accountState.SupplementalPublicKeys.vrf());
-		});
+		AssertPruned([](auto& accountState) { SetRandom(accountState.SupplementalPublicKeys.vrf()); });
 	}
 
 	TEST(TEST_CLASS, UpdatePrunesIneligibleHarvesterAccounts) {
@@ -576,27 +565,25 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, UpdatePrunesMismatchedLinkedPublicKeyAccounts_Primary) {
 		// Assert: linkedPublicKey mismatch is fatal error raised by RequireLinkedRemoteAndMainAccounts indicating state corruption
-		EXPECT_THROW(AssertPrunedPrimary([](auto& accountState) {
-			SetRandom(accountState.SupplementalPublicKeys.linked());
-		}), catapult_runtime_error);
+		EXPECT_THROW(
+				AssertPrunedPrimary([](auto& accountState) { SetRandom(accountState.SupplementalPublicKeys.linked()); }),
+				catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotPruneMismatchedNodePublicKeyAccounts_Primary) {
-		AssertPrunedPrimary([](auto& accountState) {
-			SetRandom(accountState.SupplementalPublicKeys.node());
-		}, false);
+		AssertPrunedPrimary([](auto& accountState) { SetRandom(accountState.SupplementalPublicKeys.node()); }, false);
 	}
 
 	TEST(TEST_CLASS, UpdatePrunesMismatchedVrfPublicKeyAccounts_Primary) {
-		AssertPrunedPrimary([](auto& accountState) {
-			SetRandom(accountState.SupplementalPublicKeys.vrf());
-		});
+		AssertPrunedPrimary([](auto& accountState) { SetRandom(accountState.SupplementalPublicKeys.vrf()); });
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotPruneIneligibleHarvesterAccounts_Primary) {
-		AssertPrunedPrimary([](auto& accountState) {
-			accountState.Balances.debit(Harvesting_Mosaic_Id, accountState.Balances.get(Harvesting_Mosaic_Id));
-		}, false);
+		AssertPrunedPrimary(
+				[](auto& accountState) {
+					accountState.Balances.debit(Harvesting_Mosaic_Id, accountState.Balances.get(Harvesting_Mosaic_Id));
+				},
+				false);
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotSaveAccountWhenMaxUnlockedHasBeenReached) {
@@ -826,7 +813,7 @@ namespace catapult { namespace harvesting {
 		TestContext context;
 		auto descriptors = test::GenerateRandomAccountDescriptors(2);
 		auto mainAccountPublicKey1 = context.addEnabledAccount(descriptors[0]);
-		auto mainAccountPublicKey2 =context.addEnabledAccount(descriptors[1]);
+		auto mainAccountPublicKey2 = context.addEnabledAccount(descriptors[1]);
 
 		// - prepare and process non-consecutive messages with same announcer and harvester
 		auto ephemeralKeyPair = test::GenerateKeyPair();

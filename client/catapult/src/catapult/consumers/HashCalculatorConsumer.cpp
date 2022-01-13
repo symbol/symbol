@@ -31,12 +31,10 @@ namespace catapult { namespace consumers {
 	namespace {
 		class BlockHashCalculatorConsumer {
 		public:
-			BlockHashCalculatorConsumer(
-					const GenerationHashSeed& generationHashSeed,
-					const model::TransactionRegistry& transactionRegistry)
+			BlockHashCalculatorConsumer(const GenerationHashSeed& generationHashSeed, const model::TransactionRegistry& transactionRegistry)
 					: m_generationHashSeed(generationHashSeed)
-					, m_transactionRegistry(transactionRegistry)
-			{}
+					, m_transactionRegistry(transactionRegistry) {
+			}
 
 		public:
 			ConsumerResult operator()(BlockElements& elements) const {
@@ -85,8 +83,8 @@ namespace catapult { namespace consumers {
 					const GenerationHashSeed& generationHashSeed,
 					const model::TransactionRegistry& transactionRegistry)
 					: m_generationHashSeed(generationHashSeed)
-					, m_transactionRegistry(transactionRegistry)
-			{}
+					, m_transactionRegistry(transactionRegistry) {
+			}
 
 		public:
 			ConsumerResult operator()(TransactionElements& elements) const {

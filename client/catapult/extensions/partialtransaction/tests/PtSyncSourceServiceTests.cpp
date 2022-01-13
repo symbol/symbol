@@ -39,9 +39,8 @@ namespace catapult { namespace partialtransaction {
 		public:
 			TestContext() {
 				// Arrange: register service dependencies
-				auto pBootstrapperRegistrar = CreatePtBootstrapperServiceRegistrar([]() {
-					return std::make_unique<cache::MemoryPtCacheProxy>(cache::MemoryCacheOptions());
-				});
+				auto pBootstrapperRegistrar = CreatePtBootstrapperServiceRegistrar(
+						[]() { return std::make_unique<cache::MemoryPtCacheProxy>(cache::MemoryCacheOptions()); });
 				pBootstrapperRegistrar->registerServices(locator(), testState().state());
 
 				// - register hook dependencies

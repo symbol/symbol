@@ -42,8 +42,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		public:
 			PathIndexPair(const Path& path, uint32_t index)
 					: NamespacePath(path)
-					, Index(index)
-			{}
+					, Index(index) {
+			}
 
 		public:
 			bool operator==(const PathIndexPair& rhs) const {

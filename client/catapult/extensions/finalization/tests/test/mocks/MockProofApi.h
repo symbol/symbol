@@ -29,19 +29,14 @@ namespace catapult { namespace mocks {
 	/// and throw exceptions at specified entry points.
 	class MockProofApi : public api::RemoteProofApi {
 	public:
-		enum class EntryPoint {
-			None,
-			Finalization_Statistics,
-			Proof_At_Epoch,
-			Proof_At_Height
-		};
+		enum class EntryPoint { None, Finalization_Statistics, Proof_At_Epoch, Proof_At_Height };
 
 	public:
 		/// Creates a proof api.
 		MockProofApi()
 				: api::RemoteProofApi({ test::GenerateRandomByteArray<Key>(), "fake-host-from-mock-proof-api" })
-				, m_errorEntryPoint(EntryPoint::None)
-		{}
+				, m_errorEntryPoint(EntryPoint::None) {
+		}
 
 	public:
 		/// Sets the entry point where the exception should occur to \a entryPoint.

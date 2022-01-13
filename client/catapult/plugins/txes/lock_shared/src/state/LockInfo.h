@@ -37,8 +37,8 @@ namespace catapult { namespace state {
 	struct LockInfo {
 	protected:
 		/// Creates a default lock info.
-		LockInfo()
-		{}
+		LockInfo() {
+		}
 
 		/// Creates a lock info around \a ownerAddress, \a mosaicId, \a amount and \a endHeight.
 		LockInfo(const Address& ownerAddress, catapult::MosaicId mosaicId, catapult::Amount amount, Height endHeight)
@@ -46,8 +46,8 @@ namespace catapult { namespace state {
 				, MosaicId(mosaicId)
 				, Amount(amount)
 				, EndHeight(endHeight)
-				, Status(LockStatus::Unused)
-		{}
+				, Status(LockStatus::Unused) {
+		}
 
 	public:
 		/// Owner address.

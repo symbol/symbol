@@ -41,8 +41,8 @@ namespace catapult { namespace builders {
 	}
 
 	AggregateTransactionBuilder::AggregateTransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
-			: TransactionBuilder(networkIdentifier, signer)
-	{}
+			: TransactionBuilder(networkIdentifier, signer) {
+	}
 
 	void AggregateTransactionBuilder::addTransaction(AggregateTransactionBuilder::EmbeddedTransactionPointer&& pTransaction) {
 		m_transactions.push_back(std::move(pTransaction));
@@ -84,10 +84,8 @@ namespace catapult { namespace builders {
 
 	namespace {
 		RawBuffer TransactionDataBuffer(const TransactionType& transaction) {
-			return {
-				reinterpret_cast<const uint8_t*>(&transaction) + TransactionType::Header_Size,
-				sizeof(TransactionType) - TransactionType::Header_Size - TransactionType::Footer_Size
-			};
+			return { reinterpret_cast<const uint8_t*>(&transaction) + TransactionType::Header_Size,
+					 sizeof(TransactionType) - TransactionType::Header_Size - TransactionType::Footer_Size };
 		}
 	}
 
@@ -95,16 +93,14 @@ namespace catapult { namespace builders {
 			const GenerationHashSeed& generationHashSeed,
 			std::unique_ptr<TransactionType>&& pAggregateTransaction)
 			: m_generationHashSeed(generationHashSeed)
-			, m_pAggregateTransaction(std::move(pAggregateTransaction))
-	{}
+			, m_pAggregateTransaction(std::move(pAggregateTransaction)) {
+	}
 
 	void AggregateCosignatureAppender::cosign(const crypto::KeyPair& cosignatory) {
 		if (m_cosignatures.empty()) {
 			m_pAggregateTransaction->Type = model::Entity_Type_Aggregate_Complete;
-			m_transactionHash = model::CalculateHash(
-					*m_pAggregateTransaction,
-					m_generationHashSeed,
-					TransactionDataBuffer(*m_pAggregateTransaction));
+			m_transactionHash =
+					model::CalculateHash(*m_pAggregateTransaction, m_generationHashSeed, TransactionDataBuffer(*m_pAggregateTransaction));
 		}
 
 		model::Cosignature cosignature{ cosignatory.publicKey(), {} };

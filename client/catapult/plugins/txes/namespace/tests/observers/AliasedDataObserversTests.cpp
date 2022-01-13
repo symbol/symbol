@@ -32,8 +32,8 @@ namespace catapult { namespace observers {
 
 	using ObserverTestContext = test::ObserverTestContextT<test::NamespaceCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(AliasedAddress,)
-	DEFINE_COMMON_OBSERVER_TESTS(AliasedMosaicId,)
+	DEFINE_COMMON_OBSERVER_TESTS(AliasedAddress, )
+	DEFINE_COMMON_OBSERVER_TESTS(AliasedMosaicId, )
 
 	// region traits
 
@@ -71,12 +71,22 @@ namespace catapult { namespace observers {
 	}
 
 #define MAKE_ALIASED_DATA_OBSERVER_TEST(TEST_NAME) \
-	template<typename TTraits, typename TDirectionTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Commit_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits, CommitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Commit_MosaicId) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicIdTraits, CommitTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Rollback_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits, RollbackTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Rollback_MosaicId) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicIdTraits, RollbackTraits>(); } \
-	template<typename TTraits, typename TDirectionTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits, typename TDirectionTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Commit_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits, CommitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Commit_MosaicId) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicIdTraits, CommitTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Rollback_Address) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits, RollbackTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_Rollback_MosaicId) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicIdTraits, RollbackTraits>(); \
+	} \
+	template<typename TTraits, typename TDirectionTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

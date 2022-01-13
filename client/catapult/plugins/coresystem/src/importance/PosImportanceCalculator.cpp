@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "ImportanceCalculator.h"
 #include "CalculatorUtils.h"
+#include "ImportanceCalculator.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "catapult/model/HeightGrouping.h"
@@ -35,14 +35,13 @@ namespace catapult { namespace importance {
 	namespace {
 		class PosImportanceCalculator final : public ImportanceCalculator {
 		public:
-			explicit PosImportanceCalculator(const model::BlockchainConfiguration& config) : m_config(config)
-			{}
+			explicit PosImportanceCalculator(const model::BlockchainConfiguration& config)
+					: m_config(config) {
+			}
 
 		public:
-			void recalculate(
-					ImportanceRollbackMode,
-					model::ImportanceHeight importanceHeight,
-					cache::AccountStateCacheDelta& cache) const override {
+			void recalculate(ImportanceRollbackMode, model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache)
+					const override {
 				utils::StackLogger stopwatch("PosImportanceCalculator::recalculate", utils::LogLevel::debug);
 
 				// 1. get high value accounts (notice two step lookup because only const iteration is supported)
@@ -79,15 +78,15 @@ namespace catapult { namespace importance {
 					auto importance = calculateFinalImportance(accountSummary, totalActivityImportance, targetActivityImportanceRaw);
 					auto& accountState = *accountSummary.pAccountState;
 					FinalizeAccountActivity(importanceHeight, importance, accountState.ActivityBuckets);
-					auto effectiveImportance = model::ImportanceHeight(1) == importanceHeight
-							? importance
-							: Importance(std::min(importance.unwrap(), accountSummary.ActivitySummary.PreviousImportance.unwrap()));
+					auto effectiveImportance =
+							model::ImportanceHeight(1) == importanceHeight
+									? importance
+									: Importance(std::min(importance.unwrap(), accountSummary.ActivitySummary.PreviousImportance.unwrap()));
 					accountSummary.pAccountState->ImportanceSnapshots.set(effectiveImportance, importanceHeight);
 				}
 
-				CATAPULT_LOG(debug)
-						<< "recalculated importances (" << highValueAddresses.size() << " / " << cache.size() << " eligible)"
-						<< " at height " << importanceHeight;
+				CATAPULT_LOG(debug) << "recalculated importances (" << highValueAddresses.size() << " / " << cache.size() << " eligible)"
+									<< " at height " << importanceHeight;
 
 				// 5. disable collection of activity for the removed accounts
 				cache.processHighValueRemovedAccounts(importanceHeight);
@@ -100,8 +99,9 @@ namespace catapult { namespace importance {
 					Importance::ValueType targetActivityImportanceRaw) const {
 				if (Importance() == totalActivityImportance) {
 					return 0 < m_config.ImportanceActivityPercentage
-							? Importance(accountSummary.StakeImportance.unwrap() * 100 / (100 - m_config.ImportanceActivityPercentage))
-							: accountSummary.StakeImportance;
+								   ? Importance(
+											 accountSummary.StakeImportance.unwrap() * 100 / (100 - m_config.ImportanceActivityPercentage))
+								   : accountSummary.StakeImportance;
 				}
 
 				auto numerator = accountSummary.ActivityImportance.unwrap() * targetActivityImportanceRaw;

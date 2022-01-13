@@ -35,8 +35,9 @@ namespace catapult { namespace cache {
 		struct HashCacheMixinTraits {
 			class CacheType : public HashCache {
 			public:
-				CacheType() : HashCache(CacheConfiguration(), utils::TimeSpan::FromMinutes(10))
-				{}
+				CacheType()
+						: HashCache(CacheConfiguration(), utils::TimeSpan::FromMinutes(10)) {
+				}
 			};
 
 			using IdType = state::TimestampedHash;
@@ -75,7 +76,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(HashCacheMixinTraits, HashCacheDeltaModificationPolicy, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(HashCacheMixinTraits,)
+	DEFINE_CACHE_BASIC_TESTS(HashCacheMixinTraits, )
 
 	// endregion
 

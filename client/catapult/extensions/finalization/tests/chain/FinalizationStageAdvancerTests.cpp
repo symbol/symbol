@@ -40,8 +40,8 @@ namespace catapult { namespace chain {
 
 		public:
 			TestContext(FinalizationPoint point, Timestamp time, const utils::TimeSpan& stepDuration)
-					: TestContext(point, point, time, stepDuration)
-			{}
+					: TestContext(point, point, time, stepDuration) {
+			}
 
 			TestContext(FinalizationPoint minPoint, FinalizationPoint maxPoint, Timestamp time, const utils::TimeSpan& stepDuration) {
 				m_pAggregator = std::make_unique<MultiRoundMessageAggregator>(

@@ -27,7 +27,9 @@ namespace catapult { namespace subscribers {
 
 	/// Aggregate state change subscriber.
 	template<typename TStateChangeSubscriber = StateChangeSubscriber>
-	class AggregateStateChangeSubscriber : public BasicAggregateSubscriber<TStateChangeSubscriber>, public StateChangeSubscriber {
+	class AggregateStateChangeSubscriber
+			: public BasicAggregateSubscriber<TStateChangeSubscriber>
+			, public StateChangeSubscriber {
 	public:
 		using BasicAggregateSubscriber<TStateChangeSubscriber>::BasicAggregateSubscriber;
 

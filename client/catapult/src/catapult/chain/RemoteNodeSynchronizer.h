@@ -28,7 +28,7 @@ namespace catapult { namespace chain {
 
 	/// Function signature for synchronizing with a remote node.
 	template<typename TRemoteApi>
-	using RemoteNodeSynchronizer = std::function<thread::future<ionet::NodeInteractionResultCode> (const TRemoteApi&)>;
+	using RemoteNodeSynchronizer = std::function<thread::future<ionet::NodeInteractionResultCode>(const TRemoteApi&)>;
 
 	/// Creates a remote node synchronizer around \a pSynchronizer.
 	template<typename TSynchronizer>
@@ -37,9 +37,7 @@ namespace catapult { namespace chain {
 		return [pSynchronizer](const auto& remoteApi) {
 			// pSynchronizer is captured in the second lambda to compose, which extends its lifetime until
 			// the async operation is complete
-			return thread::compose(pSynchronizer->operator()(remoteApi), [pSynchronizer](auto&& future) {
-				return std::move(future);
-			});
+			return thread::compose(pSynchronizer->operator()(remoteApi), [pSynchronizer](auto&& future) { return std::move(future); });
 		};
 	}
 
@@ -54,9 +52,7 @@ namespace catapult { namespace chain {
 
 			// pSynchronizer is captured in the second lambda to compose, which extends its lifetime until
 			// the async operation is complete
-			return thread::compose(pSynchronizer->operator()(remoteApi), [pSynchronizer](auto&& future) {
-				return std::move(future);
-			});
+			return thread::compose(pSynchronizer->operator()(remoteApi), [pSynchronizer](auto&& future) { return std::move(future); });
 		};
 	}
 }}

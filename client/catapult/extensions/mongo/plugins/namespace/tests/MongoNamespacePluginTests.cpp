@@ -19,9 +19,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/namespace/src/model/NamespaceEntityType.h"
 #include "plugins/txes/namespace/src/model/NamespaceReceiptType.h"
+#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {
@@ -32,19 +32,13 @@ namespace catapult { namespace mongo { namespace plugins {
 			static constexpr auto RegisterSubsystem = RegisterMongoSubsystem;
 
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {
-					model::Entity_Type_Alias_Address,
-					model::Entity_Type_Alias_Mosaic,
-					model::Entity_Type_Namespace_Registration
-				};
+				return { model::Entity_Type_Alias_Address, model::Entity_Type_Alias_Mosaic, model::Entity_Type_Namespace_Registration };
 			}
 
 			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return {
-					model::Receipt_Type_Namespace_Expired,
-					model::Receipt_Type_Namespace_Deleted,
-					model::Receipt_Type_Namespace_Rental_Fee
-				};
+				return { model::Receipt_Type_Namespace_Expired,
+						 model::Receipt_Type_Namespace_Deleted,
+						 model::Receipt_Type_Namespace_Rental_Fee };
 			}
 
 			static std::string GetStorageName() {

@@ -102,10 +102,16 @@ namespace catapult { namespace subscribers {
 	}
 
 #define FLUSH_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_WithFlush) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SubscriberWithFlushTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_WithoutFlush) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SubscriberWithoutFlushTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_WithFlush) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SubscriberWithFlushTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_WithoutFlush) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SubscriberWithoutFlushTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
@@ -234,12 +240,16 @@ namespace catapult { namespace subscribers {
 	}
 
 #define READ_ALL_FILE_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_FileQueue) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadAllFileQueueTraits>(); } \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_FileQueue) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadAllFileQueueTraits>(); \
+	} \
 	TEST(TEST_CLASS, TEST_NAME##_MessageQueueDescriptor) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadAllMessageQueueDescriptorTraits>(); \
 	} \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	READ_ALL_FILE_BASED_TEST(ReadAllFileQueue_CanReadZero) {
 		// Arrange:
@@ -293,11 +303,8 @@ namespace catapult { namespace subscribers {
 		TTraits::ReadAll(context, subscriber, ReadNextBuffer);
 
 		// Assert:
-		std::vector<Breadcrumb> expectedBreadcrumbs{
-			Breadcrumb::Notify, Breadcrumb::Flush,
-			Breadcrumb::Notify, Breadcrumb::Flush,
-			Breadcrumb::Notify, Breadcrumb::Flush
-		};
+		std::vector<Breadcrumb> expectedBreadcrumbs{ Breadcrumb::Notify, Breadcrumb::Flush,	 Breadcrumb::Notify,
+													 Breadcrumb::Flush,	 Breadcrumb::Notify, Breadcrumb::Flush };
 		EXPECT_EQ(expectedBreadcrumbs, subscriber.breadcrumbs());
 
 		const auto& notifications = subscriber.notifications();
@@ -327,11 +334,9 @@ namespace catapult { namespace subscribers {
 		TTraits::ReadAll(context, subscriber, ReadNextBuffer);
 
 		// Assert:
-		std::vector<Breadcrumb> expectedBreadcrumbs{
-			Breadcrumb::Notify, Breadcrumb::Notify, Breadcrumb::Flush,
-			Breadcrumb::Notify, Breadcrumb::Flush,
-			Breadcrumb::Notify, Breadcrumb::Notify, Breadcrumb::Notify, Breadcrumb::Flush
-		};
+		std::vector<Breadcrumb> expectedBreadcrumbs{ Breadcrumb::Notify, Breadcrumb::Notify, Breadcrumb::Flush,
+													 Breadcrumb::Notify, Breadcrumb::Flush,	 Breadcrumb::Notify,
+													 Breadcrumb::Notify, Breadcrumb::Notify, Breadcrumb::Flush };
 		EXPECT_EQ(expectedBreadcrumbs, subscriber.breadcrumbs());
 
 		const auto& notifications = subscriber.notifications();

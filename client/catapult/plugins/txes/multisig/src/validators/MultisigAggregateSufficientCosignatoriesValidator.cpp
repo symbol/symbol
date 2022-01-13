@@ -39,15 +39,13 @@ namespace catapult { namespace validators {
 			const auto& accountModification = static_cast<const model::EmbeddedMultisigAccountModificationTransaction&>(transaction);
 			auto hasAdds = 0 != accountModification.AddressAdditionsCount;
 			auto hasDeletes = 0 != accountModification.AddressDeletionsCount;
-			return hasDeletes
-					? hasAdds ? OperationType::Max : OperationType::Removal
-					: OperationType::Normal;
+			return hasDeletes ? hasAdds ? OperationType::Max : OperationType::Removal : OperationType::Normal;
 		}
 
 		uint32_t GetMinRequiredCosignatories(const state::MultisigEntry& multisigEntry, OperationType operationType) {
-			return OperationType::Max == operationType
-					? std::max(multisigEntry.minRemoval(), multisigEntry.minApproval())
-					: OperationType::Removal == operationType ? multisigEntry.minRemoval() : multisigEntry.minApproval();
+			return OperationType::Max == operationType		 ? std::max(multisigEntry.minRemoval(), multisigEntry.minApproval())
+				   : OperationType::Removal == operationType ? multisigEntry.minRemoval()
+															 : multisigEntry.minApproval();
 		}
 
 		class AggregateCosignaturesChecker {
@@ -122,14 +120,14 @@ namespace catapult { namespace validators {
 		};
 	}
 
-	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosignatories, Notification)(
-			const model::TransactionRegistry& transactionRegistry) {
-		return MAKE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosignatories, [&transactionRegistry](
-				const Notification& notification,
-				const ValidatorContext& context) {
-			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-			AggregateCosignaturesChecker checker(notification, transactionRegistry, multisigCache, context);
-			return checker.hasSufficientCosignatories() ? ValidationResult::Success : Failure_Aggregate_Missing_Cosignatures;
-		});
+	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosignatories, Notification)
+	(const model::TransactionRegistry& transactionRegistry) {
+		return MAKE_STATEFUL_VALIDATOR(
+				MultisigAggregateSufficientCosignatories,
+				[&transactionRegistry](const Notification& notification, const ValidatorContext& context) {
+					const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
+					AggregateCosignaturesChecker checker(notification, transactionRegistry, multisigCache, context);
+					return checker.hasSufficientCosignatories() ? ValidationResult::Success : Failure_Aggregate_Missing_Cosignatures;
+				});
 	}
 }}

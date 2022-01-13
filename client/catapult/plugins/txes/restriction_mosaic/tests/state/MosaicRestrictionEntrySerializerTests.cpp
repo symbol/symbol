@@ -166,10 +166,16 @@ namespace catapult { namespace state {
 	}
 
 #define RESTRICTION_TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_AddressRestriction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressRestrictionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_GlobalRestriction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalRestrictionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_AddressRestriction) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressRestrictionTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_GlobalRestriction) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalRestrictionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

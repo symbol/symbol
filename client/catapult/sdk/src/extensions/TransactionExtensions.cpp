@@ -33,15 +33,16 @@ namespace catapult { namespace extensions {
 
 		RawBuffer TransactionDataBuffer(const model::Transaction& transaction) {
 			const auto* pData = reinterpret_cast<const uint8_t*>(&transaction) + model::Transaction::Header_Size;
-			size_t size = IsAggregateType(transaction.Type)
-					? sizeof(model::AggregateTransaction) - model::Transaction::Header_Size - model::AggregateTransaction::Footer_Size
-					: transaction.Size - model::Transaction::Header_Size;
+			size_t size = IsAggregateType(transaction.Type) ? sizeof(model::AggregateTransaction) - model::Transaction::Header_Size
+																	  - model::AggregateTransaction::Footer_Size
+															: transaction.Size - model::Transaction::Header_Size;
 			return { pData, size };
 		}
 	}
 
-	TransactionExtensions::TransactionExtensions(const GenerationHashSeed& generationHashSeed) : m_generationHashSeed(generationHashSeed)
-	{}
+	TransactionExtensions::TransactionExtensions(const GenerationHashSeed& generationHashSeed)
+			: m_generationHashSeed(generationHashSeed) {
+	}
 
 	Hash256 TransactionExtensions::hash(const model::Transaction& transaction) const {
 		return model::CalculateHash(transaction, m_generationHashSeed, TransactionDataBuffer(transaction));

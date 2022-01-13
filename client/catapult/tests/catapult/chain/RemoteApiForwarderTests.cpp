@@ -44,18 +44,18 @@ namespace catapult { namespace chain {
 
 		auto ProcessSyncAndCapture(RemoteApiForwarder& forwarder, ProcessSyncParamsCapture& capture) {
 			return forwarder.processSync(
-				[&capture](const auto& apiId) {
-					++capture.NumActionCalls;
-					capture.ActionApiId = apiId;
-					return thread::make_ready_future(ionet::NodeInteractionResultCode::Success);
-				},
-				[&capture](const auto& packetIo, const auto& remoteIdentity, const auto& registry) {
-					++capture.NumFactoryCalls;
-					capture.pFactoryPacketIo = &packetIo;
-					capture.RemoteIdentity = remoteIdentity;
-					capture.pFactoryTransactionRegistry = &registry;
-					return std::make_unique<int>(Default_Action_Api_Id);
-				});
+					[&capture](const auto& apiId) {
+						++capture.NumActionCalls;
+						capture.ActionApiId = apiId;
+						return thread::make_ready_future(ionet::NodeInteractionResultCode::Success);
+					},
+					[&capture](const auto& packetIo, const auto& remoteIdentity, const auto& registry) {
+						++capture.NumFactoryCalls;
+						capture.pFactoryPacketIo = &packetIo;
+						capture.RemoteIdentity = remoteIdentity;
+						capture.pFactoryTransactionRegistry = &registry;
+						return std::make_unique<int>(Default_Action_Api_Id);
+					});
 		}
 	}
 

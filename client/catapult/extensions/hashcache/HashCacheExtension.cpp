@@ -22,20 +22,16 @@
 #include "src/HashCacheService.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 
-namespace catapult { namespace hashcache {
+namespace catapult { namespace hashcache { namespace {
+	void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+		auto& extensionManager = bootstrapper.extensionManager();
 
-	namespace {
-		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
-			auto& extensionManager = bootstrapper.extensionManager();
-
-			// register hash cache
-			extensionManager.registerSystemPlugin("catapult.plugins.hashcache");
-			extensionManager.addServiceRegistrar(CreateHashCacheServiceRegistrar());
-		}
+		// register hash cache
+		extensionManager.registerSystemPlugin("catapult.plugins.hashcache");
+		extensionManager.addServiceRegistrar(CreateHashCacheServiceRegistrar());
 	}
-}}
+}}}
 
-extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
+extern "C" PLUGIN_API void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::hashcache::RegisterExtension(bootstrapper);
 }

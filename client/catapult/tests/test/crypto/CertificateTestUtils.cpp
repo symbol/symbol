@@ -75,7 +75,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		struct CertificateStackDeleter {
-			void operator()(STACK_OF(X509)* pStack) const {
+			void operator()(STACK_OF(X509) * pStack) const {
 				sk_X509_free(pStack);
 			}
 		};
@@ -186,7 +186,8 @@ namespace catapult { namespace test {
 	namespace {
 		struct BioWrapper {
 		public:
-			BioWrapper() : m_pBio(std::shared_ptr<BIO>(BIO_new(BIO_s_mem()), BIO_free)) {
+			BioWrapper()
+					: m_pBio(std::shared_ptr<BIO>(BIO_new(BIO_s_mem()), BIO_free)) {
 				if (!m_pBio)
 					throw std::bad_alloc();
 			}
@@ -260,14 +261,15 @@ namespace catapult { namespace test {
 		}
 	}
 
-	PemCertificate::PemCertificate() : PemCertificate(GenerateKeyPair(), GenerateKeyPair())
-	{}
+	PemCertificate::PemCertificate()
+			: PemCertificate(GenerateKeyPair(), GenerateKeyPair()) {
+	}
 
 	PemCertificate::PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair)
 			: m_caPublicKey(GeneratePublicKeyPem(caKeyPair))
 			, m_nodePrivateKey(GeneratePrivateKeyPem(nodeKeyPair))
-			, m_pemCertificateChain(GeneratePemCertificateChain(caKeyPair, nodeKeyPair))
-	{}
+			, m_pemCertificateChain(GeneratePemCertificateChain(caKeyPair, nodeKeyPair)) {
+	}
 
 	const std::string& PemCertificate::caPublicKeyString() const {
 		return m_caPublicKey;

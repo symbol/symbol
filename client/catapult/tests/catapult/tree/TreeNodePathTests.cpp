@@ -94,14 +94,12 @@ namespace catapult { namespace tree {
 			using KeyType = std::array<uint8_t, 12>;
 			TreeNodePath path(KeyType{ { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34 } });
 			TreeNodePath nibbleShiftedPath(KeyType{ { 0x01, 0x12, 0x23, 0x3F, 0xFD, 0xDB, 0xB9, 0x97, 0x69, 0x81, 0x23, 0x40 } });
-			std::unordered_map<std::string, TreeNodePath> equalityMap{
-				{ "default", path.subpath(2, 12) },
-				{ "copy", path.subpath(2, 12) },
-				{ "diff adjustment", nibbleShiftedPath.subpath(1, 12) },
-				{ "shorter", path.subpath(2, 11) },
-				{ "longer", path.subpath(2, 14) },
-				{ "different", path.subpath(3, 12) }
-			};
+			std::unordered_map<std::string, TreeNodePath> equalityMap{ { "default", path.subpath(2, 12) },
+																	   { "copy", path.subpath(2, 12) },
+																	   { "diff adjustment", nibbleShiftedPath.subpath(1, 12) },
+																	   { "shorter", path.subpath(2, 11) },
+																	   { "longer", path.subpath(2, 14) },
+																	   { "different", path.subpath(3, 12) } };
 
 			// Assert:
 			test("default", equalityMap, std::unordered_set<std::string>{ "default", "copy", "diff adjustment" });
@@ -175,7 +173,7 @@ namespace catapult { namespace tree {
 		auto subpath = path.subpath(5);
 
 		// Assert:
-		AssertPath(subpath, 3, { 4, 3, 7});
+		AssertPath(subpath, 3, { 4, 3, 7 });
 	}
 
 	TEST(TEST_CLASS, CanCreateSubpathWithOddOffsetAndPartialSize) {

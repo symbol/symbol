@@ -40,12 +40,7 @@ namespace catapult { namespace consumers {
 	namespace {
 		// region NotificationDescriptor
 
-		enum class NotificationDescriptor {
-			None = 0,
-			Signature = 1,
-			Verifiable = 2,
-			Replay = 4
-		};
+		enum class NotificationDescriptor { None = 0, Signature = 1, Verifiable = 2, Replay = 4 };
 
 		constexpr NotificationDescriptor operator|(NotificationDescriptor lhs, NotificationDescriptor rhs) {
 			return static_cast<NotificationDescriptor>(utils::to_underlying_type(lhs) | utils::to_underlying_type(rhs));
@@ -76,8 +71,8 @@ namespace catapult { namespace consumers {
 			SignatureInput()
 					: Signer(crypto::KeyPair::FromPrivate(test::GenerateRandomPrivateKey()))
 					, Signature(test::GenerateRandomByteArray<catapult::Signature>())
-					, Data(test::GenerateRandomVector(256))
-			{}
+					, Data(test::GenerateRandomVector(256)) {
+			}
 
 		public:
 			crypto::KeyPair Signer;
@@ -93,8 +88,8 @@ namespace catapult { namespace consumers {
 					const std::unordered_set<size_t>& alwaysVerifiableIndexes)
 					: m_generationHashSeed(generationHashSeed)
 					, m_descriptors(descriptors)
-					, m_alwaysVerifiableIndexes(alwaysVerifiableIndexes)
-			{}
+					, m_alwaysVerifiableIndexes(alwaysVerifiableIndexes) {
+			}
 
 		public:
 			const auto& entityInfos() const {
@@ -167,17 +162,17 @@ namespace catapult { namespace consumers {
 						const RequiresValidationPredicate& requiresValidationPredicate = RequiresAllPredicate)
 						: GenerationHashSeed(test::GenerateRandomByteArray<catapult::GenerationHashSeed>())
 						, pPublisher(std::make_shared<MockSignatureNotificationPublisher>(
-								GenerationHashSeed,
-								descriptors,
-								alwaysVerifiableIndexes))
+								  GenerationHashSeed,
+								  descriptors,
+								  alwaysVerifiableIndexes))
 						, pPool(test::CreateStartedIoThreadPool())
 						, Consumer(CreateBlockBatchSignatureConsumer(
-								GenerationHashSeed,
-								CreateRandomFiller(),
-								pPublisher,
-								*pPool,
-								requiresValidationPredicate))
-				{}
+								  GenerationHashSeed,
+								  CreateRandomFiller(),
+								  pPublisher,
+								  *pPool,
+								  requiresValidationPredicate)) {
+				}
 
 			public:
 				catapult::GenerationHashSeed GenerationHashSeed;
@@ -278,20 +273,20 @@ namespace catapult { namespace consumers {
 						const std::unordered_set<size_t>& alwaysVerifiableIndexes = {})
 						: GenerationHashSeed(test::GenerateRandomByteArray<catapult::GenerationHashSeed>())
 						, pPublisher(std::make_shared<MockSignatureNotificationPublisher>(
-								GenerationHashSeed,
-								descriptors,
-								alwaysVerifiableIndexes))
+								  GenerationHashSeed,
+								  descriptors,
+								  alwaysVerifiableIndexes))
 						, pPool(test::CreateStartedIoThreadPool())
 						, Consumer(CreateTransactionBatchSignatureConsumer(
-								GenerationHashSeed,
-								CreateRandomFiller(),
-								pPublisher,
-								*pPool,
-								[this](const auto& transaction, const auto& hash, auto result) {
-									// notice that transaction.Deadline is used as transaction marker
-									FailedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
-								}))
-				{}
+								  GenerationHashSeed,
+								  CreateRandomFiller(),
+								  pPublisher,
+								  *pPool,
+								  [this](const auto& transaction, const auto& hash, auto result) {
+									  // notice that transaction.Deadline is used as transaction marker
+									  FailedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
+								  })) {
+				}
 
 			public:
 				catapult::GenerationHashSeed GenerationHashSeed;
@@ -308,9 +303,8 @@ namespace catapult { namespace consumers {
 				auto pTransaction2 = test::GenerateRandomTransaction();
 				auto pTransaction3 = test::GenerateRandomTransaction();
 				auto pTransaction4 = test::GenerateRandomTransaction();
-				return test::CreateTransactionElements({
-					pTransaction1.get(), pTransaction2.get(), pTransaction3.get(), pTransaction4.get()
-				});
+				return test::CreateTransactionElements(
+						{ pTransaction1.get(), pTransaction2.get(), pTransaction3.get(), pTransaction4.get() });
 			}
 
 		public:
@@ -404,7 +398,8 @@ namespace catapult { namespace consumers {
 				EXPECT_EQ(transactionElement.EntityHash, transactionStatus.Hash) << "element at " << index;
 				EXPECT_EQ(
 						Failure_Consumer_Batch_Signature_Not_Verifiable,
-						static_cast<validators::ValidationResult>(transactionStatus.Status)) << "element at " << index;
+						static_cast<validators::ValidationResult>(transactionStatus.Status))
+						<< "element at " << index;
 			}
 		};
 
@@ -412,10 +407,16 @@ namespace catapult { namespace consumers {
 	}
 
 #define ALL_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(BLOCK_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); } \
-	TEST(TRANSACTION_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(BLOCK_TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); \
+	} \
+	TEST(TRANSACTION_TEST_CLASS, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region all - no signatures
 

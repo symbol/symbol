@@ -63,13 +63,12 @@ namespace catapult { namespace api {
 			DefaultRemotePtApi(ionet::PacketIo& io, const model::NodeIdentity& remoteIdentity, const model::TransactionRegistry& registry)
 					: RemotePtApi(remoteIdentity)
 					, m_registry(registry)
-					, m_impl(io)
-			{}
+					, m_impl(io) {
+			}
 
 		public:
-			FutureType<TransactionInfosTraits> transactionInfos(
-					Timestamp minDeadline,
-					cache::ShortHashPairRange&& knownShortHashPairs) const override {
+			FutureType<TransactionInfosTraits> transactionInfos(Timestamp minDeadline, cache::ShortHashPairRange&& knownShortHashPairs)
+					const override {
 				return m_impl.dispatch(TransactionInfosTraits(m_registry), minDeadline, std::move(knownShortHashPairs));
 			}
 

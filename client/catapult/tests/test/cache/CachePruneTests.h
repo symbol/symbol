@@ -217,7 +217,9 @@ namespace catapult { namespace test {
 }}
 
 #define MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME##SUFFIX) { test::CachePruneTests<CACHE_TRAITS>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME##SUFFIX) { \
+		test::CachePruneTests<CACHE_TRAITS>::Assert##TEST_NAME(); \
+	}
 
 #define DEFINE_CACHE_PRUNE_TESTS(CACHE_TRAITS, SUFFIX) \
 	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, PruneIsNoOpWhenCacheIsEmpty) \

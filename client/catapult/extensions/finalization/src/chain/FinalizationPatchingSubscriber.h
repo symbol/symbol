@@ -24,12 +24,10 @@
 #include "catapult/model/RangeTypes.h"
 #include "catapult/subscribers/FinalizationSubscriber.h"
 
-namespace catapult {
-	namespace io {
-		class BlockStorageCache;
-		class PrevoteChainStorage;
-	}
-}
+namespace catapult { namespace io {
+	class BlockStorageCache;
+	class PrevoteChainStorage;
+}}
 
 namespace catapult { namespace chain {
 

@@ -24,9 +24,15 @@
 #include <vector>
 
 namespace catapult {
-	namespace io { class BlockStorageCache; }
-	namespace ionet { class NodeContainer; }
-	namespace utils { class DiagnosticCounter; }
+namespace io {
+	class BlockStorageCache;
+}
+namespace ionet {
+	class NodeContainer;
+}
+namespace utils {
+	class DiagnosticCounter;
+}
 }
 
 namespace catapult { namespace handlers {

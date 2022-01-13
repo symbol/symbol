@@ -69,8 +69,8 @@ namespace catapult { namespace consumers {
 					: m_pOriginalCache(&cache)
 					, m_pCacheDelta(std::make_unique<cache::CatapultCacheDelta>(cache.createDelta()))
 					, m_localFinalizedHeight(localFinalizedHeight)
-					, m_localFinalizedTime(localFinalizedTime)
-			{}
+					, m_localFinalizedTime(localFinalizedTime) {
+			}
 
 		public:
 			WeakBlockInfo commonBlockInfo() const {
@@ -150,14 +150,12 @@ namespace catapult { namespace consumers {
 					: m_importanceGrouping(importanceGrouping)
 					, m_cache(cache)
 					, m_storage(storage)
-					, m_handlers(handlers)
-			{}
+					, m_handlers(handlers) {
+			}
 
 		public:
 			ConsumerResult operator()(disruptor::ConsumerInput& input) const {
-				return input.empty()
-						? Abort(Failure_Consumer_Empty_Input)
-						: sync(input.blocks(), input.source());
+				return input.empty() ? Abort(Failure_Consumer_Empty_Input) : sync(input.blocks(), input.source());
 			}
 
 		private:
@@ -279,10 +277,9 @@ namespace catapult { namespace consumers {
 
 					const auto& blockFooter = model::GetBlockFooter<model::ImportanceBlockFooter>(element.Block);
 					if (previousImportanceBlockHash != blockFooter.PreviousImportanceBlockHash) {
-						CATAPULT_LOG(warning)
-								<< "block at height " << element.Block.Height << " has PreviousImportanceBlockHash "
-								<< blockFooter.PreviousImportanceBlockHash << " but " << previousImportanceBlockHash
-								<< " is expected";
+						CATAPULT_LOG(warning) << "block at height " << element.Block.Height << " has PreviousImportanceBlockHash "
+											  << blockFooter.PreviousImportanceBlockHash << " but " << previousImportanceBlockHash
+											  << " is expected";
 						return Abort(Failure_Consumer_Remote_Chain_Improper_Importance_Link);
 					}
 
@@ -328,9 +325,8 @@ namespace catapult { namespace consumers {
 				// 5. update the unconfirmed transactions
 				logger.addSubOperation("update the unconfirmed transactions");
 				auto peerTransactionHashes = ExtractTransactionHashes(elements);
-				auto revertedTransactionInfos = CollectRevertedTransactionInfos(
-						peerTransactionHashes,
-						syncState.detachRemovedTransactionInfos());
+				auto revertedTransactionInfos =
+						CollectRevertedTransactionInfos(peerTransactionHashes, syncState.detachRemovedTransactionInfos());
 				m_handlers.TransactionsChange({ peerTransactionHashes, revertedTransactionInfos });
 			}
 
@@ -356,11 +352,11 @@ namespace catapult { namespace consumers {
 			static constexpr bool IsLinked(Height peerStartHeight, Height localChainHeight, InputSource source) {
 				// peer should never return nemesis block
 				return peerStartHeight >= Height(2)
-						// peer chain should connect to local chain
-						&& peerStartHeight <= localChainHeight + Height(1)
-						// remote pull is allowed to cause (deep) rollback, but other sources
-						// are only allowed to rollback the last block
-						&& (InputSource::Remote_Pull == source || localChainHeight <= peerStartHeight);
+					   // peer chain should connect to local chain
+					   && peerStartHeight <= localChainHeight + Height(1)
+					   // remote pull is allowed to cause (deep) rollback, but other sources
+					   // are only allowed to rollback the last block
+					   && (InputSource::Remote_Pull == source || localChainHeight <= peerStartHeight);
 			}
 
 		private:

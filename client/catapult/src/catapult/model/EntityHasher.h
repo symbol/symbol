@@ -22,12 +22,10 @@
 #pragma once
 #include "Block.h"
 
-namespace catapult {
-	namespace model {
-		struct TransactionElement;
-		class TransactionRegistry;
-	}
-}
+namespace catapult { namespace model {
+	struct TransactionElement;
+	class TransactionRegistry;
+}}
 
 namespace catapult { namespace model {
 
@@ -54,7 +52,7 @@ namespace catapult { namespace model {
 	/// Calculates the hashes for \a transactionElement in place for the network with the specified
 	/// generation hash seed (\a generationHashSeed) using transaction information from \a transactionRegistry.
 	void UpdateHashes(
-				const TransactionRegistry& transactionRegistry,
-				const GenerationHashSeed& generationHashSeed,
-				TransactionElement& transactionElement);
+			const TransactionRegistry& transactionRegistry,
+			const GenerationHashSeed& generationHashSeed,
+			TransactionElement& transactionElement);
 }}

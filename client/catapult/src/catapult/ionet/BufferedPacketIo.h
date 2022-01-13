@@ -22,7 +22,9 @@
 #pragma once
 #include "IoTypes.h"
 
-namespace catapult { namespace ionet { class PacketIo; } }
+namespace catapult { namespace ionet {
+	class PacketIo;
+}}
 
 namespace catapult { namespace ionet {
 

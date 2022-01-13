@@ -29,14 +29,12 @@ namespace catapult { namespace cache {
 	namespace {
 		void LogSupplementalData(const char* prefix, const SupplementalData& supplementalData, Height chainHeight) {
 			auto scoreArray = supplementalData.ChainScore.toArray();
-			CATAPULT_LOG(debug)
-					<< prefix
-					<< " last recalculation height " << supplementalData.State.LastRecalculationHeight
-					<< " last finalized height " << supplementalData.State.LastFinalizedHeight
-					<< " dynamic fee multiplier " << supplementalData.State.DynamicFeeMultiplier
-					<< " total transactions " << supplementalData.State.NumTotalTransactions
-					<< " (score = [" << scoreArray[0] << ", " << scoreArray[1] << "]"
-					<< ", height = " << chainHeight << ")";
+			CATAPULT_LOG(debug) << prefix << " last recalculation height " << supplementalData.State.LastRecalculationHeight
+								<< " last finalized height " << supplementalData.State.LastFinalizedHeight << " dynamic fee multiplier "
+								<< supplementalData.State.DynamicFeeMultiplier << " total transactions "
+								<< supplementalData.State.NumTotalTransactions << " (score = [" << scoreArray[0] << ", " << scoreArray[1]
+								<< "]"
+								<< ", height = " << chainHeight << ")";
 		}
 	}
 

@@ -31,11 +31,9 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
-			builder
-					<< "hashAlgorithm" << utils::to_underlying_type(transaction.HashAlgorithm)
-					<< "secret" << ToBinary(transaction.Secret)
-					<< "recipientAddress" << ToBinary(transaction.RecipientAddress)
-					<< "proof" << ToBinary(transaction.ProofPtr(), transaction.ProofSize);
+			builder << "hashAlgorithm" << utils::to_underlying_type(transaction.HashAlgorithm) << "secret" << ToBinary(transaction.Secret)
+					<< "recipientAddress" << ToBinary(transaction.RecipientAddress) << "proof"
+					<< ToBinary(transaction.ProofPtr(), transaction.ProofSize);
 		}
 	}
 

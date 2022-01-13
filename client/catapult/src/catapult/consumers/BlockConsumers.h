@@ -30,10 +30,18 @@
 #include "catapult/validators/ParallelValidationPolicy.h"
 
 namespace catapult {
-	namespace chain { struct CatapultState; }
-	namespace io { class BlockStorageCache; }
-	namespace model { class TransactionRegistry; }
-	namespace utils { class TimeSpan; }
+namespace chain {
+	struct CatapultState;
+}
+namespace io {
+	class BlockStorageCache;
+}
+namespace model {
+	class TransactionRegistry;
+}
+namespace utils {
+	class TimeSpan;
+}
 }
 
 namespace catapult { namespace consumers {

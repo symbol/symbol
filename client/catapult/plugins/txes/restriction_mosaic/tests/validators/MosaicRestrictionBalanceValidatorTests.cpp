@@ -28,9 +28,9 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicRestrictionBalanceValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionBalanceTransfer,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionBalanceTransfer, )
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionBalanceDebit,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicRestrictionBalanceDebit, )
 
 	// region traits
 
@@ -63,15 +63,19 @@ namespace catapult { namespace validators {
 	}
 
 #define ACCOUNT_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(MosaicRestrictionBalanceTransferValidatorTests, TEST_NAME##_Sender) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferSenderTraits>(); \
 	} \
 	TEST(MosaicRestrictionBalanceTransferValidatorTests, TEST_NAME##_Recipient) { \
 		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferRecipientTraits>(); \
 	} \
-	TEST(MosaicRestrictionBalanceDebitValidatorTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DebitSenderTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	TEST(MosaicRestrictionBalanceDebitValidatorTests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DebitSenderTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 

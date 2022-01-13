@@ -82,9 +82,7 @@ namespace catapult { namespace state {
 		HistoryMap history;
 
 		// Act:
-		auto result = history.anyOf([](auto) {
-			return true;
-		});
+		auto result = history.anyOf([](auto) { return true; });
 
 		// Assert:
 		EXPECT_FALSE(result);

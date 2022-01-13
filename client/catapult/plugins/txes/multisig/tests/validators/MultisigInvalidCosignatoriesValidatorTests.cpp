@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
 #include "src/cache/MultisigCache.h"
+#include "src/validators/Validators.h"
 #include "catapult/model/BlockchainConfiguration.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MultisigInvalidCosignatoriesValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MultisigInvalidCosignatories,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MultisigInvalidCosignatories, )
 
 	namespace {
 		constexpr auto CreateNotification = test::CreateMultisigCosignatoriesNotification;
@@ -148,29 +148,25 @@ namespace catapult { namespace validators {
 	// region multiple success
 
 	TEST(TEST_CLASS, CanAddCosignatoriesWhenNotPresent) {
-		AssertCosignatoriesModifications(ValidationResult::Success, {
-				{ Add, CosignatoryType::New },
-				{ Add, CosignatoryType::New },
-				{ Add, CosignatoryType::New }
-		});
+		AssertCosignatoriesModifications(
+				ValidationResult::Success,
+				{ { Add, CosignatoryType::New }, { Add, CosignatoryType::New }, { Add, CosignatoryType::New } });
 	}
 
 	TEST(TEST_CLASS, CanRemoveExistingCosignatories) {
 		// Assert: note that stateless validator will reject multiple deletions
-		AssertCosignatoriesModifications(ValidationResult::Success, {
-				{ Del, CosignatoryType::Existing },
-				{ Del, CosignatoryType::Existing },
-				{ Del, CosignatoryType::Existing }
-		});
+		AssertCosignatoriesModifications(
+				ValidationResult::Success,
+				{ { Del, CosignatoryType::Existing }, { Del, CosignatoryType::Existing }, { Del, CosignatoryType::Existing } });
 	}
 
 	TEST(TEST_CLASS, CanAddNewAndRemoveExistingCosignatories) {
-		AssertCosignatoriesModifications(ValidationResult::Success, {
-				{ Add, CosignatoryType::New },
-				{ Del, CosignatoryType::Existing },
-				{ Add, CosignatoryType::New },
-				{ Del, CosignatoryType::Existing }
-		});
+		AssertCosignatoriesModifications(
+				ValidationResult::Success,
+				{ { Add, CosignatoryType::New },
+				  { Del, CosignatoryType::Existing },
+				  { Add, CosignatoryType::New },
+				  { Del, CosignatoryType::Existing } });
 	}
 
 	// endregion
@@ -178,19 +174,15 @@ namespace catapult { namespace validators {
 	// region multiple successes, single failure
 
 	TEST(TEST_CLASS, CannotAddExistingCosignatory_Multiple) {
-		AssertCosignatoriesModifications(Failure_Multisig_Already_A_Cosignatory, {
-				{ Add, CosignatoryType::New },
-				{ Add, CosignatoryType::Existing },
-				{ Add, CosignatoryType::New }
-		});
+		AssertCosignatoriesModifications(
+				Failure_Multisig_Already_A_Cosignatory,
+				{ { Add, CosignatoryType::New }, { Add, CosignatoryType::Existing }, { Add, CosignatoryType::New } });
 	}
 
 	TEST(TEST_CLASS, CannotRemoveCosignatoryWhenNotPresent_Multiple) {
-		AssertCosignatoriesModifications(Failure_Multisig_Not_A_Cosignatory, {
-				{ Del, CosignatoryType::Existing },
-				{ Del, CosignatoryType::New },
-				{ Del, CosignatoryType::Existing }
-		});
+		AssertCosignatoriesModifications(
+				Failure_Multisig_Not_A_Cosignatory,
+				{ { Del, CosignatoryType::Existing }, { Del, CosignatoryType::New }, { Del, CosignatoryType::Existing } });
 	}
 
 	// endregion
@@ -198,15 +190,13 @@ namespace catapult { namespace validators {
 	// region multiple failures
 
 	TEST(TEST_CLASS, AdditionFailuresDominateDeletionFailures) {
-		AssertCosignatoriesModifications(Failure_Multisig_Already_A_Cosignatory, {
-				{ Add, CosignatoryType::Existing },
-				{ Del, CosignatoryType::New }
-		});
+		AssertCosignatoriesModifications(
+				Failure_Multisig_Already_A_Cosignatory,
+				{ { Add, CosignatoryType::Existing }, { Del, CosignatoryType::New } });
 
-		AssertCosignatoriesModifications(Failure_Multisig_Already_A_Cosignatory, {
-				{ Del, CosignatoryType::New },
-				{ Add, CosignatoryType::Existing }
-		});
+		AssertCosignatoriesModifications(
+				Failure_Multisig_Already_A_Cosignatory,
+				{ { Del, CosignatoryType::New }, { Add, CosignatoryType::Existing } });
 	}
 
 	// endregion

@@ -40,8 +40,8 @@ namespace catapult { namespace validators {
 			MockNotificationValidator(const std::string& name, ValidationResult value)
 					: m_name(name)
 					, m_result(value)
-					, m_numValidateCalls(0)
-			{}
+					, m_numValidateCalls(0) {
+			}
 
 		public:
 			const std::string& name() const override {
@@ -125,15 +125,13 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, ExtractsAndForwardsNotificationsFromEntityRespectingNotificationTypeExclusionFilter) {
 		// Arrange: ignore 7 validation notifications
 		RunTest(ValidationResult::Success, [](auto& adapter, const auto& validator) {
-			std::unordered_set<model::NotificationType> excludedNotificationTypes{
-				model::Core_Register_Account_Public_Key_Notification,
-				model::Core_Entity_Notification,
-				model::Core_Transaction_Notification,
-				model::Core_Transaction_Deadline_Notification,
-				model::Core_Transaction_Fee_Notification,
-				mocks::Mock_Validator_2_Notification,
-				mocks::Mock_All_2_Notification
-			};
+			std::unordered_set<model::NotificationType> excludedNotificationTypes{ model::Core_Register_Account_Public_Key_Notification,
+																				   model::Core_Entity_Notification,
+																				   model::Core_Transaction_Notification,
+																				   model::Core_Transaction_Deadline_Notification,
+																				   model::Core_Transaction_Fee_Notification,
+																				   mocks::Mock_Validator_2_Notification,
+																				   mocks::Mock_All_2_Notification };
 
 			adapter.setExclusionFilter([&excludedNotificationTypes](auto notificationType) {
 				return excludedNotificationTypes.cend() != excludedNotificationTypes.find(notificationType);
@@ -146,14 +144,13 @@ namespace catapult { namespace validators {
 			// Assert:
 			EXPECT_EQ(12u - 8, validator.notificationTypes().size());
 
-			std::vector<model::NotificationType> expectedNotificationTypes{
-				// mock transaction notifications
-				mocks::Mock_Validator_1_Notification,
-				mocks::Mock_All_1_Notification,
+			std::vector<model::NotificationType> expectedNotificationTypes{ // mock transaction notifications
+																			mocks::Mock_Validator_1_Notification,
+																			mocks::Mock_All_1_Notification,
 
-				// basic transaction notifications
-				model::Core_Balance_Debit_Notification,
-				model::Core_Signature_Notification
+																			// basic transaction notifications
+																			model::Core_Balance_Debit_Notification,
+																			model::Core_Signature_Notification
 			};
 			EXPECT_EQ(expectedNotificationTypes, validator.notificationTypes());
 

@@ -33,8 +33,9 @@ namespace catapult { namespace thread {
 		future() = default;
 
 		/// Constructs a future around a shared state (\a pState).
-		explicit future(const std::shared_ptr<detail::shared_state<T>>& pState) : m_pState(pState)
-		{}
+		explicit future(const std::shared_ptr<detail::shared_state<T>>& pState)
+				: m_pState(pState) {
+		}
 
 	public:
 		/// Returns \c true if this future is valid.
@@ -53,10 +54,7 @@ namespace catapult { namespace thread {
 		}
 
 		/// Configures \a continuation to run at the completion of this future.
-		template<
-				typename TContinuation,
-				typename TResultType = std::invoke_result_t<TContinuation, future<T>&&>
-		>
+		template<typename TContinuation, typename TResultType = std::invoke_result_t<TContinuation, future<T>&&>>
 		auto then(TContinuation continuation) {
 			if constexpr (!std::is_same_v<TResultType, void>) {
 				auto pResultState = std::make_shared<detail::shared_state<TResultType>>();

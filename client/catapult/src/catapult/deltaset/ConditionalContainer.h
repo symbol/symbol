@@ -73,14 +73,14 @@ namespace catapult { namespace deltaset {
 			/// Creates a conditional iterator around \a iter for a storage container.
 			ConditionalIterator(typename StorageSetType::const_iterator&& iter, StorageFlag)
 					: m_storageIter(std::move(iter))
-					, m_mode(ConditionalContainerMode::Storage)
-			{}
+					, m_mode(ConditionalContainerMode::Storage) {
+			}
 
 			/// Creates a conditional iterator around \a iter for a memory container.
 			ConditionalIterator(typename MemorySetType::const_iterator&& iter, MemoryFlag)
 					: m_memoryIter(std::move(iter))
-					, m_mode(ConditionalContainerMode::Memory)
-			{}
+					, m_mode(ConditionalContainerMode::Memory) {
+			}
 
 		public:
 			/// Returns \c true if this iterator is equal to \a rhs.
@@ -116,8 +116,9 @@ namespace catapult { namespace deltaset {
 
 	public:
 		/// Creates a memory conditional container with \a mode.
-		ConditionalContainer() : ConditionalContainer(ConditionalContainerMode::Memory)
-		{}
+		ConditionalContainer()
+				: ConditionalContainer(ConditionalContainerMode::Memory) {
+		}
 
 		/// Creates a memory conditional container with \a mode.
 		/// \a storageArgs are forwarded to the underlying storage container.
@@ -143,16 +144,14 @@ namespace catapult { namespace deltaset {
 	public:
 		/// Gets a const iterator to the element following the last element of the underlying set.
 		ConditionalIterator cend() const {
-			return m_pContainer1
-					? ConditionalIterator(m_pContainer1->cend(), StorageFlag())
-					: ConditionalIterator(m_pContainer2->cend(), MemoryFlag());
+			return m_pContainer1 ? ConditionalIterator(m_pContainer1->cend(), StorageFlag())
+								 : ConditionalIterator(m_pContainer2->cend(), MemoryFlag());
 		}
 
 		/// Searches for \a key in this set.
 		ConditionalIterator find(const typename TKeyTraits::KeyType& key) const {
-			return m_pContainer1
-					? ConditionalIterator(m_pContainer1->find(key), StorageFlag())
-					: ConditionalIterator(m_pContainer2->find(key), MemoryFlag());
+			return m_pContainer1 ? ConditionalIterator(m_pContainer1->find(key), StorageFlag())
+								 : ConditionalIterator(m_pContainer2->find(key), MemoryFlag());
 		}
 
 	public:

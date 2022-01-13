@@ -59,10 +59,16 @@ namespace catapult { namespace ionet {
 	}
 
 #define CONST_NON_CONST_ENTITY_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstEntityTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonConstEntityTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstEntityTraits>(); \
+	} \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonConstEntityTraits>(); \
+	} \
+	template<typename TTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CONST_NON_CONST_ENTITY_TEST(CanCreatePacketFromZeroEntities) {
 		// Arrange:
@@ -131,11 +137,7 @@ namespace catapult { namespace ionet {
 	}
 
 	namespace {
-		constexpr std::array<uint8_t, 12> Entity_Range_Buffer{{
-			0x00, 0x11, 0x22, 0x33,
-			0xFF, 0xDD, 0xBB, 0x99,
-			0x76, 0x98, 0x12, 0x34
-		}};
+		constexpr std::array<uint8_t, 12> Entity_Range_Buffer{ { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34 } };
 	}
 
 	TEST(TEST_CLASS, CanCreatePacketFromFixedSizeRange) {

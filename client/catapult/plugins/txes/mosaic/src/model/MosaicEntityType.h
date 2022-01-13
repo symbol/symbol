@@ -23,7 +23,8 @@
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 #include "catapult/model/EntityType.h"
 
-namespace catapult { namespace model {
+namespace catapult {
+namespace model {
 
 #endif
 
@@ -37,5 +38,6 @@ namespace catapult { namespace model {
 	DEFINE_TRANSACTION_TYPE(Mosaic, Mosaic_Supply_Revocation, 0x3);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
-}}
+}
+}
 #endif

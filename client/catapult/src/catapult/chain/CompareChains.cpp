@@ -41,8 +41,8 @@ namespace catapult { namespace chain {
 					: m_local(local)
 					, m_remote(remote)
 					, m_options(options)
-					, m_stage(Stage::Statistics)
-			{}
+					, m_stage(Stage::Statistics) {
+			}
 
 		public:
 			thread::future<CompareChainsResult> compare() {
@@ -88,8 +88,8 @@ namespace catapult { namespace chain {
 
 					auto forkDepth = (m_localHeight - m_commonBlockHeight).unwrap();
 					auto result = ChainComparisonCode::Remote_Is_Not_Synced == code
-							? CompareChainsResult{ code, m_commonBlockHeight, forkDepth }
-							: CompareChainsResult{ code, Height(static_cast<Height::ValueType>(-1)), 0 };
+										  ? CompareChainsResult{ code, m_commonBlockHeight, forkDepth }
+										  : CompareChainsResult{ code, Height(static_cast<Height::ValueType>(-1)), 0 };
 					m_promise.set_value(std::move(result));
 					return true;
 				} catch (...) {
@@ -99,13 +99,13 @@ namespace catapult { namespace chain {
 			}
 
 			thread::future<ChainComparisonCode> compareChainStatistics() {
-				return thread::when_all(m_local.chainStatistics(), m_remote.chainStatistics()).then([pThis = shared_from_this()](
-						auto&& aggregateFuture) {
-					auto chainStatisticsFutures = aggregateFuture.get();
-					auto localChainStatistics = chainStatisticsFutures[0].get();
-					auto remoteChainStatistics = chainStatisticsFutures[1].get();
-					return pThis->compareChainStatistics(localChainStatistics, remoteChainStatistics);
-				});
+				return thread::when_all(m_local.chainStatistics(), m_remote.chainStatistics())
+						.then([pThis = shared_from_this()](auto&& aggregateFuture) {
+							auto chainStatisticsFutures = aggregateFuture.get();
+							auto localChainStatistics = chainStatisticsFutures[0].get();
+							auto remoteChainStatistics = chainStatisticsFutures[1].get();
+							return pThis->compareChainStatistics(localChainStatistics, remoteChainStatistics);
+						});
 			}
 
 			ChainComparisonCode compareChainStatistics(
@@ -129,9 +129,8 @@ namespace catapult { namespace chain {
 					return Incomplete_Chain_Comparison_Code;
 				}
 
-				return localScore == remoteScore
-						? ChainComparisonCode::Remote_Reported_Equal_Chain_Score
-						: ChainComparisonCode::Remote_Reported_Lower_Chain_Score;
+				return localScore == remoteScore ? ChainComparisonCode::Remote_Reported_Equal_Chain_Score
+												 : ChainComparisonCode::Remote_Reported_Lower_Chain_Score;
 			}
 
 			bool isRemoteTooFarBehind(Height remoteHeight) const {
@@ -142,18 +141,16 @@ namespace catapult { namespace chain {
 				auto startingHeight = m_startingHashesHeight;
 				auto maxHashes = m_options.HashesPerBatch;
 
-				CATAPULT_LOG(debug)
-						<< "comparing hashes with local height " << m_localHeight
-						<< ", starting height " << startingHeight
-						<< ", max hashes " << maxHashes;
+				CATAPULT_LOG(debug) << "comparing hashes with local height " << m_localHeight << ", starting height " << startingHeight
+									<< ", max hashes " << maxHashes;
 
 				return thread::when_all(m_local.hashesFrom(startingHeight, maxHashes), m_remote.hashesFrom(startingHeight, maxHashes))
-					.then([pThis = shared_from_this()](auto&& aggregateFuture) {
-						auto hashesFuture = aggregateFuture.get();
-						const auto& localHashes = hashesFuture[0].get();
-						const auto& remoteHashes = hashesFuture[1].get();
-						return pThis->compareHashes(localHashes, remoteHashes);
-					});
+						.then([pThis = shared_from_this()](auto&& aggregateFuture) {
+							auto hashesFuture = aggregateFuture.get();
+							const auto& localHashes = hashesFuture[0].get();
+							const auto& remoteHashes = hashesFuture[1].get();
+							return pThis->compareHashes(localHashes, remoteHashes);
+						});
 			}
 
 			ChainComparisonCode compareHashes(const model::HashRange& localHashes, const model::HashRange& remoteHashes) {
@@ -179,9 +176,8 @@ namespace catapult { namespace chain {
 					if (localHeightDerivedFromHashes >= m_localHeight) {
 						if (localHeightDerivedFromHashes < m_remoteHeight) {
 							CATAPULT_LOG(debug)
-									<< "preparing final comparison with local height " << m_localHeight
-									<< ", derived local height " << localHeightDerivedFromHashes
-									<< ", remote height " << m_remoteHeight;
+									<< "preparing final comparison with local height " << m_localHeight << ", derived local height "
+									<< localHeightDerivedFromHashes << ", remote height " << m_remoteHeight;
 							return tryContinue(localHeightDerivedFromHashes - Height(1));
 						}
 
@@ -219,9 +215,8 @@ namespace catapult { namespace chain {
 					// if local score increased, don't punish remote
 					auto currentLocalScore = chainStatisticsFuture.get().Score;
 					if (currentLocalScore > pThis->m_originalLocalScore) {
-						CATAPULT_LOG(debug)
-								<< "local node score updated during compare chains from " << pThis->m_originalLocalScore
-								<< " to " << currentLocalScore;
+						CATAPULT_LOG(debug) << "local node score updated during compare chains from " << pThis->m_originalLocalScore
+											<< " to " << currentLocalScore;
 						return ChainComparisonCode::Local_Score_Updated;
 					}
 

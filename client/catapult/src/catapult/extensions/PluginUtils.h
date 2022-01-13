@@ -25,8 +25,12 @@
 #include <memory>
 
 namespace catapult {
-	namespace config { class CatapultConfiguration; }
-	namespace observers { class EntityObserver; }
+namespace config {
+	class CatapultConfiguration;
+}
+namespace observers {
+	class EntityObserver;
+}
 }
 
 namespace catapult { namespace extensions {
