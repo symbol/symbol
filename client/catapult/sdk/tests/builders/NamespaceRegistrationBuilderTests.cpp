@@ -20,9 +20,9 @@
 **/
 
 #include "src/builders/NamespaceRegistrationBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
 #include "catapult/constants.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
 

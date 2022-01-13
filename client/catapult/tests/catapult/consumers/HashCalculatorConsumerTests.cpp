@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/consumers/BlockConsumers.h"
 #include "sdk/src/extensions/BlockExtensions.h"
+#include "catapult/consumers/BlockConsumers.h"
 #include "catapult/consumers/TransactionConsumers.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/EntityHasher.h"

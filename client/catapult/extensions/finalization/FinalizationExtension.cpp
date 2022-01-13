@@ -19,13 +19,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/io/FileProofStorage.h"
 #include "src/FinalizationBootstrapperService.h"
 #include "src/FinalizationConfiguration.h"
 #include "src/FinalizationMessageProcessingService.h"
 #include "src/FinalizationOrchestratorService.h"
 #include "src/FinalizationService.h"
 #include "src/FinalizationSyncSourceService.h"
+#include "finalization/src/io/FileProofStorage.h"
 #include "catapult/config/ConfigurationFileLoader.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 
