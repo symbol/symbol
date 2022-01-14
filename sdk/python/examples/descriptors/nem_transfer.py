@@ -1,4 +1,4 @@
-from symbolchain.core.facade.NemFacade import NemFacade
+from symbolchain.facade.NemFacade import NemFacade
 
 
 def descriptor_factory():

@@ -9,9 +9,9 @@ import importlib
 from abc import abstractmethod
 from binascii import hexlify, unhexlify
 
-from symbolchain.core.CryptoTypes import PrivateKey
-from symbolchain.core.facade.NemFacade import NemFacade
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
+from symbolchain.CryptoTypes import PrivateKey
+from symbolchain.facade.NemFacade import NemFacade
+from symbolchain.facade.SymbolFacade import SymbolFacade
 
 
 class TransactionSample:

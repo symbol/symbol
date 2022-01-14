@@ -8,9 +8,9 @@ from binascii import hexlify
 from enum import Enum, Flag
 from typing import ByteString, List, TypeVar
 
-from ..core.ArrayHelpers import ArrayHelpers
-from ..core.BaseValue import BaseValue
-from ..core.ByteArray import ByteArray
+from ..ArrayHelpers import ArrayHelpers
+from ..BaseValue import BaseValue
+from ..ByteArray import ByteArray
 
 # string or bytes
 StrBytes = TypeVar('StrBytes', str, bytes)

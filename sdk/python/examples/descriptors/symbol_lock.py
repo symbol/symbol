@@ -1,6 +1,6 @@
 from binascii import unhexlify
 
-from symbolchain.core.CryptoTypes import Hash256
+from symbolchain.CryptoTypes import Hash256
 
 
 def descriptor_factory():

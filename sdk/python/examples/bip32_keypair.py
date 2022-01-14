@@ -6,8 +6,8 @@
 # note: this example is *not* generating keys comaptible with wallet
 #
 
-from symbolchain.core.Bip32 import Bip32
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
+from symbolchain.Bip32 import Bip32
+from symbolchain.facade.SymbolFacade import SymbolFacade
 
 
 def derive_key(root_node, facade, change, index):

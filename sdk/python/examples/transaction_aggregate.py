@@ -12,9 +12,9 @@ from pathlib import Path
 import sha3
 
 from examples.examples_utils import read_contents, read_private_key
-from symbolchain.core.CryptoTypes import Hash256
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
-from symbolchain.core.symbol.MerkleHashBuilder import MerkleHashBuilder
+from symbolchain.CryptoTypes import Hash256
+from symbolchain.facade.SymbolFacade import SymbolFacade
+from symbolchain.symbol.MerkleHashBuilder import MerkleHashBuilder
 
 
 def add_embedded_transfers(facade, public_key):

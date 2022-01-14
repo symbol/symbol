@@ -1,9 +1,9 @@
 from binascii import unhexlify
 from pathlib import Path
 
-from symbolchain.core.CryptoTypes import PrivateKey
-from symbolchain.core.PrivateKeyStorage import PrivateKeyStorage
-from symbolchain.core.symbol.KeyPair import KeyPair
+from symbolchain.CryptoTypes import PrivateKey
+from symbolchain.PrivateKeyStorage import PrivateKeyStorage
+from symbolchain.symbol.KeyPair import KeyPair
 
 
 def read_contents(filepath) -> str:
