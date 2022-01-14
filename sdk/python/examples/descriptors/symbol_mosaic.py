@@ -1,5 +1,5 @@
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
-from symbolchain.core.symbol.IdGenerator import generate_mosaic_id
+from symbolchain.facade.SymbolFacade import SymbolFacade
+from symbolchain.symbol.IdGenerator import generate_mosaic_id
 
 
 def descriptor_factory():

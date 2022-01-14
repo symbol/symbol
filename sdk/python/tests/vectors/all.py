@@ -5,10 +5,10 @@ import sys
 import time
 from binascii import unhexlify
 
-from symbolchain.core.Bip32 import Bip32
-from symbolchain.core.CryptoTypes import PrivateKey, PublicKey, Signature
-from symbolchain.core.Network import NetworkLocator
-from symbolchain.core.symbol.IdGenerator import generate_mosaic_id
+from symbolchain.Bip32 import Bip32
+from symbolchain.CryptoTypes import PrivateKey, PublicKey, Signature
+from symbolchain.Network import NetworkLocator
+from symbolchain.symbol.IdGenerator import generate_mosaic_id
 
 
 class ClassLocator:
@@ -197,12 +197,12 @@ def load_class_locator(blockchain):
 	# pylint: disable=import-outside-toplevel
 
 	if 'symbol' == blockchain:
-		from symbolchain.core.facade.SymbolFacade import SymbolFacade
-		from symbolchain.core.symbol.Network import Network
+		from symbolchain.facade.SymbolFacade import SymbolFacade
+		from symbolchain.symbol.Network import Network
 		return ClassLocator(SymbolFacade, Network)
 
-	from symbolchain.core.facade.NemFacade import NemFacade
-	from symbolchain.core.nem.Network import Network
+	from symbolchain.facade.NemFacade import NemFacade
+	from symbolchain.nem.Network import Network
 	return ClassLocator(NemFacade, Network)
 
 

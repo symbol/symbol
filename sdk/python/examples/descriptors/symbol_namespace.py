@@ -1,4 +1,4 @@
-from symbolchain.core.symbol.IdGenerator import generate_namespace_id
+from symbolchain.symbol.IdGenerator import generate_namespace_id
 
 
 def descriptor_factory():

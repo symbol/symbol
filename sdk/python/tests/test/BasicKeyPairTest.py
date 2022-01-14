@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from symbolchain.core.CryptoTypes import PrivateKey, PublicKey, Signature
+from symbolchain.CryptoTypes import PrivateKey, PublicKey, Signature
 
 from .NemTestUtils import NemTestUtils
 

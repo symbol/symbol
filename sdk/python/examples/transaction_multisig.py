@@ -9,10 +9,10 @@ from binascii import unhexlify
 import sha3
 
 import symbolchain.sc
-from symbolchain.core.CryptoTypes import Hash256, PrivateKey
-from symbolchain.core.facade.SymbolFacade import SymbolFacade
-from symbolchain.core.symbol.KeyPair import KeyPair
-from symbolchain.core.symbol.MerkleHashBuilder import MerkleHashBuilder
+from symbolchain.CryptoTypes import Hash256, PrivateKey
+from symbolchain.facade.SymbolFacade import SymbolFacade
+from symbolchain.symbol.KeyPair import KeyPair
+from symbolchain.symbol.MerkleHashBuilder import MerkleHashBuilder
 
 
 class MultisigAccountModificationSample:

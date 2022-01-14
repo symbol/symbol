@@ -1,4 +1,4 @@
-from symbolchain.core.CryptoTypes import PublicKey
+from symbolchain.CryptoTypes import PublicKey
 
 
 def descriptor_factory():
