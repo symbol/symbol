@@ -4,7 +4,7 @@ def descriptor_factory():
 
 	return [
 		{
-			'type': 'mosaic_global_restriction',
+			'type': 'mosaic_global_restriction_transaction',
 			'mosaic_id': sample_mosaic_id,
 			'reference_mosaic_id': 0,
 			'restriction_key': 0x0A0D474E5089,
@@ -15,7 +15,7 @@ def descriptor_factory():
 		},
 
 		{
-			'type': 'mosaic_address_restriction',
+			'type': 'mosaic_address_restriction_transaction',
 			'mosaic_id': sample_mosaic_id,
 			'restriction_key': 0x0A0D474E5089,
 			'previous_restriction_value': 0,

@@ -28,8 +28,8 @@ class BatchOperations:
 		]
 
 	def _sign_one(self, transaction, private_key_storage, signature_storage, output_filename):
-		# in symbol models, signer_public_key is bytes and needs to be wrapped
-		signer_public_key = PublicKey(transaction.signer_public_key)
+		# transaction.signer_public_key is of different PublicKey type, wrap it in sdk type
+		signer_public_key = PublicKey(transaction.signer_public_key.bytes)
 		signer_account_name = self.facade.account_descriptor_repository.find_by_public_key(signer_public_key).name
 		signer_private_key = private_key_storage.load(signer_account_name)
 
@@ -61,5 +61,6 @@ class BatchOperations:
 			(_, signatures) = signature_groups[i]
 
 			prepared_transaction_buffer = self.facade.transaction_factory.attach_signature(transaction, signatures[0])
-			with open(os.path.join(output_directory, f'payload_{self.output_file_prefix}{i}.dat'), 'wb') as outfile:
+			file_path = os.path.join(output_directory, f'payload_{self.output_file_prefix}{i}.json')
+			with open(file_path, 'wb') as outfile:
 				outfile.write(prepared_transaction_buffer)

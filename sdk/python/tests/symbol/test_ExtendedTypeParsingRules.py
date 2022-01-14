@@ -1,8 +1,9 @@
 import unittest
 
 from symbolchain import sc
-from symbolchain.symbol.ExtendedTypeParsingRules import build_type_hints_map, extend_type_parsing_rules
+from symbolchain.symbol.ExtendedTypeParsingRules import extend_type_parsing_rules
 from symbolchain.symbol.Network import Address
+from symbolchain.TypeParserBuilder import build_type_hints_map
 
 
 class TypeHintsMapTests(unittest.TestCase):
@@ -90,12 +91,12 @@ class ExtendedTypeParsingRulesTests(unittest.TestCase):
 		'UnresolvedMosaicId'
 	]
 
-	def _run_rules_parser(self, type_name, input_value, expected_outcome):
+	def _run_rules_parser(self, typename, input_value, expected_outcome):
 		# Arrange:
 		rules = extend_type_parsing_rules(None, {})
 
 		# Act:
-		parsed = rules[type_name](input_value)
+		parsed = rules[typename](input_value)
 
 		# Assert:
 		self.assertEqual(expected_outcome, parsed)
@@ -121,6 +122,8 @@ class ExtendedTypeParsingRulesTests(unittest.TestCase):
 			'UnresolvedAddress',
 			'Address',
 			'Hash256',
+			'PublicKey',
+			'VotingPublicKey',
 
 			'array[UnresolvedMosaicId]',
 			'array[TransactionType]',

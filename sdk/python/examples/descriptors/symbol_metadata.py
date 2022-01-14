@@ -8,7 +8,7 @@ def descriptor_factory():
 
 	return [
 		{
-			'type': 'account_metadata',
+			'type': 'account_metadata_transaction',
 			'target_address': sample_address,
 			'scoped_metadata_key': 0xC0FFE,
 			'value_size_delta': len(value1),
@@ -16,7 +16,7 @@ def descriptor_factory():
 		},
 
 		{
-			'type': 'mosaic_metadata',
+			'type': 'mosaic_metadata_transaction',
 			'target_mosaic_id': sample_mosaic_id,
 			'target_address': sample_address,
 			'scoped_metadata_key': 0xFACADE,
@@ -25,7 +25,7 @@ def descriptor_factory():
 		},
 
 		{
-			'type': 'namespace_metadata',
+			'type': 'namespace_metadata_transaction',
 			'target_namespace_id': sample_namespace_id,
 			'target_address': sample_address,
 			'scoped_metadata_key': 0xC1CADA,

@@ -11,6 +11,8 @@ from ..test.NemTestUtils import NemTestUtils
 YAML_INPUT = '''
 - public_key: 87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8
 	name: TEST
+- address: TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y
+	name: SYMBOL
 '''.replace('\t', '  ')
 
 
@@ -52,7 +54,7 @@ class SymbolFacadeTest(unittest.TestCase):
 		# Act:
 		facade = SymbolFacade('testnet')
 		transaction = facade.transaction_factory.create({
-			'type': 'transfer',
+			'type': 'transfer_transaction',
 			'signer_public_key': NemTestUtils.randcryptotype(PublicKey)
 		})
 
@@ -67,6 +69,25 @@ class SymbolFacadeTest(unittest.TestCase):
 		with self.assertRaises(StopIteration):
 			SymbolFacade('foo')
 
+	def test_can_create_via_repository(self):
+		# Act:
+		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+		transaction = facade.transaction_factory.create({
+			'type': 'transfer_transaction',
+			'signer_public_key': 'TEST',
+			'recipient_address': 'SYMBOL'
+		})
+
+		# Assert:
+		self.assertEqual('testnet', facade.network.name)
+
+		self.assertEqual(0x4154, transaction.type_.value)
+		self.assertEqual(1, transaction.version)
+		self.assertEqual(
+			PublicKey('87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8').bytes,
+			transaction.signer_public_key.bytes)
+		self.assertEqual(SymbolFacade.Address('TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y').bytes, transaction.recipient_address.bytes)
+
 	# endregion
 
 	# region hash_transaction / sign_transaction
@@ -74,7 +95,7 @@ class SymbolFacadeTest(unittest.TestCase):
 	@staticmethod
 	def _create_real_transfer(facade):
 		return facade.transaction_factory.create({
-			'type': 'transfer',
+			'type': 'transfer_transaction',
 			'signer_public_key': 'TEST',
 			'fee': 1000000,
 			'deadline': 41998024783,
@@ -87,14 +108,14 @@ class SymbolFacadeTest(unittest.TestCase):
 	@staticmethod
 	def _create_real_aggregate(facade):
 		aggregate = facade.transaction_factory.create({
-			'type': 'aggregate_complete',
+			'type': 'aggregate_complete_transaction',
 			'signer_public_key': 'TEST',
 			'fee': 2000000,
 			'deadline': 42238390163,
 			'transactions_hash': unhexlify('71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'),
 		})
 		transfer = facade.transaction_factory.create_embedded({
-			'type': 'transfer',
+			'type': 'transfer_transaction',
 			'signer_public_key': 'TEST',
 			'recipient_address': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
 			'mosaics': [
