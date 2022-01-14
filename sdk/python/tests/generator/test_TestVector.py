@@ -58,6 +58,13 @@ def test_serialize_symbol(item):
 	serialized = builder.serialize()
 	assert to_hex_string(serialized) == payload.upper(), comment
 
+	if schema_name.endswith('Transaction'):
+		generic_builder_class = getattr(module, 'TransactionFactory')
+		factory_builder = generic_builder_class.deserialize(prepare_payload(item['payload']))
+		factory_serialized = factory_builder.serialize()
+
+		assert to_hex_string(factory_serialized) == payload.upper(), comment
+
 
 @pytest.mark.parametrize('item', prepare_test_cases('nem'), ids=generate_pretty_id)
 def test_serialize_nem(item):
@@ -72,3 +79,11 @@ def test_serialize_nem(item):
 
 	serialized = builder.serialize()
 	assert to_hex_string(serialized) == payload.upper(), comment
+
+	if schema_name.endswith('Transaction'):
+		generic_builder_class = getattr(module, 'TransactionFactory')
+		factory_builder = generic_builder_class.deserialize(prepare_payload(item['payload']))
+		factory_serialized = factory_builder.serialize()
+
+		assert to_hex_string(factory_serialized) == payload.upper(), comment
+
