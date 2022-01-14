@@ -27,7 +27,7 @@ def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
 	replacements = [
 		('{{IMAGE_NAME}}', image_name),
 		('{{COMPILER_CONFIGURATION}}', prepare_replacements['compiler_configuration']),
-		('{{USER}}', '"{}"'.format(prepare_replacements['user'])),
+		('{{USER}}', f'"{prepare_replacements["user"]}"'),
 
 		('{{BUILD_NUMBER}}', get_image_label(image_name)),
 		('{{NETWORK_IP}}', '3000'),
@@ -57,8 +57,8 @@ def main():
 	process_manager = ProcessManager(args.dry_run)
 
 	compose_template_directory = Path(__file__).parent / 'templates'
-	compose_template_filepath = compose_template_directory / 'Run{}.yaml'.format(args.mode.capitalize())
-	print('processing template from {}'.format(compose_template_filepath))
+	compose_template_filepath = compose_template_directory / f'Run{args.mode.capitalize()}.yaml'
+	print(f'processing template from {compose_template_filepath}')
 	prepare_replacements = {
 		'image_name': args.image,
 		'compiler_configuration': args.compiler_configuration,

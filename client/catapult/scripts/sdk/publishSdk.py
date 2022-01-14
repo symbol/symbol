@@ -18,12 +18,12 @@ def find_subdirectories(directory):
 
 def require_existence(path):
 	if not os.path.exists(path):
-		raise Exception('{} does not exist'.format(path))
+		raise Exception(f'{path} does not exist')
 
 
 def require_non_existence(path):
 	if os.path.exists(path):
-		raise Exception('{} already exists'.format(path))
+		raise Exception(f'{path} already exists')
 
 
 def force_empty(directory):
@@ -122,7 +122,7 @@ class Publisher:
 			for header in self.headers:
 				path_parts = os.path.split(header)
 				if None is exclusions or path_parts[-1] not in exclusions:
-					master_header_file.writelines(['#include "{}"'.format(header), '\n'])
+					master_header_file.writelines([f'#include "{header}"', '\n'])
 
 	def register_source_directory(self, source_directory):
 		require_existence(source_directory)
@@ -134,13 +134,13 @@ class Publisher:
 		os.makedirs(publish_component_directory, exist_ok=True)
 
 		# find and publish all headers
-		self.log('***** processing {} ****'.format(source_directory))
+		self.log(f'***** processing {source_directory} ****')
 		for header in find_headers(source_directory):
 			self.publish_header(source_directory, component, header)
 
 		# search first-level subdirectories
 		for subdirectory in find_subdirectories(source_directory):
-			self.log('***** processing {}/{} ****'.format(source_directory, subdirectory))
+			self.log(f'***** processing {source_directory}/{subdirectory} ****')
 
 			# ensure the destination directory exists
 			os.makedirs(os.path.join(publish_component_directory, subdirectory), exist_ok=True)

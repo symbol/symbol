@@ -38,11 +38,11 @@ class OptionsManager(BasicBuildManager):
 		else:
 			name_parts = [self.operating_system, self.compilation_friendly_name]
 
-		return 'symbolplatform/symbol-server-build-base:{}'.format('-'.join(name_parts))
+		return f'symbolplatform/symbol-server-build-base:{"-".join(name_parts)}'
 
 	@property
 	def prepare_base_image_name(self):
-		return 'symbolplatform/symbol-server-test-base:{}'.format(self.operating_system)
+		return f'symbolplatform/symbol-server-test-base:{self.operating_system}'
 
 	@property
 	def ccache_path(self):
@@ -59,7 +59,7 @@ class OptionsManager(BasicBuildManager):
 			('CCACHE_DIR', '/ccache')
 		]
 
-		return ['--env={}={}'.format(key, value) for key, value in sorted(settings)]
+		return [f'--env={key}={value}' for key, value in sorted(settings)]
 
 
 def get_volume_mappings(ccache_path, conan_path):
@@ -70,7 +70,7 @@ def get_volume_mappings(ccache_path, conan_path):
 		(ccache_path, '/ccache')
 	]
 
-	return ['--volume={}:{}'.format(str(key), value) for key, value in sorted(mappings)]
+	return [f'--volume={str(key)}:{value}' for key, value in sorted(mappings)]
 
 
 def create_docker_run_command(options, compiler_configuration_filepath, build_configuration_filepath, user):
@@ -80,13 +80,13 @@ def create_docker_run_command(options, compiler_configuration_filepath, build_co
 	docker_args = [
 		'docker', 'run',
 		'--rm',
-		'--user={}'.format(user),
+		f'--user={user}',
 	] + docker_run_settings + volume_mappings + [
 		options.build_base_image_name,
 		'python3', '/catapult-src/scripts/build/runDockerBuildInnerBuild.py',
 		# assume paths are relative to workdir
-		'--compiler-configuration=/{}'.format(compiler_configuration_filepath),
-		'--build-configuration=/{}'.format(build_configuration_filepath)
+		f'--compiler-configuration=/{compiler_configuration_filepath}',
+		f'--build-configuration=/{build_configuration_filepath}'
 	]
 
 	return docker_args
@@ -102,7 +102,7 @@ def cleanup_directories(environment_manager, ccache_root_directory, conan_root_d
 
 def prepare_docker_image(process_manager, container_id, prepare_replacements):
 	destination_image_label = prepare_replacements['destination_image_label']
-	cid_filepath = Path('{}.cid'.format(destination_image_label))
+	cid_filepath = Path(f'{destination_image_label}.cid')
 	if not container_id:
 		if cid_filepath.exists():
 			cid_filepath.unlink()
@@ -115,15 +115,15 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 	}
 	destination_repository = disposition_to_repository_map[build_disposition]
 
-	destination_image_name = 'symbolplatform/{}:{}'.format(destination_repository, destination_image_label)
+	destination_image_name = f'symbolplatform/{destination_repository}:{destination_image_label}'
 	process_manager.dispatch_subprocess([
 		'docker', 'run',
-		'--cidfile={}'.format(cid_filepath),
-		'--volume={}:/scripts'.format(SRC_DIR / 'scripts' / 'build'),
-		'--volume={}:/data'.format(OUTPUT_DIR),
-		'registry.hub.docker.com/{}'.format(prepare_replacements['base_image_name']),
+		f'--cidfile={cid_filepath}',
+		f'--volume={SRC_DIR / "scripts" / "build"}:/scripts',
+		f'--volume={OUTPUT_DIR}:/data',
+		f'registry.hub.docker.com/{prepare_replacements["base_image_name"]}',
 		'python3', '/scripts/runDockerBuildInnerPrepare.py',
-		'--disposition={}'.format(build_disposition)
+		f'--disposition={build_disposition}'
 	])
 
 	if not container_id:

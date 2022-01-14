@@ -21,7 +21,7 @@ def print_lines(lines, **kwargs):
 
 
 def format_multivalue_options(key, values):
-	return '{}=\'{}\''.format(key, ' '.join(values))
+	return f'{key}=\'{" ".join(values)}\''
 
 
 # region OptionsManager
@@ -50,7 +50,7 @@ class OptionsManager:
 	@property
 	def base_image_name(self):
 		name_parts = [self.operating_system, self.compiler.c, str(self.compiler.version)]
-		return 'symbolplatform/symbol-server-compiler:{}'.format('-'.join(name_parts))
+		return f'symbolplatform/symbol-server-compiler:{"-".join(name_parts)}'
 
 	def layer_image_name(self, layer):
 		name_parts = [self.operating_system, self.compiler.c, str(self.compiler.version)]
@@ -61,7 +61,7 @@ class OptionsManager:
 		if tag:
 			name_parts.append(tag)
 
-		return 'symbolplatform/symbol-server-build-base:{}'.format('-'.join(name_parts))
+		return f'symbolplatform/symbol-server-build-base:{"-".join(name_parts)}'
 
 	def bootstrap(self):
 		options = []
@@ -75,7 +75,7 @@ class OptionsManager:
 		cxxflags = [self._arch_flag]
 		if self.is_clang:
 			options += ['toolset=clang']
-			options += [format_multivalue_options('linkflags', ['-stdlib={}'.format(self.stl.lib)])]
+			options += [format_multivalue_options('linkflags', [f'-stdlib={self.stl.lib}'])]
 			cxxflags += self._stl_flags
 
 		options += [format_multivalue_options('cxxflags', cxxflags)]
@@ -148,11 +148,11 @@ class OptionsManager:
 
 	@property
 	def _arch_flag(self):
-		return '-march={}'.format(self.architecture)
+		return f'-march={self.architecture}'
 
 	@property
 	def _stl_flags(self):
-		return None if not self.stl else ['-std={}'.format(self.stl.version), '-stdlib={}'.format(self.stl.lib)]
+		return None if not self.stl else [f'-std={self.stl.version}', f'-stdlib={self.stl.lib}']
 
 	def _cmake(self, descriptor):
 		descriptor.options += [
@@ -166,7 +166,7 @@ class OptionsManager:
 			descriptor.cxxflags += self._stl_flags
 
 		if descriptor.sanitizer:
-			sanitize_flag = '-fsanitize={}'.format(descriptor.sanitizer)
+			sanitize_flag = f'-fsanitize={descriptor.sanitizer}'
 			descriptor.options += [format_multivalue_options('-DCMAKE_C_FLAGS', [sanitize_flag])]
 			descriptor.cxxflags += [sanitize_flag]
 			descriptor.linkflags += [sanitize_flag]
@@ -280,8 +280,8 @@ def generate_phase_os(options):
 	SYSTEMS[options.operating_system].add_base_os_packages()
 
 	cmake_version = options.versions['cmake']
-	cmake_script = 'cmake-{}-Linux-x86_64.sh'.format(cmake_version)
-	cmake_uri = 'https://github.com/Kitware/CMake/releases/download/v{}'.format(cmake_version)
+	cmake_script = f'cmake-{cmake_version}-Linux-x86_64.sh'
+	cmake_uri = f'https://github.com/Kitware/CMake/releases/download/v{cmake_version}'
 	print_line([
 		'curl -o {CMAKE_SCRIPT} -SL "{CMAKE_URI}/{CMAKE_SCRIPT}"',
 		'chmod +x {CMAKE_SCRIPT}',
@@ -291,17 +291,17 @@ def generate_phase_os(options):
 
 
 def generate_phase_boost(options):
-	print('FROM {}'.format(options.layer_image_name('os')))
+	print(f'FROM {options.layer_image_name("os")}')
 	gosu_version = options.versions['gosu']
 	gosu_target = '/usr/local/bin/gosu'
-	gosu_uri = 'https://github.com/tianon/gosu/releases/download/{}'.format(gosu_version)
+	gosu_uri = f'https://github.com/tianon/gosu/releases/download/{gosu_version}'
 	print_line([
 		'RUN curl -o {GOSU_TARGET} -SL "{GOSU_URI}/gosu-$(dpkg --print-architecture)"',
 		'chmod +x {GOSU_TARGET}'
 	], GOSU_TARGET=gosu_target, GOSU_URI=gosu_uri)
 
 	boost_version = options.versions['boost']
-	boost_disabled_libs = map('--without-{}'.format, [
+	boost_disabled_libs = map(lambda library_name: f'--without-{library_name}', [
 		'context',
 		'contract',
 		'coroutine',
@@ -323,8 +323,8 @@ def generate_phase_boost(options):
 	])
 
 	print_args = {
-		'BOOST_ARCHIVE': 'boost_1_{}_0'.format(boost_version),
-		'BOOST_URI': 'https://boostorg.jfrog.io/artifactory/main/release/1.{}.0/source'.format(boost_version),
+		'BOOST_ARCHIVE': f'boost_1_{boost_version}_0',
+		'BOOST_URI': f'https://boostorg.jfrog.io/artifactory/main/release/1.{boost_version}.0/source',
 		'BOOTSTRAP_OPTIONS': ' '.join(options.bootstrap()),
 		'B2_OPTIONS': ' '.join(options.b2()),
 		'BOOST_DISABLED_LIBS': ' '.join(boost_disabled_libs)
@@ -341,7 +341,7 @@ def generate_phase_boost(options):
 
 
 def add_git_dependency(organization, project, versions_map, options, revision=1):
-	version = versions_map['{}_{}'.format(organization, project)]
+	version = versions_map[f'{organization}_{project}']
 	print_line([
 		'RUN git clone https://github.com/{ORGANIZATION}/{PROJECT}.git',
 		'cd {PROJECT}',
@@ -358,7 +358,7 @@ def add_git_dependency(organization, project, versions_map, options, revision=1)
 
 
 def generate_phase_deps(options):
-	print('FROM {}'.format(options.layer_image_name('boost')))
+	print(f'FROM {options.layer_image_name("boost")}')
 	add_git_dependency('mongodb', 'mongo-c-driver', options.versions, options.mongo_c())
 	add_git_dependency('mongodb', 'mongo-cxx-driver', options.versions, options.mongo_cxx())
 
@@ -369,7 +369,7 @@ def generate_phase_deps(options):
 
 
 def generate_phase_test(options):
-	print('FROM {}'.format(options.layer_image_name('deps')))
+	print(f'FROM {options.layer_image_name("deps")}')
 	add_git_dependency('google', 'googletest', options.versions, options.googletest())
 	add_git_dependency('google', 'benchmark', options.versions, options.googlebench())
 
@@ -394,7 +394,7 @@ def generate_phase_test(options):
 
 
 def generate_phase_conan(options):
-	print('FROM {}'.format(options.layer_image_name('os')))
+	print(f'FROM {options.layer_image_name("os")}')
 
 	apt_packages = ['python3-pip']
 

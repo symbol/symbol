@@ -34,13 +34,13 @@ class SanitizerEnvironment:
 			'external_symbolizer_path': str(USER_HOME / 'deps' / 'llvm-symbolizer'),
 			'print_stacktrace': 1,
 			'verbosity': 1,
-			'log_path': '{}log'.format(name)
+			'log_path': f'{name}log'
 		}
 		options.update(custom_options)
 
-		options_string = ':'.join(map('{0[0]}={0[1]}'.format, options.items()))
-		self.environment_manager.set_env_var('{}_OPTIONS'.format(name.upper()), options_string)
-		print('{} options: {}'.format(name, options_string))
+		options_string = ':'.join(map(f'{options.items()[0]}={options.items()[1]}'))
+		self.environment_manager.set_env_var(f'{name.upper()}_OPTIONS', options_string)
+		print(f'{name} options: {options_string}')
 
 	def prepare_thread_sanitizer(self):
 		with open(TSAN_SUPPRESSIONS_PATH, 'wt', encoding='utf8') as outfile:
@@ -78,7 +78,7 @@ def prepare_tests(environment_manager):
 def process_sanitizer_logs(environment_manager, output_directory, san_descriptor):
 	counter = 1
 	for logfile_name in environment_manager.find_glob('.', san_descriptor['input_pattern']):
-		log_name = output_directory / '{}.{}.xml'.format(san_descriptor['output_filename_prefix'], counter)
+		log_name = output_directory / f'{san_descriptor["output_filename_prefix"]}.{counter}.xml'
 		parse_san_log(logfile_name, log_name, san_descriptor['parser_name'])
 
 		logfile_name.unlink()
@@ -90,12 +90,12 @@ def process_sanitizer_logs_all(environment_manager, output_directory, test_name)
 
 	process_sanitizer_logs(environment_manager, output_directory, {
 		'input_pattern': 'tsanlog*',
-		'output_filename_prefix': '{}.thread'.format(test_name),
+		'output_filename_prefix': f'{test_name}.thread',
 		'parser_name': 'tsan'
 	})
 	process_sanitizer_logs(environment_manager, output_directory, {
 		'input_pattern': 'ubsanlog*',
-		'output_filename_prefix': '{}.undefined.address'.format(test_name),
+		'output_filename_prefix': f'{test_name}.undefined.address',
 		'parser_name': 'asan'
 	})
 
@@ -112,9 +112,9 @@ SEGV_RESULT_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
 
 
 def handle_core_file(process_manager, core_path, test_exe_filepath, base_output_filepath):
-	print('core file detected {}'.format(core_path))
+	print(f'core file detected {core_path}')
 
-	gdb_output_filepath = '{}.core.txt'.format(base_output_filepath)
+	gdb_output_filepath = f'{base_output_filepath}.core.txt'
 	process_manager.dispatch_subprocess([
 		'gdb', '--batch', '--quiet',
 		'-ex', 'thread apply all bt full',
@@ -126,7 +126,7 @@ def handle_core_file(process_manager, core_path, test_exe_filepath, base_output_
 	with open(gdb_output_filepath, 'rt', encoding='utf8') as infile:
 		contents = infile.read()
 
-	with open('{}.core.xml'.format(base_output_filepath), 'wt', encoding='utf8') as outfile:
+	with open(f'{base_output_filepath}.core.xml', 'wt', encoding='utf8') as outfile:
 		outfile.write(SEGV_RESULT_TEMPLATE.format(contents))
 
 
@@ -156,10 +156,10 @@ def main():
 	for test_exe_filepath in environment_manager.find_glob(args.exe_path, 'tests*'):
 		base_output_filepath = Path(args.out_dir) / test_exe_filepath.name
 
-		output_filepath = '{}.xml'.format(base_output_filepath)
+		output_filepath = f'{base_output_filepath}.xml'
 		test_args = [
 			test_exe_filepath,
-			'--gtest_output=xml:{}'.format(output_filepath),
+			f'--gtest_output=xml:{output_filepath}',
 			Path(args.exe_path) / '..' / 'lib'
 		]
 
@@ -174,7 +174,7 @@ def main():
 	if failed_test_suites:
 		print('test failures detected')
 		for test_suite in sorted(failed_test_suites):
-			print('[*] {}'.format(test_suite))
+			print(f'[*] {test_suite}')
 
 		sys.exit(len(failed_test_suites))
 	else:

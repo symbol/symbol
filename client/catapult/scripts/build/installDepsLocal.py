@@ -17,16 +17,16 @@ class Downloader:
 
 	def download_boost(self):
 		version = self.versions['boost']
-		tar_filename = 'boost_1_{}_0.tar.gz'.format(version)
-		tar_source_path = 'https://boostorg.jfrog.io/artifactory/main/release/1.{}.0/source/{}'.format(version, tar_filename)
+		tar_filename = f'boost_1_{version}_0.tar.gz'
+		tar_source_path = f'https://boostorg.jfrog.io/artifactory/main/release/1.{version}.0/source/{tar_filename}'
 
 		self.process_manager.dispatch_subprocess(['curl', '-o', tar_filename, '-SL', tar_source_path])
 		self.process_manager.dispatch_subprocess(['tar', '-xzf', tar_filename])
-		self.process_manager.dispatch_subprocess(['mv', 'boost_1_{}_0'.format(version), 'boost'])
+		self.process_manager.dispatch_subprocess(['mv', f'boost_1_{version}_0', 'boost'])
 
 	def download_git_dependency(self, organization, project):
-		version = self.versions['{}_{}'.format(organization, project)]
-		repository = 'git://github.com/{}/{}.git'.format(organization, project)
+		version = self.versions[f'{organization}_{project}']
+		repository = f'git://github.com/{organization}/{project}.git'
 		self.process_manager.dispatch_subprocess(['git', 'clone', '-b', version, repository])
 
 
@@ -44,7 +44,7 @@ class Builder:
 	def build_boost(self):
 		self.environment_manager.chdir(self.target_directory / SOURCE_DIR_NAME / 'boost')
 
-		boost_prefix_option = '--prefix={}'.format(self.target_directory / 'boost')
+		boost_prefix_option = f'--prefix={self.target_directory / "boost"}'
 		bootstrap_options = ['./bootstrap.sh']
 		if self.is_clang:
 			bootstrap_options += ['with-toolset=clang']
@@ -64,13 +64,13 @@ class Builder:
 		self.environment_manager.chdir('_build')
 
 		cmake_options = [
-			'cmake', '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DCMAKE_INSTALL_PREFIX={}'.format(self.target_directory / organization)
+			'cmake', '-DCMAKE_BUILD_TYPE=RelWithDebInfo', f'-DCMAKE_INSTALL_PREFIX={self.target_directory / organization}'
 		]
 
 		if self.is_clang:
 			cmake_options += ['-DCMAKE_CXX_COMPILER=\'clang++\'', '-DCMAKE_CXX_FLAGS=\'-std=c++1y -stdlib=libc++\'']
 
-		additional_cmake_options = DEPENDENCY_FLAGS.get('{}_{}'.format(organization, project), None)
+		additional_cmake_options = DEPENDENCY_FLAGS.get(f'{organization}_{project}', None)
 		if additional_cmake_options:
 			cmake_options += additional_cmake_options
 

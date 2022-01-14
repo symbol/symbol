@@ -34,7 +34,8 @@ class ProcessManager:
 
 			if handle_error:
 				if 0 != process.returncode:
-					raise SubprocessError('{} exited with {}'.format(' '.join(map(str, command_line)), process.returncode))
+					formatted_command_line = ' '.join(map(str, command_line))
+					raise SubprocessError(f'{formatted_command_line} exited with {process.returncode}')
 			else:
 				return process.returncode
 
@@ -70,7 +71,7 @@ class ProcessManager:
 					sys.stdout.write(line)
 					sys.stdout.flush()
 
-			print('process exited with return code: {}'.format(process.returncode))
+			print(f'process exited with return code: {process.returncode}')
 			return process.returncode
 
 	@staticmethod
@@ -85,4 +86,4 @@ class ProcessManager:
 
 	@staticmethod
 	def _print_info_line(prefix, line):
-		print('\033[0;36m{} {}\033[0;0m'.format(prefix, line))
+		print(f'\033[0;36m{prefix} {line}\033[0;0m')

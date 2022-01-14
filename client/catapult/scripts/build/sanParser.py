@@ -17,9 +17,9 @@ def _read_lines(filename):
 
 
 def _output_xml_test_case(entry, outfile):
-	outfile.write('''<testcase name="{}" status="run" time="0.002" classname="{}">
-'''.format(entry.name, entry.error))
-	outfile.write('<failure message={} type=""><![CDATA['.format(quoteattr(entry.message)))
+	outfile.write(f'''<testcase name="{entry.name}" status="run" time="0.002" classname="{entry.error}">
+''')
+	outfile.write(f'<failure message={quoteattr(entry.message)} type=""><![CDATA[')
 	outfile.write(entry.create_header())
 	outfile.write('\n'.join(entry.trace))
 	outfile.write('>]]></failure>')
@@ -27,10 +27,10 @@ def _output_xml_test_case(entry, outfile):
 
 
 def _output_xml_to_file(parsed, sanitizer_name, outfile):
-	outfile.write('''<?xml version="1.0" encoding="UTF-8"?>
+	outfile.write(f'''<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="1" failures="1" disabled="0" errors="0" timestamp="0" time="0" name="AllTests">
-	<testsuite name="{}" tests="1" failures="{}" disabled="0" errors="0" time="0">
-'''.format(sanitizer_name, len(parsed)))
+	<testsuite name="{sanitizer_name}" tests="1" failures="{len(parsed)}" disabled="0" errors="0" time="0">
+''')
 	for entry in parsed:
 		_output_xml_test_case(entry, outfile)
 	outfile.write('''
@@ -66,10 +66,10 @@ class SanError:
 		match = self.pattern_summary.search(line)
 		if match:
 			(self.error, self.name) = self.error_name_extractor(match)
-			self.message = '{} {}'.format(match.group(1), match.group(3))
+			self.message = f'{match.group(1)} {match.group(3)}'
 
 	def create_header(self):
-		return '{}\n'.format(self.header)
+		return f'{self.header}\n'
 
 # endregion
 

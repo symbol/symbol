@@ -14,7 +14,7 @@ def main():
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
 	args = parser.parse_args()
 
-	print('preparing {} image'.format(args.disposition))
+	print(f'preparing {args.disposition} image')
 
 	process_manager = ProcessManager(args.dry_run)
 	environment_manager = EnvironmentManager(args.dry_run)

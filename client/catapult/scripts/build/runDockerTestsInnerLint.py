@@ -10,7 +10,8 @@ SRC_DIR = Path('catapult-src')
 
 
 def print_linter_status(name, return_code):
-	print('{} {}'.format(name, 'succeeded' if not return_code else 'FAILED'))
+	return_code_description = 'succeeded' if not return_code else 'FAILED'
+	print(f'{name} {return_code_description}')
 
 
 def find_files_with_extension(environment_manager, extension):
@@ -38,14 +39,14 @@ class LinterRunner:
 
 	def set_scope(self, scope):
 		self.scope = scope
-		self.output_filepath = Path(self.dest_dir) / '{}.log'.format(self.scope)
+		self.output_filepath = Path(self.dest_dir) / f'{self.scope}.log'
 
 	def run(self, args):
 		linter_result = self.process_manager.dispatch_subprocess(args, handle_error=False, redirect_filename=self.output_filepath)
 		print_linter_status(self.scope, linter_result)
 
 	def fixup_source_path(self):
-		self.fixup(lambda line: line.replace('/{}'.format(SRC_DIR), str(SRC_DIR)))
+		self.fixup(lambda line: line.replace(f'/{SRC_DIR}', str(SRC_DIR)))
 
 	def fixup(self, modifier):
 		if self.dry_run:
@@ -57,7 +58,7 @@ class LinterRunner:
 		with open(self.output_filepath, 'wt', encoding='utf8') as outfile:
 			for line in contents.split('\n'):
 				line = modifier(line)
-				outfile.write('{}\n'.format(line))
+				outfile.write(f'{line}\n')
 
 	def cat(self):
 		self.process_manager.dispatch_subprocess(['cat', self.output_filepath])
@@ -79,7 +80,7 @@ def run_python_linters(linter_runner, python_files):
 		'--load-plugins', 'pylint_quotes',
 		'--output-format', 'parseable'
 	] + python_files)
-	linter_runner.fixup(lambda line: line if not pylint_warning_pattern.match(line) else '{}/scripts/{}'.format(SRC_DIR, line))
+	linter_runner.fixup(lambda line: line if not pylint_warning_pattern.match(line) else f'{SRC_DIR}/scripts/{line}')
 
 	linter_runner.set_scope('pycodestyle')
 	linter_runner.run(['pycodestyle', '--config', '.pycodestyle'] + python_files)
@@ -90,7 +91,7 @@ def run_python_linters(linter_runner, python_files):
 	linter_runner.set_scope('isort')
 	linter_runner.run(['isort', '--check-only', '--line-length', '140'] + python_files)
 	linter_runner.fixup(lambda line: isort_warning_pattern.sub(
-		lambda match: '{}:1:1 {}: {}'.format(match.group(2), match.group(1).lower(), match.group(3)),
+		lambda match: f'{match.group(2)}:1:1 {match.group(1).lower()}: {match.group(3)}',
 		line))
 	linter_runner.fixup_source_path()
 

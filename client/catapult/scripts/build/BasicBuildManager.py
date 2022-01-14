@@ -32,7 +32,7 @@ class BasicBuildManager:
 
 	@property
 	def versioned_compiler(self):
-		return '{}-{}'.format(self.compiler.c, self.compiler.version)
+		return f'{self.compiler.c}-{self.compiler.version}'
 
 	@property
 	def compilation_friendly_name(self):

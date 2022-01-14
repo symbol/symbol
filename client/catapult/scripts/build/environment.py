@@ -72,7 +72,7 @@ class EnvironmentManager:
 		self._print_command('find_glob', [directory_path, pattern, recursive])
 
 		if self.dry_run:
-			return ['[({})match{}]'.format(pattern, i) for i in range(1, 3)]
+			return [f'[({pattern})match{i}]' for i in range(1, 3)]
 
 		glob_func = Path.glob if not recursive else Path.rglob
 		return glob_func(Path(directory_path), pattern)
@@ -123,4 +123,5 @@ class EnvironmentManager:
 
 	@staticmethod
 	def _print_command(command, args):
-		print('\033[0;33m[*] <{}> {}\033[0;0m'.format(command, ' '.join(str(x) for x in args)))
+		formatted_args = ' '.join(str(x) for x in args)
+		print(f'\033[0;33m[*] <{command}> {formatted_args}\033[0;0m')

@@ -42,7 +42,7 @@ class LinuxEnvironment:
 		self.dispatch_subprocess(['conan', 'config', 'set', 'general.revisions_enabled=True'])
 
 		for key, value in settings.items():
-			self.dispatch_subprocess(['conan', 'profile', 'update', 'settings.compiler.{}={}'.format(key, value), 'default'])
+			self.dispatch_subprocess(['conan', 'profile', 'update', f'settings.compiler.{key}={value}', 'default'])
 
 	def run_conan_install(self):
 		# assuming working directory == build directory
@@ -84,7 +84,7 @@ class BuildManager(BasicBuildManager):
 		if 'public' == self.build_disposition:
 			settings.append(('CATAPULT_BUILD_RELEASE_PUBLIC', 'ON'))
 
-		return ['-D{}={}'.format(key, value) for key, value in settings]
+		return [f'-D{key}={value}' for key, value in settings]
 
 	def run_cmake(self):
 		cmake_settings = self.cmake_settings()
@@ -102,11 +102,11 @@ class BuildManager(BasicBuildManager):
 
 		self.environment_manager.mkdirs(destination)
 		for name in ['atomic', 'chrono', 'date_time', 'filesystem', 'log', 'log_setup', 'program_options', 'regex', 'thread']:
-			self.environment_manager.copy_glob_with_symlinks('/mybuild/lib', 'libboost_{}.so*'.format(name), destination)
+			self.environment_manager.copy_glob_with_symlinks('/mybuild/lib', f'libboost_{name}.so*', destination)
 
 		for name in ['bson-1.0', 'mongoc-1.0', 'bsoncxx', 'mongocxx', 'zmq', 'rocksdb', 'snappy', 'gflags']:
 			system_bin_path = self.environment_manager.system_bin_path
-			self.environment_manager.copy_glob_with_symlinks(system_bin_path, 'lib{}.so*'.format(name), destination)
+			self.environment_manager.copy_glob_with_symlinks(system_bin_path, f'lib{name}.so*', destination)
 
 	def copy_compiler_deps(self, destination):
 		for dependency_pattern in self.compiler.deps:
@@ -116,7 +116,7 @@ class BuildManager(BasicBuildManager):
 
 	def copy_sanitizer_deps(self, destination):
 		for name in ['crypto', 'ssl']:
-			self.environment_manager.copy_glob_with_symlinks('/usr/local/lib/', 'lib{}*'.format(name), destination)
+			self.environment_manager.copy_glob_with_symlinks('/usr/local/lib/', f'lib{name}*', destination)
 
 		self.environment_manager.copy_tree_with_symlinks('/usr/local/lib/engines-1.1', Path(destination) / 'engines-1.1')
 
