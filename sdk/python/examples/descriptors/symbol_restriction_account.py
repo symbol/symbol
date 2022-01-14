@@ -5,7 +5,7 @@ def descriptor_factory():
 	return [
 		# allow incoming transactions only from address below
 		{
-			'type': 'account_address_restriction',
+			'type': 'account_address_restriction_transaction',
 			'restriction_flags': 'address',
 			'restriction_additions': [sample_address]
 		},
@@ -14,20 +14,20 @@ def descriptor_factory():
 		# note: block and allow restrictions are mutually exclusive, documentation
 		# https://docs.symbolplatform.com/concepts/account-restriction.html#account-restriction
 		{
-			'type': 'account_address_restriction',
+			'type': 'account_address_restriction_transaction',
 			'restriction_flags': 'address outgoing block',
 			'restriction_additions': [sample_address]
 		},
 
 		{
-			'type': 'account_mosaic_restriction',
+			'type': 'account_mosaic_restriction_transaction',
 			'restriction_flags': 'mosaic_id',
 			'restriction_additions': [sample_mosaic_id]
 		},
 
 		# allow only specific transaction types
 		{
-			'type': 'account_operation_restriction',
+			'type': 'account_operation_restriction_transaction',
 			'restriction_flags': 'outgoing',
 			'restriction_additions': [
 				'transfer',

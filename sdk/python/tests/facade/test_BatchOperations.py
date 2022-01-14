@@ -28,13 +28,15 @@ ACCOUNTS_YAML_INPUT = f'''
 '''.replace('\t', '  ')
 
 TRANSACTIONS_YAML_INPUT = f'''
-- type: transfer
+- type: transfer_transaction
 	signer_public_key: TEST
 	recipient_address: ALICE
 	amount: 3000000
-	message: Hello world!
+	message:
+		message_type: plain
+		message: Hello world!
 
-- type: transfer
+- type: transfer_transaction
 	signer_public_key: TEST
 	recipient_address: {BOB_ADDRESS}
 	amount: 1000000
@@ -54,19 +56,23 @@ class BatchOperationsTest(unittest.TestCase):
 		# Assert:
 		self.assertEqual(2, len(transactions))
 
-		self.assertEqual(0x0101, transactions[0].type)
-		self.assertEqual(0x98000001, transactions[0].version)
-		self.assertEqual(TEST_PUBLIC_KEY, transactions[0].signer_public_key)
-		self.assertEqual(ALICE_ADDRESS, transactions[0].recipient_address)
-		self.assertEqual(3000000, transactions[0].amount)
-		self.assertEqual(b'Hello world!', transactions[0].message)
+		self.assertEqual(0x0101, transactions[0].type_.value)
+		self.assertEqual(2, transactions[0].version)
+		self.assertEqual(0x98, transactions[0].network.value)
 
-		self.assertEqual(0x0101, transactions[1].type)
-		self.assertEqual(0x98000001, transactions[1].version)
-		self.assertEqual(TEST_PUBLIC_KEY, transactions[1].signer_public_key)
-		self.assertEqual(BOB_ADDRESS, transactions[1].recipient_address)
-		self.assertEqual(1000000, transactions[1].amount)
-		self.assertEqual(None, transactions[1].message)
+		self.assertEqual(TEST_PUBLIC_KEY.bytes, transactions[0].signer_public_key.bytes)
+		self.assertEqual(str(ALICE_ADDRESS).encode('utf8'), transactions[0].recipient_address.bytes)
+		self.assertEqual(3000000, transactions[0].amount.value)
+		self.assertEqual(b'Hello world!', transactions[0].message.message)
+
+		self.assertEqual(0x0101, transactions[1].type_.value)
+		self.assertEqual(2, transactions[1].version)
+		self.assertEqual(0x98, transactions[1].network.value)
+
+		self.assertEqual(TEST_PUBLIC_KEY.bytes, transactions[1].signer_public_key.bytes)
+		self.assertEqual(str(BOB_ADDRESS).encode('utf8'), transactions[1].recipient_address.bytes)
+		self.assertEqual(1000000, transactions[1].amount.value)
+		self.assertEqual(b'', transactions[1].message.message)
 
 	# endregion
 
@@ -145,7 +151,8 @@ class BatchOperationsTest(unittest.TestCase):
 			if corrupt_signature:
 				signature = NemTestUtils.randcryptotype(Signature)
 			else:
-				signer_public_key = transactions[1].signer_public_key
+				# note: wrapping is needed due to different PublicKey types, facade requires sdk type
+				signer_public_key = PublicKey(transactions[1].signer_public_key.bytes)
 				signer_account_name = operations.facade.account_descriptor_repository.find_by_public_key(signer_public_key).name
 				signer_private_key = private_key_storage.load(signer_account_name)
 				signature = operations.facade.KeyPair(signer_private_key).sign(transactions[1].serialize())
@@ -183,10 +190,12 @@ class BatchOperationsTest(unittest.TestCase):
 			# Assert: correct size payloads were written
 			payload_filenames = os.listdir(payload_directory)
 			self.assertEqual(2, len(payload_filenames))
-			for i, filename in enumerate(['payload_test0.dat', 'payload_test1.dat']):
+			for i, filename in enumerate(['payload_test0.json', 'payload_test1.json']):
 				self.assertTrue(filename in payload_filenames)
 
-				expected_file_size = len(transactions[i].serialize()) + Signature.SIZE + 8
+				# note transaction.serialize includes signatures
+				non_verifiable_buffer = operations.facade.transaction_factory.to_non_verifiable_transaction(transactions[i]).serialize()
+				expected_file_size = 2 * len(non_verifiable_buffer) + 2 * Signature.SIZE + len('{"data":"') + len('", "signature":"') + len('"}')
 				actual_file_size = os.path.getsize(os.path.join(payload_directory, filename))
 				self.assertEqual(expected_file_size, actual_file_size)
 

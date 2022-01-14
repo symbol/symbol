@@ -68,7 +68,11 @@ def main():
 
 	if 'nem' == args.blockchain:
 		factory_names = [
-			'descriptors.nem_importance_transfer',
+			'descriptors.nem_account_key_link',
+			# 'descriptors.nem_cosignature',
+			'descriptors.nem_mosaic',
+			'descriptors.nem_multisig_account',
+			'descriptors.nem_namespace',
 			'descriptors.nem_transfer'
 		]
 		sample = NemTransactionSample()

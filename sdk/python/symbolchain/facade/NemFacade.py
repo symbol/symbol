@@ -30,6 +30,8 @@ class NemFacade:
 
 		return TransactionFactory(self.network, type_parsing_rules)
 
+	# NOTE: currently `TypeParserBuilder.create_sdk_wrapper`` assumes SDK types are used as keys (although could be `nc` types as well)
+	# resulting sdk type will be converted further via `nem_type_converter`
 	@staticmethod
 	def _create_nem_type_to_property_mapping():
 		return {
@@ -40,17 +42,20 @@ class NemFacade:
 	@staticmethod
 	def hash_transaction(transaction):
 		"""Hashes a nem transaction."""
-		return Hash256(sha3.keccak_256(transaction.serialize()).digest())
+		non_verifiable_transaction = TransactionFactory.to_non_verifiable_transaction(transaction)
+		return Hash256(sha3.keccak_256(non_verifiable_transaction.serialize()).digest())
 
 	@staticmethod
 	def sign_transaction(key_pair, transaction):
 		"""Signs a nem transaction."""
-		return key_pair.sign(transaction.serialize())
+		non_verifiable_transaction = TransactionFactory.to_non_verifiable_transaction(transaction)
+		return key_pair.sign(non_verifiable_transaction.serialize())
 
 	@staticmethod
 	def verify_transaction(transaction, signature):
 		"""Verifies a nem transaction."""
-		return Verifier(transaction.signer_public_key).verify(transaction.serialize(), signature)
+		non_verifiable_transaction = TransactionFactory.to_non_verifiable_transaction(transaction)
+		return Verifier(transaction.signer_public_key).verify(non_verifiable_transaction.serialize(), signature)
 
 	@staticmethod
 	def bip32_node_to_key_pair(bip32_node):
