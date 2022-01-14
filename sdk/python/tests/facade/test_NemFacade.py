@@ -10,6 +10,8 @@ from ..test.NemTestUtils import NemTestUtils
 YAML_INPUT = '''
 - public_key: A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74
 	name: TEST
+- address: TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF
+	name: ALICE
 '''.replace('\t', '  ')
 
 
@@ -50,18 +52,41 @@ class NemFacadeTest(unittest.TestCase):
 	def test_can_create_around_known_network(self):
 		# Act:
 		facade = NemFacade('testnet')
-		transaction = facade.transaction_factory.create({'type': 'transfer'})
+		transaction = facade.transaction_factory.create({
+			'type': 'transfer_transaction',
+			'signer_public_key': bytes(32)
+		})
 
 		# Assert:
 		self.assertEqual('testnet', facade.network.name)
 
-		self.assertEqual(0x0101, transaction.type)
-		self.assertEqual(0x98000001, transaction.version)
+		self.assertEqual(0x0101, transaction.type_.value)
+		self.assertEqual(0x98, transaction.network.value)
 
 	def test_cannot_create_around_unknown_network(self):
 		# Act:
 		with self.assertRaises(StopIteration):
 			NemFacade('foo')
+
+	def test_can_create_via_repository(self):
+		# Act:
+		facade = NemFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+		transaction = facade.transaction_factory.create({
+			'type': 'transfer_transaction',
+			'signer_public_key': 'TEST',
+			'recipient_address': 'ALICE'
+		})
+
+		# Assert:
+		self.assertEqual('testnet', facade.network.name)
+
+		self.assertEqual(0x0101, transaction.type_.value)
+		self.assertEqual(
+			PublicKey('A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74').bytes,
+			transaction.signer_public_key.bytes)
+		self.assertEqual(
+			str(NemFacade.Address('TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF')).encode('utf8'),
+			transaction.recipient_address.bytes)
 
 	# endregion
 
@@ -71,12 +96,18 @@ class NemFacadeTest(unittest.TestCase):
 	def _create_real_transfer():
 		facade = NemFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 		transaction = facade.transaction_factory.create({
-			'type': 'transfer',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': 'TEST',
+			'fee': 0x186A0,
+			'timestamp': 191205516,
 			'deadline': 191291916,
 			'recipient_address': 'TALICE5VF6J5FYMTCB7A3QG6OIRDRUXDWJGFVXNW',
 			'amount': 5100000,
-			'message': 'blah blah'
+			'message_envelope_size': 0x11,
+			'message': {
+				'message_type': 'plain',
+				'message': 'blah blah'.encode('utf8')
+			}
 		})
 		return transaction
 

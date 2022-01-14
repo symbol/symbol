@@ -7,7 +7,7 @@ def descriptor_factory():
 
 	return [
 		{
-			'type': 'mosaic_definition',
+			'type': 'mosaic_definition_transaction',
 			'duration': 1,
 			'nonce': 123,
 			'flags': 'transferable restrictable',
@@ -15,7 +15,7 @@ def descriptor_factory():
 		},
 
 		{
-			'type': 'mosaic_supply_change',
+			'type': 'mosaic_supply_change_transaction',
 			'mosaic_id': generate_mosaic_id(sample_address, 123),
 			'delta': 1000 * 100,  # assuming divisibility = 2
 			'action': 'increase'

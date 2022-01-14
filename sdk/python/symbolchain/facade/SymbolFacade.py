@@ -47,12 +47,13 @@ class SymbolFacade:
 
 		return TransactionFactory(self.network, type_parsing_rules)
 
+	# NOTE: currently `TypeParserBuilder.create_sdk_wrapper`` assumes SDK types are used as keys (although could be `sc` types as well)
+	# resulting sdk type will be converted further via `symbol_type_converter`
 	@staticmethod
 	def _create_symbol_type_to_property_mapping():
 		return {
 			Address: 'address',
 			PublicKey: 'public_key',
-			Hash256: 'hash'
 		}
 
 	def hash_transaction(self, transaction):
