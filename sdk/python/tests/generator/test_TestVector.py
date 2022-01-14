@@ -41,49 +41,40 @@ def prepare_payload(payload):
 	return unhexlify(payload.replace('\'', ''))
 
 
+def assert_roundtrip_builder(module, name, payload_hex, comment):
+	payload = prepare_payload(payload_hex)
+
+	builder_class = getattr(module, name)
+	builder = builder_class.deserialize(payload)
+
+	serialized = builder.serialize()
+	assert to_hex_string(serialized) == payload_hex.upper(), comment
+
+
 @pytest.mark.parametrize('item', prepare_test_cases('symbol'), ids=generate_pretty_id)
 def test_serialize_symbol(item):
 	schema_name = item['schema_name']
 	comment = item.get('comment', '')
-	payload = item['payload']
+	payload_hex = item['payload']
 
 	module = importlib.import_module('symbolchain.sc')
 
 	if schema_name == 'Key':
 		schema_name = 'PublicKey'
 
-	builder_class = getattr(module, schema_name)
-	builder = builder_class.deserialize(prepare_payload(item['payload']))
-
-	serialized = builder.serialize()
-	assert to_hex_string(serialized) == payload.upper(), comment
-
+	assert_roundtrip_builder(module, schema_name, payload_hex, comment)
 	if schema_name.endswith('Transaction'):
-		generic_builder_class = getattr(module, 'TransactionFactory')
-		factory_builder = generic_builder_class.deserialize(prepare_payload(item['payload']))
-		factory_serialized = factory_builder.serialize()
-
-		assert to_hex_string(factory_serialized) == payload.upper(), comment
+		assert_roundtrip_builder(module, 'TransactionFactory', payload_hex, comment)
 
 
 @pytest.mark.parametrize('item', prepare_test_cases('nem'), ids=generate_pretty_id)
 def test_serialize_nem(item):
 	schema_name = item['schema_name']
 	comment = item.get('comment', '')
-	payload = item['payload']
+	payload_hex = item['payload']
 
 	module = importlib.import_module('symbolchain.nc')
 
-	builder_class = getattr(module, schema_name)
-	builder = builder_class.deserialize(prepare_payload(item['payload']))
-
-	serialized = builder.serialize()
-	assert to_hex_string(serialized) == payload.upper(), comment
-
+	assert_roundtrip_builder(module, schema_name, payload_hex, comment)
 	if schema_name.endswith('Transaction'):
-		generic_builder_class = getattr(module, 'TransactionFactory')
-		factory_builder = generic_builder_class.deserialize(prepare_payload(item['payload']))
-		factory_serialized = factory_builder.serialize()
-
-		assert to_hex_string(factory_serialized) == payload.upper(), comment
-
+		assert_roundtrip_builder(module, 'TransactionFactory', payload_hex, comment)
