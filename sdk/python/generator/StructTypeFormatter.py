@@ -1,13 +1,15 @@
 from itertools import filterfalse
 
+from catparser.ast import Array
+
 from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
+from .ast_adapters import fix_size_name
 from .format import indent
 from .type_objects import StructObject
 
 
 def is_reserved(field):
-	disposition = field.yaml_descriptor.get('disposition', None)
-	return 'reserved' == disposition
+	return 'reserved' == field.ast_model.disposition
 
 
 def is_bound_size(field):
@@ -67,7 +69,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 	@staticmethod
 	def generate_class_field(field):
-		default_value = field.printer.assign(field.yaml_descriptor['value'])
+		default_value = field.printer.assign(field.ast_model.value)
 		return f'{field.original_field_name}: {field.printer.get_type()} = {default_value}'
 
 	def generate_type_hints(self):
@@ -76,6 +78,7 @@ class StructFormatter(AbstractTypeFormatter):
 		for field in self.non_reserved_fields():
 			if not field.printer.type_hint:
 				continue
+
 			hints.append(f'"{field.printer.name}": "{field.printer.type_hint}"')
 
 		body += indent(',\n'.join(hints))
@@ -105,7 +108,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		body += '\n'.join(
 			map(
-				lambda field: f'{self.field_name(field)} = {field.yaml_descriptor["value"]}  # reserved field',
+				lambda field: f'{self.field_name(field)} = {field.ast_model.value}  # reserved field',
 				self.reserved_fields()
 			)
 		)
@@ -119,7 +122,8 @@ class StructFormatter(AbstractTypeFormatter):
 		if not field.is_conditional():
 			return ''
 
-		condition_field_name = field.yaml_descriptor['condition']
+		conditional = field.ast_model.value
+		condition_field_name = conditional.linked_field_name
 
 		# find condition field type
 		condition_field = next(f for f in self.non_const_fields() if condition_field_name == f.original_field_name)
@@ -129,15 +133,14 @@ class StructFormatter(AbstractTypeFormatter):
 			'not in': 'not in',
 			'in': 'in',
 		}
-		condition_operator = condition_to_operator_map[field.yaml_descriptor['condition_operation']]
+		condition_operator = condition_to_operator_map[conditional.operation]
 
-		value = f'{field.yaml_descriptor["condition_value"]}'
+		value = f'{conditional.value}'
 		yoda_value = value if condition_field.get_type().is_int else f'{condition_field.get_type().typename}.{value}'
 		field_prefix = 'self.' if prefix_field else ''
 
 		# HACK: instead of handling dumb magic value in namespace parent_name, generate slightly simpler condition
-		# note: is_array is too wide as it also covers builtin arrays
-		if prefix_field and field.yaml_descriptor.get('disposition', '').startswith('array'):
+		if prefix_field and isinstance(field.ast_model.field_type, Array):
 			return f'if {field_prefix}{field.original_field_name}:\n'
 
 		return f'if {yoda_value} {condition_operator} {field_prefix}{condition_field_name}:\n'
@@ -146,6 +149,7 @@ class StructFormatter(AbstractTypeFormatter):
 		condition = self.generate_condition(field)
 
 		buffer_name = arg_buffer_name or 'buffer_'
+		field_name = fix_size_name(field.printer.name)
 
 		# half-hack: limit buffer to amount specified in size field
 		buffer_load_name = buffer_name
@@ -155,17 +159,17 @@ class StructFormatter(AbstractTypeFormatter):
 
 		use_custom_buffer_name = arg_buffer_name or field.size_fields
 		load = field.printer.load(buffer_load_name) if use_custom_buffer_name else field.printer.load()
-		deserialize = f'{field.printer.name} = {load}'
+		deserialize = f'{field_name} = {load}'
 		adjust = f'{buffer_name} = {buffer_name}[{field.printer.advancement_size()}:]'
 
 		additional_statements = ''
 		if is_reserved(field):
 			assert_message = f'f"Invalid value of reserved field ({{{field.printer.name}}})"'
-			additional_statements = f'assert {field.printer.name} == {field.yaml_descriptor["value"]}, {assert_message}\n'
+			additional_statements = f'assert {field.printer.name} == {field.ast_model.value}, {assert_message}\n'
 
 		if self.struct.dynamic_size == field.printer.name:
-			additional_statements += f'{buffer_name} = {buffer_name}[:size_ - {field.printer.advancement_size()}]\n'
-			additional_statements += 'del size_\n'
+			additional_statements += f'{buffer_name} = {buffer_name}[:{field_name} - {field.printer.advancement_size()}]\n'
+			additional_statements += f'del {field_name}\n'
 
 		if field.is_bound and field.get_type().sizeof_value:
 			additional_statements += '# marking sizeof field\n'
@@ -186,7 +190,9 @@ class StructFormatter(AbstractTypeFormatter):
 		queued_fields = {}
 		for field in self.non_const_fields():
 			if field.is_conditional():
-				condition_field_name = field.yaml_descriptor['condition']
+				conditional = field.ast_model.value
+				condition_field_name = conditional.linked_field_name
+
 				if condition_field_name not in processed_fields:
 					if condition_field_name not in queued_fields:
 						queued_fields[condition_field_name] = []
@@ -194,7 +200,7 @@ class StructFormatter(AbstractTypeFormatter):
 						# assume same size and generate single dummy access
 						comment = '# deserialize to temporary buffer for further processing'
 						deserialize = f'{field.printer.name}_temporary = {field.printer.load()}'
-						temporary_buffer = create_temporary_buffer_name(field.yaml_descriptor['condition'])
+						temporary_buffer = create_temporary_buffer_name(condition_field_name)
 						temporary = f'{temporary_buffer} = buffer_[:{field.printer.name}_temporary.size()]'
 						adjust = f'buffer_ = buffer_[{field.printer.name}_temporary.size():]'
 						body += comment + '\n' + deserialize + '\n' + temporary + '\n' + adjust + '\n\n'
@@ -247,7 +253,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 					# HACK: create inline if condition (for NEM namespace purposes)
 					if bound_condition:
-						condition_value = bound_field.yaml_descriptor['condition_value']
+						condition_value = bound_field.ast_model.value.value
 						field_value = f'({field_value} if {bound_field_name} is not None else {condition_value})'
 				else:
 					field_value = field.bound_field.printer.get_size()

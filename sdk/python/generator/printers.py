@@ -1,8 +1,13 @@
+from catparser.ast import Array, FixedSizeBuffer, FixedSizeInteger
+
+from .ast_adapters import fix_name, fix_size_name, isinstance_builtin
+
+
 class Printer:
 	def __init__(self, descriptor, name):
 		self.descriptor = descriptor
 		# printer.name is 'fixed' field name
-		self.name = name or self.descriptor.underlined_name
+		self.name = fix_name(name or self.descriptor.underlined_name)
 
 
 class IntPrinter(Printer):
@@ -55,7 +60,8 @@ class TypedArrayPrinter(Printer):
 	def get_size(self):
 		if self.descriptor.is_sized:
 			# note: use actual `.size` field
-			return f'sum(map(lambda e: ArrayHelpers.align_up(e.size(), {self.descriptor.alignment}), self.{self.name}))'
+			alignment = self.descriptor.ast_model.field_type.alignment
+			return f'sum(map(lambda e: ArrayHelpers.align_up(e.size(), {alignment}), self.{self.name}))'
 
 		return f'sum(map(lambda e: e.size(), self.{self.name}))'
 
@@ -67,7 +73,7 @@ class TypedArrayPrinter(Printer):
 				factory_name = self.descriptor.get_type() + 'Factory'
 
 			data_size = self.descriptor.size
-			alignment = self.descriptor.alignment
+			alignment = self.descriptor.ast_model.field_type.alignment
 			return f'ArrayHelpers.read_variable_size_elements(buffer_[:{data_size}], {factory_name}, {alignment})'
 
 		if self.descriptor.is_fill:
@@ -75,12 +81,11 @@ class TypedArrayPrinter(Printer):
 
 		args = [
 			'buffer_',
-			self.descriptor.get_type(),
+			str(self.descriptor.get_type()),
 			str(self.descriptor.size),
 		]
-		if 'sort_key' in self.descriptor.yaml_descriptor:
-			sort_key = self.descriptor.yaml_descriptor['sort_key']
-			accessor = f'lambda e: e.{sort_key}'
+		if self.descriptor.ast_model.field_type.sort_key:
+			accessor = f'lambda e: e.{self.descriptor.ast_model.field_type.sort_key}'
 			args.append(accessor)
 
 		args_str = ', '.join(args)
@@ -94,7 +99,8 @@ class TypedArrayPrinter(Printer):
 
 	def store(self, field_name):
 		if self.descriptor.is_sized:
-			return f'ArrayHelpers.write_variable_size_elements({field_name}, {self.descriptor.alignment})'
+			alignment = self.descriptor.ast_model.field_type.alignment
+			return f'ArrayHelpers.write_variable_size_elements({field_name}, {alignment})'
 
 		if self.descriptor.is_fill:
 			return f'ArrayHelpers.write_array({field_name})'
@@ -104,9 +110,8 @@ class TypedArrayPrinter(Printer):
 		if not isinstance(size, str):
 			args.append(str(size))
 
-		if 'sort_key' in self.descriptor.yaml_descriptor:
-			sort_key = self.descriptor.yaml_descriptor['sort_key']
-			accessor = f'lambda e: e.{sort_key}'
+		if self.descriptor.ast_model.field_type.sort_key:
+			accessor = f'lambda e: e.{self.descriptor.ast_model.field_type.sort_key}'
 			args.append(accessor)
 
 		args_str = ', '.join(args)
@@ -148,11 +153,7 @@ class ArrayPrinter(Printer):
 
 	def advancement_size(self):
 		# like get_size() but without self prefix, as this refers to local method field
-		size = self.descriptor.size
-		if isinstance(size, str):
-			return str(size)
-
-		return size
+		return fix_size_name(self.descriptor.size)
 
 	@staticmethod
 	def store(field_name):
@@ -182,7 +183,7 @@ class BuiltinPrinter(Printer):
 
 	def get_default_value(self):
 		if 'enum' == self.descriptor.base_typename:
-			first_enum_value_name = self.descriptor.values[0]['name']
+			first_enum_value_name = self.descriptor.values[0].name
 			return f'{self.get_type()}.{first_enum_value_name}'
 
 		return f'{self.get_type()}()'
@@ -215,10 +216,12 @@ class BuiltinPrinter(Printer):
 
 
 def create_pod_printer(descriptor, name=None):
-	size = descriptor.size
-
-	if descriptor.yaml_descriptor['type'] == 'byte':
-		PrinterType = ArrayPrinter if isinstance(size, str) or size > 8 else IntPrinter
+	if isinstance_builtin(descriptor.ast_model, FixedSizeInteger):
+		PrinterType = IntPrinter
+	elif isinstance_builtin(descriptor.ast_model, FixedSizeBuffer):
+		PrinterType = ArrayPrinter
+	elif isinstance(descriptor.ast_model.field_type, Array) and str(descriptor.ast_model.field_type.element_type) in ('int8', 'uint8'):
+		PrinterType = ArrayPrinter
 	else:
 		PrinterType = TypedArrayPrinter
 

@@ -1,4 +1,5 @@
 from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
+from .ast_adapters import fix_name
 from .format import indent
 from .printers import BuiltinPrinter
 from .TypeFormatter import ClassFormatter
@@ -62,14 +63,17 @@ class FactoryFormatter(AbstractTypeFormatter):
 		body += f'{self.printer.name} = {self.printer.load()}\n'
 
 		body += 'mapping = {\n'
-		names = [f'{concrete.typename}' for concrete in self.factory_descriptor['children']]
-		body += indent(
-			',\n'.join(map(self.create_discriminator, names))
-		)
+
+		if self.factory_descriptor:
+			names = [f'{concrete.typename}' for concrete in self.factory_descriptor['children']]
+			body += indent(
+				',\n'.join(map(self.create_discriminator, names))
+			)
+
 		body += '}\n'
 
-		discriminators = self.factory_descriptor['discriminator_names']
-		values = ', '.join(map(lambda discriminator: f'{self.printer.name}.{discriminator}', discriminators))
+		discriminators = [] if not self.factory_descriptor else self.factory_descriptor['discriminator_names']
+		values = ', '.join(map(lambda discriminator: f'{self.printer.name}.{fix_name(discriminator)}', discriminators))
 		body += f'discriminator = ({values})\n'
 		body += 'factory_class = mapping[discriminator]\n'
 		body += 'return factory_class.deserialize(buffer_)'
@@ -83,7 +87,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 			',\n'.join(
 				map(
 					lambda name: f'"{skip_embedded(name.underlined_name)}": {name.typename}',
-					self.factory_descriptor['children'],
+					[] if not self.factory_descriptor else self.factory_descriptor['children'],
 				)
 			)
 		)

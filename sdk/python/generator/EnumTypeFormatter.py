@@ -21,7 +21,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 	def get_fields(self):
 		return list(
 			map(
-				lambda e: f'{e["name"]} = {e["value"]}\n',
+				lambda e: f'{e.name} = {e.value}\n',
 				self.enum_type.values,
 			)
 		)

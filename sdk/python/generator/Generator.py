@@ -1,11 +1,11 @@
 #!/usr/bin/python
 
-import argparse
 from pathlib import Path
 
-import yaml
+from catparser.ast import Array, Conditional, Enum, FixedSizeBuffer, FixedSizeInteger, Struct
 
 from .AbstractImplMap import AbstractImplMap
+from .ast_adapters import isinstance_builtin
 from .EnumTypeFormatter import EnumTypeFormatter
 from .FactoryFormatter import FactoryClassFormatter, FactoryFormatter
 from .PodTypeFormatter import PodTypeFormatter
@@ -15,23 +15,10 @@ from .type_objects import ArrayObject, EnumObject, IntObject, StructObject
 from .TypeFormatter import TypeFormatter
 
 
-def fix_name(field_name):
-	if field_name in ['size', 'type', 'property']:
-		return f'{field_name}_'
-	return field_name
-
-
-def fix_item(yaml_descriptor, name):
-	if name not in yaml_descriptor:
-		return
-
-	yaml_descriptor[name] = fix_name(yaml_descriptor[name])
-
-
 class Field:
-	def __init__(self, yaml_descriptor, field_name, type_instance, printer):
-		self.yaml_descriptor = yaml_descriptor
-		self.original_field_name = field_name
+	def __init__(self, ast_model, type_instance, printer):
+		self.ast_model = ast_model
+		self.original_field_name = ast_model.name
 		self.type_instance = type_instance
 		self.printer = printer
 		self.bound_field = None
@@ -53,10 +40,10 @@ class Field:
 		self.size_fields.append(other_field)
 
 	def is_const(self):
-		return 'disposition' in self.yaml_descriptor and 'const' == self.yaml_descriptor['disposition']
+		return hasattr(self.ast_model, 'disposition') and 'const' == self.ast_model.disposition
 
 	def is_conditional(self):
-		return 'condition' in self.yaml_descriptor
+		return isinstance(self.ast_model.value, Conditional)
 
 
 def to_type_formatter_instance(type_instance):
@@ -71,21 +58,18 @@ def to_type_formatter_instance(type_instance):
 	return type_formatter(type_instance)
 
 
-def to_virtual_type_instance(yaml_descriptor):
+def to_virtual_type_instance(ast_model):
 	object_type = None
-	if yaml_descriptor['type'] == 'struct':
+	if isinstance(ast_model, Struct):
 		object_type = StructObject
-	elif yaml_descriptor['type'] == 'enum':
+	elif isinstance(ast_model, Enum):
 		object_type = EnumObject
-	elif yaml_descriptor['type'] == 'byte':
-		size = yaml_descriptor['size']
-		# can be either 'bound' array or normal
-		if isinstance(size, str):
-			object_type = ArrayObject
-		else:
-			object_type = ArrayObject if size > 8 else IntObject
+	elif isinstance_builtin(ast_model, FixedSizeBuffer):
+		object_type = ArrayObject
+	elif isinstance_builtin(ast_model, FixedSizeInteger):
+		object_type = IntObject
 
-	return object_type(yaml_descriptor)
+	return object_type(ast_model)
 
 
 def create_printer(type_instance, name):
@@ -96,14 +80,11 @@ def create_printer(type_instance, name):
 
 
 def process_concrete_struct(type_map, struct_type, abstract_impl_map):
-	factory_type = type_map[struct_type.yaml_descriptor['factory_type']]
+	factory_type = type_map[struct_type.ast_model.factory_type]
 
-	discriminators = factory_type.yaml_descriptor.get('discriminator', [])
+	discriminators = [] if not hasattr(factory_type, 'discriminator') else factory_type.discriminator
 	for i, discriminator in enumerate(discriminators):
-		discriminators[i] = fix_name(discriminator)
-
-	for init in factory_type.yaml_descriptor['initializers']:
-		fix_item(init, 'target_property_name')
+		discriminators[i] = discriminator
 
 	abstract_impl_map.add(factory_type, struct_type)
 
@@ -113,73 +94,52 @@ def bind_size_fields(struct_type):
 	for field in struct_type.layout:
 		if field.type_instance.is_array and isinstance(field.get_type().size, str):
 			size_field_name = field.get_type().size
-			# 'unfix' name when searching for associated 'size' field:
-			#  * fields are added using 'original' name,
-			#  * but 'size' property of given array type is already fixed
-			#
-			# (currently this only happens for metadata value)
-			if 'size_' == size_field_name:
-				size_field_name = 'size'
-
 			size_field = struct_type.get_field_by_name(size_field_name)
 			size_field.set_bound_field(field)
 
 		if field.type_instance.sizeof_value:
-			struct_field = struct_type.get_field_by_name(field.yaml_descriptor['value'])
+			struct_field = struct_type.get_field_by_name(field.ast_model.value)
 			field.set_bound_field(struct_field)
 
 			struct_field.add_sizeof_field(field)
 
 
 def process_struct(type_map, struct_type: StructObject, abstract_impl_map: AbstractImplMap):
-	if 'factory_type' in struct_type.yaml_descriptor:
+	if struct_type.ast_model.factory_type:
 		process_concrete_struct(type_map, struct_type, abstract_impl_map)
 
-	for field_yaml_descriptor in struct_type.yaml_descriptor['layout']:
-		fix_item(field_yaml_descriptor, 'size')
-		type_instance = type_map.get(field_yaml_descriptor['type'], None)
+	for field_ast_model in struct_type.ast_model.fields:
+		type_instance = type_map.get(field_ast_model.field_type, None)
 
-		processed = False
-		if 'disposition' in field_yaml_descriptor:
-			# array, array sized, array fill
-			if field_yaml_descriptor['disposition'].startswith('array'):
-				element_type = type_instance
-				type_instance = ArrayObject(field_yaml_descriptor)
-				type_instance.element_type = element_type
-				type_instance.is_builtin = False
+		if isinstance(field_ast_model.field_type, Array):
+			element_type = type_map.get(field_ast_model.field_type.element_type, None)
+			if not element_type:
+				element_type = to_virtual_type_instance(field_ast_model.field_type.element_type)
 
-		if not type_instance:
-			type_instance = to_virtual_type_instance(field_yaml_descriptor)
+			type_instance = ArrayObject(field_ast_model)
+			type_instance.element_type = element_type
 			type_instance.is_builtin = False
 
-		if not processed:
-			field_printer = create_printer(type_instance, fix_name(field_yaml_descriptor['name']))
-			struct_type.add_field(
-				Field(
-					field_yaml_descriptor,
-					field_yaml_descriptor['name'],
-					type_instance,
-					field_printer,
-				)
-			)
+		if not type_instance:
+			type_instance = to_virtual_type_instance(field_ast_model)
+			type_instance.is_builtin = False
+
+		field_printer = create_printer(type_instance, field_ast_model.name)
+		struct_type.add_field(Field(field_ast_model, type_instance, field_printer))
 
 	bind_size_fields(struct_type)
 
 
-def generate_files(yaml_descriptors, output_directory: Path):
+def generate_files(ast_models, output_directory: Path):
 	# build map of types
 	type_map = {}
 	abstract_impl_map = AbstractImplMap()
 
 	types = []
-	for yaml_descriptor in yaml_descriptors:
-		# 'size' entry contains name of a field that holds/tracks entity size
-		if 'struct' == yaml_descriptor['type']:
-			fix_item(yaml_descriptor, 'size')
-
-		instance = to_virtual_type_instance(yaml_descriptor)
+	for ast_model in ast_models:
+		instance = to_virtual_type_instance(ast_model)
 		types.append(instance)
-		type_map[yaml_descriptor['name']] = instance
+		type_map[ast_model.name] = instance
 
 	# process struct fields
 	for type_instance in types:
@@ -190,7 +150,7 @@ def generate_files(yaml_descriptors, output_directory: Path):
 
 	output_directory.mkdir(exist_ok=True)
 
-	with open(output_directory / '__init__.py', 'w', encoding='utf8') as output_file:
+	with open(output_directory / '__init__.py', 'w', encoding='utf8', newline='\n') as output_file:
 		output_file.write(
 			'''#!/usr/bin/python
 #
@@ -205,7 +165,6 @@ from typing import ByteString, List, TypeVar
 from ..core.ArrayHelpers import ArrayHelpers
 from ..core.BaseValue import BaseValue
 from ..core.ByteArray import ByteArray
-
 
 # string or bytes
 StrBytes = TypeVar('StrBytes', str, bytes)
@@ -228,21 +187,8 @@ StrBytes = TypeVar('StrBytes', str, bytes)
 		output_file.write('\n\n'.join(factories))
 
 
-def main():
-	parser = argparse.ArgumentParser(
-		prog=None
-		if globals().get('__spec__') is None
-		else f'python -m {__spec__.name.partition(".")[0]}',
-		description='catbuffer python generator',
-	)
-	parser.add_argument('-i', '--input', help='yaml input file', required=True)
-	parser.add_argument('-o', '--output', help='output directory', default='symbol_catbuffer')
-	args = parser.parse_args()
-
-	with open(args.input, 'r', encoding='utf8') as input_file:
-		type_descriptors = yaml.safe_load(input_file)
-		generate_files(type_descriptors, Path(args.output))
-
-
-if '__main__' == __name__:
-	main()
+class Generator:
+	@staticmethod
+	def generate(ast_models, output):
+		print(f'python catbuffer generator called with output: {output}')
+		generate_files(ast_models, Path(output))

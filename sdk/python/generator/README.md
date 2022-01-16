@@ -3,7 +3,19 @@
 ## Generate catbuffer
 
 ```sh
-python main.py --input symbol-all.yml --output ../symbol_catbuffer
+PYTHONPATH=../../catbuffer/parser python -m catparser \
+   --schema ../../catbuffer/schemas/nem/all.cats  \
+   --include ../../catbuffer/schemas/nem \
+   --output ../../sdk/python/symbolchain/nc \
+   --quiet \
+   --generator generator.Generator
+
+PYTHONPATH=../../catbuffer/parser python -m catparser \
+   --schema ../../catbuffer/schemas/symbol/all.cats  \
+   --include ../../catbuffer/schemas/symbol \
+   --output ../../sdk/python/symbolchain/sc \
+   --quiet \
+   --generator generator.Generator
 ```
 
 Run test vectors (assuming 'vectors' dir in currents directory):
