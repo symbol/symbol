@@ -21,7 +21,7 @@ abstract struct Transaction
 @initializes(version, TRANSACTION_VERSION)
 @initializes(type, TRANSACTION_TYPE)
 @discriminator(type, version)
-@implicit_size
+@is_size_implicit
 abstract struct NonVerifiableTransaction
 	# transaction type
 	type = TransactionType

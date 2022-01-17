@@ -9,7 +9,7 @@ enum MultisigAccountModificationType : uint32
 	DELETE_COSIGNATORY = 2
 
 # binary layout for a multisig account modification
-@implicit_size
+@is_size_implicit
 struct MultisigAccountModification
 	# modification type
 	modification_type = MultisigAccountModificationType

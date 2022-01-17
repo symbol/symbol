@@ -223,8 +223,8 @@ class Struct(Statement):
 		return 'inline' == self.disposition
 
 	@property
-	def implicit_size(self):
-		return self._lookup_attribute_value('implicit_size')
+	def is_size_implicit(self):
+		return self._lookup_attribute_value('is_size_implicit')
 
 	@property
 	def size(self):
@@ -278,7 +278,7 @@ class Struct(Statement):
 			'layout': [field.to_legacy_descriptor() for field in self.fields]
 		}
 
-		for property_name in ['disposition', 'factory_type', 'implicit_size', 'size', 'discriminator']:
+		for property_name in ['disposition', 'factory_type', 'is_size_implicit', 'size', 'discriminator']:
 			_set_if(self, type_descriptor, property_name)
 
 		if self.initializers:

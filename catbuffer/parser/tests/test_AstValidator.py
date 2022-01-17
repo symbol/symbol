@@ -304,10 +304,10 @@ class AstValidatorTests(unittest.TestCase):
 
 	# region struct - sizeof reference
 
-	def test_can_validate_struct_containing_sizeof_field_with_valid_property_reference_to_struct_type_with_implicit_size(self):
+	def test_can_validate_struct_containing_sizeof_field_with_valid_property_reference_to_struct_type_with_is_size_implicit(self):
 		# Arrange:
 		other_type_descriptor = Struct([None, 'Other', StructField(['baz', FixedSizeInteger('uint8')])])
-		other_type_descriptor.attributes = [Attribute(['implicit_size'])]
+		other_type_descriptor.attributes = [Attribute(['is_size_implicit'])]
 		validator = AstValidator([
 			other_type_descriptor,
 			Struct([
@@ -321,7 +321,7 @@ class AstValidatorTests(unittest.TestCase):
 		# Act + Assert:
 		self._asssert_validate(validator, [])
 
-	def test_cannot_validate_struct_containing_sizeof_field_with_valid_property_reference_to_struct_type_without_implicit_size(self):
+	def test_cannot_validate_struct_containing_sizeof_field_with_valid_property_reference_to_struct_type_without_is_size_implicit(self):
 		# Arrange:
 		validator = AstValidator([
 			Struct([None, 'Other', StructField(['baz', FixedSizeInteger('uint8')])]),
@@ -335,7 +335,7 @@ class AstValidatorTests(unittest.TestCase):
 
 		# Act + Assert:
 		self._asssert_validate(validator, [
-			ErrorDescriptor('sizeof property references type "Other" without implicit_size attribute', 'FooBar', 'r1_size')
+			ErrorDescriptor('sizeof property references type "Other" without is_size_implicit attribute', 'FooBar', 'r1_size')
 		])
 
 	def test_cannot_validate_struct_containing_sizeof_field_with_valid_property_reference_to_fixed_size_type(self):
