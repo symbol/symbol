@@ -3494,7 +3494,7 @@ class MultisigAccountModificationTransaction:
 		buffer_ += len(self._modifications).to_bytes(4, byteorder="little", signed=False)  # modifications_count
 		buffer_ += ArrayHelpers.write_array(self._modifications)
 		buffer_ += self._min_approval_delta_size.to_bytes(4, byteorder="little", signed=False)
-		buffer_ += self._min_approval_delta.to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self._min_approval_delta.to_bytes(4, byteorder="little", signed=True)
 		return buffer_
 
 	def __str__(self) -> str:
@@ -3688,7 +3688,7 @@ class NonVerifiableMultisigAccountModificationTransaction:
 		buffer_ += len(self._modifications).to_bytes(4, byteorder="little", signed=False)  # modifications_count
 		buffer_ += ArrayHelpers.write_array(self._modifications)
 		buffer_ += self._min_approval_delta_size.to_bytes(4, byteorder="little", signed=False)
-		buffer_ += self._min_approval_delta.to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self._min_approval_delta.to_bytes(4, byteorder="little", signed=True)
 		return buffer_
 
 	def __str__(self) -> str:

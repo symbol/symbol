@@ -34,7 +34,12 @@ class IntPrinter(Printer):
 		return self.get_size()
 
 	def store(self, field_name):
-		return f'{field_name}.to_bytes({self.get_size()}, byteorder="little", signed=False)'
+		is_signed = False
+
+		if hasattr(self.descriptor.ast_model, 'field_type') and isinstance(self.descriptor.ast_model.field_type, FixedSizeInteger):
+			is_signed = not self.descriptor.ast_model.field_type.is_unsigned
+
+		return f'{field_name}.to_bytes({self.get_size()}, byteorder="little", signed={is_signed})'
 
 	@staticmethod
 	def assign(value):
