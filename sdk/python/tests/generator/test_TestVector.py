@@ -14,7 +14,7 @@ def read_test_vectors_file(filepath):
 
 def prepare_test_cases(network_name):
 	cases = []
-	schemas_path = Path(os.environ.get('SCHEMAS_PATH', '.')) / network_name
+	schemas_path = Path(os.environ.get('SCHEMAS_PATH', '.')) / network_name / 'transactions'
 
 	if not schemas_path.exists():
 		return cases
