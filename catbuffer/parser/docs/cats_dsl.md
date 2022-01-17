@@ -57,6 +57,22 @@ enum TransportMode : uint32
 	SKY = 0x0004
 ```
 
+### attributes
+
+Hints can be attached to enumerations using attributes.
+
+Enumerations support the following attributes:
+1. `is_bitwise`: indicates that the enumeration represents flags and should support bitwise operations.
+
+For example, to set the `is_bitwise` attribute on the `TransportMode` enumeration:
+```cpp
+@is_bitwise
+enum TransportMode : uint32
+	ROAD = 0x0001
+	SEA = 0x0002
+	SKY = 0x0004
+```
+
 ## struct
 
 Structure statements are used to define structured binary payloads.

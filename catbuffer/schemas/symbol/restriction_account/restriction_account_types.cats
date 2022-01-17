@@ -1,6 +1,7 @@
 import "entity.cats"
 
 # Enumeration of account restriction flags.
+@is_bitwise
 enum AccountRestrictionFlags : uint16
 	# Restriction type is an address.
 	ADDRESS = 0x0001

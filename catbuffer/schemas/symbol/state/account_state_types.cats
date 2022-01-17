@@ -16,6 +16,7 @@ enum AccountType : uint8
 	REMOTE_UNLINKED = 3
 
 # enumeration of account key type flags
+@is_bitwise
 enum AccountKeyTypeFlags : uint8
 	# unset key
 	UNSET = 0x00

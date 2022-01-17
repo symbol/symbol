@@ -20,7 +20,13 @@ MULTILINE_SH_COMMENT: /#[^\n]*(\r?\n[\t ]*#[^\n]*)*/
 
 alias: "using" USER_TYPE_NAME "=" (FIXED_SIZE_INTEGER | fixed_size_buffer) _NL
 
-enum: "enum" USER_TYPE_NAME ":" FIXED_SIZE_INTEGER _NL [_INDENT (comment | enum_child)* _DEDENT]
+enum_attributes: enum_attribute+
+enum_attribute: "@" ( \
+	ENUM_ATTRIBUTE_NAME_ZERO_PARAMS \
+) _NL
+ENUM_ATTRIBUTE_NAME_ZERO_PARAMS.1: "is_bitwise"
+
+enum: [enum_attributes] "enum" USER_TYPE_NAME ":" FIXED_SIZE_INTEGER _NL [_INDENT (comment | enum_child)* _DEDENT]
 enum_child: [comment] enum_value
 enum_value: CONST_PROPERTY_NAME "=" _dec_or_hex_number _NL
 
