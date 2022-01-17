@@ -7,7 +7,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		super().__init__()
 
 		self.enum_type = type_instance
-		self.base_type = 'Flag' if 'Flags' in type_instance.typename else 'Enum'
+		self.base_type = 'Flag' if type_instance.ast_model.is_bitwise else 'Enum'
 
 		self.int_printer = IntPrinter(self.enum_type)
 

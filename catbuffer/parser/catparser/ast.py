@@ -19,6 +19,17 @@ def _set_if(source, type_descriptor, property_name):
 		type_descriptor[property_name] = value
 
 
+def _lookup_attribute_value(attributes, name, multi_value=False):
+	if not attributes:
+		return None
+
+	attribute = next((attribute for attribute in attributes if attribute.name == name), None)
+	if not attribute:
+		return None
+
+	return attribute.values if multi_value else attribute.value
+
+
 def _format_attributes(attributes):
 	if not attributes:
 		return ''
@@ -148,8 +159,14 @@ class Enum(Statement):
 		self.base = tokens[1]
 		self.values = tokens[2:]
 
+		self.attributes = None
+
+	@property
+	def is_bitwise(self):
+		return _lookup_attribute_value(self.attributes, 'is_bitwise')
+
 	def _to_legacy_descriptor(self):
-		return {
+		type_descriptor = {
 			'name': self.name,
 			'type': 'enum',
 			'size': self.base.size,
@@ -157,8 +174,11 @@ class Enum(Statement):
 			'values': [value.to_legacy_descriptor() for value in self.values]
 		}
 
+		_set_if(self, type_descriptor, 'is_bitwise')
+		return type_descriptor
+
 	def __str__(self):
-		return f'enum {self.name} : {self.base}  # {len(self.values)} value(s)'
+		return _format_attributes(self.attributes) + f'enum {self.name} : {self.base}  # {len(self.values)} value(s)'
 
 
 class EnumValue(Statement):
@@ -224,15 +244,15 @@ class Struct(Statement):
 
 	@property
 	def is_size_implicit(self):
-		return self._lookup_attribute_value('is_size_implicit')
+		return _lookup_attribute_value(self.attributes, 'is_size_implicit')
 
 	@property
 	def size(self):
-		return self._lookup_attribute_value('size')
+		return _lookup_attribute_value(self.attributes, 'size')
 
 	@property
 	def discriminator(self):
-		return self._lookup_attribute_value('discriminator', True)
+		return _lookup_attribute_value(self.attributes, 'discriminator', True)
 
 	@property
 	def initializers(self):
@@ -243,16 +263,6 @@ class Struct(Statement):
 			self.Initializer(attribute.values[0], attribute.values[1])
 			for attribute in self.attributes if 'initializes' == attribute.name
 		]
-
-	def _lookup_attribute_value(self, name, multi_value=False):
-		if not self.attributes:
-			return None
-
-		attribute = next((attribute for attribute in self.attributes if attribute.name == name), None)
-		if not attribute:
-			return None
-
-		return attribute.values if multi_value else attribute.value
 
 	def apply_inline_template(self, named_inline_field):
 		"""Expands a named inline field using this struct."""

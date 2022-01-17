@@ -76,6 +76,14 @@ def create_cats_lark_parser():
 		# region attribute
 
 		@staticmethod
+		def enum_attribute(tokens):
+			return Attribute(tokens)
+
+		@staticmethod
+		def enum_attributes(tokens):
+			return tokens  # forward array upstream
+
+		@staticmethod
 		def field_attribute(tokens):
 			return Attribute(tokens)
 
@@ -105,7 +113,9 @@ def create_cats_lark_parser():
 
 		@staticmethod
 		def enum(tokens):
-			return Enum(CatbufferTransformer._remove_comments(tokens))
+			enum_model = Enum(CatbufferTransformer._remove_comments(tokens[1:]))
+			enum_model.attributes = tokens[0]
+			return enum_model
 
 		@staticmethod
 		def enum_child(tokens):

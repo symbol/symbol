@@ -151,6 +151,9 @@ class AliasTests(unittest.TestCase):
 # region Enum
 
 class EnumTests(unittest.TestCase):
+	def _assert_attributes(self, model, **kwargs):
+		self.assertEqual(kwargs.get('is_bitwise', None), model.is_bitwise)
+
 	def _test_can_create_enum(self, comment, expected_comment_descriptor):
 		# Act:
 		model = Enum(['ColorShade', FixedSizeInteger('uint32'), EnumValue(['RED', 0xFF0000]), EnumValue(['GREEN', 0x00FF00])])
@@ -160,6 +163,7 @@ class EnumTests(unittest.TestCase):
 		self.assertEqual('ColorShade', model.name)
 		self.assertEqual('uint32', model.base.short_name)
 		self.assertEqual([('RED', 0xFF0000), ('GREEN', 0x00FF00)], [(enum_value.name, enum_value.value) for enum_value in model.values])
+		self._assert_attributes(model)
 		self.assertEqual({
 			**expected_comment_descriptor,
 			'name': 'ColorShade',
@@ -175,6 +179,26 @@ class EnumTests(unittest.TestCase):
 
 	def test_can_create_enum_with_comment(self):
 		self._test_can_create_enum(Comment('# my amazing comment'), {'comments': 'my amazing comment'})
+
+	def test_can_create_enum_with_attribute_is_bitwise(self):
+		# Act:
+		model = Enum(['ColorShade', FixedSizeInteger('uint32'), EnumValue(['RED', 0xFF0000]), EnumValue(['GREEN', 0x00FF00])])
+		model.attributes = [Attribute(['is_bitwise'])]
+
+		# Assert:
+		self.assertEqual('ColorShade', model.name)
+		self.assertEqual('uint32', model.base.short_name)
+		self.assertEqual([('RED', 0xFF0000), ('GREEN', 0x00FF00)], [(enum_value.name, enum_value.value) for enum_value in model.values])
+		self._assert_attributes(model, is_bitwise=True)
+		self.assertEqual({
+			'name': 'ColorShade',
+			'type': 'enum',
+			'size': 4,
+			'signedness': 'unsigned',
+			'values': [{'name': 'RED', 'value': 0xFF0000}, {'name': 'GREEN', 'value': 0x00FF00}],
+			'is_bitwise': True
+		}, model.to_legacy_descriptor())
+		self.assertEqual('@is_bitwise\nenum ColorShade : uint32  # 2 value(s)', str(model))
 
 
 class EnumValueTests(unittest.TestCase):

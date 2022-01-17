@@ -1,6 +1,7 @@
 using MosaicNonce = uint32
 
 # Enumeration of mosaic property flags.
+@is_bitwise
 enum MosaicFlags : uint8
 	# No flags present.
 	NONE = 0x00
