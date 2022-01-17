@@ -10508,7 +10508,7 @@ class AccountMetadataTransaction:
 		buffer_ += self._deadline.serialize()
 		buffer_ += self._target_address.serialize()
 		buffer_ += self._scoped_metadata_key.to_bytes(8, byteorder="little", signed=False)
-		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=False)
+		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=True)
 		buffer_ += len(self._value).to_bytes(2, byteorder="little", signed=False)  # value_size
 		buffer_ += self._value
 		return buffer_
@@ -10687,7 +10687,7 @@ class EmbeddedAccountMetadataTransaction:
 		buffer_ += self._type_.serialize()
 		buffer_ += self._target_address.serialize()
 		buffer_ += self._scoped_metadata_key.to_bytes(8, byteorder="little", signed=False)
-		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=False)
+		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=True)
 		buffer_ += len(self._value).to_bytes(2, byteorder="little", signed=False)  # value_size
 		buffer_ += self._value
 		return buffer_
@@ -10923,7 +10923,7 @@ class MosaicMetadataTransaction:
 		buffer_ += self._target_address.serialize()
 		buffer_ += self._scoped_metadata_key.to_bytes(8, byteorder="little", signed=False)
 		buffer_ += self._target_mosaic_id.serialize()
-		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=False)
+		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=True)
 		buffer_ += len(self._value).to_bytes(2, byteorder="little", signed=False)  # value_size
 		buffer_ += self._value
 		return buffer_
@@ -11118,7 +11118,7 @@ class EmbeddedMosaicMetadataTransaction:
 		buffer_ += self._target_address.serialize()
 		buffer_ += self._scoped_metadata_key.to_bytes(8, byteorder="little", signed=False)
 		buffer_ += self._target_mosaic_id.serialize()
-		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=False)
+		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=True)
 		buffer_ += len(self._value).to_bytes(2, byteorder="little", signed=False)  # value_size
 		buffer_ += self._value
 		return buffer_
@@ -11355,7 +11355,7 @@ class NamespaceMetadataTransaction:
 		buffer_ += self._target_address.serialize()
 		buffer_ += self._scoped_metadata_key.to_bytes(8, byteorder="little", signed=False)
 		buffer_ += self._target_namespace_id.serialize()
-		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=False)
+		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=True)
 		buffer_ += len(self._value).to_bytes(2, byteorder="little", signed=False)  # value_size
 		buffer_ += self._value
 		return buffer_
@@ -11550,7 +11550,7 @@ class EmbeddedNamespaceMetadataTransaction:
 		buffer_ += self._target_address.serialize()
 		buffer_ += self._scoped_metadata_key.to_bytes(8, byteorder="little", signed=False)
 		buffer_ += self._target_namespace_id.serialize()
-		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=False)
+		buffer_ += self._value_size_delta.to_bytes(2, byteorder="little", signed=True)
 		buffer_ += len(self._value).to_bytes(2, byteorder="little", signed=False)  # value_size
 		buffer_ += self._value
 		return buffer_
@@ -12900,8 +12900,8 @@ class MultisigAccountModificationTransaction:
 		buffer_ += self._type_.serialize()
 		buffer_ += self._fee.serialize()
 		buffer_ += self._deadline.serialize()
-		buffer_ += self._min_removal_delta.to_bytes(1, byteorder="little", signed=False)
-		buffer_ += self._min_approval_delta.to_bytes(1, byteorder="little", signed=False)
+		buffer_ += self._min_removal_delta.to_bytes(1, byteorder="little", signed=True)
+		buffer_ += self._min_approval_delta.to_bytes(1, byteorder="little", signed=True)
 		buffer_ += len(self._address_additions).to_bytes(1, byteorder="little", signed=False)  # address_additions_count
 		buffer_ += len(self._address_deletions).to_bytes(1, byteorder="little", signed=False)  # address_deletions_count
 		buffer_ += self._multisig_account_modification_transaction_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -13089,8 +13089,8 @@ class EmbeddedMultisigAccountModificationTransaction:
 		buffer_ += self._version.to_bytes(1, byteorder="little", signed=False)
 		buffer_ += self._network.serialize()
 		buffer_ += self._type_.serialize()
-		buffer_ += self._min_removal_delta.to_bytes(1, byteorder="little", signed=False)
-		buffer_ += self._min_approval_delta.to_bytes(1, byteorder="little", signed=False)
+		buffer_ += self._min_removal_delta.to_bytes(1, byteorder="little", signed=True)
+		buffer_ += self._min_approval_delta.to_bytes(1, byteorder="little", signed=True)
 		buffer_ += len(self._address_additions).to_bytes(1, byteorder="little", signed=False)  # address_additions_count
 		buffer_ += len(self._address_deletions).to_bytes(1, byteorder="little", signed=False)  # address_deletions_count
 		buffer_ += self._multisig_account_modification_transaction_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
