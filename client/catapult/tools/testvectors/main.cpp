@@ -363,7 +363,7 @@ namespace catapult { namespace tools { namespace testvectors {
 			}
 
 			pt::ptree parseJsonFile(const std::string& filename) {
-				auto path = std::filesystem::path(m_vectorsDirectory) / "symbol" / (filename + ".json");
+				auto path = std::filesystem::path(m_vectorsDirectory) / (filename + ".json");
 				pt::ptree testData;
 				pt::read_json(path.generic_string(), testData);
 				return testData;
