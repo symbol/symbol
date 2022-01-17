@@ -94,7 +94,6 @@ class FixedSizeIntegerTests(unittest.TestCase):
 		self.assertEqual('uint16', model.short_name)
 		self.assertEqual(True, model.is_unsigned)
 		self.assertEqual(2, model.size)
-		self.assertEqual('unsigned', model.signedness)
 		self.assertEqual('uint16', model.name)
 		self.assertEqual({'size': 2, 'type': 'byte', 'signedness': 'unsigned'}, model.to_legacy_descriptor())
 		self.assertEqual('uint16', str(model))
@@ -109,7 +108,6 @@ class FixedSizeIntegerTests(unittest.TestCase):
 		self.assertEqual('int32', model.short_name)
 		self.assertEqual(False, model.is_unsigned)
 		self.assertEqual(4, model.size)
-		self.assertEqual('signed', model.signedness)
 		self.assertEqual('int32', model.name)
 		self.assertEqual({'size': 4, 'type': 'byte', 'signedness': 'signed'}, model.to_legacy_descriptor())
 		self.assertEqual('int32', str(model))
@@ -124,6 +122,7 @@ class FixedSizeBufferTests(unittest.TestCase):
 
 		# Assert:
 		self.assertEqual(17, model.size)
+		self.assertEqual(True, model.is_unsigned)
 		self.assertEqual('binary_fixed(17)', model.name)
 		self.assertEqual({'size': 17, 'type': 'byte', 'signedness': 'unsigned'}, model.to_legacy_descriptor())
 		self.assertEqual('binary_fixed(17)', str(model))
@@ -136,7 +135,7 @@ class FixedSizeBufferTests(unittest.TestCase):
 # region Alias
 
 class AliasTests(unittest.TestCase):
-	def _test_can_create_alias(self, comment, expected_comment_descriptor):
+	def _test_can_create_alias_unsigned(self, comment, expected_comment_descriptor):
 		# Act:
 		model = Alias(['FooBar', FixedSizeInteger('uint16')])
 		model.comment = comment
@@ -144,6 +143,7 @@ class AliasTests(unittest.TestCase):
 		# Assert:
 		self.assertEqual('FooBar', model.name)
 		self.assertEqual('uint16', model.linked_type.short_name)
+		self.assertEqual(True, model.is_unsigned)
 		self.assertEqual(2, model.size)
 		self.assertEqual(comment, model.comment)
 		self.assertEqual({
@@ -153,11 +153,35 @@ class AliasTests(unittest.TestCase):
 
 		self.assertEqual(DisplayType.INTEGER, model.display_type)
 
-	def test_can_create_alias(self):
-		self._test_can_create_alias(None, {})
+	def test_can_create_alias_unsigned(self):
+		self._test_can_create_alias_unsigned(None, {})
 
-	def test_can_create_alias_with_comment(self):
-		self._test_can_create_alias(Comment('# my amazing comment'), {'comments': 'my amazing comment'})
+	def test_can_create_alias_unsigned_with_comment(self):
+		self._test_can_create_alias_unsigned(Comment('# my amazing comment'), {'comments': 'my amazing comment'})
+
+	def _test_can_create_alias_signed(self, comment, expected_comment_descriptor):
+		# Act:
+		model = Alias(['FooBar', FixedSizeInteger('int16')])
+		model.comment = comment
+
+		# Assert:
+		self.assertEqual('FooBar', model.name)
+		self.assertEqual('int16', model.linked_type.short_name)
+		self.assertEqual(False, model.is_unsigned)
+		self.assertEqual(2, model.size)
+		self.assertEqual(comment, model.comment)
+		self.assertEqual({
+			**expected_comment_descriptor, 'name': 'FooBar', 'size': 2, 'type': 'byte', 'signedness': 'signed'
+		}, model.to_legacy_descriptor())
+		self.assertEqual('using FooBar = int16', str(model))
+
+		self.assertEqual(DisplayType.INTEGER, model.display_type)
+
+	def test_can_create_alias_signed(self):
+		self._test_can_create_alias_signed(None, {})
+
+	def test_can_create_alias_signed_with_comment(self):
+		self._test_can_create_alias_signed(Comment('# my amazing comment'), {'comments': 'my amazing comment'})
 
 
 # endregion
@@ -166,28 +190,29 @@ class AliasTests(unittest.TestCase):
 
 class EnumTests(unittest.TestCase):
 	def _assert_attributes(self, model, **kwargs):
+		self.assertEqual(kwargs.get('is_unsigned', True), model.is_unsigned)
 		self.assertEqual(kwargs.get('is_bitwise', None), model.is_bitwise)
 		self.assertEqual(kwargs.get('size', 0), model.size)
 
 	def _test_can_create_enum(self, comment, expected_comment_descriptor):
 		# Act:
-		model = Enum(['ColorShade', FixedSizeInteger('uint32'), EnumValue(['RED', 0xFF0000]), EnumValue(['GREEN', 0x00FF00])])
+		model = Enum(['ColorShade', FixedSizeInteger('int32'), EnumValue(['RED', 0xFF0000]), EnumValue(['GREEN', 0x00FF00])])
 		model.comment = comment
 
 		# Assert:
 		self.assertEqual('ColorShade', model.name)
-		self.assertEqual('uint32', model.base.short_name)
+		self.assertEqual('int32', model.base.short_name)
 		self.assertEqual([('RED', 0xFF0000), ('GREEN', 0x00FF00)], [(enum_value.name, enum_value.value) for enum_value in model.values])
-		self._assert_attributes(model, size=4)
+		self._assert_attributes(model, is_unsigned=False, size=4)
 		self.assertEqual({
 			**expected_comment_descriptor,
 			'name': 'ColorShade',
 			'type': 'enum',
 			'size': 4,
-			'signedness': 'unsigned',
+			'signedness': 'signed',
 			'values': [{'name': 'RED', 'value': 0xFF0000}, {'name': 'GREEN', 'value': 0x00FF00}]
 		}, model.to_legacy_descriptor())
-		self.assertEqual('enum ColorShade : uint32  # 2 value(s)', str(model))
+		self.assertEqual('enum ColorShade : int32  # 2 value(s)', str(model))
 
 		self.assertEqual(DisplayType.ENUM, model.display_type)
 
@@ -542,6 +567,7 @@ class StructFieldTests(unittest.TestCase):
 		self.assertEqual(kwargs.get('value', None), model.value)
 		self.assertEqual(kwargs.get('size', None), model.size)
 		self.assertEqual(kwargs.get('is_conditional', False), model.is_conditional)
+		self.assertEqual(kwargs.get('is_unsigned', None), model.is_unsigned)
 
 		disposition = kwargs.get('disposition', None)
 		self.assertEqual(disposition, model.disposition)
@@ -666,7 +692,7 @@ class StructFieldTests(unittest.TestCase):
 		# Assert:
 		self.assertEqual(field_name, model.name)
 		self.assertEqual('uint8', model.field_type.short_name)
-		self._assert_properties(model, value=0, disposition=disposition, size=1, display_type=DisplayType.INTEGER)
+		self._assert_properties(model, value=0, disposition=disposition, size=1, is_unsigned=True, display_type=DisplayType.INTEGER)
 		self._assert_extensions(model)
 
 		self.assertEqual(
@@ -688,7 +714,13 @@ class StructFieldTests(unittest.TestCase):
 		# Assert:
 		self.assertEqual('background_color_size', model.name)
 		self.assertEqual('uint16', model.field_type.short_name)
-		self._assert_properties(model, value='other_property', disposition='sizeof', size=2, display_type=DisplayType.INTEGER)
+		self._assert_properties(
+			model,
+			value='other_property',
+			disposition='sizeof',
+			size=2,
+			is_unsigned=True,
+			display_type=DisplayType.INTEGER)
 		self._assert_extensions(model, comment=comment)
 
 		self.assertEqual({
@@ -759,7 +791,7 @@ class StructFieldTests(unittest.TestCase):
 		# Assert:
 		self.assertEqual('alpha_foo_field', model.name)
 		self.assertEqual('uint8', model.field_type.short_name)
-		self._assert_properties(model, value=10, disposition='reserved', size=1, display_type=DisplayType.INTEGER)
+		self._assert_properties(model, value=10, disposition='reserved', size=1, is_unsigned=True, display_type=DisplayType.INTEGER)
 		self._assert_extensions(model)
 
 	def test_can_copy_field_with_array_type(self):

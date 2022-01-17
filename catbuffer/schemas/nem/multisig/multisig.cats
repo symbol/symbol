@@ -9,7 +9,7 @@ struct Cosignature
 	inline Transaction
 
 	# multisig transaction hash outer size
-	multisig_transaction_hash_outer_size = make_reserved(int32, 36)
+	multisig_transaction_hash_outer_size = make_reserved(uint32, 36)
 
 	# [__value__] multisig transaction hash
 	#

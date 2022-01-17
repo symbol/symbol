@@ -28,13 +28,13 @@ class IntPrinter(Printer):
 
 	def load(self):
 		data_size = self.get_size()
-		return f'int.from_bytes(buffer_[:{data_size}], byteorder="little")'
+		return f'int.from_bytes(buffer_[:{data_size}], byteorder="little", signed={not self.descriptor.ast_model.is_unsigned})'
 
 	def advancement_size(self):
 		return self.get_size()
 
 	def store(self, field_name):
-		return f'{field_name}.to_bytes({self.get_size()}, byteorder="little", signed=False)'
+		return f'{field_name}.to_bytes({self.get_size()}, byteorder="little", signed={not self.descriptor.ast_model.is_unsigned})'
 
 	@staticmethod
 	def assign(value):

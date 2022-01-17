@@ -41,6 +41,10 @@ def _format_attributes(attributes):
 	return '\n'.join(str(attribute) for attribute in attributes) + '\n'
 
 
+def _format_is_unsigned(is_unsigned):
+	return 'unsigned' if is_unsigned else 'signed'
+
+
 # endregion
 
 # region Statement
@@ -108,11 +112,6 @@ class FixedSizeInteger:
 		self.display_type = DisplayType.INTEGER
 
 	@property
-	def signedness(self):
-		"""Gets a human readable representation of the signedness of this integer."""
-		return 'unsigned' if self.is_unsigned else 'signed'
-
-	@property
 	def name(self):
 		"""Gets the type name."""
 		return str(self)
@@ -120,7 +119,7 @@ class FixedSizeInteger:
 	def to_legacy_descriptor(self):
 		"""Produces a dictionary consistent with the original catbuffer type descriptors."""
 
-		return {'size': self.size, 'type': 'byte', 'signedness': self.signedness}
+		return {'size': self.size, 'type': 'byte', 'signedness': _format_is_unsigned(self.is_unsigned)}
 
 	def __str__(self):
 		return self.short_name
@@ -131,6 +130,7 @@ class FixedSizeBuffer:
 
 	def __init__(self, size):
 		self.size = size
+		self.is_unsigned = True
 
 		self.display_type = DisplayType.BYTE_ARRAY
 
@@ -142,7 +142,7 @@ class FixedSizeBuffer:
 	def to_legacy_descriptor(self):
 		"""Produces a dictionary consistent with the original catbuffer type descriptors."""
 
-		return {'size': self.size, 'type': 'byte', 'signedness': 'unsigned'}
+		return {'size': self.size, 'type': 'byte', 'signedness': _format_is_unsigned(self.is_unsigned)}
 
 	def __str__(self):
 		return f'binary_fixed({self.size})'
@@ -164,6 +164,11 @@ class Alias(Statement):
 	def display_type(self):
 		"""Gets the display type."""
 		return self.linked_type.display_type
+
+	@property
+	def is_unsigned(self):
+		"""Returns true if the underlying data is unsigned."""
+		return self.linked_type.is_unsigned
 
 	@property
 	def size(self):
@@ -194,6 +199,11 @@ class Enum(Statement):
 		self.attributes = None
 
 	@property
+	def is_unsigned(self):
+		"""Returns true if the underlying data is unsigned."""
+		return self.base.is_unsigned
+
+	@property
 	def is_bitwise(self):
 		"""Returns true if this enumeration is composed of bit flags and should support bitwise operations."""
 		return _lookup_attribute_value(self.attributes, 'is_bitwise')
@@ -208,7 +218,7 @@ class Enum(Statement):
 			'name': self.name,
 			'type': 'enum',
 			'size': self.base.size,
-			'signedness': self.base.signedness,
+			'signedness': _format_is_unsigned(self.is_unsigned),
 			'values': [value.to_legacy_descriptor() for value in self.values]
 		}
 
@@ -409,6 +419,11 @@ class StructField(Statement):
 		return isinstance(self.value, Conditional)
 
 	@property
+	def is_unsigned(self):
+		"""Returns true if the underlying data is unsigned."""
+		return self.field_type.is_unsigned if hasattr(self.field_type, 'is_unsigned') else None
+
+	@property
 	def display_type(self):
 		"""Gets the display type."""
 		return DisplayType.UNSET if isinstance(self.field_type, str) else self.field_type.display_type
@@ -560,7 +575,7 @@ class Array:
 			type_descriptor.update({
 				'element_disposition': {
 					'size': self.element_type.size,
-					'signedness': self.element_type.signedness
+					'signedness': _format_is_unsigned(self.element_type.is_unsigned)
 				},
 				'type': 'byte'
 			})
