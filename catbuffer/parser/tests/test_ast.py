@@ -246,7 +246,7 @@ class StructTests(unittest.TestCase):
 		self.assertEqual(is_inline, model.is_inline)
 
 	def _assert_attributes(self, model, **kwargs):
-		self.assertEqual(kwargs.get('implicit_size', None), model.implicit_size)
+		self.assertEqual(kwargs.get('is_size_implicit', None), model.is_size_implicit)
 		self.assertEqual(kwargs.get('size', None), model.size)
 		self.assertEqual(kwargs.get('discriminator', None), model.discriminator)
 		self.assertEqual(kwargs.get('initializers', []), model.initializers)
@@ -324,23 +324,23 @@ class StructTests(unittest.TestCase):
 		}, model.to_legacy_descriptor())
 		self.assertEqual('struct FooBar  # 2 field(s)', str(model))
 
-	def test_can_create_struct_with_attribute_implicit_size(self):
+	def test_can_create_struct_with_attribute_is_size_implicit(self):
 		# Act:
 		model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
-		model.attributes = [Attribute(['implicit_size'])]
+		model.attributes = [Attribute(['is_size_implicit'])]
 
 		# Assert:
 		self.assertEqual('FooBar', model.name)
 		self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
 		self._assert_disposition(model)
-		self._assert_attributes(model, implicit_size=True)
+		self._assert_attributes(model, is_size_implicit=True)
 		self.assertEqual({
 			'name': 'FooBar',
 			'type': 'struct',
 			'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
-			'implicit_size': True
+			'is_size_implicit': True
 		}, model.to_legacy_descriptor())
-		self.assertEqual('@implicit_size\nstruct FooBar  # 2 field(s)', str(model))
+		self.assertEqual('@is_size_implicit\nstruct FooBar  # 2 field(s)', str(model))
 
 	def test_can_create_struct_with_attribute_size(self):
 		# Act:

@@ -133,8 +133,8 @@ class AstValidator:
 		reference_type = None if not isinstance(reference_typename, str) else self.type_descriptor_map[reference_typename]
 		if not isinstance(reference_type, Struct):
 			self.errors.append(create_error_descriptor(f'sizeof property references fixed size type "{reference_typename}"'))
-		elif not reference_type.implicit_size:
-			message = f'sizeof property references type "{reference_typename}" without implicit_size attribute'
+		elif not reference_type.is_size_implicit:
+			message = f'sizeof property references type "{reference_typename}" without is_size_implicit attribute'
 			self.errors.append(create_error_descriptor(message))
 
 	def _validate_conditional(self, field, field_map, create_error_descriptor):

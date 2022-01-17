@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # cosignature attached to an aggregate transaction
-@implicit_size
+@is_size_implicit
 struct Cosignature
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MULTISIG_COSIGNATURE)

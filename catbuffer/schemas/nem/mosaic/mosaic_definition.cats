@@ -30,7 +30,7 @@ struct MosaicLevy
 
 # binary layout for a mosaic property
 # supported property names are: divisibility, initialSupply, supplyMutable, transferable
-@implicit_size
+@is_size_implicit
 struct MosaicProperty
 	# [__value__] property name
 	#
@@ -51,7 +51,7 @@ struct SizePrefixedMosaicProperty
 	property = MosaicProperty
 
 # binary layout for a mosaic definition
-@implicit_size
+@is_size_implicit
 struct MosaicDefinition
 	# [__value__] owner public key
 	#

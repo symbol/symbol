@@ -8,7 +8,7 @@ struct NamespaceId
 	name = inline SizePrefixedString
 
 # binary layout for a mosaic id
-@implicit_size
+@is_size_implicit
 struct MosaicId
 	# namespace id
 	namespace_id = NamespaceId
@@ -19,7 +19,7 @@ struct MosaicId
 	name = inline SizePrefixedString
 
 # binary layout for a mosaic
-@implicit_size
+@is_size_implicit
 struct Mosaic
 	# mosaic id size
 	mosaic_id_size = sizeof(uint32, mosaic_id)

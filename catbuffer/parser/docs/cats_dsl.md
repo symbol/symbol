@@ -203,7 +203,7 @@ So, `__value__` becomes `friendly_name` and `size` becomes  `friendly_name ` + `
 Hints can be attached to structures using attributes.
 
 Structures support the following attributes:
-1. `implicit_size`: indicates that the structure could be referenced in a `sizeof(x)` statement and must support a size calculation.
+1. `is_size_implicit`: indicates that the structure could be referenced in a `sizeof(x)` statement and must support a size calculation.
 1. `size(x)`: indicates that the `x` field contains the full size of the (variable sized) structure.
 1. `initializes(x, Y)`: indicates that the `x` field should be initialized with the `Y` constant.
 1. `discriminator(x [, y]+)`: indicates that the (`x`, ...`y`) properties should be used as the discriminator when generating a factory (only has meaning for abstract structures).
