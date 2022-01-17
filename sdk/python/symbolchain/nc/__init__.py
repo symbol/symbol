@@ -2058,7 +2058,7 @@ class MosaicDefinitionTransaction:
 		return result
 
 
-class NonVerfiableMosaicDefinitionTransaction:
+class NonVerifiableMosaicDefinitionTransaction:
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MOSAIC_DEFINITION
 	TYPE_HINTS = {
@@ -2074,8 +2074,8 @@ class NonVerfiableMosaicDefinitionTransaction:
 	}
 
 	def __init__(self):
-		self._type_ = NonVerfiableMosaicDefinitionTransaction.TRANSACTION_TYPE
-		self._version = NonVerfiableMosaicDefinitionTransaction.TRANSACTION_VERSION
+		self._type_ = NonVerifiableMosaicDefinitionTransaction.TRANSACTION_TYPE
+		self._version = NonVerifiableMosaicDefinitionTransaction.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -2187,7 +2187,7 @@ class NonVerfiableMosaicDefinitionTransaction:
 		return size
 
 	@classmethod
-	def deserialize(self, payload: ByteString) -> NonVerfiableMosaicDefinitionTransaction:
+	def deserialize(self, payload: ByteString) -> NonVerifiableMosaicDefinitionTransaction:
 		buffer_ = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer_)
 		buffer_ = buffer_[type_.size():]
@@ -2222,7 +2222,7 @@ class NonVerfiableMosaicDefinitionTransaction:
 		rental_fee = Amount.deserialize(buffer_)
 		buffer_ = buffer_[rental_fee.size():]
 
-		instance = NonVerfiableMosaicDefinitionTransaction()
+		instance = NonVerifiableMosaicDefinitionTransaction()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -5908,7 +5908,7 @@ class NonVerifiableTransactionFactory:
 		parent = NonVerifiableTransaction.deserialize(buffer_)
 		mapping = {
 			(NonVerifiableAccountKeyLinkTransaction.TRANSACTION_TYPE, NonVerifiableAccountKeyLinkTransaction.TRANSACTION_VERSION): NonVerifiableAccountKeyLinkTransaction,
-			(NonVerfiableMosaicDefinitionTransaction.TRANSACTION_TYPE, NonVerfiableMosaicDefinitionTransaction.TRANSACTION_VERSION): NonVerfiableMosaicDefinitionTransaction,
+			(NonVerifiableMosaicDefinitionTransaction.TRANSACTION_TYPE, NonVerifiableMosaicDefinitionTransaction.TRANSACTION_VERSION): NonVerifiableMosaicDefinitionTransaction,
 			(NonVerifiableMosaicSupplyChangeTransaction.TRANSACTION_TYPE, NonVerifiableMosaicSupplyChangeTransaction.TRANSACTION_VERSION): NonVerifiableMosaicSupplyChangeTransaction,
 			(NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE, NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION): NonVerifiableMultisigAccountModificationTransactionV1,
 			(NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_TYPE, NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_VERSION): NonVerifiableMultisigAccountModificationTransaction,
@@ -5924,7 +5924,7 @@ class NonVerifiableTransactionFactory:
 	def create_by_name(self, entity_name: str) -> NonVerifiableTransaction:
 		mapping = {
 			"non_verifiable_account_key_link_transaction": NonVerifiableAccountKeyLinkTransaction,
-			"non_verfiable_mosaic_definition_transaction": NonVerfiableMosaicDefinitionTransaction,
+			"non_verifiable_mosaic_definition_transaction": NonVerifiableMosaicDefinitionTransaction,
 			"non_verifiable_mosaic_supply_change_transaction": NonVerifiableMosaicSupplyChangeTransaction,
 			"non_verifiable_multisig_account_modification_transaction_v1": NonVerifiableMultisigAccountModificationTransactionV1,
 			"non_verifiable_multisig_account_modification_transaction": NonVerifiableMultisigAccountModificationTransaction,

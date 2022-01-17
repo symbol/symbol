@@ -106,6 +106,6 @@ struct MosaicDefinitionTransaction
 	inline MosaicDefinitionTransactionBody
 
 # binary layout for a non-verifiable mosaic definition transaction
-struct NonVerfiableMosaicDefinitionTransaction
+struct NonVerifiableMosaicDefinitionTransaction
 	inline NonVerifiableTransaction
 	inline MosaicDefinitionTransactionBody
