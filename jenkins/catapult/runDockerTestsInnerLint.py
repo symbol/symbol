@@ -9,6 +9,7 @@ OUTPUT_DIR = Path('catapult-data')
 SRC_DIR = Path('/catapult-src')
 LINTER_DIR = Path('/linters')
 
+
 def print_linter_status(name, return_code):
 	return_code_description = 'succeeded' if not return_code else 'FAILED'
 	print(f'{name} {return_code_description}')

@@ -74,7 +74,7 @@ def get_volume_mappings(ccache_path, conan_path, source_path, script_path):
 	return [f'--volume={str(key)}:{value}' for key, value in sorted(mappings)]
 
 
-def create_docker_run_command(options, compiler_configuration_filepath, build_configuration_filepath, user, source_path, script_path):
+def create_docker_run_command(options, args, source_path, script_path):
 	docker_run_settings = options.docker_run_settings()
 	volume_mappings = get_volume_mappings(options.ccache_path, options.conan_path, source_path, script_path)
 
@@ -82,13 +82,13 @@ def create_docker_run_command(options, compiler_configuration_filepath, build_co
 	docker_args = [
 		'docker', 'run',
 		'--rm',
-		f'--user={user}',
+		f'--user={args.user}',
 	] + docker_run_settings + volume_mappings + [
 		options.build_base_image_name,
 		'python3', '/scripts/runDockerBuildInnerBuild.py',
 		# assume paths are relative to workdir
-		f'--compiler-configuration={inner_configuration_path}/{get_base_from_path(compiler_configuration_filepath)}',
-		f'--build-configuration={inner_configuration_path}/{get_base_from_path(build_configuration_filepath)}'
+		f'--compiler-configuration={inner_configuration_path}/{get_base_from_path(args.compiler_configuration_filepath)}',
+		f'--build-configuration={inner_configuration_path}/{get_base_from_path(args.build_configuration_filepath)}'
 	]
 
 	return docker_args
@@ -165,7 +165,7 @@ def main():
 		return
 
 	source_path = Path(args.source_path).resolve()
-	docker_run = create_docker_run_command(options, args.compiler_configuration, args.build_configuration, args.user, source_path, script_path)
+	docker_run = create_docker_run_command(options, args, source_path, script_path)
 
 	environment_manager = EnvironmentManager(args.dry_run)
 	environment_manager.rmtree(OUTPUT_DIR)

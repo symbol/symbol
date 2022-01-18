@@ -48,14 +48,6 @@ def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
 		outfile.write(contents)
 
 
-def get_script_path():
-	return os.path.abspath(os.path.dirname(sys.argv[0]))
-
-
-def get_base_from_path(filepath):
-	return os.path.basename(filepath)
-
-
 def main():
 	parser = argparse.ArgumentParser(description='catapult tests runner')
 	parser.add_argument('--image', help='docker tests image', required=True)
@@ -79,11 +71,11 @@ def main():
 	print(f'processing template from {compose_template_filepath}')
 	prepare_replacements = {
 		'image_name': args.image,
-		'compiler_configuration': '/scripts/configurations/' + get_base_from_path(args.compiler_configuration),
+		'compiler_configuration': '/scripts/configurations/' + os.path.basename(args.compiler_configuration),
 		'user': args.user,
 		'verbosity': args.verbosity,
 		'src_dir': str(Path(args.source_path).resolve().absolute()),
-		'script_path': get_script_path(),
+		'script_path': os.path.abspath(os.path.dirname(sys.argv[0])),
 		'linter_path': str(Path(args.linter_path).resolve().absolute()) if args.mode == 'lint' else ''
 	}
 	prepare_docker_compose_file(compose_template_filepath, prepare_replacements, sys.stdout)
