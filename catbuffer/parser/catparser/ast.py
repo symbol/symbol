@@ -4,10 +4,14 @@ from collections import namedtuple
 
 from lark import Token
 
+from .DisplayType import DisplayType
+
 
 class AstException(Exception):
 	"""Exception raised when an AST violation is detected"""
 
+
+# region utils (private)
 
 def _get_token_value(token):
 	return token.value if isinstance(token, Token) else token
@@ -36,6 +40,8 @@ def _format_attributes(attributes):
 
 	return '\n'.join(str(attribute) for attribute in attributes) + '\n'
 
+
+# endregion
 
 # region Statement
 
@@ -99,9 +105,17 @@ class FixedSizeInteger:
 		self.is_unsigned = 'u' == string[0]
 		self.size = int(string[3 + (1 if self.is_unsigned else 0):]) // 8
 
+		self.display_type = DisplayType.INTEGER
+
 	@property
 	def signedness(self):
+		"""Gets a human readable representation of the signedness of this integer."""
 		return 'unsigned' if self.is_unsigned else 'signed'
+
+	@property
+	def name(self):
+		"""Gets the type name."""
+		return str(self)
 
 	def to_legacy_descriptor(self):
 		"""Produces a dictionary consistent with the original catbuffer type descriptors."""
@@ -117,6 +131,13 @@ class FixedSizeBuffer:
 
 	def __init__(self, size):
 		self.size = size
+
+		self.display_type = DisplayType.BYTE_ARRAY
+
+	@property
+	def name(self):
+		"""Gets the type name."""
+		return str(self)
 
 	def to_legacy_descriptor(self):
 		"""Produces a dictionary consistent with the original catbuffer type descriptors."""
@@ -139,6 +160,16 @@ class Alias(Statement):
 		self.name = _get_token_value(tokens[0])
 		self.linked_type = tokens[1]
 
+	@property
+	def display_type(self):
+		"""Gets the display type."""
+		return self.linked_type.display_type
+
+	@property
+	def size(self):
+		"""Gets the backing size."""
+		return self.linked_type.size
+
 	def _to_legacy_descriptor(self):
 		return {'name': self.name, **self.linked_type.to_legacy_descriptor()}
 
@@ -159,11 +190,18 @@ class Enum(Statement):
 		self.base = tokens[1]
 		self.values = tokens[2:]
 
+		self.display_type = DisplayType.ENUM
 		self.attributes = None
 
 	@property
 	def is_bitwise(self):
+		"""Returns true if this enumeration is composed of bit flags and should support bitwise operations."""
 		return _lookup_attribute_value(self.attributes, 'is_bitwise')
+
+	@property
+	def size(self):
+		"""Gets the backing size."""
+		return self.base.size
 
 	def _to_legacy_descriptor(self):
 		type_descriptor = {
@@ -234,28 +272,39 @@ class Struct(Statement):
 		self.fields = tokens[2:]
 		self.factory_type = None
 
+		self.display_type = DisplayType.STRUCT
 		self.attributes = None
 
 		self._member_comment_start_regex = None
 
 	@property
+	def is_abstract(self):
+		"""Returns true if this struct is abstract."""
+		return 'abstract' == self.disposition
+
+	@property
 	def is_inline(self):
+		"""Returns true if this struct is inline."""
 		return 'inline' == self.disposition
 
 	@property
 	def is_size_implicit(self):
+		"""Returns true if this structure can be used in a `sizeof` expression."""
 		return _lookup_attribute_value(self.attributes, 'is_size_implicit')
 
 	@property
 	def size(self):
+		"""Gets the name of the property containing this structure's size."""
 		return _lookup_attribute_value(self.attributes, 'size')
 
 	@property
 	def discriminator(self):
+		"""Gets the names of the properties that can be used to uniquely identify a concrete instantiation of this structure."""
 		return _lookup_attribute_value(self.attributes, 'discriminator', True)
 
 	@property
 	def initializers(self):
+		"""Gets field initializers, each specifying the constant with which to initialize a field."""
 		if not self.attributes:
 			return []
 
@@ -338,6 +387,36 @@ class StructField(Statement):
 		self.disposition = disposition
 
 		self.attributes = None
+
+	@property
+	def is_const(self):
+		"""Returns true if this field is const."""
+		return 'const' == self.disposition
+
+	@property
+	def is_reserved(self):
+		"""Returns true if this field is reserved."""
+		return 'reserved' == self.disposition
+
+	@property
+	def is_size_reference(self):
+		"""Returns true if this field is a size reference."""
+		return 'sizeof' == self.disposition
+
+	@property
+	def is_conditional(self):
+		"""Returns true if this field is conditional."""
+		return isinstance(self.value, Conditional)
+
+	@property
+	def display_type(self):
+		"""Gets the display type."""
+		return DisplayType.UNSET if isinstance(self.field_type, str) else self.field_type.display_type
+
+	@property
+	def size(self):
+		"""Gets the backing size."""
+		return self.field_type.size if hasattr(self.field_type, 'size') else None
 
 	def copy(self, prefix):
 		"""Creates a copy of this field and transforms field names using the specified prefix."""
@@ -442,8 +521,22 @@ class Array:
 		self.is_byte_constrained = False
 
 	@property
+	def display_type(self):
+		"""Gets the display type."""
+		if isinstance(self.element_type, FixedSizeInteger) and 1 == self.element_type.size:
+			return DisplayType.BYTE_ARRAY
+
+		return DisplayType.TYPED_ARRAY
+
+	@property
+	def is_expandable(self):
+		"""Returns true if this array expands to fill a structure."""
+		return '__FILL__' == self._raw_size
+
+	@property
 	def disposition(self):
-		if '__FILL__' == self._raw_size:
+		"""Gets the disposition of this array."""
+		if self.is_expandable:
 			return 'array fill'
 
 		return 'array sized' if self.is_byte_constrained else 'array'

@@ -13,7 +13,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 
 	@property
 	def typename(self):
-		return self.enum_type.typename
+		return self.enum_type.ast_model.name
 
 	def get_base_class(self):
 		return f'({self.base_type})'
@@ -22,7 +22,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return list(
 			map(
 				lambda e: f'{e.name} = {e.value}\n',
-				self.enum_type.values,
+				self.enum_type.ast_model.values,
 			)
 		)
 
@@ -42,7 +42,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body)
 
 	def get_size_descriptor(self):
-		body = f'return {self.enum_type.size}\n'
+		body = f'return {self.enum_type.ast_model.size}\n'
 		return MethodDescriptor(body=body)
 
 	@staticmethod

@@ -2,30 +2,26 @@
 
 from pathlib import Path
 
-from catparser.ast import Array, Conditional, Enum, FixedSizeBuffer, FixedSizeInteger, Struct
+from catparser.DisplayType import DisplayType
 
 from .AbstractImplMap import AbstractImplMap
-from .ast_adapters import isinstance_builtin
 from .EnumTypeFormatter import EnumTypeFormatter
 from .FactoryFormatter import FactoryClassFormatter, FactoryFormatter
 from .PodTypeFormatter import PodTypeFormatter
 from .printers import BuiltinPrinter, create_pod_printer
 from .StructTypeFormatter import StructFormatter
-from .type_objects import ArrayObject, EnumObject, IntObject, StructObject
+from .type_objects import BaseObject, StructObject
 from .TypeFormatter import TypeFormatter
 
 
 class Field:
 	def __init__(self, ast_model, type_instance, printer):
 		self.ast_model = ast_model
-		self.original_field_name = ast_model.name
-		self.type_instance = type_instance
+		self.type_ast_model = type_instance.ast_model
+
 		self.printer = printer
 		self.bound_field = None
 		self.size_fields = []
-
-	def get_type(self):
-		return self.type_instance
 
 	def get_printer(self):
 		return self.printer
@@ -39,44 +35,27 @@ class Field:
 	def add_sizeof_field(self, other_field):
 		self.size_fields.append(other_field)
 
-	def is_const(self):
-		return hasattr(self.ast_model, 'disposition') and 'const' == self.ast_model.disposition
-
-	def is_conditional(self):
-		return isinstance(self.ast_model.value, Conditional)
-
 
 def to_type_formatter_instance(type_instance):
-	mapping = {
-		'int': PodTypeFormatter,
-		'array': PodTypeFormatter,
-		'enum': EnumTypeFormatter,
-		'struct': StructFormatter,
-	}
+	type_formatter_class = {
+		DisplayType.STRUCT: StructFormatter,
+		DisplayType.ENUM: EnumTypeFormatter,
+		DisplayType.BYTE_ARRAY: PodTypeFormatter,
+		DisplayType.INTEGER: PodTypeFormatter
+	}[type_instance.ast_model.display_type]
 
-	type_formatter = mapping[type_instance.base_typename]
-	return type_formatter(type_instance)
+	return type_formatter_class(type_instance)
 
 
 def to_virtual_type_instance(ast_model):
-	object_type = None
-	if isinstance(ast_model, Struct):
-		object_type = StructObject
-	elif isinstance(ast_model, Enum):
-		object_type = EnumObject
-	elif isinstance_builtin(ast_model, FixedSizeBuffer):
-		object_type = ArrayObject
-	elif isinstance_builtin(ast_model, FixedSizeInteger):
-		object_type = IntObject
+	object_class = {
+		DisplayType.STRUCT: StructObject,
+		DisplayType.ENUM: BaseObject,
+		DisplayType.BYTE_ARRAY: BaseObject,
+		DisplayType.INTEGER: BaseObject
+	}[ast_model.display_type]
 
-	return object_type(ast_model)
-
-
-def create_printer(type_instance, name):
-	if type_instance.is_builtin:
-		return BuiltinPrinter(type_instance, name)
-
-	return create_pod_printer(type_instance, name)
+	return object_class(ast_model)
 
 
 def process_concrete_struct(type_map, struct_type, abstract_impl_map):
@@ -92,12 +71,12 @@ def process_concrete_struct(type_map, struct_type, abstract_impl_map):
 def bind_size_fields(struct_type):
 	# go through structs and bind size fields to arrays
 	for field in struct_type.layout:
-		if field.type_instance.is_array and isinstance(field.get_type().size, str):
-			size_field_name = field.get_type().size
+		if field.ast_model.display_type.is_array and isinstance(field.ast_model.size, str):
+			size_field_name = field.ast_model.size
 			size_field = struct_type.get_field_by_name(size_field_name)
 			size_field.set_bound_field(field)
 
-		if field.type_instance.sizeof_value:
+		if field.ast_model.is_size_reference:
 			struct_field = struct_type.get_field_by_name(field.ast_model.value)
 			field.set_bound_field(struct_field)
 
@@ -111,18 +90,20 @@ def process_struct(type_map, struct_type: StructObject, abstract_impl_map: Abstr
 	for field_ast_model in struct_type.ast_model.fields:
 		type_instance = type_map.get(field_ast_model.field_type, None)
 
-		if isinstance(field_ast_model.field_type, Array):
+		create_printer = create_pod_printer
+		if DisplayType.TYPED_ARRAY == field_ast_model.display_type:
 			element_type = type_map.get(field_ast_model.field_type.element_type, None)
 			if not element_type:
 				element_type = to_virtual_type_instance(field_ast_model.field_type.element_type)
 
-			type_instance = ArrayObject(field_ast_model)
-			type_instance.element_type = element_type
-			type_instance.is_builtin = False
-
-		if not type_instance:
+			type_instance = BaseObject(field_ast_model)
+			type_instance.is_contents_abstract = (
+				DisplayType.STRUCT == element_type.ast_model.display_type and element_type.ast_model.is_abstract
+			)
+		elif not type_instance:
 			type_instance = to_virtual_type_instance(field_ast_model)
-			type_instance.is_builtin = False
+		else:
+			create_printer = BuiltinPrinter
 
 		field_printer = create_printer(type_instance, field_ast_model.name)
 		struct_type.add_field(Field(field_ast_model, type_instance, field_printer))
@@ -143,10 +124,8 @@ def generate_files(ast_models, output_directory: Path):
 
 	# process struct fields
 	for type_instance in types:
-		if not type_instance.is_struct:
-			continue
-
-		process_struct(type_map, type_instance, abstract_impl_map)
+		if DisplayType.STRUCT == type_instance.ast_model.display_type:
+			process_struct(type_map, type_instance, abstract_impl_map)
 
 	output_directory.mkdir(exist_ok=True)
 
@@ -178,11 +157,9 @@ StrBytes = TypeVar('StrBytes', str, bytes)
 
 		factories = []
 		for type_instance in types:
-			if not (type_instance.is_struct and type_instance.is_abstract):
-				continue
-
-			factory_generator = FactoryClassFormatter(FactoryFormatter(abstract_impl_map, type_instance))
-			factories.append(str(factory_generator))
+			if DisplayType.STRUCT == type_instance.ast_model.display_type and type_instance.ast_model.is_abstract:
+				factory_generator = FactoryClassFormatter(FactoryFormatter(abstract_impl_map, type_instance))
+				factories.append(str(factory_generator))
 
 		output_file.write('\n\n'.join(factories))
 

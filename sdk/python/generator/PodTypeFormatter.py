@@ -12,22 +12,26 @@ class PodTypeFormatter(AbstractTypeFormatter):
 
 	@property
 	def typename(self):
-		return self.pod.typename
+		return self.pod.ast_model.name
 
 	@property
 	def field_name(self):
 		return f'self._{self.printer.name}'
 
+	@property
+	def _is_array(self):
+		return self.pod.ast_model.display_type.is_array
+
 	def get_fields(self):
-		return [f'SIZE = {self.pod.size}']
+		return [f'SIZE = {self.pod.ast_model.size}']
 
 	def get_base_class(self):
-		return '(ByteArray)' if self.pod.is_array else '(BaseValue)'
+		return '(ByteArray)' if self._is_array else '(BaseValue)'
 
 	def get_ctor_descriptor(self):
 		variable_name = self.printer.name
 		body = f'super().__init__(self.SIZE, {variable_name}, {self.typename})'
-		if self.pod.is_array:
+		if self._is_array:
 			arguments = [f'{variable_name}: StrBytes = {self.printer.get_default_value()}']
 		else:
 			arguments = [f'{variable_name}: {self.printer.get_type()} = {self.printer.get_default_value()}']
@@ -40,13 +44,13 @@ class PodTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body)
 
 	def get_serialize_descriptor(self):
-		if self.pod.is_array:
+		if self._is_array:
 			return MethodDescriptor(body='return self.bytes')
 
 		return MethodDescriptor(body=f'return {self.printer.store("self.value")}')
 
 	def get_size_descriptor(self):
-		body = f'return {self.pod.size}\n'
+		body = f'return {self.pod.ast_model.size}\n'
 		return MethodDescriptor(body=body)
 
 	def get_getter_descriptors(self):
