@@ -1,10 +1,10 @@
 from itertools import filterfalse
 
-from catparser.ast import Array
+from catparser.DisplayType import DisplayType
 
 from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
-from .ast_adapters import fix_size_name
 from .format import indent
+from .name_formatting import fix_size_name
 from .type_objects import StructObject
 
 
@@ -17,7 +17,7 @@ def is_bound_size(field):
 
 
 def is_const(field):
-	return field.is_const()
+	return field.ast_model.is_const
 
 
 def create_temporary_buffer_name(name):
@@ -30,7 +30,7 @@ def indent_if_conditional(condition, statements):
 
 def filter_size_if_first(fields_iter):
 	first_field = next(fields_iter, None)
-	if 'size' == first_field.original_field_name:
+	if 'size' == first_field.ast_model.name:
 		pass
 	else:
 		yield first_field
@@ -61,7 +61,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 	@property
 	def typename(self):
-		return self.struct.typename
+		return self.struct.ast_model.name
 
 	@staticmethod
 	def field_name(field, object_name='self'):
@@ -70,7 +70,7 @@ class StructFormatter(AbstractTypeFormatter):
 	@staticmethod
 	def generate_class_field(field):
 		default_value = field.printer.assign(field.ast_model.value)
-		return f'{field.original_field_name}: {field.printer.get_type()} = {default_value}'
+		return f'{field.ast_model.name}: {field.printer.get_type()} = {default_value}'
 
 	def generate_type_hints(self):
 		body = 'TYPE_HINTS = {\n'
@@ -90,7 +90,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 	def get_paired_const_field(self, field):
 		for const_field in self.const_fields():
-			if const_field.original_field_name.lower().endswith(field.original_field_name):
+			if const_field.ast_model.name.lower().endswith(field.ast_model.name):
 				return const_field
 		return None
 
@@ -102,7 +102,7 @@ class StructFormatter(AbstractTypeFormatter):
 			const_field = self.get_paired_const_field(field)
 			field_name = self.field_name(field)
 			if const_field:
-				body += f'{field_name} = {self.typename}.{const_field.original_field_name}\n'
+				body += f'{field_name} = {self.typename}.{const_field.ast_model.name}\n'
 			else:
 				body += f'{field_name} = {field.printer.get_default_value()}\n'
 
@@ -119,14 +119,14 @@ class StructFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body, arguments=arguments)
 
 	def generate_condition(self, field, prefix_field=False):
-		if not field.is_conditional():
+		if not field.ast_model.is_conditional:
 			return ''
 
 		conditional = field.ast_model.value
 		condition_field_name = conditional.linked_field_name
 
 		# find condition field type
-		condition_field = next(f for f in self.non_const_fields() if condition_field_name == f.original_field_name)
+		condition_field = next(f for f in self.non_const_fields() if condition_field_name == f.ast_model.name)
 		condition_to_operator_map = {
 			'equals': '==',
 			'not equals': '!=',
@@ -136,12 +136,13 @@ class StructFormatter(AbstractTypeFormatter):
 		condition_operator = condition_to_operator_map[conditional.operation]
 
 		value = f'{conditional.value}'
-		yoda_value = value if condition_field.get_type().is_int else f'{condition_field.get_type().typename}.{value}'
+		condition_ast_model = condition_field.type_ast_model
+		yoda_value = value if DisplayType.INTEGER == condition_ast_model.display_type else f'{condition_ast_model.name}.{value}'
 		field_prefix = 'self.' if prefix_field else ''
 
 		# HACK: instead of handling dumb magic value in namespace parent_name, generate slightly simpler condition
-		if prefix_field and isinstance(field.ast_model.field_type, Array):
-			return f'if {field_prefix}{field.original_field_name}:\n'
+		if prefix_field and DisplayType.UNSET != field.ast_model.display_type:
+			return f'if {field_prefix}{field.ast_model.name}:\n'
 
 		return f'if {yoda_value} {condition_operator} {field_prefix}{condition_field_name}:\n'
 
@@ -154,8 +155,8 @@ class StructFormatter(AbstractTypeFormatter):
 		# half-hack: limit buffer to amount specified in size field
 		buffer_load_name = buffer_name
 		if field.size_fields:
-			assert len(field.size_fields) == 1, f'unexpected number of size_fields associated with {field.original_field_name}'
-			buffer_load_name = f'buffer_[:{field.size_fields[0].original_field_name}]'
+			assert len(field.size_fields) == 1, f'unexpected number of size_fields associated with {field.ast_model.name}'
+			buffer_load_name = f'buffer_[:{field.size_fields[0].ast_model.name}]'
 
 		use_custom_buffer_name = arg_buffer_name or field.size_fields
 		load = field.printer.load(buffer_load_name) if use_custom_buffer_name else field.printer.load()
@@ -167,11 +168,11 @@ class StructFormatter(AbstractTypeFormatter):
 			assert_message = f'f"Invalid value of reserved field ({{{field.printer.name}}})"'
 			additional_statements = f'assert {field.printer.name} == {field.ast_model.value}, {assert_message}\n'
 
-		if self.struct.dynamic_size == field.printer.name:
+		if self.struct.ast_model.size == field.printer.name:
 			additional_statements += f'{buffer_name} = {buffer_name}[:{field_name} - {field.printer.advancement_size()}]\n'
 			additional_statements += f'del {field_name}\n'
 
-		if field.is_bound and field.get_type().sizeof_value:
+		if field.is_bound and field.ast_model.is_size_reference:
 			additional_statements += '# marking sizeof field\n'
 
 		deserialize_field = deserialize + '\n' + adjust + '\n' + additional_statements
@@ -189,7 +190,7 @@ class StructFormatter(AbstractTypeFormatter):
 		processed_fields = set()
 		queued_fields = {}
 		for field in self.non_const_fields():
-			if field.is_conditional():
+			if field.ast_model.is_conditional:
 				conditional = field.ast_model.value
 				condition_field_name = conditional.linked_field_name
 
@@ -211,13 +212,13 @@ class StructFormatter(AbstractTypeFormatter):
 
 			deserialized_field = self.generate_deserialize_field(field)
 			body += deserialized_field
-			processed_fields.add(field.original_field_name)
+			processed_fields.add(field.ast_model.name)
 
 			# if conditional field has been processed, process queued fields
-			for conditioned in queued_fields.get(field.original_field_name, []):
+			for conditioned in queued_fields.get(field.ast_model.name, []):
 				body += self.generate_deserialize_field(
 					conditioned['field'],
-					create_temporary_buffer_name(field.original_field_name),
+					create_temporary_buffer_name(field.ast_model.name),
 				)
 
 		# create call to ctor
@@ -241,10 +242,10 @@ class StructFormatter(AbstractTypeFormatter):
 		if field.is_bound():
 			bound_field = field.bound_field
 			bound_field_name = self.field_name(bound_field)
-			field_comment = f'  # {field.original_field_name}'
+			field_comment = f'  # {field.ast_model.name}'
 
-			if bound_field.get_type().is_array:
-				if field.original_field_name.endswith('_count') or not bound_field.get_type().is_sized:
+			if bound_field.ast_model.display_type.is_array:
+				if field.ast_model.name.endswith('_count') or not bound_field.ast_model.field_type.is_byte_constrained:
 					field_value = f'len({bound_field_name})'
 
 					bound_condition = self.generate_condition(bound_field, True)
@@ -257,7 +258,7 @@ class StructFormatter(AbstractTypeFormatter):
 						field_value = f'({field_value} if {bound_field_name} is not None else {condition_value})'
 				else:
 					field_value = field.bound_field.printer.get_size()
-			elif field.get_type().sizeof_value:
+			elif field.ast_model.is_size_reference:
 				field_value = field.bound_field.printer.get_size()
 		else:
 			field_value = self.field_name(field)
@@ -272,8 +273,8 @@ class StructFormatter(AbstractTypeFormatter):
 		# if first field is size replace serializer with custom one (to access builder .size() instead)
 		fields_iter = self.non_const_fields()
 		first_field = next(fields_iter)
-		if self.struct.dynamic_size == first_field.printer.name:
-			body += f'buffer_ += self.size().to_bytes({first_field.get_type().size}, byteorder="little", signed=False)\n'
+		if self.struct.ast_model.size == first_field.printer.name:
+			body += f'buffer_ += self.size().to_bytes({first_field.ast_model.size}, byteorder="little", signed=False)\n'
 		else:
 			body += self.generate_serialize_field(first_field)
 

@@ -12,7 +12,8 @@ class AbstractImplMap:
 		self.mapping = {}
 
 	def add(self, parent_type: StructObject, child_type: StructObject):
-		if parent_type.typename not in self.mapping:
+		struct_typename = parent_type.ast_model.name
+		if struct_typename not in self.mapping:
 			discriminator_names = parent_type.ast_model.discriminator
 			initializers = parent_type.ast_model.initializers
 
@@ -21,13 +22,13 @@ class AbstractImplMap:
 			for discriminator_name in discriminator_names:
 				initializer_value = [init.value for init in initializers if discriminator_name == init.target_property_name][0]
 				discriminator_values.append(initializer_value)
-			self.mapping[parent_type.typename] = {
+			self.mapping[struct_typename] = {
 				'discriminator_names': discriminator_names,
 				'discriminator_values': discriminator_values,
 				'children': [],
 			}
 
-		self.mapping[parent_type.typename]['children'].append(child_type)
+		self.mapping[struct_typename]['children'].append(child_type)
 
 	def get(self, name):
 		return self.mapping.get(name, None)
