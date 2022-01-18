@@ -1,6 +1,6 @@
 from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
-from .ast_adapters import fix_name
 from .format import indent
+from .name_formatting import fix_name, underline_name
 from .printers import BuiltinPrinter
 from .TypeFormatter import ClassFormatter
 
@@ -44,14 +44,14 @@ class FactoryFormatter(AbstractTypeFormatter):
 		# array or int
 		self.abstract = abstract_type_instance
 		self.printer = BuiltinPrinter(abstract_type_instance, 'parent')
-		self.factory_descriptor = abstract_impl_map.get(abstract_type_instance.typename)
+		self.factory_descriptor = abstract_impl_map.get(self.abstract.ast_model.name)
 
 	def get_ctor_descriptor(self):
 		return None
 
 	@property
 	def typename(self):
-		return self.abstract.typename + 'Factory'
+		return f'{self.abstract.ast_model.name}Factory'
 
 	def create_discriminator(self, name):
 		field_names = self.factory_descriptor['discriminator_values']
@@ -65,7 +65,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		body += 'mapping = {\n'
 
 		if self.factory_descriptor:
-			names = [f'{concrete.typename}' for concrete in self.factory_descriptor['children']]
+			names = [f'{concrete.ast_model.name}' for concrete in self.factory_descriptor['children']]
 			body += indent(
 				',\n'.join(map(self.create_discriminator, names))
 			)
@@ -78,7 +78,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		body += 'factory_class = mapping[discriminator]\n'
 		body += 'return factory_class.deserialize(buffer_)'
 
-		return MethodDescriptor(body=body, result=self.abstract.typename)
+		return MethodDescriptor(body=body, result=self.abstract.ast_model.name)
 
 	def get_create_by_name_descriptor(self):
 		body = ''
@@ -86,8 +86,8 @@ class FactoryFormatter(AbstractTypeFormatter):
 		body += indent(
 			',\n'.join(
 				map(
-					lambda name: f'"{skip_embedded(name.underlined_name)}": {name.typename}',
-					[] if not self.factory_descriptor else self.factory_descriptor['children'],
+					lambda child: f'"{skip_embedded(underline_name(child.ast_model.name))}": {child.ast_model.name}',
+					[] if not self.factory_descriptor else self.factory_descriptor['children']
 				)
 			)
 		)
@@ -99,7 +99,7 @@ if entity_name not in mapping:
 
 return mapping[entity_name]()
 '''
-		return MethodDescriptor(body=body, result=self.abstract.typename)
+		return MethodDescriptor(body=body, result=self.abstract.ast_model.name)
 
 	def get_serialize_descriptor(self):
 		raise RuntimeError('not required')
