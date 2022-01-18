@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -33,7 +34,10 @@ def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
 		('{{NETWORK_IP}}', '3000'),
 		('{{GTESTFILTER}}', '*'),
 		('{{STRESSCOUNT}}', '1'),
-		('{{VERBOSITY}}', prepare_replacements['verbosity'])
+		('{{VERBOSITY}}', prepare_replacements['verbosity']),
+		('{{CATAPULT_SRC}}', prepare_replacements['src_dir']),
+		('{{SCRIPT_PATH}}', prepare_replacements['script_path']),
+		('{{LINTER_PATH}}', prepare_replacements['linter_path'])
 	]
 
 	with open(input_filepath, 'rt', encoding='utf8') as infile:
@@ -44,6 +48,14 @@ def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
 		outfile.write(contents)
 
 
+def get_script_path():
+	return os.path.abspath(os.path.dirname(sys.argv[0]))
+
+
+def get_base_from_path(filepath):
+	return os.path.basename(filepath)
+
+
 def main():
 	parser = argparse.ArgumentParser(description='catapult tests runner')
 	parser.add_argument('--image', help='docker tests image', required=True)
@@ -52,7 +64,13 @@ def main():
 	parser.add_argument('--mode', help='test mode', choices=('bench', 'test', 'lint'), required=True)
 	parser.add_argument('--verbosity', help='verbosity level', default='max')
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
+	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
+	parser.add_argument('--linter-path', help='path to the linters', required=False)
 	args = parser.parse_args()
+
+	if args.mode == 'lint' and args.linter_path is None:
+		print('error: the linter path is required for linting')
+		return
 
 	process_manager = ProcessManager(args.dry_run)
 
@@ -61,9 +79,12 @@ def main():
 	print(f'processing template from {compose_template_filepath}')
 	prepare_replacements = {
 		'image_name': args.image,
-		'compiler_configuration': args.compiler_configuration,
+		'compiler_configuration': '/scripts/configurations/' + get_base_from_path(args.compiler_configuration),
 		'user': args.user,
-		'verbosity': args.verbosity
+		'verbosity': args.verbosity,
+		'src_dir': str(Path(args.source_path).resolve().absolute()),
+		'script_path': get_script_path(),
+		'linter_path': str(Path(args.linter_path).resolve().absolute()) if args.mode == 'lint' else ''
 	}
 	prepare_docker_compose_file(compose_template_filepath, prepare_replacements, sys.stdout)
 
