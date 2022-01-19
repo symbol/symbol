@@ -6,6 +6,6 @@ String resolveBranchName(String manualBranch) {
 	return isManualBuild(manualBranch) ? manualBranch : env.GIT_BRANCH
 }
 
-Boolean isPublicBuild() {
-	return env.BUILD_CONFIGURATION == 'release-public'
+Boolean isPublicBuild(String buildConfiguration) {
+	return buildConfiguration == 'release-public'
 }

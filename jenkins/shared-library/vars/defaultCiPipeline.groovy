@@ -8,7 +8,7 @@ void call(Closure body) {
 	body.delegate = params
 	body()
 
-	String packageRootPath = getJenkinsfilePath()
+	String packageRootPath = findJenkinsfilePath()
 
 	pipeline {
 		parameters {
@@ -132,7 +132,7 @@ void call(Closure body) {
 									}
 									not {
 										expression {
-											return helper.isPublicBuild()
+											return helper.isPublicBuild(env.BUILD_CONFIGURATION)
 										}
 									}
 								}
@@ -152,7 +152,7 @@ void call(Closure body) {
 									return env.SHOULD_PUBLISH_IMAGE.toBoolean()
 								}
 								expression {
-									return helper.isPublicBuild()
+									return helper.isPublicBuild(env.BUILD_CONFIGURATION)
 								}
 							}
 						}
