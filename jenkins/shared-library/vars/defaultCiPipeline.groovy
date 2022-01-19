@@ -41,11 +41,18 @@ void call(Closure body) {
 			PYTHON_CREDENTIALS_ID = 'PYPI_TOKEN_ID'
 			DEV_BRANCH = 'dev'
 			RELEASE_BRANCH = 'main'
+
+			LINT_SETUP_SCRIPT_FILEPATH = 'scripts/ci/setup_lint.sh'
+			LINT_SCRIPT_FILEPATH = 'scripts/ci/lint.sh'
+
 			BUILD_SETUP_SCRIPT_FILEPATH = 'scripts/ci/setup_build.sh'
 			BUILD_SCRIPT_FILEPATH = 'scripts/ci/build.sh'
-			TEST_SETUP_SCRIPT_FILEPATH = 'scripts/ci/setup_tests.sh'
+
+			TEST_SETUP_SCRIPT_FILEPATH = 'scripts/ci/setup_test.sh'
 			TEST_SCRIPT_FILEPATH = 'scripts/ci/test.sh'
-			LINTER_SCRIPT_FILEPATH = 'scripts/ci/linter.sh'
+
+			TEST_EXAMPLES_SCRIPT_FILEPATH = 'scripts/ci/test_examples.sh'
+			TEST_VECTORS_SCRIPT_FILEPATH = 'scripts/ci/test_vectors.sh'
 		}
 
 		stages {
@@ -68,15 +75,33 @@ void call(Closure body) {
 						}
 					}
 					stage('verify conventional commit message') {
+						when {
+							anyOf {
+								branch env.DEV_BRANCH
+								branch env.RELEASE_BRANCH
+							}
+						}
 						steps {
 							verifyCommitMessage()
 						}
 					}
-					stage('lint') {
-						when { expression { return fileExists(resolvePath(packageRootPath, env.LINTER_SCRIPT_FILEPATH)) } }
+					stage('setup lint') {
+						when {
+							expression {
+								return fileExists(resolvePath(packageRootPath, env.LINT_SETUP_SCRIPT_FILEPATH))
+							}
+						}
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
-								linter(env.LINTER_SCRIPT_FILEPATH)
+								setupBuild(env.LINT_SETUP_SCRIPT_FILEPATH)
+							}
+						}
+					}
+					stage('lint') {
+						when { expression { return fileExists(resolvePath(packageRootPath, env.LINT_SCRIPT_FILEPATH)) } }
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								linter(env.LINT_SCRIPT_FILEPATH)
 							}
 						}
 					}
@@ -92,7 +117,12 @@ void call(Closure body) {
 							}
 						}
 					}
-					stage('build code') {
+					stage('build') {
+						when {
+							expression {
+								return fileExists(resolvePath(packageRootPath, env.BUILD_SCRIPT_FILEPATH))
+							}
+						}
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
 								buildCode(env.BUILD_SCRIPT_FILEPATH)
@@ -115,6 +145,30 @@ void call(Closure body) {
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
 								runTests(env.TEST_SCRIPT_FILEPATH)
+							}
+						}
+					}
+					stage('run tests (examples)') {
+						when {
+							expression {
+								return fileExists(resolvePath(packageRootPath, env.TEST_EXAMPLES_SCRIPT_FILEPATH))
+							}
+						}
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								runTests(env.TEST_EXAMPLES_SCRIPT_FILEPATH)
+							}
+						}
+					}
+					stage('run tests (vectors)') {
+						when {
+							expression {
+								return fileExists(resolvePath(packageRootPath, env.TEST_VECTORS_SCRIPT_FILEPATH))
+							}
+						}
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								runTests(env.TEST_VECTORS_SCRIPT_FILEPATH)
 							}
 						}
 					}

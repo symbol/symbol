@@ -8,9 +8,8 @@ find . -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m isort \
 	--indent "	" \
 	--multi-line 3 \
 	--check-only
-find . -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m pycodestyle \
+find . -name "nc" -prune -o -name "sc" -prune -o -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m pycodestyle \
 	--config="$(git rev-parse --show-toplevel)/linters/python/.pycodestyle"
-find . -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m pylint \
+find . -name "nc" -prune -o -name "sc" -prune -o -type f -name "*.py" -print0 | PYTHONPATH=".:$(git rev-parse --show-toplevel)/catbuffer/parser" xargs -0 python3 -m pylint \
 	--rcfile "$(git rev-parse --show-toplevel)/linters/python/.pylintrc" \
-	--disable "consider-using-f-string" \
 	--load-plugins pylint_quotes

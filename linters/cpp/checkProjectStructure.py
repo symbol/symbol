@@ -12,7 +12,6 @@ from enum import Enum
 from xml.sax.saxutils import escape as xmlEscape
 
 import colorama
-
 import HeaderParser
 import Parser
 import validation

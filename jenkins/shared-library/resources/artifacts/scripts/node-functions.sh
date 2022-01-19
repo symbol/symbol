@@ -16,7 +16,7 @@ node_publish_alpha() {
 	validate_env_variable "VERSION"
 	validate_env_variable "NPM_TOKEN"
 	npm pack
-	HASH=$(checksum -a sha256 "$(ls *.tgz)" | cut --d ' ' -f 1)
+	HASH=$(checksum -a sha256 "$(ls ./*.tgz)" | cut --d ' ' -f 1)
 	echo "Uploading npm package version $NEW_VERSION with ${HASH}"
 	npm version "$NEW_VERSION" --commit-hooks false --git-tag-version false
 	npm publish --tag alpha
