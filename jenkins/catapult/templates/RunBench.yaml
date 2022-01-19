@@ -6,9 +6,10 @@ services:
     working_dir: /catapult-data/workdir
     cap_add:
       - SYS_PTRACE
-    command: python3 /catapult-src/scripts/build/runDockerTestsInnerBench.py --exe-path /usr/catapult/bin  --out-dir /catapult-data/logs
+    command: python3 /scripts/runDockerTestsInnerBench.py --exe-path /usr/catapult/bin  --out-dir /catapult-data/logs
     environment:
       - LD_LIBRARY_PATH=/usr/catapult/lib:/usr/catapult/deps
     volumes:
       - ./catapult-data:/catapult-data
-      - ./catapult-src:/catapult-src
+      - {{CATAPULT_SRC}}:/catapult-src
+      - {{SCRIPT_PATH}}:/scripts
