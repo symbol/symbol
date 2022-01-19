@@ -96,6 +96,11 @@ void call(Closure body) {
 								setupBuild(env.LINT_SETUP_SCRIPT_FILEPATH)
 							}
 						}
+						post {
+							always {
+								addEmbeddableBadgeConfiguration(id: "${params.packageId}-lint", subject: 'lint')
+							}
+						}
 					}
 					stage('lint') {
 						when { expression { return fileExists(resolvePath(packageRootPath, env.LINT_SCRIPT_FILEPATH)) } }
@@ -128,6 +133,11 @@ void call(Closure body) {
 								buildCode(env.BUILD_SCRIPT_FILEPATH)
 							}
 						}
+						post {
+							always {
+								addEmbeddableBadgeConfiguration(id: "${params.packageId}-build", subject: 'build')
+							}
+						}
 					}
 					stage('setup tests') {
 						when {
@@ -147,6 +157,11 @@ void call(Closure body) {
 								runTests(env.TEST_SCRIPT_FILEPATH)
 							}
 						}
+						post {
+							always {
+								addEmbeddableBadgeConfiguration(id: "${params.packageId}-test", subject: 'test')
+							}
+						}
 					}
 					stage('run tests (examples)') {
 						when {
@@ -159,6 +174,11 @@ void call(Closure body) {
 								setupTests(env.TEST_EXAMPLES_SCRIPT_FILEPATH)
 							}
 						}
+						post {
+							always {
+								addEmbeddableBadgeConfiguration(id: "${params.packageId}-examples", subject: 'examples')
+							}
+						}
 					}
 					stage('run tests (vectors)') {
 						when {
@@ -169,6 +189,11 @@ void call(Closure body) {
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
 								setupTests(env.TEST_VECTORS_SCRIPT_FILEPATH)
+							}
+						}
+						post {
+							always {
+								addEmbeddableBadgeConfiguration(id: "${params.packageId}-vectors", subject: 'vectors')
 							}
 						}
 					}
