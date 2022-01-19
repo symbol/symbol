@@ -1,0 +1,6 @@
+defaultCiPipeline {
+	platform = ['ubuntu']
+	gitHubId = 'Symbol-Github-app'
+	publisher = 'docker'
+	docker_image_name = 'symbolplatform/symbol-rest'
+}

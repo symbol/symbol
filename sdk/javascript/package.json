@@ -6,7 +6,9 @@
   "scripts": {
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
-    "vectors": "node ./vectors/all.js --vectors $(git rev-parse --show-toplevel)/tests/vectors/${BLOCKCHAIN}/crypto --blockchain ${BLOCKCHAIN}"
+    "vectors": "node ./vectors/all.js --vectors $(git rev-parse --show-toplevel)/tests/vectors/${BLOCKCHAIN}/crypto --blockchain ${BLOCKCHAIN}",
+    "lint:jenkins": "eslint -o lint.sdk.javascript.xml -f junit . || exit 0",
+    "test:jenkins": "JUNIT_REPORT_PATH=tests.sdk.javascript.xml mocha --reporter mocha-jenkins-reporter --forbid-only --full-trace --recursive ./test || exit 0"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +18,7 @@
     "eslint": "^8.6.0",
     "eslint-config-airbnb": "^19.0.4",
     "mocha": "^9.1.3",
+    "mocha-jenkins-reporter": "^0.4.7",
     "yargs": "^17.3.1"
   },
   "dependencies": {

@@ -9,7 +9,7 @@ function generate_code() {
 	local git_root
 	git_root="$(git rev-parse --show-toplevel)"
 
-	PYTHONPATH="${git_root}/catbuffer/parser" python -m catparser \
+	PYTHONPATH="${git_root}/catbuffer/parser" python3 -m catparser \
 		--schema "${git_root}/catbuffer/schemas/$1/all.cats"  \
 		--include "${git_root}/catbuffer/schemas/$1" \
 		--output "${git_root}/sdk/python/symbolchain/$2" \

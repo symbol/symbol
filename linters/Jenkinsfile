@@ -1,0 +1,4 @@
+defaultCiPipeline {
+	platform = ['ubuntu']
+	gitHubId = 'Symbol-Github-app'
+}
