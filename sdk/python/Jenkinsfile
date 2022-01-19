@@ -1,5 +1,6 @@
 defaultCiPipeline {
 	platform = ['ubuntu']
 	gitHubId = 'Symbol-Github-app'
+	packageId = 'sdk-python'
 	publisher = 'pypi'
 }

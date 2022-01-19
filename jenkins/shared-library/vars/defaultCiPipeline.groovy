@@ -1,5 +1,6 @@
 /* groovylint-disable NestedBlockDepth */
 import java.nio.file.Paths
+import org.jenkinsci.plugins.badge.EmbeddableBadgeConfig
 
 // groovylint-disable-next-line MethodSize
 void call(Closure body) {
@@ -97,10 +98,10 @@ void call(Closure body) {
 							}
 						}
 					}
-					stage('lint') {
+					stage('run lint') {
 						when { expression { return fileExists(resolvePath(packageRootPath, env.LINT_SCRIPT_FILEPATH)) } }
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'lint', {
 								linter(env.LINT_SCRIPT_FILEPATH)
 							}
 						}
@@ -117,14 +118,14 @@ void call(Closure body) {
 							}
 						}
 					}
-					stage('build') {
+					stage('run build') {
 						when {
 							expression {
 								return fileExists(resolvePath(packageRootPath, env.BUILD_SCRIPT_FILEPATH))
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'build', {
 								buildCode(env.BUILD_SCRIPT_FILEPATH)
 							}
 						}
@@ -143,7 +144,7 @@ void call(Closure body) {
 					}
 					stage('run tests') {
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'test', {
 								runTests(env.TEST_SCRIPT_FILEPATH)
 							}
 						}
@@ -155,7 +156,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'examples', {
 								runTests(env.TEST_EXAMPLES_SCRIPT_FILEPATH)
 							}
 						}
@@ -167,7 +168,7 @@ void call(Closure body) {
 							}
 						}
 						steps {
-							runStepRelativeToPackageRoot packageRootPath, {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'vectors', {
 								runTests(env.TEST_VECTORS_SCRIPT_FILEPATH)
 							}
 						}
@@ -237,6 +238,22 @@ void call(Closure body) {
 void runStepRelativeToPackageRoot(String rootPath, Closure body) {
 	dir(rootPath) {
 		body()
+	}
+}
+
+void runStepRelativeToPackageRootWithBadge(String rootPath, String packageId, String badgeName, Closure body) {
+	EmbeddableBadgeConfig badge = addEmbeddableBadgeConfiguration(id: "${packageId}-${badgeName}", subject: badgeName)
+	badge.status = 'running'
+
+	Boolean isSuccess = false
+	try {
+		runStepRelativeToPackageRoot rootPath, body
+		badge.status = 'passing'
+		isSuccess = true
+	} finally {
+		if (!isSuccess) {
+			badge.status = 'failing'
+		}
 	}
 }
 
