@@ -1,0 +1,15 @@
+{
+  "extends": "recommended",
+
+  "rules": {
+    "formatting.LineLength": { "length": 140 },
+    "formatting.Indentation": { "spacesPerIndentLevel": 1 },
+    "formatting.NoTabCharacter": "off",
+
+    "size.ParameterCount": { "maxParameters": 9 },
+
+    "dry.DuplicateStringLiteral": { "ignoreStrings": ",/,\n,Jenkinsfile" },
+
+    "unnecessary.UnnecessaryGetter": { "checkIsMethods": false }
+  }
+}

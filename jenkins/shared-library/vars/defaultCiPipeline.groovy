@@ -1,0 +1,191 @@
+/* groovylint-disable NestedBlockDepth */
+import java.nio.file.Paths
+
+// groovylint-disable-next-line MethodSize
+void call(Closure body) {
+	Map params = [:]
+	body.resolveStrategy = Closure.DELEGATE_FIRST
+	body.delegate = params
+	body()
+
+	String packageRootPath = findJenkinsfilePath()
+
+	pipeline {
+		parameters {
+			gitParameter branchFilter: 'origin/(.*)',
+				defaultValue: "${env.GIT_BRANCH}",
+				name: 'MANUAL_GIT_BRANCH',
+				type: 'PT_BRANCH'
+			choice name: 'PLATFORM',
+				choices: params.platform ?: 'ubuntu',
+				description: 'Run on specific platform'
+			choice name: 'BUILD_CONFIGURATION',
+				choices: ['release-private', 'release-public'],
+				description: 'build configuration'
+			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
+		}
+
+		agent {
+			label "${PLATFORM}-agent"
+		}
+
+		options {
+			ansiColor('css')
+			timestamps()
+		}
+
+		environment {
+			GITHUB_CREDENTIALS_ID = "${params.gitHubId}"
+			DOCKERHUB_CREDENTIALS_ID = 'docker-hub-token-symbolserverbot'
+			NPM_CREDENTIALS_ID = 'NPM_TOKEN_ID'
+			PYTHON_CREDENTIALS_ID = 'PYPI_TOKEN_ID'
+			DEV_BRANCH = 'dev'
+			RELEASE_BRANCH = 'main'
+			BUILD_SETUP_SCRIPT_FILEPATH = 'scripts/ci/setup_build.sh'
+			BUILD_SCRIPT_FILEPATH = 'scripts/ci/build.sh'
+			TEST_SETUP_SCRIPT_FILEPATH = 'scripts/ci/setup_tests.sh'
+			TEST_SCRIPT_FILEPATH = 'scripts/ci/test.sh'
+			LINTER_SCRIPT_FILEPATH = 'scripts/ci/linter.sh'
+		}
+
+		stages {
+			stage('CI pipeline') {
+				stages {
+					stage('display environment') {
+						steps {
+							println("Parameters: ${params}")
+							sh 'printenv'
+						}
+					}
+					stage('checkout') {
+						when {
+							expression { helper.isManualBuild(env.MANUAL_GIT_BRANCH) }
+						}
+						steps {
+							script {
+								gitCheckout(helper.resolveBranchName(env.MANUAL_GIT_BRANCH), env.GITHUB_CREDENTIALS_ID, env.GIT_URL)
+							}
+						}
+					}
+					stage('verify conventional commit message') {
+						steps {
+							verifyCommitMessage()
+						}
+					}
+					stage('lint') {
+						when { expression { return fileExists(resolvePath(packageRootPath, env.LINTER_SCRIPT_FILEPATH)) } }
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								linter(env.LINTER_SCRIPT_FILEPATH)
+							}
+						}
+					}
+					stage('setup build') {
+						when {
+							expression {
+								return fileExists(resolvePath(packageRootPath, env.BUILD_SETUP_SCRIPT_FILEPATH))
+							}
+						}
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								setupBuild(env.BUILD_SETUP_SCRIPT_FILEPATH)
+							}
+						}
+					}
+					stage('build code') {
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								buildCode(env.BUILD_SCRIPT_FILEPATH)
+							}
+						}
+					}
+					stage('setup tests') {
+						when {
+							expression {
+								return fileExists(resolvePath(packageRootPath, env.TEST_SETUP_SCRIPT_FILEPATH))
+							}
+						}
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								setupTests(env.TEST_SETUP_SCRIPT_FILEPATH)
+							}
+						}
+					}
+					stage('run tests') {
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								runTests(env.TEST_SCRIPT_FILEPATH)
+							}
+						}
+					}
+				}
+			}
+			stage('CD pipeline') {
+				stages {
+					stage('publish RC') {
+						when {
+							anyOf {
+								branch env.DEV_BRANCH
+								allOf {
+									expression {
+										return env.SHOULD_PUBLISH_IMAGE.toBoolean()
+									}
+									not {
+										expression {
+											return helper.isPublicBuild(env.BUILD_CONFIGURATION)
+										}
+									}
+								}
+							}
+						}
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								publish(params, 'alpha')
+							}
+						}
+					}
+					stage('publish Release') {
+						when {
+							allOf {
+								branch env.RELEASE_BRANCH
+								expression {
+									return env.SHOULD_PUBLISH_IMAGE.toBoolean()
+								}
+								expression {
+									return helper.isPublicBuild(env.BUILD_CONFIGURATION)
+								}
+							}
+						}
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								publish(params, 'release')
+							}
+						}
+					}
+				}
+			}
+		}
+		post {
+			//TODO: add notification
+			success {
+				echo "Build Success - ${env.JOB_BASE_NAME} - ${env.BUILD_ID} on ${env.BUILD_URL}"
+			}
+			failure {
+				echo "Build Failed - ${env.JOB_BASE_NAME} - ${env.BUILD_ID} on ${env.BUILD_URL}"
+			}
+			aborted {
+				echo " ${env.JOB_BASE_NAME} Build - ${env.BUILD_ID} Aborted!"
+			}
+		}
+	}
+}
+
+void runStepRelativeToPackageRoot(String rootPath, Closure body) {
+	dir(rootPath) {
+		body()
+	}
+}
+
+String resolvePath(String rootPath, String path) {
+	return Paths.get(rootPath).resolve(path).toString()
+}
