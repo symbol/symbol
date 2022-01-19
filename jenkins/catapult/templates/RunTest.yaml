@@ -27,14 +27,15 @@ services:
     ulimits:
       core: -1
     command: >-
-      python3 /catapult-src/scripts/build/runDockerTestsInnerTest.py
+      python3 /scripts/runDockerTestsInnerTest.py
         --compiler-configuration /{{COMPILER_CONFIGURATION}}
         --exe-path /usr/catapult/tests
         --out-dir /catapult-data/logs
         --verbosity {{VERBOSITY}}
     volumes:
       - ./catapult-data:/catapult-data
-      - ./catapult-src:/catapult-src
+      - {{CATAPULT_SRC}}:/catapult-src
+      - {{SCRIPT_PATH}}:/scripts
     depends_on:
       - db
 

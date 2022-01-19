@@ -9,7 +9,6 @@ from process import ProcessManager
 CCACHE_ROOT = '/jenkins_cache/ccache'
 CONAN_ROOT = '/jenkins_cache/conan'
 
-SRC_DIR = Path('catapult-src').resolve()
 OUTPUT_DIR = Path('output').resolve()
 BINARIES_DIR = OUTPUT_DIR / 'binaries'
 
@@ -62,31 +61,33 @@ class OptionsManager(BasicBuildManager):
 		return [f'--env={key}={value}' for key, value in sorted(settings)]
 
 
-def get_volume_mappings(ccache_path, conan_path):
+def get_volume_mappings(ccache_path, conan_path, prepare_replacements):
 	mappings = [
-		(SRC_DIR, '/catapult-src'),
+		(prepare_replacements['source_path'], '/catapult-src'),
 		(BINARIES_DIR.resolve(), '/binaries'),
 		(conan_path, '/conan'),
-		(ccache_path, '/ccache')
+		(ccache_path, '/ccache'),
+		(prepare_replacements['script_path'], '/scripts')
 	]
 
 	return [f'--volume={str(key)}:{value}' for key, value in sorted(mappings)]
 
 
-def create_docker_run_command(options, compiler_configuration_filepath, build_configuration_filepath, user):
+def create_docker_run_command(options, prepare_replacements):
 	docker_run_settings = options.docker_run_settings()
-	volume_mappings = get_volume_mappings(options.ccache_path, options.conan_path)
+	volume_mappings = get_volume_mappings(options.ccache_path, options.conan_path, prepare_replacements)
 
+	inner_configuration_path = '/scripts/configurations'
 	docker_args = [
 		'docker', 'run',
 		'--rm',
-		f'--user={user}',
+		f'--user={prepare_replacements["user"]}',
 	] + docker_run_settings + volume_mappings + [
 		options.build_base_image_name,
-		'python3', '/catapult-src/scripts/build/runDockerBuildInnerBuild.py',
+		'python3', '/scripts/runDockerBuildInnerBuild.py',
 		# assume paths are relative to workdir
-		f'--compiler-configuration=/{compiler_configuration_filepath}',
-		f'--build-configuration=/{build_configuration_filepath}'
+		f'--compiler-configuration={inner_configuration_path}/{get_base_from_path(prepare_replacements["compiler_configuration_filepath"])}',
+		f'--build-configuration={inner_configuration_path}/{get_base_from_path(prepare_replacements["build_configuration_filepath"])}'
 	]
 
 	return docker_args
@@ -116,10 +117,11 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 	destination_repository = disposition_to_repository_map[build_disposition]
 
 	destination_image_name = f'symbolplatform/{destination_repository}:{destination_image_label}'
+	script_path = prepare_replacements['script_path']
 	process_manager.dispatch_subprocess([
 		'docker', 'run',
 		f'--cidfile={cid_filepath}',
-		f'--volume={SRC_DIR / "scripts" / "build"}:/scripts',
+		f'--volume={script_path}:/scripts',
 		f'--volume={OUTPUT_DIR}:/data',
 		f'registry.hub.docker.com/{prepare_replacements["base_image_name"]}',
 		'python3', '/scripts/runDockerBuildInnerPrepare.py',
@@ -133,6 +135,14 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 	process_manager.dispatch_subprocess(['docker', 'commit', container_id, destination_image_name])
 
 
+def get_script_path():
+	return Path(sys.argv[0]).resolve().parent
+
+
+def get_base_from_path(filepath):
+	return Path(filepath).name
+
+
 def main():
 	parser = argparse.ArgumentParser(description='catapult project build generator')
 	parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
@@ -142,8 +152,10 @@ def main():
 	parser.add_argument('--destination-image-label', help='docker destination image label', required=True)
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
 	parser.add_argument('--base-image-names-only', help='only output the base image names', action='store_true')
+	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
 	args = parser.parse_args()
 
+	script_path = Path(get_script_path()).resolve()
 	options = OptionsManager(args)
 
 	if args.base_image_names_only:
@@ -151,7 +163,14 @@ def main():
 		print(options.prepare_base_image_name)
 		return
 
-	docker_run = create_docker_run_command(options, args.compiler_configuration, args.build_configuration, args.user)
+	source_path = Path(args.source_path).resolve()
+	docker_run = create_docker_run_command(options, {
+		'source_path': source_path,
+		'script_path': script_path,
+		'user': args.user,
+		'compiler_configuration_filepath': args.compiler_configuration,
+		'build_configuration_filepath': args.build_configuration
+	})
 
 	environment_manager = EnvironmentManager(args.dry_run)
 	environment_manager.rmtree(OUTPUT_DIR)
@@ -172,9 +191,9 @@ def main():
 	environment_manager.chdir(OUTPUT_DIR)
 
 	for folder_name in ['scripts', 'seed', 'resources']:
-		environment_manager.copy_tree_with_symlinks(SRC_DIR / folder_name, folder_name)
+		environment_manager.copy_tree_with_symlinks(source_path / folder_name, folder_name)
 
-	environment_manager.chdir(SRC_DIR)
+	environment_manager.chdir(source_path)
 
 	print('building docker image')
 
@@ -182,7 +201,9 @@ def main():
 	prepare_docker_image(process_manager, container_id, {
 		'base_image_name': options.prepare_base_image_name,
 		'destination_image_label': args.destination_image_label,
-		'build_disposition': options.build_disposition
+		'build_disposition': options.build_disposition,
+		'source_path': source_path,
+		'script_path': script_path
 	})
 
 

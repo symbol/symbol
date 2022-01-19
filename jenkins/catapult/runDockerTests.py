@@ -33,7 +33,10 @@ def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
 		('{{NETWORK_IP}}', '3000'),
 		('{{GTESTFILTER}}', '*'),
 		('{{STRESSCOUNT}}', '1'),
-		('{{VERBOSITY}}', prepare_replacements['verbosity'])
+		('{{VERBOSITY}}', prepare_replacements['verbosity']),
+		('{{CATAPULT_SRC}}', prepare_replacements['src_dir']),
+		('{{SCRIPT_PATH}}', prepare_replacements['script_path']),
+		('{{LINTER_PATH}}', prepare_replacements['linter_path'])
 	]
 
 	with open(input_filepath, 'rt', encoding='utf8') as infile:
@@ -44,6 +47,10 @@ def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
 		outfile.write(contents)
 
 
+def is_lint_enabled(mode):
+	return 'lint' == mode
+
+
 def main():
 	parser = argparse.ArgumentParser(description='catapult tests runner')
 	parser.add_argument('--image', help='docker tests image', required=True)
@@ -52,7 +59,13 @@ def main():
 	parser.add_argument('--mode', help='test mode', choices=('bench', 'test', 'lint'), required=True)
 	parser.add_argument('--verbosity', help='verbosity level', default='max')
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
+	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
+	parser.add_argument('--linter-path', help='path to the linters')
 	args = parser.parse_args()
+
+	if is_lint_enabled(args.mode) and args.linter_path is None:
+		print('error: the linter path is required for linting')
+		sys.exit(1)
 
 	process_manager = ProcessManager(args.dry_run)
 
@@ -61,9 +74,12 @@ def main():
 	print(f'processing template from {compose_template_filepath}')
 	prepare_replacements = {
 		'image_name': args.image,
-		'compiler_configuration': args.compiler_configuration,
+		'compiler_configuration': f'/scripts/configurations/{Path(args.compiler_configuration).name}',
 		'user': args.user,
-		'verbosity': args.verbosity
+		'verbosity': args.verbosity,
+		'src_dir': str(Path(args.source_path).resolve().absolute()),
+		'script_path': str(Path(sys.argv[0]).absolute().parent),
+		'linter_path': str(Path(args.linter_path).resolve().absolute()) if is_lint_enabled(args.mode) else ''
 	}
 	prepare_docker_compose_file(compose_template_filepath, prepare_replacements, sys.stdout)
 
