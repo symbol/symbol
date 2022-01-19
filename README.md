@@ -17,9 +17,9 @@
 [client-rest-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2FRest%2Fjenkins_symbol_files%2F&config=client-rest-lint
 [client-rest-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2FRest%2Fjenkins_symbol_files%2F&config=client-rest-test
 
-[sdk-javascript-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-javascript%2Fjenkins_symbol_files%2F&config=sdk-javascript-lint
-[sdk-javascript-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-javascript%2Fjenkins_symbol_files%2F&config=sdk-javascript-test
-[sdk-javascript-vectors]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-javascript%2Fjenkins_symbol_files%2F&config=sdk-javascript-vectors
+[sdk-javascript-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-javasscript%2Fjenkins_symbol_files%2F&config=sdk-javascript-lint
+[sdk-javascript-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-javasscript%2Fjenkins_symbol_files%2F&config=sdk-javascript-test
+[sdk-javascript-vectors]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-javasscript%2Fjenkins_symbol_files%2F&config=sdk-javascript-vectors
 
 [sdk-python-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-python%2Fjenkins_symbol_files%2F&config=sdk-python-lint
 [sdk-python-build]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-python%2Fjenkins_symbol_files%2F&config=sdk-python-build
