@@ -6,7 +6,8 @@ from environment import EnvironmentManager
 from process import ProcessManager
 
 OUTPUT_DIR = Path('catapult-data')
-SRC_DIR = Path('catapult-src')
+SRC_DIR = Path('/catapult-src')
+LINTER_DIR = Path('/linters')
 
 
 def print_linter_status(name, return_code):
@@ -19,7 +20,7 @@ def find_files_with_extension(environment_manager, extension):
 
 
 def run_cpp_linters(process_manager, dest_dir):
-	cpp_lint_args = ['python3', 'scripts/lint/checkProjectStructure.py']
+	cpp_lint_args = ['python3', str(LINTER_DIR.joinpath('cpp/checkProjectStructure.py').resolve())]
 	for directory in ['src', 'extensions', 'plugins']:
 		cpp_lint_args.extend(['--dep-check-dir', directory])
 
@@ -45,9 +46,6 @@ class LinterRunner:
 		linter_result = self.process_manager.dispatch_subprocess(args, handle_error=False, redirect_filename=self.output_filepath)
 		print_linter_status(self.scope, linter_result)
 
-	def fixup_source_path(self):
-		self.fixup(lambda line: line.replace(f'/{SRC_DIR}', str(SRC_DIR)))
-
 	def fixup(self, modifier):
 		if self.dry_run:
 			return
@@ -67,7 +65,6 @@ class LinterRunner:
 def run_shell_linters(linter_runner, shell_files):
 	linter_runner.set_scope('shellcheck')
 	linter_runner.run(['shellcheck', '--format=gcc'] + shell_files)
-	linter_runner.fixup_source_path()
 
 
 def run_python_linters(linter_runner, python_files):
@@ -76,15 +73,14 @@ def run_python_linters(linter_runner, python_files):
 	linter_runner.set_scope('pylint')
 	linter_runner.run([
 		'pylint',
-		'--rcfile', '.pylintrc',
+		'--rcfile', str(LINTER_DIR.joinpath('python/.pylintrc').resolve()),
 		'--load-plugins', 'pylint_quotes',
 		'--output-format', 'parseable'
 	] + python_files)
 	linter_runner.fixup(lambda line: line if not pylint_warning_pattern.match(line) else f'{SRC_DIR}/scripts/{line}')
 
 	linter_runner.set_scope('pycodestyle')
-	linter_runner.run(['pycodestyle', '--config', '.pycodestyle'] + python_files)
-	linter_runner.fixup_source_path()
+	linter_runner.run(['pycodestyle', '--config', str(LINTER_DIR.joinpath('python/.pycodestyle').resolve())] + python_files)
 
 	isort_warning_pattern = re.compile('([A-Z]+): ([a-zA-Z\\-/]+\\.py) (.*)')
 
@@ -93,7 +89,6 @@ def run_python_linters(linter_runner, python_files):
 	linter_runner.fixup(lambda line: isort_warning_pattern.sub(
 		lambda match: f'{match.group(2)}:1:1 {match.group(1).lower()}: {match.group(3)}',
 		line))
-	linter_runner.fixup_source_path()
 
 
 def main():
@@ -108,7 +103,7 @@ def main():
 
 	run_cpp_linters(process_manager, args.out_dir)
 
-	environment_manager.chdir('scripts')
+	environment_manager.chdir(SRC_DIR.joinpath('scripts').resolve())
 
 	linter_runner = LinterRunner(process_manager, args.out_dir, args.dry_run)
 	run_shell_linters(linter_runner, find_files_with_extension(environment_manager, '.sh'))

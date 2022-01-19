@@ -4,7 +4,7 @@ For convenience and reproducibility, Docker images are available which already c
 
 This guide explains how to use these Docker images and gives a bit of insight into how these images are built.
 
-All scripts used in this guide can be found in the ``scripts/build`` folder after cloning the repository.
+All scripts used in this guide can be found in the ``jenkins/catapult`` folder after cloning the repository.
 
 ## Prerequisites
 
@@ -15,26 +15,25 @@ All scripts used in this guide can be found in the ``scripts/build`` folder afte
 
 These instructions have been verified to work on Ubuntu 20.04 with 8 GB of RAM and 4 CPU cores. **The scripts used are not ready for Windows yet**.
 
-## Step 1: Clone (and rename) catapult-client
-
-Clone the git repository but name it ``catapult-src``:
+## Step 1: Clone symbol repo
 
 ```sh
-git clone https://github.com/symbol/catapult-client.git catapult-src
+git clone https://github.com/symbol/symbol.git
 ```
 
 ## Step 2: Compiling the client
 
-The script ``scripts/build/runDockerBuild.py`` prepares the directory structure and fires compilation within the appropriate docker image.
+The script ``jenkins/catapult/runDockerBuild.py`` prepares the directory structure and fires compilation within the appropriate docker image.
 
-Launch it from the parent folder of ``catapult-src``:
+Launch it from the root folder:
 
 ```bash
-python3 catapult-src/scripts/build/runDockerBuild.py \
-    --compiler-configuration catapult-src/scripts/build/configurations/gcc-10.yaml \
-    --build-configuration catapult-src/scripts/build/configurations/release-private.yaml \
+python3 jenkins/catapult/runDockerBuild.py \
+    --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
+    --build-configuration jenkins/catapult/configurations/release-private.yaml \
     --operating-system ubuntu \
     --user "$(id -u):$(id -g)" \
+    --source-path client/catapult
     --destination-image-label gcc-10-main-9273d6c5
 ```
 
@@ -63,7 +62,7 @@ docker run \
       --env=CC=gcc \
       --env=CCACHE_DIR=/ccache \
       --env=CXX=g++ \
-      --volume=/FULL_PATH/catapult-src:/catapult-src \
+      --volume=/FULL_PATH/catapult:/catapult-src \
       --volume=/FULL_PATH/output/binaries:/binaries \
       --volume=/jenkins_cache/ccache/release:/ccache \
       --volume=/jenkins_cache/conan/gcc:/conan \
@@ -93,7 +92,7 @@ The next thing ``runDockerBuild.py`` does is firing up another container that pr
 ```bash
 docker run \
       --cidfile=gcc-10-main-9273d6c5.cid \
-      --volume=/FULL_PATH/catapult-src/scripts/build:/scripts \
+      --volume=/FULL_PATH/jenkins/catapult:/scripts \
       --volume=/FULL_PATH/output:/data \
       symbolplatform/symbol-server-test-base:ubuntu \
       python3 \
@@ -114,7 +113,7 @@ They are created running ``baseImageDockerfileGenerator.py`` multiple times, wit
 
 ### Ready-made base images
 
-Compiler images' ``Dockerfiles`` are available in the [scripts/build/compilers directory](https://github.com/symbol/catapult-client/tree/main/scripts/build/compilers).
+Compiler images' ``Dockerfiles`` are available in the [scripts/build/compilers directory](https://github.com/symbol/symbol/tree/dev/jenkins/catapult/compilers).
 
 These images are built automatically via Docker Hub and are available in the [Docker Hub symbol-server-compiler repository](https://hub.docker.com/repository/docker/symbolplatform/symbol-server-compiler).
 
@@ -141,30 +140,30 @@ Note also that the architecture is defined in ``configurations/gcc-10.yaml`` as 
 1. Create the first intermediate image with ``cmake`` and various system packages:
 
    ```bash
-   python3 ./scripts/build/baseImageDockerfileGenerator.py \
-       --compiler-configuration scripts/build/configurations/gcc-10.yaml \
+   python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
+       --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
        --operating-system ubuntu \
-       --versions ./scripts/build/versions.properties \
+       --versions ./jenkins/catapult/versions.properties \
        --layer os
    ```
 
 2. Creates the second intermediate image with boost build:
 
    ```bash
-   python3 ./scripts/build/baseImageDockerfileGenerator.py \
-       --compiler-configuration scripts/build/configurations/gcc-10.yaml \
+   python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
+       --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
        --operating-system ubuntu \
-       --versions ./scripts/build/versions.properties \
+       --versions ./jenkins/catapult/versions.properties \
        --layer boost
    ```
 
 3. Create the third intermediate image with all other dependencies (``mongo`` + ``mongo-cxx``, ``libzmq`` + ``cppzmq``, ``rocksdb``):
 
    ```bash
-   python3 ./scripts/build/baseImageDockerfileGenerator.py \
-       --compiler-configuration scripts/build/configurations/gcc-10.yaml \
+   python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
+       --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
        --operating-system ubuntu \
-       --versions ./scripts/build/versions.properties \
+       --versions ./jenkins/catapult/versions.properties \
        --layer deps
    ```
 
@@ -173,10 +172,10 @@ Note also that the architecture is defined in ``configurations/gcc-10.yaml`` as 
    - Things needed to run tests and lints: ``googletest``, ``google benchmark``, ``pip``, ``pycodestyle``, ``pylint``, ``pyyaml``.
 
    ```bash
-   python3 ./scripts/build/baseImageDockerfileGenerator.py \
-       --compiler-configuration scripts/build/configurations/gcc-10.yaml \
+   python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
+       --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
        --operating-system ubuntu \
-       --versions ./scripts/build/versions.properties \
+       --versions ./jenkins/catapult/versions.properties \
        --layer test
    ```
 
