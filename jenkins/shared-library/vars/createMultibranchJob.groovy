@@ -9,6 +9,8 @@ void call(Map jobConfiguration) {
 			final int USE_CURRENT_SOURCE_STRATEGY_ID = 2
 
 			multibranchPipelineJob(jobName) {
+				displayName(displayName)
+
 				branchSources {
 					branchSource {
 						source {
@@ -82,6 +84,7 @@ void call(Map jobConfiguration) {
 			packageIncludePaths: jobConfiguration.packageIncludePaths.toString(),
 			packageExcludePaths: jobConfiguration.packageExcludePaths.toString(),
 			credentialsId: jobConfiguration.credentialsId.toString(),
-			notificationContextLabel: "continuous-integration/jenkins/${jobConfiguration.packageFolder}"
+			notificationContextLabel: "continuous-integration/jenkins/${jobConfiguration.packageFolder}",
+			displayName: jobConfiguration.displayName.toString()
 	]
 }

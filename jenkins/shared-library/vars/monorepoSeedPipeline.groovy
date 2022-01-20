@@ -26,7 +26,7 @@ void call(Closure body) {
 
 		environment {
 			JENKINS_ROOT_FOLDER	  = "${params.organizationName}/generated"
-			BUILD_CONFIGURATION_FILE = 'buildConfiguration.yaml'
+			BUILD_CONFIGURATION_FILE = 'seed-job/buildConfiguration.yaml'
 			GITHUB_CREDENTIALS_ID = "${params.gitHubId}"
 		}
 

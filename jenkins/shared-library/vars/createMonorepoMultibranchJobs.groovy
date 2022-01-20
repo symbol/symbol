@@ -13,6 +13,7 @@ String appendFilter(String path) {
 void generateMultibranchJobs(Object buildConfiguration, String gitUrl, String rootFolder, String credentialsId) {
 	final String pathSeparator = '/'
 	Map jobConfiguration = [:]
+
 	jobConfiguration.gitUrl = gitUrl
 	jobConfiguration.rootFolder = rootFolder
 	jobConfiguration.credentialsId = credentialsId
@@ -21,7 +22,7 @@ void generateMultibranchJobs(Object buildConfiguration, String gitUrl, String ro
 	jobConfiguration.repositoryOwner = tokens[2]
 	jobConfiguration.repositoryName = tokens.last().split('\\.')[0]
 
-	String fullFolderName = ''
+	String fullFolderName = pathSeparator
 	rootFolder.tokenize(pathSeparator).each { folderName ->
 		fullFolderName += folderName
 		createJenkinsFolder(fullFolderName, "${folderName}")
@@ -39,15 +40,13 @@ void generatePackageMultibranchJobs(Object buildConfiguration, Map jobConfigurat
 	final String pathSeparator = '/'
 
 	buildConfiguration.builds.each { build ->
+		jobConfiguration.packageExcludePaths = '**/*'
 		String pipelineName = build.path.tokenize(pathSeparator).last()
-		jobConfiguration.with {
-			jobName = Paths.get(jobConfiguration.fullBranchFolder.toString()).resolve(pipelineName).toString()
-			jenkinsfilePath = Paths.get(build.path).resolve('Jenkinsfile').toString()
-			packageIncludePaths = addPathAndDependsOnFolder(build).join('\n')
-			packageExcludePaths = '**/*'
-			path = build.path
-			packageFolder = Paths.get(jobConfiguration.repositoryName.toString()).resolve(build.path).toString()
-		}
+		jobConfiguration.jobName = Paths.get(jobConfiguration.fullBranchFolder.toString()).resolve(pipelineName).toString()
+		jobConfiguration.jenkinsfilePath = Paths.get(build.path).resolve('Jenkinsfile').toString()
+		jobConfiguration.packageIncludePaths = addPathAndDependsOnFolder(build).join('\n')
+		jobConfiguration.displayName = build.name
+		jobConfiguration.packageFolder = Paths.get(jobConfiguration.repositoryName.toString()).resolve(build.path).toString()
 		createMultibranchJob(jobConfiguration)
 	}
 }
@@ -60,13 +59,13 @@ void generateRepoMultibranchJob(Object buildConfiguration, Map jobConfiguration)
 		excludePaths += addPathAndDependsOnFolder(build)
 	}
 	jobConfiguration.packageExcludePaths = excludePaths.unique().join('\n')
+
 	String pipelineName = 'RootJob'
-	jobConfiguration.with {
-		jobName = Paths.get(jobConfiguration.fullBranchFolder).resolve(pipelineName).toString()
-		jenkinsfilePath = 'Jenkinsfile'
-		packageIncludePaths = ''
-		packageFolder = Paths.get(jobConfiguration.repositoryName).resolve(pipelineName).toString()
-	}
+	jobConfiguration.jobName = Paths.get(jobConfiguration.fullBranchFolder).resolve(pipelineName).toString()
+	jobConfiguration.jenkinsfilePath = 'Jenkinsfile'
+	jobConfiguration.packageIncludePaths = ''
+	jobConfiguration.displayName = pipelineName
+	jobConfiguration.packageFolder = Paths.get(jobConfiguration.repositoryName).resolve(pipelineName).toString()
 	createMultibranchJob(jobConfiguration)
 }
 

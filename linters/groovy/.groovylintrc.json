@@ -10,6 +10,8 @@
 
     "dry.DuplicateStringLiteral": { "ignoreStrings": ",/,\n,Jenkinsfile" },
 
-    "unnecessary.UnnecessaryGetter": { "checkIsMethods": false }
+    "unnecessary.UnnecessaryGetter": { "checkIsMethods": false },
+
+    "UnnecessaryObjectReferences": { "enabled": false }
   }
 }
