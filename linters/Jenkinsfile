@@ -1,5 +1,6 @@
 defaultCiPipeline {
 	platform = ['ubuntu']
-	gitHubId = 'Symbol-Github-app'
+	ciBuildDockerfile = 'linter.Dockerfile'
+
 	packageId = 'linters'
 }

@@ -1,7 +1,9 @@
 defaultCiPipeline {
 	platform = ['ubuntu']
-	gitHubId = 'Symbol-Github-app'
+	ciBuildDockerfile = 'javascript.Dockerfile'
+
 	packageId = 'client-rest'
+
 	publisher = 'docker'
-	docker_image_name = 'symbolplatform/symbol-rest'
+	// dockerImageName = 'symbolplatform/symbol-rest'
 }

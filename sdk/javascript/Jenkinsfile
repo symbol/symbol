@@ -1,6 +1,8 @@
 defaultCiPipeline {
 	platform = ['ubuntu']
-	gitHubId = 'Symbol-Github-app'
+	ciBuildDockerfile = 'javascript.Dockerfile'
+
 	packageId = 'sdk-javascript'
+
 	publisher = 'npm'
 }

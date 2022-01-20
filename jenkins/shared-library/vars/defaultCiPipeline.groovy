@@ -27,7 +27,12 @@ void call(Closure body) {
 		}
 
 		agent {
-			label "${PLATFORM}-agent"
+			dockerfile {
+				label "${PLATFORM}-agent"
+
+				dir 'jenkins/docker'
+				filename "${params.ciBuildDockerfile}"
+			}
 		}
 
 		options {
@@ -36,7 +41,6 @@ void call(Closure body) {
 		}
 
 		environment {
-			GITHUB_CREDENTIALS_ID = "${params.gitHubId}"
 			DOCKERHUB_CREDENTIALS_ID = 'docker-hub-token-symbolserverbot'
 			NPM_CREDENTIALS_ID = 'NPM_TOKEN_ID'
 			PYTHON_CREDENTIALS_ID = 'PYPI_TOKEN_ID'
@@ -71,7 +75,8 @@ void call(Closure body) {
 						}
 						steps {
 							script {
-								gitCheckout(helper.resolveBranchName(env.MANUAL_GIT_BRANCH), env.GITHUB_CREDENTIALS_ID, env.GIT_URL)
+								sh "git checkout ${helper.resolveBranchName(env.MANUAL_GIT_BRANCH)}"
+								sh "git reset --hard origin/${helper.resolveBranchName(env.MANUAL_GIT_BRANCH)}"
 							}
 						}
 					}
