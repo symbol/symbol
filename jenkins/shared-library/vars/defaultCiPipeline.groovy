@@ -156,7 +156,7 @@ void call(Closure body) {
 						}
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
-								setupTests(env.TEST_EXAMPLES_SCRIPT_FILEPATH)
+								runTests(env.TEST_EXAMPLES_SCRIPT_FILEPATH)
 							}
 						}
 					}
@@ -168,7 +168,7 @@ void call(Closure body) {
 						}
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
-								setupTests(env.TEST_VECTORS_SCRIPT_FILEPATH)
+								runTests(env.TEST_VECTORS_SCRIPT_FILEPATH)
 							}
 						}
 					}
