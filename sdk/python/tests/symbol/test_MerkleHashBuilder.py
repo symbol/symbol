@@ -3,7 +3,7 @@ import unittest
 from symbolchain.CryptoTypes import Hash256
 from symbolchain.symbol.MerkleHashBuilder import MerkleHashBuilder
 
-from ..test.NemTestUtils import NemTestUtils
+from ..test.TestUtils import TestUtils
 
 
 class MerkleHashBuilderTest(unittest.TestCase):
@@ -16,7 +16,7 @@ class MerkleHashBuilderTest(unittest.TestCase):
 
 	def test_can_build_from_one_hash(self):
 		# Arrange:
-		seed_hash = NemTestUtils.randcryptotype(Hash256)
+		seed_hash = TestUtils.random_byte_array(Hash256)
 
 		# Act:
 		merkle_hash = self._calculate_merkle_hash([seed_hash])
@@ -55,7 +55,7 @@ class MerkleHashBuilderTest(unittest.TestCase):
 
 	def test_changing_sub_hash_order_changes_merkle_hash(self):
 		# Arrange:
-		seed_hashes1 = [NemTestUtils.randcryptotype(Hash256) for _ in range(0, 8)]
+		seed_hashes1 = [TestUtils.random_byte_array(Hash256) for _ in range(0, 8)]
 		seed_hashes2 = [seed_hashes1[i] for i in [0, 1, 2, 5, 4, 3, 6, 7]]
 
 		# Sanity:
@@ -70,8 +70,8 @@ class MerkleHashBuilderTest(unittest.TestCase):
 
 	def test_changing_sub_hash_changes_merkle_hash(self):
 		# Arrange:
-		seed_hashes1 = [NemTestUtils.randcryptotype(Hash256) for _ in range(0, 8)]
-		seed_hashes2 = [seed_hashes1[i] if 0 <= i else NemTestUtils.randcryptotype(Hash256) for i in [0, 1, 2, 3, -1, 5, 6, 7]]
+		seed_hashes1 = [TestUtils.random_byte_array(Hash256) for _ in range(0, 8)]
+		seed_hashes2 = [seed_hashes1[i] if 0 <= i else TestUtils.random_byte_array(Hash256) for i in [0, 1, 2, 3, -1, 5, 6, 7]]
 
 		# Sanity:
 		self.assertEqual(len(seed_hashes1), len(seed_hashes2))

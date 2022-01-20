@@ -12,9 +12,9 @@ from symbolchain.nem.Network import Address, Network
 from symbolchain.nem.TransactionFactory import TransactionFactory
 
 from ..test.BasicTransactionFactoryTest import BasicTransactionFactoryTest
-from ..test.NemTestUtils import NemTestUtils
+from ..test.TestUtils import TestUtils
 
-TEST_SIGNER_PUBLIC_KEY = NemTestUtils.randcryptotype(PublicKey)
+TEST_SIGNER_PUBLIC_KEY = TestUtils.random_byte_array(PublicKey)
 
 
 class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
@@ -97,16 +97,16 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 	def test_to_non_verifiable_skips_signature(self):
 		# Arrange:
 		factory = self.create_factory()
-		signature = NemTestUtils.randcryptotype(Signature)
+		signature = TestUtils.random_byte_array(Signature)
 
 		transaction = self.create_transaction(factory)({
 			'type': 'transfer_transaction_v1',
 			'timestamp': randint(0, (1 << (8 * Timestamp.SIZE)) - 1),
-			'signer_public_key': NemTestUtils.randcryptotype(PublicKey),
+			'signer_public_key': TestUtils.random_byte_array(PublicKey),
 			'signature': signature,
 			'fee': randint(0, (1 << (8 * Amount.SIZE)) - 1),
 			'deadline': randint(0, (1 << (8 * Timestamp.SIZE)) - 1),
-			'recipient_address': NemTestUtils.randcryptotype(Address),
+			'recipient_address': TestUtils.random_byte_array(Address),
 			'amount': randint(0, (1 << (8 * Amount.SIZE)) - 1),
 			'message': {
 				'message_type': 'plain',

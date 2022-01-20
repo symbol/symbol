@@ -4,7 +4,7 @@ from binascii import hexlify
 from symbolchain.ByteArray import ByteArray
 
 from .test.ComparisonTestUtils import ComparisonTestDescriptor, ComparisonTestUtils, EqualityTestDescriptor
-from .test.NemTestUtils import NemTestUtils
+from .test.TestUtils import TestUtils
 
 FIXED_SIZE = 24
 TEST_BYTES = bytes([
@@ -28,7 +28,7 @@ class FakeByteArray:
 
 
 def random_hex_string(size):
-	return hexlify(NemTestUtils.randbytes(size)).decode('utf8')
+	return hexlify(TestUtils.randbytes(size)).decode('utf8')
 
 
 class ByteArrayTest(ComparisonTestUtils, unittest.TestCase):
@@ -48,7 +48,7 @@ class ByteArrayTest(ComparisonTestUtils, unittest.TestCase):
 	def test_cannot_create_byte_array_with_incorrect_number_of_bytes(self):
 		for size in [0, FIXED_SIZE - 1, FIXED_SIZE + 1]:
 			with self.assertRaises(ValueError):
-				ByteArray(FIXED_SIZE, NemTestUtils.randbytes(size))
+				ByteArray(FIXED_SIZE, TestUtils.randbytes(size))
 
 	def test_can_create_byte_array_with_correct_number_of_hex_characters(self):
 		# Act:
@@ -72,7 +72,7 @@ class ByteArrayTest(ComparisonTestUtils, unittest.TestCase):
 		)
 
 		# Act + Assert:
-		descriptor.random = lambda: NemTestUtils.randbytes(FIXED_SIZE)
+		descriptor.random = lambda: TestUtils.randbytes(FIXED_SIZE)
 		self.equality_is_supported(descriptor, TEST_BYTES)
 		self.inequality_is_supported(descriptor, TEST_BYTES)
 
@@ -100,7 +100,7 @@ class ByteArrayTest(ComparisonTestUtils, unittest.TestCase):
 		self.assertEqual(byte_array_hash, hash(ByteArray(FIXED_SIZE, TEST_BYTES)))
 		self.assertEqual(byte_array_hash, hash(ByteArray(FIXED_SIZE, TEST_HEX)))
 
-		self.assertNotEqual(byte_array_hash, hash(ByteArray(FIXED_SIZE, NemTestUtils.randbytes(FIXED_SIZE))))
+		self.assertNotEqual(byte_array_hash, hash(ByteArray(FIXED_SIZE, TestUtils.randbytes(FIXED_SIZE))))
 		self.assertNotEqual(byte_array_hash, hash(ByteArray(FIXED_SIZE, random_hex_string(FIXED_SIZE))))
 		self.assertNotEqual(byte_array_hash, None)
 

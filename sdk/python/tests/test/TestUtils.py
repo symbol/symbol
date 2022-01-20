@@ -1,8 +1,8 @@
 import random
 
 
-class NemTestUtils:
-	"""NEM common test utilities."""
+class TestUtils:
+	"""Common test utilities."""
 
 	@staticmethod
 	def randbytes(count):
@@ -14,6 +14,6 @@ class NemTestUtils:
 		return bytes([random.randint(0x00, 0xFF) for _ in range(0, count)])
 
 	@staticmethod
-	def randcryptotype(crypto_type_class):
-		"""Generates a random crypto type."""
-		return crypto_type_class(NemTestUtils.randbytes(crypto_type_class.SIZE))
+	def random_byte_array(vector_type_class):
+		"""Generates a random vector."""
+		return vector_type_class(TestUtils.randbytes(vector_type_class.SIZE))

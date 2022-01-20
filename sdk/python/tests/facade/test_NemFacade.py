@@ -5,7 +5,7 @@ from symbolchain.Bip32 import Bip32
 from symbolchain.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.facade.NemFacade import NemFacade
 
-from ..test.NemTestUtils import NemTestUtils
+from ..test.TestUtils import TestUtils
 
 YAML_INPUT = '''
 - public_key: A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74
@@ -36,7 +36,7 @@ class NemFacadeTest(unittest.TestCase):
 		# Arrange:
 		private_key = PrivateKey.random()
 		key_pair = NemFacade.KeyPair(private_key)
-		message = NemTestUtils.randbytes(21)
+		message = TestUtils.randbytes(21)
 
 		# Act:
 		signature = key_pair.sign(message)

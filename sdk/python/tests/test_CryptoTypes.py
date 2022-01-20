@@ -2,7 +2,7 @@ import unittest
 
 from symbolchain.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 
-from .test.NemTestUtils import NemTestUtils
+from .test.TestUtils import TestUtils
 
 
 class CryptoTypesTest(unittest.TestCase):
@@ -47,7 +47,7 @@ class CryptoTypesTest(unittest.TestCase):
 
 	def test_can_create_public_key_from_existing_public_key(self):
 		# Arrange:
-		raw_bytes = NemTestUtils.randbytes(32)
+		raw_bytes = TestUtils.randbytes(32)
 
 		# Act:
 		byte_array = PublicKey(PublicKey(raw_bytes))
@@ -72,7 +72,7 @@ class CryptoTypesTest(unittest.TestCase):
 
 	def test_equality_is_only_possible_for_same_types(self):
 		# Arrange:
-		raw_bytes = NemTestUtils.randbytes(32)
+		raw_bytes = TestUtils.randbytes(32)
 
 		# Act + Assert:
 		self.assertEqual(Hash256(raw_bytes), Hash256(raw_bytes))
@@ -89,7 +89,7 @@ class CryptoTypesTest(unittest.TestCase):
 
 	def _assert_can_create_byte_array_with_correct_number_of_bytes(self, byte_array_class, size):
 		# Arrange:
-		raw_bytes = NemTestUtils.randbytes(size)
+		raw_bytes = TestUtils.randbytes(size)
 
 		# Act:
 		byte_array = byte_array_class(raw_bytes)
@@ -100,7 +100,7 @@ class CryptoTypesTest(unittest.TestCase):
 	def _assert_cannot_create_byte_array_with_incorrect_number_of_bytes(self, byte_array_class, required_size):
 		for size in [0, required_size - 1, required_size + 1]:
 			with self.assertRaises(ValueError):
-				byte_array_class(NemTestUtils.randbytes(size))
+				byte_array_class(TestUtils.randbytes(size))
 
 	def _assert_can_create_zeroed_byte_array(self, byte_array_class, size):
 		# Act:

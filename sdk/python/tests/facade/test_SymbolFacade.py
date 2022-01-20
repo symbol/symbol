@@ -6,7 +6,7 @@ from symbolchain.Bip32 import Bip32
 from symbolchain.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.facade.SymbolFacade import SymbolFacade
 
-from ..test.NemTestUtils import NemTestUtils
+from ..test.TestUtils import TestUtils
 
 YAML_INPUT = '''
 - public_key: 87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8
@@ -37,7 +37,7 @@ class SymbolFacadeTest(unittest.TestCase):
 		# Arrange:
 		private_key = PrivateKey.random()
 		key_pair = SymbolFacade.KeyPair(private_key)
-		message = NemTestUtils.randbytes(21)
+		message = TestUtils.randbytes(21)
 
 		# Act:
 		signature = key_pair.sign(message)
@@ -55,7 +55,7 @@ class SymbolFacadeTest(unittest.TestCase):
 		facade = SymbolFacade('testnet')
 		transaction = facade.transaction_factory.create({
 			'type': 'transfer_transaction',
-			'signer_public_key': NemTestUtils.randcryptotype(PublicKey)
+			'signer_public_key': TestUtils.random_byte_array(PublicKey)
 		})
 
 		# Assert:

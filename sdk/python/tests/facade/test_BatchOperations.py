@@ -10,7 +10,7 @@ from symbolchain.nem.Network import Address
 from symbolchain.PrivateKeyStorage import PrivateKeyStorage
 from symbolchain.QrSignatureStorage import QrSignatureStorage
 
-from ..test.NemTestUtils import NemTestUtils
+from ..test.TestUtils import TestUtils
 
 # NemFacade is used in tests, so constants are using nem formats
 
@@ -144,12 +144,12 @@ class BatchOperationsTest(unittest.TestCase):
 
 			# overrwrite second qrcode with the intention to corrupt it
 			if corrupt_hash:
-				transaction_hash = NemTestUtils.randcryptotype(Hash256)
+				transaction_hash = TestUtils.random_byte_array(Hash256)
 			else:
 				transaction_hash = operations.facade.hash_transaction(transactions[1])
 
 			if corrupt_signature:
-				signature = NemTestUtils.randcryptotype(Signature)
+				signature = TestUtils.random_byte_array(Signature)
 			else:
 				# note: wrapping is needed due to different PublicKey types, facade requires sdk type
 				signer_public_key = PublicKey(transactions[1].signer_public_key.bytes)

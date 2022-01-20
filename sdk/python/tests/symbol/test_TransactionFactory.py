@@ -8,10 +8,10 @@ from symbolchain.symbol.Network import Address, Network
 from symbolchain.symbol.TransactionFactory import TransactionFactory
 
 from ..test.BasicTransactionFactoryTest import BasicTransactionFactoryTest
-from ..test.NemTestUtils import NemTestUtils
+from ..test.TestUtils import TestUtils
 
 FOO_NETWORK = Network('foo', 0x54)
-TEST_SIGNER_PUBLIC_KEY = NemTestUtils.randcryptotype(PublicKey)
+TEST_SIGNER_PUBLIC_KEY = TestUtils.random_byte_array(PublicKey)
 
 
 class SymbolTransactionFactoryTest(BasicTransactionFactoryTest):

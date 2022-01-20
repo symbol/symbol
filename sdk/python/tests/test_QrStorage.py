@@ -6,13 +6,13 @@ import qrcode
 
 from symbolchain.QrStorage import QrStorage
 
-from .test.NemTestUtils import NemTestUtils
+from .test.TestUtils import TestUtils
 
 MAX_DATA_BYTES = 1155
 
 
 def write_random_qrcode(directory, name, data_size):
-	QrStorage(directory).save(name, NemTestUtils.randbytes(data_size))
+	QrStorage(directory).save(name, TestUtils.randbytes(data_size))
 
 
 class QrStorageTest(unittest.TestCase):
@@ -23,7 +23,7 @@ class QrStorageTest(unittest.TestCase):
 		with tempfile.TemporaryDirectory() as temp_directory:
 			storage = QrStorage(temp_directory)
 
-			buffer = NemTestUtils.randbytes(data_size)
+			buffer = TestUtils.randbytes(data_size)
 
 			# Act:
 			storage.save('foo', buffer)
@@ -46,7 +46,7 @@ class QrStorageTest(unittest.TestCase):
 		with tempfile.TemporaryDirectory() as temp_directory:
 			storage = QrStorage(temp_directory)
 
-			buffer = NemTestUtils.randbytes(MAX_DATA_BYTES + 1)
+			buffer = TestUtils.randbytes(MAX_DATA_BYTES + 1)
 
 			# Act + Assert:
 			with self.assertRaises(qrcode.exceptions.DataOverflowError):
@@ -61,7 +61,7 @@ class QrStorageTest(unittest.TestCase):
 		with tempfile.TemporaryDirectory() as temp_directory:
 			storage = QrStorage(temp_directory)
 
-			buffer = NemTestUtils.randbytes(data_size)
+			buffer = TestUtils.randbytes(data_size)
 			storage.save('foo', buffer)
 
 			# Act:
@@ -81,7 +81,7 @@ class QrStorageTest(unittest.TestCase):
 		with tempfile.TemporaryDirectory() as temp_directory:
 			storage = QrStorage(temp_directory)
 
-			buffer = NemTestUtils.randbytes(100)
+			buffer = TestUtils.randbytes(100)
 			storage.save('foo', buffer)
 
 			# Sanity:

@@ -9,7 +9,7 @@ from symbolchain.symbol.IdGenerator import (
 )
 from symbolchain.symbol.Network import Address
 
-from ..test.NemTestUtils import NemTestUtils
+from ..test.TestUtils import TestUtils
 
 TEST_VECTORS = {
 	'uppercase': ['CAT.token', 'CAT.TOKEN', 'cat.TOKEN', 'cAt.ToKeN', 'CaT.tOkEn'],
@@ -32,8 +32,8 @@ class IdGeneratorTest(unittest.TestCase):
 
 	def test_generate_mosaic_id_different_addresses_produce_different_ids(self):
 		# Arrange:
-		address1 = Address(NemTestUtils.randcryptotype(Address))
-		address2 = Address(NemTestUtils.randcryptotype(Address))
+		address1 = Address(TestUtils.random_byte_array(Address))
+		address2 = Address(TestUtils.random_byte_array(Address))
 
 		# Act:
 		mosaic_id1 = generate_mosaic_id(address1, 812613930)
@@ -44,7 +44,7 @@ class IdGeneratorTest(unittest.TestCase):
 
 	def test_generate_mosaic_id_different_nonces_produce_different_ids(self):
 		# Arrange:
-		address = Address(NemTestUtils.randcryptotype(Address))
+		address = Address(TestUtils.random_byte_array(Address))
 
 		# Act:
 		mosaic_id1 = generate_mosaic_id(address, 812613930)
@@ -56,7 +56,7 @@ class IdGeneratorTest(unittest.TestCase):
 	def test_generate_mosaic_id_has_high_bit_cleared(self):
 		# Arrange:
 		for _ in range(0, 1000):
-			address = Address(NemTestUtils.randcryptotype(Address))
+			address = Address(TestUtils.random_byte_array(Address))
 
 			# Act:
 			mosaic_id = generate_mosaic_id(address, 812613930)

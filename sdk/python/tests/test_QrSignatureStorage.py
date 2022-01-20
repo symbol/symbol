@@ -4,13 +4,13 @@ import unittest
 from symbolchain.CryptoTypes import Hash256, Signature
 from symbolchain.QrSignatureStorage import QrSignatureStorage
 
-from .test.NemTestUtils import NemTestUtils
+from .test.TestUtils import TestUtils
 
 
 def write_random_qrcode(directory, name, data_size):
 	# abuse transaction_hash by changing its underlying bytes
-	transaction_hash = NemTestUtils.randcryptotype(Hash256)
-	transaction_hash.bytes = NemTestUtils.randbytes(data_size)
+	transaction_hash = TestUtils.random_byte_array(Hash256)
+	transaction_hash.bytes = TestUtils.randbytes(data_size)
 	QrSignatureStorage(directory).save(name, transaction_hash, [])
 
 
@@ -20,8 +20,8 @@ class QrSignatureStorageTest(unittest.TestCase):
 		with tempfile.TemporaryDirectory() as temp_directory:
 			storage = QrSignatureStorage(temp_directory)
 
-			transaction_hash = NemTestUtils.randcryptotype(Hash256)
-			signatures = [NemTestUtils.randcryptotype(Signature) for _ in range(0, num_signatures)]
+			transaction_hash = TestUtils.random_byte_array(Hash256)
+			signatures = [TestUtils.random_byte_array(Signature) for _ in range(0, num_signatures)]
 			storage.save('foo', transaction_hash, signatures)
 
 			# Act:

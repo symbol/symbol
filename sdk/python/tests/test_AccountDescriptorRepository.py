@@ -7,7 +7,7 @@ from symbolchain.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.ByteArray import ByteArray
 from symbolchain.CryptoTypes import PublicKey
 
-from .test.NemTestUtils import NemTestUtils
+from .test.TestUtils import TestUtils
 
 ENCODED_ADDRESS_1 = 'TALIC33PNVKIMNXVOCOQGWLZK52K4XALZBNE2ISF'
 ENCODED_ADDRESS_2 = 'TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C'
@@ -108,7 +108,7 @@ class AccountDescriptorRepositoryTest(unittest.TestCase):
 
 		# Act + Assert:
 		with self.assertRaises(StopIteration):
-			repository.find_by_public_key(NemTestUtils.randcryptotype(PublicKey))
+			repository.find_by_public_key(TestUtils.random_byte_array(PublicKey))
 
 	def test_can_find_by_public_key_when_match(self):
 		# Arrange:
@@ -128,7 +128,7 @@ class AccountDescriptorRepositoryTest(unittest.TestCase):
 
 		# Act + Assert:
 		with self.assertRaises(StopIteration):
-			encoded_address = base64.b32encode(NemTestUtils.randbytes(MockAddress.SIZE)).decode('utf8')
+			encoded_address = base64.b32encode(TestUtils.randbytes(MockAddress.SIZE)).decode('utf8')
 			repository.find_by_address(converter(encoded_address))
 
 	def _assert_can_find_by_address_when_match(self, converter):

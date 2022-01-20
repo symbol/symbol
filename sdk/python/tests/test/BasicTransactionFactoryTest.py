@@ -2,9 +2,9 @@ from abc import abstractmethod
 
 from symbolchain.CryptoTypes import PublicKey, Signature
 
-from .NemTestUtils import NemTestUtils
+from .TestUtils import TestUtils
 
-TEST_SIGNER_PUBLIC_KEY = NemTestUtils.randcryptotype(PublicKey)
+TEST_SIGNER_PUBLIC_KEY = TestUtils.random_byte_array(PublicKey)
 
 
 class BasicTransactionFactoryTest:
@@ -66,7 +66,7 @@ class BasicTransactionFactoryTest:
 			'type': 'transfer_transaction',
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY
 		})
-		signature = NemTestUtils.randcryptotype(Signature)
+		signature = TestUtils.random_byte_array(Signature)
 
 		if not self.supports_signature_test:
 			return
