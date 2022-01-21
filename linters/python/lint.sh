@@ -14,3 +14,5 @@ find . -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m pylint \
 	--rcfile "$(git rev-parse --show-toplevel)/linters/python/.pylintrc" \
 	--disable "consider-using-f-string" \
 	--load-plugins pylint_quotes
+
+"$(git rev-parse --show-toplevel)/linters/scripts/find_space_indents.sh"
