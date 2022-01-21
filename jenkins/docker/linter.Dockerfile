@@ -14,8 +14,9 @@ RUN apt-get install -y default-jre \
 # install shellcheck and python
 RUN apt-get install -y shellcheck python3-pip
 
-# install ripgrep
-RUN apt-get install -y ripgrep
+# install ripgrep and yamllint
+RUN apt-get install -y ripgrep \
+	&& pip install yamllint
 
 # add ubuntu user (used by jenkins)
 RUN useradd --uid 1000 -ms /bin/bash ubuntu

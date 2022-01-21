@@ -34,8 +34,8 @@ services:
         --verbosity {{VERBOSITY}}
     volumes:
       - ./catapult-data:/catapult-data
-      - {{CATAPULT_SRC}}:/catapult-src
-      - {{SCRIPT_PATH}}:/scripts
+      - '{{CATAPULT_SRC}}:/catapult-src'
+      - '{{SCRIPT_PATH}}:/scripts'
     depends_on:
       - db
 
@@ -46,5 +46,5 @@ networks:
     ipam:
       driver: default
       config:
-       - subnet: 2001:3200:{{NETWORK_IP}}::/64
-         gateway: 2001:3200:{{NETWORK_IP}}::1
+        - subnet: 2001:3200:{{NETWORK_IP}}::/64
+          gateway: 2001:3200:{{NETWORK_IP}}::1

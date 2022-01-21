@@ -11,5 +11,5 @@ services:
       - LD_LIBRARY_PATH=/usr/catapult/lib:/usr/catapult/deps
     volumes:
       - ./catapult-data:/catapult-data
-      - {{CATAPULT_SRC}}:/catapult-src
-      - {{SCRIPT_PATH}}:/scripts
+      - '{{CATAPULT_SRC}}:/catapult-src'
+      - '{{SCRIPT_PATH}}:/scripts'

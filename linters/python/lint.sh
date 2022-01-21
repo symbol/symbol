@@ -16,3 +16,4 @@ find . -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m pylint \
 	--load-plugins pylint_quotes
 
 "$(git rev-parse --show-toplevel)/linters/scripts/find_space_indents.sh"
+"$(git rev-parse --show-toplevel)/linters/scripts/run_yamllint.sh"
