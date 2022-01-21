@@ -1,6 +1,3 @@
-from .type_objects import StructObject
-
-
 class AbstractImplMap:
 	"""
 	This container is used to create map of all objects implementing some base objects.
@@ -11,11 +8,11 @@ class AbstractImplMap:
 	def __init__(self):
 		self.mapping = {}
 
-	def add(self, parent_type: StructObject, child_type: StructObject):
-		struct_typename = parent_type.ast_model.name
+	def add(self, parent_model, child_type):
+		struct_typename = parent_model.name
 		if struct_typename not in self.mapping:
-			discriminator_names = parent_type.ast_model.discriminator
-			initializers = parent_type.ast_model.initializers
+			discriminator_names = parent_model.discriminator
+			initializers = parent_model.initializers
 
 			# need loop to maintain proper order
 			discriminator_values = []

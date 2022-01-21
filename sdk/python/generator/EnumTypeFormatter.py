@@ -3,17 +3,17 @@ from .printers import IntPrinter
 
 
 class EnumTypeFormatter(AbstractTypeFormatter):
-	def __init__(self, type_instance):
+	def __init__(self, ast_model):
 		super().__init__()
 
-		self.enum_type = type_instance
-		self.base_type = 'Flag' if type_instance.ast_model.is_bitwise else 'Enum'
+		self.enum_type = ast_model
+		self.base_type = 'Flag' if self.enum_type.is_bitwise else 'Enum'
 
 		self.int_printer = IntPrinter(self.enum_type)
 
 	@property
 	def typename(self):
-		return self.enum_type.ast_model.name
+		return self.enum_type.name
 
 	def get_base_class(self):
 		return f'({self.base_type})'
@@ -22,7 +22,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return list(
 			map(
 				lambda e: f'{e.name} = {e.value}\n',
-				self.enum_type.ast_model.values,
+				self.enum_type.values,
 			)
 		)
 
@@ -42,7 +42,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body)
 
 	def get_size_descriptor(self):
-		body = f'return {self.enum_type.ast_model.size}\n'
+		body = f'return {self.enum_type.size}\n'
 		return MethodDescriptor(body=body)
 
 	@staticmethod

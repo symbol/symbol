@@ -10,122 +10,93 @@ from .FactoryFormatter import FactoryClassFormatter, FactoryFormatter
 from .PodTypeFormatter import PodTypeFormatter
 from .printers import BuiltinPrinter, create_pod_printer
 from .StructTypeFormatter import StructFormatter
-from .type_objects import BaseObject, StructObject
 from .TypeFormatter import TypeFormatter
 
 
-class Field:
-	def __init__(self, ast_model, type_instance, printer):
-		self.ast_model = ast_model
-		self.type_ast_model = type_instance.ast_model
-
+class AstExtensions:
+	def __init__(self, type_model, printer):
+		self.type_model = type_model
 		self.printer = printer
+
+		self.is_contents_abstract = False
 		self.bound_field = None
 		self.size_fields = []
 
-	def get_printer(self):
-		return self.printer
 
-	def set_bound_field(self, other_field):
-		self.bound_field = other_field
-
-	def is_bound(self):
-		return self.bound_field is not None
-
-	def add_sizeof_field(self, other_field):
-		self.size_fields.append(other_field)
-
-
-def to_type_formatter_instance(type_instance):
+def to_type_formatter_instance(ast_model):
 	type_formatter_class = {
 		DisplayType.STRUCT: StructFormatter,
 		DisplayType.ENUM: EnumTypeFormatter,
 		DisplayType.BYTE_ARRAY: PodTypeFormatter,
 		DisplayType.INTEGER: PodTypeFormatter
-	}[type_instance.ast_model.display_type]
-
-	return type_formatter_class(type_instance)
-
-
-def to_virtual_type_instance(ast_model):
-	object_class = {
-		DisplayType.STRUCT: StructObject,
-		DisplayType.ENUM: BaseObject,
-		DisplayType.BYTE_ARRAY: BaseObject,
-		DisplayType.INTEGER: BaseObject
 	}[ast_model.display_type]
 
-	return object_class(ast_model)
+	return type_formatter_class(ast_model)
 
 
-def process_concrete_struct(type_map, struct_type, abstract_impl_map):
-	factory_type = type_map[struct_type.ast_model.factory_type]
+def process_concrete_struct(type_map, struct_model, abstract_impl_map):
+	factory_type = type_map[struct_model.factory_type]
 
 	discriminators = [] if not hasattr(factory_type, 'discriminator') else factory_type.discriminator
 	for i, discriminator in enumerate(discriminators):
 		discriminators[i] = discriminator
 
-	abstract_impl_map.add(factory_type, struct_type)
+	abstract_impl_map.add(factory_type, struct_model)
 
 
-def bind_size_fields(struct_type):
+def find_field_by_name(struct_model, field_name):
+	return next(field_model for field_model in struct_model.fields if field_name == field_model.name)
+
+
+def bind_size_fields(struct_model):
 	# go through structs and bind size fields to arrays
-	for field in struct_type.layout:
-		if field.ast_model.display_type.is_array and isinstance(field.ast_model.size, str):
-			size_field_name = field.ast_model.size
-			size_field = struct_type.get_field_by_name(size_field_name)
-			size_field.set_bound_field(field)
+	for field_model in struct_model.fields:
+		if field_model.display_type.is_array and isinstance(field_model.size, str):
+			size_field_name = field_model.size
+			size_field_model = find_field_by_name(struct_model, size_field_name)
+			size_field_model.extensions.bound_field = field_model
 
-		if field.ast_model.is_size_reference:
-			struct_field = struct_type.get_field_by_name(field.ast_model.value)
-			field.set_bound_field(struct_field)
+		if field_model.is_size_reference:
+			struct_field_model = find_field_by_name(struct_model, field_model.value)
+			field_model.extensions.bound_field = struct_field_model
+			struct_field_model.extensions.size_fields.append(field_model)
 
-			struct_field.add_sizeof_field(field)
 
+def process_struct(type_map, struct_model, abstract_impl_map):
+	if struct_model.factory_type:
+		process_concrete_struct(type_map, struct_model, abstract_impl_map)
 
-def process_struct(type_map, struct_type: StructObject, abstract_impl_map: AbstractImplMap):
-	if struct_type.ast_model.factory_type:
-		process_concrete_struct(type_map, struct_type, abstract_impl_map)
-
-	for field_ast_model in struct_type.ast_model.fields:
-		type_instance = type_map.get(field_ast_model.field_type, None)
+	for field_model in struct_model.fields:
+		type_model = type_map.get(field_model.field_type, None)
 
 		create_printer = create_pod_printer
-		if DisplayType.TYPED_ARRAY == field_ast_model.display_type:
-			element_type = type_map.get(field_ast_model.field_type.element_type, None)
-			if not element_type:
-				element_type = to_virtual_type_instance(field_ast_model.field_type.element_type)
+		is_contents_abstract = False
+		if DisplayType.TYPED_ARRAY == field_model.display_type:
+			element_type_model = type_map.get(field_model.field_type.element_type, None)
+			is_contents_abstract = DisplayType.STRUCT == element_type_model.display_type and element_type_model.is_abstract
 
-			type_instance = BaseObject(field_ast_model)
-			type_instance.is_contents_abstract = (
-				DisplayType.STRUCT == element_type.ast_model.display_type and element_type.ast_model.is_abstract
-			)
-		elif not type_instance:
-			type_instance = to_virtual_type_instance(field_ast_model)
+			type_model = field_model
+		elif not type_model:
+			type_model = field_model
 		else:
 			create_printer = BuiltinPrinter
 
-		field_printer = create_printer(type_instance, field_ast_model.name)
-		struct_type.add_field(Field(field_ast_model, type_instance, field_printer))
+		field_printer = create_printer(type_model, field_model.name)
+		field_model.extensions = AstExtensions(type_model, field_printer)
+		field_model.extensions.is_contents_abstract = is_contents_abstract
 
-	bind_size_fields(struct_type)
+	bind_size_fields(struct_model)
 
 
 def generate_files(ast_models, output_directory: Path):
 	# build map of types
-	type_map = {}
-	abstract_impl_map = AbstractImplMap()
-
-	types = []
-	for ast_model in ast_models:
-		instance = to_virtual_type_instance(ast_model)
-		types.append(instance)
-		type_map[ast_model.name] = instance
+	type_map = {ast_model.name: ast_model for ast_model in ast_models}
 
 	# process struct fields
-	for type_instance in types:
-		if DisplayType.STRUCT == type_instance.ast_model.display_type:
-			process_struct(type_map, type_instance, abstract_impl_map)
+	abstract_impl_map = AbstractImplMap()
+	for ast_model in ast_models:
+		if DisplayType.STRUCT == ast_model.display_type:
+			process_struct(type_map, ast_model, abstract_impl_map)
 
 	output_directory.mkdir(exist_ok=True)
 
@@ -150,15 +121,15 @@ StrBytes = TypeVar('StrBytes', str, bytes)
 
 '''
 		)
-		for type_instance in types:
-			generator = TypeFormatter(to_type_formatter_instance(type_instance))
+		for ast_model in ast_models:
+			generator = TypeFormatter(to_type_formatter_instance(ast_model))
 			output_file.write(str(generator))
 			output_file.write('\n\n')
 
 		factories = []
-		for type_instance in types:
-			if DisplayType.STRUCT == type_instance.ast_model.display_type and type_instance.ast_model.is_abstract:
-				factory_generator = FactoryClassFormatter(FactoryFormatter(abstract_impl_map, type_instance))
+		for ast_model in ast_models:
+			if DisplayType.STRUCT == ast_model.display_type and ast_model.is_abstract:
+				factory_generator = FactoryClassFormatter(FactoryFormatter(abstract_impl_map, ast_model))
 				factories.append(str(factory_generator))
 
 		output_file.write('\n\n'.join(factories))

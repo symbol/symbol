@@ -3,16 +3,16 @@ from .printers import create_pod_printer
 
 
 class PodTypeFormatter(AbstractTypeFormatter):
-	def __init__(self, type_instance):
+	def __init__(self, ast_model):
 		super().__init__()
 
 		# array or int
-		self.pod = type_instance
+		self.pod = ast_model
 		self.printer = create_pod_printer(self.pod)
 
 	@property
 	def typename(self):
-		return self.pod.ast_model.name
+		return self.pod.name
 
 	@property
 	def field_name(self):
@@ -20,10 +20,10 @@ class PodTypeFormatter(AbstractTypeFormatter):
 
 	@property
 	def _is_array(self):
-		return self.pod.ast_model.display_type.is_array
+		return self.pod.display_type.is_array
 
 	def get_fields(self):
-		return [f'SIZE = {self.pod.ast_model.size}']
+		return [f'SIZE = {self.pod.size}']
 
 	def get_base_class(self):
 		return '(ByteArray)' if self._is_array else '(BaseValue)'
@@ -50,7 +50,7 @@ class PodTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=f'return {self.printer.store("self.value")}')
 
 	def get_size_descriptor(self):
-		body = f'return {self.pod.ast_model.size}\n'
+		body = f'return {self.pod.size}\n'
 		return MethodDescriptor(body=body)
 
 	def get_getter_descriptors(self):
