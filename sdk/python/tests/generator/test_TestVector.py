@@ -19,7 +19,10 @@ def prepare_test_cases(network_name):
 	if not schemas_path.exists():
 		return cases
 
-	for filepath in schemas_path.glob('*.yml'):
+	for filepath in schemas_path.glob('*.yaml'):
+		if filepath.name.startswith('invalid'):
+			continue
+
 		cases += read_test_vectors_file(filepath)
 
 	return cases

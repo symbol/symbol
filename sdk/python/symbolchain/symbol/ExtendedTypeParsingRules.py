@@ -6,8 +6,7 @@ from .Network import Address
 def extend_type_parsing_rules(symbol_type_converter, base_type_parsing_rules=None):
 	builder = TypeParserBuilder('sc', symbol_type_converter, base_type_parsing_rules)
 
-	# note, some of those below could be automatically generated,
-	# but right now symbol.yml contains also state-related objects
+	# note, some of those below could be automatically generated
 	flag_parsers = {
 		name: builder.create_flags_parser(name) for name in ['MosaicFlags', 'AccountRestrictionFlags']
 	}

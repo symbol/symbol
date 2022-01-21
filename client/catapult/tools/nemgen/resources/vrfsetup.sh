@@ -1,8 +1,8 @@
 #!/bin/sh
 
 if [ $# -ne 3 ]; then
-    echo "Syntax: vrfsetup.sh bin-directory resources-directory destination-directory"
-    exit 1
+	echo "Syntax: vrfsetup.sh bin-directory resources-directory destination-directory"
+	exit 1
 fi
 
 binDirectory="$1"
@@ -10,7 +10,7 @@ resourcesDirectory="$2"
 outputDirectory="$3"
 
 function vrfsetup_generate_link() {
-    ${binDirectory}/catapult.tools.linker -r ${resourcesDirectory} -s $1 --linkedPublicKey $2 --output ${outputDirectory}/$3
+	${binDirectory}/catapult.tools.linker -r ${resourcesDirectory} -s $1 --linkedPublicKey $2 --output ${outputDirectory}/$3
 }
 
 vrfsetup_generate_link '934B1829665F7324362380E844CBEDA2C103AAEFD3A2C4645DC1715AC29E52E6' '6979A295EEE7DFD28BDB8CF8FE4E69B9ABF8DF1F48E64ABA38C64904404FA43C' 0001.dat

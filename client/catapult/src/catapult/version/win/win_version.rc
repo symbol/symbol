@@ -11,24 +11,24 @@ FILETYPE           VER_FILETYPE
 FILESUBTYPE        VFT2_UNKNOWN
 
 BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "040904E4"
-        BEGIN
-            VALUE "FileDescription",  VER_FILE_DESCRIPTION_STR "\0"
-            VALUE "FileVersion",      VER_FILE_VERSION_STR "\0"
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904E4"
+		BEGIN
+			VALUE "FileDescription",  VER_FILE_DESCRIPTION_STR "\0"
+			VALUE "FileVersion",      VER_FILE_VERSION_STR "\0"
 
-            VALUE "ProductName",      VER_PRODUCTNAME_STR
-            VALUE "ProductVersion",   VER_PRODUCT_VERSION_STR "\0"
+			VALUE "ProductName",      VER_PRODUCTNAME_STR
+			VALUE "ProductVersion",   VER_PRODUCT_VERSION_STR "\0"
 
-            VALUE "OriginalFilename", VER_ORIGINAL_FILENAME_STR "\0"
-            VALUE "InternalName",     VER_INTERNAL_NAME_STR "\0"
+			VALUE "OriginalFilename", VER_ORIGINAL_FILENAME_STR "\0"
+			VALUE "InternalName",     VER_INTERNAL_NAME_STR "\0"
 
-            VALUE "LegalCopyright",   VER_COPYRIGHT_STR "\0"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x409, 1200
-    END
+			VALUE "LegalCopyright",   VER_COPYRIGHT_STR "\0"
+		END
+	END
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x409, 1200
+	END
 END
