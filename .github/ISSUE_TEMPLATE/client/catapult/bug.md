@@ -19,21 +19,21 @@ assignees: Jaguar0625, gimre-xymcity, Wayonb, 0x6861746366574
 
 #### Description
 
-> A clear and concise description of *what* the bug or issue is. Try to include **actual** versus **expected** behaviour. 
+> A clear and concise description of *what* the bug or issue is. Try to include **actual** versus **expected** behaviour.
 
 #### Steps to Reproduce
 
-> Please provide detailed steps to reproduce this bug. 
+> Please provide detailed steps to reproduce this bug.
 > [1.] Go to '...'
 > [2.] Click on '...'
 > [3.] Scroll down to '....'
-> [4.] See error. 
+> [4.] See error.
 
 #### Logs
 
 > Please attach your logs as text - not as screenshots. You can upload them to [Pastebin](https://pastebin.com/) or as a [Gist](https://gist.github.com/).
 
-> *If using Bootstrap:* 
+> *If using Bootstrap:*
 > **Client** logfiles can be found in `target/nodes/nodes/logs`
 > **REST** logfiles can be found in `target/gateways/rest-gateway/logs`
 > **MongoDB** logfiles can be found in `docker logs db` > `mongodb.txt`
