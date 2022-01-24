@@ -2,13 +2,13 @@ const { BaseValue } = require('../src/BaseValue');
 const { expect } = require('chai');
 
 describe('BaseValue', () => {
-	const canCreateBaseValueFactory = isSigned => (value, size, expectedValue) => {
+	const canCreateBaseValueFactory = isSigned => (rawValue, size, expectedValue) => {
 		// Act:
-		const val = new BaseValue(size, value, isSigned);
+		const value = new BaseValue(size, rawValue, isSigned);
 
 		// Assert:
-		expect(val.size).to.equal(size);
-		expect(val.value).to.equal(expectedValue);
+		expect(value.size).to.equal(size);
+		expect(value.value).to.equal(expectedValue);
 	};
 
 	it('cannot create 64-bit value with invalid type', () => {
@@ -47,17 +47,17 @@ describe('BaseValue', () => {
 
 		// Assert:
 		// - 8-bit
-		[0, 0x24, 0xFF].forEach(value => canCreateUnsignedBaseValue(value, 1, value));
+		[0, 0x24, 0xFF].forEach(rawValue => canCreateUnsignedBaseValue(rawValue, 1, rawValue));
 
 		// - 16-bit
-		[0, 0x243F, 0xFFFF].forEach(value => canCreateUnsignedBaseValue(value, 2, value));
+		[0, 0x243F, 0xFFFF].forEach(rawValue => canCreateUnsignedBaseValue(rawValue, 2, rawValue));
 
 		// - 32-bit
-		[0, 0x243F_6A88, 0xFFFF_FFFF].forEach(value => canCreateUnsignedBaseValue(value, 4, value));
+		[0, 0x243F_6A88, 0xFFFF_FFFF].forEach(rawValue => canCreateUnsignedBaseValue(rawValue, 4, rawValue));
 
 		// - 64-bit
 		[0n, 0x243F_6A88_85A3_08D3n, 0xFFFF_FFFF_FFFF_FFFFn]
-			.forEach(value => canCreateUnsignedBaseValue(value, 8, value));
+			.forEach(rawValue => canCreateUnsignedBaseValue(rawValue, 8, rawValue));
 	});
 
 	it('cannot create signed with values outised range', () => {
@@ -80,16 +80,104 @@ describe('BaseValue', () => {
 
 		// Assert:
 		// - 8-bit
-		[-0x80, 0x24, 0x7F].forEach(value => canCreateSignedBaseValue(value, 1, value));
+		[-0x80, 0x24, 0x7F].forEach(rawValue => canCreateSignedBaseValue(rawValue, 1, rawValue));
 
 		// - 16-bit
-		[-0x8000, 0x243F, 0x7FFF].forEach(value => canCreateSignedBaseValue(value, 2, value));
+		[-0x8000, 0x243F, 0x7FFF].forEach(rawValue => canCreateSignedBaseValue(rawValue, 2, rawValue));
 
 		// - 32-bit
-		[-0x8000_0000, 0x243F_6A88, 0x7FFF_FFFF].forEach(value => canCreateSignedBaseValue(value, 4, value));
+		[-0x8000_0000, 0x243F_6A88, 0x7FFF_FFFF].forEach(rawValue => canCreateSignedBaseValue(rawValue, 4, rawValue));
 
 		// - 64-bit
 		[-0x8000_0000_0000_0000n, 0x243F_6A88_85A3_08D3n, 0x7FFF_FFFF_FFFF_FFFFn]
-			.forEach(value => canCreateSignedBaseValue(value, 8, value));
+			.forEach(rawValue => canCreateSignedBaseValue(rawValue, 8, rawValue));
+	});
+
+	const assertFormatting = (size, rawValues, expected, isSigned) => {
+		rawValues.forEach((rawValue, index) => {
+			// Arrange
+			const value = new BaseValue(size, rawValue, isSigned);
+
+			// Act:
+			const output = value.toString();
+
+			// Assert:
+			expect(output).to.equal(expected[index]);
+		});
+	};
+	const assertUnsignedFormatting = (size, rawValues, expected) => {
+		assertFormatting(size, rawValues, expected, false);
+	};
+
+	const assertSignedFormatting = (size, rawValues, expected) => {
+		assertFormatting(size, rawValues, expected, true);
+	};
+
+	it('toString of unsigned base values outputs fixed width hex', () => {
+		assertUnsignedFormatting(1, [0, 0x24, 0xFF], ['0x00', '0x24', '0xFF']);
+		assertUnsignedFormatting(2, [0, 0x24, 0x1234, 0xFFFF], ['0x0000', '0x0024', '0x1234', '0xFFFF']);
+		assertUnsignedFormatting(
+			4,
+			[0, 0x24, 0x1234, 0x12345678, 0xFFFFFFFF],
+			['0x00000000', '0x00000024', '0x00001234', '0x12345678', '0xFFFFFFFF']
+		);
+		assertUnsignedFormatting(
+			8,
+			[0n, 0x24n, 0x1234n, 0x12345678n, 0x12345678_90ABCDEFn, 0xFFFFFFFF_FFFFFFFFn],
+			[
+				'0x0000000000000000',
+				'0x0000000000000024',
+				'0x0000000000001234',
+				'0x0000000012345678',
+				'0x1234567890ABCDEF',
+				'0xFFFFFFFFFFFFFFFF'
+			]
+		);
+	});
+
+	it('toString of signed base values outputs fixed width hex', () => {
+		assertSignedFormatting(1, [0, 5, 127, -128, -5, -1], ['0x00', '0x05', '0x7F', '0x80', '0xFB', '0xFF']);
+		assertSignedFormatting(
+			2,
+			[0, 0x24, 0x1234, 0x7FFF, -0x8000, -5, -1],
+			[
+				'0x0000',
+				'0x0024',
+				'0x1234',
+				'0x7FFF',
+				'0x8000',
+				'0xFFFB',
+				'0xFFFF'
+			]
+		);
+		assertSignedFormatting(
+			4,
+			[0, 0x24, 0x1234, 0x12345678, 0x7FFF_FFFF, -0x8000_0000, -5, -1],
+			[
+				'0x00000000',
+				'0x00000024',
+				'0x00001234',
+				'0x12345678',
+				'0x7FFFFFFF',
+				'0x80000000',
+				'0xFFFFFFFB',
+				'0xFFFFFFFF'
+			]
+		);
+		assertSignedFormatting(
+			8,
+			[0n, 0x24n, 0x1234n, 0x12345678n, 0x12345678_90ABCDEFn, 0x7FFFFFFF_FFFFFFFFn, -0x80000000_00000000n, -5n, -1n],
+			[
+				'0x0000000000000000',
+				'0x0000000000000024',
+				'0x0000000000001234',
+				'0x0000000012345678',
+				'0x1234567890ABCDEF',
+				'0x7FFFFFFFFFFFFFFF',
+				'0x8000000000000000',
+				'0xFFFFFFFFFFFFFFFB',
+				'0xFFFFFFFFFFFFFFFF'
+			]
+		);
 	});
 });

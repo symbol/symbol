@@ -6,10 +6,11 @@ from ..DisplayType import DisplayType
 class FactoryDescriptor:
 	"""Factory descriptor including list of concrete types."""
 
-	def __init__(self, discriminator_names, discriminator_values):
+	def __init__(self, discriminator_names, discriminator_values, discriminator_types):
 		"""Creates a factory descriptor."""
 		self.discriminator_names = discriminator_names
 		self.discriminator_values = discriminator_values
+		self.discriminator_types = discriminator_types
 		self.children = []
 
 
@@ -27,8 +28,12 @@ def build_factory_map(ast_models):
 				next(initializer.value for initializer in ast_model.initializers if discriminator_name == initializer.target_property_name)
 				for discriminator_name in discriminator_names
 			]
+			discriminator_types = [
+				next(field.field_type for field in ast_model.fields if discriminator_name == field.name)
+				for discriminator_name in discriminator_names
+			]
 
-			factory_map[ast_model.factory_type] = FactoryDescriptor(discriminator_names, discriminator_values)
+			factory_map[ast_model.factory_type] = FactoryDescriptor(discriminator_names, discriminator_values, discriminator_types)
 
 		factory_map[ast_model.factory_type].children.append(ast_model)
 

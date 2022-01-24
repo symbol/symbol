@@ -14,6 +14,12 @@ class BuildFactoryMapTests(unittest.TestCase):
 			model = Struct([None, name])
 			model.attributes = factory_attributes
 			model.factory_type = factory_name
+			model.fields = [
+				StructField(['alpha', 'AlphaType']),
+				StructField(['beta', 'BetaType']),
+				StructField(['gamma', 'GammaType']),
+				StructField(['zeta', 'ZetaType'])
+			]
 			models.append(model)
 
 		return models
@@ -43,6 +49,7 @@ class BuildFactoryMapTests(unittest.TestCase):
 		descriptor = factory_map['Thing']
 		self.assertEqual(['alpha', 'beta'], descriptor.discriminator_names)
 		self.assertEqual(['ALPHAQ', 'BETAZ'], descriptor.discriminator_values)
+		self.assertEqual(['AlphaType', 'BetaType'], descriptor.discriminator_types)
 		self.assertEqual(['Bar'], [model.name for model in descriptor.children])
 
 	def test_non_structs_are_skipped(self):
@@ -72,6 +79,7 @@ class BuildFactoryMapTests(unittest.TestCase):
 		descriptor = factory_map['Thing']
 		self.assertEqual(['alpha', 'beta'], descriptor.discriminator_names)
 		self.assertEqual(['ALPHAQ', 'BETAZ'], descriptor.discriminator_values)
+		self.assertEqual(['AlphaType', 'BetaType'], descriptor.discriminator_types)
 		self.assertEqual(['Foo', 'Bar'], [model.name for model in descriptor.children])
 
 	def test_map_aggregates_all_structs_with_same_factory_type(self):
@@ -97,6 +105,7 @@ class BuildFactoryMapTests(unittest.TestCase):
 		descriptor = factory_map['Thing']
 		self.assertEqual(['beta', 'alpha'], descriptor.discriminator_names)
 		self.assertEqual(['BETAZ', 'ALPHAQ'], descriptor.discriminator_values)
+		self.assertEqual(['BetaType', 'AlphaType'], descriptor.discriminator_types)
 		self.assertEqual(['Foo', 'Bar'], [model.name for model in descriptor.children])
 
 	def test_map_can_contain_multiple_values(self):
@@ -122,11 +131,13 @@ class BuildFactoryMapTests(unittest.TestCase):
 		descriptor = factory_map['Thing']
 		self.assertEqual(['beta', 'alpha'], descriptor.discriminator_names)
 		self.assertEqual(['BETAZ', 'ALPHAQ'], descriptor.discriminator_values)
+		self.assertEqual(['BetaType', 'AlphaType'], descriptor.discriminator_types)
 		self.assertEqual(['Foo', 'Bar'], [model.name for model in descriptor.children])
 
 		descriptor = factory_map['Other']
 		self.assertEqual(['gamma', 'zeta'], descriptor.discriminator_names)
 		self.assertEqual(['GGG', 'ZZZ'], descriptor.discriminator_values)
+		self.assertEqual(['GammaType', 'ZetaType'], descriptor.discriminator_types)
 		self.assertEqual(['Cat', 'Robot', 'Lumberjack'], [model.name for model in descriptor.children])
 
 

@@ -182,8 +182,84 @@ describe('converter', () => {
 		addTryParseFailureTest('cannot parse arbitrary string', 'catapult');
 	});
 
+	const assertSigned = asserter => {
+		it('8-bit value', () => {
+			// Assert:
+			asserter([0x00], 1, 0);
+			asserter([0x7F], 1, 127);
+			asserter([0x80], 1, -128);
+			asserter([0x81], 1, -127);
+			asserter([0xFF], 1, -1);
+		});
+
+		it('16-bit value', () => {
+			// Assert:
+			asserter([0x00, 0x00], 2, 0);
+			asserter([0xFF, 0x7F], 2, 32767);
+			asserter([0x00, 0x80], 2, -32768);
+			asserter([0x01, 0x80], 2, -32767);
+			asserter([0xFF, 0xFF], 2, -1);
+		});
+
+		it('32-bit value', () => {
+			// Assert:
+			asserter([0x00, 0x00, 0x00, 0x00], 4, 0);
+			asserter([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
+			asserter([0x00, 0x00, 0x00, 0x80], 4, -2147483648);
+			asserter([0x01, 0x00, 0x00, 0x80], 4, -2147483647);
+			asserter([0xFF, 0xFF, 0xFF, 0xFF], 4, -1);
+		});
+
+		it('64-bit value', () => {
+			// Assert:
+			asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, 0n);
+			asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, 9223372036854775807n);
+			asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -9223372036854775808n);
+			asserter([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -9223372036854775807n);
+			asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, -1n);
+		});
+	};
+
+	const assertUnsigned = asserter => {
+		it('8-bit value', () => {
+			// Assert:
+			asserter([0x00], 1, 0);
+			asserter([0x7F], 1, 127);
+			asserter([0x80], 1, 128);
+			asserter([0x81], 1, 129);
+			asserter([0xFF], 1, 255);
+		});
+
+		it('16-bit value', () => {
+			// Assert:
+			asserter([0x00, 0x00], 2, 0);
+			asserter([0xFF, 0x7F], 2, 32767);
+			asserter([0x00, 0x80], 2, 32768);
+			asserter([0x01, 0x80], 2, 32769);
+			asserter([0xFF, 0xFF], 2, 65535);
+		});
+
+		it('32-bit value', () => {
+			// Assert:
+			asserter([0x00, 0x00, 0x00, 0x00], 4, 0);
+			asserter([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
+			asserter([0x00, 0x00, 0x00, 0x80], 4, 2147483648);
+			asserter([0x01, 0x00, 0x00, 0x80], 4, 2147483649);
+			asserter([0xFF, 0xFF, 0xFF, 0xFF], 4, 4294967295);
+		});
+
+		it('64-bit value', () => {
+			// Assert:
+			asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, BigInt(0n));
+			asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, BigInt(9223372036854775807n));
+			asserter([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt(9223372036854775808n));
+			asserter([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt(9223372036854775809n));
+			asserter([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, BigInt(18446744073709551615n));
+		});
+	};
+
 	describe('bytesToInt', () => {
-		const canConvertFactory = isSigned => (input, size, expectedValue) => {
+		const assertBytesToIntFactory = isSigned => (input, size, expectedValue) => {
 			// Act:
 			const actual = converter.bytesToInt(new Uint8Array(input), size, isSigned);
 
@@ -192,83 +268,28 @@ describe('converter', () => {
 		};
 
 		describe('can convert signed', () => {
-			const canConvertSigned = canConvertFactory(true);
-
-			it('8-bit value', () => {
-				// Assert:
-				canConvertSigned([0x00], 1, 0);
-				canConvertSigned([0x7F], 1, 127);
-				canConvertSigned([0x80], 1, -128);
-				canConvertSigned([0x81], 1, -127);
-				canConvertSigned([0xFF], 1, -1);
-			});
-
-			it('16-bit value', () => {
-				// Assert:
-				canConvertSigned([0x00, 0x00], 2, 0);
-				canConvertSigned([0xFF, 0x7F], 2, 32767);
-				canConvertSigned([0x00, 0x80], 2, -32768);
-				canConvertSigned([0x01, 0x80], 2, -32767);
-				canConvertSigned([0xFF, 0xFF], 2, -1);
-			});
-
-			it('32-bit value', () => {
-				// Assert:
-				canConvertSigned([0x00, 0x00, 0x00, 0x00], 4, 0);
-				canConvertSigned([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
-				canConvertSigned([0x00, 0x00, 0x00, 0x80], 4, -2147483648);
-				canConvertSigned([0x01, 0x00, 0x00, 0x80], 4, -2147483647);
-				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF], 4, -1);
-			});
-
-			it('64-bit value', () => {
-				// Assert:
-				canConvertSigned([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, 0n);
-				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, 9223372036854775807n);
-				canConvertSigned([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -9223372036854775808n);
-				canConvertSigned([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -9223372036854775807n);
-				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, -1n);
-			});
+			assertSigned(assertBytesToIntFactory(true));
 		});
 
 		describe('can convert unsigned', () => {
-			const canConvertSigned = canConvertFactory(false);
+			assertUnsigned(assertBytesToIntFactory(false));
+		});
+	});
 
-			it('8-bit value', () => {
-				// Assert:
-				canConvertSigned([0x00], 1, 0);
-				canConvertSigned([0x7F], 1, 127);
-				canConvertSigned([0x80], 1, 128);
-				canConvertSigned([0x81], 1, 129);
-				canConvertSigned([0xFF], 1, 255);
-			});
+	describe('intToBytes', () => {
+		const assertIntToBytesFactory = isSigned => (expectedValues, size, value) => {
+			// Act:
+			const byteArray = converter.intToBytes(value, size, isSigned);
 
-			it('16-bit value', () => {
-				// Assert:
-				canConvertSigned([0x00, 0x00], 2, 0);
-				canConvertSigned([0xFF, 0x7F], 2, 32767);
-				canConvertSigned([0x00, 0x80], 2, 32768);
-				canConvertSigned([0x01, 0x80], 2, 32769);
-				canConvertSigned([0xFF, 0xFF], 2, 65535);
-			});
+			// Assert:
+			expect(byteArray).to.deep.equal(new Uint8Array(expectedValues));
+		};
 
-			it('32-bit value', () => {
-				// Assert:
-				canConvertSigned([0x00, 0x00, 0x00, 0x00], 4, 0);
-				canConvertSigned([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
-				canConvertSigned([0x00, 0x00, 0x00, 0x80], 4, 2147483648);
-				canConvertSigned([0x01, 0x00, 0x00, 0x80], 4, 2147483649);
-				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF], 4, 4294967295);
-			});
-
-			it('64-bit value', () => {
-				// Assert:
-				canConvertSigned([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, BigInt(0n));
-				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, BigInt(9223372036854775807n));
-				canConvertSigned([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt(9223372036854775808n));
-				canConvertSigned([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt(9223372036854775809n));
-				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, BigInt(18446744073709551615n));
-			});
+		describe('can convert signed', () => {
+			assertSigned(assertIntToBytesFactory(true));
+		});
+		describe('can convert unsigned', () => {
+			assertUnsigned(assertIntToBytesFactory(false));
 		});
 	});
 });

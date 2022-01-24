@@ -7,6 +7,7 @@
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
     "vectors": "node ./vectors/all.js --vectors $(git rev-parse --show-toplevel)/tests/vectors/${BLOCKCHAIN}/crypto --blockchain ${BLOCKCHAIN}",
+    "catvectors": "node ./vectors/catbuffer.js --vectors $(git rev-parse --show-toplevel)/tests/vectors --blockchain ${BLOCKCHAIN}",
     "lint:jenkins": "eslint -o lint.sdk.javascript.xml -f junit . || exit 0",
     "test:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run test",
     "vectors:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run vectors"
@@ -27,6 +28,7 @@
     "bitcore-mnemonic": "^8.25.25",
     "js-sha3": "^0.8.0",
     "ripemd160": "^2.0.2",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "yaml": "^1.10.2"
   }
 }

@@ -5,10 +5,10 @@ const check = (byteSize, value, isSigned) => {
 	let upperBound;
 	if (8 === byteSize) {
 		if ('bigint' !== typeof value)
-			throw new TypeError(`"value" (${value}) has invalid type`);
+			throw new TypeError(`"value" (${value}) has invalid type, expected BigInt`);
 
-		lowerBound = isSigned ? -BigInt('0x8000000000000000') : BigInt(0);
-		upperBound = isSigned ? BigInt('0x7FFFFFFFFFFFFFFF') : BigInt('0xFFFFFFFFFFFFFFFF');
+		lowerBound = isSigned ? -0x80000000_00000000n : 0n;
+		upperBound = isSigned ? 0x7FFFFFFF_FFFFFFFFn : 0xFFFFFFFF_FFFFFFFFn;
 	} else {
 		if (!Number.isInteger(value))
 			throw new RangeError(`"value" (${value}) is not an integer`);
@@ -38,6 +38,20 @@ class BaseValue {
 		this.size = size;
 		this.isSigned = isSigned;
 		this.value = check(size, value, isSigned);
+	}
+
+	/**
+	 * Converts base value to string.
+	 * @returns {string} String representation.
+	 */
+	toString() {
+		if (!this.isSigned || 0 <= this.value)
+			return `0x${this.value.toString(16).toUpperCase().padStart(this.size * 2, '0')}`;
+
+		const upperBound = 8 === this.size ? 0xFFFFFFFF_FFFFFFFFn : bitmask(this.size * 8);
+		const fix = 8 === this.size ? 1n : 1;
+		const value = upperBound + this.value + fix;
+		return `0x${value.toString(16).toUpperCase().padStart(this.size * 2, '0')}`;
 	}
 }
 

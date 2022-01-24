@@ -121,6 +121,45 @@ const converter = {
 	 * @returns {numeric|BigInt} Value corresponding to the input.
 	 */
 	bytesToInt: (input, size, isSigned = false) => {
+		// const mapping = {
+		// 	false: {
+		// 		1: Uint8Array,
+		// 		2: Uint16Array,
+		// 		4: Uint32Array,
+		// 		8: BigUint64Array
+		// 	},
+		// 	true: {
+		// 		1: Int8Array,
+		// 		2: Int16Array,
+		// 		4: Int32Array,
+		// 		8: BigInt64Array
+		// 	}
+		// };
+
+		// const DataType = mapping[isSigned][size];
+		// return new DataType(input.buffer, input.byteOffset, 1)[0];
+
+		const view = new DataView(input.buffer, input.byteOffset);
+		const mapping = {
+			false: {
+				1: view.getUint8,
+				2: view.getUint16,
+				4: view.getUint32,
+				8: view.getBigUint64
+			},
+			true: {
+				1: view.getInt8,
+				2: view.getInt16,
+				4: view.getInt32,
+				8: view.getBigInt64
+			}
+		};
+
+		const reader = mapping[isSigned][size];
+		return reader.call(view, 0, true);
+	},
+
+	intToBytes: (value, byteSize, isSigned = false) => {
 		const mapping = {
 			false: {
 				1: Uint8Array,
@@ -136,7 +175,9 @@ const converter = {
 			}
 		};
 
-		return new (mapping[isSigned][size])(input.buffer, 0, 1)[0];
+		const DataType = mapping[isSigned][byteSize];
+		const typedBuffer = new DataType([value]);
+		return new Uint8Array(typedBuffer.buffer);
 	}
 };
 
