@@ -1,0 +1,20 @@
+[general]
+ignore=body-is-missing
+
+[title-match-regex]
+regex=^\[(catbuffer/parser|catbuffer/schemas|client/catapult|client/rest|linters|monorepo|jenkins|sdk/python|sdk/javascript)\]( (feat|bug|fix|build|perf|task))?: [a-zA-Z0-9-_ ]+$
+
+[title-must-not-contain-word]
+words=wip
+
+[title-min-length]
+min-length=20
+
+[title-max-length]
+line-length=80
+
+[body-min-length]
+min-length=5
+
+[body-max-line-length]
+line-length=140

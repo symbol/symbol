@@ -5,8 +5,12 @@ RUN apt-get update >/dev/null \
 	&& apt-get install -y tzdata \
 	&& apt-get install -y git
 
-# install shellcheck and python
-RUN apt-get install -y shellcheck python3-pip
+# install python
+RUN apt-get install -y python3-pip
+
+# install shellcheck and gitlint
+RUN apt-get install -y shellcheck \
+	&& pip install gitlint
 
 # sdk dependencies
 RUN apt-get install -y zbar-tools

@@ -1,4 +1,4 @@
 void call() {
-	runScript('gitlint')
+	runScript('linters/scripts/run_gitlint.sh')
 	logger.logInfo('Verified commit message.')
 }

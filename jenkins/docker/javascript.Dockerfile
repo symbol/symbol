@@ -12,6 +12,13 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
 # rest dependencies
 RUN apt-get install -y make gcc g++
 
+# install python
+RUN apt-get install -y python3-pip
+
+# install shellcheck and gitlint
+RUN apt-get install -y shellcheck \
+	&& pip install gitlint
+
 # add ubuntu user (used by jenkins)
 RUN useradd --uid 1000 -ms /bin/bash ubuntu
 

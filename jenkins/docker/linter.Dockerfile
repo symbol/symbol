@@ -11,8 +11,12 @@ RUN apt-get install -y default-jre \
 	&& apt-get install -y nodejs \
 	&& npm install -g npm-groovy-lint
 
-# install shellcheck and python
-RUN apt-get install -y shellcheck python3-pip
+# install python
+RUN apt-get install -y python3-pip
+
+# install shellcheck and gitlint
+RUN apt-get install -y shellcheck \
+	&& pip install gitlint
 
 # install ripgrep and yamllint
 RUN apt-get install -y ripgrep \
