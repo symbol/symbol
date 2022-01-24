@@ -111,6 +111,32 @@ const converter = {
 		}
 
 		return value;
+	},
+
+	/**
+	 * Converts bytes to little-endian number.
+	 * @param {Uint8Array} input A uint8 array.
+	 * @param {numeric} size Number of bytes.
+	 * @param {boolean} isSigned Should number be treated as signed.
+	 * @returns {numeric|BigInt} Value corresponding to the input.
+	 */
+	bytesToInt: (input, size, isSigned = false) => {
+		const mapping = {
+			false: {
+				1: Uint8Array,
+				2: Uint16Array,
+				4: Uint32Array,
+				8: BigUint64Array
+			},
+			true: {
+				1: Int8Array,
+				2: Int16Array,
+				4: Int32Array,
+				8: BigInt64Array
+			}
+		};
+
+		return new (mapping[isSigned][size])(input.buffer, 0, 1)[0];
 	}
 };
 

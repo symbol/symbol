@@ -181,4 +181,94 @@ describe('converter', () => {
 		addTryParseFailureTest('cannot parse negative decimal string', '-14952');
 		addTryParseFailureTest('cannot parse arbitrary string', 'catapult');
 	});
+
+	describe('bytesToInt', () => {
+		const canConvertFactory = isSigned => (input, size, expectedValue) => {
+			// Act:
+			const actual = converter.bytesToInt(new Uint8Array(input), size, isSigned);
+
+			// Assert:
+			expect(actual).to.equal(expectedValue);
+		};
+
+		describe('can convert signed', () => {
+			const canConvertSigned = canConvertFactory(true);
+
+			it('8-bit value', () => {
+				// Assert:
+				canConvertSigned([0x00], 1, 0);
+				canConvertSigned([0x7F], 1, 127);
+				canConvertSigned([0x80], 1, -128);
+				canConvertSigned([0x81], 1, -127);
+				canConvertSigned([0xFF], 1, -1);
+			});
+
+			it('16-bit value', () => {
+				// Assert:
+				canConvertSigned([0x00, 0x00], 2, 0);
+				canConvertSigned([0xFF, 0x7F], 2, 32767);
+				canConvertSigned([0x00, 0x80], 2, -32768);
+				canConvertSigned([0x01, 0x80], 2, -32767);
+				canConvertSigned([0xFF, 0xFF], 2, -1);
+			});
+
+			it('32-bit value', () => {
+				// Assert:
+				canConvertSigned([0x00, 0x00, 0x00, 0x00], 4, 0);
+				canConvertSigned([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
+				canConvertSigned([0x00, 0x00, 0x00, 0x80], 4, -2147483648);
+				canConvertSigned([0x01, 0x00, 0x00, 0x80], 4, -2147483647);
+				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF], 4, -1);
+			});
+
+			it('64-bit value', () => {
+				// Assert:
+				canConvertSigned([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, BigInt(0));
+				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, BigInt('9223372036854775807'));
+				canConvertSigned([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -BigInt('9223372036854775808'));
+				canConvertSigned([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, -BigInt('9223372036854775807'));
+				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, -BigInt(1));
+			});
+		});
+
+		describe('can convert unsigned', () => {
+			const canConvertSigned = canConvertFactory(false);
+
+			it('8-bit value', () => {
+				// Assert:
+				canConvertSigned([0x00], 1, 0);
+				canConvertSigned([0x7F], 1, 127);
+				canConvertSigned([0x80], 1, 128);
+				canConvertSigned([0x81], 1, 129);
+				canConvertSigned([0xFF], 1, 255);
+			});
+
+			it('16-bit value', () => {
+				// Assert:
+				canConvertSigned([0x00, 0x00], 2, 0);
+				canConvertSigned([0xFF, 0x7F], 2, 32767);
+				canConvertSigned([0x00, 0x80], 2, 32768);
+				canConvertSigned([0x01, 0x80], 2, 32769);
+				canConvertSigned([0xFF, 0xFF], 2, 65535);
+			});
+
+			it('32-bit value', () => {
+				// Assert:
+				canConvertSigned([0x00, 0x00, 0x00, 0x00], 4, 0);
+				canConvertSigned([0xFF, 0xFF, 0xFF, 0x7F], 4, 2147483647);
+				canConvertSigned([0x00, 0x00, 0x00, 0x80], 4, 2147483648);
+				canConvertSigned([0x01, 0x00, 0x00, 0x80], 4, 2147483649);
+				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF], 4, 4294967295);
+			});
+
+			it('64-bit value', () => {
+				// Assert:
+				canConvertSigned([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], 8, BigInt(0));
+				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F], 8, BigInt('9223372036854775807'));
+				canConvertSigned([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt('9223372036854775808'));
+				canConvertSigned([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80], 8, BigInt('9223372036854775809'));
+				canConvertSigned([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], 8, BigInt('18446744073709551615'));
+			});
+		});
+	});
 });
