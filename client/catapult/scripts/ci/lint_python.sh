@@ -1,0 +1,1 @@
+../../../../linters/python/lint.sh
