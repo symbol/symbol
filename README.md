@@ -3,6 +3,7 @@
 |------------------|--------------------------------|---------------------------------|------------------------------------------------------------------------------------------|
 | catbuffer/parser | ![lint][catbuffer-parser-lint] |                                 | ![test][catbuffer-parser-test]                                                           |
 |                  |                                |                                 |                                                                                          |
+| client/catapult  | ![lint][client-catapult-lint]  |                                 |                                                                                          |
 | client/rest      | ![lint][client-rest-lint]      |                                 | ![test][client-rest-test]                                                                |
 |                  |                                |                                 |                                                                                          |
 | sdk/javascript   | ![lint][sdk-javascript-lint]   |                                 | ![test][sdk-javascript-test] ![vectors][sdk-javascript-vectors]                          |
@@ -13,6 +14,8 @@
 
 [catbuffer-parser-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2FParser%2Fdev%2F&config=catbuffer-parser-lint
 [catbuffer-parser-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2FParser%2Fdev%2F&config=catbuffer-parser-test
+
+[client-catapult-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fcatapult%2Fdev%2F&config=client-catapult-lint
 
 [client-rest-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Frest%2Fdev%2F&config=client-rest-lint
 [client-rest-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Frest%2Fdev%2F&config=client-rest-test
