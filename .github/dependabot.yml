@@ -1,0 +1,34 @@
+version: 2
+updates:
+
+  - package-ecosystem: pip
+    directory: /catbuffer/parser
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: catbuffer-parser
+
+  - package-ecosystem: npm
+    directory: /client/rest
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: rest
+
+  - package-ecosystem: npm
+    directory: /sdk/javascript
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: sdk-javascript
+
+  - package-ecosystem: pip
+    directory: /sdk/python
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: sdk-python
