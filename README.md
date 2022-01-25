@@ -14,8 +14,8 @@
 [catbuffer-parser-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2FParser%2Fdev%2F&config=catbuffer-parser-lint
 [catbuffer-parser-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2FParser%2Fdev%2F&config=catbuffer-parser-test
 
-[client-rest-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2FRest%2Fdev%2F&config=client-rest-lint
-[client-rest-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2FRest%2Fdev%2F&config=client-rest-test
+[client-rest-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Frest%2Fdev%2F&config=client-rest-lint
+[client-rest-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Frest%2Fdev%2F&config=client-rest-test
 
 [sdk-javascript-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-javasscript%2Fdev%2F&config=sdk-javascript-lint
 [sdk-javascript-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-javasscript%2Fdev%2F&config=sdk-javascript-test
@@ -27,6 +27,6 @@
 [sdk-python-examples]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-python%2Fdev%2F&config=sdk-python-examples
 [sdk-python-vectors]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fsdk-python%2Fdev%2F&config=sdk-python-vectors
 
-[jenkins-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2FJenkins%2Fdev%2F&config=jenkins-lint
+[jenkins-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Fjenkins%2Fdev%2F&config=jenkins-lint
 
 [linters-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Flinters%2Fdev%2F&config=linters-lint
