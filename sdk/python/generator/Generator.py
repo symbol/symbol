@@ -3,8 +3,8 @@
 from pathlib import Path
 
 from catparser.DisplayType import DisplayType
+from catparser.generators.util import build_factory_map, extend_models
 
-from .AbstractImplMap import AbstractImplMap
 from .EnumTypeFormatter import EnumTypeFormatter
 from .FactoryFormatter import FactoryClassFormatter, FactoryFormatter
 from .PodTypeFormatter import PodTypeFormatter
@@ -13,14 +13,8 @@ from .StructTypeFormatter import StructFormatter
 from .TypeFormatter import TypeFormatter
 
 
-class AstExtensions:
-	def __init__(self, type_model, printer):
-		self.type_model = type_model
-		self.printer = printer
-
-		self.is_contents_abstract = False
-		self.bound_field = None
-		self.size_fields = []
+def create_printer(descriptor, name, is_pod):
+	return (create_pod_printer if is_pod else BuiltinPrinter)(descriptor, name)
 
 
 def to_type_formatter_instance(ast_model):
@@ -34,69 +28,9 @@ def to_type_formatter_instance(ast_model):
 	return type_formatter_class(ast_model)
 
 
-def process_concrete_struct(type_map, struct_model, abstract_impl_map):
-	factory_type = type_map[struct_model.factory_type]
-
-	discriminators = [] if not hasattr(factory_type, 'discriminator') else factory_type.discriminator
-	for i, discriminator in enumerate(discriminators):
-		discriminators[i] = discriminator
-
-	abstract_impl_map.add(factory_type, struct_model)
-
-
-def find_field_by_name(struct_model, field_name):
-	return next(field_model for field_model in struct_model.fields if field_name == field_model.name)
-
-
-def bind_size_fields(struct_model):
-	# go through structs and bind size fields to arrays
-	for field_model in struct_model.fields:
-		if field_model.display_type.is_array and isinstance(field_model.size, str):
-			size_field_name = field_model.size
-			size_field_model = find_field_by_name(struct_model, size_field_name)
-			size_field_model.extensions.bound_field = field_model
-
-		if field_model.is_size_reference:
-			struct_field_model = find_field_by_name(struct_model, field_model.value)
-			field_model.extensions.bound_field = struct_field_model
-			struct_field_model.extensions.size_fields.append(field_model)
-
-
-def process_struct(type_map, struct_model, abstract_impl_map):
-	if struct_model.factory_type:
-		process_concrete_struct(type_map, struct_model, abstract_impl_map)
-
-	for field_model in struct_model.fields:
-		type_model = type_map.get(field_model.field_type, None)
-
-		create_printer = create_pod_printer
-		is_contents_abstract = False
-		if DisplayType.TYPED_ARRAY == field_model.display_type:
-			element_type_model = type_map.get(field_model.field_type.element_type, None)
-			is_contents_abstract = DisplayType.STRUCT == element_type_model.display_type and element_type_model.is_abstract
-
-			type_model = field_model
-		elif not type_model:
-			type_model = field_model
-		else:
-			create_printer = BuiltinPrinter
-
-		field_printer = create_printer(type_model, field_model.name)
-		field_model.extensions = AstExtensions(type_model, field_printer)
-		field_model.extensions.is_contents_abstract = is_contents_abstract
-
-	bind_size_fields(struct_model)
-
-
 def generate_files(ast_models, output_directory: Path):
-	# build map of types
-	type_map = {ast_model.name: ast_model for ast_model in ast_models}
-
-	# process struct fields
-	abstract_impl_map = AbstractImplMap()
-	for ast_model in ast_models:
-		if DisplayType.STRUCT == ast_model.display_type:
-			process_struct(type_map, ast_model, abstract_impl_map)
+	factory_map = build_factory_map(ast_models)
+	extend_models(ast_models, create_printer)
 
 	output_directory.mkdir(exist_ok=True)
 
@@ -129,7 +63,7 @@ StrBytes = TypeVar('StrBytes', str, bytes)
 		factories = []
 		for ast_model in ast_models:
 			if DisplayType.STRUCT == ast_model.display_type and ast_model.is_abstract:
-				factory_generator = FactoryClassFormatter(FactoryFormatter(abstract_impl_map, ast_model))
+				factory_generator = FactoryClassFormatter(FactoryFormatter(factory_map, ast_model))
 				factories.append(str(factory_generator))
 
 		output_file.write('\n\n'.join(factories))

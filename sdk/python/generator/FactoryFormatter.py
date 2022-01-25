@@ -38,13 +38,13 @@ class FactoryClassFormatter(ClassFormatter):
 
 
 class FactoryFormatter(AbstractTypeFormatter):
-	def __init__(self, abstract_impl_map, abstract_model):
+	def __init__(self, factory_map, abstract_model):
 		super().__init__()
 
 		# array or int
 		self.abstract = abstract_model
 		self.printer = BuiltinPrinter(abstract_model, 'parent')
-		self.factory_descriptor = abstract_impl_map.get(self.abstract.name)
+		self.factory_descriptor = factory_map.get(self.abstract.name, None)
 
 	def get_ctor_descriptor(self):
 		return None
@@ -54,7 +54,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		return f'{self.abstract.name}Factory'
 
 	def create_discriminator(self, name):
-		field_names = self.factory_descriptor['discriminator_values']
+		field_names = self.factory_descriptor.discriminator_values
 		values = ', '.join(map(lambda value: f'{name}.{value}', field_names))
 		return f'({values}): {name}'
 
@@ -65,14 +65,14 @@ class FactoryFormatter(AbstractTypeFormatter):
 		body += 'mapping = {\n'
 
 		if self.factory_descriptor:
-			names = [f'{concrete.name}' for concrete in self.factory_descriptor['children']]
+			names = [f'{concrete.name}' for concrete in self.factory_descriptor.children]
 			body += indent(
 				',\n'.join(map(self.create_discriminator, names))
 			)
 
 		body += '}\n'
 
-		discriminators = [] if not self.factory_descriptor else self.factory_descriptor['discriminator_names']
+		discriminators = [] if not self.factory_descriptor else self.factory_descriptor.discriminator_names
 		values = ', '.join(map(lambda discriminator: f'{self.printer.name}.{fix_name(discriminator)}', discriminators))
 		body += f'discriminator = ({values})\n'
 		body += 'factory_class = mapping[discriminator]\n'
@@ -87,7 +87,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 			',\n'.join(
 				map(
 					lambda child: f'"{skip_embedded(underline_name(child.name))}": {child.name}',
-					[] if not self.factory_descriptor else self.factory_descriptor['children']
+					[] if not self.factory_descriptor else self.factory_descriptor.children
 				)
 			)
 		)
