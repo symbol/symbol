@@ -7,7 +7,7 @@ updates:
       interval: weekly
       day: sunday
     target-branch: dev
-    labels: catbuffer-parser
+    labels: [catbuffer-parser]
 
   - package-ecosystem: npm
     directory: /client/rest
@@ -15,7 +15,7 @@ updates:
       interval: weekly
       day: sunday
     target-branch: dev
-    labels: rest
+    labels: [rest]
 
   - package-ecosystem: npm
     directory: /sdk/javascript
@@ -23,7 +23,7 @@ updates:
       interval: weekly
       day: sunday
     target-branch: dev
-    labels: sdk-javascript
+    labels: [sdk-javascript]
 
   - package-ecosystem: pip
     directory: /sdk/python
@@ -31,4 +31,4 @@ updates:
       interval: weekly
       day: sunday
     target-branch: dev
-    labels: sdk-python
+    labels: [sdk-python]

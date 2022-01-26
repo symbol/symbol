@@ -76,12 +76,13 @@ module.exports = {
 				// defaultDynamicFeeMultiplier -> uint32
 				const defaultDynamicFeeMultiplier = parseInt(sanitizeInput(feeMultipliers[2].chain.defaultDynamicFeeMultiplier), 10);
 				const defaultedFeeMultipliers = feeMultipliers[1].map(f => (0 === f ? defaultDynamicFeeMultiplier : f));
+
 				res.send({
 					averageFeeMultiplier: Math.floor(average(defaultedFeeMultipliers)),
 					medianFeeMultiplier: Math.floor(median(defaultedFeeMultipliers)),
 					highestFeeMultiplier: Math.max(...feeMultipliers[1]),
 					lowestFeeMultiplier: Math.min(...feeMultipliers[1]),
-					minFeeMultiplier: Number(feeMultipliers[0].node.minFeeMultiplier.replace('\'', ''))
+					minFeeMultiplier: Number(feeMultipliers[0].node.minFeeMultiplier.replace(/'/g, ''))
 				});
 				next();
 			});
