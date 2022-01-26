@@ -79,9 +79,13 @@ class TypeFormatter(ClassFormatter):
 
 	def generate_size(self):
 		method_descriptor = self.provider.get_size_descriptor()
+		if not method_descriptor:
+			return None
+
 		method_descriptor.method_name = 'size'
 		method_descriptor.arguments = []
 		method_descriptor.result = 'int'
+		method_descriptor.annotations = ['@property']
 		return self.generate_method(method_descriptor)
 
 	def generate_getters(self):
@@ -111,7 +115,10 @@ class TypeFormatter(ClassFormatter):
 		setters = self.generate_setters()
 		methods.extend(setters)
 
-		methods.append(self.generate_size())
+		size_method = self.generate_size()
+		if size_method:
+			methods.append(size_method)
+
 		methods.append(self.generate_deserializer())
 		methods.append(self.generate_serializer())
 

@@ -38,7 +38,7 @@ class ArrayHelpers:
 				assert accessor(prev_element) < accessor(element), 'array is not sorted'
 
 			elements.append(element)
-			binary = binary[element.size():]
+			binary = binary[element.size:]
 
 			prev_element = element
 		return elements
@@ -75,7 +75,7 @@ class ArrayHelpers:
 				assert accessor(prev_element) < accessor(element), 'array is not sorted'
 
 			elements.append(element)
-			binary = binary[element.size():]
+			binary = binary[element.size:]
 
 			prev_element = element
 		return elements
@@ -106,7 +106,7 @@ class ArrayHelpers:
 		while len(binary) > 0:
 			element = factory_type.deserialize(binary)
 			elements.append(element)
-			embedded_size = element.size()
+			embedded_size = element.size
 			assert embedded_size > 0
 
 			aligned_size = ArrayHelpers.align_up(embedded_size, alignment)
@@ -120,7 +120,7 @@ class ArrayHelpers:
 		for element in elements:
 			binary += element.serialize()
 
-			embedded_size = element.size()
+			embedded_size = element.size
 			aligned_size = ArrayHelpers.align_up(embedded_size, alignment)
 			binary += bytes(aligned_size - embedded_size)
 		return binary
