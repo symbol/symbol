@@ -8,6 +8,8 @@ const { sha3_256 } = require('js-sha3');
  * Represents a Symbol address.
  */
 class Address extends ByteArray {
+	static SIZE = 24;
+
 	/**
 	 * Creates a Symbol address.
 	 * @param {Uint8Array|string|Address} address Input string, byte array or address.
@@ -30,8 +32,6 @@ class Address extends ByteArray {
 		return base32.encode(new Uint8Array([...this.bytes, 0])).slice(0, -1);
 	}
 }
-
-Address.SIZE = 24;
 
 /**
  * Represents a Symbol network.

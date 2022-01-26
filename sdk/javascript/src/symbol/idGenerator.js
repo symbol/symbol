@@ -1,6 +1,6 @@
 const { sha3_256 } = require('js-sha3');
 
-const NAMESPACE_FLAG = BigInt(1) << BigInt(63);
+const NAMESPACE_FLAG = 1n << 63n;
 
 const uint32ToBytes = value => new Uint8Array([
 	value & 0xFF,
@@ -10,7 +10,7 @@ const uint32ToBytes = value => new Uint8Array([
 ]);
 
 const digestToBigInt = digest => {
-	let result = BigInt(0);
+	let result = 0n;
 	for (let i = 0; 8 > i; ++i)
 		result += (BigInt(digest[i]) << BigInt(8 * i));
 
@@ -42,10 +42,10 @@ const generateMosaicId = (ownerAddress, nonce) => {
  * @param {BigInt} parentNamespaceId Parent namespace id.
  * @returns {BigInt} Computed namespace id.
  */
-const generateNamespaceId = (name, parentNamespaceId = BigInt(0)) => {
+const generateNamespaceId = (name, parentNamespaceId = 0n) => {
 	const hasher = sha3_256.create();
-	hasher.update(uint32ToBytes(Number(parentNamespaceId & BigInt(0xFFFFFFFF))));
-	hasher.update(uint32ToBytes(Number((parentNamespaceId >> BigInt(32)) & BigInt(0xFFFFFFFF))));
+	hasher.update(uint32ToBytes(Number(parentNamespaceId & 0xFFFFFFFFn)));
+	hasher.update(uint32ToBytes(Number((parentNamespaceId >> 32n) & 0xFFFFFFFFn)));
 	hasher.update(name);
 	const digest = new Uint8Array(hasher.digest());
 
@@ -79,7 +79,7 @@ const isValidNamespaceName = name => {
  */
 const generateNamespacePath = fullyQualifiedName => {
 	const path = [];
-	let parentNamespaceId = BigInt(0);
+	let parentNamespaceId = 0n;
 	fullyQualifiedName.split('.').forEach(name => {
 		if (!isValidNamespaceName(name))
 			throw Error(`fully qualified name is invalid due to invalid part name (${fullyQualifiedName})`);

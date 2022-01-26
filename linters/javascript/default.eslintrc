@@ -1,9 +1,9 @@
 ---
 env:
-  es6: true
   es2020: true
 parserOptions:
   sourceType: module
+  ecmaVersion: 2022
 
 rules:
   function-paren-newline:
