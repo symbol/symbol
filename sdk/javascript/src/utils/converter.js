@@ -136,7 +136,30 @@ const converter = {
 			}
 		};
 
-		return new (mapping[isSigned][size])(input.buffer, 0, 1)[0];
+		const DataType = mapping[isSigned][size];
+		return new DataType(input.buffer, input.byteOffset, 1)[0];
+	},
+
+	intToBytes: (value, byteSize, isSigned = false) => {
+		const mapping = {
+			false: {
+				1: Uint8Array,
+				2: Uint16Array,
+				4: Uint32Array,
+				8: BigUint64Array
+			},
+			true: {
+				1: Int8Array,
+				2: Int16Array,
+				4: Int32Array,
+				8: BigInt64Array
+			}
+		};
+
+		const DataType = mapping[isSigned][byteSize];
+		const typedBuffer = new DataType(1);
+		typedBuffer[0] = value;
+		return new Uint8Array(typedBuffer.buffer);
 	}
 };
 

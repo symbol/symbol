@@ -5,7 +5,7 @@ const check = (byteSize, value, isSigned) => {
 	let upperBound;
 	if (8 === byteSize) {
 		if ('bigint' !== typeof value)
-			throw new TypeError(`"value" (${value}) has invalid type`);
+			throw new TypeError(`"value" (${value}) has invalid type, expected BigInt`);
 
 		lowerBound = isSigned ? -BigInt('0x8000000000000000') : BigInt(0);
 		upperBound = isSigned ? BigInt('0x7FFFFFFFFFFFFFFF') : BigInt('0xFFFFFFFFFFFFFFFF');
