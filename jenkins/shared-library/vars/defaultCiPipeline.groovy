@@ -189,7 +189,7 @@ void call(Closure body) {
 								branch env.DEV_BRANCH
 								allOf {
 									expression {
-										return env.SHOULD_PUBLISH_IMAGE.toBoolean()
+										return shouldPublishImage(env.SHOULD_PUBLISH_IMAGE)
 									}
 									not {
 										expression {
@@ -210,7 +210,7 @@ void call(Closure body) {
 							allOf {
 								branch env.RELEASE_BRANCH
 								expression {
-									return env.SHOULD_PUBLISH_IMAGE.toBoolean()
+									return shouldPublishImage(env.SHOULD_PUBLISH_IMAGE)
 								}
 								expression {
 									return helper.isPublicBuild(env.BUILD_CONFIGURATION)
@@ -265,4 +265,8 @@ void runStepRelativeToPackageRootWithBadge(String rootPath, String packageId, St
 
 String resolvePath(String rootPath, String path) {
 	return Paths.get(rootPath).resolve(path).toString()
+}
+
+Boolean shouldPublishImage(String shouldPublish) {
+	return shouldPublish == null ? false : shouldPublish.toBoolean()
 }
