@@ -94,7 +94,7 @@ class TypeFormatter(ClassFormatter):
 		if not method_descriptor:
 			return None
 
-		method_descriptor.method_name = '__str__'
+		method_descriptor.method_name = 'toString'
 		return self.generate_method(method_descriptor)
 
 	def generate_methods(self):

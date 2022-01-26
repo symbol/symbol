@@ -191,10 +191,10 @@ class BuiltinPrinter(Printer):
 			first_enum_value_name = self.descriptor.values[0].name
 			return f'{self.get_type()}.{first_enum_value_name}'
 
-		return f'{self.get_type()}()'
+		return f'new {self.get_type()}()'
 
 	def get_size(self):
-		return f'self.{self.name}.size()'
+		return f'this.{self.name}.size'
 
 	def load(self, buffer_name='buffer_'):
 		if DisplayType.STRUCT == self.descriptor.display_type and self.descriptor.is_abstract:
@@ -206,7 +206,7 @@ class BuiltinPrinter(Printer):
 		return f'{self.get_type()}.deserialize({buffer_name})'
 
 	def advancement_size(self):
-		return f'{self.name}.size()'
+		return f'{self.name}.size'
 
 	@staticmethod
 	def store(field_name):
@@ -217,7 +217,7 @@ class BuiltinPrinter(Printer):
 
 	@staticmethod
 	def to_string(field_name):
-		return f'{field_name}.__str__()'
+		return f'{field_name}.toString()'
 
 
 def create_pod_printer(descriptor, name=None):

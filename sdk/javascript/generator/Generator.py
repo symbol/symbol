@@ -106,6 +106,19 @@ def generate_files(ast_models, output_directory: Path):
 const { ByteArray } = require('../ByteArray');
 const converter = require('../utils/converter');
 
+
+class Serializer {
+	constructor(size) {
+		this.storage = new Uint8Array(size);
+		this.offset = 0;
+	}
+
+	write(arrayInput) {
+		this.storage.set(arrayInput, this.offset);
+		this.offset += arrayInput.length;
+	}
+}
+
 '''
 		)
 		for ast_model in ast_models:
