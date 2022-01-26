@@ -61,9 +61,9 @@ class TypedArrayPrinter(Printer):
 		if self.descriptor.field_type.is_byte_constrained:
 			# note: use actual `.size` field
 			alignment = self.descriptor.field_type.alignment
-			return f'sum(map(lambda e: ArrayHelpers.align_up(e.size(), {alignment}), self.{self.name}))'
+			return f'sum(map(lambda e: ArrayHelpers.align_up(e.size, {alignment}), self.{self.name}))'
 
-		return f'sum(map(lambda e: e.size(), self.{self.name}))'
+		return f'sum(map(lambda e: e.size, self.{self.name}))'
 
 	def load(self):
 		if self.descriptor.field_type.is_byte_constrained:
@@ -95,7 +95,7 @@ class TypedArrayPrinter(Printer):
 		if self.descriptor.field_type.is_byte_constrained:
 			return str(self.descriptor.size)
 
-		return f'sum(map(lambda e: e.size(), {self.name}))'
+		return f'sum(map(lambda e: e.size, {self.name}))'
 
 	def store(self, field_name):
 		if self.descriptor.field_type.is_byte_constrained:
@@ -188,7 +188,7 @@ class BuiltinPrinter(Printer):
 		return f'{self.get_type()}()'
 
 	def get_size(self):
-		return f'self.{self.name}.size()'
+		return f'self.{self.name}.size'
 
 	def load(self, buffer_name='buffer_'):
 		if DisplayType.STRUCT == self.descriptor.display_type and self.descriptor.is_abstract:
@@ -200,7 +200,7 @@ class BuiltinPrinter(Printer):
 		return f'{self.get_type()}.deserialize({buffer_name})'
 
 	def advancement_size(self):
-		return f'{self.name}.size()'
+		return f'{self.name}.size'
 
 	@staticmethod
 	def store(field_name):

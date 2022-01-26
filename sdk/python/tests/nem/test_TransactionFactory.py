@@ -122,7 +122,7 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 
 		# - cut out size and signature from the buffer
 		verifiable_serialized = transaction.serialize()
-		offset = TransactionType.TRANSFER.size() + 1 + 2 + NetworkType.TESTNET.size() + Timestamp.SIZE + 4 + nc_PublicKey.SIZE
+		offset = TransactionType.TRANSFER.size + 1 + 2 + NetworkType.TESTNET.size + Timestamp.SIZE + 4 + nc_PublicKey.SIZE
 		expected_serialized = verifiable_serialized[:offset] + verifiable_serialized[offset + 4 + nc_Signature.SIZE:]
 		self.assertEqual(expected_serialized, non_verifiable_transaction.serialize())
 

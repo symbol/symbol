@@ -21,9 +21,6 @@ class Amount(BaseValue):
 	def __init__(self, amount: int = 0):
 		super().__init__(self.SIZE, amount, Amount)
 
-	def size(self) -> int:
-		return 8
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> Amount:
 		buffer_ = memoryview(payload)
@@ -38,9 +35,6 @@ class BlockDuration(BaseValue):
 
 	def __init__(self, block_duration: int = 0):
 		super().__init__(self.SIZE, block_duration, BlockDuration)
-
-	def size(self) -> int:
-		return 8
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> BlockDuration:
@@ -57,9 +51,6 @@ class BlockFeeMultiplier(BaseValue):
 	def __init__(self, block_fee_multiplier: int = 0):
 		super().__init__(self.SIZE, block_fee_multiplier, BlockFeeMultiplier)
 
-	def size(self) -> int:
-		return 4
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> BlockFeeMultiplier:
 		buffer_ = memoryview(payload)
@@ -74,9 +65,6 @@ class Difficulty(BaseValue):
 
 	def __init__(self, difficulty: int = 0):
 		super().__init__(self.SIZE, difficulty, Difficulty)
-
-	def size(self) -> int:
-		return 8
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> Difficulty:
@@ -93,9 +81,6 @@ class FinalizationEpoch(BaseValue):
 	def __init__(self, finalization_epoch: int = 0):
 		super().__init__(self.SIZE, finalization_epoch, FinalizationEpoch)
 
-	def size(self) -> int:
-		return 4
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> FinalizationEpoch:
 		buffer_ = memoryview(payload)
@@ -110,9 +95,6 @@ class FinalizationPoint(BaseValue):
 
 	def __init__(self, finalization_point: int = 0):
 		super().__init__(self.SIZE, finalization_point, FinalizationPoint)
-
-	def size(self) -> int:
-		return 4
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> FinalizationPoint:
@@ -129,9 +111,6 @@ class Height(BaseValue):
 	def __init__(self, height: int = 0):
 		super().__init__(self.SIZE, height, Height)
 
-	def size(self) -> int:
-		return 8
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> Height:
 		buffer_ = memoryview(payload)
@@ -146,9 +125,6 @@ class Importance(BaseValue):
 
 	def __init__(self, importance: int = 0):
 		super().__init__(self.SIZE, importance, Importance)
-
-	def size(self) -> int:
-		return 8
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> Importance:
@@ -165,9 +141,6 @@ class ImportanceHeight(BaseValue):
 	def __init__(self, importance_height: int = 0):
 		super().__init__(self.SIZE, importance_height, ImportanceHeight)
 
-	def size(self) -> int:
-		return 8
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> ImportanceHeight:
 		buffer_ = memoryview(payload)
@@ -182,9 +155,6 @@ class UnresolvedMosaicId(BaseValue):
 
 	def __init__(self, unresolved_mosaic_id: int = 0):
 		super().__init__(self.SIZE, unresolved_mosaic_id, UnresolvedMosaicId)
-
-	def size(self) -> int:
-		return 8
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> UnresolvedMosaicId:
@@ -201,9 +171,6 @@ class MosaicId(BaseValue):
 	def __init__(self, mosaic_id: int = 0):
 		super().__init__(self.SIZE, mosaic_id, MosaicId)
 
-	def size(self) -> int:
-		return 8
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> MosaicId:
 		buffer_ = memoryview(payload)
@@ -218,9 +185,6 @@ class Timestamp(BaseValue):
 
 	def __init__(self, timestamp: int = 0):
 		super().__init__(self.SIZE, timestamp, Timestamp)
-
-	def size(self) -> int:
-		return 8
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> Timestamp:
@@ -237,6 +201,7 @@ class UnresolvedAddress(ByteArray):
 	def __init__(self, unresolved_address: StrBytes = bytes(24)):
 		super().__init__(self.SIZE, unresolved_address, UnresolvedAddress)
 
+	@property
 	def size(self) -> int:
 		return 24
 
@@ -255,6 +220,7 @@ class Address(ByteArray):
 	def __init__(self, address: StrBytes = bytes(24)):
 		super().__init__(self.SIZE, address, Address)
 
+	@property
 	def size(self) -> int:
 		return 24
 
@@ -273,6 +239,7 @@ class Hash256(ByteArray):
 	def __init__(self, hash256: StrBytes = bytes(32)):
 		super().__init__(self.SIZE, hash256, Hash256)
 
+	@property
 	def size(self) -> int:
 		return 32
 
@@ -291,6 +258,7 @@ class Hash512(ByteArray):
 	def __init__(self, hash512: StrBytes = bytes(64)):
 		super().__init__(self.SIZE, hash512, Hash512)
 
+	@property
 	def size(self) -> int:
 		return 64
 
@@ -309,6 +277,7 @@ class PublicKey(ByteArray):
 	def __init__(self, public_key: StrBytes = bytes(32)):
 		super().__init__(self.SIZE, public_key, PublicKey)
 
+	@property
 	def size(self) -> int:
 		return 32
 
@@ -327,6 +296,7 @@ class VotingPublicKey(ByteArray):
 	def __init__(self, voting_public_key: StrBytes = bytes(32)):
 		super().__init__(self.SIZE, voting_public_key, VotingPublicKey)
 
+	@property
 	def size(self) -> int:
 		return 32
 
@@ -345,6 +315,7 @@ class Signature(ByteArray):
 	def __init__(self, signature: StrBytes = bytes(64)):
 		super().__init__(self.SIZE, signature, Signature)
 
+	@property
 	def size(self) -> int:
 		return 64
 
@@ -383,19 +354,20 @@ class Mosaic:
 	def amount(self, value: Amount):
 		self._amount = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.mosaic_id.size()
-		size += self.amount.size()
+		size += self.mosaic_id.size
+		size += self.amount.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> Mosaic:
 		buffer_ = memoryview(payload)
 		mosaic_id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		amount = Amount.deserialize(buffer_)
-		buffer_ = buffer_[amount.size():]
+		buffer_ = buffer_[amount.size:]
 
 		instance = Mosaic()
 		instance._mosaic_id = mosaic_id
@@ -442,19 +414,20 @@ class UnresolvedMosaic:
 	def amount(self, value: Amount):
 		self._amount = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.mosaic_id.size()
-		size += self.amount.size()
+		size += self.mosaic_id.size
+		size += self.amount.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> UnresolvedMosaic:
 		buffer_ = memoryview(payload)
 		mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		amount = Amount.deserialize(buffer_)
-		buffer_ = buffer_[amount.size():]
+		buffer_ = buffer_[amount.size:]
 
 		instance = UnresolvedMosaic()
 		instance._mosaic_id = mosaic_id
@@ -479,6 +452,7 @@ class LinkAction(Enum):
 	UNLINK = 0
 	LINK = 1
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -497,6 +471,7 @@ class NetworkType(Enum):
 	MAINNET = 104
 	TESTNET = 152
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -538,6 +513,7 @@ class TransactionType(Enum):
 	MOSAIC_GLOBAL_RESTRICTION = 16721
 	TRANSFER = 16724
 
+	@property
 	def size(self) -> int:
 		return 2
 
@@ -629,18 +605,19 @@ class Transaction:
 	def deadline(self, value: Timestamp):
 		self._deadline = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
 		return size
 
 	@classmethod
@@ -654,22 +631,22 @@ class Transaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 
 		instance = Transaction()
 		instance._signature = signature
@@ -683,7 +660,7 @@ class Transaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -755,15 +732,16 @@ class EmbeddedTransaction:
 	def type_(self, value: TransactionType):
 		self._type_ = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
+		size += self.network.size
+		size += self.type_.size
 		return size
 
 	@classmethod
@@ -777,16 +755,16 @@ class EmbeddedTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 
 		instance = EmbeddedTransaction()
 		instance._signer_public_key = signer_public_key
@@ -797,7 +775,7 @@ class EmbeddedTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -822,6 +800,7 @@ class ProofGamma(ByteArray):
 	def __init__(self, proof_gamma: StrBytes = bytes(32)):
 		super().__init__(self.SIZE, proof_gamma, ProofGamma)
 
+	@property
 	def size(self) -> int:
 		return 32
 
@@ -840,6 +819,7 @@ class ProofVerificationHash(ByteArray):
 	def __init__(self, proof_verification_hash: StrBytes = bytes(16)):
 		super().__init__(self.SIZE, proof_verification_hash, ProofVerificationHash)
 
+	@property
 	def size(self) -> int:
 		return 16
 
@@ -858,6 +838,7 @@ class ProofScalar(ByteArray):
 	def __init__(self, proof_scalar: StrBytes = bytes(32)):
 		super().__init__(self.SIZE, proof_scalar, ProofScalar)
 
+	@property
 	def size(self) -> int:
 		return 32
 
@@ -875,6 +856,7 @@ class BlockType(Enum):
 	NORMAL = 33091
 	IMPORTANCE = 33347
 
+	@property
 	def size(self) -> int:
 		return 2
 
@@ -925,22 +907,23 @@ class VrfProof:
 	def scalar(self, value: ProofScalar):
 		self._scalar = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.gamma.size()
-		size += self.verification_hash.size()
-		size += self.scalar.size()
+		size += self.gamma.size
+		size += self.verification_hash.size
+		size += self.scalar.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> VrfProof:
 		buffer_ = memoryview(payload)
 		gamma = ProofGamma.deserialize(buffer_)
-		buffer_ = buffer_[gamma.size():]
+		buffer_ = buffer_[gamma.size:]
 		verification_hash = ProofVerificationHash.deserialize(buffer_)
-		buffer_ = buffer_[verification_hash.size():]
+		buffer_ = buffer_[verification_hash.size:]
 		scalar = ProofScalar.deserialize(buffer_)
-		buffer_ = buffer_[scalar.size():]
+		buffer_ = buffer_[scalar.size:]
 
 		instance = VrfProof()
 		instance._gamma = gamma
@@ -1121,26 +1104,27 @@ class Block:
 	def fee_multiplier(self, value: BlockFeeMultiplier):
 		self._fee_multiplier = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.height.size()
-		size += self.timestamp.size()
-		size += self.difficulty.size()
-		size += self.generation_hash_proof.size()
-		size += self.previous_block_hash.size()
-		size += self.transactions_hash.size()
-		size += self.receipts_hash.size()
-		size += self.state_hash.size()
-		size += self.beneficiary_address.size()
-		size += self.fee_multiplier.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.height.size
+		size += self.timestamp.size
+		size += self.difficulty.size
+		size += self.generation_hash_proof.size
+		size += self.previous_block_hash.size
+		size += self.transactions_hash.size
+		size += self.receipts_hash.size
+		size += self.state_hash.size
+		size += self.beneficiary_address.size
+		size += self.fee_multiplier.size
 		return size
 
 	@classmethod
@@ -1154,38 +1138,38 @@ class Block:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = BlockType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		height = Height.deserialize(buffer_)
-		buffer_ = buffer_[height.size():]
+		buffer_ = buffer_[height.size:]
 		timestamp = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[timestamp.size():]
+		buffer_ = buffer_[timestamp.size:]
 		difficulty = Difficulty.deserialize(buffer_)
-		buffer_ = buffer_[difficulty.size():]
+		buffer_ = buffer_[difficulty.size:]
 		generation_hash_proof = VrfProof.deserialize(buffer_)
-		buffer_ = buffer_[generation_hash_proof.size():]
+		buffer_ = buffer_[generation_hash_proof.size:]
 		previous_block_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[previous_block_hash.size():]
+		buffer_ = buffer_[previous_block_hash.size:]
 		transactions_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[transactions_hash.size():]
+		buffer_ = buffer_[transactions_hash.size:]
 		receipts_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[receipts_hash.size():]
+		buffer_ = buffer_[receipts_hash.size:]
 		state_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[state_hash.size():]
+		buffer_ = buffer_[state_hash.size:]
 		beneficiary_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[beneficiary_address.size():]
+		buffer_ = buffer_[beneficiary_address.size:]
 		fee_multiplier = BlockFeeMultiplier.deserialize(buffer_)
-		buffer_ = buffer_[fee_multiplier.size():]
+		buffer_ = buffer_[fee_multiplier.size:]
 
 		instance = Block()
 		instance._signature = signature
@@ -1207,7 +1191,7 @@ class Block:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -1455,31 +1439,32 @@ class NemesisBlock:
 	def transactions(self, value: List[Transaction]):
 		self._transactions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.height.size()
-		size += self.timestamp.size()
-		size += self.difficulty.size()
-		size += self.generation_hash_proof.size()
-		size += self.previous_block_hash.size()
-		size += self.transactions_hash.size()
-		size += self.receipts_hash.size()
-		size += self.state_hash.size()
-		size += self.beneficiary_address.size()
-		size += self.fee_multiplier.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.height.size
+		size += self.timestamp.size
+		size += self.difficulty.size
+		size += self.generation_hash_proof.size
+		size += self.previous_block_hash.size
+		size += self.transactions_hash.size
+		size += self.receipts_hash.size
+		size += self.state_hash.size
+		size += self.beneficiary_address.size
+		size += self.fee_multiplier.size
 		size += 4
 		size += 8
-		size += self.total_voting_balance.size()
-		size += self.previous_importance_block_hash.size()
-		size += sum(map(lambda e: e.size(), self.transactions))
+		size += self.total_voting_balance.size
+		size += self.previous_importance_block_hash.size
+		size += sum(map(lambda e: e.size, self.transactions))
 		return size
 
 	@classmethod
@@ -1493,48 +1478,48 @@ class NemesisBlock:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = BlockType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		height = Height.deserialize(buffer_)
-		buffer_ = buffer_[height.size():]
+		buffer_ = buffer_[height.size:]
 		timestamp = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[timestamp.size():]
+		buffer_ = buffer_[timestamp.size:]
 		difficulty = Difficulty.deserialize(buffer_)
-		buffer_ = buffer_[difficulty.size():]
+		buffer_ = buffer_[difficulty.size:]
 		generation_hash_proof = VrfProof.deserialize(buffer_)
-		buffer_ = buffer_[generation_hash_proof.size():]
+		buffer_ = buffer_[generation_hash_proof.size:]
 		previous_block_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[previous_block_hash.size():]
+		buffer_ = buffer_[previous_block_hash.size:]
 		transactions_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[transactions_hash.size():]
+		buffer_ = buffer_[transactions_hash.size:]
 		receipts_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[receipts_hash.size():]
+		buffer_ = buffer_[receipts_hash.size:]
 		state_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[state_hash.size():]
+		buffer_ = buffer_[state_hash.size:]
 		beneficiary_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[beneficiary_address.size():]
+		buffer_ = buffer_[beneficiary_address.size:]
 		fee_multiplier = BlockFeeMultiplier.deserialize(buffer_)
-		buffer_ = buffer_[fee_multiplier.size():]
+		buffer_ = buffer_[fee_multiplier.size:]
 		voting_eligible_accounts_count = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		harvesting_eligible_accounts_count = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		total_voting_balance = Amount.deserialize(buffer_)
-		buffer_ = buffer_[total_voting_balance.size():]
+		buffer_ = buffer_[total_voting_balance.size:]
 		previous_importance_block_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[previous_importance_block_hash.size():]
+		buffer_ = buffer_[previous_importance_block_hash.size:]
 		transactions = ArrayHelpers.read_array(buffer_, Transaction)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), transactions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, transactions)):]
 
 		instance = NemesisBlock()
 		instance._signature = signature
@@ -1561,7 +1546,7 @@ class NemesisBlock:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -1782,28 +1767,29 @@ class NormalBlock:
 	def transactions(self, value: List[Transaction]):
 		self._transactions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.height.size()
-		size += self.timestamp.size()
-		size += self.difficulty.size()
-		size += self.generation_hash_proof.size()
-		size += self.previous_block_hash.size()
-		size += self.transactions_hash.size()
-		size += self.receipts_hash.size()
-		size += self.state_hash.size()
-		size += self.beneficiary_address.size()
-		size += self.fee_multiplier.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.height.size
+		size += self.timestamp.size
+		size += self.difficulty.size
+		size += self.generation_hash_proof.size
+		size += self.previous_block_hash.size
+		size += self.transactions_hash.size
+		size += self.receipts_hash.size
+		size += self.state_hash.size
+		size += self.beneficiary_address.size
+		size += self.fee_multiplier.size
 		size += 4
-		size += sum(map(lambda e: e.size(), self.transactions))
+		size += sum(map(lambda e: e.size, self.transactions))
 		return size
 
 	@classmethod
@@ -1817,43 +1803,43 @@ class NormalBlock:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = BlockType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		height = Height.deserialize(buffer_)
-		buffer_ = buffer_[height.size():]
+		buffer_ = buffer_[height.size:]
 		timestamp = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[timestamp.size():]
+		buffer_ = buffer_[timestamp.size:]
 		difficulty = Difficulty.deserialize(buffer_)
-		buffer_ = buffer_[difficulty.size():]
+		buffer_ = buffer_[difficulty.size:]
 		generation_hash_proof = VrfProof.deserialize(buffer_)
-		buffer_ = buffer_[generation_hash_proof.size():]
+		buffer_ = buffer_[generation_hash_proof.size:]
 		previous_block_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[previous_block_hash.size():]
+		buffer_ = buffer_[previous_block_hash.size:]
 		transactions_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[transactions_hash.size():]
+		buffer_ = buffer_[transactions_hash.size:]
 		receipts_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[receipts_hash.size():]
+		buffer_ = buffer_[receipts_hash.size:]
 		state_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[state_hash.size():]
+		buffer_ = buffer_[state_hash.size:]
 		beneficiary_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[beneficiary_address.size():]
+		buffer_ = buffer_[beneficiary_address.size:]
 		fee_multiplier = BlockFeeMultiplier.deserialize(buffer_)
-		buffer_ = buffer_[fee_multiplier.size():]
+		buffer_ = buffer_[fee_multiplier.size:]
 		block_header_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert block_header_reserved_1 == 0, f"Invalid value of reserved field ({block_header_reserved_1})"
 		transactions = ArrayHelpers.read_array(buffer_, Transaction)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), transactions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, transactions)):]
 
 		instance = NormalBlock()
 		instance._signature = signature
@@ -1876,7 +1862,7 @@ class NormalBlock:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -2127,31 +2113,32 @@ class ImportanceBlock:
 	def transactions(self, value: List[Transaction]):
 		self._transactions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.height.size()
-		size += self.timestamp.size()
-		size += self.difficulty.size()
-		size += self.generation_hash_proof.size()
-		size += self.previous_block_hash.size()
-		size += self.transactions_hash.size()
-		size += self.receipts_hash.size()
-		size += self.state_hash.size()
-		size += self.beneficiary_address.size()
-		size += self.fee_multiplier.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.height.size
+		size += self.timestamp.size
+		size += self.difficulty.size
+		size += self.generation_hash_proof.size
+		size += self.previous_block_hash.size
+		size += self.transactions_hash.size
+		size += self.receipts_hash.size
+		size += self.state_hash.size
+		size += self.beneficiary_address.size
+		size += self.fee_multiplier.size
 		size += 4
 		size += 8
-		size += self.total_voting_balance.size()
-		size += self.previous_importance_block_hash.size()
-		size += sum(map(lambda e: e.size(), self.transactions))
+		size += self.total_voting_balance.size
+		size += self.previous_importance_block_hash.size
+		size += sum(map(lambda e: e.size, self.transactions))
 		return size
 
 	@classmethod
@@ -2165,48 +2152,48 @@ class ImportanceBlock:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = BlockType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		height = Height.deserialize(buffer_)
-		buffer_ = buffer_[height.size():]
+		buffer_ = buffer_[height.size:]
 		timestamp = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[timestamp.size():]
+		buffer_ = buffer_[timestamp.size:]
 		difficulty = Difficulty.deserialize(buffer_)
-		buffer_ = buffer_[difficulty.size():]
+		buffer_ = buffer_[difficulty.size:]
 		generation_hash_proof = VrfProof.deserialize(buffer_)
-		buffer_ = buffer_[generation_hash_proof.size():]
+		buffer_ = buffer_[generation_hash_proof.size:]
 		previous_block_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[previous_block_hash.size():]
+		buffer_ = buffer_[previous_block_hash.size:]
 		transactions_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[transactions_hash.size():]
+		buffer_ = buffer_[transactions_hash.size:]
 		receipts_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[receipts_hash.size():]
+		buffer_ = buffer_[receipts_hash.size:]
 		state_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[state_hash.size():]
+		buffer_ = buffer_[state_hash.size:]
 		beneficiary_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[beneficiary_address.size():]
+		buffer_ = buffer_[beneficiary_address.size:]
 		fee_multiplier = BlockFeeMultiplier.deserialize(buffer_)
-		buffer_ = buffer_[fee_multiplier.size():]
+		buffer_ = buffer_[fee_multiplier.size:]
 		voting_eligible_accounts_count = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		harvesting_eligible_accounts_count = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		total_voting_balance = Amount.deserialize(buffer_)
-		buffer_ = buffer_[total_voting_balance.size():]
+		buffer_ = buffer_[total_voting_balance.size:]
 		previous_importance_block_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[previous_importance_block_hash.size():]
+		buffer_ = buffer_[previous_importance_block_hash.size:]
 		transactions = ArrayHelpers.read_array(buffer_, Transaction)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), transactions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, transactions)):]
 
 		instance = ImportanceBlock()
 		instance._signature = signature
@@ -2233,7 +2220,7 @@ class ImportanceBlock:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -2310,19 +2297,20 @@ class FinalizationRound:
 	def point(self, value: FinalizationPoint):
 		self._point = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.epoch.size()
-		size += self.point.size()
+		size += self.epoch.size
+		size += self.point.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> FinalizationRound:
 		buffer_ = memoryview(payload)
 		epoch = FinalizationEpoch.deserialize(buffer_)
-		buffer_ = buffer_[epoch.size():]
+		buffer_ = buffer_[epoch.size:]
 		point = FinalizationPoint.deserialize(buffer_)
-		buffer_ = buffer_[point.size():]
+		buffer_ = buffer_[point.size:]
 
 		instance = FinalizationRound()
 		instance._epoch = epoch
@@ -2379,22 +2367,23 @@ class FinalizedBlockHeader:
 	def hash(self, value: Hash256):
 		self._hash = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.round.size()
-		size += self.height.size()
-		size += self.hash.size()
+		size += self.round.size
+		size += self.height.size
+		size += self.hash.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> FinalizedBlockHeader:
 		buffer_ = memoryview(payload)
 		round = FinalizationRound.deserialize(buffer_)
-		buffer_ = buffer_[round.size():]
+		buffer_ = buffer_[round.size:]
 		height = Height.deserialize(buffer_)
-		buffer_ = buffer_[height.size():]
+		buffer_ = buffer_[height.size:]
 		hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[hash.size():]
+		buffer_ = buffer_[hash.size:]
 
 		instance = FinalizedBlockHeader()
 		instance._round = round
@@ -2436,6 +2425,7 @@ class ReceiptType(Enum):
 	ADDRESS_ALIAS_RESOLUTION = 61763
 	MOSAIC_ALIAS_RESOLUTION = 62019
 
+	@property
 	def size(self) -> int:
 		return 2
 
@@ -2475,11 +2465,12 @@ class Receipt:
 	def type_(self, value: ReceiptType):
 		self._type_ = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
+		size += self.type_.size
 		return size
 
 	@classmethod
@@ -2492,7 +2483,7 @@ class Receipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 
 		instance = Receipt()
 		instance._version = version
@@ -2501,7 +2492,7 @@ class Receipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		return buffer_
@@ -2560,13 +2551,14 @@ class HarvestFeeReceipt:
 	def target_address(self, value: Address):
 		self._target_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.target_address.size()
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.target_address.size
 		return size
 
 	@classmethod
@@ -2579,11 +2571,11 @@ class HarvestFeeReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		target_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 
 		instance = HarvestFeeReceipt()
 		instance._version = version
@@ -2594,7 +2586,7 @@ class HarvestFeeReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -2647,12 +2639,13 @@ class InflationReceipt:
 	def mosaic(self, value: Mosaic):
 		self._mosaic = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
+		size += self.type_.size
+		size += self.mosaic.size
 		return size
 
 	@classmethod
@@ -2665,9 +2658,9 @@ class InflationReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 
 		instance = InflationReceipt()
 		instance._version = version
@@ -2677,7 +2670,7 @@ class InflationReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -2738,13 +2731,14 @@ class LockHashCreatedFeeReceipt:
 	def target_address(self, value: Address):
 		self._target_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.target_address.size()
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.target_address.size
 		return size
 
 	@classmethod
@@ -2757,11 +2751,11 @@ class LockHashCreatedFeeReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		target_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 
 		instance = LockHashCreatedFeeReceipt()
 		instance._version = version
@@ -2772,7 +2766,7 @@ class LockHashCreatedFeeReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -2835,13 +2829,14 @@ class LockHashCompletedFeeReceipt:
 	def target_address(self, value: Address):
 		self._target_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.target_address.size()
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.target_address.size
 		return size
 
 	@classmethod
@@ -2854,11 +2849,11 @@ class LockHashCompletedFeeReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		target_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 
 		instance = LockHashCompletedFeeReceipt()
 		instance._version = version
@@ -2869,7 +2864,7 @@ class LockHashCompletedFeeReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -2932,13 +2927,14 @@ class LockHashExpiredFeeReceipt:
 	def target_address(self, value: Address):
 		self._target_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.target_address.size()
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.target_address.size
 		return size
 
 	@classmethod
@@ -2951,11 +2947,11 @@ class LockHashExpiredFeeReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		target_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 
 		instance = LockHashExpiredFeeReceipt()
 		instance._version = version
@@ -2966,7 +2962,7 @@ class LockHashExpiredFeeReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -3029,13 +3025,14 @@ class LockSecretCreatedFeeReceipt:
 	def target_address(self, value: Address):
 		self._target_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.target_address.size()
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.target_address.size
 		return size
 
 	@classmethod
@@ -3048,11 +3045,11 @@ class LockSecretCreatedFeeReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		target_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 
 		instance = LockSecretCreatedFeeReceipt()
 		instance._version = version
@@ -3063,7 +3060,7 @@ class LockSecretCreatedFeeReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -3126,13 +3123,14 @@ class LockSecretCompletedFeeReceipt:
 	def target_address(self, value: Address):
 		self._target_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.target_address.size()
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.target_address.size
 		return size
 
 	@classmethod
@@ -3145,11 +3143,11 @@ class LockSecretCompletedFeeReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		target_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 
 		instance = LockSecretCompletedFeeReceipt()
 		instance._version = version
@@ -3160,7 +3158,7 @@ class LockSecretCompletedFeeReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -3223,13 +3221,14 @@ class LockSecretExpiredFeeReceipt:
 	def target_address(self, value: Address):
 		self._target_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.target_address.size()
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.target_address.size
 		return size
 
 	@classmethod
@@ -3242,11 +3241,11 @@ class LockSecretExpiredFeeReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		target_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 
 		instance = LockSecretExpiredFeeReceipt()
 		instance._version = version
@@ -3257,7 +3256,7 @@ class LockSecretExpiredFeeReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -3310,12 +3309,13 @@ class MosaicExpiredReceipt:
 	def artifact_id(self, value: MosaicId):
 		self._artifact_id = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.artifact_id.size()
+		size += self.type_.size
+		size += self.artifact_id.size
 		return size
 
 	@classmethod
@@ -3328,9 +3328,9 @@ class MosaicExpiredReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		artifact_id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[artifact_id.size():]
+		buffer_ = buffer_[artifact_id.size:]
 
 		instance = MosaicExpiredReceipt()
 		instance._version = version
@@ -3340,7 +3340,7 @@ class MosaicExpiredReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._artifact_id.serialize()
@@ -3411,14 +3411,15 @@ class MosaicRentalFeeReceipt:
 	def recipient_address(self, value: Address):
 		self._recipient_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.sender_address.size()
-		size += self.recipient_address.size()
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.sender_address.size
+		size += self.recipient_address.size
 		return size
 
 	@classmethod
@@ -3431,13 +3432,13 @@ class MosaicRentalFeeReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		sender_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[sender_address.size():]
+		buffer_ = buffer_[sender_address.size:]
 		recipient_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[recipient_address.size():]
+		buffer_ = buffer_[recipient_address.size:]
 
 		instance = MosaicRentalFeeReceipt()
 		instance._version = version
@@ -3449,7 +3450,7 @@ class MosaicRentalFeeReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -3474,9 +3475,6 @@ class NamespaceId(BaseValue):
 	def __init__(self, namespace_id: int = 0):
 		super().__init__(self.SIZE, namespace_id, NamespaceId)
 
-	def size(self) -> int:
-		return 8
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> NamespaceId:
 		buffer_ = memoryview(payload)
@@ -3490,6 +3488,7 @@ class NamespaceRegistrationType(Enum):
 	ROOT = 0
 	CHILD = 1
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -3508,6 +3507,7 @@ class AliasAction(Enum):
 	UNLINK = 0
 	LINK = 1
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -3558,12 +3558,13 @@ class NamespaceExpiredReceipt:
 	def artifact_id(self, value: NamespaceId):
 		self._artifact_id = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.artifact_id.size()
+		size += self.type_.size
+		size += self.artifact_id.size
 		return size
 
 	@classmethod
@@ -3576,9 +3577,9 @@ class NamespaceExpiredReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		artifact_id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[artifact_id.size():]
+		buffer_ = buffer_[artifact_id.size:]
 
 		instance = NamespaceExpiredReceipt()
 		instance._version = version
@@ -3588,7 +3589,7 @@ class NamespaceExpiredReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._artifact_id.serialize()
@@ -3639,12 +3640,13 @@ class NamespaceDeletedReceipt:
 	def artifact_id(self, value: NamespaceId):
 		self._artifact_id = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.artifact_id.size()
+		size += self.type_.size
+		size += self.artifact_id.size
 		return size
 
 	@classmethod
@@ -3657,9 +3659,9 @@ class NamespaceDeletedReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		artifact_id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[artifact_id.size():]
+		buffer_ = buffer_[artifact_id.size:]
 
 		instance = NamespaceDeletedReceipt()
 		instance._version = version
@@ -3669,7 +3671,7 @@ class NamespaceDeletedReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._artifact_id.serialize()
@@ -3740,14 +3742,15 @@ class NamespaceRentalFeeReceipt:
 	def recipient_address(self, value: Address):
 		self._recipient_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 2
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.sender_address.size()
-		size += self.recipient_address.size()
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.sender_address.size
+		size += self.recipient_address.size
 		return size
 
 	@classmethod
@@ -3760,13 +3763,13 @@ class NamespaceRentalFeeReceipt:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		type_ = ReceiptType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		sender_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[sender_address.size():]
+		buffer_ = buffer_[sender_address.size:]
 		recipient_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[recipient_address.size():]
+		buffer_ = buffer_[recipient_address.size:]
 
 		instance = NamespaceRentalFeeReceipt()
 		instance._version = version
@@ -3778,7 +3781,7 @@ class NamespaceRentalFeeReceipt:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._version.to_bytes(2, byteorder="little", signed=False)
 		buffer_ += self._type_.serialize()
 		buffer_ += self._mosaic.serialize()
@@ -3821,6 +3824,7 @@ class ReceiptSource:
 	def secondary_id(self, value: int):
 		self._secondary_id = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
@@ -3880,19 +3884,20 @@ class AddressResolutionEntry:
 	def resolved_value(self, value: Address):
 		self._resolved_value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.source.size()
-		size += self.resolved_value.size()
+		size += self.source.size
+		size += self.resolved_value.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> AddressResolutionEntry:
 		buffer_ = memoryview(payload)
 		source = ReceiptSource.deserialize(buffer_)
-		buffer_ = buffer_[source.size():]
+		buffer_ = buffer_[source.size:]
 		resolved_value = Address.deserialize(buffer_)
-		buffer_ = buffer_[resolved_value.size():]
+		buffer_ = buffer_[resolved_value.size:]
 
 		instance = AddressResolutionEntry()
 		instance._source = source
@@ -3939,22 +3944,23 @@ class AddressResolutionStatement:
 	def resolution_entries(self, value: List[AddressResolutionEntry]):
 		self._resolution_entries = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.unresolved.size()
+		size += self.unresolved.size
 		size += 4
-		size += sum(map(lambda e: e.size(), self.resolution_entries))
+		size += sum(map(lambda e: e.size, self.resolution_entries))
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> AddressResolutionStatement:
 		buffer_ = memoryview(payload)
 		unresolved = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[unresolved.size():]
+		buffer_ = buffer_[unresolved.size:]
 		resolution_entries_count = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		resolution_entries = ArrayHelpers.read_array_count(buffer_, AddressResolutionEntry, resolution_entries_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), resolution_entries)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, resolution_entries)):]
 
 		instance = AddressResolutionStatement()
 		instance._unresolved = unresolved
@@ -4002,19 +4008,20 @@ class MosaicResolutionEntry:
 	def resolved_value(self, value: MosaicId):
 		self._resolved_value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.source.size()
-		size += self.resolved_value.size()
+		size += self.source.size
+		size += self.resolved_value.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> MosaicResolutionEntry:
 		buffer_ = memoryview(payload)
 		source = ReceiptSource.deserialize(buffer_)
-		buffer_ = buffer_[source.size():]
+		buffer_ = buffer_[source.size:]
 		resolved_value = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[resolved_value.size():]
+		buffer_ = buffer_[resolved_value.size:]
 
 		instance = MosaicResolutionEntry()
 		instance._source = source
@@ -4061,22 +4068,23 @@ class MosaicResolutionStatement:
 	def resolution_entries(self, value: List[MosaicResolutionEntry]):
 		self._resolution_entries = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.unresolved.size()
+		size += self.unresolved.size
 		size += 4
-		size += sum(map(lambda e: e.size(), self.resolution_entries))
+		size += sum(map(lambda e: e.size, self.resolution_entries))
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> MosaicResolutionStatement:
 		buffer_ = memoryview(payload)
 		unresolved = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[unresolved.size():]
+		buffer_ = buffer_[unresolved.size:]
 		resolution_entries_count = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		resolution_entries = ArrayHelpers.read_array_count(buffer_, MosaicResolutionEntry, resolution_entries_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), resolution_entries)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, resolution_entries)):]
 
 		instance = MosaicResolutionStatement()
 		instance._unresolved = unresolved
@@ -4132,12 +4140,13 @@ class TransactionStatement:
 	def receipts(self, value: List[Receipt]):
 		self._receipts = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
 		size += 4
-		size += sum(map(lambda e: e.size(), self.receipts))
+		size += sum(map(lambda e: e.size, self.receipts))
 		return size
 
 	@classmethod
@@ -4150,7 +4159,7 @@ class TransactionStatement:
 		receipt_count = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		receipts = ArrayHelpers.read_array_count(buffer_, Receipt, receipt_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), receipts)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, receipts)):]
 
 		instance = TransactionStatement()
 		instance._primary_id = primary_id
@@ -4211,14 +4220,15 @@ class BlockStatement:
 	def mosaic_resolution_statements(self, value: List[MosaicResolutionStatement]):
 		self._mosaic_resolution_statements = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
-		size += sum(map(lambda e: e.size(), self.transaction_statements))
+		size += sum(map(lambda e: e.size, self.transaction_statements))
 		size += 4
-		size += sum(map(lambda e: e.size(), self.address_resolution_statements))
+		size += sum(map(lambda e: e.size, self.address_resolution_statements))
 		size += 4
-		size += sum(map(lambda e: e.size(), self.mosaic_resolution_statements))
+		size += sum(map(lambda e: e.size, self.mosaic_resolution_statements))
 		return size
 
 	@classmethod
@@ -4227,15 +4237,15 @@ class BlockStatement:
 		transaction_statement_count = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		transaction_statements = ArrayHelpers.read_array_count(buffer_, TransactionStatement, transaction_statement_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), transaction_statements)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, transaction_statements)):]
 		address_resolution_statement_count = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		address_resolution_statements = ArrayHelpers.read_array_count(buffer_, AddressResolutionStatement, address_resolution_statement_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), address_resolution_statements)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, address_resolution_statements)):]
 		mosaic_resolution_statement_count = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		mosaic_resolution_statements = ArrayHelpers.read_array_count(buffer_, MosaicResolutionStatement, mosaic_resolution_statement_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), mosaic_resolution_statements)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, mosaic_resolution_statements)):]
 
 		instance = BlockStatement()
 		instance._transaction_statements = transaction_statements
@@ -4268,6 +4278,7 @@ class AccountType(Enum):
 	REMOTE = 2
 	REMOTE_UNLINKED = 3
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -4288,6 +4299,7 @@ class AccountKeyTypeFlags(Flag):
 	NODE = 2
 	VRF = 4
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -4306,6 +4318,7 @@ class AccountStateFormat(Enum):
 	REGULAR = 0
 	HIGH_VALUE = 1
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -4356,22 +4369,23 @@ class PinnedVotingKey:
 	def end_epoch(self, value: FinalizationEpoch):
 		self._end_epoch = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.voting_key.size()
-		size += self.start_epoch.size()
-		size += self.end_epoch.size()
+		size += self.voting_key.size
+		size += self.start_epoch.size
+		size += self.end_epoch.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> PinnedVotingKey:
 		buffer_ = memoryview(payload)
 		voting_key = VotingPublicKey.deserialize(buffer_)
-		buffer_ = buffer_[voting_key.size():]
+		buffer_ = buffer_[voting_key.size:]
 		start_epoch = FinalizationEpoch.deserialize(buffer_)
-		buffer_ = buffer_[start_epoch.size():]
+		buffer_ = buffer_[start_epoch.size:]
 		end_epoch = FinalizationEpoch.deserialize(buffer_)
-		buffer_ = buffer_[end_epoch.size():]
+		buffer_ = buffer_[end_epoch.size:]
 
 		instance = PinnedVotingKey()
 		instance._voting_key = voting_key
@@ -4421,19 +4435,20 @@ class ImportanceSnapshot:
 	def height(self, value: ImportanceHeight):
 		self._height = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.importance.size()
-		size += self.height.size()
+		size += self.importance.size
+		size += self.height.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> ImportanceSnapshot:
 		buffer_ = memoryview(payload)
 		importance = Importance.deserialize(buffer_)
-		buffer_ = buffer_[importance.size():]
+		buffer_ = buffer_[importance.size:]
 		height = ImportanceHeight.deserialize(buffer_)
-		buffer_ = buffer_[height.size():]
+		buffer_ = buffer_[height.size:]
 
 		instance = ImportanceSnapshot()
 		instance._importance = importance
@@ -4498,10 +4513,11 @@ class HeightActivityBucket:
 	def raw_score(self, value: int):
 		self._raw_score = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.start_height.size()
-		size += self.total_fees_paid.size()
+		size += self.start_height.size
+		size += self.total_fees_paid.size
 		size += 4
 		size += 8
 		return size
@@ -4510,9 +4526,9 @@ class HeightActivityBucket:
 	def deserialize(self, payload: ByteString) -> HeightActivityBucket:
 		buffer_ = memoryview(payload)
 		start_height = ImportanceHeight.deserialize(buffer_)
-		buffer_ = buffer_[start_height.size():]
+		buffer_ = buffer_[start_height.size:]
 		total_fees_paid = Amount.deserialize(buffer_)
-		buffer_ = buffer_[total_fees_paid.size():]
+		buffer_ = buffer_[total_fees_paid.size:]
 		beneficiary_count = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		raw_score = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
@@ -4559,16 +4575,17 @@ class HeightActivityBuckets:
 	def buckets(self, value: List[HeightActivityBucket]):
 		self._buckets = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += sum(map(lambda e: e.size(), self.buckets))
+		size += sum(map(lambda e: e.size, self.buckets))
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> HeightActivityBuckets:
 		buffer_ = memoryview(payload)
 		buckets = ArrayHelpers.read_array_count(buffer_, HeightActivityBucket, 5)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), buckets)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, buckets)):]
 
 		instance = HeightActivityBuckets()
 		instance._buckets = buckets
@@ -4741,30 +4758,31 @@ class AccountState:
 	def balances(self, value: List[Mosaic]):
 		self._balances = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
-		size += self.address.size()
-		size += self.address_height.size()
-		size += self.public_key.size()
-		size += self.public_key_height.size()
-		size += self.account_type.size()
-		size += self.format.size()
-		size += self.supplemental_public_keys_mask.size()
+		size += self.address.size
+		size += self.address_height.size
+		size += self.public_key.size
+		size += self.public_key_height.size
+		size += self.account_type.size
+		size += self.format.size
+		size += self.supplemental_public_keys_mask.size
 		size += 1
 		if AccountKeyTypeFlags.LINKED in self.supplemental_public_keys_mask:
-			size += self.linked_public_key.size()
+			size += self.linked_public_key.size
 		if AccountKeyTypeFlags.NODE in self.supplemental_public_keys_mask:
-			size += self.node_public_key.size()
+			size += self.node_public_key.size
 		if AccountKeyTypeFlags.VRF in self.supplemental_public_keys_mask:
-			size += self.vrf_public_key.size()
-		size += sum(map(lambda e: e.size(), self.voting_public_keys))
+			size += self.vrf_public_key.size
+		size += sum(map(lambda e: e.size, self.voting_public_keys))
 		if AccountStateFormat.HIGH_VALUE == self.format:
-			size += self.importance_snapshots.size()
+			size += self.importance_snapshots.size
 		if AccountStateFormat.HIGH_VALUE == self.format:
-			size += self.activity_buckets.size()
+			size += self.activity_buckets.size
 		size += 2
-		size += sum(map(lambda e: e.size(), self.balances))
+		size += sum(map(lambda e: e.size, self.balances))
 		return size
 
 	@classmethod
@@ -4773,47 +4791,47 @@ class AccountState:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		address = Address.deserialize(buffer_)
-		buffer_ = buffer_[address.size():]
+		buffer_ = buffer_[address.size:]
 		address_height = Height.deserialize(buffer_)
-		buffer_ = buffer_[address_height.size():]
+		buffer_ = buffer_[address_height.size:]
 		public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[public_key.size():]
+		buffer_ = buffer_[public_key.size:]
 		public_key_height = Height.deserialize(buffer_)
-		buffer_ = buffer_[public_key_height.size():]
+		buffer_ = buffer_[public_key_height.size:]
 		account_type = AccountType.deserialize(buffer_)
-		buffer_ = buffer_[account_type.size():]
+		buffer_ = buffer_[account_type.size:]
 		format = AccountStateFormat.deserialize(buffer_)
-		buffer_ = buffer_[format.size():]
+		buffer_ = buffer_[format.size:]
 		supplemental_public_keys_mask = AccountKeyTypeFlags.deserialize(buffer_)
-		buffer_ = buffer_[supplemental_public_keys_mask.size():]
+		buffer_ = buffer_[supplemental_public_keys_mask.size:]
 		voting_public_keys_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		linked_public_key = None
 		if AccountKeyTypeFlags.LINKED in supplemental_public_keys_mask:
 			linked_public_key = PublicKey.deserialize(buffer_)
-			buffer_ = buffer_[linked_public_key.size():]
+			buffer_ = buffer_[linked_public_key.size:]
 		node_public_key = None
 		if AccountKeyTypeFlags.NODE in supplemental_public_keys_mask:
 			node_public_key = PublicKey.deserialize(buffer_)
-			buffer_ = buffer_[node_public_key.size():]
+			buffer_ = buffer_[node_public_key.size:]
 		vrf_public_key = None
 		if AccountKeyTypeFlags.VRF in supplemental_public_keys_mask:
 			vrf_public_key = PublicKey.deserialize(buffer_)
-			buffer_ = buffer_[vrf_public_key.size():]
+			buffer_ = buffer_[vrf_public_key.size:]
 		voting_public_keys = ArrayHelpers.read_array_count(buffer_, PinnedVotingKey, voting_public_keys_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), voting_public_keys)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, voting_public_keys)):]
 		importance_snapshots = None
 		if AccountStateFormat.HIGH_VALUE == format:
 			importance_snapshots = ImportanceSnapshot.deserialize(buffer_)
-			buffer_ = buffer_[importance_snapshots.size():]
+			buffer_ = buffer_[importance_snapshots.size:]
 		activity_buckets = None
 		if AccountStateFormat.HIGH_VALUE == format:
 			activity_buckets = HeightActivityBuckets.deserialize(buffer_)
-			buffer_ = buffer_[activity_buckets.size():]
+			buffer_ = buffer_[activity_buckets.size:]
 		balances_count = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		balances = ArrayHelpers.read_array_count(buffer_, Mosaic, balances_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), balances)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, balances)):]
 
 		instance = AccountState()
 		instance._version = version
@@ -4884,6 +4902,7 @@ class LockStatus(Enum):
 	UNUSED = 0
 	USED = 1
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -4963,14 +4982,15 @@ class HashLockInfo:
 	def hash(self, value: Hash256):
 		self._hash = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
-		size += self.owner_address.size()
-		size += self.mosaic.size()
-		size += self.end_height.size()
-		size += self.status.size()
-		size += self.hash.size()
+		size += self.owner_address.size
+		size += self.mosaic.size
+		size += self.end_height.size
+		size += self.status.size
+		size += self.hash.size
 		return size
 
 	@classmethod
@@ -4979,15 +4999,15 @@ class HashLockInfo:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		owner_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[owner_address.size():]
+		buffer_ = buffer_[owner_address.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		end_height = Height.deserialize(buffer_)
-		buffer_ = buffer_[end_height.size():]
+		buffer_ = buffer_[end_height.size:]
 		status = LockStatus.deserialize(buffer_)
-		buffer_ = buffer_[status.size():]
+		buffer_ = buffer_[status.size:]
 		hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[hash.size():]
+		buffer_ = buffer_[hash.size:]
 
 		instance = HashLockInfo()
 		instance._version = version
@@ -5026,9 +5046,6 @@ class ScopedMetadataKey(BaseValue):
 	def __init__(self, scoped_metadata_key: int = 0):
 		super().__init__(self.SIZE, scoped_metadata_key, ScopedMetadataKey)
 
-	def size(self) -> int:
-		return 8
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> ScopedMetadataKey:
 		buffer_ = memoryview(payload)
@@ -5043,6 +5060,7 @@ class MetadataType(Enum):
 	MOSAIC = 1
 	NAMESPACE = 2
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -5073,6 +5091,7 @@ class MetadataValue:
 	def data(self, value: bytes):
 		self._data = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
@@ -5178,15 +5197,16 @@ class MetadataEntry:
 	def value(self, value: MetadataValue):
 		self._value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
-		size += self.source_address.size()
-		size += self.target_address.size()
-		size += self.scoped_metadata_key.size()
+		size += self.source_address.size
+		size += self.target_address.size
+		size += self.scoped_metadata_key.size
 		size += 8
-		size += self.metadata_type.size()
-		size += self.value.size()
+		size += self.metadata_type.size
+		size += self.value.size
 		return size
 
 	@classmethod
@@ -5195,17 +5215,17 @@ class MetadataEntry:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		source_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[source_address.size():]
+		buffer_ = buffer_[source_address.size:]
 		target_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 		scoped_metadata_key = ScopedMetadataKey.deserialize(buffer_)
-		buffer_ = buffer_[scoped_metadata_key.size():]
+		buffer_ = buffer_[scoped_metadata_key.size:]
 		target_id = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		metadata_type = MetadataType.deserialize(buffer_)
-		buffer_ = buffer_[metadata_type.size():]
+		buffer_ = buffer_[metadata_type.size:]
 		value = MetadataValue.deserialize(buffer_)
-		buffer_ = buffer_[value.size():]
+		buffer_ = buffer_[value.size:]
 
 		instance = MetadataEntry()
 		instance._version = version
@@ -5247,9 +5267,6 @@ class MosaicNonce(BaseValue):
 	def __init__(self, mosaic_nonce: int = 0):
 		super().__init__(self.SIZE, mosaic_nonce, MosaicNonce)
 
-	def size(self) -> int:
-		return 4
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> MosaicNonce:
 		buffer_ = memoryview(payload)
@@ -5266,6 +5283,7 @@ class MosaicFlags(Flag):
 	RESTRICTABLE = 4
 	REVOKABLE = 8
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -5284,6 +5302,7 @@ class MosaicSupplyChangeAction(Enum):
 	DECREASE = 0
 	INCREASE = 1
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -5333,22 +5352,23 @@ class MosaicProperties:
 	def duration(self, value: BlockDuration):
 		self._duration = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.flags.size()
+		size += self.flags.size
 		size += 1
-		size += self.duration.size()
+		size += self.duration.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> MosaicProperties:
 		buffer_ = memoryview(payload)
 		flags = MosaicFlags.deserialize(buffer_)
-		buffer_ = buffer_[flags.size():]
+		buffer_ = buffer_[flags.size:]
 		divisibility = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		duration = BlockDuration.deserialize(buffer_)
-		buffer_ = buffer_[duration.size():]
+		buffer_ = buffer_[duration.size:]
 
 		instance = MosaicProperties()
 		instance._flags = flags
@@ -5417,25 +5437,26 @@ class MosaicDefinition:
 	def properties(self, value: MosaicProperties):
 		self._properties = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.start_height.size()
-		size += self.owner_address.size()
+		size += self.start_height.size
+		size += self.owner_address.size
 		size += 4
-		size += self.properties.size()
+		size += self.properties.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> MosaicDefinition:
 		buffer_ = memoryview(payload)
 		start_height = Height.deserialize(buffer_)
-		buffer_ = buffer_[start_height.size():]
+		buffer_ = buffer_[start_height.size:]
 		owner_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[owner_address.size():]
+		buffer_ = buffer_[owner_address.size:]
 		revision = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		properties = MosaicProperties.deserialize(buffer_)
-		buffer_ = buffer_[properties.size():]
+		buffer_ = buffer_[properties.size:]
 
 		instance = MosaicDefinition()
 		instance._start_height = start_height
@@ -5507,12 +5528,13 @@ class MosaicEntry:
 	def definition(self, value: MosaicDefinition):
 		self._definition = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
-		size += self.mosaic_id.size()
-		size += self.supply.size()
-		size += self.definition.size()
+		size += self.mosaic_id.size
+		size += self.supply.size
+		size += self.definition.size
 		return size
 
 	@classmethod
@@ -5521,11 +5543,11 @@ class MosaicEntry:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		mosaic_id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		supply = Amount.deserialize(buffer_)
-		buffer_ = buffer_[supply.size():]
+		buffer_ = buffer_[supply.size:]
 		definition = MosaicDefinition.deserialize(buffer_)
-		buffer_ = buffer_[definition.size():]
+		buffer_ = buffer_[definition.size:]
 
 		instance = MosaicEntry()
 		instance._version = version
@@ -5615,16 +5637,17 @@ class MultisigEntry:
 	def multisig_addresses(self, value: List[Address]):
 		self._multisig_addresses = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
 		size += 4
 		size += 4
-		size += self.account_address.size()
+		size += self.account_address.size
 		size += 8
-		size += sum(map(lambda e: e.size(), self.cosignatory_addresses))
+		size += sum(map(lambda e: e.size, self.cosignatory_addresses))
 		size += 8
-		size += sum(map(lambda e: e.size(), self.multisig_addresses))
+		size += sum(map(lambda e: e.size, self.multisig_addresses))
 		return size
 
 	@classmethod
@@ -5637,15 +5660,15 @@ class MultisigEntry:
 		min_removal = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		account_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[account_address.size():]
+		buffer_ = buffer_[account_address.size:]
 		cosignatory_addresses_count = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		cosignatory_addresses = ArrayHelpers.read_array_count(buffer_, Address, cosignatory_addresses_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), cosignatory_addresses)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, cosignatory_addresses)):]
 		multisig_addresses_count = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		multisig_addresses = ArrayHelpers.read_array_count(buffer_, Address, multisig_addresses_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), multisig_addresses)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, multisig_addresses)):]
 
 		instance = MultisigEntry()
 		instance._version = version
@@ -5706,19 +5729,20 @@ class NamespaceLifetime:
 	def lifetime_end(self, value: Height):
 		self._lifetime_end = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.lifetime_start.size()
-		size += self.lifetime_end.size()
+		size += self.lifetime_start.size
+		size += self.lifetime_end.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> NamespaceLifetime:
 		buffer_ = memoryview(payload)
 		lifetime_start = Height.deserialize(buffer_)
-		buffer_ = buffer_[lifetime_start.size():]
+		buffer_ = buffer_[lifetime_start.size:]
 		lifetime_end = Height.deserialize(buffer_)
-		buffer_ = buffer_[lifetime_end.size():]
+		buffer_ = buffer_[lifetime_end.size:]
 
 		instance = NamespaceLifetime()
 		instance._lifetime_start = lifetime_start
@@ -5744,6 +5768,7 @@ class NamespaceAliasType(Enum):
 	MOSAIC_ID = 1
 	ADDRESS = 2
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -5794,28 +5819,29 @@ class NamespaceAlias:
 	def address_alias(self, value: Address):
 		self._address_alias = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.namespace_alias_type.size()
+		size += self.namespace_alias_type.size
 		if NamespaceAliasType.MOSAIC_ID == self.namespace_alias_type:
-			size += self.mosaic_alias.size()
+			size += self.mosaic_alias.size
 		if NamespaceAliasType.ADDRESS == self.namespace_alias_type:
-			size += self.address_alias.size()
+			size += self.address_alias.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> NamespaceAlias:
 		buffer_ = memoryview(payload)
 		namespace_alias_type = NamespaceAliasType.deserialize(buffer_)
-		buffer_ = buffer_[namespace_alias_type.size():]
+		buffer_ = buffer_[namespace_alias_type.size:]
 		mosaic_alias = None
 		if NamespaceAliasType.MOSAIC_ID == namespace_alias_type:
 			mosaic_alias = MosaicId.deserialize(buffer_)
-			buffer_ = buffer_[mosaic_alias.size():]
+			buffer_ = buffer_[mosaic_alias.size:]
 		address_alias = None
 		if NamespaceAliasType.ADDRESS == namespace_alias_type:
 			address_alias = Address.deserialize(buffer_)
-			buffer_ = buffer_[address_alias.size():]
+			buffer_ = buffer_[address_alias.size:]
 
 		instance = NamespaceAlias()
 		instance._namespace_alias_type = namespace_alias_type
@@ -5867,11 +5893,12 @@ class NamespacePath:
 	def alias(self, value: NamespaceAlias):
 		self._alias = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 1
-		size += sum(map(lambda e: e.size(), self.path))
-		size += self.alias.size()
+		size += sum(map(lambda e: e.size, self.path))
+		size += self.alias.size
 		return size
 
 	@classmethod
@@ -5880,9 +5907,9 @@ class NamespacePath:
 		path_size = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		path = ArrayHelpers.read_array_count(buffer_, NamespaceId, path_size)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), path)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, path)):]
 		alias = NamespaceAlias.deserialize(buffer_)
-		buffer_ = buffer_[alias.size():]
+		buffer_ = buffer_[alias.size:]
 
 		instance = NamespacePath()
 		instance._path = path
@@ -5969,15 +5996,16 @@ class RootNamespaceHistory:
 	def paths(self, value: List[NamespacePath]):
 		self._paths = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
-		size += self.id.size()
-		size += self.owner_address.size()
-		size += self.lifetime.size()
-		size += self.root_alias.size()
+		size += self.id.size
+		size += self.owner_address.size
+		size += self.lifetime.size
+		size += self.root_alias.size
 		size += 8
-		size += sum(map(lambda e: e.size(), self.paths))
+		size += sum(map(lambda e: e.size, self.paths))
 		return size
 
 	@classmethod
@@ -5986,17 +6014,17 @@ class RootNamespaceHistory:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[id.size():]
+		buffer_ = buffer_[id.size:]
 		owner_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[owner_address.size():]
+		buffer_ = buffer_[owner_address.size:]
 		lifetime = NamespaceLifetime.deserialize(buffer_)
-		buffer_ = buffer_[lifetime.size():]
+		buffer_ = buffer_[lifetime.size:]
 		root_alias = NamespaceAlias.deserialize(buffer_)
-		buffer_ = buffer_[root_alias.size():]
+		buffer_ = buffer_[root_alias.size:]
 		children_count = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		paths = ArrayHelpers.read_array_count(buffer_, NamespacePath, children_count, lambda e: e.path)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), paths)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, paths)):]
 
 		instance = RootNamespaceHistory()
 		instance._version = version
@@ -6037,6 +6065,7 @@ class AccountRestrictionFlags(Flag):
 	OUTGOING = 16384
 	BLOCK = 32768
 
+	@property
 	def size(self) -> int:
 		return 2
 
@@ -6067,10 +6096,11 @@ class AccountRestrictionAddressValue:
 	def restriction_values(self, value: List[Address]):
 		self._restriction_values = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 8
-		size += sum(map(lambda e: e.size(), self.restriction_values))
+		size += sum(map(lambda e: e.size, self.restriction_values))
 		return size
 
 	@classmethod
@@ -6079,7 +6109,7 @@ class AccountRestrictionAddressValue:
 		restriction_values_count = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		restriction_values = ArrayHelpers.read_array_count(buffer_, Address, restriction_values_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_values)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_values)):]
 
 		instance = AccountRestrictionAddressValue()
 		instance._restriction_values = restriction_values
@@ -6114,10 +6144,11 @@ class AccountRestrictionMosaicValue:
 	def restriction_values(self, value: List[MosaicId]):
 		self._restriction_values = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 8
-		size += sum(map(lambda e: e.size(), self.restriction_values))
+		size += sum(map(lambda e: e.size, self.restriction_values))
 		return size
 
 	@classmethod
@@ -6126,7 +6157,7 @@ class AccountRestrictionMosaicValue:
 		restriction_values_count = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		restriction_values = ArrayHelpers.read_array_count(buffer_, MosaicId, restriction_values_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_values)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_values)):]
 
 		instance = AccountRestrictionMosaicValue()
 		instance._restriction_values = restriction_values
@@ -6161,10 +6192,11 @@ class AccountRestrictionTransactionTypeValue:
 	def restriction_values(self, value: List[TransactionType]):
 		self._restriction_values = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 8
-		size += sum(map(lambda e: e.size(), self.restriction_values))
+		size += sum(map(lambda e: e.size, self.restriction_values))
 		return size
 
 	@classmethod
@@ -6173,7 +6205,7 @@ class AccountRestrictionTransactionTypeValue:
 		restriction_values_count = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		restriction_values = ArrayHelpers.read_array_count(buffer_, TransactionType, restriction_values_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_values)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_values)):]
 
 		instance = AccountRestrictionTransactionTypeValue()
 		instance._restriction_values = restriction_values
@@ -6238,34 +6270,35 @@ class AccountRestrictionsInfo:
 	def transaction_type_restrictions(self, value: AccountRestrictionTransactionTypeValue):
 		self._transaction_type_restrictions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.restriction_flags.size()
+		size += self.restriction_flags.size
 		if AccountRestrictionFlags.ADDRESS in self.restriction_flags:
-			size += self.address_restrictions.size()
+			size += self.address_restrictions.size
 		if AccountRestrictionFlags.MOSAIC_ID in self.restriction_flags:
-			size += self.mosaic_id_restrictions.size()
+			size += self.mosaic_id_restrictions.size
 		if AccountRestrictionFlags.TRANSACTION_TYPE in self.restriction_flags:
-			size += self.transaction_type_restrictions.size()
+			size += self.transaction_type_restrictions.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> AccountRestrictionsInfo:
 		buffer_ = memoryview(payload)
 		restriction_flags = AccountRestrictionFlags.deserialize(buffer_)
-		buffer_ = buffer_[restriction_flags.size():]
+		buffer_ = buffer_[restriction_flags.size:]
 		address_restrictions = None
 		if AccountRestrictionFlags.ADDRESS in restriction_flags:
 			address_restrictions = AccountRestrictionAddressValue.deserialize(buffer_)
-			buffer_ = buffer_[address_restrictions.size():]
+			buffer_ = buffer_[address_restrictions.size:]
 		mosaic_id_restrictions = None
 		if AccountRestrictionFlags.MOSAIC_ID in restriction_flags:
 			mosaic_id_restrictions = AccountRestrictionMosaicValue.deserialize(buffer_)
-			buffer_ = buffer_[mosaic_id_restrictions.size():]
+			buffer_ = buffer_[mosaic_id_restrictions.size:]
 		transaction_type_restrictions = None
 		if AccountRestrictionFlags.TRANSACTION_TYPE in restriction_flags:
 			transaction_type_restrictions = AccountRestrictionTransactionTypeValue.deserialize(buffer_)
-			buffer_ = buffer_[transaction_type_restrictions.size():]
+			buffer_ = buffer_[transaction_type_restrictions.size:]
 
 		instance = AccountRestrictionsInfo()
 		instance._restriction_flags = restriction_flags
@@ -6330,12 +6363,13 @@ class AccountRestrictions:
 	def restrictions(self, value: List[AccountRestrictionsInfo]):
 		self._restrictions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
-		size += self.address.size()
+		size += self.address.size
 		size += 8
-		size += sum(map(lambda e: e.size(), self.restrictions))
+		size += sum(map(lambda e: e.size, self.restrictions))
 		return size
 
 	@classmethod
@@ -6344,11 +6378,11 @@ class AccountRestrictions:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		address = Address.deserialize(buffer_)
-		buffer_ = buffer_[address.size():]
+		buffer_ = buffer_[address.size:]
 		restrictions_count = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		restrictions = ArrayHelpers.read_array_count(buffer_, AccountRestrictionsInfo, restrictions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restrictions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restrictions)):]
 
 		instance = AccountRestrictions()
 		instance._version = version
@@ -6379,9 +6413,6 @@ class MosaicRestrictionKey(BaseValue):
 	def __init__(self, mosaic_restriction_key: int = 0):
 		super().__init__(self.SIZE, mosaic_restriction_key, MosaicRestrictionKey)
 
-	def size(self) -> int:
-		return 8
-
 	@classmethod
 	def deserialize(self, payload: ByteString) -> MosaicRestrictionKey:
 		buffer_ = memoryview(payload)
@@ -6400,6 +6431,7 @@ class MosaicRestrictionType(Enum):
 	GT = 5
 	GE = 6
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -6418,6 +6450,7 @@ class MosaicRestrictionEntryType(Enum):
 	ADDRESS = 0
 	GLOBAL = 1
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -6457,9 +6490,10 @@ class AddressKeyValue:
 	def value(self, value: int):
 		self._value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.key.size()
+		size += self.key.size
 		size += 8
 		return size
 
@@ -6467,7 +6501,7 @@ class AddressKeyValue:
 	def deserialize(self, payload: ByteString) -> AddressKeyValue:
 		buffer_ = memoryview(payload)
 		key = MosaicRestrictionKey.deserialize(buffer_)
-		buffer_ = buffer_[key.size():]
+		buffer_ = buffer_[key.size:]
 		value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 
@@ -6506,10 +6540,11 @@ class AddressKeyValueSet:
 	def keys(self, value: List[AddressKeyValue]):
 		self._keys = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 1
-		size += sum(map(lambda e: e.size(), self.keys))
+		size += sum(map(lambda e: e.size, self.keys))
 		return size
 
 	@classmethod
@@ -6518,7 +6553,7 @@ class AddressKeyValueSet:
 		key_value_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		keys = ArrayHelpers.read_array_count(buffer_, AddressKeyValue, key_value_count, lambda e: e.key)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), keys)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, keys)):]
 
 		instance = AddressKeyValueSet()
 		instance._keys = keys
@@ -6572,22 +6607,23 @@ class RestrictionRule:
 	def restriction_type(self, value: MosaicRestrictionType):
 		self._restriction_type = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.reference_mosaic_id.size()
+		size += self.reference_mosaic_id.size
 		size += 8
-		size += self.restriction_type.size()
+		size += self.restriction_type.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> RestrictionRule:
 		buffer_ = memoryview(payload)
 		reference_mosaic_id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[reference_mosaic_id.size():]
+		buffer_ = buffer_[reference_mosaic_id.size:]
 		restriction_value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		restriction_type = MosaicRestrictionType.deserialize(buffer_)
-		buffer_ = buffer_[restriction_type.size():]
+		buffer_ = buffer_[restriction_type.size:]
 
 		instance = RestrictionRule()
 		instance._reference_mosaic_id = reference_mosaic_id
@@ -6637,19 +6673,20 @@ class GlobalKeyValue:
 	def restriction_rule(self, value: RestrictionRule):
 		self._restriction_rule = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.key.size()
-		size += self.restriction_rule.size()
+		size += self.key.size
+		size += self.restriction_rule.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> GlobalKeyValue:
 		buffer_ = memoryview(payload)
 		key = MosaicRestrictionKey.deserialize(buffer_)
-		buffer_ = buffer_[key.size():]
+		buffer_ = buffer_[key.size:]
 		restriction_rule = RestrictionRule.deserialize(buffer_)
-		buffer_ = buffer_[restriction_rule.size():]
+		buffer_ = buffer_[restriction_rule.size:]
 
 		instance = GlobalKeyValue()
 		instance._key = key
@@ -6686,10 +6723,11 @@ class GlobalKeyValueSet:
 	def keys(self, value: List[GlobalKeyValue]):
 		self._keys = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 1
-		size += sum(map(lambda e: e.size(), self.keys))
+		size += sum(map(lambda e: e.size, self.keys))
 		return size
 
 	@classmethod
@@ -6698,7 +6736,7 @@ class GlobalKeyValueSet:
 		key_value_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		keys = ArrayHelpers.read_array_count(buffer_, GlobalKeyValue, key_value_count, lambda e: e.key)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), keys)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, keys)):]
 
 		instance = GlobalKeyValueSet()
 		instance._keys = keys
@@ -6753,22 +6791,23 @@ class MosaicAddressRestrictionEntry:
 	def key_pairs(self, value: AddressKeyValueSet):
 		self._key_pairs = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.mosaic_id.size()
-		size += self.address.size()
-		size += self.key_pairs.size()
+		size += self.mosaic_id.size
+		size += self.address.size
+		size += self.key_pairs.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> MosaicAddressRestrictionEntry:
 		buffer_ = memoryview(payload)
 		mosaic_id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		address = Address.deserialize(buffer_)
-		buffer_ = buffer_[address.size():]
+		buffer_ = buffer_[address.size:]
 		key_pairs = AddressKeyValueSet.deserialize(buffer_)
-		buffer_ = buffer_[key_pairs.size():]
+		buffer_ = buffer_[key_pairs.size:]
 
 		instance = MosaicAddressRestrictionEntry()
 		instance._mosaic_id = mosaic_id
@@ -6818,19 +6857,20 @@ class MosaicGlobalRestrictionEntry:
 	def key_pairs(self, value: GlobalKeyValueSet):
 		self._key_pairs = value
 
+	@property
 	def size(self) -> int:
 		size = 0
-		size += self.mosaic_id.size()
-		size += self.key_pairs.size()
+		size += self.mosaic_id.size
+		size += self.key_pairs.size
 		return size
 
 	@classmethod
 	def deserialize(self, payload: ByteString) -> MosaicGlobalRestrictionEntry:
 		buffer_ = memoryview(payload)
 		mosaic_id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		key_pairs = GlobalKeyValueSet.deserialize(buffer_)
-		buffer_ = buffer_[key_pairs.size():]
+		buffer_ = buffer_[key_pairs.size:]
 
 		instance = MosaicGlobalRestrictionEntry()
 		instance._mosaic_id = mosaic_id
@@ -6896,14 +6936,15 @@ class MosaicRestrictionEntry:
 	def global_entry(self, value: MosaicGlobalRestrictionEntry):
 		self._global_entry = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
-		size += self.entry_type.size()
+		size += self.entry_type.size
 		if MosaicRestrictionEntryType.ADDRESS == self.entry_type:
-			size += self.address_entry.size()
+			size += self.address_entry.size
 		if MosaicRestrictionEntryType.GLOBAL == self.entry_type:
-			size += self.global_entry.size()
+			size += self.global_entry.size
 		return size
 
 	@classmethod
@@ -6912,15 +6953,15 @@ class MosaicRestrictionEntry:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		entry_type = MosaicRestrictionEntryType.deserialize(buffer_)
-		buffer_ = buffer_[entry_type.size():]
+		buffer_ = buffer_[entry_type.size:]
 		address_entry = None
 		if MosaicRestrictionEntryType.ADDRESS == entry_type:
 			address_entry = MosaicAddressRestrictionEntry.deserialize(buffer_)
-			buffer_ = buffer_[address_entry.size():]
+			buffer_ = buffer_[address_entry.size:]
 		global_entry = None
 		if MosaicRestrictionEntryType.GLOBAL == entry_type:
 			global_entry = MosaicGlobalRestrictionEntry.deserialize(buffer_)
-			buffer_ = buffer_[global_entry.size():]
+			buffer_ = buffer_[global_entry.size:]
 
 		instance = MosaicRestrictionEntry()
 		instance._version = version
@@ -6954,6 +6995,7 @@ class LockHashAlgorithm(Enum):
 	HASH_160 = 1
 	HASH_256 = 2
 
+	@property
 	def size(self) -> int:
 		return 1
 
@@ -7053,16 +7095,17 @@ class SecretLockInfo:
 	def recipient(self, value: Address):
 		self._recipient = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 2
-		size += self.owner_address.size()
-		size += self.mosaic.size()
-		size += self.end_height.size()
-		size += self.status.size()
-		size += self.hash_algorithm.size()
-		size += self.secret.size()
-		size += self.recipient.size()
+		size += self.owner_address.size
+		size += self.mosaic.size
+		size += self.end_height.size
+		size += self.status.size
+		size += self.hash_algorithm.size
+		size += self.secret.size
+		size += self.recipient.size
 		return size
 
 	@classmethod
@@ -7071,19 +7114,19 @@ class SecretLockInfo:
 		version = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		owner_address = Address.deserialize(buffer_)
-		buffer_ = buffer_[owner_address.size():]
+		buffer_ = buffer_[owner_address.size:]
 		mosaic = Mosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		end_height = Height.deserialize(buffer_)
-		buffer_ = buffer_[end_height.size():]
+		buffer_ = buffer_[end_height.size:]
 		status = LockStatus.deserialize(buffer_)
-		buffer_ = buffer_[status.size():]
+		buffer_ = buffer_[status.size:]
 		hash_algorithm = LockHashAlgorithm.deserialize(buffer_)
-		buffer_ = buffer_[hash_algorithm.size():]
+		buffer_ = buffer_[hash_algorithm.size:]
 		secret = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[secret.size():]
+		buffer_ = buffer_[secret.size:]
 		recipient = Address.deserialize(buffer_)
-		buffer_ = buffer_[recipient.size():]
+		buffer_ = buffer_[recipient.size:]
 
 		instance = SecretLockInfo()
 		instance._version = version
@@ -7221,20 +7264,21 @@ class AccountKeyLinkTransaction:
 	def link_action(self, value: LinkAction):
 		self._link_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.linked_public_key.size()
-		size += self.link_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.linked_public_key.size
+		size += self.link_action.size
 		return size
 
 	@classmethod
@@ -7248,26 +7292,26 @@ class AccountKeyLinkTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		linked_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[linked_public_key.size():]
+		buffer_ = buffer_[linked_public_key.size:]
 		link_action = LinkAction.deserialize(buffer_)
-		buffer_ = buffer_[link_action.size():]
+		buffer_ = buffer_[link_action.size:]
 
 		instance = AccountKeyLinkTransaction()
 		instance._signature = signature
@@ -7283,7 +7327,7 @@ class AccountKeyLinkTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -7381,17 +7425,18 @@ class EmbeddedAccountKeyLinkTransaction:
 	def link_action(self, value: LinkAction):
 		self._link_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.linked_public_key.size()
-		size += self.link_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.linked_public_key.size
+		size += self.link_action.size
 		return size
 
 	@classmethod
@@ -7405,20 +7450,20 @@ class EmbeddedAccountKeyLinkTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		linked_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[linked_public_key.size():]
+		buffer_ = buffer_[linked_public_key.size:]
 		link_action = LinkAction.deserialize(buffer_)
-		buffer_ = buffer_[link_action.size():]
+		buffer_ = buffer_[link_action.size:]
 
 		instance = EmbeddedAccountKeyLinkTransaction()
 		instance._signer_public_key = signer_public_key
@@ -7431,7 +7476,7 @@ class EmbeddedAccountKeyLinkTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -7553,20 +7598,21 @@ class NodeKeyLinkTransaction:
 	def link_action(self, value: LinkAction):
 		self._link_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.linked_public_key.size()
-		size += self.link_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.linked_public_key.size
+		size += self.link_action.size
 		return size
 
 	@classmethod
@@ -7580,26 +7626,26 @@ class NodeKeyLinkTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		linked_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[linked_public_key.size():]
+		buffer_ = buffer_[linked_public_key.size:]
 		link_action = LinkAction.deserialize(buffer_)
-		buffer_ = buffer_[link_action.size():]
+		buffer_ = buffer_[link_action.size:]
 
 		instance = NodeKeyLinkTransaction()
 		instance._signature = signature
@@ -7615,7 +7661,7 @@ class NodeKeyLinkTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -7713,17 +7759,18 @@ class EmbeddedNodeKeyLinkTransaction:
 	def link_action(self, value: LinkAction):
 		self._link_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.linked_public_key.size()
-		size += self.link_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.linked_public_key.size
+		size += self.link_action.size
 		return size
 
 	@classmethod
@@ -7737,20 +7784,20 @@ class EmbeddedNodeKeyLinkTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		linked_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[linked_public_key.size():]
+		buffer_ = buffer_[linked_public_key.size:]
 		link_action = LinkAction.deserialize(buffer_)
-		buffer_ = buffer_[link_action.size():]
+		buffer_ = buffer_[link_action.size:]
 
 		instance = EmbeddedNodeKeyLinkTransaction()
 		instance._signer_public_key = signer_public_key
@@ -7763,7 +7810,7 @@ class EmbeddedNodeKeyLinkTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -7821,11 +7868,12 @@ class Cosignature:
 	def signature(self, value: Signature):
 		self._signature = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 8
-		size += self.signer_public_key.size()
-		size += self.signature.size()
+		size += self.signer_public_key.size
+		size += self.signature.size
 		return size
 
 	@classmethod
@@ -7834,9 +7882,9 @@ class Cosignature:
 		version = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 
 		instance = Cosignature()
 		instance._version = version
@@ -7905,12 +7953,13 @@ class DetachedCosignature:
 	def parent_hash(self, value: Hash256):
 		self._parent_hash = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 8
-		size += self.signer_public_key.size()
-		size += self.signature.size()
-		size += self.parent_hash.size()
+		size += self.signer_public_key.size
+		size += self.signature.size
+		size += self.parent_hash.size
 		return size
 
 	@classmethod
@@ -7919,11 +7968,11 @@ class DetachedCosignature:
 		version = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		parent_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[parent_hash.size():]
+		buffer_ = buffer_[parent_hash.size:]
 
 		instance = DetachedCosignature()
 		instance._version = version
@@ -8060,23 +8109,24 @@ class AggregateCompleteTransaction:
 	def cosignatures(self, value: List[Cosignature]):
 		self._cosignatures = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.transactions_hash.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.transactions_hash.size
 		size += 4
 		size += 4
-		size += sum(map(lambda e: ArrayHelpers.align_up(e.size(), 8), self.transactions))
-		size += sum(map(lambda e: e.size(), self.cosignatures))
+		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions))
+		size += sum(map(lambda e: e.size, self.cosignatures))
 		return size
 
 	@classmethod
@@ -8090,24 +8140,24 @@ class AggregateCompleteTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		transactions_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[transactions_hash.size():]
+		buffer_ = buffer_[transactions_hash.size:]
 		payload_size = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
@@ -8116,7 +8166,7 @@ class AggregateCompleteTransaction:
 		transactions = ArrayHelpers.read_variable_size_elements(buffer_[:payload_size], EmbeddedTransactionFactory, 8)
 		buffer_ = buffer_[payload_size:]
 		cosignatures = ArrayHelpers.read_array(buffer_, Cosignature)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), cosignatures)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, cosignatures)):]
 
 		instance = AggregateCompleteTransaction()
 		instance._signature = signature
@@ -8133,7 +8183,7 @@ class AggregateCompleteTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -8144,7 +8194,7 @@ class AggregateCompleteTransaction:
 		buffer_ += self._fee.serialize()
 		buffer_ += self._deadline.serialize()
 		buffer_ += self._transactions_hash.serialize()
-		buffer_ += sum(map(lambda e: ArrayHelpers.align_up(e.size(), 8), self.transactions)).to_bytes(4, byteorder="little", signed=False)  # payload_size
+		buffer_ += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions)).to_bytes(4, byteorder="little", signed=False)  # payload_size
 		buffer_ += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
 		buffer_ += ArrayHelpers.write_array(self._cosignatures)
@@ -8276,23 +8326,24 @@ class AggregateBondedTransaction:
 	def cosignatures(self, value: List[Cosignature]):
 		self._cosignatures = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.transactions_hash.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.transactions_hash.size
 		size += 4
 		size += 4
-		size += sum(map(lambda e: ArrayHelpers.align_up(e.size(), 8), self.transactions))
-		size += sum(map(lambda e: e.size(), self.cosignatures))
+		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions))
+		size += sum(map(lambda e: e.size, self.cosignatures))
 		return size
 
 	@classmethod
@@ -8306,24 +8357,24 @@ class AggregateBondedTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		transactions_hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[transactions_hash.size():]
+		buffer_ = buffer_[transactions_hash.size:]
 		payload_size = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
@@ -8332,7 +8383,7 @@ class AggregateBondedTransaction:
 		transactions = ArrayHelpers.read_variable_size_elements(buffer_[:payload_size], EmbeddedTransactionFactory, 8)
 		buffer_ = buffer_[payload_size:]
 		cosignatures = ArrayHelpers.read_array(buffer_, Cosignature)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), cosignatures)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, cosignatures)):]
 
 		instance = AggregateBondedTransaction()
 		instance._signature = signature
@@ -8349,7 +8400,7 @@ class AggregateBondedTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -8360,7 +8411,7 @@ class AggregateBondedTransaction:
 		buffer_ += self._fee.serialize()
 		buffer_ += self._deadline.serialize()
 		buffer_ += self._transactions_hash.serialize()
-		buffer_ += sum(map(lambda e: ArrayHelpers.align_up(e.size(), 8), self.transactions)).to_bytes(4, byteorder="little", signed=False)  # payload_size
+		buffer_ += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions)).to_bytes(4, byteorder="little", signed=False)  # payload_size
 		buffer_ += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
 		buffer_ += ArrayHelpers.write_array(self._cosignatures)
@@ -8501,22 +8552,23 @@ class VotingKeyLinkTransaction:
 	def link_action(self, value: LinkAction):
 		self._link_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.linked_public_key.size()
-		size += self.start_epoch.size()
-		size += self.end_epoch.size()
-		size += self.link_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.linked_public_key.size
+		size += self.start_epoch.size
+		size += self.end_epoch.size
+		size += self.link_action.size
 		return size
 
 	@classmethod
@@ -8530,30 +8582,30 @@ class VotingKeyLinkTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		linked_public_key = VotingPublicKey.deserialize(buffer_)
-		buffer_ = buffer_[linked_public_key.size():]
+		buffer_ = buffer_[linked_public_key.size:]
 		start_epoch = FinalizationEpoch.deserialize(buffer_)
-		buffer_ = buffer_[start_epoch.size():]
+		buffer_ = buffer_[start_epoch.size:]
 		end_epoch = FinalizationEpoch.deserialize(buffer_)
-		buffer_ = buffer_[end_epoch.size():]
+		buffer_ = buffer_[end_epoch.size:]
 		link_action = LinkAction.deserialize(buffer_)
-		buffer_ = buffer_[link_action.size():]
+		buffer_ = buffer_[link_action.size:]
 
 		instance = VotingKeyLinkTransaction()
 		instance._signature = signature
@@ -8571,7 +8623,7 @@ class VotingKeyLinkTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -8693,19 +8745,20 @@ class EmbeddedVotingKeyLinkTransaction:
 	def link_action(self, value: LinkAction):
 		self._link_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.linked_public_key.size()
-		size += self.start_epoch.size()
-		size += self.end_epoch.size()
-		size += self.link_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.linked_public_key.size
+		size += self.start_epoch.size
+		size += self.end_epoch.size
+		size += self.link_action.size
 		return size
 
 	@classmethod
@@ -8719,24 +8772,24 @@ class EmbeddedVotingKeyLinkTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		linked_public_key = VotingPublicKey.deserialize(buffer_)
-		buffer_ = buffer_[linked_public_key.size():]
+		buffer_ = buffer_[linked_public_key.size:]
 		start_epoch = FinalizationEpoch.deserialize(buffer_)
-		buffer_ = buffer_[start_epoch.size():]
+		buffer_ = buffer_[start_epoch.size:]
 		end_epoch = FinalizationEpoch.deserialize(buffer_)
-		buffer_ = buffer_[end_epoch.size():]
+		buffer_ = buffer_[end_epoch.size:]
 		link_action = LinkAction.deserialize(buffer_)
-		buffer_ = buffer_[link_action.size():]
+		buffer_ = buffer_[link_action.size:]
 
 		instance = EmbeddedVotingKeyLinkTransaction()
 		instance._signer_public_key = signer_public_key
@@ -8751,7 +8804,7 @@ class EmbeddedVotingKeyLinkTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -8877,20 +8930,21 @@ class VrfKeyLinkTransaction:
 	def link_action(self, value: LinkAction):
 		self._link_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.linked_public_key.size()
-		size += self.link_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.linked_public_key.size
+		size += self.link_action.size
 		return size
 
 	@classmethod
@@ -8904,26 +8958,26 @@ class VrfKeyLinkTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		linked_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[linked_public_key.size():]
+		buffer_ = buffer_[linked_public_key.size:]
 		link_action = LinkAction.deserialize(buffer_)
-		buffer_ = buffer_[link_action.size():]
+		buffer_ = buffer_[link_action.size:]
 
 		instance = VrfKeyLinkTransaction()
 		instance._signature = signature
@@ -8939,7 +8993,7 @@ class VrfKeyLinkTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -9037,17 +9091,18 @@ class EmbeddedVrfKeyLinkTransaction:
 	def link_action(self, value: LinkAction):
 		self._link_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.linked_public_key.size()
-		size += self.link_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.linked_public_key.size
+		size += self.link_action.size
 		return size
 
 	@classmethod
@@ -9061,20 +9116,20 @@ class EmbeddedVrfKeyLinkTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		linked_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[linked_public_key.size():]
+		buffer_ = buffer_[linked_public_key.size:]
 		link_action = LinkAction.deserialize(buffer_)
-		buffer_ = buffer_[link_action.size():]
+		buffer_ = buffer_[link_action.size:]
 
 		instance = EmbeddedVrfKeyLinkTransaction()
 		instance._signer_public_key = signer_public_key
@@ -9087,7 +9142,7 @@ class EmbeddedVrfKeyLinkTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -9219,21 +9274,22 @@ class HashLockTransaction:
 	def hash(self, value: Hash256):
 		self._hash = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.mosaic.size()
-		size += self.duration.size()
-		size += self.hash.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.mosaic.size
+		size += self.duration.size
+		size += self.hash.size
 		return size
 
 	@classmethod
@@ -9247,28 +9303,28 @@ class HashLockTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		mosaic = UnresolvedMosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		duration = BlockDuration.deserialize(buffer_)
-		buffer_ = buffer_[duration.size():]
+		buffer_ = buffer_[duration.size:]
 		hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[hash.size():]
+		buffer_ = buffer_[hash.size:]
 
 		instance = HashLockTransaction()
 		instance._signature = signature
@@ -9285,7 +9341,7 @@ class HashLockTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -9395,18 +9451,19 @@ class EmbeddedHashLockTransaction:
 	def hash(self, value: Hash256):
 		self._hash = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.mosaic.size()
-		size += self.duration.size()
-		size += self.hash.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.mosaic.size
+		size += self.duration.size
+		size += self.hash.size
 		return size
 
 	@classmethod
@@ -9420,22 +9477,22 @@ class EmbeddedHashLockTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic = UnresolvedMosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		duration = BlockDuration.deserialize(buffer_)
-		buffer_ = buffer_[duration.size():]
+		buffer_ = buffer_[duration.size:]
 		hash = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[hash.size():]
+		buffer_ = buffer_[hash.size:]
 
 		instance = EmbeddedHashLockTransaction()
 		instance._signer_public_key = signer_public_key
@@ -9449,7 +9506,7 @@ class EmbeddedHashLockTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -9603,23 +9660,24 @@ class SecretLockTransaction:
 	def hash_algorithm(self, value: LockHashAlgorithm):
 		self._hash_algorithm = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.recipient_address.size()
-		size += self.secret.size()
-		size += self.mosaic.size()
-		size += self.duration.size()
-		size += self.hash_algorithm.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.recipient_address.size
+		size += self.secret.size
+		size += self.mosaic.size
+		size += self.duration.size
+		size += self.hash_algorithm.size
 		return size
 
 	@classmethod
@@ -9633,32 +9691,32 @@ class SecretLockTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		recipient_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[recipient_address.size():]
+		buffer_ = buffer_[recipient_address.size:]
 		secret = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[secret.size():]
+		buffer_ = buffer_[secret.size:]
 		mosaic = UnresolvedMosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		duration = BlockDuration.deserialize(buffer_)
-		buffer_ = buffer_[duration.size():]
+		buffer_ = buffer_[duration.size:]
 		hash_algorithm = LockHashAlgorithm.deserialize(buffer_)
-		buffer_ = buffer_[hash_algorithm.size():]
+		buffer_ = buffer_[hash_algorithm.size:]
 
 		instance = SecretLockTransaction()
 		instance._signature = signature
@@ -9677,7 +9735,7 @@ class SecretLockTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -9811,20 +9869,21 @@ class EmbeddedSecretLockTransaction:
 	def hash_algorithm(self, value: LockHashAlgorithm):
 		self._hash_algorithm = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.recipient_address.size()
-		size += self.secret.size()
-		size += self.mosaic.size()
-		size += self.duration.size()
-		size += self.hash_algorithm.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.recipient_address.size
+		size += self.secret.size
+		size += self.mosaic.size
+		size += self.duration.size
+		size += self.hash_algorithm.size
 		return size
 
 	@classmethod
@@ -9838,26 +9897,26 @@ class EmbeddedSecretLockTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		recipient_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[recipient_address.size():]
+		buffer_ = buffer_[recipient_address.size:]
 		secret = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[secret.size():]
+		buffer_ = buffer_[secret.size:]
 		mosaic = UnresolvedMosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 		duration = BlockDuration.deserialize(buffer_)
-		buffer_ = buffer_[duration.size():]
+		buffer_ = buffer_[duration.size:]
 		hash_algorithm = LockHashAlgorithm.deserialize(buffer_)
-		buffer_ = buffer_[hash_algorithm.size():]
+		buffer_ = buffer_[hash_algorithm.size:]
 
 		instance = EmbeddedSecretLockTransaction()
 		instance._signer_public_key = signer_public_key
@@ -9873,7 +9932,7 @@ class EmbeddedSecretLockTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -10021,22 +10080,23 @@ class SecretProofTransaction:
 	def proof(self, value: bytes):
 		self._proof = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.recipient_address.size()
-		size += self.secret.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.recipient_address.size
+		size += self.secret.size
 		size += 2
-		size += self.hash_algorithm.size()
+		size += self.hash_algorithm.size
 		size += len(self._proof)
 		return size
 
@@ -10051,30 +10111,30 @@ class SecretProofTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		recipient_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[recipient_address.size():]
+		buffer_ = buffer_[recipient_address.size:]
 		secret = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[secret.size():]
+		buffer_ = buffer_[secret.size:]
 		proof_size = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		hash_algorithm = LockHashAlgorithm.deserialize(buffer_)
-		buffer_ = buffer_[hash_algorithm.size():]
+		buffer_ = buffer_[hash_algorithm.size:]
 		proof = ArrayHelpers.get_bytes(buffer_, proof_size)
 		buffer_ = buffer_[proof_size:]
 
@@ -10094,7 +10154,7 @@ class SecretProofTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -10217,19 +10277,20 @@ class EmbeddedSecretProofTransaction:
 	def proof(self, value: bytes):
 		self._proof = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.recipient_address.size()
-		size += self.secret.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.recipient_address.size
+		size += self.secret.size
 		size += 2
-		size += self.hash_algorithm.size()
+		size += self.hash_algorithm.size
 		size += len(self._proof)
 		return size
 
@@ -10244,24 +10305,24 @@ class EmbeddedSecretProofTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		recipient_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[recipient_address.size():]
+		buffer_ = buffer_[recipient_address.size:]
 		secret = Hash256.deserialize(buffer_)
-		buffer_ = buffer_[secret.size():]
+		buffer_ = buffer_[secret.size:]
 		proof_size = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		hash_algorithm = LockHashAlgorithm.deserialize(buffer_)
-		buffer_ = buffer_[hash_algorithm.size():]
+		buffer_ = buffer_[hash_algorithm.size:]
 		proof = ArrayHelpers.get_bytes(buffer_, proof_size)
 		buffer_ = buffer_[proof_size:]
 
@@ -10278,7 +10339,7 @@ class EmbeddedSecretProofTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -10423,19 +10484,20 @@ class AccountMetadataTransaction:
 	def value(self, value: bytes):
 		self._value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.target_address.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.target_address.size
 		size += 8
 		size += 2
 		size += 2
@@ -10453,24 +10515,24 @@ class AccountMetadataTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		target_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 		scoped_metadata_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		value_size_delta = int.from_bytes(buffer_[:2], byteorder="little", signed=True)
@@ -10496,7 +10558,7 @@ class AccountMetadataTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -10617,16 +10679,17 @@ class EmbeddedAccountMetadataTransaction:
 	def value(self, value: bytes):
 		self._value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.target_address.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.target_address.size
 		size += 8
 		size += 2
 		size += 2
@@ -10644,18 +10707,18 @@ class EmbeddedAccountMetadataTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		target_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 		scoped_metadata_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		value_size_delta = int.from_bytes(buffer_[:2], byteorder="little", signed=True)
@@ -10678,7 +10741,7 @@ class EmbeddedAccountMetadataTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -10833,21 +10896,22 @@ class MosaicMetadataTransaction:
 	def value(self, value: bytes):
 		self._value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.target_address.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.target_address.size
 		size += 8
-		size += self.target_mosaic_id.size()
+		size += self.target_mosaic_id.size
 		size += 2
 		size += 2
 		size += len(self._value)
@@ -10864,28 +10928,28 @@ class MosaicMetadataTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		target_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 		scoped_metadata_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		target_mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[target_mosaic_id.size():]
+		buffer_ = buffer_[target_mosaic_id.size:]
 		value_size_delta = int.from_bytes(buffer_[:2], byteorder="little", signed=True)
 		buffer_ = buffer_[2:]
 		value_size = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
@@ -10910,7 +10974,7 @@ class MosaicMetadataTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -11043,18 +11107,19 @@ class EmbeddedMosaicMetadataTransaction:
 	def value(self, value: bytes):
 		self._value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.target_address.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.target_address.size
 		size += 8
-		size += self.target_mosaic_id.size()
+		size += self.target_mosaic_id.size
 		size += 2
 		size += 2
 		size += len(self._value)
@@ -11071,22 +11136,22 @@ class EmbeddedMosaicMetadataTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		target_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 		scoped_metadata_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		target_mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[target_mosaic_id.size():]
+		buffer_ = buffer_[target_mosaic_id.size:]
 		value_size_delta = int.from_bytes(buffer_[:2], byteorder="little", signed=True)
 		buffer_ = buffer_[2:]
 		value_size = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
@@ -11108,7 +11173,7 @@ class EmbeddedMosaicMetadataTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -11265,21 +11330,22 @@ class NamespaceMetadataTransaction:
 	def value(self, value: bytes):
 		self._value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.target_address.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.target_address.size
 		size += 8
-		size += self.target_namespace_id.size()
+		size += self.target_namespace_id.size
 		size += 2
 		size += 2
 		size += len(self._value)
@@ -11296,28 +11362,28 @@ class NamespaceMetadataTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		target_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 		scoped_metadata_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		target_namespace_id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[target_namespace_id.size():]
+		buffer_ = buffer_[target_namespace_id.size:]
 		value_size_delta = int.from_bytes(buffer_[:2], byteorder="little", signed=True)
 		buffer_ = buffer_[2:]
 		value_size = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
@@ -11342,7 +11408,7 @@ class NamespaceMetadataTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -11475,18 +11541,19 @@ class EmbeddedNamespaceMetadataTransaction:
 	def value(self, value: bytes):
 		self._value = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.target_address.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.target_address.size
 		size += 8
-		size += self.target_namespace_id.size()
+		size += self.target_namespace_id.size
 		size += 2
 		size += 2
 		size += len(self._value)
@@ -11503,22 +11570,22 @@ class EmbeddedNamespaceMetadataTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		target_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 		scoped_metadata_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		target_namespace_id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[target_namespace_id.size():]
+		buffer_ = buffer_[target_namespace_id.size:]
 		value_size_delta = int.from_bytes(buffer_[:2], byteorder="little", signed=True)
 		buffer_ = buffer_[2:]
 		value_size = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
@@ -11540,7 +11607,7 @@ class EmbeddedNamespaceMetadataTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -11698,22 +11765,23 @@ class MosaicDefinitionTransaction:
 	def divisibility(self, value: int):
 		self._divisibility = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.id.size()
-		size += self.duration.size()
-		size += self.nonce.size()
-		size += self.flags.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.id.size
+		size += self.duration.size
+		size += self.nonce.size
+		size += self.flags.size
 		size += 1
 		return size
 
@@ -11728,30 +11796,30 @@ class MosaicDefinitionTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[id.size():]
+		buffer_ = buffer_[id.size:]
 		duration = BlockDuration.deserialize(buffer_)
-		buffer_ = buffer_[duration.size():]
+		buffer_ = buffer_[duration.size:]
 		nonce = MosaicNonce.deserialize(buffer_)
-		buffer_ = buffer_[nonce.size():]
+		buffer_ = buffer_[nonce.size:]
 		flags = MosaicFlags.deserialize(buffer_)
-		buffer_ = buffer_[flags.size():]
+		buffer_ = buffer_[flags.size:]
 		divisibility = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 
@@ -11772,7 +11840,7 @@ class MosaicDefinitionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -11905,19 +11973,20 @@ class EmbeddedMosaicDefinitionTransaction:
 	def divisibility(self, value: int):
 		self._divisibility = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.id.size()
-		size += self.duration.size()
-		size += self.nonce.size()
-		size += self.flags.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.id.size
+		size += self.duration.size
+		size += self.nonce.size
+		size += self.flags.size
 		size += 1
 		return size
 
@@ -11932,24 +12001,24 @@ class EmbeddedMosaicDefinitionTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[id.size():]
+		buffer_ = buffer_[id.size:]
 		duration = BlockDuration.deserialize(buffer_)
-		buffer_ = buffer_[duration.size():]
+		buffer_ = buffer_[duration.size:]
 		nonce = MosaicNonce.deserialize(buffer_)
-		buffer_ = buffer_[nonce.size():]
+		buffer_ = buffer_[nonce.size:]
 		flags = MosaicFlags.deserialize(buffer_)
-		buffer_ = buffer_[flags.size():]
+		buffer_ = buffer_[flags.size:]
 		divisibility = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 
@@ -11967,7 +12036,7 @@ class EmbeddedMosaicDefinitionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -12105,21 +12174,22 @@ class MosaicSupplyChangeTransaction:
 	def action(self, value: MosaicSupplyChangeAction):
 		self._action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.mosaic_id.size()
-		size += self.delta.size()
-		size += self.action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.mosaic_id.size
+		size += self.delta.size
+		size += self.action.size
 		return size
 
 	@classmethod
@@ -12133,28 +12203,28 @@ class MosaicSupplyChangeTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		delta = Amount.deserialize(buffer_)
-		buffer_ = buffer_[delta.size():]
+		buffer_ = buffer_[delta.size:]
 		action = MosaicSupplyChangeAction.deserialize(buffer_)
-		buffer_ = buffer_[action.size():]
+		buffer_ = buffer_[action.size:]
 
 		instance = MosaicSupplyChangeTransaction()
 		instance._signature = signature
@@ -12171,7 +12241,7 @@ class MosaicSupplyChangeTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -12281,18 +12351,19 @@ class EmbeddedMosaicSupplyChangeTransaction:
 	def action(self, value: MosaicSupplyChangeAction):
 		self._action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.mosaic_id.size()
-		size += self.delta.size()
-		size += self.action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.mosaic_id.size
+		size += self.delta.size
+		size += self.action.size
 		return size
 
 	@classmethod
@@ -12306,22 +12377,22 @@ class EmbeddedMosaicSupplyChangeTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		delta = Amount.deserialize(buffer_)
-		buffer_ = buffer_[delta.size():]
+		buffer_ = buffer_[delta.size:]
 		action = MosaicSupplyChangeAction.deserialize(buffer_)
-		buffer_ = buffer_[action.size():]
+		buffer_ = buffer_[action.size:]
 
 		instance = EmbeddedMosaicSupplyChangeTransaction()
 		instance._signer_public_key = signer_public_key
@@ -12335,7 +12406,7 @@ class EmbeddedMosaicSupplyChangeTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -12459,20 +12530,21 @@ class MosaicSupplyRevocationTransaction:
 	def mosaic(self, value: UnresolvedMosaic):
 		self._mosaic = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.source_address.size()
-		size += self.mosaic.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.source_address.size
+		size += self.mosaic.size
 		return size
 
 	@classmethod
@@ -12486,26 +12558,26 @@ class MosaicSupplyRevocationTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		source_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[source_address.size():]
+		buffer_ = buffer_[source_address.size:]
 		mosaic = UnresolvedMosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 
 		instance = MosaicSupplyRevocationTransaction()
 		instance._signature = signature
@@ -12521,7 +12593,7 @@ class MosaicSupplyRevocationTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -12619,17 +12691,18 @@ class EmbeddedMosaicSupplyRevocationTransaction:
 	def mosaic(self, value: UnresolvedMosaic):
 		self._mosaic = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.source_address.size()
-		size += self.mosaic.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.source_address.size
+		size += self.mosaic.size
 		return size
 
 	@classmethod
@@ -12643,20 +12716,20 @@ class EmbeddedMosaicSupplyRevocationTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		source_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[source_address.size():]
+		buffer_ = buffer_[source_address.size:]
 		mosaic = UnresolvedMosaic.deserialize(buffer_)
-		buffer_ = buffer_[mosaic.size():]
+		buffer_ = buffer_[mosaic.size:]
 
 		instance = EmbeddedMosaicSupplyRevocationTransaction()
 		instance._signer_public_key = signer_public_key
@@ -12669,7 +12742,7 @@ class EmbeddedMosaicSupplyRevocationTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -12810,25 +12883,26 @@ class MultisigAccountModificationTransaction:
 	def address_deletions(self, value: List[UnresolvedAddress]):
 		self._address_deletions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
 		size += 1
 		size += 1
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size(), self.address_additions))
-		size += sum(map(lambda e: e.size(), self.address_deletions))
+		size += sum(map(lambda e: e.size, self.address_additions))
+		size += sum(map(lambda e: e.size, self.address_deletions))
 		return size
 
 	@classmethod
@@ -12842,22 +12916,22 @@ class MultisigAccountModificationTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		min_removal_delta = int.from_bytes(buffer_[:1], byteorder="little", signed=True)
 		buffer_ = buffer_[1:]
 		min_approval_delta = int.from_bytes(buffer_[:1], byteorder="little", signed=True)
@@ -12870,9 +12944,9 @@ class MultisigAccountModificationTransaction:
 		buffer_ = buffer_[4:]
 		assert multisig_account_modification_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({multisig_account_modification_transaction_body_reserved_1})"
 		address_additions = ArrayHelpers.read_array_count(buffer_, UnresolvedAddress, address_additions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), address_additions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, address_additions)):]
 		address_deletions = ArrayHelpers.read_array_count(buffer_, UnresolvedAddress, address_deletions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), address_deletions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, address_deletions)):]
 
 		instance = MultisigAccountModificationTransaction()
 		instance._signature = signature
@@ -12890,7 +12964,7 @@ class MultisigAccountModificationTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -13014,22 +13088,23 @@ class EmbeddedMultisigAccountModificationTransaction:
 	def address_deletions(self, value: List[UnresolvedAddress]):
 		self._address_deletions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
+		size += self.network.size
+		size += self.type_.size
 		size += 1
 		size += 1
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size(), self.address_additions))
-		size += sum(map(lambda e: e.size(), self.address_deletions))
+		size += sum(map(lambda e: e.size, self.address_additions))
+		size += sum(map(lambda e: e.size, self.address_deletions))
 		return size
 
 	@classmethod
@@ -13043,16 +13118,16 @@ class EmbeddedMultisigAccountModificationTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		min_removal_delta = int.from_bytes(buffer_[:1], byteorder="little", signed=True)
 		buffer_ = buffer_[1:]
 		min_approval_delta = int.from_bytes(buffer_[:1], byteorder="little", signed=True)
@@ -13065,9 +13140,9 @@ class EmbeddedMultisigAccountModificationTransaction:
 		buffer_ = buffer_[4:]
 		assert multisig_account_modification_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({multisig_account_modification_transaction_body_reserved_1})"
 		address_additions = ArrayHelpers.read_array_count(buffer_, UnresolvedAddress, address_additions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), address_additions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, address_additions)):]
 		address_deletions = ArrayHelpers.read_array_count(buffer_, UnresolvedAddress, address_deletions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), address_deletions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, address_deletions)):]
 
 		instance = EmbeddedMultisigAccountModificationTransaction()
 		instance._signer_public_key = signer_public_key
@@ -13082,7 +13157,7 @@ class EmbeddedMultisigAccountModificationTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -13221,21 +13296,22 @@ class AddressAliasTransaction:
 	def alias_action(self, value: AliasAction):
 		self._alias_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.namespace_id.size()
-		size += self.address.size()
-		size += self.alias_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.namespace_id.size
+		size += self.address.size
+		size += self.alias_action.size
 		return size
 
 	@classmethod
@@ -13249,28 +13325,28 @@ class AddressAliasTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		namespace_id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[namespace_id.size():]
+		buffer_ = buffer_[namespace_id.size:]
 		address = Address.deserialize(buffer_)
-		buffer_ = buffer_[address.size():]
+		buffer_ = buffer_[address.size:]
 		alias_action = AliasAction.deserialize(buffer_)
-		buffer_ = buffer_[alias_action.size():]
+		buffer_ = buffer_[alias_action.size:]
 
 		instance = AddressAliasTransaction()
 		instance._signature = signature
@@ -13287,7 +13363,7 @@ class AddressAliasTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -13397,18 +13473,19 @@ class EmbeddedAddressAliasTransaction:
 	def alias_action(self, value: AliasAction):
 		self._alias_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.namespace_id.size()
-		size += self.address.size()
-		size += self.alias_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.namespace_id.size
+		size += self.address.size
+		size += self.alias_action.size
 		return size
 
 	@classmethod
@@ -13422,22 +13499,22 @@ class EmbeddedAddressAliasTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		namespace_id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[namespace_id.size():]
+		buffer_ = buffer_[namespace_id.size:]
 		address = Address.deserialize(buffer_)
-		buffer_ = buffer_[address.size():]
+		buffer_ = buffer_[address.size:]
 		alias_action = AliasAction.deserialize(buffer_)
-		buffer_ = buffer_[alias_action.size():]
+		buffer_ = buffer_[alias_action.size:]
 
 		instance = EmbeddedAddressAliasTransaction()
 		instance._signer_public_key = signer_public_key
@@ -13451,7 +13528,7 @@ class EmbeddedAddressAliasTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -13585,21 +13662,22 @@ class MosaicAliasTransaction:
 	def alias_action(self, value: AliasAction):
 		self._alias_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.namespace_id.size()
-		size += self.mosaic_id.size()
-		size += self.alias_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.namespace_id.size
+		size += self.mosaic_id.size
+		size += self.alias_action.size
 		return size
 
 	@classmethod
@@ -13613,28 +13691,28 @@ class MosaicAliasTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		namespace_id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[namespace_id.size():]
+		buffer_ = buffer_[namespace_id.size:]
 		mosaic_id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		alias_action = AliasAction.deserialize(buffer_)
-		buffer_ = buffer_[alias_action.size():]
+		buffer_ = buffer_[alias_action.size:]
 
 		instance = MosaicAliasTransaction()
 		instance._signature = signature
@@ -13651,7 +13729,7 @@ class MosaicAliasTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -13761,18 +13839,19 @@ class EmbeddedMosaicAliasTransaction:
 	def alias_action(self, value: AliasAction):
 		self._alias_action = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.namespace_id.size()
-		size += self.mosaic_id.size()
-		size += self.alias_action.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.namespace_id.size
+		size += self.mosaic_id.size
+		size += self.alias_action.size
 		return size
 
 	@classmethod
@@ -13786,22 +13865,22 @@ class EmbeddedMosaicAliasTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		namespace_id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[namespace_id.size():]
+		buffer_ = buffer_[namespace_id.size:]
 		mosaic_id = MosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		alias_action = AliasAction.deserialize(buffer_)
-		buffer_ = buffer_[alias_action.size():]
+		buffer_ = buffer_[alias_action.size:]
 
 		instance = EmbeddedMosaicAliasTransaction()
 		instance._signer_public_key = signer_public_key
@@ -13815,7 +13894,7 @@ class EmbeddedMosaicAliasTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -13969,24 +14048,25 @@ class NamespaceRegistrationTransaction:
 	def name(self, value: bytes):
 		self._name = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
 		if NamespaceRegistrationType.ROOT == self.registration_type:
-			size += self.duration.size()
+			size += self.duration.size
 		if NamespaceRegistrationType.CHILD == self.registration_type:
-			size += self.parent_id.size()
-		size += self.id.size()
-		size += self.registration_type.size()
+			size += self.parent_id.size
+		size += self.id.size
+		size += self.registration_type.size
 		size += 1
 		size += len(self._name)
 		return size
@@ -14002,39 +14082,39 @@ class NamespaceRegistrationTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		# deserialize to temporary buffer for further processing
 		duration_temporary = BlockDuration.deserialize(buffer_)
-		registration_type_condition = buffer_[:duration_temporary.size()]
-		buffer_ = buffer_[duration_temporary.size():]
+		registration_type_condition = buffer_[:duration_temporary.size]
+		buffer_ = buffer_[duration_temporary.size:]
 
 		id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[id.size():]
+		buffer_ = buffer_[id.size:]
 		registration_type = NamespaceRegistrationType.deserialize(buffer_)
-		buffer_ = buffer_[registration_type.size():]
+		buffer_ = buffer_[registration_type.size:]
 		duration = None
 		if NamespaceRegistrationType.ROOT == registration_type:
 			duration = BlockDuration.deserialize(registration_type_condition)
-			registration_type_condition = registration_type_condition[duration.size():]
+			registration_type_condition = registration_type_condition[duration.size:]
 		parent_id = None
 		if NamespaceRegistrationType.CHILD == registration_type:
 			parent_id = NamespaceId.deserialize(registration_type_condition)
-			registration_type_condition = registration_type_condition[parent_id.size():]
+			registration_type_condition = registration_type_condition[parent_id.size:]
 		name_size = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		name = ArrayHelpers.get_bytes(buffer_, name_size)
@@ -14057,7 +14137,7 @@ class NamespaceRegistrationTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -14194,21 +14274,22 @@ class EmbeddedNamespaceRegistrationTransaction:
 	def name(self, value: bytes):
 		self._name = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
+		size += self.network.size
+		size += self.type_.size
 		if NamespaceRegistrationType.ROOT == self.registration_type:
-			size += self.duration.size()
+			size += self.duration.size
 		if NamespaceRegistrationType.CHILD == self.registration_type:
-			size += self.parent_id.size()
-		size += self.id.size()
-		size += self.registration_type.size()
+			size += self.parent_id.size
+		size += self.id.size
+		size += self.registration_type.size
 		size += 1
 		size += len(self._name)
 		return size
@@ -14224,33 +14305,33 @@ class EmbeddedNamespaceRegistrationTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		# deserialize to temporary buffer for further processing
 		duration_temporary = BlockDuration.deserialize(buffer_)
-		registration_type_condition = buffer_[:duration_temporary.size()]
-		buffer_ = buffer_[duration_temporary.size():]
+		registration_type_condition = buffer_[:duration_temporary.size]
+		buffer_ = buffer_[duration_temporary.size:]
 
 		id = NamespaceId.deserialize(buffer_)
-		buffer_ = buffer_[id.size():]
+		buffer_ = buffer_[id.size:]
 		registration_type = NamespaceRegistrationType.deserialize(buffer_)
-		buffer_ = buffer_[registration_type.size():]
+		buffer_ = buffer_[registration_type.size:]
 		duration = None
 		if NamespaceRegistrationType.ROOT == registration_type:
 			duration = BlockDuration.deserialize(registration_type_condition)
-			registration_type_condition = registration_type_condition[duration.size():]
+			registration_type_condition = registration_type_condition[duration.size:]
 		parent_id = None
 		if NamespaceRegistrationType.CHILD == registration_type:
 			parent_id = NamespaceId.deserialize(registration_type_condition)
-			registration_type_condition = registration_type_condition[parent_id.size():]
+			registration_type_condition = registration_type_condition[parent_id.size:]
 		name_size = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		name = ArrayHelpers.get_bytes(buffer_, name_size)
@@ -14270,7 +14351,7 @@ class EmbeddedNamespaceRegistrationTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -14412,24 +14493,25 @@ class AccountAddressRestrictionTransaction:
 	def restriction_deletions(self, value: List[UnresolvedAddress]):
 		self._restriction_deletions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.restriction_flags.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.restriction_flags.size
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size(), self.restriction_additions))
-		size += sum(map(lambda e: e.size(), self.restriction_deletions))
+		size += sum(map(lambda e: e.size, self.restriction_additions))
+		size += sum(map(lambda e: e.size, self.restriction_deletions))
 		return size
 
 	@classmethod
@@ -14443,24 +14525,24 @@ class AccountAddressRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		restriction_flags = AccountRestrictionFlags.deserialize(buffer_)
-		buffer_ = buffer_[restriction_flags.size():]
+		buffer_ = buffer_[restriction_flags.size:]
 		restriction_additions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		restriction_deletions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
@@ -14469,9 +14551,9 @@ class AccountAddressRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})"
 		restriction_additions = ArrayHelpers.read_array_count(buffer_, UnresolvedAddress, restriction_additions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_additions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_additions)):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer_, UnresolvedAddress, restriction_deletions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_deletions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_deletions)):]
 
 		instance = AccountAddressRestrictionTransaction()
 		instance._signature = signature
@@ -14488,7 +14570,7 @@ class AccountAddressRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -14602,21 +14684,22 @@ class EmbeddedAccountAddressRestrictionTransaction:
 	def restriction_deletions(self, value: List[UnresolvedAddress]):
 		self._restriction_deletions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.restriction_flags.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.restriction_flags.size
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size(), self.restriction_additions))
-		size += sum(map(lambda e: e.size(), self.restriction_deletions))
+		size += sum(map(lambda e: e.size, self.restriction_additions))
+		size += sum(map(lambda e: e.size, self.restriction_deletions))
 		return size
 
 	@classmethod
@@ -14630,18 +14713,18 @@ class EmbeddedAccountAddressRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		restriction_flags = AccountRestrictionFlags.deserialize(buffer_)
-		buffer_ = buffer_[restriction_flags.size():]
+		buffer_ = buffer_[restriction_flags.size:]
 		restriction_additions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		restriction_deletions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
@@ -14650,9 +14733,9 @@ class EmbeddedAccountAddressRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})"
 		restriction_additions = ArrayHelpers.read_array_count(buffer_, UnresolvedAddress, restriction_additions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_additions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_additions)):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer_, UnresolvedAddress, restriction_deletions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_deletions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_deletions)):]
 
 		instance = EmbeddedAccountAddressRestrictionTransaction()
 		instance._signer_public_key = signer_public_key
@@ -14666,7 +14749,7 @@ class EmbeddedAccountAddressRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -14804,24 +14887,25 @@ class AccountMosaicRestrictionTransaction:
 	def restriction_deletions(self, value: List[UnresolvedMosaicId]):
 		self._restriction_deletions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.restriction_flags.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.restriction_flags.size
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size(), self.restriction_additions))
-		size += sum(map(lambda e: e.size(), self.restriction_deletions))
+		size += sum(map(lambda e: e.size, self.restriction_additions))
+		size += sum(map(lambda e: e.size, self.restriction_deletions))
 		return size
 
 	@classmethod
@@ -14835,24 +14919,24 @@ class AccountMosaicRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		restriction_flags = AccountRestrictionFlags.deserialize(buffer_)
-		buffer_ = buffer_[restriction_flags.size():]
+		buffer_ = buffer_[restriction_flags.size:]
 		restriction_additions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		restriction_deletions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
@@ -14861,9 +14945,9 @@ class AccountMosaicRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})"
 		restriction_additions = ArrayHelpers.read_array_count(buffer_, UnresolvedMosaicId, restriction_additions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_additions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_additions)):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer_, UnresolvedMosaicId, restriction_deletions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_deletions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_deletions)):]
 
 		instance = AccountMosaicRestrictionTransaction()
 		instance._signature = signature
@@ -14880,7 +14964,7 @@ class AccountMosaicRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -14994,21 +15078,22 @@ class EmbeddedAccountMosaicRestrictionTransaction:
 	def restriction_deletions(self, value: List[UnresolvedMosaicId]):
 		self._restriction_deletions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.restriction_flags.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.restriction_flags.size
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size(), self.restriction_additions))
-		size += sum(map(lambda e: e.size(), self.restriction_deletions))
+		size += sum(map(lambda e: e.size, self.restriction_additions))
+		size += sum(map(lambda e: e.size, self.restriction_deletions))
 		return size
 
 	@classmethod
@@ -15022,18 +15107,18 @@ class EmbeddedAccountMosaicRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		restriction_flags = AccountRestrictionFlags.deserialize(buffer_)
-		buffer_ = buffer_[restriction_flags.size():]
+		buffer_ = buffer_[restriction_flags.size:]
 		restriction_additions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		restriction_deletions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
@@ -15042,9 +15127,9 @@ class EmbeddedAccountMosaicRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})"
 		restriction_additions = ArrayHelpers.read_array_count(buffer_, UnresolvedMosaicId, restriction_additions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_additions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_additions)):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer_, UnresolvedMosaicId, restriction_deletions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_deletions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_deletions)):]
 
 		instance = EmbeddedAccountMosaicRestrictionTransaction()
 		instance._signer_public_key = signer_public_key
@@ -15058,7 +15143,7 @@ class EmbeddedAccountMosaicRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -15196,24 +15281,25 @@ class AccountOperationRestrictionTransaction:
 	def restriction_deletions(self, value: List[TransactionType]):
 		self._restriction_deletions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.restriction_flags.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.restriction_flags.size
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size(), self.restriction_additions))
-		size += sum(map(lambda e: e.size(), self.restriction_deletions))
+		size += sum(map(lambda e: e.size, self.restriction_additions))
+		size += sum(map(lambda e: e.size, self.restriction_deletions))
 		return size
 
 	@classmethod
@@ -15227,24 +15313,24 @@ class AccountOperationRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		restriction_flags = AccountRestrictionFlags.deserialize(buffer_)
-		buffer_ = buffer_[restriction_flags.size():]
+		buffer_ = buffer_[restriction_flags.size:]
 		restriction_additions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		restriction_deletions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
@@ -15253,9 +15339,9 @@ class AccountOperationRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})"
 		restriction_additions = ArrayHelpers.read_array_count(buffer_, TransactionType, restriction_additions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_additions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_additions)):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer_, TransactionType, restriction_deletions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_deletions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_deletions)):]
 
 		instance = AccountOperationRestrictionTransaction()
 		instance._signature = signature
@@ -15272,7 +15358,7 @@ class AccountOperationRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -15386,21 +15472,22 @@ class EmbeddedAccountOperationRestrictionTransaction:
 	def restriction_deletions(self, value: List[TransactionType]):
 		self._restriction_deletions = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.restriction_flags.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.restriction_flags.size
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size(), self.restriction_additions))
-		size += sum(map(lambda e: e.size(), self.restriction_deletions))
+		size += sum(map(lambda e: e.size, self.restriction_additions))
+		size += sum(map(lambda e: e.size, self.restriction_deletions))
 		return size
 
 	@classmethod
@@ -15414,18 +15501,18 @@ class EmbeddedAccountOperationRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		restriction_flags = AccountRestrictionFlags.deserialize(buffer_)
-		buffer_ = buffer_[restriction_flags.size():]
+		buffer_ = buffer_[restriction_flags.size:]
 		restriction_additions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		restriction_deletions_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
@@ -15434,9 +15521,9 @@ class EmbeddedAccountOperationRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})"
 		restriction_additions = ArrayHelpers.read_array_count(buffer_, TransactionType, restriction_additions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_additions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_additions)):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer_, TransactionType, restriction_deletions_count)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), restriction_deletions)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, restriction_deletions)):]
 
 		instance = EmbeddedAccountOperationRestrictionTransaction()
 		instance._signer_public_key = signer_public_key
@@ -15450,7 +15537,7 @@ class EmbeddedAccountOperationRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -15604,23 +15691,24 @@ class MosaicAddressRestrictionTransaction:
 	def target_address(self, value: UnresolvedAddress):
 		self._target_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.mosaic_id.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.mosaic_id.size
 		size += 8
 		size += 8
 		size += 8
-		size += self.target_address.size()
+		size += self.target_address.size
 		return size
 
 	@classmethod
@@ -15634,24 +15722,24 @@ class MosaicAddressRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		restriction_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		previous_restriction_value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
@@ -15659,7 +15747,7 @@ class MosaicAddressRestrictionTransaction:
 		new_restriction_value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		target_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 
 		instance = MosaicAddressRestrictionTransaction()
 		instance._signature = signature
@@ -15678,7 +15766,7 @@ class MosaicAddressRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -15809,20 +15897,21 @@ class EmbeddedMosaicAddressRestrictionTransaction:
 	def target_address(self, value: UnresolvedAddress):
 		self._target_address = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.mosaic_id.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.mosaic_id.size
 		size += 8
 		size += 8
 		size += 8
-		size += self.target_address.size()
+		size += self.target_address.size
 		return size
 
 	@classmethod
@@ -15836,18 +15925,18 @@ class EmbeddedMosaicAddressRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		restriction_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		previous_restriction_value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
@@ -15855,7 +15944,7 @@ class EmbeddedMosaicAddressRestrictionTransaction:
 		new_restriction_value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		target_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[target_address.size():]
+		buffer_ = buffer_[target_address.size:]
 
 		instance = EmbeddedMosaicAddressRestrictionTransaction()
 		instance._signer_public_key = signer_public_key
@@ -15871,7 +15960,7 @@ class EmbeddedMosaicAddressRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -16046,25 +16135,26 @@ class MosaicGlobalRestrictionTransaction:
 	def new_restriction_type(self, value: MosaicRestrictionType):
 		self._new_restriction_type = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.mosaic_id.size()
-		size += self.reference_mosaic_id.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.mosaic_id.size
+		size += self.reference_mosaic_id.size
 		size += 8
 		size += 8
 		size += 8
-		size += self.previous_restriction_type.size()
-		size += self.new_restriction_type.size()
+		size += self.previous_restriction_type.size
+		size += self.new_restriction_type.size
 		return size
 
 	@classmethod
@@ -16078,26 +16168,26 @@ class MosaicGlobalRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		reference_mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[reference_mosaic_id.size():]
+		buffer_ = buffer_[reference_mosaic_id.size:]
 		restriction_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		previous_restriction_value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
@@ -16105,9 +16195,9 @@ class MosaicGlobalRestrictionTransaction:
 		new_restriction_value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		previous_restriction_type = MosaicRestrictionType.deserialize(buffer_)
-		buffer_ = buffer_[previous_restriction_type.size():]
+		buffer_ = buffer_[previous_restriction_type.size:]
 		new_restriction_type = MosaicRestrictionType.deserialize(buffer_)
-		buffer_ = buffer_[new_restriction_type.size():]
+		buffer_ = buffer_[new_restriction_type.size:]
 
 		instance = MosaicGlobalRestrictionTransaction()
 		instance._signature = signature
@@ -16128,7 +16218,7 @@ class MosaicGlobalRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -16283,22 +16373,23 @@ class EmbeddedMosaicGlobalRestrictionTransaction:
 	def new_restriction_type(self, value: MosaicRestrictionType):
 		self._new_restriction_type = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.mosaic_id.size()
-		size += self.reference_mosaic_id.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.mosaic_id.size
+		size += self.reference_mosaic_id.size
 		size += 8
 		size += 8
 		size += 8
-		size += self.previous_restriction_type.size()
-		size += self.new_restriction_type.size()
+		size += self.previous_restriction_type.size
+		size += self.new_restriction_type.size
 		return size
 
 	@classmethod
@@ -16312,20 +16403,20 @@ class EmbeddedMosaicGlobalRestrictionTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[mosaic_id.size():]
+		buffer_ = buffer_[mosaic_id.size:]
 		reference_mosaic_id = UnresolvedMosaicId.deserialize(buffer_)
-		buffer_ = buffer_[reference_mosaic_id.size():]
+		buffer_ = buffer_[reference_mosaic_id.size:]
 		restriction_key = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		previous_restriction_value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
@@ -16333,9 +16424,9 @@ class EmbeddedMosaicGlobalRestrictionTransaction:
 		new_restriction_value = int.from_bytes(buffer_[:8], byteorder="little", signed=False)
 		buffer_ = buffer_[8:]
 		previous_restriction_type = MosaicRestrictionType.deserialize(buffer_)
-		buffer_ = buffer_[previous_restriction_type.size():]
+		buffer_ = buffer_[previous_restriction_type.size:]
 		new_restriction_type = MosaicRestrictionType.deserialize(buffer_)
-		buffer_ = buffer_[new_restriction_type.size():]
+		buffer_ = buffer_[new_restriction_type.size:]
 
 		instance = EmbeddedMosaicGlobalRestrictionTransaction()
 		instance._signer_public_key = signer_public_key
@@ -16353,7 +16444,7 @@ class EmbeddedMosaicGlobalRestrictionTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
@@ -16497,24 +16588,25 @@ class TransferTransaction:
 	def message(self, value: bytes):
 		self._message = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signature.size()
-		size += self.signer_public_key.size()
+		size += self.signature.size
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.fee.size()
-		size += self.deadline.size()
-		size += self.recipient_address.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.fee.size
+		size += self.deadline.size
+		size += self.recipient_address.size
 		size += 2
 		size += 1
 		size += 4
 		size += 1
-		size += sum(map(lambda e: e.size(), self.mosaics))
+		size += sum(map(lambda e: e.size, self.mosaics))
 		size += len(self._message)
 		return size
 
@@ -16529,24 +16621,24 @@ class TransferTransaction:
 		buffer_ = buffer_[4:]
 		assert verifiable_entity_header_reserved_1 == 0, f"Invalid value of reserved field ({verifiable_entity_header_reserved_1})"
 		signature = Signature.deserialize(buffer_)
-		buffer_ = buffer_[signature.size():]
+		buffer_ = buffer_[signature.size:]
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		fee = Amount.deserialize(buffer_)
-		buffer_ = buffer_[fee.size():]
+		buffer_ = buffer_[fee.size:]
 		deadline = Timestamp.deserialize(buffer_)
-		buffer_ = buffer_[deadline.size():]
+		buffer_ = buffer_[deadline.size:]
 		recipient_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[recipient_address.size():]
+		buffer_ = buffer_[recipient_address.size:]
 		message_size = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		mosaics_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
@@ -16558,7 +16650,7 @@ class TransferTransaction:
 		buffer_ = buffer_[1:]
 		assert transfer_transaction_body_reserved_2 == 0, f"Invalid value of reserved field ({transfer_transaction_body_reserved_2})"
 		mosaics = ArrayHelpers.read_array_count(buffer_, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), mosaics)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, mosaics)):]
 		message = ArrayHelpers.get_bytes(buffer_, message_size)
 		buffer_ = buffer_[message_size:]
 
@@ -16577,7 +16669,7 @@ class TransferTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._verifiable_entity_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signature.serialize()
 		buffer_ += self._signer_public_key.serialize()
@@ -16693,21 +16785,22 @@ class EmbeddedTransferTransaction:
 	def message(self, value: bytes):
 		self._message = value
 
+	@property
 	def size(self) -> int:
 		size = 0
 		size += 4
 		size += 4
-		size += self.signer_public_key.size()
+		size += self.signer_public_key.size
 		size += 4
 		size += 1
-		size += self.network.size()
-		size += self.type_.size()
-		size += self.recipient_address.size()
+		size += self.network.size
+		size += self.type_.size
+		size += self.recipient_address.size
 		size += 2
 		size += 1
 		size += 4
 		size += 1
-		size += sum(map(lambda e: e.size(), self.mosaics))
+		size += sum(map(lambda e: e.size, self.mosaics))
 		size += len(self._message)
 		return size
 
@@ -16722,18 +16815,18 @@ class EmbeddedTransferTransaction:
 		buffer_ = buffer_[4:]
 		assert embedded_transaction_header_reserved_1 == 0, f"Invalid value of reserved field ({embedded_transaction_header_reserved_1})"
 		signer_public_key = PublicKey.deserialize(buffer_)
-		buffer_ = buffer_[signer_public_key.size():]
+		buffer_ = buffer_[signer_public_key.size:]
 		entity_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
 		buffer_ = buffer_[4:]
 		assert entity_body_reserved_1 == 0, f"Invalid value of reserved field ({entity_body_reserved_1})"
 		version = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
 		network = NetworkType.deserialize(buffer_)
-		buffer_ = buffer_[network.size():]
+		buffer_ = buffer_[network.size:]
 		type_ = TransactionType.deserialize(buffer_)
-		buffer_ = buffer_[type_.size():]
+		buffer_ = buffer_[type_.size:]
 		recipient_address = UnresolvedAddress.deserialize(buffer_)
-		buffer_ = buffer_[recipient_address.size():]
+		buffer_ = buffer_[recipient_address.size:]
 		message_size = int.from_bytes(buffer_[:2], byteorder="little", signed=False)
 		buffer_ = buffer_[2:]
 		mosaics_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
@@ -16745,7 +16838,7 @@ class EmbeddedTransferTransaction:
 		buffer_ = buffer_[1:]
 		assert transfer_transaction_body_reserved_2 == 0, f"Invalid value of reserved field ({transfer_transaction_body_reserved_2})"
 		mosaics = ArrayHelpers.read_array_count(buffer_, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id)
-		buffer_ = buffer_[sum(map(lambda e: e.size(), mosaics)):]
+		buffer_ = buffer_[sum(map(lambda e: e.size, mosaics)):]
 		message = ArrayHelpers.get_bytes(buffer_, message_size)
 		buffer_ = buffer_[message_size:]
 
@@ -16761,7 +16854,7 @@ class EmbeddedTransferTransaction:
 
 	def serialize(self) -> bytes:
 		buffer_ = bytes()
-		buffer_ += self.size().to_bytes(4, byteorder="little", signed=False)
+		buffer_ += self.size.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._embedded_transaction_header_reserved_1.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += self._signer_public_key.serialize()
 		buffer_ += self._entity_body_reserved_1.to_bytes(4, byteorder="little", signed=False)

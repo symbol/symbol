@@ -202,8 +202,8 @@ class StructFormatter(AbstractTypeFormatter):
 						comment = '# deserialize to temporary buffer for further processing'
 						deserialize = f'{field.extensions.printer.name}_temporary = {field.extensions.printer.load()}'
 						temporary_buffer = create_temporary_buffer_name(condition_field_name)
-						temporary = f'{temporary_buffer} = buffer_[:{field.extensions.printer.name}_temporary.size()]'
-						adjust = f'buffer_ = buffer_[{field.extensions.printer.name}_temporary.size():]'
+						temporary = f'{temporary_buffer} = buffer_[:{field.extensions.printer.name}_temporary.size]'
+						adjust = f'buffer_ = buffer_[{field.extensions.printer.name}_temporary.size:]'
 						body += comment + '\n' + deserialize + '\n' + temporary + '\n' + adjust + '\n\n'
 
 					# queue field for re-reading it from temporary buffer
@@ -274,7 +274,7 @@ class StructFormatter(AbstractTypeFormatter):
 		fields_iter = self.non_const_fields()
 		first_field = next(fields_iter)
 		if self.struct.size == first_field.extensions.printer.name:
-			body += f'buffer_ += self.size().to_bytes({first_field.size}, byteorder="little", signed=False)\n'
+			body += f'buffer_ += self.size.to_bytes({first_field.size}, byteorder="little", signed=False)\n'
 		else:
 			body += self.generate_serialize_field(first_field)
 

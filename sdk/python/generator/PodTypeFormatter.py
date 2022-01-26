@@ -50,6 +50,9 @@ class PodTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=f'return {self.printer.store("self.value")}')
 
 	def get_size_descriptor(self):
+		if not self._is_array:
+			return None
+
 		body = f'return {self.pod.size}\n'
 		return MethodDescriptor(body=body)
 

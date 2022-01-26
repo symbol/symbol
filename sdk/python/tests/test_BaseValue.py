@@ -10,6 +10,7 @@ WORD_WIDTH = 8
 DEFAULT_VALUE = 0x456789AB_CDEF0123
 
 HIBIT_SET_VALUE = 0xABCDEF01_23456789
+HIBIT_SET_VALUE_SIGNED = -0x543210FEDCBA9877
 HIBIT_UNSET_VALUE = DEFAULT_VALUE
 
 # FE instead of FF, because tests use "+1", "-1" values
@@ -38,53 +39,79 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 
 	def test_can_create_base_value(self):
 		# Act:
-		val = BaseValue(WORD_WIDTH, DEFAULT_VALUE)
+		value = BaseValue(WORD_WIDTH, DEFAULT_VALUE)
 
 		# Assert:
-		self.assertEqual(DEFAULT_VALUE, val.value)
+		self.assertEqual(WORD_WIDTH, value.size)
+		self.assertEqual(DEFAULT_VALUE, value.value)
 
-	def test_width_is_capping(self):
-		# Act:
-		val = BaseValue(4, DEFAULT_VALUE)
+	def test_cannot_create_unsigned_with_values_outside_range(self):
+		# Arrange:
+		test_cases = [
+			(1, -1), (1, 0x100),
+			(2, -1), (2, 0x1_0000),
+			(4, -1), (4, 0x1_0000_0000),
+			(8, -1), (8, 0x1_0000_0000_0000_0000)
+		]
 
-		# Assert:
-		self.assertNotEqual(DEFAULT_VALUE, val.value)
-		self.assertEqual(0xCDEF0123, val.value)
+		for (size, raw_value) in test_cases:
+			# Act + Assert:
+			with self.assertRaises(ValueError):
+				BaseValue(size, raw_value, None, False)
 
-	def test_unsigned_base_value_caps_negative_values(self):
-		# Act + Assert:
-		self.assertEqual(0xFFFF, BaseValue(2, -1).value)
-		self.assertEqual(0xFFFB, BaseValue(2, -5).value)
-		self.assertEqual(0x8001, BaseValue(2, -32767).value)
-		self.assertEqual(0x8000, BaseValue(2, -32768).value)
+	def test_can_create_unsigned_with_values_inside_range(self):
+		# Arrange:
+		test_cases = [
+			(1, 0), (1, 0x24), (1, 0xFF),
+			(2, 0), (2, 0x243F), (2, 0xFFFF),
+			(4, 0), (4, 0x243F_6A88), (4, 0xFFFF_FFFF),
+			(8, 0), (8, 0x243F_6A88_85A3_08D3), (8, 0xFFFF_FFFF_FFFF_FFFF)
+		]
 
-		# - wraps due to "and" operator applied
-		self.assertEqual(0x7FFF, BaseValue(2, -32769).value)
-		self.assertEqual(0x7FFF, BaseValue(2, 32767).value)
-		self.assertEqual(0x7FF4, BaseValue(2, -32780).value)
+		for (size, raw_value) in test_cases:
+			# Act:
+			value = BaseValue(size, raw_value, None, False)
 
-	def test_signed_base_value_caps_values(self):
-		# Act + Assert: positive wrap around to negative
-		self.assertEqual(126, BaseValue(1, 126, None, True).value)
-		self.assertEqual(127, BaseValue(1, 127, None, True).value)
-		self.assertEqual(-128, BaseValue(1, 128, None, True).value)
-		self.assertEqual(-127, BaseValue(1, 129, None, True).value)
+			# Assert:
+			self.assertEqual(size, value.size)
+			self.assertEqual(raw_value, value.value)
 
-		self.assertEqual(-127, BaseValue(1, 129 + 1024, None, True).value)
+	def test_cannot_create_signed_with_values_outside_range(self):
+		# Arrange:
+		test_cases = [
+			(1, -0x81), (1, 0x80),
+			(2, -0x8001), (2, 0x8000),
+			(4, -0x8000_0001), (4, 0x8000_0000),
+			(8, -0x8000_0000_0000_0001), (8, 0x8000_0000_0000_0000)
+		]
 
-		# - negative wrap around to positive
-		self.assertEqual(-127, BaseValue(1, -127, None, True).value)
-		self.assertEqual(-128, BaseValue(1, -128, None, True).value)
-		self.assertEqual(127, BaseValue(1, -129, None, True).value)
-		self.assertEqual(126, BaseValue(1, -130, None, True).value)
+		for (size, raw_value) in test_cases:
+			# Act + Assert:
+			with self.assertRaises(ValueError):
+				BaseValue(size, raw_value, None, True)
 
-		self.assertEqual(126, BaseValue(1, -130 - 1024, None, True).value)
+	def test_can_create_signed_with_values_inside_range(self):
+		# Arrange:
+		test_cases = [
+			(1, -0x80), (1, 0x24), (1, 0x7F),
+			(2, -0x8000), (2, 0x243F), (2, 0x7FFF),
+			(4, -0x8000_0000), (4, 0x243F_6A88), (4, 0x7FFF_FFFF),
+			(8, -0x8000_0000_0000_0000), (8, 0x243F_6A88_85A3_08D3), (8, 0x7FFF_FFFF_FFFF_FFFF)
+		]
 
-	def _equality_and_inequality_are_supported(self, descriptor):
+		for (size, raw_value) in test_cases:
+			# Act:
+			value = BaseValue(size, raw_value, None, True)
+
+			# Assert:
+			self.assertEqual(size, value.size)
+			self.assertEqual(raw_value, value.value)
+
+	def _equality_and_inequality_are_supported(self, descriptor, is_signed):
 		descriptor = EqualityTestDescriptor(
 			descriptor.untagged,
 			descriptor.tagged,
-			lambda: random.randint(0, 2**64 - 1),
+			lambda: random.randint(0, 2 ** (32 if is_signed else 64) - 1),
 			FakeValue,
 		)
 		self.equality_is_supported(descriptor, DEFAULT_VALUE)
@@ -102,7 +129,7 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 	# region unsigned comparison tests
 
 	def test_equality_and_inequality_are_supported_unsigned(self):
-		self._equality_and_inequality_are_supported(self.DESCRIPTOR_UNSIGNED)
+		self._equality_and_inequality_are_supported(self.DESCRIPTOR_UNSIGNED, False)
 
 	def test_less_than_is_supported_unsigned(self):
 		self.less_than_is_supported(self.DESCRIPTOR_UNSIGNED, DEFAULT_VALUE)
@@ -125,7 +152,7 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 	# region signed comparison tests
 
 	def test_equality_and_inequality_are_supported_signed(self):
-		self._equality_and_inequality_are_supported(self.DESCRIPTOR_SIGNED)
+		self._equality_and_inequality_are_supported(self.DESCRIPTOR_SIGNED, True)
 
 	def test_less_than_is_supported_signed(self):
 		self.less_than_is_supported(self.DESCRIPTOR_SIGNED, DEFAULT_VALUE)
@@ -160,7 +187,7 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 
 		self.assertNotEqual(hash(unsigned.untagged(DEFAULT_VALUE)), hash(unsigned.tagged(DEFAULT_VALUE)))
 
-		self.assertNotEqual(hash(unsigned.untagged(HIBIT_SET_VALUE)), hash(signed.untagged(HIBIT_SET_VALUE)))
+		self.assertNotEqual(hash(unsigned.untagged(HIBIT_SET_VALUE)), hash(signed.untagged(HIBIT_SET_VALUE_SIGNED)))
 		self.assertNotEqual(hash(unsigned.untagged(HIBIT_UNSET_VALUE)), hash(signed.untagged(HIBIT_UNSET_VALUE)))
 
 		self.assertNotEqual(val_hash, hash(unsigned.untagged(DEFAULT_VALUE - 1)))
@@ -170,7 +197,7 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 	def test_string_is_supported(self):
 		self.assertEqual('0x456789ABCDEF0123', str(BaseValue(WORD_WIDTH, DEFAULT_VALUE)))
 		self.assertEqual('0xABCDEF0123456789', str(BaseValue(WORD_WIDTH, HIBIT_SET_VALUE)))
-		self.assertEqual('-0x543210FEDCBA9877', str(BaseValue(WORD_WIDTH, HIBIT_SET_VALUE, None, True)))
+		self.assertEqual('-0x543210FEDCBA9877', str(BaseValue(WORD_WIDTH, HIBIT_SET_VALUE_SIGNED, None, True)))
 
 	def test_string_is_affected_by_width(self):
 		self.assertEqual('0x000FEDCBA9876543', str(BaseValue(WORD_WIDTH, 0xFEDCBA9876543)))

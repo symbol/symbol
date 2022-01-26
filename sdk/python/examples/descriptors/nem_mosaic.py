@@ -67,7 +67,7 @@ def descriptor_factory():
 				'description': 'Not really valuable mosaic'.encode('utf8'),
 				'properties': [
 				],
-				'levy_size': levy.size(),
+				'levy_size': levy.size,
 				'levy': {
 					'transfer_fee_type': 'absolute',
 					'recipient_address': sample_address,
