@@ -7,6 +7,8 @@ const { keccak_256 } = require('js-sha3');
  * Represents a NEM address.
  */
 class Address extends ByteArray {
+	static SIZE = 25;
+
 	/**
 	 * Creates a NEM address.
 	 * @param {Uint8Array|string|Address} address Input string, byte array or address.
@@ -29,8 +31,6 @@ class Address extends ByteArray {
 		return base32.encode(this.bytes);
 	}
 }
-
-Address.SIZE = 25;
 
 /**
  * Represents a NEM network.

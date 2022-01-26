@@ -20,7 +20,7 @@ describe('idGenerator', () => {
 			const mosaicId = generateMosaicId(new Address('TATNE7Q5BITMUTRRN6IB4I7FLSDRDWZA37JGO5Q'), 812613930);
 
 			// Assert:
-			expect(mosaicId).to.equal(BigInt('0x570FB3ED9379624C'));
+			expect(mosaicId).to.equal(0x570FB3ED9379624Cn);
 		});
 
 		it('produces different ids given different addresses', () => {
@@ -57,7 +57,7 @@ describe('idGenerator', () => {
 				const mosaicId = generateMosaicId(address, 812613930);
 
 				// Assert:
-				expect(mosaicId >> BigInt(63), `address: ${address}`).to.equal(BigInt(0));
+				expect(mosaicId >> 63n, `address: ${address}`).to.equal(0n);
 			}
 		});
 	});
@@ -72,15 +72,15 @@ describe('idGenerator', () => {
 			const namespaceId = generateNamespaceId('symbol');
 
 			// Assert:
-			expect(namespaceId).to.equal(BigInt('0xA95F1F8A96159516'));
+			expect(namespaceId).to.equal(0xA95F1F8A96159516n);
 		});
 
 		it('generates correct child id', () => {
 			// Act:
-			const namespaceId = generateNamespaceId('xym', BigInt('0xA95F1F8A96159516'));
+			const namespaceId = generateNamespaceId('xym', 0xA95F1F8A96159516n);
 
 			// Assert:
-			expect(namespaceId).to.equal(BigInt('0xE74B99BA41F4AFEE'));
+			expect(namespaceId).to.equal(0xE74B99BA41F4AFEEn);
 		});
 
 		it('produces different ids given different names', () => {
@@ -94,8 +94,8 @@ describe('idGenerator', () => {
 
 		it('produces different ids given different parents', () => {
 			// Act:
-			const namespaceId1 = generateNamespaceId('symbol', BigInt('0xA95F1F8A96159516'));
-			const namespaceId2 = generateNamespaceId('symbol', BigInt('0xA95F1F8A96159517'));
+			const namespaceId1 = generateNamespaceId('symbol', 0xA95F1F8A96159516n);
+			const namespaceId2 = generateNamespaceId('symbol', 0xA95F1F8A96159517n);
 
 			// Assert:
 			expect(namespaceId2).to.not.equal(namespaceId1);
@@ -108,7 +108,7 @@ describe('idGenerator', () => {
 				const namespaceId = generateNamespaceId('symbol', BigInt(i));
 
 				// Assert:
-				expect(namespaceId >> BigInt(63), `i: ${i}`).to.equal(BigInt(1));
+				expect(namespaceId >> 63n, `i: ${i}`).to.equal(1n);
 			}
 		});
 	});
@@ -123,7 +123,7 @@ describe('idGenerator', () => {
 			const mosaicId = generateMosaicAliasId('cat.token');
 
 			// Assert:
-			expect(mosaicId).to.equal(BigInt('0xA029E100621B2E33'));
+			expect(mosaicId).to.equal(0xA029E100621B2E33n);
 		});
 
 		it('supports multilevel mosaics', () => {
@@ -169,7 +169,7 @@ describe('idGenerator', () => {
 			const path = generateNamespacePath('cat');
 
 			// Assert:
-			expect(path).to.deep.equal([BigInt('0xB1497F5FBA651B4F')]);
+			expect(path).to.deep.equal([BigInt(0xB1497F5FBA651B4Fn)]);
 		});
 
 		it('generates correct child id', () => {
@@ -177,7 +177,7 @@ describe('idGenerator', () => {
 			const path = generateNamespacePath('cat.token');
 
 			// Assert:
-			expect(path).to.deep.equal([BigInt('0xB1497F5FBA651B4F'), BigInt('0xA029E100621B2E33')]);
+			expect(path).to.deep.equal([BigInt(0xB1497F5FBA651B4Fn), BigInt(0xA029E100621B2E33n)]);
 		});
 
 		it('supports multilevel namespaces', () => {
