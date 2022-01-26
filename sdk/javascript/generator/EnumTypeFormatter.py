@@ -7,7 +7,6 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		super().__init__()
 
 		self.enum_type = ast_model
-		self.base_type = 'Flag' if self.enum_type.is_bitwise else 'Enum'
 
 		self.int_printer = IntPrinter(self.enum_type)
 
@@ -16,38 +15,49 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return self.enum_type.name
 
 	def get_base_class(self):
-		return f'({self.base_type})'
+		return None
 
 	def get_fields(self):
 		return list(
 			map(
-				lambda e: f'{e.name} = {e.value}\n',
+				lambda e: f'static {e.name} = new {self.typename}({e.value})\n',
 				self.enum_type.values,
 			)
 		)
 
 	@staticmethod
 	def get_ctor_descriptor():
-		return None
+		arguments = ['value']
+		body = 'this.value = value\n'
+		return MethodDescriptor(body=body, arguments=arguments)
 
 	def get_deserialize_descriptor(self):
-		body = 'buffer_ = memoryview(payload)\n'
-		body += f'return {self.typename}({self.int_printer.load()})'
+		body = 'let buffer_ = new Uint8Array(payload.buffer, payload.byteOffset)\n'
+		body += '// TODO: make sure the value does not go out of range?\n'
+		body += '// TODO: don\'t instantiate\n'
+		body += f'return new {self.typename}({self.int_printer.load()})'
 		return MethodDescriptor(body=body)
 
 	def get_serialize_descriptor(self):
-		body = 'buffer_ = bytes()\n'
-		body += f'buffer_ += {self.int_printer.store("self.value")}\n'
-		body += 'return buffer_'
-		return MethodDescriptor(body=body)
+		return MethodDescriptor(body=f'return {self.int_printer.store("this.value")}')
 
 	def get_size_descriptor(self):
 		body = f'return {self.enum_type.size}\n'
 		return MethodDescriptor(body=body)
 
-	@staticmethod
-	def get_getter_descriptors():
-		return []
+	def get_getter_descriptors(self):
+		if not self.enum_type.is_bitwise:
+			return []
+
+		body = f'return 0 !== (self.value & flag);\n'
+		return [
+			MethodDescriptor(method_name='has', arguments=['flag'], body=body)
+		]
+
+		body = f'return 0 !== (this.value & flag);\n'
+		return [
+			MethodDescriptor(method_name='has', arguments=['flag'], body=body)
+		]
 
 	@staticmethod
 	def get_setter_descriptors():
