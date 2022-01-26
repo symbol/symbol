@@ -7,7 +7,15 @@ updates:
       interval: weekly
       day: sunday
     target-branch: dev
-    labels: catbuffer-parser
+    labels: [catbuffer-parser]
+
+  - package-ecosystem: pip
+    directory: /client/catapult/scripts
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: [catapult]
 
   - package-ecosystem: npm
     directory: /client/rest
@@ -15,7 +23,31 @@ updates:
       interval: weekly
       day: sunday
     target-branch: dev
-    labels: rest
+    labels: [rest]
+
+  - package-ecosystem: pip
+    directory: /jenkins/catapult
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: [jenkins]
+
+  - package-ecosystem: pip
+    directory: /linters/cpp
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: [linters]
+
+  - package-ecosystem: pip
+    directory: /linters/python
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: [linters]
 
   - package-ecosystem: npm
     directory: /sdk/javascript
@@ -23,7 +55,7 @@ updates:
       interval: weekly
       day: sunday
     target-branch: dev
-    labels: sdk-javascript
+    labels: [sdk-javascript]
 
   - package-ecosystem: pip
     directory: /sdk/python
@@ -31,4 +63,4 @@ updates:
       interval: weekly
       day: sunday
     target-branch: dev
-    labels: sdk-python
+    labels: [sdk-python]

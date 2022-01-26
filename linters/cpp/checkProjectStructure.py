@@ -421,8 +421,8 @@ class ConReporter:
 
 
 class XmlReporter:
-	def __init__(self, f):
-		self.fout = f
+	def __init__(self, fout):
+		self.fout = fout
 
 	@staticmethod
 	def format_failure(buff, kind, name, msg):
@@ -547,7 +547,7 @@ class Analyzer:
 
 		self.includes[path] = entry
 		error_reporter = FilteredReporter(self.context)
-		headers = HeaderParser.HeaderParser(error_reporter, path, self.simple_validators, fix_indentsInFiles=self.options.fix_indents)
+		headers = HeaderParser.HeaderParser(error_reporter, path, self.simple_validators, fix_indents_in_files=self.options.fix_indents)
 
 		entry.set_includes(filter_non_project_includes(headers.includes))
 		entry.check_includes(error_reporter, headers.preprocessor)

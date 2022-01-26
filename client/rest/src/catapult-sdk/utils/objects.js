@@ -35,6 +35,12 @@ const objects = {
 	 */
 	deepAssign: (target, ...sources) => {
 		sources.forEach(source => Object.keys(source).forEach(key => {
+			if (!Object.prototype.hasOwnProperty.call(source, key))
+				return;
+
+			if ('__proto__' === key || 'constructor' === key)
+				return;
+
 			if (isObject(target[key]) && isObject(source[key]))
 				objects.deepAssign(target[key], source[key]);
 			else

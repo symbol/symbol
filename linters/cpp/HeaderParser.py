@@ -87,7 +87,7 @@ class HeaderParser:
 	PATTERN_EXTERN = re.compile(r'\s*extern\s*')
 	PATTERN_EMPTY_LINE = re.compile(r'^\s*$')
 
-	def __init__(self, error_reporter, path, simple_validators, fix_indentsInFiles=False):
+	def __init__(self, error_reporter, path, simple_validators, fix_indents_in_files=False):
 		self.error_reporter = error_reporter
 		self.path = path
 		self.line_number = 0
@@ -103,7 +103,7 @@ class HeaderParser:
 			self.parse_file(input_file)
 
 		if self.fixes:
-			if fix_indentsInFiles:
+			if fix_indents_in_files:
 				with open(self.path, 'r', encoding='utf8') as input_file:
 					with open(self.path + '.tmp', 'w', encoding='utf8') as output_file:
 						self.fix_indents(input_file, output_file)
