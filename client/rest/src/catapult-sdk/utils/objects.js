@@ -38,6 +38,9 @@ const objects = {
 			if (!Object.prototype.hasOwnProperty.call(source, key))
 				return;
 
+			if ('__proto__' === key || 'constructor' === key)
+				return;
+
 			if (isObject(target[key]) && isObject(source[key]))
 				objects.deepAssign(target[key], source[key]);
 			else
