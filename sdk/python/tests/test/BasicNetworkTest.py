@@ -6,14 +6,14 @@ class NetworkTestDescriptor:
 		self,
 		network_class,
 		deterministic_public_key,
-		expected_mainnet_address_network_pair,
-		expected_testnet_address_network_pair):
+		mainnet_address_network_pair,
+		testnet_address_network_pair):
 		# pylint: disable=too-many-function-args
 
 		self.network_class = network_class
 		self.deterministic_public_key = deterministic_public_key
-		(self.expected_mainnet_address, self.mainnet_network) = expected_mainnet_address_network_pair
-		(self.expected_testnet_address, self.testnet_network) = expected_testnet_address_network_pair
+		(self.expected_mainnet_address, self.mainnet_network) = mainnet_address_network_pair
+		(self.expected_testnet_address, self.testnet_network) = testnet_address_network_pair
 
 
 def mainnet_accessor(descriptor):
