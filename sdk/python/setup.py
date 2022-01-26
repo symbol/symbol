@@ -13,7 +13,7 @@ REQUIRES = [
 	'mnemonic==0.20',
 	'Pillow==9.0.0',
 	'pysha3==1.0.2',
-	'PyYAML==5.4.1',
+	'PyYAML==6.0',
 	'pyzbar==0.1.8',
 	'qrcode==7.3.1'
 ]
