@@ -78,7 +78,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		body += 'factory_class = mapping[discriminator]\n'
 		body += 'return factory_class.deserialize(buffer_)'
 
-		return MethodDescriptor(body=body, result=self.abstract.name)
+		return MethodDescriptor(body=body)
 
 	def get_create_by_name_descriptor(self):
 		body = ''
@@ -99,7 +99,7 @@ if entity_name not in mapping:
 
 return mapping[entity_name]()
 '''
-		return MethodDescriptor(body=body, result=self.abstract.name)
+		return MethodDescriptor(body=body)
 
 	def get_serialize_descriptor(self):
 		raise RuntimeError('not required')

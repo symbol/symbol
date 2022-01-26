@@ -300,7 +300,6 @@ class StructFormatter(AbstractTypeFormatter):
 		method_descriptor = MethodDescriptor(
 			method_name=field.extensions.printer.name,
 			body=f'return {self.field_name(field)}',
-			result=field.extensions.printer.get_type(),
 		)
 		method_descriptor.annotations = ['@property']
 		return method_descriptor

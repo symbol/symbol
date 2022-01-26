@@ -67,21 +67,18 @@ class TypeFormatter(ClassFormatter):
 		method_descriptor = self.provider.get_deserialize_descriptor()
 		method_descriptor.method_name = 'deserialize'
 		method_descriptor.arguments = ['payload: ByteString']
-		method_descriptor.result = self.provider.typename
 		method_descriptor.annotations = ['@classmethod']
 		return self.generate_method(method_descriptor)
 
 	def generate_serializer(self):
 		method_descriptor = self.provider.get_serialize_descriptor()
 		method_descriptor.method_name = 'serialize'
-		method_descriptor.result = 'bytes'
 		return self.generate_method(method_descriptor)
 
 	def generate_size(self):
 		method_descriptor = self.provider.get_size_descriptor()
 		method_descriptor.method_name = 'size'
 		method_descriptor.arguments = []
-		method_descriptor.result = 'int'
 		return self.generate_method(method_descriptor)
 
 	def generate_getters(self):
@@ -96,7 +93,6 @@ class TypeFormatter(ClassFormatter):
 			return None
 
 		method_descriptor.method_name = '__str__'
-		method_descriptor.result = 'str'
 		return self.generate_method(method_descriptor)
 
 	def generate_methods(self):
