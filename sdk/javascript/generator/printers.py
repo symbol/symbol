@@ -3,6 +3,10 @@ from catparser.DisplayType import DisplayType
 from .name_formatting import fix_name, fix_size_name, underline_name
 
 
+def js_bool(value):
+	return 'true' if value else 'false'
+
+
 class Printer:
 	def __init__(self, descriptor, name):
 		self.descriptor = descriptor
@@ -19,8 +23,10 @@ class IntPrinter(Printer):
 	def get_type():
 		return 'int'
 
-	@staticmethod
-	def get_default_value():
+	def get_default_value(self):
+		if 8 == self.descriptor.size:
+			return '0n'
+
 		return '0'
 
 	def get_size(self):
@@ -28,13 +34,13 @@ class IntPrinter(Printer):
 
 	def load(self):
 		data_size = self.get_size()
-		return f'int.from_bytes(buffer_[:{data_size}], byteorder="little", signed={not self.descriptor.is_unsigned})'
+		return f'converter.bytesToInt(buffer_, {data_size}, {js_bool(not self.descriptor.is_unsigned)})'
 
 	def advancement_size(self):
 		return self.get_size()
 
 	def store(self, field_name):
-		return f'{field_name}.to_bytes({self.get_size()}, byteorder="little", signed={not self.descriptor.is_unsigned})'
+		return f'converter.intToBytes({field_name}, {self.get_size()}, {js_bool(not self.descriptor.is_unsigned)})'
 
 	@staticmethod
 	def assign(value):
@@ -42,7 +48,7 @@ class IntPrinter(Printer):
 
 	@staticmethod
 	def to_string(field_name):
-		return f'"0x{{:X}}".format({field_name})'
+		return f'"0x".concat({field_name}.toString(16))'
 
 
 class TypedArrayPrinter(Printer):

@@ -16,40 +16,43 @@ class PodTypeFormatter(AbstractTypeFormatter):
 
 	@property
 	def field_name(self):
-		return f'self._{self.printer.name}'
+		return f'this._{self.printer.name}'
 
 	@property
 	def _is_array(self):
 		return self.pod.display_type.is_array
 
 	def get_fields(self):
-		return [f'SIZE = {self.pod.size}']
+		return [f'static SIZE = {self.pod.size}']
 
 	def get_base_class(self):
-		return '(ByteArray)' if self._is_array else '(BaseValue)'
+		return 'ByteArray' if self._is_array else 'BaseValue'
 
 	def get_ctor_descriptor(self):
 		variable_name = self.printer.name
-		body = f'super().__init__(self.SIZE, {variable_name}, {self.typename})'
+		body = f'super({self.typename}.SIZE, {variable_name})'
 		if self._is_array:
-			arguments = [f'{variable_name}: StrBytes = {self.printer.get_default_value()}']
+			arguments = [f'{variable_name} = {self.printer.get_default_value()}']
 		else:
-			arguments = [f'{variable_name}: {self.printer.get_type()} = {self.printer.get_default_value()}']
+			arguments = [f'{variable_name} = {self.printer.get_default_value()}']
 
 		return MethodDescriptor(body=body, arguments=arguments)
 
 	def get_deserialize_descriptor(self):
-		body = 'buffer_ = memoryview(payload)\n'
-		body += f'return {self.typename}({self.printer.load()})'
+		body = f'const buffer_ = payload;\n'
+		body += f'return new {self.typename}({self.printer.load()});'
 		return MethodDescriptor(body=body)
 
 	def get_serialize_descriptor(self):
 		if self._is_array:
-			return MethodDescriptor(body='return self.bytes')
+			return MethodDescriptor(body='return this.bytes')
 
-		return MethodDescriptor(body=f'return {self.printer.store("self.value")}')
+		return MethodDescriptor(body=f'return {self.printer.store("this.value")};')
 
 	def get_size_descriptor(self):
+		if not self._is_array:
+			return None
+
 		body = f'return {self.pod.size}\n'
 		return MethodDescriptor(body=body)
 

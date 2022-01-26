@@ -13,20 +13,17 @@ class ClassFormatter(ABC):
 
 	@staticmethod
 	def generate_method(method_descriptor):
-		all_args = ['self'] + method_descriptor.arguments
-		arguments = ', '.join(all_args)
+		arguments = ', '.join(method_descriptor.arguments)
 		if len(arguments) > 100:
-			arguments = '\n    ' + ',\n    '.join(all_args) + '\n'
+			arguments = '\n    ' + ',\n    '.join(method_descriptor.arguments) + '\n'
 
-		annotations = '\n'.join(method_descriptor.annotations + [''])
-
-		is_void = annotations.endswith('setter\n') or method_descriptor.method_name == '__init__'
-		method_result = '' if is_void else f' -> {method_descriptor.result}'
 		body = indent(method_descriptor.body)
-		return f'{annotations}def {method_descriptor.method_name}({arguments}){method_result}:\n{body}'
+		return f'{method_descriptor.method_name}({arguments}) {{\n{body}}}\n'
 
 	def generate_class_header(self):
-		header = f'class {self.provider.typename}{self.provider.get_base_class()}:\n'
+		base_class = self.provider.get_base_class()
+		base_class = f' extends {base_class}' if base_class else ''
+		header = f'class {self.provider.typename}{base_class} {{ \n'
 		comment = ''
 		return header + indent(comment)
 
@@ -43,6 +40,8 @@ class ClassFormatter(ABC):
 
 		methods = self.generate_methods()
 		output += '\n'.join(map(indent, methods))
+
+		output += '}\n'  # class_footer
 		return output
 
 	def generate_output(self):
@@ -59,15 +58,15 @@ class TypeFormatter(ClassFormatter):
 		if not method_descriptor:
 			return None
 
-		method_descriptor.method_name = '__init__'
+		method_descriptor.method_name = 'constructor'
 		return self.generate_method(method_descriptor)
 
 	def generate_deserializer(self):
 		# 'deserialize'
 		method_descriptor = self.provider.get_deserialize_descriptor()
-		method_descriptor.method_name = 'deserialize'
-		method_descriptor.arguments = ['payload: ByteString']
-		method_descriptor.annotations = ['@classmethod']
+		method_descriptor.method_name = 'static deserialize'
+		method_descriptor.arguments = ['payload']
+		method_descriptor.annotations = []
 		return self.generate_method(method_descriptor)
 
 	def generate_serializer(self):
@@ -77,7 +76,10 @@ class TypeFormatter(ClassFormatter):
 
 	def generate_size(self):
 		method_descriptor = self.provider.get_size_descriptor()
-		method_descriptor.method_name = 'size'
+		if not method_descriptor:
+			return None
+
+		method_descriptor.method_name = 'get size'
 		method_descriptor.arguments = []
 		return self.generate_method(method_descriptor)
 
@@ -107,7 +109,10 @@ class TypeFormatter(ClassFormatter):
 		setters = self.generate_setters()
 		methods.extend(setters)
 
-		methods.append(self.generate_size())
+		size_method = self.generate_size()
+		if size_method:
+			methods.append(size_method)
+
 		methods.append(self.generate_deserializer())
 		methods.append(self.generate_serializer())
 
