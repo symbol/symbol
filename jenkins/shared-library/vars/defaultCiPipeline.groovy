@@ -28,7 +28,8 @@ void call(Closure body) {
 
 		agent {
 			dockerfile {
-				label "${PLATFORM}-agent"
+				// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
+				label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent" 
 
 				dir 'jenkins/docker'
 				filename "${params.ciBuildDockerfile}"
