@@ -103,7 +103,7 @@ def generate_files(ast_models, output_directory: Path):
 	with open(output_directory / 'models.js', 'w', encoding='utf8', newline='\n') as output_file:
 		output_file.write(
 			'''const { BaseValue } = require('../BaseValue');
-const ByteArray = require('../ByteArray');
+const { ByteArray } = require('../ByteArray');
 const converter = require('../utils/converter');
 
 '''

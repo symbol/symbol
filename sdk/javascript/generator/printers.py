@@ -143,19 +143,19 @@ class ArrayPrinter(Printer):
 	def get_default_value(self):
 		size = self.descriptor.size
 		if isinstance(size, str):
-			return 'bytes()'
+			return 'new Uint8Array()'
 
-		return f'bytes({self.get_size()})'
+		return f'new Uint8Array({self.get_size()})'
 
 	def get_size(self):
 		size = self.descriptor.size
 		if isinstance(size, str):
-			return f'len(self._{self.name})'
+			return f'self._{self.name}.length'
 
 		return size
 
 	def load(self):
-		return f'ArrayHelpers.get_bytes(buffer_, {self.advancement_size()})'
+		return f'new Uint8Array(buffer_.buffer, buffer_.byteOffset, {self.advancement_size()})'
 
 	def advancement_size(self):
 		# like get_size() but without self prefix, as this refers to local method field
@@ -167,7 +167,7 @@ class ArrayPrinter(Printer):
 
 	@staticmethod
 	def to_string(field_name):
-		return f'hexlify({field_name}).decode("utf8")'
+		return f'/* FIXME */'
 
 
 class BuiltinPrinter(Printer):
