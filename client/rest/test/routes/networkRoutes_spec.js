@@ -188,7 +188,7 @@ describe('network routes', () => {
 					readFileStub = sinon.stub(fs, 'readFile');
 					readFileStub.onFirstCall().callsFake((path, data, callback) =>
 						callback(null, '[node]\n'
-						+ 'minFeeMultiplier = 100'));
+						+ 'minFeeMultiplier = 1\'234\'567'));
 					readFileStub.onSecondCall().callsFake((path, data, callback) =>
 						callback(null, '[chain]\n'
 						+ 'defaultDynamicFeeMultiplier = 1\'000'));
@@ -209,7 +209,7 @@ describe('network routes', () => {
 							medianFeeMultiplier: median,
 							highestFeeMultiplier: max,
 							lowestFeeMultiplier: min,
-							minFeeMultiplier: 100
+							minFeeMultiplier: 1234567
 						});
 						expect(mockServer.next.calledOnce).to.equal(true);
 					});
