@@ -67,9 +67,9 @@ class TypedArrayPrinter(Printer):
 		if self.descriptor.field_type.is_byte_constrained:
 			# note: use actual `.size` field
 			alignment = self.descriptor.field_type.alignment
-			return f'sum(map(lambda e: ArrayHelpers.align_up(e.size(), {alignment}), self.{self.name}))'
+			return f'this.{self.name}.map(e => ArrayHelpers.align_up(e.size, {alignment})).reduce((a, b) => a + b, 0)'
 
-		return f'sum(map(lambda e: e.size(), self.{self.name}))'
+		return f'this.{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
 
 	def load(self):
 		if self.descriptor.field_type.is_byte_constrained:
@@ -80,7 +80,7 @@ class TypedArrayPrinter(Printer):
 
 			data_size = self.descriptor.size
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.read_variable_size_elements(buffer_[:{data_size}], {factory_name}, {alignment})'
+			return f'ArrayHelpers.read_variable_size_elements(new Uint8Array(buffer_.buffer, buffer.byteOffset, {data_size}), {factory_name}, {alignment})'
 
 		if self.descriptor.field_type.is_expandable:
 			return f'ArrayHelpers.read_array(buffer_, {self.descriptor.field_type.element_type})'
@@ -91,7 +91,7 @@ class TypedArrayPrinter(Printer):
 			str(self.descriptor.size),
 		]
 		if self.descriptor.field_type.sort_key:
-			accessor = f'lambda e: e.{self.descriptor.field_type.sort_key}'
+			accessor = f'e => e.{self.descriptor.field_type.sort_key}'
 			args.append(accessor)
 
 		args_str = ', '.join(args)
@@ -101,7 +101,7 @@ class TypedArrayPrinter(Printer):
 		if self.descriptor.field_type.is_byte_constrained:
 			return str(self.descriptor.size)
 
-		return f'sum(map(lambda e: e.size(), {self.name}))'
+		return f'this.{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
 
 	def store(self, field_name):
 		if self.descriptor.field_type.is_byte_constrained:
@@ -117,7 +117,7 @@ class TypedArrayPrinter(Printer):
 			args.append(str(size))
 
 		if self.descriptor.field_type.sort_key:
-			accessor = f'lambda e: e.{self.descriptor.field_type.sort_key}'
+			accessor = f'e => e.{self.descriptor.field_type.sort_key}'
 			args.append(accessor)
 
 		args_str = ', '.join(args)
@@ -167,7 +167,7 @@ class ArrayPrinter(Printer):
 
 	@staticmethod
 	def to_string(field_name):
-		return f'/* FIXME */'
+		return f'{field_name} /* FIXME */'
 
 
 class BuiltinPrinter(Printer):

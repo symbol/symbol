@@ -24,7 +24,7 @@ def create_temporary_buffer_name(name):
 
 
 def indent_if_conditional(condition, statements):
-	return statements if not condition else condition + indent(statements)
+	return statements if not condition else (condition + ' {\n' + indent(statements) + '}\n')
 
 
 def filter_size_if_first(fields_iter):
@@ -69,7 +69,13 @@ class StructFormatter(AbstractTypeFormatter):
 	@staticmethod
 	def generate_class_field(field):
 		default_value = field.extensions.printer.assign(field.value)
-		return f'{field.name} = {default_value}'
+		return f'static {field.name} = {default_value};'
+
+	@staticmethod
+	def buffer_view(buffer_name, shift=0, limit=0):
+		shift_str = f' + {shift}' if shift else ''
+		limit_str = f', {limit}' if limit else ''
+		return f'new Uint8Array({buffer_name}.buffer, {buffer_name}.byteOffset{shift_str}{limit_str})'
 
 	def generate_type_hints(self):
 		body = 'static TYPE_HINTS = {\n'
@@ -107,7 +113,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		body += '\n'.join(
 			map(
-				lambda field: f'{self.field_name(field)} = {field.value}  # reserved field',
+				lambda field: f'{self.field_name(field)} = {field.value};  // reserved field',
 				self.reserved_fields()
 			)
 		)
@@ -129,21 +135,24 @@ class StructFormatter(AbstractTypeFormatter):
 		condition_to_operator_map = {
 			'equals': '==',
 			'not equals': '!=',
-			'not in': 'not in',
-			'in': 'in',
+			'not in': '!',
+			'in': '',
 		}
 		condition_operator = condition_to_operator_map[conditional.operation]
 
 		value = f'{conditional.value}'
 		condition_model = condition_field.extensions.type_model
 		yoda_value = value if DisplayType.INTEGER == condition_model.display_type else f'{condition_model.name}.{value}'
-		field_prefix = 'self.' if prefix_field else ''
+		field_prefix = f'this.' if prefix_field else ''
 
 		# HACK: instead of handling dumb magic value in namespace parent_name, generate slightly simpler condition
 		if prefix_field and DisplayType.UNSET != field.display_type:
-			return f'if {field_prefix}{field.name}:\n'
+			return f'if ({field_prefix}{field.name}) /* check me */'
 
-		return f'if {yoda_value} {condition_operator} {field_prefix}{condition_field_name}:\n'
+		if conditional.operation in ['not in', 'in']:
+			return f'if ({condition_operator}{field_prefix}{condition_field_name}.has({yoda_value}))'
+
+		return f'if ({yoda_value} {condition_operator} {field_prefix}{condition_field_name})'
 
 	def generate_deserialize_field(self, field, arg_buffer_name=None):
 		condition = self.generate_condition(field)
@@ -156,12 +165,13 @@ class StructFormatter(AbstractTypeFormatter):
 		size_fields = field.extensions.size_fields
 		if size_fields:
 			assert len(size_fields) == 1, f'unexpected number of size_fields associated with {field.name}'
-			buffer_load_name = f'new Uint8Array(buffer_.buffer, 0, {size_fields[0].name})'
+			buffer_load_name = self.buffer_view("buffer_", 0, size_fields[0].name)
 
 		use_custom_buffer_name = arg_buffer_name or size_fields
 		load = field.extensions.printer.load(buffer_load_name) if use_custom_buffer_name else field.extensions.printer.load()
-		deserialize = f'const {field_name} = {load};'
-		adjust = f'{buffer_name} = new Uint8Array({buffer_name}.buffer, {buffer_name}.byteOffset + {field.extensions.printer.advancement_size()});'
+		const_field = 'const ' if not condition else ''
+		deserialize = f'{const_field}{field_name} = {load};'
+		adjust = f'{buffer_name} = {self.buffer_view(buffer_name, field.extensions.printer.advancement_size())}'
 
 		additional_statements = ''
 		if is_reserved(field):
@@ -169,7 +179,8 @@ class StructFormatter(AbstractTypeFormatter):
 			additional_statements = f'/* assert {field.extensions.printer.name} == {field.value}, {assert_message} */\n'
 
 		if self.struct.size == field.extensions.printer.name:
-			additional_statements += f'{buffer_name} = new Uint8Array({buffer_name}.buffer, 0, {field_name} - {field.extensions.printer.advancement_size()})\n'
+			buffer_limit = f'{field_name} - {field.extensions.printer.advancement_size()}'
+			additional_statements += f'{buffer_name} = {self.buffer_view(buffer_name, 0, buffer_limit)}\n'
 			additional_statements += f'/* del {field_name} */\n'
 
 		if is_bound_size(field) and field.is_size_reference:
@@ -178,12 +189,12 @@ class StructFormatter(AbstractTypeFormatter):
 		deserialize_field = deserialize + '\n' + adjust + '\n' + additional_statements
 
 		if condition:
-			condition = f'{field.extensions.printer.name} = None\n' + condition
+			condition = f'let {field.extensions.printer.name} = None\n' + condition
 
 		return indent_if_conditional(condition, deserialize_field)
 
 	def get_deserialize_descriptor(self):
-		body = 'let buffer_ = new Uint8Array(payload.buffer, payload.byteOffset)\n'
+		body = f'let buffer_ = {self.buffer_view("payload")};\n'
 
 		# special treatment for condition-guarded fields,
 		# where condition is behind the fields...
@@ -199,11 +210,12 @@ class StructFormatter(AbstractTypeFormatter):
 						queued_fields[condition_field_name] = []
 
 						# assume same size and generate single dummy access
-						comment = '# deserialize to temporary buffer for further processing'
-						deserialize = f'{field.extensions.printer.name}_temporary = {field.extensions.printer.load()}'
+						comment = '// deserialize to temporary buffer for further processing'
+						deserialize = f'const {field.extensions.printer.name}_temporary = {field.extensions.printer.load()}'
 						temporary_buffer = create_temporary_buffer_name(condition_field_name)
-						temporary = f'{temporary_buffer} = buffer_[:{field.extensions.printer.name}_temporary.size()]'
-						adjust = f'buffer_ = new Uint8Array(buffer_.buffer, {field.extensions.printer.name}_temporary.size())'  # dumb
+						temporary_buffer_limit = f'{field.extensions.printer.name}_temporary.size'
+						temporary = f'let {temporary_buffer} = {self.buffer_view("buffer_", 0, temporary_buffer_limit)}'
+						adjust = f'buffer_ = {self.buffer_view("buffer_", temporary_buffer_limit)};  // skip temporary'
 						body += comment + '\n' + deserialize + '\n' + temporary + '\n' + adjust + '\n\n'
 
 					# queue field for re-reading it from temporary buffer
@@ -229,7 +241,7 @@ class StructFormatter(AbstractTypeFormatter):
 			field_name = self.field_name(field, 'instance')
 			body += f'{field_name} = {field.extensions.printer.name};\n'
 
-		body += 'return instance'
+		body += 'return instance;'
 		return MethodDescriptor(body=body)
 
 	def generate_serialize_field(self, field):
@@ -242,7 +254,7 @@ class StructFormatter(AbstractTypeFormatter):
 		bound_field = field.extensions.bound_field
 		if is_bound_size(field):
 			bound_field_name = self.field_name(bound_field)
-			field_comment = f'  # {field.name}'
+			field_comment = f' /* bound: {field.name} */ '
 
 			if bound_field.display_type.is_array:
 				if field.name.endswith('_count') or not bound_field.field_type.is_byte_constrained:
@@ -273,7 +285,7 @@ class StructFormatter(AbstractTypeFormatter):
 		fields_iter = self.non_const_fields()
 		first_field = next(fields_iter)
 		if self.struct.size == first_field.extensions.printer.name:
-			body += f'buffer_.write(converter.intToBytes(this.size(), {first_field.size}, false))\n'
+			body += f'buffer_.write(converter.intToBytes(this.size, {first_field.size}, false));\n'
 		else:
 			body += self.generate_serialize_field(first_field)
 
@@ -287,7 +299,7 @@ class StructFormatter(AbstractTypeFormatter):
 		condition = self.generate_condition(field, True)
 		size_field = field.extensions.printer.get_size()
 
-		return indent_if_conditional(condition, f'size += {size_field}\n')
+		return indent_if_conditional(condition, f'size += {size_field};\n')
 
 	def get_size_descriptor(self):
 		body = 'let size = 0\n'
@@ -298,7 +310,7 @@ class StructFormatter(AbstractTypeFormatter):
 	def create_getter_descriptor(self, field):
 		method_descriptor = MethodDescriptor(
 			method_name=f'get {field.extensions.printer.name}',
-			body=f'return {self.field_name(field)}',
+			body=f'return {self.field_name(field)};',
 		)
 		return method_descriptor
 
@@ -309,7 +321,7 @@ class StructFormatter(AbstractTypeFormatter):
 		method_descriptor = MethodDescriptor(
 			method_name=f'set {field.extensions.printer.name}',
 			arguments=[f'value'],
-			body=f'{self.field_name(field)} = value',
+			body=f'{self.field_name(field)} = value;',
 		)
 		return method_descriptor
 
@@ -321,7 +333,7 @@ class StructFormatter(AbstractTypeFormatter):
 		return f'`{field.extensions.printer.name}: ${{{field_to_string}}}`'
 
 	def get_str_descriptor(self):
-		body = 'result = "("\n'
+		body = 'let result = "("\n'
 		body += ''.join(
 			map(
 				'result += {}\n'.format,  # pylint: disable=consider-using-f-string
