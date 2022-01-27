@@ -43,9 +43,7 @@ void npmPublisher(Map config, String phase) {
 	if (config.publisher == 'npm') {
 		String[] files = ['scripts/node-functions.sh']
 		copyWithJenkinsFunctionFileToTemp(files)
-		String scriptFullFilepath = fileHelper.copyToTempFile(
-				getResource('artifacts/scripts/node-publish.sh'),
-				'scripts/node-publish.sh')
+		String scriptFullFilepath = fileHelper.copyToTempFile(getResource('artifacts/scripts/node-publish.sh'), 'scripts/node-publish.sh')
 		fileHelper.copyToLocalFile(getResource('artifacts/configuration/npmrc'), "${HOME}/.npmrc")
 		withCredentials([string(credentialsId: NPM_CREDENTIALS_ID, variable: 'NPM_TOKEN')]) {
 			runScript("bash ${scriptFullFilepath} ${phase}")
@@ -54,15 +52,18 @@ void npmPublisher(Map config, String phase) {
 }
 
 void pythonPublisher(Map config, String phase) {
-	if (config.publisher == 'pypi' && phase == 'release') {
-		runScript('python3 setup.py bdist_wheel')
-		withCredentials([
-			usernamePassword(
-			credentialsId: PYTHON_CREDENTIALS_ID,
-			usernameVariable: 'TWINE_USERNAME',
-			passwordVariable: 'TWINE_PASSWORD')]) {
-				runScript('python3 -m twine upload --repository pypi dist/*')
-		}
+	if (config.publisher != 'pypi') {
+		return
+	}
+
+	credentialsId = PYTHON_CREDENTIALS_ID
+	if (phase == 'alpha') {
+		credentialsId = TEST_PYTHON_CREDENTIALS_ID
+	}
+
+	String scriptFullFilepath = fileHelper.copyToTempFile(getResource('artifacts/scripts/pypi-publish.sh'), 'scripts/pypi-publish.sh')
+	withCredentials([string(credentialsId: credentialsId, variable: 'POETRY_PYPI_TOKEN_PYPI')]) {
+		runScript("bash ${scriptFullFilepath} ${phase}")
 	}
 }
 

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = 'catparser'
+version = '3.1.0'
+description = 'Symbol Catbuffer Parser'
+authors = ['Symbol Contributors <contributors@symbol.dev>']
+maintainers = ['Symbol Contributors <contributors@symbol.dev>']
+license = 'MIT'
+
+readme = 'README.md'
+
+packages = [{ include = 'catparser' }]
+
+repository = 'https://github.com/symbol/symbol/tree/main/catbuffer/parser'
+
+keywords = ['symbol', 'catbuffer', 'catparser', 'parser', 'catbuffer-parser']
+
+classifiers = ['Programming Language :: Python :: 3.7']
+
+[tool.poetry.dependencies]
+python = "^3.7"

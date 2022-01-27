@@ -1,0 +1,20 @@
+[tool.poetry]
+name = 'symbol-sdk-python'
+version = '3.0.2'
+description = 'Symbol SDK'
+authors = ['Symbol Contributors <contributors@symbol.dev>']
+maintainers = ['Symbol Contributors <contributors@symbol.dev>']
+license = 'MIT'
+
+readme = 'README.md'
+
+packages = [{ include = 'symbolchain' }]
+
+repository = 'https://github.com/symbol/symbol/tree/main/sdk/python'
+
+keywords = ['symbol', 'sdk', 'Symbol SDK']
+
+classifiers = ['Programming Language :: Python :: 3.7']
+
+[tool.poetry.dependencies]
+python = "^3.7"

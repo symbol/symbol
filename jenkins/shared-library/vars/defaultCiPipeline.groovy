@@ -45,6 +45,7 @@ void call(Closure body) {
 			DOCKERHUB_CREDENTIALS_ID = 'docker-hub-token-symbolserverbot'
 			NPM_CREDENTIALS_ID = 'NPM_TOKEN_ID'
 			PYTHON_CREDENTIALS_ID = 'PYPI_TOKEN_ID'
+			TEST_PYTHON_CREDENTIALS_ID = 'TEST_PYPI_TOKEN_ID'
 			DEV_BRANCH = 'dev'
 			RELEASE_BRANCH = 'main'
 
@@ -185,16 +186,16 @@ void call(Closure body) {
 				stages {
 					stage('publish RC') {
 						when {
-							anyOf {
-								branch env.DEV_BRANCH
-								allOf {
+							allOf {
+								expression {
+									return helper.isManualBuild(env.MANUAL_GIT_BRANCH)
+								}
+								expression {
+									return shouldPublishImage(env.SHOULD_PUBLISH_IMAGE)
+								}
+								not {
 									expression {
-										return shouldPublishImage(env.SHOULD_PUBLISH_IMAGE)
-									}
-									not {
-										expression {
-											return helper.isPublicBuild(env.BUILD_CONFIGURATION)
-										}
+										return helper.isPublicBuild(env.BUILD_CONFIGURATION)
 									}
 								}
 							}
@@ -209,6 +210,9 @@ void call(Closure body) {
 						when {
 							allOf {
 								branch env.RELEASE_BRANCH
+								expression {
+									return helper.isManualBuild(env.MANUAL_GIT_BRANCH)
+								}
 								expression {
 									return shouldPublishImage(env.SHOULD_PUBLISH_IMAGE)
 								}

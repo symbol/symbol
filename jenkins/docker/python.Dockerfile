@@ -12,6 +12,9 @@ RUN apt-get install -y python3-pip
 RUN apt-get install -y shellcheck \
 	&& pip install gitlint
 
+# install poetry
+RUN pip install poetry
+
 # sdk dependencies
 RUN apt-get install -y zbar-tools
 
