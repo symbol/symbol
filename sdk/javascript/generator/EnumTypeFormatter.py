@@ -32,10 +32,11 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body, arguments=arguments)
 
 	def get_deserialize_descriptor(self):
-		body = 'let buffer_ = new Uint8Array(payload.buffer, payload.byteOffset)\n'
-		body += '// TODO: make sure the value does not go out of range?\n'
-		body += '// TODO: don\'t instantiate\n'
-		body += f'return new {self.typename}({self.int_printer.load()})'
+		body = 'let buffer_ = new Uint8Array(payload.buffer, payload.byteOffset);\n'
+		if self.enum_type.is_bitwise:
+			body += f'return new {self.typename}({self.int_printer.load()});'
+		else:
+			body += f'return this.fromValue({self.int_printer.load()});'
 		return MethodDescriptor(body=body)
 
 	def get_serialize_descriptor(self):
@@ -45,19 +46,30 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		body = f'return {self.enum_type.size}\n'
 		return MethodDescriptor(body=body)
 
+	def get_map_descriptor(self):
+		values = ', '.join(map(lambda e: str(e.value), self.enum_type.values))
+		keys = ', '.join(map(lambda e: f'\'{e.name}\'', self.enum_type.values))
+		body = f'const values = [{values}];\n'
+		body += f'const keys = [{keys}];\n'
+		body += f'''
+const index = values.indexOf(value);
+if (-1 === index)
+	throw RangeError(`invalid enum value ${{value}}`);
+
+return {self.typename}[keys[index]];
+'''
+		return MethodDescriptor(method_name='static fromValue', body=body, arguments=['value'])
+
 	def get_getter_descriptors(self):
-		if not self.enum_type.is_bitwise:
-			return []
+		methods = []
 
-		body = f'return 0 !== (self.value & flag);\n'
-		return [
-			MethodDescriptor(method_name='has', arguments=['flag'], body=body)
-		]
+		if self.enum_type.is_bitwise:
+			body = 'return 0 !== (this.value & flag);\n'
+			methods.append(MethodDescriptor(method_name='has', arguments=['flag'], body=body))
+		else:
+			methods.append(self.get_map_descriptor())
 
-		body = f'return 0 !== (this.value & flag);\n'
-		return [
-			MethodDescriptor(method_name='has', arguments=['flag'], body=body)
-		]
+		return methods
 
 	@staticmethod
 	def get_setter_descriptors():
