@@ -12,10 +12,10 @@ inline struct TransferTransactionBody
 	mosaics_count = uint8
 
 	# reserved padding to align mosaics on 8-byte boundary
-	transfer_transaction_body_reserved_1 = make_reserved(uint32, 0)
+	transfer_transaction_body_reserved_1 = make_reserved(uint8, 0)
 
 	# reserved padding to align mosaics on 8-byte boundary
-	transfer_transaction_body_reserved_2 = make_reserved(uint8, 0)
+	transfer_transaction_body_reserved_2 = make_reserved(uint32, 0)
 
 	# attached mosaics
 	@sort_key(mosaic_id)
