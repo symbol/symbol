@@ -16,18 +16,16 @@ def skip_embedded(name):
 class FactoryClassFormatter(ClassFormatter):
 	def generate_deserializer(self):
 		method_descriptor = self.provider.get_deserialize_descriptor()
-		method_descriptor.method_name = 'deserialize'
-		method_descriptor.arguments = ['payload: bytes']
-		method_descriptor.annotations = ['@classmethod']
+		method_descriptor.method_name = 'static deserialize'
+		method_descriptor.arguments = ['payload']
 		return self.generate_method(method_descriptor)
 
 	def generate_create_by_name(self):
 		method_descriptor = self.provider.get_create_by_name_descriptor()
-		method_descriptor.method_name = 'create_by_name'
+		method_descriptor.method_name = 'static createByName'
 		method_descriptor.arguments = [
-			'entity_name: str'
+			'entityName'
 		]
-		method_descriptor.annotations = ['@classmethod']
 		return self.generate_method(method_descriptor)
 
 	def generate_methods(self):
@@ -55,14 +53,14 @@ class FactoryFormatter(AbstractTypeFormatter):
 
 	def create_discriminator(self, name):
 		field_names = self.factory_descriptor['discriminator_values']
-		values = ', '.join(map(lambda value: f'{name}.{value}', field_names))
-		return f'({values}): {name}'
+		values = ', '.join(map(lambda value: f'{name}.{value}.value', field_names))
+		return f'[{values}]: {name}'
 
 	def get_deserialize_descriptor(self):
-		body = 'buffer_ = bytes(payload)\n'
-		body += f'{self.printer.name} = {self.printer.load()}\n'
+		body = 'let buffer_ = new Uint8Array(payload.buffer, payload.byteOffset);\n'
+		body += f'const {self.printer.name} = {self.printer.load()};\n'
 
-		body += 'mapping = {\n'
+		body += 'const mapping = {\n'
 
 		if self.factory_descriptor:
 			names = [f'{concrete.name}' for concrete in self.factory_descriptor['children']]
@@ -70,19 +68,19 @@ class FactoryFormatter(AbstractTypeFormatter):
 				',\n'.join(map(self.create_discriminator, names))
 			)
 
-		body += '}\n'
+		body += '};\n'
 
 		discriminators = [] if not self.factory_descriptor else self.factory_descriptor['discriminator_names']
 		values = ', '.join(map(lambda discriminator: f'{self.printer.name}.{fix_name(discriminator)}', discriminators))
-		body += f'discriminator = ({values})\n'
-		body += 'factory_class = mapping[discriminator]\n'
-		body += 'return factory_class.deserialize(buffer_)'
+		body += f'const discriminator = {values};\n'
+		body += 'const factory_class = mapping[discriminator.value];\n'
+		body += 'return factory_class.deserialize(buffer_);'
 
 		return MethodDescriptor(body=body)
 
 	def get_create_by_name_descriptor(self):
 		body = ''
-		body += 'mapping = {\n'
+		body += 'const mapping = {\n'
 		body += indent(
 			',\n'.join(
 				map(
@@ -91,13 +89,13 @@ class FactoryFormatter(AbstractTypeFormatter):
 				)
 			)
 		)
-		body += '}\n'
+		body += '};\n'
 
 		body += f'''
-if entity_name not in mapping:
-	raise ValueError('unknown {self.printer.get_type()} type')
+if (!mapping.hasOwnProperty(entityName))
+	throw RangeError('unknown {self.printer.get_type()} type')
 
-return mapping[entity_name]()
+return new mapping[entityName]()
 '''
 		return MethodDescriptor(body=body)
 
