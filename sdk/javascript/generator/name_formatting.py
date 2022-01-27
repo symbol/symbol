@@ -8,11 +8,8 @@ def underline_name(name):
 
 
 def fix_size_name(name):
-	return name if 'size' != name else f'{name}_'
+	return name
 
 
 def fix_name(name):
-	if name in ('type', 'property'):
-		return f'{name}_'
-
 	return name
