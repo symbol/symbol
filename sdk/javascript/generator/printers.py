@@ -1,6 +1,6 @@
 from catparser.DisplayType import DisplayType
 
-from .name_formatting import fix_name, fix_size_name, underline_name
+from .name_formatting import fix_name, fix_size_name, field_name, underline_name
 
 
 def js_bool(value):
@@ -11,7 +11,7 @@ class Printer:
 	def __init__(self, descriptor, name):
 		self.descriptor = descriptor
 		# printer.name is 'fixed' field name
-		self.name = fix_name(name or underline_name(self.descriptor.name))
+		self.name = fix_name(field_name(name or underline_name(self.descriptor.name)))
 
 
 class IntPrinter(Printer):
