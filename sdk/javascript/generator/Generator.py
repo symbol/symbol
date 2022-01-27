@@ -12,6 +12,8 @@ from .printers import BuiltinPrinter, create_pod_printer
 from .StructTypeFormatter import StructFormatter
 from .TypeFormatter import TypeFormatter
 
+LINE_LIMIT = 140
+
 
 class AstExtensions:
 	def __init__(self, type_model, printer):
@@ -88,6 +90,22 @@ def process_struct(type_map, struct_model, abstract_impl_map):
 	bind_size_fields(struct_model)
 
 
+def generate_module_exports(output_file, all_names):
+	module_export_lines = ['\nmodule.exports = {']
+	current_line = '\t'
+	for idx, name in enumerate(all_names):
+		if len(current_line + name) > LINE_LIMIT:
+			module_export_lines.append(current_line)
+			current_line = '\t'
+
+		current_line += f'{name}{", " if idx != len(all_names) - 1 else ""}'
+
+	module_export_lines.append(current_line)
+	module_export_lines.append('}')
+
+	output_file.write('\n'.join(module_export_lines))
+
+
 def generate_files(ast_models, output_directory: Path):
 	# build map of types
 	type_map = {ast_model.name: ast_model for ast_model in ast_models}
@@ -121,18 +139,24 @@ class Serializer {
 
 '''
 		)
+
 		for ast_model in ast_models:
 			generator = TypeFormatter(to_type_formatter_instance(ast_model))
 			output_file.write(str(generator))
-			output_file.write('\n\n')
+			output_file.write('\n')
 
 		factories = []
+		factory_names = []
 		for ast_model in ast_models:
 			if DisplayType.STRUCT == ast_model.display_type and ast_model.is_abstract:
-				factory_generator = FactoryClassFormatter(FactoryFormatter(abstract_impl_map, ast_model))
+				factory_formatter = FactoryFormatter(abstract_impl_map, ast_model)
+				factory_generator = FactoryClassFormatter(factory_formatter)
+				factory_names.append(factory_formatter.typename)
 				factories.append(str(factory_generator))
 
-		output_file.write('\n\n'.join(factories))
+		output_file.write('\n'.join(factories))
+
+		generate_module_exports(output_file, list(map(lambda ast_model: ast_model.name, ast_models)) + factory_names)
 
 
 class Generator:

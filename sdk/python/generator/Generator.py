@@ -60,10 +60,11 @@ StrBytes = TypeVar('StrBytes', str, bytes)
 
 '''
 		)
+
 		for ast_model in ast_models:
 			generator = TypeFormatter(to_type_formatter_instance(ast_model))
 			output_file.write(str(generator))
-			output_file.write('\n\n')
+			output_file.write('\n')
 
 		factories = []
 		for ast_model in ast_models:
@@ -71,7 +72,10 @@ StrBytes = TypeVar('StrBytes', str, bytes)
 				factory_generator = FactoryClassFormatter(FactoryFormatter(factory_map, ast_model))
 				factories.append(str(factory_generator))
 
-		output_file.write('\n\n'.join(factories))
+		output_file.write('\n'.join(factories))
+
+		module_exports = ','.join(map(lambda ast_model: ast_model.name, ast_models))
+		output_file.write(f'module.exports = {{ {module_exports} }}\n')
 
 
 class Generator:
