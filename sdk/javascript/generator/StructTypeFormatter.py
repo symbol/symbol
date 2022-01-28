@@ -288,7 +288,7 @@ class StructFormatter(AbstractTypeFormatter):
 		return indent_if_conditional(condition, serialize_line)
 
 	def get_serialize_descriptor(self):
-		body = 'const buffer_ = new Serializer(this.size);\n'
+		body = 'const buffer_ = new Writer(this.size);\n'
 
 		# if first field is size replace serializer with custom one (to access builder .size() instead)
 		fields_iter = self.non_const_fields()

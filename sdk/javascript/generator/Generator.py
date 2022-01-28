@@ -122,20 +122,10 @@ def generate_files(ast_models, output_directory: Path):
 		output_file.write(
 			'''const { BaseValue } = require('../BaseValue');
 const { ByteArray } = require('../ByteArray');
+const { Writer } = require('../utils/Writer');
 const converter = require('../utils/converter');
 const arrayHelpers = require('../utils/arrayHelpers');
 
-class Serializer {
-	constructor(size) {
-		this.storage = new Uint8Array(size);
-		this.offset = 0;
-	}
-
-	write(arrayInput) {
-		this.storage.set(arrayInput, this.offset);
-		this.offset += arrayInput.length;
-	}
-}
 
 '''
 		)
