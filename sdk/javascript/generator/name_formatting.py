@@ -9,7 +9,7 @@ def _to_upper(matchobj):
 	return matchobj.group(1).upper()
 
 
-def field_name(name):
+def lang_field_name(name):
 	return SNAKE_CASE_PATTERN.sub(_to_upper, name)
 
 

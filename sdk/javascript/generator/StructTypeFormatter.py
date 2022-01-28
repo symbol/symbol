@@ -4,7 +4,7 @@ from catparser.DisplayType import DisplayType
 
 from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
 from .format import indent
-from .name_formatting import fix_size_name
+from .name_formatting import fix_size_name, lang_field_name
 
 
 def is_reserved(field):
@@ -147,12 +147,13 @@ class StructFormatter(AbstractTypeFormatter):
 
 		# HACK: instead of handling dumb magic value in namespace parent_name, generate slightly simpler condition
 		if prefix_field and DisplayType.UNSET != field.display_type:
-			return f'if ({field_prefix}{field.name}) /* check me */'
+			return f'if ({field_prefix}{field.name}) /* TODO: check me */'
 
+		display_condition_field_name = lang_field_name(condition_field_name)
 		if conditional.operation in ['not in', 'in']:
-			return f'if ({condition_operator}{field_prefix}{condition_field_name}.has({yoda_value}))'
+			return f'if ({condition_operator}{field_prefix}{display_condition_field_name}.has({yoda_value}))'
 
-		return f'if ({yoda_value} {condition_operator} {field_prefix}{condition_field_name})'
+		return f'if ({yoda_value} {condition_operator} {field_prefix}{display_condition_field_name})'
 
 	def generate_deserialize_field(self, field, arg_buffer_name=None):
 		# pylint: disable=too-many-locals

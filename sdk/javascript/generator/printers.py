@@ -1,6 +1,6 @@
 from catparser.DisplayType import DisplayType
 
-from .name_formatting import fix_name, fix_size_name, field_name, underline_name
+from .name_formatting import fix_name, fix_size_name, lang_field_name, underline_name
 
 
 def js_bool(value):
@@ -11,7 +11,7 @@ class Printer:
 	def __init__(self, descriptor, name):
 		self.descriptor = descriptor
 		# printer.name is 'fixed' field name
-		self.name = fix_name(field_name(name or underline_name(self.descriptor.name)))
+		self.name = fix_name(lang_field_name(name or underline_name(self.descriptor.name)))
 
 
 class IntPrinter(Printer):
@@ -78,7 +78,7 @@ class TypedArrayPrinter(Printer):
 			if self.descriptor.extensions.is_contents_abstract:
 				factory_name = f'{self.descriptor.field_type.element_type}Factory'
 
-			data_size = self.descriptor.size
+			data_size = lang_field_name(self.descriptor.size)
 			alignment = self.descriptor.field_type.alignment
 			buffer_view = f'new Uint8Array(buffer_.buffer, buffer_.byteOffset, {data_size})'
 			return f'arrayHelpers.read_variable_size_elements({buffer_view}, {factory_name}, {alignment})'
@@ -89,10 +89,10 @@ class TypedArrayPrinter(Printer):
 		args = [
 			'buffer_',
 			self.descriptor.field_type.element_type,
-			str(self.descriptor.size),
+			lang_field_name(str(self.descriptor.size)),
 		]
 		if self.descriptor.field_type.sort_key:
-			accessor = f'e => e.{self.descriptor.field_type.sort_key}.value'
+			accessor = f'e => e.{lang_field_name(self.descriptor.field_type.sort_key)}.value'
 			args.append(accessor)
 
 		args_str = ', '.join(args)
@@ -100,7 +100,7 @@ class TypedArrayPrinter(Printer):
 
 	def advancement_size(self):
 		if self.descriptor.field_type.is_byte_constrained:
-			return str(self.descriptor.size)
+			return lang_field_name(str(self.descriptor.size))
 
 		return f'{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
 
@@ -118,7 +118,7 @@ class TypedArrayPrinter(Printer):
 			args.append(str(size))
 
 		if self.descriptor.field_type.sort_key:
-			accessor = f'e => e.{self.descriptor.field_type.sort_key}.value'
+			accessor = f'e => e.{lang_field_name(self.descriptor.field_type.sort_key)}.value'
 			args.append(accessor)
 
 		args_str = ', '.join(args)
@@ -160,7 +160,10 @@ class ArrayPrinter(Printer):
 
 	def advancement_size(self):
 		# like get_size() but without self prefix, as this refers to local method field
-		return fix_size_name(self.descriptor.size)
+		if not isinstance(self.descriptor.size, str):
+			return self.descriptor.size
+
+		return fix_size_name(lang_field_name(self.descriptor.size))
 
 	@staticmethod
 	def store(field_name):
