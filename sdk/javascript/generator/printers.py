@@ -32,9 +32,9 @@ class IntPrinter(Printer):
 	def get_size(self):
 		return self.descriptor.size
 
-	def load(self):
+	def load(self, buffer_name='byteArray'):
 		data_size = self.get_size()
-		return f'converter.bytesToInt(buffer_, {data_size}, {js_bool(not self.descriptor.is_unsigned)})'
+		return f'converter.bytesToInt({buffer_name}, {data_size}, {js_bool(not self.descriptor.is_unsigned)})'
 
 	def advancement_size(self):
 		return self.get_size()
@@ -71,7 +71,9 @@ class TypedArrayPrinter(Printer):
 
 		return f'this.{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
 
-	def load(self):
+	def load(self, buffer_name):
+		del buffer_name
+
 		if self.descriptor.field_type.is_byte_constrained:
 			# use either type name or if it's an abstract type use a factory instead
 			factory_name = self.descriptor.field_type.element_type
@@ -80,14 +82,14 @@ class TypedArrayPrinter(Printer):
 
 			data_size = lang_field_name(self.descriptor.size)
 			alignment = self.descriptor.field_type.alignment
-			buffer_view = f'new Uint8Array(buffer_.buffer, buffer_.byteOffset, {data_size})'
+			buffer_view = f'reader.shrinked_buffer({data_size})'
 			return f'arrayHelpers.read_variable_size_elements({buffer_view}, {factory_name}, {alignment})'
 
 		if self.descriptor.field_type.is_expandable:
-			return f'arrayHelpers.read_array(buffer_, {self.descriptor.field_type.element_type})'
+			return f'arrayHelpers.read_array(reader.buffer, {self.descriptor.field_type.element_type})'
 
 		args = [
-			'buffer_',
+			'reader.buffer',
 			self.descriptor.field_type.element_type,
 			lang_field_name(str(self.descriptor.size)),
 		]
@@ -155,8 +157,8 @@ class ArrayPrinter(Printer):
 
 		return size
 
-	def load(self):
-		return f'new Uint8Array(buffer_.buffer, buffer_.byteOffset, {self.advancement_size()})'
+	def load(self, buffer_name='byteArray'):
+		return f'new Uint8Array({buffer_name}.buffer, {buffer_name}.byteOffset, {self.advancement_size()})'
 
 	def advancement_size(self):
 		# like get_size() but without self prefix, as this refers to local method field
@@ -200,7 +202,7 @@ class BuiltinPrinter(Printer):
 	def get_size(self):
 		return f'this.{self.name}.size'
 
-	def load(self, buffer_name='buffer_'):
+	def load(self, buffer_name='reader.buffer'):
 		if DisplayType.STRUCT == self.descriptor.display_type and self.descriptor.is_abstract:
 			# HACK: factories use this printers as well, ignore them
 			if 'parent' != self.name:

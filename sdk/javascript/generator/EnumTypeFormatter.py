@@ -32,7 +32,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body, arguments=arguments)
 
 	def get_deserialize_descriptor(self):
-		body = 'let buffer_ = new Uint8Array(payload.buffer, payload.byteOffset);\n'
+		body = 'const byteArray = payload;\n'
 		if self.enum_type.is_bitwise:
 			body += f'return new {self.typename}({self.int_printer.load()});'
 		else:

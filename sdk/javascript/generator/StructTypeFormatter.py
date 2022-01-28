@@ -84,10 +84,10 @@ class StructFormatter(AbstractTypeFormatter):
 			if not field.extensions.printer.type_hint:
 				continue
 
-			hints.append(f'"{field.extensions.printer.name}": "{field.extensions.printer.type_hint}"')
+			hints.append(f'\'{field.extensions.printer.name}\': \'{field.extensions.printer.type_hint}\'')
 
 		body += indent(',\n'.join(hints))
-		body += '}\n'
+		body += '};\n'
 		return body
 
 	def get_fields(self):
@@ -160,7 +160,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		condition = self.generate_condition(field)
 
-		buffer_name = arg_buffer_name or 'buffer_'
+		buffer_name = arg_buffer_name or 'reader'
 		field_name = fix_size_name(field.extensions.printer.name)
 
 		# half-hack: limit buffer to amount specified in size field
@@ -168,28 +168,31 @@ class StructFormatter(AbstractTypeFormatter):
 		size_fields = field.extensions.size_fields
 		if size_fields:
 			assert len(size_fields) == 1, f'unexpected number of size_fields associated with {field.name}'
-			buffer_load_name = self.buffer_view('buffer_', 0, size_fields[0].name)
+			buffer_load_name = f'reader.shrinked_buffer({lang_field_name(size_fields[0].name)})'
 
 		use_custom_buffer_name = arg_buffer_name or size_fields
-		load = field.extensions.printer.load(buffer_load_name) if use_custom_buffer_name else field.extensions.printer.load()
+
+		load = field.extensions.printer.load(buffer_load_name) if use_custom_buffer_name else field.extensions.printer.load('reader.buffer')
 		const_field = 'const ' if not condition else ''
-		deserialize = f'{const_field}{field_name} = {load};'
-		adjust = f'{buffer_name} = {self.buffer_view(buffer_name, field.extensions.printer.advancement_size())}'
+		deserialize = f'{const_field}{field_name} = {load};\n'
+
+		# hack: if there's passed buffer name it means it's a name of temporary buffer (used for coditionals)
+		# don't generate adjust in such case
+		adjust = '' if arg_buffer_name else f'{buffer_name}.shift({field.extensions.printer.advancement_size()});\n'
 
 		additional_statements = ''
 		if is_reserved(field):
 			additional_statements = f'if ({field.extensions.printer.name} !== {field.value})\n'
-			additional_statements += indent(f'throw RangeError(`Invalid value of reserved field (${{{field.extensions.printer.name}}})`)')
+			additional_statements += indent(f'throw RangeError(`Invalid value of reserved field (${{{field.extensions.printer.name}}})`);')
 
 		if self.struct.size == field.extensions.printer.name:
-			buffer_limit = f'{field_name} - {field.extensions.printer.advancement_size()}'
-			additional_statements += f'{buffer_name} = {self.buffer_view(buffer_name, 0, buffer_limit)};\n'
+			additional_statements += f'reader.shrink({field_name} - {field.extensions.printer.advancement_size()});\n'
 			additional_statements += f'/* {field_name} = undefined; */\n'
 
 		if is_bound_size(field) and field.is_size_reference:
-			additional_statements += '# marking sizeof field\n'
+			additional_statements += '// marking sizeof field\n'
 
-		deserialize_field = deserialize + '\n' + adjust + '\n' + additional_statements
+		deserialize_field = deserialize + adjust + additional_statements
 
 		if condition:
 			condition = f'let {field.extensions.printer.name} = null\n' + condition
@@ -197,7 +200,7 @@ class StructFormatter(AbstractTypeFormatter):
 		return indent_if_conditional(condition, deserialize_field)
 
 	def get_deserialize_descriptor(self):
-		body = f'let buffer_ = {self.buffer_view("payload")};\n'
+		body = f'let reader = new Reader(payload);\n';
 
 		# special treatment for condition-guarded fields,
 		# where condition is behind the fields...
@@ -216,8 +219,8 @@ class StructFormatter(AbstractTypeFormatter):
 						deserialize = f'const {field.extensions.printer.name}_temporary = {field.extensions.printer.load()}'
 						temporary_buffer = create_temporary_buffer_name(condition_field_name)
 						temporary_buffer_limit = f'{field.extensions.printer.name}_temporary.size'
-						temporary = f'let {temporary_buffer} = {self.buffer_view("buffer_", 0, temporary_buffer_limit)}'
-						adjust = f'buffer_ = {self.buffer_view("buffer_", temporary_buffer_limit)};  // skip temporary'
+						temporary = f'const {temporary_buffer} = reader.shrinked_buffer({temporary_buffer_limit})'
+						adjust = f'reader.shift({temporary_buffer_limit});  // skip temporary'
 						body += comment + '\n' + deserialize + '\n' + temporary + '\n' + adjust + '\n\n'
 
 					# queue field for re-reading it from temporary buffer
@@ -301,7 +304,7 @@ class StructFormatter(AbstractTypeFormatter):
 		for field in fields_iter:
 			body += self.generate_serialize_field(field)
 
-		body += 'return buffer_.storage'
+		body += 'return buffer_.storage;'
 		return MethodDescriptor(body=body)
 
 	def generate_size_field(self, field):
@@ -339,16 +342,16 @@ class StructFormatter(AbstractTypeFormatter):
 
 	def generate_str_field(self, field):
 		field_to_string = field.extensions.printer.to_string(self.field_name(field))
-		return f'`{field.extensions.printer.name}: ${{{field_to_string}}}`'
+		return f'`{field.extensions.printer.name}: ${{{field_to_string}}}`;'
 
 	def get_str_descriptor(self):
-		body = 'let result = "("\n'
+		body = 'let result = \'(\';\n'
 		body += ''.join(
 			map(
 				'result += {}\n'.format,  # pylint: disable=consider-using-f-string
 				map(self.generate_str_field, self.non_reserved_fields()),
 			)
 		)
-		body += 'result += ")"\n'
-		body += 'return result'
+		body += 'result += \')\';\n'
+		body += 'return result;'
 		return MethodDescriptor(body=body)
