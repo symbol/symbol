@@ -98,7 +98,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def _assert_pod_parser(self, input_value, expected_value, typing_rules=None):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, typing_rules or {})
+		factory = RuleBasedTransactionFactory(Module, None, typing_rules)
 		factory.add_pod_parser('SigningPublicKey', PublicKey)
 		rule = factory.rules['SigningPublicKey']
 
@@ -129,7 +129,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def _assert_flags_parser(self, input_value, expected_value):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_flags_parser('MosaicFlags')
 		rule = factory.rules['MosaicFlags']
 
@@ -149,10 +149,11 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_flags_parser_fails_if_any_string_is_unknown(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_flags_parser('MosaicFlags')
 		rule = factory.rules['MosaicFlags']
 
+		# Act + Assert;
 		with self.assertRaises(ValueError):
 			rule('supply_mutable foo revokable')
 
@@ -170,7 +171,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def _assert_enum_parser(self, input_value, expected_value):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_enum_parser('NetworkType')
 		rule = factory.rules['NetworkType']
 
@@ -185,10 +186,11 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_enum_parser_fails_if_string_is_unknown(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_enum_parser('NetworkType')
 		rule = factory.rules['NetworkType']
 
+		# Act + Assert:
 		with self.assertRaises(ValueError):
 			rule('Bitcoin')
 
@@ -206,7 +208,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_struct_parser_can_parse_plain_fields(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_struct_parser('StructPlain')
 		rule = factory.rules['struct:StructPlain']
 
@@ -222,7 +224,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_struct_parser_can_parse_pod_fields(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_pod_parser('UnresolvedMosaicId', Module.UnresolvedMosaicId)
 		factory.add_pod_parser('Amount', Module.Amount)
 		factory.add_struct_parser('UnresolvedMosaic')
@@ -240,7 +242,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_struct_parser_can_parse_array_fields(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_pod_parser('UnresolvedMosaicId', Module.UnresolvedMosaicId)
 		factory.add_array_parser('UnresolvedMosaicId')
 		factory.add_struct_parser('StructArrayMember')
@@ -257,7 +259,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_struct_parser_can_parse_enum_fields(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_enum_parser('NetworkType')
 		factory.add_struct_parser('StructEnumMember')
 		rule = factory.rules['struct:StructEnumMember']
@@ -272,7 +274,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_struct_parser_can_parse_struct_fields(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_pod_parser('UnresolvedMosaicId', Module.UnresolvedMosaicId)
 		factory.add_pod_parser('Amount', Module.Amount)
 		factory.add_struct_parser('UnresolvedMosaic')
@@ -293,7 +295,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_struct_parser_can_parse_with_type_converter(self):
 		# Arrange: use custom type converter that unwraps amounts
-		factory = RuleBasedTransactionFactory(Module, lambda value: value.value if isinstance(value, Module.Amount) else value, {})
+		factory = RuleBasedTransactionFactory(Module, lambda value: value.value if isinstance(value, Module.Amount) else value)
 		factory.add_pod_parser('UnresolvedMosaicId', Module.UnresolvedMosaicId)
 		factory.add_pod_parser('Amount', Module.Amount)
 		factory.add_struct_parser('UnresolvedMosaic')
@@ -309,9 +311,9 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 		self.assertEqual(Module.UnresolvedMosaicId(0x01234567_89ABCDEF), parsed.mosaic_id)
 		self.assertEqual(123_456_789_123_456_789, parsed.amount)
 
-	def test_struct_parser_can_parse_with_type_converter_autodetect_byte_arrays(self):
+	def test_struct_parser_can_parse_with_type_converter_and_autodetect_byte_arrays(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_pod_parser('Hash256', Module.Hash256)
 		factory.add_struct_parser('StructHashMember')
 		rule = factory.rules['struct:StructHashMember']
@@ -330,7 +332,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_array_parser_can_parse_enum_array(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_enum_parser('NetworkType')
 		factory.add_array_parser('NetworkType')
 		rule = factory.rules['array[NetworkType]']
@@ -343,7 +345,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_array_parser_can_parse_struct_array(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_pod_parser('UnresolvedMosaicId', Module.UnresolvedMosaicId)
 		factory.add_pod_parser('Amount', Module.Amount)
 		factory.add_struct_parser('UnresolvedMosaic')
@@ -368,7 +370,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_autodetect_adds_pod_and_enum_rules(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 
 		# Act:
 		factory.autodetect()
@@ -386,9 +388,9 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	# region create_from_factory
 
-	def test_can_create_struct_from_factory(self):
+	def test_can_create_simple_struct_from_factory(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_struct_parser('StructPlain')
 
 		def entity_factory(entity_type):
@@ -408,7 +410,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_can_create_struct_from_factory_with_nested_rules(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_pod_parser('UnresolvedMosaicId', Module.UnresolvedMosaicId)
 		factory.add_pod_parser('Amount', Module.Amount)
 		factory.add_struct_parser('UnresolvedMosaic')
@@ -430,7 +432,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_can_create_struct_from_factory_with_type_converter(self):
 		# Arrange: use custom type converter that unwraps amounts
-		factory = RuleBasedTransactionFactory(Module, lambda value: value.value if isinstance(value, Module.Amount) else value, {})
+		factory = RuleBasedTransactionFactory(Module, lambda value: value.value if isinstance(value, Module.Amount) else value)
 		factory.add_pod_parser('UnresolvedMosaicId', Module.UnresolvedMosaicId)
 		factory.add_pod_parser('Amount', Module.Amount)
 		factory.add_struct_parser('UnresolvedMosaic')
@@ -452,7 +454,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_can_create_struct_from_factory_and_auto_encode_strings(self):
 		# Arrange: use a plain struct but set string values
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_struct_parser('StructPlain')
 
 		def entity_factory(entity_type):
@@ -472,7 +474,7 @@ class RuleBasedTransactionFactoryTest(unittest.TestCase):
 
 	def test_cannot_create_struct_from_factory_when_descriptor_does_not_have_type(self):
 		# Arrange:
-		factory = RuleBasedTransactionFactory(Module, None, {})
+		factory = RuleBasedTransactionFactory(Module)
 		factory.add_struct_parser('StructPlain')
 
 		def entity_factory(_):

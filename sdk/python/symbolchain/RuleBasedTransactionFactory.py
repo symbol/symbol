@@ -47,14 +47,14 @@ def _type_converter_factory(module, custom_type_converter, value):
 class RuleBasedTransactionFactory:
 	"""Rule based transaction factory."""
 
-	def __init__(self, module, type_converter, type_rule_overrides=None):
-		"""Creates type parser builder for catbuffer module"""
+	def __init__(self, module, type_converter=None, type_rule_overrides=None):
+		"""Creates a rule based transaction factory for use with catbuffer generated code."""
 		self.module = module
 		self.type_converter = lambda value: _type_converter_factory(self.module, type_converter, value)
 		self.type_rule_overrides = type_rule_overrides or {}
 		self.rules = {}
 
-	def _get_catbuffer_class(self, name):
+	def _get_module_class(self, name):
 		return getattr(self.module, name)
 
 	def add_pod_parser(self, name, pod_class):
@@ -68,8 +68,8 @@ class RuleBasedTransactionFactory:
 		self.rules[name] = lambda value: pod_class(value) if not isinstance(value, pod_class) else value
 
 	def add_flags_parser(self, name):
-		"""Creates flag type parser"""
-		flags_class = self._get_catbuffer_class(name)
+		"""Creates flag type parser."""
+		flags_class = self._get_module_class(name)
 		string_to_enum = dict(map(lambda key: (key.name.lower(), key), flags_class))
 
 		def parser(flags):
@@ -86,7 +86,7 @@ class RuleBasedTransactionFactory:
 
 	def add_enum_parser(self, name):
 		"""Creates enum type parser."""
-		enum_class = self._get_catbuffer_class(name)
+		enum_class = self._get_module_class(name)
 		string_to_enum = dict(map(lambda key: (key.name.lower(), key), enum_class))
 
 		def parser(enum_value):
@@ -102,7 +102,7 @@ class RuleBasedTransactionFactory:
 
 	def add_struct_parser(self, name):
 		"""Creates struct parser (to allow nested parsing)."""
-		struct_class = self._get_catbuffer_class(name)
+		struct_class = self._get_module_class(name)
 
 		def parser(struct_descriptor):
 			struct_processor = self._create_processor(struct_descriptor)
@@ -119,14 +119,12 @@ class RuleBasedTransactionFactory:
 	def add_array_parser(self, name):
 		"""Creates array type parser, based on some existing element type parser."""
 		element_rule = self.rules[name]
+		element_name = name[len('struct:'):] if name.startswith('struct:') else name
 
 		def parser(values):
 			return list(map(element_rule, values))
 
-		if name.startswith('struct:'):
-			name = name[7:]
-
-		self.rules[f'array[{name}]'] = parser
+		self.rules[f'array[{element_name}]'] = parser
 
 	def autodetect(self):
 		"""Autodetects rules using reflection."""

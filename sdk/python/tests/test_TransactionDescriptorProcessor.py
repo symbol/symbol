@@ -6,7 +6,7 @@ from symbolchain.TransactionDescriptorProcessor import TransactionDescriptorProc
 
 
 class TransactionDescriptorProcessorTest(unittest.TestCase):
-	# region lookup_value
+	# region test utils
 
 	@staticmethod
 	def _create_processor():
@@ -17,17 +17,13 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 			'recipient': 'recipient_name',
 			'message': 'hello world',
 		}
-		type_parsing_rules = {PublicKey: lambda name: name + ' PUBLICKEY'}
+		type_parsing_rules = {PublicKey: lambda name: f'{name} PUBLICKEY'}
 		processor = TransactionDescriptorProcessor(transaction_descriptor, type_parsing_rules)
 		processor.set_type_hints({'signer': PublicKey, 'timestamp': int})
 		return processor
 
 	@staticmethod
-	def _type_converter(value):
-		return value * 2 if isinstance(value, int) else value
-
-	@staticmethod
-	def _create_processor_with_converter():
+	def _create_processor_with_converter(deadline_value=300):
 		transaction_descriptor = {
 			'type': 'transfer',
 			'timestamp': 12345,
@@ -35,13 +31,20 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 			'recipient': 'recipient_name',
 			'message': 'hello world',
 			'fee': 100,
-			'deadline': 300
+			'deadline': deadline_value
 		}
 		type_parsing_rules = {int: lambda value: value + 42}
-		type_converter = TransactionDescriptorProcessorTest._type_converter
+
+		def type_converter(value):
+			return value * 2 if isinstance(value, int) else value
+
 		processor = TransactionDescriptorProcessor(transaction_descriptor, type_parsing_rules, type_converter)
 		processor.set_type_hints({'timestamp': int})
 		return processor
+
+	# endregion
+
+	# region lookup_value
 
 	def _assert_cannot_lookup_value_when_descriptor_does_not_contain_key(self, processor_factory):
 		# Arrange:
@@ -83,7 +86,7 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 		# Assert:
 		self.assertEqual(12345, timestamp)
 
-	def test_lookup_value_hints_are_applied_before_conversion(self):
+	def test_can_lookup_value_when_hints_are_applied_before_conversion(self):
 		# Arrange:
 		processor = self._create_processor_with_converter()
 
@@ -103,7 +106,7 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 		# Assert:
 		self.assertEqual('signer_name PUBLICKEY', signer)
 
-	def test_lookup_value_applies_converter_to_all_fields(self):
+	def test_can_lookup_value_when_applying_converter_to_all_fields(self):
 		# Arrange:
 		processor = self._create_processor_with_converter()
 
@@ -114,6 +117,16 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 		# Assert:
 		self.assertEqual(200, fee)
 		self.assertEqual(600, deadline)
+
+	def test_can_lookup_value_when_applying_converter_to_all_array_elements(self):
+		# Arrange: specify the deadline value as an array
+		processor = self._create_processor_with_converter([100, 300, 600])
+
+		# Act:
+		deadline = processor.lookup_value('deadline')
+
+		# Assert:
+		self.assertEqual([200, 600, 1200], deadline)
 
 	# endregion
 
@@ -181,7 +194,7 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 			'signer': 'signer_name',
 			'mosaics': [(1, 2), (3, 5)]
 		}
-		type_parsing_rules = {PublicKey: lambda name: name + ' PUBLICKEY'}
+		type_parsing_rules = {PublicKey: lambda name: f'{name} PUBLICKEY'}
 		processor = TransactionDescriptorProcessor(transaction_descriptor, type_parsing_rules)
 		processor.set_type_hints({'signer': PublicKey})
 
@@ -202,7 +215,7 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 			'signer': 'signer_name',
 			'payload': (1, 2)
 		}
-		type_parsing_rules = {PublicKey: lambda name: name + ' PUBLICKEY'}
+		type_parsing_rules = {PublicKey: lambda name: f'{name} PUBLICKEY'}
 		processor = TransactionDescriptorProcessor(transaction_descriptor, type_parsing_rules)
 		processor.set_type_hints({'signer': PublicKey})
 
@@ -223,7 +236,7 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 			'signer': 'signer_name',
 			'payload': b'FF554433'
 		}
-		type_parsing_rules = {PublicKey: lambda name: name + ' PUBLICKEY'}
+		type_parsing_rules = {PublicKey: lambda name: f'{name} PUBLICKEY'}
 		processor = TransactionDescriptorProcessor(transaction_descriptor, type_parsing_rules)
 		processor.set_type_hints({'signer': PublicKey})
 
