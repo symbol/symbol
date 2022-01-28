@@ -6,8 +6,8 @@
   schema_name: Timestamp
   test_name: Timestamp_2
 - payload: FA8EC085AE64CF30E44ADD18A3133D9B2190F9A20C08667A5EF44E5E9962E720
-  schema_name: Key
-  test_name: Key_1
+  schema_name: PublicKey
+  test_name: PublicKey_1
 - payload: 4DC6F0524C486D78A6D9D775F5508C0362125420728D03DE74435EB1E3778891
   schema_name: Hash256
   test_name: Hash256_1

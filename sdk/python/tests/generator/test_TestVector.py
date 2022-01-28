@@ -64,9 +64,6 @@ def test_serialize_symbol(item):
 
 	module = importlib.import_module('symbolchain.sc')
 
-	if schema_name == 'Key':
-		schema_name = 'PublicKey'
-
 	assert_roundtrip_builder(module, schema_name, payload_hex, comment)
 
 
