@@ -143,7 +143,7 @@ class StructFormatter(AbstractTypeFormatter):
 		value = f'{conditional.value}'
 		condition_model = condition_field.extensions.type_model
 		yoda_value = value if DisplayType.INTEGER == condition_model.display_type else f'{condition_model.name}.{value}'
-		field_prefix = f'this.' if prefix_field else ''
+		field_prefix = 'this.' if prefix_field else ''
 
 		# HACK: instead of handling dumb magic value in namespace parent_name, generate slightly simpler condition
 		if prefix_field and DisplayType.UNSET != field.display_type:
@@ -155,6 +155,8 @@ class StructFormatter(AbstractTypeFormatter):
 		return f'if ({yoda_value} {condition_operator} {field_prefix}{condition_field_name})'
 
 	def generate_deserialize_field(self, field, arg_buffer_name=None):
+		# pylint: disable=too-many-locals
+
 		condition = self.generate_condition(field)
 
 		buffer_name = arg_buffer_name or 'buffer_'
@@ -165,7 +167,7 @@ class StructFormatter(AbstractTypeFormatter):
 		size_fields = field.extensions.size_fields
 		if size_fields:
 			assert len(size_fields) == 1, f'unexpected number of size_fields associated with {field.name}'
-			buffer_load_name = self.buffer_view("buffer_", 0, size_fields[0].name)
+			buffer_load_name = self.buffer_view('buffer_', 0, size_fields[0].name)
 
 		use_custom_buffer_name = arg_buffer_name or size_fields
 		load = field.extensions.printer.load(buffer_load_name) if use_custom_buffer_name else field.extensions.printer.load()
@@ -175,13 +177,13 @@ class StructFormatter(AbstractTypeFormatter):
 
 		additional_statements = ''
 		if is_reserved(field):
-			assert_message = f'f"Invalid value of reserved field ({{{field.extensions.printer.name}}})"'
-			additional_statements = f'/* assert {field.extensions.printer.name} == {field.value}, {assert_message} */\n'
+			additional_statements = f'if ({field.extensions.printer.name} !== {field.value})\n'
+			additional_statements += indent(f'throw RangeError(`Invalid value of reserved field (${{{field.extensions.printer.name}}})`)')
 
 		if self.struct.size == field.extensions.printer.name:
 			buffer_limit = f'{field_name} - {field.extensions.printer.advancement_size()}'
-			additional_statements += f'{buffer_name} = {self.buffer_view(buffer_name, 0, buffer_limit)}\n'
-			additional_statements += f'/* del {field_name} */\n'
+			additional_statements += f'{buffer_name} = {self.buffer_view(buffer_name, 0, buffer_limit)};\n'
+			additional_statements += f'/* {field_name} = undefined; */\n'
 
 		if is_bound_size(field) and field.is_size_reference:
 			additional_statements += '# marking sizeof field\n'
@@ -189,7 +191,7 @@ class StructFormatter(AbstractTypeFormatter):
 		deserialize_field = deserialize + '\n' + adjust + '\n' + additional_statements
 
 		if condition:
-			condition = f'let {field.extensions.printer.name} = None\n' + condition
+			condition = f'let {field.extensions.printer.name} = null\n' + condition
 
 		return indent_if_conditional(condition, deserialize_field)
 
@@ -202,8 +204,7 @@ class StructFormatter(AbstractTypeFormatter):
 		queued_fields = {}
 		for field in self.non_const_fields():
 			if field.is_conditional:
-				conditional = field.value
-				condition_field_name = conditional.linked_field_name
+				condition_field_name = field.value.linked_field_name
 
 				if condition_field_name not in processed_fields:
 					if condition_field_name not in queued_fields:
@@ -258,7 +259,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 			if bound_field.display_type.is_array:
 				if field.name.endswith('_count') or not bound_field.field_type.is_byte_constrained:
-					field_value = f'len({bound_field_name})'
+					field_value = f'{bound_field_name}.length'
 
 					bound_condition = self.generate_condition(bound_field, True)
 					if condition and bound_condition:
@@ -275,8 +276,15 @@ class StructFormatter(AbstractTypeFormatter):
 		else:
 			field_value = self.field_name(field)
 
-		serialize_field = field.extensions.printer.store(field_value) + field_comment
-		return indent_if_conditional(condition, f'buffer_.write({serialize_field});\n')
+		serialize_line = None
+		if DisplayType.TYPED_ARRAY == field.display_type:
+			serialize_field = field.extensions.printer.store(field_value, 'buffer_')
+			serialize_line = f'{serialize_field};{field_comment}\n'
+		else:
+			serialize_field = field.extensions.printer.store(field_value)
+			serialize_line = f'buffer_.write({serialize_field});{field_comment}\n'
+
+		return indent_if_conditional(condition, serialize_line)
 
 	def get_serialize_descriptor(self):
 		body = 'const buffer_ = new Serializer(this.size);\n'
@@ -320,7 +328,7 @@ class StructFormatter(AbstractTypeFormatter):
 	def create_setter_descriptor(self, field):
 		method_descriptor = MethodDescriptor(
 			method_name=f'set {field.extensions.printer.name}',
-			arguments=[f'value'],
+			arguments=['value'],
 			body=f'{self.field_name(field)} = value;',
 		)
 		return method_descriptor

@@ -67,7 +67,7 @@ class TypedArrayPrinter(Printer):
 		if self.descriptor.field_type.is_byte_constrained:
 			# note: use actual `.size` field
 			alignment = self.descriptor.field_type.alignment
-			return f'this.{self.name}.map(e => ArrayHelpers.align_up(e.size, {alignment})).reduce((a, b) => a + b, 0)'
+			return f'this.{self.name}.map(e => arrayHelpers.align_up(e.size, {alignment})).reduce((a, b) => a + b, 0)'
 
 		return f'this.{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
 
@@ -80,10 +80,11 @@ class TypedArrayPrinter(Printer):
 
 			data_size = self.descriptor.size
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.read_variable_size_elements(new Uint8Array(buffer_.buffer, buffer.byteOffset, {data_size}), {factory_name}, {alignment})'
+			buffer_view = f'new Uint8Array(buffer_.buffer, buffer_.byteOffset, {data_size})'
+			return f'arrayHelpers.read_variable_size_elements({buffer_view}, {factory_name}, {alignment})'
 
 		if self.descriptor.field_type.is_expandable:
-			return f'ArrayHelpers.read_array(buffer_, {self.descriptor.field_type.element_type})'
+			return f'arrayHelpers.read_array(buffer_, {self.descriptor.field_type.element_type})'
 
 		args = [
 			'buffer_',
@@ -91,44 +92,44 @@ class TypedArrayPrinter(Printer):
 			str(self.descriptor.size),
 		]
 		if self.descriptor.field_type.sort_key:
-			accessor = f'e => e.{self.descriptor.field_type.sort_key}'
+			accessor = f'e => e.{self.descriptor.field_type.sort_key}.value'
 			args.append(accessor)
 
 		args_str = ', '.join(args)
-		return f'ArrayHelpers.read_array_count({args_str})'
+		return f'arrayHelpers.read_array_count({args_str})'
 
 	def advancement_size(self):
 		if self.descriptor.field_type.is_byte_constrained:
 			return str(self.descriptor.size)
 
-		return f'this.{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
+		return f'{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
 
-	def store(self, field_name):
+	def store(self, field_name, buffer_name):
 		if self.descriptor.field_type.is_byte_constrained:
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.write_variable_size_elements({field_name}, {alignment})'
+			return f'arrayHelpers.write_variable_size_elements({buffer_name}, {field_name}, {alignment})'
 
 		if self.descriptor.field_type.is_expandable:
-			return f'ArrayHelpers.write_array({field_name})'
+			return f'arrayHelpers.write_array({buffer_name}, {field_name})'
 
-		args = [field_name]
+		args = [buffer_name, field_name]
 		size = self.descriptor.size
 		if not isinstance(size, str):
 			args.append(str(size))
 
 		if self.descriptor.field_type.sort_key:
-			accessor = f'e => e.{self.descriptor.field_type.sort_key}'
+			accessor = f'e => e.{self.descriptor.field_type.sort_key}.value'
 			args.append(accessor)
 
 		args_str = ', '.join(args)
 		if isinstance(size, str):
-			return f'ArrayHelpers.write_array({args_str})'
+			return f'arrayHelpers.write_array({args_str})'
 
-		return f'ArrayHelpers.write_array_count({args_str})'
+		return f'arrayHelpers.write_array_count({args_str})'
 
 	@staticmethod
 	def to_string(field_name):
-		return f'list(map(str, {field_name}))'
+		return f'{field_name}.map(e => e.toString())'
 
 
 class ArrayPrinter(Printer):
@@ -150,7 +151,7 @@ class ArrayPrinter(Printer):
 	def get_size(self):
 		size = self.descriptor.size
 		if isinstance(size, str):
-			return f'self._{self.name}.length'
+			return f'this._{self.name}.length'
 
 		return size
 

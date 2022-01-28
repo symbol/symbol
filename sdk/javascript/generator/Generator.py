@@ -123,7 +123,7 @@ def generate_files(ast_models, output_directory: Path):
 			'''const { BaseValue } = require('../BaseValue');
 const { ByteArray } = require('../ByteArray');
 const converter = require('../utils/converter');
-
+const arrayHelpers = require('../utils/arrayHelpers');
 
 class Serializer {
 	constructor(size) {
