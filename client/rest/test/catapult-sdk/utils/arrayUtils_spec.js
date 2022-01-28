@@ -51,7 +51,7 @@ describe('array', () => {
 			// Arrange:
 			const src = new Uint16Array(10);
 
-			// Act:
+			// Act + Assert:
 			expect(() => arrayUtils.uint8View(src)).to.throw('unsupported type passed to uint8View');
 		});
 	});
