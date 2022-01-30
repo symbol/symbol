@@ -28,13 +28,13 @@ class IntPrinter(Printer):
 
 	def load(self):
 		data_size = self.get_size()
-		return f'int.from_bytes(buffer_[:{data_size}], byteorder="little", signed={not self.descriptor.is_unsigned})'
+		return f'int.from_bytes(buffer_[:{data_size}], byteorder=\'little\', signed={not self.descriptor.is_unsigned})'
 
 	def advancement_size(self):
 		return self.get_size()
 
 	def store(self, field_name):
-		return f'{field_name}.to_bytes({self.get_size()}, byteorder="little", signed={not self.descriptor.is_unsigned})'
+		return f'{field_name}.to_bytes({self.get_size()}, byteorder=\'little\', signed={not self.descriptor.is_unsigned})'
 
 	@staticmethod
 	def assign(value):
@@ -42,7 +42,7 @@ class IntPrinter(Printer):
 
 	@staticmethod
 	def to_string(field_name):
-		return f'"0x{{:X}}".format({field_name})'
+		return f'0x{{{field_name}:X}}'
 
 
 class TypedArrayPrinter(Printer):

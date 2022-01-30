@@ -86,7 +86,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		body += indent(
 			',\n'.join(
 				map(
-					lambda child: f'"{skip_embedded(underline_name(child.name))}": {child.name}',
+					lambda child: f'\'{skip_embedded(underline_name(child.name))}\': {child.name}',
 					[] if not self.factory_descriptor else self.factory_descriptor.children
 				)
 			)

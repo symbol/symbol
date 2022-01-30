@@ -13,7 +13,7 @@ class ClassFormatter(ABC):
 
 	@staticmethod
 	def generate_method(method_descriptor):
-		all_args = ['self'] + method_descriptor.arguments
+		all_args = (['cls'] if '@classmethod' in method_descriptor.annotations else ['self']) + method_descriptor.arguments
 		arguments = ', '.join(all_args)
 		if len(arguments) > 100:
 			arguments = '\n    ' + ',\n    '.join(all_args) + '\n'

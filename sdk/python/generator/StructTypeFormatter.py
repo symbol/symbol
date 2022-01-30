@@ -78,7 +78,7 @@ class StructFormatter(AbstractTypeFormatter):
 			if not field.extensions.printer.type_hint:
 				continue
 
-			hints.append(f'"{field.extensions.printer.name}": "{field.extensions.printer.type_hint}"')
+			hints.append(f'\'{field.extensions.printer.name}\': \'{field.extensions.printer.type_hint}\'')
 
 		body += indent(',\n'.join(hints))
 		body += '}\n'
@@ -165,7 +165,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		additional_statements = ''
 		if is_reserved(field):
-			assert_message = f'f"Invalid value of reserved field ({{{field.extensions.printer.name}}})"'
+			assert_message = f'f\'Invalid value of reserved field ({{{field.extensions.printer.name}}})\''
 			additional_statements = f'assert {field.extensions.printer.name} == {field.value}, {assert_message}\n'
 
 		if self.struct.size == field.extensions.printer.name:
@@ -274,7 +274,7 @@ class StructFormatter(AbstractTypeFormatter):
 		fields_iter = self.non_const_fields()
 		first_field = next(fields_iter)
 		if self.struct.size == first_field.extensions.printer.name:
-			body += f'buffer_ += self.size.to_bytes({first_field.size}, byteorder="little", signed=False)\n'
+			body += f'buffer_ += self.size.to_bytes({first_field.size}, byteorder=\'little\', signed=False)\n'
 		else:
 			body += self.generate_serialize_field(first_field)
 
@@ -322,16 +322,17 @@ class StructFormatter(AbstractTypeFormatter):
 
 	def generate_str_field(self, field):
 		field_to_string = field.extensions.printer.to_string(self.field_name(field))
-		return f'"{field.extensions.printer.name}: {{}}, ".format({field_to_string})'
+		field_to_string = field_to_string if '{' in field_to_string else f'{{{field_to_string}}}'
+		return f'f\'{field.extensions.printer.name}: {field_to_string}, \''
 
 	def get_str_descriptor(self):
-		body = 'result = "("\n'
+		body = 'result = \'(\'\n'
 		body += ''.join(
 			map(
 				'result += {}\n'.format,  # pylint: disable=consider-using-f-string
 				map(self.generate_str_field, self.non_reserved_fields()),
 			)
 		)
-		body += 'result += ")"\n'
+		body += 'result += \')\'\n'
 		body += 'return result'
 		return MethodDescriptor(body=body)
