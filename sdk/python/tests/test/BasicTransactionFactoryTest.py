@@ -39,24 +39,6 @@ class BasicTransactionFactoryTest:
 
 	# endregion
 
-	# region enums handling
-
-	def test_can_create_transaction_with_default_enum_handling(self):
-		# Arrange:
-		factory = self.create_factory()
-
-		# Act:
-		transaction = self.create_transaction(factory)({
-			'type': 'account_key_link_transaction',
-			'signer_public_key': 'signer_name',
-			'link_action': 'link',
-		})
-
-		# Assert:
-		self._assert_account_link(transaction)
-
-	# endregion
-
 	# region attach_signature
 
 	def test_can_attach_signature_to_transaction(self):

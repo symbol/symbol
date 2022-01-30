@@ -38,19 +38,39 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 	def create_transaction(self, factory):
 		return factory.create
 
+	# region rules
+
+	def test_rules_contain_expected_hints(self):
+		# Act:
+		factory = factory = self.create_factory()
+
+		# Assert:
+		expected_rule_names = [
+			'Amount', 'Height', 'Timestamp',
+
+			'BlockType', 'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
+			'MultisigAccountModificationType', 'NetworkType', 'TransactionType',
+
+			'struct:Message', 'struct:NamespaceId', 'struct:MosaicId', 'struct:Mosaic', 'struct:SizePrefixedMosaic', 'struct:MosaicLevy',
+			'struct:MosaicProperty', 'struct:SizePrefixedMosaicProperty', 'struct:MosaicDefinition',
+			'struct:MultisigAccountModification', 'struct:SizePrefixedMultisigAccountModification',
+
+			'Address', 'Hash256', 'PublicKey',
+
+			'array[SizePrefixedMosaic]', 'array[SizePrefixedMosaicProperty]', 'array[SizePrefixedMultisigAccountModification]'
+		]
+		self.assertEqual(set(expected_rule_names), set(factory.factory.rules.keys()))
+
+	# endregion
+
 	# region create
 
 	def test_can_create_known_transaction_with_multiple_overrides(self):
 		# Arrange:
-		#  * hint on `rental_fee_recipient` is pod:Address,
-		#   type parsing rule that is getting created is for STRING 'Address'
-		# * same happens for `rental_fee`
-		#  * signer_public_key is handled differently in Transaction factory, via hint:
-		#    {'signer_public_key': PublicKey} which maps it to SDK type CryptoTypes.PublicKey
 		factory = self.create_factory({
-			'Address': lambda x: x + ' but amazing',
-			'Amount': lambda _: 654321,
-			PublicKey: lambda address: address + ' PUBLICKEY'
+			Address: lambda x: f'{x} but amazing',
+			Amount: lambda _: 654321,
+			PublicKey: lambda address: f'{address} PUBLICKEY'
 		})
 
 		# Act:
@@ -65,23 +85,23 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 		self.assertEqual(TransactionType.NAMESPACE_REGISTRATION, transaction.type_)
 		self.assertEqual(1, transaction.version)
 		self.assertEqual(NetworkType.TESTNET, transaction.network)
-		self.assertEqual('signer_name PUBLICKEY', transaction.signer_public_key)
+		self.assertEqual(b'signer_name PUBLICKEY', transaction.signer_public_key)
 
-		self.assertEqual('fee sink but amazing', transaction.rental_fee_sink)
+		self.assertEqual(b'fee sink but amazing', transaction.rental_fee_sink)
 		self.assertEqual(654321, transaction.rental_fee)
 
 	# endregion
 
-	# region byte array type conversion
+	# region address type conversion
 
-	def test_can_create_transaction_with_type_conversion(self):
-		# Arrange:
+	def test_can_create_transaction_with_address(self):
+		# Arrange: this tests the custom type converter
 		factory = self.create_factory()
 
 		# Act:
 		transaction = self.create_transaction(factory)({
 			'type': 'namespace_registration_transaction',
-			'signer_public_key': 'signer_name',
+			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
 			'rental_fee_sink': Address('AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGAB')
 		})
 
@@ -89,6 +109,27 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 		self.assertEqual(
 			nc_Address('4145424147424146415944515143494B424D474132445150434149524545595543554C424F474142'),
 			transaction.rental_fee_sink)
+
+	# endregion
+
+	# region message encoding
+
+	def test_can_create_transfer_with_string_message(self):
+		# Arrange:
+		factory = self.create_factory()
+
+		# Act:
+		transaction = self.create_transaction(factory)({
+			'type': 'transfer_transaction',
+			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
+			'message': {
+				'message_type': 'plain',
+				'message': 'You miss 100%% of the shots you don\'t take'
+			}
+		})
+
+		# Assert:
+		self.assertEqual(b'You miss 100%% of the shots you don\'t take', transaction.message.message)
 
 	# endregion
 

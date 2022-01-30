@@ -1,8 +1,8 @@
 import unittest
 from binascii import hexlify
 
-from symbolchain.CryptoTypes import PublicKey
-from symbolchain.sc import AccountRestrictionFlags, LinkAction, NetworkType, TransactionType, UnresolvedAddress
+from symbolchain.CryptoTypes import Hash256, PublicKey
+from symbolchain.sc import BlockDuration, LinkAction, NetworkType, TransactionType, UnresolvedAddress
 from symbolchain.symbol.IdGenerator import generate_mosaic_id, generate_namespace_id
 from symbolchain.symbol.Network import Address, Network
 from symbolchain.symbol.TransactionFactory import TransactionFactory
@@ -15,8 +15,7 @@ TEST_SIGNER_PUBLIC_KEY = TestUtils.random_byte_array(PublicKey)
 
 
 class SymbolTransactionFactoryTest(BasicTransactionFactoryTest):
-	# pylint: disable=no-member
-	# pylint: disable=abstract-method
+	# pylint: disable=abstract-method, no-member
 
 	def _assert_transfer(self, transaction):
 		self.assertEqual(TransactionType.TRANSFER, transaction.type_)
@@ -29,20 +28,42 @@ class SymbolTransactionFactoryTest(BasicTransactionFactoryTest):
 	def create_factory(self, type_parsing_rules=None):
 		return TransactionFactory(Network.TESTNET, type_parsing_rules)
 
+	# region rules
+
+	def test_rules_contain_expected_hints(self):
+		# Act:
+		factory = factory = self.create_factory()
+
+		# Assert:
+		expected_rule_names = [
+			'Amount', 'BlockDuration', 'BlockFeeMultiplier', 'Difficulty', 'FinalizationEpoch', 'FinalizationPoint', 'Height', 'Importance',
+			'ImportanceHeight', 'MosaicId', 'MosaicNonce', 'MosaicRestrictionKey', 'NamespaceId', 'ScopedMetadataKey', 'Timestamp',
+			'UnresolvedMosaicId',
+
+			'MosaicFlags', 'AccountRestrictionFlags', 'TransactionType', 'AliasAction', 'LinkAction', 'LockHashAlgorithm',
+			'MosaicRestrictionType', 'MosaicSupplyChangeAction', 'NamespaceRegistrationType',
+
+			'struct:UnresolvedMosaic',
+
+			'UnresolvedAddress', 'Address', 'Hash256', 'PublicKey', 'VotingPublicKey',
+
+			'array[UnresolvedMosaicId]', 'array[TransactionType]', 'array[UnresolvedAddress]', 'array[UnresolvedMosaic]',
+
+			'NamespaceAliasType', 'MosaicRestrictionEntryType', 'NetworkType', 'LockStatus', 'MetadataType', 'BlockType',
+			'AccountType', 'AccountStateFormat', 'ReceiptType', 'AccountKeyTypeFlags'
+		]
+		self.assertEqual(set(expected_rule_names), set(factory.factory.rules.keys()))
+
+	# endregion
+
 	# region create
 
 	def test_can_create_known_transaction_with_multiple_overrides(self):
 		# Arrange:
-		# there's subtle difference between the two:
-		#  * hint on `hash` is pod:Hash256,
-		#    type parsing rule that is getting created is for STRING 'Hash256'
-		#  * same goes for `BlockDuration`
-		#  * signer_public_key is handled differently in Transaction factory, via hint:
-		#    {'signer_public_key': PublicKey} which maps it to SDK type CryptoTypes.PublicKey
 		factory = self.create_factory({
-			'Hash256': lambda x: x + ' a hash',
-			'BlockDuration': lambda _: 654321,
-			PublicKey: lambda address: address + ' PUBLICKEY'
+			Hash256: lambda x: f'{x} a hash',
+			BlockDuration: lambda _: 654321,
+			PublicKey: lambda x: f'{x} PUBLICKEY'
 		})
 
 		# Act:
@@ -59,70 +80,25 @@ class SymbolTransactionFactoryTest(BasicTransactionFactoryTest):
 		self.assertEqual(0x4148, transaction.type_.value)
 		self.assertEqual(1, transaction.version)
 		self.assertEqual(NetworkType.TESTNET, transaction.network)
-		self.assertEqual('signer_name PUBLICKEY', transaction.signer_public_key)
+		self.assertEqual(b'signer_name PUBLICKEY', transaction.signer_public_key)
 
 		self.assertEqual(654321, transaction.duration)
-		self.assertEqual('not really a hash', transaction.hash)
+		self.assertEqual(b'not really a hash', transaction.hash)
 		self.assertEqual(0x12345678ABCDEF, transaction.mosaic.mosaic_id.value)
 		self.assertEqual(12345, transaction.mosaic.amount.value)
 
 	# endregion
 
-	# region flags and enums handling
+	# region address type conversion
 
-	def test_can_create_transaction_with_default_flags_handling(self):
-		# Arrange:
+	def test_can_create_transaction_with_address(self):
+		# Arrange: this tests the custom type converter
 		factory = self.create_factory()
 
 		# Act:
 		transaction = self.create_transaction(factory)({
 			'type': 'account_address_restriction_transaction',
-			'signer_public_key': 'signer_name',
-			'restriction_flags': 'address mosaic_id transaction_type outgoing block'
-		})
-
-		# Assert:
-		Flags = AccountRestrictionFlags
-		self.assertEqual(
-			Flags.ADDRESS | Flags.MOSAIC_ID | Flags.TRANSACTION_TYPE | Flags.OUTGOING | Flags.BLOCK,
-			transaction.restriction_flags)
-
-	def test_can_create_transaction_with_default_enum_array_handling(self):
-		# Arrange:
-		factory = self.create_factory()
-
-		# Act:
-		transaction = self.create_transaction(factory)({
-			'type': 'account_operation_restriction_transaction',
-			'signer_public_key': 'signer_name',
-			'restriction_additions': [
-				'transfer',
-				'account_key_link'
-			],
-			'restriction_deletions': [
-				'vrf_key_link',
-				'voting_key_link'
-			]
-		})
-
-		# Assert:
-		expected_additions = [TransactionType.TRANSFER, TransactionType.ACCOUNT_KEY_LINK]
-		self.assertEqual(expected_additions, transaction.restriction_additions)
-		expected_deletions = [TransactionType.VRF_KEY_LINK, TransactionType.VOTING_KEY_LINK]
-		self.assertEqual(expected_deletions, transaction.restriction_deletions)
-
-	# endregion
-
-	# region byte array type conversion
-
-	def test_can_create_transaction_with_type_conversion(self):
-		# Arrange:
-		factory = self.create_factory()
-
-		# Act:
-		transaction = self.create_transaction(factory)({
-			'type': 'account_address_restriction_transaction',
-			'signer_public_key': 'signer_name',
+			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
 			'restriction_additions': [
 				Address('AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGA'),
 				Address('DINRYHI6D4QCCIRDEQSSMJZIFEVCWLBNFYXTAMI')

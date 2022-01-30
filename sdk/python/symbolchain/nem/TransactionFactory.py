@@ -2,42 +2,31 @@ from binascii import hexlify
 
 from symbolchain import nc
 
-from ..BasicTransactionFactory import BasicTransactionFactory, basic_type_converter
-from .ExtendedTypeParsingRules import extend_type_parsing_rules
+from ..CryptoTypes import Hash256, PublicKey
+from ..RuleBasedTransactionFactory import RuleBasedTransactionFactory
 from .Network import Address
 
 
-def nem_type_converter(value):
-	if isinstance(value, Address):
-		# yes, unfortunatelly, nem's Address is 40 bytes string, but we need to pass it as actual bytes not to confuse ByteArray
-		return nc.Address(str(value).encode('utf8'))
-
-	return basic_type_converter(nc, value)
-
-
-class TransactionFactory(BasicTransactionFactory):
+class TransactionFactory:
 	"""Factory for creating NEM transactions."""
 
 	def __init__(self, network, type_parsing_rules=None):
 		"""Creates a factory for the specified network."""
-		super().__init__(
-			nc.NetworkType(network.identifier),
-			nem_type_converter,
-			extend_type_parsing_rules(nem_type_converter, type_parsing_rules))
-
-	def _create_and_extend(self, transaction_descriptor):
-		transaction = self._create(transaction_descriptor, nc.TransactionFactory)
-		self._auto_encode_strings(transaction_descriptor, transaction)
-
-		# hack: explicitely translate transfer message
-		if nc.TransactionType.TRANSFER == transaction.type_:
-			self._encode_string_field(transaction.message, 'message')
-
-		return transaction
+		self.factory = self._build_rules(type_parsing_rules)
+		self.network = network
 
 	def create(self, transaction_descriptor):
 		"""Creates a transaction from a transaction descriptor."""
-		return self._create_and_extend(transaction_descriptor)
+		transaction = self.factory.create_from_factory(nc.TransactionFactory.create_by_name, {
+			**transaction_descriptor,
+			'network': self.network.identifier
+		})
+
+		# hack: explicitly translate transfer message
+		if nc.TransactionType.TRANSFER == transaction.type_ and isinstance(transaction.message.message, str):
+			transaction.message.message = transaction.message.message.encode('utf8')
+
+		return transaction
 
 	@staticmethod
 	def to_non_verifiable_transaction(transaction):
@@ -67,3 +56,37 @@ class TransactionFactory(BasicTransactionFactory):
 		signature_hex = hexlify(signature.bytes).decode('utf8').upper()
 		json_payload = f'{{"data":"{transaction_buffer_hex}", "signature":"{signature_hex}"}}'
 		return json_payload.encode('utf8')
+
+	@staticmethod
+	def _nem_type_converter(value):
+		if isinstance(value, Address):
+			# yes, unfortunatelly, nem's Address is 40 bytes string, but we need to pass it as actual bytes not to confuse ByteArray
+			return nc.Address(str(value).encode('utf8'))
+
+		return None
+
+	@staticmethod
+	def _build_rules(base_type_parsing_rules):
+		factory = RuleBasedTransactionFactory(nc, TransactionFactory._nem_type_converter, base_type_parsing_rules)
+		factory.autodetect()
+
+		struct_names = [
+			'Message', 'NamespaceId', 'MosaicId', 'Mosaic', 'SizePrefixedMosaic', 'MosaicLevy',
+			'MosaicProperty', 'SizePrefixedMosaicProperty', 'MosaicDefinition',
+			'MultisigAccountModification', 'SizePrefixedMultisigAccountModification'
+		]
+		for name in struct_names:
+			factory.add_struct_parser(name)
+
+		sdk_type_mapping = {
+			'Address': Address,
+			'Hash256': Hash256,
+			'PublicKey': PublicKey,
+		}
+		for name, typename in sdk_type_mapping.items():
+			factory.add_pod_parser(name, typename)
+
+		for name in ['struct:SizePrefixedMosaic', 'struct:SizePrefixedMosaicProperty', 'struct:SizePrefixedMultisigAccountModification']:
+			factory.add_array_parser(name)
+
+		return factory
