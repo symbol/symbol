@@ -16604,8 +16604,8 @@ class TransferTransaction:
 		size += self.recipient_address.size
 		size += 2
 		size += 1
-		size += 4
 		size += 1
+		size += 4
 		size += sum(map(lambda e: e.size, self.mosaics))
 		size += len(self._message)
 		return size
@@ -16643,11 +16643,11 @@ class TransferTransaction:
 		buffer_ = buffer_[2:]
 		mosaics_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
-		transfer_transaction_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
-		buffer_ = buffer_[4:]
-		assert transfer_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({transfer_transaction_body_reserved_1})"
-		transfer_transaction_body_reserved_2 = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
+		transfer_transaction_body_reserved_1 = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
+		assert transfer_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({transfer_transaction_body_reserved_1})"
+		transfer_transaction_body_reserved_2 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
+		buffer_ = buffer_[4:]
 		assert transfer_transaction_body_reserved_2 == 0, f"Invalid value of reserved field ({transfer_transaction_body_reserved_2})"
 		mosaics = ArrayHelpers.read_array_count(buffer_, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id)
 		buffer_ = buffer_[sum(map(lambda e: e.size, mosaics)):]
@@ -16682,8 +16682,8 @@ class TransferTransaction:
 		buffer_ += self._recipient_address.serialize()
 		buffer_ += len(self._message).to_bytes(2, byteorder="little", signed=False)  # message_size
 		buffer_ += len(self._mosaics).to_bytes(1, byteorder="little", signed=False)  # mosaics_count
-		buffer_ += self._transfer_transaction_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
-		buffer_ += self._transfer_transaction_body_reserved_2.to_bytes(1, byteorder="little", signed=False)
+		buffer_ += self._transfer_transaction_body_reserved_1.to_bytes(1, byteorder="little", signed=False)
+		buffer_ += self._transfer_transaction_body_reserved_2.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += ArrayHelpers.write_array(self._mosaics, lambda e: e.mosaic_id)
 		buffer_ += self._message
 		return buffer_
@@ -16798,8 +16798,8 @@ class EmbeddedTransferTransaction:
 		size += self.recipient_address.size
 		size += 2
 		size += 1
-		size += 4
 		size += 1
+		size += 4
 		size += sum(map(lambda e: e.size, self.mosaics))
 		size += len(self._message)
 		return size
@@ -16831,11 +16831,11 @@ class EmbeddedTransferTransaction:
 		buffer_ = buffer_[2:]
 		mosaics_count = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
-		transfer_transaction_body_reserved_1 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
-		buffer_ = buffer_[4:]
-		assert transfer_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({transfer_transaction_body_reserved_1})"
-		transfer_transaction_body_reserved_2 = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
+		transfer_transaction_body_reserved_1 = int.from_bytes(buffer_[:1], byteorder="little", signed=False)
 		buffer_ = buffer_[1:]
+		assert transfer_transaction_body_reserved_1 == 0, f"Invalid value of reserved field ({transfer_transaction_body_reserved_1})"
+		transfer_transaction_body_reserved_2 = int.from_bytes(buffer_[:4], byteorder="little", signed=False)
+		buffer_ = buffer_[4:]
 		assert transfer_transaction_body_reserved_2 == 0, f"Invalid value of reserved field ({transfer_transaction_body_reserved_2})"
 		mosaics = ArrayHelpers.read_array_count(buffer_, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id)
 		buffer_ = buffer_[sum(map(lambda e: e.size, mosaics)):]
@@ -16864,8 +16864,8 @@ class EmbeddedTransferTransaction:
 		buffer_ += self._recipient_address.serialize()
 		buffer_ += len(self._message).to_bytes(2, byteorder="little", signed=False)  # message_size
 		buffer_ += len(self._mosaics).to_bytes(1, byteorder="little", signed=False)  # mosaics_count
-		buffer_ += self._transfer_transaction_body_reserved_1.to_bytes(4, byteorder="little", signed=False)
-		buffer_ += self._transfer_transaction_body_reserved_2.to_bytes(1, byteorder="little", signed=False)
+		buffer_ += self._transfer_transaction_body_reserved_1.to_bytes(1, byteorder="little", signed=False)
+		buffer_ += self._transfer_transaction_body_reserved_2.to_bytes(4, byteorder="little", signed=False)
 		buffer_ += ArrayHelpers.write_array(self._mosaics, lambda e: e.mosaic_id)
 		buffer_ += self._message
 		return buffer_
