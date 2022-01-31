@@ -5,6 +5,14 @@ RUN apt-get update >/dev/null \
 	&& apt-get install -y tzdata \
 	&& apt-get install -y git curl
 
+# mongodb
+RUN apt-get install -y wget gnupg \
+	&& wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
+	&& echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" \
+	| tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
+	&& apt-get update \
+	&& apt-get install -y mongodb-org
+
 # nodejs
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
 	&& apt-get install -y nodejs
@@ -23,3 +31,7 @@ RUN apt-get install -y shellcheck \
 RUN useradd --uid 1000 -ms /bin/bash ubuntu
 
 WORKDIR /home/ubuntu
+
+# Create the MongoDB data directory
+RUN mkdir -p /data/db \
+	&& chown -R ubuntu:ubuntu /data
