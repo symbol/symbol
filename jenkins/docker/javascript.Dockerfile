@@ -35,4 +35,3 @@ WORKDIR /home/ubuntu
 # Create the MongoDB data directory
 RUN mkdir -p /data/db \
 	&& chown -R ubuntu:ubuntu /data
-EXPOSE 27017 
