@@ -49,7 +49,7 @@ const autoEncodeStrings = entity => {
 	Object.getOwnPropertyNames(entity).forEach(key => {
 		const value = entity[key];
 		if ('string' === typeof (value))
-			entity[key] = new Uint8Array(Array.from(value).map(ch => ch.charCodeAt(0)));
+			entity[key] = new TextEncoder().encode(value);
 	});
 };
 

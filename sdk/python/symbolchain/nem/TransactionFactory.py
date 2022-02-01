@@ -10,9 +10,9 @@ from .Network import Address
 class TransactionFactory:
 	"""Factory for creating NEM transactions."""
 
-	def __init__(self, network, type_parsing_rules=None):
+	def __init__(self, network, type_rule_overrides=None):
 		"""Creates a factory for the specified network."""
-		self.factory = self._build_rules(type_parsing_rules)
+		self.factory = self._build_rules(type_rule_overrides)
 		self.network = network
 
 	def create(self, transaction_descriptor):
@@ -30,12 +30,12 @@ class TransactionFactory:
 
 	@staticmethod
 	def to_non_verifiable_transaction(transaction):
-		"""Converts transaction to non_verifiable transaction"""
-		class_name = type(transaction).__name__
-		if not class_name.startswith('NonVerifiable'):
-			class_name = 'NonVerifiable' + class_name
+		"""Converts a transaction to a non-verifiable transaction."""
+		non_verifiable_class_name = type(transaction).__name__
+		if not non_verifiable_class_name.startswith('NonVerifiable'):
+			non_verifiable_class_name = f'NonVerifiable{non_verifiable_class_name}'
 
-		non_verifiable_class = getattr(nc, class_name)
+		non_verifiable_class = getattr(nc, non_verifiable_class_name)
 		non_verifiable_transaction = non_verifiable_class()
 		for key in dir(non_verifiable_transaction):
 			# isupper() to quickly filter out class properties like TRANSACTION_VERSION or TYPE_HINTS
@@ -51,23 +51,22 @@ class TransactionFactory:
 		"""Attaches a signature to a transaction."""
 		transaction.signature = nc.Signature(signature.bytes)
 
-		transaction_buffer = TransactionFactory.to_non_verifiable_transaction(transaction).serialize()
-		transaction_buffer_hex = hexlify(transaction_buffer).decode('utf8').upper()
-		signature_hex = hexlify(signature.bytes).decode('utf8').upper()
-		json_payload = f'{{"data":"{transaction_buffer_hex}", "signature":"{signature_hex}"}}'
-		return json_payload.encode('utf8')
+		transaction_hex = hexlify(TransactionFactory.to_non_verifiable_transaction(transaction).serialize()).decode('utf8').upper()
+		signature_hex = str(signature)
+		json_payload = f'{{"data":"{transaction_hex}", "signature":"{signature_hex}"}}'
+		return json_payload
 
 	@staticmethod
 	def _nem_type_converter(value):
 		if isinstance(value, Address):
-			# yes, unfortunatelly, nem's Address is 40 bytes string, but we need to pass it as actual bytes not to confuse ByteArray
+			# yes, unfortunately, nem's Address is 40 bytes string, but we need to pass it as actual bytes not to confuse ByteArray
 			return nc.Address(str(value).encode('utf8'))
 
 		return None
 
 	@staticmethod
-	def _build_rules(base_type_parsing_rules):
-		factory = RuleBasedTransactionFactory(nc, TransactionFactory._nem_type_converter, base_type_parsing_rules)
+	def _build_rules(type_rule_overrides):
+		factory = RuleBasedTransactionFactory(nc, TransactionFactory._nem_type_converter, type_rule_overrides)
 		factory.autodetect()
 
 		struct_names = [
