@@ -181,6 +181,16 @@ void call(Closure body) {
 						}
 					}
 					stage('code coverage') {
+						when {
+							allOf {
+								expression {
+									return config.codeCoverageTool != null
+								}
+								expression {
+									return config.minimumCodeCoverage != null
+								}
+							}
+						}
 						steps {
 							runStepRelativeToPackageRoot packageRootPath, {
 								codeCoverage(params)
