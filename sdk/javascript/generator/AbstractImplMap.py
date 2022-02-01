@@ -16,12 +16,16 @@ class AbstractImplMap:
 
 			# need loop to maintain proper order
 			discriminator_values = []
+			discriminator_types = []
 			for discriminator_name in discriminator_names:
 				initializer_value = [init.value for init in initializers if discriminator_name == init.target_property_name][0]
 				discriminator_values.append(initializer_value)
+				discriminator_type = [field.field_type for field in parent_model.fields if discriminator_name == field.name][0]
+				discriminator_types.append(discriminator_type)
 			self.mapping[struct_typename] = {
 				'discriminator_names': discriminator_names,
 				'discriminator_values': discriminator_values,
+				'discriminator_types': discriminator_types,
 				'children': [],
 			}
 
