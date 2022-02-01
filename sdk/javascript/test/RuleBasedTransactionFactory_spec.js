@@ -63,7 +63,7 @@ describe('RuleBasedTransactionFactory', () => {
 		};
 
 		static UnresolvedMosaic = class UnresolvedMosaic {
-			TYPE_HINTS = {
+			static TYPE_HINTS = {
 				mosaicId: 'pod:UnresolvedMosaicId',
 				amount: 'pod:Amount'
 			};
@@ -84,7 +84,7 @@ describe('RuleBasedTransactionFactory', () => {
 		};
 
 		static StructArrayMember = class StructArrayParse {
-			TYPE_HINTS = {
+			static TYPE_HINTS = {
 				mosaicIds: 'array[UnresolvedMosaicId]'
 			};
 
@@ -94,7 +94,7 @@ describe('RuleBasedTransactionFactory', () => {
 		};
 
 		static StructEnumMember = class StructEnumMember {
-			TYPE_HINTS = {
+			static TYPE_HINTS = {
 				network: 'enum:NetworkType'
 			};
 
@@ -104,7 +104,7 @@ describe('RuleBasedTransactionFactory', () => {
 		};
 
 		static StructStructMember = class StructStructMember {
-			TYPE_HINTS = {
+			static TYPE_HINTS = {
 				mosaic: 'struct:UnresolvedMosaic'
 			};
 
@@ -114,7 +114,7 @@ describe('RuleBasedTransactionFactory', () => {
 		};
 
 		static StructHashMember = class StructHashMember {
-			TYPE_HINTS = {
+			static TYPE_HINTS = {
 				hash: 'Hash256'
 			};
 

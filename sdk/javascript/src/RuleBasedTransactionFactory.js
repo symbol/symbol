@@ -15,8 +15,9 @@ const nameToEnumValue = (mapping, enumType, enumValueName) => {
 
 const buildTypeHintsMap = structValue => {
 	const typeHints = {};
-	Object.getOwnPropertyNames(structValue.TYPE_HINTS || {}).forEach(key => {
-		const hint = structValue.TYPE_HINTS[key];
+	const rawTypeHints = structValue.constructor.TYPE_HINTS || {};
+	Object.getOwnPropertyNames(rawTypeHints).forEach(key => {
+		const hint = rawTypeHints[key];
 		let ruleName;
 		if (0 === hint.indexOf('array['))
 			ruleName = hint;
