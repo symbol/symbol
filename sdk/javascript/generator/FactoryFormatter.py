@@ -57,7 +57,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		return f'[{values}]: {name}'
 
 	def get_deserialize_descriptor(self):
-		body = f'let view = new BufferView(payload);\n';
+		body = f'const view = new BufferView(payload);\n';
 		body += f'const {self.printer.name} = {self.printer.load()};\n'
 
 		body += 'const mapping = {\n'

@@ -122,11 +122,10 @@ def generate_files(ast_models, output_directory: Path):
 		output_file.write(
 			'''const { BaseValue } = require('../BaseValue');
 const { ByteArray } = require('../ByteArray');
-const { Writer } = require('../utils/Writer');
 const { BufferView } = require('../utils/BufferView');
-const converter = require('../utils/converter');
+const { Writer } = require('../utils/Writer');
 const arrayHelpers = require('../utils/arrayHelpers');
-
+const converter = require('../utils/converter');
 
 '''
 		)

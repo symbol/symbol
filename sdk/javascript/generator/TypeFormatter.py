@@ -30,10 +30,9 @@ class ClassFormatter(ABC):
 	def generate_class(self):
 		output = self.generate_class_header()
 
+		# additional newline between fields for js linter
 		fields = self.provider.get_fields()
-		fields_output = ''
-		for field in fields:
-			fields_output += indent(field)
+		fields_output = indent('\n'.join(fields))
 
 		if fields_output:
 			output += fields_output + '\n'

@@ -69,7 +69,7 @@ class StructFormatter(AbstractTypeFormatter):
 	@staticmethod
 	def generate_class_field(field):
 		default_value = field.extensions.printer.assign(field.value)
-		return f'static {field.name} = {default_value};'
+		return f'static {field.name} = {default_value};\n'
 
 	@staticmethod
 	def buffer_view(buffer_name, shift=0, limit=0):
@@ -84,7 +84,7 @@ class StructFormatter(AbstractTypeFormatter):
 			if not field.extensions.printer.type_hint:
 				continue
 
-			hints.append(f'\'{field.extensions.printer.name}\': \'{field.extensions.printer.type_hint}\'')
+			hints.append(f'{field.extensions.printer.name}: \'{field.extensions.printer.type_hint}\'')
 
 		body += indent(',\n'.join(hints))
 		body += '};\n'
@@ -200,7 +200,7 @@ class StructFormatter(AbstractTypeFormatter):
 		return indent_if_conditional(condition, deserialize_field)
 
 	def get_deserialize_descriptor(self):
-		body = f'let view = new BufferView(payload);\n';
+		body = f'const view = new BufferView(payload);\n';
 
 		# special treatment for condition-guarded fields,
 		# where condition is behind the fields...

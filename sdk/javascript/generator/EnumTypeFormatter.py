@@ -20,7 +20,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 	def get_fields(self):
 		return list(
 			map(
-				lambda e: f'static {e.name} = new {self.typename}({e.value})\n',
+				lambda e: f'static {e.name} = new {self.typename}({e.value});\n',
 				self.enum_type.values,
 			)
 		)
@@ -28,7 +28,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 	@staticmethod
 	def get_ctor_descriptor():
 		arguments = ['value']
-		body = 'this.value = value\n'
+		body = 'this.value = value;\n'
 		return MethodDescriptor(body=body, arguments=arguments)
 
 	def get_deserialize_descriptor(self):
@@ -40,10 +40,10 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body)
 
 	def get_serialize_descriptor(self):
-		return MethodDescriptor(body=f'return {self.int_printer.store("this.value")}')
+		return MethodDescriptor(body=f'return {self.int_printer.store("this.value")};')
 
 	def get_size_descriptor(self):
-		body = f'return {self.enum_type.size}\n'
+		body = f'return {self.enum_type.size};\n'
 		return MethodDescriptor(body=body)
 
 	def get_map_descriptor(self):
