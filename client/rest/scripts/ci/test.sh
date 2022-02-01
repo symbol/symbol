@@ -2,4 +2,4 @@
 
 set -ex
 
-npm run test:jenkins
+npm run coverage:test

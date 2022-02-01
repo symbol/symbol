@@ -5,4 +5,7 @@ defaultCiPipeline {
 	packageId = 'catbuffer-parser'
 
 	publisher = 'pypi'
+
+	codeCoverageTool = 'coverage'
+	minimumCodeCoverage = 95
 }

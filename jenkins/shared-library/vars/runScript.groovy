@@ -6,7 +6,7 @@ void call(String scriptPath, String filename) {
 }
 
 void call(String scriptFilepath) {
-	call(scriptFilepath, scriptFilepath, true)
+	call(scriptFilepath, scriptFilepath, false)
 }
 
 void call(String scriptFilepath, String label='', Boolean returnStdout, Boolean returnStatus=false, String encoding='') {

@@ -2,4 +2,4 @@
 
 set -ex
 
-python3 -m unittest discover -v
+coverage run -m unittest discover -v

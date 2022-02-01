@@ -2,5 +2,5 @@
 
 set -ex
 
-BLOCKCHAIN=nem npm run vectors
-BLOCKCHAIN=symbol npm run vectors
+BLOCKCHAIN=nem npm run coverage:vectors
+BLOCKCHAIN=symbol npm run coverage:vectors

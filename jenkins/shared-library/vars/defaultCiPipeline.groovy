@@ -29,7 +29,7 @@ void call(Closure body) {
 		agent {
 			dockerfile {
 				// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
-				label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent" 
+				label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent"
 
 				dir 'jenkins/docker'
 				filename "${params.ciBuildDockerfile}"
@@ -177,6 +177,13 @@ void call(Closure body) {
 						steps {
 							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'vectors', {
 								runTests(env.TEST_VECTORS_SCRIPT_FILEPATH)
+							}
+						}
+					}
+					stage('code coverage') {
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								codeCoverage(params)
 							}
 						}
 					}
