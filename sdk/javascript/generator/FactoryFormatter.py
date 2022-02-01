@@ -57,7 +57,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		return f'[{values}]: {name}'
 
 	def get_deserialize_descriptor(self):
-		body = f'let reader = new Reader(payload);\n';
+		body = f'let view = new BufferView(payload);\n';
 		body += f'const {self.printer.name} = {self.printer.load()};\n'
 
 		body += 'const mapping = {\n'
@@ -74,7 +74,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		values = ', '.join(map(lambda discriminator: f'{self.printer.name}.{fix_name(discriminator)}', discriminators))
 		body += f'const discriminator = {values};\n'
 		body += 'const factory_class = mapping[discriminator.value];\n'
-		body += 'return factory_class.deserialize(reader.buffer);'
+		body += 'return factory_class.deserialize(view.buffer);'
 
 		return MethodDescriptor(body=body)
 

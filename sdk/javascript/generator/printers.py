@@ -82,14 +82,14 @@ class TypedArrayPrinter(Printer):
 
 			data_size = lang_field_name(self.descriptor.size)
 			alignment = self.descriptor.field_type.alignment
-			buffer_view = f'reader.shrinked_buffer({data_size})'
+			buffer_view = f'view.shrinked_buffer({data_size})'
 			return f'arrayHelpers.read_variable_size_elements({buffer_view}, {factory_name}, {alignment})'
 
 		if self.descriptor.field_type.is_expandable:
-			return f'arrayHelpers.read_array(reader.buffer, {self.descriptor.field_type.element_type})'
+			return f'arrayHelpers.read_array(view.buffer, {self.descriptor.field_type.element_type})'
 
 		args = [
-			'reader.buffer',
+			'view.buffer',
 			self.descriptor.field_type.element_type,
 			lang_field_name(str(self.descriptor.size)),
 		]
@@ -202,7 +202,7 @@ class BuiltinPrinter(Printer):
 	def get_size(self):
 		return f'this.{self.name}.size'
 
-	def load(self, buffer_name='reader.buffer'):
+	def load(self, buffer_name='view.buffer'):
 		if DisplayType.STRUCT == self.descriptor.display_type and self.descriptor.is_abstract:
 			# HACK: factories use this printers as well, ignore them
 			if 'parent' != self.name:
