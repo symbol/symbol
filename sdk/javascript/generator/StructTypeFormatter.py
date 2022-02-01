@@ -147,7 +147,7 @@ class StructFormatter(AbstractTypeFormatter):
 
 		# HACK: instead of handling dumb magic value in namespace parent_name, generate slightly simpler condition
 		if prefix_field and DisplayType.UNSET != field.display_type:
-			return f'if ({field_prefix}{field.name}) /* TODO: check me */'
+			return f'if ({field_prefix}{lang_field_name(field.extensions.printer.name)})'
 
 		display_condition_field_name = lang_field_name(condition_field_name)
 		if conditional.operation in ['not in', 'in']:

@@ -16,7 +16,7 @@ class BufferView {
 
 	shrinked_buffer(size) {
 		if (size > this.byteArray.length)
-			throw RangeError(`Invalid shrink value: ${size}`);
+			throw RangeError(`Invalid shrink value: ${size} vs current size: ${this.byteArray.length}`);
 
 		return new Uint8Array(this.byteArray.buffer, this.byteArray.byteOffset, size);
 	}
