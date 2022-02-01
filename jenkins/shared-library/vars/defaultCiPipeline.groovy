@@ -184,10 +184,10 @@ void call(Closure body) {
 						when {
 							allOf {
 								expression {
-									return config.codeCoverageTool != null
+									return params.codeCoverageTool != null
 								}
 								expression {
-									return config.minimumCodeCoverage != null
+									return params.minimumCodeCoverage != null
 								}
 							}
 						}
