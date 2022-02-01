@@ -272,7 +272,7 @@ class StructFormatter(AbstractTypeFormatter):
 					# HACK: create inline if condition (for NEM namespace purposes)
 					if bound_condition:
 						condition_value = bound_field.value.value
-						field_value = f'({field_value} if {bound_field_name} is not None else {condition_value})'
+						field_value = f'(null !== {bound_field_name} ? {field_value} : {condition_value})'
 				else:
 					field_value = bound_field.extensions.printer.get_size()
 			elif field.is_size_reference:
