@@ -7,8 +7,22 @@ from .TestUtils import TestUtils
 TEST_SIGNER_PUBLIC_KEY = TestUtils.random_byte_array(PublicKey)
 
 
-class BasicTransactionFactoryTest:
-	# pylint: disable=no-member
+class AbstractBasicTransactionFactoryExSignatureTest:
+	@abstractmethod
+	def assert_transaction(self, transaction):
+		pass
+
+	@abstractmethod
+	def create_factory(self, type_rule_overrides=None):
+		pass
+
+	@staticmethod
+	def create_transaction(factory):
+		return factory.create
+
+
+class BasicTransactionFactoryExSignatureTest(AbstractBasicTransactionFactoryExSignatureTest):
+	# pylint: disable=abstract-method, no-member
 
 	# region create
 
@@ -23,7 +37,7 @@ class BasicTransactionFactoryTest:
 		})
 
 		# Assert:
-		self._assert_transfer(transaction)
+		self.assert_transaction(transaction)
 		self.assertEqual(TEST_SIGNER_PUBLIC_KEY.bytes, transaction.signer_public_key.bytes)
 
 	def test_cannot_create_unknown_transaction_from_descriptor(self):
@@ -39,6 +53,10 @@ class BasicTransactionFactoryTest:
 
 	# endregion
 
+
+class BasicTransactionFactoryTest(BasicTransactionFactoryExSignatureTest):
+	# pylint: disable=no-member
+
 	# region attach_signature
 
 	def test_can_attach_signature_to_transaction(self):
@@ -50,44 +68,21 @@ class BasicTransactionFactoryTest:
 		})
 		signature = TestUtils.random_byte_array(Signature)
 
-		if not self.supports_signature_test:
-			return
-
 		# Sanity:
 		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
 		# Act:
-		signed_transaction_buffer = factory.attach_signature(transaction, signature)
+		signed_transaction_payload = factory.attach_signature(transaction, signature)
 
 		# Assert:
-		self._assert_transfer(transaction)
+		self.assert_transaction(transaction)
 		self.assertEqual(TEST_SIGNER_PUBLIC_KEY.bytes, transaction.signer_public_key.bytes)
-
 		self.assertEqual(signature.bytes, transaction.signature.bytes)
-		self._assert_signature(transaction, signature, signed_transaction_buffer)
+
+		self.assert_signature(transaction, signature, signed_transaction_payload)
 
 	# endregion
 
-	@property
-	def supports_signature_test(self):
-		return True
-
 	@abstractmethod
-	def _assert_transfer(self, transaction):
-		pass
-
-	@abstractmethod
-	def _assert_account_link(self, transaction):
-		pass
-
-	@abstractmethod
-	def _assert_signature(self, transaction, signature, signed_transaction_buffer):
-		pass
-
-	@abstractmethod
-	def create_factory(self, type_parsing_rules=None):
-		pass
-
-	@abstractmethod
-	def create_transaction(self, factory):
+	def assert_signature(self, transaction, signature, signed_transaction_payload):
 		pass

@@ -63,4 +63,4 @@ class BatchOperations:
 			prepared_transaction_buffer = self.facade.transaction_factory.attach_signature(transaction, signatures[0])
 			file_path = os.path.join(output_directory, f'payload_{self.output_file_prefix}{i}.json')
 			with open(file_path, 'wb') as outfile:
-				outfile.write(prepared_transaction_buffer)
+				outfile.write(prepared_transaction_buffer.encode('utf8'))

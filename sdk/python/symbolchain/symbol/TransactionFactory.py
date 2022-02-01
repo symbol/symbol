@@ -11,9 +11,9 @@ from .Network import Address
 class TransactionFactory:
 	"""Factory for creating Symbol transactions."""
 
-	def __init__(self, network, type_parsing_rules=None):
+	def __init__(self, network, type_rule_overrides=None):
 		"""Creates a factory for the specified network."""
-		self.factory = self._build_rules(type_parsing_rules)
+		self.factory = self._build_rules(type_rule_overrides)
 		self.network = network
 
 	def _create_and_extend(self, transaction_descriptor, factory_class):
@@ -47,7 +47,7 @@ class TransactionFactory:
 		transaction_buffer = transaction.serialize()
 		hex_payload = hexlify(transaction_buffer).decode('utf8').upper()
 		json_payload = f'{{"payload": "{hex_payload}"}}'
-		return json_payload.encode('utf8')
+		return json_payload
 
 	@staticmethod
 	def _symbol_type_converter(value):
@@ -57,8 +57,8 @@ class TransactionFactory:
 		return None
 
 	@staticmethod
-	def _build_rules(base_type_parsing_rules):
-		factory = RuleBasedTransactionFactory(sc, TransactionFactory._symbol_type_converter, base_type_parsing_rules)
+	def _build_rules(type_rule_overrides):
+		factory = RuleBasedTransactionFactory(sc, TransactionFactory._symbol_type_converter, type_rule_overrides)
 		factory.autodetect()
 
 		factory.add_struct_parser('UnresolvedMosaic')
