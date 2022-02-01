@@ -1,10 +1,6 @@
 void call(Object config) {
 	verifyCodeCoverageResult(config.codeCoverageTool, config.minimumCodeCoverage)
-	logger.logInfo("branch info $env.BRANCH_NAME} ${env.DEV_BRANCH}")
-// remove the branch check to test
-//	if (env.BRANCH_NAME == env.DEV_BRANCH) {
 	uploadCodeCoverage(config.packageId)
-//	}
 }
 
 void uploadCodeCoverage(String flag) {
