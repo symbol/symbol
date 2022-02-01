@@ -1,6 +1,6 @@
 from .AbstractTypeFormatter import AbstractTypeFormatter, MethodDescriptor
 from .printers import IntPrinter
-
+from .format import wrap_lines
 
 class EnumTypeFormatter(AbstractTypeFormatter):
 	def __init__(self, ast_model):
@@ -47,10 +47,11 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body)
 
 	def get_map_descriptor(self):
-		values = ', '.join(map(lambda e: str(e.value), self.enum_type.values))
-		keys = ', '.join(map(lambda e: f'\'{e.name}\'', self.enum_type.values))
-		body = f'const values = [{values}];\n'
-		body += f'const keys = [{keys}];\n'
+		values = list(map(lambda e: str(e.value), self.enum_type.values))
+		keys = list(map(lambda e: f'\'{e.name}\'', self.enum_type.values))
+
+		body = wrap_lines(values, 'const values = [', '];\n', 4*3)
+		body += wrap_lines(keys, 'const keys = [', '];\n', 4*3)
 		body += f'''
 const index = values.indexOf(value);
 if (-1 === index)

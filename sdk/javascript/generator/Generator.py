@@ -7,12 +7,11 @@ from catparser.DisplayType import DisplayType
 from .AbstractImplMap import AbstractImplMap
 from .EnumTypeFormatter import EnumTypeFormatter
 from .FactoryFormatter import FactoryClassFormatter, FactoryFormatter
+from .format import wrap_lines
 from .PodTypeFormatter import PodTypeFormatter
 from .printers import BuiltinPrinter, create_pod_printer
 from .StructTypeFormatter import StructFormatter
 from .TypeFormatter import TypeFormatter
-
-LINE_LIMIT = 140
 
 
 class AstExtensions:
@@ -91,19 +90,7 @@ def process_struct(type_map, struct_model, abstract_impl_map):
 
 
 def generate_module_exports(output_file, all_names):
-	module_export_lines = ['\nmodule.exports = {']
-	current_line = '\t'
-	for idx, name in enumerate(all_names):
-		if len(current_line + name) > LINE_LIMIT:
-			module_export_lines.append(current_line)
-			current_line = '\t'
-
-		current_line += f'{name}{", " if idx != len(all_names) - 1 else ""}'
-
-	module_export_lines.append(current_line)
-	module_export_lines.append('}')
-
-	output_file.write('\n'.join(module_export_lines))
+	output_file.write(wrap_lines(all_names, '\nmodule.exports = {', '}'))
 
 
 def generate_files(ast_models, output_directory: Path):
