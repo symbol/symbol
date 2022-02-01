@@ -1,3 +1,4 @@
+const nc = require('../src/nem/models');
 const sc = require('../src/symbol/models');
 const { hexToUint8 } = require('../src/utils/converter');
 const YAML = require('yaml');
@@ -28,10 +29,10 @@ const path = require('path');
 		return lhs === rhs;
 	};
 
-	const assertRoundtripBuilder = testCase => {
+	const assertRoundtripBuilder = (module, testCase) => {
 		// Arrange:
 		const payload = hexToUint8(testCase.payload);
-		const builder = sc[testCase.schema_name];
+		const builder = module[testCase.schema_name];
 		if (!builder)
 			throw RangeError(`invalid builder name: ${testCase.schema_name}`);
 
@@ -45,7 +46,7 @@ const path = require('path');
 		return areEqual(serialized, payload);
 	};
 
-	const runTestSuite = (testSuiteName, filepath) => {
+	const runTestSuite = (module, testSuiteName, filepath) => {
 		const fileContent = fs.readFileSync(filepath, 'utf8');
 		const testVectors = YAML.parse(fileContent);
 
@@ -53,7 +54,7 @@ const path = require('path');
 		let numFailed = 0;
 		testVectors.forEach(testCase => {
 			testCaseNumber++;
-			if (!assertRoundtripBuilder(testCase)) {
+			if (!assertRoundtripBuilder(module, testCase)) {
 				console.log(`${testCase.test_name} failed`);
 				numFailed++;
 			}
@@ -79,6 +80,8 @@ const path = require('path');
 
 	const dirname = `${args.vectors}/${args.blockchain}/transactions`;
 	const testSuiteNames = fs.readdirSync(dirname);
+	const module = 'symbol' === args.blockchain ? sc : nc;
+
 	let numSuitesFailed = 0;
 	testSuiteNames.filter(name => -1 === name.indexOf('invalid')).forEach(name => {
 		// TODO: skip state tests, discuss on discord
@@ -86,7 +89,7 @@ const path = require('path');
 			return;
 
 		const filepath = path.format({ dir: dirname, base: name });
-		if (!runTestSuite(name, filepath))
+		if (!runTestSuite(module, name, filepath))
 			++numSuitesFailed;
 	});
 
