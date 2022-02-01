@@ -1,14 +1,14 @@
-const { Reader } = require('../../src/utils/Reader');
+const { BufferView } = require('../../src/utils/BufferView');
 const { expect } = require('chai');
 
-describe('Reader', () => {
+describe('BufferView', () => {
 	describe('constructor', () => {
 		it('can create around whole buffer', () => {
 			// Arrange:
 			const byteArray = new Uint8Array([0, 1, 2, 3, 4, 5, 6]);
 
 			// Act:
-			const reader = new Reader(byteArray);
+			const reader = new BufferView(byteArray);
 
 			// Assert:
 			expect(reader.byteArray).to.deep.equal(new Uint8Array([0, 1, 2, 3, 4, 5, 6]));
@@ -21,7 +21,7 @@ describe('Reader', () => {
 			const view = new Uint8Array(byteArray.buffer, 2, 5);
 
 			// Act:
-			const reader = new Reader(view);
+			const reader = new BufferView(view);
 
 			// Assert:
 			expect(reader.byteArray).to.deep.equal(view);
@@ -37,8 +37,8 @@ describe('Reader', () => {
 	class TestContext {
 		constructor() {
 			this.byteArray = new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
-			this.view = new Uint8Array(this.byteArray.buffer, 2, 5);
-			this.reader = new Reader(this.view);
+			this.subView = new Uint8Array(this.byteArray.buffer, 2, 5);
+			this.view = new BufferView(this.subView);
 		}
 	}
 
@@ -47,14 +47,14 @@ describe('Reader', () => {
 		const context = new TestContext();
 
 		// Act:
-		const result = mutator(context.reader);
+		const result = mutator(context.view);
 
 		// Assert:
 		expect(result).to.deep.equal(new Uint8Array(expected.buffer));
 
 		// - underlying buffer is the same
 		expect(result.buffer).to.equal(context.byteArray.buffer);
-		expect(result.byteOffset).to.equal(context.view.byteOffset);
+		expect(result.byteOffset).to.equal(context.subView.byteOffset);
 		expect(result.byteLength).to.equal(expected.size);
 	};
 
@@ -79,7 +79,7 @@ describe('Reader', () => {
 			const context = new TestContext();
 
 			// Assert:
-			expect(() => context.reader.shrinked_buffer(6)).to.throw();
+			expect(() => context.view.shrinked_buffer(6)).to.throw();
 		});
 	});
 
@@ -117,15 +117,15 @@ describe('Reader', () => {
 			const context = new TestContext();
 
 			// Act:
-			context.reader.shift(shiftCount);
-			const result = context.reader.buffer;
+			context.view.shift(shiftCount);
+			const result = context.view.buffer;
 
 			// Assert:
 			expect(result).to.deep.equal(new Uint8Array(expectedBuffer));
 
 			// - underlying buffer is the same
 			expect(result.buffer).to.equal(context.byteArray.buffer);
-			expect(result.byteOffset).to.equal(context.view.byteOffset + shiftCount);
+			expect(result.byteOffset).to.equal(context.subView.byteOffset + shiftCount);
 			expect(result.byteLength).to.equal(5 - shiftCount);
 		};
 
@@ -150,16 +150,16 @@ describe('Reader', () => {
 			const context = new TestContext();
 
 			// Act:
-			context.reader.shift(2);
-			context.reader.shift(2);
-			const result = context.reader.buffer;
+			context.view.shift(2);
+			context.view.shift(2);
+			const result = context.view.buffer;
 
 			// Assert:
 			expect(result).to.deep.equal(new Uint8Array([6]));
 
 			// - underlying buffer is the same
 			expect(result.buffer).to.equal(context.byteArray.buffer);
-			expect(result.byteOffset).to.equal(context.view.byteOffset + 4);
+			expect(result.byteOffset).to.equal(context.subView.byteOffset + 4);
 			expect(result.byteLength).to.equal(5 - 4);
 		});
 
@@ -168,19 +168,19 @@ describe('Reader', () => {
 			const context = new TestContext();
 
 			// Assert:
-			expect(() => context.reader.shift(6)).to.throw();
+			expect(() => context.view.shift(6)).to.throw();
 		});
 
 		it('cannot shift outside subview (multiple shifts)', () => {
 			// Arrange:
 			const context = new TestContext();
-			context.reader.shift(4);
+			context.view.shift(4);
 
 			// Sanity:
-			expect(context.reader.buffer.byteOffset).to.equal(context.view.byteOffset + 4);
+			expect(context.view.buffer.byteOffset).to.equal(context.subView.byteOffset + 4);
 
 			// Assert:
-			expect(() => context.reader.shift(2)).to.throw();
+			expect(() => context.view.shift(2)).to.throw();
 		});
 	});
 });

@@ -1,4 +1,7 @@
-class Reader {
+/**
+ * Buffer view.
+ */
+class BufferView {
 	constructor(buffer) {
 		this.byteArray = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.length);
 	}
@@ -23,4 +26,4 @@ class Reader {
 	}
 }
 
-module.exports = { Reader };
+module.exports = { BufferView };
