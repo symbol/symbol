@@ -33,7 +33,7 @@ class NemFacade {
 	 * @param {object} transaction Transaction object.
 	 * @returns {Hash256} Transaction hash.
 	 */
-	static hashTransaction(transaction) {
+	hashTransaction(transaction) { // eslint-disable-line class-methods-use-this (disable to allow SymbolFacade drop-in)
 		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
 		return new Hash256(new Uint8Array(keccak_256.create().update(nonVerifiableTransaction.serialize()).arrayBuffer()));
 	}
@@ -44,7 +44,7 @@ class NemFacade {
 	 * @param {object} transaction Transaction object.
 	 * @returns {Signature} Transaction signature.
 	 */
-	static signTransaction(keyPair, transaction) {
+	signTransaction(keyPair, transaction) { // eslint-disable-line class-methods-use-this (disable to allow SymbolFacade drop-in)
 		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
 		return keyPair.sign(nonVerifiableTransaction.serialize());
 	}
@@ -55,7 +55,7 @@ class NemFacade {
 	 * @param {Signature} signature Signature to verify.
 	 * @returns {boolean} true if transaction signature is verified.
 	 */
-	static verifyTransaction(transaction, signature) {
+	verifyTransaction(transaction, signature) { // eslint-disable-line class-methods-use-this (disable to allow SymbolFacade drop-in)
 		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
 		return new Verifier(transaction.signerPublicKey).verify(nonVerifiableTransaction.serialize(), signature);
 	}

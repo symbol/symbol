@@ -1,5 +1,4 @@
 import unittest
-from binascii import unhexlify
 
 from symbolchain.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.Bip32 import Bip32
