@@ -8,7 +8,7 @@ from ..Network import NetworkLocator
 
 
 class NemFacade:
-	"""Facade used to interact with nem blockchain."""
+	"""Facade used to interact with NEM blockchain."""
 
 	BIP32_COIN_ID = 43
 	BIP32_CURVE_NAME = 'ed25519-keccak'
@@ -18,7 +18,7 @@ class NemFacade:
 	Verifier = Verifier
 
 	def __init__(self, nem_network_name, account_descriptor_repository=None):
-		"""Creates a nem facade."""
+		"""Creates a NEM facade."""
 		self.network = NetworkLocator.find_by_name(Network.NETWORKS, nem_network_name)
 		self.account_descriptor_repository = account_descriptor_repository
 		self.transaction_factory = self._create_nem_transaction_factory()
@@ -41,24 +41,24 @@ class NemFacade:
 
 	@staticmethod
 	def hash_transaction(transaction):
-		"""Hashes a nem transaction."""
+		"""Hashes a NEM transaction."""
 		non_verifiable_transaction = TransactionFactory.to_non_verifiable_transaction(transaction)
 		return Hash256(sha3.keccak_256(non_verifiable_transaction.serialize()).digest())
 
 	@staticmethod
 	def sign_transaction(key_pair, transaction):
-		"""Signs a nem transaction."""
+		"""Signs a NEM transaction."""
 		non_verifiable_transaction = TransactionFactory.to_non_verifiable_transaction(transaction)
 		return key_pair.sign(non_verifiable_transaction.serialize())
 
 	@staticmethod
 	def verify_transaction(transaction, signature):
-		"""Verifies a nem transaction."""
+		"""Verifies a NEM transaction."""
 		non_verifiable_transaction = TransactionFactory.to_non_verifiable_transaction(transaction)
 		return Verifier(transaction.signer_public_key).verify(non_verifiable_transaction.serialize(), signature)
 
 	@staticmethod
 	def bip32_node_to_key_pair(bip32_node):
-		"""Derives a nem KeyPair from a BIP32 node."""
+		"""Derives a NEM KeyPair from a BIP32 node."""
 		# BIP32 private keys should be used as is, so reverse here to counteract reverse in KeyPair
 		return KeyPair(PrivateKey(bip32_node.private_key.bytes[::-1]))

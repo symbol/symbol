@@ -54,17 +54,17 @@ class NemFacadeTest(unittest.TestCase):
 		facade = NemFacade('testnet')
 		transaction = facade.transaction_factory.create({
 			'type': 'transfer_transaction',
-			'signer_public_key': bytes(32)
+			'signer_public_key': bytes(PublicKey.SIZE)
 		})
 
 		# Assert:
 		self.assertEqual('testnet', facade.network.name)
-
-		self.assertEqual(0x0101, transaction.type_.value)
 		self.assertEqual(0x98, transaction.network.value)
 
+		self.assertEqual(0x0101, transaction.type_.value)
+		self.assertEqual(2, transaction.version)
+
 	def test_cannot_create_around_unknown_network(self):
-		# Act:
 		with self.assertRaises(StopIteration):
 			NemFacade('foo')
 
@@ -79,8 +79,11 @@ class NemFacadeTest(unittest.TestCase):
 
 		# Assert:
 		self.assertEqual('testnet', facade.network.name)
+		self.assertEqual(0x98, transaction.network.value)
 
 		self.assertEqual(0x0101, transaction.type_.value)
+		self.assertEqual(2, transaction.version)
+
 		self.assertEqual(
 			PublicKey('A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74').bytes,
 			transaction.signer_public_key.bytes)
@@ -106,7 +109,7 @@ class NemFacadeTest(unittest.TestCase):
 			'message_envelope_size': 0x11,
 			'message': {
 				'message_type': 'plain',
-				'message': 'blah blah'.encode('utf8')
+				'message': 'blah blah'
 			}
 		})
 		return transaction
@@ -126,6 +129,9 @@ class NemFacadeTest(unittest.TestCase):
 		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
 		transaction = self._create_real_transfer()
 
+		# Sanity:
+		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
+
 		# Act:
 		signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
 
@@ -140,6 +146,9 @@ class NemFacadeTest(unittest.TestCase):
 		# Arrange:
 		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
 		transaction = self._create_real_transfer()
+
+		# Sanity:
+		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
 		# Act:
 		signature = NemFacade.sign_transaction(NemFacade.KeyPair(private_key), transaction)
