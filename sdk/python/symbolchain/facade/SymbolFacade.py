@@ -24,7 +24,7 @@ AGGREGATE_HASHED_SIZE = sum(field[1] for field in [
 
 
 class SymbolFacade:
-	"""Facade used to interact with symbol blockchain."""
+	"""Facade used to interact with Symbol blockchain."""
 
 	BIP32_COIN_ID = 4343
 	BIP32_CURVE_NAME = 'ed25519'
@@ -34,7 +34,7 @@ class SymbolFacade:
 	Verifier = Verifier
 
 	def __init__(self, symbol_network_name, account_descriptor_repository=None):
-		"""Creates a symbol facade."""
+		"""Creates a Symbol facade."""
 		self.network = NetworkLocator.find_by_name(Network.NETWORKS, symbol_network_name)
 		self.account_descriptor_repository = account_descriptor_repository
 		self.transaction_factory = self._create_symbol_transaction_factory()
@@ -57,7 +57,7 @@ class SymbolFacade:
 		}
 
 	def hash_transaction(self, transaction):
-		"""Hashes a symbol transaction."""
+		"""Hashes a Symbol transaction."""
 		hasher = sha3.sha3_256()
 		hasher.update(transaction.signature.bytes)
 		hasher.update(transaction.signer_public_key.bytes)
@@ -66,21 +66,28 @@ class SymbolFacade:
 		return Hash256(hasher.digest())
 
 	def sign_transaction(self, key_pair, transaction):
-		"""Signs a symbol transaction."""
+		"""Signs a Symbol transaction."""
 		sign_buffer = self.network.generation_hash_seed.bytes
 		sign_buffer += self._transaction_data_buffer(transaction.serialize())
 		return key_pair.sign(sign_buffer)
 
 	def verify_transaction(self, transaction, signature):
-		"""Verifies a symbol transaction."""
+		"""Verifies a Symbol transaction."""
 		verify_buffer = self.network.generation_hash_seed.bytes
 		verify_buffer += self._transaction_data_buffer(transaction.serialize())
-		return Verifier(PublicKey(transaction.signer_public_key.bytes)).verify(verify_buffer, signature)
+		return Verifier(transaction.signer_public_key).verify(verify_buffer, signature)
 
 	@staticmethod
 	def bip32_node_to_key_pair(bip32_node):
-		"""Derives a symbol KeyPair from a BIP32 node."""
+		"""Derives a Symbol KeyPair from a BIP32 node."""
 		return KeyPair(bip32_node.private_key)
+
+	@staticmethod
+	def _is_aggregate_transaction(transaction_buffer):
+		transaction_type_offset = TRANSACTION_HEADER_SIZE + 2  # skip version and network byte
+		transaction_type = (transaction_buffer[transaction_type_offset + 1] << 8) + transaction_buffer[transaction_type_offset]
+		aggregate_types = [TransactionType.AGGREGATE_BONDED.value, TransactionType.AGGREGATE_COMPLETE.value]
+		return transaction_type in aggregate_types
 
 	@staticmethod
 	def _transaction_data_buffer(transaction_buffer):
@@ -90,10 +97,3 @@ class SymbolFacade:
 			data_buffer_end = TRANSACTION_HEADER_SIZE + AGGREGATE_HASHED_SIZE
 
 		return transaction_buffer[data_buffer_start:data_buffer_end]
-
-	@staticmethod
-	def _is_aggregate_transaction(transaction_buffer):
-		transaction_type_offset = TRANSACTION_HEADER_SIZE + 2  # skip version and network byte
-		transaction_type = (transaction_buffer[transaction_type_offset + 1] << 8) + transaction_buffer[transaction_type_offset]
-		aggregate_types = [TransactionType.AGGREGATE_BONDED.value, TransactionType.AGGREGATE_COMPLETE.value]
-		return transaction_type in aggregate_types

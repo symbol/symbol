@@ -10,9 +10,9 @@ from .CryptoTypes import PrivateKey
 class Bip32Node():
 	"""Representation of a BIP32 node."""
 
-	def __init__(self, key, data):
+	def __init__(self, hmac_key, data):
 		"""Creates a BIP32 node around a key and data."""
-		hmac_result = hmac.new(key, data, hashlib.sha512).digest()
+		hmac_result = hmac.new(hmac_key, data, hashlib.sha512).digest()
 
 		self.private_key = PrivateKey(hmac_result[0:PrivateKey.SIZE])
 		self.chain_code = hmac_result[PrivateKey.SIZE:]

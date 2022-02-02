@@ -34,7 +34,7 @@ const path = require('path');
 			const expectedPublicKey = new PublicKey(testVector.publicKey);
 
 			// Act:
-			const actualPublicKey = new this.classLocator.KeyPair(privateKey).publicKey;
+			const actualPublicKey = new this.classLocator.Facade.KeyPair(privateKey).publicKey;
 
 			// Assert:
 			return [[expectedPublicKey, actualPublicKey]];
@@ -50,8 +50,8 @@ const path = require('path');
 		process(testVector) {
 			// Arrange:
 			const publicKey = new PublicKey(testVector.publicKey);
-			const expectedAddressMainnet = new this.classLocator.Address(testVector.address_Public);
-			const expectedAddressTestnet = new this.classLocator.Address(testVector.address_PublicTest);
+			const expectedAddressMainnet = new this.classLocator.Facade.Address(testVector.address_Public);
+			const expectedAddressTestnet = new this.classLocator.Facade.Address(testVector.address_PublicTest);
 
 			const mainnet = NetworkLocator.findByName(this.classLocator.Network.NETWORKS, 'mainnet');
 			const testnet = NetworkLocator.findByName(this.classLocator.Network.NETWORKS, 'testnet');
@@ -81,7 +81,7 @@ const path = require('path');
 			const expectedSignature = new Signature(testVector.signature);
 
 			// Act:
-			const actualSignature = new this.classLocator.KeyPair(privateKey).sign(message);
+			const actualSignature = new this.classLocator.Facade.KeyPair(privateKey).sign(message);
 
 			// Assert:
 			return [[expectedSignature, actualSignature]];
@@ -101,7 +101,7 @@ const path = require('path');
 			const signature = new Signature(testVector.signature);
 
 			// Act:
-			const isVerified = new this.classLocator.Verifier(publicKey).verify(message, signature);
+			const isVerified = new this.classLocator.Facade.Verifier(publicKey).verify(message, signature);
 
 			// Assert:
 			return [[true, isVerified]];
@@ -120,7 +120,7 @@ const path = require('path');
 
 			const mosaicIdPairs = [];
 			['Public', 'PublicTest', 'Private', 'PrivateTest'].forEach(networkTag => {
-				const address = new this.classLocator.Address(testVector[`address_${networkTag}`]);
+				const address = new this.classLocator.Facade.Address(testVector[`address_${networkTag}`]);
 				const expectedHexDigits = testVector[`mosaicId_${networkTag}`];
 				const expectedMosaicId = BigInt(`0x${expectedHexDigits}`);
 
@@ -148,15 +148,12 @@ const path = require('path');
 			const expectedChildPublicKeys = testVector.childAccounts.map(childTestVector => new PublicKey(childTestVector.publicKey));
 
 			// Act:
-			const rootNode = new Bip32(this.classLocator.BIP32_CURVE_NAME).fromSeed(seed);
-			const rootPublicKey = new this.classLocator.KeyPair(rootNode.privateKey).publicKey;
+			const rootNode = new Bip32(this.classLocator.Facade.BIP32_CURVE_NAME).fromSeed(seed);
+			const rootPublicKey = new this.classLocator.Facade.KeyPair(rootNode.privateKey).publicKey;
 
 			const childPublicKeys = testVector.childAccounts.map(childTestVector => {
 				const childNode = rootNode.derivePath(childTestVector.path);
-				if (this.classLocator.REVERSED_PRIVATE_KEY)
-					childNode.privateKey.bytes.reverse();
-
-				return new this.classLocator.KeyPair(childNode.privateKey).publicKey;
+				return this.classLocator.Facade.bip32NodeToKeyPair(childNode).publicKey;
 			});
 
 			// Assert:
@@ -182,8 +179,8 @@ const path = require('path');
 			const expectedRootPublicKey = new PublicKey(testVector.rootPublicKey);
 
 			// Act:
-			const rootNode = new Bip32(this.classLocator.BIP32_CURVE_NAME).fromMnemonic(mnemonic, passphrase);
-			const rootPublicKey = new this.classLocator.KeyPair(rootNode.privateKey).publicKey;
+			const rootNode = new Bip32(this.classLocator.Facade.BIP32_CURVE_NAME).fromMnemonic(mnemonic, passphrase);
+			const rootPublicKey = new this.classLocator.Facade.KeyPair(rootNode.privateKey).publicKey;
 
 			// Assert:
 			return [[expectedRootPublicKey, rootPublicKey]];
@@ -194,18 +191,14 @@ const path = require('path');
 
 	const loadClassLocator = blockchain => {
 		if ('symbol' === blockchain) {
-			const { KeyPair, Verifier } = require('../src/symbol/KeyPair'); // eslint-disable-line global-require
-			const { Address, Network } = require('../src/symbol/Network'); // eslint-disable-line global-require
-			return {
-				BIP32_COIN_ID: 4343, BIP32_CURVE_NAME: 'ed25519', REVERSED_PRIVATE_KEY: false, KeyPair, Verifier, Address, Network
-			};
+			const { SymbolFacade } = require('../src/facade/SymbolFacade'); // eslint-disable-line global-require
+			const { Network } = require('../src/symbol/Network'); // eslint-disable-line global-require
+			return { Facade: SymbolFacade, Network };
 		}
 
-		const { KeyPair, Verifier } = require('../src/nem/KeyPair'); // eslint-disable-line global-require
-		const { Address, Network } = require('../src/nem/Network'); // eslint-disable-line global-require
-		return {
-			BIP32_COIN_ID: 43, BIP32_CURVE_NAME: 'ed25519-keccak', REVERSED_PRIVATE_KEY: true, KeyPair, Verifier, Address, Network
-		};
+		const { NemFacade } = require('../src/facade/NemFacade'); // eslint-disable-line global-require
+		const { Network } = require('../src/nem/Network'); // eslint-disable-line global-require
+		return { Facade: NemFacade, Network };
 	};
 
 	const loadTestSuites = blockchain => {

@@ -1,5 +1,4 @@
 import unittest
-from binascii import unhexlify
 
 from symbolchain.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.Bip32 import Bip32
@@ -60,12 +59,12 @@ class SymbolFacadeTest(unittest.TestCase):
 
 		# Assert:
 		self.assertEqual('testnet', facade.network.name)
+		self.assertEqual(0x98, transaction.network.value)
 
 		self.assertEqual(0x4154, transaction.type_.value)
 		self.assertEqual(1, transaction.version)
 
 	def test_cannot_create_around_unknown_network(self):
-		# Act:
 		with self.assertRaises(StopIteration):
 			SymbolFacade('foo')
 
@@ -80,9 +79,11 @@ class SymbolFacadeTest(unittest.TestCase):
 
 		# Assert:
 		self.assertEqual('testnet', facade.network.name)
+		self.assertEqual(0x98, transaction.network.value)
 
 		self.assertEqual(0x4154, transaction.type_.value)
 		self.assertEqual(1, transaction.version)
+
 		self.assertEqual(
 			PublicKey('87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8').bytes,
 			transaction.signer_public_key.bytes)
@@ -112,7 +113,7 @@ class SymbolFacadeTest(unittest.TestCase):
 			'signer_public_key': 'TEST',
 			'fee': 2000000,
 			'deadline': 42238390163,
-			'transactions_hash': unhexlify('71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'),
+			'transactions_hash': '71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'
 		})
 		transfer = facade.transaction_factory.create_embedded({
 			'type': 'transfer_transaction',
@@ -125,75 +126,58 @@ class SymbolFacadeTest(unittest.TestCase):
 		aggregate.transactions.append(transfer)
 		return aggregate
 
-	def test_can_hash_transaction(self):
+	def _assert_can_hash_transaction(self, transaction_factory, expected_hash):
 		# Arrange:
 		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
 		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 
-		transaction = self._create_real_transfer(facade)
-		signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
+		transaction = transaction_factory(facade)
+		signature = facade.sign_transaction(SymbolFacade.KeyPair(private_key), transaction)
 		facade.transaction_factory.attach_signature(transaction, signature)
 
 		# Act:
 		hash_value = facade.hash_transaction(transaction)
 
 		# Assert:
-		self.assertEqual(Hash256('17EBC7D64F01AA12F55A2B1F50C99B02BC25D06928CEAD1F249A4373B5EB1914'), hash_value)
+		self.assertEqual(expected_hash, hash_value)
+
+	def test_can_hash_transaction(self):
+		self._assert_can_hash_transaction(
+			self._create_real_transfer,
+			Hash256('17EBC7D64F01AA12F55A2B1F50C99B02BC25D06928CEAD1F249A4373B5EB1914'))
 
 	def test_can_hash_aggregate_transaction(self):
+		self._assert_can_hash_transaction(
+			self._create_real_aggregate,
+			Hash256('A029FCAC4957C6531B4492F08C211CDDE52C3CD72F2016D6EA37EC96B85606E7'))
+
+	def _assert_can_sign_transaction(self, transaction_factory, expected_signature):
 		# Arrange:
 		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
 		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 
-		transaction = self._create_real_aggregate(facade)
-		signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
-		facade.transaction_factory.attach_signature(transaction, signature)
+		transaction = transaction_factory(facade)
+
+		# Sanity:
+		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
 		# Act:
-		hash_value = facade.hash_transaction(transaction)
+		signature = facade.sign_transaction(SymbolFacade.KeyPair(private_key), transaction)
 
 		# Assert:
-		self.assertEqual(Hash256('A029FCAC4957C6531B4492F08C211CDDE52C3CD72F2016D6EA37EC96B85606E7'), hash_value)
+		self.assertEqual(expected_signature, signature)
 
 	def test_can_sign_transaction(self):
-		# Arrange:
-		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
-
-		transaction = self._create_real_transfer(facade)
-
-		# Sanity:
-		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
-
-		# Act:
-		signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
-
-		# Assert:
-		expected_signature = Signature(''.join([
+		self._assert_can_sign_transaction(self._create_real_transfer, Signature(''.join([
 			'9BC2691B3176149D5E76ED15D83BAB7AC403C754106DFA94E4264F73B92DEC1B',
 			'1D514F23C07735EF394DA005AD96C86011EDF49F1FEE56CF3E280B49BEE26608'
-		]))
-		self.assertEqual(expected_signature, signature)
+		])))
 
 	def test_can_sign_aggregate_transaction(self):
-		# Arrange:
-		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
-		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
-
-		transaction = self._create_real_aggregate(facade)
-
-		# Sanity:
-		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
-
-		# Act:
-		signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
-
-		# Assert:
-		expected_signature = Signature(''.join([
+		self._assert_can_sign_transaction(self._create_real_aggregate, Signature(''.join([
 			'CD95F7D677A66E980B0B24605049CF405CB1E350ACF65F2BC5427BBBFF531557',
 			'487176A464DA6E5D6B17D71ADDD727C3D0C469513C1AB36F27547ED6101B4809'
-		]))
-		self.assertEqual(expected_signature, signature)
+		])))
 
 	def _assert_can_verify_transaction(self, transaction_factory):
 		# Arrange:
@@ -206,7 +190,7 @@ class SymbolFacadeTest(unittest.TestCase):
 		self.assertEqual(Signature.zero().bytes, transaction.signature.bytes)
 
 		# Act:
-		signature = facade.sign_transaction(facade.KeyPair(private_key), transaction)
+		signature = facade.sign_transaction(SymbolFacade.KeyPair(private_key), transaction)
 		is_verified = facade.verify_transaction(transaction, signature)
 
 		# Assert:
