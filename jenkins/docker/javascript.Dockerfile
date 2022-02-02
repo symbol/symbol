@@ -27,7 +27,7 @@ RUN apt-get install -y python3-pip
 RUN apt-get install -y shellcheck \
 	&& pip install gitlint
 
-#codecov uploader
+# codecov uploader
 RUN curl -Os https://uploader.codecov.io/latest/linux/codecov \
 	&& chmod +x codecov \
 	&& mv codecov /usr/local/bin

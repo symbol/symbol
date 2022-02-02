@@ -1,4 +1,5 @@
 void call(String scriptFilepath) {
 	logger.logInfo("Running tests ${scriptFilepath}")
-	runScript(scriptFilepath)
+	String testMode = env.TEST_MODE ?: 'code-coverage'
+	runScript("${scriptFilepath} ${testMode}")
 }

@@ -23,6 +23,9 @@ void call(Closure body) {
 			choice name: 'BUILD_CONFIGURATION',
 				choices: ['release-private', 'release-public'],
 				description: 'build configuration'
+			choice name: 'TEST_MODE',
+					choices: ['code-coverage', 'test'],
+					description: 'test mode'
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 		}
 
@@ -183,6 +186,9 @@ void call(Closure body) {
 					stage('code coverage') {
 						when {
 							allOf {
+								expression {
+									return env.TEST_MODE == 'code-coverage'
+								}
 								expression {
 									return params.codeCoverageTool != null
 								}

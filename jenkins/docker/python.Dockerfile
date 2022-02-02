@@ -18,7 +18,7 @@ RUN pip install poetry
 # sdk dependencies
 RUN apt-get install -y zbar-tools
 
-#codecov uploader
+# codecov uploader
 RUN curl -Os https://uploader.codecov.io/latest/linux/codecov \
 	&& chmod +x codecov \
 	&& mv codecov /usr/local/bin
