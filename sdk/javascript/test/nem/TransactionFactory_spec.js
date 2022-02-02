@@ -138,7 +138,7 @@ describe('transaction factory (NEM)', () => {
 				? BigInt(`0x${uint8ToHex(crypto.randomBytes(ModelType.SIZE))}`)
 				: parseInt(`0x${uint8ToHex(crypto.randomBytes(ModelType.SIZE))})`, 16)
 		);
-		const generateRandomByteArray = ModelType => new ModelType(crypto.randomBytes(ModelType.SIZE))
+		const generateRandomByteArray = ModelType => new ModelType(crypto.randomBytes(ModelType.SIZE));
 		return {
 			type: 'transfer_transaction_v1',
 			timestamp: generateRandomValue(nc.Timestamp),
