@@ -8,11 +8,11 @@ const crypto = require('crypto');
 class Bip32Node {
 	/**
 	 * Creates a BIP32 node around a key and data.
-	 * @param {string} key BIP32 HMAC key.
+	 * @param {string} hmacKey BIP32 HMAC key.
 	 * @param {Uint8Array} data BIP32 seed.
 	 */
-	constructor(key, data) {
-		const hmac = crypto.createHmac('sha512', key);
+	constructor(hmacKey, data) {
+		const hmac = crypto.createHmac('sha512', hmacKey);
 		hmac.update(data);
 		const hmacResult = hmac.digest();
 

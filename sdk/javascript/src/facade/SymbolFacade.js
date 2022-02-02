@@ -8,20 +8,19 @@ const { TransactionFactory } = require('../symbol/TransactionFactory');
 const { TransactionType } = require('../symbol/models');
 const { sha3_256 } = require('js-sha3');
 
-// this is using magic of comma operator, such that: ('size', 4) === 4
 const TRANSACTION_HEADER_SIZE = [
-	('size', 4),
-	('reserved1', 4),
-	('signature', Signature.SIZE),
-	('signer', PublicKey.SIZE),
-	('reserved2', 4)
+	4, // size
+	4, // reserved1
+	Signature.SIZE, // signature
+	PublicKey.SIZE, // signer
+	4 // reserved2
 ].reduce((x, y) => x + y);
 
 const AGGREGATE_HASHED_SIZE = [
-	('versionNetworkType', 4),
-	('maxFee', 8),
-	('deadline', 8),
-	('transactionsHash', Hash256.SIZE)
+	4, // version, network, type
+	8, // maxFee
+	8, // deadline
+	Hash256.SIZE // transactionsHash
 ].reduce((x, y) => x + y);
 
 const isAggregateTransaction = transactionBuffer => {
