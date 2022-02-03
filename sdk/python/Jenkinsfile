@@ -7,5 +7,5 @@ defaultCiPipeline {
 	publisher = 'pypi'
 
 	codeCoverageTool = 'coverage'
-	minimumCodeCoverage = 77
+	minimumCodeCoverage = 70
 }

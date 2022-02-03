@@ -6,11 +6,9 @@
   "scripts": {
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
-    "coverage:test": "nyc --require mocha --reporter=lcov npm run test",
+    "test:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run ${TEST_SCRIPT}",
     "vectors": "node ./vectors/all.js --vectors $(git rev-parse --show-toplevel)/tests/vectors/${BLOCKCHAIN}/crypto --blockchain ${BLOCKCHAIN}",
-    "coverage:vectors": "nyc --require mocha --no-clean --reporter=lcov npm run vectors",
-    "lint:jenkins": "eslint -o lint.sdk.javascript.xml -f junit . || exit 0",
-    "test:jenkins": "JUNIT_REPORT_PATH=tests.sdk.javascript.xml mocha --reporter mocha-jenkins-reporter --forbid-only --full-trace --recursive ./test || exit 0"
+    "lint:jenkins": "eslint -o lint.sdk.javascript.xml -f junit . || exit 0"
   },
   "keywords": [],
   "author": "",
