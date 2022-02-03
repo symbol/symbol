@@ -24,8 +24,8 @@ void call(Closure body) {
 				choices: ['release-private', 'release-public'],
 				description: 'build configuration'
 			choice name: 'TEST_MODE',
-					choices: ['code-coverage', 'test'],
-					description: 'test mode'
+				choices: ['code-coverage', 'test'],
+				description: 'test mode'
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 		}
 

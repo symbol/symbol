@@ -1,2 +1,4 @@
 [run]
-omit = **/dist-packages/**
+omit =
+	**/dist-packages/**
+	**/external/**
