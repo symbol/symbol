@@ -7,8 +7,8 @@
     "start": "node src/index.js",
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
-    "test:jenkins": "nyc --require mocha --reporter=lcov npm run test",
-    "lint:jenkins": "eslint -o lint.client.rest.xml -f junit . || exit 0"
+    "lint:jenkins": "eslint -o lint.client.rest.xml -f junit . || exit 0",
+    "test:jenkins": "nyc --require mocha --reporter=lcov npm run test"
   },
   "keywords": [],
   "author": "",
