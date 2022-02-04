@@ -321,18 +321,14 @@ class StructFormatter(AbstractTypeFormatter):
 		return list(map(self.create_setter_descriptor, self.non_reserved_fields()))
 
 	def generate_str_field(self, field):
+		condition = self.generate_condition(field, True)
 		field_to_string = field.extensions.printer.to_string(self.field_name(field))
 		field_to_string = field_to_string if '{' in field_to_string else f'{{{field_to_string}}}'
-		return f'f\'{field.extensions.printer.name}: {field_to_string}, \''
+		return indent_if_conditional(condition, f'result += f\'{field.extensions.printer.name}: {field_to_string}, \'\n')
 
 	def get_str_descriptor(self):
 		body = 'result = \'(\'\n'
-		body += ''.join(
-			map(
-				'result += {}\n'.format,  # pylint: disable=consider-using-f-string
-				map(self.generate_str_field, self.non_reserved_fields()),
-			)
-		)
+		body += ''.join(map(self.generate_str_field, self.non_reserved_fields()))
 		body += 'result += \')\'\n'
 		body += 'return result'
 		return MethodDescriptor(body=body)

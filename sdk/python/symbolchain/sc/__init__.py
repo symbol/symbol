@@ -4892,12 +4892,17 @@ class AccountState:
 		result += f'account_type: {self._account_type.__str__()}, '
 		result += f'format: {self._format.__str__()}, '
 		result += f'supplemental_public_keys_mask: {self._supplemental_public_keys_mask.__str__()}, '
-		result += f'linked_public_key: {self._linked_public_key.__str__()}, '
-		result += f'node_public_key: {self._node_public_key.__str__()}, '
-		result += f'vrf_public_key: {self._vrf_public_key.__str__()}, '
+		if AccountKeyTypeFlags.LINKED in self.supplemental_public_keys_mask:
+			result += f'linked_public_key: {self._linked_public_key.__str__()}, '
+		if AccountKeyTypeFlags.NODE in self.supplemental_public_keys_mask:
+			result += f'node_public_key: {self._node_public_key.__str__()}, '
+		if AccountKeyTypeFlags.VRF in self.supplemental_public_keys_mask:
+			result += f'vrf_public_key: {self._vrf_public_key.__str__()}, '
 		result += f'voting_public_keys: {list(map(str, self._voting_public_keys))}, '
-		result += f'importance_snapshots: {self._importance_snapshots.__str__()}, '
-		result += f'activity_buckets: {self._activity_buckets.__str__()}, '
+		if AccountStateFormat.HIGH_VALUE == self.format:
+			result += f'importance_snapshots: {self._importance_snapshots.__str__()}, '
+		if AccountStateFormat.HIGH_VALUE == self.format:
+			result += f'activity_buckets: {self._activity_buckets.__str__()}, '
 		result += f'balances: {list(map(str, self._balances))}, '
 		result += ')'
 		return result
@@ -5866,8 +5871,10 @@ class NamespaceAlias:
 	def __str__(self) -> str:
 		result = '('
 		result += f'namespace_alias_type: {self._namespace_alias_type.__str__()}, '
-		result += f'mosaic_alias: {self._mosaic_alias.__str__()}, '
-		result += f'address_alias: {self._address_alias.__str__()}, '
+		if NamespaceAliasType.MOSAIC_ID == self.namespace_alias_type:
+			result += f'mosaic_alias: {self._mosaic_alias.__str__()}, '
+		if NamespaceAliasType.ADDRESS == self.namespace_alias_type:
+			result += f'address_alias: {self._address_alias.__str__()}, '
 		result += ')'
 		return result
 
@@ -6326,9 +6333,12 @@ class AccountRestrictionsInfo:
 	def __str__(self) -> str:
 		result = '('
 		result += f'restriction_flags: {self._restriction_flags.__str__()}, '
-		result += f'address_restrictions: {self._address_restrictions.__str__()}, '
-		result += f'mosaic_id_restrictions: {self._mosaic_id_restrictions.__str__()}, '
-		result += f'transaction_type_restrictions: {self._transaction_type_restrictions.__str__()}, '
+		if AccountRestrictionFlags.ADDRESS in self.restriction_flags:
+			result += f'address_restrictions: {self._address_restrictions.__str__()}, '
+		if AccountRestrictionFlags.MOSAIC_ID in self.restriction_flags:
+			result += f'mosaic_id_restrictions: {self._mosaic_id_restrictions.__str__()}, '
+		if AccountRestrictionFlags.TRANSACTION_TYPE in self.restriction_flags:
+			result += f'transaction_type_restrictions: {self._transaction_type_restrictions.__str__()}, '
 		result += ')'
 		return result
 
@@ -6989,8 +6999,10 @@ class MosaicRestrictionEntry:
 		result = '('
 		result += f'version: 0x{self._version:X}, '
 		result += f'entry_type: {self._entry_type.__str__()}, '
-		result += f'address_entry: {self._address_entry.__str__()}, '
-		result += f'global_entry: {self._global_entry.__str__()}, '
+		if MosaicRestrictionEntryType.ADDRESS == self.entry_type:
+			result += f'address_entry: {self._address_entry.__str__()}, '
+		if MosaicRestrictionEntryType.GLOBAL == self.entry_type:
+			result += f'global_entry: {self._global_entry.__str__()}, '
 		result += ')'
 		return result
 
@@ -14171,8 +14183,10 @@ class NamespaceRegistrationTransaction:
 		result += f'type_: {self._type_.__str__()}, '
 		result += f'fee: {self._fee.__str__()}, '
 		result += f'deadline: {self._deadline.__str__()}, '
-		result += f'duration: {self._duration.__str__()}, '
-		result += f'parent_id: {self._parent_id.__str__()}, '
+		if NamespaceRegistrationType.ROOT == self.registration_type:
+			result += f'duration: {self._duration.__str__()}, '
+		if NamespaceRegistrationType.CHILD == self.registration_type:
+			result += f'parent_id: {self._parent_id.__str__()}, '
 		result += f'id: {self._id.__str__()}, '
 		result += f'registration_type: {self._registration_type.__str__()}, '
 		result += f'name: {hexlify(self._name).decode("utf8")}, '
@@ -14379,8 +14393,10 @@ class EmbeddedNamespaceRegistrationTransaction:
 		result += f'version: 0x{self._version:X}, '
 		result += f'network: {self._network.__str__()}, '
 		result += f'type_: {self._type_.__str__()}, '
-		result += f'duration: {self._duration.__str__()}, '
-		result += f'parent_id: {self._parent_id.__str__()}, '
+		if NamespaceRegistrationType.ROOT == self.registration_type:
+			result += f'duration: {self._duration.__str__()}, '
+		if NamespaceRegistrationType.CHILD == self.registration_type:
+			result += f'parent_id: {self._parent_id.__str__()}, '
 		result += f'id: {self._id.__str__()}, '
 		result += f'registration_type: {self._registration_type.__str__()}, '
 		result += f'name: {hexlify(self._name).decode("utf8")}, '

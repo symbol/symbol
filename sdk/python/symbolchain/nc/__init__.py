@@ -1750,7 +1750,8 @@ class MosaicDefinition:
 		result += f'description: {hexlify(self._description).decode("utf8")}, '
 		result += f'properties: {list(map(str, self._properties))}, '
 		result += f'levy_size: 0x{self._levy_size:X}, '
-		result += f'levy: {self._levy.__str__()}, '
+		if 0 != self.levy_size:
+			result += f'levy: {self._levy.__str__()}, '
 		result += ')'
 		return result
 
@@ -4335,7 +4336,8 @@ class NamespaceRegistrationTransactionBody:
 		result += f'rental_fee_sink: {self._rental_fee_sink.__str__()}, '
 		result += f'rental_fee: {self._rental_fee.__str__()}, '
 		result += f'name: {hexlify(self._name).decode("utf8")}, '
-		result += f'parent_name: {hexlify(self._parent_name).decode("utf8")}, '
+		if self.parent_name:
+			result += f'parent_name: {hexlify(self._parent_name).decode("utf8")}, '
 		result += ')'
 		return result
 
@@ -4592,7 +4594,8 @@ class NamespaceRegistrationTransaction:
 		result += f'rental_fee_sink: {self._rental_fee_sink.__str__()}, '
 		result += f'rental_fee: {self._rental_fee.__str__()}, '
 		result += f'name: {hexlify(self._name).decode("utf8")}, '
-		result += f'parent_name: {hexlify(self._parent_name).decode("utf8")}, '
+		if self.parent_name:
+			result += f'parent_name: {hexlify(self._parent_name).decode("utf8")}, '
 		result += ')'
 		return result
 
@@ -4827,7 +4830,8 @@ class NonVerifiableNamespaceRegistrationTransaction:
 		result += f'rental_fee_sink: {self._rental_fee_sink.__str__()}, '
 		result += f'rental_fee: {self._rental_fee.__str__()}, '
 		result += f'name: {hexlify(self._name).decode("utf8")}, '
-		result += f'parent_name: {hexlify(self._parent_name).decode("utf8")}, '
+		if self.parent_name:
+			result += f'parent_name: {hexlify(self._parent_name).decode("utf8")}, '
 		result += ')'
 		return result
 
@@ -5158,7 +5162,8 @@ class TransferTransactionV1:
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
 		result += f'message_envelope_size: 0x{self._message_envelope_size:X}, '
-		result += f'message: {self._message.__str__()}, '
+		if 0 != self.message_envelope_size:
+			result += f'message: {self._message.__str__()}, '
 		result += ')'
 		return result
 
@@ -5384,7 +5389,8 @@ class NonVerifiableTransferTransactionV1:
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
 		result += f'message_envelope_size: 0x{self._message_envelope_size:X}, '
-		result += f'message: {self._message.__str__()}, '
+		if 0 != self.message_envelope_size:
+			result += f'message: {self._message.__str__()}, '
 		result += ')'
 		return result
 
@@ -5651,7 +5657,8 @@ class TransferTransaction:
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
 		result += f'message_envelope_size: 0x{self._message_envelope_size:X}, '
-		result += f'message: {self._message.__str__()}, '
+		if 0 != self.message_envelope_size:
+			result += f'message: {self._message.__str__()}, '
 		result += f'mosaics: {list(map(str, self._mosaics))}, '
 		result += ')'
 		return result
@@ -5897,7 +5904,8 @@ class NonVerifiableTransferTransaction:
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
 		result += f'message_envelope_size: 0x{self._message_envelope_size:X}, '
-		result += f'message: {self._message.__str__()}, '
+		if 0 != self.message_envelope_size:
+			result += f'message: {self._message.__str__()}, '
 		result += f'mosaics: {list(map(str, self._mosaics))}, '
 		result += ')'
 		return result
