@@ -1,0 +1,54 @@
+# Setting coverage targets per flag
+# Each project represent a package which has one flag
+coverage:
+  status:
+    project:
+      default:
+        target: 80%  # overall project / repo coverage
+
+      rest-gateway:
+        target: auto
+        flags:
+          - rest-gateway
+
+      catbuffer-parser:
+        target: auto
+        flags:
+          - catbuffer-parser
+
+      sdk-python:
+        target: auto
+        flags:
+          - sdk-python
+
+      sdk-javascript:
+        target: auto
+        flags:
+          - sdk-javascript
+
+# New root YAML section = `flags:`
+# This is where you would define every flag from your
+# uploader, and update when new Flags added
+# Each flag is used to represent each package in the
+# monorepo.  This allows code coverage per package.
+
+flags:
+  rest-gateway:
+    paths:
+      - client/rest
+    carryforward: false
+
+  catbuffer-parser:
+    paths:
+      - catbuffer/parser
+    carryforward: false
+
+  sdk-python:
+    paths:
+      - sdk/python
+    carryforward: false
+
+  sdk-javascript:
+    paths:
+      - sdk/javascript
+    carryforward: false

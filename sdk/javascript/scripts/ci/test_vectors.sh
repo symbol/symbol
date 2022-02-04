@@ -2,5 +2,6 @@
 
 set -ex
 
-BLOCKCHAIN=nem npm run vectors
-BLOCKCHAIN=symbol npm run vectors
+TEST_MODE=$([ "$1" = "code-coverage" ] && echo "vectors:jenkins" || echo "vectors")
+BLOCKCHAIN=nem npm run "${TEST_MODE}"
+BLOCKCHAIN=symbol npm run "${TEST_MODE}"

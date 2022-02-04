@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
     "lint:jenkins": "eslint -o lint.client.rest.xml -f junit . || exit 0",
-    "test:jenkins": "JUNIT_REPORT_PATH=tests.client.rest.xml mocha --reporter mocha-jenkins-reporter --forbid-only --full-trace --recursive ./test || exit 0"
+    "test:jenkins": "nyc --require mocha --reporter=lcov npm run test"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,7 @@
     "minimist": "^1.2.5",
     "mocha": "^9.2.0",
     "mocha-jenkins-reporter": "^0.4.7",
+    "nyc": "^15.1.0",
     "sinon": "^13.0.0"
   },
   "dependencies": {

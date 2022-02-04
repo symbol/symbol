@@ -23,13 +23,16 @@ void call(Closure body) {
 			choice name: 'BUILD_CONFIGURATION',
 				choices: ['release-private', 'release-public'],
 				description: 'build configuration'
+			choice name: 'TEST_MODE',
+				choices: ['code-coverage', 'test'],
+				description: 'test mode'
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 		}
 
 		agent {
 			dockerfile {
 				// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
-				label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent" 
+				label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent"
 
 				dir 'jenkins/docker'
 				filename "${params.ciBuildDockerfile}"
@@ -177,6 +180,26 @@ void call(Closure body) {
 						steps {
 							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'vectors', {
 								runTests(env.TEST_VECTORS_SCRIPT_FILEPATH)
+							}
+						}
+					}
+					stage('code coverage') {
+						when {
+							allOf {
+								expression {
+									return env.TEST_MODE == 'code-coverage'
+								}
+								expression {
+									return params.codeCoverageTool != null
+								}
+								expression {
+									return params.minimumCodeCoverage != null
+								}
+							}
+						}
+						steps {
+							runStepRelativeToPackageRoot packageRootPath, {
+								codeCoverage(params)
 							}
 						}
 					}

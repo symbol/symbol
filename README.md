@@ -39,7 +39,7 @@ Detailed version can be seen on [codecov.io][symbol-cov-link].
 [client-rest-job]: https://jenkins.symboldev.com/blue/organizations/jenkins/Symbol%2Ftest%20folder%2Frest/activity?branch=dev
 [client-rest-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Frest%2Fdev%2F&config=client-rest-lint
 [client-rest-test]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Ftest%20folder%2Frest%2Fdev%2F&config=client-rest-test
-[client-rest-cov]: https://codecov.io/gh/symbol/symbol/branch/dev/graph/badge.svg?token=SSYYBMK0M7&flag=rest-gateway
+[client-rest-cov]: https://codecov.io/gh/symbol/symbol/branch/dev/graph/badge.svg?token=SSYYBMK0M7&flag=client-rest
 [client-rest-cov-link]: https://codecov.io/gh/symbol/symbol/tree/dev/client/rest
 
 [sdk-javascript-job]: https://jenkins.symboldev.com/blue/organizations/jenkins/Symbol%2Ftest%20folder%2Fsdk-javasscript/activity?branch=dev

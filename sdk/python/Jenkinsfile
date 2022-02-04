@@ -5,4 +5,7 @@ defaultCiPipeline {
 	packageId = 'sdk-python'
 
 	publisher = 'pypi'
+
+	codeCoverageTool = 'coverage'
+	minimumCodeCoverage = 70
 }

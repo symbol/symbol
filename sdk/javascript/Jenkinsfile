@@ -5,4 +5,7 @@ defaultCiPipeline {
 	packageId = 'sdk-javascript'
 
 	publisher = 'npm'
+
+	codeCoverageTool = 'nyc'
+	minimumCodeCoverage = 95
 }
