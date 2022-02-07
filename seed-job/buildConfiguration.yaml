@@ -1,9 +1,12 @@
 builds:
-  - name: Rest Gateway
-    path: client/rest
-
   - name: Catbuffer Parser
     path: catbuffer/parser
+
+  - name: Catapult Client
+    path: client/catapult
+
+  - name: Rest Gateway
+    path: client/rest
 
   - name: Sdk Python
     path: sdk/python
