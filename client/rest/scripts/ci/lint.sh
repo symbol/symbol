@@ -2,4 +2,5 @@
 
 set -ex
 
-npm run lint:jenkins
+LINT_MODE=$([ -z "${JENKINS_HOME}" ] && echo "lint" || echo "lint:jenkins")
+npm run "${LINT_MODE}"
