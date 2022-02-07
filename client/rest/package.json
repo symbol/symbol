@@ -22,7 +22,7 @@
     "mocha": "^9.2.0",
     "mocha-jenkins-reporter": "^0.4.7",
     "nyc": "^15.1.0",
-    "sinon": "^13.0.0"
+    "sinon": "^13.0.1"
   },
   "dependencies": {
     "ini": "^2.0.0",
@@ -33,7 +33,7 @@
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
     "sshpk": "^1.17.0",
-    "winston": "^3.5.0",
+    "winston": "^3.5.1",
     "ws": "^8.4.2",
     "zeromq": "^5.2.8"
   }
