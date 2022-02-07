@@ -1,9 +1,6 @@
 [general]
 ignore=body-is-missing
 
-[title-match-regex]
-regex=^\[(catbuffer/parser|catbuffer/schemas|client/catapult|client/rest|linters|monorepo|jenkins|sdk/python|sdk/javascript)\]( (feat|bug|fix|build|perf|task))?: [a-zA-Z0-9-=>_ ]+$
-
 [title-must-not-contain-word]
 words=wip
 
