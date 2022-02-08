@@ -187,7 +187,8 @@ void call(Closure body) {
 						when {
 							allOf {
 								expression {
-									return env.TEST_MODE == 'code-coverage'
+									// The branch indexing build TEST_MODE = null
+									return env.TEST_MODE == null || env.TEST_MODE == 'code-coverage'
 								}
 								expression {
 									return params.codeCoverageTool != null

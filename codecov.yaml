@@ -36,19 +36,19 @@ flags:
   rest-gateway:
     paths:
       - client/rest
-    carryforward: false
+    carryforward: true
 
   catbuffer-parser:
     paths:
       - catbuffer/parser
-    carryforward: false
+    carryforward: true
 
   sdk-python:
     paths:
       - sdk/python
-    carryforward: false
+    carryforward: true
 
   sdk-javascript:
     paths:
       - sdk/javascript
-    carryforward: false
+    carryforward: true
