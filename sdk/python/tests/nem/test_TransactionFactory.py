@@ -51,13 +51,26 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 			'BlockType', 'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
 			'MultisigAccountModificationType', 'NetworkType', 'TransactionType',
 
-			'struct:Message', 'struct:NamespaceId', 'struct:MosaicId', 'struct:Mosaic', 'struct:SizePrefixedMosaic', 'struct:MosaicLevy',
-			'struct:MosaicProperty', 'struct:SizePrefixedMosaicProperty', 'struct:MosaicDefinition',
-			'struct:MultisigAccountModification', 'struct:SizePrefixedMultisigAccountModification',
+			'struct:Cosignature',
+			'struct:Message',
+			'struct:Mosaic',
+			'struct:MosaicDefinition',
+			'struct:MosaicId',
+			'struct:MosaicLevy',
+			'struct:MosaicProperty',
+			'struct:MultisigAccountModification',
+			'struct:NamespaceId',
+			'struct:SizePrefixedCosignature',
+			'struct:SizePrefixedMosaic',
+			'struct:SizePrefixedMosaicProperty',
+			'struct:SizePrefixedMultisigAccountModification',
 
 			'Address', 'Hash256', 'PublicKey',
 
-			'array[SizePrefixedMosaic]', 'array[SizePrefixedMosaicProperty]', 'array[SizePrefixedMultisigAccountModification]'
+			'array[SizePrefixedCosignature]',
+			'array[SizePrefixedMosaic]',
+			'array[SizePrefixedMosaicProperty]',
+			'array[SizePrefixedMultisigAccountModification]'
 		]
 		self.assertEqual(set(expected_rule_names), set(factory.factory.rules.keys()))
 
