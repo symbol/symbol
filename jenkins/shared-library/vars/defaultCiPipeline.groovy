@@ -304,6 +304,6 @@ void runInitializeScriptIfPresent() {
 	String initFile = 'init.sh'
 	if (fileExists(initFile)) {
 		println 'Running initialize script'
-		sh initFile
+		sh "bash ${initFile}"
 	}
 }
