@@ -4,7 +4,7 @@ coverage:
   status:
     project:
       default:
-        target: 80%  # overall project / repo coverage
+        target: 70%  # overall project / repo coverage
 
       rest-gateway:
         target: auto

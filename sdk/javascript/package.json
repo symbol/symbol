@@ -10,7 +10,8 @@
     "catvectors": "node ./vectors/catbuffer.js --vectors $(git rev-parse --show-toplevel)/tests/vectors --blockchain ${BLOCKCHAIN}",
     "lint:jenkins": "eslint -o lint.sdk.javascript.xml -f junit . || exit 0",
     "test:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run test",
-    "vectors:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run vectors"
+    "vectors:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run vectors",
+    "catvectors:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run catvectors"
   },
   "keywords": [],
   "author": "",
