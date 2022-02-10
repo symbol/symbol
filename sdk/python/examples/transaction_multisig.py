@@ -6,13 +6,10 @@
 
 from binascii import unhexlify
 
-import sha3
-
 import symbolchain.sc
-from symbolchain.CryptoTypes import Hash256, PrivateKey
+from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
 from symbolchain.symbol.KeyPair import KeyPair
-from symbolchain.symbol.MerkleHashBuilder import MerkleHashBuilder
 
 
 class MultisigAccountModificationSample:
@@ -52,16 +49,9 @@ class MultisigAccountModificationSample:
 			'signer_public_key': self.multisig_key_pair.public_key,
 			'fee': 625,
 			'deadline': 12345,
-			'transactions_hash': self.calculate_transactions_hash(embedded_transactions).bytes,
+			'transactions_hash': self.facade.hash_embedded_transactions(embedded_transactions).bytes,
 			'transactions': embedded_transactions,
 		})
-
-	@staticmethod
-	def calculate_transactions_hash(transactions):
-		hash_builder = MerkleHashBuilder()
-		for embedded_transaction in transactions:
-			hash_builder.update(Hash256(sha3.sha3_256(embedded_transaction.serialize()).digest()))
-		return hash_builder.final()
 
 	def to_address(self, key_pair):
 		return self.facade.network.public_key_to_address(key_pair.public_key)

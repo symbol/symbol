@@ -9,12 +9,8 @@
 import argparse
 from pathlib import Path
 
-import sha3
-
 from examples.examples_utils import read_contents, read_private_key
-from symbolchain.CryptoTypes import Hash256
 from symbolchain.facade.SymbolFacade import SymbolFacade
-from symbolchain.symbol.MerkleHashBuilder import MerkleHashBuilder
 
 
 def add_embedded_transfers(facade, public_key):
@@ -49,12 +45,7 @@ def main():
 	key_pair = read_private_key(args.private)
 
 	embedded_transactions = add_embedded_transfers(facade, key_pair.public_key)
-	hash_builder = MerkleHashBuilder()
-	for embedded_transaction in embedded_transactions:
-		embedded_transaction_hash = sha3.sha3_256(embedded_transaction.serialize()).digest()
-		hash_builder.update(Hash256(embedded_transaction_hash))
-
-	merkle_hash = hash_builder.final()
+	merkle_hash = facade.hash_embedded_transactions(embedded_transactions)
 
 	aggregate = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction',
