@@ -45,13 +45,15 @@ class BaseValue {
 	 * @returns {string} String representation.
 	 */
 	toString() {
-		if (!this.isSigned || 0 <= this.value)
-			return `0x${this.value.toString(16).toUpperCase().padStart(this.size * 2, '0')}`;
+		let unsignedValue;
+		if (!this.isSigned || 0 <= this.value) {
+			unsignedValue = this.value;
+		} else {
+			const upperBoundPlusOne = (8 === this.size ? 0x1_00000000_00000000n : bitmask(this.size * 8) + 1);
+			unsignedValue = this.value + upperBoundPlusOne;
+		}
 
-		const upperBound = 8 === this.size ? 0xFFFFFFFF_FFFFFFFFn : bitmask(this.size * 8);
-		const fix = 8 === this.size ? 1n : 1;
-		const value = upperBound + this.value + fix;
-		return `0x${value.toString(16).toUpperCase().padStart(this.size * 2, '0')}`;
+		return `0x${unsignedValue.toString(16).toUpperCase().padStart(this.size * 2, '0')}`;
 	}
 }
 

@@ -6,7 +6,7 @@
 ./scripts/run_catbuffer_generator.sh
 ```
 
-Run test vectors (assuming 'vectors' dir in currents directory):
+Run test vectors (assuming node project is `sdk/javascript`):
 
 ```bash
 BLOCKCHAIN=nem npm run catvectors

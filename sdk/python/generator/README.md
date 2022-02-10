@@ -1,27 +1,15 @@
-# catbuffer generator
+# python catbuffer generator
 
 ## Generate catbuffer
 
 ```sh
-PYTHONPATH=../../catbuffer/parser python -m catparser \
-   --schema ../../catbuffer/schemas/nem/all.cats  \
-   --include ../../catbuffer/schemas/nem \
-   --output ../../sdk/python/symbolchain/nc \
-   --quiet \
-   --generator generator.Generator
-
-PYTHONPATH=../../catbuffer/parser python -m catparser \
-   --schema ../../catbuffer/schemas/symbol/all.cats  \
-   --include ../../catbuffer/schemas/symbol \
-   --output ../../sdk/python/symbolchain/sc \
-   --quiet \
-   --generator generator.Generator
+./scripts/run_catbuffer_generator.sh
 ```
 
-Run test vectors (assuming 'vectors' dir in currents directory):
+Run test vectors (assuming `sdk/python` working directory):
 
 ```bash
-PYTHONPATH=.. pytest -v
+PYTHONPATH=. SCHEMAS_PATH=../../tests/vectors  python3 -m pytest ./tests/vectors/catbuffer.py
 ```
 
 ## Generator overview

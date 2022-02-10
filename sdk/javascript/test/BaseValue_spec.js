@@ -93,91 +93,44 @@ describe('BaseValue', () => {
 			.forEach(rawValue => canCreateSignedBaseValue(rawValue, 8, rawValue));
 	});
 
-	const assertFormatting = (size, rawValues, expected, isSigned) => {
-		rawValues.forEach((rawValue, index) => {
-			// Arrange
-			const value = new BaseValue(size, rawValue, isSigned);
+	const assertFormatting = (size, isSigned, testCases) => {
+		testCases.forEach(testCase => {
+			// Arrange:
+			const value = new BaseValue(size, testCase[0], isSigned);
 
 			// Act:
-			const output = value.toString();
+			const actual = value.toString();
 
 			// Assert:
-			expect(output).to.equal(expected[index]);
+			expect(actual).to.equal(testCase[1]);
 		});
-	};
-	const assertUnsignedFormatting = (size, rawValues, expected) => {
-		assertFormatting(size, rawValues, expected, false);
-	};
-
-	const assertSignedFormatting = (size, rawValues, expected) => {
-		assertFormatting(size, rawValues, expected, true);
 	};
 
 	it('toString of unsigned base values outputs fixed width hex', () => {
-		assertUnsignedFormatting(1, [0, 0x24, 0xFF], ['0x00', '0x24', '0xFF']);
-		assertUnsignedFormatting(2, [0, 0x24, 0x1234, 0xFFFF], ['0x0000', '0x0024', '0x1234', '0xFFFF']);
-		assertUnsignedFormatting(
-			4,
-			[0, 0x24, 0x1234, 0x12345678, 0xFFFFFFFF],
-			['0x00000000', '0x00000024', '0x00001234', '0x12345678', '0xFFFFFFFF']
-		);
-		assertUnsignedFormatting(
-			8,
-			[0n, 0x24n, 0x1234n, 0x12345678n, 0x12345678_90ABCDEFn, 0xFFFFFFFF_FFFFFFFFn],
-			[
-				'0x0000000000000000',
-				'0x0000000000000024',
-				'0x0000000000001234',
-				'0x0000000012345678',
-				'0x1234567890ABCDEF',
-				'0xFFFFFFFFFFFFFFFF'
-			]
-		);
+		assertFormatting(1, false, [[0, '0x00'], [0x24, '0x24'], [0xFF, '0xFF']]);
+		assertFormatting(2, false, [[0, '0x0000'], [0x24, '0x0024'], [0x1234, '0x1234'], [0xFFFF, '0xFFFF']]);
+		assertFormatting(4, false, [
+			[0, '0x00000000'], [0x24, '0x00000024'], [0x1234, '0x00001234'], [0x12345678, '0x12345678'], [0xFFFFFFFF, '0xFFFFFFFF']
+		]);
+		assertFormatting(8, false, [
+			[0n, '0x0000000000000000'], [0x24n, '0x0000000000000024'], [0x1234n, '0x0000000000001234'], [0x12345678n, '0x0000000012345678'],
+			[0x1234567890ABCDEFn, '0x1234567890ABCDEF'], [0xFFFFFFFFFFFFFFFFn, '0xFFFFFFFFFFFFFFFF']
+		]);
 	});
 
 	it('toString of signed base values outputs fixed width hex', () => {
-		assertSignedFormatting(1, [0, 5, 127, -128, -5, -1], ['0x00', '0x05', '0x7F', '0x80', '0xFB', '0xFF']);
-		assertSignedFormatting(
-			2,
-			[0, 0x24, 0x1234, 0x7FFF, -0x8000, -5, -1],
-			[
-				'0x0000',
-				'0x0024',
-				'0x1234',
-				'0x7FFF',
-				'0x8000',
-				'0xFFFB',
-				'0xFFFF'
-			]
-		);
-		assertSignedFormatting(
-			4,
-			[0, 0x24, 0x1234, 0x12345678, 0x7FFF_FFFF, -0x8000_0000, -5, -1],
-			[
-				'0x00000000',
-				'0x00000024',
-				'0x00001234',
-				'0x12345678',
-				'0x7FFFFFFF',
-				'0x80000000',
-				'0xFFFFFFFB',
-				'0xFFFFFFFF'
-			]
-		);
-		assertSignedFormatting(
-			8,
-			[0n, 0x24n, 0x1234n, 0x12345678n, 0x12345678_90ABCDEFn, 0x7FFFFFFF_FFFFFFFFn, -0x80000000_00000000n, -5n, -1n],
-			[
-				'0x0000000000000000',
-				'0x0000000000000024',
-				'0x0000000000001234',
-				'0x0000000012345678',
-				'0x1234567890ABCDEF',
-				'0x7FFFFFFFFFFFFFFF',
-				'0x8000000000000000',
-				'0xFFFFFFFFFFFFFFFB',
-				'0xFFFFFFFFFFFFFFFF'
-			]
-		);
+		assertFormatting(1, true, [[0, '0x00'], [5, '0x05'], [127, '0x7F'], [-128, '0x80'], [-5, '0xFB'], [-1, '0xFF']]);
+		assertFormatting(2, true, [
+			[0, '0x0000'], [0x24, '0x0024'], [0x1234, '0x1234'], [0x7FFF, '0x7FFF'], [-0x8000, '0x8000'], [-5, '0xFFFB'], [-1, '0xFFFF']
+		]);
+		assertFormatting(4, true, [
+			[0, '0x00000000'], [0x24, '0x00000024'], [0x1234, '0x00001234'], [0x12345678, '0x12345678'], [0x7FFFFFFF, '0x7FFFFFFF'],
+			[-0x80000000, '0x80000000'], [-5, '0xFFFFFFFB'], [-1, '0xFFFFFFFF']
+		]);
+		assertFormatting(8, true, [
+			[0n, '0x0000000000000000'], [0x24n, '0x0000000000000024'], [0x1234n, '0x0000000000001234'], [0x12345678n, '0x0000000012345678'],
+			[0x1234567890ABCDEFn, '0x1234567890ABCDEF'], [0x7FFFFFFFFFFFFFFFn, '0x7FFFFFFFFFFFFFFF'],
+			[-0x8000000000000000n, '0x8000000000000000'], [-5n, '0xFFFFFFFFFFFFFFFB'], [-1n, '0xFFFFFFFFFFFFFFFF']
+		]);
 	});
 });

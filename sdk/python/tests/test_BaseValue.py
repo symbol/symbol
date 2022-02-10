@@ -37,6 +37,8 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 		FakeValue,
 	)
 
+	# region constructor
+
 	def test_can_create_base_value(self):
 		# Act:
 		value = BaseValue(WORD_WIDTH, DEFAULT_VALUE)
@@ -107,6 +109,10 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 			self.assertEqual(size, value.size)
 			self.assertEqual(raw_value, value.value)
 
+	# endregion
+
+	# region equality
+
 	def _equality_and_inequality_are_supported(self, descriptor, is_signed):
 		descriptor = EqualityTestDescriptor(
 			descriptor.untagged,
@@ -125,6 +131,8 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 		self.assertNotEqual(
 			self.DESCRIPTOR_UNSIGNED.tagged(DEFAULT_VALUE),
 			self.DESCRIPTOR_SIGNED.tagged(DEFAULT_VALUE))
+
+	# endregion
 
 	# region unsigned comparison tests
 
@@ -176,6 +184,8 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 
 	# endregion
 
+	# region hash
+
 	def test_hash_is_supported(self):
 		# Arrange:
 		unsigned = self.DESCRIPTOR_UNSIGNED
@@ -194,13 +204,45 @@ class BaseValueTest(ComparisonTestUtils, unittest.TestCase):
 
 		self.assertNotEqual(val_hash, None)
 
-	def test_string_is_supported(self):
-		self.assertEqual('0x456789ABCDEF0123', str(BaseValue(WORD_WIDTH, DEFAULT_VALUE)))
-		self.assertEqual('0xABCDEF0123456789', str(BaseValue(WORD_WIDTH, HIBIT_SET_VALUE)))
-		self.assertEqual('-0x543210FEDCBA9877', str(BaseValue(WORD_WIDTH, HIBIT_SET_VALUE_SIGNED, None, True)))
+	# endregion
 
-	def test_string_is_affected_by_width(self):
-		self.assertEqual('0x000FEDCBA9876543', str(BaseValue(WORD_WIDTH, 0xFEDCBA9876543)))
-		self.assertEqual('0x00000123', str(BaseValue(4, 0x123)))
-		self.assertEqual('0x00000000', str(BaseValue(4, 0)))
-		self.assertEqual('0x00', str(BaseValue(1, 0)))
+	# region str
+
+	def _assert_formatting(self, size, is_signed, test_cases):
+		for test_case in test_cases:
+			# Arrange:
+			value = BaseValue(size, test_case[0], None, is_signed)
+
+			# Act:
+			actual = str(value)
+
+			# Assert:
+			self.assertEqual(test_case[1], actual)
+
+	def test_can_create_string_representation_of_unsigned_base_values(self):
+		self._assert_formatting(1, False, [(0, '0x00'), (0x24, '0x24'), (0xFF, '0xFF')])
+		self._assert_formatting(2, False, [(0, '0x0000'), (0x24, '0x0024'), (0x1234, '0x1234'), (0xFFFF, '0xFFFF')])
+		self._assert_formatting(4, False, [
+			(0, '0x00000000'), (0x24, '0x00000024'), (0x1234, '0x00001234'), (0x12345678, '0x12345678'), (0xFFFFFFFF, '0xFFFFFFFF')
+		])
+		self._assert_formatting(8, False, [
+			(0, '0x0000000000000000'), (0x24, '0x0000000000000024'), (0x1234, '0x0000000000001234'), (0x12345678, '0x0000000012345678'),
+			(0x1234567890ABCDEF, '0x1234567890ABCDEF'), (0xFFFFFFFFFFFFFFFF, '0xFFFFFFFFFFFFFFFF')
+		])
+
+	def test_can_create_string_representation_of_signed_base_values(self):
+		self._assert_formatting(1, True, [(0, '0x00'), (5, '0x05'), (127, '0x7F'), (-128, '0x80'), (-5, '0xFB'), (-1, '0xFF')])
+		self._assert_formatting(2, True, [
+			(0, '0x0000'), (0x24, '0x0024'), (0x1234, '0x1234'), (0x7FFF, '0x7FFF'), (-0x8000, '0x8000'), (-5, '0xFFFB'), (-1, '0xFFFF')
+		])
+		self._assert_formatting(4, True, [
+			(0, '0x00000000'), (0x24, '0x00000024'), (0x1234, '0x00001234'), (0x12345678, '0x12345678'), (0x7FFFFFFF, '0x7FFFFFFF'),
+			(-0x80000000, '0x80000000'), (-5, '0xFFFFFFFB'), (-1, '0xFFFFFFFF')
+		])
+		self._assert_formatting(8, True, [
+			(0, '0x0000000000000000'), (0x24, '0x0000000000000024'), (0x1234, '0x0000000000001234'), (0x12345678, '0x0000000012345678'),
+			(0x1234567890ABCDEF, '0x1234567890ABCDEF'), (0x7FFFFFFFFFFFFFFF, '0x7FFFFFFFFFFFFFFF'),
+			(-0x8000000000000000, '0x8000000000000000'), (-5, '0xFFFFFFFFFFFFFFFB'), (-1, '0xFFFFFFFFFFFFFFFF')
+		])
+
+	# endregion

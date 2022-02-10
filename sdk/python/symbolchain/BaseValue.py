@@ -43,6 +43,9 @@ class BaseValue(Ordered):
 
 	def __str__(self):
 		if not self.__tag[1] or self.value >= 0:
-			return f'0x{self.value:0{self.size * 2}X}'
+			unsigned_value = self.value
+		else:
+			upper_bound_plus_one = 1 << (self.size * 8)
+			unsigned_value = self.value + upper_bound_plus_one
 
-		return f'-0x{-self.value:0{self.size * 2}X}'
+		return f'0x{unsigned_value:0{self.size * 2}X}'
