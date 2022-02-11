@@ -71,8 +71,8 @@ void pythonPublisher(Map config, String phase) {
 		credentialsId = TEST_PYTHON_CREDENTIALS_ID
 	}
 
-	Object file = readFile 'requirements.txt'
-	file.readLines().each { line ->
+	Object requirementsFile = readFile 'requirements.txt'
+	requirementsFile.readLines().each { line ->
 		runScript("poetry add ${line}")
 	}
 	runScript('cat pyproject.toml')
