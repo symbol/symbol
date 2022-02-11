@@ -10,44 +10,53 @@ String getResource(String fileName) {
 	return libraryResource(fileName)
 }
 
-void copyFileListToTemp(String[] files) {
-	files.each { filepath ->
-		fileHelper.copyToTempFile(getResource(Paths.get('artifacts').resolve(filepath).toString()), filepath)
-	}
+String readNpmPackageNameVersion() {
+	Object packageJson = readJSON file: 'package.json'
+    return "${packageJson.name}@${packageJson.version}"
 }
 
-void copyWithJenkinsFunctionFileToTemp(String[] files) {
-	copyFileListToTemp(files + ['scripts/jenkins-functions.sh'] as String[])
+String readPackageVersion() {
+	return readFile(file: 'version.txt').trim()
+}
+
+Boolean isAlphaRelease(String phase) {
+	return phase == 'alpha'
 }
 
 void dockerPublisher(Map config, String phase) {
-	if (config.publisher == 'docker' && config.dockerImageName) {
-		env.DOCKER_IMAGE_NAME = config.dockerImageName
-		String[] files = ['scripts/docker-functions.sh']
-		copyWithJenkinsFunctionFileToTemp(files)
-		String scriptFullFilepath = fileHelper.copyToTempFile(
-				getResource('artifacts/scripts/docker-publish.sh'),
-				'scripts/docker-publish.sh')
-		withCredentials([
-			usernamePassword(
-				credentialsId: DOCKERHUB_CREDENTIALS_ID,
-				usernameVariable: 'DOCKER_USERNAME',
-				passwordVariable: 'DOCKER_PASSWORD')
-		]) {
-			runScript("bash ${scriptFullFilepath} ${phase}")
+	if (config.publisher != 'docker' || config.dockerImageName == null) {
+		return
+	}
+
+	final String dockerUrl = 'https://registry.hub.docker.com'
+	String version = readPackageVersion()
+	String imageVersionName = "${config.dockerImageName}:${version}"
+
+	Object imageName = docker.build(imageVersionName)
+	docker.withRegistry(dockerUrl, DOCKERHUB_CREDENTIALS_ID) {
+		logger.logInfo("Pushing docker image ${imageVersionName}")
+		imageName.push()
+		if (phase == 'release') {
+			logger.logInfo('Releasing the latest image')
+			imageName.push('latest')
 		}
 	}
 }
 
 void npmPublisher(Map config, String phase) {
-	if (config.publisher == 'npm') {
-		String[] files = ['scripts/node-functions.sh']
-		copyWithJenkinsFunctionFileToTemp(files)
-		String scriptFullFilepath = fileHelper.copyToTempFile(getResource('artifacts/scripts/node-publish.sh'), 'scripts/node-publish.sh')
-		fileHelper.copyToLocalFile(getResource('artifacts/configuration/npmrc'), "${HOME}/.npmrc")
-		withCredentials([string(credentialsId: NPM_CREDENTIALS_ID, variable: 'NPM_TOKEN')]) {
-			runScript("bash ${scriptFullFilepath} ${phase}")
-		}
+	if (config.publisher != 'npm') {
+		return
+	}
+
+	String npmPublishCommand = 'npm publish'
+	if (isAlphaRelease(phase)) {
+		npmPublishCommand += ' --tag alpha'
+	}
+
+	fileHelper.copyToLocalFile(getResource('artifacts/configuration/npmrc'), "${HOME}/.npmrc")
+	withCredentials([string(credentialsId: NPM_CREDENTIALS_ID, variable: 'NPM_TOKEN')]) {
+		logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()}")
+		runScript(npmPublishCommand)
 	}
 }
 
@@ -57,7 +66,7 @@ void pythonPublisher(Map config, String phase) {
 	}
 
 	credentialsId = PYTHON_CREDENTIALS_ID
-	if (phase == 'alpha') {
+	if (isAlphaRelease(phase)) {
 		credentialsId = TEST_PYTHON_CREDENTIALS_ID
 	}
 
