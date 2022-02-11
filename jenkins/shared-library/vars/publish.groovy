@@ -6,13 +6,9 @@ void call(Map config, String phase) {
 	publisher(config, phase)
 }
 
-String getResource(String fileName) {
-	return libraryResource(fileName)
-}
-
 String readNpmPackageNameVersion() {
 	Object packageJson = readJSON file: 'package.json'
-    return "${packageJson.name}@${packageJson.version}"
+	return "${packageJson.name}@${packageJson.version}"
 }
 
 String readPackageVersion() {
@@ -21,6 +17,10 @@ String readPackageVersion() {
 
 Boolean isAlphaRelease(String phase) {
 	return phase == 'alpha'
+}
+
+Boolean isRelease(String phase) {
+	return phase == 'release'
 }
 
 void dockerPublisher(Map config, String phase) {
@@ -36,7 +36,7 @@ void dockerPublisher(Map config, String phase) {
 	docker.withRegistry(dockerUrl, DOCKERHUB_CREDENTIALS_ID) {
 		logger.logInfo("Pushing docker image ${imageVersionName}")
 		imageName.push()
-		if (phase == 'release') {
+		if (isRelease(phase)) {
 			logger.logInfo('Releasing the latest image')
 			imageName.push('latest')
 		}
@@ -53,7 +53,8 @@ void npmPublisher(Map config, String phase) {
 		npmPublishCommand += ' --tag alpha'
 	}
 
-	fileHelper.copyToLocalFile(getResource('artifacts/configuration/npmrc'), "${HOME}/.npmrc")
+	writeFile(file:".npmrc", text:  '//registry.npmjs.org/:_authToken=${NPM_TOKEN}')
+	runScript('cat .npmrc')
 	withCredentials([string(credentialsId: NPM_CREDENTIALS_ID, variable: 'NPM_TOKEN')]) {
 		logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()}")
 		runScript(npmPublishCommand)
@@ -70,15 +71,34 @@ void pythonPublisher(Map config, String phase) {
 		credentialsId = TEST_PYTHON_CREDENTIALS_ID
 	}
 
-	String scriptFullFilepath = fileHelper.copyToTempFile(getResource('artifacts/scripts/pypi-publish.sh'), 'scripts/pypi-publish.sh')
+	Object file = readFile 'requirements.txt'
+	file.readLines().each { line ->
+		runScript("poetry add ${line}")
+	}
+	runScript('cat pyproject.toml')
+
+	runScript('poetry build')
+
 	withCredentials([string(credentialsId: credentialsId, variable: 'POETRY_PYPI_TOKEN_PYPI')]) {
-		runScript("bash ${scriptFullFilepath} ${phase}")
+		if (isAlphaRelease(phase)) {
+			runScript('poetry config "repositories.test" "https://test.pypi.org/legacy/"')
+			runScript("poetry config 'pypi-token.test' ${POETRY_PYPI_TOKEN_PYPI}")
+			runScript('poetry publish --repository "test"')
+		} else {
+			runScript("poetry config 'pypi-token.pypi' ${POETRY_PYPI_TOKEN_PYPI}")
+			runScript('poetry publish')
+		}
 	}
 }
 
 void publisher(Map config, String phase) {
 	if (!config.publisher) {
 		logger.logInfo('No publisher is configured.')
+		return
+	}
+
+	if (!isAlphaRelease(phase) && !isRelease(phase)) {
+		logger.logWarning('Publish phase should be alpha or release.')
 		return
 	}
 
