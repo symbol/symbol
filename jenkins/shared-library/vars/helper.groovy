@@ -9,3 +9,8 @@ String resolveBranchName(String manualBranch) {
 Boolean isPublicBuild(String buildConfiguration) {
 	return buildConfiguration == 'release-public'
 }
+
+String resolveRepoName() {
+	// groovylint-disable-next-line UnnecessaryGetter
+	return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last()
+}

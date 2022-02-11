@@ -9,7 +9,10 @@ void call(Closure body) {
 			gitParameter branchFilter: 'origin/(.*)',
 				defaultValue: "${env.GIT_BRANCH}",
 				name: 'MANUAL_GIT_BRANCH',
-				type: 'PT_BRANCH'
+				type: 'PT_BRANCH',
+				selectedValue: 'TOP',
+				sortMode: 'ASCENDING',
+				useRepository: "${helper.resolveRepoName()}"
 			choice name: 'PLATFORM',
 				choices: params.platform ?: 'ubuntu',
 				description: 'Run on specific platform'
