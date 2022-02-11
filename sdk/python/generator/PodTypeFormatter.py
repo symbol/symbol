@@ -39,7 +39,7 @@ class PodTypeFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body, arguments=arguments)
 
 	def get_deserialize_descriptor(self):
-		body = 'buffer_ = memoryview(payload)\n'
+		body = 'buffer = memoryview(payload)\n'
 		body += f'return {self.typename}({self.printer.load()})'
 		return MethodDescriptor(body=body)
 

@@ -396,19 +396,19 @@ class Transaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -555,17 +555,17 @@ class NonVerifiableTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -794,21 +794,21 @@ class Block {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._previousBlockHash.serialize());
-		buffer_.write(this._height.serialize());
-		buffer_.write(converter.intToBytes(this._transactions.length, 4, false)); // bound: transactions_count
-		arrayHelpers.writeArray(buffer_, this._transactions);
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._previousBlockHash.serialize());
+		buffer.write(this._height.serialize());
+		buffer.write(converter.intToBytes(this._transactions.length, 4, false)); // bound: transactions_count
+		arrayHelpers.writeArray(buffer, this._transactions);
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1060,22 +1060,22 @@ class AccountKeyLinkTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(this._linkAction.serialize());
-		buffer_.write(converter.intToBytes(this._remotePublicKeySize, 4, false));
-		buffer_.write(this._remotePublicKey.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(this._linkAction.serialize());
+		buffer.write(converter.intToBytes(this._remotePublicKeySize, 4, false));
+		buffer.write(this._remotePublicKey.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1262,20 +1262,20 @@ class NonVerifiableAccountKeyLinkTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(this._linkAction.serialize());
-		buffer_.write(converter.intToBytes(this._remotePublicKeySize, 4, false));
-		buffer_.write(this._remotePublicKey.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(this._linkAction.serialize());
+		buffer.write(converter.intToBytes(this._remotePublicKeySize, 4, false));
+		buffer.write(this._remotePublicKey.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1331,10 +1331,10 @@ class NamespaceId {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
-		buffer_.write(this._name);
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
+		buffer.write(this._name);
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1396,11 +1396,11 @@ class MosaicId {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._namespaceId.serialize());
-		buffer_.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
-		buffer_.write(this._name);
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._namespaceId.serialize());
+		buffer.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
+		buffer.write(this._name);
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1464,11 +1464,11 @@ class Mosaic {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
-		buffer_.write(this._mosaicId.serialize());
-		buffer_.write(this._amount.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
+		buffer.write(this._mosaicId.serialize());
+		buffer.write(this._amount.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1518,10 +1518,10 @@ class SizePrefixedMosaic {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this.mosaic.size, 4, false)); // bound: mosaic_size
-		buffer_.write(this._mosaic.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.mosaic.size, 4, false)); // bound: mosaic_size
+		buffer.write(this._mosaic.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1664,14 +1664,14 @@ class MosaicLevy {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._transferFeeType.serialize());
-		buffer_.write(converter.intToBytes(this._recipientAddressSize, 4, false));
-		buffer_.write(this._recipientAddress.serialize());
-		buffer_.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
-		buffer_.write(this._mosaicId.serialize());
-		buffer_.write(this._fee.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._transferFeeType.serialize());
+		buffer.write(converter.intToBytes(this._recipientAddressSize, 4, false));
+		buffer.write(this._recipientAddress.serialize());
+		buffer.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
+		buffer.write(this._mosaicId.serialize());
+		buffer.write(this._fee.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1739,12 +1739,12 @@ class MosaicProperty {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
-		buffer_.write(this._name);
-		buffer_.write(converter.intToBytes(this._value.length, 4, false)); // bound: value_size
-		buffer_.write(this._value);
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
+		buffer.write(this._name);
+		buffer.write(converter.intToBytes(this._value.length, 4, false)); // bound: value_size
+		buffer.write(this._value);
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1794,10 +1794,10 @@ class SizePrefixedMosaicProperty {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this.property.size, 4, false)); // bound: property_size
-		buffer_.write(this._property.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.property.size, 4, false)); // bound: property_size
+		buffer.write(this._property.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -1932,20 +1932,20 @@ class MosaicDefinition {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this._ownerPublicKeySize, 4, false));
-		buffer_.write(this._ownerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this.id.size, 4, false)); // bound: id_size
-		buffer_.write(this._id.serialize());
-		buffer_.write(converter.intToBytes(this._description.length, 4, false)); // bound: description_size
-		buffer_.write(this._description);
-		buffer_.write(converter.intToBytes(this._properties.length, 4, false)); // bound: properties_count
-		arrayHelpers.writeArray(buffer_, this._properties);
-		buffer_.write(converter.intToBytes(this._levySize, 4, false));
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this._ownerPublicKeySize, 4, false));
+		buffer.write(this._ownerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this.id.size, 4, false)); // bound: id_size
+		buffer.write(this._id.serialize());
+		buffer.write(converter.intToBytes(this._description.length, 4, false)); // bound: description_size
+		buffer.write(this._description);
+		buffer.write(converter.intToBytes(this._properties.length, 4, false)); // bound: properties_count
+		arrayHelpers.writeArray(buffer, this._properties);
+		buffer.write(converter.intToBytes(this._levySize, 4, false));
 		if (0 !== this.levySize)
-			buffer_.write(this._levy.serialize());
+			buffer.write(this._levy.serialize());
 
-		return buffer_.storage;
+		return buffer.storage;
 	}
 
 	toString() {
@@ -2039,13 +2039,13 @@ class MosaicDefinitionTransactionBody {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this.mosaicDefinition.size, 4, false)); // bound: mosaic_definition_size
-		buffer_.write(this._mosaicDefinition.serialize());
-		buffer_.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
-		buffer_.write(this._rentalFeeSink.serialize());
-		buffer_.write(this._rentalFee.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.mosaicDefinition.size, 4, false)); // bound: mosaic_definition_size
+		buffer.write(this._mosaicDefinition.serialize());
+		buffer.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
+		buffer.write(this._rentalFeeSink.serialize());
+		buffer.write(this._rentalFee.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -2263,24 +2263,24 @@ class MosaicDefinitionTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this.mosaicDefinition.size, 4, false)); // bound: mosaic_definition_size
-		buffer_.write(this._mosaicDefinition.serialize());
-		buffer_.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
-		buffer_.write(this._rentalFeeSink.serialize());
-		buffer_.write(this._rentalFee.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this.mosaicDefinition.size, 4, false)); // bound: mosaic_definition_size
+		buffer.write(this._mosaicDefinition.serialize());
+		buffer.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
+		buffer.write(this._rentalFeeSink.serialize());
+		buffer.write(this._rentalFee.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -2486,22 +2486,22 @@ class NonVerifiableMosaicDefinitionTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this.mosaicDefinition.size, 4, false)); // bound: mosaic_definition_size
-		buffer_.write(this._mosaicDefinition.serialize());
-		buffer_.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
-		buffer_.write(this._rentalFeeSink.serialize());
-		buffer_.write(this._rentalFee.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this.mosaicDefinition.size, 4, false)); // bound: mosaic_definition_size
+		buffer.write(this._mosaicDefinition.serialize());
+		buffer.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
+		buffer.write(this._rentalFeeSink.serialize());
+		buffer.write(this._rentalFee.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -2637,12 +2637,12 @@ class MosaicSupplyChangeTransactionBody {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
-		buffer_.write(this._mosaicId.serialize());
-		buffer_.write(this._action.serialize());
-		buffer_.write(this._delta.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
+		buffer.write(this._mosaicId.serialize());
+		buffer.write(this._action.serialize());
+		buffer.write(this._delta.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -2854,23 +2854,23 @@ class MosaicSupplyChangeTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
-		buffer_.write(this._mosaicId.serialize());
-		buffer_.write(this._action.serialize());
-		buffer_.write(this._delta.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
+		buffer.write(this._mosaicId.serialize());
+		buffer.write(this._action.serialize());
+		buffer.write(this._delta.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -3070,21 +3070,21 @@ class NonVerifiableMosaicSupplyChangeTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
-		buffer_.write(this._mosaicId.serialize());
-		buffer_.write(this._action.serialize());
-		buffer_.write(this._delta.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this.mosaicId.size, 4, false)); // bound: mosaic_id_size
+		buffer.write(this._mosaicId.serialize());
+		buffer.write(this._action.serialize());
+		buffer.write(this._delta.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -3204,11 +3204,11 @@ class MultisigAccountModification {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._modificationType.serialize());
-		buffer_.write(converter.intToBytes(this._cosignatoryPublicKeySize, 4, false));
-		buffer_.write(this._cosignatoryPublicKey.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._modificationType.serialize());
+		buffer.write(converter.intToBytes(this._cosignatoryPublicKeySize, 4, false));
+		buffer.write(this._cosignatoryPublicKey.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -3258,10 +3258,10 @@ class SizePrefixedMultisigAccountModification {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this.modification.size, 4, false)); // bound: modification_size
-		buffer_.write(this._modification.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.modification.size, 4, false)); // bound: modification_size
+		buffer.write(this._modification.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -3442,21 +3442,21 @@ class MultisigAccountModificationTransactionV1 {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer_, this._modifications);
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
+		arrayHelpers.writeArray(buffer, this._modifications);
+		return buffer.storage;
 	}
 
 	toString() {
@@ -3625,19 +3625,19 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer_, this._modifications);
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
+		arrayHelpers.writeArray(buffer, this._modifications);
+		return buffer.storage;
 	}
 
 	toString() {
@@ -3844,23 +3844,23 @@ class MultisigAccountModificationTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer_, this._modifications);
-		buffer_.write(converter.intToBytes(this._minApprovalDeltaSize, 4, false));
-		buffer_.write(converter.intToBytes(this._minApprovalDelta, 4, true));
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
+		arrayHelpers.writeArray(buffer, this._modifications);
+		buffer.write(converter.intToBytes(this._minApprovalDeltaSize, 4, false));
+		buffer.write(converter.intToBytes(this._minApprovalDelta, 4, true));
+		return buffer.storage;
 	}
 
 	toString() {
@@ -4049,21 +4049,21 @@ class NonVerifiableMultisigAccountModificationTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer_, this._modifications);
-		buffer_.write(converter.intToBytes(this._minApprovalDeltaSize, 4, false));
-		buffer_.write(converter.intToBytes(this._minApprovalDelta, 4, true));
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
+		arrayHelpers.writeArray(buffer, this._modifications);
+		buffer.write(converter.intToBytes(this._minApprovalDeltaSize, 4, false));
+		buffer.write(converter.intToBytes(this._minApprovalDelta, 4, true));
+		return buffer.storage;
 	}
 
 	toString() {
@@ -4281,24 +4281,24 @@ class Cosignature {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._multisigTransactionHashOuterSize, 4, false));
-		buffer_.write(converter.intToBytes(this._multisigTransactionHashSize, 4, false));
-		buffer_.write(this._multisigTransactionHash.serialize());
-		buffer_.write(converter.intToBytes(this._multisigAccountAddressSize, 4, false));
-		buffer_.write(this._multisigAccountAddress.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._multisigTransactionHashOuterSize, 4, false));
+		buffer.write(converter.intToBytes(this._multisigTransactionHashSize, 4, false));
+		buffer.write(this._multisigTransactionHash.serialize());
+		buffer.write(converter.intToBytes(this._multisigAccountAddressSize, 4, false));
+		buffer.write(this._multisigAccountAddress.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -4356,10 +4356,10 @@ class SizePrefixedCosignature {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this.cosignature.size, 4, false)); // bound: cosignature_size
-		buffer_.write(this._cosignature.serialize());
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this.cosignature.size, 4, false)); // bound: cosignature_size
+		buffer.write(this._cosignature.serialize());
+		return buffer.storage;
 	}
 
 	toString() {
@@ -4558,23 +4558,23 @@ class MultisigTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this.innerTransaction.size, 4, false)); // bound: inner_transaction_size
-		buffer_.write(this._innerTransaction.serialize());
-		buffer_.write(converter.intToBytes(this._cosignatures.length, 4, false)); // bound: cosignatures_count
-		arrayHelpers.writeArray(buffer_, this._cosignatures);
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this.innerTransaction.size, 4, false)); // bound: inner_transaction_size
+		buffer.write(this._innerTransaction.serialize());
+		buffer.write(converter.intToBytes(this._cosignatures.length, 4, false)); // bound: cosignatures_count
+		arrayHelpers.writeArray(buffer, this._cosignatures);
+		return buffer.storage;
 	}
 
 	toString() {
@@ -4691,17 +4691,17 @@ class NamespaceRegistrationTransactionBody {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
-		buffer_.write(this._rentalFeeSink.serialize());
-		buffer_.write(this._rentalFee.serialize());
-		buffer_.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
-		buffer_.write(this._name);
-		buffer_.write(converter.intToBytes((this._parentName ? this._parentName.length : 4294967295), 4, false)); // bound: parent_name_size
+		const buffer = new Writer(this.size);
+		buffer.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
+		buffer.write(this._rentalFeeSink.serialize());
+		buffer.write(this._rentalFee.serialize());
+		buffer.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
+		buffer.write(this._name);
+		buffer.write(converter.intToBytes((this._parentName ? this._parentName.length : 4294967295), 4, false)); // bound: parent_name_size
 		if (this.parentName)
-			buffer_.write(this._parentName);
+			buffer.write(this._parentName);
 
-		return buffer_.storage;
+		return buffer.storage;
 	}
 
 	toString() {
@@ -4943,28 +4943,28 @@ class NamespaceRegistrationTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
-		buffer_.write(this._rentalFeeSink.serialize());
-		buffer_.write(this._rentalFee.serialize());
-		buffer_.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
-		buffer_.write(this._name);
-		buffer_.write(converter.intToBytes((this._parentName ? this._parentName.length : 4294967295), 4, false)); // bound: parent_name_size
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
+		buffer.write(this._rentalFeeSink.serialize());
+		buffer.write(this._rentalFee.serialize());
+		buffer.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
+		buffer.write(this._name);
+		buffer.write(converter.intToBytes((this._parentName ? this._parentName.length : 4294967295), 4, false)); // bound: parent_name_size
 		if (this.parentName)
-			buffer_.write(this._parentName);
+			buffer.write(this._parentName);
 
-		return buffer_.storage;
+		return buffer.storage;
 	}
 
 	toString() {
@@ -5194,26 +5194,26 @@ class NonVerifiableNamespaceRegistrationTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
-		buffer_.write(this._rentalFeeSink.serialize());
-		buffer_.write(this._rentalFee.serialize());
-		buffer_.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
-		buffer_.write(this._name);
-		buffer_.write(converter.intToBytes((this._parentName ? this._parentName.length : 4294967295), 4, false)); // bound: parent_name_size
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._rentalFeeSinkSize, 4, false));
+		buffer.write(this._rentalFeeSink.serialize());
+		buffer.write(this._rentalFee.serialize());
+		buffer.write(converter.intToBytes(this._name.length, 4, false)); // bound: name_size
+		buffer.write(this._name);
+		buffer.write(converter.intToBytes((this._parentName ? this._parentName.length : 4294967295), 4, false)); // bound: parent_name_size
 		if (this.parentName)
-			buffer_.write(this._parentName);
+			buffer.write(this._parentName);
 
-		return buffer_.storage;
+		return buffer.storage;
 	}
 
 	toString() {
@@ -5333,11 +5333,11 @@ class Message {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._messageType.serialize());
-		buffer_.write(converter.intToBytes(this._message.length, 4, false)); // bound: message_size
-		buffer_.write(this._message);
-		return buffer_.storage;
+		const buffer = new Writer(this.size);
+		buffer.write(this._messageType.serialize());
+		buffer.write(converter.intToBytes(this._message.length, 4, false)); // bound: message_size
+		buffer.write(this._message);
+		return buffer.storage;
 	}
 
 	toString() {
@@ -5568,26 +5568,26 @@ class TransferTransactionV1 {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._recipientAddressSize, 4, false));
-		buffer_.write(this._recipientAddress.serialize());
-		buffer_.write(this._amount.serialize());
-		buffer_.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._recipientAddressSize, 4, false));
+		buffer.write(this._recipientAddress.serialize());
+		buffer.write(this._amount.serialize());
+		buffer.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
 		if (0 !== this.messageEnvelopeSize)
-			buffer_.write(this._message.serialize());
+			buffer.write(this._message.serialize());
 
-		return buffer_.storage;
+		return buffer.storage;
 	}
 
 	toString() {
@@ -5810,24 +5810,24 @@ class NonVerifiableTransferTransactionV1 {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._recipientAddressSize, 4, false));
-		buffer_.write(this._recipientAddress.serialize());
-		buffer_.write(this._amount.serialize());
-		buffer_.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._recipientAddressSize, 4, false));
+		buffer.write(this._recipientAddress.serialize());
+		buffer.write(this._amount.serialize());
+		buffer.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
 		if (0 !== this.messageEnvelopeSize)
-			buffer_.write(this._message.serialize());
+			buffer.write(this._message.serialize());
 
-		return buffer_.storage;
+		return buffer.storage;
 	}
 
 	toString() {
@@ -6086,28 +6086,28 @@ class TransferTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(converter.intToBytes(this._signatureSize, 4, false));
-		buffer_.write(this._signature.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._recipientAddressSize, 4, false));
-		buffer_.write(this._recipientAddress.serialize());
-		buffer_.write(this._amount.serialize());
-		buffer_.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(converter.intToBytes(this._signatureSize, 4, false));
+		buffer.write(this._signature.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._recipientAddressSize, 4, false));
+		buffer.write(this._recipientAddress.serialize());
+		buffer.write(this._amount.serialize());
+		buffer.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
 		if (0 !== this.messageEnvelopeSize)
-			buffer_.write(this._message.serialize());
+			buffer.write(this._message.serialize());
 
-		buffer_.write(converter.intToBytes(this._mosaics.length, 4, false)); // bound: mosaics_count
-		arrayHelpers.writeArray(buffer_, this._mosaics);
-		return buffer_.storage;
+		buffer.write(converter.intToBytes(this._mosaics.length, 4, false)); // bound: mosaics_count
+		arrayHelpers.writeArray(buffer, this._mosaics);
+		return buffer.storage;
 	}
 
 	toString() {
@@ -6348,26 +6348,26 @@ class NonVerifiableTransferTransaction {
 	}
 
 	serialize() {
-		const buffer_ = new Writer(this.size);
-		buffer_.write(this._type.serialize());
-		buffer_.write(converter.intToBytes(this._version, 1, false));
-		buffer_.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
-		buffer_.write(this._network.serialize());
-		buffer_.write(this._timestamp.serialize());
-		buffer_.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
-		buffer_.write(this._signerPublicKey.serialize());
-		buffer_.write(this._fee.serialize());
-		buffer_.write(this._deadline.serialize());
-		buffer_.write(converter.intToBytes(this._recipientAddressSize, 4, false));
-		buffer_.write(this._recipientAddress.serialize());
-		buffer_.write(this._amount.serialize());
-		buffer_.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
+		const buffer = new Writer(this.size);
+		buffer.write(this._type.serialize());
+		buffer.write(converter.intToBytes(this._version, 1, false));
+		buffer.write(converter.intToBytes(this._entityBodyReserved_1, 2, false));
+		buffer.write(this._network.serialize());
+		buffer.write(this._timestamp.serialize());
+		buffer.write(converter.intToBytes(this._signerPublicKeySize, 4, false));
+		buffer.write(this._signerPublicKey.serialize());
+		buffer.write(this._fee.serialize());
+		buffer.write(this._deadline.serialize());
+		buffer.write(converter.intToBytes(this._recipientAddressSize, 4, false));
+		buffer.write(this._recipientAddress.serialize());
+		buffer.write(this._amount.serialize());
+		buffer.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
 		if (0 !== this.messageEnvelopeSize)
-			buffer_.write(this._message.serialize());
+			buffer.write(this._message.serialize());
 
-		buffer_.write(converter.intToBytes(this._mosaics.length, 4, false)); // bound: mosaics_count
-		arrayHelpers.writeArray(buffer_, this._mosaics);
-		return buffer_.storage;
+		buffer.write(converter.intToBytes(this._mosaics.length, 4, false)); // bound: mosaics_count
+		arrayHelpers.writeArray(buffer, this._mosaics);
+		return buffer.storage;
 	}
 
 	toString() {

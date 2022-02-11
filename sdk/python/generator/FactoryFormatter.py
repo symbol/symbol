@@ -59,7 +59,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		return f'({values}): {name}'
 
 	def get_deserialize_descriptor(self):
-		body = 'buffer_ = bytes(payload)\n'
+		body = 'buffer = bytes(payload)\n'
 		body += f'{self.printer.name} = {self.printer.load()}\n'
 
 		body += 'mapping = {\n'
@@ -76,7 +76,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		values = ', '.join(map(lambda discriminator: f'{self.printer.name}.{fix_name(discriminator)}', discriminators))
 		body += f'discriminator = ({values})\n'
 		body += 'factory_class = mapping[discriminator]\n'
-		body += 'return factory_class.deserialize(buffer_)'
+		body += 'return factory_class.deserialize(buffer)'
 
 		return MethodDescriptor(body=body, result=self.abstract.name)
 

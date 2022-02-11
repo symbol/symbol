@@ -28,7 +28,7 @@ class IntPrinter(Printer):
 
 	def load(self):
 		data_size = self.get_size()
-		return f'int.from_bytes(buffer_[:{data_size}], byteorder=\'little\', signed={not self.descriptor.is_unsigned})'
+		return f'int.from_bytes(buffer[:{data_size}], byteorder=\'little\', signed={not self.descriptor.is_unsigned})'
 
 	def advancement_size(self):
 		return self.get_size()
@@ -74,13 +74,13 @@ class TypedArrayPrinter(Printer):
 
 			data_size = self.descriptor.size
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.read_variable_size_elements(buffer_[:{data_size}], {factory_name}, {alignment})'
+			return f'ArrayHelpers.read_variable_size_elements(buffer[:{data_size}], {factory_name}, {alignment})'
 
 		if self.descriptor.field_type.is_expandable:
-			return f'ArrayHelpers.read_array(buffer_, {self.descriptor.field_type.element_type})'
+			return f'ArrayHelpers.read_array(buffer, {self.descriptor.field_type.element_type})'
 
 		args = [
-			'buffer_',
+			'buffer',
 			self.descriptor.field_type.element_type,
 			str(self.descriptor.size),
 		]
@@ -149,7 +149,7 @@ class ArrayPrinter(Printer):
 		return size
 
 	def load(self):
-		return f'ArrayHelpers.get_bytes(buffer_, {self.advancement_size()})'
+		return f'ArrayHelpers.get_bytes(buffer, {self.advancement_size()})'
 
 	def advancement_size(self):
 		# like get_size() but without self prefix, as this refers to local method field
@@ -190,7 +190,7 @@ class BuiltinPrinter(Printer):
 	def get_size(self):
 		return f'self.{self.name}.size'
 
-	def load(self, buffer_name='buffer_'):
+	def load(self, buffer_name='buffer'):
 		if DisplayType.STRUCT == self.descriptor.display_type and self.descriptor.is_abstract:
 			# HACK: factories use this printers as well, ignore them
 			if 'parent' != self.name:

@@ -31,14 +31,14 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		return None
 
 	def get_deserialize_descriptor(self):
-		body = 'buffer_ = memoryview(payload)\n'
+		body = 'buffer = memoryview(payload)\n'
 		body += f'return {self.typename}({self.int_printer.load()})'
 		return MethodDescriptor(body=body)
 
 	def get_serialize_descriptor(self):
-		body = 'buffer_ = bytes()\n'
-		body += f'buffer_ += {self.int_printer.store("self.value")}\n'
-		body += 'return buffer_'
+		body = 'buffer = bytes()\n'
+		body += f'buffer += {self.int_printer.store("self.value")}\n'
+		body += 'return buffer'
 		return MethodDescriptor(body=body)
 
 	def get_size_descriptor(self):

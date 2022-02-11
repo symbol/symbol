@@ -148,7 +148,7 @@ class StructFormatter(AbstractTypeFormatter):
 	def generate_deserialize_field(self, field, arg_buffer_name=None):
 		condition = self.generate_condition(field)
 
-		buffer_name = arg_buffer_name or 'buffer_'
+		buffer_name = arg_buffer_name or 'buffer'
 		field_name = fix_size_name(field.extensions.printer.name)
 
 		# half-hack: limit buffer to amount specified in size field
@@ -156,7 +156,7 @@ class StructFormatter(AbstractTypeFormatter):
 		size_fields = field.extensions.size_fields
 		if size_fields:
 			assert len(size_fields) == 1, f'unexpected number of size_fields associated with {field.name}'
-			buffer_load_name = f'buffer_[:{size_fields[0].name}]'
+			buffer_load_name = f'buffer[:{size_fields[0].name}]'
 
 		use_custom_buffer_name = arg_buffer_name or size_fields
 		load = field.extensions.printer.load(buffer_load_name) if use_custom_buffer_name else field.extensions.printer.load()
@@ -183,7 +183,7 @@ class StructFormatter(AbstractTypeFormatter):
 		return indent_if_conditional(condition, deserialize_field)
 
 	def get_deserialize_descriptor(self):
-		body = 'buffer_ = memoryview(payload)\n'
+		body = 'buffer = memoryview(payload)\n'
 
 		# special treatment for condition-guarded fields,
 		# where condition is behind the fields...
@@ -202,8 +202,8 @@ class StructFormatter(AbstractTypeFormatter):
 						comment = '# deserialize to temporary buffer for further processing'
 						deserialize = f'{field.extensions.printer.name}_temporary = {field.extensions.printer.load()}'
 						temporary_buffer = create_temporary_buffer_name(condition_field_name)
-						temporary = f'{temporary_buffer} = buffer_[:{field.extensions.printer.name}_temporary.size]'
-						adjust = f'buffer_ = buffer_[{field.extensions.printer.name}_temporary.size:]'
+						temporary = f'{temporary_buffer} = buffer[:{field.extensions.printer.name}_temporary.size]'
+						adjust = f'buffer = buffer[{field.extensions.printer.name}_temporary.size:]'
 						body += comment + '\n' + deserialize + '\n' + temporary + '\n' + adjust + '\n\n'
 
 					# queue field for re-reading it from temporary buffer
@@ -265,23 +265,23 @@ class StructFormatter(AbstractTypeFormatter):
 
 		serialize_field = field.extensions.printer.store(field_value) + field_comment
 
-		return indent_if_conditional(condition, f'buffer_ += {serialize_field}\n')
+		return indent_if_conditional(condition, f'buffer += {serialize_field}\n')
 
 	def get_serialize_descriptor(self):
-		body = 'buffer_ = bytes()\n'
+		body = 'buffer = bytes()\n'
 
 		# if first field is size replace serializer with custom one (to access builder .size() instead)
 		fields_iter = self.non_const_fields()
 		first_field = next(fields_iter)
 		if self.struct.size == first_field.extensions.printer.name:
-			body += f'buffer_ += self.size.to_bytes({first_field.size}, byteorder=\'little\', signed=False)\n'
+			body += f'buffer += self.size.to_bytes({first_field.size}, byteorder=\'little\', signed=False)\n'
 		else:
 			body += self.generate_serialize_field(first_field)
 
 		for field in fields_iter:
 			body += self.generate_serialize_field(field)
 
-		body += 'return buffer_'
+		body += 'return buffer'
 		return MethodDescriptor(body=body)
 
 	def generate_size_field(self, field):

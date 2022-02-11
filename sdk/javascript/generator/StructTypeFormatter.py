@@ -287,29 +287,29 @@ class StructFormatter(AbstractTypeFormatter):
 
 		serialize_line = None
 		if DisplayType.TYPED_ARRAY == field.display_type:
-			serialize_field = field.extensions.printer.store(field_value, 'buffer_')
+			serialize_field = field.extensions.printer.store(field_value, 'buffer')
 			serialize_line = f'{serialize_field};{field_comment}\n'
 		else:
 			serialize_field = field.extensions.printer.store(field_value)
-			serialize_line = f'buffer_.write({serialize_field});{field_comment}\n'
+			serialize_line = f'buffer.write({serialize_field});{field_comment}\n'
 
 		return indent_if_conditional(condition, serialize_line)
 
 	def get_serialize_descriptor(self):
-		body = 'const buffer_ = new Writer(this.size);\n'
+		body = 'const buffer = new Writer(this.size);\n'
 
 		# if first field is size replace serializer with custom one (to access builder .size() instead)
 		fields_iter = self.non_const_fields()
 		first_field = next(fields_iter)
 		if self.struct.size == first_field.extensions.printer.name:
-			body += f'buffer_.write(converter.intToBytes(this.size, {first_field.size}, false));\n'
+			body += f'buffer.write(converter.intToBytes(this.size, {first_field.size}, false));\n'
 		else:
 			body += self.generate_serialize_field(first_field)
 
 		for field in fields_iter:
 			body += self.generate_serialize_field(field)
 
-		body += 'return buffer_.storage;'
+		body += 'return buffer.storage;'
 		return MethodDescriptor(body=body)
 
 	def generate_size_field(self, field):
