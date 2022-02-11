@@ -1,126 +1,101 @@
-from __future__ import annotations
+def read_array_impl(view, factory_class, accessor, should_continue):
+	elements = []
+	previous_element = None
 
-from typing import Callable, List, Optional, Sequence
+	i = 0
+	while should_continue(i, view):
+		element = factory_class.deserialize(view)
 
-from typing_extensions import Protocol
+		if element.size <= 0:
+			raise ValueError('element size has invalid size')
+
+		if accessor and previous_element and accessor(previous_element) >= accessor(element):
+			raise ValueError('elements in array are not sorted')
+
+		elements.append(element)
+		view = view[element.size:]
+
+		previous_element = element
+		i += 1
+
+	return elements
 
 
-class Serializable(Protocol):
-	def serialize(self) -> bytes:
-		return bytes()
+def write_array_impl(elements, count, accessor):
+	output_buffer = bytes()
+	for i in range(0, count):
+		element = elements[i]
+		if accessor and i > 0 and accessor(elements[i - 1]) >= accessor(element):
+			raise ValueError('array passed to write array is not sorted')
 
-	def deserialize(self, binary: memoryview) -> Serializable:
-		raise RuntimeError('protocol class')
+		output_buffer += element.serialize()
 
-	def size(self) -> int:
-		return 0
+	return output_buffer
 
 
 class ArrayHelpers:
 	@staticmethod
-	def get_bytes(binary: memoryview, size: int) -> bytes:
-		if size > len(binary):
-			raise Exception(f'size should not exceed {len(binary)}. The value of size was: {size}')
-		return binary[0:size].tobytes()
+	def get_bytes(view, size):
+		"""Returns first size bytes of view."""
+		if size > len(view):
+			raise ValueError(f'size should not exceed {len(view)}. The value of size was: {size}.')
+
+		return view[:size].tobytes()
 
 	@staticmethod
-	def read_array_count(
-		binary: memoryview,
-		element_type: Serializable,
-		count: int,
-		accessor: Optional[Callable[[Serializable], int]] = None,
-	) -> List[Serializable]:
-		elements = []
-		prev_element = None
-		for _ in range(count):
-			element = element_type.deserialize(binary)
-			if accessor and prev_element:
-				assert accessor(prev_element) < accessor(element), 'array is not sorted'
-
-			elements.append(element)
-			binary = binary[element.size:]
-
-			prev_element = element
-		return elements
-
-	@staticmethod
-	def write_array_count(
-		elements: Sequence[Serializable],
-		count: int,
-		accessor: Optional[Callable[[Serializable], int]] = None,
-	) -> bytes:
-		binary = bytes()
-		for i in range(count):
-			if accessor and i > 0:
-				assert accessor(elements[i - 1]) < accessor(elements[i]), 'array is not sorted'
-
-			binary += elements[i].serialize()
-		return binary
-
-	@staticmethod
-	def read_array(
-		binary: memoryview,
-		element_type: Serializable,
-		accessor: Optional[Callable[[Serializable], int]] = None,
-	) -> List[Serializable]:
-		elements = []
-		prev_element = None
-		# note: this method is used only for '__FILL__' type arrays,
-		# this loop assumes, proper binary buffer slice is passed and that there's
-		# no additional data
-		# In generated code this is done by limiting buffer, when 'size' field is read.
-		while len(binary) > 0:
-			element = element_type.deserialize(binary)
-			if accessor and prev_element:
-				assert accessor(prev_element) < accessor(element), 'array is not sorted'
-
-			elements.append(element)
-			binary = binary[element.size:]
-
-			prev_element = element
-		return elements
-
-	@staticmethod
-	def write_array(
-		elements: Sequence[Serializable],
-		accessor: Optional[Callable[[Serializable], int]] = None,
-	) -> bytes:
-		binary = bytes()
-		i = 0
-		for element in elements:
-			if accessor and i > 0:
-				assert accessor(elements[i - 1]) < accessor(elements[i]), 'array is not sorted'
-
-			binary += element.serialize()
-			i += 1
-
-		return binary
-
-	@staticmethod
-	def align_up(size: int, alignment: int) -> int:
+	def align_up(size, alignment):
+		"""Calculates aligned size."""
 		return (size + alignment - 1) // alignment * alignment
 
 	@staticmethod
-	def read_variable_size_elements(binary: memoryview, factory_type: Serializable, alignment: int) -> List[Serializable]:
-		elements = []
-		while len(binary) > 0:
-			element = factory_type.deserialize(binary)
-			elements.append(element)
-			embedded_size = element.size
-			assert embedded_size > 0
+	def read_array(view, factory_class, accessor=None):
+		"""Reads array of objects."""
+		return read_array_impl(view, factory_class, accessor, lambda _, view: len(view) > 0)
 
-			aligned_size = ArrayHelpers.align_up(embedded_size, alignment)
-			binary = binary[aligned_size:]
+	@staticmethod
+	def read_array_count(view, factory_class, count, accessor=None):
+		"""Reads array of deterministic number of objects."""
+		return read_array_impl(view, factory_class, accessor, lambda index, _: count > index)
+
+	@staticmethod
+	def read_variable_size_elements(view, factory_class, alignment):
+		"""Reads array of variable size objects."""
+		elements = []
+		while len(view) > 0:
+			element = factory_class.deserialize(view)
+
+			if element.size <= 0:
+				raise ValueError('element size has invalid size')
+
+			elements.append(element)
+
+			aligned_size = ArrayHelpers.align_up(element.size, alignment)
+			if aligned_size > len(view):
+				raise ValueError('unexpected buffer length')
+
+			view = view[aligned_size:]
 
 		return elements
 
 	@staticmethod
-	def write_variable_size_elements(elements: Sequence[Serializable], alignment: int) -> bytes:
-		binary = bytes()
-		for element in elements:
-			binary += element.serialize()
+	def write_array(elements, accessor=None):
+		"""Writes array of objects."""
+		return write_array_impl(elements, len(elements), accessor)
 
-			embedded_size = element.size
-			aligned_size = ArrayHelpers.align_up(embedded_size, alignment)
-			binary += bytes(aligned_size - embedded_size)
-		return binary
+	@staticmethod
+	def write_array_count(elements, count, accessor=None):
+		"""Writes array of deterministic number of objects."""
+		return write_array_impl(elements, count, accessor)
+
+	@staticmethod
+	def write_variable_size_elements(elements, alignment):
+		"""Writes array of variable size objects."""
+		output_buffer = bytes()
+		for element in elements:
+			output_buffer += element.serialize()
+
+			aligned_size = ArrayHelpers.align_up(element.size, alignment)
+			if aligned_size != element.size:
+				output_buffer += bytes(aligned_size - element.size)
+
+		return output_buffer

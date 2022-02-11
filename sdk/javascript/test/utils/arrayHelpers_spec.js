@@ -31,8 +31,8 @@ describe('arrayHelpers', () => {
 
 	class ReadTestContext {
 		constructor(sizes, viewSize = 52) {
-			this.byteArray = new Uint8Array(100);
-			this.subView = new Uint8Array(this.byteArray.buffer, 15, viewSize);
+			this.buffer = new Uint8Array(100);
+			this.subView = new Uint8Array(this.buffer.buffer, 15, viewSize);
 			this.factory = {
 				sizes,
 				index: 0,
@@ -211,7 +211,7 @@ describe('arrayHelpers', () => {
 
 			// Act + Assert:
 			expect(() => traits.write(context.output, context.elements, element => -element.size))
-				.to.throw('array passed to writeArray is not sorted');
+				.to.throw('array passed to write array is not sorted');
 		});
 	};
 
