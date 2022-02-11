@@ -28,7 +28,7 @@ const writeArrayImpl = (output, elements, count, accessor = null) => {
 	for (let i = 0; i < count; ++i) {
 		const element = elements[i];
 		if (accessor && 0 < i && accessor(elements[i - 1]) >= accessor(element))
-			throw RangeError('array passed to writeArray is not sorted');
+			throw RangeError('array passed to write array is not sorted');
 
 		output.write(element.serialize());
 	}
@@ -56,7 +56,7 @@ const arrayHelpers = {
 		readArrayImpl(bufferInput, FactoryClass, accessor, (_, view) => 0 < view.buffer.length),
 
 	/**
-	 * Reads array of objects.
+	 * Reads array of deterministic number of objects.
 	 * @param {Uint8Array} bufferInput A uint8 array.
 	 * @param {type} FactoryClass Factory used to deserialize objects.
 	 * @param {number} count Number of object to deserialize.
@@ -67,7 +67,7 @@ const arrayHelpers = {
 		readArrayImpl(bufferInput, FactoryClass, accessor, index => count > index),
 
 	/**
-	 * Reads array of objects.
+	 * Reads array of variable size objects.
 	 * @param {Uint8Array} bufferInput A uint8 array.
 	 * @param {type} FactoryClass Factory used to deserialize objects.
 	 * @param {number} alignment Alignment used to make sure each object is at boundary.
@@ -95,7 +95,7 @@ const arrayHelpers = {
 	},
 
 	/**
-	 * Write out objects.
+	 * Writes array of objects.
 	 * @param {Writer} output An output sink.
 	 * @param {array<object>} elements Serializable elements.
 	 * @param {function} accessor Optional accessor used to check objects order.
@@ -105,7 +105,7 @@ const arrayHelpers = {
 	},
 
 	/**
-	 * Write out objects.
+	 * Writes array of deterministic number of objects.
 	 * @param {Writer} output An output sink.
 	 * @param {array<object>} elements Serializable elements.
 	 * @param {number} count Number of objects to write.
@@ -114,7 +114,7 @@ const arrayHelpers = {
 	writeArrayCount: writeArrayImpl,
 
 	/**
-	 * Write out objects.
+	 * Writes array of variable size objects.
 	 * @param {Writer} output An output sink.
 	 * @param {array<object>} elements Serializable elements.
 	 * @param {number} alignment Alignment used to make sure each object is at boundary.
