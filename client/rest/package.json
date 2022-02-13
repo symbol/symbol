@@ -29,7 +29,7 @@
     "js-sha3": "^0.8.0",
     "long": "^5.2.0",
     "mongodb": "^4.3.1",
-    "restify": "^8.6.0",
+    "restify": "^8.6.1",
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
     "sshpk": "^1.17.0",
