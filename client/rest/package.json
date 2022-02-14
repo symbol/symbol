@@ -1,9 +1,10 @@
 {
-  "name": "symbol-api-rest",
+  "name": "symbol-rest",
   "version": "0.0.0",
   "description": "Symbol API REST",
   "main": "src/index.js",
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "start": "node src/index.js",
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
@@ -14,13 +15,18 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "ajv": "^8.10.0",
+    "ansi-regex": "^6.0.1",
     "chai": "^4.3.6",
     "eslint": "^8.9.0",
     "eslint-config-airbnb": "^19.0.4",
     "hippie": "^0.6.1",
+    "i": "^0.3.7",
     "minimist": "^1.2.5",
     "mocha": "^9.2.0",
     "mocha-jenkins-reporter": "^0.4.7",
+    "npm": "^8.5.0",
+    "npm-force-resolutions": "^0.0.10",
     "nyc": "^15.1.0",
     "sinon": "^13.0.1"
   },
@@ -36,5 +42,9 @@
     "winston": "^3.6.0",
     "ws": "^8.5.0",
     "zeromq": "^5.2.8"
+  },
+  "resolutions": {
+    "ajv": "8.10.0",
+    "ansi-regex": "6.0.1"
   }
 }
