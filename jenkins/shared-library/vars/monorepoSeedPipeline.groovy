@@ -1,3 +1,5 @@
+import java.nio.file.Paths
+
 void call(Closure body) {
 	Map params = [:]
 	body.resolveStrategy = Closure.DELEGATE_FIRST
@@ -29,7 +31,7 @@ void call(Closure body) {
 
 		environment {
 			JENKINS_ROOT_FOLDER	  = "${params.organizationName}/generated"
-			BUILD_CONFIGURATION_FILE = 'seed-job/buildConfiguration.yaml'
+			BUILD_CONFIGURATION_FILE = 'buildConfiguration.yaml'
 			GITHUB_CREDENTIALS_ID = "${params.gitHubId}"
 		}
 
@@ -40,6 +42,9 @@ void call(Closure body) {
 				}
 			}
 			stage('checkout') {
+				when {
+					expression { helper.isManualBuild(env.MANUAL_GIT_BRANCH) }
+				}
 				steps {
 					script {
 						gitCheckout(helper.resolveBranchName(env.MANUAL_GIT_BRANCH), env.GITHUB_CREDENTIALS_ID, env.GIT_URL)
@@ -49,16 +54,23 @@ void call(Closure body) {
 			stage('create pipeline jobs') {
 				when {
 					expression {
-						return fileExists(env.BUILD_CONFIGURATION_FILE)
+						return fileExists(resolveBuildConfigurationFile(env.BUILD_CONFIGURATION_FILE))
 					}
 				}
 				steps {
 					script {
-						buildConfiguration = yamlHelper.readYamlFromFile(env.BUILD_CONFIGURATION_FILE)
+						buildConfiguration = yamlHelper.readYamlFromFile(resolveBuildConfigurationFile(env.BUILD_CONFIGURATION_FILE))
 						createMonorepoMultibranchJobs(buildConfiguration, env.GIT_URL, env.JENKINS_ROOT_FOLDER, env.GITHUB_CREDENTIALS_ID)
 					}
 				}
 			}
 		}
 	}
+}
+
+String resolveBuildConfigurationFile(String configurationFile)  {
+	repositoryName = helper.resolveRepoName().tokenize('.')[0]
+	String filepath = Paths.get('jenkins/seed-job').resolve(repositoryName).resolve(configurationFile)
+	logger.logInfo("build configuration file: ${filepath}")
+	return filepath
 }
