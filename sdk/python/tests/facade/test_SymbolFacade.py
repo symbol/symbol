@@ -144,12 +144,12 @@ class SymbolFacadeTest(unittest.TestCase):
 	def test_can_hash_transaction(self):
 		self._assert_can_hash_transaction(
 			self._create_real_transfer,
-			Hash256('17EBC7D64F01AA12F55A2B1F50C99B02BC25D06928CEAD1F249A4373B5EB1914'))
+			Hash256('600D0CF8C95CDEEB1BC81EFEB9D50BB853F474AC2226E1BEB83E235716C8E16E'))
 
 	def test_can_hash_aggregate_transaction(self):
 		self._assert_can_hash_transaction(
 			self._create_real_aggregate,
-			Hash256('A029FCAC4957C6531B4492F08C211CDDE52C3CD72F2016D6EA37EC96B85606E7'))
+			Hash256('194578BACECBE33A18EE6D1BE02D61B1CC86F57D57C4D22F7783D27EB33FF225'))
 
 	def _assert_can_sign_transaction(self, transaction_factory, expected_signature):
 		# Arrange:
@@ -169,14 +169,14 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	def test_can_sign_transaction(self):
 		self._assert_can_sign_transaction(self._create_real_transfer, Signature(''.join([
-			'9BC2691B3176149D5E76ED15D83BAB7AC403C754106DFA94E4264F73B92DEC1B',
-			'1D514F23C07735EF394DA005AD96C86011EDF49F1FEE56CF3E280B49BEE26608'
+			'5BF0C9DC0D97FDE7FF6F99F1EFADF50DD77C1FA54CFC704FB23295C8F6908B6D',
+			'1F9BA1FB2DB267543805F14C83B7A9D4255D8AECC6046DDBE225115A6DF16002'
 		])))
 
 	def test_can_sign_aggregate_transaction(self):
 		self._assert_can_sign_transaction(self._create_real_aggregate, Signature(''.join([
-			'CD95F7D677A66E980B0B24605049CF405CB1E350ACF65F2BC5427BBBFF531557',
-			'487176A464DA6E5D6B17D71ADDD727C3D0C469513C1AB36F27547ED6101B4809'
+			'116BA7B83280BC1752440A5CFBF71612385DFDFA0363A5B220E20C0CA0C6307A',
+			'35C979BB120BAB85E58B1C880DDFB7A96A922D1A2828B5C6CC9556C27571190C'
 		])))
 
 	def _assert_can_verify_transaction(self, transaction_factory):
