@@ -177,7 +177,7 @@
       levy:
         fee: 58132134
         mosaic_id:
-          name: 756E69746564
+          name: '756E69746564'
           namespace_id:
             name: 72657074696C69616E73
         recipient_address: TCUTCNM64Y6Q4VB4OTEHBQT2ZKUY3CUYRVHCTIZ3
@@ -377,7 +377,7 @@
         levy:
           fee: 58132134
           mosaic_id:
-            name: 756E69746564
+            name: '756E69746564'
             namespace_id:
               name: 72657074696C69616E73
           recipient_address: TCUTCNM64Y6Q4VB4OTEHBQT2ZKUY3CUYRVHCTIZ3

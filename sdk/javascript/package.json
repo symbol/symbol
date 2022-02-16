@@ -7,7 +7,7 @@
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
     "vectors": "node ./vectors/all.js --vectors $(git rev-parse --show-toplevel)/tests/vectors/${BLOCKCHAIN}/crypto --blockchain ${BLOCKCHAIN}",
-    "catvectors": "node ./vectors/catbuffer.js --vectors $(git rev-parse --show-toplevel)/tests/vectors --blockchain ${BLOCKCHAIN}",
+    "catvectors": "mocha --full-trace ./vectors/catbuffer.js",
     "lint:jenkins": "eslint -o lint.sdk.javascript.xml -f junit . || exit 0",
     "test:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run test",
     "vectors:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run vectors",

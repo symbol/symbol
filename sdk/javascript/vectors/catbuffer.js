@@ -1,100 +1,256 @@
+const { NemFacade } = require('../src/facade/NemFacade');
+const { SymbolFacade } = require('../src/facade/SymbolFacade');
 const nc = require('../src/nem/models');
 const sc = require('../src/symbol/models');
-const { hexToUint8 } = require('../src/utils/converter');
+const converter = require('../src/utils/converter');
+const { expect } = require('chai');
 const YAML = require('yaml');
-const yargs = require('yargs');
 const fs = require('fs');
 const path = require('path');
 
-(() => {
-	const areEqual = (lhs, rhs) => {
-		if (!!lhs !== !!rhs)
-			return false;
+describe('catbuffer vectors', () => {
+	YAML.scalarOptions.int.asBigInt = true;
 
-		if (lhs.length && rhs.length) {
-			if (lhs.length !== rhs.length)
-				return false;
+	// region common test utils
 
-			for (let i = 0; i < lhs.length; ++i) {
-				if (!areEqual(lhs[i], rhs[i]))
-					return false;
+	const prepareTestCases = (networkName, options) => {
+		const cases = [];
+		const schemasPath = path.join(process.env.SCHEMAS_PATH || '.', networkName, 'transactions');
+
+		if (!fs.existsSync(schemasPath))
+			throw Error(`could not find any cases because ${schemasPath} does not exist`);
+
+		fs.readdirSync(schemasPath).filter(name => name.endsWith('.yaml')).forEach(name => {
+			if (options && options.includes && options.includes.every(include => !name.includes(include))) {
+				console.log(`skipping ${name} due to include filters`);
+				return;
 			}
 
-			return true;
-		}
-
-		if (lhs.bytes && rhs.bytes)
-			return areEqual(lhs.bytes, rhs.bytes);
-
-		return lhs === rhs;
-	};
-
-	const assertRoundtripBuilder = (module, testCase) => {
-		// Arrange:
-		const payload = hexToUint8(testCase.payload);
-		const builder = module[testCase.schema_name];
-		if (!builder)
-			throw RangeError(`invalid builder name: ${testCase.schema_name}`);
-
-		// Act:
-		const transaction = builder.deserialize(payload);
-
-		// - trigger toString, to make sure it doesn't raise any errors
-		transaction.toString();
-
-		const serialized = transaction.serialize();
-
-		// Assert:
-		return areEqual(serialized, payload);
-	};
-
-	const runTestSuite = (module, testSuiteName, filepath) => {
-		const fileContent = fs.readFileSync(filepath, 'utf8');
-		const testVectors = YAML.parse(fileContent);
-
-		let testCaseNumber = 0;
-		let numFailed = 0;
-		testVectors.forEach(testCase => {
-			++testCaseNumber;
-			if (!assertRoundtripBuilder(module, testCase)) {
-				console.log(`${testCase.test_name} failed`);
-				++numFailed;
+			if (options && options.excludes && options.excludes.some(exclude => name.includes(exclude))) {
+				console.log(`skipping ${name} due to exclude filters`);
+				return;
 			}
+
+			const fileContent = fs.readFileSync(path.join(schemasPath, name), 'utf8');
+			cases.push(...YAML.parse(fileContent));
 		});
 
-		if (numFailed) {
-			console.log(`${testSuiteName} ${numFailed} failures out of ${testCaseNumber}`);
-			return false;
-		}
+		if (0 === cases.length)
+			throw Error(`could not find any cases in ${schemasPath}`);
 
-		console.log(`${testSuiteName} successes ${testCaseNumber}`);
-		return true;
+		return cases;
 	};
 
-	const args = yargs(process.argv.slice(2))
-		.demandOption('vectors', 'path to test-vectors directory')
-		.option('blockchain', {
-			describe: 'blockchain to run vectors against',
-			choices: ['nem', 'symbol'],
-			default: 'symbol'
-		})
-		.argv;
+	const makeCamelCase = name => {
+		let camelCaseName = '';
+		let lastCharWasUnderscore = false;
+		Array.from(name).forEach(ch => {
+			if ('_' === ch) {
+				lastCharWasUnderscore = true;
+				return;
+			}
 
-	const dirname = `${args.vectors}/${args.blockchain}/transactions`;
-	const testSuiteNames = fs.readdirSync(dirname);
-	const module = 'symbol' === args.blockchain ? sc : nc;
+			camelCaseName += lastCharWasUnderscore ? ch.toUpperCase() : ch;
+			lastCharWasUnderscore = false;
+		});
 
-	let numSuitesFailed = 0;
-	testSuiteNames.filter(name => -1 === name.indexOf('invalid')).filter(name => -1 !== name.indexOf('yaml')).forEach(name => {
-		// TODO: skip state tests, discuss on discord
-		if (-1 !== name.indexOf('state'))
-			return;
+		return camelCaseName;
+	};
 
-		const filepath = path.format({ dir: dirname, base: name });
-		if (!runTestSuite(module, name, filepath))
-			++numSuitesFailed;
+	const isNumeric = (key, value, type) => {
+		const bigIntPropertyNames = [
+			'amount', 'fee', 'mosaic_id', 'duration', 'scoped_metadata_key', 'namespace_id', 'restriction_key', 'restriction_value'
+		];
+
+		if (bigIntPropertyNames.some(name => key.includes(name)))
+			return false;
+
+		if ('delta' === key && 'mosaic_supply_change_transaction' === type)
+			return false;
+
+		return 0xFFFFFFFFn >= value;
+	};
+
+	const jsify = source => {
+		const dest = {};
+		Object.getOwnPropertyNames(source).forEach(key => {
+			let value = source[key];
+
+			if ('bigint' === typeof (value) && isNumeric(key, value, source.type)) {
+				value = Number(value);
+			} else if (Array.isArray(value)) {
+				value = value.map(valueItem => {
+					if ('bigint' === typeof (valueItem))
+						return 'account_mosaic_restriction_transaction' === source.type ? valueItem : Number(valueItem);
+
+					if ('object' === typeof (valueItem))
+						return jsify(valueItem);
+
+					return valueItem;
+				});
+			} else if ('object' === typeof (value) && null !== value) {
+				value = jsify(value);
+			}
+
+			dest[makeCamelCase(key)] = value;
+		});
+
+		return dest;
+	};
+
+	// endregion
+
+	// region create from descriptor
+
+	describe('create from descriptor', () => {
+		const fixupDescriptorCommon = (descriptor, module) => {
+			Object.getOwnPropertyNames(descriptor).forEach(key => {
+				// skip false positive due to ABC123 value that should be treated as plain string
+				if ('value' === key && 'namespace_metadata_transaction' === descriptor.type)
+					return;
+
+				const value = descriptor[key];
+				if ('string' === typeof (value) && converter.isHexString(value))
+					descriptor[key] = converter.hexToUint8(value);
+				else if ('object' === typeof (value) && null !== value)
+					fixupDescriptorCommon(value, module);
+			});
+		};
+
+		const fixupDescriptorNem = (descriptor, module, facade) => {
+			descriptor.signature = new module.Signature(descriptor.signature);
+			fixupDescriptorCommon(descriptor, module);
+
+			if (descriptor.innerTransaction) {
+				fixupDescriptorNem(descriptor.innerTransaction, module, facade);
+				descriptor.innerTransaction = facade.transactionFactory.constructor
+					.toNonVerifiableTransaction(facade.transactionFactory.create(descriptor.innerTransaction));
+
+				if (descriptor.cosignatures) {
+					descriptor.cosignatures = descriptor.cosignatures.map(cosignatureDescriptor => {
+						const cosignature = facade.transactionFactory.create({
+							type: 'cosignature',
+							...cosignatureDescriptor.cosignature
+						});
+						cosignature.signature = new module.Signature(cosignatureDescriptor.cosignature.signature);
+						cosignature.network = module.NetworkType.MAINNET; // TODO: fixup based on mismatch in vectors
+
+						const sizePrefixedCosignature = new module.SizePrefixedCosignature();
+						sizePrefixedCosignature.cosignature = cosignature;
+						return sizePrefixedCosignature;
+					});
+				}
+			}
+		};
+
+		const fixupCosignatureSymbol = (descriptor, module) => {
+			const cosignature = new module.Cosignature();
+			cosignature.signature = new module.Signature(descriptor.signature);
+			cosignature.signerPublicKey = new module.PublicKey(descriptor.signerPublicKey);
+			return cosignature;
+		};
+
+		const fixupDescriptorSymbol = (descriptor, module, facade) => {
+			descriptor.signature = new module.Signature(descriptor.signature);
+			fixupDescriptorCommon(descriptor, module);
+
+			if (descriptor.transactions) {
+				descriptor.transactions = descriptor.transactions
+					.map(childDescriptor => facade.transactionFactory.createEmbedded(childDescriptor));
+
+				if (descriptor.cosignatures) {
+					descriptor.cosignatures = descriptor.cosignatures
+						.map(cosignatureDescriptor => fixupCosignatureSymbol(cosignatureDescriptor, module));
+				}
+			}
+		};
+
+		const isKeyInFormattedString = (transaction, key) => {
+			if (transaction.toString().includes(key))
+				return true;
+
+			return 'parentName' === key && null === transaction[key];
+		};
+
+		const assertCreateFromDescriptor = (item, module, FacadeClass, fixupDescriptor) => {
+			// Arrange:
+			const comment = item.comment || '';
+			const payloadHex = item.payload;
+
+			const facade = new FacadeClass('testnet');
+
+			const descriptor = jsify(item.descriptor);
+			fixupDescriptor(descriptor, module, facade);
+
+			// Act:
+			const transaction = facade.transactionFactory.create(descriptor);
+			const transactionBuffer = transaction.serialize();
+
+			// Assert:
+			expect(converter.uint8ToHex(transactionBuffer), comment).to.equal(payloadHex);
+			expect(Object.getOwnPropertyNames(descriptor).every(key => isKeyInFormattedString(transaction, key), comment))
+				.to.equal(true);
+		};
+
+		describe('NEM', () => {
+			prepareTestCases('nem').forEach(item => {
+				it(`can create from descriptor ${item.test_name}`, () => {
+					assertCreateFromDescriptor(item, nc, NemFacade, fixupDescriptorNem);
+				});
+			});
+		});
+
+		describe('Symbol', () => {
+			prepareTestCases('symbol', { includes: ['transactions'] }).forEach(item => {
+				it(`can create from descriptor ${item.test_name}`, () => {
+					assertCreateFromDescriptor(item, sc, SymbolFacade, fixupDescriptorSymbol);
+				});
+			});
+		});
 	});
 
-	if (numSuitesFailed)
-		process.exit(1);
-})();
+	// endregion
+
+	// region roundtrip
+
+	describe('roundtrip', () => {
+		const assertRoundtrip = (item, module) => {
+			// Arrange:
+			const schemaName = item.schema_name;
+			const comment = item.comment || '';
+			const payloadHex = item.payload;
+			const payload = converter.hexToUint8(payloadHex);
+
+			const TransactionClass = module[schemaName];
+
+			// Act:
+			const transaction = TransactionClass.deserialize(payload);
+			const transactionBuffer = transaction.serialize();
+
+			// Assert:
+			expect(converter.uint8ToHex(transactionBuffer), comment).to.equal(payloadHex);
+			expect(transaction.size, comment).to.equal(transactionBuffer.length);
+
+			if (schemaName.endsWith('Transaction'))
+				assertRoundtrip({ schema_name: 'TransactionFactory', payload: payloadHex, comment }, module);
+		};
+
+		describe('NEM', () => {
+			prepareTestCases('nem').forEach(item => {
+				it(`can roundtrip ${item.test_name}`, () => {
+					assertRoundtrip(item, nc);
+				});
+			});
+		});
+
+		describe('Symbol', () => {
+			prepareTestCases('symbol', { excludes: ['invalid', 'states'] }).forEach(item => {
+				it(`can roundtrip ${item.test_name}`, () => {
+					assertRoundtrip(item, sc);
+				});
+			});
+		});
+	});
+
+	// endregion
+});
