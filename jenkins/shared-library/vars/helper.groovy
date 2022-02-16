@@ -14,3 +14,11 @@ String resolveRepoName() {
 	// groovylint-disable-next-line UnnecessaryGetter
 	return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last()
 }
+
+void runInitializeScriptIfPresent() {
+	String initFile = 'init.sh'
+	if (fileExists(initFile)) {
+		logger.logInfo('Running initialize script')
+		sh "bash ${initFile}"
+	}
+}
