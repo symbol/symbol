@@ -99,7 +99,7 @@ class RuleBasedTransactionFactory {
 		this.rules.set(name, flags => {
 			if ('string' === typeof (flags)) {
 				const enumArray = flags.split(' ').map(flagName => nameToEnumValue(stringToEnum, name, flagName));
-				return FlagsClass.or(...enumArray);
+				return new FlagsClass(enumArray.map(flag => flag.value).reduce((x, y) => x | y));
 			}
 
 			if ('number' === typeof (flags) && Number.isInteger(flags))
