@@ -48,6 +48,7 @@ void call(Closure body) {
 				steps {
 					script {
 						gitCheckout(helper.resolveBranchName(env.MANUAL_GIT_BRANCH), env.GITHUB_CREDENTIALS_ID, env.GIT_URL)
+						helper.runInitializeScriptIfPresent()
 					}
 				}
 			}

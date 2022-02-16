@@ -85,7 +85,7 @@ void call(Closure body) {
 							script {
 								sh "git checkout ${helper.resolveBranchName(env.MANUAL_GIT_BRANCH)}"
 								sh "git reset --hard origin/${helper.resolveBranchName(env.MANUAL_GIT_BRANCH)}"
-								runInitializeScriptIfPresent()
+								helper.runInitializeScriptIfPresent()
 							}
 						}
 					}
@@ -301,12 +301,4 @@ String resolvePath(String rootPath, String path) {
 
 Boolean shouldPublishImage(String shouldPublish) {
 	return shouldPublish == null ? false : shouldPublish.toBoolean()
-}
-
-void runInitializeScriptIfPresent() {
-	String initFile = 'init.sh'
-	if (fileExists(initFile)) {
-		println 'Running initialize script'
-		sh "bash ${initFile}"
-	}
 }
