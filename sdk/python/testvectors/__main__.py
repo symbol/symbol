@@ -51,12 +51,20 @@ class SymbolHelper:
 	def set_common_fields(self, descriptor, test_name):
 		descriptor['signer_public_key'] = sha3.sha3_256(test_name.encode('utf8')).hexdigest()
 		descriptor['signature'] = self.Signature(sha3.sha3_512(test_name.encode('utf8')).hexdigest())
+
+	def set_common_transaction_fields(self, descriptor, test_name):
+		self.set_common_fields(descriptor, test_name)
 		descriptor['fee'] = 0xFEEFEEFEEFEEFEE0
 		descriptor['deadline'] = 0x71E71E71E71E71E0
 
-	def create(self, test_name, original_descriptor):
+	def create_block(self, test_name, original_descriptor):
 		descriptor = clone_descriptor(original_descriptor)
 		self.set_common_fields(descriptor, test_name)
+		return self.facade.transaction_factory.create_block(descriptor), descriptor
+
+	def create(self, test_name, original_descriptor):
+		descriptor = clone_descriptor(original_descriptor)
+		self.set_common_transaction_fields(descriptor, test_name)
 		return self.facade.transaction_factory.create(descriptor), descriptor
 
 	def create_aggregate_from_single(self, test_name, single_descriptor):
@@ -86,7 +94,7 @@ class SymbolHelper:
 
 		printable_descriptor = clone_descriptor(original_descriptor['aggregate'])
 		printable_descriptor['transactions'] = embedded_transactions
-		self.set_common_fields(printable_descriptor, test_name)
+		self.set_common_transaction_fields(printable_descriptor, test_name)
 		printable_descriptor['cosignatures'] = [
 			self.create_cosignature_descriptor(test_name, i) for i in range(original_descriptor.get('num_cosignatures', 0))
 		]
@@ -192,50 +200,76 @@ class VectorGenerator:
 			'descriptor': self.fix_descriptor_before_storing(final_descriptor)
 		}
 
-	def create_transactions(self, module_descriptor, recipes):
+	def create_objects(self,module_name, recipes, middle_test_name, object_factory, optional_schema_name = None):
 		test_cases = []
-		schema_name = recipes['schema_name']
-		test_prefix = f'{schema_name}_{module_descriptor[0]}'
+		test_schema_name = recipes['schema_name']
+		test_prefix = f'{test_schema_name}_{module_name}'
+
 		for index, descriptor in enumerate(recipes['descriptors']):
-			test_name = f'{test_prefix}_single_{index+1}'
-			test_cases.append(self.create_entry(schema_name, test_name, self.helper.create, descriptor))
+			test_name = f'{test_prefix}_{middle_test_name}_{index+1}'
+			schema_name = optional_schema_name or test_schema_name
+			test_cases.append(self.create_entry(schema_name, test_name, object_factory, descriptor))
+
+		return test_cases
+
+	def create_transactions(self, module_name, recipes):
+		test_cases = self.create_objects(module_name, recipes, 'single', self.helper.create)
 
 		# only thing _not_ supporting wrapping in aggregates is NEM's Cosignature (transaction)
 		if recipes.get('single_only', False):
 			return test_cases
 
-		for index, descriptor in enumerate(recipes['descriptors']):
-			test_name = f'{test_prefix}_agregate_{index+1}'
-			agregate_schema_name = self.helper.AGREGATE_SCHEMA_NAME
-			test_cases.append(self.create_entry(agregate_schema_name, test_name, self.helper.create_aggregate_from_single, descriptor))
+		test_cases.extend(self.create_objects(
+			module_name,
+			recipes,
+			'aggregate',
+			self.helper.create_aggregate_from_single,
+			self.helper.AGREGATE_SCHEMA_NAME))
 
 		return test_cases
 
-	def create_aggregate_transactions(self, module_descriptor, recipes):
-		test_cases = []
-		schema_name = recipes['schema_name']
-		test_prefix = f'{schema_name}_{module_descriptor[0]}'
+	def create_aggregate_transactions(self, module_name, recipes):
+		return self.create_objects(module_name, recipes, 'aggregate', self.helper.create_aggregate)
 
-		for index, descriptor in enumerate(recipes['descriptors']):
-			test_name = f'{test_prefix}_agregate_{index+1}'
-			test_cases.append(self.create_entry(schema_name, test_name, self.helper.create_aggregate, descriptor))
+	def create_blocks(self, module_name, recipes):
+		return self.create_objects(module_name, recipes, 'block', self.helper.create_block)
 
-		return test_cases
-
-	def generate(self):
+	def generate_transactions(self):
 		entries = []
 		for module_descriptor in self.modules:
 			if hasattr(module_descriptor[1], 'aggregate_recipes'):
 				recipes = getattr(module_descriptor[1], 'aggregate_recipes')
-				entries.extend(self.create_aggregate_transactions(module_descriptor, recipes))
+				entries.extend(self.create_aggregate_transactions(module_descriptor[0], recipes))
 
 			if hasattr(module_descriptor[1], 'recipes'):
 				recipes = getattr(module_descriptor[1], 'recipes')
-				entries.extend(self.create_transactions(module_descriptor, recipes))
+				entries.extend(self.create_transactions(module_descriptor[0], recipes))
 
 			print(f'[+] module {self.network_name}.{module_descriptor[0]}: ok')
 
 		return entries
+
+	def generate_blocks(self):
+		entries = []
+		for module_descriptor in self.modules:
+			if not hasattr(module_descriptor[1], 'block_recipes'):
+				continue
+
+			recipes = getattr(module_descriptor[1], 'block_recipes')
+			entries.extend(self.create_blocks(module_descriptor[0], recipes))
+
+			print(f'[+] module {self.network_name}.{module_descriptor[0]}: ok')
+
+		return entries
+
+
+def dump_to_file(entries, filepath):
+	filepath.parent.mkdir(parents=True, exist_ok=True)
+
+	with open(filepath, 'wt', encoding='utf8') as outfile:
+		outfile.write('# This file has been generated via py testvector generator.\n')
+		outfile.write('# DO NOT HAND MODIFY\n\n')
+		yaml.dump(entries, outfile, Dumper=NoAliasDumper)
 
 
 def main():
@@ -248,15 +282,12 @@ def main():
 
 	for network_name in ['symbol', 'nem']:
 		generator = VectorGenerator(network_name)
-		entries = generator.generate()
 
 		filepath = Path(args.output) / network_name / 'transactions' / 'transactions.yaml'
-		filepath.parent.mkdir(parents=True, exist_ok=True)
+		dump_to_file(generator.generate_transactions(), filepath)
 
-		with open(filepath, 'wt', encoding='utf8') as outfile:
-			outfile.write('# This file has been generated via py testvector generator.\n')
-			outfile.write('# DO NOT HAND MODIFY\n\n')
-			yaml.dump(entries, outfile, Dumper=NoAliasDumper)
+		filepath = Path(args.output) / network_name / 'transactions' / 'blocks.yaml'
+		dump_to_file(generator.generate_blocks(), filepath)
 
 
 if '__main__' == __name__:

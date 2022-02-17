@@ -39,6 +39,13 @@ class TransactionFactory:
 		"""Creates an embedded transaction from a transaction descriptor."""
 		return self._create_and_extend(transaction_descriptor, sc.EmbeddedTransactionFactory)
 
+	def create_block(self, block_descriptor):
+		"""Creats a block from a descriptor"""
+		return self.factory.create_from_factory(sc.BlockFactory.create_by_name, {
+			**block_descriptor,
+			'network': self.network.identifier
+		})
+
 	@staticmethod
 	def attach_signature(transaction, signature):
 		"""Attaches a signature to a transaction."""
