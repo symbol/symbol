@@ -1660,7 +1660,7 @@ class NemesisBlock {
 		size += 8;
 		size += this.totalVotingBalance.size;
 		size += this.previousImportanceBlockHash.size;
-		size += this.transactions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += this.transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + this.transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0);
 		return size;
 	}
 
@@ -1715,8 +1715,8 @@ class NemesisBlock {
 		view.shiftRight(totalVotingBalance.size);
 		const previousImportanceBlockHash = Hash256.deserialize(view.buffer);
 		view.shiftRight(previousImportanceBlockHash.size);
-		const transactions = arrayHelpers.readArray(view.buffer, Transaction);
-		view.shiftRight(transactions.map(e => e.size).reduce((a, b) => a + b, 0));
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8);
+		view.shiftRight(transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0));
 
 		const instance = new NemesisBlock();
 		instance._signature = signature;
@@ -1766,7 +1766,7 @@ class NemesisBlock {
 		buffer.write(converter.intToBytes(this._harvestingEligibleAccountsCount, 8, false));
 		buffer.write(this._totalVotingBalance.serialize());
 		buffer.write(this._previousImportanceBlockHash.serialize());
-		arrayHelpers.writeArray(buffer, this._transactions);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
 		return buffer.storage;
 	}
 
@@ -1991,7 +1991,7 @@ class NormalBlock {
 		size += this.beneficiaryAddress.size;
 		size += this.feeMultiplier.size;
 		size += 4;
-		size += this.transactions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += this.transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + this.transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0);
 		return size;
 	}
 
@@ -2042,8 +2042,8 @@ class NormalBlock {
 		view.shiftRight(4);
 		if (0 !== blockHeaderReserved_1)
 			throw RangeError(`Invalid value of reserved field (${blockHeaderReserved_1})`);
-		const transactions = arrayHelpers.readArray(view.buffer, Transaction);
-		view.shiftRight(transactions.map(e => e.size).reduce((a, b) => a + b, 0));
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8);
+		view.shiftRight(transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0));
 
 		const instance = new NormalBlock();
 		instance._signature = signature;
@@ -2086,7 +2086,7 @@ class NormalBlock {
 		buffer.write(this._beneficiaryAddress.serialize());
 		buffer.write(this._feeMultiplier.serialize());
 		buffer.write(converter.intToBytes(this._blockHeaderReserved_1, 4, false));
-		arrayHelpers.writeArray(buffer, this._transactions);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
 		return buffer.storage;
 	}
 
@@ -2347,7 +2347,7 @@ class ImportanceBlock {
 		size += 8;
 		size += this.totalVotingBalance.size;
 		size += this.previousImportanceBlockHash.size;
-		size += this.transactions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += this.transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + this.transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0);
 		return size;
 	}
 
@@ -2402,8 +2402,8 @@ class ImportanceBlock {
 		view.shiftRight(totalVotingBalance.size);
 		const previousImportanceBlockHash = Hash256.deserialize(view.buffer);
 		view.shiftRight(previousImportanceBlockHash.size);
-		const transactions = arrayHelpers.readArray(view.buffer, Transaction);
-		view.shiftRight(transactions.map(e => e.size).reduce((a, b) => a + b, 0));
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8);
+		view.shiftRight(transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0));
 
 		const instance = new ImportanceBlock();
 		instance._signature = signature;
@@ -2453,7 +2453,7 @@ class ImportanceBlock {
 		buffer.write(converter.intToBytes(this._harvestingEligibleAccountsCount, 8, false));
 		buffer.write(this._totalVotingBalance.serialize());
 		buffer.write(this._previousImportanceBlockHash.serialize());
-		arrayHelpers.writeArray(buffer, this._transactions);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
 		return buffer.storage;
 	}
 
