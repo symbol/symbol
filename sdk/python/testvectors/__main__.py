@@ -173,6 +173,8 @@ class VectorGenerator:
 		for key, value in descriptor.items():
 			if isinstance(value, ByteArray):
 				fixed[key] = str(value)
+			elif isinstance(value, bytes):
+				fixed[key] = to_hex_string(value)
 			elif isinstance(value, dict):
 				fixed[key] = self.fix_descriptor_before_storing(value)
 			elif isinstance(value, list):

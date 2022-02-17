@@ -73,37 +73,26 @@
 - descriptor:
     fee: 18370164183782063840
     mosaic_definition:
-      description: !!binary |
-        cHJlY2lvdXMgdm91Y2hlcnM=
+      description: 70726563696F757320766F756368657273
       id:
-        name: !!binary |
-          YWxpY2UncyBnaWZ0IHZvdWNoZXJz
+        name: 616C6963652773206769667420766F756368657273
         namespace_id:
-          name: !!binary |
-            YWxpY2Uudm91Y2hlcnM=
+          name: 616C6963652E766F756368657273
       levy_size: 0
       owner_public_key: 875BD953CB8EC0BDEAA01552E390B5E59DEAAD44D81BD7DEAF0C332F99AEECE8
       properties:
       - property_:
-          name: !!binary |
-            ZGl2aXNpYmlsaXR5
-          value: !!binary |
-            Mw==
+          name: 64697669736962696C697479
+          value: '33'
       - property_:
-          name: !!binary |
-            aW5pdGlhbFN1cHBseQ==
-          value: !!binary |
-            MA==
+          name: 696E697469616C537570706C79
+          value: '30'
       - property_:
-          name: !!binary |
-            c3VwcGx5TXV0YWJsZQ==
-          value: !!binary |
-            ZmFsc2U=
+          name: 737570706C794D757461626C65
+          value: 66616C7365
       - property_:
-          name: !!binary |
-            dHJhbnNmZXJhYmxl
-          value: !!binary |
-            dHJ1ZQ==
+          name: 7472616E7366657261626C65
+          value: '74727565'
     rental_fee: 678000000
     rental_fee_sink: TDX5YX2NJUSWXEKJ4UQN3WXUY3SCCAGWHHFJ3B5J
     signature: B4C9702D8F19C4B01747DBA7D4350D70FB7BFF5F0C6B4F69E5380094AC366F0A1AD74466926E3EFB80DB9187F9F6FF565AE9708D3444A0688D60A25068DDF03E
@@ -116,37 +105,26 @@
 - descriptor:
     fee: 18370164183782063840
     mosaic_definition:
-      description: !!binary |
-        cHJlY2lvdXMgdm91Y2hlcnM=
+      description: 70726563696F757320766F756368657273
       id:
-        name: !!binary |
-          YWxpY2UncyBnaWZ0IHZvdWNoZXJz
+        name: 616C6963652773206769667420766F756368657273
         namespace_id:
-          name: !!binary |
-            YWxpY2Uudm91Y2hlcnM=
+          name: 616C6963652E766F756368657273
       levy_size: 0
       owner_public_key: F53B19CB1CAB394E22E3DDFA6D9B42DA87F37EB517EFA214433071E5619F898D
       properties:
       - property_:
-          name: !!binary |
-            ZGl2aXNpYmlsaXR5
-          value: !!binary |
-            Mw==
+          name: 64697669736962696C697479
+          value: '33'
       - property_:
-          name: !!binary |
-            aW5pdGlhbFN1cHBseQ==
-          value: !!binary |
-            MzQ1Njc4
+          name: 696E697469616C537570706C79
+          value: '333435363738'
       - property_:
-          name: !!binary |
-            c3VwcGx5TXV0YWJsZQ==
-          value: !!binary |
-            ZmFsc2U=
+          name: 737570706C794D757461626C65
+          value: 66616C7365
       - property_:
-          name: !!binary |
-            dHJhbnNmZXJhYmxl
-          value: !!binary |
-            dHJ1ZQ==
+          name: 7472616E7366657261626C65
+          value: '74727565'
     rental_fee: 678000000
     rental_fee_sink: TCO5WSTHXII62V3MYWKBD7GOMCDRX35TFOZEX3BD
     signature: 6097B234909F2414FFD30E785561BC9AA6542A5B45512324EA061B77173536E8BC2DBF3159827BC71B6A38557497D336374A84037B98A217724D35C4DBA34F0A
@@ -159,37 +137,26 @@
 - descriptor:
     fee: 18370164183782063840
     mosaic_definition:
-      description: !!binary |
-        cHJlY2lvdXMgdm91Y2hlcnM=
+      description: 70726563696F757320766F756368657273
       id:
-        name: !!binary |
-          dGVycm9yaXNt
+        name: 746572726F7269736D
         namespace_id:
-          name: !!binary |
-            c3RhdGUuc3BvbnNvcmVk
+          name: 73746174652E73706F6E736F726564
       levy_size: 0
       owner_public_key: 69AF8763FEECEF35E0AEF44A202EFAC4936532C202784CF85CBCD16BFC45F119
       properties:
       - property_:
-          name: !!binary |
-            ZGl2aXNpYmlsaXR5
-          value: !!binary |
-            Mg==
+          name: 64697669736962696C697479
+          value: '32'
       - property_:
-          name: !!binary |
-            aW5pdGlhbFN1cHBseQ==
-          value: !!binary |
-            MTAwMA==
+          name: 696E697469616C537570706C79
+          value: '31303030'
       - property_:
-          name: !!binary |
-            c3VwcGx5TXV0YWJsZQ==
-          value: !!binary |
-            dHJ1ZQ==
+          name: 737570706C794D757461626C65
+          value: '74727565'
       - property_:
-          name: !!binary |
-            dHJhbnNmZXJhYmxl
-          value: !!binary |
-            dHJ1ZQ==
+          name: 7472616E7366657261626C65
+          value: '74727565'
     rental_fee: 678000000
     rental_fee_sink: TARPSQFPJL6A2ORAQJ46GOZUDPNYVQJKGVT2NMG7
     signature: 84159A5174591FE3BD1F924C8738F8DA7C7F1D49640C06651D610C1E7ED9D01C2385F093AFC0D00D3C9C6E343BBDAFC20BA152AA9FFBCF246278D297579FB4FD
@@ -202,47 +169,34 @@
 - descriptor:
     fee: 18370164183782063840
     mosaic_definition:
-      description: !!binary |
-        cHJlY2lvdXMgdm91Y2hlcnM=
+      description: 70726563696F757320766F756368657273
       id:
-        name: !!binary |
-          ZWxlY3Ryb25pYw==
+        name: 656C656374726F6E6963
         namespace_id:
-          name: !!binary |
-            bWFzcy5zdXJ2ZWlsbGFuY2U=
+          name: 6D6173732E7375727665696C6C616E6365
       levy:
         fee: 58132134
         mosaic_id:
-          name: !!binary |
-            dW5pdGVk
+          name: 756E69746564
           namespace_id:
-            name: !!binary |
-              cmVwdGlsaWFucw==
+            name: 72657074696C69616E73
         recipient_address: TCUTCNM64Y6Q4VB4OTEHBQT2ZKUY3CUYRVHCTIZ3
         transfer_fee_type: absolute
       levy_size: 84
       owner_public_key: B5B93DDE2D05D21D0A14E6F60DB33E983B88A99FB203916D408AF5749A396960
       properties:
       - property_:
-          name: !!binary |
-            ZGl2aXNpYmlsaXR5
-          value: !!binary |
-            Mg==
+          name: 64697669736962696C697479
+          value: '32'
       - property_:
-          name: !!binary |
-            aW5pdGlhbFN1cHBseQ==
-          value: !!binary |
-            MTAwMA==
+          name: 696E697469616C537570706C79
+          value: '31303030'
       - property_:
-          name: !!binary |
-            c3VwcGx5TXV0YWJsZQ==
-          value: !!binary |
-            dHJ1ZQ==
+          name: 737570706C794D757461626C65
+          value: '74727565'
       - property_:
-          name: !!binary |
-            dHJhbnNmZXJhYmxl
-          value: !!binary |
-            dHJ1ZQ==
+          name: 7472616E7366657261626C65
+          value: '74727565'
     rental_fee: 678000000
     rental_fee_sink: TD3M6P3CENCDVIC2GRJLQPLQXBX6MOB6FBQZOXM2
     signature: A8AFD4D638EDB1DCBF9E0C61782E13AF17717B4184B8D98FCEA4692BAAE6DBE51948A52BC2F490766EF06A7F78DC192CEDB5E62B5B23F594817B60009ACF30AC
@@ -255,47 +209,34 @@
 - descriptor:
     fee: 18370164183782063840
     mosaic_definition:
-      description: !!binary |
-        cHJlY2lvdXMgdm91Y2hlcnM=
+      description: 70726563696F757320766F756368657273
       id:
-        name: !!binary |
-          ZWxlY3Ryb25pYw==
+        name: 656C656374726F6E6963
         namespace_id:
-          name: !!binary |
-            bWFzcy5zdXJ2ZWlsbGFuY2U=
+          name: 6D6173732E7375727665696C6C616E6365
       levy:
         fee: 112358
         mosaic_id:
-          name: !!binary |
-            cGVvcGxl
+          name: 70656F706C65
           namespace_id:
-            name: !!binary |
-              bGl6YXJk
+            name: 6C697A617264
         recipient_address: TDAQGCFP4TR2U33WBXJEDUHH6OWV3T4YXWHSH46A
         transfer_fee_type: percentile
       levy_size: 80
       owner_public_key: D7F44870D24E7626DB24591452A2F7ECF6650B0D41D3BCB4FB4BA11B063B80AC
       properties:
       - property_:
-          name: !!binary |
-            ZGl2aXNpYmlsaXR5
-          value: !!binary |
-            Mg==
+          name: 64697669736962696C697479
+          value: '32'
       - property_:
-          name: !!binary |
-            aW5pdGlhbFN1cHBseQ==
-          value: !!binary |
-            MTAwMA==
+          name: 696E697469616C537570706C79
+          value: '31303030'
       - property_:
-          name: !!binary |
-            c3VwcGx5TXV0YWJsZQ==
-          value: !!binary |
-            dHJ1ZQ==
+          name: 737570706C794D757461626C65
+          value: '74727565'
       - property_:
-          name: !!binary |
-            dHJhbnNmZXJhYmxl
-          value: !!binary |
-            dHJ1ZQ==
+          name: 7472616E7366657261626C65
+          value: '74727565'
     rental_fee: 678000000
     rental_fee_sink: TA2ZI764OYY233XIKTETFPGCC2HKORQSHTCUGCHX
     signature: E63AF05F844C32F6AE7C6D5DDFB05D569B91B44D9E1D9383AFE476BA06446536FF0DC92FDFC6DBF0429F3FA58C1F45CCE4B00080392A42665C4AE3649EAC1BB7
@@ -311,37 +252,26 @@
     inner_transaction:
       fee: 18370164183782063840
       mosaic_definition:
-        description: !!binary |
-          cHJlY2lvdXMgdm91Y2hlcnM=
+        description: 70726563696F757320766F756368657273
         id:
-          name: !!binary |
-            YWxpY2UncyBnaWZ0IHZvdWNoZXJz
+          name: 616C6963652773206769667420766F756368657273
           namespace_id:
-            name: !!binary |
-              YWxpY2Uudm91Y2hlcnM=
+            name: 616C6963652E766F756368657273
         levy_size: 0
         owner_public_key: 875BD953CB8EC0BDEAA01552E390B5E59DEAAD44D81BD7DEAF0C332F99AEECE8
         properties:
         - property_:
-            name: !!binary |
-              ZGl2aXNpYmlsaXR5
-            value: !!binary |
-              Mw==
+            name: 64697669736962696C697479
+            value: '33'
         - property_:
-            name: !!binary |
-              aW5pdGlhbFN1cHBseQ==
-            value: !!binary |
-              MA==
+            name: 696E697469616C537570706C79
+            value: '30'
         - property_:
-            name: !!binary |
-              c3VwcGx5TXV0YWJsZQ==
-            value: !!binary |
-              ZmFsc2U=
+            name: 737570706C794D757461626C65
+            value: 66616C7365
         - property_:
-            name: !!binary |
-              dHJhbnNmZXJhYmxl
-            value: !!binary |
-              dHJ1ZQ==
+            name: 7472616E7366657261626C65
+            value: '74727565'
       rental_fee: 678000000
       rental_fee_sink: TDX5YX2NJUSWXEKJ4UQN3WXUY3SCCAGWHHFJ3B5J
       signature: C43D84C2F819DC934A805FC7034626ECF39E32185FB87729A6C0C5E4E6008C6A41AB571A60C0DCCD36D252B8DD5625701A7E0073323D9110427CCD50EE7CF356
@@ -361,37 +291,26 @@
     inner_transaction:
       fee: 18370164183782063840
       mosaic_definition:
-        description: !!binary |
-          cHJlY2lvdXMgdm91Y2hlcnM=
+        description: 70726563696F757320766F756368657273
         id:
-          name: !!binary |
-            YWxpY2UncyBnaWZ0IHZvdWNoZXJz
+          name: 616C6963652773206769667420766F756368657273
           namespace_id:
-            name: !!binary |
-              YWxpY2Uudm91Y2hlcnM=
+            name: 616C6963652E766F756368657273
         levy_size: 0
         owner_public_key: F53B19CB1CAB394E22E3DDFA6D9B42DA87F37EB517EFA214433071E5619F898D
         properties:
         - property_:
-            name: !!binary |
-              ZGl2aXNpYmlsaXR5
-            value: !!binary |
-              Mw==
+            name: 64697669736962696C697479
+            value: '33'
         - property_:
-            name: !!binary |
-              aW5pdGlhbFN1cHBseQ==
-            value: !!binary |
-              MzQ1Njc4
+            name: 696E697469616C537570706C79
+            value: '333435363738'
         - property_:
-            name: !!binary |
-              c3VwcGx5TXV0YWJsZQ==
-            value: !!binary |
-              ZmFsc2U=
+            name: 737570706C794D757461626C65
+            value: 66616C7365
         - property_:
-            name: !!binary |
-              dHJhbnNmZXJhYmxl
-            value: !!binary |
-              dHJ1ZQ==
+            name: 7472616E7366657261626C65
+            value: '74727565'
       rental_fee: 678000000
       rental_fee_sink: TCO5WSTHXII62V3MYWKBD7GOMCDRX35TFOZEX3BD
       signature: 9BD3E3CFB3271D57AF352144E0567A29E6B0B5BC5982A77AC38E6B6D2CD9B4F4FFE472782BBB96170D1A6BA1D7D5D58BF2D249E4ED0D403723BD5B19904DCBFA
@@ -411,37 +330,26 @@
     inner_transaction:
       fee: 18370164183782063840
       mosaic_definition:
-        description: !!binary |
-          cHJlY2lvdXMgdm91Y2hlcnM=
+        description: 70726563696F757320766F756368657273
         id:
-          name: !!binary |
-            dGVycm9yaXNt
+          name: 746572726F7269736D
           namespace_id:
-            name: !!binary |
-              c3RhdGUuc3BvbnNvcmVk
+            name: 73746174652E73706F6E736F726564
         levy_size: 0
         owner_public_key: 69AF8763FEECEF35E0AEF44A202EFAC4936532C202784CF85CBCD16BFC45F119
         properties:
         - property_:
-            name: !!binary |
-              ZGl2aXNpYmlsaXR5
-            value: !!binary |
-              Mg==
+            name: 64697669736962696C697479
+            value: '32'
         - property_:
-            name: !!binary |
-              aW5pdGlhbFN1cHBseQ==
-            value: !!binary |
-              MTAwMA==
+            name: 696E697469616C537570706C79
+            value: '31303030'
         - property_:
-            name: !!binary |
-              c3VwcGx5TXV0YWJsZQ==
-            value: !!binary |
-              dHJ1ZQ==
+            name: 737570706C794D757461626C65
+            value: '74727565'
         - property_:
-            name: !!binary |
-              dHJhbnNmZXJhYmxl
-            value: !!binary |
-              dHJ1ZQ==
+            name: 7472616E7366657261626C65
+            value: '74727565'
       rental_fee: 678000000
       rental_fee_sink: TARPSQFPJL6A2ORAQJ46GOZUDPNYVQJKGVT2NMG7
       signature: 70AAB3087604FF91579D5CCB42982610D7B8A09388AAADB96BDF2959E012FAB78D41282872A2C7188935992726804D301C5333D0C19B384921250F15AEA233DF
@@ -461,47 +369,34 @@
     inner_transaction:
       fee: 18370164183782063840
       mosaic_definition:
-        description: !!binary |
-          cHJlY2lvdXMgdm91Y2hlcnM=
+        description: 70726563696F757320766F756368657273
         id:
-          name: !!binary |
-            ZWxlY3Ryb25pYw==
+          name: 656C656374726F6E6963
           namespace_id:
-            name: !!binary |
-              bWFzcy5zdXJ2ZWlsbGFuY2U=
+            name: 6D6173732E7375727665696C6C616E6365
         levy:
           fee: 58132134
           mosaic_id:
-            name: !!binary |
-              dW5pdGVk
+            name: 756E69746564
             namespace_id:
-              name: !!binary |
-                cmVwdGlsaWFucw==
+              name: 72657074696C69616E73
           recipient_address: TCUTCNM64Y6Q4VB4OTEHBQT2ZKUY3CUYRVHCTIZ3
           transfer_fee_type: absolute
         levy_size: 84
         owner_public_key: B5B93DDE2D05D21D0A14E6F60DB33E983B88A99FB203916D408AF5749A396960
         properties:
         - property_:
-            name: !!binary |
-              ZGl2aXNpYmlsaXR5
-            value: !!binary |
-              Mg==
+            name: 64697669736962696C697479
+            value: '32'
         - property_:
-            name: !!binary |
-              aW5pdGlhbFN1cHBseQ==
-            value: !!binary |
-              MTAwMA==
+            name: 696E697469616C537570706C79
+            value: '31303030'
         - property_:
-            name: !!binary |
-              c3VwcGx5TXV0YWJsZQ==
-            value: !!binary |
-              dHJ1ZQ==
+            name: 737570706C794D757461626C65
+            value: '74727565'
         - property_:
-            name: !!binary |
-              dHJhbnNmZXJhYmxl
-            value: !!binary |
-              dHJ1ZQ==
+            name: 7472616E7366657261626C65
+            value: '74727565'
       rental_fee: 678000000
       rental_fee_sink: TD3M6P3CENCDVIC2GRJLQPLQXBX6MOB6FBQZOXM2
       signature: 595F57A2C922A46864ADEFA5A02BB379833F0A8306BE49ED973A65559686F0B1F1317958CCB02902322E9373ED0B3AABEC910F79EA8CAD97A8085F76466E49A2
@@ -521,47 +416,34 @@
     inner_transaction:
       fee: 18370164183782063840
       mosaic_definition:
-        description: !!binary |
-          cHJlY2lvdXMgdm91Y2hlcnM=
+        description: 70726563696F757320766F756368657273
         id:
-          name: !!binary |
-            ZWxlY3Ryb25pYw==
+          name: 656C656374726F6E6963
           namespace_id:
-            name: !!binary |
-              bWFzcy5zdXJ2ZWlsbGFuY2U=
+            name: 6D6173732E7375727665696C6C616E6365
         levy:
           fee: 112358
           mosaic_id:
-            name: !!binary |
-              cGVvcGxl
+            name: 70656F706C65
             namespace_id:
-              name: !!binary |
-                bGl6YXJk
+              name: 6C697A617264
           recipient_address: TDAQGCFP4TR2U33WBXJEDUHH6OWV3T4YXWHSH46A
           transfer_fee_type: percentile
         levy_size: 80
         owner_public_key: D7F44870D24E7626DB24591452A2F7ECF6650B0D41D3BCB4FB4BA11B063B80AC
         properties:
         - property_:
-            name: !!binary |
-              ZGl2aXNpYmlsaXR5
-            value: !!binary |
-              Mg==
+            name: 64697669736962696C697479
+            value: '32'
         - property_:
-            name: !!binary |
-              aW5pdGlhbFN1cHBseQ==
-            value: !!binary |
-              MTAwMA==
+            name: 696E697469616C537570706C79
+            value: '31303030'
         - property_:
-            name: !!binary |
-              c3VwcGx5TXV0YWJsZQ==
-            value: !!binary |
-              dHJ1ZQ==
+            name: 737570706C794D757461626C65
+            value: '74727565'
         - property_:
-            name: !!binary |
-              dHJhbnNmZXJhYmxl
-            value: !!binary |
-              dHJ1ZQ==
+            name: 7472616E7366657261626C65
+            value: '74727565'
       rental_fee: 678000000
       rental_fee_sink: TA2ZI764OYY233XIKTETFPGCC2HKORQSHTCUGCHX
       signature: 7A63250CA1326EBEFF362CEB63CBBD6AD13E06E515DBB867B0E2449717C8151119F9120C64D7C8F038C1D5D2259C3911D5E19875C74EBBE446C0791C929CF4A2
@@ -580,11 +462,9 @@
     delta: 345678
     fee: 18370164183782063840
     mosaic_id:
-      name: !!binary |
-        YmFpbG91dA==
+      name: 6261696C6F7574
       namespace_id:
-        name: !!binary |
-          YmFua3N0ZXJz
+        name: 62616E6B7374657273
     signature: 84FEEF9899E6C7E30F68CF6307C9D2ABFC74802C4F971BE29293B6A28EC9CA4E4CA0AB618E96090C39E976E98E6048613EE26E5F90F5092AAB18C8838D4D0C9C
     signer_public_key: 905f7936540c999ae9a07ef10d5dd8356552714dcf2a13b693127a9cdc449dfa
     timestamp: 1910972016
@@ -597,11 +477,9 @@
     delta: 1953125
     fee: 18370164183782063840
     mosaic_id:
-      name: !!binary |
-        YmFpbG91dA==
+      name: 6261696C6F7574
       namespace_id:
-        name: !!binary |
-          YmFua3N0ZXJz
+        name: 62616E6B7374657273
     signature: 5DF7948C237F4203FB9193D24B9950212F1810F0803B8E06121FF86871048EBF3CDFA955E95A8651F6E6894795D9FE10DBDF2C51EEF135F17B18E218A070F1ED
     signer_public_key: 3f0634c70130052870f43476c7237cf4f9e5ffcba4b2a47acc794969bc8020b2
     timestamp: 1910972016
@@ -617,11 +495,9 @@
       delta: 345678
       fee: 18370164183782063840
       mosaic_id:
-        name: !!binary |
-          YmFpbG91dA==
+        name: 6261696C6F7574
         namespace_id:
-          name: !!binary |
-            YmFua3N0ZXJz
+          name: 62616E6B7374657273
       signature: 95799A76EBBA045A99C5C59444EEF875B8D3BBC46790C1707D1BCB5E6EE74E6BA39C95E142FEF7C7BE595B8AB1A6EC17475FF5336F51C0D14D3E55B74F0222A2
       signer_public_key: 4085474fff5c85622f822185ef2755fafb240b6264a9915bdf163f3179735db6
       timestamp: 1910972016
@@ -641,11 +517,9 @@
       delta: 1953125
       fee: 18370164183782063840
       mosaic_id:
-        name: !!binary |
-          YmFpbG91dA==
+        name: 6261696C6F7574
         namespace_id:
-          name: !!binary |
-            YmFua3N0ZXJz
+          name: 62616E6B7374657273
       signature: A09920E03279E34AFDB38DF71E2D647900097CC6A1962FAF674EC40E2139DA78C6F219E514CFFC2C68B90ED0A8D09D2782AD611723EAA6E4E2E5E9F0C1863B37
       signer_public_key: 7f8619c1464c9ce85ee9fab592aed6f8984b3b282031ceabb47b7bba9d5dad81
       timestamp: 1910972016
@@ -692,19 +566,15 @@
       - mosaic:
           amount: 1394254
           mosaic_id:
-            name: !!binary |
-              ZWxlY3Ryb25pYw==
+            name: 656C656374726F6E6963
             namespace_id:
-              name: !!binary |
-                bWFzcy5zdXJ2ZWlsbGFuY2U=
+              name: 6D6173732E7375727665696C6C616E6365
       - mosaic:
           amount: 379
           mosaic_id:
-            name: !!binary |
-              eGVt
+            name: 78656D
             namespace_id:
-              name: !!binary |
-                bmVt
+              name: 6E656D
       recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
       signature: 62559DAFC9347BD42DB2068229DA778E5784094F14286EEAA7AA2CA459EA26B5938C4F0578CD1668D4ABD9C4EADE3FB81A5D3DB7379E1414B8B7B65B2C795A0B
       signer_public_key: bfc484c2875375678b7aa28835b285f70c308853b1ce942dd6f71099b16f49b1
@@ -908,8 +778,7 @@
   test_name: MultisigAccountModificationTransactionV1_multisig_account_modification_v1_agregate_2
 - descriptor:
     fee: 18370164183782063840
-    name: !!binary |
-      c3RhdGU=
+    name: '7374617465'
     parent_name: null
     rental_fee: 678000000
     rental_fee_sink: TCTXZSZTZGQBWS7MRXTWMOR72LPX2YEVKIXGDIHL
@@ -922,10 +791,8 @@
   test_name: NamespaceRegistrationTransaction_namespace_registration_single_1
 - descriptor:
     fee: 18370164183782063840
-    name: !!binary |
-      Y29udHJvbGxlZA==
-    parent_name: !!binary |
-      c3RhdGU=
+    name: 636F6E74726F6C6C6564
+    parent_name: '7374617465'
     rental_fee: 678000000
     rental_fee_sink: TATVJXFNG7BL7NDHNEQNANEOO2UWA55JPJ7U5I2P
     signature: 07F27699694E30640786112CA6184DED2A59C3ED7E14662A4FAF37A67D3E1D6A44C21B87B18A2D65D67A6EDF1B902811E8CCCEDB46730E2C93A9AA8235BE7B82
@@ -940,8 +807,7 @@
     fee: 18370164183782063840
     inner_transaction:
       fee: 18370164183782063840
-      name: !!binary |
-        c3RhdGU=
+      name: '7374617465'
       parent_name: null
       rental_fee: 678000000
       rental_fee_sink: TCTXZSZTZGQBWS7MRXTWMOR72LPX2YEVKIXGDIHL
@@ -961,10 +827,8 @@
     fee: 18370164183782063840
     inner_transaction:
       fee: 18370164183782063840
-      name: !!binary |
-        Y29udHJvbGxlZA==
-      parent_name: !!binary |
-        c3RhdGU=
+      name: 636F6E74726F6C6C6564
+      parent_name: '7374617465'
       rental_fee: 678000000
       rental_fee_sink: TATVJXFNG7BL7NDHNEQNANEOO2UWA55JPJ7U5I2P
       signature: AD10FC0DF55C6054B7232F89189BE9B5523FECF674F573344422968F392871A2E43578F75C796AF886A37AB6A94BEFF86751DCD077F5DFBEB4A5D2742009B38F
@@ -982,19 +846,16 @@
     amount: 5000000
     fee: 18370164183782063840
     message:
-      message: !!binary |
-        aGkh
+      message: '686921'
       message_type: plain
     message_envelope_size: 11
     mosaics:
     - mosaic:
         amount: 345678
         mosaic_id:
-          name: !!binary |
-            ZWxlY3Ryb25pYw==
+          name: 656C656374726F6E6963
           namespace_id:
-            name: !!binary |
-              bWFzcy5zdXJ2ZWlsbGFuY2U=
+            name: 6D6173732E7375727665696C6C616E6365
     recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
     signature: 4E90C6FEDB83592BBE7429296DE991AC9DFB92EFBF78401E30BC0E25A3F85C886E77C14CCABC20A97E7E0B0F971BDF2F155D095C38F09508AAE132D0538BADF5
     signer_public_key: 887a295e3f01a57cbfa7a381776140a1f4084788ae6a82a004dff09fae5c0eb2
@@ -1007,20 +868,16 @@
     amount: 5000000
     fee: 18370164183782063840
     message:
-      message: !!binary |
-        P3/tksdVxETEkr1d/QA6D29+JXpN58yR4z7dR38pybtb2Qa+XMniC4Ck98ZcJHJ/rEFFrULgVdvt
-        9RbZbThlFg==
+      message: 3F7FED92C755C444C492BD5DFD003A0F6F7E257A4DE7CC91E33EDD477F29C9BB5BD906BE5CC9E20B80A4F7C65C24727FAC4145AD42E055DBEDF516D96D386516
       message_type: encrypted
     message_envelope_size: 72
     mosaics:
     - mosaic:
         amount: 345678
         mosaic_id:
-          name: !!binary |
-            ZWxlY3Ryb25pYw==
+          name: 656C656374726F6E6963
           namespace_id:
-            name: !!binary |
-              bWFzcy5zdXJ2ZWlsbGFuY2U=
+            name: 6D6173732E7375727665696C6C616E6365
     recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
     signature: 3E536258F65B3C272AE874C3D7AE442C4DC6FA955BB3730CE03A829D9199C1B911ABB497BC08875A3BC1E50093B510B6424A95B2265E7FC66718B665DDC2CF7A
     signer_public_key: 70c9af9ec2b998933fa45847bfb8679c4e525eda12e65d39eed47cf37ec04bc0
@@ -1033,35 +890,28 @@
     amount: 5000000
     fee: 18370164183782063840
     message:
-      message: !!binary |
-        aGkh
+      message: '686921'
       message_type: plain
     message_envelope_size: 11
     mosaics:
     - mosaic:
         amount: 2
         mosaic_id:
-          name: !!binary |
-            bm9uZnVuZ2libGU=
+          name: 6E6F6E66756E6769626C65
           namespace_id:
-            name: !!binary |
-              YWxtb3N0
+            name: 616C6D6F7374
     - mosaic:
         amount: 345678
         mosaic_id:
-          name: !!binary |
-            ZWxlY3Ryb25pYw==
+          name: 656C656374726F6E6963
           namespace_id:
-            name: !!binary |
-              bWFzcy5zdXJ2ZWlsbGFuY2U=
+            name: 6D6173732E7375727665696C6C616E6365
     - mosaic:
         amount: 123
         mosaic_id:
-          name: !!binary |
-            eGVt
+          name: 78656D
           namespace_id:
-            name: !!binary |
-              bmVt
+            name: 6E656D
     recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
     signature: D47F4B3D13ECC1E44EE2FD11AE6EFF78DD2038F513841A16CF015219F66BBA4BC10D35C40A87BE0BC314587D12AF2C6081DAB4180207BD0FC106AC7F7BB879B4
     signer_public_key: 836044703a8e43a8ca62e42ee4a7f598f581a3c9c07f7b58c9060247747ef408
@@ -1074,36 +924,28 @@
     amount: 5000000
     fee: 18370164183782063840
     message:
-      message: !!binary |
-        SDZfl+t2utE2rEYw55LRYQtlkcm/feDqnWGP10gKriGgkryCI/QnuCY8ftTrZlyUW1aeQvSP8aUK
-        TNIKOvUXPQ==
+      message: 48365F97EB76BAD136AC4630E792D1610B6591C9BF7DE0EA9D618FD7480AAE21A092BC8223F427B8263C7ED4EB665C945B569E42F48FF1A50A4CD20A3AF5173D
       message_type: encrypted
     message_envelope_size: 72
     mosaics:
     - mosaic:
         amount: 2
         mosaic_id:
-          name: !!binary |
-            bm9uZnVuZ2libGU=
+          name: 6E6F6E66756E6769626C65
           namespace_id:
-            name: !!binary |
-              YWxtb3N0
+            name: 616C6D6F7374
     - mosaic:
         amount: 345678
         mosaic_id:
-          name: !!binary |
-            ZWxlY3Ryb25pYw==
+          name: 656C656374726F6E6963
           namespace_id:
-            name: !!binary |
-              bWFzcy5zdXJ2ZWlsbGFuY2U=
+            name: 6D6173732E7375727665696C6C616E6365
     - mosaic:
         amount: 123
         mosaic_id:
-          name: !!binary |
-            eGVt
+          name: 78656D
           namespace_id:
-            name: !!binary |
-              bmVt
+            name: 6E656D
     recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
     signature: 8E950BF18283168A861DA5202C91C76DBBA6E9E821E1ADB580658661869AC94947EF0393371ED3DFBBF00629AA84B339D453D21B42D3E57449188A8589EF6C98
     signer_public_key: b0fb3a07d93bef00f4bbf81c72c9489237660ffa44a419138db2d10193dd0102
@@ -1119,19 +961,16 @@
       amount: 5000000
       fee: 18370164183782063840
       message:
-        message: !!binary |
-          aGkh
+        message: '686921'
         message_type: plain
       message_envelope_size: 11
       mosaics:
       - mosaic:
           amount: 345678
           mosaic_id:
-            name: !!binary |
-              ZWxlY3Ryb25pYw==
+            name: 656C656374726F6E6963
             namespace_id:
-              name: !!binary |
-                bWFzcy5zdXJ2ZWlsbGFuY2U=
+              name: 6D6173732E7375727665696C6C616E6365
       recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
       signature: 0B3A52F17CB33DB5EB1096C93A1A7EA038121EE1AE8476984C6FAB60542D367DBFF6CD918DF3DAE3DE14DEBA467A9A0D60286EB4585089A5B3F4B7F53CAB2099
       signer_public_key: adbd4c3db95fe697830c3675339d7a26a00f6afbeb21323b6f4b66937792d5ef
@@ -1151,20 +990,16 @@
       amount: 5000000
       fee: 18370164183782063840
       message:
-        message: !!binary |
-          P3/tksdVxETEkr1d/QA6D29+JXpN58yR4z7dR38pybtb2Qa+XMniC4Ck98ZcJHJ/rEFFrULgVdvt
-          9RbZbThlFg==
+        message: 3F7FED92C755C444C492BD5DFD003A0F6F7E257A4DE7CC91E33EDD477F29C9BB5BD906BE5CC9E20B80A4F7C65C24727FAC4145AD42E055DBEDF516D96D386516
         message_type: encrypted
       message_envelope_size: 72
       mosaics:
       - mosaic:
           amount: 345678
           mosaic_id:
-            name: !!binary |
-              ZWxlY3Ryb25pYw==
+            name: 656C656374726F6E6963
             namespace_id:
-              name: !!binary |
-                bWFzcy5zdXJ2ZWlsbGFuY2U=
+              name: 6D6173732E7375727665696C6C616E6365
       recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
       signature: 376A90EAB19F665BE6D7BB16257B310ECFFDD8AFF0752F8E952397A983DBC2E5E87817E3EAFD8FFFE31DD82EF46E0006FC70B945A9F27F3EAECE1BFF03CC1F1F
       signer_public_key: 3223990affc1122f1b520c9710017680f62a1aa8bfbe1b791db99a177a3b55ab
@@ -1184,35 +1019,28 @@
       amount: 5000000
       fee: 18370164183782063840
       message:
-        message: !!binary |
-          aGkh
+        message: '686921'
         message_type: plain
       message_envelope_size: 11
       mosaics:
       - mosaic:
           amount: 2
           mosaic_id:
-            name: !!binary |
-              bm9uZnVuZ2libGU=
+            name: 6E6F6E66756E6769626C65
             namespace_id:
-              name: !!binary |
-                YWxtb3N0
+              name: 616C6D6F7374
       - mosaic:
           amount: 345678
           mosaic_id:
-            name: !!binary |
-              ZWxlY3Ryb25pYw==
+            name: 656C656374726F6E6963
             namespace_id:
-              name: !!binary |
-                bWFzcy5zdXJ2ZWlsbGFuY2U=
+              name: 6D6173732E7375727665696C6C616E6365
       - mosaic:
           amount: 123
           mosaic_id:
-            name: !!binary |
-              eGVt
+            name: 78656D
             namespace_id:
-              name: !!binary |
-                bmVt
+              name: 6E656D
       recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
       signature: CB7773B42D752093B17F827D8FE3B8FAE20B8C2A03124489B3396CD11AA4953E6B4FAF874A8B5335F95EB8DC0020D77DCB11F21E4E2DA51D1E1B36B51358FEDD
       signer_public_key: 99e22bafb76fbe813908808e350e8c2aa7ac28df756b195f77e0b24da32b7ea3
@@ -1232,36 +1060,28 @@
       amount: 5000000
       fee: 18370164183782063840
       message:
-        message: !!binary |
-          SDZfl+t2utE2rEYw55LRYQtlkcm/feDqnWGP10gKriGgkryCI/QnuCY8ftTrZlyUW1aeQvSP8aUK
-          TNIKOvUXPQ==
+        message: 48365F97EB76BAD136AC4630E792D1610B6591C9BF7DE0EA9D618FD7480AAE21A092BC8223F427B8263C7ED4EB665C945B569E42F48FF1A50A4CD20A3AF5173D
         message_type: encrypted
       message_envelope_size: 72
       mosaics:
       - mosaic:
           amount: 2
           mosaic_id:
-            name: !!binary |
-              bm9uZnVuZ2libGU=
+            name: 6E6F6E66756E6769626C65
             namespace_id:
-              name: !!binary |
-                YWxtb3N0
+              name: 616C6D6F7374
       - mosaic:
           amount: 345678
           mosaic_id:
-            name: !!binary |
-              ZWxlY3Ryb25pYw==
+            name: 656C656374726F6E6963
             namespace_id:
-              name: !!binary |
-                bWFzcy5zdXJ2ZWlsbGFuY2U=
+              name: 6D6173732E7375727665696C6C616E6365
       - mosaic:
           amount: 123
           mosaic_id:
-            name: !!binary |
-              eGVt
+            name: 78656D
             namespace_id:
-              name: !!binary |
-                bmVt
+              name: 6E656D
       recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
       signature: C61AF3370499AD421AA4F2ADD3BEF24351ECD66D6C2C9B403E864EAA4152CEF539134A42E1E149E9E1E3CFCF84266721218FAB1912349B897365E03BFFD081FF
       signer_public_key: 9fa8af6da4554e85e856d1de8d7e2f1179cdf360ea7fa0c6900fbf21b040a1cc
@@ -1305,8 +1125,7 @@
     amount: 654321000000
     fee: 18370164183782063840
     message:
-      message: !!binary |
-        aGkh
+      message: '686921'
       message_type: plain
     message_envelope_size: 11
     recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
@@ -1321,9 +1140,7 @@
     amount: 654321000000
     fee: 18370164183782063840
     message:
-      message: !!binary |
-        ZC51bw2/S+kO/Kt6tC8pftZO3IPgUGL45J9srGH7up+NGYtLeaMwlsWJd8kTT67nQwem5VFWv2wn
-        GOKw1EvgUA==
+      message: 642E756F0DBF4BE90EFCAB7AB42F297ED64EDC83E05062F8E49F6CAC61FBBA9F8D198B4B79A33096C58977C9134FAEE74307A6E55156BF6C2718E2B0D44BE050
       message_type: encrypted
     message_envelope_size: 72
     recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
@@ -1382,8 +1199,7 @@
       amount: 654321000000
       fee: 18370164183782063840
       message:
-        message: !!binary |
-          aGkh
+        message: '686921'
         message_type: plain
       message_envelope_size: 11
       recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
@@ -1405,9 +1221,7 @@
       amount: 654321000000
       fee: 18370164183782063840
       message:
-        message: !!binary |
-          ZC51bw2/S+kO/Kt6tC8pftZO3IPgUGL45J9srGH7up+NGYtLeaMwlsWJd8kTT67nQwem5VFWv2wn
-          GOKw1EvgUA==
+        message: 642E756F0DBF4BE90EFCAB7AB42F297ED64EDC83E05062F8E49F6CAC61FBBA9F8D198B4B79A33096C58977C9134FAEE74307A6E55156BF6C2718E2B0D44BE050
         message_type: encrypted
       message_envelope_size: 72
       recipient_address: TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36
