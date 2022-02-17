@@ -1,7 +1,7 @@
 import "transaction.cats"
 
 # shared content between all verifiable and non-verifiable namespace registration transactions
-struct NamespaceRegistrationTransactionBody
+inline struct NamespaceRegistrationTransactionBody
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, NAMESPACE_REGISTRATION)
 

@@ -10,7 +10,7 @@ enum MosaicSupplyChangeAction : uint32
 	DECREASE = 0x02
 
 # shared content between verifiable and non-verifiable mosaic supply change transactions
-struct MosaicSupplyChangeTransactionBody
+inline struct MosaicSupplyChangeTransactionBody
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_SUPPLY_CHANGE)
 

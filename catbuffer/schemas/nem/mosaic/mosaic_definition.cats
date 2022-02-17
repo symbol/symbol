@@ -82,7 +82,7 @@ struct MosaicDefinition
 	levy = MosaicLevy if 0x00000000 not equals levy_size
 
 # shared content between verifiable and non-verifiable mosaic definition transactions
-struct MosaicDefinitionTransactionBody
+inline struct MosaicDefinitionTransactionBody
 	TRANSACTION_VERSION = make_const(uint8, 1)
 	TRANSACTION_TYPE = make_const(TransactionType, MOSAIC_DEFINITION)
 
