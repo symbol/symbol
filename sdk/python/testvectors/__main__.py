@@ -60,7 +60,18 @@ class SymbolHelper:
 	def create_block(self, test_name, original_descriptor):
 		descriptor = clone_descriptor(original_descriptor)
 		self.set_common_fields(descriptor, test_name)
-		return self.facade.transaction_factory.create_block(descriptor), descriptor
+
+		transaction_tuples = list(map(
+			lambda descriptor: (self.create if 'type' in descriptor else self.create_aggregate)(test_name, descriptor),
+			descriptor['transactions']
+		))
+
+		printable_descriptor = clone_descriptor(original_descriptor)
+		printable_descriptor['transactions'] = [transaction_tuple[1] for transaction_tuple in transaction_tuples]
+
+		descriptor['transactions']  = [transaction_tuple[0] for transaction_tuple in transaction_tuples]
+
+		return self.facade.transaction_factory.create_block(descriptor), printable_descriptor
 
 	def create(self, test_name, original_descriptor):
 		descriptor = clone_descriptor(original_descriptor)
