@@ -1469,7 +1469,7 @@ class NemesisBlock:
 		size += 8
 		size += self.total_voting_balance.size
 		size += self.previous_importance_block_hash.size
-		size += sum(map(lambda e: e.size, self.transactions))
+		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions[:-1])) + sum(map(lambda e: e.size, self.transactions[-1:]))
 		return size
 
 	@classmethod
@@ -1523,8 +1523,8 @@ class NemesisBlock:
 		buffer = buffer[total_voting_balance.size:]
 		previous_importance_block_hash = Hash256.deserialize(buffer)
 		buffer = buffer[previous_importance_block_hash.size:]
-		transactions = ArrayHelpers.read_array(buffer, Transaction)
-		buffer = buffer[sum(map(lambda e: e.size, transactions)):]
+		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8)
+		buffer = buffer[sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), transactions[:-1])) + sum(map(lambda e: e.size, transactions[-1:])):]
 
 		instance = NemesisBlock()
 		instance._signature = signature
@@ -1573,7 +1573,7 @@ class NemesisBlock:
 		buffer += self._harvesting_eligible_accounts_count.to_bytes(8, byteorder='little', signed=False)
 		buffer += self._total_voting_balance.serialize()
 		buffer += self._previous_importance_block_hash.serialize()
-		buffer += ArrayHelpers.write_array(self._transactions)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
 		return buffer
 
 	def __str__(self) -> str:
@@ -1794,7 +1794,7 @@ class NormalBlock:
 		size += self.beneficiary_address.size
 		size += self.fee_multiplier.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.transactions))
+		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions[:-1])) + sum(map(lambda e: e.size, self.transactions[-1:]))
 		return size
 
 	@classmethod
@@ -1843,8 +1843,8 @@ class NormalBlock:
 		block_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert block_header_reserved_1 == 0, f'Invalid value of reserved field ({block_header_reserved_1})'
-		transactions = ArrayHelpers.read_array(buffer, Transaction)
-		buffer = buffer[sum(map(lambda e: e.size, transactions)):]
+		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8)
+		buffer = buffer[sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), transactions[:-1])) + sum(map(lambda e: e.size, transactions[-1:])):]
 
 		instance = NormalBlock()
 		instance._signature = signature
@@ -1886,7 +1886,7 @@ class NormalBlock:
 		buffer += self._beneficiary_address.serialize()
 		buffer += self._fee_multiplier.serialize()
 		buffer += self._block_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
-		buffer += ArrayHelpers.write_array(self._transactions)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
 		return buffer
 
 	def __str__(self) -> str:
@@ -2143,7 +2143,7 @@ class ImportanceBlock:
 		size += 8
 		size += self.total_voting_balance.size
 		size += self.previous_importance_block_hash.size
-		size += sum(map(lambda e: e.size, self.transactions))
+		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions[:-1])) + sum(map(lambda e: e.size, self.transactions[-1:]))
 		return size
 
 	@classmethod
@@ -2197,8 +2197,8 @@ class ImportanceBlock:
 		buffer = buffer[total_voting_balance.size:]
 		previous_importance_block_hash = Hash256.deserialize(buffer)
 		buffer = buffer[previous_importance_block_hash.size:]
-		transactions = ArrayHelpers.read_array(buffer, Transaction)
-		buffer = buffer[sum(map(lambda e: e.size, transactions)):]
+		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8)
+		buffer = buffer[sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), transactions[:-1])) + sum(map(lambda e: e.size, transactions[-1:])):]
 
 		instance = ImportanceBlock()
 		instance._signature = signature
@@ -2247,7 +2247,7 @@ class ImportanceBlock:
 		buffer += self._harvesting_eligible_accounts_count.to_bytes(8, byteorder='little', signed=False)
 		buffer += self._total_voting_balance.serialize()
 		buffer += self._previous_importance_block_hash.serialize()
-		buffer += ArrayHelpers.write_array(self._transactions)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
 		return buffer
 
 	def __str__(self) -> str:

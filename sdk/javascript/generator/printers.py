@@ -60,34 +60,53 @@ class TypedArrayPrinter(Printer):
 	def get_default_value():
 		return '[]'
 
+	@property
+	def is_variable_size(self):
+		# note: self.descriptor.field_type.alignment condition at the end is needed to filter out receipts
+		descriptor = self.descriptor
+		return (descriptor.field_type.is_byte_constrained or descriptor.extensions.is_contents_abstract) and descriptor.field_type.alignment
+
 	def get_size(self):
-		if self.descriptor.field_type.is_byte_constrained:
+		if self.is_variable_size:
 			# note: use actual `.size` field
-			alignment = self.descriptor.field_type.alignment
-			return f'this.{self.name}.map(e => arrayHelpers.alignUp(e.size, {alignment})).reduce((a, b) => a + b, 0)'
+			align_element = f'arrayHelpers.alignUp(e.size, {self.descriptor.field_type.alignment})'
+
+			# hack: sum below should NOT align last element, this is ugly hack to get blocks working, until we'll have @is_aligned on cosignatures
+			if self.descriptor.field_type.is_expandable:
+				return (
+					f'this.{self.name}.slice(0, -1).map(e => {align_element}).reduce((a, b) => a + b, 0) + '
+					f'this.{self.name}.slice(-1).map(e => {align_element}).reduce((a, b) => a + b, 0)'
+				)
+
+			return f'this.{self.name}.map(e => {align_element}).reduce((a, b) => a + b, 0)'
 
 		return f'this.{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
 
 	def load(self, buffer_name):
 		del buffer_name
+		element_type = self.descriptor.field_type.element_type
 
-		if self.descriptor.field_type.is_byte_constrained:
+		if self.is_variable_size:
 			# use either type name or if it's an abstract type use a factory instead
-			factory_name = self.descriptor.field_type.element_type
 			if self.descriptor.extensions.is_contents_abstract:
-				factory_name = f'{self.descriptor.field_type.element_type}Factory'
+				element_type = f'{element_type}Factory'
 
-			data_size = lang_field_name(self.descriptor.size)
+			buffer_view = None
+			if self.descriptor.field_type.is_expandable:
+				buffer_view = 'view.buffer'
+			else:
+				data_size = lang_field_name(self.descriptor.size)
+				buffer_view = f'view.window({data_size})'
+
 			alignment = self.descriptor.field_type.alignment
-			buffer_view = f'view.window({data_size})'
-			return f'arrayHelpers.readVariableSizeElements({buffer_view}, {factory_name}, {alignment})'
+			return f'arrayHelpers.readVariableSizeElements({buffer_view}, {element_type}, {alignment})'
 
 		if self.descriptor.field_type.is_expandable:
-			return f'arrayHelpers.readArray(view.buffer, {self.descriptor.field_type.element_type})'
+			return f'arrayHelpers.readArray(view.buffer, {element_type})'
 
 		args = [
 			'view.buffer',
-			self.descriptor.field_type.element_type,
+			element_type,
 			lang_field_name(str(self.descriptor.size)),
 		]
 		if self.descriptor.field_type.sort_key:
@@ -101,10 +120,18 @@ class TypedArrayPrinter(Printer):
 		if self.descriptor.field_type.is_byte_constrained:
 			return lang_field_name(str(self.descriptor.size))
 
+		if self.descriptor.extensions.is_contents_abstract and self.descriptor.field_type.is_expandable:
+			# hack: similar to the one in get_size
+			align_element = f'arrayHelpers.alignUp(e.size, {self.descriptor.field_type.alignment})'
+			return (
+				f'{self.name}.slice(0, -1).map(e => {align_element}).reduce((a, b) => a + b, 0) + '
+				f'{self.name}.slice(-1).map(e => {align_element}).reduce((a, b) => a + b, 0)'
+			)
+
 		return f'{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
 
 	def store(self, field_name, buffer_name):
-		if self.descriptor.field_type.is_byte_constrained:
+		if self.is_variable_size:
 			alignment = self.descriptor.field_type.alignment
 			return f'arrayHelpers.writeVariableSizeElements({buffer_name}, {field_name}, {alignment})'
 
