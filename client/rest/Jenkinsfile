@@ -8,5 +8,5 @@ defaultCiPipeline {
 	// dockerImageName = 'symbolplatform/symbol-rest'
 
 	codeCoverageTool = 'nyc'
-	minimumCodeCoverage = 95
+	minimumCodeCoverage = 90
 }

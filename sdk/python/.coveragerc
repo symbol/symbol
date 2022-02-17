@@ -1,4 +1,3 @@
 [run]
-omit =
-	**/dist-packages/**
-	**/external/**
+source = symbolchain
+omit = */external/*
