@@ -3,6 +3,7 @@ const {
 } = require('../CryptoTypes');
 const { NetworkLocator } = require('../Network');
 const { KeyPair, Verifier } = require('../symbol/KeyPair');
+const { MerkleHashBuilder } = require('../symbol/MerkleHashBuilder');
 const { Address, Network } = require('../symbol/Network');
 const { TransactionFactory } = require('../symbol/TransactionFactory');
 const { TransactionType } = require('../symbol/models');
@@ -101,6 +102,20 @@ class SymbolFacade {
 			...transactionDataBuffer(transaction.serialize())
 		]);
 		return new Verifier(transaction.signerPublicKey).verify(verifyBuffer, signature);
+	}
+
+	/**
+	 * Hashes embedded transactions of an aggregate."""
+	 * @param {array<object>} embeddedTransactions Embedded transactions to hash.
+	 * @returns {Hash256} Aggregate transactions hash.
+	 */
+	static hashEmbeddedTransactions(embeddedTransactions) {
+		const hashBuilder = new MerkleHashBuilder();
+		embeddedTransactions.forEach(embeddedTransaction => {
+			hashBuilder.update(new Hash256(sha3_256.create().update(embeddedTransaction.serialize()).digest()));
+		});
+
+		return hashBuilder.final();
 	}
 
 	/**

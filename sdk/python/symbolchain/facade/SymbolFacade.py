@@ -4,6 +4,7 @@ from ..CryptoTypes import Hash256, PublicKey, Signature
 from ..Network import NetworkLocator
 from ..sc import TransactionType
 from ..symbol.KeyPair import KeyPair, Verifier
+from ..symbol.MerkleHashBuilder import MerkleHashBuilder
 from ..symbol.Network import Address, Network
 from ..symbol.TransactionFactory import TransactionFactory
 
@@ -76,6 +77,15 @@ class SymbolFacade:
 		verify_buffer = self.network.generation_hash_seed.bytes
 		verify_buffer += self._transaction_data_buffer(transaction.serialize())
 		return Verifier(transaction.signer_public_key).verify(verify_buffer, signature)
+
+	@staticmethod
+	def hash_embedded_transactions(embedded_transactions):
+		"""Hashes embedded transactions of an aggregate."""
+		hash_builder = MerkleHashBuilder()
+		for embedded_transaction in embedded_transactions:
+			hash_builder.update(Hash256(sha3.sha3_256(embedded_transaction.serialize()).digest()))
+
+		return hash_builder.final()
 
 	@staticmethod
 	def bip32_node_to_key_pair(bip32_node):

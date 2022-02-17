@@ -16,6 +16,71 @@ YAML_INPUT = '''
 
 
 class SymbolFacadeTest(unittest.TestCase):
+	# region real transactions
+
+	@staticmethod
+	def _create_real_transfer(facade):
+		return facade.transaction_factory.create({
+			'type': 'transfer_transaction',
+			'signer_public_key': 'TEST',
+			'fee': 1000000,
+			'deadline': 41998024783,
+			'recipient_address': 'TD4PJKW5JP3CNHA47VDFIM25RCWTWRGT45HMPSA',
+			'mosaics': [
+				{'mosaic_id': 0x2CF403E85507F39E, 'amount': 1000000}
+			]
+		})
+
+	@staticmethod
+	def _create_real_aggregate(facade):
+		aggregate = facade.transaction_factory.create({
+			'type': 'aggregate_complete_transaction',
+			'signer_public_key': 'TEST',
+			'fee': 2000000,
+			'deadline': 42238390163,
+			'transactions_hash': '71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'
+		})
+		transfer = facade.transaction_factory.create_embedded({
+			'type': 'transfer_transaction',
+			'signer_public_key': 'TEST',
+			'recipient_address': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
+			'mosaics': [
+				{'mosaic_id': 0x2CF403E85507F39E, 'amount': 1000000}
+			]
+		})
+		aggregate.transactions.append(transfer)
+		return aggregate
+
+	@staticmethod
+	def _create_real_embedded_transactions(facade):
+		return list(map(facade.transaction_factory.create_embedded, [
+			{
+				'type': 'transfer_transaction',
+				'signer_public_key': 'TEST',
+				'recipient_address': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
+				'mosaics': [
+					{'mosaic_id': 0x2CF403E85507F39E, 'amount': 1000000}
+				]
+			},
+			{
+				'type': 'secret_proof_transaction',
+				'signer_public_key': 'TEST',
+				'recipient_address': 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y',
+				'secret': 'BE254D2744329BBE20F9CF6DA61043B4CEF8C2BC000000000000000000000000',
+				'hash_algorithm': 'hash_256',
+				'proof': '41FB'
+			},
+			{
+				'type': 'address_alias_transaction',
+				'signer_public_key': 'TEST',
+				'namespace_id': 0xA95F1F8A96159516,
+				'address': 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y',
+				'alias_action': 'link'
+			}
+		]))
+
+	# endregion
+
 	# region constants
 
 	def test_bip32_constants_are_correct(self):
@@ -93,39 +158,6 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	# region hash_transaction / sign_transaction
 
-	@staticmethod
-	def _create_real_transfer(facade):
-		return facade.transaction_factory.create({
-			'type': 'transfer_transaction',
-			'signer_public_key': 'TEST',
-			'fee': 1000000,
-			'deadline': 41998024783,
-			'recipient_address': 'TD4PJKW5JP3CNHA47VDFIM25RCWTWRGT45HMPSA',
-			'mosaics': [
-				{'mosaic_id': 0x2CF403E85507F39E, 'amount': 1000000}
-			]
-		})
-
-	@staticmethod
-	def _create_real_aggregate(facade):
-		aggregate = facade.transaction_factory.create({
-			'type': 'aggregate_complete_transaction',
-			'signer_public_key': 'TEST',
-			'fee': 2000000,
-			'deadline': 42238390163,
-			'transactions_hash': '71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'
-		})
-		transfer = facade.transaction_factory.create_embedded({
-			'type': 'transfer_transaction',
-			'signer_public_key': 'TEST',
-			'recipient_address': 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
-			'mosaics': [
-				{'mosaic_id': 0x2CF403E85507F39E, 'amount': 1000000}
-			]
-		})
-		aggregate.transactions.append(transfer)
-		return aggregate
-
 	def _assert_can_hash_transaction(self, transaction_factory, expected_hash):
 		# Arrange:
 		private_key = PrivateKey('EDB671EB741BD676969D8A035271D1EE5E75DF33278083D877F23615EB839FEC')
@@ -201,6 +233,32 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	def test_can_verify_aggregate_transaction(self):
 		self._assert_can_verify_transaction(self._create_real_aggregate)
+
+	# endregion
+
+	# region hash_embedded_transactions
+
+	def test_can_hash_embedded_transactions(self):
+		# Arrange:
+		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+		transaction = self._create_real_aggregate(facade)
+
+		# Act:
+		hash_value = facade.hash_embedded_transactions(transaction.transactions)
+
+		# Assert:
+		self.assertEqual(transaction.transactions_hash.bytes, hash_value.bytes)
+
+	def test_can_hash_embedded_transactions_multiple(self):
+		# Arrange:
+		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+		transactions = self._create_real_embedded_transactions(facade)
+
+		# Act:
+		hash_value = facade.hash_embedded_transactions(transactions)
+
+		# Assert:
+		self.assertEqual(Hash256('5C78999F21EA75B880100E1B4C76166B9C320869F67C00D28F9F8F754D7831C9'), hash_value)
 
 	# endregion
 

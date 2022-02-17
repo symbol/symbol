@@ -7,6 +7,67 @@ const { expect } = require('chai');
 const crypto = require('crypto');
 
 describe('Symbol Facade', () => {
+	// region real transactions
+
+	const createRealTransfer = facade => facade.transactionFactory.create({
+		type: 'transfer_transaction',
+		signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
+		fee: 1000000n,
+		deadline: 41998024783n,
+		recipientAddress: 'TD4PJKW5JP3CNHA47VDFIM25RCWTWRGT45HMPSA',
+		mosaics: [
+			{ mosaicId: 0x2CF403E85507F39En, amount: 1000000n }
+		]
+	});
+
+	const createRealAggregate = facade => {
+		const aggregate = facade.transactionFactory.create({
+			type: 'aggregate_complete_transaction',
+			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
+			fee: 2000000n,
+			deadline: 42238390163n,
+			transactionsHash: '71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'
+		});
+		const transfer = facade.transactionFactory.createEmbedded({
+			type: 'transfer_transaction',
+			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
+			recipientAddress: 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
+			mosaics: [
+				{ mosaicId: 0x2CF403E85507F39En, amount: 1000000n }
+			]
+		});
+		aggregate.transactions.push(transfer);
+		return aggregate;
+	};
+
+	const createRealEmbeddedTransactions = facade => [
+		{
+			type: 'transfer_transaction',
+			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
+			recipientAddress: 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
+			mosaics: [
+				{ mosaicId: 0x2CF403E85507F39En, amount: 1000000n }
+			]
+		},
+		{
+			type: 'secret_proof_transaction',
+			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
+			recipientAddress: 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y',
+			secret: 'BE254D2744329BBE20F9CF6DA61043B4CEF8C2BC000000000000000000000000',
+			hashAlgorithm: 'hash_256',
+			proof: '41FB'
+		},
+		{
+			type: 'address_alias_transaction',
+			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
+			namespaceId: 0xA95F1F8A96159516n,
+			address: 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y',
+			aliasAction: 'link'
+		}
+	].map(descriptor => facade.transactionFactory.createEmbedded(descriptor));
+
+	// endregion
+
 	// region constants
 
 	it('has correct BIP32 constants', () => {
@@ -68,37 +129,6 @@ describe('Symbol Facade', () => {
 	// endregion
 
 	// region hash transaction / sign transaction
-
-	const createRealTransfer = facade => facade.transactionFactory.create({
-		type: 'transfer_transaction',
-		signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
-		fee: 1000000n,
-		deadline: 41998024783n,
-		recipientAddress: 'TD4PJKW5JP3CNHA47VDFIM25RCWTWRGT45HMPSA',
-		mosaics: [
-			{ mosaicId: 0x2CF403E85507F39En, amount: 1000000n }
-		]
-	});
-
-	const createRealAggregate = facade => {
-		const aggregate = facade.transactionFactory.create({
-			type: 'aggregate_complete_transaction',
-			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
-			fee: 2000000n,
-			deadline: 42238390163n,
-			transactionsHash: '71554638F578358B1D3FC4369AC625DB491AD5E5D4424D6DBED9FFC7411A37FE'
-		});
-		const transfer = facade.transactionFactory.createEmbedded({
-			type: 'transfer_transaction',
-			signerPublicKey: '87DA603E7BE5656C45692D5FC7F6D0EF8F24BB7A5C10ED5FDA8C5CFBC49FCBC8',
-			recipientAddress: 'TCIDK4CGCHGVZHLNTOKJ32MFEZWMFBCWUJIAXCA',
-			mosaics: [
-				{ mosaicId: 0x2CF403E85507F39En, amount: 1000000n }
-			]
-		});
-		aggregate.transactions.push(transfer);
-		return aggregate;
-	};
 
 	const assertCanHashTransaction = (transactionFactory, expectedHash) => {
 		// Arrange:
@@ -179,6 +209,34 @@ describe('Symbol Facade', () => {
 
 	it('can verify aggregate transaction', () => {
 		assertCanVerifyTransaction(createRealAggregate);
+	});
+
+	// endregion
+
+	// region hashEmbeddedTransactions
+
+	it('can hash embedded transactions', () => {
+		// Arrange:
+		const facade = new SymbolFacade('testnet');
+		const transaction = createRealAggregate(facade);
+
+		// Act:
+		const hashValue = SymbolFacade.hashEmbeddedTransactions(transaction.transactions);
+
+		// Assert:
+		expect(hashValue).to.deep.equal(transaction.transactionsHash);
+	});
+
+	it('can hash embedded transactions (multiple)', () => {
+		// Arrange:
+		const facade = new SymbolFacade('testnet');
+		const transactions = createRealEmbeddedTransactions(facade);
+
+		// Act:
+		const hashValue = SymbolFacade.hashEmbeddedTransactions(transactions);
+
+		// Assert:
+		expect(hashValue).to.deep.equal(new Hash256('5C78999F21EA75B880100E1B4C76166B9C320869F67C00D28F9F8F754D7831C9'));
 	});
 
 	// endregion
