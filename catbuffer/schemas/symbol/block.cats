@@ -96,6 +96,7 @@ struct NemesisBlock
 	inline ImportanceBlockFooter
 
 	# variable sized transaction data
+	@alignment(8)
 	transactions = array(Transaction, __FILL__)
 
 # binary layout for a normal block header
@@ -109,6 +110,7 @@ struct NormalBlock
 	block_header_reserved_1 = make_reserved(uint32, 0)
 
 	# variable sized transaction data
+	@alignment(8)
 	transactions = array(Transaction, __FILL__)
 
 # binary layout for an importance block header
@@ -120,4 +122,5 @@ struct ImportanceBlock
 	inline ImportanceBlockFooter
 
 	# variable sized transaction data
+	@alignment(8)
 	transactions = array(Transaction, __FILL__)
