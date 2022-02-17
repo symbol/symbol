@@ -70,9 +70,19 @@ class TransactionFactory:
 		factory.autodetect()
 
 		struct_names = [
-			'Cosignature', 'Message', 'NamespaceId', 'MosaicId', 'Mosaic', 'SizePrefixedMosaic', 'MosaicLevy',
-			'MosaicProperty', 'SizePrefixedMosaicProperty', 'MosaicDefinition',
-			'MultisigAccountModification', 'SizePrefixedMultisigAccountModification', 'SizePrefixedCosignature'
+			'Cosignature',
+			'Message',
+			'Mosaic',
+			'MosaicDefinition',
+			'MosaicId',
+			'MosaicLevy',
+			'MosaicProperty',
+			'MultisigAccountModification',
+			'NamespaceId',
+			'SizePrefixedCosignature',
+			'SizePrefixedMosaic',
+			'SizePrefixedMosaicProperty',
+			'SizePrefixedMultisigAccountModification'
 		]
 		for name in struct_names:
 			factory.add_struct_parser(name)

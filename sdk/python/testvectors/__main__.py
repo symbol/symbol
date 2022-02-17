@@ -264,6 +264,9 @@ class VectorGenerator:
 
 
 def dump_to_file(entries, filepath):
+	if not entries:
+		return
+
 	filepath.parent.mkdir(parents=True, exist_ok=True)
 
 	with open(filepath, 'wt', encoding='utf8') as outfile:

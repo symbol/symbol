@@ -68,7 +68,20 @@ class TransactionFactory:
 		factory = RuleBasedTransactionFactory(sc, TransactionFactory._symbol_type_converter, type_rule_overrides)
 		factory.autodetect()
 
-		factory.add_struct_parser('UnresolvedMosaic')
+		struct_names = [
+			'UnresolvedMosaic',
+			'VrfProof'
+		]
+		for name in struct_names:
+			factory.add_struct_parser(name)
+
+		byte_arrays = {
+			'ProofGamma': sc.ProofGamma,
+			'ProofVerificationHash': sc.ProofVerificationHash,
+			'ProofScalar': sc.ProofScalar
+		}
+		for name, typename in byte_arrays.items():
+			factory.add_pod_parser(name, typename)
 
 		sdk_type_mapping = {
 			'UnresolvedAddress': Address,
@@ -79,6 +92,7 @@ class TransactionFactory:
 		}
 		for name, typename in sdk_type_mapping.items():
 			factory.add_pod_parser(name, typename)
+
 
 		for name in ['UnresolvedMosaicId', 'TransactionType', 'UnresolvedAddress', 'struct:UnresolvedMosaic']:
 			factory.add_array_parser(name)
