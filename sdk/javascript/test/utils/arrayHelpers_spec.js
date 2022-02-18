@@ -16,13 +16,13 @@ describe('arrayHelpers', () => {
 
 	class ElementsTestContext {
 		constructor(sizes = undefined) {
-			const element_sizes = sizes || [];
+			const elementSizes = sizes || [];
 			if (!sizes) {
 				for (let i = 0; 5 > i; ++i)
-					element_sizes.push((i * 3) + 1);
+					elementSizes.push((i * 3) + 1);
 			}
 
-			this.elements = element_sizes.map(v => new MockElement(v));
+			this.elements = elementSizes.map(size => new MockElement(size));
 
 			this.output = {
 				writes: [],
@@ -75,11 +75,11 @@ describe('arrayHelpers', () => {
 		};
 
 		const assertSizeAligned = (sizes, expectedSize) => {
-			assertSize(sizes, expectedSize, 8);
+			assertSize(sizes, expectedSize, 9);
 		};
 
 		const assertSizeAlignedExLast = (sizes, expected_size) => {
-			assertSize(sizes, expected_size, 8, true);
+			assertSize(sizes, expected_size, 9, true);
 		};
 
 		it('returns sum of sizes', () => {
@@ -91,18 +91,18 @@ describe('arrayHelpers', () => {
 
 		it('returns sum of aligned sizes', () => {
 			assertSizeAligned([], 0);
-			assertSizeAligned([1], 8);
-			assertSizeAligned([13], 16);
-			assertSizeAligned([13, 21], 16 + 24);
-			assertSizeAligned([13, 21, 34], 16 + 24 + 40);
+			assertSizeAligned([1], 9);
+			assertSizeAligned([13], 18);
+			assertSizeAligned([13, 21], 18 + 27);
+			assertSizeAligned([13, 21, 34], 18 + 27 + 36);
 		});
 
 		it('returns sum of aligned sizes ex last', () => {
 			assertSizeAlignedExLast([], 0);
 			assertSizeAlignedExLast([1], 1);
 			assertSizeAlignedExLast([13], 13);
-			assertSizeAlignedExLast([13, 21], 16 + 21);
-			assertSizeAlignedExLast([13, 21, 34], 16 + 24 + 34);
+			assertSizeAlignedExLast([13, 21], 18 + 21);
+			assertSizeAlignedExLast([13, 21, 34], 18 + 27 + 34);
 		});
 	});
 
@@ -245,7 +245,7 @@ describe('arrayHelpers', () => {
 			const elements = arrayHelpers.readVariableSizeElements(context.subView, context.factory, 4, true);
 
 			// Assert:
-			expect(elements).to.deep.equal(elements);
+			expect(elements).to.deep.equal(expectedElements);
 		});
 
 		it('excluding last element throws when reading would result in OOB read', () => {
@@ -339,6 +339,27 @@ describe('arrayHelpers', () => {
 				{ type: 'fill', value: 2 },
 				{ type: 'value', value: 113 },
 				{ type: 'fill', value: 3 }
+			]);
+		});
+
+		it('ex last element writes all elements and aligns all ex last', () => {
+			// Arrange:
+			const context = new ElementsTestContext();
+
+			// Act:
+			arrayHelpers.writeVariableSizeElements(context.output, context.elements, 4, true);
+
+			// Assert:
+			expect(context.output.writes).to.deep.equal([
+				{ type: 'value', value: 101 },
+				{ type: 'fill', value: 3 },
+				{ type: 'value', value: 104 },
+				// no fill here, because write was aligned
+				{ type: 'value', value: 107 },
+				{ type: 'fill', value: 1 },
+				{ type: 'value', value: 110 },
+				{ type: 'fill', value: 2 },
+				{ type: 'value', value: 113 }
 			]);
 		});
 	});

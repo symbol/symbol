@@ -46,7 +46,7 @@ const arrayHelpers = {
 	alignUp: (size, alignment) => Math.floor((size + alignment - 1) / alignment) * alignment,
 
 	/**
-	 * Calculates size of variable size objects
+	 * Calculates size of variable size objects.
 	 * @param {array<object>} elements Serializable elements.
 	 * @param {number} alignment Alignment used for calculations.
 	 * @param {boolean} excludeLast true if last element should not be aligned.
@@ -57,9 +57,9 @@ const arrayHelpers = {
 			return sum(elements.map(e => e.size));
 
 		if (!excludeLast)
-			return sum(elements.map(e => arrayHelpers.alignUp(e.size, 8)))
+			return sum(elements.map(e => arrayHelpers.alignUp(e.size, alignment)));
 
-		return sum(elements.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8))) + sum(elements.slice(-1).map(e => e.size));
+		return sum(elements.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, alignment))) + sum(elements.slice(-1).map(e => e.size));
 	},
 
 	/**
@@ -145,7 +145,7 @@ const arrayHelpers = {
 	writeVariableSizeElements: (output, elements, alignment, excludeLast = false) => {
 		elements.forEach((element, index) => {
 			output.write(element.serialize());
-			if (!excludeLast || element.length - 1 !== index) {
+			if (!excludeLast || elements.length - 1 !== index) {
 				const alignedSize = arrayHelpers.alignUp(element.size, alignment);
 				if (alignedSize - element.size)
 					output.write(new Uint8Array(alignedSize - element.size));

@@ -89,16 +89,16 @@ class ArrayHelpersTest(unittest.TestCase):
 		context = self.ElementsTestContext(sizes)
 
 		# Act:
-		elements_size = ArrayHelpers.size(context.elements, alignment, exclude_last)
+		calculated_size = ArrayHelpers.size(context.elements, alignment, exclude_last)
 
 		# Assert:
-		self.assertEqual(expected_size, elements_size)
+		self.assertEqual(expected_size, calculated_size)
 
 	def _assert_size_aligned(self, sizes, expected_size):
-		return self._assert_size(sizes, expected_size, 8)
+		return self._assert_size(sizes, expected_size, 9)
 
 	def _assert_size_aligned_ex_last(self, sizes, expected_size):
-		return self._assert_size(sizes, expected_size, 8, True)
+		return self._assert_size(sizes, expected_size, 9, True)
 
 	def test_size_returns_sum_of_sizes(self):
 		self._assert_size([], 0)
@@ -106,19 +106,19 @@ class ArrayHelpersTest(unittest.TestCase):
 		self._assert_size([13, 21], 34)
 		self._assert_size([13, 21, 34], 68)
 
-	def test_aligned_size_returns_sum_of_aligned_sizes(self):
+	def test_size_returns_sum_of_aligned_sizes(self):
 		self._assert_size_aligned([], 0)
-		self._assert_size_aligned([1], 8)
-		self._assert_size_aligned([13], 16)
-		self._assert_size_aligned([13, 21], 16 + 24)
-		self._assert_size_aligned([13, 21, 34], 16 + 24 + 40)
+		self._assert_size_aligned([1], 9)
+		self._assert_size_aligned([13], 18)
+		self._assert_size_aligned([13, 21], 18 + 27)
+		self._assert_size_aligned([13, 21, 34], 18 + 27 + 36)
 
-	def test_aligned_size_returns_sum_of_aligned_sizes_ex_last(self):
+	def test_size_returns_sum_of_aligned_sizes_ex_last(self):
 		self._assert_size_aligned_ex_last([], 0)
 		self._assert_size_aligned_ex_last([1], 1)
 		self._assert_size_aligned_ex_last([13], 13)
-		self._assert_size_aligned_ex_last([13, 21], 16 + 21)
-		self._assert_size_aligned_ex_last([13, 21, 34], 16 + 24 + 34)
+		self._assert_size_aligned_ex_last([13, 21], 18 + 21)
+		self._assert_size_aligned_ex_last([13, 21, 34], 18 + 27 + 34)
 
 	# endregion
 
@@ -384,14 +384,14 @@ class ArrayHelpersTest(unittest.TestCase):
 		output = ArrayHelpers.write_variable_size_elements(context.elements, 4)
 
 		# Assert: notice that alignment is calculated from reported size, not serialized size
-		# * 101 - aligned up to 104: [101, 0, 0, 0]
-		# * 104 - aligned up to 104: [104]
-		# * 107 - aligned up to 108: [107, 0]
-		# * 110 - aligned up to 102: [110, 0, 0]
-		# * 113 - aligned up to 106: [113, 0, 0, 0]
+		# * 101, size  1 - aligned up to  4: [101, 0, 0, 0]
+		# * 104, size  4 - aligned up to  4: [104]
+		# * 107, size  7 - aligned up to  8: [107, 0]
+		# * 110, size 10 - aligned up to 12: [110, 0, 0]
+		# * 113, size 13 - aligned up to 16: [113, 0, 0, 0]
 		self.assertEqual(bytes([101, 0, 0, 0, 104, 107, 0, 110, 0, 0, 113, 0, 0, 0]), output)
 
-	def test_write_variable_size_elements_ex_last_writes_all_elements_and_aligns_ex_last(self):
+	def test_write_variable_size_elements_ex_last_writes_all_elements_and_aligns_all_ex_last(self):
 		# Arrange:
 		context = self.ElementsTestContext()
 
@@ -399,11 +399,11 @@ class ArrayHelpersTest(unittest.TestCase):
 		output = ArrayHelpers.write_variable_size_elements(context.elements, 4, exclude_last=True)
 
 		# Assert: notice that alignment is calculated from reported size, not serialized size
-		# * 101 - aligned up to 104: [101, 0, 0, 0]
-		# * 104 - aligned up to 104: [104]
-		# * 107 - aligned up to 108: [107, 0]
-		# * 110 - aligned up to 102: [110, 0, 0]
-		# * 113 - NOT aligned: [113]
+		# * 101, size  1 - aligned up to  4: [101, 0, 0, 0]
+		# * 104, size  4 - aligned up to  4: [104]
+		# * 107, size  7 - aligned up to  8: [107, 0]
+		# * 110, size 10 - aligned up to 12: [110, 0, 0]
+		# * 113, size 13 - NOT aligned: [113]
 		self.assertEqual(bytes([101, 0, 0, 0, 104, 107, 0, 110, 0, 0, 113]), output)
 
 	# endregion
