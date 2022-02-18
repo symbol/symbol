@@ -69,7 +69,7 @@ class SymbolHelper:
 		printable_descriptor = clone_descriptor(original_descriptor)
 		printable_descriptor['transactions'] = [transaction_tuple[1] for transaction_tuple in transaction_tuples]
 
-		descriptor['transactions']  = [transaction_tuple[0] for transaction_tuple in transaction_tuples]
+		descriptor['transactions'] = [transaction_tuple[0] for transaction_tuple in transaction_tuples]
 
 		return self.facade.transaction_factory.create_block(descriptor), printable_descriptor
 
@@ -211,39 +211,37 @@ class VectorGenerator:
 			'descriptor': self.fix_descriptor_before_storing(final_descriptor)
 		}
 
-	def create_objects(self,module_name, recipes, middle_test_name, object_factory, optional_schema_name = None):
+	def create_objects(self, recipes, middle_test_name, object_factory, optional_schema_name=None):
 		test_cases = []
 		test_schema_name = recipes['schema_name']
-		test_prefix = f'{test_schema_name}_{module_name}'
 
 		for index, descriptor in enumerate(recipes['descriptors']):
-			test_name = f'{test_prefix}_{middle_test_name}_{index+1}'
+			test_name = f'{test_schema_name}_{middle_test_name}_{index+1}'
 			schema_name = optional_schema_name or test_schema_name
 			test_cases.append(self.create_entry(schema_name, test_name, object_factory, descriptor))
 
 		return test_cases
 
 	def create_transactions(self, module_name, recipes):
-		test_cases = self.create_objects(module_name, recipes, 'single', self.helper.create)
+		test_cases = self.create_objects(recipes, f'{module_name}_single', self.helper.create)
 
 		# only thing _not_ supporting wrapping in aggregates is NEM's Cosignature (transaction)
 		if recipes.get('single_only', False):
 			return test_cases
 
 		test_cases.extend(self.create_objects(
-			module_name,
 			recipes,
-			'aggregate',
+			f'{module_name}_aggregate',
 			self.helper.create_aggregate_from_single,
 			self.helper.AGREGATE_SCHEMA_NAME))
 
 		return test_cases
 
 	def create_aggregate_transactions(self, module_name, recipes):
-		return self.create_objects(module_name, recipes, 'aggregate', self.helper.create_aggregate)
+		return self.create_objects(recipes, f'{module_name}_aggregate', self.helper.create_aggregate)
 
 	def create_blocks(self, module_name, recipes):
-		return self.create_objects(module_name, recipes, 'block', self.helper.create_block)
+		return self.create_objects(recipes, f'{module_name}_block', self.helper.create_block)
 
 	def generate_transactions(self):
 		entries = []

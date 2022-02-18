@@ -93,7 +93,6 @@ class TransactionFactory:
 		for name, typename in sdk_type_mapping.items():
 			factory.add_pod_parser(name, typename)
 
-
 		for name in ['UnresolvedMosaicId', 'TransactionType', 'UnresolvedAddress', 'struct:UnresolvedMosaic']:
 			factory.add_array_parser(name)
 

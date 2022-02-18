@@ -48,8 +48,8 @@ block_recipes = {
 					'type': 'transfer_transaction',
 					'recipient_address': SAMPLE_ADDRESS,
 					'mosaics': [
-						{'mosaic_id': 0x00000B39C6051367, 'amount': 0x000000000000012C},
-						{'mosaic_id': 0x000056CE00002B67, 'amount': 0x0000000000000064}
+						{'mosaic_id': 0x00000B39C6051367, 'amount': 0x000000000001012C},
+						{'mosaic_id': 0x000056CE00002B67, 'amount': 0x0000000000010064}
 					],
 					'message': 'Hello 👋'
 				}
@@ -77,16 +77,16 @@ block_recipes = {
 					'embedded': [
 						{
 							'type': 'transfer_transaction',
-							'recipient_address': 'TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ',
+							'recipient_address': 'TCIFSMQZAX3IDPHUP2RTXP26N6BJRNKEBBKP33I',
 							'mosaics': [],
 							'message': 'Hello 👋'
 						},
 						{
 							'type': 'transfer_transaction',
-							'recipient_address': 'TCIFSMQZAX3IDPHUP2RTXP26N6BJRNKEBBKP33I',
+							'recipient_address': 'TBA6LOHEA6A465G2X5MSQF66JBYR254GJDPK7MQ',
 							'mosaics': [
-								{'mosaic_id': 0x000056CE00002B67, 'amount': 0x0000000000000064},
-								{'mosaic_id': 0xD525AD41D95FCF29, 'amount': 0x0000000000000001}
+								{'mosaic_id': 0x000056CE00002B67, 'amount': 0x0000000000010064},
+								{'mosaic_id': 0xD525AD41D95FCF29, 'amount': 0x0000000000010001}
 							],
 							'message': unhexlify('D600000300504C5445000000FBAF93F7')
 						}
@@ -97,17 +97,17 @@ block_recipes = {
 					'type': 'transfer_transaction',
 					'recipient_address': SAMPLE_ADDRESS,
 					'mosaics': [
-						{'mosaic_id': 0x00000B39C6051367, 'amount': 0x000000000000012C},
-						{'mosaic_id': 0x000056CE00002B67, 'amount': 0x0000000000000064}
+						{'mosaic_id': 0x00000B39C6051367, 'amount': 0x000000000002012C},
+						{'mosaic_id': 0x000056CE00002B67, 'amount': 0x0000000000020064}
 					],
 					'message': 'Hello 👋'
 				},
 				{
 					'type': 'secret_proof_transaction',
 					'recipient_address': 'TCIFSMQZAX3IDPHUP2RTXP26N6BJRNKEBBKP33I',
-					'secret': '3FC8BA10229AB5778D05D9C4B7F56676A88BF9295C185ACFC0F961DB5408CAFE',
+					'secret': 'C5859BE82560CC8789133F7C834A6EE628E351E504E601E8059A0667FF62C124',
 					'hash_algorithm': 'sha3_256',
-					'proof': unhexlify('9A493664')
+					'proof': unhexlify('C1ECFDFC')
 				}
 			]
 		}
