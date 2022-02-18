@@ -11,6 +11,22 @@ DeserializedTuple = namedtuple('DeserializedTuple', ['size', 'tag'])
 class ArrayHelpersTest(unittest.TestCase):
 	# pylint: disable=too-many-public-methods
 
+	# region helpers
+
+	class ElementsTestContext:
+		class MockElement:
+			def __init__(self, size):
+				self.size = size
+
+			def serialize(self):
+				return bytes([100 + self.size])
+
+		def __init__(self, sizes=None):
+			element_sizes = sizes if sizes is not None else [i * 3 + 1 for i in range(0, 5)]
+			self.elements = list(map(self.MockElement, element_sizes))
+
+	# endregion
+
 	# region get_bytes
 
 	def _assert_get_bytes_can_return_subview(self, size, expected):
@@ -63,6 +79,46 @@ class ArrayHelpersTest(unittest.TestCase):
 		self._assert_align_up((1, 11), 11, 11)
 		self._assert_align_up((12, 22), 11, 22)
 		self._assert_align_up((353, 363), 11, 363)
+
+	# endregion
+
+	# region size
+
+	def _assert_size(self, sizes, expected_size, alignment=0, exclude_last=False):
+		# Arrange:
+		context = self.ElementsTestContext(sizes)
+
+		# Act:
+		elements_size = ArrayHelpers.size(context.elements, alignment, exclude_last)
+
+		# Assert:
+		self.assertEqual(expected_size, elements_size)
+
+	def _assert_size_aligned(self, sizes, expected_size):
+		return self._assert_size(sizes, expected_size, 8)
+
+	def _assert_size_aligned_ex_last(self, sizes, expected_size):
+		return self._assert_size(sizes, expected_size, 8, True)
+
+	def test_size_returns_sum_of_sizes(self):
+		self._assert_size([], 0)
+		self._assert_size([13], 13)
+		self._assert_size([13, 21], 34)
+		self._assert_size([13, 21, 34], 68)
+
+	def test_aligned_size_returns_sum_of_aligned_sizes(self):
+		self._assert_size_aligned([], 0)
+		self._assert_size_aligned([1], 8)
+		self._assert_size_aligned([13], 16)
+		self._assert_size_aligned([13, 21], 16 + 24)
+		self._assert_size_aligned([13, 21, 34], 16 + 24 + 40)
+
+	def test_aligned_size_returns_sum_of_aligned_sizes(self):
+		self._assert_size_aligned_ex_last([], 0)
+		self._assert_size_aligned_ex_last([1], 1)
+		self._assert_size_aligned_ex_last([13], 13)
+		self._assert_size_aligned_ex_last([13, 21], 16 + 21)
+		self._assert_size_aligned_ex_last([13, 21, 34], 16 + 24 + 34)
 
 	# endregion
 
@@ -221,20 +277,9 @@ class ArrayHelpersTest(unittest.TestCase):
 
 	# region writers - test utils
 
-	class WriteTestContext:
-		class MockElement:
-			def __init__(self, size):
-				self.size = size
-
-			def serialize(self):
-				return bytes([100 + self.size])
-
-		def __init__(self):
-			self.elements = [self.MockElement(i * 3 + 1) for i in range(0, 5)]
-
 	def _assert_writer_writes_all_elements(self, writer, expected_output):
 		# Arrange:
-		context = self.WriteTestContext()
+		context = self.ElementsTestContext()
 
 		# Act:
 		output = writer(context.elements)
@@ -244,7 +289,7 @@ class ArrayHelpersTest(unittest.TestCase):
 
 	def _assert_writer_can_write_when_using_accessor_and_elements_are_ordered(self, writer, expected_output):
 		# Arrange:
-		context = self.WriteTestContext()
+		context = self.ElementsTestContext()
 
 		# Act:
 		output = writer(context.elements, lambda element: element.size)
@@ -254,7 +299,7 @@ class ArrayHelpersTest(unittest.TestCase):
 
 	def _assert_writer_cannot_write_when_using_accessor_and_elements_are_not_ordered(self, writer):
 		# Arrange:
-		context = self.WriteTestContext()
+		context = self.ElementsTestContext()
 
 		# Act + Assert:
 		with self.assertRaises(ValueError):
@@ -311,7 +356,7 @@ class ArrayHelpersTest(unittest.TestCase):
 
 	def test_write_variable_size_elements_writes_all_elements_and_aligns(self):
 		# Arrange:
-		context = self.WriteTestContext()
+		context = self.ElementsTestContext()
 
 		# Act:
 		output = ArrayHelpers.write_variable_size_elements(context.elements, 4)

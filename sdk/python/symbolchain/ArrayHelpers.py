@@ -48,6 +48,19 @@ class ArrayHelpers:
 		return (size + alignment - 1) // alignment * alignment
 
 	@staticmethod
+	def size(elements, alignment=0, exclude_last=False):
+		if not alignment:
+			return sum(map(lambda e: e.size, elements))
+
+		if not exclude_last:
+			return sum(map(lambda e: ArrayHelpers.align_up(e.size, alignment), elements))
+
+		return (
+			sum(map(lambda e: ArrayHelpers.align_up(e.size, alignment), elements[:-1])) +
+			sum(map(lambda e: e.size, elements[-1:]))
+		)
+
+	@staticmethod
 	def read_array(view, factory_class, accessor=None):
 		"""Reads array of objects."""
 		return read_array_impl(view, factory_class, accessor, lambda _, view: len(view) > 0)
