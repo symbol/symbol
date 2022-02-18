@@ -71,7 +71,7 @@ class ArrayHelpers:
 		return read_array_impl(view, factory_class, accessor, lambda index, _: count > index)
 
 	@staticmethod
-	def read_variable_size_elements(view, factory_class, alignment):
+	def read_variable_size_elements(view, factory_class, alignment, exclude_last=False):
 		"""Reads array of variable size objects."""
 		elements = []
 		while len(view) > 0:
@@ -82,7 +82,7 @@ class ArrayHelpers:
 
 			elements.append(element)
 
-			aligned_size = ArrayHelpers.align_up(element.size, alignment)
+			aligned_size = element.size if exclude_last and element.size >= len(view) else ArrayHelpers.align_up(element.size, alignment)
 			if aligned_size > len(view):
 				raise ValueError('unexpected buffer length')
 
@@ -101,14 +101,15 @@ class ArrayHelpers:
 		return write_array_impl(elements, count, accessor)
 
 	@staticmethod
-	def write_variable_size_elements(elements, alignment):
+	def write_variable_size_elements(elements, alignment, exclude_last=False):
 		"""Writes array of variable size objects."""
 		output_buffer = bytes()
-		for element in elements:
+		for index, element in enumerate(elements):
 			output_buffer += element.serialize()
 
-			aligned_size = ArrayHelpers.align_up(element.size, alignment)
-			if aligned_size != element.size:
-				output_buffer += bytes(aligned_size - element.size)
+			if not exclude_last or len(elements) - 1 != index:
+				aligned_size = ArrayHelpers.align_up(element.size, alignment)
+				if aligned_size != element.size:
+					output_buffer += bytes(aligned_size - element.size)
 
 		return output_buffer

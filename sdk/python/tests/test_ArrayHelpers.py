@@ -273,6 +273,28 @@ class ArrayHelpersTest(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			ArrayHelpers.read_variable_size_elements(context.sub_view, context, 4)
 
+	def test_read_variable_size_elements_excluding_last_succeeds_when_last_element_ends_at_buffer_end(self):
+		# Arrange:
+		context = self.ReadTestContext([24, 25], 49)
+		expected_elements = [
+			DeserializedTuple(24, 15),
+			DeserializedTuple(25, 15 + 24)
+		]
+
+		# Act:
+		elements = ArrayHelpers.read_variable_size_elements(context.sub_view, context, 4, exclude_last=True)
+
+		# Assert:
+		self.assertEqual(expected_elements, elements)
+
+	def test_read_variable_size_elements_excluding_last_throws_when_reading_result_in_oob_read(self):
+		# Arrange:
+		context = self.ReadTestContext([24, 25], 48)
+
+		# Act + Assert:
+		with self.assertRaises(ValueError):
+			ArrayHelpers.read_variable_size_elements(context.sub_view, context, 4, exclude_last=True)
+
 	# endregion
 
 	# region writers - test utils
@@ -368,5 +390,21 @@ class ArrayHelpersTest(unittest.TestCase):
 		# * 110 - aligned up to 102: [110, 0, 0]
 		# * 113 - aligned up to 106: [113, 0, 0, 0]
 		self.assertEqual(bytes([101, 0, 0, 0, 104, 107, 0, 110, 0, 0, 113, 0, 0, 0]), output)
+
+
+	def test_write_variable_size_elements_ex_last_writes_all_elements_and_aligns_ex_last(self):
+		# Arrange:
+		context = self.ElementsTestContext()
+
+		# Act:
+		output = ArrayHelpers.write_variable_size_elements(context.elements, 4, exclude_last=True)
+
+		# Assert: notice that alignment is calculated from reported size, not serialized size
+		# * 101 - aligned up to 104: [101, 0, 0, 0]
+		# * 104 - aligned up to 104: [104]
+		# * 107 - aligned up to 108: [107, 0]
+		# * 110 - aligned up to 102: [110, 0, 0]
+		# * 113 - NOT aligned: [113]
+		self.assertEqual(bytes([101, 0, 0, 0, 104, 107, 0, 110, 0, 0, 113]), output)
 
 	# endregion
