@@ -391,7 +391,6 @@ class ArrayHelpersTest(unittest.TestCase):
 		# * 113 - aligned up to 106: [113, 0, 0, 0]
 		self.assertEqual(bytes([101, 0, 0, 0, 104, 107, 0, 110, 0, 0, 113, 0, 0, 0]), output)
 
-
 	def test_write_variable_size_elements_ex_last_writes_all_elements_and_aligns_ex_last(self):
 		# Arrange:
 		context = self.ElementsTestContext()

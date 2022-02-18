@@ -56,10 +56,7 @@ class ArrayHelpers:
 		if not exclude_last:
 			return sum(map(lambda e: ArrayHelpers.align_up(e.size, alignment), elements))
 
-		return (
-			sum(map(lambda e: ArrayHelpers.align_up(e.size, alignment), elements[:-1])) +
-			sum(map(lambda e: e.size, elements[-1:]))
-		)
+		return sum(map(lambda e: ArrayHelpers.align_up(e.size, alignment), elements[:-1])) + sum(map(lambda e: e.size, elements[-1:]))
 
 	@staticmethod
 	def read_array(view, factory_class, accessor=None):
