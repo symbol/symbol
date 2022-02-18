@@ -24,7 +24,7 @@ class AstPostProcessor:
 					if not hasattr(field.field_type, attribute.name):
 						raise AstException(f'field {field.name} ({field.field_type}) does not have property {attribute.name}')
 
-					setattr(field.field_type, attribute.name, attribute.value)
+					setattr(field.field_type, attribute.name, attribute.values)
 
 	def _structs(self):
 		return [model for _, model in self.type_descriptor_map.items() if isinstance(model, Struct)]

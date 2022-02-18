@@ -241,8 +241,12 @@ Notice that `TRANSPORT_MODE` can be defined in any derived structure.
 
 Array fields support the following attributes:
 1. `is_byte_constrained`: indicates the size value should be interpreted as a byte value instead of an element count.
-1. `alignment(x)`: indicates that elements should be padded so that they start on `x`-aligned boundaries.
+1. `alignment(x, [[not] pad_last])`: indicates that elements should be padded so that they start on `x`-aligned boundaries.
 1. `sort_key(x)`: indicates that elements within the array should be sorted by the `x` property.
+
+When alignment is specified, by default, the final element is padded to end on an `x`-aligned boundary.
+This can be made explicit by including the `pad_last` qualifier.
+This can be disabled by including the `not pad_last` qualifier, which will not pad the last element to an `x`-aligned boundary.
 
 For example, to sort vehicles by `weight`:
 ```cpp

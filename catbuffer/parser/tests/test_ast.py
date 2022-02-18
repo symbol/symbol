@@ -294,14 +294,25 @@ class AttributeTests(unittest.TestCase):
 
 	def test_can_create_attribute_with_multiple_values(self):
 		# Act:
-		model = Attribute(['foo', 'something', 'else', 'there'])
+		model = Attribute(['foo', 'something', 'good', 'or', 'bad'])
 
 		# Assert:
 		self.assertEqual('foo', model.name)
 		self.assertEqual(False, model.is_flag)
 		self.assertEqual('something', model.value)
-		self.assertEqual(['something', 'else', 'there'], model.values)
-		self.assertEqual('@foo(something, else, there)', str(model))
+		self.assertEqual(['something', 'good', 'or', 'bad'], model.values)
+		self.assertEqual('@foo(something, good, or, bad)', str(model))
+
+	def test_can_create_attribute_with_multiple_values_and_negations(self):
+		# Act:
+		model = Attribute(['foo', 'something', 'not', 'good', 'or', 'not', 'bad'])
+
+		# Assert:
+		self.assertEqual('foo', model.name)
+		self.assertEqual(False, model.is_flag)
+		self.assertEqual('something', model.value)
+		self.assertEqual(['something', 'not', 'good', 'or', 'not', 'bad'], model.values)
+		self.assertEqual('@foo(something, not good, or, not bad)', str(model))
 
 
 # endregion
@@ -816,7 +827,7 @@ class StructFieldTests(unittest.TestCase):
 	def test_can_copy_field_with_array_type(self):
 		# Arrange:
 		model = StructField(['foo_field', Array(['ElementType', 'bar_field'])])
-		model.field_type.sort_key = 'foo_field'
+		model.field_type.sort_key = ['foo_field']
 
 		# Act:
 		model = model.copy('alpha')
@@ -920,6 +931,7 @@ class ArrayTests(unittest.TestCase):
 	def _assert_attributes(self, model, **kwargs):
 		self.assertEqual(kwargs.get('sort_key', None), model.sort_key)
 		self.assertEqual(kwargs.get('alignment', None), model.alignment)
+		self.assertEqual(kwargs.get('is_last_element_padded', None), model.is_last_element_padded)
 		self.assertEqual(kwargs.get('is_byte_constrained', False), model.is_byte_constrained)
 		self.assertEqual(kwargs.get('is_expandable', False), model.is_expandable)
 
@@ -940,7 +952,7 @@ class ArrayTests(unittest.TestCase):
 	def test_can_create_udt_array_sized(self):
 		# Act:
 		model = Array(['ElementType', 10])
-		model.is_byte_constrained = True
+		model.is_byte_constrained = []
 
 		# Assert:
 		self.assertEqual(10, model.size)
@@ -965,7 +977,7 @@ class ArrayTests(unittest.TestCase):
 	def test_can_create_udt_array_with_sort_key(self):
 		# Act:
 		model = Array(['ElementType', 10])
-		model.sort_key = 'foo_field'
+		model.sort_key = ['foo_field']
 
 		# Assert:
 		self.assertEqual(10, model.size)
@@ -975,18 +987,30 @@ class ArrayTests(unittest.TestCase):
 		self.assertEqual({'disposition': 'array', 'size': 10, 'type': 'ElementType', 'sort_key': 'foo_field'}, model.to_legacy_descriptor())
 		self.assertEqual('array(ElementType, 10)', str(model))
 
-	def test_can_create_udt_array_with_explicit_alignment(self):
+	def _assert_can_create_udt_array_with_explicit_alignment(self, alignment_values, expected_is_last_element_padded):
 		# Act:
 		model = Array(['ElementType', 10])
-		model.alignment = 4
+		model.alignment = alignment_values
 
 		# Assert:
 		self.assertEqual(10, model.size)
 		self.assertEqual('array', model.disposition)
 		self.assertEqual('ElementType', model.element_type)
-		self._assert_attributes(model, alignment=4)
-		self.assertEqual({'disposition': 'array', 'size': 10, 'type': 'ElementType', 'alignment': 4}, model.to_legacy_descriptor())
+		self._assert_attributes(model, alignment=4, is_last_element_padded=expected_is_last_element_padded)
+		self.assertEqual({
+			'disposition': 'array', 'size': 10, 'type': 'ElementType', 'alignment': 4,
+			'is_last_element_padded': expected_is_last_element_padded
+		}, model.to_legacy_descriptor())
 		self.assertEqual('array(ElementType, 10)', str(model))
+
+	def test_can_create_udt_array_with_explicit_alignment(self):
+		self._assert_can_create_udt_array_with_explicit_alignment([4, None, None], True)
+
+	def test_can_create_udt_array_with_explicit_alignment_pad_last(self):
+		self._assert_can_create_udt_array_with_explicit_alignment([4, None, 'pad_last'], True)
+
+	def test_can_create_udt_array_with_explicit_alignment_not_pad_last(self):
+		self._assert_can_create_udt_array_with_explicit_alignment([4, 'not', 'pad_last'], False)
 
 	def _assert_can_create_byte_array(self, short_name, signedness):
 		# Act:
@@ -1038,9 +1062,9 @@ class ArrayTests(unittest.TestCase):
 	def test_can_copy_with_internal_member_references(self):
 		# Arrange:
 		model = Array(['ElementType', 'bar_field'])
-		model.sort_key = 'foo_field'
-		model.alignment = 4
-		model.is_byte_constrained = True
+		model.sort_key = ['foo_field']
+		model.alignment = [4, 'not', 'pad_last']
+		model.is_byte_constrained = []
 
 		# Act:
 		model = model.copy('alpha')
@@ -1049,7 +1073,7 @@ class ArrayTests(unittest.TestCase):
 		self.assertEqual('alpha_bar_field', model.size)
 		self.assertEqual('array sized', model.disposition)
 		self.assertEqual('ElementType', model.element_type)
-		self._assert_attributes(model, sort_key='alpha_foo_field', alignment=4, is_byte_constrained=True)
+		self._assert_attributes(model, sort_key='alpha_foo_field', alignment=4, is_last_element_padded=False, is_byte_constrained=True)
 
 
 # endregion

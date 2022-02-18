@@ -260,7 +260,7 @@ class AstValidatorTests(unittest.TestCase):
 	def test_can_validate_struct_containing_array_with_known_sort_key_field(self):
 		# Arrange:
 		array_model = Array(['ElementType', 10])
-		array_model.sort_key = 'weight'
+		array_model.sort_key = ['weight']
 
 		validator = AstValidator([
 			Struct([None, 'ElementType', StructField(['weight', FixedSizeInteger('uint16')])]),
@@ -273,7 +273,7 @@ class AstValidatorTests(unittest.TestCase):
 	def test_cannot_validate_struct_containing_array_with_unknown_sort_key_field(self):
 		# Arrange:
 		array_model = Array(['ElementType', 10])
-		array_model.sort_key = 'height'
+		array_model.sort_key = ['height']
 
 		validator = AstValidator([
 			Struct([None, 'ElementType', StructField(['weight', FixedSizeInteger('uint16')])]),
@@ -288,7 +288,7 @@ class AstValidatorTests(unittest.TestCase):
 	def test_cannot_validate_struct_containing_array_with_unknown_element_type_and_unknown_sort_key_field(self):
 		# Arrange:
 		array_model = Array(['ElementType', 10])
-		array_model.sort_key = 'height'
+		array_model.sort_key = ['height']
 
 		validator = AstValidator([
 			Struct([None, 'FooBar', StructField(['alpha', array_model])])
