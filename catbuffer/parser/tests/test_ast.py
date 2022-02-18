@@ -317,6 +317,7 @@ class StructTests(unittest.TestCase):
 		self.assertEqual(DisplayType.STRUCT, model.display_type)
 
 	def _assert_attributes(self, model, **kwargs):
+		self.assertEqual(kwargs.get('is_aligned', None), model.is_aligned)
 		self.assertEqual(kwargs.get('is_size_implicit', None), model.is_size_implicit)
 		self.assertEqual(kwargs.get('size', None), model.size)
 		self.assertEqual(kwargs.get('discriminator', None), model.discriminator)
@@ -408,6 +409,24 @@ class StructTests(unittest.TestCase):
 			'factory_type': 'Dust'
 		}, model.to_legacy_descriptor())
 		self.assertEqual('struct FooBar  # 2 field(s)', str(model))
+
+	def test_can_create_struct_with_attribute_is_aligned(self):
+		# Act:
+		model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+		model.attributes = [Attribute(['is_aligned'])]
+
+		# Assert:
+		self.assertEqual('FooBar', model.name)
+		self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
+		self._assert_disposition(model)
+		self._assert_attributes(model, is_aligned=True)
+		self.assertEqual({
+			'name': 'FooBar',
+			'type': 'struct',
+			'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
+			'is_aligned': True
+		}, model.to_legacy_descriptor())
+		self.assertEqual('@is_aligned\nstruct FooBar  # 2 field(s)', str(model))
 
 	def test_can_create_struct_with_attribute_is_size_implicit(self):
 		# Act:

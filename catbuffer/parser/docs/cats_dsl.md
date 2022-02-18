@@ -219,6 +219,7 @@ So, `__value__` becomes `friendly_name` and `size` becomes  `friendly_name ` + `
 Hints can be attached to structures using attributes.
 
 Structures support the following attributes:
+1. `is_aligned`: indicates that all structure fields are positioned on aligned boundaries.
 1. `is_size_implicit`: indicates that the structure could be referenced in a `sizeof(x)` statement and must support a size calculation.
 1. `size(x)`: indicates that the `x` field contains the full size of the (variable sized) structure.
 1. `initializes(x, Y)`: indicates that the `x` field should be initialized with the `Y` constant.

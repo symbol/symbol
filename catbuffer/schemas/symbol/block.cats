@@ -84,6 +84,7 @@ inline struct ImportanceBlockFooter
 @initializes(version, BLOCK_VERSION)
 @initializes(type, BLOCK_TYPE)
 @discriminator(type)
+@is_aligned
 abstract struct Block
 	inline BlockHeader
 

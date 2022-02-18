@@ -5,6 +5,7 @@ import "receipt_type.cats"
 @size(size)
 @initializes(type, RECEIPT_TYPE)
 @discriminator(type)
+@is_aligned
 abstract struct Receipt
 	inline SizePrefixedEntity
 

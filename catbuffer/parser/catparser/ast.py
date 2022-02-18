@@ -298,6 +298,11 @@ class Struct(Statement):
 		return 'inline' == self.disposition
 
 	@property
+	def is_aligned(self):
+		"""Returns true if this structure is composed exclusively of aligned fields."""
+		return _lookup_attribute_value(self.attributes, 'is_aligned')
+
+	@property
 	def is_size_implicit(self):
 		"""Returns true if this structure can be used in a `sizeof` expression."""
 		return _lookup_attribute_value(self.attributes, 'is_size_implicit')
@@ -347,7 +352,7 @@ class Struct(Statement):
 			'layout': [field.to_legacy_descriptor() for field in self.fields]
 		}
 
-		for property_name in ['disposition', 'factory_type', 'is_size_implicit', 'size', 'discriminator']:
+		for property_name in ['disposition', 'factory_type', 'is_aligned', 'is_size_implicit', 'size', 'discriminator']:
 			_set_if(self, type_descriptor, property_name)
 
 		if self.initializers:
