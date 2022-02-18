@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.2.0] - CURRENT
+
+### Added
+- add 'is_bitwise' enum attribute to indicate than an enumeration contains flags and should support bitwise operations
+- generators module providing utility functions for generator authors
+- struct attribute: is_aligned
+
+### Changed
+- added back one-pass code generation support and deprecated YAML generation
+- rename 'implicit_size' attribute to 'is_size_implicit'
+
+### Fixed
+- serialization of signed integers (#7)
+
+### Removed
+- YAML generation
+
 ## [3.1.0] - 22-Dec-2021
 
 ### Added
@@ -64,9 +81,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - initial code release
 
-[3.1.0]: https://github.com/symbol/catbuffer-parser/compare/v3.0.2...v3.1.0
-[3.0.2]: https://github.com/symbol/catbuffer-parser/compare/v2.0.2...v3.0.2
-[2.0.2]: https://github.com/symbol/catbuffer-parser/compare/v2.0.1...v2.0.2
-[2.0.1]: https://github.com/symbol/catbuffer-parser/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/symbol/catbuffer-parser/compare/v1.0.0...v2.0.0
-[1.0.0]: https://github.com/symbol/catbuffer-parser/releases/tag/v1.0.0
+[3.2.0]: https://github.com/symbol/symbol/compare/catbuffer/parser/v3.1.0...dev
+[3.1.0]: https://github.com/symbol/symbol/compare/catbuffer/parser/v3.0.2...catbuffer/parser/v3.1.0
+[3.0.2]: https://github.com/symbol/symbol/compare/catbuffer/parser/v1.0.0...catbuffer/parser/v3.0.2
+[1.0.0]: https://github.com/symbol/symbol/releases/tag/catbuffer/parser/v1.0.0
