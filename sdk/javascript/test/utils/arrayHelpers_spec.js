@@ -232,6 +232,30 @@ describe('arrayHelpers', () => {
 			expect(() => arrayHelpers.readVariableSizeElements(context.subView, context.factory, 4))
 				.to.throw('unexpected buffer length');
 		});
+
+		it('excluding last element reads at buffer end', () => {
+			// Arrange:
+			const context = new ReadTestContext([24, 25], 49);
+			const expectedElements = [
+				{ size: 24, tag: 15 },
+				{ size: 25, tag: 15 + 24 }
+			];
+
+			// Act:
+			const elements = arrayHelpers.readVariableSizeElements(context.subView, context.factory, 4, true);
+
+			// Assert:
+			expect(elements).to.deep.equal(elements);
+		});
+
+		it('excluding last element throws when reading would result in OOB read', () => {
+			// Arrange:
+			const context = new ReadTestContext([24, 25], 48);
+
+			// Act + Assert:
+			expect(() => arrayHelpers.readVariableSizeElements(context.subView, context.factory, 4))
+				.to.throw('unexpected buffer length');
+		});
 	});
 
 	// endregion

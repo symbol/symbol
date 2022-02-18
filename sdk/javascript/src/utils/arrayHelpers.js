@@ -90,9 +90,10 @@ const arrayHelpers = {
 	 * @param {Uint8Array} bufferInput A uint8 array.
 	 * @param {type} FactoryClass Factory used to deserialize objects.
 	 * @param {number} alignment Alignment used to make sure each object is at boundary.
+	 * @param {boolean} excludeLast true if last element is not aligned/padded.
 	 * @returns {array<object>} Array of deserialized objects.
 	 */
-	readVariableSizeElements: (bufferInput, FactoryClass, alignment) => {
+	readVariableSizeElements: (bufferInput, FactoryClass, alignment, excludeLast = false) => {
 		const view = new BufferView(bufferInput);
 		const elements = [];
 		while (0 < view.buffer.length) {
@@ -103,7 +104,9 @@ const arrayHelpers = {
 
 			elements.push(element);
 
-			const alignedSize = arrayHelpers.alignUp(element.size, alignment);
+			const alignedSize = (excludeLast && element.size >= view.buffer.length)
+				? element.size
+				: arrayHelpers.alignUp(element.size, alignment);
 			if (alignedSize > view.buffer.length)
 				throw RangeError('unexpected buffer length');
 
@@ -137,13 +140,16 @@ const arrayHelpers = {
 	 * @param {Writer} output An output sink.
 	 * @param {array<object>} elements Serializable elements.
 	 * @param {number} alignment Alignment used to make sure each object is at boundary.
+	 * @param {boolean} excludeLast true if last element should not be aligned/padded.
 	 */
-	writeVariableSizeElements: (output, elements, alignment) => {
-		elements.forEach(element => {
+	writeVariableSizeElements: (output, elements, alignment, excludeLast = false) => {
+		elements.forEach((element, index) => {
 			output.write(element.serialize());
-			const alignedSize = arrayHelpers.alignUp(element.size, alignment);
-			if (alignedSize - element.size)
-				output.write(new Uint8Array(alignedSize - element.size));
+			if (!excludeLast || element.length - 1 !== index) {
+				const alignedSize = arrayHelpers.alignUp(element.size, alignment);
+				if (alignedSize - element.size)
+					output.write(new Uint8Array(alignedSize - element.size));
+			}
 		});
 	}
 };
