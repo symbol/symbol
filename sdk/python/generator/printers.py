@@ -65,19 +65,11 @@ class TypedArrayPrinter(Printer):
 
 	def get_size(self):
 		if self.is_variable_size:
-			# note: use actual `.size` field
-			align_element = f'ArrayHelpers.align_up(e.size, {self.descriptor.field_type.alignment})'
+			alignment = self.descriptor.field_type.alignment
+			skip_last_element_padding = not self.descriptor.field_type.is_last_element_padded
+			return f'ArrayHelpers.size(self.{self.name}, {alignment}, skip_last_element_padding={skip_last_element_padding})'
 
-			# hack: sum below should NOT align last element, this is ugly hack to get blocks working, until we'll have @is_aligned on cosignatures
-			if self.descriptor.field_type.is_expandable:
-				return (
-					f'sum(map(lambda e: {align_element}, self.{self.name}[:-1])) + '
-					f'sum(map(lambda e: e.size, self.{self.name}[-1:]))'
-				)
-
-			return f'sum(map(lambda e: {align_element}, self.{self.name}))'
-
-		return f'sum(map(lambda e: e.size, self.{self.name}))'
+		return f'ArrayHelpers.size(self.{self.name})'
 
 	def load(self):
 		element_type = self.descriptor.field_type.element_type
@@ -92,7 +84,8 @@ class TypedArrayPrinter(Printer):
 				buffer = 'buffer'
 
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.read_variable_size_elements({buffer}, {element_type}, {alignment})'
+			skip_last_element_padding = f'skip_last_element_padding={not self.descriptor.field_type.is_last_element_padded}'
+			return f'ArrayHelpers.read_variable_size_elements({buffer}, {element_type}, {alignment}, {skip_last_element_padding})'
 
 		if self.descriptor.field_type.is_expandable:
 			return f'ArrayHelpers.read_array(buffer, {element_type})'
@@ -113,20 +106,17 @@ class TypedArrayPrinter(Printer):
 		if self.descriptor.field_type.is_byte_constrained:
 			return str(self.descriptor.size)
 
-		if self.descriptor.extensions.is_contents_abstract and self.descriptor.field_type.is_expandable:
-			# hack: similar to the one in get_size
-			align_element = f'ArrayHelpers.align_up(e.size, {self.descriptor.field_type.alignment})'
-			return (
-				f'sum(map(lambda e: {align_element}, {self.name}[:-1])) + '
-				f'sum(map(lambda e: e.size, {self.name}[-1:]))'
-			)
+		alignment = self.descriptor.field_type.alignment
+		if alignment:
+			return f'ArrayHelpers.size({self.name}, {alignment}, skip_last_element_padding={not self.descriptor.field_type.is_last_element_padded})'
 
-		return f'sum(map(lambda e: e.size, {self.name}))'
+		return f'ArrayHelpers.size({self.name})'
 
 	def store(self, field_name):
 		if self.is_variable_size:
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.write_variable_size_elements({field_name}, {alignment})'
+			skip_last_element_padding = not self.descriptor.field_type.is_last_element_padded
+			return f'ArrayHelpers.write_variable_size_elements({field_name}, {alignment}, skip_last_element_padding={skip_last_element_padding})'
 
 		if self.descriptor.field_type.is_expandable:
 			return f'ArrayHelpers.write_array({field_name})'

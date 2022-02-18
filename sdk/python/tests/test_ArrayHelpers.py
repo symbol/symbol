@@ -11,6 +11,22 @@ DeserializedTuple = namedtuple('DeserializedTuple', ['size', 'tag'])
 class ArrayHelpersTest(unittest.TestCase):
 	# pylint: disable=too-many-public-methods
 
+	# region helpers
+
+	class ElementsTestContext:
+		class MockElement:
+			def __init__(self, size):
+				self.size = size
+
+			def serialize(self):
+				return bytes([100 + self.size])
+
+		def __init__(self, sizes=None):
+			element_sizes = sizes if sizes is not None else [i * 3 + 1 for i in range(0, 5)]
+			self.elements = list(map(self.MockElement, element_sizes))
+
+	# endregion
+
 	# region get_bytes
 
 	def _assert_get_bytes_can_return_subview(self, size, expected):
@@ -63,6 +79,46 @@ class ArrayHelpersTest(unittest.TestCase):
 		self._assert_align_up((1, 11), 11, 11)
 		self._assert_align_up((12, 22), 11, 22)
 		self._assert_align_up((353, 363), 11, 363)
+
+	# endregion
+
+	# region size
+
+	def _assert_size(self, sizes, expected_size, alignment=0, skip_last_element_padding=False):
+		# Arrange:
+		context = self.ElementsTestContext(sizes)
+
+		# Act:
+		calculated_size = ArrayHelpers.size(context.elements, alignment, skip_last_element_padding)
+
+		# Assert:
+		self.assertEqual(expected_size, calculated_size)
+
+	def _assert_size_aligned(self, sizes, expected_size):
+		return self._assert_size(sizes, expected_size, 9)
+
+	def _assert_size_aligned_ex_last(self, sizes, expected_size):
+		return self._assert_size(sizes, expected_size, 9, True)
+
+	def test_size_returns_sum_of_sizes(self):
+		self._assert_size([], 0)
+		self._assert_size([13], 13)
+		self._assert_size([13, 21], 34)
+		self._assert_size([13, 21, 34], 68)
+
+	def test_size_returns_sum_of_aligned_sizes(self):
+		self._assert_size_aligned([], 0)
+		self._assert_size_aligned([1], 9)
+		self._assert_size_aligned([13], 18)
+		self._assert_size_aligned([13, 21], 18 + 27)
+		self._assert_size_aligned([13, 21, 34], 18 + 27 + 36)
+
+	def test_size_returns_sum_of_aligned_sizes_ex_last(self):
+		self._assert_size_aligned_ex_last([], 0)
+		self._assert_size_aligned_ex_last([1], 1)
+		self._assert_size_aligned_ex_last([13], 13)
+		self._assert_size_aligned_ex_last([13, 21], 18 + 21)
+		self._assert_size_aligned_ex_last([13, 21, 34], 18 + 27 + 34)
 
 	# endregion
 
@@ -209,32 +265,43 @@ class ArrayHelpersTest(unittest.TestCase):
 		# Assert:
 		self.assertEqual(expected_elements, elements)
 
-	def test_read_variable_size_elements_throws_when_reading_would_result_in_oob_read(self):
-		# Arrange:
-		context = self.ReadTestContext([24, 25], 49)
+	def test_read_variable_size_elements_throws_when_last_read_results_in_oob(self):
+		# Arrange: aligned sizes: 24, 28
+		context = self.ReadTestContext([23, 25], 49)
 
 		# Act + Assert:
 		with self.assertRaises(ValueError):
 			ArrayHelpers.read_variable_size_elements(context.sub_view, context, 4)
 
+	def test_read_variable_size_elements_excluding_last_succeeds_when_last_element_ends_at_buffer_end(self):
+		# Arrange: aligned sizes: 24, 25
+		context = self.ReadTestContext([23, 25], 49)
+		expected_elements = [
+			DeserializedTuple(23, 15),
+			DeserializedTuple(25, 15 + 24)
+		]
+
+		# Act:
+		elements = ArrayHelpers.read_variable_size_elements(context.sub_view, context, 4, skip_last_element_padding=True)
+
+		# Assert:
+		self.assertEqual(expected_elements, elements)
+
+	def test_read_variable_size_elements_excluding_last_throws_when_last_read_results_in_oob(self):
+		# Arrange: aligned sizes 24, 25
+		context = self.ReadTestContext([23, 25], 48)
+
+		# Act + Assert:
+		with self.assertRaises(ValueError):
+			ArrayHelpers.read_variable_size_elements(context.sub_view, context, 4, skip_last_element_padding=True)
+
 	# endregion
 
 	# region writers - test utils
 
-	class WriteTestContext:
-		class MockElement:
-			def __init__(self, size):
-				self.size = size
-
-			def serialize(self):
-				return bytes([100 + self.size])
-
-		def __init__(self):
-			self.elements = [self.MockElement(i * 3 + 1) for i in range(0, 5)]
-
 	def _assert_writer_writes_all_elements(self, writer, expected_output):
 		# Arrange:
-		context = self.WriteTestContext()
+		context = self.ElementsTestContext()
 
 		# Act:
 		output = writer(context.elements)
@@ -244,7 +311,7 @@ class ArrayHelpersTest(unittest.TestCase):
 
 	def _assert_writer_can_write_when_using_accessor_and_elements_are_ordered(self, writer, expected_output):
 		# Arrange:
-		context = self.WriteTestContext()
+		context = self.ElementsTestContext()
 
 		# Act:
 		output = writer(context.elements, lambda element: element.size)
@@ -254,7 +321,7 @@ class ArrayHelpersTest(unittest.TestCase):
 
 	def _assert_writer_cannot_write_when_using_accessor_and_elements_are_not_ordered(self, writer):
 		# Arrange:
-		context = self.WriteTestContext()
+		context = self.ElementsTestContext()
 
 		# Act + Assert:
 		with self.assertRaises(ValueError):
@@ -311,17 +378,32 @@ class ArrayHelpersTest(unittest.TestCase):
 
 	def test_write_variable_size_elements_writes_all_elements_and_aligns(self):
 		# Arrange:
-		context = self.WriteTestContext()
+		context = self.ElementsTestContext()
 
 		# Act:
 		output = ArrayHelpers.write_variable_size_elements(context.elements, 4)
 
 		# Assert: notice that alignment is calculated from reported size, not serialized size
-		# * 101 - aligned up to 104: [101, 0, 0, 0]
-		# * 104 - aligned up to 104: [104]
-		# * 107 - aligned up to 108: [107, 0]
-		# * 110 - aligned up to 102: [110, 0, 0]
-		# * 113 - aligned up to 106: [113, 0, 0, 0]
+		# * 101, size  1 - aligned up to  4: [101, 0, 0, 0]
+		# * 104, size  4 - aligned up to  4: [104]
+		# * 107, size  7 - aligned up to  8: [107, 0]
+		# * 110, size 10 - aligned up to 12: [110, 0, 0]
+		# * 113, size 13 - aligned up to 16: [113, 0, 0, 0]
 		self.assertEqual(bytes([101, 0, 0, 0, 104, 107, 0, 110, 0, 0, 113, 0, 0, 0]), output)
+
+	def test_write_variable_size_elements_ex_last_writes_all_elements_and_aligns_all_ex_last(self):
+		# Arrange:
+		context = self.ElementsTestContext()
+
+		# Act:
+		output = ArrayHelpers.write_variable_size_elements(context.elements, 4, skip_last_element_padding=True)
+
+		# Assert: notice that alignment is calculated from reported size, not serialized size
+		# * 101, size  1 - aligned up to  4: [101, 0, 0, 0]
+		# * 104, size  4 - aligned up to  4: [104]
+		# * 107, size  7 - aligned up to  8: [107, 0]
+		# * 110, size 10 - aligned up to 12: [110, 0, 0]
+		# * 113, size 13 - NOT aligned: [113]
+		self.assertEqual(bytes([101, 0, 0, 0, 104, 107, 0, 110, 0, 0, 113]), output)
 
 	# endregion

@@ -68,19 +68,11 @@ class TypedArrayPrinter(Printer):
 
 	def get_size(self):
 		if self.is_variable_size:
-			# note: use actual `.size` field
-			align_element = f'arrayHelpers.alignUp(e.size, {self.descriptor.field_type.alignment})'
+			alignment = self.descriptor.field_type.alignment
+			skip_last_element_padding = js_bool(not self.descriptor.field_type.is_last_element_padded)
+			return f'arrayHelpers.size(this.{self.name}, {alignment}, {skip_last_element_padding})'
 
-			# hack: sum below should NOT align last element, this is ugly hack to get blocks working, until we'll have @is_aligned on cosignatures
-			if self.descriptor.field_type.is_expandable:
-				return (
-					f'this.{self.name}.slice(0, -1).map(e => {align_element}).reduce((a, b) => a + b, 0) + '
-					f'this.{self.name}.slice(-1).map(e => {align_element}).reduce((a, b) => a + b, 0)'
-				)
-
-			return f'this.{self.name}.map(e => {align_element}).reduce((a, b) => a + b, 0)'
-
-		return f'this.{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
+		return f'arrayHelpers.size(this.{self.name})'
 
 	def load(self, buffer_name):
 		del buffer_name
@@ -99,7 +91,8 @@ class TypedArrayPrinter(Printer):
 				buffer_view = f'view.window({data_size})'
 
 			alignment = self.descriptor.field_type.alignment
-			return f'arrayHelpers.readVariableSizeElements({buffer_view}, {element_type}, {alignment})'
+			skip_last_element_padding = js_bool(not self.descriptor.field_type.is_last_element_padded)
+			return f'arrayHelpers.readVariableSizeElements({buffer_view}, {element_type}, {alignment}, {skip_last_element_padding})'
 
 		if self.descriptor.field_type.is_expandable:
 			return f'arrayHelpers.readArray(view.buffer, {element_type})'
@@ -120,20 +113,18 @@ class TypedArrayPrinter(Printer):
 		if self.descriptor.field_type.is_byte_constrained:
 			return lang_field_name(str(self.descriptor.size))
 
-		if self.descriptor.extensions.is_contents_abstract and self.descriptor.field_type.is_expandable:
-			# hack: similar to the one in get_size
-			align_element = f'arrayHelpers.alignUp(e.size, {self.descriptor.field_type.alignment})'
-			return (
-				f'{self.name}.slice(0, -1).map(e => {align_element}).reduce((a, b) => a + b, 0) + '
-				f'{self.name}.slice(-1).map(e => {align_element}).reduce((a, b) => a + b, 0)'
-			)
+		alignment = self.descriptor.field_type.alignment
+		if alignment:
+			skip_last_element_padding = js_bool(not self.descriptor.field_type.is_last_element_padded)
+			return f'arrayHelpers.size({self.name}, {alignment}, {skip_last_element_padding})'
 
-		return f'{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
+		return f'arrayHelpers.size({self.name})'
 
 	def store(self, field_name, buffer_name):
 		if self.is_variable_size:
 			alignment = self.descriptor.field_type.alignment
-			return f'arrayHelpers.writeVariableSizeElements({buffer_name}, {field_name}, {alignment})'
+			skip_last_element_padding = js_bool(not self.descriptor.field_type.is_last_element_padded)
+			return f'arrayHelpers.writeVariableSizeElements({buffer_name}, {field_name}, {alignment}, {skip_last_element_padding})'
 
 		if self.descriptor.field_type.is_expandable:
 			return f'arrayHelpers.writeArray({buffer_name}, {field_name})'

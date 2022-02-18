@@ -741,7 +741,7 @@ class Block {
 		size += this.previousBlockHash.size;
 		size += this.height.size;
 		size += 4;
-		size += this.transactions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.transactions);
 		return size;
 	}
 
@@ -778,7 +778,7 @@ class Block {
 		const transactionsCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const transactions = arrayHelpers.readArrayCount(view.buffer, Transaction, transactionsCount);
-		view.shiftRight(transactions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(transactions));
 
 		const instance = new Block();
 		instance._type = type;
@@ -1884,7 +1884,7 @@ class MosaicDefinition {
 		size += 4;
 		size += this._description.length;
 		size += 4;
-		size += this.properties.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.properties);
 		size += 4;
 		if (0 !== this.levySize)
 			size += this.levy.size;
@@ -1912,7 +1912,7 @@ class MosaicDefinition {
 		const propertiesCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const properties = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMosaicProperty, propertiesCount);
-		view.shiftRight(properties.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(properties));
 		const levySize = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		let levy;
@@ -3206,7 +3206,7 @@ class MultisigAccountModificationTransactionV1 {
 		size += this.fee.size;
 		size += this.deadline.size;
 		size += 4;
-		size += this.modifications.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.modifications);
 		return size;
 	}
 
@@ -3243,7 +3243,7 @@ class MultisigAccountModificationTransactionV1 {
 		const modificationsCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount);
-		view.shiftRight(modifications.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(modifications));
 
 		const instance = new MultisigAccountModificationTransactionV1();
 		instance._type = type;
@@ -3396,7 +3396,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		size += this.fee.size;
 		size += this.deadline.size;
 		size += 4;
-		size += this.modifications.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.modifications);
 		return size;
 	}
 
@@ -3427,7 +3427,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		const modificationsCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount);
-		view.shiftRight(modifications.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(modifications));
 
 		const instance = new NonVerifiableMultisigAccountModificationTransactionV1();
 		instance._type = type;
@@ -3599,7 +3599,7 @@ class MultisigAccountModificationTransaction {
 		size += this.fee.size;
 		size += this.deadline.size;
 		size += 4;
-		size += this.modifications.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.modifications);
 		size += 4;
 		size += 4;
 		return size;
@@ -3638,7 +3638,7 @@ class MultisigAccountModificationTransaction {
 		const modificationsCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount);
-		view.shiftRight(modifications.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(modifications));
 		const minApprovalDeltaSize = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (4 !== minApprovalDeltaSize)
@@ -3811,7 +3811,7 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		size += this.fee.size;
 		size += this.deadline.size;
 		size += 4;
-		size += this.modifications.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.modifications);
 		size += 4;
 		size += 4;
 		return size;
@@ -3844,7 +3844,7 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		const modificationsCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount);
-		view.shiftRight(modifications.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(modifications));
 		const minApprovalDeltaSize = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (4 !== minApprovalDeltaSize)
@@ -4316,7 +4316,7 @@ class MultisigTransaction {
 		size += 4;
 		size += this.innerTransaction.size;
 		size += 4;
-		size += this.cosignatures.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.cosignatures);
 		return size;
 	}
 
@@ -4358,7 +4358,7 @@ class MultisigTransaction {
 		const cosignaturesCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const cosignatures = arrayHelpers.readArrayCount(view.buffer, SizePrefixedCosignature, cosignaturesCount);
-		view.shiftRight(cosignatures.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(cosignatures));
 
 		const instance = new MultisigTransaction();
 		instance._type = type;
@@ -5708,7 +5708,7 @@ class TransferTransaction {
 			size += this.message.size;
 
 		size += 4;
-		size += this.mosaics.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.mosaics);
 		return size;
 	}
 
@@ -5760,7 +5760,7 @@ class TransferTransaction {
 		const mosaicsCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const mosaics = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMosaic, mosaicsCount);
-		view.shiftRight(mosaics.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(mosaics));
 
 		const instance = new TransferTransaction();
 		instance._type = type;
@@ -5977,7 +5977,7 @@ class NonVerifiableTransferTransaction {
 			size += this.message.size;
 
 		size += 4;
-		size += this.mosaics.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.mosaics);
 		return size;
 	}
 
@@ -6023,7 +6023,7 @@ class NonVerifiableTransferTransaction {
 		const mosaicsCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const mosaics = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMosaic, mosaicsCount);
-		view.shiftRight(mosaics.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(mosaics));
 
 		const instance = new NonVerifiableTransferTransaction();
 		instance._type = type;

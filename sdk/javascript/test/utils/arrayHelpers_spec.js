@@ -2,6 +2,34 @@ const arrayHelpers = require('../../src/utils/arrayHelpers');
 const { expect } = require('chai');
 
 describe('arrayHelpers', () => {
+	// region helpers
+
+	class MockElement {
+		constructor(size) {
+			this.size = size;
+		}
+
+		serialize() {
+			return 100 + this.size;
+		}
+	}
+
+	class ElementsTestContext {
+		constructor(sizes = undefined) {
+			const elementSizes = sizes || Array.from({ length: 5 }, (_, index) => (index * 3) + 1);
+			this.elements = elementSizes.map(size => new MockElement(size));
+
+			this.output = {
+				writes: [],
+				write(value) {
+					this.writes.push(value instanceof Uint8Array ? { type: 'fill', value: value.length } : { type: 'value', value });
+				}
+			};
+		}
+	}
+
+	// endregion
+
 	// region alignUp
 
 	describe('alignUp', () => {
@@ -22,6 +50,54 @@ describe('arrayHelpers', () => {
 			assertAlignUp([1, 11], 11, 11);
 			assertAlignUp([12, 22], 11, 22);
 			assertAlignUp([353, 363], 11, 363);
+		});
+	});
+
+	// endregion
+
+	// region size
+
+	describe('size', () => {
+		const assertSize = (sizes, expectedSize, alignment = 0, skipLastElementPadding = false) => {
+			// Arrange:
+			const context = new ElementsTestContext(sizes);
+
+			// Act:
+			const elementsSize = arrayHelpers.size(context.elements, alignment, skipLastElementPadding);
+
+			// Assert:
+			expect(elementsSize).to.equal(expectedSize);
+		};
+
+		const assertSizeAligned = (sizes, expectedSize) => {
+			assertSize(sizes, expectedSize, 9);
+		};
+
+		const assertSizeAlignedExLast = (sizes, expected_size) => {
+			assertSize(sizes, expected_size, 9, true);
+		};
+
+		it('returns sum of sizes', () => {
+			assertSize([], 0);
+			assertSize([13], 13);
+			assertSize([13, 21], 34);
+			assertSize([13, 21, 34], 68);
+		});
+
+		it('returns sum of aligned sizes', () => {
+			assertSizeAligned([], 0);
+			assertSizeAligned([1], 9);
+			assertSizeAligned([13], 18);
+			assertSizeAligned([13, 21], 18 + 27);
+			assertSizeAligned([13, 21, 34], 18 + 27 + 36);
+		});
+
+		it('returns sum of aligned sizes ex last', () => {
+			assertSizeAlignedExLast([], 0);
+			assertSizeAlignedExLast([1], 1);
+			assertSizeAlignedExLast([13], 13);
+			assertSizeAlignedExLast([13, 21], 18 + 21);
+			assertSizeAlignedExLast([13, 21, 34], 18 + 27 + 34);
 		});
 	});
 
@@ -136,9 +212,9 @@ describe('arrayHelpers', () => {
 			expect(elements).to.deep.equal(expectedElements);
 		});
 
-		it('throws when reading would result in OOB read', () => {
-			// Arrange:
-			const context = new ReadTestContext([24, 25], 49);
+		it('cannot read at buffer end when last read results in OOB', () => {
+			// Arrange: aligned sizes: 24, 28
+			const context = new ReadTestContext([23, 25], 49);
 
 			// Sanity: use same context, but readArray
 			{
@@ -151,41 +227,40 @@ describe('arrayHelpers', () => {
 			expect(() => arrayHelpers.readVariableSizeElements(context.subView, context.factory, 4))
 				.to.throw('unexpected buffer length');
 		});
+
+		it('can read at buffer end when last element padding is skipped', () => {
+			// Arrange: aligned sizes: 24, 25
+			const context = new ReadTestContext([23, 25], 49);
+			const expectedElements = [
+				{ size: 23, tag: 15 },
+				{ size: 25, tag: 15 + 24 }
+			];
+
+			// Act:
+			const elements = arrayHelpers.readVariableSizeElements(context.subView, context.factory, 4, true);
+
+			// Assert:
+			expect(elements).to.deep.equal(expectedElements);
+		});
+
+		it('cannot read at buffer end when last element padding is skipped and last read results in OOB', () => {
+			// Arrange: aligned sizes: 24, 25
+			const context = new ReadTestContext([23, 25], 48);
+
+			// Act + Assert:
+			expect(() => arrayHelpers.readVariableSizeElements(context.subView, context.factory, 4))
+				.to.throw('unexpected buffer length');
+		});
 	});
 
 	// endregion
 
 	// region writers
 
-	class MockElement {
-		constructor(size) {
-			this.size = size;
-		}
-
-		serialize() {
-			return 100 + this.size;
-		}
-	}
-
-	class WriteTestContext {
-		constructor() {
-			this.elements = [];
-			for (let i = 0; 5 > i; ++i)
-				this.elements.push(new MockElement((i * 3) + 1));
-
-			this.output = {
-				writes: [],
-				write(value) {
-					this.writes.push(value instanceof Uint8Array ? { type: 'fill', value: value.length } : { type: 'value', value });
-				}
-			};
-		}
-	}
-
 	const addTraitBasedWriterTests = traits => {
 		it('writes all elements', () => {
 			// Arrange:
-			const context = new WriteTestContext();
+			const context = new ElementsTestContext();
 
 			// Act:
 			traits.write(context.output, context.elements);
@@ -196,7 +271,7 @@ describe('arrayHelpers', () => {
 
 		it('can write when using accessor and elements are ordered', () => {
 			// Arrange:
-			const context = new WriteTestContext();
+			const context = new ElementsTestContext();
 
 			// Act:
 			traits.write(context.output, context.elements, element => element.size);
@@ -207,7 +282,7 @@ describe('arrayHelpers', () => {
 
 		it('cannot write when using accessor and elements are not ordered', () => {
 			// Arrange:
-			const context = new WriteTestContext();
+			const context = new ElementsTestContext();
 
 			// Act + Assert:
 			expect(() => traits.write(context.output, context.elements, element => -element.size))
@@ -242,7 +317,7 @@ describe('arrayHelpers', () => {
 	describe('writeVariableSizeElements', () => {
 		it('writes all elements and aligns', () => {
 			// Arrange:
-			const context = new WriteTestContext();
+			const context = new ElementsTestContext();
 
 			// Act:
 			arrayHelpers.writeVariableSizeElements(context.output, context.elements, 4);
@@ -259,6 +334,27 @@ describe('arrayHelpers', () => {
 				{ type: 'fill', value: 2 },
 				{ type: 'value', value: 113 },
 				{ type: 'fill', value: 3 }
+			]);
+		});
+
+		it('ex last element writes all elements and aligns all ex last', () => {
+			// Arrange:
+			const context = new ElementsTestContext();
+
+			// Act:
+			arrayHelpers.writeVariableSizeElements(context.output, context.elements, 4, true);
+
+			// Assert:
+			expect(context.output.writes).to.deep.equal([
+				{ type: 'value', value: 101 },
+				{ type: 'fill', value: 3 },
+				{ type: 'value', value: 104 },
+				// no fill here, because write was aligned
+				{ type: 'value', value: 107 },
+				{ type: 'fill', value: 1 },
+				{ type: 'value', value: 110 },
+				{ type: 'fill', value: 2 },
+				{ type: 'value', value: 113 }
 			]);
 		});
 	});

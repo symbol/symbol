@@ -1469,7 +1469,7 @@ class NemesisBlock:
 		size += 8
 		size += self.total_voting_balance.size
 		size += self.previous_importance_block_hash.size
-		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions[:-1])) + sum(map(lambda e: e.size, self.transactions[-1:]))
+		size += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=True)
 		return size
 
 	@classmethod
@@ -1523,8 +1523,8 @@ class NemesisBlock:
 		buffer = buffer[total_voting_balance.size:]
 		previous_importance_block_hash = Hash256.deserialize(buffer)
 		buffer = buffer[previous_importance_block_hash.size:]
-		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8)
-		buffer = buffer[sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), transactions[:-1])) + sum(map(lambda e: e.size, transactions[-1:])):]
+		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8, skip_last_element_padding=True)
+		buffer = buffer[ArrayHelpers.size(transactions, 8, skip_last_element_padding=True):]
 
 		instance = NemesisBlock()
 		instance._signature = signature
@@ -1573,7 +1573,7 @@ class NemesisBlock:
 		buffer += self._harvesting_eligible_accounts_count.to_bytes(8, byteorder='little', signed=False)
 		buffer += self._total_voting_balance.serialize()
 		buffer += self._previous_importance_block_hash.serialize()
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, skip_last_element_padding=True)
 		return buffer
 
 	def __str__(self) -> str:
@@ -1794,7 +1794,7 @@ class NormalBlock:
 		size += self.beneficiary_address.size
 		size += self.fee_multiplier.size
 		size += 4
-		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions[:-1])) + sum(map(lambda e: e.size, self.transactions[-1:]))
+		size += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=True)
 		return size
 
 	@classmethod
@@ -1843,8 +1843,8 @@ class NormalBlock:
 		block_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert block_header_reserved_1 == 0, f'Invalid value of reserved field ({block_header_reserved_1})'
-		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8)
-		buffer = buffer[sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), transactions[:-1])) + sum(map(lambda e: e.size, transactions[-1:])):]
+		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8, skip_last_element_padding=True)
+		buffer = buffer[ArrayHelpers.size(transactions, 8, skip_last_element_padding=True):]
 
 		instance = NormalBlock()
 		instance._signature = signature
@@ -1886,7 +1886,7 @@ class NormalBlock:
 		buffer += self._beneficiary_address.serialize()
 		buffer += self._fee_multiplier.serialize()
 		buffer += self._block_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, skip_last_element_padding=True)
 		return buffer
 
 	def __str__(self) -> str:
@@ -2143,7 +2143,7 @@ class ImportanceBlock:
 		size += 8
 		size += self.total_voting_balance.size
 		size += self.previous_importance_block_hash.size
-		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions[:-1])) + sum(map(lambda e: e.size, self.transactions[-1:]))
+		size += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=True)
 		return size
 
 	@classmethod
@@ -2197,8 +2197,8 @@ class ImportanceBlock:
 		buffer = buffer[total_voting_balance.size:]
 		previous_importance_block_hash = Hash256.deserialize(buffer)
 		buffer = buffer[previous_importance_block_hash.size:]
-		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8)
-		buffer = buffer[sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), transactions[:-1])) + sum(map(lambda e: e.size, transactions[-1:])):]
+		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8, skip_last_element_padding=True)
+		buffer = buffer[ArrayHelpers.size(transactions, 8, skip_last_element_padding=True):]
 
 		instance = ImportanceBlock()
 		instance._signature = signature
@@ -2247,7 +2247,7 @@ class ImportanceBlock:
 		buffer += self._harvesting_eligible_accounts_count.to_bytes(8, byteorder='little', signed=False)
 		buffer += self._total_voting_balance.serialize()
 		buffer += self._previous_importance_block_hash.serialize()
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, skip_last_element_padding=True)
 		return buffer
 
 	def __str__(self) -> str:
@@ -3954,7 +3954,7 @@ class AddressResolutionStatement:
 		size = 0
 		size += self.unresolved.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.resolution_entries))
+		size += ArrayHelpers.size(self.resolution_entries)
 		return size
 
 	@classmethod
@@ -3965,7 +3965,7 @@ class AddressResolutionStatement:
 		resolution_entries_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		resolution_entries = ArrayHelpers.read_array_count(buffer, AddressResolutionEntry, resolution_entries_count)
-		buffer = buffer[sum(map(lambda e: e.size, resolution_entries)):]
+		buffer = buffer[ArrayHelpers.size(resolution_entries):]
 
 		instance = AddressResolutionStatement()
 		instance._unresolved = unresolved
@@ -4078,7 +4078,7 @@ class MosaicResolutionStatement:
 		size = 0
 		size += self.unresolved.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.resolution_entries))
+		size += ArrayHelpers.size(self.resolution_entries)
 		return size
 
 	@classmethod
@@ -4089,7 +4089,7 @@ class MosaicResolutionStatement:
 		resolution_entries_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		resolution_entries = ArrayHelpers.read_array_count(buffer, MosaicResolutionEntry, resolution_entries_count)
-		buffer = buffer[sum(map(lambda e: e.size, resolution_entries)):]
+		buffer = buffer[ArrayHelpers.size(resolution_entries):]
 
 		instance = MosaicResolutionStatement()
 		instance._unresolved = unresolved
@@ -4151,7 +4151,7 @@ class TransactionStatement:
 		size += 4
 		size += 4
 		size += 4
-		size += sum(map(lambda e: e.size, self.receipts))
+		size += ArrayHelpers.size(self.receipts)
 		return size
 
 	@classmethod
@@ -4164,7 +4164,7 @@ class TransactionStatement:
 		receipt_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		receipts = ArrayHelpers.read_array_count(buffer, Receipt, receipt_count)
-		buffer = buffer[sum(map(lambda e: e.size, receipts)):]
+		buffer = buffer[ArrayHelpers.size(receipts):]
 
 		instance = TransactionStatement()
 		instance._primary_id = primary_id
@@ -4229,11 +4229,11 @@ class BlockStatement:
 	def size(self) -> int:
 		size = 0
 		size += 4
-		size += sum(map(lambda e: e.size, self.transaction_statements))
+		size += ArrayHelpers.size(self.transaction_statements)
 		size += 4
-		size += sum(map(lambda e: e.size, self.address_resolution_statements))
+		size += ArrayHelpers.size(self.address_resolution_statements)
 		size += 4
-		size += sum(map(lambda e: e.size, self.mosaic_resolution_statements))
+		size += ArrayHelpers.size(self.mosaic_resolution_statements)
 		return size
 
 	@classmethod
@@ -4242,15 +4242,15 @@ class BlockStatement:
 		transaction_statement_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		transaction_statements = ArrayHelpers.read_array_count(buffer, TransactionStatement, transaction_statement_count)
-		buffer = buffer[sum(map(lambda e: e.size, transaction_statements)):]
+		buffer = buffer[ArrayHelpers.size(transaction_statements):]
 		address_resolution_statement_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		address_resolution_statements = ArrayHelpers.read_array_count(buffer, AddressResolutionStatement, address_resolution_statement_count)
-		buffer = buffer[sum(map(lambda e: e.size, address_resolution_statements)):]
+		buffer = buffer[ArrayHelpers.size(address_resolution_statements):]
 		mosaic_resolution_statement_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		mosaic_resolution_statements = ArrayHelpers.read_array_count(buffer, MosaicResolutionStatement, mosaic_resolution_statement_count)
-		buffer = buffer[sum(map(lambda e: e.size, mosaic_resolution_statements)):]
+		buffer = buffer[ArrayHelpers.size(mosaic_resolution_statements):]
 
 		instance = BlockStatement()
 		instance._transaction_statements = transaction_statements
@@ -4583,14 +4583,14 @@ class HeightActivityBuckets:
 	@property
 	def size(self) -> int:
 		size = 0
-		size += sum(map(lambda e: e.size, self.buckets))
+		size += ArrayHelpers.size(self.buckets)
 		return size
 
 	@classmethod
 	def deserialize(cls, payload: ByteString) -> HeightActivityBuckets:
 		buffer = memoryview(payload)
 		buckets = ArrayHelpers.read_array_count(buffer, HeightActivityBucket, 5)
-		buffer = buffer[sum(map(lambda e: e.size, buckets)):]
+		buffer = buffer[ArrayHelpers.size(buckets):]
 
 		instance = HeightActivityBuckets()
 		instance._buckets = buckets
@@ -4781,13 +4781,13 @@ class AccountState:
 			size += self.node_public_key.size
 		if AccountKeyTypeFlags.VRF in self.supplemental_public_keys_mask:
 			size += self.vrf_public_key.size
-		size += sum(map(lambda e: e.size, self.voting_public_keys))
+		size += ArrayHelpers.size(self.voting_public_keys)
 		if AccountStateFormat.HIGH_VALUE == self.format:
 			size += self.importance_snapshots.size
 		if AccountStateFormat.HIGH_VALUE == self.format:
 			size += self.activity_buckets.size
 		size += 2
-		size += sum(map(lambda e: e.size, self.balances))
+		size += ArrayHelpers.size(self.balances)
 		return size
 
 	@classmethod
@@ -4824,7 +4824,7 @@ class AccountState:
 			vrf_public_key = PublicKey.deserialize(buffer)
 			buffer = buffer[vrf_public_key.size:]
 		voting_public_keys = ArrayHelpers.read_array_count(buffer, PinnedVotingKey, voting_public_keys_count)
-		buffer = buffer[sum(map(lambda e: e.size, voting_public_keys)):]
+		buffer = buffer[ArrayHelpers.size(voting_public_keys):]
 		importance_snapshots = None
 		if AccountStateFormat.HIGH_VALUE == format:
 			importance_snapshots = ImportanceSnapshot.deserialize(buffer)
@@ -4836,7 +4836,7 @@ class AccountState:
 		balances_count = int.from_bytes(buffer[:2], byteorder='little', signed=False)
 		buffer = buffer[2:]
 		balances = ArrayHelpers.read_array_count(buffer, Mosaic, balances_count)
-		buffer = buffer[sum(map(lambda e: e.size, balances)):]
+		buffer = buffer[ArrayHelpers.size(balances):]
 
 		instance = AccountState()
 		instance._version = version
@@ -5655,9 +5655,9 @@ class MultisigEntry:
 		size += 4
 		size += self.account_address.size
 		size += 8
-		size += sum(map(lambda e: e.size, self.cosignatory_addresses))
+		size += ArrayHelpers.size(self.cosignatory_addresses)
 		size += 8
-		size += sum(map(lambda e: e.size, self.multisig_addresses))
+		size += ArrayHelpers.size(self.multisig_addresses)
 		return size
 
 	@classmethod
@@ -5674,11 +5674,11 @@ class MultisigEntry:
 		cosignatory_addresses_count = int.from_bytes(buffer[:8], byteorder='little', signed=False)
 		buffer = buffer[8:]
 		cosignatory_addresses = ArrayHelpers.read_array_count(buffer, Address, cosignatory_addresses_count)
-		buffer = buffer[sum(map(lambda e: e.size, cosignatory_addresses)):]
+		buffer = buffer[ArrayHelpers.size(cosignatory_addresses):]
 		multisig_addresses_count = int.from_bytes(buffer[:8], byteorder='little', signed=False)
 		buffer = buffer[8:]
 		multisig_addresses = ArrayHelpers.read_array_count(buffer, Address, multisig_addresses_count)
-		buffer = buffer[sum(map(lambda e: e.size, multisig_addresses)):]
+		buffer = buffer[ArrayHelpers.size(multisig_addresses):]
 
 		instance = MultisigEntry()
 		instance._version = version
@@ -5909,7 +5909,7 @@ class NamespacePath:
 	def size(self) -> int:
 		size = 0
 		size += 1
-		size += sum(map(lambda e: e.size, self.path))
+		size += ArrayHelpers.size(self.path)
 		size += self.alias.size
 		return size
 
@@ -5919,7 +5919,7 @@ class NamespacePath:
 		path_size = int.from_bytes(buffer[:1], byteorder='little', signed=False)
 		buffer = buffer[1:]
 		path = ArrayHelpers.read_array_count(buffer, NamespaceId, path_size)
-		buffer = buffer[sum(map(lambda e: e.size, path)):]
+		buffer = buffer[ArrayHelpers.size(path):]
 		alias = NamespaceAlias.deserialize(buffer)
 		buffer = buffer[alias.size:]
 
@@ -6017,7 +6017,7 @@ class RootNamespaceHistory:
 		size += self.lifetime.size
 		size += self.root_alias.size
 		size += 8
-		size += sum(map(lambda e: e.size, self.paths))
+		size += ArrayHelpers.size(self.paths)
 		return size
 
 	@classmethod
@@ -6036,7 +6036,7 @@ class RootNamespaceHistory:
 		children_count = int.from_bytes(buffer[:8], byteorder='little', signed=False)
 		buffer = buffer[8:]
 		paths = ArrayHelpers.read_array_count(buffer, NamespacePath, children_count, lambda e: e.path)
-		buffer = buffer[sum(map(lambda e: e.size, paths)):]
+		buffer = buffer[ArrayHelpers.size(paths):]
 
 		instance = RootNamespaceHistory()
 		instance._version = version
@@ -6112,7 +6112,7 @@ class AccountRestrictionAddressValue:
 	def size(self) -> int:
 		size = 0
 		size += 8
-		size += sum(map(lambda e: e.size, self.restriction_values))
+		size += ArrayHelpers.size(self.restriction_values)
 		return size
 
 	@classmethod
@@ -6121,7 +6121,7 @@ class AccountRestrictionAddressValue:
 		restriction_values_count = int.from_bytes(buffer[:8], byteorder='little', signed=False)
 		buffer = buffer[8:]
 		restriction_values = ArrayHelpers.read_array_count(buffer, Address, restriction_values_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_values)):]
+		buffer = buffer[ArrayHelpers.size(restriction_values):]
 
 		instance = AccountRestrictionAddressValue()
 		instance._restriction_values = restriction_values
@@ -6160,7 +6160,7 @@ class AccountRestrictionMosaicValue:
 	def size(self) -> int:
 		size = 0
 		size += 8
-		size += sum(map(lambda e: e.size, self.restriction_values))
+		size += ArrayHelpers.size(self.restriction_values)
 		return size
 
 	@classmethod
@@ -6169,7 +6169,7 @@ class AccountRestrictionMosaicValue:
 		restriction_values_count = int.from_bytes(buffer[:8], byteorder='little', signed=False)
 		buffer = buffer[8:]
 		restriction_values = ArrayHelpers.read_array_count(buffer, MosaicId, restriction_values_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_values)):]
+		buffer = buffer[ArrayHelpers.size(restriction_values):]
 
 		instance = AccountRestrictionMosaicValue()
 		instance._restriction_values = restriction_values
@@ -6208,7 +6208,7 @@ class AccountRestrictionTransactionTypeValue:
 	def size(self) -> int:
 		size = 0
 		size += 8
-		size += sum(map(lambda e: e.size, self.restriction_values))
+		size += ArrayHelpers.size(self.restriction_values)
 		return size
 
 	@classmethod
@@ -6217,7 +6217,7 @@ class AccountRestrictionTransactionTypeValue:
 		restriction_values_count = int.from_bytes(buffer[:8], byteorder='little', signed=False)
 		buffer = buffer[8:]
 		restriction_values = ArrayHelpers.read_array_count(buffer, TransactionType, restriction_values_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_values)):]
+		buffer = buffer[ArrayHelpers.size(restriction_values):]
 
 		instance = AccountRestrictionTransactionTypeValue()
 		instance._restriction_values = restriction_values
@@ -6384,7 +6384,7 @@ class AccountRestrictions:
 		size += 2
 		size += self.address.size
 		size += 8
-		size += sum(map(lambda e: e.size, self.restrictions))
+		size += ArrayHelpers.size(self.restrictions)
 		return size
 
 	@classmethod
@@ -6397,7 +6397,7 @@ class AccountRestrictions:
 		restrictions_count = int.from_bytes(buffer[:8], byteorder='little', signed=False)
 		buffer = buffer[8:]
 		restrictions = ArrayHelpers.read_array_count(buffer, AccountRestrictionsInfo, restrictions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restrictions)):]
+		buffer = buffer[ArrayHelpers.size(restrictions):]
 
 		instance = AccountRestrictions()
 		instance._version = version
@@ -6559,7 +6559,7 @@ class AddressKeyValueSet:
 	def size(self) -> int:
 		size = 0
 		size += 1
-		size += sum(map(lambda e: e.size, self.keys))
+		size += ArrayHelpers.size(self.keys)
 		return size
 
 	@classmethod
@@ -6568,7 +6568,7 @@ class AddressKeyValueSet:
 		key_value_count = int.from_bytes(buffer[:1], byteorder='little', signed=False)
 		buffer = buffer[1:]
 		keys = ArrayHelpers.read_array_count(buffer, AddressKeyValue, key_value_count, lambda e: e.key)
-		buffer = buffer[sum(map(lambda e: e.size, keys)):]
+		buffer = buffer[ArrayHelpers.size(keys):]
 
 		instance = AddressKeyValueSet()
 		instance._keys = keys
@@ -6742,7 +6742,7 @@ class GlobalKeyValueSet:
 	def size(self) -> int:
 		size = 0
 		size += 1
-		size += sum(map(lambda e: e.size, self.keys))
+		size += ArrayHelpers.size(self.keys)
 		return size
 
 	@classmethod
@@ -6751,7 +6751,7 @@ class GlobalKeyValueSet:
 		key_value_count = int.from_bytes(buffer[:1], byteorder='little', signed=False)
 		buffer = buffer[1:]
 		keys = ArrayHelpers.read_array_count(buffer, GlobalKeyValue, key_value_count, lambda e: e.key)
-		buffer = buffer[sum(map(lambda e: e.size, keys)):]
+		buffer = buffer[ArrayHelpers.size(keys):]
 
 		instance = GlobalKeyValueSet()
 		instance._keys = keys
@@ -8142,8 +8142,8 @@ class AggregateCompleteTransaction:
 		size += self.transactions_hash.size
 		size += 4
 		size += 4
-		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions))
-		size += sum(map(lambda e: e.size, self.cosignatures))
+		size += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False)
+		size += ArrayHelpers.size(self.cosignatures)
 		return size
 
 	@classmethod
@@ -8180,10 +8180,10 @@ class AggregateCompleteTransaction:
 		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert aggregate_transaction_header_reserved_1 == 0, f'Invalid value of reserved field ({aggregate_transaction_header_reserved_1})'
-		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8)
+		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8, skip_last_element_padding=False)
 		buffer = buffer[payload_size:]
 		cosignatures = ArrayHelpers.read_array(buffer, Cosignature)
-		buffer = buffer[sum(map(lambda e: e.size, cosignatures)):]
+		buffer = buffer[ArrayHelpers.size(cosignatures):]
 
 		instance = AggregateCompleteTransaction()
 		instance._signature = signature
@@ -8211,9 +8211,9 @@ class AggregateCompleteTransaction:
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
 		buffer += self._transactions_hash.serialize()
-		buffer += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions)).to_bytes(4, byteorder='little', signed=False)  # payload_size
+		buffer += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False).to_bytes(4, byteorder='little', signed=False)  # payload_size
 		buffer += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, skip_last_element_padding=False)
 		buffer += ArrayHelpers.write_array(self._cosignatures)
 		return buffer
 
@@ -8359,8 +8359,8 @@ class AggregateBondedTransaction:
 		size += self.transactions_hash.size
 		size += 4
 		size += 4
-		size += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions))
-		size += sum(map(lambda e: e.size, self.cosignatures))
+		size += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False)
+		size += ArrayHelpers.size(self.cosignatures)
 		return size
 
 	@classmethod
@@ -8397,10 +8397,10 @@ class AggregateBondedTransaction:
 		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert aggregate_transaction_header_reserved_1 == 0, f'Invalid value of reserved field ({aggregate_transaction_header_reserved_1})'
-		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8)
+		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8, skip_last_element_padding=False)
 		buffer = buffer[payload_size:]
 		cosignatures = ArrayHelpers.read_array(buffer, Cosignature)
-		buffer = buffer[sum(map(lambda e: e.size, cosignatures)):]
+		buffer = buffer[ArrayHelpers.size(cosignatures):]
 
 		instance = AggregateBondedTransaction()
 		instance._signature = signature
@@ -8428,9 +8428,9 @@ class AggregateBondedTransaction:
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
 		buffer += self._transactions_hash.serialize()
-		buffer += sum(map(lambda e: ArrayHelpers.align_up(e.size, 8), self.transactions)).to_bytes(4, byteorder='little', signed=False)  # payload_size
+		buffer += ArrayHelpers.size(self.transactions, 8, skip_last_element_padding=False).to_bytes(4, byteorder='little', signed=False)  # payload_size
 		buffer += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, skip_last_element_padding=False)
 		buffer += ArrayHelpers.write_array(self._cosignatures)
 		return buffer
 
@@ -12918,8 +12918,8 @@ class MultisigAccountModificationTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.address_additions))
-		size += sum(map(lambda e: e.size, self.address_deletions))
+		size += ArrayHelpers.size(self.address_additions)
+		size += ArrayHelpers.size(self.address_deletions)
 		return size
 
 	@classmethod
@@ -12961,9 +12961,9 @@ class MultisigAccountModificationTransaction:
 		buffer = buffer[4:]
 		assert multisig_account_modification_transaction_body_reserved_1 == 0, f'Invalid value of reserved field ({multisig_account_modification_transaction_body_reserved_1})'
 		address_additions = ArrayHelpers.read_array_count(buffer, UnresolvedAddress, address_additions_count)
-		buffer = buffer[sum(map(lambda e: e.size, address_additions)):]
+		buffer = buffer[ArrayHelpers.size(address_additions):]
 		address_deletions = ArrayHelpers.read_array_count(buffer, UnresolvedAddress, address_deletions_count)
-		buffer = buffer[sum(map(lambda e: e.size, address_deletions)):]
+		buffer = buffer[ArrayHelpers.size(address_deletions):]
 
 		instance = MultisigAccountModificationTransaction()
 		instance._signature = signature
@@ -13120,8 +13120,8 @@ class EmbeddedMultisigAccountModificationTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.address_additions))
-		size += sum(map(lambda e: e.size, self.address_deletions))
+		size += ArrayHelpers.size(self.address_additions)
+		size += ArrayHelpers.size(self.address_deletions)
 		return size
 
 	@classmethod
@@ -13157,9 +13157,9 @@ class EmbeddedMultisigAccountModificationTransaction:
 		buffer = buffer[4:]
 		assert multisig_account_modification_transaction_body_reserved_1 == 0, f'Invalid value of reserved field ({multisig_account_modification_transaction_body_reserved_1})'
 		address_additions = ArrayHelpers.read_array_count(buffer, UnresolvedAddress, address_additions_count)
-		buffer = buffer[sum(map(lambda e: e.size, address_additions)):]
+		buffer = buffer[ArrayHelpers.size(address_additions):]
 		address_deletions = ArrayHelpers.read_array_count(buffer, UnresolvedAddress, address_deletions_count)
-		buffer = buffer[sum(map(lambda e: e.size, address_deletions)):]
+		buffer = buffer[ArrayHelpers.size(address_deletions):]
 
 		instance = EmbeddedMultisigAccountModificationTransaction()
 		instance._signer_public_key = signer_public_key
@@ -14531,8 +14531,8 @@ class AccountAddressRestrictionTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.restriction_additions))
-		size += sum(map(lambda e: e.size, self.restriction_deletions))
+		size += ArrayHelpers.size(self.restriction_additions)
+		size += ArrayHelpers.size(self.restriction_deletions)
 		return size
 
 	@classmethod
@@ -14572,9 +14572,9 @@ class AccountAddressRestrictionTransaction:
 		buffer = buffer[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f'Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})'
 		restriction_additions = ArrayHelpers.read_array_count(buffer, UnresolvedAddress, restriction_additions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_additions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_additions):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer, UnresolvedAddress, restriction_deletions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_deletions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_deletions):]
 
 		instance = AccountAddressRestrictionTransaction()
 		instance._signature = signature
@@ -14719,8 +14719,8 @@ class EmbeddedAccountAddressRestrictionTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.restriction_additions))
-		size += sum(map(lambda e: e.size, self.restriction_deletions))
+		size += ArrayHelpers.size(self.restriction_additions)
+		size += ArrayHelpers.size(self.restriction_deletions)
 		return size
 
 	@classmethod
@@ -14754,9 +14754,9 @@ class EmbeddedAccountAddressRestrictionTransaction:
 		buffer = buffer[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f'Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})'
 		restriction_additions = ArrayHelpers.read_array_count(buffer, UnresolvedAddress, restriction_additions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_additions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_additions):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer, UnresolvedAddress, restriction_deletions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_deletions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_deletions):]
 
 		instance = EmbeddedAccountAddressRestrictionTransaction()
 		instance._signer_public_key = signer_public_key
@@ -14925,8 +14925,8 @@ class AccountMosaicRestrictionTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.restriction_additions))
-		size += sum(map(lambda e: e.size, self.restriction_deletions))
+		size += ArrayHelpers.size(self.restriction_additions)
+		size += ArrayHelpers.size(self.restriction_deletions)
 		return size
 
 	@classmethod
@@ -14966,9 +14966,9 @@ class AccountMosaicRestrictionTransaction:
 		buffer = buffer[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f'Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})'
 		restriction_additions = ArrayHelpers.read_array_count(buffer, UnresolvedMosaicId, restriction_additions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_additions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_additions):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer, UnresolvedMosaicId, restriction_deletions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_deletions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_deletions):]
 
 		instance = AccountMosaicRestrictionTransaction()
 		instance._signature = signature
@@ -15113,8 +15113,8 @@ class EmbeddedAccountMosaicRestrictionTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.restriction_additions))
-		size += sum(map(lambda e: e.size, self.restriction_deletions))
+		size += ArrayHelpers.size(self.restriction_additions)
+		size += ArrayHelpers.size(self.restriction_deletions)
 		return size
 
 	@classmethod
@@ -15148,9 +15148,9 @@ class EmbeddedAccountMosaicRestrictionTransaction:
 		buffer = buffer[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f'Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})'
 		restriction_additions = ArrayHelpers.read_array_count(buffer, UnresolvedMosaicId, restriction_additions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_additions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_additions):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer, UnresolvedMosaicId, restriction_deletions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_deletions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_deletions):]
 
 		instance = EmbeddedAccountMosaicRestrictionTransaction()
 		instance._signer_public_key = signer_public_key
@@ -15319,8 +15319,8 @@ class AccountOperationRestrictionTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.restriction_additions))
-		size += sum(map(lambda e: e.size, self.restriction_deletions))
+		size += ArrayHelpers.size(self.restriction_additions)
+		size += ArrayHelpers.size(self.restriction_deletions)
 		return size
 
 	@classmethod
@@ -15360,9 +15360,9 @@ class AccountOperationRestrictionTransaction:
 		buffer = buffer[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f'Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})'
 		restriction_additions = ArrayHelpers.read_array_count(buffer, TransactionType, restriction_additions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_additions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_additions):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer, TransactionType, restriction_deletions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_deletions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_deletions):]
 
 		instance = AccountOperationRestrictionTransaction()
 		instance._signature = signature
@@ -15507,8 +15507,8 @@ class EmbeddedAccountOperationRestrictionTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.restriction_additions))
-		size += sum(map(lambda e: e.size, self.restriction_deletions))
+		size += ArrayHelpers.size(self.restriction_additions)
+		size += ArrayHelpers.size(self.restriction_deletions)
 		return size
 
 	@classmethod
@@ -15542,9 +15542,9 @@ class EmbeddedAccountOperationRestrictionTransaction:
 		buffer = buffer[4:]
 		assert account_restriction_transaction_body_reserved_1 == 0, f'Invalid value of reserved field ({account_restriction_transaction_body_reserved_1})'
 		restriction_additions = ArrayHelpers.read_array_count(buffer, TransactionType, restriction_additions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_additions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_additions):]
 		restriction_deletions = ArrayHelpers.read_array_count(buffer, TransactionType, restriction_deletions_count)
-		buffer = buffer[sum(map(lambda e: e.size, restriction_deletions)):]
+		buffer = buffer[ArrayHelpers.size(restriction_deletions):]
 
 		instance = EmbeddedAccountOperationRestrictionTransaction()
 		instance._signer_public_key = signer_public_key
@@ -16627,7 +16627,7 @@ class TransferTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.mosaics))
+		size += ArrayHelpers.size(self.mosaics)
 		size += len(self._message)
 		return size
 
@@ -16671,7 +16671,7 @@ class TransferTransaction:
 		buffer = buffer[4:]
 		assert transfer_transaction_body_reserved_2 == 0, f'Invalid value of reserved field ({transfer_transaction_body_reserved_2})'
 		mosaics = ArrayHelpers.read_array_count(buffer, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id)
-		buffer = buffer[sum(map(lambda e: e.size, mosaics)):]
+		buffer = buffer[ArrayHelpers.size(mosaics):]
 		message = ArrayHelpers.get_bytes(buffer, message_size)
 		buffer = buffer[message_size:]
 
@@ -16821,7 +16821,7 @@ class EmbeddedTransferTransaction:
 		size += 1
 		size += 1
 		size += 4
-		size += sum(map(lambda e: e.size, self.mosaics))
+		size += ArrayHelpers.size(self.mosaics)
 		size += len(self._message)
 		return size
 
@@ -16859,7 +16859,7 @@ class EmbeddedTransferTransaction:
 		buffer = buffer[4:]
 		assert transfer_transaction_body_reserved_2 == 0, f'Invalid value of reserved field ({transfer_transaction_body_reserved_2})'
 		mosaics = ArrayHelpers.read_array_count(buffer, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id)
-		buffer = buffer[sum(map(lambda e: e.size, mosaics)):]
+		buffer = buffer[ArrayHelpers.size(mosaics):]
 		message = ArrayHelpers.get_bytes(buffer, message_size)
 		buffer = buffer[message_size:]
 

@@ -1660,7 +1660,7 @@ class NemesisBlock {
 		size += 8;
 		size += this.totalVotingBalance.size;
 		size += this.previousImportanceBlockHash.size;
-		size += this.transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + this.transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.transactions, 8, true);
 		return size;
 	}
 
@@ -1715,8 +1715,8 @@ class NemesisBlock {
 		view.shiftRight(totalVotingBalance.size);
 		const previousImportanceBlockHash = Hash256.deserialize(view.buffer);
 		view.shiftRight(previousImportanceBlockHash.size);
-		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8);
-		view.shiftRight(transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0));
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8, true);
+		view.shiftRight(arrayHelpers.size(transactions, 8, true));
 
 		const instance = new NemesisBlock();
 		instance._signature = signature;
@@ -1766,7 +1766,7 @@ class NemesisBlock {
 		buffer.write(converter.intToBytes(this._harvestingEligibleAccountsCount, 8, false));
 		buffer.write(this._totalVotingBalance.serialize());
 		buffer.write(this._previousImportanceBlockHash.serialize());
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, true);
 		return buffer.storage;
 	}
 
@@ -1991,7 +1991,7 @@ class NormalBlock {
 		size += this.beneficiaryAddress.size;
 		size += this.feeMultiplier.size;
 		size += 4;
-		size += this.transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + this.transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.transactions, 8, true);
 		return size;
 	}
 
@@ -2042,8 +2042,8 @@ class NormalBlock {
 		view.shiftRight(4);
 		if (0 !== blockHeaderReserved_1)
 			throw RangeError(`Invalid value of reserved field (${blockHeaderReserved_1})`);
-		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8);
-		view.shiftRight(transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0));
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8, true);
+		view.shiftRight(arrayHelpers.size(transactions, 8, true));
 
 		const instance = new NormalBlock();
 		instance._signature = signature;
@@ -2086,7 +2086,7 @@ class NormalBlock {
 		buffer.write(this._beneficiaryAddress.serialize());
 		buffer.write(this._feeMultiplier.serialize());
 		buffer.write(converter.intToBytes(this._blockHeaderReserved_1, 4, false));
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, true);
 		return buffer.storage;
 	}
 
@@ -2347,7 +2347,7 @@ class ImportanceBlock {
 		size += 8;
 		size += this.totalVotingBalance.size;
 		size += this.previousImportanceBlockHash.size;
-		size += this.transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + this.transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.transactions, 8, true);
 		return size;
 	}
 
@@ -2402,8 +2402,8 @@ class ImportanceBlock {
 		view.shiftRight(totalVotingBalance.size);
 		const previousImportanceBlockHash = Hash256.deserialize(view.buffer);
 		view.shiftRight(previousImportanceBlockHash.size);
-		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8);
-		view.shiftRight(transactions.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0) + transactions.slice(-1).map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0));
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8, true);
+		view.shiftRight(arrayHelpers.size(transactions, 8, true));
 
 		const instance = new ImportanceBlock();
 		instance._signature = signature;
@@ -2453,7 +2453,7 @@ class ImportanceBlock {
 		buffer.write(converter.intToBytes(this._harvestingEligibleAccountsCount, 8, false));
 		buffer.write(this._totalVotingBalance.serialize());
 		buffer.write(this._previousImportanceBlockHash.serialize());
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, true);
 		return buffer.storage;
 	}
 
@@ -4314,7 +4314,7 @@ class AddressResolutionStatement {
 		let size = 0;
 		size += this.unresolved.size;
 		size += 4;
-		size += this.resolutionEntries.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.resolutionEntries);
 		return size;
 	}
 
@@ -4325,7 +4325,7 @@ class AddressResolutionStatement {
 		const resolutionEntriesCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const resolutionEntries = arrayHelpers.readArrayCount(view.buffer, AddressResolutionEntry, resolutionEntriesCount);
-		view.shiftRight(resolutionEntries.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(resolutionEntries));
 
 		const instance = new AddressResolutionStatement();
 		instance._unresolved = unresolved;
@@ -4444,7 +4444,7 @@ class MosaicResolutionStatement {
 		let size = 0;
 		size += this.unresolved.size;
 		size += 4;
-		size += this.resolutionEntries.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.resolutionEntries);
 		return size;
 	}
 
@@ -4455,7 +4455,7 @@ class MosaicResolutionStatement {
 		const resolutionEntriesCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const resolutionEntries = arrayHelpers.readArrayCount(view.buffer, MosaicResolutionEntry, resolutionEntriesCount);
-		view.shiftRight(resolutionEntries.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(resolutionEntries));
 
 		const instance = new MosaicResolutionStatement();
 		instance._unresolved = unresolved;
@@ -4520,7 +4520,7 @@ class TransactionStatement {
 		size += 4;
 		size += 4;
 		size += 4;
-		size += this.receipts.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.receipts);
 		return size;
 	}
 
@@ -4533,7 +4533,7 @@ class TransactionStatement {
 		const receiptCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const receipts = arrayHelpers.readArrayCount(view.buffer, Receipt, receiptCount);
-		view.shiftRight(receipts.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(receipts));
 
 		const instance = new TransactionStatement();
 		instance._primaryId = primaryId;
@@ -4601,11 +4601,11 @@ class BlockStatement {
 	get size() { // eslint-disable-line class-methods-use-this
 		let size = 0;
 		size += 4;
-		size += this.transactionStatements.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.transactionStatements);
 		size += 4;
-		size += this.addressResolutionStatements.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.addressResolutionStatements);
 		size += 4;
-		size += this.mosaicResolutionStatements.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.mosaicResolutionStatements);
 		return size;
 	}
 
@@ -4614,15 +4614,15 @@ class BlockStatement {
 		const transactionStatementCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const transactionStatements = arrayHelpers.readArrayCount(view.buffer, TransactionStatement, transactionStatementCount);
-		view.shiftRight(transactionStatements.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(transactionStatements));
 		const addressResolutionStatementCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const addressResolutionStatements = arrayHelpers.readArrayCount(view.buffer, AddressResolutionStatement, addressResolutionStatementCount);
-		view.shiftRight(addressResolutionStatements.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(addressResolutionStatements));
 		const mosaicResolutionStatementCount = converter.bytesToInt(view.buffer, 4, false);
 		view.shiftRight(4);
 		const mosaicResolutionStatements = arrayHelpers.readArrayCount(view.buffer, MosaicResolutionStatement, mosaicResolutionStatementCount);
-		view.shiftRight(mosaicResolutionStatements.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(mosaicResolutionStatements));
 
 		const instance = new BlockStatement();
 		instance._transactionStatements = transactionStatements;
@@ -5050,14 +5050,14 @@ class HeightActivityBuckets {
 
 	get size() { // eslint-disable-line class-methods-use-this
 		let size = 0;
-		size += this.buckets.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.buckets);
 		return size;
 	}
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
 		const buckets = arrayHelpers.readArrayCount(view.buffer, HeightActivityBucket, 5);
-		view.shiftRight(buckets.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(buckets));
 
 		const instance = new HeightActivityBuckets();
 		instance._buckets = buckets;
@@ -5254,7 +5254,7 @@ class AccountState {
 		if (this.supplementalPublicKeysMask.has(AccountKeyTypeFlags.VRF))
 			size += this.vrfPublicKey.size;
 
-		size += this.votingPublicKeys.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.votingPublicKeys);
 		if (AccountStateFormat.HIGH_VALUE === this.format)
 			size += this.importanceSnapshots.size;
 
@@ -5262,7 +5262,7 @@ class AccountState {
 			size += this.activityBuckets.size;
 
 		size += 2;
-		size += this.balances.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.balances);
 		return size;
 	}
 
@@ -5302,7 +5302,7 @@ class AccountState {
 			view.shiftRight(vrfPublicKey.size);
 		}
 		const votingPublicKeys = arrayHelpers.readArrayCount(view.buffer, PinnedVotingKey, votingPublicKeysCount);
-		view.shiftRight(votingPublicKeys.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(votingPublicKeys));
 		let importanceSnapshots;
 		if (AccountStateFormat.HIGH_VALUE === format) {
 			importanceSnapshots = ImportanceSnapshot.deserialize(view.buffer);
@@ -5316,7 +5316,7 @@ class AccountState {
 		const balancesCount = converter.bytesToInt(view.buffer, 2, false);
 		view.shiftRight(2);
 		const balances = arrayHelpers.readArrayCount(view.buffer, Mosaic, balancesCount);
-		view.shiftRight(balances.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(balances));
 
 		const instance = new AccountState();
 		instance._version = version;
@@ -6280,9 +6280,9 @@ class MultisigEntry {
 		size += 4;
 		size += this.accountAddress.size;
 		size += 8;
-		size += this.cosignatoryAddresses.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.cosignatoryAddresses);
 		size += 8;
-		size += this.multisigAddresses.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.multisigAddresses);
 		return size;
 	}
 
@@ -6299,11 +6299,11 @@ class MultisigEntry {
 		const cosignatoryAddressesCount = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const cosignatoryAddresses = arrayHelpers.readArrayCount(view.buffer, Address, cosignatoryAddressesCount);
-		view.shiftRight(cosignatoryAddresses.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(cosignatoryAddresses));
 		const multisigAddressesCount = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const multisigAddresses = arrayHelpers.readArrayCount(view.buffer, Address, multisigAddressesCount);
-		view.shiftRight(multisigAddresses.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(multisigAddresses));
 
 		const instance = new MultisigEntry();
 		instance._version = version;
@@ -6579,7 +6579,7 @@ class NamespacePath {
 	get size() { // eslint-disable-line class-methods-use-this
 		let size = 0;
 		size += 1;
-		size += this.path.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.path);
 		size += this.alias.size;
 		return size;
 	}
@@ -6589,7 +6589,7 @@ class NamespacePath {
 		const pathSize = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
 		const path = arrayHelpers.readArrayCount(view.buffer, NamespaceId, pathSize);
-		view.shiftRight(path.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(path));
 		const alias = NamespaceAlias.deserialize(view.buffer);
 		view.shiftRight(alias.size);
 
@@ -6690,7 +6690,7 @@ class RootNamespaceHistory {
 		size += this.lifetime.size;
 		size += this.rootAlias.size;
 		size += 8;
-		size += this.paths.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.paths);
 		return size;
 	}
 
@@ -6709,7 +6709,7 @@ class RootNamespaceHistory {
 		const childrenCount = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const paths = arrayHelpers.readArrayCount(view.buffer, NamespacePath, childrenCount, e => e.path.value);
-		view.shiftRight(paths.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(paths));
 
 		const instance = new RootNamespaceHistory();
 		instance._version = version;
@@ -6816,7 +6816,7 @@ class AccountRestrictionAddressValue {
 	get size() { // eslint-disable-line class-methods-use-this
 		let size = 0;
 		size += 8;
-		size += this.restrictionValues.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictionValues);
 		return size;
 	}
 
@@ -6825,7 +6825,7 @@ class AccountRestrictionAddressValue {
 		const restrictionValuesCount = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const restrictionValues = arrayHelpers.readArrayCount(view.buffer, Address, restrictionValuesCount);
-		view.shiftRight(restrictionValues.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionValues));
 
 		const instance = new AccountRestrictionAddressValue();
 		instance._restrictionValues = restrictionValues;
@@ -6867,7 +6867,7 @@ class AccountRestrictionMosaicValue {
 	get size() { // eslint-disable-line class-methods-use-this
 		let size = 0;
 		size += 8;
-		size += this.restrictionValues.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictionValues);
 		return size;
 	}
 
@@ -6876,7 +6876,7 @@ class AccountRestrictionMosaicValue {
 		const restrictionValuesCount = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const restrictionValues = arrayHelpers.readArrayCount(view.buffer, MosaicId, restrictionValuesCount);
-		view.shiftRight(restrictionValues.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionValues));
 
 		const instance = new AccountRestrictionMosaicValue();
 		instance._restrictionValues = restrictionValues;
@@ -6918,7 +6918,7 @@ class AccountRestrictionTransactionTypeValue {
 	get size() { // eslint-disable-line class-methods-use-this
 		let size = 0;
 		size += 8;
-		size += this.restrictionValues.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictionValues);
 		return size;
 	}
 
@@ -6927,7 +6927,7 @@ class AccountRestrictionTransactionTypeValue {
 		const restrictionValuesCount = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const restrictionValues = arrayHelpers.readArrayCount(view.buffer, TransactionType, restrictionValuesCount);
-		view.shiftRight(restrictionValues.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionValues));
 
 		const instance = new AccountRestrictionTransactionTypeValue();
 		instance._restrictionValues = restrictionValues;
@@ -7112,7 +7112,7 @@ class AccountRestrictions {
 		size += 2;
 		size += this.address.size;
 		size += 8;
-		size += this.restrictions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictions);
 		return size;
 	}
 
@@ -7125,7 +7125,7 @@ class AccountRestrictions {
 		const restrictionsCount = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
 		const restrictions = arrayHelpers.readArrayCount(view.buffer, AccountRestrictionsInfo, restrictionsCount);
-		view.shiftRight(restrictions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictions));
 
 		const instance = new AccountRestrictions();
 		instance._version = version;
@@ -7354,7 +7354,7 @@ class AddressKeyValueSet {
 	get size() { // eslint-disable-line class-methods-use-this
 		let size = 0;
 		size += 1;
-		size += this.keys.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.keys);
 		return size;
 	}
 
@@ -7363,7 +7363,7 @@ class AddressKeyValueSet {
 		const keyValueCount = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
 		const keys = arrayHelpers.readArrayCount(view.buffer, AddressKeyValue, keyValueCount, e => e.key.value);
-		view.shiftRight(keys.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(keys));
 
 		const instance = new AddressKeyValueSet();
 		instance._keys = keys;
@@ -7546,7 +7546,7 @@ class GlobalKeyValueSet {
 	get size() { // eslint-disable-line class-methods-use-this
 		let size = 0;
 		size += 1;
-		size += this.keys.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.keys);
 		return size;
 	}
 
@@ -7555,7 +7555,7 @@ class GlobalKeyValueSet {
 		const keyValueCount = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
 		const keys = arrayHelpers.readArrayCount(view.buffer, GlobalKeyValue, keyValueCount, e => e.key.value);
-		view.shiftRight(keys.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(keys));
 
 		const instance = new GlobalKeyValueSet();
 		instance._keys = keys;
@@ -9029,8 +9029,8 @@ class AggregateCompleteTransaction {
 		size += this.transactionsHash.size;
 		size += 4;
 		size += 4;
-		size += this.transactions.map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0);
-		size += this.cosignatures.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.transactions, 8, false);
+		size += arrayHelpers.size(this.cosignatures);
 		return size;
 	}
 
@@ -9069,10 +9069,10 @@ class AggregateCompleteTransaction {
 		view.shiftRight(4);
 		if (0 !== aggregateTransactionHeaderReserved_1)
 			throw RangeError(`Invalid value of reserved field (${aggregateTransactionHeaderReserved_1})`);
-		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8);
+		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8, false);
 		view.shiftRight(payloadSize);
 		const cosignatures = arrayHelpers.readArray(view.buffer, Cosignature);
-		view.shiftRight(cosignatures.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(cosignatures));
 
 		const instance = new AggregateCompleteTransaction();
 		instance._signature = signature;
@@ -9101,9 +9101,9 @@ class AggregateCompleteTransaction {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(this._transactionsHash.serialize());
-		buffer.write(converter.intToBytes(this.transactions.map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0), 4, false)); // bound: payload_size
+		buffer.write(converter.intToBytes(arrayHelpers.size(this.transactions, 8, false), 4, false)); // bound: payload_size
 		buffer.write(converter.intToBytes(this._aggregateTransactionHeaderReserved_1, 4, false));
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, false);
 		arrayHelpers.writeArray(buffer, this._cosignatures);
 		return buffer.storage;
 	}
@@ -9253,8 +9253,8 @@ class AggregateBondedTransaction {
 		size += this.transactionsHash.size;
 		size += 4;
 		size += 4;
-		size += this.transactions.map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0);
-		size += this.cosignatures.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.transactions, 8, false);
+		size += arrayHelpers.size(this.cosignatures);
 		return size;
 	}
 
@@ -9293,10 +9293,10 @@ class AggregateBondedTransaction {
 		view.shiftRight(4);
 		if (0 !== aggregateTransactionHeaderReserved_1)
 			throw RangeError(`Invalid value of reserved field (${aggregateTransactionHeaderReserved_1})`);
-		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8);
+		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8, false);
 		view.shiftRight(payloadSize);
 		const cosignatures = arrayHelpers.readArray(view.buffer, Cosignature);
-		view.shiftRight(cosignatures.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(cosignatures));
 
 		const instance = new AggregateBondedTransaction();
 		instance._signature = signature;
@@ -9325,9 +9325,9 @@ class AggregateBondedTransaction {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(this._transactionsHash.serialize());
-		buffer.write(converter.intToBytes(this.transactions.map(e => arrayHelpers.alignUp(e.size, 8)).reduce((a, b) => a + b, 0), 4, false)); // bound: payload_size
+		buffer.write(converter.intToBytes(arrayHelpers.size(this.transactions, 8, false), 4, false)); // bound: payload_size
 		buffer.write(converter.intToBytes(this._aggregateTransactionHeaderReserved_1, 4, false));
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, false);
 		arrayHelpers.writeArray(buffer, this._cosignatures);
 		return buffer.storage;
 	}
@@ -13951,8 +13951,8 @@ class MultisigAccountModificationTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.addressAdditions.map(e => e.size).reduce((a, b) => a + b, 0);
-		size += this.addressDeletions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.addressAdditions);
+		size += arrayHelpers.size(this.addressDeletions);
 		return size;
 	}
 
@@ -13996,9 +13996,9 @@ class MultisigAccountModificationTransaction {
 		if (0 !== multisigAccountModificationTransactionBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${multisigAccountModificationTransactionBodyReserved_1})`);
 		const addressAdditions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, addressAdditionsCount);
-		view.shiftRight(addressAdditions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(addressAdditions));
 		const addressDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, addressDeletionsCount);
-		view.shiftRight(addressDeletions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(addressDeletions));
 
 		const instance = new MultisigAccountModificationTransaction();
 		instance._signature = signature;
@@ -14160,8 +14160,8 @@ class EmbeddedMultisigAccountModificationTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.addressAdditions.map(e => e.size).reduce((a, b) => a + b, 0);
-		size += this.addressDeletions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.addressAdditions);
+		size += arrayHelpers.size(this.addressDeletions);
 		return size;
 	}
 
@@ -14199,9 +14199,9 @@ class EmbeddedMultisigAccountModificationTransaction {
 		if (0 !== multisigAccountModificationTransactionBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${multisigAccountModificationTransactionBodyReserved_1})`);
 		const addressAdditions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, addressAdditionsCount);
-		view.shiftRight(addressAdditions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(addressAdditions));
 		const addressDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, addressDeletionsCount);
-		view.shiftRight(addressDeletions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(addressDeletions));
 
 		const instance = new EmbeddedMultisigAccountModificationTransaction();
 		instance._signerPublicKey = signerPublicKey;
@@ -15626,8 +15626,8 @@ class AccountAddressRestrictionTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0);
-		size += this.restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictionAdditions);
+		size += arrayHelpers.size(this.restrictionDeletions);
 		return size;
 	}
 
@@ -15669,9 +15669,9 @@ class AccountAddressRestrictionTransaction {
 		if (0 !== accountRestrictionTransactionBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${accountRestrictionTransactionBodyReserved_1})`);
 		const restrictionAdditions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, restrictionAdditionsCount);
-		view.shiftRight(restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionAdditions));
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, restrictionDeletionsCount);
-		view.shiftRight(restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
 		const instance = new AccountAddressRestrictionTransaction();
 		instance._signature = signature;
@@ -15821,8 +15821,8 @@ class EmbeddedAccountAddressRestrictionTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0);
-		size += this.restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictionAdditions);
+		size += arrayHelpers.size(this.restrictionDeletions);
 		return size;
 	}
 
@@ -15858,9 +15858,9 @@ class EmbeddedAccountAddressRestrictionTransaction {
 		if (0 !== accountRestrictionTransactionBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${accountRestrictionTransactionBodyReserved_1})`);
 		const restrictionAdditions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, restrictionAdditionsCount);
-		view.shiftRight(restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionAdditions));
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedAddress, restrictionDeletionsCount);
-		view.shiftRight(restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
 		const instance = new EmbeddedAccountAddressRestrictionTransaction();
 		instance._signerPublicKey = signerPublicKey;
@@ -16034,8 +16034,8 @@ class AccountMosaicRestrictionTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0);
-		size += this.restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictionAdditions);
+		size += arrayHelpers.size(this.restrictionDeletions);
 		return size;
 	}
 
@@ -16077,9 +16077,9 @@ class AccountMosaicRestrictionTransaction {
 		if (0 !== accountRestrictionTransactionBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${accountRestrictionTransactionBodyReserved_1})`);
 		const restrictionAdditions = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaicId, restrictionAdditionsCount);
-		view.shiftRight(restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionAdditions));
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaicId, restrictionDeletionsCount);
-		view.shiftRight(restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
 		const instance = new AccountMosaicRestrictionTransaction();
 		instance._signature = signature;
@@ -16229,8 +16229,8 @@ class EmbeddedAccountMosaicRestrictionTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0);
-		size += this.restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictionAdditions);
+		size += arrayHelpers.size(this.restrictionDeletions);
 		return size;
 	}
 
@@ -16266,9 +16266,9 @@ class EmbeddedAccountMosaicRestrictionTransaction {
 		if (0 !== accountRestrictionTransactionBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${accountRestrictionTransactionBodyReserved_1})`);
 		const restrictionAdditions = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaicId, restrictionAdditionsCount);
-		view.shiftRight(restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionAdditions));
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaicId, restrictionDeletionsCount);
-		view.shiftRight(restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
 		const instance = new EmbeddedAccountMosaicRestrictionTransaction();
 		instance._signerPublicKey = signerPublicKey;
@@ -16442,8 +16442,8 @@ class AccountOperationRestrictionTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0);
-		size += this.restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictionAdditions);
+		size += arrayHelpers.size(this.restrictionDeletions);
 		return size;
 	}
 
@@ -16485,9 +16485,9 @@ class AccountOperationRestrictionTransaction {
 		if (0 !== accountRestrictionTransactionBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${accountRestrictionTransactionBodyReserved_1})`);
 		const restrictionAdditions = arrayHelpers.readArrayCount(view.buffer, TransactionType, restrictionAdditionsCount);
-		view.shiftRight(restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionAdditions));
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, TransactionType, restrictionDeletionsCount);
-		view.shiftRight(restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
 		const instance = new AccountOperationRestrictionTransaction();
 		instance._signature = signature;
@@ -16637,8 +16637,8 @@ class EmbeddedAccountOperationRestrictionTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0);
-		size += this.restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.restrictionAdditions);
+		size += arrayHelpers.size(this.restrictionDeletions);
 		return size;
 	}
 
@@ -16674,9 +16674,9 @@ class EmbeddedAccountOperationRestrictionTransaction {
 		if (0 !== accountRestrictionTransactionBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${accountRestrictionTransactionBodyReserved_1})`);
 		const restrictionAdditions = arrayHelpers.readArrayCount(view.buffer, TransactionType, restrictionAdditionsCount);
-		view.shiftRight(restrictionAdditions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionAdditions));
 		const restrictionDeletions = arrayHelpers.readArrayCount(view.buffer, TransactionType, restrictionDeletionsCount);
-		view.shiftRight(restrictionDeletions.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(restrictionDeletions));
 
 		const instance = new EmbeddedAccountOperationRestrictionTransaction();
 		instance._signerPublicKey = signerPublicKey;
@@ -17788,7 +17788,7 @@ class TransferTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.mosaics.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.mosaics);
 		size += this._message.length;
 		return size;
 	}
@@ -17835,7 +17835,7 @@ class TransferTransaction {
 		if (0 !== transferTransactionBodyReserved_2)
 			throw RangeError(`Invalid value of reserved field (${transferTransactionBodyReserved_2})`);
 		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => e.mosaicId.value);
-		view.shiftRight(mosaics.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(mosaics));
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
 
@@ -17990,7 +17990,7 @@ class EmbeddedTransferTransaction {
 		size += 1;
 		size += 1;
 		size += 4;
-		size += this.mosaics.map(e => e.size).reduce((a, b) => a + b, 0);
+		size += arrayHelpers.size(this.mosaics);
 		size += this._message.length;
 		return size;
 	}
@@ -18031,7 +18031,7 @@ class EmbeddedTransferTransaction {
 		if (0 !== transferTransactionBodyReserved_2)
 			throw RangeError(`Invalid value of reserved field (${transferTransactionBodyReserved_2})`);
 		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => e.mosaicId.value);
-		view.shiftRight(mosaics.map(e => e.size).reduce((a, b) => a + b, 0));
+		view.shiftRight(arrayHelpers.size(mosaics));
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
 

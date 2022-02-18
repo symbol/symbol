@@ -641,7 +641,7 @@ class Block:
 		size += self.previous_block_hash.size
 		size += self.height.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.transactions))
+		size += ArrayHelpers.size(self.transactions)
 		return size
 
 	@classmethod
@@ -675,7 +675,7 @@ class Block:
 		transactions_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		transactions = ArrayHelpers.read_array_count(buffer, Transaction, transactions_count)
-		buffer = buffer[sum(map(lambda e: e.size, transactions)):]
+		buffer = buffer[ArrayHelpers.size(transactions):]
 
 		instance = Block()
 		instance._type_ = type_
@@ -1685,7 +1685,7 @@ class MosaicDefinition:
 		size += 4
 		size += len(self._description)
 		size += 4
-		size += sum(map(lambda e: e.size, self.properties))
+		size += ArrayHelpers.size(self.properties)
 		size += 4
 		if 0 != self.levy_size:
 			size += self.levy.size
@@ -1711,7 +1711,7 @@ class MosaicDefinition:
 		properties_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		properties = ArrayHelpers.read_array_count(buffer, SizePrefixedMosaicProperty, properties_count)
-		buffer = buffer[sum(map(lambda e: e.size, properties)):]
+		buffer = buffer[ArrayHelpers.size(properties):]
 		levy_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		levy = None
@@ -2904,7 +2904,7 @@ class MultisigAccountModificationTransactionV1:
 		size += self.fee.size
 		size += self.deadline.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.modifications))
+		size += ArrayHelpers.size(self.modifications)
 		return size
 
 	@classmethod
@@ -2938,7 +2938,7 @@ class MultisigAccountModificationTransactionV1:
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count)
-		buffer = buffer[sum(map(lambda e: e.size, modifications)):]
+		buffer = buffer[ArrayHelpers.size(modifications):]
 
 		instance = MultisigAccountModificationTransactionV1()
 		instance._type_ = type_
@@ -3086,7 +3086,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 		size += self.fee.size
 		size += self.deadline.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.modifications))
+		size += ArrayHelpers.size(self.modifications)
 		return size
 
 	@classmethod
@@ -3115,7 +3115,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count)
-		buffer = buffer[sum(map(lambda e: e.size, modifications)):]
+		buffer = buffer[ArrayHelpers.size(modifications):]
 
 		instance = NonVerifiableMultisigAccountModificationTransactionV1()
 		instance._type_ = type_
@@ -3282,7 +3282,7 @@ class MultisigAccountModificationTransaction:
 		size += self.fee.size
 		size += self.deadline.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.modifications))
+		size += ArrayHelpers.size(self.modifications)
 		size += 4
 		size += 4
 		return size
@@ -3318,7 +3318,7 @@ class MultisigAccountModificationTransaction:
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count)
-		buffer = buffer[sum(map(lambda e: e.size, modifications)):]
+		buffer = buffer[ArrayHelpers.size(modifications):]
 		min_approval_delta_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert min_approval_delta_size == 4, f'Invalid value of reserved field ({min_approval_delta_size})'
@@ -3485,7 +3485,7 @@ class NonVerifiableMultisigAccountModificationTransaction:
 		size += self.fee.size
 		size += self.deadline.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.modifications))
+		size += ArrayHelpers.size(self.modifications)
 		size += 4
 		size += 4
 		return size
@@ -3516,7 +3516,7 @@ class NonVerifiableMultisigAccountModificationTransaction:
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count)
-		buffer = buffer[sum(map(lambda e: e.size, modifications)):]
+		buffer = buffer[ArrayHelpers.size(modifications):]
 		min_approval_delta_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert min_approval_delta_size == 4, f'Invalid value of reserved field ({min_approval_delta_size})'
@@ -3968,7 +3968,7 @@ class MultisigTransaction:
 		size += 4
 		size += self.inner_transaction.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.cosignatures))
+		size += ArrayHelpers.size(self.cosignatures)
 		return size
 
 	@classmethod
@@ -4007,7 +4007,7 @@ class MultisigTransaction:
 		cosignatures_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		cosignatures = ArrayHelpers.read_array_count(buffer, SizePrefixedCosignature, cosignatures_count)
-		buffer = buffer[sum(map(lambda e: e.size, cosignatures)):]
+		buffer = buffer[ArrayHelpers.size(cosignatures):]
 
 		instance = MultisigTransaction()
 		instance._type_ = type_
@@ -5271,7 +5271,7 @@ class TransferTransaction:
 		if 0 != self.message_envelope_size:
 			size += self.message.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.mosaics))
+		size += ArrayHelpers.size(self.mosaics)
 		return size
 
 	@classmethod
@@ -5318,7 +5318,7 @@ class TransferTransaction:
 		mosaics_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		mosaics = ArrayHelpers.read_array_count(buffer, SizePrefixedMosaic, mosaics_count)
-		buffer = buffer[sum(map(lambda e: e.size, mosaics)):]
+		buffer = buffer[ArrayHelpers.size(mosaics):]
 
 		instance = TransferTransaction()
 		instance._type_ = type_
@@ -5527,7 +5527,7 @@ class NonVerifiableTransferTransaction:
 		if 0 != self.message_envelope_size:
 			size += self.message.size
 		size += 4
-		size += sum(map(lambda e: e.size, self.mosaics))
+		size += ArrayHelpers.size(self.mosaics)
 		return size
 
 	@classmethod
@@ -5569,7 +5569,7 @@ class NonVerifiableTransferTransaction:
 		mosaics_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		mosaics = ArrayHelpers.read_array_count(buffer, SizePrefixedMosaic, mosaics_count)
-		buffer = buffer[sum(map(lambda e: e.size, mosaics)):]
+		buffer = buffer[ArrayHelpers.size(mosaics):]
 
 		instance = NonVerifiableTransferTransaction()
 		instance._type_ = type_
