@@ -34,6 +34,8 @@ const writeArrayImpl = (output, elements, count, accessor = null) => {
 	}
 };
 
+const sum = numbers => numbers.reduce((a, b) => a + b, 0);
+
 const arrayHelpers = {
 	/**
 	 * Calculates aligned size.
@@ -42,6 +44,23 @@ const arrayHelpers = {
 	 * @returns {number} Size rounded up to alignment.
 	 */
 	alignUp: (size, alignment) => Math.floor((size + alignment - 1) / alignment) * alignment,
+
+	/**
+	 * Calculates size of variable size objects
+	 * @param {array<object>} elements Serializable elements.
+	 * @param {number} alignment Alignment used for calculations.
+	 * @param {boolean} excludeLast true if last element should not be aligned.
+	 * @returns {number} Computed size.
+	 */
+	size: (elements, alignment = 0, excludeLast = undefined) => {
+		if (!alignment)
+			return sum(elements.map(e => e.size));
+
+		if (!excludeLast)
+			return sum(elements.map(e => arrayHelpers.alignUp(e.size, 8)))
+
+		return sum(elements.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, 8))) + sum(elements.slice(-1).map(e => e.size));
+	},
 
 	/**
 	 * Reads array of objects.

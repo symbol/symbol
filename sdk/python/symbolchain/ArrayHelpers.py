@@ -49,6 +49,7 @@ class ArrayHelpers:
 
 	@staticmethod
 	def size(elements, alignment=0, exclude_last=False):
+		"""Calculates size of variable size objects"""
 		if not alignment:
 			return sum(map(lambda e: e.size, elements))
 

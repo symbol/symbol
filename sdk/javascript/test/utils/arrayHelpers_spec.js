@@ -2,6 +2,39 @@ const arrayHelpers = require('../../src/utils/arrayHelpers');
 const { expect } = require('chai');
 
 describe('arrayHelpers', () => {
+	// region helpers
+
+	class MockElement {
+		constructor(size) {
+			this.size = size;
+		}
+
+		serialize() {
+			return 100 + this.size;
+		}
+	}
+
+	class ElementsTestContext {
+		constructor(sizes = undefined) {
+			const element_sizes = sizes || [];
+			if (!sizes) {
+				for (let i = 0; 5 > i; ++i)
+					element_sizes.push((i * 3) + 1);
+			}
+
+			this.elements = element_sizes.map(v => new MockElement(v));
+
+			this.output = {
+				writes: [],
+				write(value) {
+					this.writes.push(value instanceof Uint8Array ? { type: 'fill', value: value.length } : { type: 'value', value });
+				}
+			};
+		}
+	}
+
+	// endregion
+
 	// region alignUp
 
 	describe('alignUp', () => {
@@ -22,6 +55,54 @@ describe('arrayHelpers', () => {
 			assertAlignUp([1, 11], 11, 11);
 			assertAlignUp([12, 22], 11, 22);
 			assertAlignUp([353, 363], 11, 363);
+		});
+	});
+
+	// endregion
+
+	// region size
+
+	describe('size', () => {
+		const assertSize = (sizes, expectedSize, alignment = 0, excludeLast = false) => {
+			// Arrange:
+			const context = new ElementsTestContext(sizes);
+
+			// Act:
+			const elementsSize = arrayHelpers.size(context.elements, alignment, excludeLast);
+
+			// Assert:
+			expect(elementsSize).to.equal(expectedSize);
+		};
+
+		const assertSizeAligned = (sizes, expectedSize) => {
+			assertSize(sizes, expectedSize, 8);
+		};
+
+		const assertSizeAlignedExLast = (sizes, expected_size) => {
+			assertSize(sizes, expected_size, 8, true);
+		};
+
+		it('returns sum of sizes', () => {
+			assertSize([], 0);
+			assertSize([13], 13);
+			assertSize([13, 21], 34);
+			assertSize([13, 21, 34], 68);
+		});
+
+		it('returns sum of aligned sizes', () => {
+			assertSizeAligned([], 0);
+			assertSizeAligned([1], 8);
+			assertSizeAligned([13], 16);
+			assertSizeAligned([13, 21], 16 + 24);
+			assertSizeAligned([13, 21, 34], 16 + 24 + 40);
+		});
+
+		it('returns sum of aligned sizes ex last', () => {
+			assertSizeAlignedExLast([], 0);
+			assertSizeAlignedExLast([1], 1);
+			assertSizeAlignedExLast([13], 13);
+			assertSizeAlignedExLast([13, 21], 16 + 21);
+			assertSizeAlignedExLast([13, 21, 34], 16 + 24 + 34);
 		});
 	});
 
@@ -157,35 +238,10 @@ describe('arrayHelpers', () => {
 
 	// region writers
 
-	class MockElement {
-		constructor(size) {
-			this.size = size;
-		}
-
-		serialize() {
-			return 100 + this.size;
-		}
-	}
-
-	class WriteTestContext {
-		constructor() {
-			this.elements = [];
-			for (let i = 0; 5 > i; ++i)
-				this.elements.push(new MockElement((i * 3) + 1));
-
-			this.output = {
-				writes: [],
-				write(value) {
-					this.writes.push(value instanceof Uint8Array ? { type: 'fill', value: value.length } : { type: 'value', value });
-				}
-			};
-		}
-	}
-
 	const addTraitBasedWriterTests = traits => {
 		it('writes all elements', () => {
 			// Arrange:
-			const context = new WriteTestContext();
+			const context = new ElementsTestContext();
 
 			// Act:
 			traits.write(context.output, context.elements);
@@ -196,7 +252,7 @@ describe('arrayHelpers', () => {
 
 		it('can write when using accessor and elements are ordered', () => {
 			// Arrange:
-			const context = new WriteTestContext();
+			const context = new ElementsTestContext();
 
 			// Act:
 			traits.write(context.output, context.elements, element => element.size);
@@ -207,7 +263,7 @@ describe('arrayHelpers', () => {
 
 		it('cannot write when using accessor and elements are not ordered', () => {
 			// Arrange:
-			const context = new WriteTestContext();
+			const context = new ElementsTestContext();
 
 			// Act + Assert:
 			expect(() => traits.write(context.output, context.elements, element => -element.size))
@@ -242,7 +298,7 @@ describe('arrayHelpers', () => {
 	describe('writeVariableSizeElements', () => {
 		it('writes all elements and aligns', () => {
 			// Arrange:
-			const context = new WriteTestContext();
+			const context = new ElementsTestContext();
 
 			// Act:
 			arrayHelpers.writeVariableSizeElements(context.output, context.elements, 4);

@@ -113,7 +113,7 @@ class ArrayHelpersTest(unittest.TestCase):
 		self._assert_size_aligned([13, 21], 16 + 24)
 		self._assert_size_aligned([13, 21, 34], 16 + 24 + 40)
 
-	def test_aligned_size_returns_sum_of_aligned_sizes(self):
+	def test_aligned_size_returns_sum_of_aligned_sizes_ex_last(self):
 		self._assert_size_aligned_ex_last([], 0)
 		self._assert_size_aligned_ex_last([1], 1)
 		self._assert_size_aligned_ex_last([13], 13)
