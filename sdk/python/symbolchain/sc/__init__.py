@@ -1523,7 +1523,7 @@ class NemesisBlock:
 		buffer = buffer[total_voting_balance.size:]
 		previous_importance_block_hash = Hash256.deserialize(buffer)
 		buffer = buffer[previous_importance_block_hash.size:]
-		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8)
+		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8, exclude_last=True)
 		buffer = buffer[ArrayHelpers.size(transactions, 8, exclude_last=True):]
 
 		instance = NemesisBlock()
@@ -1573,7 +1573,7 @@ class NemesisBlock:
 		buffer += self._harvesting_eligible_accounts_count.to_bytes(8, byteorder='little', signed=False)
 		buffer += self._total_voting_balance.serialize()
 		buffer += self._previous_importance_block_hash.serialize()
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, exclude_last=True)
 		return buffer
 
 	def __str__(self) -> str:
@@ -1843,7 +1843,7 @@ class NormalBlock:
 		block_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert block_header_reserved_1 == 0, f'Invalid value of reserved field ({block_header_reserved_1})'
-		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8)
+		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8, exclude_last=True)
 		buffer = buffer[ArrayHelpers.size(transactions, 8, exclude_last=True):]
 
 		instance = NormalBlock()
@@ -1886,7 +1886,7 @@ class NormalBlock:
 		buffer += self._beneficiary_address.serialize()
 		buffer += self._fee_multiplier.serialize()
 		buffer += self._block_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, exclude_last=True)
 		return buffer
 
 	def __str__(self) -> str:
@@ -2197,7 +2197,7 @@ class ImportanceBlock:
 		buffer = buffer[total_voting_balance.size:]
 		previous_importance_block_hash = Hash256.deserialize(buffer)
 		buffer = buffer[previous_importance_block_hash.size:]
-		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8)
+		transactions = ArrayHelpers.read_variable_size_elements(buffer, TransactionFactory, 8, exclude_last=True)
 		buffer = buffer[ArrayHelpers.size(transactions, 8, exclude_last=True):]
 
 		instance = ImportanceBlock()
@@ -2247,7 +2247,7 @@ class ImportanceBlock:
 		buffer += self._harvesting_eligible_accounts_count.to_bytes(8, byteorder='little', signed=False)
 		buffer += self._total_voting_balance.serialize()
 		buffer += self._previous_importance_block_hash.serialize()
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, exclude_last=True)
 		return buffer
 
 	def __str__(self) -> str:

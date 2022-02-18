@@ -84,11 +84,13 @@ class TypedArrayPrinter(Printer):
 				element_type = f'{element_type}Factory'
 
 			buffer = f'buffer[:{self.descriptor.size}]'
+			exclude_last = ''
 			if self.descriptor.field_type.is_expandable:
 				buffer = 'buffer'
+				exclude_last = ', exclude_last=True'
 
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.read_variable_size_elements({buffer}, {element_type}, {alignment})'
+			return f'ArrayHelpers.read_variable_size_elements({buffer}, {element_type}, {alignment}{exclude_last})'
 
 		if self.descriptor.field_type.is_expandable:
 			return f'ArrayHelpers.read_array(buffer, {element_type})'
@@ -118,8 +120,9 @@ class TypedArrayPrinter(Printer):
 
 	def store(self, field_name):
 		if self.is_variable_size:
+			exclude_last = ', exclude_last=True' if self.descriptor.field_type.is_expandable else ''
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.write_variable_size_elements({field_name}, {alignment})'
+			return f'ArrayHelpers.write_variable_size_elements({field_name}, {alignment}{exclude_last})'
 
 		if self.descriptor.field_type.is_expandable:
 			return f'ArrayHelpers.write_array({field_name})'
