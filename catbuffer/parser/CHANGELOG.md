@@ -13,6 +13,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
 - added back one-pass code generation support and deprecated YAML generation
 - rename 'implicit_size' attribute to 'is_size_implicit'
+- added 'pad_last' and 'not pad_last' qualifiers to 'alignment' attribute
 
 ### Fixed
 - serialization of signed integers (#7)

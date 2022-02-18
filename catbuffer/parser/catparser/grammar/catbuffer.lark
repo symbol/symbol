@@ -30,11 +30,12 @@ enum_value: CONST_PROPERTY_NAME "=" _dec_or_hex_number _NL
 field_attributes: field_attribute+
 field_attribute: "@" ( \
 	FIELD_ATTRIBUTE_NAME_ZERO_PARAMS \
-	| FIELD_ATTRIBUTE_NAME_SINGLE_PARAM_NUMERIC "(" _dec_or_hex_number ")" \
+	| FIELD_ATTRIBUTE_NAME_ALIGNMENT "(" _dec_or_hex_number ["," [NEGATION_OPERATOR] FIELD_ATTRIBUTE_NAME_ALIGNMENT_OPTION] ")" \
 	| FIELD_ATTRIBUTE_NAME_SINGLE_PARAM_PROPERTY "(" PROPERTY_NAME ")" \
 ) _NL
 FIELD_ATTRIBUTE_NAME_ZERO_PARAMS.1: "is_byte_constrained"
-FIELD_ATTRIBUTE_NAME_SINGLE_PARAM_NUMERIC.1: "alignment"
+FIELD_ATTRIBUTE_NAME_ALIGNMENT.1: "alignment"
+FIELD_ATTRIBUTE_NAME_ALIGNMENT_OPTION.1: "pad_last"
 FIELD_ATTRIBUTE_NAME_SINGLE_PARAM_PROPERTY.1: "sort_key"
 
 struct_attributes: struct_attribute+
@@ -76,6 +77,7 @@ ARRAY_SIZE_FILL_PLACEHOLDER: "__FILL__"
 
 conditional_expression: "if" (_dec_or_hex_number | CONST_PROPERTY_NAME) CONDITIONAL_OPERATION PROPERTY_NAME
 CONDITIONAL_OPERATION: "not equals" | "equals" | "in" | "not in"
+NEGATION_OPERATOR: "not"
 
 _integer_or_enum_const: (FIXED_SIZE_INTEGER "," _dec_or_hex_number | USER_TYPE_NAME "," CONST_PROPERTY_NAME)
 

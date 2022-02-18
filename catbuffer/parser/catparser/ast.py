@@ -263,7 +263,16 @@ class Attribute:
 		if self.is_flag:
 			return f'@{self.name}'
 
-		return f'@{self.name}({", ".join(self.values)})'
+		formatted_values = []
+		qualifier = ''
+		for value in self.values:
+			if 'not' == value:
+				qualifier = 'not '
+			else:
+				formatted_values.append(f'{qualifier}{value}')
+				qualifier = ''
+
+		return f'@{self.name}({", ".join(formatted_values)})'
 
 
 # endregion
@@ -535,10 +544,44 @@ class Array:
 		self._raw_size = _get_token_value(tokens[1])
 		self.size = 0 if '__FILL__' == self._raw_size else self._raw_size
 
-		# attributes
-		self.sort_key = None
-		self.alignment = None
-		self.is_byte_constrained = False
+		# backing attribute fields
+		self._attributes = {}
+
+	@property
+	def sort_key(self):
+		"""Gets the property that should be used to sort array elements."""
+		return self._attributes.get('sort_key', None)
+
+	@sort_key.setter
+	def sort_key(self, values):
+		"""Sets the property that should be used to sort array elements."""
+		self._attributes['sort_key'] = values[0]
+
+	@property
+	def is_byte_constrained(self):
+		"""Returns true if the size value should be interpreted as a byte value instead of an element count."""
+		return self._attributes.get('is_byte_constrained', False)
+
+	@is_byte_constrained.setter
+	def is_byte_constrained(self, values):
+		"""Sets the interpretation of the size value."""
+		self._attributes['is_byte_constrained'] = None if values is None else True
+
+	@property
+	def alignment(self):
+		"""Gets the start alignment of array elements."""
+		return self._attributes.get('alignment', None)
+
+	@property
+	def is_last_element_padded(self):
+		"""Returns true if the last element is padded to the alignment boundary."""
+		return self._attributes.get('is_last_element_padded', None)
+
+	@alignment.setter
+	def alignment(self, values):
+		"""Sets the alignment of array elements."""
+		self._attributes['alignment'] = values[0]
+		self._attributes['is_last_element_padded'] = not ('not' == values[1] and 'pad_last' == values[2])
 
 	@property
 	def display_type(self):
@@ -566,9 +609,11 @@ class Array:
 
 		size = self.size if not isinstance(self.size, str) else f'{prefix}_{self.size}'
 		copy = Array([self.element_type, size])
-		copy.sort_key = self.sort_key if not isinstance(self.sort_key, str) else f'{prefix}_{self.sort_key}'
-		copy.alignment = self.alignment
-		copy.is_byte_constrained = self.is_byte_constrained
+		copy._attributes = self._attributes  # pylint: disable=protected-access
+
+		if isinstance(self.sort_key, str):
+			copy.sort_key = [f'{prefix}_{self.sort_key}']
+
 		return copy
 
 	def to_legacy_descriptor(self):
@@ -587,7 +632,7 @@ class Array:
 		else:
 			type_descriptor['type'] = self.element_type
 
-		for property_name in ['sort_key', 'alignment']:
+		for property_name in ['sort_key', 'alignment', 'is_last_element_padded']:
 			_set_if(self, type_descriptor, property_name)
 
 		return type_descriptor
