@@ -65,19 +65,15 @@ class TypedArrayPrinter(Printer):
 
 	def get_size(self):
 		if self.is_variable_size:
-			# note: use actual `.size` field
-			align_element = f'ArrayHelpers.align_up(e.size, {self.descriptor.field_type.alignment})'
+			alignment = self.descriptor.field_type.alignment
 
 			# hack: sum below should NOT align last element, this is ugly hack to get blocks working, until we'll have @is_aligned on cosignatures
 			if self.descriptor.field_type.is_expandable:
-				return (
-					f'sum(map(lambda e: {align_element}, self.{self.name}[:-1])) + '
-					f'sum(map(lambda e: e.size, self.{self.name}[-1:]))'
-				)
+				return f'ArrayHelpers.size(self.{self.name}, {alignment}, exclude_last=True)'
 
-			return f'sum(map(lambda e: {align_element}, self.{self.name}))'
+			return f'ArrayHelpers.size(self.{self.name}, {alignment})'
 
-		return f'sum(map(lambda e: e.size, self.{self.name}))'
+		return f'ArrayHelpers.size(self.{self.name})'
 
 	def load(self):
 		element_type = self.descriptor.field_type.element_type
@@ -115,13 +111,10 @@ class TypedArrayPrinter(Printer):
 
 		if self.descriptor.extensions.is_contents_abstract and self.descriptor.field_type.is_expandable:
 			# hack: similar to the one in get_size
-			align_element = f'ArrayHelpers.align_up(e.size, {self.descriptor.field_type.alignment})'
-			return (
-				f'sum(map(lambda e: {align_element}, {self.name}[:-1])) + '
-				f'sum(map(lambda e: e.size, {self.name}[-1:]))'
-			)
+			alignment = self.descriptor.field_type.alignment
+			return f'ArrayHelpers.size({self.name}, {alignment}, exclude_last=True)'
 
-		return f'sum(map(lambda e: e.size, {self.name}))'
+		return f'ArrayHelpers.size({self.name})'
 
 	def store(self, field_name):
 		if self.is_variable_size:
