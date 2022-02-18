@@ -128,6 +128,16 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 		# Assert:
 		self.assertEqual([200, 600, 1200], deadline)
 
+	def test_can_lookup_value_with_zero_value(self):
+		# Arrange: specify the deadline value as zero
+		processor = self._create_processor_with_converter(0)
+
+		# Act:
+		deadline = processor.lookup_value('deadline')
+
+		# Assert:
+		self.assertEqual(0, deadline)
+
 	# endregion
 
 	# region copy_to

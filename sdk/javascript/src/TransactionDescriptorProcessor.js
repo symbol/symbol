@@ -16,7 +16,7 @@ class TransactionDescriptorProcessor {
 	}
 
 	_lookupValueAndApplyTypeHints(key) {
-		if (!this.transactionDescriptor[key])
+		if (undefined === this.transactionDescriptor[key])
 			throw RangeError(`transaction descriptor does not have attribute ${key}`);
 
 		let value = this.transactionDescriptor[key];

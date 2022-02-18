@@ -29,7 +29,7 @@ describe('TransactionDescriptorProcessor', () => {
 			recipient: 'recipientName',
 			message: 'hello world',
 			fee: 100,
-			deadline: deadlineValue || 300
+			deadline: undefined === deadlineValue ? 300 : deadlineValue
 		};
 		const typeParsingRules = new Map();
 		typeParsingRules.set(Number, value => value + 42);
@@ -135,6 +135,17 @@ describe('TransactionDescriptorProcessor', () => {
 
 			// Assert:
 			expect(deadline).to.deep.equal([200, 600, 1200]);
+		});
+
+		it('can lookup value with zero value', () => {
+			// Arrange: specify the deadline value as zero
+			const processor = createProcessorWithConverter(0);
+
+			// Act:
+			const deadline = processor.lookupValue('deadline');
+
+			// Assert:
+			expect(deadline).to.equal(0);
 		});
 	});
 
