@@ -68,19 +68,15 @@ class TypedArrayPrinter(Printer):
 
 	def get_size(self):
 		if self.is_variable_size:
-			# note: use actual `.size` field
-			align_element = f'arrayHelpers.alignUp(e.size, {self.descriptor.field_type.alignment})'
+			alignment = self.descriptor.field_type.alignment
 
 			# hack: sum below should NOT align last element, this is ugly hack to get blocks working, until we'll have @is_aligned on cosignatures
 			if self.descriptor.field_type.is_expandable:
-				return (
-					f'this.{self.name}.slice(0, -1).map(e => {align_element}).reduce((a, b) => a + b, 0) + '
-					f'this.{self.name}.slice(-1).map(e => {align_element}).reduce((a, b) => a + b, 0)'
-				)
+				return f'arrayHelpers.size(this.{self.name}, {alignment}, true)'
 
-			return f'this.{self.name}.map(e => {align_element}).reduce((a, b) => a + b, 0)'
+			return f'arrayHelpers.size(this.{self.name}, {alignment})'
 
-		return f'this.{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
+		return f'arrayHelpers.size(this.{self.name})'
 
 	def load(self, buffer_name):
 		del buffer_name
@@ -122,13 +118,10 @@ class TypedArrayPrinter(Printer):
 
 		if self.descriptor.extensions.is_contents_abstract and self.descriptor.field_type.is_expandable:
 			# hack: similar to the one in get_size
-			align_element = f'arrayHelpers.alignUp(e.size, {self.descriptor.field_type.alignment})'
-			return (
-				f'{self.name}.slice(0, -1).map(e => {align_element}).reduce((a, b) => a + b, 0) + '
-				f'{self.name}.slice(-1).map(e => {align_element}).reduce((a, b) => a + b, 0)'
-			)
+			alignment = self.descriptor.field_type.alignment
+			return f'arrayHelpers.size({self.name}, {alignment}, true)'
 
-		return f'{self.name}.map(e => e.size).reduce((a, b) => a + b, 0)'
+		return f'arrayHelpers.size({self.name})'
 
 	def store(self, field_name, buffer_name):
 		if self.is_variable_size:
