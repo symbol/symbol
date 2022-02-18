@@ -180,7 +180,10 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, SymbolTransactionFacto
 
 			'UnresolvedAddress', 'Address', 'Hash256', 'PublicKey', 'VotingPublicKey',
 
-			'array[UnresolvedMosaicId]', 'array[TransactionType]', 'array[UnresolvedAddress]', 'array[UnresolvedMosaic]'
+			'array[UnresolvedMosaicId]', 'array[TransactionType]', 'array[UnresolvedAddress]', 'array[UnresolvedMosaic]',
+
+			'ProofGamma', 'ProofScalar', 'ProofVerificationHash',
+			'struct:VrfProof'
 		]
 		self.assertEqual(set(expected_rule_names), set(factory.factory.rules.keys()))
 
