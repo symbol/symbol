@@ -66,12 +66,8 @@ class TypedArrayPrinter(Printer):
 	def get_size(self):
 		if self.is_variable_size:
 			alignment = self.descriptor.field_type.alignment
-
-			# hack: sum below should NOT align last element, this is ugly hack to get blocks working, until we'll have @is_aligned on cosignatures
-			if self.descriptor.field_type.is_expandable:
-				return f'ArrayHelpers.size(self.{self.name}, {alignment}, exclude_last=True)'
-
-			return f'ArrayHelpers.size(self.{self.name}, {alignment})'
+			exclude_last = not self.descriptor.field_type.is_last_element_padded
+			return f'ArrayHelpers.size(self.{self.name}, {alignment}, exclude_last={exclude_last})'
 
 		return f'ArrayHelpers.size(self.{self.name})'
 
@@ -84,13 +80,12 @@ class TypedArrayPrinter(Printer):
 				element_type = f'{element_type}Factory'
 
 			buffer = f'buffer[:{self.descriptor.size}]'
-			exclude_last = ''
 			if self.descriptor.field_type.is_expandable:
 				buffer = 'buffer'
-				exclude_last = ', exclude_last=True'
 
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.read_variable_size_elements({buffer}, {element_type}, {alignment}{exclude_last})'
+			exclude_last = not self.descriptor.field_type.is_last_element_padded
+			return f'ArrayHelpers.read_variable_size_elements({buffer}, {element_type}, {alignment}, exclude_last={exclude_last})'
 
 		if self.descriptor.field_type.is_expandable:
 			return f'ArrayHelpers.read_array(buffer, {element_type})'
@@ -111,18 +106,17 @@ class TypedArrayPrinter(Printer):
 		if self.descriptor.field_type.is_byte_constrained:
 			return str(self.descriptor.size)
 
-		if self.descriptor.extensions.is_contents_abstract and self.descriptor.field_type.is_expandable:
-			# hack: similar to the one in get_size
-			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.size({self.name}, {alignment}, exclude_last=True)'
+		alignment = self.descriptor.field_type.alignment
+		if alignment:
+			return f'ArrayHelpers.size({self.name}, {alignment}, exclude_last={not self.descriptor.field_type.is_last_element_padded})'
 
 		return f'ArrayHelpers.size({self.name})'
 
 	def store(self, field_name):
 		if self.is_variable_size:
-			exclude_last = ', exclude_last=True' if self.descriptor.field_type.is_expandable else ''
+			exclude_last = not self.descriptor.field_type.is_last_element_padded
 			alignment = self.descriptor.field_type.alignment
-			return f'ArrayHelpers.write_variable_size_elements({field_name}, {alignment}{exclude_last})'
+			return f'ArrayHelpers.write_variable_size_elements({field_name}, {alignment}, exclude_last={exclude_last})'
 
 		if self.descriptor.field_type.is_expandable:
 			return f'ArrayHelpers.write_array({field_name})'

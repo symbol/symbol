@@ -1715,7 +1715,7 @@ class NemesisBlock {
 		view.shiftRight(totalVotingBalance.size);
 		const previousImportanceBlockHash = Hash256.deserialize(view.buffer);
 		view.shiftRight(previousImportanceBlockHash.size);
-		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8);
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8, true);
 		view.shiftRight(arrayHelpers.size(transactions, 8, true));
 
 		const instance = new NemesisBlock();
@@ -1766,7 +1766,7 @@ class NemesisBlock {
 		buffer.write(converter.intToBytes(this._harvestingEligibleAccountsCount, 8, false));
 		buffer.write(this._totalVotingBalance.serialize());
 		buffer.write(this._previousImportanceBlockHash.serialize());
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, true);
 		return buffer.storage;
 	}
 
@@ -2042,7 +2042,7 @@ class NormalBlock {
 		view.shiftRight(4);
 		if (0 !== blockHeaderReserved_1)
 			throw RangeError(`Invalid value of reserved field (${blockHeaderReserved_1})`);
-		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8);
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8, true);
 		view.shiftRight(arrayHelpers.size(transactions, 8, true));
 
 		const instance = new NormalBlock();
@@ -2086,7 +2086,7 @@ class NormalBlock {
 		buffer.write(this._beneficiaryAddress.serialize());
 		buffer.write(this._feeMultiplier.serialize());
 		buffer.write(converter.intToBytes(this._blockHeaderReserved_1, 4, false));
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, true);
 		return buffer.storage;
 	}
 
@@ -2402,7 +2402,7 @@ class ImportanceBlock {
 		view.shiftRight(totalVotingBalance.size);
 		const previousImportanceBlockHash = Hash256.deserialize(view.buffer);
 		view.shiftRight(previousImportanceBlockHash.size);
-		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8);
+		const transactions = arrayHelpers.readVariableSizeElements(view.buffer, TransactionFactory, 8, true);
 		view.shiftRight(arrayHelpers.size(transactions, 8, true));
 
 		const instance = new ImportanceBlock();
@@ -2453,7 +2453,7 @@ class ImportanceBlock {
 		buffer.write(converter.intToBytes(this._harvestingEligibleAccountsCount, 8, false));
 		buffer.write(this._totalVotingBalance.serialize());
 		buffer.write(this._previousImportanceBlockHash.serialize());
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, true);
 		return buffer.storage;
 	}
 
@@ -9029,7 +9029,7 @@ class AggregateCompleteTransaction {
 		size += this.transactionsHash.size;
 		size += 4;
 		size += 4;
-		size += arrayHelpers.size(this.transactions, 8);
+		size += arrayHelpers.size(this.transactions, 8, false);
 		size += arrayHelpers.size(this.cosignatures);
 		return size;
 	}
@@ -9069,7 +9069,7 @@ class AggregateCompleteTransaction {
 		view.shiftRight(4);
 		if (0 !== aggregateTransactionHeaderReserved_1)
 			throw RangeError(`Invalid value of reserved field (${aggregateTransactionHeaderReserved_1})`);
-		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8);
+		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8, false);
 		view.shiftRight(payloadSize);
 		const cosignatures = arrayHelpers.readArray(view.buffer, Cosignature);
 		view.shiftRight(arrayHelpers.size(cosignatures));
@@ -9101,9 +9101,9 @@ class AggregateCompleteTransaction {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(this._transactionsHash.serialize());
-		buffer.write(converter.intToBytes(arrayHelpers.size(this.transactions, 8), 4, false)); // bound: payload_size
+		buffer.write(converter.intToBytes(arrayHelpers.size(this.transactions, 8, false), 4, false)); // bound: payload_size
 		buffer.write(converter.intToBytes(this._aggregateTransactionHeaderReserved_1, 4, false));
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, false);
 		arrayHelpers.writeArray(buffer, this._cosignatures);
 		return buffer.storage;
 	}
@@ -9253,7 +9253,7 @@ class AggregateBondedTransaction {
 		size += this.transactionsHash.size;
 		size += 4;
 		size += 4;
-		size += arrayHelpers.size(this.transactions, 8);
+		size += arrayHelpers.size(this.transactions, 8, false);
 		size += arrayHelpers.size(this.cosignatures);
 		return size;
 	}
@@ -9293,7 +9293,7 @@ class AggregateBondedTransaction {
 		view.shiftRight(4);
 		if (0 !== aggregateTransactionHeaderReserved_1)
 			throw RangeError(`Invalid value of reserved field (${aggregateTransactionHeaderReserved_1})`);
-		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8);
+		const transactions = arrayHelpers.readVariableSizeElements(view.window(payloadSize), EmbeddedTransactionFactory, 8, false);
 		view.shiftRight(payloadSize);
 		const cosignatures = arrayHelpers.readArray(view.buffer, Cosignature);
 		view.shiftRight(arrayHelpers.size(cosignatures));
@@ -9325,9 +9325,9 @@ class AggregateBondedTransaction {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(this._transactionsHash.serialize());
-		buffer.write(converter.intToBytes(arrayHelpers.size(this.transactions, 8), 4, false)); // bound: payload_size
+		buffer.write(converter.intToBytes(arrayHelpers.size(this.transactions, 8, false), 4, false)); // bound: payload_size
 		buffer.write(converter.intToBytes(this._aggregateTransactionHeaderReserved_1, 4, false));
-		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8);
+		arrayHelpers.writeVariableSizeElements(buffer, this._transactions, 8, false);
 		arrayHelpers.writeArray(buffer, this._cosignatures);
 		return buffer.storage;
 	}

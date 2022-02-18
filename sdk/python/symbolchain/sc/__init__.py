@@ -8142,7 +8142,7 @@ class AggregateCompleteTransaction:
 		size += self.transactions_hash.size
 		size += 4
 		size += 4
-		size += ArrayHelpers.size(self.transactions, 8)
+		size += ArrayHelpers.size(self.transactions, 8, exclude_last=False)
 		size += ArrayHelpers.size(self.cosignatures)
 		return size
 
@@ -8180,7 +8180,7 @@ class AggregateCompleteTransaction:
 		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert aggregate_transaction_header_reserved_1 == 0, f'Invalid value of reserved field ({aggregate_transaction_header_reserved_1})'
-		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8)
+		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8, exclude_last=False)
 		buffer = buffer[payload_size:]
 		cosignatures = ArrayHelpers.read_array(buffer, Cosignature)
 		buffer = buffer[ArrayHelpers.size(cosignatures):]
@@ -8211,9 +8211,9 @@ class AggregateCompleteTransaction:
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
 		buffer += self._transactions_hash.serialize()
-		buffer += ArrayHelpers.size(self.transactions, 8).to_bytes(4, byteorder='little', signed=False)  # payload_size
+		buffer += ArrayHelpers.size(self.transactions, 8, exclude_last=False).to_bytes(4, byteorder='little', signed=False)  # payload_size
 		buffer += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, exclude_last=False)
 		buffer += ArrayHelpers.write_array(self._cosignatures)
 		return buffer
 
@@ -8359,7 +8359,7 @@ class AggregateBondedTransaction:
 		size += self.transactions_hash.size
 		size += 4
 		size += 4
-		size += ArrayHelpers.size(self.transactions, 8)
+		size += ArrayHelpers.size(self.transactions, 8, exclude_last=False)
 		size += ArrayHelpers.size(self.cosignatures)
 		return size
 
@@ -8397,7 +8397,7 @@ class AggregateBondedTransaction:
 		aggregate_transaction_header_reserved_1 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert aggregate_transaction_header_reserved_1 == 0, f'Invalid value of reserved field ({aggregate_transaction_header_reserved_1})'
-		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8)
+		transactions = ArrayHelpers.read_variable_size_elements(buffer[:payload_size], EmbeddedTransactionFactory, 8, exclude_last=False)
 		buffer = buffer[payload_size:]
 		cosignatures = ArrayHelpers.read_array(buffer, Cosignature)
 		buffer = buffer[ArrayHelpers.size(cosignatures):]
@@ -8428,9 +8428,9 @@ class AggregateBondedTransaction:
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
 		buffer += self._transactions_hash.serialize()
-		buffer += ArrayHelpers.size(self.transactions, 8).to_bytes(4, byteorder='little', signed=False)  # payload_size
+		buffer += ArrayHelpers.size(self.transactions, 8, exclude_last=False).to_bytes(4, byteorder='little', signed=False)  # payload_size
 		buffer += self._aggregate_transaction_header_reserved_1.to_bytes(4, byteorder='little', signed=False)
-		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8)
+		buffer += ArrayHelpers.write_variable_size_elements(self._transactions, 8, exclude_last=False)
 		buffer += ArrayHelpers.write_array(self._cosignatures)
 		return buffer
 
