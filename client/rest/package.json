@@ -19,7 +19,7 @@
     "eslint-config-airbnb": "^19.0.4",
     "hippie": "^0.6.1",
     "minimist": "^1.2.5",
-    "mocha": "^9.2.0",
+    "mocha": "^9.2.1",
     "mocha-jenkins-reporter": "^0.4.7",
     "nyc": "^15.1.0",
     "sinon": "^13.0.1"
@@ -28,7 +28,7 @@
     "ini": "^2.0.0",
     "js-sha3": "^0.8.0",
     "long": "^5.2.0",
-    "mongodb": "^4.3.1",
+    "mongodb": "^4.4.0",
     "restify": "^8.6.1",
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
