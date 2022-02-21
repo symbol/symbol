@@ -84,8 +84,8 @@ class TransactionFactory {
 		factory.autodetect();
 
 		[
-			'BlockType', 'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
-			'MultisigAccountModificationType', 'NetworkType', 'TransactionType'
+			'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
+			'MultisigAccountModificationType', 'NetworkType', 'TransactionType',
 		].forEach(name => { factory.addEnumParser(name); });
 
 		[

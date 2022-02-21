@@ -84,9 +84,9 @@ class TransactionFactory {
 		['MosaicFlags', 'AccountRestrictionFlags'].forEach(name => { factory.addFlagsParser(name); });
 
 		[
-			'AccountKeyTypeFlags', 'AccountStateFormat', 'AccountType', 'AliasAction', 'BlockType', 'LinkAction', 'LockHashAlgorithm',
-			'LockStatus', 'MetadataType', 'MosaicRestrictionEntryType', 'MosaicRestrictionType', 'MosaicSupplyChangeAction',
-			'NamespaceAliasType', 'NamespaceRegistrationType', 'NetworkType', 'ReceiptType', 'TransactionType'
+			'AliasAction', 'LinkAction', 'LockHashAlgorithm',
+			'MosaicRestrictionType', 'MosaicSupplyChangeAction',
+			'NamespaceRegistrationType', 'NetworkType', 'TransactionType'
 		].forEach(name => { factory.addEnumParser(name); });
 
 		factory.addStructParser('UnresolvedMosaic');

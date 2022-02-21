@@ -167,14 +167,14 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, SymbolTransactionFacto
 		# Assert:
 		expected_rule_names = [
 			'Amount', 'BlockDuration', 'BlockFeeMultiplier', 'Difficulty', 'FinalizationEpoch', 'FinalizationPoint', 'Height', 'Importance',
-			'ImportanceHeight', 'MosaicId', 'MosaicNonce', 'MosaicRestrictionKey', 'NamespaceId', 'ScopedMetadataKey', 'Timestamp',
+			'ImportanceHeight', 'MosaicId', 'MosaicNonce', 'MosaicRestrictionKey', 'NamespaceId', 'Timestamp',
 			'UnresolvedMosaicId',
 
 			'MosaicFlags', 'AccountRestrictionFlags',
 
-			'AccountKeyTypeFlags', 'AccountStateFormat', 'AccountType', 'AliasAction', 'BlockType', 'LinkAction', 'LockHashAlgorithm',
-			'LockStatus', 'MetadataType', 'MosaicRestrictionEntryType', 'MosaicRestrictionType', 'MosaicSupplyChangeAction',
-			'NamespaceAliasType', 'NamespaceRegistrationType', 'NetworkType', 'ReceiptType', 'TransactionType',
+			'AliasAction', 'LinkAction', 'LockHashAlgorithm',
+			'MosaicRestrictionType', 'MosaicSupplyChangeAction',
+			'NamespaceRegistrationType', 'NetworkType', 'TransactionType',
 
 			'struct:UnresolvedMosaic',
 

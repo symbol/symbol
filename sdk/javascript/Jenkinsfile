@@ -7,5 +7,5 @@ defaultCiPipeline {
 	publisher = 'npm'
 
 	codeCoverageTool = 'nyc'
-	minimumCodeCoverage = 60
+	minimumCodeCoverage = 90
 }

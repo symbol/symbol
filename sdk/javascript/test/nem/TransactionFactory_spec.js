@@ -41,7 +41,7 @@ describe('transaction factory (NEM)', () => {
 		const expectedRuleNames = new Set([
 			'Amount', 'Height', 'Timestamp',
 
-			'BlockType', 'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
+			'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
 			'MultisigAccountModificationType', 'NetworkType', 'TransactionType',
 
 			'struct:Message', 'struct:NamespaceId', 'struct:MosaicId', 'struct:Mosaic', 'struct:SizePrefixedMosaic', 'struct:MosaicLevy',

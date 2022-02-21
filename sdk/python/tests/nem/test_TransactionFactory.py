@@ -38,7 +38,7 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 		expected_rule_names = [
 			'Amount', 'Height', 'Timestamp',
 
-			'BlockType', 'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
+			'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
 			'MultisigAccountModificationType', 'NetworkType', 'TransactionType',
 
 			'struct:Cosignature',
