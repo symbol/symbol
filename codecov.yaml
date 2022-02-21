@@ -6,10 +6,10 @@ coverage:
       default:
         target: 70%  # overall project / repo coverage
 
-      rest-gateway:
+      client-rest:
         target: auto
         flags:
-          - rest-gateway
+          - client-rest
 
       catbuffer-parser:
         target: auto
@@ -33,7 +33,7 @@ coverage:
 # monorepo.  This allows code coverage per package.
 
 flags:
-  rest-gateway:
+  client-rest:
     paths:
       - client/rest
     carryforward: true
