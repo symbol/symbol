@@ -4,23 +4,21 @@ const nc = require('../src/nem/models');
 const sc = require('../src/symbol/models');
 const converter = require('../src/utils/converter');
 const { expect } = require('chai');
-const YAML = require('yaml');
+const JSONBigInt = require('json-bigint')({ alwaysParseAsBig: true, useNativeBigInt: true });
 const fs = require('fs');
 const path = require('path');
 
 describe('catbuffer vectors', () => {
-	YAML.scalarOptions.int.asBigInt = true;
-
 	// region common test utils
 
 	const prepareTestCases = (networkName, options) => {
 		const cases = [];
-		const schemasPath = path.join(process.env.SCHEMAS_PATH || '.', networkName, 'transactions');
+		const schemasPath = path.join(process.env.SCHEMAS_PATH || '.', networkName, 'models');
 
 		if (!fs.existsSync(schemasPath))
 			throw Error(`could not find any cases because ${schemasPath} does not exist`);
 
-		fs.readdirSync(schemasPath).filter(name => name.endsWith('.yaml')).forEach(name => {
+		fs.readdirSync(schemasPath).filter(name => name.endsWith('.json')).forEach(name => {
 			if (options && options.includes && options.includes.every(include => !name.includes(include))) {
 				console.log(`skipping ${name} due to include filters`);
 				return;
@@ -32,7 +30,7 @@ describe('catbuffer vectors', () => {
 			}
 
 			const fileContent = fs.readFileSync(path.join(schemasPath, name), 'utf8');
-			cases.push(...YAML.parse(fileContent));
+			cases.push(...JSONBigInt.parse(fileContent));
 		});
 
 		if (0 === cases.length)
@@ -201,7 +199,7 @@ describe('catbuffer vectors', () => {
 		});
 
 		describe('Symbol', () => {
-			prepareTestCases('symbol', { includes: ['transactions'] }).forEach(item => {
+			prepareTestCases('symbol').forEach(item => {
 				it(`can create from descriptor ${item.test_name}`, () => {
 					assertCreateFromDescriptor(item, sc, SymbolFacade, fixupDescriptorSymbol);
 				});
@@ -244,7 +242,7 @@ describe('catbuffer vectors', () => {
 		});
 
 		describe('Symbol', () => {
-			prepareTestCases('symbol', { excludes: ['invalid', 'states'] }).forEach(item => {
+			prepareTestCases('symbol').forEach(item => {
 				it(`can roundtrip ${item.test_name}`, () => {
 					assertRoundtrip(item, sc);
 				});

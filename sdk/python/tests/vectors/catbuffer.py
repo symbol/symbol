@@ -1,23 +1,23 @@
 import importlib
+import json
 import os
 import re
 from binascii import hexlify, unhexlify
 from pathlib import Path
 
 import pytest
-import yaml
 
 # region common test utils
 
 
 def prepare_test_cases(network_name, includes=None, excludes=None):
 	cases = []
-	schemas_path = Path(os.environ.get('SCHEMAS_PATH', '.')) / network_name / 'transactions'
+	schemas_path = Path(os.environ.get('SCHEMAS_PATH', '.')) / network_name / 'models'
 
 	if not schemas_path.exists():
 		raise Exception(f'could not find any cases because {schemas_path} does not exist')
 
-	for filepath in schemas_path.glob('*.yaml'):
+	for filepath in schemas_path.glob('*.json'):
 		if includes and not any(include in filepath.name for include in includes):
 			print(f'skipping {filepath.name} due to include filters')
 			continue
@@ -27,7 +27,7 @@ def prepare_test_cases(network_name, includes=None, excludes=None):
 			continue
 
 		with open(filepath, 'rt', encoding='utf8') as infile:
-			cases += yaml.safe_load(infile)
+			cases += json.load(infile)
 
 	if not cases:
 		raise Exception(f'could not find any cases in {schemas_path}')
@@ -135,7 +135,7 @@ def test_create_from_descriptor_nem(item):
 	assert_create_from_descriptor(item, importlib.import_module('symbolchain.nc'), 'NemFacade', fixup_descriptor_nem)
 
 
-@pytest.mark.parametrize('item', prepare_test_cases('symbol', includes=['transactions']), ids=generate_pretty_id)
+@pytest.mark.parametrize('item', prepare_test_cases('symbol'), ids=generate_pretty_id)
 def test_create_from_descriptor_symbol(item):  # pylint: disable=invalid-name
 	assert_create_from_descriptor(item, importlib.import_module('symbolchain.sc'), 'SymbolFacade', fixup_descriptor_symbol)
 
@@ -170,7 +170,7 @@ def test_roundtrip_nem(item):
 	assert_roundtrip(item, importlib.import_module('symbolchain.nc'))
 
 
-@pytest.mark.parametrize('item', prepare_test_cases('symbol', excludes=['invalid']), ids=generate_pretty_id)
+@pytest.mark.parametrize('item', prepare_test_cases('symbol'), ids=generate_pretty_id)
 def test_roundtrip_symbol(item):
 	assert_roundtrip(item, importlib.import_module('symbolchain.sc'))
 

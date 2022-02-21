@@ -1,11 +1,11 @@
 import argparse
 import copy
 import importlib
+import json
 from binascii import hexlify
 from pathlib import Path
 
 import sha3
-import yaml
 
 from symbolchain import nc, sc
 from symbolchain.ByteArray import ByteArray
@@ -153,11 +153,6 @@ class NemHelper:
 		return {'cosignature': descriptor}
 
 
-class NoAliasDumper(yaml.SafeDumper):
-	def ignore_aliases(self, data):
-		return True
-
-
 class VectorGenerator:
 	def __init__(self, network_name):
 		self.network_name = network_name
@@ -250,13 +245,11 @@ def main():
 		generator = VectorGenerator(network_name)
 		entries = generator.generate()
 
-		filepath = Path(args.output) / network_name / 'transactions' / 'transactions.yaml'
+		filepath = Path(args.output) / network_name / 'models' / 'transactions.json'
 		filepath.parent.mkdir(parents=True, exist_ok=True)
 
 		with open(filepath, 'wt', encoding='utf8') as outfile:
-			outfile.write('# This file has been generated via py testvector generator.\n')
-			outfile.write('# DO NOT HAND MODIFY\n\n')
-			yaml.dump(entries, outfile, Dumper=NoAliasDumper)
+			json.dump(entries, outfile, indent=2)
 
 
 if '__main__' == __name__:
