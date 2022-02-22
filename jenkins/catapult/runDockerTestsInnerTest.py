@@ -38,7 +38,7 @@ class SanitizerEnvironment:
 		}
 		options.update(custom_options)
 
-		options_string = ':'.join(map(f'{options.items()[0]}={options.items()[1]}'))
+		options_string = ':'.join(f'{key}={value}' for key, value in options.items())
 		self.environment_manager.set_env_var(f'{name.upper()}_OPTIONS', options_string)
 		print(f'{name} options: {options_string}')
 

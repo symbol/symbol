@@ -87,7 +87,7 @@ pipeline {
 					steps {
 						dir('catapult-src') {
 							git branch: "${get_branch_name()}",
-								url: 'https://github.com/symbol/catapult-client.git'
+								url: 'https://github.com/symbol/symbol.git'
 						}
 					}
 				}
@@ -99,12 +99,13 @@ pipeline {
 					steps {
 						script {
 							run_docker_build_command = """
-								python3 catapult-src/scripts/build/runDockerBuild.py \
-									--compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
-									--build-configuration catapult-src/scripts/build/configurations/${BUILD_CONFIGURATION}.yaml \
+								python3 catapult-src/jenkins/catapult/runDockerBuild.py \
+									--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
+									--build-configuration catapult-src/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml \
 									--operating-system ${OPERATING_SYSTEM} \
 									--user ${fully_qualified_user} \
 									--destination-image-label ${build_image_label} \
+									--source-path catapult-src/client/catapult \
 							"""
 						}
 					}

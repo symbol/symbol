@@ -34,10 +34,10 @@ pipeline {
 							dest_image_name = "symbolplatform/symbol-server-build-base:${OPERATING_SYSTEM}-${COMPILER_CONFIGURATION}"
 
 							base_image_dockerfile_generator_command = """
-								python3 ./scripts/build/baseImageDockerfileGenerator.py \
-									--compiler-configuration scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
+								python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
+									--compiler-configuration jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
 									--operating-system ${OPERATING_SYSTEM} \
-									--versions ./scripts/build/versions.properties \
+									--versions ./jenkins/catapult/versions.properties \
 							"""
 						}
 					}

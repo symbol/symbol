@@ -81,7 +81,7 @@ pipeline {
 					steps {
 						dir('catapult-src') {
 							git branch: "${get_branch_name()}",
-								url: 'https://github.com/symbol/catapult-client.git'
+								url: 'https://github.com/symbol/symbol.git'
 						}
 					}
 				}
@@ -96,12 +96,13 @@ pipeline {
 					steps {
 						script {
 							run_docker_build_command = """
-								python3 catapult-src/scripts/build/runDockerBuild.py \
-									--compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
-									--build-configuration catapult-src/scripts/build/configurations/${BUILD_CONFIGURATION}.yaml \
+								python3 catapult-src/jenkins/catapult/runDockerBuild.py \
+									--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
+									--build-configuration catapult-src/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml \
 									--operating-system ${OPERATING_SYSTEM} \
 									--user ${fully_qualified_user} \
 									--destination-image-label ${build_image_label} \
+									--source-path catapult-src/client/catapult \
 							"""
 						}
 					}
@@ -124,11 +125,13 @@ pipeline {
 				stage('lint') {
 					steps {
 						sh """
-							python3 catapult-src/scripts/build/runDockerTests.py \
+							python3 catapult-src/jenkins/catapult/runDockerTests.py \
 								--image registry.hub.docker.com/symbolplatform/symbol-server-test-base:${OPERATING_SYSTEM} \
-								--compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
+								--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
 								--user ${fully_qualified_user} \
-								--mode lint
+								--mode lint \
+								--source-path catapult-src/client/catapult \
+								--linter-path catapult-src/linters
 						"""
 					}
 				}
@@ -187,12 +190,13 @@ pipeline {
 								test_image_name = "symbolplatform/symbol-server-test:${build_image_label}"
 
 							sh """
-								python3 catapult-src/scripts/build/runDockerTests.py \
+								python3 catapult-src/jenkins/catapult/runDockerTests.py \
 									--image ${test_image_name} \
-									--compiler-configuration catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml \
+									--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
 									--user ${fully_qualified_user} \
 									--mode ${TEST_MODE} \
-									--verbosity ${TEST_VERBOSITY}
+									--verbosity ${TEST_VERBOSITY} \
+									--source-path catapult-src/client/catapult
 							"""
 						}
 					}
