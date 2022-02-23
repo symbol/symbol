@@ -54,6 +54,7 @@ void call(Closure body) {
 			TEST_PYTHON_CREDENTIALS_ID = 'TEST_PYPI_TOKEN_ID'
 			DEV_BRANCH = 'dev'
 			RELEASE_BRANCH = 'main'
+			GITHUB_EMAIL = 'jenkins@symbol.dev'
 
 			LINT_SETUP_SCRIPT_FILEPATH = 'scripts/ci/setup_lint.sh'
 			LINT_SCRIPT_FILEPATH = 'scripts/ci/lint.sh'
@@ -66,6 +67,8 @@ void call(Closure body) {
 
 			TEST_EXAMPLES_SCRIPT_FILEPATH = 'scripts/ci/test_examples.sh'
 			TEST_VECTORS_SCRIPT_FILEPATH = 'scripts/ci/test_vectors.sh'
+
+			GITHUB_PAGES_PUBLISH_SCRIPT_FILEPATH = 'scripts/ci/gh_pages_publish.sh'
 		}
 
 		stages {

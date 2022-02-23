@@ -22,3 +22,9 @@ void runInitializeScriptIfPresent() {
 		sh "bash ${initFile}"
 	}
 }
+
+void configureGitHub() {
+	runScript('git config user.name "symbol-bot"')
+	// groovylint-disable-next-line GStringExpressionWithinString
+	runScript('git config user.email "${GITHUB_EMAIL}"')
+}

@@ -1,5 +1,3 @@
-import java.nio.file.Paths
-
 void call(Map config, String phase) {
 	logger.logInfo("publishing data for ${phase}, ${config}")
 
@@ -53,7 +51,8 @@ void npmPublisher(Map config, String phase) {
 		npmPublishCommand += ' --tag alpha'
 	}
 
-	writeFile(file:".npmrc", text:  '//registry.npmjs.org/:_authToken=${NPM_TOKEN}')
+	// groovylint-disable-next-line GStringExpressionWithinString
+	writeFile(file: '.npmrc', text: '//registry.npmjs.org/:_authToken=${NPM_TOKEN}')
 	runScript('cat .npmrc')
 	withCredentials([string(credentialsId: NPM_CREDENTIALS_ID, variable: 'NPM_TOKEN')]) {
 		logger.logInfo("Publishing npm package ${readNpmPackageNameVersion()}")
@@ -91,6 +90,24 @@ void pythonPublisher(Map config, String phase) {
 	}
 }
 
+void gitHubPagesPublisher(Map config, String phase) {
+	if (config.publisher != 'gh-pages' || !isRelease(phase)) {
+		return
+	}
+
+	withCredentials([usernamePassword(credentialsId: config.gitHubId,
+		usernameVariable: 'GITHUB_APP',
+		passwordVariable: 'GITHUB_ACCESS_TOKEN')]) {
+		helper.configureGitHub()
+
+		withCredentials([usernamePassword(credentialsId: 'TRANSIFEX_LOGIN_ID',
+			usernameVariable: 'TRANSIFEX_USER',
+			passwordVariable: 'TRANSIFEX_PASSWORD')]) {
+			runScript(env.GITHUB_PAGES_PUBLISH_SCRIPT_FILEPATH)
+		}
+	}
+}
+
 void publisher(Map config, String phase) {
 	if (!config.publisher) {
 		logger.logInfo('No publisher is configured.')
@@ -105,7 +122,8 @@ void publisher(Map config, String phase) {
 	Closure[] strategies = [
 		this.&dockerPublisher,
 		this.&npmPublisher,
-		this.&pythonPublisher
+		this.&pythonPublisher,
+		this.&gitHubPagesPublisher
 	]
 
 	strategies.each { publisher ->
