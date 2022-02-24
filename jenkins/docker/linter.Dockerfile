@@ -24,5 +24,6 @@ RUN apt-get install -y ripgrep \
 
 # add ubuntu user (used by jenkins)
 RUN useradd --uid 1000 -ms /bin/bash ubuntu
+ENV PATH=$PATH:/home/ubuntu/.local/bin
 
 WORKDIR /home/ubuntu
