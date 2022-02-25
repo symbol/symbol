@@ -6,25 +6,30 @@ coverage:
       default:
         target: 90%  # overall project / repo coverage
 
-      client-rest:
-        target: auto
-        flags:
-          - client-rest
-
       catbuffer-parser:
         target: auto
         flags:
           - catbuffer-parser
 
-      sdk-python:
+      client-catapult:
         target: auto
         flags:
-          - sdk-python
+          - client-catapult
+
+      client-rest:
+        target: auto
+        flags:
+          - client-rest
 
       sdk-javascript:
         target: auto
         flags:
           - sdk-javascript
+
+      sdk-python:
+        target: auto
+        flags:
+          - sdk-python
 
 # New root YAML section = `flags:`
 # This is where you would define every flag from your
@@ -33,22 +38,27 @@ coverage:
 # monorepo.  This allows code coverage per package.
 
 flags:
-  client-rest:
-    paths:
-      - client/rest
-    carryforward: true
-
   catbuffer-parser:
     paths:
       - catbuffer/parser
     carryforward: true
 
-  sdk-python:
+  client-catapult:
     paths:
-      - sdk/python
+      - client/catapult
+    carryforward: true
+
+  client-rest:
+    paths:
+      - client/rest
     carryforward: true
 
   sdk-javascript:
     paths:
       - sdk/javascript
+    carryforward: true
+
+  sdk-python:
+    paths:
+      - sdk/python
     carryforward: true
