@@ -32,7 +32,10 @@ void call(Closure body) {
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 		}
 
-		agent any
+		agent {
+			// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
+			label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent"
+		}
 
 		options {
 			ansiColor('css')
@@ -67,9 +70,6 @@ void call(Closure body) {
 			stage('CI pipeline') {
 				agent {
 					dockerfile {
-						// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
-						label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent"
-
 						dir 'jenkins/docker'
 						filename "${params.ciBuildDockerfile}"
 						
