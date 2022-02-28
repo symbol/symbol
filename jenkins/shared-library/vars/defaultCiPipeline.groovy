@@ -32,15 +32,7 @@ void call(Closure body) {
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 		}
 
-		agent {
-			dockerfile {
-				// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
-				label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent"
-
-				dir 'jenkins/docker'
-				filename "${params.ciBuildDockerfile}"
-			}
-		}
+		agent any
 
 		options {
 			ansiColor('css')
@@ -73,6 +65,18 @@ void call(Closure body) {
 
 		stages {
 			stage('CI pipeline') {
+				agent {
+					dockerfile {
+						// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
+						label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent"
+
+						dir 'jenkins/docker'
+						filename "${params.ciBuildDockerfile}"
+						
+						// using the same node and the same workspace mounted to the container
+						reuseNode true
+					}
+				}
 				stages {
 					stage('display environment') {
 						steps {
