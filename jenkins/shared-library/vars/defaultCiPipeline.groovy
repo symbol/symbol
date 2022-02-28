@@ -33,13 +33,8 @@ void call(Closure body) {
 		}
 
 		agent {
-			dockerfile {
-				// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
-				label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent"
-
-				dir 'jenkins/docker'
-				filename "${params.ciBuildDockerfile}"
-			}
+			// PLATFORM can be null on first job due to https://issues.jenkins.io/browse/JENKINS-41929
+			label env.PLATFORM == null ? "${params.platform[0]}-agent" : "${env.PLATFORM}-agent"
 		}
 
 		options {
@@ -73,6 +68,15 @@ void call(Closure body) {
 
 		stages {
 			stage('CI pipeline') {
+				agent {
+					dockerfile {
+						dir 'jenkins/docker'
+						filename "${params.ciBuildDockerfile}"
+						
+						// using the same node and the same workspace mounted to the container
+						reuseNode true
+					}
+				}
 				stages {
 					stage('display environment') {
 						steps {
