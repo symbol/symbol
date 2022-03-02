@@ -7,7 +7,7 @@ It includes our specialized binary payload DSL (parser and schemas), clients and
 |-----------|------|-------|------|----------| ------- |
 | [@catbuffer/parser](catbuffer/parser) | [![lint][catbuffer-parser-lint]][catbuffer-job] || [![test][catbuffer-parser-test]][catbuffer-job] <br> [![vectors][catbuffer-parser-vectors]][catbuffer-job] | [![][catbuffer-parser-cov]][catbuffer-parser-cov-link] | [![][catbuffer-package]][catbuffer-package-link] |
 |||||||
-| [@client/catapult](client/catapult) | [![lint][client-catapult-lint]][client-catapult-job] ||||
+| [@client/catapult](client/catapult) | [![lint][client-catapult-lint]][client-catapult-job] ||| [![][client-catapult-cov]][client-catapult-cov-link] |
 | [@client/rest](client/rest) | [![lint][client-rest-lint]][client-rest-job] || [![test][client-rest-test]][client-rest-job] | [![][client-rest-cov]][client-rest-cov-link] |
 |||||||
 | [@sdk/javascript](sdk/javascript) | [![lint][sdk-javascript-lint]][sdk-javascript-job] || [![test][sdk-javascript-test]][sdk-javascript-job] <br> [![vectors][sdk-javascript-vectors]][sdk-javascript-job] | [![][sdk-javascript-cov]][sdk-javascript-cov-link] | [![][sdk-javascript-package]][sdk-javascript-package-link] |
@@ -36,6 +36,8 @@ Detailed version can be seen on [codecov.io][symbol-cov-link].
 
 [client-catapult-job]: https://jenkins.symboldev.com/blue/organizations/jenkins/Symbol%2Fgenerated%2Fsymbol%2Fcatapult/activity?branch=dev
 [client-catapult-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Fgenerated%2Fsymbol%2Fcatapult%2Fdev%2F&config=client-catapult-lint
+[client-catapult-cov]: https://codecov.io/gh/symbol/symbol/branch/dev/graph/badge.svg?token=SSYYBMK0M7&flag=client-catapult
+[client-catapult-cov-link]: https://codecov.io/gh/symbol/symbol/tree/dev/client/catapult
 
 [client-rest-job]: https://jenkins.symboldev.com/blue/organizations/jenkins/Symbol%2Fgenerated%2Fsymbol%2Frest/activity?branch=dev
 [client-rest-lint]: https://jenkins.symboldev.com/buildStatus/icon?job=Symbol%2Fgenerated%2Fsymbol%2Frest%2Fdev%2F&config=client-rest-lint
