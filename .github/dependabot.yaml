@@ -50,7 +50,7 @@ updates:
     labels: [linters]
 
   - package-ecosystem: npm
-    directory: /sdk/javascript
+    directory: /sdk/javascript/generator
     schedule:
       interval: weekly
       day: sunday
