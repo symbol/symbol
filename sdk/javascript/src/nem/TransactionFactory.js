@@ -85,7 +85,7 @@ class TransactionFactory {
 
 		[
 			'LinkAction', 'MessageType', 'MosaicSupplyChangeAction', 'MosaicTransferFeeType',
-			'MultisigAccountModificationType', 'NetworkType', 'TransactionType',
+			'MultisigAccountModificationType', 'NetworkType', 'TransactionType'
 		].forEach(name => { factory.addEnumParser(name); });
 
 		[
