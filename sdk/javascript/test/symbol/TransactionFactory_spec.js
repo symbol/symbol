@@ -171,7 +171,7 @@ describe('transaction factory (Symbol)', () => {
 			assertTransaction: assertTransfer,
 			assertSignature: (transaction, signature, signedTransactionPayload) => {
 				const transactionHex = uint8ToHex(transaction.serialize());
-				const expectedJsonString = `{{"payload": "${transactionHex}"}}`;
+				const expectedJsonString = `{"payload": "${transactionHex}"}`;
 				expect(signedTransactionPayload).to.equal(expectedJsonString);
 			}
 		};

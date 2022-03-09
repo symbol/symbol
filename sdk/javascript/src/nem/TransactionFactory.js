@@ -66,7 +66,7 @@ class TransactionFactory {
 
 		const transactionHex = uint8ToHex(this.toNonVerifiableTransaction(transaction).serialize());
 		const signatureHex = signature.toString();
-		const jsonPayload = `{{"data":"${transactionHex}", "signature":"${signatureHex}"}}`;
+		const jsonPayload = `{"data":"${transactionHex}", "signature":"${signatureHex}"}`;
 		return jsonPayload;
 	}
 

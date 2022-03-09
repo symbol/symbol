@@ -66,7 +66,7 @@ class TransactionFactory {
 
 		const transactionBuffer = transaction.serialize();
 		const hexPayload = uint8ToHex(transactionBuffer);
-		const jsonPayload = `{{"payload": "${hexPayload}"}}`;
+		const jsonPayload = `{"payload": "${hexPayload}"}`;
 		return jsonPayload;
 	}
 

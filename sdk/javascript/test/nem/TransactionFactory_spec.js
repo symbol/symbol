@@ -24,7 +24,7 @@ describe('transaction factory (NEM)', () => {
 		assertSignature: (transaction, signature, signedTransactionPayload) => {
 			const transactionHex = uint8ToHex(TransactionFactory.toNonVerifiableTransaction(transaction).serialize());
 			const signatureHex = signature.toString();
-			const expectedJsonString = `{{"data":"${transactionHex}", "signature":"${signatureHex}"}}`;
+			const expectedJsonString = `{"data":"${transactionHex}", "signature":"${signatureHex}"}`;
 			expect(signedTransactionPayload).to.equal(expectedJsonString);
 		}
 	};
