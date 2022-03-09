@@ -67,12 +67,12 @@ class SanitizerEnvironment:
 		})
 
 
-def prepare_tests(environment_manager):
-	environment_manager.copy_tree_with_symlinks('/catapult-src/seed', '/catapult-data/seed')
-	environment_manager.copy_tree_with_symlinks('/catapult-src/resources', '/catapult-data/resources')
+def prepare_tests(environment_manager, source_path, output_path):
+	environment_manager.copy_tree_with_symlinks(f'{source_path}/seed', f'{output_path}/seed')
+	environment_manager.copy_tree_with_symlinks(f'{source_path}/resources', f'{output_path}/resources')
 
-	environment_manager.mkdirs('/catapult-data/tests/int/stress')
-	environment_manager.copy_tree_with_symlinks('/catapult-src/tests/int/stress/resources', '/catapult-data/tests/int/stress/resources')
+	environment_manager.mkdirs(f'{output_path}/tests/int/stress')
+	environment_manager.copy_tree_with_symlinks(f'{source_path}/tests/int/stress/resources', f'{output_path}/tests/int/stress/resources')
 
 
 def process_sanitizer_logs(environment_manager, output_directory, san_descriptor):
@@ -137,6 +137,7 @@ def main():
 	parser.add_argument('--out-dir', help='directory in which to store test output files', required=True)
 	parser.add_argument('--verbosity', help='output verbosity', choices=('suite', 'test', 'max'), default='max')
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
+	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
 	args = parser.parse_args()
 
 	process_manager = ProcessManager(args.dry_run)
@@ -146,15 +147,19 @@ def main():
 	sanitizer_environment = SanitizerEnvironment(environment_manager, compiler_configuration.sanitizers)
 	sanitizer_environment.prepare()
 
-	prepare_tests(environment_manager)
+	prepare_tests(environment_manager, args.source_path, args.out_dir)
 
 	process_manager.dispatch_subprocess(['ls', '-laF', '.'])
-	process_manager.dispatch_subprocess(['ls', '-laF', '/catapult-data'])
-	process_manager.dispatch_subprocess(['ls', '-laF', '/catapult-src'])
+	process_manager.dispatch_subprocess(['ls', '-laF', args.out_dir])
+	process_manager.dispatch_subprocess(['ls', '-laF', args.source_path])
+
+	output_path = str(Path(args.exe_path).resolve().parent)
+	environment_manager.set_env_var('LD_LIBRARY_PATH', f'{output_path}/lib:{output_path}/deps')
+	logs_path = f'{args.out_dir}/logs'
 
 	failed_test_suites = []
 	for test_exe_filepath in environment_manager.find_glob(args.exe_path, 'tests*'):
-		base_output_filepath = Path(args.out_dir) / test_exe_filepath.name
+		base_output_filepath = Path(logs_path) / test_exe_filepath.name
 
 		output_filepath = f'{base_output_filepath}.xml'
 		test_args = [
@@ -169,7 +174,7 @@ def main():
 
 			failed_test_suites.append(test_exe_filepath)
 
-		process_sanitizer_logs_all(environment_manager, Path(args.out_dir), test_exe_filepath.name)
+		process_sanitizer_logs_all(environment_manager, Path(logs_path), test_exe_filepath.name)
 
 	if failed_test_suites:
 		print('test failures detected')

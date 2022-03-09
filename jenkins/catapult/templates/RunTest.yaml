@@ -30,7 +30,8 @@ services:
       python3 /scripts/runDockerTestsInnerTest.py
         --compiler-configuration /{{COMPILER_CONFIGURATION}}
         --exe-path /usr/catapult/tests
-        --out-dir /catapult-data/logs
+        --out-dir /catapult-data
+        --source-path /catapult-src/client/catapult
         --verbosity {{VERBOSITY}}
     volumes:
       - ./catapult-data:/catapult-data

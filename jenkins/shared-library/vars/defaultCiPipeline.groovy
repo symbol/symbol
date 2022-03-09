@@ -72,7 +72,8 @@ void call(Closure body) {
 					dockerfile {
 						dir 'jenkins/docker'
 						filename "${params.ciBuildDockerfile}"
-						
+						args params.dockerArgs == null ? '' : "${params.dockerArgs}"
+
 						// using the same node and the same workspace mounted to the container
 						reuseNode true
 					}

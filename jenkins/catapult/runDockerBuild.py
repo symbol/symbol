@@ -87,7 +87,9 @@ def create_docker_run_command(options, prepare_replacements):
 		'python3', '/scripts/runDockerBuildInnerBuild.py',
 		# assume paths are relative to workdir
 		f'--compiler-configuration={inner_configuration_path}/{get_base_from_path(prepare_replacements["compiler_configuration_filepath"])}',
-		f'--build-configuration={inner_configuration_path}/{get_base_from_path(prepare_replacements["build_configuration_filepath"])}'
+		f'--build-configuration={inner_configuration_path}/{get_base_from_path(prepare_replacements["build_configuration_filepath"])}',
+		'--source-path=/catapult-src/client/catapult',
+		'--out-dir=/binaries'
 	]
 
 	return docker_args
@@ -152,7 +154,7 @@ def main():
 	parser.add_argument('--destination-image-label', help='docker destination image label', required=True)
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
 	parser.add_argument('--base-image-names-only', help='only output the base image names', action='store_true')
-	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
+	parser.add_argument('--source-path', help='path to the repo root', required=True)
 	args = parser.parse_args()
 
 	script_path = Path(get_script_path()).resolve()
@@ -191,7 +193,7 @@ def main():
 	environment_manager.chdir(OUTPUT_DIR)
 
 	for folder_name in ['scripts', 'seed', 'resources']:
-		environment_manager.copy_tree_with_symlinks(source_path / folder_name, folder_name)
+		environment_manager.copy_tree_with_symlinks(source_path / 'client/catapult' / folder_name, folder_name)
 
 	environment_manager.chdir(source_path)
 

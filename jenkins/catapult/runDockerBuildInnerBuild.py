@@ -44,9 +44,9 @@ class LinuxEnvironment:
 		for key, value in settings.items():
 			self.dispatch_subprocess(['conan', 'profile', 'update', f'settings.compiler.{key}={value}', 'default'])
 
-	def run_conan_install(self):
+	def run_conan_install(self, source_path):
 		# assuming working directory == build directory
-		self.dispatch_subprocess(['conan', 'install', '/catapult-src', '--build', 'missing'])
+		self.dispatch_subprocess(['conan', 'install', source_path, '--build', 'missing'])
 
 
 class BuildManager(BasicBuildManager):
@@ -55,9 +55,9 @@ class BuildManager(BasicBuildManager):
 		self.dispatch_subprocess = process_manager.dispatch_subprocess
 		self.environment_manager = environment_manager
 
-	def cmake_settings(self):
+	def cmake_settings(self, output_path):
 		settings = [
-			('CMAKE_INSTALL_PREFIX', '/binaries'),
+			('CMAKE_INSTALL_PREFIX', output_path),
 			('CMAKE_BUILD_TYPE', self.build_configuration),
 			('CATAPULT_TEST_DB_URL', 'mongodb://db:27017'),
 			('CATAPULT_DOCKER_TESTS', 'ON'),
@@ -86,9 +86,9 @@ class BuildManager(BasicBuildManager):
 
 		return [f'-D{key}={value}' for key, value in settings]
 
-	def run_cmake(self):
-		cmake_settings = self.cmake_settings()
-		self.dispatch_subprocess(['cmake'] + cmake_settings + ['-G', 'Ninja', '/catapult-src'])
+	def run_cmake(self, source_path, output_path):
+		cmake_settings = self.cmake_settings(output_path)
+		self.dispatch_subprocess(['cmake'] + cmake_settings + ['-G', 'Ninja', source_path])
 
 	def build(self):
 		self.dispatch_subprocess(['ninja', 'publish'])
@@ -120,9 +120,9 @@ class BuildManager(BasicBuildManager):
 
 		self.environment_manager.copy_tree_with_symlinks('/usr/local/lib/engines-1.1', Path(destination) / 'engines-1.1')
 
-	def copy_files(self):
-		deps_output_path = '/binaries/deps'
-		tests_output_path = '/binaries/tests'
+	def copy_files(self, output_path):
+		deps_output_path = f'{output_path}/deps'
+		tests_output_path = f'{output_path}/tests'
 
 		# copy deps
 		self.copy_dependencies(deps_output_path)
@@ -138,6 +138,7 @@ class BuildManager(BasicBuildManager):
 
 		# list directories
 		self.dispatch_subprocess(['ls', '-alh', deps_output_path])
+		self.dispatch_subprocess(['ls', '-alh', f'{output_path}/lib'])
 
 		if not self.is_release:
 			self.dispatch_subprocess(['ls', '-alh', tests_output_path])
@@ -148,6 +149,8 @@ def main():
 	parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
 	parser.add_argument('--build-configuration', help='path to build configuration yaml', required=True)
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
+	parser.add_argument('--source-path', help='path to the catapult source code', required=True)
+	parser.add_argument('--out-dir', help='output path to copy catapult binaries', required=True)
 	args = parser.parse_args()
 
 	process_manager = ProcessManager(args.dry_run)
@@ -159,11 +162,11 @@ def main():
 
 	if builder.use_conan:
 		env.prepare_conan({'version': builder.compiler.version, 'libcxx': builder.stl.lib})
-		env.run_conan_install()
+		env.run_conan_install(args.source_path)
 
-	builder.run_cmake()
+	builder.run_cmake(args.source_path, args.out_dir)
 	builder.build()
-	builder.copy_files()
+	builder.copy_files(args.out_dir)
 
 
 if __name__ == '__main__':
