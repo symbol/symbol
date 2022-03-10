@@ -102,7 +102,7 @@ pipeline {
 									--operating-system ${OPERATING_SYSTEM} \
 									--user ${fully_qualified_user} \
 									--destination-image-label ${build_image_label} \
-									--source-path catapult-src/client/catapult \
+									--source-path catapult-src \
 							"""
 						}
 					}
@@ -130,7 +130,7 @@ pipeline {
 								--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
 								--user ${fully_qualified_user} \
 								--mode lint \
-								--source-path catapult-src/client/catapult \
+								--source-path catapult-src \
 								--linter-path catapult-src/linters
 						"""
 					}
@@ -196,7 +196,7 @@ pipeline {
 									--user ${fully_qualified_user} \
 									--mode ${TEST_MODE} \
 									--verbosity ${TEST_VERBOSITY} \
-									--source-path catapult-src/client/catapult
+									--source-path catapult-src
 							"""
 						}
 					}

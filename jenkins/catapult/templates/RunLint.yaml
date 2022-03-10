@@ -3,7 +3,7 @@ services:
   lint:
     image: {{IMAGE_NAME}}
     user: {{USER}}
-    working_dir: /catapult-src
+    working_dir: /catapult-src/client/catapult
     cap_add:
       - SYS_PTRACE
     command: python3 /scripts/runDockerTestsInnerLint.py --out-dir /catapult-data/logs

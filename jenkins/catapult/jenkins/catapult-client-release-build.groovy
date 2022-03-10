@@ -105,7 +105,7 @@ pipeline {
 									--operating-system ${OPERATING_SYSTEM} \
 									--user ${fully_qualified_user} \
 									--destination-image-label ${build_image_label} \
-									--source-path catapult-src/client/catapult \
+									--source-path catapult-src \
 							"""
 						}
 					}

@@ -1,12 +1,11 @@
 import argparse
 import re
+import sys
 from pathlib import Path
 
 from environment import EnvironmentManager
 from process import ProcessManager
 
-OUTPUT_DIR = Path('catapult-data')
-SRC_DIR = Path('/catapult-src')
 LINTER_DIR = Path('/linters')
 
 
@@ -67,7 +66,7 @@ def run_shell_linters(linter_runner, shell_files):
 	linter_runner.run(['shellcheck', '--format=gcc'] + shell_files)
 
 
-def run_python_linters(linter_runner, python_files):
+def run_python_linters(linter_runner, python_files, script_path):
 	pylint_warning_pattern = re.compile('[a-zA-Z\\-/]+\\.py:\\d+')
 
 	linter_runner.set_scope('pylint')
@@ -77,7 +76,7 @@ def run_python_linters(linter_runner, python_files):
 		'--load-plugins', 'pylint_quotes',
 		'--output-format', 'parseable'
 	] + python_files)
-	linter_runner.fixup(lambda line: line if not pylint_warning_pattern.match(line) else f'{SRC_DIR}/scripts/{line}')
+	linter_runner.fixup(lambda line: line if not pylint_warning_pattern.match(line) else f'{script_path}/{line}')
 
 	linter_runner.set_scope('pycodestyle')
 	linter_runner.run(['pycodestyle', '--config', str(LINTER_DIR.joinpath('python/.pycodestyle').resolve())] + python_files)
@@ -89,6 +88,10 @@ def run_python_linters(linter_runner, python_files):
 	linter_runner.fixup(lambda line: isort_warning_pattern.sub(
 		lambda match: f'{match.group(2)}:1:1 {match.group(1).lower()}: {match.group(3)}',
 		line))
+
+
+def get_script_path():
+	return Path(sys.argv[0]).resolve().parent
 
 
 def main():
@@ -103,11 +106,12 @@ def main():
 
 	run_cpp_linters(process_manager, args.out_dir)
 
-	environment_manager.chdir(SRC_DIR.joinpath('scripts').resolve())
+	script_path = get_script_path()
+	environment_manager.chdir(script_path)
 
 	linter_runner = LinterRunner(process_manager, args.out_dir, args.dry_run)
 	run_shell_linters(linter_runner, find_files_with_extension(environment_manager, '.sh'))
-	run_python_linters(linter_runner, find_files_with_extension(environment_manager, '.py'))
+	run_python_linters(linter_runner, find_files_with_extension(environment_manager, '.py'), str(script_path))
 
 
 if __name__ == '__main__':
