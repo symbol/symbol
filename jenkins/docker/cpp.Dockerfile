@@ -18,3 +18,5 @@ RUN useradd --uid 1000 -ms /bin/bash ubuntu
 # Create the MongoDB data directory
 RUN mkdir -p /data/db \
 	&& chown -R ubuntu:ubuntu /data
+
+WORKDIR /home/ubuntu
