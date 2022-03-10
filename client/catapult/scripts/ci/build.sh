@@ -23,4 +23,3 @@ else
 		--source-path "${git_root_directory}/client/catapult" \
 		--out-dir "${output_path}"
 fi
- 

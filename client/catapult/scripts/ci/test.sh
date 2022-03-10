@@ -9,10 +9,10 @@ then
 	python3 "${scripts_directory}/runDockerTests.py" \
 		--image symbolplatform/symbol-server-test:gcc-10-local \
 		--compiler-configuration "${scripts_directory}/configurations/gcc-10.yaml" \
-	  	--user "$(id -u):$(id -g)" \
-	  	--mode test \
-	  	--verbosity suite \
-	  	--source-path "${git_root_directory}/client/catapult"
+		--user "$(id -u):$(id -g)" \
+		--mode test \
+		--verbosity suite \
+		--source-path "${git_root_directory}"
 else
 	output_path="${git_root_directory}/output"
 	data_path="${output_path}/catapult-data"
