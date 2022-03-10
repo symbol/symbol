@@ -35,8 +35,8 @@ RUN curl -Os https://uploader.codecov.io/latest/linux/codecov \
 # add ubuntu user (used by jenkins)
 RUN useradd --uid 1000 -ms /bin/bash ubuntu
 
-WORKDIR /home/ubuntu
-
 # Create the MongoDB data directory
 RUN mkdir -p /data/db \
 	&& chown -R ubuntu:ubuntu /data
+
+WORKDIR /home/ubuntu
