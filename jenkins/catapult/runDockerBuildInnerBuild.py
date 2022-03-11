@@ -15,16 +15,17 @@ class LinuxEnvironment:
 		self.dispatch_subprocess = process_manager.dispatch_subprocess
 		self.environment_manager = environment_manager
 
-	def prepare(self):
-		self._prepare_directory()
+	def prepare(self, enable_code_coverage, out_dir):
+		self._prepare_directory(enable_code_coverage, out_dir)
 		self._prepare_environment_variables()
 
 		self.dispatch_subprocess(['ccache', '-M', '30G'])
 		self.dispatch_subprocess(['ccache', '-s'])
 
-	def _prepare_directory(self):
-		self.environment_manager.mkdirs('/tmp/_build')
-		self.environment_manager.chdir('/tmp/_build')
+	def _prepare_directory(self, enable_code_coverage, out_dir):
+		build_path = f'{out_dir}/_build' if enable_code_coverage else '/tmp/_build'
+		self.environment_manager.mkdirs(build_path)
+		self.environment_manager.chdir(build_path)
 
 	def _prepare_environment_variables(self):
 		if self.use_conan:
@@ -61,7 +62,7 @@ class BuildManager(BasicBuildManager):
 			('CMAKE_BUILD_TYPE', self.build_configuration),
 			('CATAPULT_TEST_DB_URL', 'mongodb://db:27017'),
 			('CATAPULT_DOCKER_TESTS', 'ON'),
-			('ENABLE_CODE_COVERAGE', 'OFF'),
+			('ENABLE_CODE_COVERAGE', 'ON' if self.enable_code_coverage else 'OFF'),
 			('ARCHITECTURE_NAME', self.architecture)
 		]
 
@@ -158,7 +159,7 @@ def main():
 
 	builder = BuildManager(args, process_manager, environment_manager)
 	env = LinuxEnvironment(builder.use_conan, process_manager, environment_manager)
-	env.prepare()
+	env.prepare(builder.enable_code_coverage, args.source_path)
 
 	if builder.use_conan:
 		env.prepare_conan({'version': builder.compiler.version, 'libcxx': builder.stl.lib})

@@ -45,6 +45,9 @@ class OptionsManager(BasicBuildManager):
 
 	@property
 	def ccache_path(self):
+		if self.enable_code_coverage:
+			return Path(CCACHE_ROOT) / 'cc'
+
 		return Path(CCACHE_ROOT) / ('release' if self.is_release else 'all')
 
 	@property
