@@ -31,7 +31,7 @@ def load_compiler_configuration(filepath):
 
 		sanitizers = configuration_yaml['sanitizers'].split(',') if 'sanitizers' in configuration_yaml else []
 		architecture = configuration_yaml['architecture']
-		enable_code_coverage = configuration_yaml['enable_code_coverage'] if 'enable_code_coverage' in configuration_yaml else False
+		enable_code_coverage = configuration_yaml.get('enable_code_coverage', False)
 
 		configuration_keys = ['compiler', 'stl', 'sanitizers', 'architecture', 'enable_code_coverage']
 		return namedtuple('CompilerConfiguration', configuration_keys)(compiler, stl, sanitizers, architecture, enable_code_coverage)
