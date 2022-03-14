@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.0.3] - 14-Mar-2002
+
+### Changed
+ - cosmetic changes in generated code
+
+### Fixed
+ - testnet nemesis seed hash
+ - properly handle last element in variable arrays (use `is_last_element_padded` in printers)
+
 ## [3.0.2] - 20-Jan-2022
 
 ### Changed
@@ -37,6 +46,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
  - initial code release
 
+[3.0.3]: https://github.com/symbol/sdk-python/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/symbol/sdk-python/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/symbol/sdk-python/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/symbol/sdk-python/compare/v2.0.0...v3.0.0
