@@ -50,6 +50,14 @@ updates:
     labels: [linters]
 
   - package-ecosystem: npm
+    directory: /sdk/javascript
+    schedule:
+      interval: weekly
+      day: sunday
+    target-branch: dev
+    labels: [sdk-javascript]
+
+  - package-ecosystem: pip
     directory: /sdk/javascript/generator
     schedule:
       interval: weekly
