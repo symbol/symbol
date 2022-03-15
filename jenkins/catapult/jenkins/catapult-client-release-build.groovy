@@ -99,9 +99,9 @@ pipeline {
 					steps {
 						script {
 							run_docker_build_command = """
-								python3 catapult-src/jenkins/catapult/runDockerBuild.py \
-									--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
-									--build-configuration catapult-src/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml \
+								python3 symbol-mono/jenkins/catapult/runDockerBuild.py \
+									--compiler-configuration symbol-mono/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
+									--build-configuration symbol-mono/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml \
 									--operating-system ${OPERATING_SYSTEM} \
 									--user ${fully_qualified_user} \
 									--destination-image-label ${build_image_label} \
@@ -163,7 +163,7 @@ def get_branch_name() {
 }
 
 def get_public_version() {
-	version_path = './catapult-src/scripts/build/server.version.yaml'
+	version_path = './symbol-mono/jenkins/catapult/server.version.yaml'
 	data = readYaml(file: version_path)
 	return data.version
 }
@@ -173,7 +173,7 @@ def get_build_image_repo() {
 }
 
 def get_architecture_label() {
-	data = readYaml(file: "./catapult-src/scripts/build/configurations/${COMPILER_CONFIGURATION}.yaml")
+	data = readYaml(file: "./symbol-mono/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml")
 	architecture = data.architecture
 
 	if ('skylake' == architecture)
