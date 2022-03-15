@@ -379,7 +379,7 @@ def generate_phase_test(options):
 		print_line([
 			'RUN git clone https://github.com/openssl/openssl.git',
 			'cd openssl',
-			'git checkout OpenSSL_1_1_1g',
+			'git checkout OpenSSL_1_1_1n',
 			'{OPEN_SSL_OPTIONS} perl ./Configure linux-x86_64-clang {OPEN_SSL_CONFIGURE} --prefix=/usr/local --openssldir=/usr/local',
 			'make -j 8',
 			'make install',
