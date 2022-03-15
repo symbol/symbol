@@ -6,7 +6,7 @@ pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-10', 'gcc-8', 'gcc-11', 'gcc-10-westmere', 'clang-11', 'clang-12', 'clang-ausan', 'clang-tsan'],
+			choices: ['gcc-10', 'gcc-8', 'gcc-11', 'gcc-10-westmere', 'clang-11', 'clang-12', 'clang-ausan', 'clang-tsan', 'gcc-10-code-coverage'],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
 			choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
@@ -201,6 +201,31 @@ pipeline {
 						}
 					}
 				}
+				stage('code coverage') {
+					when {
+						expression { is_code_coverage_build() }
+					}
+					steps {
+						script {
+							dir('catapult-src') {
+								sh """
+									sudo ln -s "${pwd()}" /catapult-src
+									lcov --directory client/catapult/_build --capture --output-file coverage_all.info
+									lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info 
+									lcov --list client_coverage.info
+								"""
+
+								withCredentials([string(credentialsId: 'SYMBOL_CODECOV_ID', variable: 'CODECOV_TOKEN')]) {
+									sh """
+										curl -Os https://uploader.codecov.io/latest/linux/codecov
+										chmod +x codecov
+										./codecov --required --root . --flags client-catapult -X gcov --file client_coverage.info
+									"""
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -245,4 +270,8 @@ def get_build_image_label() {
 
 	friendly_branch_name = friendly_branch_name.replaceAll('/', '-')
 	return "catapult-client-${friendly_branch_name}-${env.BUILD_NUMBER}"
+}
+
+def is_code_coverage_build() {
+	return 'gcc-10-code-coverage' == COMPILER_CONFIGURATION
 }

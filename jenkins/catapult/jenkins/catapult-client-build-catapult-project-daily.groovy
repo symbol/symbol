@@ -73,6 +73,13 @@ pipeline {
 						}
 					}
 				}
+				stage('code coverage') {
+					steps {
+						script {
+							dispatch_build_job('gcc-10-code-coverage', 'tests-metal')
+						}
+					}
+				}
 			}
 		}
 	}

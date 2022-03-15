@@ -1,0 +1,3 @@
+compiler: ../compilers/gcc-10.yaml
+architecture: skylake
+enable_code_coverage: true

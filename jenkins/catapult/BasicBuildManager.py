@@ -10,6 +10,7 @@ class BasicBuildManager:
 		self.stl = compiler_configuration.stl
 		self.sanitizers = compiler_configuration.sanitizers
 		self.architecture = compiler_configuration.architecture
+		self.enable_code_coverage = compiler_configuration.enable_code_coverage
 
 		self.build_disposition = build_configuration.disposition
 		self.use_conan = build_configuration.use_conan
