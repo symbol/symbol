@@ -36,10 +36,10 @@ pipeline {
 		stage('prepare Dockerfile') {
 			steps {
 				script {
-					properties = readProperties(file: './scripts/build/versions.properties')
+					properties = readProperties(file: './jenkins/catapult/versions.properties')
 					version = properties[params.OPERATING_SYSTEM]
 
-					dockerfile_template = "./scripts/build/templates/${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}BaseImage.Dockerfile"
+					dockerfile_template = "./jenkins/catapult/templates/${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}BaseImage.Dockerfile"
 					dockerfile_contents = readFile(file: dockerfile_template)
 					dockerfile_contents = dockerfile_contents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${params.OPERATING_SYSTEM}:${version}")
 
