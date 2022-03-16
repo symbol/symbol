@@ -85,7 +85,8 @@ pipeline {
 						expression { is_manual_build() }
 					}
 					steps {
-						dir('catapult-src') {
+						cleanWs()
+						dir('symbol-mono') {
 							git branch: "${get_branch_name()}",
 								url: 'https://github.com/symbol/symbol.git'
 						}
@@ -105,7 +106,7 @@ pipeline {
 									--operating-system ${OPERATING_SYSTEM} \
 									--user ${fully_qualified_user} \
 									--destination-image-label ${build_image_label} \
-									--source-path catapult-src \
+									--source-path symbol-mono \
 							"""
 						}
 					}
