@@ -79,6 +79,7 @@ pipeline {
 						expression { is_manual_build() }
 					}
 					steps {
+						cleanWs()
 						dir('catapult-src') {
 							git branch: "${get_branch_name()}",
 								url: 'https://github.com/symbol/symbol.git'

@@ -1,5 +1,7 @@
 pipeline {
-	agent any
+	agent {
+		label 'ubuntu-20.04-8cores-16Gig'
+	}
 
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
