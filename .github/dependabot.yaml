@@ -24,6 +24,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [rest]
+    versioning-strategy: increase
 
   - package-ecosystem: pip
     directory: /jenkins/catapult
@@ -56,6 +57,7 @@ updates:
       day: sunday
     target-branch: dev
     labels: [sdk-javascript]
+    versioning-strategy: increase
 
   - package-ecosystem: pip
     directory: /sdk/javascript/generator
