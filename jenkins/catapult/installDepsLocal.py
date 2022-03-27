@@ -26,7 +26,7 @@ class Downloader:
 
 	def download_git_dependency(self, organization, project):
 		version = self.versions[f'{organization}_{project}']
-		repository = f'git://github.com/{organization}/{project}.git'
+		repository = f'https://github.com/{organization}/{project}.git'
 		self.process_manager.dispatch_subprocess(['git', 'clone', '-b', version, repository])
 
 
