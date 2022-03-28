@@ -25,8 +25,8 @@ apt -y install git gcc g++ cmake curl libssl-dev ninja-build pkg-config python3-
 As usual, clone the git repository:
 
 ```sh
-git clone https://github.com/symbol/catapult-client.git
-cd catapult-client
+git clone https://github.com/symbol/symbol.git
+cd symbol/client/catapult
 ```
 
 ## Step 2: Download, build and install all dependencies from source
@@ -37,9 +37,9 @@ Type this into a terminal:
 > If you want to build with clang, add the `--use-clang` flag.
 
 ```sh
-PYTHONPATH="./scripts/build" python3 "./scripts/build/installDepsLocal.py" \
+PYTHONPATH="../../jenkins/catapult/" python3 "../../jenkins/catapult/installDepsLocal.py" \
 	--target "./_deps" \
-	--versions "./scripts/build/versions.properties" \
+	--versions "../../jenkins/catapult/versions.properties" \
 	--download \
 	--build
 ```
