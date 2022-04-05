@@ -55,10 +55,3 @@ class PodTypeFormatter(AbstractTypeFormatter):
 
 		body = f'return {self.pod.size};\n'
 		return MethodDescriptor(body=body)
-
-	@staticmethod
-	def get_getter_setter_descriptors():
-		return []
-
-	def get_str_descriptor(self):
-		return None

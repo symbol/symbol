@@ -16,8 +16,8 @@ class AbstractTypeFormatter(ABC):
 	def typename(self):
 		raise NotImplementedError('need to override method')
 
-	@staticmethod
-	def get_base_class():
+	def get_base_class(self):
+		# pylint: disable=no-self-use
 		return ''
 
 	@abstractmethod
@@ -36,14 +36,14 @@ class AbstractTypeFormatter(ABC):
 	def get_size_descriptor(self) -> MethodDescriptor:
 		pass
 
-	@abstractmethod
-	def get_getter_setter_descriptors(self) -> MethodDescriptor:
-		pass
+	def get_getter_setter_descriptors(self):
+		# pylint: disable=no-self-use
+		return []
 
-	@abstractmethod
 	def get_str_descriptor(self) -> MethodDescriptor:
-		pass
+		# pylint: disable=no-self-use
+		return None
 
-	@staticmethod
-	def get_fields():
+	def get_fields(self):
+		# pylint: disable=no-self-use
 		return []

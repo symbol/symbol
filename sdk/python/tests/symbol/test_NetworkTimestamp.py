@@ -7,8 +7,7 @@ from ..test.BasicNetworkTimestampTest import BasicNetworkTimestampTest, NetworkT
 
 
 class NetworkTimestampTest(BasicNetworkTimestampTest, unittest.TestCase):
-	@staticmethod
-	def get_test_descriptor():
+	def get_test_descriptor(self):
 		epoch_time = datetime.datetime(2021, 3, 16, 0, 6, 25, tzinfo=datetime.timezone.utc)
 		return NetworkTimestampTestDescriptor(NetworkTimestamp, epoch_time, 'milliseconds')
 

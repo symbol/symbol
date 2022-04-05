@@ -15,9 +15,6 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 	def typename(self):
 		return self.enum_type.name
 
-	def get_base_class(self):
-		return None
-
 	def get_fields(self):
 		return list(
 			map(
@@ -26,8 +23,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 			)
 		)
 
-	@staticmethod
-	def get_ctor_descriptor():
+	def get_ctor_descriptor(self):
 		arguments = ['value']
 		body = 'this.value = value;\n'
 		return MethodDescriptor(body=body, arguments=arguments)

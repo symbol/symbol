@@ -26,8 +26,7 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 			)
 		)
 
-	@staticmethod
-	def get_ctor_descriptor():
+	def get_ctor_descriptor(self):
 		return None
 
 	def get_deserialize_descriptor(self):
@@ -44,15 +43,3 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 	def get_size_descriptor(self):
 		body = f'return {self.enum_type.size}\n'
 		return MethodDescriptor(body=body)
-
-	@staticmethod
-	def get_getter_descriptors():
-		return []
-
-	@staticmethod
-	def get_setter_descriptors():
-		return []
-
-	@staticmethod
-	def get_str_descriptor():
-		return None

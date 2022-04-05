@@ -52,7 +52,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		self.factory_descriptor = factory_map.get(self.abstract.name)
 
 	def get_ctor_descriptor(self):
-		return None
+		raise NotImplementedError('`get_ctor_descriptor` not supported by FactoryFormatter')
 
 	@property
 	def typename(self):
@@ -131,6 +131,3 @@ return values.map(n => BigInt(n)).reduce((accumulator, value) => (accumulator <<
 '''
 		methods.append(MethodDescriptor(method_name='static toKey', arguments=['values'], body=body))
 		return methods
-
-	def get_str_descriptor(self):
-		raise RuntimeError('not required')

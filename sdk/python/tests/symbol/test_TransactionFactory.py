@@ -139,7 +139,8 @@ class EmbeddedTransactionFactoryTest(BasicTransactionFactoryExSignatureTest, Sym
 	def create_factory(self, type_rule_overrides=None):
 		return TransactionFactory(Network.TESTNET, type_rule_overrides)
 
-	def create_transaction(self, factory):
+	@staticmethod
+	def create_transaction(factory):
 		return factory.create_embedded
 
 

@@ -47,7 +47,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 		self.factory_descriptor = factory_map.get(self.abstract.name, None)
 
 	def get_ctor_descriptor(self):
-		return None
+		raise NotImplementedError('`get_ctor_descriptor` not supported by FactoryFormatter')
 
 	@property
 	def typename(self):
@@ -105,10 +105,4 @@ return mapping[entity_name]()
 		raise RuntimeError('not required')
 
 	def get_size_descriptor(self):
-		raise RuntimeError('not required')
-
-	def get_getter_descriptors(self):
-		return []
-
-	def get_str_descriptor(self):
 		raise RuntimeError('not required')
