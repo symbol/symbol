@@ -1,7 +1,6 @@
 name: Dependabot auto-approve-merge
 
-# yamllint disable-line rule:truthy
-on: pull_request
+'on': pull_request
 
 permissions:
   pull-requests: write
