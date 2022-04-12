@@ -15,7 +15,7 @@
   "license": "ISC",
   "devDependencies": {
     "chai": "^4.3.6",
-    "eslint": "^8.12.0",
+    "eslint": "^8.13.0",
     "eslint-config-airbnb": "^19.0.4",
     "hippie": "^0.6.1",
     "minimist": "^1.2.6",
