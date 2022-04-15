@@ -5,7 +5,7 @@ const { expect } = require('chai');
 describe('NetworkTimestamp (NEM)', () => {
 	runBasicNetworkTimestampTests({
 		NetworkTimestamp,
-		epochTime: new Date(Date.UTC(2015, 3, 29, 0, 6, 25)),
+		epochTime: new Date(Date.UTC(2015, 2, 29, 0, 6, 25)),
 		timeUnitMultiplier: 1000
 	});
 

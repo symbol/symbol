@@ -2,7 +2,7 @@ const BasicNetworkTimestamp = require('../NetworkTimestamp').NetworkTimestamp;
 const { NetworkTimestampDatetimeConverter } = require('../NetworkTimestamp');
 
 const createCoverter = epochTime => {
-	const EPOCH_TIME = new Date(Date.UTC(2021, 3, 16, 0, 6, 25));
+	const EPOCH_TIME = new Date(Date.UTC(2021, 2, 16, 0, 6, 25));
 	return new NetworkTimestampDatetimeConverter(epochTime || EPOCH_TIME, 'milliseconds');
 };
 
