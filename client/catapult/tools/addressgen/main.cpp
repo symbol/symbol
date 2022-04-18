@@ -59,15 +59,15 @@ namespace catapult { namespace tools { namespace addressgen {
 				});
 			}
 
-		void matchAll(MultiAddressMatcher& matcher, bool showProgress) const {
-			runGenerator([&matcher, showProgress, &printer = m_printer](const auto& mnemonic, auto&& keyPair) {
-				auto matchResult = matcher.accept(std::move(keyPair));
-				if (matchResult.second || (showProgress && matchResult.first))
-					printer.print(mnemonic, *matchResult.first);
+			void matchAll(MultiAddressMatcher& matcher, bool showProgress) const {
+				runGenerator([&matcher, showProgress, &printer = m_printer](const auto& mnemonic, auto&& keyPair) {
+					auto matchResult = matcher.accept(std::move(keyPair));
+					if (matchResult.second || (showProgress && matchResult.first))
+						printer.print(mnemonic, *matchResult.first);
 
-				return !matcher.isComplete();
-			});
-		}
+					return !matcher.isComplete();
+				});
+			}
 
 		private:
 			void runGenerator(const predicate<const std::string&, crypto::KeyPair&&>& acceptKeyPair) const {
