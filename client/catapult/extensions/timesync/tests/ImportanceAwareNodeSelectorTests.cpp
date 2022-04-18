@@ -282,12 +282,9 @@ namespace catapult { namespace timesync {
 					const std::vector<ionet::Node>& nodes,
 					const std::vector<uint64_t>& rawWeights,
 					uint64_t numIterations) {
-				uint64_t cummulativeWeight = 0u;
 				std::vector<Importance> importances;
-				for (auto weight : rawWeights) {
-					cummulativeWeight += weight;
+				for (auto weight : rawWeights)
 					importances.push_back(Importance(weight));
-				}
 
 				std::vector<Key> keys;
 				for (const auto& node : nodes)

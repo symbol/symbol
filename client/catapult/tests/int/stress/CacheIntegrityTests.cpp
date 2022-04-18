@@ -399,8 +399,8 @@ namespace catapult { namespace cache {
 		auto keys = CreateKeys(Num_Operations, test::Random);
 
 		// Act:
-		auto value = InsertAccounts(keys, Num_Operations, cache);
-		value += InsertAccounts(addresses, Num_Operations, cache);
+		InsertAccounts(keys, Num_Operations, cache);
+		InsertAccounts(addresses, Num_Operations, cache);
 
 		// Assert:
 		EXPECT_EQ(2 * Num_Operations, cache.createView()->size());
