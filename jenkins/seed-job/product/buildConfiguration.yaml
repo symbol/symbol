@@ -1,3 +1,0 @@
-builds:
-  - name: Optin Puller
-    path: optin/puller
