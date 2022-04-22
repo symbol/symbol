@@ -70,8 +70,7 @@ void call(Closure body) {
 }
 
 String resolveBuildConfigurationFile(String configurationFile)  {
-	repositoryName = helper.resolveRepoName().tokenize('.')[0]
-	String filepath = Paths.get('jenkins/seed-job').resolve(repositoryName).resolve(configurationFile)
+	String filepath = Paths.get('.github').resolve(configurationFile)
 	logger.logInfo("build configuration file: ${filepath}")
 	return filepath
 }
