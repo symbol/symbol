@@ -9,27 +9,32 @@ describe('NetworkTimestamp (Symbol)', () => {
 		timeUnitMultiplier: 1
 	});
 
-	it('can add milliseconds', () => {
-		// Arrange:
-		const timestamp = new NetworkTimestamp(100);
+	const runTestCases = (wrapInt, postfix) => {
+		it(`can add milliseconds (${postfix})`, () => {
+			// Arrange:
+			const timestamp = new NetworkTimestamp(wrapInt(100));
 
-		// Act:
-		const newTimestamp = timestamp.addMilliseconds(50);
+			// Act:
+			const newTimestamp = timestamp.addMilliseconds(wrapInt(50));
 
-		// Assert:
-		expect(timestamp.timestamp).to.equal(100);
-		expect(newTimestamp.timestamp).to.equal(100 + 50);
-	});
+			// Assert:
+			expect(timestamp.timestamp).to.equal(100n);
+			expect(newTimestamp.timestamp).to.equal(100n + 50n);
+		});
 
-	it('can add seconds', () => {
-		// Arrange:
-		const timestamp = new NetworkTimestamp(100);
+		it(`can add seconds (${postfix})`, () => {
+			// Arrange:
+			const timestamp = new NetworkTimestamp(wrapInt(100));
 
-		// Act:
-		const newTimestamp = timestamp.addSeconds(50);
+			// Act:
+			const newTimestamp = timestamp.addSeconds(wrapInt(50));
 
-		// Assert:
-		expect(timestamp.timestamp).to.equal(100);
-		expect(newTimestamp.timestamp).to.equal(100 + (50 * 1000));
-	});
+			// Assert:
+			expect(timestamp.timestamp).to.equal(100n);
+			expect(newTimestamp.timestamp).to.equal(100n + (50n * 1000n));
+		});
+	};
+
+	runTestCases(n => n, 'Number');
+	runTestCases(n => BigInt(n), 'BigInt');
 });

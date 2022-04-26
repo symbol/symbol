@@ -2,60 +2,70 @@ const { NetworkTimestamp, NetworkTimestampDatetimeConverter } = require('../src/
 const { expect } = require('chai');
 
 describe('NetworkTimestamp', () => {
-	class ConcreteNetworkTimestamp extends NetworkTimestamp { // needed because NetworkTimestamp is abstract
-		addSeconds(count) {
-			return new ConcreteNetworkTimestamp(this.timestamp + (5 * count));
+	const runTestCases = wrapInt => {
+		class ConcreteNetworkTimestamp extends NetworkTimestamp { // needed because NetworkTimestamp is abstract
+			addSeconds(count) {
+				return new ConcreteNetworkTimestamp(this.timestamp + (5n * BigInt(count)));
+			}
 		}
-	}
 
-	it('can create epochal timestamp', () => {
-		// Act:
-		const timestamp = new ConcreteNetworkTimestamp(0);
+		it('can create epochal timestamp', () => {
+			// Act:
+			const timestamp = new ConcreteNetworkTimestamp(wrapInt(0));
 
-		// Assert:
-		expect(timestamp.isEpochal).to.equal(true);
-		expect(timestamp.timestamp).to.equal(0);
+			// Assert:
+			expect(timestamp.isEpochal).to.equal(true);
+			expect(timestamp.timestamp).to.equal(0n);
+		});
+
+		it('can create non epochal timestamp', () => {
+			// Act:
+			const timestamp = new ConcreteNetworkTimestamp(wrapInt(123));
+
+			// Assert:
+			expect(timestamp.isEpochal).to.equal(false);
+			expect(timestamp.timestamp).to.equal(123n);
+		});
+
+		it('can add minutes', () => {
+			// Arrange:
+			const timestamp = new ConcreteNetworkTimestamp(wrapInt(100));
+
+			// Act:
+			const newTimestamp = timestamp.addMinutes(wrapInt(50));
+
+			// Assert:
+			expect(timestamp.timestamp).to.equal(100n);
+			expect(newTimestamp.timestamp).to.equal(100n + (60n * 5n * 50n));
+		});
+
+		it('can add hours', () => {
+			// Arrange:
+			const timestamp = new ConcreteNetworkTimestamp(wrapInt(100));
+
+			// Act:
+			const newTimestamp = timestamp.addHours(wrapInt(50));
+
+			// Assert:
+			expect(timestamp.timestamp).to.equal(100n);
+			expect(newTimestamp.timestamp).to.equal(100n + (60n * 60n * 5n * 50n));
+		});
+
+		it('supports toString', () => {
+			// Arrange:
+			const timestamp = new ConcreteNetworkTimestamp(wrapInt(123));
+
+			// Act + Assert:
+			expect(timestamp.toString()).to.equal('123');
+		});
+	};
+
+	describe('works with Number', () => {
+		runTestCases(n => n);
 	});
 
-	it('can create non epochal timestamp', () => {
-		// Act:
-		const timestamp = new ConcreteNetworkTimestamp(123);
-
-		// Assert:
-		expect(timestamp.isEpochal).to.equal(false);
-		expect(timestamp.timestamp).to.equal(123);
-	});
-
-	it('can add minutes', () => {
-		// Arrange:
-		const timestamp = new ConcreteNetworkTimestamp(100);
-
-		// Act:
-		const newTimestamp = timestamp.addMinutes(50);
-
-		// Assert:
-		expect(timestamp.timestamp).to.equal(100);
-		expect(newTimestamp.timestamp).to.equal(100 + (60 * 5 * 50));
-	});
-
-	it('can add hours', () => {
-		// Arrange:
-		const timestamp = new ConcreteNetworkTimestamp(100);
-
-		// Act:
-		const newTimestamp = timestamp.addHours(50);
-
-		// Assert:
-		expect(timestamp.timestamp).to.equal(100);
-		expect(newTimestamp.timestamp).to.equal(100 + (60 * 60 * 5 * 50));
-	});
-
-	it('supports toString', () => {
-		// Arrange:
-		const timestamp = new ConcreteNetworkTimestamp(123);
-
-		// Act + Assert:
-		expect(timestamp.toString()).to.equal('123');
+	describe('works with BigInt', () => {
+		runTestCases(n => BigInt(n));
 	});
 });
 

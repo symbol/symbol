@@ -7,14 +7,14 @@ class NetworkTimestamp {
 	 * @param {number} timestamp Raw network timestamp.
 	 */
 	constructor(timestamp) {
-		this.timestamp = timestamp;
+		this.timestamp = BigInt(timestamp);
 	}
 
 	/**
 	 * Determines if this is the epochal timestamp.
 	 */
 	get isEpochal() {
-		return 0 === this.timestamp;
+		return 0n === this.timestamp;
 	}
 
 	/**
@@ -33,7 +33,7 @@ class NetworkTimestamp {
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of minutes past this timestamp.
 	 */
 	addMinutes(count) {
-		return this.addSeconds(60 * count);
+		return this.addSeconds(60n * BigInt(count));
 	}
 
 	/**
@@ -42,7 +42,7 @@ class NetworkTimestamp {
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of hours past this timestamp.
 	 */
 	addHours(count) {
-		return this.addMinutes(60 * count);
+		return this.addMinutes(60n * BigInt(count));
 	}
 
 	/**
@@ -79,7 +79,7 @@ class NetworkTimestampDatetimeConverter {
 	 * @returns {Date} Date representation of the network timestamp.
 	 */
 	toDatetime(rawTimestamp) {
-		return new Date(this.epoch.getTime() + (rawTimestamp * this.timeUnits));
+		return new Date(this.epoch.getTime() + (Number(rawTimestamp) * this.timeUnits));
 	}
 
 	/**

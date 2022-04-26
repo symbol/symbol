@@ -16,7 +16,7 @@ class NetworkTimestamp extends BasicNetworkTimestamp {
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of milliseconds past this timestamp.
 	 */
 	addMilliseconds(count) {
-		return new NetworkTimestamp(this.timestamp + count);
+		return new NetworkTimestamp(this.timestamp + BigInt(count));
 	}
 
 	/**
@@ -26,7 +26,7 @@ class NetworkTimestamp extends BasicNetworkTimestamp {
 	 * @returns {NetworkTimestamp} New timestamp that is the specified number of seconds past this timestamp.
 	 */
 	addSeconds(count) {
-		return this.addMilliseconds(1000 * count);
+		return this.addMilliseconds(1000n * BigInt(count));
 	}
 
 	/**
