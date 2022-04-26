@@ -49,7 +49,7 @@ const runBasicNetworkTimestampTests = testDescriptor => {
 
 		// Assert:
 		expect(timestamp.isEpochal).to.equal(true);
-		expect(timestamp.timestamp).to.equal(0);
+		expect(timestamp.timestamp).to.equal(0n);
 	});
 
 	it('can convert datetime to non epochal timestamp', () => {
@@ -59,7 +59,7 @@ const runBasicNetworkTimestampTests = testDescriptor => {
 
 		// Assert:
 		expect(timestamp.isEpochal).to.equal(false);
-		expect(timestamp.timestamp).to.equal(123);
+		expect(timestamp.timestamp).to.equal(123n);
 	});
 
 	it('can convert datetime to epochal timestamp (custom epoch)', () => {
@@ -68,7 +68,7 @@ const runBasicNetworkTimestampTests = testDescriptor => {
 
 		// Assert:
 		expect(timestamp.isEpochal).to.equal(true);
-		expect(timestamp.timestamp).to.equal(0);
+		expect(timestamp.timestamp).to.equal(0n);
 	});
 
 	it('can convert datetime to non epochal timestamp (custom epoch)', () => {
@@ -78,7 +78,7 @@ const runBasicNetworkTimestampTests = testDescriptor => {
 
 		// Assert:
 		expect(timestamp.isEpochal).to.equal(false);
-		expect(timestamp.timestamp).to.equal(123);
+		expect(timestamp.timestamp).to.equal(123n);
 	});
 
 	// endregion
