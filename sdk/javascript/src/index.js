@@ -31,20 +31,20 @@ module.exports = {
 	},
 
 	nem: {
+		...NemModels, // must be before Network to promote Address from Network
 		...NemKeyPair,
 		...NemNetwork,
 		...NemNetworkTimestamp,
-		...NemTransactionFactory,
-		...NemModels
+		...NemTransactionFactory
 	},
 
 	symbol: {
+		...SymbolModels, // must be before Network to promote Address from Network
 		...SymbolKeyPair,
 		...SymbolMerkleHashBuilder,
 		...SymbolNetwork,
 		...SymbolNetworkTimestamp,
 		...SymbolTransactionFactory,
-		...SymbolIdGenerator,
-		...SymbolModels
+		...SymbolIdGenerator
 	}
 };

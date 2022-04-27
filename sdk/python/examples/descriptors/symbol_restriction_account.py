@@ -12,7 +12,7 @@ def descriptor_factory():
 
 		# block transactions outgoing to given address
 		# note: block and allow restrictions are mutually exclusive, documentation
-		# https://docs.symbolplatform.com/concepts/account-restriction.html#account-restriction
+		# https://docs.symbol.dev/concepts/account-restriction.html#account-restriction
 		{
 			'type': 'account_address_restriction_transaction',
 			'restriction_flags': 'address outgoing block',

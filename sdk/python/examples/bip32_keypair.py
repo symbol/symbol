@@ -3,7 +3,7 @@
 #
 # Shows how to use Bip32 interface to derive keys.
 #
-# note: this example is *not* generating keys comaptible with wallet
+# note: this example is *not* generating keys compatible with wallet
 #
 
 from symbolchain.Bip32 import Bip32
@@ -19,6 +19,7 @@ def derive_key(root_node, facade, change, index):
 	print(f' PATH: {path}')
 	print(f' * private key: {child_key_pair.private_key}')
 	print(f' *  public key: {child_key_pair.public_key}')
+
 	address = facade.network.public_key_to_address(child_key_pair.public_key)
 	print(f' *     address: {address}')
 	print()
@@ -28,7 +29,9 @@ def main():
 	facade = SymbolFacade('testnet')
 
 	bip = Bip32(facade.BIP32_CURVE_NAME)
-	root_node = bip.from_mnemonic('axis buzz cycle dynamic eyebrow future gym hybrid ivory just know lyrics', 'correcthorsebatterystaple')
+	root_node = bip.from_mnemonic(
+		'cat swing flag economy stadium alone churn speed unique patch report train',
+		'correcthorsebatterystaple')
 
 	for change in [0, 1]:
 		for index in range(3):

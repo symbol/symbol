@@ -33,6 +33,7 @@ class TransactionSample:
 		signature = self.facade.sign_transaction(self.key_pair, transaction)
 		self.facade.transaction_factory.attach_signature(transaction, signature)
 
+		print(f'Hash: {self.facade.hash_transaction(transaction)}')
 		print(transaction)
 		print(hexlify(transaction.serialize()))
 		print('---- ' * 20)
@@ -68,31 +69,31 @@ def main():
 
 	if 'nem' == args.blockchain:
 		factory_names = [
-			'descriptors.nem_account_key_link',
-			# 'descriptors.nem_cosignature',
-			'descriptors.nem_mosaic',
-			'descriptors.nem_multisig_account',
-			'descriptors.nem_namespace',
-			'descriptors.nem_transfer'
+			'nem_account_key_link',
+			# 'nem_cosignature',
+			'nem_mosaic',
+			'nem_multisig_account',
+			'nem_namespace',
+			'nem_transfer'
 		]
 		sample = NemTransactionSample()
 	else:
 		factory_names = [
-			'descriptors.symbol_alias',
-			'descriptors.symbol_key_link',
-			'descriptors.symbol_lock',
-			'descriptors.symbol_metadata',
-			'descriptors.symbol_mosaic',
-			'descriptors.symbol_namespace',
-			'descriptors.symbol_restriction_account',
-			'descriptors.symbol_restriction_mosaic',
-			'descriptors.symbol_transfer'
+			'symbol_alias',
+			'symbol_key_link',
+			'symbol_lock',
+			'symbol_metadata',
+			'symbol_mosaic',
+			'symbol_namespace',
+			'symbol_restriction_account',
+			'symbol_restriction_mosaic',
+			'symbol_transfer'
 		]
 		sample = SymbolTransactionSample()
 
 	total_descriptors_count = 0
 	for factory_name in factory_names:
-		transaction_descriptor_factory = getattr(importlib.import_module(factory_name), 'descriptor_factory')
+		transaction_descriptor_factory = getattr(importlib.import_module(f'descriptors.{factory_name}'), 'descriptor_factory')
 		transaction_descriptors = transaction_descriptor_factory()
 		sample.process_transaction_descriptors(transaction_descriptors)
 		total_descriptors_count += len(transaction_descriptors)

@@ -31,7 +31,7 @@ def descriptor_factory():
 				],
 				'levy_size': 0,
 				'levy': {}
-			},
+			}
 		},
 
 		# with properties
@@ -52,7 +52,7 @@ def descriptor_factory():
 				],
 				'levy_size': 0,
 				'levy': {}
-			},
+			}
 		},
 
 		# with levy
@@ -74,7 +74,7 @@ def descriptor_factory():
 					'mosaic_id': {'namespace_id': {'name': 'lieutenant'.encode('utf8')}, 'name': 'colonel'.encode('utf8')},
 					'fee': 632_0000
 				}
-			},
+			}
 		},
 
 		# supply change
@@ -83,5 +83,5 @@ def descriptor_factory():
 			'mosaic_id': {'namespace_id': {'name': 'genes'.encode('utf8')}, 'name': 'memes'.encode('utf8')},
 			'action': 'increase',
 			'delta': 321_000
-		},
+		}
 	]

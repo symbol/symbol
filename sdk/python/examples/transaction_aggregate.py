@@ -16,22 +16,22 @@ from symbolchain.facade.SymbolFacade import SymbolFacade
 def add_embedded_transfers(facade, public_key):
 	# obtain recipient from public_key, so direct all transfers to 'self'
 	embedded_transactions = []
-	recipient = facade.network.public_key_to_address(public_key)
-	resources = Path(__file__).parent / 'resources'
-	for filepath in sorted(resources.glob('part*.txt')):
-		msg = read_contents(filepath)
-		embedded = facade.transaction_factory.create_embedded({
+	recipient_address = facade.network.public_key_to_address(public_key)
+	resources_directory = Path(__file__).parent / 'resources'
+	for filepath in sorted(resources_directory.glob('part*.txt')):
+		message = read_contents(filepath)
+		embedded_transaction = facade.transaction_factory.create_embedded({
 			'type': 'transfer_transaction',
 			'signer_public_key': public_key,
-			'recipient_address': recipient,
+			'recipient_address': recipient_address,
 			# note: additional 0 byte at the beginning is added for compatibility with explorer
 			# and other tools that treat messages starting with 00 byte as "plain text"
-			'message': bytes(1) + msg.encode('utf8')
+			'message': bytes(1) + message.encode('utf8')
 		})
 
-		embedded_transactions.append(embedded)
+		embedded_transactions.append(embedded_transaction)
 
-		print(f'----> {filepath.name} length in bytes: {len(embedded.message)}')
+		print(f'----> {filepath.name} length in bytes: {len(embedded_transaction.message)}')
 
 	return embedded_transactions
 
@@ -47,7 +47,7 @@ def main():
 	embedded_transactions = add_embedded_transfers(facade, key_pair.public_key)
 	merkle_hash = facade.hash_embedded_transactions(embedded_transactions)
 
-	aggregate = facade.transaction_factory.create({
+	aggregate_transaction = facade.transaction_factory.create({
 		'type': 'aggregate_complete_transaction',
 		'signer_public_key': key_pair.public_key,
 		'fee': 0,
@@ -56,10 +56,11 @@ def main():
 		'transactions': embedded_transactions
 	})
 
-	signature = facade.sign_transaction(key_pair, aggregate)
-	aggregate.signature = signature.bytes
+	signature = facade.sign_transaction(key_pair, aggregate_transaction)
+	facade.transaction_factory.attach_signature(aggregate_transaction, signature)
 
-	print(aggregate)
+	print(f'Hash: {facade.hash_transaction(aggregate_transaction)}\n')
+	print(aggregate_transaction)
 
 
 if __name__ == '__main__':

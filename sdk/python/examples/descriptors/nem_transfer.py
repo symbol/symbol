@@ -54,7 +54,7 @@ def descriptor_factory():
 						},
 						'amount': 5_00
 					}
-				},
+				}
 			]
 		},
 
@@ -67,5 +67,5 @@ def descriptor_factory():
 				'message_type': 'plain',
 				'message': ' Wayne Gretzky'
 			}
-		},
+		}
 	]

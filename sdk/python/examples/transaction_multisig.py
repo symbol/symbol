@@ -4,8 +4,6 @@
 # Shows how to create multisig account.
 #
 
-from binascii import unhexlify
-
 import symbolchain.sc
 from symbolchain.CryptoTypes import PrivateKey
 from symbolchain.facade.SymbolFacade import SymbolFacade
@@ -15,11 +13,11 @@ from symbolchain.symbol.KeyPair import KeyPair
 class MultisigAccountModificationSample:
 	def __init__(self):
 		self.facade = SymbolFacade('testnet')
-		self.multisig_key_pair = KeyPair(PrivateKey(unhexlify('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF')))
+		self.multisig_key_pair = KeyPair(PrivateKey('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF'))
 		self.cosignatory_key_pairs = [
-			KeyPair(PrivateKey(unhexlify('AABBCCDDEEFF11002233445566778899AABBCCDDEEFF11002233445566778899'))),
-			KeyPair(PrivateKey(unhexlify('BBCCDDEEFF11002233445566778899AABBCCDDEEFF11002233445566778899AA'))),
-			KeyPair(PrivateKey(unhexlify('CCDDEEFF11002233445566778899AABBCCDDEEFF11002233445566778899AABB')))
+			KeyPair(PrivateKey('AABBCCDDEEFF11002233445566778899AABBCCDDEEFF11002233445566778899')),
+			KeyPair(PrivateKey('BBCCDDEEFF11002233445566778899AABBCCDDEEFF11002233445566778899AA')),
+			KeyPair(PrivateKey('CCDDEEFF11002233445566778899AABBCCDDEEFF11002233445566778899AABB'))
 		]
 
 	def run(self):
@@ -29,7 +27,11 @@ class MultisigAccountModificationSample:
 		signature = self.facade.sign_transaction(self.multisig_key_pair, aggregate_transaction)
 		self.facade.transaction_factory.attach_signature(aggregate_transaction, signature)
 
+		print(f'Hash: {self.facade.hash_transaction(aggregate_transaction)}')
+
 		self.add_cosignatures(aggregate_transaction)
+
+		print(f'Cosignatures: {len(aggregate_transaction.cosignatures)}\n')
 
 		print(aggregate_transaction)
 
@@ -50,7 +52,7 @@ class MultisigAccountModificationSample:
 			'fee': 625,
 			'deadline': 12345,
 			'transactions_hash': self.facade.hash_embedded_transactions(embedded_transactions).bytes,
-			'transactions': embedded_transactions,
+			'transactions': embedded_transactions
 		})
 
 	def to_address(self, key_pair):
@@ -59,7 +61,6 @@ class MultisigAccountModificationSample:
 	def add_cosignatures(self, aggregate_transaction):
 		transaction_hash = self.facade.hash_transaction(aggregate_transaction).bytes
 		for key_pair in self.cosignatory_key_pairs:
-			# version = 0
 			cosignature = symbolchain.sc.Cosignature()
 			cosignature.version = 0
 			cosignature.signer_public_key = key_pair.public_key

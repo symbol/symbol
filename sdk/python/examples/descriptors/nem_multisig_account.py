@@ -57,5 +57,5 @@ def descriptor_factory():
 				}
 
 			]
-		},
+		}
 	]
