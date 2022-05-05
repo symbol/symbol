@@ -6,10 +6,11 @@ Following instructions should work on Mac, Linux (Ubuntu 20.04) and Windows.
 
 * **On Linux**:
 
-  1. Install the compiler:
+  1. Install the compiler and build dependencies:
 
      ```sh
-     sudo apt install build-essential git cmake ninja-build
+     sudo apt update
+     sudo apt install build-essential git cmake ninja-build pkg-config
      ```
 
   2. Install [Conan](https://conan.io/downloads.html).
@@ -64,8 +65,8 @@ as this will probably take *a bit*.
 ```sh
 conan remote add nemtech https://catapult.jfrog.io/artifactory/api/conan/symbol-conan
 
-git clone https://github.com/symbol/catapult-client.git
-cd catapult-client
+git clone https://github.com/symbol/symbol.git
+cd symbol/client/catapult
 
 mkdir _build && cd _build
 CONAN_REVISIONS_ENABLED=1 conan install .. --build missing
