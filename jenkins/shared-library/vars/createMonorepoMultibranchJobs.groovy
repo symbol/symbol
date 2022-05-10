@@ -44,7 +44,9 @@ void generatePackageMultibranchJobs(Object buildConfiguration, Map jobConfigurat
 		String pipelineName = build.path.tokenize(pathSeparator).last()
 		jobConfiguration.jobName = Paths.get(jobConfiguration.fullBranchFolder.toString()).resolve(pipelineName).toString()
 		jobConfiguration.jenkinsfilePath = Paths.get(build.path).resolve('Jenkinsfile').toString()
-		jobConfiguration.packageIncludePaths = addPathAndDependsOnFolder(build).join('\n')
+		pathList = addPathAndDependsOnFolder(build)
+		pathList.add(helper.resolveBuildConfigurationFile())
+		jobConfiguration.packageIncludePaths = pathList.join('\n')
 		jobConfiguration.displayName = build.name
 		jobConfiguration.packageFolder = Paths.get(jobConfiguration.repositoryName.toString()).resolve(build.path).toString()
 		createMultibranchJob(jobConfiguration)

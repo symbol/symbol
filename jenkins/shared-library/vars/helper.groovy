@@ -28,3 +28,7 @@ void configureGitHub() {
 	// groovylint-disable-next-line GStringExpressionWithinString
 	runScript('git config user.email "${GITHUB_EMAIL}"')
 }
+
+String resolveBuildConfigurationFile() {
+	return '.github/buildConfiguration.yaml'
+}
