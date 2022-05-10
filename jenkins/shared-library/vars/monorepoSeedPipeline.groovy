@@ -67,7 +67,7 @@ void call(Closure body) {
 }
 
 String resolveBuildConfigurationFile()  {
-	filepath = helper.resolveBuildConfigurationFile()
+	String filepath = helper.resolveBuildConfigurationFile()
 	logger.logInfo("build configuration file: ${filepath}")
 	return filepath
 }
