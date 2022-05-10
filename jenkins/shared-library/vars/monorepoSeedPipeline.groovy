@@ -1,5 +1,3 @@
-import java.nio.file.Paths
-
 void call(Closure body) {
 	Map params = [:]
 	body.resolveStrategy = Closure.DELEGATE_FIRST
@@ -31,7 +29,6 @@ void call(Closure body) {
 
 		environment {
 			JENKINS_ROOT_FOLDER	  = "${params.organizationName}/generated"
-			BUILD_CONFIGURATION_FILE = 'buildConfiguration.yaml'
 			GITHUB_CREDENTIALS_ID = "${params.gitHubId}"
 		}
 
@@ -55,12 +52,12 @@ void call(Closure body) {
 			stage('create pipeline jobs') {
 				when {
 					expression {
-						return fileExists(resolveBuildConfigurationFile(env.BUILD_CONFIGURATION_FILE))
+						return fileExists(resolveBuildConfigurationFile())
 					}
 				}
 				steps {
 					script {
-						buildConfiguration = yamlHelper.readYamlFromFile(resolveBuildConfigurationFile(env.BUILD_CONFIGURATION_FILE))
+						buildConfiguration = yamlHelper.readYamlFromFile(resolveBuildConfigurationFile())
 						createMonorepoMultibranchJobs(buildConfiguration, env.GIT_URL, env.JENKINS_ROOT_FOLDER, env.GITHUB_CREDENTIALS_ID)
 					}
 				}
@@ -69,8 +66,8 @@ void call(Closure body) {
 	}
 }
 
-String resolveBuildConfigurationFile(String configurationFile)  {
-	String filepath = Paths.get('.github').resolve(configurationFile)
+String resolveBuildConfigurationFile()  {
+	String filepath = helper.resolveBuildConfigurationFile()
 	logger.logInfo("build configuration file: ${filepath}")
 	return filepath
 }
