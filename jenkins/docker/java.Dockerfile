@@ -2,9 +2,9 @@ FROM ubuntu:20.04
 
 # install dependencies (install tzdata first to prevent 'geographic area' prompt)
 RUN apt-get update \
-  && apt-get install -y tzdata \
-  && apt-get install -y openjdk-11-jdk-headless git curl libssl-dev maven ca-certificates \
-  && update-ca-certificates
+	&& apt-get install -y tzdata \
+	&& apt-get install -y openjdk-11-jdk-headless git curl libssl-dev maven ca-certificates \
+	&& update-ca-certificates
 
 # install python
 RUN apt-get install -y python3-pip
@@ -22,4 +22,3 @@ RUN curl -Os https://uploader.codecov.io/latest/linux/codecov \
 RUN useradd --uid 1000 -ms /bin/bash ubuntu
 
 WORKDIR /home/ubuntu
-
