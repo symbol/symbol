@@ -2,7 +2,8 @@
 
 set -ex
 
-GITLINT_MODULES="$(cat "$(git rev-parse --show-toplevel)"/.gitlintmodules)"
+GITLINT_COMMON_MODULES="dependency"
+GITLINT_MODULES="${GITLINT_COMMON_MODULES}|$(cat "$(git rev-parse --show-toplevel)"/.gitlintmodules)"
 GITLINT_CATEGORIES="feat|bug|fix|build|perf|task"
 gitlint \
 	-C "$(git rev-parse --show-toplevel)/linters/git/.gitlint" \
