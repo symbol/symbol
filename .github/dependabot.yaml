@@ -9,7 +9,7 @@ updates:
     target-branch: dev
     labels: [catbuffer-parser]
     commit-message:
-      prefix: '[monorepo] fix'
+      prefix: '[dependency]'
 
   - package-ecosystem: pip
     directory: /client/catapult/scripts
@@ -19,7 +19,7 @@ updates:
     target-branch: dev
     labels: [catapult]
     commit-message:
-      prefix: '[monorepo] fix'
+      prefix: '[dependency]'
 
   - package-ecosystem: npm
     directory: /client/rest
@@ -30,7 +30,7 @@ updates:
     labels: [rest]
     versioning-strategy: increase
     commit-message:
-      prefix: '[monorepo] fix'
+      prefix: '[dependency]'
 
   - package-ecosystem: pip
     directory: /jenkins/catapult
@@ -40,7 +40,7 @@ updates:
     target-branch: dev
     labels: [jenkins]
     commit-message:
-      prefix: '[jenkins] fix'
+      prefix: '[dependency]'
 
   - package-ecosystem: pip
     directory: /linters/cpp
@@ -50,7 +50,7 @@ updates:
     target-branch: dev
     labels: [linters]
     commit-message:
-      prefix: '[linters] fix'
+      prefix: '[dependency]'
 
   - package-ecosystem: pip
     directory: /linters/python
@@ -60,7 +60,7 @@ updates:
     target-branch: dev
     labels: [linters]
     commit-message:
-      prefix: '[linters] fix'
+      prefix: '[dependency]'
 
   - package-ecosystem: npm
     directory: /sdk/javascript
@@ -71,7 +71,7 @@ updates:
     labels: [sdk-javascript]
     versioning-strategy: increase
     commit-message:
-      prefix: '[sdk] fix'
+      prefix: '[dependency]'
 
   - package-ecosystem: pip
     directory: /sdk/javascript/generator
@@ -81,7 +81,7 @@ updates:
     target-branch: dev
     labels: [sdk-javascript]
     commit-message:
-      prefix: '[sdk] fix'
+      prefix: '[dependency]'
 
   - package-ecosystem: pip
     directory: /sdk/python
@@ -91,4 +91,4 @@ updates:
     target-branch: dev
     labels: [sdk-python]
     commit-message:
-      prefix: '[sdk] fix'
+      prefix: '[dependency]'
