@@ -2,7 +2,7 @@ const { ByteArray } = require('../ByteArray');
 const { Hash256 } = require('../CryptoTypes');
 const BasicNetwork = require('../Network').Network;
 const base32 = require('../utils/base32');
-const { sha3_256 } = require('js-sha3');
+const { sha3_256 } = require('@noble/hashes/sha3');
 
 /**
  * Represents a Symbol address.

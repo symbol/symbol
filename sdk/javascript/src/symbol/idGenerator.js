@@ -1,4 +1,4 @@
-const { sha3_256 } = require('js-sha3');
+const { sha3_256 } = require('@noble/hashes/sha3');
 
 const NAMESPACE_FLAG = 1n << 63n;
 
@@ -27,7 +27,7 @@ const generateMosaicId = (ownerAddress, nonce) => {
 	const hasher = sha3_256.create();
 	hasher.update(uint32ToBytes(nonce));
 	hasher.update(ownerAddress.bytes);
-	const digest = new Uint8Array(hasher.arrayBuffer());
+	const digest = hasher.digest();
 
 	let result = digestToBigInt(digest);
 	if (result & NAMESPACE_FLAG)

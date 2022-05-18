@@ -3,7 +3,7 @@ const { NetworkLocator } = require('../Network');
 const { KeyPair, Verifier } = require('../nem/KeyPair');
 const { Address, Network } = require('../nem/Network');
 const { TransactionFactory } = require('../nem/TransactionFactory');
-const { keccak_256 } = require('js-sha3');
+const { keccak_256 } = require('@noble/hashes/sha3');
 
 /**
  * Facade used to interact with NEM blockchain.
@@ -37,7 +37,7 @@ class NemFacade {
 	 */
 	hashTransaction(transaction) { // eslint-disable-line class-methods-use-this
 		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
-		return new Hash256(new Uint8Array(keccak_256.create().update(nonVerifiableTransaction.serialize()).arrayBuffer()));
+		return new Hash256(keccak_256(nonVerifiableTransaction.serialize()));
 	}
 
 	/**

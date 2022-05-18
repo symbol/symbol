@@ -1,5 +1,5 @@
 const { Hash256 } = require('../CryptoTypes');
-const { sha3_256 } = require('js-sha3');
+const { sha3_256 } = require('@noble/hashes/sha3');
 
 /**
  * Builder for creating a merkle hash.
