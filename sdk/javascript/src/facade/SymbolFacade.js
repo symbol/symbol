@@ -7,7 +7,7 @@ const { MerkleHashBuilder } = require('../symbol/MerkleHashBuilder');
 const { Address, Network } = require('../symbol/Network');
 const { TransactionFactory } = require('../symbol/TransactionFactory');
 const { TransactionType } = require('../symbol/models');
-const { sha3_256 } = require('js-sha3');
+const { sha3_256 } = require('@noble/hashes/sha3');
 
 const TRANSACTION_HEADER_SIZE = [
 	4, // size
@@ -74,7 +74,7 @@ class SymbolFacade {
 		hasher.update(transaction.signerPublicKey.bytes);
 		hasher.update(this.network.generationHashSeed.bytes);
 		hasher.update(transactionDataBuffer(transaction.serialize()));
-		return new Hash256(new Uint8Array(hasher.arrayBuffer()));
+		return new Hash256(hasher.digest());
 	}
 
 	/**
@@ -112,7 +112,7 @@ class SymbolFacade {
 	static hashEmbeddedTransactions(embeddedTransactions) {
 		const hashBuilder = new MerkleHashBuilder();
 		embeddedTransactions.forEach(embeddedTransaction => {
-			hashBuilder.update(new Hash256(sha3_256.create().update(embeddedTransaction.serialize()).digest()));
+			hashBuilder.update(new Hash256(sha3_256(embeddedTransaction.serialize())));
 		});
 
 		return hashBuilder.final();

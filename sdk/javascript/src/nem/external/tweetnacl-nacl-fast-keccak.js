@@ -1,6 +1,6 @@
 // this file is the same as tweetnacl/nacl-fast except that it implements a custom `crypto_hash` function
 // that uses keccak_512 instead of sha_512
-const { keccak_512 } = require('js-sha3');
+const { keccak_512 } = require('@noble/hashes/sha3');
 
 (function(nacl) {
 'use strict';
@@ -1815,7 +1815,7 @@ function crypto_hashblocks_hl(hh, hl, m, n) {
 function crypto_hash(out, m, n) {
 	const hashBuilder = keccak_512.create();
 	hashBuilder.update(m.subarray(0, n));
-	const hash = new Uint8Array(hashBuilder.arrayBuffer());
+	const hash = hashBuilder.digest();
 
 	for (let i = 0; i < out.length; ++i)
 		out[i] = hash[i];

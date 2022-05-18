@@ -26,7 +26,7 @@ class Network {
 	publicKeyToAddress(publicKey) {
 		const partOneHashBuilder = this.addressHasher();
 		partOneHashBuilder.update(publicKey.bytes);
-		const partOneHash = new Uint8Array(partOneHashBuilder.arrayBuffer());
+		const partOneHash = partOneHashBuilder.digest();
 
 		const partTwoHash = new Ripemd160().update(Buffer.from(partOneHash)).digest();
 
@@ -34,7 +34,7 @@ class Network {
 
 		const partThreeHashBuilder = this.addressHasher();
 		partThreeHashBuilder.update(version);
-		const checksum = new Uint8Array(partThreeHashBuilder.arrayBuffer()).subarray(0, 4);
+		const checksum = partThreeHashBuilder.digest().subarray(0, 4);
 
 		return this.createAddress(version, checksum);
 	}
@@ -52,7 +52,7 @@ class Network {
 		hashBuilder.update(address.bytes.subarray(0, 1 + 20));
 
 		const checkSumFromAddress = address.bytes.subarray(1 + 20);
-		const calculatedChecksum = new Uint8Array(hashBuilder.arrayBuffer()).subarray(0, checkSumFromAddress.length);
+		const calculatedChecksum = hashBuilder.digest().subarray(0, checkSumFromAddress.length);
 
 		for (let i = 0; i < checkSumFromAddress.length; ++i) {
 			if (checkSumFromAddress[i] !== calculatedChecksum[i])
