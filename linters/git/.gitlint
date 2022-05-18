@@ -8,7 +8,7 @@ words=wip
 min-length=20
 
 [title-max-length]
-line-length=80
+line-length=100
 
 [body-min-length]
 min-length=5
