@@ -17,6 +17,7 @@ const SymbolNetworkTimestamp = require('./symbol/NetworkTimestamp');
 const SymbolTransactionFactory = require('./symbol/TransactionFactory');
 const SymbolIdGenerator = require('./symbol/idGenerator');
 const SymbolModels = require('./symbol/models');
+const { hexToUint8, uint8ToHex } = require('./utils/converter');
 
 module.exports = {
 	BaseValue,
@@ -46,5 +47,10 @@ module.exports = {
 		...SymbolNetworkTimestamp,
 		...SymbolTransactionFactory,
 		...SymbolIdGenerator
+	},
+
+	utils: {
+		hexToUint8,
+		uint8ToHex
 	}
 };
