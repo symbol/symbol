@@ -2,7 +2,7 @@
 
 set -ex
 
-GITLINT_COMMON_MODULES="dependency"
+GITLINT_COMMON_MODULES="dependency|jenkins|monorepo"
 GITLINT_MODULES="${GITLINT_COMMON_MODULES}|$(cat "$(git rev-parse --show-toplevel)"/.gitlintmodules)"
 GITLINT_CATEGORIES="feat|bug|fix|build|perf|task"
 gitlint \
