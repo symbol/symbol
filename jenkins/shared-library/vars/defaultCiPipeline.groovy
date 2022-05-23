@@ -205,9 +205,6 @@ void call(Closure body) {
 								expression {
 									return params.codeCoverageTool != null
 								}
-								expression {
-									return params.minimumCodeCoverage != null
-								}
 							}
 						}
 						steps {
