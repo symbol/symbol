@@ -11,17 +11,26 @@ void uploadCodeCoverage(String flag) {
 	}
 }
 
+void logCodeCoverageMinimum(Integer minimumCodeCoverage) {
+	logger.logInfo("Minimum code coverage is ${minimumCodeCoverage}")
+}
+
 void verifyCodeCoverageResult(String tool, Integer minimumCodeCoverage) {
 	Map codeCoverageCommand = [
-		'coverage': { target ->
+		'coverage': { Integer target ->
+			logCodeCoverageMinimum(target)
 			runScript('coverage xml')
 			runScript("coverage report --fail-under=${target}")
 		},
-		'nyc': { target ->
+		'nyc': { Integer target ->
+			logCodeCoverageMinimum(target)
 			runScript('npx nyc@latest report --lines')
 			runScript("npx nyc@latest check-coverage --lines ${target}")
+		},
+		'jacoco': { Integer target ->
+			logger.logInfo('Minimum code coverage is set pom.xml')
+			runScript('mvn jacoco:check@jacoco-check')
 		}]
 
-	logger.logInfo("Minimum code coverage is ${minimumCodeCoverage}")
 	codeCoverageCommand[tool](minimumCodeCoverage)
 }
