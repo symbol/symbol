@@ -11,17 +11,36 @@ void uploadCodeCoverage(String flag) {
 	}
 }
 
+void logCodeCoverageMinimum(Integer minimumCodeCoverage) {
+	logger.logInfo("Minimum code coverage is ${minimumCodeCoverage}")
+}
+
 void verifyCodeCoverageResult(String tool, Integer minimumCodeCoverage) {
 	Map codeCoverageCommand = [
-		'coverage': { target ->
+		'coverage': { Integer target ->
+			logCodeCoverageMinimum(target)
 			runScript('coverage xml')
 			runScript("coverage report --fail-under=${target}")
 		},
-		'nyc': { target ->
+		'nyc': { Integer target ->
+			logCodeCoverageMinimum(target)
 			runScript('npx nyc@latest report --lines')
 			runScript("npx nyc@latest check-coverage --lines ${target}")
+		},
+		'jacoco': { Integer target ->
+			logger.logInfo("Minimum code coverage set in pom is ${readJacocoCoverageLimit()}")
+			runScript('mvn jacoco:check@jacoco-check')
 		}]
 
-	logger.logInfo("Minimum code coverage is ${minimumCodeCoverage}")
 	codeCoverageCommand[tool](minimumCodeCoverage)
+}
+
+Integer readJacocoCoverageLimit() {
+	Object rules = readMavenPom().build.plugins.find { plugin ->
+		plugin.artifactId == 'jacoco-maven-plugin'
+	}.executions.find { execution ->
+		execution.id == 'jacoco-check'
+	}.configuration
+	Object configuration = new XmlSlurper().parseText(rules.toString())
+	return Double.parseDouble(configuration.rules.rule.first().limits.limit.first().minimum.text()) * 100
 }
