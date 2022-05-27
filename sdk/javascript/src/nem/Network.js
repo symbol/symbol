@@ -9,6 +9,8 @@ const { keccak_256 } = require('@noble/hashes/sha3');
 class Address extends ByteArray {
 	static SIZE = 25;
 
+	static ENCODED_SIZE = 40;
+
 	/**
 	 * Creates a NEM address.
 	 * @param {Uint8Array|string|Address} address Input string, byte array or address.
@@ -46,7 +48,8 @@ class Network extends BasicNetwork {
 			name,
 			identifier,
 			() => keccak_256.create(),
-			(addressWithoutChecksum, checksum) => new Address(new Uint8Array([...addressWithoutChecksum, ...checksum]))
+			(addressWithoutChecksum, checksum) => new Address(new Uint8Array([...addressWithoutChecksum, ...checksum])),
+			Address
 		);
 	}
 }

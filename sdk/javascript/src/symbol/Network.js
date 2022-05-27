@@ -10,6 +10,8 @@ const { sha3_256 } = require('@noble/hashes/sha3');
 class Address extends ByteArray {
 	static SIZE = 24;
 
+	static ENCODED_SIZE = 39;
+
 	/**
 	 * Creates a Symbol address.
 	 * @param {Uint8Array|string|Address} address Input string, byte array or address.
@@ -48,7 +50,8 @@ class Network extends BasicNetwork {
 			name,
 			identifier,
 			() => sha3_256.create(),
-			(addressWithoutChecksum, checksum) => new Address(new Uint8Array([...addressWithoutChecksum, ...checksum.subarray(0, 3)]))
+			(addressWithoutChecksum, checksum) => new Address(new Uint8Array([...addressWithoutChecksum, ...checksum.subarray(0, 3)])),
+			Address
 		);
 		this.generationHashSeed = generationHashSeed;
 	}

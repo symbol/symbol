@@ -1,5 +1,7 @@
 const Ripemd160 = require('ripemd160');
 
+const BASE32_RFC4648_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
 /**
  * Represents a network.
  */
@@ -10,12 +12,14 @@ class Network {
 	 * @param {number} identifier Network identifier byte.
 	 * @param {function} addressHasher Gets the primary hasher to use in the public key to address conversion.
 	 * @param {function} createAddress Creates an encoded address from an address without checksum and checksum bytes.
+	 * @param {class} AddressClass Address class associated with this network.
 	 */
-	constructor(name, identifier, addressHasher, createAddress) {
+	constructor(name, identifier, addressHasher, createAddress, AddressClass) {
 		this.name = name;
 		this.identifier = identifier;
 		this.addressHasher = addressHasher;
 		this.createAddress = createAddress;
+		this.AddressClass = AddressClass;
 	}
 
 	/**
@@ -40,8 +44,25 @@ class Network {
 	}
 
 	/**
+	 * Checks if an address string is valid and belongs to this network.
+	 * @param {string} addressString Address to check.
+	 * @returns {boolean} True if address is valid and belongs to this network.
+	 */
+	isValidAddressString(addressString) {
+		if (this.AddressClass.ENCODED_SIZE !== addressString.length)
+			return false;
+
+		for (let i = 0; i < addressString.length; ++i) {
+			if (-1 === BASE32_RFC4648_ALPHABET.indexOf(addressString[i]))
+				return false;
+		}
+
+		return this.isValidAddress(new this.AddressClass(addressString));
+	}
+
+	/**
 	 * Checks if an address is valid and belongs to this network.
-	 * @param {Address} address Address to check
+	 * @param {Address} address Address to check.
 	 * @returns {boolean} True if address is valid and belongs to this network.
 	 */
 	isValidAddress(address) {
