@@ -1,14 +1,17 @@
 import hashlib
 from abc import abstractmethod
 
+BASE32_RFC4648_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
+
 
 class Network:
 	"""Represents a network."""
 
-	def __init__(self, name, identifier):
+	def __init__(self, name, identifier, address_class):
 		"""Creates a new network with the specified name and identifier byte."""
 		self.name = name
 		self.identifier = identifier
+		self.address_class = address_class
 
 	def public_key_to_address(self, public_key):
 		"""Converts a public key to an address."""
@@ -27,6 +30,16 @@ class Network:
 		checksum = part_three_hash_builder.digest()[0:4]
 
 		return self.create_address(version, checksum)
+
+	def is_valid_address_string(self, address_string):
+		"""Checks if an address string is valid and belongs to this network."""
+		if self.address_class.ENCODED_SIZE != len(address_string):
+			return False
+
+		if any(ch not in BASE32_RFC4648_ALPHABET for ch in address_string):
+			return False
+
+		return self.is_valid_address(self.address_class(address_string))
 
 	def is_valid_address(self, address):
 		"""Checks if an address is valid and belongs to this network."""

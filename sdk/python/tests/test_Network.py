@@ -6,19 +6,21 @@ from symbolchain.Network import Network, NetworkLocator
 class NetworkTest(unittest.TestCase):
 	def test_equality_is_supported(self):
 		# Arrange:
-		network = Network('foo', 0x55)
+		network = Network('foo', 0x55, None)
 
 		# Act + Assert:
-		self.assertEqual(network, Network('foo', 0x55))
-		self.assertNotEqual(network, Network('Foo', 0x55))
-		self.assertNotEqual(network, Network('foo', 0x54))
+		self.assertEqual(network, Network('foo', 0x55, None))
+		self.assertEqual(network, Network('foo', 0x55, int))  # address_class is not compared
+
+		self.assertNotEqual(network, Network('Foo', 0x55, None))
+		self.assertNotEqual(network, Network('foo', 0x54, None))
 		self.assertNotEqual(network, None)
 
 	def test_string_is_supported(self):
-		self.assertEqual('foo', str(Network('foo', 0x55)))
+		self.assertEqual('foo', str(Network('foo', 0x55, None)))
 
 
-PREDEFINED_NETWORKS = [Network('foo', 0x55), Network('bar', 0x37)]
+PREDEFINED_NETWORKS = [Network('foo', 0x55, None), Network('bar', 0x37, None)]
 
 
 class NetworkLocatorTest(unittest.TestCase):

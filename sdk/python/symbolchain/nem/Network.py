@@ -10,6 +10,7 @@ class Address(ByteArray):
 	"""Represents a nem address."""
 
 	SIZE = 25
+	ENCODED_SIZE = 40
 
 	def __init__(self, address):
 		"""Creates an address from a decoded or encoded address."""
@@ -27,6 +28,10 @@ class Address(ByteArray):
 
 class Network(BasicNetwork):
 	"""Represents a nem network."""
+
+	def __init__(self, name, identifier):
+		"""Creates a new network with the specified name and identifier byte."""
+		super().__init__(name, identifier, Address)
 
 	def address_hasher(self):
 		return sha3.keccak_256()

@@ -11,6 +11,7 @@ class Address(ByteArray):
 	"""Represents a Symbol address."""
 
 	SIZE = 24
+	ENCODED_SIZE = 39
 
 	def __init__(self, address):
 		"""Creates an address from a decoded or encoded address."""
@@ -31,7 +32,7 @@ class Network(BasicNetwork):
 
 	def __init__(self, name, identifier, generation_hash_seed=None):
 		"""Creates a new network with the specified name, identifier byte and generation hash seed."""
-		super().__init__(name, identifier)
+		super().__init__(name, identifier, Address)
 		self.generation_hash_seed = generation_hash_seed
 
 	def address_hasher(self):

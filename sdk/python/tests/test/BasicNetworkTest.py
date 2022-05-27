@@ -60,25 +60,43 @@ class BasicNetworkTest:
 		# Assert:
 		self.assertEqual(test_descriptor.expected_testnet_address, address)
 
-	def test_validate_valid_mainnet_address(self):
-		self._test_validate_valid_address('mainnet_network')
+	def test_can_validate_valid_mainnet_address(self):
+		self._test_can_validate_valid_address('mainnet_network')
 
-	def test_validate_valid_testnet_address(self):
-		self._test_validate_valid_address('testnet_network')
+	def test_can_validate_valid_testnet_address(self):
+		self._test_can_validate_valid_address('testnet_network')
 
-	def test_validate_invalid_mainnet_address_begin(self):
-		return self._test_validate_invalid_address('mainnet_network', 1)
+	def test_cannot_validate_invalid_mainnet_address_begin(self):
+		self._test_cannot_validate_invalid_address('mainnet_network', 1)
 
-	def test_validate_invalid_testnet_address_begin(self):
-		return self._test_validate_invalid_address('testnet_network', 1)
+	def test_cannot_validate_invalid_testnet_address_begin(self):
+		self._test_cannot_validate_invalid_address('testnet_network', 1)
 
-	def test_validate_invalid_mainnet_address_end(self):
-		return self._test_validate_invalid_address('mainnet_network', -1)
+	def test_cannot_validate_invalid_mainnet_address_end(self):
+		self._test_cannot_validate_invalid_address('mainnet_network', -1)
 
-	def test_validate_invalid_testnet_address_end(self):
-		return self._test_validate_invalid_address('testnet_network', -1)
+	def test_cannot_validate_invalid_testnet_address_end(self):
+		self._test_cannot_validate_invalid_address('testnet_network', -1)
 
-	def _test_validate_valid_address(self, field_name):
+	def test_cannot_validate_invalid_mainnet_address_string_invalid_size(self):
+		self._test_cannot_validate_invalid_address_string('mainnet_network', lambda address_string: f'{address_string}A')
+		self._test_cannot_validate_invalid_address_string('mainnet_network', lambda address_string: address_string[:-1])
+
+	def test_cannot_validate_invalid_testnet_address_string_invalid_size(self):
+		self._test_cannot_validate_invalid_address_string('testnet_network', lambda address_string: f'{address_string}A')
+		self._test_cannot_validate_invalid_address_string('testnet_network', lambda address_string: address_string[:-1])
+
+	def test_cannot_validate_invalid_mainnet_address_string_invalid_char(self):
+		self._test_cannot_validate_invalid_address_string(
+			'mainnet_network',
+			lambda address_string: f'{address_string[0:10]}@{address_string[11:]}')
+
+	def test_cannot_validate_invalid_testnet_address_string_invalid_char(self):
+		self._test_cannot_validate_invalid_address_string(
+			'testnet_network',
+			lambda address_string: f'{address_string[0:10]}@{address_string[11:]}')
+
+	def _test_can_validate_valid_address(self, field_name):
 		# Arrange:
 		test_descriptor = self.get_test_descriptor()
 		network = getattr(test_descriptor, field_name)
@@ -86,8 +104,9 @@ class BasicNetworkTest:
 
 		# Act + Assert:
 		self.assertTrue(network.is_valid_address(address))
+		self.assertTrue(network.is_valid_address_string(str(address)))
 
-	def _test_validate_invalid_address(self, field_name, position):
+	def _test_cannot_validate_invalid_address(self, field_name, position):
 		# Arrange:
 		test_descriptor = self.get_test_descriptor()
 		network = getattr(test_descriptor, field_name)
@@ -96,6 +115,17 @@ class BasicNetworkTest:
 
 		# Act + Assert:
 		self.assertFalse(network.is_valid_address(address))
+		self.assertFalse(network.is_valid_address_string(str(address)))
+
+	def _test_cannot_validate_invalid_address_string(self, field_name, mutator):
+		# Arrange:
+		test_descriptor = self.get_test_descriptor()
+		network = getattr(test_descriptor, field_name)
+		address = network.public_key_to_address(test_descriptor.deterministic_public_key)
+		address_string = mutator(str(address))
+
+		# Act + Assert:
+		self.assertFalse(network.is_valid_address_string(address_string))
 
 	def _assert_network(self, network, expected_name, expected_identifier):
 		self.assertEqual(expected_name, network.name)
