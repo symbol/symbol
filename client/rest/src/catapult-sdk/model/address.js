@@ -22,7 +22,7 @@
 const arrayUtils = require('../utils/arrayUtils');
 const base32 = require('../utils/base32');
 const convert = require('../utils/convert');
-const jsSha3 = require('js-sha3');
+const { sha3_256 } = require('@noble/hashes/sha3');
 const Ripemd160 = require('ripemd160');
 
 const constants = {
@@ -80,7 +80,7 @@ const address = {
 	 */
 	publicKeyToAddress: (publicKey, networkIdentifier) => {
 		// step 1: sha3 hash of the public key
-		const publicKeyHash = jsSha3.sha3_256.arrayBuffer(publicKey);
+		const publicKeyHash = sha3_256(publicKey);
 
 		// step 2: ripemd160 hash of (1)
 		const ripemdHash = new Ripemd160().update(Buffer.from(publicKeyHash)).digest();
@@ -91,7 +91,7 @@ const address = {
 		arrayUtils.copy(decodedAddress, ripemdHash, constants.sizes.ripemd160, 1);
 
 		// step 4: concatenate (3) and the checksum of (3)
-		const hash = jsSha3.sha3_256.arrayBuffer(decodedAddress.subarray(0, constants.sizes.ripemd160 + 1));
+		const hash = sha3_256(decodedAddress.subarray(0, constants.sizes.ripemd160 + 1));
 		arrayUtils.copy(decodedAddress, arrayUtils.uint8View(hash), constants.sizes.checksum, constants.sizes.ripemd160 + 1);
 
 		return decodedAddress;
@@ -103,11 +103,11 @@ const address = {
 	 * @returns {boolean} true if the decoded address is valid, false otherwise.
 	 */
 	isValidAddress: decoded => {
-		const hash = jsSha3.sha3_256.create();
+		const hash = sha3_256.create();
 		const checksumBegin = constants.sizes.addressDecoded - constants.sizes.checksum;
 		hash.update(decoded.subarray(0, checksumBegin));
 		const checksum = new Uint8Array(constants.sizes.checksum);
-		arrayUtils.copy(checksum, arrayUtils.uint8View(hash.arrayBuffer()), constants.sizes.checksum);
+		arrayUtils.copy(checksum, arrayUtils.uint8View(hash.digest()), constants.sizes.checksum);
 		return arrayUtils.deepEqual(checksum, decoded.subarray(checksumBegin));
 	},
 
