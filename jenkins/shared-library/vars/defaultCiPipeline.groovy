@@ -67,6 +67,11 @@ void call(Closure body) {
 		}
 
 		stages {
+			stage('setup environment') {
+				steps {
+					runScript('git submodule update --remote')
+				}
+			}
 			stage('CI pipeline') {
 				agent {
 					dockerfile {
