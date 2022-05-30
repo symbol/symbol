@@ -12,13 +12,13 @@ class NemFacade:
 
 	BIP32_CURVE_NAME = 'ed25519-keccak'
 
-	Address = Address
-	KeyPair = KeyPair
-	Verifier = Verifier
+	Address = Address  # pylint: disable=duplicate-code
+	KeyPair = KeyPair  # pylint: disable=duplicate-code
+	Verifier = Verifier  # pylint: disable=duplicate-code
 
-	def __init__(self, nem_network_name, account_descriptor_repository=None):
+	def __init__(self, network, account_descriptor_repository=None):
 		"""Creates a NEM facade."""
-		self.network = NetworkLocator.find_by_name(Network.NETWORKS, nem_network_name)
+		self.network = NetworkLocator.find_by_name(Network.NETWORKS, network) if isinstance(network, str) else network
 		self.account_descriptor_repository = account_descriptor_repository
 		self.transaction_factory = self._create_nem_transaction_factory()
 

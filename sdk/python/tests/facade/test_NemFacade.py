@@ -4,6 +4,7 @@ from symbolchain.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.Bip32 import Bip32
 from symbolchain.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.facade.NemFacade import NemFacade
+from symbolchain.nem.Network import Network
 
 from ..test.TestUtils import TestUtils
 
@@ -48,7 +49,7 @@ class NemFacadeTest(unittest.TestCase):
 
 	# region constructor
 
-	def test_can_create_around_known_network(self):
+	def test_can_create_around_known_network_by_name(self):
 		# Act:
 		facade = NemFacade('testnet')
 		transaction = facade.transaction_factory.create({
@@ -63,9 +64,27 @@ class NemFacadeTest(unittest.TestCase):
 		self.assertEqual(0x0101, transaction.type_.value)
 		self.assertEqual(2, transaction.version)
 
-	def test_cannot_create_around_unknown_network(self):
+	def test_cannot_create_around_unknown_network_by_name(self):
 		with self.assertRaises(StopIteration):
 			NemFacade('foo')
+
+	def test_can_create_around_unknown_network(self):
+		# Arrange:
+		network = Network('foo', 0x98, None)
+
+		# Act:
+		facade = NemFacade(network)
+		transaction = facade.transaction_factory.create({
+			'type': 'transfer_transaction',
+			'signer_public_key': bytes(PublicKey.SIZE)
+		})
+
+		# Assert:
+		self.assertEqual('foo', facade.network.name)
+		self.assertEqual(0x98, transaction.network.value)
+
+		self.assertEqual(0x0101, transaction.type_.value)
+		self.assertEqual(2, transaction.version)
 
 	def test_can_create_via_repository(self):
 		# Act:

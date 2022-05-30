@@ -3,6 +3,7 @@ const {
 	Hash256, PrivateKey, PublicKey, Signature
 } = require('../../src/CryptoTypes');
 const { SymbolFacade } = require('../../src/facade/SymbolFacade');
+const { Network } = require('../../src/symbol/Network');
 const { expect } = require('chai');
 const crypto = require('crypto');
 
@@ -103,7 +104,7 @@ describe('Symbol Facade', () => {
 
 	// region constructor
 
-	it('can create around known network', () => {
+	it('can create around known network by name', () => {
 		// Act:
 		const facade = new SymbolFacade('testnet');
 		const transaction = facade.transactionFactory.create({
@@ -119,10 +120,29 @@ describe('Symbol Facade', () => {
 		expect(transaction.version).to.equal(1);
 	});
 
-	it('cannot create around unknown network', () => {
+	it('cannot create around unknown network by name', () => {
 		expect(() => {
 			new SymbolFacade('foo'); // eslint-disable-line no-new
 		}).to.throw('no network found with name \'foo\'');
+	});
+
+	it('can create around unknown network', () => {
+		// Arrange:
+		const network = new Network('foo', 0xDE);
+
+		// Act:
+		const facade = new SymbolFacade(network);
+		const transaction = facade.transactionFactory.create({
+			type: 'transfer_transaction',
+			signerPublicKey: new Uint32Array(PublicKey.SIZE)
+		});
+
+		// Assert:
+		expect(facade.network.name).to.equal('foo');
+		expect(facade.network.identifier).to.equal(0xDE);
+
+		expect(transaction.type.value).to.equal(0x4154);
+		expect(transaction.version).to.equal(1);
 	});
 
 	// endregion

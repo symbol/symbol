@@ -19,10 +19,10 @@ class NemFacade {
 
 	/**
 	 * Creates a NEM facade.
-	 * @param {string} nemNetworkName NEM network name.
+	 * @param {string|Network} network NEM network or network name.
 	 */
-	constructor(nemNetworkName) {
-		this.network = NetworkLocator.findByName(Network.NETWORKS, nemNetworkName);
+	constructor(network) {
+		this.network = 'string' === typeof network ? NetworkLocator.findByName(Network.NETWORKS, network) : network;
 		this.transactionFactory = new TransactionFactory(this.network);
 	}
 

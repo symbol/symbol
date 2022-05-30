@@ -4,6 +4,7 @@ from symbolchain.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.Bip32 import Bip32
 from symbolchain.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
 from symbolchain.facade.SymbolFacade import SymbolFacade
+from symbolchain.symbol.Network import Network
 
 from ..test.TestUtils import TestUtils
 
@@ -113,12 +114,12 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	# region constructor
 
-	def test_can_create_around_known_network(self):
+	def test_can_create_around_known_network_by_name(self):
 		# Act:
 		facade = SymbolFacade('testnet')
 		transaction = facade.transaction_factory.create({
 			'type': 'transfer_transaction',
-			'signer_public_key': TestUtils.random_byte_array(PublicKey)
+			'signer_public_key': bytes(PublicKey.SIZE)
 		})
 
 		# Assert:
@@ -128,9 +129,27 @@ class SymbolFacadeTest(unittest.TestCase):
 		self.assertEqual(0x4154, transaction.type_.value)
 		self.assertEqual(1, transaction.version)
 
-	def test_cannot_create_around_unknown_network(self):
+	def test_cannot_create_around_unknown_network_by_name(self):
 		with self.assertRaises(StopIteration):
 			SymbolFacade('foo')
+
+	def test_can_create_around_unknown_network(self):
+		# Arrange:
+		network = Network('foo', 0x98, None)
+
+		# Act:
+		facade = SymbolFacade(network)
+		transaction = facade.transaction_factory.create({
+			'type': 'transfer_transaction',
+			'signer_public_key': bytes(PublicKey.SIZE)
+		})
+
+		# Assert:
+		self.assertEqual('foo', facade.network.name)
+		self.assertEqual(0x98, transaction.network.value)
+
+		self.assertEqual(0x4154, transaction.type_.value)
+		self.assertEqual(1, transaction.version)
 
 	def test_can_create_via_repository(self):
 		# Act:

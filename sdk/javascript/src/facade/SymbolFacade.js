@@ -54,10 +54,10 @@ class SymbolFacade {
 
 	/**
 	 * Creates a Symbol facade.
-	 * @param {string} symbolNetworkName Symbol network name.
+	 * @param {string|Network} network Symbol network or network name.
 	 */
-	constructor(symbolNetworkName) {
-		this.network = NetworkLocator.findByName(Network.NETWORKS, symbolNetworkName);
+	constructor(network) {
+		this.network = 'string' === typeof network ? NetworkLocator.findByName(Network.NETWORKS, network) : network;
 		this.transactionFactory = new TransactionFactory(this.network);
 	}
 
