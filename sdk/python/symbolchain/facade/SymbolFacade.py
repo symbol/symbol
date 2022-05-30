@@ -27,7 +27,6 @@ AGGREGATE_HASHED_SIZE = sum(field[1] for field in [
 class SymbolFacade:
 	"""Facade used to interact with Symbol blockchain."""
 
-	BIP32_COIN_ID = 4343
 	BIP32_CURVE_NAME = 'ed25519'
 
 	Address = Address
@@ -86,6 +85,10 @@ class SymbolFacade:
 			hash_builder.update(Hash256(sha3.sha3_256(embedded_transaction.serialize()).digest()))
 
 		return hash_builder.final()
+
+	def bip32_path(self, account_id):
+		"""Creates a network compatible BIP32 path for the specified account."""
+		return [44, 4343 if 'mainnet' == self.network.name else 1, account_id, 0, 0]
 
 	@staticmethod
 	def bip32_node_to_key_pair(bip32_node):

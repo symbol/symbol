@@ -19,7 +19,6 @@ class NemFacadeTest(unittest.TestCase):
 	# region constants
 
 	def test_bip32_constants_are_correct(self):
-		self.assertEqual(43, NemFacade.BIP32_COIN_ID)
 		self.assertEqual('ed25519-keccak', NemFacade.BIP32_CURVE_NAME)
 
 	def test_key_pair_is_correct(self):
@@ -159,6 +158,30 @@ class NemFacadeTest(unittest.TestCase):
 
 	# endregion
 
+	# region bip32_path
+
+	def test_can_construct_proper_bip32_mainnet_path(self):
+		# Arrange:
+		facade = NemFacade('mainnet')
+
+		# Act:
+		path = facade.bip32_path(2)
+
+		# Act + Assert:
+		self.assertEqual([44, 43, 2, 0, 0], path)
+
+	def test_can_construct_proper_bip32_testnet_path(self):
+		# Arrange:
+		facade = NemFacade('testnet')
+
+		# Act:
+		path = facade.bip32_path(2)
+
+		# Act + Assert:
+		self.assertEqual([44, 1, 2, 0, 0], path)
+
+	# endregion
+
 	# region bip32_node_to_key_pair
 
 	def _assert_bip32_child_public_keys(self, passphrase, expected_child_public_keys):
@@ -173,7 +196,7 @@ class NemFacadeTest(unittest.TestCase):
 
 		child_public_keys = []
 		for i in range(0, len(expected_child_public_keys)):
-			child_node = root_node.derive_path([44, NemFacade.BIP32_COIN_ID, i, 0, 0])
+			child_node = root_node.derive_path(NemFacade('mainnet').bip32_path(i))
 			child_key_pair = NemFacade.bip32_node_to_key_pair(child_node)
 			child_public_keys.append(child_key_pair.public_key)
 

@@ -11,7 +11,7 @@ from symbolchain.facade.SymbolFacade import SymbolFacade
 
 
 def derive_key(root_node, facade, change, index):
-	path = [44, facade.BIP32_COIN_ID, 0, change, index]
+	path = [*facade.bip32_path(0)[:-2], change, index]
 
 	child_node = root_node.derive_path(path)
 	child_key_pair = facade.bip32_node_to_key_pair(child_node)

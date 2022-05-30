@@ -10,7 +10,9 @@ const symbolSdk = require('../src/index');
 
 (() => {
 	const deriveKey = (rootNode, facade, change, index) => {
-		const path = [44, facade.constructor.BIP32_COIN_ID, 0, change, index];
+		const path = facade.bip32Path(0);
+		path[path.length - 2] = change;
+		path[path.length - 1] = index;
 
 		const childNode = rootNode.derivePath(path);
 		const childKeyPair = facade.constructor.bip32NodeToKeyPair(childNode);

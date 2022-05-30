@@ -10,7 +10,6 @@ from ..Network import NetworkLocator
 class NemFacade:
 	"""Facade used to interact with NEM blockchain."""
 
-	BIP32_COIN_ID = 43
 	BIP32_CURVE_NAME = 'ed25519-keccak'
 
 	Address = Address
@@ -56,6 +55,10 @@ class NemFacade:
 		"""Verifies a NEM transaction."""
 		non_verifiable_transaction = TransactionFactory.to_non_verifiable_transaction(transaction)
 		return Verifier(transaction.signer_public_key).verify(non_verifiable_transaction.serialize(), signature)
+
+	def bip32_path(self, account_id):
+		"""Creates a network compatible BIP32 path for the specified account."""
+		return [44, 43 if 'mainnet' == self.network.name else 1, account_id, 0, 0]
 
 	@staticmethod
 	def bip32_node_to_key_pair(bip32_node):

@@ -71,7 +71,6 @@ describe('Symbol Facade', () => {
 	// region constants
 
 	it('has correct BIP32 constants', () => {
-		expect(SymbolFacade.BIP32_COIN_ID).to.equal(4343);
 		expect(SymbolFacade.BIP32_CURVE_NAME).to.equal('ed25519');
 	});
 
@@ -241,6 +240,32 @@ describe('Symbol Facade', () => {
 
 	// endregion
 
+	// region bip32Path
+
+	it('can construct proper BIP32 mainnet path', () => {
+		// Arrange:
+		const facade = new SymbolFacade('mainnet');
+
+		// Act:
+		const path = facade.bip32Path(2);
+
+		// Act + Assert:
+		expect(path).to.deep.equal([44, 4343, 2, 0, 0]);
+	});
+
+	it('can construct proper BIP32 testnet path', () => {
+		// Arrange:
+		const facade = new SymbolFacade('testnet');
+
+		// Act:
+		const path = facade.bip32Path(2);
+
+		// Act + Assert:
+		expect(path).to.deep.equal([44, 1, 2, 0, 0]);
+	});
+
+	// endregion
+
 	// region bip32NodeToKeyPair
 
 	const assertBip32ChildPublicKeys = (passphrase, expectedChildPublicKeys) => {
@@ -255,7 +280,7 @@ describe('Symbol Facade', () => {
 
 		const childPublicKeys = [];
 		for (let i = 0; i < expectedChildPublicKeys.length; ++i) {
-			const childNode = rootNode.derivePath([44, SymbolFacade.BIP32_COIN_ID, i, 0, 0]);
+			const childNode = rootNode.derivePath(new SymbolFacade('mainnet').bip32Path(i));
 			const childKeyPair = SymbolFacade.bip32NodeToKeyPair(childNode);
 			childPublicKeys.push(childKeyPair.publicKey);
 		}

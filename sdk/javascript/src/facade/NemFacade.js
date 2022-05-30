@@ -9,8 +9,6 @@ const { keccak_256 } = require('@noble/hashes/sha3');
  * Facade used to interact with NEM blockchain.
  */
 class NemFacade {
-	static BIP32_COIN_ID = 43;
-
 	static BIP32_CURVE_NAME = 'ed25519-keccak';
 
 	static Address = Address;
@@ -60,6 +58,16 @@ class NemFacade {
 	verifyTransaction(transaction, signature) { // eslint-disable-line class-methods-use-this
 		const nonVerifiableTransaction = TransactionFactory.toNonVerifiableTransaction(transaction);
 		return new Verifier(transaction.signerPublicKey).verify(nonVerifiableTransaction.serialize(), signature);
+	}
+
+	/**
+	 * Creates a network compatible BIP32 path for the specified account.
+	 *
+	 * @param {int} accountId Id of the account for which to generate a BIP32 path.
+	 * @returns {array<int>} BIP32 path for the specified account.
+	 */
+	bip32Path(accountId) {
+		return [44, 'mainnet' === this.network.name ? 43 : 1, accountId, 0, 0];
 	}
 
 	/**

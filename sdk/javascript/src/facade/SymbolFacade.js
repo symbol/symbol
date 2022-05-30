@@ -44,8 +44,6 @@ const transactionDataBuffer = transactionBuffer => {
  * Facade used to interact with Symbol blockchain.
  */
 class SymbolFacade {
-	static BIP32_COIN_ID = 4343;
-
 	static BIP32_CURVE_NAME = 'ed25519';
 
 	static Address = Address;
@@ -116,6 +114,16 @@ class SymbolFacade {
 		});
 
 		return hashBuilder.final();
+	}
+
+	/**
+	 * Creates a network compatible BIP32 path for the specified account.
+	 *
+	 * @param {int} accountId Id of the account for which to generate a BIP32 path.
+	 * @returns {array<int>} BIP32 path for the specified account.
+	 */
+	bip32Path(accountId) {
+		return [44, 'mainnet' === this.network.name ? 4343 : 1, accountId, 0, 0];
 	}
 
 	/**
