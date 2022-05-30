@@ -61,6 +61,7 @@ describe('all routes', () => {
 			'/network/fees/rental',
 			'/node/health',
 			'/node/info',
+			'/node/metadata',
 			'/node/peers',
 			'/node/server',
 			'/node/storage',

@@ -94,5 +94,9 @@
     "deploymentTool": "",
     "deploymentToolVersion": "",
     "lastUpdatedDate": ""
+  },
+
+  "nodeMetadata": {
+    "_info": "replace the body of this object with custom fields and objects to personalize your node"
   }
 }

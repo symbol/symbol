@@ -455,5 +455,35 @@ describe('node routes', () => {
 					}));
 			});
 		});
+
+		describe('node metadata', () => {
+			it('returns user provided JSON object for personalization', () => {
+				// Arrange:
+				const endpointUnderTest = '/node/metadata';
+				const mockServer = new MockServer();
+				nodeRoutes.register(mockServer.server, {}, {
+					config: {
+						apiNode: { timeout: 100 },
+						nodeMetadata: {
+							foo: 1234,
+							bar: 'lorem ipsum',
+							baz: { abc: 41, xyz: 82 }
+						}
+					}
+				});
+
+				// Act:
+				const route = mockServer.getRoute(endpointUnderTest).get();
+				mockServer.callRoute(route, {});
+
+				// Assert:
+				expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+					foo: 1234,
+					bar: 'lorem ipsum',
+					baz: { abc: 41, xyz: 82 }
+				});
+				expect(mockServer.next.calledOnce).to.equal(true);
+			});
+		});
 	});
 });

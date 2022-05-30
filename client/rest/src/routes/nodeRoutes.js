@@ -191,5 +191,10 @@ module.exports = {
 					next();
 				});
 		});
+
+		server.get('/node/metadata', (req, res, next) => {
+			res.send(services.config.nodeMetadata);
+			next();
+		});
 	}
 };
