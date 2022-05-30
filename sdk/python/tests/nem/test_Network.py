@@ -2,10 +2,23 @@ import unittest
 from binascii import unhexlify
 
 from symbolchain.CryptoTypes import PublicKey
-from symbolchain.nem.Network import Address, Network
+from symbolchain.nem.Network import Address, Network, NetworkTimestamp
 
 from ..test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
 from ..test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
+
+
+class NetworkTimestampTest(unittest.TestCase):
+	def test_can_add_seconds(self):
+		# Arrange:
+		timestamp = NetworkTimestamp(100)
+
+		# Act:
+		new_timestamp = timestamp.add_seconds(50)
+
+		# Assert:
+		self.assertEqual(100, timestamp.timestamp)
+		self.assertEqual(100 + 50, new_timestamp.timestamp)
 
 
 class AddressTest(BasicAddressTest, unittest.TestCase):
@@ -29,4 +42,9 @@ class NetworkTest(BasicNetworkTest, unittest.TestCase):
 		self.assertEqual(['mainnet', 'testnet'], [network.name for network in Network.NETWORKS])
 
 		self._assert_network(Network.MAINNET, 'mainnet', 0x68)
+		self.assertEqual('seconds', Network.MAINNET.datetime_converter.time_units)
+		self.assertEqual('2015-03-29 00:06:25+00:00', str(Network.MAINNET.datetime_converter.epoch))
+
 		self._assert_network(Network.TESTNET, 'testnet', 0x98)
+		self.assertEqual('seconds', Network.TESTNET.datetime_converter.time_units)
+		self.assertEqual('2015-03-29 00:06:25+00:00', str(Network.TESTNET.datetime_converter.epoch))

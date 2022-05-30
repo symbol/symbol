@@ -7,13 +7,11 @@ const NemFacade = require('./facade/NemFacade');
 const SymbolFacade = require('./facade/SymbolFacade');
 const NemKeyPair = require('./nem/KeyPair');
 const NemNetwork = require('./nem/Network');
-const NemNetworkTimestamp = require('./nem/NetworkTimestamp');
 const NemTransactionFactory = require('./nem/TransactionFactory');
 const NemModels = require('./nem/models');
 const SymbolKeyPair = require('./symbol/KeyPair');
 const SymbolMerkleHashBuilder = require('./symbol/MerkleHashBuilder');
 const SymbolNetwork = require('./symbol/Network');
-const SymbolNetworkTimestamp = require('./symbol/NetworkTimestamp');
 const SymbolTransactionFactory = require('./symbol/TransactionFactory');
 const SymbolIdGenerator = require('./symbol/idGenerator');
 const SymbolModels = require('./symbol/models');
@@ -35,7 +33,6 @@ module.exports = {
 		...NemModels, // must be before Network to promote Address from Network
 		...NemKeyPair,
 		...NemNetwork,
-		...NemNetworkTimestamp,
 		...NemTransactionFactory
 	},
 
@@ -44,7 +41,6 @@ module.exports = {
 		...SymbolKeyPair,
 		...SymbolMerkleHashBuilder,
 		...SymbolNetwork,
-		...SymbolNetworkTimestamp,
 		...SymbolTransactionFactory,
 		...SymbolIdGenerator
 	},

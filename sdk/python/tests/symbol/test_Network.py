@@ -2,13 +2,37 @@ import unittest
 from binascii import unhexlify
 
 from symbolchain.CryptoTypes import Hash256, PublicKey
-from symbolchain.symbol.Network import Address, Network
+from symbolchain.symbol.Network import Address, Network, NetworkTimestamp
 
 from ..test.BasicAddressTest import AddressTestDescriptor, BasicAddressTest
 from ..test.BasicNetworkTest import BasicNetworkTest, NetworkTestDescriptor
 
 MAINNET_GENERATION_HASH_SEED = Hash256('57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6')
 TESTNET_GENERATION_HASH_SEED = Hash256('7FCCD304802016BEBBCD342A332F91FF1F3BB5E902988B352697BE245F48E836')
+
+
+class NetworkTimestampTest(unittest.TestCase):
+	def test_can_add_milliseconds(self):
+		# Arrange:
+		timestamp = NetworkTimestamp(100)
+
+		# Act:
+		new_timestamp = timestamp.add_milliseconds(50)
+
+		# Assert:
+		self.assertEqual(100, timestamp.timestamp)
+		self.assertEqual(100 + 50, new_timestamp.timestamp)
+
+	def test_can_add_seconds(self):
+		# Arrange:
+		timestamp = NetworkTimestamp(100)
+
+		# Act:
+		new_timestamp = timestamp.add_seconds(50)
+
+		# Assert:
+		self.assertEqual(100, timestamp.timestamp)
+		self.assertEqual(100 + 50 * 1000, new_timestamp.timestamp)
 
 
 class AddressTest(BasicAddressTest, unittest.TestCase):
@@ -33,6 +57,10 @@ class NetworkTest(BasicNetworkTest, unittest.TestCase):
 
 		self._assert_network(Network.MAINNET, 'mainnet', 0x68)
 		self.assertEqual(MAINNET_GENERATION_HASH_SEED, Network.MAINNET.generation_hash_seed)
+		self.assertEqual('milliseconds', Network.MAINNET.datetime_converter.time_units)
+		self.assertEqual('2021-03-16 00:06:25+00:00', str(Network.MAINNET.datetime_converter.epoch))
 
 		self._assert_network(Network.TESTNET, 'testnet', 0x98)
 		self.assertEqual(TESTNET_GENERATION_HASH_SEED, Network.TESTNET.generation_hash_seed)
+		self.assertEqual('milliseconds', Network.TESTNET.datetime_converter.time_units)
+		self.assertEqual('2021-11-25 14:00:47+00:00', str(Network.TESTNET.datetime_converter.epoch))

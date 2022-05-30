@@ -1,10 +1,24 @@
 import base64
+import datetime
 
 import sha3
 
 from ..ByteArray import ByteArray
 from ..CryptoTypes import Hash256
 from ..Network import Network as BasicNetwork
+from ..NetworkTimestamp import NetworkTimestamp as BasicNetworkTimestamp
+from ..NetworkTimestamp import NetworkTimestampDatetimeConverter
+
+
+class NetworkTimestamp(BasicNetworkTimestamp):
+	"""Represents a symbol network timestamp with millisecond resolution."""
+
+	def add_milliseconds(self, count):
+		"""Adds a specified number of milliseconds to this timestamp."""
+		return NetworkTimestamp(self.timestamp + count)
+
+	def add_seconds(self, count):
+		return self.add_milliseconds(1000 * count)
 
 
 class Address(ByteArray):
@@ -30,9 +44,9 @@ class Address(ByteArray):
 class Network(BasicNetwork):
 	"""Represents a Symbol network."""
 
-	def __init__(self, name, identifier, generation_hash_seed=None):
-		"""Creates a new network with the specified name, identifier byte and generation hash seed."""
-		super().__init__(name, identifier, Address)
+	def __init__(self, name, identifier, epoch_time, generation_hash_seed=None):
+		"""Creates a new network with the specified properties."""
+		super().__init__(name, identifier, NetworkTimestampDatetimeConverter(epoch_time, 'milliseconds'), Address, NetworkTimestamp)
 		self.generation_hash_seed = generation_hash_seed
 
 	def address_hasher(self):
@@ -42,6 +56,14 @@ class Network(BasicNetwork):
 		return Address(address_without_checksum + checksum[0:3])
 
 
-Network.MAINNET = Network('mainnet', 0x68, Hash256('57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6'))
-Network.TESTNET = Network('testnet', 0x98, Hash256('7FCCD304802016BEBBCD342A332F91FF1F3BB5E902988B352697BE245F48E836'))
+Network.MAINNET = Network(
+	'mainnet',
+	0x68,
+	datetime.datetime(2021, 3, 16, 0, 6, 25, tzinfo=datetime.timezone.utc),
+	Hash256('57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6'))
+Network.TESTNET = Network(
+	'testnet',
+	0x98,
+	datetime.datetime(2021, 11, 25, 14, 0, 47, tzinfo=datetime.timezone.utc),
+	Hash256('7FCCD304802016BEBBCD342A332F91FF1F3BB5E902988B352697BE245F48E836'))
 Network.NETWORKS = [Network.MAINNET, Network.TESTNET]

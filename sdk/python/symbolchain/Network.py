@@ -7,11 +7,16 @@ BASE32_RFC4648_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
 class Network:
 	"""Represents a network."""
 
-	def __init__(self, name, identifier, address_class):
-		"""Creates a new network with the specified name and identifier byte."""
+	def __init__(self, name, identifier, datetime_converter, address_class, network_timestamp_class):
+		# pylint: disable=too-many-arguments
+
+		"""Creates a new network with the specified properties."""
 		self.name = name
 		self.identifier = identifier
+		self.datetime_converter = datetime_converter
+
 		self.address_class = address_class
+		self.network_timestamp_class = network_timestamp_class
 
 	def public_key_to_address(self, public_key):
 		"""Converts a public key to an address."""
@@ -52,6 +57,14 @@ class Network:
 		checksum_from_address = address.bytes[1 + 20:]
 		calculated_checksum = hash_builder.digest()[0:len(checksum_from_address)]
 		return checksum_from_address == calculated_checksum
+
+	def to_datetime(self, reference_network_timestamp):
+		"""Converts a network timestamp to a datetime."""
+		return self.datetime_converter.to_datetime(reference_network_timestamp.timestamp)
+
+	def from_datetime(self, reference_datetime):
+		"""Converts a datetime to a network timestamp."""
+		return self.network_timestamp_class(self.datetime_converter.to_difference(reference_datetime))
 
 	@abstractmethod
 	def address_hasher(self):

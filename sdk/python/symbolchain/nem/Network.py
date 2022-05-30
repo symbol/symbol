@@ -1,9 +1,19 @@
 import base64
+import datetime
 
 import sha3
 
 from ..ByteArray import ByteArray
 from ..Network import Network as BasicNetwork
+from ..NetworkTimestamp import NetworkTimestamp as BasicNetworkTimestamp
+from ..NetworkTimestamp import NetworkTimestampDatetimeConverter
+
+
+class NetworkTimestamp(BasicNetworkTimestamp):
+	"""Represents a nem network timestamp with second resolution."""
+
+	def add_seconds(self, count):
+		return NetworkTimestamp(self.timestamp + count)
 
 
 class Address(ByteArray):
@@ -29,9 +39,9 @@ class Address(ByteArray):
 class Network(BasicNetwork):
 	"""Represents a nem network."""
 
-	def __init__(self, name, identifier):
-		"""Creates a new network with the specified name and identifier byte."""
-		super().__init__(name, identifier, Address)
+	def __init__(self, name, identifier, epoch_time):
+		"""Creates a new network with the specified properties."""
+		super().__init__(name, identifier, NetworkTimestampDatetimeConverter(epoch_time, 'seconds'), Address, NetworkTimestamp)
 
 	def address_hasher(self):
 		return sha3.keccak_256()
@@ -40,6 +50,6 @@ class Network(BasicNetwork):
 		return Address(address_without_checksum + checksum)
 
 
-Network.MAINNET = Network('mainnet', 0x68)
-Network.TESTNET = Network('testnet', 0x98)
+Network.MAINNET = Network('mainnet', 0x68, datetime.datetime(2015, 3, 29, 0, 6, 25, tzinfo=datetime.timezone.utc))
+Network.TESTNET = Network('testnet', 0x98, datetime.datetime(2015, 3, 29, 0, 6, 25, tzinfo=datetime.timezone.utc))
 Network.NETWORKS = [Network.MAINNET, Network.TESTNET]

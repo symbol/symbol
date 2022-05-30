@@ -10,16 +10,21 @@ class Network {
 	 * Creates a new network with the specified name and identifier byte.
 	 * @param {string} name Network name.
 	 * @param {number} identifier Network identifier byte.
+	 * @param {NetworkTimestampDatetimeConverter} datetimeConverter Network timestamp datetime converter associated with this network.
 	 * @param {function} addressHasher Gets the primary hasher to use in the public key to address conversion.
 	 * @param {function} createAddress Creates an encoded address from an address without checksum and checksum bytes.
 	 * @param {class} AddressClass Address class associated with this network.
+	 * @param {class} NetworkTimestampClass Network timestamp class associated with this network.
 	 */
-	constructor(name, identifier, addressHasher, createAddress, AddressClass) {
+	constructor(name, identifier, datetimeConverter, addressHasher, createAddress, AddressClass, NetworkTimestampClass) {
 		this.name = name;
 		this.identifier = identifier;
+		this.datetimeConverter = datetimeConverter;
 		this.addressHasher = addressHasher;
 		this.createAddress = createAddress;
+
 		this.AddressClass = AddressClass;
+		this.NetworkTimestampClass = NetworkTimestampClass;
 	}
 
 	/**
@@ -81,6 +86,24 @@ class Network {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Converts a network timestamp to a datetime.
+	 * @param {NetworkTimestamp} referenceNetworkTimestamp Reference network timestamp to convert.
+	 * @returns {Date} Datetime representation of the reference network timestamp.
+	 */
+	toDatetime(referenceNetworkTimestamp) {
+		return this.datetimeConverter.toDatetime(referenceNetworkTimestamp.timestamp);
+	}
+
+	/**
+	 * Converts a datetime to a network timestamp.
+	 * @param {Date} referenceDatetime Reference datetime to convert.
+	 * @returns {NetworkTimestamp} Network timestamp representation of the reference datetime.
+	 */
+	fromDatetime(referenceDatetime) {
+		return new this.NetworkTimestampClass(this.datetimeConverter.toDifference(referenceDatetime));
 	}
 
 	/**

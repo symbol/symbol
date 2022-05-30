@@ -1,7 +1,32 @@
 const { Network, NetworkLocator } = require('../src/Network');
+const { NetworkTimestamp, NetworkTimestampDatetimeConverter } = require('../src/NetworkTimestamp');
 const { expect } = require('chai');
 
 describe('Network', () => {
+	it('can convert network time to datetime', () => {
+		// Arrange:
+		const converter = new NetworkTimestampDatetimeConverter(new Date(Date.UTC(2022, 2, 16, 0, 6, 25)), 'minutes');
+		const network = new Network('foo', 0x55, converter, undefined, undefined, undefined, NetworkTimestamp);
+
+		// Act:
+		const datetimeTimestamp = network.toDatetime(new NetworkTimestamp(60));
+
+		// Assert:
+		expect(datetimeTimestamp.getTime()).to.equal(new Date(Date.UTC(2022, 2, 16, 1, 6, 25)).getTime());
+	});
+
+	it('can convert datetime to network time', () => {
+		// Arrange:
+		const converter = new NetworkTimestampDatetimeConverter(new Date(Date.UTC(2022, 2, 16, 0, 6, 25)), 'minutes');
+		const network = new Network('foo', 0x55, converter, undefined, undefined, undefined, NetworkTimestamp);
+
+		// Act:
+		const networkTimestamp = network.fromDatetime(new Date(Date.UTC(2022, 2, 16, 1, 6, 25)));
+
+		// Assert:
+		expect(networkTimestamp.timestamp).to.equal(60n);
+	});
+
 	it('supports toString', () => {
 		// Arrange:
 		const network = new Network('foo', 0x55);

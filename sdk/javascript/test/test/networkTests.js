@@ -1,6 +1,31 @@
+const { NetworkTimestamp } = require('../../src/NetworkTimestamp');
 const { expect } = require('chai');
 
 const runBasicNetworkTests = testDescriptor => {
+	const getTimeUnits = value => value * testDescriptor.timeUnitMultiplier;
+
+	// region publicKeyToAddress
+
+	it('can convert mainnet public key to address', () => {
+		// Act:
+		const address = testDescriptor.mainnetNetwork.publicKeyToAddress(testDescriptor.deterministicPublicKey);
+
+		// Assert:
+		expect(address).to.deep.equal(testDescriptor.expectedMainnetAddress);
+	});
+
+	it('can convert testnet public key to address', () => {
+		// Act:
+		const address = testDescriptor.testnetNetwork.publicKeyToAddress(testDescriptor.deterministicPublicKey);
+
+		// Assert:
+		expect(address).to.deep.equal(testDescriptor.expectedTestnetAddress);
+	});
+
+	// endregion
+
+	// region isValidAddress[String]
+
 	const canValidateValidateAddress = network => {
 		// Arrange:
 		const address = network.publicKeyToAddress(testDescriptor.deterministicPublicKey);
@@ -70,6 +95,66 @@ const runBasicNetworkTests = testDescriptor => {
 
 	addNetworkTests(testDescriptor.mainnetNetwork, 'mainnet');
 	addNetworkTests(testDescriptor.testnetNetwork, 'testnet');
+
+	// endregion
+
+	// region toDatetime
+
+	it('can convert epochal timestamp to datetime', () => {
+		// Arrange:
+		const network = testDescriptor.mainnetNetwork;
+		const { epoch } = network.datetimeConverter;
+
+		// Act:
+		const datetimeTimestamp = network.toDatetime(new NetworkTimestamp(0));
+
+		// Assert:
+		expect(datetimeTimestamp.getTime()).to.equal(epoch.getTime());
+	});
+
+	it('can convert non epochal timestamp to datetime', () => {
+		// Arrange:
+		const network = testDescriptor.mainnetNetwork;
+		const { epoch } = network.datetimeConverter;
+
+		// Act:
+		const datetimeTimestamp = network.toDatetime(new NetworkTimestamp(123));
+
+		// Assert:
+		expect(datetimeTimestamp.getTime()).to.equal(epoch.getTime() + getTimeUnits(123));
+	});
+
+	// endregion
+
+	// region fromDatetime
+
+	it('can convert datetime to epochal timestamp', () => {
+		// Arrange:
+		const network = testDescriptor.mainnetNetwork;
+		const { epoch } = network.datetimeConverter;
+
+		// Act:
+		const networkTimestamp = network.fromDatetime(epoch);
+
+		// Assert:
+		expect(networkTimestamp.isEpochal).to.equal(true);
+		expect(networkTimestamp.timestamp).to.equal(0n);
+	});
+
+	it('can convert datetime to non epochal timestamp', () => {
+		// Arrange:
+		const network = testDescriptor.mainnetNetwork;
+		const { epoch } = network.datetimeConverter;
+
+		// Act:
+		const networkTimestamp = network.fromDatetime(new Date(epoch.getTime() + getTimeUnits(123)));
+
+		// Assert:
+		expect(networkTimestamp.isEpochal).to.equal(false);
+		expect(networkTimestamp.timestamp).to.equal(123n);
+	});
+
+	// endregion
 };
 
 module.exports = { runBasicNetworkTests };

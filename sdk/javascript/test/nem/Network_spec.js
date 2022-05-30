@@ -1,9 +1,28 @@
 const { PublicKey } = require('../../src/CryptoTypes');
-const { Address, Network } = require('../../src/nem/Network');
+const { Address, Network, NetworkTimestamp } = require('../../src/nem/Network');
 const { hexToUint8 } = require('../../src/utils/converter');
 const { runBasicAddressTests } = require('../test/addressTests');
 const { runBasicNetworkTests } = require('../test/networkTests');
 const { expect } = require('chai');
+
+describe('NetworkTimestamp (NEM)', () => {
+	const runTestCases = (wrapInt, postfix) => {
+		it(`can add seconds (${postfix})`, () => {
+			// Arrange:
+			const timestamp = new NetworkTimestamp(wrapInt(100));
+
+			// Act:
+			const newTimestamp = timestamp.addSeconds(wrapInt(50));
+
+			// Assert:
+			expect(timestamp.timestamp).to.equal(100n);
+			expect(newTimestamp.timestamp).to.equal(100n + 50n);
+		});
+	};
+
+	runTestCases(n => n, 'Number');
+	runTestCases(n => BigInt(n), 'BigInt');
+});
 
 describe('Address (NEM)', () => {
 	runBasicAddressTests({
@@ -20,7 +39,8 @@ describe('Network (NEM)', () => {
 		expectedMainnetAddress: new Address('NCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNJABUMH'),
 		mainnetNetwork: Network.MAINNET,
 		expectedTestnetAddress: new Address('TCFGSLITSWMRROU2GO7FPMIUUDELUPSZUNUEZF33'),
-		testnetNetwork: Network.TESTNET
+		testnetNetwork: Network.TESTNET,
+		timeUnitMultiplier: 1000
 	});
 
 	it('registers correct predefined networks', () => {
@@ -29,8 +49,12 @@ describe('Network (NEM)', () => {
 
 		expect(Network.MAINNET.name).to.equal('mainnet');
 		expect(Network.MAINNET.identifier).to.equal(0x68);
+		expect(Network.MAINNET.datetimeConverter.epoch.toUTCString()).to.equal('Sun, 29 Mar 2015 00:06:25 GMT');
+		expect(Network.MAINNET.datetimeConverter.timeUnits).to.equal(1000);
 
 		expect(Network.TESTNET.name).to.equal('testnet');
 		expect(Network.TESTNET.identifier).to.equal(0x98);
+		expect(Network.TESTNET.datetimeConverter.epoch.toUTCString()).to.equal('Sun, 29 Mar 2015 00:06:25 GMT');
+		expect(Network.TESTNET.datetimeConverter.timeUnits).to.equal(1000);
 	});
 });

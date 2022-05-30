@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## next
+
+### Changed
+ - NetworkTimestamp moved into Network for both nem and symbol submodules
+ - to_datetime and from_datetime promoted from NetworkTimestamp to Network
+
 ## [3.0.3] - 14-Mar-2002
 
 ### Changed

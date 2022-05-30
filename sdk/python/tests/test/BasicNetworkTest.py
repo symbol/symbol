@@ -1,4 +1,7 @@
+import datetime
 from abc import abstractmethod
+
+from symbolchain.NetworkTimestamp import NetworkTimestamp
 
 
 class NetworkTestDescriptor:
@@ -40,6 +43,8 @@ def mutate_byte(buffer, position):
 class BasicNetworkTest:
 	# pylint: disable=no-member
 
+	# region public_key_to_address
+
 	def test_can_convert_mainnet_public_key_to_address(self):
 		# Arrange:
 		test_descriptor = self.get_test_descriptor()
@@ -59,6 +64,10 @@ class BasicNetworkTest:
 
 		# Assert:
 		self.assertEqual(test_descriptor.expected_testnet_address, address)
+
+	# endregion
+
+	# region is_valid_address[_string]
 
 	def test_can_validate_valid_mainnet_address(self):
 		self._test_can_validate_valid_address('mainnet_network')
@@ -127,9 +136,73 @@ class BasicNetworkTest:
 		# Act + Assert:
 		self.assertFalse(network.is_valid_address_string(address_string))
 
+	# endregion
+
+	# region to_datetime
+
+	def test_can_convert_epochal_timestamp_to_datetime(self):
+		# Arrange:
+		test_descriptor = self.get_test_descriptor()
+		network = test_descriptor.mainnet_network
+		epoch = network.datetime_converter.epoch
+
+		# Act:
+		datetime_timestamp = network.to_datetime(NetworkTimestamp(0))
+
+		# Assert:
+		self.assertEqual(epoch, datetime_timestamp)
+
+	def test_can_convert_non_epochal_timestamp_to_datetime(self):
+		# Arrange:
+		test_descriptor = self.get_test_descriptor()
+		network = test_descriptor.mainnet_network
+		epoch = network.datetime_converter.epoch
+
+		# Act:
+		datetime_timestamp = network.to_datetime(NetworkTimestamp(123))
+
+		# Assert:
+		self.assertEqual(epoch + self._get_time_delta(123), datetime_timestamp)
+
+	# endregion
+
+	# region from_datetime
+
+	def test_can_convert_datetime_to_epochal_timestamp(self):
+		# Arrange:
+		test_descriptor = self.get_test_descriptor()
+		network = test_descriptor.mainnet_network
+		epoch = network.datetime_converter.epoch
+
+		# Act:
+		network_timestamp = network.from_datetime(epoch)
+
+		# Assert:
+		self.assertTrue(network_timestamp.is_epochal)
+		self.assertEqual(0, network_timestamp.timestamp)
+
+	def test_can_convert_datetime_to_non_epochal_timestamp(self):
+		# Arrange:
+		test_descriptor = self.get_test_descriptor()
+		network = test_descriptor.mainnet_network
+		epoch = network.datetime_converter.epoch
+
+		# Act:
+		network_timestamp = network.from_datetime(epoch + self._get_time_delta(123))
+
+		# Assert:
+		self.assertFalse(network_timestamp.is_epochal)
+		self.assertEqual(123, network_timestamp.timestamp)
+
+	# endregion
+
 	def _assert_network(self, network, expected_name, expected_identifier):
 		self.assertEqual(expected_name, network.name)
 		self.assertEqual(expected_identifier, network.identifier)
+
+	def _get_time_delta(self, count):
+		time_units = self.get_test_descriptor().mainnet_network.datetime_converter.time_units
+		return datetime.timedelta(**{time_units: count})
 
 	@abstractmethod
 	def get_test_descriptor(self):
