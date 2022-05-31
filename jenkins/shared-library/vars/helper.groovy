@@ -19,7 +19,8 @@ void runInitializeScriptIfPresent() {
 	String initFile = 'init.sh'
 	if (fileExists(initFile)) {
 		logger.logInfo('Running initialize script')
-		sh "bash ${initFile}"
+		runScript("bash ${initFile}")
+		runScript('git submodule update --remote')
 	}
 }
 
