@@ -26,8 +26,8 @@ const bootstrapper = require('../../src/server/bootstrapper');
 const errors = require('../../src/server/errors');
 const formatters = require('../../src/server/formatters');
 const test = require('../testUtils');
-const { expect } = require('chai');
-const hippie = require('hippie');
+const axios = require('axios');
+const { AssertionError, expect } = require('chai');
 const restify = require('restify');
 const sinon = require('sinon');
 const winston = require('winston');
@@ -111,6 +111,8 @@ const addRestRoutes = server => {
 
 // endregion
 
+// region factories
+
 const servers = [];
 
 const createFormatters = options => formatters.create({
@@ -152,6 +154,78 @@ const createServer = options => {
 
 const createWebSocketServer = () => createServer({ protocol: 'HTTP', formatterName: 'ws' });
 
+// endregion
+
+// region makeHippie
+
+const makeHippie = (server, options = {}) => {
+	const serverAddress = server.listen(options.port || 0).address();
+
+	const requestOptions = {
+		maxRedirects: 0,
+		headers: {
+			'User-Agent': 'hippie',
+			'Content-Type': 'application/json; charset=utf-8',
+			Accept: 'application/json'
+		}
+	};
+
+	const expectations = { status: 200, headers: {} };
+	const hippie = {
+		end: handler => {
+			const wrappedHandler = res => {
+				// check expectations
+				expect(res.status).to.equal(expectations.status);
+
+				Object.keys(expectations.headers).forEach(key => {
+					expect(res.headers[key]).to.equal(expectations.headers[key]);
+				});
+
+				// call user callback
+				handler(res.headers, res.data);
+			};
+
+			return axios(requestOptions)
+				.then(wrappedHandler)
+				.catch(error => {
+					if (error instanceof AssertionError)
+						throw error;
+
+					return wrappedHandler(error.response);
+				});
+		},
+		method: method => {
+			requestOptions.method = 'del' === method ? 'DELETE' : method.toUpperCase();
+			return hippie;
+		},
+		route: route => {
+			const protocol = options.protocol || 'http';
+			requestOptions.url = `${protocol}://127.0.0.1:${serverAddress.port}${route}`;
+			return hippie;
+		},
+		header: (key, value) => {
+			requestOptions.headers[key] = value;
+			return hippie;
+		},
+		send: data => {
+			requestOptions.data = data;
+			return hippie;
+		},
+		expectStatus: status => {
+			expectations.status = status;
+			return hippie;
+		},
+		expectHeader: (key, value) => {
+			expectations.headers[key] = value;
+			return hippie;
+		}
+	};
+
+	return hippie;
+};
+
+// endregion
+
 describe('server (bootstrapper)', () => {
 	afterEach(() => {
 		// close servers used during the previous test
@@ -164,7 +238,7 @@ describe('server (bootstrapper)', () => {
 	// throttling tests are not ideal (can't guarantee those were added to the server) because everything related
 	// to the restify server happens intrinsically and is too coupled - those are best-effort tests
 	describe('throttling config', () => {
-		it('uses provided config', done => {
+		it('uses provided config', () => {
 			// Arrange:
 			const throttlingConfig = {
 				burst: 20,
@@ -183,10 +257,9 @@ describe('server (bootstrapper)', () => {
 			})).to.equal(true);
 
 			spy.restore();
-			done();
 		});
 
-		it('does not throttle if no configuration present', done => {
+		it('does not throttle if no configuration present', () => {
 			// Arrange:
 			const spy = sinon.spy(restify.plugins, 'throttle');
 
@@ -197,11 +270,10 @@ describe('server (bootstrapper)', () => {
 			expect(spy.notCalled).to.equal(true);
 
 			spy.restore();
-			done();
 		});
 
 		describe('does not throttle for incomplete configuration and logs a warning', () => {
-			it('missing rate', done => {
+			it('missing rate', () => {
 				// Arrange:
 				const spy = sinon.spy(restify.plugins, 'throttle');
 				const logSpy = sinon.spy(winston, 'warn');
@@ -214,11 +286,9 @@ describe('server (bootstrapper)', () => {
 				// Assert:
 				expect(spy.notCalled).to.equal(true);
 				expect(logSpy.calledWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(true);
-
-				done();
 			});
 
-			it('missing burst', done => {
+			it('missing burst', () => {
 				// Arrange:
 				const spy = sinon.spy(restify.plugins, 'throttle');
 				const logSpy = sinon.spy(winston, 'warn');
@@ -231,48 +301,17 @@ describe('server (bootstrapper)', () => {
 				// Assert:
 				expect(spy.notCalled).to.equal(true);
 				expect(logSpy.calledWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(true);
-
-				done();
 			});
 		});
 	});
 
 	describe('HTTP', () => {
-		const wrapHippieEndHandler = handler => (err, res, body) => {
-			if (err)
-				throw err;
-
-			handler(res.headers, body);
-		};
-
 		const makeJsonHippie = (route, method, options) => {
 			const server = createServer({ ...options, protocol: 'HTTP' });
 			addRestRoutes(server);
-
-			const mockServer = hippie(server).json()[method](route);
-			if ('get' === method) {
-				// hippie.form() overrides Content-Type to 'application/x-www-form-urlencoded' and uses a matching serializer
-				// since hippie.json() was called before, Accept is still 'application/json' and has a matching parser
-				mockServer.form();
-			}
-
-			// wrap the server to make sure errors are handled appropriately across all tests
-			const hippieAdapter = {
-				end: handler => {
-					mockServer.end(wrapHippieEndHandler(handler));
-					return hippieAdapter;
-				}
-			};
-
-			// expose allowed methods
-			['header', 'send', 'expectStatus', 'expectHeader'].forEach(delegatingMethod => {
-				hippieAdapter[delegatingMethod] = (...args) => {
-					mockServer[delegatingMethod](...args);
-					return hippieAdapter;
-				};
-			});
-
-			return hippieAdapter;
+			return makeHippie(server)
+				.method(method)
+				.route(route);
 		};
 
 		const assertPayloadHeaders = (headers, expectedContentLength, options = {}) => {
@@ -309,114 +348,90 @@ describe('server (bootstrapper)', () => {
 
 			// region sync route handling
 
-			it('handles success properly', done => {
-				makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
-					.expectStatus(200)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 75, methodOptions);
-						expect(body).to.deep.equal({
-							id: 123,
-							current: { height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] }
-						});
-						done();
+			it('handles success properly', () => makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
+				.expectStatus(200)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 75, methodOptions);
+					expect(body).to.deep.equal({
+						id: 123,
+						current: { height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] }
 					});
-			});
+				}));
 
-			it('can parse query params', done => {
-				makeJsonHippie(`/dummy/${dummyIds.replayTag}?tag=25`, method)
-					.expectStatus(200)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 75, methodOptions);
-						expect(body).to.deep.equal({
-							id: 123,
-							current: { height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0] }
-						});
-						done();
+			it('can parse query params', () => makeJsonHippie(`/dummy/${dummyIds.replayTag}?tag=25`, method)
+				.expectStatus(200)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 75, methodOptions);
+					expect(body).to.deep.equal({
+						id: 123,
+						current: { height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0] }
 					});
-			});
+				}));
 
-			it('handles not found properly', done => {
-				makeJsonHippie(`/dummy/${dummyIds.notFound}`, method)
-					.expectStatus(404)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 72, methodOptions);
-						expect(body).to.deep.equal({ code: 'ResourceNotFound', message: 'no resource exists with id \'foo\'' });
-						done();
-					});
-			});
+			it('handles not found properly', () => makeJsonHippie(`/dummy/${dummyIds.notFound}`, method)
+				.expectStatus(404)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 72, methodOptions);
+					expect(body).to.deep.equal({ code: 'ResourceNotFound', message: 'no resource exists with id \'foo\'' });
+				}));
 
-			it('handles error properly', done => {
-				makeJsonHippie(`/dummy/${dummyIds.error}`, method)
-					.expectStatus(500)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 39, methodOptions);
-						expect(body).to.deep.equal({ code: 'Internal', message: 'badness' });
-						done();
-					});
-			});
+			it('handles error properly', () => makeJsonHippie(`/dummy/${dummyIds.error}`, method)
+				.expectStatus(500)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 39, methodOptions);
+					expect(body).to.deep.equal({ code: 'Internal', message: 'badness' });
+				}));
 
 			// endregion
 
 			// region async route handling
 
-			it('handles async success properly', done => {
-				makeJsonHippie(`/dummy/${dummyIds.asyncValid}`, method)
-					.expectStatus(200)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 29, methodOptions);
-						expect(body).to.deep.equal({ current: { height: [11, 0] } });
-						done();
-					});
-			});
+			it('handles async success properly', () => makeJsonHippie(`/dummy/${dummyIds.asyncValid}`, method)
+				.expectStatus(200)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 29, methodOptions);
+					expect(body).to.deep.equal({ current: { height: [11, 0] } });
+				}));
 
-			it('handles async error properly', done => {
-				makeJsonHippie(`/dummy/${dummyIds.asyncError}`, method)
-					.expectStatus(500)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 45, methodOptions);
-						expect(body).to.deep.equal({ code: 'Internal', message: 'async badness' });
-						done();
-					});
-			});
+			it('handles async error properly', () => makeJsonHippie(`/dummy/${dummyIds.asyncError}`, method)
+				.expectStatus(500)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 45, methodOptions);
+					expect(body).to.deep.equal({ code: 'Internal', message: 'async badness' });
+				}));
 
 			// endregion
 
 			// region server errors
 
-			it('handles non existent route properly', done => {
-				makeJsonHippie(`/fake/${dummyIds.valid}`, method)
-					.expectStatus(404)
-					.end((headers, body) => {
-						// Assert: note that non-existent routes never support cross domain
-						assertPayloadHeaders(headers, 66);
-						expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
-						done();
-					});
-			});
+			it('handles non existent route properly', () => makeJsonHippie(`/fake/${dummyIds.valid}`, method)
+				.expectStatus(404)
+				.end((headers, body) => {
+					// Assert: note that non-existent routes never support cross domain
+					assertPayloadHeaders(headers, 66);
+					expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
+				}));
 
-			it('rejects request with invalid accept header', done => {
-				makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
-					.header('Accept', 'text/plain')
-					.expectStatus(406)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 69, methodOptions);
-						expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Server accepts: application/json' });
-						done();
-					});
-			});
+			it('rejects request with invalid accept header', () => makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
+				.header('Accept', 'text/plain')
+				.expectStatus(406)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 69, methodOptions);
+					expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Server accepts: application/json' });
+				}));
 
 			// endregion
 
 			// region cross domain
 
-			it('logs a warning if CORS configuration not provided', done => {
+			it('logs a warning if CORS configuration not provided', () => {
 				// Arrange:
 				const spy = sinon.spy(winston, 'warn');
 
@@ -426,11 +441,9 @@ describe('server (bootstrapper)', () => {
 
 				// Assert:
 				expect(spy.calledWith('CORS was not enabled - configuration incomplete')).to.equal(true);
-
-				done();
 			});
 
-			it('omits CORS response if no config provided', done => {
+			it('omits CORS response if no config provided', () => {
 				// Arrange:
 				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder();
 				const request = {
@@ -444,11 +457,9 @@ describe('server (bootstrapper)', () => {
 
 				// Assert:
 				expect(response.header.notCalled).to.equal(true);
-
-				done();
 			});
 
-			it('builds CORS response with wildcard as set in the config', done => {
+			it('builds CORS response with wildcard as set in the config', () => {
 				// Arrange:
 				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({ allowedMethods: ['GET'], allowedHosts: ['*'] });
 				const request = {
@@ -465,11 +476,9 @@ describe('server (bootstrapper)', () => {
 				expect(response.header.calledWith('Access-Control-Allow-Origin', '*')).to.equal(true);
 				expect(response.header.calledWith('Access-Control-Allow-Methods', 'GET')).to.equal(true);
 				expect(response.header.calledWith('Access-Control-Allow-Headers', 'Content-Type')).to.equal(true);
-
-				done();
 			});
 
-			it('builds CORS response with matching origin in the provided config', done => {
+			it('builds CORS response with matching origin in the provided config', () => {
 				// Arrange:
 				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({
 					allowedMethods: ['GET'], allowedHosts: ['http://nem.example']
@@ -489,11 +498,9 @@ describe('server (bootstrapper)', () => {
 				expect(response.header.calledWith('Vary', 'Origin')).to.equal(true);
 				expect(response.header.calledWith('Access-Control-Allow-Methods', 'GET')).to.equal(true);
 				expect(response.header.calledWith('Access-Control-Allow-Headers', 'Content-Type')).to.equal(true);
-
-				done();
 			});
 
-			it('omits CORS response if provided operation not allowed', done => {
+			it('omits CORS response if provided operation not allowed', () => {
 				// Arrange:
 				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({
 					allowedMethods: ['GET'], allowedHosts: ['http://nem.example']
@@ -509,11 +516,9 @@ describe('server (bootstrapper)', () => {
 
 				// Assert:
 				expect(response.header.notCalled).to.equal(true);
-
-				done();
 			});
 
-			it('omits CORS response if origin does not match provided config', done => {
+			it('omits CORS response if origin does not match provided config', () => {
 				// Arrange:
 				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({
 					allowedMethods: ['GET'], allowedHosts: ['http://nem.example']
@@ -529,11 +534,9 @@ describe('server (bootstrapper)', () => {
 
 				// Assert:
 				expect(response.header.notCalled).to.equal(true);
-
-				done();
 			});
 
-			it('omits CORS response if origin not provided in the request', done => {
+			it('omits CORS response if origin not provided in the request', () => {
 				// Arrange:
 				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({
 					allowedMethods: ['GET', 'OPTIONS'], allowedHosts: ['*']
@@ -555,8 +558,6 @@ describe('server (bootstrapper)', () => {
 				// Assert:
 				expect(response.header.notCalled).to.equal(true);
 				expect(response2.header.notCalled).to.equal(true);
-
-				done();
 			});
 
 			// endregion
@@ -564,22 +565,19 @@ describe('server (bootstrapper)', () => {
 
 		// region unsupported media type
 
-		const runUnsupportedMediaTypeTest = (server, mediaType, sendBody, done) => {
-			server
-				.header('Content-Type', mediaType)
-				.send(sendBody ? { foo: 'bar' } : '')
-				.expectStatus(415)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 44 + mediaType.length);
-					expect(body).to.deep.equal({ code: 'UnsupportedMediaType', message: mediaType });
-					done();
-				});
-		};
+		const runUnsupportedMediaTypeTest = (server, mediaType, sendBody) => server
+			.header('Content-Type', mediaType)
+			.send(sendBody ? { foo: 'bar' } : '')
+			.expectStatus(415)
+			.end((headers, body) => {
+				// Assert:
+				assertPayloadHeaders(headers, 44 + mediaType.length);
+				expect(body).to.deep.equal({ code: 'UnsupportedMediaType', message: mediaType });
+			});
 
-		const runUnsupportedMediaTypeTestForMethod = (method, mediaType, sendBody, done) => {
+		const runUnsupportedMediaTypeTestForMethod = (method, mediaType, sendBody) => {
 			const server = makeJsonHippie(`/dummy/${dummyIds.valid}`, method);
-			runUnsupportedMediaTypeTest(server, mediaType, sendBody, done);
+			return runUnsupportedMediaTypeTest(server, mediaType, sendBody);
 		};
 
 		// endregion
@@ -587,48 +585,40 @@ describe('server (bootstrapper)', () => {
 		describe('GET', () => {
 			addCommonTestsForHttpMethod('get');
 
-			it('rejects request with body with supported media type', done => {
-				runUnsupportedMediaTypeTestForMethod('get', 'application/json', true, done);
-			});
+			it('rejects request with body with supported media type', () =>
+				runUnsupportedMediaTypeTestForMethod('get', 'application/json', true));
 
-			it('rejects request with body with unsupported media type', done => {
-				runUnsupportedMediaTypeTestForMethod('get', 'application/octet-stream', true, done);
-			});
+			it('rejects request with body with unsupported media type', () =>
+				runUnsupportedMediaTypeTestForMethod('get', 'application/octet-stream', true));
 		});
 
 		const addRejectsUnsupportedMediaTypeTests = method => {
-			it('rejects request with unsupported (custom) media type without body', done => {
-				runUnsupportedMediaTypeTestForMethod(method, 'text/plain', false, done);
-			});
+			it('rejects request with unsupported (custom) media type without body', () =>
+				runUnsupportedMediaTypeTestForMethod(method, 'text/plain', false));
 
-			it('rejects request with unsupported (custom) media type with body', done => {
-				runUnsupportedMediaTypeTestForMethod(method, 'text/plain', true, done);
-			});
+			it('rejects request with unsupported (custom) media type with body', () =>
+				runUnsupportedMediaTypeTestForMethod(method, 'text/plain', true));
 
-			it('rejects request with unsupported (built-in) media type without body', done => {
-				runUnsupportedMediaTypeTestForMethod(method, 'application/x-www-form-urlencoded', false, done);
-			});
+			it('rejects request with unsupported (built-in) media type without body', () =>
+				runUnsupportedMediaTypeTestForMethod(method, 'application/x-www-form-urlencoded', false));
 
-			it('rejects request with unsupported (built-in) media type with body', done => {
-				runUnsupportedMediaTypeTestForMethod(method, 'application/x-www-form-urlencoded', true, done);
-			});
+			it('rejects request with unsupported (built-in) media type with body', () =>
+				runUnsupportedMediaTypeTestForMethod(method, 'application/x-www-form-urlencoded', true));
 		};
 
 		const addBodyParsingTest = method => {
-			it('can parse json body', done => {
-				makeJsonHippie(`/dummy/${dummyIds.replayTag}`, method)
-					.send({ tag: 25 })
-					.expectStatus(200)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 75, {});
-						expect(body).to.deep.equal({
-							id: 123,
-							current: { height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0] }
-						});
-						done();
+			it('can parse json body', () => makeJsonHippie(`/dummy/${dummyIds.replayTag}`, method)
+				.send({ tag: 25 })
+				.expectStatus(200)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 75, {});
+
+					expect(body).to.deep.equal({
+						id: 123,
+						current: { height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0] }
 					});
-			});
+				}));
 		};
 
 		describe('PUT', () => {
@@ -660,135 +650,102 @@ describe('server (bootstrapper)', () => {
 				server.post('/dummy/names', routeHandler);
 				server.post('/dummy', routeHandler);
 
-				return hippie(server)
-					.header('Origin', 'http://nem.example')
-					.url(route)
+				return makeHippie(server)
 					.method('OPTIONS')
-					.json()
-					.form();
+					.route(route)
+					.header('Origin', 'http://nem.example');
 			};
 
-			const runBasicOptionsTest = (route, expectedMethod, done) => {
-				makeJsonHippieForOptions(route)
-					.expectStatus(204)
-					.expectHeader('allow', expectedMethod)
-					.end(wrapHippieEndHandler((headers, body) => {
-						// Assert: there should be no body
-						assertPayloadHeaders(headers, undefined, { allowedMethods: 'FOO,OPTIONS,BAR', numAdditionalHeaders: 1 });
-						expect(body).to.equal(null);
-						done();
-					}));
-			};
+			const runBasicOptionsTest = (route, expectedMethod) => makeJsonHippieForOptions(route)
+				.expectStatus(204)
+				.expectHeader('allow', expectedMethod)
+				.end((headers, body) => {
+					// Assert: there should be no body
+					assertPayloadHeaders(headers, undefined, { allowedMethods: 'FOO,OPTIONS,BAR', numAdditionalHeaders: 1 });
+					expect(body).to.equal('');
+				});
 
-			it('supports GET', done => {
-				runBasicOptionsTest('/dummy/123', 'GET', done);
-			});
+			it('supports GET', () => runBasicOptionsTest('/dummy/123', 'GET'));
 
-			it('supports POST', done => {
-				runBasicOptionsTest('/dummy', 'POST', done);
-			});
+			it('supports POST', () => runBasicOptionsTest('/dummy', 'POST'));
 
-			it('allows all matches', done => {
-				// notice that /dummy/names could also match GET /dummy/:dummyId
-				runBasicOptionsTest('/dummy/names', 'GET, POST', done);
-			});
+			it('allows all matches', () => runBasicOptionsTest('/dummy/names', 'GET, POST'));
+			// ^ notice that /dummy/names could also match GET /dummy/:dummyId
 
-			it('handles non existent route properly', done => {
-				makeJsonHippieForOptions(`/fake/${dummyIds.valid}`)
-					.expectStatus(404)
-					.end(wrapHippieEndHandler((headers, body) => {
-						// Assert: note that non-existent routes never support cross domain
-						assertPayloadHeaders(headers, 66);
-						expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
-						done();
-					}));
-			});
+			it('handles non existent route properly', () => makeJsonHippieForOptions(`/fake/${dummyIds.valid}`)
+				.expectStatus(404)
+				.end((headers, body) => {
+					// Assert: note that non-existent routes never support cross domain
+					assertPayloadHeaders(headers, 66);
+					expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
+				}));
 
-			const runUnsupportedMediaTypeTestForOptions = (mediaType, done) => {
-				makeJsonHippieForOptions('/dummy')
-					.header('Content-Type', mediaType)
-					.send({ foo: 'bar' })
-					.expectStatus(415)
-					.end(wrapHippieEndHandler((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 44 + mediaType.length);
-						expect(body).to.deep.equal({ code: 'UnsupportedMediaType', message: mediaType });
-						done();
-					}));
-			};
+			const runUnsupportedMediaTypeTestForOptions = mediaType => makeJsonHippieForOptions('/dummy')
+				.header('Content-Type', mediaType)
+				.send({ foo: 'bar' })
+				.expectStatus(415)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 44 + mediaType.length);
+					expect(body).to.deep.equal({ code: 'UnsupportedMediaType', message: mediaType });
+				});
 
-			it('rejects request with body with supported media type', done => {
-				runUnsupportedMediaTypeTestForOptions('application/json', done);
-			});
+			it('rejects request with body with supported media type', () => runUnsupportedMediaTypeTestForOptions('application/json'));
 
-			it('rejects request with body with unsupported media type', done => {
-				runUnsupportedMediaTypeTestForOptions('application/octet-stream', done);
-			});
+			it('rejects request with body with unsupported media type', () =>
+				runUnsupportedMediaTypeTestForOptions('application/octet-stream'));
 		});
 
 		describe('other', () => {
-			it('rejects invalid methods', done => {
-				makeJsonHippie(`/dummy/${dummyIds.valid}`, 'del')
-					.expectStatus(405)
-					.expectHeader('allow', 'GET, POST, PUT')
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 61, { numAdditionalHeaders: 1 });
-						expect(body).to.deep.equal({ code: 'MethodNotAllowed', message: 'DELETE is not allowed' });
-						done();
-					});
-			});
+			it('rejects invalid methods', () => makeJsonHippie(`/dummy/${dummyIds.valid}`, 'del')
+				.expectStatus(405)
+				.expectHeader('allow', 'GET, POST, PUT')
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 61, { numAdditionalHeaders: 1 });
+					expect(body).to.deep.equal({ code: 'MethodNotAllowed', message: 'DELETE is not allowed' });
+				}));
 
-			it('follows redirects', done => {
+			it('follows redirects', () => makeJsonHippie(`/dummy/${dummyIds.redirect}`, 'get')
 				// Arrange: 'redirect' should redirect to 'valid'
-				makeJsonHippie(`/dummy/${dummyIds.redirect}`, 'get')
-					.expectStatus(302)
-					.expectHeader('location', `/dummy/${dummyIds.valid}`)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 4, { numAdditionalHeaders: 1 });
-						expect(body).to.equal(null);
-						done();
-					});
-			});
+				.expectStatus(302)
+				.expectHeader('location', `/dummy/${dummyIds.valid}`)
+				.end((headers, body) => {
+					// Assert:
+					assertPayloadHeaders(headers, 4, { numAdditionalHeaders: 1 });
+					expect(body).to.equal(null);
+				}));
 		});
 	});
 
 	describe('HTTPS', () => {
-		it('creates https server with certificate and key given', done => {
-			createServer({
-				port: 3001,
-				protocol: 'HTTPS',
-				sslKeyPath: `${__dirname}/certs/restSSL.key`,
-				sslCertificatePath: `${__dirname}/certs/restSSL.crt`
-			});
-			done();
-		});
+		it('creates https server with certificate and key given', () => createServer({
+			port: 3001,
+			protocol: 'HTTPS',
+			sslKeyPath: `${__dirname}/certs/restSSL.key`,
+			sslCertificatePath: `${__dirname}/certs/restSSL.crt`
+		}));
 
-		it('throws error when the key path is missing', done => {
+		it('throws error when the key path is missing', () => {
 			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslCertificatePath: `${__dirname}/certs/restSSL.crt` }))
 				.to.throw('No SSL Key found, \'sslKeyPath\' property in the configuration must be provided.');
-			done();
 		});
 
-		it('throws error when the certificate path is missing', done => {
+		it('throws error when the certificate path is missing', () => {
 			expect(() => createServer({ port: 3001, protocol: 'HTTPS', sslKeyPath: `${__dirname}/certs/restSSL.key` }))
 				.to.throw('No SSL Certificate found, '
 				+ '\'sslCertificatePath\' property in the configuration must be provided.');
-			done();
 		});
 
-		it('starts https and throws error when the protocol is not defined', done => {
+		it('starts https and throws error when the protocol is not defined', () => {
 			expect(() => createServer({ port: 3001 })).to.throw();
-			done();
 		});
 
-		it('starts http when the protocol is HTTP', done => {
+		it('starts http when the protocol is HTTP', () => {
 			createServer({ port: 3001, protocol: 'HTTP' });
-			done();
 		});
 
-		it('handles HTTPS routes successfully', done => {
+		it('handles HTTPS routes successfully', () => {
 			// For unit testing, the unit test client ignores self-signed certificate errors.
 			process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -801,19 +758,15 @@ describe('server (bootstrapper)', () => {
 			});
 
 			addRestRoutes(server);
-			server.listen(httpsPort);
-
-			hippie()
-				.header('User-Agent', 'hippie')
-				.json()
-				.get(`https://127.0.0.1:${httpsPort}/dummy/${dummyIds.valid}`)
+			return makeHippie(server, { protocol: 'https', port: httpsPort })
+				.method('GET')
+				.route(`/dummy/${dummyIds.valid}`)
 				.expectStatus(200)
-				.end((err, res, body) => {
+				.end((headers, body) => {
 					expect(body).to.deep.equal({
 						id: 123,
 						current: { height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] }
 					});
-					done();
 				});
 		});
 	});
