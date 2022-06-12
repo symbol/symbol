@@ -28,7 +28,7 @@
     "@noble/hashes": "^1.1.1",
     "ini": "^3.0.0",
     "long": "^5.2.0",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.7.0",
     "restify": "^8.6.1",
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
