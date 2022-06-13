@@ -27,7 +27,7 @@
     "yargs": "^17.5.1"
   },
   "dependencies": {
-    "@noble/hashes": "^1.0.0",
+    "@noble/hashes": "^1.1.1",
     "bitcore-mnemonic": "^8.25.30",
     "ripemd160": "^2.0.2",
     "tweetnacl": "^1.0.3"
