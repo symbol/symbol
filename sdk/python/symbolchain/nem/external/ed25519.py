@@ -30,7 +30,7 @@ disclose data to an attacker.  We rely on Python's long-integer
 arithmetic, so we cannot handle secrets without risking their disclosure.
 """
 
-# pylint: disable=invalid-name,too-many-locals,unused-variable,arguments-out-of-order
+# pylint: disable=invalid-name,too-many-locals,unused-variable,arguments-out-of-order,consider-using-generator
 
 import hashlib
 import operator
