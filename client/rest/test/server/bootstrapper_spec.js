@@ -156,22 +156,22 @@ const createWebSocketServer = () => createServer({ protocol: 'HTTP', formatterNa
 
 // endregion
 
-// region makeHippie
+// region makeWrappedRequest
 
-const makeHippie = (server, options = {}) => {
+const makeWrappedRequest = (server, options = {}) => {
 	const serverAddress = server.listen(options.port || 0).address();
 
 	const requestOptions = {
 		maxRedirects: 0,
 		headers: {
-			'User-Agent': 'hippie',
+			'User-Agent': 'requestWrapper',
 			'Content-Type': 'application/json; charset=utf-8',
 			Accept: 'application/json'
 		}
 	};
 
 	const expectations = { status: 200, headers: {} };
-	const hippie = {
+	const requestWrapper = {
 		end: handler => {
 			const wrappedHandler = res => {
 				// check expectations
@@ -196,32 +196,32 @@ const makeHippie = (server, options = {}) => {
 		},
 		method: method => {
 			requestOptions.method = 'del' === method ? 'DELETE' : method.toUpperCase();
-			return hippie;
+			return requestWrapper;
 		},
 		route: route => {
 			const protocol = options.protocol || 'http';
 			requestOptions.url = `${protocol}://127.0.0.1:${serverAddress.port}${route}`;
-			return hippie;
+			return requestWrapper;
 		},
 		header: (key, value) => {
 			requestOptions.headers[key] = value;
-			return hippie;
+			return requestWrapper;
 		},
 		send: data => {
 			requestOptions.data = data;
-			return hippie;
+			return requestWrapper;
 		},
 		expectStatus: status => {
 			expectations.status = status;
-			return hippie;
+			return requestWrapper;
 		},
 		expectHeader: (key, value) => {
 			expectations.headers[key] = value;
-			return hippie;
+			return requestWrapper;
 		}
 	};
 
-	return hippie;
+	return requestWrapper;
 };
 
 // endregion
@@ -306,10 +306,10 @@ describe('server (bootstrapper)', () => {
 	});
 
 	describe('HTTP', () => {
-		const makeJsonHippie = (route, method, options) => {
+		const makeWrappedJsonRequest = (route, method, options) => {
 			const server = createServer({ ...options, protocol: 'HTTP' });
 			addRestRoutes(server);
-			return makeHippie(server)
+			return makeWrappedRequest(server)
 				.method(method)
 				.route(route);
 		};
@@ -348,7 +348,7 @@ describe('server (bootstrapper)', () => {
 
 			// region sync route handling
 
-			it('handles success properly', () => makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
+			it('handles success properly', () => makeWrappedJsonRequest(`/dummy/${dummyIds.valid}`, method)
 				.expectStatus(200)
 				.end((headers, body) => {
 					// Assert:
@@ -359,7 +359,7 @@ describe('server (bootstrapper)', () => {
 					});
 				}));
 
-			it('can parse query params', () => makeJsonHippie(`/dummy/${dummyIds.replayTag}?tag=25`, method)
+			it('can parse query params', () => makeWrappedJsonRequest(`/dummy/${dummyIds.replayTag}?tag=25`, method)
 				.expectStatus(200)
 				.end((headers, body) => {
 					// Assert:
@@ -370,7 +370,7 @@ describe('server (bootstrapper)', () => {
 					});
 				}));
 
-			it('handles not found properly', () => makeJsonHippie(`/dummy/${dummyIds.notFound}`, method)
+			it('handles not found properly', () => makeWrappedJsonRequest(`/dummy/${dummyIds.notFound}`, method)
 				.expectStatus(404)
 				.end((headers, body) => {
 					// Assert:
@@ -378,7 +378,7 @@ describe('server (bootstrapper)', () => {
 					expect(body).to.deep.equal({ code: 'ResourceNotFound', message: 'no resource exists with id \'foo\'' });
 				}));
 
-			it('handles error properly', () => makeJsonHippie(`/dummy/${dummyIds.error}`, method)
+			it('handles error properly', () => makeWrappedJsonRequest(`/dummy/${dummyIds.error}`, method)
 				.expectStatus(500)
 				.end((headers, body) => {
 					// Assert:
@@ -390,7 +390,7 @@ describe('server (bootstrapper)', () => {
 
 			// region async route handling
 
-			it('handles async success properly', () => makeJsonHippie(`/dummy/${dummyIds.asyncValid}`, method)
+			it('handles async success properly', () => makeWrappedJsonRequest(`/dummy/${dummyIds.asyncValid}`, method)
 				.expectStatus(200)
 				.end((headers, body) => {
 					// Assert:
@@ -398,7 +398,7 @@ describe('server (bootstrapper)', () => {
 					expect(body).to.deep.equal({ current: { height: [11, 0] } });
 				}));
 
-			it('handles async error properly', () => makeJsonHippie(`/dummy/${dummyIds.asyncError}`, method)
+			it('handles async error properly', () => makeWrappedJsonRequest(`/dummy/${dummyIds.asyncError}`, method)
 				.expectStatus(500)
 				.end((headers, body) => {
 					// Assert:
@@ -410,7 +410,7 @@ describe('server (bootstrapper)', () => {
 
 			// region server errors
 
-			it('handles non existent route properly', () => makeJsonHippie(`/fake/${dummyIds.valid}`, method)
+			it('handles non existent route properly', () => makeWrappedJsonRequest(`/fake/${dummyIds.valid}`, method)
 				.expectStatus(404)
 				.end((headers, body) => {
 					// Assert: note that non-existent routes never support cross domain
@@ -418,7 +418,7 @@ describe('server (bootstrapper)', () => {
 					expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
 				}));
 
-			it('rejects request with invalid accept header', () => makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
+			it('rejects request with invalid accept header', () => makeWrappedJsonRequest(`/dummy/${dummyIds.valid}`, method)
 				.header('Accept', 'text/plain')
 				.expectStatus(406)
 				.end((headers, body) => {
@@ -576,7 +576,7 @@ describe('server (bootstrapper)', () => {
 			});
 
 		const runUnsupportedMediaTypeTestForMethod = (method, mediaType, sendBody) => {
-			const server = makeJsonHippie(`/dummy/${dummyIds.valid}`, method);
+			const server = makeWrappedJsonRequest(`/dummy/${dummyIds.valid}`, method);
 			return runUnsupportedMediaTypeTest(server, mediaType, sendBody);
 		};
 
@@ -607,7 +607,7 @@ describe('server (bootstrapper)', () => {
 		};
 
 		const addBodyParsingTest = method => {
-			it('can parse json body', () => makeJsonHippie(`/dummy/${dummyIds.replayTag}`, method)
+			it('can parse json body', () => makeWrappedJsonRequest(`/dummy/${dummyIds.replayTag}`, method)
 				.send({ tag: 25 })
 				.expectStatus(200)
 				.end((headers, body) => {
@@ -636,7 +636,7 @@ describe('server (bootstrapper)', () => {
 		});
 
 		describe('OPTIONS', () => {
-			const makeJsonHippieForOptions = route => {
+			const makeWrappedRequestForOptions = route => {
 				const server = createServer({
 					protocol: 'HTTP',
 					crossDomain: { allowedMethods: ['FOO', 'OPTIONS', 'BAR'], allowedHosts: ['*'] }
@@ -650,13 +650,13 @@ describe('server (bootstrapper)', () => {
 				server.post('/dummy/names', routeHandler);
 				server.post('/dummy', routeHandler);
 
-				return makeHippie(server)
+				return makeWrappedRequest(server)
 					.method('OPTIONS')
 					.route(route)
 					.header('Origin', 'http://nem.example');
 			};
 
-			const runBasicOptionsTest = (route, expectedMethod) => makeJsonHippieForOptions(route)
+			const runBasicOptionsTest = (route, expectedMethod) => makeWrappedRequestForOptions(route)
 				.expectStatus(204)
 				.expectHeader('allow', expectedMethod)
 				.end((headers, body) => {
@@ -672,7 +672,7 @@ describe('server (bootstrapper)', () => {
 			it('allows all matches', () => runBasicOptionsTest('/dummy/names', 'GET, POST'));
 			// ^ notice that /dummy/names could also match GET /dummy/:dummyId
 
-			it('handles non existent route properly', () => makeJsonHippieForOptions(`/fake/${dummyIds.valid}`)
+			it('handles non existent route properly', () => makeWrappedRequestForOptions(`/fake/${dummyIds.valid}`)
 				.expectStatus(404)
 				.end((headers, body) => {
 					// Assert: note that non-existent routes never support cross domain
@@ -680,7 +680,7 @@ describe('server (bootstrapper)', () => {
 					expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
 				}));
 
-			const runUnsupportedMediaTypeTestForOptions = mediaType => makeJsonHippieForOptions('/dummy')
+			const runUnsupportedMediaTypeTestForOptions = mediaType => makeWrappedRequestForOptions('/dummy')
 				.header('Content-Type', mediaType)
 				.send({ foo: 'bar' })
 				.expectStatus(415)
@@ -697,7 +697,7 @@ describe('server (bootstrapper)', () => {
 		});
 
 		describe('other', () => {
-			it('rejects invalid methods', () => makeJsonHippie(`/dummy/${dummyIds.valid}`, 'del')
+			it('rejects invalid methods', () => makeWrappedJsonRequest(`/dummy/${dummyIds.valid}`, 'del')
 				.expectStatus(405)
 				.expectHeader('allow', 'GET, POST, PUT')
 				.end((headers, body) => {
@@ -706,7 +706,7 @@ describe('server (bootstrapper)', () => {
 					expect(body).to.deep.equal({ code: 'MethodNotAllowed', message: 'DELETE is not allowed' });
 				}));
 
-			it('follows redirects', () => makeJsonHippie(`/dummy/${dummyIds.redirect}`, 'get')
+			it('follows redirects', () => makeWrappedJsonRequest(`/dummy/${dummyIds.redirect}`, 'get')
 				// Arrange: 'redirect' should redirect to 'valid'
 				.expectStatus(302)
 				.expectHeader('location', `/dummy/${dummyIds.valid}`)
@@ -758,7 +758,7 @@ describe('server (bootstrapper)', () => {
 			});
 
 			addRestRoutes(server);
-			return makeHippie(server, { protocol: 'https', port: httpsPort })
+			return makeWrappedRequest(server, { protocol: 'https', port: httpsPort })
 				.method('GET')
 				.route(`/dummy/${dummyIds.valid}`)
 				.expectStatus(200)
