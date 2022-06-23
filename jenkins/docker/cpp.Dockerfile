@@ -1,4 +1,4 @@
-FROM symbolplatform/symbol-server-build-base:ubuntu-gcc-11-skylake
+FROM symbolplatform/symbol-server-build-base:ubuntu-gcc-11-conan
 
 # install shellcheck and gitlint
 RUN apt-get install -y shellcheck
