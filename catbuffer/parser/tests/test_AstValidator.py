@@ -672,6 +672,39 @@ class AstValidatorTests(unittest.TestCase):
 			ErrorDescriptor('reference to unknown "discriminator" property "alpha"', 'FooBar')
 		], [AstValidator.Mode.POST_EXPANSION])
 
+	def test_can_validate_struct_containing_custom_comparer(self):
+		# Arrange:
+		validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([
+			Attribute(['comparer', 'weight', None, 'height', 'ripemd_keccak_256'])
+		]))
+
+		# Act + Assert:
+		self._asssert_validate(validator, [])
+
+	def test_cannot_validate_struct_containing_custom_comparer_referencing_non_existent_property(self):
+		# Arrange:
+		validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([
+			Attribute(['comparer', 'weight', None, 'alpha', 'ripemd_keccak_256'])
+		]))
+
+		# Act + Assert:
+		self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+		self._asssert_validate(validator, [
+			ErrorDescriptor('reference to unknown "comparer" property "alpha"', 'FooBar')
+		], [AstValidator.Mode.POST_EXPANSION])
+
+	def test_cannot_validate_struct_containing_custom_comparer_referencing_non_existent_transform(self):
+		# Arrange:
+		validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([
+			Attribute(['comparer', 'weight', None, 'height', 'keccak_512'])
+		]))
+
+		# Act + Assert:
+		self._asssert_validate(validator, [], [AstValidator.Mode.PRE_EXPANSION])
+		self._asssert_validate(validator, [
+			ErrorDescriptor('reference to unknown "comparer" transform "keccak_512"', 'FooBar')
+		], [AstValidator.Mode.POST_EXPANSION])
+
 	def test_can_validate_struct_containing_initializes_attribute_referencing_known_property_and_const_with_same_type(self):
 		# Arrange:
 		validator = AstValidator(self._create_type_descriptors_for_attribute_link_tests([Attribute(['initializes', 'weight', 'KILO'])]))
