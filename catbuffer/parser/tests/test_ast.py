@@ -332,6 +332,7 @@ class StructTests(unittest.TestCase):
 		self.assertEqual(kwargs.get('is_size_implicit', None), model.is_size_implicit)
 		self.assertEqual(kwargs.get('size', None), model.size)
 		self.assertEqual(kwargs.get('discriminator', None), model.discriminator)
+		self.assertEqual(kwargs.get('comparer', None), model.comparer)
 		self.assertEqual(kwargs.get('initializers', []), model.initializers)
 
 	def _test_can_create_struct(self, comment, expected_comment_descriptor):
@@ -492,6 +493,24 @@ class StructTests(unittest.TestCase):
 			'discriminator': ['beta', 'alpha']
 		}, model.to_legacy_descriptor())
 		self.assertEqual('@discriminator(beta, alpha)\nstruct FooBar  # 2 field(s)', str(model))
+
+	def test_can_create_struct_with_attribute_comparer(self):
+		# Act:
+		model = Struct([None, 'FooBar', StructField(['alpha', 'MyCustomType']), StructField(['beta', FixedSizeInteger('uint16')])])
+		model.attributes = [Attribute(['comparer', 'beta', None, 'alpha', 'ripemd_keccak_256'])]
+
+		# Assert:
+		self.assertEqual('FooBar', model.name)
+		self.assertEqual(['alpha', 'beta'], [field.name for field in model.fields])
+		self._assert_disposition(model)
+		self._assert_attributes(model, comparer=[('beta', None), ('alpha', 'ripemd_keccak_256')])
+		self.assertEqual({
+			'name': 'FooBar',
+			'type': 'struct',
+			'layout': [{'name': 'alpha', 'type': 'MyCustomType'}, {'name': 'beta', 'size': 2, 'type': 'byte', 'signedness': 'unsigned'}],
+			'comparer': [{'name': 'beta', 'transform': None}, {'name': 'alpha', 'transform': 'ripemd_keccak_256'}]
+		}, model.to_legacy_descriptor())
+		self.assertEqual('@comparer(beta, alpha!ripemd_keccak_256)\nstruct FooBar  # 2 field(s)', str(model))
 
 	def test_can_create_struct_with_attribute_initializes(self):
 		# Act:
