@@ -166,6 +166,20 @@ class AstValidator:
 
 		self._check_known_field(model, field_map, 'discriminator', True)
 
+		self._check_comparer(model, field_map)
+		self._check_initializers(model, field_map)
+
+	def _check_comparer(self, model, field_map):
+		if not model.comparer:
+			return
+
+		for (property_name, transform) in model.comparer:
+			if property_name not in field_map:
+				self.errors.append(ErrorDescriptor(f'reference to unknown "comparer" property "{property_name}"', model.name))
+			if transform not in (None, 'ripemd_keccak_256'):
+				self.errors.append(ErrorDescriptor(f'reference to unknown "comparer" transform "{transform}"', model.name))
+
+	def _check_initializers(self, model, field_map):
 		if not model.initializers:
 			return
 
