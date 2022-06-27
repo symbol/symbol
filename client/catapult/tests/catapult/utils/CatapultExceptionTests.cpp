@@ -80,32 +80,34 @@ namespace catapult {
 		// Boost function name got updated and now return in the form below.  This function coverts the function name to the
 		// expected value in the exception.
 		// void catapult::CatapultExceptionTests_CanCopyConstructException() [with TTraits = catapult::{anonymous}::RuntimeErrorTraits]
-		std::string convertToExceptionFunctionName(const std::string& functionFullName) {
+		std::string ConvertToExceptionFunctionName(const std::string& functionFullName) {
 			CATAPULT_LOG(debug) << "function: " << functionFullName;
-			auto functionName = functionFullName;
 
 			std::size_t functionNameEnd = functionFullName.rfind("(");
-			if (functionNameEnd != std::string::npos) {
-				auto functionNameStart = functionFullName.rfind("::", functionNameEnd);
-				functionNameStart = (functionNameStart != std::string::npos) ? functionNameStart + 2 : 0;
-				functionName = functionFullName.substr(functionNameStart, functionNameEnd - functionNameStart);
+			if (std::string::npos == functionNameEnd)
+				return functionFullName;
 
-				auto foundTraits = functionFullName.find("=", functionNameEnd);
-				if (foundTraits != std::string::npos) {
-					auto traitsEnd = functionFullName.find("]", foundTraits);
-					auto functionTraits = functionFullName.substr(foundTraits + 2, traitsEnd - foundTraits - 2);
-					functionName += "<" + functionTraits + ">";
-				}
+			auto functionNameStart = functionFullName.rfind("::", functionNameEnd);
+			functionNameStart = (functionNameStart != std::string::npos) ? functionNameStart + 2 : 0;
+			std::stringstream ss(
+					functionFullName.substr(functionNameStart, functionNameEnd - functionNameStart),
+					std::ios_base::ate | std::ios_base::out);
+
+			auto foundTraits = functionFullName.find("=", functionNameEnd);
+			if (std::string::npos != foundTraits) {
+				auto traitsEnd = functionFullName.find("]", foundTraits);
+				auto functionTraits = functionFullName.substr(foundTraits + 2, traitsEnd - foundTraits - 2);
+				ss << "<" << functionTraits << ">";
 			}
 
-			return functionName;
+			return ss.str();
 		}
 
 		template<typename TException, typename TTraits>
 		void AssertExceptionInformation(const TException& ex, const ExpectedDiagnostics<TTraits>& expected) {
 			// Arrange:
 			std::vector<std::string> expectedDiagLines{
-				"Throw in function " + convertToExceptionFunctionName(expected.FunctionName),
+				"Throw in function " + ConvertToExceptionFunctionName(expected.FunctionName),
 				"Dynamic exception type: " CLASSPREFIX "boost::wrapexcept<" + std::string(TTraits::Exception_Fqn) + " >",
 				"std::exception::what: " + expected.What
 			};
