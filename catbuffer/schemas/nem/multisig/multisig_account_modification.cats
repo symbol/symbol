@@ -10,14 +10,16 @@ enum MultisigAccountModificationType : uint32
 
 # binary layout for a multisig account modification
 @is_size_implicit
+@comparer(modification_type, cosignatory_public_key!ripemd_keccak_256)
 struct MultisigAccountModification
 	# modification type
 	modification_type = MultisigAccountModificationType
 
-	# [__value__] cosignatory public key
-	#
-	# [size] cosignatory public size
-	cosignatory_public_key = inline SizePrefixedPublicKey
+	# cosignatory public key size
+	cosignatory_public_key_size = make_reserved(uint32, 32)
+
+	# cosignatory public key
+	cosignatory_public_key = PublicKey
 
 # binary layout for a multisig account modification prefixed with size
 struct SizePrefixedMultisigAccountModification
@@ -35,6 +37,7 @@ inline struct MultisigAccountModificationTransactionBody
 	modifications_count = uint32
 
 	# multisig account modifications
+	@sort_key(modification)
 	modifications = array(SizePrefixedMultisigAccountModification, modifications_count)
 
 # shared content between V1 verifiable and non-verifiable multisig account transactions
