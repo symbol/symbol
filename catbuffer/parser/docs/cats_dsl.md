@@ -224,6 +224,7 @@ Structures support the following attributes:
 1. `size(x)`: indicates that the `x` field contains the full size of the (variable sized) structure.
 1. `initializes(x, Y)`: indicates that the `x` field should be initialized with the `Y` constant.
 1. `discriminator(x [, y]+)`: indicates that the (`x`, ...`y`) properties should be used as the discriminator when generating a factory (only has meaning for abstract structures).
+1. `comparer(x [!a] [, y [!b]])`: indicates that the (`x`, ...`y`) properties should be used for custom sorting. optional (`a`, ...` b`) transforms can be specified and applied prior to property comparison. currently, the only transform supported is `ripemd_keccak_256` for backwards compatibility with NEM.
 
 For example, to link the `transport_mode` field with the `TRANSPORT_MODE` constant:
 ```cpp
