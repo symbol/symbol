@@ -1,3 +1,4 @@
+import "restriction_account/restriction_account_types.cats"
 import "entity.cats"
 import "transaction_type.cats"
 
