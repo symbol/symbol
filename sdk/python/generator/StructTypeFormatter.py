@@ -139,6 +139,28 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return MethodDescriptor(body=body, arguments=arguments)
 
+	def get_comparer_descriptor(self):
+		if not self.struct.comparer:
+			return None
+
+		body = ''
+		if any('ripemd_keccak_256' == transform for (_, transform) in self.struct.comparer):
+			body += 'from ..Transforms import ripemd_keccak_256  # pylint: disable=import-outside-toplevel\n\n'
+
+		body += 'return (\n'
+		for (property_name, transform) in self.struct.comparer:
+			body += '\t'
+			if not transform:
+				body += f'self.{property_name} if not isinstance(self.{property_name}, Enum) else self.{property_name}.value'
+			else:
+				body += f'{transform}(self.{property_name}.bytes)'
+
+			body += ',\n'
+
+		body += ')'
+
+		return MethodDescriptor(body=body)
+
 	def generate_condition(self, field, prefix_field=False):
 		if not field.is_conditional:
 			return ''

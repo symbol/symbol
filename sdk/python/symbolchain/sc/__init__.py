@@ -10477,7 +10477,7 @@ class TransferTransaction:
 		transfer_transaction_body_reserved_2 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert transfer_transaction_body_reserved_2 == 0, f'Invalid value of reserved field ({transfer_transaction_body_reserved_2})'
-		mosaics = ArrayHelpers.read_array_count(buffer, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id)
+		mosaics = ArrayHelpers.read_array_count(buffer, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id.comparer() if hasattr(e.mosaic_id, 'comparer') else e.mosaic_id)
 		buffer = buffer[ArrayHelpers.size(mosaics):]
 		message = ArrayHelpers.get_bytes(buffer, message_size)
 		buffer = buffer[message_size:]
@@ -10512,7 +10512,7 @@ class TransferTransaction:
 		buffer += len(self._mosaics).to_bytes(1, byteorder='little', signed=False)  # mosaics_count
 		buffer += self._transfer_transaction_body_reserved_1.to_bytes(1, byteorder='little', signed=False)
 		buffer += self._transfer_transaction_body_reserved_2.to_bytes(4, byteorder='little', signed=False)
-		buffer += ArrayHelpers.write_array(self._mosaics, lambda e: e.mosaic_id)
+		buffer += ArrayHelpers.write_array(self._mosaics, lambda e: e.mosaic_id.comparer() if hasattr(e.mosaic_id, 'comparer') else e.mosaic_id)
 		buffer += self._message
 		return buffer
 
@@ -10665,7 +10665,7 @@ class EmbeddedTransferTransaction:
 		transfer_transaction_body_reserved_2 = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
 		assert transfer_transaction_body_reserved_2 == 0, f'Invalid value of reserved field ({transfer_transaction_body_reserved_2})'
-		mosaics = ArrayHelpers.read_array_count(buffer, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id)
+		mosaics = ArrayHelpers.read_array_count(buffer, UnresolvedMosaic, mosaics_count, lambda e: e.mosaic_id.comparer() if hasattr(e.mosaic_id, 'comparer') else e.mosaic_id)
 		buffer = buffer[ArrayHelpers.size(mosaics):]
 		message = ArrayHelpers.get_bytes(buffer, message_size)
 		buffer = buffer[message_size:]
@@ -10694,7 +10694,7 @@ class EmbeddedTransferTransaction:
 		buffer += len(self._mosaics).to_bytes(1, byteorder='little', signed=False)  # mosaics_count
 		buffer += self._transfer_transaction_body_reserved_1.to_bytes(1, byteorder='little', signed=False)
 		buffer += self._transfer_transaction_body_reserved_2.to_bytes(4, byteorder='little', signed=False)
-		buffer += ArrayHelpers.write_array(self._mosaics, lambda e: e.mosaic_id)
+		buffer += ArrayHelpers.write_array(self._mosaics, lambda e: e.mosaic_id.comparer() if hasattr(e.mosaic_id, 'comparer') else e.mosaic_id)
 		buffer += self._message
 		return buffer
 
