@@ -151,6 +151,17 @@ describe('arrayHelpers', () => {
 			expect(elements).to.deep.equal(traits.expectedElements);
 		});
 
+		it('can read when using accessor and (array) elements are ordered', () => {
+			// Arrange:
+			const context = new ReadTestContext(traits.sizes);
+
+			// Act:
+			const elements = traits.read(context.subView, context.factory, element => [123, new Uint8Array([1, element.tag, 3])]);
+
+			// Assert:
+			expect(elements).to.deep.equal(traits.expectedElements);
+		});
+
 		it('cannot read when using accessor and elements are not ordered', () => {
 			// Arrange:
 			const context = new ReadTestContext(traits.sizes);
@@ -275,6 +286,17 @@ describe('arrayHelpers', () => {
 
 			// Act:
 			traits.write(context.output, context.elements, element => element.size);
+
+			// Assert:
+			expect(context.output.writes).to.deep.equal(traits.expectedWrites);
+		});
+
+		it('can write when using accessor and (array) elements are ordered', () => {
+			// Arrange:
+			const context = new ElementsTestContext();
+
+			// Act:
+			traits.write(context.output, context.elements, element => [123, new Uint8Array([1, element.size, 3])]);
 
 			// Assert:
 			expect(context.output.writes).to.deep.equal(traits.expectedWrites);
