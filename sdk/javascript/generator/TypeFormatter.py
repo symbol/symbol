@@ -122,6 +122,10 @@ class TypeFormatter(ClassFormatter):
 		if ctor:
 			methods.append(ctor)
 
+		comparer = self.generate_comparer()
+		if comparer:
+			methods.append(comparer)
+
 		getters_setters = self.generate_getters_setters()
 		methods.extend(getters_setters)
 

@@ -114,8 +114,7 @@ class TypedArrayPrinter(Printer):
 			lang_field_name(str(self.descriptor.size)),
 		]
 		if self.descriptor.field_type.sort_key:
-			accessor = f'e => e.{lang_field_name(self.descriptor.field_type.sort_key)}.value'
-			args.append(accessor)
+			args.append(self._get_sort_accessor())
 
 		args_str = ', '.join(args)
 		return f'arrayHelpers.readArrayCount({args_str})'
@@ -146,8 +145,7 @@ class TypedArrayPrinter(Printer):
 			args.append(str(size))
 
 		if self.descriptor.field_type.sort_key:
-			accessor = f'e => e.{lang_field_name(self.descriptor.field_type.sort_key)}.value'
-			args.append(accessor)
+			args.append(self._get_sort_accessor())
 
 		args_str = ', '.join(args)
 		if isinstance(size, str):

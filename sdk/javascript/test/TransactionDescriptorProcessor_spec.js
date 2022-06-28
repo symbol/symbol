@@ -168,7 +168,7 @@ describe('TransactionDescriptorProcessor', () => {
 
 		it('cannot copy when descriptor contains computed field', () => {
 			// Arrange:
-			const processor = createProcessor({messageEnvelopeSizeComputed: 123});
+			const processor = createProcessor({ messageEnvelopeSizeComputed: 123 });
 			const transaction = {
 				type: null, timestamp: null, signer: null, recipient: null, message: null
 			};
