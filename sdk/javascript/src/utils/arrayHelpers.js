@@ -1,5 +1,17 @@
 const { BufferView } = require('./BufferView');
 
+const deepGte = (lhs, rhs) => {
+	if (!Array.isArray(lhs) && !(lhs instanceof Object.getPrototypeOf(Uint8Array)))
+		return lhs >= rhs;
+
+	for (let i = 0; i < lhs.length; ++i) {
+		if (!deepGte(lhs[i], rhs[i]))
+			return false;
+	}
+
+	return true;
+};
+
 const readArrayImpl = (bufferInput, FactoryClass, accessor, shouldContinue) => {
 	const view = new BufferView(bufferInput);
 	const elements = [];
@@ -11,7 +23,7 @@ const readArrayImpl = (bufferInput, FactoryClass, accessor, shouldContinue) => {
 		if (0 >= element.size)
 			throw RangeError('element size has invalid size');
 
-		if (accessor && previousElement && accessor(previousElement) >= accessor(element))
+		if (accessor && previousElement && deepGte(accessor(previousElement), accessor(element)))
 			throw RangeError('elements in array are not sorted');
 
 		elements.push(element);
@@ -27,7 +39,7 @@ const readArrayImpl = (bufferInput, FactoryClass, accessor, shouldContinue) => {
 const writeArrayImpl = (output, elements, count, accessor = null) => {
 	for (let i = 0; i < count; ++i) {
 		const element = elements[i];
-		if (accessor && 0 < i && accessor(elements[i - 1]) >= accessor(element))
+		if (accessor && 0 < i && deepGte(accessor(elements[i - 1]), accessor(element)))
 			throw RangeError('array passed to write array is not sorted');
 
 		output.write(element.serialize());

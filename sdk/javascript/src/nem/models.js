@@ -2772,6 +2772,15 @@ class MultisigAccountModification {
 		this._cosignatoryPublicKeySize = 32; // reserved field
 	}
 
+	comparer() {
+		const { ripemdKeccak256 } = require('../utils/transforms'); // eslint-disable-line global-require
+
+		return [
+			this.modificationType,
+			ripemdKeccak256(this.cosignatoryPublicKey.bytes)
+		];
+	}
+
 	get modificationType() {
 		return this._modificationType;
 	}
@@ -3035,7 +3044,7 @@ class MultisigAccountModificationTransactionV1 {
 		view.shiftRight(deadline.size);
 		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount);
+		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		view.shiftRight(arrayHelpers.size(modifications));
 
 		const instance = new MultisigAccountModificationTransactionV1();
@@ -3065,7 +3074,7 @@ class MultisigAccountModificationTransactionV1 {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer, this._modifications);
+		arrayHelpers.writeArray(buffer, this._modifications, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		return buffer.storage;
 	}
 
@@ -3219,7 +3228,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		view.shiftRight(deadline.size);
 		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount);
+		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		view.shiftRight(arrayHelpers.size(modifications));
 
 		const instance = new NonVerifiableMultisigAccountModificationTransactionV1();
@@ -3246,7 +3255,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer, this._modifications);
+		arrayHelpers.writeArray(buffer, this._modifications, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		return buffer.storage;
 	}
 
@@ -3430,7 +3439,7 @@ class MultisigAccountModificationTransaction {
 		view.shiftRight(deadline.size);
 		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount);
+		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		view.shiftRight(arrayHelpers.size(modifications));
 		const minApprovalDeltaSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -3467,7 +3476,7 @@ class MultisigAccountModificationTransaction {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer, this._modifications);
+		arrayHelpers.writeArray(buffer, this._modifications, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		buffer.write(converter.intToBytes(this._minApprovalDeltaSize, 4, false));
 		buffer.write(converter.intToBytes(this._minApprovalDelta, 4, true));
 		return buffer.storage;
@@ -3636,7 +3645,7 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		view.shiftRight(deadline.size);
 		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount);
+		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		view.shiftRight(arrayHelpers.size(modifications));
 		const minApprovalDeltaSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -3670,7 +3679,7 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer, this._modifications);
+		arrayHelpers.writeArray(buffer, this._modifications, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		buffer.write(converter.intToBytes(this._minApprovalDeltaSize, 4, false));
 		buffer.write(converter.intToBytes(this._minApprovalDelta, 4, true));
 		return buffer.storage;

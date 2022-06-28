@@ -151,6 +151,29 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return MethodDescriptor(body=body, arguments=arguments)
 
+	def get_comparer_descriptor(self):
+		if not self.struct.comparer:
+			return None
+
+		body = ''
+		if any('ripemd_keccak_256' == transform for (_, transform) in self.struct.comparer):
+			body += 'const { ripemdKeccak256 } = require(\'../utils/transforms\'); // eslint-disable-line global-require\n\n'
+
+		body += 'return [\n'
+		for (property_name, transform) in self.struct.comparer:
+			body += '\t'
+			if not transform:
+				body += f'this.{lang_field_name(property_name)}'
+			else:
+				body += f'{lang_field_name(transform).replace("_", "")}(this.{lang_field_name(property_name)}.bytes)'
+
+			body += ',\n'
+
+		body = body[:-2]  # strip trailing comma
+		body += '\n];'
+
+		return MethodDescriptor(body=body)
+
 	def generate_condition(self, field, prefix_field=False):
 		if not field.is_conditional:
 			return ''
