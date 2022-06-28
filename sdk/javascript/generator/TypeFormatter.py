@@ -65,10 +65,26 @@ class TypeFormatter(ClassFormatter):
 		method_descriptor.method_name = 'constructor'
 		return self.generate_method(method_descriptor)
 
-	def generate_deserializer(self):
-		# 'deserialize'
-		method_descriptor = self.provider.get_deserialize_descriptor()
-		method_descriptor.method_name = 'static deserialize'
+	def generate_comparer(self):
+		method_descriptor = self.provider.get_comparer_descriptor()
+		if not method_descriptor:
+			return None
+
+		method_descriptor.method_name = 'comparer'
+		method_descriptor.arguments = []
+		return self.generate_method(method_descriptor)
+
+	def generate_deserializer(self, name, generated_name=None):
+		if not hasattr(self.provider, f'get_{name}_descriptor'):
+			return None
+
+		descriptor_getter = getattr(self.provider, f'get_{name}_descriptor')
+		method_descriptor = descriptor_getter()
+		if not method_descriptor:
+			return None
+
+		generated_name = generated_name or name
+		method_descriptor.method_name = f'static {generated_name}'
 		method_descriptor.arguments = ['payload']
 		method_descriptor.annotations = []
 		return self.generate_method(method_descriptor)
@@ -113,7 +129,10 @@ class TypeFormatter(ClassFormatter):
 		if size_method:
 			methods.append(size_method)
 
-		methods.append(self.generate_deserializer())
+		methods.append(self.generate_deserializer('deserialize'))
+		deserialize_aligned = self.generate_deserializer('deserialize_aligned', 'deserializeAligned')
+		if deserialize_aligned:
+			methods.append(deserialize_aligned)
 		methods.append(self.generate_serializer())
 
 		representation = self.generate_representation()
