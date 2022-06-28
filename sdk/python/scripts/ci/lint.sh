@@ -17,7 +17,7 @@ find . -name "nc" -prune -o -name "sc" -prune -o -type f -name "*.py" -print0 | 
 # generated code with some suppressions
 find . -name "nc" -o -name "sc" -o -type f -name "*.py" -print0 | PYTHONPATH=. xargs -0 python3 -m pycodestyle \
 	--config="$(git rev-parse --show-toplevel)/linters/python/.pycodestyle" \
-	--max-line-length=210
+	--max-line-length=215
 find . -name "nc" -o -name "sc" -o -type f -name "*.py" -print0 | PYTHONPATH=".:$(git rev-parse --show-toplevel)/catbuffer/parser" xargs -0 python3 -m pylint \
 	--rcfile "$(git rev-parse --show-toplevel)/linters/python/.pylintrc" \
 	--load-plugins pylint_quotes \
