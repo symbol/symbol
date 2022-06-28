@@ -71,6 +71,11 @@ class TypedArrayPrinter(Printer):
 
 		return f'ArrayHelpers.size(self.{self.name})'
 
+	def _get_sort_accessor(self):
+		sort_key = self.descriptor.field_type.sort_key
+		accessor = f'lambda e: e.{sort_key}.comparer() if hasattr(e.{sort_key}, \'comparer\') else e.{sort_key}'
+		return accessor
+
 	def load(self):
 		element_type = self.descriptor.field_type.element_type
 
@@ -96,8 +101,7 @@ class TypedArrayPrinter(Printer):
 			str(self.descriptor.size),
 		]
 		if self.descriptor.field_type.sort_key:
-			accessor = f'lambda e: e.{self.descriptor.field_type.sort_key}'
-			args.append(accessor)
+			args.append(self._get_sort_accessor())
 
 		args_str = ', '.join(args)
 		return f'ArrayHelpers.read_array_count({args_str})'
@@ -127,8 +131,7 @@ class TypedArrayPrinter(Printer):
 			args.append(str(size))
 
 		if self.descriptor.field_type.sort_key:
-			accessor = f'lambda e: e.{self.descriptor.field_type.sort_key}'
-			args.append(accessor)
+			args.append(self._get_sort_accessor())
 
 		args_str = ', '.join(args)
 		if isinstance(size, str):

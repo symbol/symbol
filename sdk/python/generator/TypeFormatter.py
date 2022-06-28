@@ -62,6 +62,16 @@ class TypeFormatter(ClassFormatter):
 		method_descriptor.method_name = '__init__'
 		return self.generate_method(method_descriptor)
 
+	def generate_comparer(self):
+		method_descriptor = self.provider.get_comparer_descriptor()
+		if not method_descriptor:
+			return None
+
+		method_descriptor.method_name = 'comparer'
+		method_descriptor.arguments = []
+		method_descriptor.result = 'tuple'
+		return self.generate_method(method_descriptor)
+
 	def generate_deserializer(self):
 		# 'deserialize'
 		method_descriptor = self.provider.get_deserialize_descriptor()
@@ -109,6 +119,10 @@ class TypeFormatter(ClassFormatter):
 		ctor = self.generate_ctor()
 		if ctor:
 			methods.append(ctor)
+
+		comparer = self.generate_comparer()
+		if comparer:
+			methods.append(comparer)
 
 		getters = self.generate_getters()
 		methods.extend(getters)
