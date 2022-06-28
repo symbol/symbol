@@ -258,10 +258,10 @@ describe('converter', () => {
 		});
 	};
 
-	describe('bytesToInt', () => {
+	const assertBytesToInt = bytesToInt => {
 		const assertBytesToIntFactory = isSigned => (input, size, expectedValue) => {
 			// Act:
-			const actual = converter.bytesToInt(new Uint8Array(input), size, isSigned);
+			const actual = bytesToInt(new Uint8Array(input), size, isSigned);
 
 			// Assert:
 			expect(actual).to.equal(expectedValue);
@@ -273,6 +273,50 @@ describe('converter', () => {
 
 		describe('can convert unsigned', () => {
 			assertUnsigned(assertBytesToIntFactory(false));
+		});
+	};
+
+	describe('bytesToInt', () => {
+		assertBytesToInt(converter.bytesToInt);
+
+		const assertBytesToIntOnMisaligned = (input, size, isSigned) => {
+			// Arrange:
+			const data = new Uint8Array(input);
+			const misalignedBuffer = new Uint8Array(data.buffer, 1, size);
+
+			// Act:
+			expect(() => converter.bytesToInt(misalignedBuffer, size, isSigned)).to.throw(/start offset of (Ui|I)nt.+Array should be/);
+		};
+
+		describe('fails on misaligned access', () => {
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x80], 2, true);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x80], 2, false);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x80], 4, true);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x80], 4, false);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 4, true);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 4, false);
+		});
+	});
+
+	describe('bytesToIntUnaligned', () => {
+		assertBytesToInt(converter.bytesToIntUnaligned);
+
+		const assertBytesToIntOnMisaligned = (input, size, isSigned, expectedValue) => {
+			// Arrange:
+			const data = new Uint8Array(input);
+			const misalignedBuffer = new Uint8Array(data.buffer, 1, size);
+
+			// Act:
+			expect(converter.bytesToIntUnaligned(misalignedBuffer, size, isSigned)).to.equal(expectedValue);
+		};
+
+		describe('succeeds on misaligned access', () => {
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x80], 2, true, -32751);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x80], 2, false, 0x8011);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x80], 4, true, -2144132591);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x80], 4, false, 0x80332211);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 8, true, -9189763998223752687n);
+			assertBytesToIntOnMisaligned([0xFF, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x80], 8, false, 0x8077665544332211n);
 		});
 	});
 
