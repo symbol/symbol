@@ -11137,7 +11137,7 @@ class TransferTransaction {
 		view.shiftRight(4);
 		if (0 !== transferTransactionBodyReserved_2)
 			throw RangeError(`Invalid value of reserved field (${transferTransactionBodyReserved_2})`);
-		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => e.mosaicId.value);
+		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => (e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value));
 		view.shiftRight(arrayHelpers.size(mosaics));
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
@@ -11173,7 +11173,7 @@ class TransferTransaction {
 		buffer.write(converter.intToBytes(this._mosaics.length, 1, false)); // bound: mosaics_count
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_1, 1, false));
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_2, 4, false));
-		arrayHelpers.writeArray(buffer, this._mosaics, e => e.mosaicId.value);
+		arrayHelpers.writeArray(buffer, this._mosaics, e => (e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value));
 		buffer.write(this._message);
 		return buffer.storage;
 	}
@@ -11333,7 +11333,7 @@ class EmbeddedTransferTransaction {
 		view.shiftRight(4);
 		if (0 !== transferTransactionBodyReserved_2)
 			throw RangeError(`Invalid value of reserved field (${transferTransactionBodyReserved_2})`);
-		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => e.mosaicId.value);
+		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => (e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value));
 		view.shiftRight(arrayHelpers.size(mosaics));
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
@@ -11363,7 +11363,7 @@ class EmbeddedTransferTransaction {
 		buffer.write(converter.intToBytes(this._mosaics.length, 1, false)); // bound: mosaics_count
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_1, 1, false));
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_2, 4, false));
-		arrayHelpers.writeArray(buffer, this._mosaics, e => e.mosaicId.value);
+		arrayHelpers.writeArray(buffer, this._mosaics, e => (e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value));
 		buffer.write(this._message);
 		return buffer.storage;
 	}
