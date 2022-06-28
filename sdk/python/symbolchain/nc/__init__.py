@@ -2466,6 +2466,14 @@ class MultisigAccountModification:
 		self._cosignatory_public_key = PublicKey()
 		self._cosignatory_public_key_size = 32  # reserved field
 
+	def comparer(self) -> tuple:
+		from ..Transforms import ripemd_keccak_256  # pylint: disable=import-outside-toplevel
+
+		return (
+			self.modification_type if not isinstance(self.modification_type, Enum) else self.modification_type.value,
+			ripemd_keccak_256(self.cosignatory_public_key.bytes),
+		)
+
 	@property
 	def modification_type(self) -> MultisigAccountModificationType:
 		return self._modification_type
@@ -2718,7 +2726,7 @@ class MultisigAccountModificationTransactionV1:
 		buffer = buffer[deadline.size:]
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
-		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count)
+		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer = buffer[ArrayHelpers.size(modifications):]
 
 		instance = MultisigAccountModificationTransactionV1()
@@ -2747,7 +2755,7 @@ class MultisigAccountModificationTransactionV1:
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
 		buffer += len(self._modifications).to_bytes(4, byteorder='little', signed=False)  # modifications_count
-		buffer += ArrayHelpers.write_array(self._modifications)
+		buffer += ArrayHelpers.write_array(self._modifications, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		return buffer
 
 	def __str__(self) -> str:
@@ -2895,7 +2903,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 		buffer = buffer[deadline.size:]
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
-		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count)
+		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer = buffer[ArrayHelpers.size(modifications):]
 
 		instance = NonVerifiableMultisigAccountModificationTransactionV1()
@@ -2921,7 +2929,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
 		buffer += len(self._modifications).to_bytes(4, byteorder='little', signed=False)  # modifications_count
-		buffer += ArrayHelpers.write_array(self._modifications)
+		buffer += ArrayHelpers.write_array(self._modifications, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		return buffer
 
 	def __str__(self) -> str:
@@ -3098,7 +3106,7 @@ class MultisigAccountModificationTransaction:
 		buffer = buffer[deadline.size:]
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
-		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count)
+		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer = buffer[ArrayHelpers.size(modifications):]
 		min_approval_delta_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3133,7 +3141,7 @@ class MultisigAccountModificationTransaction:
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
 		buffer += len(self._modifications).to_bytes(4, byteorder='little', signed=False)  # modifications_count
-		buffer += ArrayHelpers.write_array(self._modifications)
+		buffer += ArrayHelpers.write_array(self._modifications, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer += self._min_approval_delta_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._min_approval_delta.to_bytes(4, byteorder='little', signed=True)
 		return buffer
@@ -3296,7 +3304,7 @@ class NonVerifiableMultisigAccountModificationTransaction:
 		buffer = buffer[deadline.size:]
 		modifications_count = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
-		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count)
+		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer = buffer[ArrayHelpers.size(modifications):]
 		min_approval_delta_size = int.from_bytes(buffer[:4], byteorder='little', signed=False)
 		buffer = buffer[4:]
@@ -3328,7 +3336,7 @@ class NonVerifiableMultisigAccountModificationTransaction:
 		buffer += self._fee.serialize()
 		buffer += self._deadline.serialize()
 		buffer += len(self._modifications).to_bytes(4, byteorder='little', signed=False)  # modifications_count
-		buffer += ArrayHelpers.write_array(self._modifications)
+		buffer += ArrayHelpers.write_array(self._modifications, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer += self._min_approval_delta_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._min_approval_delta.to_bytes(4, byteorder='little', signed=True)
 		return buffer
