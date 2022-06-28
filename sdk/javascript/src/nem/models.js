@@ -16,6 +16,11 @@ class Amount extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new Amount(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new Amount(converter.bytesToInt(byteArray, 8, false));
 	}
 
@@ -33,6 +38,11 @@ class Height extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new Height(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new Height(converter.bytesToInt(byteArray, 8, false));
 	}
 
@@ -49,6 +59,11 @@ class Timestamp extends BaseValue {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return new Timestamp(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return new Timestamp(converter.bytesToInt(byteArray, 4, false));
 	}
@@ -176,6 +191,11 @@ class NetworkType {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
 	}
 
@@ -234,6 +254,11 @@ class TransactionType {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 4, false));
 	}
@@ -356,9 +381,9 @@ class Transaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -366,13 +391,13 @@ class Transaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -522,9 +547,9 @@ class NonVerifiableTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -532,7 +557,7 @@ class NonVerifiableTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
@@ -615,6 +640,11 @@ class LinkAction {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 4, false));
 	}
@@ -765,9 +795,9 @@ class AccountKeyLinkTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -775,13 +805,13 @@ class AccountKeyLinkTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -793,7 +823,7 @@ class AccountKeyLinkTransaction {
 		view.shiftRight(deadline.size);
 		const linkAction = LinkAction.deserialize(view.buffer);
 		view.shiftRight(linkAction.size);
-		const remotePublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const remotePublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== remotePublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${remotePublicKeySize})`);
@@ -974,9 +1004,9 @@ class NonVerifiableAccountKeyLinkTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -984,7 +1014,7 @@ class NonVerifiableAccountKeyLinkTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
@@ -996,7 +1026,7 @@ class NonVerifiableAccountKeyLinkTransaction {
 		view.shiftRight(deadline.size);
 		const linkAction = LinkAction.deserialize(view.buffer);
 		view.shiftRight(linkAction.size);
-		const remotePublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const remotePublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== remotePublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${remotePublicKeySize})`);
@@ -1075,7 +1105,7 @@ class NamespaceId {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const nameSize = converter.bytesToInt(view.buffer, 4, false);
+		const nameSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const name = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, nameSize);
 		view.shiftRight(nameSize);
@@ -1139,7 +1169,7 @@ class MosaicId {
 		const view = new BufferView(payload);
 		const namespaceId = NamespaceId.deserialize(view.buffer);
 		view.shiftRight(namespaceId.size);
-		const nameSize = converter.bytesToInt(view.buffer, 4, false);
+		const nameSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const name = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, nameSize);
 		view.shiftRight(nameSize);
@@ -1204,7 +1234,7 @@ class Mosaic {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const mosaicIdSize = converter.bytesToInt(view.buffer, 4, false);
+		const mosaicIdSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const mosaicId = MosaicId.deserialize(view.window(mosaicIdSize));
@@ -1261,7 +1291,7 @@ class SizePrefixedMosaic {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const mosaicSize = converter.bytesToInt(view.buffer, 4, false);
+		const mosaicSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const mosaic = Mosaic.deserialize(view.window(mosaicSize));
@@ -1320,6 +1350,11 @@ class MosaicTransferFeeType {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 4, false));
 	}
@@ -1396,13 +1431,13 @@ class MosaicLevy {
 		const view = new BufferView(payload);
 		const transferFeeType = MosaicTransferFeeType.deserialize(view.buffer);
 		view.shiftRight(transferFeeType.size);
-		const recipientAddressSize = converter.bytesToInt(view.buffer, 4, false);
+		const recipientAddressSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== recipientAddressSize)
 			throw RangeError(`Invalid value of reserved field (${recipientAddressSize})`);
 		const recipientAddress = Address.deserialize(view.buffer);
 		view.shiftRight(recipientAddress.size);
-		const mosaicIdSize = converter.bytesToInt(view.buffer, 4, false);
+		const mosaicIdSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const mosaicId = MosaicId.deserialize(view.window(mosaicIdSize));
@@ -1478,11 +1513,11 @@ class MosaicProperty {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const nameSize = converter.bytesToInt(view.buffer, 4, false);
+		const nameSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const name = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, nameSize);
 		view.shiftRight(nameSize);
-		const valueSize = converter.bytesToInt(view.buffer, 4, false);
+		const valueSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const value = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, valueSize);
 		view.shiftRight(valueSize);
@@ -1537,7 +1572,7 @@ class SizePrefixedMosaicProperty {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const propertySize = converter.bytesToInt(view.buffer, 4, false);
+		const propertySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const property = MosaicProperty.deserialize(view.window(propertySize));
@@ -1649,26 +1684,26 @@ class MosaicDefinition {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const ownerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const ownerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== ownerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${ownerPublicKeySize})`);
 		const ownerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(ownerPublicKey.size);
-		const idSize = converter.bytesToInt(view.buffer, 4, false);
+		const idSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const id = MosaicId.deserialize(view.window(idSize));
 		view.shiftRight(id.size);
-		const descriptionSize = converter.bytesToInt(view.buffer, 4, false);
+		const descriptionSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const description = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, descriptionSize);
 		view.shiftRight(descriptionSize);
-		const propertiesCount = converter.bytesToInt(view.buffer, 4, false);
+		const propertiesCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const properties = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMosaicProperty, propertiesCount);
 		view.shiftRight(arrayHelpers.size(properties));
-		const levySize = converter.bytesToInt(view.buffer, 4, false);
+		const levySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		let levy;
 		if (0 !== levySize) {
@@ -1867,9 +1902,9 @@ class MosaicDefinitionTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -1877,13 +1912,13 @@ class MosaicDefinitionTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -1893,12 +1928,12 @@ class MosaicDefinitionTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const mosaicDefinitionSize = converter.bytesToInt(view.buffer, 4, false);
+		const mosaicDefinitionSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const mosaicDefinition = MosaicDefinition.deserialize(view.window(mosaicDefinitionSize));
 		view.shiftRight(mosaicDefinition.size);
-		const rentalFeeSinkSize = converter.bytesToInt(view.buffer, 4, false);
+		const rentalFeeSinkSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== rentalFeeSinkSize)
 			throw RangeError(`Invalid value of reserved field (${rentalFeeSinkSize})`);
@@ -2097,9 +2132,9 @@ class NonVerifiableMosaicDefinitionTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -2107,7 +2142,7 @@ class NonVerifiableMosaicDefinitionTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
@@ -2117,12 +2152,12 @@ class NonVerifiableMosaicDefinitionTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const mosaicDefinitionSize = converter.bytesToInt(view.buffer, 4, false);
+		const mosaicDefinitionSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const mosaicDefinition = MosaicDefinition.deserialize(view.window(mosaicDefinitionSize));
 		view.shiftRight(mosaicDefinition.size);
-		const rentalFeeSinkSize = converter.bytesToInt(view.buffer, 4, false);
+		const rentalFeeSinkSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== rentalFeeSinkSize)
 			throw RangeError(`Invalid value of reserved field (${rentalFeeSinkSize})`);
@@ -2214,6 +2249,11 @@ class MosaicSupplyChangeAction {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 4, false));
 	}
@@ -2374,9 +2414,9 @@ class MosaicSupplyChangeTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -2384,13 +2424,13 @@ class MosaicSupplyChangeTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -2400,7 +2440,7 @@ class MosaicSupplyChangeTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const mosaicIdSize = converter.bytesToInt(view.buffer, 4, false);
+		const mosaicIdSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const mosaicId = MosaicId.deserialize(view.window(mosaicIdSize));
@@ -2597,9 +2637,9 @@ class NonVerifiableMosaicSupplyChangeTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -2607,7 +2647,7 @@ class NonVerifiableMosaicSupplyChangeTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
@@ -2617,7 +2657,7 @@ class NonVerifiableMosaicSupplyChangeTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const mosaicIdSize = converter.bytesToInt(view.buffer, 4, false);
+		const mosaicIdSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const mosaicId = MosaicId.deserialize(view.window(mosaicIdSize));
@@ -2710,6 +2750,11 @@ class MultisigAccountModificationType {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 4, false));
 	}
 
@@ -2771,7 +2816,7 @@ class MultisigAccountModification {
 		const view = new BufferView(payload);
 		const modificationType = MultisigAccountModificationType.deserialize(view.buffer);
 		view.shiftRight(modificationType.size);
-		const cosignatoryPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const cosignatoryPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== cosignatoryPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${cosignatoryPublicKeySize})`);
@@ -2827,7 +2872,7 @@ class SizePrefixedMultisigAccountModification {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const modificationSize = converter.bytesToInt(view.buffer, 4, false);
+		const modificationSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const modification = MultisigAccountModification.deserialize(view.window(modificationSize));
@@ -2978,9 +3023,9 @@ class MultisigAccountModificationTransactionV1 {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -2988,13 +3033,13 @@ class MultisigAccountModificationTransactionV1 {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -3004,7 +3049,7 @@ class MultisigAccountModificationTransactionV1 {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const modificationsCount = converter.bytesToInt(view.buffer, 4, false);
+		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		view.shiftRight(arrayHelpers.size(modifications));
@@ -3168,9 +3213,9 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -3178,7 +3223,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
@@ -3188,7 +3233,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const modificationsCount = converter.bytesToInt(view.buffer, 4, false);
+		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		view.shiftRight(arrayHelpers.size(modifications));
@@ -3373,9 +3418,9 @@ class MultisigAccountModificationTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -3383,13 +3428,13 @@ class MultisigAccountModificationTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -3399,15 +3444,15 @@ class MultisigAccountModificationTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const modificationsCount = converter.bytesToInt(view.buffer, 4, false);
+		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		view.shiftRight(arrayHelpers.size(modifications));
-		const minApprovalDeltaSize = converter.bytesToInt(view.buffer, 4, false);
+		const minApprovalDeltaSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (4 !== minApprovalDeltaSize)
 			throw RangeError(`Invalid value of reserved field (${minApprovalDeltaSize})`);
-		const minApprovalDelta = converter.bytesToInt(view.buffer, 4, true);
+		const minApprovalDelta = converter.bytesToIntUnaligned(view.buffer, 4, true);
 		view.shiftRight(4);
 
 		const instance = new MultisigAccountModificationTransaction();
@@ -3585,9 +3630,9 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -3595,7 +3640,7 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
@@ -3605,15 +3650,15 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const modificationsCount = converter.bytesToInt(view.buffer, 4, false);
+		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
 		view.shiftRight(arrayHelpers.size(modifications));
-		const minApprovalDeltaSize = converter.bytesToInt(view.buffer, 4, false);
+		const minApprovalDeltaSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (4 !== minApprovalDeltaSize)
 			throw RangeError(`Invalid value of reserved field (${minApprovalDeltaSize})`);
-		const minApprovalDelta = converter.bytesToInt(view.buffer, 4, true);
+		const minApprovalDelta = converter.bytesToIntUnaligned(view.buffer, 4, true);
 		view.shiftRight(4);
 
 		const instance = new NonVerifiableMultisigAccountModificationTransaction();
@@ -3804,9 +3849,9 @@ class Cosignature {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -3814,13 +3859,13 @@ class Cosignature {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -3830,17 +3875,17 @@ class Cosignature {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const multisigTransactionHashOuterSize = converter.bytesToInt(view.buffer, 4, false);
+		const multisigTransactionHashOuterSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (36 !== multisigTransactionHashOuterSize)
 			throw RangeError(`Invalid value of reserved field (${multisigTransactionHashOuterSize})`);
-		const multisigTransactionHashSize = converter.bytesToInt(view.buffer, 4, false);
+		const multisigTransactionHashSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== multisigTransactionHashSize)
 			throw RangeError(`Invalid value of reserved field (${multisigTransactionHashSize})`);
 		const multisigTransactionHash = Hash256.deserialize(view.buffer);
 		view.shiftRight(multisigTransactionHash.size);
-		const multisigAccountAddressSize = converter.bytesToInt(view.buffer, 4, false);
+		const multisigAccountAddressSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== multisigAccountAddressSize)
 			throw RangeError(`Invalid value of reserved field (${multisigAccountAddressSize})`);
@@ -3925,7 +3970,7 @@ class SizePrefixedCosignature {
 
 	static deserialize(payload) {
 		const view = new BufferView(payload);
-		const cosignatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const cosignatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const cosignature = Cosignature.deserialize(view.window(cosignatureSize));
@@ -4088,9 +4133,9 @@ class MultisigTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -4098,13 +4143,13 @@ class MultisigTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -4114,12 +4159,12 @@ class MultisigTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const innerTransactionSize = converter.bytesToInt(view.buffer, 4, false);
+		const innerTransactionSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		// marking sizeof field
 		const innerTransaction = NonVerifiableTransactionFactory.deserialize(view.window(innerTransactionSize));
 		view.shiftRight(innerTransaction.size);
-		const cosignaturesCount = converter.bytesToInt(view.buffer, 4, false);
+		const cosignaturesCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const cosignatures = arrayHelpers.readArrayCount(view.buffer, SizePrefixedCosignature, cosignaturesCount);
 		view.shiftRight(arrayHelpers.size(cosignatures));
@@ -4338,9 +4383,9 @@ class NamespaceRegistrationTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -4348,13 +4393,13 @@ class NamespaceRegistrationTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -4364,7 +4409,7 @@ class NamespaceRegistrationTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const rentalFeeSinkSize = converter.bytesToInt(view.buffer, 4, false);
+		const rentalFeeSinkSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== rentalFeeSinkSize)
 			throw RangeError(`Invalid value of reserved field (${rentalFeeSinkSize})`);
@@ -4372,11 +4417,11 @@ class NamespaceRegistrationTransaction {
 		view.shiftRight(rentalFeeSink.size);
 		const rentalFee = Amount.deserialize(view.buffer);
 		view.shiftRight(rentalFee.size);
-		const nameSize = converter.bytesToInt(view.buffer, 4, false);
+		const nameSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const name = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, nameSize);
 		view.shiftRight(nameSize);
-		const parentNameSize = converter.bytesToInt(view.buffer, 4, false);
+		const parentNameSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		let parentName;
 		if (4294967295 !== parentNameSize) {
@@ -4596,9 +4641,9 @@ class NonVerifiableNamespaceRegistrationTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -4606,7 +4651,7 @@ class NonVerifiableNamespaceRegistrationTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
@@ -4616,7 +4661,7 @@ class NonVerifiableNamespaceRegistrationTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const rentalFeeSinkSize = converter.bytesToInt(view.buffer, 4, false);
+		const rentalFeeSinkSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== rentalFeeSinkSize)
 			throw RangeError(`Invalid value of reserved field (${rentalFeeSinkSize})`);
@@ -4624,11 +4669,11 @@ class NonVerifiableNamespaceRegistrationTransaction {
 		view.shiftRight(rentalFeeSink.size);
 		const rentalFee = Amount.deserialize(view.buffer);
 		view.shiftRight(rentalFee.size);
-		const nameSize = converter.bytesToInt(view.buffer, 4, false);
+		const nameSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const name = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, nameSize);
 		view.shiftRight(nameSize);
-		const parentNameSize = converter.bytesToInt(view.buffer, 4, false);
+		const parentNameSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		let parentName;
 		if (4294967295 !== parentNameSize) {
@@ -4728,6 +4773,11 @@ class MessageType {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 4, false));
 	}
 
@@ -4779,7 +4829,7 @@ class Message {
 		const view = new BufferView(payload);
 		const messageType = MessageType.deserialize(view.buffer);
 		view.shiftRight(messageType.size);
-		const messageSize = converter.bytesToInt(view.buffer, 4, false);
+		const messageSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
@@ -4967,9 +5017,9 @@ class TransferTransactionV1 {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -4977,13 +5027,13 @@ class TransferTransactionV1 {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -4993,7 +5043,7 @@ class TransferTransactionV1 {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const recipientAddressSize = converter.bytesToInt(view.buffer, 4, false);
+		const recipientAddressSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== recipientAddressSize)
 			throw RangeError(`Invalid value of reserved field (${recipientAddressSize})`);
@@ -5001,7 +5051,7 @@ class TransferTransactionV1 {
 		view.shiftRight(recipientAddress.size);
 		const amount = Amount.deserialize(view.buffer);
 		view.shiftRight(amount.size);
-		const messageEnvelopeSize = converter.bytesToInt(view.buffer, 4, false);
+		const messageEnvelopeSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		let message;
 		if (0 !== messageEnvelopeSize) {
@@ -5216,9 +5266,9 @@ class NonVerifiableTransferTransactionV1 {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -5226,7 +5276,7 @@ class NonVerifiableTransferTransactionV1 {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
@@ -5236,7 +5286,7 @@ class NonVerifiableTransferTransactionV1 {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const recipientAddressSize = converter.bytesToInt(view.buffer, 4, false);
+		const recipientAddressSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== recipientAddressSize)
 			throw RangeError(`Invalid value of reserved field (${recipientAddressSize})`);
@@ -5244,7 +5294,7 @@ class NonVerifiableTransferTransactionV1 {
 		view.shiftRight(recipientAddress.size);
 		const amount = Amount.deserialize(view.buffer);
 		view.shiftRight(amount.size);
-		const messageEnvelopeSize = converter.bytesToInt(view.buffer, 4, false);
+		const messageEnvelopeSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		let message;
 		if (0 !== messageEnvelopeSize) {
@@ -5480,9 +5530,9 @@ class TransferTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -5490,13 +5540,13 @@ class TransferTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
 		const signerPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(signerPublicKey.size);
-		const signatureSize = converter.bytesToInt(view.buffer, 4, false);
+		const signatureSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (64 !== signatureSize)
 			throw RangeError(`Invalid value of reserved field (${signatureSize})`);
@@ -5506,7 +5556,7 @@ class TransferTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const recipientAddressSize = converter.bytesToInt(view.buffer, 4, false);
+		const recipientAddressSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== recipientAddressSize)
 			throw RangeError(`Invalid value of reserved field (${recipientAddressSize})`);
@@ -5514,14 +5564,14 @@ class TransferTransaction {
 		view.shiftRight(recipientAddress.size);
 		const amount = Amount.deserialize(view.buffer);
 		view.shiftRight(amount.size);
-		const messageEnvelopeSize = converter.bytesToInt(view.buffer, 4, false);
+		const messageEnvelopeSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		let message;
 		if (0 !== messageEnvelopeSize) {
 			message = Message.deserialize(view.buffer);
 			view.shiftRight(message.size);
 		}
-		const mosaicsCount = converter.bytesToInt(view.buffer, 4, false);
+		const mosaicsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const mosaics = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMosaic, mosaicsCount);
 		view.shiftRight(arrayHelpers.size(mosaics));
@@ -5749,9 +5799,9 @@ class NonVerifiableTransferTransaction {
 		const view = new BufferView(payload);
 		const type = TransactionType.deserialize(view.buffer);
 		view.shiftRight(type.size);
-		const version = converter.bytesToInt(view.buffer, 1, false);
+		const version = converter.bytesToIntUnaligned(view.buffer, 1, false);
 		view.shiftRight(1);
-		const entityBodyReserved_1 = converter.bytesToInt(view.buffer, 2, false);
+		const entityBodyReserved_1 = converter.bytesToIntUnaligned(view.buffer, 2, false);
 		view.shiftRight(2);
 		if (0 !== entityBodyReserved_1)
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
@@ -5759,7 +5809,7 @@ class NonVerifiableTransferTransaction {
 		view.shiftRight(network.size);
 		const timestamp = Timestamp.deserialize(view.buffer);
 		view.shiftRight(timestamp.size);
-		const signerPublicKeySize = converter.bytesToInt(view.buffer, 4, false);
+		const signerPublicKeySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (32 !== signerPublicKeySize)
 			throw RangeError(`Invalid value of reserved field (${signerPublicKeySize})`);
@@ -5769,7 +5819,7 @@ class NonVerifiableTransferTransaction {
 		view.shiftRight(fee.size);
 		const deadline = Timestamp.deserialize(view.buffer);
 		view.shiftRight(deadline.size);
-		const recipientAddressSize = converter.bytesToInt(view.buffer, 4, false);
+		const recipientAddressSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		if (40 !== recipientAddressSize)
 			throw RangeError(`Invalid value of reserved field (${recipientAddressSize})`);
@@ -5777,14 +5827,14 @@ class NonVerifiableTransferTransaction {
 		view.shiftRight(recipientAddress.size);
 		const amount = Amount.deserialize(view.buffer);
 		view.shiftRight(amount.size);
-		const messageEnvelopeSize = converter.bytesToInt(view.buffer, 4, false);
+		const messageEnvelopeSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		let message;
 		if (0 !== messageEnvelopeSize) {
 			message = Message.deserialize(view.buffer);
 			view.shiftRight(message.size);
 		}
-		const mosaicsCount = converter.bytesToInt(view.buffer, 4, false);
+		const mosaicsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
 		const mosaics = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMosaic, mosaicsCount);
 		view.shiftRight(arrayHelpers.size(mosaics));
