@@ -29,9 +29,14 @@ class IntPrinter(Printer):
 	def get_size(self):
 		return self.descriptor.size
 
-	def load(self, buffer_name='byteArray'):
+	def load(self, buffer_name='byteArray', is_aligned=False):
 		data_size = self.get_size()
-		return f'converter.bytesToInt({buffer_name}, {data_size}, {js_bool(not self.descriptor.is_unsigned)})'
+		arguments = f'{buffer_name}, {data_size}, {js_bool(not self.descriptor.is_unsigned)}'
+		# is_aligned - handles both generation of deserializeAligned for pod and enum types and generation of fields within struct
+		if is_aligned:
+			return f'converter.bytesToInt({arguments})'
+
+		return f'converter.bytesToIntUnaligned({arguments})'
 
 	def advancement_size(self):
 		return self.get_size()
@@ -79,8 +84,9 @@ class TypedArrayPrinter(Printer):
 		accessor = f'e => (e.{sort_key}.comparer ? e.{sort_key}.comparer() : e.{sort_key}.value)'
 		return accessor
 
-	def load(self, buffer_name):
+	def load(self, buffer_name, is_aligned=
 		del buffer_name
+		del is_aligned
 		element_type = self.descriptor.field_type.element_type
 
 		if self.is_variable_size:
@@ -175,7 +181,8 @@ class ArrayPrinter(Printer):
 
 		return size
 
-	def load(self, buffer_name='byteArray'):
+	def load(self, buffer_name='byteArray', is_aligned=False):
+		del is_aligned
 		return f'new Uint8Array({buffer_name}.buffer, {buffer_name}.byteOffset, {self.advancement_size()})'
 
 	def advancement_size(self):
@@ -220,12 +227,16 @@ class BuiltinPrinter(Printer):
 	def get_size(self):
 		return f'this.{self.name}.size'
 
-	def load(self, buffer_name='view.buffer'):
-		if DisplayType.STRUCT == self.descriptor.display_type and self.descriptor.is_abstract:
+	def load(self, buffer_name='view.buffer', is_aligned=False):
+		display_type = self.descriptor.display_type
+		if DisplayType.STRUCT == display_type and self.descriptor.is_abstract:
 			# HACK: factories use this printers as well, ignore them
 			if 'parent' != self.name:
 				factory_name = self.get_type() + 'Factory'
 				return f'{factory_name}.deserialize({buffer_name})'
+
+		if is_aligned and display_type in (DisplayType.INTEGER, DisplayType.ENUM):
+			return f'{self.get_type()}.deserializeAligned({buffer_name})'
 
 		return f'{self.get_type()}.deserialize({buffer_name})'
 

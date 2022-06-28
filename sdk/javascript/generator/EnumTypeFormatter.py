@@ -28,13 +28,19 @@ class EnumTypeFormatter(AbstractTypeFormatter):
 		body = 'this.value = value;\n'
 		return MethodDescriptor(body=body, arguments=arguments)
 
-	def get_deserialize_descriptor(self):
+	def _get_deserialize_descriptor(self, is_aligned):
 		body = 'const byteArray = payload;\n'
 		if self.enum_type.is_bitwise:
-			body += f'return new {self.typename}({self.int_printer.load()});'
+			body += f'return new {self.typename}({self.int_printer.load("byteArray", is_aligned)});'
 		else:
-			body += f'return this.fromValue({self.int_printer.load()});'
+			body += f'return this.fromValue({self.int_printer.load("byteArray", is_aligned)});'
 		return MethodDescriptor(body=body)
+
+	def get_deserialize_descriptor(self):
+		return self._get_deserialize_descriptor(is_aligned=False)
+
+	def get_deserialize_aligned_descriptor(self):
+		return self._get_deserialize_descriptor(is_aligned=True)
 
 	def get_serialize_descriptor(self):
 		return MethodDescriptor(body=f'return {self.int_printer.store("this.value")};')

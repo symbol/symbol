@@ -200,8 +200,10 @@ class StructFormatter(AbstractTypeFormatter):
 			buffer_load_name = f'view.window({lang_field_name(size_fields[0].name)})'
 
 		use_custom_buffer_name = arg_buffer_name or size_fields
+		if not use_custom_buffer_name:
+			buffer_load_name = 'view.buffer'
 
-		load = field.extensions.printer.load(buffer_load_name) if use_custom_buffer_name else field.extensions.printer.load('view.buffer')
+		load = field.extensions.printer.load(buffer_load_name, self.struct.is_aligned)
 		const_field = 'const ' if not condition else ''
 		deserialize = f'{const_field}{field_name} = {load};\n'
 
