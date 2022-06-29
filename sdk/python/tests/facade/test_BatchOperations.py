@@ -72,7 +72,7 @@ class BatchOperationsTest(unittest.TestCase):
 		self.assertEqual(TEST_PUBLIC_KEY.bytes, transactions[1].signer_public_key.bytes)
 		self.assertEqual(str(BOB_ADDRESS).encode('utf8'), transactions[1].recipient_address.bytes)
 		self.assertEqual(1000000, transactions[1].amount.value)
-		self.assertEqual(b'', transactions[1].message.message)
+		self.assertEqual(None, transactions[1].message)
 
 	# endregion
 
