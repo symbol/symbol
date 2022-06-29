@@ -7708,7 +7708,7 @@ class NamespaceRegistrationTransaction:
 		self._fee = Amount()
 		self._deadline = Timestamp()
 		self._duration = BlockDuration()
-		self._parent_id = NamespaceId()
+		self._parent_id = None
 		self._id = NamespaceId()
 		self._registration_type = NamespaceRegistrationType.ROOT
 		self._name = bytes()
@@ -7960,7 +7960,7 @@ class EmbeddedNamespaceRegistrationTransaction:
 		self._network = NetworkType.MAINNET
 		self._type_ = EmbeddedNamespaceRegistrationTransaction.TRANSACTION_TYPE
 		self._duration = BlockDuration()
-		self._parent_id = NamespaceId()
+		self._parent_id = None
 		self._id = NamespaceId()
 		self._registration_type = NamespaceRegistrationType.ROOT
 		self._name = bytes()
