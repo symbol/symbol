@@ -23,7 +23,7 @@ class TransactionFactory:
 		})
 
 		# hack: explicitly translate transfer message
-		if nc.TransactionType.TRANSFER == transaction.type_ and isinstance(transaction.message.message, str):
+		if nc.TransactionType.TRANSFER == transaction.type_ and transaction.message and isinstance(transaction.message.message, str):
 			transaction.message.message = transaction.message.message.encode('utf8')
 
 		return transaction
