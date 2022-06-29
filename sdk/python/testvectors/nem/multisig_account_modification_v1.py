@@ -20,13 +20,13 @@ recipes = {
 				{
 					'modification': {
 						'modification_type': 'add_cosignatory',
-						'cosignatory_public_key': 'E401FF49AA42CC10C6FD2227A81C4C78D156B0AFC8B130D7B056784511E6D99E'
+						'cosignatory_public_key': 'D2FF731FE0CECBA4948173DCFC1CA8860EAABC7CA8F8495753E2AA38562AECB9'
 					}
 				},
 				{
 					'modification': {
 						'modification_type': 'add_cosignatory',
-						'cosignatory_public_key': 'D2FF731FE0CECBA4948173DCFC1CA8860EAABC7CA8F8495753E2AA38562AECB9'
+						'cosignatory_public_key': 'E401FF49AA42CC10C6FD2227A81C4C78D156B0AFC8B130D7B056784511E6D99E'
 					}
 				},
 				{
