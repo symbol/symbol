@@ -115,7 +115,18 @@ class StructFormatter(AbstractTypeFormatter):
 			if const_field:
 				body += f'{field_name} = {self.typename}.{const_field.name};\n'
 			else:
-				body += f'{field_name} = {field.extensions.printer.get_default_value()};\n'
+				value = field.extensions.printer.get_default_value()
+				if field.is_conditional:
+					conditional = field.value
+					condition_field_name = conditional.linked_field_name
+					condition_field = next(f for f in self.non_const_fields() if condition_field_name == f.name)
+					condition_model = condition_field.extensions.type_model
+
+					# only initialize default implicit union field in constructor
+					if f'{condition_model.name}.{conditional.value}' != condition_field.extensions.printer.get_default_value():
+						value = 'null'  # needs to be null or else field will not be destination when copying descriptor properties
+
+				body += f'{field_name} = {value};\n'
 
 		body += '\n'.join(
 			map(
@@ -225,7 +236,7 @@ class StructFormatter(AbstractTypeFormatter):
 		deserialize_field = deserialize + adjust + additional_statements
 
 		if condition:
-			condition = f'let {field.extensions.printer.name};\n' + condition
+			condition = f'let {field.extensions.printer.name} = null;\n' + condition
 
 		return indent_if_conditional(condition, deserialize_field)
 
