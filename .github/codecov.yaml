@@ -8,26 +8,31 @@ coverage:
 
       catbuffer-parser:
         target: auto
+        threshold: 1%
         flags:
           - catbuffer-parser
 
       client-catapult:
         target: auto
+        threshold: 1%
         flags:
           - client-catapult
 
       client-rest:
         target: auto
+        threshold: 1%
         flags:
           - client-rest
 
       sdk-javascript:
         target: auto
+        threshold: 1%
         flags:
           - sdk-javascript
 
       sdk-python:
         target: auto
+        threshold: 1%
         flags:
           - sdk-python
 
