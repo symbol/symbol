@@ -8323,7 +8323,7 @@ class NamespaceRegistrationTransaction {
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._duration = new BlockDuration();
-		this._parentId = new NamespaceId();
+		this._parentId = null;
 		this._id = new NamespaceId();
 		this._registrationType = NamespaceRegistrationType.ROOT;
 		this._name = new Uint8Array();
@@ -8488,11 +8488,11 @@ class NamespaceRegistrationTransaction {
 		view.shiftRight(id.size);
 		const registrationType = NamespaceRegistrationType.deserializeAligned(view.buffer);
 		view.shiftRight(registrationType.size);
-		let duration;
+		let duration = null;
 		if (NamespaceRegistrationType.ROOT === registrationType)
 			duration = BlockDuration.deserializeAligned(registration_type_condition);
 
-		let parentId;
+		let parentId = null;
 		if (NamespaceRegistrationType.CHILD === registrationType)
 			parentId = NamespaceId.deserializeAligned(registration_type_condition);
 
@@ -8587,7 +8587,7 @@ class EmbeddedNamespaceRegistrationTransaction {
 		this._network = NetworkType.MAINNET;
 		this._type = EmbeddedNamespaceRegistrationTransaction.TRANSACTION_TYPE;
 		this._duration = new BlockDuration();
-		this._parentId = new NamespaceId();
+		this._parentId = null;
 		this._id = new NamespaceId();
 		this._registrationType = NamespaceRegistrationType.ROOT;
 		this._name = new Uint8Array();
@@ -8719,11 +8719,11 @@ class EmbeddedNamespaceRegistrationTransaction {
 		view.shiftRight(id.size);
 		const registrationType = NamespaceRegistrationType.deserializeAligned(view.buffer);
 		view.shiftRight(registrationType.size);
-		let duration;
+		let duration = null;
 		if (NamespaceRegistrationType.ROOT === registrationType)
 			duration = BlockDuration.deserializeAligned(registration_type_condition);
 
-		let parentId;
+		let parentId = null;
 		if (NamespaceRegistrationType.CHILD === registrationType)
 			parentId = NamespaceId.deserializeAligned(registration_type_condition);
 

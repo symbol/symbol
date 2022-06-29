@@ -1613,7 +1613,7 @@ class MosaicDefinition {
 		this._description = new Uint8Array();
 		this._properties = [];
 		this._levySize = 0;
-		this._levy = new MosaicLevy();
+		this._levy = null;
 		this._ownerPublicKeySize = 32; // reserved field
 	}
 
@@ -1705,7 +1705,7 @@ class MosaicDefinition {
 		view.shiftRight(arrayHelpers.size(properties));
 		const levySize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		let levy;
+		let levy = null;
 		if (0 !== levySize) {
 			levy = MosaicLevy.deserialize(view.buffer);
 			view.shiftRight(levy.size);
@@ -4242,7 +4242,7 @@ class NamespaceRegistrationTransaction {
 		this._rentalFeeSink = new Address();
 		this._rentalFee = new Amount();
 		this._name = new Uint8Array();
-		this._parentName = new Uint8Array();
+		this._parentName = null;
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
 		this._signatureSize = 64; // reserved field
@@ -4414,7 +4414,7 @@ class NamespaceRegistrationTransaction {
 		view.shiftRight(nameSize);
 		const parentNameSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		let parentName;
+		let parentName = null;
 		if (4294967295 !== parentNameSize) {
 			parentName = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, parentNameSize);
 			view.shiftRight(parentNameSize);
@@ -4511,7 +4511,7 @@ class NonVerifiableNamespaceRegistrationTransaction {
 		this._rentalFeeSink = new Address();
 		this._rentalFee = new Amount();
 		this._name = new Uint8Array();
-		this._parentName = new Uint8Array();
+		this._parentName = null;
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
 		this._rentalFeeSinkSize = 40; // reserved field
@@ -4666,7 +4666,7 @@ class NonVerifiableNamespaceRegistrationTransaction {
 		view.shiftRight(nameSize);
 		const parentNameSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		let parentName;
+		let parentName = null;
 		if (4294967295 !== parentNameSize) {
 			parentName = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, parentNameSize);
 			view.shiftRight(parentNameSize);
@@ -4878,7 +4878,7 @@ class TransferTransactionV1 {
 		this._recipientAddress = new Address();
 		this._amount = new Amount();
 		this._messageEnvelopeSize = 0;
-		this._message = new Message();
+		this._message = null;
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
 		this._signatureSize = 64; // reserved field
@@ -5044,7 +5044,7 @@ class TransferTransactionV1 {
 		view.shiftRight(amount.size);
 		const messageEnvelopeSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		let message;
+		let message = null;
 		if (0 !== messageEnvelopeSize) {
 			message = Message.deserialize(view.buffer);
 			view.shiftRight(message.size);
@@ -5138,7 +5138,7 @@ class NonVerifiableTransferTransactionV1 {
 		this._recipientAddress = new Address();
 		this._amount = new Amount();
 		this._messageEnvelopeSize = 0;
-		this._message = new Message();
+		this._message = null;
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
 		this._recipientAddressSize = 40; // reserved field
@@ -5287,7 +5287,7 @@ class NonVerifiableTransferTransactionV1 {
 		view.shiftRight(amount.size);
 		const messageEnvelopeSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		let message;
+		let message = null;
 		if (0 !== messageEnvelopeSize) {
 			message = Message.deserialize(view.buffer);
 			view.shiftRight(message.size);
@@ -5380,7 +5380,7 @@ class TransferTransaction {
 		this._recipientAddress = new Address();
 		this._amount = new Amount();
 		this._messageEnvelopeSize = 0;
-		this._message = new Message();
+		this._message = null;
 		this._mosaics = [];
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
@@ -5557,7 +5557,7 @@ class TransferTransaction {
 		view.shiftRight(amount.size);
 		const messageEnvelopeSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		let message;
+		let message = null;
 		if (0 !== messageEnvelopeSize) {
 			message = Message.deserialize(view.buffer);
 			view.shiftRight(message.size);
@@ -5660,7 +5660,7 @@ class NonVerifiableTransferTransaction {
 		this._recipientAddress = new Address();
 		this._amount = new Amount();
 		this._messageEnvelopeSize = 0;
-		this._message = new Message();
+		this._message = null;
 		this._mosaics = [];
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
@@ -5820,7 +5820,7 @@ class NonVerifiableTransferTransaction {
 		view.shiftRight(amount.size);
 		const messageEnvelopeSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		let message;
+		let message = null;
 		if (0 !== messageEnvelopeSize) {
 			message = Message.deserialize(view.buffer);
 			view.shiftRight(message.size);

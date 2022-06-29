@@ -27,7 +27,8 @@ class TransactionFactory {
 
 		// autogenerate artifact ids
 		if (sc.TransactionType.NAMESPACE_REGISTRATION === transaction.type) {
-			const rawNamespaceId = generateNamespaceId(new TextDecoder().decode(transaction.name), transaction.parentId.value);
+			const parentId = sc.NamespaceRegistrationType.CHILD === transaction.registrationType ? transaction.parentId.value : 0n;
+			const rawNamespaceId = generateNamespaceId(new TextDecoder().decode(transaction.name), parentId);
 			transaction.id = new sc.NamespaceId(rawNamespaceId);
 		} else if (sc.TransactionType.MOSAIC_DEFINITION === transaction.type) {
 			const address = this.network.publicKeyToAddress(new PublicKey(transaction.signerPublicKey.bytes));
