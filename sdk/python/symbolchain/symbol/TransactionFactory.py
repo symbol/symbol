@@ -24,7 +24,8 @@ class TransactionFactory:
 
 		# autogenerate artifact ids
 		if sc.TransactionType.NAMESPACE_REGISTRATION == transaction.type_:
-			transaction.id = sc.NamespaceId(generate_namespace_id(transaction.name.decode('utf8'), transaction.parent_id.value))
+			parent_id = transaction.parent_id.value if sc.NamespaceRegistrationType.CHILD == transaction.registration_type else 0
+			transaction.id = sc.NamespaceId(generate_namespace_id(transaction.name.decode('utf8'), parent_id))
 		elif sc.TransactionType.MOSAIC_DEFINITION == transaction.type_:
 			address = self.network.public_key_to_address(PublicKey(transaction.signer_public_key.bytes))
 			transaction.id = sc.MosaicId(generate_mosaic_id(address, transaction.nonce.value))
