@@ -1412,7 +1412,7 @@ class MosaicDefinition:
 		self._description = bytes()
 		self._properties = []
 		self._levy_size = 0
-		self._levy = MosaicLevy()
+		self._levy = None
 		self._owner_public_key_size = 32  # reserved field
 
 	@property
@@ -3882,7 +3882,7 @@ class NamespaceRegistrationTransaction:
 		self._rental_fee_sink = Address()
 		self._rental_fee = Amount()
 		self._name = bytes()
-		self._parent_name = bytes()
+		self._parent_name = None
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
@@ -4138,7 +4138,7 @@ class NonVerifiableNamespaceRegistrationTransaction:
 		self._rental_fee_sink = Address()
 		self._rental_fee = Amount()
 		self._name = bytes()
-		self._parent_name = bytes()
+		self._parent_name = None
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 		self._rental_fee_sink_size = 40  # reserved field
@@ -4458,7 +4458,7 @@ class TransferTransactionV1:
 		self._recipient_address = Address()
 		self._amount = Amount()
 		self._message_envelope_size = 0
-		self._message = Message()
+		self._message = None
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
@@ -4705,7 +4705,7 @@ class NonVerifiableTransferTransactionV1:
 		self._recipient_address = Address()
 		self._amount = Amount()
 		self._message_envelope_size = 0
-		self._message = Message()
+		self._message = None
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 		self._recipient_address_size = 40  # reserved field
@@ -4935,7 +4935,7 @@ class TransferTransaction:
 		self._recipient_address = Address()
 		self._amount = Amount()
 		self._message_envelope_size = 0
-		self._message = Message()
+		self._message = None
 		self._mosaics = []
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
@@ -5202,7 +5202,7 @@ class NonVerifiableTransferTransaction:
 		self._recipient_address = Address()
 		self._amount = Amount()
 		self._message_envelope_size = 0
-		self._message = Message()
+		self._message = None
 		self._mosaics = []
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
