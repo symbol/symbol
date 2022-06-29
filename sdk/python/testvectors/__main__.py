@@ -250,6 +250,7 @@ def main():
 
 		with open(filepath, 'wt', encoding='utf8') as outfile:
 			json.dump(entries, outfile, indent=2)
+			outfile.write('\n')
 
 
 if '__main__' == __name__:
