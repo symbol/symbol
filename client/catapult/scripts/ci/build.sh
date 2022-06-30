@@ -4,7 +4,7 @@ set -ex
 
 git_root_directory="$(git rev-parse --show-toplevel)"
 scripts_directory="${git_root_directory}/jenkins/catapult"
-build_configuration="${scripts_directory}/configurations/tests-diagnostics.yaml"
+build_configuration="${scripts_directory}/configurations/tests-conan.yaml"
 if [ -z "${JENKINS_HOME}" ]
 then
 	python3 "${scripts_directory}/runDockerBuild.py" \

@@ -77,11 +77,35 @@ namespace catapult {
 #define PTRSUFFIX "*"
 #endif
 
+		// Boost function name got updated and now return in the form below.  This function coverts the function name to the
+		// expected value in the exception.
+		// void catapult::CatapultExceptionTests_CanCopyConstructException() [with TTraits = catapult::{anonymous}::RuntimeErrorTraits]
+		std::string ConvertToExceptionFunctionName(const std::string& functionFullName) {
+			CATAPULT_LOG(debug) << "function: " << functionFullName;
+
+			std::size_t functionNameEnd = functionFullName.rfind("(");
+			if (std::string::npos == functionNameEnd)
+				return functionFullName;
+
+			auto functionNameStart = functionFullName.rfind("::", functionNameEnd);
+			functionNameStart = (std::string::npos != functionNameStart) ? functionNameStart + 2 : 0;
+			std::ostringstream oss(functionFullName.substr(functionNameStart, functionNameEnd - functionNameStart), std::ios_base::ate);
+
+			auto foundTraits = functionFullName.find("=", functionNameEnd);
+			if (std::string::npos != foundTraits) {
+				auto traitsEnd = functionFullName.find("]", foundTraits);
+				auto functionTraits = functionFullName.substr(foundTraits + 2, traitsEnd - foundTraits - 2);
+				oss << "<" << functionTraits << ">";
+			}
+
+			return oss.str();
+		}
+
 		template<typename TException, typename TTraits>
 		void AssertExceptionInformation(const TException& ex, const ExpectedDiagnostics<TTraits>& expected) {
 			// Arrange:
 			std::vector<std::string> expectedDiagLines{
-				"Throw in function " + expected.FunctionName,
+				"Throw in function " + ConvertToExceptionFunctionName(expected.FunctionName),
 				"Dynamic exception type: " CLASSPREFIX "boost::wrapexcept<" + std::string(TTraits::Exception_Fqn) + " >",
 				"std::exception::what: " + expected.What
 			};

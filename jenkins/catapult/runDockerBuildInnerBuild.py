@@ -39,6 +39,7 @@ class LinuxEnvironment:
 		if self.dispatch_subprocess(['conan', 'profile', 'get', 'settings.compiler', 'default'], show_output=False, handle_error=False):
 			self.dispatch_subprocess(['conan', 'profile', 'new', 'default', '--detect'])
 
+		self.dispatch_subprocess(['conan', 'profile', 'show', 'default'])
 		self.dispatch_subprocess(['conan', 'remote', 'add', '--force', 'nemtech', CONAN_NEMTECH_REMOTE])
 		self.dispatch_subprocess(['conan', 'config', 'set', 'general.revisions_enabled=True'])
 
