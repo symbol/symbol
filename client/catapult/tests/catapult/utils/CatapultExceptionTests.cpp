@@ -88,19 +88,17 @@ namespace catapult {
 				return functionFullName;
 
 			auto functionNameStart = functionFullName.rfind("::", functionNameEnd);
-			functionNameStart = (functionNameStart != std::string::npos) ? functionNameStart + 2 : 0;
-			std::stringstream ss(
-					functionFullName.substr(functionNameStart, functionNameEnd - functionNameStart),
-					std::ios_base::ate | std::ios_base::out);
+			functionNameStart = (std::string::npos != functionNameStart) ? functionNameStart + 2 : 0;
+			std::ostringstream oss(functionFullName.substr(functionNameStart, functionNameEnd - functionNameStart), std::ios_base::ate);
 
 			auto foundTraits = functionFullName.find("=", functionNameEnd);
 			if (std::string::npos != foundTraits) {
 				auto traitsEnd = functionFullName.find("]", foundTraits);
 				auto functionTraits = functionFullName.substr(foundTraits + 2, traitsEnd - foundTraits - 2);
-				ss << "<" << functionTraits << ">";
+				oss << "<" << functionTraits << ">";
 			}
 
-			return ss.str();
+			return oss.str();
 		}
 
 		template<typename TException, typename TTraits>
