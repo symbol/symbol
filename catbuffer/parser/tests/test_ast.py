@@ -83,37 +83,105 @@ class CommentTests(unittest.TestCase):
 
 # endregion
 
-# region FixedSizeInteger / FixedSizeBuffer
+# region FixedSizeInteger
 
 class FixedSizeIntegerTests(unittest.TestCase):
-	def test_can_create_unsigned_value(self):
-		# Act:
-		model = FixedSizeInteger('uint16')
-
+	def _assert_uint16(self, model):
 		# Assert:
 		self.assertEqual('uint16', model.short_name)
 		self.assertEqual(True, model.is_unsigned)
 		self.assertEqual(2, model.size)
 		self.assertEqual('uint16', model.name)
-		self.assertEqual({'size': 2, 'type': 'byte', 'signedness': 'unsigned'}, model.to_legacy_descriptor())
+
 		self.assertEqual('uint16', str(model))
 
 		self.assertEqual(DisplayType.INTEGER, model.display_type)
+
+	def _assert_int32(self, model):
+		# Assert:
+		self.assertEqual('int32', model.short_name)
+		self.assertEqual(False, model.is_unsigned)
+		self.assertEqual(4, model.size)
+		self.assertEqual('int32', model.name)
+
+		self.assertEqual('int32', str(model))
+
+		self.assertEqual(DisplayType.INTEGER, model.display_type)
+
+	def test_can_create_unsigned_value(self):
+		# Act:
+		model = FixedSizeInteger('uint16')
+
+		# Assert:
+		self._assert_uint16(model)
+		self.assertEqual(None, model.sizeref)
+
+		self.assertEqual({'size': 2, 'type': 'byte', 'signedness': 'unsigned'}, model.to_legacy_descriptor())
 
 	def test_can_create_signed_value(self):
 		# Act:
 		model = FixedSizeInteger('int32')
 
 		# Assert:
-		self.assertEqual('int32', model.short_name)
-		self.assertEqual(False, model.is_unsigned)
-		self.assertEqual(4, model.size)
-		self.assertEqual('int32', model.name)
+		self._assert_int32(model)
+		self.assertEqual(None, model.sizeref)
+
 		self.assertEqual({'size': 4, 'type': 'byte', 'signedness': 'signed'}, model.to_legacy_descriptor())
-		self.assertEqual('int32', str(model))
 
-		self.assertEqual(DisplayType.INTEGER, model.display_type)
+	def test_can_create_value_with_sizeref(self):
+		# Act:
+		model = FixedSizeInteger('uint16')
+		model.sizeref = ['foo', 8]
 
+		# Assert:
+		self._assert_uint16(model)
+		self.assertEqual('foo', model.sizeref.property_name)  # pylint: disable=no-member
+		self.assertEqual(8, model.sizeref.delta)  # pylint: disable=no-member
+
+		self.assertEqual({
+			'size': 2,
+			'type': 'byte',
+			'signedness': 'unsigned',
+			'sizeref': {'property_name': 'foo', 'delta': 8}
+		}, model.to_legacy_descriptor())
+
+	def test_can_copy_value_without_sizeref(self):
+		# Arrange:
+		model = FixedSizeInteger('uint16')
+
+		# Act:
+		model = model.copy('alpha')
+
+		# Assert:
+		self._assert_uint16(model)
+		self.assertEqual(None, model.sizeref)
+
+		self.assertEqual({'size': 2, 'type': 'byte', 'signedness': 'unsigned'}, model.to_legacy_descriptor())
+
+	def test_can_copy_value_with_sizeref(self):
+		# Arrange:
+		model = FixedSizeInteger('uint16')
+		model.sizeref = ['foo', 8]
+
+		# Act:
+		model = model.copy('alpha')
+
+		# Assert:
+		self._assert_uint16(model)
+		self.assertEqual('alpha_foo', model.sizeref.property_name)  # pylint: disable=no-member
+		self.assertEqual(8, model.sizeref.delta)  # pylint: disable=no-member
+
+		self.assertEqual({
+			'size': 2,
+			'type': 'byte',
+			'signedness': 'unsigned',
+			'sizeref': {'property_name': 'alpha_foo', 'delta': 8}
+		}, model.to_legacy_descriptor())
+
+
+# endregion
+
+# region FixedSizeBuffer
 
 class FixedSizeBufferTests(unittest.TestCase):
 	def test_can_create_buffer(self):

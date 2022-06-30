@@ -110,10 +110,12 @@ class Comment:
 
 # endregion
 
-# region FixedSizeInteger / FixedSizeBuffer
+# region FixedSizeInteger
 
 class FixedSizeInteger:
 	"""Signed or unsigned integer type composed of 1, 2, 4 or 8 bytes."""
+
+	SizeRef = namedtuple('SizeRef', ['property_name', 'delta'])
 
 	def __init__(self, string):
 		self.short_name = string
@@ -123,19 +125,51 @@ class FixedSizeInteger:
 
 		self.display_type = DisplayType.INTEGER
 
+		self._sizeref = None
+
 	@property
 	def name(self):
 		"""Gets the type name."""
 		return str(self)
 
+	@property
+	def sizeref(self):
+		"""Gets the size reference."""
+		return self._sizeref
+
+	@sizeref.setter
+	def sizeref(self, values):
+		"""Sets the size reference."""
+		self._sizeref = self.SizeRef(values[0], values[1])
+
+	def copy(self, prefix):
+		"""Creates a copy of this field and transforms field names using the specified prefix."""
+
+		copy = FixedSizeInteger(self.short_name)
+		if self.sizeref:
+			copy.sizeref = [f'{prefix}_{self.sizeref.property_name}', self.sizeref.delta]  # pylint: disable=no-member
+
+		return copy
+
 	def to_legacy_descriptor(self):
 		"""Produces a dictionary consistent with the original catbuffer type descriptors."""
 
-		return {'size': self.size, 'type': 'byte', 'signedness': _format_is_unsigned(self.is_unsigned)}
+		descriptor = {'size': self.size, 'type': 'byte', 'signedness': _format_is_unsigned(self.is_unsigned)}
+		if self.sizeref:
+			descriptor['sizeref'] = {
+				'property_name': self.sizeref.property_name,  # pylint: disable=no-member
+				'delta': self.sizeref.delta  # pylint: disable=no-member
+			}
+
+		return descriptor
 
 	def __str__(self):
 		return self.short_name
 
+
+# endregion
+
+# region FixedSizeBuffer
 
 class FixedSizeBuffer:
 	"""Fixed size buffer composed of a constant number of bytes."""
@@ -601,16 +635,16 @@ class Array:
 		"""Gets the start alignment of array elements."""
 		return self._attributes.get('alignment', None)
 
-	@property
-	def is_last_element_padded(self):
-		"""Returns true if the last element is padded to the alignment boundary."""
-		return self._attributes.get('is_last_element_padded', None)
-
 	@alignment.setter
 	def alignment(self, values):
 		"""Sets the alignment of array elements."""
 		self._attributes['alignment'] = values[0]
 		self._attributes['is_last_element_padded'] = not ('not' == values[1] and 'pad_last' == values[2])
+
+	@property
+	def is_last_element_padded(self):
+		"""Returns true if the last element is padded to the alignment boundary."""
+		return self._attributes.get('is_last_element_padded', None)
 
 	@property
 	def display_type(self):
