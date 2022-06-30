@@ -73,7 +73,7 @@ class AstValidatorTests(unittest.TestCase):
 			# Assert:
 			self.assertEqual(expected_errors, validator.errors)
 
-	# region other types
+	# region alias
 
 	def test_can_validate_alias(self):
 		# Arrange:
@@ -299,6 +299,37 @@ class AstValidatorTests(unittest.TestCase):
 			ErrorDescriptor('reference to unknown element type "ElementType"', 'FooBar', 'alpha'),
 			ErrorDescriptor('reference to unknown sort_key property "height"', 'FooBar', 'alpha')
 		])
+
+	# endregion
+
+	# region struct - sizeref linkin
+
+	def test_cannot_validate_struct_containing_integer_with_unknown_sizeref_field(self):
+		# Arrange:
+		integer_model = FixedSizeInteger('uint16')
+		integer_model.sizeref = ['sigma', 8]
+
+		validator = AstValidator([
+			Struct([None, 'FooBar', StructField(['alpha', integer_model])])
+		])
+
+		# Act + Assert:
+		self._asssert_validate(validator, [
+			ErrorDescriptor('reference to unknown sizeref property "sigma"', 'FooBar', 'alpha')
+		])
+
+	def test_can_validate_struct_containing_integer_with_known_sizeref_field(self):
+		# Arrange:
+		integer_model = FixedSizeInteger('uint16')
+		integer_model.sizeref = ['sigma', 8]
+
+		validator = AstValidator([
+			Struct([None, 'ElementType', StructField(['weight', FixedSizeInteger('uint16')])]),
+			Struct([None, 'FooBar', StructField(['alpha', integer_model]), StructField(['sigma', 'ElementType'])])
+		])
+
+		# Act + Assert:
+		self._asssert_validate(validator, [])
 
 	# endregion
 

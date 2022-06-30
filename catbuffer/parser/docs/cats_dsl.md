@@ -241,7 +241,7 @@ Notice that `TRANSPORT_MODE` can be defined in any derived structure.
 
 Array fields support the following attributes:
 1. `is_byte_constrained`: indicates the size value should be interpreted as a byte value instead of an element count.
-1. `alignment(x, [[not] pad_last])`: indicates that elements should be padded so that they start on `x`-aligned boundaries.
+1. `alignment(x [, [not] pad_last])`: indicates that elements should be padded so that they start on `x`-aligned boundaries.
 1. `sort_key(x)`: indicates that elements within the array should be sorted by the `x` property.
 
 When alignment is specified, by default, the final element is padded to end on an `x`-aligned boundary.
@@ -253,6 +253,18 @@ For example, to sort vehicles by `weight`:
 struct Garage
 	@sort_key(weight)
 	vehicles = array(Vehicle, __FILL__)
+```
+
+Integer fields support the following attribute:
+1. `sizeref(x [, y])`: indicates the field should be initialized with the size of the `x` property adjusted by `y`.
+
+For example, to autopopulate `vehicle_size` with the size of itself and the vehicle field:
+```cpp
+struct Garage
+	@sizeref(vehicle, 2)
+	vehicle_size = uint16
+
+	vehicle = Vehicle
 ```
 
 ## comments
