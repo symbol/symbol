@@ -6,7 +6,7 @@ import time
 from binascii import unhexlify
 
 from symbolchain.Bip32 import Bip32
-from symbolchain.CryptoTypes import PrivateKey, PublicKey, Signature
+from symbolchain.CryptoTypes import PrivateKey, PublicKey, SharedKey256, Signature
 from symbolchain.Network import NetworkLocator
 from symbolchain.symbol.IdGenerator import generate_mosaic_id
 
@@ -18,6 +18,7 @@ class ClassLocator:
 		self.verifier_class = self.facade_class.Verifier
 		self.network_class = network_class
 		self.address_class = self.facade_class.Address
+		self.shared_key_class = self.facade_class.SharedKey
 
 	@property
 	def bip32_root_node_factory(self):
@@ -113,6 +114,41 @@ class VerifyTester(VectorsTestSuite):
 
 		# Assert:
 		return [(True, is_verified)]
+
+
+class DeriveDeprecatedTester(VectorsTestSuite):
+	def __init__(self, class_locator):
+		super().__init__(3, 'test-derive-deprecated', 'derive-deprecated')
+		self.class_locator = class_locator
+
+	def process(self, test_vector, _):
+		# Arrange:
+		other_public_key = PublicKey(test_vector['otherPublicKey'])
+		key_pair = self.class_locator.key_pair_class(PrivateKey(test_vector['privateKey']))
+		salt = unhexlify(test_vector['salt'])
+
+		# Act:
+		shared_key = self.class_locator.shared_key_class.derive_shared_key_deprecated(key_pair, other_public_key, salt)
+
+		# Assert:
+		return [(SharedKey256(test_vector['sharedKey']), shared_key)]
+
+
+class DeriveTester(VectorsTestSuite):
+	def __init__(self, class_locator):
+		super().__init__(3, 'test-derive-hkdf', 'derive')
+		self.class_locator = class_locator
+
+	def process(self, test_vector, _):
+		# Arrange:
+		other_public_key = PublicKey(test_vector['otherPublicKey'])
+		key_pair = self.class_locator.key_pair_class(PrivateKey(test_vector['privateKey']))
+
+		# Act:
+		shared_key = self.class_locator.shared_key_class.derive_shared_key(key_pair, other_public_key)
+
+		# Assert:
+		return [(SharedKey256(test_vector['sharedKey']), shared_key)]
 
 
 class MosaicIdDerivationTester(VectorsTestSuite):
@@ -215,10 +251,13 @@ def load_test_suites(blockchain):
 		VerifyTester(class_locator),
 		Bip32DerivationTester(class_locator),
 		Bip39DerivationTester(class_locator),
+		DeriveTester(class_locator),
 	]
 
 	if 'symbol' == blockchain:
 		test_suites += [MosaicIdDerivationTester(class_locator)]
+	else:
+		test_suites += [DeriveDeprecatedTester(class_locator)]
 
 	return test_suites
 
