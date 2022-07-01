@@ -3,6 +3,7 @@ import sha3
 from ..CryptoTypes import Hash256, PrivateKey, PublicKey
 from ..nem.KeyPair import KeyPair, Verifier
 from ..nem.Network import Address, Network
+from ..nem.SharedKey import SharedKey
 from ..nem.TransactionFactory import TransactionFactory
 from ..Network import NetworkLocator
 
@@ -14,7 +15,8 @@ class NemFacade:
 
 	Address = Address  # pylint: disable=duplicate-code
 	KeyPair = KeyPair  # pylint: disable=duplicate-code
-	Verifier = Verifier  # pylint: disable=duplicate-code
+	Verifier = Verifier
+	SharedKey = SharedKey
 
 	def __init__(self, network, account_descriptor_repository=None):
 		"""Creates a NEM facade."""
