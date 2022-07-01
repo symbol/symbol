@@ -1,6 +1,6 @@
 import unittest
 
-from symbolchain.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
+from symbolchain.CryptoTypes import Hash256, PrivateKey, PublicKey, SharedKey256, Signature
 
 from .test.TestUtils import TestUtils
 
@@ -54,6 +54,16 @@ class CryptoTypesTest(unittest.TestCase):
 
 		# Assert:
 		self.assertEqual(raw_bytes, byte_array.bytes)
+
+	# endregion
+
+	# region SharedKey256
+
+	def test_can_create_shared_key_with_correct_number_of_bytes(self):
+		self._assert_can_create_byte_array_with_correct_number_of_bytes(SharedKey256, 32)
+
+	def test_cannot_create_shared_key_with_incorrect_number_of_bytes(self):
+		self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(SharedKey256, 32)
 
 	# endregion
 
