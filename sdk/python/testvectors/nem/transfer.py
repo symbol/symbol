@@ -8,7 +8,6 @@ recipes = {
 			'type': 'transfer_transaction',
 			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
 			'amount': 0x00000000004C4B40,
-			'message_envelope_size': 0xB,
 			'message': {
 				'message_type': 'plain',
 				'message': b'hi!'
@@ -27,7 +26,6 @@ recipes = {
 			'type': 'transfer_transaction',
 			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
 			'amount': 0x00000000004C4B40,
-			'message_envelope_size': 0x48,
 			'message': {
 				'message_type': 'encrypted',
 				'message': unhexlify(
@@ -48,7 +46,6 @@ recipes = {
 			'type': 'transfer_transaction',
 			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
 			'amount': 0x00000000004C4B40,
-			'message_envelope_size': 0xB,
 			'message': {
 				'message_type': 'plain',
 				'message': b'hi!'
@@ -79,7 +76,6 @@ recipes = {
 			'type': 'transfer_transaction',
 			'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
 			'amount': 0x00000000004C4B40,
-			'message_envelope_size': 0x48,
 			'message': {
 				'message_type': 'encrypted',
 				'message': unhexlify(
