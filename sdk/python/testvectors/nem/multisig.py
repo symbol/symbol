@@ -8,8 +8,7 @@ aggregate_recipes = {
 			'embedded': {
 				'type': 'transfer_transaction',
 				'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
-				'amount': 0x00000000004C4B40,
-				'message_envelope_size': 0x14,
+				'amount': 0x00000000004C4B41,
 				'message': {
 					'message_type': 'plain',
 					'message': 'Good Morning',
