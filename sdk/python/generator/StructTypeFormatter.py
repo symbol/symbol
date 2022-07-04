@@ -178,6 +178,24 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return f'if {yoda_value} {condition_operator} {field_prefix}{condition_field_name}:\n'
 
+	def get_sort_descriptor(self):
+		body = ''
+		for field in self.non_const_fields():
+			field_value = self.field_name(field)
+
+			sort = field.extensions.printer.sort(field_value)
+			if not sort:
+				continue
+
+			condition = self.generate_condition(field, True)
+
+			body += indent_if_conditional(condition, f'{sort}\n')
+
+		if not body:
+			body = 'pass'
+
+		return MethodDescriptor(body=body)
+
 	def generate_deserialize_field(self, field, arg_buffer_name=None):
 		condition = self.generate_condition(field)
 
