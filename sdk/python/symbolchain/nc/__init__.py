@@ -209,6 +209,9 @@ class Transaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def type_(self) -> TransactionType:
 		return self._type_
@@ -378,6 +381,9 @@ class NonVerifiableTransaction:
 		self._deadline = Timestamp()
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def type_(self) -> TransactionType:
@@ -558,6 +564,9 @@ class AccountKeyLinkTransaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
 		self._remote_public_key_size = 32  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def type_(self) -> TransactionType:
@@ -769,6 +778,9 @@ class NonVerifiableAccountKeyLinkTransaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._remote_public_key_size = 32  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def type_(self) -> TransactionType:
 		return self._type_
@@ -940,6 +952,9 @@ class NamespaceId:
 	def __init__(self):
 		self._name = bytes()
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def name(self) -> bytes:
 		return self._name
@@ -989,6 +1004,9 @@ class MosaicId:
 	def __init__(self):
 		self._namespace_id = NamespaceId()
 		self._name = bytes()
+
+	def sort(self) -> None:
+		self._namespace_id.sort()
 
 	@property
 	def namespace_id(self) -> NamespaceId:
@@ -1054,6 +1072,9 @@ class Mosaic:
 		self._mosaic_id = MosaicId()
 		self._amount = Amount()
 
+	def sort(self) -> None:
+		self._mosaic_id.sort()
+
 	@property
 	def mosaic_id(self) -> MosaicId:
 		return self._mosaic_id
@@ -1116,6 +1137,9 @@ class SizePrefixedMosaic:
 
 	def __init__(self):
 		self._mosaic = Mosaic()
+
+	def sort(self) -> None:
+		self._mosaic.sort()
 
 	@property
 	def mosaic(self) -> Mosaic:
@@ -1191,6 +1215,9 @@ class MosaicLevy:
 		self._mosaic_id = MosaicId()
 		self._fee = Amount()
 		self._recipient_address_size = 40  # reserved field
+
+	def sort(self) -> None:
+		self._mosaic_id.sort()
 
 	@property
 	def transfer_fee_type(self) -> MosaicTransferFeeType:
@@ -1290,6 +1317,9 @@ class MosaicProperty:
 		self._name = bytes()
 		self._value = bytes()
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def name(self) -> bytes:
 		return self._name
@@ -1356,6 +1386,9 @@ class SizePrefixedMosaicProperty:
 	def __init__(self):
 		self._property_ = MosaicProperty()
 
+	def sort(self) -> None:
+		self._property_.sort()
+
 	@property
 	def property_(self) -> MosaicProperty:
 		return self._property_
@@ -1414,6 +1447,11 @@ class MosaicDefinition:
 		self._levy_size = 0
 		self._levy = None
 		self._owner_public_key_size = 32  # reserved field
+
+	def sort(self) -> None:
+		self._id.sort()
+		if 0 != self.levy_size:
+			self._levy.sort()
 
 	@property
 	def owner_public_key(self) -> PublicKey:
@@ -1576,6 +1614,9 @@ class MosaicDefinitionTransaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
 		self._rental_fee_sink_size = 40  # reserved field
+
+	def sort(self) -> None:
+		self._mosaic_definition.sort()
 
 	@property
 	def type_(self) -> TransactionType:
@@ -1807,6 +1848,9 @@ class NonVerifiableMosaicDefinitionTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 		self._rental_fee_sink_size = 40  # reserved field
+
+	def sort(self) -> None:
+		self._mosaic_definition.sort()
 
 	@property
 	def type_(self) -> TransactionType:
@@ -2041,6 +2085,9 @@ class MosaicSupplyChangeTransaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
 
+	def sort(self) -> None:
+		self._mosaic_id.sort()
+
 	@property
 	def type_(self) -> TransactionType:
 		return self._type_
@@ -2266,6 +2313,9 @@ class NonVerifiableMosaicSupplyChangeTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 
+	def sort(self) -> None:
+		self._mosaic_id.sort()
+
 	@property
 	def type_(self) -> TransactionType:
 		return self._type_
@@ -2481,6 +2531,9 @@ class MultisigAccountModification:
 			ripemd_keccak_256(self.cosignatory_public_key.bytes),
 		)
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def modification_type(self) -> MultisigAccountModificationType:
 		return self._modification_type
@@ -2543,6 +2596,9 @@ class SizePrefixedMultisigAccountModification:
 
 	def __init__(self):
 		self._modification = MultisigAccountModification()
+
+	def sort(self) -> None:
+		self._modification.sort()
 
 	@property
 	def modification(self) -> MultisigAccountModification:
@@ -2612,6 +2668,9 @@ class MultisigAccountModificationTransactionV1:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
+
+	def sort(self) -> None:
+		self._modifications = sorted(self._modifications, key=lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 
 	@property
 	def type_(self) -> TransactionType:
@@ -2805,6 +2864,9 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 
+	def sort(self) -> None:
+		self._modifications = sorted(self._modifications, key=lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
+
 	@property
 	def type_(self) -> TransactionType:
 		return self._type_
@@ -2982,6 +3044,9 @@ class MultisigAccountModificationTransaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
 		self._min_approval_delta_size = 4  # reserved field
+
+	def sort(self) -> None:
+		self._modifications = sorted(self._modifications, key=lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 
 	@property
 	def type_(self) -> TransactionType:
@@ -3196,6 +3261,9 @@ class NonVerifiableMultisigAccountModificationTransaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._min_approval_delta_size = 4  # reserved field
 
+	def sort(self) -> None:
+		self._modifications = sorted(self._modifications, key=lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
+
 	@property
 	def type_(self) -> TransactionType:
 		return self._type_
@@ -3395,6 +3463,9 @@ class Cosignature:
 		self._multisig_transaction_hash_outer_size = 36  # reserved field
 		self._multisig_transaction_hash_size = 32  # reserved field
 		self._multisig_account_address_size = 40  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def type_(self) -> TransactionType:
@@ -3596,6 +3667,9 @@ class SizePrefixedCosignature:
 	def __init__(self):
 		self._cosignature = Cosignature()
 
+	def sort(self) -> None:
+		self._cosignature.sort()
+
 	@property
 	def cosignature(self) -> Cosignature:
 		return self._cosignature
@@ -3666,6 +3740,9 @@ class MultisigTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
+
+	def sort(self) -> None:
+		self._inner_transaction.sort()
 
 	@property
 	def type_(self) -> TransactionType:
@@ -3887,6 +3964,9 @@ class NamespaceRegistrationTransaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
 		self._rental_fee_sink_size = 40  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def type_(self) -> TransactionType:
@@ -4143,6 +4223,9 @@ class NonVerifiableNamespaceRegistrationTransaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._rental_fee_sink_size = 40  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def type_(self) -> TransactionType:
 		return self._type_
@@ -4376,6 +4459,9 @@ class Message:
 		self._message_type = MessageType.PLAIN
 		self._message = bytes()
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def message_type(self) -> MessageType:
 		return self._message_type
@@ -4463,6 +4549,10 @@ class TransferTransactionV1:
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
 		self._recipient_address_size = 40  # reserved field
+
+	def sort(self) -> None:
+		if 0 != self.message_envelope_size:
+			self._message.sort()
 
 	@property
 	def type_(self) -> TransactionType:
@@ -4710,6 +4800,10 @@ class NonVerifiableTransferTransactionV1:
 		self._signer_public_key_size = 32  # reserved field
 		self._recipient_address_size = 40  # reserved field
 
+	def sort(self) -> None:
+		if 0 != self.message_envelope_size:
+			self._message.sort()
+
 	@property
 	def type_(self) -> TransactionType:
 		return self._type_
@@ -4941,6 +5035,10 @@ class TransferTransaction:
 		self._signer_public_key_size = 32  # reserved field
 		self._signature_size = 64  # reserved field
 		self._recipient_address_size = 40  # reserved field
+
+	def sort(self) -> None:
+		if 0 != self.message_envelope_size:
+			self._message.sort()
 
 	@property
 	def type_(self) -> TransactionType:
@@ -5207,6 +5305,10 @@ class NonVerifiableTransferTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
 		self._recipient_address_size = 40  # reserved field
+
+	def sort(self) -> None:
+		if 0 != self.message_envelope_size:
+			self._message.sort()
 
 	@property
 	def type_(self) -> TransactionType:
