@@ -27,7 +27,6 @@ const descriptorFactory = () => {
 				description: textEncoder.encode('Not really valuable mosaic'),
 				properties: [
 				],
-				levySize: 0,
 				levy: {}
 			}
 		},
@@ -48,7 +47,6 @@ const descriptorFactory = () => {
 					{ property: { name: textEncoder.encode('supplyMutable'), value: textEncoder.encode('false') } },
 					{ property: { name: textEncoder.encode('transferable'), value: textEncoder.encode('true') } }
 				],
-				levySize: 0,
 				levy: {}
 			}
 		},
@@ -65,7 +63,6 @@ const descriptorFactory = () => {
 				description: textEncoder.encode('Not really valuable mosaic'),
 				properties: [
 				],
-				levySize: levy.size,
 				levy: {
 					transferFeeType: 'absolute',
 					recipientAddress: sampleAddress,
