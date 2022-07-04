@@ -343,6 +343,9 @@ class Mosaic:
 		self._mosaic_id = MosaicId()
 		self._amount = Amount()
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def mosaic_id(self) -> MosaicId:
 		return self._mosaic_id
@@ -402,6 +405,9 @@ class UnresolvedMosaic:
 	def __init__(self):
 		self._mosaic_id = UnresolvedMosaicId()
 		self._amount = Amount()
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def mosaic_id(self) -> UnresolvedMosaicId:
@@ -554,6 +560,9 @@ class Transaction:
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signature(self) -> Signature:
 		return self._signature
@@ -705,6 +714,9 @@ class EmbeddedTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -825,6 +837,9 @@ class AccountKeyLinkTransaction:
 		self._link_action = LinkAction.UNLINK
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -1011,6 +1026,9 @@ class EmbeddedAccountKeyLinkTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -1159,6 +1177,9 @@ class NodeKeyLinkTransaction:
 		self._link_action = LinkAction.UNLINK
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -1345,6 +1366,9 @@ class EmbeddedNodeKeyLinkTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -1478,6 +1502,9 @@ class Cosignature:
 		self._signer_public_key = PublicKey()
 		self._signature = Signature()
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def version(self) -> int:
 		return self._version
@@ -1554,6 +1581,9 @@ class DetachedCosignature:
 		self._signer_public_key = PublicKey()
 		self._signature = Signature()
 		self._parent_hash = Hash256()
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def version(self) -> int:
@@ -1662,6 +1692,9 @@ class AggregateCompleteTransaction:
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._aggregate_transaction_header_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -1879,6 +1912,9 @@ class AggregateBondedTransaction:
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._aggregate_transaction_header_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -2098,6 +2134,9 @@ class VotingKeyLinkTransaction:
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signature(self) -> Signature:
 		return self._signature
@@ -2315,6 +2354,9 @@ class EmbeddedVotingKeyLinkTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -2491,6 +2533,9 @@ class VrfKeyLinkTransaction:
 		self._link_action = LinkAction.UNLINK
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -2677,6 +2722,9 @@ class EmbeddedVrfKeyLinkTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -2827,6 +2875,9 @@ class HashLockTransaction:
 		self._hash = Hash256()
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		self._mosaic.sort()
 
 	@property
 	def signature(self) -> Signature:
@@ -3029,6 +3080,9 @@ class EmbeddedHashLockTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		self._mosaic.sort()
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -3217,6 +3271,9 @@ class SecretLockTransaction:
 		self._hash_algorithm = LockHashAlgorithm.SHA3_256
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		self._mosaic.sort()
 
 	@property
 	def signature(self) -> Signature:
@@ -3451,6 +3508,9 @@ class EmbeddedSecretLockTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		self._mosaic.sort()
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -3645,6 +3705,9 @@ class SecretProofTransaction:
 		self._proof = bytes()
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -3867,6 +3930,9 @@ class EmbeddedSecretProofTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -4049,6 +4115,9 @@ class AccountMetadataTransaction:
 		self._value = bytes()
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -4269,6 +4338,9 @@ class EmbeddedAccountMetadataTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -4453,6 +4525,9 @@ class MosaicMetadataTransaction:
 		self._value = bytes()
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -4688,6 +4763,9 @@ class EmbeddedMosaicMetadataTransaction:
 		self._value = bytes()
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signer_public_key(self) -> PublicKey:
@@ -4941,6 +5019,9 @@ class NamespaceMetadataTransaction:
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signature(self) -> Signature:
 		return self._signature
@@ -5175,6 +5256,9 @@ class EmbeddedNamespaceMetadataTransaction:
 		self._value = bytes()
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signer_public_key(self) -> PublicKey:
@@ -5432,6 +5516,9 @@ class MosaicDefinitionTransaction:
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signature(self) -> Signature:
 		return self._signature
@@ -5664,6 +5751,9 @@ class EmbeddedMosaicDefinitionTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -5856,6 +5946,9 @@ class MosaicSupplyChangeTransaction:
 		self._action = MosaicSupplyChangeAction.DECREASE
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -6058,6 +6151,9 @@ class EmbeddedMosaicSupplyChangeTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -6220,6 +6316,9 @@ class MosaicSupplyRevocationTransaction:
 		self._mosaic = UnresolvedMosaic()
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		self._mosaic.sort()
 
 	@property
 	def signature(self) -> Signature:
@@ -6406,6 +6505,9 @@ class EmbeddedMosaicSupplyRevocationTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		self._mosaic.sort()
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -6557,6 +6659,9 @@ class MultisigAccountModificationTransaction:
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._multisig_account_modification_transaction_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -6787,6 +6892,9 @@ class EmbeddedMultisigAccountModificationTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._multisig_account_modification_transaction_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -6978,6 +7086,9 @@ class AddressAliasTransaction:
 		self._alias_action = AliasAction.UNLINK
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -7180,6 +7291,9 @@ class EmbeddedAddressAliasTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -7344,6 +7458,9 @@ class MosaicAliasTransaction:
 		self._alias_action = AliasAction.UNLINK
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -7546,6 +7663,9 @@ class EmbeddedMosaicAliasTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -7714,6 +7834,9 @@ class NamespaceRegistrationTransaction:
 		self._name = bytes()
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -7967,6 +8090,9 @@ class EmbeddedNamespaceRegistrationTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -8202,6 +8328,9 @@ class AccountAddressRestrictionTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._account_restriction_transaction_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signature(self) -> Signature:
 		return self._signature
@@ -8417,6 +8546,9 @@ class EmbeddedAccountAddressRestrictionTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._account_restriction_transaction_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -8595,6 +8727,9 @@ class AccountMosaicRestrictionTransaction:
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._account_restriction_transaction_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -8811,6 +8946,9 @@ class EmbeddedAccountMosaicRestrictionTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._account_restriction_transaction_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -8989,6 +9127,9 @@ class AccountOperationRestrictionTransaction:
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._account_restriction_transaction_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -9205,6 +9346,9 @@ class EmbeddedAccountOperationRestrictionTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._account_restriction_transaction_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -9383,6 +9527,9 @@ class MosaicAddressRestrictionTransaction:
 		self._target_address = UnresolvedAddress()
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -9613,6 +9760,9 @@ class EmbeddedMosaicAddressRestrictionTransaction:
 		self._target_address = UnresolvedAddress()
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signer_public_key(self) -> PublicKey:
@@ -9850,6 +10000,9 @@ class MosaicGlobalRestrictionTransaction:
 		self._new_restriction_type = MosaicRestrictionType.NONE
 		self._verifiable_entity_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
+
+	def sort(self) -> None:
+		pass
 
 	@property
 	def signature(self) -> Signature:
@@ -10113,6 +10266,9 @@ class EmbeddedMosaicGlobalRestrictionTransaction:
 		self._embedded_transaction_header_reserved_1 = 0  # reserved field
 		self._entity_body_reserved_1 = 0  # reserved field
 
+	def sort(self) -> None:
+		pass
+
 	@property
 	def signer_public_key(self) -> PublicKey:
 		return self._signer_public_key
@@ -10336,6 +10492,9 @@ class TransferTransaction:
 		self._transfer_transaction_body_reserved_1 = 0  # reserved field
 		self._transfer_transaction_body_reserved_2 = 0  # reserved field
 
+	def sort(self) -> None:
+		self._mosaics = sorted(self._mosaics, key=lambda e: e.mosaic_id.comparer() if hasattr(e.mosaic_id, 'comparer') else e.mosaic_id)
+
 	@property
 	def signature(self) -> Signature:
 		return self._signature
@@ -10556,6 +10715,9 @@ class EmbeddedTransferTransaction:
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._transfer_transaction_body_reserved_1 = 0  # reserved field
 		self._transfer_transaction_body_reserved_2 = 0  # reserved field
+
+	def sort(self) -> None:
+		self._mosaics = sorted(self._mosaics, key=lambda e: e.mosaic_id.comparer() if hasattr(e.mosaic_id, 'comparer') else e.mosaic_id)
 
 	@property
 	def signer_public_key(self) -> PublicKey:

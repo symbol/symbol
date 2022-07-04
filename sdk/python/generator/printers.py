@@ -9,6 +9,9 @@ class Printer:
 		# printer.name is 'fixed' field name
 		self.name = fix_name(name or underline_name(self.descriptor.name))
 
+	def sort(self, _field_name):  # pylint: disable=no-self-use
+		return None
+
 
 class IntPrinter(Printer):
 	def __init__(self, descriptor, name=None):
@@ -139,6 +142,12 @@ class TypedArrayPrinter(Printer):
 
 		return f'ArrayHelpers.write_array_count({args_str})'
 
+	def sort(self, field_name):
+		if not self.descriptor.field_type.sort_key:
+			return None
+
+		return f'{field_name} = sorted({field_name}, key={self._get_sort_accessor()})'
+
 	@staticmethod
 	def to_string(field_name):
 		return f'list(map(str, {field_name}))'
@@ -224,6 +233,9 @@ class BuiltinPrinter(Printer):
 	@staticmethod
 	def store(field_name):
 		return f'{field_name}.serialize()'
+
+	def sort(self, field_name):
+		return f'{field_name}.sort()' if DisplayType.STRUCT == self.descriptor.display_type else None
 
 	def assign(self, value):
 		return f'{self.get_type()}.{value}'
