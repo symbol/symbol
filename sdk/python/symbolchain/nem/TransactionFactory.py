@@ -15,12 +15,18 @@ class TransactionFactory:
 		self.factory = self._build_rules(type_rule_overrides)
 		self.network = network
 
-	def create(self, transaction_descriptor):
-		"""Creates a transaction from a transaction descriptor."""
+	def create(self, transaction_descriptor, autosort=True):
+		"""
+		Creates a transaction from a transaction descriptor.
+		When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
+		When unset, descriptor arrays will be presumed to be already sorted.
+		"""
 		transaction = self.factory.create_from_factory(nc.TransactionFactory.create_by_name, {
 			**transaction_descriptor,
 			'network': self.network.identifier
 		})
+		if autosort:
+			transaction.sort()
 
 		# hack: explicitly translate transfer message
 		if nc.TransactionType.TRANSFER == transaction.type_ and transaction.message and isinstance(transaction.message.message, str):
