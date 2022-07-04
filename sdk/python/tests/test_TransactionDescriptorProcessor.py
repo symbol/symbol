@@ -6,17 +6,20 @@ from symbolchain.TransactionDescriptorProcessor import TransactionDescriptorProc
 
 
 class TransactionDescriptorProcessorTest(unittest.TestCase):
+	# pylint: disable=too-many-public-methods
+
 	# region test utils
 
 	@staticmethod
-	def _create_processor():
+	def _create_processor(extended_descriptor=None):
 		transaction_descriptor = {
 			'type': 'transfer',
 			'timestamp': 12345,
 			'signer': 'signer_name',
 			'recipient': 'recipient_name',
-			'message': 'hello world',
+			'message': 'hello world'
 		}
+		transaction_descriptor.update(extended_descriptor or {})
 		type_parsing_rules = {PublicKey: lambda name: f'{name} PUBLICKEY'}
 		processor = TransactionDescriptorProcessor(transaction_descriptor, type_parsing_rules)
 		processor.set_type_hints({'signer': PublicKey, 'timestamp': int})
@@ -146,6 +149,15 @@ class TransactionDescriptorProcessorTest(unittest.TestCase):
 		# Arrange:
 		processor = self._create_processor()
 		transaction = SimpleNamespace(type=None, timestamp=None, signer=None, recipient=None)  # missing message
+
+		# Act + Assert:
+		with self.assertRaises(ValueError):
+			processor.copy_to(transaction)
+
+	def test_cannot_copy_to_when_descriptor_contains_computed_field(self):
+		# Arrange:
+		processor = self._create_processor({'message_envelope_size_computed': 123})
+		transaction = SimpleNamespace(type=None, timestamp=None, signer=None, recipient=None, message=None)
 
 		# Act + Assert:
 		with self.assertRaises(ValueError):
