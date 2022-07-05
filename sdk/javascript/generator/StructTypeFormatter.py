@@ -208,7 +208,7 @@ class StructFormatter(AbstractTypeFormatter):
 			condition = self.generate_condition(field, True)
 
 			body += indent_if_conditional(condition, f'{sort}\n')
-			is_last_sort_field_conditional = not not condition
+			is_last_sort_field_conditional = condition
 
 		# indent_if_conditional always adds a newline when there is a condition
 		# if the last sortable field has a condition, the newline needs to be stripped to avoid a blank line before closing brace
