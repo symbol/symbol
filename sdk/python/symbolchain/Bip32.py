@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import secrets
 
 from mnemonic import Mnemonic
 
@@ -7,7 +8,7 @@ from .BufferWriter import BufferWriter
 from .CryptoTypes import PrivateKey
 
 
-class Bip32Node():
+class Bip32Node:
 	"""Representation of a BIP32 node."""
 
 	def __init__(self, hmac_key, data):
@@ -34,7 +35,7 @@ class Bip32Node():
 		return next_node
 
 
-class Bip32():
+class Bip32:
 	"""Factory of BIP32 root nodes """
 
 	def __init__(self, curve_name='ed25519', mnemonic_language='english'):
@@ -49,3 +50,7 @@ class Bip32():
 	def from_mnemonic(self, mnemonic, password):
 		"""Creates a BIP32 root node from a BIP39 mnemonic and password."""
 		return self.from_seed(Mnemonic(self.mnemonic_language).to_seed(mnemonic, password))
+
+	def random(self, seed_length=32):
+		"""Creates a random BIP32 mnemonic."""
+		return Mnemonic(self.mnemonic_language).to_mnemonic(secrets.token_bytes(seed_length))
