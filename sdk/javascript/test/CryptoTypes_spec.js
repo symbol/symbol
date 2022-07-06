@@ -1,5 +1,5 @@
 const {
-	Hash256, PrivateKey, PublicKey, Signature
+	Hash256, PrivateKey, PublicKey, SharedKey256, Signature
 } = require('../src/CryptoTypes');
 const { expect } = require('chai');
 const crypto = require('crypto');
@@ -87,6 +87,16 @@ describe('CryptoTypes', () => {
 
 			// Assert:
 			expect(byteArray.bytes).to.deep.equal(rawBytes);
+		});
+	});
+
+	describe('SharedKey256', () => {
+		it('can create shared key with correct number of bytes', () => {
+			assertCanCreateByteArrayWithCorrectNumberOfBytes(SharedKey256, 32);
+		});
+
+		it('cannot create shared key with incorrect number of bytes', () => {
+			assertCannotCreateByteArrayWithIncorrectNumberOfBytes(SharedKey256, 32);
 		});
 	});
 
