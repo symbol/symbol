@@ -1,6 +1,9 @@
 const { Bip32 } = require('../src/Bip32');
-const { PrivateKey, PublicKey, Signature } = require('../src/CryptoTypes');
+const {
+	PrivateKey, PublicKey, SharedKey256, Signature
+} = require('../src/CryptoTypes');
 const { NetworkLocator } = require('../src/Network');
+const { deriveSharedKeyDeprecated } = require('../src/nem/SharedKey');
 const { VotingKeysGenerator } = require('../src/symbol/VotingKeysGenerator');
 const { generateMosaicId } = require('../src/symbol/idGenerator');
 const { hexToUint8 } = require('../src/utils/converter');
@@ -110,6 +113,49 @@ const path = require('path');
 
 			// Assert:
 			return [[true, isVerified]];
+		}
+	}
+
+	// endregion
+
+	// region DeriveDeprecatedTester, DeriveTester
+
+	class DeriveDeprecatedTester extends VectorsTestSuite {
+		constructor(classLocator) {
+			super(3, 'test-derive-deprecated', 'derive-deprecated');
+			this.classLocator = classLocator;
+		}
+
+		process(testVector) {
+			// Arrange:
+			const otherPublicKey = new PublicKey(testVector.otherPublicKey);
+			const keyPair = new this.classLocator.Facade.KeyPair(new PrivateKey(testVector.privateKey));
+			const salt = hexToUint8(testVector.salt);
+
+			// Act:
+			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt);
+
+			// Assert:
+			return [[new SharedKey256(testVector.sharedKey), sharedKey]];
+		}
+	}
+
+	class DeriveTester extends VectorsTestSuite {
+		constructor(classLocator) {
+			super(3, 'test-derive-hkdf', 'derive');
+			this.classLocator = classLocator;
+		}
+
+		process(testVector) {
+			// Arrange:
+			const otherPublicKey = new PublicKey(testVector.otherPublicKey);
+			const keyPair = new this.classLocator.Facade.KeyPair(new PrivateKey(testVector.privateKey));
+
+			// Act:
+			const sharedKey = this.classLocator.Facade.deriveSharedKey(keyPair, otherPublicKey);
+
+			// Assert:
+			return [[new SharedKey256(testVector.sharedKey), sharedKey]];
 		}
 	}
 
@@ -296,12 +342,15 @@ const path = require('path');
 			new AddressConversionTester(classLocator),
 			new SignTester(classLocator),
 			new VerifyTester(classLocator),
+			new DeriveTester(classLocator),
 			new Bip32DerivationTester(classLocator),
 			new Bip39DerivationTester(classLocator)
 		];
 
 		if ('symbol' === blockchain)
 			[MosaicIdDerivationTester, VotingKeysGenerationTester].forEach(TesterClass => testSuites.push(new TesterClass(classLocator)));
+		else
+			testSuites.push(new DeriveDeprecatedTester(classLocator));
 
 		return testSuites;
 	};
