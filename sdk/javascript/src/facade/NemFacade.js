@@ -2,6 +2,7 @@ const { Hash256, PrivateKey } = require('../CryptoTypes');
 const { NetworkLocator } = require('../Network');
 const { KeyPair, Verifier } = require('../nem/KeyPair');
 const { Address, Network } = require('../nem/Network');
+const { deriveSharedKey } = require('../nem/SharedKey');
 const { TransactionFactory } = require('../nem/TransactionFactory');
 const { keccak_256 } = require('@noble/hashes/sha3');
 
@@ -16,6 +17,8 @@ class NemFacade {
 	static KeyPair = KeyPair;
 
 	static Verifier = Verifier;
+
+	static deriveSharedKey = deriveSharedKey;
 
 	/**
 	 * Creates a NEM facade.

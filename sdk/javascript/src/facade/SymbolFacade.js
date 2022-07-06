@@ -5,6 +5,7 @@ const { NetworkLocator } = require('../Network');
 const { KeyPair, Verifier } = require('../symbol/KeyPair');
 const { MerkleHashBuilder } = require('../symbol/MerkleHashBuilder');
 const { Address, Network } = require('../symbol/Network');
+const { deriveSharedKey } = require('../symbol/SharedKey');
 const { TransactionFactory } = require('../symbol/TransactionFactory');
 const { TransactionType } = require('../symbol/models');
 const { sha3_256 } = require('@noble/hashes/sha3');
@@ -51,6 +52,8 @@ class SymbolFacade {
 	static KeyPair = KeyPair;
 
 	static Verifier = Verifier;
+
+	static deriveSharedKey = deriveSharedKey;
 
 	/**
 	 * Creates a Symbol facade.
