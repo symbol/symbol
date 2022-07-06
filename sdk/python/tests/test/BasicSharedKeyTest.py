@@ -82,11 +82,25 @@ class BasicSharedKeyTest:
 
 		key_pair_1 = test_descriptor.key_pair_class(PrivateKey.random())
 		key_pair_2 = test_descriptor.key_pair_class(PrivateKey.random())
-		invalid_public_key_bytes = bytearray(key_pair_2.public_key.bytes)
-		invalid_public_key_bytes[31] = 1
 
 		# Act + Assert:
-		with self.assertRaises(ValueError):
-			test_descriptor.derive_shared_key(key_pair_1, PublicKey(bytes(invalid_public_key_bytes)))
+		# this test needs to be fired multiple times, because just setting byte to 1
+		# might end up in a point that will still land on the curve
+		# note: cannot use `self.assertRaises` below, as it behaves in a weird way inside try/except block
+		for i in range(4):
+			invalid_public_key_bytes = bytearray(key_pair_2.public_key.bytes)
+			invalid_public_key_bytes[31] = i
+
+			succeeded = False
+			try:
+				test_descriptor.derive_shared_key(key_pair_1, PublicKey(bytes(invalid_public_key_bytes)))
+			except ValueError as e:
+				if 'point is not in main subgroup' in str(e) or 'decoding point that is not on curve' in str(e):
+					succeeded = True
+
+			if succeeded:
+				break
+
+		self.assertTrue(succeeded)
 
 	# endregion
