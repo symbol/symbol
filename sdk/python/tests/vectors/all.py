@@ -383,9 +383,9 @@ def load_test_suites(blockchain):
 		AddressConversionTester(class_locator),
 		SignTester(class_locator),
 		VerifyTester(class_locator),
+		DeriveTester(class_locator),
 		Bip32DerivationTester(class_locator),
 		Bip39DerivationTester(class_locator),
-		DeriveTester(class_locator),
 		CipherTester(class_locator)
 	]
 
