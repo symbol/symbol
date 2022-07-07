@@ -1,15 +1,20 @@
 const { BufferView } = require('./BufferView');
 
-const deepGte = (lhs, rhs) => {
-	if (!Array.isArray(lhs) && !(lhs instanceof Object.getPrototypeOf(Uint8Array)))
-		return lhs >= rhs;
+const deepCompare = (lhs, rhs) => {
+	if (!Array.isArray(lhs) && !(lhs instanceof Object.getPrototypeOf(Uint8Array))) {
+		if (lhs === rhs)
+			return 0;
 
-	for (let i = 0; i < lhs.length; ++i) {
-		if (!deepGte(lhs[i], rhs[i]))
-			return false;
+		return lhs > rhs ? 1 : -1;
 	}
 
-	return true;
+	for (let i = 0; i < lhs.length; ++i) {
+		const compareResult = deepCompare(lhs[i], rhs[i]);
+		if (0 !== compareResult)
+			return compareResult;
+	}
+
+	return 0;
 };
 
 const readArrayImpl = (bufferInput, FactoryClass, accessor, shouldContinue) => {
@@ -23,7 +28,7 @@ const readArrayImpl = (bufferInput, FactoryClass, accessor, shouldContinue) => {
 		if (0 >= element.size)
 			throw RangeError('element size has invalid size');
 
-		if (accessor && previousElement && deepGte(accessor(previousElement), accessor(element)))
+		if (accessor && previousElement && 0 <= deepCompare(accessor(previousElement), accessor(element)))
 			throw RangeError('elements in array are not sorted');
 
 		elements.push(element);
@@ -39,7 +44,7 @@ const readArrayImpl = (bufferInput, FactoryClass, accessor, shouldContinue) => {
 const writeArrayImpl = (output, elements, count, accessor = null) => {
 	for (let i = 0; i < count; ++i) {
 		const element = elements[i];
-		if (accessor && 0 < i && deepGte(accessor(elements[i - 1]), accessor(element)))
+		if (accessor && 0 < i && 0 <= deepCompare(accessor(elements[i - 1]), accessor(element)))
 			throw RangeError('array passed to write array is not sorted');
 
 		output.write(element.serialize());
@@ -49,6 +54,14 @@ const writeArrayImpl = (output, elements, count, accessor = null) => {
 const sum = numbers => numbers.reduce((a, b) => a + b, 0);
 
 const arrayHelpers = {
+	/**
+	 * Deeply compares two array elements.
+	 * @param {object} lhs Left object to compare.
+	 * @param {object} rhs Right object to compare.
+	 * @return {number} 1 if lhs is greater than rhs; -1 if lhs is less than rhs; 0 if lhs and rhs are equal.
+	 */
+	deepCompare,
+
 	/**
 	 * Calculates aligned size.
 	 * @param {number} size Size.

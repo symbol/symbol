@@ -297,6 +297,9 @@ class Transaction {
 		this._signatureSize = 64; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get type() {
 		return this._type;
 	}
@@ -471,6 +474,9 @@ class NonVerifiableTransaction {
 		this._deadline = new Timestamp();
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get type() {
@@ -692,6 +698,9 @@ class AccountKeyLinkTransaction {
 		this._remotePublicKeySize = 32; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get type() {
 		return this._type;
 	}
@@ -911,6 +920,9 @@ class NonVerifiableAccountKeyLinkTransaction {
 		this._remotePublicKeySize = 32; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get type() {
 		return this._type;
 	}
@@ -1088,6 +1100,9 @@ class NamespaceId {
 		this._name = new Uint8Array();
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get name() {
 		return this._name;
 	}
@@ -1139,6 +1154,10 @@ class MosaicId {
 	constructor() {
 		this._namespaceId = new NamespaceId();
 		this._name = new Uint8Array();
+	}
+
+	sort() {
+		this._namespaceId.sort();
 	}
 
 	get namespaceId() {
@@ -1208,6 +1227,10 @@ class Mosaic {
 		this._amount = new Amount();
 	}
 
+	sort() {
+		this._mosaicId.sort();
+	}
+
 	get mosaicId() {
 		return this._mosaicId;
 	}
@@ -1272,6 +1295,10 @@ class SizePrefixedMosaic {
 
 	constructor() {
 		this._mosaic = new Mosaic();
+	}
+
+	sort() {
+		this._mosaic.sort();
 	}
 
 	get mosaic() {
@@ -1384,6 +1411,10 @@ class MosaicLevy {
 		this._recipientAddressSize = 40; // reserved field
 	}
 
+	sort() {
+		this._mosaicId.sort();
+	}
+
 	get transferFeeType() {
 		return this._transferFeeType;
 	}
@@ -1486,6 +1517,9 @@ class MosaicProperty {
 		this._value = new Uint8Array();
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get name() {
 		return this._name;
 	}
@@ -1555,6 +1589,10 @@ class SizePrefixedMosaicProperty {
 		this._property = new MosaicProperty();
 	}
 
+	sort() {
+		this._property.sort();
+	}
+
 	get property() {
 		return this._property;
 	}
@@ -1614,6 +1652,12 @@ class MosaicDefinition {
 		this._properties = [];
 		this._levy = null;
 		this._ownerPublicKeySize = 32; // reserved field
+	}
+
+	sort() {
+		this._id.sort();
+		if (0 !== this.levySizeComputed)
+			this._levy.sort();
 	}
 
 	get ownerPublicKey() {
@@ -1780,6 +1824,10 @@ class MosaicDefinitionTransaction {
 		this._signerPublicKeySize = 32; // reserved field
 		this._signatureSize = 64; // reserved field
 		this._rentalFeeSinkSize = 40; // reserved field
+	}
+
+	sort() {
+		this._mosaicDefinition.sort();
 	}
 
 	get type() {
@@ -2020,6 +2068,10 @@ class NonVerifiableMosaicDefinitionTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
 		this._rentalFeeSinkSize = 40; // reserved field
+	}
+
+	sort() {
+		this._mosaicDefinition.sort();
 	}
 
 	get type() {
@@ -2295,6 +2347,10 @@ class MosaicSupplyChangeTransaction {
 		this._signatureSize = 64; // reserved field
 	}
 
+	sort() {
+		this._mosaicId.sort();
+	}
+
 	get type() {
 		return this._type;
 	}
@@ -2526,6 +2582,10 @@ class NonVerifiableMosaicSupplyChangeTransaction {
 		this._delta = new Amount();
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
+	}
+
+	sort() {
+		this._mosaicId.sort();
 	}
 
 	get type() {
@@ -2781,6 +2841,9 @@ class MultisigAccountModification {
 		];
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get modificationType() {
 		return this._modificationType;
 	}
@@ -2846,6 +2909,10 @@ class SizePrefixedMultisigAccountModification {
 
 	constructor() {
 		this._modification = new MultisigAccountModification();
+	}
+
+	sort() {
+		this._modification.sort();
 	}
 
 	get modification() {
@@ -2922,6 +2989,13 @@ class MultisigAccountModificationTransactionV1 {
 		this._signatureSize = 64; // reserved field
 	}
 
+	sort() {
+		this._modifications = this._modifications.sort((lhs, rhs) => arrayHelpers.deepCompare(
+			(lhs.modification.comparer ? lhs.modification.comparer() : lhs.modification.value),
+			(rhs.modification.comparer ? rhs.modification.comparer() : rhs.modification.value)
+		));
+	}
+
 	get type() {
 		return this._type;
 	}
@@ -3044,7 +3118,7 @@ class MultisigAccountModificationTransactionV1 {
 		view.shiftRight(deadline.size);
 		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
+		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => ((e.modification.comparer ? e.modification.comparer() : e.modification.value)));
 		view.shiftRight(arrayHelpers.size(modifications));
 
 		const instance = new MultisigAccountModificationTransactionV1();
@@ -3074,7 +3148,7 @@ class MultisigAccountModificationTransactionV1 {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer, this._modifications, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
+		arrayHelpers.writeArray(buffer, this._modifications, e => ((e.modification.comparer ? e.modification.comparer() : e.modification.value)));
 		return buffer.storage;
 	}
 
@@ -3120,6 +3194,13 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		this._modifications = [];
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
+	}
+
+	sort() {
+		this._modifications = this._modifications.sort((lhs, rhs) => arrayHelpers.deepCompare(
+			(lhs.modification.comparer ? lhs.modification.comparer() : lhs.modification.value),
+			(rhs.modification.comparer ? rhs.modification.comparer() : rhs.modification.value)
+		));
 	}
 
 	get type() {
@@ -3228,7 +3309,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		view.shiftRight(deadline.size);
 		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
+		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => ((e.modification.comparer ? e.modification.comparer() : e.modification.value)));
 		view.shiftRight(arrayHelpers.size(modifications));
 
 		const instance = new NonVerifiableMultisigAccountModificationTransactionV1();
@@ -3255,7 +3336,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer, this._modifications, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
+		arrayHelpers.writeArray(buffer, this._modifications, e => ((e.modification.comparer ? e.modification.comparer() : e.modification.value)));
 		return buffer.storage;
 	}
 
@@ -3305,6 +3386,13 @@ class MultisigAccountModificationTransaction {
 		this._signerPublicKeySize = 32; // reserved field
 		this._signatureSize = 64; // reserved field
 		this._minApprovalDeltaSize = 4; // reserved field
+	}
+
+	sort() {
+		this._modifications = this._modifications.sort((lhs, rhs) => arrayHelpers.deepCompare(
+			(lhs.modification.comparer ? lhs.modification.comparer() : lhs.modification.value),
+			(rhs.modification.comparer ? rhs.modification.comparer() : rhs.modification.value)
+		));
 	}
 
 	get type() {
@@ -3439,7 +3527,7 @@ class MultisigAccountModificationTransaction {
 		view.shiftRight(deadline.size);
 		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
+		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => ((e.modification.comparer ? e.modification.comparer() : e.modification.value)));
 		view.shiftRight(arrayHelpers.size(modifications));
 		const minApprovalDeltaSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -3476,7 +3564,7 @@ class MultisigAccountModificationTransaction {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer, this._modifications, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
+		arrayHelpers.writeArray(buffer, this._modifications, e => ((e.modification.comparer ? e.modification.comparer() : e.modification.value)));
 		buffer.write(converter.intToBytes(this._minApprovalDeltaSize, 4, false));
 		buffer.write(converter.intToBytes(this._minApprovalDelta, 4, true));
 		return buffer.storage;
@@ -3529,6 +3617,13 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		this._minApprovalDeltaSize = 4; // reserved field
 	}
 
+	sort() {
+		this._modifications = this._modifications.sort((lhs, rhs) => arrayHelpers.deepCompare(
+			(lhs.modification.comparer ? lhs.modification.comparer() : lhs.modification.value),
+			(rhs.modification.comparer ? rhs.modification.comparer() : rhs.modification.value)
+		));
+	}
+
 	get type() {
 		return this._type;
 	}
@@ -3645,7 +3740,7 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		view.shiftRight(deadline.size);
 		const modificationsCount = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
-		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
+		const modifications = arrayHelpers.readArrayCount(view.buffer, SizePrefixedMultisigAccountModification, modificationsCount, e => ((e.modification.comparer ? e.modification.comparer() : e.modification.value)));
 		view.shiftRight(arrayHelpers.size(modifications));
 		const minApprovalDeltaSize = converter.bytesToIntUnaligned(view.buffer, 4, false);
 		view.shiftRight(4);
@@ -3679,7 +3774,7 @@ class NonVerifiableMultisigAccountModificationTransaction {
 		buffer.write(this._fee.serialize());
 		buffer.write(this._deadline.serialize());
 		buffer.write(converter.intToBytes(this._modifications.length, 4, false)); // bound: modifications_count
-		arrayHelpers.writeArray(buffer, this._modifications, e => (e.modification.comparer ? e.modification.comparer() : e.modification.value));
+		arrayHelpers.writeArray(buffer, this._modifications, e => ((e.modification.comparer ? e.modification.comparer() : e.modification.value)));
 		buffer.write(converter.intToBytes(this._minApprovalDeltaSize, 4, false));
 		buffer.write(converter.intToBytes(this._minApprovalDelta, 4, true));
 		return buffer.storage;
@@ -3735,6 +3830,9 @@ class Cosignature {
 		this._multisigTransactionHashOuterSize = 36; // reserved field
 		this._multisigTransactionHashSize = 32; // reserved field
 		this._multisigAccountAddressSize = 40; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get type() {
@@ -3946,6 +4044,10 @@ class SizePrefixedCosignature {
 		this._cosignature = new Cosignature();
 	}
 
+	sort() {
+		this._cosignature.sort();
+	}
+
 	get cosignature() {
 		return this._cosignature;
 	}
@@ -4020,6 +4122,10 @@ class MultisigTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
 		this._signatureSize = 64; // reserved field
+	}
+
+	sort() {
+		this._innerTransaction.sort();
 	}
 
 	get type() {
@@ -4249,6 +4355,9 @@ class NamespaceRegistrationTransaction {
 		this._signerPublicKeySize = 32; // reserved field
 		this._signatureSize = 64; // reserved field
 		this._rentalFeeSinkSize = 40; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get type() {
@@ -4517,6 +4626,9 @@ class NonVerifiableNamespaceRegistrationTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
 		this._rentalFeeSinkSize = 40; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get type() {
@@ -4794,6 +4906,9 @@ class Message {
 		this._message = new Uint8Array();
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get messageType() {
 		return this._messageType;
 	}
@@ -4884,6 +4999,11 @@ class TransferTransactionV1 {
 		this._signerPublicKeySize = 32; // reserved field
 		this._signatureSize = 64; // reserved field
 		this._recipientAddressSize = 40; // reserved field
+	}
+
+	sort() {
+		if (0 !== this.messageEnvelopeSizeComputed)
+			this._message.sort();
 	}
 
 	get type() {
@@ -5138,6 +5258,11 @@ class NonVerifiableTransferTransactionV1 {
 		this._recipientAddressSize = 40; // reserved field
 	}
 
+	sort() {
+		if (0 !== this.messageEnvelopeSizeComputed)
+			this._message.sort();
+	}
+
 	get type() {
 		return this._type;
 	}
@@ -5373,6 +5498,11 @@ class TransferTransaction {
 		this._signerPublicKeySize = 32; // reserved field
 		this._signatureSize = 64; // reserved field
 		this._recipientAddressSize = 40; // reserved field
+	}
+
+	sort() {
+		if (0 !== this.messageEnvelopeSizeComputed)
+			this._message.sort();
 	}
 
 	get type() {
@@ -5645,6 +5775,11 @@ class NonVerifiableTransferTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
 		this._recipientAddressSize = 40; // reserved field
+	}
+
+	sort() {
+		if (0 !== this.messageEnvelopeSizeComputed)
+			this._message.sort();
 	}
 
 	get type() {

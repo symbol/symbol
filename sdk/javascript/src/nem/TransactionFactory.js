@@ -21,13 +21,17 @@ class TransactionFactory {
 	/**
 	 * Creates a transaction from a transaction descriptor.
 	 * @param {object} transactionDescriptor Transaction descriptor.
+	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.
+	 *                           When unset, descriptor arrays will be presumed to be already sorted.
 	 * @returns {object} Newly created transaction.
 	 */
-	create(transactionDescriptor) {
+	create(transactionDescriptor, autosort = true) {
 		const transaction = this.factory.createFromFactory(nc.TransactionFactory.createByName, {
 			...transactionDescriptor,
 			network: this.network.identifier
 		});
+		if (autosort)
+			transaction.sort();
 
 		// hack: explicitly translate transfer message
 		if (nc.TransactionType.TRANSFER === transaction.type && transaction.message && 'string' === typeof (transaction.message.message))

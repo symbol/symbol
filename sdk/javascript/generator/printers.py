@@ -13,6 +13,9 @@ class Printer:
 		# printer.name is 'fixed' field name
 		self.name = fix_name(lang_field_name(name or underline_name(self.descriptor.name)))
 
+	def sort(self, _field_name):  # pylint: disable=no-self-use
+		return None
+
 
 class IntPrinter(Printer):
 	def __init__(self, descriptor, name=None):
@@ -79,9 +82,13 @@ class TypedArrayPrinter(Printer):
 
 		return f'arrayHelpers.size(this.{self.name})'
 
-	def _get_sort_accessor(self):
+	def _get_sort_comparer(self, variable_name):
 		sort_key = lang_field_name(self.descriptor.field_type.sort_key)
-		accessor = f'e => (e.{sort_key}.comparer ? e.{sort_key}.comparer() : e.{sort_key}.value)'
+		comparer = f'({variable_name}.{sort_key}.comparer ? {variable_name}.{sort_key}.comparer() : {variable_name}.{sort_key}.value)'
+		return comparer
+
+	def _get_sort_accessor(self):
+		accessor = f'e => ({self._get_sort_comparer("e")})'
 		return accessor
 
 	def load(self, buffer_name, is_aligned):
@@ -152,6 +159,16 @@ class TypedArrayPrinter(Printer):
 			return f'arrayHelpers.writeArray({args_str})'
 
 		return f'arrayHelpers.writeArrayCount({args_str})'
+
+	def sort(self, field_name):
+		if not self.descriptor.field_type.sort_key:
+			return None
+
+		body = f'{field_name} = {field_name}.sort((lhs, rhs) => arrayHelpers.deepCompare(\n'
+		body += f'\t{self._get_sort_comparer("lhs")},\n'
+		body += f'\t{self._get_sort_comparer("rhs")}\n'
+		body += '));'
+		return body
 
 	@staticmethod
 	def to_string(field_name):
@@ -246,6 +263,9 @@ class BuiltinPrinter(Printer):
 	@staticmethod
 	def store(field_name):
 		return f'{field_name}.serialize()'
+
+	def sort(self, field_name):
+		return f'{field_name}.sort();' if DisplayType.STRUCT == self.descriptor.display_type else None
 
 	def assign(self, value):
 		return f'{self.get_type()}.{value}'
