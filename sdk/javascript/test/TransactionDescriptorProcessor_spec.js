@@ -5,13 +5,14 @@ const { expect } = require('chai');
 describe('TransactionDescriptorProcessor', () => {
 	// region test utils
 
-	const createProcessor = () => {
+	const createProcessor = extendedDescriptor => {
 		const transactionDescriptor = {
 			type: 'transfer',
 			timestamp: 12345,
 			signer: 'signerName',
 			recipient: 'recipientName',
-			message: 'hello world'
+			message: 'hello world',
+			...(extendedDescriptor || {})
 		};
 		const typeParsingRules = new Map();
 		typeParsingRules.set(PublicKey, name => `${name} PUBLICKEY`);
@@ -163,6 +164,17 @@ describe('TransactionDescriptorProcessor', () => {
 
 			// Act + Assert:
 			expect(() => { processor.copyTo(transaction); }).to.throw('transaction does not have attribute');
+		});
+
+		it('cannot copy when descriptor contains computed field', () => {
+			// Arrange:
+			const processor = createProcessor({messageEnvelopeSizeComputed: 123});
+			const transaction = {
+				type: null, timestamp: null, signer: null, recipient: null, message: null
+			};
+
+			// Act + Assert:
+			expect(() => { processor.copyTo(transaction); }).to.throw('cannot explicitly set computed field');
 		});
 
 		it('can copy to when transaction contains exact fields in descriptor', () => {

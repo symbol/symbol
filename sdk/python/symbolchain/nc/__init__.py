@@ -1411,7 +1411,6 @@ class MosaicDefinition:
 		self._id = MosaicId()
 		self._description = bytes()
 		self._properties = []
-		self._levy_size = 0
 		self._levy = None
 		self._owner_public_key_size = 32  # reserved field
 
@@ -1432,12 +1431,12 @@ class MosaicDefinition:
 		return self._properties
 
 	@property
-	def levy_size(self) -> int:
-		return self._levy_size
-
-	@property
 	def levy(self) -> MosaicLevy:
 		return self._levy
+
+	@property
+	def levy_size_computed(self) -> int:
+		return 0 if not self.levy else self.levy.size + 4
 
 	@owner_public_key.setter
 	def owner_public_key(self, value: PublicKey):
@@ -1455,10 +1454,6 @@ class MosaicDefinition:
 	def properties(self, value: List[SizePrefixedMosaicProperty]):
 		self._properties = value
 
-	@levy_size.setter
-	def levy_size(self, value: int):
-		self._levy_size = value
-
 	@levy.setter
 	def levy(self, value: MosaicLevy):
 		self._levy = value
@@ -1475,7 +1470,7 @@ class MosaicDefinition:
 		size += 4
 		size += ArrayHelpers.size(self.properties)
 		size += 4
-		if 0 != self.levy_size:
+		if 0 != self.levy_size_computed:
 			size += self.levy.size
 		return size
 
@@ -1512,7 +1507,6 @@ class MosaicDefinition:
 		instance._id = id
 		instance._description = description
 		instance._properties = properties
-		instance._levy_size = levy_size
 		instance._levy = levy
 		return instance
 
@@ -1526,8 +1520,8 @@ class MosaicDefinition:
 		buffer += self._description
 		buffer += len(self._properties).to_bytes(4, byteorder='little', signed=False)  # properties_count
 		buffer += ArrayHelpers.write_array(self._properties)
-		buffer += self._levy_size.to_bytes(4, byteorder='little', signed=False)
-		if 0 != self.levy_size:
+		buffer += self.levy_size_computed.to_bytes(4, byteorder='little', signed=False)
+		if 0 != self.levy_size_computed:
 			buffer += self._levy.serialize()
 		return buffer
 
@@ -1537,8 +1531,7 @@ class MosaicDefinition:
 		result += f'id: {self._id.__str__()}, '
 		result += f'description: {hexlify(self._description).decode("utf8")}, '
 		result += f'properties: {list(map(str, self._properties))}, '
-		result += f'levy_size: 0x{self._levy_size:X}, '
-		if 0 != self.levy_size:
+		if 0 != self.levy_size_computed:
 			result += f'levy: {self._levy.__str__()}, '
 		result += ')'
 		return result
@@ -4457,7 +4450,6 @@ class TransferTransactionV1:
 		self._deadline = Timestamp()
 		self._recipient_address = Address()
 		self._amount = Amount()
-		self._message_envelope_size = 0
 		self._message = None
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
@@ -4505,12 +4497,12 @@ class TransferTransactionV1:
 		return self._amount
 
 	@property
-	def message_envelope_size(self) -> int:
-		return self._message_envelope_size
-
-	@property
 	def message(self) -> Message:
 		return self._message
+
+	@property
+	def message_envelope_size_computed(self) -> int:
+		return 0 if not self.message else self.message.size + 4
 
 	@type_.setter
 	def type_(self, value: TransactionType):
@@ -4552,10 +4544,6 @@ class TransferTransactionV1:
 	def amount(self, value: Amount):
 		self._amount = value
 
-	@message_envelope_size.setter
-	def message_envelope_size(self, value: int):
-		self._message_envelope_size = value
-
 	@message.setter
 	def message(self, value: Message):
 		self._message = value
@@ -4578,7 +4566,7 @@ class TransferTransactionV1:
 		size += self.recipient_address.size
 		size += self.amount.size
 		size += 4
-		if 0 != self.message_envelope_size:
+		if 0 != self.message_envelope_size_computed:
 			size += self.message.size
 		return size
 
@@ -4635,7 +4623,6 @@ class TransferTransactionV1:
 		instance._deadline = deadline
 		instance._recipient_address = recipient_address
 		instance._amount = amount
-		instance._message_envelope_size = message_envelope_size
 		instance._message = message
 		return instance
 
@@ -4655,8 +4642,8 @@ class TransferTransactionV1:
 		buffer += self._recipient_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._recipient_address.serialize()
 		buffer += self._amount.serialize()
-		buffer += self._message_envelope_size.to_bytes(4, byteorder='little', signed=False)
-		if 0 != self.message_envelope_size:
+		buffer += self.message_envelope_size_computed.to_bytes(4, byteorder='little', signed=False)
+		if 0 != self.message_envelope_size_computed:
 			buffer += self._message.serialize()
 		return buffer
 
@@ -4672,8 +4659,7 @@ class TransferTransactionV1:
 		result += f'deadline: {self._deadline.__str__()}, '
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
-		result += f'message_envelope_size: 0x{self._message_envelope_size:X}, '
-		if 0 != self.message_envelope_size:
+		if 0 != self.message_envelope_size_computed:
 			result += f'message: {self._message.__str__()}, '
 		result += ')'
 		return result
@@ -4704,7 +4690,6 @@ class NonVerifiableTransferTransactionV1:
 		self._deadline = Timestamp()
 		self._recipient_address = Address()
 		self._amount = Amount()
-		self._message_envelope_size = 0
 		self._message = None
 		self._entity_body_reserved_1 = 0  # reserved field
 		self._signer_public_key_size = 32  # reserved field
@@ -4747,12 +4732,12 @@ class NonVerifiableTransferTransactionV1:
 		return self._amount
 
 	@property
-	def message_envelope_size(self) -> int:
-		return self._message_envelope_size
-
-	@property
 	def message(self) -> Message:
 		return self._message
+
+	@property
+	def message_envelope_size_computed(self) -> int:
+		return 0 if not self.message else self.message.size + 4
 
 	@type_.setter
 	def type_(self, value: TransactionType):
@@ -4790,10 +4775,6 @@ class NonVerifiableTransferTransactionV1:
 	def amount(self, value: Amount):
 		self._amount = value
 
-	@message_envelope_size.setter
-	def message_envelope_size(self, value: int):
-		self._message_envelope_size = value
-
 	@message.setter
 	def message(self, value: Message):
 		self._message = value
@@ -4814,7 +4795,7 @@ class NonVerifiableTransferTransactionV1:
 		size += self.recipient_address.size
 		size += self.amount.size
 		size += 4
-		if 0 != self.message_envelope_size:
+		if 0 != self.message_envelope_size_computed:
 			size += self.message.size
 		return size
 
@@ -4865,7 +4846,6 @@ class NonVerifiableTransferTransactionV1:
 		instance._deadline = deadline
 		instance._recipient_address = recipient_address
 		instance._amount = amount
-		instance._message_envelope_size = message_envelope_size
 		instance._message = message
 		return instance
 
@@ -4883,8 +4863,8 @@ class NonVerifiableTransferTransactionV1:
 		buffer += self._recipient_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._recipient_address.serialize()
 		buffer += self._amount.serialize()
-		buffer += self._message_envelope_size.to_bytes(4, byteorder='little', signed=False)
-		if 0 != self.message_envelope_size:
+		buffer += self.message_envelope_size_computed.to_bytes(4, byteorder='little', signed=False)
+		if 0 != self.message_envelope_size_computed:
 			buffer += self._message.serialize()
 		return buffer
 
@@ -4899,8 +4879,7 @@ class NonVerifiableTransferTransactionV1:
 		result += f'deadline: {self._deadline.__str__()}, '
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
-		result += f'message_envelope_size: 0x{self._message_envelope_size:X}, '
-		if 0 != self.message_envelope_size:
+		if 0 != self.message_envelope_size_computed:
 			result += f'message: {self._message.__str__()}, '
 		result += ')'
 		return result
@@ -4934,7 +4913,6 @@ class TransferTransaction:
 		self._deadline = Timestamp()
 		self._recipient_address = Address()
 		self._amount = Amount()
-		self._message_envelope_size = 0
 		self._message = None
 		self._mosaics = []
 		self._entity_body_reserved_1 = 0  # reserved field
@@ -4983,16 +4961,16 @@ class TransferTransaction:
 		return self._amount
 
 	@property
-	def message_envelope_size(self) -> int:
-		return self._message_envelope_size
-
-	@property
 	def message(self) -> Message:
 		return self._message
 
 	@property
 	def mosaics(self) -> List[SizePrefixedMosaic]:
 		return self._mosaics
+
+	@property
+	def message_envelope_size_computed(self) -> int:
+		return 0 if not self.message else self.message.size + 4
 
 	@type_.setter
 	def type_(self, value: TransactionType):
@@ -5034,10 +5012,6 @@ class TransferTransaction:
 	def amount(self, value: Amount):
 		self._amount = value
 
-	@message_envelope_size.setter
-	def message_envelope_size(self, value: int):
-		self._message_envelope_size = value
-
 	@message.setter
 	def message(self, value: Message):
 		self._message = value
@@ -5064,7 +5038,7 @@ class TransferTransaction:
 		size += self.recipient_address.size
 		size += self.amount.size
 		size += 4
-		if 0 != self.message_envelope_size:
+		if 0 != self.message_envelope_size_computed:
 			size += self.message.size
 		size += 4
 		size += ArrayHelpers.size(self.mosaics)
@@ -5127,7 +5101,6 @@ class TransferTransaction:
 		instance._deadline = deadline
 		instance._recipient_address = recipient_address
 		instance._amount = amount
-		instance._message_envelope_size = message_envelope_size
 		instance._message = message
 		instance._mosaics = mosaics
 		return instance
@@ -5148,8 +5121,8 @@ class TransferTransaction:
 		buffer += self._recipient_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._recipient_address.serialize()
 		buffer += self._amount.serialize()
-		buffer += self._message_envelope_size.to_bytes(4, byteorder='little', signed=False)
-		if 0 != self.message_envelope_size:
+		buffer += self.message_envelope_size_computed.to_bytes(4, byteorder='little', signed=False)
+		if 0 != self.message_envelope_size_computed:
 			buffer += self._message.serialize()
 		buffer += len(self._mosaics).to_bytes(4, byteorder='little', signed=False)  # mosaics_count
 		buffer += ArrayHelpers.write_array(self._mosaics)
@@ -5167,8 +5140,7 @@ class TransferTransaction:
 		result += f'deadline: {self._deadline.__str__()}, '
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
-		result += f'message_envelope_size: 0x{self._message_envelope_size:X}, '
-		if 0 != self.message_envelope_size:
+		if 0 != self.message_envelope_size_computed:
 			result += f'message: {self._message.__str__()}, '
 		result += f'mosaics: {list(map(str, self._mosaics))}, '
 		result += ')'
@@ -5201,7 +5173,6 @@ class NonVerifiableTransferTransaction:
 		self._deadline = Timestamp()
 		self._recipient_address = Address()
 		self._amount = Amount()
-		self._message_envelope_size = 0
 		self._message = None
 		self._mosaics = []
 		self._entity_body_reserved_1 = 0  # reserved field
@@ -5245,16 +5216,16 @@ class NonVerifiableTransferTransaction:
 		return self._amount
 
 	@property
-	def message_envelope_size(self) -> int:
-		return self._message_envelope_size
-
-	@property
 	def message(self) -> Message:
 		return self._message
 
 	@property
 	def mosaics(self) -> List[SizePrefixedMosaic]:
 		return self._mosaics
+
+	@property
+	def message_envelope_size_computed(self) -> int:
+		return 0 if not self.message else self.message.size + 4
 
 	@type_.setter
 	def type_(self, value: TransactionType):
@@ -5292,10 +5263,6 @@ class NonVerifiableTransferTransaction:
 	def amount(self, value: Amount):
 		self._amount = value
 
-	@message_envelope_size.setter
-	def message_envelope_size(self, value: int):
-		self._message_envelope_size = value
-
 	@message.setter
 	def message(self, value: Message):
 		self._message = value
@@ -5320,7 +5287,7 @@ class NonVerifiableTransferTransaction:
 		size += self.recipient_address.size
 		size += self.amount.size
 		size += 4
-		if 0 != self.message_envelope_size:
+		if 0 != self.message_envelope_size_computed:
 			size += self.message.size
 		size += 4
 		size += ArrayHelpers.size(self.mosaics)
@@ -5377,7 +5344,6 @@ class NonVerifiableTransferTransaction:
 		instance._deadline = deadline
 		instance._recipient_address = recipient_address
 		instance._amount = amount
-		instance._message_envelope_size = message_envelope_size
 		instance._message = message
 		instance._mosaics = mosaics
 		return instance
@@ -5396,8 +5362,8 @@ class NonVerifiableTransferTransaction:
 		buffer += self._recipient_address_size.to_bytes(4, byteorder='little', signed=False)
 		buffer += self._recipient_address.serialize()
 		buffer += self._amount.serialize()
-		buffer += self._message_envelope_size.to_bytes(4, byteorder='little', signed=False)
-		if 0 != self.message_envelope_size:
+		buffer += self.message_envelope_size_computed.to_bytes(4, byteorder='little', signed=False)
+		if 0 != self.message_envelope_size_computed:
 			buffer += self._message.serialize()
 		buffer += len(self._mosaics).to_bytes(4, byteorder='little', signed=False)  # mosaics_count
 		buffer += ArrayHelpers.write_array(self._mosaics)
@@ -5414,8 +5380,7 @@ class NonVerifiableTransferTransaction:
 		result += f'deadline: {self._deadline.__str__()}, '
 		result += f'recipient_address: {self._recipient_address.__str__()}, '
 		result += f'amount: {self._amount.__str__()}, '
-		result += f'message_envelope_size: 0x{self._message_envelope_size:X}, '
-		if 0 != self.message_envelope_size:
+		if 0 != self.message_envelope_size_computed:
 			result += f'message: {self._message.__str__()}, '
 		result += f'mosaics: {list(map(str, self._mosaics))}, '
 		result += ')'

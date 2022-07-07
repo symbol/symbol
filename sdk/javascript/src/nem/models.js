@@ -1612,7 +1612,6 @@ class MosaicDefinition {
 		this._id = new MosaicId();
 		this._description = new Uint8Array();
 		this._properties = [];
-		this._levySize = 0;
 		this._levy = null;
 		this._ownerPublicKeySize = 32; // reserved field
 	}
@@ -1649,20 +1648,16 @@ class MosaicDefinition {
 		this._properties = value;
 	}
 
-	get levySize() {
-		return this._levySize;
-	}
-
-	set levySize(value) {
-		this._levySize = value;
-	}
-
 	get levy() {
 		return this._levy;
 	}
 
 	set levy(value) {
 		this._levy = value;
+	}
+
+	get levySizeComputed() {
+		return this.levy ? this.levy.size + 4 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this
@@ -1676,7 +1671,7 @@ class MosaicDefinition {
 		size += 4;
 		size += arrayHelpers.size(this.properties);
 		size += 4;
-		if (0 !== this.levySize)
+		if (0 !== this.levySizeComputed)
 			size += this.levy.size;
 
 		return size;
@@ -1716,7 +1711,6 @@ class MosaicDefinition {
 		instance._id = id;
 		instance._description = description;
 		instance._properties = properties;
-		instance._levySize = levySize;
 		instance._levy = levy;
 		return instance;
 	}
@@ -1731,8 +1725,8 @@ class MosaicDefinition {
 		buffer.write(this._description);
 		buffer.write(converter.intToBytes(this._properties.length, 4, false)); // bound: properties_count
 		arrayHelpers.writeArray(buffer, this._properties);
-		buffer.write(converter.intToBytes(this._levySize, 4, false));
-		if (0 !== this.levySize)
+		buffer.write(converter.intToBytes(this.levySizeComputed, 4, false));
+		if (0 !== this.levySizeComputed)
 			buffer.write(this._levy.serialize());
 
 		return buffer.storage;
@@ -1744,8 +1738,7 @@ class MosaicDefinition {
 		result += `id: ${this._id.toString()}, `;
 		result += `description: hex(${converter.uint8ToHex(this._description)}), `;
 		result += `properties: [${this._properties.map(e => e.toString()).join(',')}], `;
-		result += `levySize: ${'0x'.concat(this._levySize.toString(16))}, `;
-		if (0 !== this.levySize)
+		if (0 !== this.levySizeComputed)
 			result += `levy: ${this._levy.toString()}, `;
 
 		result += ')';
@@ -4886,7 +4879,6 @@ class TransferTransactionV1 {
 		this._deadline = new Timestamp();
 		this._recipientAddress = new Address();
 		this._amount = new Amount();
-		this._messageEnvelopeSize = 0;
 		this._message = null;
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
@@ -4974,20 +4966,16 @@ class TransferTransactionV1 {
 		this._amount = value;
 	}
 
-	get messageEnvelopeSize() {
-		return this._messageEnvelopeSize;
-	}
-
-	set messageEnvelopeSize(value) {
-		this._messageEnvelopeSize = value;
-	}
-
 	get message() {
 		return this._message;
 	}
 
 	set message(value) {
 		this._message = value;
+	}
+
+	get messageEnvelopeSizeComputed() {
+		return this.message ? this.message.size + 4 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this
@@ -5007,7 +4995,7 @@ class TransferTransactionV1 {
 		size += this.recipientAddress.size;
 		size += this.amount.size;
 		size += 4;
-		if (0 !== this.messageEnvelopeSize)
+		if (0 !== this.messageEnvelopeSizeComputed)
 			size += this.message.size;
 
 		return size;
@@ -5070,7 +5058,6 @@ class TransferTransactionV1 {
 		instance._deadline = deadline;
 		instance._recipientAddress = recipientAddress;
 		instance._amount = amount;
-		instance._messageEnvelopeSize = messageEnvelopeSize;
 		instance._message = message;
 		return instance;
 	}
@@ -5091,8 +5078,8 @@ class TransferTransactionV1 {
 		buffer.write(converter.intToBytes(this._recipientAddressSize, 4, false));
 		buffer.write(this._recipientAddress.serialize());
 		buffer.write(this._amount.serialize());
-		buffer.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
-		if (0 !== this.messageEnvelopeSize)
+		buffer.write(converter.intToBytes(this.messageEnvelopeSizeComputed, 4, false));
+		if (0 !== this.messageEnvelopeSizeComputed)
 			buffer.write(this._message.serialize());
 
 		return buffer.storage;
@@ -5110,8 +5097,7 @@ class TransferTransactionV1 {
 		result += `deadline: ${this._deadline.toString()}, `;
 		result += `recipientAddress: ${this._recipientAddress.toString()}, `;
 		result += `amount: ${this._amount.toString()}, `;
-		result += `messageEnvelopeSize: ${'0x'.concat(this._messageEnvelopeSize.toString(16))}, `;
-		if (0 !== this.messageEnvelopeSize)
+		if (0 !== this.messageEnvelopeSizeComputed)
 			result += `message: ${this._message.toString()}, `;
 
 		result += ')';
@@ -5146,7 +5132,6 @@ class NonVerifiableTransferTransactionV1 {
 		this._deadline = new Timestamp();
 		this._recipientAddress = new Address();
 		this._amount = new Amount();
-		this._messageEnvelopeSize = 0;
 		this._message = null;
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._signerPublicKeySize = 32; // reserved field
@@ -5225,20 +5210,16 @@ class NonVerifiableTransferTransactionV1 {
 		this._amount = value;
 	}
 
-	get messageEnvelopeSize() {
-		return this._messageEnvelopeSize;
-	}
-
-	set messageEnvelopeSize(value) {
-		this._messageEnvelopeSize = value;
-	}
-
 	get message() {
 		return this._message;
 	}
 
 	set message(value) {
 		this._message = value;
+	}
+
+	get messageEnvelopeSizeComputed() {
+		return this.message ? this.message.size + 4 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this
@@ -5256,7 +5237,7 @@ class NonVerifiableTransferTransactionV1 {
 		size += this.recipientAddress.size;
 		size += this.amount.size;
 		size += 4;
-		if (0 !== this.messageEnvelopeSize)
+		if (0 !== this.messageEnvelopeSizeComputed)
 			size += this.message.size;
 
 		return size;
@@ -5312,7 +5293,6 @@ class NonVerifiableTransferTransactionV1 {
 		instance._deadline = deadline;
 		instance._recipientAddress = recipientAddress;
 		instance._amount = amount;
-		instance._messageEnvelopeSize = messageEnvelopeSize;
 		instance._message = message;
 		return instance;
 	}
@@ -5331,8 +5311,8 @@ class NonVerifiableTransferTransactionV1 {
 		buffer.write(converter.intToBytes(this._recipientAddressSize, 4, false));
 		buffer.write(this._recipientAddress.serialize());
 		buffer.write(this._amount.serialize());
-		buffer.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
-		if (0 !== this.messageEnvelopeSize)
+		buffer.write(converter.intToBytes(this.messageEnvelopeSizeComputed, 4, false));
+		if (0 !== this.messageEnvelopeSizeComputed)
 			buffer.write(this._message.serialize());
 
 		return buffer.storage;
@@ -5349,8 +5329,7 @@ class NonVerifiableTransferTransactionV1 {
 		result += `deadline: ${this._deadline.toString()}, `;
 		result += `recipientAddress: ${this._recipientAddress.toString()}, `;
 		result += `amount: ${this._amount.toString()}, `;
-		result += `messageEnvelopeSize: ${'0x'.concat(this._messageEnvelopeSize.toString(16))}, `;
-		if (0 !== this.messageEnvelopeSize)
+		if (0 !== this.messageEnvelopeSizeComputed)
 			result += `message: ${this._message.toString()}, `;
 
 		result += ')';
@@ -5388,7 +5367,6 @@ class TransferTransaction {
 		this._deadline = new Timestamp();
 		this._recipientAddress = new Address();
 		this._amount = new Amount();
-		this._messageEnvelopeSize = 0;
 		this._message = null;
 		this._mosaics = [];
 		this._entityBodyReserved_1 = 0; // reserved field
@@ -5477,14 +5455,6 @@ class TransferTransaction {
 		this._amount = value;
 	}
 
-	get messageEnvelopeSize() {
-		return this._messageEnvelopeSize;
-	}
-
-	set messageEnvelopeSize(value) {
-		this._messageEnvelopeSize = value;
-	}
-
 	get message() {
 		return this._message;
 	}
@@ -5499,6 +5469,10 @@ class TransferTransaction {
 
 	set mosaics(value) {
 		this._mosaics = value;
+	}
+
+	get messageEnvelopeSizeComputed() {
+		return this.message ? this.message.size + 4 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this
@@ -5518,7 +5492,7 @@ class TransferTransaction {
 		size += this.recipientAddress.size;
 		size += this.amount.size;
 		size += 4;
-		if (0 !== this.messageEnvelopeSize)
+		if (0 !== this.messageEnvelopeSizeComputed)
 			size += this.message.size;
 
 		size += 4;
@@ -5587,7 +5561,6 @@ class TransferTransaction {
 		instance._deadline = deadline;
 		instance._recipientAddress = recipientAddress;
 		instance._amount = amount;
-		instance._messageEnvelopeSize = messageEnvelopeSize;
 		instance._message = message;
 		instance._mosaics = mosaics;
 		return instance;
@@ -5609,8 +5582,8 @@ class TransferTransaction {
 		buffer.write(converter.intToBytes(this._recipientAddressSize, 4, false));
 		buffer.write(this._recipientAddress.serialize());
 		buffer.write(this._amount.serialize());
-		buffer.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
-		if (0 !== this.messageEnvelopeSize)
+		buffer.write(converter.intToBytes(this.messageEnvelopeSizeComputed, 4, false));
+		if (0 !== this.messageEnvelopeSizeComputed)
 			buffer.write(this._message.serialize());
 
 		buffer.write(converter.intToBytes(this._mosaics.length, 4, false)); // bound: mosaics_count
@@ -5630,8 +5603,7 @@ class TransferTransaction {
 		result += `deadline: ${this._deadline.toString()}, `;
 		result += `recipientAddress: ${this._recipientAddress.toString()}, `;
 		result += `amount: ${this._amount.toString()}, `;
-		result += `messageEnvelopeSize: ${'0x'.concat(this._messageEnvelopeSize.toString(16))}, `;
-		if (0 !== this.messageEnvelopeSize)
+		if (0 !== this.messageEnvelopeSizeComputed)
 			result += `message: ${this._message.toString()}, `;
 
 		result += `mosaics: [${this._mosaics.map(e => e.toString()).join(',')}], `;
@@ -5668,7 +5640,6 @@ class NonVerifiableTransferTransaction {
 		this._deadline = new Timestamp();
 		this._recipientAddress = new Address();
 		this._amount = new Amount();
-		this._messageEnvelopeSize = 0;
 		this._message = null;
 		this._mosaics = [];
 		this._entityBodyReserved_1 = 0; // reserved field
@@ -5748,14 +5719,6 @@ class NonVerifiableTransferTransaction {
 		this._amount = value;
 	}
 
-	get messageEnvelopeSize() {
-		return this._messageEnvelopeSize;
-	}
-
-	set messageEnvelopeSize(value) {
-		this._messageEnvelopeSize = value;
-	}
-
 	get message() {
 		return this._message;
 	}
@@ -5770,6 +5733,10 @@ class NonVerifiableTransferTransaction {
 
 	set mosaics(value) {
 		this._mosaics = value;
+	}
+
+	get messageEnvelopeSizeComputed() {
+		return this.message ? this.message.size + 4 : 0;
 	}
 
 	get size() { // eslint-disable-line class-methods-use-this
@@ -5787,7 +5754,7 @@ class NonVerifiableTransferTransaction {
 		size += this.recipientAddress.size;
 		size += this.amount.size;
 		size += 4;
-		if (0 !== this.messageEnvelopeSize)
+		if (0 !== this.messageEnvelopeSizeComputed)
 			size += this.message.size;
 
 		size += 4;
@@ -5849,7 +5816,6 @@ class NonVerifiableTransferTransaction {
 		instance._deadline = deadline;
 		instance._recipientAddress = recipientAddress;
 		instance._amount = amount;
-		instance._messageEnvelopeSize = messageEnvelopeSize;
 		instance._message = message;
 		instance._mosaics = mosaics;
 		return instance;
@@ -5869,8 +5835,8 @@ class NonVerifiableTransferTransaction {
 		buffer.write(converter.intToBytes(this._recipientAddressSize, 4, false));
 		buffer.write(this._recipientAddress.serialize());
 		buffer.write(this._amount.serialize());
-		buffer.write(converter.intToBytes(this._messageEnvelopeSize, 4, false));
-		if (0 !== this.messageEnvelopeSize)
+		buffer.write(converter.intToBytes(this.messageEnvelopeSizeComputed, 4, false));
+		if (0 !== this.messageEnvelopeSizeComputed)
 			buffer.write(this._message.serialize());
 
 		buffer.write(converter.intToBytes(this._mosaics.length, 4, false)); // bound: mosaics_count
@@ -5889,8 +5855,7 @@ class NonVerifiableTransferTransaction {
 		result += `deadline: ${this._deadline.toString()}, `;
 		result += `recipientAddress: ${this._recipientAddress.toString()}, `;
 		result += `amount: ${this._amount.toString()}, `;
-		result += `messageEnvelopeSize: ${'0x'.concat(this._messageEnvelopeSize.toString(16))}, `;
-		if (0 !== this.messageEnvelopeSize)
+		if (0 !== this.messageEnvelopeSizeComputed)
 			result += `message: ${this._message.toString()}, `;
 
 		result += `mosaics: [${this._mosaics.map(e => e.toString()).join(',')}], `;

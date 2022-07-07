@@ -49,6 +49,9 @@ class TransactionDescriptorProcessor {
 			if (ignoreKeys && -1 !== ignoreKeys.indexOf(key))
 				return;
 
+			if (key.endsWith('Computed'))
+				throw RangeError(`cannot explicitly set computed field ${key}`);
+
 			if (undefined === transaction[key])
 				throw RangeError(`transaction does not have attribute ${key}`);
 

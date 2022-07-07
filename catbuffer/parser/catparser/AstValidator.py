@@ -89,6 +89,9 @@ class AstValidator:
 			if 'inline' == field.disposition and 'inline' != self.type_descriptor_map[field.field_type].disposition:
 				self.errors.append(create_error_descriptor(f'named inline field referencing non inline struct "{field.field_type}"'))
 
+		if isinstance(field.field_type, FixedSizeInteger):
+			self._validate_integer(field.field_type, field_map, create_error_descriptor)
+
 		if isinstance(field.field_type, Array):
 			self._validate_array(field.field_type, field_map, create_error_descriptor)
 
@@ -104,6 +107,14 @@ class AstValidator:
 			for attribute in field.attributes:
 				if not hasattr(field.field_type, attribute.name):
 					self.errors.append(create_error_descriptor(f'inapplicable attribute "{attribute.name}"'))
+
+	def _validate_integer(self, field_type, field_map, create_error_descriptor):
+		sizeref = field_type.sizeref
+		if not sizeref:
+			return
+
+		if sizeref.property_name not in field_map:
+			self.errors.append(create_error_descriptor(f'reference to unknown sizeref property "{sizeref.property_name}"'))
 
 	def _validate_array(self, field_type, field_map, create_error_descriptor):
 		element_type = field_type.element_type

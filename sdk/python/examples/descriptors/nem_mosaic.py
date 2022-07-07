@@ -29,7 +29,6 @@ def descriptor_factory():
 				'description': 'Not really valuable mosaic'.encode('utf8'),
 				'properties': [
 				],
-				'levy_size': 0,
 				'levy': {}
 			}
 		},
@@ -50,7 +49,6 @@ def descriptor_factory():
 					{'property_': {'name': 'supplyMutable'.encode('utf8'), 'value': 'false'.encode('utf8')}},
 					{'property_': {'name': 'transferable'.encode('utf8'), 'value': 'true'.encode('utf8')}}
 				],
-				'levy_size': 0,
 				'levy': {}
 			}
 		},
@@ -67,7 +65,6 @@ def descriptor_factory():
 				'description': 'Not really valuable mosaic'.encode('utf8'),
 				'properties': [
 				],
-				'levy_size': levy.size,
 				'levy': {
 					'transfer_fee_type': 'absolute',
 					'recipient_address': sample_address,

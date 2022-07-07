@@ -16,8 +16,7 @@ recipes = {
 					{'property_': {'name': b'initialSupply', 'value': b'0'}},
 					{'property_': {'name': b'supplyMutable', 'value': b'false'}},
 					{'property_': {'name': b'transferable', 'value': b'true'}}
-				],
-				'levy_size': 0x0,
+				]
 			},
 			'rental_fee_sink': 'TDX5YX2NJUSWXEKJ4UQN3WXUY3SCCAGWHHFJ3B5J',
 			'rental_fee': 0x0000000028697580
@@ -37,8 +36,7 @@ recipes = {
 					{'property_': {'name': b'initialSupply', 'value': b'345678'}},
 					{'property_': {'name': b'supplyMutable', 'value': b'false'}},
 					{'property_': {'name': b'transferable', 'value': b'true'}}
-				],
-				'levy_size': 0x0,
+				]
 			},
 			'rental_fee_sink': 'TCO5WSTHXII62V3MYWKBD7GOMCDRX35TFOZEX3BD',
 			'rental_fee': 0x0000000028697580,
@@ -58,8 +56,7 @@ recipes = {
 					{'property_': {'name': b'initialSupply', 'value': b'1000'}},
 					{'property_': {'name': b'supplyMutable', 'value': b'true'}},
 					{'property_': {'name': b'transferable', 'value': b'true'}}
-				],
-				'levy_size': 0x0,
+				]
 			},
 			'rental_fee_sink': 'TARPSQFPJL6A2ORAQJ46GOZUDPNYVQJKGVT2NMG7',
 			'rental_fee': 0x0000000028697580
@@ -80,7 +77,6 @@ recipes = {
 					{'property_': {'name': b'supplyMutable', 'value': b'true'}},
 					{'property_': {'name': b'transferable', 'value': b'true'}}
 				],
-				'levy_size': 0x54,  # note: needs to be here, as it is not derived now...
 				'levy': {
 					'transfer_fee_type': 'absolute',
 					'recipient_address': 'TCUTCNM64Y6Q4VB4OTEHBQT2ZKUY3CUYRVHCTIZ3',
@@ -112,7 +108,6 @@ recipes = {
 					{'property_': {'name': b'supplyMutable', 'value': b'true'}},
 					{'property_': {'name': b'transferable', 'value': b'true'}}
 				],
-				'levy_size': 0x50,  # note: needs to be here, as it is not derived now...
 				'levy': {
 					'transfer_fee_type': 'percentile',
 					'recipient_address': 'TDAQGCFP4TR2U33WBXJEDUHH6OWV3T4YXWHSH46A',

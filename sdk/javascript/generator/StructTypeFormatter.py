@@ -19,6 +19,10 @@ def is_const(field):
 	return field.is_const
 
 
+def is_computed(field):
+	return hasattr(field.field_type, 'sizeref') and field.field_type.sizeref
+
+
 def create_temporary_buffer_name(name):
 	return f'{name}_condition'
 
@@ -59,10 +63,13 @@ class StructFormatter(AbstractTypeFormatter):
 		return filter(is_const, self.struct.fields)
 
 	def non_reserved_fields(self):
-		return filter_size_if_first(filterfalse(is_bound_size, filterfalse(is_reserved, self.non_const_fields())))
+		return filter_size_if_first(filterfalse(is_computed, filterfalse(is_bound_size, filterfalse(is_reserved, self.non_const_fields()))))
 
 	def reserved_fields(self):
 		return filter(is_reserved, self.non_const_fields())
+
+	def computed_fields(self):
+		return filter(is_computed, self.non_const_fields())
 
 	@property
 	def typename(self):
@@ -70,6 +77,10 @@ class StructFormatter(AbstractTypeFormatter):
 
 	@staticmethod
 	def field_name(field, object_name='this'):
+		if is_computed(field):
+			# add _computed postfix for easier filtering in bespoke code
+			return f'{object_name}.{field.extensions.printer.name}Computed'
+
 		return f'{object_name}._{field.extensions.printer.name}'
 
 	@staticmethod
@@ -193,7 +204,9 @@ class StructFormatter(AbstractTypeFormatter):
 		if conditional.operation in ['not in', 'in']:
 			return f'if ({condition_operator}{field_prefix}{display_condition_field_name}.has({yoda_value}))'
 
-		return f'if ({yoda_value} {condition_operator} {field_prefix}{display_condition_field_name})'
+		field_postfix = 'Computed' if prefix_field and is_computed(condition_field) else ''
+
+		return f'if ({yoda_value} {condition_operator} {field_prefix}{display_condition_field_name}{field_postfix})'
 
 	def generate_deserialize_field(self, field, arg_buffer_name=None):
 		# pylint: disable=too-many-locals
@@ -361,10 +374,16 @@ class StructFormatter(AbstractTypeFormatter):
 		return MethodDescriptor(body=body)
 
 	def create_getter_descriptor(self, field):
-		method_descriptor = MethodDescriptor(
-			method_name=f'get {field.extensions.printer.name}',
-			body=f'return {self.field_name(field)};',
-		)
+		method_name = f'get {field.extensions.printer.name}'
+		body = f'return {self.field_name(field)};'
+
+		if is_computed(field):
+			method_name += 'Computed'
+
+			sizeref = field.field_type.sizeref
+			body = f'return this.{sizeref.property_name} ? this.{sizeref.property_name}.size + {sizeref.delta} : 0;'
+
+		method_descriptor = MethodDescriptor(method_name=method_name, body=body)
 		return method_descriptor
 
 	def create_setter_descriptor(self, field):
@@ -380,6 +399,10 @@ class StructFormatter(AbstractTypeFormatter):
 		for field in self.non_reserved_fields():
 			descriptors.append(self.create_getter_descriptor(field))
 			descriptors.append(self.create_setter_descriptor(field))
+
+		for field in self.computed_fields():
+			descriptors.append(self.create_getter_descriptor(field))
+
 		return descriptors
 
 	def generate_str_field(self, field):

@@ -39,7 +39,7 @@ class TransactionFactory:
 		non_verifiable_transaction = non_verifiable_class()
 		for key in dir(non_verifiable_transaction):
 			# isupper() to quickly filter out class properties like TRANSACTION_VERSION or TYPE_HINTS
-			if key.startswith('_') or key[0].isupper() or key in ['size', 'serialize', 'deserialize']:
+			if key.startswith('_') or key[0].isupper() or key in ('size', 'serialize', 'deserialize') or key.endswith('_computed'):
 				continue
 
 			setattr(non_verifiable_transaction, key, getattr(transaction, key))
