@@ -19,11 +19,13 @@ class TransactionFactory {
 		this.network = network;
 	}
 
-	_createAndExtend(transactionDescriptor, FactoryClass) {
+	_createAndExtend(transactionDescriptor, autosort, FactoryClass) {
 		const transaction = this.factory.createFromFactory(FactoryClass.createByName, {
 			...transactionDescriptor,
 			network: this.network.identifier
 		});
+		if (autosort)
+			transaction.sort();
 
 		// autogenerate artifact ids
 		if (sc.TransactionType.NAMESPACE_REGISTRATION === transaction.type) {
@@ -41,19 +43,23 @@ class TransactionFactory {
 	/**
 	 * Creates a transaction from a transaction descriptor.
 	 * @param {object} transactionDescriptor Transaction descriptor.
+	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.
+	 *                           When unset, descriptor arrays will be presumed to be already sorted.
 	 * @returns {object} Newly created transaction.
 	 */
-	create(transactionDescriptor) {
-		return this._createAndExtend(transactionDescriptor, sc.TransactionFactory);
+	create(transactionDescriptor, autosort = true) {
+		return this._createAndExtend(transactionDescriptor, autosort, sc.TransactionFactory);
 	}
 
 	/**
 	 * Creates an embedded transaction from a transaction descriptor.
 	 * @param {object} transactionDescriptor Transaction descriptor.
+	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.
+	 *                           When unset, descriptor arrays will be presumed to be already sorted.
 	 * @returns {object} Newly created transaction.
 	 */
-	createEmbedded(transactionDescriptor) {
-		return this._createAndExtend(transactionDescriptor, sc.EmbeddedTransactionFactory);
+	createEmbedded(transactionDescriptor, autosort = true) {
+		return this._createAndExtend(transactionDescriptor, autosort, sc.EmbeddedTransactionFactory);
 	}
 
 	/**

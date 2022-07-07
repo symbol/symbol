@@ -429,6 +429,9 @@ class Mosaic {
 		this._amount = new Amount();
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get mosaicId() {
 		return this._mosaicId;
 	}
@@ -490,6 +493,9 @@ class UnresolvedMosaic {
 	constructor() {
 		this._mosaicId = new UnresolvedMosaicId();
 		this._amount = new Amount();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get mosaicId() {
@@ -770,6 +776,9 @@ class Transaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -925,6 +934,9 @@ class EmbeddedTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -1050,6 +1062,9 @@ class AccountKeyLinkTransaction {
 		this._linkAction = LinkAction.UNLINK;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -1243,6 +1258,9 @@ class EmbeddedAccountKeyLinkTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -1396,6 +1414,9 @@ class NodeKeyLinkTransaction {
 		this._linkAction = LinkAction.UNLINK;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -1589,6 +1610,9 @@ class EmbeddedNodeKeyLinkTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -1726,6 +1750,9 @@ class Cosignature {
 		this._signature = new Signature();
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get version() {
 		return this._version;
 	}
@@ -1804,6 +1831,9 @@ class DetachedCosignature {
 		this._signerPublicKey = new PublicKey();
 		this._signature = new Signature();
 		this._parentHash = new Hash256();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get version() {
@@ -1917,6 +1947,9 @@ class AggregateCompleteTransaction {
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -2141,6 +2174,9 @@ class AggregateBondedTransaction {
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -2368,6 +2404,9 @@ class VotingKeyLinkTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -2591,6 +2630,9 @@ class EmbeddedVotingKeyLinkTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -2772,6 +2814,9 @@ class VrfKeyLinkTransaction {
 		this._linkAction = LinkAction.UNLINK;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -2965,6 +3010,9 @@ class EmbeddedVrfKeyLinkTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -3120,6 +3168,10 @@ class HashLockTransaction {
 		this._hash = new Hash256();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaic.sort();
 	}
 
 	get signature() {
@@ -3327,6 +3379,10 @@ class EmbeddedHashLockTransaction {
 		this._hash = new Hash256();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaic.sort();
 	}
 
 	get signerPublicKey() {
@@ -3555,6 +3611,10 @@ class SecretLockTransaction {
 		this._hashAlgorithm = LockHashAlgorithm.SHA3_256;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaic.sort();
 	}
 
 	get signature() {
@@ -3796,6 +3856,10 @@ class EmbeddedSecretLockTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() {
+		this._mosaic.sort();
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -3995,6 +4059,9 @@ class SecretProofTransaction {
 		this._proof = new Uint8Array();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -4224,6 +4291,9 @@ class EmbeddedSecretProofTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -4411,6 +4481,9 @@ class AccountMetadataTransaction {
 		this._value = new Uint8Array();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -4638,6 +4711,9 @@ class EmbeddedAccountMetadataTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -4827,6 +4903,9 @@ class MosaicMetadataTransaction {
 		this._value = new Uint8Array();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -5068,6 +5147,9 @@ class EmbeddedMosaicMetadataTransaction {
 		this._value = new Uint8Array();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -5399,6 +5481,9 @@ class NamespaceMetadataTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -5638,6 +5723,9 @@ class EmbeddedNamespaceMetadataTransaction {
 		this._value = new Uint8Array();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -5974,6 +6062,9 @@ class MosaicDefinitionTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -6212,6 +6303,9 @@ class EmbeddedMosaicDefinitionTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -6409,6 +6503,9 @@ class MosaicSupplyChangeTransaction {
 		this._action = MosaicSupplyChangeAction.DECREASE;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -6618,6 +6715,9 @@ class EmbeddedMosaicSupplyChangeTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -6785,6 +6885,10 @@ class MosaicSupplyRevocationTransaction {
 		this._mosaic = new UnresolvedMosaic();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaic.sort();
 	}
 
 	get signature() {
@@ -6978,6 +7082,10 @@ class EmbeddedMosaicSupplyRevocationTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() {
+		this._mosaic.sort();
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -7134,6 +7242,9 @@ class MultisigAccountModificationTransaction {
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._multisigAccountModificationTransactionBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -7372,6 +7483,9 @@ class EmbeddedMultisigAccountModificationTransaction {
 		this._multisigAccountModificationTransactionBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -7569,6 +7683,9 @@ class AddressAliasTransaction {
 		this._aliasAction = AliasAction.UNLINK;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -7778,6 +7895,9 @@ class EmbeddedAddressAliasTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -7947,6 +8067,9 @@ class MosaicAliasTransaction {
 		this._aliasAction = AliasAction.UNLINK;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -8156,6 +8279,9 @@ class EmbeddedMosaicAliasTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -8329,6 +8455,9 @@ class NamespaceRegistrationTransaction {
 		this._name = new Uint8Array();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -8593,6 +8722,9 @@ class EmbeddedNamespaceRegistrationTransaction {
 		this._name = new Uint8Array();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -8875,6 +9007,9 @@ class AccountAddressRestrictionTransaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -9097,6 +9232,9 @@ class EmbeddedAccountAddressRestrictionTransaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -9281,6 +9419,9 @@ class AccountMosaicRestrictionTransaction {
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -9505,6 +9646,9 @@ class EmbeddedAccountMosaicRestrictionTransaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -9689,6 +9833,9 @@ class AccountOperationRestrictionTransaction {
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -9913,6 +10060,9 @@ class EmbeddedAccountOperationRestrictionTransaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -10097,6 +10247,9 @@ class MosaicAddressRestrictionTransaction {
 		this._targetAddress = new UnresolvedAddress();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -10333,6 +10486,9 @@ class EmbeddedMosaicAddressRestrictionTransaction {
 		this._targetAddress = new UnresolvedAddress();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -10622,6 +10778,9 @@ class MosaicGlobalRestrictionTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -10890,6 +11049,9 @@ class EmbeddedMosaicGlobalRestrictionTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -11119,6 +11281,13 @@ class TransferTransaction {
 		this._transferTransactionBodyReserved_2 = 0; // reserved field
 	}
 
+	sort() {
+		this._mosaics = this._mosaics.sort((lhs, rhs) => arrayHelpers.deepCompare(
+			(lhs.mosaicId.comparer ? lhs.mosaicId.comparer() : lhs.mosaicId.value),
+			(rhs.mosaicId.comparer ? rhs.mosaicId.comparer() : rhs.mosaicId.value)
+		));
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -11262,7 +11431,7 @@ class TransferTransaction {
 		view.shiftRight(4);
 		if (0 !== transferTransactionBodyReserved_2)
 			throw RangeError(`Invalid value of reserved field (${transferTransactionBodyReserved_2})`);
-		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => (e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value));
+		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => ((e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value)));
 		view.shiftRight(arrayHelpers.size(mosaics));
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
@@ -11298,7 +11467,7 @@ class TransferTransaction {
 		buffer.write(converter.intToBytes(this._mosaics.length, 1, false)); // bound: mosaics_count
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_1, 1, false));
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_2, 4, false));
-		arrayHelpers.writeArray(buffer, this._mosaics, e => (e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value));
+		arrayHelpers.writeArray(buffer, this._mosaics, e => ((e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value)));
 		buffer.write(this._message);
 		return buffer.storage;
 	}
@@ -11346,6 +11515,13 @@ class EmbeddedTransferTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._transferTransactionBodyReserved_1 = 0; // reserved field
 		this._transferTransactionBodyReserved_2 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaics = this._mosaics.sort((lhs, rhs) => arrayHelpers.deepCompare(
+			(lhs.mosaicId.comparer ? lhs.mosaicId.comparer() : lhs.mosaicId.value),
+			(rhs.mosaicId.comparer ? rhs.mosaicId.comparer() : rhs.mosaicId.value)
+		));
 	}
 
 	get signerPublicKey() {
@@ -11458,7 +11634,7 @@ class EmbeddedTransferTransaction {
 		view.shiftRight(4);
 		if (0 !== transferTransactionBodyReserved_2)
 			throw RangeError(`Invalid value of reserved field (${transferTransactionBodyReserved_2})`);
-		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => (e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value));
+		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => ((e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value)));
 		view.shiftRight(arrayHelpers.size(mosaics));
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
@@ -11488,7 +11664,7 @@ class EmbeddedTransferTransaction {
 		buffer.write(converter.intToBytes(this._mosaics.length, 1, false)); // bound: mosaics_count
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_1, 1, false));
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_2, 4, false));
-		arrayHelpers.writeArray(buffer, this._mosaics, e => (e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value));
+		arrayHelpers.writeArray(buffer, this._mosaics, e => ((e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value)));
 		buffer.write(this._message);
 		return buffer.storage;
 	}
