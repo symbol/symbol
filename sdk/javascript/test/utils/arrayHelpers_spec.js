@@ -30,6 +30,24 @@ describe('arrayHelpers', () => {
 
 	// endregion
 
+	// region deepCompare
+
+	describe('deepCompare', () => {
+		it('can compare primitive', () => {
+			expect(arrayHelpers.deepCompare(12, 15)).to.equal(-1);
+			expect(arrayHelpers.deepCompare(15, 15)).to.equal(0);
+			expect(arrayHelpers.deepCompare(17, 15)).to.equal(1);
+		});
+
+		it('can compare array', () => {
+			expect(arrayHelpers.deepCompare([1, 12, 3], [1, 15, 3])).to.equal(-1);
+			expect(arrayHelpers.deepCompare([1, 15, 3], [1, 15, 3])).to.equal(0);
+			expect(arrayHelpers.deepCompare([1, 17, 3], [1, 15, 3])).to.equal(1);
+		});
+	});
+
+	// endregion
+
 	// region alignUp
 
 	describe('alignUp', () => {

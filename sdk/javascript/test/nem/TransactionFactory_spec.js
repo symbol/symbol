@@ -19,7 +19,7 @@ describe('transaction factory (NEM)', () => {
 	const testDescriptor = {
 		name: 'Transaction',
 		createFactory: typeRuleOverrides => new TransactionFactory(Network.TESTNET, typeRuleOverrides),
-		createTransaction: factory => (descriptor => factory.create(descriptor)),
+		createTransaction: factory => ((descriptor, autosort = true) => factory.create(descriptor, autosort)),
 		assertTransaction: assertTransfer,
 		assertSignature: (transaction, signature, signedTransactionPayload) => {
 			const transactionHex = uint8ToHex(TransactionFactory.toNonVerifiableTransaction(transaction).serialize());
@@ -104,6 +104,59 @@ describe('transaction factory (NEM)', () => {
 		// Assert:
 		expect(transaction.rentalFeeSink)
 			.to.deep.equal(new nc.Address('4145424147424146415944515143494B424D474132445150434149524545595543554C424F474142'));
+	});
+
+	// endregion
+
+	// region sorting
+
+	const createUnorderedDescriptor = () => ({
+		type: 'multisig_account_modification_transaction',
+		signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
+		modifications: [
+			{
+				modification: {
+					modificationType: 'delete_cosignatory',
+					cosignatoryPublicKey: new PublicKey('D79936328C188A4416224ABABF580CA2C5C8D852248DB1933FE4BC0DCA0EE7BC')
+				}
+			},
+			{
+				modification: {
+					modificationType: 'add_cosignatory',
+					cosignatoryPublicKey: new PublicKey('5D378657691CAD70CE35A46FB88CB134232B0B6B3655449C019A1F5F20AE9AAD')
+				}
+			}
+		]
+	});
+
+	it('can create transaction with out of order array when autosort is enabled', () => {
+		// Arrange:
+		const factory = testDescriptor.createFactory();
+
+		// Act:
+		const transaction = testDescriptor.createTransaction(factory)(createUnorderedDescriptor());
+
+		// Assert: modifications were reordered
+		expect(transaction.modifications[0].modification.modificationType)
+			.to.deep.equal(nc.MultisigAccountModificationType.ADD_COSIGNATORY);
+		expect(transaction.modifications[1].modification.modificationType)
+			.to.deep.equal(nc.MultisigAccountModificationType.DELETE_COSIGNATORY);
+	});
+
+	it('cannot create transaction with out of order array when autosort is disabled', () => {
+		// Arrange:
+		const factory = testDescriptor.createFactory();
+
+		// Act:
+		const transaction = testDescriptor.createTransaction(factory)(createUnorderedDescriptor(), false);
+
+		// Assert: modifications were NOT reordered (serialization will fail)
+		expect(transaction.modifications[0].modification.modificationType)
+			.to.deep.equal(nc.MultisigAccountModificationType.DELETE_COSIGNATORY);
+		expect(transaction.modifications[1].modification.modificationType)
+			.to.deep.equal(nc.MultisigAccountModificationType.ADD_COSIGNATORY);
+
+		expect(() => transaction.serialize()).to.throw(RangeError);
 	});
 
 	// endregion

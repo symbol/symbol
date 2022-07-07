@@ -195,6 +195,28 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return f'if ({yoda_value} {condition_operator} {field_prefix}{display_condition_field_name})'
 
+	def get_sort_descriptor(self):
+		body = ''
+		is_last_sort_field_conditional = False
+		for field in self.non_const_fields():
+			field_value = self.field_name(field)
+
+			sort = field.extensions.printer.sort(field_value)
+			if not sort:
+				continue
+
+			condition = self.generate_condition(field, True)
+
+			body += indent_if_conditional(condition, f'{sort}\n')
+			is_last_sort_field_conditional = not not condition
+
+		# indent_if_conditional always adds a newline when there is a condition
+		# if the last sortable field has a condition, the newline needs to be stripped to avoid a blank line before closing brace
+		if is_last_sort_field_conditional:
+			body = body[:-1]
+
+		return MethodDescriptor(body=body)
+
 	def generate_deserialize_field(self, field, arg_buffer_name=None):
 		# pylint: disable=too-many-locals
 
