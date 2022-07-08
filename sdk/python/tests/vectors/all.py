@@ -6,6 +6,7 @@ import time
 from binascii import unhexlify
 
 from symbolchain.Bip32 import Bip32
+from symbolchain.Cipher import AesCbcCipher, AesGcmCipher
 from symbolchain.CryptoTypes import PrivateKey, PublicKey, SharedKey256, Signature
 from symbolchain.Network import NetworkLocator
 from symbolchain.symbol.IdGenerator import generate_mosaic_id
@@ -151,6 +152,62 @@ class DeriveTester(VectorsTestSuite):
 		return [(SharedKey256(test_vector['sharedKey']), shared_key)]
 
 
+class CipherDeprecatedTester(VectorsTestSuite):
+	def __init__(self, class_locator):
+		super().__init__(4, 'test-cipher-deprecated', 'cipher-deprecated')
+		self.class_locator = class_locator
+
+	def process(self, test_vector, _):
+		# Arrange:
+		other_public_key = PublicKey(test_vector['otherPublicKey'])
+		key_pair = self.class_locator.key_pair_class(PrivateKey(test_vector['privateKey']))
+		salt = unhexlify(test_vector['salt'])
+		shared_key = self.class_locator.shared_key_class.derive_shared_key_deprecated(key_pair, other_public_key, salt)
+
+		iv = unhexlify(test_vector['iv'])  # pylint: disable=invalid-name
+		cipher_text = unhexlify(test_vector['cipherText'])
+		clear_text = unhexlify(test_vector['clearText'])
+
+		# Act:
+		cipher = AesCbcCipher(shared_key)
+		result_cipher_text = cipher.encrypt(clear_text, iv)
+		result_clear_text = cipher.decrypt(cipher_text, iv)
+
+		# Assert:
+		return [
+			(cipher_text, result_cipher_text),
+			(clear_text, result_clear_text)
+		]
+
+
+class CipherTester(VectorsTestSuite):
+	def __init__(self, class_locator):
+		super().__init__(4, 'test-cipher', 'cipher')
+		self.class_locator = class_locator
+
+	def process(self, test_vector, _):
+		# Arrange:
+		other_public_key = PublicKey(test_vector['otherPublicKey'])
+		key_pair = self.class_locator.key_pair_class(PrivateKey(test_vector['privateKey']))
+		shared_key = self.class_locator.shared_key_class.derive_shared_key(key_pair, other_public_key)
+
+		iv = unhexlify(test_vector['iv'])  # pylint: disable=invalid-name
+		tag = unhexlify(test_vector['tag'])
+		cipher_text = unhexlify(test_vector['cipherText'])
+		clear_text = unhexlify(test_vector['clearText'])
+
+		# Act:
+		cipher = AesGcmCipher(shared_key)
+		result_cipher_text = cipher.encrypt(clear_text, iv)
+		result_clear_text = cipher.decrypt(cipher_text + tag, iv)
+
+		# Assert:
+		return [
+			(cipher_text + tag, result_cipher_text),
+			(clear_text, result_clear_text)
+		]
+
+
 class MosaicIdDerivationTester(VectorsTestSuite):
 	def __init__(self, class_locator):
 		super().__init__(5, 'test-mosaic-id', 'mosaic id derivation')
@@ -252,12 +309,13 @@ def load_test_suites(blockchain):
 		Bip32DerivationTester(class_locator),
 		Bip39DerivationTester(class_locator),
 		DeriveTester(class_locator),
+		CipherTester(class_locator)
 	]
 
 	if 'symbol' == blockchain:
 		test_suites += [MosaicIdDerivationTester(class_locator)]
 	else:
-		test_suites += [DeriveDeprecatedTester(class_locator)]
+		test_suites += [DeriveDeprecatedTester(class_locator), CipherDeprecatedTester(class_locator)]
 
 	return test_suites
 
