@@ -79,11 +79,12 @@ namespace catapult {
 
 		// Boost function name got updated and now return in the form below.  This function coverts the function name to the
 		// expected value in the exception.
+		// Clang does not include the traits information in the function name.
 		// void catapult::CatapultExceptionTests_CanCopyConstructException() [with TTraits = catapult::{anonymous}::RuntimeErrorTraits]
 		std::string ConvertToExceptionFunctionName(const std::string& functionFullName) {
 			CATAPULT_LOG(debug) << "function: " << functionFullName;
 
-			std::size_t functionNameEnd = functionFullName.rfind("(");
+			std::size_t functionNameEnd = functionFullName.find("(");
 			if (std::string::npos == functionNameEnd)
 				return functionFullName;
 
@@ -91,12 +92,14 @@ namespace catapult {
 			functionNameStart = (std::string::npos != functionNameStart) ? functionNameStart + 2 : 0;
 			std::ostringstream oss(functionFullName.substr(functionNameStart, functionNameEnd - functionNameStart), std::ios_base::ate);
 
+#ifndef __clang__
 			auto foundTraits = functionFullName.find("=", functionNameEnd);
 			if (std::string::npos != foundTraits) {
 				auto traitsEnd = functionFullName.find("]", foundTraits);
 				auto functionTraits = functionFullName.substr(foundTraits + 2, traitsEnd - foundTraits - 2);
 				oss << "<" << functionTraits << ">";
 			}
+#endif
 
 			return oss.str();
 		}
