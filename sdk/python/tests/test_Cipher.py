@@ -18,7 +18,7 @@ CipherTestDescriptor = namedtuple('CipherTestDescriptor', ['cipher_class', 'test
 CipherTestCaseFullDescriptor = namedtuple('CipherTestCaseFullDescriptor', [
 	'private_key', 'other_public_key', 'salt', 'iv', 'tag', 'cipher_text', 'clear_text'
 ])
-CipherTestCaseGcmDescriptor = namedtuple('CipherTestCaseGcmDescriptor', [
+CipherTestCaseSimpleDescriptor = namedtuple('CipherTestCaseGcmDescriptor', [
 	'shared_key', 'iv', 'tag', 'cipher_text', 'clear_text'
 ])
 
@@ -118,7 +118,7 @@ class AesCbcCipherTest(BasicCipherTest, unittest.TestCase):
 	def get_test_descriptors(self):  # pylint: disable=no-self-use
 		return [
 			# tcId: 123
-			CipherTestCaseGcmDescriptor(
+			CipherTestCaseSimpleDescriptor(
 				SharedKey256('7BF9E536B66A215C22233FE2DAAA743A898B9ACB9F7802DE70B40E3D6E43EF97'),
 				unhexlify('EB38EF61717E1324AE064E86F1C3E797'),
 				b'',
@@ -126,7 +126,7 @@ class AesCbcCipherTest(BasicCipherTest, unittest.TestCase):
 				unhexlify('')
 			),
 			# tcId: 127
-			CipherTestCaseGcmDescriptor(
+			CipherTestCaseSimpleDescriptor(
 				SharedKey256('E754076CEAB3FDAF4F9BCAB7D4F0DF0CBBAFBC87731B8F9B7CD2166472E8EEBC'),
 				unhexlify('014D2E13DFBCB969BA3BB91442D52ECA'),
 				b'',
@@ -134,7 +134,7 @@ class AesCbcCipherTest(BasicCipherTest, unittest.TestCase):
 				unhexlify('40')
 			),
 			# tcId: 125
-			CipherTestCaseGcmDescriptor(
+			CipherTestCaseSimpleDescriptor(
 				SharedKey256('96E1E4896FB2CD05F133A6A100BC5609A7AC3CA6D81721E922DADD69AD07A892'),
 				unhexlify('E70D83A77A2CE722AC214C00837ACEDF'),
 				b'',
@@ -187,7 +187,7 @@ class AesGcmCipherTest(BasicCipherTest, unittest.TestCase):
 		# https://github.com/google/wycheproof/blob/master/testvectors/aes_gcm_test.json
 		return [
 			# tcId: 75
-			CipherTestCaseGcmDescriptor(
+			CipherTestCaseSimpleDescriptor(
 				SharedKey256('80BA3192C803CE965EA371D5FF073CF0F43B6A2AB576B208426E11409C09B9B0'),
 				unhexlify('4DA5BF8DFD5852C1EA12379D'),
 				unhexlify('4771A7C404A472966CEA8F73C8BFE17A'),
@@ -195,7 +195,7 @@ class AesGcmCipherTest(BasicCipherTest, unittest.TestCase):
 				b''
 			),
 			# tcId: 76
-			CipherTestCaseGcmDescriptor(
+			CipherTestCaseSimpleDescriptor(
 				SharedKey256('CC56B680552EB75008F5484B4CB803FA5063EBD6EAB91F6AB6AEF4916A766273'),
 				unhexlify('99E23EC48985BCCDEEAB60F1'),
 				unhexlify('633C1E9703EF744FFFFB40EDF9D14355'),
@@ -203,7 +203,7 @@ class AesGcmCipherTest(BasicCipherTest, unittest.TestCase):
 				unhexlify('2A')
 			),
 			# tcId: 87
-			CipherTestCaseGcmDescriptor(
+			CipherTestCaseSimpleDescriptor(
 				SharedKey256('D7ADDD3889FADF8C893EEE14BA2B7EA5BF56B449904869615BD05D5F114CF377'),
 				unhexlify('8A3AD26B28CD13BA6504E260'),
 				unhexlify('5E63374B519E6C3608321943D790CF9A'),
