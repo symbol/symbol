@@ -1,4 +1,5 @@
 const { Bip32 } = require('../src/Bip32');
+const { AesCbcCipher, AesGcmCipher } = require('../src/Cipher');
 const {
 	PrivateKey, PublicKey, SharedKey256, Signature
 } = require('../src/CryptoTypes');
@@ -150,6 +151,66 @@ const path = require('path');
 		}
 	}
 
+	class CipherTesterDeprecated extends VectorsTestSuite {
+		constructor(classLocator) {
+			super(4, 'test-cipher-deprecated', 'cipher-deprecated');
+			this.classLocator = classLocator;
+		}
+
+		process(testVector) {
+			// Arrange:
+			const otherPublicKey = new PublicKey(testVector.otherPublicKey);
+			const keyPair = new this.classLocator.Facade.KeyPair(new PrivateKey(testVector.privateKey));
+			const salt = hexToUint8(testVector.salt);
+			const sharedKey = this.classLocator.Facade.SharedKey.deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt);
+
+			const iv = hexToUint8(testVector.iv);
+			const cipherText = hexToUint8(testVector.cipherText);
+			const clearText = hexToUint8(testVector.clearText);
+
+			// Act:
+			const cipher = new AesCbcCipher(sharedKey);
+			const resultCipherText = cipher.encrypt(clearText, iv);
+			const resultClearText = cipher.decrypt(cipherText, iv);
+
+			// Assert:
+			return [
+				[cipherText, resultCipherText],
+				[clearText, resultClearText]
+			];
+		}
+	}
+
+	class CipherTester extends VectorsTestSuite {
+		constructor(classLocator) {
+			super(4, 'test-cipher', 'cipher');
+			this.classLocator = classLocator;
+		}
+
+		process(testVector) {
+			// Arrange:
+			const otherPublicKey = new PublicKey(testVector.otherPublicKey);
+			const keyPair = new this.classLocator.Facade.KeyPair(new PrivateKey(testVector.privateKey));
+			const sharedKey = this.classLocator.Facade.SharedKey.deriveSharedKey(keyPair, otherPublicKey);
+
+			const iv = hexToUint8(testVector.iv);
+			const tag = hexToUint8(testVector.tag);
+			const cipherText = hexToUint8(testVector.cipherText);
+			const clearText = hexToUint8(testVector.clearText);
+
+			// Act:
+			const cipher = new AesGcmCipher(sharedKey);
+			const resultCipherText = cipher.encrypt(clearText, iv);
+			const resultClearText = cipher.decrypt(Uint8Array.of(...cipherText, ...tag), iv);
+
+			// Assert:
+			return [
+				[Uint8Array.of(...cipherText, ...tag), resultCipherText],
+				[clearText, resultClearText]
+			];
+		}
+	}
+
 	class MosaicIdDerivationTester extends VectorsTestSuite {
 		constructor(classLocator) {
 			super(5, 'test-mosaic-id', 'mosaic id derivation');
@@ -251,6 +312,7 @@ const path = require('path');
 			new SignTester(classLocator),
 			new VerifyTester(classLocator),
 			new DeriveTester(classLocator),
+			new CipherTester(classLocator),
 			new Bip32DerivationTester(classLocator),
 			new Bip39DerivationTester(classLocator)
 		];
@@ -258,7 +320,7 @@ const path = require('path');
 		if ('symbol' === blockchain)
 			testSuites.push(new MosaicIdDerivationTester(classLocator));
 		else
-			testSuites.push(new DeriveDeprecatedTester(classLocator));
+			[DeriveDeprecatedTester, CipherTesterDeprecated].forEach(TesterClass => testSuites.push(new TesterClass(classLocator)));
 
 		return testSuites;
 	};
