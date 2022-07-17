@@ -42,7 +42,7 @@ def clone_descriptor(descriptor):
 
 
 class SymbolHelper:
-	AGREGATE_SCHEMA_NAME = 'AggregateBondedTransaction'
+	AGGREGATE_SCHEMA_NAME = 'AggregateBondedTransaction'
 	Signature = sc.Signature
 
 	def __init__(self, network_name):
@@ -102,7 +102,7 @@ class SymbolHelper:
 
 
 class NemHelper:
-	AGREGATE_SCHEMA_NAME = 'MultisigTransaction'
+	AGGREGATE_SCHEMA_NAME = 'MultisigTransaction'
 	Signature = nc.Signature
 
 	def __init__(self, network_name):
@@ -200,9 +200,9 @@ class VectorGenerator:
 			return test_cases
 
 		for index, descriptor in enumerate(recipes['descriptors']):
-			test_name = f'{test_prefix}_agregate_{index+1}'
-			agregate_schema_name = self.helper.AGREGATE_SCHEMA_NAME
-			test_cases.append(self.create_entry(agregate_schema_name, test_name, self.helper.create_aggregate_from_single, descriptor))
+			test_name = f'{test_prefix}_aggregate_{index+1}'
+			aggregate_schema_name = self.helper.AGGREGATE_SCHEMA_NAME
+			test_cases.append(self.create_entry(aggregate_schema_name, test_name, self.helper.create_aggregate_from_single, descriptor))
 
 		return test_cases
 
@@ -212,7 +212,7 @@ class VectorGenerator:
 		test_prefix = f'{schema_name}_{module_descriptor[0]}'
 
 		for index, descriptor in enumerate(recipes['descriptors']):
-			test_name = f'{test_prefix}_agregate_{index+1}'
+			test_name = f'{test_prefix}_aggregate_{index+1}'
 			test_cases.append(self.create_entry(schema_name, test_name, self.helper.create_aggregate, descriptor))
 
 		return test_cases
