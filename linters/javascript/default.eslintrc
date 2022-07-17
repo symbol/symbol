@@ -116,6 +116,9 @@ rules:
       - builtin
       alphabetize:
         order: asc
+  sort-imports: 
+    - error
+    - ignoreDeclarationSort: true
 
   import/extensions:
   - error
