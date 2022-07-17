@@ -20,11 +20,11 @@
 **/
 
 #include "src/builders/AggregateTransactionBuilder.h"
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/EntityHasher.h"
-#include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

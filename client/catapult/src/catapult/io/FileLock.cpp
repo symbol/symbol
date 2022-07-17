@@ -27,8 +27,8 @@
 #ifdef _MSC_VER
 #include <windows.h>
 #else
-#include <unistd.h>
 #include <sys/file.h>
+#include <unistd.h>
 #endif
 
 namespace catapult { namespace io {

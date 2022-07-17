@@ -19,8 +19,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "SynchronizationFilters.h"
 #include "AggregateSynchronizationFilter.h"
+#include "SynchronizationFilters.h"
 #include "catapult/utils/ContainerHelpers.h"
 
 namespace catapult { namespace timesync { namespace filters {

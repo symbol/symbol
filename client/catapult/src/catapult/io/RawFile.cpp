@@ -22,17 +22,17 @@
 #include "RawFile.h"
 #include "catapult/exceptions.h"
 #include <memory>
-#include <fcntl.h>
-#include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <fcntl.h>
+#include <stdio.h>
 
 #ifdef _MSC_VER
-#include <io.h>
 #include <windows.h>
+#include <io.h>
 #else
-#include <unistd.h>
 #include <sys/file.h>
+#include <unistd.h>
 #endif
 
 namespace catapult { namespace io {
