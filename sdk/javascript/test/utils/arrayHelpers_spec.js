@@ -30,6 +30,24 @@ describe('arrayHelpers', () => {
 
 	// endregion
 
+	// region deepCompare
+
+	describe('deepCompare', () => {
+		it('can compare primitive', () => {
+			expect(arrayHelpers.deepCompare(12, 15)).to.equal(-1);
+			expect(arrayHelpers.deepCompare(15, 15)).to.equal(0);
+			expect(arrayHelpers.deepCompare(17, 15)).to.equal(1);
+		});
+
+		it('can compare array', () => {
+			expect(arrayHelpers.deepCompare([1, 12, 3], [1, 15, 3])).to.equal(-1);
+			expect(arrayHelpers.deepCompare([1, 15, 3], [1, 15, 3])).to.equal(0);
+			expect(arrayHelpers.deepCompare([1, 17, 3], [1, 15, 3])).to.equal(1);
+		});
+	});
+
+	// endregion
+
 	// region alignUp
 
 	describe('alignUp', () => {
@@ -146,6 +164,17 @@ describe('arrayHelpers', () => {
 
 			// Act:
 			const elements = traits.read(context.subView, context.factory, element => element.tag);
+
+			// Assert:
+			expect(elements).to.deep.equal(traits.expectedElements);
+		});
+
+		it('can read when using accessor and (array) elements are ordered', () => {
+			// Arrange:
+			const context = new ReadTestContext(traits.sizes);
+
+			// Act:
+			const elements = traits.read(context.subView, context.factory, element => [123, new Uint8Array([1, element.tag, 3])]);
 
 			// Assert:
 			expect(elements).to.deep.equal(traits.expectedElements);
@@ -275,6 +304,17 @@ describe('arrayHelpers', () => {
 
 			// Act:
 			traits.write(context.output, context.elements, element => element.size);
+
+			// Assert:
+			expect(context.output.writes).to.deep.equal(traits.expectedWrites);
+		});
+
+		it('can write when using accessor and (array) elements are ordered', () => {
+			// Arrange:
+			const context = new ElementsTestContext();
+
+			// Act:
+			traits.write(context.output, context.elements, element => [123, new Uint8Array([1, element.size, 3])]);
 
 			// Assert:
 			expect(context.output.writes).to.deep.equal(traits.expectedWrites);

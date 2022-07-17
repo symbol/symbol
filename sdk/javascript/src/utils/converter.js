@@ -16,6 +16,21 @@ const CHAR_TO_DIGIT_MAP = (() => {
 
 const NIBBLE_TO_CHAR_MAP = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
 
+const SIGNEDNESS_AND_SIZE_TO_ARRAY_TYPE_MAPPING = {
+	false: {
+		1: Uint8Array,
+		2: Uint16Array,
+		4: Uint32Array,
+		8: BigUint64Array
+	},
+	true: {
+		1: Int8Array,
+		2: Int16Array,
+		4: Int32Array,
+		8: BigInt64Array
+	}
+};
+
 const tryParseByte = (char1, char2) => {
 	const nibble1 = CHAR_TO_NIBBLE_MAP[char1];
 	const nibble2 = CHAR_TO_NIBBLE_MAP[char2];
@@ -114,31 +129,25 @@ const converter = {
 	},
 
 	/**
-	 * Converts bytes to little-endian number.
+	 * Converts aligned bytes to little-endian number.
 	 * @param {Uint8Array} input A uint8 array.
 	 * @param {numeric} size Number of bytes.
 	 * @param {boolean} isSigned Should number be treated as signed.
 	 * @returns {numeric|BigInt} Value corresponding to the input.
 	 */
 	bytesToInt: (input, size, isSigned = false) => {
-		// const mapping = {
-		// 	false: {
-		// 		1: Uint8Array,
-		// 		2: Uint16Array,
-		// 		4: Uint32Array,
-		// 		8: BigUint64Array
-		// 	},
-		// 	true: {
-		// 		1: Int8Array,
-		// 		2: Int16Array,
-		// 		4: Int32Array,
-		// 		8: BigInt64Array
-		// 	}
-		// };
+		const DataType = SIGNEDNESS_AND_SIZE_TO_ARRAY_TYPE_MAPPING[isSigned][size];
+		return new DataType(input.buffer, input.byteOffset, 1)[0];
+	},
 
-		// const DataType = mapping[isSigned][size];
-		// return new DataType(input.buffer, input.byteOffset, 1)[0];
-
+	/**
+	 * Converts bytes to little-endian number.
+	 * @param {Uint8Array} input A uint8 array.
+	 * @param {numeric} size Number of bytes.
+	 * @param {boolean} isSigned Should number be treated as signed.
+	 * @returns {numeric|BigInt} Value corresponding to the input.
+	 */
+	bytesToIntUnaligned: (input, size, isSigned = false) => {
 		const view = new DataView(input.buffer, input.byteOffset);
 		const mapping = {
 			false: {
@@ -160,22 +169,7 @@ const converter = {
 	},
 
 	intToBytes: (value, byteSize, isSigned = false) => {
-		const mapping = {
-			false: {
-				1: Uint8Array,
-				2: Uint16Array,
-				4: Uint32Array,
-				8: BigUint64Array
-			},
-			true: {
-				1: Int8Array,
-				2: Int16Array,
-				4: Int32Array,
-				8: BigInt64Array
-			}
-		};
-
-		const DataType = mapping[isSigned][byteSize];
+		const DataType = SIGNEDNESS_AND_SIZE_TO_ARRAY_TYPE_MAPPING[isSigned][byteSize];
 		const typedBuffer = new DataType([value]);
 		return new Uint8Array(typedBuffer.buffer);
 	}

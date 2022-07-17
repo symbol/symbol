@@ -42,8 +42,8 @@ def to_hex_string(binary):
 def generate_pretty_id(val):
 	return val['test_name']
 
-
 # endregion
+
 
 # region create from descriptor
 
@@ -139,8 +139,38 @@ def test_create_from_descriptor_nem(item):
 def test_create_from_descriptor_symbol(item):  # pylint: disable=invalid-name
 	assert_create_from_descriptor(item, importlib.import_module('symbolchain.sc'), 'SymbolFacade', fixup_descriptor_symbol)
 
+# endregion
+
+
+# region create from constructor
+
+def assert_create_from_constructor(schema_name, module):
+	# Arrange:
+	schema_class = getattr(module, schema_name)
+
+	# Act:
+	transaction = schema_class()
+
+	size = transaction.size
+	transaction_buffer = transaction.serialize()
+
+	# Assert:
+	assert 0 != size
+	assert 0 != len(transaction_buffer)
+	assert size == len(transaction_buffer)
+
+
+@pytest.mark.parametrize('item', set(test_case['schema_name'] for test_case in prepare_test_cases('nem')))
+def test_create_from_constructor_nem(item):
+	assert_create_from_constructor(item, importlib.import_module('symbolchain.nc'))
+
+
+@pytest.mark.parametrize('item', set(test_case['schema_name'] for test_case in prepare_test_cases('symbol')))
+def test_create_from_constructor_symbol(item):  # pylint: disable=invalid-name
+	assert_create_from_constructor(item, importlib.import_module('symbolchain.sc'))
 
 # endregion
+
 
 # region roundtrip
 

@@ -16,28 +16,39 @@ class TransactionFactory:
 		self.factory = self._build_rules(type_rule_overrides)
 		self.network = network
 
-	def _create_and_extend(self, transaction_descriptor, factory_class):
+	def _create_and_extend(self, transaction_descriptor, autosort, factory_class):
 		transaction = self.factory.create_from_factory(factory_class.create_by_name, {
 			**transaction_descriptor,
 			'network': self.network.identifier
 		})
+		if autosort:
+			transaction.sort()
 
 		# autogenerate artifact ids
 		if sc.TransactionType.NAMESPACE_REGISTRATION == transaction.type_:
-			transaction.id = sc.NamespaceId(generate_namespace_id(transaction.name.decode('utf8'), transaction.parent_id.value))
+			parent_id = transaction.parent_id.value if sc.NamespaceRegistrationType.CHILD == transaction.registration_type else 0
+			transaction.id = sc.NamespaceId(generate_namespace_id(transaction.name.decode('utf8'), parent_id))
 		elif sc.TransactionType.MOSAIC_DEFINITION == transaction.type_:
 			address = self.network.public_key_to_address(PublicKey(transaction.signer_public_key.bytes))
 			transaction.id = sc.MosaicId(generate_mosaic_id(address, transaction.nonce.value))
 
 		return transaction
 
-	def create(self, transaction_descriptor):
-		"""Creates a transaction from a transaction descriptor."""
-		return self._create_and_extend(transaction_descriptor, sc.TransactionFactory)
+	def create(self, transaction_descriptor, autosort=True):
+		"""
+		Creates a transaction from a transaction descriptor.
+		When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
+		When unset, descriptor arrays will be presumed to be already sorted.
+		"""
+		return self._create_and_extend(transaction_descriptor, autosort, sc.TransactionFactory)
 
-	def create_embedded(self, transaction_descriptor):
-		"""Creates an embedded transaction from a transaction descriptor."""
-		return self._create_and_extend(transaction_descriptor, sc.EmbeddedTransactionFactory)
+	def create_embedded(self, transaction_descriptor, autosort=True):
+		"""
+		Creates an embedded transaction from a transaction descriptor.
+		When autosort is set (default), descriptor arrays requiring ordering will be automatically sorted.
+		When unset, descriptor arrays will be presumed to be already sorted.
+		"""
+		return self._create_and_extend(transaction_descriptor, autosort, sc.EmbeddedTransactionFactory)
 
 	@staticmethod
 	def attach_signature(transaction, signature):

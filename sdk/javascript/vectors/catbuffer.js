@@ -209,6 +209,44 @@ describe('catbuffer vectors', () => {
 
 	// endregion
 
+	// region create from constructor
+
+	describe('create from constructor', () => {
+		const assertCreateFromConstructor = (schemaName, module) => {
+			// Arrange:
+			const SchemaClass = module[schemaName];
+
+			// Act:
+			const transaction = new SchemaClass();
+
+			const { size } = transaction;
+			const transactionBuffer = transaction.serialize();
+
+			// Assert:
+			expect(size).to.not.equal(0);
+			expect(transactionBuffer.length).to.not.equal(0);
+			expect(size).to.equal(transactionBuffer.length);
+		};
+
+		describe('NEM', () => {
+			new Set(prepareTestCases('nem').map(item => item.schema_name)).forEach(schemaName => {
+				it(`can create from constructor ${schemaName}`, () => {
+					assertCreateFromConstructor(schemaName, nc);
+				});
+			});
+		});
+
+		describe('Symbol', () => {
+			new Set(prepareTestCases('symbol').map(item => item.schema_name)).forEach(schemaName => {
+				it(`can create from constructor ${schemaName}`, () => {
+					assertCreateFromConstructor(schemaName, sc);
+				});
+			});
+		});
+	});
+
+	// endregion
+
 	// region roundtrip
 
 	describe('roundtrip', () => {

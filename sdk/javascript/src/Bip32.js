@@ -84,7 +84,18 @@ class Bip32 {
 	 * @returns {Bip32Node} BIP32 root node.
 	 */
 	fromMnemonic(mnemonic, password) {
-		return this.fromSeed(new Mnemonic(mnemonic, this.mnemonic_language).toSeed(password));
+		const wordlist = Mnemonic.Words[this.mnemonicLanguage.toUpperCase()];
+		return this.fromSeed(new Mnemonic(mnemonic, wordlist).toSeed(password));
+	}
+
+	/**
+	 * Creates a random BIP32 mnemonic.
+	 * @param {number} seedLength Length of random seed to use when generating mnemonic.
+	 * @returns {string} Random mnemonic created with the specified entropy.
+	 */
+	random(seedLength = 32) {
+		const wordlist = Mnemonic.Words[this.mnemonicLanguage.toUpperCase()];
+		return new Mnemonic(seedLength * 8, wordlist).phrase;
 	}
 }
 

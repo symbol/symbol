@@ -59,6 +59,16 @@ recipes = {
 				{'mosaic_id': 0x000056CE00002B67, 'amount': 0x0000000000000064}
 			],
 			'message': 'Hello 👋'
+		},
+		# comment: no message, 3 mosaics (out of order)
+		{
+			'type': 'transfer_transaction',
+			'recipient_address': SAMPLE_ADDRESS,
+			'mosaics': [
+				{'mosaic_id': 0x77A1969932D987D7, 'amount': 0x0000000000000002},
+				{'mosaic_id': 0xD525AD41D95FCF29, 'amount': 0x0000000000000001},
+				{'mosaic_id': 0x67F2B76F28BD36BA, 'amount': 0x0000000000000003}
+			]
 		}
 	]
 }

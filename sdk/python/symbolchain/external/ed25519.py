@@ -235,6 +235,24 @@ def signature_hash_unsafe(m, sk, pk, hashobj=hashlib.sha512):
 	return encodepoint(R) + encodeint(S)
 
 
+def derive_shared_secret_unsafe(pk, sk, hashobj=hashlib.sha512):
+	"""
+	Not safe to use with secret keys or secret data.
+
+	See module docstring.  This function should be used for testing only.
+	"""
+	if not iscanonical(pk):
+		raise ValueError('point is not canonical')
+	A = decodepoint(pk)
+	if not isinmainsubgroup(A):
+		raise ValueError('point is not in main subgroup')
+
+	h = hashobj(sk).digest()
+	a = 2 ** (b - 2) + sum(2 ** i * bit(h, i) for i in range(3, b - 2))
+	P = scalarmult(A, a)
+	return encodepoint(P)
+
+
 def isoncurve(P):
 	(x, y, z, t) = P
 	return z % q != 0 and x * y % q == z * t % q and (y * y - x * x - z * z - d * t * t) % q == 0
@@ -242,6 +260,11 @@ def isoncurve(P):
 
 def decodeint(s):
 	return sum(2 ** i * bit(s, i) for i in range(0, b))
+
+
+def iscanonical(s):
+	"""public key s is canonical if y coordinate is smaller than prime `q`."""
+	return sum(2 ** i * bit(s, i) for i in range(0, b - 1)) < q
 
 
 def decodepoint(s):
@@ -253,6 +276,12 @@ def decodepoint(s):
 	if not isoncurve(P):
 		raise ValueError('decoding point that is not on curve')
 	return P
+
+
+def isinmainsubgroup(P):
+	"""checks if point P is in main subgroup."""
+	H = scalarmult(P, l_)
+	return 0 == H[0] and H[1] == H[2]
 
 
 class SignatureMismatch(Exception):

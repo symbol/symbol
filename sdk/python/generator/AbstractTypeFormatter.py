@@ -24,6 +24,12 @@ class AbstractTypeFormatter(ABC):
 	def get_ctor_descriptor(self) -> MethodDescriptor:
 		pass
 
+	def get_comparer_descriptor(self) -> MethodDescriptor:
+		pass
+
+	def get_sort_descriptor(self) -> MethodDescriptor:
+		pass
+
 	@abstractmethod
 	def get_deserialize_descriptor(self) -> MethodDescriptor:
 		pass

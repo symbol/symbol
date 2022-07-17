@@ -90,3 +90,32 @@ class Bip32Test(unittest.TestCase):
 		self.assertEqual(PrivateKey('AEC7C0143FC11F26FF5DB020492DACA7C8CF2640D2377AD3C721286472571602'), child_node2.private_key)
 
 	# endregion
+
+	# region random
+
+	def test_can_create_random_mnemonic_with_default_seed_length(self):
+		# Act:
+		mnemonic1 = Bip32().random()
+		mnemonic2 = Bip32().random()
+
+		# Assert:
+		self.assertEqual(24, len(mnemonic1.split(' ')))
+		self.assertEqual(24, len(mnemonic2.split(' ')))
+		self.assertNotEqual(mnemonic1, mnemonic2)
+
+	def test_can_create_random_mnemonic_with_custom_seed_length(self):
+		# Act:
+		mnemonic1 = Bip32().random(16)
+		mnemonic2 = Bip32().random(16)
+
+		# Assert:
+		self.assertEqual(12, len(mnemonic1.split(' ')))
+		self.assertEqual(12, len(mnemonic2.split(' ')))
+		self.assertNotEqual(mnemonic1, mnemonic2)
+
+	def test_cannot_create_random_mnemonic_with_invalid_seed_length(self):
+		# Act + Assert:
+		with self.assertRaises(ValueError):
+			Bip32().random(18)
+
+	# endregion

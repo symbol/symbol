@@ -43,6 +43,16 @@ class PublicKey(ByteArray):
 		super().__init__(self.SIZE, public_key.bytes if isinstance(public_key, PublicKey) else public_key, PublicKey)
 
 
+class SharedKey256(ByteArray):
+	"""Represents 256-bit symmetric encryption key."""
+
+	SIZE = 32
+
+	def __init__(self, key):
+		"""Creates a key from bytes or a hex string."""
+		super().__init__(self.SIZE, key, SharedKey256)
+
+
 class Signature(ByteArray):
 	"""Represents a signature."""
 

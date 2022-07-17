@@ -4,7 +4,6 @@ const descriptorFactory = () => ([
 		type: 'namespace_registration_transaction',
 		rentalFeeSink: 'TAMESPACEWH4MKFMBCVFERDPOOP4FK7MTDJEYP35',
 		rentalFee: 50000n * 1000000n,
-		parentName: '',
 		name: 'roger'
 	},
 

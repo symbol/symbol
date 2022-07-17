@@ -7,13 +7,13 @@ const descriptorFactory = () => ([
 			{
 				modification: {
 					modificationType: 'add_cosignatory',
-					cosignatoryPublicKey: 'BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F'
+					cosignatoryPublicKey: '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF'
 				}
 			},
 			{
 				modification: {
 					modificationType: 'add_cosignatory',
-					cosignatoryPublicKey: '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF'
+					cosignatoryPublicKey: 'BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F'
 				}
 			},
 			{
@@ -32,13 +32,13 @@ const descriptorFactory = () => ([
 			{
 				modification: {
 					modificationType: 'add_cosignatory',
-					cosignatoryPublicKey: 'BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F'
+					cosignatoryPublicKey: '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF'
 				}
 			},
 			{
 				modification: {
 					modificationType: 'add_cosignatory',
-					cosignatoryPublicKey: '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF'
+					cosignatoryPublicKey: 'BE0B4CF546B7B4F4BBFCFF9F574FDA527C07A53D3FC76F8BB7DB746F8E8E0A9F'
 				}
 			}
 		]

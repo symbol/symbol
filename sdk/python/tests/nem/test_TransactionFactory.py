@@ -115,6 +115,56 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 
 	# endregion
 
+	# region sorting
+
+	@staticmethod
+	def _create_unordered_descriptor():
+		return {
+			'type': 'multisig_account_modification_transaction',
+			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
+			'modifications': [
+				{
+					'modification': {
+						'modification_type': 'delete_cosignatory',
+						'cosignatory_public_key': PublicKey('D79936328C188A4416224ABABF580CA2C5C8D852248DB1933FE4BC0DCA0EE7BC')
+					}
+				},
+				{
+					'modification': {
+						'modification_type': 'add_cosignatory',
+						'cosignatory_public_key': PublicKey('5D378657691CAD70CE35A46FB88CB134232B0B6B3655449C019A1F5F20AE9AAD')
+					}
+				}
+			]
+		}
+
+	def test_can_create_transaction_with_out_of_order_array_when_autosort_is_enabled(self):
+		# Arrange:
+		factory = self.create_factory()
+
+		# Act:
+		transaction = self.create_transaction(factory)(self._create_unordered_descriptor())
+
+		# Assert: modifications were reordered
+		self.assertEqual(nc.MultisigAccountModificationType.ADD_COSIGNATORY, transaction.modifications[0].modification.modification_type)
+		self.assertEqual(nc.MultisigAccountModificationType.DELETE_COSIGNATORY, transaction.modifications[1].modification.modification_type)
+
+	def test_cannot_create_transaction_with_out_of_order_array_when_autosort_is_disabled(self):
+		# Arrange:
+		factory = self.create_factory()
+
+		# Act:
+		transaction = self.create_transaction(factory)(self._create_unordered_descriptor(), autosort=False)
+
+		# Assert: modifications were NOT reordered (serialization will fail)
+		self.assertEqual(nc.MultisigAccountModificationType.DELETE_COSIGNATORY, transaction.modifications[0].modification.modification_type)
+		self.assertEqual(nc.MultisigAccountModificationType.ADD_COSIGNATORY, transaction.modifications[1].modification.modification_type)
+
+		with self.assertRaises(ValueError):
+			transaction.serialize()
+
+	# endregion
+
 	# region message encoding
 
 	def test_can_create_transfer_with_string_message(self):

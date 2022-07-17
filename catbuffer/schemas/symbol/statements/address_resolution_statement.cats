@@ -1,4 +1,5 @@
 import "statements/receipt_source.cats"
+import "types.cats"
 
 # Actual Address behind a NamespaceId at the time a transaction was confirmed.
 struct AddressResolutionEntry

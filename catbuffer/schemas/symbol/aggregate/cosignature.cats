@@ -1,6 +1,7 @@
 import "types.cats"
 
 # Cosignature attached to an AggregateCompleteTransaction or AggregateBondedTransaction.
+@is_aligned
 struct Cosignature
 	# Version.
 	version = uint64
@@ -12,6 +13,7 @@ struct Cosignature
 	signature = Signature
 
 # Cosignature detached from an AggregateCompleteTransaction or AggregateBondedTransaction.
+@is_aligned
 struct DetachedCosignature
 	inline Cosignature
 

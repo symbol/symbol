@@ -63,6 +63,21 @@ class PublicKey extends ByteArray {
 }
 
 /**
+ *  Represents a 256-bit symmetric encryption key.
+ */
+class SharedKey256 extends ByteArray {
+	static SIZE = 32;
+
+	/**
+	 * Creates a key from bytes or a hex string.
+	 * @param {Uint8Array|string} sharedKey Input string or byte array.
+	 */
+	constructor(sharedKey) {
+		super(SharedKey256.SIZE, sharedKey);
+	}
+}
+
+/**
  *  Represents a signature.
  */
 class Signature extends ByteArray {
@@ -86,5 +101,5 @@ class Signature extends ByteArray {
 }
 
 module.exports = {
-	Hash256, PrivateKey, PublicKey, Signature
+	Hash256, PrivateKey, PublicKey, SharedKey256, Signature
 };

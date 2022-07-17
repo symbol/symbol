@@ -53,6 +53,13 @@ class ClassFormatter(ABC):
 		return self.generate_output()
 
 
+def _append_if_not_none(methods, descriptor):
+	if not descriptor:
+		return
+
+	methods.append(descriptor)
+
+
 class TypeFormatter(ClassFormatter):
 	def generate_ctor(self):
 		method_descriptor = self.provider.get_ctor_descriptor()
@@ -60,6 +67,26 @@ class TypeFormatter(ClassFormatter):
 			return None
 
 		method_descriptor.method_name = '__init__'
+		return self.generate_method(method_descriptor)
+
+	def generate_comparer(self):
+		method_descriptor = self.provider.get_comparer_descriptor()
+		if not method_descriptor:
+			return None
+
+		method_descriptor.method_name = 'comparer'
+		method_descriptor.arguments = []
+		method_descriptor.result = 'tuple'
+		return self.generate_method(method_descriptor)
+
+	def generate_sort(self):
+		method_descriptor = self.provider.get_sort_descriptor()
+		if not method_descriptor:
+			return None
+
+		method_descriptor.method_name = 'sort'
+		method_descriptor.arguments = []
+		method_descriptor.result = 'None'
 		return self.generate_method(method_descriptor)
 
 	def generate_deserializer(self):
@@ -106,25 +133,22 @@ class TypeFormatter(ClassFormatter):
 	def generate_methods(self):
 		methods = []
 
-		ctor = self.generate_ctor()
-		if ctor:
-			methods.append(ctor)
+		_append_if_not_none(methods, self.generate_ctor())
+		_append_if_not_none(methods, self.generate_comparer())
+		_append_if_not_none(methods, self.generate_sort())
 
 		getters = self.generate_getters()
 		methods.extend(getters)
 		setters = self.generate_setters()
 		methods.extend(setters)
 
-		size_method = self.generate_size()
-		if size_method:
-			methods.append(size_method)
+		_append_if_not_none(methods, self.generate_size())
 
 		methods.append(self.generate_deserializer())
 		methods.append(self.generate_serializer())
 
-		representation = self.generate_representation()
-		if representation:
-			methods.append(representation)
+		_append_if_not_none(methods, self.generate_representation())
+
 		return methods
 
 	def __str__(self):

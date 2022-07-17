@@ -38,7 +38,19 @@ def _format_attributes(attributes):
 	if not attributes:
 		return ''
 
-	return '\n'.join(str(attribute) for attribute in attributes) + '\n'
+	def format_attribute(attribute):
+		if 'comparer' != attribute.name:
+			return str(attribute)
+
+		formatted_values = []
+		for i in range(0, len(attribute.values) // 2):
+			formatted_values.append(attribute.values[2 * i])
+			if attribute.values[2 * i + 1]:
+				formatted_values[-1] += f'!{attribute.values[2 * i + 1]}'
+
+		return f'@{attribute.name}({", ".join(formatted_values)})'
+
+	return '\n'.join(format_attribute(attribute) for attribute in attributes) + '\n'
 
 
 def _format_is_unsigned(is_unsigned):
@@ -327,6 +339,15 @@ class Struct(Statement):
 		return _lookup_attribute_value(self.attributes, 'discriminator', True)
 
 	@property
+	def comparer(self):
+		"""Gets the building blocks of a comparer."""
+		values = _lookup_attribute_value(self.attributes, 'comparer', True)
+		if not values:
+			return values
+
+		return [(values[2 * i], values[2 * i + 1]) for i in range(0, len(values) // 2)]
+
+	@property
 	def initializers(self):
 		"""Gets field initializers, each specifying the constant with which to initialize a field."""
 		if not self.attributes:
@@ -363,6 +384,14 @@ class Struct(Statement):
 
 		for property_name in ['disposition', 'factory_type', 'is_aligned', 'is_size_implicit', 'size', 'discriminator']:
 			_set_if(self, type_descriptor, property_name)
+
+		if self.comparer:
+			type_descriptor['comparer'] = [
+				{
+					'name': property_name,
+					'transform': transform
+				} for (property_name, transform) in self.comparer
+			]
 
 		if self.initializers:
 			type_descriptor['initializers'] = [

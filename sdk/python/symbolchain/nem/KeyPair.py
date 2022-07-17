@@ -1,7 +1,7 @@
 import sha3
 
 from ..CryptoTypes import PrivateKey, PublicKey, Signature
-from .external import ed25519
+from ..external import ed25519
 
 
 class KeyPair:

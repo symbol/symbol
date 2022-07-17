@@ -19,15 +19,18 @@ class TransactionFactory {
 		this.network = network;
 	}
 
-	_createAndExtend(transactionDescriptor, FactoryClass) {
+	_createAndExtend(transactionDescriptor, autosort, FactoryClass) {
 		const transaction = this.factory.createFromFactory(FactoryClass.createByName, {
 			...transactionDescriptor,
 			network: this.network.identifier
 		});
+		if (autosort)
+			transaction.sort();
 
 		// autogenerate artifact ids
 		if (sc.TransactionType.NAMESPACE_REGISTRATION === transaction.type) {
-			const rawNamespaceId = generateNamespaceId(new TextDecoder().decode(transaction.name), transaction.parentId.value);
+			const parentId = sc.NamespaceRegistrationType.CHILD === transaction.registrationType ? transaction.parentId.value : 0n;
+			const rawNamespaceId = generateNamespaceId(new TextDecoder().decode(transaction.name), parentId);
 			transaction.id = new sc.NamespaceId(rawNamespaceId);
 		} else if (sc.TransactionType.MOSAIC_DEFINITION === transaction.type) {
 			const address = this.network.publicKeyToAddress(new PublicKey(transaction.signerPublicKey.bytes));
@@ -40,19 +43,23 @@ class TransactionFactory {
 	/**
 	 * Creates a transaction from a transaction descriptor.
 	 * @param {object} transactionDescriptor Transaction descriptor.
+	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.
+	 *                           When unset, descriptor arrays will be presumed to be already sorted.
 	 * @returns {object} Newly created transaction.
 	 */
-	create(transactionDescriptor) {
-		return this._createAndExtend(transactionDescriptor, sc.TransactionFactory);
+	create(transactionDescriptor, autosort = true) {
+		return this._createAndExtend(transactionDescriptor, autosort, sc.TransactionFactory);
 	}
 
 	/**
 	 * Creates an embedded transaction from a transaction descriptor.
 	 * @param {object} transactionDescriptor Transaction descriptor.
+	 * @param {boolean} autosort When set (default), descriptor arrays requiring ordering will be automatically sorted.
+	 *                           When unset, descriptor arrays will be presumed to be already sorted.
 	 * @returns {object} Newly created transaction.
 	 */
-	createEmbedded(transactionDescriptor) {
-		return this._createAndExtend(transactionDescriptor, sc.EmbeddedTransactionFactory);
+	createEmbedded(transactionDescriptor, autosort = true) {
+		return this._createAndExtend(transactionDescriptor, autosort, sc.EmbeddedTransactionFactory);
 	}
 
 	/**

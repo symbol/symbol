@@ -6,6 +6,7 @@ from ..sc import TransactionType
 from ..symbol.KeyPair import KeyPair, Verifier
 from ..symbol.MerkleHashBuilder import MerkleHashBuilder
 from ..symbol.Network import Address, Network
+from ..symbol.SharedKey import SharedKey
 from ..symbol.TransactionFactory import TransactionFactory
 
 TRANSACTION_HEADER_SIZE = sum(field[1] for field in [
@@ -31,7 +32,8 @@ class SymbolFacade:
 
 	Address = Address  # pylint: disable=duplicate-code
 	KeyPair = KeyPair  # pylint: disable=duplicate-code
-	Verifier = Verifier  # pylint: disable=duplicate-code
+	Verifier = Verifier
+	SharedKey = SharedKey
 
 	def __init__(self, network, account_descriptor_repository=None):
 		"""Creates a Symbol facade."""

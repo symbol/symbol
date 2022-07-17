@@ -115,7 +115,18 @@ class StructFormatter(AbstractTypeFormatter):
 			if const_field:
 				body += f'{field_name} = {self.typename}.{const_field.name};\n'
 			else:
-				body += f'{field_name} = {field.extensions.printer.get_default_value()};\n'
+				value = field.extensions.printer.get_default_value()
+				if field.is_conditional:
+					conditional = field.value
+					condition_field_name = conditional.linked_field_name
+					condition_field = next(f for f in self.non_const_fields() if condition_field_name == f.name)
+					condition_model = condition_field.extensions.type_model
+
+					# only initialize default implicit union field in constructor
+					if f'{condition_model.name}.{conditional.value}' != condition_field.extensions.printer.get_default_value():
+						value = 'null'  # needs to be null or else field will not be destination when copying descriptor properties
+
+				body += f'{field_name} = {value};\n'
 
 		body += '\n'.join(
 			map(
@@ -128,6 +139,29 @@ class StructFormatter(AbstractTypeFormatter):
 			return None
 
 		return MethodDescriptor(body=body, arguments=arguments)
+
+	def get_comparer_descriptor(self):
+		if not self.struct.comparer:
+			return None
+
+		body = ''
+		if any('ripemd_keccak_256' == transform for (_, transform) in self.struct.comparer):
+			body += 'const { ripemdKeccak256 } = require(\'../utils/transforms\'); // eslint-disable-line global-require\n\n'
+
+		body += 'return [\n'
+		for (property_name, transform) in self.struct.comparer:
+			body += '\t'
+			if not transform:
+				body += f'this.{lang_field_name(property_name)}'
+			else:
+				body += f'{lang_field_name(transform).replace("_", "")}(this.{lang_field_name(property_name)}.bytes)'
+
+			body += ',\n'
+
+		body = body[:-2]  # strip trailing comma
+		body += '\n];'
+
+		return MethodDescriptor(body=body)
 
 	def generate_condition(self, field, prefix_field=False):
 		if not field.is_conditional:
@@ -161,6 +195,28 @@ class StructFormatter(AbstractTypeFormatter):
 
 		return f'if ({yoda_value} {condition_operator} {field_prefix}{display_condition_field_name})'
 
+	def get_sort_descriptor(self):
+		body = ''
+		is_last_sort_field_conditional = False
+		for field in self.non_const_fields():
+			field_value = self.field_name(field)
+
+			sort = field.extensions.printer.sort(field_value)
+			if not sort:
+				continue
+
+			condition = self.generate_condition(field, True)
+
+			body += indent_if_conditional(condition, f'{sort}\n')
+			is_last_sort_field_conditional = condition
+
+		# indent_if_conditional always adds a newline when there is a condition
+		# if the last sortable field has a condition, the newline needs to be stripped to avoid a blank line before closing brace
+		if is_last_sort_field_conditional:
+			body = body[:-1]
+
+		return MethodDescriptor(body=body)
+
 	def generate_deserialize_field(self, field, arg_buffer_name=None):
 		# pylint: disable=too-many-locals
 
@@ -177,8 +233,10 @@ class StructFormatter(AbstractTypeFormatter):
 			buffer_load_name = f'view.window({lang_field_name(size_fields[0].name)})'
 
 		use_custom_buffer_name = arg_buffer_name or size_fields
+		if not use_custom_buffer_name:
+			buffer_load_name = 'view.buffer'
 
-		load = field.extensions.printer.load(buffer_load_name) if use_custom_buffer_name else field.extensions.printer.load('view.buffer')
+		load = field.extensions.printer.load(buffer_load_name, self.struct.is_aligned)
 		const_field = 'const ' if not condition else ''
 		deserialize = f'{const_field}{field_name} = {load};\n'
 
@@ -200,7 +258,7 @@ class StructFormatter(AbstractTypeFormatter):
 		deserialize_field = deserialize + adjust + additional_statements
 
 		if condition:
-			condition = f'let {field.extensions.printer.name};\n' + condition
+			condition = f'let {field.extensions.printer.name} = null;\n' + condition
 
 		return indent_if_conditional(condition, deserialize_field)
 

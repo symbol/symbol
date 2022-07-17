@@ -43,6 +43,14 @@ class PodTypeFormatter(AbstractTypeFormatter):
 		body += f'return new {self.typename}({self.printer.load()});'
 		return MethodDescriptor(body=body)
 
+	def get_deserialize_aligned_descriptor(self):
+		if self._is_array:
+			return None
+
+		body = 'const byteArray = payload;\n'
+		body += f'return new {self.typename}({self.printer.load("byteArray", True)});'
+		return MethodDescriptor(body=body)
+
 	def get_serialize_descriptor(self):
 		if self._is_array:
 			return MethodDescriptor(body='return this.bytes;')

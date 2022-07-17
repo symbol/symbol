@@ -106,6 +106,51 @@ describe('transaction factory (Symbol)', () => {
 
 		// endregion
 
+		// region sorting
+
+		const createUnorderedDescriptor = () => ({
+			type: 'transfer_transaction',
+			signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
+			mosaics: [
+				{
+					mosaicId: 15358872602548358953n,
+					amount: 1n
+				},
+				{
+					mosaicId: 95442763262823n,
+					amount: 100n
+				}
+			]
+		});
+
+		it('can create transaction with out of order array when autosort is enabled', () => {
+			// Arrange:
+			const factory = testDescriptor.createFactory();
+
+			// Act:
+			const transaction = testDescriptor.createTransaction(factory)(createUnorderedDescriptor());
+
+			// Assert: mosaics were reordered
+			expect(transaction.mosaics[0].mosaicId).to.deep.equal(new sc.UnresolvedMosaicId(95442763262823n));
+			expect(transaction.mosaics[1].mosaicId).to.deep.equal(new sc.UnresolvedMosaicId(15358872602548358953n));
+		});
+
+		it('cannot create transaction with out of order array when autosort is disabled', () => {
+			// Arrange:
+			const factory = testDescriptor.createFactory();
+
+			// Act:
+			const transaction = testDescriptor.createTransaction(factory)(createUnorderedDescriptor(), false);
+
+			// Assert: mosaics were NOT reordered (serialization will fail)
+			expect(transaction.mosaics[0].mosaicId).to.deep.equal(new sc.UnresolvedMosaicId(15358872602548358953n));
+			expect(transaction.mosaics[1].mosaicId).to.deep.equal(new sc.UnresolvedMosaicId(95442763262823n));
+
+			expect(() => transaction.serialize()).to.throw(RangeError);
+		});
+
+		// endregion
+
 		// region id autogeneration
 
 		it('can autogenerate namespace registration root id', () => {
@@ -167,7 +212,7 @@ describe('transaction factory (Symbol)', () => {
 		const testDescriptor = {
 			name: 'Transaction',
 			createFactory: typeRuleOverrides => new TransactionFactory(Network.TESTNET, typeRuleOverrides),
-			createTransaction: factory => (descriptor => factory.create(descriptor)),
+			createTransaction: factory => ((descriptor, autosort = true) => factory.create(descriptor, autosort)),
 			assertTransaction: assertTransfer,
 			assertSignature: (transaction, signature, signedTransactionPayload) => {
 				const transactionHex = uint8ToHex(transaction.serialize());
@@ -183,7 +228,7 @@ describe('transaction factory (Symbol)', () => {
 		const testDescriptor = {
 			name: 'EmbeddedTransaction',
 			createFactory: typeRuleOverrides => new TransactionFactory(Network.TESTNET, typeRuleOverrides),
-			createTransaction: factory => (descriptor => factory.createEmbedded(descriptor)),
+			createTransaction: factory => ((descriptor, autosort = true) => factory.createEmbedded(descriptor, autosort)),
 			assertTransaction: assertTransfer
 		};
 		runBasicTransactionFactoryTests(testDescriptor, false);

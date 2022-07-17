@@ -16,6 +16,11 @@ class Amount extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new Amount(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new Amount(converter.bytesToInt(byteArray, 8, false));
 	}
 
@@ -32,6 +37,11 @@ class BlockDuration extends BaseValue {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return new BlockDuration(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return new BlockDuration(converter.bytesToInt(byteArray, 8, false));
 	}
@@ -50,6 +60,11 @@ class BlockFeeMultiplier extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new BlockFeeMultiplier(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new BlockFeeMultiplier(converter.bytesToInt(byteArray, 4, false));
 	}
 
@@ -66,6 +81,11 @@ class Difficulty extends BaseValue {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return new Difficulty(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return new Difficulty(converter.bytesToInt(byteArray, 8, false));
 	}
@@ -84,6 +104,11 @@ class FinalizationEpoch extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new FinalizationEpoch(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new FinalizationEpoch(converter.bytesToInt(byteArray, 4, false));
 	}
 
@@ -100,6 +125,11 @@ class FinalizationPoint extends BaseValue {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return new FinalizationPoint(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return new FinalizationPoint(converter.bytesToInt(byteArray, 4, false));
 	}
@@ -118,6 +148,11 @@ class Height extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new Height(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new Height(converter.bytesToInt(byteArray, 8, false));
 	}
 
@@ -134,6 +169,11 @@ class Importance extends BaseValue {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return new Importance(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return new Importance(converter.bytesToInt(byteArray, 8, false));
 	}
@@ -152,6 +192,11 @@ class ImportanceHeight extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new ImportanceHeight(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new ImportanceHeight(converter.bytesToInt(byteArray, 8, false));
 	}
 
@@ -168,6 +213,11 @@ class UnresolvedMosaicId extends BaseValue {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return new UnresolvedMosaicId(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return new UnresolvedMosaicId(converter.bytesToInt(byteArray, 8, false));
 	}
@@ -186,6 +236,11 @@ class MosaicId extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new MosaicId(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new MosaicId(converter.bytesToInt(byteArray, 8, false));
 	}
 
@@ -202,6 +257,11 @@ class Timestamp extends BaseValue {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return new Timestamp(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return new Timestamp(converter.bytesToInt(byteArray, 8, false));
 	}
@@ -369,6 +429,9 @@ class Mosaic {
 		this._amount = new Amount();
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get mosaicId() {
 		return this._mosaicId;
 	}
@@ -430,6 +493,9 @@ class UnresolvedMosaic {
 	constructor() {
 		this._mosaicId = new UnresolvedMosaicId();
 		this._amount = new Amount();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get mosaicId() {
@@ -518,6 +584,11 @@ class LinkAction {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
 	}
 
@@ -563,6 +634,11 @@ class NetworkType {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
 	}
@@ -661,6 +737,11 @@ class TransactionType {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 2, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 2, false));
 	}
 
@@ -693,6 +774,9 @@ class Transaction {
 		this._deadline = new Timestamp();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -785,13 +869,13 @@ class Transaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 
 		const instance = new Transaction();
@@ -848,6 +932,9 @@ class EmbeddedTransaction {
 		this._type = TransactionType.ACCOUNT_KEY_LINK;
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -911,9 +998,9 @@ class EmbeddedTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 
 		const instance = new EmbeddedTransaction();
@@ -975,6 +1062,9 @@ class AccountKeyLinkTransaction {
 		this._linkAction = LinkAction.UNLINK;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -1085,17 +1175,17 @@ class AccountKeyLinkTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const linkedPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(linkedPublicKey.size);
-		const linkAction = LinkAction.deserialize(view.buffer);
+		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
 		const instance = new AccountKeyLinkTransaction();
@@ -1168,6 +1258,9 @@ class EmbeddedAccountKeyLinkTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -1247,13 +1340,13 @@ class EmbeddedAccountKeyLinkTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const linkedPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(linkedPublicKey.size);
-		const linkAction = LinkAction.deserialize(view.buffer);
+		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
 		const instance = new EmbeddedAccountKeyLinkTransaction();
@@ -1321,6 +1414,9 @@ class NodeKeyLinkTransaction {
 		this._linkAction = LinkAction.UNLINK;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -1431,17 +1527,17 @@ class NodeKeyLinkTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const linkedPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(linkedPublicKey.size);
-		const linkAction = LinkAction.deserialize(view.buffer);
+		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
 		const instance = new NodeKeyLinkTransaction();
@@ -1512,6 +1608,9 @@ class EmbeddedNodeKeyLinkTransaction {
 		this._linkAction = LinkAction.UNLINK;
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -1593,13 +1692,13 @@ class EmbeddedNodeKeyLinkTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const linkedPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(linkedPublicKey.size);
-		const linkAction = LinkAction.deserialize(view.buffer);
+		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
 		const instance = new EmbeddedNodeKeyLinkTransaction();
@@ -1649,6 +1748,9 @@ class Cosignature {
 		this._version = 0n;
 		this._signerPublicKey = new PublicKey();
 		this._signature = new Signature();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get version() {
@@ -1729,6 +1831,9 @@ class DetachedCosignature {
 		this._signerPublicKey = new PublicKey();
 		this._signature = new Signature();
 		this._parentHash = new Hash256();
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get version() {
@@ -1844,6 +1949,9 @@ class AggregateCompleteTransaction {
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -1963,13 +2071,13 @@ class AggregateCompleteTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const transactionsHash = Hash256.deserialize(view.buffer);
 		view.shiftRight(transactionsHash.size);
@@ -2068,6 +2176,9 @@ class AggregateBondedTransaction {
 		this._aggregateTransactionHeaderReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -2187,13 +2298,13 @@ class AggregateBondedTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const transactionsHash = Hash256.deserialize(view.buffer);
 		view.shiftRight(transactionsHash.size);
@@ -2293,6 +2404,9 @@ class VotingKeyLinkTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -2419,21 +2533,21 @@ class VotingKeyLinkTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const linkedPublicKey = VotingPublicKey.deserialize(view.buffer);
 		view.shiftRight(linkedPublicKey.size);
-		const startEpoch = FinalizationEpoch.deserialize(view.buffer);
+		const startEpoch = FinalizationEpoch.deserializeAligned(view.buffer);
 		view.shiftRight(startEpoch.size);
-		const endEpoch = FinalizationEpoch.deserialize(view.buffer);
+		const endEpoch = FinalizationEpoch.deserializeAligned(view.buffer);
 		view.shiftRight(endEpoch.size);
-		const linkAction = LinkAction.deserialize(view.buffer);
+		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
 		const instance = new VotingKeyLinkTransaction();
@@ -2516,6 +2630,9 @@ class EmbeddedVotingKeyLinkTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -2613,17 +2730,17 @@ class EmbeddedVotingKeyLinkTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const linkedPublicKey = VotingPublicKey.deserialize(view.buffer);
 		view.shiftRight(linkedPublicKey.size);
-		const startEpoch = FinalizationEpoch.deserialize(view.buffer);
+		const startEpoch = FinalizationEpoch.deserializeAligned(view.buffer);
 		view.shiftRight(startEpoch.size);
-		const endEpoch = FinalizationEpoch.deserialize(view.buffer);
+		const endEpoch = FinalizationEpoch.deserializeAligned(view.buffer);
 		view.shiftRight(endEpoch.size);
-		const linkAction = LinkAction.deserialize(view.buffer);
+		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
 		const instance = new EmbeddedVotingKeyLinkTransaction();
@@ -2697,6 +2814,9 @@ class VrfKeyLinkTransaction {
 		this._linkAction = LinkAction.UNLINK;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -2807,17 +2927,17 @@ class VrfKeyLinkTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const linkedPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(linkedPublicKey.size);
-		const linkAction = LinkAction.deserialize(view.buffer);
+		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
 		const instance = new VrfKeyLinkTransaction();
@@ -2888,6 +3008,9 @@ class EmbeddedVrfKeyLinkTransaction {
 		this._linkAction = LinkAction.UNLINK;
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -2969,13 +3092,13 @@ class EmbeddedVrfKeyLinkTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const linkedPublicKey = PublicKey.deserialize(view.buffer);
 		view.shiftRight(linkedPublicKey.size);
-		const linkAction = LinkAction.deserialize(view.buffer);
+		const linkAction = LinkAction.deserializeAligned(view.buffer);
 		view.shiftRight(linkAction.size);
 
 		const instance = new EmbeddedVrfKeyLinkTransaction();
@@ -3045,6 +3168,10 @@ class HashLockTransaction {
 		this._hash = new Hash256();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaic.sort();
 	}
 
 	get signature() {
@@ -3164,17 +3291,17 @@ class HashLockTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const mosaic = UnresolvedMosaic.deserialize(view.buffer);
 		view.shiftRight(mosaic.size);
-		const duration = BlockDuration.deserialize(view.buffer);
+		const duration = BlockDuration.deserializeAligned(view.buffer);
 		view.shiftRight(duration.size);
 		const hash = Hash256.deserialize(view.buffer);
 		view.shiftRight(hash.size);
@@ -3254,6 +3381,10 @@ class EmbeddedHashLockTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() {
+		this._mosaic.sort();
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -3342,13 +3473,13 @@ class EmbeddedHashLockTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const mosaic = UnresolvedMosaic.deserialize(view.buffer);
 		view.shiftRight(mosaic.size);
-		const duration = BlockDuration.deserialize(view.buffer);
+		const duration = BlockDuration.deserializeAligned(view.buffer);
 		view.shiftRight(duration.size);
 		const hash = Hash256.deserialize(view.buffer);
 		view.shiftRight(hash.size);
@@ -3429,6 +3560,11 @@ class LockHashAlgorithm {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
 	}
 
@@ -3475,6 +3611,10 @@ class SecretLockTransaction {
 		this._hashAlgorithm = LockHashAlgorithm.SHA3_256;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaic.sort();
 	}
 
 	get signature() {
@@ -3612,13 +3752,13 @@ class SecretLockTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const recipientAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(recipientAddress.size);
@@ -3626,9 +3766,9 @@ class SecretLockTransaction {
 		view.shiftRight(secret.size);
 		const mosaic = UnresolvedMosaic.deserialize(view.buffer);
 		view.shiftRight(mosaic.size);
-		const duration = BlockDuration.deserialize(view.buffer);
+		const duration = BlockDuration.deserializeAligned(view.buffer);
 		view.shiftRight(duration.size);
-		const hashAlgorithm = LockHashAlgorithm.deserialize(view.buffer);
+		const hashAlgorithm = LockHashAlgorithm.deserializeAligned(view.buffer);
 		view.shiftRight(hashAlgorithm.size);
 
 		const instance = new SecretLockTransaction();
@@ -3716,6 +3856,10 @@ class EmbeddedSecretLockTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() {
+		this._mosaic.sort();
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -3822,9 +3966,9 @@ class EmbeddedSecretLockTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const recipientAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(recipientAddress.size);
@@ -3832,9 +3976,9 @@ class EmbeddedSecretLockTransaction {
 		view.shiftRight(secret.size);
 		const mosaic = UnresolvedMosaic.deserialize(view.buffer);
 		view.shiftRight(mosaic.size);
-		const duration = BlockDuration.deserialize(view.buffer);
+		const duration = BlockDuration.deserializeAligned(view.buffer);
 		view.shiftRight(duration.size);
-		const hashAlgorithm = LockHashAlgorithm.deserialize(view.buffer);
+		const hashAlgorithm = LockHashAlgorithm.deserializeAligned(view.buffer);
 		view.shiftRight(hashAlgorithm.size);
 
 		const instance = new EmbeddedSecretLockTransaction();
@@ -3915,6 +4059,9 @@ class SecretProofTransaction {
 		this._proof = new Uint8Array();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -4044,13 +4191,13 @@ class SecretProofTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const recipientAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(recipientAddress.size);
@@ -4058,7 +4205,7 @@ class SecretProofTransaction {
 		view.shiftRight(secret.size);
 		const proofSize = converter.bytesToInt(view.buffer, 2, false);
 		view.shiftRight(2);
-		const hashAlgorithm = LockHashAlgorithm.deserialize(view.buffer);
+		const hashAlgorithm = LockHashAlgorithm.deserializeAligned(view.buffer);
 		view.shiftRight(hashAlgorithm.size);
 		const proof = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, proofSize);
 		view.shiftRight(proofSize);
@@ -4142,6 +4289,9 @@ class EmbeddedSecretProofTransaction {
 		this._proof = new Uint8Array();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -4242,9 +4392,9 @@ class EmbeddedSecretProofTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const recipientAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(recipientAddress.size);
@@ -4252,7 +4402,7 @@ class EmbeddedSecretProofTransaction {
 		view.shiftRight(secret.size);
 		const proofSize = converter.bytesToInt(view.buffer, 2, false);
 		view.shiftRight(2);
-		const hashAlgorithm = LockHashAlgorithm.deserialize(view.buffer);
+		const hashAlgorithm = LockHashAlgorithm.deserializeAligned(view.buffer);
 		view.shiftRight(hashAlgorithm.size);
 		const proof = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, proofSize);
 		view.shiftRight(proofSize);
@@ -4331,6 +4481,9 @@ class AccountMetadataTransaction {
 		this._value = new Uint8Array();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -4460,13 +4613,13 @@ class AccountMetadataTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
@@ -4558,6 +4711,9 @@ class EmbeddedAccountMetadataTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -4656,9 +4812,9 @@ class EmbeddedAccountMetadataTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
@@ -4747,6 +4903,9 @@ class MosaicMetadataTransaction {
 		this._value = new Uint8Array();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -4885,19 +5044,19 @@ class MosaicMetadataTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
 		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const targetMosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const targetMosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(targetMosaicId.size);
 		const valueSizeDelta = converter.bytesToInt(view.buffer, 2, true);
 		view.shiftRight(2);
@@ -4990,6 +5149,9 @@ class EmbeddedMosaicMetadataTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -5097,15 +5259,15 @@ class EmbeddedMosaicMetadataTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
 		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const targetMosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const targetMosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(targetMosaicId.size);
 		const valueSizeDelta = converter.bytesToInt(view.buffer, 2, true);
 		view.shiftRight(2);
@@ -5170,6 +5332,11 @@ class NamespaceId extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new NamespaceId(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new NamespaceId(converter.bytesToInt(byteArray, 8, false));
 	}
 
@@ -5211,6 +5378,11 @@ class NamespaceRegistrationType {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
 	}
@@ -5258,6 +5430,11 @@ class AliasAction {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
 	}
 
@@ -5302,6 +5479,9 @@ class NamespaceMetadataTransaction {
 		this._value = new Uint8Array();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -5440,19 +5620,19 @@ class NamespaceMetadataTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
 		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const targetNamespaceId = NamespaceId.deserialize(view.buffer);
+		const targetNamespaceId = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(targetNamespaceId.size);
 		const valueSizeDelta = converter.bytesToInt(view.buffer, 2, true);
 		view.shiftRight(2);
@@ -5545,6 +5725,9 @@ class EmbeddedNamespaceMetadataTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -5652,15 +5835,15 @@ class EmbeddedNamespaceMetadataTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const targetAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(targetAddress.size);
 		const scopedMetadataKey = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const targetNamespaceId = NamespaceId.deserialize(view.buffer);
+		const targetNamespaceId = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(targetNamespaceId.size);
 		const valueSizeDelta = converter.bytesToInt(view.buffer, 2, true);
 		view.shiftRight(2);
@@ -5725,6 +5908,11 @@ class MosaicNonce extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new MosaicNonce(converter.bytesToIntUnaligned(byteArray, 4, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new MosaicNonce(converter.bytesToInt(byteArray, 4, false));
 	}
 
@@ -5757,6 +5945,11 @@ class MosaicFlags {
 	}
 
 	static deserialize(payload) {
+		const byteArray = payload;
+		return new MosaicFlags(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
 		const byteArray = payload;
 		return new MosaicFlags(converter.bytesToInt(byteArray, 1, false));
 	}
@@ -5817,6 +6010,11 @@ class MosaicSupplyChangeAction {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
 	}
 
@@ -5862,6 +6060,9 @@ class MosaicDefinitionTransaction {
 		this._divisibility = 0;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -5999,21 +6200,21 @@ class MosaicDefinitionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
-		const id = MosaicId.deserialize(view.buffer);
+		const id = MosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(id.size);
-		const duration = BlockDuration.deserialize(view.buffer);
+		const duration = BlockDuration.deserializeAligned(view.buffer);
 		view.shiftRight(duration.size);
-		const nonce = MosaicNonce.deserialize(view.buffer);
+		const nonce = MosaicNonce.deserializeAligned(view.buffer);
 		view.shiftRight(nonce.size);
-		const flags = MosaicFlags.deserialize(view.buffer);
+		const flags = MosaicFlags.deserializeAligned(view.buffer);
 		view.shiftRight(flags.size);
 		const divisibility = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -6102,6 +6303,9 @@ class EmbeddedMosaicDefinitionTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -6208,17 +6412,17 @@ class EmbeddedMosaicDefinitionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const id = MosaicId.deserialize(view.buffer);
+		const id = MosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(id.size);
-		const duration = BlockDuration.deserialize(view.buffer);
+		const duration = BlockDuration.deserializeAligned(view.buffer);
 		view.shiftRight(duration.size);
-		const nonce = MosaicNonce.deserialize(view.buffer);
+		const nonce = MosaicNonce.deserializeAligned(view.buffer);
 		view.shiftRight(nonce.size);
-		const flags = MosaicFlags.deserialize(view.buffer);
+		const flags = MosaicFlags.deserializeAligned(view.buffer);
 		view.shiftRight(flags.size);
 		const divisibility = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -6301,6 +6505,9 @@ class MosaicSupplyChangeTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -6418,19 +6625,19 @@ class MosaicSupplyChangeTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
-		const mosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const mosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
-		const delta = Amount.deserialize(view.buffer);
+		const delta = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(delta.size);
-		const action = MosaicSupplyChangeAction.deserialize(view.buffer);
+		const action = MosaicSupplyChangeAction.deserializeAligned(view.buffer);
 		view.shiftRight(action.size);
 
 		const instance = new MosaicSupplyChangeTransaction();
@@ -6508,6 +6715,9 @@ class EmbeddedMosaicSupplyChangeTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -6596,15 +6806,15 @@ class EmbeddedMosaicSupplyChangeTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const mosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const mosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
-		const delta = Amount.deserialize(view.buffer);
+		const delta = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(delta.size);
-		const action = MosaicSupplyChangeAction.deserialize(view.buffer);
+		const action = MosaicSupplyChangeAction.deserializeAligned(view.buffer);
 		view.shiftRight(action.size);
 
 		const instance = new EmbeddedMosaicSupplyChangeTransaction();
@@ -6675,6 +6885,10 @@ class MosaicSupplyRevocationTransaction {
 		this._mosaic = new UnresolvedMosaic();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaic.sort();
 	}
 
 	get signature() {
@@ -6785,13 +6999,13 @@ class MosaicSupplyRevocationTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const sourceAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(sourceAddress.size);
@@ -6866,6 +7080,10 @@ class EmbeddedMosaicSupplyRevocationTransaction {
 		this._mosaic = new UnresolvedMosaic();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaic.sort();
 	}
 
 	get signerPublicKey() {
@@ -6947,9 +7165,9 @@ class EmbeddedMosaicSupplyRevocationTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const sourceAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(sourceAddress.size);
@@ -7024,6 +7242,9 @@ class MultisigAccountModificationTransaction {
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._multisigAccountModificationTransactionBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -7155,13 +7376,13 @@ class MultisigAccountModificationTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const minRemovalDelta = converter.bytesToInt(view.buffer, 1, true);
 		view.shiftRight(1);
@@ -7262,6 +7483,9 @@ class EmbeddedMultisigAccountModificationTransaction {
 		this._multisigAccountModificationTransactionBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -7362,9 +7586,9 @@ class EmbeddedMultisigAccountModificationTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const minRemovalDelta = converter.bytesToInt(view.buffer, 1, true);
 		view.shiftRight(1);
@@ -7461,6 +7685,9 @@ class AddressAliasTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signature() {
 		return this._signature;
 	}
@@ -7578,19 +7805,19 @@ class AddressAliasTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
-		const namespaceId = NamespaceId.deserialize(view.buffer);
+		const namespaceId = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(namespaceId.size);
 		const address = Address.deserialize(view.buffer);
 		view.shiftRight(address.size);
-		const aliasAction = AliasAction.deserialize(view.buffer);
+		const aliasAction = AliasAction.deserializeAligned(view.buffer);
 		view.shiftRight(aliasAction.size);
 
 		const instance = new AddressAliasTransaction();
@@ -7668,6 +7895,9 @@ class EmbeddedAddressAliasTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -7756,15 +7986,15 @@ class EmbeddedAddressAliasTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const namespaceId = NamespaceId.deserialize(view.buffer);
+		const namespaceId = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(namespaceId.size);
 		const address = Address.deserialize(view.buffer);
 		view.shiftRight(address.size);
-		const aliasAction = AliasAction.deserialize(view.buffer);
+		const aliasAction = AliasAction.deserializeAligned(view.buffer);
 		view.shiftRight(aliasAction.size);
 
 		const instance = new EmbeddedAddressAliasTransaction();
@@ -7837,6 +8067,9 @@ class MosaicAliasTransaction {
 		this._aliasAction = AliasAction.UNLINK;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -7956,19 +8189,19 @@ class MosaicAliasTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
-		const namespaceId = NamespaceId.deserialize(view.buffer);
+		const namespaceId = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(namespaceId.size);
-		const mosaicId = MosaicId.deserialize(view.buffer);
+		const mosaicId = MosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
-		const aliasAction = AliasAction.deserialize(view.buffer);
+		const aliasAction = AliasAction.deserializeAligned(view.buffer);
 		view.shiftRight(aliasAction.size);
 
 		const instance = new MosaicAliasTransaction();
@@ -8044,6 +8277,9 @@ class EmbeddedMosaicAliasTransaction {
 		this._aliasAction = AliasAction.UNLINK;
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -8134,15 +8370,15 @@ class EmbeddedMosaicAliasTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const namespaceId = NamespaceId.deserialize(view.buffer);
+		const namespaceId = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(namespaceId.size);
-		const mosaicId = MosaicId.deserialize(view.buffer);
+		const mosaicId = MosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
-		const aliasAction = AliasAction.deserialize(view.buffer);
+		const aliasAction = AliasAction.deserializeAligned(view.buffer);
 		view.shiftRight(aliasAction.size);
 
 		const instance = new EmbeddedMosaicAliasTransaction();
@@ -8213,12 +8449,15 @@ class NamespaceRegistrationTransaction {
 		this._fee = new Amount();
 		this._deadline = new Timestamp();
 		this._duration = new BlockDuration();
-		this._parentId = new NamespaceId();
+		this._parentId = null;
 		this._id = new NamespaceId();
 		this._registrationType = NamespaceRegistrationType.ROOT;
 		this._name = new Uint8Array();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -8361,30 +8600,30 @@ class NamespaceRegistrationTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		// deserialize to temporary buffer for further processing
 		const durationTemporary = BlockDuration.deserialize(view.buffer);
 		const registration_type_condition = view.window(durationTemporary.size);
 		view.shiftRight(durationTemporary.size); // skip temporary
 
-		const id = NamespaceId.deserialize(view.buffer);
+		const id = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(id.size);
-		const registrationType = NamespaceRegistrationType.deserialize(view.buffer);
+		const registrationType = NamespaceRegistrationType.deserializeAligned(view.buffer);
 		view.shiftRight(registrationType.size);
-		let duration;
+		let duration = null;
 		if (NamespaceRegistrationType.ROOT === registrationType)
-			duration = BlockDuration.deserialize(registration_type_condition);
+			duration = BlockDuration.deserializeAligned(registration_type_condition);
 
-		let parentId;
+		let parentId = null;
 		if (NamespaceRegistrationType.CHILD === registrationType)
-			parentId = NamespaceId.deserialize(registration_type_condition);
+			parentId = NamespaceId.deserializeAligned(registration_type_condition);
 
 		const nameSize = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -8477,12 +8716,15 @@ class EmbeddedNamespaceRegistrationTransaction {
 		this._network = NetworkType.MAINNET;
 		this._type = EmbeddedNamespaceRegistrationTransaction.TRANSACTION_TYPE;
 		this._duration = new BlockDuration();
-		this._parentId = new NamespaceId();
+		this._parentId = null;
 		this._id = new NamespaceId();
 		this._registrationType = NamespaceRegistrationType.ROOT;
 		this._name = new Uint8Array();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -8596,26 +8838,26 @@ class EmbeddedNamespaceRegistrationTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		// deserialize to temporary buffer for further processing
 		const durationTemporary = BlockDuration.deserialize(view.buffer);
 		const registration_type_condition = view.window(durationTemporary.size);
 		view.shiftRight(durationTemporary.size); // skip temporary
 
-		const id = NamespaceId.deserialize(view.buffer);
+		const id = NamespaceId.deserializeAligned(view.buffer);
 		view.shiftRight(id.size);
-		const registrationType = NamespaceRegistrationType.deserialize(view.buffer);
+		const registrationType = NamespaceRegistrationType.deserializeAligned(view.buffer);
 		view.shiftRight(registrationType.size);
-		let duration;
+		let duration = null;
 		if (NamespaceRegistrationType.ROOT === registrationType)
-			duration = BlockDuration.deserialize(registration_type_condition);
+			duration = BlockDuration.deserializeAligned(registration_type_condition);
 
-		let parentId;
+		let parentId = null;
 		if (NamespaceRegistrationType.CHILD === registrationType)
-			parentId = NamespaceId.deserialize(registration_type_condition);
+			parentId = NamespaceId.deserializeAligned(registration_type_condition);
 
 		const nameSize = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -8702,6 +8944,11 @@ class AccountRestrictionFlags {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new AccountRestrictionFlags(converter.bytesToIntUnaligned(byteArray, 2, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new AccountRestrictionFlags(converter.bytesToInt(byteArray, 2, false));
 	}
 
@@ -8758,6 +9005,9 @@ class AccountAddressRestrictionTransaction {
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -8880,15 +9130,15 @@ class AccountAddressRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
-		const restrictionFlags = AccountRestrictionFlags.deserialize(view.buffer);
+		const restrictionFlags = AccountRestrictionFlags.deserializeAligned(view.buffer);
 		view.shiftRight(restrictionFlags.size);
 		const restrictionAdditionsCount = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -8982,6 +9232,9 @@ class EmbeddedAccountAddressRestrictionTransaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -9073,11 +9326,11 @@ class EmbeddedAccountAddressRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const restrictionFlags = AccountRestrictionFlags.deserialize(view.buffer);
+		const restrictionFlags = AccountRestrictionFlags.deserializeAligned(view.buffer);
 		view.shiftRight(restrictionFlags.size);
 		const restrictionAdditionsCount = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -9166,6 +9419,9 @@ class AccountMosaicRestrictionTransaction {
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -9288,15 +9544,15 @@ class AccountMosaicRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
-		const restrictionFlags = AccountRestrictionFlags.deserialize(view.buffer);
+		const restrictionFlags = AccountRestrictionFlags.deserializeAligned(view.buffer);
 		view.shiftRight(restrictionFlags.size);
 		const restrictionAdditionsCount = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -9390,6 +9646,9 @@ class EmbeddedAccountMosaicRestrictionTransaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -9481,11 +9740,11 @@ class EmbeddedAccountMosaicRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const restrictionFlags = AccountRestrictionFlags.deserialize(view.buffer);
+		const restrictionFlags = AccountRestrictionFlags.deserializeAligned(view.buffer);
 		view.shiftRight(restrictionFlags.size);
 		const restrictionAdditionsCount = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -9574,6 +9833,9 @@ class AccountOperationRestrictionTransaction {
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -9696,15 +9958,15 @@ class AccountOperationRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
-		const restrictionFlags = AccountRestrictionFlags.deserialize(view.buffer);
+		const restrictionFlags = AccountRestrictionFlags.deserializeAligned(view.buffer);
 		view.shiftRight(restrictionFlags.size);
 		const restrictionAdditionsCount = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -9798,6 +10060,9 @@ class EmbeddedAccountOperationRestrictionTransaction {
 		this._accountRestrictionTransactionBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -9889,11 +10154,11 @@ class EmbeddedAccountOperationRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const restrictionFlags = AccountRestrictionFlags.deserialize(view.buffer);
+		const restrictionFlags = AccountRestrictionFlags.deserializeAligned(view.buffer);
 		view.shiftRight(restrictionFlags.size);
 		const restrictionAdditionsCount = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
@@ -9982,6 +10247,9 @@ class MosaicAddressRestrictionTransaction {
 		this._targetAddress = new UnresolvedAddress();
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -10119,15 +10387,15 @@ class MosaicAddressRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
-		const mosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const mosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
 		const restrictionKey = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
@@ -10218,6 +10486,9 @@ class EmbeddedMosaicAddressRestrictionTransaction {
 		this._targetAddress = new UnresolvedAddress();
 		this._embeddedTransactionHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signerPublicKey() {
@@ -10326,11 +10597,11 @@ class EmbeddedMosaicAddressRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const mosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const mosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
 		const restrictionKey = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
@@ -10396,6 +10667,11 @@ class MosaicRestrictionKey extends BaseValue {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return new MosaicRestrictionKey(converter.bytesToIntUnaligned(byteArray, 8, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return new MosaicRestrictionKey(converter.bytesToInt(byteArray, 8, false));
 	}
 
@@ -10448,6 +10724,11 @@ class MosaicRestrictionType {
 
 	static deserialize(payload) {
 		const byteArray = payload;
+		return this.fromValue(converter.bytesToIntUnaligned(byteArray, 1, false));
+	}
+
+	static deserializeAligned(payload) {
+		const byteArray = payload;
 		return this.fromValue(converter.bytesToInt(byteArray, 1, false));
 	}
 
@@ -10495,6 +10776,9 @@ class MosaicGlobalRestrictionTransaction {
 		this._newRestrictionType = MosaicRestrictionType.NONE;
 		this._verifiableEntityHeaderReserved_1 = 0; // reserved field
 		this._entityBodyReserved_1 = 0; // reserved field
+	}
+
+	sort() { // eslint-disable-line class-methods-use-this
 	}
 
 	get signature() {
@@ -10650,17 +10934,17 @@ class MosaicGlobalRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
-		const mosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const mosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
-		const referenceMosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const referenceMosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(referenceMosaicId.size);
 		const restrictionKey = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
@@ -10668,9 +10952,9 @@ class MosaicGlobalRestrictionTransaction {
 		view.shiftRight(8);
 		const newRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const previousRestrictionType = MosaicRestrictionType.deserialize(view.buffer);
+		const previousRestrictionType = MosaicRestrictionType.deserializeAligned(view.buffer);
 		view.shiftRight(previousRestrictionType.size);
-		const newRestrictionType = MosaicRestrictionType.deserialize(view.buffer);
+		const newRestrictionType = MosaicRestrictionType.deserializeAligned(view.buffer);
 		view.shiftRight(newRestrictionType.size);
 
 		const instance = new MosaicGlobalRestrictionTransaction();
@@ -10765,6 +11049,9 @@ class EmbeddedMosaicGlobalRestrictionTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 	}
 
+	sort() { // eslint-disable-line class-methods-use-this
+	}
+
 	get signerPublicKey() {
 		return this._signerPublicKey;
 	}
@@ -10889,13 +11176,13 @@ class EmbeddedMosaicGlobalRestrictionTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const mosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const mosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(mosaicId.size);
-		const referenceMosaicId = UnresolvedMosaicId.deserialize(view.buffer);
+		const referenceMosaicId = UnresolvedMosaicId.deserializeAligned(view.buffer);
 		view.shiftRight(referenceMosaicId.size);
 		const restrictionKey = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
@@ -10903,9 +11190,9 @@ class EmbeddedMosaicGlobalRestrictionTransaction {
 		view.shiftRight(8);
 		const newRestrictionValue = converter.bytesToInt(view.buffer, 8, false);
 		view.shiftRight(8);
-		const previousRestrictionType = MosaicRestrictionType.deserialize(view.buffer);
+		const previousRestrictionType = MosaicRestrictionType.deserializeAligned(view.buffer);
 		view.shiftRight(previousRestrictionType.size);
-		const newRestrictionType = MosaicRestrictionType.deserialize(view.buffer);
+		const newRestrictionType = MosaicRestrictionType.deserializeAligned(view.buffer);
 		view.shiftRight(newRestrictionType.size);
 
 		const instance = new EmbeddedMosaicGlobalRestrictionTransaction();
@@ -10992,6 +11279,13 @@ class TransferTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._transferTransactionBodyReserved_1 = 0; // reserved field
 		this._transferTransactionBodyReserved_2 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaics = this._mosaics.sort((lhs, rhs) => arrayHelpers.deepCompare(
+			(lhs.mosaicId.comparer ? lhs.mosaicId.comparer() : lhs.mosaicId.value),
+			(rhs.mosaicId.comparer ? rhs.mosaicId.comparer() : rhs.mosaicId.value)
+		));
 	}
 
 	get signature() {
@@ -11115,13 +11409,13 @@ class TransferTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
-		const fee = Amount.deserialize(view.buffer);
+		const fee = Amount.deserializeAligned(view.buffer);
 		view.shiftRight(fee.size);
-		const deadline = Timestamp.deserialize(view.buffer);
+		const deadline = Timestamp.deserializeAligned(view.buffer);
 		view.shiftRight(deadline.size);
 		const recipientAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(recipientAddress.size);
@@ -11137,7 +11431,7 @@ class TransferTransaction {
 		view.shiftRight(4);
 		if (0 !== transferTransactionBodyReserved_2)
 			throw RangeError(`Invalid value of reserved field (${transferTransactionBodyReserved_2})`);
-		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => e.mosaicId.value);
+		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => ((e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value)));
 		view.shiftRight(arrayHelpers.size(mosaics));
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
@@ -11173,7 +11467,7 @@ class TransferTransaction {
 		buffer.write(converter.intToBytes(this._mosaics.length, 1, false)); // bound: mosaics_count
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_1, 1, false));
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_2, 4, false));
-		arrayHelpers.writeArray(buffer, this._mosaics, e => e.mosaicId.value);
+		arrayHelpers.writeArray(buffer, this._mosaics, e => ((e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value)));
 		buffer.write(this._message);
 		return buffer.storage;
 	}
@@ -11221,6 +11515,13 @@ class EmbeddedTransferTransaction {
 		this._entityBodyReserved_1 = 0; // reserved field
 		this._transferTransactionBodyReserved_1 = 0; // reserved field
 		this._transferTransactionBodyReserved_2 = 0; // reserved field
+	}
+
+	sort() {
+		this._mosaics = this._mosaics.sort((lhs, rhs) => arrayHelpers.deepCompare(
+			(lhs.mosaicId.comparer ? lhs.mosaicId.comparer() : lhs.mosaicId.value),
+			(rhs.mosaicId.comparer ? rhs.mosaicId.comparer() : rhs.mosaicId.value)
+		));
 	}
 
 	get signerPublicKey() {
@@ -11315,9 +11616,9 @@ class EmbeddedTransferTransaction {
 			throw RangeError(`Invalid value of reserved field (${entityBodyReserved_1})`);
 		const version = converter.bytesToInt(view.buffer, 1, false);
 		view.shiftRight(1);
-		const network = NetworkType.deserialize(view.buffer);
+		const network = NetworkType.deserializeAligned(view.buffer);
 		view.shiftRight(network.size);
-		const type = TransactionType.deserialize(view.buffer);
+		const type = TransactionType.deserializeAligned(view.buffer);
 		view.shiftRight(type.size);
 		const recipientAddress = UnresolvedAddress.deserialize(view.buffer);
 		view.shiftRight(recipientAddress.size);
@@ -11333,7 +11634,7 @@ class EmbeddedTransferTransaction {
 		view.shiftRight(4);
 		if (0 !== transferTransactionBodyReserved_2)
 			throw RangeError(`Invalid value of reserved field (${transferTransactionBodyReserved_2})`);
-		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => e.mosaicId.value);
+		const mosaics = arrayHelpers.readArrayCount(view.buffer, UnresolvedMosaic, mosaicsCount, e => ((e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value)));
 		view.shiftRight(arrayHelpers.size(mosaics));
 		const message = new Uint8Array(view.buffer.buffer, view.buffer.byteOffset, messageSize);
 		view.shiftRight(messageSize);
@@ -11363,7 +11664,7 @@ class EmbeddedTransferTransaction {
 		buffer.write(converter.intToBytes(this._mosaics.length, 1, false)); // bound: mosaics_count
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_1, 1, false));
 		buffer.write(converter.intToBytes(this._transferTransactionBodyReserved_2, 4, false));
-		arrayHelpers.writeArray(buffer, this._mosaics, e => e.mosaicId.value);
+		arrayHelpers.writeArray(buffer, this._mosaics, e => ((e.mosaicId.comparer ? e.mosaicId.comparer() : e.mosaicId.value)));
 		buffer.write(this._message);
 		return buffer.storage;
 	}
