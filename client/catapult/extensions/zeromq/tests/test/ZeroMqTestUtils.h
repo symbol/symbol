@@ -125,7 +125,7 @@ namespace catapult { namespace test {
 	class MqContext {
 	public:
 		/// Creates a message queue context around \a listenInterface.
-		explicit MqContext(const std::string& listenInterface = std::string("127.0.0.1"))
+		MqContext(const std::string& listenInterface, const std::string& connectInterface)
 				: m_registry(mocks::CreateDefaultTransactionRegistry())
 				, m_pZeroMqEntityPublisher(std::make_shared<zeromq::ZeroMqEntityPublisher>(
 						listenInterface,
@@ -137,9 +137,12 @@ namespace catapult { namespace test {
 				m_zmqSocket.set(zmq::sockopt::ipv6, 1);
 
 			std::ostringstream out;
-			out << "tcp://[" << listenInterface<< "]:" << GetDefaultLocalHostZmqPort();
+			out << "tcp://[" << connectInterface << "]:" << GetDefaultLocalHostZmqPort();
 			m_zmqSocket.connect(out.str());
 		}
+
+		explicit MqContext(const std::string& listenInterface = std::string("127.0.0.1")) : MqContext(listenInterface, listenInterface)
+				{}
 
 	public:
 		/// Subscribes to \a topic.

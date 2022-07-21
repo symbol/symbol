@@ -109,9 +109,9 @@ namespace catapult { namespace zeromq {
 	}
 
 	namespace {
-		void AssertCanUseCustomListenInterface(const std::string& listenInterface) {
+		void AssertCanUseCustomListenInterface(const std::string& listenInterface, const std::string& connectInterface) {
 			// Arrange:
-			EntityPublisherContext context(listenInterface);
+			EntityPublisherContext context(listenInterface, connectInterface);
 			context.subscribe(BlockMarker::Drop_Blocks_Marker);
 
 			// Act:
@@ -126,13 +126,13 @@ namespace catapult { namespace zeromq {
 	}
 
 	TEST(TEST_CLASS, CanUseCustomListenInterface_IPv4) {
-		AssertCanUseCustomListenInterface("0.0.0.0");
-		AssertCanUseCustomListenInterface("127.0.0.1");
+		AssertCanUseCustomListenInterface("0.0.0.0", "127.0.0.1");
+		AssertCanUseCustomListenInterface("127.0.0.1", "127.0.0.1");
 	}
 
 	TEST(TEST_CLASS, CanUseCustomListenInterface_IPv6) {
-		AssertCanUseCustomListenInterface("::");
-		AssertCanUseCustomListenInterface("::1");
+		AssertCanUseCustomListenInterface("::", "::1");
+		AssertCanUseCustomListenInterface("::1", "::1");
 	}
 
 	// endregion
