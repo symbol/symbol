@@ -266,7 +266,7 @@ namespace catapult { namespace utils {
 
 		// - wait for the counter to be incremented by all readers
 		CATAPULT_LOG(debug) << "waiting for readers";
-		WAIT_FOR_VALUE(test::Num_Default_Lock_Threads, counter);
+		WAIT_FOR_VALUE_SECONDS(test::Num_Default_Lock_Threads, counter, 20);
 
 		// Assert: all threads were able to access the counter
 		EXPECT_EQ(test::Num_Default_Lock_Threads, counter);
