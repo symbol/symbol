@@ -1,9 +1,5 @@
 const { AesCbcCipher, AesGcmCipher } = require('../src/Cipher');
-const { PrivateKey, PublicKey, SharedKey256 } = require('../src/CryptoTypes');
-const NemKeyPair = require('../src/nem/KeyPair').KeyPair;
-const nemDeriveSharedKeyDeprecated = require('../src/nem/SharedKey').deriveSharedKeyDeprecated;
-const SymbolKeyPair = require('../src/symbol/KeyPair').KeyPair;
-const symbolDeriveSharedKey = require('../src/symbol/SharedKey').deriveSharedKey;
+const { SharedKey256 } = require('../src/CryptoTypes');
 const { hexToUint8 } = require('../src/utils/converter');
 const { expect } = require('chai');
 const crypto = require('crypto');
@@ -11,60 +7,28 @@ const crypto = require('crypto');
 describe('Cipher', () => {
 	// region runBasicCipherTests
 
-	const assertEncrypt = (cipher, testCase) => {
-		// Act:
-		const resultText = cipher.encrypt(testCase.clearText, testCase.iv);
-
-		// Assert:
-		expect(resultText).to.deep.equal(Uint8Array.of(...testCase.cipherText, ...testCase.tag));
-	};
-
-	const assertDecrypt = (cipher, testCase) => {
-		// Act:
-		const resultText = cipher.decrypt(Uint8Array.of(...testCase.cipherText, ...testCase.tag), testCase.iv);
-
-		// Assert:
-		expect(resultText).to.deep.equal(testCase.clearText);
-	};
-
-	const runBasicCipherTestsFull = testDescriptor => {
-		it('can encrypt (full)', () => {
-			// Arrange:
-			const { testCase } = testDescriptor;
-			const sharedKey = testDescriptor.deriveSharedKey(testCase);
-			const cipher = new testDescriptor.CipherClass(sharedKey);
-
-			// Act + Assert:
-			assertEncrypt(cipher, testCase);
-		});
-
-		it('can decrypt (full)', () => {
-			// Arrange:
-			const { testCase } = testDescriptor;
-			const sharedKey = testDescriptor.deriveSharedKey(testCase);
-			const cipher = new testDescriptor.CipherClass(sharedKey);
-
-			// Act + Assert:
-			assertDecrypt(cipher, testCase);
-		});
-	};
-
-	const runBasicCipherTestsSimple = (CipherClass, testCases) => {
+	const runBasicCipherTests = (CipherClass, testCases) => {
 		testCases.forEach((testCase, index) => {
 			it(`can encrypt, id: ${index}`, () => {
 				// Arrange:
 				const cipher = new CipherClass(testCase.sharedKey);
 
-				// Act + Assert:
-				assertEncrypt(cipher, testCase);
+				// Act:
+				const resultText = cipher.encrypt(testCase.clearText, testCase.iv);
+
+				// Assert:
+				expect(resultText).to.deep.equal(Uint8Array.of(...testCase.cipherText, ...testCase.tag));
 			});
 
 			it(`can decrypt, id: ${index}`, () => {
 				// Arrange:
 				const cipher = new CipherClass(testCase.sharedKey);
 
-				// Act + Assert:
-				assertDecrypt(cipher, testCase);
+				// Act:
+				const resultText = cipher.decrypt(Uint8Array.of(...testCase.cipherText, ...testCase.tag), testCase.iv);
+
+				// Assert:
+				expect(resultText).to.deep.equal(testCase.clearText);
 			});
 		});
 	};
@@ -74,28 +38,9 @@ describe('Cipher', () => {
 	// region AesCbcCipher
 
 	describe('AesCbcCipher', () => {
-		const testDescriptor = {
-			CipherClass: AesCbcCipher,
-			testCase: {
-				privateKey: new PrivateKey('3140F94C79F249787D1EC75A97A885980EB8F0A7D9B7AA03E7200296E422B2B6'),
-				otherPublicKey: new PublicKey('9791ECCFA059DC3AAF27189A18B130FB592159BB8E87491640C30F0945B0433C'),
-				salt: hexToUint8('AC6C43D4ECB3E9BC1753218D5C5AD0B91B053A2B7FFA3A0E0E65D0085FB38D79'),
-				iv: hexToUint8('F15E192B633554AFDC2EDA91FC1EAD4E'),
-				tag: new Uint8Array(),
-				cipherText: hexToUint8('ECFB59733E063F2C2666E1FA77CE6449E8540B74F398395E9F06A683B72C246E'),
-				clearText: hexToUint8('86DDB9E713A8EBF67A51830EFF03B837E147C20D75E67B2A54AA29E98C')
-			},
-			deriveSharedKey: testCaseDescriptor => nemDeriveSharedKeyDeprecated(
-				new NemKeyPair(testCaseDescriptor.privateKey),
-				testCaseDescriptor.otherPublicKey,
-				testCaseDescriptor.salt
-			)
-		};
-		runBasicCipherTestsFull(testDescriptor);
-
 		// test vectors taken from wycheproof project:
 		// https://github.com/google/wycheproof/blob/master/testvectors/aes_cbc_pkcs5_test.json
-		runBasicCipherTestsSimple(AesCbcCipher, [
+		const testCases = [
 			// tcId: 123
 			{
 				sharedKey: new SharedKey256('7BF9E536B66A215C22233FE2DAAA743A898B9ACB9F7802DE70B40E3D6E43EF97'),
@@ -104,7 +49,7 @@ describe('Cipher', () => {
 				cipherText: hexToUint8('E7C166554D1BB32792C981FA674CC4D8'),
 				clearText: hexToUint8('')
 			},
-			// tcId: 76
+			// tcId: 127
 			{
 				sharedKey: new SharedKey256('E754076CEAB3FDAF4F9BCAB7D4F0DF0CBBAFBC87731B8F9B7CD2166472E8EEBC'),
 				iv: hexToUint8('014D2E13DFBCB969BA3BB91442D52ECA'),
@@ -112,7 +57,7 @@ describe('Cipher', () => {
 				cipherText: hexToUint8('42C0B89A706ED2606CD94F9CB361FA51'),
 				clearText: hexToUint8('40')
 			},
-			// tcId: 87
+			// tcId: 125
 			{
 				sharedKey: new SharedKey256('96E1E4896FB2CD05F133A6A100BC5609A7AC3CA6D81721E922DADD69AD07A892'),
 				iv: hexToUint8('E70D83A77A2CE722AC214C00837ACEDF'),
@@ -120,20 +65,17 @@ describe('Cipher', () => {
 				cipherText: hexToUint8('A615A39FF8F59F82CF72ED13E1B01E32459700561BE112412961365C7A0B58AA7A16D68C065E77EBE504999051476BD7'),
 				clearText: hexToUint8('91A17E4DFCC3166A1ADD26FF0E7C12056E8A654F28A6DE24F4BA739CEB5B5B18')
 			}
-		]);
+		];
+		runBasicCipherTests(AesCbcCipher, testCases);
 
 		it('cannot decrypt with wrong iv', () => {
 			// Arrange:
-			const { testCase } = testDescriptor;
-			const sharedKey = testDescriptor.deriveSharedKey(testCase);
+			const testCase = testCases[0];
+			const cipher = new AesCbcCipher(testCase.sharedKey);
 
-			const cipher = new testDescriptor.CipherClass(sharedKey);
-
-			// Act:
-			const resultText = cipher.decrypt(testCase.cipherText, crypto.randomBytes(testCase.iv.length));
-
-			// Assert:
-			expect(resultText).to.not.deep.equal(testCase.clearText);
+			// Act + Assert:
+			expect(() => cipher.decrypt(testCase.cipherText, crypto.randomBytes(testCase.iv.length)))
+				.to.throw(Error);
 		});
 	});
 
@@ -142,26 +84,9 @@ describe('Cipher', () => {
 	// region AesGcmCipher
 
 	describe('AesGcmCipher', () => {
-		const testDescriptor = {
-			CipherClass: AesGcmCipher,
-			testCase: {
-				privateKey: new PrivateKey('3140F94C79F249787D1EC75A97A885980EB8F0A7D9B7AA03E7200296E422B2B6'),
-				otherPublicKey: new PublicKey('C62827148875ACAF05D25D29B1BB1D947396A89CE41CB48888AE6961D9991DDF'),
-				iv: hexToUint8('A73FF5C32F8FD055B0977581'),
-				tag: hexToUint8('1B3370262014CB148F7A8CC88D344370'),
-				cipherText: hexToUint8('1B1398B84750C9DDEE99164AA1A54C89E9705FDCEBACD05A7B75F1E716'),
-				clearText: hexToUint8('86DDB9E713A8EBF67A51830EFF03B837E147C20D75E67B2A54AA29E98C')
-			},
-			deriveSharedKey: testCaseDescriptor => symbolDeriveSharedKey(
-				new SymbolKeyPair(testCaseDescriptor.privateKey),
-				testCaseDescriptor.otherPublicKey
-			)
-		};
-		runBasicCipherTestsFull(testDescriptor);
-
 		// test vectors taken from wycheproof project:
 		// https://github.com/google/wycheproof/blob/master/testvectors/aes_gcm_test.json
-		runBasicCipherTestsSimple(AesGcmCipher, [
+		const testCases = [
 			// tcId: 75
 			{
 				sharedKey: new SharedKey256('80BA3192C803CE965EA371D5FF073CF0F43B6A2AB576B208426E11409C09B9B0'),
@@ -192,14 +117,13 @@ describe('Cipher', () => {
 					+ '7E434B983E1E231A52A275DB5FB1A0CAC6A07B3B7DCB19482A5D3B06A9317A54'
 					+ '826CEA6B36FCE452FA9B5475E2AAF25499499D8A8932A19EB987C903BD8502FE')
 			}
-		]);
+		];
+		runBasicCipherTests(AesGcmCipher, testCases);
 
 		it('cannot decrypt with wrong iv', () => {
 			// Arrange:
-			const { testCase } = testDescriptor;
-			const sharedKey = testDescriptor.deriveSharedKey(testCase);
-
-			const cipher = new testDescriptor.CipherClass(sharedKey);
+			const testCase = testCases[0];
+			const cipher = new AesGcmCipher(testCase.sharedKey);
 
 			// Act + Assert:
 			expect(() => cipher.decrypt(Uint8Array.of(...testCase.cipherText, ...testCase.tag), crypto.randomBytes(testCase.iv.length)))
@@ -208,10 +132,8 @@ describe('Cipher', () => {
 
 		it('cannot decrypt with wrong tag', () => {
 			// Arrange:
-			const { testCase } = testDescriptor;
-			const sharedKey = testDescriptor.deriveSharedKey(testCase);
-
-			const cipher = new testDescriptor.CipherClass(sharedKey);
+			const testCase = testCases[0];
+			const cipher = new AesGcmCipher(testCase.sharedKey);
 
 			// Act + Assert:
 			expect(() => cipher.decrypt(Uint8Array.of(...testCase.cipherText, ...crypto.randomBytes(testCase.tag.length)), testCase.iv))
