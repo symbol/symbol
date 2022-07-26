@@ -80,6 +80,13 @@ pipeline {
 						}
 					}
 				}
+				stage('msvc 2022') {
+					steps {
+						script {
+							dispatch_windows_build_job('msvc-2022', 'tests-conan')
+						}
+					}
+				}
 			}
 		}
 	}
@@ -90,6 +97,15 @@ def dispatch_build_job(compiler_configuration, build_configuration) {
 		string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
 		string(name: 'BUILD_CONFIGURATION', value: "${build_configuration}"),
 		string(name: 'OPERATING_SYSTEM', value: 'ubuntu'),
+		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
+	]
+}
+
+def dispatch_windows_build_job(compiler_configuration, build_configuration) {
+	build job: 'Symbol/server-pipelines/catapult-client-build-catapult-project-windows', parameters: [
+		string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
+		string(name: 'BUILD_CONFIGURATION', value: "${build_configuration}"),
+		string(name: 'OPERATING_SYSTEM', value: 'windows'),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
 	]
 }

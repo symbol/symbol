@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen, SubprocessError
 
 MAX_LINE_LENGTH = 140
@@ -87,3 +88,8 @@ class ProcessManager:
 	@staticmethod
 	def _print_info_line(prefix, line):
 		print(f'\033[0;36m{prefix} {line}\033[0;0m')
+
+	def list_dir(self, path):
+		command = ['ls', '-laF'] if 'win32' != sys.platform else ['cmd', '/c', 'dir']
+		command.extend([Path(path).resolve()])
+		self.dispatch_subprocess(command)

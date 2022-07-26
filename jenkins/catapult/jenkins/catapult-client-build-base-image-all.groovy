@@ -87,6 +87,13 @@ pipeline {
 						}
 					}
 				}
+				stage('windows 2022') {
+					steps {
+						script {
+							dispatch_build_windows_base_image_job('msvc-2022', 'windows')
+						}
+					}
+				}
 
 				stage('release base image') {
 					steps {
@@ -117,12 +124,19 @@ pipeline {
 						}
 					}
 				}
+				stage('test base image [windows]') {
+					steps {
+						script {
+							dispatch_prepare_windows_base_image_job('test', 'windows')
+						}
+					}
+				}
 			}
 		}
 	}
 }
 
-def dispatch_build_base_image_job(compiler_configuration, operating_system, should_build_conan_layer) {
+def dispatch_build_base_image_job(String compiler_configuration, String operating_system, Boolean should_build_conan_layer) {
 	build job: 'Symbol/server-pipelines/catapult-client-build-base-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
@@ -131,11 +145,28 @@ def dispatch_build_base_image_job(compiler_configuration, operating_system, shou
 	]
 }
 
-def dispatch_prepare_base_image_job(image_type, operating_system) {
+def dispatch_prepare_base_image_job(String image_type, String operating_system) {
 	build job: 'Symbol/server-pipelines/catapult-client-prepare-base-image', parameters: [
 		string(name: 'IMAGE_TYPE', value: "${image_type}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
 	]
 }
+
+def dispatch_build_windows_base_image_job(String compiler_configuration, String operating_system) {
+	build job: 'Symbol/server-pipelines/catapult-client-build-base-image-windows', parameters: [
+		string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
+		string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
+		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
+	]
+}
+
+def dispatch_prepare_windows_base_image_job(String image_type, String operating_system) {
+	build job: 'Symbol/server-pipelines/catapult-client-prepare-base-image-windows', parameters: [
+		string(name: 'IMAGE_TYPE', value: "${image_type}"),
+		string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
+		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
+	]
+}
+
 

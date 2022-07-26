@@ -1,0 +1,30 @@
+version: '2.1'
+services:
+  db:
+    image: mongo:4.2-rc
+    command: mongod --bind_ip_all --dbpath=c:\mongo --logpath c:\mongo\mongod.log
+    volumes:
+      - ./mongo/{{BUILD_NUMBER}}:c:\mongo:rw
+
+  test:
+    image: {{IMAGE_NAME}}
+    environment:
+      - GTESTFILTER={{GTESTFILTER}}
+      - STRESSCOUNT={{STRESSCOUNT}}
+      - LD_LIBRARY_PATH=/usr/catapult/lib:/usr/catapult/deps
+    working_dir: /catapult-data/workdir
+    cap_add:
+      - SYS_PTRACE
+    command: >-
+      python3 /scripts/runDockerTestsInnerTest.py
+        --compiler-configuration {{COMPILER_CONFIGURATION}}
+        --exe-path /usr/catapult/tests
+        --out-dir /catapult-data
+        --source-path /catapult-src/client/catapult
+        --verbosity {{VERBOSITY}}
+    volumes:
+      - ./catapult-data:c:\catapult-data
+      - '{{CATAPULT_SRC}}:c:\catapult-src'
+      - '{{SCRIPT_PATH}}:c:\scripts'
+    depends_on:
+      - db

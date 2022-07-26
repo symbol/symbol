@@ -28,7 +28,6 @@ def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
 		('{{IMAGE_NAME}}', image_name),
 		('{{COMPILER_CONFIGURATION}}', prepare_replacements['compiler_configuration']),
 		('{{USER}}', f'"{prepare_replacements["user"]}"'),
-
 		('{{BUILD_NUMBER}}', get_image_label(image_name)),
 		('{{NETWORK_IP}}', '3000'),
 		('{{GTESTFILTER}}', '*'),
@@ -55,7 +54,7 @@ def main():
 	parser = argparse.ArgumentParser(description='catapult tests runner')
 	parser.add_argument('--image', help='docker tests image', required=True)
 	parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
-	parser.add_argument('--user', help='docker user', required=True)
+	parser.add_argument('--user', help='docker user')
 	parser.add_argument('--mode', help='test mode', choices=('bench', 'test', 'lint'), required=True)
 	parser.add_argument('--verbosity', help='verbosity level', default='max')
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
@@ -70,7 +69,8 @@ def main():
 	process_manager = ProcessManager(args.dry_run)
 
 	compose_template_directory = Path(__file__).parent / 'templates'
-	compose_template_filepath = compose_template_directory / f'Run{args.mode.capitalize()}.yaml'
+	compose_template_filepath = compose_template_directory / (
+		f'Run{args.mode.capitalize()}.yaml' if not EnvironmentManager.is_windows_platform() else f'Run{args.mode.capitalize()}Windows.yaml')
 	print(f'processing template from {compose_template_filepath}')
 	prepare_replacements = {
 		'image_name': args.image,

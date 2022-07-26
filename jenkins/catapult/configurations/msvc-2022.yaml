@@ -1,0 +1,2 @@
+compiler: ../compilers/msvc-2022.yaml
+architecture: skylake

@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 from pathlib import Path
 
 
@@ -137,3 +138,12 @@ class EnvironmentManager:
 	def _print_command(command, args):
 		formatted_args = ' '.join(str(x) for x in args)
 		print(f'\033[0;33m[*] <{command}> {formatted_args}\033[0;0m')
+
+	@staticmethod
+	def is_windows_platform():
+		return 'win32' == sys.platform
+
+	@staticmethod
+	def root_directory(directory_name):
+		root_directory_prefix = 'c:\\' if EnvironmentManager.is_windows_platform() else '/'
+		return root_directory_prefix + directory_name
