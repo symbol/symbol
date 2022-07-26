@@ -79,12 +79,12 @@ namespace catapult {
 
 		// Boost function name got updated and now return in the form below.  This function coverts the function name to the
 		// expected value in the exception.
-		// Clang does not include the traits information in the function name.
+		// Only gcc includes the traits information in the exception function name.
 		// void catapult::CatapultExceptionTests_CanCopyConstructException() [with TTraits = catapult::{anonymous}::RuntimeErrorTraits]
 		std::string ConvertToExceptionFunctionName(const std::string& functionFullName) {
 			CATAPULT_LOG(debug) << "function: " << functionFullName;
 
-			std::size_t functionNameEnd = functionFullName.find("(");
+			std::size_t functionNameEnd = functionFullName.find_first_of("<(");
 			if (std::string::npos == functionNameEnd)
 				return functionFullName;
 
@@ -92,7 +92,7 @@ namespace catapult {
 			functionNameStart = (std::string::npos != functionNameStart) ? functionNameStart + 2 : 0;
 			std::ostringstream oss(functionFullName.substr(functionNameStart, functionNameEnd - functionNameStart), std::ios_base::ate);
 
-#ifndef __clang__
+#if defined(__GNUC__) && !defined(__clang__)
 			auto foundTraits = functionFullName.find("=", functionNameEnd);
 			if (std::string::npos != foundTraits) {
 				auto traitsEnd = functionFullName.find("]", foundTraits);
@@ -109,7 +109,7 @@ namespace catapult {
 			// Arrange:
 			std::vector<std::string> expectedDiagLines{
 				"Throw in function " + ConvertToExceptionFunctionName(expected.FunctionName),
-				"Dynamic exception type: " CLASSPREFIX "boost::wrapexcept<" + std::string(TTraits::Exception_Fqn) + " >",
+				"Dynamic exception type: " STRUCTPREFIX "boost::wrapexcept<" + std::string(TTraits::Exception_Fqn) + " >",
 				"std::exception::what: " + expected.What
 			};
 

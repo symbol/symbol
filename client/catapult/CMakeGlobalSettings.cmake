@@ -265,7 +265,6 @@ endif()
 if(MSVC)
 	function(set_win_version_definitions WIN_TARGET_NAME WIN_FILETYPE)
 		add_definitions(-DCATAPULT_VERSION_DESCRIPTION="${CATAPULT_VERSION_DESCRIPTION}")
-		add_definitions(-DWIN_TARGET_NAME=${WIN_TARGET_NAME})
 		add_definitions(-DWIN_FILETYPE=${WIN_FILETYPE})
 
 		if(CATAPULT_BUILD_RELEASE)
