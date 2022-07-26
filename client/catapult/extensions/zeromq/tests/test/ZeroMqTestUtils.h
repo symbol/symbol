@@ -142,7 +142,7 @@ namespace catapult { namespace test {
 		}
 
 		explicit MqContext(const std::string& listenInterface = std::string("127.0.0.1")) : MqContext(listenInterface, listenInterface)
-				{}
+		{}
 
 	public:
 		/// Subscribes to \a topic.
