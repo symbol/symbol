@@ -1,14 +1,14 @@
 [requires]
 # release dependencies
 boost/1.79.0
-cppzmq/4.7.1@nemtech/stable
+cppzmq/4.8.1@nemtech/stable
 mongo-cxx-driver/3.6.7@nemtech/stable
-openssl/1.1.1g@nemtech/stable
-rocksdb/6.20.3@nemtech/stable
+openssl/1.1.1q@nemtech/stable
+rocksdb/7.4.3@nemtech/stable
 
 # test dependencies
-benchmark/1.5.3@nemtech/stable
-gtest/1.10.0
+benchmark/1.7.0@nemtech/stable
+gtest/1.12.1
 
 [generators]
 cmake
