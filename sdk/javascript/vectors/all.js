@@ -1,6 +1,7 @@
 const { Bip32 } = require('../src/Bip32');
 const { PrivateKey, PublicKey, Signature } = require('../src/CryptoTypes');
 const { NetworkLocator } = require('../src/Network');
+const { VotingKeysGenerator } = require('../src/symbol/VotingKeysGenerator');
 const { generateMosaicId } = require('../src/symbol/idGenerator');
 const { hexToUint8 } = require('../src/utils/converter');
 const yargs = require('yargs');
@@ -8,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 (() => {
-	// region TestSuites
+	// region VectorsTestSuite, KeyConversionTester, AddressConversionTester
 
 	class VectorsTestSuite {
 		constructor(identifier, filename, description) {
@@ -68,6 +69,10 @@ const path = require('path');
 		}
 	}
 
+	// endregion
+
+	// region SignTester, VerifyTester
+
 	class SignTester extends VectorsTestSuite {
 		constructor(classLocator) {
 			super(2, 'test-sign', 'sign');
@@ -108,6 +113,10 @@ const path = require('path');
 		}
 	}
 
+	// endregion
+
+	// region MosaicIdDerivationTester
+
 	class MosaicIdDerivationTester extends VectorsTestSuite {
 		constructor(classLocator) {
 			super(5, 'test-mosaic-id', 'mosaic id derivation');
@@ -134,6 +143,10 @@ const path = require('path');
 			return mosaicIdPairs;
 		}
 	}
+
+	// endregion
+
+	// region Bip32DerivationTester, Bip39DerivationTester
 
 	class Bip32DerivationTester extends VectorsTestSuite {
 		constructor(classLocator) {
@@ -189,6 +202,81 @@ const path = require('path');
 
 	// endregion
 
+	// region VotingKeysGenerationTester
+
+	class SeededPrivateKeyGenerator {
+		constructor(values) {
+			this.values = values;
+			this.nextIndex = 0;
+		}
+
+		generate() {
+			this.nextIndex += 1;
+			return this.values[this.nextIndex - 1];
+		}
+	}
+
+	class FibPrivateKeyGenerator {
+		constructor(fillPrivateKey = false) {
+			this.fillPrivateKey = fillPrivateKey;
+			this.value1 = 1;
+			this.value2 = 2;
+		}
+
+		generate() {
+			const nextValue = this.value1 + this.value2;
+			this.value1 = this.value2;
+			this.value2 = nextValue;
+
+			const seedValue = nextValue % 256;
+
+			const privateKeyBuffer = new Uint8Array(PrivateKey.SIZE);
+			if (this.fillPrivateKey) {
+				for (let i = 0; i < PrivateKey.SIZE; ++i)
+					privateKeyBuffer[i] = (seedValue + i) % 256;
+			} else {
+				privateKeyBuffer[PrivateKey.SIZE - 1] = seedValue;
+			}
+
+			return new PrivateKey(privateKeyBuffer);
+		}
+	}
+
+	class VotingKeysGenerationTester extends VectorsTestSuite {
+		constructor(classLocator) {
+			super(7, 'test-voting-keys-generation', 'voting keys generation');
+			this.classLocator = classLocator;
+		}
+
+		process(testVector) {
+			// Arrange:
+			const privateKeyGenerator = {
+				test_vector_1: new FibPrivateKeyGenerator(),
+				test_vector_2: new FibPrivateKeyGenerator(true),
+				test_vector_3: new SeededPrivateKeyGenerator([
+					new PrivateKey('12F98B7CB64A6D840931A2B624FB1EACAFA2C25C3EF0018CD67E8D470A248B2F'),
+					new PrivateKey('B5593870940F28DAEE262B26367B69143AD85E43048D23E624F4ED8008C0427F'),
+					new PrivateKey('6CFC879ABCCA78F5A4C9739852C7C643AEC3990E93BF4C6F685EB58224B16A59')
+				])
+			}[testVector.name];
+
+			const rootPrivateKey = new PrivateKey(testVector.rootPrivateKey);
+			const votingKeysGenerator = new VotingKeysGenerator(
+				new this.classLocator.Facade.KeyPair(rootPrivateKey),
+				() => privateKeyGenerator.generate()
+			);
+
+			// Act:
+			const votingKeysBuffer = votingKeysGenerator.generate(BigInt(testVector.startEpoch), BigInt(testVector.endEpoch));
+
+			// Assert:
+			const expectedVotingKeysBuffer = hexToUint8(testVector.expectedFileHex);
+			return [[expectedVotingKeysBuffer, votingKeysBuffer]];
+		}
+	}
+
+	// endregion
+
 	const loadClassLocator = blockchain => {
 		if ('symbol' === blockchain) {
 			const { SymbolFacade } = require('../src/facade/SymbolFacade'); // eslint-disable-line global-require
@@ -213,7 +301,7 @@ const path = require('path');
 		];
 
 		if ('symbol' === blockchain)
-			testSuites.push(new MosaicIdDerivationTester(classLocator));
+			[MosaicIdDerivationTester, VotingKeysGenerationTester].forEach(TesterClass => testSuites.push(new TesterClass(classLocator)));
 
 		return testSuites;
 	};
@@ -251,7 +339,7 @@ const path = require('path');
 		})
 		.option('tests', {
 			describe: 'identifiers of tests to include',
-			choices: [0, 1, 2, 3, 4, 5, 6],
+			choices: [0, 1, 2, 3, 4, 5, 6, 7],
 			array: true
 		})
 		.argv;
