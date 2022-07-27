@@ -2,7 +2,7 @@
 # release dependencies
 boost/1.79.0
 cppzmq/4.7.1@nemtech/stable
-mongo-cxx-driver/3.6.3@nemtech/stable
+mongo-cxx-driver/3.6.7@nemtech/stable
 openssl/1.1.1g@nemtech/stable
 rocksdb/6.20.3@nemtech/stable
 
