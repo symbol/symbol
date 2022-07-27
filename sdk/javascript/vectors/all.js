@@ -162,7 +162,7 @@ const path = require('path');
 			const otherPublicKey = new PublicKey(testVector.otherPublicKey);
 			const keyPair = new this.classLocator.Facade.KeyPair(new PrivateKey(testVector.privateKey));
 			const salt = hexToUint8(testVector.salt);
-			const sharedKey = this.classLocator.Facade.SharedKey.deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt);
+			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt);
 
 			const iv = hexToUint8(testVector.iv);
 			const cipherText = hexToUint8(testVector.cipherText);
@@ -191,7 +191,7 @@ const path = require('path');
 			// Arrange:
 			const otherPublicKey = new PublicKey(testVector.otherPublicKey);
 			const keyPair = new this.classLocator.Facade.KeyPair(new PrivateKey(testVector.privateKey));
-			const sharedKey = this.classLocator.Facade.SharedKey.deriveSharedKey(keyPair, otherPublicKey);
+			const sharedKey = this.classLocator.Facade.deriveSharedKey(keyPair, otherPublicKey);
 
 			const iv = hexToUint8(testVector.iv);
 			const tag = hexToUint8(testVector.tag);
