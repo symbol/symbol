@@ -94,7 +94,8 @@ class BuildManager(BasicBuildManager):
 
 	def build(self):
 		self.dispatch_subprocess(['ninja', 'publish'])
-		self.dispatch_subprocess(['ninja'])
+		cpu_count = len(os.sched_getaffinity(0))
+		self.dispatch_subprocess(['ninja', '-j', str(cpu_count if cpu_count > 0 else 1)])
 		self.dispatch_subprocess(['ninja', 'install'])
 
 	def copy_dependencies(self, destination):
