@@ -42,6 +42,8 @@ if(ENABLE_TESTS)
 	message("--- locating gtest dependencies ---")
 
 	find_package(GTest 1.12.1 EXACT REQUIRED)
+	message("GTest   found: ${GTest_FOUND}")
+	message("GTest     inc: ${GTEST_INCLUDE_DIRS}")
 	message("GTest     ver: ${GTest_VERSION}")
 	message("GTest    libs: ${GTEST_LIBRARIES}")
 endif()
