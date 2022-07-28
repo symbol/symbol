@@ -1,4 +1,5 @@
 const { Hash256 } = require('../CryptoTypes');
+const { deepCompare } = require('../utils/arrayHelpers');
 const { sha3_256 } = require('@noble/hashes/sha3');
 
 /**
@@ -54,4 +55,28 @@ class MerkleHashBuilder {
 	}
 }
 
-module.exports = { MerkleHashBuilder };
+/**
+ * Proves a merkle hash.
+ * @param {Hash256} leafHash Leaf hash to prove.
+ * @param {array<object>} merklePath Merkle hash chain from leaf to root. Each part has shape {hash: Hash256, isLeft: boolean}.
+ * @param {Hash256} rootHash Root hash of the merkle tree.
+ * @returns {boolean} true if leaf hash is connected to root hash; false otherwise.
+ */
+const proveMerkle = (leafHash, merklePath, rootHash) => {
+	const computedRootHash = merklePath.reduce((workingHash, merklePart) => {
+		const hasher = sha3_256.create();
+		if (merklePart.isLeft) {
+			hasher.update(merklePart.hash.bytes);
+			hasher.update(workingHash.bytes);
+		} else {
+			hasher.update(workingHash.bytes);
+			hasher.update(merklePart.hash.bytes);
+		}
+
+		return new Hash256(hasher.digest());
+	}, leafHash);
+
+	return 0 === deepCompare(rootHash.bytes, computedRootHash.bytes);
+};
+
+module.exports = { MerkleHashBuilder, proveMerkle };
