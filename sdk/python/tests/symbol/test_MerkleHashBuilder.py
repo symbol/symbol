@@ -1,9 +1,11 @@
 import unittest
 
 from symbolchain.CryptoTypes import Hash256
-from symbolchain.symbol.MerkleHashBuilder import MerkleHashBuilder
+from symbolchain.symbol.MerkleHashBuilder import MerkleHashBuilder, MerklePart, prove_merkle
 
 from ..test.TestUtils import TestUtils
+
+# region MerkleHashBuilderTest
 
 
 class MerkleHashBuilderTest(unittest.TestCase):
@@ -91,3 +93,83 @@ class MerkleHashBuilderTest(unittest.TestCase):
 			builder.update(seed_hash)
 
 		return builder.final()
+
+# endregion
+
+
+# region ProveMerkleTest
+
+class ProveMerkleTest(unittest.TestCase):
+	def test_succeeds_when_leaf_is_root_and_there_is_no_path(self):
+		# Arrange:
+		root_hash = Hash256('36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8')
+
+		# Act:
+		result = prove_merkle(root_hash, [], root_hash)
+
+		# Assert:
+		self.assertTrue(result)
+
+	def test_fails_when_leaf_is_root_and_there_is_path(self):
+		# Arrange:
+		root_hash = Hash256('36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8')
+		merkle_path = [
+			MerklePart(Hash256('6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7'), True)
+		]
+
+		# Act:
+		result = prove_merkle(root_hash, merkle_path, root_hash)
+
+		# Assert:
+		self.assertFalse(result)
+
+	@staticmethod
+	def _create_default_test_vector():
+		return {
+			'leaf_hash': Hash256('D4713ABB76AC98FB74AB91607C9029A95821C28462DC43707D92DD35E10B96CD'),
+			'merkle_path': [
+				MerklePart(Hash256('2CFB84D7A2F53FFAE07B1A686D84CB2491AD234F785B9C5905F1FF04E921F3F7'), False),
+				MerklePart(Hash256('B49544CFA100301340F7F060C935B02687041431BC660E288176B1954D5DF5D0'), False),
+				MerklePart(Hash256('0C346E96C61C4E54BCC10F1A4604C30C4A6D1E51691385BFFF2B9E56B2E0A9EB'), False),
+				MerklePart(Hash256('399887ED3F5C3086A1DFF78B78697C1592E2C35C10FB45B5AAF621AB52D23B78'), True),
+				MerklePart(Hash256('55DFB13E3F549DA89E9C38C97E7D2A557EE9B660EDA10DBD2088FB4CAFEF2524'), False),
+				MerklePart(Hash256('190C27BF7B21C474E99E3FE0F3DBF437F33C784D80732C2F8263D3F6A0167C58'), False),
+				MerklePart(Hash256('0B7DC05FA282E3BB156EE2861DF7E456AF538D56B4452996C39B4F5E46E2233E'), False),
+				MerklePart(Hash256('60E4C788A881D84AFEA758C660E9C779A460F022AE3EC38D584155F08E84D82E'), True)
+			],
+			'root_hash': Hash256('DDDBA0604EE6A2CB9825CA5E0D31785F05F43713C5E7C512A900A7287DB5143C')
+		}
+
+	def test_succeeds_when_proof_is_valid(self):
+		# Arrange:
+		test_vector = self._create_default_test_vector()
+
+		# Act:
+		result = prove_merkle(test_vector['leaf_hash'], test_vector['merkle_path'], test_vector['root_hash'])
+
+		# Assert:
+		self.assertTrue(result)
+
+	def test_fails_when_root_does_not_match(self):
+		# Arrange:
+		test_vector = self._create_default_test_vector()
+		test_vector['root_hash'] = Hash256(test_vector['root_hash'].bytes[:-1] + bytes([test_vector['root_hash'].bytes[-1] ^ 0xFF]))
+
+		# Act:
+		result = prove_merkle(test_vector['leaf_hash'], test_vector['merkle_path'], test_vector['root_hash'])
+
+		# Assert:
+		self.assertFalse(result)
+
+	def test_fails_when_branch_position_is_wrong(self):
+		# Arrange:
+		test_vector = self._create_default_test_vector()
+		test_vector['merkle_path'][4] = MerklePart(test_vector['merkle_path'][4].hash, not test_vector['merkle_path'][4].is_left)
+
+		# Act:
+		result = prove_merkle(test_vector['leaf_hash'], test_vector['merkle_path'], test_vector['root_hash'])
+
+		# Assert:
+		self.assertFalse(result)
+
+# endregion
