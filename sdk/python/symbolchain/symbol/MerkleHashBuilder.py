@@ -1,6 +1,11 @@
+from collections import namedtuple
+from functools import reduce
+
 import sha3
 
 from ..CryptoTypes import Hash256
+
+MerklePart = namedtuple('MerklePart', ['hash', 'is_left'])
 
 
 class MerkleHashBuilder:
@@ -39,3 +44,21 @@ class MerkleHashBuilder:
 			num_remaining_hashes //= 2
 
 		return Hash256(self.hashes[0])
+
+
+def prove_merkle(leaf_hash, merkle_path, root_hash):
+	"""Proves a merkle hash."""
+
+	def calculate_next_hash(working_hash, merkle_part):
+		hasher = sha3.sha3_256()
+		if merkle_part.is_left:
+			hasher.update(merkle_part.hash.bytes)
+			hasher.update(working_hash.bytes)
+		else:
+			hasher.update(working_hash.bytes)
+			hasher.update(merkle_part.hash.bytes)
+
+		return Hash256(hasher.digest())
+
+	computed_root_hash = reduce(calculate_next_hash, merkle_path, leaf_hash)
+	return root_hash == computed_root_hash
