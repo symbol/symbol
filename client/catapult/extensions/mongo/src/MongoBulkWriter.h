@@ -186,7 +186,7 @@ namespace catapult { namespace mongo {
 	private:
 		thread::future<BulkWriteResult> handleBulkOperation(
 				const std::string& collectionName,
-				std::shared_ptr<BulkWriteParams>&& pBulkWriteParams) {
+				std::unique_ptr<BulkWriteParams>&& pBulkWriteParams) {
 			// note: pBulkWriteParams depends on pThis (pBulkWriteParams.pConnection depends on pThis.m_connectionPool)
 			// it's crucial to move pBulkWriteParams into lambda, otherwise it would be copied while pThis would be moved
 			auto pPromise = std::make_shared<thread::promise<BulkWriteResult>>();
@@ -194,7 +194,7 @@ namespace catapult { namespace mongo {
 				pThis->bulkWrite(collectionName, *pBulkWriteParams, *pPromise);
 			};
 
-			boost::asio::post(m_pool.ioContext(), handler);
+			boost::asio::post(m_pool.ioContext(), std::move(handler));
 			return pPromise->get_future();
 		}
 
@@ -255,7 +255,7 @@ namespace catapult { namespace mongo {
 					auto itEnd,
 					auto startIndex,
 					auto batchIndex) {
-				auto pBulkWriteParams = std::make_shared<BulkWriteParams>(*pThis, collectionName);
+				auto pBulkWriteParams = std::make_unique<BulkWriteParams>(*pThis, collectionName);
 
 				auto index = static_cast<uint32_t>(startIndex);
 				for (auto iter = itBegin; itEnd != iter; ++iter, ++index)
