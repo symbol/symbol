@@ -129,9 +129,7 @@ class OptionsManager:
 	def rocks(self):
 		descriptor = self.OptionsDescriptor()
 		descriptor.options += DEPENDENCY_FLAGS['facebook_rocksdb']
-
-		if 'undefined' in self.sanitizers:
-			descriptor.options += ['-DUSE_RTTI=1']
+		descriptor.options += ['-DUSE_RTTI=1']
 
 		return self._cmake(descriptor)
 
