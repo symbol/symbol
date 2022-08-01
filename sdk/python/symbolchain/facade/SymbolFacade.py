@@ -4,7 +4,7 @@ from ..CryptoTypes import Hash256, PublicKey, Signature
 from ..Network import NetworkLocator
 from ..sc import TransactionType
 from ..symbol.KeyPair import KeyPair, Verifier
-from ..symbol.MerkleHashBuilder import MerkleHashBuilder
+from ..symbol.Merkle import MerkleHashBuilder
 from ..symbol.Network import Address, Network
 from ..symbol.TransactionFactory import TransactionFactory
 
