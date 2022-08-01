@@ -20,7 +20,8 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor > /etc/
 	clang-${COMPILER_VERSION} \
 	clang-tools-${COMPILER_VERSION} \
 	libc++-${COMPILER_VERSION}-dev \
-	libc++abi-${COMPILER_VERSION}-dev && \
+	libc++abi-${COMPILER_VERSION}-dev \
+	libunwind-${COMPILER_VERSION}-dev && \
 	update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${COMPILER_VERSION} 100 && \
 	update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${COMPILER_VERSION} 100 && \
 	update-alternatives --install /usr/bin/cc cc /usr/bin/clang 100 && \

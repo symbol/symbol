@@ -199,7 +199,6 @@ class UbuntuSystem:
 			'libgflags-dev',
 			'libsnappy-dev',
 			'libtool',
-			'libunwind-dev',
 			'make',
 			'ninja-build',
 			'pkg-config',
