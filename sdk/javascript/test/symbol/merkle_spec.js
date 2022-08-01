@@ -1,5 +1,5 @@
 const { Hash256 } = require('../../src/CryptoTypes');
-const { MerkleHashBuilder, proveMerkle } = require('../../src/symbol/MerkleHashBuilder');
+const { MerkleHashBuilder, proveMerkle } = require('../../src/symbol/merkle');
 const { expect } = require('chai');
 const crypto = require('crypto');
 
