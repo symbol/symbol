@@ -67,7 +67,7 @@ namespace catapult { namespace crypto {
 				TTraits::HashFunc(buffer, hash);
 			}
 
-			state.SetBytesProcessed(static_cast<int64_t>(buffer.size() * state.iterations()));
+			state.SetBytesProcessed(static_cast<int64_t>(buffer.size()) * state.iterations());
 		}
 
 		void AddDefaultArguments(benchmark::internal::Benchmark& benchmark) {

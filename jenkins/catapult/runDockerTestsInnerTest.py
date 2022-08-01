@@ -45,6 +45,7 @@ class SanitizerEnvironment:
 	def prepare_thread_sanitizer(self):
 		with open(TSAN_SUPPRESSIONS_PATH, 'wt', encoding='utf8') as outfile:
 			outfile.write('race:~weak_ptr\n')
+			outfile.write('race:weak_ptr::lock()\n')
 			outfile.write('race:~executor\n')
 			outfile.write('race:global_logger::get()')
 
