@@ -131,6 +131,9 @@ class OptionsManager:
 		descriptor.options += DEPENDENCY_FLAGS['facebook_rocksdb']
 		descriptor.options += ['-DUSE_RTTI=1']
 
+		if self.compiler.c.startswith('gcc') and self.compiler.version == 12:
+			descriptor.options += ['-DFAIL_ON_WARNINGS=OFF']
+
 		return self._cmake(descriptor)
 
 	def googletest(self):
