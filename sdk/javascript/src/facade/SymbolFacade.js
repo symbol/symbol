@@ -3,9 +3,9 @@ const {
 } = require('../CryptoTypes');
 const { NetworkLocator } = require('../Network');
 const { KeyPair, Verifier } = require('../symbol/KeyPair');
-const { MerkleHashBuilder } = require('../symbol/MerkleHashBuilder');
 const { Address, Network } = require('../symbol/Network');
 const { TransactionFactory } = require('../symbol/TransactionFactory');
+const { MerkleHashBuilder } = require('../symbol/merkle');
 const { TransactionType } = require('../symbol/models');
 const { sha3_256 } = require('@noble/hashes/sha3');
 

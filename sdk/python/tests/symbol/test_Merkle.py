@@ -1,7 +1,7 @@
 import unittest
 
 from symbolchain.CryptoTypes import Hash256
-from symbolchain.symbol.MerkleHashBuilder import MerkleHashBuilder, MerklePart, prove_merkle
+from symbolchain.symbol.Merkle import MerkleHashBuilder, MerklePart, prove_merkle
 
 from ..test.TestUtils import TestUtils
 
