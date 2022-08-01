@@ -1,3 +1,2 @@
 compiler: ../compilers/clang-14.yaml
-sanitizers: thread
 architecture: skylake

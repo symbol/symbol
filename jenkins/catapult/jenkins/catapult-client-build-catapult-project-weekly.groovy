@@ -22,34 +22,34 @@ pipeline {
 
 		stage('build servers') {
 			parallel {
-				stage('gcc 8 (metal) [debian]') {
+				stage('gcc 10 (metal) [debian]') {
 					steps {
 						script {
-							dispatch_build_job('gcc-8', 'tests-metal', 'debian')
+							dispatch_build_job('gcc-10', 'tests-metal', 'debian')
 						}
 					}
 				}
 
-				stage('gcc 10 (westmere)') {
+				stage('gcc (westmere)') {
 					steps {
 						script {
-							dispatch_build_job('gcc-10-westmere', 'tests-metal', 'ubuntu')
+							dispatch_build_job('gcc-westmere', 'tests-metal', 'ubuntu')
 						}
 					}
 				}
 
-				stage('gcc 11 (metal) [fedora]') {
+				stage('gcc 12 (metal) [fedora]') {
 					steps {
 						script {
-							dispatch_build_job('gcc-11', 'tests-metal', 'fedora')
+							dispatch_build_job('gcc-12', 'tests-metal', 'fedora')
 						}
 					}
 				}
 
-				stage('clang 11 (metal)') {
+				stage('clang 13 (metal)') {
 					steps {
 						script {
-							dispatch_build_job('clang-11', 'tests-metal', 'ubuntu')
+							dispatch_build_job('clang-13', 'tests-metal', 'ubuntu')
 						}
 					}
 				}

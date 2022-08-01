@@ -1,4 +1,4 @@
-FROM debian:10.9
+FROM debian:11.4
 
 RUN apt-get update >/dev/null && \
 	apt-get install -y \

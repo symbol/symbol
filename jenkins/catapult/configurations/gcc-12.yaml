@@ -1,0 +1,2 @@
+compiler: ../compilers/gcc-12.yaml
+architecture: skylake

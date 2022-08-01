@@ -22,46 +22,53 @@ pipeline {
 
 		stage('build base images') {
 			parallel {
-				stage('gcc 10') {
+				stage('gcc 11') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-10', 'ubuntu', true)
+							dispatch_build_base_image_job('gcc-11', 'ubuntu', true)
 						}
 					}
 				}
-				stage('gcc 8 [debian]') {
+				stage('gcc 12') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-8', 'debian', false)
+							dispatch_build_base_image_job('gcc-12', 'ubuntu', true)
 						}
 					}
 				}
-				stage('gcc 10 westmere') {
+				stage('gcc 10 [debian]') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-10-westmere', 'ubuntu', true)
+							dispatch_build_base_image_job('gcc-10', 'debian', false)
 						}
 					}
 				}
-				stage('gcc 11 [fedora]') {
+				stage('gcc 11 westmere') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-11', 'fedora', false)
+							dispatch_build_base_image_job('gcc-westmere', 'ubuntu', true)
+						}
+					}
+				}
+				stage('gcc 12 [fedora]') {
+					steps {
+						script {
+							dispatch_build_base_image_job('gcc-12', 'fedora', false)
 						}
 					}
 				}
 
-				stage('clang 11') {
+				stage('clang 13') {
 					steps {
 						script {
-							dispatch_build_base_image_job('clang-11', 'ubuntu', false)
+							dispatch_build_base_image_job('clang-13', 'ubuntu', false)
 						}
 					}
 				}
-				stage('clang 12') {
+				stage('clang 14') {
 					steps {
 						script {
-							dispatch_build_base_image_job('clang-12', 'ubuntu', true)
+							dispatch_build_base_image_job('clang-14', 'ubuntu', true)
 						}
 					}
 				}
