@@ -22,32 +22,32 @@ pipeline {
 
 		stage('build servers') {
 			parallel {
-				stage('gcc 10 (conan)') {
+				stage('gcc 12 (conan)') {
 					steps {
 						script {
-							dispatch_build_job('gcc-10', 'tests-conan')
+							dispatch_build_job('gcc-12', 'tests-conan')
 						}
 					}
 				}
-				stage('gcc 10 (metal)') {
+				stage('gcc 12 (metal)') {
 					steps {
 						script {
-							dispatch_build_job('gcc-10', 'tests-metal')
+							dispatch_build_job('gcc-12', 'tests-metal')
 						}
 					}
 				}
 
-				stage('clang 12 (conan)') {
+				stage('clang 14 (conan)') {
 					steps {
 						script {
-							dispatch_build_job('clang-12', 'tests-conan')
+							dispatch_build_job('clang-14', 'tests-conan')
 						}
 					}
 				}
-				stage('clang 12 (metal)') {
+				stage('clang 14 (metal)') {
 					steps {
 						script {
-							dispatch_build_job('clang-12', 'tests-metal')
+							dispatch_build_job('clang-14', 'tests-metal')
 						}
 					}
 				}
@@ -69,7 +69,7 @@ pipeline {
 				stage('clang diagnostics') {
 					steps {
 						script {
-							dispatch_build_job('clang-12', 'tests-diagnostics')
+							dispatch_build_job('clang-14', 'tests-diagnostics')
 						}
 					}
 				}
