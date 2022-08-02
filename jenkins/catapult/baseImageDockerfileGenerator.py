@@ -241,6 +241,7 @@ class FedoraSystem:
 			'libunwind-devel',
 			'make',
 			'ninja-build',
+			'perl-core',
 			'python3',
 			'xz'
 		]
