@@ -87,8 +87,7 @@ const runBasicSharedKeyTests = testDescriptor => {
 			}
 		}
 
-		/* eslint-disable no-unused-expressions */
-		expect(succeeded).to.be.true;
+		expect(succeeded).to.equal(true);
 	});
 
 	// endregion
