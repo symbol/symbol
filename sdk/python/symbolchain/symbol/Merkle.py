@@ -191,7 +191,7 @@ class PatriciaMerkleProofResult(Enum):
 	INCONCLUSIVE = 0x4001  # negative proof is inconclusive
 
 	STATE_HASH_DOES_NOT_MATCH_ROOTS = 0x8001  # state hash cannot be derived from subcache merkle roots
-	UNANCHORED_PATH_TREE = 0x8002  # the root of the path tree being proven is not a subcache merkle root
+	UNANCHORED_PATH_TREE = 0x8002  # root of the path tree being proven is not a subcache merkle root
 	LEAF_VALUE_MISMATCH = 0x8003  # leaf value does not match expected value
 	UNLINKED_NODE = 0x8004  # provided merkle hash contains an unlinked node
 	PATH_MISMATCH = 0x8005  # actual merkle path does not match encoded key
@@ -229,15 +229,15 @@ def prove_patricia_merkle(encoded_key, value_to_test, merkle_path, state_hash, s
 	actual_path = ''
 	for node in reversed(merkle_path):
 		node_hash = node.calculate_hash()
-		index = ''
+		formatted_link_index = ''
 		if child_hash:
 			if child_hash not in node.links:
 				return PatriciaMerkleProofResult.UNLINKED_NODE
 
-			index = f'{node.links.index(child_hash):01X}'
+			formatted_link_index = f'{node.links.index(child_hash):01X}'
 
 		child_hash = node_hash
-		actual_path = f'{index}{hexlify(node.path.path).decode("utf8").upper()}{actual_path}'
+		actual_path = f'{formatted_link_index}{hexlify(node.path.path).decode("utf8").upper()}{actual_path}'
 
 	if is_positive_proof:
 		# for positive proof, expected and calculated paths must match exactly
