@@ -394,8 +394,7 @@ def generate_phase_test(options):
 
 	SYSTEMS[options.operating_system].add_test_packages(not options.sanitizers)
 
-	if options.sanitizers:
-		add_openssl(options, options.openssl_configure())
+	add_openssl(options, options.openssl_configure() if options.sanitizers else [])
 
 	print_lines([
 		'RUN echo "docker image build $BUILD_NUMBER"',

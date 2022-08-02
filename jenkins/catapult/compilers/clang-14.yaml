@@ -9,6 +9,7 @@ stl:
 deps:
   - /usr/lib/llvm-14/lib/libc++.so.*
   - /usr/lib/llvm-14/lib/libc++abi.so.*
+  - /usr/lib/llvm-14/lib/libunwind.*
 
   - /usr/lib/llvm-14/bin/llvm-symbolizer
   - /usr/lib/x86_64-linux-gnu/libLLVM-14.*
