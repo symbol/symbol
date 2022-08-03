@@ -359,7 +359,7 @@ def add_git_dependency(organization, project, versions_map, options, revision=1)
 
 
 def add_openssl(options, configure):
-	version = options.versions[f'openssl_openssl']
+	version = options.versions['openssl_openssl']
 	compiler = 'linux-x86_64-clang' if options.is_clang else 'linux-x86_64'
 	print_line([
 		'RUN git clone https://github.com/openssl/openssl.git',
