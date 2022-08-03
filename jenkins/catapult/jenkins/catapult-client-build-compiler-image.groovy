@@ -51,8 +51,8 @@ pipeline {
 		stage('build image') {
 			steps {
 				script {
-					String compilerParts = compilerVersion.split('-')
-					dir("jenkins/catapult/compilers/"${OPERATING_SYSTEM}-${compilerParts[0]}"")
+					String compilerParts = COMPILER_VERSION.split('-')
+					dir("jenkins/catapult/compilers/${OPERATING_SYSTEM}-${compilerParts[0]}")
 					{
 						String buildArg = "--build-arg COMPILER_VERSION=${compilerParts[1]} ."
 						docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
@@ -65,7 +65,3 @@ pipeline {
 	}
 }
 
-String CompilerFolderName(Strig compilerVersion, String os) {
-	String compilerName = compilerVersion.split('-')[0]
-	return "${os}-${compilerName}"
-}
