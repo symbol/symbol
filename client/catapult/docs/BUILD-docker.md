@@ -29,12 +29,12 @@ Launch it from the root folder:
 
 ```bash
 python3 jenkins/catapult/runDockerBuild.py \
-    --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
+    --compiler-configuration jenkins/catapult/configurations/gcc-latest.yaml \
     --build-configuration jenkins/catapult/configurations/release-private.yaml \
     --operating-system ubuntu \
     --user "$(id -u):$(id -g)" \
     --source-path client/catapult
-    --destination-image-label gcc-10-main-9273d6c5
+    --destination-image-label gcc-latest-main-9273d6c5
 ```
 
 Note the used ``--compiler-configuration`` and ``--operating-system`` parameters that build tools for **Ubuntu + gcc10**.
@@ -66,10 +66,10 @@ docker run \
       --volume=/FULL_PATH/output/binaries:/binaries \
       --volume=/jenkins_cache/ccache/release:/ccache \
       --volume=/jenkins_cache/conan/gcc:/conan \
-      symbolplatform/symbol-server-build-base:ubuntu-gcc-10-skylake \
+      symbolplatform/symbol-server-build-base:ubuntu-gcc-12-skylake \
       python3 \
       /catapult-src/scripts/build/runDockerBuildInnerBuild.py \
-      --compiler-configuration=/catapult-src/scripts/build/configurations/gcc-10.yaml \
+      --compiler-configuration=/catapult-src/scripts/build/configurations/gcc-latest.yaml \
       --build-configuration=/catapult-src/scripts/build/configurations/release-private.yaml
 ```
 
@@ -91,7 +91,7 @@ The next thing ``runDockerBuild.py`` does is firing up another container that pr
 
 ```bash
 docker run \
-      --cidfile=gcc-10-main-9273d6c5.cid \
+      --cidfile=gcc-latest-main-9273d6c5.cid \
       --volume=/FULL_PATH/jenkins/catapult:/scripts \
       --volume=/FULL_PATH/output:/data \
       symbolplatform/symbol-server-test-base:ubuntu \
@@ -119,29 +119,29 @@ These images are built automatically via Docker Hub and are available in the [Do
 
 The process described next allows building several combinations of Operating Systems and compilers. The following is the list of combinations automatically built by Docker Hub:
 
-- Ubuntu (20.04)
-  - gcc-10
+- Ubuntu (22.04)
   - gcc-11
-  - clang-11
-  - clang-12
+  - gcc-12
+  - clang-13
+  - clang-14
   - clang + sanitizers (address + undefined behavior)
   - clang + sanitizers (threads)
-- Fedora (34)
-  - gcc-11
-- Debian (10.9)
-  - gcc-8 (this is the newest gcc avail on Debian)
+- Fedora (36)
+  - gcc-12
+- Debian (11.4)
+  - gcc-10 (this is the newest gcc avail on Debian)
 
 ### Building your own base image
 
 This is a sample invocation that creates an image with all layers. Note the used ``--compiler-configuration`` and ``--operating-system`` parameters that configure this image as **Ubuntu + gcc10**.
 
-Note also that the architecture is defined in ``configurations/gcc-10.yaml`` as ``skylake``.
+Note also that the architecture is defined in ``configurations/gcc-latest.yaml`` as ``skylake``.
 
 1. Create the first intermediate image with ``cmake`` and various system packages:
 
    ```bash
    python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
-       --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
+       --compiler-configuration jenkins/catapult/configurations/gcc-latest.yaml \
        --operating-system ubuntu \
        --versions ./jenkins/catapult/versions.properties \
        --layer os
@@ -151,7 +151,7 @@ Note also that the architecture is defined in ``configurations/gcc-10.yaml`` as 
 
    ```bash
    python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
-       --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
+       --compiler-configuration jenkins/catapult/configurations/gcc-latest.yaml \
        --operating-system ubuntu \
        --versions ./jenkins/catapult/versions.properties \
        --layer boost
@@ -161,7 +161,7 @@ Note also that the architecture is defined in ``configurations/gcc-10.yaml`` as 
 
    ```bash
    python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
-       --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
+       --compiler-configuration jenkins/catapult/configurations/gcc-latest.yaml \
        --operating-system ubuntu \
        --versions ./jenkins/catapult/versions.properties \
        --layer deps
@@ -173,10 +173,10 @@ Note also that the architecture is defined in ``configurations/gcc-10.yaml`` as 
 
    ```bash
    python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
-       --compiler-configuration jenkins/catapult/configurations/gcc-10.yaml \
+       --compiler-configuration jenkins/catapult/configurations/gcc-latest.yaml \
        --operating-system ubuntu \
        --versions ./jenkins/catapult/versions.properties \
        --layer test
    ```
 
-The final image name is `symbolplatform/symbol-server-build-base:ubuntu-gcc-10-skylake` (based on the used configuration).
+The final image name is `symbolplatform/symbol-server-build-base:ubuntu-gcc-latest-skylake` (based on the used configuration).

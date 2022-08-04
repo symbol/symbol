@@ -6,7 +6,7 @@ pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_VERSION',
-			choices: ['gcc-12', 'gcc-11', 'gcc-10', 'clang-14', 'clang-13'],
+			choices: ['gcc-latest', 'gcc-prior', 'gcc-10', 'clang-latest', 'clang-prior'],
 			description: 'compiler version'
 		choice name: 'OPERATING_SYSTEM',
 			choices: ['ubuntu', 'fedora', 'debian'],
@@ -39,10 +39,10 @@ pipeline {
 									env.GIT_BRANCH: ${env.GIT_BRANCH}
 								 MANUAL_GIT_BRANCH: ${MANUAL_GIT_BRANCH}
 
-							COMPILER_VERSION: ${COMPILER_VERSION}
+								  COMPILER_VERSION: ${COMPILER_VERSION}
 								  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
 
-								   destImageName: ${destImageName}
+								     destImageName: ${destImageName}
 						"""
 					}
 				}

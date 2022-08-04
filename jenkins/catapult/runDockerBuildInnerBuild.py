@@ -111,10 +111,11 @@ class BuildManager(BasicBuildManager):
 			system_bin_path = self.environment_manager.system_bin_path
 			self.environment_manager.copy_glob_with_symlinks(system_bin_path, f'lib{name}.so*', destination)
 
+		local_lib_path = self.environment_manager.local_lib_path
 		for name in ['crypto', 'ssl']:
-			self.environment_manager.copy_glob_with_symlinks('/usr/local/lib/', f'lib{name}*', destination)
+			self.environment_manager.copy_glob_with_symlinks(local_lib_path, f'lib{name}*', destination)
 
-		self.environment_manager.copy_tree_with_symlinks('/usr/local/lib/engines-1.1', Path(destination) / 'engines-1.1')
+		self.environment_manager.copy_tree_with_symlinks(f'{local_lib_path}/engines-1.1', Path(destination) / 'engines-1.1')
 
 	def copy_compiler_deps(self, destination):
 		for dependency_pattern in self.compiler.deps:

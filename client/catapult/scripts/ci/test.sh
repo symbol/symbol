@@ -4,11 +4,12 @@ set -ex
 
 git_root_directory="$(git rev-parse --show-toplevel)"
 scripts_directory="${git_root_directory}/jenkins/catapult"
+compiler_configuration="${scripts_directory}/configurations/gcc-latest.yaml"
 if [ -z "${JENKINS_HOME}" ]
 then
 	python3 "${scripts_directory}/runDockerTests.py" \
-		--image symbolplatform/symbol-server-test:gcc-10-local \
-		--compiler-configuration "${scripts_directory}/configurations/gcc-10.yaml" \
+		--image symbolplatform/symbol-server-test:gcc-latest-local \
+		--compiler-configuration "${compiler_configuration}" \
 		--user "$(id -u):$(id -g)" \
 		--mode test \
 		--verbosity suite \
@@ -19,7 +20,7 @@ else
 	mkdir -p "${data_path}/workdir"
 	cd "${data_path}/workdir"
 	python3 "${scripts_directory}/runDockerTestsInnerTest.py" \
-		--compiler-configuration "${scripts_directory}/configurations/gcc-11.yaml" \
+		--compiler-configuration "${compiler_configuration}" \
 		--exe-path "${output_path}/binaries/tests" \
 		--out-dir "${data_path}" \
 		--source-path "${git_root_directory}/client/catapult" \

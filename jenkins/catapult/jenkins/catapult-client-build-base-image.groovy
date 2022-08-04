@@ -6,7 +6,7 @@ pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-12', 'gcc-11', 'gcc-10', 'gcc-westmere', 'clang-13', 'clang-14', 'clang-ausan', 'clang-tsan'],
+			choices: ['gcc-latest', 'gcc-prior', 'gcc-10', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan'],
 			description: 'compiler configuration'
 		choice name: 'OPERATING_SYSTEM',
 			choices: ['ubuntu', 'fedora', 'debian'],

@@ -1,3 +1,2 @@
 compiler: ../compilers/clang-latest.yaml
-sanitizers: thread
 architecture: skylake

@@ -131,8 +131,10 @@ class OptionsManager:
 		descriptor.options += DEPENDENCY_FLAGS['facebook_rocksdb']
 		descriptor.options += ['-DUSE_RTTI=1']
 
+		# Disable warning as error due to a bug in gcc which should be fix in 12.2
+		# https://github.com/facebook/rocksdb/issues/9925
 		if self.compiler.c.startswith('gcc') and self.compiler.version == 12:
-			descriptor.options += ['-DFAIL_ON_WARNINGS=OFF']
+			descriptor.cxxflags += ['-Wno-error=maybe-uninitialized']
 
 		return self._cmake(descriptor)
 

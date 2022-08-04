@@ -22,17 +22,17 @@ pipeline {
 
 		stage('build base images') {
 			parallel {
-				stage('gcc 11') {
+				stage('gcc prior') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-11', 'ubuntu', true)
+							dispatch_build_base_image_job('gcc-prior', 'ubuntu', true)
 						}
 					}
 				}
-				stage('gcc 12') {
+				stage('gcc latest') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-12', 'ubuntu', true)
+							dispatch_build_base_image_job('gcc-latest', 'ubuntu', true)
 						}
 					}
 				}
@@ -43,32 +43,32 @@ pipeline {
 						}
 					}
 				}
-				stage('gcc 11 westmere') {
+				stage('gcc westmere') {
 					steps {
 						script {
 							dispatch_build_base_image_job('gcc-westmere', 'ubuntu', true)
 						}
 					}
 				}
-				stage('gcc 12 [fedora]') {
+				stage('gcc [fedora]') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-12', 'fedora', false)
+							dispatch_build_base_image_job('gcc-latest', 'fedora', false)
 						}
 					}
 				}
 
-				stage('clang 13') {
+				stage('clang prior') {
 					steps {
 						script {
-							dispatch_build_base_image_job('clang-13', 'ubuntu', false)
+							dispatch_build_base_image_job('clang-prior', 'ubuntu', true)
 						}
 					}
 				}
-				stage('clang 14') {
+				stage('clang latest') {
 					steps {
 						script {
-							dispatch_build_base_image_job('clang-14', 'ubuntu', true)
+							dispatch_build_base_image_job('clang-latest', 'ubuntu', true)
 						}
 					}
 				}

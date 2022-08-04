@@ -42,7 +42,9 @@ namespace catapult { namespace cache {
 				using StorageType = std::pair<const KeyType, ValueType>;
 				using Serializer = typename TDescriptor::Serializer;
 
-				static constexpr auto GetKeyFromValue = TDescriptor::GetKeyFromValue;
+				static constexpr auto GetKeyFromValue(const ValueType& value) {
+					return TDescriptor::GetKeyFromValue(value);
+				}
 
 				static constexpr auto& ToKey(const StorageType& element) {
 					return element.first;
@@ -61,7 +63,11 @@ namespace catapult { namespace cache {
 			using MemoryMapType = std::unordered_map<typename TDescriptor::KeyType, typename TDescriptor::ValueType, TValueHasher>;
 
 			struct Converter {
-				static constexpr auto ToKey = TDescriptor::GetKeyFromValue;
+				using ValueType = typename TDescriptor::ValueType;
+
+				static constexpr auto ToKey(const ValueType& value) {
+					return TDescriptor::GetKeyFromValue(value);
+				}
 			};
 
 			// workaround for VS truncation
@@ -164,7 +170,9 @@ namespace catapult { namespace cache {
 				using StorageType = typename TDescriptor::KeyType;
 				using Serializer = typename TDescriptor::Serializer;
 
-				static constexpr auto GetKeyFromValue = TDescriptor::GetKeyFromValue;
+				static constexpr auto GetKeyFromValue(const ValueType& value) {
+					return TDescriptor::GetKeyFromValue(value);
+				}
 
 				static constexpr auto& ToKey(const StorageType& element) {
 					return element;

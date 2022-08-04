@@ -1,2 +1,2 @@
 compiler: ../compilers/gcc-latest.yaml
-architecture: westmere
+architecture: skylake

@@ -6,7 +6,8 @@ pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-12', 'gcc-11', 'gcc-westmere', 'clang-13', 'clang-14', 'clang-ausan', 'clang-tsan', 'gcc-code-coverage'],
+			choices: ['gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan',
+					  'gcc-code-coverage'],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
 			choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
@@ -274,5 +275,5 @@ def get_build_image_label() {
 }
 
 def is_code_coverage_build() {
-	return 'gcc-10-code-coverage' == COMPILER_CONFIGURATION
+	return 'gcc-code-coverage' == COMPILER_CONFIGURATION
 }
