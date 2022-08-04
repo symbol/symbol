@@ -100,11 +100,11 @@ namespace catapult {
 				auto functionTraits = functionFullName.substr(foundTraits + 2, traitsEnd - foundTraits - 2);
 				oss << "<";
 
-	// A bug in gcc 12 where the trait information is missing the namespace.
-	// Gcc 12 returns this - [with TTraits = {anonymous}::RuntimeErrorTraits]
-	#if (__GNUC__ == 12)
+// Bug in gcc 12 where the trait information is missing the namespace.
+// Gcc 12 returns this - [with TTraits = {anonymous}::RuntimeErrorTraits]
+#if (__GNUC__ == 12)
 				oss << "catapult::";
-	#endif
+#endif
 
 				oss << functionTraits << ">";
 			}
