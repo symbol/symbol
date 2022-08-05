@@ -41,7 +41,10 @@ class OptionsManager(BasicBuildManager):
 
 	@property
 	def prepare_base_image_name(self):
-		return f'symbolplatform/symbol-server-test-base:{self.operating_system}'
+		image_name = f'symbolplatform/symbol-server-test-base:{self.operating_system}'
+		if self.sanitizers:
+			image_name += '-sanitizer'
+		return image_name
 
 	@property
 	def ccache_path(self):

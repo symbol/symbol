@@ -131,6 +131,11 @@ class OptionsManager:
 		descriptor.options += DEPENDENCY_FLAGS['facebook_rocksdb']
 		descriptor.options += ['-DUSE_RTTI=1']
 
+		# Disable warning as error due to a bug in gcc which should be fix in 12.2
+		# https://github.com/facebook/rocksdb/issues/9925
+		if self.compiler.c.startswith('gcc') and self.compiler.version == 12:
+			descriptor.cxxflags += ['-Wno-error=maybe-uninitialized']
+
 		return self._cmake(descriptor)
 
 	def googletest(self):
@@ -199,7 +204,6 @@ class UbuntuSystem:
 			'libgflags-dev',
 			'libsnappy-dev',
 			'libtool',
-			'libunwind-dev',
 			'make',
 			'ninja-build',
 			'pkg-config',
@@ -239,6 +243,7 @@ class FedoraSystem:
 			'libunwind-devel',
 			'make',
 			'ninja-build',
+			'perl-core',
 			'python3',
 			'xz'
 		]
@@ -355,8 +360,26 @@ def add_git_dependency(organization, project, versions_map, options, revision=1)
 	], ORGANIZATION=organization, PROJECT=project, VERSION=version, OPTIONS=' '.join(options), REVISION=revision)
 
 
+def add_openssl(options, configure):
+	version = options.versions['openssl_openssl']
+	compiler = 'linux-x86_64-clang' if options.is_clang else 'linux-x86_64'
+	print_line([
+		'RUN git clone https://github.com/openssl/openssl.git',
+		'cd openssl',
+		'git checkout {VERSION}',
+		'{OPEN_SSL_OPTIONS} perl ./Configure {COMPILER} {OPEN_SSL_CONFIGURE} --prefix=/usr/local --openssldir=/usr/local',
+		'make -j 8',
+		'make install',
+		'cd ..',
+		'rm -rf openssl'
+	], OPEN_SSL_OPTIONS=' '.join(options.openssl()), OPEN_SSL_CONFIGURE=' '.join(configure), VERSION=version, COMPILER=compiler)
+
+
 def generate_phase_deps(options):
 	print(f'FROM {options.layer_image_name("boost")}')
+
+	add_openssl(options, [])
+
 	add_git_dependency('mongodb', 'mongo-c-driver', options.versions, options.mongo_c())
 	add_git_dependency('mongodb', 'mongo-cxx-driver', options.versions, options.mongo_cxx())
 
@@ -373,17 +396,7 @@ def generate_phase_test(options):
 
 	SYSTEMS[options.operating_system].add_test_packages(not options.sanitizers)
 
-	if options.sanitizers:
-		print_line([
-			'RUN git clone https://github.com/openssl/openssl.git',
-			'cd openssl',
-			'git checkout OpenSSL_1_1_1n',
-			'{OPEN_SSL_OPTIONS} perl ./Configure linux-x86_64-clang {OPEN_SSL_CONFIGURE} --prefix=/usr/local --openssldir=/usr/local',
-			'make -j 8',
-			'make install',
-			'cd ..',
-			'rm -rf openssl'
-		], OPEN_SSL_OPTIONS=' '.join(options.openssl()), OPEN_SSL_CONFIGURE=' '.join(options.openssl_configure()))
+	add_openssl(options, options.openssl_configure() if options.sanitizers else [])
 
 	print_lines([
 		'RUN echo "docker image build $BUILD_NUMBER"',

@@ -1,6 +1,6 @@
 pipeline {
 	agent {
-		label 'ubuntu-20.04-8cores-16Gig'
+		label 'ubuntu-xlarge-agent'
 	}
 
 	parameters {
@@ -11,6 +11,8 @@ pipeline {
 		choice name: 'IMAGE_TYPE',
 			choices: ['release', 'test'],
 			description: 'image type'
+
+		booleanParam name: 'SANITIZER_BUILD', description: 'true to build sanitizer', defaultValue: false
 	}
 
 	options {
@@ -32,6 +34,7 @@ pipeline {
 
 						  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
 								IMAGE_TYPE: ${IMAGE_TYPE}
+						   SANITIZER_BUILD: ${SANITIZER_BUILD}
 				"""
 			}
 		}
@@ -41,11 +44,13 @@ pipeline {
 					properties = readProperties(file: './jenkins/catapult/versions.properties')
 					version = properties[params.OPERATING_SYSTEM]
 
-					dockerfile_template = "./jenkins/catapult/templates/${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}BaseImage.Dockerfile"
-					dockerfile_contents = readFile(file: dockerfile_template)
-					dockerfile_contents = dockerfile_contents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${params.OPERATING_SYSTEM}:${version}")
+					sanitizer = SANITIZER_BUILD.toBoolean() ? 'Sanitizer' : ''
 
-					writeFile(file: 'Dockerfile', text: dockerfile_contents)
+					dockerfileTemplate = "./jenkins/catapult/templates/${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}BaseImage.Dockerfile"
+					dockerfileContents = readFile(file: dockerfileTemplate)
+					dockerfileContents = dockerfileContents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${params.OPERATING_SYSTEM}:${version}")
+
+					writeFile(file: 'Dockerfile', text: dockerfileContents)
 				}
 			}
 		}
@@ -61,9 +66,14 @@ pipeline {
 		stage('build image') {
 			steps {
 				script {
-					docker_image = docker.build "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:${params.OPERATING_SYSTEM}"
+					dockerImageName = "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:${params.OPERATING_SYSTEM}"
+					if (SANITIZER_BUILD.toBoolean()) {
+						dockerImageName += "-sanitizer"
+					}
+					echo "Docker image name: ${dockerImageName}"
+					dockerImage = docker.build(dockerImageName)
 					docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-						docker_image.push()
+						dockerImage.push()
 					}
 				}
 			}

@@ -39,6 +39,7 @@ namespace catapult {
 		std::vector<std::string> GetLocationIndependentDiagnosticInformation(const boost::exception& ex) {
 			// Arrange: remove file path and line number
 			auto info = boost::diagnostic_information(ex);
+			CATAPULT_LOG(info) << "exception diag: " << info;
 			info = info.substr(info.find(':', 2) + 2);
 
 			// - split the info by line
@@ -82,7 +83,7 @@ namespace catapult {
 		// Only gcc includes the traits information in the exception function name.
 		// void catapult::CatapultExceptionTests_CanCopyConstructException() [with TTraits = catapult::{anonymous}::RuntimeErrorTraits]
 		std::string ConvertToExceptionFunctionName(const std::string& functionFullName) {
-			CATAPULT_LOG(debug) << "function: " << functionFullName;
+			CATAPULT_LOG(info) << "function: " << functionFullName;
 
 			std::size_t functionNameEnd = functionFullName.find_first_of("<(");
 			if (std::string::npos == functionNameEnd)
@@ -97,7 +98,16 @@ namespace catapult {
 			if (std::string::npos != foundTraits) {
 				auto traitsEnd = functionFullName.find("]", foundTraits);
 				auto functionTraits = functionFullName.substr(foundTraits + 2, traitsEnd - foundTraits - 2);
-				oss << "<" << functionTraits << ">";
+				oss << "<";
+
+// Bug in boost where the trait information is missing the "catapult" namespace.
+// Boost function returns this - [with TTraits = {anonymous}::RuntimeErrorTraits]
+// For gcc 12 add the namespace manually
+#if (12 == __GNUC__)
+				oss << "catapult::";
+#endif
+
+				oss << functionTraits << ">";
 			}
 #endif
 

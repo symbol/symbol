@@ -21,6 +21,7 @@
 
 #pragma once
 #include "catapult/types.h"
+#include <memory>
 #include <vector>
 
 namespace catapult {

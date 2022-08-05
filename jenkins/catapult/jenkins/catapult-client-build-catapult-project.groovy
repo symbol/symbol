@@ -1,12 +1,12 @@
 pipeline {
 	agent {
-		label 'ubuntu-20.04-8cores-16Gig'
+		label 'ubuntu-xlarge-agent'
 	}
 
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-10', 'gcc-8', 'gcc-11', 'gcc-10-westmere', 'clang-11', 'clang-12', 'clang-ausan', 'clang-tsan', 'gcc-10-code-coverage'],
+			choices: ['gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan', 'gcc-code-coverage'],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
 			choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
@@ -274,5 +274,5 @@ def get_build_image_label() {
 }
 
 def is_code_coverage_build() {
-	return 'gcc-10-code-coverage' == COMPILER_CONFIGURATION
+	return 'gcc-code-coverage' == COMPILER_CONFIGURATION
 }

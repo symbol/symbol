@@ -1,12 +1,12 @@
 pipeline {
 	agent {
-		label 'ubuntu-20.04-8cores-16Gig'
+		label 'ubuntu-xlarge-agent'
 	}
 
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-10', 'gcc-10-westmere', 'gcc-11', 'clang-11', 'clang-12'],
+			choices: ['gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior'],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
 			choices: ['release-private', 'release-public'],

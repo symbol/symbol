@@ -1,2 +1,0 @@
-compiler: ../compilers/clang-12.yaml
-architecture: skylake

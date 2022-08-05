@@ -111,17 +111,17 @@ class BuildManager(BasicBuildManager):
 			system_bin_path = self.environment_manager.system_bin_path
 			self.environment_manager.copy_glob_with_symlinks(system_bin_path, f'lib{name}.so*', destination)
 
+		local_lib_path = self.environment_manager.local_lib_path
+		for name in ['crypto', 'ssl']:
+			self.environment_manager.copy_glob_with_symlinks(local_lib_path, f'lib{name}*', destination)
+
+		self.environment_manager.copy_tree_with_symlinks(f'{local_lib_path}/engines-1.1', Path(destination) / 'engines-1.1')
+
 	def copy_compiler_deps(self, destination):
 		for dependency_pattern in self.compiler.deps:
 			directory_path = os.path.dirname(dependency_pattern)
 			pattern = os.path.basename(dependency_pattern)
 			self.environment_manager.copy_glob_with_symlinks(directory_path, pattern, destination)
-
-	def copy_sanitizer_deps(self, destination):
-		for name in ['crypto', 'ssl']:
-			self.environment_manager.copy_glob_with_symlinks('/usr/local/lib/', f'lib{name}*', destination)
-
-		self.environment_manager.copy_tree_with_symlinks('/usr/local/lib/engines-1.1', Path(destination) / 'engines-1.1')
 
 	def copy_files(self, output_path):
 		deps_output_path = f'{output_path}/deps'
@@ -130,9 +130,6 @@ class BuildManager(BasicBuildManager):
 		# copy deps
 		self.copy_dependencies(deps_output_path)
 		self.copy_compiler_deps(deps_output_path)
-
-		if self.sanitizers:
-			self.copy_sanitizer_deps(deps_output_path)
 
 		# copy tests
 		if not self.is_release:

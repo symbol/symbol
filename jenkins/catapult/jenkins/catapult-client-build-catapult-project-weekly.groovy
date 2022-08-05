@@ -22,34 +22,58 @@ pipeline {
 
 		stage('build servers') {
 			parallel {
-				stage('gcc 8 (metal) [debian]') {
+				stage('gcc (metal) [debian]') {
 					steps {
 						script {
-							dispatch_build_job('gcc-8', 'tests-metal', 'debian')
+							dispatch_build_job('gcc-10', 'tests-metal', 'debian')
 						}
 					}
 				}
 
-				stage('gcc 10 (westmere)') {
+				stage('gcc (westmere)') {
 					steps {
 						script {
-							dispatch_build_job('gcc-10-westmere', 'tests-metal', 'ubuntu')
+							dispatch_build_job('gcc-westmere', 'tests-metal', 'ubuntu')
 						}
 					}
 				}
 
-				stage('gcc 11 (metal) [fedora]') {
+				stage('gcc (metal) [fedora]') {
 					steps {
 						script {
-							dispatch_build_job('gcc-11', 'tests-metal', 'fedora')
+							dispatch_build_job('gcc-latest', 'tests-metal', 'fedora')
 						}
 					}
 				}
 
-				stage('clang 11 (metal)') {
+				stage('clang prior (metal)') {
 					steps {
 						script {
-							dispatch_build_job('clang-11', 'tests-metal', 'ubuntu')
+							dispatch_build_job('clang-prior', 'tests-metal', 'ubuntu')
+						}
+					}
+				}
+
+				stage('clang prior (conan)') {
+					steps {
+						script {
+							dispatch_build_job('clang-prior', 'tests-conan', 'ubuntu')
+						}
+					}
+				}
+
+				stage('gcc prior (metal)') {
+					steps {
+						script {
+							dispatch_build_job('gcc-prior', 'tests-metal', 'ubuntu')
+						}
+					}
+				}
+
+				stage('gcc prior (conan)') {
+					steps {
+						script {
+							dispatch_build_job('gcc-prior', 'tests-conan', 'ubuntu')
 						}
 					}
 				}
