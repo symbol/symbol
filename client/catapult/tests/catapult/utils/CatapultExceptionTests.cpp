@@ -102,7 +102,7 @@ namespace catapult {
 
 // Bug in gcc 12 where the trait information is missing the namespace.
 // Gcc 12 returns this - [with TTraits = {anonymous}::RuntimeErrorTraits]
-#if (__GNUC__ == 12)
+#if (12 == __GNUC__)
 				oss << "catapult::";
 #endif
 
