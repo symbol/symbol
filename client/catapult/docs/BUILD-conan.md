@@ -64,8 +64,8 @@ as this will probably take *a bit*.
 ```sh
 conan remote add nemtech https://catapult.jfrog.io/artifactory/api/conan/symbol-conan
 
-git clone https://github.com/symbol/catapult-client.git
-cd catapult-client
+git clone https://github.com/symbol/symbol.git
+cd symbol/client/catapult
 
 mkdir _build && cd _build
 CONAN_REVISIONS_ENABLED=1 conan install .. --build missing
