@@ -9,7 +9,7 @@ message("bench     ver: ${benchmark_VERSION}")
 function(catapult_add_benchmark_dependencies TARGET_NAME)
 	add_definitions(-DBENCHMARK_STATIC_DEFINE)
 
-# this should both link and add proper include path
+	# this should both link and add proper include path
 	target_link_libraries(${TARGET_NAME} benchmark::benchmark)
 endfunction()
 
