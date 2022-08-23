@@ -6,8 +6,9 @@ from BasicBuildManager import BasicBuildManager
 from environment import EnvironmentManager
 from process import ProcessManager
 
-CCACHE_ROOT = EnvironmentManager.root_directory('jenkins_cache/ccache')
-CONAN_ROOT = EnvironmentManager.root_directory('jenkins_cache/conan')
+CACHE_ROOT = Path('d:\\jenkins_cache' if EnvironmentManager.is_windows_platform() else '/jenkins_cache')
+CCACHE_ROOT = CACHE_ROOT / 'ccache'
+CONAN_ROOT = CACHE_ROOT / 'conan'
 
 OUTPUT_DIR = Path.cwd() / 'output'
 BINARIES_DIR = OUTPUT_DIR / 'binaries'
@@ -49,19 +50,19 @@ class OptionsManager(BasicBuildManager):
 	@property
 	def ccache_path(self):
 		if self.enable_code_coverage:
-			return Path(CCACHE_ROOT) / 'cc'
+			return CCACHE_ROOT / 'cc'
 
-		return Path(CCACHE_ROOT) / ('release' if self.is_release else 'all')
+		return CCACHE_ROOT / ('release' if self.is_release else 'all')
 
 	@property
 	def conan_path(self):
 		if self.is_clang:
-			return Path(CONAN_ROOT) / 'clang'
+			return CONAN_ROOT / 'clang'
 
 		if self.is_msvc:
-			return Path('d:/msvc')
+			return CONAN_ROOT / 'msvc'
 
-		return Path(CONAN_ROOT) / 'gcc'
+		return CONAN_ROOT / 'gcc'
 
 	def docker_run_settings(self):
 		if self.is_msvc:
@@ -174,7 +175,7 @@ def main():
 	parser.add_argument('--compiler-configuration', help='path to compiler configuration yaml', required=True)
 	parser.add_argument('--build-configuration', help='path to build configuration yaml', required=True)
 	parser.add_argument('--operating-system', help='operating system', required=True)
-	parser.add_argument('--user', help='docker user')
+	parser.add_argument('--user', help='docker user', required=True)
 	parser.add_argument('--destination-image-label', help='docker destination image label', required=True)
 	parser.add_argument('--dry-run', help='outputs desired commands without running them', action='store_true')
 	parser.add_argument('--base-image-names-only', help='only output the base image names', action='store_true')

@@ -31,18 +31,18 @@ class BuildEnvironment:
 	def _prepare_environment_variables(self):
 		if self.use_conan:
 			# conan cache directory
-			if not self.environment_manager.is_windows_platform():
-				self.environment_manager.set_env_var('HOME', '/conan')
-			else:
+			if self.environment_manager.is_windows_platform():
 				self.environment_manager.set_env_var('CONAN_USER_HOME', '/conan')
 				self.environment_manager.set_env_var('CONAN_USER_HOME_SHORT', 'None')
-				# probably should be in the machine image not here
-				self.dispatch_subprocess(
-					['REG', 'ADD', 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\FileSystem', '/v', 'LongPathsEnabled', '/t',
-						'REG_DWORD', '/d', '1', '/f'])
+			else:
+				self.environment_manager.set_env_var('HOME', '/conan')
 		else:
-			self.environment_manager.set_env_var('BOOST_ROOT', '/mybuild')
-			self.environment_manager.set_env_var('GTEST_ROOT', '/usr/local')
+			if self.environment_manager.is_windows_platform():
+				self.environment_manager.set_env_var('BOOST_ROOT', 'c:/deps/boost')
+				self.environment_manager.set_env_var('GTEST_ROOT', 'c:/deps/google')
+			else:
+				self.environment_manager.set_env_var('BOOST_ROOT', '/mybuild')
+				self.environment_manager.set_env_var('GTEST_ROOT', '/usr/local')
 
 	def prepare_conan(self, settings):
 		# create default profile if it does not exist
@@ -87,6 +87,12 @@ class BuildManager(BasicBuildManager):
 
 		if self.use_conan:
 			settings.append(('USE_CONAN', 'ON'))
+		else:
+			if self.environment_manager.is_windows_platform():
+				settings.append((
+					'CMAKE_PREFIX_PATH',
+					';'.join(f'c:/deps/{package}' for package in ['boost', 'facebook', 'google', 'mongodb', 'openssl', 'zeromq'])
+				))
 
 		if self.sanitizers:
 			settings.extend([
@@ -108,20 +114,28 @@ class BuildManager(BasicBuildManager):
 		if self.environment_manager.is_windows_platform():
 			self.dispatch_subprocess(
 				['cmake'] + cmake_settings + [
-					'-G', 'Visual Studio 16 2019' if self.compiler.version == 16 else 'Visual Studio 17 2022', '-A', 'x64', source_path])
+					'-G', 'Visual Studio 16 2019' if self.compiler.version == 16 else 'Visual Studio 17 2022', '-A', 'x64', source_path
+				]
+			)
 		else:
 			self.dispatch_subprocess(['cmake'] + cmake_settings + ['-G', 'Ninja', source_path])
 
 	def build(self):
-		cpu_count = len(os.sched_getaffinity(0))
-		cpu_count_str = str(cpu_count if cpu_count > 0 else 1)
 		if self.environment_manager.is_windows_platform():
 			self.dispatch_subprocess(['cmake', '--build', '.', '--target', 'publish'])
 			self.dispatch_subprocess(
-				['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', f'/maxcpucount:${cpu_count_str}',
-					'ALL_BUILD.vcxproj'], True, False)
-			self.dispatch_subprocess(['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', 'INSTALL.vcxproj'], True, False)
+				['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', f'/m', 'ALL_BUILD.vcxproj'],
+				True,
+				False
+			)
+			self.dispatch_subprocess(
+				['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', f'/m', 'INSTALL.vcxproj'],
+				True,
+				False
+			)
 		else:
+			cpu_count = os.cpu_count()
+			cpu_count_str = str(cpu_count if cpu_count > 0 else 1)
 			self.dispatch_subprocess(['ninja', 'publish'])
 			self.dispatch_subprocess(['ninja', '-j', cpu_count_str])
 			self.dispatch_subprocess(['ninja', 'install'])
@@ -133,6 +147,14 @@ class BuildManager(BasicBuildManager):
 			return
 
 		self.environment_manager.mkdirs(destination)
+		if self.environment_manager.is_windows_platform():
+			self.environment_manager.copy_glob_with_symlinks('c:/deps/boost/lib', '*.dll', destination)
+			for name in ['facebook', 'mongodb', 'openssl', 'zeromq']:
+				self.environment_manager.copy_glob_with_symlinks(f'c:/deps/{name}/bin', '*.dll', destination)
+
+			self.environment_manager.copy_tree_with_symlinks('c:/deps/openssl/lib/engines-1_1', Path(destination) / 'engines-1_1')
+			return
+
 		for name in ['atomic', 'chrono', 'date_time', 'filesystem', 'log', 'log_setup', 'program_options', 'regex', 'thread']:
 			self.environment_manager.copy_glob_with_symlinks('/mybuild/lib', f'libboost_{name}.so*', destination)
 
@@ -156,19 +178,20 @@ class BuildManager(BasicBuildManager):
 			self.environment_manager.copy_glob_with_symlinks(directory_path, pattern, destination)
 
 	def copy_files(self, output_path):
-		deps_output_path = f'{output_path}/deps'
-		tests_output_path = f'{output_path}/tests'
+		deps_output_path = Path(f'{output_path}/deps').resolve()
+		tests_output_path = Path(f'{output_path}/tests').resolve()
 
-		# copy deps
-		self.copy_dependencies(deps_output_path)
-		self.copy_compiler_deps(deps_output_path)
+		# copy deps into the tests folder for windows
+		dest_path = tests_output_path if EnvironmentManager.is_windows_platform() else deps_output_path
+		self.copy_dependencies(dest_path)
+		self.copy_compiler_deps(dest_path)
 
 		# copy tests
 		if not self.is_release:
-			self.environment_manager.mkdirs(tests_output_path)
-			self.environment_manager.copy_glob_with_symlinks('./bin', 'tests*', tests_output_path)
+			self.environment_manager.mkdirs(tests_output_path, exist_ok=True)
+			self.environment_manager.copy_glob_subtree_with_symlinks('./bin', 'tests*', tests_output_path)
 			if EnvironmentManager.is_windows_platform():
-				self.environment_manager.copy_glob_with_symlinks('./bin', '*.dll', tests_output_path)
+				self.environment_manager.copy_glob_subtree_with_symlinks('./bin', '*.dll', tests_output_path)
 
 		# list directories
 		self.list_dir(output_path)

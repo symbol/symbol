@@ -119,6 +119,15 @@ class EnvironmentManager:
 
 		shutil.copy(source, destination, follow_symlinks=False)
 
+	def copy_glob_subtree_with_symlinks(self, directory_path, pattern, destination):
+		self._print_command('copy_glob_tree', [directory_path, pattern, destination])
+
+		if self.dry_run:
+			return
+
+		for file in Path(directory_path).rglob(pattern):
+			shutil.copy(file, destination, follow_symlinks=False)
+
 	# endregion
 
 	# region file moving

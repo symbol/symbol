@@ -1,0 +1,2 @@
+compiler: ../compilers/msvc-latest.yaml
+architecture: skylake

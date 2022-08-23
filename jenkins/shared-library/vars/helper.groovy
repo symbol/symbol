@@ -33,3 +33,7 @@ void configureGitHub() {
 String resolveBuildConfigurationFile() {
 	return '.github/buildConfiguration.yaml'
 }
+
+String resolveAgentName(String os) {
+	return os == 'windows' ? 'windows-xlarge-agent' : 'ubuntu-xlarge-agent'
+}
