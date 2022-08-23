@@ -87,6 +87,7 @@ pipeline {
 						}
 					}
 				}
+
 				stage('msvc latest') {
 					steps {
 						script {
@@ -94,7 +95,6 @@ pipeline {
 						}
 					}
 				}
-
 				stage('msvc prior') {
 					steps {
 						script {

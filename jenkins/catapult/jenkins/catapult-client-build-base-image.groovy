@@ -31,7 +31,7 @@ pipeline {
 				stage('prepare variables') {
 					steps {
 						script {
-							destImageName = """symbolplatform/symbol-server-build-base:${OPERATING_SYSTEM}-${COMPILER_CONFIGURATION}"""
+							destImageName = "symbolplatform/symbol-server-build-base:${OPERATING_SYSTEM}-${COMPILER_CONFIGURATION}"
 
 							baseImageDockerfileGeneratorCommand = """
 								python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \

@@ -78,14 +78,6 @@ pipeline {
 					}
 				}
 
-				stage('gcc prior (conan)') {
-					steps {
-						script {
-							dispatchBuildJob('gcc-prior', 'tests-conan', 'ubuntu')
-						}
-					}
-				}
-
 				stage('msvc prior (metal)') {
 					steps {
 						script {

@@ -15,7 +15,7 @@ ARG COMPILER_VERSION=17
 ADD "https://aka.ms/vs/${COMPILER_VERSION}/release/vs_buildtools.exe" C:\Temp\vs_buildtools.exe
 
 # Use the latest release channel. For more control, specify the location of an internal layout.
-ADD "https://aka.ms/vs/${COMPILER_VERSION}/release/channel" C:\TEMP\VisualStudio.chman
+ADD "https://aka.ms/vs/${COMPILER_VERSION}/release/channel" C:\Temp\VisualStudio.chman
 
 # Install MSVC C++ compiler, CMake, and MSBuild.
 RUN C:\Temp\vs_buildtools.exe `

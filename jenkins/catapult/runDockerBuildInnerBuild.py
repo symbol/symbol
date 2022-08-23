@@ -114,7 +114,7 @@ class BuildManager(BasicBuildManager):
 		if self.environment_manager.is_windows_platform():
 			self.dispatch_subprocess(
 				['cmake'] + cmake_settings + [
-					'-G', 'Visual Studio 16 2019' if self.compiler.version == 16 else 'Visual Studio 17 2022', '-A', 'x64', source_path
+					'-G', 'Visual Studio 16 2019' if 16 == self.compiler.version else 'Visual Studio 17 2022', '-A', 'x64', source_path
 				]
 			)
 		else:

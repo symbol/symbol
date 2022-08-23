@@ -84,10 +84,6 @@ class OptionsManager:
 		return self.compiler.c.startswith('msvc')
 
 	@property
-	def compiler_version(self):
-		return self.compiler.version
-
-	@property
 	def base_image_name(self):
 		name_parts = [self.operating_system, self.compiler.c, str(self.compiler.version)]
 		return f'symbolplatform/symbol-server-compiler:{"-".join(name_parts)}'
@@ -183,7 +179,7 @@ class OptionsManager:
 
 		# Disable warning as error due to a bug in gcc which should be fix in 12.2
 		# https://github.com/facebook/rocksdb/issues/9925
-		if self.compiler.c.startswith('gcc') and self.compiler.version == 12:
+		if self.compiler.c.startswith('gcc') and 12 == self.compiler.version:
 			descriptor.cxxflags += ['-Wno-error=maybe-uninitialized']
 
 		return self._cmake(descriptor)
@@ -354,7 +350,7 @@ class LinuxSystemGenerator:
 		print_lines([
 			'FROM {BASE_IMAGE_NAME}',
 			'ARG DEBIAN_FRONTEND=noninteractive',
-			'LABEL image.authors="Catapult Development Team"'
+			'LABEL maintainer="Catapult Development Team"'
 		], BASE_IMAGE_NAME=self.options.base_image_name)
 
 		self.system.add_base_os_packages()
@@ -398,13 +394,11 @@ class LinuxSystemGenerator:
 			'./b2 {B2_OPTIONS} {BOOST_DISABLED_LIBS} install'
 		], **print_args)
 
-	@staticmethod
-	def add_git_dependency(organization, project, versions_map, options, revision=1):
-		version = versions_map[f'{organization}_{project}']
+	def add_git_dependency(self, organization, project, options, revision=1):
+		version = self.options.versions[f'{organization}_{project}']
 		print_line([
-			'RUN git clone https://github.com/{ORGANIZATION}/{PROJECT}.git',
+			'RUN git clone https://github.com/{ORGANIZATION}/{PROJECT}.git -b {VERSION}',
 			'cd {PROJECT}',
-			'git checkout {VERSION}',
 			'mkdir _build',
 			'cd _build',
 			'cmake {OPTIONS} ..',
@@ -420,9 +414,8 @@ class LinuxSystemGenerator:
 		version = options.versions['openssl_openssl']
 		compiler = 'linux-x86_64-clang' if options.is_clang else 'linux-x86_64'
 		print_line([
-			'RUN git clone https://github.com/openssl/openssl.git',
+			'RUN git clone https://github.com/openssl/openssl.git -b {VERSION}',
 			'cd openssl',
-			'git checkout {VERSION}',
 			'{OPEN_SSL_OPTIONS} perl ./Configure {COMPILER} {OPEN_SSL_CONFIGURE} --prefix=/usr/local --openssldir=/usr/local',
 			'make -j 8',
 			'make install',
@@ -435,18 +428,18 @@ class LinuxSystemGenerator:
 
 		self.add_openssl(self.options, [])
 
-		self.add_git_dependency('mongodb', 'mongo-c-driver', self.options.versions, self.options.mongo_c())
-		self.add_git_dependency('mongodb', 'mongo-cxx-driver', self.options.versions, self.options.mongo_cxx())
+		self.add_git_dependency('mongodb', 'mongo-c-driver', self.options.mongo_c())
+		self.add_git_dependency('mongodb', 'mongo-cxx-driver', self.options.mongo_cxx())
 
-		self.add_git_dependency('zeromq', 'libzmq', self.options.versions, self.options.libzmq())
-		self.add_git_dependency('zeromq', 'cppzmq', self.options.versions, self.options.cppzmq())
+		self.add_git_dependency('zeromq', 'libzmq', self.options.libzmq())
+		self.add_git_dependency('zeromq', 'cppzmq', self.options.cppzmq())
 
-		self.add_git_dependency('facebook', 'rocksdb', self.options.versions, self.options.rocks())
+		self.add_git_dependency('facebook', 'rocksdb', self.options.rocks())
 
 	def generate_phase_test(self):
 		print(f'FROM {self.options.layer_image_name("deps")}')
-		self.add_git_dependency('google', 'googletest', self.options.versions, self.options.googletest())
-		self.add_git_dependency('google', 'benchmark', self.options.versions, self.options.googlebench())
+		self.add_git_dependency('google', 'googletest', self.options.googletest())
+		self.add_git_dependency('google', 'benchmark', self.options.googlebench())
 
 		self.system.add_test_packages(not self.options.sanitizers)
 
@@ -512,7 +505,7 @@ class WindowsSystemGenerator:
 
 	def add_git_dependency(self, organization, project, package_options, revision=1):
 		version = self.options.versions[f'{organization}_{project}']
-		generator = 'Visual Studio 16 2019' if self.options.compiler_version == 16 else 'Visual Studio 17 2022'
+		generator = 'Visual Studio 16 2019' if 16 == self.options.compiler.version else 'Visual Studio 17 2022'
 		prefix_path = self.deps_path / organization
 		print_msvc_line([
 			'git clone https://github.com/{ORGANIZATION}/{PROJECT}.git -b {VERSION}',
@@ -608,7 +601,7 @@ def main():
 		print(options_manager.layer_image_name(args.layer))
 		return
 
-	system_generator_type = WindowsSystemGenerator if args.operating_system == 'windows' else LinuxSystemGenerator
+	system_generator_type = WindowsSystemGenerator if 'windows' == args.operating_system else LinuxSystemGenerator
 	dockerfile_generator = system_generator_type(SYSTEMS[args.operating_system], options_manager)
 	{
 		'os': dockerfile_generator.generate_phase_os,
