@@ -1,6 +1,5 @@
 from environment import EnvironmentManager
 
-
 DEPENDENCY_FLAGS = {
 	'facebook_rocksdb': [
 		'-DPORTABLE=1',
@@ -26,7 +25,7 @@ DEPENDENCY_FLAGS = {
 	'zeromq_libzmq': ['-DWITH_TLS=OFF'],
 	'zeromq_cppzmq': ['-DCPPZMQ_BUILD_TESTS=OFF'],
 
-	'boost' : [
+	'boost': [
 		'address-model=64',
 		'runtime-link=shared',
 		'threading=multi',
@@ -44,7 +43,7 @@ WINDOWS_DEPENDENCY_FLAGS = {
 
 
 def get_dependency_flags(dependency_name):
-	flags =  DEPENDENCY_FLAGS.get(dependency_name, [])
+	flags = DEPENDENCY_FLAGS.get(dependency_name, [])
 	if EnvironmentManager.is_windows_platform():
 		flags += WINDOWS_DEPENDENCY_FLAGS.get(dependency_name, [])
 

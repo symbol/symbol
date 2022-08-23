@@ -38,7 +38,7 @@ class Downloader:
 
 		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'wget', zip_source_path, '-outfile', zip_filename])
 		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'Expand-Archive', '-Path', zip_filename])
-		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'Move-Item', f'{archive_name}\{archive_name}', 'boost'])
+		self.process_manager.dispatch_subprocess(['powershell', '-Command', 'Move-Item', rf'{archive_name}\{archive_name}', 'boost'])
 
 	def download_git_dependency(self, organization, project):
 		version = self.versions[f'{organization}_{project}']
@@ -61,7 +61,7 @@ class Builder:
 		self.environment_manager.chdir(self.target_directory / SOURCE_DIR_NAME / 'boost')
 
 		boost_prefix_option = f'--prefix={self.target_directory / "boost"}'
-		bootstrap_options = [r'.\bootstrap.bat' if  EnvironmentManager.is_windows_platform() else './bootstrap.sh']
+		bootstrap_options = [r'.\bootstrap.bat' if EnvironmentManager.is_windows_platform() else './bootstrap.sh']
 		if self.is_clang:
 			bootstrap_options += ['with-toolset=clang']
 
@@ -73,9 +73,9 @@ class Builder:
 
 		b2_options += get_dependency_flags('boost')
 
-		b2 = r'.\b2' if EnvironmentManager.is_windows_platform() else './b2'
-		self.process_manager.dispatch_subprocess([b2] + b2_options + ['-j', str(NUM_BUILD_CORES), 'stage', 'release'])
-		self.process_manager.dispatch_subprocess([b2, 'install'] + b2_options)
+		b2_filepath = r'.\b2' if EnvironmentManager.is_windows_platform() else './b2'
+		self.process_manager.dispatch_subprocess([b2_filepath] + b2_options + ['-j', str(NUM_BUILD_CORES), 'stage', 'release'])
+		self.process_manager.dispatch_subprocess([b2_filepath, 'install'] + b2_options)
 
 	def build_git_dependency(self, organization, project):
 		self.environment_manager.chdir(self.target_directory / SOURCE_DIR_NAME / project)

@@ -6,27 +6,27 @@ from dependency_flags import get_dependency_flags
 
 SINGLE_COMMAND_SEPARATOR = ' \\\n    && '
 LAYER_TO_IMAGE_TAG_MAP = {'os': 'preimage1', 'boost': 'preimage2', 'deps': 'preimage3', 'test': '', 'conan': 'conan'}
-VS_DEV_CMD =  'C:\\BuildTools\\VC\\Auxiliary\\Build\\vcvars64.bat'
+VS_DEV_CMD = r'C:\BuildTools\VC\Auxiliary\Build\vcvars64.bat'
 BOOST_DISABLED_LIBS = map(lambda library_name: f'--without-{library_name}', [
-			'context',
-			'contract',
-			'coroutine',
-			'fiber',
-			'graph',
-			'graph_parallel',
-			'headers',
-			'iostreams',
-			'json',
-			'mpi',
-			'nowide',
-			'python',
-			'serialization',
-			'stacktrace',
-			'test',
-			'timer',
-			'type_erasure',
-			'wave'
-		])
+	'context',
+	'contract',
+	'coroutine',
+	'fiber',
+	'graph',
+	'graph_parallel',
+	'headers',
+	'iostreams',
+	'json',
+	'mpi',
+	'nowide',
+	'python',
+	'serialization',
+	'stacktrace',
+	'test',
+	'timer',
+	'type_erasure',
+	'wave'
+])
 
 
 def print_line(lines, **kwargs):
@@ -393,7 +393,6 @@ class LinuxSystemGenerator:
 			'tar -xzf {BOOST_ARCHIVE}.tar.gz',
 			'mkdir /mybuild',
 			'cd {BOOST_ARCHIVE}',
-			f'{VS_DEV_CMD}'
 			'./bootstrap.sh {BOOTSTRAP_OPTIONS} --prefix=/mybuild',
 			'./b2 {B2_OPTIONS} --prefix=/mybuild {BOOST_DISABLED_LIBS} -j 8 stage release',
 			'./b2 {B2_OPTIONS} {BOOST_DISABLED_LIBS} install'
@@ -496,7 +495,7 @@ class WindowsSystemGenerator:
 			'BOOTSTRAP_OPTIONS': ' '.join(self.options.bootstrap()),
 			'B2_OPTIONS': ' '.join(self.options.b2()),
 			'BOOST_DISABLED_LIBS': ' '.join(BOOST_DISABLED_LIBS),
-			'PREFIX_PATH' : self.deps_path / 'boost'
+			'PREFIX_PATH': self.deps_path / 'boost'
 		}
 
 		print_powershell_lines([
@@ -526,17 +525,17 @@ class WindowsSystemGenerator:
 			'rmdir /q /s {PROJECT}',
 			'echo \"force rebuild revision {REVISION}\"'
 		],
-		ORGANIZATION=organization,
-		PROJECT=project,
-		VERSION=version,
-		OPTIONS=' '.join(package_options),
-		REVISION=revision,
-		PREFIX_PATH=prefix_path,
-		GENERATOR=generator)
+			ORGANIZATION=organization,
+			PROJECT=project,
+			VERSION=version,
+			OPTIONS=' '.join(package_options),
+			REVISION=revision,
+			PREFIX_PATH=prefix_path,
+			GENERATOR=generator)
 
 	def add_openssl(self, package_options, configure):
 		version = self.options.versions['openssl_openssl']
-		prefix_path =  self.deps_path / 'openssl'
+		prefix_path = self.deps_path / 'openssl'
 		print_msvc_line([
 			'git clone https://github.com/openssl/openssl.git -b {VERSION}',
 			'cd openssl',
@@ -554,7 +553,7 @@ class WindowsSystemGenerator:
 		print_powershell_lines([
 			'scoop install nasm perl'
 		])
-	
+
 		self.add_openssl(self.options.openssl(), self.options.openssl_configure())
 
 		self.add_git_dependency('mongodb', 'mongo-c-driver', self.options.mongo_c())
@@ -563,7 +562,7 @@ class WindowsSystemGenerator:
 		self.add_git_dependency('zeromq', 'libzmq', self.options.libzmq())
 		self.add_git_dependency('zeromq', 'cppzmq', self.options.cppzmq())
 
-		self.add_git_dependency('facebook', 'rocksdb', self.options.rocks())	
+		self.add_git_dependency('facebook', 'rocksdb', self.options.rocks())
 
 	def generate_phase_test(self):
 		print('# escape=`')
@@ -586,7 +585,6 @@ class WindowsSystemGenerator:
 			'python3 -m pip install -U conan',
 			'echo "docker image build $BUILD_NUMBER"'
 		])
-
 
 
 def main():

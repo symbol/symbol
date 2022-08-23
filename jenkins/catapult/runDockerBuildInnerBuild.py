@@ -124,12 +124,12 @@ class BuildManager(BasicBuildManager):
 		if self.environment_manager.is_windows_platform():
 			self.dispatch_subprocess(['cmake', '--build', '.', '--target', 'publish'])
 			self.dispatch_subprocess(
-				['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', f'/m', 'ALL_BUILD.vcxproj'],
+				['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', '/m', 'ALL_BUILD.vcxproj'],
 				True,
 				False
 			)
 			self.dispatch_subprocess(
-				['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', f'/m', 'INSTALL.vcxproj'],
+				['msbuild', '/p:Configuration=RelWithDebInfo', '/p:Platform=x64', '/m', 'INSTALL.vcxproj'],
 				True,
 				False
 			)
