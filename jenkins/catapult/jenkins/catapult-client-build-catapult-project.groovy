@@ -83,8 +83,7 @@ pipeline {
 						dir('catapult-src') {
 							sh 'git config -l'
 							git branch: "${getBranchName()}",
-								url: 'https://github.com/wayonb/monorepo.git',
-								credentialsId: 'github_wayonb'
+									url: 'https://github.com/symbol/symbol.git'
 						}
 					}
 				}
