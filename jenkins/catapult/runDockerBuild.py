@@ -6,10 +6,11 @@ from BasicBuildManager import BasicBuildManager
 from environment import EnvironmentManager
 from process import ProcessManager
 
-CCACHE_ROOT = '/jenkins_cache/ccache'
-CONAN_ROOT = '/jenkins_cache/conan'
+CACHE_ROOT = Path('d:\\jenkins_cache' if EnvironmentManager.is_windows_platform() else '/jenkins_cache')
+CCACHE_ROOT = CACHE_ROOT / 'ccache'
+CONAN_ROOT = CACHE_ROOT / 'conan'
 
-OUTPUT_DIR = Path('output').resolve()
+OUTPUT_DIR = Path.cwd() / 'output'
 BINARIES_DIR = OUTPUT_DIR / 'binaries'
 
 
@@ -49,15 +50,24 @@ class OptionsManager(BasicBuildManager):
 	@property
 	def ccache_path(self):
 		if self.enable_code_coverage:
-			return Path(CCACHE_ROOT) / 'cc'
+			return CCACHE_ROOT / 'cc'
 
-		return Path(CCACHE_ROOT) / ('release' if self.is_release else 'all')
+		return CCACHE_ROOT / ('release' if self.is_release else 'all')
 
 	@property
 	def conan_path(self):
-		return Path(CONAN_ROOT) / ('clang' if self.is_clang else 'gcc')
+		if self.is_clang:
+			return CONAN_ROOT / 'clang'
+
+		if self.is_msvc:
+			return CONAN_ROOT / 'msvc'
+
+		return CONAN_ROOT / 'gcc'
 
 	def docker_run_settings(self):
+		if self.is_msvc:
+			return []
+
 		settings = [
 			('CC', self.compiler.c),
 			('CXX', self.compiler.cpp),
@@ -69,11 +79,11 @@ class OptionsManager(BasicBuildManager):
 
 def get_volume_mappings(ccache_path, conan_path, prepare_replacements):
 	mappings = [
-		(prepare_replacements['source_path'], '/catapult-src'),
-		(BINARIES_DIR.resolve(), '/binaries'),
-		(conan_path, '/conan'),
-		(ccache_path, '/ccache'),
-		(prepare_replacements['script_path'], '/scripts')
+		(prepare_replacements['source_path'], EnvironmentManager.root_directory('catapult-src')),
+		(BINARIES_DIR.resolve(), EnvironmentManager.root_directory('binaries')),
+		(conan_path, EnvironmentManager.root_directory('conan')),
+		(ccache_path, EnvironmentManager.root_directory('ccache')),
+		(prepare_replacements['script_path'], EnvironmentManager.root_directory('scripts'))
 	]
 
 	return [f'--volume={str(key)}:{value}' for key, value in sorted(mappings)]
@@ -86,9 +96,18 @@ def create_docker_run_command(options, prepare_replacements):
 	inner_configuration_path = '/scripts/configurations'
 	docker_args = [
 		'docker', 'run',
-		'--rm',
-		f'--user={prepare_replacements["user"]}',
-	] + docker_run_settings + volume_mappings + [
+		'--rm'
+	]
+
+	if EnvironmentManager.is_windows_platform():
+		docker_args.extend(['--storage-opt', 'size=50GB'])
+	else:
+		docker_args.extend([f'--user={prepare_replacements["user"]}'])
+
+	docker_args.extend(docker_run_settings)
+	docker_args.extend(volume_mappings)
+
+	docker_args.extend([
 		options.build_base_image_name,
 		'python3', '/scripts/runDockerBuildInnerBuild.py',
 		# assume paths are relative to workdir
@@ -96,7 +115,7 @@ def create_docker_run_command(options, prepare_replacements):
 		f'--build-configuration={inner_configuration_path}/{get_base_from_path(prepare_replacements["build_configuration_filepath"])}',
 		'--source-path=/catapult-src/client/catapult',
 		'--out-dir=/binaries'
-	]
+	])
 
 	return docker_args
 
@@ -129,8 +148,8 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 	process_manager.dispatch_subprocess([
 		'docker', 'run',
 		f'--cidfile={cid_filepath}',
-		f'--volume={script_path}:/scripts',
-		f'--volume={OUTPUT_DIR}:/data',
+		f'--volume={script_path}:{EnvironmentManager.root_directory("scripts")}',
+		f'--volume={OUTPUT_DIR}:{EnvironmentManager.root_directory("data")}',
 		f'registry.hub.docker.com/{prepare_replacements["base_image_name"]}',
 		'python3', '/scripts/runDockerBuildInnerPrepare.py',
 		f'--disposition={build_disposition}'

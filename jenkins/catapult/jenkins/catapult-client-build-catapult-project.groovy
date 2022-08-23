@@ -1,18 +1,14 @@
 pipeline {
-	agent {
-		label 'ubuntu-xlarge-agent'
-	}
-
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan', 'gcc-code-coverage'],
+			choices: ['gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan', 'gcc-code-coverage', 'msvc-latest', 'msvc-prior'],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
 			choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
 			description: 'build configuration'
 		choice name: 'OPERATING_SYSTEM',
-			choices: ['ubuntu', 'fedora', 'debian'],
+			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
 			description: 'operating system'
 
 		string name: 'TEST_IMAGE_LABEL', description: 'docker test image label', defaultValue: ''
@@ -24,6 +20,10 @@ pipeline {
 			description: 'output verbosity level'
 
 		booleanParam name: 'SHOULD_PUBLISH_BUILD_IMAGE', description: 'true to publish build image', defaultValue: false
+	}
+
+	agent {
+		label "${helper.resolveAgentName("${OPERATING_SYSTEM}")}"
 	}
 
 	environment {
@@ -42,13 +42,13 @@ pipeline {
 				stage('prepare variables') {
 					steps {
 						script {
-							fully_qualified_user = sh(
+							fullyQualifiedUser = sh(
 								script: 'echo "$(id -u):$(id -g)"',
 								returnStdout: true
 							).trim()
 
-							build_image_label = '' != TEST_IMAGE_LABEL ? TEST_IMAGE_LABEL : get_build_image_label()
-							build_image_full_name = "symbolplatform/symbol-server-test:${build_image_label}"
+							buildImageLabel = '' != TEST_IMAGE_LABEL ? TEST_IMAGE_LABEL : getBuildImageLabel()
+							buildImageFullName = "symbolplatform/symbol-server-test:${buildImageLabel}"
 						}
 					}
 				}
@@ -68,21 +68,22 @@ pipeline {
 
 						SHOULD_PUBLISH_BUILD_IMAGE: ${SHOULD_PUBLISH_BUILD_IMAGE}
 
-							  fully_qualified_user: ${fully_qualified_user}
-								 build_image_label: ${build_image_label}
-							 build_image_full_name: ${build_image_full_name}
+								fullyQualifiedUser: ${fullyQualifiedUser}
+								   buildImageLabel: ${buildImageLabel}
+								buildImageFullName: ${buildImageFullName}
 						"""
 					}
 				}
 				stage('git checkout') {
 					when {
-						expression { is_manual_build() }
+						expression { isManualBuild() }
 					}
 					steps {
 						cleanWs()
 						dir('catapult-src') {
-							git branch: "${get_branch_name()}",
-								url: 'https://github.com/symbol/symbol.git'
+							sh 'git config -l'
+							git branch: "${getBranchName()}",
+									url: 'https://github.com/symbol/symbol.git'
 						}
 					}
 				}
@@ -90,19 +91,19 @@ pipeline {
 		}
 		stage('build') {
 			when {
-				expression { is_build_enabled() }
+				expression { isBuildEnabled() }
 			}
 			stages {
 				stage('prepare variables') {
 					steps {
 						script {
-							run_docker_build_command = """
+							runDockerBuildCommand = """
 								python3 catapult-src/jenkins/catapult/runDockerBuild.py \
 									--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
 									--build-configuration catapult-src/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml \
 									--operating-system ${OPERATING_SYSTEM} \
-									--user ${fully_qualified_user} \
-									--destination-image-label ${build_image_label} \
+									--user ${fullyQualifiedUser} \
+									--destination-image-label ${buildImageLabel} \
 									--source-path catapult-src \
 							"""
 						}
@@ -111,14 +112,14 @@ pipeline {
 				stage('pull dependency images') {
 					steps {
 						script {
-							base_image_names = sh(
-								script: "${run_docker_build_command} --base-image-names-only",
+							baseImageNames = sh(
+								script: "${runDockerBuildCommand} --base-image-names-only",
 								returnStdout: true
 							).split('\n')
 
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								for (base_image_name in base_image_names)
-									docker.image(base_image_name).pull()
+								for (baseImageName in baseImageNames)
+									docker.image(baseImageName.trim()).pull()
 							}
 						}
 					}
@@ -129,7 +130,7 @@ pipeline {
 							python3 catapult-src/jenkins/catapult/runDockerTests.py \
 								--image registry.hub.docker.com/symbolplatform/symbol-server-test-base:${OPERATING_SYSTEM} \
 								--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
-								--user ${fully_qualified_user} \
+								--user ${fullyQualifiedUser} \
 								--mode lint \
 								--source-path catapult-src \
 								--linter-path catapult-src/linters
@@ -138,7 +139,7 @@ pipeline {
 				}
 				stage('build') {
 					steps {
-						sh "${run_docker_build_command}"
+						sh "${runDockerBuildCommand}"
 					}
 				}
 				stage('push built image') {
@@ -148,7 +149,7 @@ pipeline {
 					steps {
 						script {
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								docker.image(build_image_full_name).push()
+								docker.image(buildImageFullName).push()
 							}
 						}
 					}
@@ -167,17 +168,17 @@ pipeline {
 		}
 		stage('test') {
 			when {
-				expression { is_test_enabled() }
+				expression { isTestEnabled() }
 			}
 			stages {
 				stage('pull dependency images') {
 					when {
-						expression { is_custom_test_image() }
+						expression { isCustomTestImage() }
 					}
 					steps {
 						script {
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								docker.image(build_image_full_name).pull()
+								docker.image(buildImageFullName).pull()
 							}
 						}
 					}
@@ -185,16 +186,16 @@ pipeline {
 				stage('run tests') {
 					steps {
 						script {
-							if (is_custom_test_image())
-								test_image_name = "registry.hub.docker.com/symbolplatform/symbol-server-test:${build_image_label}"
+							if (isCustomTestImage())
+								testImageName = "registry.hub.docker.com/symbolplatform/symbol-server-test:${buildImageLabel}"
 							else
-								test_image_name = "symbolplatform/symbol-server-test:${build_image_label}"
+								testImageName = "symbolplatform/symbol-server-test:${buildImageLabel}"
 
 							sh """
 								python3 catapult-src/jenkins/catapult/runDockerTests.py \
-									--image ${test_image_name} \
+									--image ${testImageName} \
 									--compiler-configuration catapult-src/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
-									--user ${fully_qualified_user} \
+									--user ${fullyQualifiedUser} \
 									--mode ${TEST_MODE} \
 									--verbosity ${TEST_VERBOSITY} \
 									--source-path catapult-src
@@ -204,7 +205,7 @@ pipeline {
 				}
 				stage('code coverage') {
 					when {
-						expression { is_code_coverage_build() }
+						expression { isCodeCoverageBuild() }
 					}
 					steps {
 						script {
@@ -232,7 +233,7 @@ pipeline {
 	}
 	post {
 		always {
-			junit 'catapult-data/logs/*.xml'
+			junit '**/catapult-data/logs/*.xml'
 
 			dir('catapult-data') {
 				deleteDir()
@@ -244,35 +245,35 @@ pipeline {
 	}
 }
 
-def is_build_enabled() {
+Boolean isBuildEnabled() {
 	return 'none' != BUILD_CONFIGURATION
 }
 
-def is_test_enabled() {
+Boolean isTestEnabled() {
 	return 'none' != TEST_MODE
 }
 
-def is_manual_build() {
+Boolean isManualBuild() {
 	return null != MANUAL_GIT_BRANCH && '' != MANUAL_GIT_BRANCH && 'null' != MANUAL_GIT_BRANCH
 }
 
-def is_custom_test_image() {
+Boolean isCustomTestImage() {
 	return '' != TEST_IMAGE_LABEL
 }
 
-def get_branch_name() {
-	return is_manual_build() ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
+String getBranchName() {
+	return isManualBuild() ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
 }
 
-def get_build_image_label() {
-	friendly_branch_name = get_branch_name()
-	if (0 == friendly_branch_name.indexOf('origin/'))
-		friendly_branch_name = friendly_branch_name.substring(7)
+String getBuildImageLabel() {
+	friendlyBranchName = getBranchName()
+	if (0 == friendlyBranchName.indexOf('origin/'))
+		friendlyBranchName = friendlyBranchName.substring(7)
 
-	friendly_branch_name = friendly_branch_name.replaceAll('/', '-')
-	return "catapult-client-${friendly_branch_name}-${env.BUILD_NUMBER}"
+	friendlyBranchName = friendlyBranchName.replaceAll('/', '-')
+	return "catapult-client-${friendlyBranchName}-${env.BUILD_NUMBER}"
 }
 
-def is_code_coverage_build() {
+def isCodeCoverageBuild() {
 	return 'gcc-code-coverage' == COMPILER_CONFIGURATION
 }

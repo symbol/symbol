@@ -25,7 +25,7 @@ pipeline {
 				stage('gcc (metal) [debian]') {
 					steps {
 						script {
-							dispatch_build_job('gcc-10', 'tests-metal', 'debian')
+							dispatchBuildJob('gcc-10', 'tests-metal', 'debian')
 						}
 					}
 				}
@@ -33,7 +33,7 @@ pipeline {
 				stage('gcc (westmere)') {
 					steps {
 						script {
-							dispatch_build_job('gcc-westmere', 'tests-metal', 'ubuntu')
+							dispatchBuildJob('gcc-westmere', 'tests-metal', 'ubuntu')
 						}
 					}
 				}
@@ -41,7 +41,7 @@ pipeline {
 				stage('gcc (metal) [fedora]') {
 					steps {
 						script {
-							dispatch_build_job('gcc-latest', 'tests-metal', 'fedora')
+							dispatchBuildJob('gcc-latest', 'tests-metal', 'fedora')
 						}
 					}
 				}
@@ -49,7 +49,7 @@ pipeline {
 				stage('clang prior (metal)') {
 					steps {
 						script {
-							dispatch_build_job('clang-prior', 'tests-metal', 'ubuntu')
+							dispatchBuildJob('clang-prior', 'tests-metal', 'ubuntu')
 						}
 					}
 				}
@@ -57,7 +57,7 @@ pipeline {
 				stage('clang prior (conan)') {
 					steps {
 						script {
-							dispatch_build_job('clang-prior', 'tests-conan', 'ubuntu')
+							dispatchBuildJob('clang-prior', 'tests-conan', 'ubuntu')
 						}
 					}
 				}
@@ -65,7 +65,7 @@ pipeline {
 				stage('gcc prior (metal)') {
 					steps {
 						script {
-							dispatch_build_job('gcc-prior', 'tests-metal', 'ubuntu')
+							dispatchBuildJob('gcc-prior', 'tests-metal', 'ubuntu')
 						}
 					}
 				}
@@ -73,7 +73,15 @@ pipeline {
 				stage('gcc prior (conan)') {
 					steps {
 						script {
-							dispatch_build_job('gcc-prior', 'tests-conan', 'ubuntu')
+							dispatchBuildJob('gcc-prior', 'tests-conan', 'ubuntu')
+						}
+					}
+				}
+
+				stage('msvc prior (metal)') {
+					steps {
+						script {
+							dispatchBuildJob('msvc-prior', 'tests-metal', 'windows')
 						}
 					}
 				}
@@ -82,11 +90,11 @@ pipeline {
 	}
 }
 
-def dispatch_build_job(compiler_configuration, build_configuration, operating_system) {
+def dispatchBuildJob(String compilerConfiguration, String buildConfiguration, String operatingSystem) {
 	build job: 'Symbol/server-pipelines/catapult-client-build-catapult-project', parameters: [
-		string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
-		string(name: 'BUILD_CONFIGURATION', value: "${build_configuration}"),
-		string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
+		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
+		string(name: 'BUILD_CONFIGURATION', value: "${buildConfiguration}"),
+		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
 	]
 }

@@ -28,7 +28,6 @@ def prepare_docker_compose_file(input_filepath, prepare_replacements, outfile):
 		('{{IMAGE_NAME}}', image_name),
 		('{{COMPILER_CONFIGURATION}}', prepare_replacements['compiler_configuration']),
 		('{{USER}}', f'"{prepare_replacements["user"]}"'),
-
 		('{{BUILD_NUMBER}}', get_image_label(image_name)),
 		('{{NETWORK_IP}}', '3000'),
 		('{{GTESTFILTER}}', '*'),
@@ -69,8 +68,11 @@ def main():
 
 	process_manager = ProcessManager(args.dry_run)
 
-	compose_template_directory = Path(__file__).parent / 'templates'
-	compose_template_filepath = compose_template_directory / f'Run{args.mode.capitalize()}.yaml'
+	compose_filename = f'Run{args.mode.capitalize()}'
+	if EnvironmentManager.is_windows_platform():
+		compose_filename += 'Windows'
+	compose_filename += '.yaml'
+	compose_template_filepath = Path(__file__).parent / 'templates' / compose_filename
 	print(f'processing template from {compose_template_filepath}')
 	prepare_replacements = {
 		'image_name': args.image,

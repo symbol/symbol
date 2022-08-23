@@ -25,35 +25,35 @@ pipeline {
 				stage('gcc prior') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-prior', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-prior', 'ubuntu', true)
 						}
 					}
 				}
 				stage('gcc latest') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-latest', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-latest', 'ubuntu', true)
 						}
 					}
 				}
 				stage('gcc 10 [debian]') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-10', 'debian', false)
+							dispatchBuildBaseImageJob('gcc-10', 'debian', false)
 						}
 					}
 				}
 				stage('gcc westmere') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-westmere', 'ubuntu', true)
+							dispatchBuildBaseImageJob('gcc-westmere', 'ubuntu', true)
 						}
 					}
 				}
 				stage('gcc [fedora]') {
 					steps {
 						script {
-							dispatch_build_base_image_job('gcc-latest', 'fedora', false)
+							dispatchBuildBaseImageJob('gcc-latest', 'fedora', false)
 						}
 					}
 				}
@@ -61,14 +61,14 @@ pipeline {
 				stage('clang prior') {
 					steps {
 						script {
-							dispatch_build_base_image_job('clang-prior', 'ubuntu', true)
+							dispatchBuildBaseImageJob('clang-prior', 'ubuntu', true)
 						}
 					}
 				}
 				stage('clang latest') {
 					steps {
 						script {
-							dispatch_build_base_image_job('clang-latest', 'ubuntu', true)
+							dispatchBuildBaseImageJob('clang-latest', 'ubuntu', true)
 						}
 					}
 				}
@@ -76,14 +76,29 @@ pipeline {
 				stage('clang ausan') {
 					steps {
 						script {
-							dispatch_build_base_image_job('clang-ausan', 'ubuntu', false)
+							dispatchBuildBaseImageJob('clang-ausan', 'ubuntu', false)
 						}
 					}
 				}
 				stage('clang tsan') {
 					steps {
 						script {
-							dispatch_build_base_image_job('clang-tsan', 'ubuntu', false)
+							dispatchBuildBaseImageJob('clang-tsan', 'ubuntu', false)
+						}
+					}
+				}
+
+				stage('msvc latest') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('msvc-latest', 'windows', true)
+						}
+					}
+				}
+				stage('msvc prior') {
+					steps {
+						script {
+							dispatchBuildBaseImageJob('msvc-prior', 'windows', true)
 						}
 					}
 				}
@@ -91,7 +106,7 @@ pipeline {
 				stage('release base image') {
 					steps {
 						script {
-							dispatch_prepare_base_image_job('release', 'ubuntu')
+							dispatchPrepareBaseImageJob('release', 'ubuntu')
 						}
 					}
 				}
@@ -99,21 +114,28 @@ pipeline {
 				stage('test base image') {
 					steps {
 						script {
-							dispatch_prepare_base_image_job('test', 'ubuntu')
+							dispatchPrepareBaseImageJob('test', 'ubuntu')
 						}
 					}
 				}
 				stage('test base image [debian]') {
 					steps {
 						script {
-							dispatch_prepare_base_image_job('test', 'debian')
+							dispatchPrepareBaseImageJob('test', 'debian')
 						}
 					}
 				}
 				stage('test base image [fedora]') {
 					steps {
 						script {
-							dispatch_prepare_base_image_job('test', 'fedora')
+							dispatchPrepareBaseImageJob('test', 'fedora')
+						}
+					}
+				}
+				stage('test base image [windows]') {
+					steps {
+						script {
+							dispatchPrepareBaseImageJob('test', 'windows')
 						}
 					}
 				}
@@ -122,20 +144,19 @@ pipeline {
 	}
 }
 
-def dispatch_build_base_image_job(compiler_configuration, operating_system, should_build_conan_layer) {
+def dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer) {
 	build job: 'Symbol/server-pipelines/catapult-client-build-base-image', parameters: [
-		string(name: 'COMPILER_CONFIGURATION', value: "${compiler_configuration}"),
-		string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
-		string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${should_build_conan_layer}"),
+		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
+		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
+		string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${shouldBuildConanLayer}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
 	]
 }
 
-def dispatch_prepare_base_image_job(image_type, operating_system) {
+def dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
 	build job: 'Symbol/server-pipelines/catapult-client-prepare-base-image', parameters: [
-		string(name: 'IMAGE_TYPE', value: "${image_type}"),
-		string(name: 'OPERATING_SYSTEM', value: "${operating_system}"),
+		string(name: 'IMAGE_TYPE', value: "${imageType}"),
+		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
 		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
 	]
 }
-

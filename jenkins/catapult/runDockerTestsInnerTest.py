@@ -150,23 +150,24 @@ def main():
 
 	prepare_tests(environment_manager, args.source_path, args.out_dir)
 
-	process_manager.dispatch_subprocess(['ls', '-laF', '.'])
-	process_manager.dispatch_subprocess(['ls', '-laF', args.out_dir])
-	process_manager.dispatch_subprocess(['ls', '-laF', args.source_path])
-
 	output_path = str(Path(args.exe_path).resolve().parent)
+	process_manager.list_dir('.')
+	process_manager.list_dir(args.out_dir)
+	process_manager.list_dir(args.source_path)
+	process_manager.list_dir(output_path)
+
 	environment_manager.set_env_var('LD_LIBRARY_PATH', f'{output_path}/lib:{output_path}/deps')
-	logs_path = f'{args.out_dir}/logs'
+	logs_path = Path(args.out_dir) / 'logs'
 
 	failed_test_suites = []
-	for test_exe_filepath in environment_manager.find_glob(args.exe_path, 'tests*'):
-		base_output_filepath = Path(logs_path) / test_exe_filepath.name
+	test_filter = 'test*' if not EnvironmentManager.is_windows_platform() else 'test*.exe'
+	for test_exe_filepath in environment_manager.find_glob(args.exe_path, test_filter):
+		base_output_filepath = logs_path / test_exe_filepath.name
 
-		output_filepath = f'{base_output_filepath}.xml'
 		test_args = [
 			test_exe_filepath,
-			f'--gtest_output=xml:{output_filepath}',
-			Path(args.exe_path) / '..' / 'lib'
+			f'--gtest_output=xml:{base_output_filepath}.xml',
+			Path(args.exe_path) if EnvironmentManager.is_windows_platform() else Path(args.exe_path) / '..' / 'lib'
 		]
 
 		if process_manager.dispatch_test_subprocess(test_args, args.verbosity):
@@ -175,7 +176,7 @@ def main():
 
 			failed_test_suites.append(test_exe_filepath)
 
-		process_sanitizer_logs_all(environment_manager, Path(logs_path), test_exe_filepath.name)
+		process_sanitizer_logs_all(environment_manager, logs_path, test_exe_filepath.name)
 
 	if failed_test_suites:
 		print('test failures detected')

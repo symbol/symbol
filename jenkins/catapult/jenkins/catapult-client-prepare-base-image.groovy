@@ -1,12 +1,8 @@
 pipeline {
-	agent {
-		label 'ubuntu-xlarge-agent'
-	}
-
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'OPERATING_SYSTEM',
-			choices: ['ubuntu', 'fedora', 'debian'],
+			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
 			description: 'operating system'
 		choice name: 'IMAGE_TYPE',
 			choices: ['release', 'test'],
@@ -14,6 +10,11 @@ pipeline {
 
 		booleanParam name: 'SANITIZER_BUILD', description: 'true to build sanitizer', defaultValue: false
 	}
+
+	agent {
+		label "${helper.resolveAgentName("${OPERATING_SYSTEM}")}"
+	}
+
 
 	options {
 		ansiColor('css')
@@ -48,7 +49,8 @@ pipeline {
 
 					dockerfileTemplate = "./jenkins/catapult/templates/${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}BaseImage.Dockerfile"
 					dockerfileContents = readFile(file: dockerfileTemplate)
-					dockerfileContents = dockerfileContents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${params.OPERATING_SYSTEM}:${version}")
+					baseImage = 'windows' == "${OPERATING_SYSTEM}" ? "mcr.microsoft.com/windows/servercore:ltsc${version}" : "${params.OPERATING_SYSTEM}:${version}"
+					dockerfileContents = dockerfileContents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${baseImage}")
 
 					writeFile(file: 'Dockerfile', text: dockerfileContents)
 				}

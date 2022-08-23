@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 from pathlib import Path
 
 
@@ -118,6 +119,15 @@ class EnvironmentManager:
 
 		shutil.copy(source, destination, follow_symlinks=False)
 
+	def copy_glob_subtree_with_symlinks(self, directory_path, pattern, destination):
+		self._print_command('copy_glob_tree', [directory_path, pattern, destination])
+
+		if self.dry_run:
+			return
+
+		for file in Path(directory_path).rglob(pattern):
+			shutil.copy(file, destination, follow_symlinks=False)
+
 	# endregion
 
 	# region file moving
@@ -137,3 +147,12 @@ class EnvironmentManager:
 	def _print_command(command, args):
 		formatted_args = ' '.join(str(x) for x in args)
 		print(f'\033[0;33m[*] <{command}> {formatted_args}\033[0;0m')
+
+	@staticmethod
+	def is_windows_platform():
+		return 'win32' == sys.platform
+
+	@staticmethod
+	def root_directory(directory_name):
+		root_directory_prefix = 'c:\\' if EnvironmentManager.is_windows_platform() else '/'
+		return root_directory_prefix + directory_name

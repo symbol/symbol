@@ -1,18 +1,18 @@
 pipeline {
-	agent {
-		label 'ubuntu-xlarge-agent'
-	}
-
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-latest', 'gcc-prior', 'gcc-10', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan'],
+			choices: ['gcc-latest', 'gcc-prior', 'gcc-10', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan', 'msvc-latest', 'msvc-prior'],
 			description: 'compiler configuration'
 		choice name: 'OPERATING_SYSTEM',
-			choices: ['ubuntu', 'fedora', 'debian'],
+			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
 			description: 'operating system'
 
 		booleanParam name: 'SHOULD_BUILD_CONAN_LAYER', description: 'true to build conan layer', defaultValue: false
+	}
+
+	agent {
+		label "${helper.resolveAgentName("${OPERATING_SYSTEM}")}"
 	}
 
 	environment {
@@ -31,9 +31,9 @@ pipeline {
 				stage('prepare variables') {
 					steps {
 						script {
-							dest_image_name = "symbolplatform/symbol-server-build-base:${OPERATING_SYSTEM}-${COMPILER_CONFIGURATION}"
+							destImageName = "symbolplatform/symbol-server-build-base:${OPERATING_SYSTEM}-${COMPILER_CONFIGURATION}"
 
-							base_image_dockerfile_generator_command = """
+							baseImageDockerfileGeneratorCommand = """
 								python3 ./jenkins/catapult/baseImageDockerfileGenerator.py \
 									--compiler-configuration jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
 									--operating-system ${OPERATING_SYSTEM} \
@@ -52,7 +52,7 @@ pipeline {
 								  OPERATING_SYSTEM: ${OPERATING_SYSTEM}
 						  SHOULD_BUILD_CONAN_LAYER: ${SHOULD_BUILD_CONAN_LAYER}
 
-								   dest_image_name: ${dest_image_name}
+									 destImageName: ${destImageName}
 						"""
 					}
 				}
@@ -63,28 +63,28 @@ pipeline {
 				stage('build os') {
 					steps {
 						script {
-							build_and_push_layer('os', "${base_image_dockerfile_generator_command}")
+							buildAndPushLayer('os', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
 				stage('build boost') {
 					steps {
 						script {
-							build_and_push_layer('boost', "${base_image_dockerfile_generator_command}")
+							buildAndPushLayer('boost', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
 				stage('build deps') {
 					steps {
 						script {
-							build_and_push_layer('deps', "${base_image_dockerfile_generator_command}")
+							buildAndPushLayer('deps', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
 				stage('build test') {
 					steps {
 						script {
-							build_and_push_layer('test', "${base_image_dockerfile_generator_command}")
+							buildAndPushLayer('test', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
@@ -94,7 +94,7 @@ pipeline {
 					}
 					steps {
 						script {
-							build_and_push_layer('conan', "${base_image_dockerfile_generator_command}")
+							buildAndPushLayer('conan', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
@@ -103,20 +103,20 @@ pipeline {
 	}
 }
 
-def build_and_push_layer(layer, base_image_dockerfile_generator_command) {
+def buildAndPushLayer(String layer, String baseImageDockerfileGeneratorCommand) {
 	docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-		dest_image_name = sh(
-			script: "${base_image_dockerfile_generator_command} --layer ${layer} --name-only",
+		destImageName = sh(
+			script: "${baseImageDockerfileGeneratorCommand} --layer ${layer} --name-only",
 			returnStdout: true
 		).trim()
 
 		sh """
-			${base_image_dockerfile_generator_command} --layer ${layer} > Dockerfile
+			${baseImageDockerfileGeneratorCommand} --layer ${layer} > Dockerfile
 
-			echo "*** LAYER ${layer} => ${dest_image_name} ***"
+			echo "*** LAYER ${layer} => ${destImageName} ***"
 			cat Dockerfile
 		"""
 
-		docker.build("${dest_image_name}").push()
+		docker.build("${destImageName}").push()
 	}
 }
