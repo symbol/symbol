@@ -1,8 +1,11 @@
 const { PrivateKey, PublicKey, Signature } = require('../../src/CryptoTypes');
+const { hexToUint8 } = require('../../src/utils/converter');
 const { expect } = require('chai');
 const crypto = require('crypto');
 
 const runBasicKeyPairTests = testDescriptor => {
+	// region create
+
 	it('can create key pair from private key', () => {
 		// Arrange:
 		const publicKey = testDescriptor.expectedPublicKey;
@@ -15,6 +18,8 @@ const runBasicKeyPairTests = testDescriptor => {
 		expect(keyPair.publicKey).to.deep.equal(publicKey);
 		expect(keyPair.privateKey).to.deep.equal(privateKey);
 	});
+
+	// endregion
 
 	// region sign
 
@@ -62,6 +67,14 @@ const runBasicKeyPairTests = testDescriptor => {
 	// endregion
 
 	// region verify
+
+	it('cannot create verifier around zero public key', () => {
+		// Arrange:
+		const zeroPublicKey = new PublicKey(new Uint8Array(PublicKey.SIZE));
+
+		// Act + Assert:
+		expect(() => new testDescriptor.Verifier(zeroPublicKey)).to.throw('public key cannot be zero');
+	});
 
 	it('can verify signature', () => {
 		// Arrange:
@@ -128,6 +141,61 @@ const runBasicKeyPairTests = testDescriptor => {
 			// Assert:
 			expect(isVerified, `modification at index ${i}`).to.equal(false);
 		}
+	});
+
+	it('cannot verify signature with zero s', () => {
+		// Arrange:
+		const message = new Uint8Array(crypto.randomBytes(21));
+		const keyPair = new testDescriptor.KeyPair(PrivateKey.random());
+		const signature = keyPair.sign(message);
+		const signatureZeroS = new Signature(new Uint8Array([...signature.bytes.subarray(0, 32), ...new Uint8Array(32)]));
+
+		const verifier = new testDescriptor.Verifier(keyPair.publicKey);
+
+		// Act:
+		const isVerified = verifier.verify(message, signature);
+		const isVerifiedZeroS = verifier.verify(message, signatureZeroS);
+
+		// Assert:
+		expect(isVerified).to.equal(true);
+		expect(isVerifiedZeroS).to.equal(false);
+	});
+
+	const scalarAddGroupOrder = scalar => {
+		// 2^252 + 27742317777372353535851937790883648493, little endian
+		const groupOrder = hexToUint8('EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010');
+		let remainder = 0;
+
+		groupOrder.forEach((groupOrderByte, i) => {
+			const byteSum = scalar[i] + groupOrderByte;
+			scalar[i] = (byteSum + remainder) & 0xFF;
+			remainder = (byteSum >>> 8) & 0xFF;
+		});
+
+		return scalar;
+	};
+
+	it('cannot verify non canonical signature', () => {
+		// Arrange:
+		// the value 30 in the payload ensures that the encodedS part of the signature is < 2 ^ 253 after adding the group order
+		const message = hexToUint8('0102030405060708091D');
+		const keyPair = new testDescriptor.KeyPair(PrivateKey.random());
+		const canonicalSignature = keyPair.sign(message);
+
+		const nonCanonicalSignature = new Signature(new Uint8Array([
+			...canonicalSignature.bytes.subarray(0, 32),
+			...scalarAddGroupOrder(canonicalSignature.bytes.slice(32, 64))
+		]));
+
+		const verifier = new testDescriptor.Verifier(keyPair.publicKey);
+
+		// Act:
+		const isVerifiedCanonical = verifier.verify(message, canonicalSignature);
+		const isVerifiedNonCanonical = verifier.verify(message, nonCanonicalSignature);
+
+		// Assert:
+		expect(isVerifiedCanonical).to.equal(true);
+		expect(isVerifiedNonCanonical).to.equal(false);
 	});
 
 	// endregion

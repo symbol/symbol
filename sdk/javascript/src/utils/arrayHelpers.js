@@ -8,6 +8,9 @@ const deepCompare = (lhs, rhs) => {
 		return lhs > rhs ? 1 : -1;
 	}
 
+	if (lhs.length !== rhs.length)
+		return lhs.length > rhs.length ? 1 : -1;
+
 	for (let i = 0; i < lhs.length; ++i) {
 		const compareResult = deepCompare(lhs[i], rhs[i]);
 		if (0 !== compareResult)
