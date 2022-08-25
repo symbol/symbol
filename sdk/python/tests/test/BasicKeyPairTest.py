@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from binascii import unhexlify
 
 from symbolchain.CryptoTypes import PrivateKey, PublicKey, Signature
 
@@ -16,6 +17,8 @@ class KeyPairTestDescriptor:
 class BasicKeyPairTest:
 	# pylint: disable=no-member
 
+	# region create
+
 	def test_can_create_key_pair_from_private_key(self):
 		# Arrange:
 		test_descriptor = self.get_test_descriptor()
@@ -29,6 +32,8 @@ class BasicKeyPairTest:
 		# Assert:
 		self.assertEqual(public_key, key_pair.public_key)
 		self.assertEqual(private_key, key_pair.private_key)
+
+	# endregion
 
 	# region sign
 
@@ -79,6 +84,15 @@ class BasicKeyPairTest:
 	# endregion
 
 	# region verify
+
+	def test_cannot_create_verifier_around_zero_public_key(self):
+		# Arrange:
+		test_descriptor = self.get_test_descriptor()
+		zero_public_key = PublicKey(bytes(PublicKey.SIZE))
+
+		# Act + Assert:
+		with self.assertRaises(ValueError):
+			test_descriptor.verifier_class(zero_public_key)
 
 	def test_signature_can_be_verified(self):
 		# Arrange:
@@ -144,6 +158,61 @@ class BasicKeyPairTest:
 
 			# Assert:
 			self.assertFalse(is_verified)
+
+	def test_signature_with_zero_s_does_not_verify(self):
+		# Arrange:
+		test_descriptor = self.get_test_descriptor()
+
+		message = TestUtils.randbytes(21)
+		key_pair = test_descriptor.key_pair_class(PrivateKey.random())
+		signature = key_pair.sign(message)
+		signature_zero_s = Signature(signature.bytes[:32] + bytes(32))
+
+		verifier = test_descriptor.verifier_class(key_pair.public_key)
+
+		# Act:
+		is_verified = verifier.verify(message, signature)
+		is_verified_zero_s = verifier.verify(message, signature_zero_s)
+
+		# Assert:
+		self.assertTrue(is_verified)
+		self.assertFalse(is_verified_zero_s)
+
+	@staticmethod
+	def _scalar_add_group_order(scalar):
+		# 2^252 + 27742317777372353535851937790883648493, little endian
+		group_order = unhexlify('EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010')
+		remainder = 0
+
+		for i, group_order_byte in enumerate(group_order):
+			byte_sum = scalar[i] + group_order_byte
+			scalar[i] = (byte_sum + remainder) & 0xFF
+			remainder = (byte_sum >> 8) & 0xFF
+
+		return scalar
+
+	def test_non_canonical_signature_does_not_verify(self):
+		# Arrange:
+		test_descriptor = self.get_test_descriptor()
+
+		# the value 30 in the payload ensures that the encodedS part of the signature is < 2 ^ 253 after adding the group order
+		message = unhexlify('0102030405060708091D')
+		key_pair = test_descriptor.key_pair_class(PrivateKey.random())
+		canonical_signature = key_pair.sign(message)
+
+		non_canonical_signature = Signature(
+			canonical_signature.bytes[:32] + self._scalar_add_group_order(bytearray(canonical_signature.bytes[32:]))
+		)
+
+		verifier = test_descriptor.verifier_class(key_pair.public_key)
+
+		# Act:
+		is_verified_canonical = verifier.verify(message, canonical_signature)
+		is_verified_non_canonical = verifier.verify(message, non_canonical_signature)
+
+		# Assert:
+		self.assertTrue(is_verified_canonical)
+		self.assertFalse(is_verified_non_canonical)
 
 	# endregion
 
