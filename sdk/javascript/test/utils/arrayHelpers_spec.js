@@ -44,6 +44,12 @@ describe('arrayHelpers', () => {
 			expect(arrayHelpers.deepCompare([1, 15, 3], [1, 15, 3])).to.equal(0);
 			expect(arrayHelpers.deepCompare([1, 17, 3], [1, 15, 3])).to.equal(1);
 		});
+
+		it('can compare arrays of different lengths', () => {
+			expect(arrayHelpers.deepCompare([1, 12, 3], [1, 12, 3, 4])).to.equal(-1);
+			expect(arrayHelpers.deepCompare([1, 12, 3, 4], [1, 12, 3, 4])).to.equal(0);
+			expect(arrayHelpers.deepCompare([1, 12, 3, 4, 16], [1, 12, 3, 4])).to.equal(1);
+		});
 	});
 
 	// endregion

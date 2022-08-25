@@ -1,5 +1,7 @@
 const tweetnacl = require('./external/tweetnacl-nacl-fast-keccak');
 const { PrivateKey, PublicKey, Signature } = require('../CryptoTypes');
+const { deepCompare } = require('../utils/arrayHelpers');
+const { isCanonicalS } = require('../utils/cryptoHelpers');
 
 /**
  * Represents an ED25519 private and public key.
@@ -52,6 +54,9 @@ class Verifier {
 	 * @param {PublicKey} publicKey Public key.
 	 */
 	constructor(publicKey) {
+		if (0 === deepCompare(new Uint8Array(PublicKey.SIZE), publicKey.bytes))
+			throw new Error('public key cannot be zero');
+
 		this.publicKey = publicKey;
 	}
 
@@ -62,7 +67,8 @@ class Verifier {
 	 * @returns {boolean} true if the message signature verifies.
 	 */
 	verify(message, signature) {
-		return tweetnacl.sign.detached.verify(message, signature.bytes, this.publicKey.bytes);
+		return tweetnacl.sign.detached.verify(message, signature.bytes, this.publicKey.bytes)
+			&& isCanonicalS(signature.bytes.subarray(32, 64));
 	}
 }
 
