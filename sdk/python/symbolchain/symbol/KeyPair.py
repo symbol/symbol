@@ -35,6 +35,9 @@ class Verifier:
 
 	def __init__(self, public_key):
 		"""Creates a verifier from a public key."""
+		if bytes(32) == public_key.bytes:
+			raise ValueError('public key cannot be zero')
+
 		self._pk = ed25519.Ed25519PublicKey.from_public_bytes(public_key.bytes)
 
 	def verify(self, message, signature):
