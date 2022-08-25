@@ -87,8 +87,8 @@ class KeyPair:
 		h_a = crypto_core_ed25519_scalar_mul(a, h)
 		S = crypto_core_ed25519_scalar_add(r, h_a)
 
-		if bytes(32) != S and not _is_reduced_s(S):
-			raise RuntimeError('S part of signature is invalid, try different key or payload')
+		# ensure resulting signature is canonical (this is a sanity check that should never get triggered)
+		assert bytes(32) == S or _is_reduced_s(S)
 
 		act_sig = R + S
 		return Signature(act_sig)
@@ -99,6 +99,9 @@ class Verifier:
 
 	def __init__(self, public_key):
 		"""Creates a verifier from a public key."""
+		if bytes(32) == public_key.bytes:
+			raise ValueError('public key cannot be zero')
+
 		self._pk = public_key.bytes
 
 	def verify(self, message, signature):
@@ -108,9 +111,6 @@ class Verifier:
 		encoded_s = signature.bytes[32:]
 
 		if not _is_canonical_s(encoded_s):
-			return False
-
-		if bytes(32) == self._pk:
 			return False
 
 		# h = H(encodedR || public || data)
