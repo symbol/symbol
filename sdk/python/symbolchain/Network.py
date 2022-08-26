@@ -1,5 +1,6 @@
-import hashlib
 from abc import abstractmethod
+
+from symbolchain.ripemd160 import ripemd160
 
 BASE32_RFC4648_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
 
@@ -24,9 +25,7 @@ class Network:
 		part_one_hash_builder.update(public_key.bytes)
 		part_one_hash = part_one_hash_builder.digest()
 
-		part_two_hash_builder = hashlib.new('ripemd160')
-		part_two_hash_builder.update(part_one_hash)
-		part_two_hash = part_two_hash_builder.digest()
+		part_two_hash = ripemd160(part_one_hash)
 
 		version = bytes([self.identifier]) + part_two_hash
 
