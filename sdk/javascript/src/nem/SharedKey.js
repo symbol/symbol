@@ -1,9 +1,17 @@
-const tweetnacl = require('./external/tweetnacl-nacl-fast-keccak');
 const { SharedKey256 } = require('../CryptoTypes');
 const { deriveSharedSecretFactory, deriveSharedKeyFactory } = require('../SharedKey');
-const { keccak_256 } = require('@noble/hashes/sha3');
+const { keccak_256, keccak_512 } = require('@noble/hashes/sha3');
 
-const { crypto_hash } = tweetnacl.lowlevel;
+const crypto_hash = (out, m, n) => {
+	const hashBuilder = keccak_512.create();
+	hashBuilder.update(m.subarray(0, n));
+	const hash = hashBuilder.digest();
+
+	for (let i = 0; i < out.length; ++i)
+		out[i] = hash[i];
+
+	return 0;
+};
 const deriveSharedSecretImpl = deriveSharedSecretFactory(crypto_hash);
 const deriveSharedKeyImpl = deriveSharedKeyFactory('nem-nis1', crypto_hash);
 

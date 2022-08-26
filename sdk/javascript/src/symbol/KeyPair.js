@@ -1,7 +1,8 @@
 const { PrivateKey, PublicKey, Signature } = require('../CryptoTypes');
+const ed25519 = require('../impl/ed25519');
 const { deepCompare } = require('../utils/arrayHelpers');
-const { isCanonicalS } = require('../utils/cryptoHelpers');
-const tweetnacl = require('tweetnacl');
+
+const HASH_MODE = 'Sha2_512';
 
 /**
  * Represents an ED25519 private and public key.
@@ -13,7 +14,7 @@ class KeyPair {
 	 */
 	constructor(privateKey) {
 		this._privateKey = privateKey;
-		this._keyPair = tweetnacl.sign.keyPair.fromSeed(this._privateKey.bytes);
+		this._keyPair = ed25519.keyPairFromSeed(HASH_MODE, this._privateKey.bytes);
 	}
 
 	/**
@@ -38,7 +39,7 @@ class KeyPair {
 	 * @returns {Signature} Message signature.
 	 */
 	sign(message) {
-		return new Signature(tweetnacl.sign.detached(message, this._keyPair.secretKey));
+		return new Signature(ed25519.sign(HASH_MODE, message, this._keyPair.privateKey));
 	}
 }
 
@@ -64,8 +65,7 @@ class Verifier {
 	 * @returns {boolean} true if the message signature verifies.
 	 */
 	verify(message, signature) {
-		return tweetnacl.sign.detached.verify(message, signature.bytes, this.publicKey.bytes)
-			&& isCanonicalS(signature.bytes.subarray(32, 64));
+		return ed25519.verify(HASH_MODE, message, signature.bytes, this.publicKey.bytes);
 	}
 }
 
