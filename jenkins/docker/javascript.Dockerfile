@@ -39,4 +39,11 @@ RUN useradd --uid 1000 -ms /bin/bash ubuntu
 RUN mkdir -p /data/db \
 	&& chown -R ubuntu:ubuntu /data
 
+# install rust and wasm-pack
+ENV PATH=$PATH:/home/ubuntu/.cargo/bin
+ENV CARGO_HOME=/home/ubuntu/.cargo 
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y \
+	&& curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | bash -s -- \
+	&& chown -R ubuntu:ubuntu /home/ubuntu/.cargo
+
 WORKDIR /home/ubuntu

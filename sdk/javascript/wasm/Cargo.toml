@@ -1,0 +1,61 @@
+[package]
+name = "symbol-crypto-wasm"
+version = "0.1.0"
+authors = ["Symbol Contributors <contributors@symbol.dev>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2.63"
+
+# The `console_error_panic_hook` crate provides better debugging of panics by
+# logging them with `console.error`. This is great for development, but requires
+# all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
+# code size when deploying.
+console_error_panic_hook = { version = "0.1.6", optional = true }
+
+# `wee_alloc` is a tiny allocator for wasm that is only ~1K in code size
+# compared to the default allocator's ~10K. It is slower than the default
+# allocator, however.
+#
+# Unfortunately, `wee_alloc` requires nightly Rust when targeting wasm for now.
+wee_alloc = { version = "0.4.5", optional = true }
+sha3 = "0.10.2"
+js-sys = "0.3.59"
+
+# dalek deps
+
+curve25519-dalek = { version = "3", default-features = false }
+sha2 = { version = "0.9", default-features = false }
+serde = { version = "1.0.144", default-features = false, optional = true }
+serde_bytes = { version = "0.11", optional = true }
+hex = { version = "0.4.3", features = ["serde"] }
+zeroize = "1.5.7"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.13"
+clap = { version = "3.2.18", features = ["derive"] }
+hex-literal = "0.2.2"
+serde = { version = "1.0.144", features = ["derive"] }
+serde-hex = "0.1.0"
+serde_json = "1.0.85"
+hex = "0.4.3"
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"
+
+# debug = 1
+# debuginfo = 1
+
+[features]
+default = ["std", "u64_backend", "console_error_panic_hook"]
+
+std = ["curve25519-dalek/std", "serde/std", "sha2/std"]
+
+u64_backend = ["curve25519-dalek/u64_backend"]
+u32_backend = ["curve25519-dalek/u32_backend"]
+simd_backend = ["curve25519-dalek/simd_backend"]
+
