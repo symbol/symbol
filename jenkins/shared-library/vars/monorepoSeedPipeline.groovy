@@ -28,7 +28,7 @@ void call(Closure body) {
 		}
 
 		environment {
-			JENKINS_ROOT_FOLDER	  = "${params.organizationName}/generated"
+			JENKINS_ROOT_FOLDER = "${params.organizationName}/generated"
 			GITHUB_CREDENTIALS_ID = "${params.gitHubId}"
 		}
 
@@ -52,22 +52,34 @@ void call(Closure body) {
 			stage('create pipeline jobs') {
 				when {
 					expression {
-						return fileExists(resolveBuildConfigurationFile())
+						return fileExists(helper.resolveBuildConfigurationFile())
 					}
 				}
-				steps {
-					script {
-						buildConfiguration = yamlHelper.readYamlFromFile(resolveBuildConfigurationFile())
-						createMonorepoMultibranchJobs(buildConfiguration, env.GIT_URL, env.JENKINS_ROOT_FOLDER, env.GITHUB_CREDENTIALS_ID)
+				stages {
+					stage('Multibranch job') {
+						steps {
+							script {
+								buildConfiguration = yamlHelper.readYamlFromFile(helper.resolveBuildConfigurationFile())
+								createMonorepoMultibranchJobs(buildConfiguration, env.GIT_URL, env.JENKINS_ROOT_FOLDER, env.GITHUB_CREDENTIALS_ID)
+							}
+						}
+					}
+					stage('Nightly job') {
+						steps {
+							script {
+								String repositoryName = env.GIT_URL.tokenize('/').last().split('\\.')[0]
+								Map jobConfiguration = [:]
+								jobConfiguration.jobName = "${env.JENKINS_ROOT_FOLDER}/${repositoryName}/nightlyJob"
+								jobConfiguration.displayName = 'Nightly Job'
+								jobConfiguration.jenkinsfilePath = 'jenkins/jenkinsfiles/Jenkinsfile-nightly.groovy'
+								jobConfiguration.repositoryUrl = 'https://github.com/symbol/symbol.git'
+								jobConfiguration.credentialsId = ''
+								createPipelineJob(jobConfiguration)
+							}
+						}
 					}
 				}
 			}
 		}
 	}
-}
-
-String resolveBuildConfigurationFile()  {
-	String filepath = helper.resolveBuildConfigurationFile()
-	logger.logInfo("build configuration file: ${filepath}")
-	return filepath
 }

@@ -37,3 +37,9 @@ String resolveBuildConfigurationFile() {
 String resolveAgentName(String os) {
 	return os == 'windows' ? 'windows-xlarge-agent' : 'ubuntu-xlarge-agent'
 }
+
+void sendDiscordNotification(String title, String description, String url, String result, String footer = '') {
+	withCredentials([string(credentialsId: 'DISCORD_WEB_HOOK_URL_ID', variable: 'WEB_HOOK_URL')]) {
+		discordSend description: description, footer: footer, link: url, result: result, title: title, webhookURL: "${env.WEB_HOOK_URL}"
+	}
+}
