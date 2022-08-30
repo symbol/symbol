@@ -2,7 +2,7 @@ pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan', 'gcc-code-coverage', 'msvc-latest', 'msvc-prior'],
+			choices: ['gcc-debian', 'gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan', 'gcc-code-coverage', 'msvc-latest', 'msvc-prior'],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
 			choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
@@ -209,9 +209,14 @@ pipeline {
 					}
 					steps {
 						script {
-							dir('catapult-src') {
+							baseImageNames = sh(
+								script: "${runDockerBuildCommand} --base-image-names-only",
+								returnStdout: true
+							).split('\n')
+
+							docker.image(baseImageNames[0]).inside("--volume=${pwd()}/catapult-src:/catapult-src") {
 								sh """
-									sudo ln -s "${pwd()}" /catapult-src
+									cd /catapult-src
 									lcov --directory client/catapult/_build --capture --output-file coverage_all.info
 									lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info 
 									lcov --list client_coverage.info

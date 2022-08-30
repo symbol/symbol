@@ -1,0 +1,2 @@
+compiler: ../compilers/gcc-debian.yaml
+architecture: skylake
