@@ -1,25 +1,35 @@
 builds:
   - name: Catbuffer Parser
     path: catbuffer/parser
+    dependsOn:
+      - linters
 
   - name: Catapult Client
     path: client/catapult
+    dependsOn:
+      - linters
 
   - name: Rest Gateway
     path: client/rest
+    dependsOn:
+      - linters
 
   - name: Sdk Python
     path: sdk/python
     dependsOn:
       - catbuffer/parser
+      - linters
 
   - name: Sdk Javascript
     path: sdk/javascript
     dependsOn:
       - catbuffer/parser
+      - linters
 
   - name: Jenkins
     path: jenkins
+    dependsOn:
+      - linters
 
   - name: Linters
     path: linters
