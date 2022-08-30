@@ -224,9 +224,9 @@ pipeline {
 
 								withCredentials([string(credentialsId: 'SYMBOL_CODECOV_ID', variable: 'CODECOV_TOKEN')]) {
 									sh """
-										curl -Os https://uploader.codecov.io/latest/linux/codecov
+										curl -Os https://uploader.codecov.io/v0.1.20/linux/codecov
 										chmod +x codecov
-										./codecov --required --root . --flags client-catapult -X gcov --file client_coverage.info
+										./codecov --verbose --nonZero --rootDir . --flags client-catapult -X gcov --file client_coverage.info
 									"""
 								}
 							}
