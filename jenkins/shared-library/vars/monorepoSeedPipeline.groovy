@@ -71,6 +71,7 @@ void call(Closure body) {
 								Map jobConfiguration = [:]
 								jobConfiguration.jobName = "${env.JENKINS_ROOT_FOLDER}/${repositoryName}/nightlyJob"
 								jobConfiguration.displayName = 'Nightly Job'
+								jobConfiguration.trigger = '@midnight'
 								jobConfiguration.jenkinsfilePath = 'jenkins/jenkinsfiles/Jenkinsfile-nightly.groovy'
 								jobConfiguration.repositoryUrl = 'https://github.com/symbol/symbol.git'
 								jobConfiguration.credentialsId = ''

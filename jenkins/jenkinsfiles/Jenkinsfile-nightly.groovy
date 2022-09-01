@@ -32,9 +32,9 @@ pipeline {
 				script {
 					triggerAllJobs(
 						env.JOB_BRANCH_NAME ?: defaultBranch,
-						env.WAIT_FOR_BUILDS ? env.WAIT_FOR_BUILDS.toBoolean() : true,
+						!env.WAIT_FOR_BUILDS || env.WAIT_FOR_BUILDS.toBoolean(),
 						shouldPublishFailJobStatusName,
-						env.SHOULD_PUBLISH_FAIL_JOB_STATUS ? env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean() : true
+						!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()
 					)
 				}
 			}
@@ -96,8 +96,7 @@ Map<String, String> siblingJobNames() {
 
 	Map<String, String> targets = [:]
 	for (Item item in siblingItems) {
-		// groovylint-disable-next-line Instanceof
-		if (!(item instanceof hudson.model.AbstractModelObject) || item.fullName == project.fullName) {
+		if (org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject != item.getClass() || item.fullName == project.fullName) {
 			continue
 		}
 
