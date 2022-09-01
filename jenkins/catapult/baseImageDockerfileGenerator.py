@@ -264,7 +264,7 @@ class UbuntuSystem:
 
 	@staticmethod
 	def add_test_packages(install_openssl):
-		apt_packages = ['python3-pip']
+		apt_packages = ['python3-pip', 'lcov']
 		if install_openssl:
 			apt_packages += ['libssl-dev']
 

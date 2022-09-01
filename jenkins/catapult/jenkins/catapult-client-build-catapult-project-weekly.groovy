@@ -25,7 +25,7 @@ pipeline {
 				stage('gcc (metal) [debian]') {
 					steps {
 						script {
-							dispatchBuildJob('gcc-10', 'tests-metal', 'debian')
+							dispatchBuildJob('gcc-debian', 'tests-metal', 'debian')
 						}
 					}
 				}
