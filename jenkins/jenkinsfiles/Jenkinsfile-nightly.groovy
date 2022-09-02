@@ -69,7 +69,7 @@ void triggerAllJobs(
 		String displayName = siblingName.value
 		buildJobs["${displayName}"] = {
 			stage("${displayName}") {
-				String fullJobName = siblingName.key + '/' + branchName
+				String fullJobName = siblingName.key + '/' + branchName.replaceAll('/', '%2F')
 
 				// Platform parameter can vary per project, get the last value
 				echo "job name - ${fullJobName}"
