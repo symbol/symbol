@@ -153,9 +153,9 @@ Map <String, String> jenkinsfileMap() {
 }
 
 String resolveJobName(String jobFolder, String branchName) {
-	final String seperator = '/'
-	String encodeJobName = branchName.replaceAll(seperator, '%2F')
-	String fullJobName = jobFolder + seperator + encodeJobName
+	final String separator = '/'
+	String encodeJobName = branchName.replaceAll(separator, '%2F')
+	String fullJobName = jobFolder + separator + encodeJobName
 	Item job = Jenkins.get().getItemByFullName(fullJobName)
 	if (job?.isBuildable()) {
 		return encodeJobName
