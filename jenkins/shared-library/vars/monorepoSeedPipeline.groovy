@@ -4,6 +4,8 @@ void call(Closure body) {
 	body.delegate = params
 	body()
 
+	final String nightlyJenkinsfile = '.github/jenkinsfile/nightlyBuild.groovy'
+
 	pipeline {
 		parameters {
 			gitParameter branchFilter: 'origin/(.*)',
@@ -65,6 +67,11 @@ void call(Closure body) {
 						}
 					}
 					stage('Nightly job') {
+						when {
+							expression {
+								return fileExists(nightlyJenkinsfile)
+							}
+						}
 						steps {
 							script {
 								String repositoryName = env.GIT_URL.tokenize('/').last().split('\\.')[0]
@@ -72,9 +79,9 @@ void call(Closure body) {
 								jobConfiguration.jobName = "${env.JENKINS_ROOT_FOLDER}/${repositoryName}/nightlyJob"
 								jobConfiguration.displayName = 'Nightly Job'
 								jobConfiguration.trigger = '@midnight'
-								jobConfiguration.jenkinsfilePath = 'jenkins/jenkinsfiles/Jenkinsfile-nightly.groovy'
-								jobConfiguration.repositoryUrl = 'https://github.com/symbol/symbol.git'
-								jobConfiguration.credentialsId = ''
+								jobConfiguration.ownerAndProject = resolveOwnerAndProject(env.GIT_URL)
+								jobConfiguration.credentialsId = env.GITHUB_CREDENTIALS_ID
+								jobConfiguration.jenkinsfilePath = nightlyJenkinsfile
 								createPipelineJob(jobConfiguration)
 							}
 						}
@@ -83,4 +90,9 @@ void call(Closure body) {
 			}
 		}
 	}
+}
+
+String resolveOwnerAndProject(String gitUrl) {
+	String[] tokens = gitUrl.tokenize('/')
+	return "${tokens[2]}/${tokens.last().split('\\.')[0]}"
 }

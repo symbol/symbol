@@ -21,7 +21,7 @@ void call(Closure body) {
 				sortMode: 'ASCENDING',
 				useRepository: "${helper.resolveRepoName()}"
 			choice name: 'PLATFORM',
-				choices: params.platform ?: 'ubuntu',
+				choices: params.platform ?: ['ubuntu'],
 				description: 'Run on specific platform'
 			choice name: 'BUILD_CONFIGURATION',
 				choices: ['release-private', 'release-public'],
