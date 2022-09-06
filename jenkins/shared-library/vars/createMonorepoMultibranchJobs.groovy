@@ -32,7 +32,6 @@ void generateMultibranchJobs(Object buildConfiguration, String gitUrl, String ro
 
 	jobConfiguration.fullBranchFolder = Paths.get(rootFolder).resolve(jobConfiguration.repositoryName).toString()
 	generatePackageMultibranchJobs(buildConfiguration, jobConfiguration)
-	generateRepoMultibranchJob(buildConfiguration, jobConfiguration)
 }
 
 // Create a multibranch job for each package in the monorepo
@@ -51,24 +50,6 @@ void generatePackageMultibranchJobs(Object buildConfiguration, Map jobConfigurat
 		jobConfiguration.packageFolder = Paths.get(jobConfiguration.repositoryName.toString()).resolve(build.path).toString()
 		createMultibranchJob(jobConfiguration)
 	}
-}
-
-// Create a multibranch job which triggers for changes which are not covered by the package jobs.
-// Each exclude path needs to be on a separate line
-void generateRepoMultibranchJob(Object buildConfiguration, Map jobConfiguration) {
-	List<String> excludePaths = []
-	buildConfiguration.builds.each { build ->
-		excludePaths += addPathAndDependsOnFolder(build)
-	}
-	jobConfiguration.packageExcludePaths = excludePaths.unique().join('\n')
-
-	String pipelineName = 'RootJob'
-	jobConfiguration.jobName = Paths.get(jobConfiguration.fullBranchFolder).resolve(pipelineName).toString()
-	jobConfiguration.jenkinsfilePath = 'Jenkinsfile'
-	jobConfiguration.packageIncludePaths = ''
-	jobConfiguration.displayName = pipelineName
-	jobConfiguration.packageFolder = Paths.get(jobConfiguration.repositoryName).resolve(pipelineName).toString()
-	createMultibranchJob(jobConfiguration)
 }
 
 List<String> addPathAndDependsOnFolder(Object build) {

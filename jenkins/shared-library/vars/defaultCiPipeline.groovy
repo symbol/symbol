@@ -21,7 +21,7 @@ void call(Closure body) {
 				sortMode: 'ASCENDING',
 				useRepository: "${helper.resolveRepoName()}"
 			choice name: 'PLATFORM',
-				choices: params.platform ?: 'ubuntu',
+				choices: params.platform ?: ['ubuntu'],
 				description: 'Run on specific platform'
 			choice name: 'BUILD_CONFIGURATION',
 				choices: ['release-private', 'release-public'],
@@ -30,6 +30,7 @@ void call(Closure body) {
 				choices: ['code-coverage', 'test'],
 				description: 'test mode'
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
+			booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
 		}
 
 		agent {
@@ -40,6 +41,7 @@ void call(Closure body) {
 		options {
 			ansiColor('css')
 			timestamps()
+			timeout(time: 3, unit: 'HOURS')
 		}
 
 		environment {
@@ -269,7 +271,6 @@ void call(Closure body) {
 			}
 		}
 		post {
-			//TODO: add notification
 			success {
 				echo "Build Success - ${env.JOB_BASE_NAME} - ${env.BUILD_ID} on ${env.BUILD_URL}"
 			}
@@ -278,6 +279,18 @@ void call(Closure body) {
 			}
 			aborted {
 				echo " ${env.JOB_BASE_NAME} Build - ${env.BUILD_ID} Aborted!"
+			}
+			unsuccessful {
+				script {
+					if (null != env.SHOULD_PUBLISH_FAIL_JOB_STATUS && env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()) {
+						helper.sendDiscordNotification(
+							"Jenkins Job Failed for ${currentBuild.fullDisplayName}",
+							"Build#${env.BUILD_NUMBER} has result of ${currentBuild.currentResult}.",
+							env.BUILD_URL,
+							currentBuild.currentResult
+						)
+					}
+				}
 			}
 		}
 	}
