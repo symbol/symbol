@@ -8,3 +8,5 @@ cd wasm
 rustup default stable
 wasm-pack build --release --target nodejs
 cd ..
+
+npm run build
