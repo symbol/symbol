@@ -21,6 +21,7 @@ node_modules/
 npm-*.log*
 cjs/
 esm/
+sdk/javascript/index.js
 
 # python
 __pycache__/
