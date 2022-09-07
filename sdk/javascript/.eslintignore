@@ -1,1 +1,4 @@
 wasm/pkg/**
+cjs/**
+esm/**
+index.js
