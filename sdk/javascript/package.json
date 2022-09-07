@@ -16,7 +16,7 @@
     "build": "npm run build:cjs && npm run build:esm && npm run build:cdn",
     "build:cjs": "npm run clean:cjs && npx tsc --build --clean && npx tsc --target es5 --module commonjs --outDir cjs",
     "build:esm": "npm run clean:esm && npx tsc --build --clean && npx tsc --target esnext --module esnext --outDir esm",
-    "build:cdn": "npm run clean:cdn && webpack",
+    "build:cdn": "npm run clean:cdn && webpack && rimraf dist",
     "clean:cjs": "rimraf cjs",
     "clean:esm": "rimraf esm",
     "clean:cdn": "rimraf index.js && rimraf index.min.js"
