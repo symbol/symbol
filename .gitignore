@@ -19,6 +19,8 @@ _temp/
 # js
 node_modules/
 npm-*.log*
+cjs/
+esm/
 
 # python
 __pycache__/

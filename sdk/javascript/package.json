@@ -2,7 +2,8 @@
   "name": "symbol-sdk",
   "version": "3.0.0",
   "description": "JavaScript SDK for Symbol",
-  "main": "src/index.js",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
   "scripts": {
     "lint": "eslint .",
     "test": "mocha --full-trace --recursive ./test",
@@ -11,7 +12,12 @@
     "lint:jenkins": "eslint -o lint.sdk.javascript.xml -f junit . || exit 0",
     "test:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run test",
     "vectors:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run vectors",
-    "catvectors:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run catvectors"
+    "catvectors:jenkins": "nyc --require mocha --no-clean  --reporter=lcov npm run catvectors",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "npm run clean:cjs && npx tsc --build --clean && npx tsc --target es5 --module commonjs --outDir cjs",
+    "build:esm": "npm run clean:esm && npx tsc --build --clean && npx tsc --target esnext --module esnext --outDir esm",
+    "clean:cjs": "rimraf cjs",
+    "clean:esm": "rimraf esm"
   },
   "keywords": [],
   "author": "Symbol Contributors <contributors@symbol.dev>",
