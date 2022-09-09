@@ -285,8 +285,8 @@ void call(Closure body) {
 					if (null != env.SHOULD_PUBLISH_FAIL_JOB_STATUS && env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean()) {
 						helper.sendDiscordNotification(
 							"Jenkins Job Failed for ${currentBuild.fullDisplayName}",
-							"Build#${env.BUILD_NUMBER} has result of ${currentBuild.currentResult} in stage **${FAILED_STAGE_NAME}** with" +
-									" message: **${env.FAILURE_MESSAGE}**.",
+							"Build#${env.BUILD_NUMBER} has result of ${currentBuild.currentResult} in stage **${env.FAILED_STAGE_NAME}** " +
+									"with message: **${env.FAILURE_MESSAGE}**.",
 							env.BUILD_URL,
 							currentBuild.currentResult
 						)
@@ -305,7 +305,7 @@ void runStepRelativeToPackageRoot(String rootPath, Closure body) {
 	} catch (Exception exception) {
 		echo "Caught: ${exception.toString()}"
 		env.FAILURE_MESSAGE = exception.getMessage()
-		env.FAILED_STAGE_NAME = STAGE_NAME
+		env.FAILED_STAGE_NAME = env.STAGE_NAME
 		throw exception
 	}
 }
