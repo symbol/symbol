@@ -33,7 +33,7 @@
     "restify-errors": "^8.0.2",
     "ripemd160": "^2.0.2",
     "sshpk": "^1.17.0",
-    "winston": "^3.8.1",
+    "winston": "^3.8.2",
     "ws": "^8.8.1",
     "zeromq": "^5.2.8"
   }
