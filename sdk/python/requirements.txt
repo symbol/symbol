@@ -1,4 +1,4 @@
-cryptography==37.0.4
+cryptography==38.0.1
 mnemonic==0.20
 Pillow==9.2.0
 pynacl==1.5.0
