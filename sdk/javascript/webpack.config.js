@@ -1,7 +1,8 @@
 // Generated using webpack-cli https://github.com/webpack/webpack-cli
 
+const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 const webpack = require('webpack');
-// const path = require('path');
+const path = require('path');
 
 const isProduction = 'production' === process.env.NODE_ENV;
 
@@ -16,6 +17,9 @@ const config = {
 		new webpack.ProvidePlugin({
 			process: 'process/browser',
 			Buffer: ['buffer', 'Buffer']
+		}),
+		new WasmPackPlugin({
+			crateDirectory: 'wasm'
 		})
 	],
 	module: {
@@ -27,6 +31,10 @@ const config = {
 			{
 				test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
 				type: 'asset'
+			},
+			{
+				test: /\.wasm$/,
+				type: 'webassembly/async'
 			}
 
 			// Add your rules for custom modules here
@@ -37,9 +45,15 @@ const config = {
 		extensions: ['.ts', '.js'],
 		fallback: {
 			crypto: require.resolve('crypto-browserify'),
+			fs: false,
+			path: require.resolve('path-browserify'),
 			stream: require.resolve('stream-browserify'),
-			url: require.resolve('url')
+			url: require.resolve('url'),
+			util: require.resolve('util')
 		}
+	},
+	experiments: {
+		asyncWebAssembly: true
 	}
 };
 
