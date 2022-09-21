@@ -39,7 +39,7 @@ pipeline {
 				stage('gcc 10 [debian]') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-10', 'debian', false)
+							dispatchBuildBaseImageJob('gcc-debian', 'debian', false)
 						}
 					}
 				}
