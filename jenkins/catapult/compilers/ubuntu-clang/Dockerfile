@@ -25,5 +25,5 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor > /etc/
 	update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${COMPILER_VERSION} 100 && \
 	update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${COMPILER_VERSION} 100 && \
 	update-alternatives --install /usr/bin/cc cc /usr/bin/clang 100 && \
-	update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 100 \
+	update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 100 && \
 	rm -rf /var/lib/apt/lists/*
