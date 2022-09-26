@@ -37,7 +37,7 @@ describe('metadata', () => {
 			const result = metadataUpdateValue(oldValue, newValue);
 
 			// Assert:
-			expect(result).to.deep.equal(new Uint8Array([0x9A ^ 0xD4, 0xC7 ^ 0x60, 0x33 ^ 0x82, 0x18 ^ 0xF8]));
+			expect(result).to.deep.equal(new Uint8Array([0x9A ^ 0xD4, 0xC7 ^ 0x60, 0x33 ^ 0x82, 0x18 ^ 0xF8, 0xA7, 0xB0, 0x36]));
 		});
 
 		it('can update longer value', () => {

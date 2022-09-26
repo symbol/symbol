@@ -8,14 +8,18 @@ const metadataUpdateValue = (oldValue, newValue) => {
 	if (!oldValue)
 		return newValue;
 
-	const result = new Uint8Array(newValue.length);
+	const shorterLength = Math.min(oldValue.length, newValue.length);
+	const longerLength = Math.max(oldValue.length, newValue.length);
+	const isNewValueShorter = oldValue.length > newValue.length;
+
+	const result = new Uint8Array(longerLength);
 
 	let i = 0;
-	for (i = 0; i < Math.min(oldValue.length, newValue.length); ++i)
+	for (i = 0; i < shorterLength; ++i)
 		result[i] = oldValue[i] ^ newValue[i];
 
-	for (; i < newValue.length; ++i)
-		result[i] = newValue[i];
+	for (; i < longerLength; ++i)
+		result[i] = (isNewValueShorter ? oldValue : newValue)[i];
 
 	return result;
 };
