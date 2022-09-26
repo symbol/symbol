@@ -93,7 +93,7 @@ def main():
 
 	total_descriptors_count = 0
 	for factory_name in factory_names:
-		transaction_descriptor_factory = getattr(importlib.import_module(f'descriptors.{factory_name}'), 'descriptor_factory')
+		transaction_descriptor_factory = getattr(importlib.import_module(f'examples.descriptors.{factory_name}'), 'descriptor_factory')
 		transaction_descriptors = transaction_descriptor_factory()
 		sample.process_transaction_descriptors(transaction_descriptors)
 		total_descriptors_count += len(transaction_descriptors)
