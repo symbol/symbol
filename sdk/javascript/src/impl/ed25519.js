@@ -4,7 +4,6 @@ const {
 
 const CRYPTO_SIGN_BYTES = 64;
 const CRYPTO_SIGN_PUBLICKEYBYTES = 32;
-const CRYPTO_SIGN_SECRETKEYBYTES = 64;
 
 const ed25519 = {
 	keyPairFromSeed: (hashMode, seed) => {
