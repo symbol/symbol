@@ -1,5 +1,6 @@
 import unittest
 
+from symbolchain import sc
 from symbolchain.AccountDescriptorRepository import AccountDescriptorRepository
 from symbolchain.Bip32 import Bip32
 from symbolchain.CryptoTypes import Hash256, PrivateKey, PublicKey, Signature
@@ -17,6 +18,8 @@ YAML_INPUT = '''
 
 
 class SymbolFacadeTest(unittest.TestCase):
+	# pylint: disable=too-many-public-methods
+
 	# region real transactions
 
 	@staticmethod
@@ -79,6 +82,34 @@ class SymbolFacadeTest(unittest.TestCase):
 				'alias_action': 'link'
 			}
 		]))
+
+	@staticmethod
+	def _create_real_aggregate_swap(facade):
+		return facade.transaction_factory.create({
+			'type': 'aggregate_complete_transaction',
+			'signer_public_key': '4C94E8B0A1DAB8573BCB6632E676F742E0D320FC8102F20FB7FB13BCAE9A9F60',
+			'fee': 36000,
+			'deadline': 26443750218,
+			'transactions_hash': '641CB7E431F1D44094A43E1CE8265E6BD1DF1C3B0B64797CDDAA0A375FCD3C08',
+			'transactions': [
+				facade.transaction_factory.create_embedded({
+					'type': 'transfer_transaction',
+					'signer_public_key': '29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3',
+					'recipient_address': 'TBEZ3VKFBMKQSW7APBVL5NWNBEU7RR466PRRTDQ',
+					'mosaics': [
+						{'mosaic_id': 0xE74B99BA41F4AFEE, 'amount': 20000000}
+					]
+				}),
+				facade.transaction_factory.create_embedded({
+					'type': 'transfer_transaction',
+					'signer_public_key': '4C94E8B0A1DAB8573BCB6632E676F742E0D320FC8102F20FB7FB13BCAE9A9F60',
+					'recipient_address': 'TDFR3Q3H5W4OPOSHALVDY3RF4ZQNH44LIUIHYTQ',
+					'mosaics': [
+						{'mosaic_id': 0x798A29F48E927C83, 'amount': 100}
+					]
+				})
+			]
+		})
 
 	# endregion
 
@@ -251,6 +282,49 @@ class SymbolFacadeTest(unittest.TestCase):
 
 	def test_can_verify_aggregate_transaction(self):
 		self._assert_can_verify_transaction(self._create_real_aggregate)
+
+	# endregion
+
+	# region cosign_transaction
+
+	def _assert_can_cosign_transaction(self, detached=False):
+		# Arrange:
+		signer_private_key = PrivateKey('F4BC233E183E8CEA08D0A604A3DC67FF3261D1E6EBF84D233488BC53D89C50B7')
+		cosigner_private_key = PrivateKey('BE7B98F835A896136ADDAF04220F28CB4925D24F0675A21421BF213C180BEF86')
+		facade = SymbolFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
+
+		transaction = self._create_real_aggregate_swap(facade)
+		signature = facade.sign_transaction(SymbolFacade.KeyPair(signer_private_key), transaction)
+		facade.transaction_factory.attach_signature(transaction, signature)
+
+		# Act:
+		cosignature = facade.cosign_transaction(SymbolFacade.KeyPair(cosigner_private_key), transaction, detached)
+
+		# Assert: check common fields
+		self.assertEqual(0, cosignature.version)
+		self.assertEqual(sc.PublicKey('29856F43A5C4CBDE42F2FAC775A6F915E9E5638CF458E9352E7B410B662473A3'), cosignature.signer_public_key)
+		self.assertEqual(
+			sc.Signature('623A3FE2B9795DB23508A39B4A9586495D6EA9481355B29EB5E9BE1776866956' + (
+				'2818B1AC52AFDD0BE192F19674931E4A6DB59D32E8610CBE3DEA8783CD9B4505'
+			)),
+			cosignature.signature)
+		return cosignature
+
+	def test_can_cosign_transaction(self):
+		# Act:
+		cosignature = self._assert_can_cosign_transaction()
+
+		# Assert: cosignature should be suitable for attaching to an aggregate
+		self.assertEqual(104, cosignature.size)
+		self.assertFalse(hasattr(cosignature, 'parent_hash'))
+
+	def test_can_cosign_transaction_detached(self):
+		# Act:
+		cosignature = self._assert_can_cosign_transaction(True)
+
+		# Assert: cosignature should be detached
+		self.assertEqual(136, cosignature.size)
+		self.assertEqual(sc.Hash256('E193D1AADA8982757DECADF1B5B347D49E3D211C5E6CDB64D50EACE185EDA674'), cosignature.parent_hash)
 
 	# endregion
 

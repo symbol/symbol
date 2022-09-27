@@ -1,8 +1,8 @@
 import sha3
 
+from .. import sc
 from ..CryptoTypes import Hash256, PublicKey, Signature
 from ..Network import NetworkLocator
-from ..sc import TransactionType
 from ..symbol.KeyPair import KeyPair, Verifier
 from ..symbol.Merkle import MerkleHashBuilder
 from ..symbol.Network import Address, Network
@@ -79,6 +79,19 @@ class SymbolFacade:
 		verify_buffer += self._transaction_data_buffer(transaction.serialize())
 		return Verifier(transaction.signer_public_key).verify(verify_buffer, signature)
 
+	def cosign_transaction(self, key_pair, transaction, detached=False):
+		"""Cosigns a Symbol transaction."""
+		transaction_hash = self.hash_transaction(transaction)
+
+		cosignature = sc.DetachedCosignature() if detached else sc.Cosignature()
+		if detached:
+			cosignature.parent_hash = sc.Hash256(transaction_hash.bytes)
+
+		cosignature.version = 0
+		cosignature.signer_public_key = sc.PublicKey(key_pair.public_key.bytes)
+		cosignature.signature = sc.Signature(key_pair.sign(transaction_hash.bytes).bytes)
+		return cosignature
+
 	@staticmethod
 	def hash_embedded_transactions(embedded_transactions):
 		"""Hashes embedded transactions of an aggregate."""
@@ -101,7 +114,7 @@ class SymbolFacade:
 	def _is_aggregate_transaction(transaction_buffer):
 		transaction_type_offset = TRANSACTION_HEADER_SIZE + 2  # skip version and network byte
 		transaction_type = (transaction_buffer[transaction_type_offset + 1] << 8) + transaction_buffer[transaction_type_offset]
-		aggregate_types = [TransactionType.AGGREGATE_BONDED.value, TransactionType.AGGREGATE_COMPLETE.value]
+		aggregate_types = [sc.TransactionType.AGGREGATE_BONDED.value, sc.TransactionType.AGGREGATE_COMPLETE.value]
 		return transaction_type in aggregate_types
 
 	@staticmethod
