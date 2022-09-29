@@ -1,6 +1,7 @@
 // Generated using webpack-cli https://github.com/webpack/webpack-cli
 
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
+const CopyWebPackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
 
@@ -9,7 +10,9 @@ const isProduction = 'production' === process.env.NODE_ENV;
 const config = {
 	entry: './src/cdn.js',
 	output: {
-		filename: '../index.js'
+		filename: '../index.js',
+		webassemblyModuleFilename: 'symbol_crypto_wasm.wasm',
+		publicPath: 'dist/'
 	},
 	plugins: [
 		// Add your plugins here
@@ -19,7 +22,17 @@ const config = {
 			Buffer: ['buffer', 'Buffer']
 		}),
 		new WasmPackPlugin({
-			crateDirectory: 'wasm'
+			crateDirectory: 'wasm',
+			outName: 'symbol_crypto_wasm',
+			forceMode: 'production'
+		}),
+		new CopyWebPackPlugin({
+			patterns: [
+				{
+					from: 'wasm/pkg/symbol_crypto_wasm.js',
+					to: 'dist/symbol_crypto_wasm.js'
+				}
+			]
 		})
 	],
 	module: {

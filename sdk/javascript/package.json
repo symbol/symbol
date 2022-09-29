@@ -16,7 +16,7 @@
     "build": "npm run build:cjs && npm run build:esm && npm run build:cdn",
     "build:cjs": "npm run clean:cjs && npx tsc --build --clean && npx tsc --target es5 --module commonjs --outDir cjs",
     "build:esm": "npm run clean:esm && npx tsc --build --clean && npx tsc --target esnext --module esnext --outDir esm",
-    "build:cdn": "npm run clean:cdn && webpack && rimraf dist",
+    "build:cdn": "npm run clean:cdn && webpack",
     "clean:cjs": "rimraf cjs",
     "clean:esm": "rimraf esm",
     "clean:cdn": "rimraf index.js && rimraf index.min.js"
@@ -32,6 +32,7 @@
     "assert": "^2.0.0",
     "babel-loader": "^8.2.5",
     "chai": "^4.3.6",
+    "copy-webpack-plugin": "^11.0.0",
     "crypto-browserify": "^3.12.0",
     "eslint": "^8.24.0",
     "eslint-config-airbnb": "^19.0.4",
