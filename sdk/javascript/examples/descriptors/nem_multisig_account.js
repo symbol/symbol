@@ -1,4 +1,4 @@
-const descriptorFactory = () => ([
+export default () => ([
 	// V2 add
 	{
 		type: 'multisig_account_modification_transaction',
@@ -58,5 +58,3 @@ const descriptorFactory = () => ([
 		]
 	}
 ]);
-
-module.exports = { descriptorFactory };

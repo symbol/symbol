@@ -1,9 +1,9 @@
-const { PrivateKey, PublicKey } = require('../../src/CryptoTypes');
-const { KeyPair } = require('../../src/nem/KeyPair');
-const { MessageEncoder } = require('../../src/nem/MessageEncoder');
-const { MessageType, Message } = require('../../src/nem/models');
-const { runBasicMessageEncoderTests } = require('../test/messageEncoderTests');
-const { expect } = require('chai');
+import { PrivateKey, PublicKey } from '../../src/CryptoTypes.js';
+import { KeyPair } from '../../src/nem/KeyPair.js';
+import MessageEncoder from '../../src/nem/MessageEncoder.js';
+import { MessageType, Message } from '../../src/nem/models.js';
+import { runBasicMessageEncoderTests } from '../test/messageEncoderTests.js';
+import { expect } from 'chai';
 
 describe('MessageEncoder (NEM)', () => {
 	runBasicMessageEncoderTests({

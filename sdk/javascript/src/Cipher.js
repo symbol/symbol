@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 const concatArrays = (lhs, rhs) => {
 	const result = new Uint8Array(lhs.length + rhs.length);
@@ -12,7 +12,7 @@ const concatArrays = (lhs, rhs) => {
 /**
  * Performs AES CBC encryption and decryption with a given key.
  */
-class AesCbcCipher {
+export class AesCbcCipher {
 	/**
 	 * Creates a cipher around an aes shared key.
 	 * @param {SharedKey} aesKey AES shared key.
@@ -59,7 +59,7 @@ class AesCbcCipher {
 /**
  * Performs AES GCM encryption and decryption with a given key.
  */
-class AesGcmCipher {
+export class AesGcmCipher {
 	static TAG_SIZE = 16;
 
 	/**
@@ -106,5 +106,3 @@ class AesGcmCipher {
 }
 
 // endregion
-
-module.exports = { AesCbcCipher, AesGcmCipher };

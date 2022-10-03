@@ -1,6 +1,6 @@
-const { PrivateKey, PublicKey } = require('../../src/CryptoTypes');
-const { KeyPair, Verifier } = require('../../src/symbol/KeyPair');
-const { runBasicKeyPairTests } = require('../test/keyPairTests');
+import { PrivateKey, PublicKey } from '../../src/CryptoTypes.js';
+import { KeyPair, Verifier } from '../../src/symbol/KeyPair.js';
+import { runBasicKeyPairTests } from '../test/keyPairTests.js';
 
 describe('KeyPair (Symbol)', () => {
 	runBasicKeyPairTests({

@@ -1,9 +1,9 @@
-const { Address } = require('../../src/symbol/Network');
-const {
+import { Address } from '../../src/symbol/Network.js';
+import {
 	generateMosaicId, generateNamespaceId, generateMosaicAliasId, isValidNamespaceName, generateNamespacePath
-} = require('../../src/symbol/idGenerator');
-const { expect } = require('chai');
-const crypto = require('crypto');
+} from '../../src/symbol/idGenerator.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
 const TEST_VECTORS = {
 	uppercase: ['CAT.token', 'CAT.TOKEN', 'cat.TOKEN', 'cAt.ToKeN', 'CaT.tOkEn'],

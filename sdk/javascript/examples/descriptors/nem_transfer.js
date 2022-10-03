@@ -1,4 +1,4 @@
-const descriptorFactory = () => {
+export default () => {
 	const sampleAddress = 'TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C';
 	const textEncoder = new TextEncoder();
 
@@ -71,5 +71,3 @@ const descriptorFactory = () => {
 		}
 	];
 };
-
-module.exports = { descriptorFactory };

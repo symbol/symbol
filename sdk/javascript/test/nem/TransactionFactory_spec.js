@@ -1,11 +1,11 @@
-const { PublicKey, Signature } = require('../../src/CryptoTypes');
-const { Address, Network } = require('../../src/nem/Network');
-const { TransactionFactory } = require('../../src/nem/TransactionFactory');
-const nc = require('../../src/nem/models');
-const { uint8ToHex } = require('../../src/utils/converter');
-const { runBasicTransactionFactoryTests } = require('../test/basicTransactionFactoryTests');
-const { expect } = require('chai');
-const crypto = require('crypto');
+import { PublicKey, Signature } from '../../src/CryptoTypes.js';
+import { Address, Network } from '../../src/nem/Network.js';
+import TransactionFactory from '../../src/nem/TransactionFactory.js';
+import * as nc from '../../src/nem/models.js';
+import { uint8ToHex } from '../../src/utils/converter.js';
+import { runBasicTransactionFactoryTests } from '../test/basicTransactionFactoryTests.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
 describe('transaction factory (NEM)', () => {
 	const TEST_SIGNER_PUBLIC_KEY = new PublicKey(crypto.randomBytes(PublicKey.SIZE));

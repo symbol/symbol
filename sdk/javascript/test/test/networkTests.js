@@ -1,7 +1,7 @@
-const { NetworkTimestamp } = require('../../src/NetworkTimestamp');
-const { expect } = require('chai');
+import { NetworkTimestamp } from '../../src/NetworkTimestamp.js';
+import { expect } from 'chai';
 
-const runBasicNetworkTests = testDescriptor => {
+export const runBasicNetworkTests = testDescriptor => { // eslint-disable-line import/prefer-default-export
 	const getTimeUnits = value => value * testDescriptor.timeUnitMultiplier;
 
 	// region publicKeyToAddress
@@ -156,5 +156,3 @@ const runBasicNetworkTests = testDescriptor => {
 
 	// endregion
 };
-
-module.exports = { runBasicNetworkTests };

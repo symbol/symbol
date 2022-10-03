@@ -1,6 +1,6 @@
-const { expect } = require('chai');
+import { expect } from 'chai';
 
-const runBasicAddressTests = testDescriptor => {
+export const runBasicAddressTests = testDescriptor => { // eslint-disable-line import/prefer-default-export
 	it('has correct size', () => {
 		expect(testDescriptor.Address.SIZE).to.equal(testDescriptor.decodedAddress.length);
 	});
@@ -35,5 +35,3 @@ const runBasicAddressTests = testDescriptor => {
 		expect(address.toString()).to.equal(testDescriptor.encodedAddress);
 	});
 };
-
-module.exports = { runBasicAddressTests };

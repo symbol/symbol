@@ -1,9 +1,9 @@
-const { Hash256, PublicKey } = require('../../src/CryptoTypes');
-const { Address, Network, NetworkTimestamp } = require('../../src/symbol/Network');
-const { hexToUint8 } = require('../../src/utils/converter');
-const { runBasicAddressTests } = require('../test/addressTests');
-const { runBasicNetworkTests } = require('../test/networkTests');
-const { expect } = require('chai');
+import { Hash256, PublicKey } from '../../src/CryptoTypes.js';
+import { Address, Network, NetworkTimestamp } from '../../src/symbol/Network.js';
+import { hexToUint8 } from '../../src/utils/converter.js';
+import { runBasicAddressTests } from '../test/addressTests.js';
+import { runBasicNetworkTests } from '../test/networkTests.js';
+import { expect } from 'chai';
 
 const MAINNET_GENERATION_HASH_SEED = new Hash256('57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6');
 const TESTNET_GENERATION_HASH_SEED = new Hash256('7FCCD304802016BEBBCD342A332F91FF1F3BB5E902988B352697BE245F48E836');

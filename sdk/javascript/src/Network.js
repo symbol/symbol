@@ -1,11 +1,11 @@
-const Ripemd160 = require('ripemd160');
+import Ripemd160 from 'ripemd160';
 
 const BASE32_RFC4648_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 /**
  * Represents a network.
  */
-class Network {
+export class Network {
 	/**
 	 * Creates a new network with the specified name and identifier byte.
 	 * @param {string} name Network name.
@@ -118,7 +118,7 @@ class Network {
 /**
  * Provides utility functions for finding a network.
  */
-const NetworkLocator = {
+export const NetworkLocator = {
 	/**
 	 * Finds a network with a specified name within a list of networks.
 	 * @param {array<Network>} networks List of networks to search.
@@ -149,5 +149,3 @@ const NetworkLocator = {
 		return matchingNetwork;
 	}
 };
-
-module.exports = { Network, NetworkLocator };

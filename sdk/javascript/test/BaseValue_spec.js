@@ -1,5 +1,5 @@
-const { BaseValue } = require('../src/BaseValue');
-const { expect } = require('chai');
+import BaseValue from '../src/BaseValue.js';
+import { expect } from 'chai';
 
 describe('BaseValue', () => {
 	const canCreateBaseValueFactory = isSigned => (rawValue, size, expectedValue) => {

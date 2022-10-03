@@ -1,10 +1,10 @@
-const { Hash256 } = require('../../src/CryptoTypes');
-const {
+import { Hash256 } from '../../src/CryptoTypes.js';
+import {
 	MerkleHashBuilder, PatriciaMerkleProofResult, deserializePatriciaTreeNodes, proveMerkle, provePatriciaMerkle
-} = require('../../src/symbol/merkle');
-const { hexToUint8 } = require('../../src/utils/converter');
-const { expect } = require('chai');
-const crypto = require('crypto');
+} from '../../src/symbol/merkle.js';
+import { hexToUint8 } from '../../src/utils/converter.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
 describe('merkle', () => {
 	// region MerkleHashBuilder

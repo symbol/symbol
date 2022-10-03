@@ -4,7 +4,7 @@
  * @param {Uint8Array} newValue New metadata value.
  * @returns {Uint8Array} Metadata payload for updating old value to new value.
  */
-const metadataUpdateValue = (oldValue, newValue) => {
+export const metadataUpdateValue = (oldValue, newValue) => { // eslint-disable-line import/prefer-default-export
 	if (!oldValue)
 		return newValue;
 
@@ -23,5 +23,3 @@ const metadataUpdateValue = (oldValue, newValue) => {
 
 	return result;
 };
-
-module.exports = { metadataUpdateValue };

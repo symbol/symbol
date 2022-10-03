@@ -1,8 +1,8 @@
-const {
+import {
 	Hash256, PrivateKey, PublicKey, SharedKey256, Signature
-} = require('../src/CryptoTypes');
-const { expect } = require('chai');
-const crypto = require('crypto');
+} from '../src/CryptoTypes.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
 describe('CryptoTypes', () => {
 	// region test utils

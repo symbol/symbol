@@ -4,9 +4,10 @@
 // Shows how to create all transactions manually using TransactionFactory.
 //
 
-const symbolSdk = require('../src/index');
-const yargs = require('yargs');
-const path = require('path');
+import symbolSdk from '../src/index.js';
+import yargs from 'yargs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 (() => {
 	class TransactionSample {
@@ -14,7 +15,7 @@ const path = require('path');
 			this.facade = facade;
 			this.commonFields = commonFields;
 
-			const privateKey = new symbolSdk.CryptoTypes.PrivateKey('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF');
+			const privateKey = new symbolSdk.PrivateKey('11002233445566778899AABBCCDDEEFF11002233445566778899AABBCCDDEEFF');
 			this.keyPair = new this.facade.constructor.KeyPair(privateKey);
 		}
 
@@ -44,17 +45,29 @@ const path = require('path');
 	}
 
 	const runAllTests = (sample, factoryNames) => {
+		let testsPending = 1;
 		let totalDescriptorsCount = 0;
-		factoryNames.forEach(factoryName => {
-			// eslint-disable-next-line global-require, import/no-dynamic-require
-			const { descriptorFactory } = require(path.join(__dirname, 'descriptors', `${factoryName}.js`));
 
-			const transactionDescriptors = descriptorFactory();
-			sample.processTransactionDescriptors(transactionDescriptors);
-			totalDescriptorsCount += transactionDescriptors.length;
+		const decrementTestsPending = () => {
+			testsPending -= 1;
+			if (0 === testsPending)
+				console.log(`finished processing ${totalDescriptorsCount} descriptors`);
+		};
+
+		factoryNames.forEach(factoryName => {
+			testsPending += 1;
+
+			const filepath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'descriptors', `${factoryName}.js`);
+			import(filepath).then(module => {
+				const transactionDescriptors = module.default();
+				sample.processTransactionDescriptors(transactionDescriptors);
+				totalDescriptorsCount += transactionDescriptors.length;
+			}).finally(() => {
+				decrementTestsPending();
+			});
 		});
 
-		console.log(`finished processing ${totalDescriptorsCount} descriptors`);
+		decrementTestsPending();
 	};
 
 	const nemTransactionSample = new TransactionSample(new symbolSdk.facade.NemFacade('testnet'), {

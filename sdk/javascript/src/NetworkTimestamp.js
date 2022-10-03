@@ -1,7 +1,7 @@
 /**
  * Represents a network timestamp.
  */
-class NetworkTimestamp {
+export class NetworkTimestamp {
 	/**
 	 * Creates a timestamp.
 	 * @param {number} timestamp Raw network timestamp.
@@ -57,7 +57,7 @@ class NetworkTimestamp {
 /**
  * Provides utilities for converting between network timestamps and datetimes.
  */
-class NetworkTimestampDatetimeConverter {
+export class NetworkTimestampDatetimeConverter {
 	/**
 	 * Creates a converter given an epoch and base time units.
 	 * @param {Date} epoch Date at which network started.
@@ -94,5 +94,3 @@ class NetworkTimestampDatetimeConverter {
 		return (referenceDatetime - this.epoch) / this.timeUnits;
 	}
 }
-
-module.exports = { NetworkTimestamp, NetworkTimestampDatetimeConverter };

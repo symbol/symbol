@@ -1,8 +1,8 @@
-const { KeyPair } = require('./KeyPair');
-const { deriveSharedKey } = require('./SharedKey');
-const { PrivateKey, PublicKey } = require('../CryptoTypes');
-const { concatArrays, decodeAesGcm, encodeAesGcm } = require('../impl/CipherHelpers');
-const { deepCompare } = require('../utils/arrayHelpers');
+import { KeyPair } from './KeyPair.js';
+import { deriveSharedKey } from './SharedKey.js';
+import { PrivateKey, PublicKey } from '../CryptoTypes.js';
+import { concatArrays, decodeAesGcm, encodeAesGcm } from '../impl/CipherHelpers.js';
+import { deepCompare } from '../utils/arrayHelpers.js';
 
 const DELEGATION_MARKER = Uint8Array.from(Buffer.from('FE2A8061577301E2', 'hex'));
 
@@ -21,7 +21,7 @@ const filterExceptions = (statement, exceptions) => {
 /**
  * Encrypts and encodes messages between two parties.
  */
-class MessageEncoder {
+export default class MessageEncoder {
 	/**
 	 * Creates message encoder around key pair.
 	 * @param {KeyPair} keyPair Key pair.
@@ -95,5 +95,3 @@ class MessageEncoder {
 		return concatArrays(DELEGATION_MARKER, ephemeralKeyPair.publicKey.bytes, tag, initializationVector, cipherText);
 	}
 }
-
-module.exports = { MessageEncoder };

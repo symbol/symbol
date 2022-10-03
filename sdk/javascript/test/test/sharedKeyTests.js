@@ -1,7 +1,7 @@
-const { PrivateKey, PublicKey } = require('../../src/CryptoTypes');
-const { expect } = require('chai');
+import { PrivateKey, PublicKey } from '../../src/CryptoTypes.js';
+import { expect } from 'chai';
 
-const runBasicSharedKeyTests = testDescriptor => {
+export default testDescriptor => {
 	// region mutual shared
 
 	const assertDerivedSharedResult = (mutate, assertion) => {
@@ -92,5 +92,3 @@ const runBasicSharedKeyTests = testDescriptor => {
 
 	// endregion
 };
-
-module.exports = { runBasicSharedKeyTests };

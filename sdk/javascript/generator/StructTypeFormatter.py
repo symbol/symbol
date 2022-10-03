@@ -155,11 +155,7 @@ class StructFormatter(AbstractTypeFormatter):
 		if not self.struct.comparer:
 			return None
 
-		body = ''
-		if any('ripemd_keccak_256' == transform for (_, transform) in self.struct.comparer):
-			body += 'const { ripemdKeccak256 } = require(\'../utils/transforms\'); // eslint-disable-line global-require\n\n'
-
-		body += 'return [\n'
+		body = 'return [\n'
 		for (property_name, transform) in self.struct.comparer:
 			body += '\t'
 			if not transform:

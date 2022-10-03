@@ -27,7 +27,7 @@ const check = (byteSize, value, isSigned) => {
 /**
  * Represents a base integer.
  */
-class BaseValue {
+export default class BaseValue {
 	/**
 	 * Creates a base value.
 	 * @param {number} size Size of the integer.
@@ -56,5 +56,3 @@ class BaseValue {
 		return `0x${unsignedValue.toString(16).toUpperCase().padStart(this.size * 2, '0')}`;
 	}
 }
-
-module.exports = { BaseValue };

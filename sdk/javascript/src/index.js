@@ -1,36 +1,37 @@
-const { BaseValue } = require('./BaseValue');
-const { Bip32 } = require('./Bip32');
-const { ByteArray } = require('./ByteArray');
-const CryptoTypes = require('./CryptoTypes');
-const { NetworkLocator } = require('./Network');
-const NemFacade = require('./facade/NemFacade');
-const SymbolFacade = require('./facade/SymbolFacade');
-const NemKeyPair = require('./nem/KeyPair');
-const NemNetwork = require('./nem/Network');
-const NemTransactionFactory = require('./nem/TransactionFactory');
-const NemModels = require('./nem/models');
-const SymbolKeyPair = require('./symbol/KeyPair');
-const SymbolNetwork = require('./symbol/Network');
-const SymbolTransactionFactory = require('./symbol/TransactionFactory');
-const SymbolIdGenerator = require('./symbol/idGenerator');
-const SymbolMerkle = require('./symbol/merkle');
-const SymbolModels = require('./symbol/models');
-const { hexToUint8, uint8ToHex } = require('./utils/converter');
+import BaseValue from './BaseValue.js';
+import Bip32 from './Bip32.js';
+import ByteArray from './ByteArray.js';
+import * as CryptoTypes from './CryptoTypes.js';
+import { NetworkLocator } from './Network.js';
+import NemFacade from './facade/NemFacade.js';
+import SymbolFacade from './facade/SymbolFacade.js';
+import * as NemKeyPair from './nem/KeyPair.js';
+import * as NemNetwork from './nem/Network.js';
+import * as NemTransactionFactory from './nem/TransactionFactory.js';
+import * as NemModels from './nem/models.js';
+import * as SymbolKeyPair from './symbol/KeyPair.js';
+import * as SymbolNetwork from './symbol/Network.js';
+import * as SymbolTransactionFactory from './symbol/TransactionFactory.js';
+import * as SymbolIdGenerator from './symbol/idGenerator.js';
+import * as SymbolMerkle from './symbol/merkle.js';
+import * as SymbolModels from './symbol/models.js';
+import { hexToUint8, uint8ToHex } from './utils/converter.js';
 
-module.exports = {
+const sdk = {
 	BaseValue,
 	Bip32,
 	ByteArray,
-	CryptoTypes,
+	...CryptoTypes,
 	NetworkLocator,
 
 	facade: {
-		...NemFacade,
-		...SymbolFacade
+		NemFacade,
+		SymbolFacade
 	},
 
 	nem: {
 		...NemModels, // must be before Network to promote Address from Network
+
 		...NemKeyPair,
 		...NemNetwork,
 		...NemTransactionFactory
@@ -38,6 +39,7 @@ module.exports = {
 
 	symbol: {
 		...SymbolModels, // must be before Network to promote Address from Network
+
 		...SymbolKeyPair,
 		...SymbolNetwork,
 		...SymbolTransactionFactory,
@@ -50,3 +52,5 @@ module.exports = {
 		uint8ToHex
 	}
 };
+
+export default sdk;

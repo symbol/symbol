@@ -1,5 +1,5 @@
-const { BufferView } = require('../../src/utils/BufferView');
-const { expect } = require('chai');
+import BufferView from '../../src/utils/BufferView.js';
+import { expect } from 'chai';
 
 describe('BufferView', () => {
 	// region constructor

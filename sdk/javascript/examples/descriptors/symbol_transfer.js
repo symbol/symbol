@@ -1,4 +1,4 @@
-const descriptorFactory = () => {
+export default () => {
 	const sampleAddress = 'TASYMBOLLK6FSL7GSEMQEAWN7VW55ZSZU2Q2Q5Y';
 	const sampleMosaicId = 0x7EDCBA90FEDCBA90n;
 
@@ -30,5 +30,3 @@ const descriptorFactory = () => {
 		}
 	];
 };
-
-module.exports = { descriptorFactory };

@@ -6,7 +6,7 @@
 // note: this example is *not* generating keys compatible with wallet
 //
 
-const symbolSdk = require('../src/index');
+import symbolSdk from '../src/index.js';
 
 (() => {
 	const deriveKey = (rootNode, facade, change, index) => {

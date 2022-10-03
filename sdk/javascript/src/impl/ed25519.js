@@ -1,6 +1,6 @@
-const {
+import {
 	crypto_sign_keypair, crypto_private_sign, crypto_private_verify, HashMode
-} = require('../../wasm/pkg/symbol_crypto_wasm');
+} from '../../wasm/pkg/symbol_crypto_wasm.js'; // eslint-disable-line import/no-relative-packages
 
 const CRYPTO_SIGN_BYTES = 64;
 const CRYPTO_SIGN_PUBLICKEYBYTES = 32;
@@ -19,4 +19,4 @@ const ed25519 = {
 	verify: (hashMode, message, signature, publicKey) => crypto_private_verify(HashMode[hashMode], publicKey, message, signature)
 };
 
-module.exports = ed25519;
+export default ed25519;

@@ -1,9 +1,9 @@
-const { PrivateKey, PublicKey } = require('../../src/CryptoTypes');
-const { concatArrays } = require('../../src/impl/CipherHelpers');
-const { KeyPair } = require('../../src/symbol/KeyPair');
-const { MessageEncoder } = require('../../src/symbol/MessageEncoder');
-const { runBasicMessageEncoderTests, runMessageEncoderDecodeFailureTests } = require('../test/messageEncoderTests');
-const { expect } = require('chai');
+import { PrivateKey, PublicKey } from '../../src/CryptoTypes.js';
+import { concatArrays } from '../../src/impl/CipherHelpers.js';
+import { KeyPair } from '../../src/symbol/KeyPair.js';
+import MessageEncoder from '../../src/symbol/MessageEncoder.js';
+import { runBasicMessageEncoderTests, runMessageEncoderDecodeFailureTests } from '../test/messageEncoderTests.js';
+import { expect } from 'chai';
 
 describe('MessageEncoder (Symbol)', () => {
 	runBasicMessageEncoderTests({

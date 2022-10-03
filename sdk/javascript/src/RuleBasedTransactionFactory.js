@@ -1,6 +1,6 @@
-const { BaseValue } = require('./BaseValue');
-const { ByteArray } = require('./ByteArray');
-const { TransactionDescriptorProcessor } = require('./TransactionDescriptorProcessor');
+import BaseValue from './BaseValue.js';
+import ByteArray from './ByteArray.js';
+import TransactionDescriptorProcessor from './TransactionDescriptorProcessor.js';
 
 const buildEnumStringToValueMap = EnumClass => new Map(Object.getOwnPropertyNames(EnumClass)
 	.filter(name => name.toUpperCase() === name)
@@ -56,7 +56,7 @@ const autoEncodeStrings = entity => {
 /**
  * Rule based transaction factory.
  */
-class RuleBasedTransactionFactory {
+export default class RuleBasedTransactionFactory {
 	/**
 	 * Creates a rule based transaction factory for use with catbuffer generated code.
 	 * @param {object} module Catbuffer generated module.
@@ -192,5 +192,3 @@ class RuleBasedTransactionFactory {
 		return new TransactionDescriptorProcessor(descriptor, this.rules, this.typeConverter);
 	}
 }
-
-module.exports = { RuleBasedTransactionFactory };

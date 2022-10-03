@@ -1,6 +1,6 @@
-const { Network, NetworkLocator } = require('../src/Network');
-const { NetworkTimestamp, NetworkTimestampDatetimeConverter } = require('../src/NetworkTimestamp');
-const { expect } = require('chai');
+import { Network, NetworkLocator } from '../src/Network.js';
+import { NetworkTimestamp, NetworkTimestampDatetimeConverter } from '../src/NetworkTimestamp.js';
+import { expect } from 'chai';
 
 describe('Network', () => {
 	it('can convert network time to datetime', () => {

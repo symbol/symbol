@@ -1,9 +1,9 @@
-const { PublicKey } = require('../../src/CryptoTypes');
-const { Address, Network, NetworkTimestamp } = require('../../src/nem/Network');
-const { hexToUint8 } = require('../../src/utils/converter');
-const { runBasicAddressTests } = require('../test/addressTests');
-const { runBasicNetworkTests } = require('../test/networkTests');
-const { expect } = require('chai');
+import { PublicKey } from '../../src/CryptoTypes.js';
+import { Address, Network, NetworkTimestamp } from '../../src/nem/Network.js';
+import { hexToUint8 } from '../../src/utils/converter.js';
+import { runBasicAddressTests } from '../test/addressTests.js';
+import { runBasicNetworkTests } from '../test/networkTests.js';
+import { expect } from 'chai';
 
 describe('NetworkTimestamp (NEM)', () => {
 	const runTestCases = (wrapInt, postfix) => {

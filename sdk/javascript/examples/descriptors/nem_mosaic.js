@@ -1,6 +1,8 @@
-const { nem } = require('../../src/index');
+import symbolSdk from '../../src/index.js';
 
-const descriptorFactory = () => {
+const { nem } = symbolSdk;
+
+export default () => {
 	const sampleAddress = 'TALICEROONSJCPHC63F52V6FY3SDMSVAEUGHMB7C';
 	const textEncoder = new TextEncoder();
 
@@ -81,5 +83,3 @@ const descriptorFactory = () => {
 		}
 	];
 };
-
-module.exports = { descriptorFactory };

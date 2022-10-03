@@ -1,14 +1,14 @@
-const { Address } = require('./Network');
-const { generateNamespaceId, generateMosaicId } = require('./idGenerator');
-const sc = require('./models');
-const { Hash256, PublicKey } = require('../CryptoTypes');
-const { RuleBasedTransactionFactory } = require('../RuleBasedTransactionFactory');
-const { uint8ToHex } = require('../utils/converter');
+import { Address } from './Network.js';
+import { generateNamespaceId, generateMosaicId } from './idGenerator.js';
+import * as sc from './models.js';
+import { Hash256, PublicKey } from '../CryptoTypes.js';
+import RuleBasedTransactionFactory from '../RuleBasedTransactionFactory.js';
+import { uint8ToHex } from '../utils/converter.js';
 
 /**
  * Factory for creating Symbol transactions.
  */
-class TransactionFactory {
+export default class TransactionFactory {
 	/**
 	 * Creates a factory for the specified network.
 	 * @param {Network} network Symbol network.
@@ -114,5 +114,3 @@ class TransactionFactory {
 		return factory;
 	}
 }
-
-module.exports = { TransactionFactory };

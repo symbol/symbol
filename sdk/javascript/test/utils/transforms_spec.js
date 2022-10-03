@@ -1,6 +1,6 @@
-const { hexToUint8 } = require('../../src/utils/converter');
-const { ripemdKeccak256 } = require('../../src/utils/transforms');
-const { expect } = require('chai');
+import { hexToUint8 } from '../../src/utils/converter.js';
+import { ripemdKeccak256 } from '../../src/utils/transforms.js';
+import { expect } from 'chai';
 
 describe('transforms', () => {
 	it('can transform with ripemd keccak 256', () => {

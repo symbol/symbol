@@ -1,12 +1,12 @@
-const { Bip32 } = require('../../src/Bip32');
-const {
+import Bip32 from '../../src/Bip32.js';
+import {
 	Hash256, PrivateKey, PublicKey, Signature
-} = require('../../src/CryptoTypes');
-const { SymbolFacade } = require('../../src/facade/SymbolFacade');
-const { Network } = require('../../src/symbol/Network');
-const sc = require('../../src/symbol/models');
-const { expect } = require('chai');
-const crypto = require('crypto');
+} from '../../src/CryptoTypes.js';
+import SymbolFacade from '../../src/facade/SymbolFacade.js';
+import { Network } from '../../src/symbol/Network.js';
+import * as sc from '../../src/symbol/models.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
 describe('Symbol Facade', () => {
 	// region real transactions

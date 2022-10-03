@@ -1,7 +1,7 @@
-const { SharedKey256 } = require('./CryptoTypes');
-const { hkdf } = require('@noble/hashes/hkdf');
-const { sha256 } = require('@noble/hashes/sha256');
-const tweetnacl = require('tweetnacl');
+import { SharedKey256 } from './CryptoTypes.js';
+import { hkdf } from '@noble/hashes/hkdf';
+import { sha256 } from '@noble/hashes/sha256';
+import tweetnacl from 'tweetnacl';
 
 // order matches order of exported methods
 const {
@@ -141,7 +141,7 @@ const isInMainSubgroup = point => {
 	return 0 === (areEqual | isZero);
 };
 
-const deriveSharedSecretFactory = cryptoHash => (privateKeyBytes, otherPublicKey) => {
+export const deriveSharedSecretFactory = cryptoHash => (privateKeyBytes, otherPublicKey) => {
 	const { scalarmult, Z } = tweetnacl.lowlevel;
 	const point = [gf(), gf(), gf(), gf()];
 
@@ -167,12 +167,10 @@ const deriveSharedSecretFactory = cryptoHash => (privateKeyBytes, otherPublicKey
 	return sharedSecret;
 };
 
-const deriveSharedKeyFactory = (info, cryptoHash) => {
+export const deriveSharedKeyFactory = (info, cryptoHash) => {
 	const deriveSharedSecret = deriveSharedSecretFactory(cryptoHash);
 	return (privateKeyBytes, otherPublicKey) => {
 		const sharedSecret = deriveSharedSecret(privateKeyBytes, otherPublicKey);
 		return new SharedKey256(hkdf(sha256, sharedSecret, undefined, info, 32));
 	};
 };
-
-module.exports = { deriveSharedKeyFactory, deriveSharedSecretFactory };

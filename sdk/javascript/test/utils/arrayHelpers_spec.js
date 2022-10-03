@@ -1,5 +1,5 @@
-const arrayHelpers = require('../../src/utils/arrayHelpers');
-const { expect } = require('chai');
+import * as arrayHelpers from '../../src/utils/arrayHelpers.js';
+import { expect } from 'chai';
 
 describe('arrayHelpers', () => {
 	// region helpers

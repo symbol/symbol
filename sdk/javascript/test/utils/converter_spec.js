@@ -1,5 +1,5 @@
-const converter = require('../../src/utils/converter');
-const { expect } = require('chai');
+import * as converter from '../../src/utils/converter.js';
+import { expect } from 'chai';
 
 describe('converter', () => {
 	describe('toByte', () => {

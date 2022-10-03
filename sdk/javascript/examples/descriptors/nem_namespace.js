@@ -1,4 +1,4 @@
-const descriptorFactory = () => ([
+export default () => ([
 	// root namespace
 	{
 		type: 'namespace_registration_transaction',
@@ -16,5 +16,3 @@ const descriptorFactory = () => ([
 		name: 'charlie'
 	}
 ]);
-
-module.exports = { descriptorFactory };

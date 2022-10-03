@@ -1,8 +1,8 @@
-const { deriveSharedKey, deriveSharedKeyDeprecated } = require('./SharedKey');
-const { MessageType, Message } = require('./models');
-const {
+import { deriveSharedKey, deriveSharedKeyDeprecated } from './SharedKey.js'; // eslint-disable-line import/no-deprecated
+import { MessageType, Message } from './models.js';
+import {
 	concatArrays, decodeAesGcm, encodeAesGcm, encodeAesCbc, decodeAesCbc
-} = require('../impl/CipherHelpers');
+} from '../impl/CipherHelpers.js';
 
 const filterExceptions = (statement, exceptions) => {
 	try {
@@ -19,7 +19,7 @@ const filterExceptions = (statement, exceptions) => {
 /**
  * Encrypts and encodes messages between two parties.
  */
-class MessageEncoder {
+export default class MessageEncoder {
 	/**
 	 * Creates message encoder around key pair.
 	 * @param {KeyPair} keyPair Key pair.
@@ -48,6 +48,7 @@ class MessageEncoder {
 			return [true, message];
 
 		[result, message] = filterExceptions(
+			// eslint-disable-next-line import/no-deprecated
 			() => decodeAesCbc(deriveSharedKeyDeprecated, this.keyPair, recipientPublicKey, encodedMessage.message),
 			[
 				'digital envelope routines:EVP_DecryptFinal_ex:bad decrypt',
@@ -69,6 +70,7 @@ class MessageEncoder {
 	 * @returns {Uint8Array} Encrypted and encoded message.
 	 */
 	encodeDeprecated(recipientPublicKey, message) {
+		// eslint-disable-next-line import/no-deprecated
 		const encoded = encodeAesCbc(deriveSharedKeyDeprecated, this.keyPair, recipientPublicKey, message);
 
 		const encodedMessage = new Message();
@@ -92,5 +94,3 @@ class MessageEncoder {
 		return encodedMessage;
 	}
 }
-
-module.exports = { MessageEncoder };

@@ -1,5 +1,5 @@
-const { deriveSharedKeyFactory } = require('../SharedKey');
-const tweetnacl = require('tweetnacl');
+import { deriveSharedKeyFactory } from '../SharedKey.js';
+import tweetnacl from 'tweetnacl';
 
 const { crypto_hash } = tweetnacl.lowlevel;
 const deriveSharedKeyImpl = deriveSharedKeyFactory('catapult', crypto_hash);
@@ -10,6 +10,5 @@ const deriveSharedKeyImpl = deriveSharedKeyFactory('catapult', crypto_hash);
  * @param {PublicKey} otherPublicKey Other party's public key.
  * @returns {SharedKey256} Shared encryption key.
  */
-const deriveSharedKey = (keyPair, otherPublicKey) => deriveSharedKeyImpl(keyPair.privateKey.bytes, otherPublicKey);
-
-module.exports = { deriveSharedKey };
+export const deriveSharedKey = (keyPair, otherPublicKey) => // eslint-disable-line import/prefer-default-export
+	deriveSharedKeyImpl(keyPair.privateKey.bytes, otherPublicKey);

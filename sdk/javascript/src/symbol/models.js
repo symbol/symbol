@@ -1,13 +1,13 @@
 /* eslint-disable max-len, object-property-newline, no-underscore-dangle, no-use-before-define */
 
-const { BaseValue } = require('../BaseValue');
-const { ByteArray } = require('../ByteArray');
-const { BufferView } = require('../utils/BufferView');
-const { Writer } = require('../utils/Writer');
-const arrayHelpers = require('../utils/arrayHelpers');
-const converter = require('../utils/converter');
+import BaseValue from '../BaseValue.js';
+import ByteArray from '../ByteArray.js';
+import BufferView from '../utils/BufferView.js';
+import Writer from '../utils/Writer.js';
+import * as arrayHelpers from '../utils/arrayHelpers.js';
+import * as converter from '../utils/converter.js';
 
-class Amount extends BaseValue {
+export class Amount extends BaseValue {
 	static SIZE = 8;
 
 	constructor(amount = 0n) {
@@ -29,7 +29,7 @@ class Amount extends BaseValue {
 	}
 }
 
-class BlockDuration extends BaseValue {
+export class BlockDuration extends BaseValue {
 	static SIZE = 8;
 
 	constructor(blockDuration = 0n) {
@@ -51,7 +51,7 @@ class BlockDuration extends BaseValue {
 	}
 }
 
-class BlockFeeMultiplier extends BaseValue {
+export class BlockFeeMultiplier extends BaseValue {
 	static SIZE = 4;
 
 	constructor(blockFeeMultiplier = 0) {
@@ -73,7 +73,7 @@ class BlockFeeMultiplier extends BaseValue {
 	}
 }
 
-class Difficulty extends BaseValue {
+export class Difficulty extends BaseValue {
 	static SIZE = 8;
 
 	constructor(difficulty = 0n) {
@@ -95,7 +95,7 @@ class Difficulty extends BaseValue {
 	}
 }
 
-class FinalizationEpoch extends BaseValue {
+export class FinalizationEpoch extends BaseValue {
 	static SIZE = 4;
 
 	constructor(finalizationEpoch = 0) {
@@ -117,7 +117,7 @@ class FinalizationEpoch extends BaseValue {
 	}
 }
 
-class FinalizationPoint extends BaseValue {
+export class FinalizationPoint extends BaseValue {
 	static SIZE = 4;
 
 	constructor(finalizationPoint = 0) {
@@ -139,7 +139,7 @@ class FinalizationPoint extends BaseValue {
 	}
 }
 
-class Height extends BaseValue {
+export class Height extends BaseValue {
 	static SIZE = 8;
 
 	constructor(height = 0n) {
@@ -161,7 +161,7 @@ class Height extends BaseValue {
 	}
 }
 
-class Importance extends BaseValue {
+export class Importance extends BaseValue {
 	static SIZE = 8;
 
 	constructor(importance = 0n) {
@@ -183,7 +183,7 @@ class Importance extends BaseValue {
 	}
 }
 
-class ImportanceHeight extends BaseValue {
+export class ImportanceHeight extends BaseValue {
 	static SIZE = 8;
 
 	constructor(importanceHeight = 0n) {
@@ -205,7 +205,7 @@ class ImportanceHeight extends BaseValue {
 	}
 }
 
-class UnresolvedMosaicId extends BaseValue {
+export class UnresolvedMosaicId extends BaseValue {
 	static SIZE = 8;
 
 	constructor(unresolvedMosaicId = 0n) {
@@ -227,7 +227,7 @@ class UnresolvedMosaicId extends BaseValue {
 	}
 }
 
-class MosaicId extends BaseValue {
+export class MosaicId extends BaseValue {
 	static SIZE = 8;
 
 	constructor(mosaicId = 0n) {
@@ -249,7 +249,7 @@ class MosaicId extends BaseValue {
 	}
 }
 
-class Timestamp extends BaseValue {
+export class Timestamp extends BaseValue {
 	static SIZE = 8;
 
 	constructor(timestamp = 0n) {
@@ -271,7 +271,7 @@ class Timestamp extends BaseValue {
 	}
 }
 
-class UnresolvedAddress extends ByteArray {
+export class UnresolvedAddress extends ByteArray {
 	static SIZE = 24;
 
 	constructor(unresolvedAddress = new Uint8Array(24)) {
@@ -292,7 +292,7 @@ class UnresolvedAddress extends ByteArray {
 	}
 }
 
-class Address extends ByteArray {
+export class Address extends ByteArray {
 	static SIZE = 24;
 
 	constructor(address = new Uint8Array(24)) {
@@ -313,7 +313,7 @@ class Address extends ByteArray {
 	}
 }
 
-class Hash256 extends ByteArray {
+export class Hash256 extends ByteArray {
 	static SIZE = 32;
 
 	constructor(hash256 = new Uint8Array(32)) {
@@ -334,7 +334,7 @@ class Hash256 extends ByteArray {
 	}
 }
 
-class Hash512 extends ByteArray {
+export class Hash512 extends ByteArray {
 	static SIZE = 64;
 
 	constructor(hash512 = new Uint8Array(64)) {
@@ -355,7 +355,7 @@ class Hash512 extends ByteArray {
 	}
 }
 
-class PublicKey extends ByteArray {
+export class PublicKey extends ByteArray {
 	static SIZE = 32;
 
 	constructor(publicKey = new Uint8Array(32)) {
@@ -376,7 +376,7 @@ class PublicKey extends ByteArray {
 	}
 }
 
-class VotingPublicKey extends ByteArray {
+export class VotingPublicKey extends ByteArray {
 	static SIZE = 32;
 
 	constructor(votingPublicKey = new Uint8Array(32)) {
@@ -397,7 +397,7 @@ class VotingPublicKey extends ByteArray {
 	}
 }
 
-class Signature extends ByteArray {
+export class Signature extends ByteArray {
 	static SIZE = 64;
 
 	constructor(signature = new Uint8Array(64)) {
@@ -418,7 +418,7 @@ class Signature extends ByteArray {
 	}
 }
 
-class Mosaic {
+export class Mosaic {
 	static TYPE_HINTS = {
 		mosaicId: 'pod:MosaicId',
 		amount: 'pod:Amount'
@@ -484,7 +484,7 @@ class Mosaic {
 	}
 }
 
-class UnresolvedMosaic {
+export class UnresolvedMosaic {
 	static TYPE_HINTS = {
 		mosaicId: 'pod:UnresolvedMosaicId',
 		amount: 'pod:Amount'
@@ -550,7 +550,7 @@ class UnresolvedMosaic {
 	}
 }
 
-class LinkAction {
+export class LinkAction {
 	static UNLINK = new LinkAction(0);
 
 	static LINK = new LinkAction(1);
@@ -601,7 +601,7 @@ class LinkAction {
 	}
 }
 
-class NetworkType {
+export class NetworkType {
 	static MAINNET = new NetworkType(104);
 
 	static TESTNET = new NetworkType(152);
@@ -652,7 +652,7 @@ class NetworkType {
 	}
 }
 
-class TransactionType {
+export class TransactionType {
 	static ACCOUNT_KEY_LINK = new TransactionType(16716);
 
 	static NODE_KEY_LINK = new TransactionType(16972);
@@ -754,7 +754,7 @@ class TransactionType {
 	}
 }
 
-class Transaction {
+export class Transaction {
 	static TYPE_HINTS = {
 		signature: 'pod:Signature',
 		signerPublicKey: 'pod:PublicKey',
@@ -918,7 +918,7 @@ class Transaction {
 	}
 }
 
-class EmbeddedTransaction {
+export class EmbeddedTransaction {
 	static TYPE_HINTS = {
 		signerPublicKey: 'pod:PublicKey',
 		network: 'enum:NetworkType',
@@ -1034,7 +1034,7 @@ class EmbeddedTransaction {
 	}
 }
 
-class AccountKeyLinkTransaction {
+export class AccountKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_KEY_LINK;
@@ -1234,7 +1234,7 @@ class AccountKeyLinkTransaction {
 	}
 }
 
-class EmbeddedAccountKeyLinkTransaction {
+export class EmbeddedAccountKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_KEY_LINK;
@@ -1386,7 +1386,7 @@ class EmbeddedAccountKeyLinkTransaction {
 	}
 }
 
-class NodeKeyLinkTransaction {
+export class NodeKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NODE_KEY_LINK;
@@ -1586,7 +1586,7 @@ class NodeKeyLinkTransaction {
 	}
 }
 
-class EmbeddedNodeKeyLinkTransaction {
+export class EmbeddedNodeKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NODE_KEY_LINK;
@@ -1738,7 +1738,7 @@ class EmbeddedNodeKeyLinkTransaction {
 	}
 }
 
-class Cosignature {
+export class Cosignature {
 	static TYPE_HINTS = {
 		signerPublicKey: 'pod:PublicKey',
 		signature: 'pod:Signature'
@@ -1819,7 +1819,7 @@ class Cosignature {
 	}
 }
 
-class DetachedCosignature {
+export class DetachedCosignature {
 	static TYPE_HINTS = {
 		signerPublicKey: 'pod:PublicKey',
 		signature: 'pod:Signature',
@@ -1916,7 +1916,7 @@ class DetachedCosignature {
 	}
 }
 
-class AggregateCompleteTransaction {
+export class AggregateCompleteTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.AGGREGATE_COMPLETE;
@@ -2143,7 +2143,7 @@ class AggregateCompleteTransaction {
 	}
 }
 
-class AggregateBondedTransaction {
+export class AggregateBondedTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.AGGREGATE_BONDED;
@@ -2370,7 +2370,7 @@ class AggregateBondedTransaction {
 	}
 }
 
-class VotingKeyLinkTransaction {
+export class VotingKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.VOTING_KEY_LINK;
@@ -2602,7 +2602,7 @@ class VotingKeyLinkTransaction {
 	}
 }
 
-class EmbeddedVotingKeyLinkTransaction {
+export class EmbeddedVotingKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.VOTING_KEY_LINK;
@@ -2786,7 +2786,7 @@ class EmbeddedVotingKeyLinkTransaction {
 	}
 }
 
-class VrfKeyLinkTransaction {
+export class VrfKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.VRF_KEY_LINK;
@@ -2986,7 +2986,7 @@ class VrfKeyLinkTransaction {
 	}
 }
 
-class EmbeddedVrfKeyLinkTransaction {
+export class EmbeddedVrfKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.VRF_KEY_LINK;
@@ -3138,7 +3138,7 @@ class EmbeddedVrfKeyLinkTransaction {
 	}
 }
 
-class HashLockTransaction {
+export class HashLockTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.HASH_LOCK;
@@ -3355,7 +3355,7 @@ class HashLockTransaction {
 	}
 }
 
-class EmbeddedHashLockTransaction {
+export class EmbeddedHashLockTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.HASH_LOCK;
@@ -3524,7 +3524,7 @@ class EmbeddedHashLockTransaction {
 	}
 }
 
-class LockHashAlgorithm {
+export class LockHashAlgorithm {
 	static SHA3_256 = new LockHashAlgorithm(0);
 
 	static HASH_160 = new LockHashAlgorithm(1);
@@ -3577,7 +3577,7 @@ class LockHashAlgorithm {
 	}
 }
 
-class SecretLockTransaction {
+export class SecretLockTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.SECRET_LOCK;
@@ -3826,7 +3826,7 @@ class SecretLockTransaction {
 	}
 }
 
-class EmbeddedSecretLockTransaction {
+export class EmbeddedSecretLockTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.SECRET_LOCK;
@@ -4027,7 +4027,7 @@ class EmbeddedSecretLockTransaction {
 	}
 }
 
-class SecretProofTransaction {
+export class SecretProofTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.SECRET_PROOF;
@@ -4263,7 +4263,7 @@ class SecretProofTransaction {
 	}
 }
 
-class EmbeddedSecretProofTransaction {
+export class EmbeddedSecretProofTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.SECRET_PROOF;
@@ -4451,7 +4451,7 @@ class EmbeddedSecretProofTransaction {
 	}
 }
 
-class AccountMetadataTransaction {
+export class AccountMetadataTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_METADATA;
@@ -4685,7 +4685,7 @@ class AccountMetadataTransaction {
 	}
 }
 
-class EmbeddedAccountMetadataTransaction {
+export class EmbeddedAccountMetadataTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_METADATA;
@@ -4871,7 +4871,7 @@ class EmbeddedAccountMetadataTransaction {
 	}
 }
 
-class MosaicMetadataTransaction {
+export class MosaicMetadataTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_METADATA;
@@ -5121,7 +5121,7 @@ class MosaicMetadataTransaction {
 	}
 }
 
-class EmbeddedMosaicMetadataTransaction {
+export class EmbeddedMosaicMetadataTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_METADATA;
@@ -5323,7 +5323,7 @@ class EmbeddedMosaicMetadataTransaction {
 	}
 }
 
-class NamespaceId extends BaseValue {
+export class NamespaceId extends BaseValue {
 	static SIZE = 8;
 
 	constructor(namespaceId = 0n) {
@@ -5345,7 +5345,7 @@ class NamespaceId extends BaseValue {
 	}
 }
 
-class NamespaceRegistrationType {
+export class NamespaceRegistrationType {
 	static ROOT = new NamespaceRegistrationType(0);
 
 	static CHILD = new NamespaceRegistrationType(1);
@@ -5396,7 +5396,7 @@ class NamespaceRegistrationType {
 	}
 }
 
-class AliasAction {
+export class AliasAction {
 	static UNLINK = new AliasAction(0);
 
 	static LINK = new AliasAction(1);
@@ -5447,7 +5447,7 @@ class AliasAction {
 	}
 }
 
-class NamespaceMetadataTransaction {
+export class NamespaceMetadataTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_METADATA;
@@ -5697,7 +5697,7 @@ class NamespaceMetadataTransaction {
 	}
 }
 
-class EmbeddedNamespaceMetadataTransaction {
+export class EmbeddedNamespaceMetadataTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_METADATA;
@@ -5899,7 +5899,7 @@ class EmbeddedNamespaceMetadataTransaction {
 	}
 }
 
-class MosaicNonce extends BaseValue {
+export class MosaicNonce extends BaseValue {
 	static SIZE = 4;
 
 	constructor(mosaicNonce = 0) {
@@ -5921,7 +5921,7 @@ class MosaicNonce extends BaseValue {
 	}
 }
 
-class MosaicFlags {
+export class MosaicFlags {
 	static NONE = new MosaicFlags(0);
 
 	static SUPPLY_MUTABLE = new MosaicFlags(1);
@@ -5976,7 +5976,7 @@ class MosaicFlags {
 	}
 }
 
-class MosaicSupplyChangeAction {
+export class MosaicSupplyChangeAction {
 	static DECREASE = new MosaicSupplyChangeAction(0);
 
 	static INCREASE = new MosaicSupplyChangeAction(1);
@@ -6027,7 +6027,7 @@ class MosaicSupplyChangeAction {
 	}
 }
 
-class MosaicDefinitionTransaction {
+export class MosaicDefinitionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_DEFINITION;
@@ -6274,7 +6274,7 @@ class MosaicDefinitionTransaction {
 	}
 }
 
-class EmbeddedMosaicDefinitionTransaction {
+export class EmbeddedMosaicDefinitionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_DEFINITION;
@@ -6473,7 +6473,7 @@ class EmbeddedMosaicDefinitionTransaction {
 	}
 }
 
-class MosaicSupplyChangeTransaction {
+export class MosaicSupplyChangeTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_CHANGE;
@@ -6689,7 +6689,7 @@ class MosaicSupplyChangeTransaction {
 	}
 }
 
-class EmbeddedMosaicSupplyChangeTransaction {
+export class EmbeddedMosaicSupplyChangeTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_CHANGE;
@@ -6857,7 +6857,7 @@ class EmbeddedMosaicSupplyChangeTransaction {
 	}
 }
 
-class MosaicSupplyRevocationTransaction {
+export class MosaicSupplyRevocationTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_REVOCATION;
@@ -7058,7 +7058,7 @@ class MosaicSupplyRevocationTransaction {
 	}
 }
 
-class EmbeddedMosaicSupplyRevocationTransaction {
+export class EmbeddedMosaicSupplyRevocationTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_REVOCATION;
@@ -7211,7 +7211,7 @@ class EmbeddedMosaicSupplyRevocationTransaction {
 	}
 }
 
-class MultisigAccountModificationTransaction {
+export class MultisigAccountModificationTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -7456,7 +7456,7 @@ class MultisigAccountModificationTransaction {
 	}
 }
 
-class EmbeddedMultisigAccountModificationTransaction {
+export class EmbeddedMultisigAccountModificationTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -7653,7 +7653,7 @@ class EmbeddedMultisigAccountModificationTransaction {
 	}
 }
 
-class AddressAliasTransaction {
+export class AddressAliasTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ADDRESS_ALIAS;
@@ -7869,7 +7869,7 @@ class AddressAliasTransaction {
 	}
 }
 
-class EmbeddedAddressAliasTransaction {
+export class EmbeddedAddressAliasTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ADDRESS_ALIAS;
@@ -8037,7 +8037,7 @@ class EmbeddedAddressAliasTransaction {
 	}
 }
 
-class MosaicAliasTransaction {
+export class MosaicAliasTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_ALIAS;
@@ -8253,7 +8253,7 @@ class MosaicAliasTransaction {
 	}
 }
 
-class EmbeddedMosaicAliasTransaction {
+export class EmbeddedMosaicAliasTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_ALIAS;
@@ -8421,7 +8421,7 @@ class EmbeddedMosaicAliasTransaction {
 	}
 }
 
-class NamespaceRegistrationTransaction {
+export class NamespaceRegistrationTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_REGISTRATION;
@@ -8694,7 +8694,7 @@ class NamespaceRegistrationTransaction {
 	}
 }
 
-class EmbeddedNamespaceRegistrationTransaction {
+export class EmbeddedNamespaceRegistrationTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_REGISTRATION;
@@ -8919,7 +8919,7 @@ class EmbeddedNamespaceRegistrationTransaction {
 	}
 }
 
-class AccountRestrictionFlags {
+export class AccountRestrictionFlags {
 	static ADDRESS = new AccountRestrictionFlags(1);
 
 	static MOSAIC_ID = new AccountRestrictionFlags(2);
@@ -8974,7 +8974,7 @@ class AccountRestrictionFlags {
 	}
 }
 
-class AccountAddressRestrictionTransaction {
+export class AccountAddressRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_ADDRESS_RESTRICTION;
@@ -9205,7 +9205,7 @@ class AccountAddressRestrictionTransaction {
 	}
 }
 
-class EmbeddedAccountAddressRestrictionTransaction {
+export class EmbeddedAccountAddressRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_ADDRESS_RESTRICTION;
@@ -9388,7 +9388,7 @@ class EmbeddedAccountAddressRestrictionTransaction {
 	}
 }
 
-class AccountMosaicRestrictionTransaction {
+export class AccountMosaicRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_MOSAIC_RESTRICTION;
@@ -9619,7 +9619,7 @@ class AccountMosaicRestrictionTransaction {
 	}
 }
 
-class EmbeddedAccountMosaicRestrictionTransaction {
+export class EmbeddedAccountMosaicRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_MOSAIC_RESTRICTION;
@@ -9802,7 +9802,7 @@ class EmbeddedAccountMosaicRestrictionTransaction {
 	}
 }
 
-class AccountOperationRestrictionTransaction {
+export class AccountOperationRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_OPERATION_RESTRICTION;
@@ -10033,7 +10033,7 @@ class AccountOperationRestrictionTransaction {
 	}
 }
 
-class EmbeddedAccountOperationRestrictionTransaction {
+export class EmbeddedAccountOperationRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_OPERATION_RESTRICTION;
@@ -10216,7 +10216,7 @@ class EmbeddedAccountOperationRestrictionTransaction {
 	}
 }
 
-class MosaicAddressRestrictionTransaction {
+export class MosaicAddressRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_ADDRESS_RESTRICTION;
@@ -10461,7 +10461,7 @@ class MosaicAddressRestrictionTransaction {
 	}
 }
 
-class EmbeddedMosaicAddressRestrictionTransaction {
+export class EmbeddedMosaicAddressRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_ADDRESS_RESTRICTION;
@@ -10658,7 +10658,7 @@ class EmbeddedMosaicAddressRestrictionTransaction {
 	}
 }
 
-class MosaicRestrictionKey extends BaseValue {
+export class MosaicRestrictionKey extends BaseValue {
 	static SIZE = 8;
 
 	constructor(mosaicRestrictionKey = 0n) {
@@ -10680,7 +10680,7 @@ class MosaicRestrictionKey extends BaseValue {
 	}
 }
 
-class MosaicRestrictionType {
+export class MosaicRestrictionType {
 	static NONE = new MosaicRestrictionType(0);
 
 	static EQ = new MosaicRestrictionType(1);
@@ -10741,7 +10741,7 @@ class MosaicRestrictionType {
 	}
 }
 
-class MosaicGlobalRestrictionTransaction {
+export class MosaicGlobalRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_GLOBAL_RESTRICTION;
@@ -11018,7 +11018,7 @@ class MosaicGlobalRestrictionTransaction {
 	}
 }
 
-class EmbeddedMosaicGlobalRestrictionTransaction {
+export class EmbeddedMosaicGlobalRestrictionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_GLOBAL_RESTRICTION;
@@ -11247,7 +11247,7 @@ class EmbeddedMosaicGlobalRestrictionTransaction {
 	}
 }
 
-class TransferTransaction {
+export class TransferTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -11489,7 +11489,7 @@ class TransferTransaction {
 	}
 }
 
-class EmbeddedTransferTransaction {
+export class EmbeddedTransferTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -11683,7 +11683,7 @@ class EmbeddedTransferTransaction {
 	}
 }
 
-class TransactionFactory {
+export class TransactionFactory {
 	static toKey(values) {
 		if (1 === values.length)
 			return values[0];
@@ -11763,7 +11763,7 @@ class TransactionFactory {
 	}
 }
 
-class EmbeddedTransactionFactory {
+export class EmbeddedTransactionFactory {
 	static toKey(values) {
 		if (1 === values.length)
 			return values[0];
@@ -11838,24 +11838,3 @@ class EmbeddedTransactionFactory {
 		return new mapping[entityName]();
 	}
 }
-
-module.exports = {
-	Amount, BlockDuration, BlockFeeMultiplier, Difficulty, FinalizationEpoch, FinalizationPoint, Height, Importance, ImportanceHeight,
-	UnresolvedMosaicId, MosaicId, Timestamp, UnresolvedAddress, Address, Hash256, Hash512, PublicKey, VotingPublicKey, Signature, Mosaic,
-	UnresolvedMosaic, LinkAction, NetworkType, TransactionType, Transaction, EmbeddedTransaction, AccountKeyLinkTransaction,
-	EmbeddedAccountKeyLinkTransaction, NodeKeyLinkTransaction, EmbeddedNodeKeyLinkTransaction, Cosignature, DetachedCosignature,
-	AggregateCompleteTransaction, AggregateBondedTransaction, VotingKeyLinkTransaction, EmbeddedVotingKeyLinkTransaction, VrfKeyLinkTransaction,
-	EmbeddedVrfKeyLinkTransaction, HashLockTransaction, EmbeddedHashLockTransaction, LockHashAlgorithm, SecretLockTransaction,
-	EmbeddedSecretLockTransaction, SecretProofTransaction, EmbeddedSecretProofTransaction, AccountMetadataTransaction,
-	EmbeddedAccountMetadataTransaction, MosaicMetadataTransaction, EmbeddedMosaicMetadataTransaction, NamespaceId, NamespaceRegistrationType,
-	AliasAction, NamespaceMetadataTransaction, EmbeddedNamespaceMetadataTransaction, MosaicNonce, MosaicFlags, MosaicSupplyChangeAction,
-	MosaicDefinitionTransaction, EmbeddedMosaicDefinitionTransaction, MosaicSupplyChangeTransaction, EmbeddedMosaicSupplyChangeTransaction,
-	MosaicSupplyRevocationTransaction, EmbeddedMosaicSupplyRevocationTransaction, MultisigAccountModificationTransaction,
-	EmbeddedMultisigAccountModificationTransaction, AddressAliasTransaction, EmbeddedAddressAliasTransaction, MosaicAliasTransaction,
-	EmbeddedMosaicAliasTransaction, NamespaceRegistrationTransaction, EmbeddedNamespaceRegistrationTransaction, AccountRestrictionFlags,
-	AccountAddressRestrictionTransaction, EmbeddedAccountAddressRestrictionTransaction, AccountMosaicRestrictionTransaction,
-	EmbeddedAccountMosaicRestrictionTransaction, AccountOperationRestrictionTransaction, EmbeddedAccountOperationRestrictionTransaction,
-	MosaicAddressRestrictionTransaction, EmbeddedMosaicAddressRestrictionTransaction, MosaicRestrictionKey, MosaicRestrictionType,
-	MosaicGlobalRestrictionTransaction, EmbeddedMosaicGlobalRestrictionTransaction, TransferTransaction, EmbeddedTransferTransaction,
-	TransactionFactory, EmbeddedTransactionFactory
-};

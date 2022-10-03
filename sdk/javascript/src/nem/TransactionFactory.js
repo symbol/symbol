@@ -1,13 +1,13 @@
-const { Address } = require('./Network');
-const nc = require('./models');
-const { Hash256, PublicKey } = require('../CryptoTypes');
-const { RuleBasedTransactionFactory } = require('../RuleBasedTransactionFactory');
-const { uint8ToHex } = require('../utils/converter');
+import { Address } from './Network.js';
+import * as nc from './models.js';
+import { Hash256, PublicKey } from '../CryptoTypes.js';
+import RuleBasedTransactionFactory from '../RuleBasedTransactionFactory.js';
+import { uint8ToHex } from '../utils/converter.js';
 
 /**
  * Factory for creating NEM transactions.
  */
-class TransactionFactory {
+export default class TransactionFactory {
 	/**
 	 * Creates a factory for the specified network.
 	 * @param {Network} network NEM network.
@@ -112,5 +112,3 @@ class TransactionFactory {
 		return factory;
 	}
 }
-
-module.exports = { TransactionFactory };

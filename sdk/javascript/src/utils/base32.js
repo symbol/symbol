@@ -1,4 +1,4 @@
-const charMapping = require('./charMapping');
+import charMapping from './charMapping.js';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 const DECODED_BLOCK_SIZE = 5;
@@ -84,4 +84,4 @@ const base32 = {
 	}
 };
 
-module.exports = base32;
+export default base32;

@@ -1,7 +1,5 @@
-const symbolSdk = require('../src/index');
-const fs = require('fs');
+import symbolSdk from '../src/index.js';
+import fs from 'fs';
 
-const readContents = filepath => fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' });
-const readPrivateKey = filepath => new symbolSdk.symbol.KeyPair(new symbolSdk.CryptoTypes.PrivateKey(readContents(filepath).trim()));
-
-module.exports = { readContents, readPrivateKey };
+export const readContents = filepath => fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' });
+export const readPrivateKey = filepath => new symbolSdk.symbol.KeyPair(new symbolSdk.PrivateKey(readContents(filepath).trim()));

@@ -4,11 +4,11 @@
 // Shows how to create multisig account.
 //
 
-const symbolSdk = require('../src/index');
+import symbolSdk from '../src/index.js';
 
 (() => {
 	const createKeyPairFromPrivateKey = privateKeyString =>
-		new symbolSdk.symbol.KeyPair(new symbolSdk.CryptoTypes.PrivateKey(privateKeyString));
+		new symbolSdk.symbol.KeyPair(new symbolSdk.PrivateKey(privateKeyString));
 
 	class MultisigAccountModificationSample {
 		constructor() {

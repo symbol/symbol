@@ -1,5 +1,5 @@
-const { NetworkTimestamp, NetworkTimestampDatetimeConverter } = require('../src/NetworkTimestamp');
-const { expect } = require('chai');
+import { NetworkTimestamp, NetworkTimestampDatetimeConverter } from '../src/NetworkTimestamp.js';
+import { expect } from 'chai';
 
 describe('NetworkTimestamp', () => {
 	const runTestCases = wrapInt => {

@@ -1,8 +1,8 @@
-const { AesCbcCipher, AesGcmCipher } = require('../src/Cipher');
-const { SharedKey256 } = require('../src/CryptoTypes');
-const { hexToUint8 } = require('../src/utils/converter');
-const { expect } = require('chai');
-const crypto = require('crypto');
+import { AesCbcCipher, AesGcmCipher } from '../src/Cipher.js';
+import { SharedKey256 } from '../src/CryptoTypes.js';
+import { hexToUint8 } from '../src/utils/converter.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
 describe('Cipher', () => {
 	// region runBasicCipherTests

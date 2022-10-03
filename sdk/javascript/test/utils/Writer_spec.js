@@ -1,5 +1,5 @@
-const { Writer } = require('../../src/utils/Writer');
-const { expect } = require('chai');
+import Writer from '../../src/utils/Writer.js';
+import { expect } from 'chai';
 
 describe('Writer', () => {
 	describe('can consturct', () => {

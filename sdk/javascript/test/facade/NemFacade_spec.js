@@ -1,11 +1,11 @@
-const { Bip32 } = require('../../src/Bip32');
-const {
+import Bip32 from '../../src/Bip32.js';
+import {
 	Hash256, PrivateKey, PublicKey, Signature
-} = require('../../src/CryptoTypes');
-const { NemFacade } = require('../../src/facade/NemFacade');
-const { Network } = require('../../src/nem/Network');
-const { expect } = require('chai');
-const crypto = require('crypto');
+} from '../../src/CryptoTypes.js';
+import NemFacade from '../../src/facade/NemFacade.js';
+import { Network } from '../../src/nem/Network.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
 describe('NEM Facade', () => {
 	// region constants

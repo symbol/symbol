@@ -1,15 +1,15 @@
-const { Hash256, PrivateKey } = require('../CryptoTypes');
-const { NetworkLocator } = require('../Network');
-const { KeyPair, Verifier } = require('../nem/KeyPair');
-const { Address, Network } = require('../nem/Network');
-const { deriveSharedKey } = require('../nem/SharedKey');
-const { TransactionFactory } = require('../nem/TransactionFactory');
-const { keccak_256 } = require('@noble/hashes/sha3');
+import { Hash256, PrivateKey } from '../CryptoTypes.js';
+import { NetworkLocator } from '../Network.js';
+import { KeyPair, Verifier } from '../nem/KeyPair.js';
+import { Address, Network } from '../nem/Network.js';
+import { deriveSharedKey } from '../nem/SharedKey.js';
+import TransactionFactory from '../nem/TransactionFactory.js';
+import { keccak_256 } from '@noble/hashes/sha3';
 
 /**
  * Facade used to interact with NEM blockchain.
  */
-class NemFacade {
+export default class NemFacade {
 	static BIP32_CURVE_NAME = 'ed25519-keccak';
 
 	static Address = Address;
@@ -86,5 +86,3 @@ class NemFacade {
 		return new KeyPair(new PrivateKey(reversedPrivateKeyBytes));
 	}
 }
-
-module.exports = { NemFacade };

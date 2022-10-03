@@ -1,5 +1,5 @@
-const { PrivateKey } = require('../../src/CryptoTypes');
-const { expect } = require('chai');
+import { PrivateKey } from '../../src/CryptoTypes.js';
+import { expect } from 'chai';
 
 const runMessageEncoderDecodeSuccessTests = testDescriptor => {
 	const testSuffix = testDescriptor.name ? ` (${testDescriptor.name})` : '';
@@ -36,7 +36,7 @@ const runMessageEncoderDecodeSuccessTests = testDescriptor => {
 	});
 };
 
-const runMessageEncoderDecodeFailureTests = testDescriptor => {
+export const runMessageEncoderDecodeFailureTests = testDescriptor => {
 	const testSuffix = testDescriptor.name ? ` (${testDescriptor.name})` : '';
 
 	const runDecodeFailureTest = message => {
@@ -64,9 +64,7 @@ const runMessageEncoderDecodeFailureTests = testDescriptor => {
 	});
 };
 
-const runBasicMessageEncoderTests = testDescriptor => {
+export const runBasicMessageEncoderTests = testDescriptor => {
 	runMessageEncoderDecodeSuccessTests(testDescriptor);
 	runMessageEncoderDecodeFailureTests(testDescriptor);
 };
-
-module.exports = { runBasicMessageEncoderTests, runMessageEncoderDecodeFailureTests };

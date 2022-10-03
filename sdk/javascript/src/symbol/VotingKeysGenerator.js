@@ -1,5 +1,5 @@
-const { KeyPair } = require('./KeyPair');
-const { PrivateKey } = require('../CryptoTypes');
+import { KeyPair } from './KeyPair.js';
+import { PrivateKey } from '../CryptoTypes.js';
 
 const setBuffer = (destination, offset, source) => {
 	source.forEach((byte, i) => { destination.setUint8(offset + i, source[i]); });
@@ -8,7 +8,7 @@ const setBuffer = (destination, offset, source) => {
 /**
  * Generates symbol voting keys.
  */
-class VotingKeysGenerator {
+export default class VotingKeysGenerator {
 	/**
 	 * Creates a generator around a voting root key pair.
 	 * @param {KeyPair} rootKeyPair Voting root key pair.
@@ -61,5 +61,3 @@ class VotingKeysGenerator {
 		return new Uint8Array(buffer);
 	}
 }
-
-module.exports = { VotingKeysGenerator };

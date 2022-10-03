@@ -1,8 +1,11 @@
-const { PublicKey, Signature } = require('../../src/CryptoTypes');
-const { expect } = require('chai');
-const crypto = require('crypto');
+import { PublicKey, Signature } from '../../src/CryptoTypes.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
-const runBasicTransactionFactoryTests = (testDescriptor, includeAttachSignatureTests = true) => {
+export const runBasicTransactionFactoryTests = ( // eslint-disable-line import/prefer-default-export
+	testDescriptor,
+	includeAttachSignatureTests = true
+) => {
 	const TEST_SIGNER_PUBLIC_KEY = new PublicKey(crypto.randomBytes(PublicKey.SIZE));
 
 	// region create
@@ -66,5 +69,3 @@ const runBasicTransactionFactoryTests = (testDescriptor, includeAttachSignatureT
 		// endregion
 	}
 };
-
-module.exports = { runBasicTransactionFactoryTests };

@@ -1,15 +1,14 @@
-const { ByteArray } = require('../ByteArray');
-const { Hash256 } = require('../CryptoTypes');
-const BasicNetwork = require('../Network').Network;
-const BasicNetworkTimestamp = require('../NetworkTimestamp').NetworkTimestamp;
-const { NetworkTimestampDatetimeConverter } = require('../NetworkTimestamp');
-const base32 = require('../utils/base32');
-const { sha3_256 } = require('@noble/hashes/sha3');
+import ByteArray from '../ByteArray.js';
+import { Hash256 } from '../CryptoTypes.js';
+import { Network as BasicNetwork } from '../Network.js';
+import { NetworkTimestamp as BasicNetworkTimestamp, NetworkTimestampDatetimeConverter } from '../NetworkTimestamp.js';
+import base32 from '../utils/base32.js';
+import { sha3_256 } from '@noble/hashes/sha3';
 
 /**
  * Represents a symbol network timestamp with millisecond resolution.
  */
-class NetworkTimestamp extends BasicNetworkTimestamp {
+export class NetworkTimestamp extends BasicNetworkTimestamp {
 	/**
 	 * Adds a specified number of milliseconds to this timestamp.
 	 * @param {number} count Number of milliseconds to add.
@@ -33,7 +32,7 @@ class NetworkTimestamp extends BasicNetworkTimestamp {
 /**
  * Represents a Symbol address.
  */
-class Address extends ByteArray {
+export class Address extends ByteArray {
 	static SIZE = 24;
 
 	static ENCODED_SIZE = 39;
@@ -64,7 +63,7 @@ class Address extends ByteArray {
 /**
  * Represents a Symbol network.
  */
-class Network extends BasicNetwork {
+export class Network extends BasicNetwork {
 	/**
 	 * Creates a new network with the specified name, identifier byte and generation hash seed.
 	 * @param {string} name Network name.
@@ -99,5 +98,3 @@ Network.TESTNET = new Network(
 	new Hash256('7FCCD304802016BEBBCD342A332F91FF1F3BB5E902988B352697BE245F48E836')
 );
 Network.NETWORKS = [Network.MAINNET, Network.TESTNET];
-
-module.exports = { Address, Network, NetworkTimestamp };

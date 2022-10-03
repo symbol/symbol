@@ -1,13 +1,13 @@
-const { PrivateKey, PublicKey, Signature } = require('../CryptoTypes');
-const ed25519 = require('../impl/ed25519');
-const { deepCompare } = require('../utils/arrayHelpers');
+import { PrivateKey, PublicKey, Signature } from '../CryptoTypes.js';
+import ed25519 from '../impl/ed25519.js';
+import { deepCompare } from '../utils/arrayHelpers.js';
 
 const HASH_MODE = 'Keccak';
 
 /**
  * Represents an ED25519 private and public key.
  */
-class KeyPair {
+export class KeyPair {
 	/**
 	 * Creates a key pair from a private key.
 	 * @param {PrivateKey} privateKey Private key.
@@ -49,7 +49,7 @@ class KeyPair {
 /**
  * Verifies signatures signed by a single key pair.
  */
-class Verifier {
+export class Verifier {
 	/**
 	 * Creates a verifier from a public key.
 	 * @param {PublicKey} publicKey Public key.
@@ -71,5 +71,3 @@ class Verifier {
 		return ed25519.verify(HASH_MODE, message, signature.bytes, this.publicKey.bytes);
 	}
 }
-
-module.exports = { KeyPair, Verifier };

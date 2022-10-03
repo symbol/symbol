@@ -1,6 +1,6 @@
-const { PublicKey } = require('../src/CryptoTypes');
-const { TransactionDescriptorProcessor } = require('../src/TransactionDescriptorProcessor');
-const { expect } = require('chai');
+import { PublicKey } from '../src/CryptoTypes.js';
+import TransactionDescriptorProcessor from '../src/TransactionDescriptorProcessor.js';
+import { expect } from 'chai';
 
 describe('TransactionDescriptorProcessor', () => {
 	// region test utils

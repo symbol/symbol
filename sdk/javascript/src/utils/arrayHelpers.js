@@ -1,6 +1,12 @@
-const { BufferView } = require('./BufferView');
+import BufferView from './BufferView.js';
 
-const deepCompare = (lhs, rhs) => {
+/**
+ * Deeply compares two array elements.
+ * @param {object} lhs Left object to compare.
+ * @param {object} rhs Right object to compare.
+ * @returns {number} 1 if lhs is greater than rhs; -1 if lhs is less than rhs; 0 if lhs and rhs are equal.
+ */
+export const deepCompare = (lhs, rhs) => {
 	if (!Array.isArray(lhs) && !(lhs instanceof Object.getPrototypeOf(Uint8Array))) {
 		if (lhs === rhs)
 			return 0;
@@ -56,130 +62,118 @@ const writeArrayImpl = (output, elements, count, accessor = null) => {
 
 const sum = numbers => numbers.reduce((a, b) => a + b, 0);
 
-const arrayHelpers = {
-	/**
-	 * Deeply compares two array elements.
-	 * @param {object} lhs Left object to compare.
-	 * @param {object} rhs Right object to compare.
-	 * @return {number} 1 if lhs is greater than rhs; -1 if lhs is less than rhs; 0 if lhs and rhs are equal.
-	 */
-	deepCompare,
+/**
+ * Calculates aligned size.
+ * @param {number} size Size.
+ * @param {number} alignment Alignment.
+ * @returns {number} Size rounded up to alignment.
+ */
+export const alignUp = (size, alignment) => Math.floor((size + alignment - 1) / alignment) * alignment;
 
-	/**
-	 * Calculates aligned size.
-	 * @param {number} size Size.
-	 * @param {number} alignment Alignment.
-	 * @returns {number} Size rounded up to alignment.
-	 */
-	alignUp: (size, alignment) => Math.floor((size + alignment - 1) / alignment) * alignment,
+/**
+ * Calculates size of variable size objects.
+ * @param {array<object>} elements Serializable elements.
+ * @param {number} alignment Alignment used for calculations.
+ * @param {boolean} skipLastElementPadding true if last element should not be aligned.
+ * @returns {number} Computed size.
+ */
+export const size = (elements, alignment = 0, skipLastElementPadding = undefined) => {
+	if (!alignment)
+		return sum(elements.map(e => e.size));
 
-	/**
-	 * Calculates size of variable size objects.
-	 * @param {array<object>} elements Serializable elements.
-	 * @param {number} alignment Alignment used for calculations.
-	 * @param {boolean} skipLastElementPadding true if last element should not be aligned.
-	 * @returns {number} Computed size.
-	 */
-	size: (elements, alignment = 0, skipLastElementPadding = undefined) => {
-		if (!alignment)
-			return sum(elements.map(e => e.size));
+	if (!skipLastElementPadding)
+		return sum(elements.map(e => alignUp(e.size, alignment)));
 
-		if (!skipLastElementPadding)
-			return sum(elements.map(e => arrayHelpers.alignUp(e.size, alignment)));
-
-		return sum(elements.slice(0, -1).map(e => arrayHelpers.alignUp(e.size, alignment))) + sum(elements.slice(-1).map(e => e.size));
-	},
-
-	/**
-	 * Reads array of objects.
-	 * @param {Uint8Array} bufferInput Input buffer.
-	 * @param {type} FactoryClass Factory used to deserialize objects.
-	 * @param {function} accessor Optional accessor used to check objects order.
-	 * @returns {array<object>} Array of deserialized objects.
-	 */
-	readArray: (bufferInput, FactoryClass, accessor = null) =>
-		// note: this method is used only for '__FILL__' type arrays
-		// this loop assumes properly sliced buffer is passed and that there's no additional data.
-		readArrayImpl(bufferInput, FactoryClass, accessor, (_, view) => 0 < view.buffer.length),
-
-	/**
-	 * Reads array of deterministic number of objects.
-	 * @param {Uint8Array} bufferInput A uint8 array.
-	 * @param {type} FactoryClass Factory used to deserialize objects.
-	 * @param {number} count Number of object to deserialize.
-	 * @param {function} accessor Optional accessor used to check objects order.
-	 * @returns {array<object>} Array of deserialized objects.
-	 */
-	readArrayCount: (bufferInput, FactoryClass, count, accessor = null) =>
-		readArrayImpl(bufferInput, FactoryClass, accessor, index => count > index),
-
-	/**
-	 * Reads array of variable size objects.
-	 * @param {Uint8Array} bufferInput A uint8 array.
-	 * @param {type} FactoryClass Factory used to deserialize objects.
-	 * @param {number} alignment Alignment used to make sure each object is at boundary.
-	 * @param {boolean} skipLastElementPadding true if last element is not aligned/padded.
-	 * @returns {array<object>} Array of deserialized objects.
-	 */
-	readVariableSizeElements: (bufferInput, FactoryClass, alignment, skipLastElementPadding = false) => {
-		const view = new BufferView(bufferInput);
-		const elements = [];
-		while (0 < view.buffer.length) {
-			const element = FactoryClass.deserialize(view.buffer);
-
-			if (0 >= element.size)
-				throw RangeError('element size has invalid size');
-
-			elements.push(element);
-
-			const alignedSize = (skipLastElementPadding && element.size >= view.buffer.length)
-				? element.size
-				: arrayHelpers.alignUp(element.size, alignment);
-			if (alignedSize > view.buffer.length)
-				throw RangeError('unexpected buffer length');
-
-			view.shiftRight(alignedSize);
-		}
-
-		return elements;
-	},
-
-	/**
-	 * Writes array of objects.
-	 * @param {Writer} output An output sink.
-	 * @param {array<object>} elements Serializable elements.
-	 * @param {function} accessor Optional accessor used to check objects order.
-	 */
-	writeArray: (output, elements, accessor = undefined) => {
-		writeArrayImpl(output, elements, elements.length, accessor);
-	},
-
-	/**
-	 * Writes array of deterministic number of objects.
-	 * @param {Writer} output An output sink.
-	 * @param {array<object>} elements Serializable elements.
-	 * @param {number} count Number of objects to write.
-	 * @param {function} accessor Optional accessor used to check objects order.
-	 */
-	writeArrayCount: writeArrayImpl,
-
-	/**
-	 * Writes array of variable size objects.
-	 * @param {Writer} output An output sink.
-	 * @param {array<object>} elements Serializable elements.
-	 * @param {number} alignment Alignment used to make sure each object is at boundary.
-	 * @param {boolean} skipLastElementPadding true if last element should not be aligned/padded.
-	 */
-	writeVariableSizeElements: (output, elements, alignment, skipLastElementPadding = false) => {
-		elements.forEach((element, index) => {
-			output.write(element.serialize());
-			if (!skipLastElementPadding || elements.length - 1 !== index) {
-				const alignedSize = arrayHelpers.alignUp(element.size, alignment);
-				if (alignedSize - element.size)
-					output.write(new Uint8Array(alignedSize - element.size));
-			}
-		});
-	}
+	return sum(elements.slice(0, -1).map(e => alignUp(e.size, alignment))) + sum(elements.slice(-1).map(e => e.size));
 };
 
-module.exports = arrayHelpers;
+/**
+ * Reads array of objects.
+ * @param {Uint8Array} bufferInput Input buffer.
+ * @param {type} FactoryClass Factory used to deserialize objects.
+ * @param {function} accessor Optional accessor used to check objects order.
+ * @returns {array<object>} Array of deserialized objects.
+ */
+export const readArray = (bufferInput, FactoryClass, accessor = null) =>
+	// note: this method is used only for '__FILL__' type arrays
+	// this loop assumes properly sliced buffer is passed and that there's no additional data.
+	readArrayImpl(bufferInput, FactoryClass, accessor, (_, view) => 0 < view.buffer.length);
+
+/**
+ * Reads array of deterministic number of objects.
+ * @param {Uint8Array} bufferInput A uint8 array.
+ * @param {type} FactoryClass Factory used to deserialize objects.
+ * @param {number} count Number of object to deserialize.
+ * @param {function} accessor Optional accessor used to check objects order.
+ * @returns {array<object>} Array of deserialized objects.
+ */
+export const readArrayCount = (bufferInput, FactoryClass, count, accessor = null) =>
+	readArrayImpl(bufferInput, FactoryClass, accessor, index => count > index);
+
+/**
+ * Reads array of variable size objects.
+ * @param {Uint8Array} bufferInput A uint8 array.
+ * @param {type} FactoryClass Factory used to deserialize objects.
+ * @param {number} alignment Alignment used to make sure each object is at boundary.
+ * @param {boolean} skipLastElementPadding true if last element is not aligned/padded.
+ * @returns {array<object>} Array of deserialized objects.
+ */
+export const readVariableSizeElements = (bufferInput, FactoryClass, alignment, skipLastElementPadding = false) => {
+	const view = new BufferView(bufferInput);
+	const elements = [];
+	while (0 < view.buffer.length) {
+		const element = FactoryClass.deserialize(view.buffer);
+
+		if (0 >= element.size)
+			throw RangeError('element size has invalid size');
+
+		elements.push(element);
+
+		const alignedSize = (skipLastElementPadding && element.size >= view.buffer.length)
+			? element.size
+			: alignUp(element.size, alignment);
+		if (alignedSize > view.buffer.length)
+			throw RangeError('unexpected buffer length');
+
+		view.shiftRight(alignedSize);
+	}
+
+	return elements;
+};
+
+/**
+ * Writes array of objects.
+ * @param {Writer} output An output sink.
+ * @param {array<object>} elements Serializable elements.
+ * @param {function} accessor Optional accessor used to check objects order.
+ */
+export const writeArray = (output, elements, accessor = undefined) => {
+	writeArrayImpl(output, elements, elements.length, accessor);
+};
+
+/**
+ * Writes array of deterministic number of objects.
+ * @param {Writer} output An output sink.
+ * @param {array<object>} elements Serializable elements.
+ * @param {number} count Number of objects to write.
+ * @param {function} accessor Optional accessor used to check objects order.
+ */
+export const writeArrayCount = writeArrayImpl;
+
+/**
+ * Writes array of variable size objects.
+ * @param {Writer} output An output sink.
+ * @param {array<object>} elements Serializable elements.
+ * @param {number} alignment Alignment used to make sure each object is at boundary.
+ * @param {boolean} skipLastElementPadding true if last element should not be aligned/padded.
+ */
+export const writeVariableSizeElements = (output, elements, alignment, skipLastElementPadding = false) => {
+	elements.forEach((element, index) => {
+		output.write(element.serialize());
+		if (!skipLastElementPadding || elements.length - 1 !== index) {
+			const alignedSize = alignUp(element.size, alignment);
+			if (alignedSize - element.size)
+				output.write(new Uint8Array(alignedSize - element.size));
+		}
+	});
+};

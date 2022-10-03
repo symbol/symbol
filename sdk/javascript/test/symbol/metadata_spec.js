@@ -1,5 +1,5 @@
-const { metadataUpdateValue } = require('../../src/symbol/metadata');
-const { expect } = require('chai');
+import { metadataUpdateValue } from '../../src/symbol/metadata.js';
+import { expect } from 'chai';
 
 describe('metadata', () => {
 	describe('metadataUpdateValue', () => {

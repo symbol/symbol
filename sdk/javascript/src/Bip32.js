@@ -1,6 +1,6 @@
-const { PrivateKey } = require('./CryptoTypes');
-const Mnemonic = require('bitcore-mnemonic');
-const crypto = require('crypto');
+import { PrivateKey } from './CryptoTypes.js';
+import Mnemonic from 'bitcore-mnemonic';
+import crypto from 'crypto';
 
 /**
  * Representation of a BIP32 node.
@@ -57,7 +57,7 @@ class Bip32Node {
 /**
  * Factory of BIP32 root nodes.
  */
-class Bip32 {
+export default class Bip32 {
 	/**
 	 * Creates a BIP32 root node factory.
 	 * @param {string} curveName Elliptic curve to use.
@@ -98,5 +98,3 @@ class Bip32 {
 		return new Mnemonic(seedLength * 8, wordlist).phrase;
 	}
 }
-
-module.exports = { Bip32 };

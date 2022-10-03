@@ -1,9 +1,9 @@
-const { PrivateKey, PublicKey, Signature } = require('../../src/CryptoTypes');
-const { hexToUint8 } = require('../../src/utils/converter');
-const { expect } = require('chai');
-const crypto = require('crypto');
+import { PrivateKey, PublicKey, Signature } from '../../src/CryptoTypes.js';
+import { hexToUint8 } from '../../src/utils/converter.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
-const runBasicKeyPairTests = testDescriptor => {
+export const runBasicKeyPairTests = testDescriptor => { // eslint-disable-line import/prefer-default-export
 	// region create
 
 	it('can create key pair from private key', () => {
@@ -200,5 +200,3 @@ const runBasicKeyPairTests = testDescriptor => {
 
 	// endregion
 };
-
-module.exports = { runBasicKeyPairTests };

@@ -1,14 +1,14 @@
-const {
+import {
 	Hash256, PrivateKey, PublicKey, Signature
-} = require('../CryptoTypes');
-const { NetworkLocator } = require('../Network');
-const { KeyPair, Verifier } = require('../symbol/KeyPair');
-const { Address, Network } = require('../symbol/Network');
-const { deriveSharedKey } = require('../symbol/SharedKey');
-const { TransactionFactory } = require('../symbol/TransactionFactory');
-const { MerkleHashBuilder } = require('../symbol/merkle');
-const sc = require('../symbol/models');
-const { sha3_256 } = require('@noble/hashes/sha3');
+} from '../CryptoTypes.js';
+import { NetworkLocator } from '../Network.js';
+import { KeyPair, Verifier } from '../symbol/KeyPair.js';
+import { Address, Network } from '../symbol/Network.js';
+import { deriveSharedKey } from '../symbol/SharedKey.js';
+import TransactionFactory from '../symbol/TransactionFactory.js';
+import { MerkleHashBuilder } from '../symbol/merkle.js';
+import * as sc from '../symbol/models.js';
+import { sha3_256 } from '@noble/hashes/sha3';
 
 const TRANSACTION_HEADER_SIZE = [
 	4, // size
@@ -44,7 +44,7 @@ const transactionDataBuffer = transactionBuffer => {
 /**
  * Facade used to interact with Symbol blockchain.
  */
-class SymbolFacade {
+export default class SymbolFacade {
 	static BIP32_CURVE_NAME = 'ed25519';
 
 	static Address = Address;
@@ -159,5 +159,3 @@ class SymbolFacade {
 		return new KeyPair(new PrivateKey(bip32Node.privateKey.bytes));
 	}
 }
-
-module.exports = { SymbolFacade };

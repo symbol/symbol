@@ -1,8 +1,8 @@
-const { BaseValue } = require('../src/BaseValue');
-const { ByteArray } = require('../src/ByteArray');
-const { Hash256, PublicKey } = require('../src/CryptoTypes');
-const { RuleBasedTransactionFactory } = require('../src/RuleBasedTransactionFactory');
-const { expect } = require('chai');
+import BaseValue from '../src/BaseValue.js';
+import ByteArray from '../src/ByteArray.js';
+import { Hash256, PublicKey } from '../src/CryptoTypes.js';
+import RuleBasedTransactionFactory from '../src/RuleBasedTransactionFactory.js';
+import { expect } from 'chai';
 
 describe('RuleBasedTransactionFactory', () => {
 	// region Module

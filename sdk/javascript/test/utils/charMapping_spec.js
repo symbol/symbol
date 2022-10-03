@@ -1,5 +1,5 @@
-const charMapping = require('../../src/utils/charMapping');
-const { expect } = require('chai');
+import charMapping from '../../src/utils/charMapping.js';
+import { expect } from 'chai';
 
 describe('char mapping', () => {
 	describe('builder', () => {

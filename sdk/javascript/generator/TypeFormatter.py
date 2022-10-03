@@ -28,7 +28,7 @@ class ClassFormatter(ABC):
 	def generate_class_header(self):
 		base_class = self.provider.get_base_class()
 		base_class = f' extends {base_class}' if base_class else ''
-		header = f'class {self.provider.typename}{base_class} {{\n'
+		header = f'export class {self.provider.typename}{base_class} {{\n'
 		comment = ''
 		return header + indent(comment)
 

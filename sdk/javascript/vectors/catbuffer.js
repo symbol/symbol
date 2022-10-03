@@ -1,12 +1,14 @@
-const { NemFacade } = require('../src/facade/NemFacade');
-const { SymbolFacade } = require('../src/facade/SymbolFacade');
-const nc = require('../src/nem/models');
-const sc = require('../src/symbol/models');
-const converter = require('../src/utils/converter');
-const { expect } = require('chai');
-const JSONBigInt = require('json-bigint')({ alwaysParseAsBig: true, useNativeBigInt: true });
-const fs = require('fs');
-const path = require('path');
+import NemFacade from '../src/facade/NemFacade.js';
+import SymbolFacade from '../src/facade/SymbolFacade.js';
+import * as nc from '../src/nem/models.js';
+import * as sc from '../src/symbol/models.js';
+import * as converter from '../src/utils/converter.js';
+import { expect } from 'chai';
+import JSONBigIntLib from 'json-bigint';
+import fs from 'fs';
+import path from 'path';
+
+const JSONBigInt = JSONBigIntLib({ alwaysParseAsBig: true, useNativeBigInt: true });
 
 describe('catbuffer vectors', () => {
 	// region common test utils

@@ -1,7 +1,7 @@
-const { PrivateKey, PublicKey, Signature } = require('../../src/CryptoTypes');
-const { KeyPair, Verifier } = require('../../src/symbol/KeyPair');
-const { VotingKeysGenerator } = require('../../src/symbol/VotingKeysGenerator');
-const { expect } = require('chai');
+import { PrivateKey, PublicKey, Signature } from '../../src/CryptoTypes.js';
+import { KeyPair, Verifier } from '../../src/symbol/KeyPair.js';
+import VotingKeysGenerator from '../../src/symbol/VotingKeysGenerator.js';
+import { expect } from 'chai';
 
 describe('VotingKeysGenerator', () => {
 	it('can generate header', () => {

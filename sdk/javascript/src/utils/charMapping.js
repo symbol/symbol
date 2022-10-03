@@ -34,4 +34,4 @@ const charMapping = {
 	}
 };
 
-module.exports = charMapping;
+export default charMapping;

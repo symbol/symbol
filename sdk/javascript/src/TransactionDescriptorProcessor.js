@@ -1,7 +1,7 @@
 /**
  * Processes and looks up transaction descriptor properties.
  */
-class TransactionDescriptorProcessor {
+export default class TransactionDescriptorProcessor {
 	/**
 	 * Creates a transaction descriptor processor.
 	 * @param {object} transactionDescriptor Transaction descriptor.
@@ -68,5 +68,3 @@ class TransactionDescriptorProcessor {
 		this.typeHints = typeHints || {};
 	}
 }
-
-module.exports = { TransactionDescriptorProcessor };

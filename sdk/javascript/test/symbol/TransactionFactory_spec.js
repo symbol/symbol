@@ -1,12 +1,12 @@
-const { Hash256, PublicKey } = require('../../src/CryptoTypes');
-const { Address, Network } = require('../../src/symbol/Network');
-const { TransactionFactory } = require('../../src/symbol/TransactionFactory');
-const { generateMosaicId, generateNamespaceId } = require('../../src/symbol/idGenerator');
-const sc = require('../../src/symbol/models');
-const { uint8ToHex } = require('../../src/utils/converter');
-const { runBasicTransactionFactoryTests } = require('../test/basicTransactionFactoryTests');
-const { expect } = require('chai');
-const crypto = require('crypto');
+import { Hash256, PublicKey } from '../../src/CryptoTypes.js';
+import { Address, Network } from '../../src/symbol/Network.js';
+import TransactionFactory from '../../src/symbol/TransactionFactory.js';
+import { generateMosaicId, generateNamespaceId } from '../../src/symbol/idGenerator.js';
+import * as sc from '../../src/symbol/models.js';
+import { uint8ToHex } from '../../src/utils/converter.js';
+import { runBasicTransactionFactoryTests } from '../test/basicTransactionFactoryTests.js';
+import { expect } from 'chai';
+import crypto from 'crypto';
 
 describe('transaction factory (Symbol)', () => {
 	const TEST_SIGNER_PUBLIC_KEY = new PublicKey(crypto.randomBytes(PublicKey.SIZE));

@@ -1,7 +1,7 @@
 /**
  * Position tracking writer.
  */
-class Writer {
+export default class Writer {
 	/**
 	 * Creates a writer with specified size.
 	 * @param {number} size Allocated buffer size.
@@ -20,5 +20,3 @@ class Writer {
 		this.offset += buffer.length;
 	}
 }
-
-module.exports = { Writer };

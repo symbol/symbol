@@ -1,13 +1,14 @@
 /* eslint-disable max-len, object-property-newline, no-underscore-dangle, no-use-before-define */
 
-const { BaseValue } = require('../BaseValue');
-const { ByteArray } = require('../ByteArray');
-const { BufferView } = require('../utils/BufferView');
-const { Writer } = require('../utils/Writer');
-const arrayHelpers = require('../utils/arrayHelpers');
-const converter = require('../utils/converter');
+import BaseValue from '../BaseValue.js';
+import ByteArray from '../ByteArray.js';
+import BufferView from '../utils/BufferView.js';
+import Writer from '../utils/Writer.js';
+import * as arrayHelpers from '../utils/arrayHelpers.js';
+import * as converter from '../utils/converter.js';
+import { ripemdKeccak256 } from '../utils/transforms.js';
 
-class Amount extends BaseValue {
+export class Amount extends BaseValue {
 	static SIZE = 8;
 
 	constructor(amount = 0n) {
@@ -29,7 +30,7 @@ class Amount extends BaseValue {
 	}
 }
 
-class Height extends BaseValue {
+export class Height extends BaseValue {
 	static SIZE = 8;
 
 	constructor(height = 0n) {
@@ -51,7 +52,7 @@ class Height extends BaseValue {
 	}
 }
 
-class Timestamp extends BaseValue {
+export class Timestamp extends BaseValue {
 	static SIZE = 4;
 
 	constructor(timestamp = 0) {
@@ -73,7 +74,7 @@ class Timestamp extends BaseValue {
 	}
 }
 
-class Address extends ByteArray {
+export class Address extends ByteArray {
 	static SIZE = 40;
 
 	constructor(address = new Uint8Array(40)) {
@@ -94,7 +95,7 @@ class Address extends ByteArray {
 	}
 }
 
-class Hash256 extends ByteArray {
+export class Hash256 extends ByteArray {
 	static SIZE = 32;
 
 	constructor(hash256 = new Uint8Array(32)) {
@@ -115,7 +116,7 @@ class Hash256 extends ByteArray {
 	}
 }
 
-class PublicKey extends ByteArray {
+export class PublicKey extends ByteArray {
 	static SIZE = 32;
 
 	constructor(publicKey = new Uint8Array(32)) {
@@ -136,7 +137,7 @@ class PublicKey extends ByteArray {
 	}
 }
 
-class Signature extends ByteArray {
+export class Signature extends ByteArray {
 	static SIZE = 64;
 
 	constructor(signature = new Uint8Array(64)) {
@@ -157,7 +158,7 @@ class Signature extends ByteArray {
 	}
 }
 
-class NetworkType {
+export class NetworkType {
 	static MAINNET = new NetworkType(104);
 
 	static TESTNET = new NetworkType(152);
@@ -208,7 +209,7 @@ class NetworkType {
 	}
 }
 
-class TransactionType {
+export class TransactionType {
 	static TRANSFER = new TransactionType(257);
 
 	static ACCOUNT_KEY_LINK = new TransactionType(2049);
@@ -272,7 +273,7 @@ class TransactionType {
 	}
 }
 
-class Transaction {
+export class Transaction {
 	static TYPE_HINTS = {
 		type: 'enum:TransactionType',
 		network: 'enum:NetworkType',
@@ -454,7 +455,7 @@ class Transaction {
 	}
 }
 
-class NonVerifiableTransaction {
+export class NonVerifiableTransaction {
 	static TYPE_HINTS = {
 		type: 'enum:TransactionType',
 		network: 'enum:NetworkType',
@@ -613,7 +614,7 @@ class NonVerifiableTransaction {
 	}
 }
 
-class LinkAction {
+export class LinkAction {
 	static LINK = new LinkAction(1);
 
 	static UNLINK = new LinkAction(2);
@@ -664,7 +665,7 @@ class LinkAction {
 	}
 }
 
-class AccountKeyLinkTransaction {
+export class AccountKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_KEY_LINK;
@@ -889,7 +890,7 @@ class AccountKeyLinkTransaction {
 	}
 }
 
-class NonVerifiableAccountKeyLinkTransaction {
+export class NonVerifiableAccountKeyLinkTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.ACCOUNT_KEY_LINK;
@@ -1091,7 +1092,7 @@ class NonVerifiableAccountKeyLinkTransaction {
 	}
 }
 
-class NamespaceId {
+export class NamespaceId {
 	static TYPE_HINTS = {
 		name: 'bytes_array'
 	};
@@ -1145,7 +1146,7 @@ class NamespaceId {
 	}
 }
 
-class MosaicId {
+export class MosaicId {
 	static TYPE_HINTS = {
 		namespaceId: 'struct:NamespaceId',
 		name: 'bytes_array'
@@ -1216,7 +1217,7 @@ class MosaicId {
 	}
 }
 
-class Mosaic {
+export class Mosaic {
 	static TYPE_HINTS = {
 		mosaicId: 'struct:MosaicId',
 		amount: 'pod:Amount'
@@ -1288,7 +1289,7 @@ class Mosaic {
 	}
 }
 
-class SizePrefixedMosaic {
+export class SizePrefixedMosaic {
 	static TYPE_HINTS = {
 		mosaic: 'struct:Mosaic'
 	};
@@ -1344,7 +1345,7 @@ class SizePrefixedMosaic {
 	}
 }
 
-class MosaicTransferFeeType {
+export class MosaicTransferFeeType {
 	static ABSOLUTE = new MosaicTransferFeeType(1);
 
 	static PERCENTILE = new MosaicTransferFeeType(2);
@@ -1395,7 +1396,7 @@ class MosaicTransferFeeType {
 	}
 }
 
-class MosaicLevy {
+export class MosaicLevy {
 	static TYPE_HINTS = {
 		transferFeeType: 'enum:MosaicTransferFeeType',
 		recipientAddress: 'pod:Address',
@@ -1506,7 +1507,7 @@ class MosaicLevy {
 	}
 }
 
-class MosaicProperty {
+export class MosaicProperty {
 	static TYPE_HINTS = {
 		name: 'bytes_array',
 		value: 'bytes_array'
@@ -1580,7 +1581,7 @@ class MosaicProperty {
 	}
 }
 
-class SizePrefixedMosaicProperty {
+export class SizePrefixedMosaicProperty {
 	static TYPE_HINTS = {
 		property: 'struct:MosaicProperty'
 	};
@@ -1636,7 +1637,7 @@ class SizePrefixedMosaicProperty {
 	}
 }
 
-class MosaicDefinition {
+export class MosaicDefinition {
 	static TYPE_HINTS = {
 		ownerPublicKey: 'pod:PublicKey',
 		id: 'struct:MosaicId',
@@ -1790,7 +1791,7 @@ class MosaicDefinition {
 	}
 }
 
-class MosaicDefinitionTransaction {
+export class MosaicDefinitionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_DEFINITION;
@@ -2037,7 +2038,7 @@ class MosaicDefinitionTransaction {
 	}
 }
 
-class NonVerifiableMosaicDefinitionTransaction {
+export class NonVerifiableMosaicDefinitionTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_DEFINITION;
@@ -2261,7 +2262,7 @@ class NonVerifiableMosaicDefinitionTransaction {
 	}
 }
 
-class MosaicSupplyChangeAction {
+export class MosaicSupplyChangeAction {
 	static INCREASE = new MosaicSupplyChangeAction(1);
 
 	static DECREASE = new MosaicSupplyChangeAction(2);
@@ -2312,7 +2313,7 @@ class MosaicSupplyChangeAction {
 	}
 }
 
-class MosaicSupplyChangeTransaction {
+export class MosaicSupplyChangeTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_CHANGE;
@@ -2552,7 +2553,7 @@ class MosaicSupplyChangeTransaction {
 	}
 }
 
-class NonVerifiableMosaicSupplyChangeTransaction {
+export class NonVerifiableMosaicSupplyChangeTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MOSAIC_SUPPLY_CHANGE;
@@ -2769,7 +2770,7 @@ class NonVerifiableMosaicSupplyChangeTransaction {
 	}
 }
 
-class MultisigAccountModificationType {
+export class MultisigAccountModificationType {
 	static ADD_COSIGNATORY = new MultisigAccountModificationType(1);
 
 	static DELETE_COSIGNATORY = new MultisigAccountModificationType(2);
@@ -2820,7 +2821,7 @@ class MultisigAccountModificationType {
 	}
 }
 
-class MultisigAccountModification {
+export class MultisigAccountModification {
 	static TYPE_HINTS = {
 		modificationType: 'enum:MultisigAccountModificationType',
 		cosignatoryPublicKey: 'pod:PublicKey'
@@ -2833,8 +2834,6 @@ class MultisigAccountModification {
 	}
 
 	comparer() {
-		const { ripemdKeccak256 } = require('../utils/transforms'); // eslint-disable-line global-require
-
 		return [
 			this.modificationType,
 			ripemdKeccak256(this.cosignatoryPublicKey.bytes)
@@ -2902,7 +2901,7 @@ class MultisigAccountModification {
 	}
 }
 
-class SizePrefixedMultisigAccountModification {
+export class SizePrefixedMultisigAccountModification {
 	static TYPE_HINTS = {
 		modification: 'struct:MultisigAccountModification'
 	};
@@ -2958,7 +2957,7 @@ class SizePrefixedMultisigAccountModification {
 	}
 }
 
-class MultisigAccountModificationTransactionV1 {
+export class MultisigAccountModificationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -3168,7 +3167,7 @@ class MultisigAccountModificationTransactionV1 {
 	}
 }
 
-class NonVerifiableMultisigAccountModificationTransactionV1 {
+export class NonVerifiableMultisigAccountModificationTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -3355,7 +3354,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1 {
 	}
 }
 
-class MultisigAccountModificationTransaction {
+export class MultisigAccountModificationTransaction {
 	static TRANSACTION_VERSION = 2;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -3587,7 +3586,7 @@ class MultisigAccountModificationTransaction {
 	}
 }
 
-class NonVerifiableMultisigAccountModificationTransaction {
+export class NonVerifiableMultisigAccountModificationTransaction {
 	static TRANSACTION_VERSION = 2;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_ACCOUNT_MODIFICATION;
@@ -3796,7 +3795,7 @@ class NonVerifiableMultisigAccountModificationTransaction {
 	}
 }
 
-class Cosignature {
+export class Cosignature {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_COSIGNATURE;
@@ -4035,7 +4034,7 @@ class Cosignature {
 	}
 }
 
-class SizePrefixedCosignature {
+export class SizePrefixedCosignature {
 	static TYPE_HINTS = {
 		cosignature: 'struct:Cosignature'
 	};
@@ -4091,7 +4090,7 @@ class SizePrefixedCosignature {
 	}
 }
 
-class MultisigTransaction {
+export class MultisigTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.MULTISIG_TRANSACTION;
@@ -4319,7 +4318,7 @@ class MultisigTransaction {
 	}
 }
 
-class NamespaceRegistrationTransaction {
+export class NamespaceRegistrationTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_REGISTRATION;
@@ -4593,7 +4592,7 @@ class NamespaceRegistrationTransaction {
 	}
 }
 
-class NonVerifiableNamespaceRegistrationTransaction {
+export class NonVerifiableNamespaceRegistrationTransaction {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.NAMESPACE_REGISTRATION;
@@ -4844,7 +4843,7 @@ class NonVerifiableNamespaceRegistrationTransaction {
 	}
 }
 
-class MessageType {
+export class MessageType {
 	static PLAIN = new MessageType(1);
 
 	static ENCRYPTED = new MessageType(2);
@@ -4895,7 +4894,7 @@ class MessageType {
 	}
 }
 
-class Message {
+export class Message {
 	static TYPE_HINTS = {
 		messageType: 'enum:MessageType',
 		message: 'bytes_array'
@@ -4965,7 +4964,7 @@ class Message {
 	}
 }
 
-class TransferTransactionV1 {
+export class TransferTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -5225,7 +5224,7 @@ class TransferTransactionV1 {
 	}
 }
 
-class NonVerifiableTransferTransactionV1 {
+export class NonVerifiableTransferTransactionV1 {
 	static TRANSACTION_VERSION = 1;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -5462,7 +5461,7 @@ class NonVerifiableTransferTransactionV1 {
 	}
 }
 
-class TransferTransaction {
+export class TransferTransaction {
 	static TRANSACTION_VERSION = 2;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -5742,7 +5741,7 @@ class TransferTransaction {
 	}
 }
 
-class NonVerifiableTransferTransaction {
+export class NonVerifiableTransferTransaction {
 	static TRANSACTION_VERSION = 2;
 
 	static TRANSACTION_TYPE = TransactionType.TRANSFER;
@@ -5999,7 +5998,7 @@ class NonVerifiableTransferTransaction {
 	}
 }
 
-class TransactionFactory {
+export class TransactionFactory {
 	static toKey(values) {
 		if (1 === values.length)
 			return values[0];
@@ -6049,7 +6048,7 @@ class TransactionFactory {
 	}
 }
 
-class NonVerifiableTransactionFactory {
+export class NonVerifiableTransactionFactory {
 	static toKey(values) {
 		if (1 === values.length)
 			return values[0];
@@ -6094,16 +6093,3 @@ class NonVerifiableTransactionFactory {
 		return new mapping[entityName]();
 	}
 }
-
-module.exports = {
-	Amount, Height, Timestamp, Address, Hash256, PublicKey, Signature, NetworkType, TransactionType, Transaction, NonVerifiableTransaction,
-	LinkAction, AccountKeyLinkTransaction, NonVerifiableAccountKeyLinkTransaction, NamespaceId, MosaicId, Mosaic, SizePrefixedMosaic,
-	MosaicTransferFeeType, MosaicLevy, MosaicProperty, SizePrefixedMosaicProperty, MosaicDefinition, MosaicDefinitionTransaction,
-	NonVerifiableMosaicDefinitionTransaction, MosaicSupplyChangeAction, MosaicSupplyChangeTransaction,
-	NonVerifiableMosaicSupplyChangeTransaction, MultisigAccountModificationType, MultisigAccountModification,
-	SizePrefixedMultisigAccountModification, MultisigAccountModificationTransactionV1, NonVerifiableMultisigAccountModificationTransactionV1,
-	MultisigAccountModificationTransaction, NonVerifiableMultisigAccountModificationTransaction, Cosignature, SizePrefixedCosignature,
-	MultisigTransaction, NamespaceRegistrationTransaction, NonVerifiableNamespaceRegistrationTransaction, MessageType, Message,
-	TransferTransactionV1, NonVerifiableTransferTransactionV1, TransferTransaction, NonVerifiableTransferTransaction, TransactionFactory,
-	NonVerifiableTransactionFactory
-};

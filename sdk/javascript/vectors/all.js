@@ -1,16 +1,20 @@
-const { Bip32 } = require('../src/Bip32');
-const { AesCbcCipher, AesGcmCipher } = require('../src/Cipher');
-const {
+import Bip32 from '../src/Bip32.js';
+import { AesCbcCipher, AesGcmCipher } from '../src/Cipher.js';
+import {
 	PrivateKey, PublicKey, SharedKey256, Signature
-} = require('../src/CryptoTypes');
-const { NetworkLocator } = require('../src/Network');
-const { deriveSharedKeyDeprecated } = require('../src/nem/SharedKey');
-const { VotingKeysGenerator } = require('../src/symbol/VotingKeysGenerator');
-const { generateMosaicId } = require('../src/symbol/idGenerator');
-const { hexToUint8 } = require('../src/utils/converter');
-const yargs = require('yargs');
-const fs = require('fs');
-const path = require('path');
+} from '../src/CryptoTypes.js';
+import { NetworkLocator } from '../src/Network.js';
+import NemFacade from '../src/facade/NemFacade.js';
+import SymbolFacade from '../src/facade/SymbolFacade.js';
+import { Network as NemNetwork } from '../src/nem/Network.js';
+import { deriveSharedKeyDeprecated } from '../src/nem/SharedKey.js'; // eslint-disable-line import/no-deprecated
+import { Network as SymbolNetwork } from '../src/symbol/Network.js';
+import VotingKeysGenerator from '../src/symbol/VotingKeysGenerator.js';
+import { generateMosaicId } from '../src/symbol/idGenerator.js';
+import { hexToUint8 } from '../src/utils/converter.js';
+import yargs from 'yargs';
+import fs from 'fs';
+import path from 'path';
 
 (() => {
 	// region VectorsTestSuite, KeyConversionTester, AddressConversionTester
@@ -134,7 +138,7 @@ const path = require('path');
 			const salt = hexToUint8(testVector.salt);
 
 			// Act:
-			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt);
+			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt); // eslint-disable-line import/no-deprecated
 
 			// Assert:
 			return [[new SharedKey256(testVector.sharedKey), sharedKey]];
@@ -171,7 +175,7 @@ const path = require('path');
 			const otherPublicKey = new PublicKey(testVector.otherPublicKey);
 			const keyPair = new this.classLocator.Facade.KeyPair(new PrivateKey(testVector.privateKey));
 			const salt = hexToUint8(testVector.salt);
-			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt);
+			const sharedKey = deriveSharedKeyDeprecated(keyPair, otherPublicKey, salt); // eslint-disable-line import/no-deprecated
 
 			const iv = hexToUint8(testVector.iv);
 			const cipherText = hexToUint8(testVector.cipherText);
@@ -384,17 +388,9 @@ const path = require('path');
 
 	// endregion
 
-	const loadClassLocator = blockchain => {
-		if ('symbol' === blockchain) {
-			const { SymbolFacade } = require('../src/facade/SymbolFacade'); // eslint-disable-line global-require
-			const { Network } = require('../src/symbol/Network'); // eslint-disable-line global-require
-			return { Facade: SymbolFacade, Network };
-		}
-
-		const { NemFacade } = require('../src/facade/NemFacade'); // eslint-disable-line global-require
-		const { Network } = require('../src/nem/Network'); // eslint-disable-line global-require
-		return { Facade: NemFacade, Network };
-	};
+	const loadClassLocator = blockchain => ('symbol' === blockchain
+		? { Facade: SymbolFacade, Network: SymbolNetwork }
+		: { Facade: NemFacade, Network: NemNetwork });
 
 	const loadTestSuites = blockchain => {
 		const classLocator = loadClassLocator(blockchain);

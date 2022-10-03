@@ -1,7 +1,7 @@
 /**
  * Buffer view.
  */
-class BufferView {
+export default class BufferView {
 	/**
 	 * Creates buffer view around buffer.
 	 * @param {Uint8Array} buffer Initial buffer view.
@@ -38,5 +38,3 @@ class BufferView {
 		this.buffer = this.window(size);
 	}
 }
-
-module.exports = { BufferView };

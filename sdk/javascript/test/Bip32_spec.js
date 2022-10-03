@@ -1,7 +1,7 @@
-const { Bip32 } = require('../src/Bip32');
-const { PrivateKey } = require('../src/CryptoTypes');
-const { hexToUint8 } = require('../src/utils/converter');
-const { expect } = require('chai');
+import Bip32 from '../src/Bip32.js';
+import { PrivateKey } from '../src/CryptoTypes.js';
+import { hexToUint8 } from '../src/utils/converter.js';
+import { expect } from 'chai';
 
 const DETERIMINISTIC_SEED = hexToUint8('000102030405060708090A0B0C0D0E0F');
 const DETERIMINISTIC_MNEMONIC = 'cat swing flag economy stadium alone churn speed unique patch report train';
