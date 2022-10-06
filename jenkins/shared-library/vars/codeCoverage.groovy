@@ -27,6 +27,11 @@ void verifyCodeCoverageResult(String tool, Integer minimumCodeCoverage) {
 			runScript('npx nyc@latest report --lines')
 			runScript("npx nyc@latest check-coverage --lines ${target}")
 		},
+		'c8': { Integer target ->
+			logCodeCoverageMinimum(target)
+			runScript('npx c8@latest report')
+			runScript("npx c8@latest check-coverage --lines ${target}")
+		},
 		'jacoco': { Integer target ->
 			logger.logInfo("Minimum code coverage set in pom is ${readJacocoCoverageLimit()}")
 			runScript('mvn jacoco:check@jacoco-check')
