@@ -40,6 +40,9 @@ class Address(ByteArray):
 	def __str__(self):
 		return base64.b32encode(self.bytes + bytes(0)).decode('utf8')[0:-1]
 
+	def __repr__(self):
+		return f'Address(\'{str(self)}\')'
+
 
 class Network(BasicNetwork):
 	"""Represents a Symbol network."""

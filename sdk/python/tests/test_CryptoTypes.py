@@ -14,6 +14,9 @@ class CryptoTypesTest(unittest.TestCase):
 	def test_cannot_create_hash256_with_incorrect_number_of_bytes(self):
 		self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(Hash256, 32)
 
+	def test_hash256_supports_repr(self):
+		self._assert_repr_is_supported(Hash256, 32)
+
 	def test_can_create_zeroed_hash256(self):
 		self._assert_can_create_zeroed_byte_array(Hash256, 32)
 
@@ -26,6 +29,9 @@ class CryptoTypesTest(unittest.TestCase):
 
 	def test_cannot_create_private_key_with_incorrect_number_of_bytes(self):
 		self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(PrivateKey, 32)
+
+	def test_private_key_supports_repr(self):
+		self._assert_repr_is_supported(PrivateKey, 32)
 
 	def test_can_create_random_private_key(self):
 		# Act:
@@ -44,6 +50,9 @@ class CryptoTypesTest(unittest.TestCase):
 
 	def test_cannot_create_public_key_with_incorrect_number_of_bytes(self):
 		self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(PublicKey, 32)
+
+	def test_public_key_supports_repr(self):
+		self._assert_repr_is_supported(PublicKey, 32)
 
 	def test_can_create_public_key_from_existing_public_key(self):
 		# Arrange:
@@ -65,6 +74,9 @@ class CryptoTypesTest(unittest.TestCase):
 	def test_cannot_create_shared_key_with_incorrect_number_of_bytes(self):
 		self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(SharedKey256, 32)
 
+	def test_shared_key_supports_repr(self):
+		self._assert_repr_is_supported(SharedKey256, 32)
+
 	# endregion
 
 	# region Signature
@@ -74,6 +86,9 @@ class CryptoTypesTest(unittest.TestCase):
 
 	def test_cannot_create_signature_with_incorrect_number_of_bytes(self):
 		self._assert_cannot_create_byte_array_with_incorrect_number_of_bytes(Signature, 64)
+
+	def test_signature_supports_repr(self):
+		self._assert_repr_is_supported(Signature, 64)
 
 	def test_can_create_zeroed_signature(self):
 		self._assert_can_create_zeroed_byte_array(Signature, 64)
@@ -111,6 +126,19 @@ class CryptoTypesTest(unittest.TestCase):
 		for size in [0, required_size - 1, required_size + 1]:
 			with self.assertRaises(ValueError):
 				byte_array_class(TestUtils.randbytes(size))
+
+	def _assert_repr_is_supported(self, byte_array_class, size):
+		# Arrange:
+		raw_bytes = TestUtils.randbytes(size)
+		byte_array = byte_array_class(raw_bytes)
+
+		# Act:
+		byte_array_repr = repr(byte_array)
+		byte_array_2 = eval(byte_array_repr)  # pylint: disable=eval-used
+
+		# Assert:
+		self.assertEqual(f'{byte_array_class.__name__}(\'{str(byte_array)}\')', byte_array_repr)
+		self.assertEqual(byte_array, byte_array_2)
 
 	def _assert_can_create_zeroed_byte_array(self, byte_array_class, size):
 		# Act:

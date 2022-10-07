@@ -52,6 +52,19 @@ class BasicAddressTest:
 		self.assertEqual(test_descriptor.decoded_address, address.bytes)
 		self.assertEqual(test_descriptor.encoded_address, str(address))
 
+	def test_repr_is_supported(self):
+		# Arrange:
+		test_descriptor = self.get_test_descriptor()
+		address = test_descriptor.address_class(test_descriptor.decoded_address)
+
+		# Act:
+		address_repr = repr(address)
+		address_2 = eval(address_repr, {'Address': test_descriptor.address_class})  # pylint: disable=eval-used
+
+		# Assert:
+		self.assertEqual(f'Address(\'{str(address)}\')', address_repr)
+		self.assertEqual(address, address_2)
+
 	@abstractmethod
 	def get_test_descriptor(self):
 		pass

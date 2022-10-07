@@ -35,6 +35,9 @@ class Address(ByteArray):
 	def __str__(self):
 		return base64.b32encode(self.bytes).decode('utf8')
 
+	def __repr__(self):
+		return f'Address(\'{str(self)}\')'
+
 
 class Network(BasicNetwork):
 	"""Represents a nem network."""

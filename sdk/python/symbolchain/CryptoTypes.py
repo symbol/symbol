@@ -12,6 +12,9 @@ class Hash256(ByteArray):
 		"""Creates a hash from bytes or a hex string."""
 		super().__init__(self.SIZE, hash256, Hash256)
 
+	def __repr__(self):
+		return f'Hash256(\'{str(self)}\')'
+
 	@staticmethod
 	def zero():
 		"""Creates a zeroed hash."""
@@ -26,6 +29,9 @@ class PrivateKey(ByteArray):
 	def __init__(self, private_key):
 		"""Creates a private key from bytes or a hex string."""
 		super().__init__(self.SIZE, private_key, PrivateKey)
+
+	def __repr__(self):
+		return f'PrivateKey(\'{str(self)}\')'
 
 	@staticmethod
 	def random():
@@ -42,6 +48,9 @@ class PublicKey(ByteArray):
 		"""Creates a public key from bytes or a hex string."""
 		super().__init__(self.SIZE, public_key.bytes if isinstance(public_key, PublicKey) else public_key, PublicKey)
 
+	def __repr__(self):
+		return f'PublicKey(\'{str(self)}\')'
+
 
 class SharedKey256(ByteArray):
 	"""Represents 256-bit symmetric encryption key."""
@@ -52,6 +61,9 @@ class SharedKey256(ByteArray):
 		"""Creates a key from bytes or a hex string."""
 		super().__init__(self.SIZE, key, SharedKey256)
 
+	def __repr__(self):
+		return f'SharedKey256(\'{str(self)}\')'
+
 
 class Signature(ByteArray):
 	"""Represents a signature."""
@@ -61,6 +73,9 @@ class Signature(ByteArray):
 	def __init__(self, signature):
 		"""Creates a signature from bytes or a hex string."""
 		super().__init__(self.SIZE, signature, Signature)
+
+	def __repr__(self):
+		return f'Signature(\'{str(self)}\')'
 
 	@staticmethod
 	def zero():
