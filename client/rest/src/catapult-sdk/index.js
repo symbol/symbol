@@ -37,6 +37,7 @@ const PacketParser = require('./parser/PacketParser');
 const catapultModelSystem = require('./plugins/catapultModelSystem');
 const BinarySerializer = require('./serializer/BinarySerializer');
 const SerializedSizeCalculator = require('./serializer/SerializedSizeCalculator');
+const CachedFileLoader = require('./utils/CachedFileLoader');
 const SchemaType = require('./utils/SchemaType');
 const arrayUtils = require('./utils/arrayUtils');
 const base32 = require('./utils/base32');
@@ -84,6 +85,8 @@ const catapultSdk = {
 		SerializedSizeCalculator
 	},
 	utils: {
+		CachedFileLoader,
+		SchemaType,
 		array: arrayUtils,
 		base32,
 		convert,
@@ -91,7 +94,6 @@ const catapultSdk = {
 		future,
 		objects,
 		schemaFormatter,
-		SchemaType,
 		uint64
 	}
 };

@@ -24,10 +24,10 @@ const { longToUint64 } = require('../../db/dbUtils');
 const routeUtils = require('../../routes/routeUtils');
 const AccountType = require('../AccountType');
 const ini = require('ini');
-const fs = require('fs');
-const util = require('util');
 
 const { convert, uint64 } = catapult.utils;
+
+const fileLoader = new catapult.utils.CachedFileLoader();
 
 module.exports = {
 	register: (server, db, services) => {
@@ -37,11 +37,10 @@ module.exports = {
 
 		const propertyValueToMosaicId = value => uint64.fromHex(value.replace(/'/g, '').replace('0x', ''));
 
-		const readAndParseNetworkPropertiesFile = () => {
-			const readFile = util.promisify(fs.readFile);
-			return readFile(services.config.apiNode.networkPropertyFilePath, 'utf8')
-				.then(fileData => ini.parse(fileData));
-		};
+		const readAndParseNetworkPropertiesFile = () => fileLoader.readOnce(
+			services.config.apiNode.networkPropertyFilePath,
+			contents => ini.parse(contents)
+		);
 
 		const getMosaicProperties = async currencyMosaicId => {
 			const mosaics = await db.mosaicsByIds([currencyMosaicId]);

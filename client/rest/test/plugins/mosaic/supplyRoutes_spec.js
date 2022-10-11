@@ -25,6 +25,7 @@ const supplyRoutes = require('../../../src/plugins/mosaic/supplyRoutes');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
 const { expect } = require('chai');
 const sinon = require('sinon');
+const tmp = require('tmp');
 const fs = require('fs');
 
 describe('supply routes', () => {
@@ -74,49 +75,39 @@ describe('supply routes', () => {
 			{ id: 'random4', account: createAccountSample(uncirculatingAccountPublicKey2, 8000000, 9000000) }
 		];
 
-		const dbMosaicsFake = sinon.fake(() => Promise.resolve(mosaicsSample));
-		const dbAccountsFake = sinon.fake(accountIds => {
-			const filteredAccountsSample = accountsSample.filter(accountSample =>
-				accountIds.some(accountId => catapult.utils.array.deepEqual(accountId.publicKey, accountSample.account.publicKey)));
-			return Promise.resolve(filteredAccountsSample);
-		});
-
-		const mockServer = new MockServer();
-
 		const db = {
-			mosaicsByIds: dbMosaicsFake,
+			mosaicsByIds: sinon.fake(() => Promise.resolve(mosaicsSample)),
 			catapultDb: {
-				accountsByIds: dbAccountsFake
+				accountsByIds: sinon.fake(accountIds => {
+					const filteredAccountsSample = accountsSample.filter(accountSample =>
+						accountIds.some(accountId => catapult.utils.array.deepEqual(accountId.publicKey, accountSample.account.publicKey)));
+					return Promise.resolve(filteredAccountsSample);
+				})
 			}
 		};
-
-		const services = {
-			config: {
-				apiNode: {},
-				uncirculatingAccountPublicKeys: [uncirculatingAccountPublicKey1, uncirculatingAccountPublicKey2]
-			}
-		};
-		supplyRoutes.register(mockServer.server, db, services);
-
-		const req = { params: {} };
-
-		afterEach(() => {
-			mockServer.resetStats();
-			dbMosaicsFake.resetHistory();
-			fs.readFile.restore();
-		});
 
 		describe('GET', () => {
 			// Arrange:
 			it('network currency supply circulating (without burns)', () => {
-				sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, [
-						'[network]',
-						`nemesisSignerPublicKey=${nemesisSignerPublicKey}`,
-						'',
-						'[chain]',
-						'currencyMosaicId = 0x1234\'5678\'ABCD\'EF02'
-					].join('\n')));
+				// Arrange:
+				const tempNetworkFile = tmp.fileSync();
+				fs.writeFileSync(tempNetworkFile.name, [
+					'[network]',
+					`nemesisSignerPublicKey=${nemesisSignerPublicKey}`,
+					'',
+					'[chain]',
+					'currencyMosaicId = 0x1234\'5678\'ABCD\'EF02'
+				].join('\n'));
+
+				const mockServer = new MockServer();
+				supplyRoutes.register(mockServer.server, db, {
+					config: {
+						apiNode: { networkPropertyFilePath: tempNetworkFile.name },
+						uncirculatingAccountPublicKeys: [uncirculatingAccountPublicKey1, uncirculatingAccountPublicKey2]
+					}
+				});
+
+				const req = { params: {} };
 				const route = mockServer.getRoute('/network/currency/supply/circulating').get();
 
 				// Act:
@@ -129,14 +120,24 @@ describe('supply routes', () => {
 
 			it('network currency supply circulating (with burns)', () => {
 				// Arrange:
-				sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, [
-						'[network]',
-						`nemesisSignerPublicKey=${nemesisSignerPublicKey}`,
-						'',
-						'[chain]',
-						`currencyMosaicId = ${currencyMosaicId}`
-					].join('\n')));
+				const tempNetworkFile = tmp.fileSync();
+				fs.writeFileSync(tempNetworkFile.name, [
+					'[network]',
+					`nemesisSignerPublicKey=${nemesisSignerPublicKey}`,
+					'',
+					'[chain]',
+					`currencyMosaicId = ${currencyMosaicId}`
+				].join('\n'));
+
+				const mockServer = new MockServer();
+				supplyRoutes.register(mockServer.server, db, {
+					config: {
+						apiNode: { networkPropertyFilePath: tempNetworkFile.name },
+						uncirculatingAccountPublicKeys: [uncirculatingAccountPublicKey1, uncirculatingAccountPublicKey2]
+					}
+				});
+
+				const req = { params: {} };
 				const route = mockServer.getRoute('/network/currency/supply/circulating').get();
 
 				// Act:
@@ -149,9 +150,16 @@ describe('supply routes', () => {
 
 			it('network currency supply total', () => {
 				// Arrange:
-				sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, `[chain]\ncurrencyMosaicId = ${currencyMosaicId}`));
+				const tempNetworkFile = tmp.fileSync();
+				fs.writeFileSync(tempNetworkFile.name, [
+					'[chain]',
+					`currencyMosaicId = ${currencyMosaicId}`
+				].join('\n'));
 
+				const mockServer = new MockServer();
+				supplyRoutes.register(mockServer.server, db, { config: { apiNode: { networkPropertyFilePath: tempNetworkFile.name } } });
+
+				const req = { params: {} };
 				const route = mockServer.getRoute('/network/currency/supply/total').get();
 
 				// Act:
@@ -164,9 +172,17 @@ describe('supply routes', () => {
 
 			it('network currency supply max', () => {
 				// Arrange:
-				sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, `[chain]\ncurrencyMosaicId = ${currencyMosaicId}\nmaxMosaicAtomicUnits = ${maxSupply}`));
+				const tempNetworkFile = tmp.fileSync();
+				fs.writeFileSync(tempNetworkFile.name, [
+					'[chain]',
+					`currencyMosaicId = ${currencyMosaicId}`,
+					`maxMosaicAtomicUnits = ${maxSupply}`
+				].join('\n'));
 
+				const mockServer = new MockServer();
+				supplyRoutes.register(mockServer.server, db, { config: { apiNode: { networkPropertyFilePath: tempNetworkFile.name } } });
+
+				const req = { params: {} };
 				const route = mockServer.getRoute('/network/currency/supply/max').get();
 
 				// Act:

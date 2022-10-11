@@ -23,6 +23,7 @@ const { MockServer, test } = require('./utils/routeTestUtils');
 const networkRoutes = require('../../src/routes/networkRoutes');
 const { expect } = require('chai');
 const sinon = require('sinon');
+const tmp = require('tmp');
 const fs = require('fs');
 
 describe('network routes', () => {
@@ -66,94 +67,57 @@ describe('network routes', () => {
 		});
 
 		describe('network properties', () => {
-			it('can retrieve network properties', () => {
-				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, '[network]\n'
-						+ 'identifier = testnet\n'
-						+ '[chain]\n'
-						+ 'enableVerifiableState = true\n'
-						+ '[plugin:catapult.plugins.aggregate]\n'
-						+ 'maxTransactionsPerAggregate = 1\'000'));
+			const assertCanRetrieveNetworkProperties = lines => {
+				// Arrange:
+				const tempNetworkFile = tmp.fileSync();
+				fs.writeFileSync(tempNetworkFile.name, lines.join('\n'));
 
-				const services = { config: { apiNode: { networkPropertyFilePath: 'wouldBeValidFilePath' } } };
 				const mockServer = new MockServer();
+				networkRoutes.register(mockServer.server, {}, { config: { apiNode: { networkPropertyFilePath: tempNetworkFile.name } } });
 
-				networkRoutes.register(mockServer.server, {}, services);
-
+				// Act:
 				const route = mockServer.getRoute('/network/properties').get();
 				return mockServer.callRoute(route).then(() => {
+					// Assert:
 					expect(mockServer.next.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						network: { identifier: 'testnet' },
 						chain: { enableVerifiableState: true },
 						plugins: { aggregate: { maxTransactionsPerAggregate: '1\'000' } }
 					});
-					readFileStub.restore();
 				});
-			});
+			};
 
-			it('skips non-explicit properties', () => {
-				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, '[network]\n'
-						+ 'identifier = testnet\n'
-						+ '[chain]\n'
-						+ 'enableVerifiableState = true\n'
-						+ '[private]\n'
-						+ 'secretCode = 42\n'
-						+ '[plugin:catapult.plugins.aggregate]\n'
-						+ 'maxTransactionsPerAggregate = 1\'000'));
+			it('returns all whitelisted sections', () => assertCanRetrieveNetworkProperties([
+				'[network]',
+				'identifier = testnet',
+				'[chain]',
+				'enableVerifiableState = true',
+				'[plugin:catapult.plugins.aggregate]',
+				'maxTransactionsPerAggregate = 1\'000'
+			]));
 
-				const services = { config: { apiNode: { networkPropertyFilePath: 'wouldBeValidFilePath' } } };
+			it('filters out other sections', () => assertCanRetrieveNetworkProperties([
+				'[network]',
+				'identifier = testnet',
+				'[chain]',
+				'enableVerifiableState = true',
+				'[private]',
+				'secretCode = 42',
+				'[plugin:catapult.plugins.aggregate]',
+				'maxTransactionsPerAggregate = 1\'000'
+			]));
+
+			it('fails when file does not exist', () => {
+				// Arrange:
 				const mockServer = new MockServer();
+				networkRoutes.register(mockServer.server, {}, { config: { apiNode: { networkPropertyFilePath: 'fake.dat' } } });
 
-				networkRoutes.register(mockServer.server, {}, services);
-
+				// Act:
 				const route = mockServer.getRoute('/network/properties').get();
 				return mockServer.callRoute(route).then(() => {
+					// Assert:
 					expect(mockServer.next.calledOnce).to.equal(true);
-					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						network: { identifier: 'testnet' },
-						chain: { enableVerifiableState: true },
-						plugins: { aggregate: { maxTransactionsPerAggregate: '1\'000' } }
-					});
-					readFileStub.restore();
-				});
-			});
-
-			it('errors if no file path specified', () => {
-				const mockServer = new MockServer();
-				networkRoutes.register(mockServer.server, {}, { config: { apiNode: {} } });
-
-				const route = mockServer.getRoute('/network/properties').get();
-				return mockServer.callRoute(route).then(() => {
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
-				});
-			});
-
-			it('errors when the file has an invalid format', () => {
-				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, '{ "not": "iniFormat" }'));
-
-				const services = { config: { apiNode: {} } };
-				const mockServer = new MockServer();
-
-				networkRoutes.register(mockServer.server, {}, services);
-
-				const route = mockServer.getRoute('/network/properties').get();
-				return mockServer.callRoute(route).then(() => {
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
-					readFileStub.restore();
-				});
-			});
-
-			it('errors if the file does not exist', () => {
-				const mockServer = new MockServer();
-				networkRoutes.register(mockServer.server, {}, { config: { apiNode: { networkPropertyFilePath: 'nowaythispath€xists' } } });
-
-				const route = mockServer.getRoute('/network/properties').get();
-				return mockServer.callRoute(route).then(() => {
 					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
 					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
 				});
@@ -161,20 +125,25 @@ describe('network routes', () => {
 		});
 
 		describe('network fees transaction', () => {
-			let readFileStub = null;
-			afterEach(() => {
-				if (null !== readFileStub) {
-					readFileStub.restore();
-					readFileStub = null;
-				}
-			});
+			const tempNodeFile = tmp.fileSync();
+			fs.writeFileSync(tempNodeFile.name, [
+				'[node]',
+				'minFeeMultiplier = 1\'234\'567'
+			].join('\n'));
+
+			const tempNetworkFile = tmp.fileSync();
+			fs.writeFileSync(tempNetworkFile.name, [
+				'[chain]',
+				'defaultDynamicFeeMultiplier = 1\'000'
+			].join('\n'));
+
 			const runNetworkFeesTest = (testName, feeMultipliers, average, median, max, min) => {
 				const services = {
 					config: {
 						numBlocksTransactionFeeStats: feeMultipliers.length,
 						apiNode: {
-							nodePropertyFilePath: 'node.properties',
-							networkPropertyFilePath: 'network.properties'
+							nodePropertyFilePath: tempNodeFile.name,
+							networkPropertyFilePath: tempNetworkFile.name
 						}
 					}
 				};
@@ -185,14 +154,6 @@ describe('network routes', () => {
 				};
 
 				it(`${testName}: [${feeMultipliers}] average:${average}, median:${median}, max:${max}, min:${min}`, () => {
-					readFileStub = sinon.stub(fs, 'readFile');
-					readFileStub.onFirstCall().callsFake((path, data, callback) =>
-						callback(null, '[node]\n'
-						+ 'minFeeMultiplier = 1\'234\'567'));
-					readFileStub.onSecondCall().callsFake((path, data, callback) =>
-						callback(null, '[chain]\n'
-						+ 'defaultDynamicFeeMultiplier = 1\'000'));
-
 					// Arrange:
 					const mockServer = new MockServer();
 					networkRoutes.register(mockServer.server, db, services);
@@ -230,33 +191,26 @@ describe('network routes', () => {
 		});
 
 		describe('network effective rental fees', () => {
-			let readFileStub = null;
-			afterEach(() => {
-				if (null !== readFileStub) {
-					readFileStub.restore();
-					readFileStub = null;
-				}
-			});
-
 			it('can retrieve network properties needed for rental fees', () => {
-				readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, '[chain]\n'
-						+ 'maxDifficultyBlocks = 5\n'
-						+ 'defaultDynamicFeeMultiplier = 1\'000\n'
-						+ '[plugin:catapult.plugins.namespace]\n'
-						+ 'rootNamespaceRentalFeePerBlock = 1\'000\n'
-						+ 'childNamespaceRentalFee = 100\n'
-						+ '[plugin:catapult.plugins.mosaic]\n'
-						+ 'mosaicRentalFee = 500'));
+				const tempNetworkFile = tmp.fileSync();
+				fs.writeFileSync(tempNetworkFile.name, [
+					'[chain]',
+					'maxDifficultyBlocks = 5',
+					'defaultDynamicFeeMultiplier = 1\'000',
+					'[plugin:catapult.plugins.namespace]',
+					'rootNamespaceRentalFeePerBlock = 1\'000',
+					'childNamespaceRentalFee = 100',
+					'[plugin:catapult.plugins.mosaic]',
+					'mosaicRentalFee = 500'
+				].join('\n'));
 
 				const dbLatestBlocksFeeMultiplierFake = sinon.fake.resolves([0, 1, 2, 3, 4]);
 				const db = {
 					latestBlocksFeeMultiplier: dbLatestBlocksFeeMultiplierFake
 				};
-				const services = { config: { apiNode: { networkPropertyFilePath: 'wouldBeValidFilePath' } } };
-				const mockServer = new MockServer();
 
-				networkRoutes.register(mockServer.server, db, services);
+				const mockServer = new MockServer();
+				networkRoutes.register(mockServer.server, db, { config: { apiNode: { networkPropertyFilePath: tempNetworkFile.name } } });
 
 				const route = mockServer.getRoute('/network/fees/rental').get();
 				return mockServer.callRoute(route).then(() => {
@@ -269,39 +223,13 @@ describe('network routes', () => {
 				});
 			});
 
-			it('errors if no file path specified', () => {
+			it('fails when file does not exist', () => {
 				const mockServer = new MockServer();
-				networkRoutes.register(mockServer.server, {}, { config: { apiNode: {} } });
+				networkRoutes.register(mockServer.server, {}, { config: { apiNode: { networkPropertyFilePath: 'fake.dat' } } });
 
 				const route = mockServer.getRoute('/network/fees/rental').get();
 				return mockServer.callRoute(route).then(() => {
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
-				});
-			});
-
-			it('errors when the file has an invalid format', () => {
-				readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-					callback(null, '{ "not": "iniFormat" }'));
-
-				const services = { config: { apiNode: {} } };
-				const mockServer = new MockServer();
-
-				networkRoutes.register(mockServer.server, {}, services);
-
-				const route = mockServer.getRoute('/network/fees/rental').get();
-				return mockServer.callRoute(route).then(() => {
-					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
-					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
-				});
-			});
-
-			it('errors if the file does not exist', () => {
-				const mockServer = new MockServer();
-				networkRoutes.register(mockServer.server, {}, { config: { apiNode: { networkPropertyFilePath: 'nowaythispath€xists' } } });
-
-				const route = mockServer.getRoute('/network/fees/rental').get();
-				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.next.calledOnce).to.equal(true);
 					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
 					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
 				});
@@ -320,27 +248,33 @@ describe('network routes', () => {
 				effectiveMosaicRentalFee
 			) => {
 				it(`${testName}: [${[feeMultipliers]}]`, () => {
-					readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
-						callback(null, '[chain]\n'
-							+ `maxDifficultyBlocks = ${maxDifficultyBlocks}\n`
-							+ `defaultDynamicFeeMultiplier = ${defaultDynamicFeeMultiplier}\n`
-							+ '[plugin:catapult.plugins.namespace]\n'
-							+ `rootNamespaceRentalFeePerBlock = ${rootNamespaceRentalFeePerBlock}\n`
-							+ `childNamespaceRentalFee = ${childNamespaceRentalFee}\n`
-							+ '[plugin:catapult.plugins.mosaic]\n'
-							+ `mosaicRentalFee = ${mosaicRentalFee}`));
+					// Arrange:
+					const tempNetworkFile = tmp.fileSync();
+					fs.writeFileSync(tempNetworkFile.name, [
+						'[chain]',
+						`maxDifficultyBlocks = ${maxDifficultyBlocks}`,
+						`defaultDynamicFeeMultiplier = ${defaultDynamicFeeMultiplier}`,
+						'[plugin:catapult.plugins.namespace]',
+						`rootNamespaceRentalFeePerBlock = ${rootNamespaceRentalFeePerBlock}`,
+						`childNamespaceRentalFee = ${childNamespaceRentalFee}`,
+						'[plugin:catapult.plugins.mosaic]',
+						`mosaicRentalFee = ${mosaicRentalFee}`
+					].join('\n'));
 
 					const dbLatestBlocksFeeMultiplierFake = sinon.fake.resolves(feeMultipliers);
 					const db = {
 						latestBlocksFeeMultiplier: dbLatestBlocksFeeMultiplierFake
 					};
-					const services = { config: { apiNode: { networkPropertyFilePath: 'wouldBeValidFilePath' } } };
+
 					const mockServer = new MockServer();
+					networkRoutes.register(mockServer.server, db, {
+						config: { apiNode: { networkPropertyFilePath: tempNetworkFile.name } }
+					});
 
-					networkRoutes.register(mockServer.server, db, services);
-
+					// Act:
 					const route = mockServer.getRoute('/network/fees/rental').get();
 					return mockServer.callRoute(route).then(() => {
+						// Assert:
 						expect(mockServer.next.calledOnce).to.equal(true);
 						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 							effectiveChildNamespaceRentalFee,

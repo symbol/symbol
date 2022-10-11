@@ -22,7 +22,8 @@
     "mocha": "^9.2.2",
     "mocha-jenkins-reporter": "^0.4.8",
     "nyc": "^15.1.0",
-    "sinon": "^14.0.1"
+    "sinon": "^14.0.1",
+    "tmp": "^0.2.1"
   },
   "dependencies": {
     "@noble/hashes": "^1.1.3",

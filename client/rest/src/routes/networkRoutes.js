@@ -22,10 +22,10 @@
 const catapult = require('../catapult-sdk/index');
 const errors = require('../server/errors');
 const ini = require('ini');
-const fs = require('fs');
-const util = require('util');
 
 const { uint64 } = catapult.utils;
+
+const fileLoader = new catapult.utils.CachedFileLoader();
 
 module.exports = {
 	register: (server, db, services) => {
@@ -36,17 +36,15 @@ module.exports = {
 			return mid % 1 ? array[mid - 0.5] : (array[mid - 1] + array[mid]) / 2;
 		};
 
-		const readAndParseNetworkPropertiesFile = () => {
-			const readFile = util.promisify(fs.readFile);
-			return readFile(services.config.apiNode.networkPropertyFilePath, 'utf8')
-				.then(fileData => ini.parse(fileData));
-		};
+		const readAndParseNetworkPropertiesFile = () => fileLoader.readOnce(
+			services.config.apiNode.networkPropertyFilePath,
+			contents => ini.parse(contents)
+		);
 
-		const readAndParseNodePropertiesFile = () => {
-			const readFile = util.promisify(fs.readFile);
-			return readFile(services.config.apiNode.nodePropertyFilePath, 'utf8')
-				.then(fileData => ini.parse(fileData));
-		};
+		const readAndParseNodePropertiesFile = () => fileLoader.readNewer(
+			services.config.apiNode.nodePropertyFilePath,
+			contents => ini.parse(contents)
+		);
 
 		const sanitizeInput = value => value.replace(/[^0-9]/g, '');
 
