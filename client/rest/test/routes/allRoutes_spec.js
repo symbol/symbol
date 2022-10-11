@@ -56,6 +56,8 @@ describe('all routes', () => {
 			'/finalization/proof/height/:height',
 
 			'/network',
+			'/network/inflation',
+			'/network/inflation/at/:height',
 			'/network/properties',
 			'/network/fees/transaction',
 			'/network/fees/rental',

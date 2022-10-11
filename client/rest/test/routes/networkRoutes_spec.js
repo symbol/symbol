@@ -173,6 +173,154 @@ describe('network routes', () => {
 			});
 		});
 
+		describe('network inflation', () => {
+			const assertFailsWithoutInflationProperties = (routePath, req) => {
+				// Arrange:
+				const mockServer = new MockServer();
+				networkRoutes.register(mockServer.server, {}, { config: { apiNode: { inflationPropertyFilePath: 'fake.dat' } } });
+
+				// Act:
+				const route = mockServer.getRoute(routePath).get();
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the inflation properties file');
+				});
+			};
+
+			const assertCanRetrieveInflationProperties = lines => {
+				// Arrange:
+				const tempInflationFile = tmp.fileSync();
+				fs.writeFileSync(tempInflationFile.name, lines.join('\n'));
+
+				const mockServer = new MockServer();
+				networkRoutes.register(mockServer.server, {}, {
+					config: { apiNode: { inflationPropertyFilePath: tempInflationFile.name } }
+				});
+
+				// Act:
+				const route = mockServer.getRoute('/network/inflation').get();
+				return mockServer.callRoute(route).then(() => {
+					// Assert:
+					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal([
+						{ startHeight: '2', rewardAmount: '0' },
+						{ startHeight: '5760', rewardAmount: '191997042' },
+						{ startHeight: '172799', rewardAmount: '183764522' },
+						{ startHeight: '435299', rewardAmount: '175884998' },
+						{ startHeight: '697799', rewardAmount: '168343336' },
+						{ startHeight: '960299', rewardAmount: '161125048' },
+						{ startHeight: '1222799', rewardAmount: '154216270' },
+						{ startHeight: '1485299', rewardAmount: '147603728' }
+					]);
+				});
+			};
+
+			it('returns inflation inflection points map', () => assertCanRetrieveInflationProperties([
+				'[inflation]',
+				'starting-at-height-2 = 0',
+				'starting-at-height-5760 = 191997042',
+				'starting-at-height-172799 = 183764522',
+				'starting-at-height-435299 = 175884998',
+				'starting-at-height-697799 = 168343336',
+				'starting-at-height-960299 = 161125048',
+				'starting-at-height-1222799 = 154216270',
+				'starting-at-height-1485299 = 147603728'
+			]));
+
+			it('returns inflation inflection points map in sorted height order', () => assertCanRetrieveInflationProperties([
+				'[inflation]',
+				'starting-at-height-5760 = 191997042',
+				'starting-at-height-2 = 0',
+				'starting-at-height-435299 = 175884998',
+				'starting-at-height-172799 = 183764522',
+				'starting-at-height-697799 = 168343336',
+				'starting-at-height-1222799 = 154216270',
+				'starting-at-height-960299 = 161125048',
+				'starting-at-height-1485299 = 147603728'
+			]));
+
+			it('fails when file does not exist', () => assertFailsWithoutInflationProperties('/network/inflation', {}));
+
+			describe('network inflation at height', () => {
+				const assertCanRetrievePointAtHeight = (queryHeight, expectedPoint) => {
+					// Arrange:
+					const tempInflationFile = tmp.fileSync();
+					fs.writeFileSync(tempInflationFile.name, [
+						'[inflation]',
+						'starting-at-height-2 = 0',
+						'starting-at-height-5760 = 191997042',
+						'starting-at-height-172799 = 183764522',
+						'starting-at-height-435299 = 175884998',
+						'starting-at-height-697799 = 168343336',
+						'starting-at-height-960299 = 161125048',
+						'starting-at-height-1222799 = 154216270',
+						'starting-at-height-1485299 = 147603728'
+					].join('\n'));
+
+					const mockServer = new MockServer();
+					networkRoutes.register(mockServer.server, {}, {
+						config: { apiNode: { inflationPropertyFilePath: tempInflationFile.name } }
+					});
+
+					// Act:
+					const req = { params: { height: queryHeight } };
+					const route = mockServer.getRoute('/network/inflation/at/:height').get();
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.send.firstCall.args[0]).to.deep.equal(expectedPoint);
+					});
+				};
+
+				const testCases = [
+					['1', { startHeight: 'N/A', rewardAmount: '0' }, 'height is less than 1st inflection point'],
+					['2', { startHeight: '2', rewardAmount: '0' }, 'height is 1st inflection point'],
+					['10000', { startHeight: '5760', rewardAmount: '191997042' }, 'height does not match start height'],
+					['172799', { startHeight: '172799', rewardAmount: '183764522' }, 'height matches start height'],
+					['1222798', { startHeight: '960299', rewardAmount: '161125048' }, 'height is one less than 2nd last inflection point'],
+					['1222799', { startHeight: '1222799', rewardAmount: '154216270' }, 'height is 2nd last inflection point'],
+					['1322799', { startHeight: '1222799', rewardAmount: '154216270' }, 'height is less than last inflection point'],
+					['1485299', { startHeight: '1485299', rewardAmount: '147603728' }, 'height is last inflection point'],
+					['2485299', { startHeight: '1485299', rewardAmount: '147603728' }, 'height is greater than last inflection point']
+				];
+
+				testCases.forEach(testCase => {
+					it(`succeeds when ${testCase[2]}`, () => assertCanRetrievePointAtHeight(testCase[0], testCase[1]));
+				});
+
+				it('fails when height parameter is malformed', () => {
+					// Arrange:
+					const tempInflationFile = tmp.fileSync();
+					fs.writeFileSync(tempInflationFile.name, [
+						'[inflation]',
+						'starting-at-height-2 = 0'
+					].join('\n'));
+
+					const mockServer = new MockServer();
+					networkRoutes.register(mockServer.server, {}, {
+						config: { apiNode: { inflationPropertyFilePath: tempInflationFile.name } }
+					});
+
+					// Act:
+					const req = { params: { height: '10x000' } };
+					const route = mockServer.getRoute('/network/inflation/at/:height').get();
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
+						expect(mockServer.send.firstCall.args[0].message)
+							.to.equal('there was an error reading the inflation properties file');
+					});
+				});
+
+				it('fails when file does not exist', () => assertFailsWithoutInflationProperties('/network/inflation/at/:height', {
+					params: { height: '10000' }
+				}));
+			});
+		});
+
 		describe('network fees transaction', () => {
 			const tempNodeFile = tmp.fileSync();
 			fs.writeFileSync(tempNodeFile.name, [

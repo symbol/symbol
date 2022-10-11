@@ -48,6 +48,8 @@
     "tlsClientCertificatePath": "/",
     "tlsClientKeyPath": "/",
     "tlsCaCertificatePath": "/",
+
+    "inflationPropertyFilePath": "/",
     "networkPropertyFilePath": "/",
     "nodePropertyFilePath": "/"
   },
