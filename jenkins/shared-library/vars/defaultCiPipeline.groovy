@@ -1,4 +1,3 @@
-/* groovylint-disable NestedBlockDepth */
 import java.nio.file.Paths
 import org.jenkinsci.plugins.badge.EmbeddableBadgeConfig
 
@@ -303,9 +302,10 @@ void runStepRelativeToPackageRoot(String rootPath, Closure body) {
 		dir(rootPath) {
 			body()
 		}
-	} catch (hudson.AbortException exception) {
+		// groovylint-disable-next-line CatchException
+	} catch (Exception exception) {
 		echo "Caught: ${exception}"
-		env.FAILURE_MESSAGE = exception.message
+		env.FAILURE_MESSAGE = exception.message ?: exception
 		env.FAILED_STAGE_NAME = env.STAGE_NAME
 		throw exception
 	}
