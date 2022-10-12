@@ -1,22 +1,34 @@
 pipeline {
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: constants.manualGitBranchName, type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-debian', 'gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan', 'gcc-code-coverage', 'msvc-latest', 'msvc-prior'],
+			choices: [
+				constants.gccDebianName,
+				constants.gccLatestName,
+				constants.gccPriorName,
+				constants.gccWestmereName,
+				constants.clangLatestName,
+				constants.clangPriorName,
+				constants.clangAusanName,
+				constants.clangTsanName,
+				constants.gccCodeCoverageName,
+				constants.msvcLatestName,
+				constants.msvcPriorName
+			],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
-			choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
+			choices: [constants.testsMetalName, constants.testsConanName, 'tests-diagnostics', constants.noneName],
 			description: 'build configuration'
-		choice name: 'OPERATING_SYSTEM',
-			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
+		choice name: constants.operatingSystemName,
+			choices: [constants.ubuntuName, constants.fedoraName, constants.debianName, constants.windowsName],
 			description: 'operating system'
 
 		string name: 'TEST_IMAGE_LABEL', description: 'docker test image label', defaultValue: ''
 		choice name: 'TEST_MODE',
-			choices: ['test', 'bench', 'none'],
+			choices: [constants.testName, 'bench', constants.noneName],
 			description: 'test mode'
 		choice name: 'TEST_VERBOSITY',
-			choices: ['suite', 'test', 'max'],
+			choices: ['suite', constants.testName, 'max'],
 			description: 'output verbosity level'
 
 		booleanParam name: 'SHOULD_PUBLISH_BUILD_IMAGE', description: 'true to publish build image', defaultValue: false
@@ -47,7 +59,7 @@ pipeline {
 								returnStdout: true
 							).trim()
 
-							buildImageLabel = '' != TEST_IMAGE_LABEL ? TEST_IMAGE_LABEL : getBuildImageLabel()
+							buildImageLabel = TEST_IMAGE_LABEL?.trim() ? TEST_IMAGE_LABEL : resolveBuildImageLabel()
 							buildImageFullName = "symbolplatform/symbol-server-test:${buildImageLabel}"
 						}
 					}
@@ -82,7 +94,7 @@ pipeline {
 						cleanWs()
 						dir('catapult-src') {
 							sh 'git config -l'
-							git branch: "${getBranchName()}",
+							git branch: "${resolveBranchName()}",
 									url: 'https://github.com/symbol/symbol.git'
 						}
 					}
@@ -94,7 +106,7 @@ pipeline {
 				expression { isBuildEnabled() }
 			}
 			stages {
-				stage('prepare variables') {
+				stage('prepare build command') {
 					steps {
 						script {
 							runDockerBuildCommand = """
@@ -118,8 +130,9 @@ pipeline {
 							).split('\n')
 
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								for (baseImageName in baseImageNames)
+								for (baseImageName in baseImageNames) {
 									docker.image(baseImageName.trim()).pull()
+								}
 							}
 						}
 					}
@@ -137,7 +150,7 @@ pipeline {
 						"""
 					}
 				}
-				stage('build') {
+				stage('build image') {
 					steps {
 						sh "${runDockerBuildCommand}"
 					}
@@ -157,12 +170,16 @@ pipeline {
 			}
 			post {
 				always {
-					recordIssues enabledForFailure: true, tool: pyLint(pattern: 'catapult-data/logs/pylint.log')
-					recordIssues enabledForFailure: true, tool: pep8(pattern: 'catapult-data/logs/pycodestyle.log')
-					recordIssues enabledForFailure: true, tool: gcc(pattern: 'catapult-data/logs/isort.log', name: 'isort', id: 'isort')
-
-					recordIssues enabledForFailure: true,
-						tool: gcc(pattern: 'catapult-data/logs/shellcheck.log', name: 'shellcheck', id: 'shellcheck')
+					script {
+						final String isortName = 'isort'
+						final String shellcheckName = 'shellcheck'
+						recordIssues enabledForFailure: true, tool: pyLint(pattern: 'catapult-data/logs/pylint.log')
+						recordIssues enabledForFailure: true, tool: pep8(pattern: 'catapult-data/logs/pycodestyle.log')
+						recordIssues enabledForFailure: true,
+							tool: gcc(pattern: 'catapult-data/logs/isort.log', name: isortName, id: isortName)
+						recordIssues enabledForFailure: true,
+							tool: gcc(pattern: 'catapult-data/logs/shellcheck.log', name: shellcheckName, id: shellcheckName)
+					}
 				}
 			}
 		}
@@ -171,7 +188,7 @@ pipeline {
 				expression { isTestEnabled() }
 			}
 			stages {
-				stage('pull dependency images') {
+				stage('pull test dependency images') {
 					when {
 						expression { isCustomTestImage() }
 					}
@@ -186,10 +203,9 @@ pipeline {
 				stage('run tests') {
 					steps {
 						script {
-							if (isCustomTestImage())
-								testImageName = "registry.hub.docker.com/symbolplatform/symbol-server-test:${buildImageLabel}"
-							else
-								testImageName = "symbolplatform/symbol-server-test:${buildImageLabel}"
+							testImageName = isCustomTestImage() ?
+									"registry.hub.docker.com/symbolplatform/symbol-server-test:${buildImageLabel}" :
+									"symbolplatform/symbol-server-test:${buildImageLabel}"
 
 							sh """
 								python3 catapult-src/jenkins/catapult/runDockerTests.py \
@@ -214,20 +230,20 @@ pipeline {
 								returnStdout: true
 							).split('\n')
 
-							docker.image(baseImageNames[0]).inside("--volume=${pwd()}/catapult-src:/catapult-src") {
-								sh """
+							docker.image(baseImageNames.first()).inside("--volume=${pwd()}/catapult-src:/catapult-src") {
+								sh '''
 									cd /catapult-src
 									lcov --directory client/catapult/_build --capture --output-file coverage_all.info
-									lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info 
+									lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info
 									lcov --list client_coverage.info
-								"""
+								'''
 
 								withCredentials([string(credentialsId: 'SYMBOL_CODECOV_ID', variable: 'CODECOV_TOKEN')]) {
-									sh """
+									sh '''
 										curl -Os https://uploader.codecov.io/v0.1.20/linux/codecov
 										chmod +x codecov
 										./codecov --verbose --nonZero --rootDir . --flags client-catapult -X gcov --file client_coverage.info
-									"""
+									'''
 								}
 							}
 						}
@@ -251,34 +267,35 @@ pipeline {
 }
 
 Boolean isBuildEnabled() {
-	return 'none' != BUILD_CONFIGURATION
+	return constants.noneName != env.BUILD_CONFIGURATION
 }
 
 Boolean isTestEnabled() {
-	return 'none' != TEST_MODE
+	return constants.noneName != env.TEST_MODE
 }
 
 Boolean isManualBuild() {
-	return null != MANUAL_GIT_BRANCH && '' != MANUAL_GIT_BRANCH && 'null' != MANUAL_GIT_BRANCH
+	return null != env.MANUAL_GIT_BRANCH && '' != env.MANUAL_GIT_BRANCH && 'null' != env.MANUAL_GIT_BRANCH
 }
 
 Boolean isCustomTestImage() {
-	return '' != TEST_IMAGE_LABEL
+	return '' != env.TEST_IMAGE_LABEL
 }
 
-String getBranchName() {
-	return isManualBuild() ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
+String resolveBranchName() {
+	return isManualBuild() ? env.MANUAL_GIT_BRANCH : env.GIT_BRANCH
 }
 
-String getBuildImageLabel() {
-	friendlyBranchName = getBranchName()
-	if (0 == friendlyBranchName.indexOf('origin/'))
+String resolveBuildImageLabel() {
+	friendlyBranchName = resolveBranchName()
+	if (0 == friendlyBranchName.indexOf('origin/')) {
 		friendlyBranchName = friendlyBranchName.substring(7)
+	}
 
 	friendlyBranchName = friendlyBranchName.replaceAll('/', '-')
 	return "catapult-client-${friendlyBranchName}-${env.BUILD_NUMBER}"
 }
 
-def isCodeCoverageBuild() {
-	return 'gcc-code-coverage' == COMPILER_CONFIGURATION
+Boolean isCodeCoverageBuild() {
+	return constants.gccCodeCoverageName == env.COMPILER_CONFIGURATION
 }

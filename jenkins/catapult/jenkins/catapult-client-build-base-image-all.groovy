@@ -2,7 +2,7 @@ pipeline {
 	agent any
 
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: constants.manualGitBranchName, type: 'PT_BRANCH'
 	}
 
 	options {
@@ -25,35 +25,35 @@ pipeline {
 				stage('gcc prior') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-prior', 'ubuntu', true)
+							dispatchBuildBaseImageJob(constants.gccPriorName, constants.ubuntuName, true)
 						}
 					}
 				}
 				stage('gcc latest') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-latest', 'ubuntu', true)
+							dispatchBuildBaseImageJob(constants.gccLatestName, constants.ubuntuName, true)
 						}
 					}
 				}
 				stage('gcc 10 [debian]') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-debian', 'debian', false)
+							dispatchBuildBaseImageJob(constants.gccDebianName, constants.debianName, false)
 						}
 					}
 				}
 				stage('gcc westmere') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-westmere', 'ubuntu', true)
+							dispatchBuildBaseImageJob(constants.gccWestmereName, constants.ubuntuName, true)
 						}
 					}
 				}
 				stage('gcc [fedora]') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('gcc-latest', 'fedora', false)
+							dispatchBuildBaseImageJob(constants.gccLatestName, constants.fedoraName, false)
 						}
 					}
 				}
@@ -61,14 +61,14 @@ pipeline {
 				stage('clang prior') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-prior', 'ubuntu', true)
+							dispatchBuildBaseImageJob(constants.clangPriorName, constants.ubuntuName, true)
 						}
 					}
 				}
 				stage('clang latest') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-latest', 'ubuntu', true)
+							dispatchBuildBaseImageJob(constants.clangLatestName, constants.ubuntuName, true)
 						}
 					}
 				}
@@ -76,14 +76,14 @@ pipeline {
 				stage('clang ausan') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-ausan', 'ubuntu', false)
+							dispatchBuildBaseImageJob(constants.clangAusanName, constants.ubuntuName, false)
 						}
 					}
 				}
 				stage('clang tsan') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('clang-tsan', 'ubuntu', false)
+							dispatchBuildBaseImageJob(constants.clangTsanName, constants.ubuntuName, false)
 						}
 					}
 				}
@@ -91,14 +91,14 @@ pipeline {
 				stage('msvc latest') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('msvc-latest', 'windows', true)
+							dispatchBuildBaseImageJob(constants.msvcLatestName, constants.windowsName, true)
 						}
 					}
 				}
 				stage('msvc prior') {
 					steps {
 						script {
-							dispatchBuildBaseImageJob('msvc-prior', 'windows', true)
+							dispatchBuildBaseImageJob(constants.msvcPriorName, constants.windowsName, true)
 						}
 					}
 				}
@@ -106,7 +106,7 @@ pipeline {
 				stage('release base image') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('release', 'ubuntu')
+							dispatchPrepareBaseImageJob('release', constants.ubuntuName)
 						}
 					}
 				}
@@ -114,28 +114,28 @@ pipeline {
 				stage('test base image') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'ubuntu')
+							dispatchPrepareBaseImageJob(constants.testName, constants.ubuntuName)
 						}
 					}
 				}
 				stage('test base image [debian]') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'debian')
+							dispatchPrepareBaseImageJob(constants.testName, constants.debianName)
 						}
 					}
 				}
 				stage('test base image [fedora]') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'fedora')
+							dispatchPrepareBaseImageJob(constants.testName, constants.fedoraName)
 						}
 					}
 				}
 				stage('test base image [windows]') {
 					steps {
 						script {
-							dispatchPrepareBaseImageJob('test', 'windows')
+							dispatchPrepareBaseImageJob(constants.testName, constants.windowsName)
 						}
 					}
 				}
@@ -144,19 +144,19 @@ pipeline {
 	}
 }
 
-def dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer) {
+void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer) {
 	build job: 'Symbol/server-pipelines/catapult-client-build-base-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
-		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
+		string(name: constants.operatingSystemName, value: "${operatingSystem}"),
 		string(name: 'SHOULD_BUILD_CONAN_LAYER', value: "${shouldBuildConanLayer}"),
-		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
+		string(name: constants.manualGitBranchName, value: "${params.MANUAL_GIT_BRANCH}")
 	]
 }
 
-def dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
+void dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
 	build job: 'Symbol/server-pipelines/catapult-client-prepare-base-image', parameters: [
 		string(name: 'IMAGE_TYPE', value: "${imageType}"),
-		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
-		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
+		string(name: constants.operatingSystemName, value: "${operatingSystem}"),
+		string(name: constants.manualGitBranchName, value: "${params.MANUAL_GIT_BRANCH}")
 	]
 }

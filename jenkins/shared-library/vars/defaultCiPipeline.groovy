@@ -9,13 +9,14 @@ void call(Closure body) {
 	body.delegate = params
 	body()
 
-	String packageRootPath = findJenkinsfilePath()
+	final String packageRootPath = findJenkinsfilePath()
+	final String codeCoverageName = 'code-coverage'
 
 	pipeline {
 		parameters {
 			gitParameter branchFilter: 'origin/(.*)',
 				defaultValue: "${env.GIT_BRANCH}",
-				name: 'MANUAL_GIT_BRANCH',
+				name: constants.manualGitBranchName,
 				type: 'PT_BRANCH',
 				selectedValue: 'TOP',
 				sortMode: 'ASCENDING',
@@ -27,7 +28,7 @@ void call(Closure body) {
 				choices: ['release-private', 'release-public'],
 				description: 'build configuration'
 			choice name: 'TEST_MODE',
-				choices: ['code-coverage', 'test'],
+				choices: [codeCoverageName, constants.testName],
 				description: 'test mode'
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 			booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
@@ -173,7 +174,7 @@ void call(Closure body) {
 					}
 					stage('run tests') {
 						steps {
-							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'test', {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", constants.testName, {
 								runTests(env.TEST_SCRIPT_FILEPATH)
 							}
 						}
@@ -207,7 +208,7 @@ void call(Closure body) {
 							allOf {
 								expression {
 									// The branch indexing build TEST_MODE = null
-									return env.TEST_MODE == null || env.TEST_MODE == 'code-coverage'
+									return env.TEST_MODE == null || env.TEST_MODE == codeCoverageName
 								}
 								expression {
 									return params.codeCoverageTool != null
@@ -298,13 +299,13 @@ void call(Closure body) {
 }
 
 void runStepRelativeToPackageRoot(String rootPath, Closure body) {
-	try {	
+	try {
 		dir(rootPath) {
 			body()
 		}
-	} catch (Exception exception) {
-		echo "Caught: ${exception.toString()}"
-		env.FAILURE_MESSAGE = exception.getMessage()
+	} catch (hudson.AbortException exception) {
+		echo "Caught: ${exception}"
+		env.FAILURE_MESSAGE = exception.message
 		env.FAILED_STAGE_NAME = env.STAGE_NAME
 		throw exception
 	}

@@ -1,11 +1,22 @@
 pipeline {
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: constants.manualGitBranchName, type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-latest', 'gcc-prior', 'gcc-debian', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan', 'msvc-latest', 'msvc-prior'],
+			choices: [
+				constants.gccLatestName,
+				constants.gccPriorName,
+				constants.gccDebianName,
+				constants.gccWestmereName,
+				constants.clangLatestName,
+				constants.clangPriorName,
+				constants.clangAusanName,
+				constants.clangTsanName,
+				constants.msvcLatestName,
+				constants.msvcPriorName
+			],
 			description: 'compiler configuration'
-		choice name: 'OPERATING_SYSTEM',
-			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
+		choice name: constants.operatingSystemName,
+			choices: [constants.ubuntuName, constants.fedoraName, constants.debianName, constants.windowsName],
 			description: 'operating system'
 
 		booleanParam name: 'SHOULD_BUILD_CONAN_LAYER', description: 'true to build conan layer', defaultValue: false
@@ -63,28 +74,28 @@ pipeline {
 				stage('build os') {
 					steps {
 						script {
-							buildAndPushLayer('os', "${baseImageDockerfileGeneratorCommand}")
+							dockerBuildAndPushLayer('os', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
 				stage('build boost') {
 					steps {
 						script {
-							buildAndPushLayer('boost', "${baseImageDockerfileGeneratorCommand}")
+							dockerBuildAndPushLayer('boost', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
 				stage('build deps') {
 					steps {
 						script {
-							buildAndPushLayer('deps', "${baseImageDockerfileGeneratorCommand}")
+							dockerBuildAndPushLayer('deps', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
 				stage('build test') {
 					steps {
 						script {
-							buildAndPushLayer('test', "${baseImageDockerfileGeneratorCommand}")
+							dockerBuildAndPushLayer('test', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
@@ -94,7 +105,7 @@ pipeline {
 					}
 					steps {
 						script {
-							buildAndPushLayer('conan', "${baseImageDockerfileGeneratorCommand}")
+							dockerBuildAndPushLayer('conan', "${baseImageDockerfileGeneratorCommand}")
 						}
 					}
 				}
@@ -103,7 +114,7 @@ pipeline {
 	}
 }
 
-def buildAndPushLayer(String layer, String baseImageDockerfileGeneratorCommand) {
+void dockerBuildAndPushLayer(String layer, String baseImageDockerfileGeneratorCommand) {
 	docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
 		destImageName = sh(
 			script: "${baseImageDockerfileGeneratorCommand} --layer ${layer} --name-only",

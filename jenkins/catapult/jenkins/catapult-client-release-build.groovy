@@ -1,18 +1,27 @@
+@groovy.transform.Field
+final String releasePublicName = 'release-public'
+
 pipeline {
 	agent {
 		label 'ubuntu-xlarge-agent'
 	}
 
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: constants.manualGitBranchName, type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior'],
+			choices: [
+				constants.gccLatestName,
+				constants.gccPriorName,
+				constants.gccWestmereName,
+				constants.clangLatestName,
+				constants.clangPriorName
+			],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
-			choices: ['release-private', 'release-public'],
+			choices: ['release-private', releasePublicName],
 			description: 'build configuration'
-		choice name: 'OPERATING_SYSTEM',
-			choices: ['ubuntu', 'fedora'],
+		choice name: constants.operatingSystemName,
+			choices: [constants.ubuntuName, constants.fedoraName],
 			description: 'operating system'
 
 		booleanParam name: 'SHOULD_PUBLISH_BUILD_IMAGE', description: 'true to publish build image', defaultValue: false
@@ -31,7 +40,7 @@ pipeline {
 	stages {
 		// stage('preliminary') {
 		//	 when {
-		//		 expression { is_public_build() && SHOULD_PUBLISH_BUILD_IMAGE.toBoolean() }
+		//		 expression { isPublicBuild() && SHOULD_PUBLISH_BUILD_IMAGE.toBoolean() }
 		//	 }
 
 		//	 steps {
@@ -50,14 +59,13 @@ pipeline {
 				stage('prepare variables') {
 					steps {
 						script {
-							fully_qualified_user = sh(
+							fullyQualifiedUser = sh(
 								script: 'echo "$(id -u):$(id -g)"',
 								returnStdout: true
 							).trim()
 
-							build_image_repo = get_build_image_repo()
-							build_image_label = get_build_image_label()
-							build_image_full_name = "symbolplatform/${build_image_repo}:${build_image_label}"
+							imageLabel = resolveImageLabel()
+							buildImageFullName = "symbolplatform/${resolveImageRepo()}:${imageLabel}"
 						}
 					}
 				}
@@ -74,20 +82,20 @@ pipeline {
 
 						SHOULD_PUBLISH_BUILD_IMAGE: ${SHOULD_PUBLISH_BUILD_IMAGE}
 
-							  fully_qualified_user: ${fully_qualified_user}
-								 build_image_label: ${build_image_label}
-							 build_image_full_name: ${build_image_full_name}
+								fullyQualifiedUser: ${fullyQualifiedUser}
+										imageLabel: ${imageLabel}
+								buildImageFullName: ${buildImageFullName}
 						"""
 					}
 				}
 				stage('git checkout') {
 					when {
-						expression { is_manual_build() }
+						expression { isManualBuild() }
 					}
 					steps {
 						cleanWs()
 						dir('symbol-mono') {
-							git branch: "${get_branch_name()}",
+							git branch: "${resolveBranchName()}",
 								url: 'https://github.com/symbol/symbol.git'
 						}
 					}
@@ -96,16 +104,16 @@ pipeline {
 		}
 		stage('build') {
 			stages {
-				stage('prepare variables') {
+				stage('prepare build command') {
 					steps {
 						script {
-							run_docker_build_command = """
+							runDockerBuildCommand = """
 								python3 symbol-mono/jenkins/catapult/runDockerBuild.py \
 									--compiler-configuration symbol-mono/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml \
 									--build-configuration symbol-mono/jenkins/catapult/configurations/${BUILD_CONFIGURATION}.yaml \
 									--operating-system ${OPERATING_SYSTEM} \
-									--user ${fully_qualified_user} \
-									--destination-image-label ${build_image_label} \
+									--user ${fullyQualifiedUser} \
+									--destination-image-label ${imageLabel} \
 									--source-path symbol-mono \
 							"""
 						}
@@ -114,21 +122,22 @@ pipeline {
 				stage('pull dependency images') {
 					steps {
 						script {
-							base_image_names = sh(
-								script: "${run_docker_build_command} --base-image-names-only",
+							baseImageNames = sh(
+								script: "${runDockerBuildCommand} --base-image-names-only",
 								returnStdout: true
 							).split('\n')
 
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								for (base_image_name in base_image_names)
-									docker.image(base_image_name).pull()
+								for (baseImageName in baseImageNames) {
+									docker.image(baseImageName).pull()
+								}
 							}
 						}
 					}
 				}
-				stage('build') {
+				stage('build image') {
 					steps {
-						sh "${run_docker_build_command}"
+						sh "${runDockerBuildCommand}"
 					}
 				}
 				stage('push built image') {
@@ -137,11 +146,11 @@ pipeline {
 					}
 					steps {
 						script {
-							short_label = get_short_image_label()
+							shortLabel = resolveShortImageLabel()
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								built_image = docker.image(build_image_full_name)
-								built_image.push()
-								built_image.push("${short_label}")
+								builtImage = docker.image(buildImageFullName)
+								builtImage.push()
+								builtImage.push("${shortLabel}")
 							}
 						}
 					}
@@ -151,54 +160,52 @@ pipeline {
 	}
 }
 
-def is_public_build() {
-	return 'release-public' == BUILD_CONFIGURATION
+Boolean isPublicBuild() {
+	return releasePublicName == BUILD_CONFIGURATION
 }
 
-def is_manual_build() {
+Boolean isManualBuild() {
 	return null != MANUAL_GIT_BRANCH && '' != MANUAL_GIT_BRANCH && 'null' != MANUAL_GIT_BRANCH
 }
 
-def get_branch_name() {
-	return is_manual_build() ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
+String resolveBranchName() {
+	return isManualBuild() ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
 }
 
-def get_public_version() {
-	version_path = './symbol-mono/jenkins/catapult/server.version.yaml'
-	data = readYaml(file: version_path)
+String publicVersion() {
+	versionPath = './symbol-mono/jenkins/catapult/server.version.yaml'
+	data = readYaml(file: versionPath)
 	return data.version
 }
 
-def get_build_image_repo() {
-	return is_public_build() ? 'symbol-server' : 'symbol-server-private'
+String resolveImageRepo() {
+	return isPublicBuild() ? 'symbol-server' : 'symbol-server-private'
 }
 
-def get_architecture_label() {
+String resolveArchitectureLabel() {
 	data = readYaml(file: "./symbol-mono/jenkins/catapult/configurations/${COMPILER_CONFIGURATION}.yaml")
 	architecture = data.architecture
-
-	if ('skylake' == architecture)
-		return ''
-
-	return "-${architecture}"
+	return 'skylake' == architecture ? '' : "-${architecture}"
 }
 
-def get_build_image_label() {
-	friendly_branch_name = get_branch_name()
-	if (0 == friendly_branch_name.indexOf('origin/'))
-		friendly_branch_name = friendly_branch_name.substring(7)
+String resolveImageLabel() {
+	friendlyBranchName = resolveBranchName()
+	if (0 == friendlyBranchName.indexOf('origin/')) {
+		friendlyBranchName = friendlyBranchName.substring(7)
+	}
 
-	friendly_branch_name = friendly_branch_name.replaceAll('/', '-')
-	architecture = get_architecture_label()
-	git_hash="${env.GIT_COMMIT}".substring(0, 8)
-	return "${COMPILER_CONFIGURATION}-${friendly_branch_name}${architecture}-${git_hash}"
+	friendlyBranchName = friendlyBranchName.replaceAll('/', '-')
+	architecture = resolveArchitectureLabel()
+	gitHash = "${env.GIT_COMMIT}".substring(8)
+	return "${COMPILER_CONFIGURATION}-${friendlyBranchName}${architecture}-${gitHash}"
 }
 
-def get_short_image_label() {
-	architecture = get_architecture_label()
-	if (!is_public_build())
+String resolveShortImageLabel() {
+	architecture = resolveArchitectureLabel()
+	if (!isPublicBuild()) {
 		return "${COMPILER_CONFIGURATION}${architecture}"
+	}
 
-	version_string = get_public_version()
-	return "${COMPILER_CONFIGURATION}-${version_string}${architecture}"
+	versionString = publicVersion()
+	return "${COMPILER_CONFIGURATION}-${versionString}${architecture}"
 }

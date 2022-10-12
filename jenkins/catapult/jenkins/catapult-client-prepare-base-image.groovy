@@ -1,11 +1,11 @@
 pipeline {
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
-		choice name: 'OPERATING_SYSTEM',
-			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: constants.manualGitBranchName, type: 'PT_BRANCH'
+		choice name: constants.operatingSystemName,
+			choices: [constants.ubuntuName, constants.fedoraName, constants.debianName, constants.windowsName],
 			description: 'operating system'
 		choice name: 'IMAGE_TYPE',
-			choices: ['release', 'test'],
+			choices: ['release', constants.testName],
 			description: 'image type'
 
 		booleanParam name: 'SANITIZER_BUILD', description: 'true to build sanitizer', defaultValue: false
@@ -14,7 +14,6 @@ pipeline {
 	agent {
 		label "${helper.resolveAgentName("${OPERATING_SYSTEM}")}"
 	}
-
 
 	options {
 		ansiColor('css')
@@ -46,10 +45,12 @@ pipeline {
 					version = properties[params.OPERATING_SYSTEM]
 
 					sanitizer = SANITIZER_BUILD.toBoolean() ? 'Sanitizer' : ''
-
-					dockerfileTemplate = "./jenkins/catapult/templates/${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}BaseImage.Dockerfile"
+					filename = "${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"
+					dockerfileTemplate = "./jenkins/catapult/templates/${filename}BaseImage.Dockerfile"
 					dockerfileContents = readFile(file: dockerfileTemplate)
-					baseImage = 'windows' == "${OPERATING_SYSTEM}" ? "mcr.microsoft.com/windows/servercore:ltsc${version}" : "${params.OPERATING_SYSTEM}:${version}"
+					baseImage = constants.windowsName == "${OPERATING_SYSTEM}" ?
+							"mcr.microsoft.com/windows/servercore:ltsc${version}" :
+							"${params.OPERATING_SYSTEM}:${version}"
 					dockerfileContents = dockerfileContents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${baseImage}")
 
 					writeFile(file: 'Dockerfile', text: dockerfileContents)
@@ -70,7 +71,7 @@ pipeline {
 				script {
 					dockerImageName = "symbolplatform/symbol-server-${params.IMAGE_TYPE}-base:${params.OPERATING_SYSTEM}"
 					if (SANITIZER_BUILD.toBoolean()) {
-						dockerImageName += "-sanitizer"
+						dockerImageName += '-sanitizer'
 					}
 					echo "Docker image name: ${dockerImageName}"
 					dockerImage = docker.build(dockerImageName)
