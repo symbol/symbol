@@ -48,9 +48,9 @@ pipeline {
 					filename = "${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"
 					dockerfileTemplate = "./jenkins/catapult/templates/${filename}BaseImage.Dockerfile"
 					dockerfileContents = readFile(file: dockerfileTemplate)
-					baseImage = 'windows' == "${OPERATING_SYSTEM}" ?
-							"mcr.microsoft.com/windows/servercore:ltsc${version}" :
-							"${params.OPERATING_SYSTEM}:${version}"
+					baseImage = 'windows' == "${OPERATING_SYSTEM}"
+							? "mcr.microsoft.com/windows/servercore:ltsc${version}"
+							: "${params.OPERATING_SYSTEM}:${version}"
 					dockerfileContents = dockerfileContents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${baseImage}")
 
 					writeFile(file: 'Dockerfile', text: dockerfileContents)

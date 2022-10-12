@@ -199,9 +199,9 @@ pipeline {
 				stage('run tests') {
 					steps {
 						script {
-							testImageName = isCustomTestImage() ?
-									"registry.hub.docker.com/symbolplatform/symbol-server-test:${buildImageLabel}" :
-									"symbolplatform/symbol-server-test:${buildImageLabel}"
+							testImageName = isCustomTestImage()
+									? "registry.hub.docker.com/symbolplatform/symbol-server-test:${buildImageLabel}"
+									: "symbolplatform/symbol-server-test:${buildImageLabel}"
 
 							sh """
 								python3 catapult-src/jenkins/catapult/runDockerTests.py \

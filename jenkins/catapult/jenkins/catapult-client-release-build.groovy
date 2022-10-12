@@ -29,22 +29,6 @@ pipeline {
 	}
 
 	stages {
-		// stage('preliminary') {
-		//	 when {
-		//		 expression { isPublicBuild() && SHOULD_PUBLISH_BUILD_IMAGE.toBoolean() }
-		//	 }
-
-		//	 steps {
-		//		 script {
-		//			 timeout(time: 10, unit: 'SECONDS') {
-		//				 input(
-		//					 id: "userInput",
-		//					 message: "Are you sure you want to create public build?"
-		//				 )
-		//			 }
-		//		 }
-		//	 }
-		// }
 		stage('prepare') {
 			stages {
 				stage('prepare variables') {
