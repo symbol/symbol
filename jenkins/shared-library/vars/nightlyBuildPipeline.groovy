@@ -5,13 +5,14 @@ void call(Closure body) {
 	body()
 
 	final String shouldPublishFailJobStatusName = 'SHOULD_PUBLISH_FAIL_JOB_STATUS'
+	final String manualGitBranchName = 'MANUAL_GIT_BRANCH'
 	final String defaultBranch = 'dev'
 
 	pipeline {
 		parameters {
 			gitParameter branchFilter: 'origin/(.*)',
 				defaultValue: defaultBranch,
-				name: constants.manualGitBranchName,
+				name: manualGitBranchName,
 				type: 'PT_BRANCH',
 				selectedValue: 'TOP',
 				sortMode: 'ASCENDING',
@@ -58,7 +59,7 @@ void call(Closure body) {
 							!env.WAIT_FOR_BUILDS || env.WAIT_FOR_BUILDS.toBoolean(),
 							shouldPublishFailJobStatusName,
 							!env.SHOULD_PUBLISH_FAIL_JOB_STATUS || env.SHOULD_PUBLISH_FAIL_JOB_STATUS.toBoolean(),
-							constants.manualGitBranchName
+							manualGitBranchName
 						)
 					}
 				}

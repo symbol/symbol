@@ -1,19 +1,11 @@
 pipeline {
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: constants.manualGitBranchName, type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: [
-				constants.gccLatestName,
-				constants.gccPriorName,
-				constants.gccDebianName,
-				constants.clangLatestName,
-				constants.clangPriorName,
-				constants.msvcLatestName,
-				constants.msvcPriorName
-			],
+			choices: ['gcc-latest', 'gcc-prior', 'gcc-debian', 'clang-latest', 'clang-prior', 'msvc-latest', 'msvc-prior'],
 			description: 'compiler version'
-		choice name: constants.operatingSystemName,
-			choices: [constants.ubuntuName, constants.fedoraName, constants.debianName, constants.windowsName],
+		choice name: 'OPERATING_SYSTEM',
+			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
 			description: 'operating system'
 	}
 

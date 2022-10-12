@@ -9,13 +9,12 @@ void call(Closure body) {
 	body()
 
 	final String packageRootPath = findJenkinsfilePath()
-	final String codeCoverageName = 'code-coverage'
 
 	pipeline {
 		parameters {
 			gitParameter branchFilter: 'origin/(.*)',
 				defaultValue: "${env.GIT_BRANCH}",
-				name: constants.manualGitBranchName,
+				name: 'MANUAL_GIT_BRANCH',
 				type: 'PT_BRANCH',
 				selectedValue: 'TOP',
 				sortMode: 'ASCENDING',
@@ -27,7 +26,7 @@ void call(Closure body) {
 				choices: ['release-private', 'release-public'],
 				description: 'build configuration'
 			choice name: 'TEST_MODE',
-				choices: [codeCoverageName, constants.testName],
+				choices: ['code-coverage', 'test'],
 				description: 'test mode'
 			booleanParam name: 'SHOULD_PUBLISH_IMAGE', description: 'true to publish image', defaultValue: false
 			booleanParam name: 'SHOULD_PUBLISH_FAIL_JOB_STATUS', description: 'true to publish job status if failed', defaultValue: false
@@ -173,7 +172,7 @@ void call(Closure body) {
 					}
 					stage('run tests') {
 						steps {
-							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", constants.testName, {
+							runStepRelativeToPackageRootWithBadge packageRootPath, "${params.packageId}", 'test', {
 								runTests(env.TEST_SCRIPT_FILEPATH)
 							}
 						}
@@ -207,7 +206,7 @@ void call(Closure body) {
 							allOf {
 								expression {
 									// The branch indexing build TEST_MODE = null
-									return env.TEST_MODE == null || env.TEST_MODE == codeCoverageName
+									return env.TEST_MODE == null || 'code-coverage' == env.TEST_MODE
 								}
 								expression {
 									return params.codeCoverageTool != null

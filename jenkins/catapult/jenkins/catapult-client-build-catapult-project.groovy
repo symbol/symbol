@@ -1,34 +1,34 @@
 pipeline {
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: constants.manualGitBranchName, type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
 			choices: [
-				constants.gccDebianName,
-				constants.gccLatestName,
-				constants.gccPriorName,
-				constants.gccWestmereName,
-				constants.clangLatestName,
-				constants.clangPriorName,
-				constants.clangAusanName,
-				constants.clangTsanName,
-				constants.gccCodeCoverageName,
-				constants.msvcLatestName,
-				constants.msvcPriorName
+				'gcc-debian',
+				'gcc-latest',
+				'gcc-prior',
+				'gcc-westmere',
+				'clang-latest',
+				'clang-prior',
+				'clang-ausan',
+				'clang-tsan',
+				'gcc-code-coverage',
+				'msvc-latest',
+				'msvc-prior'
 			],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
-			choices: [constants.testsMetalName, constants.testsConanName, 'tests-diagnostics', constants.noneName],
+			choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
 			description: 'build configuration'
-		choice name: constants.operatingSystemName,
-			choices: [constants.ubuntuName, constants.fedoraName, constants.debianName, constants.windowsName],
+		choice name: 'OPERATING_SYSTEM',
+			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
 			description: 'operating system'
 
 		string name: 'TEST_IMAGE_LABEL', description: 'docker test image label', defaultValue: ''
 		choice name: 'TEST_MODE',
-			choices: [constants.testName, 'bench', constants.noneName],
+			choices: ['test', 'bench', 'none'],
 			description: 'test mode'
 		choice name: 'TEST_VERBOSITY',
-			choices: ['suite', constants.testName, 'max'],
+			choices: ['suite', 'test', 'max'],
 			description: 'output verbosity level'
 
 		booleanParam name: 'SHOULD_PUBLISH_BUILD_IMAGE', description: 'true to publish build image', defaultValue: false
@@ -106,7 +106,7 @@ pipeline {
 				expression { isBuildEnabled() }
 			}
 			stages {
-				stage('prepare build command') {
+				stage('prepare variables') {
 					steps {
 						script {
 							runDockerBuildCommand = """
@@ -150,7 +150,7 @@ pipeline {
 						"""
 					}
 				}
-				stage('build image') {
+				stage('build') {
 					steps {
 						sh "${runDockerBuildCommand}"
 					}
@@ -170,16 +170,12 @@ pipeline {
 			}
 			post {
 				always {
-					script {
-						final String isortName = 'isort'
-						final String shellcheckName = 'shellcheck'
-						recordIssues enabledForFailure: true, tool: pyLint(pattern: 'catapult-data/logs/pylint.log')
-						recordIssues enabledForFailure: true, tool: pep8(pattern: 'catapult-data/logs/pycodestyle.log')
-						recordIssues enabledForFailure: true,
-							tool: gcc(pattern: 'catapult-data/logs/isort.log', name: isortName, id: isortName)
-						recordIssues enabledForFailure: true,
-							tool: gcc(pattern: 'catapult-data/logs/shellcheck.log', name: shellcheckName, id: shellcheckName)
-					}
+					recordIssues enabledForFailure: true, tool: pyLint(pattern: 'catapult-data/logs/pylint.log')
+					recordIssues enabledForFailure: true, tool: pep8(pattern: 'catapult-data/logs/pycodestyle.log')
+					recordIssues enabledForFailure: true, tool: gcc(pattern: 'catapult-data/logs/isort.log', name: 'isort', id: 'isort')
+
+					recordIssues enabledForFailure: true,
+						tool: gcc(pattern: 'catapult-data/logs/shellcheck.log', name: 'shellcheck', id: 'shellcheck')
 				}
 			}
 		}
@@ -188,7 +184,7 @@ pipeline {
 				expression { isTestEnabled() }
 			}
 			stages {
-				stage('pull test dependency images') {
+				stage('pull dependency images') {
 					when {
 						expression { isCustomTestImage() }
 					}
@@ -230,7 +226,7 @@ pipeline {
 								returnStdout: true
 							).split('\n')
 
-							docker.image(baseImageNames.first()).inside("--volume=${pwd()}/catapult-src:/catapult-src") {
+							docker.image(baseImageNames[0]).inside("--volume=${pwd()}/catapult-src:/catapult-src") {
 								sh '''
 									cd /catapult-src
 									lcov --directory client/catapult/_build --capture --output-file coverage_all.info
@@ -267,11 +263,11 @@ pipeline {
 }
 
 Boolean isBuildEnabled() {
-	return constants.noneName != env.BUILD_CONFIGURATION
+	return 'none' != BUILD_CONFIGURATION
 }
 
 Boolean isTestEnabled() {
-	return constants.noneName != env.TEST_MODE
+	return 'none' != TEST_MODE
 }
 
 Boolean isManualBuild() {
@@ -297,5 +293,5 @@ String resolveBuildImageLabel() {
 }
 
 Boolean isCodeCoverageBuild() {
-	return constants.gccCodeCoverageName == env.COMPILER_CONFIGURATION
+	return 'gcc-code-coverage' == env.COMPILER_CONFIGURATION
 }

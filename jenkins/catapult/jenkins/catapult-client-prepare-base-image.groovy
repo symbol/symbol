@@ -1,11 +1,11 @@
 pipeline {
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: constants.manualGitBranchName, type: 'PT_BRANCH'
-		choice name: constants.operatingSystemName,
-			choices: [constants.ubuntuName, constants.fedoraName, constants.debianName, constants.windowsName],
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
+		choice name: 'OPERATING_SYSTEM',
+			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
 			description: 'operating system'
 		choice name: 'IMAGE_TYPE',
-			choices: ['release', constants.testName],
+			choices: ['release', 'test'],
 			description: 'image type'
 
 		booleanParam name: 'SANITIZER_BUILD', description: 'true to build sanitizer', defaultValue: false
@@ -48,7 +48,7 @@ pipeline {
 					filename = "${params.OPERATING_SYSTEM.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"
 					dockerfileTemplate = "./jenkins/catapult/templates/${filename}BaseImage.Dockerfile"
 					dockerfileContents = readFile(file: dockerfileTemplate)
-					baseImage = constants.windowsName == "${OPERATING_SYSTEM}" ?
+					baseImage = 'windows' == "${OPERATING_SYSTEM}" ?
 							"mcr.microsoft.com/windows/servercore:ltsc${version}" :
 							"${params.OPERATING_SYSTEM}:${version}"
 					dockerfileContents = dockerfileContents.replaceAll('\\{\\{BASE_IMAGE\\}\\}', "${baseImage}")

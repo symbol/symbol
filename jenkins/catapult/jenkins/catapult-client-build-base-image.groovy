@@ -1,22 +1,22 @@
 pipeline {
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: constants.manualGitBranchName, type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
 			choices: [
-				constants.gccLatestName,
-				constants.gccPriorName,
-				constants.gccDebianName,
-				constants.gccWestmereName,
-				constants.clangLatestName,
-				constants.clangPriorName,
-				constants.clangAusanName,
-				constants.clangTsanName,
-				constants.msvcLatestName,
-				constants.msvcPriorName
+				'gcc-latest',
+				'gcc-prior',
+				'gcc-debian',
+				'gcc-westmere',
+				'clang-latest',
+				'clang-prior',
+				'clang-ausan',
+				'clang-tsan',
+				'msvc-latest',
+				'msvc-prior'
 			],
 			description: 'compiler configuration'
-		choice name: constants.operatingSystemName,
-			choices: [constants.ubuntuName, constants.fedoraName, constants.debianName, constants.windowsName],
+		choice name: 'OPERATING_SYSTEM',
+			choices: ['ubuntu', 'fedora', 'debian', 'windows'],
 			description: 'operating system'
 
 		booleanParam name: 'SHOULD_BUILD_CONAN_LAYER', description: 'true to build conan layer', defaultValue: false

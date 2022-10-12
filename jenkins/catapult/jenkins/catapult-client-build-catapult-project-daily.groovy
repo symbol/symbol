@@ -2,7 +2,7 @@ pipeline {
 	agent any
 
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: constants.manualGitBranchName, type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 	}
 
 	options {
@@ -25,14 +25,14 @@ pipeline {
 				stage('gcc latest (conan)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob(constants.gccLatestName, constants.testsConanName)
+							dispatchUbuntuBuildJob('gcc-latest', 'tests-conan')
 						}
 					}
 				}
 				stage('gcc latest (metal)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob(constants.gccLatestName, constants.testsMetalName)
+							dispatchUbuntuBuildJob('gcc-latest', 'tests-metal')
 						}
 					}
 				}
@@ -40,14 +40,14 @@ pipeline {
 				stage('clang latest (conan)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob(constants.clangLatestName, constants.testsConanName)
+							dispatchUbuntuBuildJob('clang-latest', 'tests-conan')
 						}
 					}
 				}
 				stage('clang latest (metal)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob(constants.clangLatestName, constants.testsMetalName)
+							dispatchUbuntuBuildJob('clang-latest', 'tests-metal')
 						}
 					}
 				}
@@ -55,35 +55,35 @@ pipeline {
 				stage('clang ausan') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob(constants.clangAusanName, constants.testsMetalName)
+							dispatchUbuntuBuildJob('clang-ausan', 'tests-metal')
 						}
 					}
 				}
 				stage('clang tsan') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob(constants.clangTsanName, constants.testsMetalName)
+							dispatchUbuntuBuildJob('clang-tsan', 'tests-metal')
 						}
 					}
 				}
 				stage('clang diagnostics') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob(constants.clangLatestName, 'tests-diagnostics')
+							dispatchUbuntuBuildJob('clang-latest', 'tests-diagnostics')
 						}
 					}
 				}
 				stage('code coverage (gcc latest)') {
 					steps {
 						script {
-							dispatchUbuntuBuildJob('gcc-code-coverage', constants.testsMetalName)
+							dispatchUbuntuBuildJob('gcc-code-coverage', 'tests-metal')
 						}
 					}
 				}
 				stage('msvc latest (conan)') {
 					steps {
 						script {
-							dispatchBuildJob(constants.msvcLatestName, constants.testsConanName, constants.windowsName)
+							dispatchBuildJob('msvc-latest', 'tests-conan', 'windows')
 						}
 					}
 				}
@@ -96,8 +96,8 @@ void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, S
 	build job: 'Symbol/server-pipelines/catapult-client-build-catapult-project', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'BUILD_CONFIGURATION', value: "${buildConfiguration}"),
-		string(name: constants.operatingSystemName, value: "${operatingSystem}"),
-		string(name: constants.manualGitBranchName, value: "${params.MANUAL_GIT_BRANCH}")
+		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
+		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
 	]
 }
 

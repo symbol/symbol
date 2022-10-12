@@ -2,7 +2,7 @@ pipeline {
 	agent any
 
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: constants.manualGitBranchName, type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: 'dev', name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 	}
 
 	options {
@@ -25,7 +25,7 @@ pipeline {
 				stage('gcc (metal) [debian]') {
 					steps {
 						script {
-							dispatchBuildJob(constants.gccDebianName, constants.testsMetalName, constants.debianName)
+							dispatchBuildJob('gcc-debian', 'tests-metal', 'debian')
 						}
 					}
 				}
@@ -33,7 +33,7 @@ pipeline {
 				stage('gcc (westmere)') {
 					steps {
 						script {
-							dispatchBuildJob(constants.gccWestmereName, constants.testsMetalName, constants.ubuntuName)
+							dispatchBuildJob('gcc-westmere', 'tests-metal', 'ubuntu')
 						}
 					}
 				}
@@ -41,7 +41,7 @@ pipeline {
 				stage('gcc (metal) [fedora]') {
 					steps {
 						script {
-							dispatchBuildJob(constants.gccLatestName, constants.testsMetalName, constants.fedoraName)
+							dispatchBuildJob('gcc-latest', 'tests-metal', 'fedora')
 						}
 					}
 				}
@@ -49,7 +49,7 @@ pipeline {
 				stage('clang prior (metal)') {
 					steps {
 						script {
-							dispatchBuildJob(constants.clangPriorName, constants.testsMetalName, constants.ubuntuName)
+							dispatchBuildJob('clang-prior', 'tests-metal', 'ubuntu')
 						}
 					}
 				}
@@ -57,7 +57,7 @@ pipeline {
 				stage('clang prior (conan)') {
 					steps {
 						script {
-							dispatchBuildJob(constants.clangPriorName, constants.testsConanName, constants.ubuntuName)
+							dispatchBuildJob('clang-prior', 'tests-conan', 'ubuntu')
 						}
 					}
 				}
@@ -65,7 +65,7 @@ pipeline {
 				stage('gcc prior (metal)') {
 					steps {
 						script {
-							dispatchBuildJob(constants.gccPriorName, constants.testsMetalName, constants.ubuntuName)
+							dispatchBuildJob('gcc-prior', 'tests-metal', 'ubuntu')
 						}
 					}
 				}
@@ -73,7 +73,7 @@ pipeline {
 				stage('gcc prior (conan)') {
 					steps {
 						script {
-							dispatchBuildJob(constants.gccPriorName, constants.testsConanName, constants.ubuntuName)
+							dispatchBuildJob('gcc-prior', 'tests-conan', 'ubuntu')
 						}
 					}
 				}
@@ -81,7 +81,7 @@ pipeline {
 				stage('msvc prior (metal)') {
 					steps {
 						script {
-							dispatchBuildJob(constants.msvcPriorName, constants.testsMetalName, constants.windowsName)
+							dispatchBuildJob('msvc-prior', 'tests-metal', 'windows')
 						}
 					}
 				}
@@ -94,7 +94,7 @@ void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, S
 	build job: 'Symbol/server-pipelines/catapult-client-build-catapult-project', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'BUILD_CONFIGURATION', value: "${buildConfiguration}"),
-		string(name: constants.operatingSystemName, value: "${operatingSystem}"),
-		string(name: constants.manualGitBranchName, value: "${params.MANUAL_GIT_BRANCH}")
+		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
+		string(name: 'MANUAL_GIT_BRANCH', value: "${params.MANUAL_GIT_BRANCH}")
 	]
 }

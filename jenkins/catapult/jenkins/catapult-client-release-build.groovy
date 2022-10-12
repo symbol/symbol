@@ -1,27 +1,18 @@
-@groovy.transform.Field
-final String releasePublicName = 'release-public'
-
 pipeline {
 	agent {
 		label 'ubuntu-xlarge-agent'
 	}
 
 	parameters {
-		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: constants.manualGitBranchName, type: 'PT_BRANCH'
+		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: [
-				constants.gccLatestName,
-				constants.gccPriorName,
-				constants.gccWestmereName,
-				constants.clangLatestName,
-				constants.clangPriorName
-			],
+			choices: ['gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior'],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
-			choices: ['release-private', releasePublicName],
+			choices: ['release-private', 'release-public'],
 			description: 'build configuration'
-		choice name: constants.operatingSystemName,
-			choices: [constants.ubuntuName, constants.fedoraName],
+		choice name: 'OPERATING_SYSTEM',
+			choices: ['ubuntu', 'fedora'],
 			description: 'operating system'
 
 		booleanParam name: 'SHOULD_PUBLISH_BUILD_IMAGE', description: 'true to publish build image', defaultValue: false
@@ -104,7 +95,7 @@ pipeline {
 		}
 		stage('build') {
 			stages {
-				stage('prepare build command') {
+				stage('prepare variables') {
 					steps {
 						script {
 							runDockerBuildCommand = """
@@ -135,7 +126,7 @@ pipeline {
 						}
 					}
 				}
-				stage('build image') {
+				stage('build') {
 					steps {
 						sh "${runDockerBuildCommand}"
 					}
@@ -161,7 +152,7 @@ pipeline {
 }
 
 Boolean isPublicBuild() {
-	return releasePublicName == BUILD_CONFIGURATION
+	return 'release-public' == BUILD_CONFIGURATION
 }
 
 Boolean isManualBuild() {
