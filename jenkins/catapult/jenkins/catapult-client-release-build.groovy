@@ -171,7 +171,7 @@ String resolveImageLabel() {
 
 	friendlyBranchName = friendlyBranchName.replaceAll('/', '-')
 	architecture = resolveArchitectureLabel()
-	git_hash = "${env.GIT_COMMIT}".substring(0, 8)
+	gitHash = "${env.GIT_COMMIT}".substring(0, 8)
 	return "${COMPILER_CONFIGURATION}-${friendlyBranchName}${architecture}-${gitHash}"
 }
 
