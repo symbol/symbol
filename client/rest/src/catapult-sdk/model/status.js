@@ -43,7 +43,6 @@ const toStringInternal = code => {
 	case 0x8043000E: return 'Failure_Core_Address_Collision';
 	case 0x8043000F: return 'Failure_Core_Importance_Block_Mismatch';
 	case 0x80430010: return 'Failure_Core_Unexpected_Block_Type';
-	case 0x80430011: return 'Failure_Core_Block_Explicit_Transactions_Hash_Mismatch';
 	case 0x80430065: return 'Failure_Core_Invalid_Link_Action';
 	case 0x80430066: return 'Failure_Core_Link_Already_Exists';
 	case 0x80430067: return 'Failure_Core_Inconsistent_Unlink_Data';
@@ -65,6 +64,8 @@ const toStringInternal = code => {
 	case 0x80410005: return 'Failure_Aggregate_Ineligible_Cosignatories';
 	case 0x80410006: return 'Failure_Aggregate_Missing_Cosignatures';
 	case 0x80410007: return 'Failure_Aggregate_Transactions_Hash_Mismatch';
+	case 0x80410008: return 'Failure_Aggregate_V1_Prohibited';
+	case 0x80410009: return 'Failure_Aggregate_V2_Prohibited';
 	case 0x80480001: return 'Failure_LockHash_Invalid_Mosaic_Id';
 	case 0x80480002: return 'Failure_LockHash_Invalid_Mosaic_Amount';
 	case 0x80480003: return 'Failure_LockHash_Hash_Already_Exists';

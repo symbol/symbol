@@ -39,6 +39,13 @@ namespace catapult { namespace validators {
 	DECLARE_STATELESS_VALIDATOR(StrictAggregateCosignatures, model::AggregateCosignaturesNotification)();
 
 	/// Validator that applies to aggregate embedded transactions notifications and validates that:
-	/// - the aggregate transactions hash is correct
-	DECLARE_STATELESS_VALIDATOR(AggregateTransactionsHash, model::AggregateEmbeddedTransactionsNotification)();
+	/// - aggregate transactions hash is strictly correct for versions 2+
+	/// - aggregate transactions hash is weakly correct and/or matches entry in \a knownCorruptedHashes for version 1
+	DECLARE_STATELESS_VALIDATOR(AggregateTransactionsHash, model::AggregateEmbeddedTransactionsNotification)(
+			const std::unordered_map<Hash256, Hash256, utils::ArrayHasher<Hash256>>& knownCorruptedHashes);
+
+	/// Validator that applies to entity notifications and validates that:
+	/// - aggregate transactions with version 2+ are rejected before \a v2ForkHeight
+	/// - aggregate transactions with version 1 are rejected at and after \a v2ForkHeight
+	DECLARE_STATEFUL_VALIDATOR(AggregateTransactionVersion, model::EntityNotification)(Height v2ForkHeight);
 }}

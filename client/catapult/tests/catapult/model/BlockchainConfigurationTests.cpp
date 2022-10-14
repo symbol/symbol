@@ -39,16 +39,21 @@ namespace catapult { namespace model {
 		constexpr auto Harvest_Network_Fee_Sink_Address = "TCRRSPVMOOPX3QA2JRN432LFODY2KA4EJBEZUKQ";
 
 		constexpr auto Signature_1 =
-				"395C2B37C7AABBEC3C08BD42DAF52D93D1BF003FF6A731E54F63003383EF1CE0"
-				"302871ADD90DF04638DC617ACF2F5BB759C3DDC060E55A554477543210976C75";
-
+			"395C2B37C7AABBEC3C08BD42DAF52D93D1BF003FF6A731E54F63003383EF1CE0"
+			"302871ADD90DF04638DC617ACF2F5BB759C3DDC060E55A554477543210976C75";
 		constexpr auto Signature_2 =
-				"401ECCE607FF9710A00B677A487D36B9B9B3B0DC6DF59DA0A2BD77603E80B82B"
-				"D0A82FE949055C5BB7A00F83AF4FF1242965CBF62C9D083344FF294D157259B2";
-
+			"401ECCE607FF9710A00B677A487D36B9B9B3B0DC6DF59DA0A2BD77603E80B82B"
+			"D0A82FE949055C5BB7A00F83AF4FF1242965CBF62C9D083344FF294D157259B2";
 		constexpr auto Signature_3 =
-				"3A785A34EA7FAB8AD7ED1B95EC0C0C1CC4097104DD3A47AB06E138D59DC48D75"
-				"300996EDEF0C24641EE5EFFD83A3EFE10CE4CA41DAAF642342E988A0A0EA7FB6";
+			"3A785A34EA7FAB8AD7ED1B95EC0C0C1CC4097104DD3A47AB06E138D59DC48D75"
+			"300996EDEF0C24641EE5EFFD83A3EFE10CE4CA41DAAF642342E988A0A0EA7FB6";
+
+		constexpr auto Hash_1 = "8F5D7161352C39A7F179917851E66A2A9ED7675DD568B91F8314ABCEA654F368";
+		constexpr auto Hash_2 = "18A842F09E7D9B23417EF83F27D341473DCAB1EECD653915C46DB7040590A25C";
+		constexpr auto Hash_3 = "9628FEB5BA4BC3716EDE29D7417E653CD7ACC8352D59EF0E1A061E61EB6F0953";
+		constexpr auto Hash_4 = "52E56843BE40C9AC79DF2FBE15A11F9AA447076174E0D611C2010756D49D550E";
+		constexpr auto Hash_5 = "654A14F8D65FD23D3E5DC16D3CC1CA0B1CBC5B856987B5379A30B99114188E16";
+		constexpr auto Hash_6 = "0EE76D5B0D09BAE81CC370CC6F231167041E20F93CE94D5C64D5813D1A541221";
 
 		struct BlockchainConfigurationTraits {
 			using ConfigurationType = BlockchainConfiguration;
@@ -111,7 +116,8 @@ namespace catapult { namespace model {
 						"fork_heights",
 						{
 							{ "totalVotingBalanceCalculationFix", "998877" },
-							{ "treasuryReissuance", "11998877" }
+							{ "treasuryReissuance", "11998877" },
+							{ "strictAggregateTransactionHash", "22334455" }
 						}
 					},
 					{
@@ -120,6 +126,14 @@ namespace catapult { namespace model {
 							{ Signature_1, "true" },
 							{ Signature_2, "false" },
 							{ Signature_3, "true" }
+						}
+					},
+					{
+						"corrupt_aggregate_transaction_hashes",
+						{
+							{ Hash_1, Hash_2 },
+							{ Hash_3, Hash_4 },
+							{ Hash_5, Hash_6 }
 						}
 					},
 					{
@@ -190,8 +204,10 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(Height(0), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(0), config.ForkHeights.TreasuryReissuance);
+				EXPECT_EQ(Height(0), config.ForkHeights.StrictAggregateTransactionHash);
 
 				EXPECT_TRUE(config.TreasuryReissuanceTransactionSignatures.empty());
+				EXPECT_TRUE(config.KnownCorruptAggregateTransactionHashesMap.empty());
 				EXPECT_TRUE(config.Plugins.empty());
 			}
 
@@ -243,6 +259,7 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(Height(998877), config.ForkHeights.TotalVotingBalanceCalculationFix);
 				EXPECT_EQ(Height(11998877), config.ForkHeights.TreasuryReissuance);
+				EXPECT_EQ(Height(22334455), config.ForkHeights.StrictAggregateTransactionHash);
 
 				EXPECT_EQ(
 						std::vector<Signature>({
@@ -250,6 +267,14 @@ namespace catapult { namespace model {
 							utils::ParseByteArray<Signature>(Signature_3)
 						}),
 						config.TreasuryReissuanceTransactionSignatures);
+
+				EXPECT_EQ(
+						decltype(config.KnownCorruptAggregateTransactionHashesMap)({
+							{ utils::ParseByteArray<Hash256>(Hash_1), utils::ParseByteArray<Hash256>(Hash_2) },
+							{ utils::ParseByteArray<Hash256>(Hash_3), utils::ParseByteArray<Hash256>(Hash_4) },
+							{ utils::ParseByteArray<Hash256>(Hash_5), utils::ParseByteArray<Hash256>(Hash_6) }
+						}),
+						config.KnownCorruptAggregateTransactionHashesMap);
 
 				EXPECT_EQ(2u, config.Plugins.size());
 				const auto& pluginAlphaBag = config.Plugins.find("alpha")->second;
@@ -273,6 +298,27 @@ namespace catapult { namespace model {
 		auto& networkProperties = container["network"];
 		auto hasIdentifierKey = [](const auto& pair) { return "identifier" == pair.first; };
 		std::find_if(networkProperties.begin(), networkProperties.end(), hasIdentifierKey)->second = "foonet";
+
+		// Act + Assert:
+		EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(container)), utils::property_malformed_error);
+	}
+
+	TEST(TEST_CLASS, CannotLoadBlockchainConfigurationWithMalformedKnownCorruptAggregateTransactionHashesMapKey) {
+		// Arrange: set a malformed key, which is not caught by ConfigurationBag and needs to be checked explicitly
+		using Traits = BlockchainConfigurationTraits;
+		auto container = Traits::CreateProperties();
+		container["corrupt_aggregate_transaction_hashes"][1].first = "ABC";
+
+		// Act + Assert:
+		EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(container)), utils::property_malformed_error);
+	}
+
+	TEST(TEST_CLASS, CannotLoadBlockchainConfigurationWithMalformedKnownCorruptAggregateTransactionHashesMapValue) {
+		// Arrange: set a malformed value, which should be caught by ConfigurationBag
+		//          (this test is only here for symmetry with previous test)
+		using Traits = BlockchainConfigurationTraits;
+		auto container = Traits::CreateProperties();
+		container["corrupt_aggregate_transaction_hashes"][1].second = "XYZ";
 
 		// Act + Assert:
 		EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(container)), utils::property_malformed_error);

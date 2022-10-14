@@ -67,6 +67,7 @@ namespace catapult { namespace plugins {
 			test::FillWithRandomData(pTransaction->SignerPublicKey);
 			test::FillWithRandomData(pTransaction->Signature);
 			test::FillWithRandomData(pTransaction->TransactionsHash);
+			pTransaction->Version = 17;
 
 			auto* pSubTransactionBytes = reinterpret_cast<uint8_t*>(pTransaction->TransactionsPtr());
 			for (uint8_t i = 0; i < numTransactions; ++i) {
@@ -145,7 +146,7 @@ namespace catapult { namespace plugins {
 
 		// Assert:
 		EXPECT_EQ(1u, attributes.MinVersion);
-		EXPECT_EQ(1u, attributes.MaxVersion);
+		EXPECT_EQ(2u, attributes.MaxVersion);
 
 		// - zero denotes default lifetime should be used
 		EXPECT_EQ(utils::TimeSpan(), attributes.MaxLifetime);
@@ -161,7 +162,7 @@ namespace catapult { namespace plugins {
 
 		// Assert:
 		EXPECT_EQ(1u, attributes.MinVersion);
-		EXPECT_EQ(1u, attributes.MaxVersion);
+		EXPECT_EQ(2u, attributes.MaxVersion);
 
 		EXPECT_EQ(utils::TimeSpan::FromMinutes(1234), attributes.MaxLifetime);
 	}
@@ -251,6 +252,7 @@ namespace catapult { namespace plugins {
 		// Arrange:
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto wrapper = CreateAggregateTransaction(0, 0);
+		auto aggregateTransactionHash = test::GenerateRandomByteArray<Hash256>();
 
 		const auto& transaction = *wrapper.pTransaction;
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
@@ -261,14 +263,17 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(0u, notification.CosignaturesCount);
 			EXPECT_FALSE(!!notification.CosignaturesPtr);
 		});
-		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction, &aggregateTransactionHash](
+				const auto& notification) {
+			EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
+			EXPECT_EQ(17u, notification.AggregateVersion);
 			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
 			EXPECT_EQ(0u, notification.TransactionsCount);
 			EXPECT_FALSE(!!notification.TransactionsPtr);
 		});
 
 		// Act + Assert:
-		builder.runTest(transaction, registry);
+		builder.runTestWithHash(transaction, aggregateTransactionHash, registry);
 	}
 
 	// endregion
@@ -294,6 +299,7 @@ namespace catapult { namespace plugins {
 				builder.addExpectation<EntityNotification>(i, [i](const auto& notification) {
 					// min/max version comes from MockTransactionPlugin created in CreateDefaultTransactionRegistry
 					EXPECT_EQ(static_cast<NetworkIdentifier>(100 + i), notification.NetworkIdentifier);
+					EXPECT_EQ(mocks::EmbeddedMockTransaction::Entity_Type, notification.EntityType);
 					EXPECT_EQ((i + 1) * 2, notification.EntityVersion);
 					EXPECT_EQ(0x02u, notification.MinVersion);
 					EXPECT_EQ(0xFEu, notification.MaxVersion);
@@ -351,6 +357,7 @@ namespace catapult { namespace plugins {
 			// Arrange:
 			auto registry = mocks::CreateDefaultTransactionRegistry();
 			auto wrapper = CreateAggregateTransaction(2, 0);
+			auto aggregateTransactionHash = test::GenerateRandomByteArray<Hash256>();
 
 			const auto& transaction = *wrapper.pTransaction;
 			test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
@@ -361,7 +368,10 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(0u, notification.CosignaturesCount);
 				EXPECT_FALSE(!!notification.CosignaturesPtr);
 			});
-			builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
+			builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction, &aggregateTransactionHash](
+					const auto& notification) {
+				EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
+				EXPECT_EQ(17u, notification.AggregateVersion);
 				EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
 				EXPECT_EQ(2u, notification.TransactionsCount);
 				EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
@@ -371,14 +381,12 @@ namespace catapult { namespace plugins {
 
 			if (Height() == blockHeight) {
 				// Act + Assert:
-				builder.runTest(transaction, registry);
+				builder.runTestWithHash(transaction, aggregateTransactionHash, registry);
 			} else {
 				// Arrange: link a block
-				auto hash = test::GenerateRandomByteArray<Hash256>();
-
 				BlockHeader blockHeader;
 				blockHeader.Height = blockHeight;
-				auto weakEntityInfo = WeakEntityInfoT<model::Transaction>(transaction, hash, blockHeader);
+				auto weakEntityInfo = WeakEntityInfoT<model::Transaction>(transaction, aggregateTransactionHash, blockHeader);
 
 				// Act + Assert:
 				builder.runTest(weakEntityInfo, registry);
@@ -402,7 +410,7 @@ namespace catapult { namespace plugins {
 		void AddCosignatureExpectations(
 				test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder& builder,
 				const AggregateTransactionWrapper& wrapper,
-				const Hash256& aggregateDataHash,
+				const Hash256& aggregateTransactionHash,
 				uint8_t count) {
 			for (auto i = 0u; i < count; ++i) {
 				// notifications should refer to cosignatories
@@ -410,12 +418,12 @@ namespace catapult { namespace plugins {
 				builder.addExpectation<InternalPaddingNotification>(i, [&cosignature](const auto& notification) {
 					EXPECT_EQ(cosignature.Version, notification.Padding);
 				});
-				builder.addExpectation<SignatureNotification>(i, [&cosignature, &aggregateDataHash](const auto& notification) {
+				builder.addExpectation<SignatureNotification>(i, [&cosignature, &aggregateTransactionHash](const auto& notification) {
 					EXPECT_EQ(cosignature.SignerPublicKey, notification.SignerPublicKey);
 					EXPECT_EQ(cosignature.Signature, notification.Signature);
 
 					// notifications should refer to same (aggregate) data hash
-					EXPECT_EQ(aggregateDataHash.data(), notification.Data.pData);
+					EXPECT_EQ(aggregateTransactionHash.data(), notification.Data.pData);
 					EXPECT_EQ(Hash256::Size, notification.Data.Size);
 
 					// notifications should not have replay protection because they represent cosignatures
@@ -450,7 +458,7 @@ namespace catapult { namespace plugins {
 		// Arrange:
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto wrapper = CreateAggregateTransaction(0, 3);
-		auto aggregateDataHash = test::GenerateRandomByteArray<Hash256>();
+		auto aggregateTransactionHash = test::GenerateRandomByteArray<Hash256>();
 
 		const auto& transaction = *wrapper.pTransaction;
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
@@ -461,16 +469,19 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(3u, notification.CosignaturesCount);
 			EXPECT_EQ(transaction.CosignaturesPtr(), notification.CosignaturesPtr);
 		});
-		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction, &aggregateTransactionHash](
+				const auto& notification) {
+			EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
+			EXPECT_EQ(17u, notification.AggregateVersion);
 			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
 			EXPECT_EQ(0u, notification.TransactionsCount);
 			EXPECT_FALSE(!!notification.TransactionsPtr);
 		});
 
-		AddCosignatureExpectations(builder, wrapper, aggregateDataHash, 3);
+		AddCosignatureExpectations(builder, wrapper, aggregateTransactionHash, 3);
 
 		// Act + Assert:
-		builder.runTestWithHash(transaction, aggregateDataHash, registry);
+		builder.runTestWithHash(transaction, aggregateTransactionHash, registry);
 	}
 
 	// endregion
@@ -517,7 +528,7 @@ namespace catapult { namespace plugins {
 		// Arrange:
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto wrapper = CreateAggregateTransaction(2, 3);
-		auto aggregateDataHash = test::GenerateRandomByteArray<Hash256>();
+		auto aggregateTransactionHash = test::GenerateRandomByteArray<Hash256>();
 
 		const auto& transaction = *wrapper.pTransaction;
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
@@ -528,17 +539,20 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(3u, notification.CosignaturesCount);
 			EXPECT_EQ(transaction.CosignaturesPtr(), notification.CosignaturesPtr);
 		});
-		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction, &aggregateTransactionHash](
+				const auto& notification) {
+			EXPECT_EQ(aggregateTransactionHash, notification.AggregateTransactionHash);
+			EXPECT_EQ(17u, notification.AggregateVersion);
 			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
 			EXPECT_EQ(2u, notification.TransactionsCount);
 			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
 		});
 
 		AddSubTransactionExpectations(builder, wrapper, 2);
-		AddCosignatureExpectations(builder, wrapper, aggregateDataHash, 3);
+		AddCosignatureExpectations(builder, wrapper, aggregateTransactionHash, 3);
 
 		// Act + Assert:
-		builder.runTestWithHash(transaction, aggregateDataHash, registry);
+		builder.runTestWithHash(transaction, aggregateTransactionHash, registry);
 	}
 
 	// endregion

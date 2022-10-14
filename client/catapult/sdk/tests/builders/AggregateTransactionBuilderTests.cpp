@@ -79,7 +79,7 @@ namespace catapult { namespace builders {
 				auto additionalSize = payloadSize + numCosignatures * sizeof(model::Cosignature);
 				RegularTraits::CheckFields(additionalSize, transaction);
 				EXPECT_EQ(m_signer, transaction.SignerPublicKey);
-				EXPECT_EQ(1u, transaction.Version);
+				EXPECT_EQ(2u, transaction.Version);
 				EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), transaction.Network);
 				EXPECT_EQ(type, transaction.Type);
 

@@ -48,9 +48,27 @@ namespace catapult { namespace model {
 			return signaturesPair.second;
 		}
 
+		size_t ParseHashMapSection(
+				const utils::ConfigurationBag& bag,
+				std::unordered_map<Hash256, Hash256, utils::ArrayHasher<Hash256>>& hashMap) {
+			auto sectionName = "corrupt_aggregate_transaction_hashes";
+			for (const auto& pair : bag.getAll<Hash256>(sectionName)) {
+				Hash256 parsedKey;
+				if (!TryParseValue(pair.first, parsedKey)) {
+					auto message = "property key could not be parsed as hash";
+					CATAPULT_THROW_AND_LOG_2(utils::property_malformed_error, message, std::string(sectionName), pair.first);
+				}
+
+				hashMap.emplace(parsedKey, pair.second);
+			}
+
+			return hashMap.size();
+		}
+
 		size_t ParsePluginSections(const utils::ConfigurationBag& bag, std::unordered_map<std::string, utils::ConfigurationBag>& plugins) {
 			std::unordered_set<std::string> otherSections{
-				"network", "chain", "fork_heights", "treasury_reissuance_transaction_signatures"
+				"network", "chain", "fork_heights", "treasury_reissuance_transaction_signatures",
+				"corrupt_aggregate_transaction_hashes"
 			};
 
 			size_t numPluginProperties = 0;
@@ -135,13 +153,15 @@ namespace catapult { namespace model {
 
 		LOAD_FORK_HEIGHT_PROPERTY(TotalVotingBalanceCalculationFix);
 		LOAD_FORK_HEIGHT_PROPERTY(TreasuryReissuance);
+		LOAD_FORK_HEIGHT_PROPERTY(StrictAggregateTransactionHash);
 
 #undef LOAD_FORK_HEIGHT_PROPERTY
 
-		auto numAdditionalSignatures = ParseSignaturesSection(bag, config.TreasuryReissuanceTransactionSignatures);
-		auto numPluginProperties = ParsePluginSections(bag, config.Plugins);
+		auto numAdditionalKeys = ParseSignaturesSection(bag, config.TreasuryReissuanceTransactionSignatures);
+		numAdditionalKeys += ParseHashMapSection(bag, config.KnownCorruptAggregateTransactionHashesMap);
+		numAdditionalKeys += ParsePluginSections(bag, config.Plugins);
 
-		utils::VerifyBagSizeExact(bag, 5 + 28 + 2 + numAdditionalSignatures + numPluginProperties);
+		utils::VerifyBagSizeExact(bag, 5 + 28 + 3 + numAdditionalKeys);
 		return config;
 	}
 

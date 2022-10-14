@@ -139,19 +139,30 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Aggregate_Embedded_Transactions_Notification;
 
 	public:
-		/// Creates a notification around \a transactionsHash, \a transactionsCount and \a pTransactions.
+		/// Creates a notification around \a aggregateTransactionHash, \a aggregateVersion, \a transactionsHash, \a transactionsCount
+		/// and \a pTransactions.
 		AggregateEmbeddedTransactionsNotification(
+				const Hash256& aggregateTransactionHash,
+				uint8_t aggregateVersion,
 				const Hash256& transactionsHash,
 				size_t transactionsCount,
 				const EmbeddedTransaction* pTransactions)
 				: Notification(Notification_Type, sizeof(AggregateEmbeddedTransactionsNotification))
+				, AggregateTransactionHash(aggregateTransactionHash)
+				, AggregateVersion(aggregateVersion)
 				, TransactionsHash(transactionsHash)
 				, TransactionsCount(transactionsCount)
 				, TransactionsPtr(pTransactions)
 		{}
 
 	public:
-		/// Aggregate transactions hash.
+		/// Aggregate transaction hash.
+		const Hash256& AggregateTransactionHash;
+
+		/// Aggregate transaction version.
+		uint8_t AggregateVersion;
+
+		/// Aggregate transactions hash (of embedded transactions).
 		const Hash256& TransactionsHash;
 
 		/// Number of transactions.

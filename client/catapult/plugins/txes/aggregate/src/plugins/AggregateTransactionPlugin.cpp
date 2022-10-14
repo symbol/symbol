@@ -56,7 +56,7 @@ namespace catapult { namespace plugins {
 
 			TransactionAttributes attributes() const override {
 				auto version = AggregateTransaction::Current_Version;
-				return { version, version, m_maxTransactionLifetime };
+				return { 1, version, m_maxTransactionLifetime };
 			}
 
 			bool isSizeValid(const Transaction& transaction) const override {
@@ -81,6 +81,8 @@ namespace catapult { namespace plugins {
 						aggregate.CosignaturesPtr()));
 
 				sub.notify(AggregateEmbeddedTransactionsNotification(
+						transactionInfo.hash(),
+						aggregate.Version,
 						aggregate.TransactionsHash,
 						numTransactions,
 						aggregate.TransactionsPtr()));
@@ -98,6 +100,7 @@ namespace catapult { namespace plugins {
 
 					sub.notify(EntityNotification(
 							subTransaction.Network,
+							subTransaction.Type,
 							subTransaction.Version,
 							subTransactionAttributes.MinVersion,
 							subTransactionAttributes.MaxVersion));

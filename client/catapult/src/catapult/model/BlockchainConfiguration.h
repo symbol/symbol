@@ -24,6 +24,7 @@
 #include "NetworkInfo.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/FileSize.h"
+#include "catapult/utils/Hashers.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/types.h"
 #include <unordered_map>
@@ -134,6 +135,9 @@ namespace catapult { namespace model {
 
 			/// Height of fork at which to reissue the treasury.
 			Height TreasuryReissuance;
+
+			/// Height of fork at which aggregate transaction hash is strictly enforced.
+			Height StrictAggregateTransactionHash;
 		};
 
 		/// Fork heights.
@@ -143,6 +147,9 @@ namespace catapult { namespace model {
 		/// Signatures of transactions allowed in the treasury reissuance block (preferred).
 		/// \note These are allowed to involve the nemesis account after the nemesis block.
 		std::vector<Signature> TreasuryReissuanceTransactionSignatures;
+
+		/// Map of hashes of aggregate transactions to corrupted aggregate transaction hashes.
+		std::unordered_map<Hash256, Hash256, utils::ArrayHasher<Hash256>> KnownCorruptAggregateTransactionHashesMap;
 
 		/// Unparsed map of plugin configuration.
 		std::unordered_map<std::string, utils::ConfigurationBag> Plugins;

@@ -50,6 +50,12 @@ namespace catapult { namespace validators {
 	/// Validation failed because the aggregate transactions hash does not match the calculated value.
 	DEFINE_AGGREGATE_RESULT(Transactions_Hash_Mismatch, 7);
 
+	/// Validation failed because V1 aggregate transactions are prohibited (at and after fork height).
+	DEFINE_AGGREGATE_RESULT(V1_Prohibited, 8);
+
+	/// Validation failed because V2 aggregate transactions are prohibited (before fork height).
+	DEFINE_AGGREGATE_RESULT(V2_Prohibited, 9);
+
 #ifndef CUSTOM_RESULT_DEFINITION
 }}
 #endif

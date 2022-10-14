@@ -184,6 +184,7 @@ namespace catapult { namespace model {
 			// Assert:
 			auto expectedVersion = Block::Current_Version;
 			EXPECT_EQ(static_cast<NetworkIdentifier>(0x11), notification.NetworkIdentifier);
+			EXPECT_EQ(Entity_Type_Block_Normal, notification.EntityType);
 			EXPECT_EQ(0x5Au, notification.EntityVersion);
 			EXPECT_EQ(expectedVersion, notification.MinVersion);
 			EXPECT_EQ(expectedVersion, notification.MaxVersion);
@@ -405,6 +406,7 @@ namespace catapult { namespace model {
 		PublishOne<EntityNotification>(*pTransaction, [](const auto& notification) {
 			// Assert:
 			EXPECT_EQ(static_cast<NetworkIdentifier>(0x11), notification.NetworkIdentifier);
+			EXPECT_EQ(mocks::MockTransaction::Entity_Type, notification.EntityType);
 			EXPECT_EQ(0x5Au, notification.EntityVersion);
 			EXPECT_EQ(0x02u, notification.MinVersion); // from MockTransaction
 			EXPECT_EQ(0xFEu, notification.MaxVersion);
