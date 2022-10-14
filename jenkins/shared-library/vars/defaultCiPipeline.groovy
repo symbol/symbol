@@ -1,4 +1,3 @@
-/* groovylint-disable NestedBlockDepth */
 import java.nio.file.Paths
 import org.jenkinsci.plugins.badge.EmbeddableBadgeConfig
 
@@ -9,7 +8,7 @@ void call(Closure body) {
 	body.delegate = params
 	body()
 
-	String packageRootPath = findJenkinsfilePath()
+	final String packageRootPath = findJenkinsfilePath()
 
 	pipeline {
 		parameters {
@@ -207,7 +206,7 @@ void call(Closure body) {
 							allOf {
 								expression {
 									// The branch indexing build TEST_MODE = null
-									return env.TEST_MODE == null || env.TEST_MODE == 'code-coverage'
+									return env.TEST_MODE == null || 'code-coverage' == env.TEST_MODE
 								}
 								expression {
 									return params.codeCoverageTool != null
@@ -298,13 +297,14 @@ void call(Closure body) {
 }
 
 void runStepRelativeToPackageRoot(String rootPath, Closure body) {
-	try {	
+	try {
 		dir(rootPath) {
 			body()
 		}
+		// groovylint-disable-next-line CatchException
 	} catch (Exception exception) {
-		echo "Caught: ${exception.toString()}"
-		env.FAILURE_MESSAGE = exception.getMessage()
+		echo "Caught: ${exception}"
+		env.FAILURE_MESSAGE = exception.message ?: exception
 		env.FAILED_STAGE_NAME = env.STAGE_NAME
 		throw exception
 	}

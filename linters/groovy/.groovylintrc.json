@@ -2,13 +2,19 @@
   "extends": "recommended",
 
   "rules": {
+    "convention.CompileStatic": "off",
+
+    "dry.DuplicateNumberLiteral": { "enabled": false },
+    "dry.DuplicateStringLiteral": { "enabled": false },
+
     "formatting.LineLength": { "length": 140 },
     "formatting.Indentation": { "spacesPerIndentLevel": 1 },
     "formatting.NoTabCharacter": "off",
 
-    "size.ParameterCount": { "maxParameters": 9 },
+    "InvertedCondition": "off",
 
-    "dry.DuplicateStringLiteral": { "ignoreStrings": ",/,\n,Jenkinsfile" },
+    "size.NestedBlockDepth": { "maxNestedBlockDepth": 10 },
+    "size.ParameterCount": { "maxParameters": 9 },
 
     "unnecessary.UnnecessaryGetter": { "checkIsMethods": false },
 

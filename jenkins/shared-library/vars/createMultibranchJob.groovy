@@ -1,3 +1,4 @@
+// groovylint-disable-next-line MethodSize
 void call(Map jobConfiguration) {
 	logger.logInfo("job configuration: ${jobConfiguration}")
 

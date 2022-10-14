@@ -90,7 +90,7 @@ pipeline {
 	}
 }
 
-def dispatchBuildJob(String compilerConfiguration, String buildConfiguration, String operatingSystem) {
+void dispatchBuildJob(String compilerConfiguration, String buildConfiguration, String operatingSystem) {
 	build job: 'Symbol/server-pipelines/catapult-client-build-catapult-project', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'BUILD_CONFIGURATION', value: "${buildConfiguration}"),

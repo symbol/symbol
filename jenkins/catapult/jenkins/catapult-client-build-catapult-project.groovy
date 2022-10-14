@@ -2,7 +2,19 @@ pipeline {
 	parameters {
 		gitParameter branchFilter: 'origin/(.*)', defaultValue: "${env.GIT_BRANCH}", name: 'MANUAL_GIT_BRANCH', type: 'PT_BRANCH'
 		choice name: 'COMPILER_CONFIGURATION',
-			choices: ['gcc-debian', 'gcc-latest', 'gcc-prior', 'gcc-westmere', 'clang-latest', 'clang-prior', 'clang-ausan', 'clang-tsan', 'gcc-code-coverage', 'msvc-latest', 'msvc-prior'],
+			choices: [
+				'gcc-debian',
+				'gcc-latest',
+				'gcc-prior',
+				'gcc-westmere',
+				'clang-latest',
+				'clang-prior',
+				'clang-ausan',
+				'clang-tsan',
+				'gcc-code-coverage',
+				'msvc-latest',
+				'msvc-prior'
+			],
 			description: 'compiler configuration'
 		choice name: 'BUILD_CONFIGURATION',
 			choices: ['tests-metal', 'tests-conan', 'tests-diagnostics', 'none'],
@@ -47,7 +59,7 @@ pipeline {
 								returnStdout: true
 							).trim()
 
-							buildImageLabel = '' != TEST_IMAGE_LABEL ? TEST_IMAGE_LABEL : getBuildImageLabel()
+							buildImageLabel = TEST_IMAGE_LABEL?.trim() ? TEST_IMAGE_LABEL : resolveBuildImageLabel()
 							buildImageFullName = "symbolplatform/symbol-server-test:${buildImageLabel}"
 						}
 					}
@@ -82,7 +94,7 @@ pipeline {
 						cleanWs()
 						dir('catapult-src') {
 							sh 'git config -l'
-							git branch: "${getBranchName()}",
+							git branch: "${resolveBranchName()}",
 									url: 'https://github.com/symbol/symbol.git'
 						}
 					}
@@ -118,8 +130,9 @@ pipeline {
 							).split('\n')
 
 							docker.withRegistry(DOCKER_URL, DOCKER_CREDENTIALS_ID) {
-								for (baseImageName in baseImageNames)
+								for (baseImageName in baseImageNames) {
 									docker.image(baseImageName.trim()).pull()
+								}
 							}
 						}
 					}
@@ -186,10 +199,9 @@ pipeline {
 				stage('run tests') {
 					steps {
 						script {
-							if (isCustomTestImage())
-								testImageName = "registry.hub.docker.com/symbolplatform/symbol-server-test:${buildImageLabel}"
-							else
-								testImageName = "symbolplatform/symbol-server-test:${buildImageLabel}"
+							testImageName = isCustomTestImage()
+									? "registry.hub.docker.com/symbolplatform/symbol-server-test:${buildImageLabel}"
+									: "symbolplatform/symbol-server-test:${buildImageLabel}"
 
 							sh """
 								python3 catapult-src/jenkins/catapult/runDockerTests.py \
@@ -215,19 +227,19 @@ pipeline {
 							).split('\n')
 
 							docker.image(baseImageNames[0]).inside("--volume=${pwd()}/catapult-src:/catapult-src") {
-								sh """
+								sh '''
 									cd /catapult-src
 									lcov --directory client/catapult/_build --capture --output-file coverage_all.info
-									lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info 
+									lcov --remove coverage_all.info '/usr/*' '/mybuild/*' '/*tests/*' '/*external/*' --output-file client_coverage.info
 									lcov --list client_coverage.info
-								"""
+								'''
 
 								withCredentials([string(credentialsId: 'SYMBOL_CODECOV_ID', variable: 'CODECOV_TOKEN')]) {
-									sh """
+									sh '''
 										curl -Os https://uploader.codecov.io/v0.1.20/linux/codecov
 										chmod +x codecov
 										./codecov --verbose --nonZero --rootDir . --flags client-catapult -X gcov --file client_coverage.info
-									"""
+									'''
 								}
 							}
 						}
@@ -259,26 +271,27 @@ Boolean isTestEnabled() {
 }
 
 Boolean isManualBuild() {
-	return null != MANUAL_GIT_BRANCH && '' != MANUAL_GIT_BRANCH && 'null' != MANUAL_GIT_BRANCH
+	return null != env.MANUAL_GIT_BRANCH && '' != env.MANUAL_GIT_BRANCH && 'null' != env.MANUAL_GIT_BRANCH
 }
 
 Boolean isCustomTestImage() {
-	return '' != TEST_IMAGE_LABEL
+	return '' != env.TEST_IMAGE_LABEL
 }
 
-String getBranchName() {
-	return isManualBuild() ? MANUAL_GIT_BRANCH : env.GIT_BRANCH
+String resolveBranchName() {
+	return isManualBuild() ? env.MANUAL_GIT_BRANCH : env.GIT_BRANCH
 }
 
-String getBuildImageLabel() {
-	friendlyBranchName = getBranchName()
-	if (0 == friendlyBranchName.indexOf('origin/'))
+String resolveBuildImageLabel() {
+	friendlyBranchName = resolveBranchName()
+	if (0 == friendlyBranchName.indexOf('origin/')) {
 		friendlyBranchName = friendlyBranchName.substring(7)
+	}
 
 	friendlyBranchName = friendlyBranchName.replaceAll('/', '-')
 	return "catapult-client-${friendlyBranchName}-${env.BUILD_NUMBER}"
 }
 
-def isCodeCoverageBuild() {
-	return 'gcc-code-coverage' == COMPILER_CONFIGURATION
+Boolean isCodeCoverageBuild() {
+	return 'gcc-code-coverage' == env.COMPILER_CONFIGURATION
 }

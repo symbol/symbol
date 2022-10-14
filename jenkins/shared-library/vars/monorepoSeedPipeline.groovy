@@ -74,12 +74,12 @@ void call(Closure body) {
 						}
 						steps {
 							script {
-								String repositoryName = env.GIT_URL.tokenize('/').last().split('\\.')[0]
+								def (String ownerName, String repositoryName) = resolveOwnerAndProject(env.GIT_URL)
 								Map jobConfiguration = [:]
 								jobConfiguration.jobName = "${env.JENKINS_ROOT_FOLDER}/${repositoryName}/nightlyJob"
 								jobConfiguration.displayName = 'Nightly Job'
 								jobConfiguration.trigger = '@midnight'
-								jobConfiguration.ownerAndProject = resolveOwnerAndProject(env.GIT_URL)
+								jobConfiguration.ownerAndProject = "${ownerName}/${repositoryName}"
 								jobConfiguration.credentialsId = env.GITHUB_CREDENTIALS_ID
 								jobConfiguration.jenkinsfilePath = nightlyJenkinsfile
 								createPipelineJob(jobConfiguration)
@@ -94,5 +94,5 @@ void call(Closure body) {
 
 String resolveOwnerAndProject(String gitUrl) {
 	String[] tokens = gitUrl.tokenize('/')
-	return "${tokens[2]}/${tokens.last().split('\\.')[0]}"
+	return [tokens[2], tokens.last().split('\\.')[0]]
 }

@@ -144,7 +144,7 @@ pipeline {
 	}
 }
 
-def dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer) {
+void dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSystem, Boolean shouldBuildConanLayer) {
 	build job: 'Symbol/server-pipelines/catapult-client-build-base-image', parameters: [
 		string(name: 'COMPILER_CONFIGURATION', value: "${compilerConfiguration}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),
@@ -153,7 +153,7 @@ def dispatchBuildBaseImageJob(String compilerConfiguration, String operatingSyst
 	]
 }
 
-def dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
+void dispatchPrepareBaseImageJob(String imageType, String operatingSystem) {
 	build job: 'Symbol/server-pipelines/catapult-client-prepare-base-image', parameters: [
 		string(name: 'IMAGE_TYPE', value: "${imageType}"),
 		string(name: 'OPERATING_SYSTEM', value: "${operatingSystem}"),

@@ -35,7 +35,7 @@ String resolveBuildConfigurationFile() {
 }
 
 String resolveAgentName(String os) {
-	return os == 'windows' ? 'windows-xlarge-agent' : 'ubuntu-xlarge-agent'
+	return 'windows' == os ? 'windows-xlarge-agent' : 'ubuntu-xlarge-agent'
 }
 
 void sendDiscordNotification(String title, String description, String url, String result, String footer = '') {
