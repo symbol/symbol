@@ -47,7 +47,7 @@ describe('NEM Facade', () => {
 		// Act:
 		const facade = new NemFacade('testnet');
 		const transaction = facade.transactionFactory.create({
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			signerPublicKey: new Uint32Array(PublicKey.SIZE)
 		});
 
@@ -72,7 +72,7 @@ describe('NEM Facade', () => {
 		// Act:
 		const facade = new NemFacade(network);
 		const transaction = facade.transactionFactory.create({
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			signerPublicKey: new Uint32Array(PublicKey.SIZE)
 		});
 
@@ -91,7 +91,7 @@ describe('NEM Facade', () => {
 	const createRealTransfer = () => {
 		const facade = new NemFacade('testnet');
 		const transaction = facade.transactionFactory.create({
-			type: 'transfer_transaction_v1',
+			type: 'transfer_transaction_v0',
 			signerPublicKey: 'A59277D56E9F4FA46854F5EFAAA253B09F8AE69A473565E01FD9E6A738E4AB74',
 			fee: 0x186A0n,
 			timestamp: 191205516,

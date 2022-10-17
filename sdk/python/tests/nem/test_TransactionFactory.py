@@ -22,6 +22,10 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 	def create_factory(self, type_rule_overrides=None):
 		return TransactionFactory(Network.TESTNET, type_rule_overrides)
 
+	@staticmethod
+	def transaction_type_name():
+		return 'transfer_transaction_v1'
+
 	def assert_signature(self, transaction, signature, signed_transaction_payload):
 		transaction_hex = hexlify(TransactionFactory.to_non_verifiable_transaction(transaction).serialize()).decode('utf8').upper()
 		signature_hex = str(signature)
@@ -120,7 +124,7 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 	@staticmethod
 	def _create_unordered_descriptor():
 		return {
-			'type': 'multisig_account_modification_transaction',
+			'type': 'multisig_account_modification_transaction_v1',
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
 			'modifications': [
 				{
@@ -173,7 +177,7 @@ class TransactionFactoryTest(BasicTransactionFactoryTest, unittest.TestCase):
 
 		# Act:
 		transaction = self.create_transaction(factory)({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': TEST_SIGNER_PUBLIC_KEY,
 			'message': {
 				'message_type': 'plain',

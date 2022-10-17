@@ -40,14 +40,14 @@ inline struct MultisigAccountModificationTransactionBody
 	@sort_key(modification)
 	modifications = array(SizePrefixedMultisigAccountModification, modifications_count)
 
-# shared content between V1 verifiable and non-verifiable multisig account transactions
-inline struct MultisigAccountModificationTransactionV1Body
+# shared content between V0 verifiable and non-verifiable multisig account transactions
+inline struct MultisigAccountModificationTransactionV0Body
 	TRANSACTION_VERSION = make_const(uint8, 1)
 
 	inline MultisigAccountModificationTransactionBody
 
-# shared content between V2 verifiable and non-verifiable multisig account transactions
-inline struct MultisigAccountModificationTransactionV2Body
+# shared content between V1 verifiable and non-verifiable multisig account transactions
+inline struct MultisigAccountModificationTransactionV1Body
 	TRANSACTION_VERSION = make_const(uint8, 2)
 
 	inline MultisigAccountModificationTransactionBody
@@ -58,22 +58,22 @@ inline struct MultisigAccountModificationTransactionV2Body
 	# relative change of the minimal number of cosignatories required when approving a transaction
 	min_approval_delta = int32
 
-# binary layout for a multisig account modification transaction (V1)
+# binary layout for a multisig account modification transaction (V0)
+struct MultisigAccountModificationTransactionV0
+	inline Transaction
+	inline MultisigAccountModificationTransactionV0Body
+
+# binary layout for a non-verifiable multisig account modification transaction (V0)
+struct NonVerifiableMultisigAccountModificationTransactionV0
+	inline NonVerifiableTransaction
+	inline MultisigAccountModificationTransactionV0Body
+
+# binary layout for a multisig account modification transaction (V1, latest)
 struct MultisigAccountModificationTransactionV1
 	inline Transaction
 	inline MultisigAccountModificationTransactionV1Body
 
-# binary layout for a non-verifiable multisig account modification transaction (V1)
+# binary layout for a non-verifiable multisig account modification transaction (V1, latest)
 struct NonVerifiableMultisigAccountModificationTransactionV1
 	inline NonVerifiableTransaction
 	inline MultisigAccountModificationTransactionV1Body
-
-# binary layout for a multisig account modification transaction (V2, latest)
-struct MultisigAccountModificationTransaction
-	inline Transaction
-	inline MultisigAccountModificationTransactionV2Body
-
-# binary layout for a non-verifiable multisig account modification transaction (V2, latest)
-struct NonVerifiableMultisigAccountModificationTransaction
-	inline NonVerifiableTransaction
-	inline MultisigAccountModificationTransactionV2Body

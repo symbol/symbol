@@ -40,14 +40,14 @@ inline struct TransferTransactionBody
 	# optional message
 	message = Message if 0 not equals message_envelope_size
 
-# shared content between V1 verifiable and non-verifiable transfer transactions
-inline struct TransferTransactionV1Body
+# shared content between V0 verifiable and non-verifiable transfer transactions
+inline struct TransferTransactionV0Body
 	TRANSACTION_VERSION = make_const(uint8, 1)
 
 	inline TransferTransactionBody
 
-# shared content between V2 verifiable and non-verifiable transfer transactions
-inline struct TransferTransactionV2Body
+# shared content between V1 verifiable and non-verifiable transfer transactions
+inline struct TransferTransactionV1Body
 	TRANSACTION_VERSION = make_const(uint8, 2)
 
 	inline TransferTransactionBody
@@ -59,22 +59,22 @@ inline struct TransferTransactionV2Body
 	# notice that mosaic amount is multipled by transfer amount to get effective amount
 	mosaics = array(SizePrefixedMosaic, mosaics_count)
 
-# binary layout for a transfer transaction (V1)
+# binary layout for a transfer transaction (V0)
+struct TransferTransactionV0
+	inline Transaction
+	inline TransferTransactionV0Body
+
+# binary layout for a non-verifiable transfer transaction (V0)
+struct NonVerifiableTransferTransactionV0
+	inline NonVerifiableTransaction
+	inline TransferTransactionV0Body
+
+# binary layout for a transfer transaction (V1, latest)
 struct TransferTransactionV1
 	inline Transaction
 	inline TransferTransactionV1Body
 
-# binary layout for a non-verifiable transfer transaction (V1)
+# binary layout for a non-verifiable transfer transaction (V1, latest)
 struct NonVerifiableTransferTransactionV1
 	inline NonVerifiableTransaction
 	inline TransferTransactionV1Body
-
-# binary layout for a transfer transaction (V2, latest)
-struct TransferTransaction
-	inline Transaction
-	inline TransferTransactionV2Body
-
-# binary layout for a non-verifiable transfer transaction (V2, latest)
-struct NonVerifiableTransferTransaction
-	inline NonVerifiableTransaction
-	inline TransferTransactionV2Body

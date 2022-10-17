@@ -28,7 +28,7 @@ ACCOUNTS_YAML_INPUT = f'''
 '''.replace('\t', '  ')
 
 TRANSACTIONS_YAML_INPUT = f'''
-- type: transfer_transaction
+- type: transfer_transaction_v1
 	signer_public_key: TEST
 	recipient_address: ALICE
 	amount: 3000000
@@ -36,7 +36,7 @@ TRANSACTIONS_YAML_INPUT = f'''
 		message_type: plain
 		message: Hello world!
 
-- type: transfer_transaction
+- type: transfer_transaction_v1
 	signer_public_key: TEST
 	recipient_address: {BOB_ADDRESS}
 	amount: 1000000

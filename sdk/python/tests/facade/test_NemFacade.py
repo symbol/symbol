@@ -53,7 +53,7 @@ class NemFacadeTest(unittest.TestCase):
 		# Act:
 		facade = NemFacade('testnet')
 		transaction = facade.transaction_factory.create({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': bytes(PublicKey.SIZE)
 		})
 
@@ -75,7 +75,7 @@ class NemFacadeTest(unittest.TestCase):
 		# Act:
 		facade = NemFacade(network)
 		transaction = facade.transaction_factory.create({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': bytes(PublicKey.SIZE)
 		})
 
@@ -90,7 +90,7 @@ class NemFacadeTest(unittest.TestCase):
 		# Act:
 		facade = NemFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 		transaction = facade.transaction_factory.create({
-			'type': 'transfer_transaction',
+			'type': 'transfer_transaction_v1',
 			'signer_public_key': 'TEST',
 			'recipient_address': 'ALICE'
 		})
@@ -117,7 +117,7 @@ class NemFacadeTest(unittest.TestCase):
 	def _create_real_transfer():
 		facade = NemFacade('testnet', AccountDescriptorRepository(YAML_INPUT))
 		transaction = facade.transaction_factory.create({
-			'type': 'transfer_transaction_v1',
+			'type': 'transfer_transaction_v0',
 			'signer_public_key': 'TEST',
 			'fee': 0x186A0,
 			'timestamp': 191205516,

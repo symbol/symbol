@@ -4,9 +4,9 @@ aggregate_recipes = {
 	'descriptors': [
 		{
 			'aggregate': {'type': 'multisig_transaction'},
-			# comment: v2, encrypted, non-empty message, multiple mosaics
+			# comment: v1, encrypted, non-empty message, multiple mosaics
 			'embedded': {
-				'type': 'transfer_transaction',
+				'type': 'transfer_transaction_v1',
 				'recipient_address': 'TACQ6J4XXABJ4FRQ63ZHQ7PGDDTZCBJYK4ANOE36',
 				'amount': 0x00000000004C4B41,
 				'message': {

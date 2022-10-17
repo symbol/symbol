@@ -2634,7 +2634,7 @@ class SizePrefixedMultisigAccountModification:
 		return result
 
 
-class MultisigAccountModificationTransactionV1:
+class MultisigAccountModificationTransactionV0:
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_ACCOUNT_MODIFICATION
 	TYPE_HINTS = {
@@ -2649,8 +2649,8 @@ class MultisigAccountModificationTransactionV1:
 	}
 
 	def __init__(self):
-		self._type_ = MultisigAccountModificationTransactionV1.TRANSACTION_TYPE
-		self._version = MultisigAccountModificationTransactionV1.TRANSACTION_VERSION
+		self._type_ = MultisigAccountModificationTransactionV0.TRANSACTION_TYPE
+		self._version = MultisigAccountModificationTransactionV0.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -2756,7 +2756,7 @@ class MultisigAccountModificationTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MultisigAccountModificationTransactionV1:
+	def deserialize(cls, payload: ByteString) -> MultisigAccountModificationTransactionV0:
 		buffer = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
@@ -2788,7 +2788,7 @@ class MultisigAccountModificationTransactionV1:
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer = buffer[ArrayHelpers.size(modifications):]
 
-		instance = MultisigAccountModificationTransactionV1()
+		instance = MultisigAccountModificationTransactionV0()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -2832,7 +2832,7 @@ class MultisigAccountModificationTransactionV1:
 		return result
 
 
-class NonVerifiableMultisigAccountModificationTransactionV1:
+class NonVerifiableMultisigAccountModificationTransactionV0:
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_ACCOUNT_MODIFICATION
 	TYPE_HINTS = {
@@ -2846,8 +2846,8 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 	}
 
 	def __init__(self):
-		self._type_ = NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE
-		self._version = NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION
+		self._type_ = NonVerifiableMultisigAccountModificationTransactionV0.TRANSACTION_TYPE
+		self._version = NonVerifiableMultisigAccountModificationTransactionV0.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -2941,7 +2941,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NonVerifiableMultisigAccountModificationTransactionV1:
+	def deserialize(cls, payload: ByteString) -> NonVerifiableMultisigAccountModificationTransactionV0:
 		buffer = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
@@ -2968,7 +2968,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 		modifications = ArrayHelpers.read_array_count(buffer, SizePrefixedMultisigAccountModification, modifications_count, lambda e: e.modification.comparer() if hasattr(e.modification, 'comparer') else e.modification)
 		buffer = buffer[ArrayHelpers.size(modifications):]
 
-		instance = NonVerifiableMultisigAccountModificationTransactionV1()
+		instance = NonVerifiableMultisigAccountModificationTransactionV0()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -3008,7 +3008,7 @@ class NonVerifiableMultisigAccountModificationTransactionV1:
 		return result
 
 
-class MultisigAccountModificationTransaction:
+class MultisigAccountModificationTransactionV1:
 	TRANSACTION_VERSION: int = 2
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_ACCOUNT_MODIFICATION
 	TYPE_HINTS = {
@@ -3023,8 +3023,8 @@ class MultisigAccountModificationTransaction:
 	}
 
 	def __init__(self):
-		self._type_ = MultisigAccountModificationTransaction.TRANSACTION_TYPE
-		self._version = MultisigAccountModificationTransaction.TRANSACTION_VERSION
+		self._type_ = MultisigAccountModificationTransactionV1.TRANSACTION_TYPE
+		self._version = MultisigAccountModificationTransactionV1.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -3142,7 +3142,7 @@ class MultisigAccountModificationTransaction:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> MultisigAccountModificationTransaction:
+	def deserialize(cls, payload: ByteString) -> MultisigAccountModificationTransactionV1:
 		buffer = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
@@ -3179,7 +3179,7 @@ class MultisigAccountModificationTransaction:
 		min_approval_delta = int.from_bytes(buffer[:4], byteorder='little', signed=True)
 		buffer = buffer[4:]
 
-		instance = MultisigAccountModificationTransaction()
+		instance = MultisigAccountModificationTransactionV1()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -3227,7 +3227,7 @@ class MultisigAccountModificationTransaction:
 		return result
 
 
-class NonVerifiableMultisigAccountModificationTransaction:
+class NonVerifiableMultisigAccountModificationTransactionV1:
 	TRANSACTION_VERSION: int = 2
 	TRANSACTION_TYPE: TransactionType = TransactionType.MULTISIG_ACCOUNT_MODIFICATION
 	TYPE_HINTS = {
@@ -3241,8 +3241,8 @@ class NonVerifiableMultisigAccountModificationTransaction:
 	}
 
 	def __init__(self):
-		self._type_ = NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_TYPE
-		self._version = NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_VERSION
+		self._type_ = NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE
+		self._version = NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -3348,7 +3348,7 @@ class NonVerifiableMultisigAccountModificationTransaction:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NonVerifiableMultisigAccountModificationTransaction:
+	def deserialize(cls, payload: ByteString) -> NonVerifiableMultisigAccountModificationTransactionV1:
 		buffer = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
@@ -3380,7 +3380,7 @@ class NonVerifiableMultisigAccountModificationTransaction:
 		min_approval_delta = int.from_bytes(buffer[:4], byteorder='little', signed=True)
 		buffer = buffer[4:]
 
-		instance = NonVerifiableMultisigAccountModificationTransaction()
+		instance = NonVerifiableMultisigAccountModificationTransactionV1()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -4509,7 +4509,7 @@ class Message:
 		return result
 
 
-class TransferTransactionV1:
+class TransferTransactionV0:
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.TRANSFER
 	TYPE_HINTS = {
@@ -4526,8 +4526,8 @@ class TransferTransactionV1:
 	}
 
 	def __init__(self):
-		self._type_ = TransferTransactionV1.TRANSACTION_TYPE
-		self._version = TransferTransactionV1.TRANSACTION_VERSION
+		self._type_ = TransferTransactionV0.TRANSACTION_TYPE
+		self._version = TransferTransactionV0.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -4661,7 +4661,7 @@ class TransferTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> TransferTransactionV1:
+	def deserialize(cls, payload: ByteString) -> TransferTransactionV0:
 		buffer = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
@@ -4702,7 +4702,7 @@ class TransferTransactionV1:
 			message = Message.deserialize(buffer)
 			buffer = buffer[message.size:]
 
-		instance = TransferTransactionV1()
+		instance = TransferTransactionV0()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -4755,7 +4755,7 @@ class TransferTransactionV1:
 		return result
 
 
-class NonVerifiableTransferTransactionV1:
+class NonVerifiableTransferTransactionV0:
 	TRANSACTION_VERSION: int = 1
 	TRANSACTION_TYPE: TransactionType = TransactionType.TRANSFER
 	TYPE_HINTS = {
@@ -4771,8 +4771,8 @@ class NonVerifiableTransferTransactionV1:
 	}
 
 	def __init__(self):
-		self._type_ = NonVerifiableTransferTransactionV1.TRANSACTION_TYPE
-		self._version = NonVerifiableTransferTransactionV1.TRANSACTION_VERSION
+		self._type_ = NonVerifiableTransferTransactionV0.TRANSACTION_TYPE
+		self._version = NonVerifiableTransferTransactionV0.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -4894,7 +4894,7 @@ class NonVerifiableTransferTransactionV1:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NonVerifiableTransferTransactionV1:
+	def deserialize(cls, payload: ByteString) -> NonVerifiableTransferTransactionV0:
 		buffer = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
@@ -4930,7 +4930,7 @@ class NonVerifiableTransferTransactionV1:
 			message = Message.deserialize(buffer)
 			buffer = buffer[message.size:]
 
-		instance = NonVerifiableTransferTransactionV1()
+		instance = NonVerifiableTransferTransactionV0()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -4979,7 +4979,7 @@ class NonVerifiableTransferTransactionV1:
 		return result
 
 
-class TransferTransaction:
+class TransferTransactionV1:
 	TRANSACTION_VERSION: int = 2
 	TRANSACTION_TYPE: TransactionType = TransactionType.TRANSFER
 	TYPE_HINTS = {
@@ -4997,8 +4997,8 @@ class TransferTransaction:
 	}
 
 	def __init__(self):
-		self._type_ = TransferTransaction.TRANSACTION_TYPE
-		self._version = TransferTransaction.TRANSACTION_VERSION
+		self._type_ = TransferTransactionV1.TRANSACTION_TYPE
+		self._version = TransferTransactionV1.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -5143,7 +5143,7 @@ class TransferTransaction:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> TransferTransaction:
+	def deserialize(cls, payload: ByteString) -> TransferTransactionV1:
 		buffer = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
@@ -5188,7 +5188,7 @@ class TransferTransaction:
 		mosaics = ArrayHelpers.read_array_count(buffer, SizePrefixedMosaic, mosaics_count)
 		buffer = buffer[ArrayHelpers.size(mosaics):]
 
-		instance = TransferTransaction()
+		instance = TransferTransactionV1()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -5245,7 +5245,7 @@ class TransferTransaction:
 		return result
 
 
-class NonVerifiableTransferTransaction:
+class NonVerifiableTransferTransactionV1:
 	TRANSACTION_VERSION: int = 2
 	TRANSACTION_TYPE: TransactionType = TransactionType.TRANSFER
 	TYPE_HINTS = {
@@ -5262,8 +5262,8 @@ class NonVerifiableTransferTransaction:
 	}
 
 	def __init__(self):
-		self._type_ = NonVerifiableTransferTransaction.TRANSACTION_TYPE
-		self._version = NonVerifiableTransferTransaction.TRANSACTION_VERSION
+		self._type_ = NonVerifiableTransferTransactionV1.TRANSACTION_TYPE
+		self._version = NonVerifiableTransferTransactionV1.TRANSACTION_VERSION
 		self._network = NetworkType.MAINNET
 		self._timestamp = Timestamp()
 		self._signer_public_key = PublicKey()
@@ -5396,7 +5396,7 @@ class NonVerifiableTransferTransaction:
 		return size
 
 	@classmethod
-	def deserialize(cls, payload: ByteString) -> NonVerifiableTransferTransaction:
+	def deserialize(cls, payload: ByteString) -> NonVerifiableTransferTransactionV1:
 		buffer = memoryview(payload)
 		type_ = TransactionType.deserialize(buffer)
 		buffer = buffer[type_.size:]
@@ -5436,7 +5436,7 @@ class NonVerifiableTransferTransaction:
 		mosaics = ArrayHelpers.read_array_count(buffer, SizePrefixedMosaic, mosaics_count)
 		buffer = buffer[ArrayHelpers.size(mosaics):]
 
-		instance = NonVerifiableTransferTransaction()
+		instance = NonVerifiableTransferTransactionV1()
 		instance._type_ = type_
 		instance._version = version
 		instance._network = network
@@ -5498,13 +5498,13 @@ class TransactionFactory:
 			(AccountKeyLinkTransaction.TRANSACTION_TYPE, AccountKeyLinkTransaction.TRANSACTION_VERSION): AccountKeyLinkTransaction,
 			(MosaicDefinitionTransaction.TRANSACTION_TYPE, MosaicDefinitionTransaction.TRANSACTION_VERSION): MosaicDefinitionTransaction,
 			(MosaicSupplyChangeTransaction.TRANSACTION_TYPE, MosaicSupplyChangeTransaction.TRANSACTION_VERSION): MosaicSupplyChangeTransaction,
+			(MultisigAccountModificationTransactionV0.TRANSACTION_TYPE, MultisigAccountModificationTransactionV0.TRANSACTION_VERSION): MultisigAccountModificationTransactionV0,
 			(MultisigAccountModificationTransactionV1.TRANSACTION_TYPE, MultisigAccountModificationTransactionV1.TRANSACTION_VERSION): MultisigAccountModificationTransactionV1,
-			(MultisigAccountModificationTransaction.TRANSACTION_TYPE, MultisigAccountModificationTransaction.TRANSACTION_VERSION): MultisigAccountModificationTransaction,
 			(Cosignature.TRANSACTION_TYPE, Cosignature.TRANSACTION_VERSION): Cosignature,
 			(MultisigTransaction.TRANSACTION_TYPE, MultisigTransaction.TRANSACTION_VERSION): MultisigTransaction,
 			(NamespaceRegistrationTransaction.TRANSACTION_TYPE, NamespaceRegistrationTransaction.TRANSACTION_VERSION): NamespaceRegistrationTransaction,
-			(TransferTransactionV1.TRANSACTION_TYPE, TransferTransactionV1.TRANSACTION_VERSION): TransferTransactionV1,
-			(TransferTransaction.TRANSACTION_TYPE, TransferTransaction.TRANSACTION_VERSION): TransferTransaction
+			(TransferTransactionV0.TRANSACTION_TYPE, TransferTransactionV0.TRANSACTION_VERSION): TransferTransactionV0,
+			(TransferTransactionV1.TRANSACTION_TYPE, TransferTransactionV1.TRANSACTION_VERSION): TransferTransactionV1
 		}
 		discriminator = (parent.type_, parent.version)
 		factory_class = mapping[discriminator]
@@ -5516,13 +5516,13 @@ class TransactionFactory:
 			'account_key_link_transaction': AccountKeyLinkTransaction,
 			'mosaic_definition_transaction': MosaicDefinitionTransaction,
 			'mosaic_supply_change_transaction': MosaicSupplyChangeTransaction,
+			'multisig_account_modification_transaction_v0': MultisigAccountModificationTransactionV0,
 			'multisig_account_modification_transaction_v1': MultisigAccountModificationTransactionV1,
-			'multisig_account_modification_transaction': MultisigAccountModificationTransaction,
 			'cosignature': Cosignature,
 			'multisig_transaction': MultisigTransaction,
 			'namespace_registration_transaction': NamespaceRegistrationTransaction,
-			'transfer_transaction_v1': TransferTransactionV1,
-			'transfer_transaction': TransferTransaction
+			'transfer_transaction_v0': TransferTransactionV0,
+			'transfer_transaction_v1': TransferTransactionV1
 		}
 
 		if entity_name not in mapping:
@@ -5540,11 +5540,11 @@ class NonVerifiableTransactionFactory:
 			(NonVerifiableAccountKeyLinkTransaction.TRANSACTION_TYPE, NonVerifiableAccountKeyLinkTransaction.TRANSACTION_VERSION): NonVerifiableAccountKeyLinkTransaction,
 			(NonVerifiableMosaicDefinitionTransaction.TRANSACTION_TYPE, NonVerifiableMosaicDefinitionTransaction.TRANSACTION_VERSION): NonVerifiableMosaicDefinitionTransaction,
 			(NonVerifiableMosaicSupplyChangeTransaction.TRANSACTION_TYPE, NonVerifiableMosaicSupplyChangeTransaction.TRANSACTION_VERSION): NonVerifiableMosaicSupplyChangeTransaction,
+			(NonVerifiableMultisigAccountModificationTransactionV0.TRANSACTION_TYPE, NonVerifiableMultisigAccountModificationTransactionV0.TRANSACTION_VERSION): NonVerifiableMultisigAccountModificationTransactionV0,
 			(NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_TYPE, NonVerifiableMultisigAccountModificationTransactionV1.TRANSACTION_VERSION): NonVerifiableMultisigAccountModificationTransactionV1,
-			(NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_TYPE, NonVerifiableMultisigAccountModificationTransaction.TRANSACTION_VERSION): NonVerifiableMultisigAccountModificationTransaction,
 			(NonVerifiableNamespaceRegistrationTransaction.TRANSACTION_TYPE, NonVerifiableNamespaceRegistrationTransaction.TRANSACTION_VERSION): NonVerifiableNamespaceRegistrationTransaction,
-			(NonVerifiableTransferTransactionV1.TRANSACTION_TYPE, NonVerifiableTransferTransactionV1.TRANSACTION_VERSION): NonVerifiableTransferTransactionV1,
-			(NonVerifiableTransferTransaction.TRANSACTION_TYPE, NonVerifiableTransferTransaction.TRANSACTION_VERSION): NonVerifiableTransferTransaction
+			(NonVerifiableTransferTransactionV0.TRANSACTION_TYPE, NonVerifiableTransferTransactionV0.TRANSACTION_VERSION): NonVerifiableTransferTransactionV0,
+			(NonVerifiableTransferTransactionV1.TRANSACTION_TYPE, NonVerifiableTransferTransactionV1.TRANSACTION_VERSION): NonVerifiableTransferTransactionV1
 		}
 		discriminator = (parent.type_, parent.version)
 		factory_class = mapping[discriminator]
@@ -5556,11 +5556,11 @@ class NonVerifiableTransactionFactory:
 			'non_verifiable_account_key_link_transaction': NonVerifiableAccountKeyLinkTransaction,
 			'non_verifiable_mosaic_definition_transaction': NonVerifiableMosaicDefinitionTransaction,
 			'non_verifiable_mosaic_supply_change_transaction': NonVerifiableMosaicSupplyChangeTransaction,
+			'non_verifiable_multisig_account_modification_transaction_v0': NonVerifiableMultisigAccountModificationTransactionV0,
 			'non_verifiable_multisig_account_modification_transaction_v1': NonVerifiableMultisigAccountModificationTransactionV1,
-			'non_verifiable_multisig_account_modification_transaction': NonVerifiableMultisigAccountModificationTransaction,
 			'non_verifiable_namespace_registration_transaction': NonVerifiableNamespaceRegistrationTransaction,
-			'non_verifiable_transfer_transaction_v1': NonVerifiableTransferTransactionV1,
-			'non_verifiable_transfer_transaction': NonVerifiableTransferTransaction
+			'non_verifiable_transfer_transaction_v0': NonVerifiableTransferTransactionV0,
+			'non_verifiable_transfer_transaction_v1': NonVerifiableTransferTransactionV1
 		}
 
 		if entity_name not in mapping:

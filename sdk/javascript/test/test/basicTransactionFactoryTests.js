@@ -7,6 +7,7 @@ export const runBasicTransactionFactoryTests = ( // eslint-disable-line import/p
 	includeAttachSignatureTests = true
 ) => {
 	const TEST_SIGNER_PUBLIC_KEY = new PublicKey(crypto.randomBytes(PublicKey.SIZE));
+	const transactionTypeName = testDescriptor.transactionTypeName || 'transfer_transaction';
 
 	// region create
 
@@ -16,7 +17,7 @@ export const runBasicTransactionFactoryTests = ( // eslint-disable-line import/p
 
 		// Act:
 		const transaction = testDescriptor.createTransaction(factory)({
-			type: 'transfer_transaction',
+			type: transactionTypeName,
 			signerPublicKey: TEST_SIGNER_PUBLIC_KEY
 		});
 
@@ -32,7 +33,7 @@ export const runBasicTransactionFactoryTests = ( // eslint-disable-line import/p
 		// Act + Assert:
 		expect(() => {
 			testDescriptor.createTransaction(factory)({
-				type: 'xtransfer_transaction',
+				type: `x${transactionTypeName}`,
 				signerPublicKey: TEST_SIGNER_PUBLIC_KEY
 			});
 		}).to.throw(`unknown ${testDescriptor.name} type`);
@@ -47,7 +48,7 @@ export const runBasicTransactionFactoryTests = ( // eslint-disable-line import/p
 			// Arrange:
 			const factory = testDescriptor.createFactory();
 			const transaction = testDescriptor.createTransaction(factory)({
-				type: 'transfer_transaction',
+				type: transactionTypeName,
 				signerPublicKey: TEST_SIGNER_PUBLIC_KEY
 			});
 			const signature = new Signature(crypto.randomBytes(Signature.SIZE));

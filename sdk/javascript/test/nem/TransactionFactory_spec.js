@@ -18,6 +18,7 @@ describe('transaction factory (NEM)', () => {
 
 	const testDescriptor = {
 		name: 'Transaction',
+		transactionTypeName: 'transfer_transaction_v1',
 		createFactory: typeRuleOverrides => new TransactionFactory(Network.TESTNET, typeRuleOverrides),
 		createTransaction: factory => ((descriptor, autosort = true) => factory.create(descriptor, autosort)),
 		assertTransaction: assertTransfer,
@@ -111,7 +112,7 @@ describe('transaction factory (NEM)', () => {
 	// region sorting
 
 	const createUnorderedDescriptor = () => ({
-		type: 'multisig_account_modification_transaction',
+		type: 'multisig_account_modification_transaction_v1',
 		signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
 		modifications: [
 			{
@@ -169,7 +170,7 @@ describe('transaction factory (NEM)', () => {
 
 		// Act:
 		const transaction = testDescriptor.createTransaction(factory)({
-			type: 'transfer_transaction',
+			type: 'transfer_transaction_v1',
 			signerPublicKey: TEST_SIGNER_PUBLIC_KEY,
 			message: {
 				messageType: 'plain',
@@ -193,7 +194,7 @@ describe('transaction factory (NEM)', () => {
 		);
 		const generateRandomByteArray = ModelType => new ModelType(crypto.randomBytes(ModelType.SIZE));
 		return {
-			type: 'transfer_transaction_v1',
+			type: 'transfer_transaction_v0',
 			timestamp: generateRandomValue(nc.Timestamp),
 			signerPublicKey: generateRandomByteArray(PublicKey),
 			signature,
