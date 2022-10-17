@@ -1,7 +1,7 @@
 export default () => ([
-	// V2 add
+	// V1 add
 	{
-		type: 'multisig_account_modification_transaction',
+		type: 'multisig_account_modification_transaction_v1',
 		minApprovalDelta: 1,
 		modifications: [
 			{
@@ -25,9 +25,9 @@ export default () => ([
 		]
 	},
 
-	// V1 add
+	// V0 add
 	{
-		type: 'multisig_account_modification_transaction_v1',
+		type: 'multisig_account_modification_transaction_v0',
 		modifications: [
 			{
 				modification: {
@@ -44,9 +44,9 @@ export default () => ([
 		]
 	},
 
-	// V1 del
+	// V0 del
 	{
-		type: 'multisig_account_modification_transaction_v1',
+		type: 'multisig_account_modification_transaction_v0',
 		modifications: [
 			{
 				modification: {
