@@ -6042,7 +6042,7 @@ export class TransactionFactory {
 		};
 
 		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
-			throw RangeError('unknown Transaction type');
+			throw RangeError(`unknown Transaction type ${entityName}`);
 
 		return new mapping[entityName]();
 	}
@@ -6088,7 +6088,7 @@ export class NonVerifiableTransactionFactory {
 		};
 
 		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
-			throw RangeError('unknown NonVerifiableTransaction type');
+			throw RangeError(`unknown NonVerifiableTransaction type ${entityName}`);
 
 		return new mapping[entityName]();
 	}

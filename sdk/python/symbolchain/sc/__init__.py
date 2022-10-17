@@ -10940,7 +10940,7 @@ class TransactionFactory:
 		}
 
 		if entity_name not in mapping:
-			raise ValueError('unknown Transaction type')
+			raise ValueError(f'unknown Transaction type {entity_name}')
 
 		return mapping[entity_name]()
 
@@ -11008,6 +11008,6 @@ class EmbeddedTransactionFactory:
 		}
 
 		if entity_name not in mapping:
-			raise ValueError('unknown EmbeddedTransaction type')
+			raise ValueError(f'unknown EmbeddedTransaction type {entity_name}')
 
 		return mapping[entity_name]()

@@ -108,7 +108,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 
 		body += f'''
 if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
-	throw RangeError('unknown {self.printer.get_type()} type');
+	throw RangeError(`unknown {self.printer.get_type()} type ${{entityName}}`);
 
 return new mapping[entityName]();
 '''

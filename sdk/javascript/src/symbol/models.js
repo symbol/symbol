@@ -11757,7 +11757,7 @@ export class TransactionFactory {
 		};
 
 		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
-			throw RangeError('unknown Transaction type');
+			throw RangeError(`unknown Transaction type ${entityName}`);
 
 		return new mapping[entityName]();
 	}
@@ -11833,7 +11833,7 @@ export class EmbeddedTransactionFactory {
 		};
 
 		if (!Object.prototype.hasOwnProperty.call(mapping, entityName))
-			throw RangeError('unknown EmbeddedTransaction type');
+			throw RangeError(`unknown EmbeddedTransaction type ${entityName}`);
 
 		return new mapping[entityName]();
 	}

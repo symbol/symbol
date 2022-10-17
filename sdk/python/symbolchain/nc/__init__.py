@@ -5526,7 +5526,7 @@ class TransactionFactory:
 		}
 
 		if entity_name not in mapping:
-			raise ValueError('unknown Transaction type')
+			raise ValueError(f'unknown Transaction type {entity_name}')
 
 		return mapping[entity_name]()
 
@@ -5564,6 +5564,6 @@ class NonVerifiableTransactionFactory:
 		}
 
 		if entity_name not in mapping:
-			raise ValueError('unknown NonVerifiableTransaction type')
+			raise ValueError(f'unknown NonVerifiableTransaction type {entity_name}')
 
 		return mapping[entity_name]()

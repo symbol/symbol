@@ -95,7 +95,7 @@ class FactoryFormatter(AbstractTypeFormatter):
 
 		body += f'''
 if entity_name not in mapping:
-	raise ValueError('unknown {self.printer.get_type()} type')
+	raise ValueError(f'unknown {self.printer.get_type()} type {{entity_name}}')
 
 return mapping[entity_name]()
 '''
